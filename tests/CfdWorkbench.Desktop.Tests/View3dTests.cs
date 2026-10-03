@@ -589,8 +589,8 @@ public static class View3dTests
             var size = fixture.View.Bounds.Size;
             var (minimum, maximum) = View3d.FullBounds(fixture.Controller.Surface!);
             var cameras = new List<ViewCamera?>();
-            void Record() => cameras.Add(fixture.Controller.Camera3d);
-            fixture.Controller.Changed += Record;
+            void Record(SingleView view) => cameras.Add(fixture.Controller.Camera3d);
+            fixture.Controller.CameraChanged += Record;
             var target = ViewCamera.Named(NamedCamera.Side, minimum, maximum, size);
             try
             {
@@ -598,7 +598,7 @@ public static class View3dTests
                 Equal(target, fixture.Controller.Camera3d, "the preset camera, before any frame");
                 for (int frame = 0; frame < 20; frame++) fixture.Settle();
             }
-            finally { fixture.Controller.Changed -= Record; }
+            finally { fixture.Controller.CameraChanged -= Record; }
             var distinct = cameras.Distinct().ToArray();
             if (distinct.Length != 1 || distinct[0] != target)
                 throw new Exception($"The camera passed through {distinct.Length} values: {string.Join(" | ", distinct.Select(item => item?.Title))}");
@@ -663,7 +663,93 @@ public static class View3dTests
                 $"READINESS Readiness_OrbitFrameP95Under33Ms value_ms={p95:F3} target_ms=33 samples={warm.Length} median_ms={warm[warm.Length / 2]:F3} size={size.Width}x{size.Height}"));
             if (p95 > 33) throw new Exception(FormattableString.Invariant($"orbit frame p95 {p95:F1} ms is over 33 ms"));
         });
+        // Wall-clock (TEST-RING): one wheel step and one arrow pan on the 3D view and on the Side elevation, Four views at
+        // 1440 × 900. The gated step is the input event and layout: the UI thread's own work for a camera step (before the
+        // split, the shell's synchronous RefreshPanes). The window's composition pass and the view's draw are measured beside
+        // it, not gated (the 3D draw alone is ~17 ms). A pure camera change rebuilds no pane (ShellHost.PaneRefreshes stays put).
+        DesktopChecks.Check("Readiness_CameraStep_NoPaneRefresh_Under8Ms", () =>
+        {
+            using var fixture = new Fixture(width: 1440, height: 900);
+            fixture.Controller.Layout = ViewLayout.Four;
+            fixture.Settle();
+            var side = fixture.Area.FindControl<ElevationView>("SideElevation") ?? throw new Exception("No Side elevation");
+            if (fixture.Controller.CameraFor(SingleView.Side) is null) throw new Exception("The Side elevation has no camera");
+            var failures = new List<string>();
+            Measure("3d_wheel", fixture.View, fixture.Area.ThreeDRenderer, step => Wheel(fixture, fixture.View, step));
+            Measure("3d_arrow_pan", fixture.View, fixture.Area.ThreeDRenderer,
+                step => PressKey(fixture.View, step % 2 == 0 ? Avalonia.Input.Key.Left : Avalonia.Input.Key.Right, KeyModifiers.Shift));
+            Measure("side_wheel", side, fixture.Area.SideRenderer, step => Wheel(fixture, side, step));
+            Measure("side_arrow_pan", side, fixture.Area.SideRenderer,
+                step => PressKey(side, step % 2 == 0 ? Avalonia.Input.Key.Left : Avalonia.Input.Key.Right, KeyModifiers.Alt));
+            if (failures.Count > 0) throw new Exception(string.Join("; ", failures));
+
+            void Measure(string name, Control target, SurfaceRenderer renderer, Action<int> step)
+            {
+                target.Focus();
+                fixture.Settle();
+                var size = new PixelSize((int)renderer.Bounds.Width, (int)renderer.Bounds.Height);
+                var steps = new List<double>();
+                var draws = new List<double>();
+                var raises = new List<double>();
+                var jobs = new List<double>();
+                long refreshesBefore = fixture.Host.PaneRefreshes;
+                int changedEvents = 0;
+                void OnChanged() => changedEvents++;
+                fixture.Controller.Changed += OnChanged;
+                try
+                {
+                    for (int index = 0; index < 32; index++)
+                    {
+                        using var bitmap = new RenderTargetBitmap(size);
+                        var before = fixture.Controller.Camera3d;
+                        var sideBefore = fixture.Controller.CameraFor(SingleView.Side);
+                        Dispatcher.UIThread.RunJobs();   // the window's own pass for the previous step, outside the timing
+                        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+                        step(index);
+                        long raised = System.Diagnostics.Stopwatch.GetTimestamp();
+                        fixture.Window.UpdateLayout();
+                        steps.Add(System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+                        raises.Add(System.Diagnostics.Stopwatch.GetElapsedTime(started, raised).TotalMilliseconds);
+                        long laidOut = System.Diagnostics.Stopwatch.GetTimestamp();
+                        Dispatcher.UIThread.RunJobs();
+                        jobs.Add(System.Diagnostics.Stopwatch.GetElapsedTime(laidOut).TotalMilliseconds);
+                        if (fixture.Controller.Camera3d == before && fixture.Controller.CameraFor(SingleView.Side) == sideBefore)
+                            throw new Exception(name + " step " + index + " did not move a camera");
+                        long drawn = System.Diagnostics.Stopwatch.GetTimestamp();
+                        bitmap.Render(renderer);
+                        draws.Add(System.Diagnostics.Stopwatch.GetElapsedTime(drawn).TotalMilliseconds);
+                    }
+                }
+                finally { fixture.Controller.Changed -= OnChanged; }
+                long refreshes = fixture.Host.PaneRefreshes - refreshesBefore;
+                var warm = steps.Skip(8).Order().ToArray();
+                double p95 = P95(steps);
+                Console.WriteLine(FormattableString.Invariant(
+                    $"READINESS Readiness_CameraStep_NoPaneRefresh_Under8Ms step={name} value_ms={p95:F3} target_ms=8 median_ms={warm[warm.Length / 2]:F3} event_p95_ms={P95(raises):F3} window_pass_p95_ms={P95(jobs):F3} draw_p95_ms={P95(draws):F3} samples={warm.Length} pane_refreshes={refreshes} changed_events={changedEvents} size={size.Width}x{size.Height}"));
+                if (refreshes != 0) failures.Add(FormattableString.Invariant($"{name}: {refreshes} pane refreshes for {steps.Count} camera steps"));
+                if (p95 > 8) failures.Add(FormattableString.Invariant($"{name}: step p95 {p95:F1} ms is over 8 ms"));
+            }
+        });
     }
+
+    // The p95 of the warm samples (the first 8 steps warm the JIT and caches).
+    private static double P95(IEnumerable<double> samples)
+    {
+        var warm = samples.Skip(8).Order().ToArray();
+        return warm[(int)Math.Ceiling(0.95 * warm.Length) - 1];
+    }
+
+    // A wheel notch in, then out, at the target's centre (no settle: the readiness step times the dispatcher itself).
+    private static void Wheel(Fixture fixture, Control target, int step)
+    {
+        using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+        var at = target.TranslatePoint(new Point(target.Bounds.Width / 2, target.Bounds.Height / 2), fixture.Window) ?? throw new Exception("No window point");
+        target.RaiseEvent(new PointerWheelEventArgs(target, pointer, fixture.Window, at, 1,
+            new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.Other), KeyModifiers.None, new Vector(0, step % 2 == 0 ? 1 : -1)));
+    }
+
+    private static void PressKey(Control target, Key key, KeyModifiers modifiers) =>
+        target.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = target, Key = key, KeyModifiers = modifiers });
 
     /// <summary>
     /// The operator's captures at the mockup's 1280 × 800 (docs/mockups/m12b2-views.html screens 1 and 3a), at the

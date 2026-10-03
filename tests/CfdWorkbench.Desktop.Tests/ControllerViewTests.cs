@@ -29,6 +29,32 @@ public static class ControllerViewTests
 
     private static void ControllerChecks()
     {
+        DesktopChecks.Check("Controller_CameraOnlyChange_RaisesCameraChangedNotChanged", () =>
+        {
+            using var controller = new WorkbenchController();
+            Open(controller);
+            int changed = 0;
+            var moved = new List<SingleView>();
+            controller.Changed += () => changed++;
+            controller.CameraChanged += moved.Add;
+            var camera = ViewCamera.Named(NamedCamera.Iso, new Point3(0, -1, -.1), new Point3(.3, 1, .1), new Size(400, 300));
+            controller.Camera3d = camera;
+            controller.SetCameraFor(SingleView.Side, camera.Pan(10, 0, new Size(400, 300)));
+            controller.SetCameraFor(SingleView.Front, camera);
+            controller.PlanCamera = new PlanCamera(PixelsPerMeter: 1500);
+            Equal(0, changed, "a camera-only change rebuilds no pane (Changed drives ShellHost.RefreshPanes)");
+            Equal("ThreeD,Side,Front,Plan", string.Join(",", moved), "each camera write names the view whose camera moved");
+            controller.Camera3d = camera;
+            controller.PlanCamera = new PlanCamera(PixelsPerMeter: 1500);
+            Equal(4, moved.Count, "an unchanged camera raises nothing");
+            // UI-LIFETIME: a disposed controller notifies no view, on either event.
+            controller.Dispose();
+            controller.Camera3d = camera.Pan(5, 0, new Size(400, 300));
+            controller.SetCameraFor(SingleView.Front, camera.Pan(5, 0, new Size(400, 300)));
+            controller.PlanCamera = new PlanCamera(PixelsPerMeter: 2000);
+            Equal(4, moved.Count, "a disposed controller raises no CameraChanged");
+            Equal(0, changed, "a disposed controller raises no Changed");
+        });
         DesktopChecks.Check("Controller_SurfaceAsync_StaleTicketDropped", () =>
         {
             ShellEvents.Clear();

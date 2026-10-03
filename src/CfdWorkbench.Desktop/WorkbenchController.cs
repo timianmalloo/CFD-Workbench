@@ -183,7 +183,16 @@ public sealed class WorkbenchController : IDisposable
             Task.Run(() => Placement.Surface(source, basis, generation, cancellation), cancellation));
         this.time = time ?? TimeProvider.System;
     }
+    /// <summary>Document, selection, status, estimate and layout changes; the shell rebuilds its panes on each (≈ 25 ms).</summary>
     public event Action? Changed;
+
+    /// <summary>
+    /// One view's camera alone moved (<see cref="PlanCamera"/>, <see cref="Camera3d"/>, an elevation camera); the argument
+    /// names that view. The model-area views subscribe, each acting on its own camera only, so a wheel step, key step or
+    /// pinch redraws that view alone and never rebuilds the shell's panes.
+    /// </summary>
+    public event Action<SingleView>? CameraChanged;
+
     public Selection Selection { get; private set; } = new Selection.None();
     public event Action? SelectionChanged;
     public WingEstimates? Estimates { get; private set; }
@@ -207,7 +216,16 @@ public sealed class WorkbenchController : IDisposable
     /// </summary>
     public (double SpanMeters, double Ordinate)? GestureCrossing { get; private set; }
 
-    public PlanCamera PlanCamera { get; set; } = new();
+    public PlanCamera PlanCamera
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            NotifyCamera(SingleView.Plan);
+        }
+    } = new();
     public bool CombVisible { get; set; }
     public int LastGestureFrames { get; private set; }
 
@@ -285,7 +303,7 @@ public sealed class WorkbenchController : IDisposable
         {
             if (camera3d == value) return;
             camera3d = value;
-            Notify();
+            NotifyCamera(SingleView.ThreeD);
         }
     }
 
@@ -299,7 +317,7 @@ public sealed class WorkbenchController : IDisposable
             throw new ArgumentOutOfRangeException(nameof(elevation), elevation, "Only Front and Side keep an elevation camera.");
         if (elevationCameras.TryGetValue(elevation, out var current) && current == camera) return;
         elevationCameras[elevation] = camera;
-        Notify();
+        NotifyCamera(elevation);
     }
 
     public DisplayMode DisplayFor(SingleView view) => displayModes.GetValueOrDefault(view, DisplayMode.Shaded);
@@ -1889,6 +1907,13 @@ public sealed class WorkbenchController : IDisposable
         {
             isNotifying = false;
         }
+    }
+
+    private void NotifyCamera(SingleView view)
+    {
+        // UI-LIFETIME, as Notify: a disposed controller notifies no view.
+        if (disposed) return;
+        CameraChanged?.Invoke(view);
     }
 
     public void Dispose()

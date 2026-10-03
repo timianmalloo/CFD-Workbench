@@ -102,13 +102,13 @@ public sealed class ElevationView : Control
         AttachedToVisualTree += (_, _) =>
         {
             attached = true;
-            if (controller is not null) controller.Changed += Update;
+            if (controller is not null) Subscribe(controller);
             Update();
         };
         DetachedFromVisualTree += (_, _) =>
         {
             attached = false;
-            if (controller is not null) controller.Changed -= Update;
+            if (controller is not null) Unsubscribe(controller);
         };
         SizeChanged += (_, _) => Update();
         PropertyChanged += (_, args) =>
@@ -134,7 +134,7 @@ public sealed class ElevationView : Control
     public IBrush? ShadeGrazingBrush { get => GetValue(ShadeGrazingBrushProperty); set => SetValue(ShadeGrazingBrushProperty, value); }
     public IBrush? ShadeLitBrush { get => GetValue(ShadeLitBrushProperty); set => SetValue(ShadeLitBrushProperty, value); }
 
-    /// <summary>The band: the mesh drawn through this view's camera. The model area sets its surface, camera and display.</summary>
+    /// <summary>The band: the mesh drawn through this view's camera. The model area sets its surface, camera and display; this view sets its camera on each camera-only change.</summary>
     [Content]
     public SurfaceRenderer? Band
     {
@@ -165,11 +165,37 @@ public sealed class ElevationView : Control
         set
         {
             if (ReferenceEquals(controller, value)) return;
-            if (attached && controller is not null) controller.Changed -= Update;
+            if (attached && controller is not null) Unsubscribe(controller);
             controller = value;
-            if (attached && controller is not null) controller.Changed += Update;
+            if (attached && controller is not null) Subscribe(controller);
             Update();
         }
+    }
+
+    // A camera write redraws only this view: the band takes the new camera here, never through the shell's pane refresh.
+    private void Subscribe(WorkbenchController source)
+    {
+        source.Changed += Update;
+        source.CameraChanged += OnCameraChanged;
+    }
+
+    private void Unsubscribe(WorkbenchController source)
+    {
+        source.Changed -= Update;
+        source.CameraChanged -= OnCameraChanged;
+    }
+
+    private void OnCameraChanged(SingleView view)
+    {
+        if (view != View) return;
+        if (!Dispatcher.UIThread.CheckAccess())
+        {
+            Dispatcher.UIThread.Post(() => OnCameraChanged(view));
+            return;
+        }
+        if (band is not null && Camera is { } camera) band.Camera = camera;
+        // The targets are model points (camera-independent), so a camera step redraws without the channel work.
+        Redraw();
     }
 
     // ---------------------------------------------------------------- read-outs (tests and peers read these)
