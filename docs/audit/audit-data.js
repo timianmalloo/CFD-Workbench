@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T14:25:53Z",
+  "generated": "2026-10-03T15:24:17Z",
   "audit": [
     {
       "actor": null,
@@ -22302,6 +22302,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T14:25:06Z",
       "duration_seconds": 47.0
+    },
+    {
+      "id": "al-01M415VD4HFQKS8YGJ1M31HC52",
+      "shortname": "join-proof-work",
+      "datetime": "2026-10-03T15:24:17Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/proof-budget-work-count into feature/ui-cad-direction",
+      "summary": "Track D (Opus 5.5): ProofBudget is a deterministic bit-work limit (1e9; 4.4x the worst accepted proof) instead of 1 s wall clock; CPU-starved outcome identical; Geometry has no type initializer (TwistDomainDegrees pinned const; order-independent work; control ProofBudget_ProofPathTypes_HaveNoTypeInitializer); width-dependent cost bound stated and measured (widest operand in readiness); one golden refusal-reason change with receipt. Computational Geometry cleared (merge after D1 - done). Follow-ups: drop TimeSpan overloads, Desktop slots 6->8, ProfileAt ProofRefusal mapping; display samples to binary64 (needs ADR-0010 amendment + ruling). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T15:23:28Z",
+      "duration_seconds": 49.0
     }
   ],
   "changes": [
