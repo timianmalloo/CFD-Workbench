@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T17:20:05Z",
+  "generated": "2026-10-03T19:11:11Z",
   "audit": [
     {
       "actor": null,
@@ -22647,6 +22647,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T17:19:21Z",
       "duration_seconds": 44.0
+    },
+    {
+      "id": "al-01M41JTVNYRN2TFED020C8EWX1",
+      "shortname": "join-area3-rev3",
+      "datetime": "2026-10-03T19:11:11Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/area3-rev3 into feature/ui-cad-direction",
+      "summary": "Rev 3 (Opus 5.5, repair cycle 2 of 2): strip-level envelope verdict, Re_local vs polar range, Not-modelled list; verdict beside CL; clause-level tests with ring and cost; F-8/F-6 mutants measured to fail; C-1..C-6 timing checks designed; F-2 band numbered; F-13 split. Both lenses PASS-WITH-CONDITIONS (vetoes cleared at design time); build conditions BC-1..4; Coordinator fixed the false <= on exceeded parts. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T19:10:28Z",
+      "duration_seconds": 43.0
     }
   ],
   "changes": [
