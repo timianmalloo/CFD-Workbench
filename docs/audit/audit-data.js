@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T20:18:46Z",
+  "generated": "2026-10-03T22:35:37Z",
   "audit": [
     {
       "actor": null,
@@ -22794,6 +22794,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T20:18:04Z",
       "duration_seconds": 42.0
+    },
+    {
+      "id": "al-01M41YH6AS2P89K7WK80HXPHDV",
+      "shortname": "join-m12c-ctl",
+      "datetime": "2026-10-03T22:35:37Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12c-ctl into feature/ui-cad-direction",
+      "summary": "CTL (Codex gpt-6-sol; 2 correct ownership stops - S-3 callers in 7 Core test files, a retired-name scanner on SectionMode - and 1 stdin stall): section draft mode in WorkbenchController; SDR findings closed; S-3: M1.1 writers deleted, SectionFlow/SectionTools retired with a per-test ledger. CTL 17/17; planted display-policy mutant red. Join: SectionChanged allow-listed until EDT/PNL subscribe. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T22:34:53Z",
+      "duration_seconds": 44.0
     }
   ],
   "changes": [
