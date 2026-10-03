@@ -7805,6 +7805,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "99274226e8833a52ba2f38a59a360d5957354bee74413f55fd770a458ca9a2d2"
     },
     {
+      "id": "proof-m12c-certificate-spike",
+      "path": "docs/proof/m12c-certificate-spike/verdict.md",
+      "title": "GSPK — per-surface certificate spike verdict (M1.2c)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-gspk",
+      "phase": "implementation",
+      "reviewBy": "2026-10-31",
+      "reviewSuggested": [],
+      "summary": "NO-GO, measured at stage 1. The x-overlay certificate admits per-surface bases on one profile (F1 at 2 m: 17.6 M bit-work, 0.06 s, 7 atoms). It cannot enclose the blend maximum max T0 between profiles whose abscissae differ (F4 at 2 m) within the 1e9 bit-work, 4,096-atom and 1 s budgets. Per OD-4 a, SPT builds the paired list (SPTF), and DR-11 goes back to the operator with these numbers.",
+      "tags": [
+        "m1.2c",
+        "certificate",
+        "b6",
+        "per-surface",
+        "gspk",
+        "spike"
+      ],
+      "links": [
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-m12c-rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b8f3d99ea805c57a7af6b8a07a64cc12c617cd17c1a881bcb61254e0379fe371"
+    },
+    {
       "id": "proof-m12c-old-build",
       "path": "docs/proof/m12c-old-build/README.md",
       "title": "M1.2c old-build characterization of section files",
@@ -9603,5 +9643,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "3bc8d4b4c9a3baebdbf5e6ccc8ce6f6e1d354720c5bbe237c5d7513f17541e8b"
+  "graphSha256": "3dd60dbc284ac3ae620208d8d49a7c723a35ab891e15ac64325e8f5ed9e5d9b0"
 };
