@@ -56,6 +56,7 @@ public partial class ModelArea : UserControl
                 controller?.RefreshSurface();
             };
         }
+        (oneViewPicker, backItem, backSeparator) = WireOneViewPicker();
         foreach (var (label, view) in Labels())
         {
             label.Click += (_, _) => { if (controller is not null) controller.TargetView = view; };
@@ -66,7 +67,16 @@ public partial class ModelArea : UserControl
             };
             label.AddHandler(KeyDownEvent, (_, args) =>
             {
-                if (args.Key != Key.Return || controller is null) return;
+                if (controller is null) return;
+                // DR-VIEW-10: in One view the plate is the picker; Return and ↓ open it (Space is the Button's own click).
+                if (label.Flyout is { } picker)
+                {
+                    if (args.Key is not (Key.Return or Key.Down)) return;
+                    picker.ShowAt(label);
+                    args.Handled = true;
+                    return;
+                }
+                if (args.Key != Key.Return) return;
                 controller.ToggleOneView(view);
                 args.Handled = true;
             }, RoutingStrategies.Tunnel);
@@ -76,12 +86,15 @@ public partial class ModelArea : UserControl
         ViewArrangementGrid.SizeChanged += (_, _) => Refresh();
         // The caption plate sits right of the axis triad (the approved mockup); View3d owns both positions.
         ThreeDCaptionStack.Margin = View3d.CaptionMargin;
+        // The navbar's place follows the model area and its own width (its menus name the layout and display).
+        PlanContent.SizeChanged += (_, _) => FitCaption();
+        Navbar.SizeChanged += (_, _) => FitCaption();
         ThreeDView.Renderer = ThreeDRenderer;
         // A drag frame redraws only the 3D view (its live camera); the controller takes the camera at release.
         ThreeDView.LiveCameraChanged += () =>
         {
             ThreeDRenderer.Camera = ThreeDView.CurrentCamera;
-            if (controller is not null) ThreeDLabel.Content = ThreeDTitle(controller);
+            if (controller is not null) ThreeDLabel.Content = PlateText(ThreeDTitle(controller));
         };
         foreach (var renderer in new[] { ThreeDRenderer, SideRenderer, FrontRenderer })
             renderer.SizeChanged += (_, _) => Refresh();
@@ -131,6 +144,63 @@ public partial class ModelArea : UserControl
     [
         (PlanLabel, SingleView.Plan), (ThreeDLabel, SingleView.ThreeD), (SideLabel, SingleView.Side), (FrontLabel, SingleView.Front)
     ];
+
+    // ---------------- the One-view picker (DR-VIEW-10, NS-7) ----------------
+    // In One view the shown view's plate opens Plan / 3D / Side / Front. A choice writes the same controller state the
+    // View menu and the label double-click write (Layout, TargetView); there is no second layout implementation.
+
+    // DR-VIEW-11: the first item, set apart by a separator, goes back to the layout chosen before One view.
+    private readonly MenuFlyout oneViewPicker;
+    private readonly MenuItem backItem;
+    private readonly Separator backSeparator;
+    private bool oneView;
+
+    private static readonly (SingleView View, string Title)[] PickerRows =
+        [(SingleView.Plan, "Plan"), (SingleView.ThreeD, "3D"), (SingleView.Side, "Side"), (SingleView.Front, "Front")];
+
+    private (MenuFlyout Picker, MenuItem Back, Separator Separator) WireOneViewPicker()
+    {
+        var picker = new MenuFlyout { Placement = PlacementMode.BottomEdgeAlignedLeft, FlyoutPresenterClasses = { "navbar-menu" } };
+        var back = new MenuItem { Header = "↩ Back" };
+        back.Click += (_, _) => GoBack();
+        var separator = new Separator();
+        picker.Items.Add(back);
+        picker.Items.Add(separator);
+        foreach (var (view, title) in PickerRows)
+        {
+            var item = new MenuItem { Header = title, Tag = view, ToggleType = MenuItemToggleType.Radio, GroupName = "one-view" };
+            item.Click += (_, _) => ShowAlone(view);
+            picker.Items.Add(item);
+        }
+        return (picker, back, separator);
+    }
+
+    // The plate double-click's toggle: from One view of the shown view back to the arrangement before it.
+    private void GoBack()
+    {
+        oneViewPicker.Hide();
+        if (controller is not { Layout.Arrangement: ViewArrangement.One } current) return;
+        current.ToggleOneView(current.Layout.Single);
+        Labels().Single(item => item.View == ViewCommands.Target(current, null)).Label.Focus();
+    }
+
+    // A layout's name is its View ▸ Views row title, so the picker and the menus say the same thing.
+    private static string LayoutTitle(ViewArrangement arrangement) =>
+        CommandTable.Rows.Single(row => row.Id == (arrangement == ViewArrangement.Four ? "view.layout-four" : "view.layout-plan3d")).Title;
+
+    private void ShowAlone(SingleView view)
+    {
+        oneViewPicker.Hide();
+        if (controller is null) return;
+        // The target view is the one a Four-views fallback shows; a chosen One view takes the view as well.
+        controller.TargetView = view;
+        if (controller.Layout.Arrangement == ViewArrangement.One) controller.Layout = ViewLayout.One(view);
+        // Focus follows to the shown plate, so the keyboard can open the picker again (the old plate is hidden).
+        Labels().Single(item => item.View == view).Label.Focus();
+    }
+
+    /// <summary>A plate's text: in One view it leads with ▾, where trimming never reaches it.</summary>
+    private string PlateText(string title) => oneView ? "▾ " + title : title;
 
     private void Bind()
     {
@@ -191,37 +261,68 @@ public partial class ModelArea : UserControl
             renderer.Camera = CameraFor(view, renderer.Bounds.Size, surface);
         }
         ThreeDRenderer.Camera = ThreeDView.CurrentCamera ?? ThreeDRenderer.Camera;
-        ThreeDLabel.Content = ThreeDTitle(controller);
         ThreeDView.Refresh();
-        SideLabel.Content = "Side · from starboard" + suffix;
-        FrontLabel.Content = "Front · looking aft" + suffix;
-        PlanLabel.Content = "Plan" + (certified ? "" : " · not checked");
+        oneView = layout.Arrangement == ViewArrangement.One;
+        if (!oneView) oneViewPicker.Hide();
+        foreach (var item in oneViewPicker.Items.OfType<MenuItem>().Where(item => item.Tag is SingleView))
+            item.IsChecked = oneView && (SingleView)item.Tag! == layout.Single;
+        // A Four-views fallback (no room for four) is not a chosen One view, so it has no layout to go back to.
+        backItem.IsVisible = backSeparator.IsVisible = controller.Layout.Arrangement == ViewArrangement.One;
+        backItem.Header = "↩ Back to " + LayoutTitle(controller.ArrangementBeforeOne);
         // The plate of the view that Display ▾, zoom and fit act on carries the station underline (the mockup's aria-pressed).
         var target = ViewCommands.Target(controller, null);
         foreach (var (label, view) in Labels())
         {
+            string title = view switch
+            {
+                SingleView.ThreeD => ThreeDTitle(controller),
+                SingleView.Side => "Side · from starboard" + suffix,
+                SingleView.Front => "Front · looking aft" + suffix,
+                _ => "Plan" + (certified ? "" : " · not checked")
+            };
+            label.Content = PlateText(title);
+            label.Flyout = oneView ? oneViewPicker : null;
             label.Classes.Set("target", view == target);
-            Avalonia.Automation.AutomationProperties.SetName(label,
-                label.Content + " view label. Double-click or Return shows " +
-                (layout.Arrangement == ViewArrangement.One ? "every view again." : "this view alone."));
+            Avalonia.Automation.AutomationProperties.SetName(label, title + " view label. " +
+                (oneView ? "Return or Down Arrow chooses the view to show." : "Double-click or Return shows this view alone."));
         }
         FitLabels();
         RefreshNavbar(controller);
+        FitCaption();
     }
 
-    // V3D (§11.1): the 3D title and the cube share the top row. The title keeps the room left of the cube and trims; below
-    // View3d.MinimumCubeWidth the cube hides first and the title takes the row. Every other plate stays inside its view.
-    // simplify: the cube's 8 px inset and 68 px box are the mockup's (View3d keeps them private); read them from View3d
-    // if the cube's size ever changes.
-    private const double CubeRowReserve = 8 + 68;
+    // The 3D caption sits right of the axis triad at the view's bottom; the navbar floats over the views at the bottom
+    // centre. The caption stops short of the navbar or, with too little room beside it, rises above it.
+    private const double CaptionNavbarGap = 8, MinimumCaptionWidth = 160;
 
+    private void FitCaption()
+    {
+        var margin = View3d.CaptionMargin;
+        double maxWidth = double.PositiveInfinity;
+        if (ThreeDSlot.Bounds.Width > 0 && Navbar.IsVisible && Navbar.Bounds.Width > 0 && Navbar.TranslatePoint(default, ThreeDSlot) is { } bar)
+        {
+            double left = margin.Left, right = ThreeDSlot.Bounds.Width - margin.Right;
+            bool besideSlot = bar.Y >= ThreeDSlot.Bounds.Height || bar.Y + Navbar.Bounds.Height <= 0;
+            if (!besideSlot && bar.X < right && bar.X + Navbar.Bounds.Width > left)
+            {
+                if (bar.X - CaptionNavbarGap - left >= MinimumCaptionWidth) maxWidth = bar.X - CaptionNavbarGap - left;
+                else margin = new Thickness(margin.Left, margin.Top, margin.Right, ThreeDSlot.Bounds.Height - bar.Y + CaptionNavbarGap);
+            }
+        }
+        ThreeDCaptionStack.MaxWidth = maxWidth;
+        ThreeDCaptionStack.Margin = margin;
+    }
+
+    // V3D (§11.1): the 3D title and the cube row (Home and the cube, DR-VIEW-9) share the top of the view. The title keeps
+    // the room left of the cube row and trims; below View3d.MinimumCubeWidth the cube hides first and the title takes the
+    // row. Every other plate stays inside its view.
     private void FitLabels()
     {
         foreach (var (label, view) in Labels())
         {
             if (label.Parent is not Control slot || slot.Bounds.Width <= 0) continue;
             double inset = label.Margin.Left;
-            double right = view == SingleView.ThreeD && ThreeDView.CubeVisible ? CubeRowReserve + inset : inset;
+            double right = view == SingleView.ThreeD && ThreeDView.CubeVisible ? View3d.CubeRowReserve + inset : inset;
             label.MaxWidth = Math.Max(label.MinWidth, slot.Bounds.Width - inset - right);
         }
     }

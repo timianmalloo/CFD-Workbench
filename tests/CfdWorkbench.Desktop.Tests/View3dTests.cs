@@ -463,6 +463,83 @@ public static class View3dTests
             }
         });
 
+        DesktopChecks.Check("View3d_AxisView_HomeAndArrowsVisible_HomeReturnsToIso", () =>
+        {
+            // DR-VIEW-9 (NS-5): on an axis view the cube shows one face, so the way back is always on screen: a Home button
+            // beside the cube (a Tab stop after the faces) and the four rotate arrows drawn without hover or focus.
+            var fixture = Fixture.Shared();
+            var view = fixture.View;
+            var size = view.Bounds.Size;
+            var (minimum, maximum) = View3d.FullBounds(fixture.Controller.Surface!);
+            var iso = ViewCamera.Named(NamedCamera.Iso, minimum, maximum, size);
+            var home = view.Children.OfType<Button>().SingleOrDefault(button => AutomationProperties.GetName(button) == "Home (Iso)")
+                ?? throw new Exception("The 3D view has no Home (Iso) button");
+            Equal("Home (Iso)", ToolTip.GetTip(home) as string, "Home tooltip");
+            if (!home.IsEffectivelyVisible || home.Bounds.Width < 24 || home.Bounds.Height < 24)
+                throw new Exception($"Home is not a visible 24 px target at Iso: {home.Bounds}");
+            double cubeLeft = view.Faces.SelectMany(face => face.Corners).Min(point => point.X);
+            double cubeTop = view.Faces.SelectMany(face => face.Corners).Min(point => point.Y);
+            double cubeBottom = view.Faces.SelectMany(face => face.Corners).Max(point => point.Y);
+            if (home.Bounds.Right > cubeLeft || cubeLeft - home.Bounds.Right > 16 || home.Bounds.Center.Y < cubeTop || home.Bounds.Center.Y > cubeBottom)
+                throw new Exception($"Home {home.Bounds} is not beside the cube (left {cubeLeft:F1}, rows {cubeTop:F1}–{cubeBottom:F1})");
+            if (view.ChevronsShown) throw new Exception("The arrows show at Iso without hover or focus");
+
+            foreach (var axis in new[] { NamedCamera.Top, NamedCamera.Bottom, NamedCamera.Front, NamedCamera.Back, NamedCamera.Side, NamedCamera.Port })
+            {
+                view.ApplyPreset(axis);
+                view.Focus();
+                fixture.Settle();
+                if (!view.ChevronsShown) throw new Exception($"The arrows are hidden at {axis} without hover or focus");
+                if (!home.IsEffectivelyVisible) throw new Exception($"Home is hidden at {axis}");
+            }
+
+            // Rendered (UI-RENDERED-STATE): at Bottom each arrow and Home sit on a viewport-soft plate with an ink glyph.
+            view.ApplyPreset(NamedCamera.Bottom);
+            view.Focus();
+            fixture.Shoot();
+            var soft = fixture.Brush("PlanSoftBrush");
+            var ink = fixture.Brush("ViewportInkBrush");
+            foreach (var button in view.Chevrons.Append(home))
+            {
+                var box = button.Bounds;
+                var plate = fixture.RgbAtView(new Point(box.X + 3, box.Center.Y));
+                if (Distance(plate, soft) > 6) throw new Exception($"{AutomationProperties.GetName(button)}: no plate at Bottom ({plate})");
+                var glyph = fixture.NearestToView(box.Center, ink, 6);
+                if (Distance(glyph, ink) > 40) throw new Exception($"{AutomationProperties.GetName(button)}: no ink glyph at Bottom ({glyph})");
+            }
+
+            // A click on Home goes to Iso and is announced, as the cube's faces are. The click is the Button's own (a pointer
+            // release and AT Invoke both end in Button.OnClick): this harness commits no rendered frame, so the window cannot
+            // hit-test a synthetic pointer onto Home; docs/proof/m12b2-cube/bottom-with-home.png and the native run cover it.
+            if (ControlAutomationPeer.CreatePeerForElement(home) is not Avalonia.Automation.Provider.IInvokeProvider invoke)
+                throw new Exception("Home has no Invoke pattern");
+            invoke.Invoke();
+            fixture.Settle();
+            Equal(iso, fixture.Camera, "a click on Home");
+            Equal("3D view: Iso.", fixture.Host.StatusStrip.Text, "Home announced");
+            fixture.Reset(fixture.Camera);
+            if (view.ChevronsShown) throw new Exception("The arrows stay shown back at Iso");
+            fixture.Reset(fixture.Camera.Orbit(15, 0));
+            if (view.ChevronsShown) throw new Exception("The arrows show on a Free camera without hover or focus");
+
+            // Keyboard: Home is the Tab stop after the faces and before the arrows; Return activates it.
+            view.ApplyPreset(NamedCamera.Bottom);
+            fixture.Settle();
+            var bottom = view.FaceButton(NamedCamera.Bottom) ?? throw new Exception("No B face button at Bottom");
+            if (!ReferenceEquals(KeyboardNavigationHandler.GetNext(bottom, NavigationDirection.Next), home))
+                throw new Exception("Tab from the B face does not reach Home");
+            if (!ReferenceEquals(KeyboardNavigationHandler.GetNext(home, NavigationDirection.Next), view.Chevrons[0]))
+                throw new Exception("Tab from Home does not reach the first arrow");
+            if (!home.Focus(NavigationMethod.Tab)) throw new Exception("Home takes no keyboard focus");
+            fixture.KeyOn(home, Key.Enter, KeyModifiers.None);
+            Equal(iso, fixture.Camera, "Return on Home");
+
+            // Home hides with the cube; View ▸ Camera ▸ Iso stays the path (View3d_CubeHiddenBelow240_FocusToViewMenuReachesPresets).
+            view.Width = View3d.MinimumCubeWidth - 1;
+            fixture.Settle();
+            if (home.IsEffectivelyVisible) throw new Exception("Home stays while the cube is hidden");
+        });
+
         DesktopChecks.Check("View3d_CubeFocusRing_GapOnCurrentFaceThreeToOne", () =>
         {
             var fixture = Fixture.Shared();
@@ -619,14 +696,17 @@ public static class View3dTests
                 if (current is Visual visual && !ReferenceEquals(visual, view) && !view.IsVisualAncestorOf(visual)) break;
             }
             if (order.Count == 0 || !ReferenceEquals(order[0], view)) throw new Exception("Tab from the label does not reach the view: " + Describe(order.FirstOrDefault()));
-            var expected = view.Faces.Where(face => face.IsTarget).Select(face => (IInputElement)view.FaceButton(face.Camera)!).Concat(view.Chevrons).ToArray();
+            // DR-VIEW-9: Home is the stop after the faces.
+            var home = view.Children.OfType<Button>().Single(button => AutomationProperties.GetName(button) == View3d.HomeName);
+            var expected = view.Faces.Where(face => face.IsTarget).Select(face => (IInputElement)view.FaceButton(face.Camera)!)
+                .Append(home).Concat(view.Chevrons).ToArray();
             var inside = order.Skip(1).Take(expected.Length).ToArray();
             if (!inside.SequenceEqual(expected))
                 throw new Exception("Tab order inside the view: " + string.Join(" → ", inside.Select(Describe)));
             var after = order.Last();
             if (after is Visual leaving && (ReferenceEquals(leaving, view) || view.IsVisualAncestorOf(leaving)))
                 throw new Exception("Tab past the last chevron stays in the view");
-            Equal(expected.Length + 2, order.Count, "label → view → faces → chevrons → out");
+            Equal(expected.Length + 2, order.Count, "label → view → faces → Home → chevrons → out");
             var back = KeyboardNavigationHandler.GetNext(after, NavigationDirection.Previous);
             if (!ReferenceEquals(back, expected[^1])) throw new Exception("Shift+Tab does not come back to the last chevron: " + Describe(back));
         });
@@ -635,6 +715,7 @@ public static class View3dTests
     internal static void RunReadiness()
     {
         if (Environment.GetEnvironmentVariable("CFD_PROOF_DIR") is { Length: > 0 } proof) CaptureProof(proof);
+        if (Environment.GetEnvironmentVariable("CFD_PROOF_CUBE_DIR") is { Length: > 0 } cube) CaptureCubeProof(cube);
         // Wall-clock (TEST-RING): one ⌥-drag orbit frame at 1440 × 900 in Plan + 3D — the pointer move, the view's live
         // camera, the cube and title, layout, and the 3D view's draw (mesh to screen, painter's sort, one Skia draw).
         DesktopChecks.Check("Readiness_OrbitFrameP95Under33Ms", () =>
@@ -789,6 +870,62 @@ public static class View3dTests
             bitmap.Render(fixture.Window);
             bitmap.Save(file);
             Console.WriteLine($"PROOF {file} {bitmap.PixelSize.Width}x{bitmap.PixelSize.Height}");
+        }
+    }
+
+    /// <summary>
+    /// DR-VIEW-9 and DR-VIEW-10 for the operator, at the mockup's 1280 × 800: Plan + 3D on the Bottom camera (Home beside
+    /// the cube, the arrows shown), and One view 3D with the plate's picker open. The picker is a popup window, so it is
+    /// rendered on its own and drawn at its anchor, the plate's bottom-left (BottomEdgeAlignedLeft).
+    /// </summary>
+    private static void CaptureCubeProof(string directory)
+    {
+        Directory.CreateDirectory(directory);
+        using var fixture = new Fixture(width: 1280, height: 800);
+        double scale = fixture.Window.RenderScaling;
+        var view = fixture.View;
+        view.ApplyPreset(NamedCamera.Bottom);
+        view.Focus();
+        fixture.Settle();
+        Save(Path.Combine(directory, "bottom-with-home.png"), null, default);
+
+        fixture.Controller.Layout = ViewLayout.One(SingleView.ThreeD);
+        fixture.Settle();
+        var (minimum, maximum) = View3d.FullBounds(fixture.Controller.Surface!);
+        fixture.Reset(ViewCamera.Named(NamedCamera.Iso, minimum, maximum, view.Bounds.Size));
+        var label = fixture.Area.FindControl<Button>("ThreeDLabel") ?? throw new Exception("No 3D plate");
+        if (ControlAutomationPeer.CreatePeerForElement(label) is not Avalonia.Automation.Provider.IInvokeProvider invoke)
+            throw new Exception("The plate has no Invoke pattern");
+        invoke.Invoke();
+        fixture.Settle();
+        var item = (label.Flyout as MenuFlyout)?.Items.OfType<MenuItem>().FirstOrDefault() ?? throw new Exception("No picker");
+        var popup = TopLevel.GetTopLevel(item) ?? throw new Exception("The picker is not open");
+        popup.UpdateLayout();
+        Save(Path.Combine(directory, "one-view-picker-open.png"), ReferenceEquals(popup, fixture.Window) ? null : popup,
+            label.TranslatePoint(new Point(0, label.Bounds.Height), fixture.Window) ?? throw new Exception("No anchor"));
+        label.Flyout!.Hide();
+
+        void Save(string file, TopLevel? overlay, Point anchor)
+        {
+            fixture.Settle();
+            var pixels = new PixelSize((int)Math.Round(fixture.Window.Bounds.Width * scale), (int)Math.Round(fixture.Window.Bounds.Height * scale));
+            var dpi = new Vector(96 * scale, 96 * scale);
+            using var window = new RenderTargetBitmap(pixels, dpi);
+            window.Render(fixture.Window);
+            using var bitmap = new RenderTargetBitmap(pixels, dpi);
+            using (var context = bitmap.CreateDrawingContext())
+            {
+                context.DrawImage(window, new Rect(0, 0, pixels.Width, pixels.Height), new Rect(fixture.Window.Bounds.Size));
+                if (overlay is not null)
+                {
+                    using var menu = new RenderTargetBitmap(new PixelSize((int)Math.Ceiling(overlay.Bounds.Width * scale),
+                        (int)Math.Ceiling(overlay.Bounds.Height * scale)), dpi);
+                    menu.Render(overlay);
+                    context.DrawImage(menu, new Rect(0, 0, menu.PixelSize.Width, menu.PixelSize.Height), new Rect(anchor, overlay.Bounds.Size));
+                }
+            }
+            bitmap.Save(file);
+            Console.WriteLine($"PROOF {file} {bitmap.PixelSize.Width}x{bitmap.PixelSize.Height}" + (overlay is null ? "" : $" picker {overlay.Bounds.Size}"));
         }
     }
 

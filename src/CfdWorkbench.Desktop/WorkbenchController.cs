@@ -277,6 +277,9 @@ public sealed class WorkbenchController : IDisposable
         }
     }
 
+    /// <summary>The arrangement One view returns to; the One-view picker names it ("↩ Back to …", DR-VIEW-11).</summary>
+    public ViewArrangement ArrangementBeforeOne => arrangementBeforeOne;
+
     /// <summary>Double-click or Return on a view label: that view alone, and again back to the layout before it.</summary>
     public void ToggleOneView(SingleView view) =>
         Layout = layout.Arrangement == ViewArrangement.One && layout.Single == view

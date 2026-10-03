@@ -59,6 +59,14 @@ public sealed class View3d : Panel
     // The approved mockup (docs/mockups/m12b2-views.html, cube() and triad()): the cube's centre 42 px in from the top
     // and right with a 17 px half edge; the triad on a 62 × 56 plate 10 px in and 92 px up, its axes 20 px long.
     private const double CubeInset = 8, CubeBox = 68, CubeHalfEdge = 17;
+    // DR-VIEW-9: Home sits left of the cube box, centred on the cube, with the 4 px gap the arrows keep below the box.
+    private const double HomeGap = 4;
+
+    /// <summary>The width the cube row takes from the view's top-right (inset, Home, gap and cube box); the 3D title keeps clear of it.</summary>
+    public const double CubeRowReserve = CubeInset + CubeBox + HomeGap + ChevronSize;
+
+    /// <summary>DR-VIEW-9: the Home button's name and tooltip.</summary>
+    public const string HomeName = "Home (Iso)";
     private const double TriadLeft = 10, TriadRise = 92, TriadWidth = 62, TriadHeight = 56, TriadAxis = 20;
     private const double OverlayFontSize = 11;
 
@@ -85,6 +93,7 @@ public sealed class View3d : Panel
 
     private readonly Dictionary<NamedCamera, Button> faceButtons = new();
     private readonly Button[] chevronButtons;
+    private readonly Button homeButton;
     private readonly Dictionary<Button, Rect> placements = new();
     private IReadOnlyList<CubeFace> faces = [];
     private WorkbenchController? controller;
@@ -116,8 +125,12 @@ public sealed class View3d : Panel
             button.Click += (_, _) => Navigate(Camera?.Orbit(row.Azimuth, row.Elevation), announce: false);
             return button;
         }).ToArray();
-        // Faces first (in table order: only target faces are shown), then the chevrons: Tab order follows the children.
-        foreach (var button in faceButtons.Values.Concat(chevronButtons))
+        // DR-VIEW-9 (NS-5): Home is always shown beside the cube, so an axis view (one face) always has a way back to Iso.
+        homeButton = CubeButton(HomeName);
+        ToolTip.SetTip(homeButton, HomeName);
+        homeButton.Click += (_, _) => ApplyPreset(NamedCamera.Iso);
+        // Faces first (in table order: only target faces are shown), then Home, then the chevrons: Tab order follows the children.
+        foreach (var button in CubeButtons)
         {
             button.IsVisible = false;
             button.GotFocus += (_, _) => overlay.InvalidateVisual();
@@ -209,6 +222,19 @@ public sealed class View3d : Panel
     public IReadOnlyList<CubeFace> Faces => faces;
     public IReadOnlyList<Button> Chevrons => chevronButtons;
 
+    /// <summary>
+    /// The chevrons are drawn while the pointer is over the cube or a cube button has keyboard focus (the approved look
+    /// at rest is the bare cube), and always on a straight axis view, where the cube shows one face (DR-VIEW-9); hidden
+    /// or shown, they stay Buttons in Tab order.
+    /// </summary>
+    public bool ChevronsShown => CubeVisible &&
+        (pointerOverCube || OnAxisView || CubeButtons.Any(button => button.IsFocused));
+
+    private bool OnAxisView => Camera?.Name is { } named && named != NamedCamera.Iso;
+
+    // Visual and Tab order: the faces, Home, the chevrons.
+    private IEnumerable<Button> CubeButtons => faceButtons.Values.Append(homeButton).Concat(chevronButtons);
+
     /// <summary>The face's Button while the face is a target; null while it has no area, is under 24 px or the cube hides.</summary>
     public Button? FaceButton(NamedCamera face) =>
         faceButtons.TryGetValue(face, out var button) && button.IsVisible ? button : null;
@@ -271,7 +297,7 @@ public sealed class View3d : Panel
 
     private void UpdateCube()
     {
-        var focusedBefore = (faceButtons.Values.Concat(chevronButtons)).FirstOrDefault(button => button.IsFocused);
+        var focusedBefore = CubeButtons.FirstOrDefault(button => button.IsFocused);
         placements.Clear();
         faces = CubeVisible && Camera is { } camera ? ProjectFaces(camera) : [];
         foreach (var (name, button) in faceButtons)
@@ -281,6 +307,9 @@ public sealed class View3d : Panel
             if (face is { IsTarget: true })
                 placements[button] = new Rect(face.Centre.X - FaceTargetDiameter / 2, face.Centre.Y - FaceTargetDiameter / 2, FaceTargetDiameter, FaceTargetDiameter);
         }
+        homeButton.IsVisible = CubeVisible;
+        // Whole pixels, centred on the cube: below the 3D title's row, so the title never covers it.
+        placements[homeButton] = new Rect(Math.Floor(Bounds.Width - CubeRowReserve), Math.Ceiling(CubeCentre.Y - ChevronSize / 2), ChevronSize, ChevronSize);
         double right = Bounds.Width - CubeInset, top = CubeInset + CubeBox + 4;
         for (int index = 0; index < chevronButtons.Length; index++)
         {
@@ -440,10 +469,7 @@ public sealed class View3d : Panel
             var letter = Text(face.Letter, current ? ViewportBrush : InkBrush, FontWeight.SemiBold);
             context.DrawText(letter, face.Centre - new Vector(letter.Width / 2, letter.Height / 2));
         }
-        // The chevrons show while the pointer is over the cube or a cube button has keyboard focus (the approved look
-        // at rest is the bare cube); hidden or shown, they stay Buttons in Tab order.
-        bool reveal = pointerOverCube || faceButtons.Values.Concat(chevronButtons).Any(button => button.IsFocused);
-        if (reveal)
+        if (ChevronsShown)
             for (int index = 0; index < chevronButtons.Length; index++)
             {
                 var rect = placements[chevronButtons[index]];
@@ -451,14 +477,28 @@ public sealed class View3d : Panel
                 var glyph = Text(ChevronTable[index].Glyph, InkBrush, FontWeight.Normal);
                 context.DrawText(glyph, rect.Center - new Vector(glyph.Width / 2, glyph.Height / 2));
             }
-        foreach (var button in faceButtons.Values.Concat(chevronButtons))
+        DrawHome(context);
+        foreach (var button in CubeButtons)
         {
             if (!button.IsVisible || !button.IsFocused || !placements.TryGetValue(button, out var rect)) continue;
             // DESIGN.md View cube: 3 px focus-ring-viewport with a 1 px viewport gap (it is station-coloured on a station face).
-            double radius = chevronButtons.Contains(button) ? ChevronSize / 2 + 1 : FocusRingRadius;
+            double radius = ReferenceEquals(button, homeButton) || chevronButtons.Contains(button) ? ChevronSize / 2 + 1 : FocusRingRadius;
             context.DrawEllipse(null, new Pen(ViewportBrush ?? Brushes.Black, 5), rect.Center, radius, radius);
             context.DrawEllipse(null, new Pen(FocusBrush ?? Brushes.White, 3), rect.Center, radius, radius);
         }
+    }
+
+    /// <summary>Home on the arrows' plate; its ⌂ is a drawn outline, so it never depends on a font that carries U+2302.</summary>
+    private void DrawHome(DrawingContext context)
+    {
+        var rect = placements[homeButton];
+        context.FillRectangle(SoftBrush ?? Brushes.Black, rect, 3);
+        var c = rect.Center;
+        Point[] house =
+        [
+            new(c.X - 5, c.Y + 5), new(c.X - 5, c.Y - 1), new(c.X, c.Y - 6), new(c.X + 5, c.Y - 1), new(c.X + 5, c.Y + 5), new(c.X - 5, c.Y + 5)
+        ];
+        context.DrawGeometry(null, new Pen(InkBrush ?? Brushes.White, 1.5), new PolylineGeometry(house, isFilled: false));
     }
 
     private static FormattedText Text(string text, IBrush? brush, FontWeight weight) =>
