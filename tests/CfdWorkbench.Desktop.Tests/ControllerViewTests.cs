@@ -159,6 +159,15 @@ public static class ControllerViewTests
             Equal(0, raised, "views notified by a disposed controller");
         });
 
+        // UI-LIFETIME (DOC-CLOSED sibling): an open whose read completes after Dispose adopts nothing — no event reaches a
+        // view, and no session or store is made for a disposed controller. The store may finish the read (a fake) or refuse
+        // it as closed (ProjectStore's DOC-CLOSED); either way Dispose superseded the open.
+        DesktopChecks.Check("Controller_OpenCompletesAfterDispose_SupersededNoEventsNoLeak", () =>
+        {
+            CheckLateOpen(closedStoreRefuses: false);
+            CheckLateOpen(closedStoreRefuses: true);
+        });
+
         DesktopChecks.Check("Controller_SurfaceComputeFails_KeepsLastMeshNoteErrorEvent", () =>
         {
             ShellEvents.Clear();
@@ -228,6 +237,10 @@ public static class ControllerViewTests
                 else Equal(railTrace, joined, curve + " transitions");
             }
         });
+
+        // D-7 (§0.1 step 5, §6.2): each press or key repeat in one run adds a step; release is one undo row, Esc none.
+        DesktopChecks.Check("Nudge_HeldKeyRun_AccumulatesStepsOneUndoRow", () => CheckNudgeRun("trailing"));
+        DesktopChecks.Check("Nudge_ChannelLaneRun_Accumulates", () => CheckNudgeRun("twist"));
 
         DesktopChecks.Check("Controller_GestureEnd_CurveFamilyAndThreeDVisible", () =>
         {
@@ -1049,7 +1062,107 @@ public static class ControllerViewTests
         return new Point3((a.X + b.X) / 2, (a.Y + b.Y) / 2, (a.Z + b.Z) / 2);
     }
 
+    /// <summary>Three presses on each ladder add three steps; a reversal takes one back; KeyUp is one row, Esc restores.</summary>
+    private static void CheckNudgeRun(string curve)
+    {
+        using var controller = new WorkbenchController();
+        Open(controller);
+        var reference = new PointRef(curve, "cv-3");
+        double Ordinate() => controller.CurveFor(curve)!.Points.Single(item => item.Id == "cv-3").Ordinate;
+        var unit = Channels.Unit(curve);
+        double origin = Ordinate();
+        foreach (var (modifier, step) in new[]
+            { (NudgeModifier.Command, unit.NudgeFine), (NudgeModifier.Plain, unit.NudgePlain), (NudgeModifier.Shift, unit.NudgeCoarse) })
+        {
+            Equal(true, controller.BeginGesture(reference, GestureInput.Keyboard), curve + " " + modifier + " begin");
+            for (int press = 1; press <= 3; press++)
+            {
+                controller.Nudge(0, 1, modifier);
+                Near(origin + press * step, Ordinate(), unit.Quantum / 2, $"{curve} {modifier} press {press}");
+            }
+            controller.Nudge(0, -1, modifier);
+            Near(origin + 2 * step, Ordinate(), unit.Quantum / 2, $"{curve} {modifier} reversal");
+            Await(controller.EndGestureAsync(GestureEnd.Escape));
+            Near(origin, Ordinate(), 0, $"{curve} {modifier} Esc restores the origin");
+            Equal(false, controller.CanUndo, $"{curve} {modifier} Esc left an undo row");
+
+            Equal(true, controller.BeginGesture(reference, GestureInput.Keyboard), curve + " " + modifier + " second run");
+            foreach (var _ in Enumerable.Range(0, 3)) controller.Nudge(0, 1, modifier);
+            var release = controller.EndGestureAsync(GestureEnd.KeyUp);
+            Await(release);
+            Equal("Committed", release.Result.GetType().Name, $"{curve} {modifier} KeyUp outcome");
+            Near(origin + 3 * step, Ordinate(), unit.Quantum / 2, $"{curve} {modifier} committed run");
+            controller.Undo();
+            Near(origin, Ordinate(), 0, $"{curve} {modifier} undo");
+            Equal(false, controller.CanUndo, $"{curve} {modifier} run was more than one undo row");
+        }
+    }
+
     private static void Open(WorkbenchController controller) => Await(controller.OpenExampleAsync());
+
+    private static void CheckLateOpen(bool closedStoreRefuses)
+    {
+        string label = closedStoreRefuses ? "closed store: " : "finished read: ";
+        var stores = new List<GatedReadStore>();
+        var controller = new WorkbenchController(_ =>
+        {
+            var made = new GatedReadStore(closedStoreRefuses);
+            stores.Add(made);
+            return made;
+        });
+        Open(controller);
+        Equal("OK", Run(controller.SaveAsync("late-open.cfdw.json")).Code, label + "save");
+        var reading = stores[^1];
+        int raised = 0;
+        controller.Changed += () => raised++;
+        controller.SelectionChanged += () => raised++;
+        var open = controller.OpenAsync("late-open.cfdw.json");
+        Pump(() => reading.Started.Task.IsCompleted, "the read to start");
+        controller.Dispose();
+        int made = stores.Count;
+        reading.Release();
+        Pump(() => open.IsCompleted, "the late open");
+        Equal("Superseded", open.Result.GetType().Name, label + "late open outcome");
+        Drain();
+        Equal(0, raised, label + "events raised by a disposed controller");
+        Equal(made, stores.Count, label + "stores made after Dispose");
+        Equal(true, stores.All(store => store.Disposed), label + "every store disposed");
+    }
+
+    private static T Run<T>(Task<T> task)
+    {
+        Await(task);
+        return task.Result;
+    }
+
+    /// <summary>
+    /// Keeps the saved image in memory and holds every read until <see cref="Release"/>; with
+    /// <paramref name="closedRefuses"/> a read released after Dispose fails DOC-CLOSED as <see cref="ProjectStore"/> does.
+    /// </summary>
+    private sealed class GatedReadStore(bool closedRefuses) : IProjectStore
+    {
+        private readonly TaskCompletionSource gate = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private byte[]? image;
+        public TaskCompletionSource Started { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public bool Disposed { get; private set; }
+        public void Release() => gate.SetResult();
+        public void Dispose() => Disposed = true;
+
+        public Task<SaveResult> SaveAsync(string path, SaveRequest request, CancellationToken cancellation = default)
+        {
+            image = request.Image;
+            return Task.FromResult(new SaveResult("OK", Identity.Sha256(image), true, true));
+        }
+
+        public async Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default)
+        {
+            Started.TrySetResult();
+            await gate.Task.WaitAsync(cancellation);
+            if (closedRefuses && Disposed) throw new ContractError("DOC-CLOSED");
+            byte[] bytes = image ?? throw new InvalidOperationException("nothing saved");
+            return new ReadResult(bytes, Identity.Sha256(bytes));
+        }
+    }
 
     private static string Outcomes() =>
         string.Join(",", ShellEvents.Read().Where(item => item.Name == "view.surface").Select(item => item.Outcome));
