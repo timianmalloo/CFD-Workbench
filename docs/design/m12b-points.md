@@ -31,6 +31,7 @@ summary: >-
   chord refit both rails under the ruled quarter-chord hold and root-flat blend with both numbers reported. Amends
   ADR-0001 to 6-16 channel vertices under 4.1.
 review-suggested:
+  - { by: design-m12c-section-editor, on: 2026-10-03, reason: "M1.2c resolves §0.2's 'Messages pane' row (OD-2: no history list; DR-STATUS-1) and scopes Precision to a preset without memory (D4 owns workspace memory)." }
   - { by: property-grid-rulings, on: 2026-10-02, reason: "DR-STATUS-1: reports render in a 24 px status strip at the bottom of the shell plus a transient warning toast; no scrollable message list sits in or docks to the bottom bar (V3 rejected). The M1.2c Messages pane (bottom panel, history of edit reports, role log) must not be a docked scrolling pane in the bottom bar; where history goes is open (docs/reviews/ui-status-bar.md D-4)." }
   - { by: adr-0001-master-curve-degree, on: 2026-09-30, reason: "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)." }
   - { by: design-language, on: 2026-09-30, reason: "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1." }

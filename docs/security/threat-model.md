@@ -13,6 +13,7 @@ links:
   - {to: design-app-shell, rel: documents}
   - {to: design-m12b-points, rel: documents}
   - {to: design-m12b2-3d-elevations, rel: documents}
+  - {to: design-m12c-section-editor, rel: documents}
 review-by: 2027-03-23
 summary: >-
   Rolls up the offline application's file, command, rendering and telemetry threat analysis.
@@ -82,8 +83,14 @@ overwrite capability or telemetry-minimization implementation is accepted throug
 | [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | Telemetry ring | I: point ids or positions leak | mitigate | curve family, counts, durations only | `Telemetry_ChannelEdits_CurveFamilyNoIdsOrPositions` |
 | [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | History | R: an edit without attribution | accept | single local user; receipts name curve and point (M1.2b) | — |
 | [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | — | S, E | not applicable | no authentication, privilege levels or network | — |
+| [design-m12c-section-editor](../design/m12c-section-editor.md) | FoilDSL file → parser → certifier | T: hand-edited profile `tangents` rows that do not hold, incl. a cusp | mitigate | the profile row branch (Euclidean, with ordering conditions) | `Assess_ProfileVerticalRowHandlesSameSide_InvalidDslLock` |
+| [design-m12c-section-editor](../design/m12c-section-editor.md) | FoilDSL file → certifier | D: a section crafted to exhaust the per-surface overlay | mitigate | atom budget, 32,768-bit ceiling, 1 s budget → Not assessed, never Certified | `SectionAssess_OverlayBudgetExhausted_NotAssessedNeverCertified` |
+| [design-m12c-section-editor](../design/m12c-section-editor.md) | Native envelope → reopen | T: a forged `"section"` receipt or recovery | mitigate | closed `rail` set; `EditReference` / `RecoveryReference` "section" arms | `Receipt_ForgedSectionRailUnknownProfile_DocReference` |
+| [design-m12c-section-editor](../design/m12c-section-editor.md) | Telemetry ring | I: profile names, point ids or positions leak | mitigate | step kind, counts, durations, codes only | `SectionTelemetry_Events_NoNamesIdsOrPositions` |
+| [design-m12c-section-editor](../design/m12c-section-editor.md) | History | R: an edit without attribution | accept | single local user; the receipt names the profile | — |
+| [design-m12c-section-editor](../design/m12c-section-editor.md) | — | S, E | not applicable | no authentication, privilege levels or network | — |
 
-<!-- rolled up from 5 artifact(s) by docs-graph.py rollup on 2026-09-30 -->
+<!-- rolled up from 6 artifact(s) by docs-graph.py rollup on 2026-10-03 -->
 
 
 ## Accepted-risk register
