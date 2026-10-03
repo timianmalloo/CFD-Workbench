@@ -20,7 +20,8 @@ summary: >-
   edit with a draft hidden and the Provenance tab, a failed evaluation, a result outside the method envelope, and a run that failed its integrity check. Every load number is computed in the page
   by a reference vortex lattice; every label, envelope, depth basis and omission is shown. For the operator's approval
   before any build.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-03, reason: "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar." }
 ---
 
 # Area 3 analysis — the Analysis surface

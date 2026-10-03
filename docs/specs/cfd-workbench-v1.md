@@ -1,6 +1,6 @@
 ---
 id: spec-cfd-workbench-v1
-title: CFD-Workbench — product specification v1.6 (CAD-first editing, Wing estimates and section catalog)
+title: CFD-Workbench — product specification v1.7 (CAD-first editing, Wing estimates, section catalog and the 1.7 amendments)
 type: spec
 status: in-review
 owner: "@timianmalloo"
@@ -34,7 +34,7 @@ links:
   - {to: review-ui-workbench-v8, rel: depends-on}
   - {to: design-section-editor, rel: relates-to}
   - {to: note-m1-scope-decision, rel: depends-on}
-review-by: 2027-03-26
+review-by: 2027-04-01
 summary: >-
   The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis ·
   Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated,
@@ -47,8 +47,12 @@ summary: >-
   Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible
   derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and
   Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G).
+  Revision 1.7 applies one batch of 49 spec-owner amendments approved in Ruling 66, each traced to a ruling (Rulings
+  53–66, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired
+  section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the
+  revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in
+  the right side bar; Add point and Remove point applying at once (Appendix H; the batch is amendments/spec-1.7.md).
 review-suggested:
-  - { by: design-m12c-section-editor, on: 2026-10-03, reason: "M1.2c OD-2/OD-3 (pending operator) may amend B1/UX-31: no Messages pane, and the Points pane's home in the right side bar; new copy COPY-172..183 proposed; tangent-kind angles are in the section's own chord coordinates." }
   - { by: mockup-workbench-v3, on: 2026-09-20, reason: "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a." }
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
   - { by: mockup-workbench-v5, on: 2026-09-21, reason: "Mockup v5 (control-vertex splines, four viewports, tool palette) supersedes v4; spec 1.3 GEO-03/05/13/15, CAD-01/04/07/08, A4.2, A4.12, UX-24, UI-25–27; oracle tools/check-mockup-v5.mjs." }
@@ -57,16 +61,13 @@ review-suggested:
   - { by: adr-application-project-contract, on: 2026-09-23, reason: "Owner Ruling 13 accepts the reviewed unshipped native-v1 contract for bounded serial core implementation; product proof gates remain open." }
   - { by: mockup-workbench-v7, on: 2026-09-23, reason: "R17-19 reviewed evaluator v2 and native-store companion changed this dependency; review current contract claims" }
   - { by: design-language, on: 2026-09-30, reason: "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1." }
-  - { by: design-m12b2-3d-elevations, on: 2026-09-30, reason: "M1.2b2 (ADR-0010) builds the 3D view and Front/Side elevations: F-10 proposes a t/c nudge ladder 0.01/0.1/1 %; F-11 reads CAD-04's body plan as overlaid sections and CAD-06's F as fit-selection; deviations D-2 (Front camera, starboard on the viewer's left), D-9 (quad order), D-10 (Side nose right), D-11 (probe overlay, not a strip)." }
-  - { by: mockup-property-grid, on: 2026-10-01, reason: "F-1 property grid: Properties becomes identity + collapsible groups + label | value | unit rows; Tangent is a labelled group shown on handles too (F-4); one identity per selection (O-6); units and UI-40 precision everywhere (O-4); estimates Unavailable with a reason instead of ≈ — (COPY-155); COPY-149..157 proposed. Review §11.4 Properties rows and the precision conflict DR-UID-1." }
-  - { by: property-grid-rulings, on: 2026-10-01, reason: "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 "Lengths display at 0.01 mm" covers typed dimensions only; status "MAC 101.3 mm"); a point's spanwise coordinate is "From root" with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..171 proposed; DR-UID-5 amends UI-36 to \"the Wing block is pinned and always fully visible; the selection section may scroll; groups stay collapsible and remember state\"; a typed twist or t/c past the domain is clamped in Core with a warning echo, as m12b2 says (MC-19)." }
 ---
 
 # CFD-Workbench
 
 ## One definition. Every number with its basis. Nothing claimed that a fixture has not earned.
 
-Product specification · revision 1.6 · 26 September 2026 · *(1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
+Product specification · revision 1.7 · 3 October 2026 · *(1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.** Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
@@ -79,7 +80,7 @@ the Run and Results areas are specified in full and are **first-class in the mod
 design implication is cited as **KB-n** (its index) and an area file as **NN** (01–13). Revision 0.2's story
 identifiers are kept where the story survives so the critique map stays traceable; deleted and merged stories are
 listed in Appendix D. Requirements use **shall** for mandatory behaviour in their named release. Terms in
-**bold small caps** in A3 are the ubiquitous language and match the glossary. FoilDSL 4.0 is the authored geometry language defined by the normative companion. Application language, toolkit, native envelope encoding details,
+**bold small caps** in A3 are the ubiquitous language and match the glossary. FoilDSL 4.0 is the authored geometry language defined by the normative companion *(1.7: with its expand-only revision 4.1, which widens a channel's vertex range to 4–16; a writer raises the header to 4.1 only when a channel leaves 6–10, never lowers it, and New foil writes 4.1 — ADR-0001 Amendments 1 and 2, Rulings 57 and 64)*. Application language, toolkit, native envelope encoding details,
 geometry evaluator implementation and solver substrate are separate architecture decisions; this document says
 what they must satisfy. On 23 September 2026, [ADR 0003](../adr/0003-application-stack.md)
 selected C#/.NET and Avalonia for the conditional first offline milestone, and
@@ -252,11 +253,11 @@ first-class from revision 1.1 (A3.1 Backend environment, A5.10). One word, one m
 | **Station document** | document view | *Superseded in 1.6 by **Section editor**.* The editor-group tab that edits one station's section in 2D (CAD-05); opened by the verb **Edit section**; its draft is a section draft, distinct from a geometry draft |
 | **Section editor** | mode (1.6) | The mode the verb **Edit section** enters for one station's section (CAD-20): the model area shows that section in 2D, the toolbar reads "Editing <station> section" with **Section ▾**, **Cancel** and **Finish section**; its edits are one section draft. Replaces the Station document tab |
 | **Point** | user-facing term (1.6) | What the designer selects on any curve. Its **point type** is **Anchor point** (on the curve, with tangent handles and a **tangent kind**) or **Control point** (off the curve; it pulls the curve and the curve does not pass through it). A **named point** has a fixed meaning and a constrained type: root end, tip end, nose (the leading-edge point shared by both section surfaces), upper and lower **trailing-edge terminal points**. How a point maps to the Control vertex record is open (A4.15, DR-5) |
-| **Tangent kind** | value (1.6) | The rule an Anchor point's handles obey: **Smooth** (collinear, lengths independent) · **Symmetric** (collinear, equal lengths) · **Corner** (independent); on a section also **Horizontal** · **Vertical** · **Fixed angle** |
+| **Tangent kind** | value (1.6) | The rule an Anchor point's handles obey: **Smooth** (collinear, lengths independent) · **Symmetric** (collinear, equal lengths) · **Corner** (independent); on a section also **Horizontal** · **Vertical** · **Fixed angle** *(1.7: Vertical at the nose only — an interior vertical tangent makes a step; Ruling 66, OQ-3)* |
 | **Driving dimension** | command (1.6) | A typed planform value — **Span**, **Root chord**, **Tip chord** — whose commit edits the curves of record by the rule A4.15 names; it is never stored as a second value (derive, don't store) |
 | **Wing estimate** | derived (1.6) | A running readout derived on read from the current geometry: span b, root chord, tip chord, mean chord S/b, MAC, max t/c, AR (projected, b²/S) and area S (A4.15); shown with "≈"; never stored |
 | **My sections** | library family (1.6) | The designer's saved sections: each entry is a name plus a reference to one immutable Profile revision, with provenance ("Modified from <source>") from which the rights class of its source is derived. It is a family in the catalog picker, not a fourth admission class |
-| **Pane · dock · float · workspace** | shell terms (1.6) | A **pane** (Properties, Browser, Points, Messages) lives in a **dock** (left side bar, right side bar, bottom panel) or **floats**; a **workspace** (Planform · Precision · Review) is a task preset of views and panes that remembers its own layout. Layout is an installation preference, never document data |
+| **Pane · dock · float · workspace** | shell terms (1.6) | A **pane** (Properties, Browser, Points, ~~Messages~~ *(1.7: the Messages pane is retired — Ruling 59, OD-2 A)*) lives in a **dock** (left side bar, right side bar, bottom panel) or **floats**; a **workspace** (Planform · Precision · Review) is a task preset of views and panes that remembers its own layout. Layout is an installation preference, never document data |
 | **Design alternative** | entity | A named project branch referencing an accepted Design revision and its parent alternative; edits append revisions on that branch. It is a human design option, distinct from an optimizer Candidate. |
 | **Pinned baseline** | immutable value | A project reference to one accepted Design revision, fixed until explicitly repinned; it never follows later edits or the current selection. |
 | **Comparison** | derived view | A selected baseline/alternative pair: geometric differences and only compatible run evidence, each with its revision, basis and availability. Missing evidence has no numeric substitute. |
@@ -300,6 +301,11 @@ aggregate (DM2 iv).
 
 - **Polar sample** — one row is exactly one (Profile revision hash, method + version, Re, Ncrit, surface state, α,
   Water record) evaluation, recorded when the method returns. Cl, Cd, Cm are non-additive.
+- **Analysis run** *(1.7, DR-ANA-4)* — one row is one evaluation attempt of one Surface revision (with its Profile
+  revisions) at one Operating point by one method id + version under one settings hash, recorded when the method
+  returns, with its **outcome**: Completed, or Failed (code, reason). At most one Completed row per run key; Failed rows
+  may repeat; Cancelled is telemetry, never a row. An interactive attempt is this row — the Sweep attempt fact below is
+  Experiment-only. Solver residual, condition estimate and wall time are non-additive.
 - **Sweep attempt** — one row is one attempt of one case of one Case schedule, recorded when queued; retries add
   rows; "selected" is derived. **Attempt-state event** — one row is one transition (attempt id, state, time,
   reason); the attempt's state is the latest event, never an updated column.
@@ -387,7 +393,7 @@ A Surface revision shall store, and nothing else may be needed to reproduce the 
 - **evaluator** — id, version, solver id (constrained least squares for the Fit, Fair and Rebuild constructions; pins by KKT projection), fairness functional and λ; the **kernel** record — kernel id and version for the loft, tessellation and every writer (A4.12);
 - **symmetry** — mirror-y (v1); independent halves is reserved;
 - **channels** — five curves, each: family B-spline, **degree p stored per curve** (default 3 for the master
-  curves — seven control vertices, six to ten allowed; degree 5 for section curves), the full clamped knot
+  curves — seven control vertices, ~~six to ten allowed~~ *(1.7: **4 to 16** allowed when the document declares FoilDSL 4.1, 6 to 10 under 4.0 — ADR-0001 Amendments 1 and 2; New foil ships 4 on the leading-edge and trailing-edge rails)*; degree 5 for section curves), the full clamped knot
   vector with its count convention stated (Piegl–Tiller n + p + 1), **control vertices** (the only geometry
   authority), explicit weights all 1 (a weight ≠ 1 makes the curve rational and is forbidden for shape),
   Constraint rows with sources, continuity intent (deliberate breaks as knot multiplicity), and the
@@ -413,8 +419,8 @@ its control vertices; nothing else defines the shape. The end vertices lie on th
 vertices are the **levers** that set each end tangent's direction and magnitude; every interior vertex pulls the
 curve toward itself and is never on it (the B-spline basis is a partition of unity with **local support** — a
 vertex moves the curve only over its p + 1 knot spans, GEO-13). Editing is direct: drag, nudge, type η and value,
-**Insert CV** (knot insertion by Boehm's algorithm, shape-preserving to 10⁻¹² relative — the A4.5 exact path) and **Delete CV** (the shape change
-is measured on the distribution-curve oracle of A4.5 and reported; the floor is the record's six vertices, A4.1), always as a draft (Return applies, Escape cancels, one undo item). This
+**Insert CV** (knot insertion by Boehm's algorithm, shape-preserving to 10⁻¹² relative — the A4.5 exact path) and **Delete CV** (never a lever — the end handles are refused with the reason, 1.7, Ruling 66 OQ-2; the shape change
+is measured on the distribution-curve oracle of A4.5 and reported; the floor is ~~the record's six vertices~~ *(1.7: four vertices, p + 1, under FoilDSL 4.1 — a verb that first takes a channel below six raises the header to 4.1 in the same patch, and Insert CV is refused at the ceiling of 16; ADR-0001 Amendment 2, Rulings 62 and 64)*, A4.1), ~~always as a draft (Return applies, Escape cancels, one undo item)~~ *(1.7: Insert CV (Add point) and Delete CV (Remove point) apply at once as one undo step with the change reported, and Undo restores the curve exactly — Ruling 66, OQ-1)*. This
 is the Fusion 360 control-point-spline and Rhino control-point contract the operator asked for (03), and the
 MultiSurf/Shape3d master-curve paradigm underneath it. **Invariant:** a distribution curve is the graph of a
 single-valued function v(η) — the vertex abscissae are strictly increasing (variation diminishing then
@@ -431,7 +437,7 @@ side) that meets the acceptance. **Fair** — a constrained weighted least-squar
 (NP − Q)ᵀW(NP − Q) + λ PᵀFP subject to A·P = b, where Q samples the current curve, F is the fairness functional
 and A the hard Constraint rows (02 §2; executed probe), with Rhino Fair's contract (tolerance, PreserveEnds ∈
 {position, tangency, curvature}, achieved deviation reported, Apply disabled above the tolerance — GEO-15).
-**Rebuild** is Fair with a chosen vertex count. The 1.2 *Smooth · weighted controls* mode and its influence weights
+**Rebuild** is Fair with a chosen vertex count *(1.7: this holds for a section. On a master curve, **Rebuild to N** takes N from 4 to 10 and has no tolerance gate: the measured change, where it is largest and the turn of the tip tangent are shown before Apply, and the curve's anchors are dropped and listed before Apply — Ruling 64, DR-PV-3 A and DR-PV-5 A)*. The 1.2 *Smooth · weighted controls* mode and its influence weights
 are **retired**: a weight was a second way to say what a vertex says, and the mockup measured the polygon as the
 lever the operator was missing.
 
@@ -519,7 +525,7 @@ with a TM 4741-faithful generator and its hash — there is no closed form**), C
 Through-points ↔ Smooth switch, refit, and the STEP/3DM skin. **Acceptance per path:** an exact path (knot
 insertion, mirror, promotion under rule A, an unmodified catalog copy) must report ≤ 10⁻¹² relative; an approximate
 path is accepted iff its measured deviation ≤ the model/join tolerance (10 µm) at the station's local chord, shown
-in normalised chord beside the number; a path above its acceptance disables Apply with the number. A fit never
+in normalised chord beside the number; a path above its acceptance disables Apply with the number *(1.7: this acceptance governs representation conversions only. Two edits are not conversions: a deliberate **Rebuild to N** on a master curve shows its measured change before Apply and has no gate (A4.2; Ruling 64, DR-PV-3); a typed **Root chord** or **Tip chord** whose fit residual exceeds the 10 µm acceptance is accepted and reported as a warning with the number and the limit, and the typed end stays exact (Ruling 56, DR-12))*. A fit never
 assumes zero. Original catalog polars never attach to a modified profile.
 
 #### A4.7 Coordinates, signs and units
@@ -544,10 +550,10 @@ Three nudge steps per unit family (fine · default · coarse): ~~0.1 / 1 / 10 mm
 chord for normalised sections~~ *(superseded in 1.6 by the v8–v10 ladder: **0.01 / 0.1 / 1 mm** for lengths — the
 platform modifier ⌘/Ctrl + arrow is fine, arrow alone is default, Shift + arrow is coarse — and a section point
 nudges in millimetres at the station's local chord with the same ladder; a typed or placed length displays at
-0.01 mm, the finest step, UI-40)*; 0.01 / 0.1 / 1 ° for angles; ×1.01 / ×1.1 / ×2 for influence weights (multiplicative,
+0.01 mm, the finest step, UI-40)*; 0.01 / 0.1 / 1 ° for angles; *(1.7: 0.01 / 0.1 / 1 % for t/c — Ruling 66, OQ-5)*; ×1.01 / ×1.1 / ×2 for influence weights (multiplicative,
 so a weight never reaches zero) (01). Every numeric field accepts `value [unit]` and expressions over named project
 dimensions (`#root_chord * 0.35`) whose result is unitless or first-power in the field's family, and echoes the
-resolved model-unit value. A handle can be clicked to type. Return accepts a preview, Escape cancels it, a
+resolved model-unit value *(1.7: an expression is set once — it is evaluated when the value commits, its result is the value, and it does not follow the named dimension afterwards; the echo says so, e.g. "#root_chord × 0.1 = 15.21 mm (set once; doesn't follow Root chord)" — property-grid MC-3)*. A handle can be clicked to type. Return accepts a preview, Escape cancels it, a
 cancelled preview leaves no undo step, a failed Apply rolls back fully before any error is shown.
 
 #### A4.9 Diagnostics and readouts
@@ -599,7 +605,7 @@ workspace/history; **Export FoilDSL source** exports only accepted shape source 
 | Format | v1 | Contract |
 |---|---|---|
 | `.cfdw.json` native | read + write | Project envelope with immutable FoilDSL source revisions, pinned profiles/assets, provenance, history and runs (A4.13); no second writable geometry payload. Derived checks remain labelled caches. Semantic hash normalization follows the language companion. Native schema and atomic-save fixtures are implementation obligations. |
-| `.foil` | read + write | FoilDSL 4.0 complete foil or standalone section; lossless source save, explicit canonical export, resolved inline or content-addressed profile dependencies. Shape-only interchange omits project run history. |
+| `.foil` | read + write | FoilDSL 4.0 *(1.7: or 4.1, A4.1)* complete foil or standalone section; lossless source save, explicit canonical export, resolved inline or content-addressed profile dependencies. Shape-only interchange omits project run history. |
 | Selig / Lednicer DAT | read + write | shortest-round-trip digits; original bytes retained on import |
 | AVL `.avl` + `AFILE` | write (behind the VLM tier) | one SECTION per authored station **plus** sampled stations so linear interpolation error is bounded; documents that `Ainc` is a camber-line boundary condition; Sref/Bref/Cref from the same evaluation as the AR readout |
 | STL / 3MF (print) | write | millimetres; 3MF `unit` attribute; STL unit in the file name and dialog; never pre-scaled |
@@ -777,7 +783,7 @@ property sheet i should be able to change the behavior of a point on the curve: 
 with the specific semantics for them"*):
 
 - **Anchor point** — the curve passes through it; it carries tangent handles and a **tangent kind** (Smooth ·
-  Symmetric · Corner; on a section also Horizontal · Vertical · Fixed angle).
+  Symmetric · Corner; on a section also Horizontal · Vertical · Fixed angle *(1.7: Vertical at the nose only; on an interior section anchor it is shown disabled with the reason "A vertical tangent inside a surface makes a step. The nose already has one." — Ruling 66, OQ-3)*).
 - **Control point** — off the curve; it pulls the curve toward it and the curve does not pass through it; it has no
   handles.
 - **Named points** keep a constrained type that cannot be changed: the **root end** of each rail (Anchor; stays on the
@@ -787,7 +793,11 @@ with the specific semantics for them"*):
   points** (Anchor; move up and down only; the TE gap and wedge angle are readouts). Selecting a named point and typing
   its position is how the designer "specifies a point".
 - Changing a point's type is one undoable step. It changes this curve only between the nearest Anchor points on either
-  side of the point, and never another curve.
+  side of the point, and never another curve. *(1.7: on a section the point types are **paired** — Ruling 60; per-surface
+  types are parked as OI-12C-DR11. Type, tangent kind and x act on a point and its partner on the other surface as one
+  step, both surfaces keep the same knots, and Anchor → Control refits the other surface on the affected segment only,
+  refused above 10 µm at the largest local chord of the stations that share the profile, with both numbers in the
+  status strip — Ruling 61.)*
 - **Open to `/define-architecture` (DR-5):** how Anchor and Control points mix on one curve against the record's
   clamped B-splines (degree 5 for sections, degree 3 for master curves, A4.1–A4.2), and whether keeping a point's type
   and tangent kind across save and reopen needs a FoilDSL grammar change (the 4.0 grammar writes control vertices only,
@@ -803,8 +813,10 @@ millimetres in the Wing block. Mean chord, MAC, max t/c, AR and area stay derive
   commit are its feedback, and Undo is its recovery. A4.14's previewed span command remains for the other policy.
 - **Root chord** or **Tip chord** changes that end only. The chord scale factor blends linearly along the span to 1 at
   the other end: typing root chord f_r·c(0) gives c′(η) = (f_r + (1 − f_r)·η)·c(η); typing tip chord f_t·c(1) gives
-  c′(η) = (1 + (f_t − 1)·η)·c(η). The line held fixed while the chord scales is **DR-2** (default: the leading edge
-  is held and the trailing edge moves; alternative: the quarter-chord line is held, keeping the c/4 sweep).
+  c′(η) = (1 + (f_t − 1)·η)·c(η). ~~The line held fixed while the chord scales is **DR-2** (default: the leading edge
+  is held and the trailing edge moves; alternative: the quarter-chord line is held, keeping the c/4 sweep).~~
+  *(1.7: the **quarter-chord line** is held (Ruling 53, DR-2); a root edit then translates the planform rigidly so
+  LE(0) = 0, and the status line says so — ADR-0006.)*
 - **Tip chord** is the chord at the outermost authored station. A closing tip (zero chord, A4.4) is not editable here:
   the field reads "Tip closes — edit the tip station".
 - A value commits on Return or when the field loses focus; Escape restores the shown value. Each field accepts
@@ -878,8 +890,8 @@ to Cancel and says "This section has unsaved changes. Cancel discards them; Fini
 | ID | Falsifiable acceptance criterion |
 |---|---|
 | CAD-14 · Start, open or fail safely | Given no foil open, then the model area shows **Start a foil** ("Start with a foil, then make it yours.") with New foil · New from example · Open… · Recent and focus on the first card; New from example opens the Example labelled Illustrative in one action. Given Open or a Recent file, then "Opening <file>…" shows with Cancel; Cancel returns to Start with "Opening cancelled. Nothing changed." Given a file saved by a newer version, then "“<file>” didn't open. It was saved by a newer version of CFD Workbench. The file hasn't been changed." names it, Open another file… is offered and the file's bytes are unchanged. Given a Recent file that no longer exists, an older migratable version or unknown optional content, then the outcome is F1's (H Locate/Open/Example · H3 migrate to a copy, original kept · H4 retain read-only or refuse before save) with the cause named and Start kept. Given New from example with the Example fixture missing or corrupt, then DOC-01's failure clause holds: the fixture is named, nothing is overwritten and New foil stays available. |
-| CAD-15 · Choose a point's type | Given a point on a rail or section surface that is not a named point, when Type is set to Control point, then the evaluated curve no longer passes through it (measured gap > the identity tolerance), its handles are removed and "A control point pulls the curve toward it. The curve does not pass through it." shows; when set to Anchor point, then the curve passes through it within the identity tolerance and it has handles and a tangent kind. In both cases no other curve changes, and this curve is unchanged outside the nearest Anchor points on either side (the tolerance is set with the DR-5 representation; 10⁻¹² relative where that representation makes the change exact). Given Symmetric, a handle-length change sets the opposite handle to the same length; Smooth keeps the handles collinear with independent lengths; Corner leaves the other handle unchanged; Horizontal and Vertical keep the handle direction; under Fixed angle a turn by keyboard or pointer leaves the handle direction unchanged. Given a named point, then its type is shown read-only with its constraint and cannot be changed. Given Undo, the previous type and curve return exactly. Given save and reopen, then each type and tangent kind is as saved (gated on DR-5). |
-| CAD-16 · Type span and chords | Given a three-station fixture (root, mid and tip authored stations, open tip), when Span is typed as 1.5 × b, then b equals the typed value by the scalar oracle and the chord at 201 η samples and every station η are unchanged. When Root chord is typed as f_r × c(0), then c′(η) = (f_r + (1 − f_r)η)·c(η) at 201 η samples within the model/join tolerance or with the residual reported (A4.6), the tip chord is unchanged, and the held line (DR-2 default: the leading-edge rail's record) is unchanged; Tip chord mirrors this. Given "12abc", "", 0 or −5, then "Enter a number. <Dimension> is unchanged." or "Enter a length greater than 0 mm. <Dimension> is unchanged." shows, the field is marked invalid, and geometry and undo depth are unchanged. Given "15 cm" or `#root_chord * 0.5` in Tip chord, then the resolved value is echoed in mm and committed. Given a mapping fixture whose mapped rails would cross or reach zero chord inside the span (built once DR-5 fixes the mapping), then "That would make the leading and trailing edges cross. Enter a different value." and nothing changes. Given a locked trailing-edge point that the commit must move, then the commit is refused naming the lock, and geometry and undo depth are unchanged. Given a valid commit, then exactly one undo step is added, no preview or Apply is shown, and Undo restores the rails exactly. Given a closing tip, Tip chord is not an input. Given the section editor, the three fields are read-only. |
+| CAD-15 · Choose a point's type | Given a point on a rail or section surface that is not a named point, when Type is set to Control point, then the evaluated curve no longer passes through it (measured gap > the identity tolerance), its handles are removed and "A control point pulls the curve toward it. The curve does not pass through it." shows; when set to Anchor point, then the curve passes through it within the identity tolerance and it has handles and a tangent kind. In both cases no other curve changes *(1.7: except, on a section, the paired point on the other surface — A4.15, Ruling 60)*, and this curve is unchanged outside the nearest Anchor points on either side (the tolerance is set with the DR-5 representation; 10⁻¹² relative where that representation makes the change exact). Given Symmetric, a handle-length change sets the opposite handle to the same length; Smooth keeps the handles collinear with independent lengths; Corner leaves the other handle unchanged; Horizontal and Vertical keep the handle direction; under Fixed angle a turn by keyboard or pointer leaves the handle direction unchanged. Given a named point, then its type is shown read-only with its constraint and cannot be changed. Given Undo, the previous type and curve return exactly. Given save and reopen, then each type and tangent kind is as saved (gated on DR-5). |
+| CAD-16 · Type span and chords | Given a three-station fixture (root, mid and tip authored stations, open tip), when Span is typed as 1.5 × b, then b equals the typed value by the scalar oracle and the chord at 201 η samples and every station η are unchanged. When Root chord is typed as f_r × c(0), then c′(η) = (f_r + (1 − f_r)η)·c(η) at 201 η samples within the model/join tolerance or with the residual reported (A4.6), the tip chord is unchanged, and ~~the held line (DR-2 default: the leading-edge rail's record) is unchanged~~ *(1.7: the quarter-chord line is unchanged up to the reported rigid shift — Ruling 53, DR-2)*; Tip chord mirrors this. Given "12abc", "", 0 or −5, then "Enter a number. <Dimension> is unchanged." or "Enter a length greater than 0 mm. <Dimension> is unchanged." shows, the field is marked invalid, and geometry and undo depth are unchanged. Given "15 cm" or `#root_chord * 0.5` in Tip chord, then the resolved value is echoed in mm and committed. Given a mapping fixture whose mapped rails would cross or reach zero chord inside the span (built once DR-5 fixes the mapping), then "That would make the leading and trailing edges cross. Enter a different value." and nothing changes. Given a locked trailing-edge point that the commit must move, then the commit is refused naming the lock, and geometry and undo depth are unchanged. Given a valid commit, then exactly one undo step is added, no preview or Apply is shown, and Undo restores the rails exactly. Given a closing tip, Tip chord is not an input. Given the section editor, the three fields are read-only. |
 | CAD-17 · Always see the Wing estimates | Given a foil open, in the workspace or the section editor, with any selection or none, then Properties ends with the Wing block: Span, Root chord, Tip chord, then ≈ Mean chord, MAC, Max t/c, Aspect ratio, Area, with a definitions disclosure stating the A4.15 table. Given b = 1.2 m and constant chord 0.18 m, then Area ≈ 2160 cm², AR ≈ 6.67, Mean chord ≈ 180.0 mm, MAC ≈ 180.0 mm. Given b = 1.0 m and chord linear in \|y\| on each half from 0.20 m at the root to 0.05 m at the tip, then Root chord 200.00 mm, Tip chord 50.00 mm, Area ≈ 1250 cm², AR ≈ 8.00, Mean chord ≈ 125.0 mm and MAC ≈ 140.0 mm (MAC differs from S / b). Given a drag, then the estimates change during the drag, before release. Given no foil open, then no Wing block renders. Given save, then no field of record in the native schema or the FoilDSL grammar holds an estimate; the labelled `derived_check` cache (A3.3) holds only span, area, AR and mean chord, and root chord, tip chord, MAC and max t/c are absent from the file. |
 | CAD-18 · Replace a section from the catalog | Given the section editor on a station whose section is shared, when Replace from catalog… opens, then NACA · Eppler · Speer · My sections are listed; typing filters the list and the match count is announced once typing pauses; no match reads "No sections match “<query>”. Try NACA, Eppler or a name."; Eppler rows are disabled with the pending-admission string and Speer H105 with the cite-only string, and both stay reachable. When a GEN section is chosen, then a dashed preview shows on the section and the detail line names the fit deviation and every station replaced. When Replace is chosen, then the section takes the catalog shape, the chip reads "Catalog original · <source>", one Undo inside the draft reverts it, and the A4.6 residual shows; after one point edit the chip reads "Modified from <source>". Given a disabled entry and Replace, then nothing changes. Given Cancel of the section, then the section and every assignment return to their entry state. |
 | CAD-19 · Save a section to re-use | Given a section in the editor, when Save to My sections… is completed with a new name, then an entry with that name, its provenance and its source's rights class appears under My sections in Replace from catalog…, including in another foil (DR-8 default); the section being edited, its assignments and the catalog original are byte-identical to before. Given an empty name, then "Name the section to save it." and nothing is saved; given a name already in My sections ignoring case, then "“<name>” is already in My sections. Choose another name." and nothing is saved. Given Cancel or Escape in the save dialog, then nothing is saved and focus returns to Section ▾. Given a saved entry, when the section draft is then cancelled or the document is undone, then the entry remains in My sections. |
@@ -957,12 +969,12 @@ machine-readable fixture with per-row source URL and access date (04, 07, KB-7).
 
 | Tier | May claim | Fixed label parts | Omissions always listed |
 |---|---|---|---|
-| Estimator (closed form) | Cl from thin-airfoil theory; CL, CDi from lifting line / Helmbold; drag as the fully turbulent bound | "inviscid + turbulent-friction bound; deep water; steady" | free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state |
+| Estimator (closed form) | Cl from thin-airfoil theory; CL, CDi from lifting line / Helmbold; drag as the fully turbulent bound *(1.7, DR-ANA-2: section Cp(x) and Cp_min with its station count from an inviscid linear-vorticity panel method, which then supplies the section Cl as well — one definition; oracle: the Kármán–Trefftz Cp at 100, 200 and 400 panels, its tolerance set by the A3b design at red-first — Ruling 66, OQ-10)* | "inviscid + turbulent-friction bound; deep water; steady" *(1.7: panel Cp adds "inviscid; no boundary layer")* | free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state |
 | Polar (XFOIL-class) | Cl, Cd, Cm, x_tr, Cp at (profile hash, Re, Ncrit, surface state, α) | surrogate name + version; confidence; station count | as above plus 3D effects |
-| VLM + strip | loading, CL, CDi, computed e, local Re and α_eff, force and moment about the named datum, profile drag from strips | "attached flow; no stall; no ventilation; deep water" (a correction layer is shown beside, never changes this label) | as above; separation only as "section-based inference" |
-| RANS backend (Run) | wing-only forces and moments, surface Cp and C_f, y+, separation by a named wall criterion, at the stated model | "steady RANS · <model> · fully turbulent \| transition at TI <x> · deep water · <single mesh \| grid U>" | free surface, strut and junction, ventilation, cavitation, unsteady; "drag bound vs free transition" when no transition model (08) |
+| VLM + strip | loading, CL, CDi, computed e, local Re and α_eff, force and moment about the named datum, profile drag from strips | "attached flow; no stall; no ventilation; deep water" — or, with depth unset, "free surface not modelled" in place of "deep water" (A5.1, ANA-19) *(1.7, DR-ANA-13)*; a correction layer is shown beside, never changes this label | as above; separation only as "section-based inference" |
+| RANS backend (Run) | wing-only forces and moments, surface Cp and C_f, y+, separation by a named wall criterion, at the stated model | "steady RANS · <model> · fully turbulent \| transition at TI <x> · deep water · <single mesh \| grid U>" *(1.7: "TE blunted for analysis", with a base-drag band beside Cd, is added with the backend ADR — Ruling 65 DR-F2-4, Ruling 66 OQ-13)* | free surface, strut and junction, ventilation, cavitation, unsteady; "drag bound vs free transition" when no transition model (08) |
 
-Section results are per span (N/m, lowercase Cl/Cd); wing results are N (uppercase, "Wing only", S_ref and force
+*(1.7, Ruling 66 OQ-9: with depth unset, every tier's fixed label reads "free surface not modelled" in place of "deep water" — the estimator and RANS rows as the VLM row does (A5.1, ANA-19).)* Section results are per span (N/m, lowercase Cl/Cd); wing results are N (uppercase, "Wing only", S_ref and force
 axes named); Total drag is Unavailable when a component is missing and lists the omitted components per tier
 (junction, mast, wave, spray, tip-vortex cavitation). Coefficients never change when force units change. Water
 changes go through the polar: the defect signature "loads change by exactly ρ_sea/ρ_fresh with unchanged
@@ -1038,7 +1050,7 @@ An **Experiment** is defined here and run in the Run area; this area never launc
 #### A5.10 Run — end to end on a pinned backend
 
 **Backend matrix** (physics × substrate × OS × licence × pin, published exactly): OpenFOAM ESI v2512 by image
-digest today, v2606 when tagged (no such tag existed on 2026-09-20, 08), always by
+digest today, v2606 when its Docker Hub image is tagged (no `opencfd/openfoam-default` 2606 tag existed on 2026-09-20, 08; OpenFOAM.app ships v2606 and v2512 builds, 08; the backend ADR sets the pin — 1.7, Ruling 66 OQ-12), always by
 image digest (macOS arm64/x86 and Windows via Docker Desktop or WSL2; OpenFOAM.app arm64, unsigned — disclosed);
 SU2 v8.5.0 release binaries; Foundation OpenFOAM excluded. SU2 has no VOF, cavitation or mesher, so free surface
 and cavitation are OpenFOAM-only, and `Unsupported` is decided from the **Backend environment's capability
@@ -1059,9 +1071,20 @@ confirm at SPIKE-03); Gatekeeper/SmartScreen are never disabled; ParaView 5.12+ 
 dependency of the matrix for slices, streamlines and isosurfaces. **Typed case model:** one model, two emitters (ESI dictionaries, SU2
 `.cfg`), no macros/`#codeStream`/`#calc`, deterministic ordering; fields for turbulence model and variant,
 transition, TI, μ_t/μ, wall treatment, target y+, reference quantities, residual criterion, averaging window.
+*(1.7, DR-F2-1: the **residual criterion** has three parts, all required — (1) every equation's initial residual has
+fallen to ≤ 10⁻³ of its first-iteration value (ITTC, three orders); (2) Cl and Cd are stationary over the averaging
+window: the half-band U_I = ½ (max − min) is at or below the caps the case file records; (3) the window is clean — no
+bounding of the turbulence variable (nuTilda for SA) inside it. The reported value is the window mean. A case enters
+the grid-uncertainty estimate only when its U_I ≤ 1 % of the grid-to-grid change of its neighbouring pair. A run that
+reaches its iteration limit is "Completed — residual criterion not met (ran to limit)".)*
 **Mesh gate:** ITTC 7.5-03-02-03 floors (y+ ≤ 1 with ≥ 20 layer points and expansion ratio ≤ 1.2, or 30–100 with
-≥ 15; domain ≥ 10 L upstream, ≥ 20 L downstream); named `checkMesh` measures — max non-orthogonality, boundary and
-internal skewness, all volumes positive, determinant > 0.3 — with snappy defaults Flagged; a failed gate stops before
+≥ 15; domain ≥ 10 L upstream, ≥ 20 L downstream) *(1.7, DR-F2-3: the 30–100 wall-function branch is offered only
+when a feasibility check shows ≥ 15 points with y+ ≥ 30 fit inside the estimated turbulent boundary layer over the
+chord; y+ is measured at the cell centre on a field that meets the residual criterion, at the case's highest speed
+and α — on the wall-resolved branch, area-weighted p95 ≤ 1 and max ≤ 2; a field before that is a mesh screen, not the
+gate; the layer floor is a coverage rule reported per region (leading edge, main surface, trailing-edge 3 %, tip):
+≥ 20 layers on ≥ 95 % of wing faces and ≥ 10 on 100 %)*; named `checkMesh` measures — max non-orthogonality, boundary and
+internal skewness, all volumes positive, ~~determinant > 0.3~~ *(1.7, DR-F2-6: `cellDeterminant` ≥ 0.001 for OpenFOAM meshes; the 3×3 determinant > 0.3, ≥ 0.15 locally, only for a structured mesh)* — with snappy defaults Flagged; a failed gate stops before
 solving. **α imposition:** by inflow direction, so one mesh serves every α at a held geometry and speed; the mesh hash
 is a Field evidence field. **Run states:** Pending · Unsupported · Readiness · Meshing · Mesh gate · Solving · Harvesting · Completed ·
 Completed — residual criterion not met (ran to limit) · Failed (reason) · Cancelled, each a C2 row; **status** shows residuals, force
@@ -1135,7 +1158,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | GEO-02 · I can trust derived dimensions | **Given** b = 1.2 m, chord 0.18 m, incidence 0°, **then** S = 0.216 m², AR = 6.666667, mean chord 0.18 m at displayed precision. **Given** linear chord 0.19 → 0.18 m, **then** S = 0.222 m², AR = 6.486486. **Given** the polynomial manufactured planform (GEO-02b: quartic chord c(η) = c₀(1 − 0.4η² − 0.5η⁴), representable exactly in the record, closed-form S, centroid and second moment), **then** they match within 10⁻⁹ relative with per-span Gauss–Legendre quadrature of stated order exact for S; **given** the analytic elliptic channel through the evaluator's test hook (named `analytic-channel`, never a product input, because c₀√(1 − η²) is not a B-spline), **then** the observed order on station refinement matches the design order the evaluator record states and the reported "±" bounds the true error. Wetted area is never substituted. |
 | GEO-03 · I can edit by curve or station | **Given** any master curve, **when** I drag, nudge or type a control vertex in the elevation that shapes it, in the η-plot or in Properties, **then** the same vertex record moves, every view follows within the preview budget and the station readouts are evaluated from the curve (never from the vertex). **Given** an interior vertex, **then** the curve moves toward it by its basis fraction and never passes through it (measured gap > 0). **Given** an exact station dimension, **then** it becomes a value-at-station row that pins the vertices at Apply. **Given** a locked vertex or an infeasible set, **then** the move is refused with the lock named, Apply is disabled, the DOF count and the removable-constraint list are shown, and Cancel restores the base. |
 | GEO-04 · I can understand every driver | **Given** a linked recipe, **when** I make the first manual edit, **then** the status strip reads Direct parametric and the detachment is in the same undo item; retained recipe provenance never overwrites direct geometry. |
-| GEO-05 · I can use vertices and levers precisely | **Given** any curve, **when** I select a vertex or lever, drag it, nudge it at each of the three steps (↑↓ the value, ←→ η, Shift ×10), or type a unit expression for η or value (mm · m · in · ° · % · chord), **then** the resolved model value is echoed and the comb updates within the 100 ms edit budget. **Given** the levers, **then** they set the end tangents; the root vertex and its lever are coupled by the root-mirror lock (either moves, both are named as coupled) and no vertex claims a lock that Properties does not list. **Given** Insert CV on the curve, **then** the shape is preserved to 10⁻¹² relative (the A4.5 exact path); **given** Delete leaving fewer than p + 2 vertices, **then** it is blocked with the reason, and otherwise the shape change is reported. |
+| GEO-05 · I can use vertices and levers precisely | **Given** any curve, **when** I select a vertex or lever, drag it, nudge it at each of the three steps (↑↓ the value, ←→ η, Shift ×10), or type a unit expression for η or value (mm · m · in · ° · % · chord), **then** the resolved model value is echoed and the comb updates within the 100 ms edit budget. **Given** the levers, **then** they set the end tangents; the root vertex and its lever are coupled by the root-mirror lock (either moves, both are named as coupled) and no vertex claims a lock that Properties does not list. **Given** Insert CV on the curve, **then** the shape is preserved to 10⁻¹² relative (the A4.5 exact path); *(1.7, Ruling 66 OQ-2:)* **given** Delete on a lever (an end handle), **then** it is refused with the reason and Rebuild is offered for fewer points; **given** Delete leaving fewer than ~~p + 2~~ *(1.7: four, p + 1 — A4.1)* vertices, **then** it is blocked with the reason, and otherwise the shape change is reported; *(1.7:)* **given** Insert at 16 vertices, **then** it is refused with the reason (Rulings 62 and 64). |
 | GEO-06 · I can add a station without altering shape | **Given** an inspection slice, **when** I promote it, **then** the reported deviation is ≤ 10⁻¹² relative (exact under rule A) and the station is selectable in every view. **Given** a coincident η, **then** insertion is rejected and the existing station selected. |
 | GEO-07 · I can mix profiles intentionally | **Given** admitted root and tip profiles with Use source thickness, **then** the endpoint sections match their profiles within the A4.6 acceptance for the conversion path and interior sections follow the blend at shared normalized chord x. **Given** Keep current thickness, **then** the channel is authoritative and the endpoints show Modified. **Given** the different-peak and different-control-count fixtures, **then** effective t/c is preserved. **Given** a crossing or fold, **then** the location is a DRC finding and closed export is blocked. |
 | GEO-08 · I can reshape a predefined section | **Given** an assigned GEN NACA 0012, **when** Edit section opens and a control moves, **then** the draft shows the source, the conversion residual, the tolerance and the t/c policy before Apply. **Given** Apply, **then** the assignment becomes a Modified Profile revision, source polars detach, and the catalog original is intact. **Given** Cancel, a crossing or a residual above the A4.6 acceptance, **then** accepted geometry is unchanged. |
@@ -1144,8 +1167,8 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | GEO-11 · The root is continuous | **Given** a mirrored design, **when** any channel is edited, **then** G1 continuity across the root plane holds within the angle tolerance because the root-mirror tangent lock is on by default; **given** a user releases it, **then** the root shows a break marker and a DRC warning. |
 | GEO-12 · I can compare and read local dimensions | **Given** a prior Design revision of the same document, **when** Ghost is enabled, **then** it renders with a distinct style, its revision and the shared datum, and cannot become the edit target. **Given** station selection, **then** root and tip distance, % span, TE thickness in mm, the TE floor setting with its label and the relative-stiffness readout update; a TE below the floor is an advisory DRC finding. |
 | GEO-13 · A vertex acts locally | **Given** a degree-p curve with n vertices, **when** one interior vertex moves with the others fixed, **then** the curve changes only over that vertex's p + 1 knot spans (the value at any η outside them is unchanged to 10⁻¹² relative), the change at the vertex's own η is a strict fraction of the move, and the polygon, comb, continuity measures and derived dimensions update together (the local-support property test, replacing the 1.2 weight-monotonicity test). **Given** locks, **then** a feasible draft preserves them within the tolerance triple and an infeasible one names the rows. |
-| GEO-14 · I can review and reverse a construction | **Given** a previewed Fair, Rebuild, Fit points, Insert or Delete, **when** cancelled, **then** geometry, assignments, recipe state, freshness and undo history are unchanged. **Given** Apply, **then** one undo item captures it (vertices, knots and provenance) and dependent runs become Historical. **Given** Undo, Redo, save and reopen, **then** the identity oracle passes and the evaluator version in the file equals the running one or a new revision is flagged. |
-| GEO-15 · I can fair within a tolerance | **Given** any master curve, **when** Fair runs with a tolerance and PreserveEnds, **then** the achieved maximum deviation is reported, Apply is enabled only when it is ≤ the tolerance (Return refuses above it), the end condition holds, and the monotone-piece count does not increase; **given** Rebuild with a vertex count, **then** the same contract holds with the count shown. |
+| GEO-14 · I can review and reverse a construction | **Given** a previewed Fair, Rebuild, Fit points, Insert or Delete *(1.7: Insert and Delete have no preview; they apply at once and Undo restores them exactly, A4.2)*, **when** cancelled, **then** geometry, assignments, recipe state, freshness and undo history are unchanged. **Given** Apply, **then** one undo item captures it (vertices, knots and provenance) and dependent runs become Historical. **Given** Undo, Redo, save and reopen, **then** the identity oracle passes and the evaluator version in the file equals the running one or a new revision is flagged. |
+| GEO-15 · I can fair within a tolerance | **Given** any master curve, **when** Fair runs with a tolerance and PreserveEnds, **then** the achieved maximum deviation is reported, Apply is enabled only when it is ≤ the tolerance (Return refuses above it), the end condition holds, and the monotone-piece count does not increase; ~~**given** Rebuild with a vertex count, **then** the same contract holds with the count shown~~ *(1.7: **given** Rebuild to N, **then** N is 4–10 and no tolerance gates Apply: the measured change, where it is largest and the tip-tangent turn are shown before Apply, and the curve's anchors are listed as dropped — A4.2; Ruling 64, DR-PV-3 A and DR-PV-5 A)*. |
 | CAT-01 · I can compare sections at my operating points | **Given** a catalog and an operating-point set with weights, **when** ranked by a named criterion, **then** the view shows the rank at each point, both Ncrit, surface state, admission class and tier chip so a flip with Re is visible; a one-point ranking is labelled "single-point comparison — not a recommendation". **Given** missing provenance or terms, **then** the entry shows "Pending admission — <reason>" and is excluded from ranking (flow F2 node V). |
 | CAT-02 · I can add my own section | **Given** a Selig or Lednicer file, **when** imported, **then** the preview names the detected layout, the alternate reading is one action away, and the same airfoil in both layouts normalises to the same profile within the identity tolerance. **Given** the fail-closed fixtures (A4.10), **then** the library is unchanged and the offending line or shape is named. A new profile has No analysis until computed. |
 | CAT-03 · I can start from a preset | **Given** a clean offline installation, **when** any of the nine discipline presets is chosen, **then** it appends one Design revision with no error-severity finding, its context and per-field labels render, and its GEN default section has polar samples at the preset's Re grid and the Ncrit pair; a Flagged field requires acknowledgement; a pending preferred section names its fallback and reason. |
@@ -1153,7 +1176,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | ANA-01 · I can analyse a section | **Given** an admitted profile, Re in envelope and the Ncrit pair, **when** evaluated, **then** Cl, Cd, Cm, Cl/Cd, x_tr and Cp_min (with station count) appear as the Ncrit band with method + version, envelope, surface state, confidence or "not recorded", and "Model uncertainty not quantified". **Given** an edited profile without a backend, or a query outside the polar's Re grid, **then** the value is "Unavailable — <reason>", never a nearby profile's or an extrapolation. |
 | ANA-02 · I can read Cp and the cavitation screen | **Given** Cp evidence, **then** x/c and Cp are dimensionless, more-negative Cp plots upward with the axis named, upper and lower are distinguished beyond colour. **Given** σ and −Cp_min, **then** the screen renders the fixed A5.4 string, the margin with its label, the governing station and its depth; −Cp_min ≤ 0 → Undefined; missing p_v or depth → Unavailable. |
 | ANA-03 · I can read coefficients and loads with their scope | **Given** section results, **then** loads are per span (N/m). **Given** a method-capable wing result, **then** CL, CD, CL/CD, Total lift and Total drag appear together with speed, water, depth basis, method and S_ref; the fixture ρ = 1000 kg/m³ (a formula test, not a water record), V = 8 m/s, S = 0.14 m², CL = 0.6, CD = 0.035 gives L = 2688 N, D = 156.8 N, CL/CD = 17.142857. **Given** CD ≤ 0, V ≤ 0 or a missing component, **then** Undefined or Unavailable with the cause. |
-| ANA-04 · I can evaluate the finite wing | **Given** attached-flow geometry and an operating point, **when** VLM + strip runs, **then** it reports loading, CDi, computed e, local Re and α_eff, force and moment about the named datum, and the omissions list. **Given** the fixture rows — rectangular flat plate at AR = 200: C_Lα within 1 % of Helmbold, and Richardson-extrapolated in AR within 1 % of 2π; elliptic AR 8 (lattice built from sampled chord) e within 1.005 (the lattice tolerance) and CL within 1 % of lifting line inside the Helmbold–Prandtl band; symmetric section at α = 0 gives Cl = 0 within 10⁻⁶; mirrored wing gives zero side force; Trefftz and near-field drag agree within 1 % (proposed); lattice refinement converges at the design order the evaluator record states — **then** every row passes; Warren-12 and Bertin–Smith are admitted only after their reference numbers are re-established. |
+| ANA-04 · I can evaluate the finite wing | **Given** attached-flow geometry and an operating point, **when** VLM + strip runs, **then** it reports loading, CDi, computed e, local Re and α_eff, force and moment about the named datum, and the omissions list. **Given** the fixture rows — ~~rectangular flat plate at AR = 200: C_Lα within 1 % of Helmbold, and Richardson-extrapolated in AR within 1 % of 2π; elliptic AR 8 (lattice built from sampled chord) e within 1.005 (the lattice tolerance) and CL within 1 % of lifting line inside the Helmbold–Prandtl band~~ *(1.7, DR-ANA-12: rectangular flat plate, AR 25–200, one chordwise panel: C_Lα Richardson-extrapolated in 1/AR within 0.5 % of 2π — Helmbold is not used on a rectangle; elliptic AR 8 (lattice built from sampled chord) on three lattices refined by 2: CL Richardson-extrapolated within 0.5 % of a recorded lifting-surface reference — lifting line, Helmbold and the Jones factor are not the reference — and e after Richardson within 1.000 ± 0.005, the lattice tolerance; swept wing (Bertin–Smith, AR 5, Λ_c/4 45°): C_Lα 3.443 /rad within 0.5 %)*; symmetric section at α = 0 gives Cl = 0 within 10⁻⁶; mirrored wing gives zero side force; Trefftz and near-field drag agree within 1 % (proposed); lattice refinement converges at the design order the evaluator record states — **then** every row passes; ~~Warren-12 and Bertin–Smith are admitted only after their reference numbers are re-established.~~ *(1.7: Bertin–Smith is admitted at ± 0.5 %, above; Warren-12 is admitted only after its reference numbers are re-established.)* |
 | ANA-05 · I can find a supporting operating point or take-off speed | **Given** a required load from a goal-state point or a typed value with source, a speed or a bracket, **when** the search runs, **then** it returns α (or the lowest speed) meeting the load within the root-finding tolerance of 1 % *on the named basis* (deep-water uncorrected, or correction id with h/c and Fr_h), reports bracket, iteration count and termination reason, iterates V → Re → CL → V, and reports the polar's converged bracket and confidence floor at both Ncrit as its own limit; CL_max reads "attached-flow polar limit, not measured stall; pumping not modelled". **Given** no crossing, **then** the reason enum (no sign change · polar not converged · confidence below floor · out of Re envelope · h/c below floor) is shown and nothing is extrapolated. |
 | ANA-06 · I can compare revisions and tiers | **Given** two runs, **when** compared, **then** inputs are side by side, per-point deltas are normalised to the base value, incompatible reference quantities block a numeric delta, and each compared pair stores a Discrepancy record; no averaging or "best truth". |
 | ANA-07 · I can trust freshness | **Given** a completed run, **when** the definition, profile, water record, operating point, method version or any setting in the settings hash (e.g. lattice density, TE floor) changes, **then** the run is Historical before any new value appears. **Given** Undo to a definition whose key equals the run key, **then** the run is Current. **Given** save and reopen, **then** freshness is unchanged. Display-unit changes never invalidate. |
@@ -1185,9 +1208,9 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | CAD-01 · I can work the outline, twist and dihedral as distinct curves | **Given** CAD, **then** the five master curves — LE rail and TE rail of the Outline, Dihedral/Anhedral, Twist, Thickness t/c — are separately selectable from the options strip, by a click on the curve in any elevation, or from the η-plot view, sharing the span coordinate, with independent CV abscissae, knots and locks; every curve shows its **control frame** (dashed polygon, square vertices, circle levers, diamond ends) in the elevation that shapes it — the selected curve's frame emphasised, the others dimmed but draggable (a press selects the curve) — so no handle has to be found by first finding a curve; editing one never rewrites another; each carries its own unit family, nudge ladder and Tracing readout; the 3D view updates within the preview budget. |
 | CAD-02 · I can add and remove stations and tune their profiles | **Given** an inspection slice at η 0.35, **when** I add a station there, **then** it becomes an authored station with the profile the blend produced (deviation ≤ 10⁻¹² relative under rule A), selectable in every view, with an explicit thickness command policy and referenced profile closure; **when** I assign or edit its profile, **then** the neighbouring blend updates and the endpoint sections stay within the conversion acceptance; **when** I remove it, **then** the shape is refit through the remaining stations with the measured deviation reported and Apply disabled above the acceptance; root and tip stations cannot be removed. |
 | CAD-03 · CAD is productive as well as visual | **Given** any curve, **then** the keyboard path selects a station in ≤ 1 action, opens its profile in ≤ 1 more, nudges at three steps, types an exact value or expression with echo, applies with Return and cancels with Escape; the command palette and native menus expose every CAD verb; a numeric change is echoed in the inspector, the status strip and the canvas within 100 ms p95 on the reference fixture (A8.1). |
-| CAD-04 · I can edit the master curves in the elevation that shapes them | *(1.6, subject to DR-6: in the workspace a point drag or nudge run commits as one undo step when it ends, without Return/Escape — the "opens the one draft" clause is superseded for point gestures; the elevations, lock refusals, focus ring and accessible values stand.)* **Given** the workspace, **then** **Top** carries the Outline's LE and TE rail frames, **Front** carries the Dihedral/Anhedral frame on the centre line and the Thickness (t/c) frame in a captioned lane below the band, and **Starboard** is a body plan — one row per authored station — with the Twist frame in its own lane, each drawn *on* the geometry it shapes; **when** I drag or arrow-nudge a vertex, **then** it opens the one draft (Return applies · Escape cancels, UX-23), selects that curve everywhere, and the other viewports and the η-plot update within the preview budget (UX-14); a vertex never edits a curve it does not belong to; a locked vertex refuses with its lock in the accessible value and the status line; while a draft is open on one curve, another curve may be picked and inspected but cannot be nudged or otherwise edited (the status line names the pinned draft to apply or cancel); the focused vertex draws a ring that measures ≥ 3:1 on the viewport in every theme; every vertex is a named `role=slider` with η and value in its accessible value. |
+| CAD-04 · I can edit the master curves in the elevation that shapes them | *(1.6, subject to DR-6: in the workspace a point drag or nudge run commits as one undo step when it ends, without Return/Escape — the "opens the one draft" clause is superseded for point gestures; the elevations, lock refusals, focus ring and accessible values stand.)* **Given** the workspace, **then** **Top** carries the Outline's LE and TE rail frames, **Front** carries the Dihedral/Anhedral frame on the centre line and the Thickness (t/c) frame in a captioned lane below the band, and **Starboard** is a body plan — ~~one row per authored station~~ *(1.7: overlaid, one outline per authored station — Ruling 66, OQ-6)* — with the Twist frame in its own lane, each drawn *on* the geometry it shapes; **when** I drag or arrow-nudge a vertex, **then** it opens the one draft (Return applies · Escape cancels, UX-23), selects that curve everywhere, and the other viewports and the η-plot update within the preview budget (UX-14); a vertex never edits a curve it does not belong to; a locked vertex refuses with its lock in the accessible value and the status line; while a draft is open on one curve, another curve may be picked and inspected but cannot be nudged or otherwise edited (the status line names the pinned draft to apply or cancel); the focused vertex draws a ring that measures ≥ 3:1 on the viewport in every theme; ~~every vertex is a named `role=slider` with η and value in its accessible value~~ *(1.7: a 2D point has no one-axis slider equivalent — every point and handle is a named, focusable object with its bounds, its selection state and an Invoke action that runs Return; its name starts with its stable identity, carries its position and value with units (UI-37) and is refreshed on commit; values are not announced per nudge — M1.2b D-1, accepted with the design by Ruling 57)*. |
 | CAD-05 · A station is a document, not a modal | *(Superseded in 1.6 by CAD-20: the section editor is a mode, not a tab; Escape and closing never discard onto the undo stack — only Cancel discards and it adds no undo step.)* **Given** an authored station selected (from the list, the toolbar, an elevation or a 3D pick, which select only), **when** I choose Edit section (the palette, or Return on the workspace) with no geometry draft open, **then** a **Station document tab** opens in the editor group — a full 2D section view with grid, chord and thickness dimensions, the upper and lower control points, the catalog original ghosted, the comb, the section's own control vertices and levers (degree 5, the vertex count the conversion chose to meet its acceptance, the residual **measured** at the catalog points and shown identically in the HUD, the options strip and Properties), the section strip (vertex · value · step · comb) on the toolbar and the section's own Properties; **then** Return applies as a Modified Profile revision (the catalog original intact, source polars detached) and closes the tab, Escape, Delete on the tab or the tab's close button discards the draft **onto the undo stack** (⌘/Ctrl+Z restores it and reopens the tab) and returns focus to the Edit section tool; the document does not follow a change of selection (its station is fixed in its title); removing its station closes it with the draft discarded and the reason in the status line; CAD ⇄ Analysis with a section draft open follows the ANA-22 rule (the draft is hidden, not lost, and the tab is back on return); Edit section is disabled with the reason while a geometry draft is open (one draft at a time, UX-23); the design document stays open beside it and the shell never becomes modal. |
-| CAD-06 · One camera over one model | **Given** the Perspective viewport, **then** Top · Front · Starboard · Iso (and Bottom · Back · Port) are camera presets over the same model, reachable from the view cube, the viewport's title menu and the keyboard; free orbit, pan and zoom follow the navigation preset's pointer contract (B7) and the keyboard (Option/Alt+←→ orbits 15°, ⇧ 90°; Option/Alt+↑↓ tilts 15°, ⇧ 45°; `[` `]` 5°; ⇧+arrows pan; Z zooms out and ⇧Z in (the per-OS table, 01); F fit; Home = Iso); the view cube draws only faces with area and carries four orbit chevrons; the side views are **Starboard** and **Port** everywhere, and the Starboard body plan and the Starboard camera agree on handedness (the nose to the right, the TE to the left); positive twist is nose-up about the station LE in every view (A4.4, A4.7) and the sign fixture asserts it; the viewport title names the camera or "Free · az · el"; the caption names the modifier of the running OS; a section is selectable in 3D and becomes the selection in every view; **Body** shows the loft as Smooth, as the **display cage** (Box: every station's section polygon and the LE and TE rail polygons as a named group — the dihedral, twist and t/c polygons live in their 2D lanes and are never drawn at invented 3D positions) or both; double-click on a rail polygon in the cage maximises the elevation that edits it; the camera survives the CAD ⇄ Analysis toggle (ANA-22) and the analysis layers render in any camera; direct 3D vertex dragging stays deferred (no unambiguous drag plane without a gizmo) — double-click on a 3D vertex maximises the elevation that edits it. |
+| CAD-06 · One camera over one model | **Given** the Perspective viewport, **then** Top · Front · Starboard · Iso (and Bottom · Back · Port) are camera presets over the same model, reachable from the view cube, the viewport's title menu and the keyboard; free orbit, pan and zoom follow the navigation preset's pointer contract (B7) and the keyboard (Option/Alt+←→ orbits 15°, ⇧ 90°; Option/Alt+↑↓ tilts 15°, ⇧ 45°; `[` `]` 5°; ⇧+arrows pan; Z zooms out and ⇧Z in (the per-OS table, 01); F fit *(1.7: the selection, or everything when nothing is selected; ⌘0 always fits everything — Ruling 66, OQ-6)*; Home = Iso); the view cube draws only faces with area and carries four orbit chevrons; the side views are **Starboard** and **Port** everywhere, and the Starboard body plan and the Starboard camera agree on handedness (the nose to the right, the TE to the left); positive twist is nose-up about the station LE in every view (A4.4, A4.7) and the sign fixture asserts it; the viewport title names the camera or "Free · az · el"; the caption names the modifier of the running OS; a section is selectable in 3D and becomes the selection in every view; **Body** shows the loft as Smooth, as the **display cage** (Box: every station's section polygon and the LE and TE rail polygons as a named group — the dihedral, twist and t/c polygons live in their 2D lanes and are never drawn at invented 3D positions) or both; double-click on a rail polygon in the cage maximises the elevation that edits it; the camera survives the CAD ⇄ Analysis toggle (ANA-22) and the analysis layers render in any camera; direct 3D vertex dragging stays deferred (no unambiguous drag plane without a gizmo) — double-click on a 3D vertex maximises the elevation that edits it. |
 | CAD-07 · The verbs are a palette, the parameters an options strip | *(Superseded in 1.6 by CAD-21 for the palette, the options strip, the Checks-only bottom panel and the 51-control ceiling; the verbs, their single-key scope (SC 2.1.4) and their keyboard equivalents remain.)* **Given** CAD or Analysis, **then** a vertical **tool palette** beside the workspace carries Select · Insert CV · Add station · Measure · Fair · Rebuild · Fit points · Edit section · Ghost, each an icon *with* its visible name, its key in the accessible name, the active tool pressed, and a single key (S · I · A · M · ⇧F · R · P · Return · G) that acts only while the workspace has focus (SC 2.1.4) — Escape cancels the draft and returns to Select in one press; every pointer verb has a keyboard equivalent on the options strip (Insert at η; Add station at η; Measure between two η values) and the pointer path is the same verb; at the 640 × 400 reflow preset the palette becomes a row above the viewports, never hidden (a 44 px row: the reflow preset is for orientation, and the palette keeps its own target class rather than shrinking to a 32 px dense row that would leave a 12 px taller viewport); the application toolbar keeps only Edit (Undo · Redo), Find (⌘/Ctrl+K) and View (CAD ⇄ Analysis) plus **Draft (Apply · Cancel) while a draft is open**; the row beneath the toolbar is an **options strip** — the curve selector, the active tool's options (η for Add station and Insert CV, two η values for Measure, tolerance and PreserveEnds for Fair, vertex count for Rebuild, the comb scale and the monotone-piece count while the comb is shown), the draft chip and the derived b · S · AR · c̄ · TE readouts; the nudge step and the locks live in Properties; the bottom panel is the Checks drawer only; the Navigator starts collapsed on first entry; at 1280 × 800 the CAD area shows at most 51 visible chrome controls (revision 1.5 permits three approved persistent entry actions—Edit section, Edit intent and Alternatives—above the previous 48 ceiling; v4 measured 71). Existing target-size, viewport, overflow and keyboard requirements remain unchanged. |
 | CAD-08 · Four viewports, one model | *(1.6: the four-viewport default arrangement is superseded by UX-31 — Plan + 3D by default, Four views and One view as layouts; per-viewport rendering at its own pixel size and the pointer probe stand.)* **Given** the workspace, **then** it is **four viewports** in the lines-drawing arrangement (Top · Perspective over Front · Starboard), each with a **title menu** (View: Top · Front · Starboard · Perspective · η-plot; Display: Control frame · Curvature comb · Ghost; Body: Smooth · Box · Cage over smooth; Maximise / restore — a WAI-ARIA menu: opening focuses the first item, arrows and Home/End move, Escape closes and returns focus to the button, choosing an item returns focus before the items leave) and **double-click or Return on its title to maximise** it to the whole workspace and back; the η-plot is a view like any other (the active curve's vertices against η) and the 1.2 curve pane is gone; every viewport renders at its own pixel size so a vertex target is never scaled below 24 px, and the workspace re-renders when a dock, the bottom panel or the window changes its box; below 480 × 240 px the workspace shows one viewport (the title menu still reaches every view); the tracing readout is a strip beneath the viewports, never an overlay, and it is a **pointer probe**: moving over any elevation writes η, % half-span, the evaluated channels and the active curve's graph curvature κ and radius at the pointer, and returns to the selected station on leave. |
 | ANA-21 · I can read 2D and 3D local analysis with rich visuals | **Given** a Design revision and an operating point, **then** the section view draws Cp on the profile (vik pinned at 0), the transition point and the cavitation margin, and the wing view draws per-strip lift vectors (length ∝ local load, direction along the local normal), the total force vector at the center of lift, the spanwise loading strips (batlow), the depth band and the ventilation margin on the geometry, each with its legend fields and a table twin; every visual carries the tier chip and "local calculation". |
@@ -1222,9 +1245,9 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | Label | Granted per | Evidence required | Fixed string |
 |---|---|---|---|
 | **Illustrative** | any mockup, cached picture of a superseded definition, or fixture with no method | none | "Illustrative — not computed for this design" |
-| **Computed estimate** | every estimator, polar and VLM + strip result; every correction layer | method id + version, inputs, envelope, omissions | "Computed estimate · model uncertainty not quantified" |
+| **Computed estimate** | every estimator, polar and VLM + strip result; every correction layer | method id + version, inputs, envelope, omissions | "Computed estimate · Model uncertainty not quantified" |
 | **Verified numerical implementation** | a *method* | its ring-0 fixture suite (A8.4) observed red then green on both platforms | "Verified implementation (fixtures <suite id>)" |
-| **Converged** | a CFD case | residual criterion fired · artifact oracle passed · grid uncertainty per ITTC 7.5-03-01-01 Rev 05 or "not quantified (single mesh)" (v1 has no grid-study Experiment kind, so the third part always reads this; the kind is reserved) | three-part label "Converged: residuals <r> · outputs complete · grid uncertainty <U or not quantified (single mesh)>"; LAB-01 lints a partial label |
+| **Converged** | a CFD case | residual criterion fired *(1.7: the three-part criterion of A5.10 — residual drop, Cl/Cd stationarity, clean window; DR-F2-1)* · artifact oracle passed · grid uncertainty per ITTC 7.5-03-01-01 Rev 05 or "not quantified (single mesh)" (v1 has no grid-study Experiment kind, so the third part always reads this; the kind is reserved) | three-part label "Converged: residuals <r> · outputs complete · grid uncertainty <U or not quantified (single mesh)>"; LAB-01 lints a partial label |
 | **Experimentally compared** | a *result* | dataset id + hash, configuration class (wing-only · foil+strut · near-surface), E = D − S, U_V or "U_D not stated by source" | "Compared with <dataset>: E = …, U_V = … (validated at the U_V level)" |
 
 "Validated" is reserved for that ITTC statement. Foil-plus-strut datasets (Day 2019, ADA032272) are ranking or
@@ -1287,7 +1310,7 @@ occur (the twist rotation is one); the identity triple for geometry round trips.
 | 10⁻¹² relative | evaluated coordinates, loft samples, twisted station readouts, every hydrodynamic output |
 | identity oracle | geometry round trips (A4.5) |
 
-At readiness: NASA TMR NACA 0012 with GCI (SPIKE-04, the Run/Results acceptance gate). Every fixture is observed red before green and recorded in
+~~At readiness~~ *(1.7, DR-F2-9: when the backend pin changes, not at every readiness run)*: NASA TMR NACA 0012 with GCI (SPIKE-04, the Run/Results acceptance gate); readiness keeps the cavity-lid smoke test (A5.10). Every fixture is observed red before green and recorded in
 the Proof Pack.
 
 #### A8.5 Threat boundaries and the licence register
@@ -1360,8 +1383,8 @@ in the global column; a chip that jumps is not a verb.
 | Area | Verbs (exclusive) | Jump chips |
 |---|---|---|
 | Setup | Describe a starting design · Seed from parameters · Edit constraint row · Validate against class · Acknowledge | → CAD · → Analysis |
-| CAD | Select · Insert CV · Delete CV · Drag · Nudge · Type η/value · Apply · Cancel · Fair · Rebuild · Fit points · Add station · Remove station · Measure · Ghost · Assign profile · Edit section · Add profile from DAT · Describe a change to the shape · Accept candidate draft · *1.6:* Set point type · Set tangent kind · Type span · Type root chord · Type tip chord · Replace from catalog · Save to My sections · Smooth (Fair / Rebuild, assumed below) · Finish section · Cancel section · Curvature · Thickness ×2 | → Analysis (toggle) |
-| Analysis | Set operating point · Set depth · Choose water · Toggle layer · Compare · Ask about this calculation | → CAD (toggle) · → Experiment |
+| CAD | Select · Insert CV · Delete CV · Drag · Nudge · Type η/value · Apply · Cancel · Fair · Rebuild · Fit points · Add station · Remove station · Measure · Ghost · Assign profile · Edit section · Add profile from DAT · Describe a change to the shape · Accept candidate draft · *1.6:* Set point type · Set tangent kind · Type span · Type root chord · Type tip chord · Replace from catalog · Save to My sections · Smooth (Fair / Rebuild, assumed below) · Finish section · Cancel section · Curvature · Thickness ×2 · *1.7:* Insert CV and Delete CV are named **Add point** and **Remove point**, and Rebuild on a master curve is **Rebuild to N** (Ruling 62) | → Analysis (toggle) |
+| Analysis | Set operating point · Set depth · Choose water · *1.7:* **Evaluate** (computes the selected tier against the accepted revision; a Historical result stays Historical until Evaluate is pressed — DR-ANA-6) · Toggle layer · Compare · Ask about this calculation | → CAD (toggle) · → Experiment |
 | Experiment | New sweep · New optimize · Describe the experiment · Queue · New version | → Run |
 | Run | Check · Prepare my environment · Consent · Run · Cancel · Retry sample · Explain this failure · Preview case diff | → Results · → Experiment (Open repaired draft) |
 | Results | Select sample · Select layer · Play · Step · Scrub · Hold · Add layer · Compare samples · Select candidate · Accept as draft (opens CAD) · Ask about this result · Open in ParaView | → CAD · → Run |
@@ -1414,18 +1437,21 @@ station's section, left by Finish section or Cancel). Inside the workspace:
 |---|---|---|
 | Model area | Views Plan · 3D · Side · Front; layouts Plan + 3D · Four views · One view (Views ▾, or double-click a view label for One view); Fit | Plan + 3D |
 | Left side bar | **Properties** (follows the selection: a point, several points, a station, or the foil; always ends with the Wing block) · **Browser** (the sections, each with the profile it uses — not a third copy of the points) | shown, 260 px (200–420) |
-| Bottom panel | **Points** (a grid of every point with typed edits and two-way selection) · **Messages** (anything that stops Finish or Save, each with Show) | hidden |
-| Right side bar | empty until a pane is moved there; an opened empty dock says how to fill it | hidden |
-| Workspaces (Window menu) | **Planform** (Plan + 3D, left side bar) · **Precision** (adds Points and Messages in the bottom panel) · **Review** (four views, no panes); each remembers its own layout; Reset layout restores the preset | Planform |
+| Bottom panel | ~~**Points** (a grid of every point with typed edits and two-way selection) · **Messages** (anything that stops Finish or Save, each with Show)~~ *(1.7: empty until a pane is moved there. Points moved to the right side bar (Ruling 59, OD-3 B). Messages is retired: a blocker shows where it blocks — the Finish reason, the canvas marker — with one **Show** in the status strip (OD-2 A))* | hidden |
+| Right side bar | *(1.7:)* **Points** (a grid of every point with typed edits and two-way selection), shown by the Precision workspace (Ruling 59, OD-3 B); otherwise empty until a pane is moved there; an opened empty dock says how to fill it | hidden |
+| Workspaces (Window menu) | **Planform** (Plan + 3D, left side bar) · **Precision** (adds Points ~~and Messages in the bottom panel~~ *(1.7: in the right side bar)*) · **Review** (four views, no panes); each remembers its own layout; Reset layout restores the preset | Planform |
 
 The operator's layout words govern this table: properties in *"a 'properties pane'"*, window management *"like in … VS
 Code, Adobe Premier"*, *"docked in a side panel or floating"*, *"right side and bottom panels should be 'optional'"*,
 *"the left panel should be the default place for properties and not take too much space away from the cad
 surfaces"*, *"by default it would have the side panel then the main views depending on the task"*.
-**assume:** v10's view labels map onto CAD-06's cameras as Plan = Top, 3D = Perspective, Side = Starboard (nose to the
-right), Front = Front; confirm at the next `/ui-design` run; if wrong, only labels change. **assume:** the **Messages**
+~~**assume:** v10's view labels map onto CAD-06's cameras as Plan = Top, 3D = Perspective, Side = Starboard (nose to the
+right), Front = Front; confirm at the next `/ui-design` run; if wrong, only labels change.~~ *(1.7: confirmed as built in
+M1.2b2 — Plan = Top, 3D = Perspective, Side = Starboard (nose to the right), Front = Front; Ruling 66, OQ-6.)* ~~**assume:** the **Messages**
 pane is the CAD presentation of the Checks drawer's findings for the open foil (DRC-01 stands); confirm at the next
-`/ui-design` run; if wrong, the Checks drawer needs its own place in the CAD shell. **assume:** v10's **Smooth…**
+`/ui-design` run; if wrong, the Checks drawer needs its own place in the CAD shell.~~ *(1.7: resolved by Ruling 59,
+OD-2 A — there is no Messages pane. Where DRC-01's Checks findings for the open foil live in the CAD shell is placed by the
+next `/ui-design` run, under DR-STATUS-1 (no scrollable list in the bottom bar) — Ruling 66, OQ-11.)* **assume:** v10's **Smooth…**
 dialog (tolerance, points per side, largest change) is the Fair / Rebuild construction of GEO-15 under a plainer name;
 if wrong, Smooth is a new verb and needs its own story. **How the six other areas are
 reached from this shell is DR-7** (default: the activity rail of UI-18/UI-24 stays, outside the left side bar).
@@ -1585,7 +1611,7 @@ N --> P[Compare revisions or tiers]
 P -->|Incompatible references| Q[Block delta until reconciled]
 Q -->|Reconcile reference quantities| P
 P -->|Compatible| R[Normalised per-point deltas; Discrepancy record]
-N -->|Definition, setting or method changed| S[Historical banner; recompute]
+N -->|Definition, setting or method changed| S[Historical banner until Evaluate is pressed - 1.7, DR-ANA-6]
 S --> L
 N --> T[Checks drawer: envelope and label findings]
 N -->|Sweep this| U[Jump chip: define a Case schedule in Experiment]
@@ -1783,7 +1809,7 @@ station · Measure · Curvature**; in the section editor **Editing <station> sec
 ×2**, with **Cancel · Finish section** at the right. Then **Undo · Redo** and three layout toggles (left side bar ·
 bottom panel · right side bar). **Body:** the left side bar (Properties | Browser), the model area (views with a Fit ·
 Views ▾ bar; in the section editor the section canvas with its scope and source chips, its status line and a strip of
-station thumbnails), the optional bottom panel (Points | Messages) and the optional right side bar; floating panes sit
+station thumbnails), the optional bottom panel ~~(Points | Messages)~~ and the optional right side bar *(1.7: Points lives in the right side bar; Messages is retired — Ruling 59, OD-2 A and OD-3 B)*; floating panes sit
 over the model area. **Panes:** each pane's tab has a menu (Move to · Float · Size · Maximize · Close); a tab can be
 dragged to a highlighted drop zone; a float moves with Alt + arrows or its Position menu and docks back with ⤓ or
 Escape; a dock closes when its last pane leaves. **Keyboard:** F6 cycles regions; ⌘/Ctrl+B, ⌘/Ctrl+J and ⌥⌘B /
@@ -2033,6 +2059,10 @@ S6 --> W
 S7 --> W
 ```
 
+*(1.7: node M's typed clause — a typed value sets every point — is not built in M1.2. Several selected points show
+Mixed values read-only until a multi-point draft exists (M1.2b OI-3, accepted with the design by Ruling 57). The
+requirement stands.)*
+
 ### B12. Flow F12 — panes, docks and floats (revision 1.6; UX-31–32)
 
 ```mermaid
@@ -2073,13 +2103,13 @@ B -->|Reset layout| A
   D1-No, D-Tip-closes, S2-Yes, K-No-match, K-Pending-or-cite-only, K-Cancel, K3-Cancel, V-Empty-or-duplicate,
   V-Cancel, SM-Cancel, S1-Other-station, S1-Escape, S1-Cancel, S1-Switch-to-Analysis, S1-Station-removed,
   S1-Close-window, S10-Save (23); F12 — A-Monitor-gone, G-Yes, G-No, X-Escape-or-restore, F-Escape-or-dock-back (5):
-  **28 edges**, each a test row, in addition to UX-03's 80.
+  **28 edges**, each a test row, in addition to UX-03's 80. *(1.7: S1-Switch-to-Analysis is not applicable until the Analysis area exists; its test row lands with the A3a toggle, ANA-22 — Ruling 66, OQ-7.)*
 - **UX-30** *(supersedes UX-24's palette clause; its one-draft clause stands)*: the model gets the space — in the
   default Planform workspace the left side bar is 260 px (resizable 200–420 px), the right side bar and bottom panel are
   hidden, and no palette or options strip renders; a point, a station, the section editor and every B1 CAD verb are
   reachable by keyboard; selection agrees across every visible view and the Properties pane.
 - **UX-31** *(supersedes the four-viewport default of CAD-08)*: Planform opens Plan + 3D with Properties on the left;
-  Precision adds Points and Messages in the bottom panel; Review shows four views and no panes. Each workspace
+  Precision adds Points ~~and Messages in the bottom panel~~ *(1.7: in the right side bar; there is no Messages pane — Ruling 59, OD-2 A and OD-3 B)*; Review shows four views and no panes. Each workspace
   remembers its own layout; Reset layout restores its preset; switching workspace or layout keeps the selection, the
   camera and any section draft.
 - **UX-32**: window management is VS Code / Premiere-class and never pointer-only — every pane can be moved, floated,
@@ -2259,9 +2289,9 @@ run that ships the mockup).
 | Saved to My sections | "Saved “<name>” to My sections" | live region | CAD-19 |
 | My sections empty · catalog unavailable | "No saved sections yet. To keep one here, choose Save to My sections… from the Section menu in the section editor." · "The catalog didn't load: <cause>. Your section hasn't changed. Choose Cancel to go back." (<cause>: "a catalog file is missing from this installation" · "a catalog file failed its check") | catalog dialog | CAD-18, UI-38 |
 | Span not assessed | "The new span couldn't be checked. Span is unchanged. Try again or enter a different value." | Wing field error | CAD-16 |
-| Layout fallback | "Your saved layout for <Workspace> couldn't be read, so its preset is shown." | Messages + status | UX-32 |
-| Layout newer | "This layout was saved by a newer version of CFD Workbench. The presets are shown, the file is left as it is, and layout changes in this session won't be kept." | Messages + status | UX-32 |
-| Layout not kept | "Layout changes won't be kept after you quit: this system can't save them safely." (platform) · "Layout changes won't be kept after you quit: the layout file is in use. Quit other copies of CFD Workbench, then remove the lock file Show in Finder selects." + **Show in Finder** (another copy) | Messages + status | ADR-0009 §5; app-shell §4.4 |
+| Layout fallback | "Your saved layout for <Workspace> couldn't be read, so its preset is shown." | status *(1.7: Messages retired, OD-2 A)* | UX-32 |
+| Layout newer | "This layout was saved by a newer version of CFD Workbench. The presets are shown, the file is left as it is, and layout changes in this session won't be kept." | status *(1.7: Messages retired, OD-2 A)* | UX-32 |
+| Layout not kept | "Layout changes won't be kept after you quit: this system can't save them safely." (platform) · "Layout changes won't be kept after you quit: the layout file is in use. Quit other copies of CFD Workbench, then remove the lock file Show in Finder selects." + **Show in Finder** (another copy) | status *(1.7: Messages retired, OD-2 A)* | ADR-0009 §5; app-shell §4.4 |
 | Recent not cleared | "The recent-files list wasn't cleared: <reason>. The list is unchanged." + **Try again** | status | privacy rights path |
 | Maximize | "<Pane> maximized. Press Escape to restore." · "<Pane> restored" | status | UX-32 |
 
@@ -2272,7 +2302,7 @@ strings of every test. **Obligations on DESIGN.md (owned by the `ui-design` run,
 it shall quote every C2 string verbatim as COPY rows; it shall define the `target-dense` token (32 px, 8 px
 separation) beside `target` (44 px); it shall define the batlow sequential and vik diverging token sets with their
 licences beside cividis. The lint of LAB-01 forbids the strings' rivals. "Undefined" and "Unavailable" each have
-exactly one rendering; "Model uncertainty not quantified" is the only uncertainty string.
+exactly one rendering; "Model uncertainty not quantified" is the only uncertainty string. *(1.7, Ruling 66 OQ-8: DESIGN.md numbers and holds the copy a design proposes; C2 gains a row only for a fixed honest-limit or safety string of the A5 and A7 class.)*
 
 ### C4. UI acceptance criteria
 
@@ -2393,8 +2423,12 @@ obligation of the build (UI-T4).
 - **UI-36 (Wing block):** while a foil is open, Properties ends with a section headed **Wing** that is not
   collapsible: the typed Span, Root chord and Tip chord (label, input, "mm") above the estimates, separated by a rule;
   every estimate is prefixed "≈"; an **Estimates · definitions** disclosure — a keyboard-operable control, the
-  required route to the definitions — lists the A4.15 definitions; a tooltip on each label is supplementary only. At the 200 px dock no value is clipped, and at 1280 × 800 the
-  selection content and the Wing block fit without scrolling. In the section editor the three dimensions render as
+  required route to the definitions — lists the A4.15 definitions; a tooltip on each label is supplementary only. At the 200 px dock no value is clipped, and ~~at 1280 × 800 the
+  selection content and the Wing block fit without scrolling~~ *(1.7: the Wing block is pinned and always fully visible;
+  the selection section may scroll; groups stay collapsible and remember their state — property-grid DR-UID-5. At 1280 × 800
+  the Wing is fully visible at the 260 and 300 px docks; at the 200 px dock it stays pinned, and four recorded states (chord
+  warning, unavailable, MAC unavailable, section editor) are not fully visible. At 200 % text the Wing scrolls inside
+  itself and a focused field is always brought into view — DR-DEN-2)*. In the section editor the three dimensions render as
   text, not as disabled inputs, with "Set these in the workspace."
 - **UI-37 (point glyphs and names):** Anchor point = square; end and named points = diamond (dashed when locked);
   Control point = circle joined to its neighbours by a dashed control polygon in the `model-dim` token; a tangent
@@ -2403,9 +2437,11 @@ obligation of the build (UI-T4).
   weight (a ring or outline), not by fill colour alone, at ≥ 3:1 against both the unselected point and the canvas in
   every theme** (SC 1.4.1, 1.4.11) — v10 marks selection by an accent fill that equals the model colour in the light
   theme, so this is a new floor, and the contrast check gains the accent-on-model pair. Every point's accessible name
-  carries its curve, its name, its type and its position with units; the nose is named "Nose" with its type and handle
+  carries its curve, its name, its type and its position with units *(1.7: a point's spanwise coordinate is labelled
+  **From root**, with η beside it as a read-only fact; "Span" means only the wing span b — in names, tooltips, the Tracing
+  probe, the Points grid and the Browser rows; property-grid MC-6)*; the nose is named "Nose" with its type and handle
   lengths; a tangent handle is named by its point and its direction ("toward the nose", "toward the tail", "toward the
-  root", "toward the tip") with its angle in degrees and its length in mm. The Type row is a labelled select (Anchor point · Control point); a named point shows
+  root", "toward the tip") with its angle in degrees and its length in mm *(1.7: on a section, mm at the station's local chord with % c beside it as a read-only fact — Ruling 66, OQ-4)*. The Type row is a labelled select (Anchor point · Control point); a named point shows
   its type as read-only text with its constraint; the tangent kind is a labelled select.
 - **UI-38 (catalog picker):** Replace from catalog… is a dialog whose search is an APG combobox controlling a listbox
   grouped by family; disabled options are `aria-disabled`, stay reachable with the arrow keys and carry their reason;
@@ -2417,8 +2453,11 @@ obligation of the build (UI-T4).
 - **UI-39 (typed numbers, SC 3.3.1):** every typed number is checked one way — a non-number or a length ≤ 0 is refused
   with COPY-118 or COPY-106, `aria-invalid` and an alert tied by `aria-describedby`; the geometry is unchanged; Escape
   restores the shown value; commit is on Return or on leaving the field.
-- **UI-40 (one precision per quantity):** a length that is typed or placed shows 0.01 mm; a derived length (chord,
-  span estimate, MAC, LE radius) 0.1 mm; an angle 0.1°; a ratio 0.1 %; AR two decimals; area 1 cm². A value shows the
+- **UI-40 (one precision per quantity):** a length that is typed or placed shows 0.01 mm *(1.7: a station chord at the root or tip is the typed dimension; Δ and
+  "largest change" also show 0.01 mm)*; a derived length (chord,
+  span estimate, MAC, LE radius) 0.1 mm *(1.7: the status strip reads "MAC 101.3 mm")*; ~~an angle 0.1°~~ *(1.7: a placed or
+  typed angle 0.01°, a derived angle 0.1°)*; a ratio 0.1 % *(1.7: a derived ratio such as Max t/c; a placed t/c shows
+  0.01 %)*; AR two decimals; area 1 cm². A value shows the
   same precision in Properties, the Points grid and the canvas label, so the finest nudge is visible in all three.
   (DESIGN.md §12.0e does not yet state the AR and area rules — obligation on the next `ui-design` run.)
 - **UI-41 (panes and floats, SC 2.4.11, 2.1.1, 2.5.7):** with a float open, no focusable target in the model area is
@@ -2781,3 +2820,66 @@ proposal kinds; the geometry of record (A4.1–A4.2) until DR-5 is settled; Foil
 needs one, goes to `/define-architecture`); A4.14's station chord command and its previewed span command. **Count:** 8 functional stories
 (CAD-14–21), 6 UX criteria (UX-28–33) and 8 UI criteria (UI-36–43) added — 22 acceptance criteria; 20 items
 superseded in whole or in part, each marked in place.
+
+## Appendix H — Changes from revision 1.6 (revision 1.7, 2026-10-03)
+
+**Why.** Rulings 53–65, the property-grid rulings and the M1.2c rulings decided product behaviour that the designs
+then sent to the spec owner as amendment requests; none had been put to the owner. The operator asked for one batch:
+each ruling turned into exact spec text, before → after per clause, approved once. The batch — every amendment with
+its quoted before-text, its exact after-text, its source (ruling or finding, file:line) and the tests or designs it
+affects — is [amendments/spec-1.7.md](amendments/spec-1.7.md). **The owner approved it in Ruling 66** (2026-10-03):
+the 36 amendments drafted from the earlier rulings, and the 13 open questions that had no ruling behind them, each
+accepted as recommended and written in as AM-1.7-37 to -49. No amendment invents a product decision; each traces to a
+ruling.
+
+**Added.** A3.3's Analysis run grain, with interactive attempts as run rows (DR-ANA-4); B1's **Evaluate** verb
+(DR-ANA-6); A5.6's inviscid panel Cp in the estimator tier (DR-ANA-2); A5.10's definition of the residual criterion
+(DR-F2-1); a note under F11 that node M's typed clause is not built in M1.2 (OI-3).
+
+**Changed (Part A, because a ruling changed a functional promise).** A4.1 (4–16 vertices under FoilDSL 4.1; New foil
+ships 4 on the rails); A4.2 (floor 4, ceiling 16, Rebuild to N); A4.6 (acceptance scoped to conversions; the
+typed-chord warning); A4.8 (expressions are set once); A4.15 (the quarter-chord held line; paired section point
+types); A5.6 (the VLM label with depth unset); A5.10 (the mesh gate's y+, layer and determinant floors); A7 (Converged
+evidence); A8.4 (TMR + GCI on a backend pin change); ANA-04 (lattice oracles); CAD-04, CAD-15, CAD-16, GEO-05, GEO-15;
+the authority paragraph and A4.11's `.foil` row (FoilDSL 4.1). **Changed (Parts B and C).** B1 (verb names, the CAD IA
+table, the Messages assume); B5 flow F4 node S; B7; UX-31; UI-36; UI-37; UI-40; the C2 layout rows; A3.1's pane row.
+**Changed by Ruling 66 (the batch's open questions, OQ-1 to -13).** A4.2 and GEO-14 (Add point and Remove point apply
+at once); A4.2 and GEO-05 (a lever is never removed); A3.1 and A4.15 (Vertical at the nose only); UI-37 (a section
+handle length in mm at the station chord, % c beside it); A4.8 (the t/c ladder 0.01 / 0.1 / 1 %); B1's view-label
+assume, CAD-04's overlaid body plan and CAD-06's F (as built in M1.2b2); UX-29 (S1-Switch-to-Analysis not applicable
+until A3a); C3 (DESIGN.md holds design copy); A5.6 (the depth-unset rule on every tier; the panel Cp tolerance set at
+A3b; the RANS "TE blunted for analysis" label deferred to the backend ADR); B1's Checks placement (the next
+`/ui-design` run); A5.10 (the v2606 note names the Docker Hub tag).
+
+**Corrected (the spec contradicted itself).** A7's Computed-estimate fixed string reads "Model uncertainty not
+quantified", as C2's Model-uncertainty row and C3 already required and DESIGN.md COPY-63 states.
+
+**Superseded — marked in place, not deleted.**
+
+| Item | Superseded by | What stands |
+|---|---|---|
+| A4.1 "six to ten allowed" | 4–16 under FoilDSL 4.1, 6–10 under 4.0 (ADR-0001 Amendments 1–2) | degree 3; seven vertices for a hand-authored curve |
+| A4.2 "the floor is the record's six vertices" | four (p + 1) under 4.1; ceiling 16 | Insert CV's exact path; Delete CV's measured change |
+| A4.2 "always as a draft" for Insert CV and Delete CV | apply at once, one undo step, Undo exact (Ruling 66, OQ-1) | the draft for Fair, Rebuild and Fit points (GEO-14) |
+| B1's view-label assume; CAD-04 "one row per authored station" | confirmed as built; an overlaid body plan (Ruling 66, OQ-6) | the mapping itself |
+| A4.2 Rebuild as Fair on a master curve | Rebuild to N (4–10), no tolerance gate, anchors dropped and listed | Fair; Rebuild on a section |
+| A4.15 DR-2's leading-edge default | the quarter-chord line is held (Ruling 53) | the linear chord-scale blend |
+| CAD-04 `role=slider` per vertex | named, focusable point objects (M1.2b D-1, Ruling 57) | elevations, lock refusals, focus ring |
+| CAD-16 held-line clause | the quarter-chord line, up to the reported rigid shift | the rest of CAD-16 |
+| GEO-05 "fewer than p + 2" | four (p + 1); Insert refused at 16 | Insert CV's exact path |
+| GEO-15 Rebuild clause | Rebuild to N | Fair's contract |
+| UI-36 "fit without scrolling" | the Wing pinned and always fully visible (DR-UID-5) | no clipping at 200 px; the section-editor text |
+| UI-40 "an angle 0.1°" | placed or typed 0.01°, derived 0.1° (DR-UID-1) | the other precisions |
+| ANA-04 flat-plate and elliptic rows; Bertin–Smith's deferral | DR-ANA-12's rows | the other fixture rows; Warren-12's deferral |
+| A5.10 "determinant > 0.3" on OpenFOAM meshes | `cellDeterminant` ≥ 0.001 (DR-F2-6) | 0.3 on structured meshes |
+| A8.4 TMR + GCI "at readiness" | on a backend pin change (DR-F2-9) | the cavity-lid smoke test at readiness |
+| B1's Messages pane and Points in the bottom panel; B1's Messages assume | no Messages pane; Points in the right side bar (OD-2 A, OD-3 B) | the bottom panel as an optional dock |
+| A3.1's pane list, B7's "(Points \| Messages)", UX-31's Precision clause | as above | — |
+| C2 layout rows rendered in "Messages + status" | the status strip | the strings |
+
+**Unchanged.** Every tolerance, safety string and licence contract; FoilDSL 4.0's grammar beyond 4.1's vertex range;
+the seven areas; F11 and F12's 28 non-happy edges and UX-03's 80 (S1-Switch-to-Analysis is counted and not applicable
+until A3a). **Outside the spec:** the knowledge-base correction KB-1 (ITTC Eq. 10, `ln` → `log10`, Ruling 66) is made
+in `docs/knowledge/hydrofoil-workbench/`; the spec cites the ITTC floors, not the formula. **Count:** 49 amendments
+(CAD 24 · Analysis 8 · Run 7 · Copy 3 · Shell 7); no acceptance criterion added or removed; 18 items superseded in
+whole or in part, each marked in place.

@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="source-sha256" content="d77b62107507e74ea33d4120789fa203307f91c7b83cb4e1378e4a13d8756b1e"><title>CFD-Workbench — Product specification</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="source-sha256" content="d6787952e5f47a11ba76a3e7abd231ac860e70c918570abba4240aedc3dc3bb9"><title>CFD-Workbench — Product specification</title>
 <style>
 :root{--paper:#f7f9f7;--surface:#ffffff;--ink:#19302e;--muted:#506762;--line:#c5d1cc;--accent:#096b61;--shade:#e9f1ed;--dark:#142d2a;--on-dark:#eef8f3;--focus:#007d70;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;--small:13px;--body:16px;--title:48px;--h2:30px;--h3:22px;--radius:4px;--rail:270px;--measure:1120px}
 [hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:var(--body)/1.7 var(--sans)}a{color:var(--accent);text-underline-offset:3px}button,input{font:inherit}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.top{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s4) var(--s8);background:var(--dark);color:var(--on-dark)}.top a{color:var(--on-dark)}.brand{font-weight:700;letter-spacing:.02em}.badge{font:var(--small) var(--mono);border:1px solid var(--line);padding:var(--s1) var(--s2)}.layout{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);max-width:1600px;margin:auto}.rail{position:sticky;top:0;height:100vh;overflow:auto;padding:var(--s8) var(--s6);border-right:1px solid var(--line)}.rail p{font:var(--small) var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.rail nav a{display:block;font-size:var(--small);line-height:1.5;padding:var(--s2) 0;text-decoration:none}.rail nav a.depth2{font-weight:700;border-top:1px solid var(--line);margin-top:var(--s3)}.rail nav a:hover{text-decoration:underline}.rail input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2);background:var(--surface);color:var(--ink)}main{max-width:var(--measure);padding:var(--s12);min-width:0}h1{font-size:var(--title);line-height:1.1;margin:var(--s6) 0;letter-spacing:-.04em}h2{font-size:var(--h2);line-height:1.25;margin:var(--s12) 0 var(--s6);letter-spacing:-.02em;border-top:1px solid var(--line);padding-top:var(--s8)}h3{font-size:var(--h3);line-height:1.4;margin:var(--s8) 0 var(--s4)}h4{font-size:var(--body);margin:var(--s6) 0 var(--s3)}p{margin:var(--s4) 0}main>p,main>ul{max-width:85ch}li{margin:var(--s2) 0}.table-scroll{overflow-x:auto;margin:var(--s6) 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}table{border-collapse:collapse;width:100%;font-size:var(--small);line-height:1.6}th,td{text-align:left;vertical-align:top;padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}th{background:var(--shade);font-weight:650}td:first-child{min-width:160px}tr:last-child td{border-bottom:0}code{font:var(--small)/1.6 var(--mono);overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:var(--s4);background:var(--shade);font:var(--small)/1.6 var(--mono)}.flow{padding:var(--s6);margin:var(--s6) 0 var(--s2);background:var(--surface);border:1px solid var(--line);overflow:auto}.flow svg{display:block;width:100%;height:auto;min-width:540px;max-height:1100px}.flow figcaption{font-size:var(--small);color:var(--muted);margin-top:var(--s4)}summary{cursor:pointer;font-size:var(--small);min-height:32px}footer{font-size:var(--small);color:var(--muted);border-top:1px solid var(--line);padding-top:var(--s6);overflow-wrap:anywhere}.jump{position:absolute;left:-9999px}.jump:focus{left:var(--s4);top:var(--s4);background:var(--surface);padding:var(--s4);z-index:10}button{min-height:44px;background:var(--surface);color:var(--accent);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2) var(--s4);cursor:pointer}@media(max-width:1000px){:root{--rail:220px}main{padding:var(--s8)}}@media(max-width:740px){.layout{display:block}.rail{position:static;height:auto;border-bottom:1px solid var(--line)}.rail nav{max-height:220px;overflow:auto}.top{flex-wrap:wrap}main{padding:var(--s6)}h1{font-size:36px}}@media print{.rail,.top,.jump{display:none}.layout{display:block}main{max-width:none;padding:0;font-size:11pt}h2{break-before:page}.table-scroll{overflow:visible}tr{break-inside:avoid}.flow svg{min-width:0;max-height:240mm}a{color:inherit}button{display:none}}
-</style></head><body><a class="jump" href="#content">Skip to specification</a><header class="top"><span class="brand">CFD / WORKBENCH</span><span class="badge">PRODUCT SPECIFICATION · 1.6</span><a href="../mockups/workbench-v7.html">Open interactive design ↗</a></header><div class="layout"><aside class="rail"><p>Specification map</p><label for="find">Find a section</label><input id="find" type="search" placeholder="Geometry, analysis, AI…"><p id="find-status" role="status" hidden></p><nav aria-label="Contents"><a class="depth2" href="#one-definition-every-number-with-its-basis-nothing-claimed-that-a-fixture-has-not-earned">One definition. Every number with its basis. Nothing claimed that a fixture has not earned.</a><a class="depth2" href="#part-a-functional-specification">Part A — Functional specification</a><a class="depth3" href="#a1-problem-users-positioning-and-core-scenario">A1. Problem, users, positioning and core scenario</a><a class="depth3" href="#a2-scope-releases-non-goals-and-commitments">A2. Scope, releases, non-goals and commitments</a><a class="depth3" href="#a3-conceptual-domain-model-decided-before-any-surface">A3. Conceptual domain model — decided before any surface</a><a class="depth3" href="#a4-geometry-contract">A4. Geometry contract</a><a class="depth3" href="#a5-analysis-contract">A5. Analysis contract</a><a class="depth3" href="#a6-stories-and-acceptance-criteria">A6. Stories and acceptance criteria</a><a class="depth3" href="#a7-validation-ladder-labels-are-granted-never-worn">A7. Validation ladder — labels are granted, never worn</a><a class="depth3" href="#a8-non-functional-requirements-governance-and-allocation">A8. Non-functional requirements, governance and allocation</a><a class="depth2" href="#part-b-ux-specification">Part B — UX specification</a><a class="depth3" href="#b1-information-architecture">B1. Information architecture</a><a class="depth3" href="#b2-flow-f1-start-first-launch-preserve-doc-01-04">B2. Flow F1 — start, first launch, preserve (DOC-01–04)</a><a class="depth3" href="#b3-flow-f2-shape-through-curves-and-stations-geo-01-15-cat-01-04">B3. Flow F2 — shape through curves and stations (GEO-01–15, CAT-01–04)</a><a class="depth3" href="#b4-flow-f3-brief-and-feasibility-goal-01-03-cat-04">B4. Flow F3 — brief and feasibility (GOAL-01–03, CAT-04)</a><a class="depth3" href="#b5-flow-f4-analyze-and-compare-ana-01-20-drc-01">B5. Flow F4 — analyze and compare (ANA-01–20, DRC-01)</a><a class="depth3" href="#b6-flow-f5-export-and-optional-assistance-exp-01-03-ai-01-06">B6. Flow F5 — export and optional assistance (EXP-01–03, AI-01–06)</a><a class="depth3" href="#b6a-flow-f6-setup-from-language-or-parameters-set-01-04-ai-02">B6a. Flow F6 — setup from language or parameters (SET-01–04, AI-02)</a><a class="depth3" href="#b6b-flow-f7-experiment-setup-and-run-xs-01-03-run-01-06-ai-09-ai-11">B6b. Flow F7 — experiment setup and run (XS-01–03, RUN-01–06, AI-09, AI-11)</a><a class="depth3" href="#b6c-flow-f8-results-replay-and-candidates-res-01-05-ai-10">B6c. Flow F8 — results, replay and candidates (RES-01–05, AI-10)</a><a class="depth3" href="#b7-wireframe-structure">B7. Wireframe structure</a><a class="depth3" href="#b8-ux-acceptance-criteria">B8. UX acceptance criteria</a><a class="depth3" href="#b9-foildsl-authoring-flow-src-01-11">B9. FoilDSL authoring flow (SRC-01–11)</a><a class="depth3" href="#b10-flow-f10-one-uninterrupted-design-decision-revision-1-5">B10. Flow F10 — one uninterrupted design decision (revision 1.5)</a><a class="depth3" href="#b11-flow-f11-cad-first-journey-and-the-section-editor-revision-1-6-cad-14-20">B11. Flow F11 — CAD-first journey and the section editor (revision 1.6; CAD-14–20)</a><a class="depth3" href="#b12-flow-f12-panes-docks-and-floats-revision-1-6-ux-31-32">B12. Flow F12 — panes, docks and floats (revision 1.6; UX-31–32)</a><a class="depth2" href="#part-c-ui-specification">Part C — UI specification</a><a class="depth3" href="#c1-archetype-and-direction">C1. Archetype and direction</a><a class="depth3" href="#c2-design-system-states-charts-and-colour">C2. Design system, states, charts and colour</a><a class="depth3" href="#c3-copy-one-state-one-string">C3. Copy — one state, one string</a><a class="depth3" href="#c4-ui-acceptance-criteria">C4. UI acceptance criteria</a><a class="depth3" href="#c4a-source-authoring-surface-acceptance-revision-1-5">C4a. Source-authoring surface acceptance (revision 1.5)</a><a class="depth3" href="#c4b-cad-first-surface-acceptance-revision-1-6">C4b. CAD-first surface acceptance (revision 1.6)</a><a class="depth3" href="#c5-traceability">C5. Traceability</a><a class="depth2" href="#evidence-decisions-and-gates">Evidence, decisions and gates</a><a class="depth3" href="#confidence-ledger">Confidence ledger</a><a class="depth3" href="#open-decisions-owner-lens-exit-evidence">Open decisions (owner lens · exit evidence)</a><a class="depth3" href="#gate-record">Gate record</a><a class="depth2" href="#appendix-r-acceptance-gates-for-run-and-results-spikes-and-reserved-items">Appendix R — Acceptance gates for Run and Results (spikes), and reserved items</a><a class="depth2" href="#appendix-d4-changes-from-revision-1-2-revision-1-3-2026-09-21">Appendix D4 — Changes from revision 1.2 (revision 1.3, 2026-09-21)</a><a class="depth2" href="#appendix-d3-changes-from-revision-1-1a-revision-1-2-2026-09-21">Appendix D3 — Changes from revision 1.1a (revision 1.2, 2026-09-21)</a><a class="depth2" href="#appendix-d2a-changes-from-revision-1-1-revision-1-1a-2026-09-21-part-b-c-only">Appendix D2a — Changes from revision 1.1 (revision 1.1a, 2026-09-21, Part B/C only)</a><a class="depth2" href="#appendix-d2-changes-from-revision-1-0-revision-1-1-2026-09-21">Appendix D2 — Changes from revision 1.0 (revision 1.1, 2026-09-21)</a><a class="depth2" href="#appendix-d-changes-from-revision-0-2">Appendix D — Changes from revision 0.2</a><a class="depth2" href="#appendix-e-revision-1-4-review-boundary">Appendix E — revision 1.4 review boundary</a><a class="depth2" href="#appendix-f-revision-1-5-review-boundary">Appendix F — revision 1.5 review boundary</a><a class="depth2" href="#appendix-g-changes-from-revision-1-5-revision-1-6-2026-09-26">Appendix G — Changes from revision 1.5 (revision 1.6, 2026-09-26)</a></nav><p>198 requirement IDs · 13 flows</p><button onclick="window.print()">Print / save as PDF</button></aside><main id="content"><h1>CFD-Workbench</h1>
+</style></head><body><a class="jump" href="#content">Skip to specification</a><header class="top"><span class="brand">CFD / WORKBENCH</span><span class="badge">PRODUCT SPECIFICATION · 1.7</span><a href="../mockups/workbench-v7.html">Open interactive design ↗</a></header><div class="layout"><aside class="rail"><p>Specification map</p><label for="find">Find a section</label><input id="find" type="search" placeholder="Geometry, analysis, AI…"><p id="find-status" role="status" hidden></p><nav aria-label="Contents"><a class="depth2" href="#one-definition-every-number-with-its-basis-nothing-claimed-that-a-fixture-has-not-earned">One definition. Every number with its basis. Nothing claimed that a fixture has not earned.</a><a class="depth2" href="#part-a-functional-specification">Part A — Functional specification</a><a class="depth3" href="#a1-problem-users-positioning-and-core-scenario">A1. Problem, users, positioning and core scenario</a><a class="depth3" href="#a2-scope-releases-non-goals-and-commitments">A2. Scope, releases, non-goals and commitments</a><a class="depth3" href="#a3-conceptual-domain-model-decided-before-any-surface">A3. Conceptual domain model — decided before any surface</a><a class="depth3" href="#a4-geometry-contract">A4. Geometry contract</a><a class="depth3" href="#a5-analysis-contract">A5. Analysis contract</a><a class="depth3" href="#a6-stories-and-acceptance-criteria">A6. Stories and acceptance criteria</a><a class="depth3" href="#a7-validation-ladder-labels-are-granted-never-worn">A7. Validation ladder — labels are granted, never worn</a><a class="depth3" href="#a8-non-functional-requirements-governance-and-allocation">A8. Non-functional requirements, governance and allocation</a><a class="depth2" href="#part-b-ux-specification">Part B — UX specification</a><a class="depth3" href="#b1-information-architecture">B1. Information architecture</a><a class="depth3" href="#b2-flow-f1-start-first-launch-preserve-doc-01-04">B2. Flow F1 — start, first launch, preserve (DOC-01–04)</a><a class="depth3" href="#b3-flow-f2-shape-through-curves-and-stations-geo-01-15-cat-01-04">B3. Flow F2 — shape through curves and stations (GEO-01–15, CAT-01–04)</a><a class="depth3" href="#b4-flow-f3-brief-and-feasibility-goal-01-03-cat-04">B4. Flow F3 — brief and feasibility (GOAL-01–03, CAT-04)</a><a class="depth3" href="#b5-flow-f4-analyze-and-compare-ana-01-20-drc-01">B5. Flow F4 — analyze and compare (ANA-01–20, DRC-01)</a><a class="depth3" href="#b6-flow-f5-export-and-optional-assistance-exp-01-03-ai-01-06">B6. Flow F5 — export and optional assistance (EXP-01–03, AI-01–06)</a><a class="depth3" href="#b6a-flow-f6-setup-from-language-or-parameters-set-01-04-ai-02">B6a. Flow F6 — setup from language or parameters (SET-01–04, AI-02)</a><a class="depth3" href="#b6b-flow-f7-experiment-setup-and-run-xs-01-03-run-01-06-ai-09-ai-11">B6b. Flow F7 — experiment setup and run (XS-01–03, RUN-01–06, AI-09, AI-11)</a><a class="depth3" href="#b6c-flow-f8-results-replay-and-candidates-res-01-05-ai-10">B6c. Flow F8 — results, replay and candidates (RES-01–05, AI-10)</a><a class="depth3" href="#b7-wireframe-structure">B7. Wireframe structure</a><a class="depth3" href="#b8-ux-acceptance-criteria">B8. UX acceptance criteria</a><a class="depth3" href="#b9-foildsl-authoring-flow-src-01-11">B9. FoilDSL authoring flow (SRC-01–11)</a><a class="depth3" href="#b10-flow-f10-one-uninterrupted-design-decision-revision-1-5">B10. Flow F10 — one uninterrupted design decision (revision 1.5)</a><a class="depth3" href="#b11-flow-f11-cad-first-journey-and-the-section-editor-revision-1-6-cad-14-20">B11. Flow F11 — CAD-first journey and the section editor (revision 1.6; CAD-14–20)</a><a class="depth3" href="#b12-flow-f12-panes-docks-and-floats-revision-1-6-ux-31-32">B12. Flow F12 — panes, docks and floats (revision 1.6; UX-31–32)</a><a class="depth2" href="#part-c-ui-specification">Part C — UI specification</a><a class="depth3" href="#c1-archetype-and-direction">C1. Archetype and direction</a><a class="depth3" href="#c2-design-system-states-charts-and-colour">C2. Design system, states, charts and colour</a><a class="depth3" href="#c3-copy-one-state-one-string">C3. Copy — one state, one string</a><a class="depth3" href="#c4-ui-acceptance-criteria">C4. UI acceptance criteria</a><a class="depth3" href="#c4a-source-authoring-surface-acceptance-revision-1-5">C4a. Source-authoring surface acceptance (revision 1.5)</a><a class="depth3" href="#c4b-cad-first-surface-acceptance-revision-1-6">C4b. CAD-first surface acceptance (revision 1.6)</a><a class="depth3" href="#c5-traceability">C5. Traceability</a><a class="depth2" href="#evidence-decisions-and-gates">Evidence, decisions and gates</a><a class="depth3" href="#confidence-ledger">Confidence ledger</a><a class="depth3" href="#open-decisions-owner-lens-exit-evidence">Open decisions (owner lens · exit evidence)</a><a class="depth3" href="#gate-record">Gate record</a><a class="depth2" href="#appendix-r-acceptance-gates-for-run-and-results-spikes-and-reserved-items">Appendix R — Acceptance gates for Run and Results (spikes), and reserved items</a><a class="depth2" href="#appendix-d4-changes-from-revision-1-2-revision-1-3-2026-09-21">Appendix D4 — Changes from revision 1.2 (revision 1.3, 2026-09-21)</a><a class="depth2" href="#appendix-d3-changes-from-revision-1-1a-revision-1-2-2026-09-21">Appendix D3 — Changes from revision 1.1a (revision 1.2, 2026-09-21)</a><a class="depth2" href="#appendix-d2a-changes-from-revision-1-1-revision-1-1a-2026-09-21-part-b-c-only">Appendix D2a — Changes from revision 1.1 (revision 1.1a, 2026-09-21, Part B/C only)</a><a class="depth2" href="#appendix-d2-changes-from-revision-1-0-revision-1-1-2026-09-21">Appendix D2 — Changes from revision 1.0 (revision 1.1, 2026-09-21)</a><a class="depth2" href="#appendix-d-changes-from-revision-0-2">Appendix D — Changes from revision 0.2</a><a class="depth2" href="#appendix-e-revision-1-4-review-boundary">Appendix E — revision 1.4 review boundary</a><a class="depth2" href="#appendix-f-revision-1-5-review-boundary">Appendix F — revision 1.5 review boundary</a><a class="depth2" href="#appendix-g-changes-from-revision-1-5-revision-1-6-2026-09-26">Appendix G — Changes from revision 1.5 (revision 1.6, 2026-09-26)</a><a class="depth2" href="#appendix-h-changes-from-revision-1-6-revision-1-7-2026-10-03">Appendix H — Changes from revision 1.6 (revision 1.7, 2026-10-03)</a></nav><p>198 requirement IDs · 13 flows</p><button onclick="window.print()">Print / save as PDF</button></aside><main id="content"><h1>CFD-Workbench</h1>
 <h2 id="one-definition-every-number-with-its-basis-nothing-claimed-that-a-fixture-has-not-earned">One definition. Every number with its basis. Nothing claimed that a fixture has not earned.</h2>
-<p>Product specification · revision 1.6 · 26 September 2026 · <em>(1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)</em> · <strong>Build basis. Supersedes revision 1.0 (which
+<p>Product specification · revision 1.7 · 3 October 2026 · <em>(1.7: the spec-owner amendment batch, Appendix H and <a href="amendments/spec-1.7.md">amendments/spec-1.7.md</a>; 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)</em> · <strong>Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.</strong> Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
@@ -16,7 +16,7 @@ the Run and Results areas are specified in full and are <strong>first-class in t
 design implication is cited as <strong>KB-n</strong> (its index) and an area file as <strong>NN</strong> (01–13). Revision 0.2&#39;s story
 identifiers are kept where the story survives so the critique map stays traceable; deleted and merged stories are
 listed in Appendix D. Requirements use <strong>shall</strong> for mandatory behaviour in their named release. Terms in
-<strong>bold small caps</strong> in A3 are the ubiquitous language and match the glossary. FoilDSL 4.0 is the authored geometry language defined by the normative companion. Application language, toolkit, native envelope encoding details,
+<strong>bold small caps</strong> in A3 are the ubiquitous language and match the glossary. FoilDSL 4.0 is the authored geometry language defined by the normative companion <em>(1.7: with its expand-only revision 4.1, which widens a channel&#39;s vertex range to 4–16; a writer raises the header to 4.1 only when a channel leaves 6–10, never lowers it, and New foil writes 4.1 — ADR-0001 Amendments 1 and 2, Rulings 57 and 64)</em>. Application language, toolkit, native envelope encoding details,
 geometry evaluator implementation and solver substrate are separate architecture decisions; this document says
 what they must satisfy. On 23 September 2026, <a href="../adr/0003-application-stack.md">ADR 0003</a>
 selected C#/.NET and Avalonia for the conditional first offline milestone, and
@@ -410,7 +410,7 @@ first-class from revision 1.1 (A3.1 Backend environment, A5.10). One word, one m
 <tr>
 <td><strong>Tangent kind</strong></td>
 <td>value (1.6)</td>
-<td>The rule an Anchor point&#39;s handles obey: <strong>Smooth</strong> (collinear, lengths independent) · <strong>Symmetric</strong> (collinear, equal lengths) · <strong>Corner</strong> (independent); on a section also <strong>Horizontal</strong> · <strong>Vertical</strong> · <strong>Fixed angle</strong></td>
+<td>The rule an Anchor point&#39;s handles obey: <strong>Smooth</strong> (collinear, lengths independent) · <strong>Symmetric</strong> (collinear, equal lengths) · <strong>Corner</strong> (independent); on a section also <strong>Horizontal</strong> · <strong>Vertical</strong> · <strong>Fixed angle</strong> <em>(1.7: Vertical at the nose only — an interior vertical tangent makes a step; Ruling 66, OQ-3)</em></td>
 </tr>
 <tr>
 <td><strong>Driving dimension</strong></td>
@@ -430,7 +430,7 @@ first-class from revision 1.1 (A3.1 Backend environment, A5.10). One word, one m
 <tr>
 <td><strong>Pane · dock · float · workspace</strong></td>
 <td>shell terms (1.6)</td>
-<td>A <strong>pane</strong> (Properties, Browser, Points, Messages) lives in a <strong>dock</strong> (left side bar, right side bar, bottom panel) or <strong>floats</strong>; a <strong>workspace</strong> (Planform · Precision · Review) is a task preset of views and panes that remembers its own layout. Layout is an installation preference, never document data</td>
+<td>A <strong>pane</strong> (Properties, Browser, Points, <del>Messages</del> <em>(1.7: the Messages pane is retired — Ruling 59, OD-2 A)</em>) lives in a <strong>dock</strong> (left side bar, right side bar, bottom panel) or <strong>floats</strong>; a <strong>workspace</strong> (Planform · Precision · Review) is a task preset of views and panes that remembers its own layout. Layout is an installation preference, never document data</td>
 </tr>
 <tr>
 <td><strong>Design alternative</strong></td>
@@ -574,6 +574,11 @@ aggregate (DM2 iv).</p>
 <ul>
 <li><strong>Polar sample</strong> — one row is exactly one (Profile revision hash, method + version, Re, Ncrit, surface state, α,
 Water record) evaluation, recorded when the method returns. Cl, Cd, Cm are non-additive.</li>
+<li><strong>Analysis run</strong> <em>(1.7, DR-ANA-4)</em> — one row is one evaluation attempt of one Surface revision (with its Profile
+revisions) at one Operating point by one method id + version under one settings hash, recorded when the method
+returns, with its <strong>outcome</strong>: Completed, or Failed (code, reason). At most one Completed row per run key; Failed rows
+may repeat; Cancelled is telemetry, never a row. An interactive attempt is this row — the Sweep attempt fact below is
+Experiment-only. Solver residual, condition estimate and wall time are non-additive.</li>
 <li><strong>Sweep attempt</strong> — one row is one attempt of one case of one Case schedule, recorded when queued; retries add
 rows; &quot;selected&quot; is derived. <strong>Attempt-state event</strong> — one row is one transition (attempt id, state, time,
 reason); the attempt&#39;s state is the latest event, never an updated column.</li>
@@ -1031,7 +1036,7 @@ joins;</li>
 <li><strong>evaluator</strong> — id, version, solver id (constrained least squares for the Fit, Fair and Rebuild constructions; pins by KKT projection), fairness functional and λ; the <strong>kernel</strong> record — kernel id and version for the loft, tessellation and every writer (A4.12);</li>
 <li><strong>symmetry</strong> — mirror-y (v1); independent halves is reserved;</li>
 <li><strong>channels</strong> — five curves, each: family B-spline, <strong>degree p stored per curve</strong> (default 3 for the master
-curves — seven control vertices, six to ten allowed; degree 5 for section curves), the full clamped knot
+curves — seven control vertices, <del>six to ten allowed</del> <em>(1.7: <strong>4 to 16</strong> allowed when the document declares FoilDSL 4.1, 6 to 10 under 4.0 — ADR-0001 Amendments 1 and 2; New foil ships 4 on the leading-edge and trailing-edge rails)</em>; degree 5 for section curves), the full clamped knot
 vector with its count convention stated (Piegl–Tiller n + p + 1), <strong>control vertices</strong> (the only geometry
 authority), explicit weights all 1 (a weight ≠ 1 makes the curve rational and is forbidden for shape),
 Constraint rows with sources, continuity intent (deliberate breaks as knot multiplicity), and the
@@ -1055,8 +1060,8 @@ its control vertices; nothing else defines the shape. The end vertices lie on th
 vertices are the <strong>levers</strong> that set each end tangent&#39;s direction and magnitude; every interior vertex pulls the
 curve toward itself and is never on it (the B-spline basis is a partition of unity with <strong>local support</strong> — a
 vertex moves the curve only over its p + 1 knot spans, GEO-13). Editing is direct: drag, nudge, type η and value,
-<strong>Insert CV</strong> (knot insertion by Boehm&#39;s algorithm, shape-preserving to 10⁻¹² relative — the A4.5 exact path) and <strong>Delete CV</strong> (the shape change
-is measured on the distribution-curve oracle of A4.5 and reported; the floor is the record&#39;s six vertices, A4.1), always as a draft (Return applies, Escape cancels, one undo item). This
+<strong>Insert CV</strong> (knot insertion by Boehm&#39;s algorithm, shape-preserving to 10⁻¹² relative — the A4.5 exact path) and <strong>Delete CV</strong> (never a lever — the end handles are refused with the reason, 1.7, Ruling 66 OQ-2; the shape change
+is measured on the distribution-curve oracle of A4.5 and reported; the floor is <del>the record&#39;s six vertices</del> <em>(1.7: four vertices, p + 1, under FoilDSL 4.1 — a verb that first takes a channel below six raises the header to 4.1 in the same patch, and Insert CV is refused at the ceiling of 16; ADR-0001 Amendment 2, Rulings 62 and 64)</em>, A4.1), <del>always as a draft (Return applies, Escape cancels, one undo item)</del> <em>(1.7: Insert CV (Add point) and Delete CV (Remove point) apply at once as one undo step with the change reported, and Undo restores the curve exactly — Ruling 66, OQ-1)</em>. This
 is the Fusion 360 control-point-spline and Rhino control-point contract the operator asked for (03), and the
 MultiSurf/Shape3d master-curve paradigm underneath it. <strong>Invariant:</strong> a distribution curve is the graph of a
 single-valued function v(η) — the vertex abscissae are strictly increasing (variation diminishing then
@@ -1072,7 +1077,7 @@ side) that meets the acceptance. <strong>Fair</strong> — a constrained weighte
 (NP − Q)ᵀW(NP − Q) + λ PᵀFP subject to A·P = b, where Q samples the current curve, F is the fairness functional
 and A the hard Constraint rows (02 §2; executed probe), with Rhino Fair&#39;s contract (tolerance, PreserveEnds ∈
 {position, tangency, curvature}, achieved deviation reported, Apply disabled above the tolerance — GEO-15).
-<strong>Rebuild</strong> is Fair with a chosen vertex count. The 1.2 <em>Smooth · weighted controls</em> mode and its influence weights
+<strong>Rebuild</strong> is Fair with a chosen vertex count <em>(1.7: this holds for a section. On a master curve, <strong>Rebuild to N</strong> takes N from 4 to 10 and has no tolerance gate: the measured change, where it is largest and the turn of the tip tangent are shown before Apply, and the curve&#39;s anchors are dropped and listed before Apply — Ruling 64, DR-PV-3 A and DR-PV-5 A)</em>. The 1.2 <em>Smooth · weighted controls</em> mode and its influence weights
 are <strong>retired</strong>: a weight was a second way to say what a vertex says, and the mockup measured the polygon as the
 lever the operator was missing.</p>
 <p><strong>Constraint catalogue</strong> (each row typed and sourced, applied as constraints on the vertices): <strong>root-mirror
@@ -1147,7 +1152,7 @@ with a TM 4741-faithful generator and its hash — there is no closed form</stro
 Through-points ↔ Smooth switch, refit, and the STEP/3DM skin. <strong>Acceptance per path:</strong> an exact path (knot
 insertion, mirror, promotion under rule A, an unmodified catalog copy) must report ≤ 10⁻¹² relative; an approximate
 path is accepted iff its measured deviation ≤ the model/join tolerance (10 µm) at the station&#39;s local chord, shown
-in normalised chord beside the number; a path above its acceptance disables Apply with the number. A fit never
+in normalised chord beside the number; a path above its acceptance disables Apply with the number <em>(1.7: this acceptance governs representation conversions only. Two edits are not conversions: a deliberate <strong>Rebuild to N</strong> on a master curve shows its measured change before Apply and has no gate (A4.2; Ruling 64, DR-PV-3); a typed <strong>Root chord</strong> or <strong>Tip chord</strong> whose fit residual exceeds the 10 µm acceptance is accepted and reported as a warning with the number and the limit, and the typed end stays exact (Ruling 56, DR-12))</em>. A fit never
 assumes zero. Original catalog polars never attach to a modified profile.</p>
 <h4 id="a4-7-coordinates-signs-and-units">A4.7 Coordinates, signs and units</h4>
 <p>Body frame <code>+x aft, +y starboard, +z up</code>, origin at the root LE; the starboard half is authored and port is
@@ -1167,10 +1172,10 @@ annotation carrying its convention (the CEHINAV wing is 6.8 by b²/S and 10.9 by
 chord for normalised sections</del> <em>(superseded in 1.6 by the v8–v10 ladder: <strong>0.01 / 0.1 / 1 mm</strong> for lengths — the
 platform modifier ⌘/Ctrl + arrow is fine, arrow alone is default, Shift + arrow is coarse — and a section point
 nudges in millimetres at the station&#39;s local chord with the same ladder; a typed or placed length displays at
-0.01 mm, the finest step, UI-40)</em>; 0.01 / 0.1 / 1 ° for angles; ×1.01 / ×1.1 / ×2 for influence weights (multiplicative,
+0.01 mm, the finest step, UI-40)</em>; 0.01 / 0.1 / 1 ° for angles; <em>(1.7: 0.01 / 0.1 / 1 % for t/c — Ruling 66, OQ-5)</em>; ×1.01 / ×1.1 / ×2 for influence weights (multiplicative,
 so a weight never reaches zero) (01). Every numeric field accepts <code>value [unit]</code> and expressions over named project
 dimensions (<code>#root_chord * 0.35</code>) whose result is unitless or first-power in the field&#39;s family, and echoes the
-resolved model-unit value. A handle can be clicked to type. Return accepts a preview, Escape cancels it, a
+resolved model-unit value <em>(1.7: an expression is set once — it is evaluated when the value commits, its result is the value, and it does not follow the named dimension afterwards; the echo says so, e.g. &quot;#root_chord × 0.1 = 15.21 mm (set once; doesn&#39;t follow Root chord)&quot; — property-grid MC-3)</em>. A handle can be clicked to type. Return accepts a preview, Escape cancels it, a
 cancelled preview leaves no undo step, a failed Apply rolls back fully before any error is shown.</p>
 <h4 id="a4-9-diagnostics-and-readouts">A4.9 Diagnostics and readouts</h4>
 <p>Comb evaluated on the curve at even spacing with a visible scale and density, live during drag, break markers on
@@ -1227,7 +1232,7 @@ workspace/history; <strong>Export FoilDSL source</strong> exports only accepted 
 <tr>
 <td><code>.foil</code></td>
 <td>read + write</td>
-<td>FoilDSL 4.0 complete foil or standalone section; lossless source save, explicit canonical export, resolved inline or content-addressed profile dependencies. Shape-only interchange omits project run history.</td>
+<td>FoilDSL 4.0 <em>(1.7: or 4.1, A4.1)</em> complete foil or standalone section; lossless source save, explicit canonical export, resolved inline or content-addressed profile dependencies. Shape-only interchange omits project run history.</td>
 </tr>
 <tr>
 <td>Selig / Lednicer DAT</td>
@@ -1479,7 +1484,7 @@ property sheet i should be able to change the behavior of a point on the curve: 
 with the specific semantics for them&quot;</em>):</p>
 <ul>
 <li><strong>Anchor point</strong> — the curve passes through it; it carries tangent handles and a <strong>tangent kind</strong> (Smooth ·
-Symmetric · Corner; on a section also Horizontal · Vertical · Fixed angle).</li>
+Symmetric · Corner; on a section also Horizontal · Vertical · Fixed angle <em>(1.7: Vertical at the nose only; on an interior section anchor it is shown disabled with the reason &quot;A vertical tangent inside a surface makes a step. The nose already has one.&quot; — Ruling 66, OQ-3)</em>).</li>
 <li><strong>Control point</strong> — off the curve; it pulls the curve toward it and the curve does not pass through it; it has no
 handles.</li>
 <li><strong>Named points</strong> keep a constrained type that cannot be changed: the <strong>root end</strong> of each rail (Anchor; stays on the
@@ -1489,7 +1494,11 @@ upper and a lower handle length and the LE radius as readouts); the <strong>uppe
 points</strong> (Anchor; move up and down only; the TE gap and wedge angle are readouts). Selecting a named point and typing
 its position is how the designer &quot;specifies a point&quot;.</li>
 <li>Changing a point&#39;s type is one undoable step. It changes this curve only between the nearest Anchor points on either
-side of the point, and never another curve.</li>
+side of the point, and never another curve. <em>(1.7: on a section the point types are <strong>paired</strong> — Ruling 60; per-surface
+types are parked as OI-12C-DR11. Type, tangent kind and x act on a point and its partner on the other surface as one
+step, both surfaces keep the same knots, and Anchor → Control refits the other surface on the affected segment only,
+refused above 10 µm at the largest local chord of the stations that share the profile, with both numbers in the
+status strip — Ruling 61.)</em></li>
 <li><strong>Open to <code>/define-architecture</code> (DR-5):</strong> how Anchor and Control points mix on one curve against the record&#39;s
 clamped B-splines (degree 5 for sections, degree 3 for master curves, A4.1–A4.2), and whether keeping a point&#39;s type
 and tangent kind across save and reopen needs a FoilDSL grammar change (the 4.0 grammar writes control vertices only,
@@ -1505,8 +1514,10 @@ are unchanged. It has the effect of A4.14&#39;s span command with <strong>Keep r
 commit are its feedback, and Undo is its recovery. A4.14&#39;s previewed span command remains for the other policy.</li>
 <li><strong>Root chord</strong> or <strong>Tip chord</strong> changes that end only. The chord scale factor blends linearly along the span to 1 at
 the other end: typing root chord f_r·c(0) gives c′(η) = (f_r + (1 − f_r)·η)·c(η); typing tip chord f_t·c(1) gives
-c′(η) = (1 + (f_t − 1)·η)·c(η). The line held fixed while the chord scales is <strong>DR-2</strong> (default: the leading edge
-is held and the trailing edge moves; alternative: the quarter-chord line is held, keeping the c/4 sweep).</li>
+c′(η) = (1 + (f_t − 1)·η)·c(η). <del>The line held fixed while the chord scales is <strong>DR-2</strong> (default: the leading edge
+is held and the trailing edge moves; alternative: the quarter-chord line is held, keeping the c/4 sweep).</del>
+<em>(1.7: the <strong>quarter-chord line</strong> is held (Ruling 53, DR-2); a root edit then translates the planform rigidly so
+LE(0) = 0, and the status line says so — ADR-0006.)</em></li>
 <li><strong>Tip chord</strong> is the chord at the outermost authored station. A closing tip (zero chord, A4.4) is not editable here:
 the field reads &quot;Tip closes — edit the tip station&quot;.</li>
 <li>A value commits on Return or when the field loses focus; Escape restores the shown value. Each field accepts
@@ -1619,11 +1630,11 @@ to Cancel and says &quot;This section has unsaved changes. Cancel discards them;
 </tr>
 <tr>
 <td>CAD-15 · Choose a point&#39;s type</td>
-<td>Given a point on a rail or section surface that is not a named point, when Type is set to Control point, then the evaluated curve no longer passes through it (measured gap &gt; the identity tolerance), its handles are removed and &quot;A control point pulls the curve toward it. The curve does not pass through it.&quot; shows; when set to Anchor point, then the curve passes through it within the identity tolerance and it has handles and a tangent kind. In both cases no other curve changes, and this curve is unchanged outside the nearest Anchor points on either side (the tolerance is set with the DR-5 representation; 10⁻¹² relative where that representation makes the change exact). Given Symmetric, a handle-length change sets the opposite handle to the same length; Smooth keeps the handles collinear with independent lengths; Corner leaves the other handle unchanged; Horizontal and Vertical keep the handle direction; under Fixed angle a turn by keyboard or pointer leaves the handle direction unchanged. Given a named point, then its type is shown read-only with its constraint and cannot be changed. Given Undo, the previous type and curve return exactly. Given save and reopen, then each type and tangent kind is as saved (gated on DR-5).</td>
+<td>Given a point on a rail or section surface that is not a named point, when Type is set to Control point, then the evaluated curve no longer passes through it (measured gap &gt; the identity tolerance), its handles are removed and &quot;A control point pulls the curve toward it. The curve does not pass through it.&quot; shows; when set to Anchor point, then the curve passes through it within the identity tolerance and it has handles and a tangent kind. In both cases no other curve changes <em>(1.7: except, on a section, the paired point on the other surface — A4.15, Ruling 60)</em>, and this curve is unchanged outside the nearest Anchor points on either side (the tolerance is set with the DR-5 representation; 10⁻¹² relative where that representation makes the change exact). Given Symmetric, a handle-length change sets the opposite handle to the same length; Smooth keeps the handles collinear with independent lengths; Corner leaves the other handle unchanged; Horizontal and Vertical keep the handle direction; under Fixed angle a turn by keyboard or pointer leaves the handle direction unchanged. Given a named point, then its type is shown read-only with its constraint and cannot be changed. Given Undo, the previous type and curve return exactly. Given save and reopen, then each type and tangent kind is as saved (gated on DR-5).</td>
 </tr>
 <tr>
 <td>CAD-16 · Type span and chords</td>
-<td>Given a three-station fixture (root, mid and tip authored stations, open tip), when Span is typed as 1.5 × b, then b equals the typed value by the scalar oracle and the chord at 201 η samples and every station η are unchanged. When Root chord is typed as f_r × c(0), then c′(η) = (f_r + (1 − f_r)η)·c(η) at 201 η samples within the model/join tolerance or with the residual reported (A4.6), the tip chord is unchanged, and the held line (DR-2 default: the leading-edge rail&#39;s record) is unchanged; Tip chord mirrors this. Given &quot;12abc&quot;, &quot;&quot;, 0 or −5, then &quot;Enter a number. <Dimension> is unchanged.&quot; or &quot;Enter a length greater than 0 mm. <Dimension> is unchanged.&quot; shows, the field is marked invalid, and geometry and undo depth are unchanged. Given &quot;15 cm&quot; or <code>#root_chord * 0.5</code> in Tip chord, then the resolved value is echoed in mm and committed. Given a mapping fixture whose mapped rails would cross or reach zero chord inside the span (built once DR-5 fixes the mapping), then &quot;That would make the leading and trailing edges cross. Enter a different value.&quot; and nothing changes. Given a locked trailing-edge point that the commit must move, then the commit is refused naming the lock, and geometry and undo depth are unchanged. Given a valid commit, then exactly one undo step is added, no preview or Apply is shown, and Undo restores the rails exactly. Given a closing tip, Tip chord is not an input. Given the section editor, the three fields are read-only.</td>
+<td>Given a three-station fixture (root, mid and tip authored stations, open tip), when Span is typed as 1.5 × b, then b equals the typed value by the scalar oracle and the chord at 201 η samples and every station η are unchanged. When Root chord is typed as f_r × c(0), then c′(η) = (f_r + (1 − f_r)η)·c(η) at 201 η samples within the model/join tolerance or with the residual reported (A4.6), the tip chord is unchanged, and <del>the held line (DR-2 default: the leading-edge rail&#39;s record) is unchanged</del> <em>(1.7: the quarter-chord line is unchanged up to the reported rigid shift — Ruling 53, DR-2)</em>; Tip chord mirrors this. Given &quot;12abc&quot;, &quot;&quot;, 0 or −5, then &quot;Enter a number. <Dimension> is unchanged.&quot; or &quot;Enter a length greater than 0 mm. <Dimension> is unchanged.&quot; shows, the field is marked invalid, and geometry and undo depth are unchanged. Given &quot;15 cm&quot; or <code>#root_chord * 0.5</code> in Tip chord, then the resolved value is echoed in mm and committed. Given a mapping fixture whose mapped rails would cross or reach zero chord inside the span (built once DR-5 fixes the mapping), then &quot;That would make the leading and trailing edges cross. Enter a different value.&quot; and nothing changes. Given a locked trailing-edge point that the commit must move, then the commit is refused naming the lock, and geometry and undo depth are unchanged. Given a valid commit, then exactly one undo step is added, no preview or Apply is shown, and Undo restores the rails exactly. Given a closing tip, Tip chord is not an input. Given the section editor, the three fields are read-only.</td>
 </tr>
 <tr>
 <td>CAD-17 · Always see the Wing estimates</td>
@@ -1713,8 +1724,8 @@ machine-readable fixture with per-row source URL and access date (04, 07, KB-7).
 </thead>
 <tbody><tr>
 <td>Estimator (closed form)</td>
-<td>Cl from thin-airfoil theory; CL, CDi from lifting line / Helmbold; drag as the fully turbulent bound</td>
-<td>&quot;inviscid + turbulent-friction bound; deep water; steady&quot;</td>
+<td>Cl from thin-airfoil theory; CL, CDi from lifting line / Helmbold; drag as the fully turbulent bound <em>(1.7, DR-ANA-2: section Cp(x) and Cp_min with its station count from an inviscid linear-vorticity panel method, which then supplies the section Cl as well — one definition; oracle: the Kármán–Trefftz Cp at 100, 200 and 400 panels, its tolerance set by the A3b design at red-first — Ruling 66, OQ-10)</em></td>
+<td>&quot;inviscid + turbulent-friction bound; deep water; steady&quot; <em>(1.7: panel Cp adds &quot;inviscid; no boundary layer&quot;)</em></td>
 <td>free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state</td>
 </tr>
 <tr>
@@ -1726,17 +1737,17 @@ machine-readable fixture with per-row source URL and access date (04, 07, KB-7).
 <tr>
 <td>VLM + strip</td>
 <td>loading, CL, CDi, computed e, local Re and α_eff, force and moment about the named datum, profile drag from strips</td>
-<td>&quot;attached flow; no stall; no ventilation; deep water&quot; (a correction layer is shown beside, never changes this label)</td>
+<td>&quot;attached flow; no stall; no ventilation; deep water&quot; — or, with depth unset, &quot;free surface not modelled&quot; in place of &quot;deep water&quot; (A5.1, ANA-19) <em>(1.7, DR-ANA-13)</em>; a correction layer is shown beside, never changes this label</td>
 <td>as above; separation only as &quot;section-based inference&quot;</td>
 </tr>
 <tr>
 <td>RANS backend (Run)</td>
 <td>wing-only forces and moments, surface Cp and C_f, y+, separation by a named wall criterion, at the stated model</td>
-<td>&quot;steady RANS · <model> · fully turbulent | transition at TI <x> · deep water · &lt;single mesh | grid U&gt;&quot;</td>
+<td>&quot;steady RANS · <model> · fully turbulent | transition at TI <x> · deep water · &lt;single mesh | grid U&gt;&quot; <em>(1.7: &quot;TE blunted for analysis&quot;, with a base-drag band beside Cd, is added with the backend ADR — Ruling 65 DR-F2-4, Ruling 66 OQ-13)</em></td>
 <td>free surface, strut and junction, ventilation, cavitation, unsteady; &quot;drag bound vs free transition&quot; when no transition model (08)</td>
 </tr>
 </tbody></table></div>
-<p>Section results are per span (N/m, lowercase Cl/Cd); wing results are N (uppercase, &quot;Wing only&quot;, S_ref and force
+<p><em>(1.7, Ruling 66 OQ-9: with depth unset, every tier&#39;s fixed label reads &quot;free surface not modelled&quot; in place of &quot;deep water&quot; — the estimator and RANS rows as the VLM row does (A5.1, ANA-19).)</em> Section results are per span (N/m, lowercase Cl/Cd); wing results are N (uppercase, &quot;Wing only&quot;, S_ref and force
 axes named); Total drag is Unavailable when a component is missing and lists the omitted components per tier
 (junction, mast, wave, spray, tip-vortex cavitation). Coefficients never change when force units change. Water
 changes go through the polar: the defect signature &quot;loads change by exactly ρ_sea/ρ_fresh with unchanged
@@ -1803,7 +1814,7 @@ parallel coordinates carry every point (RES-05).</li>
 </ul>
 <h4 id="a5-10-run-end-to-end-on-a-pinned-backend">A5.10 Run — end to end on a pinned backend</h4>
 <p><strong>Backend matrix</strong> (physics × substrate × OS × licence × pin, published exactly): OpenFOAM ESI v2512 by image
-digest today, v2606 when tagged (no such tag existed on 2026-09-20, 08), always by
+digest today, v2606 when its Docker Hub image is tagged (no <code>opencfd/openfoam-default</code> 2606 tag existed on 2026-09-20, 08; OpenFOAM.app ships v2606 and v2512 builds, 08; the backend ADR sets the pin — 1.7, Ruling 66 OQ-12), always by
 image digest (macOS arm64/x86 and Windows via Docker Desktop or WSL2; OpenFOAM.app arm64, unsigned — disclosed);
 SU2 v8.5.0 release binaries; Foundation OpenFOAM excluded. SU2 has no VOF, cavitation or mesher, so free surface
 and cavitation are OpenFOAM-only, and <code>Unsupported</code> is decided from the <strong>Backend environment&#39;s capability
@@ -1824,9 +1835,20 @@ confirm at SPIKE-03); Gatekeeper/SmartScreen are never disabled; ParaView 5.12+ 
 dependency of the matrix for slices, streamlines and isosurfaces. <strong>Typed case model:</strong> one model, two emitters (ESI dictionaries, SU2
 <code>.cfg</code>), no macros/<code>#codeStream</code>/<code>#calc</code>, deterministic ordering; fields for turbulence model and variant,
 transition, TI, μ_t/μ, wall treatment, target y+, reference quantities, residual criterion, averaging window.
+<em>(1.7, DR-F2-1: the <strong>residual criterion</strong> has three parts, all required — (1) every equation&#39;s initial residual has
+fallen to ≤ 10⁻³ of its first-iteration value (ITTC, three orders); (2) Cl and Cd are stationary over the averaging
+window: the half-band U_I = ½ (max − min) is at or below the caps the case file records; (3) the window is clean — no
+bounding of the turbulence variable (nuTilda for SA) inside it. The reported value is the window mean. A case enters
+the grid-uncertainty estimate only when its U_I ≤ 1 % of the grid-to-grid change of its neighbouring pair. A run that
+reaches its iteration limit is &quot;Completed — residual criterion not met (ran to limit)&quot;.)</em>
 <strong>Mesh gate:</strong> ITTC 7.5-03-02-03 floors (y+ ≤ 1 with ≥ 20 layer points and expansion ratio ≤ 1.2, or 30–100 with
-≥ 15; domain ≥ 10 L upstream, ≥ 20 L downstream); named <code>checkMesh</code> measures — max non-orthogonality, boundary and
-internal skewness, all volumes positive, determinant &gt; 0.3 — with snappy defaults Flagged; a failed gate stops before
+≥ 15; domain ≥ 10 L upstream, ≥ 20 L downstream) <em>(1.7, DR-F2-3: the 30–100 wall-function branch is offered only
+when a feasibility check shows ≥ 15 points with y+ ≥ 30 fit inside the estimated turbulent boundary layer over the
+chord; y+ is measured at the cell centre on a field that meets the residual criterion, at the case&#39;s highest speed
+and α — on the wall-resolved branch, area-weighted p95 ≤ 1 and max ≤ 2; a field before that is a mesh screen, not the
+gate; the layer floor is a coverage rule reported per region (leading edge, main surface, trailing-edge 3 %, tip):
+≥ 20 layers on ≥ 95 % of wing faces and ≥ 10 on 100 %)</em>; named <code>checkMesh</code> measures — max non-orthogonality, boundary and
+internal skewness, all volumes positive, <del>determinant &gt; 0.3</del> <em>(1.7, DR-F2-6: <code>cellDeterminant</code> ≥ 0.001 for OpenFOAM meshes; the 3×3 determinant &gt; 0.3, ≥ 0.15 locally, only for a structured mesh)</em> — with snappy defaults Flagged; a failed gate stops before
 solving. <strong>α imposition:</strong> by inflow direction, so one mesh serves every α at a held geometry and speed; the mesh hash
 is a Field evidence field. <strong>Run states:</strong> Pending · Unsupported · Readiness · Meshing · Mesh gate · Solving · Harvesting · Completed ·
 Completed — residual criterion not met (ran to limit) · Failed (reason) · Cancelled, each a C2 row; <strong>status</strong> shows residuals, force
@@ -1974,7 +1996,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 </tr>
 <tr>
 <td>GEO-05 · I can use vertices and levers precisely</td>
-<td><strong>Given</strong> any curve, <strong>when</strong> I select a vertex or lever, drag it, nudge it at each of the three steps (↑↓ the value, ←→ η, Shift ×10), or type a unit expression for η or value (mm · m · in · ° · % · chord), <strong>then</strong> the resolved model value is echoed and the comb updates within the 100 ms edit budget. <strong>Given</strong> the levers, <strong>then</strong> they set the end tangents; the root vertex and its lever are coupled by the root-mirror lock (either moves, both are named as coupled) and no vertex claims a lock that Properties does not list. <strong>Given</strong> Insert CV on the curve, <strong>then</strong> the shape is preserved to 10⁻¹² relative (the A4.5 exact path); <strong>given</strong> Delete leaving fewer than p + 2 vertices, <strong>then</strong> it is blocked with the reason, and otherwise the shape change is reported.</td>
+<td><strong>Given</strong> any curve, <strong>when</strong> I select a vertex or lever, drag it, nudge it at each of the three steps (↑↓ the value, ←→ η, Shift ×10), or type a unit expression for η or value (mm · m · in · ° · % · chord), <strong>then</strong> the resolved model value is echoed and the comb updates within the 100 ms edit budget. <strong>Given</strong> the levers, <strong>then</strong> they set the end tangents; the root vertex and its lever are coupled by the root-mirror lock (either moves, both are named as coupled) and no vertex claims a lock that Properties does not list. <strong>Given</strong> Insert CV on the curve, <strong>then</strong> the shape is preserved to 10⁻¹² relative (the A4.5 exact path); <em>(1.7, Ruling 66 OQ-2:)</em> <strong>given</strong> Delete on a lever (an end handle), <strong>then</strong> it is refused with the reason and Rebuild is offered for fewer points; <strong>given</strong> Delete leaving fewer than <del>p + 2</del> <em>(1.7: four, p + 1 — A4.1)</em> vertices, <strong>then</strong> it is blocked with the reason, and otherwise the shape change is reported; <em>(1.7:)</em> <strong>given</strong> Insert at 16 vertices, <strong>then</strong> it is refused with the reason (Rulings 62 and 64).</td>
 </tr>
 <tr>
 <td>GEO-06 · I can add a station without altering shape</td>
@@ -2010,11 +2032,11 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 </tr>
 <tr>
 <td>GEO-14 · I can review and reverse a construction</td>
-<td><strong>Given</strong> a previewed Fair, Rebuild, Fit points, Insert or Delete, <strong>when</strong> cancelled, <strong>then</strong> geometry, assignments, recipe state, freshness and undo history are unchanged. <strong>Given</strong> Apply, <strong>then</strong> one undo item captures it (vertices, knots and provenance) and dependent runs become Historical. <strong>Given</strong> Undo, Redo, save and reopen, <strong>then</strong> the identity oracle passes and the evaluator version in the file equals the running one or a new revision is flagged.</td>
+<td><strong>Given</strong> a previewed Fair, Rebuild, Fit points, Insert or Delete <em>(1.7: Insert and Delete have no preview; they apply at once and Undo restores them exactly, A4.2)</em>, <strong>when</strong> cancelled, <strong>then</strong> geometry, assignments, recipe state, freshness and undo history are unchanged. <strong>Given</strong> Apply, <strong>then</strong> one undo item captures it (vertices, knots and provenance) and dependent runs become Historical. <strong>Given</strong> Undo, Redo, save and reopen, <strong>then</strong> the identity oracle passes and the evaluator version in the file equals the running one or a new revision is flagged.</td>
 </tr>
 <tr>
 <td>GEO-15 · I can fair within a tolerance</td>
-<td><strong>Given</strong> any master curve, <strong>when</strong> Fair runs with a tolerance and PreserveEnds, <strong>then</strong> the achieved maximum deviation is reported, Apply is enabled only when it is ≤ the tolerance (Return refuses above it), the end condition holds, and the monotone-piece count does not increase; <strong>given</strong> Rebuild with a vertex count, <strong>then</strong> the same contract holds with the count shown.</td>
+<td><strong>Given</strong> any master curve, <strong>when</strong> Fair runs with a tolerance and PreserveEnds, <strong>then</strong> the achieved maximum deviation is reported, Apply is enabled only when it is ≤ the tolerance (Return refuses above it), the end condition holds, and the monotone-piece count does not increase; <del><strong>given</strong> Rebuild with a vertex count, <strong>then</strong> the same contract holds with the count shown</del> <em>(1.7: <strong>given</strong> Rebuild to N, <strong>then</strong> N is 4–10 and no tolerance gates Apply: the measured change, where it is largest and the tip-tangent turn are shown before Apply, and the curve&#39;s anchors are listed as dropped — A4.2; Ruling 64, DR-PV-3 A and DR-PV-5 A)</em>.</td>
 </tr>
 <tr>
 <td>CAT-01 · I can compare sections at my operating points</td>
@@ -2046,7 +2068,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 </tr>
 <tr>
 <td>ANA-04 · I can evaluate the finite wing</td>
-<td><strong>Given</strong> attached-flow geometry and an operating point, <strong>when</strong> VLM + strip runs, <strong>then</strong> it reports loading, CDi, computed e, local Re and α_eff, force and moment about the named datum, and the omissions list. <strong>Given</strong> the fixture rows — rectangular flat plate at AR = 200: C_Lα within 1 % of Helmbold, and Richardson-extrapolated in AR within 1 % of 2π; elliptic AR 8 (lattice built from sampled chord) e within 1.005 (the lattice tolerance) and CL within 1 % of lifting line inside the Helmbold–Prandtl band; symmetric section at α = 0 gives Cl = 0 within 10⁻⁶; mirrored wing gives zero side force; Trefftz and near-field drag agree within 1 % (proposed); lattice refinement converges at the design order the evaluator record states — <strong>then</strong> every row passes; Warren-12 and Bertin–Smith are admitted only after their reference numbers are re-established.</td>
+<td><strong>Given</strong> attached-flow geometry and an operating point, <strong>when</strong> VLM + strip runs, <strong>then</strong> it reports loading, CDi, computed e, local Re and α_eff, force and moment about the named datum, and the omissions list. <strong>Given</strong> the fixture rows — <del>rectangular flat plate at AR = 200: C_Lα within 1 % of Helmbold, and Richardson-extrapolated in AR within 1 % of 2π; elliptic AR 8 (lattice built from sampled chord) e within 1.005 (the lattice tolerance) and CL within 1 % of lifting line inside the Helmbold–Prandtl band</del> <em>(1.7, DR-ANA-12: rectangular flat plate, AR 25–200, one chordwise panel: C_Lα Richardson-extrapolated in 1/AR within 0.5 % of 2π — Helmbold is not used on a rectangle; elliptic AR 8 (lattice built from sampled chord) on three lattices refined by 2: CL Richardson-extrapolated within 0.5 % of a recorded lifting-surface reference — lifting line, Helmbold and the Jones factor are not the reference — and e after Richardson within 1.000 ± 0.005, the lattice tolerance; swept wing (Bertin–Smith, AR 5, Λ_c/4 45°): C_Lα 3.443 /rad within 0.5 %)</em>; symmetric section at α = 0 gives Cl = 0 within 10⁻⁶; mirrored wing gives zero side force; Trefftz and near-field drag agree within 1 % (proposed); lattice refinement converges at the design order the evaluator record states — <strong>then</strong> every row passes; <del>Warren-12 and Bertin–Smith are admitted only after their reference numbers are re-established.</del> <em>(1.7: Bertin–Smith is admitted at ± 0.5 %, above; Warren-12 is admitted only after its reference numbers are re-established.)</em></td>
 </tr>
 <tr>
 <td>ANA-05 · I can find a supporting operating point or take-off speed</td>
@@ -2174,7 +2196,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 </tr>
 <tr>
 <td>CAD-04 · I can edit the master curves in the elevation that shapes them</td>
-<td><em>(1.6, subject to DR-6: in the workspace a point drag or nudge run commits as one undo step when it ends, without Return/Escape — the &quot;opens the one draft&quot; clause is superseded for point gestures; the elevations, lock refusals, focus ring and accessible values stand.)</em> <strong>Given</strong> the workspace, <strong>then</strong> <strong>Top</strong> carries the Outline&#39;s LE and TE rail frames, <strong>Front</strong> carries the Dihedral/Anhedral frame on the centre line and the Thickness (t/c) frame in a captioned lane below the band, and <strong>Starboard</strong> is a body plan — one row per authored station — with the Twist frame in its own lane, each drawn <em>on</em> the geometry it shapes; <strong>when</strong> I drag or arrow-nudge a vertex, <strong>then</strong> it opens the one draft (Return applies · Escape cancels, UX-23), selects that curve everywhere, and the other viewports and the η-plot update within the preview budget (UX-14); a vertex never edits a curve it does not belong to; a locked vertex refuses with its lock in the accessible value and the status line; while a draft is open on one curve, another curve may be picked and inspected but cannot be nudged or otherwise edited (the status line names the pinned draft to apply or cancel); the focused vertex draws a ring that measures ≥ 3:1 on the viewport in every theme; every vertex is a named <code>role=slider</code> with η and value in its accessible value.</td>
+<td><em>(1.6, subject to DR-6: in the workspace a point drag or nudge run commits as one undo step when it ends, without Return/Escape — the &quot;opens the one draft&quot; clause is superseded for point gestures; the elevations, lock refusals, focus ring and accessible values stand.)</em> <strong>Given</strong> the workspace, <strong>then</strong> <strong>Top</strong> carries the Outline&#39;s LE and TE rail frames, <strong>Front</strong> carries the Dihedral/Anhedral frame on the centre line and the Thickness (t/c) frame in a captioned lane below the band, and <strong>Starboard</strong> is a body plan — <del>one row per authored station</del> <em>(1.7: overlaid, one outline per authored station — Ruling 66, OQ-6)</em> — with the Twist frame in its own lane, each drawn <em>on</em> the geometry it shapes; <strong>when</strong> I drag or arrow-nudge a vertex, <strong>then</strong> it opens the one draft (Return applies · Escape cancels, UX-23), selects that curve everywhere, and the other viewports and the η-plot update within the preview budget (UX-14); a vertex never edits a curve it does not belong to; a locked vertex refuses with its lock in the accessible value and the status line; while a draft is open on one curve, another curve may be picked and inspected but cannot be nudged or otherwise edited (the status line names the pinned draft to apply or cancel); the focused vertex draws a ring that measures ≥ 3:1 on the viewport in every theme; <del>every vertex is a named <code>role=slider</code> with η and value in its accessible value</del> <em>(1.7: a 2D point has no one-axis slider equivalent — every point and handle is a named, focusable object with its bounds, its selection state and an Invoke action that runs Return; its name starts with its stable identity, carries its position and value with units (UI-37) and is refreshed on commit; values are not announced per nudge — M1.2b D-1, accepted with the design by Ruling 57)</em>.</td>
 </tr>
 <tr>
 <td>CAD-05 · A station is a document, not a modal</td>
@@ -2182,7 +2204,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 </tr>
 <tr>
 <td>CAD-06 · One camera over one model</td>
-<td><strong>Given</strong> the Perspective viewport, <strong>then</strong> Top · Front · Starboard · Iso (and Bottom · Back · Port) are camera presets over the same model, reachable from the view cube, the viewport&#39;s title menu and the keyboard; free orbit, pan and zoom follow the navigation preset&#39;s pointer contract (B7) and the keyboard (Option/Alt+←→ orbits 15°, ⇧ 90°; Option/Alt+↑↓ tilts 15°, ⇧ 45°; <code>[</code> <code>]</code> 5°; ⇧+arrows pan; Z zooms out and ⇧Z in (the per-OS table, 01); F fit; Home = Iso); the view cube draws only faces with area and carries four orbit chevrons; the side views are <strong>Starboard</strong> and <strong>Port</strong> everywhere, and the Starboard body plan and the Starboard camera agree on handedness (the nose to the right, the TE to the left); positive twist is nose-up about the station LE in every view (A4.4, A4.7) and the sign fixture asserts it; the viewport title names the camera or &quot;Free · az · el&quot;; the caption names the modifier of the running OS; a section is selectable in 3D and becomes the selection in every view; <strong>Body</strong> shows the loft as Smooth, as the <strong>display cage</strong> (Box: every station&#39;s section polygon and the LE and TE rail polygons as a named group — the dihedral, twist and t/c polygons live in their 2D lanes and are never drawn at invented 3D positions) or both; double-click on a rail polygon in the cage maximises the elevation that edits it; the camera survives the CAD ⇄ Analysis toggle (ANA-22) and the analysis layers render in any camera; direct 3D vertex dragging stays deferred (no unambiguous drag plane without a gizmo) — double-click on a 3D vertex maximises the elevation that edits it.</td>
+<td><strong>Given</strong> the Perspective viewport, <strong>then</strong> Top · Front · Starboard · Iso (and Bottom · Back · Port) are camera presets over the same model, reachable from the view cube, the viewport&#39;s title menu and the keyboard; free orbit, pan and zoom follow the navigation preset&#39;s pointer contract (B7) and the keyboard (Option/Alt+←→ orbits 15°, ⇧ 90°; Option/Alt+↑↓ tilts 15°, ⇧ 45°; <code>[</code> <code>]</code> 5°; ⇧+arrows pan; Z zooms out and ⇧Z in (the per-OS table, 01); F fit <em>(1.7: the selection, or everything when nothing is selected; ⌘0 always fits everything — Ruling 66, OQ-6)</em>; Home = Iso); the view cube draws only faces with area and carries four orbit chevrons; the side views are <strong>Starboard</strong> and <strong>Port</strong> everywhere, and the Starboard body plan and the Starboard camera agree on handedness (the nose to the right, the TE to the left); positive twist is nose-up about the station LE in every view (A4.4, A4.7) and the sign fixture asserts it; the viewport title names the camera or &quot;Free · az · el&quot;; the caption names the modifier of the running OS; a section is selectable in 3D and becomes the selection in every view; <strong>Body</strong> shows the loft as Smooth, as the <strong>display cage</strong> (Box: every station&#39;s section polygon and the LE and TE rail polygons as a named group — the dihedral, twist and t/c polygons live in their 2D lanes and are never drawn at invented 3D positions) or both; double-click on a rail polygon in the cage maximises the elevation that edits it; the camera survives the CAD ⇄ Analysis toggle (ANA-22) and the analysis layers render in any camera; direct 3D vertex dragging stays deferred (no unambiguous drag plane without a gizmo) — double-click on a 3D vertex maximises the elevation that edits it.</td>
 </tr>
 <tr>
 <td>CAD-07 · The verbs are a palette, the parameters an options strip</td>
@@ -2317,7 +2339,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 <td><strong>Computed estimate</strong></td>
 <td>every estimator, polar and VLM + strip result; every correction layer</td>
 <td>method id + version, inputs, envelope, omissions</td>
-<td>&quot;Computed estimate · model uncertainty not quantified&quot;</td>
+<td>&quot;Computed estimate · Model uncertainty not quantified&quot;</td>
 </tr>
 <tr>
 <td><strong>Verified numerical implementation</strong></td>
@@ -2328,7 +2350,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 <tr>
 <td><strong>Converged</strong></td>
 <td>a CFD case</td>
-<td>residual criterion fired · artifact oracle passed · grid uncertainty per ITTC 7.5-03-01-01 Rev 05 or &quot;not quantified (single mesh)&quot; (v1 has no grid-study Experiment kind, so the third part always reads this; the kind is reserved)</td>
+<td>residual criterion fired <em>(1.7: the three-part criterion of A5.10 — residual drop, Cl/Cd stationarity, clean window; DR-F2-1)</em> · artifact oracle passed · grid uncertainty per ITTC 7.5-03-01-01 Rev 05 or &quot;not quantified (single mesh)&quot; (v1 has no grid-study Experiment kind, so the third part always reads this; the kind is reserved)</td>
 <td>three-part label &quot;Converged: residuals <r> · outputs complete · grid uncertainty &lt;U or not quantified (single mesh)&gt;&quot;; LAB-01 lints a partial label</td>
 </tr>
 <tr>
@@ -2450,7 +2472,7 @@ occur (the twist rotation is one); the identity triple for geometry round trips.
 <td>geometry round trips (A4.5)</td>
 </tr>
 </tbody></table></div>
-<p>At readiness: NASA TMR NACA 0012 with GCI (SPIKE-04, the Run/Results acceptance gate). Every fixture is observed red before green and recorded in
+<p><del>At readiness</del> <em>(1.7, DR-F2-9: when the backend pin changes, not at every readiness run)</em>: NASA TMR NACA 0012 with GCI (SPIKE-04, the Run/Results acceptance gate); readiness keeps the cavity-lid smoke test (A5.10). Every fixture is observed red before green and recorded in
 the Proof Pack.</p>
 <h4 id="a8-5-threat-boundaries-and-the-licence-register">A8.5 Threat boundaries and the licence register</h4>
 <div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
@@ -2552,6 +2574,22 @@ the Proof Pack.</p>
 <td>the model never receives a shell; a step outside the allow-list or carrying a parameter field is refused; the tool never runs elevated; every executed step emits <code>environment.step</code></td>
 <td>a proposal naming <code>curl … | sh</code>; a step with an unpinned tag; a syntactically valid digest that differs from the pin → refused; a resource-limit value outside the range → refused; a distribution name or path containing <code>;</code>, <code>$(</code>, a backtick or a newline → refused before launch</td>
 </tr>
+<tr>
+<td>Layout preference file (<code>layout.json</code>)</td>
+<td>closed-DTO JSON, user-writable, ≤ 64 KiB</td>
+<td><code>LayoutCodec.Peek</code>/<code>Parse</code>, version-first, <code>UnmappedMemberHandling = Disallow</code>, <code>MaxDepth = 8</code> (app-shell §3.4–3.5)</td>
+<td>tampering, DoS</td>
+<td>fail closed: a malformed or unknown-shaped file falls back per pane, then to the preset; a newer version is never written this session (V3 wins)</td>
+<td>&gt; 64 KiB file; unknown top-level member; a <code>version</code> newer than this build&#39;s</td>
+</tr>
+<tr>
+<td>Recent-files store (<code>recent.json</code>)</td>
+<td>≤ 10 absolute paths, ≤ 1024 bytes each (personal data), user-writable</td>
+<td>the same version-first closed-DTO parser (app-shell §3.5, §4.5)</td>
+<td>tampering, disclosure of personal data</td>
+<td>fail closed to an empty list; a newer version is never written this session; never enters the layout file or telemetry</td>
+<td>a corrupted <code>recent.json</code>; an oversized path entry</td>
+</tr>
 </tbody></table></div>
 <p><strong>Licence register (release artefact).</strong> Linked: MIT/BSD/Apache only (rhino3dm, Math.NET, ScottPlot, Silk.NET,
 Avalonia (MIT, 11), PureHDF, Parquet.Net, BLAKE3, CliWrap, the official Anthropic SDK — each verified at release). Process-only
@@ -2610,12 +2648,12 @@ in the global column; a chip that jumps is not a verb.</p>
 </tr>
 <tr>
 <td>CAD</td>
-<td>Select · Insert CV · Delete CV · Drag · Nudge · Type η/value · Apply · Cancel · Fair · Rebuild · Fit points · Add station · Remove station · Measure · Ghost · Assign profile · Edit section · Add profile from DAT · Describe a change to the shape · Accept candidate draft · <em>1.6:</em> Set point type · Set tangent kind · Type span · Type root chord · Type tip chord · Replace from catalog · Save to My sections · Smooth (Fair / Rebuild, assumed below) · Finish section · Cancel section · Curvature · Thickness ×2</td>
+<td>Select · Insert CV · Delete CV · Drag · Nudge · Type η/value · Apply · Cancel · Fair · Rebuild · Fit points · Add station · Remove station · Measure · Ghost · Assign profile · Edit section · Add profile from DAT · Describe a change to the shape · Accept candidate draft · <em>1.6:</em> Set point type · Set tangent kind · Type span · Type root chord · Type tip chord · Replace from catalog · Save to My sections · Smooth (Fair / Rebuild, assumed below) · Finish section · Cancel section · Curvature · Thickness ×2 · <em>1.7:</em> Insert CV and Delete CV are named <strong>Add point</strong> and <strong>Remove point</strong>, and Rebuild on a master curve is <strong>Rebuild to N</strong> (Ruling 62)</td>
 <td>→ Analysis (toggle)</td>
 </tr>
 <tr>
 <td>Analysis</td>
-<td>Set operating point · Set depth · Choose water · Toggle layer · Compare · Ask about this calculation</td>
+<td>Set operating point · Set depth · Choose water · <em>1.7:</em> <strong>Evaluate</strong> (computes the selected tier against the accepted revision; a Historical result stays Historical until Evaluate is pressed — DR-ANA-6) · Toggle layer · Compare · Ask about this calculation</td>
 <td>→ CAD (toggle) · → Experiment</td>
 </tr>
 <tr>
@@ -2785,17 +2823,17 @@ station&#39;s section, left by Finish section or Cancel). Inside the workspace:<
 </tr>
 <tr>
 <td>Bottom panel</td>
-<td><strong>Points</strong> (a grid of every point with typed edits and two-way selection) · <strong>Messages</strong> (anything that stops Finish or Save, each with Show)</td>
+<td><del><strong>Points</strong> (a grid of every point with typed edits and two-way selection) · <strong>Messages</strong> (anything that stops Finish or Save, each with Show)</del> <em>(1.7: empty until a pane is moved there. Points moved to the right side bar (Ruling 59, OD-3 B). Messages is retired: a blocker shows where it blocks — the Finish reason, the canvas marker — with one <strong>Show</strong> in the status strip (OD-2 A))</em></td>
 <td>hidden</td>
 </tr>
 <tr>
 <td>Right side bar</td>
-<td>empty until a pane is moved there; an opened empty dock says how to fill it</td>
+<td><em>(1.7:)</em> <strong>Points</strong> (a grid of every point with typed edits and two-way selection), shown by the Precision workspace (Ruling 59, OD-3 B); otherwise empty until a pane is moved there; an opened empty dock says how to fill it</td>
 <td>hidden</td>
 </tr>
 <tr>
 <td>Workspaces (Window menu)</td>
-<td><strong>Planform</strong> (Plan + 3D, left side bar) · <strong>Precision</strong> (adds Points and Messages in the bottom panel) · <strong>Review</strong> (four views, no panes); each remembers its own layout; Reset layout restores the preset</td>
+<td><strong>Planform</strong> (Plan + 3D, left side bar) · <strong>Precision</strong> (adds Points <del>and Messages in the bottom panel</del> <em>(1.7: in the right side bar)</em>) · <strong>Review</strong> (four views, no panes); each remembers its own layout; Reset layout restores the preset</td>
 <td>Planform</td>
 </tr>
 </tbody></table></div>
@@ -2803,10 +2841,13 @@ station&#39;s section, left by Finish section or Cancel). Inside the workspace:<
 Code, Adobe Premier&quot;</em>, <em>&quot;docked in a side panel or floating&quot;</em>, <em>&quot;right side and bottom panels should be &#39;optional&#39;&quot;</em>,
 <em>&quot;the left panel should be the default place for properties and not take too much space away from the cad
 surfaces&quot;</em>, <em>&quot;by default it would have the side panel then the main views depending on the task&quot;</em>.
-<strong>assume:</strong> v10&#39;s view labels map onto CAD-06&#39;s cameras as Plan = Top, 3D = Perspective, Side = Starboard (nose to the
-right), Front = Front; confirm at the next <code>/ui-design</code> run; if wrong, only labels change. <strong>assume:</strong> the <strong>Messages</strong>
+<del><strong>assume:</strong> v10&#39;s view labels map onto CAD-06&#39;s cameras as Plan = Top, 3D = Perspective, Side = Starboard (nose to the
+right), Front = Front; confirm at the next <code>/ui-design</code> run; if wrong, only labels change.</del> <em>(1.7: confirmed as built in
+M1.2b2 — Plan = Top, 3D = Perspective, Side = Starboard (nose to the right), Front = Front; Ruling 66, OQ-6.)</em> <del><strong>assume:</strong> the <strong>Messages</strong>
 pane is the CAD presentation of the Checks drawer&#39;s findings for the open foil (DRC-01 stands); confirm at the next
-<code>/ui-design</code> run; if wrong, the Checks drawer needs its own place in the CAD shell. <strong>assume:</strong> v10&#39;s <strong>Smooth…</strong>
+<code>/ui-design</code> run; if wrong, the Checks drawer needs its own place in the CAD shell.</del> <em>(1.7: resolved by Ruling 59,
+OD-2 A — there is no Messages pane. Where DRC-01&#39;s Checks findings for the open foil live in the CAD shell is placed by the
+next <code>/ui-design</code> run, under DR-STATUS-1 (no scrollable list in the bottom bar) — Ruling 66, OQ-11.)</em> <strong>assume:</strong> v10&#39;s <strong>Smooth…</strong>
 dialog (tolerance, points per side, largest change) is the Fair / Rebuild construction of GEO-15 under a plainer name;
 if wrong, Smooth is a new verb and needs its own story. <strong>How the six other areas are
 reached from this shell is DR-7</strong> (default: the activity rail of UI-18/UI-24 stays, outside the left side bar).</p>
@@ -4032,96 +4073,96 @@ I --&gt; K[Open CAD or Analysis; goal state unchanged]</pre></details><h3 id="b5
 <!-- C -->
 <g id="node5" class="node">
 <title>C</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M684.47,-1121.43C684.47,-1121.43 625.75,-1098.49 625.75,-1098.49 620.16,-1096.3 620.16,-1091.94 625.75,-1089.75 625.75,-1089.75 684.47,-1066.81 684.47,-1066.81 690.06,-1064.62 701.23,-1064.62 706.82,-1066.81 706.82,-1066.81 765.55,-1089.75 765.55,-1089.75 771.13,-1091.94 771.13,-1096.3 765.55,-1098.49 765.55,-1098.49 706.82,-1121.43 706.82,-1121.43 701.23,-1123.62 690.06,-1123.62 684.47,-1121.43"/>
-<text xml:space="preserve" text-anchor="middle" x="695.65" y="-1090.52" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Depth set?</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M666.47,-1121.43C666.47,-1121.43 607.75,-1098.49 607.75,-1098.49 602.16,-1096.3 602.16,-1091.94 607.75,-1089.75 607.75,-1089.75 666.47,-1066.81 666.47,-1066.81 672.06,-1064.62 683.23,-1064.62 688.82,-1066.81 688.82,-1066.81 747.55,-1089.75 747.55,-1089.75 753.13,-1091.94 753.13,-1096.3 747.55,-1098.49 747.55,-1098.49 688.82,-1121.43 688.82,-1121.43 683.23,-1123.62 672.06,-1123.62 666.47,-1121.43"/>
+<text xml:space="preserve" text-anchor="middle" x="677.65" y="-1090.52" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Depth set?</text>
 </g>
 <!-- B2&#45;&gt;C -->
 <g id="edge4" class="edge">
 <title>B2&#45;&gt;C</title>
-<path fill="none" stroke="#597d78" d="M534.22,-1162.46C567.75,-1148.47 614.89,-1128.81 649.58,-1114.34"/>
-<polygon fill="#597d78" stroke="#597d78" points="650.31,-1116.69 655.82,-1111.73 648.42,-1112.16 650.31,-1116.69"/>
+<path fill="none" stroke="#597d78" d="M530.53,-1162.46C560.35,-1148.81 601.97,-1129.76 633.33,-1115.4"/>
+<polygon fill="#597d78" stroke="#597d78" points="634.35,-1117.63 639.7,-1112.49 632.31,-1113.18 634.35,-1117.63"/>
 </g>
 <!-- B3&#45;&gt;C -->
 <g id="edge5" class="edge">
 <title>B3&#45;&gt;C</title>
-<path fill="none" stroke="#597d78" d="M795.05,-1162.46C776.78,-1150.08 751.94,-1133.26 731.67,-1119.53"/>
-<polygon fill="#597d78" stroke="#597d78" points="733.13,-1117.56 725.96,-1115.66 730.38,-1121.61 733.13,-1117.56"/>
+<path fill="none" stroke="#597d78" d="M791.36,-1162.46C769.74,-1149.65 740.09,-1132.1 716.49,-1118.12"/>
+<polygon fill="#597d78" stroke="#597d78" points="717.95,-1116.14 710.68,-1114.68 715.45,-1120.35 717.95,-1116.14"/>
 </g>
 <!-- D -->
 <g id="node6" class="node">
 <title>D</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M933.9,-1014.44C933.9,-1014.44 663.39,-1014.44 663.39,-1014.44 657.39,-1014.44 651.39,-1008.44 651.39,-1002.44 651.39,-1002.44 651.39,-990.44 651.39,-990.44 651.39,-984.44 657.39,-978.44 663.39,-978.44 663.39,-978.44 933.9,-978.44 933.9,-978.44 939.9,-978.44 945.9,-984.44 945.9,-990.44 945.9,-990.44 945.9,-1002.44 945.9,-1002.44 945.9,-1008.44 939.9,-1014.44 933.9,-1014.44"/>
-<text xml:space="preserve" text-anchor="middle" x="798.65" y="-992.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">σ, Fr_h, V_crit Unavailable; Set depth stays offered</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M942.9,-1014.44C942.9,-1014.44 672.39,-1014.44 672.39,-1014.44 666.39,-1014.44 660.39,-1008.44 660.39,-1002.44 660.39,-1002.44 660.39,-990.44 660.39,-990.44 660.39,-984.44 666.39,-978.44 672.39,-978.44 672.39,-978.44 942.9,-978.44 942.9,-978.44 948.9,-978.44 954.9,-984.44 954.9,-990.44 954.9,-990.44 954.9,-1002.44 954.9,-1002.44 954.9,-1008.44 948.9,-1014.44 942.9,-1014.44"/>
+<text xml:space="preserve" text-anchor="middle" x="807.65" y="-992.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">σ, Fr_h, V_crit Unavailable; Set depth stays offered</text>
 </g>
 <!-- C&#45;&gt;D -->
 <g id="edge6" class="edge">
 <title>C&#45;&gt;D</title>
-<path fill="none" stroke="#597d78" d="M719.28,-1071.17C735.67,-1055.94 757.47,-1035.69 774.07,-1020.27"/>
-<polygon fill="#597d78" stroke="#597d78" points="775.36,-1022.42 778.82,-1015.86 772.02,-1018.83 775.36,-1022.42"/>
-<text xml:space="preserve" text-anchor="middle" x="765.79" y="-1035.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+<path fill="none" stroke="#597d78" d="M705.22,-1072.83C726.33,-1057.29 755.45,-1035.86 777.24,-1019.82"/>
+<polygon fill="#597d78" stroke="#597d78" points="778.63,-1021.84 782.82,-1015.71 775.73,-1017.89 778.63,-1021.84"/>
+<text xml:space="preserve" text-anchor="middle" x="764.5" y="-1035.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
 </g>
 <!-- E -->
 <g id="node7" class="node">
 <title>E</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M713.2,-941.44C713.2,-941.44 556.09,-941.44 556.09,-941.44 550.09,-941.44 544.09,-935.44 544.09,-929.44 544.09,-929.44 544.09,-917.44 544.09,-917.44 544.09,-911.44 550.09,-905.44 556.09,-905.44 556.09,-905.44 713.2,-905.44 713.2,-905.44 719.2,-905.44 725.2,-911.44 725.2,-917.44 725.2,-917.44 725.2,-929.44 725.2,-929.44 725.2,-935.44 719.2,-941.44 713.2,-941.44"/>
-<text xml:space="preserve" text-anchor="middle" x="634.65" y="-919.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Derive h/c, Fr_h, σ per station</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M752.2,-941.44C752.2,-941.44 595.09,-941.44 595.09,-941.44 589.09,-941.44 583.09,-935.44 583.09,-929.44 583.09,-929.44 583.09,-917.44 583.09,-917.44 583.09,-911.44 589.09,-905.44 595.09,-905.44 595.09,-905.44 752.2,-905.44 752.2,-905.44 758.2,-905.44 764.2,-911.44 764.2,-917.44 764.2,-917.44 764.2,-929.44 764.2,-929.44 764.2,-935.44 758.2,-941.44 752.2,-941.44"/>
+<text xml:space="preserve" text-anchor="middle" x="673.65" y="-919.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Derive h/c, Fr_h, σ per station</text>
 </g>
 <!-- C&#45;&gt;E -->
 <g id="edge8" class="edge">
 <title>C&#45;&gt;E</title>
-<path fill="none" stroke="#597d78" d="M667.85,-1072.79C650.91,-1058.59 630.77,-1038 621.41,-1014.44 613.12,-993.57 618.13,-968.11 624.21,-949.6"/>
-<polygon fill="#597d78" stroke="#597d78" points="626.5,-950.47 626.54,-943.06 621.89,-948.83 626.5,-950.47"/>
-<text xml:space="preserve" text-anchor="middle" x="630.03" y="-993.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+<path fill="none" stroke="#597d78" d="M658.85,-1069.55C648.23,-1054.68 635.99,-1034.55 630.41,-1014.44 626.14,-999.02 625.12,-993.54 630.41,-978.44 634.38,-967.13 641.83,-956.44 649.43,-947.59"/>
+<polygon fill="#597d78" stroke="#597d78" points="651.05,-949.45 653.93,-942.62 647.42,-946.16 651.05,-949.45"/>
+<text xml:space="preserve" text-anchor="middle" x="639.03" y="-993.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
 </g>
 <!-- D&#45;&gt;E -->
 <g id="edge7" class="edge">
 <title>D&#45;&gt;E</title>
-<path fill="none" stroke="#597d78" d="M758.53,-978.07C735.59,-968.14 706.69,-955.63 682.57,-945.19"/>
-<polygon fill="#597d78" stroke="#597d78" points="683.71,-943.01 676.31,-942.48 681.76,-947.51 683.71,-943.01"/>
+<path fill="none" stroke="#597d78" d="M774.87,-978.07C756.45,-968.32 733.33,-956.06 713.83,-945.73"/>
+<polygon fill="#597d78" stroke="#597d78" points="715.22,-943.7 707.89,-942.58 712.93,-948.03 715.22,-943.7"/>
 </g>
 <!-- E2 -->
 <g id="node8" class="node">
 <title>E2</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M623.23,-864.74C623.23,-864.74 548.33,-840.46 548.33,-840.46 542.62,-838.61 542.62,-834.91 548.33,-833.06 548.33,-833.06 623.23,-808.78 623.23,-808.78 628.94,-806.93 640.35,-806.93 646.06,-808.78 646.06,-808.78 720.97,-833.06 720.97,-833.06 726.67,-834.91 726.67,-838.61 720.97,-840.46 720.97,-840.46 646.06,-864.74 646.06,-864.74 640.35,-866.59 628.94,-866.59 623.23,-864.74"/>
-<text xml:space="preserve" text-anchor="middle" x="634.65" y="-833.16" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Any h(y) ≤ 0?</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M662.23,-864.74C662.23,-864.74 587.33,-840.46 587.33,-840.46 581.62,-838.61 581.62,-834.91 587.33,-833.06 587.33,-833.06 662.23,-808.78 662.23,-808.78 667.94,-806.93 679.35,-806.93 685.06,-808.78 685.06,-808.78 759.97,-833.06 759.97,-833.06 765.67,-834.91 765.67,-838.61 759.97,-840.46 759.97,-840.46 685.06,-864.74 685.06,-864.74 679.35,-866.59 667.94,-866.59 662.23,-864.74"/>
+<text xml:space="preserve" text-anchor="middle" x="673.65" y="-833.16" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Any h(y) ≤ 0?</text>
 </g>
 <!-- E&#45;&gt;E2 -->
 <g id="edge9" class="edge">
 <title>E&#45;&gt;E2</title>
-<path fill="none" stroke="#597d78" d="M634.65,-905.3C634.65,-897.23 634.65,-887.23 634.65,-877.43"/>
-<polygon fill="#597d78" stroke="#597d78" points="637.1,-877.43 634.65,-870.43 632.2,-877.43 637.1,-877.43"/>
+<path fill="none" stroke="#597d78" d="M673.65,-905.3C673.65,-897.23 673.65,-887.23 673.65,-877.43"/>
+<polygon fill="#597d78" stroke="#597d78" points="676.1,-877.43 673.65,-870.43 671.2,-877.43 676.1,-877.43"/>
 </g>
 <!-- E3 -->
 <g id="node9" class="node">
 <title>E3</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M904.24,-757.08C904.24,-757.08 609.05,-757.08 609.05,-757.08 603.05,-757.08 597.05,-751.08 597.05,-745.08 597.05,-745.08 597.05,-733.08 597.05,-733.08 597.05,-727.08 603.05,-721.08 609.05,-721.08 609.05,-721.08 904.24,-721.08 904.24,-721.08 910.24,-721.08 916.24,-727.08 916.24,-733.08 916.24,-733.08 916.24,-745.08 916.24,-745.08 916.24,-751.08 910.24,-757.08 904.24,-757.08"/>
-<text xml:space="preserve" text-anchor="middle" x="756.65" y="-735.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Station estimator Unavailable; surface&#45;piercing flag only</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M942.24,-757.08C942.24,-757.08 647.05,-757.08 647.05,-757.08 641.05,-757.08 635.05,-751.08 635.05,-745.08 635.05,-745.08 635.05,-733.08 635.05,-733.08 635.05,-727.08 641.05,-721.08 647.05,-721.08 647.05,-721.08 942.24,-721.08 942.24,-721.08 948.24,-721.08 954.24,-727.08 954.24,-733.08 954.24,-733.08 954.24,-745.08 954.24,-745.08 954.24,-751.08 948.24,-757.08 942.24,-757.08"/>
+<text xml:space="preserve" text-anchor="middle" x="794.65" y="-735.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Station estimator Unavailable; surface&#45;piercing flag only</text>
 </g>
 <!-- E2&#45;&gt;E3 -->
 <g id="edge10" class="edge">
 <title>E2&#45;&gt;E3</title>
-<path fill="none" stroke="#597d78" d="M662.64,-813.81C682.14,-798.51 708.1,-778.16 727.79,-762.71"/>
-<polygon fill="#597d78" stroke="#597d78" points="729.29,-764.65 733.29,-758.4 726.27,-760.79 729.29,-764.65"/>
-<text xml:space="preserve" text-anchor="middle" x="718.78" y="-778.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+<path fill="none" stroke="#597d78" d="M701.41,-813.81C720.75,-798.51 746.5,-778.16 766.03,-762.71"/>
+<polygon fill="#597d78" stroke="#597d78" points="767.5,-764.67 771.47,-758.41 764.46,-760.83 767.5,-764.67"/>
+<text xml:space="preserve" text-anchor="middle" x="757.16" y="-778.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
 </g>
 <!-- F -->
 <g id="node10" class="node">
 <title>F</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M614.78,-682.3C614.78,-682.3 427.39,-654.18 427.39,-654.18 421.46,-653.29 421.46,-651.51 427.39,-650.62 427.39,-650.62 614.78,-622.5 614.78,-622.5 620.71,-621.61 632.58,-621.61 638.51,-622.5 638.51,-622.5 825.9,-650.62 825.9,-650.62 831.83,-651.51 831.83,-653.29 825.9,-654.18 825.9,-654.18 638.51,-682.3 638.51,-682.3 632.58,-683.19 620.71,-683.19 614.78,-682.3"/>
-<text xml:space="preserve" text-anchor="middle" x="626.65" y="-648.8" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Water record admitted for T and S?</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M624.78,-682.3C624.78,-682.3 437.39,-654.18 437.39,-654.18 431.46,-653.29 431.46,-651.51 437.39,-650.62 437.39,-650.62 624.78,-622.5 624.78,-622.5 630.71,-621.61 642.58,-621.61 648.51,-622.5 648.51,-622.5 835.9,-650.62 835.9,-650.62 841.83,-651.51 841.83,-653.29 835.9,-654.18 835.9,-654.18 648.51,-682.3 648.51,-682.3 642.58,-683.19 630.71,-683.19 624.78,-682.3"/>
+<text xml:space="preserve" text-anchor="middle" x="636.65" y="-648.8" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Water record admitted for T and S?</text>
 </g>
 <!-- E2&#45;&gt;F -->
 <g id="edge12" class="edge">
 <title>E2&#45;&gt;F</title>
-<path fill="none" stroke="#597d78" d="M609.45,-812.93C595.44,-798.48 579.37,-778.52 571.86,-757.08 566.58,-741.98 566.52,-736.16 571.86,-721.08 576.33,-708.45 584.27,-696.46 592.74,-686.17"/>
-<polygon fill="#597d78" stroke="#597d78" points="594.36,-688.05 597.07,-681.14 590.65,-684.85 594.36,-688.05"/>
-<text xml:space="preserve" text-anchor="middle" x="578.25" y="-736.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+<path fill="none" stroke="#597d78" d="M648.05,-813C633.83,-798.58 617.5,-778.63 609.86,-757.08 602.08,-735.11 608.34,-709.8 616.76,-689.68"/>
+<polygon fill="#597d78" stroke="#597d78" points="618.97,-690.74 619.58,-683.35 614.49,-688.75 618.97,-690.74"/>
+<text xml:space="preserve" text-anchor="middle" x="616.25" y="-736.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
 </g>
 <!-- E3&#45;&gt;F -->
 <g id="edge11" class="edge">
 <title>E3&#45;&gt;F</title>
-<path fill="none" stroke="#597d78" d="M730.02,-720.74C713.35,-709.88 691.43,-695.6 672.07,-682.99"/>
-<polygon fill="#597d78" stroke="#597d78" points="673.54,-681.02 666.33,-679.25 670.86,-685.13 673.54,-681.02"/>
+<path fill="none" stroke="#597d78" d="M762.29,-720.74C741.26,-709.47 713.37,-694.52 689.2,-681.57"/>
+<polygon fill="#597d78" stroke="#597d78" points="690.5,-679.48 683.17,-678.33 688.18,-683.8 690.5,-679.48"/>
 </g>
 <!-- G -->
 <g id="node11" class="node">
@@ -4132,9 +4173,9 @@ I --&gt; K[Open CAD or Analysis; goal state unchanged]</pre></details><h3 id="b5
 <!-- F&#45;&gt;G -->
 <g id="edge13" class="edge">
 <title>F&#45;&gt;G</title>
-<path fill="none" stroke="#597d78" d="M564.86,-629.53C509.29,-609.87 428.34,-581.22 374.39,-562.12"/>
-<polygon fill="#597d78" stroke="#597d78" points="375.47,-559.91 368.06,-559.88 373.84,-564.53 375.47,-559.91"/>
-<text xml:space="preserve" text-anchor="middle" x="487.8" y="-593.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+<path fill="none" stroke="#597d78" d="M573.62,-629.79C516.34,-610.16 432.46,-581.4 376.51,-562.22"/>
+<polygon fill="#597d78" stroke="#597d78" points="377.31,-559.91 369.9,-559.95 375.72,-564.54 377.31,-559.91"/>
+<text xml:space="preserve" text-anchor="middle" x="493.1" y="-593.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
 </g>
 <!-- H -->
 <g id="node12" class="node">
@@ -4145,9 +4186,9 @@ I --&gt; K[Open CAD or Analysis; goal state unchanged]</pre></details><h3 id="b5
 <!-- F&#45;&gt;H -->
 <g id="edge15" class="edge">
 <title>F&#45;&gt;H</title>
-<path fill="none" stroke="#597d78" d="M647.81,-623.52C658.82,-609.01 672.36,-591.16 683.97,-575.87"/>
-<polygon fill="#597d78" stroke="#597d78" points="685.62,-577.75 687.9,-570.7 681.71,-574.79 685.62,-577.75"/>
-<text xml:space="preserve" text-anchor="middle" x="679.25" y="-593.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+<path fill="none" stroke="#597d78" d="M655.45,-623.24C664.9,-609.08 676.44,-591.79 686.44,-576.81"/>
+<polygon fill="#597d78" stroke="#597d78" points="688.22,-578.55 690.07,-571.37 684.15,-575.83 688.22,-578.55"/>
+<text xml:space="preserve" text-anchor="middle" x="683.95" y="-593.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
 </g>
 <!-- G&#45;&gt;B -->
 <g id="edge14" class="edge">
@@ -4202,14 +4243,14 @@ I --&gt; K[Open CAD or Analysis; goal state unchanged]</pre></details><h3 id="b5
 <!-- N -->
 <g id="node16" class="node">
 <title>N</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M763.57,-204C763.57,-204 503.73,-204 503.73,-204 497.73,-204 491.73,-198 491.73,-192 491.73,-192 491.73,-180 491.73,-180 491.73,-174 497.73,-168 503.73,-168 503.73,-168 763.57,-168 763.57,-168 769.57,-168 775.57,-174 775.57,-180 775.57,-180 775.57,-192 775.57,-192 775.57,-198 769.57,-204 763.57,-204"/>
-<text xml:space="preserve" text-anchor="middle" x="633.65" y="-182.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Results with labels, omissions, depth basis, band</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M766.57,-204C766.57,-204 506.73,-204 506.73,-204 500.73,-204 494.73,-198 494.73,-192 494.73,-192 494.73,-180 494.73,-180 494.73,-174 500.73,-168 506.73,-168 506.73,-168 766.57,-168 766.57,-168 772.57,-168 778.57,-174 778.57,-180 778.57,-180 778.57,-192 778.57,-192 778.57,-198 772.57,-204 766.57,-204"/>
+<text xml:space="preserve" text-anchor="middle" x="636.65" y="-182.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Results with labels, omissions, depth basis, band</text>
 </g>
 <!-- M&#45;&gt;N -->
 <g id="edge20" class="edge">
 <title>M&#45;&gt;N</title>
-<path fill="none" stroke="#597d78" d="M607.1,-354.76C548.91,-349.9 468.56,-332.64 427.85,-277 401.79,-241.38 439.01,-219.66 488.64,-206.52"/>
-<polygon fill="#597d78" stroke="#597d78" points="489.05,-208.94 495.24,-204.85 487.85,-204.19 489.05,-208.94"/>
+<path fill="none" stroke="#597d78" d="M607.1,-354.76C548.91,-349.9 468.56,-332.64 427.85,-277 401.75,-241.32 438.45,-219.63 488.01,-206.52"/>
+<polygon fill="#597d78" stroke="#597d78" points="488.41,-208.95 494.6,-204.86 487.21,-204.2 488.41,-208.95"/>
 <text xml:space="preserve" text-anchor="middle" x="446.75" y="-256" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Success</text>
 </g>
 <!-- K -->
@@ -4254,58 +4295,58 @@ I --&gt; K[Open CAD or Analysis; goal state unchanged]</pre></details><h3 id="b5
 <!-- P -->
 <g id="node20" class="node">
 <title>P</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M617.19,-120C617.19,-120 478.1,-120 478.1,-120 472.1,-120 466.1,-114 466.1,-108 466.1,-108 466.1,-96 466.1,-96 466.1,-90 472.1,-84 478.1,-84 478.1,-84 617.19,-84 617.19,-84 623.19,-84 629.19,-90 629.19,-96 629.19,-96 629.19,-108 629.19,-108 629.19,-114 623.19,-120 617.19,-120"/>
-<text xml:space="preserve" text-anchor="middle" x="547.65" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Compare revisions or tiers</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M697.19,-120C697.19,-120 558.1,-120 558.1,-120 552.1,-120 546.1,-114 546.1,-108 546.1,-108 546.1,-96 546.1,-96 546.1,-90 552.1,-84 558.1,-84 558.1,-84 697.19,-84 697.19,-84 703.19,-84 709.19,-90 709.19,-96 709.19,-96 709.19,-108 709.19,-108 709.19,-114 703.19,-120 697.19,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="627.65" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Compare revisions or tiers</text>
 </g>
 <!-- N&#45;&gt;P -->
 <g id="edge27" class="edge">
 <title>N&#45;&gt;P</title>
-<path fill="none" stroke="#597d78" d="M622.88,-167.82C616.51,-158.41 607.88,-146.89 598.65,-138 593.97,-133.5 588.65,-129.17 583.26,-125.18"/>
-<polygon fill="#597d78" stroke="#597d78" points="584.8,-123.27 577.68,-121.21 581.96,-127.26 584.8,-123.27"/>
+<path fill="none" stroke="#597d78" d="M634.74,-167.61C633.5,-156.3 631.86,-141.36 630.47,-128.7"/>
+<polygon fill="#597d78" stroke="#597d78" points="632.92,-128.56 629.72,-121.87 628.05,-129.1 632.92,-128.56"/>
 </g>
 <!-- S -->
 <g id="node23" class="node">
 <title>S</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M428.87,-120C428.87,-120 276.42,-120 276.42,-120 270.42,-120 264.42,-114 264.42,-108 264.42,-108 264.42,-96 264.42,-96 264.42,-90 270.42,-84 276.42,-84 276.42,-84 428.87,-84 428.87,-84 434.87,-84 440.87,-90 440.87,-96 440.87,-96 440.87,-108 440.87,-108 440.87,-114 434.87,-120 428.87,-120"/>
-<text xml:space="preserve" text-anchor="middle" x="352.65" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Historical banner; recompute</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M509.23,-120C509.23,-120 196.06,-120 196.06,-120 190.06,-120 184.06,-114 184.06,-108 184.06,-108 184.06,-96 184.06,-96 184.06,-90 190.06,-84 196.06,-84 196.06,-84 509.23,-84 509.23,-84 515.23,-84 521.23,-90 521.23,-96 521.23,-96 521.23,-108 521.23,-108 521.23,-114 515.23,-120 509.23,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="352.65" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Historical banner until Evaluate is pressed &#45; 1.7, DR&#45;ANA&#45;6</text>
 </g>
 <!-- N&#45;&gt;S -->
 <g id="edge31" class="edge">
 <title>N&#45;&gt;S</title>
-<path fill="none" stroke="#597d78" d="M491.3,-168.54C469.38,-163.83 447.29,-157.78 426.99,-150 410.96,-143.86 394.67,-134.05 381.45,-124.98"/>
-<polygon fill="#597d78" stroke="#597d78" points="383.2,-123.22 376.06,-121.2 380.38,-127.23 383.2,-123.22"/>
-<text xml:space="preserve" text-anchor="middle" x="509.82" y="-141" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Definition, setting or method changed</text>
+<path fill="none" stroke="#597d78" d="M529.21,-167.59C506.14,-162.78 482.06,-156.93 459.99,-150 437.88,-143.06 414.2,-133 394.72,-123.96"/>
+<polygon fill="#597d78" stroke="#597d78" points="395.95,-121.83 388.57,-121.07 393.86,-126.26 395.95,-121.83"/>
+<text xml:space="preserve" text-anchor="middle" x="542.82" y="-141" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Definition, setting or method changed</text>
 </g>
 <!-- T -->
 <g id="node24" class="node">
 <title>T</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M897.24,-120C897.24,-120 666.05,-120 666.05,-120 660.05,-120 654.05,-114 654.05,-108 654.05,-108 654.05,-96 654.05,-96 654.05,-90 660.05,-84 666.05,-84 666.05,-84 897.24,-84 897.24,-84 903.24,-84 909.24,-90 909.24,-96 909.24,-96 909.24,-108 909.24,-108 909.24,-114 903.24,-120 897.24,-120"/>
-<text xml:space="preserve" text-anchor="middle" x="781.65" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Checks drawer: envelope and label findings</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M977.24,-120C977.24,-120 746.05,-120 746.05,-120 740.05,-120 734.05,-114 734.05,-108 734.05,-108 734.05,-96 734.05,-96 734.05,-90 740.05,-84 746.05,-84 746.05,-84 977.24,-84 977.24,-84 983.24,-84 989.24,-90 989.24,-96 989.24,-96 989.24,-108 989.24,-108 989.24,-114 983.24,-120 977.24,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="861.65" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Checks drawer: envelope and label findings</text>
 </g>
 <!-- N&#45;&gt;T -->
 <g id="edge33" class="edge">
 <title>N&#45;&gt;T</title>
-<path fill="none" stroke="#597d78" d="M665.03,-167.61C687.79,-155 718.72,-137.87 743,-124.41"/>
-<polygon fill="#597d78" stroke="#597d78" points="744.04,-126.63 748.98,-121.1 741.67,-122.35 744.04,-126.63"/>
+<path fill="none" stroke="#597d78" d="M684.64,-167.51C720.18,-154.56 768.71,-136.87 805.96,-123.3"/>
+<polygon fill="#597d78" stroke="#597d78" points="806.57,-125.68 812.31,-120.98 804.89,-121.08 806.57,-125.68"/>
 </g>
 <!-- U -->
 <g id="node25" class="node">
 <title>U</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M1208.91,-120C1208.91,-120 946.39,-120 946.39,-120 940.39,-120 934.39,-114 934.39,-108 934.39,-108 934.39,-96 934.39,-96 934.39,-90 940.39,-84 946.39,-84 946.39,-84 1208.91,-84 1208.91,-84 1214.91,-84 1220.91,-90 1220.91,-96 1220.91,-96 1220.91,-108 1220.91,-108 1220.91,-114 1214.91,-120 1208.91,-120"/>
-<text xml:space="preserve" text-anchor="middle" x="1077.65" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Jump chip: define a Case schedule in Experiment</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1288.91,-120C1288.91,-120 1026.39,-120 1026.39,-120 1020.39,-120 1014.39,-114 1014.39,-108 1014.39,-108 1014.39,-96 1014.39,-96 1014.39,-90 1020.39,-84 1026.39,-84 1026.39,-84 1288.91,-84 1288.91,-84 1294.91,-84 1300.91,-90 1300.91,-96 1300.91,-96 1300.91,-108 1300.91,-108 1300.91,-114 1294.91,-120 1288.91,-120"/>
+<text xml:space="preserve" text-anchor="middle" x="1157.65" y="-98.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Jump chip: define a Case schedule in Experiment</text>
 </g>
 <!-- N&#45;&gt;U -->
 <g id="edge34" class="edge">
 <title>N&#45;&gt;U</title>
-<path fill="none" stroke="#597d78" d="M728.35,-167.51C800.84,-154.12 900.68,-135.68 975.06,-121.95"/>
-<polygon fill="#597d78" stroke="#597d78" points="975.16,-124.42 981.6,-120.74 974.27,-119.6 975.16,-124.42"/>
-<text xml:space="preserve" text-anchor="middle" x="906.69" y="-141" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Sweep this</text>
+<path fill="none" stroke="#597d78" d="M747.77,-167.51C833.18,-154.07 950.94,-135.53 1038.33,-121.78"/>
+<polygon fill="#597d78" stroke="#597d78" points="1038.66,-124.21 1045.19,-120.7 1037.9,-119.37 1038.66,-124.21"/>
+<text xml:space="preserve" text-anchor="middle" x="952.8" y="-141" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Sweep this</text>
 </g>
 <!-- K&#45;&gt;N -->
 <g id="edge22" class="edge">
 <title>K&#45;&gt;N</title>
-<path fill="none" stroke="#597d78" d="M639.71,-240.81C638.75,-232.27 637.56,-221.77 636.5,-212.32"/>
-<polygon fill="#597d78" stroke="#597d78" points="638.95,-212.21 635.73,-205.53 634.08,-212.76 638.95,-212.21"/>
+<path fill="none" stroke="#597d78" d="M640.44,-240.81C639.83,-232.27 639.09,-221.77 638.43,-212.32"/>
+<polygon fill="#597d78" stroke="#597d78" points="640.89,-212.35 637.95,-205.54 636,-212.69 640.89,-212.35"/>
 </g>
 <!-- O&#45;&gt;B -->
 <g id="edge24" class="edge">
@@ -4322,35 +4363,35 @@ I --&gt; K[Open CAD or Analysis; goal state unchanged]</pre></details><h3 id="b5
 <!-- Q -->
 <g id="node21" class="node">
 <title>Q</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M481.21,-36C481.21,-36 340.09,-36 340.09,-36 334.09,-36 328.09,-30 328.09,-24 328.09,-24 328.09,-12 328.09,-12 328.09,-6 334.09,0 340.09,0 340.09,0 481.21,0 481.21,0 487.21,0 493.21,-6 493.21,-12 493.21,-12 493.21,-24 493.21,-24 493.21,-30 487.21,-36 481.21,-36"/>
-<text xml:space="preserve" text-anchor="middle" x="410.65" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Block delta until reconciled</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M561.21,-36C561.21,-36 420.09,-36 420.09,-36 414.09,-36 408.09,-30 408.09,-24 408.09,-24 408.09,-12 408.09,-12 408.09,-6 414.09,0 420.09,0 420.09,0 561.21,0 561.21,0 567.21,0 573.21,-6 573.21,-12 573.21,-12 573.21,-24 573.21,-24 573.21,-30 567.21,-36 561.21,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="490.65" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Block delta until reconciled</text>
 </g>
 <!-- P&#45;&gt;Q -->
 <g id="edge28" class="edge">
 <title>P&#45;&gt;Q</title>
-<path fill="none" stroke="#597d78" d="M540.61,-83.65C535.77,-73.7 528.45,-61.7 518.65,-54 511.58,-48.45 503.62,-43.77 495.29,-39.83"/>
-<polygon fill="#597d78" stroke="#597d78" points="496.33,-37.61 488.94,-37.02 494.35,-42.09 496.33,-37.61"/>
-<text xml:space="preserve" text-anchor="middle" x="583.35" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Incompatible references</text>
+<path fill="none" stroke="#597d78" d="M620.61,-83.65C615.77,-73.7 608.45,-61.7 598.65,-54 591.58,-48.45 583.62,-43.77 575.29,-39.83"/>
+<polygon fill="#597d78" stroke="#597d78" points="576.33,-37.61 568.94,-37.02 574.35,-42.09 576.33,-37.61"/>
+<text xml:space="preserve" text-anchor="middle" x="663.35" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Incompatible references</text>
 </g>
 <!-- R -->
 <g id="node22" class="node">
 <title>R</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M812.55,-36C812.55,-36 556.74,-36 556.74,-36 550.74,-36 544.74,-30 544.74,-24 544.74,-24 544.74,-12 544.74,-12 544.74,-6 550.74,0 556.74,0 556.74,0 812.55,0 812.55,0 818.55,0 824.55,-6 824.55,-12 824.55,-12 824.55,-24 824.55,-24 824.55,-30 818.55,-36 812.55,-36"/>
-<text xml:space="preserve" text-anchor="middle" x="684.65" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Normalised per&#45;point deltas; Discrepancy record</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M892.55,-36C892.55,-36 636.74,-36 636.74,-36 630.74,-36 624.74,-30 624.74,-24 624.74,-24 624.74,-12 624.74,-12 624.74,-6 630.74,0 636.74,0 636.74,0 892.55,0 892.55,0 898.55,0 904.55,-6 904.55,-12 904.55,-12 904.55,-24 904.55,-24 904.55,-30 898.55,-36 892.55,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="764.65" y="-14.4" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Normalised per&#45;point deltas; Discrepancy record</text>
 </g>
 <!-- P&#45;&gt;R -->
 <g id="edge30" class="edge">
 <title>P&#45;&gt;R</title>
-<path fill="none" stroke="#597d78" d="M608.61,-83.58C620.42,-78.84 632.33,-73.02 642.65,-66 652.02,-59.62 660.68,-50.71 667.68,-42.36"/>
-<polygon fill="#597d78" stroke="#597d78" points="669.26,-44.3 671.74,-37.31 665.44,-41.23 669.26,-44.3"/>
-<text xml:space="preserve" text-anchor="middle" x="681.2" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Compatible</text>
+<path fill="none" stroke="#597d78" d="M688.61,-83.58C700.42,-78.84 712.33,-73.02 722.65,-66 732.02,-59.62 740.68,-50.71 747.68,-42.36"/>
+<polygon fill="#597d78" stroke="#597d78" points="749.26,-44.3 751.74,-37.31 745.44,-41.23 749.26,-44.3"/>
+<text xml:space="preserve" text-anchor="middle" x="761.2" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Compatible</text>
 </g>
 <!-- Q&#45;&gt;P -->
 <g id="edge29" class="edge">
 <title>Q&#45;&gt;P</title>
-<path fill="none" stroke="#597d78" d="M386.96,-36.44C377.51,-45.5 370.48,-56.61 378.12,-66 379.57,-67.77 418.06,-75.79 458,-83.71"/>
-<polygon fill="#597d78" stroke="#597d78" points="457.17,-86.04 464.51,-84.99 458.12,-81.23 457.17,-86.04"/>
-<text xml:space="preserve" text-anchor="middle" x="445.39" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Reconcile reference quantities</text>
+<path fill="none" stroke="#597d78" d="M466.96,-36.44C457.51,-45.5 450.48,-56.61 458.12,-66 459.57,-67.77 498.06,-75.79 538,-83.71"/>
+<polygon fill="#597d78" stroke="#597d78" points="537.17,-86.04 544.51,-84.99 538.12,-81.23 537.17,-86.04"/>
+<text xml:space="preserve" text-anchor="middle" x="525.39" y="-57" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Reconcile reference quantities</text>
 </g>
 <!-- S&#45;&gt;L -->
 <g id="edge32" class="edge">
@@ -4391,7 +4432,7 @@ N --&gt; P[Compare revisions or tiers]
 P --&gt;|Incompatible references| Q[Block delta until reconciled]
 Q --&gt;|Reconcile reference quantities| P
 P --&gt;|Compatible| R[Normalised per-point deltas; Discrepancy record]
-N --&gt;|Definition, setting or method changed| S[Historical banner; recompute]
+N --&gt;|Definition, setting or method changed| S[Historical banner until Evaluate is pressed - 1.7, DR-ANA-6]
 S --&gt; L
 N --&gt; T[Checks drawer: envelope and label findings]
 N --&gt;|Sweep this| U[Jump chip: define a Case schedule in Experiment]</pre></details><h3 id="b6-flow-f5-export-and-optional-assistance-exp-01-03-ai-01-06">B6. Flow F5 — export and optional assistance (EXP-01–03, AI-01–06)</h3>
@@ -6077,12 +6118,15 @@ station · Measure · Curvature</strong>; in the section editor <strong>Editing 
 ×2</strong>, with <strong>Cancel · Finish section</strong> at the right. Then <strong>Undo · Redo</strong> and three layout toggles (left side bar ·
 bottom panel · right side bar). <strong>Body:</strong> the left side bar (Properties | Browser), the model area (views with a Fit ·
 Views ▾ bar; in the section editor the section canvas with its scope and source chips, its status line and a strip of
-station thumbnails), the optional bottom panel (Points | Messages) and the optional right side bar; floating panes sit
+station thumbnails), the optional bottom panel <del>(Points | Messages)</del> and the optional right side bar <em>(1.7: Points lives in the right side bar; Messages is retired — Ruling 59, OD-2 A and OD-3 B)</em>; floating panes sit
 over the model area. <strong>Panes:</strong> each pane&#39;s tab has a menu (Move to · Float · Size · Maximize · Close); a tab can be
 dragged to a highlighted drop zone; a float moves with Alt + arrows or its Position menu and docks back with ⤓ or
 Escape; a dock closes when its last pane leaves. <strong>Keyboard:</strong> F6 cycles regions; ⌘/Ctrl+B, ⌘/Ctrl+J and ⌥⌘B /
 Ctrl+Alt+B toggle the left side bar, bottom panel and right side bar; ⌘/Ctrl+Shift+M maximizes a pane; splitters take
-arrows and Home/End; shortcuts never act while a text field has focus. <strong>Native build conditions carried from the v9
+arrows and Home/End; unmodified and single-key shortcuts never act while a text field has focus, and the chords the
+text system owns (Edit verbs, ⌥/⌘+arrows, ⌥/⌘+Backspace/Delete) stay in the field; every other modified app chord
+(⌘S, ⌘B, ⌘O…) first commits the field, as leaving it would, then acts — except Quit and Close, which restore the
+shown value and continue (Ruling 52, DR-S2). <strong>Native build conditions carried from the v9
 review as requirements where the user sees them (UX-32):</strong> a float is a real OS window that can move to another
 monitor; menus and shortcuts follow the platform (macOS menu bar and ⌘; Windows in-window menus and Ctrl; Windows
 Snap Layouts preserved); each workspace&#39;s layout is remembered across sessions, with floats clamped to connected
@@ -7600,7 +7644,10 @@ S5 --&gt; S1
 S1 --&gt;|Finish section| S6[One undo step; back to the station in the workspace]
 S1 --&gt;|Cancel| S7[Entry state restored; undo depth unchanged]
 S6 --&gt; W
-S7 --&gt; W</pre></details><h3 id="b12-flow-f12-panes-docks-and-floats-revision-1-6-ux-31-32">B12. Flow F12 — panes, docks and floats (revision 1.6; UX-31–32)</h3>
+S7 --&gt; W</pre></details><p><em>(1.7: node M&#39;s typed clause — a typed value sets every point — is not built in M1.2. Several selected points show
+Mixed values read-only until a multi-point draft exists (M1.2b OI-3, accepted with the design by Ruling 57). The
+requirement stands.)</em></p>
+<h3 id="b12-flow-f12-panes-docks-and-floats-revision-1-6-ux-31-32">B12. Flow F12 — panes, docks and floats (revision 1.6; UX-31–32)</h3>
 <figure class="flow">
 
 <!-- Generated by graphviz version 14.1.3 (20260303.0454)
@@ -7863,13 +7910,13 @@ edges, by node: F11 — C-Example-missing, O-Cancel, O-Newer, O-Missing-migratab
 D1-No, D-Tip-closes, S2-Yes, K-No-match, K-Pending-or-cite-only, K-Cancel, K3-Cancel, V-Empty-or-duplicate,
 V-Cancel, SM-Cancel, S1-Other-station, S1-Escape, S1-Cancel, S1-Switch-to-Analysis, S1-Station-removed,
 S1-Close-window, S10-Save (23); F12 — A-Monitor-gone, G-Yes, G-No, X-Escape-or-restore, F-Escape-or-dock-back (5):
-<strong>28 edges</strong>, each a test row, in addition to UX-03&#39;s 80.</li>
+<strong>28 edges</strong>, each a test row, in addition to UX-03&#39;s 80. <em>(1.7: S1-Switch-to-Analysis is not applicable until the Analysis area exists; its test row lands with the A3a toggle, ANA-22 — Ruling 66, OQ-7.)</em></li>
 <li><strong>UX-30</strong> <em>(supersedes UX-24&#39;s palette clause; its one-draft clause stands)</em>: the model gets the space — in the
 default Planform workspace the left side bar is 260 px (resizable 200–420 px), the right side bar and bottom panel are
 hidden, and no palette or options strip renders; a point, a station, the section editor and every B1 CAD verb are
 reachable by keyboard; selection agrees across every visible view and the Properties pane.</li>
 <li><strong>UX-31</strong> <em>(supersedes the four-viewport default of CAD-08)</em>: Planform opens Plan + 3D with Properties on the left;
-Precision adds Points and Messages in the bottom panel; Review shows four views and no panes. Each workspace
+Precision adds Points <del>and Messages in the bottom panel</del> <em>(1.7: in the right side bar; there is no Messages pane — Ruling 59, OD-2 A and OD-3 B)</em>; Review shows four views and no panes. Each workspace
 remembers its own layout; Reset layout restores its preset; switching workspace or layout keeps the selection, the
 camera and any section draft.</li>
 <li><strong>UX-32</strong>: window management is VS Code / Premiere-class and never pointer-only — every pane can be moved, floated,
@@ -8466,7 +8513,7 @@ run that ships the mockup).</p>
 </tr>
 <tr>
 <td>Other open failure</td>
-<td><em>To be written by the next <code>ui-design</code> run:</em> names the file, the cause (missing, unreadable, permission denied, migratable, unknown content) and the next action (F1 H/H3/H4); states that the file has not been changed</td>
+<td>&quot;“<file>” didn&#39;t open. <cause> The file hasn&#39;t been changed.&quot; — missing: &quot;It isn&#39;t where it was — it may have been moved, renamed or deleted.&quot; + <strong>Locate…</strong> · <strong>Open another file…</strong> · from Recent: <strong>Remove from Recent</strong>; permission: &quot;CFD Workbench isn&#39;t allowed to read it. Check its permissions in Finder, or open another file.&quot; + <strong>Open another file…</strong>; unreadable: &quot;It couldn&#39;t be read from the disk.&quot; + <strong>Try again</strong> · <strong>Open another file…</strong>; not recognised: &quot;It isn&#39;t a foil or project file that CFD Workbench can read, or it is damaged.&quot; + <strong>Open another file…</strong>; too large: &quot;It is larger than CFD Workbench can open (<limit>).&quot; + <strong>Open another file…</strong>; unknown content: &quot;It contains parts this version doesn&#39;t understand. A newer version of CFD Workbench may open it.&quot; + <strong>Open another file…</strong></td>
 <td>start card alert</td>
 <td>CAD-14, UX-29</td>
 </tr>
@@ -8490,9 +8537,45 @@ run that ships the mockup).</p>
 </tr>
 <tr>
 <td>My sections empty · catalog unavailable</td>
-<td><em>To be written by the next <code>ui-design</code> run:</em> an empty My sections group says how to add one (Save to My sections…); a catalog that cannot load names the cause, keeps the section unchanged and leaves Cancel available</td>
+<td>&quot;No saved sections yet. To keep one here, choose Save to My sections… from the Section menu in the section editor.&quot; · &quot;The catalog didn&#39;t load: <cause>. Your section hasn&#39;t changed. Choose Cancel to go back.&quot; (<cause>: &quot;a catalog file is missing from this installation&quot; · &quot;a catalog file failed its check&quot;)</td>
 <td>catalog dialog</td>
 <td>CAD-18, UI-38</td>
+</tr>
+<tr>
+<td>Span not assessed</td>
+<td>&quot;The new span couldn&#39;t be checked. Span is unchanged. Try again or enter a different value.&quot;</td>
+<td>Wing field error</td>
+<td>CAD-16</td>
+</tr>
+<tr>
+<td>Layout fallback</td>
+<td>&quot;Your saved layout for <Workspace> couldn&#39;t be read, so its preset is shown.&quot;</td>
+<td>status <em>(1.7: Messages retired, OD-2 A)</em></td>
+<td>UX-32</td>
+</tr>
+<tr>
+<td>Layout newer</td>
+<td>&quot;This layout was saved by a newer version of CFD Workbench. The presets are shown, the file is left as it is, and layout changes in this session won&#39;t be kept.&quot;</td>
+<td>status <em>(1.7: Messages retired, OD-2 A)</em></td>
+<td>UX-32</td>
+</tr>
+<tr>
+<td>Layout not kept</td>
+<td>&quot;Layout changes won&#39;t be kept after you quit: this system can&#39;t save them safely.&quot; (platform) · &quot;Layout changes won&#39;t be kept after you quit: the layout file is in use. Quit other copies of CFD Workbench, then remove the lock file Show in Finder selects.&quot; + <strong>Show in Finder</strong> (another copy)</td>
+<td>status <em>(1.7: Messages retired, OD-2 A)</em></td>
+<td>ADR-0009 §5; app-shell §4.4</td>
+</tr>
+<tr>
+<td>Recent not cleared</td>
+<td>&quot;The recent-files list wasn&#39;t cleared: <reason>. The list is unchanged.&quot; + <strong>Try again</strong></td>
+<td>status</td>
+<td>privacy rights path</td>
+</tr>
+<tr>
+<td>Maximize</td>
+<td>&quot;<Pane> maximized. Press Escape to restore.&quot; · &quot;<Pane> restored&quot;</td>
+<td>status</td>
+<td>UX-32</td>
 </tr>
 </tbody></table></div>
 <h3 id="c3-copy-one-state-one-string">C3. Copy — one state, one string</h3>
@@ -8501,7 +8584,7 @@ strings of every test. <strong>Obligations on DESIGN.md (owned by the <code>ui-d
 it shall quote every C2 string verbatim as COPY rows; it shall define the <code>target-dense</code> token (32 px, 8 px
 separation) beside <code>target</code> (44 px); it shall define the batlow sequential and vik diverging token sets with their
 licences beside cividis. The lint of LAB-01 forbids the strings&#39; rivals. &quot;Undefined&quot; and &quot;Unavailable&quot; each have
-exactly one rendering; &quot;Model uncertainty not quantified&quot; is the only uncertainty string.</p>
+exactly one rendering; &quot;Model uncertainty not quantified&quot; is the only uncertainty string. <em>(1.7, Ruling 66 OQ-8: DESIGN.md numbers and holds the copy a design proposes; C2 gains a row only for a fixed honest-limit or safety string of the A5 and A7 class.)</em></p>
 <h3 id="c4-ui-acceptance-criteria">C4. UI acceptance criteria</h3>
 <ul>
 <li><strong>UI-01:</strong> every visible input has a persistent label and unit; derived fields expose a read-only role and the
@@ -8611,8 +8694,12 @@ obligation of the build (UI-T4).</p>
 <li><strong>UI-36 (Wing block):</strong> while a foil is open, Properties ends with a section headed <strong>Wing</strong> that is not
 collapsible: the typed Span, Root chord and Tip chord (label, input, &quot;mm&quot;) above the estimates, separated by a rule;
 every estimate is prefixed &quot;≈&quot;; an <strong>Estimates · definitions</strong> disclosure — a keyboard-operable control, the
-required route to the definitions — lists the A4.15 definitions; a tooltip on each label is supplementary only. At the 200 px dock no value is clipped, and at 1280 × 800 the
-selection content and the Wing block fit without scrolling. In the section editor the three dimensions render as
+required route to the definitions — lists the A4.15 definitions; a tooltip on each label is supplementary only. At the 200 px dock no value is clipped, and <del>at 1280 × 800 the
+selection content and the Wing block fit without scrolling</del> <em>(1.7: the Wing block is pinned and always fully visible;
+the selection section may scroll; groups stay collapsible and remember their state — property-grid DR-UID-5. At 1280 × 800
+the Wing is fully visible at the 260 and 300 px docks; at the 200 px dock it stays pinned, and four recorded states (chord
+warning, unavailable, MAC unavailable, section editor) are not fully visible. At 200 % text the Wing scrolls inside
+itself and a focused field is always brought into view — DR-DEN-2)</em>. In the section editor the three dimensions render as
 text, not as disabled inputs, with &quot;Set these in the workspace.&quot;</li>
 <li><strong>UI-37 (point glyphs and names):</strong> Anchor point = square; end and named points = diamond (dashed when locked);
 Control point = circle joined to its neighbours by a dashed control polygon in the <code>model-dim</code> token; a tangent
@@ -8621,9 +8708,11 @@ ring (<code>line-strong</code>) shows what a press will pick. <strong>A selected
 weight (a ring or outline), not by fill colour alone, at ≥ 3:1 against both the unselected point and the canvas in
 every theme</strong> (SC 1.4.1, 1.4.11) — v10 marks selection by an accent fill that equals the model colour in the light
 theme, so this is a new floor, and the contrast check gains the accent-on-model pair. Every point&#39;s accessible name
-carries its curve, its name, its type and its position with units; the nose is named &quot;Nose&quot; with its type and handle
+carries its curve, its name, its type and its position with units <em>(1.7: a point&#39;s spanwise coordinate is labelled
+<strong>From root</strong>, with η beside it as a read-only fact; &quot;Span&quot; means only the wing span b — in names, tooltips, the Tracing
+probe, the Points grid and the Browser rows; property-grid MC-6)</em>; the nose is named &quot;Nose&quot; with its type and handle
 lengths; a tangent handle is named by its point and its direction (&quot;toward the nose&quot;, &quot;toward the tail&quot;, &quot;toward the
-root&quot;, &quot;toward the tip&quot;) with its angle in degrees and its length in mm. The Type row is a labelled select (Anchor point · Control point); a named point shows
+root&quot;, &quot;toward the tip&quot;) with its angle in degrees and its length in mm <em>(1.7: on a section, mm at the station&#39;s local chord with % c beside it as a read-only fact — Ruling 66, OQ-4)</em>. The Type row is a labelled select (Anchor point · Control point); a named point shows
 its type as read-only text with its constraint; the tangent kind is a labelled select.</li>
 <li><strong>UI-38 (catalog picker):</strong> Replace from catalog… is a dialog whose search is an APG combobox controlling a listbox
 grouped by family; disabled options are <code>aria-disabled</code>, stay reachable with the arrow keys and carry their reason;
@@ -8635,8 +8724,11 @@ picker renders an empty My sections group and a catalog-unavailable state (C2 ro
 <li><strong>UI-39 (typed numbers, SC 3.3.1):</strong> every typed number is checked one way — a non-number or a length ≤ 0 is refused
 with COPY-118 or COPY-106, <code>aria-invalid</code> and an alert tied by <code>aria-describedby</code>; the geometry is unchanged; Escape
 restores the shown value; commit is on Return or on leaving the field.</li>
-<li><strong>UI-40 (one precision per quantity):</strong> a length that is typed or placed shows 0.01 mm; a derived length (chord,
-span estimate, MAC, LE radius) 0.1 mm; an angle 0.1°; a ratio 0.1 %; AR two decimals; area 1 cm². A value shows the
+<li><strong>UI-40 (one precision per quantity):</strong> a length that is typed or placed shows 0.01 mm <em>(1.7: a station chord at the root or tip is the typed dimension; Δ and
+&quot;largest change&quot; also show 0.01 mm)</em>; a derived length (chord,
+span estimate, MAC, LE radius) 0.1 mm <em>(1.7: the status strip reads &quot;MAC 101.3 mm&quot;)</em>; <del>an angle 0.1°</del> <em>(1.7: a placed or
+typed angle 0.01°, a derived angle 0.1°)</em>; a ratio 0.1 % <em>(1.7: a derived ratio such as Max t/c; a placed t/c shows
+0.01 %)</em>; AR two decimals; area 1 cm². A value shows the
 same precision in Properties, the Points grid and the canvas label, so the finest nudge is visible in all three.
 (DESIGN.md §12.0e does not yet state the AR and area rules — obligation on the next <code>ui-design</code> run.)</li>
 <li><strong>UI-41 (panes and floats, SC 2.4.11, 2.1.1, 2.5.7):</strong> with a float open, no focusable target in the model area is
@@ -8894,7 +8986,7 @@ Windows x64 qualification is deferred (M1 scope decision, 2026-09-25).</p>
 <td>When a root or tip chord is typed, which line stays fixed?</td>
 <td>The <strong>leading edge</strong> stays fixed; the trailing edge moves</td>
 <td>Operator</td>
-<td>The quarter-chord line is held instead (keeps c/4 sweep); only CAD-16&#39;s held-line clause changes</td>
+<td>The quarter-chord line is held instead (keeps c/4 sweep); only CAD-16&#39;s held-line clause changes. <strong>Ruled:</strong> &quot;the quarter-chord line is held. Per ADR-0006, a root edit then translates the planform rigidly so LE(0)=0, and the status line says so.&quot; (Ruling 53)</td>
 </tr>
 <tr>
 <td>DR-4</td>
@@ -8915,21 +9007,21 @@ Windows x64 qualification is deferred (M1 scope decision, 2026-09-25).</p>
 <td>In the workspace, does a point drag or nudge commit when it ends (v10), or open a draft that Return applies and Escape cancels (1.3, UX-23)?</td>
 <td><strong>Commit at the end of the gesture</strong> as one undo step; an invalid gesture is refused with geometry unchanged</td>
 <td>Operator, with the UX Researcher / IA lens</td>
-<td>CAD-04&#39;s and UX-23&#39;s draft clauses return for point gestures</td>
+<td>CAD-04&#39;s and UX-23&#39;s draft clauses return for point gestures. <strong>Ruled:</strong> &quot;default: a point gesture commits at its end as one undo step.&quot; (Ruling 53)</td>
 </tr>
 <tr>
 <td>DR-7</td>
 <td>How are the six non-CAD areas reached from the CAD-first shell?</td>
 <td>The <strong>activity rail</strong> (B1, UI-18, UI-24) stays, outside the left side bar</td>
 <td>Operator, then <code>/ui-design</code></td>
-<td>B1&#39;s area navigation and UI-18/UI-24</td>
+<td>B1&#39;s area navigation and UI-18/UI-24. <strong>Ruled:</strong> &quot;default: the narrow activity rail of area icons, outside the left side bar.&quot; (Ruling 53)</td>
 </tr>
 <tr>
 <td>DR-8</td>
 <td>Where does My sections live, and where do CAT-02&#39;s DAT imports appear in the picker?</td>
 <td>The <strong>installation&#39;s section library</strong> (the one CAT-02 adds to), so an entry is available in every foil; a project that uses an entry pins it as a content-addressed profile (A4.13); DAT imports are listed under My sections with their import provenance</td>
 <td>Operator, then <code>/define-architecture</code> (Data &amp; Persistence)</td>
-<td>CAD-19&#39;s &quot;in another foil&quot; clause and the Section library aggregate</td>
+<td>CAD-19&#39;s &quot;in another foil&quot; clause and the Section library aggregate. <strong>Ruled:</strong> &quot;My sections is the app&#39;s shared section library.&quot; (Ruling 53)</td>
 </tr>
 </tbody></table></div>
 <p><strong>Revision 1.6 — open items (not decisions).</strong> <strong>OI-1</strong> — surfaces v10 does not render and whose requirements stand,
@@ -9188,4 +9280,138 @@ proposal kinds; the geometry of record (A4.1–A4.2) until DR-5 is settled; Foil
 needs one, goes to <code>/define-architecture</code>); A4.14&#39;s station chord command and its previewed span command. <strong>Count:</strong> 8 functional stories
 (CAD-14–21), 6 UX criteria (UX-28–33) and 8 UI criteria (UI-36–43) added — 22 acceptance criteria; 20 items
 superseded in whole or in part, each marked in place.</p>
-<footer>Generated from the complete Markdown specification. Source SHA-256: d77b62107507e74ea33d4120789fa203307f91c7b83cb4e1378e4a13d8756b1e. The mockup is illustrative; native application and scientific validation are separate future gates.</footer></main></div><script>document.getElementById('find').addEventListener('input',event=>{const query=event.target.value.toLowerCase();document.querySelectorAll('nav a').forEach(link=>{link.hidden=!link.textContent.toLowerCase().includes(query)});const status=document.getElementById("find-status");const count=[...document.querySelectorAll("nav a")].filter(link=>!link.hidden).length;status.hidden=count>0;status.textContent=count?"":"No matching sections. Clear the search to browse all."});</script></body></html>
+<h2 id="appendix-h-changes-from-revision-1-6-revision-1-7-2026-10-03">Appendix H — Changes from revision 1.6 (revision 1.7, 2026-10-03)</h2>
+<p><strong>Why.</strong> Rulings 53–65, the property-grid rulings and the M1.2c rulings decided product behaviour that the designs
+then sent to the spec owner as amendment requests; none had been put to the owner. The operator asked for one batch:
+each ruling turned into exact spec text, before → after per clause, approved once. The batch — every amendment with
+its quoted before-text, its exact after-text, its source (ruling or finding, file:line) and the tests or designs it
+affects — is <a href="amendments/spec-1.7.md">amendments/spec-1.7.md</a>. <strong>The owner approved it in Ruling 66</strong> (2026-10-03):
+the 36 amendments drafted from the earlier rulings, and the 13 open questions that had no ruling behind them, each
+accepted as recommended and written in as AM-1.7-37 to -49. No amendment invents a product decision; each traces to a
+ruling.</p>
+<p><strong>Added.</strong> A3.3&#39;s Analysis run grain, with interactive attempts as run rows (DR-ANA-4); B1&#39;s <strong>Evaluate</strong> verb
+(DR-ANA-6); A5.6&#39;s inviscid panel Cp in the estimator tier (DR-ANA-2); A5.10&#39;s definition of the residual criterion
+(DR-F2-1); a note under F11 that node M&#39;s typed clause is not built in M1.2 (OI-3).</p>
+<p><strong>Changed (Part A, because a ruling changed a functional promise).</strong> A4.1 (4–16 vertices under FoilDSL 4.1; New foil
+ships 4 on the rails); A4.2 (floor 4, ceiling 16, Rebuild to N); A4.6 (acceptance scoped to conversions; the
+typed-chord warning); A4.8 (expressions are set once); A4.15 (the quarter-chord held line; paired section point
+types); A5.6 (the VLM label with depth unset); A5.10 (the mesh gate&#39;s y+, layer and determinant floors); A7 (Converged
+evidence); A8.4 (TMR + GCI on a backend pin change); ANA-04 (lattice oracles); CAD-04, CAD-15, CAD-16, GEO-05, GEO-15;
+the authority paragraph and A4.11&#39;s <code>.foil</code> row (FoilDSL 4.1). <strong>Changed (Parts B and C).</strong> B1 (verb names, the CAD IA
+table, the Messages assume); B5 flow F4 node S; B7; UX-31; UI-36; UI-37; UI-40; the C2 layout rows; A3.1&#39;s pane row.
+<strong>Changed by Ruling 66 (the batch&#39;s open questions, OQ-1 to -13).</strong> A4.2 and GEO-14 (Add point and Remove point apply
+at once); A4.2 and GEO-05 (a lever is never removed); A3.1 and A4.15 (Vertical at the nose only); UI-37 (a section
+handle length in mm at the station chord, % c beside it); A4.8 (the t/c ladder 0.01 / 0.1 / 1 %); B1&#39;s view-label
+assume, CAD-04&#39;s overlaid body plan and CAD-06&#39;s F (as built in M1.2b2); UX-29 (S1-Switch-to-Analysis not applicable
+until A3a); C3 (DESIGN.md holds design copy); A5.6 (the depth-unset rule on every tier; the panel Cp tolerance set at
+A3b; the RANS &quot;TE blunted for analysis&quot; label deferred to the backend ADR); B1&#39;s Checks placement (the next
+<code>/ui-design</code> run); A5.10 (the v2606 note names the Docker Hub tag).</p>
+<p><strong>Corrected (the spec contradicted itself).</strong> A7&#39;s Computed-estimate fixed string reads &quot;Model uncertainty not
+quantified&quot;, as C2&#39;s Model-uncertainty row and C3 already required and DESIGN.md COPY-63 states.</p>
+<p><strong>Superseded — marked in place, not deleted.</strong></p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Superseded by</th>
+<th>What stands</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A4.1 &quot;six to ten allowed&quot;</td>
+<td>4–16 under FoilDSL 4.1, 6–10 under 4.0 (ADR-0001 Amendments 1–2)</td>
+<td>degree 3; seven vertices for a hand-authored curve</td>
+</tr>
+<tr>
+<td>A4.2 &quot;the floor is the record&#39;s six vertices&quot;</td>
+<td>four (p + 1) under 4.1; ceiling 16</td>
+<td>Insert CV&#39;s exact path; Delete CV&#39;s measured change</td>
+</tr>
+<tr>
+<td>A4.2 &quot;always as a draft&quot; for Insert CV and Delete CV</td>
+<td>apply at once, one undo step, Undo exact (Ruling 66, OQ-1)</td>
+<td>the draft for Fair, Rebuild and Fit points (GEO-14)</td>
+</tr>
+<tr>
+<td>B1&#39;s view-label assume; CAD-04 &quot;one row per authored station&quot;</td>
+<td>confirmed as built; an overlaid body plan (Ruling 66, OQ-6)</td>
+<td>the mapping itself</td>
+</tr>
+<tr>
+<td>A4.2 Rebuild as Fair on a master curve</td>
+<td>Rebuild to N (4–10), no tolerance gate, anchors dropped and listed</td>
+<td>Fair; Rebuild on a section</td>
+</tr>
+<tr>
+<td>A4.15 DR-2&#39;s leading-edge default</td>
+<td>the quarter-chord line is held (Ruling 53)</td>
+<td>the linear chord-scale blend</td>
+</tr>
+<tr>
+<td>CAD-04 <code>role=slider</code> per vertex</td>
+<td>named, focusable point objects (M1.2b D-1, Ruling 57)</td>
+<td>elevations, lock refusals, focus ring</td>
+</tr>
+<tr>
+<td>CAD-16 held-line clause</td>
+<td>the quarter-chord line, up to the reported rigid shift</td>
+<td>the rest of CAD-16</td>
+</tr>
+<tr>
+<td>GEO-05 &quot;fewer than p + 2&quot;</td>
+<td>four (p + 1); Insert refused at 16</td>
+<td>Insert CV&#39;s exact path</td>
+</tr>
+<tr>
+<td>GEO-15 Rebuild clause</td>
+<td>Rebuild to N</td>
+<td>Fair&#39;s contract</td>
+</tr>
+<tr>
+<td>UI-36 &quot;fit without scrolling&quot;</td>
+<td>the Wing pinned and always fully visible (DR-UID-5)</td>
+<td>no clipping at 200 px; the section-editor text</td>
+</tr>
+<tr>
+<td>UI-40 &quot;an angle 0.1°&quot;</td>
+<td>placed or typed 0.01°, derived 0.1° (DR-UID-1)</td>
+<td>the other precisions</td>
+</tr>
+<tr>
+<td>ANA-04 flat-plate and elliptic rows; Bertin–Smith&#39;s deferral</td>
+<td>DR-ANA-12&#39;s rows</td>
+<td>the other fixture rows; Warren-12&#39;s deferral</td>
+</tr>
+<tr>
+<td>A5.10 &quot;determinant &gt; 0.3&quot; on OpenFOAM meshes</td>
+<td><code>cellDeterminant</code> ≥ 0.001 (DR-F2-6)</td>
+<td>0.3 on structured meshes</td>
+</tr>
+<tr>
+<td>A8.4 TMR + GCI &quot;at readiness&quot;</td>
+<td>on a backend pin change (DR-F2-9)</td>
+<td>the cavity-lid smoke test at readiness</td>
+</tr>
+<tr>
+<td>B1&#39;s Messages pane and Points in the bottom panel; B1&#39;s Messages assume</td>
+<td>no Messages pane; Points in the right side bar (OD-2 A, OD-3 B)</td>
+<td>the bottom panel as an optional dock</td>
+</tr>
+<tr>
+<td>A3.1&#39;s pane list, B7&#39;s &quot;(Points | Messages)&quot;, UX-31&#39;s Precision clause</td>
+<td>as above</td>
+<td>—</td>
+</tr>
+<tr>
+<td>C2 layout rows rendered in &quot;Messages + status&quot;</td>
+<td>the status strip</td>
+<td>the strings</td>
+</tr>
+</tbody></table></div>
+<p><strong>Unchanged.</strong> Every tolerance, safety string and licence contract; FoilDSL 4.0&#39;s grammar beyond 4.1&#39;s vertex range;
+the seven areas; F11 and F12&#39;s 28 non-happy edges and UX-03&#39;s 80 (S1-Switch-to-Analysis is counted and not applicable
+until A3a). <strong>Outside the spec:</strong> the knowledge-base correction KB-1 (ITTC Eq. 10, <code>ln</code> → <code>log10</code>, Ruling 66) is made
+in <code>docs/knowledge/hydrofoil-workbench/</code>; the spec cites the ITTC floors, not the formula. <strong>Count:</strong> 49 amendments
+(CAD 24 · Analysis 8 · Run 7 · Copy 3 · Shell 7); no acceptance criterion added or removed; 18 items superseded in
+whole or in part, each marked in place.</p>
+<footer>Generated from the complete Markdown specification. Source SHA-256: d6787952e5f47a11ba76a3e7abd231ac860e70c918570abba4240aedc3dc3bb9. The mockup is illustrative; native application and scientific validation are separate future gates.</footer></main></div><script>document.getElementById('find').addEventListener('input',event=>{const query=event.target.value.toLowerCase();document.querySelectorAll('nav a').forEach(link=>{link.hidden=!link.textContent.toLowerCase().includes(query)});const status=document.getElementById("find-status");const count=[...document.querySelectorAll("nav a")].filter(link=>!link.hidden).length;status.hidden=count>0;status.textContent=count?"":"No matching sections. Clear the search to browse all."});</script></body></html>

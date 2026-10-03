@@ -22,7 +22,8 @@ summary: >-
   input boundaries at 1.49:1 and no visible current tangent kind. Verdict BLOCK on the as-built pane. The fix is one
   reusable property grid (identity, groups, label | value | unit rows); building it is the highest-leverage change,
   and the implementation brief in section 10 maps it to Avalonia for the M1.2b fix track and M1.2b2's PNL track.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-03, reason: "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar." }
 ---
 
 # UI review — the Properties pane as a property grid

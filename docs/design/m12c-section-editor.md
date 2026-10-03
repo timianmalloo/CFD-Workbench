@@ -35,7 +35,8 @@ summary: >-
   first; a paired fallback is pre-designed and tested. The slice also adds the Points pane and the Precision preset,
   resolves the planned Messages pane against DR-STATUS-1, and records the operator's rulings of 2026-10-03 (OD-1 A, OD-2 A, OD-3 B, OD-4 a). Gate: four lenses,
   one repair cycle.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-03, reason: "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar." }
 ---
 
 # Design: M1.2c — section editor mode, per-surface section points, the Points pane and the Precision workspace

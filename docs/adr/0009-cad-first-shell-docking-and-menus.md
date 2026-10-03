@@ -20,7 +20,8 @@ summary: >-
   the spike. One command table feeds menus, toolbar, palette and shortcuts. Layout is saved in our own versioned file,
   not Dock's serializer (its System.Text.Json path failed and its Newtonsoft JSON stores CLR type names). Maximize,
   monitor clamping and focus-safe floats are ours to build. Windows, mixed-DPI and screen-reader spikes are scheduled.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-03, reason: "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar." }
 ---
 
 # ADR-0009: CAD-first shell — docking, menus, commands and layout

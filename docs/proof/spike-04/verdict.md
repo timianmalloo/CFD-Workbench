@@ -16,7 +16,8 @@ summary: >-
   stated residual floor (1e-7). With linearUpwind, bound() clipped negative nuTilda in 39,994 of 40,000
   iterations and residuals froze at a fixed point. With TVD limitedLinear, a period-2 limiter cycle kept nuTilda
   at 4-5e-5. The repair cap (2) was reached, so the third grid and GCI were not run. v2512 has no SA-neg model.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-03, reason: "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar." }
 ---
 
 # SPIKE-04 verdict — three-grid convergence oracle on NASA TMR NACA 0012

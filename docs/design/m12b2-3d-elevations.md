@@ -31,6 +31,7 @@ summary: >-
   dihedral, t/c and twist lanes; and those three channels edited with M1.2b's point, handle and gesture model.
 review-suggested:
   - { by: mockup-property-grid, on: 2026-10-01, reason: "PNL should fill the property-grid component (docs/reviews/ui-property-grid.md §10) from PropertiesView.Build by data; channel rows Height (mm), Twist (°), t/c (%) render in the same row kinds; the M1.2b fix track is recommended to build the component first (DR-UID-4)." }
+  - { by: spec-cfd-workbench-v1, on: 2026-10-03, reason: "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar." }
 ---
 
 # Design: M1.2b2 — one placement rule, the 3D view and the elevations

@@ -120,10 +120,11 @@ Read: at seven vertices, degree 3 is fairer than degree 5 on all five curves (a 
 - **Decision (amended):** a master (channel) curve has **4 to 16** control vertices when its document declares
   `foildsl "4.1"`; under `"4.0"` the range stays 6 to 10. The floor applies to all five channels, not only the two rails,
   because the parser's count rule is per curve kind (`FoilSource.cs`:1279-1280), not per curve name (the design's
-  DR-PV-4 asks whether the *verbs* reach all five). The degree (3), the default counts (seven for a hand-authored curve;
-  ten for New foil, `FoilSource.cs`:403), the ceiling of Amendment 1 and section curves (degree 5, 6–32) are unchanged.
-  Ruling 62's "4 to 10" is read as the range of **Rebuild to N**; Add point still reaches 16 under 4.1, as Amendment 1
-  allows (DR-PV-1 asks the operator to confirm this reading).
+  DR-PV-4 asks whether the *verbs* reach all five). The degree (3), the default count for a hand-authored curve (seven), the ceiling of Amendment 1 and section
+  curves (degree 5, 6–32) are unchanged. **New foil's default changes (Ruling 64):** 4 control vertices on the
+  leading-edge and trailing-edge rails (was ten, `FoilSource.cs`:403), so New foil writes `foildsl "4.1"`; the other
+  three channels keep their default unless the SPK evidence gives a reason. Ruling 62's "4 to 10" is the range of
+  **Rebuild to N**; Add point reaches 16 under 4.1 (Ruling 64, DR-PV-1 confirmed).
 - **Why 4 is the floor (computed from the record, not assumed):** a clamped degree-3 B-spline needs p + 1 = 4 vertices.
   With 4 it is one cubic Bézier: knots `[0,0,0,0,1,1,1,1]`, no interior knot. The roles derive as root end, root handle,
   tip handle and tip end (`PointModel.cs` `Role`, indices 0, 1, n−2, n−1), so a 4-vertex curve has **no Control point**

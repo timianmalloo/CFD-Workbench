@@ -20,7 +20,8 @@ summary: >-
   section documents named by their SHA-256, each carrying its own name and a flat provenance (origin plus a modified
   flag); the current library is a folder scan. Rights class is derived from the origin. A foil that uses an entry gets
   an inline copy — a stated deviation from the spec's content-addressed pin.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-03, reason: "Spec 1.7 draft (pending owner approval of docs/specs/amendments/spec-1.7.md): 36 amendments - FoilDSL 4.1 vertex range 4-16 and Rebuild to N (A4.1/A4.2/A4.6/GEO-05/GEO-15), quarter-chord held line (A4.15/CAD-16), paired section point types (A4.15/CAD-15), CAD-04 slider clause, UI-36/37/40, Evaluate verb, panel Cp, depth-unset VLM label, ANA-04 lattice oracles, A5.10 residual criterion and mesh gate, TMR+GCI on pin change, no Messages pane and Points in the right side bar." }
 ---
 
 # ADR-0008: Profile catalog and My sections
