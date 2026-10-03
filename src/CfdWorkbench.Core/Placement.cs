@@ -204,10 +204,57 @@ internal static class ProfileEvaluator
     private static double AbscissaAt(Curve curve, double t)
     {
         Placement.ProfileEvaluations++;
-        var basis = SplineBasis.Values(curve.Knots, curve.Degree, t);
+        // Same N as SplineBasis.Evaluate, without the derivative rows the abscissa does not read.
+        // Degree and point count above the section grammar fall back to that call.
+        if (curve.Degree > 8 || curve.Points.Length > 16)
+        {
+            var basis = SplineBasis.Values(curve.Knots, curve.Degree, t);
+            double slow = 0;
+            for (int index = 0; index < curve.Points.Length; index++) slow += basis[index] * curve.Points[index][0];
+            return slow;
+        }
+        int degree = curve.Degree;
+        int count = curve.Knots.Length - degree - 1;
+        int span = FindSpan(curve.Knots, degree, count, t);
+        int width = degree + 1;
+        Span<double> ndu = stackalloc double[width * width];
+        Span<double> left = stackalloc double[width];
+        Span<double> right = stackalloc double[width];
+        ndu.Clear();
+        left.Clear();
+        right.Clear();
+        ndu[0] = 1;
+        for (int level = 1; level <= degree; level++)
+        {
+            left[level] = t - curve.Knots[span + 1 - level];
+            right[level] = curve.Knots[span + level] - t;
+            double saved = 0;
+            for (int row = 0; row < level; row++)
+            {
+                ndu[level * width + row] = right[row + 1] + left[level - row];
+                double temp = ndu[row * width + (level - 1)] / ndu[level * width + row];
+                ndu[row * width + level] = saved + right[row + 1] * temp;
+                saved = left[level - row] * temp;
+            }
+            ndu[level * width + level] = saved;
+        }
         double x = 0;
-        for (int index = 0; index < curve.Points.Length; index++) x += basis[index] * curve.Points[index][0];
+        for (int column = 0; column <= degree; column++)
+            x += ndu[column * width + degree] * curve.Points[span - degree + column][0];
         return x;
+    }
+
+    private static int FindSpan(double[] knots, int degree, int count, double t)
+    {
+        if (t >= knots[count]) return count - 1;
+        int low = degree, high = count, mid = (low + high) / 2;
+        while (t < knots[mid] || t >= knots[mid + 1])
+        {
+            if (t < knots[mid]) high = mid;
+            else low = mid;
+            mid = (low + high) / 2;
+        }
+        return mid;
     }
 }
 
