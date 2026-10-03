@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Writes the M1.2c old-build fixtures with this build (docs/design/m12c-section-editor.md §3.3). Not in the solution. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../../src/CfdWorkbench.Core/CfdWorkbench.Core.csproj" />
+  </ItemGroup>
+</Project>
