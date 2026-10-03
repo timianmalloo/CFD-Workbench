@@ -8101,6 +8101,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "d0c6bf0a757694bd1462894f12e3453df21111ab8ad4e7ce0d1011e0511c457a"
     },
     {
+      "id": "proof-spike-04",
+      "path": "docs/proof/spike-04/verdict.md",
+      "title": "SPIKE-04 verdict — three-grid convergence oracle on NASA TMR NACA 0012 (OpenFOAM v2512)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "spike",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "NO-GO; stopped at Stage 1. On TMR Family II levels 6 and 5 (SA, alpha 10, Re 6e6), simpleFoam never met the stated residual floor (1e-7). With linearUpwind, bound() clipped negative nuTilda in 39,994 of 40,000 iterations and residuals froze at a fixed point. With TVD limitedLinear, a period-2 limiter cycle kept nuTilda at 4-5e-5. The repair cap (2) was reached, so the third grid and GCI were not run. v2512 has no SA-neg model.",
+      "tags": [
+        "spike-04",
+        "openfoam",
+        "verification",
+        "gci",
+        "tmr",
+        "naca0012",
+        "spalart-allmaras"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "documents"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-03",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a485c7dac5a82f79da39958a07a1fa1494aff6aa0509c40b05e785c82f4d7a36"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -9675,5 +9712,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ebb884cbb43711b3b0e1d21206f25789704c76be6ef9c4a24a96ea21ec156b9a"
+  "graphSha256": "3e664781ca9a171dd766ca0989d54789315b4db365d7ec1c7591deb410d278bc"
 };

@@ -1,0 +1,10 @@
+206 faces; x [1.017, 442.8] y [-1.522e-05, 1.522e-05]
+  distance from TE in [0, 0.01): 0
+  distance from TE in [0.01, 0.1): 20
+  distance from TE in [0.1, 1): 48
+  distance from TE in [1, 10): 48
+  distance from TE in [10, 100): 54
+  distance from TE in [100, 1000000000.0): 36
+wake-cut pair max non-orthogonality (centroid approx) = 0.00 deg
+j-line skew vs cut normal, lower wake: max 0.05 deg, median 0.00 deg
+first-cell height at cut: min 3.666e-06; cell length along cut: max 1.164e+02

@@ -1,0 +1,101 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : simpleFoam -parallel
+Date   : Oct 03 2026
+Time   : 10:31:24
+Host   : Mac
+PID    : 91294
+I/O    : uncollated
+Case   : /Users/mallalieut/projects/CFD-Workbench-spike-fluids-spike-03-04/runs/20261003T173120Z-spike04-tmr-l6-diag
+nProcs : 2
+Hosts  :
+(
+    (Mac 2)
+)
+Pstream initialized with:
+    node communication : off [type=host] (2 ranks, 1 nodes)
+    topology controls  : none
+    consensus exchange : 0 (tuning: 0)
+    exchange algorithm : 0
+    commsType          : nonBlocking
+    polling iterations : 0
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Allowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+
+SIMPLE: convergence criteria
+...
+Setting residual field for first solver iteration for solver field: Ux
+smoothSolver:  Solving for Ux, Initial residual = 8.63508716701e-08, Final residual = 5.73712764867e-09, No Iterations 3
+Setting residual field for first solver iteration for solver field: Uy
+smoothSolver:  Solving for Uy, Initial residual = 4.16708806902e-07, Final residual = 2.75854847398e-08, No Iterations 2
+Setting residual field for first solver iteration for solver field: p
+GAMG:  Solving for p, Initial residual = 6.25039368249e-08, Final residual = 2.11709891237e-09, No Iterations 10
+time step continuity errors : sum local = 4.23702482255e-12, global = -1.19595921959e-14, cumulative = 9.30024367558e-08
+Setting residual field for first solver iteration for solver field: nuTilda
+smoothSolver:  Solving for nuTilda, Initial residual = 0.000192307676669, Final residual = 9.18623443791e-07, No Iterations 1
+bounding nuTilda, min: -6.07474983359e-06 max: 0.0002329301326 average: 8.58009094496e-06
+ExecutionTime = 16.84 s  ClockTime = 17 s
+
+Time = 1998
+
+Setting residual field for first solver iteration for solver field: Ux
+smoothSolver:  Solving for Ux, Initial residual = 8.53588679235e-08, Final residual = 5.73342867899e-09, No Iterations 3
+Setting residual field for first solver iteration for solver field: Uy
+smoothSolver:  Solving for Uy, Initial residual = 4.4052258113e-07, Final residual = 2.91721966601e-08, No Iterations 2
+Setting residual field for first solver iteration for solver field: p
+GAMG:  Solving for p, Initial residual = 6.111382156e-08, Final residual = 2.00666852641e-09, No Iterations 10
+time step continuity errors : sum local = 4.01586527785e-12, global = -1.86215936827e-14, cumulative = 9.30024181342e-08
+Setting residual field for first solver iteration for solver field: nuTilda
+smoothSolver:  Solving for nuTilda, Initial residual = 0.000231480478157, Final residual = 9.13562212729e-07, No Iterations 1
+bounding nuTilda, min: -6.07446042789e-06 max: 0.000232930813142 average: 8.58003367081e-06
+ExecutionTime = 16.85 s  ClockTime = 17 s
+
+Time = 1999
+
+Setting residual field for first solver iteration for solver field: Ux
+smoothSolver:  Solving for Ux, Initial residual = 8.63307370218e-08, Final residual = 5.73455939203e-09, No Iterations 3
+Setting residual field for first solver iteration for solver field: Uy
+smoothSolver:  Solving for Uy, Initial residual = 4.16716653678e-07, Final residual = 2.75888429992e-08, No Iterations 2
+Setting residual field for first solver iteration for solver field: p
+GAMG:  Solving for p, Initial residual = 6.25007121104e-08, Final residual = 2.11708227808e-09, No Iterations 10
+time step continuity errors : sum local = 4.23699175612e-12, global = -1.19122077672e-14, cumulative = 9.3002406222e-08
+Setting residual field for first solver iteration for solver field: nuTilda
+smoothSolver:  Solving for nuTilda, Initial residual = 0.000192372023734, Final residual = 9.14866919886e-07, No Iterations 1
+bounding nuTilda, min: -6.07443845897e-06 max: 0.000232931380729 average: 8.58030750933e-06
+ExecutionTime = 16.86 s  ClockTime = 17 s
+
+Time = 2000
+
+Setting residual field for first solver iteration for solver field: Ux
+smoothSolver:  Solving for Ux, Initial residual = 8.53515280658e-08, Final residual = 5.73081545268e-09, No Iterations 3
+Setting residual field for first solver iteration for solver field: Uy
+smoothSolver:  Solving for Uy, Initial residual = 4.40498237247e-07, Final residual = 2.91758078561e-08, No Iterations 2
+Setting residual field for first solver iteration for solver field: p
+GAMG:  Solving for p, Initial residual = 6.11201313514e-08, Final residual = 2.00630941439e-09, No Iterations 10
+time step continuity errors : sum local = 4.01514664022e-12, global = -1.8576077828e-14, cumulative = 9.30023876459e-08
+Setting residual field for first solver iteration for solver field: nuTilda
+smoothSolver:  Solving for nuTilda, Initial residual = 0.000231385690835, Final residual = 9.06839045993e-07, No Iterations 1
+bounding nuTilda, min: -6.07420981745e-06 max: 0.000232931923277 average: 8.58022149849e-06
+ExecutionTime = 16.87 s  ClockTime = 17 s
+
+yPlus yPlus1 write:
+    writing field yPlus
+    patch airfoil y+ : min = 0.0552640272274, max = 3.20781483742, average = 0.760355307543
+End
+
+Finalising parallel run

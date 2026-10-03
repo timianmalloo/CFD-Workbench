@@ -1,0 +1,3 @@
+bounding nuTilda, min: -7.66815166687e-08 max: 7.73673945361e-05 average: 1.29274863335e-06
+bounding nuTilda, min: -2.76097928897e-08 max: 0.00021393224935 average: 8.38324536312e-06
+bounding_lines=8019
