@@ -2731,7 +2731,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "10828ee85fbbfe38de86a997cc2247968a6d5ecf24afb0c70f98fec887f3a51c"
+      "sourceSha256": "26eb4560d70bd103a53db9a2b3ab7ee24b704b540b1793c1a9d8df367f9572d3"
     },
     {
       "id": "design-planform-point-verbs",
@@ -10543,5 +10543,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "bb3ef663fcd085f2f78b6da89479b1eff377e16e46be948fccc37bc56b7b9f5e"
+  "graphSha256": "b3cfe8fa17b4c88fa929c76d4448166b17a3c159255d13f2e959a17d39ac7211"
 };
