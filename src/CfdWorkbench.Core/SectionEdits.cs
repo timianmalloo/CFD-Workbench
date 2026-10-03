@@ -153,7 +153,7 @@ internal static class SectionEdits
             lowerIds = Drop(lowerIds, lowerDrop.Removed);
         }
         var otherPoints = step.Side == SurfaceSide.Upper ? lowerPoints : upperPoints;
-        double chord = SmallestChord(stripped, assignment);
+        double chord = LargestChord(stripped, assignment);
         var removedCurve = other with { Knots = upperKnots, Points = otherPoints };
         double deviation = SegmentDeviation(other, removedCurve, leftX, rightX);
         if (deviation * chord > 10e-6)
@@ -165,7 +165,7 @@ internal static class SectionEdits
             {
                 double microns = fittedDeviation * chord * 1e6;
                 throw new ContractError("DSL-CURVE", "refit " + microns.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)
-                    + " µm exceeds 10 µm at the smallest chord " + chord.ToString("G17", System.Globalization.CultureInfo.InvariantCulture) + " m");
+                    + " µm exceeds 10 µm at the largest chord " + chord.ToString("G17", System.Globalization.CultureInfo.InvariantCulture) + " m");
             }
             if (step.Side == SurfaceSide.Upper) lowerPoints = fitted;
             else upperPoints = fitted;
@@ -374,18 +374,18 @@ internal static class SectionEdits
         return bound;
     }
 
-    private static double SmallestChord(byte[] bytes, int assignment)
+    private static double LargestChord(byte[] bytes, int assignment)
     {
         var definition = FoilSource.Parse(bytes).Definition!;
         int profile = definition.Assignments[assignment].Profile;
-        double smallest = double.PositiveInfinity;
+        double largest = 0;
         foreach (var station in definition.Assignments)
         {
             if (station.Profile != profile) continue;
             double chord = Placement.Frame(bytes, station.Eta).ChordMeters;
-            if (chord > 0 && chord < smallest) smallest = chord;
+            if (chord > largest) largest = chord;
         }
-        return smallest;
+        return largest > 0 ? largest : double.PositiveInfinity;
     }
 
     private static double Snap(double[] knots, double t)

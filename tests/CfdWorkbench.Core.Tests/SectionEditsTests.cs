@@ -22,7 +22,7 @@ internal static class SectionEditsTests
         IdentityTests.Check(nameof(SectionEdits_PairedAnchor_BothSurfacesSameKnotsExact), SectionEdits_PairedAnchor_BothSurfacesSameKnotsExact);
         IdentityTests.Check(nameof(SectionEdits_PairedXMove_BothSurfacesSameAbscissa), SectionEdits_PairedXMove_BothSurfacesSameAbscissa);
         IdentityTests.Check(nameof(SectionEdits_PairedAnchorToControl_RefitLocalWithin10Um), SectionEdits_PairedAnchorToControl_RefitLocalWithin10Um);
-        IdentityTests.Check(nameof(SectionEdits_PairedRefitSharedProfile_SmallestChordSetsLimit), SectionEdits_PairedRefitSharedProfile_SmallestChordSetsLimit);
+        IdentityTests.Check(nameof(SectionEdits_PairedRefitSharedProfile_LargestChordSetsLimit), SectionEdits_PairedRefitSharedProfile_LargestChordSetsLimit);
         IdentityTests.Check(nameof(SectionEdits_PairedAnchorToControlRefitOverLimit_Refused), SectionEdits_PairedAnchorToControlRefitOverLimit_Refused);
         IdentityTests.Check(nameof(SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold), SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold);
         IdentityTests.Check(nameof(SectionEdits_TwoProfiles_ControlToAnchor_Observed), SectionEdits_TwoProfiles_ControlToAnchor_Observed);
@@ -187,15 +187,15 @@ internal static class SectionEditsTests
         IdentityTests.Equal(true, change <= 10);
     }
 
-    private static void SectionEdits_PairedRefitSharedProfile_SmallestChordSetsLimit()
+    private static void SectionEdits_PairedRefitSharedProfile_LargestChordSetsLimit()
     {
         byte[] kinked = KinkedLower();
-        byte[] large = Trailing(kinked, "10000");
-        var refused = Throws(() => Control(large));
-        IdentityTests.Equal(true, Microns(refused.Message) > 10);
-        byte[] both = Trailing(kinked, "0.001", "10000");
-        var accepted = Control(both);
+        byte[] small = Trailing(kinked, "0.001");
+        var accepted = Control(small);
         IdentityTests.Equal(true, accepted.Length > 0);
+        byte[] mixed = Trailing(kinked, "0.001", "10000");
+        var refused = Throws(() => Control(mixed));
+        IdentityTests.Equal(true, Microns(refused.Message) > 10);
     }
 
     private static void SectionEdits_PairedAnchorToControlRefitOverLimit_Refused()
