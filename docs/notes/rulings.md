@@ -765,3 +765,21 @@ Operator 2026-10-03, by running the coordination prompt (scratchpad prompts/m12c
 Operator 2026-10-03, after viewing docs/mockups/m12c-section-editor.html at b200ebb: 'yes this looks good'. EDT and PNL build the paired behaviour: the pairing cue, one Type/Kind/x control 'both surfaces', the paired x move (screen 2b), and the refused refit with both numbers in the strip (screen 2c). The largest chord sharing a profile sets the 10 um refit limit (design :446, corrected). COPY-185..189 are proposed in docs/reviews/ui-m12c-paired.md for UXR.
 
 - request: req-01M41B1S5MKNDJ5J6XSZFPPGNC · ruled by: operator-timianmalloo · at: 2026-10-03T16:55:10Z
+
+### Ruling 62 — Planform outline: floor 4 points at degree 3; Add point, Remove point, Rebuild to N - design now, build after M1.2c
+
+Operator 2026-10-03: 'there are too many points on the outlines for some of the foil shapes i would be building (where 3-4 points are sufficient) ... we need a remove point option ... as well as an add point option'; 'yes planform outline'. Rulings: (1) a planform master curve (rail) may have 4 to 10 control vertices at degree 3 (ADR-0001 Amendment 2 lowers the floor from 6); an interior anchor needs room and is refused with the reason when it does not fit. (2) Verbs: Add point (double-click on the outline, as the section editor), Remove point (Delete/Backspace, refused at the floor with the reason), Rebuild to N (shows the measured deviation before apply). (3) Design and mockup now, documents only; the operator approves the mockup; the build starts after M1.2c joins.
+
+- request: req-01M41B9B3Z488E63CC28M4DQRT · ruled by: operator-timianmalloo · at: 2026-10-03T16:59:17Z
+
+### Ruling 63 — Area 3 Analysis: mockup approved for A3a; DR-ANA-1..14 as recommended
+
+Operator 2026-10-03 (AskUserQuestion): the Area 3 mockup (docs/mockups/area3-analysis.html, rev 3) is approved to build slice A3a after M1.2c, with build conditions BC-1..4 (design §17). DR-ANA-1: (a) polar Unavailable for A3a, then (b) a C# in-process NeuralFoil port behind SPIKE-ANA-1. DR-ANA-6: (a) an explicit Evaluate verb; Historical stays until pressed. DR-ANA-2..5 and 7..14 as recommended in design §15: inviscid panel Cp in the estimator tier; new CfdWorkbench.Analysis assembly plus Placement.Sections; runs stored in the native file as cfdw-project-2 only when a run exists, with .v1.bak, store invariants, per-run hash and reachability retention (to be ADR-0011); attachment point a project value; lattice 64 x 4 cosine, 1 %; toggle Cmd/Ctrl+2 and 3 after a conflict check; Custom operating points until Area 1; split Desktop if over 43 s; estimator e = 1 labelled; spec 1.7 amendments for ANA-04 oracles (DR-ANA-12) and the depth-unset label (DR-ANA-13) go to the spec owner; envelope 10 deg, Cl 1.0, sweep 30 deg, tightened per strip when polars land.
+
+- request: req-01M41JRB3XDGSC92M9CMWT4KSN · ruled by: operator-timianmalloo · at: 2026-10-03T19:09:49Z
+
+### Ruling 64 — Planform verbs: mockup approved; Add to 16, Rebuild 4-10; New foil ships 4 points on LE and TE; drop anchors on Rebuild
+
+Operator 2026-10-03 (AskUserQuestion): mockup approved to build after M1.2c. DR-PV-1: 'New foil should not ship with 10 points that is too complex - it should be 4 points on TE and LE - so max 16 is fine but also fix the default' - Add point and Make anchor go to 16, Rebuild 4-10, and the New foil default changes to 4 control vertices on the leading-edge and trailing-edge rails (the other three channels keep their default unless the design shows a reason; the build reports the measured shape change from today's 10-point New foil, which the mockup puts at TE 8.97 mm / LE 2.99 mm, and New foil then writes FoilDSL 4.1 because 4.0's floor is 6). DR-PV-5: A - rail Rebuild drops anchors, listed before Apply. DR-PV-2: A (4.1 gate). DR-PV-3: A (no tolerance gate; change, location and tip turn shown before Apply). DR-PV-4: A (all five channels).
+
+- request: req-01M41KF04NWDEH1HRX2RR4HMRZ · ruled by: operator-timianmalloo · at: 2026-10-03T19:22:11Z

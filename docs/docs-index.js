@@ -219,7 +219,9 @@ window.DOCS_INDEX = {
         "control-vertex",
         "adr",
         "dr-10",
-        "amended"
+        "amended",
+        "ruling-62",
+        "floor-4"
       ],
       "links": [
         {
@@ -245,10 +247,14 @@ window.DOCS_INDEX = {
         {
           "to": "rulings",
           "rel": "depends-on"
+        },
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "068e7f9b1605abeea0c4d402b309d4d56bfc80052f17d5327f80826ccd1b0ddd"
+      "sourceSha256": "389da04eeab984be0676a923975409a3a8f7e602d92debb9ab6dbc18e536ecf6"
     },
     {
       "id": "adr-0005-point-types",
@@ -2354,7 +2360,7 @@ window.DOCS_INDEX = {
         {
           "by": "property-grid-rulings",
           "on": "2026-10-01",
-          "reason": "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 \"Lengths display at 0.01 mm\" covers typed dimensions only; status \"MAC 101.3 mm\"); a point's spanwise coordinate is \"From root\" with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..167 proposed."
+          "reason": "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 'Lengths display at 0.01 mm' covers typed dimensions only; status 'MAC 101.3 mm'); a point's spanwise coordinate is 'From root' with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..167 proposed."
         }
       ],
       "summary": "Detailed design of slice M1.2b: a real Plan view (top-down, both rails as curves, stations, every rail point as a typed glyph, a Tracing probe and a curvature comb) on which a point or handle is selected, dragged, nudged at 0.01/0.1/1 mm or typed, and committed as one undo step at the end of the gesture while the Wing estimates follow the drag. Properties sets Anchor/Control type and Smooth/Symmetric/Corner tangents (FoilDSL 4.1); typed Root and Tip chord refit both rails under the ruled quarter-chord hold and root-flat blend with both numbers reported. Amends ADR-0001 to 6-16 channel vertices under 4.1.",
@@ -2441,7 +2447,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b69b2485381f96091f9d61761ab23e26e77b4a0ba25de48732e1b66fb135310d"
+      "sourceSha256": "467eb774ad58b3e853c23db1375c8bf85085b2132c0569259fa5af2aa6de2ad4"
     },
     {
       "id": "design-m12b2-3d-elevations",
@@ -2655,6 +2661,101 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9e74a5f9cb3f00ba5d4fd1ba6b4ded4f3093896b4478b7a497525911f42c1e05"
+    },
+    {
+      "id": "design-planform-point-verbs",
+      "path": "docs/design/planform-point-verbs.md",
+      "title": "Design: planform outline point verbs — Add point, Remove point, Rebuild to N (floor 4 at degree 3)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — Ruling 62 (operator 2026-10-03); build after M1.2c joins",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [
+        {
+          "by": "adr-0001-master-curve-degree",
+          "on": "2026-10-03",
+          "reason": "Amendment 2 (Ruling 62): channels hold 4-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); the verbs Add point, Remove point and Rebuild to N are designed in docs/design/planform-point-verbs.md; foildsl.md 5 item 3, A4.1/A4.2/GEO-05 floor text need amendment (F-4)."
+        }
+      ],
+      "summary": "Detailed design of the three planform-outline verbs of Ruling 62. Add point (double-click on a curve) inserts a vertex by exact Boehm knot insertion. Remove point (⌫) drops one knot and refits only the two replacement vertices, refused at the floor of 4 and on named, handle and anchor points with the reason; the change is measured and reported. Rebuild to N (4–10) previews the refit with the measured largest change in mm and the curvature-break count, and applies as one undo step. Each verb is a one-shot point command (one accepted row, a new receipt kind), on all five channels, gated on FoilDSL 4.1 for the lowered floor (ADR-0001 Amendment 2). Fit points is deferred with reasons.",
+      "tags": [
+        "desktop",
+        "core",
+        "cad",
+        "planform",
+        "rail",
+        "channel",
+        "point-verbs",
+        "insert-cv",
+        "delete-cv",
+        "rebuild",
+        "knot-insertion",
+        "knot-removal",
+        "foildsl",
+        "ruling-62",
+        "floor-4"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0001-master-curve-degree",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0009-cad-first-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "refines"
+        },
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-planform-point-verbs",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d0ec4ab59039cbe9b8303e231eb45bb589ec9f8bebab9049b9623069dd6211d0"
     },
     {
       "id": "design-section-editor",
@@ -2965,6 +3066,51 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "2d01610ad2fde60524ce1184f215ebb87428bb211a731e2483d65585616273b7"
+    },
+    {
+      "id": "mockup-planform-point-verbs",
+      "path": "docs/mockups/planform-point-verbs.md",
+      "title": "Planform point verbs — Add point, Remove point and Rebuild to N on the outline, in today's shell",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 62 asked for fewer points on the planform outline, with Add point, Remove point and Rebuild to N. This page draws six screens of today's 1280 × 800 shell on the New foil: where the verbs live (Edit menu and context menus), the Rebuild preview from 10 to 4 points with the measured largest change, the rebuilt curve, Add point by double-click, Remove point with ⌫, and the refusal at the floor of 4. The rails and every number are computed in the page with the design's algorithms.",
+      "tags": [
+        "mockup",
+        "planform",
+        "rail",
+        "point-verbs",
+        "rebuild",
+        "ruling-62",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-m12b2-views",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-m12c-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2da1a3193ddcb8ebc7c274dcd3f2a89e2d18e19a93b55e23f447723a5610c1a6"
     },
     {
       "id": "mockup-property-grid",
@@ -5404,7 +5550,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "59b8cc44e8547a0fac5897b2aef1ec8e142dd1597e4afc269ac31e2cbe96439a"
+      "sourceSha256": "c56a87d9ee3754339ae87037fdeed45cfaa678302353e2ee59dc49724ad0c524"
     },
     {
       "id": "kb-hw-glossary",
@@ -7097,10 +7243,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-m12c-section-editor",
           "rel": "documents"
+        },
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5f17b712cdfd29305300ec4280d178d5f052c37594611a4fe54ad9b655eb3129"
+      "sourceSha256": "c89007c3e991f6f152f1351f58df542875488e16b29c7ca435688379bca840ae"
     },
     {
       "id": "coordination-application-c-launch",
@@ -7853,7 +8003,13 @@ window.DOCS_INDEX = {
       "owner": "@track-b1a",
       "phase": "implementation",
       "reviewBy": "2026-10-30",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "adr-0001-master-curve-degree",
+          "on": "2026-10-03",
+          "reason": "Amendment 2 (Ruling 62): channels hold 4-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); the verbs Add point, Remove point and Rebuild to N are designed in docs/design/planform-point-verbs.md; foildsl.md 5 item 3, A4.1/A4.2/GEO-05 floor text need amendment (F-4)."
+        }
+      ],
       "summary": "Red run of the 24 B1a checks at 6705872, before the chord fit and the dimension fingerprint. Reopen_RetrySameDimensionOperationId_ReturnsPriorId failed with DOC-OPERATION-CONFLICT against the as-built memo. A hand mutant of the limit to 20 µm turned the 10.1 µm fixture red and left the 9.9 µm fixture green; the committed limit is 10 µm.",
       "tags": [
         "m12b",
@@ -7880,7 +8036,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a3c8def8df25300d137222db33bf3892be4a7ecca2ac4aadbf2ab829409a9292"
+      "sourceSha256": "f339969ed2aa7416835fd5bf4daecd750860b024c80b687a8cdf736e3b62b4b9"
     },
     {
       "id": "proof-m12b-b1b-red-runs",
@@ -9834,10 +9990,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-m12c-section-editor",
           "rel": "documents"
+        },
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4ae9d96b673895241a26d5286e3b3ee9a995120d424f3e1f03f75d0f415cca1b"
+      "sourceSha256": "f89e1dab447746685bf5f8750910c83900049ba327bdac8e00718aa1bcd8ffe4"
     }
   ],
   "surfaces": [
@@ -10025,6 +10185,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-m12c-section-editor"
     },
     {
+      "id": "surface-mockups-planform-point-verbs",
+      "path": "docs/mockups/planform-point-verbs.html",
+      "title": "Planform point verbs",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-planform-point-verbs"
+    },
+    {
       "id": "surface-mockups-property-grid-cells",
       "path": "docs/mockups/property-grid-cells.html",
       "title": "Property sheet — three cell layouts",
@@ -10041,5 +10209,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "562359f80dcdff4edf74cab86a75b7c0c0960e25d81d5b30cce030d37ea5a0f0"
+  "graphSha256": "6edd14b61e0fcc3d74662c12229de04c9846545348bba3c8f7731fd563c5d7cc"
 };

@@ -1,0 +1,163 @@
+{
+  "newFoil": {
+    "rootChordMm": 126.738,
+    "tipChordMm": 12.674,
+    "points": 10,
+    "rootSquare": true
+  },
+  "rebuildDeviationMm": {
+    "4": {
+      "trailing": 8.972,
+      "trailingAtMm": 467.5,
+      "leading": 2.991,
+      "leadingAtMm": 467.5,
+      "trailingEvenSpacing": 8.972
+    },
+    "5": {
+      "trailing": 1.355,
+      "trailingAtMm": 460,
+      "leading": 0.452,
+      "leadingAtMm": 460,
+      "trailingEvenSpacing": 5.607
+    },
+    "6": {
+      "trailing": 0.679,
+      "trailingAtMm": 488.34,
+      "leading": 0.226,
+      "leadingAtMm": 488.34,
+      "trailingEvenSpacing": 3.932
+    },
+    "7": {
+      "trailing": 0.324,
+      "trailingAtMm": 495,
+      "leading": 0.108,
+      "leadingAtMm": 495,
+      "trailingEvenSpacing": 3.026
+    },
+    "8": {
+      "trailing": 0.151,
+      "trailingAtMm": 492.5,
+      "leading": 0.05,
+      "leadingAtMm": 492.5,
+      "trailingEvenSpacing": 2.438
+    },
+    "9": {
+      "trailing": 0.103,
+      "trailingAtMm": 487.5,
+      "leading": 0.034,
+      "leadingAtMm": 487.5,
+      "trailingEvenSpacing": 2.058
+    },
+    "10": {
+      "trailing": 0,
+      "trailingAtMm": 157.5,
+      "leading": 0,
+      "leadingAtMm": 392.5,
+      "trailingEvenSpacing": 1.748
+    }
+  },
+  "curvatureBreaks": {
+    "before": 0,
+    "after4": 0
+  },
+  "tipDirectionChangeDeg": 35.03,
+  "te4": {
+    "ids": [
+      "cv-0",
+      "cv-10",
+      "cv-11",
+      "cv-9"
+    ],
+    "knots": [
+      0,
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      1
+    ],
+    "x": [
+      0,
+      0.333333,
+      0.666667,
+      1
+    ],
+    "yMm": [
+      126.738,
+      126.738,
+      131.354,
+      41.19
+    ],
+    "rootSquare": true,
+    "rootKeptMm": 126.73779839698624,
+    "tipKeptMm": 41.189784
+  },
+  "add": {
+    "atMm": 250,
+    "points": 5,
+    "newIndex": 2,
+    "newId": "cv-12",
+    "changeMm": 7.105427357601002e-14,
+    "movedIndexes": [
+      1,
+      3
+    ]
+  },
+  "remove": {
+    "point": 6,
+    "removedId": "cv-5",
+    "points": 9,
+    "changeMm": 0.2596,
+    "atMm": 480,
+    "selectedId": "cv-6"
+  },
+  "refusal": "A curve needs at least 4 points. The trailing edge has 4, so point 3 stays.",
+  "asBuiltSampling": {
+    "samples": 8,
+    "firstEta": 0.0625,
+    "gapAtRootMm": 31.25
+  },
+  "menus.areaCm2": 1000,
+  "preview.areaCm2": 1000,
+  "applied.areaCm2": 998.2,
+  "add.areaCm2": 998.2,
+  "remove.areaCm2": 998.1,
+  "refused.areaCm2": 998.2,
+  "menus.pxPerMm": 1.812,
+  "preview.pxPerMm": 1.812,
+  "applied.pxPerMm": 1.812,
+  "add.pxPerMm": 1.812,
+  "remove.pxPerMm": 1.812,
+  "refused.pxPerMm": 1.812,
+  "leaks": [],
+  "consoleErrors": [],
+  "shells": [
+    [
+      1280,
+      800
+    ],
+    [
+      1280,
+      800
+    ],
+    [
+      1280,
+      800
+    ],
+    [
+      1280,
+      800
+    ],
+    [
+      1280,
+      800
+    ],
+    [
+      1280,
+      800
+    ]
+  ],
+  "minFontPx": 11
+}

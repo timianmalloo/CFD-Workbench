@@ -5,7 +5,7 @@ type: adr
 status: accepted
 owner: "@timianmalloo"
 phase: specification 1.3
-tags: [geometry, b-spline, degree, control-vertex, adr, dr-10, amended]
+tags: [geometry, b-spline, degree, control-vertex, adr, dr-10, amended, ruling-62, floor-4]
 links:
   - { to: spec-cfd-workbench-v1, rel: refines }
   - { to: control-vertex-workspace, rel: relates-to }
@@ -13,6 +13,7 @@ links:
   - { to: kb-hydrofoil-workbench, rel: relates-to }
   - { to: design-m12b-points, rel: relates-to }
   - { to: rulings, rel: depends-on }
+  - { to: design-planform-point-verbs, rel: relates-to }
 review-by: "none while accepted"
 summary: >-
   Re-decides the knowledge base's degree-5 reading for the five master (distribution) curves: the record's default
@@ -26,7 +27,7 @@ review-suggested:
 
 # ADR-0001: master curves are degree-3 B-splines with seven vertices; the degree is a record field
 
-- **Status:** Accepted · **amended 2026-09-30** (DR-10, Ruling 53) — see *Amendment 1* at the end
+- **Status:** Accepted · **amended 2026-09-30** (DR-10, Ruling 53) — see *Amendment 1* · **amended 2026-10-03** (Ruling 62) — see *Amendment 2* at the end
 - **Date:** 2026-09-21
 - **Deciders:** the operator (product), Computational Geometry lens (record), Marine CAD UX lens (editing feel)
 - **Context spec/architecture:** `docs/specs/cfd-workbench-v1.md` A4.1, A4.2, A4.3; `docs/knowledge/hydrofoil-workbench/data-and-constants.md` (Alias CV count; Rhino Fair "best on degree 3"); KB index item 7 (degree-5 record *for profiles*)
@@ -107,3 +108,80 @@ Read: at seven vertices, degree 3 is fairer than degree 5 on all five curves (a 
   fairness fixture) — all four written into this amendment and the design's test ledger. Data & Persistence — **accept
   with conditions** (correct the old-build refusal claim; single header writer that never lowers) — both written above.
   No veto. Record: `docs/design/m12b-points.md`, *Gate record*.
+
+## Amendment 2 — channel vertex floor 4 under FoilDSL 4.1 (Ruling 62, 2026-10-03)
+
+- **Status:** accepted by Ruling 62 (operator, 2026-10-03). The text is written by the design-slice
+  `docs/design/planform-point-verbs.md` §3.6. The build starts after M1.2c joins.
+- **Ruling:** "a planform master curve (rail) may have 4 to 10 control vertices at degree 3 (ADR-0001 Amendment 2 lowers
+  the floor from 6); an interior anchor needs room and is refused with the reason when it does not fit." The operator's
+  words: "there are too many points on the outlines for some of the foil shapes I would be building (where 3–4 points
+  are sufficient)".
+- **Decision (amended):** a master (channel) curve has **4 to 16** control vertices when its document declares
+  `foildsl "4.1"`; under `"4.0"` the range stays 6 to 10. The floor applies to all five channels, not only the two rails,
+  because the parser's count rule is per curve kind (`FoilSource.cs`:1279-1280), not per curve name (the design's
+  DR-PV-4 asks whether the *verbs* reach all five). The degree (3), the default counts (seven for a hand-authored curve;
+  ten for New foil, `FoilSource.cs`:403), the ceiling of Amendment 1 and section curves (degree 5, 6–32) are unchanged.
+  Ruling 62's "4 to 10" is read as the range of **Rebuild to N**; Add point still reaches 16 under 4.1, as Amendment 1
+  allows (DR-PV-1 asks the operator to confirm this reading).
+- **Why 4 is the floor (computed from the record, not assumed):** a clamped degree-3 B-spline needs p + 1 = 4 vertices.
+  With 4 it is one cubic Bézier: knots `[0,0,0,0,1,1,1,1]`, no interior knot. The roles derive as root end, root handle,
+  tip handle and tip end (`PointModel.cs` `Role`, indices 0, 1, n−2, n−1), so a 4-vertex curve has **no Control point**
+  and therefore no point that can become an interior anchor. An interior anchor is an interior knot of multiplicity 3
+  (ADR-0005 §2), so a curve with k interior anchors has at least **4 + 3k** vertices: 7 for one anchor, 10 for two,
+  13 for three, 16 for four. Control → Anchor on a 5-vertex curve (one Control point, one simple interior knot) adds
+  two or three vertices (two when u\* lands on the existing knot) and gives 7 or 8, which fits. Anchor → Control removes
+  two vertices, and a curve with an anchor has at least 7, so it never goes below 5; `MakeControl`'s guard "at least 8"
+  (`AuthoringSession.cs`:1190) becomes "at least 7", which always holds for a curve that has an anchor (Test Architect
+  finding at the gate: a 6-vertex curve cannot hold an anchor).
+- **Why the floor is gated on 4.1:** the same reason as Amendment 1. A document that needs fewer than 6 channel
+  vertices is a newer document. The patch that first takes a channel below 6 writes the `"4.1"` header in the same
+  transaction through the one writer, `EnsureHeader41` (it never lowers the header). Expand-only for the parser:
+  everything that parsed before still parses.
+- **What an old build reports (to be observed, not asserted):** a build before M1.2b refuses a 4.1 file with
+  `DSL-VERSION`. An M1.2b-era build accepts 4.1 but enforces the floor 6, so it refuses a 4-vertex channel with
+  `DSL-CURVE` (`FoilSource.cs`:1280); a project whose history holds one of the new receipt kinds is refused with
+  `DOC-REFERENCE` (`AuthoringSession.cs`:1805-1822). The file is unchanged in every case. The design's old-build
+  characterization receipt (`docs/proof/planform-verbs-old-build/`) records the actual codes; DR-PV-2 offers a
+  FoilDSL "4.2" if the operator wants every old build to say "newer version" instead.
+- **What changes, in one change each (never before the parser):**
+  - **Record:** nothing new. The count is already the length of `points`; the knot vector is already n + p + 1.
+  - **Parser:** the channel floor becomes `version == "4.1" ? 4 : 6` (`FoilSource.cs`:1280). Profiles keep 6.
+  - **Validation (`foildsl.md` §5 item 3 and conformance):** "Channels have p=3 and N in [6,10] in 4.0 and N in [4,16]
+    in 4.1". New conformance cases: a 4.1 channel with 4 vertices parses; with 3 it is `DSL-CURVE`; a 4.0 channel with 5
+    is `DSL-CURVE`; a `tangents` row on a 4-vertex channel is `DSL-LOCK` (there is no interior anchor to name).
+  - **Header writer:** `EvaluatePointCommand`'s condition `Points.Length > 10` becomes `> 10 || < 6`
+    (`AuthoringSession.cs`:1116-1117).
+  - **Verbs:** the point verbs use two constants, floor 4 and ceiling 16, whatever the document's version. Crossing 6 or
+    10 raises the header to 4.1 in the same patch, so these are the real limits (Simplifier finding at the gate). The
+    as-built `CurveView.Ceiling` by version (`PointModel.cs`:35, :277) stays the parser's view; the verbs do not read it.
+  - **Display sampling (a finding, F-1):** `Planform.Project` samples 8 points per non-empty knot span starting half a
+    step in (`PointModel.cs`:132-143). A 4-vertex curve has one span, so its outline would be an 8-segment polyline
+    that misses the root and the tip by 1/16 of the span. The design makes the samples include both ends and sets a
+    per-curve minimum; this is a display change, not a record change.
+  - **Export:** none. Every writer reads the evaluated surface (the loft), and a 4-vertex rail is an ordinary clamped
+    B-spline to the kernel. The loft's measured v-degree is read back as before (A4.1 *loft*).
+  - **Fairness evidence:** see the next bullet.
+- **Fairness evidence needed for 4 and 5 (named here; nothing is run in this amendment):** the fixture above covered 6–10
+  only, and `spikes/degree-adr/fixture.json` was never committed (no git history for the path; only this ADR and the
+  audit log name it). The build's first track (SPK in the design) commits a fixture and measures, for the five Example
+  curves and the two New foil rails at d3 · 4 CV and d3 · 5 CV:
+  1. κ′ energy and the monotone-piece count, beside the existing d3 · 7 column, recomputed by the committed script;
+  2. the **anchor residual** — with 4 or 5 vertices a curve cannot interpolate six anchors, so this column stops being
+     0; it is the least-squares residual in the curve's own unit (mm, °, chord fraction);
+  3. the **Rebuild deviation** from the shipped curves (Example 7 → 4 and 5; New foil 10 → 4 and 5) on the A4.5
+     distribution-curve oracle (201 uniform η plus every knot of both curves), with the η of the largest change;
+  4. support (expected global — 100 % of the span — at 4 and 5; recorded, not assumed) and the lever effect;
+  5. the comb's sign-change count, so the A4.3 claim "C² inside the curve, no breaks" is measured at 4 and 5.
+  The mockup's in-page computation of item 3 for the New foil trailing edge is a preview of that run, not the evidence.
+- **Alternatives considered:** *floor 5* — keeps one Control point on every curve, but the operator named 3–4 points and
+  a cubic with 4 vertices is the smallest clamped curve the record can hold; *floor 2 or 3 at a lower degree* — breaks
+  ADR-0001's one degree for channels and the parser's degree rule; *floor 4 for rails only* — a second count rule per
+  curve name in the parser for no geometric reason; *ungated (4.0 too)* — gives "4.0" two meanings across builds
+  (DR-PV-2 records it).
+- **Consequences:** a 4- or 5-vertex channel is legal under 4.1. Remove point and Anchor → Control refuse at the floor,
+  naming it. Local support is global at 4 and 5 vertices (every vertex moves the whole curve); GEO-13's local-support
+  test keeps its 7-vertex fixture. GEO-05's "Delete leaving fewer than p + 2 vertices is blocked" and A4.2's "the floor
+  is the record's six vertices" need the spec owner's amendment to "fewer than p + 1 (the record's floor, A4.1)"
+  (design §13, F-4). A4.1's "six to ten allowed" becomes "four to ten under 4.0's ceiling, sixteen under 4.1". A project
+  with a sub-6 channel cannot be opened by a build older than this change; the file is unchanged.

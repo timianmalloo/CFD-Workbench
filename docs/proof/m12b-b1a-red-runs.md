@@ -16,7 +16,8 @@ summary: >-
   Red run of the 24 B1a checks at 6705872, before the chord fit and the dimension fingerprint.
   Reopen_RetrySameDimensionOperationId_ReturnsPriorId failed with DOC-OPERATION-CONFLICT against the as-built memo.
   A hand mutant of the limit to 20 µm turned the 10.1 µm fixture red and left the 9.9 µm fixture green; the committed limit is 10 µm.
-review-suggested: []
+review-suggested:
+  - { by: adr-0001-master-curve-degree, on: 2026-10-03, reason: "Amendment 2 (Ruling 62): channels hold 4-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); the verbs Add point, Remove point and Rebuild to N are designed in docs/design/planform-point-verbs.md; foildsl.md 5 item 3, A4.1/A4.2/GEO-05 floor text need amendment (F-4)." }
 ---
 
 # M1.2b B1a chords: red-first run

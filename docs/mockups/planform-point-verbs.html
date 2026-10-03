@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planform point verbs</title>
+<!--
+  Stop-and-show page for Ruling 62 (operator, 2026-10-03): Add point, Remove point and Rebuild to N on the planform
+  outline, designed in docs/design/planform-point-verbs.md. Six screens of today's 1280 x 800 shell on the New foil.
+  Geometry is COMPUTED here: the New foil rails are rebuilt the way FoilSource.NewDefault builds them (10 vertices,
+  tip-clustered knots, power 3; least squares to the unit chord sqrt(1 - 0.99 eta^2) with the end pins; scaled to
+  0.1 m^2). Rebuild, Add and Remove run the design's algorithms (section 6.4) on those curves, and every number printed
+  is measured on the A4.5 distribution-curve oracle (201 uniform eta plus every knot of both curves). Display only.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --warn:#895900; --danger:#a92e37; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --warn:#efc576; --danger:#ffaeb5; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button{ font:inherit; color:inherit; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
+.top label{ margin-left:auto; font-size:12px; color:var(--mute); }
+.top select, .top button{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); color:var(--ink); }
+main{ padding:16px 20px 40px; }
+section.screen{ margin:0 0 28px; }
+.screen h2{ margin:0 0 4px; font-size:14px; }
+.screen .what{ margin:0 0 8px; max-width:1280px; font-size:12px; color:var(--mute); }
+.screen .what b{ color:var(--ink); font-weight:600; }
+.choices{ max-width:1280px; font-size:12px; } .choices h2{ font-size:14px; margin:0 0 6px; } .choices li{ margin:0 0 6px; }
+
+/* the shell (as m12b2-views.html and m12c-section-editor.html) */
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); font-size:11px; line-height:14px; position:relative; }
+.title{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.title i{ width:11px; height:11px; border-radius:50%; background:var(--line); display:inline-block; }
+.title b{ margin:0 auto; color:var(--ink); font-weight:600; }
+.work{ flex:1; min-height:0; display:flex; }
+.dock{ flex:0 0 260px; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--line); min-height:0; }
+.tabs{ flex:0 0 28px; display:flex; border-bottom:1px solid var(--line); background:var(--surface); }
+.tabs span{ display:flex; align-items:center; padding:0 10px; font-weight:600; color:var(--mute); border-bottom:2px solid transparent; }
+.tabs span.on{ color:var(--ink); border-bottom-color:var(--accent); }
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; min-height:0; }
+.area{ flex:1; min-height:0; position:relative; background:var(--canvas); }
+.views{ position:absolute; inset:0; display:grid; gap:4px; grid-template-columns:1fr; }
+.view{ position:relative; min-width:0; min-height:0; background:#17272c; border:1px solid var(--line); overflow:hidden; }
+.view canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.plate{ position:absolute; background:#243a40; color:#edf4f2; border-radius:3px; padding:5px 8px; white-space:nowrap; }
+.vlabel{ left:6px; top:6px; min-height:24px; padding:0 8px; display:flex; align-items:center; font-weight:600; box-shadow:inset 0 -2px 0 #66ddc8; }
+.probe{ right:6px; top:6px; } .scalebar{ right:6px; bottom:6px; color:#afc6c7; } .caption{ left:6px; bottom:6px; color:#afc6c7; }
+.navbar{ position:absolute; left:50%; bottom:10px; transform:translateX(-50%); display:flex; gap:2px; padding:3px; background:var(--surface); border:1px solid var(--line); border-radius:6px; z-index:2; }
+.navbar button{ min-height:24px; padding:0 8px; border:0; border-radius:4px; background:none; white-space:nowrap; }
+.navbar .sep{ width:1px; background:var(--line); margin:3px 2px; }
+
+/* structure-B Properties (DR-CELL-1) */
+.sel{ flex:1; min-height:0; overflow:hidden; }
+.ident{ display:flex; align-items:center; gap:6px; padding:6px 8px; font-size:13px; line-height:18px; font-weight:600; border-bottom:1px solid var(--line); }
+.ident svg{ width:12px; height:12px; flex:none; }
+.gh{ display:flex; align-items:center; gap:6px; min-height:24px; padding:0 8px; font-weight:600; }
+.gh .tw{ color:var(--mute); width:10px; } .gh .sum{ margin-left:auto; font-weight:400; color:var(--mute); white-space:nowrap; }
+.grp{ border-bottom:1px solid var(--line); }
+.row{ display:flex; align-items:center; gap:3px; min-height:20px; padding:0 8px 0 19px; }
+.row.e{ min-height:24px; }
+.row + .row{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.row .k{ flex:1; color:var(--mute); }
+.row .v{ min-width:62px; padding-right:5px; text-align:right; font-variant-numeric:tabular-nums; }
+.row.e .v{ color:var(--accent); text-decoration:underline dotted; text-underline-offset:2px; }
+.row .u{ width:28px; color:var(--mute); }
+.row .en{ color:var(--accent); } .row .en::after{ content:" ▾"; color:var(--mute); }
+.row .ro{ color:var(--ink); }
+.note{ padding:2px 8px 4px 19px; color:var(--mute); }
+.wing{ flex:none; border-top:1px solid var(--control); }
+.defs{ padding:0 8px 0 22px; min-height:24px; display:flex; align-items:center; color:var(--accent); text-decoration:underline; }
+
+/* V2 status strip (DR-STATUS-1) */
+.sb{ flex:0 0 24px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); }
+.sb .msg{ flex:1; min-width:0; display:flex; align-items:center; gap:6px; padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sb .msg.warn{ color:var(--warn); box-shadow:inset 3px 0 0 var(--warn); }
+.sb .msg svg{ width:12px; height:12px; flex:none; }
+.sb .item{ display:flex; align-items:center; padding:0 8px; border-left:1px solid var(--line); color:var(--mute); white-space:nowrap; }
+
+/* menus: the macOS menu bar (outside the window) and context menus */
+.menubar{ width:1280px; height:24px; display:flex; align-items:center; gap:18px; padding:0 14px; background:var(--soft); border:1px solid var(--line); border-bottom:0; border-radius:6px 6px 0 0; font-size:12px; position:relative; }
+.menubar b{ font-weight:700; } .menubar .open{ background:var(--accent); color:var(--surface); border-radius:4px; padding:1px 7px; margin:0 -7px; }
+.menu{ position:absolute; min-width:230px; background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.18); padding:4px 0; z-index:5; font-size:12px; line-height:16px; }
+.menu div{ display:flex; align-items:center; gap:8px; min-height:24px; padding:0 12px; }
+.menu div kbd{ margin-left:auto; font:inherit; color:var(--mute); }
+.menu div.dis{ color:var(--mute); }
+.menu div.hi{ background:var(--accent); color:var(--surface); border-radius:4px; margin:0 4px; padding:0 8px; } .menu div.hi kbd{ color:var(--surface); }
+.menu hr{ border:0; border-top:1px solid var(--line); margin:4px 0; }
+.menu .why{ display:block; min-height:0; padding:0 12px 4px 12px; color:var(--mute); font-size:11px; }
+.cut{ display:flex; gap:24px; align-items:flex-start; margin:10px 0 0; }
+.cut figure{ margin:0; } .cut figcaption{ font-size:12px; color:var(--mute); margin:0 0 6px; max-width:300px; }
+.cut .menu{ position:relative; }
+
+/* the Rebuild popover (in the model area, top right) */
+.pop{ position:absolute; right:12px; bottom:52px; width:316px; background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.2); z-index:4; font-size:11px; }
+.pop h3{ margin:0; padding:8px 10px; font-size:12px; border-bottom:1px solid var(--line); }
+.pop .fld{ display:flex; align-items:center; gap:6px; padding:8px 10px 6px; }
+.pop .fld label{ flex:1; color:var(--mute); }
+.pop .step{ display:flex; align-items:center; border:1px solid var(--control); border-radius:4px; }
+.pop .step button{ width:24px; height:24px; border:0; background:none; }
+.pop .step output{ width:34px; text-align:center; font-variant-numeric:tabular-nums; border-left:1px solid var(--line); border-right:1px solid var(--line); line-height:24px; outline:1px solid var(--accent); outline-offset:-2px; }
+.pop .hint{ padding:0 10px 6px; color:var(--mute); }
+.pop dl{ margin:0; padding:4px 10px 6px; display:grid; grid-template-columns:auto 1fr; gap:3px 10px; border-top:1px solid var(--line); }
+.pop dt{ color:var(--mute); } .pop dd{ margin:0; text-align:right; font-variant-numeric:tabular-nums; }
+.pop dd.warn{ color:var(--warn); font-weight:600; }
+.pop .acts{ display:flex; justify-content:flex-end; gap:6px; padding:8px 10px; border-top:1px solid var(--line); }
+.pop .acts button{ min-height:24px; padding:0 12px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.pop .acts .primary{ background:var(--accent); color:var(--surface); border-color:var(--accent); font-weight:600; }
+table.m{ border-collapse:collapse; font-size:12px; margin:6px 0 0; } table.m td, table.m th{ border:1px solid var(--line); padding:3px 8px; text-align:right; font-variant-numeric:tabular-nums; } table.m th{ background:var(--soft); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Planform outline — Add point, Remove point, Rebuild to N</h1>
+  <p>New foil · 1000 mm span · 0.1 m² · rails rebuilt in the page the way New foil builds them · every number measured, not typed</p>
+  <label for="state">State <select id="state"></select></label>
+  <button type="button" id="theme" aria-pressed="false">Dark theme</button>
+</header>
+<main id="screens"></main>
+<script>
+'use strict';
+const MEASURE = {};
+// ================================================================ B-spline engine (degree 3, clamped; Piegl–Tiller)
+const P = 3;
+function findSpan(U, n, t){ if (t >= U[n]) { let k = n - 1; while (k > P && U[k] === U[k + 1]) k--; return k; } let k = P; while (k < n - 1 && t >= U[k + 1]) k++; return k; }
+function basisRow(U, n, t){                                   // A2.2: the p + 1 non-zero basis values, spread into a row
+  const k = findSpan(U, n, t), N = [1], L = [], R = [];
+  for (let j = 1; j <= P; j++){ L[j] = t - U[k + 1 - j]; R[j] = U[k + j] - t; let saved = 0;
+    for (let r = 0; r < j; r++){ const den = R[r + 1] + L[j - r], tmp = den ? N[r] / den : 0; N[r] = saved + R[r + 1] * tmp; saved = L[j - r] * tmp; } N[j] = saved; }
+  const row = new Array(n).fill(0); for (let j = 0; j <= P; j++) row[k - P + j] = N[j]; return row;
+}
+const curve = (U, X, Y, ids) => ({ U, X, Y, ids });
+function evalAt(c, t){ const row = basisRow(c.U, c.X.length, t); let x = 0, y = 0; for (let i = 0; i < row.length; i++){ x += row[i] * c.X[i]; y += row[i] * c.Y[i]; } return [x, y]; }
+function paramAt(c, eta){ let lo = 0, hi = 1; for (let s = 0; s < 64; s++){ const m = (lo + hi) / 2; if (evalAt(c, m)[0] < eta) lo = m; else hi = m; } return (lo + hi) / 2; }
+const valueAt = (c, eta) => evalAt(c, paramAt(c, eta))[1];
+const greville = (U, n) => Array.from({ length:n }, (_, i) => (U[i + 1] + U[i + 2] + U[i + 3]) / 3);
+function uniformKnots(n){ const U = [0, 0, 0, 0]; for (let i = 1; i <= n - 4; i++) U.push(i / (n - 3)); U.push(1, 1, 1, 1); return U; }
+function tipClustered(n, power){ const U = [0, 0, 0, 0]; for (let i = 1; i <= n - 4; i++) U.push(1 - Math.pow(1 - i / (n - 3), power)); U.push(1, 1, 1, 1); return U; }
+// equality-constrained least squares: minimise |A y − b|² subject to y[i] = v for each pin (KKT, Gaussian elimination)
+function lsq(A, b, n, pins){
+  const m = n + pins.length, M = Array.from({ length:m }, () => new Array(m + 1).fill(0));
+  for (let i = 0; i < n; i++){
+    for (let j = 0; j < n; j++){ let s = 0; for (let r = 0; r < A.length; r++) s += A[r][i] * A[r][j]; M[i][j] = s; }
+    let s = 0; for (let r = 0; r < A.length; r++) s += A[r][i] * b[r]; M[i][m] = s; }
+  pins.forEach(([i, v], q) => { M[n + q][i] = 1; M[i][n + q] = 1; M[n + q][m] = v; });
+  for (let col = 0; col < m; col++){ let piv = col; for (let r = col + 1; r < m; r++) if (Math.abs(M[r][col]) > Math.abs(M[piv][col])) piv = r;
+    [M[col], M[piv]] = [M[piv], M[col]]; const d = M[col][col]; if (Math.abs(d) < 1e-300) throw new Error('singular');
+    for (let r = 0; r < m; r++){ if (r === col) continue; const f = M[r][col] / d; if (!f) continue; for (let c = col; c <= m; c++) M[r][c] -= f * M[col][c]; } }
+  const y = new Array(n); for (let i = 0; i < n; i++) y[i] = M[i][m] / M[i][i];
+  pins.forEach(([i, v]) => { y[i] = v; });                    // pins exact (as FitOrdinates writes them)
+  return y;
+}
+// ================================================================ the New foil rails (FoilSource.NewDefault, rails only)
+const HALF_M = 0.5, UNIT_CHORD = eta => Math.sqrt(Math.max(0, 1 - 0.99 * eta * eta));
+const NEW_U = tipClustered(10, 3), NEW_X = greville(NEW_U, 10);
+function fitOrdinates(U, X, etas, targets, pins){ const n = X.length, c0 = curve(U, X, new Array(n).fill(0));
+  const A = etas.map(e => basisRow(U, n, paramAt(c0, e))); return lsq(A, targets, n, pins); }
+const ETA401 = Array.from({ length:401 }, (_, i) => i / 400);
+const lead0 = fitOrdinates(NEW_U, NEW_X, ETA401, ETA401.map(e => (1 - UNIT_CHORD(e)) / 4), [[0, 0], [1, 0], [9, (1 - UNIT_CHORD(1)) / 4]]);
+const trail0 = fitOrdinates(NEW_U, NEW_X, ETA401, ETA401.map(e => (1 - UNIT_CHORD(e)) / 4 + UNIT_CHORD(e)), [[0, 1], [1, 1], [9, (1 - UNIT_CHORD(1)) / 4 + UNIT_CHORD(1)]]);
+// scale so the area is 0.1 m² (area = 2 · half span · ∫ chord dη; Simpson on 2001 samples of the evaluated rails)
+const ids10 = Array.from({ length:10 }, (_, i) => `cv-${i}`);
+function chordIntegral(l, t){ const n = 2000; let s = 0; for (let i = 0; i <= n; i++){ const e = i / n, w = i === 0 || i === n ? 1 : i % 2 ? 4 : 2; s += w * (valueAt(t, e) - valueAt(l, e)); } return s / (3 * n); }
+const unitArea = 2 * HALF_M * chordIntegral(curve(NEW_U, NEW_X, lead0), curve(NEW_U, NEW_X, trail0));
+const SCALE_MM = 0.1 / unitArea * 1000;                       // root chord in mm
+const LEAD = curve(NEW_U, NEW_X, lead0.map(v => v * SCALE_MM), ids10);
+const TRAIL = curve(NEW_U, NEW_X, trail0.map(v => v * SCALE_MM), ids10.slice());
+MEASURE.newFoil = { rootChordMm: +SCALE_MM.toFixed(3), tipChordMm: +(SCALE_MM * UNIT_CHORD(1)).toFixed(3), points: 10, rootSquare: TRAIL.Y[1] === TRAIL.Y[0] && LEAD.Y[1] === LEAD.Y[0] };
+// ================================================================ the A4.5 distribution-curve oracle
+function oracle(a, b){                                        // 201 uniform η plus every interior knot of both curves (at its η)
+  const etas = Array.from({ length:201 }, (_, i) => i / 200);
+  for (const c of [a, b]) for (let i = P + 1; i < c.U.length - P - 1; i++) etas.push(evalAt(c, c.U[i])[0]);
+  let worst = 0, at = 0; for (const e of etas){ const d = Math.abs(valueAt(b, e) - valueAt(a, e)); if (d > worst){ worst = d; at = e; } }
+  return { dev: worst, eta: at };
+}
+// curvature from analytic derivatives (derivative control points, Piegl–Tiller §3.3), never finite differences;
+// a break is an interior knot where the one-sided curvatures differ by more than 1e-6 relative (A4.3, measured)
+function basisAny(U, n, p, t){ let k = p; if (t >= U[n]) { k = n - 1; while (k > p && U[k] === U[k + 1]) k--; } else while (k < n - 1 && t >= U[k + 1]) k++;
+  const N = [1], L = [], R = []; for (let j = 1; j <= p; j++){ L[j] = t - U[k + 1 - j]; R[j] = U[k + j] - t; let saved = 0;
+    for (let r = 0; r < j; r++){ const den = R[r + 1] + L[j - r], tmp = den ? N[r] / den : 0; N[r] = saved + R[r + 1] * tmp; saved = L[j - r] * tmp; } N[j] = saved; }
+  return { k, N }; }
+function derivCurve(U, X, Y, p){ const n = X.length, Q = []; for (let i = 0; i < n - 1; i++){ const d = U[i + p + 1] - U[i + 1], f = d ? p / d : 0; Q.push([f * (X[i + 1] - X[i]), f * (Y[i + 1] - Y[i])]); }
+  return { U:U.slice(1, -1), X:Q.map(q => q[0]), Y:Q.map(q => q[1]), p:p - 1 }; }
+function evalAny(c, t){ const { k, N } = basisAny(c.U, c.X.length, c.p, t); let x = 0, y = 0; for (let j = 0; j <= c.p; j++){ x += N[j] * c.X[k - c.p + j]; y += N[j] * c.Y[k - c.p + j]; } return [x, y]; }
+function curvatureBreaks(c){ const d1 = derivCurve(c.U, c.X, c.Y, P), d2 = derivCurve(d1.U, d1.X, d1.Y, d1.p);
+  const kappa = t => { const a = evalAny(d1, t), b = evalAny(d2, t); return (a[0] * b[1] - a[1] * b[0]) / Math.pow(Math.hypot(a[0], a[1]), 3); };
+  let breaks = 0; for (let i = P + 1; i < c.U.length - P - 1; i++){ const t = c.U[i]; if (t === c.U[i - 1]) continue; const l = kappa(t - 1e-9), r = kappa(t + 1e-9); if (Math.abs(l - r) > 1e-6 * Math.max(1, Math.abs(l))) breaks++; }
+  return breaks; }
+// ================================================================ the three verbs (design §6.4)
+function nextIds(ids, count){ let max = -1; ids.forEach(id => { const m = /^cv-(\d+)$/.exec(id); if (m) max = Math.max(max, +m[1]); }); return Array.from({ length:count }, () => `cv-${++max}`); }
+function spacingKnots(c, n){                                  // the default (DR-PV-6 A): the new interior knots follow the current knot spacing
+  const old = [...new Set(c.U)], m = old.length - 1, U = [0, 0, 0, 0];
+  for (let i = 1; i <= n - 4; i++){ const s = i / (n - 3) * m, j = Math.min(m - 1, Math.floor(s)), w = s - j; U.push(old[j] + w * (old[j + 1] - old[j])); }
+  U.push(1, 1, 1, 1); return U; }
+function rebuild(c, n, keepSpacing){                          // knots by the current spacing (or uniform); η = the old curve's η at the new Greville parameters; ordinates by least squares
+  const U = keepSpacing ? spacingKnots(c, n) : uniformKnots(n), X = greville(U, n).map(t => evalAt(c, t)[0]); X[0] = 0; X[n - 1] = 1;
+  const pins = [[0, c.Y[0]], [n - 1, c.Y[c.Y.length - 1]]]; if (c.Y[1] === c.Y[0]) pins.push([1, c.Y[0]]);
+  const etas = Array.from({ length:401 }, (_, i) => i / 400), Y = fitOrdinates(U, X, etas, etas.map(e => valueAt(c, e)), pins);
+  const fresh = nextIds(c.ids, n - 2), ids = [c.ids[0], ...fresh, c.ids[c.ids.length - 1]];
+  const out = curve(U, X, Y, ids), o = oracle(c, out); return { curve:out, dev:o.dev, eta:o.eta, breaksBefore:curvatureBreaks(c), breaksAfter:curvatureBreaks(out) };
+}
+function addPoint(c, eta){                                    // Boehm, one insertion at t* with x(t*) = η
+  const t = paramAt(c, eta), n = c.X.length; let k = findSpan(c.U, n, t);
+  const U = [...c.U.slice(0, k + 1), t, ...c.U.slice(k + 1)], X = [], Y = [];
+  for (let i = 0; i <= k - P; i++){ X.push(c.X[i]); Y.push(c.Y[i]); }
+  for (let i = k - P + 1; i <= k; i++){ const a = (t - c.U[i]) / (c.U[i + P] - c.U[i]); X.push((1 - a) * c.X[i - 1] + a * c.X[i]); Y.push((1 - a) * c.Y[i - 1] + a * c.Y[i]); }
+  for (let i = k; i < n; i++){ X.push(c.X[i]); Y.push(c.Y[i]); }
+  const id = nextIds(c.ids, 1)[0], ids = [...c.ids.slice(0, k - 1), id, ...c.ids.slice(k - 1)];
+  const out = curve(U, X, Y, ids), o = oracle(c, out); return { curve:out, dev:o.dev, index:k - 1, moved:[k - 2, k] };
+}
+function removePoint(c, i){                                   // drop the knot at the vertex's middle (r = i + 2); refit the two replacement vertices
+  const n = c.X.length, r = i + 2, U = c.U.filter((_, j) => j !== r), m = n - 1, G = greville(U, m);
+  const X = [], Y = [], free = [i - 1, i];
+  for (let j = 0; j < m; j++){ if (free.includes(j)) { X.push(evalAt(c, G[j])[0]); Y.push(0); } else { const o = j < i - 1 ? j : j + 1; X.push(c.X[o]); Y.push(c.Y[o]); } }
+  for (let j = 1; j < m; j++) if (!(X[j] > X[j - 1])) return { refused:'fold' };
+  const pins = []; for (let j = 0; j < m; j++) if (!free.includes(j)) pins.push([j, Y[j]]);
+  if (free.includes(1) && c.Y[1] === c.Y[0]) pins.push([1, c.Y[0]]);
+  const etas = Array.from({ length:401 }, (_, k) => k / 400), Ys = fitOrdinates(U, X, etas, etas.map(e => valueAt(c, e)), pins);
+  const ids = c.ids.filter((_, j) => j !== i), out = curve(U, X, Ys, ids), o = oracle(c, out);
+  return { curve:out, dev:o.dev, eta:o.eta, removedId:c.ids[i] };
+}
+function role(c, i){ const n = c.X.length; return i === 0 ? 'root end' : i === n - 1 ? 'tip end' : i === 1 ? 'root handle' : i === n - 2 ? 'tip handle' : 'control'; }
+function refuseRemove(c, i, name){ const n = c.X.length, FLOOR = 4;
+  if (n <= FLOOR) return `A curve needs at least ${FLOOR} points. The ${name} has ${n}, so point ${i + 1} stays.`;
+  const r = role(c, i);
+  if (r === 'root end') return 'The root end can’t be removed: the curve starts there.';
+  if (r === 'tip end') return 'The tip end can’t be removed: the curve ends there.';
+  if (r === 'root handle') return 'This handle sets the curve’s direction at the root. Move it, or rebuild the curve with fewer points.';
+  if (r === 'tip handle') return 'This handle sets the curve’s direction at the tip. Move it, or rebuild the curve with fewer points.';
+  return null; }
+
+// ================================================================ the story, computed
+const f2 = v => (v < 0 ? '−' : '') + Math.abs(v).toFixed(2), f3 = v => v.toFixed(3);
+const mmFromRoot = eta => f2(eta * HALF_M * 1000);
+const RB = {}; for (let n = 4; n <= 10; n++){ const t = rebuild(TRAIL, n, true), l = rebuild(LEAD, n, true), k = rebuild(TRAIL, n, false); RB[n] = { te:t, le:l, even:k }; }
+MEASURE.rebuildDeviationMm = Object.fromEntries(Object.entries(RB).map(([n, v]) => [n, { trailing:+v.te.dev.toFixed(3), trailingAtMm:+(v.te.eta * 500).toFixed(2), leading:+v.le.dev.toFixed(3), leadingAtMm:+(v.le.eta * 500).toFixed(2), trailingEvenSpacing:+v.even.dev.toFixed(3) }]));
+MEASURE.curvatureBreaks = { before:RB[4].te.breaksBefore, after4:RB[4].te.breaksAfter };
+const TE4 = RB[4].te.curve;
+const tipDirDeg = c => { const n = c.X.length; return Math.atan2(c.Y[n - 1] - c.Y[n - 2], (c.X[n - 1] - c.X[n - 2]) * 500) * 180 / Math.PI; };
+const TIP_TURN = Math.abs(tipDirDeg(TE4) - tipDirDeg(TRAIL));
+MEASURE.tipDirectionChangeDeg = +TIP_TURN.toFixed(2);
+MEASURE.te4 = { ids:TE4.ids, knots:TE4.U, x:TE4.X.map(v => +v.toFixed(6)), yMm:TE4.Y.map(v => +v.toFixed(3)), rootSquare:TE4.Y[1] === TE4.Y[0], rootKeptMm:TE4.Y[0], tipKeptMm:+TE4.Y[3].toFixed(6) };
+const ADD_ETA = 0.5, ADD = addPoint(TE4, ADD_ETA);
+MEASURE.add = { atMm:ADD_ETA * 500, points:ADD.curve.X.length, newIndex:ADD.index, newId:ADD.curve.ids[ADD.index], changeMm:ADD.dev, movedIndexes:ADD.moved };
+const REMOVE_INDEX = 5, REM = removePoint(LEAD, REMOVE_INDEX);
+MEASURE.remove = { point:REMOVE_INDEX + 1, removedId:REM.removedId, points:REM.curve.X.length, changeMm:+REM.dev.toFixed(4), atMm:+(REM.eta * 500).toFixed(2), selectedId:REM.curve.ids[REMOVE_INDEX] };
+const REFUSE_INDEX = 2, REFUSAL = refuseRemove(TE4, REFUSE_INDEX, 'trailing edge');
+MEASURE.refusal = REFUSAL;
+// a 4-vertex rail drawn the as-built way: 8 samples per span, starting half a step in (PointModel.cs:132-143) — finding F-1
+MEASURE.asBuiltSampling = { samples:8, firstEta:+(0.5 / 8).toFixed(4), gapAtRootMm:+(0.5 / 8 * 500).toFixed(2) };
+
+// ================================================================ drawing
+const C = { vp:'#17272c', soft:'#243a40', ink:'#edf4f2', mute:'#afc6c7', grid:'#344b50', foil:'#85c9c4', edge:'#c4e7df', station:'#66ddc8', warn:'#efc576', danger:'#ffaeb5' };
+function line(g, pts, color, w, dash){ g.save(); g.strokeStyle = color; g.lineWidth = w; g.setLineDash(dash || []); g.lineJoin = 'round'; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); g.restore(); }
+function samples(c){ const out = []; for (let i = 0; i <= 400; i++) out.push(evalAt(c, i / 400)); return out; }   // ends included (F-1's fix)
+function glyph(g, x, y, kind, state){                          // DESIGN.md Point (v10): end diamond 14, control circle 11, handle hollow 9
+  g.save(); g.lineWidth = 1.5; const sel = state === 'sel', prev = state === 'preview', col = prev ? C.station : C.foil;
+  if (kind === 'end'){ g.beginPath(); g.moveTo(x, y - 7); g.lineTo(x + 7, y); g.lineTo(x, y + 7); g.lineTo(x - 7, y); g.closePath(); g.fillStyle = sel ? C.station : C.vp; g.fill(); g.strokeStyle = sel ? C.station : col; g.stroke(); }
+  else if (kind === 'handle'){ g.beginPath(); g.arc(x, y, 4.5, 0, 7); g.fillStyle = sel ? C.station : C.vp; g.fill(); g.strokeStyle = sel ? C.station : prev ? C.station : '#66ddc8'; g.stroke(); }
+  else if (sel){ g.beginPath(); g.arc(x, y, 5.5, 0, 7); g.fillStyle = C.vp; g.fill(); g.lineWidth = 2; g.strokeStyle = C.station; g.stroke(); g.beginPath(); g.arc(x, y, 1.8, 0, 7); g.fillStyle = C.station; g.fill(); }
+  else { g.beginPath(); g.arc(x, y, 5.5, 0, 7); if (prev){ g.fillStyle = C.vp; g.fill(); g.strokeStyle = C.station; g.setLineDash([2, 2]); g.stroke(); } else { g.fillStyle = C.foil; g.fill(); } }
+  if (sel){ g.beginPath(); g.arc(x, y, 13, 0, 7); g.strokeStyle = C.vp; g.lineWidth = 5; g.setLineDash([]); g.stroke(); g.strokeStyle = C.station; g.lineWidth = 3; g.stroke(); }
+  g.restore(); }
+function drawPoints(g, S, c, opts){ const n = c.X.length, pts = c.X.map((x, i) => S(x, c.Y[i]));
+  line(g, pts, opts.preview ? 'rgba(102,221,200,0.7)' : 'rgba(133,201,196,0.55)', 1, [4, 3]);
+  pts.forEach((p, i) => { const kind = i === 0 || i === n - 1 ? 'end' : i === 1 || i === n - 2 ? 'handle' : 'ctrl';
+    if (kind === 'handle') line(g, [p, pts[i === 1 ? 0 : n - 1]], opts.preview ? C.station : '#66ddc8', 1);
+    glyph(g, p[0], p[1], kind, opts.sel === i ? 'sel' : opts.preview ? 'preview' : ''); }); }
+function drawPlan(g, w, h, sc){
+  // Fit Selection on the trailing edge frames the starboard half: η 0..1 left → right, aft down
+  const top = 70, s = Math.min((w - 110) / 500, (h - top - 90) / 150), x0 = 54, y0 = top + 14;
+  const S = (eta, aft) => [x0 + eta * 500 * s, y0 + aft * s];
+  MEASURE[`${sc.id}.pxPerMm`] = +s.toFixed(3);
+  for (let mm = 0; mm <= 500; mm += 50) line(g, [S(mm / 500, -12), S(mm / 500, 150)], C.grid, 1);
+  for (let a = 0; a <= 150; a += 25) line(g, [S(0, a), S(1, a)], C.grid, 1);
+  line(g, [S(0, -20), S(0, 160)], C.mute, 1);
+  g.font = '11px system-ui, sans-serif'; g.fillStyle = C.mute;
+  [0, 100, 200, 300, 400, 500].forEach(mm => g.fillText(`${mm}`, S(mm / 500, 0)[0] - 8, S(0, 150)[1] + 16));
+  [0, 50, 100, 150].forEach(a => g.fillText(`${a}`, x0 - 28, S(0, a)[1] + 4));
+  const le = sc.le, te = sc.te, L = samples(le).map(([e, v]) => S(e, v)), T = samples(te).map(([e, v]) => S(e, v));
+  g.beginPath(); L.concat(T.slice().reverse()).forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fillStyle = 'rgba(133,201,196,0.22)'; g.fill();
+  line(g, L, C.foil, 2); line(g, T, C.foil, 2);
+  line(g, [L[L.length - 1], T[T.length - 1]], C.edge, 1);
+  drawPoints(g, S, le, { sel: sc.selCurve === 'le' ? sc.selIndex : -1 });
+  drawPoints(g, S, te, { sel: sc.selCurve === 'te' ? sc.selIndex : -1 });
+  if (sc.preview){ const pv = sc.preview, PV = samples(pv.curve).map(([e, v]) => S(e, v));
+    line(g, PV, C.station, 2, [7, 4]); drawPoints(g, S, pv.curve, { preview:true });
+    const e = pv.eta, a = S(e, valueAt(te, e)), b = S(e, valueAt(pv.curve, e)); line(g, [[a[0], Math.min(a[1], b[1]) - 10], [a[0], Math.max(a[1], b[1]) + 10]], C.warn, 2);
+    g.save(); g.font = '600 11px system-ui, sans-serif'; const label = `${f2(pv.dev)} mm`, tw = g.measureText(label).width + 12; g.fillStyle = C.soft; g.fillRect(a[0] + 8, Math.max(a[1], b[1]) + 6, tw, 18); g.strokeStyle = C.warn; g.strokeRect(a[0] + 8.5, Math.max(a[1], b[1]) + 6.5, tw - 1, 17); g.fillStyle = C.ink; g.fillText(label, a[0] + 14, Math.max(a[1], b[1]) + 19); g.restore(); }
+  if (sc.pointer){ const p = S(sc.pointer.eta, valueAt(te, sc.pointer.eta)); g.save(); g.strokeStyle = C.ink; g.lineWidth = 1.5; g.beginPath(); g.moveTo(p[0] + 18, p[1] + 26); g.lineTo(p[0] + 4, p[1] + 6); g.lineTo(p[0] + 14, p[1] + 8); g.stroke(); g.restore();
+    g.save(); g.strokeStyle = C.mute; g.setLineDash([2, 3]); g.beginPath(); g.arc(p[0], p[1], 10, 0, 7); g.stroke(); g.restore(); }
+  if (sc.refused){ const i = sc.selIndex, c = sc.selCurve === 'te' ? te : le, p = S(c.X[i], c.Y[i]); g.save(); g.strokeStyle = C.warn; g.lineWidth = 1.5; g.setLineDash([3, 3]); g.beginPath(); g.arc(p[0], p[1], 17, 0, 7); g.stroke(); g.restore(); }
+  return { probe: sc.probe, scale:`50 mm = ${Math.round(50 * s)} px` };
+}
+
+// ================================================================ chrome
+const IC = { ctrl:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>',
+  handle:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  info:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9l5-6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+  warn:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 11 10.5H1Z" fill="none" stroke="currentColor" stroke-width="1.3"/><path d="M6 4.5v3M6 8.6v.8" stroke="currentColor" stroke-width="1.3"/></svg>' };
+const r = (k, v, u, e = 0) => `<div class="row${e ? ' e' : ''}"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${u}</span></div>`;
+// the Wing block reads the screen's own rails: area = 2 · 500 mm · ∫ chord dη (Simpson, 2001 samples), in cm²
+const areaCm2 = sc => 2 * 500 * chordIntegral(sc.le, sc.te) / 100;
+const wing = sc => { const a = areaCm2(sc); MEASURE[`${sc.id}.areaCm2`] = +a.toFixed(1); return `<div class="wing"><div class="gh">Wing</div>${r('Span', '1000.00', 'mm', 1)}${r('Root chord', f2(sc.te.Y[0] - sc.le.Y[0]), 'mm', 1)}${r('Tip chord', f2(sc.te.Y[sc.te.Y.length - 1] - sc.le.Y[sc.le.Y.length - 1]), 'mm', 1)}<div class="defs">Estimates · definitions</div>${r('Area', '≈ ' + a.toFixed(0), 'cm²')}</div>`; };
+const NAME = { te:'Trailing edge', le:'Leading edge' };
+function properties(sc){
+  if (sc.selIndex < 0) return `<div class="dock"><div class="tabs"><span class="on">Properties</span><span>Browser</span></div><div class="sel"><div class="ident">Untitled · foil</div>
+    <div class="grp"><div class="gh"><span class="tw">⌄</span>${NAME[sc.selCurve]}<span class="sum">cubic · ${sc.te.X.length} points</span></div>${r('Points', `${sc.te.X.length}`, '')}<div class="note">From 4 to 16. Rebuild… sets 4 to 10.</div></div></div>${wing(sc)}</div>`;
+  const c = sc.selCurve === 'te' ? sc.te : sc.le, i = sc.selIndex, n = c.X.length, ro = role(c, i), handle = ro.includes('handle');
+  const typeRow = ro === 'control' ? `<div class="row e"><span class="k">Type</span><span class="en">Control point</span></div><div class="note">A control point pulls the curve toward it. The curve does not pass through it.</div>`
+    : `<div class="row"><span class="k">Type</span><span class="ro">Handle of the ${ro === 'root handle' ? 'root' : 'tip'} end</span></div>`;
+  return `<div class="dock"><div class="tabs"><span class="on">Properties</span><span>Browser</span></div><div class="sel">
+    <div class="ident">${handle ? IC.handle : IC.ctrl}${NAME[sc.selCurve]} · point ${i + 1} of ${n}</div>
+    <div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${typeRow}${r('From root', f2(c.X[i] * 500), 'mm', 1)}${r('Aft', f2(c.Y[i]), 'mm', 1)}</div>
+    <div class="grp"><div class="gh"><span class="tw">›</span>${NAME[sc.selCurve]}<span class="sum">cubic · ${n} points</span></div></div></div>${wing(sc)}</div>`;
+}
+function statusbar(sc){ const warn = sc.kind === 'warn'; const c = sc.selCurve === 'te' ? sc.te : sc.le;
+  return `<div class="sb" role="status" aria-live="polite"><span class="msg${warn ? ' warn' : ''}">${warn ? IC.warn : IC.info}<span>${sc.report}</span></span><span class="item">${sc.selIndex < 0 ? 'Foil' : `${NAME[sc.selCurve]} · pt ${sc.selIndex + 1} of ${c.X.length}`}</span><span class="item">mm</span><span class="item">Text 100 %</span></div>`; }
+function popover(sc){ const pv = sc.preview, n0 = sc.te.X.length, n = pv.curve.X.length;
+  return `<div class="pop" role="dialog" aria-label="Rebuild trailing edge"><h3>Rebuild trailing edge</h3>
+    <div class="fld"><label for="pts-${sc.id}">Points</label><span class="step"><button type="button" aria-label="Fewer points" disabled>−</button><output id="pts-${sc.id}">${n}</output><button type="button" aria-label="More points">+</button></span></div>
+    <div class="hint">From 4 to 10, the range Ruling 62 set. The new points keep the curve's current spacing.</div>
+    <dl><dt>Points</dt><dd>${n0} → ${n}</dd><dt>Largest change</dt><dd class="warn">${f2(pv.dev)} mm at ${mmFromRoot(pv.eta)} mm from root</dd>
+      <dt>Curvature breaks</dt><dd>${pv.breaksBefore} → ${pv.breaksAfter} (C² throughout)</dd><dt>Kept exactly</dt><dd>root end ${f2(pv.curve.Y[0])} mm aft, tangent square to the centre line; tip end ${f2(pv.curve.Y[n - 1])} mm aft</dd><dt>Tip direction</dt><dd>changed by ${f2(TIP_TURN)}°</dd><dt>Anchors</dt><dd>none to remove</dd></dl>
+    <div class="acts"><button type="button">Cancel</button><button type="button" class="primary">Rebuild</button></div></div>`; }
+function shellHTML(sc){
+  const area = `<div class="views"><div class="view" data-v="plan"><canvas></canvas><span class="plate vlabel">Plan</span></div></div>${sc.preview ? popover(sc) : ''}
+    <div class="navbar"><button type="button">Views ▾ One view</button><button type="button">Display ▾ Shaded</button><span class="sep"></span><button type="button">Fit</button><button type="button">Fit Selection</button></div>`;
+  return `<div class="shell"><div class="title"><i></i><i></i><i></i><b>CFD Workbench — Untitled</b></div>
+    <div class="work">${properties(sc)}<div class="main"><div class="tabs"><span class="on">Plan</span><span>Section sample</span><span>Foil source</span></div><div class="area">${area}</div></div></div>${statusbar(sc)}</div>`;
+}
+function editMenu(state){ const dis = state === 'floor';
+  return `<div class="menu" role="menu" aria-label="Edit" style="left:96px;top:23px">
+    <div role="menuitem">Undo Move Point<kbd>⌘Z</kbd></div><div role="menuitem" class="dis" aria-disabled="true">Redo<kbd>⇧⌘Z</kbd></div><hr>
+    <div role="menuitem">Cut<kbd>⌘X</kbd></div><div role="menuitem">Copy<kbd>⌘C</kbd></div><div role="menuitem">Paste<kbd>⌘V</kbd></div><div role="menuitem">Select All<kbd>⌘A</kbd></div><hr>
+    <div role="menuitem">Add point…</div><div role="menuitem">Remove point<kbd>⌫</kbd></div><div role="menuitem" class="hi">Rebuild trailing edge…</div><hr>
+    <div role="menuitem">Make anchor</div><div role="menuitem" class="dis" aria-disabled="true">Make control</div><div role="menuitem" class="dis" aria-disabled="true">Smooth tangent</div><div role="menuitem" class="dis" aria-disabled="true">Symmetric tangent</div><div role="menuitem" class="dis" aria-disabled="true">Corner tangent</div></div>`; }
+
+// ================================================================ screens
+const SEL6 = 5;                                               // trailing edge point 6 of 10 (a control point)
+const SCREENS = [
+  { id:'menus', h:'1 · Where the verbs live: Edit ▸ Rebuild trailing edge…', le:LEAD, te:TRAIL, selCurve:'te', selIndex:SEL6, menu:true,
+    report:'Selected trailing edge point 6 of 10.', probe:`Trailing edge · point 6 of 10 · from root ${f2(TRAIL.X[SEL6] * 500)} mm · aft ${f2(TRAIL.Y[SEL6])} mm`,
+    what:'<b>Shows</b> the New foil (10 points per rail) with trailing-edge point 6 selected and the Edit menu open in the macOS menu bar. The three verbs sit in one group above the point-type commands: <b>Add point…</b> (asks for the position, From root in mm, prefilled with the middle of the segment at the selected point; double-click on a curve adds at the pointer), <b>Remove point</b> ⌫, and <b>Rebuild trailing edge…</b> (the name follows the selected curve). The context menus are below the shell. <b>Implements</b> design §11.1 screen 1, §11.3, §5.2 (commands); CAD-21 (every verb in a menu-bar menu and the palette).' },
+  { id:'preview', h:'2 · Rebuild to 4: the preview with the measured change', le:LEAD, te:TRAIL, selCurve:'te', selIndex:SEL6, preview:RB[4].te,
+    report:`Rebuild trailing edge: 10 → 4 points. Largest change ${f2(RB[4].te.dev)} mm at ${mmFromRoot(RB[4].te.eta)} mm from root.`, probe:`Rebuild preview · 4 points · largest change ${f2(RB[4].te.dev)} mm`,
+    what:'<b>Shows</b> the Rebuild popover with Points = 4. The rebuilt trailing edge is drawn dashed in the station colour with its four points (root end, two handles, tip end); the current curve stays solid. A warning-coloured tick and a plate mark the <b>largest change</b>, measured on the A4.5 oracle. The popover states what is kept exactly (both end positions and the square root tangent) and the measured curvature-break count. Nothing has changed yet: <b>Cancel</b> or Escape adds no undo step. <b>Implements</b> §6.4 Rebuild, §11.1 screen 2, COPY-199.' },
+  { id:'applied', h:'3 · Rebuild applied: one undo step', le:LEAD, te:TE4, selCurve:'te', selIndex:-1,
+    report:`Rebuilt the trailing edge with 4 points. Largest change ${f2(RB[4].te.dev)} mm at ${mmFromRoot(RB[4].te.eta)} mm from root. ⌘Z undoes it.`, probe:`Trailing edge · 4 points · tip ${f2(TE4.Y[3])} mm aft`,
+    what:'<b>Shows</b> the trailing edge after Rebuild: 4 points. The selected point 6 no longer exists, so the point selection clears (the curve was rebuilt, not a point picked; Rhino leaves the rebuilt curve selected). Properties shows the foil with the Trailing edge group open. The ends keep their ids; the handles get new ids. <b>Implements</b> §6.4, §3.5, COPY-200.' },
+  { id:'add', h:'4 · Add point: double-click on the outline', le:LEAD, te:ADD.curve, selCurve:'te', selIndex:ADD.index, pointer:{ eta:ADD_ETA },
+    report:`Added trailing edge point ${ADD.index + 1} of ${ADD.curve.X.length}. Shape unchanged: largest change ${ADD.dev < 0.0005 ? '0.000' : f3(ADD.dev)} mm. Points ${ADD.moved[0] + 1} and ${ADD.moved[1] + 1} moved to keep it.`,
+    probe:`Trailing edge · point ${ADD.index + 1} of ${ADD.curve.X.length} · from root ${f2(ADD.curve.X[ADD.index] * 500)} mm`,
+    what:'<b>Shows</b> a double-click on the 4-point trailing edge at 250 mm from root. Boehm knot insertion adds one vertex there: the shape does not change (the change is measured, not assumed), the two neighbours move to keep it, and the new point is selected and focused. The pointer and the hit ring show where the double-click landed. <b>Implements</b> §6.4 Add, §11.3, COPY-190.' },
+  { id:'remove', h:'5 · Remove point: ⌫ on a selected leading-edge point', le:REM.curve, te:TE4, selCurve:'le', selIndex:REMOVE_INDEX,
+    report:`Removed leading edge point ${REMOVE_INDEX + 1}. Now ${REM.curve.X.length} points. Largest change ${f2(REM.dev)} mm at ${mmFromRoot(REM.eta)} mm from root.`,
+    probe:`Leading edge · point ${REMOVE_INDEX + 1} of ${REM.curve.X.length} · from root ${f2(REM.curve.X[REMOVE_INDEX] * 500)} mm`,
+    what:'<b>Shows</b> the leading edge (10 points) after ⌫ on point 6. Its knot is removed and the two points that replace three are refitted to the old curve, with every other point held. The change is measured and reported; ⌘Z restores the curve exactly. The selection moves to the nearest remaining point, which is the next one toward the tip. <b>Implements</b> §6.4 Remove, §11.4, COPY-191.' },
+  { id:'refused', h:'6 · Refused at the floor: the reason, and nothing changed', le:LEAD, te:TE4, selCurve:'te', selIndex:REFUSE_INDEX, refused:true, kind:'warn',
+    report:REFUSAL, probe:`Trailing edge · point ${REFUSE_INDEX + 1} of 4 · tip handle`,
+    what:'<b>Shows</b> ⌫ on trailing-edge point 3 of the 4-point curve. The floor check comes first, so the reason names the floor even though this point is also a handle. The strip shows the warning; the point keeps its selection with a dashed warning ring; geometry and the undo depth are unchanged. In the Edit menu and the context menu, Remove point is disabled with the same reason. <b>Implements</b> §6.4 refusals, §11.4 COPY-192, §11.5 disabled state.' } ];
+
+const sel = document.getElementById('state');
+document.getElementById('screens').innerHTML = SCREENS.map(sc => `<section class="screen" id="s-${sc.id}" data-id="${sc.id}"><h2>${sc.h}</h2><p class="what">${sc.what}</p>${sc.menu ? `<div class="menubar"><b></b><b>CFD Workbench</b><span>File</span><span class="open">Edit</span><span>View</span><span>Window</span><span>Help</span>${editMenu()}</div>` : ''}${shellHTML(sc)}${sc.menu ? contextMenus() : ''}</section>`).join('') + choicesHTML();
+SCREENS.forEach(sc => { const o = document.createElement('option'); o.value = sc.id; o.textContent = sc.h; sel.appendChild(o); });
+sel.addEventListener('change', () => document.getElementById('s-' + sel.value).scrollIntoView());
+function contextMenus(){                                     // labels as built (PlanCanvas.cs OpenPointMenu: title case), plus the new rows
+  return `<div class="cut">
+  <figure><figcaption>Right-click (Control-click) on trailing-edge point 6 of 10.</figcaption><div class="menu" role="menu" aria-label="Point">
+    <div role="menuitem">Make Anchor Point</div><div role="menuitem" class="dis" aria-disabled="true">Make Control Point</div><div role="menuitem" class="dis" aria-disabled="true">Tangent ▸</div><hr><div role="menuitem">Remove Point<kbd>⌫</kbd></div><div role="menuitem">Rebuild Trailing Edge…</div><hr><div role="menuitem">Fit</div></div></figure>
+  <figure><figcaption>The same menu on point 3 of the 4-point trailing edge (screen 6): Remove Point is disabled and says why.</figcaption><div class="menu" role="menu" aria-label="Point at the floor">
+    <div role="menuitem" class="dis" aria-disabled="true">Make Anchor Point</div><div role="menuitem" class="dis" aria-disabled="true">Make Control Point</div><div role="menuitem" class="dis" aria-disabled="true">Tangent ▸</div><hr><div role="menuitem" class="dis" aria-disabled="true">Remove Point<kbd>⌫</kbd></div><span class="why">A curve needs at least 4 points.</span><div role="menuitem">Rebuild Trailing Edge…</div><hr><div role="menuitem">Fit</div></div></figure>
+  <figure><figcaption>Right-click on the outline, away from any point. Add Point Here adds it at the press.</figcaption><div class="menu" role="menu" aria-label="Curve">
+    <div role="menuitem" class="hi">Add Point Here</div><div role="menuitem">Rebuild Trailing Edge…</div><hr><div role="menuitem">Fit</div></div></figure></div>`; }
+function choicesHTML(){
+  const rows = Object.entries(MEASURE.rebuildDeviationMm).map(([n, v]) => `<tr><td>${n}</td><td>${f2(v.trailing)} at ${f2(v.trailingAtMm)}</td><td>${f2(v.leading)} at ${f2(v.leadingAtMm)}</td><td>${f2(v.trailingEvenSpacing)}</td></tr>`).join('');
+  return `<section class="choices"><h2>Measured on this page</h2>
+    <p>Rebuild of the New foil rails (10 points, tip-clustered) to N points: largest change on the A4.5 oracle, in mm, and where (mm from root). Root position, root square tangent and tip position are held exactly. At N = 4 there is no interior knot, so both spacings give the same curve.</p>
+    <table class="m"><tr><th>N</th><th>Trailing edge (current spacing, the default)</th><th>Leading edge (current spacing)</th><th>Trailing edge, even spacing (DR-PV-6 option B)</th></tr>${rows}</table>
+    <h2 style="margin-top:14px">Choices this page leaves to the operator (DR-PV batch in the design §13)</h2><ol>
+    <li><b>DR-PV-3 — does Rebuild refuse above a tolerance?</b> The page lets you apply any N and shows the change. The New foil's elliptical tip costs ${f2(RB[4].te.dev)} mm at 4 points. <b>Recommend:</b> no gate; show the number (Rhino's Rebuild contract); keep the A4.6 10 µm acceptance for conversions only.</li>
+    <li><b>DR-PV-5 — one curve per Rebuild, or both edges?</b> The page rebuilds one curve per command (one undo step each). <b>Recommend:</b> one curve now; a "Both edges" choice later if you ask.</li>
+    <li><b>DR-PV-6 — keep the current spacing, or space the points evenly?</b> The New foil's points crowd toward its elliptical tip. Keeping that spacing costs ${f2(RB[5].te.dev)} mm at 5 points against ${f2(RB[5].even.dev)} mm evenly spaced, and a rebuild to the same count changes nothing (${f2(RB[10].te.dev)} mm against ${f2(RB[10].even.dev)} mm). <b>Recommend:</b> keep the current spacing (the table's first column).</li></ol></section>`; }
+function paint(){
+  document.querySelectorAll('section.screen').forEach(secEl => {
+    const sc = SCREENS.find(s => s.id === secEl.dataset.id);
+    secEl.querySelectorAll('.view').forEach(view => {
+      view.querySelectorAll('.plate:not(.vlabel)').forEach(n => n.remove());
+      const cv = view.querySelector('canvas'), w = view.clientWidth, h = view.clientHeight, dpr = window.devicePixelRatio || 1;
+      cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = C.vp; g.fillRect(0, 0, w, h);
+      const out = drawPlan(g, w, h, sc), add = (cls, text) => { const p = document.createElement('div'); p.className = 'plate ' + cls; p.textContent = text; view.appendChild(p); };
+      if (!sc.preview) add('probe', out.probe); add('scalebar', out.scale); add('caption', 'Fit Selection · starboard half · aft (mm) down, from root (mm) right');
+    });
+  });
+  const txt = document.body.innerText; MEASURE.leaks = ['NaN', 'undefined', 'Infinity', 'null'].filter(t => txt.includes(t));
+  window.__measure = MEASURE;
+}
+paint();
+document.getElementById('theme').addEventListener('click', e => { const d = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = d ? 'dark' : 'light'; e.currentTarget.textContent = d ? 'Light theme' : 'Dark theme'; e.currentTarget.setAttribute('aria-pressed', String(d)); });
+</script>
+</body>
+</html>
