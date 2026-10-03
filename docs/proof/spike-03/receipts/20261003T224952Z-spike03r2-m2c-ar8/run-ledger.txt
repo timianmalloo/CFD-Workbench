@@ -1,0 +1,17 @@
+gmsh: status=0 wall_s=20
+of-run: start 2026-10-03T22:50:13Z load1=3.20 record=verified lint=clean bundle=f3debe8b5541 cmd=gmshToFoam wing.msh
+of-run: end status=0 wall_s=7 load1=3.01 peak_rss_bytes=2848276480 banner=Disallowing cmd=gmshToFoam wing.msh
+of-run: start 2026-10-03T22:50:22Z load1=3.01 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh -allGeometry -allTopology
+of-run: end status=0 wall_s=17 load1=2.44 peak_rss_bytes=3340206080 banner=Disallowing cmd=checkMesh -allGeometry -allTopology
+of-run: start 2026-10-03T22:50:40Z load1=2.44 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh -constant -allGeometry -writeFields (cellDeterminant)
+of-run: end status=0 wall_s=6 load1=2.32 peak_rss_bytes=2029060096 banner=Disallowing cmd=checkMesh -constant -allGeometry -writeFields (cellDeterminant)
+of-run: start 2026-10-03T22:50:48Z load1=2.32 record=verified lint=clean bundle=f3debe8b5541 cmd=topoSet -constant -dict system/topoSetDict.det
+of-run: end status=0 wall_s=0 load1=2.29 peak_rss_bytes=574832640 banner=Disallowing cmd=topoSet -constant -dict system/topoSetDict.det
+of-run: start 2026-10-03T22:50:50Z load1=2.29 record=verified lint=clean bundle=f3debe8b5541 cmd=decomposePar -force
+of-run: end status=0 wall_s=4 load1=2.27 peak_rss_bytes=1939554304 banner=Disallowing cmd=decomposePar -force
+of-run: start 2026-10-03T22:50:56Z load1=2.27 record=verified lint=clean bundle=f3debe8b5541 cmd=mpirun -np 6 simpleFoam -parallel
+of-run: end status=0 wall_s=930 load1=17.27 peak_rss_bytes=933543936 banner=Disallowing cmd=mpirun -np 6 simpleFoam -parallel
+of-run: wait 2026-10-03T23:06:27Z load 17.27 > 10
+of-run: wait 2026-10-03T23:06:57Z load 11.34 > 10
+of-run: start 2026-10-03T23:07:29Z load1=9.58 record=verified lint=clean bundle=f3debe8b5541 cmd=reconstructPar -latestTime
+of-run: end status=0 wall_s=2 load1=11.22 peak_rss_bytes=1729085440 banner=Disallowing cmd=reconstructPar -latestTime

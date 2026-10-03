@@ -65,7 +65,9 @@
       "type": "object",
       "required": ["spike", "stage", "question"],
       "properties": {
-        "spike": { "enum": ["SPIKE-03", "SPIKE-04", "smoke"] },
+        "spike": { "enum": ["SPIKE-03", "SPIKE-04", "smoke", "security"] },
+        "round": { "type": "integer", "minimum": 1, "description": "Spike round (round 2: docs/plans/fluids-round2.md, Ruling 65). Absent = round 1." },
+        "run_id": { "type": "string", "description": "Run-list id from the round's plan (e.g. C-1, M-1a, S-2)." },
         "stage": { "type": "integer", "minimum": 0, "maximum": 2 },
         "question": { "type": "string" }
       }
@@ -93,7 +95,7 @@
       "type": "object",
       "required": ["generator", "settings"],
       "properties": {
-        "generator": { "enum": ["snappyHexMesh", "blockMesh", "plot3d-direct", "gmsh"] },
+        "generator": { "enum": ["snappyHexMesh", "blockMesh", "plot3d-direct", "gmsh", "product-structured"] },
         "settings": { "type": "object" },
         "target_y_plus": { "type": ["number", "null"] },
         "first_cell_height_m": { "type": ["number", "null"] },
@@ -110,7 +112,12 @@
           "properties": {
             "max_non_orthogonality_deg": { "type": "number" },
             "max_skewness": { "type": "number" },
-            "min_determinant": { "type": "number" }
+            "min_determinant": { "type": "number", "description": "ITTC 3x3 Jacobian determinant floor; structured meshes only (DR-F2-6)." },
+            "min_cell_determinant": { "type": "number", "description": "OpenFOAM cellDeterminant floor; 0.001 for OpenFOAM meshes (DR-F2-6)." },
+            "y_plus_p95_max": { "type": "number", "description": "DR-F2-3: area-weighted cell-centre y+ p95 on an A4-stationary field." },
+            "y_plus_max": { "type": "number" },
+            "min_layers_95pct": { "type": "integer", "description": "DR-F2-3: layers on at least 95 % of wing faces." },
+            "min_layers_100pct": { "type": "integer", "description": "DR-F2-3: layers on 100 % of wing faces." }
           }
         }
       }
@@ -148,7 +155,22 @@
       "properties": {
         "schemes": { "type": "object" },
         "max_iterations": { "type": "integer" },
-        "residual_criterion": { "type": "string" }
+        "residual_criterion": { "type": "string" },
+        "a4": {
+          "type": "object",
+          "description": "A4 iterative criterion (DR-F2-1): ITTC three-order residual drop + Cl/Cd stationarity band + clean nuTilda window.",
+          "required": ["residual_drop_orders", "window_iterations", "cl_half_band_cap", "cd_half_band_cap", "poll_every_iterations"],
+          "properties": {
+            "residual_drop_orders": { "type": "number" },
+            "window_iterations": { "type": "integer", "minimum": 2 },
+            "cl_half_band_cap": { "type": "number" },
+            "cd_half_band_cap": { "type": "number" },
+            "clean_window": { "type": "boolean" },
+            "poll_every_iterations": { "type": "integer", "minimum": 1 },
+            "gci_admission_ratio": { "type": "number" },
+            "stop_mechanism": { "type": "string" }
+          }
+        }
       }
     },
     "decomposition": {

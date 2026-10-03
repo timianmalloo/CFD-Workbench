@@ -1,0 +1,63 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : reconstructPar -latestTime
+Date   : Oct 03 2026
+Time   : 13:47:11
+Host   : <HOST>
+PID    : 27802
+I/O    : uncollated
+Case   : <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T204617Z-spike04r2-c1r2-l6
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+
+Reconstructing fields
+region=region0
+
+Time = 6375
+
+Reconstructing FV fields
+
+    Reconstructing volScalarFields
+
+        nuTilda
+        nut
+        p
+        yPlus
+
+    Reconstructing volVectorFields
+
+        U
+
+    Reconstructing surfaceScalarFields
+
+        phi
+
+Reconstructing point fields
+
+No point fields
+
+No lagrangian fields
+
+No finite-area fields
+
+
+End
+

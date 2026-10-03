@@ -1,0 +1,45 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : topoSet -constant -dict system/topoSetDict.det
+Date   : Oct 03 2026
+Time   : 15:12:47
+Host   : <HOST>
+PID    : 94144
+I/O    : uncollated
+Case   : <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T220222Z-spike03r2-m1a-ar8
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+Create polyMesh for time = constant
+
+Reading topoSetDict.det
+
+Time = constant
+    mesh not changed.
+Created cellSet detBelow0001
+    Applying source fieldToCell
+    Field min:3.7281555e-06 max:72.177925
+    Adding all cells with value of field cellDeterminant within range -1e+30..0.001
+    cellSet detBelow0001 now size 207710
+Created cellSet detBelow03
+    Applying source fieldToCell
+    Field min:3.7281555e-06 max:72.177925
+    Adding all cells with value of field cellDeterminant within range -1e+30..0.3
+    cellSet detBelow03 now size 1373518
+
+End
+

@@ -1,0 +1,32 @@
+17:nProcs : 6
+32:allowSystemOperations : Disallowing user-supplied system call operations
+84:Initial mesh : cells:120000  faces:367900  points:128061  unbalance:0.01
+389:--> FOAM Warning : 
+1105:--> FOAM Warning : 
+1177:--> FOAM Warning : 
+1249:--> FOAM Warning : 
+1321:--> FOAM Warning : 
+1393:--> FOAM Warning : 
+1465:--> FOAM Warning : 
+1537:--> FOAM Warning : 
+1675:--> FOAM Warning : 
+1826:--> FOAM Warning : 
+1977:--> FOAM Warning : 
+2128:--> FOAM Warning : 
+2279:--> FOAM Warning : 
+2430:--> FOAM Warning : 
+2581:--> FOAM Warning : 
+2745:--> FOAM Warning : 
+3094:wing 128238   20     8e-06     0.00149 
+3503:Mesh with layers : cells:2003209  faces:6231385  points:2228354  unbalance:0.44882137
+3506:              target   mesh     [m]       [%]
+3508:wing 128238   20       6.97     0.00107   71.5    
+8609:Mesh with layers : cells:2665004  faces:8237723  points:2911082  unbalance:0.58569443
+8612:              target   mesh     [m]       [%]
+8614:wing 128238   20       12.1     0.00131   87.6    
+11957:Mesh with layers : cells:2665312  faces:8238673  points:2911424  unbalance:0.58574231
+11960:              target   mesh     [m]       [%]
+11962:wing 128238   20       12.1     0.00131   87.6    
+11976:Layer mesh : cells:2665312  faces:8238673  points:2911424  unbalance:0.0065388217
+12001:Finished meshing with 322 illegal faces (concave, zero area or negative cell pyramid volume)
+12002:Finished meshing in = 409.36 s.

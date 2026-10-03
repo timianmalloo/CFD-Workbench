@@ -1,0 +1,95 @@
+== time.checkMesh
+        1.30 real         0.95 user         0.06 sys
+           627998720  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               46941  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 126  involuntary context switches
+         23552206997  instructions retired
+          4123856351  cycles elapsed
+           537035976  peak memory footprint
+== time.checkMesh-v2
+        1.33 real         0.96 user         0.07 sys
+           598425600  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               45190  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 119  involuntary context switches
+         23524486395  instructions retired
+          4175944032  cycles elapsed
+           507446448  peak memory footprint
+== time.decomposePar
+        1.11 real         0.72 user         0.74 sys
+           231047168  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               18730  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+               49037  involuntary context switches
+         17144208277  instructions retired
+          5411462160  cycles elapsed
+           186876840  peak memory footprint
+== time.reconstructPar
+        0.92 real         0.56 user         0.06 sys
+           334495744  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               24593  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 120  involuntary context switches
+         13867237369  instructions retired
+          2534111629  cycles elapsed
+           291570648  peak memory footprint
+== time.simpleFoam
+     3701.13 real     22174.67 user        31.90 sys
+           194838528  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              490328  page reclaims
+                 102  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                 228  messages sent
+                 444  messages received
+                   6  signals received
+                  79  voluntary context switches
+             1090764  involuntary context switches
+         32966590431  instructions retired
+         20945641316  cycles elapsed
+           178160960  peak memory footprint

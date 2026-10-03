@@ -1,0 +1,107 @@
+name: spike03r2-m2b-ar8
+description: >-
+  SPIKE-03 round 2, run M-2b, variant b of the Gmsh route after M-2a stopped in the 3-D mesher ("PLC Error: A segment and
+  a facet intersect", HXT): uniform 1.5 mm wing surface size (0.0125 c, as the Gmsh example's 0.01 c) and the Delaunay
+  3-D algorithm. Plan docs/plans/fluids-round2.md §3.3 L4, §3.5; Ruling 65 DR-F2-5: Gmsh admitted for
+  the probe only). AR 8 half wing, the round-2 analysis section (finite TE, rounded tip; "TE blunted for analysis"),
+  meshed by Gmsh 4.15.2: OCC wing, built-in-kernel boundary-layer extrusion along the surface-mesh normals (20 layers,
+  first 8 um, ER 1.2, prisms), tetrahedral core; gmshToFoam; gate per DR-F2-3 / DR-F2-6; a 500-iteration SA y+ screen.
+purpose:
+  spike: SPIKE-03
+  stage: 1
+  round: 2
+  run_id: M-2b
+  question: Does a Gmsh boundary-layer extrusion put 20 wall-resolved layers on 100 % of the AR 8 analysis wing, with a passing checkMesh and cellDeterminant >= 0.001?
+geometry:
+  airfoil: naca0012
+  chord: 0.12
+  span: 0.96
+  half_span: 0.48
+  aspect_ratio: 8.0
+  twist_deg: [0.0, 0.0]
+  te_thickness_m: 0.0005
+  te_method: >-
+    thicken, as M-1 (linear ramp x t_TE / c; S_ref unchanged), but the TE base is a half circle of diameter
+    t_TE (radius 0.25 mm; analysis chord c + 0.25 mm, +0.21 %), the treatment in Gmsh's own example
+    examples/api/naca_boundary_layer_3d.py; snappy's M-1 case has a flat base. Same assume: on 0.5 mm as M-1.
+  tip: round
+  tip_method: the tip section curves revolved 2 x 90 deg about the chord line at the half span (as the Gmsh example)
+  label: TE blunted for analysis; fully turbulent; transition not modelled
+  source:
+    kind: built-planform
+    path: wing.msh
+    sha256: 0f6cc52c45780a27a0d4e52960c2094b593ae26a016c5a5e3a6014232ae29d18
+    generator: cases/tools/mesh-gate-gmsh.sh cases/spike03r2-m2b-ar8.yaml 6 screen (make-wing-gmsh.py, Gmsh 4.15.2 Homebrew, /opt/homebrew/Cellar/gmsh/4.15.2)
+    deviation: >-
+      As M-1, plus: Gmsh frame (x chord, y thickness, z span, root on z = 0), round TE base instead of flat; the msh
+      sha256 is recorded in the run's generator.txt (Gmsh's HXT tetrahedral core is not asserted bitwise repeatable).
+conditions:
+  reynolds: 600000
+  mach: 0.0
+  alpha: 4.0
+  speed_m_s: 5.0
+  reference_length_m: 0.12
+solver: openfoam
+backend:
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  binary_sha256:
+    simpleFoam: a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296
+    gmshToFoam: c722aa805e83c47275ff3c8583fbdb68bda78f2ba359a4c658b7bbca412d21b3
+  activation: >-
+    Gmsh: its own process (nice 10, same load / join-lock wait). OpenFOAM: cases/tools/of-run.sh (env -i allow-list,
+    product HOME + FOAM_CONTROLDICT from cases/tools/foam-bundle, launcher record, lint, pre-flight, argv launch)
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: gmsh
+  target_y_plus: 1
+  first_cell_height_m: 8.0e-6
+  layers: { n: 20, expansion_ratio: 1.2 }
+  gate:
+    max_non_orthogonality_deg: 70
+    max_skewness: 4
+    min_cell_determinant: 0.001
+    min_layers_95pct: 20
+    min_layers_100pct: 10
+    y_plus_p95_max: 1
+    y_plus_max: 2
+  settings:
+    domain_m: { x: [-1.2, 2.64], thickness: [-1.2, 1.2], span_beyond_tip: 0.96 }
+    lc_le_m: 0.0015
+    lc_mid_m: 0.0015
+    lc_te_m: 0.0015
+    lc_near_m: 0.004
+    near_dist_m: 0.01
+    far_dist_m: 0.6
+    lc_far_m: 0.12
+    gmsh_threads: 6
+    algorithm_3d_id: 1
+    algorithm_3d: Delaunay (1)
+physics:
+  application: simpleFoam
+  flow: incompressible-steady
+  turbulence_model: SpalartAllmaras
+  wall_treatment: wall-resolved (nuTilda = 0, nut = 0 at the wall); W3
+  transition: none (fully turbulent; transition not modelled)
+  fluid: { name: "fresh water 20 C (nu rounded; ITTC Rev 03 = 1.0034e-6)", nu_m2_s: 1.0e-6, rho_kg_m3: 998.2 }
+  freestream: { U_m_s: 5.0, nuTilda_over_nu: 3.0 }
+boundary_conditions:
+  farfield: freestreamVelocity / freestreamPressure; nuTilda inletOutlet 3 nu
+  symmetry: symmetryPlane (z = 0, wing root, incl. the layer side faces there)
+  wing: noSlip; nuTilda 0; nut 0
+numerics:
+  schemes: { div_U: bounded Gauss linearUpwindV grad(U), div_nuTilda: bounded Gauss limitedLinear 1, laplacian: Gauss linear limited corrected 0.5 }
+  max_iterations: 500
+  residual_criterion: >-
+    none: the 500-iteration solve is a y+ screen (M-2y), not a convergence claim; the DR-F2-3 y+ gate needs an
+    A4-stationary field.
+decomposition: { method: scotch, n_subdomains: 6, nice: 10, max_load_1min: 10 }
+outputs_expected:
+  - generator.txt (layer prisms vs 20 x wing faces, msh sha256), log.gmshToFoam, log.checkMesh, log.checkMesh-det, log.topoSet-det
+  - yplus-area.txt (area-weighted y+ screen)
+  - time.<log> (peak RSS), time.gmsh
+run_dir: runs/20261003T224836Z-spike03r2-m2b-ar8
