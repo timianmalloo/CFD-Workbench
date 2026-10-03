@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T23:24:54Z",
+  "generated": "2026-10-03T23:35:36Z",
   "audit": [
     {
       "actor": null,
@@ -22894,6 +22894,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T23:23:54Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M421Z0R4NDMA0H5Q5P8QX77A",
+      "shortname": "join-desktop-split",
+      "datetime": "2026-10-03T23:35:36Z",
+      "session": "f19a2b12",
+      "prompt": "the join of perf/desktop-test-split into feature/ui-cad-direction",
+      "summary": "Split (Sonnet 5.5): three suites to --part=1/2,2/2 via the existing registration-index dispatch; partition guard unchanged; 546 Desktop PASS before and after, equal PARTITION counts. Longest single suite 46-62 s -> 34-47 s; wall not comparable under load 6-67 - measured at this join. Bound now by 8 slots + the serial pre-Spawn prefix. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T23:34:42Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [
