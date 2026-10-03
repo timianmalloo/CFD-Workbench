@@ -10,6 +10,7 @@ using Avalonia.Media;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
+using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop;
 
@@ -139,9 +140,40 @@ public sealed class View3d : Panel
         get => controller;
         set
         {
+            if (attached && controller is not null) controller.CameraChanged -= OnCameraChanged;
             controller = value;
+            if (attached && controller is not null) controller.CameraChanged += OnCameraChanged;
             Refresh();
         }
+    }
+
+    private bool attached;
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        attached = true;
+        if (controller is not null) controller.CameraChanged += OnCameraChanged;
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnDetachedFromVisualTree(e);
+        attached = false;
+        if (controller is not null) controller.CameraChanged -= OnCameraChanged;
+    }
+
+    // A camera write (wheel, key, pinch, preset, release) redraws this view alone; the shell's panes do not rebuild.
+    private void OnCameraChanged(SingleView view)
+    {
+        if (view != SingleView.ThreeD) return;
+        if (!Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+        {
+            Avalonia.Threading.Dispatcher.UIThread.Post(() => OnCameraChanged(view));
+            return;
+        }
+        Refresh();
+        LiveCameraChanged?.Invoke();
     }
 
     /// <summary>The renderer under this view; its frames feed <c>view.navigate.end</c>.</summary>
@@ -161,12 +193,15 @@ public sealed class View3d : Panel
     /// <summary>
     /// The camera the view shows: during a pointer orbit or pan, the live camera of the drag (committed to the
     /// controller once, at release); otherwise the controller's <see cref="WorkbenchController.Camera3d"/>. A drag frame
-    /// therefore redraws only the 3D view: every controller change also refreshes the shell's panes (≈ 25 ms measured,
-    /// <c>Readiness_OrbitFrameP95Under33Ms</c>), which a 33 ms orbit frame cannot afford.
+    /// therefore redraws only the 3D view (<c>Readiness_OrbitFrameP95Under33Ms</c>); a camera write raises
+    /// <see cref="WorkbenchController.CameraChanged"/>, never the pane-refreshing <c>Changed</c>.
     /// </summary>
     public ViewCamera? CurrentCamera => gesture?.Live ?? controller?.Camera3d;
 
-    /// <summary>Raised on each drag frame with a new <see cref="CurrentCamera"/>; the model area redraws and retitles the view.</summary>
+    /// <summary>
+    /// Raised whenever <see cref="CurrentCamera"/> changes: each drag frame and each controller camera write. The model
+    /// area redraws and retitles the view.
+    /// </summary>
     public event Action? LiveCameraChanged;
     private SurfaceView? Surface => controller?.Surface;
 
@@ -208,8 +243,7 @@ public sealed class View3d : Panel
     private void Navigate(ViewCamera? camera, bool announce)
     {
         if (camera is not { } next || controller is null) return;
-        controller.Camera3d = next;
-        Refresh();
+        controller.Camera3d = next;   // CameraChanged refreshes this view
         if (announce) this.FindAncestorOfType<ShellHost>()?.Report(new StatusReport("3D view: " + next.Title + "."));
     }
 

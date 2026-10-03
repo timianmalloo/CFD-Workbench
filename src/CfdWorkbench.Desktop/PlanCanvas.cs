@@ -8,6 +8,7 @@ using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
+using CfdWorkbench.Persistence;
 using System.Globalization;
 
 namespace CfdWorkbench.Desktop;
@@ -61,11 +62,29 @@ public sealed class PlanCanvas : Control
         get => controller;
         set
         {
-            if (attached && controller is not null) controller.Changed -= UpdatePlan;
+            if (attached && controller is not null) Unsubscribe(controller);
             controller = value;
-            if (attached && controller is not null) controller.Changed += UpdatePlan;
+            if (attached && controller is not null) Subscribe(controller);
             UpdatePlan();
         }
+    }
+
+    // A camera write redraws only this canvas; Changed (document, selection, status) redraws it with the panes.
+    private void Subscribe(WorkbenchController source)
+    {
+        source.Changed += UpdatePlan;
+        source.CameraChanged += OnCameraChanged;
+    }
+
+    private void Unsubscribe(WorkbenchController source)
+    {
+        source.Changed -= UpdatePlan;
+        source.CameraChanged -= OnCameraChanged;
+    }
+
+    private void OnCameraChanged(SingleView view)
+    {
+        if (view == SingleView.Plan) UpdatePlan();
     }
 
     public string? LastValueRequest { get; private set; }
@@ -111,13 +130,13 @@ public sealed class PlanCanvas : Control
         AttachedToVisualTree += (_, _) =>
         {
             attached = true;
-            if (controller is not null) controller.Changed += UpdatePlan;
+            if (controller is not null) Subscribe(controller);
             UpdatePlan();
         };
         DetachedFromVisualTree += (_, _) =>
         {
             attached = false;
-            if (controller is not null) controller.Changed -= UpdatePlan;
+            if (controller is not null) Unsubscribe(controller);
         };
         SizeChanged += (_, _) => UpdatePlan();
         PropertyChanged += (_, args) =>
@@ -243,7 +262,6 @@ public sealed class PlanCanvas : Control
             PanSpanPixels = pivot.X - Bounds.Width / 2 - (pivot.X - Bounds.Width / 2 - camera.PanSpanPixels) * actual,
             PanAftPixels = pivot.Y - FitTop - (pivot.Y - FitTop - camera.PanAftPixels) * actual
         };
-        UpdatePlan();
     }
 
     public void PanBy(double spanPixels, double aftPixels)
@@ -254,14 +272,12 @@ public sealed class PlanCanvas : Control
             PanSpanPixels = Controller.PlanCamera.PanSpanPixels + spanPixels,
             PanAftPixels = Controller.PlanCamera.PanAftPixels + aftPixels
         };
-        UpdatePlan();
     }
 
     public void Fit()
     {
         if (Controller is null) return;
         Controller.PlanCamera = new PlanCamera();
-        UpdatePlan();
     }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -420,11 +436,7 @@ public sealed class PlanCanvas : Control
     // A pan is a view change, never an undo step. Escape restores the camera the press started from.
     private void EndPan(bool cancel)
     {
-        if (panOrigin is { } origin && cancel && Controller is not null)
-        {
-            Controller.PlanCamera = origin;
-            UpdatePlan();
-        }
+        if (panOrigin is { } origin && cancel && Controller is not null) Controller.PlanCamera = origin;
         panOrigin = null;
         panning = false;
         InvalidateVisual();

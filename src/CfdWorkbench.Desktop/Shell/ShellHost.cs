@@ -477,8 +477,12 @@ public sealed class ShellHost : Grid
         else Dispatcher.UIThread.Post(RefreshPanes, DispatcherPriority.Background);
     }
 
+    /// <summary>How many times the panes were rebuilt (≈ 25 ms each); a camera-only change must leave it unchanged.</summary>
+    public long PaneRefreshes { get; private set; }
+
     public void RefreshPanes()
     {
+        PaneRefreshes++;
         Properties.Bind(Controller);
         Browser.Bind(Controller);
         ModelView.SectionEditor.Bind(Controller);
