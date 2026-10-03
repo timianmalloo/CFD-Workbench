@@ -23,6 +23,7 @@ summary: >-
   one chord basis, so point types are paired across the surfaces (DR-11, default); the other surface's shape is exact
   on Anchor creation and refitted within 10 µm, reported, on Anchor removal.
 review-suggested:
+  - { by: design-m12c-section-editor, on: 2026-10-03, reason: "M1.2c designs section point types per surface (Ruling 53 DR-11): Control->Anchor and Anchor->Control act on one surface; §6's paired default and its other-surface refit survive only as the OD-4 fallback. Profile tangent rows get a unit-free rule (horizontal/vertical exact, smooth/symmetric/angle within 1e-9 chord) and IsAnchor becomes degree-general." }
   - { by: adr-0001-master-curve-degree, on: 2026-09-30, reason: "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)." }
   - { by: design-m12b2-3d-elevations, on: 2026-09-30, reason: "M1.2b2 applies tangent rows to the dihedral, twist and thickness channels with a unit-free rule (ordinate deviation from the handle line within tau_c: 1 um, 1e-6 deg, 1e-8) instead of the 0.1 deg direction tolerance, which is meaningless in a metres x degrees plane (docs/design/m12b2-3d-elevations.md 3.6)." }
 ---

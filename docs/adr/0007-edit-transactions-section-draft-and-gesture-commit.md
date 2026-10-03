@@ -18,7 +18,8 @@ summary: >-
   changes, Replace, constructions); inner Undo pops a step, Cancel discards the draft, Finish applies it as exactly one
   accepted revision. A workspace point gesture (DR-6 default) is a draft opened at pointer-down and applied at release
   when certified. Catalog Replace (DR-4) reuses the as-built import fit as one draft step with its residual reported.
-review-suggested: []
+review-suggested:
+  - { by: design-m12c-section-editor, on: 2026-10-03, reason: "M1.2c names the section-draft step record (SectionStep), the receipt (rail section) and recovery (rail section), the mode state machine, and the contract-step deletion of the M1.1 single-vertex members (seam S-3)." }
 ---
 
 # ADR-0007: section draft, gesture commit and catalog Replace
@@ -103,3 +104,18 @@ workspace commits a point drag when it ends (DR-6 default).
 - **Negative:** the step list costs memory proportional to steps × source bytes (source ≤ 1 MiB, `application.md` §6);
   **`simplify:`** keep full byte copies; upgrade trigger: a measured draft over 64 MB.
 - **Follow-ups:** design-slice owns the step record shape and the Desktop mode state machine.
+
+## Amendment 1 (proposed 2026-10-03 by the M1.2c design-slice; pending Owner acceptance)
+
+- **Change:** decision 1 says a section Finish applies one accepted row "whose receipt carries the step count" and that
+  recovery records "N steps before recovery". **Both are struck.**
+- **Why:** this is the Data & Persistence ruling at the M1.2c gate (OI-12C-2), on the DM15 dead-weight shape.
+  - Nothing computes from a step count; the checker only validates it.
+  - After a resume from recovery the count would be undefined.
+  - The `section.finish` telemetry already answers "how many steps per Finish".
+- **Receipt:** `rail "section"`, with `VertexId` holding the profile name at Finish, and nothing more.
+- **Old builds:** they refuse it with `DOC-REFERENCE`, or with `DOC-SCHEMA` when a retained source carries a profile
+  row; the actual codes are observed in `docs/proof/m12c-old-build/`. The file is unchanged.
+- **Grain:** one accepted row is one Finish of a draft whose bytes differ from its base. A Finish whose bytes equal the
+  base adds no row.
+- **Reference:** `docs/design/m12c-section-editor.md` §3.3.

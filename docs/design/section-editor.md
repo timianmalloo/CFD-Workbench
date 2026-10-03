@@ -19,6 +19,7 @@ summary: >-
   named increments (M1.1a edit core, M1.1b construction operations and thickness proposals); the editor is
   called "full" only once both land.
 review-suggested:
+  - { by: design-m12c-section-editor, on: 2026-10-03, reason: "M1.2c restarts B6 as spike GSPK (x-overlay certificate, budget-derived tolerance) and replaces the dead M1.1 Section tab controls with the section editor mode; paired abscissae end when per-surface bases certify." }
   - { by: spec-cfd-workbench-v1, on: 2026-09-26, reason: "Spec 1.6 makes the CAD area CAD-first (v10): point types, typed Span/Root/Tip chord, Wing estimates (S/b, MAC), section editor mode, catalog Replace and My sections; supersedes CAD-05/07, UX-13/24, UI-26 and parts of DOC-01, CAD-04/08, UX-23, UI-25; DR-2, DR-4-8 open. Review dependent claims." }
   - { by: architecture-application, on: 2026-09-26, reason: "Spec 1.6 revision (§10 proposed): point types as knot multiplicity + FoilDSL 4.1 tangents (ADR-0005), driving dimensions/Wing estimates (ADR-0006), multi-step section draft and gesture commit (ADR-0007), catalog and My sections (ADR-0008), Dock/NativeMenu shell (ADR-0009); DR-9/10/11 raised." }
 ---

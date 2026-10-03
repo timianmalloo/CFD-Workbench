@@ -13,6 +13,7 @@ links:
   - {to: design-app-shell, rel: documents}
   - {to: design-m12b-points, rel: documents}
   - {to: design-m12b2-3d-elevations, rel: documents}
+  - {to: design-m12c-section-editor, rel: documents}
 review-by: 2027-03-23
 summary: >-
   Captures identifying source comments, names, local paths and retained recovery/history for the offline slice.
@@ -68,8 +69,9 @@ retains that distinction.
 | [design-application-foundation](../design/application-foundation.md) | Local documents · N-compliance | Retention/access depends on local device policy | Transfer: OS-user filesystem ACL; explicit residual shared-device access | No egress or credential use; no application-encryption claim |
 | [design-m12b-points](../design/m12b-points.md) | gesture and apply events (local ring) | D: disclosure through logs | mitigate | no ids, names or positions | in-memory ring of 256; gone at exit |
 | [design-m12b2-3d-elevations](../design/m12b2-3d-elevations.md) | view and gesture events (local ring) | D: disclosure through logs | mitigate | no ids, names or positions | in-memory ring of 256; gone at exit |
+| [design-m12c-section-editor](../design/m12c-section-editor.md) | section events (local ring) | D: disclosure through logs | mitigate | no profile names, ids or positions | in-memory ring of 256; gone at exit |
 
-<!-- rolled up from 5 artifact(s) by docs-graph.py rollup on 2026-09-30 -->
+<!-- rolled up from 6 artifact(s) by docs-graph.py rollup on 2026-10-03 -->
 
 
 ## Rights, telemetry and transfers

@@ -261,6 +261,11 @@ window.DOCS_INDEX = {
       "reviewBy": "none while accepted",
       "reviewSuggested": [
         {
+          "by": "design-m12c-section-editor",
+          "on": "2026-10-03",
+          "reason": "M1.2c designs section point types per surface (Ruling 53 DR-11): Control->Anchor and Anchor->Control act on one surface; §6's paired default and its other-surface refit survive only as the OD-4 fallback. Profile tangent rows get a unit-free rule (horizontal/vertical exact, smooth/symmetric/angle within 1e-9 chord) and IsAnchor becomes degree-general."
+        },
+        {
           "by": "adr-0001-master-curve-degree",
           "on": "2026-09-30",
           "reason": "Amendment 1 (DR-10, M1.2b design): channels hold 6-16 control vertices under FoilDSL 4.1 (6-10 under 4.0); old builds refuse most 4.1 files with DSL-SYNTAX or DOC-UNSUPPORTED-FIELD, not DSL-VERSION (ADR-0005's rollback claim at :127 is corrected in docs/design/m12b-points.md 3.8)."
@@ -315,7 +320,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1d9f2c0df1939f360835cc9c2295b61cb138cdcde86d2440a58d771b51df0c83"
+      "sourceSha256": "ae87d810f65bcd802df45cebcffcf372630154f94942752637da8b5b1d56602f"
     },
     {
       "id": "adr-0006-driving-dimensions",
@@ -382,7 +387,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "architecture — spec 1.6 (CAD-first)",
       "reviewBy": "none while accepted",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "design-m12c-section-editor",
+          "on": "2026-10-03",
+          "reason": "M1.2c names the section-draft step record (SectionStep), the receipt (rail section) and recovery (rail section), the mode state machine, and the contract-step deletion of the M1.1 single-vertex members (seam S-3)."
+        }
+      ],
       "summary": "The section editor holds one draft whose bytes advance through an ordered list of source-patch steps (moves, type changes, Replace, constructions); inner Undo pops a step, Cancel discards the draft, Finish applies it as exactly one accepted revision. A workspace point gesture (DR-6 default) is a draft opened at pointer-down and applied at release when certified. Catalog Replace (DR-4) reuses the as-built import fit as one draft step with its residual reported.",
       "tags": [
         "authoring-session",
@@ -418,7 +429,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a39569689b1578ae635f373b87d1913aec1d55cc28b7ff83bb965853992231b5"
+      "sourceSha256": "36c9a375de9b0f8127c907371bda425df2fd2d3f07f5927d5b0a3b765289a365"
     },
     {
       "id": "adr-0008-section-library",
@@ -1644,7 +1655,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "561e8a52afa1baabadf3fe1b1f30c07740764837f7c66d479c122d7689784fc5"
+      "sourceSha256": "9781b4f1569e6bf17cbaebd5392dbf980911e23b84bbcb0bdb210a8cd7040f5c"
     },
     {
       "id": "thick-client-shell",
@@ -1720,6 +1731,11 @@ window.DOCS_INDEX = {
       "phase": "design — M1.2a shell parts and M1.2e (spec 1.6)",
       "reviewBy": "2027-03-25",
       "reviewSuggested": [
+        {
+          "by": "design-m12c-section-editor",
+          "on": "2026-10-03",
+          "reason": "M1.2c OD-2 (pending operator): no Messages pane; blockers show at their source and in the status strip with one Show action; the role=log obligation of §11 is retired if ruled. Precision (⌘1/⌘2/⌘3) applies presets without memory (simplify; D4 owns memory). The Section document tab is removed: the editor is a model-area mode."
+        },
         {
           "by": "property-grid-rulings",
           "on": "2026-10-02",
@@ -1803,7 +1819,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2c0cca60978d2aa2d5865997344ca854aa4485e61d82c586ffa1fbed27880349"
+      "sourceSha256": "2025a43a0e812164a4f600b80a9a126aa7025921b2fee7bf6a6b3902225277af"
     },
     {
       "id": "design-application-contracts",
@@ -2075,6 +2091,11 @@ window.DOCS_INDEX = {
       "reviewBy": "2027-03-29",
       "reviewSuggested": [
         {
+          "by": "design-m12c-section-editor",
+          "on": "2026-10-03",
+          "reason": "M1.2c resolves §0.2's 'Messages pane' row (OD-2: no history list; DR-STATUS-1) and scopes Precision to a preset without memory (D4 owns workspace memory)."
+        },
+        {
           "by": "property-grid-rulings",
           "on": "2026-10-02",
           "reason": "DR-STATUS-1: reports render in a 24 px status strip at the bottom of the shell plus a transient warning toast; no scrollable message list sits in or docks to the bottom bar (V3 rejected). The M1.2c Messages pane (bottom panel, history of edit reports, role log) must not be a docked scrolling pane in the bottom bar; where history goes is open (docs/reviews/ui-status-bar.md D-4)."
@@ -2189,7 +2210,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5fb27d5217201b7c6cd435dd54736733f9f5803db1b27d77dba48cae183b6e10"
+      "sourceSha256": "b69b2485381f96091f9d61761ab23e26e77b4a0ba25de48732e1b66fb135310d"
     },
     {
       "id": "design-m12b2-3d-elevations",
@@ -2293,7 +2314,108 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d85dd8cd7abce385a74b79f514d6c0729a6af6275d85f72693388cf4a3cdcf9d"
+      "sourceSha256": "9046c65aa2bead150820831eb8d39d34fcee502dabf2226bead23ec9b9cead53"
+    },
+    {
+      "id": "design-m12c-section-editor",
+      "path": "docs/design/m12c-section-editor.md",
+      "title": "Design: M1.2c — section editor mode, per-surface section points, the Points pane and the Precision workspace",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — M1.2c (operator 2026-10-03, \"Start M1.2c next\")",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Detailed design of slice M1.2c. A station's section becomes editable as a CAD mode: Edit section (from Properties, the Plan, the Side view or the Browser) replaces the views with a 2D editor of the profile record, and every move, type change and construction is a step of one section draft (ADR-0007) that Finish commits as one undo step. Section points get Anchor/Control types per surface (DR-11), which needs the deferred B6 certificate restarted as a spike first; a paired fallback is pre-designed and tested. The slice also adds the Points pane and the Precision preset, resolves the planned Messages pane against DR-STATUS-1, and leaves four operator decisions open. Gate: four lenses, one repair cycle.",
+      "tags": [
+        "desktop",
+        "core",
+        "cad",
+        "section",
+        "profile",
+        "section-editor",
+        "point-types",
+        "anchor",
+        "b6",
+        "certificate",
+        "points-pane",
+        "precision",
+        "messages",
+        "m1.2c",
+        "dr-11"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "implements"
+        },
+        {
+          "to": "architecture-application",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0009-cad-first-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-section-editor",
+          "rel": "refines"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b2-3d-elevations",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "relates-to"
+        },
+        {
+          "to": "property-grid-rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-m12c-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-ui-status-bar",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0807f163de2b1ee77e1a3a21c9ac6d4034822d7867decb557523fa3b17c5d485"
     },
     {
       "id": "design-section-editor",
@@ -2305,6 +2427,11 @@ window.DOCS_INDEX = {
       "phase": "design",
       "reviewBy": "2026-12-25",
       "reviewSuggested": [
+        {
+          "by": "design-m12c-section-editor",
+          "on": "2026-10-03",
+          "reason": "M1.2c restarts B6 as spike GSPK (x-overlay certificate, budget-derived tolerance) and replaces the dead M1.1 Section tab controls with the section editor mode; paired abscissae end when per-surface bases certify."
+        },
         {
           "by": "spec-cfd-workbench-v1",
           "on": "2026-09-26",
@@ -2348,7 +2475,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "97b70ff221af3ffe6d67db18417d25d4e74b4e2d32d33d8c1dd5f5ec205c4044"
+      "sourceSha256": "1ead8948b387530146f2d8e8a522823c8d2213d4ed2228ccd1f361ef41a94c1e"
     },
     {
       "id": "design-visible-presentation",
@@ -2494,6 +2621,51 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "b2b840d46b3afa2999952d00632c99eb259678ce31954e21847461f4f6ee57c3"
+    },
+    {
+      "id": "mockup-m12c-section-editor",
+      "path": "docs/mockups/m12c-section-editor.md",
+      "title": "M1.2c section editor — editing a section from the Side view, the editor mode, and the four decisions",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator asked to edit sections (2026-10-03). This page draws three screens of today's 1280 × 800 shell for the Example foil: picking the Root station in the Side view; the section editor with upper point 4 made an anchor on the upper surface only (comb, pointer probe, readouts); and a Finish blocked by crossing surfaces. It then shows the four open decisions as side-by-side variants. All geometry, and every number printed, is computed in the page from section-a.",
+      "tags": [
+        "mockup",
+        "m12c",
+        "section-editor",
+        "point-types",
+        "points-pane",
+        "messages",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-m12b2-views",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-status-bar",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-property-grid",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3ae7588f9ac1e5bcbee34e3e39298b7702bd914e22905b2764ab8447abf5205e"
     },
     {
       "id": "mockup-property-grid",
@@ -3500,7 +3672,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fa70ed7ee864dbe2f0912a100f20d4f3cb21c40e822b86b1ef5f77a8f490edc7"
+      "sourceSha256": "8ed4234adfd0dd014eb1e205e1460e3aee29d9584711673f5405b69b90fdf03f"
     },
     {
       "id": "domain-experts",
@@ -6535,10 +6707,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-m12b2-3d-elevations",
           "rel": "documents"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8973f192bf4f3fd93dd1a79f4dedbc48c7eff815b809252181c0cf56b584bbb8"
+      "sourceSha256": "5f17b712cdfd29305300ec4280d178d5f052c37594611a4fe54ad9b655eb3129"
     },
     {
       "id": "coordination-application-c-launch",
@@ -8280,7 +8456,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d466fddc2b129ce54f29d9f56ec3e36dda24e58dddad09dc0851466b16be5e91"
+      "sourceSha256": "0166a2f2090401df8de20032ca2b18dd75ff2023410f1f3c7e6df8f6fb652261"
     },
     {
       "id": "review-ui-application-native",
@@ -8757,6 +8933,11 @@ window.DOCS_INDEX = {
       "reviewBy": "2027-03-26",
       "reviewSuggested": [
         {
+          "by": "design-m12c-section-editor",
+          "on": "2026-10-03",
+          "reason": "M1.2c OD-2/OD-3 (pending operator) may amend B1/UX-31: no Messages pane, and the Points pane's home in the right side bar; new copy COPY-172..183 proposed; tangent-kind angles are in the section's own chord coordinates."
+        },
+        {
           "by": "mockup-workbench-v3",
           "on": "2026-09-20",
           "reason": "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a."
@@ -8998,7 +9179,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "9a90b984d2667b3ebcfd329747e9d03d931c0fc2c1b5514d8a5d060f0c2812e2"
+      "sourceSha256": "b3d2b09d92ea72ef2e47447716876d701357f06dd70a6b4d5a4cd16736d60f0c"
     },
     {
       "id": "spec-foildsl",
@@ -9118,10 +9299,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-m12b2-3d-elevations",
           "rel": "documents"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "documents"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cd14639d50088abc46de5bea5930b5f67b9050680a65f3821b50ee60f2631e3a"
+      "sourceSha256": "4ae9d96b673895241a26d5286e3b3ee9a995120d424f3e1f03f75d0f415cca1b"
     }
   ],
   "surfaces": [
@@ -9293,6 +9478,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-m12b2-views"
     },
     {
+      "id": "surface-mockups-m12c-section-editor",
+      "path": "docs/mockups/m12c-section-editor.html",
+      "title": "M1.2c section editor",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-m12c-section-editor"
+    },
+    {
       "id": "surface-mockups-property-grid-cells",
       "path": "docs/mockups/property-grid-cells.html",
       "title": "Property sheet — three cell layouts",
@@ -9309,5 +9502,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "f55bc48fd51be8af825b30c0229435a7818c9537bebfaadc77b6d4e468e89c82"
+  "graphSha256": "c84f9aca6aba6e921ccbac2a2f1c681538fdc78569c5488a59244076e3be839d"
 };

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T14:25:53Z",
+  "generated": "2026-10-03T15:37:16Z",
   "audit": [
     {
       "actor": null,
@@ -22302,6 +22302,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T14:25:06Z",
       "duration_seconds": 47.0
+    },
+    {
+      "id": "al-01M416K56AKY54WN86C90H8P50",
+      "shortname": "design-slice-m12c-section-editor",
+      "datetime": "2026-10-03T15:37:16Z",
+      "session": "f19a2b12-m12c",
+      "prompt": "You are the design author for slice M1.2c (section editor mode) of CFD-Workbench (C#/.NET 10 + Avalonia hydrofoil design app). Worktree: /Users/mallalieut/projects/CFD-Workbench-design-m12c-section-editor (branch design/m12c-section-editor, base 4b9bc35 — main). No src/ or tests/ edits. Run the repo's design-slice workflow. The operator's intent (2026-10-03, after the native M1.2b2 look): \"I should be able to edit the sections\" — today sections are shown in Plan/3D/Side but not editable, and the M1.1 \"Section\" document tab's canvas raises VertexMoved/VertexSelected that nothing applies. The operator chose \"Start M1.2c next\". Produce (committed): 1. docs/design/m12c-section-editor.md — data model first (what a section edit changes in FoilDSL, per-surface point types/B6 restart decision, history/undo), contracts, editing from the Section mode and from the Side view, Points pane, the Messages question resolved against DR-STATUS-1, Precision workspace scope, change-surface list, failure modes, telemetry, test ledger by track, build tracks with exclusive file ownership reflecting the current code. 2. docs/mockups/m12c-section-editor.html (+ .md hub) — self-contained, current shell, editing a section from the Side view, the section editor mode with upper/lower surface points (control vs anchor, handles), Points pane, and the 2–3 operator decisions as side-by-side variants; geometry computed in JS from real section data. 3. Run the design-slice gate with Computational Geometry, Marine-CAD UX, Data & Persistence and Test Architect lenses; record the gate. 4. docs-graph derive, check-docs, audit entry, commit.",
+      "summary": "M1.2c design: section editor mode over one ADR-0007 section draft (steps, inner undo, Finish/Cancel); per-surface section point types (DR-11) gated on spike GSPK (x-overlay certificate against the admission proofs) with a tested paired fallback (SPTF); own and at-station readouts (LE radius, TE gap and wedge), comb, pointer probe; Points pane and Precision preset; no Messages pane proposed (DR-STATUS-1). Mockup computes section-a geometry in JS. Gate: 4 lenses, Test Architect hard veto cleared on re-review, 1 of 2 repair cycles. Four operator decisions OD-1..OD-4 open. 145 named tests.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/m12c-section-editor.md",
+        "docs/mockups/m12c-section-editor.html",
+        "docs/mockups/m12c-section-editor.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Commit the M1.2c section editor design, mockup and recorded gate",
+      "done_when": "check-docs passes and the commit sha exists",
+      "tier": "T2",
+      "fan_out": 4,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "started_at": "2026-10-03T14:40:35Z",
+      "duration_seconds": 3401.0
     }
   ],
   "changes": [
@@ -23002,6 +23032,28 @@ window.AUDIT_DATA = {
         "commits": []
       },
       "audit_ref": "al-01M3WMKZ224A6RMMMV1KSK5ZMY"
+    },
+    {
+      "id": "cl-01M416K5HXTFQAFHM970RMW6HS",
+      "datetime": "2026-10-03T15:37:16Z",
+      "session": "f19a2b12-m12c",
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "M1.2c section editor: one section draft per visit, per-surface point types behind a certificate spike, no Messages pane proposed",
+      "prompt": "You are the design author for slice M1.2c (section editor mode) of CFD-Workbench (C#/.NET 10 + Avalonia hydrofoil design app). Worktree: /Users/mallalieut/projects/CFD-Workbench-design-m12c-section-editor (branch design/m12c-section-editor, base 4b9bc35 — main). No src/ or tests/ edits. Run the repo's design-slice workflow. The operator's intent (2026-10-03, after the native M1.2b2 look): \"I should be able to edit the sections\" — today sections are shown in Plan/3D/Side but not editable, and the M1.1 \"Section\" document tab's canvas raises VertexMoved/VertexSelected that nothing applies. The operator chose \"Start M1.2c next\". Produce (committed): 1. docs/design/m12c-section-editor.md — data model first (what a section edit changes in FoilDSL, per-surface point types/B6 restart decision, history/undo), contracts, editing from the Section mode and from the Side view, Points pane, the Messages question resolved against DR-STATUS-1, Precision workspace scope, change-surface list, failure modes, telemetry, test ledger by track, build tracks with exclusive file ownership reflecting the current code. 2. docs/mockups/m12c-section-editor.html (+ .md hub) — self-contained, current shell, editing a section from the Side view, the section editor mode with upper/lower surface points (control vs anchor, handles), Points pane, and the 2–3 operator decisions as side-by-side variants; geometry computed in JS from real section data. 3. Run the design-slice gate with Computational Geometry, Marine-CAD UX, Data & Persistence and Test Architect lenses; record the gate. 4. docs-graph derive, check-docs, audit entry, commit.",
+      "summary": "Design docs/design/m12c-section-editor.md and mockup; ADR-0007 Amendment 1 proposed (no step count in the receipt); review-suggested flags on ADR-0005, ADR-0007, app-shell, m12b-points, section-editor, spec v1.",
+      "rationale": "The operator asked to edit sections; DR-11 requires the B6 restart, which failed twice in M1.1, so a spike with go criteria against the existing admission proofs decides per-surface vs the paired fallback before any type operation is written; the editor itself does not depend on it.",
+      "artifacts": [
+        "docs/design/m12c-section-editor.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "4b9bc357d3fc8fc7f81235efcd14e5832d6985c9",
+        "after": "4b9bc357d3fc8fc7f81235efcd14e5832d6985c9",
+        "branch": "design/m12c-section-editor",
+        "pushed": null,
+        "commits": []
+      }
     }
   ],
   "messages": []
