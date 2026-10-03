@@ -912,7 +912,7 @@ and claimed commit (HARNESS-SILENT-EXIT); two repair cycles, then stop (COORD-SP
 | D-2 | v10 draws Front with starboard on the right (a view from behind) | the true Front camera ("Front · looking aft"): starboard on the viewer's left, so the cube, the 3D preset and the elevation agree (FRAME-A); verified by the marine-CAD lens from the view vectors | only the camera direction and label change ("Back · looking forward") |
 | F-10 (spec owner) | A4.8 has no t/c nudge ladder | 0.01 / 0.1 / 1 % | a different ladder is one table row |
 | F-11 (spec owner) | §B1's assumption "Side = Starboard" is now built; CAD-04's "one row per authored station" is read as one overlaid outline per station | overlaid body plan; CAD-06's "F fit" is read as fit the selection, or everything when nothing is selected (⌘0 always fits everything) | stacked rows would change the Side band only; F as fit-all is one binding |
-| F-12 | `MainWindow.ThicknessReadout` refuses a non-constant t/c for want of a pointwise query (`MainWindow.axaml.cs`:1248-1256) | `Placement.Frame` supplies it; PNL switches the card if `MainWindow.axaml.cs` is free, else M1.2c | — |
+| F-12 | `MainWindow.ThicknessReadout` refuses a non-constant t/c for want of a pointwise query (`MainWindow.axaml.cs`:1248-1256) | `Placement.Frame` supplies it; PNL switches the card if `MainWindow.axaml.cs` is free, else M1.2c | **Retargeted (PNL, 2026-10-02, D-12):** the station card no longer exists — `MainWindow.axaml.cs` is 219 lines and holds no `ThicknessReadout`; Properties' Station group replaced it. The station's placed t/c is a `t/c` fact row in `PropertiesView.StationRows`, read pointwise from `Placement.Frame` through `PropertiesContext.Frame` |
 | F-13 (register) | Defect class **GEOM-AUTHORITY**: a display re-derives placement (v10 `draw3d` drops twist) | register entry with its controls (§9 rows 2–4) | — |
 | F-14 (M1.2b) | M1.2b's Smooth co-motion and Symmetric tolerance use a mixed-unit length only on channels whose axes differ; on rails both are metres | channels use §3.6; rails unchanged | seam SR-5 |
 | OI-6 | 3D vertex dragging; double-click a 3D edge to open its elevation | not in M1.2b2 | a gizmo design |
@@ -937,7 +937,7 @@ Return section required, two repair cycles, `tools/run-tests.sh` then
 | **VW1** controller, camera, renderer, layouts | Codex | `WorkbenchController.cs`, `Selection.cs`, `Shell/ShellEvents.cs`, `ViewCamera.cs` (new), `SurfaceRenderer.cs` (new), `ModelArea.axaml`(.cs), `Viewport.cs` (3D mode removal), `ControllerViewTests.cs`, `ViewCameraTests.cs` (new), the `--views` entry point | CH1; M1.2b **U1a**, **U1b**; SHELLFIX | 130 min (D3b 43 × 3) | VW1 names PASS; one render path |
 | **V3D** 3D view | Codex | `View3d.cs` (new, with the cube and peers), `View3dTests.cs` (new) | VW1 | 140 min (D3a 47 × 3) | V3D names PASS; three identical PASS sets |
 | **ELV** elevations | Codex | `ElevationView.cs` (new), `CurvePointLayer.cs` (new, extracted), `PlanCanvas.cs` (the extraction only), `ElevationTests.cs` (new) | VW1; M1.2b **U3** (PlanCanvas settled) | 140 min (D3a 47 × 3) | ELV names PASS; M1.2b's U1b names still PASS |
-| **PNL** panes and menus | Grok | `PropertiesView.cs`, `Panes/BrowserPane.axaml`(.cs), `Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs`, `ShellModelTests.cs` and `ShellWindowTests.cs` additions; `MainWindow.axaml.cs` only for F-12 | VW1; M1.2b **U2** | 135 min (P1 45 × 3) | PNL names PASS; UI-DEAD-CONTROL sweep green |
+| **PNL** panes and menus | Claude | `PropertiesView.cs`, `Panes/PropertiesPane.axaml.cs` (the typed-commit path: channel lookup, one unit table, channel handles; granted 2026-10-02 — the §14 list predated structure B, where the commit logic moved into the pane), `Panes/BrowserPane.axaml`(.cs), `Shell/CommandTable.cs` (with the `ViewCommands` runner), `Shell/NativeMenuBuilder.cs`, `Shell/ShellHost.cs` (channel points in the point commands and the strip item; view commands routed to the runner; DR-DEN-4 focus by place), `WorkbenchController.cs` (the committed-move report and `LastGestureClamped` only), `MainWindow.axaml.cs` (palette routing only; F-12 retargeted, D-12), `ShellModelTests.cs` and `PropertiesViewTests.cs` additions | VW1; M1.2b **U2** | 135 min (P1 45 × 3) | PNL names PASS; UI-DEAD-CONTROL sweep green |
 | **UXR** UX review and polish | Claude | `DESIGN.md` (after this design's rows), `Styles.axaml` (tokens), `docs/reviews/m12b2-native.md` (new), the three readiness checks in `tools/run-readiness.py` | V3D, ELV, PNL; M1.2b **U3** | 120 min (no same-class prior; Ruling 54: as written, measured time recorded) | a11y and marine-CAD re-review; every native row has an attach receipt |
 
 Order: {M1.2b B0} → PL0 → {M1.2b B1b} → CH1 → {M1.2b U1a, U1b} → VW1 → {V3D ∥ ELV ∥ PNL} (width ≤ 3; ELV also waits
@@ -966,6 +966,17 @@ measured priors suggest ≈ 3.7 h.
 - **D-10** Side has the nose on the right (CAD-06's Starboard camera); v10 `drawSide` draws it on the left.
 - **D-11** The probe is an overlay plate (as M1.2b's Plan), not CAD-08's strip under the views; it wraps and counts as
   an obscuring area.
+- **D-12 (PNL)** F-12 is retargeted to Properties' Station group (§13): a `t/c` fact row from `Placement.Frame`. The
+  approved mockup's station body lists From root, η, Chord and Section only; this row is the one addition.
+- **D-13 (PNL)** View ▸ Fit Selection (F) and View ▸ Pan (⇧-arrows / ⌥-arrows) show their keys in the palette, not as
+  menu-bar key equivalents: a native key equivalent is global, so a bare F, or ⇧-arrow, would fire in a text field
+  (2.1.4) and steal the elevations' 1 mm nudge. The keys stay bound on the view controls (V3D, ELV). `ParseGesture` now
+  refuses every unmodified key, as it already refused C.
+- **D-14 (PNL)** Display ▾ with the Plan as the target view sets the 3D view (the Plan has one display); Fit Selection
+  with the Plan as the target fits all (the Plan has no station camera). ⌘= / ⌘− / ⌘0 act on the model view that has
+  keyboard focus (DR-DEN-4); the menu verbs act on the target view.
+- **D-15 (PNL)** A channel point's Point group keeps the η fact under From root (§10.1, as on the rails); the mockup's
+  screen 3b body is abbreviated and shows Type, From root and Twist.
 
 ## Adversarial analysis (STRIDE-lite)
 

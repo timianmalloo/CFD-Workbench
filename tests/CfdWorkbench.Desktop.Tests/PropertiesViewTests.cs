@@ -953,6 +953,38 @@ public static class PropertiesViewTests
 
         ChannelRows();
         ShellModelTests.RunWindowed();
+        CaptureTwistRow();
+    }
+
+    /// <summary>
+    /// Review capture (CFDW_PNL_CAPTURE=&lt;dir&gt;): the approved mockup's screen 3b — One view: Side, twist point 5 of 7
+    /// moved by −0.25° to −1.00°, its Twist field focused — the Properties pane and the whole window. Off by default;
+    /// never part of the gate.
+    /// </summary>
+    private static void CaptureTwistRow()
+    {
+        if (Environment.GetEnvironmentVariable("CFDW_PNL_CAPTURE") is not { Length: > 0 } directory) return;
+        Directory.CreateDirectory(directory);
+        Pane("Capture_PnlTwistRow", (controller, host, window) =>
+        {
+            controller.Layout = ViewLayout.One(CfdWorkbench.Persistence.SingleView.Side);
+            var point = Channel(controller, "twist", 4);
+            MoveTo(controller, point, point.SpanMeters, -0.75);
+            MoveTo(controller, Reload(controller, point), point.SpanMeters, -1.0);
+            Select(controller, window, Reload(controller, point));
+            Need<TextBox>(host.Properties, "PointAftInput").Focus();
+            Settle(window);
+            Save(host.Properties, System.IO.Path.Combine(directory, "twist-row.png"));
+            Save(window, System.IO.Path.Combine(directory, "twist-row-window.png"));
+        });
+    }
+
+    private static void Save(Control control, string path)
+    {
+        var size = new PixelSize((int)control.Bounds.Width, (int)control.Bounds.Height);
+        using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size);
+        bitmap.Render(control);
+        bitmap.Save(path);
     }
 
     // ---------------- M1.2b2 PNL: channel rows, typed channel values, copy (docs/design/m12b2-3d-elevations.md §11.4) ----------------
