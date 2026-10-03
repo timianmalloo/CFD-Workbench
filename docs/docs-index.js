@@ -254,7 +254,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "389da04eeab984be0676a923975409a3a8f7e602d92debb9ab6dbc18e536ecf6"
+      "sourceSha256": "202d6f04eee8b3a949290dfa89ef3fec8dbb207b412ca8a071d25072d1eb3c73"
     },
     {
       "id": "adr-0005-point-types",
@@ -10470,5 +10470,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "123ae86be45828688db4f9dc4b208ed790a7dc66261d3471d06217487dc44b52"
+  "graphSha256": "e4b7f1df67f57b7484d6424c1e74f4c1b5ea08833f6e36ce79c008aeb703fcde"
 };
