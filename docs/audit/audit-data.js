@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T15:24:17Z",
+  "generated": "2026-10-03T15:37:30Z",
   "audit": [
     {
       "actor": null,
@@ -22326,6 +22326,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-03T15:23:28Z",
+      "duration_seconds": 49.0
+    },
+    {
+      "id": "al-01M416KJY9W0M2H491QFZMD2YY",
+      "shortname": "join-cube-picker",
+      "datetime": "2026-10-03T15:37:30Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/cube-home-oneview-picker into feature/ui-cad-direction",
+      "summary": "Cube track (Opus 5.5): Home (Iso) beside the cube and rotate arrows always shown on axis views (DR-VIEW-9); One-view label plate is a picker (DR-VIEW-10) led by Back to the previous layout (DR-VIEW-11); 3D caption kept clear of the navbar; operator checked natively. Accepted: read-only WorkbenchController.ArrangementBeforeOne. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T15:36:41Z",
       "duration_seconds": 49.0
     }
   ],
