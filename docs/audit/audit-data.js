@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T19:27:47Z",
+  "generated": "2026-10-03T20:18:46Z",
   "audit": [
     {
       "actor": null,
@@ -22769,6 +22769,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T19:27:04Z",
       "duration_seconds": 43.0
+    },
+    {
+      "id": "al-01M41PPM2GZQBPRPAK8R8214CK",
+      "shortname": "join-fluids-round2-plan",
+      "datetime": "2026-10-03T20:18:46Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/fluids-round2-plan into feature/ui-cad-direction",
+      "summary": "Round-2 plan (Opus 5.5, docs only): convergence = ITTC 3-order drop + Cl/Cd stationarity + clean nuTilda window (round 1 already met the 3-order drop); resolved wall y+ <= 1 with snappy and Gmsh probes; OpenFOAM cellDeterminant floor 0.001 not 0.3; solver env allow-list with product-owned controlDict, lint before checkMesh 'Disallowing' banner, 8 operator-run security probes. Run list ~190 min core (~4.1 h with waits). DR-F2-1..9 for the operator. Findings: ITTC Eq.10 ln vs log10 copied into the knowledge base (first-cell 2.9x thick); spec v2606 note stale. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T20:18:04Z",
+      "duration_seconds": 42.0
     }
   ],
   "changes": [
