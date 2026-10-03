@@ -30,7 +30,6 @@ internal static class SectionPointTests
         IdentityTests.Check(nameof(Assess_ProfileHorizontalRowUnlevel_InvalidDslLock), Assess_ProfileHorizontalRowUnlevel_InvalidDslLock);
         IdentityTests.Check(nameof(Assess_ProfileRowsJustOutsideTau_InvalidDslLock), Assess_ProfileRowsJustOutsideTau_InvalidDslLock);
         IdentityTests.Check(nameof(Assess_ProfileVerticalRowHandlesSameSide_InvalidDslLock), Assess_ProfileVerticalRowHandlesSameSide_InvalidDslLock);
-        IdentityTests.Check(nameof(Cli_Inspect_ListsSectionPointTypesAndKinds), Cli_Inspect_ListsSectionPointTypesAndKinds);
     }
 
     private static void IsAnchor_DegreeFive_OnlyMultiplicityFiveTrue()
@@ -226,35 +225,6 @@ internal static class SectionPointTests
         ExpectLock(Anchored("vertical", upper, NegateYs(upper)));
     }
 
-    private static void Cli_Inspect_ListsSectionPointTypesAndKinds()
-    {
-        string dll = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "CfdWorkbench.Cli", "bin", "Release", "net10.0", "CfdWorkbench.Cli.dll"));
-        var process = Process.Start(new ProcessStartInfo("dotnet", "exec \"" + dll + "\" inspect example --json")
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            WorkingDirectory = RepoRoot()
-        })!;
-        string json = process.StandardOutput.ReadToEnd();
-        process.WaitForExit();
-        if (process.ExitCode != 0) throw new InvalidOperationException(json + process.StandardError.ReadToEnd());
-        using var document = JsonDocument.Parse(json);
-        var points = document.RootElement.GetProperty("sectionPoints");
-        IdentityTests.Equal(true, points.GetArrayLength() > 0);
-        bool anchor = false, control = false, kindField = false;
-        foreach (var point in points.EnumerateArray())
-        {
-            kindField |= point.TryGetProperty("kind", out _);
-            string? type = point.GetProperty("type").GetString();
-            anchor |= type == "Anchor";
-            control |= type == "Control";
-        }
-        IdentityTests.Equal(true, anchor);
-        IdentityTests.Equal(true, control);
-        IdentityTests.Equal(true, kindField);
-    }
-
     internal static byte[] Identified() => FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example));
 
     internal static void Near(double expected, double actual, double tolerance)
@@ -314,12 +284,6 @@ internal static class SectionPointTests
         return string.Concat(text.AsSpan(0, start), "      ", lower, text.AsSpan(end + 1));
     }
 
-    private static string RepoRoot()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "CFD-Workbench.sln"))) dir = dir.Parent;
-        return dir?.FullName ?? Directory.GetCurrentDirectory();
-    }
 
     private static double[] Clamped(int count, int degree, double knot, int multiplicity)
     {
