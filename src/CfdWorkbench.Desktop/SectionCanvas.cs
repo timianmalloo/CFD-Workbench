@@ -33,6 +33,12 @@ public class SectionCanvas : Control
     public static readonly StyledProperty<IBrush?> FocusBrushProperty =
         AvaloniaProperty.Register<SectionCanvas, IBrush?>(nameof(FocusBrush));
 
+    public static readonly StyledProperty<IBrush?> DangerBrushProperty =
+        AvaloniaProperty.Register<SectionCanvas, IBrush?>(nameof(DangerBrush));
+
+    public static readonly StyledProperty<Point?> RefitMarkerProperty =
+        AvaloniaProperty.Register<SectionCanvas, Point?>(nameof(RefitMarker));
+
     public ProfileView? Profile
     {
         get => GetValue(ProfileProperty);
@@ -75,6 +81,19 @@ public class SectionCanvas : Control
         set => SetValue(FocusBrushProperty, value);
     }
 
+    public IBrush? DangerBrush
+    {
+        get => GetValue(DangerBrushProperty);
+        set => SetValue(DangerBrushProperty, value);
+    }
+
+    /// <summary>The refused refit's measured maximum in normalized chord coordinates.</summary>
+    public Point? RefitMarker
+    {
+        get => GetValue(RefitMarkerProperty);
+        set => SetValue(RefitMarkerProperty, value);
+    }
+
     public double Padding { get; set; } = 24.0;
 
     public event Action<string, string>? VertexSelected;
@@ -104,7 +123,9 @@ public class SectionCanvas : Control
                      args.Property == BackgroundBrushProperty ||
                      args.Property == FoilBrushProperty ||
                      args.Property == StationBrushProperty ||
-                     args.Property == FocusBrushProperty)
+                     args.Property == FocusBrushProperty ||
+                     args.Property == DangerBrushProperty ||
+                     args.Property == RefitMarkerProperty)
             {
                 InvalidateVisual();
             }
@@ -196,6 +217,13 @@ public class SectionCanvas : Control
             // 3. Draw vertices
             DrawSideVertices(context, Profile.Upper, stationBrush, focusBrush, viewportBrush);
             DrawSideVertices(context, Profile.Lower, stationBrush, focusBrush, viewportBrush);
+        }
+
+        if (RefitMarker is { } marker && (DangerBrush ?? ResolveThemeBrush("DangerBrush")) is { } danger)
+        {
+            var at = ModelToScreen(marker.X, marker.Y);
+            var pen = new Pen(danger, 2, new DashStyle([4, 3], 0));
+            context.DrawLine(pen, new Point(at.X, at.Y - 14), new Point(at.X, at.Y + 14));
         }
     }
 

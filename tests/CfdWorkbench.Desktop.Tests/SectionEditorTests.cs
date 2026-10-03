@@ -1,5 +1,7 @@
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Desktop;
@@ -23,6 +25,34 @@ public static class SectionEditorTests
 
     public static void Run()
     {
+        DesktopChecks.Check("SectionEditor_RefusedPairedRefit_MarkerAtMaximum", () =>
+        {
+            var profile = new CfdWorkbench.Core.ProfileView("test", "test",
+                [new("upper", "u0", 0, 0, true), new("upper", "u1", 1, 0, true)],
+                [new("lower", "l0", 0, 0, true), new("lower", "l1", 1, 0, true)],
+                [new(0, 0), new(1, 0)], [new(0, 0), new(1, 0)], "closed");
+            var canvas = new SectionCanvas
+            {
+                Profile = profile, Width = 800, Height = 400,
+                BackgroundBrush = Brushes.Black, FoilBrush = Brushes.White,
+                StationBrush = Brushes.Gray, DangerBrush = Brushes.Red,
+                RefitMarker = new Point(.47, -.07)
+            };
+            var window = new Window { Content = canvas, Width = 800, Height = 400 };
+            window.Show();
+            using var pixels = PropertiesCellsTests.Render(window, 1);
+            var local = canvas.ModelToScreen(.47, -.07);
+            var centre = canvas.TranslatePoint(local, window)!.Value;
+            int red = 0;
+            for (int y = (int)centre.Y - 7; y <= (int)centre.Y + 7; y++)
+                for (int x = (int)centre.X - 7; x <= (int)centre.X + 7; x++)
+                {
+                    var colour = pixels.At(x, y);
+                    if (colour.R > 160 && colour.G < 100 && colour.B < 100) red++;
+                }
+            window.Close();
+            if (red < 6) throw new Exception($"No red refusal marker at the reported position: {red} pixels");
+        });
         DesktopChecks.Check("SectionEditor_ReturnOnSelectedStation_ModeShown", () =>
         {
             using var controller = new WorkbenchController();

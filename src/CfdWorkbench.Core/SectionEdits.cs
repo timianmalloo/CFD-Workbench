@@ -167,6 +167,7 @@ internal static class SectionEdits
                 var error = new ContractError("DSL-CURVE", "refit " + microns.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)
                     + " µm exceeds 10 µm at the largest chord " + chord.ToString("G17", System.Globalization.CultureInfo.InvariantCulture) + " m");
                 error.Data["RefitMaximumChordX"] = maximumX;
+                error.Data["RefitAffectedSide"] = step.Side == SurfaceSide.Upper ? SurfaceSide.Lower : SurfaceSide.Upper;
                 throw error;
             }
             if (step.Side == SurfaceSide.Upper) lowerPoints = fitted;
