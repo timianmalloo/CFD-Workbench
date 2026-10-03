@@ -25,7 +25,7 @@ public enum GestureState { Idle, Pressed, Dragging, Nudging, Busy }
 public enum GestureInput { Pointer, Keyboard, Typed }
 public enum GestureEnd { Release, KeyUp, Escape, CaptureLost, FocusLost, Deactivated, Save, Close, Open, New }
 public enum NudgeModifier { Command, Plain, Shift }
-public enum EntryOrigin { Properties, Plan, Side, Browser, Palette }
+public enum EntryOrigin { Properties, Plan, Side, Browser, Palette, Recovery }
 
 /// <summary>One section visit. The draft's cursor bytes are the only preview source.</summary>
 public sealed record SectionMode(SectionDraftView Draft, byte[] BaseBytes, EntryOrigin Origin,
@@ -1897,6 +1897,18 @@ public sealed class WorkbenchController : IDisposable
         draft = session.Snapshot().Draft;
         draftInputValid = true;
         MarkSavedDraft(session.Snapshot());
+        if (session.CurrentSectionDraft() is { } sectionView)
+        {
+            Section = new SectionMode(sectionView, session.Snapshot().Source, EntryOrigin.Recovery);
+            interiorEta = Inspection!.Authored.Assignments[sectionView.Assignment].Eta;
+            Frame = acceptedFrame;
+            Provenance = "recovery section — accepted geometry shown";
+            Status = "Section recovery resumed. Inner undo starts here.";
+            var first = SectionCurve(SurfaceSide.Upper)!.Points[0];
+            Select(new Selection.Points([new PointRef("upper", first.Id, sectionView.Profile)]));
+            NotifySection();
+            return;
+        }
         interiorEta = Inspection?.Authored.Rails.Single(r => r.Name == draft!.Rail).Controls
             .Single(c => c.Id == draft!.VertexId).Eta ?? .5;
         Frame = acceptedFrame = null;

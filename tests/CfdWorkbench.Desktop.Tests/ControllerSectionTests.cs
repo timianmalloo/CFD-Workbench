@@ -33,6 +33,28 @@ public static class ControllerSectionTests
 
     public static void Run()
     {
+        DesktopChecks.Check("Controller_ResumeSectionRecovery_EntersSectionMode", () =>
+        {
+            using var source = new AuthoringSession();
+            source.Open(CfdWorkbench.Cli.Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), true);
+            var started = source.BeginSectionDraft(Guid.NewGuid().ToString("D"), 0);
+            var changed = source.ApplySectionStep(started.DraftId, started.Generation, new SectionStep.MakeUnique());
+            source.CaptureRecovery();
+            string path = Path.Combine(Directory.GetCurrentDirectory(), ".tmp-tests", $"section-recovery-{Guid.NewGuid():N}.cfdw.json");
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                File.WriteAllBytes(path, source.SaveImage());
+                using var controller = new WorkbenchController();
+                Wait(controller.OpenPathAsync(path));
+                controller.ResumeRecovery();
+                if (controller.Section?.Draft is not { Cursor: 0, StepCount: 0 } view ||
+                    view.Assignment != 0 || !view.Bytes.SequenceEqual(changed.Bytes))
+                    throw new Exception("Resume did not enter section mode on recovered cursor-zero bytes");
+            }
+            finally { File.Delete(path); }
+        });
+
         DesktopChecks.Check("SectionMode_GestureEnd_AppendsStepNotAcceptedRow", () =>
         {
             using var controller = Open();
