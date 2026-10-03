@@ -4350,6 +4350,49 @@ window.DOCS_INDEX = {
       "sourceSha256": "fea1a95fa83dafa9631a491ba7e99a607d3ab747ac241c939a509691158569f9"
     },
     {
+      "id": "plan-fluids-round2",
+      "path": "docs/plans/fluids-round2.md",
+      "title": "Fluids round 2 — convergence, meshing and security plan for SPIKE-03 / SPIKE-04",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "Round 2 plan, documents only. Convergence: judge the iterative part on ITTC's three-order residual drop plus a stated Cl/Cd stationarity band, run OpenFOAM simpleFoam SA with a TVD nuTilda scheme on TMR levels 6/5/4, and measure (not model) the compressibility delta; SU2 v8.5.0 (SA-neg, x86_64-only macOS binary) is a referee leg only on operator approval. Meshing: wall-resolved y+ <= 1 (the wall-function floor does not fit inside the boundary layer over most of the chord at Re_c 6e5), snappy with a finite trailing edge plus a Gmsh layer probe at AR 8, and the \"determinant > 0.3\" floor replaced (OpenFOAM's cellDeterminant is not the ITTC Jacobian measure). Security: pin a product-owned controlDict, prove refusal with an operator-run probe set. Core budget about 4.1 h wall.",
+      "tags": [
+        "plan",
+        "spike-03",
+        "spike-04",
+        "openfoam",
+        "su2",
+        "verification",
+        "meshing",
+        "security",
+        "backend"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-03",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-04",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4004b07bd7b6f18333cf5552df78e30841d9a229a391bc017f0d2de17a03bd81"
+    },
+    {
       "id": "plan-foil-editing-flow-results",
       "path": "docs/plans/foil-editing-flow-results.md",
       "title": "Editable foils and flow-result iteration plan",
@@ -10209,5 +10252,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "6edd14b61e0fcc3d74662c12229de04c9846545348bba3c8f7731fd563c5d7cc"
+  "graphSha256": "c9bc2ae3d8610fa104cf8771de3d2ab51beecb8b74adec2f8cda4127b253f4d9"
 };
