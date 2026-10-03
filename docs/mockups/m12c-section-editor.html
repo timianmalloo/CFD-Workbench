@@ -9,9 +9,10 @@
   edit the sections". Three screens of the 1280 x 800 shell (today's: structure-B Properties, the V2 status strip,
   DR-VIEW-1 frames and DR-VIEW-7 plates), then the four decisions as side-by-side variants.
   Geometry is COMPUTED here from src/CfdWorkbench.Desktop/Assets/example.foil: section-a's two degree-5 surfaces, a
-  Control -> Anchor conversion on the upper surface only (Boehm insertion to multiplicity 5, then the ADR-0005 shift),
-  a Horizontal tangent kind, per-side x inversion for thickness and crossing, Rule A for the placed section, and the
-  FoilDSL §6 placement for the views. Every number printed on this page is read from that computation (window.__measure).
+  PAIRED Control -> Anchor conversion (Ruling 60, ADR-0005 §6: Boehm insertion to multiplicity 5 and the ADR-0005 shift on
+  the selected surface; the same knots inserted in the other surface, shape exact), a Horizontal tangent kind on both
+  surfaces, a paired x move, a paired Anchor -> Control refit refused over 10 µm, per-side x inversion for thickness and
+  crossing, Rule A for the placed section, and the FoilDSL §6 placement for the views. Every number printed on this page is read from that computation (window.__measure).
   Display only; nothing is built from this page.
 -->
 <style>
@@ -24,7 +25,9 @@ html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45
 button{ font:inherit; color:inherit; }
 .top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
 .top h1{ margin:0; font-size:15px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
-.top button{ margin-left:auto; min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.top label{ margin-left:auto; display:flex; align-items:center; gap:6px; color:var(--mute); font-size:12px; }
+.top select{ min-height:28px; padding:0 6px; border:1px solid var(--control); border-radius:4px; background:var(--surface); color:var(--ink); font:inherit; }
+.top button{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
 main{ padding:16px 20px 40px; }
 section.screen{ margin:0 0 28px; }
 .screen h2, .decision h2{ margin:0 0 4px; font-size:14px; }
@@ -119,7 +122,11 @@ section.screen{ margin:0 0 28px; }
 .pts .pr + .pr{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
 .pts .pr .n{ color:var(--mute); } .pts .pr .x{ text-align:right; color:var(--accent); text-decoration:underline dotted; text-underline-offset:2px; }
 .pts .pr .x.ro{ color:var(--ink); text-decoration:none; }
-.pts .pr.on{ background:color-mix(in srgb, var(--accent) 14%, transparent); }
+.pts .pr.on{ background:color-mix(in srgb, var(--accent) 14%, transparent); box-shadow:inset 2px 0 0 var(--accent); }
+.pts .pr.pair{ background:color-mix(in srgb, var(--accent) 7%, transparent); box-shadow:inset 2px 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+.pts .pr .lk{ color:var(--accent); }
+.pts .pnote{ padding:3px 8px; color:var(--mute); border-bottom:1px solid var(--line); }
+.pairline{ display:flex; align-items:center; gap:6px; padding:3px 8px 4px; color:var(--accent); border-bottom:1px solid var(--line); }
 .msglist{ flex:1; overflow:hidden; } .msglist div{ padding:4px 8px; border-bottom:1px solid var(--line); } .msglist .t{ color:var(--mute); } .msglist a{ color:var(--accent); text-decoration:underline; }
 /* V2 status strip (DR-STATUS-1) */
 .sb{ flex:0 0 24px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); position:relative; }
@@ -136,7 +143,8 @@ section.screen{ margin:0 0 28px; }
 <body>
 <header class="top">
   <h1>M1.2c — edit a section, in today's shell</h1>
-  <p>Example foil · section-a · upper point 4 made an anchor on the upper surface only · computed, not hand-placed</p>
+  <p>Example foil · section-a · point 4 made an anchor on both surfaces (paired point types, Ruling 60) · computed, not hand-placed</p>
+  <label for="state">State <select id="state"></select></label>
   <button type="button" id="theme" aria-pressed="false">Dark theme</button>
 </header>
 <main id="screens"></main>
@@ -192,16 +200,12 @@ function thickness(up, lo){ let t = 0, xt = 0; for (let i = 1; i < 800; i++){ co
 function crossing(up, lo){ let a = null, b = null; for (let i = 1; i < 800; i++){ const x = i / 800; if (yOfX(up, x) <= yOfX(lo, x)){ if (a === null) a = x; b = x; } } return a === null ? null : [a, b]; }
 const UP0 = crv(K5, UPPER), LO0 = crv(K5, LOWER);
 const ANCH = makeAnchor(UP0, 3), UP1 = horizontal(ANCH.c, ANCH.ai);
-const LO2 = crv(K5, LOWER.map((q, i) => i === 5 ? [q[0], 0.08] : q.slice()));            // lower point 6 dragged up to 8 % chord
-const CROSS = crossing(UP1, LO2);
-const T0 = thickness(UP0, LO0), T1 = thickness(UP1, LO0);
+const T0 = thickness(UP0, LO0);
 const knotsHave = (c, k) => c.U.includes(k);
 const handleLen = (c, ai, k) => Math.hypot(c.P[ai + k][0] - c.P[ai][0], c.P[ai + k][1] - c.P[ai][1]);
 Object.assign(MEASURE, { anchorU: +ANCH.u.toFixed(6), upperPointsBefore: UP0.P.length, upperPointsAfter: UP1.P.length, lowerPoints: LO0.P.length,
   boehmShapeChange: ANCH.boehm, anchorShiftPctChord: +(ANCH.dy * 100).toFixed(3), largestChangePct: +(maxChange(UP0, ANCH.c) * 100).toFixed(2),
-  horizontalLargestChangePct: +(maxChange(UP0, UP1) * 100).toFixed(2), ownThicknessBefore: [+(T0.t * 100).toFixed(2), +(T0.x * 100).toFixed(1)],
-  ownThicknessAfter: [+(T1.t * 100).toFixed(2), +(T1.x * 100).toFixed(1)], crossingPct: CROSS && CROSS.map(v => +(v * 100).toFixed(1)),
-  lowerBytesUnchanged: JSON.stringify(LO0) === JSON.stringify(crv(K5, LOWER)) });
+  horizontalLargestChangePct: +(maxChange(UP0, UP1) * 100).toFixed(2), ownThicknessBefore: [+(T0.t * 100).toFixed(2), +(T0.x * 100).toFixed(1)] });
 // curvature from the analytic B-spline derivatives (derivative control points, Piegl–Tiller §3.3), never finite differences
 function derivOf(U, P, p){ const Q = []; for (let i = 0; i < P.length - 1; i++){ const d = U[i + p + 1] - U[i + 1]; Q.push(d ? [p * (P[i + 1][0] - P[i][0]) / d, p * (P[i + 1][1] - P[i][1]) / d] : [0, 0]); } return { U:U.slice(1, -1), P:Q, p:p - 1 }; }
 function kappa(c, u){ const d1 = derivOf(c.U, c.P, P5), d2 = derivOf(d1.U, d1.P, d1.p), a = deBoor(d1.p, d1.U, d1.P, u), b = deBoor(d2.p, d2.U, d2.P, u);
@@ -217,8 +221,60 @@ function teWedgeDeg(up, lo){ const n = up.P.length - 1, m = lo.P.length - 1, du 
 const KBREAK = [kappa(UP1, ANCH.u - 1e-9), kappa(UP1, ANCH.u + 1e-9)];             // one-sided curvature either side of the anchor
 // Anchor -> Control on the new anchor (multiplicity 5 -> 3, the two handles removed): its measured change
 const ANCH_BACK = (function(){ const ai = ANCH.ai, U = UP1.U.slice(), k = U.indexOf(ANCH.u); U.splice(k, 2); return crv(U, UP1.P.filter((_, i) => i !== ai - 1 && i !== ai + 1)); })();
-Object.assign(MEASURE, { leRadiusUpperPct:+(leRadius(UP1) * 100).toFixed(2), leRadiusLowerPct:+(leRadius(LO0) * 100).toFixed(2),
-  teWedgeDeg:+teWedgeDeg(UP1, LO0).toFixed(2), teGapPct:+((UP1.P[UP1.P.length - 1][1] - LO0.P[LO0.P.length - 1][1]) * 100).toFixed(2),
+// ================================================================ paired point types (Ruling 60; ADR-0005 §6; design §3.4 SPTF)
+// Control -> Anchor: the selected surface gets the ADR-0005 decision-5 step; the other surface gets the same knots by Boehm
+// (exact: the alphas depend only on the knots), so its vertex at u* becomes an anchor with its shape unchanged.
+const LO_K = (function(){ let d = LO0; for (let r = 0; r < P5; r++) d = insertOnce(d, ANCH.u); return d; })();
+const LO1 = horizontal(LO_K, ANCH.ai);                                                   // the kind applies to both surfaces
+const sameKnots = (a, b) => a.U.length === b.U.length && a.U.every((k, i) => k === b.U[i]);
+const sameX = (a, b) => a.P.length === b.P.length && a.P.every((q, i) => q[0] === b.P[i][0]);
+function maxDev(a, b, n){ let m = 0; for (let i = 0; i <= n; i++){ const p = at(a, i / n), q = at(b, i / n); m = Math.max(m, Math.hypot(p[0] - q[0], p[1] - q[1])); } return m; }
+const TP = thickness(UP1, LO1);
+Object.assign(MEASURE, { pairedKnotsEqual: sameKnots(UP1, LO1), pairedAbscissaeEqual: sameX(UP1, LO1), pairedLowerPoints: LO1.P.length,
+  pairedLowerBoehmChange: maxDev(LO0, LO_K, 400), pairedLowerIsAnchor: isAnchor(LO1, ANCH.ai),
+  pairedLowerHorizontalChangePct: +(maxChange(LO0, LO1) * 100).toFixed(3), ownThicknessAfter: [+(TP.t * 100).toFixed(2), +(TP.x * 100).toFixed(1)] });
+
+// paired x move: a control point well clear of the anchor moves in x on both surfaces (the abscissa stays shared)
+const XM = (function(){ const i = ANCH.ai + 3, to = 0.60;                                // the control point after the anchor's tail handle, typed to 60 %
+  const mv = c => crv(c.U, c.P.map((q, k) => k === i ? [to, q[1]] : q.slice()));
+  return { i, to, from:UP1.P[i][0], up:mv(UP1), lo:mv(LO1) }; })();
+const TX = thickness(XM.up, XM.lo);
+Object.assign(MEASURE, { xMoveIndex: XM.i, xMoveFromPct: +(XM.from * 100).toFixed(2), xMoveToPct: +(XM.up.P[XM.i][0] * 100).toFixed(2),
+  xMoveAbscissaeEqual: sameX(XM.up, XM.lo), xMoveMonotone: XM.up.P.every((q, k) => !k || q[0] >= XM.up.P[k - 1][0]),
+  xMoveChangePct: [+(maxChange(UP1, XM.up) * 100).toFixed(2), +(maxChange(LO1, XM.lo) * 100).toFixed(2)], xMoveOwnThickness: [+(TX.t * 100).toFixed(2), +(TX.x * 100).toFixed(1)] });
+
+// paired Anchor -> Control on the anchor: the upper surface loses its two handles (multiplicity 5 -> 3, ADR-0005 decision 5);
+// the shared x-mapping changes, so the LOWER surface is refitted on the new basis by least squares at equal x, with the nose
+// and trailing-edge vertices held (the neighbouring anchors). Its deviation is measured at equal x against 10 µm at the
+// largest local chord using the section (Root and Tip, both 120.00 mm in example.foil).
+function solve(A, b){ const n = b.length, M = A.map((r, i) => r.concat([b[i]]));
+  for (let c = 0; c < n; c++){ let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r; [M[c], M[p]] = [M[p], M[c]];
+    for (let r = 0; r < n; r++) if (r !== c){ const f = M[r][c] / M[c][c]; for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; } }
+  return M.map((r, i) => r[n] / r[i]); }
+const REFIT = (function(){
+  const U = ANCH_BACK.U, X = ANCH_BACK.P.map(q => q[0]), n = X.length, free = [];
+  for (let i = 1; i < n - 1; i++) free.push(i);
+  const xc = crv(U, X.map(x => [x, 0])), basis = u => X.map((_, j) => deBoor(P5, U, X.map((x, k) => [x, k === j ? 1 : 0]), u)[1]);
+  const fixedY = i => LO1.P[i === 0 ? 0 : LO1.P.length - 1][1], rows = [], rhs = [];
+  for (let s = 1; s < 400; s++){ const x = s / 400, u = uOfX(xc, x), N = basis(u); let r = yOfX(LO1, x);
+    [0, n - 1].forEach(i => { r -= N[i] * fixedY(i); }); rows.push(free.map(i => N[i])); rhs.push(r); }
+  const A = free.map((_, a) => free.map((_, b) => rows.reduce((s, row) => s + row[a] * row[b], 0))), b = free.map((_, a) => rows.reduce((s, row, k) => s + row[a] * rhs[k], 0));
+  const y = solve(A, b), P = X.map((x, i) => [x, i === 0 || i === n - 1 ? fixedY(i) : y[free.indexOf(i)]]), c = crv(U, P);
+  let dev = 0, xAt = 0; for (let s = 1; s < 2000; s++){ const x = s / 2000, d = Math.abs(yOfX(c, x) - yOfX(LO1, x)); if (d > dev){ dev = d; xAt = x; } }
+  return { c, dev, xAt }; })();
+const LIMIT_MM = 0.010, CHORDS = [['Root', 120], ['Tip', 120]], LIMIT_CHORD = Math.min(...CHORDS.map(c => c[1]));
+Object.assign(MEASURE, { refitLowerDevPct: +(REFIT.dev * 100).toFixed(4), refitLowerDevMm: +(REFIT.dev * LIMIT_CHORD).toFixed(4), refitAtPct: +(REFIT.xAt * 100).toFixed(1),
+  refitLimitMm: LIMIT_MM, refitLimitPct: +(LIMIT_MM / LIMIT_CHORD * 100).toFixed(4), refitRefused: REFIT.dev * LIMIT_CHORD > LIMIT_MM,
+  refitUpperChangePct: +(maxChange(UP1, ANCH_BACK) * 100).toFixed(2) });
+
+// the crossing screen under paired types: the lower vertex nearest 75 % chord (the approved show's "lower point 6") dragged to 10 % chord (a denser net needs a longer drag to cross)
+const XI = LO1.P.reduce((b, q, k) => Math.abs(q[0] - 0.75) < Math.abs(LO1.P[b][0] - 0.75) ? k : b, 0);
+const LO2 = crv(LO1.U, LO1.P.map((q, i) => i === XI ? [q[0], 0.10] : q.slice()));
+const CROSS = crossing(UP1, LO2);
+Object.assign(MEASURE, { crossIndex: XI, crossingPct: CROSS && CROSS.map(v => +(v * 100).toFixed(1)) });
+Object.assign(MEASURE, { curvatureBreakAtAnchorLower: [kappa(LO1, ANCH.u - 1e-9), kappa(LO1, ANCH.u + 1e-9)].map(v => +v.toFixed(3)) });
+Object.assign(MEASURE, { leRadiusUpperPct:+(leRadius(UP1) * 100).toFixed(2), leRadiusLowerPct:+(leRadius(LO1) * 100).toFixed(2),
+  teWedgeDeg:+teWedgeDeg(UP1, LO1).toFixed(2), teGapPct:+((UP1.P[UP1.P.length - 1][1] - LO1.P[LO1.P.length - 1][1]) * 100).toFixed(2),
   curvatureBreakAtAnchor:KBREAK.map(v => +v.toFixed(3)), anchorToControlPoints:ANCH_BACK.P.length, anchorToControlChangePct:+(maxChange(UP1, ANCH_BACK) * 100).toFixed(2) });
 
 // ================================================================ placement (Rule A, FoilDSL §6) for the views
@@ -235,7 +291,7 @@ function ringOf(up, lo){                                       // Rule A at equa
 function place(e, [x, z]){ const eta = Math.abs(e), phi = twist.at(eta) * RAD, D = dihedral.at(eta), c = Math.cos(phi), s = Math.sin(phi);
   return [LEAD + CHORD * (x * c + z * s), e * HALF, D + CHORD * (z * c - x * s)]; }
 function meshOf(ring){ const M = []; for (let i = 0; i <= 40; i++){ const e = -1 + i / 20; M.push(ring.map(p => place(e, p))); } return M; }
-const RING0 = ringOf(UP0, LO0), RING1 = ringOf(UP1, LO0), MESH0 = meshOf(RING0), MESH1 = meshOf(RING1);
+const RING0 = ringOf(UP0, LO0), RING1 = ringOf(UP1, LO1), MESH0 = meshOf(RING0), MESH1 = meshOf(RING1);
 // OD-1 C: raise RECORD upper point 4 by 0.5 % chord (0.6 mm at 120 mm); how far do the PLACED surfaces move at the root?
 (function(){ const up = crv(K5, UPPER.map((q, i) => i === 3 ? [q[0], q[1] + 0.005] : q.slice())), m0 = thickness(UP0, LO0).t, m1 = thickness(up, LO0).t, D = [];
   let at35 = null; for (let i = 1; i < 120; i++){ const x = i / 120, u0 = yOfX(UP0, x), l0 = yOfX(LO0, x), u1 = yOfX(up, x), l1 = l0;
@@ -280,17 +336,23 @@ function drawSection(g, w, h, o){
     const teeth = [];
     [o.up, o.lo].forEach(c => { const knots = [...new Set(c.U)].filter(k => k > 0 && k < 1);
       for (let i = 1; i < 400; i++){ const u = i / 400; if (knots.some(k => Math.abs(u - k) < 1e-6)) continue; teeth.push([c, u]); }
-      if (c === o.up && knots.includes(ANCH.u)){ teeth.push([c, ANCH.u - 1e-9, true]); teeth.push([c, ANCH.u + 1e-9, true]); } });
+      if (knots.includes(ANCH.u)){ teeth.push([c, ANCH.u - 1e-9, true]); teeth.push([c, ANCH.u + 1e-9, true]); } });
     const vals = teeth.map(([c, u]) => Math.abs(kappa(c, u))).sort((a, b) => a - b), p90 = vals[Math.floor(vals.length * 0.9)];
     const scale = 30 / p90, maxLen = 60; let clipped = 0;
     teeth.forEach(([c, u, brk]) => { const k = kappa(c, u), d1 = derivOf(c.U, c.P, P5), t = deBoor(d1.p, d1.U, d1.P, u), L = Math.hypot(t[0], t[1]), n = [-t[1] / L, t[0] / L];
       const q = at(c, u), A = S(q), len = Math.min(Math.abs(k) * scale, maxLen), dir = -Math.sign(k), B = [A[0] + dir * n[0] * len, A[1] - dir * n[1] * len];
       if (Math.abs(k) * scale > maxLen){ clipped++; line(g, [[B[0] - 2, B[1] - 2], [B[0] + 2, B[1] + 2]], C.mute, 1); }
       line(g, [A, B], brk ? C.station : 'rgba(175,198,199,0.5)', brk ? 2 : 1); });
-    if (knotsHave(o.up, ANCH.u)){ const ap = S(at(o.up, ANCH.u)); line(g, [[ap[0], ap[1] - 20], [ap[0], ap[1] + 20]], C.station, 2, [3, 2]); }
+    [o.up, o.lo].forEach(c => { if (knotsHave(c, ANCH.u)){ const ap = S(at(c, ANCH.u)); line(g, [[ap[0], ap[1] - 20], [ap[0], ap[1] + 20]], C.station, 2, [3, 2]); } });
     out.combClipped = clipped;
   }
   line(g, curvePts(o.up), C.foil, 2); line(g, curvePts(o.lo), C.foil, 2); crossMark();
+  if (o.moved) [o.up, o.lo].forEach(c => { const to = S(c.P[o.moved.i]), from = S([o.moved.from, c.P[o.moved.i][1]]);   // paired x move: ghost, arrow
+    g.save(); g.beginPath(); g.arc(from[0], from[1], 5.5, 0, 7); g.strokeStyle = C.mute; g.lineWidth = 1.5; g.setLineDash([2, 2]); g.stroke(); g.restore();
+    const d = Math.sign(to[0] - from[0]); line(g, [[from[0] + d * 8, from[1]], [to[0] - d * 9, to[1]]], C.station, 1.5);
+    line(g, [[to[0] - d * 15, to[1] - 4], [to[0] - d * 9, to[1]], [to[0] - d * 15, to[1] + 4]], C.station, 1.5); });
+  if (o.refuse){ const q = S([o.refuse.x, yOfX(o.lo, o.refuse.x)]); line(g, [[q[0], q[1] - 14], [q[0], q[1] + 14]], C.danger, 2, [4, 3]);
+    g.save(); g.font = '11px system-ui, sans-serif'; g.fillStyle = C.danger; g.fillText(o.refuse.label, q[0] - 40, q[1] + 46); g.restore(); }
   if (o.pointer !== undefined){ const p = S([o.pointer, yOfX(o.up, o.pointer)]), q = S([o.pointer, yOfX(o.lo, o.pointer)]); line(g, [[p[0], p[1] - 16], [q[0], q[1] + 16]], C.ink, 1, [2, 2]); }
   [['upper', o.up], ['lower', o.lo]].forEach(([side, c]) => {
     const active = o.sel ? o.sel.side === side : side === 'upper', R = roles(c), P = c.P.map(S);
@@ -300,6 +362,12 @@ function drawSection(g, w, h, o){
     R.forEach((r, i) => { if (side === 'lower' && r === 'nose') return; const sel = o.sel && o.sel.side === side && o.sel.i === i;
       glyph(g, P[i][0], P[i][1], r, sel, sel); out.pts.push({ side, i, r, x:P[i][0], y:P[i][1] }); });
   });
+  if (o.sel && o.partner){                                    // the pairing cue: the partner on the other surface, linked at the shared x
+    const a = out.pts.find(p => p.side === o.sel.side && p.i === o.sel.i), b = out.pts.find(p => p.side === o.partner.side && p.i === o.partner.i);
+    if (a && b){ line(g, [[a.x, a.y], [b.x, b.y]], C.station, 1, [2, 3]);
+      g.save(); g.beginPath(); g.arc(b.x, b.y, 10, 0, 7); g.strokeStyle = C.station; g.lineWidth = 1.5; g.setLineDash([3, 2]); g.stroke();
+      g.font = '11px system-ui, sans-serif'; g.fillStyle = C.station; g.fillText(`${o.partner.side} pt ${o.partner.i + 1} · paired`, b.x + 14, b.y + (b.y > a.y ? 16 : -10)); g.restore(); }
+    out.partnerPx = a && b ? +Math.abs(a.x - b.x).toFixed(3) : null; }
   const lab = (c, dy, t) => { const p = S(c.P[c.P.length - 1]); g.fillStyle = C.mute; g.fillText(t, Math.min(p[0] + 12, w - 44), p[1] + dy); };
   if (x1 >= 1) { lab(o.up, -10, 'Upper'); lab(o.lo, 18, 'Lower'); }
   out.pxPerPct = s / 100;
@@ -399,6 +467,8 @@ const IC = { station:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0V
 const r = (k, v, u, e = 0, cls = '') => `<div class="row${e ? ' e' : ''}${cls ? ' ' + cls : ''}"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${u}</span></div>`;
 const en = (k, v, cls = '') => `<div class="row e${cls ? ' ' + cls : ''}"><span class="k">${k}</span><span class="en">${v}</span></div>`;
 const pc = v => (v * 100).toFixed(2);
+const other = side => side === 'upper' ? 'lower' : 'upper';
+const pairline = (side, i) => `<div class="pairline">⇄ Paired with ${other(side)} point ${i + 1}. Type, kind and x are shared.</div>`;
 function wing(ro){ const e = ro ? 0 : 1; return `<div class="wing${ro ? ' ro' : ''}"><div class="gh">Wing</div>${r('Span', '900.00', 'mm', e)}${r('Root chord', '120.00', 'mm', e)}${r('Tip chord', '120.00', 'mm', e)}${ro ? '<div class="note">Set these in the workspace.</div>' : ''}<div class="defs">Estimates · definitions</div>${r('Max t/c', '≈ 12.0', '%')}${r('Area', '≈ 1080', 'cm²')}</div>`; }
 // Section group (Marine-CAD MC-12C-1): the section's own t/c and what each station builds, said as a consequence
 function sectionGroup(up, lo){ const t = thickness(up, lo);
@@ -408,18 +478,21 @@ function properties(kind){
   let body;
   if (kind === 'station') body = `<div class="ident">${IC.station}Root station</div><div class="grp"><div class="gh"><span class="tw">⌄</span>Station<span class="sum">section-a</span></div>${r('From root', '0.00', 'mm')}${r('η', '0.000', '')}${r('Chord', '120.00', 'mm', 1)}${r('t/c', '12.00', '%')}${r('Section', 'section-a', '')}<div class="link">Edit section…</div></div>`;
   else if (kind === 'anchor'){ const ai = ANCH.ai, c = UP1;
-    body = `<div class="ident">${IC.anchor}Upper surface · point ${ai + 1} of ${c.P.length}</div><div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${en('Type', 'Anchor point', 'focus')}${r('x', pc(c.P[ai][0]), '% c', 1)}${r('y', pc(c.P[ai][1]), '% c', 1)}</div>
-      <div class="grp"><div class="gh"><span class="tw">⌄</span>Tangent<span class="sum">Horizontal</span></div>${en('Kind', 'Horizontal')}<div class="sub">Handle toward the nose</div>${r('Angle', '180.00', '°', 1)}${r('Length', pc(handleLen(c, ai, -1)), '% c', 1)}<div class="sub">Handle toward the tail</div>${r('Angle', '0.00', '°', 1)}${r('Length', pc(handleLen(c, ai, 1)), '% c', 1)}<div class="note">Angles are in the section's own chord coordinates.</div></div>${sectionGroup(UP1, LO0)}`; }
-  else { body = `<div class="ident">${IC.ctrl}Lower surface · point 6 of ${LO2.P.length}</div><div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${en('Type', 'Control point')}<div class="note">A control point pulls the curve toward it. The curve does not pass through it.</div>${r('x', pc(LO2.P[5][0]), '% c', 1)}${r('y', pc(LO2.P[5][1]), '% c', 1, 'focus')}</div>${sectionGroup(UP1, LO2)}`; }
+    body = `<div class="ident">${IC.anchor}Upper surface · point ${ai + 1} of ${c.P.length}</div>${pairline('upper', ai)}<div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${en('Type · both surfaces', 'Anchor point', 'focus')}${r('x', pc(c.P[ai][0]), '% c', 1)}${r('y', pc(c.P[ai][1]), '% c', 1)}</div>
+      <div class="grp"><div class="gh"><span class="tw">⌄</span>Tangent<span class="sum">Horizontal</span></div>${en('Kind · both surfaces', 'Horizontal')}<div class="sub">Upper handle toward the nose</div>${r('Angle', '180.00', '°', 1)}${r('Length', pc(handleLen(c, ai, -1)), '% c', 1)}<div class="sub">Upper handle toward the tail</div>${r('Angle', '0.00', '°', 1)}${r('Length', pc(handleLen(c, ai, 1)), '% c', 1)}<div class="note">Angles are in the section's own chord coordinates.</div></div>${sectionGroup(UP1, LO1)}`; }
+  else if (kind === 'xmove'){ const i = XM.i, c = XM.up;
+    body = `<div class="ident">${IC.ctrl}Upper surface · point ${i + 1} of ${c.P.length}</div>${pairline('upper', i)}<div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${en('Type · both surfaces', 'Control point')}<div class="note">A control point pulls the curve toward it. The curve does not pass through it.</div>${r('x · both surfaces', pc(c.P[i][0]), '% c', 1, 'focus')}${r('y', pc(c.P[i][1]), '% c', 1)}</div>${sectionGroup(XM.up, XM.lo)}`; }
+  else { body = `<div class="ident">${IC.ctrl}Lower surface · point ${XI + 1} of ${LO2.P.length}</div>${pairline('lower', XI)}<div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${en('Type · both surfaces', 'Control point')}<div class="note">A control point pulls the curve toward it. The curve does not pass through it.</div>${r('x · both surfaces', pc(LO2.P[XI][0]), '% c', 1)}${r('y', pc(LO2.P[XI][1]), '% c', 1, 'focus')}</div>${sectionGroup(UP1, LO2)}`; }
   return `<div class="dock"><div class="tabs"><span class="on">Properties</span><span>Browser</span></div><div class="sel">${body}</div>${wing(kind !== 'station')}</div>`;
 }
 const NAMEOF = { nose:'Nose', nosehandle:'Handle', te:'TE', tehandle:'Handle', anchor:'Anchor', handle:'Handle', control:'Control' };
 // the Points pane lists the control net (vertices, not ordinates on the curve); Kind for anchors (MC-12C-12)
-function pointsRows(c, side, sel){ const R = roles(c); return R.map((role, i) => side === 'lower' && i === 0 ? '' :
-  `<div class="pr${sel && sel.side === side && sel.i === i ? ' on' : ''}"><span class="n">${i === 0 ? 'Nose' : i + 1}</span><span>${NAMEOF[role]}</span><span class="x${role === 'nose' ? ' ro' : ''}">${pc(c.P[i][0])}</span><span class="x${role === 'nose' ? ' ro' : ''}">${pc(c.P[i][1])}</span><span class="kd">${role === 'anchor' ? 'Horizontal' : role === 'nose' ? 'Vertical' : ''}</span></div>`).join(''); }
-function pointsPane(up, lo, sel, where){ return `<div class="pts"><div class="cn">Control net · degree 5</div><div class="ph"><span>Point</span><span>Type</span><span style="text-align:right">x % c</span><span style="text-align:right">y % c</span><span>Kind</span></div>
+function pointsRows(c, side, sel){ const R = roles(c); return R.map((role, i) => { if (side === 'lower' && i === 0) return '';
+  const on = sel && sel.side === side && sel.i === i, pair = sel && sel.side !== side && sel.i === i;
+  return `<div class="pr${on ? ' on' : pair ? ' pair' : ''}"><span class="n">${on || pair ? '<span class="lk">⇄</span> ' : ''}${i === 0 ? 'Nose' : i + 1}</span><span>${NAMEOF[role]}</span><span class="x${role === 'nose' ? ' ro' : ''}">${pc(c.P[i][0])}</span><span class="x${role === 'nose' ? ' ro' : ''}">${pc(c.P[i][1])}</span><span class="kd">${role === 'anchor' ? 'Horizontal' : role === 'nose' ? 'Vertical' : ''}</span></div>`; }).join(''); }
+function pointsPane(up, lo, sel, where){ return `<div class="pts"><div class="cn">Control net · degree 5</div><div class="pnote">Type and Kind apply to both surfaces. x is shared.</div><div class="ph"><span>Point</span><span>Type</span><span style="text-align:right">x % c</span><span style="text-align:right">y % c</span><span>Kind</span></div>
   <div class="gh"><span class="tw">⌄</span>Upper surface<span class="sum">${up.P.length}</span></div>${pointsRows(up, 'upper', sel)}<div class="gh"><span class="tw">⌄</span>Lower surface<span class="sum">${lo.P.length}</span></div>${pointsRows(lo, 'lower', sel)}</div>`; }
-function messagesPane(){ return `<div class="msglist"><div><span class="t">14:02</span> ⚠ Upper and lower surfaces cross at ${CROSS.map(v => Math.round(v * 100)).join('–')} % chord. <a>Show</a></div><div><span class="t">14:01</span> Moved lower point 6 by 11.00 % chord. <a>Show</a></div><div><span class="t">13:58</span> Upper point 4 is now an anchor. Upper surface 8 → 13 points; lower unchanged. <a>Show</a></div><div><span class="t">13:57</span> Selected Root station. <a>Show</a></div><div><span class="t">13:55</span> Opened example.foil.</div></div>`; }
+function messagesPane(){ return `<div class="msglist"><div><span class="t">14:02</span> ⚠ Upper and lower surfaces cross at ${CROSS.map(v => Math.round(v * 100)).join('–')} % chord. <a>Show</a></div><div><span class="t">14:01</span> Moved lower point ${XI + 1} by ${pc(LO2.P[XI][1] - LO1.P[XI][1])} % chord. <a>Show</a></div><div><span class="t">13:58</span> Point 4 is now an anchor on both surfaces. Upper 8 → 13 points, lower 8 → 13. <a>Show</a></div><div><span class="t">13:57</span> Selected Root station. <a>Show</a></div><div><span class="t">13:55</span> Opened example.foil.</div></div>`; }
 function modebar(blocked){ return `<div class="modebar"><span class="ttl">Editing <em>Root</em> section</span><span class="chip">Shared with Tip · <a>Make unique to Root</a></span><button type="button" aria-haspopup="menu">Section ▾</button><button type="button" aria-pressed="true">Curvature</button><button type="button" aria-pressed="false">Thickness ×2</button><span class="sp"></span><button type="button" class="btn">Cancel</button><button type="button" class="primary"${blocked ? ' aria-disabled="true" aria-describedby="why"' : ''}>Finish section</button></div>${blocked ? `<div class="why" id="why">⚠ Upper and lower surfaces cross. Move the point back to finish.</div>` : ''}`; }
 function stripHTML(){ return `<div class="strip">${[['Root', '0.00'], ['Tip', '450.00']].map(([n, d], i) => `<div class="thumb${i ? '' : ' on'}"><canvas data-k="thumb"></canvas><span><b>${n}</b><span>${d} mm</span></span><span class="m"><span>c 120.00 mm</span><span>t/c 12.00 %</span></span></div>`).join('')}</div>`; }
 function statusbar(o){ const warn = o.kind === 'warn';
@@ -438,23 +511,32 @@ function shell(o){
 }
 
 // ================================================================ screens and decisions
-const SEL_A = { side:'upper', i:ANCH.ai }, SEL_X = { side:'lower', i:5 };
-const S2 = { mode:'section', props:'anchor', sec:'secFit', right:'points', up:UP1, lo:LO0, sel:SEL_A,
-  status:{ text:`Upper point 4 is now an anchor (now point ${ANCH.ai + 1} of ${UP1.P.length}). Upper surface ${UP0.P.length} → ${UP1.P.length} points; lower unchanged. Largest change ${MEASURE.largestChangePct.toFixed(2)} % chord. Curvature now breaks at ${pc(UP1.P[ANCH.ai][0])} % chord.`, sel:`Upper · pt ${ANCH.ai + 1} of ${UP1.P.length}`, unit:'% chord' } };
+const SEL_A = { side:'upper', i:ANCH.ai }, SEL_X = { side:'lower', i:XI }, SEL_M = { side:'upper', i:XM.i };
+const PAIR = s => ({ side:other(s.side), i:s.i }), selItem = (s, n) => `${s.side === 'upper' ? 'Upper' : 'Lower'} · pt ${s.i + 1} of ${n} ⇄ ${other(s.side)}`;
+const S2 = { mode:'section', props:'anchor', sec:'secFit', right:'points', up:UP1, lo:LO1, sel:SEL_A,
+  status:{ text:`Point 4 is now an anchor on both surfaces (point ${ANCH.ai + 1} of ${UP1.P.length}; ${UP0.P.length} → ${UP1.P.length} points each). Largest change ${MEASURE.largestChangePct.toFixed(2)} % chord, upper; lower shape unchanged. Curvature now breaks at ${pc(UP1.P[ANCH.ai][0])} % chord.`, sel:selItem(SEL_A, UP1.P.length), unit:'% chord' } };
+const S2X = { mode:'section', props:'xmove', sec:'secMove', right:'points', up:XM.up, lo:XM.lo, sel:SEL_M,
+  status:{ text:`Moved point ${XM.i + 1} on both surfaces: x ${pc(XM.from)} → ${pc(XM.to)} % chord. Own t/c ${MEASURE.xMoveOwnThickness[0].toFixed(2)} %; Root stays 12.00 % t/c.`, sel:selItem(SEL_M, XM.up.P.length), unit:'% chord' } };
+const S2R = { mode:'section', props:'anchor', sec:'secRefuse', right:'points', up:UP1, lo:LO1, sel:SEL_A,
+  status:{ kind:'warn', text:`Point ${ANCH.ai + 1} stays an anchor. As a control point the lower surface would move ${(REFIT.dev * LIMIT_CHORD).toFixed(3)} mm, over the ${LIMIT_MM.toFixed(3)} mm limit at ${LIMIT_CHORD.toFixed(2)} mm chord. Nothing changed.`, action:'Show', sel:selItem(SEL_A, UP1.P.length), unit:'% chord' } };
 const S3 = { mode:'section', props:'cross', sec:'secCross', right:'points', up:UP1, lo:LO2, sel:SEL_X, blocked:true,
-  status:{ kind:'warn', text:'Upper and lower surfaces cross. Move the point back to finish.', action:'Show', sel:'Lower · pt 6 of 8', unit:'% chord' } };
+  status:{ kind:'warn', text:'Upper and lower surfaces cross. Move the point back to finish.', action:'Show', sel:selItem(SEL_X, LO2.P.length), unit:'% chord' } };
 const SCREENS = [
   { id:'s1', h:'1 · Side view → Edit section', o:{ mode:'views', layout:'quad', views:['plan', '3d', 'side', 'front'], on:'side', props:'station',
       status:{ text:'Selected Root station. Return or double-click the section to edit it.', sel:'Root station' } },
     what:'<b>Shows</b> Four views with the Root station picked in the Side view (3 px station outline, chip). Properties shows the Station group, ending in the link <b>Edit section…</b> (DR-CELL-5 solid underline). The three ways in: the link, Return with the station selected, or a double-click on the section in Side (also the station chip in the Plan, and the Browser). <b>Implements</b> design §0.1 steps 1–2, §5.2 <code>section.edit</code>, §11.3; CAD-20 entry.' },
-  { id:'s2', h:'2 · The section editor: upper point 4 made an anchor, Horizontal (OD-1 A, OD-3 B — chosen 2026-10-03)', o:S2,
-    what:`<b>Shows</b> the mode that replaces the views (CAD-20): the mode bar (title, scope chip, Section ▾, Curvature on, Thickness ×2 off, Cancel, <b>Finish section</b>), the canvas at 1:1 in the section's own chord coordinates after <b>Fit Selection</b> on the new anchor (dashed ghost: the entry shape of both surfaces; the comb with the break at the anchor, ${MEASURE.curvatureBreakAtAnchor.join(' → ')} per chord either side; the pointer probe at 42 % chord with what Root builds there), and the station strip with each station's chord and t/c. Upper point 4 (35 %, 6.5 %) became an anchor on the <b>upper surface only</b>: ${UP0.P.length} → ${UP1.P.length} points by Boehm insertion to multiplicity 5 (shape change before the shift ${MEASURE.boehmShapeChange.toExponential(1)}), then the ADR-0005 shift of ${MEASURE.anchorShiftPctChord.toFixed(2)} % chord so the curve passes through the point; the lower surface keeps its ${LO0.P.length} points (DR-11). Tangent <b>Horizontal</b> levels both handles. The section's own thickness went from ${MEASURE.ownThicknessBefore[0].toFixed(1)} % to ${MEASURE.ownThicknessAfter[0].toFixed(1)} %; the station's t/c stays 12.00 % (Thickness curve). Points pane in the right side bar. <b>Implements</b> §0.1 steps 3–4, §3.4, §11.1–11.4.` },
+  { id:'s2', h:'2 · The section editor: point 4 made an anchor on both surfaces, Horizontal (paired, Ruling 60; OD-1 A, OD-3 B — chosen 2026-10-03)', o:S2,
+    what:`<b>Shows</b> the mode that replaces the views (CAD-20): the mode bar (title, scope chip, Section ▾, Curvature on, Thickness ×2 off, Cancel, <b>Finish section</b>), the canvas at 1:1 in the section's own chord coordinates after <b>Fit Selection</b> on the new anchor (dashed ghost: the entry shape of both surfaces; the comb with the break at the anchor, ${MEASURE.curvatureBreakAtAnchor.join(' → ')} per chord either side; the pointer probe at 42 % chord with what Root builds there), and the station strip with each station's chord and t/c. Upper point 4 (35 %, 6.5 %) became an anchor on <b>both surfaces</b> (paired point types, Ruling 60): the upper surface goes ${UP0.P.length} → ${UP1.P.length} points by Boehm insertion to multiplicity 5 (shape change before the shift ${MEASURE.boehmShapeChange.toExponential(1)}), then the ADR-0005 shift of ${MEASURE.anchorShiftPctChord.toFixed(2)} % chord so the curve passes through the point; the lower surface gets the <b>same knots</b> (${LO0.P.length} → ${LO1.P.length} points, shape change ${MEASURE.pairedLowerBoehmChange.toExponential(1)}), so its point ${ANCH.ai + 1} is an anchor too. Selecting the upper anchor shows its <b>partner</b>: a dashed ring and a link at the shared x on the canvas, ⇄ rows in the Points pane, and "Paired with lower point ${ANCH.ai + 1}" in Properties. Tangent <b>Horizontal</b> is one control for both: it levels both surfaces' handles (lower change ${MEASURE.pairedLowerHorizontalChangePct.toFixed(3)} % chord), so the comb breaks at the anchor on both surfaces. The section's own thickness went from ${MEASURE.ownThicknessBefore[0].toFixed(1)} % to ${MEASURE.ownThicknessAfter[0].toFixed(1)} %; the station's t/c stays 12.00 % (Thickness curve). Points pane in the right side bar. <b>Implements</b> §0.1 steps 3–4, §3.4, §11.1–11.4.` },
+  { id:'s2x', h:`2b · A paired x move: point ${XM.i + 1} moves on both surfaces (new, Ruling 60)`, o:S2X,
+    what:`<b>Shows</b> upper point ${XM.i + 1} typed to x ${pc(XM.to)} % in Properties (x · both surfaces). Its partner, lower point ${XM.i + 1}, moves with it: both surfaces keep the same abscissa (${MEASURE.xMoveAbscissaeEqual ? 'equal on this page' : 'NOT equal'}). Dashed rings mark where the two points were (${pc(XM.from)} %), arrows show the move; the dashed ghost is the shape before the move. Each surface keeps its own y. Largest change: upper ${MEASURE.xMoveChangePct[0].toFixed(2)} %, lower ${MEASURE.xMoveChangePct[1].toFixed(2)} % chord. <b>Implements</b> design §3.4 fallback "x moves stay paired"; strip text is proposed copy (docs/reviews/ui-m12c-paired.md).` },
+  { id:'s2r', h:'2c · Anchor → Control refused: the lower refit is over 10 µm (new, Ruling 60)', o:S2R,
+    what:`<b>Shows</b> Type set to Control point on anchor ${ANCH.ai + 1}. The upper surface would lose its two handles (change ${MEASURE.refitUpperChangePct.toFixed(2)} % chord); the shared x-mapping changes, so the lower surface would be refitted on the new basis. Measured here by least squares at equal x, with the nose and trailing edge held: the lower surface would move <b>${(REFIT.dev * LIMIT_CHORD).toFixed(4)} mm</b> (${(REFIT.dev * 100).toFixed(4)} % chord) at ${(REFIT.xAt * 100).toFixed(1)} % chord, over the <b>${LIMIT_MM.toFixed(3)} mm</b> limit (${(LIMIT_MM / LIMIT_CHORD * 100).toFixed(4)} % chord) at ${LIMIT_CHORD.toFixed(2)} mm, the largest chord using this section (Root and Tip are both 120.00 mm in example.foil). The step is refused: nothing changes, the strip says so with both numbers, and <b>Show</b> frames the red marker where the lower surface would move most. <b>Implements</b> design §3.4 fallback; failure-mode row <code>SectionEdits_PairedAnchorToControlRefitOverLimit_Refused</code>; strip text is proposed copy.` },
   { id:'s3', h:'3 · Finish blocked: the surfaces cross (OD-2 A — chosen 2026-10-03)', o:S3,
-    what:`<b>Shows</b> lower point 6 dragged up from −3.00 % to 8.00 % chord (full chord view). The surfaces cross between ${CROSS.map(v => (v * 100).toFixed(1)).join(' and ')} % chord (computed per side by x inversion): red dashed marker on both curves, <b>Finish section</b> off with its reason tied to it (UI-43), and the status strip with the same warning and one <b>Show</b> action that frames the crossing. No list, no history: ⌘Z undoes the step. <b>Implements</b> §0.1 step 5, §9 crossing rows, CAD-20, COPY-123.` } ];
+    what:`<b>Shows</b> lower point ${XI + 1} dragged up from ${f2(LO1.P[XI][1] * 100)} % to ${pc(LO2.P[XI][1])} % chord (full chord view; with paired types the lower surface has ${LO2.P.length} points, so a longer drag is needed to cross). Its upper partner is linked. The surfaces cross between ${CROSS.map(v => (v * 100).toFixed(1)).join(' and ')} % chord (computed per side by x inversion): red dashed marker on both curves, <b>Finish section</b> off with its reason tied to it (UI-43), and the status strip with the same warning and one <b>Show</b> action that frames the crossing. No list, no history: ⌘Z undoes the step. <b>Implements</b> §0.1 step 5, §9 crossing rows, CAD-20, COPY-123.` } ];
 const DECISIONS = [
   { id:'od1', h:'OD-1 · How is a section edited from the Side view?', what:'The Side view draws the <b>placed</b> section (twist, chord, and t/c from the Thickness curve). The editor edits the <b>record</b> (the profile in chord coordinates).',
     cards:[ { rec:true, h:'A · Open the editor in the model area', p:'Side selects; Return, double-click or Edit section… opens the mode in place of the views (CAD-20). Most room for precision work; one canvas.', o:S2 },
-      { h:'B · Open the editor in the Side slot', p:'The editor takes the Side view\'s place in Four views; Plan, 3D and Front stay and redraw from the draft after each step (computed here from the edited section). A quarter of the area; three views re-placed per step.', o:{ mode:'sideslot', props:'anchor', sec:'secSlot', up:UP1, lo:LO0, sel:SEL_A, status:S2.status } },
+      { h:'B · Open the editor in the Side slot', p:'The editor takes the Side view\'s place in Four views; Plan, 3D and Front stay and redraw from the draft after each step (computed here from the edited section). A quarter of the area; three views re-placed per step.', o:{ mode:'sideslot', props:'anchor', sec:'secSlot', up:UP1, lo:LO1, sel:SEL_A, status:S2.status } },
       { text:true, h:'C · Drag points on the placed Side section', p:'Not chosen · kept as the record. A record point does not map to one placed point.' } ] },
   { id:'od2', h:'OD-2 · Messages — where do blockers and past reports go? (DR-STATUS-1: no scrolling list in or docked to the bottom bar)', what:'The spec\'s Messages pane is "anything that stops Finish or Save, each with Show". In this slice a section has a handful of blockers at most.',
     cards:[ { rec:true, h:'A · No Messages pane; Show in the strip', p:'Each blocker shows where it blocks (Finish reason, canvas marker) and in the strip with one Show action. No history; ⌘Z is the history. Smallest build; the strip\'s action slot exists.', o:S3 },
@@ -469,27 +551,29 @@ const DECISIONS = [
 const DRAW = {
   plan:(g, w, h) => drawPlan(g, w, h), '3d':(g, w, h) => draw3D(g, w, h, MESH0), side:(g, w, h) => drawSide(g, w, h, RING0), front:(g, w, h) => drawFront(g, w, h, RING0),
   '3dDraft':(g, w, h) => draw3D(g, w, h, MESH1), frontDraft:(g, w, h) => drawFront(g, w, h, RING1),
-  secFit:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO0, sel:SEL_A, view:[0.2, 0.58], ghost:[UP0, LO0], comb:true, pointer:0.42 }); MEASURE.fitSelectionNeighbourPx = +gapAround(o.pts, 'upper', ANCH.ai).toFixed(1); return o; },
-  secCross:(g, w, h) => drawSection(g, w, h, { up:UP1, lo:LO2, sel:SEL_X, cross:CROSS, ghost:[UP0, LO0], comb:true, pointer:0.8 }),
-  secSlot:(g, w, h) => drawSection(g, w, h, { up:UP1, lo:LO0, sel:SEL_A, comb:true }),
-  secFullA:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO0, sel:SEL_A, comb:true }); MEASURE.odA = +o.pxPerPct.toFixed(2); MEASURE.fullChordNeighbourPx = +gapAround(o.pts, 'upper', ANCH.ai).toFixed(1); },
-  secFullB:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO0, sel:SEL_A, comb:true }); MEASURE.odB = +o.pxPerPct.toFixed(2); MEASURE.fullChordNeighbourPxB = +gapAround(o.pts, 'upper', ANCH.ai).toFixed(1); },
-  secFullC:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO0, sel:SEL_A, comb:true }); MEASURE.odC = +o.pxPerPct.toFixed(2); },
-  secFullD:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO0, sel:SEL_A, comb:true }); MEASURE.odD = +o.pxPerPct.toFixed(2); },
-  thumb:(g, w, h) => thumbDraw(g, w, h, UP1, LO0), delta:(g, w, h) => drawDelta(g, w, h) };
+  secFit:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO1, sel:SEL_A, partner:PAIR(SEL_A), view:[0.2, 0.58], ghost:[UP0, LO0], comb:true, pointer:0.42 }); MEASURE.fitSelectionNeighbourPx = +gapAround(o.pts, 'upper', ANCH.ai).toFixed(1); MEASURE.partnerDxPx = o.partnerPx; return o; },
+  secMove:(g, w, h) => { const o = drawSection(g, w, h, { up:XM.up, lo:XM.lo, sel:SEL_M, partner:PAIR(SEL_M), view:[0.4, 0.86], ghost:[UP1, LO1], moved:{ i:XM.i, from:XM.from }, comb:true }); MEASURE.xMovePartnerDxPx = o.partnerPx; return o; },
+  secRefuse:(g, w, h) => drawSection(g, w, h, { up:UP1, lo:LO1, sel:SEL_A, partner:PAIR(SEL_A), view:[0.2, 0.58], comb:true, refuse:{ x:REFIT.xAt, label:`lower would move ${(REFIT.dev * LIMIT_CHORD).toFixed(3)} mm here (limit ${LIMIT_MM.toFixed(3)} mm)` } }),
+  secCross:(g, w, h) => drawSection(g, w, h, { up:UP1, lo:LO2, sel:SEL_X, partner:PAIR(SEL_X), cross:CROSS, ghost:[UP0, LO0], comb:true, pointer:0.8 }),
+  secSlot:(g, w, h) => drawSection(g, w, h, { up:UP1, lo:LO1, sel:SEL_A, partner:PAIR(SEL_A), comb:true }),
+  secFullA:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO1, sel:SEL_A, partner:PAIR(SEL_A), comb:true }); MEASURE.odA = +o.pxPerPct.toFixed(2); MEASURE.fullChordNeighbourPx = +gapAround(o.pts, 'upper', ANCH.ai).toFixed(1); },
+  secFullB:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO1, sel:SEL_A, partner:PAIR(SEL_A), comb:true }); MEASURE.odB = +o.pxPerPct.toFixed(2); MEASURE.fullChordNeighbourPxB = +gapAround(o.pts, 'upper', ANCH.ai).toFixed(1); },
+  secFullC:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO1, sel:SEL_A, partner:PAIR(SEL_A), comb:true }); MEASURE.odC = +o.pxPerPct.toFixed(2); },
+  secFullD:(g, w, h) => { const o = drawSection(g, w, h, { up:UP1, lo:LO1, sel:SEL_A, partner:PAIR(SEL_A), comb:true }); MEASURE.odD = +o.pxPerPct.toFixed(2); },
+  thumb:(g, w, h) => thumbDraw(g, w, h, UP1, LO1), delta:(g, w, h) => drawDelta(g, w, h) };
 // the Tracing probe at the pointer (Sections.Probe): record values, local thickness, and what the station builds there
 function probeText(up, lo, x){ const u = yOfX(up, x), l = yOfX(lo, x), own = thickness(up, lo).t, placedMm = (u - l) / own * TC * CHORD;
   return `Display · pointer x ${pc(x)} % · upper ${pc(u)} % · lower ${pc(l)} % · t here ${pc(u - l)} % · at Root ${placedMm.toFixed(2)} mm (12.00 % t/c)`; }
-const PLATES = { secFit:probeText(UP1, LO0, 0.42), secCross:probeText(UP1, LO2, 0.8) + ' · crossing ' + CROSS.map(v => Math.round(v * 100)).join('–') + ' %' };
+const PLATES = { secFit:probeText(UP1, LO1, 0.42), secCross:probeText(UP1, LO2, 0.8) + ' · crossing ' + CROSS.map(v => Math.round(v * 100)).join('–') + ' %' };
 function od4HTML(){ return `<div class="textcard" style="height:auto;width:1296px"><p><b>a · Ship with paired point types</b> <span class="rec" style="display:inline-block;padding:0 6px;border-radius:3px;background:var(--accent);color:var(--on-accent);font-weight:600">Chosen · operator 2026-10-03</span> — an anchor on one surface also inserts the same knots in the other surface (shape exact; that surface gains points of its own type). This certifies today (ADR-0005 §6). Everything else in M1.2c (the editor, the draft, Finish/Cancel, moves, constructions, the Points pane) does not depend on the certificate. DR-11 comes back to you with the measured numbers.</p>
   <p style="margin-top:8px;color:var(--mute)"><b>b · Hold M1.2c</b> until the certificate lands. (Not chosen · kept as the record.)</p>
-  <p style="margin-top:8px;color:var(--mute)">On this page, paired types would give the lower surface ${UP1.P.length} points too, with an anchor at the same chord position. Go criteria for the spike: five fixtures certify (an upper-only anchor, NACA 0012 with 12/10 points, a thin open-TE section, a drooped cambered nose, and the two M1.1 x-edit blends, run at 120 mm and at 2 m chord) within 1 s, 4,096 cells and 32,768-bit rationals, with the existing whole-domain placement proofs still inside 10 nm for every blend weight.</p></div>`; }
+  <p style="margin-top:8px;color:var(--mute)">The certificate spike measured a no-go (docs/proof/m12c-certificate-spike/verdict.md), so a ships (Ruling 60). This page now draws paired types: the lower surface has ${LO1.P.length} points too, with an anchor at the same chord position (screens 2, 2b, 2c). Go criteria for the spike: five fixtures certify (an upper-only anchor, NACA 0012 with 12/10 points, a thin open-TE section, a drooped cambered nose, and the two M1.1 x-edit blends, run at 120 mm and at 2 m chord) within 1 s, 4,096 cells and 32,768-bit rationals, with the existing whole-domain placement proofs still inside 10 nm for every blend weight.</p></div>`; }
 function cardHTML(c){ if (c.text) return `<div class="card"><div class="textcard"><p style="margin-top:0;color:var(--ink)">With "Keep the station's t/c", raising record upper point 4 by <b>${MEASURE.od1c.recordMoveMm.toFixed(2)} mm</b> moves the placed upper surface <b>${MEASURE.od1c.placedUpperAt35Mm.toFixed(2)} mm</b> at 35 % chord — and the placed <b>lower</b> surface <b>${MEASURE.od1c.placedLowerAt35Mm.toFixed(2)} mm</b> the same way, because the station's t/c is held and the section renormalizes. A drag on the placed section would leave the pointer ~${Math.round(MEASURE.od1c.recordMoveMm / MEASURE.od1c.placedUpperAt35Mm)}× away from the surface and pull the other surface along. With per-surface points it is worse: a placed surface mixes both record surfaces at equal x.</p><canvas data-k="delta"></canvas></div><h3>${c.h}</h3><p>${c.p}</p></div>`;
   return `<div class="card"><div class="frame">${shell(c.o)}</div><h3>${c.h}${c.rec ? '<span class="rec">Chosen · operator 2026-10-03</span>' : '<span class="rec lost">Not chosen · kept as the record</span>'}</h3><p>${c.p}${c.meas ? ` <b data-m="${c.meas}"></b>` : ''}</p></div>`; }
 document.getElementById('screens').innerHTML =
-  SCREENS.map(sc => `<section class="screen"><h2>${sc.h}</h2><p class="what">${sc.what}</p>${shell(sc.o)}</section>`).join('') +
+  SCREENS.map(sc => `<section class="screen" id="${sc.id}"><h2>${sc.h}</h2><p class="what">${sc.what}</p>${shell(sc.o)}</section>`).join('') +
   `<h2 style="font-size:15px;margin:8px 0 0">The decisions — ruled by the operator on 2026-10-03 (docs/notes/m12c-rulings.md)</h2>` +
-  DECISIONS.map(d => `<section class="decision"><h2>${d.h}</h2><p class="what">${d.what}</p>${d.text ? od4HTML() : `<div class="variants">${d.cards.map(cardHTML).join('')}</div>`}</section>`).join('') +
+  DECISIONS.map(d => `<section class="decision" id="${d.id}"><h2>${d.h}</h2><p class="what">${d.what}</p>${d.text ? od4HTML() : `<div class="variants">${d.cards.map(cardHTML).join('')}</div>`}</section>`).join('') +
   `<p class="measured" id="measured"></p>`;
 function paint(){
   document.querySelectorAll('canvas[data-k]').forEach(cv => {
@@ -509,10 +593,13 @@ function paint(){
   MEASURE.rowsA = rowsIn('section.decision .bottom .pts'); MEASURE.rowsB = rowsIn('section.screen .dock.right .pts'); MEASURE.rowsD = rowsIn('section.decision .work > .dock:first-child .pts');
   document.querySelectorAll('[data-m]').forEach(b => { const m = b.dataset.m, rows = m === 'odA' ? MEASURE.rowsA : m === 'odB' ? MEASURE.rowsB : m === 'odD' ? MEASURE.rowsD : null;
     b.textContent = `${MEASURE[m]} px per % chord; ${rows ? `${rows[0]} of ${rows[1]} point rows visible without scrolling.` : 'no Points pane.'}`; });
-  document.getElementById('measured').innerHTML = `Measured on this page: Fit Selection puts the anchor's nearest neighbour <code>${MEASURE.fitSelectionNeighbourPx} px</code> away; at full chord in layout B it is <code>${MEASURE.fullChordNeighbourPxB} px</code> (glyphs overlap — the reason Fit Selection frames an anchor with its handles, design §11.2). Canvas scale at full chord (1:1): A <code>${MEASURE.odA}</code>, B <code>${MEASURE.odB}</code>, C <code>${MEASURE.odC}</code>, D <code>${MEASURE.odD}</code> px per % chord. LE radius upper · lower <code>${MEASURE.leRadiusUpperPct} · ${MEASURE.leRadiusLowerPct} % c</code>; TE wedge <code>${MEASURE.teWedgeDeg}°</code>; Anchor → Control on the new anchor changes the surface by <code>${MEASURE.anchorToControlChangePct} % chord</code> (${MEASURE.anchorToControlPoints} points). Lower surface bytes unchanged by the upper anchor: <code>${MEASURE.lowerBytesUnchanged}</code>. All values: <code>window.__measure</code>.`;
+  document.getElementById('measured').innerHTML = `Measured on this page: Fit Selection puts the anchor's nearest neighbour <code>${MEASURE.fitSelectionNeighbourPx} px</code> away; at full chord in layout B it is <code>${MEASURE.fullChordNeighbourPxB} px</code> (glyphs overlap — the reason Fit Selection frames an anchor with its handles, design §11.2). Canvas scale at full chord (1:1): A <code>${MEASURE.odA}</code>, B <code>${MEASURE.odB}</code>, C <code>${MEASURE.odC}</code>, D <code>${MEASURE.odD}</code> px per % chord. LE radius upper · lower <code>${MEASURE.leRadiusUpperPct} · ${MEASURE.leRadiusLowerPct} % c</code>; TE wedge <code>${MEASURE.teWedgeDeg}°</code>; Anchor → Control on the new anchor changes the surface by <code>${MEASURE.anchorToControlChangePct} % chord</code> (${MEASURE.anchorToControlPoints} points). Paired: knots equal <code>${MEASURE.pairedKnotsEqual}</code>, abscissae equal <code>${MEASURE.pairedAbscissaeEqual}</code>, lower shape change from the knots <code>${MEASURE.pairedLowerBoehmChange.toExponential(1)}</code>, lower change from Horizontal <code>${MEASURE.pairedLowerHorizontalChangePct} % chord</code>; refused refit <code>${MEASURE.refitLowerDevMm} mm</code> against <code>${MEASURE.refitLimitMm} mm</code>. All values: <code>window.__measure</code>.`;
   window.__measure = MEASURE;
 }
 paint();
+const stateSel = document.getElementById('state');
+stateSel.innerHTML = SCREENS.concat(DECISIONS).map(x => `<option value="${x.id}">${x.h.split(':')[0].split(' — ')[0]}</option>`).join('');
+stateSel.addEventListener('change', () => document.getElementById(stateSel.value).scrollIntoView());
 document.getElementById('theme').addEventListener('click', e => { const d = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = d ? 'dark' : 'light'; e.currentTarget.textContent = d ? 'Light theme' : 'Dark theme'; e.currentTarget.setAttribute('aria-pressed', String(d)); });
 </script>
 </body>

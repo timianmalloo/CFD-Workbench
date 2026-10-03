@@ -759,3 +759,9 @@ NEXT: the Coordinator dispatches PRE, then GSPK, DSP and SDR in parallel per the
 Operator 2026-10-03, by running the coordination prompt (scratchpad prompts/m12c-plus-fluids-coordination.md): (1) DR-11 — M1.2c ships paired section point types (OD-4 a, SPTF); per-surface points are parked as OI-12C-DR11, reopened only by a reviewed proof tightening that passes F4 +0.20 at 2 m within 1e9 work and 1 s. (2) The paired behaviour is shown in an updated mockup; EDT and PNL wait for the operator's yes. (3) Codex tracks (CTL, EDT) use gpt-6-sol, not gpt-6-astra, on price (operator: 'use sol instead of astra given price difference'). (4) Fluids lanes start now: F1 SPIKE-03 then SPIKE-04 on OpenFOAM v2512 (≤ 6 cores, nice 10, no solve during a join or readiness); F2 the Area 3 Analysis design, documents only. (5) The backend ADR waits on the F1 verdicts. (6) CFD runs follow the operator's global rule: cases/ YAML per run, schemas/cfd-case.schema.json, runs/<timestamp>/ git-ignored, receipts in docs/proof/.
 
 - request: req-01M41A4NQ3QXNFHNY24QJGCRT3 · ruled by: operator-timianmalloo · at: 2026-10-03T16:39:22Z
+
+### Ruling 61 — Paired section-editor mockup approved for EDT and PNL
+
+Operator 2026-10-03, after viewing docs/mockups/m12c-section-editor.html at b200ebb: 'yes this looks good'. EDT and PNL build the paired behaviour: the pairing cue, one Type/Kind/x control 'both surfaces', the paired x move (screen 2b), and the refused refit with both numbers in the strip (screen 2c). The largest chord sharing a profile sets the 10 um refit limit (design :446, corrected). COPY-185..189 are proposed in docs/reviews/ui-m12c-paired.md for UXR.
+
+- request: req-01M41B1S5MKNDJ5J6XSZFPPGNC · ruled by: operator-timianmalloo · at: 2026-10-03T16:55:10Z
