@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Area 3 analysis</title>
+<!--
+  Area 3 (Analysis, local tiers) review mockup for the operator's approval before any build
+  (docs/design/area3-analysis.md §12; Ruling 60 lane F2). Six screens of the whole 1280 x 800 shell, in today's shell
+  (m12b2 views, structure-B Properties, V2 status strip DR-STATUS-1, DR-VIEW-1 gutters) plus the Analysis additions:
+  the CAD | Analysis toggle, the conditions band, the layers, the Layers pane and the bottom panel.
+  Every number on the analysis screens is COMPUTED in this page from the Example foil (example.foil: 900 mm span,
+  120 mm chord, twist 0 → −2° at the tip, symmetric section-a, no dihedral) by a reference horseshoe vortex lattice
+  (64 spanwise per half, cosine; 4 chordwise, cosine; planar wake) at 10 kn, seawater 15 °C (ρ 1026.02 kg/m³,
+  ν 1.1892e-6 m²/s, p_v 1.6709 kPa, data-and-constants.md:146), h_ref 0.5 m, α 3°. That lattice is this page's, not the
+  product method; the run keys are placeholders (not BLAKE3). Display only; nothing is built from this page.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --on-accent:#ffffff; --sel:#d8eeea; --warn:#895900; --danger:#a92e37; --ok:#24653f; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --on-accent:#172326; --sel:#274c47; --warn:#efc576; --danger:#ffaeb5; --ok:#92d1a5; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --vp-grid:#344b50; --foil:#85c9c4; --foil-edge:#c4e7df; --station:#66ddc8; --lit:#3f6a6c; --warn-vp:#efc576; --danger-vp:#ffaeb5; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button, input, select{ font:inherit; color:inherit; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
+.harness{ margin-left:auto; display:flex; gap:8px; align-items:center; }
+.harness button{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.audit{ flex-basis:100%; font-size:12px; color:var(--mute); }
+.audit b.pass{ color:var(--ok); } .audit b.fail{ color:var(--danger); }
+main{ padding:16px 20px 40px; }
+section.screen{ margin:0 0 28px; }
+.screen h2{ margin:0 0 4px; font-size:14px; }
+.screen .what{ margin:0 0 8px; max-width:1280px; font-size:12px; color:var(--mute); }
+.screen .what b{ color:var(--ink); font-weight:600; }
+.choices{ max-width:1280px; font-size:12px; } .choices h2{ font-size:14px; margin:0 0 6px; } .choices li{ margin:0 0 6px; }
+
+/* ---------- the shell (as m12b2-views.html) ---------- */
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); font-size:11px; line-height:14px; position:relative; }
+body.small .shell{ width:1024px; height:700px; }
+.title{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.title i{ width:11px; height:11px; border-radius:50%; background:var(--line); display:inline-block; }
+.title b{ margin:0 auto; color:var(--ink); font-weight:600; }
+.work{ flex:1; min-height:0; display:flex; }
+.dock{ flex:0 0 260px; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--line); min-height:0; }
+.tabs{ flex:0 0 28px; display:flex; border-bottom:1px solid var(--line); background:var(--surface); }
+.tabs span{ display:flex; align-items:center; padding:0 10px; font-weight:600; color:var(--mute); border-bottom:2px solid transparent; }
+.tabs span.on{ color:var(--ink); border-bottom-color:var(--accent); }
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; min-height:0; }
+.area{ flex:1; min-height:0; position:relative; background:var(--canvas); }
+.views{ position:absolute; inset:0; display:grid; gap:4px; }
+.views.plan3d{ grid-template-columns:2fr 1fr; }
+.view{ position:relative; min-width:0; min-height:0; background:var(--vp); border:1px solid var(--line); overflow:hidden; }
+.view canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.plate{ position:absolute; background:var(--vp-soft); color:var(--vp-ink); border-radius:3px; padding:5px 8px; white-space:nowrap; }
+.vlabel{ left:6px; top:6px; min-height:24px; padding:0 8px; border:0; display:flex; align-items:center; font-weight:600; }
+.legend{ right:6px; bottom:48px; white-space:normal; max-width:58%; }
+.legend .ramp{ display:block; height:8px; margin:4px 0 2px; border-radius:2px; background:linear-gradient(90deg,#011959,#215f61,#818232,#f19d6b,#faccfa); }
+.legend .ends{ display:flex; justify-content:space-between; color:var(--vp-mute); }
+.vcap{ left:6px; bottom:48px; white-space:normal; max-width:40%; color:var(--vp-ink); }
+.navbar{ position:absolute; left:50%; bottom:10px; transform:translateX(-50%); display:flex; gap:2px; padding:3px; background:var(--surface); border:1px solid var(--line); border-radius:6px; z-index:2; }
+.navbar button{ min-height:24px; padding:0 8px; border:0; border-radius:4px; background:none; white-space:nowrap; cursor:pointer; }
+.navbar .sep{ width:1px; background:var(--line); margin:3px 2px; }
+.seg{ display:flex; border:1px solid var(--control); border-radius:4px; overflow:hidden; }
+.seg button{ border-radius:0; min-width:64px; }
+.seg button[aria-pressed="true"]{ background:var(--accent); color:var(--on-accent); font-weight:600; }
+/* conditions band (Analysis) */
+.cond{ flex:0 0 40px; display:flex; align-items:center; gap:10px; padding:0 10px; background:var(--surface); border-bottom:1px solid var(--line); white-space:nowrap; overflow:hidden; }
+.cond label{ display:flex; align-items:center; gap:4px; color:var(--mute); }
+.cond input, .cond select{ width:64px; min-height:24px; padding:0 4px; border:1px solid var(--control); border-radius:4px; background:var(--surface); color:var(--ink); text-align:right; font-variant-numeric:tabular-nums; }
+.cond select{ width:auto; text-align:left; }
+.cond .unit{ color:var(--mute); }
+.cond .go{ min-height:24px; padding:0 12px; border:1px solid var(--accent); border-radius:4px; background:var(--accent); color:var(--on-accent); font-weight:600; cursor:pointer; }
+.cond .go.cancel{ background:var(--surface); color:var(--ink); border-color:var(--control); }
+.cond .der{ display:flex; gap:10px; margin-left:4px; padding-left:10px; border-left:1px solid var(--line); color:var(--mute); font-variant-numeric:tabular-nums; }
+.cond .der b{ color:var(--ink); font-weight:500; }
+.cond .more{ display:none; min-height:24px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+body.small .cond .der .x, body.small .cond label .x{ display:none; } body.small .cond .more{ display:inline-block; }
+body.small .cond{ gap:6px; } body.small .cond input{ width:52px; }
+.banner{ flex:0 0 auto; display:flex; align-items:center; gap:8px; padding:4px 10px; background:var(--surface); border-bottom:1px solid var(--line); border-left:3px solid var(--warn); }
+.banner b{ color:var(--warn); }
+.banner button{ min-height:24px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+/* bottom panel */
+.bottom{ flex:0 0 232px; display:flex; flex-direction:column; border-top:1px solid var(--line); background:var(--surface); min-height:0; }
+.bottom .body{ flex:1; min-height:0; display:flex; gap:12px; padding:8px 10px; overflow:hidden; }
+.bottom canvas{ flex:1; min-width:0; height:100%; }
+.bottom .side{ flex:0 0 330px; overflow:hidden; }
+.bottom table{ border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.bottom td, .bottom th{ padding:1px 6px; text-align:right; border-bottom:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.bottom th{ color:var(--mute); font-weight:600; }
+.safety{ border-left:3px solid var(--warn); padding:4px 8px; margin:0 0 6px; background:var(--soft); }
+.twin{ min-height:24px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+/* structure-B Properties */
+.sel{ flex:1; min-height:0; overflow:hidden; }
+.ident{ display:flex; align-items:center; gap:6px; padding:6px 8px; font-size:13px; line-height:18px; font-weight:600; border-bottom:1px solid var(--line); }
+.chip{ display:inline-flex; align-items:center; min-height:18px; padding:0 6px; border:1px solid var(--accent); border-radius:9999px; color:var(--accent); font-size:11px; font-weight:600; margin:4px 8px; }
+.chip.hist{ border-color:var(--warn); color:var(--warn); }
+.gh{ display:flex; align-items:center; gap:6px; min-height:24px; padding:0 8px; font-weight:600; }
+.gh .tw{ color:var(--mute); width:10px; } .gh .sum{ margin-left:auto; font-weight:400; color:var(--mute); }
+.grp{ border-bottom:1px solid var(--line); }
+.row{ display:flex; align-items:center; gap:3px; min-height:20px; padding:0 8px 0 19px; }
+.row + .row{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.row .k{ flex:1; color:var(--mute); }
+.row .v{ min-width:62px; padding-right:5px; text-align:right; font-variant-numeric:tabular-nums; }
+.row .u{ width:30px; color:var(--mute); }
+.row.na .v{ min-width:0; text-align:left; white-space:normal; color:var(--ink); }
+.note{ padding:2px 8px 4px 19px; color:var(--mute); white-space:normal; }
+.note.lab{ color:var(--ink); }
+.err{ margin:6px 8px; padding:6px 8px; border-left:3px solid var(--danger); background:var(--soft); white-space:normal; }
+.err b{ color:var(--danger); }
+.skel{ height:14px; margin:4px 8px 4px 19px; background:var(--soft); border-radius:2px; }
+.layer{ display:flex; align-items:center; gap:6px; min-height:24px; padding:0 8px; }
+.layer input{ width:14px; height:14px; margin:0; }
+.layer .lf{ margin-left:auto; color:var(--mute); }
+/* V2 status strip */
+.sb{ flex:0 0 24px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); }
+.sb .msg{ flex:1; min-width:0; display:flex; align-items:center; gap:6px; padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sb .msg.error{ color:var(--danger); box-shadow:inset 3px 0 0 var(--danger); }
+.sb .item{ display:flex; align-items:center; padding:0 8px; border-left:1px solid var(--line); color:var(--mute); white-space:nowrap; }
+.sb .item.hist{ color:var(--warn); } .sb .item.fail{ color:var(--danger); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Area 3 — Analysis (local tiers), in today's shell</h1>
+  <p>Example foil · 900 mm span · 120 mm chord · −2° tip twist · 10 kn · seawater 15 °C · h_ref 0.5 m · α 3° · loads computed in this page by a reference lattice · run keys illustrative</p>
+  <div class="harness"><button type="button" id="theme" aria-pressed="false">Dark theme</button><button type="button" id="size" aria-pressed="false">1024 × 700</button></div>
+  <div class="audit" id="audit" role="status">Checking…</div>
+</header>
+<main id="screens"></main>
+<script>
+'use strict';
+// ------------------------------------------------------------ inputs (example.foil + data-and-constants.md:146)
+const HALF = 0.45, CHORD = 0.12, TC = 0.12, KN = 0.514444, V = 10 * KN, ALPHA = 3, RHO = 1026.02, NU = 1.1892e-6, PV = 1670.9, PATM = 101325, G = 9.80665, HREF = 0.5;
+const TWIST_CV = [[0, 0], [0.1, 0], [0.3, -0.25], [0.5, -0.5], [0.7, -1], [0.9, -1.5], [1, -2]];
+const K3 = [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1];
+function deBoor(p, U, P, u){
+  const n = P.length - 1; u = Math.min(Math.max(u, U[p]), U[n + 1] - 1e-12);
+  let k = p; while (k < n && u >= U[k + 1]) k++;
+  const d = []; for (let j = 0; j <= p; j++) d.push(P[k - p + j].slice());
+  for (let r = 1; r <= p; r++) for (let j = p; j >= r; j--){ const i = k - p + j, den = U[i + p - r + 1] - U[i], a = den ? (u - U[i]) / den : 0;
+    d[j] = [(1 - a) * d[j - 1][0] + a * d[j][0], (1 - a) * d[j - 1][1] + a * d[j][1]]; }
+  return d[p];
+}
+const TW = []; for (let i = 0; i <= 1000; i++) TW.push(deBoor(3, K3, TWIST_CV, i / 1000));
+function twistAt(eta){ for (let i = 1; i < TW.length; i++) if (TW[i][0] >= eta){ const a = TW[i - 1], b = TW[i], w = b[0] === a[0] ? 0 : (eta - a[0]) / (b[0] - a[0]); return a[1] + w * (b[1] - a[1]); } return TW[TW.length - 1][1]; }
+
+// ------------------------------------------------------------ reference horseshoe lattice (Katz & Plotkin), planar
+const NS = 64, NC = 4, RAD = Math.PI / 180;
+function solveVLM(alpha){
+  const t0 = performance.now();
+  const yEdge = []; for (let i = 0; i <= 2 * NS; i++) yEdge.push(-HALF * Math.cos(Math.PI * i / (2 * NS)));   // cosine over full span
+  const xEdge = []; for (let k = 0; k <= NC; k++) xEdge.push(CHORD * (1 - Math.cos(Math.PI * k / NC)) / 2);
+  const P = [];
+  for (let s = 0; s < 2 * NS; s++) for (let c = 0; c < NC; c++){
+    const ya = yEdge[s], yb = yEdge[s + 1], dx = xEdge[c + 1] - xEdge[c], ym = (ya + yb) / 2;
+    P.push({ s, c, ya, yb, ym, xb: xEdge[c] + dx / 4, xc: xEdge[c] + 3 * dx / 4, th: twistAt(Math.abs(ym) / HALF) });
+  }
+  const far = 20 * 2 * HALF;
+  function seg(px, py, ax, ay, bx, by){            // z-velocity at (px,py,0) by a unit segment in the z = 0 plane
+    const r1x = px - ax, r1y = py - ay, r2x = px - bx, r2y = py - by, cz = r1x * r2y - r1y * r2x, c2 = cz * cz;
+    if (c2 < 1e-20) return 0;
+    const r1 = Math.hypot(r1x, r1y), r2 = Math.hypot(r2x, r2y), r0x = bx - ax, r0y = by - ay;
+    const dot = r0x * (r1x / r1 - r2x / r2) + r0y * (r1y / r1 - r2y / r2);
+    return cz / c2 * dot / (4 * Math.PI);
+  }
+  function hs(px, py, q){ return seg(px, py, far, q.ya, q.xb, q.ya) + seg(px, py, q.xb, q.ya, q.xb, q.yb) + seg(px, py, q.xb, q.yb, far, q.yb); }
+  const n = P.length, A = P.map(pi => P.map(pj => hs(pi.xc, pi.ym, pj))), b = P.map(pi => -V * Math.sin((alpha + pi.th) * RAD));
+  for (let i = 0; i < n; i++){                      // Gaussian elimination, partial pivoting
+    let m = i; for (let r = i + 1; r < n; r++) if (Math.abs(A[r][i]) > Math.abs(A[m][i])) m = r;
+    [A[i], A[m]] = [A[m], A[i]]; [b[i], b[m]] = [b[m], b[i]];
+    for (let r = i + 1; r < n; r++){ const f = A[r][i] / A[i][i]; if (!f) continue; for (let c = i; c < n; c++) A[r][c] -= f * A[i][c]; b[r] -= f * b[i]; }
+  }
+  const gam = new Array(n); for (let i = n - 1; i >= 0; i--){ let s = b[i]; for (let c = i + 1; c < n; c++) s -= A[i][c] * gam[c]; gam[i] = s / A[i][i]; }
+  const strips = [];
+  for (let s = 0; s < 2 * NS; s++){
+    const ya = yEdge[s], yb = yEdge[s + 1], dy = yb - ya, Gs = P.filter(p => p.s === s).reduce((a, p) => a + gam[P.indexOf(p)], 0);
+    strips.push({ s, ya, yb, y: (ya + yb) / 2, dy, G: Gs, L: RHO * V * Gs * dy, th: twistAt(Math.abs((ya + yb) / 2) / HALF) });
+  }
+  for (const t of strips){                          // Trefftz plane: downwash from the trailing vortex sheet
+    // infinite 2D trailing vortices: 1/(2π), twice the lifting-line downwash (07 §Vortex lattice); α_i uses w_T/2
+    let w = 0; for (const q of strips) w += q.G / (2 * Math.PI) * (1 / (t.y - q.ya) - 1 / (t.y - q.yb)) * -1;
+    t.wT = w; t.Di = -0.5 * RHO * t.G * w * t.dy; t.cl = 2 * t.G / (V * CHORD); t.aEff = alpha + t.th + Math.atan2(w / 2, V) / RAD;
+  }
+  const q = 0.5 * RHO * V * V, S = 2 * HALF * CHORD, b2 = (2 * HALF) ** 2, AR = b2 / S;
+  const L = strips.reduce((a, t) => a + t.L, 0), Di = strips.reduce((a, t) => a + t.Di, 0);
+  const CL = L / (q * S), CDi = Di / (q * S), e = CL * CL / (Math.PI * AR * CDi);
+  const star = strips.filter(t => t.y > 0), Lh = star.reduce((a, t) => a + t.L, 0);
+  const yCl = star.reduce((a, t) => a + t.L * t.y, 0) / Lh, Mroot = star.reduce((a, t) => a + t.L * t.y, 0);
+  return { alpha, strips, L, Di, CL, CDi, e, q, S, AR, yCl, Mroot, Lh, panels: n, ms: performance.now() - t0 };
+}
+const R = solveVLM(ALPHA), R12 = solveVLM(12), R2 = solveVLM(2), RUNS = { R, R12, R2 };
+const runOf = sc => RUNS[sc.run || 'R'];
+let RUN = R;
+const sigma = (PATM + RHO * G * HREF - PV) / R.q, FrH = V / Math.sqrt(G * HREF), hc = HREF / CHORD, ReRef = V * CHORD / NU;
+const f = (v, d) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(d);
+const fe = v => { const p = Math.floor(Math.log10(Math.abs(v))), m = v / 10 ** p; return `${m.toFixed(2)} × 10${String(p).split('').map(c => '⁰¹²³⁴⁵⁶⁷⁸⁹'[+c] || '⁻').join('')}`; };
+
+// ------------------------------------------------------------ copy (DESIGN.md §7 rows quoted; new rows marked NEW)
+const COPY = {
+  c45:'Unavailable — depth not set',
+  c46:`Deep-water result; free surface not modelled (h/c = ${f(hc, 2)}, Fr_h = ${f(FrH, 2)}; effects measured below h/c 5)`,
+  c47:'Static geometry; steady analysis cannot predict ventilation onset; onset is dynamic and hysteretic',
+  c42:'Structural: Not assessed', c43:'geometry only (Structural: Not assessed)',
+  c60:'Loads are hydrodynamic estimates. Not a structural assessment. Strength, stiffness and fatigue are not evaluated.',
+  c63:'Computed estimate · Model uncertainty not quantified', c64:'Historical — <what changed>', c72:'Section-based inference',
+  vlmLabel:'attached flow; no stall; no ventilation; deep water',
+  none:'No analysis yet. Set the conditions, then Evaluate.',                                          // NEW
+  running:`Evaluating — VLM + strip · ${R.panels} panels…`,                                            // NEW
+  failed:'Analysis failed — the lattice system is singular at the tip strip (ANA-SOLVE-RESIDUAL). The previous result is kept as Historical.', // NEW
+  done:`Analysis complete — VLM + strip · ${(R.ms / 1000).toFixed(2)} s`,                             // NEW
+  inert:'Points are edited in CAD. Switch with the CAD | Analysis toggle.',                           // NEW
+  noPolar:'Unavailable — no polar method installed',                                                   // NEW
+  preview:'Preview hidden — Apply or Cancel in CAD' };
+const outsideOf = run => run.strips.filter(s => Math.abs(s.aEff) > 10 || Math.abs(s.cl) > 1.0).length;
+const envRowOf = run => { const n = outsideOf(run); return n ? `Outside the method envelope — |α_eff| ≤ 10°, Cl_local ≤ 1.0 at ${n} strips` : `Inside the method envelope at all ${run.strips.length} strips (|α_eff| ≤ 10°, Cl_local ≤ 1.0)`; };
+const eNoteOf = run => run.e > 1 ? `e above 1 on a planar wing is a lattice effect at ${NS} × ${NC} (it converges from above); see DR-ANA-7` : '';
+const SEL = R.strips.reduce((a, s) => Math.abs(s.y - 0.3) < Math.abs(a.y - 0.3) ? s : a), ETA_SEL = SEL.y / HALF;
+const hist = COPY.c64.replace('<what changed>', 'geometry changed (r4 → r5)');
+
+// ------------------------------------------------------------ drawing
+const C = { vp:'#17272c', soft:'#243a40', ink:'#edf4f2', mute:'#afc6c7', grid:'#344b50', foil:'#85c9c4', edge:'#c4e7df', station:'#66ddc8', lit:'#3f6a6c', warn:'#efc576' };
+const BATLOW = ['#011959', '#215f61', '#818232', '#f19d6b', '#faccfa'];
+function batlow(t){ t = Math.min(1, Math.max(0, t)) * 4; const i = Math.min(3, Math.floor(t)), w = t - i, p = h => [1, 3, 5].map(k => parseInt(h.substr(k, 2), 16)); const a = p(BATLOW[i]), b = p(BATLOW[i + 1]); return `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * w)).join(',')})`; }
+function line(g, pts, color, w, dash){ g.save(); g.strokeStyle = color; g.lineWidth = w; g.setLineDash(dash || []); g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); g.restore(); }
+function arrow(g, x0, y0, x1, y1, color, w){ line(g, [[x0, y0], [x1, y1]], color, w); const a = Math.atan2(y1 - y0, x1 - x0), h = 4 + w * 2; g.save(); g.fillStyle = color; g.beginPath(); g.moveTo(x1, y1); g.lineTo(x1 - h * Math.cos(a - 0.4), y1 - h * Math.sin(a - 0.4)); g.lineTo(x1 - h * Math.cos(a + 0.4), y1 - h * Math.sin(a + 0.4)); g.closePath(); g.fill(); g.restore(); }
+function text(g, s, x, y, color, align){ g.save(); g.font = '600 11px system-ui, sans-serif'; const w = g.measureText(s).width, x0 = align === 'right' ? x - w : x; g.fillStyle = C.soft; g.fillRect(x0 - 4, y - 12, w + 8, 16); g.fillStyle = color || C.ink; g.textAlign = align || 'left'; g.fillText(s, x, y); g.restore(); }
+const loadMaxOf = run => Math.max(...run.strips.map(t => t.G));
+function drawPlan(g, w, h, sc){
+  const s = Math.min((w - 80) / (2 * HALF), (h - 150) / CHORD), cx = w / 2, y0 = (h - CHORD * s) / 2 - 16, P = (y, x) => [cx + y * s, y0 + x * s];
+  for (let y = -0.5; y <= 0.5001; y += 0.1) line(g, [P(y, -0.06), P(y, 0.18)], C.grid, 1);
+  line(g, [P(0, -0.04), P(0, 0.16)], C.mute, 1);
+  if (sc.layers){
+    RUN.strips.forEach(t => { const a = P(t.ya, 0), b = P(t.yb, CHORD); g.fillStyle = batlow(t.G / loadMaxOf(RUN)); g.fillRect(a[0], a[1], b[0] - a[0], b[1] - a[1]); });
+    const base = y0 - 10, k = 60 / loadMaxOf(RUN);                 // spanwise loading curve above the LE
+    line(g, RUN.strips.map(t => [cx + t.y * s, base - t.G * k]), C.edge, 2);
+    text(g, 'Γ(y) · loading', cx + 0.3 * s, base - 64, C.ink);
+    RUN.strips.filter(t => Math.abs(t.aEff) > 10 || Math.abs(t.cl) > 1.0).forEach(t => { const a = P(t.ya, 0), b = P(t.yb, CHORD); g.save(); g.setLineDash([3, 2]); g.strokeStyle = C.warn; g.lineWidth = 1.5; g.strokeRect(a[0], a[1], b[0] - a[0], b[1] - a[1]); g.restore(); });
+    if (outsideOf(RUN)) text(g, `dashed outline: ${outsideOf(RUN)} strips outside the method envelope`, cx - 0.44 * s, y0 + CHORD * s + 34, C.warn);
+  } else g.fillStyle = 'rgba(133,201,196,0.22)', g.fillRect(P(-HALF, 0)[0], P(0, 0)[1], 2 * HALF * s, CHORD * s);
+  line(g, [P(-HALF, 0), P(HALF, 0)], C.foil, 1.5); line(g, [P(-HALF, CHORD), P(HALF, CHORD)], C.foil, 1.5);
+  line(g, [P(-HALF, 0), P(-HALF, CHORD)], C.edge, 1); line(g, [P(HALF, 0), P(HALF, CHORD)], C.edge, 1);
+  if (sc.station){ line(g, [P(SEL.y, -0.006), P(SEL.y, CHORD + 0.006)], C.station, 3); text(g, `η ${f(ETA_SEL, 3)}`, P(SEL.y, 0)[0] - 18, P(0, CHORD + 0.024)[1], C.ink); }
+  if (sc.dimPoints) [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1].forEach(e => { [0, CHORD].forEach(x => { const p = P(e * HALF, x); g.beginPath(); g.arc(p[0], p[1], 4, 0, 7); g.fillStyle = 'rgba(133,201,196,0.45)'; g.fill(); }); });
+}
+function iso(p){ const az = 135 * RAD, el = 26 * RAD; const x = p[0], y = p[1], z = p[2];
+  const X = -x * Math.sin(az) + y * Math.cos(az), Y = -(z * Math.cos(el) - (x * Math.cos(az) + y * Math.sin(az)) * Math.sin(el)); return [X, Y]; }
+function draw3D(g, w, h, sc){
+  const pts = [[0, -HALF, 0], [CHORD, -HALF, 0], [0, HALF, 0], [CHORD, HALF, 0], [0, 0, HREF], [0, 0, 0.32]].map(iso);
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), s = Math.min((w - 60) / (Math.max(...xs) - Math.min(...xs)), (h - 110) / (Math.max(...ys) - Math.min(...ys)));
+  const ox = w / 2 - (Math.max(...xs) + Math.min(...xs)) / 2 * s, oy = h / 2 + 10 - (Math.max(...ys) + Math.min(...ys)) / 2 * s, S = p => { const q = iso(p); return [ox + q[0] * s, oy + q[1] * s]; };
+  // free surface at h_ref above the datum (depth band) — drawn only when depth is set
+  if (sc.depth !== false && sc.layers){ const fs = [[-0.05, -0.55, HREF], [0.2, -0.55, HREF], [0.2, 0.55, HREF], [-0.05, 0.55, HREF], [-0.05, -0.55, HREF]].map(S); line(g, fs, C.mute, 1, [5, 4]);
+    text(g, `free surface · h_ref ${f(HREF, 2)} m`, S([-0.05, -0.55, HREF])[0] + 8, S([-0.05, -0.55, HREF])[1] - 8, C.mute); line(g, [S([0, 0.45, 0]), S([0, 0.45, HREF])], C.warn, 1, [2, 3]);
+    text(g, `tip depth ${f(HREF, 2)} m`, S([0, 0.45, HREF / 2])[0] + 6, S([0, 0.45, HREF / 2])[1], C.warn); }
+  const quad = [[0, -HALF, 0], [CHORD, -HALF, 0], [CHORD, HALF, 0], [0, HALF, 0]].map(S);
+  g.beginPath(); quad.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fillStyle = C.lit; g.fill(); line(g, quad.concat([quad[0]]), C.foil, 1.5);
+  if (!sc.layers) return;
+  const k = 0.22 / Math.max(...RUN.strips.map(t => t.L / t.dy));
+  RUN.strips.forEach((t, i) => { if (i % 2) return; const a = S([CHORD / 4, t.y, 0]), b = S([CHORD / 4, t.y, t.L / t.dy * k]); arrow(g, a[0], a[1], b[0], b[1], batlow(t.G / loadMaxOf(RUN)), 1.5); });
+  const a = S([CHORD / 4, 0, 0]), b = S([CHORD / 4, 0, 0.3]); arrow(g, a[0], a[1], b[0], b[1], C.station, 3);
+  text(g, `L ${f(RUN.L, 1)} N`, b[0] + 8, b[1] + 4, C.ink);
+  g.save(); g.strokeStyle = C.edge; g.lineWidth = 1.5; g.beginPath(); g.arc(a[0], a[1], 18, Math.PI * 0.9, Math.PI * 1.6); g.stroke(); g.restore();
+  text(g, `M_root ${f(RUN.Mroot, 2)} N·m · about the root plane`, a[0] + 24, a[1] + 26, C.ink);
+}
+function drawLoading(cv){
+  const w = cv.clientWidth, h = cv.clientHeight, dpr = devicePixelRatio || 1; cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const css = getComputedStyle(document.documentElement), ink = css.getPropertyValue('--ink').trim(), mute = css.getPropertyValue('--mute').trim(), lineC = css.getPropertyValue('--line').trim(), acc = css.getPropertyValue('--accent').trim();
+  g.clearRect(0, 0, w, h); const l = 48, r = 120, t = 14, bpx = 30, X = e => l + e * (w - l - r), cbar = RUN.S / (2 * HALF);
+  const star = RUN.strips.filter(s => s.y > 0), vals = star.map(s => s.cl * CHORD / cbar), ymax = Math.max(...vals) * 1.25, Y = v => t + (1 - v / ymax) * (h - t - bpx);
+  g.strokeStyle = lineC; g.lineWidth = 1; [0, 0.25, 0.5, 0.75, 1].forEach(e => line(g, [[X(e), t], [X(e), h - bpx]], lineC, 1));
+  g.font = '11px system-ui, sans-serif'; g.fillStyle = mute; [0, 0.25, 0.5, 0.75, 1].forEach(e => g.fillText(e.toFixed(2), X(e) - 10, h - bpx + 14));
+  g.fillText('η (root → tip)', X(0.42), h - 2); g.save(); g.translate(12, t + 70); g.rotate(-Math.PI / 2); g.fillText('Cl·c/c̄ (–)', 0, 0); g.restore();
+  [0, ymax / 2, ymax].forEach(v => g.fillText(v.toFixed(2), l - 34, Y(v) + 4));
+  const cl0 = RUN.CL * 4 / Math.PI; line(g, Array.from({ length: 41 }, (_, i) => [X(i / 40), Y(cl0 * Math.sqrt(1 - (i / 40) ** 2))]), mute, 1.5, [5, 4]);
+  line(g, star.map((s, i) => [X(s.y / HALF), Y(vals[i])]), acc, 2);
+  g.fillStyle = acc; g.fillText('VLM + strip', X(0.62), Y(vals[Math.floor(star.length * 0.6)]) - 8);
+  g.fillStyle = mute; g.fillText('dashed: elliptic, same CL', X(0.04), t + 10);
+}
+
+// ------------------------------------------------------------ shell pieces
+const r = (k, v, u) => `<div class="row"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${u || ''}</span></div>`;
+const na = (k, v) => `<div class="row na"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+const grp = (name, sum, body) => `<div class="grp"><div class="gh"><span class="tw">⌄</span>${name}<span class="sum">${sum || ''}</span></div>${body}</div>`;
+function condBand(sc){
+  const depth = sc.depth === false ? '' : f(HREF, 2), btn = sc.state === 'running' ? '<button type="button" class="go cancel">Cancel</button>' : '<button type="button" class="go">Evaluate</button>';
+  const der = sc.depth === false ? `<span><span class="x">h/c · Fr_h · </span>σ <b>${COPY.c45}</b></span>` : `<span class="x">h/c <b>${f(hc, 2)}</b></span><span class="x">Fr_h <b>${f(FrH, 2)}</b></span><span>σ <b>${f(sigma, 2)}</b></span>`;
+  return `<div class="cond" role="group" aria-label="Operating point"><label>Speed <input aria-label="Speed, knots" value="10.00"><span class="unit">kn</span></label>
+    <label>Water <select aria-label="Water"><option>Salt · 15 °C</option></select></label>
+    <label>Depth<span class="x"> h_ref</span> <input aria-label="Depth h_ref, metres" value="${depth}" placeholder="Not set"><span class="unit">m</span></label>
+    <label>α <input aria-label="Incidence alpha, degrees" value="${f(sc.run === 'R12' ? 12 : ALPHA, 2)}"><span class="unit">°</span></label>${btn}
+    <span class="der"><span class="x">q <b>${f(RUN.q, 0)}</b> Pa</span><span class="x">Re_ref <b>${fe(ReRef)}</b></span>${der}<button type="button" class="more">More ▾</button></span></div>`;
+}
+function props(sc){
+  const head = `<div class="tabs"><span class="on">Properties</span><span>Browser</span><span>Layers</span></div>`;
+  if (sc.state === 'tampered') return `<div class="dock">${head}<div class="sel"><div class="ident">Basic foil · wing result</div>${grp('Wing result', 'run k-7c1e…', na('Result', 'Unavailable — run payload failed its check') + `<div class="note">The stored run no longer matches its content hash. It is kept in the file and not shown. Evaluate to compute a new run.</div>`)}</div></div>`;
+  if (sc.state === 'none') return `<div class="dock">${head}<div class="sel"><div class="ident">Basic foil</div>${grp('Wing result', '', `<div class="note lab">${COPY.none}</div>`)}${grp('Labels', '', `<div class="note">Every result shows its tier, basis and omissions here.</div>`)}</div></div>`;
+  if (sc.state === 'running') return `<div class="dock">${head}<div class="sel"><div class="ident">Basic foil</div><span class="chip">VLM + strip · local calculation</span>${grp('Wing result', 'evaluating', '<div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>')}</div></div>`;
+  const chip = sc.state === 'historical' || sc.state === 'failed' ? `<span class="chip hist">Historical · VLM + strip</span>` : `<span class="chip">VLM + strip · local calculation</span>`;
+  const err = sc.state === 'failed' ? `<div class="err" role="alert"><b>Analysis failed.</b> The lattice system is singular at the tip strip (ANA-SOLVE-RESIDUAL). The previous result below is kept as Historical. Change the panel count or the tip, then Evaluate.</div>` : '';
+  if (sc.station){
+    const t = SEL;
+    return `<div class="dock">${head}<div class="sel"><div class="ident">Strip of wing run (α_eff) · η ${f(t.y / HALF, 3)}</div>${chip}
+      ${grp('Strip result', 'per span', r('Cl_local', f(t.cl, 3), '–') + r('α_eff', f(t.aEff, 2), '°') + r('Re_local', fe(V * CHORD / NU), '–') + r('Lift / span', f(t.L / t.dy, 1), 'N/m') + na('cd (profile)', COPY.noPolar))}
+      ${grp('Section (2D)', 'estimator · polar', na('Cl, Cd, Cm, x_tr', COPY.noPolar) + na('Cp_min', 'Unavailable — no section Cp method (DR-ANA-2)') + na('V_crit', 'Unavailable — needs −Cp_min'))}
+      ${grp('Labels', '', `<div class="note lab">${COPY.c63}</div><div class="note">${COPY.vlmLabel}</div><div class="note">${COPY.c46}</div>`)}</div></div>`;
+  }
+  return `<div class="dock">${head}<div class="sel"><div class="ident">Basic foil · wing result</div>${chip}${err}
+    ${grp('Wing result', 'Wing only · S_ref ' + f(RUN.S * 1e4, 0) + ' cm²', r('CL', f(RUN.CL, 3), '–') + r('CDi (Trefftz)', f(RUN.CDi, 5), '–') + r('e (computed)', f(RUN.e, 3), '–') + (eNoteOf(RUN) ? `<div class="note">${eNoteOf(RUN)}</div>` : '') + r('Lift L', f(RUN.L, 1), 'N') + r('Induced drag', f(RUN.Di, 2), 'N') + na('Total drag', 'Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray'))}
+    ${grp('Conditions', '10 kn · salt 15 °C', r('q', f(RUN.q, 0), 'Pa') + r('Re_ref', fe(ReRef), '–') + r('h/c', f(hc, 2), '–') + r('Fr_h', f(FrH, 2), '–') + r('σ', f(sigma, 2), '–') + na('V_crit', 'Unavailable — needs −Cp_min'))}
+    ${grp('Labels', 'tier · envelope · basis · omissions', `<div class="note lab">${COPY.c63}</div><div class="note lab">${envRowOf(RUN)}</div><div class="note">${COPY.vlmLabel}</div><div class="note">${COPY.c46}</div><div class="note">Tip depth ${f(HREF, 2)} m · Fr_h ${f(FrH, 2)} · ${COPY.c47}</div><div class="note">Not modelled: free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “${COPY.c72}”.</div>`)}</div></div>`;
+}
+function bottom(sc){
+  const tabs = ['Spanwise loading', 'Section', 'Loads', 'Provenance', 'Checks'], on = sc.tab || 'Spanwise loading';
+  const head = `<div class="tabs">${tabs.map(t => `<span class="${t === on ? 'on' : ''}">${t}</span>`).join('')}</div>`;
+  if (sc.state === 'none' || sc.state === 'running' || sc.state === 'tampered') return `<div class="bottom">${head}<div class="body"><div class="note">${sc.state === 'none' ? COPY.none : sc.state === 'running' ? COPY.running : 'Unavailable — run payload failed its check'}</div></div></div>`;
+  if (on === 'Loads'){
+    const ei = (TC / 0.10) ** 3;
+    return `<div class="bottom">${head}<div class="body"><div class="side" style="flex:1"><div class="safety">${COPY.c60}</div>
+      <table aria-label="Loads"><tr><th style="text-align:left">Quantity</th><th>Value</th><th>Unit</th><th style="text-align:left">Basis</th></tr>
+      <tr><td style="text-align:left">Lift (Wing only)</td><td>${f(RUN.L, 1)}</td><td>N</td><td style="text-align:left">near field, Σ strips</td></tr>
+      <tr><td style="text-align:left">Centre of lift, half span</td><td>${f(RUN.yCl * 1000, 1)}</td><td>mm</td><td style="text-align:left">from the root plane</td></tr>
+      <tr><td style="text-align:left">Root bending moment</td><td>${f(RUN.Mroot, 2)}</td><td>N·m</td><td style="text-align:left">steady, n = 1, about the root plane</td></tr>
+      <tr><td style="text-align:left">Wing loading L/S_ref</td><td>${f(RUN.L / RUN.S / 1000, 2)}</td><td>kPa</td><td style="text-align:left">computed, not the goal state's W/S</td></tr>
+      <tr><td style="text-align:left">Moment about attachment point</td><td colspan="3" style="text-align:left">Unavailable — no attachment point named (DR-ANA-5)</td></tr>
+      <tr><td style="text-align:left">Total drag</td><td colspan="3" style="text-align:left">Unavailable — missing: profile, junction, mast, wave, spray</td></tr></table></div>
+      <div class="side"><div class="gh">${COPY.c42}</div><div class="note">Not assessed: take-off, pumping, breach and slam, ventilation shock, impact, fatigue.</div>
+      ${r('t/c (root)', f(TC * 100, 1), '%')}${r('EI/EI_ref ∝ (t/c)³', f(ei, 3), '–')}<div class="note">${COPY.c43} · monolithic, relative to t/c = 10 %</div></div></div></div>`;
+  }
+  if (on === 'Provenance') return `<div class="bottom">${head}<div class="body"><table aria-label="Run manifest" style="flex:1">
+      <tr><th style="text-align:left">Field</th><th style="text-align:left">Value</th></tr>
+      <tr><td style="text-align:left">Run</td><td style="text-align:left">k-7c1e… · Completed · ${hist}</td></tr>
+      <tr><td style="text-align:left">Method</td><td style="text-align:left">cfdw.vlm-strip 1.0.0 · settings 64 × 4 cosine · wake 20 spans · polar none</td></tr>
+      <tr><td style="text-align:left">Inputs</td><td style="text-align:left">revision r4 · surface 9b20… · profiles section-a 41d8… · evaluator cfdw-cv/2</td></tr>
+      <tr><td style="text-align:left">Water</td><td style="text-align:left">salt 35.16504 g/kg · 15 °C · ρ 1026.02 kg/m³ · ν 1.1892 × 10⁻⁶ m²/s · p_v 1.6709 kPa · ITTC 7.5-02-01-03 Rev 03</td></tr>
+      <tr><td style="text-align:left">Operating point</td><td style="text-align:left">10.00 kn · p_atm 101.325 kPa · h_ref 0.50 m · α 3.00° · datum root LE</td></tr>
+      <tr><td style="text-align:left">Changed since</td><td style="text-align:left">surface 9b20… → 51fa… (a twist point moved) — inputs otherwise equal</td></tr></table></div></div>`;
+  const twin = sc.twin ? `<button type="button" class="twin" aria-expanded="true">Show chart notes</button><table aria-label="Spanwise loading table"><tr><th>η</th><th>Cl·c/c̄</th><th>α_eff °</th><th>L/span N/m</th></tr>${RUN.strips.filter(s => s.y > 0).filter((_, i) => i % 4 === 0).map(s => `<tr><td>${f(s.y / HALF, 3)}</td><td>${f(s.cl, 3)}</td><td>${f(s.aEff, 2)}</td><td>${f(s.L / s.dy, 1)}</td></tr>`).join('')}</table>` :
+    `<div class="note">Spanwise loading, starboard half; dashed: elliptic loading of the same CL. Gaps are never bridged.</div><button type="button" class="twin" aria-expanded="false">Show table</button>`;
+  return `<div class="bottom">${head}<div class="body"><canvas class="loading" role="img" aria-label="Spanwise loading Cl times c over c-bar against eta, starboard half; table twin available"></canvas><div class="side">${twin}</div></div></div>`;
+}
+function shell(sc){
+  RUN = runOf(sc);
+  const ana = sc.mode !== 'cad';
+  const banners = (sc.preview ? `<div class="banner" role="status"><b>${COPY.preview}</b></div>` : '') + (sc.state === 'historical' || sc.state === 'failed' ? `<div class="banner" role="status"><b>${hist}</b><span>Layers show run k-7c1e…; Evaluate to compute r5.</span></div>` : '') + (sc.state === 'running' && sc.prior ? `<div class="banner" role="status"><b>${COPY.c64.replace('<what changed>', 'operating point changed (α 2.00° → 3.00°)')}</b><span>Layers show the α 2.00° run until this one lands.</span></div>` : '');
+  const status = { none:['', 'Analysis: no result'], running:['', 'Analysis: Running'], current:['', 'Analysis: Current'], historical:['hist', 'Analysis: Historical'], failed:['fail', 'Analysis: Failed'], tampered:['fail', 'Analysis: Unavailable'] }[sc.state];
+  const layersOn = !!sc.layers;
+  return `<div class="shell"><div class="title"><i></i><i></i><i></i><b>CFD Workbench — example.foil</b></div>
+    <div class="work">${props(sc)}<div class="main"><div class="tabs"><span class="on">Model</span><span>Foil source</span></div>${ana ? condBand(sc) : ''}${banners}
+      <div class="area"><div class="views plan3d"><div class="view" data-v="plan"><canvas role="img" aria-label="Plan view${layersOn ? ' with spanwise loading strips' : ''}"></canvas><span class="plate vlabel">Plan</span>${layersOn ? `<div class="plate legend">Γ per strip · batlow 1.0 · 0 – ${f(loadMaxOf(RUN), 3)} m²/s · run k-7c1e…<span class="ramp"></span><span class="ends"><span>0</span><span>${f(loadMaxOf(RUN), 3)}</span></span></div>` : ''}</div>
+        <div class="view" data-v="3d"><canvas role="img" aria-label="3D view${layersOn ? ' with strip lift arrows, resultant and depth band' : ''}"></canvas><span class="plate vlabel">3D · Iso</span>${layersOn ? `<div class="plate vcap">Arrows: lift per strip (length ∝ N/m) · teal: total lift at the centre line · VLM + strip · local calculation</div>` : ''}</div></div>
+        <div class="navbar"><div class="seg" role="group" aria-label="Area"><button type="button" aria-pressed="${!ana}">CAD</button><button type="button" aria-pressed="${ana}">Analysis</button></div><span class="sep"></span><button type="button">Views ▾ Plan + 3D</button><button type="button">Display ▾ Shaded</button><span class="sep"></span><button type="button">Fit</button></div></div>
+      ${ana ? bottom(sc) : ''}</div></div>
+    <div class="sb" role="status"><span class="msg${sc.state === 'failed' ? ' error' : ''}">${sc.report}</span><span class="item ${status[0]}">${status[1]}</span><span class="item">${sc.station ? `Station η ${f(ETA_SEL, 3)}` : 'Basic foil'}</span><span class="item">N · m</span></div></div>`;
+}
+const SCREENS = [
+  { id:'none', h:'1 · Analysis entered — no result yet, depth not set', state:'none', depth:false, report:'Analysis. Set the conditions, then Evaluate.',
+    what:'<b>Shows</b> the toggle pressed on <i>Analysis</i> (camera, layout and selection unchanged from CAD), the conditions band with depth empty: σ reads COPY-45 and no deep-water label prints (ANA-19). No layers, no numbers that were not computed. Properties and the bottom panel say what to do. <b>Implements</b> design §12.1–12.3 "No result" and "Depth unset"; ANA-22; ANA-19 row 1.' },
+  { id:'running', h:'2 · Evaluating, a prior run kept as Historical', state:'running', prior:true, layers:true, run:'R2', report:COPY.running,
+    what:'<b>Shows</b> Evaluate turned into Cancel; skeleton rows (static, no shimmer, DESIGN.md §6); the status item "Running"; the previous run\'s layers stay, under the Historical banner, until the new run lands. <b>Implements</b> §12.3 "Running"; §8 latest-wins cancellation.' },
+  { id:'current', h:'3 · Wing result, Current — loading on the geometry, labels and omissions', state:'current', layers:true, report:COPY.done,
+    what:`<b>Shows</b> the computed wing result (CL ${f(RUN.CL, 3)}, CDi ${f(RUN.CDi, 5)}, e ${f(RUN.e, 3)}, L ${f(RUN.L, 1)} N) under the tier chip, COPY-63, the fixed VLM label, the A5.1 deep-water string (h/c ${f(hc, 2)} &lt; 5), the ventilation string and the omissions. Total drag Unavailable naming its missing parts (A5.6). Plan: loading strips (batlow, legend with variable, unit, range, map, run); 3D: lift per strip, the total and the root moment arc, the free surface and tip depth. Bottom: spanwise loading vs the elliptic reference with a table twin. <b>Implements</b> ANA-03, ANA-04, ANA-19, ANA-21, ANA-23; C2 colormap rule.` },
+  { id:'station', h:'4 · A station selected — strip result, section Unavailable, Loads tab', state:'current', layers:true, station:true, tab:'Loads', report:COPY.inert,
+    what:'<b>Shows</b> selecting a station in Analysis: Properties switches to that strip (per span, N/m, lowercase Cl), the section tier reads Unavailable with its reason (DR-ANA-1, DR-ANA-2) — never a nearby value; a press on a point gives the inert-point message. Loads: COPY-60 verbatim, centre of lift, root bending moment, computed wing loading, Structural: Not assessed with its list and the relative-stiffness readout. <b>Implements</b> ANA-01 (Unavailable), ANA-03, ANA-11, §12.1 "Editing in Analysis".' },
+  { id:'historical', h:'5 · Historical after a CAD edit, with a draft hidden — Provenance tab', state:'historical', layers:true, preview:true, tab:'Provenance', report:'Analysis. Run k-7c1e… is Historical: geometry changed.',
+    what:'<b>Shows</b> returning to Analysis after a twist point moved and while a point draft is open: the preview is hidden (ANA-22), the layers stay on the accepted revision with COPY-64 on the area and the chip; Provenance shows the Run manifest and which input changed. Nothing recomputes until Evaluate (DR-ANA-6). <b>Implements</b> ANA-07, ANA-22, §3.4 "what changed".' },
+  { id:'envelope', h:'7 · Outside the method envelope (α 12°)', state:'current', layers:true, run:'R12', report:'Analysis complete — VLM + strip. Some strips are outside the method envelope.',
+    what:'<b>Shows</b> a result at α 12°: the finding beside the result and in Labels, and every strip outside |α_eff| ≤ 10° outlined dashed on the Plan with a text count — not colour alone. The number is shown with its envelope, never bare. <b>Implements</b> §5.4 envelope verdict; FM-21; DR-ANA-14.' },
+  { id:'tampered', h:'8 · A stored run failed its check', state:'tampered', report:'Run k-7c1e… failed its check and is not shown.',
+    what:'<b>Shows</b> a run whose stored payload no longer matches its content hash: that run reads Unavailable, no layers draw, nothing is deleted. <b>Implements</b> §3.6 integrity; FM-19.' },
+  { id:'failed', h:'6 · Evaluation failed — previous result kept as Historical', state:'failed', layers:true, report:COPY.failed,
+    what:'<b>Shows</b> a failed evaluation: the error card in Properties (code and reason), the error report in the V2 strip, the status item "Failed", and the previous run still drawn with its Historical banner — never cleared, never shown as Current. <b>Implements</b> §12.3 "Failed"; F4 node O; FM-3.' } ];
+document.addEventListener('click', e => { const b = e.target.closest('.twin'); if (!b) return; const id = b.closest('section.screen').dataset.id, sc = SCREENS.find(s => s.id === id); sc.twin = !sc.twin; render(); const again = document.querySelector(`section.screen[data-id="${id}"] .twin`); if (again) again.focus(); });
+function render(){
+  document.getElementById('screens').innerHTML = SCREENS.map(sc => `<section class="screen" data-id="${sc.id}" aria-labelledby="h-${sc.id}"><h2 id="h-${sc.id}">${sc.h}</h2><p class="what">${sc.what}</p>${shell(sc)}</section>`).join('') +
+    `<section class="choices"><h2>Choices for the operator</h2><ul>
+      <li><b>Evaluate is explicit</b> (DR-ANA-6): Historical stays visible until you press it. The alternative recomputes on every change and the Historical state flashes past.</li>
+      <li><b>Where the toggle lives</b>: the CAD | Analysis segment at the left of the view bar here; also View ▸ Analysis and a shortcut (DR-ANA-8 recommends ⌘2 / ⌘3); the activity rail is DR-7.</li>
+      <li><b>Section numbers</b> read Unavailable until a polar method (DR-ANA-1) and a Cp method (DR-ANA-2) are chosen. Nothing on this page fills them.</li>
+      <li><b>Not on this page</b>: Compare (ANA-06), Find operating α (ANA-05), the free-surface correction layer (A5.2), goal-state operating points (Area 1 is not built), the assistant entry.</li></ul></section>`;
+  paint(); audit();
+}
+function paint(){
+  document.querySelectorAll('section.screen').forEach(secEl => {
+    const sc = SCREENS.find(s => s.id === secEl.dataset.id);
+    RUN = runOf(sc);
+    secEl.querySelectorAll('.view').forEach(view => {
+      const cv = view.querySelector('canvas'), w = view.clientWidth, h = view.clientHeight, dpr = devicePixelRatio || 1;
+      cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = C.vp; g.fillRect(0, 0, w, h);
+      const lay = { layers: !!sc.layers, depth: sc.depth, station: !!sc.station, dimPoints: sc.mode !== 'cad' };
+      view.dataset.v === 'plan' ? drawPlan(g, w, h, lay) : draw3D(g, w, h, lay);
+    });
+    secEl.querySelectorAll('canvas.loading').forEach(drawLoading);
+  });
+}
+// ------------------------------------------------------------ in-artifact checks (review chrome; never ships)
+function lum(c){ const m = c.match(/\d+(\.\d+)?/g).map(Number).slice(0, 3).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; }
+function ratio(a, b){ const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function bg(el){ while (el){ const c = getComputedStyle(el).backgroundColor; if (c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) return c; el = el.parentElement; } return 'rgb(255,255,255)'; }
+function audit(){
+  const out = [], frame = document.querySelector('.shell').getBoundingClientRect();
+  if (!frame.width || !frame.height){ document.getElementById('audit').innerHTML = '<b class="fail">page not rendered</b>'; return; }
+  let worst = 99, worstWhat = '';
+  document.querySelectorAll('.shell *').forEach(el => { if (!el.childNodes.length || ![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return;
+    const rr = ratio(getComputedStyle(el).color, bg(el)); if (rr < worst){ worst = rr; worstWhat = el.textContent.trim().slice(0, 32); } });
+  out.push(worst >= 4.5 ? `<b class="pass">text contrast ≥ 4.5:1</b> (lowest ${worst.toFixed(2)})` : `<b class="fail">text contrast ${worst.toFixed(2)}:1</b> at “${worstWhat}”`);
+  const small = [...document.querySelectorAll('.shell button, .shell input, .shell select')].filter(el => el.offsetParent !== null).filter(el => { const b = el.getBoundingClientRect(); return b.height < 23.5 || b.width < 23.5; });
+  out.push(small.length ? `<b class="fail">${small.length} targets under 24 px</b>` : '<b class="pass">targets ≥ 24 px</b>');
+  const txt = document.getElementById('screens').innerText, bad = ['NaN', 'undefined', 'Infinity', '<reason>', '<what changed>'].filter(s => txt.includes(s));
+  out.push(bad.length ? `<b class="fail">placeholder or non-number: ${bad.join(', ')}</b>` : '<b class="pass">no NaN / placeholder</b>');
+  const minFont = Math.min(...[...document.querySelectorAll('.shell *')].filter(el => el.innerText && el.innerText.trim()).map(el => parseFloat(getComputedStyle(el).fontSize)));
+  out.push(minFont >= 11 ? `<b class="pass">text ≥ 11 px</b>` : `<b class="fail">text ${minFont}px</b>`);
+  const recon = Math.abs(R.strips.reduce((a, t) => a + t.L, 0) - R.L) / R.L, sym = Math.abs(R.strips.reduce((a, t) => a + t.L * t.y, 0)) / R.L;
+  out.push(recon < 1e-12 && sym < 1e-9 && R.e > 0.9 && R.e <= 1.005 ? `<b class="pass">lattice sane</b> (e ${R.e.toFixed(3)}, Σ strips = L, rolling moment ${sym.toExponential(1)} m)` : `<b class="fail">lattice check</b> e ${R.e}`);
+  document.getElementById('audit').innerHTML = out.join(' · ');
+}
+document.getElementById('theme').addEventListener('click', e => { const d = document.documentElement.dataset.theme === 'light'; document.documentElement.dataset.theme = d ? 'dark' : 'light'; e.currentTarget.setAttribute('aria-pressed', String(d)); e.currentTarget.textContent = d ? 'Light theme' : 'Dark theme'; paint(); audit(); });
+document.getElementById('size').addEventListener('click', e => { const s = document.body.classList.toggle('small'); e.currentTarget.setAttribute('aria-pressed', String(s)); e.currentTarget.textContent = s ? '1280 × 800' : '1024 × 700'; paint(); audit(); });
+render();
+</script>
+</body>
+</html>
