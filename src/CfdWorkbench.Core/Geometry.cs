@@ -431,12 +431,54 @@ public static class Geometry
                 int index = Array.IndexOf(curve.Ids, row.Id);
                 Require(index > 0 && index < curve.Points.Length - 1, "A tangent row names an interior anchor.", GeometryStatus.Invalid, "DSL-LOCK");
                 double[] anchor = curve.Points[index], left = curve.Points[index - 1], right = curve.Points[index + 1];
-                if (curve.Path is "dihedral" or "twist" or "thickness")
+                if (curve.Path.StartsWith("profile:", StringComparison.Ordinal))
+                    CheckProfileRow(row, anchor, left, right);
+                else if (curve.Path is "dihedral" or "twist" or "thickness")
                     CheckChannelRow(curve.Path, row.Kind, anchor, left, right);
                 else
                     CheckRailRow(definition.HalfSpan, row.Kind, anchor, left, right);
             }
         }
+    }
+
+    private static void CheckProfileRow(TangentRow row, double[] anchor, double[] left, double[] right)
+    {
+        const double tau = 1e-9;
+        string because = "Tangent row '" + row.Id + "' does not satisfy " + row.Kind + ".";
+        if (row.Kind == "smooth")
+            Require(ProfileSmooth(anchor, left, right, tau), because, GeometryStatus.Invalid, "DSL-LOCK");
+        else if (row.Kind == "symmetric")
+            Require(ProfileSmooth(anchor, left, right, tau) && ProfileMidpoint(anchor, left, right, tau), because, GeometryStatus.Invalid, "DSL-LOCK");
+        else if (row.Kind == "horizontal")
+            Require(left[1] == anchor[1] && right[1] == anchor[1] && left[0] < anchor[0] && anchor[0] < right[0], because, GeometryStatus.Invalid, "DSL-LOCK");
+        else if (row.Kind == "vertical")
+            Require(left[0] == anchor[0] && right[0] == anchor[0] && (left[1] - anchor[1]) * (right[1] - anchor[1]) < 0, because, GeometryStatus.Invalid, "DSL-LOCK");
+        else if (row.Kind == "angle")
+        {
+            double radians = (row.Angle ?? double.NaN) * PlacementRule.RadiansPerDegree;
+            Require(NearRay(anchor, right, radians, tau) && NearRay(anchor, left, radians + Math.PI, tau), because, GeometryStatus.Invalid, "DSL-LOCK");
+        }
+        else
+            Require(false, because, GeometryStatus.Invalid, "DSL-LOCK");
+    }
+
+    private static bool ProfileSmooth(double[] anchor, double[] left, double[] right, double tau)
+    {
+        double along = (anchor[0] - left[0]) * (right[0] - anchor[0]) + (anchor[1] - left[1]) * (right[1] - anchor[1]);
+        double spanX = right[0] - left[0], spanY = right[1] - left[1];
+        double length = Math.Sqrt(spanX * spanX + spanY * spanY);
+        if (length == 0 || along <= 0) return false;
+        double cross = Math.Abs(spanX * (anchor[1] - left[1]) - spanY * (anchor[0] - left[0]));
+        return cross / length <= tau;
+    }
+
+    private static bool ProfileMidpoint(double[] anchor, double[] left, double[] right, double tau) =>
+        Math.Sqrt(Math.Pow(anchor[0] - (left[0] + right[0]) / 2, 2) + Math.Pow(anchor[1] - (left[1] + right[1]) / 2, 2)) <= tau;
+
+    private static bool NearRay(double[] origin, double[] handle, double radians, double tau)
+    {
+        double vx = handle[0] - origin[0], vy = handle[1] - origin[1];
+        return Math.Abs(vx * Math.Sin(radians) - vy * Math.Cos(radians)) <= tau && vx * Math.Cos(radians) + vy * Math.Sin(radians) > 0;
     }
 
     private static void CheckChannelRow(string path, string kind, double[] anchor, double[] left, double[] right)

@@ -166,10 +166,14 @@ internal static class ProfileFair
     private const int MeasureSamples = 2001;
     private const int LambdaSteps = 40;
 
-    internal static FairResult Fair(ProfileDefinition profile, double tolerance, PreserveEnds ends)
+    internal static FairResult Fair(ProfileDefinition profile, double tolerance, PreserveEnds ends, SurfaceSide? side = null)
     {
-        var upper = FitSide(profile.Upper, null, null, tolerance, ends);
-        var lower = FitSide(profile.Lower, null, null, tolerance, ends);
+        var upper = side == SurfaceSide.Lower
+            ? new SideFit(profile.Upper, 0, 0, 0, true)
+            : FitSide(profile.Upper, null, null, tolerance, ends);
+        var lower = side == SurfaceSide.Upper
+            ? new SideFit(profile.Lower, 0, 0, 0, true)
+            : FitSide(profile.Lower, null, null, tolerance, ends);
         return Combine(profile, upper, lower);
     }
 
@@ -218,7 +222,7 @@ internal static class ProfileFair
         if (rebuild) RebuildDesign(curve, useKnots, useX, parameters, out basis, out samples);
         else SameDesign(curve.Knots, curve.Degree, origin, parameters, out basis, out samples);
         double[,] smoothing = FairnessMatrix(useKnots, rebuild ? 5 : curve.Degree, useX);
-        (double[,] constraints, double[] bound) = Pins(origin, count, ends);
+        (double[,] constraints, double[] bound) = Pins(curve, origin, count, ends, !rebuild);
         double[] weights = Ones(samples.Length);
         int steps = 0;
         double[]? best = null;
@@ -240,6 +244,7 @@ internal static class ProfileFair
                 if (ordinates.Any(value => !double.IsFinite(value))) return false;
                 Snap(ordinates, constraints, bound);
             }
+            if (!rebuild) SnapHorizontal(ordinates, curve);
             double deviation = rebuild ? RebuiltGap(curve, useKnots, useX, ordinates) : SameBasisGap(useKnots, curve.Degree, origin, ordinates);
             int pieces = SignChanges(useKnots, rebuild ? 5 : curve.Degree, ordinates);
             if (deviation < reported) reported = deviation;
@@ -324,21 +329,99 @@ internal static class ProfileFair
         }
     }
 
-    private static (double[,] A, double[] B) Pins(double[] origin, int count, PreserveEnds ends)
+    private static (double[,] A, double[] B) Pins(Curve curve, double[] origin, int count, PreserveEnds ends, bool sameLayout)
     {
         var indexes = new List<int> { 0 };
         if (ends >= PreserveEnds.Position) indexes.Add(count - 1);
         if (ends >= PreserveEnds.Tangency) { indexes.Add(1); indexes.Add(count - 2); }
         if (ends >= PreserveEnds.Curvature) { indexes.Add(2); indexes.Add(count - 3); }
-        var constraints = new double[indexes.Count, count];
-        var bound = new double[indexes.Count];
+        var extra = new List<(double[] Coeff, double Value)>();
+        if (sameLayout && curve.Points.Length == count) AnchorRows(curve, origin, extra);
+        var constraints = new double[indexes.Count + extra.Count, count];
+        var bound = new double[indexes.Count + extra.Count];
         for (int row = 0; row < indexes.Count; row++)
         {
             int index = indexes[row];
             constraints[row, index] = 1;
             bound[row] = index == 0 ? 0 : EndOrdinate(origin, index, count);
         }
+        for (int row = 0; row < extra.Count; row++)
+        {
+            for (int column = 0; column < count; column++) constraints[indexes.Count + row, column] = extra[row].Coeff[column];
+            bound[indexes.Count + row] = extra[row].Value;
+        }
         return (constraints, bound);
+    }
+
+    private static void AnchorRows(Curve curve, double[] origin, List<(double[] Coeff, double Value)> extra)
+    {
+        int count = origin.Length;
+        int degree = curve.Degree;
+        for (int index = degree; index <= count - degree - 1; index++)
+        {
+            if (!FoilSource.IsAnchor(curve.Knots, count, degree, index)) continue;
+            var pin = new double[count];
+            pin[index] = 1;
+            extra.Add((pin, origin[index]));
+            int row = Array.FindIndex(curve.Tangents, item => item.Id == curve.Ids[index]);
+            if (row < 0 || index == 0 || index == count - 1) continue;
+            double left = curve.Points[index - 1][0], at = curve.Points[index][0], right = curve.Points[index + 1][0];
+            string kind = curve.Tangents[row].Kind;
+            if (kind is "smooth" or "symmetric" or "horizontal")
+            {
+                var line = new double[count];
+                line[index - 1] = at - right;
+                line[index] = right - left;
+                line[index + 1] = left - at;
+                extra.Add((line, 0));
+            }
+            if (kind == "symmetric")
+            {
+                var mid = new double[count];
+                mid[index - 1] = 1;
+                mid[index] = -2;
+                mid[index + 1] = 1;
+                extra.Add((mid, 0));
+            }
+            if (kind == "horizontal")
+            {
+                var leftLevel = new double[count];
+                leftLevel[index - 1] = 1;
+                leftLevel[index] = -1;
+                extra.Add((leftLevel, 0));
+                var rightLevel = new double[count];
+                rightLevel[index + 1] = 1;
+                rightLevel[index] = -1;
+                extra.Add((rightLevel, 0));
+            }
+            if (kind == "angle" && curve.Tangents[row].Angle is double degrees)
+            {
+                double radians = degrees * PlacementRule.RadiansPerDegree;
+                double cos = Math.Cos(radians), sin = Math.Sin(radians);
+                var rightRay = new double[count];
+                rightRay[index + 1] = cos;
+                rightRay[index] = -cos;
+                extra.Add((rightRay, (right - at) * sin));
+                var leftRay = new double[count];
+                leftRay[index - 1] = cos;
+                leftRay[index] = -cos;
+                extra.Add((leftRay, -(at - left) * sin));
+            }
+        }
+    }
+
+    private static void SnapHorizontal(double[] ordinates, Curve curve)
+    {
+        if (curve.Points.Length != ordinates.Length || curve.Ids is null) return;
+        int count = ordinates.Length;
+        for (int index = curve.Degree; index <= count - curve.Degree - 1; index++)
+        {
+            if (!FoilSource.IsAnchor(curve.Knots, count, curve.Degree, index)) continue;
+            int row = Array.FindIndex(curve.Tangents, item => item.Id == curve.Ids[index]);
+            if (row < 0 || curve.Tangents[row].Kind != "horizontal") continue;
+            ordinates[index - 1] = ordinates[index];
+            ordinates[index + 1] = ordinates[index];
+        }
     }
 
     private static double EndOrdinate(double[] origin, int index, int count)

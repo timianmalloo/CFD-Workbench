@@ -2654,7 +2654,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9869a06ce3fe5c3e2b8d8e317280be2809e330e7e3320e83ae2f92b0de58ab6e"
+      "sourceSha256": "9e74a5f9cb3f00ba5d4fd1ba6b4ded4f3093896b4478b7a497525911f42c1e05"
     },
     {
       "id": "design-section-editor",
@@ -9972,5 +9972,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "7651a972b32ec1f7ce0b99a2580df7e560a1f3916c51872f396ebef1826e5377"
+  "graphSha256": "de0bcbec0f8396058ae56990a9ecf22c81401941abceb76d43cd1770b752db2b"
 };
