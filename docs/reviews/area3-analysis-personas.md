@@ -15,7 +15,8 @@ summary: >-
   Gate record for design-area3-analysis revision 1. Hydrodynamicist and Test Architect blocked (VLM result without its
   method envelope; story clauses without tests); CFD verification, computational geometry and data persistence approved
   with changes. Every finding is folded into revision 2 or carried as a DR-ANA item; the mockup's UX and accessibility
-  review is recorded at the end.
+  review is recorded at the end. Revision 3 (repair cycle 2 of 2) folds the two lenses' rev 2 re-review (B-H1, M-H1,
+  B-T1, M-T1…M-T3 and minors), mapped finding by finding with file:line.
 ---
 
 # Area 3 analysis design — the gate
@@ -62,3 +63,43 @@ After the repair the in-artifact audit is clean in light and dark at 1280 × 800
 targets ≥ 24 px, no NaN or placeholder, text ≥ 11 px, no row overflow, no page errors). Not re-reviewed by the lens
 after the repair; residual per the lens: overlay contrast over drawings, live-region announcement, keyboard on the
 static tabs.
+
+## Rev 3 repairs (repair cycle 2 of 2, 2026-10-03)
+
+The hydrofoil hydrodynamicist and the test architect re-reviewed revision 2 and both still blocked, narrowly. Revision 3
+folds every finding below; nothing was re-opened beyond them. Line numbers are revision 3's. Design =
+`docs/design/area3-analysis.md`, mockup = `docs/mockups/area3-analysis.html`, note =
+`docs/notes/area3-fixture-arithmetic.md`. Clearance stays with the two lenses.
+
+### Hydrofoil hydrodynamicist
+
+| Finding | Fix | Where |
+|---|---|---|
+| **B-H1** station readout Current with no per-strip verdict and no omissions | The strip readout carries its own envelope verdict (each bound with the strip's value), Re_local against the polar's Re range ("Unavailable — no polar method installed" in A3a, never "inside") and the "Not modelled" list; station rows in §12.2/§12.3; three named tests; the mockup's station state renders all three | design :362–375, :547, :562, :762–764; mockup :222–223, :312 |
+| M-H1 finding rendered only in Labels | The run verdict sits on the row directly after CL in the Wing result group (removed from Labels) | design :349–352; mockup :318 |
+| Minor: bound string dropped α_L0 and the sweep limit | Full bound always written: "(\|α_eff − α_L0\| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°) — n of m strips; exceeded: parts"; the predicate uses α_L0 and sweep | design :350–358, :561, §12.6; mockup :217–221 |
+| Minor: no result state with depth unset | Screen 3b: the label reads "… free surface not modelled", h/c, Fr_h, σ, V_crit read COPY-45, no tip-depth or free-surface line; the label is a function of depth, not a constant | design :378–383, :558; mockup :208–209, :373 |
+| Minor: DR-ANA-13 needs a spec amendment (spec :962 "never changes") | Recorded as a spec-owner amendment request with proposed 1.7 text; G-11 and §14 point to it | design :125–126, :771–772, :790 |
+| Minor: b, moment datum and force axes missing from the Wing result group | Added under the result: "b 900 mm · moment datum: frame origin (root LE) · force axes: body, +x aft, +y starboard, +z up; L and D in wind axes" | design :347, :547; mockup :319 |
+| DR-ANA-14 note | "Inferred; tighten per strip when the polar brackets land (low-Re tips stall earlier)" added with the per-strip rule | design :791 |
+
+### Test architect
+
+| Finding | Fix | Where |
+|---|---|---|
+| **B-T1** clauses traced only to story level | Each clause has its own named test with a failing input, a ring and a cost: ANA-11 missing terms (`Loads_MissingTerm_UnavailableNeverZero`), Not-assessed list (`Loads_StructuralNotAssessed_ListComplete`), attachment moment (`Loads_AttachmentMoment_TransferAboutNamedPoint`, worked (O − P) × F = (0, +10, 0) N·m vs mutant (0, −10, 0)); ANA-15 0–50 °C (`Water_OutsideTable_Unavailable`); ANA-03 CD ≤ 0 and V ≤ 0 (`Projection_CdZeroOrNegative_ClCdUndefined`, `OperatingPoint_SpeedZeroOrNegative_Undefined`); ANA-22 preview budget (`Toggle_NeverEvaluates` ring 0 + `Toggle_LayersFirstFrame_P95WithinPreviewBudget` readiness); ANA-23 arc and sign (`Layers_MomentArc_SenseFollowsSignAboutNamedDatum`, `Layers_Vectors_BodyFrameSignConventionLabelled`). Group names replaced (`Toggle_*`, "and three more", "screen rows", "§13.3 rows"); §13.3 is a per-test table; §13.5 has Ring and Cost columns | design :629–673 (§13.3), :711–764 (§13.5; B-T1 rows :726–727, :739–743, :756, :758–759) |
+| **M-T1** F-8 mutant survives (0.8 % inside 1 %) | S_ref pinned to the developed area; dihedral raised to ±20°; expected 0.8938 ± 1 %; the dihedral-ignored mutant gives 1.0000, **11.9 % off** (measured; at ±10° it missed by 2.81 % developed and 1.25 % projected on this wing) | design :616; note :52 |
+| **M-T2** F-6 off-by-one mutant is O(h) | Replaced by an O(1) mutant — wake length read per panel, not per wing — measured: CL +5.9/+11.9/+21.3 % at 32/64/128, p(CL) −0.735, p(e) 0.515, both outside 1.0 ± 0.2. Lattices moved to 32/64/128 (p(CL) 1.070, p(e) 1.013; 16/32/64 gave 1.183, at the edge) | design :614; note :51 |
+| **M-T3** timing limits were prose; `SECONDS` is whole seconds | Checks C-1…C-6 designed as build-track work: ms clock in `run-tests.sh`, new `tools/check-test-costs.py` run at every join, `COST <name> <ms>` lines from a `Stopwatch` in the harness; each with its failing input (5900 ms passes `SECONDS` but fails C-2; 50400; 43100 naming DR-ANA-10; 512.3 ms per check; a missing `.ms`) | design :674–710 (checks C-1…C-6 :694–710) |
+| F-2 band had no numbers | Band **[0.4156, 0.4198]** (0.4177 ± 0.5 %) from an independent JS lattice, CFD lens' 0.4167 inside; lifting line 0.4386, Helmbold 0.4282, Jones 0.427 and an unextrapolated 32-span 0.4206 fail it; the mid-panel mutant gives 0.2391 | design :610; note :50 |
+| Minor: F-13 one mutant for two rows | F-13a (ν not read from the water record) and F-13b (polar looked up at the stored fresh-water Re → loads × 1.0269 exactly) | design :621–622 |
+
+### What stays open (said plainly)
+
+- Every cost marked est. is **Inferred**; the C# costs are measured at red-first (C-5 records them). F-1 and F-6 are
+  named exemptions from the 0.5 s per-check rule (≤ 1.5 s) because A8.4 keeps them in ring 0; if C# measures them
+  above 1.5 s, the harness budget needs a ruling, not a quiet move.
+- The F-2 and F-8 expected values come from two independent re-implementations (this note's JS and the CFD lens'
+  numpy), not from the product; that the C# lattice lands inside is Inferred until red-first.
+- At 1024 × 700 the Properties pane now scrolls on four screens (7–135 px) rather than clipping; at 1280 × 800 only the
+  failed screen scrolls (35 px).

@@ -14,8 +14,9 @@ links:
   - {to: spec-cfd-workbench-v1, rel: implements}
 review-by: 2026-12-31
 summary: >-
-  Eight screens of the 1280 × 800 shell for the Example foil in Analysis: no result with depth unset, evaluating, the
-  wing result Current with loading drawn on the geometry, a station selected with the Loads tab, Historical after a CAD
+  Nine screens of the 1280 × 800 shell for the Example foil in Analysis: no result with depth unset, evaluating, the
+  wing result Current with loading drawn on the geometry, the same result with depth unset, a station selected (the strip
+  with its own envelope verdict, Re against the polar range and omissions) with the Loads tab, Historical after a CAD
   edit with a draft hidden and the Provenance tab, a failed evaluation, a result outside the method envelope, and a run that failed its integrity check. Every load number is computed in the page
   by a reference vortex lattice; every label, envelope, depth basis and omission is shown. For the operator's approval
   before any build.
@@ -24,7 +25,7 @@ review-suggested: []
 
 # Area 3 analysis — the Analysis surface
 
-Open [`area3-analysis.html`](area3-analysis.html) over `file://`. Eight screens are stacked; the buttons top right switch
+Open [`area3-analysis.html`](area3-analysis.html) over `file://`. Nine screens are stacked; the buttons top right switch
 the chrome to dark and the shell to 1024 × 700. The strip under the title is the in-artifact audit (text contrast,
 target size, NaN/placeholder scan, text size, and a lattice sanity check: e, Σ strips = L, zero rolling moment).
 
@@ -60,6 +61,10 @@ choices at the foot of the page map to DR-ANA-6 (explicit Evaluate), DR-ANA-8 (t
 - `ui-craft-gate.py`: one Minor — `side-tab` on `.sb .msg.error`, the 3 px inset rail. It is the DESIGN.md Status strip
   row's specified error rail ("a warning or error also draws a 3 px inset rail of its colour at the strip's left"), so
   it is kept as a recorded deviation (CD16). A clean detector run is a floor, never a verdict.
+- Rev 3 (repair cycle 2, 2026-10-03): the audit is clean again in light and dark at 1280 × 800 and 1024 × 700 (lowest
+  contrast 5.66 light, 6.51 dark; no page errors). Properties now scrolls (`overflow-y: auto`) instead of clipping: at
+  1280 × 800 the failed screen scrolls by 35 px; at 1024 × 700 four screens scroll by 7–135 px. The Conditions group is
+  closed by default (the band shows the same values).
 - UX & Accessibility lens: PASS WITH CONDITIONS, no veto; repair cycle 1 folded all five Majors
   (`docs/reviews/area3-analysis-personas.md` § Mockup review).
 - The page's own lattice check caught two defects during authoring (Trefftz downwash at 1/(4π) gave e 2.03; 32 × 6

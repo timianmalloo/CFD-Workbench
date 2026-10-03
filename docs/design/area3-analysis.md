@@ -23,6 +23,7 @@ links:
   - { to: mockup-area3-analysis, rel: relates-to }
   - { to: note-area3-analysis-reading-contract, rel: relates-to }
   - { to: review-area3-analysis-personas, rel: tested-by }
+  - { to: note-area3-fixture-arithmetic, rel: relates-to }
   - { to: defect-classes, rel: relates-to }
 review-by: 2027-04-03
 summary: >-
@@ -37,7 +38,8 @@ summary: >-
 
 # Design: Area 3 — Analysis (local tiers)
 
-- **Status:** In review, revision 2 (all five lenses folded, §17). Documents only (Ruling 60 item 4: "F2 the Area 3
+- **Status:** In review, revision 3 (repair cycle 2 of 2: the hydrodynamicist's and test architect's rev 2 findings
+  folded, §17). Documents only (Ruling 60 item 4: "F2 the Area 3
   Analysis design, documents only"). Nothing here is built until the operator approves the mockup
   (`docs/mockups/area3-analysis.html`) and rules the DR-ANA batch (§15).
 - **Spec:** [spec rev 1.6](../specs/cfd-workbench-v1.md) A2 row 3 (:170), A3.1 rows Analysis run · Run manifest ·
@@ -120,7 +122,8 @@ points (Area 1 does not exist yet — DR-ANA-9); the free-surface correction lay
   line 0.4386, Helmbold 0.4282). ANA-04's flat-plate row uses Helmbold, an elliptic-planform formula, on a rectangular
   plate (re-run: −0.85 % to −0.96 %, growing with refinement). → DR-ANA-12.
 - **G-11 (spec conflict, hydrodynamics lens).** A5.6's fixed VLM label contains "deep water"; A5.1/ANA-19 say "with
-  depth unset … no deep-water value or label is printed". → DR-ANA-13.
+  depth unset … no deep-water value or label is printed". A5.6 :962 also says a correction layer "never changes this
+  label", so DR-ANA-13 (a) is a **spec amendment**, requested of the spec owner in §15 — not a design-side reading.
 - **G-12 (copy drift, hydrodynamics lens; Verified).** A7 writes "Computed estimate · model uncertainty not
   quantified"; DESIGN.md COPY-63 capitalises "Model". DESIGN.md is the copy authority (C2); the spec owner reconciles.
 - **G-13 (Verified, `tools/run-tests.sh`:36–54).** Every harness launches at once (no throttle). A fifth harness runs
@@ -153,7 +156,7 @@ version, settings hash, reference quantities, datum. Proposed glossary rows:
 | Term | Kind | Meaning |
 |---|---|---|
 | **Run outcome** | value | Completed · Failed(code, reason). Cancelled is a telemetry outcome, never a stored row |
-| **Method envelope** | value, per method version | the input range inside which the method's claims hold (VLM: |α_eff − α_L0| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°; §5.4) — a property of the method record, not of the design |
+| **Method envelope** | value, per method version | the input range inside which the method's claims hold (VLM: \|α_eff − α_L0\| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°; §5.4) — a property of the method record, not of the design |
 | **Lattice** | derived | the VLM panelling of one Surface revision under one settings value; rebuilt on read, never stored |
 | **Section sample** | derived | the Rule A section at one η from Core: placed camber points, normalised camber, thickness and camber slope (§4); never stored |
 | **Pending operating point** | session value | what the conditions band holds between an edit and Evaluate; not document data |
@@ -341,17 +344,42 @@ fully turbulent bound. It exists so a wing number is available without the latti
 |---|---|---|---|---|---|
 | Estimator | "Estimator · local calculation" | "inviscid + turbulent-friction bound; deep water; steady" | AR ≥ 4 for Prandtl, Helmbold below; sweep ≤ 15°; attached | COPY-63; method id + version | free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state |
 | Polar | "Polar · local calculation" | surrogate name + version; confidence or "not recorded"; station count; COPY-66 when a surrogate | the polar's Re grid and converged α bracket at both Ncrit | COPY-63; COPY-44; surface state | as above plus 3D effects |
-| VLM + strip | "VLM + strip · local calculation" | "attached flow; no stall; no ventilation; deep water" (DR-ANA-13 for depth unset) | **|α_eff − α_L0| ≤ 10°, Cl_local ≤ 1.0 (or the polar's converged bracket when present), quarter-chord sweep ≤ 30°** (07 §3D methods; Inferred bounds, proposed) | COPY-63; lattice n_span × n_chord; S_ref, b, datum, force axes; "Wing only" | as above; separation only as COPY-72 |
+| VLM + strip | "VLM + strip · local calculation" | "attached flow; no stall; no ventilation; deep water" — with depth unset, "… free surface not modelled" in place of "deep water" (DR-ANA-13, a spec amendment) | **\|α_eff − α_L0\| ≤ 10°, Cl_local ≤ 1.0 (or the polar's converged bracket when present), quarter-chord sweep ≤ 30°**; with a polar, also Re_local inside the polar's Re range (07 §3D methods; Inferred bounds, proposed — DR-ANA-14) | COPY-63; lattice n_span × n_chord; S_ref, b, moment datum, force axes; "Wing only" | as above; separation only as COPY-72 |
 
-**The envelope verdict is derived per strip and per run** (hydrodynamics veto, finding 1): when any strip is outside, the
-wing result shows "Outside the method envelope — <bound> at <n> strips" (new copy row) beside CL and the strips are
-marked in the layer; the result is never shown bare. COPY-49 stays the ANA-20 *catalog* finding — a different thing.
+**The envelope verdict is derived per strip and per run** (hydrodynamics veto, finding 1). The wing result always
+carries the run verdict **in the Wing result group, on the row after CL** (rev 2 finding M-H1: it rendered only in
+Labels), and the strips outside are marked in the layer; the result is never shown bare. The bound is always written in
+full, every part named (rev 2 minor: the string had dropped α_L0 and the sweep limit):
+
+- outside: "Outside the method envelope (|α_eff − α_L0| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°) — <n> of
+  <m> strips; exceeded: <parts>" (new copy row, replaces rev 2's "— <bound> at <n> strips");
+- inside: "Inside the method envelope (|α_eff − α_L0| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°) at all <m>
+  strips" (new copy row).
+
+With a polar the parenthesis gains "Re_local in <Re range>" and Cl_local's bound becomes the polar's bracket. COPY-49
+stays the ANA-20 *catalog* finding — a different thing.
+
+**The strip readout carries its own verdict and omissions** (rev 2 blocker B-H1). A station selected in Analysis shows
+"Strip of wing run (α_eff) · η <η>" and, under its values, three things the wing result has and the strip did not:
+
+| Row | Content | With no polar (A3a) |
+|---|---|---|
+| Envelope (this strip) | "Inside" or "Outside" with each part's value against its bound: "\|α_eff − α_L0\| <x>° ≤ 10° · Cl_local <y> ≤ 1.0 · sweep <z>° ≤ 30°"; an exceeded part is named first and the row reads "Outside the method envelope at this strip" | as written; Cl_local's bound is 1.0 |
+| Re_local vs polar Re range | "Re_local <Re> inside <Re_min>–<Re_max>" or "Re_local <Re> outside the polar's Re range <Re_min>–<Re_max> — cd not extrapolated" (§5.2 rule) | "Unavailable — no polar method installed" (there is no range to test against; never "inside") |
+| Not modelled | the VLM omissions list verbatim (free surface — or the depth basis line when depth is set —, ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as COPY-72) | same |
+
+The strip's tier chip, COPY-63 and the fixed label (with the depth-unset form) appear as on the wing result. Tested by
+`Station_StripReadout_EnvelopeVerdictPerPart`, `Station_StripReadout_ReAgainstPolarRange` and
+`Station_StripReadout_NotModelledList` (§13.5).
 
 **Depth basis on every result (ANA-19):** depth unset → σ, Fr_h, V_crit read COPY-45; h/c < 5 at any station → COPY-46
 with its numbers on every low-order result; h(y) ≤ 0 → that station's estimator Unavailable and only the
 surface-piercing flag; depth set and every h(y) > 0 → tip-depth margin, Fr_h and COPY-47. Undefined / Unavailable have
-one rendering each (COPY-69 / COPY-70). **A station selected in Analysis shows the "Strip of wing run (α_eff)" result**,
-labelled so, distinct from a 2D section result at α_geo. LAB-01 lints every string this area renders.
+one rendering each (COPY-69 / COPY-70). With depth unset the VLM fixed label reads "attached flow; no stall; no
+ventilation; free surface not modelled" (DR-ANA-13) — never "deep water", and COPY-46/47 do not print (there is no
+depth to state). **A station selected in Analysis shows the "Strip of wing run (α_eff)" result**, labelled so,
+distinct from a 2D section result at α_geo, with its own verdict and omissions (above). LAB-01 lints every string this
+area renders.
 
 ### 5.5 In-process vs process boundary, per tier
 
@@ -452,23 +480,23 @@ fixture).
 | FM-2 | Lattice and drawn foil disagree | **prevent** — `PlacedCamber` from Core only | `Sections_PlaceEqualsSurfaceMidline_Bitwise` |
 | FM-3 | Closing (zero-chord) tip strip | **prevent** — diagonal normals; triangle tip panel kept; exclude only below 10 µm control-point chord, listed | `Vlm_ClosingTip_FiniteAndListed`; elliptic fixture F-2 closes its tip |
 | FM-4 | Non-finite result | **prevent** — fail closed `ANA-NONFINITE` | `Vlm_NonFinite_RecordsFailedNotZero` |
-| FM-5 | Stale result shown as current | **prevent** — freshness derived per projection | ANA-07 rows |
-| FM-6 | Units change invalidates | **prevent** — units outside the key | ANA-18 row |
-| FM-7 | Water outside 0–50 °C | **prevent** — COPY-52 before compute | ANA-15 row |
-| FM-8 | Depth unset printed as deep water | **prevent** — projection rule (DR-ANA-13) | ANA-19 rows |
+| FM-5 | Stale result shown as current | **prevent** — freshness derived per projection | `Freshness_SurfaceEdit_Historical`, `Freshness_UndoToEqualKey_CurrentAgain`, `Freshness_SaveReopen_Unchanged` and the other freshness tests of §13.3 |
+| FM-6 | Units change invalidates | **prevent** — units outside the key | `Units_Lbf_KeyUnchanged` |
+| FM-7 | Water outside 0–50 °C | **prevent** — COPY-52 before compute | `Water_OutsideTable_Unavailable` |
+| FM-8 | Depth unset printed as deep water | **prevent** — projection rule (DR-ANA-13) | `Depth_Unset_NoDeepWaterLabel`, `Labels_DepthUnset_FreeSurfaceNotModelled` |
 | FM-9 | Polar unavailable zeroes profile drag | **prevent** — Total drag Unavailable naming "profile" | `Loads_PolarUnavailable_TotalDragNamesProfile` |
 | FM-10 | Process polar hangs or orphans | **mitigate** — timeout, kill tree, outputs by files (only if DR-ANA-1 picks a process) | fault injection with a sleeping stub |
-| FM-11 | Document grows past 8 MB | **mitigate** — strip cap, DR-ANA-4 retention, preflight `DOC-SIZE` | size test at the cap with a measured run size |
+| FM-11 | Document grows past 8 MB | **mitigate** — strip cap, DR-ANA-4 retention, preflight `DOC-SIZE` | `Store_SizeAtStripCap_UnderDocLimit` |
 | FM-12 | Global evaluator counters raced (G-3) | **prevent** — counters `Interlocked` in the Core track; counter tests run with analysis idle | counter test under a concurrent evaluation |
 | FM-13 | Evaluate during a CAD gesture | **accept** — snapshot is the accepted revision; residual: one wasted evaluation | — |
 | FM-14 | Duplicate row for one key | **prevent** — store invariant | `RecordRun_SameKeyTwice_OneCompletedRow` |
 | FM-15 | Coarse lattice, e > 1 | **detect** — lattice finding (§5.2) | F-2, F-6 |
-| FM-16 | Run recorded after close | **prevent** — `DOC-CLOSED` | barrier-seam test |
-| FM-17 | Toggle loses camera/selection | **prevent** — toggle touches neither | toggle equality test |
-| FM-18 | Old build overwrites a `-2` file | **prevent** — old reader fails closed | `-2` sample through today's reader |
-| FM-19 | A tampered run shown as Current | **prevent** — content hash + recomputed key | tamper tests (§13.3) |
-| FM-20 | Pruning deletes a run Undo would revive | **prevent** — DR-ANA-4 reachability rule + tombstone | prune → undo test |
-| FM-21 | Result outside the method envelope shown bare | **prevent** — envelope verdict per strip | `Vlm_AlphaBeyondEnvelope_ShowsEnvelopeFinding` |
+| FM-16 | Run recorded after close | **prevent** — `DOC-CLOSED` | `Evaluate_CloseMidCompute_DocClosedNoRow` |
+| FM-17 | Toggle loses camera/selection | **prevent** — toggle touches neither | `Toggle_RoundTrip_CameraSelectionStationViewportEqual` |
+| FM-18 | Old build overwrites a `-2` file | **prevent** — old reader fails closed | `Project2_TodaysReader_FailsClosedCopy130` |
+| FM-19 | A tampered run shown as Current | **prevent** — content hash + recomputed key | `Tamper_EditedStripValue_RunUnavailable`, `Tamper_StoredKeySetToCurrent_RunUnavailable` |
+| FM-20 | Pruning deletes a run Undo would revive | **prevent** — DR-ANA-4 reachability rule + tombstone | `Retention_PruneThenUndo_TombstoneReadsPruned` |
+| FM-21 | Result outside the method envelope shown bare | **prevent** — envelope verdict per strip | `Vlm_AlphaBeyondEnvelope_ShowsEnvelopeFinding`, `Envelope_RunVerdict_BesideCL_FullBound`, `Station_StripReadout_EnvelopeVerdictPerPart` |
 
 ## 10. Adversarial analysis (STRIDE-lite)
 
@@ -516,7 +544,7 @@ Missing measurements read "not recorded", never a plausible number (IO8). No fil
 |---|---|---|
 | Model-area top | alert band (when needed) | **Conditions band** (40 px, one row): Speed · Water ▾ · Depth h_ref · α · **Evaluate** · derived q · Re_ref · h/c · Fr_h · σ with units; at 1024 px the derived group keeps q and σ and moves the rest into `More ▾` (the measured-toolbar rule) |
 | Views | geometry, points | same geometry, points dimmed, + **layers**: Plan — Γ per strip (batlow, legend with variable, unit, range, map, run) and the loading curve; 3D — strip lift arrows (∝ N/m, along the local normal), total at the centre line, root-moment arc, free-surface line and tip depth; Side/Front — depth band, free surface at h_ref, tip-depth margin |
-| Left side bar | Properties · Browser · Points | Properties shows the result for the selection (Foil → wing result; Station → "Strip of wing run (α_eff)"); **Layers** replaces Points (visibility, legend fields) |
+| Left side bar | Properties · Browser · Points | Properties shows the result for the selection (Foil → wing result, with b, moment datum and force axes beside S_ref and the run verdict on the row after CL; Station → "Strip of wing run (α_eff)" with its own envelope verdict, Re_local against the polar's Re range and the "Not modelled" list, §5.4); **Layers** replaces Points (visibility, legend fields) |
 | Bottom panel | Checks / Messages | **Spanwise loading** (Cl·c/c̄ vs η with the elliptic reference; table twin) · **Section** · **Loads** · **Provenance** · Checks |
 | Status strip (V2) | last report · counts | last report + item **Analysis: no result / Running / Current / Historical / Failed / Unavailable** |
 
@@ -527,10 +555,11 @@ Archetype: G1 workbench with G2 charts (C1), unchanged; charts follow C2.
 | State | What shows | String |
 |---|---|---|
 | No result | conditions band with Evaluate primary; no layers; "No analysis yet" group | "No analysis yet. Set the conditions, then Evaluate." (new) |
-| Depth unset | σ, Fr_h, V_crit cells | COPY-45 |
+| Depth unset | σ, Fr_h, V_crit cells; on a result, the VLM fixed label's depth form; no COPY-46/47, no free-surface line | COPY-45; "attached flow; no stall; no ventilation; free surface not modelled" (DR-ANA-13, spec amendment) |
 | Running | Evaluate → **Cancel**; status "Running"; static skeleton; a prior run's layers stay, Historical | "Evaluating — <tier> · <n> panels…" (new) |
 | Completed, Current | layers, results, tier chip, COPY-63, envelope, depth basis, omissions | §5.4 |
-| Outside the method envelope | finding beside CL; strips marked | "Outside the method envelope — <bound> at <n> strips" (new) |
+| Inside / outside the method envelope | the run verdict on the row after CL, the full bound named; strips outside marked (dashed outline and a count, not colour alone) | "Outside the method envelope (\|α_eff − α_L0\| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°) — <n> of <m> strips; exceeded: <parts>" / "Inside the method envelope (…) at all <m> strips" (new) |
+| Station selected (strip of wing run) | strip values, then its own envelope verdict per part, Re_local against the polar's Re range, and the "Not modelled" list | §5.4 strip readout (new rows) |
 | Failed | previous run stays Historical; error card with the next step; error report in the strip | "Analysis failed — <reason> (<code>). The previous result is kept as Historical." (new) + card next step "Change the panel count or the tip, then Evaluate." (new) |
 | Historical | banner on the area and every result header | COPY-64 |
 | Preview hidden | banner | "Preview hidden — Apply or Cancel in CAD" (C2) |
@@ -555,7 +584,11 @@ condition) — until then every tier shows Computed estimate only.
 
 "No analysis yet. Set the conditions, then Evaluate." · "Evaluating — <tier> · <n> panels…" · "Analysis failed —
 <reason> (<code>). The previous result is kept as Historical." · "Analysis complete — <tier> · <t> s" · "Points are
-edited in CAD. Switch with the CAD | Analysis toggle." · "Outside the method envelope — <bound> at <n> strips" ·
+edited in CAD. Switch with the CAD | Analysis toggle." · "Outside the method envelope (|α_eff − α_L0| ≤ 10°, Cl_local
+≤ 1.0, quarter-chord sweep ≤ 30°) — <n> of <m> strips; exceeded: <parts>" · "Inside the method envelope (|α_eff −
+α_L0| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°) at all <m> strips" · "Outside the method envelope at this
+strip" · "Re_local <Re> outside the polar's Re range <Re_min>–<Re_max> — cd not extrapolated" · "attached flow; no stall;
+no ventilation; free surface not modelled" (on DR-ANA-13's amendment) ·
 "Unavailable — no polar method installed" · "Unavailable — run payload failed its check" · "Change the panel count or the tip, then Evaluate." · "Strip of wing run (α_eff)" ·
 "elliptic loading assumed; planar lower bound on induced drag" · tier chips "Estimator · local calculation", "Polar ·
 local calculation", "VLM + strip · local calculation".
@@ -574,35 +607,69 @@ mutant** (§13.2 column), not only a stub — a constant or zero stub satisfies 
 | ID | Fixture | Expected · tolerance | Red-first mutant | Ring · cost |
 |---|---|---|---|---|
 | F-1 | rectangular flat plate, AR 25…200, 1 chordwise panel | Richardson in 1/AR → 2π within **0.5 %** (CFD re-run 0.15–0.3 %); Helmbold not used on a rectangle (DR-ANA-12) | bound vortex at mid-chord | ring 0 · ≈ 1 s (measured by the CFD lens' numpy re-run; C# measured at red-first) |
-| F-2 | elliptic AR 8, lattice from sampled chord, α 5° | three lattices (r = 2); Richardson-extrapolated CL in the lifting-surface band (reference values recorded before the build from an independent lattice — CFD lens re-run 0.4167 at 128 spanwise; DR-ANA-12) and extrapolated e within 1.000 ± 0.005 | control point at mid-panel | ring 0 · ≈ 1 s |
+| F-2 | elliptic AR 8, lattice from sampled chord, α 5° | F-6's three lattices (32/64/128 per half × 4 chordwise); Richardson CL in **[0.4156, 0.4198]** (0.4177 ± 0.5 %; reference 0.41766 from this revision's independent JS lattice, 16/32/64 gives 0.41785; the CFD lens' numpy 0.4167 at 128 × 6 lies inside — [note](../notes/area3-fixture-arithmetic.md)). An input fails it: lifting line 0.4386, Helmbold 0.4282, Jones ≈ 0.427, an unextrapolated 32-span 0.4206. Extrapolated e within 1.000 ± 0.005 (reference 0.99859) | control point at mid-panel → Richardson CL 0.2391, outside the band (measured, [note](../notes/area3-fixture-arithmetic.md)) | ring 0 · shares F-6's solves |
 | F-3 | symmetric section | Cl(0) = 0 within 10⁻⁶ **and** Cl(−α) = −Cl(α) within 10⁻¹² rel, Cl(4°) > 0.3 | camber read from the upper surface | ring 0 · < 10 ms |
 | F-4 | mirrored wing, β 0 | side force, roll and yaw = 0 within 10⁻¹² of lift; CL > 0.1 | one half mirrored with the wrong sign | ring 0 · ≈ 50 ms |
 | F-5 | Trefftz vs near-field induced drag | within 1 % at the default lattice | near-field drag without induced velocity | ring 0 · shares F-2 |
-| F-6 | refinement, three lattices r = 2 | observed order p = ln(ε₃₂/ε₂₁)/ln 2 within 1.0 ± 0.2 for CL and e; the method record states p = 1 | lattice indexing off by one strip | ring 0 · ≈ 1 s |
-| F-7 | twist sign, −3° linear washout | tip α_eff < root by ≈ 3° minus the induced change; CL below untwisted | twist sign flipped | ring 0 |
-| F-8 | anhedral ±10° | CL ratio to planar within 1 % of the value for the **stated** S_ref convention (projected ≈ 0.992, developed ≈ 0.977 — CFD re-run; record the convention) | dihedral ignored in placement | ring 0 |
+| F-6 | refinement, elliptic AR 8, **32/64/128** per half (r = 2) | observed order p = ln((f₂ − f₁)/(f₃ − f₂))/ln 2 within 1.0 ± 0.2 for CL and e (reference p(CL) 1.070, p(e) 1.013; 16/32/64 is not used — p(CL) 1.183 sits at the band edge); the method record states p = 1 | **O(1) mutant: the wake length read per panel (`wakeSpans` × panel span, not × wing span).** The error grows with refinement (CL +5.9, +11.9, +21.3 %), so p(CL) = −0.735 and p(e) = 0.515 — red (measured, [note](../notes/area3-fixture-arithmetic.md)). Rev 2's off-by-one strip is O(h) and leaves p near 1 | ring 0 by A8.4 (observed order is ring 0) · ≈ 0.8 s in the JS reference; C# measured at red-first; exempt from the 0.5 s rule by name (§13.4) |
+| F-7 | twist sign, −3° linear washout | tip α_eff < root by ≈ 3° minus the induced change; CL below untwisted | twist sign flipped | ring 0 · est. 0.1 s (two 512-unknown solves) |
+| F-8 | dihedral **±20°**, Example-foil rectangle, α 5°, 32 × 4 | S_ref **pinned to the developed area** (b·c): CL ratio to planar **0.8938 ± 1 %** (both signs; [note](../notes/area3-fixture-arithmetic.md)) | dihedral ignored in placement → ratio 1.0000, **11.9 % off** — 12 × the tolerance. Rev 2's ±10° projected target let it pass (0.8 % on the CFD lens' wing, 1.25 % here) | ring 0 · est. 50 ms (three 256-unknown solves) |
 | F-9 | ANA-03 arithmetic | L 2688 N, D 156.8 N, CL/CD 17.142857 | q without ½ | ring 0 · µs |
-| F-10 | bookkeeping (ANA-11) | near-field wind-axis Σ vs L_T and half-span root moment, normalised by L·b/2, within the manifest tolerance; up to α 10° | drop or double one strip | ring 0 |
-| F-11 | metamorphic scale | geometry × k → CL, CDi, e unchanged (10⁻¹² rel); forces × k²; CL > 0.1 | chord used unscaled | ring 0 |
-| F-12 | metamorphic speed | V × k at fixed α → forces × k², coefficients unchanged | q with V not V² | ring 0 |
-| F-13 | water (ANA-15) | **A3a:** fresh → salt at 15 °C, fixed V·c: Re falls 4.25 ± 0.05 % and the run is Historical; inviscid loads change by ρ_sea/ρ_fresh (correct here). **A3c (with a polar):** a result whose Re-dependent outputs change by exactly 1.0269 with unchanged coefficients fails | ν not read from the water record | ring 0 |
+| F-10 | bookkeeping (ANA-11) | near-field wind-axis Σ vs L_T and half-span root moment, normalised by L·b/2, within the manifest tolerance; up to α 10° | drop or double one strip | ring 0 · est. 0.2 s (two solves) |
+| F-11 | metamorphic scale | geometry × k → CL, CDi, e unchanged (10⁻¹² rel); forces × k²; CL > 0.1 | chord used unscaled | ring 0 · est. 50 ms (coarse lattice) |
+| F-12 | metamorphic speed | V × k at fixed α → forces × k², coefficients unchanged | q with V not V² | ring 0 · est. 50 ms |
+| F-13a | water, inviscid (ANA-15, A3a) | fresh → salt at 15 °C, fixed V·c: Re_ref and every Re_local fall 4.25 ± 0.05 %; inviscid loads change by ρ_sea/ρ_fresh (correct for an inviscid tier). The Historical part is `Freshness_WaterChange_Historical` (§13.3) | ν not read from the water record (fresh ν kept) → Re unchanged, red | ring 0 · est. 0.2 s (two solves) |
+| F-13b | water, with a polar (ANA-15, A3c) | fresh → salt at 15 °C: cd at both Ncrit is re-retrieved at the new Re_local; a result whose loads change by exactly 1.0269 (= 1026.02/999.10) with unchanged coefficients fails | polar looked up at the stored fresh-water Re (only ρ updated) → loads × 1.0269 exactly, coefficients unchanged, red | ring 0 · est. 0.2 s with the stub polar of SPIKE-ANA-1 |
 | F-14 | external cross-check | the Example foil at a **matched** lattice vs an AeroSandbox VLM run, Trefftz vs Trefftz, within 0.5 %; provenance recorded (AeroSandbox version, case YAML under `cases/` with its hash, platform, commit) before admission; *assume:* AeroSandbox's VLM is a comparable horseshoe model — confirmed at admission | — (an oracle, not a product row) | readiness · data only |
-| F-15 | induced angle (CFD lens) | elliptic wing: α_i uniform within 1 % and equal to CL/(π AR) | α_i from the total control-point velocity | ring 0 |
-| F-16 | swept (Bertin–Smith) | AR 5, Λ_c/4 45°, 4 panels per half, 1 chordwise: C_Lα 3.443 /rad ± 0.5 % (CFD re-run 3.4440) | sweep ignored in the bound-vortex placement | ring 0 |
-| F-17 | own-code golden master | Example foil, default settings: outputs equal a committed vector within 10⁻¹² rel with platform, runtime and commit provenance; the same vector on Windows when it resumes | any numeric change without a version bump | ring 0 |
+| F-15 | induced angle (CFD lens) | elliptic wing: α_i uniform within 1 % and equal to CL/(π AR) | α_i from the total control-point velocity | ring 0 · shares F-6's 64-span solve |
+| F-16 | swept (Bertin–Smith) | AR 5, Λ_c/4 45°, 4 panels per half, 1 chordwise: C_Lα 3.443 /rad ± 0.5 % (CFD re-run 3.4440) | sweep ignored in the bound-vortex placement | ring 0 · µs (8 unknowns) |
+| F-17 | own-code golden master | Example foil, default settings: outputs equal a committed vector within 10⁻¹² rel with platform, runtime and commit provenance; the same vector on Windows when it resumes | any numeric change without a version bump | ring 0 · est. 0.1 s (one 512-unknown solve) |
 | — | Warren-12 | admitted only after its reference numbers are re-established (07 open question 3) | — | not in v1 |
 
-### 13.3 Domain, persistence, UI rows (ring 0 unless marked)
+### 13.3 Domain, persistence and UI tests — each named, with its failing input, ring and cost
 
-ANA-07 freshness (definition, profile, water, op, method version, each settings field → Historical; Undo to an equal key
-→ Current; save/reopen unchanged; units never) · pinned run-key vector · pinned output hash per method version (F-17) ·
-`cfdw-project-2` round trip; `-1` byte-identical when no run; `.v1.bak` opened by today's reader byte-equal · **forbidden
-updates**: re-recording an existing `runId`, a second Completed row for one key, a gap in strip j → each refused ·
-tamper: an edited strip value and a stored key set to the current key → that run Unavailable, key recomputed ·
-retention: prune → Undo to the pruned key → the tombstone reads "pruned", never a silent Current · size at the cap ·
-cancel, supersede and close-mid-compute through `IEvaluationBarrier` (no timing races) · GUI ↔ CLI run-key equality ·
-toggle preservation both ways · copy as content for COPY-42/43/45/46/47/60/63/64/69/70/72 **and every §12.6 row** ·
-LAB-01 over every projection string.
+"Ring 0" is the new `CfdWorkbench.Analysis.Tests` harness at every join; "Desktop" is the Desktop harness at every
+join; "Cli" the Cli harness. Costs marked est. are **Inferred** (projection tests run on a pinned recorded run, no
+solve); each is measured at red-first and recorded by its `COST` line (§13.4 C-5). Every row is observed red first
+against the failing input or mutant named.
+
+| Test | Failing input (red first) | Ring | Cost |
+|---|---|---|---|
+| `Freshness_SurfaceEdit_Historical` | move one twist vertex; mutant: `SurfaceHash` left out of the key → stays Current | 0 | est. < 5 ms |
+| `Freshness_ProfileEdit_Historical` | edit one profile coordinate; also settles the §3.4 *assume* (both hashes change) | 0 | est. < 5 ms |
+| `Freshness_WaterChange_Historical` | fresh → salt at 15 °C; mutant: water left out of the key | 0 | est. < 5 ms |
+| `Freshness_OperatingPointChange_Historical` | α 3.00° → 3.01° | 0 | est. < 5 ms |
+| `Freshness_MethodVersionBump_Historical` | 1.0.0 → 1.0.1 | 0 | est. < 5 ms |
+| `Freshness_EachSettingsField_Historical` | each settings field changed alone, the field named in the failure; mutant: `wakeDirection` left out of `settingsHash` | 0 | est. < 10 ms |
+| `Freshness_UndoToEqualKey_CurrentAgain` | edit, then Undo → Current; mutant: freshness stored as a flag | 0 | est. < 5 ms |
+| `Freshness_SaveReopen_Unchanged` | save and reopen one Current and one Historical run | 0 | est. < 50 ms |
+| `Units_Lbf_KeyUnchanged` | N → lbf; mutant: units inside `settings` | 0 | est. < 5 ms |
+| `RunKey_PinnedVector_HexEqual` | one committed manifest → one committed hex key; mutant: two JCS members swapped | 0 | est. < 1 ms |
+| `Project2_RoundTrip_ByteEqual` | a document with two runs written, read, written | 0 | est. < 50 ms |
+| `Project1_NoRun_ByteIdenticalToToday` | no run → `cfdw-project-1`, bytes equal today's writer; mutant: format string hard-coded `-2` | 0 | est. < 50 ms |
+| `Backup_V1Bak_TodayReaderByteEqual` | first `-1` → `-2` save; today's reader opens the `.bak` byte-equal; an existing `.bak` is never overwritten | 0 | est. < 100 ms |
+| `Project2_TodaysReader_FailsClosedCopy130` | a `-2` sample through today's reader → COPY-130, nothing written | 0 | est. < 50 ms |
+| `RecordRun_SameRunIdTwice_Refused` | the same `runId` recorded twice | 0 | est. < 5 ms |
+| `RecordRun_SameKeyTwice_OneCompletedRow` | two Completed runs with one key | 0 | est. < 5 ms |
+| `RecordRun_StripGap_Refused` | strips j = 0, 1, 3 | 0 | est. < 5 ms |
+| `Tamper_EditedStripValue_RunUnavailable` | one strip's Fz edited in the file → that run "Unavailable — run payload failed its check" | 0 | est. < 50 ms |
+| `Tamper_StoredKeySetToCurrent_RunUnavailable` | stored `runKey` overwritten with the current key → key recomputed, run Unavailable | 0 | est. < 50 ms |
+| `Retention_PruneThenUndo_TombstoneReadsPruned` | prune, then Undo to the pruned key → "pruned", never a silent Current | 0 | est. < 50 ms |
+| `Store_SizeAtStripCap_UnderDocLimit` | a run at 2,048 strips, size measured; red when the document passes 8 MB | 0 | est. 0.2 s |
+| `Store_HundredThousandStrips_RefusedDocSize` | 10⁵ strips in the file → refused, `DOC-SIZE` | readiness | est. 2 s |
+| `Evaluate_Supersede_OlderCancelledViaBarrier` | two Evaluates; the barrier holds the first; the first ends `ANA-CANCELLED`, one row | 0 | est. < 20 ms |
+| `Evaluate_Cancel_NoRowRecorded` | Cancel while the barrier holds → no row | 0 | est. < 20 ms |
+| `Evaluate_CloseMidCompute_DocClosedNoRow` | close while the barrier holds → `DOC-CLOSED`, no row | 0 | est. < 20 ms |
+| `Cli_AnalyseRunKey_EqualsGui` | `cfdw analyse` and the GUI path on one op → equal keys; mutant: CLI defaults one setting differently | Cli | est. 0.3 s |
+| `Toggle_RoundTrip_CameraSelectionStationViewportEqual` | CAD → Analysis → CAD with a station selected and an orbited camera; each value equal | Desktop | est. < 50 ms |
+| `Toggle_PreviewOpen_HiddenThenRestoredUntouched` | a point draft open; the banner shows; on return the draft bytes are equal | Desktop | est. < 50 ms |
+| `Toggle_PreviewOpen_LayersOverAcceptedRevision` | a draft with a moved vertex; the layers' surface hash equals the accepted `SurfaceHash`; mutant: layers built from the draft bytes | Desktop | est. < 50 ms |
+| `Toggle_HistoricalRun_BannerInBothModes` | a Historical run; the banner in CAD and in Analysis | Desktop | est. < 50 ms |
+| `Toggle_NeverEvaluates` | ten toggles → zero `EvaluateAsync` calls (barrier seam); mutant: the toggle evaluates on entry | Desktop | est. < 50 ms |
+| `Toggle_LayersFirstFrame_P95WithinPreviewBudget` | 20 toggles on the reference fixture (A8.1) with a recorded run; p95 of `analysis.toggle` ms ≤ 250. Failing input: the barrier seam adds 300 ms to the projection → p95 ≥ 300, red | readiness (timing is never ring 0; a product target, not an M1 release gate — spec 1.6 D1) | est. 3 s |
+| `Copy_AnalysisStrings_MatchDesignMd` | every COPY id in §12.3 and every §12.6 row compared verbatim, the failing row named; mutant: one character changed | 0 | est. < 10 ms |
+| `Lab01_EveryProjectionString_Lints` | every string the projection emits through LAB-01; mutant: one unit dropped | 0 | est. < 50 ms |
+| `PolarProcess_HangingStub_TimeoutKillsTree` | a sleeping stub process → timeout, tree killed, Failed row (only if DR-ANA-1 picks c/d) | readiness | est. 5 s |
 
 ### 13.4 Rings and cost — where the tests run (measured, then enforced)
 
@@ -610,43 +677,91 @@ LAB-01 over every projection string.
 build 5 s; Core 1/2 14 s, Core 2/2 27 s, Desktop **41 s (critical path)**, Cli 1 s. Every harness launches at once
 (G-13). Headroom 14 s.
 
-- **Ring 0 (every join):** F-1…F-13, F-15…F-17 and §13.3, in a new `CfdWorkbench.Analysis.Tests` harness that runs
-  **concurrently** with the other four. Budget: **≤ 5 s Release for the harness, and run-tests wall ≤ 50 s** (10 s
-  kept for contention with Desktop). Enforced, not prose: the harness is added to `jobs` **and** to `named` in
-  `run-tests.sh` (or it could exit 0 with no PASS line), to the `readiness` list in `join.json`, and a per-harness
-  seconds check fails the run when `Analysis.seconds > 5`. Each fixture records its measured cost at red-first; one
-  that exceeds 0.5 s moves to readiness with its name and cost recorded (ring by measurement).
-- **Readiness (merge to main):** F-14, the 10⁵-strip DoS row, process-polar fault injection, the full-lattice
-  refinement at 4 levels if F-6's three levels exceed 1 s.
-- **Desktop UI rows** (toggle, states, copy) join the Desktop harness at ≤ 2 s added; if Desktop measures over 43 s,
-  DR-ANA-10.
+- **Ring 0 (every join):** F-1…F-13b, F-15…F-17 and the ring-0 rows of §13.3 and §13.5, in a new
+  `CfdWorkbench.Analysis.Tests` harness that runs **concurrently** with the other four. Budgets: **≤ 5 s Release for
+  the harness, run-tests wall ≤ 50 s** (10 s kept for contention with Desktop), and **≤ 0.5 s per check** except the
+  two named A8.4 exemptions **F-1 and F-6 at ≤ 1.5 s each** (A8.4 keeps analytic oracles and observed order in ring 0,
+  so they cannot move). A check over its limit fails the join (C-2…C-5); the fix is to move a non-exempt check to
+  readiness with its name and measured cost recorded, or to make it cheaper — never to raise the number unmeasured.
+- **Readiness (merge to main):** F-14, `Store_HundredThousandStrips_RefusedDocSize`,
+  `PolarProcess_HangingStub_TimeoutKillsTree`, `Toggle_LayersFirstFrame_P95WithinPreviewBudget`, and the 4-level
+  refinement if F-6's three levels exceed 1.5 s.
+- **Desktop UI rows** (toggle, states, copy) join the Desktop harness at ≤ 2 s added; over 43 s Desktop triggers
+  DR-ANA-10 (C-4).
 - **Gate meaning:** "VLM + strip fixture suite green" (A2) = the ring-0 rows green on macOS; "Verified numerical
   implementation" waits for Windows (§12.5).
 
-### 13.5 Story → test → slice (test lens finding 1)
+**The enforcement is build-track work (slice A3a), designed here (rev 2 finding M-T3).** Rev 2 stated these limits as
+prose. `run-tests.sh` enforces only the 60 s wall (:24, :95), and it times with bash `SECONDS` (:32, :44, :50, :92),
+which counts whole seconds — a 5 s limit read from it lets 5.9 s pass. The checks below measure milliseconds and land
+red-first, each with the failing input its `--self-test` feeds it.
 
-| Story clause | Test (failing input) | Slice |
-|---|---|---|
-| ANA-01 Ncrit band, labels; Unavailable for edited profile / out of Re grid | `Section_EditedProfileNoPolar_Unavailable` (edited profile, stub polar) | A3a (Unavailable) · A3c (values) |
-| ANA-02 Cp axis, upper/lower, screen string, margin, Undefined/Unavailable | panel-Cp and screen rows | A3b, DR-ANA-2 |
-| ANA-03 per span N/m; wing CL, CD, L, D with basis; arithmetic | F-9; `Projection_SectionVsWingUnits` | A3a |
-| ANA-04 lattice rows | F-1…F-8, F-15, F-16 (DR-ANA-12) | A3a |
-| ANA-05 Find α / take-off | root-finder rows with the reason enum | A3c |
-| ANA-06 compare, Discrepancy | compare rows | A3d |
-| ANA-07 freshness | §13.3 rows | A3a |
-| ANA-08 case-schedule reading | Results area, not Area 3 — out of scope here (Area 6) | — |
-| ANA-09 provenance inspection | water-table hash, run content hash | A3a |
-| ANA-10 x_tr, bucket, overlays; strips → "Section-based inference" | envelope/COPY-72 row (A3a); charts (A3c) | A3a · A3c |
-| ANA-11 loads, reconciliation, Not assessed, stiffness readout beside t/c, safety string verbatim | F-10; `Loads_RendersSafetyVerbatim`; `Loads_StiffnessReadoutBesideTc` (t/c 12 % → 1.728) | A3a |
-| ANA-15 water | F-13 | A3a · A3c |
-| ANA-16 performance curves vs α and speed | needs a schedule (Experiment) — DR-gated to Area 4/6 | — |
-| ANA-18 unit conversion | `Units_Lbf_KeyUnchanged` | A3a |
-| ANA-19 four depth rows | `Depth_Unset_NoDeepWaterLabel` (DR-ANA-13) and three more | A3a |
-| ANA-20 catalog envelope, e 0.85–1.00, lattice flag, never blocks | `Envelope_EOutOfBand_AdvisoryNotBlocking`; F-2 lattice flag | A3a |
-| ANA-21 vectors ∝ load along the local normal, strips batlow, Cp on profile, depth band, legends, table twin, tier chip | `Layers_ArrowLengthProportional_NormalDirection`; `Layers_EveryVisualHasTwinAndChip`; Cp in A3b | A3a · A3b |
-| ANA-22 toggle: camera, selection, station, viewport size; preview hidden and restored; Historical banner both views | `Toggle_*` rows | A3a |
-| ANA-23 vectors labelled, sign convention, datum, moment arc; Undefined/Unavailable not drawn, absence stated | `Layers_UnavailableVectorNotDrawn_AbsenceStated` | A3a |
-| §5.4 per-tier fixed labels and omissions | `Labels_PerTier_FixedPartsAndOmissions` | A3a |
+| Check | Lives in | Measures | Fails when | Failing input (self-test) |
+|---|---|---|---|---|
+| C-1 | `tools/run-tests.sh`: beside each `<name>.seconds` it writes `<name>.ms`, and `wall.ms` for the run, from a millisecond clock (`python3 -c 'import time; print(time.time_ns() // 1000000)'` before and after — the wall clock, one clock for every process; bash 3.2 on macOS has no `EPOCHREALTIME`) | each harness's wall and the run's wall, in ms | — (it records) | — |
+| C-2 | `tools/check-test-costs.py` (new, stdlib), called by `run-tests.sh` after the wait loop, so every join runs it | `Analysis.ms` | > 5000 | `Analysis.ms` = 5900 → exit 1 (whole-second `SECONDS` would read 5 and pass) |
+| C-3 | same script | `wall.ms` while `Analysis` is in `jobs` | > 50000 | 50400 → exit 1 |
+| C-4 | same script | `Desktop.ms` | > 43000 → exit 1 naming DR-ANA-10 | 43100 → exit 1, message contains "DR-ANA-10" |
+| C-5 | the Analysis harness's check helper times each check with `Stopwatch` and prints `COST <name> <ms>` (0.1 ms) on its own line beside `PASS <name>`, so `check-named-tests.py`'s `PASS <name>` contract is untouched; the script reads the `COST` lines | each ring-0 check | > 500 ms, or > 1500 ms for F-1 and F-6 | `COST Units_Lbf_KeyUnchanged 512.3` → exit 1 naming it; `COST F6_ObservedOrder 1612.0` → exit 1 |
+| C-6 | same script | presence | a harness in `jobs` without its `.ms`, or an Analysis `PASS` without a `COST` line ("not recorded" never passes, IO8) | `Analysis.ms` deleted → exit 1 |
+
+Ring of C-1…C-6: every join (inside `run-tests.sh`). Cost: est. < 0.2 s per run (two clock reads per harness at
+≈ 30 ms each, one log scan). Residual: a system clock step during a run skews one reading; accepted for a 60 s run.
+
+### 13.5 Story → test → slice (test lens findings 1 and B-T1)
+
+Each clause names its tests; no group names. Ring and cost as in §13.3; F rows as in §13.2. Rows in **bold** are the
+clauses rev 2 left at story level (B-T1).
+
+| Story clause | Test — failing input | Ring | Cost | Slice |
+|---|---|---|---|---|
+| ANA-01 Ncrit band, labels; Unavailable for edited profile / out of Re grid | `Section_EditedProfileNoPolar_Unavailable` — edited profile, stub polar; mutant: the catalog original's polar used | 0 | est. < 5 ms | A3a (Unavailable) · A3c (values) |
+| ANA-02 Cp on the profile | `PanelCp_KarmanTrefftz_100_200_400` — Kármán–Trefftz section at 100/200/400 panels; mutant: TE panel dropped | 0 | est. 0.2 s | A3b |
+| ANA-02 screen string with station count | `Cavitation_ScreenString_NamesStationCount` — mutant: N omitted | 0 | est. < 5 ms | A3b |
+| ANA-02 margin | `Cavitation_Margin15Percent_Applied` — σ at 1.10 × −Cp_min reads inside the margin; mutant: margin ignored | 0 | est. < 1 ms | A3b |
+| ANA-02 Undefined | `Cavitation_NegCpMinNonPositive_Undefined` — −Cp_min = 0 and −0.1 | 0 | est. < 1 ms | A3b |
+| ANA-02 Unavailable | `Cavitation_PvOrDepthMissing_Unavailable` — p_v missing; depth unset | 0 | est. < 1 ms | A3b |
+| ANA-02 governing station | `Cavitation_GoverningStation_AtAlphaEffAndLocalDepth` — mutant: α_geo and h_ref used | 0 | est. 0.1 s | A3b |
+| ANA-03 per span N/m; wing CL, CD, L, D with basis; arithmetic | F-9; `Projection_SectionVsWingUnits` — mutant: section loads in N | 0 | µs · est. < 5 ms | A3a |
+| **ANA-03 "CD ≤ 0 → Undefined"** | `Projection_CdZeroOrNegative_ClCdUndefined` — CD = 0 and CD = −0.001: CL/CD reads "Undefined — CD ≤ 0", never ∞ or a negative ratio; mutant: plain division (renders "Infinity") | 0 | est. < 1 ms | A3a |
+| **ANA-03 "V ≤ 0 → Undefined"** | `OperatingPoint_SpeedZeroOrNegative_Undefined` — V = 0 and V = −1 kn: q, Re_ref, Fr_h and σ read "Undefined — speed ≤ 0", Evaluate is refused (`ANA-INPUT-SPEED`), no run is recorded; mutant: \|V\| used | 0 | est. < 1 ms | A3a |
+| ANA-03 missing component | `Loads_PolarUnavailable_TotalDragNamesProfile` — no polar; mutant: profile drag 0 | 0 | est. < 5 ms | A3a |
+| ANA-04 lattice rows | F-1, F-2, F-3, F-4, F-5, F-6, F-7, F-8, F-15, F-16 (§13.2, each with its mutant) | 0 | §13.2 | A3a |
+| ANA-05 Find α / take-off | `FindAlpha_TargetCL_RootWithinTolerance` — target CL 0.3 on the Example foil; mutant: degrees fed to a radians step; `FindAlpha_NoRoot_UnavailableWithReason` — a target above the envelope's CL | 0 (readiness if measured > 0.5 s) | est. 0.5 s each | A3c |
+| ANA-06 compare, Discrepancy | `Compare_TwoTiers_DeltaAndDiscrepancyRecord`; `Compare_SameKeyTwice_ReadNotNewRecord`; `Compare_EstimatorE_ExcludedFromEDeltas` — mutant: estimator e = 1 enters the delta | 0 | est. < 10 ms each | A3d |
+| ANA-07 freshness | `Freshness_SurfaceEdit_Historical`, `Freshness_ProfileEdit_Historical`, `Freshness_WaterChange_Historical`, `Freshness_OperatingPointChange_Historical`, `Freshness_MethodVersionBump_Historical`, `Freshness_EachSettingsField_Historical`, `Freshness_UndoToEqualKey_CurrentAgain`, `Freshness_SaveReopen_Unchanged` (inputs in §13.3) | 0 | §13.3 | A3a |
+| ANA-08 case-schedule reading | Results area, not Area 3 — out of scope here (Area 6) | — | — | — |
+| ANA-09 provenance inspection | `Provenance_WaterTableHash_Shown` — one-bit flip in the table → water Unavailable; `Provenance_RunContentHash_Shown` | 0 | est. < 5 ms | A3a |
+| ANA-10 x_tr, bucket, overlays; strips → "Section-based inference" | `Strips_OutsideEnvelope_SectionBasedInference` — mutant: a separation claim rendered (A3a); `Charts_TransitionAndBucket_Overlays` (A3c) | 0 | est. < 5 ms | A3a · A3c |
+| ANA-11 reconciliation | F-10 | 0 | est. 0.2 s | A3a |
+| ANA-11 safety string verbatim | `Loads_RendersSafetyVerbatim` — mutant: one word changed | 0 | est. < 5 ms | A3a |
+| ANA-11 stiffness readout beside t/c | `Loads_StiffnessReadoutBesideTc` — t/c 12 % → 1.728 | 0 | est. < 5 ms | A3a |
+| **ANA-11 "missing terms are Unavailable, never zero"** | `Loads_MissingTerm_UnavailableNeverZero` — a run with no polar and no attachment point: profile drag, Total drag and the attachment moment each read "Unavailable — <reason>", and no Loads cell renders 0 or 0.00; mutant: the projection's null-to-zero default (`?? 0`) | 0 | est. < 5 ms | A3a |
+| **ANA-11 the Not-assessed list** | `Loads_StructuralNotAssessed_ListComplete` — the Loads panel shows COPY-42 and every item of A5.6's list (take-off, pumping, breach and slam, ventilation shock, impact, fatigue; spec :975), item by item; mutant: the list cut to three items | 0 | est. < 5 ms | A3a |
+| **ANA-11 the attachment moment** | `Loads_AttachmentMoment_TransferAboutNamedPoint` — F = (0, 0, 100) N and M_O = 0 at the frame origin, named point P = (0.1, 0, 0) m: M_P = M_O + (O − P) × F = (0, +10, 0) N·m; mutant: (P − O) × F gives (0, −10, 0), red. No point named → Unavailable (`Loads_MissingTerm_UnavailableNeverZero`) | 0 | µs | A3a |
+| ANA-15 water | F-13a, F-13b | 0 | §13.2 | A3a · A3c |
+| **ANA-15 "outside 0–50 °C → Unavailable"** | `Water_OutsideTable_Unavailable` — −0.1 °C and 50.1 °C read "Unavailable — outside the ITTC table (0–50 °C)", Evaluate is refused, no run is recorded; 0 °C and 50 °C are accepted (the bounds are inside); mutant: clamp to the nearest table row | 0 | est. < 1 ms | A3a |
+| ANA-16 performance curves vs α and speed | needs a schedule (Experiment) — DR-gated to Area 4/6 | — | — | — |
+| ANA-18 unit conversion | `Units_Lbf_KeyUnchanged` | 0 | est. < 5 ms | A3a |
+| ANA-19 depth row 1 (unset) | `Depth_Unset_NoDeepWaterLabel` — depth unset: σ, Fr_h and V_crit read COPY-45 and "deep water" appears nowhere; mutant: the label a constant | 0 | est. < 5 ms | A3a |
+| ANA-19 depth row 2 (h/c < 5) | `Depth_HcBelow5_Copy46WithNumbers` — h_ref 0.5 m, c 0.12 m → h/c 4.17: COPY-46 with h/c and Fr_h; mutant: the threshold compared with h, not h/c | 0 | est. < 5 ms | A3a |
+| ANA-19 depth row 3 (h(y) ≤ 0) | `Depth_StationPiercing_EstimatorUnavailableFlagOnly` — h_ref 0.05 m with 20° dihedral → h(y) ≤ 0 at the tip: that station's estimator Unavailable, only the surface-piercing flag; mutant: h_ref used for every station | 0 | est. < 5 ms | A3a |
+| ANA-19 depth row 4 (set, submerged) | `Depth_SetAllSubmerged_TipMarginFrCopy47` — tip-depth margin, Fr_h and COPY-47 shown | 0 | est. < 5 ms | A3a |
+| ANA-20 catalog envelope, e 0.85–1.00, lattice flag, never blocks | `Envelope_EOutOfBand_AdvisoryNotBlocking`; F-2 lattice flag | 0 | est. < 5 ms | A3a |
+| ANA-21 vectors ∝ load along the local normal, strips batlow, depth band, legends, table twin, tier chip | `Layers_ArrowLengthProportional_NormalDirection`; `Layers_EveryVisualHasTwinAndChip`; Cp on the profile in A3b (`PanelCp_KarmanTrefftz_100_200_400`) | 0 | est. < 10 ms | A3a · A3b |
+| ANA-22 camera, selection, station, viewport size | `Toggle_RoundTrip_CameraSelectionStationViewportEqual` | Desktop | est. < 50 ms | A3a |
+| ANA-22 preview hidden and restored | `Toggle_PreviewOpen_HiddenThenRestoredUntouched` | Desktop | est. < 50 ms | A3a |
+| ANA-22 layers over the accepted revision | `Toggle_PreviewOpen_LayersOverAcceptedRevision` | Desktop | est. < 50 ms | A3a |
+| ANA-22 Historical banner in both views | `Toggle_HistoricalRun_BannerInBothModes` | Desktop | est. < 50 ms | A3a |
+| **ANA-22 "within the preview budget"** | `Toggle_NeverEvaluates` (the cause, deterministic) and `Toggle_LayersFirstFrame_P95WithinPreviewBudget` (the measurement: p95 ≤ 250 ms, A8.1; failing input a 300 ms injected delay) | Desktop · readiness | est. < 50 ms · est. 3 s | A3a |
+| ANA-23 Undefined/Unavailable vectors not drawn | `Layers_UnavailableVectorNotDrawn_AbsenceStated` | 0 | est. < 10 ms | A3a |
+| **ANA-23 the moment arc** | `Layers_MomentArc_SenseFollowsSignAboutNamedDatum` — the Example foil at α +3° and −3°: the arc's label names the datum ("about the root plane", or the named attachment point) and N·m, and its sense follows the sign of M_x (right-hand about +x); mutant: the arc built from \|M_x\| — the −3° case keeps the positive sense, red | 0 | est. < 10 ms (two recorded runs) | A3a |
+| **ANA-23 the sign convention** | `Layers_Vectors_BodyFrameSignConventionLabelled` — α +3°: lift along +z, drag along +x (aft), the legend reads "+x aft, +y starboard, +z up"; α −3°: lift along −z; mutant: the vector direction taken from \|L\| — the −3° case red | 0 | est. < 10 ms | A3a |
+| §5.4 per-tier fixed labels and omissions | `Labels_PerTier_FixedPartsAndOmissions`; `Labels_DepthUnset_FreeSurfaceNotModelled` — depth unset: "… free surface not modelled", never "deep water" (DR-ANA-13); mutant: the label a constant | 0 | est. < 5 ms | A3a |
+| §5.4 run verdict beside CL, full bound | `Envelope_RunVerdict_BesideCL_FullBound` — α 12°: the row after CL names all three bounds and "<n> of <m> strips"; mutant: the verdict only in Labels | 0 | est. < 5 ms | A3a |
+| §5.4 strip readout verdict (B-H1) | `Station_StripReadout_EnvelopeVerdictPerPart` — a strip at α 12° with \|α_eff − α_L0\| > 10° reads "Outside the method envelope at this strip" with the α part named first; mutant: the strip shows the run verdict | 0 | est. < 5 ms | A3a |
+| §5.4 strip Re against the polar range (B-H1) | `Station_StripReadout_ReAgainstPolarRange` — no polar → "Unavailable — no polar method installed", never "inside"; a stub polar with Re 2 × 10⁵–10⁷ and a strip at 1.7 × 10⁵ → "outside … cd not extrapolated"; mutant: the verdict defaults to inside | 0 | est. < 5 ms | A3a (stub) · A3c |
+| §5.4 strip omissions (B-H1) | `Station_StripReadout_NotModelledList` — mutant: the list omitted on the strip | 0 | est. < 5 ms | A3a |
 
 ## 14. Conformance notes and findings
 
@@ -654,7 +769,7 @@ build 5 s; Core 1/2 14 s, Core 2/2 27 s, Desktop **41 s (critical path)**, Cli 1
 - A2 non-goals: no XFOIL/XFLR5/VTK/OpenFOAM linked; e computed; no averaging across tiers.
 - DM5/DM7/DM9/DM10/DM11/DM15/DM16 applied in §3; DM13 asks an ADR → DR-ANA-4's ruling becomes ADR-0011.
 - Findings for other owners (not chased): G-5 duplicate enums (Desktop), G-3 global counters (Core), G-12 COPY-63 case
-  (spec owner).
+  (spec owner), and the DR-ANA-13 amendment request to A5.6 :962 (spec owner, §15).
 
 ## 15. Decision requests — DR-ANA batch (one batch; options · evidence · recommendation)
 
@@ -672,8 +787,8 @@ build 5 s; Core 1/2 14 s, Core 2/2 27 s, Desktop **41 s (critical path)**, Cli 1
 | **DR-ANA-10** | If Desktop UI rows push Desktop over 43 s | (a) move them to readiness · (b) split Desktop into two parts | measured 41 s | **(b)**, decided on the measurement |
 | **DR-ANA-11** | Estimator wing e | (a) e = 1 labelled "elliptic loading assumed; planar lower bound on induced drag", out of the e envelope and Compare deltas · (b) a Fourier lifting line (computed e) | A2 non-goal | **(a)** |
 | **DR-ANA-12** | ANA-04's lattice oracles (G-10) | (a) spec 1.7: flat plate by Richardson in 1/AR to 2π (0.5 %); elliptic CL against a recorded lifting-surface reference, e → 1 after Richardson; Bertin–Smith admitted at ± 0.5 % · (b) keep the 1.6 text (a correct lattice fails it) | CFD lens re-run (Inferred); hydrodynamics lens (Jones factor CL ≈ 0.427) | **(a)** |
-| **DR-ANA-13** | VLM fixed label with depth unset (G-11) | (a) depth unset → the fixed part reads "free surface not modelled" in place of "deep water" · (b) keep "deep water" always | A5.1/ANA-19 vs A5.6 | **(a)** |
-| **DR-ANA-14** | VLM method envelope bounds (§5.4) | (a) |α_eff − α_L0| ≤ 10°, Cl_local ≤ 1.0 or the polar bracket, sweep ≤ 30° · (b) tighter (8°, 0.8) | 07 §3D methods (Inferred) | **(a)**, revisited when the polar lands |
+| **DR-ANA-13** | VLM fixed label with depth unset (G-11) | (a) depth unset → the fixed part reads "free surface not modelled" in place of "deep water" · (b) keep "deep water" always | A5.1/ANA-19 vs A5.6 | **(a)**. **Spec amendment request to the spec owner:** A5.6 :962 says the VLM label "never changes" (it guards against a correction layer rewriting it); (a) changes it on one input. Proposed 1.7 text: "attached flow; no stall; no ventilation; deep water — or, with depth unset, free surface not modelled (A5.1, ANA-19); a correction layer is shown beside, never changes this label". Mockup screen 3b shows (a) |
+| **DR-ANA-14** | VLM method envelope bounds (§5.4) | (a) \|α_eff − α_L0\| ≤ 10°, Cl_local ≤ 1.0 or the polar bracket, sweep ≤ 30° · (b) tighter (8°, 0.8) | 07 §3D methods (Inferred) | **(a)**, revisited when the polar lands. **Inferred; tighten per strip when the polar brackets land (low-Re tips stall earlier)** — with a polar, each strip's Cl bound becomes its own polar's converged bracket at its Re_local, so a 40 mm tip at Re 1.7 × 10⁵ gets a lower bound than the root |
 
 ## 16. Delivery slices (each a vertical, demoable increment)
 
@@ -704,8 +819,8 @@ exists, the load — not the mass — enters the manifest). Telemetry carries no
 
 | | |
 |---|---|
-| **Completed** | Area 3 design rev 2 (data model, reading contract, tiers, envelope, manifest, toggle, fixtures with mutants, rings, story matrix, telemetry, DR-ANA-1…14); mockup `docs/mockups/area3-analysis.html`; persona review folded |
-| **Remaining** | operator approval of the mockup; rulings on DR-ANA-1…14; SPIKE-ANA-1; spec 1.7 rows (DR-ANA-2, -4, -6, -12, -13); ADR-0011 (DR-ANA-4) |
+| **Completed** | Area 3 design rev 3 (data model, reading contract, tiers, envelope, manifest, toggle, fixtures with mutants, rings, story matrix with ring and cost per test, timing checks C-1…C-6, telemetry, DR-ANA-1…14); mockup `docs/mockups/area3-analysis.html` (nine screens); fixture numbers `docs/notes/area3-fixture-arithmetic.md`; persona review folded (rev 3 repairs) |
+| **Remaining** | operator approval of the mockup; rulings on DR-ANA-1…14; SPIKE-ANA-1; spec 1.7 rows (DR-ANA-2, -4, -6, -12, and the DR-ANA-13 amendment of A5.6 :962); ADR-0011 (DR-ANA-4); clearance of the two rev 2 blocks by their lenses |
 | **Best next action** | operator reviews the mockup and rules the DR-ANA batch; then `/implement` slice A3a |
 
 ## 17. Gate record
@@ -713,5 +828,27 @@ exists, the load — not the mass — enters the manifest). Telemetry carries no
 Five lenses in Adversary Mode on revision 1; every finding folded into this revision or carried as a DR. Verdicts and
 folds: [docs/reviews/area3-analysis-personas.md](../reviews/area3-analysis-personas.md). Two hard vetoes fired on
 revision 1 (hydrodynamicist: VLM result shown without its method envelope; test architect: in-scope story clauses
-without tests). Revision 2 answers both (§5.4 envelope, FM-21; §13.5 matrix, §13.2 mutants); their clearance is for the
-lens, not the author, at the next review.
+without tests). Revision 2 answered both (§5.4 envelope, FM-21; §13.5 matrix, §13.2 mutants); both lenses re-reviewed
+revision 2 and still blocked, narrowly (B-H1: the station readout had no verdict or omissions; B-T1: clauses traced only
+to story level), with majors M-H1, M-T1…M-T3. Revision 3 is repair cycle 2 of 2 and folds every one (mapping in the
+review file, "Rev 3 repairs"). Clearance is still for the lens, not the author.
+
+**Re-review of revision 3 (2026-10-03).** Hydrodynamicist: **PASS-WITH-CONDITIONS, veto cleared** (B-H1, M-H1 and
+every Minor verified, including a node run of the page's script). Test architect: **PASS-WITH-CONDITIONS, design-time
+block cleared** (B-T1, M-T1…M-T3, F-2, F-13 verified; the note's lattice script re-run and matched); the build-time
+veto stays open until red-first and the Proof Pack exist. The repair cap (2 cycles) is reached, so the remaining findings
+are **conditions on the build track (A3a)**, not a third design cycle:
+
+- **BC-1 [Major, test architect]:** about ten §13.5 tests name no mutant, against §13.1's own rule (:731, :734, :749,
+  :750, :751, :757 — the ANA-23 vectors row — and :760). The build writes one mutant per row before the code, and
+  check-named-tests runs it.
+- **BC-2 [Minor, test architect]:** F-2, F-5 and F-15 share F-6's solves, so a per-check COST (C-5) depends on test
+  order and F-2 is not exempt from the 0.5 s limit. Time the shared fixture once as F-6, or exempt the sharers by name.
+- **BC-3 [Flagged, test architect]:** F-2's band is ±0.5 % around one discretisation; a C# lattice with different
+  spacing may fall outside it. Confirm at red-first; a miss is a ruling, not a widened band.
+- **BC-4 [Nit, hydrodynamicist]:** Re_local uses the local chord c(y), never the global chord (the mockup's rectangular
+  Example hides the difference).
+- Fixed by the Coordinator in this revision: an exceeded envelope part printed "≤" ("Cl_local 1.003 ≤ 1.0"); the
+  strip verdict now prints ">" for an exceeded part (mockup `stripEnvOf`).
+- Residual (both lenses): DR-ANA-14 bounds are Inferred until the polar brackets land; timing is estimated until the C#
+  build measures it; Windows parity is untested.

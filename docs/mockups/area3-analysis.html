@@ -6,7 +6,7 @@
 <title>Area 3 analysis</title>
 <!--
   Area 3 (Analysis, local tiers) review mockup for the operator's approval before any build
-  (docs/design/area3-analysis.md §12; Ruling 60 lane F2). Six screens of the whole 1280 x 800 shell, in today's shell
+  (docs/design/area3-analysis.md §12; Ruling 60 lane F2). Nine screens of the whole 1280 x 800 shell, in today's shell
   (m12b2 views, structure-B Properties, V2 status strip DR-STATUS-1, DR-VIEW-1 gutters) plus the Analysis additions:
   the CAD | Analysis toggle, the conditions band, the layers, the Layers pane and the bottom panel.
   Every number on the analysis screens is COMPUTED in this page from the Example foil (example.foil: 900 mm span,
@@ -92,7 +92,7 @@ body.small .cond{ gap:6px; } body.small .cond input{ width:52px; }
 .safety{ border-left:3px solid var(--warn); padding:4px 8px; margin:0 0 6px; background:var(--soft); }
 .twin{ min-height:24px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
 /* structure-B Properties */
-.sel{ flex:1; min-height:0; overflow:hidden; }
+.sel{ flex:1; min-height:0; overflow-y:auto; }   /* Properties scrolls, as in the shell; nothing is clipped silently */
 .ident{ display:flex; align-items:center; gap:6px; padding:6px 8px; font-size:13px; line-height:18px; font-weight:600; border-bottom:1px solid var(--line); }
 .chip{ display:inline-flex; align-items:center; min-height:18px; padding:0 6px; border:1px solid var(--accent); border-radius:9999px; color:var(--accent); font-size:11px; font-weight:600; margin:4px 8px; }
 .chip.hist{ border-color:var(--warn); color:var(--warn); }
@@ -205,7 +205,8 @@ const COPY = {
   c42:'Structural: Not assessed', c43:'geometry only (Structural: Not assessed)',
   c60:'Loads are hydrodynamic estimates. Not a structural assessment. Strength, stiffness and fatigue are not evaluated.',
   c63:'Computed estimate · Model uncertainty not quantified', c64:'Historical — <what changed>', c72:'Section-based inference',
-  vlmLabel:'attached flow; no stall; no ventilation; deep water',
+  vlmLabelOf: depthSet => `attached flow; no stall; no ventilation; ${depthSet ? 'deep water' : 'free surface not modelled'}`,   // DR-ANA-13 (spec amendment)
+  notModelled: depthSet => `Not modelled: ${depthSet ? '' : 'free surface, '}ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”.`,
   none:'No analysis yet. Set the conditions, then Evaluate.',                                          // NEW
   running:`Evaluating — VLM + strip · ${R.panels} panels…`,                                            // NEW
   failed:'Analysis failed — the lattice system is singular at the tip strip (ANA-SOLVE-RESIDUAL). The previous result is kept as Historical.', // NEW
@@ -213,8 +214,15 @@ const COPY = {
   inert:'Points are edited in CAD. Switch with the CAD | Analysis toggle.',                           // NEW
   noPolar:'Unavailable — no polar method installed',                                                   // NEW
   preview:'Preview hidden — Apply or Cancel in CAD' };
-const outsideOf = run => run.strips.filter(s => Math.abs(s.aEff) > 10 || Math.abs(s.cl) > 1.0).length;
-const envRowOf = run => { const n = outsideOf(run); return n ? `Outside the method envelope — |α_eff| ≤ 10°, Cl_local ≤ 1.0 at ${n} strips` : `Inside the method envelope at all ${run.strips.length} strips (|α_eff| ≤ 10°, Cl_local ≤ 1.0)`; };
+const A_L0 = 0, SWEEP = 0, BOUND = '|α_eff − α_L0| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°';   // section-a is symmetric (α_L0 = 0); the Example foil is unswept
+const partsOf = s => [Math.abs(s.aEff - A_L0) > 10 ? '|α_eff − α_L0|' : '', Math.abs(s.cl) > 1.0 ? 'Cl_local' : '', SWEEP > 30 ? 'sweep' : ''].filter(Boolean);
+const outsideOf = run => run.strips.filter(s => partsOf(s).length).length;
+const envRowOf = run => { const n = outsideOf(run), m = run.strips.length; if (!n) return `Inside the method envelope (${BOUND}) at all ${m} strips`;
+  const ex = [...new Set(run.strips.flatMap(partsOf))].join(', '); return `Outside the method envelope (${BOUND}) — ${n} of ${m} strips; exceeded: ${ex}`; };
+const cmp = over => over ? '>' : '≤';   // an exceeded part prints ">" — never a false "≤"
+const stripEnvOf = s => { const parts = partsOf(s), a = Math.abs(s.aEff - A_L0),
+  vals = `|α_eff − α_L0| ${f(a, 2)}° ${cmp(a > 10)} 10° · Cl_local ${f(s.cl, 3)} ${cmp(Math.abs(s.cl) > 1.0)} 1.0 · sweep ${f(SWEEP, 0)}° ${cmp(SWEEP > 30)} 30°`;
+  return parts.length ? `Outside the method envelope at this strip — exceeded: ${parts.join(', ')} (${vals})` : `Inside the method envelope at this strip (${vals})`; };
 const eNoteOf = run => run.e > 1 ? `e above 1 on a planar wing is a lattice effect at ${NS} × ${NC} (it converges from above); see DR-ANA-7` : '';
 const SEL = R.strips.reduce((a, s) => Math.abs(s.y - 0.3) < Math.abs(a.y - 0.3) ? s : a), ETA_SEL = SEL.y / HALF;
 const hist = COPY.c64.replace('<what changed>', 'geometry changed (r4 → r5)');
@@ -236,7 +244,7 @@ function drawPlan(g, w, h, sc){
     const base = y0 - 10, k = 60 / loadMaxOf(RUN);                 // spanwise loading curve above the LE
     line(g, RUN.strips.map(t => [cx + t.y * s, base - t.G * k]), C.edge, 2);
     text(g, 'Γ(y) · loading', cx + 0.3 * s, base - 64, C.ink);
-    RUN.strips.filter(t => Math.abs(t.aEff) > 10 || Math.abs(t.cl) > 1.0).forEach(t => { const a = P(t.ya, 0), b = P(t.yb, CHORD); g.save(); g.setLineDash([3, 2]); g.strokeStyle = C.warn; g.lineWidth = 1.5; g.strokeRect(a[0], a[1], b[0] - a[0], b[1] - a[1]); g.restore(); });
+    RUN.strips.filter(t => partsOf(t).length).forEach(t => { const a = P(t.ya, 0), b = P(t.yb, CHORD); g.save(); g.setLineDash([3, 2]); g.strokeStyle = C.warn; g.lineWidth = 1.5; g.strokeRect(a[0], a[1], b[0] - a[0], b[1] - a[1]); g.restore(); });
     if (outsideOf(RUN)) text(g, `dashed outline: ${outsideOf(RUN)} strips outside the method envelope`, cx - 0.44 * s, y0 + CHORD * s + 34, C.warn);
   } else g.fillStyle = 'rgba(133,201,196,0.22)', g.fillRect(P(-HALF, 0)[0], P(0, 0)[1], 2 * HALF * s, CHORD * s);
   line(g, [P(-HALF, 0), P(HALF, 0)], C.foil, 1.5); line(g, [P(-HALF, CHORD), P(HALF, CHORD)], C.foil, 1.5);
@@ -282,7 +290,7 @@ function drawLoading(cv){
 // ------------------------------------------------------------ shell pieces
 const r = (k, v, u) => `<div class="row"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${u || ''}</span></div>`;
 const na = (k, v) => `<div class="row na"><span class="k">${k}</span><span class="v">${v}</span></div>`;
-const grp = (name, sum, body) => `<div class="grp"><div class="gh"><span class="tw">⌄</span>${name}<span class="sum">${sum || ''}</span></div>${body}</div>`;
+const grp = (name, sum, body, closed) => `<div class="grp"><div class="gh"><span class="tw">${closed ? '›' : '⌄'}</span>${name}<span class="sum">${sum || ''}</span></div>${closed ? '' : body}</div>`;   // a closed group shows its summary only
 function condBand(sc){
   const depth = sc.depth === false ? '' : f(HREF, 2), btn = sc.state === 'running' ? '<button type="button" class="go cancel">Cancel</button>' : '<button type="button" class="go">Evaluate</button>';
   const der = sc.depth === false ? `<span><span class="x">h/c · Fr_h · </span>σ <b>${COPY.c45}</b></span>` : `<span class="x">h/c <b>${f(hc, 2)}</b></span><span class="x">Fr_h <b>${f(FrH, 2)}</b></span><span>σ <b>${f(sigma, 2)}</b></span>`;
@@ -303,13 +311,16 @@ function props(sc){
     const t = SEL;
     return `<div class="dock">${head}<div class="sel"><div class="ident">Strip of wing run (α_eff) · η ${f(t.y / HALF, 3)}</div>${chip}
       ${grp('Strip result', 'per span', r('Cl_local', f(t.cl, 3), '–') + r('α_eff', f(t.aEff, 2), '°') + r('Re_local', fe(V * CHORD / NU), '–') + r('Lift / span', f(t.L / t.dy, 1), 'N/m') + na('cd (profile)', COPY.noPolar))}
-      ${grp('Section (2D)', 'estimator · polar', na('Cl, Cd, Cm, x_tr', COPY.noPolar) + na('Cp_min', 'Unavailable — no section Cp method (DR-ANA-2)') + na('V_crit', 'Unavailable — needs −Cp_min'))}
-      ${grp('Labels', '', `<div class="note lab">${COPY.c63}</div><div class="note">${COPY.vlmLabel}</div><div class="note">${COPY.c46}</div>`)}</div></div>`;
+      ${grp('Strip verdict', 'envelope · Re · omissions', `<div class="note lab">${stripEnvOf(t)}</div>` + na('Polar Re range', COPY.noPolar) + `<div class="note lab">${COPY.notModelled(sc.depth !== false)}</div>`)}
+      ${grp('Section (2D)', 'estimator · polar', na('Cl, Cd, Cm, x_tr', COPY.noPolar) + na('Cp_min', 'Unavailable — no section Cp method (DR-ANA-2)'))}
+      ${grp('Labels', '', `<div class="note lab">${COPY.c63}</div><div class="note">${COPY.vlmLabelOf(sc.depth !== false)}</div>${sc.depth === false ? '' : `<div class="note">${COPY.c46}</div>`}`)}</div></div>`;
   }
+  const deep = sc.depth !== false, nd = COPY.c45;
   return `<div class="dock">${head}<div class="sel"><div class="ident">Basic foil · wing result</div>${chip}${err}
-    ${grp('Wing result', 'Wing only · S_ref ' + f(RUN.S * 1e4, 0) + ' cm²', r('CL', f(RUN.CL, 3), '–') + r('CDi (Trefftz)', f(RUN.CDi, 5), '–') + r('e (computed)', f(RUN.e, 3), '–') + (eNoteOf(RUN) ? `<div class="note">${eNoteOf(RUN)}</div>` : '') + r('Lift L', f(RUN.L, 1), 'N') + r('Induced drag', f(RUN.Di, 2), 'N') + na('Total drag', 'Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray'))}
-    ${grp('Conditions', '10 kn · salt 15 °C', r('q', f(RUN.q, 0), 'Pa') + r('Re_ref', fe(ReRef), '–') + r('h/c', f(hc, 2), '–') + r('Fr_h', f(FrH, 2), '–') + r('σ', f(sigma, 2), '–') + na('V_crit', 'Unavailable — needs −Cp_min'))}
-    ${grp('Labels', 'tier · envelope · basis · omissions', `<div class="note lab">${COPY.c63}</div><div class="note lab">${envRowOf(RUN)}</div><div class="note">${COPY.vlmLabel}</div><div class="note">${COPY.c46}</div><div class="note">Tip depth ${f(HREF, 2)} m · Fr_h ${f(FrH, 2)} · ${COPY.c47}</div><div class="note">Not modelled: free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “${COPY.c72}”.</div>`)}</div></div>`;
+    ${grp('Wing result', 'Wing only · S_ref ' + f(RUN.S * 1e4, 0) + ' cm²', r('CL', f(RUN.CL, 3), '–') + `<div class="note lab env">${envRowOf(RUN)}</div>` + r('CDi (Trefftz)', f(RUN.CDi, 5), '–') + r('e (computed)', f(RUN.e, 3), '–') + (eNoteOf(RUN) ? `<div class="note">${eNoteOf(RUN)}</div>` : '') + r('Lift L', f(RUN.L, 1), 'N') + r('Induced drag', f(RUN.Di, 2), 'N') + na('Total drag', 'Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray')
+      + `<div class="note">b ${f(2 * HALF * 1000, 0)} mm · moment datum: frame origin (root LE) · force axes: body, +x aft, +y starboard, +z up; L and D in wind axes</div>`)}
+    ${grp('Conditions', '10 kn · salt 15 °C · as the band', r('q', f(RUN.q, 0), 'Pa') + r('Re_ref', fe(ReRef), '–') + (deep ? r('h/c', f(hc, 2), '–') + r('Fr_h', f(FrH, 2), '–') + r('σ', f(sigma, 2), '–') : na('h/c, Fr_h, σ', nd)) + na('V_crit', deep ? 'Unavailable — needs −Cp_min' : nd), true)}
+    ${grp('Labels', 'tier · basis · omissions', `<div class="note lab">${COPY.c63}</div><div class="note">${COPY.vlmLabelOf(deep)}</div>${deep ? `<div class="note">${COPY.c46}</div><div class="note">Tip depth ${f(HREF, 2)} m · Fr_h ${f(FrH, 2)} · ${COPY.c47}</div>` : ''}<div class="note">${COPY.notModelled(deep)}</div>`)}</div></div>`;
 }
 function bottom(sc){
   const tabs = ['Spanwise loading', 'Section', 'Loads', 'Provenance', 'Checks'], on = sc.tab || 'Spanwise loading';
@@ -360,13 +371,15 @@ const SCREENS = [
   { id:'running', h:'2 · Evaluating, a prior run kept as Historical', state:'running', prior:true, layers:true, run:'R2', report:COPY.running,
     what:'<b>Shows</b> Evaluate turned into Cancel; skeleton rows (static, no shimmer, DESIGN.md §6); the status item "Running"; the previous run\'s layers stay, under the Historical banner, until the new run lands. <b>Implements</b> §12.3 "Running"; §8 latest-wins cancellation.' },
   { id:'current', h:'3 · Wing result, Current — loading on the geometry, labels and omissions', state:'current', layers:true, report:COPY.done,
-    what:`<b>Shows</b> the computed wing result (CL ${f(RUN.CL, 3)}, CDi ${f(RUN.CDi, 5)}, e ${f(RUN.e, 3)}, L ${f(RUN.L, 1)} N) under the tier chip, COPY-63, the fixed VLM label, the A5.1 deep-water string (h/c ${f(hc, 2)} &lt; 5), the ventilation string and the omissions. Total drag Unavailable naming its missing parts (A5.6). Plan: loading strips (batlow, legend with variable, unit, range, map, run); 3D: lift per strip, the total and the root moment arc, the free surface and tip depth. Bottom: spanwise loading vs the elliptic reference with a table twin. <b>Implements</b> ANA-03, ANA-04, ANA-19, ANA-21, ANA-23; C2 colormap rule.` },
-  { id:'station', h:'4 · A station selected — strip result, section Unavailable, Loads tab', state:'current', layers:true, station:true, tab:'Loads', report:COPY.inert,
-    what:'<b>Shows</b> selecting a station in Analysis: Properties switches to that strip (per span, N/m, lowercase Cl), the section tier reads Unavailable with its reason (DR-ANA-1, DR-ANA-2) — never a nearby value; a press on a point gives the inert-point message. Loads: COPY-60 verbatim, centre of lift, root bending moment, computed wing loading, Structural: Not assessed with its list and the relative-stiffness readout. <b>Implements</b> ANA-01 (Unavailable), ANA-03, ANA-11, §12.1 "Editing in Analysis".' },
+    what:`<b>Shows</b> the computed wing result (CL ${f(RUN.CL, 3)}, CDi ${f(RUN.CDi, 5)}, e ${f(RUN.e, 3)}, L ${f(RUN.L, 1)} N) under the tier chip with the envelope verdict beside CL and b, the moment datum and the force axes beside S_ref, COPY-63, the fixed VLM label, the A5.1 deep-water string (h/c ${f(hc, 2)} &lt; 5), the ventilation string and the omissions. Total drag Unavailable naming its missing parts (A5.6). Plan: loading strips (batlow, legend with variable, unit, range, map, run); 3D: lift per strip, the total and the root moment arc, the free surface and tip depth. Bottom: spanwise loading vs the elliptic reference with a table twin. <b>Implements</b> ANA-03, ANA-04, ANA-19, ANA-21, ANA-23; C2 colormap rule.` },
+  { id:'nodepth', h:'3b · Wing result with depth unset — the label reads “free surface not modelled”', state:'current', layers:true, depth:false, report:COPY.done,
+    what:'<b>Shows</b> the same result with Depth h_ref empty: the fixed VLM label reads “attached flow; no stall; no ventilation; free surface not modelled” — never “deep water” (DR-ANA-13, a spec amendment request); h/c, Fr_h, σ and V_crit read COPY-45; no tip-depth line, no free-surface line in 3D. <b>Implements</b> ANA-19 row 1; §5.4 depth basis; DR-ANA-13.' },
+  { id:'station', h:'4 · A station selected — strip result with its own verdict and omissions, section Unavailable, Loads tab', state:'current', layers:true, station:true, tab:'Loads', report:COPY.inert,
+    what:'<b>Shows</b> selecting a station in Analysis: Properties switches to that strip (per span, N/m, lowercase Cl) with its own envelope verdict (each bound with this strip’s value), Re_local against the polar’s Re range (Unavailable — there is no polar yet, so never “inside”) and the “Not modelled” list; the section tier reads Unavailable with its reason (DR-ANA-1, DR-ANA-2) — never a nearby value; a press on a point gives the inert-point message. Loads: COPY-60 verbatim, centre of lift, root bending moment, computed wing loading, Structural: Not assessed with its list and the relative-stiffness readout. <b>Implements</b> ANA-01 (Unavailable), ANA-03, ANA-11, §12.1 "Editing in Analysis".' },
   { id:'historical', h:'5 · Historical after a CAD edit, with a draft hidden — Provenance tab', state:'historical', layers:true, preview:true, tab:'Provenance', report:'Analysis. Run k-7c1e… is Historical: geometry changed.',
     what:'<b>Shows</b> returning to Analysis after a twist point moved and while a point draft is open: the preview is hidden (ANA-22), the layers stay on the accepted revision with COPY-64 on the area and the chip; Provenance shows the Run manifest and which input changed. Nothing recomputes until Evaluate (DR-ANA-6). <b>Implements</b> ANA-07, ANA-22, §3.4 "what changed".' },
   { id:'envelope', h:'7 · Outside the method envelope (α 12°)', state:'current', layers:true, run:'R12', report:'Analysis complete — VLM + strip. Some strips are outside the method envelope.',
-    what:'<b>Shows</b> a result at α 12°: the finding beside the result and in Labels, and every strip outside |α_eff| ≤ 10° outlined dashed on the Plan with a text count — not colour alone. The number is shown with its envelope, never bare. <b>Implements</b> §5.4 envelope verdict; FM-21; DR-ANA-14.' },
+    what:'<b>Shows</b> a result at α 12°: the finding on the row directly after CL, with the full bound (|α_eff − α_L0|, Cl_local, quarter-chord sweep) and which parts were exceeded, and every strip outside |α_eff| ≤ 10° outlined dashed on the Plan with a text count — not colour alone. The number is shown with its envelope, never bare. <b>Implements</b> §5.4 envelope verdict; FM-21; DR-ANA-14.' },
   { id:'tampered', h:'8 · A stored run failed its check', state:'tampered', report:'Run k-7c1e… failed its check and is not shown.',
     what:'<b>Shows</b> a run whose stored payload no longer matches its content hash: that run reads Unavailable, no layers draw, nothing is deleted. <b>Implements</b> §3.6 integrity; FM-19.' },
   { id:'failed', h:'6 · Evaluation failed — previous result kept as Historical', state:'failed', layers:true, report:COPY.failed,

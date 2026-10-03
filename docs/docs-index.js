@@ -1513,6 +1513,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "6e65584b4d2ee7e013c1610b5499eea56e60c8930c8c4f81ed3a551f97bdebab"
     },
     {
+      "id": "note-area3-fixture-arithmetic",
+      "path": "docs/notes/area3-fixture-arithmetic.md",
+      "title": "Area 3 fixture numbers — the F-2 band, F-6 lattices and mutant, F-8 convention, from an independent lattice",
+      "type": "decision-note",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-04-03",
+      "reviewSuggested": [],
+      "summary": "The numbers behind design-area3-analysis §13.2 rev 3, measured with a 56-line reference horseshoe lattice (listed here, run with Node 22): the F-2 lifting-surface band 0.4156–0.4198 for the elliptic AR 8 wing at 5°, F-6's lattices 32/64/128 (observed order 1.07 for CL, 1.01 for e), an O(1) F-6 mutant that drives the order to −0.74, and the F-8 fixture at 20° dihedral with the developed S_ref, which the dihedral-ignored mutant misses by 11.9 %.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "fixtures",
+        "mutants",
+        "observed-order",
+        "richardson",
+        "area-3",
+        "test-plan"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "review-area3-analysis-personas",
+          "rel": "relates-to"
+        },
+        {
+          "to": "kb-hw-low-order-hydrodynamics",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "88d38d56fe7ac7a7830ed0c40b3dff04bd02f69039be426eeaa9edb185e39f4b"
+    },
+    {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
       "title": "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred",
@@ -2154,12 +2192,16 @@ window.DOCS_INDEX = {
           "rel": "tested-by"
         },
         {
+          "to": "note-area3-fixture-arithmetic",
+          "rel": "relates-to"
+        },
+        {
           "to": "defect-classes",
           "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c00b20053261d86a14884f0b602d101d9a699c3369ad8e314ba4eafc9f8d41f4"
+      "sourceSha256": "0335f2842f8e35b4b2312fc24edb95efb2d70999c54b1124a21aed2fa5050e75"
     },
     {
       "id": "design-authoring-decisions",
@@ -2783,7 +2825,7 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2026-12-31",
       "reviewSuggested": [],
-      "summary": "Eight screens of the 1280 × 800 shell for the Example foil in Analysis: no result with depth unset, evaluating, the wing result Current with loading drawn on the geometry, a station selected with the Loads tab, Historical after a CAD edit with a draft hidden and the Provenance tab, a failed evaluation, a result outside the method envelope, and a run that failed its integrity check. Every load number is computed in the page by a reference vortex lattice; every label, envelope, depth basis and omission is shown. For the operator's approval before any build.",
+      "summary": "Nine screens of the 1280 × 800 shell for the Example foil in Analysis: no result with depth unset, evaluating, the wing result Current with loading drawn on the geometry, the same result with depth unset, a station selected (the strip with its own envelope verdict, Re against the polar range and omissions) with the Loads tab, Historical after a CAD edit with a draft hidden and the Provenance tab, a failed evaluation, a result outside the method envelope, and a run that failed its integrity check. Every load number is computed in the page by a reference vortex lattice; every label, envelope, depth basis and omission is shown. For the operator's approval before any build.",
       "tags": [
         "mockup",
         "area-3",
@@ -2818,7 +2860,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "41900e59c7a8d4a74f553bb03e78c0ad2135cc096f3142814d8e55723d3e4795"
+      "sourceSha256": "0acf75207df60cdb894f8d766caa0431981fc6d4e14c33ae27bfcc0d5d382d4f"
     },
     {
       "id": "mockup-m12b2-views",
@@ -4421,7 +4463,7 @@ window.DOCS_INDEX = {
       "phase": "design-slice",
       "reviewBy": "2027-04-03",
       "reviewSuggested": [],
-      "summary": "Gate record for design-area3-analysis revision 1. Hydrodynamicist and Test Architect blocked (VLM result without its method envelope; story clauses without tests); CFD verification, computational geometry and data persistence approved with changes. Every finding is folded into revision 2 or carried as a DR-ANA item; the mockup's UX and accessibility review is recorded at the end.",
+      "summary": "Gate record for design-area3-analysis revision 1. Hydrodynamicist and Test Architect blocked (VLM result without its method envelope; story clauses without tests); CFD verification, computational geometry and data persistence approved with changes. Every finding is folded into revision 2 or carried as a DR-ANA item; the mockup's UX and accessibility review is recorded at the end. Revision 3 (repair cycle 2 of 2) folds the two lenses' rev 2 re-review (B-H1, M-H1, B-T1, M-T1…M-T3 and minors), mapped finding by finding with file:line.",
       "tags": [
         "review",
         "area-3",
@@ -4447,7 +4489,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c75743a7bdcbe94014c470eb9ced420869cfa739363547bfea250041252cd5aa"
+      "sourceSha256": "3044e0d4a251bdbc4ff3c7aa8c13764fb38fd2d0dede4c36bb43d1e4605b2934"
     },
     {
       "id": "review-authoring-v7-gaps",
@@ -9930,5 +9972,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "2eceffd272b6996384267b3ec21e1f492ed77a9234ec3cdecd1a9117d45ddf6b"
+  "graphSha256": "7651a972b32ec1f7ce0b99a2580df7e560a1f3916c51872f396ebef1826e5377"
 };
