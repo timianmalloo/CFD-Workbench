@@ -5914,7 +5914,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1f4e6dc71af40d4cfaf8c81271f3c9d85728696e7d0dc04d09da1066e73ec920"
+      "sourceSha256": "c0595ad939fed834bb14f4c51aeca9d7e51514688b58d66fa7eddd33b236ccbf"
     },
     {
       "id": "kb-hw-file-formats-and-grammars",
@@ -6329,7 +6329,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3fbccea5137db62b8a17f24f634c25c5614fe04f3628a74ed451c6ab121208fb"
+      "sourceSha256": "cb80d4c20f9686e5d3ea657521b95fab3915dd01f54180df0b8a62f1b4ee7ab8"
     },
     {
       "id": "kb-hw-sources",
@@ -9711,14 +9711,14 @@ window.DOCS_INDEX = {
     {
       "id": "spec-amendments-1-7",
       "path": "docs/specs/amendments/spec-1.7.md",
-      "title": "Spec 1.7 amendment batch — every spec-owner request, as exact text for one approval",
+      "title": "Spec 1.7 amendment batch — every spec-owner request, as exact text, approved in Ruling 66",
       "type": "spec",
-      "status": "in-review",
+      "status": "accepted",
       "owner": "@timianmalloo",
       "phase": "specification",
       "reviewBy": "2027-04-01",
       "reviewSuggested": [],
-      "summary": "One batch for the spec owner. 36 amendments to cfd-workbench-v1 (CAD 18, Analysis 6, Run 5, Copy 2, Shell 5), each with the quoted 1.6 text, the exact 1.7 text, the ruling or recorded finding it comes from and the tests or designs it touches; revision 1.7 on this branch carries them all. Then 13 open questions that have no ruling behind them, each with options and a recommendation, and one knowledge-base correction (ITTC Eq. 10, ln against log10).",
+      "summary": "One batch for the spec owner, approved in Ruling 66. 49 amendments to cfd-workbench-v1 (CAD 24, Analysis 8, Run 7, Copy 3, Shell 7), each with the quoted before-text, the exact 1.7 text, the ruling it comes from and the tests or designs it touches; revision 1.7 carries them all. AM-1.7-37 to -49 are the 13 open questions the owner accepted as recommended. The knowledge-base correction KB-1 (ITTC Eq. 10, ln to log10) is made in the knowledge base.",
       "tags": [
         "spec",
         "amendments",
@@ -9788,7 +9788,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d7b60ac21e10d8ba70eb142936ad17ceb663a9ebdf3a8ea7d380c4c365a737ab"
+      "sourceSha256": "e248b8b3baecbf02c88311b3ed6d886d412daa83a1d6ce67aa61b9da2dfa5388"
     },
     {
       "id": "spec-cfd-workbench",
@@ -9881,11 +9881,6 @@ window.DOCS_INDEX = {
       "reviewBy": "2027-04-01",
       "reviewSuggested": [
         {
-          "by": "design-m12c-section-editor",
-          "on": "2026-10-03",
-          "reason": "M1.2c OD-2/OD-3 (pending operator) may amend B1/UX-31: no Messages pane, and the Points pane's home in the right side bar; new copy COPY-172..183 proposed; tangent-kind angles are in the section's own chord coordinates."
-        },
-        {
           "by": "mockup-workbench-v3",
           "on": "2026-09-20",
           "reason": "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a."
@@ -9924,24 +9919,9 @@ window.DOCS_INDEX = {
           "by": "design-language",
           "on": "2026-09-30",
           "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
-        },
-        {
-          "by": "design-m12b2-3d-elevations",
-          "on": "2026-09-30",
-          "reason": "M1.2b2 (ADR-0010) builds the 3D view and Front/Side elevations: F-10 proposes a t/c nudge ladder 0.01/0.1/1 %; F-11 reads CAD-04's body plan as overlaid sections and CAD-06's F as fit-selection; deviations D-2 (Front camera, starboard on the viewer's left), D-9 (quad order), D-10 (Side nose right), D-11 (probe overlay, not a strip)."
-        },
-        {
-          "by": "mockup-property-grid",
-          "on": "2026-10-01",
-          "reason": "F-1 property grid: Properties becomes identity + collapsible groups + label | value | unit rows; Tangent is a labelled group shown on handles too (F-4); one identity per selection (O-6); units and UI-40 precision everywhere (O-4); estimates Unavailable with a reason instead of ≈ — (COPY-155); COPY-149..157 proposed. Review §11.4 Properties rows and the precision conflict DR-UID-1."
-        },
-        {
-          "by": "property-grid-rulings",
-          "on": "2026-10-01",
-          "reason": "Operator rulings DR-UID-1 and MC-6 need spec-owner amendments: precision follows the quantity (UI-40 angle text: placed/typed 0.01°, derived 0.1°; placed t/c 0.01 %; station chord at root/tip 0.01 mm; m12b §11.4 \"Lengths display at 0.01 mm\" covers typed dimensions only; status \"MAC 101.3 mm\"); a point's spanwise coordinate is \"From root\" with η (hover/peer names, probe, CAD-15/UI-37); A4.8 expressions are set once; COPY-149..171 proposed; DR-UID-5 amends UI-36 to \\\"the Wing block is pinned and always fully visible; the selection section may scroll; groups stay collapsible and remember state\\\"; a typed twist or t/c past the domain is clamped in Core with a warning echo, as m12b2 says (MC-19)."
         }
       ],
-      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G). Revision 1.7 applies one batch of 36 spec-owner amendments, each traced to a ruling (Rulings 53–65, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in the right side bar (Appendix H; the batch and its open questions are in amendments/spec-1.7.md).",
+      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G). Revision 1.7 applies one batch of 49 spec-owner amendments approved in Ruling 66, each traced to a ruling (Rulings 53–66, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in the right side bar; Add point and Remove point applying at once (Appendix H; the batch is amendments/spec-1.7.md).",
       "tags": [
         "hydrofoil",
         "cad",
@@ -10127,7 +10107,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "0e7dd79309dbc89489f501c909cb8f2376dec120ee68ebb6044382eec1204ac3"
+      "sourceSha256": "d6787952e5f47a11ba76a3e7abd231ac860e70c918570abba4240aedc3dc3bb9"
     },
     {
       "id": "spec-foildsl",
@@ -10470,5 +10450,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "e874053c412ee60cb7e20fac1ade04557a170c82201549d14a52d4560832d716"
+  "graphSha256": "0a11c560ba0ed34f2c9ee4fc832e35977cc4065485a78d87ee89ec9e6aadd421"
 };

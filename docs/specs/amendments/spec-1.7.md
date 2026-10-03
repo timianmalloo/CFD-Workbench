@@ -1,8 +1,8 @@
 ---
 id: spec-amendments-1-7
-title: "Spec 1.7 amendment batch — every spec-owner request, as exact text for one approval"
+title: "Spec 1.7 amendment batch — every spec-owner request, as exact text, approved in Ruling 66"
 type: spec
-status: in-review
+status: accepted
 owner: "@timianmalloo"
 phase: specification
 tags: [spec, amendments, rulings, cad, analysis, run, shell, copy]
@@ -23,43 +23,40 @@ links:
   - {to: kb-hw-data-and-constants, rel: relates-to}
 review-by: 2027-04-01
 summary: >-
-  One batch for the spec owner. 36 amendments to cfd-workbench-v1 (CAD 18, Analysis 6, Run 5, Copy 2, Shell 5), each
-  with the quoted 1.6 text, the exact 1.7 text, the ruling or recorded finding it comes from and the tests or designs
-  it touches; revision 1.7 on this branch carries them all. Then 13 open questions that have no ruling behind them,
-  each with options and a recommendation, and one knowledge-base correction (ITTC Eq. 10, ln against log10).
+  One batch for the spec owner, approved in Ruling 66. 49 amendments to cfd-workbench-v1 (CAD 24, Analysis 8, Run 7,
+  Copy 3, Shell 7), each with the quoted before-text, the exact 1.7 text, the ruling it comes from and the tests or
+  designs it touches; revision 1.7 carries them all. AM-1.7-37 to -49 are the 13 open questions the owner accepted as
+  recommended. The knowledge-base correction KB-1 (ITTC Eq. 10, ln to log10) is made in the knowledge base.
 review-suggested: []
 ---
 
 # Spec 1.7 amendment batch
 
 **For:** the spec owner (`@timianmalloo`). **Spec:** [cfd-workbench-v1](../cfd-workbench-v1.md), revision 1.7 on branch
-`docs/spec-1.7-amendments`. **Status:** a draft for one approval. The branch merges only after the owner approves it.
+`docs/spec-1.7-amendments`. **Status:** **approved** — Ruling 66 (operator as spec owner, 2026-10-03,
+`docs/notes/rulings.md`:793): the 36 drafted amendments, and the 13 open questions accepted as recommended and
+written in as AM-1.7-37 to -49.
 
 ## How to read this
 
-- **One row is one amendment.** *Before* quotes the 1.6 text exactly; the script that applied the batch refused to
-  run unless every quoted text matched the 1.6 spec the stated number of times. *After* is the exact new text in
-  revision 1.7. Line numbers are the 1.6 file's.
+- **One row is one amendment.** *Before* quotes the replaced text exactly; the script that applied the batch refused
+  to run unless every quoted text matched the stated number of times. AM-1.7-1 to -36 quote the 1.6 spec;
+  AM-1.7-37 to -49 quote the 1.7 draft (`9a62ab8`) they amend. *After* is the exact new text in revision 1.7.
 - **Every amendment traces to a ruling** (a numbered Ruling in `docs/notes/rulings.md`, or a ruling in the
-  property-grid or M1.2c rulings notes), or to the spec contradicting itself (one case, AM-1.7-30). A design finding
-  with no ruling behind it is **not** written into the spec; it is an open question below, with options and a
-  recommendation.
+  property-grid or M1.2c rulings notes), or to the spec contradicting itself (one case, AM-1.7-30).
 - **Superseded text is marked in place** (struck through, with the 1.7 text beside it), as revision 1.6 did. Appendix H
   of the spec is the change record.
-- **Approve, amend or reject per row.** A rejected row is reverted on this branch before the merge; an open question
-  answered "yes" becomes a 1.7 row in the same pass.
 
-**Condition before merge.** The five Run amendments (AM-1.7-25 to -29) cite **Ruling 65**. That ruling is recorded on
-branch `spike/fluids-round2` (commit `9dce4cb`, `docs/notes/rulings.md`:787 there) and has not yet reached the
-integration branch this batch is built on, whose register ends at Ruling 64. Merge this batch after Ruling 65 joins.
+**Ruling 65** (cited by AM-1.7-25 to -29) was first recorded on `spike/fluids-round2` (`9dce4cb`); it is now on this
+branch (`4085d72`, `docs/notes/rulings.md`:787).
 
-## Amendments (36)
+## Amendments (49)
 
 <!-- AM-TABLES:BEGIN -->
 
-### CAD (18)
+### CAD (24)
 
-| ID | Spec clause (1.6 line) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
+| ID | Spec clause (line: 1.6 for AM-1..36, the 1.7 draft 9a62ab8 for AM-37..49) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
 |---|---|---|---|---|---|
 | **AM-1.7-1** | A4.1 channels (:390) | “seven control vertices, six to ten allowed; degree 5 for section curves)” | “seven control vertices, ~~six to ten allowed~~ *(1.7: **4 to 16** allowed when the document declares FoilDSL 4.1, 6 to 10 under 4.0 — ADR-0001 Amendments 1 and 2; New foil ships 4 on the leading-edge and trailing-edge rails)*; degree 5 for section curves)” | Ruling 53 DR-10 and Ruling 57 item 2 (ceiling 16, ADR-0001 Am. 1); Ruling 62 (1) (floor 4, ADR-0001 Am. 2); Ruling 64 DR-PV-1 A, DR-PV-2 A, New foil default (`rulings.md`:648, :712, :771, :783); planform F-4 (`planform-point-verbs.md`:791) | PVC tests (New foil 4.1 header, 4-point rails); `foildsl.md` §5 item 3 (PVC owns it, not edited here) |
 | **AM-1.7-2** | A4.2 Insert CV / Delete CV floor (:416–417) | “the floor is the record's six vertices, A4.1)” | “the floor is ~~the record's six vertices~~ *(1.7: four vertices, p + 1, under FoilDSL 4.1 — a verb that first takes a channel below six raises the header to 4.1 in the same patch, and Insert CV is refused at the ceiling of 16; ADR-0001 Amendment 2, Rulings 62 and 64)*, A4.1)” | Ruling 62 (1)–(2); Ruling 64 DR-PV-1 A, DR-PV-2 A; planform F-4 (`planform-point-verbs.md`:791), §3.6 (:255–262) | PVC/PVU verb tests; GEO-05 (AM-1.7-12) |
@@ -79,10 +76,16 @@ integration branch this batch is built on, whose register ends at Ruling 64. Mer
 | **AM-1.7-16** | UI-36 Wing block fit (:2397–2398) | “At the 200 px dock no value is clipped, and at 1280 × 800 the selection content and the Wing block fit without scrolling.” | “At the 200 px dock no value is clipped, and ~~at 1280 × 800 the selection content and the Wing block fit without scrolling~~ *(1.7: the Wing block is pinned and always fully visible; the selection section may scroll; groups stay collapsible and remember their state — property-grid DR-UID-5. At 1280 × 800 the Wing is fully visible at the 260 and 300 px docks; at the 200 px dock it stays pinned, and four recorded states (chord warning, unavailable, MAC unavailable, section editor) are not fully visible. At 200 % text the Wing scrolls inside itself and a focused field is always brought into view — DR-DEN-2)*.” | property-grid DR-UID-5 and DR-DEN-2 (`property-grid-rulings.md`:40, :55) | `PropertiesPane_Wing_AlwaysFullyVisibleAt1280x800`; `PropertiesPane_Density_FocusedWingFieldInViewAtLargeText` |
 | **AM-1.7-17** | UI-37 point names, From root (:2405–2406) | “Every point's accessible name carries its curve, its name, its type and its position with units;” | “Every point's accessible name carries its curve, its name, its type and its position with units *(1.7: a point's spanwise coordinate is labelled **From root**, with η beside it as a read-only fact; "Span" means only the wing span b — in names, tooltips, the Tracing probe, the Points grid and the Browser rows; property-grid MC-6)*;” | property-grid MC-6 (`property-grid-rulings.md`:41); review remaining list (`ui-property-grid.md`:697, "From root" in CAD-15/UI-37 — CAD-15 states no position label, so only UI-37 changes) | M1.2b §11.4 hover strings; DESIGN.md copy rows; peer-name tests |
 | **AM-1.7-18** | UI-40 precision per quantity (:2420–2421) | “a length that is typed or placed shows 0.01 mm; a derived length (chord, span estimate, MAC, LE radius) 0.1 mm; an angle 0.1°; a ratio 0.1 %; AR two decimals; area 1 cm².” | “a length that is typed or placed shows 0.01 mm *(1.7: a station chord at the root or tip is the typed dimension; Δ and "largest change" also show 0.01 mm)*; a derived length (chord, span estimate, MAC, LE radius) 0.1 mm *(1.7: the status strip reads "MAC 101.3 mm")*; ~~an angle 0.1°~~ *(1.7: a placed or typed angle 0.01°, a derived angle 0.1°)*; a ratio 0.1 % *(1.7: a derived ratio such as Max t/c; a placed t/c shows 0.01 %)*; AR two decimals; area 1 cm².” | property-grid DR-UID-1 (`property-grid-rulings.md`:34) | `PropertiesView_Formatter_PrecisionFollowsQuantity`; `m12b-points.md` §11.4 "Lengths display at 0.01 mm" (design text, owner of that design) |
+| **AM-1.7-37** | A4.2 Insert CV / Delete CV — draft clause (1.7 draft :427) and GEO-14 (:1174) — OQ-1 | “A4.1), always as a draft (Return applies, Escape cancels, one undo item). This” · “**Given** a previewed Fair, Rebuild, Fit points, Insert or Delete, **when** cancelled,” | “A4.1), ~~always as a draft (Return applies, Escape cancels, one undo item)~~ *(1.7: Insert CV (Add point) and Delete CV (Remove point) apply at once as one undo step with the change reported, and Undo restores the curve exactly — Ruling 66, OQ-1)*. This” · “**Given** a previewed Fair, Rebuild, Fit points, Insert or Delete *(1.7: Insert and Delete have no preview; they apply at once and Undo restores them exactly, A4.2)*, **when** cancelled,” | Ruling 66 (`rulings.md`:793) OQ-1; planform D-4 (`planform-point-verbs.md`:882); Ruling 53 DR-6 | PVU Add/Remove tests (no draft; Undo exact) |
+| **AM-1.7-38** | A4.2 Delete CV (1.7 draft :426) and GEO-05 (:1165) — levers — OQ-2 | “and **Delete CV** (the shape change” · “**given** Delete leaving fewer than ~~p + 2~~” | “and **Delete CV** (never a lever — the end handles are refused with the reason, 1.7, Ruling 66 OQ-2; the shape change” · “*(1.7, Ruling 66 OQ-2:)* **given** Delete on a lever (an end handle), **then** it is refused with the reason and Rebuild is offered for fewer points; **given** Delete leaving fewer than ~~p + 2~~” | Ruling 66 (`rulings.md`:793) OQ-2; DR-PV-9 (`planform-point-verbs.md`:776), D-3 (:880) | PVC/PVU end-handle refusal test (COPY-194) |
+| **AM-1.7-39** | A3.1 Tangent kind (1.7 draft :260) and A4.15 point types (:790) — Vertical at the nose only — OQ-3 | “on a section also **Horizontal** · **Vertical** · **Fixed angle** \|” · “Symmetric · Corner; on a section also Horizontal · Vertical · Fixed angle).” | “on a section also **Horizontal** · **Vertical** · **Fixed angle** *(1.7: Vertical at the nose only — an interior vertical tangent makes a step; Ruling 66, OQ-3)* \|” · “Symmetric · Corner; on a section also Horizontal · Vertical · Fixed angle *(1.7: Vertical at the nose only; on an interior section anchor it is shown disabled with the reason "A vertical tangent inside a surface makes a step. The nose already has one." — Ruling 66, OQ-3)*).” | Ruling 66 (`rulings.md`:793) OQ-3; M1.2c D-5 (`m12c-section-editor.md`:384–386, :1255) | M1.2c Kind-list tests; the parser still accepts and checks `vertical` rows |
+| **AM-1.7-40** | UI-37 handle length unit (1.7 draft :2447) — OQ-4 | “with its angle in degrees and its length in mm.” | “with its angle in degrees and its length in mm *(1.7: on a section, mm at the station's local chord with % c beside it as a read-only fact — Ruling 66, OQ-4)*.” | Ruling 66 (`rulings.md`:793) OQ-4; M1.2c D-7 (`m12c-section-editor.md`:1257, :376); A4.8 (1.6 mm ladder) | M1.2c handle rows (today % c only: add the mm value) |
+| **AM-1.7-41** | A4.8 t/c nudge ladder (1.7 draft :557) — OQ-5 | “0.01 mm, the finest step, UI-40)*; 0.01 / 0.1 / 1 ° for angles;” | “0.01 mm, the finest step, UI-40)*; 0.01 / 0.1 / 1 ° for angles; *(1.7: 0.01 / 0.1 / 1 % for t/c — Ruling 66, OQ-5)*;” | Ruling 66 (`rulings.md`:793) OQ-5; M1.2b2 F-10 (`m12b2-3d-elevations.md`:327, :913) | none (built as stated) |
+| **AM-1.7-42** | B1 view-label assume (1.7 draft :1452–1453), CAD-04 body plan (:1215), CAD-06 F (:1217) — OQ-6 | “**assume:** v10's view labels map onto CAD-06's cameras as Plan = Top, 3D = Perspective, Side = Starboard (nose to the right), Front = Front; confirm at the next `/ui-design` run; if wrong, only labels change.” · “and **Starboard** is a body plan — one row per authored station — with the Twist frame” · “F fit; Home = Iso)” | “~~**assume:** v10's view labels map onto CAD-06's cameras as Plan = Top, 3D = Perspective, Side = Starboard (nose to the right), Front = Front; confirm at the next `/ui-design` run; if wrong, only labels change.~~ *(1.7: confirmed as built in M1.2b2 — Plan = Top, 3D = Perspective, Side = Starboard (nose to the right), Front = Front; Ruling 66, OQ-6.)*” · “and **Starboard** is a body plan — ~~one row per authored station~~ *(1.7: overlaid, one outline per authored station — Ruling 66, OQ-6)* — with the Twist frame” · “F fit *(1.7: the selection, or everything when nothing is selected; ⌘0 always fits everything — Ruling 66, OQ-6)*; Home = Iso)” | Ruling 66 (`rulings.md`:793) OQ-6; M1.2b2 F-11 (`m12b2-3d-elevations.md`:914) | none (built as stated) |
 
-### Analysis (6)
+### Analysis (8)
 
-| ID | Spec clause (1.6 line) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
+| ID | Spec clause (line: 1.6 for AM-1..36, the 1.7 draft 9a62ab8 for AM-37..49) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
 |---|---|---|---|---|---|
 | **AM-1.7-19** | A3.3 grain — Analysis run (before :303) | “- **Sweep attempt** — one row is one attempt of one case of one Case schedule, recorded when queued; retries add” | “- **Analysis run** *(1.7, DR-ANA-4)* — one row is one evaluation attempt of one Surface revision (with its Profile revisions) at one Operating point by one method id + version under one settings hash, recorded when the method returns, with its **outcome**: Completed, or Failed (code, reason). At most one Completed row per run key; Failed rows may repeat; Cancelled is telemetry, never a row. An interactive attempt is this row — the Sweep attempt fact below is Experiment-only. Solver residual, condition estimate and wall time are non-additive. - **Sweep attempt** — one row is one attempt of one case of one Case schedule, recorded when queued; retries add” | Ruling 63 (DR-ANA-4 as recommended, "plus a spec 1.7 note that interactive attempts are run rows with an outcome", `area3-analysis.md`:781); design §3.1 Run outcome (:158), §3.3 grain (:178) | ADR-0011 (to be written); `cfdw-project-2` store-invariant tests (design §13.3) |
 | **AM-1.7-20** | A5.6 Estimator row (:960) | “\| Estimator (closed form) \| Cl from thin-airfoil theory; CL, CDi from lifting line / Helmbold; drag as the fully turbulent bound \| "inviscid + turbulent-friction bound; deep water; steady" \|” | “\| Estimator (closed form) \| Cl from thin-airfoil theory; CL, CDi from lifting line / Helmbold; drag as the fully turbulent bound *(1.7, DR-ANA-2: section Cp(x) and Cp_min with its station count from an inviscid linear-vorticity panel method, which then supplies the section Cl as well — one definition; oracle: the Kármán–Trefftz Cp at 100, 200 and 400 panels)* \| "inviscid + turbulent-friction bound; deep water; steady" *(1.7: panel Cp adds "inviscid; no boundary layer")* \|” | Ruling 63 ("inviscid panel Cp in the estimator tier"); DR-ANA-2 (a) (`area3-analysis.md`:779); G-9 (:118) | `PanelCp_KarmanTrefftz_100_200_400` (A3b); ANA-02, ANA-21 |
@@ -90,91 +93,83 @@ integration branch this batch is built on, whose register ends at Ruling 64. Mer
 | **AM-1.7-22** | ANA-04 lattice oracles (:1156) | “rectangular flat plate at AR = 200: C_Lα within 1 % of Helmbold, and Richardson-extrapolated in AR within 1 % of 2π; elliptic AR 8 (lattice built from sampled chord) e within 1.005 (the lattice tolerance) and CL within 1 % of lifting line inside the Helmbold–Prandtl band;” · “Warren-12 and Bertin–Smith are admitted only after their reference numbers are re-established.” | “~~rectangular flat plate at AR = 200: C_Lα within 1 % of Helmbold, and Richardson-extrapolated in AR within 1 % of 2π; elliptic AR 8 (lattice built from sampled chord) e within 1.005 (the lattice tolerance) and CL within 1 % of lifting line inside the Helmbold–Prandtl band~~ *(1.7, DR-ANA-12: rectangular flat plate, AR 25–200, one chordwise panel: C_Lα Richardson-extrapolated in 1/AR within 0.5 % of 2π — Helmbold is not used on a rectangle; elliptic AR 8 (lattice built from sampled chord) on three lattices refined by 2: CL Richardson-extrapolated within 0.5 % of a recorded lifting-surface reference — lifting line, Helmbold and the Jones factor are not the reference — and e after Richardson within 1.000 ± 0.005, the lattice tolerance; swept wing (Bertin–Smith, AR 5, Λ_c/4 45°): C_Lα 3.443 /rad within 0.5 %)*;” · “~~Warren-12 and Bertin–Smith are admitted only after their reference numbers are re-established.~~ *(1.7: Bertin–Smith is admitted at ± 0.5 %, above; Warren-12 is admitted only after its reference numbers are re-established.)*” | Ruling 63 (DR-ANA-12 as recommended); DR-ANA-12 (a) (`area3-analysis.md`:789); G-10 (:119–123); fixtures F-1, F-2, F-6, F-16 (:609–623) | VLM fixture suite F-1, F-2, F-6, F-16 (ring 0) |
 | **AM-1.7-23** | B1 Analysis verb row (:1364) | “Choose water · Toggle layer · Compare · Ask about this calculation” | “Choose water · *1.7:* **Evaluate** (computes the selected tier against the accepted revision; a Historical result stays Historical until Evaluate is pressed — DR-ANA-6) · Toggle layer · Compare · Ask about this calculation” | Ruling 63 (DR-ANA-6 (a), an explicit Evaluate verb; Historical stays until pressed); G-8 (`area3-analysis.md`:116) | Area 3 conditions band; ANA-07 (unchanged) |
 | **AM-1.7-24** | B5 Flow F4 — node S (:1588) | “N -->\|Definition, setting or method changed\| S[Historical banner; recompute]” | “N -->\|Definition, setting or method changed\| S[Historical banner until Evaluate is pressed - 1.7, DR-ANA-6]” | Ruling 63 (DR-ANA-6 (a)); G-8 (`area3-analysis.md`:116–117) | UX-03 edge rows for F4 (count unchanged) |
+| **AM-1.7-45** | A5.6 after the tier table (1.7 draft :981) — depth unset on every tier — OQ-9 | “Section results are per span (N/m, lowercase Cl/Cd);” | “*(1.7, Ruling 66 OQ-9: with depth unset, every tier's fixed label reads "free surface not modelled" in place of "deep water" — the estimator and RANS rows as the VLM row does (A5.1, ANA-19).)* Section results are per span (N/m, lowercase Cl/Cd);” | Ruling 66 (`rulings.md`:793) OQ-9; G-11 class (`area3-analysis.md`:124–126); AM-1.7-21 | estimator and RANS depth-unset label tests |
+| **AM-1.7-46** | A5.6 estimator row — panel Cp oracle tolerance (1.7 draft :976) — OQ-10 | “oracle: the Kármán–Trefftz Cp at 100, 200 and 400 panels)*” | “oracle: the Kármán–Trefftz Cp at 100, 200 and 400 panels, its tolerance set by the A3b design at red-first — Ruling 66, OQ-10)*” | Ruling 66 (`rulings.md`:793) OQ-10; `area3-analysis.md`:719 | `PanelCp_KarmanTrefftz_100_200_400` (A3b) |
 
-### Run (5)
+### Run (7)
 
-| ID | Spec clause (1.6 line) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
+| ID | Spec clause (line: 1.6 for AM-1..36, the 1.7 draft 9a62ab8 for AM-37..49) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
 |---|---|---|---|---|---|
 | **AM-1.7-25** | A5.10 typed case model — residual criterion (:1061) | “transition, TI, μ_t/μ, wall treatment, target y+, reference quantities, residual criterion, averaging window.” | “transition, TI, μ_t/μ, wall treatment, target y+, reference quantities, residual criterion, averaging window. *(1.7, DR-F2-1: the **residual criterion** has three parts, all required — (1) every equation's initial residual has fallen to ≤ 10⁻³ of its first-iteration value (ITTC, three orders); (2) Cl and Cd are stationary over the averaging window: the half-band U_I = ½ (max − min) is at or below the caps the case file records; (3) the window is clean — no bounding of the turbulence variable (nuTilda for SA) inside it. The reported value is the window mean. A case enters the grid-uncertainty estimate only when its U_I ≤ 1 % of the grid-to-grid change of its neighbouring pair. A run that reaches its iteration limit is "Completed — residual criterion not met (ran to limit)".)*” | Ruling 65 (DR-F2-1 as recommended; `rulings.md`:789 on `spike/fluids-round2` @9dce4cb); criterion A4 (`fluids-round2.md`:122–137), DR-F2-1 (:487) | harvester stop rule; `cases/` numerics.residual_criterion; schema F-4 (round-2 track) |
 | **AM-1.7-26** | A7 Converged — evidence required (:1227) | “\| residual criterion fired · artifact oracle passed ·” | “\| residual criterion fired *(1.7: the three-part criterion of A5.10 — residual drop, Cl/Cd stationarity, clean window; DR-F2-1)* · artifact oracle passed ·” | Ruling 65 (DR-F2-1); "Spec effect" (`fluids-round2.md`:142–143) | LAB-01 three-part label lint (string unchanged) |
 | **AM-1.7-27** | A5.10 mesh gate — y+ and layers (:1062–1063) | “**Mesh gate:** ITTC 7.5-03-02-03 floors (y+ ≤ 1 with ≥ 20 layer points and expansion ratio ≤ 1.2, or 30–100 with ≥ 15; domain ≥ 10 L upstream, ≥ 20 L downstream);” | “**Mesh gate:** ITTC 7.5-03-02-03 floors (y+ ≤ 1 with ≥ 20 layer points and expansion ratio ≤ 1.2, or 30–100 with ≥ 15; domain ≥ 10 L upstream, ≥ 20 L downstream) *(1.7, DR-F2-3: the 30–100 wall-function branch is offered only when a feasibility check shows ≥ 15 points with y+ ≥ 30 fit inside the estimated turbulent boundary layer over the chord; y+ is measured at the cell centre on a field that meets the residual criterion, at the case's highest speed and α — on the wall-resolved branch, area-weighted p95 ≤ 1 and max ≤ 2; a field before that is a mesh screen, not the gate; the layer floor is a coverage rule reported per region (leading edge, main surface, trailing-edge 3 %, tip): ≥ 20 layers on ≥ 95 % of wing faces and ≥ 10 on 100 %)*;” | Ruling 65 (DR-F2-3 as recommended); DR-F2-3 text (`fluids-round2.md`:241–250, :489) | SPIKE-03 exit evidence; mesh-gate harvester |
 | **AM-1.7-28** | A5.10 mesh gate — determinant (:1064) | “internal skewness, all volumes positive, determinant > 0.3 —” | “internal skewness, all volumes positive, ~~determinant > 0.3~~ *(1.7, DR-F2-6: `cellDeterminant` ≥ 0.001 for OpenFOAM meshes; the 3×3 determinant > 0.3, ≥ 0.15 locally, only for a structured mesh)* —” | Ruling 65 (DR-F2-6); §3.4 (`fluids-round2.md`:265–283), DR-F2-6 (:492) | mesh-gate harvester; round-1 "32–35 % fail" reading |
 | **AM-1.7-29** | A8.4 readiness ring — TMR + GCI (:1290) | “At readiness: NASA TMR NACA 0012 with GCI (SPIKE-04, the Run/Results acceptance gate).” | “~~At readiness~~ *(1.7, DR-F2-9: when the backend pin changes, not at every readiness run)*: NASA TMR NACA 0012 with GCI (SPIKE-04, the Run/Results acceptance gate); readiness keeps the cavity-lid smoke test (A5.10).” | Ruling 65 (DR-F2-9); DR-F2-9 (`fluids-round2.md`:495) | `tools/run-readiness.py` (no change until a backend is pinned); backend ADR |
+| **AM-1.7-48** | A5.10 backend matrix — v2606 note (1.7 draft :1057) — OQ-12 | “v2606 when tagged (no such tag existed on 2026-09-20, 08), always by” | “v2606 when its Docker Hub image is tagged (no `opencfd/openfoam-default` 2606 tag existed on 2026-09-20, 08; OpenFOAM.app ships v2606 and v2512 builds, 08; the backend ADR sets the pin — 1.7, Ruling 66 OQ-12), always by” | Ruling 66 (`rulings.md`:793) OQ-12; round-2 F-2 (`fluids-round2.md`:429–431, :459); KB 08 :327–331 | backend ADR (v2606 re-smoke) |
+| **AM-1.7-49** | A5.6 RANS row — analysis TE label (1.7 draft :979) — OQ-13 | “· deep water · <single mesh \| grid U>" \|” | “· deep water · <single mesh \| grid U>" *(1.7: "TE blunted for analysis", with a base-drag band beside Cd, is added with the backend ADR — Ruling 65 DR-F2-4, Ruling 66 OQ-13)* \|” | Ruling 66 (`rulings.md`:793) OQ-13; Ruling 65 DR-F2-4 (`fluids-round2.md`:490) | backend ADR; LAB-01 lint (string added then) |
 
-### Copy (2)
+### Copy (3)
 
-| ID | Spec clause (1.6 line) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
+| ID | Spec clause (line: 1.6 for AM-1..36, the 1.7 draft 9a62ab8 for AM-37..49) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
 |---|---|---|---|---|---|
 | **AM-1.7-30** | A7 Computed estimate fixed string (:1225) | “"Computed estimate · model uncertainty not quantified"” | “"Computed estimate · Model uncertainty not quantified"” | G-12 (`area3-analysis.md`:127–128); the spec's own C3 rule (:2275, "Model uncertainty not quantified" is the only uncertainty string) and C2 row (:2198, "the A7 Computed-estimate suffix"); DESIGN.md COPY-63 (:393). No product choice: the spec contradicted itself | LAB-01 lint; every Computed-estimate label test |
 | **AM-1.7-31** | C2 layout rows — where they render (:2262–2264) | “\| Messages + status \|” (×3) | “\| status *(1.7: Messages retired, OD-2 A)* \|” | Ruling 59 OD-2 A (`rulings.md`:747); M1.2c D-3 (`m12c-section-editor.md`:1253) | ADR-0009 §5 layout messages; UX-32 rows |
+| **AM-1.7-44** | C3 copy rule (1.7 draft :2308) — OQ-8 | “exactly one rendering; "Model uncertainty not quantified" is the only uncertainty string.” | “exactly one rendering; "Model uncertainty not quantified" is the only uncertainty string. *(1.7, Ruling 66 OQ-8: DESIGN.md numbers and holds the copy a design proposes; C2 gains a row only for a fixed honest-limit or safety string of the A5 and A7 class.)*” | Ruling 66 (`rulings.md`:793) OQ-8; M1.2b F-4 (`m12b-points.md`:1037); `ui-property-grid.md`:257; C2 :2143 (1.6) | DESIGN.md COPY-149 to -197; `ui-property-grid.md`:257 (its owner corrects the authority sentence) |
 
-### Shell (5)
+### Shell (7)
 
-| ID | Spec clause (1.6 line) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
+| ID | Spec clause (line: 1.6 for AM-1..36, the 1.7 draft 9a62ab8 for AM-37..49) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
 |---|---|---|---|---|---|
 | **AM-1.7-32** | A3.1 pane · dock · float · workspace (:259) | “A **pane** (Properties, Browser, Points, Messages) lives in a **dock**” | “A **pane** (Properties, Browser, Points, ~~Messages~~ *(1.7: the Messages pane is retired — Ruling 59, OD-2 A)*) lives in a **dock**” | Ruling 59 OD-2 A; `m12c-rulings.md`:35 | `LayoutCodec` registered panes |
 | **AM-1.7-33** | B1 CAD area IA table (:1417–1419) | “\| Bottom panel \| **Points** (a grid of every point with typed edits and two-way selection) · **Messages** (anything that stops Finish or Save, each with Show) \| hidden \|” · “\| Right side bar \| empty until a pane is moved there; an opened empty dock says how to fill it \| hidden \|” · “**Precision** (adds Points and Messages in the bottom panel)” | “\| Bottom panel \| ~~**Points** (a grid of every point with typed edits and two-way selection) · **Messages** (anything that stops Finish or Save, each with Show)~~ *(1.7: empty until a pane is moved there. Points moved to the right side bar (Ruling 59, OD-3 B). Messages is retired: a blocker shows where it blocks — the Finish reason, the canvas marker — with one **Show** in the status strip (OD-2 A))* \| hidden \|” · “\| Right side bar \| *(1.7:)* **Points** (a grid of every point with typed edits and two-way selection), shown by the Precision workspace (Ruling 59, OD-3 B); otherwise empty until a pane is moved there; an opened empty dock says how to fill it \| hidden \|” · “**Precision** (adds Points ~~and Messages in the bottom panel~~ *(1.7: in the right side bar)*)” | Ruling 59 OD-2 A, OD-3 B; M1.2c D-2, D-3 (`m12c-section-editor.md`:1252–1253), §11.8 (:991–992) | `WorkspacePresets`; Precision preset tests |
 | **AM-1.7-34** | B1 assume on Messages (:1426–1428) | “**assume:** the **Messages** pane is the CAD presentation of the Checks drawer's findings for the open foil (DRC-01 stands); confirm at the next `/ui-design` run; if wrong, the Checks drawer needs its own place in the CAD shell.” | “~~**assume:** the **Messages** pane is the CAD presentation of the Checks drawer's findings for the open foil (DRC-01 stands); confirm at the next `/ui-design` run; if wrong, the Checks drawer needs its own place in the CAD shell.~~ *(1.7: resolved by Ruling 59, OD-2 A — there is no Messages pane. Where DRC-01's Checks findings for the open foil live in the CAD shell is open: spec amendment batch 1.7, OQ-11.)*” | Ruling 59 OD-2 A (the assume's "if wrong" branch fired) | DRC-01; open question OQ-11 |
 | **AM-1.7-35** | B7 window body (:1786) | “the optional bottom panel (Points \| Messages) and the optional right side bar;” | “the optional bottom panel ~~(Points \| Messages)~~ and the optional right side bar *(1.7: Points lives in the right side bar; Messages is retired — Ruling 59, OD-2 A and OD-3 B)*;” | Ruling 59 OD-2 A, OD-3 B | none beyond AM-1.7-33 |
 | **AM-1.7-36** | UX-31 Precision workspace (:2082) | “Precision adds Points and Messages in the bottom panel;” | “Precision adds Points ~~and Messages in the bottom panel~~ *(1.7: in the right side bar; there is no Messages pane — Ruling 59, OD-2 A and OD-3 B)*;” | Ruling 59 OD-2 A, OD-3 B; DR-STATUS-1 (no scrollable list in the bottom bar, `property-grid-rulings.md`:96) | Precision preset tests; F12 edges (count unchanged) |
+| **AM-1.7-43** | UX-29 edge count (1.7 draft :2109) — OQ-7 | “**28 edges**, each a test row, in addition to UX-03's 80.” | “**28 edges**, each a test row, in addition to UX-03's 80. *(1.7: S1-Switch-to-Analysis is not applicable until the Analysis area exists; its test row lands with the A3a toggle, ANA-22 — Ruling 66, OQ-7.)*” | Ruling 66 (`rulings.md`:793) OQ-7; app-shell OI-S1 (`app-shell.md`:831, :901); Ruling 52 | A3a toggle test row (ANA-22) |
+| **AM-1.7-47** | B1 Messages assume — Checks placement (1.7 draft :1456–1457) — OQ-11 | “Where DRC-01's Checks findings for the open foil live in the CAD shell is open: spec amendment batch 1.7, OQ-11.)*” | “Where DRC-01's Checks findings for the open foil live in the CAD shell is placed by the next `/ui-design` run, under DR-STATUS-1 (no scrollable list in the bottom bar) — Ruling 66, OQ-11.)*” | Ruling 66 (`rulings.md`:793) OQ-11; Ruling 59 OD-2 A; DR-STATUS-1 | next `/ui-design` run; DRC-01 |
 
 <!-- AM-TABLES:END -->
 
-## Open questions for the owner (no ruling behind them)
+## Open questions — answered by Ruling 66
 
-Each is a recorded finding or design deviation that no ruling decides. None is written into the spec.
+The batch first carried 13 open questions: recorded findings or design deviations that no ruling decided. Ruling 66
+accepted each recommendation, so each is now an amendment above, sourced to Ruling 66.
 
-### CAD
-
-| ID | Question (source) | Options | Recommendation |
+| OQ | Question (source) | Ruled (Ruling 66) | Amendment |
 |---|---|---|---|
-| **OQ-1** | Do **Add point** and **Remove point** apply at once, or as a draft? A4.2 says Delete CV is "always as a draft (Return applies, Escape cancels, one undo item)". The planform design applies both at once, reports the change, and ⌘Z restores it exactly (deviation D-4, `planform-point-verbs.md`:882). Ruling 64 approved the mockup and ruled DR-PV-1 to -5; D-4 was not among them. | (a) Amend A4.2: Insert CV (Add point) and Delete CV (Remove point) apply at once as one undo step with the change reported; Undo restores the curve exactly. (b) Keep the draft. | **(a).** It matches Ruling 53 DR-6 (a point gesture commits at its end as one undo step) and Rhino and vector-tool practice. Proposed A4.2 text: "…**Delete CV** (the shape change is measured … and reported; the floor is four vertices under FoilDSL 4.1, A4.1); Insert CV and Delete CV apply at once as one undo step, and Undo restores the curve exactly." |
-| **OQ-2** | May **Remove point** remove an end handle (lever)? A4.2 allows Delete CV of any vertex above the floor. The design refuses the end handles (DR-PV-9, "decided in the design; the operator may overturn any", `planform-point-verbs.md`:776; D-3 :880). | (a) Amend A4.2 and GEO-05: the levers cannot be removed, refused with the reason (COPY-194); Rebuild covers "fewer points". (b) Allow it. | **(a).** The levers set the end tangents and, under the root mirror, the root square; removing one silently changes a constraint. |
-| **OQ-3** | Is **Vertical** offered on an interior section anchor? A4.15 and A3.1 list Horizontal · Vertical · Fixed angle for any section anchor. M1.2c disables Vertical on interior anchors: "A vertical tangent inside a surface makes a step. The nose already has one." (D-5, `m12c-section-editor.md`:384–386). The parser still accepts and checks `vertical` rows. | (a) Amend A4.15: on a section also Horizontal and Fixed angle, and Vertical at the nose only. (b) Keep Vertical on every section anchor. | **(a).** A vertical tangent at an interior point of a single-valued surface y(x) is a step, not a shape; the nose is the one place it belongs. |
-| **OQ-4** | In which unit is a **section handle length** shown? UI-37 says "its length in mm"; A4.8 (1.6) nudges a section point "in millimetres at the station's local chord"; M1.2c shows handle length in % c (D-7, `m12c-section-editor.md`:1257, :376). A profile shared by stations of different chords has no single mm value. | (a) % c in the section editor. (b) mm at the selected station's chord. (c) mm at the selected station's chord, with % c beside it as a read-only fact. | **(c).** A4.8's mm ladder was decided in 1.6 with the v10 ladder; showing % c beside it follows the pattern of MC-6 (From root, with η beside it). The M1.2c owner confirms the build cost. |
-| **OQ-5** | What is the **t/c nudge ladder**? A4.8 has none. M1.2b2 built 0.01 / 0.1 / 1 % (F-10, `m12b2-3d-elevations.md`:327, :913). | (a) Amend A4.8: "0.01 / 0.1 / 1 % for t/c". (b) Another ladder. | **(a).** DR-UID-1 shows a placed t/c at 0.01 %, so the finest nudge is visible (UI-40's own rule), and DR-UID-2's field nudge already runs on a per-curve % ladder. |
-| **OQ-6** | Three readings M1.2b2 built (F-11, `m12b2-3d-elevations.md`:914): (i) B1's assume "Side = Starboard (nose to the right)" is now built; (ii) CAD-04's Starboard "body plan — one row per authored station" is drawn as one overlaid outline per station; (iii) CAD-06's **F** fits the selection, or everything when nothing is selected (⌘0 always fits everything). | (a) Amend: retire the assume as confirmed; CAD-04 "an overlaid body plan, one outline per authored station"; CAD-06 F = fit the selection, or all when nothing is selected. (b) Keep the spec; change the build. | **(a).** The operator approved the views mockup that draws them ("Yes, build it", property-grid rulings, M1.2b2 views), though no ruling names F-11. |
+| OQ-1 | Add point and Remove point: at once or a draft? (planform D-4, `planform-point-verbs.md`:882) | at once, one undo step, Undo exact | AM-1.7-37 (A4.2, GEO-14) |
+| OQ-2 | May Remove point remove a lever? (DR-PV-9, :776; D-3 :880) | no — refused with the reason | AM-1.7-38 (A4.2, GEO-05) |
+| OQ-3 | Vertical on an interior section anchor? (M1.2c D-5, `m12c-section-editor.md`:384–386) | Vertical at the nose only | AM-1.7-39 (A3.1, A4.15) |
+| OQ-4 | Section handle length unit (M1.2c D-7, :1257) | mm at the station's chord, % c beside it | AM-1.7-40 (UI-37) |
+| OQ-5 | t/c nudge ladder (M1.2b2 F-10, `m12b2-3d-elevations.md`:913) | 0.01 / 0.1 / 1 % | AM-1.7-41 (A4.8) |
+| OQ-6 | Side = Starboard; overlaid body plan; F fits the selection (M1.2b2 F-11, :914) | adopted as built | AM-1.7-42 (B1 assume, CAD-04, CAD-06) |
+| OQ-7 | UX-29 S1-Switch-to-Analysis (app-shell OI-S1, `app-shell.md`:831, :901; Ruling 52) | not applicable until A3a; test row with ANA-22 | AM-1.7-43 (UX-29) |
+| OQ-8 | Who numbers design-proposed copy? (M1.2b F-4; `ui-property-grid.md`:257) | DESIGN.md; C2 only for fixed honest-limit strings | AM-1.7-44 (C3) |
+| OQ-9 | Depth-unset rule on the estimator and RANS labels (G-11 class) | one rule for every tier | AM-1.7-45 (A5.6) |
+| OQ-10 | Panel Cp oracle tolerance (`area3-analysis.md`:719) | set by the A3b design at red-first | AM-1.7-46 (A5.6) |
+| OQ-11 | Where DRC Checks findings live in the CAD shell (B1 assume, OD-2 A) | the next `/ui-design` run, under DR-STATUS-1 | AM-1.7-47 (B1) |
+| OQ-12 | The v2606 note (round-2 F-2; KB 08 :327–331) | reword only: the Docker Hub tag; the backend ADR sets the pin | AM-1.7-48 (A5.10) |
+| OQ-13 | "TE blunted for analysis" (Ruling 65 DR-F2-4, `fluids-round2.md`:490) | added with the backend ADR | AM-1.7-49 (A5.6 RANS row) |
 
-### Analysis
+## Knowledge-base correction KB-1 — made (Ruling 66)
 
-| ID | Question (source) | Options | Recommendation |
-|---|---|---|---|
-| **OQ-9** | Does the depth-unset rule reach the **estimator** and **RANS** labels too? AM-1.7-21 (DR-ANA-13) fixes the VLM label only. A5.6's estimator row ("…; deep water; steady") and RANS row ("… · deep water · …") carry the same contradiction with A5.1 ("With depth unset … no deep-water value or label is printed"). G-11 named only the VLM row (`area3-analysis.md`:124). | (a) One rule for every tier: with depth unset, "free surface not modelled" in place of "deep water". (b) VLM only. | **(a).** A5.1 states one rule; three tiers breaking it three ways is the defect class DR-ANA-13 fixed once. |
-| **OQ-10** | What tolerance does the **panel Cp oracle** hold? DR-ANA-2 names the Kármán–Trefftz Cp at 100/200/400 panels (`PanelCp_KarmanTrefftz_100_200_400`, `area3-analysis.md`:719) but states no tolerance. | (a) The A3b design sets it at red-first; the spec then cites it in A5.6. (b) State a number now. | **(a).** No measured basis for a number exists yet; a guessed tolerance would be an unmarked belief. |
+**ITTC Eq. (10) printed `ln` where the correlation uses `log10`.** Source: round-2 plan §8 F-1
+(`fluids-round2.md`:455–458) and §3.1 item 2 (:192–196); ruled by Ruling 66. The area file
+`docs/knowledge/hydrofoil-workbench/08-simulation-openfoam-su2-interop.md` now writes Cf = 0.455 / [log10(Re_L)]^2.58
+at its key-findings item 5 (:46) and its formula block (:440), with a correction note and the worked check beside it.
+`data-and-constants.md`:370 is a roll-up of that area file, regenerated by `tools/compile-knowledge.py`, not edited by
+hand. The worked example below the formula was re-derived (it had inherited the `ln` numbers).
 
-### Run
+| Re_L = 6 × 10⁵ (c = 0.12 m, V = 5 m/s, ν = 1 × 10⁻⁶ m²/s) | Cf | y(y+ = 1) |
+|---|---|---|
+| before — `ln` form | 5.73 × 10⁻⁴ | 11.8 µm |
+| after — `log10` form | 4.93 × 10⁻³ | 4.03 µm |
+| ratio | 8.6 × | first cell 2.93 × thinner |
 
-| ID | Question (source) | Options | Recommendation |
-|---|---|---|---|
-| **OQ-12** | Is A5.10's "v2606 when tagged (no such tag existed on 2026-09-20, 08)" stale? Round-2 finding F-2 says the published v2606 app contradicts it (`fluids-round2.md`:429–431, :459). **Checked:** the spec's note refers to the Docker Hub image tag — KB 08 :327–329 ("no `2606` tag existed on 2026-09-20" for `opencfd/openfoam-default`) — while F-2's evidence is the OpenFOAM.app v2606 build, which KB 08 :331 also lists. So F-2 is half right: the note is ambiguous, not wrong. Whether Docker Hub has a 2606 tag today was not re-checked. | (a) Clarify the wording only: "v2606 when its Docker Hub image is tagged (none on 2026-09-20, 08); OpenFOAM.app ships v2606 and v2512 builds (08)"; the pin stays the backend ADR's. (b) Leave A5.10 to the backend ADR. | **(a)**, with the pin decided by the backend ADR after the v2606 re-smoke the plan names (`fluids-round2.md`:431). |
-| **OQ-13** | Does DR-F2-4's label enter A5.6? Ruling 65 accepts a finite TE at the TE floor setting and a rounded tip for analysis, "declared and labelled 'TE blunted for analysis'", with a base-drag band beside Cd (`fluids-round2.md`:490). A5.6's RANS row has no such label, and C3 makes A5.6's strings the copy record (LAB-01 forbids rivals). | (a) Add it to A5.6's RANS fixed label parts now. (b) Add it when the backend ADR specifies the product RANS tier. | **(b).** Ruling 65 rules it for the round-2 runs; no product path emits it yet. |
-
-### Copy
-
-| ID | Question (source) | Options | Recommendation |
-|---|---|---|---|
-| **OQ-8** | Who numbers and holds the copy strings the designs propose? M1.2b F-4 ("New COPY rows in §11.4 need numbers", `m12b-points.md`:1037); COPY-149 to -171 "are proposals for the spec owner (the spec's C3 table is the authority)" (`ui-property-grid.md`:257); COPY-172 to -183 (M1.2c), COPY-185 to -189 (`ui-m12c-paired.md`), Area 3 §12.6 and planform COPY-194 to -197. The spec says the opposite of the review: "`DESIGN.md` is the token and copy authority" (C2, :2143 in 1.6), and C3 obliges DESIGN.md to quote C2, not the reverse. | (a) DESIGN.md numbers and holds design copy; the spec adds a C2 row only for a fixed honest-limit or safety string (the A5/A7 class); C3 states this rule once. (b) Every design string becomes a C2 row. | **(a).** It is the rule the spec already states; (b) makes two copy authorities. The property-grid review's sentence is then corrected by its owner. |
-
-### Shell
-
-| ID | Question (source) | Options | Recommendation |
-|---|---|---|---|
-| **OQ-7** | A written N/A for UX-29's edge **F11 S1-Switch-to-Analysis**. App-shell asks for it (OI-S1, `app-shell.md`:831, :901); Ruling 52 sent it to the spec owner "before the M1.2e merge". The edge is unreachable while only CAD is built; Ruling 63 approves Analysis slice A3a after M1.2c. | (a) N/A until the Analysis area exists; its test row lands with A3a's toggle (ANA-22). (b) N/A for v1. (c) No N/A; build a stub Analysis area. | **(a).** Proposed UX-29 text after "**28 edges**, each a test row": "*(1.7: S1-Switch-to-Analysis is not applicable until the Analysis area exists; its test row lands with the A3a toggle, ANA-22.)*" |
-| **OQ-11** | Where do DRC-01's **Checks findings** for the open foil live in the CAD shell? B1's assume made the Messages pane their CAD home; Ruling 59 OD-2 A retired that pane (blockers show where they block, plus one Show in the status strip), so the assume's "if wrong" branch fired (AM-1.7-34). DR-STATUS-1 forbids a scrollable list in the bottom bar. | (a) Blockers only, as OD-2 A; non-blocking findings wait for a later slice. (b) A Checks pane in a side bar. (c) The next `/ui-design` run proposes the place, under DR-STATUS-1. | **(c).** It is a placement question for a design pass; (a) and (b) are inputs to it, not decisions. |
-
-## Knowledge-base correction (separate; the knowledge base is not edited here)
-
-**KB-1 — ITTC Eq. (10) uses `ln` where the correlation uses `log10`.** Source: round-2 plan §8 F-1
-(`fluids-round2.md`:455–458) and §3.1 item 2 (:192–196). The knowledge base copies Cf = 0.455 / [ln(Re_L)]^2.58 at
-`docs/knowledge/hydrofoil-workbench/data-and-constants.md`:370 and
-`08-simulation-openfoam-su2-interop.md`:46 and :440. The Prandtl–Schlichting form it reproduces uses log10.
-Re-computed for this batch at Re_L = 6 × 10⁵: the `ln` form gives Cf 5.73 × 10⁻⁴ and the `log10` form 4.93 × 10⁻³
-(8.6 × apart), so a first-cell height from the `ln` form is 2.93 × too large. That ITTC's PDF prints `ln` is the
-plan's Verified reading; it was not re-read here. **Proposed correction:** write the `log10` form with a note that the
-ITTC text prints `ln`; re-derive the worked example; run `tools/compile-knowledge.py` for the roll-ups. **Control**
+That the ITTC PDF prints `ln` is the plan's Verified reading; it was not re-read here. **Control still owed**
 (defect-class candidate "a standard's typo carried verbatim into a derived formula"): a unit test that evaluates every
-correlation in `data-and-constants.md` against an independent reference value. **Spec effect:** none — the spec
-cites the ITTC floors, not the formula.
+correlation in `data-and-constants.md` against an independent reference value. **Spec effect:** none — the spec cites
+the ITTC floors, not the formula.
 
 ## Requests found and closed without an amendment
 
@@ -186,20 +181,17 @@ cites the ITTC floors, not the formula.
 | MC-19 twist and t/c clamped in Core (`ui-property-grid.md`:313) | A reviewer condition, not an operator ruling, and no spec clause conflicts with it. |
 | The `m12b-points.md` §11.4 sentence "Lengths display at 0.01 mm" (DR-UID-1) | Design text; its owner amends it. UI-40 (AM-1.7-18) is the spec side. |
 | `foildsl.md` §5 item 3 and examples (planform F-4) | Owned by the PVC build track; not edited here. AM-1.7-1 states the range in the spec. |
-| M1.2b F-4 copy numbers | Open question OQ-8. |
 
 ## Contradictions found against rulings
 
-- **ADR-0001 Amendment 2** still says the default counts are "ten for New foil" and unchanged (`adr/0001-master-curve-degree.md`:123–124).
-  Ruling 64, ruled after the amendment was written, makes New foil ship 4 on the leading-edge and trailing-edge rails.
-  The ADR's owner should add the note; AM-1.7-1 follows the ruling.
+- **ADR-0001 Amendment 2** said the default counts were "ten for New foil" and unchanged; Ruling 64 makes New foil
+  ship 4 on the rails. The Coordinator fixed the ADR at `019e0c8`.
 - **The property-grid review** calls "the spec's C3 table the authority" for copy (`ui-property-grid.md`:257); the
-  spec names DESIGN.md (C2). See OQ-8.
-- **Ruling 65 is not on the integration branch** (see the merge condition above).
+  spec names DESIGN.md, and Ruling 66 (OQ-8, AM-1.7-44) confirms it. The review's owner corrects that sentence.
+- **Ruling 65** was missing from the integration branch when the batch was drafted; it is on this branch at `4085d72`.
 
-## After approval
+## Flags
 
-- Clear the spec's `review-suggested` entries this batch answers (design-m12c-section-editor OD-2/OD-3;
-  property-grid-rulings), with `docs-graph.py clear-flag`; the design-m12b2-3d-elevations entry stays until OQ-5 and
-  OQ-6 are answered.
-- Re-render `docs/specs/cfd-workbench-v1.html` if a row is reverted.
+The spec's `review-suggested` entries this batch answers are cleared with `docs-graph.py clear-flag`:
+design-m12c-section-editor (OD-2/OD-3), property-grid-rulings and mockup-property-grid (DR-UID-1, DR-UID-5, MC-3,
+MC-6), and design-m12b2-3d-elevations (F-10, F-11; answered by OQ-5 and OQ-6).

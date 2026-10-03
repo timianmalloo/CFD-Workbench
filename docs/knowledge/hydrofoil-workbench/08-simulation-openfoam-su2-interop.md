@@ -43,7 +43,7 @@ labelled Flagged. Anything from recall that no fetched source confirmed is label
 2. **SU2 has no VOF/free-surface, no cavitation and no mesh generator.** Its documented `SOLVER` list is EULER/NAVIER_STOKES/RANS, INC_* variants, NEMO, FEM, HEAT, ELASTICITY and MULTIPHYSICS; meshes come from Pointwise, Gmsh, CGNS or the trivial ASCII `.su2` format. Free surface, ventilation and cavitation are OpenFOAM-only in this stack. — *(Verified, [S19][S21])*
 3. OpenFOAM ESI provides the whole hydrofoil physics ladder as separate executables: `simpleFoam`/`pimpleFoam` (single phase), `kOmegaSSTLM` (Langtry–Menter γ–Reθ, 4-equation) and `kkLOmega` (incompressible-only) transition, `interFoam`/`interIsoFoam` (VOF), `interPhaseChangeFoam` with **Kunz, Merkle, SchnerrSauer** cavitation models, `cavitatingFoam`, and a new **GEKO** RANS model in v2606. — *(Verified, [S2][S7][S9][S10][S11])*
 4. SU2 v8 has a **Langtry–Menter LM transition model** (`KIND_TRANS_MODEL= LM`, `LM_OPTIONS` with LM2015 and seven correlation variants) and **wall functions per marker** (`MARKER_WALL_FUNCTIONS` with STANDARD/ADAPTIVE/SCALABLE/EQUILIBRIUM/NONEQUILIBRIUM), so an SU2 single-phase hydrofoil case can be run either wall-resolved (y+ ≈ 1) or wall-modelled. — *(Verified, [S20][S23])*
-5. **ITTC 7.5-03-02-03 Rev 02 (2024)** fixes the mesh floor: first cell y+ ≤ 1 with ≥ 20 points in the boundary layer and expansion ≤ 1.2 for wall-resolved, or 30 < y+ < 100 with ≥ 15 points for wall functions; inlet ≥ 10 L upstream and outlet ≥ 20 L downstream of a lifting surface; the first-cell height formula is `y = y+ · L / (Re_L · sqrt(Cf/2))` with `Cf = 0.455/[ln Re_L]^2.58`; the recommended convergence criterion is a ≥ 3-order drop of scaled residuals, with force convergence as the fallback. — *(Verified, [S33])*
+5. **ITTC 7.5-03-02-03 Rev 02 (2024)** fixes the mesh floor: first cell y+ ≤ 1 with ≥ 20 points in the boundary layer and expansion ≤ 1.2 for wall-resolved, or 30 < y+ < 100 with ≥ 15 points for wall functions; inlet ≥ 10 L upstream and outlet ≥ 20 L downstream of a lifting surface; the first-cell height formula is `y = y+ · L / (Re_L · sqrt(Cf/2))` with `Cf = 0.455/[log10 Re_L]^2.58` (the Prandtl–Schlichting correlation; ITTC's Eq. 10 prints `ln`, which gives Cf about 8.6 × too small and a first cell about 2.9 × too thick at Re 6 × 10⁵ — corrected under Ruling 66, KB-1; worked check under "Data, constants, formulae and invariants"); the recommended convergence criterion is a ≥ 3-order drop of scaled residuals, with force convergence as the fallback. — *(Verified, [S33])*
 6. **ITTC 7.5-03-01-01 Rev 05 (2024)** defines what "mesh-converged" means: three-grid generalized Richardson extrapolation (`p = ln(ε32/ε21)/ln r`, `δ_RE = ε21/(r^p − 1)`, `U = F_S·|δ_RE|`, `F_S` from Xing & Stern's P-ratio) or the Eça–Hoekstra least-squares method on ≥ 4 grids with `F_S = 1.25` when 0.5 ≤ p < 2.1 and the fit scatter σ is below the data range Δφ. A tool that labels a result "converged" without this study is making a claim the procedure does not support. — *(Verified, [S32])*
 7. The **NASA TMR NACA 0012 validation case** (M = 0.15, Re = 6e6, Ladson tripped force data, Gregory & O'Reilly pressure data) is the correct fully-turbulent oracle for a single-phase backend smoke test; untripped data show ≈ 10 % higher drag, so a transition-model run must be compared against the *untripped* set, never the tripped one. — *(Verified, [S35])*
 8. Both official OpenFOAM lines have **no native macOS or Windows binaries**: OpenCFD lists Docker, WSL and MinGW cross-compilation for Windows and Docker for macOS; the Foundation lists WSL for Windows and Multipass for macOS. The community **OpenFOAM.app** (gerlero) is Apple-silicon-only (macOS 14+), GPL-3.0, installed via `brew install gerlero/openfoam/openfoam`, and **not notarized by Apple**. The official `opencfd/openfoam-default` image is multi-arch (amd64 + arm64) for 2306–2512; 2606 was not yet tagged on 2026-09-20. — *(Verified, [S3][S4][S26][S29])*
@@ -437,15 +437,25 @@ from [S13][S15][S22][S23][S32][S33] and the spec.)*
 `L` [m] at `Re_L = V·L/ν`:
 
 ```
-Cf  = 0.455 / [ln(Re_L)]^2.58                      (turbulent, smooth; transitional: subtract 1700/Re_L; laminar: 1.328/sqrt(Re_L))
+Cf  = 0.455 / [log10(Re_L)]^2.58                   (turbulent, smooth; transitional: subtract 1700/Re_L; laminar: 1.328/sqrt(Re_L))
 y   = y+ · L / ( Re_L · sqrt(Cf/2) )               [m]   — distance of the first grid point from the wall
 ```
 Validity: flat-plate zero-pressure-gradient estimate; ignores curvature and pressure gradient, so the
-achieved y+ must be checked a posteriori and the mesh corrected. *(Verified, [S33])* Worked example
-(Inferred arithmetic on the verified formula): chord L = 0.20 m, V = 8 m/s, seawater 15 °C ν ≈ 1.19e-6 m²/s
-→ Re ≈ 1.34e6; Cf ≈ 4.9e-4; y(y+=1) ≈ 9.5 µm; y(y+=30) ≈ 0.29 mm; y(y+=50) ≈ 0.48 mm. With expansion 1.2 and
-20 layers the wall-resolved stack is ≈ 1.8 mm thick, i.e. ≈ 0.9 % chord. *(Inferred; ν value from the
-grounding doc's ITTC water tables, not re-fetched.)*
+achieved y+ must be checked a posteriori and the mesh corrected. *(Verified, [S33])*
+
+**Correction (Ruling 66, KB-1, 2026-10-03).** ITTC's Eq. (10) prints `ln`; the Prandtl–Schlichting correlation it
+reproduces uses `log10`, and this file copied the `ln` form until 2026-10-03 (finding F-1 of
+`docs/plans/fluids-round2.md` §3.1 item 2 and §8, which read the ITTC PDF and the correlation's reference; not
+re-read here). Worked check, re-computed: at **Re_L = 6 × 10⁵** (c = 0.12 m, V = 5 m/s, ν = 1 × 10⁻⁶ m²/s, the
+SPIKE-03 point) the `ln` form gives **Cf 5.73 × 10⁻⁴** and **y(y+ = 1) 11.8 µm**; the `log10` form gives **Cf
+4.93 × 10⁻³** and **y(y+ = 1) 4.03 µm** — Cf 8.6 × larger and the first cell 2.93 × thinner. *(Inferred arithmetic
+on the formula above.)*
+
+Worked example (Inferred arithmetic on the corrected formula): chord L = 0.20 m, V = 8 m/s, seawater 15 °C
+ν ≈ 1.19e-6 m²/s → Re ≈ 1.34e6; Cf ≈ 4.23e-3; y(y+=1) ≈ 3.2 µm; y(y+=30) ≈ 0.097 mm; y(y+=50) ≈ 0.16 mm. With
+expansion 1.2 and 20 layers the wall-resolved stack is ≈ 0.60 mm thick, i.e. ≈ 0.30 % chord. *(Inferred; ν value
+from the grounding doc's ITTC water tables, not re-fetched. The `ln` form gave Cf ≈ 4.9e-4, 9.5 µm, 0.29 mm,
+0.48 mm and a 1.8 mm stack — superseded.)*
 
 **Mesh floor (ITTC Table 1).** Wall-resolved: y+ ≤ 1, expansion 1.2, ≥ 20 points in BL. Wall functions: 30 <
 y+ < 100, expansion 1.2, ≥ 15 points. Domain: inlet ≥ 10 L, outlet ≥ 20 L (lifting), other boundaries ≥ L.
