@@ -355,9 +355,9 @@ The expected outcomes come from the Data & Persistence lens's code reading:
 | (a) bare `.foil`, per-surface bases, no rows | opens as Unsupported geometry ("Independent profile x mappings are not assessed"), read-only |
 | (b) bare `.foil` with a profile `tangents` row | `DSL-LOCK` at parse ("A tangent row names an interior anchor"), because the old `IsAnchor` is degree 3 only |
 | (c1) project with a `"section"` receipt whose sources carry no profile row | `DOC-REFERENCE` (`EditReference` falls through) |
-| (c2) project with a `"section"` receipt whose source carries a profile row | `DOC-SCHEMA`: `Check` parses every retained source (`:1495`) before the accepted rows, and the old parse fails (Inferred until run) |
-| (d) project with a `"section"` recovery; and the same with a row in the history | `DOC-REFERENCE` (`:1521`); with a row: `DOC-SCHEMA`, as (c2) |
-| (e) project whose per-surface source arrived through an open row, with and without rows | without rows: Unsupported, read-only; with rows: the parse fails, read as `DOC-SCHEMA` (Inferred until run) |
+| (c2) project with a `"section"` receipt whose source carries a profile row | **Observed `DSL-LOCK`** (receipt, SDR 2026-10-03): `Check` parses every retained source (`:1495`) and throws the parse error's own code, not `DOC-SCHEMA` (the design expected `DOC-SCHEMA`) |
+| (d) project with a `"section"` recovery; and the same with a row in the history | `DOC-REFERENCE` (`:1521`), observed; with a row: **observed `DSL-LOCK`**, as (c2) |
+| (e) project whose per-surface source arrived through an open row, with and without rows | without rows: **observed refused with `DSL-NOT-ASSESSED`** (the read-only path exists only for a bare `.foil`); with rows: **observed `DSL-LOCK`**. Every case: no edit, no Save, file SHA-256 unchanged |
 
 **No FoilDSL version bump.** The grammar has always allowed per-side knots. A bump would mark what a certifier can
 prove, not a language change. The accepted consequence, recorded as deviation D-6: an old build shows "a tangent row
@@ -1269,7 +1269,7 @@ is kept out of telemetry (`SectionTelemetry_Events_NoNamesIdsOrPositions`).
 - **R-4:** a degree-5 anchor is G1 at best, so curvature breaks (−6.29 / −1.73 per chord at the mockup's anchor). It is
   shown by the comb and reported in COPY-174. A G2 kind is OI-12C-4.
 - **Inferred until built:** every rendered, frame-time and screen-reader claim; the §3.5 reduction numbers until GSPK
-  runs; the old-build case (e) outcome until SDR's receipt runs.
+  runs. The old-build cases are observed (`docs/proof/m12c-old-build/receipt.jsonl`).
 
 ## Status & next action
 
