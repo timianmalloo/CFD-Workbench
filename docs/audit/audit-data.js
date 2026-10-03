@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T23:35:36Z",
+  "generated": "2026-10-03T23:37:34Z",
   "audit": [
     {
       "actor": null,
@@ -22919,6 +22919,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T23:34:42Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M4222M5MYJS1J0NAR44YCDYF",
+      "shortname": "join-m12c-paired-kind",
+      "datetime": "2026-10-03T23:37:34Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/m12c-paired-kind into feature/ui-cad-direction",
+      "summary": "Kind fix (Sonnet 5.5): ToAnchor/SetTangent write the partner's row with the partner's own id and placed handles; ToControl strips the partner row. Red first (2 new SPTF names failed 'no matching element'; a third red by hunk revert). Class sweep of every per-side write in SectionEdits.cs recorded. With the kind paired the 10 um refit refusal now fires (85 um on the Identified fixture). SPTF 9/9, SPT 30/30. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T23:36:41Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
