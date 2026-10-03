@@ -1,3 +1,20 @@
+---
+id: proof-m12c-pnl-red-first
+title: M1.2c PNL red-first receipt (product mutants)
+type: proof-pack
+status: accepted
+owner: "@track-pnl"
+phase: implementation
+tags: [m12c, pnl, red-first, mutants, tests]
+links:
+  - {to: design-m12c-section-editor, rel: depends-on}
+review-by: 2026-11-03
+summary: >-
+  PNL wrote code before tests for ten named checks. Each was then turned red by a planted product mutant and
+  back to PASS on revert; none is a tautology. Per check: mutant file:line, the FAIL line, revert confirmed.
+review-suggested: []
+---
+
 # PNL red-first receipt (retroactive mutation proof)
 
 Ten PNL named checks passed on their first run (code was written before tests). For each, the smallest plausible

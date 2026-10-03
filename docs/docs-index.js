@@ -8519,6 +8519,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "7d0bcfae3ee831072f629ec8d9f3a4cacf1971b608aa58287b13606ab9ff36e6"
     },
     {
+      "id": "proof-m12c-pnl-red-first",
+      "path": "docs/proof/m12c-pnl/red-first-receipt.md",
+      "title": "M1.2c PNL red-first receipt (product mutants)",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@track-pnl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "PNL wrote code before tests for ten named checks. Each was then turned red by a planted product mutant and back to PASS on revert; none is a tautology. Per check: mutant file:line, the FAIL line, revert confirmed.",
+      "tags": [
+        "m12c",
+        "pnl",
+        "red-first",
+        "mutants",
+        "tests"
+      ],
+      "links": [
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "64ea1243991e70530d48470a9937235fd7c554a799409a97219a27bcd4e351fc"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -10543,5 +10570,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "b3cfe8fa17b4c88fa929c76d4448166b17a3c159255d13f2e959a17d39ac7211"
+  "graphSha256": "784c5dad68434f56fe7bb405da188af94bc3620096e90ee504eabccdcfdc2001"
 };
