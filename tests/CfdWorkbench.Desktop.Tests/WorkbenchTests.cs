@@ -99,6 +99,7 @@ if (args.Contains("--properties-cells", StringComparer.Ordinal))
 if (args.Contains("--section-editor", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.ControllerSectionTests.Run();
     CfdWorkbench.Desktop.Tests.SectionEditorTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }

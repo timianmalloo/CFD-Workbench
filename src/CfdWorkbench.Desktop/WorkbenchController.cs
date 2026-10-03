@@ -25,6 +25,16 @@ public enum GestureState { Idle, Pressed, Dragging, Nudging, Busy }
 public enum GestureInput { Pointer, Keyboard, Typed }
 public enum GestureEnd { Release, KeyUp, Escape, CaptureLost, FocusLost, Deactivated, Save, Close, Open, New }
 public enum NudgeModifier { Command, Plain, Shift }
+public enum EntryOrigin { Properties, Plan, Side, Browser, Palette }
+
+/// <summary>One section visit. The draft's cursor bytes are the only preview source.</summary>
+public sealed record SectionMode(SectionDraftView Draft, byte[] BaseBytes, EntryOrigin Origin,
+    SessionAssessment? Assessment = null, string? FinishReason = null)
+{
+    public bool IsDirty => !Draft.Bytes.AsSpan().SequenceEqual(BaseBytes);
+    public bool CanFinish => IsDirty && Assessment?.Status == GeometryStatus.Certified;
+    public SectionStepReport? LastReport => Draft.Last;
+}
 
 /// <summary>Plan coordinates are metres; screen distance is used only for gesture activation.</summary>
 public sealed record PlanCamera(double PixelsPerMeter = 1000, double PanSpanPixels = 0, double PanAftPixels = 0);
@@ -195,6 +205,8 @@ public sealed class WorkbenchController : IDisposable
 
     public Selection Selection { get; private set; } = new Selection.None();
     public event Action? SelectionChanged;
+    public event Action? SectionChanged;
+    public SectionMode? Section { get; private set; }
     public WingEstimates? Estimates { get; private set; }
     public PlanformView? Planform => Inspection is null ? null : CfdWorkbench.Core.Planform.View(
         draft?.Bytes ?? session.Snapshot().Source, draft is null ? "accepted" : "preview", draft?.Generation ?? 0);
@@ -571,10 +583,31 @@ public sealed class WorkbenchController : IDisposable
         if (rail is not null && rail.Controls.Any(c => c.Id == item.VertexId))
             return true;
 
-        if (item.Profile is not null && projection.Assignments.Any(a => a.ProfileName == item.Profile))
-            return true;
-
         return false;
+    }
+
+    /// <summary>The section's display curve, derived from the current draft bytes.</summary>
+    public CurveView? SectionCurve(SurfaceSide side) => Section is { } mode
+        ? Sections.View(mode.Draft.Bytes, mode.Draft.Assignment, side, "preview", mode.Draft.Generation)
+        : null;
+
+    public Task EnterSectionAsync(int assignment, EntryOrigin origin)
+    {
+        if (disposed) throw new ContractError("DOC-CLOSED");
+        if (Section is not null || draft is not null || Gesture != GestureState.Idle)
+            throw new ContractError("DSL-DRAFT-OWNED");
+        if (Inspection?.Geometry.Status != GeometryStatus.Certified)
+            throw new ContractError("DSL-NOT-ASSESSED");
+        var baseBytes = session.Snapshot().Source;
+        var view = session.BeginSectionDraft(Guid.NewGuid().ToString("D"), assignment);
+        draft = session.Snapshot().Draft;
+        Section = new SectionMode(view, baseBytes, origin);
+        var first = SectionCurve(SurfaceSide.Upper)!.Points[0];
+        Select(new Selection.Points([new PointRef("upper", first.Id, view.Profile)]));
+        CfdWorkbench.Desktop.Shell.ShellEvents.Record("section.mode.enter", "OK", 0,
+            Guid.NewGuid().ToString("N"), trigger: origin.ToString().ToLowerInvariant(), editKind: "section");
+        SectionChanged?.Invoke();
+        return Task.CompletedTask;
     }
 
     private void UpdateEstimates()
@@ -1900,7 +1933,7 @@ public sealed class WorkbenchController : IDisposable
                 {
                     var next = queuedSelection;
                     queuedSelection = null;
-                    var reconciled = Reconcile(next, CurrentProjection, ChannelPointExists);
+                    var reconciled = ReconcileCurrent(next);
                     if (Equals(Selection, reconciled))
                     {
                         if (queuedSelection is null)
@@ -1912,7 +1945,7 @@ public sealed class WorkbenchController : IDisposable
                 }
                 else
                 {
-                    var reconciled = Reconcile(Selection, CurrentProjection, ChannelPointExists);
+                    var reconciled = ReconcileCurrent(Selection);
                     if (!Equals(Selection, reconciled))
                     {
                         Selection = reconciled;
@@ -1931,6 +1964,18 @@ public sealed class WorkbenchController : IDisposable
         {
             isNotifying = false;
         }
+    }
+
+    private Selection ReconcileCurrent(Selection current)
+    {
+        if (Section is { } mode && current is Selection.Points points)
+        {
+            var kept = points.Items.Where(item => item.Profile == mode.Draft.Profile &&
+                item.Curve is "upper" or "lower" &&
+                SectionCurve(item.Curve == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower)!.Points.Any(p => p.Id == item.VertexId)).ToArray();
+            if (kept.Length > 0) return new Selection.Points(kept);
+        }
+        return Reconcile(current, CurrentProjection, ChannelPointExists);
     }
 
     private void NotifyCamera(SingleView view)
