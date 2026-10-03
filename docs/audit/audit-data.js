@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T14:24:11Z",
+  "generated": "2026-10-03T14:25:02Z",
   "audit": [
     {
       "actor": null,
@@ -22252,6 +22252,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T14:23:22Z",
       "duration_seconds": 49.0
+    },
+    {
+      "id": "al-01M412EXBB1KPJ3QF1PVKJGZKK",
+      "shortname": "join-track-b",
+      "datetime": "2026-10-03T14:25:02Z",
+      "session": "f19a2b12",
+      "prompt": "the join of perf/track-b-camera-event into feature/ui-cad-direction",
+      "summary": "Track B (Opus 5.5): CameraChanged(SingleView) for Plan/3D/elevation cameras; pane refreshes per camera step 32/32 -> 0/32; 3D wheel step ~8 -> 3-4 ms, elevation pan ~12-15 -> 1-4 ms; readiness check Readiness_CameraStep_NoPaneRefresh_Under8Ms; disposed guard on the new event. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T14:24:15Z",
+      "duration_seconds": 47.0
     }
   ],
   "changes": [
