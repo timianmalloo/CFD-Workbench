@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T15:49:16Z",
+  "generated": "2026-10-03T15:52:54Z",
   "audit": [
     {
       "actor": null,
@@ -22433,6 +22433,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-03T15:48:27Z",
+      "duration_seconds": 48.0
+    },
+    {
+      "id": "al-01M417FRZFHCD4R8WZNDZ4YGCN",
+      "shortname": "join-m12c-pre",
+      "datetime": "2026-10-03T15:52:53Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/m12c-pre into feature/ui-cad-direction",
+      "summary": "PRE (Sonnet 5.5): §5.1 records in Contracts.cs; SectionEdits.Apply stub (throws; SPT owns, S-8); six empty Core suites + readiness entries; --section-editor Desktop suite; FocusedTargetChanged re-dated to app-shell D4 (M1.2e). run-tests 47 s. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T15:52:05Z",
       "duration_seconds": 48.0
     }
   ],
