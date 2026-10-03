@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T19:11:11Z",
+  "generated": "2026-10-03T19:24:02Z",
   "audit": [
     {
       "actor": null,
@@ -22671,6 +22671,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-03T19:10:28Z",
+      "duration_seconds": 43.0
+    },
+    {
+      "id": "al-01M41KJCS49A83938M1RASTKMV",
+      "shortname": "join-m12c-spt",
+      "datetime": "2026-10-03T19:24:02Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12c-spt into feature/ui-cad-direction",
+      "summary": "SPT (Grok 4.7): degree-5 interior anchor recognised; paired section-point edits on both surfaces (SectionEdits.Apply body, S-8); angles through the placement degree factor; shared-profile refit limited by the largest station chord (design :446 correction, red first). SPT 30/30, SPTF 6/6; planted y-bump mutant red; two-profile Control->Anchor refused Unsupported DSL-GEOMETRY ('abscissae differ from neighbouring profile'), as GSPK inferred. run-tests 47 s. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T19:23:19Z",
       "duration_seconds": 43.0
     }
   ],
