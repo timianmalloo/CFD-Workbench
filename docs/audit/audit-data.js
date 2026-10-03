@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T23:37:34Z",
+  "generated": "2026-10-03T23:38:56Z",
   "audit": [
     {
       "actor": null,
@@ -22944,6 +22944,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T23:36:41Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M42254EM7C92ANFHKPHYWTBW",
+      "shortname": "join-defect-classes-oct03",
+      "datetime": "2026-10-03T23:38:56Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/defect-classes-oct03 into feature/ui-cad-direction",
+      "summary": "Defect register (Sonnet 5.5): 10 classes (JOIN-RESOURCE-RACE, PROC-MATCH-BY-CMDLINE, DELETE-WITHOUT-CALLERS, OWNERSHIP-MISSES-DATA-SOURCE, SCANNER-TOO-BROAD, INVERTED-SCALING-RULE, HARNESS-STDIN-STALL, PAIRED-CLAIM-ONE-SIDE-TESTED, CHECKER-PATTERN-GAP, RED-FIRST-SKIPPED-UNDER-BOX) + JOIN-LOG-CONFLICT; controls added: tools/coordination/join-when-quiet.sh (lock first, pgrep -x), check-jsonl.py, check-process-match.py (in check-docs; red on a planted pgrep -f); 4 prose-only gaps stated with upgrade triggers. of-run.sh lock moved to the git common dir coord/. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T23:38:00Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
