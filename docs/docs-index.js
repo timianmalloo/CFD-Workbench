@@ -616,6 +616,67 @@ window.DOCS_INDEX = {
       "sourceSha256": "f80244fbefc0ceb2f15b42560e959e19837f67f38169391b71969041a9c99cf1"
     },
     {
+      "id": "adr-0012-openfoam-backend-macos",
+      "path": "docs/adr/0012-openfoam-backend-macos.md",
+      "title": "ADR-0012: the OpenFOAM backend on macOS arm64 — substrate pin, product launcher, A4 convergence oracle and SA numerics (what rounds 1 and 2 proved)",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@fluids-f1",
+      "phase": "spike — fluids rounds 1 and 2 (Rulings 60, 65), round 3 planned",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "Pins only what fluids rounds 1 and 2 measured on macOS arm64. Substrate: OpenFOAM ESI v2512, the gerlero native app, by DMG sha256 and build id, launched by argv. Product launcher: allow-listed environment, product HOME plus FOAM_CONTROLDICT from one hashed bundle, case record, token allow-list lint, checkMesh \"Disallowing\" pre-flight; the operator probe set S-1..S-8 is written but not yet run. Convergence: the A4 oracle (it rejected a period-2 cycle and accepted four runs). Numerics: SA-noft2 with first-order nuTilda and relaxation 0.7 (met A4 on TMR only). Compressibility delta measured once (+1.147 % Cl, +0.81 % Cd; U_delta not stated). Open: Windows, Docker digests, v2512 vs v2606, the mesh route, GCI. The DR-F2-6 determinant floor needs an amendment; this ADR files a request (DR-F3-1) and does not decide it.",
+      "tags": [
+        "adr",
+        "backend",
+        "openfoam",
+        "v2512",
+        "security",
+        "launcher",
+        "convergence",
+        "a4",
+        "spalart-allmaras",
+        "mesh-gate",
+        "macos"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-spike-03",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-04",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-03-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-04-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-fluids-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-fluids-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0cc50e90515757c42167057bc1a5f72cec7ef31d2dabafa4c9d32e80a523f68b"
+    },
+    {
       "id": "adr-application-project-contract",
       "path": "docs/adr/0004-application-project-contract.md",
       "title": "Native-v1 immutable receipts and bounded admission",
@@ -2731,7 +2792,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "10828ee85fbbfe38de86a997cc2247968a6d5ecf24afb0c70f98fec887f3a51c"
+      "sourceSha256": "26eb4560d70bd103a53db9a2b3ab7ee24b704b540b1793c1a9d8df367f9572d3"
     },
     {
       "id": "design-planform-point-verbs",
@@ -4479,6 +4540,53 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "58e3f7b591e63e1c9190c9bc6b14332b60cd43a509cbe02577015746bacec2ab"
+    },
+    {
+      "id": "plan-fluids-round3",
+      "path": "docs/plans/fluids-round3.md",
+      "title": "Fluids round 3 — bring the Gmsh wing mesh inside the gate (SPIKE-03) and find a monotone TMR grid family (SPIKE-04)",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "Round 3 plan, documents only, for the two round-2 NO-GOs. Mesh: locate the 811 faces above 70 degrees on the Gmsh AR 8 mesh with checkMesh sets (no new app), then two unattended variants aimed at the measured cluster (TE arc resolution, tip poles, the prism-top/tet size jump), the first height cut to 6.0 um, then AR 5 and 12. GCI: a cheap L6 test of the one scheme that acts on L6 only (the limited laplacian), then one numerics cycle on L6/L5/L4 with the iteration band held at 1 % of the grid change; L3 (4-10 h) only by ruling. Core budget about 4.5 h wall plus 1.5 h authoring.",
+      "tags": [
+        "plan",
+        "spike-03",
+        "spike-04",
+        "openfoam",
+        "gmsh",
+        "mesh-gate",
+        "gci",
+        "tmr",
+        "round-3"
+      ],
+      "links": [
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-03-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-04-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-fluids-round2",
+          "rel": "supersedes"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f6698b2297c80dfe2eca34d2309e11670c0d6a57d52f3075931c5bfb0d2bb5aa"
     },
     {
       "id": "plan-foil-editing-flow-results",
@@ -10543,5 +10651,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "bb3ef663fcd085f2f78b6da89479b1eff377e16e46be948fccc37bc56b7b9f5e"
+  "graphSha256": "e7e16cd3606fe31c04b91ffc55131caf271f2901f391bad797bc39451fc00d01"
 };

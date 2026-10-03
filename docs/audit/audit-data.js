@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T23:21:37Z",
+  "generated": "2026-10-03T23:40:03Z",
   "audit": [
     {
       "actor": null,
@@ -22869,6 +22869,34 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T23:20:54Z",
       "duration_seconds": 43.0
+    },
+    {
+      "id": "al-01M42275KK189YR2TZPX5YH6MK",
+      "shortname": "fluids-adr-round3",
+      "datetime": "2026-10-03T23:40:03Z",
+      "session": "fluids-adr",
+      "prompt": "Fluids: the backend ADR for what is settled, and a narrow round-3 plan (documents only, no runs). Operator direction 2026-10-03: Pin what's settled + plan round 3.",
+      "summary": "ADR-0012 (0011 reserved for Area 3 run storage): pins OpenFOAM v2512 gerlero app by DMG sha256 + build, argv launcher contract (P0/P1/P2, record, lint, pre-flight), A4 oracle, D4 SA numerics, Δcomp +1.147 % Cl / +0.81 % Cd (L5, U_Δ unstated), D7 TE-blunted label; S-1..S-8 NOT run (no receipts). DR-F3-1: replace cellDeterminant>=0.001 with checkMesh validity set. Round-3 plan: R3-M0..M3 (≈2.0 h), R3-G0 + one numerics cycle (≈2.5 h); core ≈4.5 h + 1.5 h authoring; L3 and 3-D y+ gate by ruling. Security PASS WITH CONDITIONS (7 applied); hydrodynamicist PASS WITH CONDITIONS (9 applied).",
+      "kind": "skill",
+      "skill": "define-architecture",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/adr/0012-openfoam-backend-macos.md",
+        "docs/plans/fluids-round3.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "ADR for the settled OpenFOAM backend (macOS) + round-3 plan for the SPIKE-03 mesh and SPIKE-04 GCI NO-GOs",
+      "done_when": "ADR-0012 and docs/plans/fluids-round3.md with frontmatter, both reviews applied, derive run, committed",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": false,
+        "acceptance_met": true
+      }
     }
   ],
   "changes": [
