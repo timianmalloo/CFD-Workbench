@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Persistence;
@@ -401,16 +402,21 @@ public static class ShellModelTests
             // DR-DEN-4: ⌘= / ⌘− zoom whichever model view has keyboard focus — found by its place in a model-area view
             // frame, so the 3D view and the elevations count without a type list — and change the Text size elsewhere.
             WaitMesh(controller, window);
-            var view = host.ModelView.FindControl<Control>("ThreeDRenderer") ?? throw new InvalidOperationException("no 3D view");
-            view.Focusable = true;
-            view.Focus();
-            PropertiesViewTests.Settle(window);
-            double text = host.Properties.TextScale, distance = controller.Camera3d!.Value.Distance;
-            PropertiesViewTests.Pump(host.RunCommand("view.zoom-in"));
-            PropertiesViewTests.Settle(window);
+            var view = host.ModelView.FindControl<View3d>("ThreeDView") ?? throw new InvalidOperationException("no 3D view");
+            var face = view.GetVisualDescendants().OfType<Button>().FirstOrDefault(button => button.IsEffectivelyVisible);
+            double text = host.Properties.TextScale;
             var failures = new List<string>();
-            if (!(controller.Camera3d!.Value.Distance < distance) || host.Properties.TextScale != text)
-                failures.Add($"3D focused: distance {distance} → {controller.Camera3d!.Value.Distance}, text {text} → {host.Properties.TextScale}");
+            foreach (var (name, target) in new (string, Control?)[] { ("the 3D view", view), ("a cube face", face) })
+            {
+                if (target is null || !target.Focus()) { failures.Add($"{name} cannot take focus"); continue; }
+                PropertiesViewTests.Settle(window);
+                double before = controller.Camera3d!.Value.Distance;
+                PropertiesViewTests.Pump(host.RunCommand("view.zoom-in"));
+                PropertiesViewTests.Settle(window);
+                if (!(controller.Camera3d!.Value.Distance < before) || host.Properties.TextScale != text)
+                    failures.Add($"{name} focused: distance {before} → {controller.Camera3d!.Value.Distance}, text {text} → {host.Properties.TextScale}");
+            }
+            double distance;
             PropertiesViewTests.Need<TextBox>(host.Properties, "SpanInput").Focus();
             PropertiesViewTests.Settle(window);
             distance = controller.Camera3d!.Value.Distance;
@@ -509,6 +515,14 @@ public static class ShellModelTests
                     if (outside.Count > 0) failures.Add($"{title}: {outside.Count} corners outside the view");
                 }
             }
+            // V3D's View3d_CubeHiddenBelow240_FocusToViewMenuReachesPresets, the menu half: with the 3D view too narrow
+            // for the cube, View ▸ Camera still reaches every preset (§11.5 overflow).
+            window.Width = 860;
+            PropertiesViewTests.Settle(window);
+            var threeD = host.ModelView.FindControl<View3d>("ThreeDView")!;
+            if (threeD.CubeVisible) failures.Add($"the cube still shows at {threeD.Bounds.Width:0} px");
+            Click(cameras.Single(item => Equals(item.Header, "Back")), window);
+            if (controller.Camera3d?.Name != NamedCamera.Back) failures.Add("cube hidden: Camera ▸ Back gave " + controller.Camera3d?.Name);
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
 
@@ -552,25 +566,25 @@ public static class ShellModelTests
             controller.TargetView = SingleView.ThreeD;
             var assignments = controller.CurrentProjection!.Assignments;
             controller.Select(new Selection.Station(assignments.Count - 1, assignments[^1].Eta));
-            controller.Camera3d = controller.Camera3d!.Value.Orbit(40, 10).Pan(60, -30, size);
+            var disturbed = controller.Camera3d!.Value.Orbit(40, 10).Pan(60, -30, size);
+            controller.Camera3d = disturbed;
             PropertiesViewTests.Settle(window);
             Click(fit, window);
             var section = controller.Surface!.Sections.Single(item => item.Eta == assignments[^1].Eta);
             var (minimum, maximum) = WorkbenchController.SectionBounds(section);
+            // The fit is ViewCamera.Fit of the station's bounds (DR-VIEW-6: the projection fills the view, centred).
             var camera = controller.Camera3d!.Value;
-            var centre = new Point3((minimum.X + maximum.X) / 2, (minimum.Y + maximum.Y) / 2, (minimum.Z + maximum.Z) / 2);
-            if (Math.Abs(camera.Target.X - centre.X) > 1e-9 || Math.Abs(camera.Target.Y - centre.Y) > 1e-9 || Math.Abs(camera.Target.Z - centre.Z) > 1e-9)
-                failures.Add($"target {camera.Target}, want the station centre {centre}");
+            if (camera != disturbed.Fit(minimum, maximum, size)) failures.Add($"camera {camera}, want the station fit");
             var projected = new[] { minimum, maximum }.Select(point => camera.Project(point, size)).ToArray();
             double spread = Math.Max(Math.Abs(projected[0].X - projected[1].X), Math.Abs(projected[0].Y - projected[1].Y));
             if (spread < size.Width * 0.25 || projected.Any(point => point.X < 0 || point.Y < 0 || point.X > size.Width || point.Y > size.Height))
                 failures.Add($"the station spans {spread:0} px of {size.Width:0} ({string.Join(" ", projected)})");
             controller.Select(new Selection.Foil());
+            var stationFit = controller.Camera3d!.Value;
             Click(fit, window);
             var all = controller.FitBounds()!.Value;
-            var whole = controller.Camera3d!.Value.Target;
-            if (Math.Abs(whole.X - (all.Minimum.X + all.Maximum.X) / 2) > 1e-9 || Math.Abs(whole.Y - (all.Minimum.Y + all.Maximum.Y) / 2) > 1e-9)
-                failures.Add($"nothing selected: target {whole}");
+            if (controller.Camera3d!.Value != stationFit.Fit(all.Minimum, all.Maximum, size))
+                failures.Add($"nothing selected: camera {controller.Camera3d}, want the whole-foil fit");
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
 

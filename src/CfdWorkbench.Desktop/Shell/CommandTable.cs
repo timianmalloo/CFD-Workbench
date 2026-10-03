@@ -138,10 +138,11 @@ public static class CommandTable
 
 /// <summary>
 /// What a view command needs from the shell: the controller, the drawn size of each view, the status strip's
-/// <c>Report</c> sink, and the model view that has keyboard focus (it, not the target view, takes ⌘= / ⌘− / ⌘0).
+/// <c>Report</c> sink, the model view that has keyboard focus (it, not the target view, takes ⌘= / ⌘− / ⌘0), and the
+/// 3D view's own preset verb (<see cref="View3d.ApplyPreset"/>, the cube's path), which View ▸ Camera calls when present.
 /// </summary>
 public sealed record ViewCommandContext(WorkbenchController Controller, Func<SingleView, Avalonia.Size> ViewSize,
-    Action<StatusReport> Report, SingleView? Focused = null);
+    Action<StatusReport> Report, SingleView? Focused = null, Action<NamedCamera>? ApplyPreset = null);
 
 /// <summary>
 /// The view command runner (M1.2b2 §5.2, §6.2): layouts, display modes, named cameras, pan, fit and zoom, acting on the
@@ -237,6 +238,12 @@ public static class ViewCommands
         }
         if (Cameras.TryGetValue(id, out var named))
         {
+            // One path for the cube and the menu: the 3D view fits the preset to its own size and announces it.
+            if (context.ApplyPreset is { } applyPreset)
+            {
+                applyPreset(named);
+                return;
+            }
             var (minimum, maximum) = WholeBounds(controller.Surface!);
             var camera = ViewCamera.Named(named, minimum, maximum, context.ViewSize(SingleView.ThreeD));
             controller.Camera3d = camera;

@@ -696,8 +696,8 @@ public sealed class ShellHost : Grid
 
     /// <summary>
     /// DR-DEN-4: a model view has keyboard focus, so ⌘= / ⌘− zoom it. A model view is the Plan canvas, the section
-    /// canvas, or any focusable control inside a model-area view frame (the 3D view, the elevations) except its label
-    /// and its buttons — by place in the tree, not by a list of view types.
+    /// canvas, or any focusable control inside a model-area view frame — the 3D view and its cube, the elevations and
+    /// their points — except the frame's view label: by place in the tree, not by a list of view types.
     /// </summary>
     private bool ModelViewFocused() =>
         TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is Viewport or SectionCanvas || FocusedModelView() is not null;
@@ -707,7 +707,7 @@ public sealed class ShellHost : Grid
     {
         if (TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is not Visual focused) return null;
         if (focused is PlanCanvas) return SingleView.Plan;
-        if (focused is Button) return null;
+        if (focused is Button label && label.Classes.Contains("viewLabel")) return null;
         foreach (var (frame, view) in ViewFrames())
             if (frame.IsVisualAncestorOf(focused)) return view;
         return null;
@@ -723,12 +723,13 @@ public sealed class ShellHost : Grid
     public Size ViewSize(SingleView view) => view switch
     {
         SingleView.Plan => ModelView.PlanCanvas.Bounds.Size,
-        SingleView.ThreeD => ModelView.ThreeDRenderer.Bounds.Size,
+        SingleView.ThreeD => ModelView.ThreeDView.Bounds.Size,
         SingleView.Side => ModelView.SideRenderer.Bounds.Size,
         _ => ModelView.FrontRenderer.Bounds.Size
     };
 
-    private ViewCommandContext ViewContext() => new(Controller, ViewSize, Report, FocusedModelView());
+    private ViewCommandContext ViewContext() =>
+        new(Controller, ViewSize, Report, FocusedModelView(), ModelView.ThreeDView.ApplyPreset);
 
     public bool CanRun(string id)
     {
