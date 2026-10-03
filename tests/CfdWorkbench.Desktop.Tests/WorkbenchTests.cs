@@ -383,11 +383,13 @@ Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
 AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
-// Longest first, so the slots never wait on a long suite started last. The two longest suites (34 s and 32 s alone,
-// 2026-10-02) run as two interleaved parts each; SUITE-TIME shows when another needs splitting (test-ci-waste.md §12).
+// Longest first, so the slots never wait on a long suite started last. The five longest suites (SUITE-TIME under load
+// 6-7, 2026-10-03: properties-view 46-62 s, status-strip 42-55 s, views 36-38 s, plan-canvas 29/21 s, shell-window
+// 26/27 s) run as two interleaved parts each; SUITE-TIME shows when another needs splitting (test-ci-waste.md §12).
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
+    "--properties-view --part=1/2", "--properties-view --part=2/2", "--status-strip --part=1/2", "--status-strip --part=2/2",
     "--shell-window --part=1/2", "--shell-window --part=2/2", "--plan-canvas --part=1/2", "--plan-canvas --part=2/2",
-    "--properties-view", "--views", "--properties-cells", "--controller-shell", "--status-strip",
+    "--views --part=1/2", "--views --part=2/2", "--properties-cells", "--controller-shell",
     "--shell-model", "--section-editor"));
 
 sealed class UncertainStore : IProjectStore
