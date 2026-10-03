@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T16:18:22Z",
+  "generated": "2026-10-03T16:27:47Z",
   "audit": [
     {
       "actor": null,
@@ -22484,6 +22484,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T16:17:32Z",
       "duration_seconds": 50.0
+    },
+    {
+      "id": "al-01M419FNFJ3FBV8HM802QMZ67V",
+      "shortname": "join-m12c-gspk",
+      "datetime": "2026-10-03T16:27:47Z",
+      "session": "f19a2b12",
+      "prompt": "the join of spike/m12c-gspk into feature/ui-cad-direction",
+      "summary": "GSPK (Opus 5.5, ~30 min of 120): F1 per-surface go (17.6M bit-work, 0.064 s at 2 m); F4 blend no-go at 2 m: +0.02 and +0.20 refuse at the 1e9 work limit (lifted caps: 2.45e9 / 2.2e10 work, 12,602 atoms > 4,096 cap); at 120 mm +0.02 takes 1.36 s > 1 s. Stage 2 not run. Per OD-4 a SPT builds SPTF; SPTG and GCRT cut; DR-11 returns to the operator. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T16:27:01Z",
+      "duration_seconds": 46.0
     }
   ],
   "changes": [
