@@ -1821,7 +1821,9 @@ public sealed class WorkbenchController : IDisposable
 
     private void Notify()
     {
-        if (isNotifying) return;
+        // UI-LIFETIME: a callback queued before Dispose (the 250 ms surface timer, a command's finally) still runs after
+        // it; a disposed controller notifies no view, because every view read would hit the closed session (DOC-CLOSED).
+        if (disposed || isNotifying) return;
         isNotifying = true;
         try
         {

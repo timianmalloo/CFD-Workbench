@@ -937,6 +937,27 @@ old callback, requires the next window to update, and verifies a dirty-close
 Cancel leaves its draft live for another numeric change. Core `DOC-CLOSED`
 continues to reject reads after disposal; the UI guard does not weaken it.
 
+*Recurrence 2026-10-02 — the controller's own queued callbacks.* The
+`--shell-window` check `Focus_UndoFromCanvas_StaysOnCanvas` failed with
+`DOC-CLOSED` under load (4 of 12 loaded Debug suite runs). The stack showed
+the dispatcher running `WorkbenchController.Notify` directly:
+the previous check's 250 ms surface timer fired on a pool thread, queued
+`OnUiThread(Notify)`, and the check then disposed its controller. The queued
+`Notify` ran in the next check's `Settle`. It raised `SelectionChanged` into the
+old `ShellHost`, which read `Planform` → `Snapshot` on the closed session. The
+first sweep covered the window's posts, not the controller's. Siblings with the
+same shape: `CompleteDirectCommandAsync`'s `finally { Notify(); }` and the
+`RefreshAcceptedAsync` catch path. Prevent: `Notify` returns once the controller
+is disposed (one choke point for every view notification), proven red-first by
+`Controller_DisposedWithQueuedSurfaceNotify_NotifiesNoView` (`--views`); after
+the fix, 0 of 46 loaded runs failed. The check harness now prints a
+`STACK <check>` line on every failure, so a job queued by an earlier check is
+visible in the log. Still open, and owned elsewhere: `Adopt` raises
+`SelectionChanged` outside `Notify`, so an open that completes after `Dispose`
+still notifies and adopts a live session. View-side posts (`ShellHost`
+`RefreshOnUiThread`, `ModelArea.OnControllerChanged`) queued before `Dispose`
+still read the controller.
+
 **UI-REVIEW-WINDOW · Review launches accumulate native windows after their proof ends.**
 Serial R29/R37 review checkpoints left six exact receipt-bound old app processes
 alive while the newest Dark window was under inspection; an earlier first app
