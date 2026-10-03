@@ -25,7 +25,7 @@ ALLOWED = {
     "CanExecuteChanged": "ICommand member; the framework subscribes through command bindings, not src/",
     "VertexSelected": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
     "VertexMoved": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
-    "FocusedTargetChanged": "SectionCanvas and Viewport: focus-into-view is not wired in the shell until M1.2c",
+    "FocusedTargetChanged": "SectionCanvas and Viewport: focus-into-view is not wired in the shell until M1.2c D4",
 }
 
 
