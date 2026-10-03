@@ -2476,7 +2476,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c926f990c9f9aff44414cb5baeb387ba397f3dc14b13bc33ced1e547e66d3492"
+      "sourceSha256": "9869a06ce3fe5c3e2b8d8e317280be2809e330e7e3320e83ae2f92b0de58ab6e"
     },
     {
       "id": "design-section-editor",
@@ -2693,12 +2693,13 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2026-12-31",
       "reviewSuggested": [],
-      "summary": "The operator asked to edit sections (2026-10-03). This page draws three screens of today's 1280 × 800 shell for the Example foil: picking the Root station in the Side view; the section editor with upper point 4 made an anchor on the upper surface only (comb, pointer probe, readouts); and a Finish blocked by crossing surfaces. It then shows the four open decisions as side-by-side variants. All geometry, and every number printed, is computed in the page from section-a.",
+      "summary": "The operator asked to edit sections (2026-10-03). This page draws five screens of today's 1280 × 800 shell for the Example foil: picking the Root station in the Side view; the section editor with point 4 made an anchor on both surfaces (paired point types, Ruling 60; comb, pointer probe, readouts, the pairing cue); a paired x move; a paired Anchor → Control refused over 10 µm; and a Finish blocked by crossing surfaces. It then shows the four decisions as side-by-side variants. All geometry, and every number printed, is computed in the page from section-a.",
       "tags": [
         "mockup",
         "m12c",
         "section-editor",
         "point-types",
+        "paired",
         "points-pane",
         "messages",
         "operator-show"
@@ -2727,10 +2728,18 @@ window.DOCS_INDEX = {
         {
           "to": "note-m12c-rulings",
           "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "review-ui-m12c-paired",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "68eba2bf644ab09e2878d1353b5f18f8687a638a5162dfa99dd982c3256f9282"
+      "sourceSha256": "2d01610ad2fde60524ce1184f215ebb87428bb211a731e2483d65585616273b7"
     },
     {
       "id": "mockup-property-grid",
@@ -4512,6 +4521,55 @@ window.DOCS_INDEX = {
       "sourceSha256": "2b8da62f2a38a7cd01584a657c60babad502999f9e1db69f28d96fa11a297c23"
     },
     {
+      "id": "review-ui-m12c-paired",
+      "path": "docs/reviews/ui-m12c-paired.md",
+      "title": "M1.2c section editor — paired point types, before/after against the approved mockup",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 60 ships paired section point types (the certificate spike was a no-go). This note lists every visible change to the approved M1.2c mockup so the operator can decide: the pairing cue on canvas, Points pane and Properties; one Type and Kind control for both surfaces; a new paired x-move screen; a new refused Anchor → Control screen with the measured 0.0185 mm against the 0.010 mm limit; and four proposed COPY rows. Two findings go to the design owner.",
+      "tags": [
+        "ui-review",
+        "m12c",
+        "section-editor",
+        "point-types",
+        "paired",
+        "sptf",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "mockup-m12c-section-editor",
+          "rel": "documents"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-m12c-certificate-spike",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-m12c-rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9b54214270823b4370fb73efecded0ed62d94facc547fd07d824a43c0c0d4e13"
+    },
+    {
       "id": "review-ui-property-grid",
       "path": "docs/reviews/ui-property-grid.md",
       "title": "UI review — the Properties pane as a property grid (F-1)",
@@ -5083,7 +5141,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f0a037f435cf1cb8230ec802395e1cc677827bb1f18a811b686c80e72aaa1246"
+      "sourceSha256": "59b8cc44e8547a0fac5897b2aef1ec8e142dd1597e4afc269ac31e2cbe96439a"
     },
     {
       "id": "kb-hw-glossary",
@@ -9643,5 +9701,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "3dd60dbc284ac3ae620208d8d49a7c723a35ab891e15ac64325e8f5ed9e5d9b0"
+  "graphSha256": "2d71bb3545ad398117b80060969fa9153bb81984024ebedc7a7dd4fe7438877e"
 };
