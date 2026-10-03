@@ -77,6 +77,7 @@ if (args.Contains("--views", StringComparer.Ordinal))
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
     CfdWorkbench.Desktop.Tests.ViewCameraTests.Run();
     CfdWorkbench.Desktop.Tests.ControllerViewTests.Run();
+    CfdWorkbench.Desktop.Tests.ElevationTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 

@@ -118,14 +118,21 @@
           <Border x:Name="SideFrame" Classes="viewFrame" Grid.Row="1" IsVisible="False">
             <Grid x:Name="SideSlot" RowDefinitions="Auto,*">
             <Button x:Name="SideLabel" Grid.Row="0" Classes="viewLabel" Content="Side · from starboard" />
-            <local:SurfaceRenderer Grid.Row="1" x:Name="SideRenderer" Pane="side" ClipToBounds="True"
-                                   BackgroundBrush="{DynamicResource ViewportBrush}"
-                                   ShadeGrazingBrush="{DynamicResource PlanSoftBrush}"
-                                   ShadeLitBrush="{DynamicResource FoilShadeLitBrush}"
-                                   FoilBrush="{DynamicResource PlanFoilBrush}"
-                                   FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
-                                   StationBrush="{DynamicResource PlanSelectionBrush}"
-                                   MuteBrush="{DynamicResource PlanMuteBrush}" />
+            <!-- ELV (§11.1): band (the mesh through the Side camera) over the twist lane; the view styles its band. -->
+            <local:ElevationView Grid.Row="1" x:Name="SideElevation" View="Side" ClipToBounds="True"
+                                 BackgroundBrush="{DynamicResource ViewportBrush}"
+                                 FoilBrush="{DynamicResource PlanFoilBrush}"
+                                 FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
+                                 SelectionBrush="{DynamicResource PlanSelectionBrush}"
+                                 FocusBrush="{DynamicResource PlanFocusBrush}"
+                                 MuteBrush="{DynamicResource PlanMuteBrush}"
+                                 SoftBrush="{DynamicResource PlanSoftBrush}"
+                                 GridBrush="{DynamicResource ViewportGridBrush}"
+                                 InkBrush="{DynamicResource ViewportInkBrush}"
+                                 ShadeGrazingBrush="{DynamicResource PlanSoftBrush}"
+                                 ShadeLitBrush="{DynamicResource FoilShadeLitBrush}">
+              <local:SurfaceRenderer x:Name="SideRenderer" Pane="side" ClipToBounds="True" />
+            </local:ElevationView>
             <Border Grid.Row="1" x:Name="SideRenderErrorBand" Classes="viewError" IsVisible="False">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="Side view couldn't be drawn. Your foil hasn't changed." />
@@ -138,14 +145,21 @@
           <Border x:Name="FrontFrame" Classes="viewFrame" Grid.Row="1" Grid.Column="1" IsVisible="False">
             <Grid x:Name="FrontSlot" RowDefinitions="Auto,*">
             <Button x:Name="FrontLabel" Grid.Row="0" Classes="viewLabel" Content="Front · looking aft" />
-            <local:SurfaceRenderer Grid.Row="1" x:Name="FrontRenderer" Pane="front" ClipToBounds="True"
-                                   BackgroundBrush="{DynamicResource ViewportBrush}"
-                                   ShadeGrazingBrush="{DynamicResource PlanSoftBrush}"
-                                   ShadeLitBrush="{DynamicResource FoilShadeLitBrush}"
-                                   FoilBrush="{DynamicResource PlanFoilBrush}"
-                                   FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
-                                   StationBrush="{DynamicResource PlanSelectionBrush}"
-                                   MuteBrush="{DynamicResource PlanMuteBrush}" />
+            <!-- ELV (§11.1): band (the mesh through the Front camera, dihedral on the LE line) over the t/c lane. -->
+            <local:ElevationView Grid.Row="1" x:Name="FrontElevation" View="Front" ClipToBounds="True"
+                                 BackgroundBrush="{DynamicResource ViewportBrush}"
+                                 FoilBrush="{DynamicResource PlanFoilBrush}"
+                                 FoilEdgeBrush="{DynamicResource FoilEdgeBrush}"
+                                 SelectionBrush="{DynamicResource PlanSelectionBrush}"
+                                 FocusBrush="{DynamicResource PlanFocusBrush}"
+                                 MuteBrush="{DynamicResource PlanMuteBrush}"
+                                 SoftBrush="{DynamicResource PlanSoftBrush}"
+                                 GridBrush="{DynamicResource ViewportGridBrush}"
+                                 InkBrush="{DynamicResource ViewportInkBrush}"
+                                 ShadeGrazingBrush="{DynamicResource PlanSoftBrush}"
+                                 ShadeLitBrush="{DynamicResource FoilShadeLitBrush}">
+              <local:SurfaceRenderer x:Name="FrontRenderer" Pane="front" ClipToBounds="True" />
+            </local:ElevationView>
             <Border Grid.Row="1" x:Name="FrontRenderErrorBand" Classes="viewError" IsVisible="False">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Text="Front view couldn't be drawn. Your foil hasn't changed." />

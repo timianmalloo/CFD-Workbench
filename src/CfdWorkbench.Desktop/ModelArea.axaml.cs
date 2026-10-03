@@ -131,6 +131,8 @@ public partial class ModelArea : UserControl
         }
         controller = next;
         if (controller is not null) controller.Changed += OnControllerChanged;
+        SideElevation.Controller = controller;
+        FrontElevation.Controller = controller;
     }
 
     private void OnControllerChanged()
@@ -194,12 +196,10 @@ public partial class ModelArea : UserControl
         // Both halves: the port half is the starboard mesh mirrored in y.
         var minimum = new Point3(surface.MinimumX, -surface.MaximumY, surface.MinimumZ);
         var maximum = new Point3(surface.MaximumX, surface.MaximumY, surface.MaximumZ);
-        var fitted = ViewCamera.Named(view switch
-        {
-            SingleView.Side => NamedCamera.Side,
-            SingleView.Front => NamedCamera.Front,
-            _ => NamedCamera.Iso
-        }, minimum, maximum, size);
+        // DR-VIEW-3: each elevation fits itself (its band, with room for its chips and plates).
+        var fitted = view is SingleView.Side or SingleView.Front
+            ? ElevationView.Fitted(view, minimum, maximum, size)
+            : ViewCamera.Named(NamedCamera.Iso, minimum, maximum, size);
         if (view == SingleView.ThreeD) controller.Camera3d = fitted;
         else controller.SetCameraFor(view, fitted);
         return fitted;
