@@ -101,7 +101,7 @@ internal static class PointModelTests
             var parsed = FoilSource.Parse(source);
             var curve = parsed.Definition!.Curves["leading"];
             var view = Planform.View(source, "spline", 1);
-            var spans = Bernstein.Spans(curve, new ProofBudget(TimeSpan.FromSeconds(1)));
+            var spans = Bernstein.Spans(curve, new ProofBudget());
             var parameters = SampleParameters(curve);
             Equal(parameters.Count, view.Leading.Samples.Count);
             for (int index = 0; index < parameters.Count; index++)

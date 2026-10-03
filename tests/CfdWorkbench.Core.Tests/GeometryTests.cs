@@ -66,15 +66,21 @@ internal static class GeometryTests
             Geometry.Assess(Prepared(Text.Replace("(1, -2)", "(1, -90)"))).Status));
         Check("Geometry_PlacementWidthBeyondBudget_NotAssessed", () => Equal(GeometryStatus.NotAssessed,
             Geometry.Assess(Prepared(Text.Replace("120)", "1e20)"))).Status));
-        Check("Geometry_ExhaustedTimeBudget_ProducesNoCertificate", () =>
+        Check("Geometry_ExhaustedWorkLimit_ProducesNoCertificate", () =>
         {
             var parsed = Prepared(DyadicProfile());
-            var result = Geometry.Assess(parsed, TimeSpan.Zero);
+            var result = Geometry.Assess(parsed, new ProofBudget(0));
             Equal(GeometryStatus.NotAssessed, result.Status);
             Equal(true, result.Certificate is null);
             Equal("GEOMETRY-BUDGET", result.Code);
         });
-        Check("Geometry_CallerCannotRaiseTimeCeiling", () => Refuses("DSL-RANGE", () => Geometry.Assess(Prepared(DyadicProfile()), TimeSpan.FromSeconds(2))));
+        Check("Geometry_CallerCannotRaiseWorkCeiling", () =>
+        {
+            Refuses("DSL-RANGE", () => _ = new ProofBudget(ProofBudget.DefaultWorkLimit + 1));
+            Refuses("DSL-RANGE", () => _ = new ProofBudget(-1));
+            // The public time parameter keeps its ceiling for source compatibility.
+            Refuses("DSL-RANGE", () => Geometry.Assess(Prepared(DyadicProfile()), TimeSpan.FromSeconds(2)));
+        });
         Check("Geometry_PlacedRootPoint_EnclosesIndependentZeroTwistCoordinates", () =>
         {
             var certificate = Geometry.Assess(Prepared(DyadicProfile())).Certificate!;
@@ -171,6 +177,7 @@ internal static class GeometryTests
             double domain = Geometry.TwistDomainDegrees;
             Console.WriteLine("MEASURE twist_domain_degrees=" + domain.ToString("G17", System.Globalization.CultureInfo.InvariantCulture));
             Equal(true, domain > 57 && domain < 58);
+            Equal(BitConverter.DoubleToInt64Bits(Geometry.LargestAdmissibleTwist()), BitConverter.DoubleToInt64Bits(domain));
             Equal(true, TwistAdmissible(domain) && TwistAdmissible(0 - domain));
             Equal(false, TwistAdmissible(Math.BitIncrement(domain)));
             Equal(false, TwistAdmissible(Math.BitDecrement(0 - domain)));

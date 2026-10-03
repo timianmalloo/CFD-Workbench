@@ -165,7 +165,7 @@ public sealed class AuthoringSession : IDisposable
     }
     private GeometryAssessment AssessOwned(SourceParse parsed, long? generation = null)
     {
-        var timer = System.Diagnostics.Stopwatch.StartNew(); var result = Geometry.Assess(parsed, proofBudget);
+        var timer = System.Diagnostics.Stopwatch.StartNew(); var result = Geometry.Assess(parsed, new ProofBudget(proofWorkLimit));
         Record("geometry.validate", result.Code, timer.Elapsed.TotalMilliseconds, parsed.Source.Length, null, generation, "cfdw-cv/2");
         return result;
     }
@@ -219,18 +219,20 @@ public sealed class AuthoringSession : IDisposable
     public void AcknowledgeSaved(byte[] image) => Run("acknowledge-save", () => { AcknowledgeSavedCore(image); return true; }, image.Length);
     public void Reopen(byte[] image) => Run("reopen", () => { ReopenCore(image); return true; }, image.Length);
     private readonly int envelopeCap;
-    private readonly TimeSpan? proofBudget;
+    private readonly long? proofWorkLimit;
     public AuthoringSession(int envelopeCap = NativeProject.MaxBytes)
     {
         Guard.Require(envelopeCap > 0 && envelopeCap <= NativeProject.MaxBytes, "DOC-SIZE");
         this.envelopeCap = envelopeCap;
     }
-    // Test seam only: forces every geometry proof in this session to run under the given
-    // budget, so a budget refusal (GEOMETRY-BUDGET) can be reproduced deterministically
-    // instead of depending on real elapsed time. No public constructor exposes this.
-    internal AuthoringSession(TimeSpan proofBudget, int envelopeCap = NativeProject.MaxBytes) : this(envelopeCap)
+    private AuthoringSession(long proofWorkLimit) : this() => this.proofWorkLimit = proofWorkLimit;
+    // Test seam only: every geometry assessment in this session runs under the given work limit
+    // (bit-work units, at most ProofBudget.DefaultWorkLimit), so a budget refusal (GEOMETRY-BUDGET)
+    // is reproduced without a pathological source. No public member exposes this.
+    internal static AuthoringSession WithProofWorkLimit(long workLimit)
     {
-        this.proofBudget = proofBudget;
+        Guard.Require(workLimit >= 0 && workLimit <= ProofBudget.DefaultWorkLimit, "DSL-RANGE");
+        return new AuthoringSession(workLimit);
     }
     readonly object sync = new();
     readonly Guid authorityId = Guid.NewGuid();
@@ -260,7 +262,7 @@ public sealed class AuthoringSession : IDisposable
     SessionBinding Key(SourceParse p, SessionDraft d) => new(p.SourceHash, d.Base, d.Id, d.Generation, "cfdw-cv/2", p.SurfaceHash!, d.Rail, d.VertexId);
     // Admits a document into the session. `toleratesBudget` is for re-certifying a revision
     // that is already stored (reopen, undo/redo): a proof that merely ran out of its
-    // cooperative time budget must not refuse the whole session — the revision is simply
+    // cooperative work limit must not refuse the whole session — the revision is simply
     // carried in as NotAssessed / GEOMETRY-BUDGET (readable via InspectAccepted/Snapshot),
     // never thrown and never labelled Certified. Every other refusal (integrity, reference,
     // format) still refuses exactly as before. First admission of a brand-new source (Open)
@@ -516,7 +518,7 @@ public sealed class AuthoringSession : IDisposable
         var profile = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
         string identity = parsed.Authored().Assignments[assignmentIndex].ProfileIdentity;
         return new(profile.Name, identity, Vertices(profile.Upper, "upper", profile.Closure), Vertices(profile.Lower, "lower", profile.Closure),
-            Sample(profile.Upper), Sample(profile.Lower), profile.Closure);
+            Sample(profile.Upper, new ProofBudget()), Sample(profile.Lower, new ProofBudget()), profile.Closure);
     }
     private ScopeImpact DescribeScopeCore(string profile, int assignmentIndex, SectionScope scope)
     {
@@ -533,12 +535,12 @@ public sealed class AuthoringSession : IDisposable
     }
     private static ProfileVertex[] Vertices(Curve curve, string side, string closure) => curve.Points.Select((point, index) =>
         new ProfileVertex(side, curve.Ids[index], point[0], point[1], index == 0 || (closure == "closed" && index == curve.Points.Length - 1))).ToArray();
-    private static ProfilePoint[] Sample(Curve curve)
+    internal static ProfilePoint[] Sample(Curve curve, ProofBudget watch)
     {
-        var watch = new ProofBudget();
         var spans = Bernstein.Spans(curve, watch);
-        // Display polyline. The certificate inverse (1e-14) on a degree-5 10-CV rebuild
-        // measured ~970ms and ProofBudget.Check (Geometry.cs:682) throws past one second.
+        // Display polyline at 1e-8, not the certificate's 1e-14 inverse. On a ten-vertex degree-5 rebuild this is
+        // still the most expensive proof (2026-10-03: 209M bit-work, ~0.45 s quiet; 98% in EncloseAt): 101 queries
+        // x ~22 bisections x ~90 exact operations on ~500-bit rationals, which a rebuild's non-dyadic knots produce.
         var accuracy = Rational.From(1e-8);
         var samples = new ProfilePoint[101];
         for (int index = 0; index < samples.Length; index++)
