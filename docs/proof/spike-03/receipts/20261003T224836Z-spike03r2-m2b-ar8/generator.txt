@@ -1,0 +1,82 @@
+Info    : Could not make plane from 3 points - assuming z=0
+Warning : Fragments - BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed 
+Info    : Skipping boundary layer extrusion of degenerate curve 19
+Info    : Skipping boundary layer extrusion of degenerate curve 22
+Info    : Skipping boundary layer extrusion of degenerate curve 29
+Info    : Skipping boundary layer extrusion of degenerate curve 31
+Info    : Meshing 1D...
+Info    : [  0%] Meshing curve 7 (Line)
+Info    : [ 10%] Meshing curve 8 (Line)
+Info    : [ 10%] Meshing curve 12 (BSpline)
+Info    : [ 10%] Meshing curve 13 (Line)
+Info    : [ 10%] Meshing curve 14 (BSpline)
+Info    : [ 10%] Meshing curve 15 (Circle)
+Info    : [ 20%] Meshing curve 16 (Circle)
+Info    : [ 20%] Meshing curve 20 (Circle)
+Info    : [ 20%] Meshing curve 21 (BSpline)
+Info    : [ 20%] Meshing curve 23 (Circle)
+Info    : [ 30%] Meshing curve 24 (BSpline)
+Info    : [ 30%] Meshing curve 25 (BSpline)
+Info    : [ 30%] Meshing curve 26 (Line)
+Info    : [ 30%] Meshing curve 27 (Circle)
+Info    : [ 30%] Meshing curve 28 (Circle)
+Info    : [ 40%] Meshing curve 30 (Circle)
+Info    : [ 80%] Meshing curve 157 (Line)
+Info    : [ 90%] Meshing curve 158 (Line)
+Info    : [ 90%] Meshing curve 159 (Line)
+Info    : [ 90%] Meshing curve 160 (Line)
+Info    : [ 90%] Meshing curve 161 (Line)
+Info    : [ 90%] Meshing curve 162 (Line)
+Info    : [ 90%] Meshing curve 163 (Line)
+Info    : [100%] Meshing curve 164 (Line)
+Info    : [100%] Meshing curve 165 (Line)
+Info    : [100%] Meshing curve 166 (Line)
+Info    : [100%] Meshing curve 167 (Line)
+Info    : [100%] Meshing curve 168 (Line)
+Info    : Done meshing 1D (Wall 0.00628771s, CPU 0.006175s)
+Info    : Meshing 2D...
+Info    : 0 dependencies in mesh of source faces
+Info    : Done meshing 2D (Wall 0.208697s, CPU 0.207096s)
+Info    : Meshing 3D...
+Info    : 3D Meshing 1 volume with 1 connected component
+Info    : Tetrahedrizing 5764 nodes...
+Info    : Done tetrahedrizing 5772 nodes (Wall 0.0567635s, CPU 0.056412s)
+Info    : Reconstructing mesh...
+Info    :  - Creating surface mesh
+Info    :  - Identifying boundary edges
+Info    :  - Recovering boundary
+Info    :  - Added 1 Steiner point
+Info    : Done reconstructing mesh (Wall 0.0979572s, CPU 0.096997s)
+Info    : Found volume 9
+Info    : It. 0 - 0 nodes created - worst tet radius 106.735 (nodes removed 0 0)
+Info    : It. 500 - 472 nodes created - worst tet radius 2.18555 (nodes removed 0 28)
+Info    : It. 1000 - 965 nodes created - worst tet radius 1.72738 (nodes removed 0 35)
+Info    : It. 1500 - 1463 nodes created - worst tet radius 1.53239 (nodes removed 0 37)
+Info    : It. 2000 - 1960 nodes created - worst tet radius 1.3985 (nodes removed 0 40)
+Info    : It. 2500 - 2458 nodes created - worst tet radius 1.30082 (nodes removed 0 42)
+Info    : It. 3000 - 2958 nodes created - worst tet radius 1.2205 (nodes removed 0 42)
+Info    : It. 3500 - 3457 nodes created - worst tet radius 1.16505 (nodes removed 0 43)
+Info    : It. 4000 - 3957 nodes created - worst tet radius 1.11663 (nodes removed 0 43)
+Info    : It. 4500 - 4456 nodes created - worst tet radius 1.07437 (nodes removed 0 44)
+Info    : It. 5000 - 4956 nodes created - worst tet radius 1.0395 (nodes removed 0 44)
+Info    : It. 5500 - 5456 nodes created - worst tet radius 1.01092 (nodes removed 0 44)
+Info    : 3D refinement terminated (13633 nodes total):
+Info    :  - 12 Delaunay cavities modified for star shapeness
+Info    :  - 45 nodes could not be inserted
+Info    :  - 53421 tetrahedra created in 0.149983 sec. (356179 tets/s)
+Info    : 8 node relocations
+Info    : Done meshing 3D (Wall 0.453306s, CPU 0.448788s)
+Info    : Optimizing mesh...
+Info    : Optimizing volume 9
+Info    : Optimization starts (volume = 13.2705) with worst = 6.54222e-05 / average = 0.701297:
+Info    : 1494 edge swaps, 201 node relocations (volume = 13.2705): worst = 0.000457912 / average = 0.715109 (Wall 0.139485s, CPU 0.138381s)
+Info    : 1628 edge swaps, 261 node relocations (volume = 13.2705): worst = 0.00219307 / average = 0.715464 (Wall 0.268112s, CPU 0.266886s)
+Info    : 1681 edge swaps, 324 node relocations (volume = 13.2705): worst = 0.00219307 / average = 0.715543 (Wall 0.397223s, CPU 0.395836s)
+Info    : No ill-shaped tets in the mesh :-)
+Info    : Done optimizing mesh (Wall 0.419559s, CPU 0.417541s)
+Info    : 55815 nodes 191103 elements
+Info    : Writing 'runs/20261003T224836Z-spike03r2-m2b-ar8/wing.msh'...
+Info    : Done writing 'runs/20261003T224836Z-spike03r2-m2b-ar8/wing.msh'
+gmsh_wing_surface_elements=4244 layer_prisms=84880 expected=84880 layer_coverage=100.00% core_cells=52256 symmetry_lateral_surfaces=0
+layer_total_thickness_m=1.4935e-03 first=8e-06 ratio=1.2 n=20
+msh_sha256=0f6cc52c45780a27a0d4e52960c2094b593ae26a016c5a5e3a6014232ae29d18 msh_bytes=9995003

@@ -1,0 +1,33 @@
+of-run: wait 2026-10-03T22:35:21Z join lock present
+of-run: wait 2026-10-03T22:35:52Z join lock present
+of-run: wait 2026-10-03T22:36:22Z join lock present
+of-run: wait 2026-10-03T22:36:52Z load 10.54 > 10
+of-run: wait 2026-10-03T22:37:22Z load 10.94 > 10
+of-run: wait 2026-10-03T22:37:52Z load 10.75 > 10
+of-run: wait 2026-10-03T22:38:22Z load 12.41 > 10
+of-run: start 2026-10-03T22:38:52Z load1=8.03 record=verified lint=clean bundle=f3debe8b5541 cmd=blockMesh
+of-run: end status=0 wall_s=1 load1=8.03 peak_rss_bytes=158089216 banner=Disallowing cmd=blockMesh
+of-run: start 2026-10-03T22:38:53Z load1=8.03 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh
+of-run: end status=0 wall_s=1 load1=8.03 peak_rss_bytes=134365184 banner=Disallowing cmd=checkMesh
+of-run: start 2026-10-03T22:38:55Z load1=8.03 record=verified lint=clean bundle=f3debe8b5541 cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: end status=0 wall_s=0 load1=7.46 peak_rss_bytes=41664512 banner=Disallowing cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: start 2026-10-03T22:38:56Z load1=7.46 record=verified lint=clean bundle=f3debe8b5541 cmd=surfaceFeatureExtract
+of-run: end status=0 wall_s=1 load1=7.46 peak_rss_bytes=43794432 banner=Disallowing cmd=surfaceFeatureExtract
+of-run: start 2026-10-03T22:38:58Z load1=7.46 record=verified lint=clean bundle=f3debe8b5541 cmd=decomposePar -force
+of-run: end status=0 wall_s=0 load1=7.46 peak_rss_bytes=167231488 banner=Disallowing cmd=decomposePar -force
+of-run: start 2026-10-03T22:38:59Z load1=7.46 record=verified lint=clean bundle=f3debe8b5541 cmd=mpirun -np 6 snappyHexMesh -parallel -overwrite
+of-run: end status=0 wall_s=405 load1=8.34 peak_rss_bytes=2108637184 banner=Disallowing cmd=mpirun -np 6 snappyHexMesh -parallel -overwrite
+of-run: start 2026-10-03T22:45:46Z load1=8.34 record=verified lint=clean bundle=f3debe8b5541 cmd=mpirun -np 6 postProcess -parallel -func writeCellCentres -time 0
+of-run: end status=0 wall_s=2 load1=7.91 peak_rss_bytes=292945920 banner=Disallowing cmd=mpirun -np 6 postProcess -parallel -func writeCellCentres -time 0
+of-run: start 2026-10-03T22:45:49Z load1=7.91 record=verified lint=clean bundle=f3debe8b5541 cmd=reconstructParMesh -constant
+of-run: end status=0 wall_s=2 load1=7.91 peak_rss_bytes=1989574656 banner=Disallowing cmd=reconstructParMesh -constant
+of-run: start 2026-10-03T22:45:53Z load1=7.44 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh -constant -allGeometry -allTopology
+of-run: end status=0 wall_s=14 load1=6.78 peak_rss_bytes=3658940416 banner=Disallowing cmd=checkMesh -constant -allGeometry -allTopology
+of-run: start 2026-10-03T22:46:09Z load1=6.78 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh -constant -allGeometry -writeFields (cellDeterminant)
+of-run: end status=0 wall_s=7 load1=8.88 peak_rss_bytes=2221506560 banner=Disallowing cmd=checkMesh -constant -allGeometry -writeFields (cellDeterminant)
+of-run: wait 2026-10-03T22:46:17Z load 10.65 > 10
+of-run: wait 2026-10-03T22:46:47Z load 13.37 > 10
+of-run: wait 2026-10-03T22:47:17Z load 14.26 > 10
+of-run: wait 2026-10-03T22:47:47Z load 13.22 > 10
+of-run: start 2026-10-03T22:48:18Z load1=8.50 record=verified lint=clean bundle=f3debe8b5541 cmd=topoSet -constant -dict system/topoSetDict.det
+of-run: end status=0 wall_s=1 load1=8.50 peak_rss_bytes=1190756352 banner=Disallowing cmd=topoSet -constant -dict system/topoSetDict.det

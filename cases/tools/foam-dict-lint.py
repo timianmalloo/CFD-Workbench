@@ -39,7 +39,7 @@ MESH_DIRS = {"polyMesh", "triSurface", "extendedFeatureEdgeMesh"}
 # timeActivatedFileUpdate function object can write a file to any path).
 TYPES_ALLOWED = {"forceCoeffs", "solverInfo", "yPlus", "surfaces", "wallShearStress", "patch", "wall", "empty",
                  "symmetryPlane", "freestreamVelocity", "freestreamPressure", "noSlip", "zeroGradient", "inletOutlet",
-                 "fixedValue", "calculated", "triSurfaceMesh", "box", "cellSet", "hePsiThermo"}
+                 "fixedValue", "calculated", "triSurfaceMesh", "box", "cellSet", "hePsiThermo", "symmetry"}
 rtm_false = set()
 TOKEN = re.compile(r'"(?:[^"\\]|\\.)*"|/\*.*?\*/|//[^\n]*|#\{|#\}|#[A-Za-z_]*|[A-Za-z_][\w.:<>,|*+-]*|-?[\d.][\w.+-]*|\S', re.S)
 

@@ -1,0 +1,26 @@
+17:nProcs : 6
+32:allowSystemOperations : Disallowing user-supplied system call operations
+84:Initial mesh : cells:120000  faces:367900  points:128061  unbalance:0.0096
+389:--> FOAM Warning : 
+1117:--> FOAM Warning : Displacement (4.0138167e-08 -4.5011951e-19 3.3644262e-07) at mesh point 189206 coord (0.017984947 0.294 0.0062056847) points through the surrounding patch faces
+1186:--> FOAM Warning : Displacement (-1.4820193e-07 -4.1055263e-19 3.6827761e-06) at mesh point 189206 coord (0.017984987 0.294 0.0062060211) points through the surrounding patch faces
+1255:--> FOAM Warning : Displacement (-5.6285844e-07 2.2749686e-19 1.0499844e-05) at mesh point 189206 coord (0.017984839 0.294 0.0062097039) points through the surrounding patch faces
+1324:--> FOAM Warning : Displacement (-1.1112522e-06 -2.8289495e-18 1.9879539e-05) at mesh point 189206 coord (0.017984276 0.294 0.0062202037) points through the surrounding patch faces
+1393:--> FOAM Warning : Displacement (-1.6752327e-06 3.9139928e-18 2.9572672e-05) at mesh point 189206 coord (0.017983165 0.294 0.0062400833) points through the surrounding patch faces
+1462:--> FOAM Warning : Displacement (1.2560489e-06 6.0697566e-18 1.0831836e-06) at mesh point 190060 coord (0.0075108439 0.294 0.0046498743) points through the surrounding patch faces
+1531:--> FOAM Warning : Displacement (-3.1943763e-07 8.543312e-16 7.0347937e-06) at mesh point 190060 coord (0.0075120999 0.294 0.0046509575) points through the surrounding patch faces
+1666:--> FOAM Warning : Displacement (-1.509598e-06 7.2512872e-15 1.0546966e-05) at mesh point 190060 coord (0.0075117805 0.294 0.0046579923) points through the surrounding patch faces
+1814:--> FOAM Warning : Displacement (-2.0527322e-06 9.8841076e-15 1.0997488e-05) at mesh point 190060 coord (0.0075102709 0.294 0.0046685392) points through the surrounding patch faces
+1962:--> FOAM Warning : Displacement (-1.9293421e-06 -2.362956e-15 8.9898908e-06) at mesh point 190060 coord (0.0075082181 0.294 0.0046795367) points through the surrounding patch faces
+2110:--> FOAM Warning : Displacement (-1.3784626e-06 -1.0974077e-14 5.8865218e-06) at mesh point 190060 coord (0.0075062888 0.294 0.0046885266) points through the surrounding patch faces
+2258:--> FOAM Warning : Displacement (-7.5112796e-07 -7.5147276e-15 3.0352726e-06) at mesh point 190060 coord (0.0075049103 0.294 0.0046944131) points through the surrounding patch faces
+2406:--> FOAM Warning : Displacement (-2.9964789e-07 -2.1069152e-15 1.1703679e-06) at mesh point 190060 coord (0.0075041592 0.294 0.0046974484) points through the surrounding patch faces
+2554:--> FOAM Warning : Displacement (-7.9033738e-08 -2.4648745e-16 3.0214733e-07) at mesh point 190060 coord (0.0075038596 0.294 0.0046986188) points through the surrounding patch faces
+2715:--> FOAM Warning : Displacement (-1.0313629e-08 0 3.9366847e-08) at mesh point 190060 coord (0.0075037805 0.294 0.0046989209) points through the surrounding patch faces
+3049:wing 128238   20     8e-06     0.00149 
+3074:[5] --> FOAM FATAL IO ERROR: (openfoam-2512)
+3087:[4] --> FOAM FATAL IO ERROR: (openfoam-2512)
+3100:[3] --> FOAM FATAL IO ERROR: (openfoam-2512)
+3106:[2] --> FOAM FATAL IO ERROR: (openfoam-2512)
+3126:[1] --> FOAM FATAL IO ERROR: (openfoam-2512)
+3148:[0] --> FOAM FATAL IO ERROR: (openfoam-2512)

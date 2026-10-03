@@ -14,6 +14,10 @@ import struct
 import sys
 
 run, n_target, ratio, U, nu, chord = sys.argv[1], int(sys.argv[2]), float(sys.argv[3]), float(sys.argv[4]), float(sys.argv[5]), float(sys.argv[6])
+# Round 2 (optional): argv[7] = second floor (layers on 100 % of faces, DR-F2-3), argv[8] = design half span (m), so
+# a rounded tip cap beyond the half span is classed as tip.
+floor2 = int(sys.argv[7]) if len(sys.argv) > 7 else None
+half_design = float(sys.argv[8]) if len(sys.argv) > 8 else None
 
 
 def wing_values(path):
@@ -63,6 +67,9 @@ def pct(p):
 
 
 print(f"wing_faces={N} mean_layers={mean:.2f} faces_with_target_{n_target}={full} ({100 * full / N:.1f}%) faces_ge_15={ge15} ({100 * ge15 / N:.1f}%) faces_with_0={none} ({100 * none / N:.1f}%)")
+if floor2:
+    g2 = sum(1 for v in layers if v >= floor2 - 0.5)
+    print(f"faces_ge_{floor2}={g2} ({100 * g2 / N:.1f}%)")
 print(f"first_layer_height_m p05={pct(.05):.3e} p50={pct(.5):.3e} p95={pct(.95):.3e}")
 print(f"utau_flat_plate={utau:.4f} m/s (Re_x={rex:.3g}, Cf={cf:.5f}); y+_cell_centre_estimate p05={yplus(pct(.05)):.1f} p50={yplus(pct(.5)):.1f} p95={yplus(pct(.95)):.1f}")
 centres = []
@@ -72,7 +79,7 @@ for proc in sorted(glob.glob(os.path.join(run, "processor*"))):
         break
     centres += list(zip(*(wing_values(os.path.join(proc, "0", c)) for c in ("Cx", "Cy", "Cz"))))
 if len(centres) == N:
-    half = max(c[1] for c in centres)
+    half = half_design if half_design is not None else max(c[1] for c in centres)
 
     def region(c):
         if c[1] > half - 0.01 * chord:
@@ -88,12 +95,13 @@ if len(centres) == N:
     tally = {}
     for v, c in zip(layers, centres):
         r = region(c)
-        t = tally.setdefault(r, [0, 0, 0])
+        t = tally.setdefault(r, [0, 0, 0, 0])
         t[0] += 1
         t[1] += v >= n_target - 0.5
         t[2] += v < 0.5
-    for r, (n, f, z) in sorted(tally.items()):
-        print(f"region {r}: faces={n} full={100 * f / n:.1f}% zero={100 * z / n:.1f}%")
+        t[3] += floor2 is not None and v >= floor2 - 0.5
+    for r, (n, f, z, f2) in sorted(tally.items()):
+        print(f"region {r}: faces={n} full={100 * f / n:.1f}% zero={100 * z / n:.1f}%" + (f" ge_{floor2}={100 * f2 / n:.1f}%" if floor2 else ""))
 hist = {}
 for v in layers:
     hist[int(round(v))] = hist.get(int(round(v)), 0) + 1

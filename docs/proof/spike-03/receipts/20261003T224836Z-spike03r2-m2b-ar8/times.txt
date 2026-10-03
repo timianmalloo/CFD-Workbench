@@ -1,0 +1,57 @@
+== time.checkMesh
+        0.41 real         0.09 user         0.02 sys
+            86294528  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                9614  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 114  involuntary context switches
+          1942148018  instructions retired
+           480745996  cycles elapsed
+            47186688  peak memory footprint
+== time.gmsh
+        2.23 real         2.23 user         0.06 sys
+           195330048  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               17192  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   1  messages sent
+                   1  messages received
+                   1  signals received
+                   1  voluntary context switches
+                2272  involuntary context switches
+           488421585  instructions retired
+           109796691  cycles elapsed
+            16384528  peak memory footprint
+== time.gmshToFoam
+        0.92 real         0.31 user         0.03 sys
+           164315136  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               15001  page reclaims
+                   4  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                 118  involuntary context switches
+          7175648592  instructions retired
+          1450155253  cycles elapsed
+           105710408  peak memory footprint

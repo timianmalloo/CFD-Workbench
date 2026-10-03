@@ -25,9 +25,9 @@ cd "$repo"
 
 # ---- pinned inputs: the probe runs only against the reviewed launcher, lint, record tool and bundle ----
 pin_bundle="f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a6ef854"
-pin_launcher="__PIN_LAUNCHER__"
-pin_lint="__PIN_LINT__"
-pin_record="__PIN_RECORD__"
+pin_launcher="c5bdb37f6c56c64622242d76aaf39645bf61a52274078ef625b046590932b66b"
+pin_lint="3deab275778f4685fb8cd0e44277f244a5eb9faf1db3eb126b76ddfc46c4a6b7"
+pin_record="6c52f3f29e4fae711390afa5c9637f43bbdf66874603374bc2d31a685903ab54"
 check_pin() {
   local got; got=$(shasum -a 256 "$1" | awk '{print $1}')
   [ "$got" = "$2" ] || { echo "security-probe: ABORT: $1 sha256 $got != pinned $2" >&2; exit 2; }

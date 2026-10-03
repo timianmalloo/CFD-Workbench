@@ -1,0 +1,43 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -allGeometry -allTopology
+Date   : Oct 03 2026
+Time   : 15:48:42
+Host   : <HOST>
+PID    : 70886
+I/O    : uncollated
+Case   : <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261003T224836Z-spike03r2-m2b-ar8
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+--> FOAM Warning : 
+    From static Foam::instantList Foam::timeSelector::select0(Time &, const argList &)
+    in file db/Time/timeSelector.C at line 284
+    No time specified or available, selecting 'constant'
+Create mesh for time = constant
+
+
+--> FOAM FATAL ERROR: (openfoam-2512)
+Symmetry plane 'symmetry' is not planar.
+At local face at (0.64684587 0.56796709 -1.5244411e-05) the normal (3.3569295e-06 -1.0213242e-11 -1) differs from the average normal (-4.7345047e-08 -2.361897e-09 -1) by 1.158909e-11
+Either split the patch into planar parts or use the symmetry patch type
+
+    From virtual void Foam::symmetryPlanePolyPatch::calcGeometry(PstreamBuffers &)
+    in file meshes/polyMesh/polyPatches/constraint/symmetryPlane/symmetryPlanePolyPatch.C at line 78.
+
+FOAM exiting
+

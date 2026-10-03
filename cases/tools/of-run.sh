@@ -14,7 +14,7 @@
 #     - cases/tools/launcher-record.py verify: the case tree equals the tree recorded outside the case at generation
 #       and after every earlier launch (no new, changed or missing file; no shared library or executable image);
 #     - cases/tools/foam-dict-lint.py: token-level allow-list lint of every generator-written dictionary;
-#     - every app except blockMesh and checkMesh needs the checkMesh pre-flight record ("Disallowing" seen under
+#     - every app except the mesh writers (blockMesh, gmshToFoam) and checkMesh needs the checkMesh pre-flight record ("Disallowing" seen under
 #       this bundle for this case and manifest), kept in the launcher record.
 #   After the launch: "Allowing" in the log writes the fixed stop file runs/.security-stop and every later launch
 #   refuses; a missing banner fails the launch; the tree is re-pinned (OpenFOAM's outputs become recorded).
@@ -33,7 +33,7 @@ app_launcher="/Applications/OpenFOAM-v2512.app/Contents/Resources/etc/openfoam"
 stop_file="$repo/runs/.security-stop"
 max_load=10
 join_lock="${CFDW_JOIN_LOCK:-/private/tmp/claude-501/-Users-mallalieut-projects-CFD-Workbench/f19a2b12-f8df-4dcc-bc84-7353cfbcda0f/scratchpad/join.lock}"
-APPS=" checkMesh blockMesh decomposePar reconstructPar reconstructParMesh snappyHexMesh surfaceCheck surfaceFeatureExtract simpleFoam rhoSimpleFoam postProcess topoSet "
+APPS=" checkMesh blockMesh gmshToFoam decomposePar reconstructPar reconstructParMesh snappyHexMesh surfaceCheck surfaceFeatureExtract simpleFoam rhoSimpleFoam postProcess topoSet "
 ledger="$case_dir/run-ledger.txt"
 now() { date -u +%Y-%m-%dT%H:%M:%SZ; }
 refuse() { echo "of-run: REFUSED: $1" >&2; echo "of-run: refused $(now) $1 cmd=${*:2}" >> "$ledger"; exit "${2:-90}"; }
@@ -54,7 +54,7 @@ case "$app" in */*|"") refuse "app name '$app' must be a bare name" 93 ;; esac
 [[ "$APPS" == *" $app "* ]] || refuse "app '$app' is not on the launcher allow-list" 93
 [ -e "$case_dir/$1" ] && refuse "the case holds a file named '$1' (etc/openfoam would run it with bash)" 93
 [ -e "$case_dir/$app" ] && refuse "the case holds a file named '$app'" 93
-case "$app" in blockMesh|checkMesh) needs_preflight=no ;; *) needs_preflight=yes ;; esac
+case "$app" in blockMesh|gmshToFoam|checkMesh) needs_preflight=no ;; *) needs_preflight=yes ;; esac
 
 waited=0
 while :; do
