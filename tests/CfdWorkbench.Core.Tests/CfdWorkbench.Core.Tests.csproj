@@ -13,5 +13,6 @@
   <ItemGroup>
     <Content Include="Fixtures\layout\**\*" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="Fixtures\m12b\**\*" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="Fixtures\planform-verbs\**\*" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

@@ -8,7 +8,7 @@ namespace CfdWorkbench.Core.Tests;
 
 internal static class PointVerbTests
 {
-    private const string TenPoint = "tests/CfdWorkbench.Core.Tests/Fixtures/planform-verbs/new-default-10.foil";
+    private static string TenPoint => Path.Combine(AppContext.BaseDirectory, "Fixtures", "planform-verbs", "new-default-10.foil");
 
     internal static void Run()
     {

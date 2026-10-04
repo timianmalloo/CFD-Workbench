@@ -12,7 +12,7 @@ internal static class PointCommandTests
     private static PointOutcome Tangent(AuthoringSession s, TangentKind kind, string? kept = null) =>
         s.ApplyPointCommand(Id(), new PointCommand.SetTangent("leading", Point(s, "leading", 3).Id, kind, kept));
     private static byte[] TenPointRail() =>
-        File.ReadAllBytes("tests/CfdWorkbench.Core.Tests/Fixtures/planform-verbs/new-default-10.foil");
+        File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Fixtures", "planform-verbs", "new-default-10.foil"));
 
     private static AuthoringSession WithAnchor()
     {

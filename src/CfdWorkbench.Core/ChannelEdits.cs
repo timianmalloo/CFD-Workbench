@@ -211,7 +211,7 @@ internal static class ChannelEdits
     {
         double span = (curve.Points[^1][0] - curve.Points[^2][0]) * halfSpanMeters;
         double ordinate = curve.Points[^1][1] - curve.Points[^2][1];
-        return Math.Atan2(ordinate, span) * 180 / Math.PI;
+        return Math.Atan2(ordinate, span) / PlacementRule.RadiansPerDegree;
     }
 
     internal static bool RailsCross(Curve leading, Curve trailing, out double atEta)
