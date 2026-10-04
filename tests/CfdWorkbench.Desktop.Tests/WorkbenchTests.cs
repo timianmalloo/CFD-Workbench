@@ -19,7 +19,10 @@ using System.Text.Json.Nodes;
 StartupFailure.Install();
 if (args.FirstOrDefault(arg => arg.StartsWith(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe, StringComparison.Ordinal)) is { } failureProbe)
     throw new InvalidOperationException(failureProbe);
-if (args.Length == 0) CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run();
+// `--theme-evidence` (tools/verify-application-adapters.py, Debug): the same in-process prefix as a full run, then only the
+// suite that prints the THEME-ROW matrix. The fast ring runs every mode in Release (docs/plans/test-cost.md L2).
+bool themeEvidence = args is ["--theme-evidence"];
+if (args.Length == 0 || themeEvidence) CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run();
 
 if (args.Contains("--section-canvas", StringComparer.Ordinal))
 {
@@ -386,6 +389,7 @@ CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 // Longest first, so the slots never wait on a long suite started last. The five longest suites (SUITE-TIME under load
 // 6-7, 2026-10-03: properties-view 46-62 s, status-strip 42-55 s, views 36-38 s, plan-canvas 29/21 s, shell-window
 // 26/27 s) run as two interleaved parts each; SUITE-TIME shows when another needs splitting (test-ci-waste.md §12).
+if (themeEvidence) Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--shell-window --part=1/2", "--shell-window --part=2/2"));
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
     "--properties-view --part=1/2", "--properties-view --part=2/2", "--status-strip --part=1/2", "--status-strip --part=2/2",
     "--shell-window --part=1/2", "--shell-window --part=2/2", "--plan-canvas --part=1/2", "--plan-canvas --part=2/2",
@@ -584,8 +588,14 @@ namespace CfdWorkbench.Desktop.Tests
             child.Start();
             child.BeginOutputReadLine();
             child.BeginErrorReadLine();
-            child.WaitForExit(); // with no timeout this also waits until both redirected streams reach end of file
-            return (lines, child.ExitCode, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalSeconds);
+            // A hung native-window check must not hang the join (test-cost F-2): past the limit the child's whole process
+            // tree is killed and the log names the mode. 120 s is about 2.4x the slowest child under load 24 (49.5 s).
+            int limit = int.TryParse(Environment.GetEnvironmentVariable("CFD_TEST_CHILD_TIMEOUT_SECONDS"), out int seconds) && seconds > 0 ? seconds : 120;
+            bool timedOut = !child.WaitForExit(TimeSpan.FromSeconds(limit));
+            if (timedOut) child.Kill(entireProcessTree: true);
+            child.WaitForExit(); // after a true WaitForExit(timeout), this waits until both redirected streams reach end of file
+            if (timedOut) lines.Add((false, $"FAIL TIMEOUT {mode} after {limit} s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed"));
+            return (lines, timedOut ? 124 : child.ExitCode, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalSeconds);
         }
     }
 }
