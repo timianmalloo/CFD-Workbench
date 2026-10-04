@@ -2946,7 +2946,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e35ce80b339aec16e94209f4e211760cce4801708ccc9a0a4283846e1bbae088"
+      "sourceSha256": "04b19088e894cf13425b420e4351844999518d5497ee992c0a3a72ba504b6040"
     },
     {
       "id": "design-planform-point-verbs",
@@ -9785,6 +9785,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "849b6fdc0b019dc03c971adfc96f1f1fde6889b4c43a783dd21e46103fe6bb1d"
     },
     {
+      "id": "review-m12c-native",
+      "path": "docs/reviews/m12c-native.md",
+      "title": "Native review — M1.2c section editor (UXR polish and the operator's native-look checklist)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation — UXR (M1.2c)",
+      "reviewBy": "2026-10-31",
+      "reviewSuggested": [],
+      "summary": "Track UXR, 4 October 2026. The deviations EDT's and PNL's captures showed are fixed, except where §3 says why not. Screens 2, 2b, 2c and 3 were recaptured from the built app in light and dark mode (docs/proof/m12c-uxr). The marine-CAD re-review raised one soft veto: the comb pointed into the foil. It is fixed under a red-first test and the veto is cleared. Three findings go to the operator: handle Length is entered in mm, the comb is sparse, and the Points y colour. The packaged app is ready for the operator's native-look walk (§5). The native rows N-12C-1 to N-12C-11 are pending until the operator attaches their receipts.",
+      "tags": [
+        "native-ui",
+        "m1.2c",
+        "section-editor",
+        "review",
+        "operator-run",
+        "captures"
+      ],
+      "links": [
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "documents"
+        },
+        {
+          "to": "review-m12b-native",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b9d46da8fc3e5cf4c03bdd853aa3ca70a4e30ae263e56ba3b52082e0bed81cb"
+    },
+    {
       "id": "review-spec-v02-critique",
       "path": "docs/reviews/spec-v02-critique.md",
       "title": "Critique of specification revision 0.2 against the knowledge base",
@@ -11168,5 +11200,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ced991ef6af8facaa0aa73de8229a27b5e0cf4bd0d9a89d76cb7dd5660bb7fc8"
+  "graphSha256": "5c245531c4aaa7cd9c54d6df81bb07525a4d1fcd62320d7cb87006d7f354c10f"
 };

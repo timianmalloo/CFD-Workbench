@@ -90,6 +90,7 @@ public partial class PointsPane : UserControl
         {
             var column = new TextBlock { Text = model.Columns[index] };
             column.Classes.Add("pts-col");
+            column.Classes.Set("kind", index == 4);
             if (index is 2 or 3) column.TextAlignment = Avalonia.Media.TextAlignment.Right;
             Grid.SetColumn(column, index);
             columns.Children.Add(column);
@@ -173,6 +174,8 @@ public partial class PointsPane : UserControl
         cell.Classes.Add("pts-cell");
         cell.Classes.Set("num", number);
         cell.Classes.Set("ro", readOnly && number);
+        cell.Classes.Set("type", column == 1);
+        cell.Classes.Set("kind", column == 4);
         Grid.SetColumn(cell, column);
         return cell;
     }
@@ -184,7 +187,9 @@ public partial class PointsPane : UserControl
         {
             Name = (isX ? "PointX_" : "PointY_") + key,
             Text = errors.TryGetValue(key + axis, out var held) ? held.Text : Quantity.ForField(isX ? row.X : row.Y),
-            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Right
+            // Stretch, as Properties does: the presenter sized to its text measured "2.50" narrower than its tabular
+            // figures draw, so a right-aligned presenter cut the last digit (UXR capture). TextAlignment right stays.
+            HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Stretch
         };
         box.Classes.Add("prop-b");
         box.Classes.Set("error", errors.ContainsKey(key + axis));

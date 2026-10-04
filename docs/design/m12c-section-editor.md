@@ -1127,6 +1127,11 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `SectionEditor_FinishThenReenter_ViewsAndCanvasRedrawn` (EDT) · `SectionEditor_FitSelectionOnAnchor_HandlesAtLeast24PxApart` (EDT) ·
 `SectionEditor_FocusedPoint_AccessibleNameSurfaceIndexTypeXY` (EDT) · `SectionEditor_PlateAndProbe_SayDisplay` (EDT).
 
+**UXR — review and polish.**
+`SectionEditor_CheckFinished_CheckingReasonHidden` (UXR): a "Checking…" reason box goes when the check of the same step
+passes (it outlived the check in the EDT captures) · `SectionEditor_Comb_TeethPointOutward` (UXR): on the convex 20–60 % c
+span every comb tooth points away from the chord line (§11.2; the marine-CAD re-review found them pointing in).
+
 **PNL — panes, menus, workspaces.**
 `Properties_SectionPoint_TypeXYRowsInPercentChord` (PNL) · `Properties_SectionPointTypedX_OneStepExact` (PNL) ·
 `Properties_SectionPointTypedMmX_ConvertedAtStationChord` (PNL) · `Properties_StationGroup_EndsWithEditSectionLink` (PNL) ·

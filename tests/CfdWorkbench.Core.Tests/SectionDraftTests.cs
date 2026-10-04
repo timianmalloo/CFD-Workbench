@@ -367,7 +367,46 @@ internal static class SectionDraftTests
         });
     }
 
-    internal static void RunReadiness() { } // Readiness_* lines (§12.3 tier 6), gathered at UXR
+    // §12.3 tier 6 (gathered at UXR): value_ms is the best of five warmed calls on the Example, so a collection pause in one
+    // call does not decide the row. Never in the fast ring (run-tests.sh does not pass --readiness).
+    internal static void RunReadiness()
+    {
+        Check("Readiness_SectionStepApply_Under5Ms", () =>
+        {
+            using var session = Opened();
+            string id = Id();
+            var view = session.BeginSectionDraft(id, 0);
+            view = session.ApplySectionStep(id, view.Generation, Raise(view, "cv-3", 0.001));
+            double best = Best(() => view = session.ApplySectionStep(id, view.Generation, Raise(view, "cv-3", 0.001)));
+            Console.WriteLine("READINESS SectionStepApply value_ms=" + best.ToString("G17", CultureInfo.InvariantCulture));
+            // §6 Concurrency: "measured, not a gate" — the row tests the 5 ms assume:, and a miss is the trigger to move steps
+            // off the UI thread, not a red readiness ring. UXR measured ~56 ms at load 28 (docs/reviews/m12c-native.md).
+            if (best >= 5) Console.WriteLine("READINESS-MISS SectionStepApply assume: under 5 ms is false; move steps off-thread");
+        });
+        Check("Readiness_SectionAssessExample_Under50Ms", () =>
+        {
+            using var session = Opened();
+            string id = Id();
+            var view = session.BeginSectionDraft(id, 0);
+            view = session.ApplySectionStep(id, view.Generation, Raise(view, "cv-3", 0.001));
+            _ = session.AssessSection(id, view.Generation, CancellationToken.None);
+            double best = Best(() => _ = session.AssessSection(id, view.Generation, CancellationToken.None));
+            Console.WriteLine("READINESS SectionAssessExample value_ms=" + best.ToString("G17", CultureInfo.InvariantCulture));
+            Equal(true, best < 50);
+        });
+    }
+
+    private static double Best(Action call)
+    {
+        double best = double.PositiveInfinity;
+        for (int index = 0; index < 5; index++)
+        {
+            var once = System.Diagnostics.Stopwatch.StartNew();
+            call();
+            best = Math.Min(best, once.Elapsed.TotalMilliseconds);
+        }
+        return best;
+    }
 
     internal static string Id() => Guid.NewGuid().ToString("D");
 
