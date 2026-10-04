@@ -779,7 +779,8 @@ public static class SectionEditorTests
             {
                 double block = 0, landing = 0;
                 var turn = System.Diagnostics.Stopwatch.StartNew();
-                for (int i = 0; i < 100000; i++)
+                var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+                while (DateTime.UtcNow < deadline)
                 {
                     bool assessed = shell.Controller.Section!.Assessment is not null;
                     if (assessed && shell.Controller.Section.Draft.Cursor == cursor) return (block, landing);

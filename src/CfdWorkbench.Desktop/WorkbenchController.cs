@@ -748,14 +748,26 @@ public sealed class WorkbenchController : IDisposable
         finally { sectionStepsPending--; }
     }
 
-    /// <summary>Runs one Core cursor or patch call on the thread pool and returns its view with the session's draft.</summary>
-    private Task<(SectionDraftView View, SessionDraft? Draft)> ApplyOffUiThread(SectionMode mode, Func<SectionDraftView> apply) =>
-        Task.Run(() =>
+    /// <summary>
+    /// Runs one Core cursor or patch call on the thread pool and returns its view with the session's draft. It also fills
+    /// the facts memo for the new bytes at every station: the landing's strip report, station strip and Properties read
+    /// them, and computed there they cost ~33 ms each on the UI thread under load.
+    /// </summary>
+    private Task<(SectionDraftView View, SessionDraft? Draft)> ApplyOffUiThread(SectionMode mode, Func<SectionDraftView> apply)
+    {
+        int stations = Inspection?.Authored.Assignments.Count ?? 0;
+        return Task.Run(() =>
         {
             sectionStepGate?.Invoke(mode.Draft.Generation);
             var view = apply();
+            try
+            {
+                for (int station = 0; station < stations; station++) _ = Sections.Facts(view.Bytes, station);
+            }
+            catch (ContractError) { }   // the UI-thread reader meets the same refusal and reports it as it always has
             return (view, session.Snapshot().Draft);
         });
+    }
 
     // A result belongs to the section it was asked of: Cancel, Finish, a rebind or Dispose since then discards it.
     private bool SectionStale(SectionMode asked) =>
