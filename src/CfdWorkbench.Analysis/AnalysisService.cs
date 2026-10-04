@@ -12,10 +12,12 @@ public abstract record Scope
 }
 
 /// <summary>
-/// The wing method the service runs (Strategy, design §7): its stored identity and settings, the Core stations it reads,
-/// its reference quantities, the lattice solve and the strip coupling. The product method is VLM + strip
-/// (<see cref="VortexLattice"/>, <see cref="StripCoupler"/>); a check passes its own. A compute failure is a
-/// <see cref="ContractError"/> with an <c>ANA-*</c> code and a reason, which the service records as a Failed row.
+/// The wing method the service runs (Strategy, design §7): its stored identity and settings, its reference quantities,
+/// the lattice solve and the strip coupling. The settings name the stations the service samples for it
+/// (<see cref="RunSettings.SectionEtas"/>, <see cref="RunSettings.SectionXs"/>), so every input that reaches the compute
+/// is in the run key (§3.4). The product method is VLM + strip (<see cref="VortexLattice"/>, <see cref="StripCoupler"/>);
+/// a check passes its own. A compute failure is a <see cref="ContractError"/> with an <c>ANA-*</c> code and a reason,
+/// which the service records as a Failed row.
 /// </summary>
 public interface IWingMethod
 {
@@ -23,9 +25,6 @@ public interface IWingMethod
     RunSettings Settings { get; }
     /// <summary>The near-field vs Trefftz reconciliation tolerance: recorded in the manifest, outside the key (§3.3).</summary>
     double ReconciliationTolerance { get; }
-    /// <summary>The η stations and chord abscissae the method reads through <see cref="Placement.Sections"/>.</summary>
-    IReadOnlyList<double> Etas { get; }
-    IReadOnlyList<double> Xs { get; }
     RunReference Reference(byte[] source);
     LatticeSolution Solve(IReadOnlyList<SectionSample> sections, OperatingPoint op, WaterRecord water, CancellationToken cancellation);
     IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op,
@@ -52,11 +51,6 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
     TimeProvider? time = null)
 {
     private const string TierId = "vlm-strip";
-    // assume: a run that failed before its solve has no residual or κ₁, yet RunDiagnostics holds two finite numbers
-    // (RunRecord.CheckStore refuses NaN). Zeros are written and the Failed outcome marks them as not measured. Confirmed by
-    // the PRJ rule that a Failed row shows its error, never its diagnostics; if a reader shows them, it shows a false
-    // "residual 0". Seam request S-A3 to STO: nullable diagnostics on a Failed row.
-    private static readonly RunDiagnostics NotSolved = new(0, 0);
     private static readonly RunPlatform Platform = new(RuntimeInformation.OSDescription,
         RuntimeInformation.OSArchitecture.ToString().ToLowerInvariant(), Environment.Version.ToString());
 
@@ -69,7 +63,8 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
 
     /// <summary>
     /// Evaluates <paramref name="op"/> in <paramref name="water"/>. Refuses an invalid operating point or water record,
-    /// another tier or a station scope before compute (<c>ANA-INPUT-*</c>, nothing recorded). Throws
+    /// settings that name no section stations, another tier or a station scope before compute (<c>ANA-INPUT-*</c>,
+    /// nothing recorded). Throws
     /// <see cref="OperationCanceledException"/> when cancelled or superseded, and the session's <see cref="ContractError"/>
     /// when it closed mid-compute.
     /// </summary>
@@ -90,9 +85,13 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
             if (scope is not Scope.Wing) throw new ContractError("ANA-INPUT-SCOPE", "the VLM + strip tier evaluates the wing");
             OperatingPoints.Validate(op);
             OperatingPoints.Validate(water);
+            // The settings are read once, so the key, the sampled stations and the stored row cannot disagree.
+            var settings = method.Settings;
+            var stations = Stations(settings);
             generation = Supersede(scope, cancellation);
             var token = generation.Token;
-            var run = await Task.Run(() => ComputeAndRecordAsync(op, water, scope, generation, trace, token), token).ConfigureAwait(false);
+            var run = await Task.Run(() => ComputeAndRecordAsync(op, water, settings, stations, scope, generation, trace, token), token)
+                .ConfigureAwait(false);
             outcome = run.Outcome is RunOutcome.Failed failed ? failed.Code : "OK";
             return run;
         }
@@ -105,8 +104,18 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         }
     }
 
-    private async Task<AnalysisRun> ComputeAndRecordAsync(OperatingPoint op, WaterRecord water, Scope scope,
-        CancellationTokenSource generation, Trace trace, CancellationToken token)
+    // The η stations and chord abscissae the settings name for Placement.Sections, or ANA-INPUT-STATIONS before compute.
+    private static (IReadOnlyList<double> Etas, IReadOnlyList<double> Xs) Stations(RunSettings settings)
+    {
+        if (settings.SectionEtas is { Count: > 0 } etas && settings.SectionXs is { Count: > 0 } xs &&
+            etas.Concat(xs).All(value => value is >= 0 and <= 1))
+            return (etas, xs);
+        throw new ContractError("ANA-INPUT-STATIONS", "the method's settings name no section stations inside [0, 1]");
+    }
+
+    private async Task<AnalysisRun> ComputeAndRecordAsync(OperatingPoint op, WaterRecord water, RunSettings settings,
+        (IReadOnlyList<double> Etas, IReadOnlyList<double> Xs) stations, Scope scope, CancellationTokenSource generation,
+        Trace trace, CancellationToken token)
     {
         long computeStarted = time.GetTimestamp();
         long mark = computeStarted;
@@ -121,7 +130,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         var view = session.Snapshot();
         trace.SnapshotMs = Lap();
         var inputs = Freshness.Inputs(view);
-        string settingsHash = RunRecord.SettingsHash(method.Settings);
+        string settingsHash = RunRecord.SettingsHash(settings);
         string key = RunRecord.Key(inputs, water, op, method.Method, settingsHash);
         trace.RunKey12 = key[..12];
         var existing = StoredCompleted(key);
@@ -134,11 +143,11 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
 
         var reference = method.Reference(view.Source);
         RunOutcome outcome = new RunOutcome.Completed();
-        var diagnostics = NotSolved;
+        RunDiagnostics? diagnostics = null;
         IReadOnlyList<StripLoad> strips = [];
         try
         {
-            var sections = Placement.Sections(view.Source, method.Etas, method.Xs, token);
+            var sections = Placement.Sections(view.Source, stations.Etas, stations.Xs, token);
             trace.SectionsMs = Lap();
             var solution = method.Solve(sections, op, water, token);
             trace.SolveMs = Lap();
@@ -149,7 +158,10 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         }
         catch (ContractError error) when (error.Code.StartsWith("ANA-", StringComparison.Ordinal))
         {
+            // A Failed row stores no diagnostics, even when the solve measured them before the coupling failed: the row's
+            // numbers are for Completed runs only (the trace keeps what was measured).
             outcome = new RunOutcome.Failed(error.Code, error.Reason ?? error.Message);
+            diagnostics = null;
             strips = [];
         }
         trace.Strips = strips.Count;
@@ -157,8 +169,8 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
 
         if (barrier is not null) await barrier.ComputedAsync(op, token).ConfigureAwait(false);
         mark = time.GetTimestamp();
-        var row = new AnalysisRun(Guid.NewGuid().ToString("D"), key, "", outcome, TierId, method.Method, method.Settings,
-            settingsHash, inputs, water, op, reference, method.ReconciliationTolerance, diagnostics, strips, wallMs, Platform);
+        var row = new AnalysisRun(Guid.NewGuid().ToString("D"), key, "", outcome, TierId, method.Method, settings,
+            settingsHash, inputs, water, op, reference, method.ReconciliationTolerance, strips, wallMs, Platform, diagnostics);
         row = row with { ContentHash = RunRecord.ContentHash(row) };
         // Check and record under the scope lock, so a newer evaluation either supersedes this one first (nothing is
         // recorded) or starts after the row is in: never two rows from one superseded pair. The identity check covers the

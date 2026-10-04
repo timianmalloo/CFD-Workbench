@@ -18,12 +18,14 @@ public sealed record AnalysisRecords(IReadOnlyList<AnalysisRun> Runs, IReadOnlyL
 /// One evaluation attempt of one Surface revision (with its Profile revisions) at one operating point by one method
 /// id + version under one settings hash, recorded when the method returns (AM-1.7-19). Immutable once recorded.
 /// <paramref name="Tier"/> is the tier id (<c>vlm-strip</c>). <paramref name="RunKey"/> and <paramref name="ContentHash"/>
-/// are stored but never trusted on read: both are recomputed (ADR-0011 §4).
+/// are stored but never trusted on read: both are recomputed (ADR-0011 §4). <paramref name="Diagnostics"/> is the
+/// solver's measurement: required on a Completed row and absent on a Failed one, never a zero standing in for a solve
+/// that did not finish (IO8). It is last so the reader can take its absence (an optional constructor parameter).
 /// </summary>
 public sealed record AnalysisRun(string RunId, string RunKey, string ContentHash, RunOutcome Outcome, string Tier,
     RunMethod Method, RunSettings Settings, string SettingsHash, RunInputs Inputs, WaterRecord Water, OperatingPoint Op,
-    RunReference Reference, double ReconciliationTolerance, RunDiagnostics Diagnostics, IReadOnlyList<StripLoad> Strips,
-    double WallMs, RunPlatform Platform);
+    RunReference Reference, double ReconciliationTolerance, IReadOnlyList<StripLoad> Strips, double WallMs, RunPlatform Platform,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RunDiagnostics? Diagnostics = null);
 
 /// <summary>Completed, or Failed with a stable code and a reason. Cancelled is telemetry, never a row.</summary>
 [JsonConverter(typeof(RunOutcomeConverter))]
@@ -37,10 +39,18 @@ public abstract record RunOutcome
 /// <summary>The method id, its version and its observed convergence order (VLM + strip: <c>cfdw.vlm-strip</c>, p = 1).</summary>
 public sealed record RunMethod(string Id, string Version, int Order);
 
-/// <summary>Every numeric choice of a run; all of it is in the run key through <see cref="AnalysisRun.SettingsHash"/>.</summary>
+/// <summary>
+/// Every numeric choice of a run; all of it is in the run key through <see cref="AnalysisRun.SettingsHash"/>.
+/// <paramref name="SectionEtas"/> and <paramref name="SectionXs"/> are the η stations and chord abscissae the method
+/// samples through <c>Placement.Sections</c>: they reach the compute, so they are settings (design §3.4). They are
+/// optional and omitted when null, so a settings record without them keeps its hash (expand only); the service refuses
+/// to evaluate without them (<c>ANA-INPUT-STATIONS</c>).
+/// </summary>
 public sealed record RunSettings(int NSpanPerHalf, int NChord, string SpanSpacing, string ChordSpacing, int WakeSpans,
     string WakeDirection, double SingularityCutoff, string Envelope, RunPolar? Polar, IReadOnlyList<int> Ncrit,
-    string SurfaceState, double TeFloorMm);
+    string SurfaceState, double TeFloorMm,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<double>? SectionEtas = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] IReadOnlyList<double>? SectionXs = null);
 
 /// <summary>The polar method a run used, or none (A3a: none — DR-ANA-1 (a)).</summary>
 public sealed record RunPolar(string Id, string Version, string Model);
@@ -258,7 +268,9 @@ public static class RunRecord
     private static void CheckRow(AnalysisRun run, Func<string, bool> acceptedExists)
     {
         Guard.Require(Present(run) && Present(run.Outcome, run.Tier, run.Method, run.Settings, run.Inputs, run.Water, run.Op,
-            run.Reference, run.Diagnostics, run.Strips, run.Platform), "DOC-SCHEMA");
+            run.Reference, run.Strips, run.Platform), "DOC-SCHEMA");
+        // A Completed row carries the solver's diagnostics; a Failed row has none to carry (IO8: absent, never zero).
+        Guard.Require((run.Outcome is RunOutcome.Completed) == (run.Diagnostics is not null), "DOC-SCHEMA");
         NativeProject.Uuid(run.RunId);
         RequireHash(run.RunKey); RequireHash(run.ContentHash); RequireHash(run.SettingsHash);
         RequireHash(run.Inputs.SurfaceHash); RequireHash(run.Water.TableHash);
@@ -266,8 +278,9 @@ public static class RunRecord
         foreach (string profile in run.Inputs.ProfileHashes) RequireHash(profile);
         NativeProject.Uuid(run.Inputs.AcceptedId);
         Guard.Require(acceptedExists(run.Inputs.AcceptedId), "DOC-REFERENCE");
-        RequireFinite(run.ReconciliationTolerance, run.WallMs, run.Diagnostics.ResidualInf, run.Diagnostics.Kappa1,
-            run.Water.TemperatureC, run.Water.SalinityGPerKg, run.Water.Rho, run.Water.Nu, run.Water.Pv,
+        RequireFinite(run.Diagnostics?.ResidualInf, run.Diagnostics?.Kappa1);
+        RequireFinite((run.Settings.SectionEtas ?? []).Concat(run.Settings.SectionXs ?? []).ToArray());
+        RequireFinite(run.ReconciliationTolerance, run.WallMs, run.Water.TemperatureC, run.Water.SalinityGPerKg, run.Water.Rho, run.Water.Nu, run.Water.Pv,
             run.Op.Speed, run.Op.PAtm, run.Op.AlphaDeg, run.Reference.SRef, run.Reference.BRef, run.Reference.CRef,
             run.Settings.SingularityCutoff, run.Settings.TeFloorMm);
         RequireFinite(run.Op.HRef, run.Op.Load);

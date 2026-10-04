@@ -440,7 +440,7 @@ internal static class ProjectStoreTests
             Math.Sin(j + 1.1) / 17, -Math.Exp(-j - 1.3))).ToArray();
         var run = new AnalysisRun(Id(), RunRecord.Key(inputs, water, op, method, settingsHash), new string('0', 64), new RunOutcome.Completed(),
             "vlm-strip", method, settings, settingsHash, inputs, water, op, new RunReference(0.12, 1.0, 0.12, "frame-origin", "body"), 0.01,
-            new RunDiagnostics(1.2345678901234567e-13, 42.123456789012345), rows, 123.456789, new RunPlatform("osx", "arm64", "10.0"));
+            rows, 123.456789, new RunPlatform("osx", "arm64", "10.0"), new RunDiagnostics(1.2345678901234567e-13, 42.123456789012345));
         return seal ? run with { ContentHash = RunRecord.ContentHash(run) } : run;
     }
 

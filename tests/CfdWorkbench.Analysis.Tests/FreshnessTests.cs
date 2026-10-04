@@ -101,7 +101,8 @@ internal static class FreshnessTests
             ("WakeSpans", s with { WakeSpans = 40 }), ("WakeDirection", s with { WakeDirection = "freestream" }),
             ("SingularityCutoff", s with { SingularityCutoff = 1e-9 }), ("Envelope", s with { Envelope = "vlm-envelope/2" }),
             ("Polar", s with { Polar = new RunPolar("cfdw.polar", "1.0.0", "m") }), ("Ncrit", s with { Ncrit = [2, 9] }),
-            ("SurfaceState", s with { SurfaceState = "rough" }), ("TeFloorMm", s with { TeFloorMm = 0.5 })
+            ("SurfaceState", s with { SurfaceState = "rough" }), ("TeFloorMm", s with { TeFloorMm = 0.5 }),
+            ("SectionEtas", s with { SectionEtas = [0, 1] }), ("SectionXs", s with { SectionXs = [0, 0.5, 1] })
         };
         Equal(typeof(RunSettings).GetProperties(BindingFlags.Public | BindingFlags.Instance).Length, variants.Length, "settings fields covered");
         foreach (var (field, settings) in variants)

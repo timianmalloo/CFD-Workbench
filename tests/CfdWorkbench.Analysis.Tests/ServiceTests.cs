@@ -24,6 +24,8 @@ internal static class ServiceTests
         Check("Evaluate_CancelledBeforeIdempotentHit_Throws", CancelledBeforeHit);
         Check("Evaluate_SameKeyFromTwoServices_ReturnsRecordedRow", SameKeyTwoServices);
         Check("Evaluate_WaterOutsideTable_RefusedNoRow", WaterOutsideTable);
+        Check("Evaluate_ComputeFails_FailedRowHasNoDiagnostics", FailedRowWithoutDiagnostics);
+        Check("Evaluate_SectionStationsChanged_NewKeyNotAHit", SectionStationsInKey);
     }
 
     // A point draft with a moved twist vertex is open; the run reads the accepted bytes, never Draft.Bytes (FM-1, G-1).
@@ -40,7 +42,7 @@ internal static class ServiceTests
         var run = Fixture.Evaluate(new AnalysisService(session, wing), Fixture.Op(2.0));
         Equal(accepted.AcceptedId, run.Inputs.AcceptedId, "accepted id");
         Equal(accepted.SurfaceHash, run.Inputs.SurfaceHash, "surface hash");
-        var expected = Placement.Sections(accepted.Source, wing.Etas, wing.Xs, CancellationToken.None);
+        var expected = Placement.Sections(accepted.Source, wing.Settings.SectionEtas!, wing.Settings.SectionXs!, CancellationToken.None);
         Equal(true, Fixture.SamePlacement(expected, wing.Seen!), "the lattice read the accepted sections;");
     }
 
@@ -253,6 +255,50 @@ internal static class ServiceTests
         Equal(0, session.ReadRuns().Runs.Count, "rows");
         Equal(true, Fixture.Evaluate(service, Fixture.Op(2.0), Fixture.Fresh).Outcome is RunOutcome.Completed, "fresh water at 15 °C evaluates;");
     }
+
+    // A Failed row has no diagnostics: not when the solve failed (nothing measured), and not when the coupling failed after
+    // the solve measured them. The stored row writes no member, and it reads back intact (IO8: absent, never a zero).
+    private static void FailedRowWithoutDiagnostics()
+    {
+        using var session = Fixture.Opened();
+        var solveFailed = Fixture.Evaluate(new AnalysisService(session, new FakeWing { FailCode = "ANA-SOLVE-SINGULAR" }), Fixture.Op(4.0));
+        var coupleFailed = Fixture.Evaluate(new AnalysisService(session, new FakeWing { CoupleFailCode = "ANA-NONFINITE" }), Fixture.Op(5.0));
+        foreach (var (name, run) in new[] { ("solve failed", solveFailed), ("coupling failed", coupleFailed) })
+        {
+            Equal(true, run.Outcome is RunOutcome.Failed, name + ": a Failed row;");
+            Equal<RunDiagnostics?>(null, run.Diagnostics, name + ": diagnostics");
+        }
+        Equal(true, Fixture.RunEvents(session).Last().Analysis!.Residual is not null, "the trace keeps the residual the solve measured;");
+        string image = System.Text.Encoding.UTF8.GetString(session.SaveImage());
+        Equal(false, image.Contains("\"diagnostics\"", StringComparison.Ordinal), "a diagnostics member written for a Failed row;");
+        using var reopened = new AuthoringSession();
+        reopened.Reopen(System.Text.Encoding.UTF8.GetBytes(image));
+        Equal(true, reopened.ReadRuns().Runs.All(stored => stored.Integrity == RunIntegrity.Intact && stored.Run.Diagnostics is null),
+            "both rows intact and without diagnostics after reopen;");
+    }
+
+    // The stations the method samples are settings, so they are in the key. FakeWing samples 3 η stations while its
+    // settings say 64 span panels: a method sampling 5 stations must not be handed the 3-station run as an idempotent hit.
+    // Settings with no stations are refused before compute.
+    private static void SectionStationsInKey()
+    {
+        using var session = Fixture.Opened();
+        var coarse = new FakeWing();
+        var run = Fixture.Evaluate(new AnalysisService(session, coarse), Fixture.Op(2.0));
+        var finer = new FakeWing { Settings = coarse.Settings with { SectionEtas = [0, 0.25, 0.5, 0.75, 1] } };
+        var again = Fixture.Evaluate(new AnalysisService(session, finer), Fixture.Op(2.0));
+        Equal(false, run.RunKey == again.RunKey, "the 5-station run has the 3-station key;");
+        Equal(5, finer.Seen?.Count, "sections the finer method was given");
+        Equal(2, session.ReadRuns().Runs.Count(stored => stored.Run.Outcome is RunOutcome.Completed), "Completed rows");
+        foreach (var settings in new[] { coarse.Settings with { SectionEtas = null }, coarse.Settings with { SectionXs = [] },
+                     coarse.Settings with { SectionEtas = [0, 1.5] } })
+        {
+            var error = Fixture.Throws<ContractError>(new AnalysisService(session, new FakeWing { Settings = settings })
+                .EvaluateAsync(Fixture.Op(3.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None));
+            Equal("ANA-INPUT-STATIONS", error.Code, "refusal");
+        }
+        Equal(2, session.ReadRuns().Runs.Count, "rows after the refusals");
+    }
 }
 
 /// <summary>The shared fixture of the SVC checks: an opened session, its water, operating points and edits.</summary>
@@ -347,11 +393,12 @@ internal sealed class CancelOnWorker(CancellationTokenSource source) : TimeProvi
 internal sealed class FakeWing : IWingMethod
 {
     public RunMethod Method { get; init; } = new("cfdw.vlm-strip", "1.0.0", 1);
-    public RunSettings Settings { get; init; } = new(64, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, [2, 4], "clean", 0.3);
+    public RunSettings Settings { get; init; } = new(64, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, [2, 4], "clean", 0.3,
+        SectionEtas: [0, 0.5, 1], SectionXs: [0, 0.25, 0.5, 0.75, 1]);
     public double ReconciliationTolerance => 0.01;
-    public IReadOnlyList<double> Etas { get; } = [0, 0.5, 1];
-    public IReadOnlyList<double> Xs { get; } = [0, 0.25, 0.5, 0.75, 1];
     public string? FailCode { get; init; }
+    /// <summary>Makes the coupling fail with that code, after the solve measured its diagnostics.</summary>
+    public string? CoupleFailCode { get; init; }
     /// <summary>An exception outside the ANA contract, thrown by the solve.</summary>
     public Exception? Unexpected { get; init; }
     public IReadOnlyList<SectionSample>? Seen { get; private set; }
@@ -370,8 +417,9 @@ internal sealed class FakeWing : IWingMethod
     }
 
     public IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op,
-        WaterRecord water, CancellationToken cancellation) =>
-        Enumerable.Range(0, solution.Gamma.Count).Select(j => new StripLoad(j, 0.1 * j, 0.5 * j, 0.12, solution.Gamma[j], 0.01,
+        WaterRecord water, CancellationToken cancellation) => CoupleFailCode is not null
+        ? throw new ContractError(CoupleFailCode, "the fake coupling failed")
+        : Enumerable.Range(0, solution.Gamma.Count).Select(j => new StripLoad(j, 0.1 * j, 0.5 * j, 0.12, solution.Gamma[j], 0.01,
             0.03 + op.AlphaDeg, 4.2e5, 0.4, new StripValue(null, "no polar method installed"), new StripValue(null, "no polar method installed"),
             0.1, 0.2, 40.5, 1.5, -0.25, 0.75, solution.DownwashTrefftz[j])).ToArray();
 }
