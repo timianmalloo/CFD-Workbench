@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
 using Avalonia;
 using Avalonia.Automation;
@@ -27,6 +28,7 @@ public partial class SectionEditorView : UserControl
             ModePlate.Text = PlateText();
             ModeCanvas.InvalidateVisual();
         };
+        ModeSectionButton.Flyout = SectionMenu();
         ModeFitButton.Click += (_, _) => ModeCanvas.Fit();
         ModeFitSelectionButton.Click += (_, _) => ModeCanvas.FitSelection();
         ModeCanvas.CancelTarget = ModeCancelButton;
@@ -37,6 +39,35 @@ public partial class SectionEditorView : UserControl
         ModeCanvas.TabOut = () => this.FindAncestorOfType<ShellHost>()?.Properties.FocusFirstValue() == true;
         ModeCanvas.ValueOut = () => this.FindAncestorOfType<ShellHost>()?.Properties
             .FindControl<TextBox>("PointSpanInput") is { IsEffectivelyEnabled: true, IsEffectivelyVisible: true } x && x.Focus();
+    }
+
+    // Section ▾ (§0.1 item 9): PNL's Section menu rows, less the three the mode bar already shows. Each item runs its row
+    // through the shell, as the native menu does, so a row that cannot run names why in the strip (UI-DEAD-CONTROL).
+    private static readonly string[] ModeBarRows = ["section.edit", "section.finish", "section.cancel"];
+    private const string StationThicknessPrefix = "Station t/c from ";
+
+    private MenuFlyout SectionMenu()
+    {
+        var menu = new MenuFlyout { Placement = PlacementMode.BottomEdgeAlignedLeft, FlyoutPresenterClasses = { "navbar-menu" } };
+        var thickness = new MenuItem { Header = "Station t/c" };
+        MenuItem? makeUnique = null;
+        foreach (var row in CommandTable.Rows.Where(row => row.Menu == CommandTable.SectionMenu && !ModeBarRows.Contains(row.Id)))
+        {
+            bool stationThickness = row.Title.StartsWith(StationThicknessPrefix, StringComparison.Ordinal);
+            var item = new MenuItem { Header = stationThickness ? "From " + row.Title[StationThicknessPrefix.Length..] : row.Title };
+            item.Click += (_, _) => { if (this.FindAncestorOfType<ShellHost>() is { } host) _ = host.RunCommand(row.Id); };
+            if (row.Id == "section.make-unique") makeUnique = item;
+            (stationThickness ? thickness.Items : menu.Items).Add(item);
+        }
+        menu.Items.Add(thickness);
+        // "Make unique to <station>" names the station being edited.
+        menu.Opening += (_, _) =>
+        {
+            if (makeUnique is null || controller?.Section is not { } mode || controller.Inspection is not { } inspection) return;
+            int station = mode.Draft.Assignment;
+            makeUnique.Header = "Make unique to " + ElevationView.StationName(station, inspection.Authored.Assignments[station].Eta);
+        };
+        return menu;
     }
 
     private async Task FinishAsync()
