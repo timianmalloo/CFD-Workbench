@@ -2495,6 +2495,79 @@ window.DOCS_INDEX = {
       "sourceSha256": "e8a4436a4e96122828f90787c0e14342ea630f7085d06136b47b364441896bca"
     },
     {
+      "id": "design-cross-profile-abscissa",
+      "path": "docs/design/cross-profile-abscissa.md",
+      "title": "Design: cross-profile abscissa — certify a blend between sections with their own point counts (compatible fit; knot propagation as fallback; Ruling 71 option 1)",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — Ruling 71 (operator 2026-10-04) and the operator's requirement change the same day; documents only; build after operator approval",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "After 'Make unique to Root', a step that changes Root's knots or control x leaves Root and Tip on different point spacings, so the blend cannot be certified. The operator then required that sections keep their own point counts. Primary design (compatible fit): every section stays as authored; the evaluator derives, never stores, one shared spacing for the wing (the richest station spacing plus every station's anchor positions) and a compatible copy of each section on it; the certificate and the placed surface both use those copies; each copy's deviation from its authored section is measured on the placed surface and admitted within 10 um, else the step is refused. Measured with the as-built Core: 6-point Tip on 10-point Root 1.5e-16 chord; 8-point Example section on 10-point NACA 5.7 um at 127 mm; fitting the richer onto the poorer fails (38 um). Fallback: copy knot changes to the neighbour (insertion exact, 6e-17 chord). Both hit the certificate's 5-span blend capacity (DR-XPA-1); SetTangent Angle already breaks one profile's paired spacing (F-XPA-1).",
+      "tags": [
+        "core",
+        "desktop",
+        "section",
+        "profile",
+        "abscissa",
+        "compatible-fit",
+        "point-spacing",
+        "knot-insertion",
+        "knot-removal",
+        "refit",
+        "certificate",
+        "blend",
+        "make-unique",
+        "ruling-71",
+        "xpa"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-foildsl-authority",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-cross-profile-abscissa",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-m12c-certificate-spike",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f705a8e6d0ea74a1ebc3b323f6b8c9240197ce28bc4f024450e2911b23692f0b"
+    },
+    {
       "id": "design-foildsl-authoring",
       "path": "docs/design/foildsl-authoring-direction.md",
       "title": "FoilDSL authoring direction and transaction contract",
@@ -8430,6 +8503,99 @@ window.DOCS_INDEX = {
       "sourceSha256": "711ca0f0fa03ea865db7996d59c384f1f354a215477182310bee76d044d9f0cf"
     },
     {
+      "id": "proof-cross-profile-abscissa",
+      "path": "docs/proof/cross-profile-abscissa/README.md",
+      "title": "XPA probe — compatible fit and knot propagation across station profiles (Ruling 71 option 1)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Measured with the as-built Core. Compatible fit (each section keeps its own points; a derived copy is fitted onto one shared spacing): a 6-point Tip fits a 10-point Root's spacing to 1.5e-16 chord (the app's sqrt spacings nest), an 8-point Example section fits a 10-point NACA spacing to 3.9e-5 chord on the record (5.7 um on the placed surface at 127 mm); the reverse direction (10 onto 6) is 2.3e-4 chord (28.7 um at 127 mm, over); a Tip anchor missing from the shared spacing costs 1.2e-3 chord. Fit and measure take about 100-130 ms per profile, assess 25-70 ms. Knot propagation: insertion moves the partner 6.0e-17 chord with bitwise-equal x. Both options hit the certificate's blend capacity: at most 5 Bezier spans as built, so any anchor on a 10-point section needs the budget raised; with it raised, 6 spans certify.",
+      "tags": [
+        "section",
+        "profile",
+        "abscissa",
+        "compatible-fit",
+        "knot-insertion",
+        "knot-removal",
+        "certificate",
+        "blend",
+        "ruling-71",
+        "xpa",
+        "probe"
+      ],
+      "links": [
+        {
+          "to": "design-cross-profile-abscissa",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-m12c-certificate-spike",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e8919f5dc318ed44cf1cf7722773d783f6c083b6cdcc63fc9d84cd9b33cd5df5"
+    },
+    {
+      "id": "proof-cross-profile-abscissa-table",
+      "path": "docs/proof/cross-profile-abscissa/output/table.md",
+      "title": "XPA probe — generated table (as-built Core) (do not edit; re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/cross-profile-abscissa/probe. Timings vary by machine; every other row is deterministic.",
+      "tags": [
+        "xpa",
+        "abscissa",
+        "probe",
+        "generated"
+      ],
+      "links": [
+        {
+          "to": "proof-cross-profile-abscissa",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bad451eda12edffe2c5adaab7f2fc1fa31e11251fbc966269d4ae864775b0ed8"
+    },
+    {
+      "id": "proof-cross-profile-abscissa-table-budget-variant",
+      "path": "docs/proof/cross-profile-abscissa/output/table-budget-variant.md",
+      "title": "XPA probe — generated table (budget-variant) (do not edit; re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/cross-profile-abscissa/probe. Timings vary by machine; every other row is deterministic.",
+      "tags": [
+        "xpa",
+        "abscissa",
+        "probe",
+        "generated"
+      ],
+      "links": [
+        {
+          "to": "proof-cross-profile-abscissa",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "44d233467669276d6f9ad487b7a69e6f51761c89cbe0700f22d175544b929c9f"
+    },
+    {
       "id": "proof-d1-red-runs",
       "path": "docs/proof/d1-red-runs.md",
       "title": "D1 shell model red-first runs",
@@ -11450,5 +11616,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "06ad20e30cc138eb0c4d29301765d13d9351211462206c41b923466c523626ff"
+  "graphSha256": "fc64372cf5796aee1db7fcaf51c3c779f20bdb9f5b4668ec371ec000375e85ca"
 };
