@@ -79,6 +79,50 @@ public static class PlanCanvasTests
                 throw new Exception("Multi-selection did not refuse one-at-a-time removal");
         });
 
+        DesktopChecks.Check("PlanCanvas_DoubleClickOnOutline_AddsPointSelectsAndFocusesIt", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            dynamic canvas = fixture.Canvas;
+            var curve = fixture.Controller.Planform!.Trailing;
+            var sample = curve.Samples.OrderBy(sample => Math.Abs(sample.SpanMeters / fixture.Controller.Planform!.HalfSpanMeters - 0.5)).First();
+            Point at = canvas.OutlineScreenPoint(sample, false);
+            if (fixture.Canvas.HitTestPoint(at) is not null) throw new Exception("Chosen outline spot overlaps a point glyph");
+            fixture.DoubleClickAt(at);
+            fixture.WaitGesture();
+            fixture.Settle();
+            if (fixture.Controller.Planform!.Trailing.Points.Count != 5 ||
+                fixture.Controller.Selection is not Selection.Points { Items.Count: 1 } selected ||
+                fixture.Canvas.FocusedTarget != selected.Items[0])
+                throw new Exception("Double-click on the curve did not add, select, and focus its new point");
+        });
+
+        DesktopChecks.Check("PlanCanvas_DoubleClickOnPortHalf_StatusSaysStarboard", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            dynamic canvas = fixture.Canvas;
+            var sample = fixture.Controller.Planform!.Trailing.Samples[fixture.Controller.Planform.Trailing.Samples.Count / 2];
+            string before = fixture.Controller.AcceptedSource;
+            fixture.DoubleClickAt(canvas.OutlineScreenPoint(sample, true));
+            if (fixture.Controller.AcceptedSource != before ||
+                fixture.Controller.Status != "Add points on the starboard half, where the points are.")
+                throw new Exception("Port double-click changed the foil or omitted the starboard reason");
+        });
+
+        DesktopChecks.Check("PlanCanvas_DoubleClickOnPolygonLeg_NoAdd", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var curve = fixture.Controller.Planform!.Trailing;
+            var a = fixture.Canvas.ScreenPoint(curve.Points[1]);
+            var b = fixture.Canvas.ScreenPoint(curve.Points[2]);
+            var middle = new Point((a.X + b.X) / 2, (a.Y + b.Y) / 2);
+            if (fixture.Canvas.HitTestPoint(middle) is not null) throw new Exception("Polygon-leg fixture overlaps a glyph");
+            string before = fixture.Controller.AcceptedSource;
+            fixture.DoubleClickAt(middle);
+            fixture.WaitGesture();
+            if (fixture.Controller.AcceptedSource != before)
+                throw new Exception("Dashed control polygon was treated as the curve");
+        });
+
         DesktopChecks.Check("PlanCanvas_RenderTargetBitmap_CapturesNonBackgroundPixels", () =>
         {
             using var controller = new WorkbenchController();
@@ -1094,6 +1138,16 @@ public static class PlanCanvasTests
         {
             using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
             var position = Canvas.TranslatePoint(Canvas.ScreenPoint(point), Window)!.Value;
+            Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, position, 1,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed),
+                KeyModifiers.None, 2));
+            Settle();
+        }
+
+        public void DoubleClickAt(Point local)
+        {
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var position = Canvas.TranslatePoint(local, Window)!.Value;
             Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, position, 1,
                 new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed),
                 KeyModifiers.None, 2));

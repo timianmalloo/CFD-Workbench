@@ -28,6 +28,29 @@ public sealed class CurvePointLayer(Func<double, double, Point> project, Func<Po
 
     public (double Span, double Ordinate) FromScreen(Point position) => unproject(position);
 
+    /// <summary>Nearest point on the drawn curve within six screen pixels; the control polygon is excluded.</summary>
+    public (double Span, double Distance)? HitTestCurve(IReadOnlyList<PlanSample> samples, Point position, double spanSign = 1)
+    {
+        (double Span, double Distance)? nearest = null;
+        for (int index = 1; index < samples.Count; index++)
+        {
+            var a = ToScreen(samples[index - 1].SpanMeters * spanSign, samples[index - 1].Ordinate);
+            var b = ToScreen(samples[index].SpanMeters * spanSign, samples[index].Ordinate);
+            var leg = b - a;
+            double lengthSquared = leg.X * leg.X + leg.Y * leg.Y;
+            if (lengthSquared <= 0) continue;
+            var fromA = position - a;
+            double fraction = Math.Clamp((fromA.X * leg.X + fromA.Y * leg.Y) / lengthSquared, 0, 1);
+            var closest = a + leg * fraction;
+            double distance = Point.Distance(position, closest);
+            if (distance > 6 || nearest is { Distance: var old } && distance >= old) continue;
+            double span = samples[index - 1].SpanMeters + fraction *
+                (samples[index].SpanMeters - samples[index - 1].SpanMeters);
+            nearest = (span, distance);
+        }
+        return nearest;
+    }
+
     /// <summary>The screen step of an arrow key: right, left, down, up; zero for any other key.</summary>
     public static Vector ScreenDirection(Key key) => key switch
     {

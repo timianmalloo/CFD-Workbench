@@ -157,6 +157,24 @@ public sealed class PlanCanvas : Control
         return map.ToScreen(point.SpanMeters, point.Ordinate);
     }
 
+    public Point OutlineScreenPoint(PlanSample sample, bool port = false) =>
+        Controller?.Planform is { } plan ? Layer(plan).ToScreen(sample.SpanMeters * (port ? -1 : 1), sample.Ordinate) : default;
+
+    public (string Curve, double Eta, bool Port)? HitTestOutline(Point position)
+    {
+        if (Controller?.Planform is not { } plan) return null;
+        var layer = Layer(plan);
+        (string Curve, double Eta, bool Port, double Distance)? nearest = null;
+        foreach (var curve in new[] { plan.Leading, plan.Trailing })
+            foreach (bool port in new[] { false, true })
+            {
+                if (layer.HitTestCurve(curve.Samples, position, port ? -1 : 1) is not { } hit) continue;
+                if (nearest is { Distance: var old } && hit.Distance >= old) continue;
+                nearest = (curve.Curve, hit.Span / plan.HalfSpanMeters, port, hit.Distance);
+            }
+        return nearest is { } found ? (found.Curve, found.Eta, found.Port) : null;
+    }
+
     public PointView? HitTestPoint(Point position)
     {
         var plan = Controller?.Planform;
@@ -288,6 +306,21 @@ public sealed class PlanCanvas : Control
         var hit = HitTestPoint(position);
         if (hit is null)
         {
+            var outline = HitTestOutline(position);
+            var emptyButtons = e.GetCurrentPoint(this).Properties;
+            if (outline is { } target && e.ClickCount >= 2 && emptyButtons.IsLeftButtonPressed)
+            {
+                if (target.Port) Controller.ReportPointWarning("Add points on the starboard half, where the points are.");
+                else _ = AddAtAsync(target.Curve, target.Eta);
+                e.Handled = true;
+                return;
+            }
+            if (outline is { Port: false } context && emptyButtons.IsRightButtonPressed)
+            {
+                OpenOutlineMenu(context.Curve, context.Eta);
+                e.Handled = true;
+                return;
+            }
             var chip = VisibleStationChips.FirstOrDefault(item => item.Bounds.Contains(position));
             if (chip is not null)
             {
@@ -328,6 +361,29 @@ public sealed class PlanCanvas : Control
             e.Pointer.Capture(this);
         }
         e.Handled = true;
+    }
+
+    private async Task AddAtAsync(string curve, double eta)
+    {
+        if (Controller is null) return;
+        var outcome = await Controller.ApplyPointCommandAsync(new PointCommand.AddPoint(curve, eta));
+        if (attached && outcome is CommitOutcome.Committed && Controller.Selection is Selection.Points { Items: [var point] })
+            FocusPoint(point);
+    }
+
+    public void OpenOutlineMenu(string curve, double eta)
+    {
+        if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
+        var add = new MenuItem { Header = "Add Point Here", IsEnabled = Controller?.CurveFor(curve)?.Points.Count < Controller?.CurveFor(curve)?.Ceiling };
+        add.Click += (_, _) => _ = AddAtAsync(curve, eta);
+        var rebuild = new MenuItem { Header = $"Rebuild {PropertiesView.Curves[curve].Name}…", IsEnabled = host.CanRun("point.rebuild") };
+        rebuild.Click += (_, _) => _ = host.RunCommand("point.rebuild");
+        var fit = new MenuItem { Header = "Fit" };
+        fit.Click += (_, _) => _ = host.RunCommand("view.fit");
+        var menu = new ContextMenu { ItemsSource = new Control[] { add, rebuild, new Separator(), fit } };
+        menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
+        ContextMenu = menu;
+        menu.Open(this);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
