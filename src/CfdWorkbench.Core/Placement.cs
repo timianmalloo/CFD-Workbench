@@ -124,7 +124,7 @@ internal static class ChannelEvaluator
 {
     internal static double At(Curve curve, double eta)
     {
-        Placement.ChannelEvaluations++;
+        Interlocked.Increment(ref Placement.ChannelEvaluations);
         return Value(curve.Knots, curve.Degree, curve.Points, eta);
     }
 
@@ -167,7 +167,7 @@ internal static class ProfileEvaluator
 {
     internal static ProfileJet Jet(Curve curve, double t)
     {
-        Placement.ProfileEvaluations++;
+        Interlocked.Increment(ref Placement.ProfileEvaluations);
         var jet = SplineBasis.Evaluate(curve.Knots, curve.Degree, t);
         double x = 0, y = 0, xt = 0, yt = 0, xtt = 0, ytt = 0;
         for (int i = 0; i < curve.Points.Length; i++)
@@ -216,7 +216,7 @@ internal static class ProfileEvaluator
 
     private static double AbscissaAt(Curve curve, double t)
     {
-        Placement.ProfileEvaluations++;
+        Interlocked.Increment(ref Placement.ProfileEvaluations);
         // Same N as SplineBasis.Evaluate, without the derivative rows the abscissa does not read.
         // Degree and point count above the section grammar fall back to that call.
         if (curve.Degree > 8 || curve.Points.Length > 16)
@@ -273,14 +273,17 @@ internal static class ProfileEvaluator
 
 public static class Placement
 {
+    /// <summary>ADR-0010 FoilDSL §6 rule version. The run manifest records this as <c>placementRule</c>.</summary>
+    public const string PlacementRuleVersion = "foildsl-6/1";
+
     internal static int ChannelEvaluations;
     internal static int ProfileEvaluations;
     internal static Action? AfterStation;
 
     internal static void ResetEvaluatorCounts()
     {
-        ChannelEvaluations = 0;
-        ProfileEvaluations = 0;
+        Interlocked.Exchange(ref ChannelEvaluations, 0);
+        Interlocked.Exchange(ref ProfileEvaluations, 0);
     }
 
     public static SurfaceView Surface(byte[] source, string basis, long generation, CancellationToken cancellation, int stations = 41, int chordSamples = 101)
@@ -309,12 +312,39 @@ public static class Placement
     }
 
     /// <summary>
-    /// The section at each η, sampled at the chord stations <paramref name="xs"/>; parses the source once. Built with
-    /// the existing PlacementRule.Section/Blend/Place and ProfileEvaluator.Jet — no second evaluator (seam S-A1: COR owns
-    /// the body). Pattern: Query (a read-only projection over the record).
+    /// The section at each η, sampled at the chord stations <paramref name="xs"/>; parses the source once.
+    /// Camber and thickness are the Section/Blend outputs. Placed camber is PlacementRule.Place of that camber.
+    /// Camber slope is the analytic jet dz/dx, never a difference of samples.
     /// </summary>
     public static IReadOnlyList<SectionSample> Sections(byte[] source, IReadOnlyList<double> etas, IReadOnlyList<double> xs,
-        CancellationToken cancellation) => throw new NotImplementedException("COR: Placement.Sections");
+        CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        var (_, definition) = RequireFoil(source);
+        Guard.Require(etas.Count > 0 && xs.Count > 0, "DSL-RANGE");
+        var abscissa = new double[xs.Count];
+        for (int index = 0; index < xs.Count; index++)
+        {
+            double x = xs[index];
+            Guard.Require(double.IsFinite(x) && x >= 0 && x <= 1, "DSL-RANGE");
+            abscissa[index] = x;
+        }
+        foreach (double eta in etas)
+            Guard.Require(double.IsFinite(eta) && eta >= 0 && eta <= 1, "DSL-RANGE");
+
+        var prepared = new PreparedProfile[definition.Profiles.Length];
+        for (int profile = 0; profile < prepared.Length; profile++)
+            prepared[profile] = Prepare(definition.Profiles[profile], abscissa);
+        double[] stationEtas = definition.Assignments.Select(item => item.Eta).ToArray();
+        int[] stationProfiles = definition.Assignments.Select(item => item.Profile).ToArray();
+        var samples = new SectionSample[etas.Count];
+        for (int index = 0; index < etas.Count; index++)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            samples[index] = SampleSection(definition, prepared, stationEtas, stationProfiles, etas[index], abscissa);
+        }
+        return samples;
+    }
 
     public static StationFrame Frame(byte[] source, double eta)
     {
@@ -332,50 +362,134 @@ public static class Placement
         ChannelEvaluator.At(definition.Curves["twist"], eta),
         ChannelEvaluator.At(definition.Curves["thickness"], eta));
 
-    private static PlacedSection PlaceStation(Definition definition, PreparedProfile[] prepared, double[] stationEtas, int[] stationProfiles, double eta, double[] xs)
+    private readonly struct StationGeometry
+    {
+        internal StationFrame Frame { get; init; }
+        internal (Binary64 Sin, Binary64 Cos) Angle { get; init; }
+        internal int Left { get; init; }
+        internal int Right { get; init; }
+        internal Binary64 Weight { get; init; }
+        internal Binary64 Reciprocal { get; init; }
+        internal Binary64 Thickness { get; init; }
+        internal int? Assignment { get; init; }
+    }
+
+    private static StationGeometry ReadStation(Definition definition, PreparedProfile[] prepared, double[] stationEtas, int[] stationProfiles, double eta)
     {
         var frame = ReadFrame(definition, eta);
-        var (sin, cos) = Binary64.SinCos(Binary64.Radians(Binary64.Point(frame.TwistDegrees)));
+        var angle = Binary64.SinCos(Binary64.Radians(Binary64.Point(frame.TwistDegrees)));
         var (left, right) = PlacementRule.Select(stationEtas, stationProfiles, eta, (a, b) => SameRecord(definition.Profiles[a], definition.Profiles[b]));
         int? assignment = null;
         for (int index = 0; index < stationEtas.Length; index++)
             if (stationEtas[index] == eta) assignment = index;
-        var upper = new Point3[xs.Length];
-        var lower = new Point3[xs.Length];
-        Binary64 leading = Binary64.Point(frame.LeadingMeters);
-        Binary64 trailing = Binary64.Point(frame.TrailingMeters);
-        Binary64 elevation = Binary64.Point(frame.ElevationMeters);
         Binary64 thickness = Binary64.Point(frame.ThicknessRatio);
-        double y = frame.SpanMeters;
+        Binary64 weight = default;
+        Binary64 reciprocal;
         if (right < 0)
-        {
-            var profile = prepared[left];
-            Binary64 reciprocal = Binary64.Point(1 / profile.Maximum);
-            for (int sample = 0; sample < xs.Length; sample++)
-            {
-                var (zu, zl) = PlacementRule.Section(Binary64.Point(profile.Upper[sample]), Binary64.Point(profile.Lower[sample]), reciprocal, thickness);
-                upper[sample] = Place(leading, trailing, elevation, (sin, cos), xs[sample], zu, y);
-                lower[sample] = Place(leading, trailing, elevation, (sin, cos), xs[sample], zl, y);
-            }
-        }
+            reciprocal = Binary64.Point(1 / prepared[left].Maximum);
         else
         {
             int bracket = PlacementRule.Bracket(stationEtas, eta);
-            var weight = Binary64.BlendWeight(eta, stationEtas[bracket], stationEtas[bracket + 1]);
-            var a = prepared[left];
-            var b = prepared[right];
-            double maximumT0 = BlendedMaximum(a, b, weight.Value);
-            Binary64 reciprocal = Binary64.Point(1 / maximumT0);
-            for (int sample = 0; sample < xs.Length; sample++)
-            {
-                var componentsA = PlacementRule.Components(Binary64.Point(a.Upper[sample]), Binary64.Point(a.Lower[sample]), Binary64.Point(1 / a.Maximum));
-                var componentsB = PlacementRule.Components(Binary64.Point(b.Upper[sample]), Binary64.Point(b.Lower[sample]), Binary64.Point(1 / b.Maximum));
-                var (zu, zl) = PlacementRule.Blend(componentsA, componentsB, weight, reciprocal, thickness);
-                upper[sample] = Place(leading, trailing, elevation, (sin, cos), xs[sample], zu, y);
-                lower[sample] = Place(leading, trailing, elevation, (sin, cos), xs[sample], zl, y);
-            }
+            weight = Binary64.BlendWeight(eta, stationEtas[bracket], stationEtas[bracket + 1]);
+            reciprocal = Binary64.Point(1 / BlendedMaximum(prepared[left], prepared[right], weight.Value));
         }
-        return new(eta, right < 0 ? assignment : null, upper, lower);
+        return new()
+        {
+            Frame = frame, Angle = angle, Left = left, Right = right, Weight = weight, Reciprocal = reciprocal,
+            Thickness = thickness, Assignment = right < 0 ? assignment : null,
+        };
+    }
+
+    private static (Binary64 Zu, Binary64 Zl) OrdinatesAt(StationGeometry station, PreparedProfile[] prepared, int sample)
+    {
+        if (station.Right < 0)
+        {
+            var profile = prepared[station.Left];
+            return PlacementRule.Section(Binary64.Point(profile.Upper[sample]), Binary64.Point(profile.Lower[sample]), station.Reciprocal, station.Thickness);
+        }
+        var a = prepared[station.Left];
+        var b = prepared[station.Right];
+        var componentsA = PlacementRule.Components(Binary64.Point(a.Upper[sample]), Binary64.Point(a.Lower[sample]), Binary64.Point(1 / a.Maximum));
+        var componentsB = PlacementRule.Components(Binary64.Point(b.Upper[sample]), Binary64.Point(b.Lower[sample]), Binary64.Point(1 / b.Maximum));
+        return PlacementRule.Blend(componentsA, componentsB, station.Weight, station.Reciprocal, station.Thickness);
+    }
+
+    private static PlacedSection PlaceStation(Definition definition, PreparedProfile[] prepared, double[] stationEtas, int[] stationProfiles, double eta, double[] xs)
+    {
+        var station = ReadStation(definition, prepared, stationEtas, stationProfiles, eta);
+        var upper = new Point3[xs.Length];
+        var lower = new Point3[xs.Length];
+        Binary64 leading = Binary64.Point(station.Frame.LeadingMeters);
+        Binary64 trailing = Binary64.Point(station.Frame.TrailingMeters);
+        Binary64 elevation = Binary64.Point(station.Frame.ElevationMeters);
+        double y = station.Frame.SpanMeters;
+        for (int sample = 0; sample < xs.Length; sample++)
+        {
+            var (zu, zl) = OrdinatesAt(station, prepared, sample);
+            upper[sample] = Place(leading, trailing, elevation, station.Angle, xs[sample], zu, y);
+            lower[sample] = Place(leading, trailing, elevation, station.Angle, xs[sample], zl, y);
+        }
+        return new(eta, station.Assignment, upper, lower);
+    }
+
+    private static SectionSample SampleSection(Definition definition, PreparedProfile[] prepared, double[] stationEtas, int[] stationProfiles, double eta, double[] xs)
+    {
+        var station = ReadStation(definition, prepared, stationEtas, stationProfiles, eta);
+        var camber = new double[xs.Length];
+        var thickness = new double[xs.Length];
+        var slope = new double[xs.Length];
+        var placed = new Point3[xs.Length];
+        Binary64 leading = Binary64.Point(station.Frame.LeadingMeters);
+        Binary64 trailing = Binary64.Point(station.Frame.TrailingMeters);
+        Binary64 elevation = Binary64.Point(station.Frame.ElevationMeters);
+        double y = station.Frame.SpanMeters;
+        for (int sample = 0; sample < xs.Length; sample++)
+        {
+            var (zu, zl) = OrdinatesAt(station, prepared, sample);
+            Binary64 mean = (zu + zl) * Binary64.Half;
+            camber[sample] = mean.Value;
+            thickness[sample] = (zu - zl).Value;
+            slope[sample] = CamberSlope(station, prepared, xs[sample]);
+            // Place of the averaged camber is not the drawn midline's bits (example.foil). The midline is
+            // the average of the two Place results, the same calls Surface makes.
+            Point3 upper = Place(leading, trailing, elevation, station.Angle, xs[sample], zu, y);
+            Point3 lower = Place(leading, trailing, elevation, station.Angle, xs[sample], zl, y);
+            placed[sample] = new((upper.X + lower.X) / 2, (upper.Y + lower.Y) / 2, (upper.Z + lower.Z) / 2);
+        }
+        return new(station.Frame, xs, camber, thickness, slope, placed);
+    }
+
+    // dz_c/dx of the Section/Blend camber. Shared abscissa uses one parameter, so the slope is
+    // (Yt_upper + Yt_lower) / (Xt_upper + Xt_lower). A zero numerator is a flat camber derivative,
+    // including the symmetric vertical nose where both Xt are zero.
+    private static double CamberSlope(StationGeometry station, PreparedProfile[] prepared, double x)
+    {
+        double left = MeanCamberSlope(prepared[station.Left], x);
+        if (station.Right < 0) return left;
+        double right = MeanCamberSlope(prepared[station.Right], x);
+        double weight = station.Weight.Value;
+        return (1d - weight) * left + weight * right;
+    }
+
+    private static double MeanCamberSlope(PreparedProfile profile, double x)
+    {
+        if (SameAbscissa(profile.UpperCurve, profile.LowerCurve))
+        {
+            double t = ProfileEvaluator.ParameterFor(profile.UpperCurve, x);
+            var upper = ProfileEvaluator.Jet(profile.UpperCurve, t);
+            var lower = ProfileEvaluator.Jet(profile.LowerCurve, t);
+            double numerator = upper.Yt + lower.Yt;
+            if (numerator == 0) return 0;
+            return numerator / (upper.Xt + lower.Xt);
+        }
+        return (OrdinateSlope(profile.UpperCurve, x) + OrdinateSlope(profile.LowerCurve, x)) * 0.5;
+    }
+
+    private static double OrdinateSlope(Curve curve, double x)
+    {
+        var jet = ProfileEvaluator.Jet(curve, ProfileEvaluator.ParameterFor(curve, x));
+        if (jet.Yt == 0) return 0;
+        return jet.Yt / jet.Xt;
     }
 
     private static Point3 Place(Binary64 leading, Binary64 trailing, Binary64 elevation, (Binary64 Sin, Binary64 Cos) angle, double x, Binary64 z, double y)
