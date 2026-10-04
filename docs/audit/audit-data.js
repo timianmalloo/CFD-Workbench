@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T17:42:25Z",
+  "generated": "2026-10-04T17:48:53Z",
   "audit": [
     {
       "actor": null,
@@ -23508,6 +23508,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T17:41:27Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M440GVYCHTCMFMR4B4N4BY6R",
+      "shortname": "join-budget-retry",
+      "datetime": "2026-10-04T17:48:53Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/join-budget-retry into feature/ui-cad-direction",
+      "summary": "join-when-quiet.sh: when the last wall line is over budget and the run's end load > 15, wait for quiet and continue once; a quiet overrun or a second overrun stands. Four load-only overruns today. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:47:57Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
