@@ -1,0 +1,1 @@
+VOID: generator defect - the K1 Threshold had SizeMax = lc_near (1.5 mm), so Min(...) floored the whole domain at 1.5 mm; Gmsh killed at 632 s, 8.5 GB RSS, in 2-D meshing of the far planes. Knob unchanged; fixed in make-wing-gmsh.py and re-run.

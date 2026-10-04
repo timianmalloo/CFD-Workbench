@@ -113,7 +113,7 @@ gen = open(os.path.join(run, "generator.txt")).read()
 cov = re.search(r"gmsh_wing_surface_elements=(\d+) layer_prisms=(\d+) expected=(\d+) layer_coverage=([\d.]+)%", gen)
 arc = re.search(r"te_arc_root_segments=(\d+)", gen)
 wing_faces, prisms_bl, expected = (int(cov.group(i)) for i in (1, 2, 3))
-gate["layers_20_on_100pct_by_count"] = prisms_bl == expected
+gate["layers_20_on_ge95pct_and_ge10_on_100pct"] = prisms_bl == expected  # Gmsh columns hold 20 layers or none
 print(f"GATE (DR-F3-1 A) {'PASS' if all(gate.values()) else 'FAIL'}: " + " ".join(f"{k}={'ok' if v else 'FAIL'}" for k, v in gate.items()))
 print(f"  max_non_orthogonality={non_ortho_max} faces_gt_70={n_severe} max_skewness={skew_max} min_face_weight={weight_min} "
       f"min_volume={vol_min} min_determinant={det_min} (reported, not gated)")
@@ -207,6 +207,17 @@ if two_int.size:
         f"{a}:{b}" for a, b in zip(*np.unique(shape[two_int][sel], return_counts=True))))
 else:
     print("two-internal-face cells: none")
+
+# wing faces without a layer column: a wing boundary face whose owner cell is not a prism
+btxt = open(os.path.join(cdir, "polyMesh", "boundary")).read()
+wb = re.search(r"\n\s*wing\s*\{[^}]*?nFaces\s+(\d+);[^}]*?startFace\s+(\d+);", btxt)
+w_n, w_s = int(wb.group(1)), int(wb.group(2))
+w_own = owner[w_s:w_s + w_n]
+no_layer = np.nonzero(shape[w_own] != PRISM)[0]
+print(f"wing faces={w_n}; faces whose owner is not a prism (no layer column): {no_layer.size}")
+if no_layer.size:
+    report("wing faces without layers (owner-cell centres)", C[w_own[no_layer]],
+           extra=lambda sel: "owner types " + " ".join(f"{a}:{b}" for a, b in zip(*np.unique(shape[w_own[no_layer]][sel], return_counts=True))))
 
 # determinant split (DR-F3-1: reported by layer and core cells)
 low = det < 1e-3

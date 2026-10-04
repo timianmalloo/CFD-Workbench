@@ -14,6 +14,14 @@ of="$here/of-run.sh"
 rec="$here/launcher-record.py"
 join_lock="${CFDW_JOIN_LOCK:-$(git -C "$here" rev-parse --path-format=absolute --git-common-dir)/coord/join.lock}"
 name=$(basename "$yaml" .yaml)
+if [ -n "${RESUME_RUN:-}" ]; then
+  # resume after an interrupted pipeline (the calling shell ended while of-run waited): the mesh and the launcher
+  # record exist; continue at gmshToFoam. The case file must already name this run.
+  run="$RESUME_RUN"
+  grep -q "^run_dir: $run\$" "$yaml" || { echo "refusing: $yaml does not name $run" >&2; exit 2; }
+  [ -f "$run/wing.msh" ] && [ ! -f "$run/log.gmshToFoam" ] || { echo "refusing: $run is not at the gmshToFoam step" >&2; exit 2; }
+  echo "resume: $(date -u +%FT%TZ) at gmshToFoam" >> "$run/run-ledger.txt"
+else
 grep -q '^run_dir: PENDING$' "$yaml" || { echo "refusing: $yaml already names a run" >&2; exit 2; }
 waited=0
 while [ -e "$join_lock" ] || ! awk -v l="$(sysctl -n vm.loadavg | awk '{print $2}')" 'BEGIN{exit !(l<=10)}'; do
@@ -29,10 +37,11 @@ st=$?
 set -e
 mkdir -p "$run"
 mv "$run.generator.txt" "$run/generator.txt"; mv "$run.time.gmsh" "$run/time.gmsh"
-echo "gmsh: status=$st wall_s=$(( $(date +%s) - start )) waited_s=$waited load1_start=$(sysctl -n vm.loadavg | awk '{print $2}')" | tee -a "$run/run-ledger.txt"
+echo "gmsh: status=$st wall_s=$(( $(date +%s) - start )) waited_s=$waited load1_end=$(sysctl -n vm.loadavg | awk '{print $2}')" | tee -a "$run/run-ledger.txt"
 grep -E "^gmsh_wing|^layer_total|^msh_sha256|^te_arc" "$run/generator.txt" || true
 [ "$st" -eq 0 ] || exit "$st"
 python3 "$rec" init "$run"
+fi
 "$of" "$run" gmshToFoam gmshToFoam wing.msh
 # product pipeline step: patch types (wing wall, symmetry, farfield patch), then re-pin
 python3 -c '

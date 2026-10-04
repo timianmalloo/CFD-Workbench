@@ -21,6 +21,7 @@ import json
 import math
 import os
 import pathlib
+import signal
 import sys
 
 import gmsh
@@ -42,6 +43,7 @@ def yt(x):
     return 5 * 0.12 * (0.2969 * math.sqrt(x) - 0.1260 * x - 0.3516 * x ** 2 + 0.2843 * x ** 3 - 0.1036 * x ** 4) + 0.5 * (t_te / chord) * x
 
 
+signal.alarm(int(os.environ.get("GMSH_CAP_S", "900")))  # wall cap: SIGALRM ends a runaway mesh (M1a attempt 1)
 gmsh.initialize()
 gmsh.option.setNumber("General.Terminal", 1)
 gmsh.option.setNumber("General.NumThreads", int(s["gmsh_threads"]))
@@ -83,6 +85,9 @@ wing_surfs = gmsh.model.getEntities(2)
 # the TE arc curves at the root (z = 0), kept to read their segment count from the mesh (round 3, R3-M0)
 te_arc_root = [c for c in gmsh.model.getEntitiesInBoundingBox(chord - 1e-7, -r_te - 1e-7, -1e-7, chord + r_te + 1e-7,
                                                                r_te + 1e-7, 1e-7, dim=1)]
+# every OCC curve aft of x = c: the TE arc curves, the spanwise TE edges and the tip's revolved TE curves (knob K1)
+te_curves = gmsh.model.getEntitiesInBoundingBox(chord - 1e-7, -r_te - 1e-7, -1e-7, chord + r_te + 1e-7, r_te + 1e-7,
+                                                half + r_te + 1e-7, dim=1)
 for p in gmsh.model.getEntities(0):  # point sizes by chord station
     x, y, z = gmsh.model.getValue(0, p[1], [])
     gmsh.model.mesh.setSize([p], lc(min(max(x / chord, 0.0), 1.0)))
@@ -122,10 +127,32 @@ gmsh.model.mesh.field.setNumber(ft, "SizeMin", float(s["lc_near_m"]))
 gmsh.model.mesh.field.setNumber(ft, "SizeMax", lcf)
 gmsh.model.mesh.field.setNumber(ft, "DistMin", float(s["near_dist_m"]))
 gmsh.model.mesh.field.setNumber(ft, "DistMax", float(s["far_dist_m"]))
+fields_min = [ft]
+ter = s.get("te_refine")  # round 3 knob K1: size at the TE arc, graded back to lc_near over the last part of the chord
+if ter:
+    fte = gmsh.model.mesh.field.add("Distance")
+    gmsh.model.mesh.field.setNumbers(fte, "CurvesList", [c[1] for c in te_curves])
+    gmsh.model.mesh.field.setNumber(fte, "Sampling", int(ter["sampling"]))
+    ftt = gmsh.model.mesh.field.add("Threshold")
+    gmsh.model.mesh.field.setNumber(ftt, "InField", fte)
+    gmsh.model.mesh.field.setNumber(ftt, "SizeMin", float(ter["size_m"]))
+    # The ramp reaches lc_near at dist_max_m and keeps rising to lc_far, so outside the TE band the Min falls back to
+    # the wing field (a SizeMax of lc_near here would floor the whole domain at lc_near: M1a attempt 1, void).
+    t_min, t_size, t_near = float(ter["dist_min_m"]), float(ter["size_m"]), float(s["lc_near_m"])
+    t_far_dist = t_min + (float(ter["dist_max_m"]) - t_min) * (lcf - t_size) / (t_near - t_size)
+    gmsh.model.mesh.field.setNumber(ftt, "SizeMax", lcf)
+    gmsh.model.mesh.field.setNumber(ftt, "DistMin", t_min)
+    gmsh.model.mesh.field.setNumber(ftt, "DistMax", t_far_dist)
+    fields_min.append(ftt)
+    print(f"te_refine: curves={len(te_curves)} size={t_size} at <= {t_min} m, lc_near {t_near} at {ter['dist_max_m']} m "
+          f"(ramp to lc_far {lcf} at {t_far_dist:.4f} m) sampling={ter['sampling']}", flush=True)
 fmin = gmsh.model.mesh.field.add("Min")
-gmsh.model.mesh.field.setNumbers(fmin, "FieldsList", [ft])
+gmsh.model.mesh.field.setNumbers(fmin, "FieldsList", fields_min)
 gmsh.model.mesh.field.setAsBackgroundMesh(fmin)
 gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+for k, v in (s.get("gmsh_options") or {}).items():  # round 3 knob K3 (e.g. Mesh.OptimizeNetgen, Mesh.Smoothing)
+    gmsh.option.setNumber(k, float(v))
+    print(f"gmsh option {k}={gmsh.option.getNumber(k):g}")
 gmsh.model.mesh.generate(3)
 te_arc_segments = sum(sum(len(t) for t in gmsh.model.mesh.getElements(1, c[1])[1]) for c in te_arc_root)
 print(f"te_arc_root_curves={len(te_arc_root)} te_arc_root_segments={te_arc_segments} "
