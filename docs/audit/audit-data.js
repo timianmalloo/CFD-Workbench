@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T00:33:19Z",
+  "generated": "2026-10-04T01:41:05Z",
   "audit": [
     {
       "actor": null,
@@ -23097,6 +23097,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T00:32:28Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M4294SFT6H0FZF1X3077C02J",
+      "shortname": "join-planform-pvc",
+      "datetime": "2026-10-04T01:41:05Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/planform-pvc into feature/ui-cad-direction",
+      "summary": "PVC (Grok 4.7): point-add / point-remove / curve-rebuild receipts, Boehm insertion exact, local refit on remove, Rebuild 4-10, FoilDSL 4.1 floor 4; New foil 4 points on LE/TE (SPK numbers); display sampler includes ends and knots (F-1), golden planform arrays 32 -> 65 samples with old = new[2i+1] bit for bit (geometry review: PASS, recorded in the receipt). PVC 46/46; planted Boehm mutant red; old build refuses with SHA unchanged. Desktop tests ported to the 4-point default by Sonnet (21 checks, none deleted or loosened); sampler test now asserts properties (mutant red). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T01:40:12Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
