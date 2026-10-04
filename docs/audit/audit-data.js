@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T16:19:09Z",
+  "generated": "2026-10-04T16:21:44Z",
   "audit": [
     {
       "actor": null,
@@ -23278,6 +23278,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T16:18:15Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M43VHA9P9GEJ4D92499P5ZVV",
+      "shortname": "join-m12c-edt",
+      "datetime": "2026-10-04T16:21:44Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12c-edt into feature/ui-cad-direction",
+      "summary": "EDT (Codex gpt-6-sol 2 runs, Opus 5.5 2 runs incl. the finishing track, Ruling 67): section-mode surface, controller gestures, probe follows pointer, Return/Tab/Escape cascade, refit refusal located and labelled, Show framing via SectionShowRequested, Section dropdown over PNL's menu rows, 8 spacing tokens, Side view names sections by station (Placement.Assignment is a profile index - Core rename owed), --section-editor split. EDT 25/25; mutants red; captures docs/proof/m12c-edt. Deviations for UXR: stale Checking box, reason box placement, raw refusal copy, clipped mode bar, chip/accents/probe/axis/comb/thumbnails. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T16:20:48Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
