@@ -151,13 +151,18 @@ def clause5(r):
 abs_run = os.path.abspath(run)
 pattern = rf"^([^ ]*/)?{solver} -parallel -case {re.escape(abs_run)}$"
 next_check = poll
-started = time.time()
+started = time.time()  # reset when the solver is first seen: of-run may wait for load or the join lock first
+seen = False
 while True:
     time.sleep(5)
     pids = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True).stdout.split()
     hs, rs = table("solverInfo1/0/solverInfo.dat")
     n = len(rs)
-    if not pids and time.time() - started > 120:
+    if pids and not seen:
+        seen, started = True, time.time()
+        print(f"a4-monitor: solver seen at {time.strftime('%H:%M:%S')}", flush=True)
+    # gone: seen once and now absent, or never seen within of-run's own 60-min wait limit (+5 min)
+    if not pids and ((seen and time.time() - started > 120) or (not seen and time.time() - started > 3900)):
         print(f"a4-monitor: solver gone at {n} iterations; exiting", flush=True)
         break
     if n >= next_check:
@@ -168,7 +173,10 @@ while True:
             a4_first = n
             print(f"a4-monitor: A4 first met at {n}", flush=True)
         why = None
-        if a4_first is not None:
+        wall_cap = a4.get("wall_cap_s")  # round 3 (DR-F3-3 L3 cap): stop and write at the wall cap, A4 or not
+        if wall_cap and time.time() - started > float(wall_cap):
+            why = f"wall cap {float(wall_cap):.0f} s reached at iteration {n} (A4 first met: {a4_first})"
+        elif a4_first is not None:
             c5_ok, c5_text = clause5(r)
             if c5_ok:
                 why = f"A4 met at iteration {a4_first}; clause-5 extension: {c5_text} at {n}" if c5 else f"A4 met at iteration {n}"
