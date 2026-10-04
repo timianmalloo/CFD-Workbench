@@ -26,6 +26,8 @@ public class SectionCanvas : Control
     public bool ThicknessDoubled { get; set; }
     public string ProbeText { get; private set; } = "Pointer · display";
     public int CombClippedCount { get; private set; }
+    /// <summary>The comb teeth the last render drew, in canvas pixels (start on the curve, tip at the tooth end).</summary>
+    public IReadOnlyList<(Point Start, Point Tip)> CombTeeth { get; private set; } = [];
     public double CombScale { get; private set; }
     public (double X0, double X1)? CrossingInterval { get; private set; }
     private double viewMinX;
@@ -358,9 +360,10 @@ public class SectionCanvas : Control
         {
             double at = ModelToScreen(x, 0).X;
             context.DrawLine(gridPen, new Point(at, 34), new Point(at, Bounds.Height - 30));
-            context.DrawText(new FormattedText(string.Create(CultureInfo.InvariantCulture, $"{Math.Round(x * 100) + 0.0} %"),
-                CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(FontFamily.Default), 11, mute),
-                new Point(at + 3, Bounds.Height - 48));
+            var tickLabel = new FormattedText(string.Create(CultureInfo.InvariantCulture, $"{Math.Round(x * 100) + 0.0} %"),
+                CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(FontFamily.Default), 11, mute);
+            // The last label stays inside the canvas ("100 %", not "100").
+            context.DrawText(tickLabel, new Point(Math.Min(at + 3, Bounds.Width - tickLabel.Width - 3), Bounds.Height - 48));
         }
         var curvePen = new Pen(foil, 2);
         var mode = Controller!.Section!;
@@ -380,6 +383,7 @@ public class SectionCanvas : Control
             double p90 = magnitudes.Length == 0 ? 0 : magnitudes[(int)Math.Floor(.9 * (magnitudes.Length - 1))];
             CombScale = p90 <= 1e-12 ? 0 : 30 / p90;
             CombClippedCount = 0;
+            var drawn = new List<(Point Start, Point Tip)>(teeth.Length);
             // Teeth in viewport-mute at half strength, so the curves and glyphs stay on top (mockup comb colour).
             var toothPen = new Pen(mute is ISolidColorBrush solid ? new SolidColorBrush(solid.Color, .5) : mute, 1);
             foreach (var tooth in teeth)
@@ -388,9 +392,11 @@ public class SectionCanvas : Control
                 bool clipped = raw > 60;
                 if (clipped) CombClippedCount++;
                 var start = ModelToScreen(tooth.X, tooth.Y);
-                double sign = Math.Sign(tooth.Curvature);
+                // §11.2: teeth point outward, away from the centre of curvature (mockup drawSection: dir = −sign κ).
+                double sign = -Math.Sign(tooth.Curvature);
                 var tip = start + new Vector(tooth.Nx * Math.Min(raw, 60) * sign,
                     -tooth.Ny * Math.Min(raw, 60) * sign * (ThicknessDoubled ? 2 : 1));
+                drawn.Add((start, tip));
                 context.DrawLine(toothPen, start, tip);
                 if (clipped)
                 {
@@ -406,8 +412,9 @@ public class SectionCanvas : Control
                 var at = layer.ToScreen(anchor);
                 context.DrawLine(breakPen, at - new Vector(0, 20), at + new Vector(0, 20));
             }
+            CombTeeth = drawn;
         }
-        else { CombScale = 0; CombClippedCount = 0; }
+        else { CombScale = 0; CombClippedCount = 0; CombTeeth = []; }
         ReportComb();
         DrawPolyline(context, curvePen, Profile!.UpperCurve.Select(p => ModelToScreen(p.X, p.Y)));
         DrawPolyline(context, curvePen, Profile.LowerCurve.Select(p => ModelToScreen(p.X, p.Y)));

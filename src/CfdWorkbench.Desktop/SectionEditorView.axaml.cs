@@ -230,7 +230,7 @@ public partial class SectionEditorView : UserControl
             string distance = string.Create(CultureInfo.InvariantCulture, $"{assignment.SpanMeters * 1000:F2} mm");
             string chord = string.Create(CultureInfo.InvariantCulture, $"c {facts.StationChordMeters * 1000:F2} mm");
             string ratio = string.Create(CultureInfo.InvariantCulture, $"t/c {facts.StationThicknessRatio * 100:F2} %");
-            var button = new Button { Content = Thumbnail(controller, index, name, distance, chord, ratio) };
+            var button = new Button { Content = Thumbnail(controller.SectionView(SharesDraft(controller, index) ? active : index), name, distance, chord, ratio) };
             button.Classes.Add("station-thumb");
             button.Classes.Set("current", index == active);
             AutomationProperties.SetName(button, $"{name} section thumbnail");
@@ -242,8 +242,14 @@ public partial class SectionEditorView : UserControl
         }
     }
 
+    // A station that shares the section being edited shows the draft shape too: the edit reaches it on Finish, and an old
+    // outline there would say the edit is local (marine-CAD re-review, UXR).
+    private static bool SharesDraft(WorkbenchController controller, int index) =>
+        controller.Section is { Draft.Scope: SectionScope.Shared } mode &&
+        controller.Inspection!.Authored.Assignments[index].ProfileName == mode.Draft.Profile;
+
     // Mockup .thumb: the station's section outline on the viewport, then "<name> · <distance>" and "c <chord> · t/c <t/c>".
-    private static Control Thumbnail(WorkbenchController controller, int index, string name, string distance, string chord, string ratio)
+    private static Control Thumbnail(ProfileView profile, string name, string distance, string chord, string ratio)
     {
         static Control Row(string left, string right, bool muted, bool bold)
         {
@@ -256,7 +262,7 @@ public partial class SectionEditorView : UserControl
             border.Classes.Add("station-thumb-label");
             return border;
         }
-        var outline = new SectionThumb { Profile = controller.SectionView(index), IsHitTestVisible = false };
+        var outline = new SectionThumb { Profile = profile, IsHitTestVisible = false };
         var rows = new StackPanel { Children = { Row(name, distance, false, true), Row(chord, ratio, true, false) } };
         Grid.SetRow(rows, 1);
         return new Grid { RowDefinitions = new RowDefinitions("*,Auto"), Children = { outline, rows } };

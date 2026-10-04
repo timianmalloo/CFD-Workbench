@@ -169,6 +169,21 @@ public static class SectionEditorTests
             if (fixture.Canvas.CombScale <= 0 || fixture.Canvas.CombClippedCount < 0)
                 throw new Exception("The rendered comb did not compute its automatic scale");
         });
+        // UXR (marine-CAD re-review): §11.2 "teeth point outward" — on the convex 20–60 % chord span of the Example section,
+        // every upper tooth rises off the curve and every lower tooth drops off it, away from the chord line.
+        DesktopChecks.Check("SectionEditor_Comb_TeethPointOutward", () =>
+        {
+            fixture.Reset();
+            fixture.Canvas.Fit();
+            using var pixels = PropertiesCellsTests.Render(fixture.Window, 1);
+            double from = fixture.Canvas.ModelToScreen(.2, 0).X, to = fixture.Canvas.ModelToScreen(.6, 0).X;
+            double chord = fixture.Canvas.ModelToScreen(0, 0).Y;
+            var span = fixture.Canvas.CombTeeth.Where(tooth => tooth.Start.X >= from && tooth.Start.X <= to &&
+                Point.Distance(tooth.Start, tooth.Tip) > 1).ToArray();
+            var inward = span.Where(tooth => tooth.Start.Y < chord ? tooth.Tip.Y > tooth.Start.Y : tooth.Tip.Y < tooth.Start.Y).ToArray();
+            if (span.Length < 10 || inward.Length > 0)
+                throw new Exception($"Comb teeth point into the foil: {inward.Length} of {span.Length} on 20–60 % chord");
+        });
         DesktopChecks.Check("SectionEditor_ProbeFollowsPointer_PlacedMmAtStation", () =>
         {
             fixture.Reset();
