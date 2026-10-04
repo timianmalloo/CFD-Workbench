@@ -106,5 +106,114 @@ internal static class ReopenPointEditTests
             s.DiscardRecovery(); Equal(null, s.Snapshot().Recovery);
             Equal(rows, s.Envelope().Accepted.Length);
         });
+        Check("Replay_SameOperationDifferentPointVerb_DocOperationConflict", () =>
+        {
+            using var session = Open(FoilSourceTests.Example);
+            string operation = Id();
+            session.ApplyPointCommand(operation, new PointCommand.AddPoint("leading", 0.42));
+            Refuses("DOC-OPERATION-CONFLICT", () => session.ApplyPointCommand(operation, new PointCommand.RemovePoint("leading", Point(session, "leading", 3).Id)));
+        });
+        Check("Reopen_ForgedPointAddIdAlreadyPresent_DocReference", () =>
+            Forged("point-add", static (rows, edit) => rows[1] = rows[1] with { Edit = edit with { VertexId = "cv-0" } }));
+        Check("Reopen_ForgedPointRemoveIdAbsent_DocReference", () =>
+            Forged("point-remove", static (rows, edit) => rows[1] = rows[1] with { Edit = edit with { VertexId = "cv-99" } }));
+        Check("Reopen_ForgedRebuildVertexNotCurve_DocReference", () =>
+            Forged("curve-rebuild", static (rows, edit) => rows[1] = rows[1] with { Edit = edit with { VertexId = "leading-edge" } }));
+        Check("Verbs_UndoRedo_RestoresBytesAndAnchorRows", () =>
+        {
+            using var session = Open(FoilSourceTests.Example);
+            byte[] root = session.Snapshot().Source.ToArray();
+            session.ApplyPointCommand(Id(), new PointCommand.MakeAnchor("leading", Point(session, "leading", 3).Id));
+            byte[] anchored = session.Snapshot().Source.ToArray();
+            session.ApplyPointCommand(Id(), new PointCommand.RebuildCurve("leading", 6));
+            Equal(0, FoilSource.Parse(session.Snapshot().Source).Definition!.Curves["leading"].Tangents.Length);
+            session.Undo(Id());
+            Equal(true, anchored.AsSpan().SequenceEqual(session.Snapshot().Source));
+            session.Redo(Id());
+            session.Undo(Id());
+            session.Undo(Id());
+            Equal(true, root.AsSpan().SequenceEqual(session.Snapshot().Source));
+        });
+        Check("ApplyPointCommand_SameOperationDifferentVerb_DocOperationConflict", () =>
+        {
+            using var session = Open(FoilSourceTests.Example);
+            string operation = Id();
+            session.ApplyPointCommand(operation, new PointCommand.AddPoint("leading", 0.42));
+            Refuses("DOC-OPERATION-CONFLICT", () => session.ApplyPointCommand(operation, new PointCommand.RemovePoint("leading", Point(session, "leading", 3).Id)));
+        });
+        Check("Receipt_ForgedPointVerbReceipts_DocReference", () =>
+        {
+            Forged("point-add", static (rows, edit) => rows[1] = rows[1] with { Edit = edit with { VertexId = "cv-0" } });
+            Forged("point-remove", static (rows, edit) => rows[1] = rows[1] with { Edit = edit with { VertexId = "cv-99" } });
+            Forged("curve-rebuild", static (rows, edit) => rows[1] = rows[1] with { Edit = edit with { VertexId = "leading-edge" } });
+        });
+        Check("Verbs_UndoRedo_EachVerbBytesRestoredAndReapplied", () =>
+        {
+            using var session = Open(FoilSourceTests.Example);
+            byte[] root = session.Snapshot().Source.ToArray();
+            session.ApplyPointCommand(Id(), new PointCommand.AddPoint("leading", 0.42));
+            byte[] added = session.Snapshot().Source.ToArray();
+            session.Undo(Id());
+            Equal(true, root.AsSpan().SequenceEqual(session.Snapshot().Source));
+            session.Redo(Id());
+            Equal(true, added.AsSpan().SequenceEqual(session.Snapshot().Source));
+            session.ApplyPointCommand(Id(), new PointCommand.RemovePoint("leading", Point(session, "leading", 3).Id));
+            byte[] removed = session.Snapshot().Source.ToArray();
+            session.Undo(Id());
+            Equal(true, added.AsSpan().SequenceEqual(session.Snapshot().Source));
+            session.Redo(Id());
+            Equal(true, removed.AsSpan().SequenceEqual(session.Snapshot().Source));
+            session.ApplyPointCommand(Id(), new PointCommand.RebuildCurve("leading", 5));
+            Equal(true, Encoding.UTF8.GetString(session.Snapshot().Source).StartsWith("foildsl \"4.1\"", StringComparison.Ordinal));
+            session.Undo(Id());
+            Equal(true, removed.AsSpan().SequenceEqual(session.Snapshot().Source));
+            session.Redo(Id());
+            Equal(5, FoilSource.Parse(session.Snapshot().Source).Definition!.Curves["leading"].Points.Length);
+        });
+        Check("Reopen_PointAddRemoveRebuildReceipts_Check", () =>
+        {
+            using var session = Open(FoilSourceTests.Example);
+            session.ApplyPointCommand(Id(), new PointCommand.AddPoint("leading", 0.42));
+            Equal("point-add", session.Envelope().Accepted[^1].Edit!.Rail);
+            session.ApplyPointCommand(Id(), new PointCommand.RemovePoint("leading", Point(session, "leading", 3).Id));
+            Equal("point-remove", session.Envelope().Accepted[^1].Edit!.Rail);
+            session.ApplyPointCommand(Id(), new PointCommand.RebuildCurve("leading", 6));
+            Equal("curve-rebuild", session.Envelope().Accepted[^1].Edit!.Rail);
+            Equal("leading", session.Envelope().Accepted[^1].Edit!.VertexId);
+            using var next = new AuthoringSession();
+            next.Reopen(session.SaveImage());
+            Equal("curve-rebuild", next.Envelope().Accepted[^1].Edit!.Rail);
+        });
+        Check("Reopen_AfterEachVerb_BytesIdsAndUndoDepthIdentical", () =>
+        {
+            using var session = Open(FoilSourceTests.Example);
+            session.ApplyPointCommand(Id(), new PointCommand.AddPoint("leading", 0.42));
+            session.ApplyPointCommand(Id(), new PointCommand.RemovePoint("leading", Point(session, "leading", 2).Id));
+            session.ApplyPointCommand(Id(), new PointCommand.RebuildCurve("leading", 6));
+            byte[] bytes = session.Snapshot().Source.ToArray();
+            string[] ids = FoilSource.Parse(bytes).Definition!.Curves["leading"].Ids;
+            int depth = session.Envelope().Accepted.Length;
+            using var next = new AuthoringSession();
+            next.Reopen(session.SaveImage());
+            Equal(true, bytes.AsSpan().SequenceEqual(next.Snapshot().Source));
+            Equal(depth, next.Envelope().Accepted.Length);
+            var reopened = FoilSource.Parse(next.Snapshot().Source).Definition!.Curves["leading"].Ids;
+            Equal(ids.Length, reopened.Length);
+            for (int index = 0; index < ids.Length; index++) Equal(ids[index], reopened[index]);
+        });
+        PointVerbTests.Run();
+    }
+
+    private static void Forged(string rail, Action<AcceptedRow[], EditReceipt> mutate)
+    {
+        using var session = Open(FoilSourceTests.Example);
+        if (rail == "point-add") session.ApplyPointCommand(Id(), new PointCommand.AddPoint("leading", 0.42));
+        else if (rail == "point-remove") session.ApplyPointCommand(Id(), new PointCommand.RemovePoint("leading", Point(session, "leading", 3).Id));
+        else session.ApplyPointCommand(Id(), new PointCommand.RebuildCurve("leading", 6));
+        var envelope = session.Envelope();
+        var rows = envelope.Accepted.ToArray();
+        mutate(rows, rows[1].Edit!);
+        using var next = new AuthoringSession();
+        Refuses("DOC-REFERENCE", () => next.Reopen(NativeProject.Encode(envelope with { Accepted = rows })));
     }
 }

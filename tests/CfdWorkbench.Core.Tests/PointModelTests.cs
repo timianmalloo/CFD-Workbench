@@ -108,7 +108,7 @@ internal static class PointModelTests
             {
                 double t = parameters[index];
                 var spline = At(curve, t, view.HalfSpanMeters);
-                var span = spans.Single(item => t >= item.Start.Nearest() && t <= item.End.Nearest());
+                var span = spans.Last(item => t >= item.Start.Nearest() && t <= item.End.Nearest());
                 double u = (t - span.Start.Nearest()) / (span.End.Nearest() - span.Start.Nearest());
                 Rel(spline.Span, BernsteinOrdinate(span.X, u) * view.HalfSpanMeters);
                 Rel(spline.Aft, BernsteinOrdinate(span.Y, u));
@@ -190,13 +190,21 @@ internal static class PointModelTests
 
     private static List<double> SampleParameters(Curve curve)
     {
+        int spans = 0;
+        for (int span = curve.Degree; span < curve.Points.Length; span++)
+            if (curve.Knots[span] < curve.Knots[span + 1]) spans++;
+        int per = 8;
+        if (spans > 0)
+            while (per + (spans - 1) * (per - 1) < 64) per++;
         var parameters = new List<double>();
+        bool firstSpan = true;
         for (int span = curve.Degree; span < curve.Points.Length; span++)
         {
             if (curve.Knots[span] >= curve.Knots[span + 1]) continue;
             double start = curve.Knots[span], end = curve.Knots[span + 1];
-            for (int step = 0; step < 8; step++)
-                parameters.Add(start + (step + 0.5) / 8.0 * (end - start));
+            for (int step = firstSpan ? 0 : 1; step < per; step++)
+                parameters.Add(start + step / (double)(per - 1) * (end - start));
+            firstSpan = false;
         }
         return parameters;
     }

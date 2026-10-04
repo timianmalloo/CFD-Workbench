@@ -4329,7 +4329,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ece9151e6db29e8085315292b585b42689c9cec3d9d8c52a65157fbc62257096"
+      "sourceSha256": "790d1260faea480f213a19882fd77808c8803c32c917d9b265077592b50e2111"
     },
     {
       "id": "investigation-desktop-launch-abort",
@@ -8788,6 +8788,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
+      "id": "proof-planform-verbs-old-build",
+      "path": "docs/proof/planform-verbs-old-build/receipt.md",
+      "title": "PVC old-build characterization and planted-mutant receipt",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-pvc",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Pre-PVC commit 0cf4e4feae65e844fb6eac0c3825100b6d1c56e5 refuses a 4-point 4.1 source with DSL-CURVE and refuses point-add, point-remove and curve-rebuild envelopes with DOC-REFERENCE. Each file's SHA-256 is unchanged. An alpha denominator one span high turns AddPoint_Boehm_ShapeUnchangedWithin1e12Relative red.",
+      "tags": [
+        "planform",
+        "point-verbs",
+        "foildsl",
+        "characterization",
+        "pvc"
+      ],
+      "links": [
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8b85b88e777fe865de4d9857177e1d883e951180512270c36cff9ea1e6d00490"
+    },
+    {
       "id": "proof-readyfix2",
       "path": "docs/proof/readyfix2.md",
       "title": "READYFIX2 — Core fixture cwd-relative paths and the Plan-canvas theme key set",
@@ -10397,7 +10428,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "2e5491affa63a5ae11ffd1ff1bcaa374b0eafe12cee8eb11315f53e6c418886a"
+      "sourceSha256": "25f071b72c9676cd418be3606adf4a79a0e36315b529ce03a3b414e357649955"
     },
     {
       "id": "threat-model",
@@ -10678,5 +10709,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "fd63c72a91428e2a2ba967d3e3736f61e67c7807ac9fc40a374f1bd13360a839"
+  "graphSha256": "4e089d2b0f4315ae39cbeefcb9e454ff5768e22f18a62261bf3c6daa85e26123"
 };

@@ -188,7 +188,9 @@ Units are mandatory for dimensional assertions. `~` is not supported: users stat
 3. For N points and degree p, `knots` has **N+p+1** entries (N is count, not highest index).
    End values are 0 and 1, each repeated p+1 times; interior knots are in (0,1), nondecreasing,
    with multiplicity at most p. All rational weights are exactly one by language definition.
-   Channels have p=3 and N in [6,10] in 4.0 and N in [6,16] in 4.1; profile sides have p=5 and N in [6,32].
+   Channels have p=3 and N in [6,10] in 4.0 and N in [4,16] in 4.1; profile sides have p=5 and N in [6,32].
+   A 4.1 channel may have 4 or 5 points. Add may take a 4.1 channel to 16. Rebuild stays in 4–10.
+   New foil writes `foildsl "4.1"` and ships 4 points on the leading and trailing rails; dihedral, twist and thickness stay at 10.
    A `tangents` block is legal only in 4.1, after `ids`. On a channel only `smooth` and `symmetric` are legal, and the row names an interior anchor. Corner is the absence of a row. Under 4.0 the block is `DSL-SYNTAX`. A version other than 4.0 or 4.1 is `DSL-VERSION` when the version token is read.
    This profile capacity includes the existing 8–16 fitting policy without making that construction an authority.
 4. Channel points are `(eta-coordinate, ordinate)`. The first abscissa is 0, last 1, and all abscissae strictly

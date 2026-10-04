@@ -88,5 +88,11 @@
     "expected": "reject",
     "diagnostic": "DSL-VERSION",
     "scope": "unavailable legacy evaluator /1; original bytes retained, no automatic /2 migration"
+  },
+  {
+    "file": "foil-41-four-rail.foil",
+    "expected": "accept",
+    "diagnostic": null,
+    "scope": "FoilDSL 4.1 New foil: leading and trailing have 4 points; dihedral, twist and thickness stay at 10"
   }
 ]

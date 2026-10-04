@@ -11,10 +11,15 @@ internal static class PointCommandTests
         s.ApplyPointCommand(Id(), new PointCommand.MakeAnchor(rail, Point(s, rail, index).Id));
     private static PointOutcome Tangent(AuthoringSession s, TangentKind kind, string? kept = null) =>
         s.ApplyPointCommand(Id(), new PointCommand.SetTangent("leading", Point(s, "leading", 3).Id, kind, kept));
+    private static byte[] TenPointRail() =>
+        File.ReadAllBytes("tests/CfdWorkbench.Core.Tests/Fixtures/planform-verbs/new-default-10.foil");
+
     private static AuthoringSession WithAnchor()
     {
         var s = Open(FoilSource.NewDefault());
-        Anchor(s, "leading", 3);
+        s.ApplyPointCommand(Id(), new PointCommand.AddPoint("leading", 0.45));
+        var control = Planform.View(s.Snapshot().Source, "Accepted", 0).Leading.Points.First(point => point.Role == PointRole.Control);
+        s.ApplyPointCommand(Id(), new PointCommand.MakeAnchor("leading", control.Id));
         return s;
     }
     private static PointView AnchorPoint(AuthoringSession s) =>
@@ -50,7 +55,7 @@ internal static class PointCommandTests
         });
         Check("MakeAnchor_NewFoil_TenToThirteenHeader41SmoothRow", () =>
         {
-            using var s = Open(FoilSource.NewDefault()); var outcome = Anchor(s, "trailing", 4);
+            using var s = Open(TenPointRail()); var outcome = Anchor(s, "trailing", 4);
             Equal(10, outcome.PointsBefore); Equal(13, outcome.PointsAfter);
             string source = Encoding.UTF8.GetString(s.Snapshot().Source);
             True(source.Contains("foildsl \"4.1\"", StringComparison.Ordinal), "version");
@@ -58,7 +63,7 @@ internal static class PointCommandTests
         });
         Check("MakeAnchor_ThirteenPoints_SixteenAccepted", () =>
         {
-            using var s = Open(FoilSource.NewDefault()); Anchor(s, "trailing", 3);
+            using var s = Open(TenPointRail()); Anchor(s, "trailing", 3);
             var outcome = Anchor(s, "trailing", 9);
             Equal(13, outcome.PointsBefore); Equal(16, outcome.PointsAfter);
         });
