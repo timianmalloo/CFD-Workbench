@@ -69,7 +69,10 @@ def join_ring_problems(contract):
     """TEST-RING: the join's fast ring runs the tests and skips the slow gates; the readiness
     ring keeps every slow gate and recount (docs/reviews/test-ci-waste.md)."""
     def lines(key):
-        return [" ".join(command) for command in contract.get(key) or []]
+        # A readiness entry may be a concurrent group: a list of commands (tools/run-readiness.py).
+        commands = [command for entry in contract.get(key) or []
+                    for command in (entry if entry and isinstance(entry[0], list) else [entry])]
+        return [" ".join(command) for command in commands]
 
     checks, gates, readiness = lines("checks"), lines("gates"), lines("readiness")
     problems = []
@@ -82,7 +85,14 @@ def join_ring_problems(contract):
     for gate in SLOW_GATES:
         if not all("--skip" in line and gate in line for line in gates if "run-verify-gates.py" in line):
             problems.append("join gates run " + gate + " on every join")
-    if not any("run-verify-gates.py" in line and "--skip" not in line for line in readiness):
+    # Every verify gate: run-verify-gates.py with no --skip, or with each skipped gate run as its own readiness step
+    # (so the slow gates can overlap; docs/plans/test-cost.md L4).
+    def every_gate(line):
+        if "--skip" not in line:
+            return True
+        skipped = line.split("--skip", 1)[1].split()
+        return all(any(other.endswith("tools/" + gate) for other in readiness) for gate in skipped)
+    if not any("run-verify-gates.py" in line and every_gate(line) for line in readiness):
         problems.append("readiness does not run every verify gate")
     for recount in RECOUNTS:
         if not any(recount in line for line in readiness):

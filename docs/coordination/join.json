@@ -13,9 +13,13 @@
     ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py", "--skip", "verify-application-core.py", "verify-application-adapters.py"]
   ],
   "readiness": [
-    ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py"],
-    ["python3", "tools/recount-architecture-spike.py"],
-    ["python3", "tools/recount-application-contracts.py"],
+    [
+      ["python3", "tools/verify-application-core.py"],
+      ["python3", "tools/verify-application-adapters.py"],
+      ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py", "--skip", "verify-application-core.py", "verify-application-adapters.py"],
+      ["python3", "tools/recount-architecture-spike.py"],
+      ["python3", "tools/recount-application-contracts.py"]
+    ],
     ["dotnet", "run", "-c", "Release", "--project", "tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj", "--", "--readiness"],
     ["dotnet", "run", "-c", "Release", "--project", "tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj", "--", "--readiness"]
   ]
