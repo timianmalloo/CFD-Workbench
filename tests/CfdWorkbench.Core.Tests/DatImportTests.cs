@@ -137,8 +137,8 @@ internal static class DatImportTests
     }
 
     // COPY-210 at the Example's Tip, whose neighbour Root keeps the shared section.
-    private const string OwnSpacingRefusal = "This import has different point positions from Root's section, so the wing between " +
-        "them can't be checked. Import it on a shared section, or wait for 'keep sections in step'.";
+    private const string OwnSpacingRefusal = "This section has its own point spacing, which differs from Root's, so the wing " +
+        "between them can't be checked yet. Importing sections with their own spacing will work once sections can be kept in step.";
 
     // The neighbour-basis case is unchanged: it lands, certifies, applies and undoes. Ruling 71 (operator 2026-10-04): the
     // own-spacing case was a landed, uncertified draft with DatImport's own-spacing reason; it is now refused at the step

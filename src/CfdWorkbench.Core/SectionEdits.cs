@@ -57,8 +57,8 @@ internal static class SectionEdits
 
     // COPY-210 (m12c design §11.4).
     private static string ImportAbscissaReason(string neighbour) =>
-        $"This import has different point positions from {neighbour}'s section, so the wing between them can't be checked. " +
-        "Import it on a shared section, or wait for 'keep sections in step'.";
+        $"This section has its own point spacing, which differs from {neighbour}'s, so the wing between them can't be checked yet. " +
+        "Importing sections with their own spacing will work once sections can be kept in step.";
 
     // COPY-209 (m12c design §11.4).
     private static string NeighbourAbscissaReason(string station, string neighbour) =>

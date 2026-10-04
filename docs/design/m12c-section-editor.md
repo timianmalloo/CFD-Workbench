@@ -961,7 +961,7 @@ underline, tabular figures.
 | 183 | "Angles are in the section's own chord coordinates. A flat crest stays flat at a station only if the section is symmetric or uses its own thickness." | Tangent help |
 | 184 | "A vertical tangent inside a surface makes a step. The nose already has one." | disabled Vertical, reason |
 | 209 | "This edit would give <station>'s section different point positions from <neighbour>'s, and the wing between them can't be checked then. Move points up or down only, or keep the section shared." (Ruling 71; approved by the operator 2026-10-04; the strip adds "Nothing changed.") | strip (warning) or reason box, for a refused step |
-| 210 | "This import has different point positions from <neighbour>'s section, so the wing between them can't be checked. Import it on a shared section, or wait for 'keep sections in step'." (Ruling 71, operator 2026-10-04; the strip adds "Nothing changed.") | strip (warning), for a refused Import |
+| 210 | "This section has its own point spacing, which differs from <neighbour>'s, so the wing between them can't be checked yet. Importing sections with their own spacing will work once sections can be kept in step." (corrected 2026-10-04, operator: the earlier "Import it on a shared section" named a path that does not exist) | strip (warning), for a refused Import |
 
 Reused: COPY-117, COPY-119, COPY-122, COPY-123, COPY-124, and "Finish or cancel <station> before editing <other>."
 

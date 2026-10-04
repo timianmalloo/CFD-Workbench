@@ -35,8 +35,8 @@ internal static class SectionEditsTests
     }
 
     // COPY-210 (Ruling 71, operator 2026-10-04): an import at Root whose own spacing differs from Tip's section.
-    internal const string ImportOwnSpacingReason = "This import has different point positions from Tip's section, so the wing between " +
-        "them can't be checked. Import it on a shared section, or wait for 'keep sections in step'.";
+    internal const string ImportOwnSpacingReason = "This section has its own point spacing, which differs from Tip's, so the wing " +
+        "between them can't be checked yet. Importing sections with their own spacing will work once sections can be kept in step.";
 
     // COPY-209 (Ruling 71): the Example's Root after Make unique; Tip keeps the shared profile.
     private const string UniqueRootReason = "This edit would give Root's section different point positions from Tip's, and the wing " +
