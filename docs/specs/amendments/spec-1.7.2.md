@@ -1,8 +1,8 @@
 ---
 id: spec-amendments-1-7-2
-title: "Spec 1.7.2 amendment batch (draft) — guided solver setup, the smoke-test scalar and the toggle shortcut, as exact text, for the spec owner's approval"
+title: "Spec 1.7.2 amendment batch — guided solver setup, the smoke-test scalar and the toggle shortcut, as exact text, for the spec owner's approval"
 type: spec
-status: draft
+status: accepted
 owner: "@timianmalloo"
 phase: specification
 tags: [spec, amendments, rulings, run, backend, setup, windows, wsl, openfoam]
@@ -15,19 +15,19 @@ links:
   - {to: adr-0012-openfoam-backend-macos, rel: depends-on}
 review-by: 2027-04-01
 summary: >-
-  A draft batch for the spec owner. 23 amendments and two insertions to cfd-workbench-v1, each with the quoted
+  Approved in Ruling 70 (with OQ-1 to OQ-5 as recommended). 29 amendments and two insertions to cfd-workbench-v1, each with the quoted
   before-text and the exact 1.7.2 text, traced to Ruling 69 (guided solver setup, DR-SETUP-1..6) and Ruling 67 OD-1
   (the toggle shortcut). It also fixes a design-text mismatch (section handle Length). Five open questions have no
   ruling and are not applied. Revision 1.7.2 of the spec carries the batch; the change record is Appendix H, section
-  H.2. Merge only after the owner approves.
+  H.2. Approved; the merge is the coordinator's.
 review-suggested:
   - { by: spec-cfd-workbench-v1, on: 2026-10-04, reason: "Spec 1.7.2 (draft; Ruling 69, Ruling 67 OD-1): guided solver setup, smoke-test scalar, Windows route, toggle shortcut" }
 ---
 
-# Spec 1.7.2 amendment batch (draft)
+# Spec 1.7.2 amendment batch
 
 **For:** the spec owner (`@timianmalloo`). **Spec:** [cfd-workbench-v1](../cfd-workbench-v1.md), revision 1.7.2.
-**Status:** **draft, awaiting approval.** The batch is merged only after the owner approves it.
+**Status:** **accepted** — Ruling 70 (operator as spec owner, 2026-10-04, `docs/notes/rulings.md`, last entry): approve 1.7.2, with OQ-1 to OQ-5 as recommended (written below as AM-1.7.2-26 to -31).
 
 ## How to read this
 
@@ -43,7 +43,7 @@ review-suggested:
 - The shortcut: the 1.7.1 spec names no ⌘2 or ⌘3 for the toggle ("a shortcut" is unnamed), so AM-1.7.2-20 names ⇧⌘A and
   records that ⌘1 to ⌘3 stay the workspaces.
 
-## Amendments (23)
+## Amendments (29; the rows for AM-1.7.2-26 to -31 are Ruling 70's)
 
 | ID | Spec clause (line: the 1.7.1 spec) | Before (quoted) | After (exact new text) | Source | Affected tests or designs |
 |---|---|---|---|---|---|
@@ -70,6 +70,12 @@ review-suggested:
 | AM-1.7.2-21 | C2 table, four new rows (after :2259) | `(a new block of rows after the Step outcome row)` | four rows: Solver ready · Unverified install · Not notarised · Solver not ready, test run failed (the exact strings are in the spec, C2) | Ruling 69 DR-SETUP-3, DR-SEC-1 A; proposal §5 | the four honest-limit strings |
 | AM-1.7.2-22 | Revision line (:73) | `Product specification · revision 1.7.1 · 4 October 2026 · *(1.7.1:` | Product specification · revision 1.7.2 · 4 October 2026 · *(1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md); 1.7.1: | this batch | none |
 | AM-1.7.2-23 | Front-matter summary (:55-57) | `  Disallowing (Appendix H.1; amendments/spec-1.7.1.md). ` |   Disallowing (Appendix H.1; amendments/spec-1.7.1.md).   Revision 1.7.2 applies Ruling 69 and Ruling 67 OD-1: one verb, Set up a solver, that works with no key (RUN-01,   AI-11, flow F7a, stories SETUP-01–09); the smoke test reads the final-time mean Courant number, not a Cl that a   cavity cannot have; the Windows default route is OpenFOAM in an app-owned WSL distribution (Inferred until the   Windows run); the exact command moves under Technical details; and the CAD ↔ Analysis shortcut is ⇧⌘A   (Appendix H.2; amendments/spec-1.7.2.md).  | this batch | none |
+| AM-1.7.2-26 | A5.10 backend matrix, pin wording (:1061) | `always by image digest (` | always by image digest *(1.7.2: the Windows route is pinned by the Linux image hash plus the `openfoam2512` package version, both recorded in the Backend check fact; the pin value is set in an ADR-0012 amendment after the operator's Windows run and is Not recorded until then — Ruling 70, OQ-1)* ( | Ruling 70 OQ-1 | ADR-0012 Windows amendment (deferred); the Backend check fact |
+| AM-1.7.2-27 | A5.10 pass clause, tolerance (1.7.2 text of AM-1.7.2-2) | `the tolerance is set after the operator's Windows run,` | one shared tolerance is set after the operator's Windows run, and until then the macOS smoke test compares to 0.222158 at the six printed digits (Ruling 70, OQ-3), | Ruling 70 OQ-3 | the install smoke test |
+| AM-1.7.2-28 | A8.? licence list, Docker Desktop (:1342) | `and never accepted for them: Docker Desktop (free below` | and never accepted for them: Docker Desktop *(1.7.2: no longer used; this licence line is struck with the Windows ADR, not now — Ruling 70, OQ-4)* (free below | Ruling 70 OQ-4 | the Windows ADR-0012 amendment (deferred) |
+| AM-1.7.2-29 | A5.10 backend matrix, macOS architecture (:1062) | `(macOS arm64/x86 and Windows via` | (macOS ~~arm64/x86~~ *(1.7.2: Apple silicon (arm64) only; Intel Macs are not supported — Ruling 70, OQ-5)* and Windows via | Ruling 70 OQ-5 | SETUP-09; the matrix publication |
+| AM-1.7.2-30 | SETUP-09 (:1244) | `**Given** an Intel Mac, macOS before 14, or Windows before build 19041, **then** setup says which requirement is not met, that CAD and the local tiers still work, and offers nothing else. *(Open question OQ-5 on the amendment page: the matrix text still names macOS x86.)*` | **Given** an Intel Mac *(not supported: macOS is Apple silicon only — Ruling 70, OQ-5)*, macOS before 14, or Windows before build 19041, **then** setup says which requirement is not met, that CAD and the local tiers still work, and offers nothing else. | Ruling 70 OQ-5 | the no-route state |
+| AM-1.7.2-31 | Flow F7a introduction (new) | `and the design is `docs/design/guided-solver-setup.md`.` | and the design is `docs/design/guided-solver-setup.md`. The setup state table and the setup-assist eval stay in the design, not the spec; the eval joins A8.6 when the assistant track starts (Ruling 70, OQ-2). | Ruling 70 OQ-2 | the design's state table; A8.6 later |
 
 ## Insertions (2)
 
@@ -86,17 +92,19 @@ proposal; see OQ-2.
 - **`docs/design/m12c-section-editor.md` §11.4** said the section handle Length is entered in % c. Spec 1.7 AM-1.7-40
   (Ruling 66 OQ-4) says mm at the station's local chord with % c beside it as a read-only fact, which is what the
   build does. §11.4 now says so, with the source. This is a docs correction, not a product decision.
-- **Not changed:** ADR-0012 (a Windows-route amendment waits for the Windows run; see OQ-1); the proposal file keeps
+- **Not changed:** ADR-0012 (the Windows-route amendment, which sets the pin and strikes the Docker licence line, waits for the Windows run); the proposal file keeps
   `status: proposed` history and is cited, not edited.
 
-## Open questions for the owner
+## Open questions
 
-Nothing below has a ruling. Each has options and a recommendation; none is applied in 1.7.2.
+None open. The five questions raised in the draft were ruled in Ruling 70 (all as recommended) and are written above:
 
-| ID | Question | Options | Recommendation |
-|---|---|---|---|
-| OQ-1 | **What pins the Windows route?** The matrix text says every backend is pinned "always by image digest" (:1056). The WSL route installs OpenCFD packages into a distribution image, so there is no OpenFOAM image digest. | (a) pin the distribution image hash plus the `openfoam2512` package version, both recorded in the Backend check fact; (b) keep the digest wording and add a Windows exception later; (c) wait for the Windows run. | **(a)**, decided in an ADR-0012 amendment after the Windows run; the spec wording changes in the next batch. Until then the Windows pin is Not recorded. |
-| OQ-2 | **Do the setup state table (proposal §3.3) and the setup-assist eval (§4.7, ten thresholds) enter the spec?** Ruling 69 approved the proposal, which says the rails ship without the assistant if the suite is not green. | (a) both stay in the design and proposal; the eval joins A8.6 when the assistant track starts; (b) add both to the spec now. | **(a).** The state table is a UX test list the design already carries; the eval cases are Flagged until real Windows output exists (proposal §4.7), and AI-06 wants thresholds fixed when the capability is built. |
-| OQ-3 | **The smoke-test tolerance for macOS.** Ruling 69 sets it "after the Windows run". Until then Ready on macOS needs a tolerance or none. | (a) until the Windows run, macOS compares to 0.222158 at the six printed digits (same build, same mesh, so the number is deterministic), then one shared relative tolerance; (b) a loose interim tolerance (for example 1 %); (c) files and banner only until the tolerance is set. | **(a).** It uses the one Verified number and invents no tolerance. Label: Inferred that the number repeats on the same build; check by repeating the receipt run. |
-| OQ-4 | **Docker Desktop in the licence list (:1342).** Docker is no longer used, so the line about Docker Desktop's organisation-size licence is moot. | (a) leave it, as a record of why Docker was rejected; (b) strike it in place. | **(a)** for now; strike it with the Windows ADR so the licence list and the matrix change together. |
-| OQ-5 | **Intel Macs.** The matrix says "macOS arm64/x86", and SETUP-09 (from the approved proposal) says an Intel Mac has no route, because OpenFOAM.app is arm64 and Docker is gone. Ruling 69 does not say that x86 is dropped. | (a) amend the matrix to arm64 only; (b) keep x86 and name its route (none exists today); (c) leave both and mark SETUP-09 conditional. | **(a)**, once the owner confirms the x86 Mac is out of scope. Until then 1.7.2 leaves the matrix text alone and SETUP-09 carries a pointer here. |
+| Was | Ruled | Recorded as |
+|---|---|---|
+| OQ-1 Windows pin | the Linux image hash plus the `openfoam2512` package version; the value is set in an ADR-0012 amendment after the Windows run (decision deferred, rule recorded) | AM-1.7.2-26 |
+| OQ-2 state table and assistant eval | stay in the design; the eval joins A8.6 when the assistant track starts | AM-1.7.2-31 (a note; no clause changes) |
+| OQ-3 macOS tolerance | compares to 0.222158 at six printed digits until one shared tolerance is set after the Windows run | AM-1.7.2-27 |
+| OQ-4 Docker Desktop licence line | noted now, struck with the Windows ADR | AM-1.7.2-28 |
+| OQ-5 Intel Macs | not supported; macOS is Apple silicon (arm64) only | AM-1.7.2-29, -30 |
+
+The ids -24 and -25 are the two insertions below; the Ruling 70 amendments take -26 to -31 so no id is reused.

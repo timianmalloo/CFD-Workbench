@@ -10521,9 +10521,9 @@ window.DOCS_INDEX = {
     {
       "id": "spec-amendments-1-7-2",
       "path": "docs/specs/amendments/spec-1.7.2.md",
-      "title": "Spec 1.7.2 amendment batch (draft) — guided solver setup, the smoke-test scalar and the toggle shortcut, as exact text, for the spec owner's approval",
+      "title": "Spec 1.7.2 amendment batch — guided solver setup, the smoke-test scalar and the toggle shortcut, as exact text, for the spec owner's approval",
       "type": "spec",
-      "status": "draft",
+      "status": "accepted",
       "owner": "@timianmalloo",
       "phase": "specification",
       "reviewBy": "2027-04-01",
@@ -10534,7 +10534,7 @@ window.DOCS_INDEX = {
           "reason": "Spec 1.7.2 (draft; Ruling 69, Ruling 67 OD-1): guided solver setup, smoke-test scalar, Windows route, toggle shortcut"
         }
       ],
-      "summary": "A draft batch for the spec owner. 23 amendments and two insertions to cfd-workbench-v1, each with the quoted before-text and the exact 1.7.2 text, traced to Ruling 69 (guided solver setup, DR-SETUP-1..6) and Ruling 67 OD-1 (the toggle shortcut). It also fixes a design-text mismatch (section handle Length). Five open questions have no ruling and are not applied. Revision 1.7.2 of the spec carries the batch; the change record is Appendix H, section H.2. Merge only after the owner approves.",
+      "summary": "Approved in Ruling 70 (with OQ-1 to OQ-5 as recommended). 29 amendments and two insertions to cfd-workbench-v1, each with the quoted before-text and the exact 1.7.2 text, traced to Ruling 69 (guided solver setup, DR-SETUP-1..6) and Ruling 67 OD-1 (the toggle shortcut). It also fixes a design-text mismatch (section handle Length). Five open questions have no ruling and are not applied. Revision 1.7.2 of the spec carries the batch; the change record is Appendix H, section H.2. Approved; the merge is the coordinator's.",
       "tags": [
         "spec",
         "amendments",
@@ -10573,7 +10573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "436714009979dbd9b0aa9c4ad38d292b5970eaf8c00ed322101fcd32e693f9ac"
+      "sourceSha256": "59fb7876a86762911337c984f3786c4f1ef6d2fffcdd5f71fec5c99c1530f54e"
     },
     {
       "id": "spec-cfd-workbench",
@@ -10892,7 +10892,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "9d0112a7cb895138233e9d57540fbde828ccf95285ea2a84af437f5e17c3cb44"
+      "sourceSha256": "22bb2ad519e1f2d6ccdfe2b8a9759f366d4672a6653d82dbf45da5a9b65cfe25"
     },
     {
       "id": "spec-foildsl",
@@ -11243,5 +11243,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "89c87499cdacd5bf273fd1eec6ea919acf4d2f8f93a49dfe87157be36073b4f3"
+  "graphSha256": "8e34b62de7cfaef14860590798572f1019b9f1f168bbe6989faf81a669630150"
 };

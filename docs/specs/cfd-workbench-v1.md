@@ -1059,12 +1059,12 @@ An **Experiment** is defined here and run in the Run area; this area never launc
 
 **Backend matrix** (physics × substrate × OS × licence × pin, published exactly): OpenFOAM ESI v2512 by image
 digest today, v2606 when its Docker Hub image is tagged (no `opencfd/openfoam-default` 2606 tag existed on 2026-09-20, 08; OpenFOAM.app ships v2606 and v2512 builds, 08; the backend ADR sets the pin — 1.7, Ruling 66 OQ-12), always by
-image digest (macOS arm64/x86 and Windows via ~~Docker Desktop or WSL2~~ *(1.7.2: the default route is OpenFOAM in an app-owned WSL Linux distribution — an Ubuntu 24.04 image with the OpenCFD `openfoam2512` packages; SU2 v8.5.0 native is the other option; Docker is not used. Inferred until the operator's Windows run — Ruling 69, DR-SETUP-1)*; OpenFOAM.app arm64, unsigned — disclosed *(1.7.2: signed by its author, not notarised, and disclosed as "not notarised" — Ruling 69, DR-SETUP-3)*);
+image digest *(1.7.2: the Windows route is pinned by the Linux image hash plus the `openfoam2512` package version, both recorded in the Backend check fact; the pin value is set in an ADR-0012 amendment after the operator's Windows run and is Not recorded until then — Ruling 70, OQ-1)* (macOS ~~arm64/x86~~ *(1.7.2: Apple silicon (arm64) only; Intel Macs are not supported — Ruling 70, OQ-5)* and Windows via ~~Docker Desktop or WSL2~~ *(1.7.2: the default route is OpenFOAM in an app-owned WSL Linux distribution — an Ubuntu 24.04 image with the OpenCFD `openfoam2512` packages; SU2 v8.5.0 native is the other option; Docker is not used. Inferred until the operator's Windows run — Ruling 69, DR-SETUP-1)*; OpenFOAM.app arm64, unsigned — disclosed *(1.7.2: signed by its author, not notarised, and disclosed as "not notarised" — Ruling 69, DR-SETUP-3)*);
 SU2 v8.5.0 release binaries; Foundation OpenFOAM excluded. SU2 has no VOF, cavitation or mesher, so free surface
 and cavitation are OpenFOAM-only, and `Unsupported` is decided from the **Backend environment's capability
 record** before a sample leaves Pending (08). **Readiness** = detection + a passing pinned-version smoke test — the bundled cavity-lid fixture run at the
 pinned digest: pass = the named output files exist with the recorded column layout and ~~the fixture's Cl lies inside
-its tolerance~~ *(1.7.2: the final-time mean Courant number lies inside its tolerance — 0.222158 on macOS arm64, OpenFOAM v2512, build `_87ed40d256-20251219`; the tolerance is set after the operator's Windows run, and the Windows value is Not recorded until then; SU2: the bundled 2D case's final Cl lies inside its tolerance, its reference value Not recorded until the first SU2 run — Ruling 69, DR-SETUP-2)* *(1.7.1: and the launch's master banner reads `Disallowing`; Run is enabled when this smoke test shows Disallowing on the user's machine — Ruling 68)*; recorded as a Backend check fact; a Ready row without such a fact is Not ready — ~~re-checked at every
+its tolerance~~ *(1.7.2: the final-time mean Courant number lies inside its tolerance — 0.222158 on macOS arm64, OpenFOAM v2512, build `_87ed40d256-20251219`; one shared tolerance is set after the operator's Windows run, and until then the macOS smoke test compares to 0.222158 at the six printed digits (Ruling 70, OQ-3), and the Windows value is Not recorded until then; SU2: the bundled 2D case's final Cl lies inside its tolerance, its reference value Not recorded until the first SU2 run — Ruling 69, DR-SETUP-2)* *(1.7.1: and the launch's master banner reads `Disallowing`; Run is enabled when this smoke test shows Disallowing on the user's machine — Ruling 68)*; recorded as a Backend check fact; a Ready row without such a fact is Not ready — ~~re-checked at every
 launch~~ *(1.7.1: run at install and on a pin change; at every app launch only the install path is re-checked, and the build id is compared on every run from the banner — ADR-0012 D2 rule 2; an existing install is detected and hash-checked against the known builds, and one that does not match runs only after an "unverified install" disclosure is accepted — DR-SEC-1 A)*; the **environment assistant** (AI-11) proposes allow-listed setup steps (install
 ~~Docker Desktop · pull image by digest · create the WSL2 distribution~~ *(1.7.2: the route's step catalogue — macOS: download · verify · place · identify; Windows (Inferred until the Windows run): enable WSL · restart · Linux base · OpenFOAM · identify; SU2: download · verify · place — Ruling 69, DR-SETUP-1)* · run the smoke test · set the resource
 limit) as typed environment-step proposals that carry **only the step id** (and, for the resource limit, one integer
@@ -1241,7 +1241,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | SETUP-06 · Every failure has a cause and a next step *(1.7.2)* | **Given** a failed step with a catalogue cause code, **then** the fixed cause string and its one next step show; **given** an unknown cause, **then** the output excerpt and Copy a report show, and with a key Explain this failure. |
 | SETUP-07 · An install I already have is used if it is the tested one *(1.7.2)* | **Given** an existing install whose hashes match the pin, **then** setup skips to Verify; **given** one that does not match, **then** Install the tested build and Use mine anyway are offered; Use mine anyway records the disclosure acceptance, and every run manifest records "unverified install" (DR-SEC-1 A). |
 | SETUP-08 · Ready means it ran here *(1.7.2)* | **Given** the last install step succeeded, **then** the smoke test runs; Ready shows only when its Backend check fact passes (the named files, the final-time mean Courant number inside tolerance, and for OpenFOAM the banner `Disallowing`); a failed smoke test shows Not ready with a cause and one next step; no other path sets Ready. |
-| SETUP-09 · The app is honest when my computer has no route *(1.7.2)* | **Given** an Intel Mac, macOS before 14, or Windows before build 19041, **then** setup says which requirement is not met, that CAD and the local tiers still work, and offers nothing else. *(Open question OQ-5 on the amendment page: the matrix text still names macOS x86.)* |
+| SETUP-09 · The app is honest when my computer has no route *(1.7.2)* | **Given** an Intel Mac *(not supported: macOS is Apple silicon only — Ruling 70, OQ-5)*, macOS before 14, or Windows before build 19041, **then** setup says which requirement is not met, that CAD and the local tiers still work, and offers nothing else. |
 | RES-01 · I can read available fields with their basis | **Given** an admitted sample, **when** surface Cp, C_f, velocity, a slice or a probe is selected, **then** variable, unit, range with basis, plane or source, run and sample, association and steady or physical-time basis appear with the batlow or vik legend and a table twin; **given** a missing variable or partial coverage, **then** the absence is explicit and masked and no value is invented. |
 | RES-02 · I can investigate flow without invented diagnosis | **Given** velocity and a rake, **when** moved, **then** streamlines update from that sample's field with the mean-field basis label; **given** the separation layer, **then** it exists only with τ_w on the wall and names its criterion; a vortex-core candidate layer is never labelled separation; a moving dash is labelled "affordance, not fluid motion". |
 | RES-03 · I can replay a sweep in 2D or 3D | **Given** admitted samples of one compatible series (A3.1), **when** I choose α at held speed or speed at held α and Play, step or scrub, **then** charts, metrics and the viewport show exactly the selected sample labelled "Parametric sweep — sequence over admitted samples"; camera, slices, seeds and scalar range stay fixed unless unlocked; a failed sample pauses and clears; reduced motion removes autoplay and keeps stepping; **given** two samples with different mesh hashes, **then** they never share a series and the difference flood reads "Unavailable — mesh differs". |
@@ -1353,7 +1353,7 @@ Avalonia (MIT, 11), PureHDF, Parquet.Net, BLAKE3, CliWrap, the official Anthropi
 or excluded: XFOIL, XFLR5, AVL (GPL); OpenVSP (NOSA); SU2 (LGPL-2.1; conda-forge metadata discrepancy noted);
 OpenFOAM, Gmsh, cfMesh (GPL); DAFoam (GPL); NLopt, CasADi, pyOptSparse, ADflow, Dakota (LGPL); SISL (AGPL); OCCT
 (LGPL); ParaView 5.12+ (BSD-3, process-only, optional). Substrate terms inherited by the user, disclosed verbatim
-and never accepted for them: Docker Desktop (free below 250 staff and $10 M revenue; paid above — the product cannot
+and never accepted for them: Docker Desktop *(1.7.2: no longer used; this licence line is struck with the Windows ADR, not now — Ruling 70, OQ-4)* (free below 250 staff and $10 M revenue; paid above — the product cannot
 know the user's organisation), OpenFOAM.app arm64 (unsigned, un-notarized), SU2 release binaries. Data: UIUC
 coordinates (no licence — VEND pending), LSAT polars (GPL data — LINK), Airfoil Tools (all
 rights reserved — LINK), AirfRANS (CC BY-NC-SA — cite only). A NeuralFoil sidecar pulls CasADi (LGPL-3.0) and
@@ -1757,7 +1757,7 @@ X --> Y[Open Results]
 ### B6b-1. Flow F7a — guided solver setup (SETUP-01–09, RUN-01, AI-11) *(1.7.2, Ruling 69)*
 
 The rails need no key. The steps below are the flow of the approved proposal (`amendments/guided-solver-setup.md`
-§3); the mockup is `docs/mockups/solver-setup.html`, and the design is `docs/design/guided-solver-setup.md`. **Every
+§3); the mockup is `docs/mockups/solver-setup.html`, and the design is `docs/design/guided-solver-setup.md`. The setup state table and the setup-assist eval stay in the design, not the spec; the eval joins A8.6 when the assistant track starts (Ruling 70, OQ-2). **Every
 Windows statement is Inferred until the operator's Windows run**; the macOS statements rest on the 2026-10-03
 smoke-test receipt and the 2026-10-04 probes.
 
@@ -2972,8 +2972,8 @@ marked in place.
 Ruling 69 approved the guided-setup proposal with DR-SETUP-1..6 as recommended; the proposal named one criterion that
 cannot be evaluated, the smoke test's "Cl on the cavity" (a lid-driven cavity has no wing). Ruling 67 OD-1 fixed the
 CAD ↔ Analysis shortcut. The amendments are [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md), each with its
-quoted before-text and exact after-text; **the batch is a draft until the spec owner approves it**. No amendment
-invents a product decision; what has no ruling is listed as an open question on that page.
+quoted before-text and exact after-text; **the spec owner approved the batch in Ruling 70** (2026-10-04), with the five open questions OQ-1 to OQ-5 accepted as
+recommended and recorded as AM-1.7.2-26 to -31. No amendment invents a product decision.
 
 **Changed.** RUN-01 and AI-11 (one verb, **Set up a solver**, that works with no key; the assistant explains and
 suggests, the rails decide). A3.1 Backend check and the A5.10 pass clause (the scalar is the final-time mean Courant
@@ -2993,8 +2993,13 @@ strike).
 | "Prepare my environment" (A5.12, B1, B-area table, F7) | "Set up a solver" (DR-SETUP-4) | "Explain this failure" |
 | COPY-75, COPY-76 strings | the plain-words strings; the command under Technical details (DR-SETUP-5) | the command is still shown before consent |
 | ANA-22 "a shortcut" | ⇧⌘A / Ctrl+Shift+A (Ruling 67 OD-1) | the toggle is navigation |
+| A5.10 "macOS arm64/x86" | Apple silicon (arm64) only (Ruling 70, OQ-5) | the macOS route, OpenFOAM.app arm64 |
 
 **Unchanged.** DR-SEC-1 A and the 1.7.1 launcher rules (not duplicated); the A8.5 rows; every tolerance, label and
 licence contract. The spec named no ⌘2 or ⌘3 for the toggle; those keys stay the Precision and Review workspaces.
-**Count:** 23 amendments and two insertions (flow F7a; stories SETUP-01–09, which add nine acceptance criteria) and no
-criterion removed; 6 items superseded in whole or in part, each marked in place.
+**Ruling 70 (OQ-1 to OQ-5), added the same day:** the Windows pin is the Linux image hash plus the `openfoam2512`
+package version, set in an ADR-0012 amendment after the Windows run; the macOS smoke test compares to 0.222158 at six
+digits until one shared tolerance is set; the Docker Desktop licence line is noted and struck with the Windows ADR;
+Intel Macs are not supported; the state table and assistant eval stay in the design.
+**Count:** 29 amendments (23 + six from Ruling 70, AM-1.7.2-26 to -31) and two insertions (flow F7a; stories SETUP-01–09, which add nine acceptance criteria; the amendment ids AM-1.7.2-24 and -25 name these two) and no
+criterion removed; 7 items superseded in whole or in part, each marked in place.
