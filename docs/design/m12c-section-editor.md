@@ -1124,6 +1124,9 @@ posted job, the drawn drag result stays, the cursor has not moved and Finish is 
 follows the certificate. `SectionMode_StepLandingAfterCancel_Discarded` (CTL): a held step landing after Cancel or Dispose
 changes nothing and reports nothing (UI-LIFETIME). `SectionMode_StepsWhileApplying_QueueInOrder` (CTL): steps and an undo
 asked for while one applies queue and land in order; none is dropped.
+`ShellHost_SectionStep_RefreshesOnlyChangedPanes` (EDT): in the section mode a step binds the Properties pane once and the
+assessment landing binds it not at all (none of its inputs changed), while the other panes refresh and Finish follows the
+certificate.
 
 **EDT — the editor surface.**
 `SectionEditor_EnterFromSideDoubleClick_ModeShown` (EDT) · `SectionEditor_ReturnOnSelectedStation_ModeShown` (EDT) ·

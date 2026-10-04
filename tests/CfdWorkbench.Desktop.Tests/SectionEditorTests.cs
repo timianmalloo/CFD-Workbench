@@ -392,6 +392,32 @@ public static class SectionEditorTests
             if (!held.Controller.Section!.CanFinish || !held.Button("ModeFinishButton").IsEnabled)
                 throw new Exception("Finish did not follow the certificate once the step landed");
         });
+        // release-freeze: in the section mode a controller change rebinds the Properties pane (~100 ms a bind under load) only
+        // when an input it reads changed. A step rebinds it once; the assessment landing changes none of its inputs, so it
+        // rebinds the other panes and the mode bar (Finish follows the certificate) and leaves Properties as it is.
+        DesktopChecks.Check("ShellHost_SectionStep_RefreshesOnlyChangedPanes", () =>
+        {
+            var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var shell = new ShellFixture(1280, 800, generation => generation == 1 ? gate.Task : Task.CompletedTask);
+            shell.Enter();
+            var host = shell.Host;
+            long properties = host.PropertiesBinds;
+            var point = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+            var step = host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, point.Ordinate + .005));
+            WaitUntil(() => shell.Controller.Section!.Draft.Cursor == 1);
+            shell.Settle();
+            long stepped = host.PropertiesBinds, refreshes = host.PaneRefreshes;
+            if (stepped - properties != 1) throw new Exception($"One step bound Properties {stepped - properties} times");
+            var finish = shell.View.FindControl<Button>("ModeFinishButton")!;
+            if (finish.IsEnabled) throw new Exception("Finish was on before the certificate answered");
+            gate.SetResult();
+            Wait(step);
+            shell.Settle();
+            if (host.PropertiesBinds != stepped)
+                throw new Exception($"The assessment landing bound Properties {host.PropertiesBinds - stepped} times; none of its inputs changed");
+            if (host.PaneRefreshes == refreshes || !finish.IsEnabled)
+                throw new Exception($"The assessment landing did not refresh the other panes ({host.PaneRefreshes - refreshes}) or turn Finish on");
+        });
         DesktopChecks.Check("SectionEditor_StripSwitchWithEdits_RefusedByClick", () =>
         {
             fixture.Reset();
@@ -1080,7 +1106,7 @@ public static class SectionEditorTests
     /// <summary>The whole shell (Side view, Properties, Show), for the Return/Tab and Show checks.</summary>
     private sealed class ShellFixture : IDisposable
     {
-        internal WorkbenchController Controller { get; } = new();
+        internal WorkbenchController Controller { get; }
         internal ShellHost Host { get; }
         internal Window Window { get; }
         internal ElevationView Side => Host.ModelView.FindControl<ElevationView>("SideElevation")!;
@@ -1088,8 +1114,9 @@ public static class SectionEditorTests
         internal SectionCanvas Canvas => View.FindControl<SectionCanvas>("ModeCanvas")!;
         internal Color Colour(string key) => ColourOf(Canvas, key);
 
-        internal ShellFixture(double width = 1400, double height = 1000)
+        internal ShellFixture(double width = 1400, double height = 1000, Func<long, Task>? assessmentGate = null)
         {
+            Controller = new WorkbenchController(sectionAssessmentGate: assessmentGate);
             Wait(Controller.OpenExampleAsync());
             Host = new ShellHost(Controller);
             Window = new Window { Content = Host, Width = width, Height = height };

@@ -2240,6 +2240,9 @@ public sealed class WorkbenchController : IDisposable
             var kept = points.Items.Where(item => item.Profile == mode.Draft.Profile &&
                 item.Curve is "upper" or "lower" &&
                 SectionCurve(item.Curve == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower)!.Points.Any(p => p.Id == item.VertexId)).ToArray();
+            // All kept is the same selection: a rebuilt list would read as a change and raise SelectionChanged, a second
+            // full shell refresh on every notify in the section mode (release-freeze).
+            if (kept.Length == points.Items.Count) return current;
             if (kept.Length > 0) return new Selection.Points(kept);
         }
         return Reconcile(current, CurrentProjection, ChannelPointExists);
