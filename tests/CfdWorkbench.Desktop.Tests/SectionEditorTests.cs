@@ -90,8 +90,10 @@ public static class SectionEditorTests
         DesktopChecks.Check("SectionEditor_ModeBar_NamesStationAndScopeChip", () =>
         {
             fixture.Reset();
-            if (fixture.Text("ModeTitle").Text != "Editing Root section" || fixture.Text("ScopeChip").Text != "shared profile")
-                throw new Exception("Mode title or scope chip does not name the active Root section");
+            // §0.1 step 2: "Editing Root section · Shared with Tip · Make unique to Root".
+            if (fixture.Text("ModeTitle").Text != "Editing Root section" || fixture.Text("ScopeChip").Text != "Shared with Tip · " ||
+                fixture.Text("ScopeChipLinkText").Text != "Make unique to Root" || !fixture.Button("ScopeChipLink").IsEffectivelyVisible)
+                throw new Exception($"Mode title or scope chip does not name the active Root section: '{fixture.Text("ModeTitle").Text}', '{fixture.Text("ScopeChip").Text}{fixture.Text("ScopeChipLinkText").Text}'");
             if (!fixture.Button("ModeFinishButton").IsEffectivelyVisible || !fixture.Button("ModeCancelButton").IsEffectivelyVisible)
                 throw new Exception("Mode actions are not in the realized surface");
         });
@@ -102,7 +104,8 @@ public static class SectionEditorTests
             var strip = fixture.View.FindControl<StackPanel>("StationStrip")!;
             if (strip.Children.Count != count) throw new Exception("Station strip count differs from authored assignments");
             var first = (Button)strip.Children[0];
-            if (!first.Content!.ToString()!.Contains("chord") || !first.Content.ToString()!.Contains("t/c") ||
+            string help = Avalonia.Automation.AutomationProperties.GetHelpText(first) ?? "";
+            if (!help.Contains("chord") || !help.Contains("t/c") || first.GetVisualDescendants().OfType<SectionThumb>().SingleOrDefault()?.Profile is null ||
                 Avalonia.Automation.AutomationProperties.GetItemStatus(first) != "current")
                 throw new Exception("Current station thumbnail lacks chord, t/c, or current state");
         });
@@ -377,6 +380,20 @@ public static class SectionEditorTests
                 !reason.IsFocused || !reason.IsEffectivelyVisible || !reason.Text!.Contains("cross", StringComparison.Ordinal))
                 throw new Exception($"⌘↩ while blocked did not focus the reason: focused {reason.IsFocused}, '{reason.Text}'");
         });
+        // UXR: "Checking…" is a state reason; once the check of the same step finishes with Finish on, the box goes.
+        DesktopChecks.Check("SectionEditor_CheckFinished_CheckingReasonHidden", () =>
+        {
+            fixture.Reset();
+            var point = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var step = fixture.Controller.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters, point.Ordinate + 0.001));
+            Dispatcher.UIThread.RunJobs();
+            Wait(step);
+            WaitUntil(() => fixture.Controller.Section!.Assessment is not null);
+            Dispatcher.UIThread.RunJobs();
+            var box = fixture.View.FindControl<Border>("ModeReasonBox")!;
+            if (!fixture.Controller.Section!.CanFinish || box.IsVisible)
+                throw new Exception($"The reason box outlived the check: can finish {fixture.Controller.Section.CanFinish}, box '{fixture.Text("ModeReason").Text}'");
+        });
 
         using (var shell = new ShellFixture())
         {
@@ -414,7 +431,7 @@ public static class SectionEditorTests
                 double x = (crossing.X0 + crossing.X1) / 2;
                 var probe = Sections.Probe(shell.Controller.Section!.Draft.Bytes, 0, x);
                 var at = canvas.TranslatePoint(canvas.ModelToScreen(x, probe.UpperY), shell.Window)!.Value;
-                var danger = shell.Colour("DangerBrush");
+                var danger = shell.Colour("PlanDangerBrush");   // §11.2: the crossing marker is danger-viewport on the canvas
                 using var pixels = PropertiesCellsTests.Render(shell.Window, 1);
                 int red = 0;
                 for (int dy = -14; dy <= 14; dy++)
@@ -504,16 +521,22 @@ public static class SectionEditorTests
 
     /// <summary>
     /// Review captures of the built app (CFDW_EDT_CAPTURE=&lt;dir&gt;): the approved mockup's paired screens 2, 2b, 2c and 3
-    /// in the Precision workspace at 1280 × 800, light. Off by default; never part of the gate.
+    /// in the Precision workspace in a window opened at 1280 × 800 (the app's launch size, so the side bars open at their
+    /// 260 px), light and dark. Off by default; never part of the gate.
     /// </summary>
     public static void Capture()
     {
         if (Environment.GetEnvironmentVariable("CFDW_EDT_CAPTURE") is not { Length: > 0 } directory) return;
         Directory.CreateDirectory(directory);
-        using var shell = new ShellFixture();
+        foreach (var (variant, theme) in new[] { (Avalonia.Styling.ThemeVariant.Light, "light"), (Avalonia.Styling.ThemeVariant.Dark, "dark") })
+            CaptureTheme(directory, variant, theme);
+    }
+
+    private static void CaptureTheme(string directory, Avalonia.Styling.ThemeVariant variant, string theme)
+    {
+        using var shell = new ShellFixture(1280, 800);
         var controller = shell.Controller;
-        shell.Window.Width = 1280;
-        shell.Window.Height = 800;
+        shell.Window.RequestedThemeVariant = variant;
         shell.Host.ApplyWorkspace(WorkspaceId.Precision);
         shell.Enter();
         void Step(SectionStep step) { Wait(shell.Host.ApplySectionStepAsync(step)); Assessed(); }
@@ -537,6 +560,7 @@ public static class SectionEditorTests
         void Save(string name)
         {
             shell.Settle();
+            name = name.Replace("-light.png", $"-{theme}.png", StringComparison.Ordinal);
             using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(
                 new PixelSize((int)shell.Window.ClientSize.Width, (int)shell.Window.ClientSize.Height));
             bitmap.Render(shell.Window);
@@ -569,12 +593,13 @@ public static class SectionEditorTests
         Show();
         Save("edt-s2c-light.png");
 
-        // 3: a lower point dragged up through the upper surface: Finish off with its reason, Show frames the crossing.
+        // 3: a lower point dragged up through the upper surface: Finish off with its reason tied to it, the strip warning
+        // with Show; the full chord view (Fit), as the mockup draws it, so the crossing shows on the whole section.
         var lower = controller.SectionCurve(SurfaceSide.Lower)!.Points;
         var low = lower[lower.Count - 3];
         Step(new SectionStep.Move(SurfaceSide.Lower, low.Id, low.SpanMeters, 0.10));
         Pick("lower", low.Id);
-        Show();
+        shell.Canvas.Fit();
         Save("edt-s3-light.png");
         controller.CancelSection();
     }
@@ -744,11 +769,11 @@ public static class SectionEditorTests
         internal SectionCanvas Canvas => View.FindControl<SectionCanvas>("ModeCanvas")!;
         internal Color Colour(string key) => ColourOf(Canvas, key);
 
-        internal ShellFixture()
+        internal ShellFixture(double width = 1400, double height = 1000)
         {
             Wait(Controller.OpenExampleAsync());
             Host = new ShellHost(Controller);
-            Window = new Window { Content = Host, Width = 1400, Height = 1000 };
+            Window = new Window { Content = Host, Width = width, Height = height };
             Window.Show();
             Host.RefreshPanes();
             Controller.Layout = ViewLayout.Four;

@@ -1139,18 +1139,26 @@ public sealed class ShellHost : Grid
         Report(new StatusReport($"{error.Reason ?? error.Code} Nothing changed.", ReportKind.Warning));
     }
 
-    // COPY-187 from Core's refusal "refit <µm> µm exceeds 10 µm at the largest chord <m> m".
-    private string? RefitRefusal(SectionStep.SetType step, ContractError error)
+    private string? RefitRefusal(SectionStep.SetType step, ContractError error) =>
+        Controller.SectionCurve(step.Side)?.Points.FirstOrDefault(point => point.Id == step.VertexId) is { } point
+            ? RefitCopy(error.Reason, point.Index + 1, step.Side == SurfaceSide.Upper ? SurfaceSide.Lower : SurfaceSide.Upper)
+            : null;
+
+    /// <summary>
+    /// COPY-187 from Core's refusal "refit &lt;µm&gt; µm exceeds 10 µm at the largest chord &lt;m&gt; m", for point
+    /// &lt;n&gt; whose <paramref name="affected"/> surface would move; null when the reason is not that refusal. The strip
+    /// and the section editor's reason box both say it (one composer).
+    /// </summary>
+    public static string? RefitCopy(string? coreReason, int pointNumber, SurfaceSide affected)
     {
-        var match = System.Text.RegularExpressions.Regex.Match(error.Reason ?? "", @"refit ([0-9.]+) µm exceeds 10 µm at the largest chord ([0-9.Ee+-]+) m");
-        if (!match.Success || Controller.SectionCurve(step.Side)?.Points.FirstOrDefault(point => point.Id == step.VertexId) is not { } point)
-            return null;
+        var match = System.Text.RegularExpressions.Regex.Match(coreReason ?? "", @"refit ([0-9.]+) µm exceeds 10 µm at the largest chord ([0-9.Ee+-]+) m");
+        if (!match.Success) return null;
         var invariant = System.Globalization.CultureInfo.InvariantCulture;
         double microns = double.Parse(match.Groups[1].Value, invariant);
         double chord = double.Parse(match.Groups[2].Value, invariant);
-        string other = step.Side == SurfaceSide.Upper ? "lower" : "upper";
+        string other = affected == SurfaceSide.Upper ? "upper" : "lower";
         return string.Create(invariant,
-            $"Point {point.Index + 1} stays an anchor. As a control point the {other} surface would move {microns / 1000:0.000} mm, over the 0.010 mm limit at {chord * 1000:0.00} mm chord. Nothing changed.");
+            $"Point {pointNumber} stays an anchor. As a control point the {other} surface would move {microns / 1000:0.0000} mm, over the 0.010 mm limit at {chord * 1000:0.00} mm chord. Nothing changed.");
     }
 
     /// <summary>Show: select what the blocker names and frame it; a blocker with no place says so.</summary>

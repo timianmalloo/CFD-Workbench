@@ -82,6 +82,17 @@ public class SectionCanvas : Control
         InvalidateVisual();
     }
 
+    /// <summary>The comb plate (mockup .lb): "Comb · auto scale · N teeth clipped (×)", written after each comb pass.</summary>
+    public TextBlock? CombTarget { get; set; }
+
+    private void ReportComb()
+    {
+        if (CombTarget is not { } target) return;
+        string text = string.Create(CultureInfo.InvariantCulture, $"Comb · auto scale · {CombClippedCount} teeth clipped (×)");
+        // Render must not change layout; the plate text follows on the next dispatcher turn when it changed.
+        if (target.Text != text) Avalonia.Threading.Dispatcher.UIThread.Post(() => target.Text = text);
+    }
+
     private void SetProbe(string text)
     {
         ProbeText = text;
@@ -336,12 +347,20 @@ public class SectionCanvas : Control
         var layer = new CurvePointLayer(ModelToScreen, ScreenToModel);
         var zero = ModelToScreen(0, 0);
         var end = ModelToScreen(1, 0);
-        context.DrawLine(new Pen(grid, 1), zero, end);
-        for (int tick = 0; tick <= 10; tick++)
+        context.DrawLine(new Pen(mute, 1), zero, end);
+        // The chord axis (mockup drawSection): a line every 10 % (5 % when zoomed in past 60 % of the chord), labelled in
+        // % chord just above the bottom, over the whole visible range.
+        var (left, _) = ScreenToModel(new Point(0, 0));
+        var (right, _) = ScreenToModel(new Point(Bounds.Width, 0));
+        double step = right - left > .6 ? .1 : .05;
+        var gridPen = new Pen(grid, 1);
+        for (double x = Math.Ceiling(left / step - 1e-9) * step; x <= right + 1e-9; x += step)
         {
-            var at = ModelToScreen(tick / 10.0, 0);
-            context.DrawLine(new Pen(grid, 1, new DashStyle([2, 4], 0)),
-                new Point(at.X, 8), new Point(at.X, Bounds.Height - 8));
+            double at = ModelToScreen(x, 0).X;
+            context.DrawLine(gridPen, new Point(at, 34), new Point(at, Bounds.Height - 30));
+            context.DrawText(new FormattedText(string.Create(CultureInfo.InvariantCulture, $"{Math.Round(x * 100) + 0.0} %"),
+                CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(FontFamily.Default), 11, mute),
+                new Point(at + 3, Bounds.Height - 48));
         }
         var curvePen = new Pen(foil, 2);
         var mode = Controller!.Section!;
@@ -361,6 +380,8 @@ public class SectionCanvas : Control
             double p90 = magnitudes.Length == 0 ? 0 : magnitudes[(int)Math.Floor(.9 * (magnitudes.Length - 1))];
             CombScale = p90 <= 1e-12 ? 0 : 30 / p90;
             CombClippedCount = 0;
+            // Teeth in viewport-mute at half strength, so the curves and glyphs stay on top (mockup comb colour).
+            var toothPen = new Pen(mute is ISolidColorBrush solid ? new SolidColorBrush(solid.Color, .5) : mute, 1);
             foreach (var tooth in teeth)
             {
                 double raw = Math.Abs(tooth.Curvature) * CombScale;
@@ -370,28 +391,43 @@ public class SectionCanvas : Control
                 double sign = Math.Sign(tooth.Curvature);
                 var tip = start + new Vector(tooth.Nx * Math.Min(raw, 60) * sign,
                     -tooth.Ny * Math.Min(raw, 60) * sign * (ThicknessDoubled ? 2 : 1));
-                context.DrawLine(new Pen(station, 1), start, tip);
+                context.DrawLine(toothPen, start, tip);
                 if (clipped)
                 {
-                    context.DrawLine(new Pen(station, 1), tip + new Vector(-3, -3), tip + new Vector(3, 3));
-                    context.DrawLine(new Pen(station, 1), tip + new Vector(-3, 3), tip + new Vector(3, -3));
+                    context.DrawLine(new Pen(mute, 1), tip + new Vector(-3, -3), tip + new Vector(3, 3));
+                    context.DrawLine(new Pen(mute, 1), tip + new Vector(-3, 3), tip + new Vector(3, -3));
                 }
+            }
+            // §11.2: the comb breaks at an interior anchor; a dashed station mark shows where.
+            var breakPen = new Pen(station, 2, new DashStyle([1.5, 1], 0));
+            foreach (var anchor in new[] { SurfaceSide.Upper, SurfaceSide.Lower }.Select(side => Controller.SectionCurve(side)!)
+                .SelectMany(curve => curve.Points).Where(point => point.Role == PointRole.Anchor))
+            {
+                var at = layer.ToScreen(anchor);
+                context.DrawLine(breakPen, at - new Vector(0, 20), at + new Vector(0, 20));
             }
         }
         else { CombScale = 0; CombClippedCount = 0; }
+        ReportComb();
         DrawPolyline(context, curvePen, Profile!.UpperCurve.Select(p => ModelToScreen(p.X, p.Y)));
         DrawPolyline(context, curvePen, Profile.LowerCurve.Select(p => ModelToScreen(p.X, p.Y)));
         var crossing = Sections.DisplayCrossing(mode.Draft.Bytes, mode.Draft.Assignment);
         CrossingInterval = crossing;
         if (crossing is { } range && (DangerBrush ?? ResolveThemeBrush("DangerBrush")) is { } crossingBrush)
         {
-            double atX = (range.X0 + range.X1) / 2;
-            var probe = Sections.Probe(mode.Draft.Bytes, mode.Draft.Assignment, atX);
-            foreach (double y in new[] { probe.UpperY, probe.LowerY })
-            {
-                var at = ModelToScreen(atX, y);
-                context.DrawEllipse(null, new Pen(crossingBrush, 4, new DashStyle([3, 2], 0)), at, 12, 12);
-            }
+            // §11.2 and the mockup's crossMark: a 4 px dashed danger line along both curves over the crossing.
+            var crossingPen = new Pen(crossingBrush, 4, new DashStyle([1.5, 1], 0));
+            foreach (var curve in new[] { Profile.UpperCurve, Profile.LowerCurve })
+                DrawPolyline(context, crossingPen, curve.Where(p => p.X >= range.X0 && p.X <= range.X1).Select(p => ModelToScreen(p.X, p.Y)));
+        }
+        // The mockup's surface names at the trailing edge, whenever the whole chord is in view.
+        if (ScreenToModel(new Point(Bounds.Width, 0)).X >= 1)
+        {
+            var upperEnd = ModelToScreen(Profile.UpperCurve[^1].X, Profile.UpperCurve[^1].Y);
+            var lowerEnd = ModelToScreen(Profile.LowerCurve[^1].X, Profile.LowerCurve[^1].Y);
+            foreach (var (text, at) in new[] { ("Upper", upperEnd + new Vector(0, -24)), ("Lower", lowerEnd + new Vector(0, 6)) })
+                context.DrawText(new FormattedText(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                    new Typeface(FontFamily.Default), 11, mute), new Point(Math.Min(at.X + 12, Bounds.Width - 44), at.Y));
         }
         var upper = Controller.SectionCurve(SurfaceSide.Upper);
         var lower = Controller.SectionCurve(SurfaceSide.Lower);
@@ -435,7 +471,7 @@ public class SectionCanvas : Control
                 new Point(at.X, at.Y - 14), new Point(at.X, at.Y + 14));
             if (RefitMarkerLabel is { Length: > 0 } label)
                 context.DrawText(new FormattedText(label, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-                    new Typeface(FontFamily.Default), 11, danger), new Point(at.X - 40, at.Y + 28));
+                    new Typeface(FontFamily.Default), 11, danger), new Point(at.X - 40, at.Y + 28 > Bounds.Height - 64 ? at.Y - 44 : at.Y + 28));   // clear of the axis labels
         }
     }
 
@@ -996,7 +1032,7 @@ public class SectionCanvas : Control
 
     private IBrush? ResolveThemeBrush(string key)
     {
-        if (this.TryFindResource(key, out var res) && res is IBrush brush) return brush;
+        if (this.TryFindResource(key, ActualThemeVariant, out var res) && res is IBrush brush) return brush;
         if (Application.Current is not null && Application.Current.TryFindResource(key, out var appRes) && appRes is IBrush appBrush) return appBrush;
         return null;
     }
