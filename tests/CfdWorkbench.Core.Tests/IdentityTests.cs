@@ -83,6 +83,7 @@ internal static class IdentityTests
         BlendTests.Run();
         AuthoringSessionTests.Run();
         ProjectStoreTests.Run();
+        SectionLibraryTests.Run();
         SectionEditTests.Run();
         SectionEditTests.RunMultiProfile();
         FitTests.Run();
