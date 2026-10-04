@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T17:26:08Z",
+  "generated": "2026-10-04T17:48:53Z",
   "audit": [
     {
       "actor": null,
@@ -23458,6 +23458,81 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T17:25:10Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M43ZZY2P7D98Z0BVQZEH7611",
+      "shortname": "join-spec-1.7.2",
+      "datetime": "2026-10-04T17:39:38Z",
+      "session": "f19a2b12",
+      "prompt": "the join of docs/spec-1.7.2 into feature/ui-cad-direction",
+      "summary": "Spec 1.7.2 (owner approval Ruling 70): 29 amendments + flow F7a + stories SETUP-01..09; smoke test by Courant; Windows default an app-owned WSL Linux; one verb without a key; Shift-Cmd-A; macOS arm64 only; design §11.4 fixed. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:38:45Z",
+      "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M44051PVWJER4G95BZGTB4SQ",
+      "shortname": "join-a3a-pre",
+      "datetime": "2026-10-04T17:42:25Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/a3a-pre into feature/ui-cad-direction",
+      "summary": "PRE (Opus 5.5, 16 of 60 min): ADR-0011 analysis run storage Accepted (cfdw-project-2 only when a run exists, .v1.bak, invariants, content hash, reachability retention); CfdWorkbench.Analysis skeleton; Core RunRecord shape; Placement.SectionSample + throwing Sections(..., CancellationToken); Analysis harness with PASS/COST; architecture check on the built assembly (red on planted ProfileAt and BeginSectionDraft); --analysis Desktop mode; check-named-tests --track-section/--named-sections (self-test 9/9). PlacedSection.Assignment now stores the station index (red first; surface-bit pin moved for the 3 shared-profile fixtures only, integer not coordinates). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:41:27Z",
+      "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M440GVYCHTCMFMR4B4N4BY6R",
+      "shortname": "join-budget-retry",
+      "datetime": "2026-10-04T17:48:53Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/join-budget-retry into feature/ui-cad-direction",
+      "summary": "join-when-quiet.sh: when the last wall line is over budget and the run's end load > 15, wait for quiet and continue once; a quiet overrun or a second overrun stands. Four load-only overruns today. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:47:57Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
