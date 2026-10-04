@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T21:46:53Z",
+  "generated": "2026-10-04T21:48:36Z",
   "audit": [
     {
       "actor": null,
@@ -23683,6 +23683,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T21:45:20Z",
       "duration_seconds": 93.0
+    },
+    {
+      "id": "al-01M44E7T1JVPNY6843P66CZKKN",
+      "shortname": "join-unique-early-refusal",
+      "datetime": "2026-10-04T21:48:36Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/unique-section-early-refusal into feature/ui-cad-direction",
+      "summary": "Early refusal (Opus 5.5): PatchSectionStep -> SectionEdits.RequireNeighbourAbscissa (one rule, Geometry.SharedAbscissa) for every step kind incl. Import; COPY-209 approved; COPY-210 corrected by the operator (no non-existent import path). Red first x4. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T21:46:58Z",
+      "duration_seconds": 98.0
     }
   ],
   "changes": [
