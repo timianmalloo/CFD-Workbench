@@ -1,0 +1,6 @@
+m0 faces>70=811 te_flag=677 te_panel(z<=b/2, >2 mm from a pole)=616 te_with_tip_or_pole=61
+m0 te_panel z range 0.0022500415289850003 0.4777499583175 wall distance median 7.968467328422409e-05
+m1a faces>70=70195 te_flag=69892 te_panel(z<=b/2, >2 mm from a pole)=69499 te_with_tip_or_pole=393
+m1a te_panel z range 8.837761947619999e-05 0.47962203643 wall distance median 0.0013453567410691052
+m1b faces>70=246 te_flag=73 te_panel(z<=b/2, >2 mm from a pole)=1 te_with_tip_or_pole=72
+m1b te_panel z range 0.0362430608629 0.0362430608629 wall distance median 0.002002081765757955
