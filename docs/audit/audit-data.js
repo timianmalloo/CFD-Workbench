@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T01:41:05Z",
+  "generated": "2026-10-04T01:53:56Z",
   "audit": [
     {
       "actor": null,
@@ -23121,6 +23121,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-04T01:40:12Z",
+      "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M429WAG1ES8ZVBPG9EVWVQ6X",
+      "shortname": "join-readiness-relpath",
+      "datetime": "2026-10-04T01:53:56Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/readiness-relative-paths into feature/ui-cad-direction",
+      "summary": "Readiness on 7dd6fe8 red: a PVC test read docs/proof by a working-directory path absent from the published copy. Fixed via PlacementTests.RepoRoot(); new check-test-paths.py in check-docs catches the class (second instance tonight). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T01:53:03Z",
       "duration_seconds": 53.0
     }
   ],
