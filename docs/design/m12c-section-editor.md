@@ -1115,6 +1115,8 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `SectionMode_Cancel_ViewsBackStationSelected` (CTL) · `SectionMode_WingFieldsReadOnly_Copy122` (CTL) ·
 `Selection_SectionPointReconcile_DroppedAfterLeavingMode` (CTL) · `SectionTelemetry_EnterEvent_CarriesOrigin` (CTL) ·
 `SectionMode_StripSwitchNoEdits_DraftRebindsToNewStation` (CTL).
+Release-freeze (2026-10-04; fast ring, `tools/run-tests.sh`, each under 1 s): `Sections_Facts_MemoInvalidatedByNewBytes` (CTL):
+the facts memo answers the same byte array from memory and computes a new array afresh, so a step's facts are never stale.
 
 **EDT — the editor surface.**
 `SectionEditor_EnterFromSideDoubleClick_ModeShown` (EDT) · `SectionEditor_ReturnOnSelectedStation_ModeShown` (EDT) ·
