@@ -1,8 +1,11 @@
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
 using Avalonia.Markup.Xaml;
 using Avalonia;
 using Avalonia.Automation;
+using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
@@ -15,13 +18,20 @@ public partial class SectionEditorView : UserControl
     private WorkbenchController? controller;
     private string? focusedDraft;
     private string? reasonDraft;   // the draft id and generation the reason box last followed
+    private string? shownStateReason; // the state reason (Checking…, why Finish is off, a refused refit) the box last showed
+    private ((SurfaceSide, double, double, double) Refusal, string? Copy)? refitCopy;
 
     public SectionEditorView()
     {
         InitializeComponent();
         ModeCancelButton.Click += (_, _) => controller?.CancelSection();
         ModeFinishButton.Click += (_, _) => _ = FinishAsync();
-        CurvatureToggle.Click += (_, _) => { ModeCanvas.CurvatureVisible = CurvatureToggle.IsChecked == true; ModeCanvas.InvalidateVisual(); };
+        CurvatureToggle.Click += (_, _) =>
+        {
+            ModeCanvas.CurvatureVisible = CurvatureToggle.IsChecked == true;
+            ModeCombPlate.IsVisible = ModeCanvas.CurvatureVisible;
+            ModeCanvas.InvalidateVisual();
+        };
         ThicknessToggle.Click += (_, _) =>
         {
             ModeCanvas.ThicknessDoubled = ThicknessToggle.IsChecked == true;
@@ -31,10 +41,12 @@ public partial class SectionEditorView : UserControl
         ModeSectionButton.Flyout = SectionMenu();
         ModeFitButton.Click += (_, _) => ModeCanvas.Fit();
         ModeFitSelectionButton.Click += (_, _) => ModeCanvas.FitSelection();
+        ScopeChipLink.Click += (_, _) => { if (this.FindAncestorOfType<ShellHost>() is { } host) _ = host.RunCommand("section.make-unique"); };
         ModeCanvas.CancelTarget = ModeCancelButton;
         ModeCanvas.ReasonTarget = ModeReason;
         ModeCanvas.ReasonContainer = ModeReasonBox;
         ModeCanvas.ProbeTarget = ModeProbe;
+        ModeCanvas.CombTarget = ModeCombLabel;
         // DR-NAV-1 and §11.3: Tab goes to the point's Type and Return to its x, both in the shell's Properties pane.
         ModeCanvas.TabOut = () => this.FindAncestorOfType<ShellHost>()?.Properties.FocusFirstValue() == true;
         ModeCanvas.ValueOut = () => this.FindAncestorOfType<ShellHost>()?.Properties
@@ -116,28 +128,33 @@ public partial class SectionEditorView : UserControl
                 ModeCanvas.Profile = EditableSectionCanvas.Profile;
                 ModeCanvas.SelectedVertex = controller.Selection is Selection.Points picked && picked.Items.Count > 0
                     ? (picked.Items[0].Curve, picked.Items[0].VertexId) : null;
-                var assignmentRow = controller.Inspection.Authored.Assignments[assignment.Value];
-                ModeTitle.Text = $"Editing {ElevationView.StationName(assignment.Value, assignmentRow.Eta)} section";
-                ScopeChip.Text = mode.Draft.Scope == SectionScope.Shared ? "shared profile" : "this station only";
+                var assignments = controller.Inspection.Authored.Assignments;
+                string name = ElevationView.StationName(assignment.Value, assignments[assignment.Value].Eta);
+                SetTitle(name);
+                SetScopeChip(mode, assignments, assignment.Value, name);
                 ModePlate.Text = PlateText();
                 ModeFinishButton.IsEnabled = mode.CanFinish;
                 string? reason = mode.FinishReason;
                 AutomationProperties.SetHelpText(ModeFinishButton, reason);
-                // A state reason (a refused refit, or why Finish is off) always shows. A gesture's refusal (⌫ on a named
-                // point, a refused step, a refused strip switch) has no state behind it: it stays until the draft changes.
-                string? stateReason = controller.SectionRefitRefusal is not null ? controller.Status
-                    : mode.IsDirty && !mode.CanFinish ? reason : null;
+                // A state reason (a refused refit, or why Finish is off, "Checking…" included) shows while its state holds
+                // and goes when it ends, even within one draft generation. A gesture's refusal (⌫ on a named point, a refused
+                // step, a refused strip switch) has no state behind it: it stays until the draft changes.
+                string? stateReason = RefitCopy(controller) ?? (mode.IsDirty && !mode.CanFinish ? reason : null);
+                string key = $"{mode.Draft.DraftId}:{mode.Draft.Generation}";
                 if (stateReason is not null)
                 {
                     ModeReason.Text = stateReason;
                     ModeReasonBox.IsVisible = true;
+                    shownStateReason = stateReason;
                 }
-                else if (reasonDraft != $"{mode.Draft.DraftId}:{mode.Draft.Generation}")
+                else if (reasonDraft != key || shownStateReason is not null && ModeReason.Text == shownStateReason)
                 {
+                    // The state ended: its text goes. A gesture refusal written over it since then stays.
                     ModeReason.Text = null;
                     ModeReasonBox.IsVisible = false;
+                    shownStateReason = null;
                 }
-                reasonDraft = $"{mode.Draft.DraftId}:{mode.Draft.Generation}";
+                reasonDraft = key;
                 RefreshStationStrip(controller, assignment.Value);
                 if (focusedDraft != mode.Draft.DraftId)
                 {
@@ -152,7 +169,7 @@ public partial class SectionEditorView : UserControl
                 : null;
             ModeCanvas.RefitMarker = EditableSectionCanvas.RefitMarker;
             ModeCanvas.RefitMarkerLabel = controller.SectionRefitRefusal is { } measured
-                ? $"{measured.Side.ToString().ToLowerInvariant()} would move {measured.DeviationMeters * 1000:F3} mm here (limit {measured.LimitMeters * 1000:F3} mm)"
+                ? $"{measured.Side.ToString().ToLowerInvariant()} would move {measured.DeviationMeters * 1000:F4} mm here (limit {measured.LimitMeters * 1000:F3} mm)"
                 : null;
             SectionEmptyText.IsVisible = false;
         }
@@ -164,6 +181,45 @@ public partial class SectionEditorView : UserControl
         }
     }
 
+    // COPY-173: "Editing <station> section", the station in the accent (mockup .ttl em).
+    private void SetTitle(string station)
+    {
+        string text = $"Editing {station} section";
+        if (ModeTitle.Text == text) return;
+        ModeTitle.Text = text;
+        ModeTitle.Inlines = [new Run("Editing "), new Run(station) { Foreground = Brush("PrimaryBrush") }, new Run(" section")];
+    }
+
+    // §0.1 steps 2 and 8: "Shared with <stations> · Make unique to <station>", or "Only <station> uses this section".
+    private void SetScopeChip(SectionMode mode, IReadOnlyList<AuthoredAssignment> assignments, int active, string name)
+    {
+        var others = assignments.Select((row, index) => (row, index))
+            .Where(item => item.index != active && item.row.ProfileName == mode.Draft.Profile)
+            .Select(item => ElevationView.StationName(item.index, item.row.Eta)).ToArray();
+        bool shared = mode.Draft.Scope == SectionScope.Shared && others.Length > 0;
+        ScopeChip.Text = shared ? $"Shared with {string.Join(", ", others)} · " : $"Only {name} uses this section";
+        ScopeChipLinkText.Text = $"Make unique to {name}";
+        ScopeChipLink.IsVisible = shared;
+        ToolTip.SetTip(ScopeChip.Parent as Control ?? ScopeChip, shared ? $"Shared with {string.Join(", ", others)}" : null);
+    }
+
+    // COPY-187 for a refused Anchor → Control, held for that refusal: the controller's status line moves on, the copy stays.
+    private string? RefitCopy(WorkbenchController controller)
+    {
+        if (controller.SectionRefitRefusal is not { } refusal) { refitCopy = null; return null; }
+        if (refitCopy is { } held && held.Refusal == refusal) return held.Copy;
+        string? copy = null;
+        if (controller.Selection is Selection.Points { Items.Count: > 0 } picked &&
+            controller.SectionCurve(picked.Items[0].Curve == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower)?.Points
+                .FirstOrDefault(point => point.Id == picked.Items[0].VertexId) is { } point)
+            copy = ShellHost.RefitCopy(controller.Status, point.Index + 1, refusal.Side);
+        refitCopy = (refusal, copy);
+        return copy;
+    }
+
+    private IBrush? Brush(string key) =>
+        this.TryFindResource(key, ActualThemeVariant, out var value) ? value as IBrush : null;
+
     private void RefreshStationStrip(WorkbenchController controller, int active)
     {
         StationStrip.Children.Clear();
@@ -171,17 +227,45 @@ public partial class SectionEditorView : UserControl
         {
             var facts = Sections.Facts(controller.Section!.Draft.Bytes, index);
             string name = ElevationView.StationName(index, assignment.Eta);
-            var button = new Button
-            {
-                Content = $"{name} · {assignment.SpanMeters * 1000:F2} mm from root\n{facts.StationChordMeters * 1000:F2} mm chord · {facts.StationThicknessRatio * 100:F2} % t/c",
-                MinWidth = 170
-            };
+            string distance = string.Create(CultureInfo.InvariantCulture, $"{assignment.SpanMeters * 1000:F2} mm");
+            string chord = string.Create(CultureInfo.InvariantCulture, $"c {facts.StationChordMeters * 1000:F2} mm");
+            string ratio = string.Create(CultureInfo.InvariantCulture, $"t/c {facts.StationThicknessRatio * 100:F2} %");
+            var button = new Button { Content = Thumbnail(controller.SectionView(SharesDraft(controller, index) ? active : index), name, distance, chord, ratio) };
+            button.Classes.Add("station-thumb");
+            button.Classes.Set("current", index == active);
             AutomationProperties.SetName(button, $"{name} section thumbnail");
+            AutomationProperties.SetHelpText(button, $"{distance} from root, {chord[2..]} chord, {ratio}");
             if (index == active) AutomationProperties.SetItemStatus(button, "current");
             int target = index;
             button.Click += (_, _) => _ = SwitchStationAsync(target);
             StationStrip.Children.Add(button);
         }
+    }
+
+    // A station that shares the section being edited shows the draft shape too: the edit reaches it on Finish, and an old
+    // outline there would say the edit is local (marine-CAD re-review, UXR).
+    private static bool SharesDraft(WorkbenchController controller, int index) =>
+        controller.Section is { Draft.Scope: SectionScope.Shared } mode &&
+        controller.Inspection!.Authored.Assignments[index].ProfileName == mode.Draft.Profile;
+
+    // Mockup .thumb: the station's section outline on the viewport, then "<name> · <distance>" and "c <chord> · t/c <t/c>".
+    private static Control Thumbnail(ProfileView profile, string name, string distance, string chord, string ratio)
+    {
+        static Control Row(string left, string right, bool muted, bool bold)
+        {
+            var start = new TextBlock { Text = left, FontWeight = bold ? FontWeight.SemiBold : FontWeight.Normal };
+            var end = new TextBlock { Text = right, HorizontalAlignment = HorizontalAlignment.Right };
+            start.Classes.Set("muted", muted);
+            end.Classes.Set("muted", muted);
+            Grid.SetColumn(end, 1);
+            var border = new Border { Child = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto"), Children = { start, end } } };
+            border.Classes.Add("station-thumb-label");
+            return border;
+        }
+        var outline = new SectionThumb { Profile = profile, IsHitTestVisible = false };
+        var rows = new StackPanel { Children = { Row(name, distance, false, true), Row(chord, ratio, true, false) } };
+        Grid.SetRow(rows, 1);
+        return new Grid { RowDefinitions = new RowDefinitions("*,Auto"), Children = { outline, rows } };
     }
 
     private async Task SwitchStationAsync(int index)
@@ -201,5 +285,24 @@ public partial class SectionEditorView : UserControl
             ModeReason.Text = error.Message;
             ModeReasonBox.IsVisible = true;
         }
+    }
+}
+
+/// <summary>A station strip thumbnail's section outline (mockup thumbDraw): both curves at ×2 thickness, inset 8 px.</summary>
+public sealed class SectionThumb : Control
+{
+    public ProfileView? Profile { get; set; }
+
+    public override void Render(DrawingContext context)
+    {
+        if (Profile is null || Bounds.Width <= 16 || Bounds.Height <= 0) return;
+        var foil = this.TryFindResource("FoilBrush", ActualThemeVariant, out var value) ? value as IBrush : null;
+        if (foil is null) return;
+        double scale = Bounds.Width - 16, middle = Bounds.Height / 2;
+        var pen = new Pen(foil, 1.5);
+        foreach (var curve in new[] { Profile.UpperCurve, Profile.LowerCurve })
+            for (int index = 1; index < curve.Count; index++)
+                context.DrawLine(pen, new Point(8 + curve[index - 1].X * scale, middle - curve[index - 1].Y * scale * 2),
+                    new Point(8 + curve[index].X * scale, middle - curve[index].Y * scale * 2));
     }
 }

@@ -266,15 +266,28 @@
     <Thickness x:Key="ToastTextGap">8,0</Thickness>
     <CornerRadius x:Key="RoundedSm">4</CornerRadius>          <!-- rounded.sm -->
     <BoxShadows x:Key="PopoverShadow">0 8 24 0 #29000000</BoxShadows>   <!-- elevation.popover: 0 8px 24px rgba(0,0,0,0.16) -->
-    <!-- The section editor's mode surface (M1.2c §11; docs/mockups/m12c-section-editor.html .modebar, .chip, .strip). -->
+    <!-- The section editor's mode surface (M1.2c §11; docs/mockups/m12c-section-editor.html .modebar, .chip, .plate, .why,
+         .strip, .thumb). The bar is spacing.mode-bar (32 px) and the strip spacing.station-strip (84 px) high. -->
     <Thickness x:Key="ModeBarInset">8,0</Thickness>           <!-- spacing.mode-bar-inset -->
-    <Thickness x:Key="ScopeChipPadding">6,2</Thickness>       <!-- spacing.scope-chip-pad -->
-    <Thickness x:Key="ModeOverlayInset">12</Thickness>        <!-- spacing.mode-overlay-inset: plate, probe and reason off the canvas edge -->
-    <Thickness x:Key="ModeProbePadding">8,4</Thickness>       <!-- spacing.mode-probe-pad -->
-    <x:Double x:Key="ModeProbeMaxWidth">420</x:Double>        <!-- spacing.mode-probe-w -->
-    <Thickness x:Key="ModeReasonPadding">8</Thickness>        <!-- spacing.mode-reason-pad -->
-    <Thickness x:Key="ModeActionsInset">0,0,0,12</Thickness>  <!-- spacing.mode-overlay-inset, bottom only: Fit / Fit Selection -->
-    <Thickness x:Key="StationStripInset">8</Thickness>        <!-- spacing.station-strip-inset -->
+    <x:Double x:Key="ModeBarGap">4</x:Double>                 <!-- spacing.mode-bar-gap -->
+    <Thickness x:Key="ModeBarButtonPadding">8,0</Thickness>   <!-- spacing.mode-bar-button-pad: 24 px buttons, 0 8px -->
+    <Thickness x:Key="ModeBarTitleGap">0,0,6,0</Thickness>    <!-- the title's 6 px before the chip -->
+    <x:Double x:Key="ModeTitleSize">12</x:Double>             <!-- the mode title, 12 px 600 -->
+    <Thickness x:Key="ScopeChipPadding">8,0</Thickness>       <!-- spacing.scope-chip-pad -->
+    <CornerRadius x:Key="ScopeChipRadius">12</CornerRadius>   <!-- the chip is a pill at 24 px -->
+    <Thickness x:Key="ModePlatePadding">8,5</Thickness>       <!-- spacing.mode-plate-pad: .plate padding 5px 8px -->
+    <Thickness x:Key="ModePlateGap">6,0,0,0</Thickness>       <!-- between the view plate and the probe on one line -->
+    <Thickness x:Key="ModeReasonPadding">8,6</Thickness>      <!-- spacing.mode-reason-pad: .why padding 6px 8px -->
+    <Thickness x:Key="ModeReasonBorder">3,1,1,1</Thickness>   <!-- .why: a 3 px danger rail at the left -->
+    <x:Double x:Key="ModeReasonMaxWidth">360</x:Double>       <!-- spacing.mode-reason-w -->
+    <Thickness x:Key="StationStripInset">4</Thickness>        <!-- spacing.station-strip-inset -->
+    <x:Double x:Key="StationStripGap">4</x:Double>
+    <x:Double x:Key="StationThumbWidth">170</x:Double>        <!-- spacing.station-thumb-w -->
+    <Thickness x:Key="StationThumbCurrentEdge">1,1,1,3</Thickness> <!-- the current thumbnail: station border and 2 px underline -->
+    <Thickness x:Key="StationThumbLabelPadding">6,1</Thickness>
+    <Thickness x:Key="PointsKindGap">4,0,0,0</Thickness>      <!-- the Points pane's .pts gap before Kind -->
+    <Thickness x:Key="PointsRowPadding">9,0,8,0</Thickness>   <!-- + the 3 px rail: the mockup .pts .pr padding 0 8px 0 12px -->
+    <Thickness x:Key="PointsEditPadding">3,0</Thickness>      <!-- the x / y box keeps prop-edit-pad horizontally inside its 50 px column -->
     </ResourceDictionary>
   </Styles.Resources>
   <Style Selector="Window"><Setter Property="Background" Value="{DynamicResource CanvasBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontSize" Value="{StaticResource BodySize}" /></Style>
@@ -450,4 +463,35 @@
   <Style Selector="MenuFlyoutPresenter.navbar-menu"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource NavbarRadius}" /><Setter Property="Padding" Value="{StaticResource NavbarMenuPadding}" /><Setter Property="MinWidth" Value="{StaticResource NavbarMenuMinWidth}" /></Style>
   <Style Selector="MenuFlyoutPresenter.navbar-menu MenuItem"><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource NavbarMenuItemPadding}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
   <Style Selector="MenuFlyoutPresenter.navbar-menu MenuItem:checked"><Setter Property="FontWeight" Value="SemiBold" /></Style>
+
+  <!-- The section editor's mode bar (M1.2c §11.1; mockup .modebar): 24 px buttons with 0 8px padding, a pressed toggle on
+       the soft fill with a hairline (never Fluent's accent), Cancel outlined, Finish the one primary. -->
+  <Style Selector="Border.modebar"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource PropRuleBottom}" /><Setter Property="Padding" Value="{StaticResource ModeBarInset}" /></Style>
+  <Style Selector="TextBlock.modebar-title"><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="FontSize" Value="{StaticResource ModeTitleSize}" /><Setter Property="Margin" Value="{StaticResource ModeBarTitleGap}" /></Style>
+  <Style Selector="Border.modebar-chip"><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="Padding" Value="{StaticResource ScopeChipPadding}" /><Setter Property="CornerRadius" Value="{StaticResource ScopeChipRadius}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /></Style>
+  <Style Selector="Border.modebar-chip TextBlock"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /></Style>
+  <Style Selector="Button.modebar-link"><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource NoInset}" /><Setter Property="BorderThickness" Value="{StaticResource NoInset}" /><Setter Property="Background" Value="Transparent" /><Setter Property="VerticalContentAlignment" Value="Center" /></Style>
+  <Style Selector="Button.modebar-link TextBlock, Button.modebar-link:pointerover TextBlock"><Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" /></Style>
+  <Style Selector="Button.modebar-link:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.modebar-link:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="Transparent" /></Style>
+  <Style Selector="Button.modebar, ToggleButton.modebar"><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource ModeBarButtonPadding}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="BorderBrush" Value="Transparent" /><Setter Property="Background" Value="Transparent" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="CornerRadius" Value="{StaticResource RoundedSm}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="VerticalAlignment" Value="Center" /><Setter Property="VerticalContentAlignment" Value="Center" /></Style>
+  <Style Selector="Button.modebar:pointerover /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.modebar:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="ToggleButton.modebar:checked /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.modebar:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.modebar:checked:pressed /template/ ContentPresenter#PART_ContentPresenter, ToggleButton.modebar:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="Button.modebar.outline"><Setter Property="BorderBrush" Value="{DynamicResource ControlLineBrush}" /></Style>
+  <Style Selector="Button.modebar.primary"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+  <Style Selector="Button.modebar.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" /></Style>
+  <Style Selector="Button.modebar.primary:disabled /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
+  <!-- The mode canvas's plates (mockup .plate, .vlabel.on, .why, .lb): viewport-soft plates with viewport-ink text. -->
+  <Style Selector="Border.modeplate"><Setter Property="Background" Value="{DynamicResource PlanSoftBrush}" /><Setter Property="CornerRadius" Value="{StaticResource ViewPlateRadius}" /><Setter Property="Padding" Value="{StaticResource ModePlatePadding}" /><Setter Property="VerticalAlignment" Value="Top" /></Style>
+  <Style Selector="Border.modeplate.target"><Setter Property="BorderBrush" Value="{DynamicResource PlanSelectionBrush}" /><Setter Property="BorderThickness" Value="{StaticResource ViewPlateTargetEdge}" /></Style>
+  <Style Selector="TextBlock.modeplate"><Setter Property="Foreground" Value="{DynamicResource ViewportInkBrush}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /></Style>
+  <Style Selector="Border.modereason"><Setter Property="HorizontalAlignment" Value="Right" /><Setter Property="MaxWidth" Value="{StaticResource ModeReasonMaxWidth}" /><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" /><Setter Property="BorderThickness" Value="{StaticResource ModeReasonBorder}" /><Setter Property="CornerRadius" Value="{StaticResource ViewPlateRadius}" /><Setter Property="Padding" Value="{StaticResource ModeReasonPadding}" /></Style>
+  <Style Selector="Border.modereason TextBlock"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /></Style>
+  <!-- The station strip (mockup .strip, .thumb): a drawn section outline over two label rows; the current one underlined. -->
+  <Style Selector="ScrollViewer.station-strip"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /></Style>
+  <Style Selector="Button.station-thumb"><Setter Property="Width" Value="{StaticResource StationThumbWidth}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource NoInset}" /><Setter Property="Background" Value="{DynamicResource ViewportBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" /><Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" /><Setter Property="CornerRadius" Value="{StaticResource ViewPlateRadius}" /><Setter Property="HorizontalContentAlignment" Value="Stretch" /><Setter Property="VerticalContentAlignment" Value="Stretch" /><Setter Property="VerticalAlignment" Value="Stretch" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /></Style>
+  <Style Selector="Button.station-thumb.current"><Setter Property="BorderBrush" Value="{DynamicResource StationBrush}" /><Setter Property="BorderThickness" Value="{StaticResource StationThumbCurrentEdge}" /></Style>
+  <Style Selector="Button.station-thumb:pointerover /template/ ContentPresenter#PART_ContentPresenter, Button.station-thumb:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Background" Value="{DynamicResource ViewportBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="Border.station-thumb-label"><Setter Property="Background" Value="{DynamicResource SurfaceBrush}" /><Setter Property="Padding" Value="{StaticResource StationThumbLabelPadding}" /></Style>
+  <Style Selector="Border.station-thumb-label TextBlock"><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
+  <Style Selector="Border.station-thumb-label TextBlock.muted"><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
 </Styles>

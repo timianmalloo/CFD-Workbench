@@ -2509,7 +2509,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "design — documents only (Ruling 67 (b)); no build until the operator approves the mockup",
       "reviewBy": "2026-11-04",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.2 (draft; Ruling 69, Ruling 67 OD-1): guided solver setup, smoke-test scalar, Windows route, toggle shortcut"
+        }
+      ],
       "summary": "The design behind the guided-setup amendment. Model: the existing Backend environment and Backend check, plus three append-only facts (Host survey, Environment step, Install acceptance) and a product-published Route catalogue; the current step, the session state and Ready are derived, never stored, so resume after a restart is a re-derivation. Routes: macOS OpenFOAM.app v2512 (6 steps; the release zip, the inner disk image and the two launch scripts are hash-pinned, all Verified on this Mac today); Windows OpenFOAM in an app-owned WSL distribution (Ubuntu 24.04.5 image and OpenCFD apt packages pinned by sha256, 8 steps, one administrator prompt, one restart); Windows SU2 v8.5.0 native (win64-omp zip pinned, 4 steps, no prompt). Every Windows behaviour is Inferred until the operator's Windows run. Findings: the Homebrew cask the operator used strips the quarantine flag (a step M8 refuses), so the product never installs through Homebrew; the spec's smoke scalar (Cl on a cavity) cannot exist. DR-SETUP-1..6 are open.",
       "tags": [
         "run",
@@ -2585,7 +2591,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cb7470e11abde1e74e8f502f600dc74ce9c944c06d59ccb3949cdc4f5bfd4a10"
+      "sourceSha256": "ed49b7be5af24cdd4191ce71b6881fe57ec4dbcdfb5f65fb28702f46007bbeb7"
     },
     {
       "id": "design-m12b-points",
@@ -2946,7 +2952,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e35ce80b339aec16e94209f4e211760cce4801708ccc9a0a4283846e1bbae088"
+      "sourceSha256": "5e541c6948b139fcc6fb128d6968f00f3875db2df7f414e92e019b596030d1bc"
     },
     {
       "id": "design-planform-point-verbs",
@@ -3515,7 +3521,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-31",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.2 (draft; Ruling 69, Ruling 67 OD-1): guided solver setup, smoke-test scalar, Windows route, toggle shortcut"
+        }
+      ],
       "summary": "The 1280 × 800 shell with a Solver setup document tab, on Windows (11 states) and macOS (7 states): first launch with no solver, nothing installed with one recommended route, WSL not turned on, the Windows administrator prompt, restart needed, resumed after the restart, virtualization off in firmware, installing, a test run that failed with an explained cause, an unknown failure with Copy a report and an assistant suggestion, Ready; on macOS an existing install that is not the tested build, the licence and download step, macOS blocked the app, a failed test after Use mine anyway, Ready. The assistant panel has three modes (answer shown, answer withheld, no key). DESIGN.md tokens, the DR-STATUS-1 status strip. Browser check green (0 errors, 0 findings, 0 contrast failures, 22 captures). For the operator's visual approval before any build.",
       "tags": [
         "mockup",
@@ -3555,7 +3567,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8ccd736d160a442ff4500fccb85c15b24ba4c6302ca2e6ba5269395243c1f726"
+      "sourceSha256": "68819e2e8ac572c325ef25206f514fab68141a5355ae5aceb309eba0a618b539"
     },
     {
       "id": "mockup-status-bar",
@@ -6044,7 +6056,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9fd64803f9671b6020f3c881efca0dde1e5bdef51319f4bfa5aca3e9def12003"
+      "sourceSha256": "285e92be528016cfc615fdd4765665467fa2157e8cea0e7141bc854697ef05b9"
     },
     {
       "id": "kb-hw-glossary",
@@ -9785,6 +9797,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "849b6fdc0b019dc03c971adfc96f1f1fde6889b4c43a783dd21e46103fe6bb1d"
     },
     {
+      "id": "review-m12c-native",
+      "path": "docs/reviews/m12c-native.md",
+      "title": "Native review — M1.2c section editor (UXR polish and the operator's native-look checklist)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation — UXR (M1.2c)",
+      "reviewBy": "2026-10-31",
+      "reviewSuggested": [],
+      "summary": "Track UXR, 4 October 2026. The deviations EDT's and PNL's captures showed are fixed, except where §3 says why not. Screens 2, 2b, 2c and 3 were recaptured from the built app in light and dark mode (docs/proof/m12c-uxr). The marine-CAD re-review raised one soft veto: the comb pointed into the foil. It is fixed under a red-first test and the veto is cleared. Three findings go to the operator: handle Length is entered in mm, the comb is sparse, and the Points y colour. The packaged app is ready for the operator's native-look walk (§5). The native rows N-12C-1 to N-12C-11 are pending until the operator attaches their receipts.",
+      "tags": [
+        "native-ui",
+        "m1.2c",
+        "section-editor",
+        "review",
+        "operator-run",
+        "captures"
+      ],
+      "links": [
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "documents"
+        },
+        {
+          "to": "review-m12b-native",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b9d46da8fc3e5cf4c03bdd853aa3ca70a4e30ae263e56ba3b52082e0bed81cb"
+    },
+    {
       "id": "review-spec-v02-critique",
       "path": "docs/reviews/spec-v02-critique.md",
       "title": "Critique of specification revision 0.2 against the knowledge base",
@@ -10293,7 +10337,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "specification — UX layer, proposal (not applied)",
       "reviewBy": "2026-11-04",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.2 (draft; Ruling 69, Ruling 67 OD-1): guided solver setup, smoke-test scalar, Windows route, toggle shortcut"
+        }
+      ],
       "summary": "Ruling 67 asks for an \"on rails\" solver install for a foil designer who is not a software engineer: Windows for him, macOS for the operator. This proposal adds flow F7a (guided solver setup) to the spec's UX layer: no setup prompt at first launch; three entry points; detect, then one recommended route per OS (macOS: OpenFOAM.app v2512; Windows: OpenFOAM in an app-owned WSL distribution, SU2 native as the other option); each step in plain words with the details one click away; the app does every step it can and hands the user one exact OS click path for the rest (administrator approval, restart, firmware virtualization, macOS Open Anyway); Ready only from the smoke-test fact; resume after a restart. The rails work with no key and no network model; the assistant only explains and may suggest one allowed step id. Amends RUN-01, AI-11, A5.10 (smoke scalar), A5.12 (Run entry name), COPY-75/76 and adds C2 rows for the four honest-limit strings. Windows behaviour is Inferred until the operator's Windows smoke test. Six decisions are open as DR-SETUP-1..6 in the design.",
       "tags": [
         "run",
@@ -10355,7 +10405,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nL[App launch] --> L1{Open setup session?}\nL1 -->|No| L2[Normal start: no setup prompt. Status strip: Solver: not set up]\nL1 -->|Yes, last step asked for a restart| R0[Survey again] --> RS[Solver setup tab opens on the resumed step]\nL2 --> E1[Run area: Set up a solver]\nL2 --> E2[An analysis that needs a solver: Set up OpenFOAM]\nL2 --> E3[Status strip: Solver item]\nE1 --> S[Survey this computer: read-only, no consent]\nE2 --> S\nE3 --> S\nS --> F{Existing install of the pinned build?}\nF -->|Yes, hashes match| V[Verify: identify + smoke test]\nF -->|Yes, does not match| U[Unverified install: Use the tested build · Use mine anyway]\nU -->|Use the tested build| RT\nU -->|Use mine anyway: disclosure accepted| V\nF -->|No| RT{Route for this OS}\nRT -->|macOS arm64, 14+| MAC[OpenFOAM.app v2512: download · verify · place · identify]\nRT -->|Windows 10 2004+ / 11| WIN[OpenFOAM in WSL: enable WSL · restart · Linux base · OpenFOAM · identify]\nRT -->|Other options| SU2[Windows: SU2 v8.5.0: download · verify · place]\nRT -->|No route: Intel Mac, old OS| NR[No supported solver for this computer: reason · what still works]\nMAC --> STEP\nWIN --> STEP\nSU2 --> STEP\nSTEP[Step card: plain words · time · size · needs · Technical details] -->|Start this step| OSQ{Needs the OS?}\nOSQ -->|Admin approval| UAC[Windows asks: click Yes] --> RUN\nOSQ -->|Restart| RB[Restart needed: save, restart; the app reopens and continues] --> L\nOSQ -->|Firmware virtualization off| FW[Turn on virtualization in firmware: maker-specific click path] --> L\nOSQ -->|macOS blocked the app| OA[System Settings · Privacy and Security · Open Anyway] --> RUN\nOSQ -->|No| RUN[App runs the step]\nRUN -->|Succeeded| NEXT{More steps?}\nRUN -->|Failed: known cause| FC[Cause in plain words + one next step]\nRUN -->|Failed: unknown cause| UK[Explain this failure if a key · Copy a report always]\nFC --> STEP\nUK --> STEP\nNEXT -->|Yes| STEP\nNEXT -->|No| V\nV -->|Smoke passes: Backend check fact| RD[Ready: solver, build, test time · Back to my analysis]\nV -->|Smoke fails| SF[Not ready: cause + one next step]\nSF --> STEP"
         }
       ],
-      "sourceSha256": "bafedb67a0893a123af76bafe77911a52d056ebe38a2e9f9b02db7bfa86ebb1c"
+      "sourceSha256": "22f04e75d82c392bf6e55fd9088ca341f1ce853066f053917f58d5c7dcb69e4f"
     },
     {
       "id": "spec-amendments-1-7",
@@ -10501,6 +10551,63 @@ window.DOCS_INDEX = {
       "sourceSha256": "e641848c00abc3c83c662f5ee4689086d7f796d2dee3ce4b1173f9294907de5b"
     },
     {
+      "id": "spec-amendments-1-7-2",
+      "path": "docs/specs/amendments/spec-1.7.2.md",
+      "title": "Spec 1.7.2 amendment batch — guided solver setup, the smoke-test scalar and the toggle shortcut, as exact text, for the spec owner's approval",
+      "type": "spec",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.2 (draft; Ruling 69, Ruling 67 OD-1): guided solver setup, smoke-test scalar, Windows route, toggle shortcut"
+        }
+      ],
+      "summary": "Approved in Ruling 70 (with OQ-1 to OQ-5 as recommended). 29 amendments and two insertions to cfd-workbench-v1, each with the quoted before-text and the exact 1.7.2 text, traced to Ruling 69 (guided solver setup, DR-SETUP-1..6) and Ruling 67 OD-1 (the toggle shortcut). It also fixes a design-text mismatch (section handle Length). Five open questions have no ruling and are not applied. Revision 1.7.2 of the spec carries the batch; the change record is Appendix H, section H.2. Approved; the merge is the coordinator's.",
+      "tags": [
+        "spec",
+        "amendments",
+        "rulings",
+        "run",
+        "backend",
+        "setup",
+        "windows",
+        "wsl",
+        "openfoam"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-amendment-guided-solver-setup",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "59fb7876a86762911337c984f3786c4f1ef6d2fffcdd5f71fec5c99c1530f54e"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -10631,7 +10738,7 @@ window.DOCS_INDEX = {
           "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
-      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G). Revision 1.7 applies one batch of 49 spec-owner amendments approved in Ruling 66, each traced to a ruling (Rulings 53–66, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in the right side bar; Add point and Remove point applying at once (Appendix H; the batch is amendments/spec-1.7.md). Revision 1.7.1 applies Ruling 68: the A8.5 backend-substrate row and the A5.10 readiness text take the verified controlDict refusal and the right-sized launcher rules, and Run is enabled when the install smoke test shows Disallowing (Appendix H.1; amendments/spec-1.7.1.md).",
+      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G). Revision 1.7 applies one batch of 49 spec-owner amendments approved in Ruling 66, each traced to a ruling (Rulings 53–66, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in the right side bar; Add point and Remove point applying at once (Appendix H; the batch is amendments/spec-1.7.md). Revision 1.7.1 applies Ruling 68: the A8.5 backend-substrate row and the A5.10 readiness text take the verified controlDict refusal and the right-sized launcher rules, and Run is enabled when the install smoke test shows Disallowing (Appendix H.1; amendments/spec-1.7.1.md). Revision 1.7.2 applies Ruling 69 and Ruling 67 OD-1: one verb, Set up a solver, that works with no key (RUN-01, AI-11, flow F7a, stories SETUP-01–09); the smoke test reads the final-time mean Courant number, not a Cl that a cavity cannot have; the Windows default route is OpenFOAM in an app-owned WSL distribution (Inferred until the Windows run); the exact command moves under Technical details; and the CAD ↔ Analysis shortcut is ⇧⌘A (Appendix H.2; amendments/spec-1.7.2.md).",
       "tags": [
         "hydrofoil",
         "cad",
@@ -10789,7 +10896,7 @@ window.DOCS_INDEX = {
         {
           "kind": "flowchart",
           "title": "B6b. Flow F7 — experiment setup and run (XS-01–03, RUN-01–06, AI-09, AI-11)",
-          "mermaid": "flowchart TD\nA[Open Experiment] --> B{Kind}\nB -->|Sweep| C[Angles × speeds or Goal-state points; held water, depth, geometry, method]\nB -->|Optimize| D[Objective over multipoint set; constraints incl. A_cav; design vector; robustness; tier; budget]\nB -->|Describe the experiment| E[experiment-config proposal; preview; edit]\nE --> C\nE --> D\nD --> D2{Single-point objective?}\nD2 -->|Yes| D3[Refused with the A5.9 string; add a point]\nD3 --> D\nD2 -->|No| F\nC --> F[Preview cases with derived quantities and estimate]\nF -->|Invalid sample| G[Blocked; input named]\nG --> C\nF -->|Queue| H[Experiment version immutable; status Queued]\nH --> I[Open Run]\nI --> I2{Tier}\nI2 -->|local · in-process| S2[Evaluate in process; attempts and evidence as for a backend]\nS2 --> X\nI2 -->|backend| J{Backend Ready?}\nJ -->|No| K[Detection; Prepare my environment: step ids only; parameters bound by the tool]\nK -->|Step failed or declined| L[Recoverable; CAD works; Run stays Not ready]\nK -->|Step refused: outside the allow-list| L\nK -->|Smoke test passes: Backend check fact| M[Ready]\nJ -->|No row matches the pin| L2[Not ready; pin named; nothing launches]\nJ -->|Yes| M\nM -->|Disk exhausted or version mismatch| M2[Stop safely; case retained; retry from a valid stage]\nM2 --> M\nM --> N{Case supported by capability record?}\nN -->|No| O[Unsupported with reason; other cases proceed]\nN -->|Yes| P[Meshing]\nP -->|Cancel| T\nP --> Q{Mesh gate}\nQ -->|Fail| R[Stopped before solving; measure and threshold named; Explain this failure]\nR -->|Repair accepted| R2[New Experiment version in Draft; Open repaired draft]\nQ -->|Pass| S[Solving: residuals, forces, elapsed, resources]\nS -->|Cancel| T[Substrate kill; tree kill; orphan scan; Cancelled with partial outputs]\nS -->|Crash| U[Failed with reason; logs retained; Retry sample]\nS -->|Exit| V{Outputs present?}\nV -->|No| U\nV -->|Yes| W[Harvesting: evidence by files; Field evidence rows]\nW -->|Cancel| T\nW -->|Unknown column layout| U\nW -->|Checkpoint valid| W2[Resume offered from the validated checkpoint]\nW --> X[Completed; Converged label if criteria met]\nS -->|App quit| S3[Orphan scan on relaunch; state from events]\nS3 --> S\nX -->|All cases terminal| X2{Experiment status}\nX2 -->|≥ 1 Completed| Y\nX2 -->|0 Completed| X3[Experiment Failed; reasons per case]\nX --> Y[Open Results]"
+          "mermaid": "flowchart TD\nA[Open Experiment] --> B{Kind}\nB -->|Sweep| C[Angles × speeds or Goal-state points; held water, depth, geometry, method]\nB -->|Optimize| D[Objective over multipoint set; constraints incl. A_cav; design vector; robustness; tier; budget]\nB -->|Describe the experiment| E[experiment-config proposal; preview; edit]\nE --> C\nE --> D\nD --> D2{Single-point objective?}\nD2 -->|Yes| D3[Refused with the A5.9 string; add a point]\nD3 --> D\nD2 -->|No| F\nC --> F[Preview cases with derived quantities and estimate]\nF -->|Invalid sample| G[Blocked; input named]\nG --> C\nF -->|Queue| H[Experiment version immutable; status Queued]\nH --> I[Open Run]\nI --> I2{Tier}\nI2 -->|local · in-process| S2[Evaluate in process; attempts and evidence as for a backend]\nS2 --> X\nI2 -->|backend| J{Backend Ready?}\nJ -->|No| K[Detection; Set up a solver, no key needed: step ids only; parameters bound by the tool]\nK -->|Step failed or declined| L[Recoverable; CAD works; Run stays Not ready]\nK -->|Step refused: outside the allow-list| L\nK -->|Smoke test passes: Backend check fact| M[Ready]\nJ -->|No row matches the pin| L2[Not ready; pin named; nothing launches]\nJ -->|Yes| M\nM -->|Disk exhausted or version mismatch| M2[Stop safely; case retained; retry from a valid stage]\nM2 --> M\nM --> N{Case supported by capability record?}\nN -->|No| O[Unsupported with reason; other cases proceed]\nN -->|Yes| P[Meshing]\nP -->|Cancel| T\nP --> Q{Mesh gate}\nQ -->|Fail| R[Stopped before solving; measure and threshold named; Explain this failure]\nR -->|Repair accepted| R2[New Experiment version in Draft; Open repaired draft]\nQ -->|Pass| S[Solving: residuals, forces, elapsed, resources]\nS -->|Cancel| T[Substrate kill; tree kill; orphan scan; Cancelled with partial outputs]\nS -->|Crash| U[Failed with reason; logs retained; Retry sample]\nS -->|Exit| V{Outputs present?}\nV -->|No| U\nV -->|Yes| W[Harvesting: evidence by files; Field evidence rows]\nW -->|Cancel| T\nW -->|Unknown column layout| U\nW -->|Checkpoint valid| W2[Resume offered from the validated checkpoint]\nW --> X[Completed; Converged label if criteria met]\nS -->|App quit| S3[Orphan scan on relaunch; state from events]\nS3 --> S\nX -->|All cases terminal| X2{Experiment status}\nX2 -->|≥ 1 Completed| Y\nX2 -->|0 Completed| X3[Experiment Failed; reasons per case]\nX --> Y[Open Results]"
         },
         {
           "kind": "flowchart",
@@ -10817,7 +10924,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "c7c5e3a6919f04358538a973d79c8fb76c7a6ed0f167295969122e8e3d71788e"
+      "sourceSha256": "22bb2ad519e1f2d6ccdfe2b8a9759f366d4672a6653d82dbf45da5a9b65cfe25"
     },
     {
       "id": "spec-foildsl",
@@ -11168,5 +11275,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ced991ef6af8facaa0aa73de8229a27b5e0cf4bd0d9a89d76cb7dd5660bb7fc8"
+  "graphSha256": "4502aebc1bb9d4b87d2e8d630590e2aa7018ba48c3a56174e204c221236978bb"
 };

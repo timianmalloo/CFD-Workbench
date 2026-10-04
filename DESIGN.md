@@ -135,13 +135,17 @@ spacing:
   toast-w: 420px
   toast-inset: 12px
   view-gutter: 4px
+  mode-bar: 32px
   mode-bar-inset: 8px
-  scope-chip-pad: "2px 6px"
-  mode-overlay-inset: 12px
-  mode-probe-pad: "4px 8px"
-  mode-probe-w: 420px
-  mode-reason-pad: 8px
-  station-strip-inset: 8px
+  mode-bar-gap: 4px
+  mode-bar-button-pad: "0 8px"
+  scope-chip-pad: "0 8px"
+  mode-plate-pad: "5px 8px"
+  mode-reason-pad: "6px 8px"
+  mode-reason-w: 360px
+  station-strip: 84px
+  station-strip-inset: 4px
+  station-thumb-w: 170px
 elevation: { flat: "none", popover: "0 8px 24px rgba(0,0,0,0.16)" }
 motion: { fast: 120ms, base: 200ms, toast-hold: 8000ms, easing: "cubic-bezier(0.2,0,0,1)" }
 review-suggested:
@@ -250,6 +254,9 @@ Coordinates, scales, and chart axes never rely on a tooltip for their unit.
 | Property row (property grid; structure B, DR-CELL-1 — the look is fixed by the operator) | one line per property, indented {spacing.prop-indent} ({spacing.prop-indent-sub} under a handle subhead): the label left in {typography.prop} {colors.ink-mute}; the value right-aligned, at least {spacing.prop-value} wide, in {typography.prop} with tabular lining figures; the unit after it in a {spacing.prop-unit} column in {colors.ink-mute}; a half-strength {colors.hairline} rule between rows; read-only rows {spacing.prop-row-ro}, editable rows {spacing.prop-row-input} | **editable value:** {colors.primary} text with a 1 px dotted underline offset 2 px (the non-colour cue, SC 1.4.1), no box; **enum** (Type, Tangent kind): {colors.primary} text + ▾ in {colors.ink-mute}, one commit rule — arrows stage, Return or a pick applies, Esc keeps, leaving drops and is announced (DR-CELL-2); **read-only:** {colors.ink} text, no underline, no ▾ (a lock glyph and reason when locked); **estimate:** "≈ " prefix, read-only; **focused** (Tab or click): an {spacing.prop-edit-box} box with a 1 px {colors.primary} boundary inside the 24 px band and the text turns {colors.ink} (SC 2.4.7); **error:** unfocused, a 1 px {colors.danger} box; focused, the 1 px {colors.primary} focus box with the 1 px {colors.danger} box just outside it (DR-CELL-3); always rail + icon + text; **warning / unavailable:** rail + icon + text | Return or leaving commits (one undo step); Escape restores; once the text differs from the committed value the field widens across the row so an expression shows whole (DC-1); the whole row is the target (clicking the label focuses the value); help text (descriptions, the angle reference) shows under the row while it has focus and is always its accessible description; a fact speaks "<label>, <value> <unit>[, locked]" | labels wrap, values never clip; at ≥ 150 % text the value drops under its label |
 | Status strip (DR-STATUS-1, 2026-10-02; `docs/mockups/status-bar.html` V2) | one row {spacing.shell-statusbar} along the bottom of the window, under the dock host and every pane, full window width; {colors.surface} with a 1 px {colors.hairline} top rule; {typography.prop} (11 px, DR-DEN-3; scales with Text size). Left: the **last report**, one line, a 12 px icon by kind (info = check in {colors.ink}; warning = triangle in {colors.warning}; error = circled cross in {colors.danger}) and the text in the same colour; a warning or error also draws a 3 px inset rail of its colour at the strip's left edge. Right, read-only items (not buttons in this slice; YAGNI), each 24 px tall, split by a {colors.hairline} rule: selection ("TE · pt 7 of 14"), units ("mm"), the estimate note ("≈ estimates"), Text size ("Text 100 %") | No foil: the strip shows the shell's own messages ("Opening cancelled. Nothing changed."), and the selection item is absent. Busy: "Checking the last change…" until its report replaces it. An optional action (today only **Try again** for the recent-files write) sits right after the message as a 24 px button | Every report replaces the last one: **one slot, no history, no scrolling, no list** (DR-STATUS-1). A background completion never replaces a newer report (STATUS-CLOBBER). The strip is the **one polite status live region**; a field error is not repeated there (it speaks assertively at its field) | One line; the message ellipsizes at the right and its full text is the tooltip and the accessible name. At 200 % Text size the strip grows to fit one line of the larger text; the right items drop in the order Text size, ≈ estimates, units (selection stays) |
 | Toast (DR-STATUS-1; warnings only) | one card at the **bottom-right of the model area**, {spacing.toast-inset} in from its right edge and {spacing.toast-inset} above the strip; width {spacing.toast-w} or the model area less 2 × {spacing.toast-inset}, whichever is smaller; {colors.surface}, 1 px {colors.control-line} border, 3 px {colors.warning} left rail, {rounded.sm}, {elevation.popover}; a 14 px warning icon, the full report text in {typography.prop} wrapped, and a 24 × 24 px **×** ("Dismiss") | Never covers the Properties dock or the strip. It takes no focus when it opens: focus stays in the field or the view that made the change | Opens for a **warning that results from a commit** (today: the typed-chord fit above the limit). The strip shows the same report, so nothing is lost when the toast closes. A warning during a gesture (the angle run stops) goes to the strip only. **Errors never toast:** a field error stays under its field; a refused gesture shows in the strip with its marker on the Plan | Stays {motion.toast-hold}, paused while the pointer is over it or focus is inside it; closes on ×, on Esc while focus is inside it, or when the next commit starts. **One at a time:** a newer warning replaces its text and restarts the hold; an info report does not close it. Keyboard: while open the toast joins the F6 ring after the model area; Esc returns focus where it came from |
+| Section mode bar (M1.2c §11.1; `docs/mockups/m12c-section-editor.html` .modebar) | one row {spacing.mode-bar} at the top of the model area in {colors.surface} with a {colors.hairline} rule below, inset {spacing.mode-bar-inset}, gap {spacing.mode-bar-gap}: the title COPY-173 (12 px 600, the station in {colors.primary}), the scope chip (a {rounded.pill} hairline pill, {spacing.scope-chip-pad}, {colors.ink-mute} text, "Shared with <stations> · " then the {colors.primary} underlined link "Make unique to <station>"; "Only <station> uses this section" when no other station shares it), Section ▾, the Curvature and Thickness ×2 toggles, a spacer, Cancel (a {colors.control-line} outline) and **Finish section** (the one {colors.primary} primary). Buttons are 24 px with {spacing.mode-bar-button-pad} and {rounded.sm}; a pressed toggle is {colors.surface-soft} with a {colors.hairline} border, never the platform accent | hover {colors.surface-soft}; focus ring on each control; Finish disabled is {colors.surface-soft} with {colors.ink-mute} text and its reason in its help text | "Checking…" in the reason box while a step is assessed; the error is the Finish reason (COPY-123 / COPY-182); success is COPY-179 in the strip | the chip truncates with its full text as a tooltip; buttons never truncate |
+| Section canvas plates (M1.2c §11.1; mockup .plate, .why, .lb) | one plate line along the canvas top, 6 px in: the view plate "Section · <station> · <d> mm from root · display" ({colors.viewport-soft}, {colors.viewport-ink}, {spacing.mode-plate-pad}, 600, the station underline) at the left, and at the right the reason box over the Tracing probe plate. The reason box is {colors.surface} with a 1 px {colors.danger} border and a 3 px left rail, {spacing.mode-reason-pad}, at most {spacing.mode-reason-w}, text in {colors.danger}. The comb plate "Comb · auto scale · <n> teeth clipped (×)" sits at the bottom left while Curvature is on. The chord axis is a {colors.viewport-grid} line every 10 % (5 % past 60 % zoom) labelled "<n> %" in {colors.viewport-mute} | the probe follows the pointer (focused point when outside; Δx/Δy during a drag) | the reason box shows a state reason only while its state holds; a gesture refusal stays until the draft changes | the crossing is a 4 px dashed {colors.danger-viewport} line along both curves; a refused refit is a dashed {colors.danger-viewport} mark labelled with the measured move | the probe trims with an ellipsis; the reason wraps within {spacing.mode-reason-w} |
+| Station strip (M1.2c §11.1; mockup .strip, .thumb) | a row {spacing.station-strip} high in {colors.surface}, inset {spacing.station-strip-inset}: one thumbnail per station, {spacing.station-thumb-w} wide, the station's section outline drawn on {colors.viewport} (thickness ×2), then "<name> · <d> mm" and "c <chord> mm · t/c <t/c> %" in tabular figures; the current one has a {colors.station} border and 2 px underline (`aria-current`) | hover a {colors.primary} border; roving focus; arrows move along the strip | a switch with edits is refused with "Finish or cancel <station> before editing <other>." in the reason box | — | scrolls horizontally |
 
 All controls use {rounded.sm}; panels are square joins; floating dialogs use
 {rounded.md}. Primary actions are at least {spacing.target}; dense scientific
@@ -506,6 +513,28 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-169 | <value> % — for 12 %, type 12 or 0.12 × 100. |
 | COPY-170 | Stops here: the angle stays between −90° and 90° from the span axis. |
 | COPY-171 | Changing one handle's twist moves the other onto the line. |
+| COPY-172 | Edit section… |
+| COPY-173 | Editing <station> section |
+| COPY-174 | Upper point <n> is now an anchor (now point <m> of <N>). Upper surface <a> → <b> points; lower unchanged. Largest change <d> % chord. Curvature now breaks at <x> % chord. (and the mirror for lower; superseded for paired types by COPY-185) |
+| COPY-175 | Upper point <n> is now a control point. Upper surface <a> → <b> points. Largest change <d> % chord. |
+| COPY-176 | Moved upper point <n> by <d> % chord. Own t/c <t> %; <station> stays <s> % t/c. |
+| COPY-177 | The nose is always an anchor. It stays at the leading edge with a vertical tangent. |
+| COPY-178 | The trailing-edge point is always an anchor. It moves up and down only. / closed: … It stays on the chord line: the trailing edge is closed. |
+| COPY-179 | Finished <station> section: <n> changes in one undo step. |
+| COPY-180 | Cancelled. <station> section is as it was. |
+| COPY-181 | Nothing to undo in this section. |
+| COPY-182 | This section couldn't be checked, so Finish is off. <reason> Undo the last change or try another. |
+| COPY-183 | Angles are in the section's own chord coordinates. A flat crest stays flat at a station only if the section is symmetric or uses its own thickness. |
+| COPY-184 | A vertical tangent inside a surface makes a step. The nose already has one. |
+| COPY-185 | Point <n> is now an anchor on both surfaces (point <m> of <N>; <a> → <b> points each). Largest change <d> % chord, <surface>; <other> shape unchanged. Curvature now breaks at <x> % chord. |
+| COPY-186 | Moved point <n> on both surfaces: x <x0> → <x1> % chord. Own t/c <t> %; <station> stays <s> % t/c. |
+| COPY-187 | Point <n> stays an anchor. As a control point the <other> surface would move <d> mm, over the <limit> mm limit at <c> mm chord. Nothing changed. (<d> to 0.0001 mm, so a move just over the limit never reads as equal to it) |
+| COPY-188 | Type and Kind apply to both surfaces. x is shared. |
+| COPY-189 | Paired with <other> point <n>. Type, kind and x are shared. |
+
+COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
+`docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's
+precision rule is UXR's: the measured move is printed to 0.0001 mm.
 
 COPY-125 to COPY-139 are quoted verbatim from `docs/design/app-shell.md` §11 (track U1a, 2026-09-30).
 COPY-125 to COPY-131 are the open failures other than COPY-103; the built start card renders the
