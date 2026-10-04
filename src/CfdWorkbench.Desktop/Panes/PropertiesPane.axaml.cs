@@ -156,6 +156,9 @@ public partial class PropertiesPane : UserControl
     /// <summary>The Station group's "Edit section…" link (COPY-172, CAD-20): the shell opens the section editor.</summary>
     public event Action? EditSectionRequested;
 
+    /// <summary>The selected curve group's Rebuild link opens its measured preview.</summary>
+    public event Action<string>? RebuildRequested;
+
     /// <summary>A section step the pane asks the shell to apply (Station t/c; the shell reports it or its refusal).</summary>
     public event Func<SectionStep, Task>? SectionStepRequested;
 
@@ -706,7 +709,11 @@ public partial class PropertiesPane : UserControl
                 // CAD-20: the Station group's last row is a link, not a value (DR-CELL-5 solid underline).
                 var link = new HyperlinkButton { Name = Part("Link", row.Key), HorizontalAlignment = HorizontalAlignment.Left };
                 link.Classes.Add("prop-crumb");
-                link.Click += (_, _) => EditSectionRequested?.Invoke();
+                link.Click += (_, _) =>
+                {
+                    if (row.Key == "s:edit") EditSectionRequested?.Invoke();
+                    else if (row.Key == "r:rebuild" && row.Target is { } target) RebuildRequested?.Invoke(target.Curve);
+                };
                 view.Link = link;
                 value = link;
                 Grid.SetColumnSpan(link, 3);

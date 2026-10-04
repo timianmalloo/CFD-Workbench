@@ -15,16 +15,31 @@ public partial class RebuildPopover : UserControl
     private IReadOnlyList<RebuildPreview> previews = [];
     private Control? focusReturn;
     private bool closing;
+    private readonly TextBlock[] readoutValues = new TextBlock[7];
 
     public event Action<RebuildPreview?>? PreviewChanged;
     public int Count { get; private set; } = 4;
     public RebuildPreview? Preview => previews.FirstOrDefault(item => item.Count == Count);
-    public string ReadoutText => Readouts.Text ?? "";
+    public string ReadoutText => string.Join(" ", ReadoutGrid.Children.OfType<TextBlock>().Select(item => item.Text));
     public string? FieldError => ErrorText.IsVisible ? ErrorText.Text : null;
 
     public RebuildPopover()
     {
         InitializeComponent();
+        string[] labels = ["Points", "Largest change", "Curvature breaks", "Kept exactly", "Tip direction", "Area", "Anchors"];
+        for (int row = 0; row < labels.Length; row++)
+        {
+            ReadoutGrid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
+            var label = new TextBlock { Text = labels[row], VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top };
+            var value = new TextBlock { TextWrapping = Avalonia.Media.TextWrapping.Wrap,
+                TextAlignment = Avalonia.Media.TextAlignment.Right };
+            Grid.SetRow(label, row);
+            Grid.SetRow(value, row);
+            Grid.SetColumn(value, 1);
+            ReadoutGrid.Children.Add(label);
+            ReadoutGrid.Children.Add(value);
+            readoutValues[row] = value;
+        }
         FewerButton.Click += (_, _) => SetCount(Count - 1);
         MoreButton.Click += (_, _) => SetCount(Count + 1);
         CancelButton.Click += (_, _) => Close(false);
@@ -107,14 +122,14 @@ public partial class RebuildPopover : UserControl
             .Where(item => item.Role == PointRole.Anchor)
             .Select(item => $"Anchor at point {item.Index + 1} becomes a control point."));
         if (anchors.Length == 0) anchors = "none to remove";
-        Readouts.Text = $"Points  {current?.Points.Count ?? 0} → {Count}\n" +
-            $"Largest change  {preview.MaxChange * scale:0.00} {unit} at {preview.AtEta * halfSpan * 1000:0.00} mm from root\n" +
-            $"Curvature breaks  {preview.BreaksBefore} → {preview.BreaksAfter}\n" +
-            $"Kept exactly  root end {preview.Curve.Points[0].Ordinate * scale:0.00} {unit}, tangent square to the centre line; " +
-            $"tip end {preview.Curve.Points[^1].Ordinate * scale:0.00} {unit}\n" +
-            $"Tip direction  changed by {preview.TipTurnDegrees:0.00}°\n" +
-            $"Area  {preview.AreaBeforeSquareMeters * 10000:0.00} → {preview.AreaAfterSquareMeters * 10000:0.00} cm²\n" +
-            $"Anchors  {anchors}";
+        readoutValues[0].Text = $"{current?.Points.Count ?? 0} → {Count}";
+        readoutValues[1].Text = $"{preview.MaxChange * scale:0.00} {unit} at {preview.AtEta * halfSpan * 1000:0.00} mm from root";
+        readoutValues[2].Text = $"{preview.BreaksBefore} → {preview.BreaksAfter} (C² throughout)";
+        readoutValues[3].Text = $"root end {preview.Curve.Points[0].Ordinate * scale:0.00} {unit}, tangent square to the centre line; " +
+            $"tip end {preview.Curve.Points[^1].Ordinate * scale:0.00} {unit}";
+        readoutValues[4].Text = $"changed by {preview.TipTurnDegrees:0.00}°";
+        readoutValues[5].Text = $"{preview.AreaBeforeSquareMeters * 10000:0.00} → {preview.AreaAfterSquareMeters * 10000:0.00} cm²";
+        readoutValues[6].Text = anchors;
         ErrorText.Text = preview.Refusal;
         ErrorText.IsVisible = preview.Refusal is not null;
         ApplyButton.IsEnabled = preview.Refusal is null;

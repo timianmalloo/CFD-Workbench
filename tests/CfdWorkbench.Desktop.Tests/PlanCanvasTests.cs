@@ -10,6 +10,7 @@ using Avalonia.Platform;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
+using Avalonia.LogicalTree;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Core;
 
@@ -30,6 +31,90 @@ public static class PlanCanvasTests
                 !popover.ReadoutText.Contains("Area", StringComparison.Ordinal) ||
                 !popover.ReadoutText.Contains((core.AreaAfterSquareMeters * 10000).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal))
                 throw new Exception("Rebuild readouts did not come from Core preview, including area");
+            var readouts = popover.FindControl<Grid>("ReadoutGrid");
+            if (readouts is null || readouts.ColumnDefinitions.Count != 2 ||
+                readouts.Children.OfType<TextBlock>().Count() != 14)
+                throw new Exception("Rebuild readouts are not seven two-column description rows");
+        });
+        DesktopChecks.Check("Properties_RebuildLink_OpensCurvePopover", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[5];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.Settle();
+            var link = fixture.Host.Properties.GetLogicalDescendants().OfType<HyperlinkButton>()
+                .FirstOrDefault(item => item.Name == "Link_r_rebuild");
+            if (link is null) throw new Exception("Curve group has no Rebuild link");
+            link.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            if (!fixture.Host.ModelView.RebuildPanel.IsVisible)
+                throw new Exception("Properties Rebuild link did not open the curve popover");
+        });
+        DesktopChecks.Check("RebuildPopover_CancelAndEscape_NoRowBytesAndFreshnessUnchanged", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            string before = fixture.Controller.AcceptedSource;
+            bool undo = fixture.Controller.CanUndo;
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            panel.Close(false);
+            if (panel.IsVisible || fixture.Canvas.RebuildPreview is not null || fixture.Controller.AcceptedSource != before ||
+                fixture.Controller.CanUndo != undo) throw new Exception("Cancel wrote a row or retained the preview");
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            var count = panel.FindControl<TextBox>("CountInput")!;
+            count.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = count, Key = Key.Escape });
+            if (panel.IsVisible || fixture.Controller.AcceptedSource != before)
+                throw new Exception("Escape changed the source or left the popover open");
+        });
+        DesktopChecks.Check("RebuildPopover_ReturnApplies_OneUndoRowPointSelectionCleared", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[5];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            string before = fixture.Controller.AcceptedSource;
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            fixture.Host.RunCommand("point.rebuild").GetAwaiter().GetResult();
+            if (!panel.IsVisible) throw new Exception("Edit Rebuild did not open");
+            Task applied = panel.ApplyAsync();
+            for (int i = 0; i < 400 && !applied.IsCompleted; i++)
+            { Avalonia.Threading.Dispatcher.UIThread.RunJobs(); Thread.Sleep(5); }
+            applied.GetAwaiter().GetResult();
+            fixture.Settle();
+            if (panel.IsVisible || fixture.Controller.Planform!.Trailing.Points.Count != 4 ||
+                fixture.Controller.Selection is Selection.Points || fixture.Controller.AcceptedSource == before ||
+                !fixture.Controller.CanUndo)
+                throw new Exception("Rebuild did not apply and clear selection as one edit");
+            fixture.Controller.Undo();
+            if (fixture.Controller.AcceptedSource != before) throw new Exception("One Undo did not restore Rebuild source");
+        });
+        DesktopChecks.Check("RebuildPopover_FocusReturnsToPlanOnClose", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            fixture.Host.ModelView.RebuildPanel.Close(false);
+            fixture.Settle();
+            if (!fixture.Canvas.IsFocused) throw new Exception("Plan did not regain focus after popover close");
+        });
+        DesktopChecks.Check("RebuildPopover_TypedCountOutOfRange_FieldErrorNothingChanged", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            string before = fixture.Controller.AcceptedSource;
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            panel.SetCount(11);
+            if (panel.FieldError != "Enter a whole number from 4 to 10." ||
+                fixture.Controller.AcceptedSource != before)
+                throw new Exception("Out-of-range count was not refused in the field");
+        });
+        DesktopChecks.Check("RebuildPopover_Close_OneEventWithOutcome", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            ShellEvents.Clear();
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            fixture.Host.ModelView.RebuildPanel.Close(false);
+            fixture.Host.ModelView.RebuildPanel.Close(false);
+            var close = ShellEvents.Read().Where(item => item.Name == "rebuild.close").ToArray();
+            if (close.Length != 1 || close[0].Outcome != "cancelled" || close[0].PointsAfter != 10)
+                throw new Exception("Popover close did not emit one outcome with the count");
         });
         DesktopChecks.Check("EditMenu_AddPoint_TypedPositionAddsSelectsNew", () =>
         {
@@ -369,7 +454,7 @@ public static class PlanCanvasTests
                 if (fixture.Canvas.ContextMenu is not { IsOpen: true } menu) throw new Exception(how + " opened no point menu");
                 var items = menu.Items.OfType<MenuItem>().ToArray();
                 string rows = string.Join(" | ", items.Select(item => $"{item.Header}:{item.IsEnabled}"));
-                if (rows != "Make Anchor Point:True | Make Control Point:False | Tangent:False | Fit:True")
+                if (rows != "Make Anchor Point:True | Make Control Point:False | Tangent:False | Remove Point:True | Rebuild Trailing edge…:True | Fit:True")
                     throw new Exception(how + " menu rows: " + rows);
                 string tangents = string.Join(" | ", items[2].Items.OfType<MenuItem>().Select(item => item.Header));
                 if (tangents != "Smooth | Symmetric | Corner") throw new Exception(how + " tangent rows: " + tangents);

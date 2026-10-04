@@ -17,7 +17,7 @@
       </Grid>
       <TextBlock Text="From 4 to 10. The new points keep the curve's current spacing."
                  TextWrapping="Wrap" />
-      <TextBlock x:Name="Readouts" TextWrapping="Wrap" />
+      <Grid x:Name="ReadoutGrid" ColumnDefinitions="Auto,*" ColumnSpacing="10" RowSpacing="3" />
       <TextBlock x:Name="ErrorText" IsVisible="False" TextWrapping="Wrap"
                  Foreground="{DynamicResource DangerBrush}" />
       <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">

@@ -135,6 +135,7 @@ public sealed class ShellHost : Grid
         Properties.Reported += Report;
         Points.Reported += Report;
         Properties.EditSectionRequested += () => _ = EnterSectionAsync(EntryOrigin.Properties);
+        Properties.RebuildRequested += curve => ModelView.BeginRebuild(curve, ModelView.PlanCanvas);
         Properties.SectionStepRequested += ApplySectionStepAsync;
         ModelView.PlanCanvas.Controller = controller;
         // DR-NAV-1: Tab from a selected Plan point lands on the Properties pane's first value.

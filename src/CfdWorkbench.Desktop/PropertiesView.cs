@@ -948,7 +948,9 @@ public static class PropertiesView
         return new PropertyGroup("rail", curve.Name, summary, true,
         [
             Count("r:degree", "Degree", degree == 3 ? "3 (cubic)" : degree.ToString(CultureInfo.InvariantCulture)),
-            Count("r:points", "Points", $"{rail.Points.Count} of {rail.Ceiling} max")
+            Count("r:points", "Points", $"{rail.Points.Count} of {rail.Ceiling} max"),
+            new PropertyRow { Key = "r:rebuild", Label = "", Kind = RowKind.Action, Value = "Rebuild…",
+                AutomationName = $"Rebuild {curve.Name}", Target = new PointRef(rail.Points[0].Curve, rail.Points[0].Id) }
         ], []);
     }
 

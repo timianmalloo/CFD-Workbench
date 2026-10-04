@@ -753,6 +753,14 @@ public sealed class ElevationView : Control
     private PointView? Focused() => focusedPoint is { } focus
         ? CurrentTargets.FirstOrDefault(point => point.Curve == focus.Curve && point.Id == focus.VertexId) : null;
 
+    private async Task AddAtAsync(string curve, double eta)
+    {
+        if (controller is null) return;
+        var outcome = await controller.ApplyPointCommandAsync(new PointCommand.AddPoint(curve, eta));
+        if (outcome is CommitOutcome.Committed && controller.Selection is Selection.Points { Items: [var point] })
+            FocusPoint(point);
+    }
+
     // ---------------------------------------------------------------- pointer
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -764,6 +772,17 @@ public sealed class ElevationView : Control
         var hit = HitTestPoint(position);
         if (hit is null)
         {
+            if (pressed.IsLeftButtonPressed && e.ClickCount >= 2 && controller.Gesture == GestureState.Idle)
+            {
+                foreach (var curveName in Curves)
+                {
+                    if (LayerFor(curveName) is not { } layer || controller.CurveFor(curveName) is not { } curve) continue;
+                    if (layer.HitTestCurve(curve.Samples, position) is not { } onCurve) continue;
+                    _ = AddAtAsync(curveName, onCurve.Span / controller.Planform.HalfSpanMeters);
+                    e.Handled = true;
+                    return;
+                }
+            }
             if (!IsFront && pressed.IsLeftButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Shift) &&
                 PickSection(position, e.ClickCount) is { } section)
             {
@@ -915,7 +934,9 @@ public sealed class ElevationView : Control
         var tangent = new MenuItem { Header = "Tangent", ItemsSource = tangents, IsEnabled = tangents.Any(item => item.IsEnabled) };
         var menu = new ContextMenu
         {
-            ItemsSource = new Control[] { Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent }
+            ItemsSource = new Control[] { Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent,
+                new Separator(), Row("Remove Point", "point.remove"), Row($"Rebuild {PropertiesView.Curves[reference.Curve].Name}…", "point.rebuild"),
+                new Separator(), Row("Fit", "view.fit") }
         };
         menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
         ContextMenu = menu;

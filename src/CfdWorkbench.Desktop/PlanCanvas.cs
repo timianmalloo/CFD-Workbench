@@ -456,9 +456,15 @@ public sealed class PlanCanvas : Control
             ItemsSource = new Control[]
             {
                 Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent,
+                new Separator(), Row("Remove Point", "point.remove"),
+                Row($"Rebuild {PropertiesView.Curves[reference.Curve].Name}…", "point.rebuild"),
                 new Separator(), Row("Fit", "view.fit")
             }
         };
+        if (!host.CanRun("point.remove") && host.PointCommandReason("point.remove") is { } reason)
+            menu.ItemsSource = ((IEnumerable<Control>)menu.ItemsSource!).Take(5)
+                .Concat([new TextBlock { Text = reason, TextWrapping = TextWrapping.Wrap, MaxWidth = 220 }])
+                .Concat(((IEnumerable<Control>)menu.ItemsSource!).Skip(5)).ToArray();
         // Attached only while shown, so a right-click on empty canvas never opens a stale point menu.
         menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
         ContextMenu = menu;
