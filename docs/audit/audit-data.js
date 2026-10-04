@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T23:59:15Z",
+  "generated": "2026-10-04T00:00:13Z",
   "audit": [
     {
       "actor": null,
@@ -23046,6 +23046,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-03T23:58:23Z",
+      "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M423C3GQ4DSSZ3Q0WN5Z24ZR",
+      "shortname": "join-planform-spk",
+      "datetime": "2026-10-04T00:00:13Z",
+      "session": "f19a2b12",
+      "prompt": "the join of spike/planform-spk into feature/ui-cad-direction",
+      "summary": "SPK (Opus 5.5, 11 of 30 min): committed probe against Core (bit-identical replay of NewDefault at 10; area residual 0); no curvature breaks at 4/5; New foil shipped at 4 moves LE 3.05 / TE 8.83 mm at 467.5 mm (Rebuild route 2.99 / 8.97), tip turns -23.45 / +34.97 deg; one inflection 24 mm from the root on each 4-point rail; other channels: no geometric reason to change. ADR-0001 evidence table rewritten with recorded definitions. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T23:59:21Z",
       "duration_seconds": 52.0
     }
   ],
