@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T22:52:11Z",
+  "generated": "2026-10-04T23:31:16Z",
   "audit": [
     {
       "actor": null,
@@ -23828,6 +23828,131 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T22:50:37Z",
       "duration_seconds": 94.0
+    },
+    {
+      "id": "al-01M44JWBYX3EY0KQJX3DSPFFRJ",
+      "shortname": "join-paired-angle-y-only",
+      "datetime": "2026-10-04T23:09:44Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/paired-angle-y-only-clean into feature/ui-cad-direction",
+      "summary": "Angle y-only (Opus 5.5): PlaceHandles Angle branch keeps paired x (y = ay + tan(a)*(x-ax)); |cos|<1e-9 refused with DSL-LOCK. Rebuilt clean from 7b7c482 after the agent merged feature/r54-integration (52 foreign commits) instead of the integration head. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:08:00Z",
+      "duration_seconds": 104.0
+    },
+    {
+      "id": "al-01M44JZPM1VZZ2H8Q7E5P5D8WT",
+      "shortname": "join-foreign-guard",
+      "datetime": "2026-10-04T23:11:33Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/join-foreign-guard into feature/ui-cad-direction",
+      "summary": "Join tool refuses a branch bringing > CFDW_JOIN_MAX_NEW_COMMITS (40) commits and lists its merges. Control for the Angle-fix wrong-merge (52 foreign commits). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:09:49Z",
+      "duration_seconds": 104.0
+    },
+    {
+      "id": "al-01M44KJQCAB9SXGW6KSFBN7C2F",
+      "shortname": "join-a3a-svc",
+      "datetime": "2026-10-04T23:21:56Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/a3a-svc into feature/ui-cad-direction",
+      "summary": "SVC (Opus 5.5): AnalysisService (one snapshot, latest-wins per scope, idempotent on key, analysis.run telemetry), Freshness (one Inputs function, derived state), OperatingPoints (one builder, ANA-INPUT-*), CLI analyse/inspect --runs. 16/16 named PASS, 16 mutants red. Open: product wing method has no owner (seam to STP after VLM); STO Failed-row diagnostics need nullable fields (S-A3). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:20:20Z",
+      "duration_seconds": 96.0
+    },
+    {
+      "id": "al-01M44KZ5V7V0M8JJA1WHARZAQ4",
+      "shortname": "join-a3a-vlm",
+      "datetime": "2026-10-04T23:28:44Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/a3a-vlm-solver into feature/ui-cad-direction",
+      "summary": "VLM + repair (Opus 5.5). CFD re-review PASS-WITH-CONDITIONS, veto cleared: LINPACK column swap verified, Rigal-Gaches backward error > 1e-10 fails closed ANA-SOLVE-RESIDUAL (planted mutant caught); F-5 at the default cosine lattice (gap 0.893 %); F-15 now order + code-to-code oracle. Open for operator: tip-strip envelope verdict varies with lattice; near-field verified on the default lattice only. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:27:08Z",
+      "duration_seconds": 96.0
+    },
+    {
+      "id": "al-01M44M3SZZ17TR27D62BRZQ691",
+      "shortname": "join-blend-certificate-spike",
+      "datetime": "2026-10-04T23:31:16Z",
+      "session": "f19a2b12",
+      "prompt": "the join of spike/blend-certificate-budget into feature/ui-cad-direction",
+      "summary": "Spike (Opus 5.5, docs/proof only): 52 fixtures, 260 rows. N(s)=max(256,48s) sound (budget never enters the enclosure; bit-identical results). Binding limit is the 1e6 all-query op bound (6N(N+1) rescan term). Options: max-heap (modelled) or bound 4.2M (measured: 16 spans, 2-3 differing stations). New: 4 differing stations never certify today. First join attempt stopped on the load-flaky Desktop check at load 60. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:29:43Z",
+      "duration_seconds": 93.0
     }
   ],
   "changes": [
