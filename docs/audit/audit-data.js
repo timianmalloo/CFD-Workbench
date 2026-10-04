@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T18:40:04Z",
+  "generated": "2026-10-04T18:59:30Z",
   "audit": [
     {
       "actor": null,
@@ -23583,6 +23583,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T18:39:05Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M444J5N7Z945GEDFYNXPMJ9J",
+      "shortname": "join-edit-lag",
+      "datetime": "2026-10-04T18:59:30Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/m12c-edit-lag into feature/ui-cad-direction",
+      "summary": "Edit lag (Opus 5.5, /investigate): each section drag move ran a synchronous full-shell Notify (RefreshPanes ~240 ms + Bind ~67 ms) and the canvas never drew the curve during a drag. Fix: UpdateSectionGesture records the target without notify; the canvas draws the drag frame from the gesture's display state; one notify per press/release; the station strip rebuilds only when its inputs change. Per-move p95 762 -> 18.4 ms at similar load; release 1,856 -> 661 ms. Red first: SectionEditor_DragMove_DrawsWithinOneFrame, SectionEditor_SlowAssessment_DrawFollowsPointer; Readiness_SectionDragMove_Under16Ms (measured). Finish still follows the certificate. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T18:58:35Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
