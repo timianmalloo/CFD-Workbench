@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="source-sha256" content="c7c5e3a6919f04358538a973d79c8fb76c7a6ed0f167295969122e8e3d71788e"><title>CFD-Workbench — Product specification</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="source-sha256" content="22bb2ad519e1f2d6ccdfe2b8a9759f366d4672a6653d82dbf45da5a9b65cfe25"><title>CFD-Workbench — Product specification</title>
 <style>
 :root{--paper:#f7f9f7;--surface:#ffffff;--ink:#19302e;--muted:#506762;--line:#c5d1cc;--accent:#096b61;--shade:#e9f1ed;--dark:#142d2a;--on-dark:#eef8f3;--focus:#007d70;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;--small:13px;--body:16px;--title:48px;--h2:30px;--h3:22px;--radius:4px;--rail:270px;--measure:1120px}
 [hidden]{display:none!important}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:var(--body)/1.7 var(--sans)}a{color:var(--accent);text-underline-offset:3px}button,input{font:inherit}a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid var(--focus);outline-offset:3px}.top{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s4) var(--s8);background:var(--dark);color:var(--on-dark)}.top a{color:var(--on-dark)}.brand{font-weight:700;letter-spacing:.02em}.badge{font:var(--small) var(--mono);border:1px solid var(--line);padding:var(--s1) var(--s2)}.layout{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);max-width:1600px;margin:auto}.rail{position:sticky;top:0;height:100vh;overflow:auto;padding:var(--s8) var(--s6);border-right:1px solid var(--line)}.rail p{font:var(--small) var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.rail nav a{display:block;font-size:var(--small);line-height:1.5;padding:var(--s2) 0;text-decoration:none}.rail nav a.depth2{font-weight:700;border-top:1px solid var(--line);margin-top:var(--s3)}.rail nav a:hover{text-decoration:underline}.rail input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2);background:var(--surface);color:var(--ink)}main{max-width:var(--measure);padding:var(--s12);min-width:0}h1{font-size:var(--title);line-height:1.1;margin:var(--s6) 0;letter-spacing:-.04em}h2{font-size:var(--h2);line-height:1.25;margin:var(--s12) 0 var(--s6);letter-spacing:-.02em;border-top:1px solid var(--line);padding-top:var(--s8)}h3{font-size:var(--h3);line-height:1.4;margin:var(--s8) 0 var(--s4)}h4{font-size:var(--body);margin:var(--s6) 0 var(--s3)}p{margin:var(--s4) 0}main>p,main>ul{max-width:85ch}li{margin:var(--s2) 0}.table-scroll{overflow-x:auto;margin:var(--s6) 0;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}table{border-collapse:collapse;width:100%;font-size:var(--small);line-height:1.6}th,td{text-align:left;vertical-align:top;padding:var(--s3) var(--s4);border-bottom:1px solid var(--line)}th{background:var(--shade);font-weight:650}td:first-child{min-width:160px}tr:last-child td{border-bottom:0}code{font:var(--small)/1.6 var(--mono);overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;padding:var(--s4);background:var(--shade);font:var(--small)/1.6 var(--mono)}.flow{padding:var(--s6);margin:var(--s6) 0 var(--s2);background:var(--surface);border:1px solid var(--line);overflow:auto}.flow svg{display:block;width:100%;height:auto;min-width:540px;max-height:1100px}.flow figcaption{font-size:var(--small);color:var(--muted);margin-top:var(--s4)}summary{cursor:pointer;font-size:var(--small);min-height:32px}footer{font-size:var(--small);color:var(--muted);border-top:1px solid var(--line);padding-top:var(--s6);overflow-wrap:anywhere}.jump{position:absolute;left:-9999px}.jump:focus{left:var(--s4);top:var(--s4);background:var(--surface);padding:var(--s4);z-index:10}button{min-height:44px;background:var(--surface);color:var(--accent);border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2) var(--s4);cursor:pointer}@media(max-width:1000px){:root{--rail:220px}main{padding:var(--s8)}}@media(max-width:740px){.layout{display:block}.rail{position:static;height:auto;border-bottom:1px solid var(--line)}.rail nav{max-height:220px;overflow:auto}.top{flex-wrap:wrap}main{padding:var(--s6)}h1{font-size:36px}}@media print{.rail,.top,.jump{display:none}.layout{display:block}main{max-width:none;padding:0;font-size:11pt}h2{break-before:page}.table-scroll{overflow:visible}tr{break-inside:avoid}.flow svg{min-width:0;max-height:240mm}a{color:inherit}button{display:none}}
-</style></head><body><a class="jump" href="#content">Skip to specification</a><header class="top"><span class="brand">CFD / WORKBENCH</span><span class="badge">PRODUCT SPECIFICATION · 1.7.1</span><a href="../mockups/workbench-v7.html">Open interactive design ↗</a></header><div class="layout"><aside class="rail"><p>Specification map</p><label for="find">Find a section</label><input id="find" type="search" placeholder="Geometry, analysis, AI…"><p id="find-status" role="status" hidden></p><nav aria-label="Contents"><a class="depth2" href="#one-definition-every-number-with-its-basis-nothing-claimed-that-a-fixture-has-not-earned">One definition. Every number with its basis. Nothing claimed that a fixture has not earned.</a><a class="depth2" href="#part-a-functional-specification">Part A — Functional specification</a><a class="depth3" href="#a1-problem-users-positioning-and-core-scenario">A1. Problem, users, positioning and core scenario</a><a class="depth3" href="#a2-scope-releases-non-goals-and-commitments">A2. Scope, releases, non-goals and commitments</a><a class="depth3" href="#a3-conceptual-domain-model-decided-before-any-surface">A3. Conceptual domain model — decided before any surface</a><a class="depth3" href="#a4-geometry-contract">A4. Geometry contract</a><a class="depth3" href="#a5-analysis-contract">A5. Analysis contract</a><a class="depth3" href="#a6-stories-and-acceptance-criteria">A6. Stories and acceptance criteria</a><a class="depth3" href="#a7-validation-ladder-labels-are-granted-never-worn">A7. Validation ladder — labels are granted, never worn</a><a class="depth3" href="#a8-non-functional-requirements-governance-and-allocation">A8. Non-functional requirements, governance and allocation</a><a class="depth2" href="#part-b-ux-specification">Part B — UX specification</a><a class="depth3" href="#b1-information-architecture">B1. Information architecture</a><a class="depth3" href="#b2-flow-f1-start-first-launch-preserve-doc-01-04">B2. Flow F1 — start, first launch, preserve (DOC-01–04)</a><a class="depth3" href="#b3-flow-f2-shape-through-curves-and-stations-geo-01-15-cat-01-04">B3. Flow F2 — shape through curves and stations (GEO-01–15, CAT-01–04)</a><a class="depth3" href="#b4-flow-f3-brief-and-feasibility-goal-01-03-cat-04">B4. Flow F3 — brief and feasibility (GOAL-01–03, CAT-04)</a><a class="depth3" href="#b5-flow-f4-analyze-and-compare-ana-01-20-drc-01">B5. Flow F4 — analyze and compare (ANA-01–20, DRC-01)</a><a class="depth3" href="#b6-flow-f5-export-and-optional-assistance-exp-01-03-ai-01-06">B6. Flow F5 — export and optional assistance (EXP-01–03, AI-01–06)</a><a class="depth3" href="#b6a-flow-f6-setup-from-language-or-parameters-set-01-04-ai-02">B6a. Flow F6 — setup from language or parameters (SET-01–04, AI-02)</a><a class="depth3" href="#b6b-flow-f7-experiment-setup-and-run-xs-01-03-run-01-06-ai-09-ai-11">B6b. Flow F7 — experiment setup and run (XS-01–03, RUN-01–06, AI-09, AI-11)</a><a class="depth3" href="#b6c-flow-f8-results-replay-and-candidates-res-01-05-ai-10">B6c. Flow F8 — results, replay and candidates (RES-01–05, AI-10)</a><a class="depth3" href="#b7-wireframe-structure">B7. Wireframe structure</a><a class="depth3" href="#b8-ux-acceptance-criteria">B8. UX acceptance criteria</a><a class="depth3" href="#b9-foildsl-authoring-flow-src-01-11">B9. FoilDSL authoring flow (SRC-01–11)</a><a class="depth3" href="#b10-flow-f10-one-uninterrupted-design-decision-revision-1-5">B10. Flow F10 — one uninterrupted design decision (revision 1.5)</a><a class="depth3" href="#b11-flow-f11-cad-first-journey-and-the-section-editor-revision-1-6-cad-14-20">B11. Flow F11 — CAD-first journey and the section editor (revision 1.6; CAD-14–20)</a><a class="depth3" href="#b12-flow-f12-panes-docks-and-floats-revision-1-6-ux-31-32">B12. Flow F12 — panes, docks and floats (revision 1.6; UX-31–32)</a><a class="depth2" href="#part-c-ui-specification">Part C — UI specification</a><a class="depth3" href="#c1-archetype-and-direction">C1. Archetype and direction</a><a class="depth3" href="#c2-design-system-states-charts-and-colour">C2. Design system, states, charts and colour</a><a class="depth3" href="#c3-copy-one-state-one-string">C3. Copy — one state, one string</a><a class="depth3" href="#c4-ui-acceptance-criteria">C4. UI acceptance criteria</a><a class="depth3" href="#c4a-source-authoring-surface-acceptance-revision-1-5">C4a. Source-authoring surface acceptance (revision 1.5)</a><a class="depth3" href="#c4b-cad-first-surface-acceptance-revision-1-6">C4b. CAD-first surface acceptance (revision 1.6)</a><a class="depth3" href="#c5-traceability">C5. Traceability</a><a class="depth2" href="#evidence-decisions-and-gates">Evidence, decisions and gates</a><a class="depth3" href="#confidence-ledger">Confidence ledger</a><a class="depth3" href="#open-decisions-owner-lens-exit-evidence">Open decisions (owner lens · exit evidence)</a><a class="depth3" href="#gate-record">Gate record</a><a class="depth2" href="#appendix-r-acceptance-gates-for-run-and-results-spikes-and-reserved-items">Appendix R — Acceptance gates for Run and Results (spikes), and reserved items</a><a class="depth2" href="#appendix-d4-changes-from-revision-1-2-revision-1-3-2026-09-21">Appendix D4 — Changes from revision 1.2 (revision 1.3, 2026-09-21)</a><a class="depth2" href="#appendix-d3-changes-from-revision-1-1a-revision-1-2-2026-09-21">Appendix D3 — Changes from revision 1.1a (revision 1.2, 2026-09-21)</a><a class="depth2" href="#appendix-d2a-changes-from-revision-1-1-revision-1-1a-2026-09-21-part-b-c-only">Appendix D2a — Changes from revision 1.1 (revision 1.1a, 2026-09-21, Part B/C only)</a><a class="depth2" href="#appendix-d2-changes-from-revision-1-0-revision-1-1-2026-09-21">Appendix D2 — Changes from revision 1.0 (revision 1.1, 2026-09-21)</a><a class="depth2" href="#appendix-d-changes-from-revision-0-2">Appendix D — Changes from revision 0.2</a><a class="depth2" href="#appendix-e-revision-1-4-review-boundary">Appendix E — revision 1.4 review boundary</a><a class="depth2" href="#appendix-f-revision-1-5-review-boundary">Appendix F — revision 1.5 review boundary</a><a class="depth2" href="#appendix-g-changes-from-revision-1-5-revision-1-6-2026-09-26">Appendix G — Changes from revision 1.5 (revision 1.6, 2026-09-26)</a><a class="depth2" href="#appendix-h-changes-from-revision-1-6-revision-1-7-2026-10-03">Appendix H — Changes from revision 1.6 (revision 1.7, 2026-10-03)</a><a class="depth3" href="#h-1-changes-from-revision-1-7-revision-1-7-1-2026-10-04">H.1 — Changes from revision 1.7 (revision 1.7.1, 2026-10-04)</a></nav><p>198 requirement IDs · 13 flows</p><button onclick="window.print()">Print / save as PDF</button></aside><main id="content"><h1>CFD-Workbench</h1>
+</style></head><body><a class="jump" href="#content">Skip to specification</a><header class="top"><span class="brand">CFD / WORKBENCH</span><span class="badge">PRODUCT SPECIFICATION · 1.7.2</span><a href="../mockups/workbench-v7.html">Open interactive design ↗</a></header><div class="layout"><aside class="rail"><p>Specification map</p><label for="find">Find a section</label><input id="find" type="search" placeholder="Geometry, analysis, AI…"><p id="find-status" role="status" hidden></p><nav aria-label="Contents"><a class="depth2" href="#one-definition-every-number-with-its-basis-nothing-claimed-that-a-fixture-has-not-earned">One definition. Every number with its basis. Nothing claimed that a fixture has not earned.</a><a class="depth2" href="#part-a-functional-specification">Part A — Functional specification</a><a class="depth3" href="#a1-problem-users-positioning-and-core-scenario">A1. Problem, users, positioning and core scenario</a><a class="depth3" href="#a2-scope-releases-non-goals-and-commitments">A2. Scope, releases, non-goals and commitments</a><a class="depth3" href="#a3-conceptual-domain-model-decided-before-any-surface">A3. Conceptual domain model — decided before any surface</a><a class="depth3" href="#a4-geometry-contract">A4. Geometry contract</a><a class="depth3" href="#a5-analysis-contract">A5. Analysis contract</a><a class="depth3" href="#a6-stories-and-acceptance-criteria">A6. Stories and acceptance criteria</a><a class="depth3" href="#a7-validation-ladder-labels-are-granted-never-worn">A7. Validation ladder — labels are granted, never worn</a><a class="depth3" href="#a8-non-functional-requirements-governance-and-allocation">A8. Non-functional requirements, governance and allocation</a><a class="depth2" href="#part-b-ux-specification">Part B — UX specification</a><a class="depth3" href="#b1-information-architecture">B1. Information architecture</a><a class="depth3" href="#b2-flow-f1-start-first-launch-preserve-doc-01-04">B2. Flow F1 — start, first launch, preserve (DOC-01–04)</a><a class="depth3" href="#b3-flow-f2-shape-through-curves-and-stations-geo-01-15-cat-01-04">B3. Flow F2 — shape through curves and stations (GEO-01–15, CAT-01–04)</a><a class="depth3" href="#b4-flow-f3-brief-and-feasibility-goal-01-03-cat-04">B4. Flow F3 — brief and feasibility (GOAL-01–03, CAT-04)</a><a class="depth3" href="#b5-flow-f4-analyze-and-compare-ana-01-20-drc-01">B5. Flow F4 — analyze and compare (ANA-01–20, DRC-01)</a><a class="depth3" href="#b6-flow-f5-export-and-optional-assistance-exp-01-03-ai-01-06">B6. Flow F5 — export and optional assistance (EXP-01–03, AI-01–06)</a><a class="depth3" href="#b6a-flow-f6-setup-from-language-or-parameters-set-01-04-ai-02">B6a. Flow F6 — setup from language or parameters (SET-01–04, AI-02)</a><a class="depth3" href="#b6b-flow-f7-experiment-setup-and-run-xs-01-03-run-01-06-ai-09-ai-11">B6b. Flow F7 — experiment setup and run (XS-01–03, RUN-01–06, AI-09, AI-11)</a><a class="depth3" href="#b6b-1-flow-f7a-guided-solver-setup-setup-01-09-run-01-ai-11-1-7-2-ruling-69">B6b-1. Flow F7a — guided solver setup (SETUP-01–09, RUN-01, AI-11) (1.7.2, Ruling 69)</a><a class="depth3" href="#b6c-flow-f8-results-replay-and-candidates-res-01-05-ai-10">B6c. Flow F8 — results, replay and candidates (RES-01–05, AI-10)</a><a class="depth3" href="#b7-wireframe-structure">B7. Wireframe structure</a><a class="depth3" href="#b8-ux-acceptance-criteria">B8. UX acceptance criteria</a><a class="depth3" href="#b9-foildsl-authoring-flow-src-01-11">B9. FoilDSL authoring flow (SRC-01–11)</a><a class="depth3" href="#b10-flow-f10-one-uninterrupted-design-decision-revision-1-5">B10. Flow F10 — one uninterrupted design decision (revision 1.5)</a><a class="depth3" href="#b11-flow-f11-cad-first-journey-and-the-section-editor-revision-1-6-cad-14-20">B11. Flow F11 — CAD-first journey and the section editor (revision 1.6; CAD-14–20)</a><a class="depth3" href="#b12-flow-f12-panes-docks-and-floats-revision-1-6-ux-31-32">B12. Flow F12 — panes, docks and floats (revision 1.6; UX-31–32)</a><a class="depth2" href="#part-c-ui-specification">Part C — UI specification</a><a class="depth3" href="#c1-archetype-and-direction">C1. Archetype and direction</a><a class="depth3" href="#c2-design-system-states-charts-and-colour">C2. Design system, states, charts and colour</a><a class="depth3" href="#c3-copy-one-state-one-string">C3. Copy — one state, one string</a><a class="depth3" href="#c4-ui-acceptance-criteria">C4. UI acceptance criteria</a><a class="depth3" href="#c4a-source-authoring-surface-acceptance-revision-1-5">C4a. Source-authoring surface acceptance (revision 1.5)</a><a class="depth3" href="#c4b-cad-first-surface-acceptance-revision-1-6">C4b. CAD-first surface acceptance (revision 1.6)</a><a class="depth3" href="#c5-traceability">C5. Traceability</a><a class="depth2" href="#evidence-decisions-and-gates">Evidence, decisions and gates</a><a class="depth3" href="#confidence-ledger">Confidence ledger</a><a class="depth3" href="#open-decisions-owner-lens-exit-evidence">Open decisions (owner lens · exit evidence)</a><a class="depth3" href="#gate-record">Gate record</a><a class="depth2" href="#appendix-r-acceptance-gates-for-run-and-results-spikes-and-reserved-items">Appendix R — Acceptance gates for Run and Results (spikes), and reserved items</a><a class="depth2" href="#appendix-d4-changes-from-revision-1-2-revision-1-3-2026-09-21">Appendix D4 — Changes from revision 1.2 (revision 1.3, 2026-09-21)</a><a class="depth2" href="#appendix-d3-changes-from-revision-1-1a-revision-1-2-2026-09-21">Appendix D3 — Changes from revision 1.1a (revision 1.2, 2026-09-21)</a><a class="depth2" href="#appendix-d2a-changes-from-revision-1-1-revision-1-1a-2026-09-21-part-b-c-only">Appendix D2a — Changes from revision 1.1 (revision 1.1a, 2026-09-21, Part B/C only)</a><a class="depth2" href="#appendix-d2-changes-from-revision-1-0-revision-1-1-2026-09-21">Appendix D2 — Changes from revision 1.0 (revision 1.1, 2026-09-21)</a><a class="depth2" href="#appendix-d-changes-from-revision-0-2">Appendix D — Changes from revision 0.2</a><a class="depth2" href="#appendix-e-revision-1-4-review-boundary">Appendix E — revision 1.4 review boundary</a><a class="depth2" href="#appendix-f-revision-1-5-review-boundary">Appendix F — revision 1.5 review boundary</a><a class="depth2" href="#appendix-g-changes-from-revision-1-5-revision-1-6-2026-09-26">Appendix G — Changes from revision 1.5 (revision 1.6, 2026-09-26)</a><a class="depth2" href="#appendix-h-changes-from-revision-1-6-revision-1-7-2026-10-03">Appendix H — Changes from revision 1.6 (revision 1.7, 2026-10-03)</a><a class="depth3" href="#h-1-changes-from-revision-1-7-revision-1-7-1-2026-10-04">H.1 — Changes from revision 1.7 (revision 1.7.1, 2026-10-04)</a><a class="depth3" href="#h-2-changes-from-revision-1-7-1-revision-1-7-2-2026-10-04">H.2 — Changes from revision 1.7.1 (revision 1.7.2, 2026-10-04)</a></nav><p>198 requirement IDs · 13 flows</p><button onclick="window.print()">Print / save as PDF</button></aside><main id="content"><h1>CFD-Workbench</h1>
 <h2 id="one-definition-every-number-with-its-basis-nothing-claimed-that-a-fixture-has-not-earned">One definition. Every number with its basis. Nothing claimed that a fixture has not earned.</h2>
-<p>Product specification · revision 1.7.1 · 4 October 2026 · <em>(1.7.1: the solver-security right-size, Appendix H, section H.1 and <a href="amendments/spec-1.7.1.md">amendments/spec-1.7.1.md</a>; 1.7: the spec-owner amendment batch, Appendix H and <a href="amendments/spec-1.7.md">amendments/spec-1.7.md</a>; 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)</em> · <strong>Build basis. Supersedes revision 1.0 (which
+<p>Product specification · revision 1.7.2 · 4 October 2026 · <em>(1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and <a href="amendments/spec-1.7.2.md">amendments/spec-1.7.2.md</a>; 1.7.1: the solver-security right-size, Appendix H, section H.1 and <a href="amendments/spec-1.7.1.md">amendments/spec-1.7.1.md</a>; 1.7: the spec-owner amendment batch, Appendix H and <a href="amendments/spec-1.7.md">amendments/spec-1.7.md</a>; 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)</em> · <strong>Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.</strong> Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
@@ -345,7 +345,7 @@ first-class from revision 1.1 (A3.1 Backend environment, A5.10). One word, one m
 <tr>
 <td><strong>Backend check</strong></td>
 <td>fact</td>
-<td>One detection or smoke test of one Backend environment at one time: kind, pinned digest, outcome, the smoke-test scalar (Cl on the bundled cavity-lid fixture) and its tolerance, the named output files found</td>
+<td>One detection or smoke test of one Backend environment at one time: kind, pinned digest, outcome, the smoke-test scalar (<del>Cl on the bundled cavity-lid fixture</del> <em>(1.7.2: the mean Courant number at the final time, printed by the solver, on the bundled cavity-lid fixture; a lid-driven cavity has no wing, so it has no Cl. SU2: the bundled 2D case&#39;s final Cl — Ruling 69, DR-SETUP-2)</em>) and its tolerance, the named output files found</td>
 </tr>
 <tr>
 <td><strong>Field evidence</strong></td>
@@ -1815,23 +1815,23 @@ parallel coordinates carry every point (RES-05).</li>
 <h4 id="a5-10-run-end-to-end-on-a-pinned-backend">A5.10 Run — end to end on a pinned backend</h4>
 <p><strong>Backend matrix</strong> (physics × substrate × OS × licence × pin, published exactly): OpenFOAM ESI v2512 by image
 digest today, v2606 when its Docker Hub image is tagged (no <code>opencfd/openfoam-default</code> 2606 tag existed on 2026-09-20, 08; OpenFOAM.app ships v2606 and v2512 builds, 08; the backend ADR sets the pin — 1.7, Ruling 66 OQ-12), always by
-image digest (macOS arm64/x86 and Windows via Docker Desktop or WSL2; OpenFOAM.app arm64, unsigned — disclosed);
+image digest <em>(1.7.2: the Windows route is pinned by the Linux image hash plus the <code>openfoam2512</code> package version, both recorded in the Backend check fact; the pin value is set in an ADR-0012 amendment after the operator&#39;s Windows run and is Not recorded until then — Ruling 70, OQ-1)</em> (macOS <del>arm64/x86</del> <em>(1.7.2: Apple silicon (arm64) only; Intel Macs are not supported — Ruling 70, OQ-5)</em> and Windows via <del>Docker Desktop or WSL2</del> <em>(1.7.2: the default route is OpenFOAM in an app-owned WSL Linux distribution — an Ubuntu 24.04 image with the OpenCFD <code>openfoam2512</code> packages; SU2 v8.5.0 native is the other option; Docker is not used. Inferred until the operator&#39;s Windows run — Ruling 69, DR-SETUP-1)</em>; OpenFOAM.app arm64, unsigned — disclosed <em>(1.7.2: signed by its author, not notarised, and disclosed as &quot;not notarised&quot; — Ruling 69, DR-SETUP-3)</em>);
 SU2 v8.5.0 release binaries; Foundation OpenFOAM excluded. SU2 has no VOF, cavitation or mesher, so free surface
 and cavitation are OpenFOAM-only, and <code>Unsupported</code> is decided from the <strong>Backend environment&#39;s capability
 record</strong> before a sample leaves Pending (08). <strong>Readiness</strong> = detection + a passing pinned-version smoke test — the bundled cavity-lid fixture run at the
-pinned digest: pass = the named output files exist with the recorded column layout and the fixture&#39;s Cl lies inside
-its tolerance <em>(1.7.1: and the launch&#39;s master banner reads <code>Disallowing</code>; Run is enabled when this smoke test shows Disallowing on the user&#39;s machine — Ruling 68)</em>; recorded as a Backend check fact; a Ready row without such a fact is Not ready — <del>re-checked at every
+pinned digest: pass = the named output files exist with the recorded column layout and <del>the fixture&#39;s Cl lies inside
+its tolerance</del> <em>(1.7.2: the final-time mean Courant number lies inside its tolerance — 0.222158 on macOS arm64, OpenFOAM v2512, build <code>_87ed40d256-20251219</code>; one shared tolerance is set after the operator&#39;s Windows run, and until then the macOS smoke test compares to 0.222158 at the six printed digits (Ruling 70, OQ-3), and the Windows value is Not recorded until then; SU2: the bundled 2D case&#39;s final Cl lies inside its tolerance, its reference value Not recorded until the first SU2 run — Ruling 69, DR-SETUP-2)</em> <em>(1.7.1: and the launch&#39;s master banner reads <code>Disallowing</code>; Run is enabled when this smoke test shows Disallowing on the user&#39;s machine — Ruling 68)</em>; recorded as a Backend check fact; a Ready row without such a fact is Not ready — <del>re-checked at every
 launch</del> <em>(1.7.1: run at install and on a pin change; at every app launch only the install path is re-checked, and the build id is compared on every run from the banner — ADR-0012 D2 rule 2; an existing install is detected and hash-checked against the known builds, and one that does not match runs only after an &quot;unverified install&quot; disclosure is accepted — DR-SEC-1 A)</em>; the <strong>environment assistant</strong> (AI-11) proposes allow-listed setup steps (install
-Docker Desktop · pull image by digest · create the WSL2 distribution · run the smoke test · set the resource
+<del>Docker Desktop · pull image by digest · create the WSL2 distribution</del> <em>(1.7.2: the route&#39;s step catalogue — macOS: download · verify · place · identify; Windows (Inferred until the Windows run): enable WSL · restart · Linux base · OpenFOAM · identify; SU2: download · verify · place — Ruling 69, DR-SETUP-1)</em> · run the smoke test · set the resource
 limit) as typed environment-step proposals that carry <strong>only the step id</strong> (and, for the resource limit, one integer
 inside the product-declared range); <strong>every other parameter — image digest, installer URL and hash, distribution
 name, mount path — is bound by the tool from the published matrix and from detection, never from the proposal</strong>;
-each step is shown with the exact command, its consequence, whether it needs elevation or a reboot, and the vendor&#39;s
-terms verbatim; the tool executes an accepted step and reports its result; <strong>the tool never runs elevated</strong> — a step
+each step is shown with <del>the exact command</del> <em>(1.7.2: its action in plain words, its time and download size; the exact command as the tool bound it, the pin and the licence sit under &quot;Technical details&quot;, which every step card carries and which is shown before consent — Ruling 69, DR-SETUP-5)</em>, its consequence, whether it needs elevation or a reboot, and the vendor&#39;s
+terms verbatim; the tool executes an accepted step and reports its result <em>(1.7.2: a step that asks for a restart is resumed from the facts at the next launch; on Windows a one-time per-user entry reopens the app after the restart. Inferred until the operator&#39;s Windows run — Ruling 69, DR-SETUP-6)</em>; <strong>the tool never runs elevated</strong> — a step
 that needs administrator rights launches the vendor installer through the OS&#39;s own prompt after verifying the
 product-pinned installer hash; no free-form shell is ever executed; under WSL2 the case is launched as argv
 (<code>wsl.exe -d &lt;distro&gt; -e &lt;binary&gt; &lt;args&gt;</code> with the environment from a product-owned wrapper file, never <code>bash -lc</code>;
-confirm at SPIKE-03); Gatekeeper/SmartScreen are never disabled; ParaView 5.12+ (BSD-3) is an optional process-only
+confirm at SPIKE-03); Gatekeeper/SmartScreen are never disabled <em>(1.7.2: the app neither adds nor removes <code>com.apple.quarantine</code> on its own OpenFOAM.app download, discloses &quot;not notarised&quot; and relies on the pinned hash check; when macOS blocks the app, setup gives the one click path System Settings › Privacy &amp; Security › Open Anyway. The macOS behaviour is confirmed by probe P-MAC-1, pending — Ruling 69, DR-SETUP-3)</em>; ParaView 5.12+ (BSD-3) is an optional process-only
 dependency of the matrix for slices, streamlines and isosurfaces. <strong>Typed case model:</strong> one model, two emitters (ESI dictionaries, SU2
 <code>.cfg</code>), no macros/<code>#codeStream</code>/<code>#calc</code>, deterministic ordering; fields for turbulence model and variant,
 transition, TI, μ_t/μ, wall treatment, target y+, reference quantities, residual criterion, averaging window.
@@ -1920,7 +1920,7 @@ string and never blocks the manual path (AI-01):</p>
 </tr>
 <tr>
 <td>Run</td>
-<td>&quot;Prepare my environment&quot; · &quot;Explain this failure&quot;</td>
+<td><del>&quot;Prepare my environment&quot;</del> <em>(1.7.2: &quot;Ask about this step&quot;)</em> · &quot;Explain this failure&quot;</td>
 <td>environment-step (step id only; parameters bound by the tool) · explanation over logs · case-diff (a new Experiment version in Draft)</td>
 <td>allow-list only; parameters from the matrix and detection; consent per step; the case-diff validator is the typed case model (closed subset, no macros); a log-injected instruction can set no disposition</td>
 </tr>
@@ -2220,7 +2220,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 </tr>
 <tr>
 <td>ANA-22 · I can toggle between the CAD view and the analysis view seamlessly</td>
-<td><strong>Given</strong> CAD and Analysis, <strong>when</strong> I switch (one action: the toggle or a shortcut — the toggle <em>is</em> navigation between areas 2 and 3 and the area strip follows), <strong>then</strong> the camera, selection, station and viewport size are preserved and the analysis layers appear over the accepted Design revision within the preview budget; <strong>given</strong> an open edit preview, <strong>then</strong> the preview is hidden with &quot;Preview hidden — Apply or Cancel in CAD&quot; and the layers draw over the accepted revision, never the preview; switching back restores the preview untouched; a Historical run&#39;s layers carry the Historical banner in either view.</td>
+<td><strong>Given</strong> CAD and Analysis, <strong>when</strong> I switch (one action: the toggle or <del>a shortcut</del> <em>(1.7.2: the shortcut ⇧⌘A on macOS, Ctrl+Shift+A on Windows; ⌘1, ⌘2 and ⌘3 stay the Planform, Precision and Review workspaces — Ruling 67, A3a OD-1)</em> — the toggle <em>is</em> navigation between areas 2 and 3 and the area strip follows), <strong>then</strong> the camera, selection, station and viewport size are preserved and the analysis layers appear over the accepted Design revision within the preview budget; <strong>given</strong> an open edit preview, <strong>then</strong> the preview is hidden with &quot;Preview hidden — Apply or Cancel in CAD&quot; and the layers draw over the accepted revision, never the preview; switching back restores the preview untouched; a Historical run&#39;s layers carry the Historical banner in either view.</td>
 </tr>
 <tr>
 <td>ANA-23 · I can see force directions and magnitudes</td>
@@ -2240,7 +2240,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 </tr>
 <tr>
 <td>RUN-01 · I can prepare a local backend with help</td>
-<td><strong>Given</strong> no compatible backend, <strong>when</strong> I open Run, <strong>then</strong> detection shows platform, substrate, version, download and storage needs and the exact proposed action; <strong>given</strong> a key, <strong>then</strong> &quot;Prepare my environment&quot; proposes allow-listed steps one at a time — each carrying only its step id — with the exact command the tool bound from the published matrix, its consequence, elevation or reboot need and vendor terms verbatim, each executed only after consent and reported with its outcome as an <code>environment.step</code> event; <strong>given</strong> consent denial, offline or interruption, <strong>then</strong> setup remains recoverable and CAD works; Ready requires detection plus the bundled cavity-lid smoke test at the pinned digest with its Cl inside tolerance, recorded as a Backend check fact; <strong>given</strong> a proposal carrying a syntactically valid digest that differs from the pin, or a resource-limit value outside the declared range, <strong>then</strong> it is refused.</td>
+<td><strong>Given</strong> no compatible backend, <strong>when</strong> I open Run <em>(1.7.2: or choose Set up a solver)</em>, <strong>then</strong> detection shows platform, substrate, version, download and storage needs and <del>the exact proposed action</del> <em>(1.7.2: one recommended route in plain words)</em>; <del><strong>given</strong> a key, <strong>then</strong> &quot;Prepare my environment&quot;</del> <em>(1.7.2: <strong>with or without a key or any network model</strong> — the assistant, when present, only explains, AI-11 — <strong>then</strong> the setup)</em> proposes allow-listed steps one at a time — each carrying only its step id — with <del>the exact command the tool bound from the published matrix</del> <em>(1.7.2: its action in plain words, time and download size; the exact command as the tool bound it, the pin and the licence are under Technical details and shown before consent)</em>, its consequence, elevation or reboot need and vendor terms verbatim, each executed only after consent and reported with its outcome as an <code>environment.step</code> event; <strong>given</strong> consent denial, offline or interruption, <strong>then</strong> setup remains recoverable and CAD works <em>(1.7.2: after a restart, quit or crash it resumes at the first step without a success fact, and on Windows a one-time per-user entry reopens the app after a restart — Ruling 69, DR-SETUP-6)</em>; Ready requires detection plus the bundled cavity-lid smoke test at the pinned digest with <del>its Cl inside tolerance</del> <em>(1.7.2: its final-time mean Courant number inside tolerance, and for OpenFOAM the master banner <code>Disallowing</code>, A5.10)</em>, recorded as a Backend check fact; <strong>given</strong> a proposal carrying a syntactically valid digest that differs from the pin, or a resource-limit value outside the declared range, <strong>then</strong> it is refused.</td>
 </tr>
 <tr>
 <td>RUN-02 · I can generate a supported case</td>
@@ -2261,6 +2261,42 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 <tr>
 <td>RUN-06 · I can recover individual samples</td>
 <td><strong>Given</strong> one failed case among completed ones, <strong>then</strong> its reason, logs and partial-data status stay visible and the others stay usable; <strong>given</strong> Retry sample, <strong>then</strong> a new attempt retains the inputs and the prior attempt&#39;s provenance; Cancel stops new launches and cancels active processes while preserving completed evidence.</td>
+</tr>
+<tr>
+<td>SETUP-01 · I am never pushed into setup <em>(1.7.2)</em></td>
+<td><strong>Given</strong> a first launch with no solver, <strong>then</strong> no setup prompt appears; CAD and the local tiers work; the status strip shows <code>Solver: not set up</code>, which opens setup.</td>
+</tr>
+<tr>
+<td>SETUP-02 · The app tells me what my computer has and what to do <em>(1.7.2)</em></td>
+<td><strong>Given</strong> Set up a solver, <strong>then</strong> the survey runs without consent, lists OS, architecture, free disk, solver state and any blocker in plain words, and shows one recommended route with its reason; other routes sit under Other options.</td>
+</tr>
+<tr>
+<td>SETUP-03 · Each step says what it does before it does it <em>(1.7.2)</em></td>
+<td><strong>Given</strong> a step card, <strong>then</strong> it shows the plain-words action, why, time, download, disk, the needs line, the terms verbatim where present, and Technical details with the exact command and pin; the step runs only after Start this step (and I accept, where terms exist); its outcome is an <code>environment.step</code> fact.</td>
+</tr>
+<tr>
+<td>SETUP-04 · When the OS needs me, I get one click path <em>(1.7.2)</em></td>
+<td><strong>Given</strong> a step that needs administrator approval, a restart, a firmware switch or macOS Open Anyway, <strong>then</strong> the screen gives one exact click path; no screen asks me to type a command (lint-tested); declining changes nothing and is recoverable. The Windows paths are Inferred until the operator&#39;s Windows run.</td>
+</tr>
+<tr>
+<td>SETUP-05 · Setup survives a restart <em>(1.7.2)</em></td>
+<td><strong>Given</strong> a step that asked for a restart, or a quit or crash during a step, <strong>when</strong> I launch again, <strong>then</strong> Solver setup opens on the first step without a success fact after a fresh survey, and a step that was running is re-checked before it runs again; on Windows a one-time per-user entry reopens the app after a restart (Inferred until the Windows run).</td>
+</tr>
+<tr>
+<td>SETUP-06 · Every failure has a cause and a next step <em>(1.7.2)</em></td>
+<td><strong>Given</strong> a failed step with a catalogue cause code, <strong>then</strong> the fixed cause string and its one next step show; <strong>given</strong> an unknown cause, <strong>then</strong> the output excerpt and Copy a report show, and with a key Explain this failure.</td>
+</tr>
+<tr>
+<td>SETUP-07 · An install I already have is used if it is the tested one <em>(1.7.2)</em></td>
+<td><strong>Given</strong> an existing install whose hashes match the pin, <strong>then</strong> setup skips to Verify; <strong>given</strong> one that does not match, <strong>then</strong> Install the tested build and Use mine anyway are offered; Use mine anyway records the disclosure acceptance, and every run manifest records &quot;unverified install&quot; (DR-SEC-1 A).</td>
+</tr>
+<tr>
+<td>SETUP-08 · Ready means it ran here <em>(1.7.2)</em></td>
+<td><strong>Given</strong> the last install step succeeded, <strong>then</strong> the smoke test runs; Ready shows only when its Backend check fact passes (the named files, the final-time mean Courant number inside tolerance, and for OpenFOAM the banner <code>Disallowing</code>); a failed smoke test shows Not ready with a cause and one next step; no other path sets Ready.</td>
+</tr>
+<tr>
+<td>SETUP-09 · The app is honest when my computer has no route <em>(1.7.2)</em></td>
+<td><strong>Given</strong> an Intel Mac <em>(not supported: macOS is Apple silicon only — Ruling 70, OQ-5)</em>, macOS before 14, or Windows before build 19041, <strong>then</strong> setup says which requirement is not met, that CAD and the local tiers still work, and offers nothing else.</td>
 </tr>
 <tr>
 <td>RES-01 · I can read available fields with their basis</td>
@@ -2308,7 +2344,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 </tr>
 <tr>
 <td>AI-11 · The environment assistant proposes, the tool executes</td>
-<td><strong>Given</strong> Run and a key, <strong>then</strong> every environment step is one allow-listed step id; the tool binds every parameter from the published matrix and detection and shows the exact command; consent is per step; the tool executes, never elevated, and records the outcome; a step outside the allow-list, or a proposal carrying any parameter field, is refused with &quot;Step refused: outside the allow-list — <reason>&quot;; the assistant never receives a shell.</td>
+<td><strong>Given</strong> <del>Run and a key</del> <em>(1.7.2: setup, with or without a key — the rails decide and need none)</em>, <strong>then</strong> every environment step is one allow-listed step id; the tool binds every parameter from the published matrix and detection and shows the exact command; consent is per step; the tool executes, never elevated, and records the outcome; a step outside the allow-list, or a proposal carrying any parameter field, is refused with &quot;Step refused: outside the allow-list — <reason>&quot;; the assistant never receives a shell <em>(1.7.2: and, given a key, it may (a) explain a step, (b) explain a failed step from its recorded output excerpt, citing the excerpt&#39;s lines, (c) answer from the bundled knowledge files, (d) suggest one step id from the set the rails allow at that moment, shown beside the rails&#39; own next step and run only if the user chooses it; it never accepts terms, marks a step done or says Ready; an answer that tells the user to type a command, to disable Gatekeeper, SmartScreen or antivirus, or that claims the setup worked, is withheld with its reason and the step&#39;s fixed explanation is shown instead — Ruling 69, DR-SETUP-4)</em>.</td>
 </tr>
 <tr>
 <td>EXP-04 · I can export for Rhino</td>
@@ -2596,7 +2632,7 @@ Avalonia (MIT, 11), PureHDF, Parquet.Net, BLAKE3, CliWrap, the official Anthropi
 or excluded: XFOIL, XFLR5, AVL (GPL); OpenVSP (NOSA); SU2 (LGPL-2.1; conda-forge metadata discrepancy noted);
 OpenFOAM, Gmsh, cfMesh (GPL); DAFoam (GPL); NLopt, CasADi, pyOptSparse, ADflow, Dakota (LGPL); SISL (AGPL); OCCT
 (LGPL); ParaView 5.12+ (BSD-3, process-only, optional). Substrate terms inherited by the user, disclosed verbatim
-and never accepted for them: Docker Desktop (free below 250 staff and $10 M revenue; paid above — the product cannot
+and never accepted for them: Docker Desktop <em>(1.7.2: no longer used; this licence line is struck with the Windows ADR, not now — Ruling 70, OQ-4)</em> (free below 250 staff and $10 M revenue; paid above — the product cannot
 know the user&#39;s organisation), OpenFOAM.app arm64 (unsigned, un-notarized), SU2 release binaries. Data: UIUC
 coordinates (no licence — VEND pending), LSAT polars (GPL data — LINK), Airfoil Tools (all
 rights reserved — LINK), AirfRANS (CC BY-NC-SA — cite only). A NeuralFoil sidecar pulls CasADi (LGPL-3.0) and
@@ -2663,7 +2699,7 @@ in the global column; a chip that jumps is not a verb.</p>
 </tr>
 <tr>
 <td>Run</td>
-<td>Check · Prepare my environment · Consent · Run · Cancel · Retry sample · Explain this failure · Preview case diff</td>
+<td>Check · <del>Prepare my environment</del> <em>(1.7.2: Set up a solver)</em> · Consent · Run · Cancel · Retry sample · Explain this failure · Preview case diff</td>
 <td>→ Results · → Experiment (Open repaired draft)</td>
 </tr>
 <tr>
@@ -2763,7 +2799,7 @@ a Custom point never edits the Goal state; Experiment setup takes the same choic
 <tr>
 <td>Backend environment, readiness, steps</td>
 <td>Run · environment panel</td>
-<td>Check · Prepare my environment</td>
+<td>Check · <del>Prepare my environment</del> <em>(1.7.2: Set up a solver)</em></td>
 </tr>
 <tr>
 <td>Run state machine, status, logs, cancel</td>
@@ -5133,203 +5169,203 @@ J --&gt; M[Open CAD or Analysis]</pre></details><h3 id="b6b-flow-f7-experiment-s
 <!-- A -->
 <g id="node1" class="node">
 <title>A</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M532.44,-1927.88C532.44,-1927.88 440.02,-1927.88 440.02,-1927.88 434.02,-1927.88 428.02,-1921.88 428.02,-1915.88 428.02,-1915.88 428.02,-1903.88 428.02,-1903.88 428.02,-1897.88 434.02,-1891.88 440.02,-1891.88 440.02,-1891.88 532.44,-1891.88 532.44,-1891.88 538.44,-1891.88 544.44,-1897.88 544.44,-1903.88 544.44,-1903.88 544.44,-1915.88 544.44,-1915.88 544.44,-1921.88 538.44,-1927.88 532.44,-1927.88"/>
-<text xml:space="preserve" text-anchor="middle" x="486.23" y="-1906.28" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Open Experiment</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M520.44,-1927.88C520.44,-1927.88 428.02,-1927.88 428.02,-1927.88 422.02,-1927.88 416.02,-1921.88 416.02,-1915.88 416.02,-1915.88 416.02,-1903.88 416.02,-1903.88 416.02,-1897.88 422.02,-1891.88 428.02,-1891.88 428.02,-1891.88 520.44,-1891.88 520.44,-1891.88 526.44,-1891.88 532.44,-1897.88 532.44,-1903.88 532.44,-1903.88 532.44,-1915.88 532.44,-1915.88 532.44,-1921.88 526.44,-1927.88 520.44,-1927.88"/>
+<text xml:space="preserve" text-anchor="middle" x="474.23" y="-1906.28" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Open Experiment</text>
 </g>
 <!-- B -->
 <g id="node2" class="node">
 <title>B</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M476.28,-1848.18C476.28,-1848.18 449.13,-1829.9 449.13,-1829.9 444.15,-1826.55 444.15,-1819.85 449.13,-1816.5 449.13,-1816.5 476.28,-1798.22 476.28,-1798.22 481.26,-1794.87 491.21,-1794.87 496.19,-1798.22 496.19,-1798.22 523.34,-1816.5 523.34,-1816.5 528.31,-1819.85 528.31,-1826.55 523.34,-1829.9 523.34,-1829.9 496.19,-1848.18 496.19,-1848.18 491.21,-1851.53 481.26,-1851.53 476.28,-1848.18"/>
-<text xml:space="preserve" text-anchor="middle" x="486.23" y="-1819.6" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Kind</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M464.28,-1848.18C464.28,-1848.18 437.13,-1829.9 437.13,-1829.9 432.15,-1826.55 432.15,-1819.85 437.13,-1816.5 437.13,-1816.5 464.28,-1798.22 464.28,-1798.22 469.26,-1794.87 479.21,-1794.87 484.19,-1798.22 484.19,-1798.22 511.34,-1816.5 511.34,-1816.5 516.31,-1819.85 516.31,-1826.55 511.34,-1829.9 511.34,-1829.9 484.19,-1848.18 484.19,-1848.18 479.21,-1851.53 469.26,-1851.53 464.28,-1848.18"/>
+<text xml:space="preserve" text-anchor="middle" x="474.23" y="-1819.6" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Kind</text>
 </g>
 <!-- A&#45;&gt;B -->
 <g id="edge1" class="edge">
 <title>A&#45;&gt;B</title>
-<path fill="none" stroke="#597d78" d="M486.23,-1891.74C486.23,-1883.67 486.23,-1873.67 486.23,-1863.87"/>
-<polygon fill="#597d78" stroke="#597d78" points="488.68,-1863.87 486.23,-1856.87 483.78,-1863.87 488.68,-1863.87"/>
+<path fill="none" stroke="#597d78" d="M474.23,-1891.74C474.23,-1883.67 474.23,-1873.67 474.23,-1863.87"/>
+<polygon fill="#597d78" stroke="#597d78" points="476.68,-1863.87 474.23,-1856.87 471.78,-1863.87 476.68,-1863.87"/>
 </g>
 <!-- C -->
 <g id="node3" class="node">
 <title>C</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M641.2,-1616.52C641.2,-1616.52 243.27,-1616.52 243.27,-1616.52 237.27,-1616.52 231.27,-1610.52 231.27,-1604.52 231.27,-1604.52 231.27,-1592.52 231.27,-1592.52 231.27,-1586.52 237.27,-1580.52 243.27,-1580.52 243.27,-1580.52 641.2,-1580.52 641.2,-1580.52 647.2,-1580.52 653.2,-1586.52 653.2,-1592.52 653.2,-1592.52 653.2,-1604.52 653.2,-1604.52 653.2,-1610.52 647.2,-1616.52 641.2,-1616.52"/>
-<text xml:space="preserve" text-anchor="middle" x="442.23" y="-1594.92" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Angles × speeds or Goal&#45;state points; held water, depth, geometry, method</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M629.2,-1616.52C629.2,-1616.52 231.27,-1616.52 231.27,-1616.52 225.27,-1616.52 219.27,-1610.52 219.27,-1604.52 219.27,-1604.52 219.27,-1592.52 219.27,-1592.52 219.27,-1586.52 225.27,-1580.52 231.27,-1580.52 231.27,-1580.52 629.2,-1580.52 629.2,-1580.52 635.2,-1580.52 641.2,-1586.52 641.2,-1592.52 641.2,-1592.52 641.2,-1604.52 641.2,-1604.52 641.2,-1610.52 635.2,-1616.52 629.2,-1616.52"/>
+<text xml:space="preserve" text-anchor="middle" x="430.23" y="-1594.92" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Angles × speeds or Goal&#45;state points; held water, depth, geometry, method</text>
 </g>
 <!-- B&#45;&gt;C -->
 <g id="edge2" class="edge">
 <title>B&#45;&gt;C</title>
-<path fill="none" stroke="#597d78" d="M480.84,-1794.9C472.25,-1751.43 455.59,-1667.13 447.25,-1624.91"/>
-<polygon fill="#597d78" stroke="#597d78" points="449.7,-1624.69 445.94,-1618.29 444.9,-1625.64 449.7,-1624.69"/>
-<text xml:space="preserve" text-anchor="middle" x="485.89" y="-1722.52" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Sweep</text>
+<path fill="none" stroke="#597d78" d="M468.84,-1794.9C460.25,-1751.43 443.59,-1667.13 435.25,-1624.91"/>
+<polygon fill="#597d78" stroke="#597d78" points="437.7,-1624.69 433.94,-1618.29 432.9,-1625.64 437.7,-1624.69"/>
+<text xml:space="preserve" text-anchor="middle" x="473.89" y="-1722.52" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Sweep</text>
 </g>
 <!-- D -->
 <g id="node4" class="node">
 <title>D</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M1022.21,-1670.52C1022.21,-1670.52 536.26,-1670.52 536.26,-1670.52 530.26,-1670.52 524.26,-1664.52 524.26,-1658.52 524.26,-1658.52 524.26,-1646.52 524.26,-1646.52 524.26,-1640.52 530.26,-1634.52 536.26,-1634.52 536.26,-1634.52 1022.21,-1634.52 1022.21,-1634.52 1028.21,-1634.52 1034.21,-1640.52 1034.21,-1646.52 1034.21,-1646.52 1034.21,-1658.52 1034.21,-1658.52 1034.21,-1664.52 1028.21,-1670.52 1022.21,-1670.52"/>
-<text xml:space="preserve" text-anchor="middle" x="779.23" y="-1648.92" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Objective over multipoint set; constraints incl. A_cav; design vector; robustness; tier; budget</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1010.21,-1670.52C1010.21,-1670.52 524.26,-1670.52 524.26,-1670.52 518.26,-1670.52 512.26,-1664.52 512.26,-1658.52 512.26,-1658.52 512.26,-1646.52 512.26,-1646.52 512.26,-1640.52 518.26,-1634.52 524.26,-1634.52 524.26,-1634.52 1010.21,-1634.52 1010.21,-1634.52 1016.21,-1634.52 1022.21,-1640.52 1022.21,-1646.52 1022.21,-1646.52 1022.21,-1658.52 1022.21,-1658.52 1022.21,-1664.52 1016.21,-1670.52 1010.21,-1670.52"/>
+<text xml:space="preserve" text-anchor="middle" x="767.23" y="-1648.92" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Objective over multipoint set; constraints incl. A_cav; design vector; robustness; tier; budget</text>
 </g>
 <!-- B&#45;&gt;D -->
 <g id="edge3" class="edge">
 <title>B&#45;&gt;D</title>
-<path fill="none" stroke="#597d78" d="M511.21,-1807.82C562.81,-1778.11 681.39,-1709.85 742.04,-1674.94"/>
-<polygon fill="#597d78" stroke="#597d78" points="742.98,-1677.22 747.82,-1671.6 740.53,-1672.97 742.98,-1677.22"/>
-<text xml:space="preserve" text-anchor="middle" x="705.11" y="-1722.52" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Optimize</text>
+<path fill="none" stroke="#597d78" d="M499.21,-1807.82C550.81,-1778.11 669.39,-1709.85 730.04,-1674.94"/>
+<polygon fill="#597d78" stroke="#597d78" points="730.98,-1677.22 735.82,-1671.6 728.53,-1672.97 730.98,-1677.22"/>
+<text xml:space="preserve" text-anchor="middle" x="693.11" y="-1722.52" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Optimize</text>
 </g>
 <!-- E -->
 <g id="node5" class="node">
 <title>E</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M424.14,-1743.52C424.14,-1743.52 206.33,-1743.52 206.33,-1743.52 200.33,-1743.52 194.33,-1737.52 194.33,-1731.52 194.33,-1731.52 194.33,-1719.52 194.33,-1719.52 194.33,-1713.52 200.33,-1707.52 206.33,-1707.52 206.33,-1707.52 424.14,-1707.52 424.14,-1707.52 430.14,-1707.52 436.14,-1713.52 436.14,-1719.52 436.14,-1719.52 436.14,-1731.52 436.14,-1731.52 436.14,-1737.52 430.14,-1743.52 424.14,-1743.52"/>
-<text xml:space="preserve" text-anchor="middle" x="315.23" y="-1721.92" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">experiment&#45;config proposal; preview; edit</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M412.14,-1743.52C412.14,-1743.52 194.33,-1743.52 194.33,-1743.52 188.33,-1743.52 182.33,-1737.52 182.33,-1731.52 182.33,-1731.52 182.33,-1719.52 182.33,-1719.52 182.33,-1713.52 188.33,-1707.52 194.33,-1707.52 194.33,-1707.52 412.14,-1707.52 412.14,-1707.52 418.14,-1707.52 424.14,-1713.52 424.14,-1719.52 424.14,-1719.52 424.14,-1731.52 424.14,-1731.52 424.14,-1737.52 418.14,-1743.52 412.14,-1743.52"/>
+<text xml:space="preserve" text-anchor="middle" x="303.23" y="-1721.92" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">experiment&#45;config proposal; preview; edit</text>
 </g>
 <!-- B&#45;&gt;E -->
 <g id="edge4" class="edge">
 <title>B&#45;&gt;E</title>
-<path fill="none" stroke="#597d78" d="M452.31,-1813.83C425.41,-1806.15 387.69,-1792.99 358.85,-1773.52 349.29,-1767.07 340.33,-1758.14 333.04,-1749.8"/>
-<polygon fill="#597d78" stroke="#597d78" points="335.17,-1748.52 328.79,-1744.74 331.42,-1751.68 335.17,-1748.52"/>
-<text xml:space="preserve" text-anchor="middle" x="413.04" y="-1764.52" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Describe the experiment</text>
+<path fill="none" stroke="#597d78" d="M440.31,-1813.83C413.41,-1806.15 375.69,-1792.99 346.85,-1773.52 337.29,-1767.07 328.33,-1758.14 321.04,-1749.8"/>
+<polygon fill="#597d78" stroke="#597d78" points="323.17,-1748.52 316.79,-1744.74 319.42,-1751.68 323.17,-1748.52"/>
+<text xml:space="preserve" text-anchor="middle" x="401.04" y="-1764.52" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Describe the experiment</text>
 </g>
 <!-- F -->
 <g id="node8" class="node">
 <title>F</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M729.49,-1451.16C729.49,-1451.16 458.98,-1451.16 458.98,-1451.16 452.98,-1451.16 446.98,-1445.16 446.98,-1439.16 446.98,-1439.16 446.98,-1427.16 446.98,-1427.16 446.98,-1421.16 452.98,-1415.16 458.98,-1415.16 458.98,-1415.16 729.49,-1415.16 729.49,-1415.16 735.49,-1415.16 741.49,-1421.16 741.49,-1427.16 741.49,-1427.16 741.49,-1439.16 741.49,-1439.16 741.49,-1445.16 735.49,-1451.16 729.49,-1451.16"/>
-<text xml:space="preserve" text-anchor="middle" x="594.23" y="-1429.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Preview cases with derived quantities and estimate</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M717.49,-1451.16C717.49,-1451.16 446.98,-1451.16 446.98,-1451.16 440.98,-1451.16 434.98,-1445.16 434.98,-1439.16 434.98,-1439.16 434.98,-1427.16 434.98,-1427.16 434.98,-1421.16 440.98,-1415.16 446.98,-1415.16 446.98,-1415.16 717.49,-1415.16 717.49,-1415.16 723.49,-1415.16 729.49,-1421.16 729.49,-1427.16 729.49,-1427.16 729.49,-1439.16 729.49,-1439.16 729.49,-1445.16 723.49,-1451.16 717.49,-1451.16"/>
+<text xml:space="preserve" text-anchor="middle" x="582.23" y="-1429.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Preview cases with derived quantities and estimate</text>
 </g>
 <!-- C&#45;&gt;F -->
 <g id="edge11" class="edge">
 <title>C&#45;&gt;F</title>
-<path fill="none" stroke="#597d78" d="M458.5,-1580.04C486.04,-1550.44 541.86,-1490.45 572.64,-1457.37"/>
-<polygon fill="#597d78" stroke="#597d78" points="574.08,-1459.42 577.05,-1452.62 570.49,-1456.08 574.08,-1459.42"/>
+<path fill="none" stroke="#597d78" d="M446.5,-1580.04C474.04,-1550.44 529.86,-1490.45 560.64,-1457.37"/>
+<polygon fill="#597d78" stroke="#597d78" points="562.08,-1459.42 565.05,-1452.62 558.49,-1456.08 562.08,-1459.42"/>
 </g>
 <!-- D2 -->
 <g id="node6" class="node">
 <title>D2</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M692.51,-1559.94C692.51,-1559.94 572.17,-1533.42 572.17,-1533.42 566.31,-1532.13 566.31,-1529.55 572.17,-1528.26 572.17,-1528.26 692.51,-1501.74 692.51,-1501.74 698.37,-1500.45 710.09,-1500.45 715.95,-1501.74 715.95,-1501.74 836.3,-1528.26 836.3,-1528.26 842.16,-1529.55 842.16,-1532.13 836.3,-1533.42 836.3,-1533.42 715.95,-1559.94 715.95,-1559.94 710.09,-1561.23 698.37,-1561.23 692.51,-1559.94"/>
-<text xml:space="preserve" text-anchor="middle" x="704.23" y="-1527.24" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Single&#45;point objective?</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M680.51,-1559.94C680.51,-1559.94 560.17,-1533.42 560.17,-1533.42 554.31,-1532.13 554.31,-1529.55 560.17,-1528.26 560.17,-1528.26 680.51,-1501.74 680.51,-1501.74 686.37,-1500.45 698.09,-1500.45 703.95,-1501.74 703.95,-1501.74 824.3,-1528.26 824.3,-1528.26 830.16,-1529.55 830.16,-1532.13 824.3,-1533.42 824.3,-1533.42 703.95,-1559.94 703.95,-1559.94 698.09,-1561.23 686.37,-1561.23 680.51,-1559.94"/>
+<text xml:space="preserve" text-anchor="middle" x="692.23" y="-1527.24" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Single&#45;point objective?</text>
 </g>
 <!-- D&#45;&gt;D2 -->
 <g id="edge7" class="edge">
 <title>D&#45;&gt;D2</title>
-<path fill="none" stroke="#597d78" d="M768.33,-1634.12C757.18,-1616.33 739.58,-1588.25 725.64,-1566"/>
-<polygon fill="#597d78" stroke="#597d78" points="727.86,-1564.92 722.06,-1560.29 723.7,-1567.52 727.86,-1564.92"/>
+<path fill="none" stroke="#597d78" d="M756.33,-1634.12C745.18,-1616.33 727.58,-1588.25 713.64,-1566"/>
+<polygon fill="#597d78" stroke="#597d78" points="715.86,-1564.92 710.06,-1560.29 711.7,-1567.52 715.86,-1564.92"/>
 </g>
 <!-- E&#45;&gt;C -->
 <g id="edge5" class="edge">
 <title>E&#45;&gt;C</title>
-<path fill="none" stroke="#597d78" d="M332.89,-1707.14C355.26,-1685.12 393.88,-1647.11 418.72,-1622.66"/>
-<polygon fill="#597d78" stroke="#597d78" points="420.38,-1624.47 423.65,-1617.81 416.94,-1620.98 420.38,-1624.47"/>
+<path fill="none" stroke="#597d78" d="M320.89,-1707.14C343.26,-1685.12 381.88,-1647.11 406.72,-1622.66"/>
+<polygon fill="#597d78" stroke="#597d78" points="408.38,-1624.47 411.65,-1617.81 404.94,-1620.98 408.38,-1624.47"/>
 </g>
 <!-- E&#45;&gt;D -->
 <g id="edge6" class="edge">
 <title>E&#45;&gt;D</title>
-<path fill="none" stroke="#597d78" d="M429.34,-1707.06C498.45,-1696.48 586.58,-1683 657.1,-1672.21"/>
-<polygon fill="#597d78" stroke="#597d78" points="657.13,-1674.68 663.68,-1671.2 656.39,-1669.84 657.13,-1674.68"/>
+<path fill="none" stroke="#597d78" d="M417.34,-1707.06C486.45,-1696.48 574.58,-1683 645.1,-1672.21"/>
+<polygon fill="#597d78" stroke="#597d78" points="645.13,-1674.68 651.68,-1671.2 644.39,-1669.84 645.13,-1674.68"/>
 </g>
 <!-- D3 -->
 <g id="node7" class="node">
 <title>D3</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M993.82,-1451.16C993.82,-1451.16 778.65,-1451.16 778.65,-1451.16 772.65,-1451.16 766.65,-1445.16 766.65,-1439.16 766.65,-1439.16 766.65,-1427.16 766.65,-1427.16 766.65,-1421.16 772.65,-1415.16 778.65,-1415.16 778.65,-1415.16 993.82,-1415.16 993.82,-1415.16 999.82,-1415.16 1005.82,-1421.16 1005.82,-1427.16 1005.82,-1427.16 1005.82,-1439.16 1005.82,-1439.16 1005.82,-1445.16 999.82,-1451.16 993.82,-1451.16"/>
-<text xml:space="preserve" text-anchor="middle" x="886.23" y="-1429.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Refused with the A5.9 string; add a point</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M981.82,-1451.16C981.82,-1451.16 766.65,-1451.16 766.65,-1451.16 760.65,-1451.16 754.65,-1445.16 754.65,-1439.16 754.65,-1439.16 754.65,-1427.16 754.65,-1427.16 754.65,-1421.16 760.65,-1415.16 766.65,-1415.16 766.65,-1415.16 981.82,-1415.16 981.82,-1415.16 987.82,-1415.16 993.82,-1421.16 993.82,-1427.16 993.82,-1427.16 993.82,-1439.16 993.82,-1439.16 993.82,-1445.16 987.82,-1451.16 981.82,-1451.16"/>
+<text xml:space="preserve" text-anchor="middle" x="874.23" y="-1429.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Refused with the A5.9 string; add a point</text>
 </g>
 <!-- D2&#45;&gt;D3 -->
 <g id="edge8" class="edge">
 <title>D2&#45;&gt;D3</title>
-<path fill="none" stroke="#597d78" d="M745.99,-1507.89C775.98,-1492.12 816.18,-1470.99 845.86,-1455.39"/>
-<polygon fill="#597d78" stroke="#597d78" points="846.77,-1457.68 851.82,-1452.25 844.49,-1453.34 846.77,-1457.68"/>
-<text xml:space="preserve" text-anchor="middle" x="825.5" y="-1472.16" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+<path fill="none" stroke="#597d78" d="M733.99,-1507.89C763.98,-1492.12 804.18,-1470.99 833.86,-1455.39"/>
+<polygon fill="#597d78" stroke="#597d78" points="834.77,-1457.68 839.82,-1452.25 832.49,-1453.34 834.77,-1457.68"/>
+<text xml:space="preserve" text-anchor="middle" x="813.5" y="-1472.16" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
 </g>
 <!-- D2&#45;&gt;F -->
 <g id="edge10" class="edge">
 <title>D2&#45;&gt;F</title>
-<path fill="none" stroke="#597d78" d="M675.91,-1505.2C658.82,-1490.34 637.21,-1471.54 620.51,-1457.01"/>
-<polygon fill="#597d78" stroke="#597d78" points="622.17,-1455.21 615.28,-1452.47 618.95,-1458.91 622.17,-1455.21"/>
-<text xml:space="preserve" text-anchor="middle" x="652.33" y="-1472.16" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+<path fill="none" stroke="#597d78" d="M663.91,-1505.2C646.82,-1490.34 625.21,-1471.54 608.51,-1457.01"/>
+<polygon fill="#597d78" stroke="#597d78" points="610.17,-1455.21 603.28,-1452.47 606.95,-1458.91 610.17,-1455.21"/>
+<text xml:space="preserve" text-anchor="middle" x="640.33" y="-1472.16" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
 </g>
 <!-- D3&#45;&gt;D -->
 <g id="edge9" class="edge">
 <title>D3&#45;&gt;D</title>
-<path fill="none" stroke="#597d78" d="M885.64,-1451.3C884.13,-1476.84 878.84,-1525.81 860.23,-1562.52 847.17,-1588.3 824.56,-1612.21 806.55,-1628.74"/>
-<polygon fill="#597d78" stroke="#597d78" points="805.33,-1626.55 801.76,-1633.05 808.61,-1630.19 805.33,-1626.55"/>
+<path fill="none" stroke="#597d78" d="M873.64,-1451.3C872.13,-1476.84 866.84,-1525.81 848.23,-1562.52 835.17,-1588.3 812.56,-1612.21 794.55,-1628.74"/>
+<polygon fill="#597d78" stroke="#597d78" points="793.33,-1626.55 789.76,-1633.05 796.61,-1630.19 793.33,-1626.55"/>
 </g>
 <!-- G -->
 <g id="node9" class="node">
 <title>G</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M466.46,-1367.16C466.46,-1367.16 352.01,-1367.16 352.01,-1367.16 346.01,-1367.16 340.01,-1361.16 340.01,-1355.16 340.01,-1355.16 340.01,-1343.16 340.01,-1343.16 340.01,-1337.16 346.01,-1331.16 352.01,-1331.16 352.01,-1331.16 466.46,-1331.16 466.46,-1331.16 472.46,-1331.16 478.46,-1337.16 478.46,-1343.16 478.46,-1343.16 478.46,-1355.16 478.46,-1355.16 478.46,-1361.16 472.46,-1367.16 466.46,-1367.16"/>
-<text xml:space="preserve" text-anchor="middle" x="409.23" y="-1345.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Blocked; input named</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M454.46,-1367.16C454.46,-1367.16 340.01,-1367.16 340.01,-1367.16 334.01,-1367.16 328.01,-1361.16 328.01,-1355.16 328.01,-1355.16 328.01,-1343.16 328.01,-1343.16 328.01,-1337.16 334.01,-1331.16 340.01,-1331.16 340.01,-1331.16 454.46,-1331.16 454.46,-1331.16 460.46,-1331.16 466.46,-1337.16 466.46,-1343.16 466.46,-1343.16 466.46,-1355.16 466.46,-1355.16 466.46,-1361.16 460.46,-1367.16 454.46,-1367.16"/>
+<text xml:space="preserve" text-anchor="middle" x="397.23" y="-1345.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Blocked; input named</text>
 </g>
 <!-- F&#45;&gt;G -->
 <g id="edge12" class="edge">
 <title>F&#45;&gt;G</title>
-<path fill="none" stroke="#597d78" d="M555,-1414.77C526.06,-1401.94 486.56,-1384.43 455.98,-1370.88"/>
-<polygon fill="#597d78" stroke="#597d78" points="457.19,-1368.74 449.79,-1368.14 455.2,-1373.21 457.19,-1368.74"/>
-<text xml:space="preserve" text-anchor="middle" x="544.77" y="-1388.16" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Invalid sample</text>
+<path fill="none" stroke="#597d78" d="M543,-1414.77C514.06,-1401.94 474.56,-1384.43 443.98,-1370.88"/>
+<polygon fill="#597d78" stroke="#597d78" points="445.19,-1368.74 437.79,-1368.14 443.2,-1373.21 445.19,-1368.74"/>
+<text xml:space="preserve" text-anchor="middle" x="532.77" y="-1388.16" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Invalid sample</text>
 </g>
 <!-- H -->
 <g id="node10" class="node">
 <title>H</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M760.81,-1367.16C760.81,-1367.16 515.66,-1367.16 515.66,-1367.16 509.66,-1367.16 503.66,-1361.16 503.66,-1355.16 503.66,-1355.16 503.66,-1343.16 503.66,-1343.16 503.66,-1337.16 509.66,-1331.16 515.66,-1331.16 515.66,-1331.16 760.81,-1331.16 760.81,-1331.16 766.81,-1331.16 772.81,-1337.16 772.81,-1343.16 772.81,-1343.16 772.81,-1355.16 772.81,-1355.16 772.81,-1361.16 766.81,-1367.16 760.81,-1367.16"/>
-<text xml:space="preserve" text-anchor="middle" x="638.23" y="-1345.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Experiment version immutable; status Queued</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M748.81,-1367.16C748.81,-1367.16 503.66,-1367.16 503.66,-1367.16 497.66,-1367.16 491.66,-1361.16 491.66,-1355.16 491.66,-1355.16 491.66,-1343.16 491.66,-1343.16 491.66,-1337.16 497.66,-1331.16 503.66,-1331.16 503.66,-1331.16 748.81,-1331.16 748.81,-1331.16 754.81,-1331.16 760.81,-1337.16 760.81,-1343.16 760.81,-1343.16 760.81,-1355.16 760.81,-1355.16 760.81,-1361.16 754.81,-1367.16 748.81,-1367.16"/>
+<text xml:space="preserve" text-anchor="middle" x="626.23" y="-1345.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Experiment version immutable; status Queued</text>
 </g>
 <!-- F&#45;&gt;H -->
 <g id="edge14" class="edge">
 <title>F&#45;&gt;H</title>
-<path fill="none" stroke="#597d78" d="M603.57,-1414.77C609.81,-1403.14 618.11,-1387.66 625.03,-1374.77"/>
-<polygon fill="#597d78" stroke="#597d78" points="627.05,-1376.19 628.2,-1368.86 622.73,-1373.87 627.05,-1376.19"/>
-<text xml:space="preserve" text-anchor="middle" x="633.88" y="-1388.16" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Queue</text>
+<path fill="none" stroke="#597d78" d="M591.57,-1414.77C597.81,-1403.14 606.11,-1387.66 613.03,-1374.77"/>
+<polygon fill="#597d78" stroke="#597d78" points="615.05,-1376.19 616.2,-1368.86 610.73,-1373.87 615.05,-1376.19"/>
+<text xml:space="preserve" text-anchor="middle" x="621.88" y="-1388.16" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Queue</text>
 </g>
 <!-- G&#45;&gt;C -->
 <g id="edge13" class="edge">
 <title>G&#45;&gt;C</title>
-<path fill="none" stroke="#597d78" d="M411.55,-1367.53C417.26,-1410.36 432.05,-1521.16 438.79,-1571.7"/>
-<polygon fill="#597d78" stroke="#597d78" points="436.36,-1572.01 439.71,-1578.63 441.22,-1571.36 436.36,-1572.01"/>
+<path fill="none" stroke="#597d78" d="M399.55,-1367.53C405.26,-1410.36 420.05,-1521.16 426.79,-1571.7"/>
+<polygon fill="#597d78" stroke="#597d78" points="424.36,-1572.01 427.71,-1578.63 429.22,-1571.36 424.36,-1572.01"/>
 </g>
 <!-- I -->
 <g id="node11" class="node">
 <title>I</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M665.11,-1294.16C665.11,-1294.16 611.36,-1294.16 611.36,-1294.16 605.36,-1294.16 599.36,-1288.16 599.36,-1282.16 599.36,-1282.16 599.36,-1270.16 599.36,-1270.16 599.36,-1264.16 605.36,-1258.16 611.36,-1258.16 611.36,-1258.16 665.11,-1258.16 665.11,-1258.16 671.11,-1258.16 677.11,-1264.16 677.11,-1270.16 677.11,-1270.16 677.11,-1282.16 677.11,-1282.16 677.11,-1288.16 671.11,-1294.16 665.11,-1294.16"/>
-<text xml:space="preserve" text-anchor="middle" x="638.23" y="-1272.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Open Run</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M653.11,-1294.16C653.11,-1294.16 599.36,-1294.16 599.36,-1294.16 593.36,-1294.16 587.36,-1288.16 587.36,-1282.16 587.36,-1282.16 587.36,-1270.16 587.36,-1270.16 587.36,-1264.16 593.36,-1258.16 599.36,-1258.16 599.36,-1258.16 653.11,-1258.16 653.11,-1258.16 659.11,-1258.16 665.11,-1264.16 665.11,-1270.16 665.11,-1270.16 665.11,-1282.16 665.11,-1282.16 665.11,-1288.16 659.11,-1294.16 653.11,-1294.16"/>
+<text xml:space="preserve" text-anchor="middle" x="626.23" y="-1272.56" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Open Run</text>
 </g>
 <!-- H&#45;&gt;I -->
 <g id="edge15" class="edge">
 <title>H&#45;&gt;I</title>
-<path fill="none" stroke="#597d78" d="M638.23,-1330.97C638.23,-1322.43 638.23,-1311.93 638.23,-1302.48"/>
-<polygon fill="#597d78" stroke="#597d78" points="640.68,-1302.7 638.23,-1295.7 635.78,-1302.7 640.68,-1302.7"/>
+<path fill="none" stroke="#597d78" d="M626.23,-1330.97C626.23,-1322.43 626.23,-1311.93 626.23,-1302.48"/>
+<polygon fill="#597d78" stroke="#597d78" points="628.68,-1302.7 626.23,-1295.7 623.78,-1302.7 628.68,-1302.7"/>
 </g>
 <!-- I2 -->
 <g id="node12" class="node">
 <title>I2</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M628.52,-1214.12C628.52,-1214.12 604.24,-1196.52 604.24,-1196.52 599.39,-1193 599.39,-1185.96 604.24,-1182.44 604.24,-1182.44 628.52,-1164.84 628.52,-1164.84 633.38,-1161.32 643.09,-1161.32 647.95,-1164.84 647.95,-1164.84 672.22,-1182.44 672.22,-1182.44 677.08,-1185.96 677.08,-1193 672.22,-1196.52 672.22,-1196.52 647.95,-1214.12 647.95,-1214.12 643.09,-1217.64 633.38,-1217.64 628.52,-1214.12"/>
-<text xml:space="preserve" text-anchor="middle" x="638.23" y="-1185.88" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Tier</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M616.52,-1214.12C616.52,-1214.12 592.24,-1196.52 592.24,-1196.52 587.39,-1193 587.39,-1185.96 592.24,-1182.44 592.24,-1182.44 616.52,-1164.84 616.52,-1164.84 621.38,-1161.32 631.09,-1161.32 635.95,-1164.84 635.95,-1164.84 660.22,-1182.44 660.22,-1182.44 665.08,-1185.96 665.08,-1193 660.22,-1196.52 660.22,-1196.52 635.95,-1214.12 635.95,-1214.12 631.09,-1217.64 621.38,-1217.64 616.52,-1214.12"/>
+<text xml:space="preserve" text-anchor="middle" x="626.23" y="-1185.88" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Tier</text>
 </g>
 <!-- I&#45;&gt;I2 -->
 <g id="edge16" class="edge">
 <title>I&#45;&gt;I2</title>
-<path fill="none" stroke="#597d78" d="M638.23,-1258.02C638.23,-1249.95 638.23,-1239.95 638.23,-1230.15"/>
-<polygon fill="#597d78" stroke="#597d78" points="640.68,-1230.15 638.23,-1223.15 635.78,-1230.15 640.68,-1230.15"/>
+<path fill="none" stroke="#597d78" d="M626.23,-1258.02C626.23,-1249.95 626.23,-1239.95 626.23,-1230.15"/>
+<polygon fill="#597d78" stroke="#597d78" points="628.68,-1230.15 626.23,-1223.15 623.78,-1230.15 628.68,-1230.15"/>
 </g>
 <!-- S2 -->
 <g id="node13" class="node">
 <title>S2</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M556.85,-1028.44C556.85,-1028.44 233.62,-1028.44 233.62,-1028.44 227.62,-1028.44 221.62,-1022.44 221.62,-1016.44 221.62,-1016.44 221.62,-1004.44 221.62,-1004.44 221.62,-998.44 227.62,-992.44 233.62,-992.44 233.62,-992.44 556.85,-992.44 556.85,-992.44 562.85,-992.44 568.85,-998.44 568.85,-1004.44 568.85,-1004.44 568.85,-1016.44 568.85,-1016.44 568.85,-1022.44 562.85,-1028.44 556.85,-1028.44"/>
-<text xml:space="preserve" text-anchor="middle" x="395.23" y="-1006.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Evaluate in process; attempts and evidence as for a backend</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M548.85,-1028.44C548.85,-1028.44 225.62,-1028.44 225.62,-1028.44 219.62,-1028.44 213.62,-1022.44 213.62,-1016.44 213.62,-1016.44 213.62,-1004.44 213.62,-1004.44 213.62,-998.44 219.62,-992.44 225.62,-992.44 225.62,-992.44 548.85,-992.44 548.85,-992.44 554.85,-992.44 560.85,-998.44 560.85,-1004.44 560.85,-1004.44 560.85,-1016.44 560.85,-1016.44 560.85,-1022.44 554.85,-1028.44 548.85,-1028.44"/>
+<text xml:space="preserve" text-anchor="middle" x="387.23" y="-1006.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Evaluate in process; attempts and evidence as for a backend</text>
 </g>
 <!-- I2&#45;&gt;S2 -->
 <g id="edge17" class="edge">
 <title>I2&#45;&gt;S2</title>
-<path fill="none" stroke="#597d78" d="M617.09,-1173.08C573.97,-1141.66 475.73,-1070.09 425.71,-1033.65"/>
-<polygon fill="#597d78" stroke="#597d78" points="427.31,-1031.78 420.21,-1029.64 424.42,-1035.74 427.31,-1031.78"/>
-<text xml:space="preserve" text-anchor="middle" x="606.29" y="-1130.8" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">local · in&#45;process</text>
+<path fill="none" stroke="#597d78" d="M605.02,-1172.77C562.47,-1141.25 466.57,-1070.21 417.46,-1033.83"/>
+<polygon fill="#597d78" stroke="#597d78" points="419.15,-1032.03 412.06,-1029.83 416.23,-1035.97 419.15,-1032.03"/>
+<text xml:space="preserve" text-anchor="middle" x="595.46" y="-1130.8" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">local · in&#45;process</text>
 </g>
 <!-- J -->
 <g id="node14" class="node">
 <title>J</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M750.67,-1106.6C750.67,-1106.6 659.36,-1081.32 659.36,-1081.32 653.58,-1079.72 653.58,-1076.52 659.36,-1074.92 659.36,-1074.92 750.67,-1049.64 750.67,-1049.64 756.45,-1048.04 768.02,-1048.04 773.8,-1049.64 773.8,-1049.64 865.1,-1074.92 865.1,-1074.92 870.89,-1076.52 870.89,-1079.72 865.1,-1081.32 865.1,-1081.32 773.8,-1106.6 773.8,-1106.6 768.02,-1108.2 756.45,-1108.2 750.67,-1106.6"/>
-<text xml:space="preserve" text-anchor="middle" x="762.23" y="-1074.52" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Backend Ready?</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M738.67,-1106.6C738.67,-1106.6 647.36,-1081.32 647.36,-1081.32 641.58,-1079.72 641.58,-1076.52 647.36,-1074.92 647.36,-1074.92 738.67,-1049.64 738.67,-1049.64 744.45,-1048.04 756.02,-1048.04 761.8,-1049.64 761.8,-1049.64 853.1,-1074.92 853.1,-1074.92 858.89,-1076.52 858.89,-1079.72 853.1,-1081.32 853.1,-1081.32 761.8,-1106.6 761.8,-1106.6 756.02,-1108.2 744.45,-1108.2 738.67,-1106.6"/>
+<text xml:space="preserve" text-anchor="middle" x="750.23" y="-1074.52" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Backend Ready?</text>
 </g>
 <!-- I2&#45;&gt;J -->
 <g id="edge19" class="edge">
 <title>I2&#45;&gt;J</title>
-<path fill="none" stroke="#597d78" d="M657.61,-1171.39C676.79,-1154.48 706.51,-1128.27 729.38,-1108.1"/>
-<polygon fill="#597d78" stroke="#597d78" points="730.87,-1110.05 734.5,-1103.58 727.63,-1106.37 730.87,-1110.05"/>
-<text xml:space="preserve" text-anchor="middle" x="722.86" y="-1130.8" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">backend</text>
+<path fill="none" stroke="#597d78" d="M645.61,-1171.39C664.79,-1154.48 694.51,-1128.27 717.38,-1108.1"/>
+<polygon fill="#597d78" stroke="#597d78" points="718.87,-1110.05 722.5,-1103.58 715.63,-1106.37 718.87,-1110.05"/>
+<text xml:space="preserve" text-anchor="middle" x="710.86" y="-1130.8" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">backend</text>
 </g>
 <!-- X -->
 <g id="node32" class="node">
@@ -5340,143 +5376,143 @@ J --&gt; M[Open CAD or Analysis]</pre></details><h3 id="b6b-flow-f7-experiment-s
 <!-- S2&#45;&gt;X -->
 <g id="edge18" class="edge">
 <title>S2&#45;&gt;X</title>
-<path fill="none" stroke="#597d78" d="M312.99,-991.97C274.6,-978.5 237.23,-955.18 237.23,-915.44 237.23,-915.44 237.23,-915.44 237.23,-296.36 237.23,-277.47 238.57,-256.17 239.86,-240.02"/>
+<path fill="none" stroke="#597d78" d="M312.23,-991.94C274.73,-978.28 237.23,-954.78 237.23,-915.44 237.23,-915.44 237.23,-915.44 237.23,-296.36 237.23,-277.47 238.57,-256.17 239.86,-240.02"/>
 <polygon fill="#597d78" stroke="#597d78" points="242.3,-240.31 240.44,-233.13 237.42,-239.9 242.3,-240.31"/>
 </g>
 <!-- K -->
 <g id="node15" class="node">
 <title>K</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M1324.2,-974.44C1324.2,-974.44 900.27,-974.44 900.27,-974.44 894.27,-974.44 888.27,-968.44 888.27,-962.44 888.27,-962.44 888.27,-950.44 888.27,-950.44 888.27,-944.44 894.27,-938.44 900.27,-938.44 900.27,-938.44 1324.2,-938.44 1324.2,-938.44 1330.2,-938.44 1336.2,-944.44 1336.2,-950.44 1336.2,-950.44 1336.2,-962.44 1336.2,-962.44 1336.2,-968.44 1330.2,-974.44 1324.2,-974.44"/>
-<text xml:space="preserve" text-anchor="middle" x="1112.23" y="-952.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Detection; Prepare my environment: step ids only; parameters bound by the tool</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1346.23,-974.44C1346.23,-974.44 888.24,-974.44 888.24,-974.44 882.24,-974.44 876.24,-968.44 876.24,-962.44 876.24,-962.44 876.24,-950.44 876.24,-950.44 876.24,-944.44 882.24,-938.44 888.24,-938.44 888.24,-938.44 1346.23,-938.44 1346.23,-938.44 1352.23,-938.44 1358.23,-944.44 1358.23,-950.44 1358.23,-950.44 1358.23,-962.44 1358.23,-962.44 1358.23,-968.44 1352.23,-974.44 1346.23,-974.44"/>
+<text xml:space="preserve" text-anchor="middle" x="1117.23" y="-952.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Detection; Set up a solver, no key needed: step ids only; parameters bound by the tool</text>
 </g>
 <!-- J&#45;&gt;K -->
 <g id="edge20" class="edge">
 <title>J&#45;&gt;K</title>
-<path fill="none" stroke="#597d78" d="M812.38,-1059.97C876.04,-1038.2 985.71,-1000.71 1053.3,-977.59"/>
-<polygon fill="#597d78" stroke="#597d78" points="1054.06,-979.92 1059.9,-975.34 1052.48,-975.28 1054.06,-979.92"/>
-<text xml:space="preserve" text-anchor="middle" x="1015.2" y="-1007.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+<path fill="none" stroke="#597d78" d="M801.65,-1060.35C868.32,-1038.61 984.49,-1000.73 1055.75,-977.49"/>
+<polygon fill="#597d78" stroke="#597d78" points="1056.45,-979.84 1062.34,-975.34 1054.93,-975.18 1056.45,-979.84"/>
+<text xml:space="preserve" text-anchor="middle" x="1015.18" y="-1007.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
 </g>
 <!-- M -->
 <g id="node17" class="node">
 <title>M</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M922.1,-890.44C922.1,-890.44 888.37,-890.44 888.37,-890.44 882.37,-890.44 876.37,-884.44 876.37,-878.44 876.37,-878.44 876.37,-866.44 876.37,-866.44 876.37,-860.44 882.37,-854.44 888.37,-854.44 888.37,-854.44 922.1,-854.44 922.1,-854.44 928.1,-854.44 934.1,-860.44 934.1,-866.44 934.1,-866.44 934.1,-878.44 934.1,-878.44 934.1,-884.44 928.1,-890.44 922.1,-890.44"/>
-<text xml:space="preserve" text-anchor="middle" x="905.23" y="-868.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Ready</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M927.1,-890.44C927.1,-890.44 893.37,-890.44 893.37,-890.44 887.37,-890.44 881.37,-884.44 881.37,-878.44 881.37,-878.44 881.37,-866.44 881.37,-866.44 881.37,-860.44 887.37,-854.44 893.37,-854.44 893.37,-854.44 927.1,-854.44 927.1,-854.44 933.1,-854.44 939.1,-860.44 939.1,-866.44 939.1,-866.44 939.1,-878.44 939.1,-878.44 939.1,-884.44 933.1,-890.44 927.1,-890.44"/>
+<text xml:space="preserve" text-anchor="middle" x="910.23" y="-868.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Ready</text>
 </g>
 <!-- J&#45;&gt;M -->
 <g id="edge25" class="edge">
 <title>J&#45;&gt;M</title>
-<path fill="none" stroke="#597d78" d="M799.19,-1056.42C810.11,-1048.82 821.26,-1039.35 829.23,-1028.44 854.09,-994.42 839.97,-976.03 859,-938.44 866.33,-923.98 876.61,-909.16 885.63,-897.33"/>
-<polygon fill="#597d78" stroke="#597d78" points="887.46,-898.96 889.83,-891.92 883.6,-895.95 887.46,-898.96"/>
-<text xml:space="preserve" text-anchor="middle" x="867.62" y="-953.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+<path fill="none" stroke="#597d78" d="M787.19,-1056.42C798.11,-1048.82 809.26,-1039.35 817.23,-1028.44 842.09,-994.42 825.14,-974.46 847,-938.44 856.46,-922.85 870.3,-908.07 882.63,-896.55"/>
+<polygon fill="#597d78" stroke="#597d78" points="884.26,-898.38 887.78,-891.85 880.96,-894.75 884.26,-898.38"/>
+<text xml:space="preserve" text-anchor="middle" x="855.62" y="-953.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
 </g>
 <!-- L2 -->
 <g id="node18" class="node">
 <title>L2</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M783.82,-974.44C783.82,-974.44 572.64,-974.44 572.64,-974.44 566.64,-974.44 560.64,-968.44 560.64,-962.44 560.64,-962.44 560.64,-950.44 560.64,-950.44 560.64,-944.44 566.64,-938.44 572.64,-938.44 572.64,-938.44 783.82,-938.44 783.82,-938.44 789.82,-938.44 795.82,-944.44 795.82,-950.44 795.82,-950.44 795.82,-962.44 795.82,-962.44 795.82,-968.44 789.82,-974.44 783.82,-974.44"/>
-<text xml:space="preserve" text-anchor="middle" x="678.23" y="-952.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Not ready; pin named; nothing launches</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M771.82,-974.44C771.82,-974.44 560.64,-974.44 560.64,-974.44 554.64,-974.44 548.64,-968.44 548.64,-962.44 548.64,-962.44 548.64,-950.44 548.64,-950.44 548.64,-944.44 554.64,-938.44 560.64,-938.44 560.64,-938.44 771.82,-938.44 771.82,-938.44 777.82,-938.44 783.82,-944.44 783.82,-950.44 783.82,-950.44 783.82,-962.44 783.82,-962.44 783.82,-968.44 777.82,-974.44 771.82,-974.44"/>
+<text xml:space="preserve" text-anchor="middle" x="666.23" y="-952.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Not ready; pin named; nothing launches</text>
 </g>
 <!-- J&#45;&gt;L2 -->
 <g id="edge24" class="edge">
 <title>J&#45;&gt;L2</title>
-<path fill="none" stroke="#597d78" d="M740.79,-1052.36C734.57,-1044.84 727.92,-1036.45 722.19,-1028.44 711.5,-1013.52 700.64,-996 692.39,-982.1"/>
-<polygon fill="#597d78" stroke="#597d78" points="694.52,-980.88 688.86,-976.09 690.29,-983.36 694.52,-980.88"/>
-<text xml:space="preserve" text-anchor="middle" x="774.71" y="-1007.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No row matches the pin</text>
+<path fill="none" stroke="#597d78" d="M728.79,-1052.36C722.57,-1044.84 715.92,-1036.45 710.19,-1028.44 699.5,-1013.52 688.64,-996 680.39,-982.1"/>
+<polygon fill="#597d78" stroke="#597d78" points="682.52,-980.88 676.86,-976.09 678.29,-983.36 682.52,-980.88"/>
+<text xml:space="preserve" text-anchor="middle" x="762.71" y="-1007.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No row matches the pin</text>
 </g>
 <!-- L -->
 <g id="node16" class="node">
 <title>L</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M1327.47,-890.44C1327.47,-890.44 1079,-890.44 1079,-890.44 1073,-890.44 1067,-884.44 1067,-878.44 1067,-878.44 1067,-866.44 1067,-866.44 1067,-860.44 1073,-854.44 1079,-854.44 1079,-854.44 1327.47,-854.44 1327.47,-854.44 1333.47,-854.44 1339.47,-860.44 1339.47,-866.44 1339.47,-866.44 1339.47,-878.44 1339.47,-878.44 1339.47,-884.44 1333.47,-890.44 1327.47,-890.44"/>
-<text xml:space="preserve" text-anchor="middle" x="1203.23" y="-868.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Recoverable; CAD works; Run stays Not ready</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1332.47,-890.44C1332.47,-890.44 1084,-890.44 1084,-890.44 1078,-890.44 1072,-884.44 1072,-878.44 1072,-878.44 1072,-866.44 1072,-866.44 1072,-860.44 1078,-854.44 1084,-854.44 1084,-854.44 1332.47,-854.44 1332.47,-854.44 1338.47,-854.44 1344.47,-860.44 1344.47,-866.44 1344.47,-866.44 1344.47,-878.44 1344.47,-878.44 1344.47,-884.44 1338.47,-890.44 1332.47,-890.44"/>
+<text xml:space="preserve" text-anchor="middle" x="1208.23" y="-868.84" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Recoverable; CAD works; Run stays Not ready</text>
 </g>
 <!-- K&#45;&gt;L -->
 <g id="edge21" class="edge">
 <title>K&#45;&gt;L</title>
-<path fill="none" stroke="#597d78" d="M1230.34,-937.94C1246.55,-933.29 1259.59,-927.52 1265.23,-920.44 1272.83,-910.91 1267.37,-902.25 1257.1,-895.04"/>
-<polygon fill="#597d78" stroke="#597d78" points="1258.69,-893.15 1251.45,-891.54 1256.11,-897.31 1258.69,-893.15"/>
-<text xml:space="preserve" text-anchor="middle" x="1318.26" y="-911.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Step failed or declined</text>
+<path fill="none" stroke="#597d78" d="M1235.34,-937.94C1251.55,-933.29 1264.59,-927.52 1270.23,-920.44 1277.83,-910.91 1272.37,-902.25 1262.1,-895.04"/>
+<polygon fill="#597d78" stroke="#597d78" points="1263.69,-893.15 1256.45,-891.54 1261.11,-897.31 1263.69,-893.15"/>
+<text xml:space="preserve" text-anchor="middle" x="1323.26" y="-911.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Step failed or declined</text>
 </g>
 <!-- K&#45;&gt;L -->
 <g id="edge22" class="edge">
 <title>K&#45;&gt;L</title>
-<path fill="none" stroke="#597d78" d="M1104.93,-937.94C1102.18,-928.43 1100.99,-916.91 1106.93,-908.44 1110.44,-903.43 1114.74,-899.14 1119.56,-895.46"/>
-<polygon fill="#597d78" stroke="#597d78" points="1120.75,-897.61 1125.18,-891.65 1118.01,-893.55 1120.75,-897.61"/>
-<text xml:space="preserve" text-anchor="middle" x="1183.08" y="-911.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Step refused: outside the allow&#45;list</text>
+<path fill="none" stroke="#597d78" d="M1109.93,-937.94C1107.18,-928.43 1105.99,-916.91 1111.93,-908.44 1115.44,-903.43 1119.74,-899.14 1124.56,-895.46"/>
+<polygon fill="#597d78" stroke="#597d78" points="1125.75,-897.61 1130.18,-891.65 1123.01,-893.55 1125.75,-897.61"/>
+<text xml:space="preserve" text-anchor="middle" x="1188.08" y="-911.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Step refused: outside the allow&#45;list</text>
 </g>
 <!-- K&#45;&gt;M -->
 <g id="edge23" class="edge">
 <title>K&#45;&gt;M</title>
-<path fill="none" stroke="#597d78" d="M964.19,-937.94C944.69,-933.32 928.63,-927.57 920.48,-920.44 914.16,-914.91 910.44,-906.72 908.26,-898.73"/>
-<polygon fill="#597d78" stroke="#597d78" points="910.69,-898.39 906.82,-892.07 905.9,-899.43 910.69,-898.39"/>
-<text xml:space="preserve" text-anchor="middle" x="1008.86" y="-911.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Smoke test passes: Backend check fact</text>
+<path fill="none" stroke="#597d78" d="M969.19,-937.94C949.69,-933.32 933.63,-927.57 925.48,-920.44 919.16,-914.91 915.44,-906.72 913.26,-898.73"/>
+<polygon fill="#597d78" stroke="#597d78" points="915.69,-898.39 911.82,-892.07 910.9,-899.43 915.69,-898.39"/>
+<text xml:space="preserve" text-anchor="middle" x="1013.86" y="-911.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Smoke test passes: Backend check fact</text>
 </g>
 <!-- M2 -->
 <g id="node19" class="node">
 <title>M2</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M1309.15,-792.76C1309.15,-792.76 1043.32,-792.76 1043.32,-792.76 1037.32,-792.76 1031.32,-786.76 1031.32,-780.76 1031.32,-780.76 1031.32,-768.76 1031.32,-768.76 1031.32,-762.76 1037.32,-756.76 1043.32,-756.76 1043.32,-756.76 1309.15,-756.76 1309.15,-756.76 1315.15,-756.76 1321.15,-762.76 1321.15,-768.76 1321.15,-768.76 1321.15,-780.76 1321.15,-780.76 1321.15,-786.76 1315.15,-792.76 1309.15,-792.76"/>
-<text xml:space="preserve" text-anchor="middle" x="1176.23" y="-771.16" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Stop safely; case retained; retry from a valid stage</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1314.15,-792.76C1314.15,-792.76 1048.32,-792.76 1048.32,-792.76 1042.32,-792.76 1036.32,-786.76 1036.32,-780.76 1036.32,-780.76 1036.32,-768.76 1036.32,-768.76 1036.32,-762.76 1042.32,-756.76 1048.32,-756.76 1048.32,-756.76 1314.15,-756.76 1314.15,-756.76 1320.15,-756.76 1326.15,-762.76 1326.15,-768.76 1326.15,-768.76 1326.15,-780.76 1326.15,-780.76 1326.15,-786.76 1320.15,-792.76 1314.15,-792.76"/>
+<text xml:space="preserve" text-anchor="middle" x="1181.23" y="-771.16" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Stop safely; case retained; retry from a valid stage</text>
 </g>
 <!-- M&#45;&gt;M2 -->
 <g id="edge26" class="edge">
 <title>M&#45;&gt;M2</title>
-<path fill="none" stroke="#597d78" d="M934.55,-864.62C960.72,-858.24 999.93,-848 1033.23,-836.44 1066.77,-824.8 1103.62,-809.09 1131.52,-796.57"/>
-<polygon fill="#597d78" stroke="#597d78" points="1132.39,-798.86 1137.76,-793.75 1130.37,-794.4 1132.39,-798.86"/>
-<text xml:space="preserve" text-anchor="middle" x="1145.44" y="-827.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Disk exhausted or version mismatch</text>
+<path fill="none" stroke="#597d78" d="M939.55,-864.62C965.72,-858.24 1004.93,-848 1038.23,-836.44 1071.77,-824.8 1108.62,-809.09 1136.52,-796.57"/>
+<polygon fill="#597d78" stroke="#597d78" points="1137.39,-798.86 1142.76,-793.75 1135.37,-794.4 1137.39,-798.86"/>
+<text xml:space="preserve" text-anchor="middle" x="1150.44" y="-827.44" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Disk exhausted or version mismatch</text>
 </g>
 <!-- N -->
 <g id="node20" class="node">
 <title>N</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M773.36,-804.74C773.36,-804.74 575.96,-776.46 575.96,-776.46 570.02,-775.61 570.02,-773.91 575.96,-773.06 575.96,-773.06 773.36,-744.78 773.36,-744.78 779.29,-743.93 791.17,-743.93 797.11,-744.78 797.11,-744.78 994.51,-773.06 994.51,-773.06 1000.45,-773.91 1000.45,-775.61 994.51,-776.46 994.51,-776.46 797.11,-804.74 797.11,-804.74 791.17,-805.59 779.29,-805.59 773.36,-804.74"/>
-<text xml:space="preserve" text-anchor="middle" x="785.23" y="-771.16" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Case supported by capability record?</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M778.36,-804.74C778.36,-804.74 580.96,-776.46 580.96,-776.46 575.02,-775.61 575.02,-773.91 580.96,-773.06 580.96,-773.06 778.36,-744.78 778.36,-744.78 784.29,-743.93 796.17,-743.93 802.11,-744.78 802.11,-744.78 999.51,-773.06 999.51,-773.06 1005.45,-773.91 1005.45,-775.61 999.51,-776.46 999.51,-776.46 802.11,-804.74 802.11,-804.74 796.17,-805.59 784.29,-805.59 778.36,-804.74"/>
+<text xml:space="preserve" text-anchor="middle" x="790.23" y="-771.16" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Case supported by capability record?</text>
 </g>
 <!-- M&#45;&gt;N -->
 <g id="edge28" class="edge">
 <title>M&#45;&gt;N</title>
-<path fill="none" stroke="#597d78" d="M883.5,-854.11C867.12,-841.05 844.2,-822.78 824.62,-807.16"/>
-<polygon fill="#597d78" stroke="#597d78" points="826.3,-805.37 819.3,-802.92 823.25,-809.2 826.3,-805.37"/>
+<path fill="none" stroke="#597d78" d="M888.5,-854.11C872.12,-841.05 849.2,-822.78 829.62,-807.16"/>
+<polygon fill="#597d78" stroke="#597d78" points="831.3,-805.37 824.3,-802.92 828.25,-809.2 831.3,-805.37"/>
 </g>
 <!-- M2&#45;&gt;M -->
 <g id="edge27" class="edge">
 <title>M2&#45;&gt;M</title>
-<path fill="none" stroke="#597d78" d="M1122.72,-793.26C1095.29,-802.34 1061.4,-813.76 1031.23,-824.44 1001.15,-835.1 967.26,-847.78 942.22,-857.28"/>
-<polygon fill="#597d78" stroke="#597d78" points="941.5,-854.93 935.83,-859.71 943.24,-859.51 941.5,-854.93"/>
+<path fill="none" stroke="#597d78" d="M1127.72,-793.26C1100.29,-802.34 1066.4,-813.76 1036.23,-824.44 1006.15,-835.1 972.26,-847.78 947.22,-857.28"/>
+<polygon fill="#597d78" stroke="#597d78" points="946.5,-854.93 940.83,-859.71 948.24,-859.51 946.5,-854.93"/>
 </g>
 <!-- O -->
 <g id="node21" class="node">
 <title>O</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M1104.16,-695.08C1104.16,-695.08 856.31,-695.08 856.31,-695.08 850.31,-695.08 844.31,-689.08 844.31,-683.08 844.31,-683.08 844.31,-671.08 844.31,-671.08 844.31,-665.08 850.31,-659.08 856.31,-659.08 856.31,-659.08 1104.16,-659.08 1104.16,-659.08 1110.16,-659.08 1116.16,-665.08 1116.16,-671.08 1116.16,-671.08 1116.16,-683.08 1116.16,-683.08 1116.16,-689.08 1110.16,-695.08 1104.16,-695.08"/>
-<text xml:space="preserve" text-anchor="middle" x="980.23" y="-673.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Unsupported with reason; other cases proceed</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1109.16,-695.08C1109.16,-695.08 861.31,-695.08 861.31,-695.08 855.31,-695.08 849.31,-689.08 849.31,-683.08 849.31,-683.08 849.31,-671.08 849.31,-671.08 849.31,-665.08 855.31,-659.08 861.31,-659.08 861.31,-659.08 1109.16,-659.08 1109.16,-659.08 1115.16,-659.08 1121.16,-665.08 1121.16,-671.08 1121.16,-671.08 1121.16,-683.08 1121.16,-683.08 1121.16,-689.08 1115.16,-695.08 1109.16,-695.08"/>
+<text xml:space="preserve" text-anchor="middle" x="985.23" y="-673.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Unsupported with reason; other cases proceed</text>
 </g>
 <!-- N&#45;&gt;O -->
 <g id="edge29" class="edge">
 <title>N&#45;&gt;O</title>
-<path fill="none" stroke="#597d78" d="M834.19,-749.74C865.91,-734.17 906.84,-714.09 937.29,-699.15"/>
-<polygon fill="#597d78" stroke="#597d78" points="938.23,-701.42 943.44,-696.14 936.07,-697.02 938.23,-701.42"/>
-<text xml:space="preserve" text-anchor="middle" x="912.33" y="-716.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
+<path fill="none" stroke="#597d78" d="M839.19,-749.74C870.91,-734.17 911.84,-714.09 942.29,-699.15"/>
+<polygon fill="#597d78" stroke="#597d78" points="943.23,-701.42 948.44,-696.14 941.07,-697.02 943.23,-701.42"/>
+<text xml:space="preserve" text-anchor="middle" x="917.33" y="-716.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">No</text>
 </g>
 <!-- P -->
 <g id="node22" class="node">
 <title>P</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M807.43,-695.08C807.43,-695.08 763.04,-695.08 763.04,-695.08 757.04,-695.08 751.04,-689.08 751.04,-683.08 751.04,-683.08 751.04,-671.08 751.04,-671.08 751.04,-665.08 757.04,-659.08 763.04,-659.08 763.04,-659.08 807.43,-659.08 807.43,-659.08 813.43,-659.08 819.43,-665.08 819.43,-671.08 819.43,-671.08 819.43,-683.08 819.43,-683.08 819.43,-689.08 813.43,-695.08 807.43,-695.08"/>
-<text xml:space="preserve" text-anchor="middle" x="785.23" y="-673.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Meshing</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M812.43,-695.08C812.43,-695.08 768.04,-695.08 768.04,-695.08 762.04,-695.08 756.04,-689.08 756.04,-683.08 756.04,-683.08 756.04,-671.08 756.04,-671.08 756.04,-665.08 762.04,-659.08 768.04,-659.08 768.04,-659.08 812.43,-659.08 812.43,-659.08 818.43,-659.08 824.43,-665.08 824.43,-671.08 824.43,-671.08 824.43,-683.08 824.43,-683.08 824.43,-689.08 818.43,-695.08 812.43,-695.08"/>
+<text xml:space="preserve" text-anchor="middle" x="790.23" y="-673.48" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Meshing</text>
 </g>
 <!-- N&#45;&gt;P -->
 <g id="edge30" class="edge">
 <title>N&#45;&gt;P</title>
-<path fill="none" stroke="#597d78" d="M785.23,-742.7C785.23,-730.05 785.23,-715.61 785.23,-703.6"/>
-<polygon fill="#597d78" stroke="#597d78" points="787.68,-703.85 785.23,-696.85 782.78,-703.85 787.68,-703.85"/>
-<text xml:space="preserve" text-anchor="middle" x="793.85" y="-716.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
+<path fill="none" stroke="#597d78" d="M790.23,-742.7C790.23,-730.05 790.23,-715.61 790.23,-703.6"/>
+<polygon fill="#597d78" stroke="#597d78" points="792.68,-703.85 790.23,-696.85 787.78,-703.85 792.68,-703.85"/>
+<text xml:space="preserve" text-anchor="middle" x="798.85" y="-716.08" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Yes</text>
 </g>
 <!-- Q -->
 <g id="node23" class="node">
 <title>Q</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M774.09,-617.62C774.09,-617.62 717.3,-594.86 717.3,-594.86 711.73,-592.63 711.73,-588.17 717.3,-585.94 717.3,-585.94 774.09,-563.18 774.09,-563.18 779.66,-560.95 790.8,-560.95 796.37,-563.18 796.37,-563.18 853.17,-585.94 853.17,-585.94 858.74,-588.17 858.74,-592.63 853.17,-594.86 853.17,-594.86 796.37,-617.62 796.37,-617.62 790.8,-619.85 779.66,-619.85 774.09,-617.62"/>
-<text xml:space="preserve" text-anchor="middle" x="785.23" y="-586.8" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Mesh gate</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M779.09,-617.62C779.09,-617.62 722.3,-594.86 722.3,-594.86 716.73,-592.63 716.73,-588.17 722.3,-585.94 722.3,-585.94 779.09,-563.18 779.09,-563.18 784.66,-560.95 795.8,-560.95 801.37,-563.18 801.37,-563.18 858.17,-585.94 858.17,-585.94 863.74,-588.17 863.74,-592.63 858.17,-594.86 858.17,-594.86 801.37,-617.62 801.37,-617.62 795.8,-619.85 784.66,-619.85 779.09,-617.62"/>
+<text xml:space="preserve" text-anchor="middle" x="790.23" y="-586.8" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Mesh gate</text>
 </g>
 <!-- P&#45;&gt;Q -->
 <g id="edge32" class="edge">
 <title>P&#45;&gt;Q</title>
-<path fill="none" stroke="#597d78" d="M785.23,-658.94C785.23,-650.87 785.23,-640.87 785.23,-631.07"/>
-<polygon fill="#597d78" stroke="#597d78" points="787.68,-631.07 785.23,-624.07 782.78,-631.07 787.68,-631.07"/>
+<path fill="none" stroke="#597d78" d="M790.23,-658.94C790.23,-650.87 790.23,-640.87 790.23,-631.07"/>
+<polygon fill="#597d78" stroke="#597d78" points="792.68,-631.07 790.23,-624.07 787.78,-631.07 792.68,-631.07"/>
 </g>
 <!-- T -->
 <g id="node27" class="node">
@@ -5487,35 +5523,35 @@ J --&gt; M[Open CAD or Analysis]</pre></details><h3 id="b6b-flow-f7-experiment-s
 <!-- P&#45;&gt;T -->
 <g id="edge31" class="edge">
 <title>P&#45;&gt;T</title>
-<path fill="none" stroke="#597d78" d="M819.91,-662.71C824.03,-661.37 828.2,-660.12 832.23,-659.08 924.84,-635.19 1257.23,-687.03 1257.23,-591.4 1257.23,-591.4 1257.23,-591.4 1257.23,-296.36 1257.23,-274.21 1243.65,-253.08 1230.5,-237.82"/>
+<path fill="none" stroke="#597d78" d="M824.91,-662.72C829.03,-661.37 833.2,-660.12 837.23,-659.08 928.75,-635.38 1257.23,-685.94 1257.23,-591.4 1257.23,-591.4 1257.23,-591.4 1257.23,-296.36 1257.23,-274.21 1243.65,-253.08 1230.5,-237.82"/>
 <polygon fill="#597d78" stroke="#597d78" points="1232.46,-236.33 1225.95,-232.78 1228.82,-239.61 1232.46,-236.33"/>
 <text xml:space="preserve" text-anchor="middle" x="1272.8" y="-447.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel</text>
 </g>
 <!-- R -->
 <g id="node24" class="node">
 <title>R</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M708.87,-510.72C708.87,-510.72 313.59,-510.72 313.59,-510.72 307.59,-510.72 301.59,-504.72 301.59,-498.72 301.59,-498.72 301.59,-486.72 301.59,-486.72 301.59,-480.72 307.59,-474.72 313.59,-474.72 313.59,-474.72 708.87,-474.72 708.87,-474.72 714.87,-474.72 720.87,-480.72 720.87,-486.72 720.87,-486.72 720.87,-498.72 720.87,-498.72 720.87,-504.72 714.87,-510.72 708.87,-510.72"/>
-<text xml:space="preserve" text-anchor="middle" x="511.23" y="-489.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Stopped before solving; measure and threshold named; Explain this failure</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M709.87,-510.72C709.87,-510.72 314.59,-510.72 314.59,-510.72 308.59,-510.72 302.59,-504.72 302.59,-498.72 302.59,-498.72 302.59,-486.72 302.59,-486.72 302.59,-480.72 308.59,-474.72 314.59,-474.72 314.59,-474.72 709.87,-474.72 709.87,-474.72 715.87,-474.72 721.87,-480.72 721.87,-486.72 721.87,-486.72 721.87,-498.72 721.87,-498.72 721.87,-504.72 715.87,-510.72 709.87,-510.72"/>
+<text xml:space="preserve" text-anchor="middle" x="512.23" y="-489.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Stopped before solving; measure and threshold named; Explain this failure</text>
 </g>
 <!-- Q&#45;&gt;R -->
 <g id="edge33" class="edge">
 <title>Q&#45;&gt;R</title>
-<path fill="none" stroke="#597d78" d="M743.62,-574.87C697.05,-558.61 621.31,-532.16 569.01,-513.9"/>
-<polygon fill="#597d78" stroke="#597d78" points="570,-511.65 562.58,-511.65 568.38,-516.27 570,-511.65"/>
-<text xml:space="preserve" text-anchor="middle" x="648.07" y="-531.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Fail</text>
+<path fill="none" stroke="#597d78" d="M748.61,-575.08C701.36,-558.81 623.92,-532.16 570.64,-513.82"/>
+<polygon fill="#597d78" stroke="#597d78" points="571.48,-511.52 564.06,-511.56 569.88,-516.15 571.48,-511.52"/>
+<text xml:space="preserve" text-anchor="middle" x="650.95" y="-531.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Fail</text>
 </g>
 <!-- S -->
 <g id="node26" class="node">
 <title>S</title>
-<path fill="#f0f5f3" stroke="#a5b5b3" d="M1047.48,-510.72C1047.48,-510.72 806.99,-510.72 806.99,-510.72 800.99,-510.72 794.99,-504.72 794.99,-498.72 794.99,-498.72 794.99,-486.72 794.99,-486.72 794.99,-480.72 800.99,-474.72 806.99,-474.72 806.99,-474.72 1047.48,-474.72 1047.48,-474.72 1053.48,-474.72 1059.48,-480.72 1059.48,-486.72 1059.48,-486.72 1059.48,-498.72 1059.48,-498.72 1059.48,-504.72 1053.48,-510.72 1047.48,-510.72"/>
-<text xml:space="preserve" text-anchor="middle" x="927.23" y="-489.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Solving: residuals, forces, elapsed, resources</text>
+<path fill="#f0f5f3" stroke="#a5b5b3" d="M1048.48,-510.72C1048.48,-510.72 807.99,-510.72 807.99,-510.72 801.99,-510.72 795.99,-504.72 795.99,-498.72 795.99,-498.72 795.99,-486.72 795.99,-486.72 795.99,-480.72 801.99,-474.72 807.99,-474.72 807.99,-474.72 1048.48,-474.72 1048.48,-474.72 1054.48,-474.72 1060.48,-480.72 1060.48,-486.72 1060.48,-486.72 1060.48,-498.72 1060.48,-498.72 1060.48,-504.72 1054.48,-510.72 1048.48,-510.72"/>
+<text xml:space="preserve" text-anchor="middle" x="928.23" y="-489.12" font-family="Helvetica,sans-Serif" font-size="12.00" fill="#172e2c">Solving: residuals, forces, elapsed, resources</text>
 </g>
 <!-- Q&#45;&gt;S -->
 <g id="edge35" class="edge">
 <title>Q&#45;&gt;S</title>
-<path fill="none" stroke="#597d78" d="M813.97,-570.04C837.28,-554.33 870.14,-532.19 894.47,-515.8"/>
-<polygon fill="#597d78" stroke="#597d78" points="895.71,-517.91 900.15,-511.97 892.98,-513.85 895.71,-517.91"/>
-<text xml:space="preserve" text-anchor="middle" x="884.24" y="-531.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Pass</text>
+<path fill="none" stroke="#597d78" d="M818.49,-569.81C841.17,-554.08 873,-532.01 896.54,-515.69"/>
+<polygon fill="#597d78" stroke="#597d78" points="897.66,-517.9 902.01,-511.9 894.86,-513.88 897.66,-517.9"/>
+<text xml:space="preserve" text-anchor="middle" x="886.77" y="-531.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Pass</text>
 </g>
 <!-- R2 -->
 <g id="node25" class="node">
@@ -5526,16 +5562,16 @@ J --&gt; M[Open CAD or Analysis]</pre></details><h3 id="b6b-flow-f7-experiment-s
 <!-- R&#45;&gt;R2 -->
 <g id="edge34" class="edge">
 <title>R&#45;&gt;R2</title>
-<path fill="none" stroke="#597d78" d="M496.4,-474.61C483.02,-459.2 463.25,-436.4 448.44,-419.33"/>
-<polygon fill="#597d78" stroke="#597d78" points="450.65,-418.15 444.22,-414.46 446.95,-421.36 450.65,-418.15"/>
-<text xml:space="preserve" text-anchor="middle" x="516.02" y="-447.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Repair accepted</text>
+<path fill="none" stroke="#597d78" d="M497.22,-474.61C483.68,-459.2 463.67,-436.4 448.68,-419.33"/>
+<polygon fill="#597d78" stroke="#597d78" points="450.86,-418.1 444.4,-414.46 447.18,-421.33 450.86,-418.1"/>
+<text xml:space="preserve" text-anchor="middle" x="516.64" y="-447.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Repair accepted</text>
 </g>
 <!-- S&#45;&gt;T -->
 <g id="edge36" class="edge">
 <title>S&#45;&gt;T</title>
-<path fill="none" stroke="#597d78" d="M1047.44,-474.25C1103.93,-463.49 1162.88,-447.7 1181.23,-426.72 1205.1,-399.44 1207.1,-290.22 1206.71,-239.93"/>
+<path fill="none" stroke="#597d78" d="M1047.62,-474.26C1104,-463.48 1162.92,-447.68 1181.23,-426.72 1205.09,-399.43 1207.1,-290.21 1206.71,-239.93"/>
 <polygon fill="#597d78" stroke="#597d78" points="1209.16,-240.03 1206.63,-233.06 1204.26,-240.08 1209.16,-240.03"/>
-<text xml:space="preserve" text-anchor="middle" x="1219.3" y="-336.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel</text>
+<text xml:space="preserve" text-anchor="middle" x="1219.29" y="-336.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Cancel</text>
 </g>
 <!-- U -->
 <g id="node28" class="node">
@@ -5546,9 +5582,9 @@ J --&gt; M[Open CAD or Analysis]</pre></details><h3 id="b6b-flow-f7-experiment-s
 <!-- S&#45;&gt;U -->
 <g id="edge37" class="edge">
 <title>S&#45;&gt;U</title>
-<path fill="none" stroke="#597d78" d="M919.43,-474.47C913.63,-461.45 905.64,-443.08 899.23,-426.72 873.09,-359.93 845.9,-279.81 832.59,-239.77"/>
-<polygon fill="#597d78" stroke="#597d78" points="834.97,-239.16 830.44,-233.28 830.32,-240.7 834.97,-239.16"/>
-<text xml:space="preserve" text-anchor="middle" x="881.86" y="-336.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Crash</text>
+<path fill="none" stroke="#597d78" d="M919.97,-474.23C913.95,-461.23 905.74,-443.02 899.23,-426.72 872.59,-359.93 845.52,-279.5 832.39,-239.5"/>
+<polygon fill="#597d78" stroke="#597d78" points="834.78,-238.93 830.27,-233.04 830.12,-240.45 834.78,-238.93"/>
+<text xml:space="preserve" text-anchor="middle" x="881.6" y="-336.36" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Crash</text>
 </g>
 <!-- V -->
 <g id="node29" class="node">
@@ -5559,8 +5595,8 @@ J --&gt; M[Open CAD or Analysis]</pre></details><h3 id="b6b-flow-f7-experiment-s
 <!-- S&#45;&gt;V -->
 <g id="edge38" class="edge">
 <title>S&#45;&gt;V</title>
-<path fill="none" stroke="#597d78" d="M880.38,-474.25C866.78,-468.9 851.97,-462.81 838.56,-456.72 814.29,-445.68 787.85,-432.15 766.23,-420.67"/>
-<polygon fill="#597d78" stroke="#597d78" points="767.46,-418.55 760.14,-417.42 765.16,-422.87 767.46,-418.55"/>
+<path fill="none" stroke="#597d78" d="M880.84,-474.29C867.08,-468.95 852.12,-462.85 838.56,-456.72 814.26,-445.73 787.83,-432.2 766.22,-420.71"/>
+<polygon fill="#597d78" stroke="#597d78" points="767.45,-418.59 760.12,-417.45 765.14,-422.91 767.45,-418.59"/>
 <text xml:space="preserve" text-anchor="middle" x="846.9" y="-447.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">Exit</text>
 </g>
 <!-- S3 -->
@@ -5572,8 +5608,8 @@ J --&gt; M[Open CAD or Analysis]</pre></details><h3 id="b6b-flow-f7-experiment-s
 <!-- S&#45;&gt;S3 -->
 <g id="edge45" class="edge">
 <title>S&#45;&gt;S3</title>
-<path fill="none" stroke="#597d78" d="M932.82,-474.52C936.62,-464.86 942.45,-453.11 950.54,-444.72 961.22,-433.63 974.99,-424.46 988.52,-417.19"/>
-<polygon fill="#597d78" stroke="#597d78" points="989.54,-419.42 994.64,-414.03 987.29,-415.06 989.54,-419.42"/>
+<path fill="none" stroke="#597d78" d="M933.42,-474.51C937.01,-464.86 942.59,-453.11 950.54,-444.72 961.03,-433.65 974.6,-424.52 988,-417.28"/>
+<polygon fill="#597d78" stroke="#597d78" points="988.97,-419.54 994.06,-414.15 986.72,-415.18 988.97,-419.54"/>
 <text xml:space="preserve" text-anchor="middle" x="968.89" y="-447.72" font-family="Helvetica,sans-Serif" font-size="10.00" fill="#405852">App quit</text>
 </g>
 <!-- V&#45;&gt;U -->
@@ -5657,8 +5693,8 @@ J --&gt; M[Open CAD or Analysis]</pre></details><h3 id="b6b-flow-f7-experiment-s
 <!-- S3&#45;&gt;S -->
 <g id="edge46" class="edge">
 <title>S3&#45;&gt;S</title>
-<path fill="none" stroke="#597d78" d="M1028.25,-413.45C1018.71,-426.44 1004.48,-444.06 989.23,-456.72 983.44,-461.53 976.89,-466.04 970.27,-470.11"/>
-<polygon fill="#597d78" stroke="#597d78" points="969.18,-467.91 964.4,-473.58 971.67,-472.13 969.18,-467.91"/>
+<path fill="none" stroke="#597d78" d="M1028.22,-413.42C1018.67,-426.4 1004.44,-444.01 989.23,-456.72 983.52,-461.49 977.08,-465.98 970.56,-470.04"/>
+<polygon fill="#597d78" stroke="#597d78" points="969.54,-467.8 964.8,-473.5 972.06,-472 969.54,-467.8"/>
 </g>
 <!-- X3 -->
 <g id="node35" class="node">
@@ -5702,7 +5738,7 @@ I --&gt; I2{Tier}
 I2 --&gt;|local · in-process| S2[Evaluate in process; attempts and evidence as for a backend]
 S2 --&gt; X
 I2 --&gt;|backend| J{Backend Ready?}
-J --&gt;|No| K[Detection; Prepare my environment: step ids only; parameters bound by the tool]
+J --&gt;|No| K[Detection; Set up a solver, no key needed: step ids only; parameters bound by the tool]
 K --&gt;|Step failed or declined| L[Recoverable; CAD works; Run stays Not ready]
 K --&gt;|Step refused: outside the allow-list| L
 K --&gt;|Smoke test passes: Backend check fact| M[Ready]
@@ -5732,7 +5768,38 @@ S3 --&gt; S
 X --&gt;|All cases terminal| X2{Experiment status}
 X2 --&gt;|≥ 1 Completed| Y
 X2 --&gt;|0 Completed| X3[Experiment Failed; reasons per case]
-X --&gt; Y[Open Results]</pre></details><h3 id="b6c-flow-f8-results-replay-and-candidates-res-01-05-ai-10">B6c. Flow F8 — results, replay and candidates (RES-01–05, AI-10)</h3>
+X --&gt; Y[Open Results]</pre></details><h3 id="b6b-1-flow-f7a-guided-solver-setup-setup-01-09-run-01-ai-11-1-7-2-ruling-69">B6b-1. Flow F7a — guided solver setup (SETUP-01–09, RUN-01, AI-11) <em>(1.7.2, Ruling 69)</em></h3>
+<p>The rails need no key. The steps below are the flow of the approved proposal (<code>amendments/guided-solver-setup.md</code>
+§3); the mockup is <code>docs/mockups/solver-setup.html</code>, and the design is <code>docs/design/guided-solver-setup.md</code>. The setup state table and the setup-assist eval stay in the design, not the spec; the eval joins A8.6 when the assistant track starts (Ruling 70, OQ-2). <strong>Every
+Windows statement is Inferred until the operator&#39;s Windows run</strong>; the macOS statements rest on the 2026-10-03
+smoke-test receipt and the 2026-10-04 probes.</p>
+<ul>
+<li><strong>F7a-1 First launch, no solver.</strong> No prompt and no wizard. The status strip shows <code>Solver: not set up</code>; CAD and the
+local tiers work.</li>
+<li><strong>F7a-2 Entry points (three).</strong> The Run area&#39;s <strong>Set up a solver</strong>; an analysis that needs a backend tier (&quot;Set up
+OpenFOAM&quot;, with <strong>Back to my analysis</strong> when Ready); the status-strip Solver item.</li>
+<li><strong>F7a-3 Survey.</strong> Read-only, no consent: the computer, the solver state and any blocker, in one short list.</li>
+<li><strong>F7a-4 Route.</strong> One recommended card with its reason. macOS: OpenFOAM.app v2512. Windows: OpenFOAM in an app-owned
+WSL distribution (default, DR-SETUP-1); SU2 v8.5.0 native under <strong>Other options</strong>; Docker is not used. No route
+(Intel Mac, old OS): the reason, and what still works (SETUP-09).</li>
+<li><strong>F7a-5 Step card.</strong> Plain-words title, why, what will happen, time, download, disk, the needs line, the terms
+verbatim, <strong>Technical details</strong> (the exact command, the pin, the source, the licence; always present, shown before
+consent), and one primary button, <strong>Start this step</strong>.</li>
+<li><strong>F7a-6 The OS needs the user.</strong> One exact click path and nothing to type: administrator approval (Windows asks, the
+app never sees the password); restart (the app reopens and carries on, DR-SETUP-6); firmware virtualization off (a
+maker-specific path); macOS blocked the app (Open Anyway, only for an install that carries the quarantine flag; the
+app neither adds nor removes the flag, DR-SETUP-3).</li>
+<li><strong>F7a-7 Verify.</strong> Identify (the build id from the solver&#39;s banner) and the smoke test (A5.10). <strong>Ready</strong> or <strong>Not
+ready</strong> with a cause and one next step.</li>
+<li><strong>F7a-8 Resume.</strong> The next launch reads the facts, surveys again and opens Solver setup on the first step without a
+success fact; a step that was running is re-checked (&quot;already done?&quot;) before it acts.</li>
+<li><strong>F7a-9 Existing install (DR-SEC-1 A).</strong> Matching the pin: straight to Verify. Not matching: Install the tested
+build (recommended) or Use mine anyway, which shows the unverified-install disclosure and records the acceptance.</li>
+<li><strong>F7a-10 Undo.</strong> &quot;Remove what setup installed&quot; removes only what setup placed; never an install the user had.</li>
+<li><strong>F7a-11 Failure.</strong> Every catalogue cause has a fixed plain-words string and one next step; an unknown cause shows the
+last 20 lines under Technical details, <strong>Explain this failure</strong> (with a key) and <strong>Copy a report</strong> (always).</li>
+</ul>
+<h3 id="b6c-flow-f8-results-replay-and-candidates-res-01-05-ai-10">B6c. Flow F8 — results, replay and candidates (RES-01–05, AI-10)</h3>
 <figure class="flow">
 
 <!-- Generated by graphviz version 14.1.3 (20260303.0454)
@@ -6154,7 +6221,7 @@ completed unaided · completed with one hint · not completed, plus the Cp_min/R
 not by two raters; time bound 25 minutes per participant; recorded as <code>ux.formative</code> events (participant id,
 task, outcome, seconds); the A1 falsifier applies. Pending until run; an Open-decisions row tracks it.</li>
 <li><strong>UX-06:</strong> each optional dependency has a named absence string and the action that remains: key — &quot;No API key
-configured — every design and analysis tool works without it · Configure key&quot;; backend — &quot;Backend not ready — <substrate> <version>: <what is missing> · Check · Prepare my environment&quot;
+configured — every design and analysis tool works without it · Configure key&quot;; backend — <del>&quot;Backend not ready — <substrate> <version>: <what is missing> · Check · Prepare my environment&quot;</del> <em>(1.7.2: &quot;Solver not ready — <what is missing> · Check again · Set up a solver&quot;)</em>
 (Analysis and CAD remain); ParaView — &quot;ParaView 5.12+ not found — surface floods and forces remain; slices, streamlines and isosurfaces need ParaView (BSD-3) · Open in ParaView disabled&quot;; water table — &quot;Unavailable — outside the ITTC table (0–50 °C) · choose a temperature in range&quot;;
 catalog rights — &quot;Pending admission — terms requested from <source> · GEN sections remain&quot;.</li>
 <li><strong>UX-07:</strong> from an assigned GEN section, Edit section opens in one action; Smooth or Fair is one action from
@@ -8249,13 +8316,13 @@ run that ships the mockup).</p>
 </tr>
 <tr>
 <td>Backend not ready</td>
-<td>&quot;Backend not ready — <substrate> <version>: <what is missing> · Check · Prepare my environment&quot;</td>
+<td><del>&quot;Backend not ready — <substrate> <version>: <what is missing> · Check · Prepare my environment&quot;</del> <em>(1.7.2: &quot;Solver not ready — <what is missing> · Check again · Set up a solver&quot;; &quot;substrate&quot; and &quot;digest&quot; leave the user-facing string and stay under Technical details)</em></td>
 <td>Run environment panel</td>
 <td>RUN-01</td>
 </tr>
 <tr>
 <td>Environment step</td>
-<td>&quot;Step <n> of <m>: <action> — runs <code>&lt;command&gt;</code> · consequence: <text> · terms: &lt;link, verbatim&gt;&quot;</td>
+<td><del>&quot;Step <n> of <m>: <action> — runs <code>&lt;command&gt;</code> · consequence: <text> · terms: &lt;link, verbatim&gt;&quot;</del> <em>(1.7.2: &quot;Step <n> of <m>: <action in plain words> · <time> · <download> · &lt;needs: administrator approval · restart · nothing&gt;&quot;, with Technical details — the exact command, the pin, the licence — one click away, always present and shown before consent)</em></td>
 <td>Run environment panel</td>
 <td>AI-11</td>
 </tr>
@@ -8336,6 +8403,30 @@ run that ships the mockup).</p>
 <td>&quot;Step <n> &lt;succeeded · failed: &lt;exit, reason&gt;&gt; · elevation &lt;used · not used&gt;&quot;</td>
 <td>Run environment panel</td>
 <td>RUN-01</td>
+</tr>
+<tr>
+<td>Solver ready <em>(1.7.2)</em></td>
+<td>&quot;Ready — <solver> <version> passed its test run on this computer (<duration>, <time>). You can run CFD analyses.&quot;</td>
+<td>Solver setup · status strip</td>
+<td>SETUP-08</td>
+</tr>
+<tr>
+<td>Unverified install <em>(1.7.2)</em></td>
+<td>&quot;This <solver> is not the build CFD Workbench was tested with. Results may differ from tested results. Runs will be marked &quot;unverified install&quot;.&quot;</td>
+<td>Solver setup</td>
+<td>SETUP-07</td>
+</tr>
+<tr>
+<td>Not notarised <em>(1.7.2)</em></td>
+<td>&quot;OpenFOAM.app is signed by its author but not notarised by Apple. CFD Workbench checks it against the tested file before use.&quot;</td>
+<td>Solver setup step card</td>
+<td>SETUP-03</td>
+</tr>
+<tr>
+<td>Solver not ready, test run failed <em>(1.7.2)</em></td>
+<td>&quot;Not ready — the test run &lt;failed: cause&gt;. Next step: <action>.&quot;</td>
+<td>Solver setup · status strip</td>
+<td>SETUP-08</td>
 </tr>
 <tr>
 <td>Reduction failed</td>
@@ -9451,4 +9542,71 @@ install is detected and hash-checked, DR-SEC-1 A).</p>
 no free-form shell); the Threat and Disposition columns of the A8.5 row; every tolerance, label and licence contract.
 <strong>Count:</strong> 4 amendments (A8.5 2 · A5.10 2); no acceptance criterion added or removed; 2 items superseded in part, each
 marked in place.</p>
-<footer>Generated from the complete Markdown specification. Source SHA-256: c7c5e3a6919f04358538a973d79c8fb76c7a6ed0f167295969122e8e3d71788e. The mockup is illustrative; native application and scientific validation are separate future gates.</footer></main></div><script>document.getElementById('find').addEventListener('input',event=>{const query=event.target.value.toLowerCase();document.querySelectorAll('nav a').forEach(link=>{link.hidden=!link.textContent.toLowerCase().includes(query)});const status=document.getElementById("find-status");const count=[...document.querySelectorAll("nav a")].filter(link=>!link.hidden).length;status.hidden=count>0;status.textContent=count?"":"No matching sections. Clear the search to browse all."});</script></body></html>
+<h3 id="h-2-changes-from-revision-1-7-1-revision-1-7-2-2026-10-04">H.2 — Changes from revision 1.7.1 (revision 1.7.2, 2026-10-04)</h3>
+<p><strong>Why.</strong> Ruling 67 asked for an &quot;on rails&quot; solver install for a foil designer who is not a software engineer, and
+Ruling 69 approved the guided-setup proposal with DR-SETUP-1..6 as recommended; the proposal named one criterion that
+cannot be evaluated, the smoke test&#39;s &quot;Cl on the cavity&quot; (a lid-driven cavity has no wing). Ruling 67 OD-1 fixed the
+CAD ↔ Analysis shortcut. The amendments are <a href="amendments/spec-1.7.2.md">amendments/spec-1.7.2.md</a>, each with its
+quoted before-text and exact after-text; <strong>the spec owner approved the batch in Ruling 70</strong> (2026-10-04), with the five open questions OQ-1 to OQ-5 accepted as
+recommended and recorded as AM-1.7.2-26 to -31. No amendment invents a product decision.</p>
+<p><strong>Changed.</strong> RUN-01 and AI-11 (one verb, <strong>Set up a solver</strong>, that works with no key; the assistant explains and
+suggests, the rails decide). A3.1 Backend check and the A5.10 pass clause (the scalar is the final-time mean Courant
+number). A5.10&#39;s backend matrix (the Windows default route, the step catalogue, OpenFOAM.app &quot;not notarised&quot;, the
+quarantine flag neither added nor removed, the exact command under Technical details, the after-restart reopen).
+A5.12, B1, the B-area table, flow F7&#39;s node K, COPY-75, COPY-76 and four new C2 rows (the verb and the strings).
+ANA-22 (the shortcut is ⇧⌘A, Ctrl+Shift+A on Windows). <strong>Added.</strong> Flow F7a and stories SETUP-01 to SETUP-09.</p>
+<p><strong>Superseded — marked in place, not deleted</strong> (the flow F7 node K label is replaced, as a diagram label cannot carry a
+strike).</p>
+<div class="table-scroll" tabindex="0" role="region" aria-label="Scrollable specification table"><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Superseded by</th>
+<th>What stands</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A3.1 and A5.10 &quot;Cl on the bundled cavity-lid fixture&quot;</td>
+<td>the final-time mean Courant number (Ruling 69, DR-SETUP-2)</td>
+<td>the cavity-lid fixture, the named output files, the Backend check fact</td>
+</tr>
+<tr>
+<td>A5.10 &quot;Windows via Docker Desktop or WSL2&quot;; the Docker Desktop and &quot;pull image by digest&quot; steps</td>
+<td>the app-owned WSL route; SU2 native; Docker not used (DR-SETUP-1)</td>
+<td>the step-id-only proposals; every parameter bound by the tool</td>
+</tr>
+<tr>
+<td>RUN-01 and AI-11 &quot;given a key&quot;</td>
+<td>with or without a key (DR-SETUP-4)</td>
+<td>the allow-list, consent per step, the <code>environment.step</code> fact</td>
+</tr>
+<tr>
+<td>&quot;Prepare my environment&quot; (A5.12, B1, B-area table, F7)</td>
+<td>&quot;Set up a solver&quot; (DR-SETUP-4)</td>
+<td>&quot;Explain this failure&quot;</td>
+</tr>
+<tr>
+<td>COPY-75, COPY-76 strings</td>
+<td>the plain-words strings; the command under Technical details (DR-SETUP-5)</td>
+<td>the command is still shown before consent</td>
+</tr>
+<tr>
+<td>ANA-22 &quot;a shortcut&quot;</td>
+<td>⇧⌘A / Ctrl+Shift+A (Ruling 67 OD-1)</td>
+<td>the toggle is navigation</td>
+</tr>
+<tr>
+<td>A5.10 &quot;macOS arm64/x86&quot;</td>
+<td>Apple silicon (arm64) only (Ruling 70, OQ-5)</td>
+<td>the macOS route, OpenFOAM.app arm64</td>
+</tr>
+</tbody></table></div>
+<p><strong>Unchanged.</strong> DR-SEC-1 A and the 1.7.1 launcher rules (not duplicated); the A8.5 rows; every tolerance, label and
+licence contract. The spec named no ⌘2 or ⌘3 for the toggle; those keys stay the Precision and Review workspaces.
+<strong>Ruling 70 (OQ-1 to OQ-5), added the same day:</strong> the Windows pin is the Linux image hash plus the <code>openfoam2512</code>
+package version, set in an ADR-0012 amendment after the Windows run; the macOS smoke test compares to 0.222158 at six
+digits until one shared tolerance is set; the Docker Desktop licence line is noted and struck with the Windows ADR;
+Intel Macs are not supported; the state table and assistant eval stay in the design.
+<strong>Count:</strong> 29 amendments (23 + six from Ruling 70, AM-1.7.2-26 to -31) and two insertions (flow F7a; stories SETUP-01–09, which add nine acceptance criteria; the amendment ids AM-1.7.2-24 and -25 name these two) and no
+criterion removed; 7 items superseded in whole or in part, each marked in place.</p>
+<footer>Generated from the complete Markdown specification. Source SHA-256: 22bb2ad519e1f2d6ccdfe2b8a9759f366d4672a6653d82dbf45da5a9b65cfe25. The mockup is illustrative; native application and scientific validation are separate future gates.</footer></main></div><script>document.getElementById('find').addEventListener('input',event=>{const query=event.target.value.toLowerCase();document.querySelectorAll('nav a').forEach(link=>{link.hidden=!link.textContent.toLowerCase().includes(query)});const status=document.getElementById("find-status");const count=[...document.querySelectorAll("nav a")].filter(link=>!link.hidden).length;status.hidden=count>0;status.textContent=count?"":"No matching sections. Clear the search to browse all."});</script></body></html>

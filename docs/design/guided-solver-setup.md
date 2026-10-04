@@ -32,7 +32,8 @@ summary: >-
   (win64-omp zip pinned, 4 steps, no prompt). Every Windows behaviour is Inferred until the operator's Windows run.
   Findings: the Homebrew cask the operator used strips the quarantine flag (a step M8 refuses), so the product never
   installs through Homebrew; the spec's smoke scalar (Cl on a cavity) cannot exist. DR-SETUP-1..6 are open.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-04, reason: "Spec 1.7.2 (draft; Ruling 69, Ruling 67 OD-1): guided solver setup, smoke-test scalar, Windows route, toggle shortcut" }
 ---
 
 # Design: guided solver setup

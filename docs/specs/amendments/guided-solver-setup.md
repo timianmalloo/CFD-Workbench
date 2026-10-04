@@ -28,7 +28,8 @@ summary: >-
   one allowed step id. Amends RUN-01, AI-11, A5.10 (smoke scalar), A5.12 (Run entry name), COPY-75/76 and adds C2 rows
   for the four honest-limit strings. Windows behaviour is Inferred until the operator's Windows smoke test. Six
   decisions are open as DR-SETUP-1..6 in the design.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-04, reason: "Spec 1.7.2 (draft; Ruling 69, Ruling 67 OD-1): guided solver setup, smoke-test scalar, Windows route, toggle shortcut" }
 ---
 
 # Spec amendment proposal: guided solver setup
