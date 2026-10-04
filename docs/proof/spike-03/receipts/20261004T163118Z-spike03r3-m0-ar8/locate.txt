@@ -1,0 +1,18 @@
+GATE (DR-F3-1 A) FAIL: non_orthogonality_le_70=FAIL skewness_le_4_internal_20_boundary=ok volumes_positive=ok face_pyramids_ok=ok face_weight_ge_0.05=FAIL checkMesh_validity_set_without_determinant=FAIL layers_20_on_100pct_by_count=ok
+  max_non_orthogonality=86.2633941211 faces_gt_70=811 max_skewness=1.74149877879 min_face_weight=0.0460050255992 min_volume=9.03543563688e-14 min_determinant=0.0 (reported, not gated)
+  checkMesh *** lines: ['***Cells with small determinant (< 0.001) found, number of cells: 1128345', '***Faces with small interpolation weight (< 0.05) found, number of faces: 1']
+  layers: wing_faces=125772 layer_prisms=2515440 expected=2515440 (100.00 %); te_arc_root_segments=4; stack=1.4935e-03 m
+cells=3207020 by type: prism=2515440 tet=691580
+faces > 70 deg (nonOrthoFaces): n=811 primary main=22 te=616 tip=112 tip_pole=61 | flags tip_pole=61 te=677 root=0 interface=0 tip=173 | wall distance min/median/max = 9.51e-07/8.33e-05/3.10e-03 m (stack 1.49e-03)
+    main: cell pairs (5 prism, 7 tet) 5-5:12 7-7:10; x/c 0.1372..1.0262, z 0.1598..0.4799 m
+    te: cell pairs (5 prism, 7 tet) 5-5:616; x/c 1.0014..1.0014, z 0.0023..0.4777 m
+    tip: cell pairs (5 prism, 7 tet) 5-5:110 7-7:2; x/c 0.9439..0.9861, z 0.4801..0.4815 m
+    tip_pole: cell pairs (5 prism, 7 tet) 5-5:61; x/c 0.9918..0.9928, z 0.4801..0.4808 m
+low-weight faces (< 0.05): n=1 primary main=1 | flags tip_pole=0 te=0 root=0 interface=0 tip=0 | wall distance min/median/max = 1.87e-03/1.87e-03/1.87e-03 m (stack 1.49e-03)
+    main: x -0.00033..-0.00033 y 0.00320..0.00320 z 0.15987..0.15987
+two-internal-face cells: n=256 primary main=120 tip=136 | flags tip_pole=0 te=0 root=0 interface=0 tip=136 | wall distance min/median/max = 1.16e+00/1.75e+00/2.90e+00 m (stack 1.49e-03)
+    main: types 7:120
+    tip: types 7:136
+cellDeterminant < 0.001, layer (prism): 1128087 of 2515440 (44.85 %), min 3.882e-07, median 1.990e-03
+cellDeterminant < 0.001, core (tet): 258 of 691580 (0.04 %), min 0.000e+00, median 1.790e-01
+core (tet) cells with determinant < 0.001: n=258 primary main=121 tip=137 | flags tip_pole=0 te=0 root=0 interface=0 tip=137 | wall distance min/median/max = 1.45e-03/1.75e+00/2.90e+00 m (stack 1.49e-03)

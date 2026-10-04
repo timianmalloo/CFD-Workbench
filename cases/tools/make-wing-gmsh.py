@@ -80,6 +80,9 @@ occ.revolve(rev[0::4], 0, 0, half, 1, 0, 0, math.pi / 2)
 occ.fragment(occ.getEntities(2), [])
 occ.synchronize()
 wing_surfs = gmsh.model.getEntities(2)
+# the TE arc curves at the root (z = 0), kept to read their segment count from the mesh (round 3, R3-M0)
+te_arc_root = [c for c in gmsh.model.getEntitiesInBoundingBox(chord - 1e-7, -r_te - 1e-7, -1e-7, chord + r_te + 1e-7,
+                                                               r_te + 1e-7, 1e-7, dim=1)]
 for p in gmsh.model.getEntities(0):  # point sizes by chord station
     x, y, z = gmsh.model.getValue(0, p[1], [])
     gmsh.model.mesh.setSize([p], lc(min(max(x / chord, 0.0), 1.0)))
@@ -124,6 +127,9 @@ gmsh.model.mesh.field.setNumbers(fmin, "FieldsList", [ft])
 gmsh.model.mesh.field.setAsBackgroundMesh(fmin)
 gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
 gmsh.model.mesh.generate(3)
+te_arc_segments = sum(sum(len(t) for t in gmsh.model.mesh.getElements(1, c[1])[1]) for c in te_arc_root)
+print(f"te_arc_root_curves={len(te_arc_root)} te_arc_root_segments={te_arc_segments} "
+      f"Mesh.MinimumCirclePoints={gmsh.option.getNumber('Mesh.MinimumCirclePoints'):g}")
 # physical groups (after meshing, so the discrete layer side faces have nodes to locate them)
 lateral_sym = []
 for e in gmsh.model.getEntities(2):
@@ -204,8 +210,8 @@ deltaT 1;
 writeControl timeStep;
 writeInterval {iters};
 purgeWrite 0;
-writeFormat binary;
-writePrecision 8;
+writeFormat {s.get('write_format', 'binary')};
+writePrecision {int(s.get('write_precision', 8))};
 writeCompression off;
 timeFormat general;
 timePrecision 6;

@@ -1,0 +1,17 @@
+167702472 constant/C
+52887284 constant/cellDeterminant
+6415239 constant/cellShapes
+52826488 constant/Cx
+57802203 constant/Cy
+50401892 constant/Cz
+45985744 constant/faceWeight
+45653990 constant/nonOrthoAngle
+1281 constant/polyMesh/boundary
+930 constant/polyMesh/sets/lowWeightFaces
+7411 constant/polyMesh/sets/nonOrthoFaces
+2729 constant/polyMesh/sets/twoInternalFacesCells
+8887977 constant/polyMesh/sets/underdeterminedCells
+683 postProcessing/constant/lowWeightFaces/lowWeightFaces.vtp
+41090 postProcessing/constant/nonOrthoFaces/nonOrthoFaces.vtp
+34311 postProcessing/constant/twoInternalFacesCells/twoInternalFacesCells.vtp
+8116048 postProcessing/constant/underdeterminedCells/underdeterminedCells.vtp
