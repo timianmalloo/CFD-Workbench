@@ -27,12 +27,22 @@ foam() {
 until mkdir "$S/join.lock.d" 2>/dev/null; do sleep 15; done   # one join at a time
 touch "$S/join.lock"
 trap 'rm -f "$S/join.lock"; rmdir "$S/join.lock.d" 2>/dev/null' EXIT
-until ! foam && [ "$(load1)" -lt 10 ]; do sleep 20; done
-echo "start load: $(uptime | sed 's/.*load averages*: //')"
+# A solver may run for hours (the round-3 L3 solve has a 12 h cap), so a join does not wait for one. Operator ruling
+# 2026-10-04: joins run alongside a solver and its load-driven budget overrun is not enforced (the run's wall line still
+# prints load and cpu, and the output says the budget was relaxed). With no solver running the normal budget applies.
+alongside=""
+if foam; then
+  export CFD_TEST_BUDGET_SECONDS="${CFDW_ALONGSIDE_BUDGET_SECONDS:-600}"
+  alongside="solver running: test budget not enforced (CFD_TEST_BUDGET_SECONDS=$CFD_TEST_BUDGET_SECONDS)"
+else
+  until [ "$(load1)" -lt 10 ] || foam; do sleep 20; done
+fi
+echo "start load: $(uptime | sed 's/.*load averages*: //')${alongside:+ · $alongside}"
 cd "$integration" || exit 2
 AGENT_SESSION="$session" python3 docs/ai-forward-pack/scripts/conductor-join.py "$@" --session "$session" \
   --trailer-file "$S/trailer.txt" > "$out" 2>&1
 rc=$?
+[ -n "$alongside" ] && echo "$alongside" >> "$out"
 # The derived index and the append-only logs conflict at almost every join. When only they conflict, resolve and continue.
 if [ $rc -ne 0 ] && grep -q 'CONFLICT' "$out"; then
   conflicted=$(git diff --name-only --diff-filter=U | tr '\n' ' ')
