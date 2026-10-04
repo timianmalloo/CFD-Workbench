@@ -13,7 +13,7 @@ links:
 review-by: "2026-11-04"
 summary: >-
   The SVC-2 fixes for the adversarial C# review of the A3a analysis service: 10 new checks and 3 strengthened ones,
-  each red under its own planted mutant (17 mutants, all red), plus 5 red lines observed against the unfixed code.
+  each red under its own planted mutant (16 mutants, all red), plus 5 red lines observed against the unfixed code.
 ---
 
 # A3a SVC-2 red-first receipt

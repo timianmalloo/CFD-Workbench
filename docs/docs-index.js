@@ -8368,7 +8368,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-04",
       "reviewSuggested": [],
-      "summary": "The SVC-2 fixes for the adversarial C# review of the A3a analysis service: 10 new checks and 3 strengthened ones, each red under its own planted mutant (17 mutants, all red), plus 5 red lines observed against the unfixed code.",
+      "summary": "The SVC-2 fixes for the adversarial C# review of the A3a analysis service: 10 new checks and 3 strengthened ones, each red under its own planted mutant (16 mutants, all red), plus 5 red lines observed against the unfixed code.",
       "tags": [
         "a3a",
         "svc",
@@ -8392,7 +8392,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "50168c320a481cca855e982bb93b5f4a8caa2dd93d490b1ef2ab4dfafcaaddc1"
+      "sourceSha256": "3f58feb2f4786e41aa837920cca6671d06f2d6fa11dc076951feac0396ed1443"
     },
     {
       "id": "proof-a3a-vlm-red-first",
@@ -12260,5 +12260,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "973155ed2217398131d089e4bbc1478364a34e120c5602ae98af4c535962845c"
+  "graphSha256": "68d7dc76e6cba4612e4773411c8ade4566fb3a1cb7cb68677021ac931c8be6ab"
 };
