@@ -441,6 +441,12 @@ namespace CfdWorkbench.Desktop.Tests
     public static class DesktopChecks
     {
         private static int failures;
+        /// <summary>
+        /// The saved 10-point New foil of the build before Ruling 64 (the Core tests' fixture, copied by the csproj). A check that
+        /// needs a real interior control point or a rail index beyond 3 opens it; New foil now ships 4 control vertices per rail.
+        /// </summary>
+        public static byte[] TenPointFoil() =>
+            File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "Fixtures", "planform-verbs", "new-default-10.foil"));
         // The Core harness's subset selector (comma-separated check-name prefixes), so one check can run in a loop.
         // A prefix that selects no check fails the run, so a subset can never pass empty (HARNESS-SILENT-EXIT).
         private static readonly string[]? only = Environment.GetEnvironmentVariable("CFD_TEST_ONLY")?

@@ -3,6 +3,7 @@
   <ItemGroup><ProjectReference Include="../../src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj" /></ItemGroup>
   <ItemGroup>
     <Content Include="..\..\DESIGN.md" Link="DESIGN.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\CfdWorkbench.Core.Tests\Fixtures\planform-verbs\**\*" Link="Fixtures\planform-verbs\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\src\CfdWorkbench.Desktop\Assets\example.foil" Link="Assets\example.foil" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
