@@ -58,7 +58,9 @@ internal static class SectionLibraryTests
         Check("Library_HashNotName_ListedAsProblem", () =>
         {
             string root = NewRoot();
-            File.WriteAllBytes(Path.Combine(root, new string('0', 64) + ".foil"), Standalone("Wrong"));
+            byte[] bytes = Standalone("Wrong");
+            Equal(true, FoilSource.Parse(bytes).IsParsed);
+            File.WriteAllBytes(Path.Combine(root, new string('0', 64) + ".foil"), bytes);
             var scan = new SectionLibrary(root).Scan();
             Equal(0, scan.Entries.Count); Equal(1, scan.Problems.Count);
             Equal(true, scan.Problems[0].Reason.Contains("damaged", StringComparison.OrdinalIgnoreCase));
