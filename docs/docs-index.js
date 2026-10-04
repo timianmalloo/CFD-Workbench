@@ -1680,7 +1680,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2027-04-03",
       "reviewSuggested": [],
-      "summary": "The numbers behind design-area3-analysis §13.2 rev 3, measured with a 56-line reference horseshoe lattice (listed here, run with Node 22): the F-2 lifting-surface band 0.4156–0.4198 for the elliptic AR 8 wing at 5°, F-6's lattices 32/64/128 (observed order 1.07 for CL, 1.01 for e), an O(1) F-6 mutant that drives the order to −0.74, and the F-8 fixture at 20° dihedral with the developed S_ref, which the dihedral-ignored mutant misses by 11.9 %.",
+      "summary": "The numbers behind design-area3-analysis §13.2 rev 3, measured with a 56-line reference horseshoe lattice (listed here, run with Node 22): the F-2 lifting-surface band 0.4156–0.4198 for the elliptic AR 8 wing at 5°, F-6's lattices 32/64/128 (observed order 1.07 for CL, 1.01 for e), an O(1) F-6 mutant that drives the order to −0.74, and the F-8 fixture at 20° dihedral with the developed S_ref, which the dihedral-ignored mutant misses by 11.9 %. The 2026-10-04 repair adds the pointwise α_i oracle for F-15, the near-field convergence numbers for F-5 and the solver residuals.",
       "tags": [
         "analysis",
         "vlm",
@@ -1706,7 +1706,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2c780e9282ac2ce667659860d1db15f7c5507702ff815b3bba5b197250d8a38c"
+      "sourceSha256": "051d79de1bea4b4621550910d5ab24a71c119d45b86fb0f7b835c75ffea0f70b"
     },
     {
       "id": "note-backlog-2d-section-workbench",
@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6dcdf5dd9ed5f3caf2c4c0d3cd4f237af8b8f1e467897663d831b52e401afb86"
+      "sourceSha256": "f71f2ec823f72e78b98dee49a4edd5af36b87b01dbbe12ef2cc8005c3c2b611f"
     },
     {
       "id": "design-authoring-decisions",
@@ -8332,7 +8332,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-04",
       "reviewSuggested": [],
-      "summary": "The red run of the A3a VLM track. Planting the O(1) wake mutant (wake length per panel instead of per wing) turned F-6 red. The mutant was removed before the commit.",
+      "summary": "The red run of the A3a VLM track. Planting the O(1) wake mutant (wake length per panel instead of per wing) turned F-6 red. The mutant was removed before the commit. The 2026-10-04 repair adds the red lines for the LU pivot defect (one-solve residual 1.98 on a 12 x 12 matrix), the convergence form of F-5 and the pointwise form of F-15.",
       "tags": [
         "a3a",
         "vlm",
@@ -8351,7 +8351,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "396c29105d1007a291fffecc22fb17edf3eee3e5b5c58c3f05c2c5708598b889"
+      "sourceSha256": "90a9c5441215a9dca5bd7ea998ecd2b899e1f1841d413543338878f1a22f49a9"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -11837,5 +11837,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "6ad2106aa6668ec531f036d93a79e4b749f9331a33d6586a588f3068e0a0d076"
+  "graphSha256": "8880987c2ef1353f236bcacc0cc57119b8ef215198d40c3f3133ca3d76133d2b"
 };
