@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T21:42:53Z",
+  "generated": "2026-10-04T21:46:53Z",
   "audit": [
     {
       "actor": null,
@@ -23658,6 +23658,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T21:40:07Z",
       "duration_seconds": 166.0
+    },
+    {
+      "id": "al-01M44E4P470D88FXK0X60VHYAZ",
+      "shortname": "join-release-freeze",
+      "datetime": "2026-10-04T21:46:53Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/m12c-release-freeze into feature/ui-cad-direction",
+      "summary": "Release freeze (Opus 5.5): section steps on the pool under a ticket; incremental Properties rebind; Facts memo; nudge without notify. Release block 539 -> 57 ms. ShellHost conflict with the blank-Properties fix resolved as in the operator-tested preview (identical file). Operator confirmed natively. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T21:45:20Z",
+      "duration_seconds": 93.0
     }
   ],
   "changes": [
