@@ -220,8 +220,17 @@ public partial class SectionEditorView : UserControl
     private IBrush? Brush(string key) =>
         this.TryFindResource(key, ActualThemeVariant, out var value) ? value as IBrush : null;
 
+    // The strip's inputs: the accepted document, the draft's bytes and the active station. Bind runs on every shell
+    // change, and rebuilding the strip there cost ~67 ms (Sections.Facts per station; edit-lag, 2026-10-04).
+    private (object Inspection, byte[] Bytes, int Active)? stripInputs;
+
     private void RefreshStationStrip(WorkbenchController controller, int active)
     {
+        var inputs = ((object)controller.Inspection!, controller.Section!.Draft.Bytes, active);
+        if (stripInputs is { } shown && ReferenceEquals(shown.Inspection, inputs.Item1) && ReferenceEquals(shown.Bytes, inputs.Item2) &&
+            shown.Active == active)
+            return;
+        stripInputs = inputs;
         StationStrip.Children.Clear();
         foreach (var (assignment, index) in controller.Inspection!.Authored.Assignments.Select((item, index) => (item, index)))
         {
