@@ -22,10 +22,11 @@ cd "$root"
 # A certificate-precision display-sampling mutant (BUDGET-DISPLAY) is red in both configurations.
 configuration="${CFD_TEST_CONFIGURATION:-Release}"
 budget="${CFD_TEST_BUDGET_SECONDS:-60}"
-named=" Core Desktop "   # suites that print PASS <name>; add Desktop when its Check helper lands
+named=" Core Desktop Analysis "   # suites that print PASS <name>; an exit 0 with no PASS line fails
 # Core (43 s alone, one core) runs as two interleaved parts (`--part=k/n`), so it is no longer the critical path
 # (docs/reviews/test-ci-waste.md §12). Longest first. A part's log is <project>.part<k>of<n>.log.
-jobs=("Core 1/2" "Core 2/2" "Desktop" "Cli")
+# Analysis (A3a, design area3-analysis.md §18.2 PRE): its own job, concurrent with the others, never the critical path.
+jobs=("Core 1/2" "Core 2/2" "Desktop" "Analysis" "Cli")
 # A log left by an earlier layout (e.g. Core.log before the split) would feed old PASS lines to
 # tools/check-named-tests.py, which reads every .tmp-tests/*.log.
 rm -f "$scratch"/*.log "$scratch"/*.seconds

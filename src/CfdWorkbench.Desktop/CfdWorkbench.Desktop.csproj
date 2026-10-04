@@ -17,6 +17,7 @@
     <PackageReference Include="Dock.Avalonia.Themes.Fluent" Version="11.3.12.1" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <ProjectReference Include="../CfdWorkbench.Cli/CfdWorkbench.Cli.csproj" />
+    <ProjectReference Include="../CfdWorkbench.Analysis/CfdWorkbench.Analysis.csproj" />
   </ItemGroup>
   <ItemGroup><AvaloniaResource Include="Assets/example.foil" /></ItemGroup>
 </Project>

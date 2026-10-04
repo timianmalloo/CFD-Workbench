@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Named-test checker for the app-shell and M1.2b builds (docs/design/app-shell.md §12.2, m12b-points.md §12.2).
 
-    python3 tools/check-named-tests.py <track> [--design <path>]   e.g. C1, P1, D1, D2, D3a, D4, B0
+    python3 tools/check-named-tests.py <track> [--design <path>] [--track-section <heading>] [--named-sections <h1,h2>]
     python3 tools/check-named-tests.py --self-test
 
 The design is the single authority for test names: every backticked test name in §9 or §12.4 belongs to the first
@@ -9,7 +9,10 @@ The design is the single authority for test names: every backticked test name in
 `PASS <name>` in `.tmp-tests/*.log` (run `tools/run-tests.sh` first), no log has a `FAIL` line, and its list is not
 empty. Names are exact, never globs. For D3a the ported-name column of docs/proof/app-shell-test-inventory.md is read
 as well (§12.5). `--design <path>` reads that design instead of the default `docs/design/app-shell.md` — e.g. the
-M1.2b design, `docs/design/m12b-points.md`.
+M1.2b design, `docs/design/m12b-points.md`. `--track-section` names the heading prefix of the track table (default
+`## 14.`) and `--named-sections` the comma-separated heading prefixes that hold the names (default `## 9.,### 12.4`),
+for a design that keeps them elsewhere — e.g. A3a: `--track-section "### 18.2" --named-sections "### 18.8"`
+(docs/design/area3-analysis.md §18.1, P-1).
 
 Exit 0 green · 1 a rule failed · 2 usage.
 """
@@ -55,18 +58,19 @@ def section_lines(text: str, prefixes: tuple[str, ...]):
             yield number, line
 
 
-def known_tracks(text: str) -> set[str]:
-    """The track ids of the §14 table (`| **G0 Glue** | …`)."""
-    return {match.group(1) for _, line in section_lines(text, (TRACK_SECTION,))
+def known_tracks(text: str, track_section: str = TRACK_SECTION) -> set[str]:
+    """The track ids of the track table (`| **G0 Glue** | …`)."""
+    return {match.group(1) for _, line in section_lines(text, (track_section,))
             if (match := TRACK_ROW.match(line))}
 
 
-def extract(text: str) -> tuple[dict[str, str], list[str]]:
+def extract(text: str, named_sections: tuple[str, ...] = NAMED_SECTIONS,
+            track_section: str = TRACK_SECTION) -> tuple[dict[str, str], list[str]]:
     """Maps each named test to its track, with every rule violation found in the design."""
     names: dict[str, str] = {}
     errors: list[str] = []
-    tracks = known_tracks(text)
-    for number, line in section_lines(text, NAMED_SECTIONS):
+    tracks = known_tracks(text, track_section)
+    for number, line in section_lines(text, named_sections):
         for match in BACKTICK.finditer(line):
             token = match.group(1)
             if not CANDIDATE.fullmatch(token):
@@ -80,7 +84,7 @@ def extract(text: str) -> tuple[dict[str, str], list[str]]:
                 continue
             track = owner.group(1)
             if track not in tracks:
-                errors.append(f"design line {number}: `{token}` names track ({track}), which §14 does not define")
+                errors.append(f"design line {number}: `{token}` names track ({track}), which the track table ({track_section}) does not define")
             elif names.setdefault(token, track) != track:
                 errors.append(f"design line {number}: `{token}` is given to ({track}) and ({names[token]})")
     return names, errors
@@ -116,9 +120,10 @@ def inventory_names(path: Path) -> tuple[list[str], list[str]]:
     return [], [f"{path.name}: no table with a ported-name column"]
 
 
-def check(track: str, design: str, log_dir: Path, inventory: Path) -> tuple[list[str], list[str]]:
+def check(track: str, design: str, log_dir: Path, inventory: Path, named_sections: tuple[str, ...] = NAMED_SECTIONS,
+          track_section: str = TRACK_SECTION) -> tuple[list[str], list[str]]:
     """Returns (the track's required names, every failure)."""
-    names, errors = extract(design)
+    names, errors = extract(design, named_sections, track_section)
     required = {name for name, owner in names.items() if owner == track}
     if track == "D3a":
         ported, inventory_errors = inventory_names(inventory)
@@ -173,6 +178,19 @@ SECOND_DESIGN = """# Second planted design
 | **C1 Core** | x |
 """
 
+# A design that keeps its tracks and names under other headings (the A3a layout, area3-analysis.md §18.2 and §18.8). Read
+# with --track-section and --named-sections through main(), PRE is green; read with the defaults, PRE has no names.
+SECTIONED_DESIGN = """# Sectioned planted design
+## 9. Failure-mode analysis
+| one | `Outside_Default_Ignored` (PRE) |
+### 18.2 Tracks
+| Track | Owns |
+|---|---|
+| **PRE** contracts | x |
+### 18.8 Named-test ledger
+| `Iota_Case_Passes` (PRE) ✚ | A | < 1 ms | a planted call |
+"""
+
 # (case, planted design line, extra log text, track, inventory text, expected error fragment or None for green)
 SELF_CASES = [
     ("green control", "", "", "C1", None, None),
@@ -221,28 +239,56 @@ def self_test() -> int:
         label = "--design routes through main()"
         print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else f": exit {exit_code}, expected {fragment!r} in {output!r}"))
         failures += not ok
-        total = len(SELF_CASES) + 1
+
+        # --track-section and --named-sections end to end through main(): green with the flags; with the defaults the
+        # same design yields no names for PRE (its only default-section name sits under ## 9. with an undefined track).
+        sectioned = Path(scratch) / "sectioned-design.md"
+        sectioned.write_text(SECTIONED_DESIGN, encoding="utf-8", newline="\n")
+        logs = Path(scratch) / "sectioned-logs"
+        logs.mkdir()
+        (logs / "Analysis.log").write_text("PASS Iota_Case_Passes\n", encoding="utf-8", newline="\n")
+        LOGS = logs
+        try:
+            flagged, defaulted = io.StringIO(), io.StringIO()
+            with redirect_stdout(flagged):
+                flagged_exit = main(["check-named-tests.py", "PRE", "--design", str(sectioned),
+                                     "--track-section", "### 18.2", "--named-sections", "### 18.8"])
+            with redirect_stdout(defaulted):
+                defaulted_exit = main(["check-named-tests.py", "PRE", "--design", str(sectioned)])
+        finally:
+            LOGS = saved_logs
+        ok = (flagged_exit == 0 and "(PRE) 1/1 named tests PASS" in flagged.getvalue()
+              and defaulted_exit == 1 and "an empty list is never green" in defaulted.getvalue())
+        label = "--track-section/--named-sections route through main()"
+        print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else
+              f": flagged exit {flagged_exit} {flagged.getvalue()!r}; defaulted exit {defaulted_exit} {defaulted.getvalue()!r}"))
+        failures += not ok
+        total = len(SELF_CASES) + 2
     print(f"SELFTEST {total - failures}/{total} cases")
     return 1 if failures else 0
 
 
 def main(argv: list[str]) -> int:
     args = list(argv[1:])
-    design_path = DESIGN
-    if "--design" in args:
-        flag = args.index("--design")
-        if flag + 1 >= len(args):
-            print(__doc__.strip().splitlines()[2], file=sys.stderr)
-            return 2
-        design_path = Path(args[flag + 1])
-        del args[flag:flag + 2]
+    values = {"--design": str(DESIGN), "--track-section": TRACK_SECTION, "--named-sections": ",".join(NAMED_SECTIONS)}
+    for name in values:
+        if name in args:
+            flag = args.index(name)
+            if flag + 1 >= len(args) or not args[flag + 1].strip():
+                print(__doc__.strip().splitlines()[2], file=sys.stderr)
+                return 2
+            values[name] = args[flag + 1]
+            del args[flag:flag + 2]
+    design_path = Path(values["--design"])
+    track_section = values["--track-section"]
+    named_sections = tuple(part.strip() for part in values["--named-sections"].split(",") if part.strip())
     if len(args) != 1:
         print(__doc__.strip().splitlines()[2], file=sys.stderr)
         return 2
     if args[0] == "--self-test":
         return self_test()
     track = args[0]
-    required, errors = check(track, design_path.read_text(encoding="utf-8"), LOGS, INVENTORY)
+    required, errors = check(track, design_path.read_text(encoding="utf-8"), LOGS, INVENTORY, named_sections, track_section)
     for error in errors:
         print("FAILED: " + error)
     passed = len(required) - sum(error.startswith("no PASS line") for error in errors)
