@@ -86,7 +86,10 @@ internal sealed record RawCurve(string Path, SourceToken Degree, SourceToken[] K
 {
     internal TangentDraft[] Tangents { get; init; } = [];
 }
-internal sealed record ProfileSource(SourceToken Name, RawCurve? Upper, RawCurve? Lower, string Closure, SourceToken? Asset, int BlockStart = 0, int BlockEnd = 0);
+internal sealed record ProfileSource(SourceToken Name, RawCurve? Upper, RawCurve? Lower, string Closure, SourceToken? Asset, int BlockStart = 0, int BlockEnd = 0)
+{
+    internal string? Provenance { get; init; }
+}
 internal sealed record StationSource(SourceToken Value, SourceToken? Unit);
 internal sealed record AssignmentSource(StationSource Station, SourceToken Profile);
 internal sealed record LockSource(string Kind, SourceToken Channel, SourceToken? Id, StationSource? Station, SourceToken[] Values);
@@ -102,6 +105,7 @@ internal sealed record Curve(string Path, int Degree, double[] Knots, double[][]
 }
 internal sealed record ProfileDefinition(string Name, Curve Upper, Curve Lower, string Closure, int BlockStart, int BlockEnd)
 {
+    internal string? Provenance { get; init; }
     internal object Semantic => new Dictionary<string, object?>
     { ["evaluator"] = new[] { "cfdw-cv", "2" }, ["upper"] = Upper.Semantic(), ["lower"] = Lower.Semantic(), ["closure"] = Closure };
 }

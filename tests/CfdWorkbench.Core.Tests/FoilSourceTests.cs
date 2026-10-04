@@ -10,6 +10,8 @@ internal static class FoilSourceTests
     internal static byte[] Example => File.ReadAllBytes("docs/examples/foildsl/foil-basic.foil");
     internal static void Run()
     {
+        CatalogTests.Run();
+        ProvenanceTests.Run();
         Check("Ruling17_DegreeIdentity_DoesNotCollapseDistinctInputs", () =>
         {
             var a = Parse(Text.Replace("(0.3, -0.25)", "(0.3, 1.791)"));
