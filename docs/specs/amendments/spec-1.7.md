@@ -27,7 +27,8 @@ summary: >-
   Copy 3, Shell 7), each with the quoted before-text, the exact 1.7 text, the ruling it comes from and the tests or
   designs it touches; revision 1.7 carries them all. AM-1.7-37 to -49 are the 13 open questions the owner accepted as
   recommended. The knowledge-base correction KB-1 (ITTC Eq. 10, ln to log10) is made in the knowledge base.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-04, reason: "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized" }
 ---
 
 # Spec 1.7 amendment batch

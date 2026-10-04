@@ -374,7 +374,7 @@ to degree p: an interior knot of multiplicity **exactly** p.
 | Role | Vertex | Type shown | Freedom | Readouts |
 |---|---|---|---|---|
 | Nose | vertex 0 of both surfaces, (0,0) | Anchor, read-only (COPY-177) | Fixed | **LE radius per surface, own and at each station.** Own: r = 1/κ(0) from the analytic derivatives (section-a: 1.04 % c each side, hand-checked by the CG lens). At a station: from the placed Rule A curve (y² ≈ 2 r x at the vertical nose tangent); for a symmetric section it is r·k² with k = station t/c ÷ own t/c. In the mockup's edited state: 1.04 own → 1.02 at Root (k = 0.990). A note appears when upper and lower differ |
-| Nose handle | vertex 1 of each surface (x = 0) | handle | y only, sign kept (upper > 0, lower < 0) | length, % c |
+| Nose handle | vertex 1 of each surface (x = 0) | handle | y only, sign kept (upper > 0, lower < 0) | length, mm (% c beside it; §11.4) |
 | Trailing-edge point | last vertex of each surface (x = 1) | Anchor, read-only (COPY-178) | y only with `closure open`; Fixed when closed | **TE gap** (% c, and mm at the station) and **wedge angle**, own and at each station (tan of the half-angle and the gap scale by k for a symmetric section): 11.42° own → 11.31° at Root in the mockup's edited state |
 | Trailing handle | vertex N−2 | handle | Free; it has a typed **Angle** (the TE angle) | angle, length |
 | Anchor | interior; multiplicity-5 knot at it | Anchor | Free (x between its neighbours on its side); an anchor move carries its handles | kind |
@@ -910,7 +910,9 @@ before EDT uses them.
 - **Point:** Type ▾ (Anchor point / Control point; COPY-117 under Control); **x** (% c, 0.01, nudge); **y** (% c,
   0.01, nudge).
 - **Tangent** (anchors and handles only): Kind ▾ (Vertical disabled on an interior anchor); for each handle, its
-  **Angle** (°, 0.01) and **Length** (% c); COPY-183 as help.
+  **Angle** (°, 0.01) and **Length** (mm at the station's local chord, with the % c value beside it as a
+  read-only fact; ~~**Length** (% c)~~ *corrected 2026-10-04: spec 1.7 AM-1.7-40, Ruling 66 OQ-4; the build already does
+  this*); COPY-183 as help.
 - **A named point:** Type read-only with its constraint (COPY-177 or COPY-178), plus its readouts.
 
 **The Section group** (always present in the mode), with the summary "section-a · degree 5":
@@ -1127,6 +1129,11 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `SectionEditor_FinishThenReenter_ViewsAndCanvasRedrawn` (EDT) · `SectionEditor_FitSelectionOnAnchor_HandlesAtLeast24PxApart` (EDT) ·
 `SectionEditor_FocusedPoint_AccessibleNameSurfaceIndexTypeXY` (EDT) · `SectionEditor_PlateAndProbe_SayDisplay` (EDT).
 
+**UXR — review and polish.**
+`SectionEditor_CheckFinished_CheckingReasonHidden` (UXR): a "Checking…" reason box goes when the check of the same step
+passes (it outlived the check in the EDT captures) · `SectionEditor_Comb_TeethPointOutward` (UXR): on the convex 20–60 % c
+span every comb tooth points away from the chord line (§11.2; the marine-CAD re-review found them pointing in).
+
 **PNL — panes, menus, workspaces.**
 `Properties_SectionPoint_TypeXYRowsInPercentChord` (PNL) · `Properties_SectionPointTypedX_OneStepExact` (PNL) ·
 `Properties_SectionPointTypedMmX_ConvertedAtStationChord` (PNL) · `Properties_StationGroup_EndsWithEditSectionLink` (PNL) ·
@@ -1257,7 +1264,7 @@ is kept out of telemetry (`SectionTelemetry_Events_NoNamesIdsOrPositions`).
   | D-4 | Precision has no memory | §11.8 |
   | D-5 | Vertical is disabled on interior section anchors | A4.15 lists it; flagged for the spec owner |
   | D-6 | old builds show "tangent row names an interior anchor" or "not assessed" instead of "saved by a newer version" | §3.3 |
-  | D-7 | handle length is in % c on sections | UI-37 says mm; flagged |
+  | D-7 | handle length is in % c on sections | UI-37 says mm; flagged — resolved 2026-10-04: mm at the station chord, % c beside it (Ruling 66 OQ-4; §11.4) |
 
 ## Flagged risks and residual unknowns
 

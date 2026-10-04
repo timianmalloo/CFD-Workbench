@@ -54,5 +54,22 @@ if [ $rc -ne 0 ] && grep -q 'CONFLICT' "$out"; then
     rc=$?
   fi
 fi
+# A budget overrun is only a regression on a quiet machine. Other tracks can push the load up during the run (four joins
+# on 2026-10-04 went 63-79 s at loads 24-30 and passed on re-run). When the last wall line is over budget AND the load
+# rose above 15 during that run, wait for quiet and continue once; a second overrun stands.
+wall_line=$(grep -E 'wall [0-9]+ s \(budget [0-9]+ s\)' "$out" | tail -1)
+if [ $rc -ne 0 ] && [ -n "$wall_line" ]; then
+  wall=$(printf '%s' "$wall_line" | sed -E 's/.*wall ([0-9]+) s \(budget ([0-9]+) s\).*/\1/')
+  budget=$(printf '%s' "$wall_line" | sed -E 's/.*wall ([0-9]+) s \(budget ([0-9]+) s\).*/\2/')
+  end_load=$(printf '%s' "$wall_line" | sed -nE 's/.*load [0-9.]+ -> ([0-9]+).*/\1/p')
+  if [ "$wall" -gt "$budget" ] && [ -n "$end_load" ] && [ "$end_load" -gt 15 ]; then
+    echo "budget overrun under load ($wall_line); waiting for quiet and continuing once" >> "$out"
+    until ! foam && [ "$(load1)" -lt 10 ]; do sleep 20; done
+    case " $* " in *" --continue "*) ;; *) set -- "$@" --continue ;; esac
+    AGENT_SESSION="$session" python3 docs/ai-forward-pack/scripts/conductor-join.py "$@" --session "$session" \
+      --trailer-file "$S/trailer.txt" >> "$out" 2>&1
+    rc=$?
+  fi
+fi
 echo "join=$rc $(grep -E 'wall|CONFLICT|exited' "$out" | tr '\n' ' ') end load: $(uptime | sed 's/.*load averages*: //')"
 exit $rc

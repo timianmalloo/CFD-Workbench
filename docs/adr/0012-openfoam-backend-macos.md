@@ -18,14 +18,16 @@ links:
 review-by: 2026-11-03
 summary: >-
   Pins only what fluids rounds 1 and 2 measured on macOS arm64. Substrate: OpenFOAM ESI v2512, the gerlero native app,
-  by DMG sha256 and build id, launched by argv. Product launcher: allow-listed environment, product HOME plus
-  FOAM_CONTROLDICT from one hashed bundle, case record, token allow-list lint, checkMesh "Disallowing" pre-flight; the
-  operator probe set S-1..S-8 is written but not yet run. Convergence: the A4 oracle (it rejected a period-2 cycle
+  by DMG sha256 and build id, launched by argv. Product launcher (right-sized, Ruling 68): six short rules for one trusted user on one laptop,
+  the app-owned controlDict turns case code off and a live "Disallowing" banner proves it; verified by the
+  2026-10-04 probes (S-1, S-2, S-4); Run is enabled when the install smoke test shows Disallowing; an existing
+  OpenFOAM install is detected and hash-checked (DR-SEC-1 A). Convergence: the A4 oracle (it rejected a period-2 cycle
   and accepted four runs). Numerics: SA-noft2 with first-order nuTilda and relaxation 0.7 (met A4 on TMR only).
   Compressibility delta measured once (+1.147 % Cl, +0.81 % Cd; U_delta not stated). Open: Windows, Docker digests,
   v2512 vs v2606, the mesh route, GCI. The DR-F2-6 determinant floor needs an amendment; this ADR files a request
   (DR-F3-1) and does not decide it.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-04, reason: "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized" }
 ---
 
 # ADR-0012: the OpenFOAM backend on macOS arm64
@@ -65,82 +67,56 @@ fluids lane. Rounds 1 and 2 ran SPIKE-03 (meshing) and SPIKE-04 (TMR convergence
 | Executable sha256 (record) | `simpleFoam` `a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296`; `snappyHexMesh` `d36f997edd31453f2b7a9a9025bafb4a9adbb5916166e65ec1c62288d8f7795a` | round-1 `shasum -a 256` |
 | Activation | `/bin/zsh -f -e …/Contents/Resources/etc/openfoam -- <app> <args…>`. The script sources the environment and runs `exec "$@"` (`etc/openfoam:355-361`). **Never the `-c` form**, which runs `exec bash -c` (`:330`). The app mounts its image at `/Volumes/OpenFOAM-v2512` | plan-r2 §4.1 fact 8; [`of-run.sh`](../../cases/tools/of-run.sh) :94-97 |
 | Mesh identity | Hash the **written** mesh, never the inputs. Parallel snappy is not repeatable to the cell (1,730,250 vs 1,730,124 cells from the same inputs) | round-1 verdict |
-| Pin change | Any change to the DMG, build or bundle is a pin change. It runs the TMR + A4 fixture (DR-F2-9; run set C-1r2, C-2, C-3, C-4, ≈ 78 min solver time measured) and the S-1..S-8 probes | Ruling 65 DR-F2-9 |
+| Pin change | Any change to the DMG, build or bundle is a pin change. It runs the TMR + A4 fixture (DR-F2-9; run set C-1r2, C-2, C-3, C-4, ≈ 78 min solver time measured) and the S-1 control with the S-2 serial refusal probe (D2) | Ruling 65 DR-F2-9; Ruling 68 |
 
 The operator's `of` shell function is not on the product path (round 1 found it sources a missing file).
 
-### D2 — The product launcher (the spike form becomes the contract)
+### D2 — The product launcher (right-sized, Rulings 67 and 68)
 
-The contract is [`cases/tools/of-run.sh`](../../cases/tools/of-run.sh), sha256 `c5bdb37f…932b66b`, with its tools
-([`foam-dict-lint.py`](../../cases/tools/foam-dict-lint.py) `3deab275…c4a6b7`,
-[`launcher-record.py`](../../cases/tools/launcher-record.py) `6c52f3f2…903ab54`). The product re-implements it in
-the application. The rules:
+Threat model: one trusted user on his own laptop, running cases the app writes. The risks are a foreign design
+file, the app breaking its own run, and a bad install ([the security right-size note](../notes/solver-security-right-size.md)).
+Ruling 68 replaced the earlier six-rule contract (a hashed controlDict bundle in two places, a case-tree record, a
+token lint and a checkMesh pre-flight before every launch, a persistent stop file, load and `join.lock` waits). The
+spike harness (`cases/tools/of-run.sh`, `foam-dict-lint.py`, `launcher-record.py`) stays as this repository's tool for
+fluids rounds. It is no longer the product contract.
 
-1. **argv only.** The app name must be a bare name on an allow-list: `checkMesh blockMesh gmshToFoam decomposePar
-   reconstructPar reconstructParMesh snappyHexMesh surfaceCheck surfaceFeatureExtract simpleFoam rhoSimpleFoam
-   postProcess topoSet`. `mpirun -np <1–6>` is the only prefix allowed. A file in the case named like the first argv
-   word is refused, because `etc/openfoam` would run it with bash. **The spike checks the app name only; every
-   option after it passes through unchecked.** v2512's global options include `-libs` (which gets around the lint's
-   `libs` rule) and `-case` (which gets around both the record and the lint), as well as `-fileHandler`, `-roots`,
-   `-opt-switch` and `-debug-switch` (security review, Verified in the libOpenFOAM strings). **The product
-   allow-lists options per app, refuses `-libs`, `-case`, `-fileHandler`, `-roots` and `-*-switch`, and builds argv
-   from typed values only.**
-2. **P0, the environment:** `env -i` with only PATH (`/usr/bin:/bin:/usr/sbin:/sbin`), HOME, USER, LOGNAME,
-   LANG=C and FOAM_CONTROLDICT. Nothing is inherited, so no `FOAM_*`, `WM_*`, `BASH_ENV`, `DYLD_*` or `OMPI_*`
-   reaches the process. The launcher itself runs under `bash -p`.
-3. **P1 + P2, from one hashed bundle.** [`foam-bundle/controlDict`](../../cases/tools/foam-bundle/controlDict) is
-   the shipped `etc/controlDict` (sha256 `451a8f34…53ccf`) with two changes: `allowSystemOperations 0` and
-   `stopAtWriteNowSignal 30`. Its sha256 is pinned:
-   `f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a6ef854`. It is re-checked at every launch and on the
-   copy written into a fresh product HOME (`.OpenFOAM/2512/controlDict`). The same bytes go into FOAM_CONTROLDICT.
-   `-info-switch allowSystemOperations=0` is **not** a control: it prints "(unregistered)" and still allows code
-   (round 1, receipt).
-4. **Right before every launch:**
-   - the case tree must equal the tree recorded outside the case, with no shared library, executable image or
-     symlink;
-   - the token-level allow-list lint must pass: no `#` directive, no quoted keyword, no `coded*`, `*Libs`,
-     `systemCall` or switch block; `libs` only from four shipped libraries; `type` only from the template set; no
-     `$`, absolute or parent paths; `runTimeModifiable false` is required. The lint has 26 of 26 fixtures;
-   - every app except blockMesh, gmshToFoam and checkMesh needs a **checkMesh pre-flight** that printed
-     `Disallowing` for this case and manifest.
-   - **The order is fixed: record verify → lint → pre-flight record check → launch.** The spike keys the
-     pre-flight by case and manifest, not by the bundle. The product also keys it by the bundle's sha256.
-5. **After every launch:** an "Allowing" banner writes a stop file, `<repo>/runs/.security-stop`. Every later
-   launch **from this checkout** then refuses. The stop file covers one worktree only. **The product keeps one
-   stop file per user in application state.** A missing banner
-   fails the launch. The tree is then re-pinned.
-6. **Resources (operating limits, measured):** ≤ 6 ranks, `nice 10`, and a wait while the 1-minute load is above 10
-   or the join lock exists. Peak RSS is recorded with `/usr/bin/time -l`. Highest observed: checkMesh
-   `-allGeometry` 3.77 GB serial on 2.75 M cells. One solver rank used 171–181 MB on TMR L4.
+1. **Code in dictionaries is off.** For each run the app writes a controlDict with `allowSystemOperations 0` and
+   `stopAtWriteNowSignal 30` into an app-owned HOME (`.OpenFOAM/2512/controlDict`).
+2. **The banner proves it.** For each OpenFOAM app launch (one `mpirun` is one launch) the app reads the master
+   rank's `allowSystemOperations` banner and the build id from the live output. A missing banner, anything but
+   `Disallowing`, or a build id other than the pin stops the run, which is reported as an app fault.
+3. **argv only.** The app name comes from an enum in code; options come from typed values; activation is
+   `/bin/zsh -f -e …/etc/openfoam -- <app> <args…>`, never `-c`.
+4. **Only cases the app wrote.** Every file in a case is emitted by an app emitter from the typed model; no
+   user-supplied file is copied in. Names are app ids; numbers are invariant and finite. A CI test emits every
+   template from a hostile design fixture and checks the output with `foam-dict-lint.py`.
+5. **Own run directory, clean environment.** Each run is a new `runs/<run key>/` under the app data directory,
+   created exclusively. The app writes and deletes only there, under the A8.5 path policy. The child environment
+   is PATH, HOME, USER, LOGNAME and LANG=C only.
+6. **Resource caps.** A core-based rank default the user can lower, `nice 10`, one solver job at a time, the
+   iteration cap, a free-disk check; Stop escalates to SIGTERM then SIGKILL of the run's process group; orphan
+   ranks are reaped at app start.
 
-**Evidence.** In round 2, every OpenFOAM process (6 TMR runs and 6 wing runs) logged `banner=Disallowing`. The
-security & identity architect reviewed the launcher: cycle 1 FAIL (three blockers, fixed with fixtures), then cycle
-2 **PASS**.
+**Evidence.** The 2026-10-04 probe run (`docs/proof/spike-03/security/20261004T155708Z/`): S-1 runs code under the
+default; S-2 and S-4 refuse it under the app-owned HOME controlDict, serial and on 2 ranks, with no
+`dynamicCode/`. **Rule 1 is Verified for v2512 on macOS arm64.** Of the 8 probes, 3 passed and 5 failed; the 5 are
+3 probe over-expectations, 1 probe defect (S-7 never reached the environment) and 1 lint gap, and none is a failure
+of the refusal.
 
-**Accepted residual risks.** Trust on first use at `init`. The same OS user can write `runs/.launcher`. There is a
-gap of seconds between `verify` and the process start. `a4-monitor` finds its SIGUSR1 targets by a pgrep pattern.
-`libs` relies on dlopen resolving bare names, and OpenFOAM never gates the `libs` path (`dlLibraryTable.C`).
-Files that OpenFOAM writes during a run (time and processor directories) are re-pinned by `update` and are not
-linted. The helpers (`python3`, `shasum`, `nice`, `env`) resolve from the caller's PATH; the product uses absolute
-paths or does these checks in-process.
-**Product follow-ups (not done):** allow-list selector keys other than `type`, and fix a list of `postProcess -func`
-values.
+**Gate.** Run is enabled when the install smoke test shows `Disallowing` on the user's machine. ~~No product build
+may enable the backend until S-1..S-8 PASS.~~ Only S-1 and S-2 serial stay, as the pin-change check: a pin change
+re-runs S-1 (the positive control; without it a refusal proves nothing) and S-2 serial (the refusal).
 
-**The live probe set S-1..S-8 has NOT been run.** The script is
-[`cases/tools/security-probe.sh`](../../cases/tools/security-probe.sh), sha256
-`f0e8242c61daf0ed22e279eefe49f434040f8bd40d8d6ba78796186146b7a5ce`. That matches the round-2 hand-off
-(`audit-log.jsonl`, `join-fluids-round2`). It pins the four hashes above. Checked 2026-10-03:
+**Deferred.** If the app ever runs a case it did not write, add a `libs` allow-list (S-6: `libs` is not gated) and
+refuse binaries and symlinks in the case tree.
 
-- there is no `docs/proof/spike-03/security/` directory in this tree, in the history of any local branch, or in any
-  worktree on disk;
-- there is no `runs/.security-stop` file in any worktree.
-
-So D2 rests on the source reading, the review, and 12 observed `Disallowing` banners. The refusal itself is **not
-yet observed live**: no `#codeStream` or `systemCall` has been shown refused under P0+P1/P2, and no rank-by-rank
-refusal has been seen. **D2 is Verified only when the operator's receipts exist with every probe PASS.** Until
-then, **no product build may enable the OpenFOAM backend, or run a case it did not generate.** That gate lifts only
-when committed receipts in `docs/proof/spike-03/security/<ts>/` show S-1..S-8 PASS against this ADR's pins. Any pin
-change voids the receipts.
+**Install (DR-SEC-1 A, Ruling 68).** Setup detects an existing OpenFOAM install (`/Applications/OpenFOAM-v2512.app`)
+and hash-checks its executables against the known builds in D1. A match is accepted as verified. A mismatch is used
+only after the user accepts a plain "unverified install" note; otherwise setup installs the pinned build. The install
+comes from the vendor channel only, with the licence and the "ad-hoc signed, not notarised" disclosure shown; the
+app never disables Gatekeeper (removing `com.apple.quarantine` and `spctl --master-disable` count as disabling and
+are refused steps). Each run's manifest records the install identity and whether it was verified. Only this one
+path is built. Windows stays pending (DR-F2-7).
 
 ### D3 — The A4 convergence oracle (Ruling 65 DR-F2-1)
 
@@ -226,7 +202,7 @@ base in snappy, half-circle in Gmsh, +0.21 % chord) are not comparable in the TE
 | **The mesh route** | snappy: 20 layers on 0 % of faces. Gmsh: 20 layers on 100 % of faces, but non-orthogonality is 86.3° and 1 face has low weight. A product-written structured mesh (plan-r2 L5) is the fallback | [round 3](../plans/fluids-round3.md) R3-M |
 | **GCI for OpenFOAM on TMR** | L6/L5/L4 is oscillatory (R = −0.0105 Cl, −0.0526 Cd) | [round 3](../plans/fluids-round3.md) R3-G |
 | **The y+ gate** | It needs an A4-stationary 3-D field. The 500-iteration fields are screens only (Gmsh: p95 1.26, max 2.29) | round 3, conditional (DR-F3-4) |
-| **The live security proof** | S-1..S-8 not run (D2) | the operator |
+| **The live security proof** | Done 2026-10-04 (D2 evidence); only S-1 and S-2 serial re-run, on a pin change | — |
 | SA-neg, LM transition, SST, free surface, cavitation | Not exercised | later rounds |
 | The DR-F2-6 floor | A decision request, below | the operator (DR-F3-1) |
 
@@ -277,8 +253,7 @@ The spec owner amends A5.10's DR-F2-6 parenthesis only after the operator rules.
 
 ## Consequences
 
-- Product code that launches OpenFOAM must re-implement D2 and keep its order. A change to the launcher, lint,
-  record tool or bundle changes the probe script's pins, so the probes run again.
+- Product code that launches OpenFOAM implements the six D2 rules. A pin change re-runs S-1 and S-2 serial.
 - The run states and labels (A5.10, A7) can now name A4 and D4. "Converged" means A4. "Grid U" is shown only when
   a GCI exists, which today is never on OpenFOAM.
 - The TMR + A4 fixture (≈ 78 min measured) runs on every pin change. Its GCI clause waits for round 3 or a ruling.

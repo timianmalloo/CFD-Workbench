@@ -9,12 +9,16 @@ links:
   - {to: rulings, rel: implements}
   - {to: review-test-ci-waste, rel: relates-to}
 review-by: 2026-11-04
-summary: Where the fast ring, the readiness ring and agent repair loops spend their time on 2026-10-04 (measured), and the levers that cut it, each with its saving, coverage risk and cost to build, in a recommended order. Proposals only; no product code or test changed.
+summary: Where the fast ring, the readiness ring and agent repair loops spend their time on 2026-10-04 (measured), and the levers that cut it, each with its saving, coverage risk and cost to build, in a recommended order. §8 records the levers shipped on 2026-10-04 (L1-L6 and the safety fixes) with their measured before/after: readiness 348.6 s to 101.6 s, the PASS multiset unchanged.
 ---
 
 # Test time and cost: measured baseline and ranked levers
 
-**Result first.** The fast ring is near its floor. Ordering and two splits can save about 6 s of
+**Shipped 2026-10-04 (§8, measured):** readiness **348.6 s → 101.6 s** green on this branch under
+load 16–75, with the fast-ring PASS multiset unchanged (1,162 lines, `d7ba74e68a688d06`). L1–L6 and
+the safety fixes landed; the optional COST lines did not (§8.4).
+
+**Result first (the study, before the levers).** The fast ring is near its floor. Ordering and two splits can save about 6 s of
 its 53 s (Inferred). The money is in the **readiness ring** (310 s) and in **how often agents run
 the rings**. Readiness spends **163 s of its 310 s** running two full suites a second and a third
 time in Debug, which nothing else needs. Agents ran readiness 95 times and the fast ring about 359
@@ -265,3 +269,81 @@ The scripts are in `docs/proof/test-cost/` (stdlib only):
   under load.
 - **The agent-run counts** cover Claude transcripts only, and come from a pattern match, so they
   are approximate.
+
+## 8. Shipped levers: measured results (2026-10-04, branch `perf/test-tooling`)
+
+Operator approval 2026-10-04; Test Architect APPROVED-WITH-CONDITIONS on L1/L2 (C1, C2). Every number
+below is from a run on this machine, with the load average (`uptime`) at start and end. The machine was
+shared with three other tracks, so the load ran from 6 to 79 on 16 CPUs. **No check was deleted,
+skipped or moved**: the fast-ring PASS multiset is the same before and after every change (1,162 lines,
+1,161 distinct, sha256 prefix `d7ba74e68a688d06`; recomputed on base `5b49683`, since EDT added checks
+after the study's 1,135).
+
+### 8.1 Readiness ring
+
+| Step | Before (base `5b49683`, load 19 → 6) | After (`a6dafd8`, load 74 → 24) |
+|---|---|---|
+| `verify-application-core` | 148.7 s, serial | 41.9 s, concurrent |
+| `verify-application-adapters` | 152.6 s, serial | 62.1 s, concurrent |
+| other verify gates + 2 recounts | 1.2 + 5.9 + 4.3 s, serial | 1.3 / 8.1 / 5.9 s, concurrent |
+| Core `--readiness` | 24.5 s | 25.4 s (serial, alone) |
+| Desktop `--readiness` | 11.4 s | 13.5 s (serial, alone) |
+| **Total** | **348.6 s** | **101.6 s** (budget 240 s) |
+
+Two earlier runs of the same ring after L4: 124.2 s (load 16 → 23) and 115.2 s (load 25 → 75). All three
+were green, including every Core proof-budget and Desktop frame-budget check.
+
+| Lever | Before | After | Proof |
+|---|---|---|---|
+| **L1** core gate: store subset (not the full suite) at 0022/0000/0077 in Debug | 148.6 s (step sum) | 73.8 s | Commit `f010563`. C1 below |
+| **L2** adapters gate: `--theme-evidence` (the in-process prefix + `--shell-window` 2 parts) in Debug | 152.3 s; Desktop step 118.6 s | 60.5 s; Desktop step 24.4 s | Commit `cbedde9`. C2 below. Native startup smoke still runs the Debug Desktop executable |
+| **L3** published full Core run as 3 concurrent `--part=k/3` | 73.8 s step sum; full step 45.5 s | gate wall 41 s; parts 16.2 / 17.1 / 17.2 s | Commit `19164fe`. The 3 parts pass the same 586 checks as the old full run (hash `4eb85f786d3c99b1`). PARTITION check shown red once with a duplicated part (586 PASS lines, 391 distinct) |
+| **L4** gates + recounts in one concurrent group; `--readiness` runs serial and alone | 348.6 s | 101.6–124.2 s | Commits `4d91906`, `25c5666`. Green 3 of 3 runs at load 16–75. TEST-RING accepts a `--skip` only when each skipped gate is its own readiness step; red when the core gate step is dropped |
+
+L4 keeps the two `--readiness` steps out of the group on purpose: they hold wall-time frame budgets, and
+`dotnet run` builds into `src/`/`tests/` `bin`, which the adapters gate proves it did not change.
+
+### 8.2 Fast ring (L5, L6)
+
+| | Desktop | Wall | Load | Slowest child |
+|---|---|---|---|---|
+| Before (3 runs) | 52 / 59 / 56 s | 53 / 65 / 58 s | 10–25 | status-strip 1/2, 42.4–49.5 s |
+| After L5/L6 (2 runs) | 53 / 48 s | 55 / 49 s | 62–79 | properties-view 1/2, 31.5–34.9 s |
+
+Commit `a6dafd8`: longest first by measured SUITE-TIME, `--status-strip` in 3 parts, `--properties-cells`
+in 2. **Not a clean A/B** (the load rose 3–6× between the runs): the pole fell by about 15 s and the
+Desktop time held or fell under far more load. Child CPU-seconds were flat (549 → 542 / 525 s). The
+quiet-machine saving is still Inferred (§2: −5.8 to −7.5 s).
+
+### 8.3 Safety fixes
+
+| Finding | Fix | Evidence |
+|---|---|---|
+| F-1 scratch never deleted | Both gates delete the build, package cache and publishes on green and keep `receipts/`; a red run keeps everything and prints `SCRATCH kept: <path>` | Green: −1.79 GB (core) and −2.74 GB (adapters) per run, 144–516 KB left. Red (the PARTITION red run): kept |
+| F-2 no timeout | `DesktopChecks.RunBuffered` kills a child's process tree after 120 s (`CFD_TEST_CHILD_TIMEOUT_SECONDS`) and prints `FAIL TIMEOUT <mode> after N s`; readiness kills a step's process group after 1,200 s | Red at a 3 s limit: both `--shell-window` parts `exit 124`, no orphaned children. Readiness self-test kills a hung step |
+| F-3 budget vs load | The `wall` line prints child CPU-seconds and load at start and end: `wall 58 s (budget 60 s) cpu 549 s load 16.46 -> 25.32` | Every ring above |
+| F-5 no step durations | `durationSeconds` on every adapters receipt step | `receipts/verification.json` |
+| F-6 no readiness budget | 240 s (about 2× the measured 102–124 s under load). Over it: `READINESS-BUDGET`, exit 3, and `--check` refuses the receipt; `CFD_READINESS_BUDGET_SECONDS` overrides | Self-test: an over-budget green ring exits 3 and fails `--check` |
+
+**Test Architect conditions.**
+
+- **C1.** `tools/check-debug-parity.py`, run by `tools/check-docs.py`, fails on `#if`/`#elif DEBUG`,
+  `Debug.Assert`, `[Conditional("DEBUG")]` in `src/`/`tests/` C#, and a per-configuration `Optimize`,
+  `CheckForOverflowUnderflow` or `DefineConstants` in any csproj/props/targets under `src/`, `tests/` or the
+  root. It carries the stdio guard and an in-process self-test of each pattern. Red once on planted lines
+  (`#if DEBUG` in `Identity.cs`, a Release-only `CheckForOverflowUnderflow` in the Core tests csproj, and a
+  `Debug.Assert` through `check-docs.py`, exit 1); green on the tree.
+- **C2.** The reduced Debug run emits the same 325 `THEME-*` lines as the full run, byte for byte: 42
+  `THEME-RESOURCE`, 1 `THEME-SHADOW-MUTATION`, 1 `THEME-RESOURCE-CHECK`, 6 `THEME-FOCUS-RESOURCE`, 274
+  `THEME-ROW`, 1 `THEME-SHELL-CHECK`. Run without the serial prefix (`--shell-window` alone), the gate's
+  parser is red: `loaded-XAML theme resource evidence missing, duplicated, or stale`. No `--theme-rows`
+  mode was added.
+
+### 8.4 Not done, and why
+
+- **Optional COST lines (F-4).** They belong in the `Check` helpers. This track owned only the Spawn list,
+  the part plumbing and the per-child timeout in `DesktopChecks`, and not the Core harness. Open as a
+  seam request to whichever track owns the harnesses.
+- **The Core fast-ring parts have no timeout.** F-2 was fixed for the Desktop children (the native-window
+  risk). A hung Core part still waits in `run-tests.sh` until the agent's tool timeout.
+- **L0** needed nothing built (already in the briefs). **L7–L9** were not approved for this track.

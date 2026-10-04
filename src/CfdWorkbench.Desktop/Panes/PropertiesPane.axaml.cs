@@ -751,7 +751,11 @@ public partial class PropertiesPane : UserControl
         view.Cell = value;
         // A wide value (an enum, or words rather than a number) sits right-aligned across the row; the label wraps short of it.
         view.Wide = row.Kind is RowKind.Choice or RowKind.KindList || row.Kind == RowKind.Fact && row.Unit is null && !row.Dimensionless;
-        if (view.Wide) value.SizeChanged += (_, _) => Layout(view);
+        if (view.Wide)
+        {
+            value.SizeChanged += (_, _) => Layout(view);
+            grid.SizeChanged += (_, change) => { if (change.WidthChanged) Layout(view); };
+        }
         if (row.IsEditable)
         {
             // DR-DEN-1 / SC 2.5.8: the whole 24 px row is the target; a press on the label or the gap focuses the value.
@@ -781,9 +785,12 @@ public partial class PropertiesPane : UserControl
     private void Layout(RowView view)
     {
         var grid = view.Grid;
-        bool stacked = textScale >= StackedFrom;
         bool dirty = view.Input?.Classes.Contains("dirty") == true;
         double gap = Token("PropColumnGap");
+        // A wide value that leaves its label less room than the label's longest word would wrap it a letter per line
+        // ("Station t/c" beside "From the Thickness curve ▾" in a narrow pane): that row stacks, as DN-5 does at 150 %.
+        bool stacked = textScale >= StackedFrom || view.Wide && !dirty && grid.Bounds.Width > 0 && view.Cell.Bounds.Width > 0 &&
+            grid.Bounds.Width - view.Cell.Bounds.Width - 2 * gap < LongestWord(view.Label);
         double valueWidth = Token("PropValueMinWidth");
         double unitWidth = Token("PropUnitWidth") + gap;
         double height = Token(view.Row.IsEditable ? "PropRowInputHeight" : "PropRowReadOnlyHeight");
@@ -809,6 +816,11 @@ public partial class PropertiesPane : UserControl
         var margin = new Thickness(0, 0, stacked ? 0 : reserve, 0);
         if (view.Label.Margin != margin) view.Label.Margin = margin;
     }
+
+    private static double LongestWord(TextBlock label) =>
+        (label.Text ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(word => new FormattedText(word,
+            CultureInfo.InvariantCulture, FlowDirection.LeftToRight, new Typeface(label.FontFamily, label.FontStyle, label.FontWeight),
+            label.FontSize, null).WidthIncludingTrailingWhitespace).DefaultIfEmpty(0).Max();
 
     private static bool SameColumns(ColumnDefinitions current, ColumnDefinitions wanted) =>
         current.Count == wanted.Count && current.Zip(wanted).All(pair =>

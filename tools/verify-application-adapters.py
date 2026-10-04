@@ -9,6 +9,7 @@ import math
 import os
 import pathlib
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -346,6 +347,7 @@ def terminate_owned(group: int, owned: dict[int, str]) -> None:
 def run(name: str, argv: list[str], timeout: int = 600) -> dict:
     stdout_path, stderr_path = RECEIPTS / f"{name}.stdout", RECEIPTS / f"{name}.stderr"
     started = dt.datetime.now(dt.timezone.utc).isoformat()
+    clock = time.monotonic()
     process_table()  # Verify the ownership observer before acquiring a child.
     owned: dict[int, str] = {}
     collector: set[str] = set()
@@ -395,7 +397,8 @@ def run(name: str, argv: list[str], timeout: int = 600) -> dict:
                         child.wait(timeout=5)
     remaining = observe(pid, owned) if cleanup_error is None else {"Not assessed": cleanup_error}
     return {"argv": argv, "cwd": str(ROOT), "environment": dict(RECORDED_ENV), "pid": pid,
-            "startUtc": started, "psStartIdentity": start_identity, "exitCode": child.returncode,
+            "startUtc": started, "durationSeconds": round(time.monotonic() - clock, 1),
+            "psStartIdentity": start_identity, "exitCode": child.returncode,
             "timedOut": timed_out, "collectorObserved": sorted(collector),
             "ownedPidStart": owned, "remainingProcessGroup": remaining, "cleanupError": cleanup_error,
             "failure": failure,
@@ -470,7 +473,11 @@ def main() -> int:
             dll = ARTIFACTS / "bin" / project / "debug" / (project + ".dll")
             if not dll.is_file():
                 raise RuntimeError(f"test assembly missing: {dll}")
-            require_step(receipt, project, ["dotnet", str(dll)])
+            # Desktop in Debug: the in-process prefix (THEME-RESOURCE, THEME-FOCUS-RESOURCE, THEME-SHADOW-MUTATION,
+            # THEME-RESOURCE-CHECK) and --shell-window (THEME-ROW) only; every mode runs in Release on every join, and
+            # tools/check-debug-parity.py keeps Debug and Release the same code (docs/plans/test-cost.md L2).
+            arguments = ["--theme-evidence"] if project == "CfdWorkbench.Desktop.Tests" else []
+            require_step(receipt, project, ["dotnet", str(dll), *arguments])
             if project == "CfdWorkbench.Desktop.Tests":
                 receipt["themeContrast"] = contrast_checks(receipt["steps"][-1])
                 receipt["appliedThemeContrast"] = applied_theme_checks(receipt["steps"][-1])
@@ -531,7 +538,27 @@ def main() -> int:
                                      "remaining": step["remainingProcessGroup"]} for step in receipt["steps"]],
                           "sourceInputsUnchanged": receipt["sourceInputsUnchanged"],
                           "sourceOutputsUnchanged": receipt["sourceOutputsUnchanged"]}))
-    return 0 if receipt["status"] == "pass" else 1
+    if receipt["status"] != "pass":
+        print(f"SCRATCH kept: {SCRATCH}", flush=True)
+        return 1
+    prune_scratch()
+    return 0
+
+
+def prune_scratch() -> None:
+    """Green: delete the build, package cache, publishes and packages (about 2.3 GB a run), keep receipts/ (the
+    step logs, durations and hashes). A red run keeps everything for debugging (test-cost F-1)."""
+    removed = 0
+    for item in SCRATCH.iterdir():
+        if item.name == "receipts":
+            continue
+        if item.is_dir() and not item.is_symlink():
+            removed += sum(path.lstat().st_size for path in item.rglob("*") if path.is_file())
+            shutil.rmtree(item)
+        else:
+            removed += item.lstat().st_size
+            item.unlink()
+    print(f"SCRATCH green: removed {removed / 1e9:.2f} GB, kept {RECEIPTS}", flush=True)
 
 
 if __name__ == "__main__":

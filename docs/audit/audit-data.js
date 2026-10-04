@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T16:21:44Z",
+  "generated": "2026-10-04T17:48:53Z",
   "audit": [
     {
       "actor": null,
@@ -23255,37 +23255,92 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M43VCJX6H0Q3Y1RRYVN3JYNK",
-      "shortname": "join-test-cost-plan",
-      "datetime": "2026-10-04T16:19:09Z",
-      "session": "f19a2b12",
-      "prompt": "the join of design/test-cost-study into feature/ui-cad-direction",
-      "summary": "Test-cost study (Opus 5.5, measured): fast ring ~45-53 s, Desktop 45 s (floor 32 s at 8 slots); readiness 310 s of which 163 s re-run full Core/Desktop in Debug. Levers: L0 agent inner loop (-50 s per repair iteration), L1 drop the Debug Core run in verify-application-core (-80 s), L2 adapters reads only theme emitters (-33..76 s), L3 split the published Core run (-28 s), L4 parallel readiness steps; L5/L6 Desktop ordering and splits (-7.5 s). Findings: 224 GB of gate scratch never deleted; no per-child timeout; budget verdict tracks load. recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "tier": "T1",
+      "datetime": "2026-10-04T16:19:09Z",
+      "duration_seconds": 54.0,
       "fan_out": 0,
+      "id": "al-01M43VCJX6H0Q3Y1RRYVN3JYNK",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of design/test-cost-study into feature/ui-cad-direction",
+      "session": "f19a2b12",
+      "shortname": "join-test-cost-plan",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-04T16:18:15Z",
-      "duration_seconds": 54.0
+      "summary": "Test-cost study (Opus 5.5, measured): fast ring ~45-53 s, Desktop 45 s (floor 32 s at 8 slots); readiness 310 s of which 163 s re-run full Core/Desktop in Debug. Levers: L0 agent inner loop (-50 s per repair iteration), L1 drop the Debug Core run in verify-application-core (-80 s), L2 adapters reads only theme emitters (-33..76 s), L3 split the published Core run (-28 s), L4 parallel readiness steps; L5/L6 Desktop ordering and splits (-7.5 s). Findings: 224 GB of gate scratch never deleted; no per-child timeout; budget verdict tracks load. recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M43VHA9P9GEJ4D92499P5ZVV",
-      "shortname": "join-m12c-edt",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-04T16:21:44Z",
-      "session": "f19a2b12",
+      "duration_seconds": 56.0,
+      "fan_out": 0,
+      "id": "al-01M43VHA9P9GEJ4D92499P5ZVV",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of feature/m12c-edt into feature/ui-cad-direction",
+      "session": "f19a2b12",
+      "shortname": "join-m12c-edt",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-04T16:20:48Z",
       "summary": "EDT (Codex gpt-6-sol 2 runs, Opus 5.5 2 runs incl. the finishing track, Ruling 67): section-mode surface, controller gestures, probe follows pointer, Return/Tab/Escape cascade, refit refusal located and labelled, Show framing via SectionShowRequested, Section dropdown over PNL's menu rows, 8 spacing tokens, Side view names sections by station (Placement.Assignment is a profile index - Core rename owed), --section-editor split. EDT 25/25; mutants red; captures docs/proof/m12c-edt. Deviations for UXR: stale Checking box, reason box placement, raw refusal copy, clipped mode bar, chip/accents/probe/axis/comb/thumbnails. recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/design/guided-solver-setup.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-04T16:31:41Z",
+      "done_when": "docs committed with frontmatter, derive and check-docs green",
+      "fan_out": 0,
+      "git": {
+        "branch": "design/guided-install",
+        "pushed": null,
+        "sha": "a46020f909a13c5b9d8920f6544c25ee7a15a14f",
+        "short": "a46020f90"
+      },
+      "goal": "Design the guided solver setup (UX amendment, AI boundaries, design slice, mockup, DR batch) as documents",
+      "id": "al-01M43W3H8TXYVJ8GJ0E89YPARJ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Read your brief at briefs/guided-install.md and execute it (guided, on-rails OpenFOAM/SU2 install; documents only)",
+      "session": "f19a2b12",
+      "shortname": "design-guided-install",
+      "skill": "design-slice",
+      "summary": "Guided solver setup, documents only (Ruling 67 (b); Opus 5.5). Spec amendment proposal (flow F7a, SETUP-01..09, AM-SET-1..6: rails without a key, assistant explains and suggests one allowed step id, smoke scalar = final-time Courant mean because a cavity has no Cl, \"Set up a solver\", command under Technical details); design (Route catalogue + Host survey / Environment step / Install acceptance facts, current step and Ready derived so resume is a re-derivation; macOS OpenFOAM.app 6 steps with Verified pins: zip 22ffc888, inner image 5eb2ab10, etc/openfoam fa900c4e, volume a1d4e57b; Windows WSL app-owned distro 8 steps: Ubuntu 24.04.5 bb415d82, openfoam2512 2512.0-2 c59e65ff, key DC93C096; SU2 win64-omp 4466fe21; 25 cause codes, 14 Windows eval cases Flagged; telemetry; test plan; tracks T1-T5); mockup solver-setup.html (Windows 11 states, macOS 7, assistant modes) with browser check green and 22 captures. Findings: the Homebrew cask strips quarantine (an M8-refused step), so the product never installs through Homebrew; the pinned DMG is the image inside the app bundle. DR-SETUP-1..6 open (rec: WSL default, Courant scalar, no quarantine add/remove, one verb, command in details, RunOnce). All Windows behaviour Inferred.",
+      "tags": [
+        "ruling-67"
+      ],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M43W79J8NT7X9KH8M604E91T",
+      "shortname": "join-guided-install-design",
+      "datetime": "2026-10-04T16:33:45Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/guided-install into feature/ui-cad-direction",
+      "summary": "Guided setup (Opus 5.5, docs only): flows F7a (strip item, three entries, check, one route per OS, step cards, one click path where the OS needs him, verify = build id + test run, resume by recomputation, existing-install detection, undo, copy a report); Windows default = an app-owned WSL Linux with OpenCFD packages, SU2 native under Other options, Docker rejected; AI only explains and may suggest one allow-listed step id, never runs, never says Ready, works offline; 18 mockup states; DR-SETUP-1..6. Findings: the Homebrew cask strips quarantine; the spec's smoke-test Cl on the cavity cannot exist; the pinned DMG hash is the inner image. recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -23301,7 +23356,182 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-04T16:20:48Z",
+      "started_at": "2026-10-04T16:32:42Z",
+      "duration_seconds": 63.0
+    },
+    {
+      "id": "al-01M43XRPDTRHEBSDJFC27YF2W3",
+      "shortname": "join-test-tooling",
+      "datetime": "2026-10-04T17:00:43Z",
+      "session": "f19a2b12",
+      "prompt": "the join of perf/test-tooling into feature/ui-cad-direction",
+      "summary": "Test tooling (Opus 5.5, Ruling 67 + Test Architect conditions): L1 no Debug full Core run (+ check-debug-parity in check-docs, red on planted #if DEBUG / per-config csproj), L2 adapters reads a reduced Debug run emitting the same 325 THEME-* lines byte for byte (red without the prefix), L3 published Core in 3 parts with PARTITION kept, L4 concurrent readiness (green under load 16-75), L5/L6 Desktop ordering and splits; per-child FAIL TIMEOUT, readiness step limits and 240 s budget, scratch pruned on green. PASS multiset hash unchanged (1,162 lines d7ba74e68a688d06). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T16:59:44Z",
+      "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M43XXKPHG8X166E5WS031XE1",
+      "shortname": "join-ruling-69",
+      "datetime": "2026-10-04T17:03:24Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/rulings-oct04b into feature/ui-cad-direction",
+      "summary": "Ruling 69: the guided setup mockup approved; Windows default an app-owned WSL Linux, SU2 native as an option; smoke test by Courant number + files + Disallowing + build id; quarantine flag untouched; one verb without an AI key; command under Technical details; reopen after a Windows restart. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:02:31Z",
+      "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M43Z360FVKT5VVGESTWCX3VV",
+      "shortname": "join-m12c-uxr",
+      "datetime": "2026-10-04T17:23:56Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12c-uxr into feature/ui-cad-direction",
+      "summary": "UXR (Opus 5.5): all EDT/PNL deviations fixed (stale Checking box, reason box top-right, COPY-187 via one composer with 0.0001 mm precision, 24 px mode bar, tokens, chip, accents, probe plate, axis labels, comb plate, outline thumbnails); comb teeth point outward (marine-CAD soft veto cleared, red first); DESIGN.md tokens + COPY-172..189; readiness rows (step apply 55.7 ms at load 28 vs 5 ms assume - measured not gated); docs/reviews/m12c-native.md with the operator checklist; app packaged. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:22:59Z",
+      "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M43Z76WRFVNTRJD9BF2V6VKS",
+      "shortname": "join-security-apply",
+      "datetime": "2026-10-04T17:26:08Z",
+      "session": "f19a2b12",
+      "prompt": "the join of docs/security-apply into feature/ui-cad-direction",
+      "summary": "Ruling 68 applied (Sonnet 5.5): ADR-0012 D2 six short rules, Run enabled when the install smoke test shows Disallowing, only S-1 + S-2 serial kept, DR-SEC-1 A; spec 1.7.1 (AM-1.7.1-1..4); round-3 plan and the note updated; spec HTML re-rendered and checked. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:25:10Z",
+      "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M43ZZY2P7D98Z0BVQZEH7611",
+      "shortname": "join-spec-1.7.2",
+      "datetime": "2026-10-04T17:39:38Z",
+      "session": "f19a2b12",
+      "prompt": "the join of docs/spec-1.7.2 into feature/ui-cad-direction",
+      "summary": "Spec 1.7.2 (owner approval Ruling 70): 29 amendments + flow F7a + stories SETUP-01..09; smoke test by Courant; Windows default an app-owned WSL Linux; one verb without a key; Shift-Cmd-A; macOS arm64 only; design §11.4 fixed. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:38:45Z",
+      "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M44051PVWJER4G95BZGTB4SQ",
+      "shortname": "join-a3a-pre",
+      "datetime": "2026-10-04T17:42:25Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/a3a-pre into feature/ui-cad-direction",
+      "summary": "PRE (Opus 5.5, 16 of 60 min): ADR-0011 analysis run storage Accepted (cfdw-project-2 only when a run exists, .v1.bak, invariants, content hash, reachability retention); CfdWorkbench.Analysis skeleton; Core RunRecord shape; Placement.SectionSample + throwing Sections(..., CancellationToken); Analysis harness with PASS/COST; architecture check on the built assembly (red on planted ProfileAt and BeginSectionDraft); --analysis Desktop mode; check-named-tests --track-section/--named-sections (self-test 9/9). PlacedSection.Assignment now stores the station index (red first; surface-bit pin moved for the 3 shared-profile fixtures only, integer not coordinates). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:41:27Z",
+      "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M440GVYCHTCMFMR4B4N4BY6R",
+      "shortname": "join-budget-retry",
+      "datetime": "2026-10-04T17:48:53Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/join-budget-retry into feature/ui-cad-direction",
+      "summary": "join-when-quiet.sh: when the last wall line is over budget and the run's end load > 15, wait for quiet and continue once; a quiet overrun or a second overrun stands. Four load-only overruns today. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:47:57Z",
       "duration_seconds": 56.0
     }
   ],
@@ -24089,6 +24319,33 @@ window.AUDIT_DATA = {
         "before": "4fa5a3f146183cf25e947aa341d210c95a0ea691",
         "after": "4fa5a3f146183cf25e947aa341d210c95a0ea691",
         "branch": "design/planform-point-verbs",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M43W3GZYM2BVC75DG3DKPKAM",
+      "datetime": "2026-10-04T16:31:41Z",
+      "session": "f19a2b12",
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "Guided solver setup: UX amendment proposal, design slice, mockup, DR-SETUP-1..6",
+      "prompt": "Read your brief at briefs/guided-install.md and execute it (guided, on-rails OpenFOAM/SU2 install; documents only)",
+      "summary": "Guided solver setup, documents only (Ruling 67 (b); Opus 5.5). Spec amendment proposal (flow F7a, SETUP-01..09, AM-SET-1..6: rails without a key, assistant explains and suggests one allowed step id, smoke scalar = final-time Courant mean because a cavity has no Cl, \"Set up a solver\", command under Technical details); design (Route catalogue + Host survey / Environment step / Install acceptance facts, current step and Ready derived so resume is a re-derivation; macOS OpenFOAM.app 6 steps with Verified pins: zip 22ffc888, inner image 5eb2ab10, etc/openfoam fa900c4e, volume a1d4e57b; Windows WSL app-owned distro 8 steps: Ubuntu 24.04.5 bb415d82, openfoam2512 2512.0-2 c59e65ff, key DC93C096; SU2 win64-omp 4466fe21; 25 cause codes, 14 Windows eval cases Flagged; telemetry; test plan; tracks T1-T5); mockup solver-setup.html (Windows 11 states, macOS 7, assistant modes) with browser check green and 22 captures. Findings: the Homebrew cask strips quarantine (an M8-refused step), so the product never installs through Homebrew; the pinned DMG is the image inside the app bundle. DR-SETUP-1..6 open (rec: WSL default, Courant scalar, no quarantine add/remove, one verb, command in details, RunOnce). All Windows behaviour Inferred.",
+      "rationale": "Ruling 67 (b): an on-rails install so the operator does no tech support; security sized by the right-size note",
+      "artifacts": [
+        "docs/specs/amendments/guided-solver-setup.md",
+        "docs/design/guided-solver-setup.md",
+        "docs/mockups/solver-setup.html"
+      ],
+      "tags": [
+        "ruling-67",
+        "setup"
+      ],
+      "git": {
+        "before": "a46020f",
+        "after": "a46020f909a13c5b9d8920f6544c25ee7a15a14f",
+        "branch": "design/guided-install",
         "pushed": null,
         "commits": []
       }

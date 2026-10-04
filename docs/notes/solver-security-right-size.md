@@ -2,7 +2,7 @@
 id: note-solver-security-right-size
 title: "Solver security, right-sized: one trusted user on one laptop, cases the app writes"
 type: decision-note
-status: proposed
+status: applied (Ruling 68)
 owner: "@timianmalloo"
 tags: [security, openfoam, launcher, threat-model, right-size, install, adr-0012, ruling-67]
 links:
@@ -22,9 +22,11 @@ summary: >-
   caps with a kill fallback; the install, new or existing, is checked against the pinned hashes. Today's probe run
   (3 PASS / 5 FAIL) verifies the one control that matters. The 5 FAILs are 3 probe over-expectations, 1 probe defect
   (S-7 never reached the environment) and 1 lint gap. None is a failure of the refusal. Security review: PASS WITH
-  CONDITIONS; simplifier: soft BLOCK cleared. All conditions are applied. The ADR and spec edits are proposals; they
-  are not applied. DR-SEC-1 (detect an existing install or always install) is open.
-review-suggested: []
+  CONDITIONS; simplifier: soft BLOCK cleared. All conditions are applied. Applied by Ruling 68 (2026-10-04): ADR-0012 D2,
+  spec 1.7.1 A8.5 and A5.10, and the round-3 plan. DR-SEC-1 was ruled A (detect an existing install).
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-04, reason: "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized" }
+  - { by: adr-0012-openfoam-backend-macos, on: 2026-10-04, reason: "ADR-0012 D2 right-sized and DR-SEC-1 A recorded (Ruling 68)" }
 ---
 
 # Solver security, right-sized
@@ -34,7 +36,8 @@ review-suggested: []
 both halves (S-1 runs code under the app default; S-2, S-4 and S-5 show it refused under the product controlDict).
 The rest of ADR-0012 D2 defends against an attacker who is not in this threat model. Most of it can go.
 
-Nothing here is applied. The ADR-0012 D2 and spec edits in §7, and DR-SEC-1 in §8, wait for the operator.
+**Applied by Ruling 68 (2026-10-04):** the §7 edits are in ADR-0012 D2, spec 1.7.1 and the round-3 plan, and DR-SEC-1 is
+ruled A. The sections below are the record of what was proposed.
 
 ## 1. The threat model (Ruling 67)
 
@@ -196,7 +199,7 @@ notices with its GPL header.
 | S-7 | **Drop** as a live probe; it never ran (probe defect). The M6 unit test replaces it |
 | S-8 | **Drop** as a probe. The lint becomes the oracle of the M4 emitter test. The emitter emits no `#`, so the keyword-after-directive gap cannot matter and needs no fix |
 
-## 7. Proposed edits (for the operator's approval; not applied)
+## 7. Proposed edits (applied — Ruling 68)
 
 ### 7.1 ADR-0012 D2 — the product launcher
 
@@ -307,7 +310,7 @@ with?
 - **B.** Always install the pinned build, in its own place.
 
 Recommendation: **A**. It is one extra branch, and it avoids a second OpenFOAM on a machine that has one. Only one
-path gets built.
+path gets built. **Ruled A (Ruling 68).**
 
 ## 9. Residual risk (after right-sizing)
 
