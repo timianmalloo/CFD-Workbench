@@ -70,6 +70,20 @@
                               DangerBrush="{DynamicResource PlanDangerBrush}"
                               WarningBrush="{DynamicResource PlanWarningBrush}"
                               SoftBrush="{DynamicResource PlanSoftBrush}" />
+            <Border x:Name="AddPointPanel" IsVisible="False" HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="{StaticResource Space4}" Padding="{StaticResource Space2}"
+                    Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
+              <StackPanel Spacing="4">
+                <TextBlock Text="Add point · from root" />
+                <TextBox x:Name="AddPointTextBox" MinWidth="{StaticResource PropValueMinWidth}" Watermark="mm"
+                         AutomationProperties.Name="From root in millimetres" />
+                <TextBlock x:Name="AddPointError" IsVisible="False" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                  <Button x:Name="AddPointCancelButton" Content="Cancel" />
+                  <Button x:Name="AddPointApplyButton" Content="Add point" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
             <Border x:Name="PlanRenderErrorBand" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
                     BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
                     Padding="{StaticResource Space2}" HorizontalAlignment="Right" VerticalAlignment="Top">

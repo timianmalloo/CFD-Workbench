@@ -853,6 +853,9 @@ public sealed class ShellHost : Grid
             case "point.make-anchor":
                 await RunPoint(point => new PointCommand.MakeAnchor(point.Curve, point.Id));
                 return;
+            case "point.add":
+                if (SelectedPoint() is { } addPoint) ModelView.BeginAddPoint(addPoint, ModelView.PlanCanvas);
+                return;
             case "point.remove":
                 await RunPoint(point => new PointCommand.RemovePoint(point.Curve, point.Id));
                 return;

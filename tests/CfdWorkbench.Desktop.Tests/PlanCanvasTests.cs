@@ -19,6 +19,31 @@ public static class PlanCanvasTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("EditMenu_AddPoint_TypedPositionAddsSelectsNew", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var selected = fixture.Controller.Planform!.Trailing.Points[1];
+            fixture.Canvas.SelectPoint(new PointRef(selected.Curve, selected.Id), false, false);
+            fixture.Host.RunCommand("point.add").GetAwaiter().GetResult();
+            fixture.Settle();
+            dynamic area = fixture.Host.ModelView;
+            if (!area.AddPointInput.IsVisible) throw new Exception("Add position field did not open");
+            area.AddPointInput.Text = "250";
+            Task applied = area.ApplyAddPointAsync();
+            for (int attempt = 0; attempt < 400 && !applied.IsCompleted; attempt++)
+            {
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                Thread.Sleep(5);
+            }
+            applied.GetAwaiter().GetResult();
+            fixture.WaitGesture();
+            if (fixture.Controller.Planform!.Trailing.Points.Count != 5 ||
+                fixture.Controller.Selection is not Selection.Points { Items.Count: 1 } points ||
+                fixture.Controller.Planform.Trailing.Points.All(point => point.Id != points.Items[0].VertexId ||
+                    Math.Abs(point.SpanMeters - 0.25) > 0.001))
+                throw new Exception("Typed position did not add and select the new point");
+        });
+
         DesktopChecks.Check("EditMenu_PointVerbs_EnabledStateAndReasonPerSelection", () =>
         {
             using var fixture = new PlanFixture(newFoil: true);
