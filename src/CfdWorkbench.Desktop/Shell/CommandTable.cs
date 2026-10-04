@@ -73,6 +73,9 @@ public static class CommandTable
         new("edit.copy", "Copy", "Edit", "⌘C", true, NoOp),
         new("edit.paste", "Paste", "Edit", "⌘V", true, NoOp),
         new("edit.select-all", "Select All", "Edit", "⌘A", true, NoOp),
+        new("point.add", "Add point…", "Edit", null, false, NoOp),
+        new("point.remove", "Remove point", "Edit", "⌫", false, NoOp),
+        new("point.rebuild", "Rebuild curve…", "Edit", null, false, NoOp),
 
         // View
         new("view.toggle-left", "Left side bar", "View", "⌘B", false, NoOp),
@@ -152,7 +155,8 @@ public static class CommandTable
         Rows.Where(r => string.Equals(r.Menu, menuName, StringComparison.OrdinalIgnoreCase)).ToList();
 
     public static IReadOnlyList<CommandRow> Bindings(IReadOnlySet<string>? exportedGestures = null) =>
-        Rows.Where(r => !string.IsNullOrEmpty(r.Gesture) && (exportedGestures == null || !exportedGestures.Contains(r.Gesture))).ToList();
+        Rows.Where(r => r.Id != "point.remove" && !string.IsNullOrEmpty(r.Gesture) &&
+            (exportedGestures == null || !exportedGestures.Contains(r.Gesture))).ToList();
 }
 
 /// <summary>

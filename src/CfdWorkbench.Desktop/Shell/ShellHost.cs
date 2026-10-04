@@ -135,6 +135,7 @@ public sealed class ShellHost : Grid
         Properties.Reported += Report;
         Points.Reported += Report;
         Properties.EditSectionRequested += () => _ = EnterSectionAsync(EntryOrigin.Properties);
+        Properties.RebuildRequested += curve => ModelView.BeginRebuild(curve, ModelView.PlanCanvas);
         Properties.SectionStepRequested += ApplySectionStepAsync;
         ModelView.PlanCanvas.Controller = controller;
         // DR-NAV-1: Tab from a selected Plan point lands on the Properties pane's first value.
@@ -817,6 +818,7 @@ public sealed class ShellHost : Grid
             return Controller.Inspection is not null;
         if (ViewCommands.Handles(id)) return ViewCommands.CanRun(id, Controller);
         if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
+        if (id is "point.add" or "point.remove" or "point.rebuild") return PointCommandReason(id) is null;
         var point = SelectedPoint();
         if (point is null) return false;
         return id switch
@@ -826,6 +828,40 @@ public sealed class ShellHost : Grid
             "point.tangent-smooth" or "point.tangent-symmetric" or "point.tangent-corner" =>
                 point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd,
             _ => false
+        };
+    }
+
+    /// <summary>The visible reason for a point verb's disabled Edit or context-menu row.</summary>
+    public string? PointCommandReason(string id)
+    {
+        if (Controller.Inspection is null || Controller.Section is not null)
+            return "Open a certified foil in the views to edit points.";
+        if (Controller.Gesture != GestureState.Idle)
+            return "Finish the current change first.";
+        if (Controller.Selection is not Selection.Points { Items: var items } || items.Count == 0)
+            return "Select a point on the curve first.";
+        if (id == "point.remove" && items.Count != 1)
+            return "Remove points one at a time, so each change is measured.";
+        if (items.Count != 1) return "Select one curve point first.";
+        var point = SelectedPoint();
+        if (point is null || Controller.CurveFor(point.Curve) is not { } curve)
+            return "Select a point on the curve first.";
+        // Add's only limit is Core's verb ceiling (16, §3.6; CurveView.Ceiling is the file version's, 10 under 4.0):
+        // Core refuses past it with COPY-196, which the strip shows (Controller_RefusalCopy_UsesCoreReasonNotCode).
+        if (id == "point.add") return null;
+        if (id == "point.rebuild") return null;
+        if (id != "point.remove") return "Unknown point command.";
+        if (curve.Points.Count <= 4) return "A curve needs at least 4 points.";
+        return point.Role switch
+        {
+            PointRole.RootEnd => "The root end can't be removed: the curve starts there.",
+            PointRole.TipEnd => "The tip end can't be removed: the curve ends there.",
+            PointRole.RootHandle => "This handle sets the curve's direction at the root. Move it, or rebuild the curve with fewer points.",
+            PointRole.TipHandle => "This handle sets the curve's direction at the tip. Move it, or rebuild the curve with fewer points.",
+            PointRole.Anchor => $"Point {point.Index + 1} is an anchor. Make it a control point first, then remove it.",
+            PointRole.AnchorHandle => $"Point {point.Index + 1} is a handle of the anchor at point {curve.Points.First(item => item.Id == point.AnchorId).Index + 1}. Make that anchor a control point first.",
+            _ => point.Locks.FirstOrDefault(item => item != "root_mirror") is { } named
+                ? $"Point {point.Index + 1} is locked ({named})." : null
         };
     }
 
@@ -860,6 +896,16 @@ public sealed class ShellHost : Grid
                 return;
             case "point.make-anchor":
                 await RunPoint(point => new PointCommand.MakeAnchor(point.Curve, point.Id));
+                return;
+            case "point.add":
+                if (SelectedPoint() is { } addPoint) ModelView.BeginAddPoint(addPoint, ModelView.PlanCanvas);
+                return;
+            case "point.remove":
+                await RunPoint(point => new PointCommand.RemovePoint(point.Curve, point.Id));
+                return;
+            case "point.rebuild":
+                if (SelectedPoint() is { } rebuildPoint)
+                    ModelView.BeginRebuild(rebuildPoint.Curve, ModelView.PlanCanvas);
                 return;
             case "point.make-control":
                 await RunPoint(point => new PointCommand.MakeControl(point.Curve, point.Id));

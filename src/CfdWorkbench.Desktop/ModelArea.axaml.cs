@@ -9,6 +9,7 @@ using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Panes;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Persistence;
+using System.Globalization;
 
 namespace CfdWorkbench.Desktop;
 
@@ -24,12 +25,30 @@ public partial class ModelArea : UserControl
 
     private WorkbenchController? controller;
     private bool foilOpen;
+    private string? addCurve;
+    private Control? addFocusReturn;
 
     public ModelAreaMode Mode { get; private set; } = ModelAreaMode.Views;
 
     public ModelArea()
     {
         InitializeComponent();
+        AddPointApplyButton.Click += async (_, _) => await ApplyAddPointAsync();
+        AddPointCancelButton.Click += (_, _) => CancelAddPoint();
+        AddPointTextBox.KeyDown += async (_, args) =>
+        {
+            if (args.Key is Key.Enter or Key.Return)
+            {
+                args.Handled = true;
+                await ApplyAddPointAsync();
+            }
+            else if (args.Key == Key.Escape)
+            {
+                args.Handled = true;
+                CancelAddPoint();
+            }
+        };
+        RebuildPopoverView.PreviewChanged += preview => PlanCanvas.RebuildPreview = preview;
         Gutter = ViewArrangementGrid.ColumnSpacing;
 
         DismissAlertBandButton.Click += (_, _) => AlertBand.IsVisible = false;
@@ -116,6 +135,78 @@ public partial class ModelArea : UserControl
 
     /// <summary>The controller this area draws; the shell hands it to the Plan canvas, and the area follows it.</summary>
     public WorkbenchController? Controller => controller;
+
+    public TextBox AddPointInput => AddPointTextBox;
+
+    public RebuildPopover RebuildPanel => RebuildPopoverView;
+
+    public void BeginRebuild(string curve, Control? focusReturn = null) =>
+        RebuildPopoverView.Open(controller ?? throw new InvalidOperationException("No foil is open."), curve, focusReturn ?? PlanCanvas);
+
+    public void BeginAddPoint(PointView selected, Control? focusReturn = null)
+    {
+        if (controller?.CurveFor(selected.Curve) is not { } curve) return;
+        addCurve = selected.Curve;
+        addFocusReturn = focusReturn ?? PlanCanvas;
+        AddPointTextBox.Text = Quantity.TypedLength(DefaultAddEta(curve, selected.Index) * controller.Planform!.HalfSpanMeters);
+        AddPointError.IsVisible = false;
+        AddPointPanel.IsVisible = true;
+        AddPointTextBox.Focus();
+        AddPointTextBox.SelectAll();
+    }
+
+    public async Task ApplyAddPointAsync()
+    {
+        if (controller is null || addCurve is null || controller.Planform is not { } plan) return;
+        var references = new Dictionary<string, double>(StringComparer.Ordinal)
+        {
+            ["span"] = 2 * plan.HalfSpanMeters,
+            ["root_chord"] = Planform.Probe(plan, 0).ChordMeters,
+            ["tip_chord"] = Planform.Probe(plan, 1).ChordMeters
+        };
+        if (!UnitEntry.TryParse(AddPointTextBox.Text, UnitFamily.Length, references, out var entry) ||
+            entry.Value < 0 || entry.Value > plan.HalfSpanMeters * 1000)
+        {
+            AddPointError.Text = "Enter a position from root to tip in millimetres.";
+            AddPointError.IsVisible = true;
+            AddPointTextBox.Focus();
+            return;
+        }
+        string curve = addCurve;
+        CancelAddPoint(restoreFocus: false);
+        var outcome = await controller.ApplyPointCommandAsync(new PointCommand.AddPoint(curve, entry.Value / (plan.HalfSpanMeters * 1000)));
+        if (outcome is CommitOutcome.Committed && controller.Selection is Selection.Points { Items: [var point] } &&
+            point.Curve is "leading" or "trailing") PlanCanvas.FocusPoint(point);
+        else addFocusReturn?.Focus();
+    }
+
+    private void CancelAddPoint(bool restoreFocus = true)
+    {
+        AddPointPanel.IsVisible = false;
+        addCurve = null;
+        AddPointError.IsVisible = false;
+        if (restoreFocus) addFocusReturn?.Focus();
+    }
+
+    private static double DefaultAddEta(CurveView curve, int index)
+    {
+        var knots = curve.Knots;
+        double greville = (knots[index + 1] + knots[index + 2] + knots[index + 3]) / 3;
+        int span = 3;
+        while (span + 1 < curve.Points.Count && knots[span + 1] <= greville) span++;
+        double t = (knots[span] + knots[span + 1]) / 2;
+        var values = new double[4];
+        for (int j = 0; j < 4; j++) values[j] = curve.Points[span - 3 + j].Eta;
+        for (int level = 1; level <= 3; level++)
+            for (int j = 3; j >= level; j--)
+            {
+                int at = span - 3 + j;
+                double length = knots[at + 4 - level] - knots[at];
+                double alpha = length == 0 ? 0 : (t - knots[at]) / length;
+                values[j] = (1 - alpha) * values[j - 1] + alpha * values[j];
+            }
+        return values[3];
+    }
 
     public void ShowFoilOpen(bool isOpen)
     {

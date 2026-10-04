@@ -8,6 +8,60 @@ public static class ControllerShellTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("StatusStrip_VerbReport_NotClobberedBySampling", () =>
+        {
+            using var controller = new WorkbenchController();
+            controller.NewFoilAsync().GetAwaiter().GetResult();
+            var result = controller.ApplyPointCommandAsync(new PointCommand.AddPoint("trailing", .45))
+                .GetAwaiter().GetResult() as CommitOutcome.Committed ?? throw new Exception("Add was refused");
+            if (controller.Status != result.Report) throw new Exception("Verb report was replaced before sampling finished: " + controller.Status);
+            var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
+            while (controller.Provenance != "accepted" && DateTime.UtcNow < deadline) Thread.Sleep(5);
+            if (controller.Provenance != "accepted" || controller.Status != result.Report)
+                throw new Exception("Verb report was replaced by sampling completion: " + controller.Status);
+        });
+        DesktopChecks.Check("Controller_RefusalCopy_UsesCoreReasonNotCode", () =>
+        {
+            using var controller = new WorkbenchController();
+            controller.NewFoilAsync().GetAwaiter().GetResult();
+            var point = controller.Planform!.Trailing.Points[1];
+            string source = controller.AcceptedSource;
+            var refused = controller.ApplyPointCommandAsync(new PointCommand.RemovePoint(point.Curve, point.Id))
+                .GetAwaiter().GetResult() as CommitOutcome.Refused
+                ?? throw new Exception("Removing a point from the four-point rail was not refused");
+            if (!refused.Copy.Contains("A curve needs at least 4 points.", StringComparison.Ordinal) ||
+                refused.Copy.Contains("DSL-CURVE", StringComparison.Ordinal) || controller.AcceptedSource != source)
+                throw new Exception($"Core reason was lost or source changed: {refused.Copy}");
+        });
+
+        DesktopChecks.Check("Strip_VerbReports_FormattedFromOutcomeWithUnit", () =>
+        {
+            using var controller = new WorkbenchController();
+            controller.NewFoilAsync().GetAwaiter().GetResult();
+            var added = controller.ApplyPointCommandAsync(new PointCommand.AddPoint("twist", 0.45))
+                .GetAwaiter().GetResult() as CommitOutcome.Committed ?? throw new Exception("Twist Add refused");
+            if (!added.Report.StartsWith("Added twist point ", StringComparison.Ordinal) ||
+                !added.Report.Contains("Shape unchanged: largest change ", StringComparison.Ordinal) ||
+                !added.Report.Contains(" °.", StringComparison.Ordinal))
+                throw new Exception("Add report lacks the outcome or degree unit: " + added.Report);
+            var selected = controller.Selection as Selection.Points ?? throw new Exception("Added point was not selected");
+            var removed = controller.ApplyPointCommandAsync(new PointCommand.RemovePoint("twist", selected.Items.Single().VertexId))
+                .GetAwaiter().GetResult() as CommitOutcome.Committed ?? throw new Exception("Twist Remove refused");
+            if (!removed.Report.StartsWith("Removed twist point ", StringComparison.Ordinal) ||
+                !removed.Report.Contains(" ° at ", StringComparison.Ordinal) ||
+                !removed.Report.EndsWith(" mm from root.", StringComparison.Ordinal))
+                throw new Exception("Remove report lacks the outcome, unit, or location: " + removed.Report);
+            controller.ApplyPointCommandAsync(new PointCommand.AddPoint("twist", 0.45)).GetAwaiter().GetResult();
+            var rebuilt = controller.ApplyPointCommandAsync(new PointCommand.RebuildCurve("twist", 4))
+                .GetAwaiter().GetResult() as CommitOutcome.Committed ?? throw new Exception("Twist Rebuild refused");
+            if (!rebuilt.Report.StartsWith("Rebuilt the twist with 4 points.", StringComparison.Ordinal) ||
+                !rebuilt.Report.Contains(" ° at ", StringComparison.Ordinal) ||
+                !rebuilt.Report.EndsWith(" mm from root. ⌘Z undoes it.", StringComparison.Ordinal))
+                throw new Exception("Rebuild report lacks the outcome, unit, or location: " + rebuilt.Report);
+            if (controller.Selection is Selection.Points)
+                throw new Exception("Rebuild retained the prior point selection");
+        });
+
         DesktopChecks.Check("StatusStrip_BackgroundCompletion_DoesNotReplaceNewerReport", () =>
         {
             // STATUS-CLOBBER at the strip (docs/reviews/ui-status-bar.md §2.3): a report the strip shows from outside the

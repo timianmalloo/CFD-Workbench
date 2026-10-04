@@ -728,6 +728,7 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `Rebuild_WithAnchors_AnchorsDroppedRowsRemoved` (PVC) · `Rebuild_PreviewEqualsApply_SameBytes` (PVC) ·
 `Rebuild_RailsWouldCross_RefusedNothingChanged` (PVC) · `Rebuild_TipTurn_MatchesDirectAngle` (PVC) ·
 `PreviewRebuilds_NoRowNoCertificate_BytesHistoryFreshnessUnchanged` (PVC; counts admission runs in the existing event ring; no new counter) ·
+`PreviewRebuild_AreaUsesWingEstimatesForCurrentAndCandidate` (PVU; fast Core, preview areas equal the shared estimate before and after Apply) ·
 `MaxChange_IncludesEveryKnotOfBothCurves` (PVC) · `CurvatureBreaks_SmoothAnchor_OneBreakSimpleKnotsNone` (PVC) ·
 `PlanformView_FourVertexCurve_SamplesIncludeEndsAndMinimumCount` (PVC) ·
 `Verbs_UndoRedo_EachVerbBytesRestoredAndReapplied` (PVC; cases include Rebuild with anchors and a 4.0 → 4.1 header raise) ·

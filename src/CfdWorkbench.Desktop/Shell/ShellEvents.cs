@@ -30,7 +30,8 @@ public sealed record ShellEvent(
     int? Stations = null,
     int? ChordSamples = null,
     string? CurveFamily = null,
-    bool? ThreeDVisible = null);
+    bool? ThreeDVisible = null,
+    int? PointsAfter = null);
 
 public static class ShellEvents
 {
@@ -76,7 +77,8 @@ public static class ShellEvents
         int? stations = null,
         int? chordSamples = null,
         string? curveFamily = null,
-        bool? threeDVisible = null)
+        bool? threeDVisible = null,
+        int? pointsAfter = null)
     {
         lock (sync)
         {
@@ -85,7 +87,7 @@ public static class ShellEvents
                 seq, name, outcome, durationMs, traceId, code, bytes, droppedCount, clampedCount,
                 trigger, pane, from, to, corner, exceptionType, publicationKnown, durabilityConfirmed, retried,
                 frames, updateP95Ms, estimatesP95Ms, renderP95Ms, commitMs, editKind, operationId,
-                basis, stations, chordSamples, curveFamily, threeDVisible));
+                basis, stations, chordSamples, curveFamily, threeDVisible, pointsAfter));
         }
     }
 

@@ -1,0 +1,14 @@
+Undo	enabled	Cmd+Z
+Redo	enabled	Shift+Cmd+Z
+Cut	enabled	Cmd+X
+Copy	enabled	Cmd+C
+Paste	enabled	Cmd+V
+Select All	enabled	Cmd+A
+Add point…	enabled	
+Remove point	enabled	
+Rebuild trailing edge…	enabled	
+Make anchor	enabled	
+Make control	disabled	
+Smooth tangent	disabled	
+Symmetric tangent	disabled	
+Corner tangent	disabled	
