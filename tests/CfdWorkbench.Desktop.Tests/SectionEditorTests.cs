@@ -338,6 +338,32 @@ public static class SectionEditorTests
             }
             fixture.Canvas.Fit();
         });
+        DesktopChecks.Check("SectionEditor_DoubleClickInserts_BackspaceDeletesNotNamed", () =>
+        {
+            fixture.Reset();
+            var mode = fixture.Controller.Section!;
+            var before = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points;
+            // A spot on the upper curve with no point within the 14 px hit radius.
+            var spot = Enumerable.Range(30, 41).Select(step => step / 100.0)
+                .Select(x => fixture.Canvas.ModelToScreen(x, Sections.Probe(mode.Draft.Bytes, 0, x).UpperY))
+                .First(at => before.All(point => Point.Distance(fixture.Local(point), at) > 16));
+            fixture.Release(fixture.Press(spot, 1), spot);
+            fixture.Release(fixture.Press(spot, 2), spot);
+            TryWaitUntil(() => fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points.Count == before.Count + 1);
+            if (fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points.Count != before.Count + 1)
+                throw new Exception($"Double-click did not insert: {before.Count} points, reason '{fixture.Text("ModeReason").Text}', steps {fixture.Controller.Section!.Draft.Cursor}, status '{fixture.Controller.Status}', spot {spot}, selection {fixture.Controller.Selection}, sel {fixture.Canvas.SelectedVertex}");
+            var after = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points;
+            var inserted = after.First(point => before.All(old => old.Id != point.Id));
+            fixture.Select(after[0]);
+            fixture.Key(Key.Back);
+            Dispatcher.UIThread.RunJobs();
+            if (fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points.Count != after.Count ||
+                fixture.Text("ModeReason").Text != SectionCanvas.NoseNotDeleted || !fixture.View.FindControl<Border>("ModeReasonBox")!.IsEffectivelyVisible)
+                throw new Exception("⌫ on the nose was not refused with its reason: " + fixture.Text("ModeReason").Text);
+            fixture.Select(inserted);
+            fixture.Key(Key.Back);
+            WaitUntil(() => fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points.Count == before.Count);
+        });
         DesktopChecks.Check("SectionEditor_FinishWhileBlocked_FocusesReason", () =>
         {
             fixture.Reset();
@@ -395,6 +421,59 @@ public static class SectionEditorTests
                         if (Distance(pixels.At((int)at.X + dx, (int)at.Y + dy), danger) < 60) red++;
                 if (red < 12) throw new Exception($"No crossing marker rendered at the crossing: {red} danger pixels");
                 shell.Controller.CancelSection();
+            });
+            DesktopChecks.Check("SectionEditor_EnterFromSideDoubleClick_ModeShown", () =>
+            {
+                shell.Leave();
+                var root = shell.Side.SideSections().First(item => item.Index == 0);
+                var spot = root.Outline.Skip(root.Outline.Length / 4).First(at => shell.Side.SectionsAt(at) is [{ Index: 0 }]);
+                shell.Click(shell.Side, spot, 1);
+                shell.Click(shell.Side, spot, 2);
+                WaitUntil(() => { shell.Settle(); return shell.Controller.Section is not null; });
+                var canvas = shell.Canvas;
+                var nose = shell.Controller.SectionCurve(SurfaceSide.Upper)?.Points[0];
+                if (shell.Controller.Section?.Draft.Assignment != 0 || shell.Host.ModelView.Mode != ModelAreaMode.Section)
+                    throw new Exception("Double-click on the Root section in Side did not open the section editor: " + $"status '{shell.Controller.Status}', selection {shell.Controller.Selection}, spot {spot}, at {string.Join(";", shell.Side.SectionsAt(spot))}, gesture {shell.Controller.Gesture}");
+                if (!canvas.IsFocused || canvas.SelectedVertex != ("upper", nose!.Id) || shell.Host.ModelView.PlanCanvas.IsEffectivelyVisible)
+                    throw new Exception($"Mode shown without focus on the first point (focused {canvas.IsFocused}, {canvas.SelectedVertex}) or with the Plan visible");
+                using var pixels = PropertiesCellsTests.Render(shell.Window, 1);
+                var foil = shell.Colour("FoilBrush");
+                var sample = canvas.Profile!.UpperCurve[canvas.Profile.UpperCurve.Count / 2];
+                var at = canvas.TranslatePoint(canvas.ModelToScreen(sample.X, sample.Y), shell.Window)!.Value;
+                if (!Near(pixels, at, 1, foil)) throw new Exception("No curve pixels at the projected upper curve");
+            });
+            // The Side view names a section by its station, not its profile: the Example's Root and Tip share one profile.
+            DesktopChecks.Check("SectionEditor_SideDoubleClickOnTip_OpensTip", () =>
+            {
+                shell.Leave();
+                int tip = shell.Controller.Inspection!.Authored.Assignments.Count - 1;
+                var listed = shell.Side.SideSections().Select(item => item.Index).ToArray();
+                if (!listed.Contains(tip) || listed.Distinct().Count() != listed.Length)
+                    throw new Exception("The Side view does not list each station once: " + string.Join(", ", listed));
+                var outline = shell.Side.SideSections().First(item => item.Index == tip).Outline;
+                // The Example's Root and Tip overlap in Side: a spot where the Tip is the nearest, so the first click picks it.
+                var spot = outline.First(at => shell.Side.SectionsAt(at) is [var nearest, ..] && nearest.Index == tip);
+                shell.Click(shell.Side, spot, 1);
+                shell.Click(shell.Side, spot, 2);
+                WaitUntil(() => { shell.Settle(); return shell.Controller.Section is not null; });
+                if (shell.Controller.Section!.Draft.Assignment != tip || shell.View.FindControl<TextBlock>("ModeTitle")!.Text != "Editing Tip section")
+                    throw new Exception($"Double-click on the Tip opened station {shell.Controller.Section.Draft.Assignment} ('{shell.View.FindControl<TextBlock>("ModeTitle")!.Text}')");
+            });
+            DesktopChecks.Check("SectionEditor_SideOverlap_ClickCyclesSections", () =>
+            {
+                shell.Leave();
+                var spot = shell.Side.SideSections().SelectMany(item => item.Outline)
+                    .FirstOrDefault(at => shell.Side.SectionsAt(at).Count >= 2);
+                var candidates = shell.Side.SectionsAt(spot);
+                if (candidates.Count < 2) throw new Exception("The Side view has no spot where two sections overlap: " + string.Join(" ", shell.Side.SideSections().Select(item => $"{item.Index}:{item.Outline.Length}:{item.Outline.First()}-{item.Outline.Max(p => p.X):F0}")));
+                var picked = new List<int>();
+                for (int click = 0; click < 3; click++)
+                {
+                    shell.Click(shell.Side, spot, 1);
+                    picked.Add(shell.Controller.Selection is Selection.Station station ? station.Index : -1);
+                }
+                if (picked[0] != candidates[0].Index || picked[1] != candidates[1].Index || picked[2] != (candidates.Count == 2 ? picked[0] : candidates[2].Index))
+                    throw new Exception("Clicks at one spot did not cycle the overlapping sections: " + string.Join(", ", picked));
             });
         }
 
@@ -460,6 +539,17 @@ public static class SectionEditorTests
             Thread.Yield();
         }
         throw new TimeoutException("Section editor state did not settle");
+    }
+
+    private static bool TryWaitUntil(Func<bool> condition)
+    {
+        for (int i = 0; i < 2000; i++)
+        {
+            if (condition()) return true;
+            Dispatcher.UIThread.RunJobs();
+            Thread.Yield();
+        }
+        return false;
     }
 
     private sealed class Fixture : IDisposable
@@ -609,6 +699,26 @@ public static class SectionEditorTests
             var crossing = CrossSection(Controller);
             Settle();
             return crossing;
+        }
+
+        internal void Leave()
+        {
+            if (Controller.Section is not null) Controller.CancelSection();
+            Controller.Select(new Selection.Foil());
+            Settle();
+            WaitUntil(() => { Settle(); return Controller.Surface is not null && !Controller.SurfaceUpdating && Side.Camera is not null; });
+        }
+
+        // A left click with its click count (the trailing clickCount argument; the timestamp is not the count).
+        internal void Click(Control target, Point local, int clicks)
+        {
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var at = target.TranslatePoint(local, Window)!.Value;
+            target.RaiseEvent(new PointerPressedEventArgs(target, pointer, Window, at, 1,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None, clicks));
+            target.RaiseEvent(new PointerReleasedEventArgs(target, pointer, Window, at, 2,
+                new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+            Settle();
         }
 
         internal void Key(Control target, Key key)

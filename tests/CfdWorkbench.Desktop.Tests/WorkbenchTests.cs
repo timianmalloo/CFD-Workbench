@@ -390,7 +390,7 @@ Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
     "--properties-view --part=1/2", "--properties-view --part=2/2", "--status-strip --part=1/2", "--status-strip --part=2/2",
     "--shell-window --part=1/2", "--shell-window --part=2/2", "--plan-canvas --part=1/2", "--plan-canvas --part=2/2",
     "--views --part=1/2", "--views --part=2/2", "--properties-cells", "--controller-shell",
-    "--shell-model", "--section-editor"));
+    "--shell-model", "--section-editor --part=1/2", "--section-editor --part=2/2"));
 
 sealed class UncertainStore : IProjectStore
 {

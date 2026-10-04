@@ -405,10 +405,14 @@ public sealed class ElevationView : Control
     {
         if (IsFront || controller?.Surface is not { } surface || controller.Planform is not { } plan || Camera is not { } camera) return [];
         var result = new List<(int, double, string, Point[])>();
+        // PlacedSection.Assignment is the station's profile index (Placement.PlaceStation), so Root and Tip sharing one
+        // profile both read 0; the station is the one at the section's exact η, as View3d picks it (ADR-0009 §4).
         foreach (var section in surface.Sections.Where(section => section.Assignment is not null))
         {
-            int index = section.Assignment!.Value;
-            if (index < 0 || index >= plan.Stations.Count) continue;
+            int index = -1;
+            for (int station = 0; station < plan.Stations.Count; station++)
+                if (plan.Stations[station].Eta == section.Eta) { index = station; break; }
+            if (index < 0) continue;
             var outline = section.Upper.Concat(section.Lower.Reverse()).Select(point => camera.Project(point, BandRect.Size)).ToArray();
             result.Add((index, section.Eta, StationName(index, section.Eta), outline));
         }
@@ -432,7 +436,7 @@ public sealed class ElevationView : Control
             for (int k = 1; k < outline.Length; k++) best = Math.Min(best, SegmentDistance(position, outline[k - 1], outline[k]));
             if (best <= 8) near.Add((best, (index, eta, name)));
         }
-        // SideSections can list one station more than once (observed on the Example's Root), so candidates are per station.
+        // Candidates are per station (a station η that recurs in the mesh lists one candidate).
         return near.OrderBy(item => item.Distance).Select(item => item.Section).DistinctBy(item => item.Item1).ToArray();
     }
 
