@@ -1219,8 +1219,12 @@ public sealed class WorkbenchController : IDisposable
                 SelectPoint = result.SelectId is { Length: > 0 } ? new PointRef(command.Curve, result.SelectId) : null,
                 ClearPointSelection = command is PointCommand.RebuildCurve
             };
-        }, warningOnRefusal: command is PointCommand.AddPoint or PointCommand.RemovePoint or PointCommand.RebuildCurve);
+        }, warningOnRefusal: command is PointCommand.AddPoint or PointCommand.RemovePoint or PointCommand.RebuildCurve,
+            preserveStatusAfterCommit: command is PointCommand.AddPoint or PointCommand.RemovePoint or PointCommand.RebuildCurve);
     }
+
+    /// <summary>Read-only seven-count preview from the accepted source; one Core event measures the open.</summary>
+    public IReadOnlyList<RebuildPreview> PreviewRebuilds(string curve) => session.PreviewRebuilds(curve);
 
     public Task<CommitOutcome> ApplyChordAsync(string dimension, string text) => RunDirectCommandAsync(() =>
     {
@@ -1241,7 +1245,14 @@ public sealed class WorkbenchController : IDisposable
         Notify();
     }
 
-    private Task<CommitOutcome> RunDirectCommandAsync(Func<CommitOutcome> action, bool warningOnRefusal = false)
+    public void ReportPointInfo(string copy)
+    {
+        SetStatus(copy, ReportKind.Info);
+        Notify();
+    }
+
+    private Task<CommitOutcome> RunDirectCommandAsync(Func<CommitOutcome> action, bool warningOnRefusal = false,
+        bool preserveStatusAfterCommit = false)
     {
         if (Gesture != GestureState.Idle || draft is not null)
             return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-DRAFT-OWNED", "Finish the current change first."));
@@ -1249,13 +1260,13 @@ public sealed class WorkbenchController : IDisposable
             return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-NOT-ASSESSED", "This foil couldn't be checked. Nothing changed."));
         Gesture = GestureState.Busy;
         Notify();
-        var completion = CompleteDirectCommandAsync(action, session, stateVersion, warningOnRefusal);
+        var completion = CompleteDirectCommandAsync(action, session, stateVersion, warningOnRefusal, preserveStatusAfterCommit);
         pendingDirectCommand = completion;
         return completion;
     }
 
     private async Task<CommitOutcome> CompleteDirectCommandAsync(Func<CommitOutcome> action, AuthoringSession captured, long version,
-        bool warningOnRefusal)
+        bool warningOnRefusal, bool preserveStatusAfterCommit)
     {
         try
         {
@@ -1268,7 +1279,7 @@ public sealed class WorkbenchController : IDisposable
             if (committed.ClearPointSelection) queuedSelection = new Selection.Foil();
             else if (committed.SelectPoint is { } point) queuedSelection = new Selection.Points([point]);
             Notify();
-            _ = RefreshAcceptedAsync();
+            _ = RefreshAcceptedAsync(preserveStatus: preserveStatusAfterCommit);
             return outcome;
         }
         catch (ContractError error)
@@ -1921,7 +1932,7 @@ public sealed class WorkbenchController : IDisposable
         Notify();
     }
 
-    private async Task RefreshAcceptedAsync(CancellationToken cancellation = default)
+    private async Task RefreshAcceptedAsync(CancellationToken cancellation = default, bool preserveStatus = false)
     {
         CancelSampling();
         var inspected = session.InspectAccepted();
@@ -1933,7 +1944,8 @@ public sealed class WorkbenchController : IDisposable
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         activeSampling = linked;
         Provenance = draft is null ? "accepted — sampling" : "draft — accepted sampling";
-        long placeholder = statusSlot.Write($"{SectionDraftPrefix()}Sampling accepted geometry at η {eta:G3}…");
+        long placeholder = preserveStatus ? statusSlot.Version :
+            statusSlot.Write($"{SectionDraftPrefix()}Sampling accepted geometry at η {eta:G3}…");
         Notify();
         try
         {
@@ -1951,8 +1963,9 @@ public sealed class WorkbenchController : IDisposable
             Provenance = draft is null ? "accepted" : "draft — accepted geometry shown";
             // A message written since the placeholder (a lock refusal, an open's recovery notice, a report the strip shows)
             // is newer than this report; the compare and the write are one step on any thread (StatusSlot).
-            statusSlot.TryReplace(placeholder,
-                $"{SectionDraftPrefix()}Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.");
+            if (!preserveStatus)
+                statusSlot.TryReplace(placeholder,
+                    $"{SectionDraftPrefix()}Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.");
             Notify();
         }
         catch (OperationCanceledException) { }

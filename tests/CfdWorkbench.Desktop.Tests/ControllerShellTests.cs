@@ -8,6 +8,18 @@ public static class ControllerShellTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("StatusStrip_VerbReport_NotClobberedBySampling", () =>
+        {
+            using var controller = new WorkbenchController();
+            controller.NewFoilAsync().GetAwaiter().GetResult();
+            var result = controller.ApplyPointCommandAsync(new PointCommand.AddPoint("trailing", .45))
+                .GetAwaiter().GetResult() as CommitOutcome.Committed ?? throw new Exception("Add was refused");
+            if (controller.Status != result.Report) throw new Exception("Verb report was replaced before sampling finished: " + controller.Status);
+            var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
+            while (controller.Provenance != "accepted" && DateTime.UtcNow < deadline) Thread.Sleep(5);
+            if (controller.Provenance != "accepted" || controller.Status != result.Report)
+                throw new Exception("Verb report was replaced by sampling completion: " + controller.Status);
+        });
         DesktopChecks.Check("Controller_RefusalCopy_UsesCoreReasonNotCode", () =>
         {
             using var controller = new WorkbenchController();
