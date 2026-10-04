@@ -106,6 +106,7 @@ internal static class SectionLibraryTests
     {
         string temp = Path.GetTempPath();
         if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
+        if (temp.StartsWith("/var/", StringComparison.Ordinal)) temp = "/private" + temp;
         string root = Path.Combine(temp, "library-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         return root;
