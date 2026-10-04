@@ -1709,6 +1709,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "88d38d56fe7ac7a7830ed0c40b3dff04bd02f69039be426eeaa9edb185e39f4b"
     },
     {
+      "id": "note-backlog-2d-section-workbench",
+      "path": "docs/notes/backlog-2d-section-workbench.md",
+      "title": "Backlog: a 2D section workbench (simulate, iterate, optimise to a goal, save)",
+      "type": "decision-note",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "backlog",
+      "reviewBy": "2027-01-04",
+      "reviewSuggested": [],
+      "summary": "Operator request (2026-10-04, Ruling 72), parked for later: tune a foil section on its own in 2D - start from a section, simulate and analyse it, iterate by hand or optimise toward a goal state (e.g. lowest stall speed while keeping efficiency), then save the result as a section - so 2D section tuning is separate from 3D wing optimisation.",
+      "tags": [
+        "backlog",
+        "section",
+        "2d",
+        "analysis",
+        "optimisation",
+        "goal-state",
+        "my-sections"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-m12d-catalog",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a751c211ad65b84b206fabe0105424dfa8788ed278cc51c49e54e437f4ef869c"
+    },
+    {
       "id": "note-m1-scope-decision",
       "path": "docs/notes/m1-scope-decision.md",
       "title": "User decision — section editing in M1.1; on-screen timing removed as a gate; Windows deferred",
@@ -6217,7 +6254,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a764f60ca53f80c692ecb4025e5113f5002e6c2a288dfb5a496892089cde262c"
+      "sourceSha256": "2b746be8b377d177c38ccb82342c002fd901dd60a76b14defee27a07cf363d84"
     },
     {
       "id": "kb-hw-glossary",
@@ -11603,5 +11640,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "7543f73c2a64372832613239f7e8c4d4171f56a97adc378a853775543e714916"
+  "graphSha256": "55706ad85c64b3b3eea546a6ec5214497ea5c79b3c6be2ec7e95143b75066255"
 };
