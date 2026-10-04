@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T18:59:30Z",
+  "generated": "2026-10-04T19:05:59Z",
   "audit": [
     {
       "actor": null,
@@ -23608,6 +23608,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T18:58:35Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M444Y1X28NCQCRKFBP57JDTR",
+      "shortname": "join-a3a-sto",
+      "datetime": "2026-10-04T19:05:59Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/a3a-sto into feature/ui-cad-direction",
+      "summary": "STO (Opus 5.5, 28 of 75 min): RunRecord bodies (one run-key definition, JCS content/settings hash, CheckStore invariants), cfdw-project-2 reader/writer only when runs exist, .v1.bak before the first -2 publish, retention with tombstones (reachable = current + parents + redo, Data & Persistence ruling; C1 for future history features), RevisionOf, analysis events. STO 14/14, each mutant red; old build refuses COPY-130 file unchanged; C2: all nine committed old-build fixtures pinned under today's strict reader (red on a removed member). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T19:05:02Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
