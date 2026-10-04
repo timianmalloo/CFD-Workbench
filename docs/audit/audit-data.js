@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T17:00:43Z",
+  "generated": "2026-10-04T17:03:24Z",
   "audit": [
     {
       "actor": null,
@@ -23383,6 +23383,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T16:59:44Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M43XXKPHG8X166E5WS031XE1",
+      "shortname": "join-ruling-69",
+      "datetime": "2026-10-04T17:03:24Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/rulings-oct04b into feature/ui-cad-direction",
+      "summary": "Ruling 69: the guided setup mockup approved; Windows default an app-owned WSL Linux, SU2 native as an option; smoke test by Courant number + files + Disallowing + build id; quarantine flag untouched; one verb without an AI key; command under Technical details; reopen after a Windows restart. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:02:31Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
