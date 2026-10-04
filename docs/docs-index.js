@@ -1792,6 +1792,52 @@ window.DOCS_INDEX = {
       "sourceSha256": "a766fb09771fddd849dfc0acfb62de6f97cfbd199c69acf62705c901d675ccdc"
     },
     {
+      "id": "note-solver-security-right-size",
+      "path": "docs/notes/solver-security-right-size.md",
+      "title": "Solver security, right-sized: one trusted user on one laptop, cases the app writes",
+      "type": "decision-note",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Ruling 67 asked whether the solver security requirements are over-complicated. They are. The threat model is one trusted user on his own laptop, running cases the app writes from typed templates. Against that model, 4 of the 18 current requirements stay as they are, 8 get simpler and 6 are dropped. The minimal set (M1-M8) is: the app writes its own controlDict with allowSystemOperations 0; it stops any launch whose master-rank banner is not Disallowing; argv only, built from typed values; it runs only cases whose every file it emitted (one CI emitter test, with the existing lint as oracle); each run gets an exclusive app-owned run directory; a clean child environment; resource caps with a kill fallback; the install, new or existing, is checked against the pinned hashes. Today's probe run (3 PASS / 5 FAIL) verifies the one control that matters. The 5 FAILs are 3 probe over-expectations, 1 probe defect (S-7 never reached the environment) and 1 lint gap. None is a failure of the refusal. Security review: PASS WITH CONDITIONS; simplifier: soft BLOCK cleared. All conditions are applied. The ADR and spec edits are proposals; they are not applied. DR-SEC-1 (detect an existing install or always install) is open.",
+      "tags": [
+        "security",
+        "openfoam",
+        "launcher",
+        "threat-model",
+        "right-size",
+        "install",
+        "adr-0012",
+        "ruling-67"
+      ],
+      "links": [
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-fluids-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-spike-03-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9430c1b8fda2fa739c2c68cf48034262733f3458f725ebe6d70d7f3e610be5ea"
+    },
+    {
       "id": "note-sweep-replay-semantics",
       "path": "docs/notes/sweep-replay-semantics.md",
       "title": "Sweep playback selects an operating point, not physical time",
@@ -10775,5 +10821,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "351ad52ad65fd1400a8cba736de8e256ce3f16acf0b844933c6c91e46d5b9605"
+  "graphSha256": "f5337a06ee66eff23f0dcbe6a53da323f853f6b15da3c7ae0ab3d978add63a19"
 };

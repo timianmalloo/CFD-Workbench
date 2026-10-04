@@ -1,0 +1,25 @@
+[1] 
+[1] 
+[1] --> FOAM FATAL IO ERROR: (openfoam-2512)
+[1] Loading shared libraries using case-supplied code may have been disabled
+by default for security reasons.
+If you trust the code, you may enable this by adding
+
+    allowSystemOperations 1
+
+to the InfoSwitches setting in the system controlDict.
+The system controlDict is any of
+
+    ~/.OpenFOAM/2512/controlDict
+    ~/.OpenFOAM/controlDict
+    $WM_PROJECT_DIR/etc/controlDict
+
+[1] 
+[1] 
+[1] file: processor1/0/U/boundaryField/movingWall at line 27.
+[1] 
+[1]     From static void Foam::dynamicCode::checkSecurity(const char *, const dictionary &)
+[1]     in file db/dynamicLibrary/dynamicCode/dynamicCode.C at line 83.
+[1] 
+FOAM parallel run exiting
+[1] 

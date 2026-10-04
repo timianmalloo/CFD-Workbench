@@ -1,0 +1,51 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : icoFoam
+Date   : Oct 04 2026
+Time   : 08:57:13
+Host   : <HOST>
+PID    : 25292
+I/O    : uncollated
+Case   : <HOME>/projects/CFD-Workbench-spike-fluids-round2/runs/20261004T155708Z-security-probe/S-2-serial
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Using #codeStream at line 25 in file "system/controlDict"
+
+
+--> FOAM FATAL IO ERROR: (openfoam-2512)
+Loading shared libraries using case-supplied code may have been disabled
+by default for security reasons.
+If you trust the code, you may enable this by adding
+
+    allowSystemOperations 1
+
+to the InfoSwitches setting in the system controlDict.
+The system controlDict is any of
+
+    ~/.OpenFOAM/2512/controlDict
+    ~/.OpenFOAM/controlDict
+    $WM_PROJECT_DIR/etc/controlDict
+
+
+
+file: system/controlDict at line 17 to 23.
+
+    From static void Foam::dynamicCode::checkSecurity(const char *, const dictionary &)
+    in file db/dynamicLibrary/dynamicCode/dynamicCode.C at line 83.
+
+FOAM exiting
+

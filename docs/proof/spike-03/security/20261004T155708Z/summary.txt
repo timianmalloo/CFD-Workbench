@@ -1,0 +1,9 @@
+security probe 20261004T155708Z launcher=c5bdb37f6c56c64622242d76aaf39645bf61a52274078ef625b046590932b66b lint=3deab275778f4685fb8cd0e44277f244a5eb9faf1db3eb126b76ddfc46c4a6b7 record=6c52f3f29e4fae711390afa5c9637f43bbdf66874603374bc2d31a685903ab54 bundle=f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a6ef854
+S-1 PASS :: executes under the app default: banner=Allowing exit=0 dynamicCode=present
+S-2 FAIL :: serial banner=Disallowing exit=1 msg=1 dyn=absent; np2 exit=1 ranks_with_msg=1/2 dyn=absent
+S-3 FAIL :: exit=0 msg=1
+S-4 PASS :: still refused: exit=1 msg=1 dynamicCode=absent unregistered_lines=1
+S-5 FAIL :: pre-flight=Disallowing serial exit=1 msg=1 dyn=absent; np2 exit=1 ranks_with_msg=1/2 dyn=absent
+S-6 PASS :: load attempted (ungated path documented): lines naming the library=2
+S-7 FAIL :: pre-flight= exit=96 markers=0 () stop_file=absent
+S-8 FAIL :: lint exit=3 include=1 quoted_keyword=0 functionObjectLibs=1

@@ -1,0 +1,6 @@
+lint: REFUSED cfdw-manifest.json:0 missing: the case was not written by a product template
+lint: REFUSED system/controlDict:0 unlisted dictionary
+lint: REFUSED system/controlDict:2 directive '#include' (no '#' directive is allowed)
+lint: REFUSED system/controlDict:4 keyword 'functionObjectLibs' is refused
+lint: REFUSED system/controlDict:0 runTimeModifiable false is required (the OpenFOAM default is not relied on)
+lint: REFUSED files_listed=0 findings=5
