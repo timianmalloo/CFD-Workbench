@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T00:00:13Z",
+  "generated": "2026-10-04T00:33:19Z",
   "audit": [
     {
       "actor": null,
@@ -23072,6 +23072,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T23:59:21Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4258PHXJDYKFWB6ZFCKC7PC",
+      "shortname": "join-a3a-build-plan",
+      "datetime": "2026-10-04T00:33:19Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/a3a-build-plan into feature/ui-cad-direction",
+      "summary": "A3a plan (Opus 5.5, docs only): 12 tracks (PRE..AUX) with boxes from measured priors, seams S-A1..S-A9, 106 track-tagged names; trace table found 11 gaps, all resolved (RevisionOf, read WingEstimates not a second S_ref, water table 0-50 C, edit verbs refused in Analysis, Layers home, bottom panel, RunRecord in Core, COPY-206..239). OD-1..5 for the operator: toggle shortcut collides with workspaces (recommend Shift-Cmd-A); fast ring already over the design limits; attachment-point input to A3c; omit Checks tab and source picker; F-14 later. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T00:32:28Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
