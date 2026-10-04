@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T19:05:59Z",
+  "generated": "2026-10-04T21:42:53Z",
   "audit": [
     {
       "actor": null,
@@ -23633,6 +23633,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T19:05:02Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M44DXBJ1RYT2XVC3KQ6BC16N",
+      "shortname": "join-properties-blank",
+      "datetime": "2026-10-04T21:42:53Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/m12c-properties-blank into feature/ui-cad-direction",
+      "summary": "Blank Properties (Opus 5.5, /investigate): Rehost releases a pane from an off-screen presenter after a side bar is hidden and shown; red first x3; operator confirmed natively. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T21:40:07Z",
+      "duration_seconds": 166.0
     }
   ],
   "changes": [
