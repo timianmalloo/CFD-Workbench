@@ -1639,7 +1639,7 @@ public sealed class AuthoringSession : IDisposable
     // or a reader that asserts a prune time needs a TimeProvider seam here.
     readonly TimeProvider pruneClock = TimeProvider.System;
     /// <summary>Retention keeps this many runs per tier beyond the reachable ones (ADR-0011 §7).</summary>
-    internal const int RetainedOthersPerTier = 20;
+    public const int RetainedOthersPerTier = 20;
 
     /// <summary>
     /// Appends one run row (ADR-0011 §3, §8). The checks and the append are one step under the session lock: the row's
