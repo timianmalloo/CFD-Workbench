@@ -211,6 +211,7 @@ public sealed class WorkbenchController : IDisposable
     public event Action? SelectionChanged;
     public event Action? SectionChanged;
     public SectionMode? Section { get; private set; }
+    public (SurfaceSide Side, double ChordX, double DeviationMeters, double LimitMeters)? SectionRefitRefusal { get; private set; }
     public WingEstimates? Estimates { get; private set; }
     public PlanformView? Planform => Inspection is null ? null : CfdWorkbench.Core.Planform.View(
         draft?.Bytes ?? session.Snapshot().Source, draft is null ? "accepted" : "preview", draft?.Generation ?? 0);
@@ -615,6 +616,7 @@ public sealed class WorkbenchController : IDisposable
         var view = session.BeginSectionDraft(Guid.NewGuid().ToString("D"), assignment);
         draft = session.Snapshot().Draft;
         Section = new SectionMode(view, baseBytes, origin);
+        SectionRefitRefusal = null;
         interiorEta = Inspection.Authored.Assignments[assignment].Eta;
         var first = SectionCurve(SurfaceSide.Upper)!.Points[0];
         Select(new Selection.Points([new PointRef("upper", first.Id, view.Profile)]));
@@ -629,7 +631,22 @@ public sealed class WorkbenchController : IDisposable
     {
         if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
         CancelSectionAssessment();
-        var next = session.ApplySectionStep(mode.Draft.DraftId, mode.Draft.Generation, step);
+        SectionDraftView next;
+        try
+        {
+            next = session.ApplySectionStep(mode.Draft.DraftId, mode.Draft.Generation, step);
+            SectionRefitRefusal = null;
+        }
+        catch (ContractError error)
+        {
+            SectionRefitRefusal = error.Data["RefitMaximumChordX"] is double x &&
+                error.Data["RefitAffectedSide"] is SurfaceSide side &&
+                error.Data["RefitDeviationMeters"] is double deviation &&
+                error.Data["RefitLimitMeters"] is double limit ? (side, x, deviation, limit) : null;
+            Status = error.Message;
+            NotifySection();
+            throw;
+        }
         draft = session.Snapshot().Draft;
         Section = mode with { Draft = next, Assessment = null, FinishReason = "Checking…" };
         NotifySection();
@@ -639,6 +656,7 @@ public sealed class WorkbenchController : IDisposable
     public void UndoSectionStep()
     {
         if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
+        SectionRefitRefusal = null;
         CancelSectionAssessment();
         var next = session.UndoSectionStep(mode.Draft.DraftId);
         draft = session.Snapshot().Draft;
@@ -650,6 +668,7 @@ public sealed class WorkbenchController : IDisposable
     public void RedoSectionStep()
     {
         if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
+        SectionRefitRefusal = null;
         CancelSectionAssessment();
         var next = session.RedoSectionStep(mode.Draft.DraftId);
         draft = session.Snapshot().Draft;
@@ -721,6 +740,7 @@ public sealed class WorkbenchController : IDisposable
         CancelSectionAssessment();
         session.FinishSection(Guid.NewGuid().ToString("D"), mode.Assessment);
         Section = null;
+        SectionRefitRefusal = null;
         draft = null;
         Inspection = session.InspectAccepted();
         sectionViews.Clear();
@@ -736,6 +756,7 @@ public sealed class WorkbenchController : IDisposable
         CancelSectionAssessment();
         session.Cancel(mode.Draft.DraftId);
         Section = null;
+        SectionRefitRefusal = null;
         draft = null;
         Status = "Section cancelled. Accepted source and history are unchanged.";
         Select(new Selection.Station(mode.Draft.Assignment, Inspection!.Authored.Assignments[mode.Draft.Assignment].Eta));

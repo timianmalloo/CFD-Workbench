@@ -106,7 +106,7 @@ public sealed class CurvePointLayer(Func<double, double, Point> project, Func<Po
             context.DrawEllipse(selected ? background : foil, selected ? new Pen(station, 2) : null, centre, 5.5, 5.5);
             if (selected) context.DrawEllipse(station, null, centre, 2, 2);
         }
-        else if (point.Role is PointRole.RootEnd or PointRole.TipEnd)
+        else if (point.Role is PointRole.RootEnd or PointRole.TipEnd or PointRole.Nose or PointRole.TrailingEnd)
         {
             var diamond = new StreamGeometry();
             using (var path = diamond.Open())
