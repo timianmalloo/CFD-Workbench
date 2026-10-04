@@ -7,4 +7,5 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup><ProjectReference Include="../CfdWorkbench.Core/CfdWorkbench.Core.csproj" /></ItemGroup>
+  <ItemGroup><InternalsVisibleTo Include="CfdWorkbench.Analysis.Tests" /></ItemGroup>
 </Project>
