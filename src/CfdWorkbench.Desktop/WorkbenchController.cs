@@ -49,7 +49,11 @@ public abstract record GestureOutcome
 
 public abstract record CommitOutcome
 {
-    public sealed record Committed(string AcceptedId, string Report) : CommitOutcome;
+    public sealed record Committed(string AcceptedId, string Report) : CommitOutcome
+    {
+        public PointRef? SelectPoint { get; init; }
+        public bool ClearPointSelection { get; init; }
+    }
     public sealed record Refused(string Code, string Copy) : CommitOutcome;
 }
 
@@ -1184,14 +1188,39 @@ public sealed class WorkbenchController : IDisposable
         return sorted[(int)Math.Ceiling(sorted.Length * 0.95) - 1];
     }
 
-    public Task<CommitOutcome> ApplyPointCommandAsync(PointCommand command) => RunDirectCommandAsync(() =>
+    public Task<CommitOutcome> ApplyPointCommandAsync(PointCommand command)
     {
-        var result = session.ApplyPointCommand(Guid.NewGuid().ToString("D"), command);
-        // The deviation is in the curve's own SI unit (m, degrees, chord fraction); it is reported in its display unit.
-        var rows = PropertiesView.Curves[command.Curve];
-        string deviation = Quantity.WithUnit(Quantity.Typed(result.MaxDeviationMeters * PropertiesView.FieldScale[rows.ValueFamily]), rows.ValueUnit);
-        return new CommitOutcome.Committed(result.AcceptedId, $"Point change applied. Max deviation {deviation}.");
-    });
+        int removedNumber = command is PointCommand.RemovePoint remove
+            ? CurveFor(command.Curve)?.Points.FirstOrDefault(point => point.Id == remove.VertexId)?.Index + 1 ?? 0 : 0;
+        double halfSpan = Planform?.HalfSpanMeters ?? 0;
+        return RunDirectCommandAsync(() =>
+        {
+            var result = session.ApplyPointCommand(Guid.NewGuid().ToString("D"), command);
+            var rows = PropertiesView.Curves[command.Curve];
+            string change = Quantity.Typed(result.MaxDeviationMeters * PropertiesView.FieldScale[rows.ValueFamily]) + " " + rows.ValueUnit;
+            string where = Quantity.TypedLength(result.AtEta * halfSpan) + " mm from root";
+            string report;
+            if (command is PointCommand.AddPoint)
+            {
+                var curve = Channels.View(session.Snapshot().Source, command.Curve, "accepted", 0);
+                int number = curve.Points.First(point => point.Id == result.SelectId).Index + 1;
+                report = $"Added {rows.Name} point {number} of {result.PointsAfter}. Shape unchanged: largest change {change}. " +
+                    $"Points {number - 1} and {number + 1} moved to keep it.";
+            }
+            else if (command is PointCommand.RemovePoint)
+                report = $"Removed {rows.Name} point {removedNumber}. Now {result.PointsAfter} points. Largest change {change} at {where}.";
+            else if (command is PointCommand.RebuildCurve)
+                report = $"Rebuilt the {rows.Name} with {result.PointsAfter} points. Largest change {change} at {where}. ⌘Z undoes it.";
+            else
+                report = $"Point change applied. Max deviation {change}.";
+            if (!string.IsNullOrWhiteSpace(result.Notice)) report += " " + result.Notice;
+            return new CommitOutcome.Committed(result.AcceptedId, report)
+            {
+                SelectPoint = result.SelectId is { Length: > 0 } ? new PointRef(command.Curve, result.SelectId) : null,
+                ClearPointSelection = command is PointCommand.RebuildCurve
+            };
+        });
+    }
 
     public Task<CommitOutcome> ApplyChordAsync(string dimension, string text) => RunDirectCommandAsync(() =>
     {
@@ -1227,7 +1256,10 @@ public sealed class WorkbenchController : IDisposable
             if (!ReferenceEquals(session, captured) || stateVersion != version) return outcome;
             Inspection = session.InspectAccepted();
             UpdateEstimates();
-            Status = ((CommitOutcome.Committed)outcome).Report;
+            var committed = (CommitOutcome.Committed)outcome;
+            Status = committed.Report;
+            if (committed.ClearPointSelection) queuedSelection = new Selection.Foil();
+            else if (committed.SelectPoint is { } point) queuedSelection = new Selection.Points([point]);
             Notify();
             _ = RefreshAcceptedAsync();
             return outcome;
