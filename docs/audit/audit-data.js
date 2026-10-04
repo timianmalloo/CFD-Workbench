@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T22:50:30Z",
+  "generated": "2026-10-04T22:52:11Z",
   "audit": [
     {
       "actor": null,
@@ -23803,6 +23803,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T22:48:52Z",
       "duration_seconds": 98.0
+    },
+    {
+      "id": "al-01M44HW7P7T0YRPCW4E3JE8ESN",
+      "shortname": "join-cross-profile-design",
+      "datetime": "2026-10-04T22:52:11Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/cross-profile-abscissa into feature/ui-cad-direction",
+      "summary": "Cross-profile design (Opus 5.5): sections keep their own points; a derived compatible copy on a shared spacing feeds the blend and the certificate (one definition), admitted at 10 um on the placed surface; knot propagation as fallback; measured residuals; capacity finding: the blend certificate admits at most 5 Bezier spans for two different sections (spike needed). DR-XPA-0..6 pending the operator. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T22:50:37Z",
+      "duration_seconds": 94.0
     }
   ],
   "changes": [
