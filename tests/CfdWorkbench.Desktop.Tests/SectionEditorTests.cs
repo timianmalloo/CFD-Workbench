@@ -137,6 +137,44 @@ public static class SectionEditorTests
             if (Math.Abs(moved.SpanMeters - point.SpanMeters - .003) > 1e-8)
                 throw new Exception("Arrow run did not accumulate three nudges into one step");
         });
+        // release-freeze: after the key that begins the run (one refresh, as a press), a nudge only records its target. Each
+        // key used to refresh the whole shell (~209 ms a key under load). The run still accumulates (D-7) into one step.
+        DesktopChecks.Check("SectionEditor_NudgeRun_NoShellRefreshPerKey", () =>
+        {
+            fixture.Reset();
+            var point = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            fixture.Select(point);
+            Dispatcher.UIThread.RunJobs();
+            int cursor = fixture.Controller.Section!.Draft.Cursor;
+            fixture.Key(Key.Up);
+            Dispatcher.UIThread.RunJobs();
+            int changes = 0;
+            void Count() => changes++;
+            fixture.Controller.Changed += Count;
+            fixture.Controller.SectionChanged += Count;
+            fixture.Controller.SelectionChanged += Count;
+            try
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    fixture.Key(Key.Up);
+                    Dispatcher.UIThread.RunJobs();
+                }
+            }
+            finally
+            {
+                fixture.Controller.Changed -= Count;
+                fixture.Controller.SectionChanged -= Count;
+                fixture.Controller.SelectionChanged -= Count;
+            }
+            if (changes != 0) throw new Exception($"Four nudge keys raised {changes} controller changes; the shell refreshed per key");
+            if (fixture.Controller.Section!.Draft.Cursor != cursor) throw new Exception("The nudge run committed before KeyUp");
+            fixture.KeyUp(Key.Up);
+            WaitUntil(() => fixture.Controller.Section!.Draft.Cursor == cursor + 1 && fixture.Controller.Section.Assessment is not null);
+            var moved = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            if (Math.Abs(moved.Ordinate - point.Ordinate - .005) > 1e-8)
+                throw new Exception($"Five nudges moved y by {moved.Ordinate - point.Ordinate:G6}, not 0.005 in one step");
+        });
         DesktopChecks.Check("SectionEditor_BracketKeys_WalkInOrder", () =>
         {
             fixture.Reset();
@@ -314,6 +352,71 @@ public static class SectionEditorTests
             WaitUntil(() => slow.Controller.Section!.Assessment is not null);
             if (!slow.Controller.Section!.CanFinish || !slow.Button("ModeFinishButton").IsEnabled)
                 throw new Exception("Finish did not follow the certificate once it answered");
+        });
+        // release-freeze (§7 Concurrency): a release applies its step on the thread pool. With the step held where it applies,
+        // the release returns, the UI thread runs a posted job, the drawn drag result stays on screen, the cursor has not
+        // moved and Finish is off; once the hold lifts the step lands once and Finish follows the certificate.
+        DesktopChecks.Check("SectionEditor_Release_StepAppliesOffUiThread", () =>
+        {
+            using var hold = new ManualResetEventSlim(false);
+            bool? onUiThread = null;
+            using var held = new Fixture(stepGate: _ => { onUiThread = Dispatcher.UIThread.CheckAccess(); hold.Wait(TimeSpan.FromSeconds(5)); });
+            var canvas = held.Canvas;
+            var size = new PixelSize((int)canvas.Bounds.Width, (int)canvas.Bounds.Height);
+            var point = held.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var from = held.Local(point);
+            int cursor = held.Controller.Section!.Draft.Cursor;
+            var pointer = held.Press(from);
+            var to = from + new Vector(10, -16);
+            held.Move(pointer, to);
+            using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+            var dragged = canvas.DrawnCurves[0];
+            held.Release(pointer, to);
+            WaitUntil(() => onUiThread is not null);
+            try
+            {
+                if (onUiThread == true) throw new Exception("The released step applied on the UI thread");
+                bool posted = false;
+                Dispatcher.UIThread.Post(() => posted = true);
+                Dispatcher.UIThread.RunJobs();
+                if (!posted) throw new Exception("The UI thread did not run a posted job while the step applied");
+                var mode = held.Controller.Section!;
+                if (mode.Draft.Cursor != cursor || mode.CanFinish || held.Button("ModeFinishButton").IsEnabled)
+                    throw new Exception($"While the step applied: cursor {mode.Draft.Cursor} (was {cursor}), Finish enabled {held.Button("ModeFinishButton").IsEnabled}");
+                using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+                if (MaxOffset(canvas.DrawnCurves[0], dragged) > .5)
+                    throw new Exception($"The drawn drag result did not stay while the step applied ({MaxOffset(canvas.DrawnCurves[0], dragged):F2} px)");
+            }
+            finally { hold.Set(); }
+            WaitUntil(() => held.Controller.Section!.Draft.Cursor == cursor + 1 && held.Controller.Section.Assessment is not null);
+            if (!held.Controller.Section!.CanFinish || !held.Button("ModeFinishButton").IsEnabled)
+                throw new Exception("Finish did not follow the certificate once the step landed");
+        });
+        // release-freeze: in the section mode a controller change rebinds the Properties pane (~100 ms a bind under load) only
+        // when an input it reads changed. A step rebinds it once; the assessment landing changes none of its inputs, so it
+        // rebinds the other panes and the mode bar (Finish follows the certificate) and leaves Properties as it is.
+        DesktopChecks.Check("ShellHost_SectionStep_RefreshesOnlyChangedPanes", () =>
+        {
+            var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var shell = new ShellFixture(1280, 800, generation => generation == 1 ? gate.Task : Task.CompletedTask);
+            shell.Enter();
+            var host = shell.Host;
+            long properties = host.PropertiesBinds;
+            var point = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+            var step = host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, point.Ordinate + .005));
+            WaitUntil(() => shell.Controller.Section!.Draft.Cursor == 1);
+            shell.Settle();
+            long stepped = host.PropertiesBinds, refreshes = host.PaneRefreshes;
+            if (stepped - properties != 1) throw new Exception($"One step bound Properties {stepped - properties} times");
+            var finish = shell.View.FindControl<Button>("ModeFinishButton")!;
+            if (finish.IsEnabled) throw new Exception("Finish was on before the certificate answered");
+            gate.SetResult();
+            Wait(step);
+            shell.Settle();
+            if (host.PropertiesBinds != stepped)
+                throw new Exception($"The assessment landing bound Properties {host.PropertiesBinds - stepped} times; none of its inputs changed");
+            if (host.PaneRefreshes == refreshes || !finish.IsEnabled)
+                throw new Exception($"The assessment landing did not refresh the other panes ({host.PaneRefreshes - refreshes}) or turn Finish on");
         });
         DesktopChecks.Check("SectionEditor_StripSwitchWithEdits_RefusedByClick", () =>
         {
@@ -659,6 +762,98 @@ public static class SectionEditorTests
                 $"READINESS SectionDragMove value_ms={p95:F3} target_ms=16 median_ms={moves.Order().ElementAt(moves.Count / 2):F3} press_ms={press:F3} release_to_drawn_ms={released:F3} release_to_assessed_ms={assessed:F3} samples={moves.Count}"));
             if (p95 >= 16) Console.WriteLine("READINESS-MISS SectionDragMove p95 over one 60 Hz frame; read with the load average");
         });
+        // The UI thread's longest block from a release (or a nudge run's key-up) until the certificate answers: the release
+        // handler itself, then each dispatcher turn. landing_ms is the turn in which the assessment result was applied.
+        // Measured before release-freeze (load 34): ~660 ms on release (step apply 173-219 ms + one RefreshPanes 240-300 ms),
+        // ~300-400 ms on the assessment landing.
+        DesktopChecks.Check("Readiness_SectionReleaseFreeze_Under50Ms", () =>
+        {
+            using var shell = new ShellFixture(1280, 800);
+            shell.Enter();
+            var canvas = shell.Canvas;
+            Point At(Point local) => canvas.TranslatePoint(local, shell.Window)!.Value;
+            var handlers = new List<double>();
+            var blocks = new List<double>();
+            var landings = new List<double>();
+            (double Block, double Landing) Settle(int cursor)
+            {
+                double block = 0, landing = 0;
+                var turn = System.Diagnostics.Stopwatch.StartNew();
+                var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
+                while (DateTime.UtcNow < deadline)
+                {
+                    bool assessed = shell.Controller.Section!.Assessment is not null;
+                    if (assessed && shell.Controller.Section.Draft.Cursor == cursor) return (block, landing);
+                    turn.Restart();
+                    Dispatcher.UIThread.RunJobs();
+                    double ms = turn.Elapsed.TotalMilliseconds;
+                    block = Math.Max(block, ms);
+                    if (!assessed && shell.Controller.Section!.Assessment is not null) landing = ms;
+                    Thread.Yield();
+                }
+                throw new TimeoutException("The released step was not assessed");
+            }
+            for (int run = 0; run < 3; run++)
+            {
+                var point = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+                var from = canvas.ModelToScreen(point.SpanMeters, point.Ordinate);
+                using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+                canvas.RaiseEvent(new PointerPressedEventArgs(canvas, pointer, shell.Window, At(from), 1,
+                    new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None, 1));
+                Dispatcher.UIThread.RunJobs();
+                var to = from + new Vector(6, run % 2 == 0 ? -6 : 6);
+                canvas.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, canvas, pointer, shell.Window, At(to), 2,
+                    new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.Other), KeyModifiers.None));
+                Dispatcher.UIThread.RunJobs();
+                int cursor = shell.Controller.Section!.Draft.Cursor;
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                canvas.RaiseEvent(new PointerReleasedEventArgs(canvas, pointer, shell.Window, At(to), 3,
+                    new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+                double handler = watch.Elapsed.TotalMilliseconds;
+                var (block, landing) = Settle(cursor + 1);
+                handlers.Add(handler);
+                blocks.Add(Math.Max(handler, block));
+                landings.Add(landing);
+            }
+            // A nudge run: ten plain arrow presses, then the key-up that makes it one step.
+            var nudged = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            canvas.SelectedVertex = (nudged.Curve, nudged.Id);
+            shell.Controller.Select(new Selection.Points([new PointRef(nudged.Curve, nudged.Id, shell.Controller.Section!.Draft.Profile)]));
+            Dispatcher.UIThread.RunJobs();
+            int before = shell.Controller.Section!.Draft.Cursor;
+            var keys = new List<double>();
+            var key = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < 10; i++)
+            {
+                key.Restart();
+                canvas.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = canvas, Key = Key.Up });
+                Dispatcher.UIThread.RunJobs();
+                keys.Add(key.Elapsed.TotalMilliseconds);
+            }
+            key.Restart();
+            canvas.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyUpEvent, Source = canvas, Key = Key.Up });
+            double keyUp = key.Elapsed.TotalMilliseconds;
+            var (nudgeBlock, nudgeLanding) = Settle(before + 1);
+            static double Median(List<double> values) => values.Order().ElementAt(values.Count / 2);
+            double worst = blocks.Max();
+            Console.WriteLine(string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                $"READINESS SectionReleaseFreeze value_ms={worst:F3} target_ms=50 release_handler_median_ms={Median(handlers):F3} release_block_median_ms={Median(blocks):F3} landing_median_ms={Median(landings):F3} nudge_key_median_ms={Median(keys):F3} nudge_key_max_ms={keys.Max():F3} nudge_keyup_ms={keyUp:F3} nudge_block_ms={Math.Max(keyUp, nudgeBlock):F3} nudge_landing_ms={nudgeLanding:F3} load={LoadAverage()} samples={blocks.Count}"));
+            if (worst >= 50) Console.WriteLine("READINESS-MISS SectionReleaseFreeze UI thread blocked past 50 ms; read with the load average");
+        });
+    }
+
+    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "getloadavg")]
+    private static extern int GetLoadAverage(double[] values, int count);
+
+    // The 1-minute load average for a readiness line; "not-recorded" where libc has no getloadavg (Windows), never a guess.
+    private static string LoadAverage()
+    {
+        try
+        {
+            var values = new double[1];
+            return GetLoadAverage(values, 1) == 1 ? values[0].ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "not-recorded";
+        }
+        catch (Exception error) when (error is DllNotFoundException or EntryPointNotFoundException) { return "not-recorded"; }
     }
 
     /// <summary>The drawn curves' screen polylines, for "did the curve follow" checks.</summary>
@@ -730,7 +925,7 @@ public static class SectionEditorTests
         Pick("upper", moved.Id);
         shell.Canvas.Fit();
         Save("edt-s2b-light.png");
-        controller.UndoSectionStep();
+        Wait(controller.UndoSectionStepAsync());
         Assessed();
 
         // 2c: Anchor → Control on the anchor; refused when the lower refit is over the limit, with its marker.
@@ -779,15 +974,17 @@ public static class SectionEditorTests
         scope.TryFindResource(key, scope.ActualThemeVariant, out var value) && value is ISolidColorBrush brush
             ? brush.Color : throw new Exception("No theme brush " + key);
 
+    // A deadline, not a turn count: a section step now applies on the thread pool (§7 Concurrency), and under load a
+    // fixed number of dispatcher turns can pass before it lands.
     private static void WaitUntil(Func<bool> condition)
     {
-        for (int i = 0; i < 10000; i++)
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!condition())
         {
-            if (condition()) return;
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("Section editor state did not settle");
             Dispatcher.UIThread.RunJobs();
             Thread.Yield();
         }
-        throw new TimeoutException("Section editor state did not settle");
     }
 
     private static bool TryWaitUntil(Func<bool> condition)
@@ -812,9 +1009,10 @@ public static class SectionEditorTests
         internal Button Button(string name) => View.FindControl<Button>(name)!;
 
         /// <param name="assessmentGate">The controller's CTL seam: it delays the real <c>AssessSection</c>, never replaces it.</param>
-        internal Fixture(Func<long, Task>? assessmentGate = null)
+        /// <param name="stepGate">The controller's CTL seam: it runs where a step applies, before Core's patch, never replacing it.</param>
+        internal Fixture(Func<long, Task>? assessmentGate = null, Action<long>? stepGate = null)
         {
-            Controller = new WorkbenchController(sectionAssessmentGate: assessmentGate);
+            Controller = new WorkbenchController(sectionAssessmentGate: assessmentGate, sectionStepGate: stepGate);
             Wait(Controller.OpenExampleAsync());
             Area.PlanCanvas.Controller = Controller;
             Window = new Window { Content = Area, Width = 1280, Height = 800 };
@@ -909,7 +1107,7 @@ public static class SectionEditorTests
     /// <summary>The whole shell (Side view, Properties, Show), for the Return/Tab and Show checks.</summary>
     private sealed class ShellFixture : IDisposable
     {
-        internal WorkbenchController Controller { get; } = new();
+        internal WorkbenchController Controller { get; }
         internal ShellHost Host { get; }
         internal Window Window { get; }
         internal ElevationView Side => Host.ModelView.FindControl<ElevationView>("SideElevation")!;
@@ -917,8 +1115,9 @@ public static class SectionEditorTests
         internal SectionCanvas Canvas => View.FindControl<SectionCanvas>("ModeCanvas")!;
         internal Color Colour(string key) => ColourOf(Canvas, key);
 
-        internal ShellFixture(double width = 1400, double height = 1000)
+        internal ShellFixture(double width = 1400, double height = 1000, Func<long, Task>? assessmentGate = null)
         {
+            Controller = new WorkbenchController(sectionAssessmentGate: assessmentGate);
             Wait(Controller.OpenExampleAsync());
             Host = new ShellHost(Controller);
             Window = new Window { Content = Host, Width = width, Height = height };

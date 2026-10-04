@@ -180,7 +180,7 @@ public static class PointsPaneTests
             if (cleared != 0) throw new InvalidOperationException("COPY-124 shown without a crossing");
             Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, -0.3)));
             WaitAssessed(controller, window);
-            controller.UndoSectionStep();
+            Pump(controller.UndoSectionStepAsync());
             WaitAssessed(controller, window);
             if (cleared != 1 || host.StatusStrip.Text != Copy124)
                 throw new InvalidOperationException($"COPY-124 rendered {cleared} times; strip '{host.StatusStrip.Text}'");
@@ -439,7 +439,7 @@ public static class PointsPaneTests
                 Key(box, Avalonia.Input.Key.Enter);
                 WaitAssessed(controller, window);
                 Save(window, Path.Combine(directory, $"pnl-s2x-{theme}.png"));
-                controller.UndoSectionStep();
+                Pump(controller.UndoSectionStepAsync());
                 WaitAssessed(controller, window);
                 var lower = controller.SectionCurve(SurfaceSide.Lower)!;
                 var low = lower.Points[lower.Points.Count - 3];

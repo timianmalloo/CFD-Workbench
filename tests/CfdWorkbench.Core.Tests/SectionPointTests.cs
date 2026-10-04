@@ -24,6 +24,7 @@ internal static class SectionPointTests
         IdentityTests.Check(nameof(Sections_Facts_TrailingEdgeWedgeAndGap), Sections_Facts_TrailingEdgeWedgeAndGap);
         IdentityTests.Check(nameof(Sections_Facts_LeRadiusAndWedgeAtStation_MatchPlacedRuleA), Sections_Facts_LeRadiusAndWedgeAtStation_MatchPlacedRuleA);
         IdentityTests.Check(nameof(Sections_Probe_PlacedThicknessAtStation), Sections_Probe_PlacedThicknessAtStation);
+        IdentityTests.Check(nameof(Sections_Facts_MemoInvalidatedByNewBytes), Sections_Facts_MemoInvalidatedByNewBytes);
         IdentityTests.Check(nameof(SectionComb_AfterMakeAnchor_BreakMarkerAtAnchor), SectionComb_AfterMakeAnchor_BreakMarkerAtAnchor);
         IdentityTests.Check(nameof(Assess_ProfileVerticalRowOffByOneUlp_Invalid), Assess_ProfileVerticalRowOffByOneUlp_Invalid);
         IdentityTests.Check(nameof(Assess_ProfileSmoothRowNearVertical_Certified), Assess_ProfileSmoothRowNearVertical_Certified);
@@ -168,6 +169,24 @@ internal static class SectionPointTests
         Near(probe.UpperY - probe.LowerY, probe.Thickness, 0);
         Near((probe.UpperY + probe.LowerY) / 2, probe.Camber, 1e-15);
         Near(probe.Thickness / facts.OwnThickness * facts.StationThicknessRatio * facts.StationChordMeters, probe.PlacedThicknessMeters, 1e-12);
+    }
+
+    // release-freeze: Facts is memoised per byte[] instance, because the panes ask for one draft's facts on every refresh
+    // (~33 ms a call under load). The same array answers from the memo; a new array (the next step's bytes) is computed
+    // afresh, whether its content is equal or edited.
+    private static void Sections_Facts_MemoInvalidatedByNewBytes()
+    {
+        byte[] bytes = Identified();
+        var first = Sections.Facts(bytes, 0);
+        IdentityTests.Equal(true, ReferenceEquals(first, Sections.Facts(bytes, 0)));
+        var copied = Sections.Facts(bytes.ToArray(), 0);
+        IdentityTests.Equal(false, ReferenceEquals(first, copied));
+        IdentityTests.Equal(first, copied);
+        var upper = Sections.View(bytes, 0, SurfaceSide.Upper, "accepted", 0).Points.Single(point => point.Id == "cv-3");
+        byte[] edited = SectionEdits.Apply(bytes, 0, new SectionStep.Move(SurfaceSide.Upper, "cv-3", upper.SpanMeters, upper.Ordinate + 0.01)).Bytes;
+        var moved = Sections.Facts(edited, 0);
+        IdentityTests.Equal(false, moved == first);
+        IdentityTests.Equal(true, moved.OwnThickness > first.OwnThickness);
     }
 
     private static void SectionComb_AfterMakeAnchor_BreakMarkerAtAnchor()

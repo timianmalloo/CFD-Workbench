@@ -506,22 +506,59 @@ public sealed class ShellHost : Grid
 
     private void RefreshOnUiThread([CallerMemberName] string caller = "")
     {
-        bool onUi = Dispatcher.UIThread.CheckAccess();
-        // simplify: the CFDW_DIAG_PANES trace (PaneDiagnostics); removed once the blank-Properties cause is found.
-        PaneDiagnostics.Write(() => $"shell.refresh-request caller={caller} onUi={onUi} sel={PaneDiagnostics.Describe(Controller.Selection)}");
-        if (onUi) RefreshPanes(caller);
-        else Dispatcher.UIThread.Post(() => RefreshPanes(caller + ">posted"), DispatcherPriority.Background);
+        if (Dispatcher.UIThread.CheckAccess()) RefreshChangedPanes();
+        else Dispatcher.UIThread.Post(RefreshChangedPanes, DispatcherPriority.Background);
     }
 
     /// <summary>How many times the panes were rebuilt (≈ 25 ms each); a camera-only change must leave it unchanged.</summary>
     public long PaneRefreshes { get; private set; }
 
-    public void RefreshPanes([CallerMemberName] string caller = "")
+    /// <summary>How many times a refresh bound the Properties pane, the shell's one costly pane (~100 ms a bind under load).</summary>
+    public long PropertiesBinds { get; private set; }
+
+    // release-freeze (2026-10-04), measured per pane at load 85: Properties.Bind ~100 ms, Browser ~1 ms, Points ~0.6 ms, the
+    // section editor ~0 ms (its strip has its own input key), the tail ~0.3 ms. In the section mode a controller change
+    // rebinds Properties (and re-reads the accepted source, a session read) only when an input Properties reads changed;
+    // an assessment landing changes none. Browser, Points and the editor always rebind: measured negligible, and the
+    // editor follows the assessment. Outside the mode every refresh stays full, because there Properties also reads the
+    // session's recovery state (HasRecovery), which no cheap key sees. An explicit RefreshPanes() is always full.
+    private SectionPaneInputs? sectionPaneInputs;
+
+    private readonly record struct SectionPaneInputs(Selection Selection, object? Inspection, object? Draft, object SectionDraft,
+        object? Estimates, bool Busy)
+    {
+        public static SectionPaneInputs? Of(WorkbenchController controller) => controller.Section is { } mode
+            ? new(controller.Selection, controller.Inspection, controller.Draft, mode.Draft, controller.Estimates,
+                controller.Gesture == GestureState.Busy)
+            : null;
+
+        // Reference identity for the documents (a new step, estimate or acceptance is a new object); the selection by value,
+        // because the controller rebuilds an equal point selection when it reconciles.
+        public bool Same(SectionPaneInputs other) =>
+            ReferenceEquals(Inspection, other.Inspection) && ReferenceEquals(Draft, other.Draft) &&
+            ReferenceEquals(SectionDraft, other.SectionDraft) && ReferenceEquals(Estimates, other.Estimates) && Busy == other.Busy &&
+            (Selection, other.Selection) switch
+            {
+                (Selection.Points mine, Selection.Points theirs) => mine.Items.SequenceEqual(theirs.Items),
+                var (mine, theirs) => Equals(mine, theirs)
+            };
+    }
+
+    public void RefreshPanes() => RefreshPanes(full: true);
+
+    private void RefreshChangedPanes() => RefreshPanes(full: false);
+
+    private void RefreshPanes(bool full)
     {
         PaneRefreshes++;
-        PaneDiagnostics.Write(() => $"shell.refresh caller={caller} n={PaneRefreshes} sel={PaneDiagnostics.Describe(Controller.Selection)} " +
-                                    $"section={Controller.Section is not null} gesture={Controller.Gesture}");
-        Properties.Bind(Controller, caller: nameof(RefreshPanes) + "<" + caller);
+        var inputs = SectionPaneInputs.Of(Controller);
+        bool propertiesCurrent = !full && inputs is { } now && sectionPaneInputs is { } shown && now.Same(shown);
+        sectionPaneInputs = inputs;
+        if (!propertiesCurrent)
+        {
+            PropertiesBinds++;
+            Properties.Bind(Controller);
+        }
         Browser.Bind(Controller);
         Points.Bind(Controller);
         ModelView.SectionEditor.Bind(Controller);
@@ -536,7 +573,8 @@ public sealed class ShellHost : Grid
         if (foilOpen)
         {
             ModelView.SectionViewport.Frame = Controller.Frame;
-            ModelView.SourceText.Text = Controller.AcceptedSource;
+            // The accepted source changes only with the acceptance (Inspection), one of the inputs above.
+            if (!propertiesCurrent) ModelView.SourceText.Text = Controller.AcceptedSource;
         }
     }
 
