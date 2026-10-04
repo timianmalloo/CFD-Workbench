@@ -29,6 +29,14 @@ jobs=("Core 1/2" "Core 2/2" "Desktop" "Cli")
 # A log left by an earlier layout (e.g. Core.log before the split) would feed old PASS lines to
 # tools/check-named-tests.py, which reads every .tmp-tests/*.log.
 rm -f "$scratch"/*.log "$scratch"/*.seconds
+# The 1-minute load average, so a TEST-BUDGET red can be told from contention (test-cost F-3); "not recorded"
+# where neither source exists, never a guess.
+load() {
+  if [ -r /proc/loadavg ]; then cut -d' ' -f1 /proc/loadavg
+  elif sysctl -n vm.loadavg >/dev/null 2>&1; then sysctl -n vm.loadavg | tr -d '{}' | awk '{print $1}'
+  else echo "not-recorded"; fi
+}
+load_start=$(load)
 started=$SECONDS
 dotnet build CFDWorkbench.slnx -c "$configuration" -nologo -v q
 echo "build $((SECONDS - started)) s ($configuration)"
@@ -90,7 +98,11 @@ if [ "$reported" != "$(printf '%s' "$expected" | sort)" ] || [ "$reported" != "$
   failed=1
 fi
 wall=$((SECONDS - started))
-echo "wall $wall s (budget $budget s)"
+# CPU-seconds (user + sys) of every finished child: the work done, which load does not inflate the way it does wall.
+# `times` must run in this shell (a pipe or $(...) would report a subshell), so it writes a file first.
+times > "$scratch/times.txt"
+cpu=$(tail -1 "$scratch/times.txt" | awk '{ total = 0; for (i = 1; i <= 2; i++) { split($i, t, "m"); total += t[1] * 60 + t[2] } printf "%.0f", total }')
+echo "wall $wall s (budget $budget s) cpu $cpu s load $load_start -> $(load)"
 if [ "$failed" -ne 0 ]; then exit 1; fi
 if [ "$wall" -gt "$budget" ]; then
   echo "TEST-BUDGET: green, but $wall s is over the $budget s budget. Find the new cost before raising it (docs/reviews/test-ci-waste.md)."

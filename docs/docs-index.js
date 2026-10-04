@@ -5059,7 +5059,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2026-11-04",
       "reviewSuggested": [],
-      "summary": "Where the fast ring, the readiness ring and agent repair loops spend their time on 2026-10-04 (measured), and the levers that cut it, each with its saving, coverage risk and cost to build, in a recommended order. Proposals only; no product code or test changed.",
+      "summary": "Where the fast ring, the readiness ring and agent repair loops spend their time on 2026-10-04 (measured), and the levers that cut it, each with its saving, coverage risk and cost to build, in a recommended order. §8 records the levers shipped on 2026-10-04 (L1-L6 and the safety fixes) with their measured before/after: readiness 348.6 s to 101.6 s, the PASS multiset unchanged.",
       "tags": [
         "testing",
         "ci",
@@ -5079,7 +5079,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "968d62fe6b0f066d967d568118eba88e46bb341bdbff6b7f50f9e6f3142b31ad"
+      "sourceSha256": "464d28c03f37ff7cf828ac39f6a23d6aec8180419adbfae79110e516c01e0faa"
     },
     {
       "id": "review-area3-analysis-personas",
@@ -11168,5 +11168,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "975c699de396599a3e3c197a48a3acc04995eca576793c36f210830926f02a91"
+  "graphSha256": "240278c4e990933f948d95ae84dd5763ba4559797090bd48e8c19690c779a733"
 };
