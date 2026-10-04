@@ -1159,17 +1159,17 @@ are marked ✚.
 | `Evaluate_CloseMidCompute_DocClosedNoRow` (SVC) | A | < 20 ms | `RecordRun`'s closed guard skipped for analysis rows; SVC-2: the record moved before the barrier (a row at the hold point) |
 | `OperatingPoint_SpeedZeroOrNegative_Undefined` (SVC) | A | < 1 ms | §13.5 (\|V\|) |
 | `Telemetry_AnalysisRun_EmittedWithSubDurations` (SVC) ✚ | A | est. < 20 ms | `solveMs` written as 0 when not reached (must read "not recorded", IO8) |
-| `Cli_AnalyseRunKey_EqualsServiceOnCustomOp` (SVC) | Cli | est. 0.3 s | §13.3 (SVC-2 rename of `Cli_AnalyseRunKey_EqualsGui`: it compares the CLI with the service on `OperatingPoints.Custom`) |
-| `Evaluate_SupersededBeforeCancel_RecordsNothing` (SVC; SVC-2) ✚ | A | < 20 ms | the record step's identity check removed |
-| `Evaluate_Supersede_CancelsOlderOutsideTheLock` (SVC; SVC-2) ✚ | A | < 20 ms | the older's `Cancel` moved back under the service lock |
-| `Telemetry_UnexpectedException_OutcomeNotOk` (SVC; SVC-2) ✚ | A | < 5 ms | `analysis.run`'s outcome starts "OK" |
-| `Evaluate_CancelledBeforeIdempotentHit_Throws` (SVC; SVC-2) ✚ | A | < 5 ms | the hit returns without checking the token |
-| `Evaluate_SameKeyFromTwoServices_ReturnsRecordedRow` (SVC; SVC-2) ✚ | A | < 20 ms | no re-read of the key under the lock (`DOC-RUN-KEY`) |
-| `Evaluate_WaterOutsideTable_RefusedNoRow` (SVC; SVC-2) ✚ | A | < 5 ms | the water record not validated |
-| `Evaluate_ComputeFails_FailedRowHasNoDiagnostics` (SVC; SVC-2) ✚ | A | < 20 ms | zeros written on a Failed row; the solve's diagnostics kept when the coupling fails; the writer writes a null member |
-| `Evaluate_SectionStationsChanged_NewKeyNotAHit` (SVC; SVC-2) ✚ | A | < 20 ms | `sectionEtas` left out of the settings hash; fixed stations sampled; settings without stations not refused |
-| `RecordRun_DiagnosticsByOutcome_CompletedOnly` (SVC; SVC-2) ✚ | A | < 50 ms | the outcome/diagnostics rule removed from `CheckStore` |
-| `Cli_AnalyseFailedRun_PrintsNoDiagnostics` (SVC; SVC-2) ✚ | Cli | < 50 ms | the writer writes a null `diagnostics` member |
+| `Cli_AnalyseRunKey_EqualsServiceOnCustomOp` (SVC) | Cli | est. 0.3 s | §13.3 (SVC-2 rename of Cli_AnalyseRunKey_EqualsGui: it compares the CLI with the service on `OperatingPoints.Custom`) |
+| `Evaluate_SupersededBeforeCancel_RecordsNothing` (SVC; SVC-2) ✚ | A | 44 ms measured (load 24–31) | the record step's identity check removed |
+| `Evaluate_Supersede_CancelsOlderOutsideTheLock` (SVC; SVC-2) ✚ | A | 52 ms measured (load 24–31) | the older's `Cancel` moved back under the service lock |
+| `Telemetry_UnexpectedException_OutcomeNotOk` (SVC; SVC-2) ✚ | A | 42 ms measured (load 24–31) | `analysis.run`'s outcome starts "OK" |
+| `Evaluate_CancelledBeforeIdempotentHit_Throws` (SVC; SVC-2) ✚ | A | 47 ms measured (load 24–31) | the hit returns without checking the token |
+| `Evaluate_SameKeyFromTwoServices_ReturnsRecordedRow` (SVC; SVC-2) ✚ | A | 51 ms measured (load 24–31) | no re-read of the key under the lock (`DOC-RUN-KEY`) |
+| `Evaluate_WaterOutsideTable_RefusedNoRow` (SVC; SVC-2) ✚ | A | 44 ms measured (load 24–31) | the water record not validated |
+| `Evaluate_ComputeFails_FailedRowHasNoDiagnostics` (SVC; SVC-2) ✚ | A | 95 ms measured (load 24–31) | zeros written on a Failed row; the solve's diagnostics kept when the coupling fails; the writer writes a null member |
+| `Evaluate_SectionStationsChanged_NewKeyNotAHit` (SVC; SVC-2) ✚ | A | 57 ms measured (load 24–31) | `sectionEtas` left out of the settings hash; fixed stations sampled; settings without stations not refused |
+| `RecordRun_DiagnosticsByOutcome_CompletedOnly` (SVC; SVC-2) ✚ | A | 90 ms measured (load 24–31) | the outcome/diagnostics rule removed from `CheckStore` |
+| `Cli_AnalyseFailedRun_PrintsNoDiagnostics` (SVC; SVC-2) ✚ | Cli | 23 ms measured (load 24–31) | the writer writes a null `diagnostics` member |
 | `Projection_SectionVsWingUnits` (PRJ) | A | < 5 ms | §13.5 |
 | `Projection_CdZeroOrNegative_ClCdUndefined` (PRJ) | A | < 1 ms | §13.5 |
 | `Projection_NoRun_NoAnalysisYetNoLayers` (PRJ) ✚ | A | < 5 ms | an empty selection renders CL 0.000 and layers |

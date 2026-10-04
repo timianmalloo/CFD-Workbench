@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f71f2ec823f72e78b98dee49a4edd5af36b87b01dbbe12ef2cc8005c3c2b611f"
+      "sourceSha256": "808352e034cdc778b4f158f929dbcbf7489462de8e236cdb88ca8429d13791ff"
     },
     {
       "id": "design-authoring-decisions",
@@ -8359,6 +8359,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "80d9a61a46d8e5a6f7b4607b3756e35be1e5e9b591abe9344d8b2bb85198d4a2"
     },
     {
+      "id": "proof-a3a-svc2-red-first",
+      "path": "docs/proof/a3a-svc2/red-first.md",
+      "title": "A3a SVC-2 red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-a3a-svc2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "The SVC-2 fixes for the adversarial C# review of the A3a analysis service: 10 new checks and 3 strengthened ones, each red under its own planted mutant (17 mutants, all red), plus 5 red lines observed against the unfixed code.",
+      "tags": [
+        "a3a",
+        "svc",
+        "svc-2",
+        "analysis",
+        "review-fixes",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-svc-red-first",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "50168c320a481cca855e982bb93b5f4a8caa2dd93d490b1ef2ab4dfafcaaddc1"
+    },
+    {
       "id": "proof-a3a-vlm-red-first",
       "path": "docs/proof/a3a-vlm/red-first.md",
       "title": "A3a VLM red-first receipt",
@@ -12224,5 +12260,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "5574cac67b35407a9975bd526b4f839b49b280564885f70b4f876b84b6bdd677"
+  "graphSha256": "973155ed2217398131d089e4bbc1478364a34e120c5602ae98af4c535962845c"
 };
