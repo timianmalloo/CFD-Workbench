@@ -213,6 +213,8 @@ public static class FoilSource
             text.Append("      upper cv { ").Append(CurveBody(profile.Upper, 0)).Append(" }\n");
             text.Append("      lower cv { ").Append(CurveBody(profile.Lower, 0)).Append(" }\n");
             text.Append("      closure ").Append(profile.Closure).Append('\n');
+            if (profile.Provenance is not null)
+                text.Append("      provenance ").Append(Jcs.Quote(profile.Provenance)).Append('\n');
             text.Append("    }\n");
         }
         text.Append("  }\n");
@@ -1231,8 +1233,8 @@ public static class FoilSource
             Expect("upper"); var upper = ReadCurve($"profile:{index}:upper", true);
             Expect("lower"); var lower = ReadCurve($"profile:{index}:lower", true);
             string closure = Optional("closure") ? Choice("open", "closed") : "closed";
-            if (Optional("provenance")) Name();
-            return new(name, upper, lower, closure, null);
+            string? provenance = Optional("provenance") ? Name().String : null;
+            return new(name, upper, lower, closure, null) { Provenance = provenance };
         }
         private StationSource ReadStation()
         {
@@ -1431,7 +1433,7 @@ public static class FoilSource
             }
             Need(profiles.All(profile => profile.Name.String.Length > 0) && profiles.Select(profile => profile.Name.String).Distinct(StringComparer.Ordinal).Count() == profiles.Count, "DSL-REFERENCE", "References", profiles[0].Name);
             foreach (var profile in profiles) if (profile.Asset is not null) throw Failure("DSL-REFERENCE", "References", profile.Asset);
-            var definitions = profiles.Select(profile => new ProfileDefinition(profile.Name.String, curves[profile.Upper!.Path], curves[profile.Lower!.Path], profile.Closure, profile.BlockStart, profile.BlockEnd)).ToArray();
+            var definitions = profiles.Select(profile => new ProfileDefinition(profile.Name.String, curves[profile.Upper!.Path], curves[profile.Lower!.Path], profile.Closure, profile.BlockStart, profile.BlockEnd) { Provenance = profile.Provenance }).ToArray();
             var resolved = new List<(double Eta, int Profile)>();
             foreach (var assignment in assignments)
             {

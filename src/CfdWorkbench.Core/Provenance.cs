@@ -11,7 +11,6 @@ public enum RightsClass
 
 /// <summary>
 /// Origin of a profile shape plus the one modified flag. Rights and chip text are derived.
-/// Seam S-1: the signature LIB and RPL build against. Bodies land in the CAT commits after this one.
 /// </summary>
 public sealed record Provenance(string? Origin, bool Modified)
 {
@@ -42,8 +41,74 @@ public sealed record Provenance(string? Origin, bool Modified)
     /// The only writer of <c> modified</c>. Adds it when <paramref name="bytes"/> changed
     /// <paramref name="profile"/> beyond the identity tolerance relative to <paramref name="before"/>.
     /// </summary>
-    public static byte[] MarkModified(byte[] bytes, string profile, byte[] before) =>
-        throw new NotImplementedException("CAT: Provenance.MarkModified");
+    public static byte[] MarkModified(byte[] bytes, string profile, byte[] before)
+    {
+        ProfileDefinition? next = Profile(bytes, profile);
+        ProfileDefinition? previous = Profile(before, profile);
+        if (next?.Provenance is not string raw || previous is null) return bytes;
+        Provenance parsed = Parse(raw);
+        if (parsed.Origin is null || parsed.Modified || !BeyondIdentity(previous, next)) return bytes;
+        string text = FoilSource.Utf8.GetString(bytes);
+        string needle = "provenance " + Jcs.Quote(raw);
+        int length = next.BlockEnd - next.BlockStart;
+        if ((uint)next.BlockStart > (uint)text.Length || length < needle.Length || next.BlockStart + length > text.Length)
+            return bytes;
+        int at = text.IndexOf(needle, next.BlockStart, length, StringComparison.Ordinal);
+        if (at < 0) return bytes;
+        string updated = string.Concat(text.AsSpan(0, at), "provenance ", Jcs.Quote(raw + " modified"), text.AsSpan(at + needle.Length));
+        return FoilSource.Utf8.GetBytes(updated);
+    }
+
+    private static ProfileDefinition? Profile(byte[] bytes, string name) =>
+        FoilSource.Parse(bytes).Definition?.Profiles.FirstOrDefault(item => item.Name == name);
+
+    // A4.5 profile oracle: 201 cosine samples per curve in normalised chord, plus every knot.
+    // A difference is a Euclidean gap above 1e-6 (1 µm on a unit chord). Equality at the bound is identity.
+    private static bool BeyondIdentity(ProfileDefinition before, ProfileDefinition after) =>
+        SideChanged(before.Upper, after.Upper) || SideChanged(before.Lower, after.Lower);
+
+    private static bool SideChanged(Curve before, Curve after)
+    {
+        const int samples = 201;
+        for (int index = 0; index < samples; index++)
+        {
+            double x = 0.5 * (1 - Math.Cos(Math.PI * index / (samples - 1)));
+            if (Gap(AtX(before, x), AtX(after, x)) > 1e-6) return true;
+        }
+        foreach (double t in before.Knots.Concat(after.Knots))
+            if (t is >= 0 and <= 1 && Gap(At(before, t), At(after, t)) > 1e-6) return true;
+        return false;
+    }
+
+    private static (double X, double Y) AtX(Curve curve, double x)
+    {
+        double lo = 0, hi = 1;
+        for (int step = 0; step < 80; step++)
+        {
+            double mid = (lo + hi) / 2;
+            if (At(curve, mid).X < x) lo = mid;
+            else hi = mid;
+        }
+        return At(curve, (lo + hi) / 2);
+    }
+
+    private static (double X, double Y) At(Curve curve, double t)
+    {
+        double[] basis = SplineBasis.Values(curve.Knots, curve.Degree, t);
+        double x = 0, y = 0;
+        for (int index = 0; index < basis.Length; index++)
+        {
+            x += basis[index] * curve.Points[index][0];
+            y += basis[index] * curve.Points[index][1];
+        }
+        return (x, y);
+    }
+
+    private static double Gap((double X, double Y) left, (double X, double Y) right)
+    {
+        double dx = left.X - right.X, dy = left.Y - right.Y;
+        return Math.Sqrt(dx * dx + dy * dy);
+    }
 
     private static RightsClass Classify(string? origin)
     {

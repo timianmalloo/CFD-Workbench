@@ -132,7 +132,14 @@ internal static class ProvenanceTests
         var profile = FoilSource.Parse(source).Definition!.Profiles.Single(item => item.Name == "section-a");
         Keep(FoilSource.WriteSurfaces(source, "section-a", profile.Upper.Knots, profile.Upper.Points, profile.Upper.Ids,
             profile.Lower.Points, profile.Lower.Ids));
-        Keep(FoilSource.WriteSideTangents(source, "section-a", SurfaceSide.Upper, [new TangentRow(profile.Upper.Ids[3], "smooth", null)]));
+        byte[] anchored = WithAnchor(source);
+        var anchorProfile = FoilSource.Parse(anchored).Definition!.Profiles.Single(item => item.Name == "section-a");
+        int anchor = -1;
+        for (int index = 0; index < anchorProfile.Upper.Points.Length; index++)
+            if (FoilSource.IsAnchor(anchorProfile.Upper.Knots, anchorProfile.Upper.Points.Length, anchorProfile.Upper.Degree, index))
+                anchor = index;
+        if (anchor < 0) throw new InvalidOperationException("section-a grew no interior anchor");
+        Keep(FoilSource.WriteSideTangents(anchored, "section-a", SurfaceSide.Upper, [new TangentRow(anchorProfile.Upper.Ids[anchor], "smooth", null)]));
         byte[] inserted = FoilSource.InsertProfileKnot(source, "section-a", 0.4).Source;
         Keep(inserted);
         Keep(FoilSource.DeleteProfileVertex(inserted, "section-a", 2).Source);
@@ -145,6 +152,43 @@ internal static class ProvenanceTests
     }
 
     private static void Keep(byte[] bytes) => Equal(Origin, Read(bytes));
+
+    // A degree-5 profile anchor is a knot of multiplicity 5. InsertProfileKnot's parameter search
+    // does not land on an existing knot, so pile the first interior knot exactly via InsertOnce.
+    private static byte[] WithAnchor(byte[] source)
+    {
+        var profile = FoilSource.Parse(source).Definition!.Profiles.Single(item => item.Name == "section-a");
+        double[] knots = profile.Upper.Knots;
+        double[][] upper = profile.Upper.Points;
+        double[][] lower = profile.Lower.Points;
+        string[] upperIds = profile.Upper.Ids;
+        string[] lowerIds = profile.Lower.Ids;
+        int degree = profile.Upper.Degree;
+        double t = knots.First(knot => knot > 0 && knot < 1);
+        int max = -1;
+        foreach (string id in upperIds.Concat(lowerIds))
+            if (id.StartsWith("cv-", StringComparison.Ordinal) && int.TryParse(id.AsSpan(3), out int number))
+                max = Math.Max(max, number);
+        for (int step = 0; step < degree - 1; step++)
+        {
+            var up = FoilSource.InsertOnce(knots, upper, degree, t);
+            var lo = FoilSource.InsertOnce(knots, lower, degree, t);
+            knots = up.Knots;
+            upper = up.Points;
+            lower = lo.Points;
+            string id = "cv-" + (++max).ToString(CultureInfo.InvariantCulture);
+            upperIds = Splice(upperIds, up.Inserted, id);
+            lowerIds = Splice(lowerIds, lo.Inserted, id);
+        }
+        return FoilSource.WriteSurfaces(source, "section-a", knots, upper, upperIds, lower, lowerIds);
+    }
+
+    private static string[] Splice(string[] ids, int index, string id)
+    {
+        var list = ids.ToList();
+        list.Insert(index, id);
+        return list.ToArray();
+    }
 
     private static string? Read(byte[] bytes) =>
         FoilSource.Parse(bytes).Definition!.Profiles.Single(item => item.Name == "section-a").Provenance;
