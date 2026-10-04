@@ -22,7 +22,8 @@ summary: >-
   mine anyway, Ready. The assistant panel has three modes (answer shown, answer withheld, no key). DESIGN.md tokens,
   the DR-STATUS-1 status strip. Browser check green (0 errors, 0 findings, 0 contrast failures, 22 captures). For the
   operator's visual approval before any build.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-04, reason: "Spec 1.7.2 (draft; Ruling 69, Ruling 67 OD-1): guided solver setup, smoke-test scalar, Windows route, toggle shortcut" }
 ---
 
 # Solver setup — mockup
