@@ -39,6 +39,21 @@ else
 fi
 echo "start load: $(uptime | sed 's/.*load averages*: //')${alongside:+ · $alongside}"
 cd "$integration" || exit 2
+# A track branch adds its own few commits; merging the integration head adds none. On 2026-10-04 a track merged an old,
+# unrelated branch (feature/r54-integration) instead of the integration head and would have brought 52 foreign commits
+# in. Refuse a join that brings in more than CFDW_JOIN_MAX_NEW_COMMITS (default 40) and list where they come from.
+case " $* " in *" --continue "*) ;; *)
+  branch="$1"
+  new=$(git rev-list --count "HEAD..$branch" 2>/dev/null || echo 0)
+  if [ "$new" -gt "${CFDW_JOIN_MAX_NEW_COMMITS:-40}" ]; then
+    {
+      echo "JOIN-FOREIGN-COMMITS: $branch would bring $new commits (limit ${CFDW_JOIN_MAX_NEW_COMMITS:-40}); a track adds a few."
+      echo "Its merges (look for a merge of something other than the integration head):"
+      git log --merges --format='  %h %s' "HEAD..$branch" | head -10
+    } | tee "$out"
+    exit 7
+  fi ;;
+esac
 AGENT_SESSION="$session" python3 docs/ai-forward-pack/scripts/conductor-join.py "$@" --session "$session" \
   --trailer-file "$S/trailer.txt" > "$out" 2>&1
 rc=$?
