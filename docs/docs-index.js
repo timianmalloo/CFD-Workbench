@@ -7963,6 +7963,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "45f0254b7dff5e2d3230608516b6073a347d3a2d1fba3aa2654011fdca7aebba"
     },
     {
+      "id": "proof-a3a-cor-red-first",
+      "path": "docs/proof/a3a-cor/red-first.md",
+      "title": "A3a COR red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-cor",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "The red runs of the COR track: both named tests failed on the skeleton, the bitwise test failed when Sections placed camber with its own formula, and the counter test failed when the Interlocked increments were restored to ++.",
+      "tags": [
+        "a3a",
+        "cor",
+        "placement",
+        "sections",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8dec74f7a259e8cc2a66cd8927451e1bedb5512f8a665826dacafe0f01fb5886"
+    },
+    {
       "id": "proof-a3a-old-build",
       "path": "docs/proof/a3a-old-build/README.md",
       "title": "A3a old-build receipt: a cfdw-project-2 file opened by the build at the A3a base",
@@ -11419,5 +11450,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "cd2b447571594969cb96ac9b9aabf2fe6419dd6d4f0224cfe45899d88c802741"
+  "graphSha256": "e46b9435fd7a0e692ab565e23124b010e832908d942eef970b5a72affd19fd27"
 };

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T17:48:53Z",
+  "generated": "2026-10-04T18:08:35Z",
   "audit": [
     {
       "actor": null,
@@ -23533,6 +23533,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T17:47:57Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M441MZ33TM5ZPXWN38CNJY94",
+      "shortname": "join-a3a-cor",
+      "datetime": "2026-10-04T18:08:35Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/a3a-cor into feature/ui-cad-direction",
+      "summary": "COR (Grok 4.7): Placement.Sections parses once, samples each eta at the caller's chord stations, camber/thickness from the same Section/Blend ordinates Surface draws, placed point = midline of the two PlacementRule.Place results (bit-equal to Surface on all five m12b2 foils; Place of the averaged camber differs by 396 ulps); PlacementRuleVersion foildsl-6/1; counters Interlocked (exact under 8 threads). COR 2/2; mutants red (local camber formula; ++ counters); golden and surface pin unchanged; verify-application-core green. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T18:07:36Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
