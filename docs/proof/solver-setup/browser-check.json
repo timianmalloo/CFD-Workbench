@@ -1,0 +1,173 @@
+{
+ "url": "docs/mockups/solver-setup.html",
+ "at": "2026-10-04T16:30:16.880Z",
+ "errors": [],
+ "findings": [],
+ "contrastFailures": [],
+ "contrast": [
+  {
+   "th": "light",
+   "pair": "ink/surface",
+   "ratio": 14.63,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "light",
+   "pair": "mute/surface",
+   "ratio": 6.15,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "light",
+   "pair": "mute/soft",
+   "ratio": 5.34,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "light",
+   "pair": "ink/sel",
+   "ratio": 12.42,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "light",
+   "pair": "onaccent/accent",
+   "ratio": 6.29,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "light",
+   "pair": "accent/surface",
+   "ratio": 6.11,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "light",
+   "pair": "warn/surface",
+   "ratio": 5.85,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "light",
+   "pair": "danger/surface",
+   "ratio": 6.52,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "light",
+   "pair": "ok/surface",
+   "ratio": 6.79,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "light",
+   "pair": "mute/canvas",
+   "ratio": 5.63,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "ink/surface",
+   "ratio": 12.62,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "mute/surface",
+   "ratio": 7.83,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "mute/soft",
+   "ratio": 6.27,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "ink/sel",
+   "ratio": 8.42,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "onaccent/accent",
+   "ratio": 9.72,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "accent/surface",
+   "ratio": 8.6,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "warn/surface",
+   "ratio": 8.76,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "danger/surface",
+   "ratio": 8.12,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "ok/surface",
+   "ratio": 8.06,
+   "min": 4.5,
+   "pass": true
+  },
+  {
+   "th": "dark",
+   "pair": "mute/canvas",
+   "ratio": 8.85,
+   "min": 4.5,
+   "pass": true
+  }
+ ],
+ "captures": [
+  "win-first-ok-light.png",
+  "win-nothing-ok-light.png",
+  "win-wsl-ok-light.png",
+  "win-admin-ok-light.png",
+  "win-reboot-ok-light.png",
+  "win-resumed-ok-light.png",
+  "win-virt-ok-light.png",
+  "win-installing-ok-light.png",
+  "win-smokefail-ok-light.png",
+  "win-smokefail-ok-dark.png",
+  "win-unknown-ok-light.png",
+  "win-ready-ok-light.png",
+  "win-ready-ok-dark.png",
+  "mac-first-ok-light.png",
+  "mac-nothing-ok-light.png",
+  "mac-existing-ok-light.png",
+  "mac-download-ok-light.png",
+  "mac-blocked-ok-light.png",
+  "mac-smokefail-ok-light.png",
+  "mac-smokefail-ok-dark.png",
+  "mac-ready-ok-light.png",
+  "mac-ready-ok-dark.png"
+ ]
+}

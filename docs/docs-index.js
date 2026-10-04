@@ -2501,6 +2501,93 @@ window.DOCS_INDEX = {
       "sourceSha256": "4194dc97f5d6fd7b6b4921a0e53ae92fd9dcb2e7c563c8aad18306c2d2b601bd"
     },
     {
+      "id": "design-guided-solver-setup",
+      "path": "docs/design/guided-solver-setup.md",
+      "title": "Design: guided solver setup — Backend environment model, step catalogue per OS and route, detection, smoke test, assistant, telemetry, tests and tracks",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design — documents only (Ruling 67 (b)); no build until the operator approves the mockup",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "The design behind the guided-setup amendment. Model: the existing Backend environment and Backend check, plus three append-only facts (Host survey, Environment step, Install acceptance) and a product-published Route catalogue; the current step, the session state and Ready are derived, never stored, so resume after a restart is a re-derivation. Routes: macOS OpenFOAM.app v2512 (6 steps; the release zip, the inner disk image and the two launch scripts are hash-pinned, all Verified on this Mac today); Windows OpenFOAM in an app-owned WSL distribution (Ubuntu 24.04.5 image and OpenCFD apt packages pinned by sha256, 8 steps, one administrator prompt, one restart); Windows SU2 v8.5.0 native (win64-omp zip pinned, 4 steps, no prompt). Every Windows behaviour is Inferred until the operator's Windows run. Findings: the Homebrew cask the operator used strips the quarantine flag (a step M8 refuses), so the product never installs through Homebrew; the spec's smoke scalar (Cl on a cavity) cannot exist. DR-SETUP-1..6 are open.",
+      "tags": [
+        "run",
+        "backend",
+        "install",
+        "setup",
+        "openfoam",
+        "su2",
+        "wsl",
+        "windows",
+        "macos",
+        "assistant",
+        "telemetry",
+        "data-model",
+        "ruling-67"
+      ],
+      "links": [
+        {
+          "to": "spec-amendment-guided-solver-setup",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "note-solver-security-right-size",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-03",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-03-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-simulation-openfoam-su2-interop",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-status-bar",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-runtime",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-solver-setup",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cb7470e11abde1e74e8f502f600dc74ce9c944c06d59ccb3949cdc4f5bfd4a10"
+    },
+    {
       "id": "design-m12b-points",
       "path": "docs/design/m12b-points.md",
       "title": "Design: M1.2b — CAD point editing on the Plan view (rail points, point types, gestures, typed chords)",
@@ -3418,6 +3505,57 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "071422f30794621b0cc4b4ae8ce037b57f183169e84cae49547f139e0649741d"
+    },
+    {
+      "id": "mockup-solver-setup",
+      "path": "docs/mockups/solver-setup.md",
+      "title": "Solver setup — the guided install on Windows and macOS, in today's shell (for the operator's approval)",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The 1280 × 800 shell with a Solver setup document tab, on Windows (11 states) and macOS (7 states): first launch with no solver, nothing installed with one recommended route, WSL not turned on, the Windows administrator prompt, restart needed, resumed after the restart, virtualization off in firmware, installing, a test run that failed with an explained cause, an unknown failure with Copy a report and an assistant suggestion, Ready; on macOS an existing install that is not the tested build, the licence and download step, macOS blocked the app, a failed test after Use mine anyway, Ready. The assistant panel has three modes (answer shown, answer withheld, no key). DESIGN.md tokens, the DR-STATUS-1 status strip. Browser check green (0 errors, 0 findings, 0 contrast failures, 22 captures). For the operator's visual approval before any build.",
+      "tags": [
+        "mockup",
+        "run",
+        "backend",
+        "install",
+        "setup",
+        "openfoam",
+        "su2",
+        "wsl",
+        "windows",
+        "macos",
+        "assistant",
+        "hard-states",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "documents"
+        },
+        {
+          "to": "spec-amendment-guided-solver-setup",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-status-bar",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8ccd736d160a442ff4500fccb85c15b24ba4c6302ca2e6ba5269395243c1f726"
     },
     {
       "id": "mockup-status-bar",
@@ -10147,6 +10285,79 @@ window.DOCS_INDEX = {
       "sourceSha256": "4ff7b199189535ba8d993358fe164d12549fd6cf35b68adab979f9f806794bf5"
     },
     {
+      "id": "spec-amendment-guided-solver-setup",
+      "path": "docs/specs/amendments/guided-solver-setup.md",
+      "title": "Spec amendment proposal: guided solver setup (UX layer and AI assistance) — OpenFOAM on macOS, OpenFOAM and SU2 on Windows",
+      "type": "spec",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "specification — UX layer, proposal (not applied)",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Ruling 67 asks for an \"on rails\" solver install for a foil designer who is not a software engineer: Windows for him, macOS for the operator. This proposal adds flow F7a (guided solver setup) to the spec's UX layer: no setup prompt at first launch; three entry points; detect, then one recommended route per OS (macOS: OpenFOAM.app v2512; Windows: OpenFOAM in an app-owned WSL distribution, SU2 native as the other option); each step in plain words with the details one click away; the app does every step it can and hands the user one exact OS click path for the rest (administrator approval, restart, firmware virtualization, macOS Open Anyway); Ready only from the smoke-test fact; resume after a restart. The rails work with no key and no network model; the assistant only explains and may suggest one allowed step id. Amends RUN-01, AI-11, A5.10 (smoke scalar), A5.12 (Run entry name), COPY-75/76 and adds C2 rows for the four honest-limit strings. Windows behaviour is Inferred until the operator's Windows smoke test. Six decisions are open as DR-SETUP-1..6 in the design.",
+      "tags": [
+        "run",
+        "backend",
+        "install",
+        "setup",
+        "openfoam",
+        "su2",
+        "wsl",
+        "windows",
+        "macos",
+        "assistant",
+        "hax",
+        "shape-of-ai",
+        "ruling-67"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "note-solver-security-right-size",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        },
+        {
+          "to": "kb-hw-simulation-openfoam-su2-interop",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-03",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "tested-by"
+        },
+        {
+          "to": "mockup-solver-setup",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "3.2 Flows",
+          "mermaid": "flowchart TD\nL[App launch] --> L1{Open setup session?}\nL1 -->|No| L2[Normal start: no setup prompt. Status strip: Solver: not set up]\nL1 -->|Yes, last step asked for a restart| R0[Survey again] --> RS[Solver setup tab opens on the resumed step]\nL2 --> E1[Run area: Set up a solver]\nL2 --> E2[An analysis that needs a solver: Set up OpenFOAM]\nL2 --> E3[Status strip: Solver item]\nE1 --> S[Survey this computer: read-only, no consent]\nE2 --> S\nE3 --> S\nS --> F{Existing install of the pinned build?}\nF -->|Yes, hashes match| V[Verify: identify + smoke test]\nF -->|Yes, does not match| U[Unverified install: Use the tested build · Use mine anyway]\nU -->|Use the tested build| RT\nU -->|Use mine anyway: disclosure accepted| V\nF -->|No| RT{Route for this OS}\nRT -->|macOS arm64, 14+| MAC[OpenFOAM.app v2512: download · verify · place · identify]\nRT -->|Windows 10 2004+ / 11| WIN[OpenFOAM in WSL: enable WSL · restart · Linux base · OpenFOAM · identify]\nRT -->|Other options| SU2[Windows: SU2 v8.5.0: download · verify · place]\nRT -->|No route: Intel Mac, old OS| NR[No supported solver for this computer: reason · what still works]\nMAC --> STEP\nWIN --> STEP\nSU2 --> STEP\nSTEP[Step card: plain words · time · size · needs · Technical details] -->|Start this step| OSQ{Needs the OS?}\nOSQ -->|Admin approval| UAC[Windows asks: click Yes] --> RUN\nOSQ -->|Restart| RB[Restart needed: save, restart; the app reopens and continues] --> L\nOSQ -->|Firmware virtualization off| FW[Turn on virtualization in firmware: maker-specific click path] --> L\nOSQ -->|macOS blocked the app| OA[System Settings · Privacy and Security · Open Anyway] --> RUN\nOSQ -->|No| RUN[App runs the step]\nRUN -->|Succeeded| NEXT{More steps?}\nRUN -->|Failed: known cause| FC[Cause in plain words + one next step]\nRUN -->|Failed: unknown cause| UK[Explain this failure if a key · Copy a report always]\nFC --> STEP\nUK --> STEP\nNEXT -->|Yes| STEP\nNEXT -->|No| V\nV -->|Smoke passes: Backend check fact| RD[Ready: solver, build, test time · Back to my analysis]\nV -->|Smoke fails| SF[Not ready: cause + one next step]\nSF --> STEP"
+        }
+      ],
+      "sourceSha256": "bafedb67a0893a123af76bafe77911a52d056ebe38a2e9f9b02db7bfa86ebb1c"
+    },
+    {
       "id": "spec-amendments-1-7",
       "path": "docs/specs/amendments/spec-1.7.md",
       "title": "Spec 1.7 amendment batch — every spec-owner request, as exact text, approved in Ruling 66",
@@ -10941,6 +11152,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-property-grid-cells"
     },
     {
+      "id": "surface-mockups-solver-setup",
+      "path": "docs/mockups/solver-setup.html",
+      "title": "Solver setup",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-solver-setup"
+    },
+    {
       "id": "surface-mockups-status-bar",
       "path": "docs/mockups/status-bar.html",
       "title": "Status bar — where reports go",
@@ -10949,5 +11168,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "790e73be9604b2f9ef83d178c14dde63323917d1544bcaad7bf6557c4a0b10e4"
+  "graphSha256": "975c699de396599a3e3c197a48a3acc04995eca576793c36f210830926f02a91"
 };
