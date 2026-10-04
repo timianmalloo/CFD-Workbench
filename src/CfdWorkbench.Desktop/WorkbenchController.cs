@@ -115,6 +115,8 @@ public sealed class WorkbenchController : IDisposable
     private IProjectStore store;
     private readonly Func<AuthoringSession, IProjectStore> storeFactory;
     private readonly Func<long, Task>? sectionAssessmentGate;
+    // Test seam (CTL): runs on the thread a section step applies on, before Core's patch; it may hold the step, never replace it.
+    private readonly Action<long>? sectionStepGate;
     private SessionDraft? draft;
     private AuthoredProjection? draftProjection;
     private string? projectedDraftId;
@@ -137,6 +139,13 @@ public sealed class WorkbenchController : IDisposable
     private readonly Dictionary<int, (string Key, ProfileView View)> sectionViews = new();
     private CancellationTokenSource? sectionAssessmentCancellation;
     private long sectionAssessmentTicket;
+    // §7 Concurrency (release-freeze, 2026-10-04): a step's Core patch took 173-219 ms on the UI thread at load 34, and
+    // Readiness_SectionStepApply_Under5Ms missed (55.7 ms), so steps, undo and redo apply on the thread pool. They queue:
+    // each runs after the one before it has landed, so none is dropped and each names the generation current when it runs.
+    private Task sectionStepTail = Task.CompletedTask;
+    private Task sectionAssessmentCall = Task.CompletedTask;
+    private int sectionStepsPending;
+    private const string SectionChecking = "Checking…";
 
     private long openRequestGeneration;
     private bool isNotifying;
@@ -188,7 +197,8 @@ public sealed class WorkbenchController : IDisposable
     public const string SurfaceKeptNote = "Showing the last shape that could be drawn.";
 
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null,
-        SurfaceCompute? surfaceCompute = null, TimeProvider? time = null, Func<long, Task>? sectionAssessmentGate = null)
+        SurfaceCompute? surfaceCompute = null, TimeProvider? time = null, Func<long, Task>? sectionAssessmentGate = null,
+        Action<long>? sectionStepGate = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
         store = this.storeFactory(session);
@@ -196,6 +206,7 @@ public sealed class WorkbenchController : IDisposable
             Task.Run(() => Placement.Surface(source, basis, generation, cancellation), cancellation));
         this.time = time ?? TimeProvider.System;
         this.sectionAssessmentGate = sectionAssessmentGate;
+        this.sectionStepGate = sectionStepGate;
     }
     /// <summary>Document, selection, status, estimate and layout changes; the shell rebuilds its panes on each (≈ 25 ms).</summary>
     public event Action? Changed;
@@ -602,7 +613,8 @@ public sealed class WorkbenchController : IDisposable
         if (disposed) throw new ContractError("DOC-CLOSED");
         if (Section is { } open)
         {
-            if (open.IsDirty) throw new ContractError("DSL-DRAFT-OWNED", "Finish or cancel this section before editing another.");
+            // A step still applying counts as an edit: switching now would drop it.
+            if (open.IsDirty || SectionStepPending) throw new ContractError("DSL-DRAFT-OWNED", "Finish or cancel this section before editing another.");
             CancelSectionAssessment();
             session.Cancel(open.Draft.DraftId);
             Section = null;
@@ -626,33 +638,128 @@ public sealed class WorkbenchController : IDisposable
         return Task.CompletedTask;
     }
 
-    /// <summary>Appends one structural step, then checks its bytes with the real Core certificate.</summary>
+    /// <summary>True while a section step, undo or redo is applying or queued. Finish waits for it; a strip switch is refused.</summary>
+    public bool SectionStepPending => sectionStepsPending > 0;
+
+    /// <summary>
+    /// Appends one structural step, then checks its bytes with the real Core certificate. The step applies on the thread
+    /// pool, after any step still applying (§7 Concurrency); the task completes when its certificate answers or a newer
+    /// step supersedes it. A refused step throws its <see cref="ContractError"/>; a step whose section was cancelled,
+    /// finished or disposed before it landed completes without effect (UI-LIFETIME).
+    /// </summary>
     public async Task ApplySectionStepAsync(SectionStep step, CancellationToken cancellation = default)
     {
-        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
-        CancelSectionAssessment();
+        Task assessed = Task.CompletedTask;
+        await QueueSectionStep(async mode =>
+        {
+            SectionDraftView next;
+            SessionDraft? landed;
+            try
+            {
+                (next, landed) = await ApplyOffUiThread(mode, () => session.ApplySectionStep(mode.Draft.DraftId, mode.Draft.Generation, step));
+            }
+            catch (ContractError error) when (!SectionStale(mode))
+            {
+                SectionRefitRefusal = error.Data["RefitMaximumChordX"] is double x &&
+                    error.Data["RefitAffectedSide"] is SurfaceSide side &&
+                    error.Data["RefitDeviationMeters"] is double deviation &&
+                    error.Data["RefitLimitMeters"] is double limit ? (side, x, deviation, limit) : null;
+                Status = error.Message;
+                // The refused step left the draft unchanged; its certificate (cleared when the step was asked for) is asked again.
+                assessed = AssessCurrentSectionAsync();
+                NotifySection();
+                throw;
+            }
+            catch (ContractError) { return; }
+            if (SectionStale(mode)) return;
+            draft = landed;
+            SectionRefitRefusal = null;
+            Section = Section! with { Draft = next, Assessment = null, FinishReason = SectionChecking };
+            // One shell refresh per step: the assessment's "Checking…" write notifies, after the strip has the step report.
+            RaiseSectionChanged();
+            assessed = AssessCurrentSectionAsync(cancellation);
+        });
+        await assessed;
+    }
+
+    /// <summary>Moves the section cursor back one step, after any step still applying. Never document undo.</summary>
+    public Task UndoSectionStepAsync() => MoveSectionCursorAsync(-1);
+
+    /// <summary>Moves the section cursor forward one step, after any step still applying.</summary>
+    public Task RedoSectionStepAsync() => MoveSectionCursorAsync(1);
+
+    private Task MoveSectionCursorAsync(int delta) => QueueSectionStep(async mode =>
+    {
         SectionDraftView next;
+        SessionDraft? landed;
         try
         {
-            next = session.ApplySectionStep(mode.Draft.DraftId, mode.Draft.Generation, step);
-            SectionRefitRefusal = null;
+            (next, landed) = await ApplyOffUiThread(mode, () => delta < 0
+                ? session.UndoSectionStep(mode.Draft.DraftId)
+                : session.RedoSectionStep(mode.Draft.DraftId));
         }
-        catch (ContractError error)
+        catch (ContractError) when (SectionStale(mode)) { return; }
+        if (SectionStale(mode)) return;
+        draft = landed;
+        SectionRefitRefusal = null;
+        bool moved = next.Cursor != mode.Draft.Cursor;
+        Section = Section! with
         {
-            SectionRefitRefusal = error.Data["RefitMaximumChordX"] is double x &&
-                error.Data["RefitAffectedSide"] is SurfaceSide side &&
-                error.Data["RefitDeviationMeters"] is double deviation &&
-                error.Data["RefitLimitMeters"] is double limit ? (side, x, deviation, limit) : null;
-            Status = error.Message;
-            NotifySection();
-            throw;
-        }
-        draft = session.Snapshot().Draft;
-        Section = mode with { Draft = next, Assessment = null, FinishReason = "Checking…" };
-        // One shell refresh per step: the assessment's "Checking…" write notifies, after the strip has the step report.
+            Draft = next, Assessment = null,
+            FinishReason = moved ? SectionChecking : delta < 0 ? "No earlier step." : "No later step."
+        };
+        // A moved cursor refreshes the shell once, through the assessment's "Checking…" write; a no-op says so at once.
+        if (!moved) { NotifySection(); return; }
         RaiseSectionChanged();
-        await AssessCurrentSectionAsync(cancellation);
+        _ = AssessCurrentSectionAsync();
+    });
+
+    /// <summary>
+    /// Queues one step, undo or redo behind the one applying. Finish goes off now, until the certificate of the landed
+    /// bytes answers. <paramref name="land"/> runs on the UI thread with the section as it is once the queue reaches it.
+    /// </summary>
+    private Task QueueSectionStep(Func<SectionMode, Task> land)
+    {
+        if (Section is not { } mode) return Task.FromException(new ContractError("DSL-DRAFT-OWNED"));
+        CancelSectionAssessment();
+        if (mode.Assessment is not null || mode.FinishReason != SectionChecking)
+        {
+            Section = mode with { Assessment = null, FinishReason = SectionChecking };
+            // The mode bar's Finish and reason follow at once; the panes' inputs are unchanged, so no shell refresh.
+            RaiseSectionChanged();
+        }
+        sectionStepsPending++;
+        var run = RunQueuedAsync(sectionStepTail, mode.Draft.DraftId, land);
+        sectionStepTail = run;
+        return run;
     }
+
+    private async Task RunQueuedAsync(Task previous, string draftId, Func<SectionMode, Task> land)
+    {
+        try
+        {
+            // The step before reports its own outcome to its caller; this one runs whatever it was.
+            await previous.ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext | ConfigureAwaitOptions.SuppressThrowing);
+            // UI-LIFETIME: Cancel, Finish, a rebind or Dispose before the queue reached this step ends it unapplied.
+            if (disposed || Section is not { } mode || mode.Draft.DraftId != draftId) return;
+            CancelSectionAssessment();
+            await land(mode);
+        }
+        finally { sectionStepsPending--; }
+    }
+
+    /// <summary>Runs one Core cursor or patch call on the thread pool and returns its view with the session's draft.</summary>
+    private Task<(SectionDraftView View, SessionDraft? Draft)> ApplyOffUiThread(SectionMode mode, Func<SectionDraftView> apply) =>
+        Task.Run(() =>
+        {
+            sectionStepGate?.Invoke(mode.Draft.Generation);
+            var view = apply();
+            return (view, session.Snapshot().Draft);
+        });
+
+    // A result belongs to the section it was asked of: Cancel, Finish, a rebind or Dispose since then discards it.
+    private bool SectionStale(SectionMode asked) =>
+        disposed || Section is not { } now || now.Draft.DraftId != asked.Draft.DraftId;
 
     /// <summary>
     /// A section pointer-drag frame (§3.7): records where the release will move the point, and nothing else. The canvas
@@ -671,36 +778,6 @@ public sealed class WorkbenchController : IDisposable
         pendingGestureTarget = (x, y);
     }
 
-    public void UndoSectionStep()
-    {
-        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
-        SectionRefitRefusal = null;
-        CancelSectionAssessment();
-        var next = session.UndoSectionStep(mode.Draft.DraftId);
-        draft = session.Snapshot().Draft;
-        Section = mode with { Draft = next, Assessment = null, FinishReason = next.Cursor == mode.Draft.Cursor ? "No earlier step." : "Checking…" };
-        AfterCursorMove(next.Cursor != mode.Draft.Cursor);
-    }
-
-    // A moved cursor refreshes the shell once, through the assessment's "Checking…" write; a no-op says so at once.
-    private void AfterCursorMove(bool moved)
-    {
-        if (!moved) { NotifySection(); return; }
-        RaiseSectionChanged();
-        _ = AssessCurrentSectionAsync();
-    }
-
-    public void RedoSectionStep()
-    {
-        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
-        SectionRefitRefusal = null;
-        CancelSectionAssessment();
-        var next = session.RedoSectionStep(mode.Draft.DraftId);
-        draft = session.Snapshot().Draft;
-        Section = mode with { Draft = next, Assessment = null, FinishReason = next.Cursor == mode.Draft.Cursor ? "No later step." : "Checking…" };
-        AfterCursorMove(next.Cursor != mode.Draft.Cursor);
-    }
-
     private async Task AssessCurrentSectionAsync(CancellationToken cancellation = default)
     {
         if (Section is not { } mode) return;
@@ -713,7 +790,12 @@ public sealed class WorkbenchController : IDisposable
         {
             // Test seam: a gate may delay the call, but the assessment itself always runs in Core.
             if (sectionAssessmentGate is not null) await sectionAssessmentGate(mode.Draft.Generation);
-            var result = await Task.Run(() => session.AssessSection(mode.Draft.DraftId, mode.Draft.Generation, linked.Token));
+            // Core runs one validation at a time (DSL-VALIDATION-BUSY, swallowed below), so the calls form a chain: each starts
+            // after the one before has returned, and a superseded one returns at once on its cancelled token. Raced, a quick
+            // run of queued steps could leave the last one unassessed and Finish off for good.
+            var call = AfterPrevious(sectionAssessmentCall, () => session.AssessSection(mode.Draft.DraftId, mode.Draft.Generation, linked.Token));
+            sectionAssessmentCall = call;
+            var result = await call;
             if (disposed || ticket != sectionAssessmentTicket || Section?.Draft.Generation != mode.Draft.Generation) return;
             string? reason = result.Status switch
             {
@@ -736,6 +818,12 @@ public sealed class WorkbenchController : IDisposable
         }
     }
 
+    private static async Task<SessionAssessment> AfterPrevious(Task previous, Func<SessionAssessment> assess)
+    {
+        await previous.ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+        return await Task.Run(assess).ConfigureAwait(false);
+    }
+
     private void CancelSectionAssessment()
     {
         ++sectionAssessmentTicket;
@@ -756,7 +844,10 @@ public sealed class WorkbenchController : IDisposable
 
     public async Task FinishSectionAsync()
     {
-        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
+        if (Section is null) throw new ContractError("DSL-DRAFT-OWNED");
+        // Finish follows the certificate of the landed bytes: a step still applying lands (or is refused) first.
+        await sectionStepTail.ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext | ConfigureAwaitOptions.SuppressThrowing);
+        var mode = Section ?? throw new ContractError("DSL-CONFLICT");
         if (mode.Assessment is null) await AssessCurrentSectionAsync();
         mode = Section ?? throw new ContractError("DSL-CONFLICT");
         if (!mode.CanFinish || mode.Assessment is null)
@@ -1099,7 +1190,8 @@ public sealed class WorkbenchController : IDisposable
             return new GestureOutcome.NoChange();
         var side = point.Curve == "upper" ? SurfaceSide.Upper : SurfaceSide.Lower;
         await ApplySectionStepAsync(new SectionStep.Move(side, point.VertexId, target.Value.Span, target.Value.Aft), cancellation);
-        return new GestureOutcome.Committed(Section!.Draft.DraftId, "Section step added.");
+        // UI-LIFETIME: a section cancelled or finished while the step applied leaves nothing committed.
+        return Section is { } landed ? new GestureOutcome.Committed(landed.Draft.DraftId, "Section step added.") : new GestureOutcome.NoChange();
     }
 
     private async Task<GestureOutcome> CommitPointGestureAsync(SessionDraft capture, GestureEnd reason, long version,
@@ -1748,7 +1840,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void Undo()
     {
-        if (Section is not null) { UndoSectionStep(); return; }
+        if (Section is not null) { _ = UndoSectionStepAsync(); return; }
         if (Gesture != GestureState.Idle || draft is not null) throw new ContractError("DSL-DRAFT-OWNED");
         CancelSampling();
         session.Undo(Guid.NewGuid().ToString("D"));
@@ -1763,7 +1855,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void Redo()
     {
-        if (Section is not null) { RedoSectionStep(); return; }
+        if (Section is not null) { _ = RedoSectionStepAsync(); return; }
         if (Gesture != GestureState.Idle || draft is not null) throw new ContractError("DSL-DRAFT-OWNED");
         CancelSampling();
         session.Redo(Guid.NewGuid().ToString("D"));

@@ -19,6 +19,17 @@ public static class ControllerSectionTests
         return new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters, point.Ordinate + delta);
     }
 
+    private static void WaitFor(Func<bool> condition)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!condition())
+        {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("Section controller state did not settle");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Sleep(1);
+        }
+    }
+
     private static void Wait(Task task)
     {
         var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
@@ -124,6 +135,8 @@ public static class ControllerSectionTests
             Wait(controller.OpenExampleAsync());
             Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
             var pending = controller.ApplySectionStepAsync(Raise(controller));
+            // The step applies off the UI thread (§7): the newer report is written once it has landed and its check is held.
+            WaitFor(() => controller.Section!.Draft.Cursor == 1);
             long newer = controller.SupersedeStatus();
             gate.SetResult();
             Wait(pending);
@@ -196,9 +209,12 @@ public static class ControllerSectionTests
             string source = controller.AcceptedSource;
             Wait(controller.ApplySectionStepAsync(Raise(controller)));
             controller.Undo();
+            // The inner step's undo applies off the UI thread (§7), queued like a step.
+            WaitFor(() => !controller.SectionStepPending);
             if (controller.Section?.Draft.Cursor != 0 || controller.AcceptedSource != source || controller.CanUndo)
                 throw new Exception("Undo did not stop at the section entry");
             controller.Redo();
+            WaitFor(() => !controller.SectionStepPending);
             if (controller.Section?.Draft.Cursor != 1 || controller.AcceptedSource != source)
                 throw new Exception("Redo did not restore the inner step");
         });
@@ -317,6 +333,70 @@ public static class ControllerSectionTests
             var ev = session.ReadLocalEvents().Last(item => item.Operation == "section.assess");
             if (ev.Outcome != "superseded" || ev.DurationMilliseconds is not null)
                 throw new Exception($"Cancelled assessment recorded {ev.Outcome} with {ev.DurationMilliseconds} ms");
+        });
+
+        // release-freeze (§7 Concurrency, UI-LIFETIME): a step held in its apply is discarded when the section is cancelled
+        // or the controller disposed before it lands. Cancel's copy stays, nothing is reported and nothing throws.
+        DesktopChecks.Check("SectionMode_StepLandingAfterCancel_Discarded", () =>
+        {
+            using var hold = new ManualResetEventSlim(false);
+            bool? onUiThread = null;
+            using (var controller = new WorkbenchController(sectionStepGate: _ => { onUiThread = Dispatcher.UIThread.CheckAccess(); hold.Wait(TimeSpan.FromSeconds(5)); }))
+            {
+                Wait(controller.OpenExampleAsync());
+                Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+                var step = controller.ApplySectionStepAsync(Raise(controller));
+                WaitFor(() => onUiThread is not null);
+                if (onUiThread == true) throw new Exception("The step applied on the UI thread");
+                controller.CancelSection();
+                string cancelled = controller.Status;
+                hold.Set();
+                Wait(step);
+                Dispatcher.UIThread.RunJobs();
+                if (controller.Section is not null || controller.Status != cancelled)
+                    throw new Exception($"A step landing after Cancel was applied or reported: section {controller.Section is not null}, status '{controller.Status}'");
+            }
+            hold.Reset();
+            onUiThread = null;
+            var disposed = new WorkbenchController(sectionStepGate: _ => { onUiThread = Dispatcher.UIThread.CheckAccess(); hold.Wait(TimeSpan.FromSeconds(5)); });
+            Wait(disposed.OpenExampleAsync());
+            Wait(disposed.EnterSectionAsync(0, EntryOrigin.Properties));
+            int changes = 0;
+            var late = disposed.ApplySectionStepAsync(Raise(disposed));
+            WaitFor(() => onUiThread is not null);
+            disposed.Changed += () => changes++;
+            disposed.SectionChanged += () => changes++;
+            disposed.Dispose();
+            hold.Set();
+            Wait(late);
+            Dispatcher.UIThread.RunJobs();
+            if (changes != 0) throw new Exception($"A step landing after Dispose raised {changes} changes");
+        });
+
+        // release-freeze: steps asked for while one applies queue behind it and land in order; none is dropped. Undo queues
+        // the same way, and Finish follows the certificate of the last landed bytes.
+        DesktopChecks.Check("SectionMode_StepsWhileApplying_QueueInOrder", () =>
+        {
+            using var hold = new ManualResetEventSlim(false);
+            int gated = 0;
+            using var controller = new WorkbenchController(sectionStepGate: _ => { if (Interlocked.Increment(ref gated) == 1) hold.Wait(TimeSpan.FromSeconds(5)); });
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            var first = controller.ApplySectionStepAsync(Raise(controller, .01));
+            var second = controller.ApplySectionStepAsync(Raise(controller, .02));
+            var undo = controller.UndoSectionStepAsync();
+            if (controller.Section!.Draft.Cursor != 0 || controller.Section.CanFinish || controller.Section.FinishReason != "Checking…")
+                throw new Exception($"While held: cursor {controller.Section.Draft.Cursor}, Finish reason '{controller.Section.FinishReason}'");
+            hold.Set();
+            Wait(Task.WhenAll(first, second, undo));
+            WaitFor(() => controller.Section!.Assessment is not null);
+            var mode = controller.Section!;
+            var cv3 = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+            if (mode.Draft.Cursor != 1 || mode.Draft.StepCount != 2 || !mode.CanFinish)
+                throw new Exception($"Queued steps landed as cursor {mode.Draft.Cursor} of {mode.Draft.StepCount}, CanFinish {mode.CanFinish}");
+            var start = Sections.View(mode.BaseBytes, 0, SurfaceSide.Upper, "entry", 0).Points.Single(item => item.Id == "cv-3");
+            if (Math.Abs(cv3.Ordinate - start.Ordinate - .01) > 1e-9)
+                throw new Exception($"The undo did not land on the first step: cv-3 moved {cv3.Ordinate - start.Ordinate:G6}");
         });
 
         DesktopChecks.Check("SectionMode_Enter_DraftBoundFirstPointSelected", () =>

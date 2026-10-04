@@ -1119,6 +1119,11 @@ Release-freeze (2026-10-04; fast ring, `tools/run-tests.sh`, each under 1 s): `S
 the facts memo answers the same byte array from memory and computes a new array afresh, so a step's facts are never stale.
 `SectionEditor_NudgeRun_NoShellRefreshPerKey` (EDT): after the key that begins a run, a nudge key raises no controller change
 (no shell refresh); the run still accumulates (D-7) into one step on key-up.
+`SectionEditor_Release_StepAppliesOffUiThread` (EDT): with the released step held where it applies, the UI thread runs a
+posted job, the drawn drag result stays, the cursor has not moved and Finish is off; the step then lands once and Finish
+follows the certificate. `SectionMode_StepLandingAfterCancel_Discarded` (CTL): a held step landing after Cancel or Dispose
+changes nothing and reports nothing (UI-LIFETIME). `SectionMode_StepsWhileApplying_QueueInOrder` (CTL): steps and an undo
+asked for while one applies queue and land in order; none is dropped.
 
 **EDT — the editor surface.**
 `SectionEditor_EnterFromSideDoubleClick_ModeShown` (EDT) · `SectionEditor_ReturnOnSelectedStation_ModeShown` (EDT) ·

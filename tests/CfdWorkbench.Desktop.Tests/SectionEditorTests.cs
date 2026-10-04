@@ -353,6 +353,45 @@ public static class SectionEditorTests
             if (!slow.Controller.Section!.CanFinish || !slow.Button("ModeFinishButton").IsEnabled)
                 throw new Exception("Finish did not follow the certificate once it answered");
         });
+        // release-freeze (§7 Concurrency): a release applies its step on the thread pool. With the step held where it applies,
+        // the release returns, the UI thread runs a posted job, the drawn drag result stays on screen, the cursor has not
+        // moved and Finish is off; once the hold lifts the step lands once and Finish follows the certificate.
+        DesktopChecks.Check("SectionEditor_Release_StepAppliesOffUiThread", () =>
+        {
+            using var hold = new ManualResetEventSlim(false);
+            bool? onUiThread = null;
+            using var held = new Fixture(stepGate: _ => { onUiThread = Dispatcher.UIThread.CheckAccess(); hold.Wait(TimeSpan.FromSeconds(5)); });
+            var canvas = held.Canvas;
+            var size = new PixelSize((int)canvas.Bounds.Width, (int)canvas.Bounds.Height);
+            var point = held.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var from = held.Local(point);
+            int cursor = held.Controller.Section!.Draft.Cursor;
+            var pointer = held.Press(from);
+            var to = from + new Vector(10, -16);
+            held.Move(pointer, to);
+            using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+            var dragged = canvas.DrawnCurves[0];
+            held.Release(pointer, to);
+            WaitUntil(() => onUiThread is not null);
+            try
+            {
+                if (onUiThread == true) throw new Exception("The released step applied on the UI thread");
+                bool posted = false;
+                Dispatcher.UIThread.Post(() => posted = true);
+                Dispatcher.UIThread.RunJobs();
+                if (!posted) throw new Exception("The UI thread did not run a posted job while the step applied");
+                var mode = held.Controller.Section!;
+                if (mode.Draft.Cursor != cursor || mode.CanFinish || held.Button("ModeFinishButton").IsEnabled)
+                    throw new Exception($"While the step applied: cursor {mode.Draft.Cursor} (was {cursor}), Finish enabled {held.Button("ModeFinishButton").IsEnabled}");
+                using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+                if (MaxOffset(canvas.DrawnCurves[0], dragged) > .5)
+                    throw new Exception($"The drawn drag result did not stay while the step applied ({MaxOffset(canvas.DrawnCurves[0], dragged):F2} px)");
+            }
+            finally { hold.Set(); }
+            WaitUntil(() => held.Controller.Section!.Draft.Cursor == cursor + 1 && held.Controller.Section.Assessment is not null);
+            if (!held.Controller.Section!.CanFinish || !held.Button("ModeFinishButton").IsEnabled)
+                throw new Exception("Finish did not follow the certificate once the step landed");
+        });
         DesktopChecks.Check("SectionEditor_StripSwitchWithEdits_RefusedByClick", () =>
         {
             fixture.Reset();
@@ -859,7 +898,7 @@ public static class SectionEditorTests
         Pick("upper", moved.Id);
         shell.Canvas.Fit();
         Save("edt-s2b-light.png");
-        controller.UndoSectionStep();
+        Wait(controller.UndoSectionStepAsync());
         Assessed();
 
         // 2c: Anchor → Control on the anchor; refused when the lower refit is over the limit, with its marker.
@@ -908,15 +947,17 @@ public static class SectionEditorTests
         scope.TryFindResource(key, scope.ActualThemeVariant, out var value) && value is ISolidColorBrush brush
             ? brush.Color : throw new Exception("No theme brush " + key);
 
+    // A deadline, not a turn count: a section step now applies on the thread pool (§7 Concurrency), and under load a
+    // fixed number of dispatcher turns can pass before it lands.
     private static void WaitUntil(Func<bool> condition)
     {
-        for (int i = 0; i < 10000; i++)
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!condition())
         {
-            if (condition()) return;
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("Section editor state did not settle");
             Dispatcher.UIThread.RunJobs();
             Thread.Yield();
         }
-        throw new TimeoutException("Section editor state did not settle");
     }
 
     private static bool TryWaitUntil(Func<bool> condition)
@@ -941,9 +982,10 @@ public static class SectionEditorTests
         internal Button Button(string name) => View.FindControl<Button>(name)!;
 
         /// <param name="assessmentGate">The controller's CTL seam: it delays the real <c>AssessSection</c>, never replaces it.</param>
-        internal Fixture(Func<long, Task>? assessmentGate = null)
+        /// <param name="stepGate">The controller's CTL seam: it runs where a step applies, before Core's patch, never replacing it.</param>
+        internal Fixture(Func<long, Task>? assessmentGate = null, Action<long>? stepGate = null)
         {
-            Controller = new WorkbenchController(sectionAssessmentGate: assessmentGate);
+            Controller = new WorkbenchController(sectionAssessmentGate: assessmentGate, sectionStepGate: stepGate);
             Wait(Controller.OpenExampleAsync());
             Area.PlanCanvas.Controller = Controller;
             Window = new Window { Content = Area, Width = 1280, Height = 800 };

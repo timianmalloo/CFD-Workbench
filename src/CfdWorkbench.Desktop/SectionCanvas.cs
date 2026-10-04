@@ -38,6 +38,10 @@ public class SectionCanvas : Control
     private PointView? draggedPoint;
     private IPointer? draggedPointer;
     private Point? previewPoint;
+    // The released drag, drawn until its step lands: the step applies off the UI thread (§7 Concurrency), and drawing the
+    // committed draft meanwhile would snap the curve back for the length of the apply. Keyed by the draft generation it
+    // was released on, so a landed (or refused) step ends it.
+    private (PointView Point, Point At, string DraftId, long Generation)? releasedDrag;
     private Point pressPoint;
     private (string DraftId, long Generation, string Station, double ThicknessRatio)? probeStation;
 
@@ -515,7 +519,15 @@ public class SectionCanvas : Control
     /// </summary>
     private (CurveView Upper, CurveView Lower) DragFrame(CurveView upper, CurveView lower)
     {
-        if (draggedPoint is not { } dragged || previewPoint is not { } at) return (upper, lower);
+        if (draggedPoint is { } dragged && previewPoint is { } at) return DragFrameAt(upper, lower, dragged, at);
+        if (releasedDrag is { } released && Controller?.Section is { } mode && mode.Draft.DraftId == released.DraftId &&
+            mode.Draft.Generation == released.Generation)
+            return DragFrameAt(upper, lower, released.Point, released.At);
+        return (upper, lower);
+    }
+
+    private static (CurveView Upper, CurveView Lower) DragFrameAt(CurveView upper, CurveView lower, PointView dragged, Point at)
+    {
         bool onUpper = dragged.Curve == "upper";
         var own = onUpper ? upper : lower;
         var other = onUpper ? lower : upper;
@@ -804,9 +816,12 @@ public class SectionCanvas : Control
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
         base.OnPointerReleased(e);
-        if (Controller?.Section is not null && draggedPoint is not null)
+        if (Controller?.Section is { } mode && draggedPoint is not null)
         {
+            var held = Controller.Gesture == GestureState.Dragging && previewPoint is { } at
+                ? (draggedPoint, at, mode.Draft.DraftId, mode.Draft.Generation) : ((PointView, Point, string, long)?)null;
             ReleaseDrag();
+            releasedDrag = held;
             _ = EndGestureAsync(GestureEnd.Release);
             e.Handled = true;
             return;
@@ -829,8 +844,10 @@ public class SectionCanvas : Control
 
     private async Task EndGestureAsync(GestureEnd reason)
     {
+        var held = releasedDrag;
         try { if (Controller is not null) await Controller.EndGestureAsync(reason); }
         catch (ContractError error) { ShowReason(error.Message, focus: false); }
+        if (releasedDrag == held) releasedDrag = null;
         InvalidateVisual();
     }
 
