@@ -10,6 +10,7 @@ using Avalonia.Platform;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.VisualTree;
+using Avalonia.LogicalTree;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Core;
 
@@ -19,6 +20,315 @@ public static class PlanCanvasTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("RebuildPopover_StepperReadoutsFromCore", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var area = fixture.Host.ModelView;
+            area.BeginRebuild("trailing", fixture.Canvas);
+            var popover = area.RebuildPanel;
+            var core = fixture.Controller.PreviewRebuilds("trailing").Single(item => item.Count == 4);
+            if (popover.Count != 4 || popover.Preview?.MaxChange != core.MaxChange ||
+                !popover.ReadoutText.Contains("Area", StringComparison.Ordinal) ||
+                !popover.ReadoutText.Contains((core.AreaAfterSquareMeters * 10000).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal))
+                throw new Exception("Rebuild readouts did not come from Core preview, including area");
+            var readouts = popover.FindControl<Grid>("ReadoutGrid");
+            if (readouts is null || readouts.ColumnDefinitions.Count != 2 ||
+                readouts.Children.OfType<TextBlock>().Count() != 14)
+                throw new Exception("Rebuild readouts are not seven two-column description rows");
+        });
+        DesktopChecks.Check("Properties_RebuildLink_OpensCurvePopover", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[5];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.Settle();
+            var link = fixture.Host.Properties.GetLogicalDescendants().OfType<HyperlinkButton>()
+                .FirstOrDefault(item => item.Name == "Link_r_rebuild");
+            if (link is null) throw new Exception("Curve group has no Rebuild link");
+            link.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            if (!fixture.Host.ModelView.RebuildPanel.IsVisible)
+                throw new Exception("Properties Rebuild link did not open the curve popover");
+        });
+        DesktopChecks.Check("Properties_BackspaceInTextField_EditsTextNotPoint", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[5];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.Settle();
+            var field = PropertiesViewTests.Need<TextBox>(fixture.Host.Properties, "PointSpanInput");
+            field.Text = "250";
+            field.CaretIndex = 3;
+            field.Focus();
+            var key = new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = field, Key = Key.Back };
+            field.RaiseEvent(key);
+            fixture.Settle();
+            if (fixture.Controller.CurveFor("trailing")?.Points.Count != 10 || field.Text != "25")
+                throw new Exception("Backspace did not edit the focused field while preserving the point");
+        });
+        DesktopChecks.Check("RebuildPopover_CancelAndEscape_NoRowBytesAndFreshnessUnchanged", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            string before = fixture.Controller.AcceptedSource;
+            bool undo = fixture.Controller.CanUndo;
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            panel.Close(false);
+            if (panel.IsVisible || fixture.Canvas.RebuildPreview is not null || fixture.Controller.AcceptedSource != before ||
+                fixture.Controller.CanUndo != undo) throw new Exception("Cancel wrote a row or retained the preview");
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            var count = panel.FindControl<TextBox>("CountInput")!;
+            count.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = count, Key = Key.Escape });
+            if (panel.IsVisible || fixture.Controller.AcceptedSource != before)
+                throw new Exception("Escape changed the source or left the popover open");
+        });
+        DesktopChecks.Check("RebuildPopover_ReturnApplies_OneUndoRowPointSelectionCleared", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[5];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            string before = fixture.Controller.AcceptedSource;
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            fixture.Host.RunCommand("point.rebuild").GetAwaiter().GetResult();
+            if (!panel.IsVisible) throw new Exception("Edit Rebuild did not open");
+            Task applied = panel.ApplyAsync();
+            for (int i = 0; i < 400 && !applied.IsCompleted; i++)
+            { Avalonia.Threading.Dispatcher.UIThread.RunJobs(); Thread.Sleep(5); }
+            applied.GetAwaiter().GetResult();
+            fixture.Settle();
+            if (panel.IsVisible || fixture.Controller.Planform!.Trailing.Points.Count != 4 ||
+                fixture.Controller.Selection is Selection.Points || fixture.Controller.AcceptedSource == before ||
+                !fixture.Controller.CanUndo)
+                throw new Exception("Rebuild did not apply and clear selection as one edit");
+            fixture.Controller.Undo();
+            if (fixture.Controller.AcceptedSource != before) throw new Exception("One Undo did not restore Rebuild source");
+        });
+        DesktopChecks.Check("RebuildPopover_FocusReturnsToPlanOnClose", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            fixture.Host.ModelView.RebuildPanel.Close(false);
+            fixture.Settle();
+            if (!fixture.Canvas.IsFocused) throw new Exception("Plan did not regain focus after popover close");
+        });
+        DesktopChecks.Check("RebuildPopover_TypedCountOutOfRange_FieldErrorNothingChanged", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            string before = fixture.Controller.AcceptedSource;
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            panel.SetCount(11);
+            if (panel.FieldError != "Enter a whole number from 4 to 10." ||
+                fixture.Controller.AcceptedSource != before)
+                throw new Exception("Out-of-range count was not refused in the field");
+        });
+        DesktopChecks.Check("RebuildPopover_CrossingDisablesRebuildWithReason", () =>
+        {
+            string source = File.ReadAllText("docs/examples/foildsl/foil-basic.foil");
+            string line = source.Split('\n').Single(item => item.TrimStart().StartsWith("trailing cv {", StringComparison.Ordinal));
+            string changed = System.Text.RegularExpressions.Regex.Replace(line, @"points \[(.*?)\] \}", match =>
+            {
+                int index = 0;
+                string points = System.Text.RegularExpressions.Regex.Replace(match.Groups[1].Value, @"\(([^,]+), ([^)]+)\)", point =>
+                    $"({point.Groups[1].Value}, {(index++ is 0 or 1 or 6 ? "0.25" : "0.01")})");
+                return $"points [{points}] }}";
+            });
+            // The Core crossing fixture (PointVerbTests.ThinTrailingDip) with its IDs materialised, so it opens certified.
+            byte[] bytes = FoilSource.MaterializeIds(FoilSource.Parse(
+                System.Text.Encoding.UTF8.GetBytes(source.Replace(line, changed, StringComparison.Ordinal))));
+            using var fixture = new PlanFixture(source: bytes);
+            string before = fixture.Controller.AcceptedSource;
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            if (panel.Preview?.Refusal is not { } reason || !reason.Contains("would cross", StringComparison.Ordinal) ||
+                panel.FindControl<Button>("ApplyButton")!.IsEnabled)
+                throw new Exception("Crossing preview did not disable Rebuild with its reason");
+            panel.ApplyAsync().GetAwaiter().GetResult();
+            if (fixture.Controller.AcceptedSource != before) throw new Exception("Crossing preview changed accepted source");
+        });
+        DesktopChecks.Check("RebuildPopover_Close_OneEventWithOutcome", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            ShellEvents.Clear();
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            fixture.Host.ModelView.RebuildPanel.Close(false);
+            fixture.Host.ModelView.RebuildPanel.Close(false);
+            var close = ShellEvents.Read().Where(item => item.Name == "rebuild.close").ToArray();
+            if (close.Length != 1 || close[0].Outcome != "cancelled" || close[0].PointsAfter != 10)
+                throw new Exception("Popover close did not emit one outcome with the count");
+        });
+        DesktopChecks.Check("EditMenu_AddPoint_TypedPositionAddsSelectsNew", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var selected = fixture.Controller.Planform!.Trailing.Points[1];
+            fixture.Canvas.SelectPoint(new PointRef(selected.Curve, selected.Id), false, false);
+            fixture.Host.RunCommand("point.add").GetAwaiter().GetResult();
+            fixture.Settle();
+            dynamic area = fixture.Host.ModelView;
+            if (!area.AddPointInput.IsVisible) throw new Exception("Add position field did not open");
+            area.AddPointInput.Text = "250";
+            Task applied = area.ApplyAddPointAsync();
+            for (int attempt = 0; attempt < 400 && !applied.IsCompleted; attempt++)
+            {
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                Thread.Sleep(5);
+            }
+            applied.GetAwaiter().GetResult();
+            fixture.WaitGesture();
+            if (fixture.Controller.Planform!.Trailing.Points.Count != 5 ||
+                fixture.Controller.Selection is not Selection.Points { Items.Count: 1 } points ||
+                fixture.Controller.Planform.Trailing.Points.All(point => point.Id != points.Items[0].VertexId ||
+                    Math.Abs(point.SpanMeters - 0.25) > 0.001))
+                throw new Exception("Typed position did not add and select the new point");
+        });
+
+        DesktopChecks.Check("EditMenu_PointVerbs_EnabledStateAndReasonPerSelection", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            dynamic host = fixture.Host;
+            var point = fixture.Controller.Planform!.Trailing.Points[1];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            if (!fixture.Host.CanRun("point.add") || !fixture.Host.CanRun("point.rebuild") ||
+                fixture.Host.CanRun("point.remove") ||
+                host.PointCommandReason("point.remove") != "A curve needs at least 4 points.")
+                throw new Exception("Four-point selection has wrong verb enablement or floor reason");
+            fixture.Controller.Select(new Selection.Points([
+                new PointRef("trailing", fixture.Controller.Planform.Trailing.Points[1].Id),
+                new PointRef("trailing", fixture.Controller.Planform.Trailing.Points[2].Id)]));
+            if (fixture.Host.CanRun("point.remove") ||
+                host.PointCommandReason("point.remove") != "Remove points one at a time, so each change is measured.")
+                throw new Exception("Multi-selection did not name the one-at-a-time rule");
+            // §3.6: the verbs' ceiling is 16 whatever the file version, so a 10-point 4.0 rail still takes Add.
+            using var ten = new PlanFixture(tenPoint: true);
+            var tenth = ten.Controller.Planform!.Trailing.Points[5];
+            ten.Canvas.SelectPoint(new PointRef(tenth.Curve, tenth.Id), false, false);
+            ten.Canvas.OpenOutlineMenu("trailing", 0.45);
+            bool outline = ten.Canvas.ContextMenu?.Items.OfType<MenuItem>().First().IsEnabled == true;
+            ten.Canvas.ContextMenu?.Close();
+            if (!ten.Host.CanRun("point.add") || !outline)
+                throw new Exception($"Add point disabled on a 10-point rail: Edit {ten.Host.CanRun("point.add")}, outline {outline}");
+        });
+
+        DesktopChecks.Check("PlanCanvas_BackspaceOrDelete_RemovesSelectedControlSelectsNearest", () =>
+        {
+            foreach (var key in new[] { Key.Back, Key.Delete })
+            {
+                using var fixture = new PlanFixture(tenPoint: true);
+                var point = fixture.Controller.Planform!.Trailing.Points.First(item => item.Role == PointRole.Control);
+                fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+                fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+                if (!fixture.KeyDown(key)) throw new Exception($"{key} was not handled by Plan");
+                fixture.WaitGesture();
+                if (fixture.Controller.Planform!.Trailing.Points.Count != 9 ||
+                    fixture.Controller.Selection is not Selection.Points { Items.Count: 1 } selected ||
+                    selected.Items[0].VertexId == point.Id)
+                    throw new Exception($"{key} did not remove the selected control and select its survivor");
+            }
+        });
+
+        DesktopChecks.Check("PlanCanvas_BackspaceAtFloor_WarningCopyNothingChanged", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[1];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            string before = fixture.Controller.AcceptedSource;
+            fixture.Settle();
+            // §11 state table: the refused point keeps its selection with a dashed warning-viewport ring, r 17.
+            (byte R, byte G, byte B)[] Ring() => Enumerable.Range(0, 48).Select(step => fixture.RgbNear(point,
+                (int)Math.Round(17 * Math.Cos(step * Math.PI / 24)), (int)Math.Round(17 * Math.Sin(step * Math.PI / 24)))).ToArray();
+            var ringBefore = Ring();
+            bool handled = fixture.KeyDown(Key.Back);
+            fixture.WaitGesture();
+            if (!handled || !fixture.Controller.Status.Contains("A curve needs at least 4 points.", StringComparison.Ordinal) ||
+                fixture.Controller.AcceptedSource != before || fixture.Controller.StatusKind != ReportKind.Warning)
+                throw new Exception("Backspace at floor did not retain source and show the reason as a warning");
+            fixture.Settle();
+            var warning = ((ISolidColorBrush)fixture.Canvas.WarningBrush!).Color;
+            int warned = Ring().Zip(ringBefore).Count(pair => pair.First != pair.Second &&
+                Math.Abs(pair.First.R - warning.R) + Math.Abs(pair.First.G - warning.G) + Math.Abs(pair.First.B - warning.B) < 90);
+            if (warned < 6) throw new Exception($"Refused point has no dashed warning ring: {warned} of 48 ring samples in the warning colour");
+        });
+
+        DesktopChecks.Check("PlanCanvas_BackspaceWithSeveralSelected_OneAtATimeCopy", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var controls = fixture.Controller.Planform!.Trailing.Points.Where(item => item.Role == PointRole.Control).Take(2).ToArray();
+            fixture.Controller.Select(new Selection.Points(controls.Select(point => new PointRef(point.Curve, point.Id)).ToArray()));
+            string before = fixture.Controller.AcceptedSource;
+            if (!fixture.KeyDown(Key.Back) || fixture.Controller.Status != "Remove points one at a time, so each change is measured." ||
+                fixture.Controller.AcceptedSource != before)
+                throw new Exception("Multi-selection did not refuse one-at-a-time removal");
+        });
+
+        DesktopChecks.Check("PlanCanvas_DoubleClickOnOutline_AddsPointSelectsAndFocusesIt", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            dynamic canvas = fixture.Canvas;
+            var curve = fixture.Controller.Planform!.Trailing;
+            var sample = curve.Samples.OrderBy(sample => Math.Abs(sample.SpanMeters / fixture.Controller.Planform!.HalfSpanMeters - 0.5)).First();
+            Point at = canvas.OutlineScreenPoint(sample, false);
+            if (fixture.Canvas.HitTestPoint(at) is not null) throw new Exception("Chosen outline spot overlaps a point glyph");
+            fixture.DoubleClickAt(at);
+            fixture.WaitGesture();
+            fixture.Settle();
+            if (fixture.Controller.Planform!.Trailing.Points.Count != 5 ||
+                fixture.Controller.Selection is not Selection.Points { Items.Count: 1 } selected ||
+                fixture.Canvas.FocusedTarget != selected.Items[0])
+                throw new Exception("Double-click on the curve did not add, select, and focus its new point");
+        });
+
+        DesktopChecks.Check("PlanCanvas_DoubleClickOnPortHalf_StatusSaysStarboard", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            dynamic canvas = fixture.Canvas;
+            var sample = fixture.Controller.Planform!.Trailing.Samples[fixture.Controller.Planform.Trailing.Samples.Count / 2];
+            string before = fixture.Controller.AcceptedSource;
+            fixture.DoubleClickAt(canvas.OutlineScreenPoint(sample, true));
+            if (fixture.Controller.AcceptedSource != before ||
+                fixture.Controller.Status != "Add points on the starboard half, where the points are.")
+                throw new Exception("Port double-click changed the foil or omitted the starboard reason");
+        });
+
+        DesktopChecks.Check("PlanCanvas_DoubleClickOnPolygonLeg_NoAdd", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var curve = fixture.Controller.Planform!.Trailing;
+            var a = fixture.Canvas.ScreenPoint(curve.Points[1]);
+            var b = fixture.Canvas.ScreenPoint(curve.Points[2]);
+            var middle = new Point((a.X + b.X) / 2, (a.Y + b.Y) / 2);
+            if (fixture.Canvas.HitTestPoint(middle) is not null) throw new Exception("Polygon-leg fixture overlaps a glyph");
+            string before = fixture.Controller.AcceptedSource;
+            fixture.DoubleClickAt(middle);
+            fixture.WaitGesture();
+            if (fixture.Controller.AcceptedSource != before)
+                throw new Exception("Dashed control polygon was treated as the curve");
+        });
+
+        DesktopChecks.Check("ContextMenu_Outline_AddPointHere_AddsAtPressPoint", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            const double eta = 0.45;
+            fixture.Canvas.OpenOutlineMenu("trailing", eta);
+            var add = fixture.Canvas.ContextMenu?.Items.OfType<MenuItem>().FirstOrDefault();
+            if (add?.Header?.ToString() != "Add Point Here") throw new Exception("Outline Add row is missing");
+            add.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+            fixture.WaitGesture();
+            // Oracle: Core's AddPoint at the press η. The new control point sits on the polygon, not at η, so the
+            // proof is that the menu's result equals the direct command's result point for point.
+            using var direct = new WorkbenchController();
+            Task.Run(async () =>
+            {
+                await direct.NewFoilAsync();
+                await direct.ApplyPointCommandAsync(new PointCommand.AddPoint("trailing", eta));
+            }).GetAwaiter().GetResult();
+            static string Shape(WorkbenchController controller) => string.Join(" ", controller.CurveFor("trailing")!.Points
+                .Select(point => $"{point.SpanMeters:0.000000},{point.Ordinate:0.000000}"));
+            if (fixture.Controller.Selection is not Selection.Points { Items: [var selected] } ||
+                fixture.Controller.CurveFor("trailing")!.Points.All(point => point.Id != selected.VertexId) ||
+                Shape(fixture.Controller) != Shape(direct))
+                throw new Exception($"Outline menu did not add at the press position: {Shape(fixture.Controller)} vs {Shape(direct)}");
+        });
+
         DesktopChecks.Check("PlanCanvas_RenderTargetBitmap_CapturesNonBackgroundPixels", () =>
         {
             using var controller = new WorkbenchController();
@@ -228,7 +538,7 @@ public static class PlanCanvasTests
                 if (fixture.Canvas.ContextMenu is not { IsOpen: true } menu) throw new Exception(how + " opened no point menu");
                 var items = menu.Items.OfType<MenuItem>().ToArray();
                 string rows = string.Join(" | ", items.Select(item => $"{item.Header}:{item.IsEnabled}"));
-                if (rows != "Make Anchor Point:True | Make Control Point:False | Tangent:False | Fit:True")
+                if (rows != "Make Anchor Point:True | Make Control Point:False | Tangent:False | Remove Point:True | Rebuild Trailing Edge…:True | Fit:True")
                     throw new Exception(how + " menu rows: " + rows);
                 string tangents = string.Join(" | ", items[2].Items.OfType<MenuItem>().Select(item => item.Header));
                 if (tangents != "Smooth | Symmetric | Corner") throw new Exception(how + " tangent rows: " + tangents);
@@ -620,7 +930,7 @@ public static class PlanCanvasTests
                 throw new Exception($"Overlapping chips were not alternated while Browser kept rows: {shown}/{all}/{browser}");
         });
 
-        DesktopChecks.Check("PlanCanvas_DoubleClickPoint_RaisesTypeValueRequest", () =>
+        DesktopChecks.Check("PlanCanvas_DoubleClickOnPoint_StillOpensValueField", () =>
         {
             using var fixture = new PlanFixture();
             var point = fixture.Controller.Planform!.Trailing.Points[4];
@@ -873,6 +1183,116 @@ public static class PlanCanvasTests
             fixture.Settle();
             if (error.IsEffectivelyVisible) throw new Exception("Try again did not restore Plan rendering");
         });
+        Capture();
+    }
+
+    /// <summary>
+    /// Review captures of the built app (CFDW_PVU_CAPTURE=&lt;dir&gt;): the approved mockup's six screens
+    /// (docs/mockups/planform-point-verbs.html) in a 1280 × 800 window, light and dark. A context menu is a separate
+    /// popup window, so it is drawn over the window capture at its own position. The macOS Edit menu is native and
+    /// cannot be rendered here: its rows as built are written to edit-menu.txt. Off by default; never part of the gate.
+    /// </summary>
+    private static void Capture()
+    {
+        if (Environment.GetEnvironmentVariable("CFDW_PVU_CAPTURE") is not { Length: > 0 } directory) return;
+        Directory.CreateDirectory(directory);
+        foreach (var (variant, theme) in new[] { (ThemeVariant.Light, "light"), (ThemeVariant.Dark, "dark") })
+            CaptureTheme(directory, variant, theme);
+    }
+
+    private static void CaptureTheme(string directory, ThemeVariant variant, string theme)
+    {
+        using var fixture = new PlanFixture(theme: variant, tenPoint: true);
+        var controller = fixture.Controller;
+        void Save(string name, ContextMenu? menu = null, Point menuAt = default)
+        {
+            fixture.Settle();
+            var window = fixture.Window;
+            var size = new PixelSize((int)window.ClientSize.Width, (int)window.ClientSize.Height);
+            using var shot = new RenderTargetBitmap(size);
+            shot.Render(window);
+            using var output = new RenderTargetBitmap(size);
+            using (var context = output.CreateDrawingContext())
+            {
+                context.DrawImage(shot, new Rect(0, 0, size.Width, size.Height));
+                if (menu?.GetVisualRoot() is TopLevel popup && !ReferenceEquals(popup, window))
+                {
+                    using var drawn = new RenderTargetBitmap(new PixelSize((int)popup.ClientSize.Width, (int)popup.ClientSize.Height));
+                    drawn.Render(popup);
+                    // Drawn where the secondary click landed (the menu opens at the pointer).
+                    var at = fixture.Canvas.TranslatePoint(menuAt, window)!.Value;
+                    // As the OS does, a menu that would leave the window opens to the left of the pointer.
+                    if (at.X + popup.ClientSize.Width > window.ClientSize.Width) at = at.WithX(at.X - popup.ClientSize.Width - 8);
+                    context.DrawImage(drawn, new Rect(at.X, at.Y, popup.ClientSize.Width, popup.ClientSize.Height));
+                }
+            }
+            output.Save(Path.Combine(directory, $"pvu-{name}-{theme}.png"));
+            Console.WriteLine($"CAPTURE pvu-{name}-{theme}.png strip '{fixture.Host.StatusStrip.Text}' selection {controller.Selection} " +
+                $"te {controller.Planform!.Trailing.Points.Count} le {controller.Planform.Leading.Points.Count} menu {menu is not null}");
+        }
+        PointRef Ref(PointView point) => new(point.Curve, point.Id);
+        void Frame()
+        {
+            // The mockup's framing: One view, Plan, Fit Selection on the starboard half.
+            fixture.Host.RunCommand("view.fit-selection").GetAwaiter().GetResult();
+            fixture.Settle();
+        }
+        controller.Layout = ViewLayout.One(CfdWorkbench.Persistence.SingleView.Plan);
+        fixture.Settle();
+
+        // 1 · menus: trailing-edge point 6 of 10 selected; its context menu open; the Edit menu rows as built.
+        var six = controller.Planform!.Trailing.Points[5];
+        fixture.Canvas.SelectPoint(Ref(six), false, false);
+        Frame();
+        if (theme == "light")
+        {
+            var native = NativeMenuBuilder.BuildMenu(fixture.Window);
+            NativeMenu.SetMenu(fixture.Window, native);
+            NativeMenuBuilder.RefreshEditMenu(fixture.Window, id => fixture.Host.CanRun(id));
+            var edit = native.Items.OfType<NativeMenuItem>().Single(item => Equals(item.Header, "Edit")).Menu!;
+            File.WriteAllLines(Path.Combine(directory, "edit-menu.txt"), edit.Items.Select(item => item is NativeMenuItem row
+                ? $"{row.Header}\t{(row.IsEnabled ? "enabled" : "disabled")}\t{row.Gesture}" : "----"));
+        }
+        fixture.Canvas.OpenPointMenu(Ref(six));
+        Save("1-menus", fixture.Canvas.ContextMenu, fixture.Canvas.ScreenPoint(controller.Planform!.Trailing.Points[5]) + new Point(4, 4));
+        fixture.Canvas.ContextMenu?.Close();
+
+        // 2 · preview: Rebuild trailing edge at Points = 4, every readout from Core.
+        fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+        fixture.Host.ModelView.RebuildPanel.SetCount(4);
+        Save("2-preview");
+
+        // 3 · applied: one undo step; the point selection clears.
+        Task applied = fixture.Host.ModelView.RebuildPanel.ApplyAsync();
+        for (int i = 0; i < 400 && !applied.IsCompleted; i++) { Avalonia.Threading.Dispatcher.UIThread.RunJobs(); Thread.Sleep(5); }
+        applied.GetAwaiter().GetResult();
+        fixture.WaitGesture();
+        Save("3-applied");
+
+        // 4 · add: double-click on the 4-point trailing edge at 250 mm from root.
+        dynamic canvas = fixture.Canvas;
+        var sample = controller.Planform!.Trailing.Samples.OrderBy(item => Math.Abs(item.SpanMeters / controller.Planform.HalfSpanMeters - 0.5)).First();
+        Point at = canvas.OutlineScreenPoint(sample, false);
+        fixture.DoubleClickAt(at);
+        fixture.WaitGesture();
+        Save("4-add");
+        controller.Undo();
+        fixture.WaitGesture();
+        fixture.Settle();
+
+        // 5 · remove: ⌫ on leading-edge point 6 of 10; the selection moves to the nearest remaining point.
+        fixture.Canvas.SelectPoint(Ref(controller.Planform!.Leading.Points[5]), false, false);
+        fixture.Settle();
+        fixture.KeyDown(Key.Back);
+        fixture.WaitGesture();
+        Save("5-remove");
+
+        // 6 · refused: ⌫ on trailing-edge point 3 of 4; the floor reason; nothing changed.
+        fixture.Canvas.SelectPoint(Ref(controller.Planform!.Trailing.Points[2]), false, false);
+        fixture.Settle();
+        fixture.KeyDown(Key.Back);
+        fixture.WaitGesture();
+        Save("6-refused");
     }
 
     public static void RunReadiness()
@@ -961,9 +1381,10 @@ public static class PlanCanvasTests
         private Pointer? dragPointer;
 
         public PlanFixture(bool newFoil = false, double width = 1280, double height = 800,
-            ThemeVariant? theme = null, bool tenPoint = false)
+            ThemeVariant? theme = null, bool tenPoint = false, byte[]? source = null)
         {
-            if (tenPoint) Task.Run(() => Controller.OpenFoilAsync(DesktopChecks.TenPointFoil(), "New foil 10")).GetAwaiter().GetResult();
+            if (source is not null) Task.Run(() => Controller.OpenFoilAsync(source, "Crossing preview")).GetAwaiter().GetResult();
+            else if (tenPoint) Task.Run(() => Controller.OpenFoilAsync(DesktopChecks.TenPointFoil(), "New foil 10")).GetAwaiter().GetResult();
             else if (newFoil) Task.Run(() => Controller.NewFoilAsync()).GetAwaiter().GetResult();
             else Task.Run(() => Controller.OpenExampleAsync()).GetAwaiter().GetResult();
             Host = new ShellHost(Controller);
@@ -1034,6 +1455,16 @@ public static class PlanCanvasTests
         {
             using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
             var position = Canvas.TranslatePoint(Canvas.ScreenPoint(point), Window)!.Value;
+            Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, position, 1,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed),
+                KeyModifiers.None, 2));
+            Settle();
+        }
+
+        public void DoubleClickAt(Point local)
+        {
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var position = Canvas.TranslatePoint(local, Window)!.Value;
             Canvas.RaiseEvent(new PointerPressedEventArgs(Canvas, pointer, Window, position, 1,
                 new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed),
                 KeyModifiers.None, 2));

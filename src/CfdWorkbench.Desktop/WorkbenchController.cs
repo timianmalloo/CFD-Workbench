@@ -49,7 +49,11 @@ public abstract record GestureOutcome
 
 public abstract record CommitOutcome
 {
-    public sealed record Committed(string AcceptedId, string Report) : CommitOutcome;
+    public sealed record Committed(string AcceptedId, string Report) : CommitOutcome
+    {
+        public PointRef? SelectPoint { get; init; }
+        public bool ClearPointSelection { get; init; }
+    }
     public sealed record Refused(string Code, string Copy) : CommitOutcome;
 }
 
@@ -523,9 +527,14 @@ public sealed class WorkbenchController : IDisposable
         return (history.Accepted.Single(item => item.Id == current).Parent is not null, redo.Length != 0);
     }
 
+    /// <summary>The point whose Remove was just refused (§11 state table: a dashed warning ring while it stays the
+    /// selection). Cleared by the next point command and by any other selection.</summary>
+    public PointRef? RefusedPoint { get; private set; }
+
     public void Select(Selection selection)
     {
         ArgumentNullException.ThrowIfNull(selection);
+        if (selection is not Selection.Points { Items: [var only] } || only != RefusedPoint) RefusedPoint = null;
         if (isNotifying)
         {
             queuedSelection = selection;
@@ -649,8 +658,26 @@ public sealed class WorkbenchController : IDisposable
         }
         draft = session.Snapshot().Draft;
         Section = mode with { Draft = next, Assessment = null, FinishReason = "Checking…" };
-        NotifySection();
+        // One shell refresh per step: the assessment's "Checking…" write notifies, after the strip has the step report.
+        RaiseSectionChanged();
         await AssessCurrentSectionAsync(cancellation);
+    }
+
+    /// <summary>
+    /// A section pointer-drag frame (§3.7): records where the release will move the point, and nothing else. The canvas
+    /// draws the frame from its own display state; a shell refresh here cost 0.55–0.9 s per move (edit-lag, 2026-10-04).
+    /// </summary>
+    public void UpdateSectionGesture(double x, double y, double pixelsFromPress)
+    {
+        if (Section is null || gestureInput != GestureInput.Pointer || gestureOrigin is null ||
+            Gesture is not (GestureState.Pressed or GestureState.Dragging) || !double.IsFinite(x) || !double.IsFinite(y))
+            return;
+        if (Gesture == GestureState.Pressed)
+        {
+            if (pixelsFromPress < 3) return;   // the drag threshold UpdateGestureTarget applies
+            Gesture = GestureState.Dragging;
+        }
+        pendingGestureTarget = (x, y);
     }
 
     public void UndoSectionStep()
@@ -661,8 +688,15 @@ public sealed class WorkbenchController : IDisposable
         var next = session.UndoSectionStep(mode.Draft.DraftId);
         draft = session.Snapshot().Draft;
         Section = mode with { Draft = next, Assessment = null, FinishReason = next.Cursor == mode.Draft.Cursor ? "No earlier step." : "Checking…" };
-        NotifySection();
-        if (next.Cursor != mode.Draft.Cursor) _ = AssessCurrentSectionAsync();
+        AfterCursorMove(next.Cursor != mode.Draft.Cursor);
+    }
+
+    // A moved cursor refreshes the shell once, through the assessment's "Checking…" write; a no-op says so at once.
+    private void AfterCursorMove(bool moved)
+    {
+        if (!moved) { NotifySection(); return; }
+        RaiseSectionChanged();
+        _ = AssessCurrentSectionAsync();
     }
 
     public void RedoSectionStep()
@@ -673,8 +707,7 @@ public sealed class WorkbenchController : IDisposable
         var next = session.RedoSectionStep(mode.Draft.DraftId);
         draft = session.Snapshot().Draft;
         Section = mode with { Draft = next, Assessment = null, FinishReason = next.Cursor == mode.Draft.Cursor ? "No later step." : "Checking…" };
-        NotifySection();
-        if (next.Cursor != mode.Draft.Cursor) _ = AssessCurrentSectionAsync();
+        AfterCursorMove(next.Cursor != mode.Draft.Cursor);
     }
 
     private async Task AssessCurrentSectionAsync(CancellationToken cancellation = default)
@@ -721,9 +754,13 @@ public sealed class WorkbenchController : IDisposable
 
     private void NotifySection()
     {
-        if (disposed) return;
-        SectionChanged?.Invoke();
+        RaiseSectionChanged();
         Notify();
+    }
+
+    private void RaiseSectionChanged()
+    {
+        if (!disposed) SectionChanged?.Invoke();
     }
 
     public async Task FinishSectionAsync()
@@ -1184,14 +1221,51 @@ public sealed class WorkbenchController : IDisposable
         return sorted[(int)Math.Ceiling(sorted.Length * 0.95) - 1];
     }
 
-    public Task<CommitOutcome> ApplyPointCommandAsync(PointCommand command) => RunDirectCommandAsync(() =>
+    public Task<CommitOutcome> ApplyPointCommandAsync(PointCommand command)
     {
-        var result = session.ApplyPointCommand(Guid.NewGuid().ToString("D"), command);
-        // The deviation is in the curve's own SI unit (m, degrees, chord fraction); it is reported in its display unit.
-        var rows = PropertiesView.Curves[command.Curve];
-        string deviation = Quantity.WithUnit(Quantity.Typed(result.MaxDeviationMeters * PropertiesView.FieldScale[rows.ValueFamily]), rows.ValueUnit);
-        return new CommitOutcome.Committed(result.AcceptedId, $"Point change applied. Max deviation {deviation}.");
-    });
+        int removedNumber = command is PointCommand.RemovePoint remove
+            ? CurveFor(command.Curve)?.Points.FirstOrDefault(point => point.Id == remove.VertexId)?.Index + 1 ?? 0 : 0;
+        double halfSpan = Planform?.HalfSpanMeters ?? 0;
+        RefusedPoint = null;
+        return RunDirectCommandAsync(() =>
+        {
+            PointOutcome result;
+            try { result = session.ApplyPointCommand(Guid.NewGuid().ToString("D"), command); }
+            catch (ContractError) when (command is PointCommand.RemovePoint refused)
+            {
+                RefusedPoint = new PointRef(refused.Curve, refused.VertexId);   // read after the refusal's Notify
+                throw;
+            }
+            var rows = PropertiesView.Curves[command.Curve];
+            string change = Quantity.Typed(result.MaxDeviationMeters * PropertiesView.FieldScale[rows.ValueFamily]) + " " + rows.ValueUnit;
+            string where = Quantity.TypedLength(result.AtEta * halfSpan) + " mm from root";
+            string name = rows.Name.ToLowerInvariant();   // running text: "trailing edge", as COPY-190/191/200 write it
+            string report;
+            if (command is PointCommand.AddPoint)
+            {
+                var curve = Channels.View(session.Snapshot().Source, command.Curve, "accepted", 0);
+                int number = curve.Points.First(point => point.Id == result.SelectId).Index + 1;
+                report = $"Added {name} point {number} of {result.PointsAfter}. Shape unchanged: largest change {change}. " +
+                    $"Points {number - 1} and {number + 1} moved to keep it.";
+            }
+            else if (command is PointCommand.RemovePoint)
+                report = $"Removed {name} point {removedNumber}. Now {result.PointsAfter} points. Largest change {change} at {where}.";
+            else if (command is PointCommand.RebuildCurve)
+                report = $"Rebuilt the {name} with {result.PointsAfter} points. Largest change {change} at {where}. ⌘Z undoes it.";
+            else
+                report = $"Point change applied. Max deviation {change}.";
+            if (!string.IsNullOrWhiteSpace(result.Notice)) report += " " + result.Notice;
+            return new CommitOutcome.Committed(result.AcceptedId, report)
+            {
+                SelectPoint = result.SelectId is { Length: > 0 } ? new PointRef(command.Curve, result.SelectId) : null,
+                ClearPointSelection = command is PointCommand.RebuildCurve
+            };
+        }, warningOnRefusal: command is PointCommand.AddPoint or PointCommand.RemovePoint or PointCommand.RebuildCurve,
+            preserveStatusAfterCommit: command is PointCommand.AddPoint or PointCommand.RemovePoint or PointCommand.RebuildCurve);
+    }
+
+    /// <summary>Read-only seven-count preview from the accepted source; one Core event measures the open.</summary>
+    public IReadOnlyList<RebuildPreview> PreviewRebuilds(string curve) => session.PreviewRebuilds(curve);
 
     public Task<CommitOutcome> ApplyChordAsync(string dimension, string text) => RunDirectCommandAsync(() =>
     {
@@ -1206,7 +1280,20 @@ public sealed class WorkbenchController : IDisposable
             $"Planform moved {report.PlanformShiftMeters * 1e3:F2} mm.");
     });
 
-    private Task<CommitOutcome> RunDirectCommandAsync(Func<CommitOutcome> action)
+    public void ReportPointWarning(string copy)
+    {
+        SetStatus(copy, ReportKind.Warning);
+        Notify();
+    }
+
+    public void ReportPointInfo(string copy)
+    {
+        SetStatus(copy, ReportKind.Info);
+        Notify();
+    }
+
+    private Task<CommitOutcome> RunDirectCommandAsync(Func<CommitOutcome> action, bool warningOnRefusal = false,
+        bool preserveStatusAfterCommit = false)
     {
         if (Gesture != GestureState.Idle || draft is not null)
             return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-DRAFT-OWNED", "Finish the current change first."));
@@ -1214,12 +1301,13 @@ public sealed class WorkbenchController : IDisposable
             return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-NOT-ASSESSED", "This foil couldn't be checked. Nothing changed."));
         Gesture = GestureState.Busy;
         Notify();
-        var completion = CompleteDirectCommandAsync(action, session, stateVersion);
+        var completion = CompleteDirectCommandAsync(action, session, stateVersion, warningOnRefusal, preserveStatusAfterCommit);
         pendingDirectCommand = completion;
         return completion;
     }
 
-    private async Task<CommitOutcome> CompleteDirectCommandAsync(Func<CommitOutcome> action, AuthoringSession captured, long version)
+    private async Task<CommitOutcome> CompleteDirectCommandAsync(Func<CommitOutcome> action, AuthoringSession captured, long version,
+        bool warningOnRefusal, bool preserveStatusAfterCommit)
     {
         try
         {
@@ -1227,14 +1315,18 @@ public sealed class WorkbenchController : IDisposable
             if (!ReferenceEquals(session, captured) || stateVersion != version) return outcome;
             Inspection = session.InspectAccepted();
             UpdateEstimates();
-            Status = ((CommitOutcome.Committed)outcome).Report;
+            var committed = (CommitOutcome.Committed)outcome;
+            Status = committed.Report;
+            if (committed.ClearPointSelection) queuedSelection = new Selection.Foil();
+            else if (committed.SelectPoint is { } point) queuedSelection = new Selection.Points([point]);
             Notify();
-            _ = RefreshAcceptedAsync();
+            _ = RefreshAcceptedAsync(preserveStatus: preserveStatusAfterCommit);
             return outcome;
         }
         catch (ContractError error)
         {
-            SetStatus($"{error.Code}: This change wasn't applied. Nothing changed.", ReportKind.Error);
+            SetStatus(error.Reason ?? $"{error.Code}: This change wasn't applied. Nothing changed.",
+                warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
             Notify();
             return new CommitOutcome.Refused(error.Code, Status);
         }
@@ -1881,7 +1973,7 @@ public sealed class WorkbenchController : IDisposable
         Notify();
     }
 
-    private async Task RefreshAcceptedAsync(CancellationToken cancellation = default)
+    private async Task RefreshAcceptedAsync(CancellationToken cancellation = default, bool preserveStatus = false)
     {
         CancelSampling();
         var inspected = session.InspectAccepted();
@@ -1893,7 +1985,8 @@ public sealed class WorkbenchController : IDisposable
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         activeSampling = linked;
         Provenance = draft is null ? "accepted — sampling" : "draft — accepted sampling";
-        long placeholder = statusSlot.Write($"{SectionDraftPrefix()}Sampling accepted geometry at η {eta:G3}…");
+        long placeholder = preserveStatus ? statusSlot.Version :
+            statusSlot.Write($"{SectionDraftPrefix()}Sampling accepted geometry at η {eta:G3}…");
         Notify();
         try
         {
@@ -1911,8 +2004,9 @@ public sealed class WorkbenchController : IDisposable
             Provenance = draft is null ? "accepted" : "draft — accepted geometry shown";
             // A message written since the placeholder (a lock refusal, an open's recovery notice, a report the strip shows)
             // is newer than this report; the compare and the write are one step on any thread (StatusSlot).
-            statusSlot.TryReplace(placeholder,
-                $"{SectionDraftPrefix()}Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.");
+            if (!preserveStatus)
+                statusSlot.TryReplace(placeholder,
+                    $"{SectionDraftPrefix()}Accepted η {eta:G3} slice; 15 measured display points in {frame.ElapsedMilliseconds:F0} ms. Segment interpolation error is Not assessed.");
             Notify();
         }
         catch (OperationCanceledException) { }

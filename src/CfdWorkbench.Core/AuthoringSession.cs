@@ -47,7 +47,11 @@ public sealed record PointOutcome(string AcceptedId, double MaxDeviationMeters, 
     public string? Notice { get; init; }
 }
 public sealed record RebuildPreview(int Count, CurveView Curve, double MaxChange, double AtEta,
-    int BreaksBefore, int BreaksAfter, double TipTurnDegrees, string? Refusal);
+    int BreaksBefore, int BreaksAfter, double TipTurnDegrees, string? Refusal)
+{
+    public double AreaBeforeSquareMeters { get; init; }
+    public double AreaAfterSquareMeters { get; init; }
+}
 public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure Point, double UniformWidthUpper);
 
 public sealed class SessionAssessment
@@ -218,6 +222,7 @@ public sealed class AuthoringSession : IDisposable
         bool mirror = definition.Locks.Any(item => item.Kind == "root_mirror" && item.Channel.Text == curve);
         int beforeBreaks = ChannelEdits.CurvatureBreaks(original);
         double beforeTip = ChannelEdits.TipAngleDegrees(original, definition.HalfSpan);
+        double beforeArea = WingEstimates.From(bytes, "accepted", 0).AreaSquareMeters;
         var list = new List<RebuildPreview>();
         for (int count = ChannelEdits.Floor; count <= 10; count++)
         {
@@ -226,19 +231,30 @@ public sealed class AuthoringSession : IDisposable
                 var rebuilt = ChannelEdits.Rebuild(original, count, mirror);
                 if (rebuilt.Identity)
                 {
-                    list.Add(new(count, Channels.View(bytes, curve, "Accepted", 0), 0, 0, beforeBreaks, beforeBreaks, 0, null));
+                    list.Add(new(count, Channels.View(bytes, curve, "Accepted", 0), 0, 0, beforeBreaks, beforeBreaks, 0, null)
+                    {
+                        AreaBeforeSquareMeters = beforeArea, AreaAfterSquareMeters = beforeArea
+                    });
                     continue;
                 }
                 string? refusal = RailCrossing(definition, curve, rebuilt.Curve);
                 var change = ChannelEdits.MaxChange(original, rebuilt.Curve);
                 int afterBreaks = ChannelEdits.CurvatureBreaks(rebuilt.Curve);
                 double turn = ChannelEdits.TipAngleDegrees(rebuilt.Curve, definition.HalfSpan) - beforeTip;
-                var view = Channels.View(PrintCurve(definition, curve, rebuilt.Curve), curve, "Accepted", 0);
-                list.Add(new(count, view, change.Max, change.AtEta, beforeBreaks, afterBreaks, turn, refusal));
+                byte[] candidate = PrintCurve(definition, curve, rebuilt.Curve);
+                var view = Channels.View(candidate, curve, "Accepted", 0);
+                double afterArea = WingEstimates.From(candidate, "preview", 0).AreaSquareMeters;
+                list.Add(new(count, view, change.Max, change.AtEta, beforeBreaks, afterBreaks, turn, refusal)
+                {
+                    AreaBeforeSquareMeters = beforeArea, AreaAfterSquareMeters = afterArea
+                });
             }
             catch (ContractError error)
             {
-                list.Add(new(count, Channels.View(bytes, curve, "Accepted", 0), 0, 0, beforeBreaks, beforeBreaks, 0, error.Reason ?? error.Code));
+                list.Add(new(count, Channels.View(bytes, curve, "Accepted", 0), 0, 0, beforeBreaks, beforeBreaks, 0, error.Reason ?? error.Code)
+                {
+                    AreaBeforeSquareMeters = beforeArea, AreaAfterSquareMeters = beforeArea
+                });
             }
         }
         Record("rebuild.preview", "OK", watch.Elapsed.TotalMilliseconds, bytes.Length, null, null, "cfdw-cv/2", "rebuild.preview", curveFamily: Channels.Family(curve));

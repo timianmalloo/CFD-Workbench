@@ -234,6 +234,87 @@ public static class SectionEditorTests
             }
             fixture.Release(pointer, to);
         });
+        // §3.7 and §7 Concurrency: a drag frame draws from the gesture's display state. It raises no controller change (the
+        // shell refresh that cost 552-896 ms per move under load before this fix) and applies no Core step, and the very
+        // next render draws the curve through the moved point. Wall time lives in Readiness_SectionDragMove_Under16Ms.
+        DesktopChecks.Check("SectionEditor_DragMove_DrawsWithinOneFrame", () =>
+        {
+            fixture.Reset();
+            var canvas = fixture.Canvas;
+            var point = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var from = fixture.Local(point);
+            var size = new PixelSize((int)canvas.Bounds.Width, (int)canvas.Bounds.Height);
+            using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+            var rest = canvas.DrawnCurves[0];
+            var pointer = fixture.Press(from);
+            long generation = fixture.Controller.Section!.Draft.Generation;
+            int changes = 0;
+            void Count() => changes++;
+            fixture.Controller.Changed += Count;
+            fixture.Controller.SectionChanged += Count;
+            try
+            {
+                var previous = rest;
+                for (int i = 1; i <= 6; i++)
+                {
+                    var to = from + new Vector(i * 4, -i * 6);
+                    fixture.Move(pointer, to);
+                    using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+                    var drawn = canvas.DrawnCurves[0];
+                    if (changes != 0 || fixture.Controller.Section!.Draft.Generation != generation)
+                        throw new Exception($"Move {i} notified the shell {changes} times or applied a step (generation {fixture.Controller.Section!.Draft.Generation} vs {generation})");
+                    if (MaxOffset(drawn, previous) < .5)
+                        throw new Exception($"Move {i}: the drawn upper curve did not follow the point (largest offset {MaxOffset(drawn, previous):F2} px)");
+                    previous = drawn;
+                }
+                if (MaxOffset(previous, rest) < 4) throw new Exception($"The drawn curve moved only {MaxOffset(previous, rest):F2} px over a 36 px drag");
+            }
+            finally
+            {
+                fixture.Controller.Changed -= Count;
+                fixture.Controller.SectionChanged -= Count;
+            }
+            int cursor = fixture.Controller.Section!.Draft.Cursor;
+            fixture.Release(pointer, from + new Vector(24, -36));
+            WaitUntil(() => fixture.Controller.Section!.Draft.Cursor == cursor + 1);
+        });
+        // The certificate gates only Finish: with the assessment held open, the step still lands on release, Finish waits
+        // on "Checking…", and the next drag's point and curve still follow the pointer.
+        DesktopChecks.Check("SectionEditor_SlowAssessment_DrawFollowsPointer", () =>
+        {
+            var gate = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            using var slow = new Fixture(_ => gate.Task);
+            var canvas = slow.Canvas;
+            var size = new PixelSize((int)canvas.Bounds.Width, (int)canvas.Bounds.Height);
+            var point = slow.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var from = slow.Local(point);
+            int cursor = slow.Controller.Section!.Draft.Cursor;
+            var pointer = slow.Press(from);
+            slow.Move(pointer, from + new Vector(8, -12));
+            slow.Release(pointer, from + new Vector(8, -12));
+            WaitUntil(() => slow.Controller.Section!.Draft.Cursor == cursor + 1);
+            var mode = slow.Controller.Section!;
+            if (mode.Assessment is not null || mode.CanFinish || mode.FinishReason != "Checking…" || slow.Button("ModeFinishButton").IsEnabled)
+                throw new Exception($"The released step did not wait on the certificate: assessed {mode.Assessment is not null}, reason '{mode.FinishReason}'");
+            var moved = slow.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var start = slow.Local(moved);
+            using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+            var rest = canvas.DrawnCurves[0];
+            var second = slow.Press(start);
+            var to = start + new Vector(10, -16);
+            slow.Move(second, to);
+            using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+            if (gate.Task.IsCompleted || slow.Controller.Section!.Assessment is not null)
+                throw new Exception("The assessment finished before the draw was checked");
+            if (MaxOffset(canvas.DrawnCurves[0], rest) < 2)
+                throw new Exception($"With the check pending the curve did not follow the pointer ({MaxOffset(canvas.DrawnCurves[0], rest):F2} px)");
+            slow.Release(second, to);
+            WaitUntil(() => slow.Controller.Section!.Draft.Cursor == cursor + 2);
+            gate.SetResult();
+            WaitUntil(() => slow.Controller.Section!.Assessment is not null);
+            if (!slow.Controller.Section!.CanFinish || !slow.Button("ModeFinishButton").IsEnabled)
+                throw new Exception("Finish did not follow the certificate once it answered");
+        });
         DesktopChecks.Check("SectionEditor_StripSwitchWithEdits_RefusedByClick", () =>
         {
             fixture.Reset();
@@ -534,6 +615,56 @@ public static class SectionEditorTests
         });
     }
 
+    // Readiness tier (wall time; load-sensitive, so never in the fast ring): one section drag through the whole shell.
+    // A move is the move handler, its dispatcher jobs and one render of the canvas; the target is one 60 Hz frame (16 ms).
+    // Measured before the fix (load 20-34): 552-896 ms median per move, 1.27-2.18 s from release to the first frame.
+    internal static void RunReadiness()
+    {
+        DesktopChecks.Check("Readiness_SectionDragMove_Under16Ms", () =>
+        {
+            using var shell = new ShellFixture(1280, 800);
+            shell.Enter();
+            var canvas = shell.Canvas;
+            var point = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var from = canvas.ModelToScreen(point.SpanMeters, point.Ordinate);
+            var size = new PixelSize((int)canvas.Bounds.Width, (int)canvas.Bounds.Height);
+            using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            Point At(Point local) => canvas.TranslatePoint(local, shell.Window)!.Value;
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            canvas.RaiseEvent(new PointerPressedEventArgs(canvas, pointer, shell.Window, At(from), 1,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None, 1));
+            Dispatcher.UIThread.RunJobs();
+            double press = watch.Elapsed.TotalMilliseconds;
+            var moves = new List<double>();
+            for (int i = 1; i <= 20; i++)
+            {
+                watch.Restart();
+                canvas.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, canvas, pointer, shell.Window, At(from + new Vector(i * 2, -i)),
+                    (ulong)(1 + i), new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.Other), KeyModifiers.None));
+                Dispatcher.UIThread.RunJobs();
+                using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+                moves.Add(watch.Elapsed.TotalMilliseconds);
+            }
+            int cursor = shell.Controller.Section!.Draft.Cursor;
+            watch.Restart();
+            canvas.RaiseEvent(new PointerReleasedEventArgs(canvas, pointer, shell.Window, At(from + new Vector(40, -20)), 30,
+                new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+            WaitUntil(() => shell.Controller.Section!.Draft.Cursor == cursor + 1);
+            using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
+            double released = watch.Elapsed.TotalMilliseconds;
+            WaitUntil(() => shell.Controller.Section!.Assessment is not null);
+            double assessed = watch.Elapsed.TotalMilliseconds;
+            double p95 = moves.Order().ElementAt((int)Math.Ceiling(.95 * moves.Count) - 1);
+            Console.WriteLine(string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                $"READINESS SectionDragMove value_ms={p95:F3} target_ms=16 median_ms={moves.Order().ElementAt(moves.Count / 2):F3} press_ms={press:F3} release_to_drawn_ms={released:F3} release_to_assessed_ms={assessed:F3} samples={moves.Count}"));
+            if (p95 >= 16) Console.WriteLine("READINESS-MISS SectionDragMove p95 over one 60 Hz frame; read with the load average");
+        });
+    }
+
+    /// <summary>The drawn curves' screen polylines, for "did the curve follow" checks.</summary>
+    private static double MaxOffset(IReadOnlyList<Point> moved, IReadOnlyList<Point> rest) =>
+        moved.Max(point => rest.Min(other => Point.Distance(point, other)));
+
     /// <summary>
     /// Review captures of the built app (CFDW_EDT_CAPTURE=&lt;dir&gt;): the approved mockup's paired screens 2, 2b, 2c and 3
     /// in the Precision workspace in a window opened at 1280 × 800 (the app's launch size, so the side bars open at their
@@ -672,7 +803,7 @@ public static class SectionEditorTests
 
     private sealed class Fixture : IDisposable
     {
-        internal WorkbenchController Controller { get; } = new();
+        internal WorkbenchController Controller { get; }
         internal ModelArea Area { get; } = new();
         internal Window Window { get; }
         internal SectionEditorView View => Area.FindControl<SectionEditorView>("SectionModeEditor")!;
@@ -680,8 +811,10 @@ public static class SectionEditorTests
         internal TextBlock Text(string name) => View.FindControl<TextBlock>(name)!;
         internal Button Button(string name) => View.FindControl<Button>(name)!;
 
-        internal Fixture()
+        /// <param name="assessmentGate">The controller's CTL seam: it delays the real <c>AssessSection</c>, never replaces it.</param>
+        internal Fixture(Func<long, Task>? assessmentGate = null)
         {
+            Controller = new WorkbenchController(sectionAssessmentGate: assessmentGate);
             Wait(Controller.OpenExampleAsync());
             Area.PlanCanvas.Controller = Controller;
             Window = new Window { Content = Area, Width = 1280, Height = 800 };

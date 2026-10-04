@@ -149,12 +149,37 @@ public sealed class PlanCanvas : Control
         };
     }
 
+    private RebuildPreview? rebuildPreview;
+    public RebuildPreview? RebuildPreview
+    {
+        get => rebuildPreview;
+        set { rebuildPreview = value; InvalidateVisual(); }
+    }
+
     public Point ScreenPoint(PointView point)
     {
         var plan = Controller?.Planform;
         if (plan is null) return default;
         var map = Layer(plan);
         return map.ToScreen(point.SpanMeters, point.Ordinate);
+    }
+
+    public Point OutlineScreenPoint(PlanSample sample, bool port = false) =>
+        Controller?.Planform is { } plan ? Layer(plan).ToScreen(sample.SpanMeters * (port ? -1 : 1), sample.Ordinate) : default;
+
+    public (string Curve, double Eta, bool Port)? HitTestOutline(Point position)
+    {
+        if (Controller?.Planform is not { } plan) return null;
+        var layer = Layer(plan);
+        (string Curve, double Eta, bool Port, double Distance)? nearest = null;
+        foreach (var curve in new[] { plan.Leading, plan.Trailing })
+            foreach (bool port in new[] { false, true })
+            {
+                if (layer.HitTestCurve(curve.Samples, position, port ? -1 : 1) is not { } hit) continue;
+                if (nearest is { Distance: var old } && hit.Distance >= old) continue;
+                nearest = (curve.Curve, hit.Span / plan.HalfSpanMeters, port, hit.Distance);
+            }
+        return nearest is { } found ? (found.Curve, found.Eta, found.Port) : null;
     }
 
     public PointView? HitTestPoint(Point position)
@@ -288,6 +313,21 @@ public sealed class PlanCanvas : Control
         var hit = HitTestPoint(position);
         if (hit is null)
         {
+            var outline = HitTestOutline(position);
+            var emptyButtons = e.GetCurrentPoint(this).Properties;
+            if (outline is { } target && e.ClickCount >= 2 && emptyButtons.IsLeftButtonPressed)
+            {
+                if (target.Port) Controller.ReportPointWarning("Add points on the starboard half, where the points are.");
+                else _ = AddAtAsync(target.Curve, target.Eta);
+                e.Handled = true;
+                return;
+            }
+            if (outline is { Port: false } context && emptyButtons.IsRightButtonPressed)
+            {
+                OpenOutlineMenu(context.Curve, context.Eta);
+                e.Handled = true;
+                return;
+            }
             var chip = VisibleStationChips.FirstOrDefault(item => item.Bounds.Contains(position));
             if (chip is not null)
             {
@@ -328,6 +368,29 @@ public sealed class PlanCanvas : Control
             e.Pointer.Capture(this);
         }
         e.Handled = true;
+    }
+
+    private async Task AddAtAsync(string curve, double eta)
+    {
+        if (Controller is null) return;
+        var outcome = await Controller.ApplyPointCommandAsync(new PointCommand.AddPoint(curve, eta));
+        if (attached && outcome is CommitOutcome.Committed && Controller.Selection is Selection.Points { Items: [var point] })
+            FocusPoint(point);
+    }
+
+    public void OpenOutlineMenu(string curve, double eta)
+    {
+        if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
+        var add = new MenuItem { Header = "Add Point Here" };   // Core refuses past its ceiling of 16 with COPY-196
+        add.Click += (_, _) => _ = AddAtAsync(curve, eta);
+        var rebuild = new MenuItem { Header = $"Rebuild {PropertiesView.Curves[curve].MenuName}…", IsEnabled = Controller?.Inspection is not null };
+        rebuild.Click += (_, _) => this.FindAncestorOfType<ModelArea>()?.BeginRebuild(curve, this);
+        var fit = new MenuItem { Header = "Fit" };
+        fit.Click += (_, _) => _ = host.RunCommand("view.fit");
+        var menu = new ContextMenu { ItemsSource = new Control[] { add, rebuild, new Separator(), fit } };
+        menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
+        ContextMenu = menu;
+        menu.Open(this);
     }
 
     protected override void OnPointerMoved(PointerEventArgs e)
@@ -393,9 +456,15 @@ public sealed class PlanCanvas : Control
             ItemsSource = new Control[]
             {
                 Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent,
+                new Separator(), Row("Remove Point", "point.remove"),
+                Row($"Rebuild {PropertiesView.Curves[reference.Curve].MenuName}…", "point.rebuild"),
                 new Separator(), Row("Fit", "view.fit")
             }
         };
+        if (!host.CanRun("point.remove") && host.PointCommandReason("point.remove") is { } reason)
+            menu.ItemsSource = ((IEnumerable<Control>)menu.ItemsSource!).Take(5)
+                .Concat([new TextBlock { Text = reason, TextWrapping = TextWrapping.Wrap, MaxWidth = 220 }])
+                .Concat(((IEnumerable<Control>)menu.ItemsSource!).Skip(5)).ToArray();
         // Attached only while shown, so a right-click on empty canvas never opens a stale point menu.
         menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
         ContextMenu = menu;
@@ -520,6 +589,15 @@ public sealed class PlanCanvas : Control
             e.Handled = true;
             return;
         }
+        if (e.Key is Key.Back or Key.Delete && !command && !option)
+        {
+            if (Controller.Selection is Selection.Points { Items: var items } && items.Count > 1)
+                Controller.ReportPointWarning("Remove points one at a time, so each change is measured.");
+            else if (Controller.Selection is Selection.Points { Items: [var selected] })
+                _ = Controller.ApplyPointCommandAsync(new PointCommand.RemovePoint(selected.Curve, selected.VertexId));
+            e.Handled = true;
+            return;
+        }
         if (e.Key == Key.C && !command && !option) { ToggleComb(); e.Handled = true; return; }
         if (command && e.Key == Key.D0) { Fit(); e.Handled = true; return; }
         if (command && e.Key is Key.OemPlus or Key.Add or Key.OemMinus or Key.Subtract)
@@ -637,6 +715,41 @@ public sealed class PlanCanvas : Control
                 DrawPlan(context, map, plan, Controller.Selection);
             DrawLabel(context, RenderBanner!, new Point(12, 12));
         }
+        (Rect Plate, FormattedText Value)? changePlate = null;   // drawn last, above the station chips
+        if (rebuildPreview is { } preview)
+        {
+            var station = SelectionBrush ?? Brushes.White;
+            var dash = new Pen(station, 2, new DashStyle([7, 4], 0));
+            map.DrawCurve(context, preview.Curve.Samples, dash);
+            using (context.PushOpacity(.7))
+            {
+                var polygon = new Pen(station, 1, new DashStyle([4, 3], 0));
+                for (int i = 1; i < preview.Curve.Points.Count; i++)
+                    context.DrawLine(polygon, map.ToScreen(preview.Curve.Points[i - 1]), map.ToScreen(preview.Curve.Points[i]));
+            }
+            var glyphs = new PointGlyphBrushes(station, station, BackgroundBrush ?? Brushes.Transparent, MuteBrush ?? Brushes.White);
+            foreach (var point in preview.Curve.Points)
+                CurvePointLayer.DrawGlyph(context, point, map.ToScreen(point), glyphs, false);
+            if (Controller.CombVisible)
+                foreach (var tooth in CfdWorkbench.Core.Planform.Comb(preview.Curve))
+                {
+                    var start = map.ToScreen(tooth.SpanMeters, tooth.Ordinate);
+                    context.DrawLine(new Pen(station, 1), start,
+                        start + new Vector(tooth.NormalSpan, tooth.NormalAft) * Math.Clamp(Math.Abs(tooth.Curvature) * 100, 6, 24));
+                }
+            var current = preview.Curve.Curve == "leading" ? plan.Leading : plan.Trailing;
+            var at = current.Samples.OrderBy(item => Math.Abs(item.SpanMeters - preview.AtEta * plan.HalfSpanMeters)).First();
+            var changed = preview.Curve.Samples.OrderBy(item => Math.Abs(item.SpanMeters - preview.AtEta * plan.HalfSpanMeters)).First();
+            var first = map.ToScreen(at.SpanMeters, at.Ordinate);
+            var second = map.ToScreen(changed.SpanMeters, changed.Ordinate);
+            // The mockup's largest-change mark: a warning tick across the curve and a plate with the measured value.
+            var tick = new Pen(WarningBrush ?? Brushes.White, 2);
+            context.DrawLine(tick, first, second);
+            context.DrawLine(tick, second + new Vector(0, -10), second + new Vector(0, 10));
+            var value = new FormattedText($"{preview.MaxChange * 1000:0.00} mm", CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight, new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold), 11, FoilBrush ?? Brushes.White);
+            changePlate = (new Rect(second + new Vector(10, -9), new Size(value.Width + 10, value.Height + 4)), value);
+        }
         if (Controller.CombVisible && Controller.Selection is Selection.Points points && points.Items.Count > 0)
         {
             var rail = points.Items[0].Curve == "leading" ? plan.Leading : plan.Trailing;
@@ -666,6 +779,11 @@ public sealed class PlanCanvas : Control
             context.DrawRectangle(SoftBrush ?? BackgroundBrush, new Pen(MuteBrush ?? Brushes.White, 1), chip.Bounds);
             DrawLabel(context, station.ProfileName, chip.Bounds.Position + new Vector(5, 3));
         }
+        if (changePlate is var (plate, reading))
+        {
+            context.DrawRectangle(SoftBrush ?? BackgroundBrush, new Pen(WarningBrush ?? Brushes.White, 1), plate);
+            context.DrawText(reading, plate.Position + new Vector(5, 2));
+        }
         double barLength = map.ToScreen(.05, 0).X - map.ToScreen(0, 0).X;
         if (barLength > 0 && barLength < Bounds.Width - 32)
         {
@@ -678,6 +796,9 @@ public sealed class PlanCanvas : Control
         }
         if (hoveredPoint is { } hovered)
             map.DrawHoverRing(context, hovered, MuteBrush ?? Brushes.White);
+        if (Controller.RefusedPoint is { } refused && Controller.Selection is Selection.Points { Items: [var only] } && only == refused &&
+            targets.FirstOrDefault(point => point.Curve == refused.Curve && point.Id == refused.VertexId) is { } refusedTarget)
+            map.DrawRefusalRing(context, refusedTarget, WarningBrush ?? Brushes.White);
         if (focusedPoint is { } focus)
         {
             var target = targets.FirstOrDefault(point => point.Curve == focus.Curve && point.Id == focus.VertexId);

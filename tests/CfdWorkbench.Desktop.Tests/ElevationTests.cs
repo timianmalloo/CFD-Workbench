@@ -159,6 +159,33 @@ public static class ElevationTests
 
     private static void SideChecks()
     {
+        DesktopChecks.Check("ElevationView_DoubleClickOnTwistCurve_AddsPoint", () =>
+        {
+            var f = Example.Reset();
+            var curve = f.Curve("twist");
+            var sample = curve.Samples.OrderBy(item => Math.Abs(item.SpanMeters / f.Controller.Planform!.HalfSpanMeters - .45)).First();
+            var at = f.Side.LayerFor("twist")!.ToScreen(sample.SpanMeters, sample.Ordinate);
+            if (f.Side.HitTestPoint(at) is not null) throw new Exception("Twist sample overlaps a point glyph");
+            int before = curve.Points.Count;
+            var original = f.Controller.Inspection!.Authored.Binding.SourceHash;
+            try
+            {
+                using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+                f.Side.RaiseEvent(new PointerPressedEventArgs(f.Side, pointer, f.Window,
+                    f.Side.TranslatePoint(at, f.Window)!.Value, 1,
+                    new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed),
+                    KeyModifiers.None, 2));
+                Pump(() => f.Curve("twist").Points.Count == before + 1, "the twist double-click add");
+                if (f.Controller.Selection is not Selection.Points { Items.Count: 1 })
+                    throw new Exception("Twist add did not select the new point");
+            }
+            finally
+            {
+                // Leave the shared window as it was: one undo step takes the add back.
+                if (f.Controller.Inspection!.Authored.Binding.SourceHash != original) f.Controller.Undo();
+                Pump(() => f.Controller.Inspection!.Authored.Binding.SourceHash == original && !f.Controller.SurfaceUpdating, "the undo");
+            }
+        });
         DesktopChecks.Check("Elevation_SideBodyPlan_AuthoredSectionsOverlaid", () =>
         {
             var f = Dihedral.Reset();
