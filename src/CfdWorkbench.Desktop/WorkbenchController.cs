@@ -1219,7 +1219,7 @@ public sealed class WorkbenchController : IDisposable
                 SelectPoint = result.SelectId is { Length: > 0 } ? new PointRef(command.Curve, result.SelectId) : null,
                 ClearPointSelection = command is PointCommand.RebuildCurve
             };
-        });
+        }, warningOnRefusal: command is PointCommand.AddPoint or PointCommand.RemovePoint or PointCommand.RebuildCurve);
     }
 
     public Task<CommitOutcome> ApplyChordAsync(string dimension, string text) => RunDirectCommandAsync(() =>
@@ -1235,7 +1235,13 @@ public sealed class WorkbenchController : IDisposable
             $"Planform moved {report.PlanformShiftMeters * 1e3:F2} mm.");
     });
 
-    private Task<CommitOutcome> RunDirectCommandAsync(Func<CommitOutcome> action)
+    public void ReportPointWarning(string copy)
+    {
+        SetStatus(copy, ReportKind.Warning);
+        Notify();
+    }
+
+    private Task<CommitOutcome> RunDirectCommandAsync(Func<CommitOutcome> action, bool warningOnRefusal = false)
     {
         if (Gesture != GestureState.Idle || draft is not null)
             return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-DRAFT-OWNED", "Finish the current change first."));
@@ -1243,12 +1249,13 @@ public sealed class WorkbenchController : IDisposable
             return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-NOT-ASSESSED", "This foil couldn't be checked. Nothing changed."));
         Gesture = GestureState.Busy;
         Notify();
-        var completion = CompleteDirectCommandAsync(action, session, stateVersion);
+        var completion = CompleteDirectCommandAsync(action, session, stateVersion, warningOnRefusal);
         pendingDirectCommand = completion;
         return completion;
     }
 
-    private async Task<CommitOutcome> CompleteDirectCommandAsync(Func<CommitOutcome> action, AuthoringSession captured, long version)
+    private async Task<CommitOutcome> CompleteDirectCommandAsync(Func<CommitOutcome> action, AuthoringSession captured, long version,
+        bool warningOnRefusal)
     {
         try
         {
@@ -1266,7 +1273,8 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (ContractError error)
         {
-            SetStatus(error.Reason ?? $"{error.Code}: This change wasn't applied. Nothing changed.", ReportKind.Error);
+            SetStatus(error.Reason ?? $"{error.Code}: This change wasn't applied. Nothing changed.",
+                warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
             Notify();
             return new CommitOutcome.Refused(error.Code, Status);
         }

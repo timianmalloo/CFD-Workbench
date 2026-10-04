@@ -19,6 +19,66 @@ public static class PlanCanvasTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("EditMenu_PointVerbs_EnabledStateAndReasonPerSelection", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            dynamic host = fixture.Host;
+            var point = fixture.Controller.Planform!.Trailing.Points[1];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            if (!fixture.Host.CanRun("point.add") || !fixture.Host.CanRun("point.rebuild") ||
+                fixture.Host.CanRun("point.remove") ||
+                host.PointCommandReason("point.remove") != "A curve needs at least 4 points.")
+                throw new Exception("Four-point selection has wrong verb enablement or floor reason");
+            fixture.Controller.Select(new Selection.Points([
+                new PointRef("trailing", fixture.Controller.Planform.Trailing.Points[1].Id),
+                new PointRef("trailing", fixture.Controller.Planform.Trailing.Points[2].Id)]));
+            if (fixture.Host.CanRun("point.remove") ||
+                host.PointCommandReason("point.remove") != "Remove points one at a time, so each change is measured.")
+                throw new Exception("Multi-selection did not name the one-at-a-time rule");
+        });
+
+        DesktopChecks.Check("PlanCanvas_BackspaceOrDelete_RemovesSelectedControlSelectsNearest", () =>
+        {
+            foreach (var key in new[] { Key.Back, Key.Delete })
+            {
+                using var fixture = new PlanFixture(tenPoint: true);
+                var point = fixture.Controller.Planform!.Trailing.Points.First(item => item.Role == PointRole.Control);
+                fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+                fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+                if (!fixture.KeyDown(key)) throw new Exception($"{key} was not handled by Plan");
+                fixture.WaitGesture();
+                if (fixture.Controller.Planform!.Trailing.Points.Count != 9 ||
+                    fixture.Controller.Selection is not Selection.Points { Items.Count: 1 } selected ||
+                    selected.Items[0].VertexId == point.Id)
+                    throw new Exception($"{key} did not remove the selected control and select its survivor");
+            }
+        });
+
+        DesktopChecks.Check("PlanCanvas_BackspaceAtFloor_WarningCopyNothingChanged", () =>
+        {
+            using var fixture = new PlanFixture(newFoil: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[1];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            string before = fixture.Controller.AcceptedSource;
+            bool handled = fixture.KeyDown(Key.Back);
+            fixture.WaitGesture();
+            if (!handled || !fixture.Controller.Status.Contains("A curve needs at least 4 points.", StringComparison.Ordinal) ||
+                fixture.Controller.AcceptedSource != before || fixture.Controller.StatusKind != ReportKind.Warning)
+                throw new Exception("Backspace at floor did not retain source and show the reason as a warning");
+        });
+
+        DesktopChecks.Check("PlanCanvas_BackspaceWithSeveralSelected_OneAtATimeCopy", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var controls = fixture.Controller.Planform!.Trailing.Points.Where(item => item.Role == PointRole.Control).Take(2).ToArray();
+            fixture.Controller.Select(new Selection.Points(controls.Select(point => new PointRef(point.Curve, point.Id)).ToArray()));
+            string before = fixture.Controller.AcceptedSource;
+            if (!fixture.KeyDown(Key.Back) || fixture.Controller.Status != "Remove points one at a time, so each change is measured." ||
+                fixture.Controller.AcceptedSource != before)
+                throw new Exception("Multi-selection did not refuse one-at-a-time removal");
+        });
+
         DesktopChecks.Check("PlanCanvas_RenderTargetBitmap_CapturesNonBackgroundPixels", () =>
         {
             using var controller = new WorkbenchController();

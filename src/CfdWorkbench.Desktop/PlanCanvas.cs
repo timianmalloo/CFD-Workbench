@@ -520,6 +520,15 @@ public sealed class PlanCanvas : Control
             e.Handled = true;
             return;
         }
+        if (e.Key is Key.Back or Key.Delete && !command && !option)
+        {
+            if (Controller.Selection is Selection.Points { Items: var items } && items.Count > 1)
+                Controller.ReportPointWarning("Remove points one at a time, so each change is measured.");
+            else if (Controller.Selection is Selection.Points { Items: [var selected] })
+                _ = Controller.ApplyPointCommandAsync(new PointCommand.RemovePoint(selected.Curve, selected.VertexId));
+            e.Handled = true;
+            return;
+        }
         if (e.Key == Key.C && !command && !option) { ToggleComb(); e.Handled = true; return; }
         if (command && e.Key == Key.D0) { Fit(); e.Handled = true; return; }
         if (command && e.Key is Key.OemPlus or Key.Add or Key.OemMinus or Key.Subtract)
