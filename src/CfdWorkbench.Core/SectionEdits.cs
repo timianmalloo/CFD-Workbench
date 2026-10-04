@@ -53,7 +53,73 @@ internal static class SectionEdits
                 ? ImportAbscissaReason(neighbour)
                 : NeighbourAbscissaReason(StationName(own, after.Assignments[own].Eta), neighbour));
         }
+        RequireBlendBudget(before, after, edited, watch);
     }
+
+    // F-1 (m12d §3.6 rule 7, DR-M12D-6 a): a step that makes the edited section differ from a neighbour it matched is
+    // judged by the certificate's own capacity before it lands: the span limit Assess admits (Geometry.BlendSpanLimit), then
+    // Assess itself on the candidate, whose all-query operation bound refuses four differing sections at any span count
+    // (docs/proof/blend-certificate-budget/verdict.md §4.2). A pair that already differed is left to the certificate, and a
+    // candidate is refused only when the base did not fail the same way, so a draft is never trapped.
+    private static void RequireBlendBudget(Definition before, Definition after, int edited, ProofBudget watch)
+    {
+        var newly = new List<int>();
+        for (int index = 0; index + 1 < after.Assignments.Length; index++)
+        {
+            int left = after.Assignments[index].Profile, right = after.Assignments[index + 1].Profile;
+            if (left == right || left != edited && right != edited || SameShape(after.Profiles[left], after.Profiles[right])) continue;
+            bool differedBefore = index + 1 < before.Assignments.Length &&
+                !SameShape(before.Profiles[before.Assignments[index].Profile], before.Profiles[before.Assignments[index + 1].Profile]);
+            if (!differedBefore) newly.Add(index);
+        }
+        if (newly.Count >= 0) return; // Red first: the budget clause is not built yet.
+        int limit = Geometry.BlendSpanLimit();
+        foreach (int index in newly)
+        {
+            var left = after.Profiles[after.Assignments[index].Profile];
+            var right = after.Profiles[after.Assignments[index + 1].Profile];
+            bool leftOver = Bernstein.Spans(left.Upper, watch).Length > limit, rightOver = Bernstein.Spans(right.Upper, watch).Length > limit;
+            if (!leftOver && !rightOver) continue;
+            string a = StationName(index, after.Assignments[index].Eta), b = StationName(index + 1, after.Assignments[index + 1].Eta);
+            throw new ContractError("DSL-GEOMETRY", BudgetReason(a, b, leftOver, rightOver, left.Upper.Points.Length, right.Upper.Points.Length,
+                limit + left.Upper.Degree));
+        }
+        var candidate = Geometry.Assess(new SourceParse([], [], after));
+        if (!OperationBoundRefused(candidate) || OperationBoundRefused(Geometry.Assess(new SourceParse([], [], before)))) return;
+        var differing = Enumerable.Range(0, after.Assignments.Length).Where(index =>
+            index > 0 && !SameShape(after.Profiles[after.Assignments[index - 1].Profile], after.Profiles[after.Assignments[index].Profile]) ||
+            index + 1 < after.Assignments.Length && !SameShape(after.Profiles[after.Assignments[index].Profile], after.Profiles[after.Assignments[index + 1].Profile]));
+        throw new ContractError("DSL-GEOMETRY", ManyDifferingReason(differing.Select(index => StationName(index, after.Assignments[index].Eta)).ToArray()));
+    }
+
+    private static bool OperationBoundRefused(GeometryAssessment assessment) =>
+        assessment.Status == GeometryStatus.NotAssessed && assessment.Code == "GEOMETRY-QUERY-RESOURCE" &&
+        assessment.Reason.StartsWith("All-query operation bound", StringComparison.Ordinal);
+
+    // Identical shapes under two names (Make unique alone) are not a differing pair (DR-M12D-6 a).
+    private static bool SameShape(ProfileDefinition left, ProfileDefinition right) =>
+        left.Closure == right.Closure && SameCurve(left.Upper, right.Upper) && SameCurve(left.Lower, right.Lower);
+
+    private static bool SameCurve(Curve left, Curve right) =>
+        left.Degree == right.Degree && left.Knots.SequenceEqual(right.Knots) && left.Points.Length == right.Points.Length &&
+        left.Points.Zip(right.Points).All(pair => pair.First[0] == pair.Second[0] && pair.First[1] == pair.Second[1]);
+
+    // COPY-194 (m12d design §11.2). One side over the limit names that station only.
+    private static string BudgetReason(string a, string b, bool aOver, bool bOver, int aPoints, int bPoints, int limit)
+    {
+        string who = aOver && bOver && aPoints == bPoints ? $"{a} and {b} have {aPoints} points"
+            : aOver && bOver ? $"{a} has {aPoints} points and {b} has {bPoints}"
+            : aOver ? $"{a} has {aPoints} points" : $"{b} has {bPoints} points";
+        return $"{who}; neighbouring sections that differ can have at most {limit}. Rebuild to {limit} points first, or edit {a} and {b} together.";
+    }
+
+    // COPY-194b (proposed copy, m12d design §11.2 convention; to the operator with the RPL Return).
+    private static string ManyDifferingReason(string[] stations) =>
+        $"This edit would give {JoinNames(stations)} all different sections, and a wing with that many different sections in a row can't be checked yet. " +
+        "Keep one of them shared with its neighbour, or edit them together.";
+
+    internal static string JoinNames(IReadOnlyList<string> names) =>
+        names.Count <= 1 ? string.Concat(names) : string.Join(", ", names.Take(names.Count - 1)) + " and " + names[^1];
 
     // COPY-210 (m12c design §11.4).
     private static string ImportAbscissaReason(string neighbour) =>
@@ -65,10 +131,10 @@ internal static class SectionEdits
         $"This edit would give {station}'s section different point positions from {neighbour}'s, and the wing between them " +
         "can't be checked then. Move points up or down only, or keep the section shared.";
 
-    // simplify: the Desktop's station naming (ElevationView.StationName, PointsView.StationName) restated for a Core reason.
-    // Ceiling: three copies of one rule. Upgrade trigger: the next station-name change moves the rule here and both
-    // Desktop copies call it.
-    private static string StationName(int index, double eta) => eta == 0 ? "Root" : eta == 1 ? "Tip" : $"Station {index + 1}";
+    // simplify: the Desktop's station naming (ElevationView.StationName, PointsView.StationName) restated for a Core reason;
+    // the Core's one copy, read here and by SectionReplace. Ceiling: three copies of one rule. Upgrade trigger: the next
+    // station-name change moves the rule here and both Desktop copies call it.
+    internal static string StationName(int index, double eta) => eta == 0 ? "Root" : eta == 1 ? "Tip" : $"Station {index + 1}";
 
     private static (byte[] Bytes, SectionStepReport Report) Move(byte[] bytes, int assignment, SectionStep.Move move)
     {

@@ -83,6 +83,11 @@ public sealed class GeometryAssessment
 
 public static class Geometry
 {
+    // The blend maximum's node budget and bisection depth (Assess). BlendSpanLimit is the one place the admission check and
+    // the section-step budget clause (Ruling 71 F-1, SectionEdits.RequireNeighbourAbscissa) read the span limit, so a capacity
+    // change (docs/proof/blend-certificate-budget/verdict.md §5) reaches both.
+    internal const int BlendNodes = 256, BlendDepth = 48;
+    internal static int BlendSpanLimit() => BlendNodes / BlendDepth;
     // Pinned literal (design §5.1), not computed on first use: a static initializer's exact-rational search would be
     // charged to whichever proof first touched it, so the same proof's work would depend on order (DET-CLOCK).
     // Geometry_TwistDomain_LargestAssessableDegreesPinned requires it to equal LargestAdmissibleTwist() bit for bit.
@@ -391,7 +396,7 @@ public static class Geometry
                 spanCount = Math.Max(spanCount, Math.Max(left.Difference.Length, right.Difference.Length));
                 degree = left.Difference[0].Y.Length - 1;
             }
-            const int blendNodes = 256;
+            const int blendNodes = BlendNodes;
             if (distinct)
             {
                 Rational range = 0;
@@ -401,8 +406,8 @@ public static class Geometry
                     Rational unitRange = (coefficients.Max() - coefficients.Min()) / profile.Maximum.Lower;
                     if (unitRange > range) range = unitRange;
                 }
-                const int depth = 48;
-                Require(spanCount * depth <= blendNodes, "Blend maximum enclosure node budget is insufficient.");
+                const int depth = BlendDepth;
+                Require(spanCount <= BlendSpanLimit(), "Blend maximum enclosure node budget is insufficient.");
                 // Degree times the unit-shape range bounds the derivative. After `depth`
                 // bisections every subspan hull is inside the maximum tolerance.
                 Require(new Rational(degree, 1) * range / new Rational(BigInteger.One << depth, 1) <= Rational.From(1e-12) / 4,

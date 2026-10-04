@@ -32,12 +32,9 @@ internal static class SectionEditsTests
         IdentityTests.Check(nameof(SectionEdits_TwoProfiles_ControlToAnchor_Observed), SectionEdits_TwoProfiles_ControlToAnchor_Observed);
         IdentityTests.Check(nameof(SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged), SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged);
         IdentityTests.Check(nameof(SectionEdits_UniqueProfile_YOnlyMoveAllowed), SectionEdits_UniqueProfile_YOnlyMoveAllowed);
-        IdentityTests.Check(nameof(SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged), SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged);
+        IdentityTests.Check(nameof(SectionEdits_SharedImport0012_LandsAsSharedReplaceCertified), SectionEdits_SharedImport0012_LandsAsSharedReplaceCertified);
+        IdentityTests.Check(nameof(SectionEdits_UniqueImportOverLimit_RefusedNothingChanged), SectionEdits_UniqueImportOverLimit_RefusedNothingChanged);
     }
-
-    // COPY-210 (Ruling 71, operator 2026-10-04): an import at Root whose own spacing differs from Tip's section.
-    internal const string ImportOwnSpacingReason = "This section has its own point spacing, which differs from Tip's, so the wing " +
-        "between them can't be checked yet. Importing sections with their own spacing will work once sections can be kept in step.";
 
     // COPY-209 (Ruling 71): the Example's Root after Make unique; Tip keeps the shared profile.
     private const string UniqueRootReason = "This edit would give Root's section different point positions from Tip's, and the wing " +
@@ -373,21 +370,46 @@ internal static class SectionEditsTests
         IdentityTests.Equal(GeometryStatus.Certified, assessment.Status);
     }
 
-    // Ruling 71 (operator 2026-10-04): an import assigns a new, unique profile at one station. When the DAT needs its own
-    // spacing (NACA 0012 on the Example: the neighbour-basis residual is over 1e-5) the step is refused with COPY-210 and
-    // nothing changes; before, it landed uncertified with DatImport's own-spacing reason.
-    private static void SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged()
+    // DR-M12D-3 a (was SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged): Import is a Replace in place at
+    // the draft's scope. NACA 0012 at the Example's shared Root replaces Root and Tip together, fits the current spacing
+    // within 10 µm (P-CF-0012), lands and certifies; nothing is refused and no profile is added.
+    private static void SectionEdits_SharedImport0012_LandsAsSharedReplaceCertified()
     {
         using var session = SectionDraftTests.Opened();
         string id = SectionDraftTests.Id();
         var view = session.BeginSectionDraft(id, 0);
-        var error = Throws(() => session.ApplySectionStep(id, view.Generation, new SectionStep.Import(SectionDraftTests.Naca0012Selig())));
-        IdentityTests.Equal("DSL-GEOMETRY", error.Code);
-        IdentityTests.Equal(ImportOwnSpacingReason, error.Reason);
+        view = session.ApplySectionStep(id, view.Generation, new SectionStep.Import(SectionDraftTests.Naca0012Selig()));
+        IdentityTests.Equal("current", view.Last!.Import!.Basis);
+        IdentityTests.Equal(1, FoilSource.Parse(view.Bytes).Definition!.Profiles.Length);
+        IdentityTests.Equal(GeometryStatus.Certified, session.AssessSection(id, view.Generation, CancellationToken.None).Status);
+    }
+
+    // The own-spacing case that COPY-210 refused is now a unique Root beside Tip, fitted on the shared spacing only: a cambered
+    // file over 10 µm there is refused with CAT-SPACING (COPY-191) and nothing changes.
+    private static void SectionEdits_UniqueImportOverLimit_RefusedNothingChanged()
+    {
+        using var session = SectionDraftTests.Opened();
+        string id = SectionDraftTests.Id();
+        var view = session.BeginSectionDraft(id, 0);
+        view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
+        var error = Throws(() => session.ApplySectionStep(id, view.Generation, new SectionStep.Import(Naca4412Selig())));
+        IdentityTests.Equal("CAT-SPACING", error.Code);
+        IdentityTests.Equal(true, error.Reason!.StartsWith("Root blends point-to-point with Tip", StringComparison.Ordinal));
         var draft = session.Snapshot().Draft!;
         IdentityTests.Equal(view.Generation, draft.Generation);
         IdentityTests.Equal(true, draft.Bytes.AsSpan().SequenceEqual(view.Bytes));
-        IdentityTests.Equal(0, session.UndoSectionStep(id).Cursor);
+    }
+
+    private static byte[] Naca4412Selig()
+    {
+        const int n = 40;
+        var text = new StringBuilder("NACA 4412\n");
+        static double X(int i) => 0.5 * (1.0 - Math.Cos(Math.PI * i / n));
+        static double Half(double x) => 0.6 * (0.2969 * Math.Sqrt(x) - 0.1260 * x - 0.3516 * x * x + 0.2843 * Math.Pow(x, 3) - 0.1036 * Math.Pow(x, 4));
+        static double Camber(double x) => x < 0.4 ? 0.04 / 0.16 * (0.8 * x - x * x) : 0.04 / 0.36 * (0.2 + 0.8 * x - x * x);
+        for (int i = n; i >= 0; i--) text.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0:F6} {1:F6}", X(i), Camber(X(i)) + Half(X(i))));
+        for (int i = 1; i <= n; i++) text.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0:F6} {1:F6}", X(i), Camber(X(i)) - Half(X(i))));
+        return Encoding.UTF8.GetBytes(text.ToString());
     }
 
     private static byte[] Anchor() =>

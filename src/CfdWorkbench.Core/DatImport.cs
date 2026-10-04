@@ -7,6 +7,9 @@ public sealed record DatProfile(string Name, string Format, IReadOnlyList<Profil
 
 public sealed record ImportedProfile(string ProfileBlock, double MaxResidual, int VertexCount, string Provenance, bool Accepted);
 
+/// <summary>Ordinates fitted on a fixed basis; VerticalResidual is the gap at the source points.</summary>
+internal sealed record BasisFit(double[] Upper, double[] Lower, double VerticalResidual);
+
 public static class DatImport
 {
     public static string Slug(string name)
@@ -16,6 +19,52 @@ public static class DatImport
     }
 
     public static DatProfile Parse(byte[] dat)
+    {
+        var raw = ParseRaw(dat);
+        var upperRaw = raw.Upper;
+        var lowerRaw = raw.Lower;
+        double xMin = double.PositiveInfinity;
+        double xMax = double.NegativeInfinity;
+        foreach (var pt in upperRaw)
+        {
+            if (pt.X < xMin) xMin = pt.X;
+            if (pt.X > xMax) xMax = pt.X;
+        }
+        foreach (var pt in lowerRaw)
+        {
+            if (pt.X < xMin) xMin = pt.X;
+            if (pt.X > xMax) xMax = pt.X;
+        }
+
+        double chord = xMax - xMin;
+        if (chord <= 1e-12)
+            throw new ContractError("DSL-IMPORT", raw.FirstLine);
+
+        double yLe = upperRaw[0].Y;
+
+        var upperNorm = new List<ProfilePoint>(upperRaw.Count);
+        for (int i = 0; i < upperRaw.Count; i++)
+        {
+            double nx = (upperRaw[i].X - xMin) / chord;
+            double ny = (upperRaw[i].Y - yLe) / chord;
+            if (i == 0) { nx = 0; ny = 0; }
+            upperNorm.Add(new(nx, ny));
+        }
+
+        var lowerNorm = new List<ProfilePoint>(lowerRaw.Count);
+        for (int i = 0; i < lowerRaw.Count; i++)
+        {
+            double nx = (lowerRaw[i].X - xMin) / chord;
+            double ny = (lowerRaw[i].Y - yLe) / chord;
+            if (i == 0) { nx = 0; ny = 0; }
+            lowerNorm.Add(new(nx, ny));
+        }
+
+        return new DatProfile(raw.Name, raw.Format, upperNorm.AsReadOnly(), lowerNorm.AsReadOnly(), dat, raw.Count);
+    }
+
+    // The file's rows split at the leading edge (minimum-x sample), each surface from the nose, in the file's own frame.
+    private static (string Name, string Format, List<ProfilePoint> Upper, List<ProfilePoint> Lower, int Count, int FirstLine) ParseRaw(byte[] dat)
     {
         ArgumentNullException.ThrowIfNull(dat);
         if (dat.Length == 0) throw new ContractError("DSL-IMPORT", 1);
@@ -126,44 +175,7 @@ public static class DatImport
                 lowerRaw = points.Skip(minIdx).ToList();
         }
 
-        double xMin = double.PositiveInfinity;
-        double xMax = double.NegativeInfinity;
-        foreach (var pt in upperRaw)
-        {
-            if (pt.X < xMin) xMin = pt.X;
-            if (pt.X > xMax) xMax = pt.X;
-        }
-        foreach (var pt in lowerRaw)
-        {
-            if (pt.X < xMin) xMin = pt.X;
-            if (pt.X > xMax) xMax = pt.X;
-        }
-
-        double chord = xMax - xMin;
-        if (chord <= 1e-12)
-            throw new ContractError("DSL-IMPORT", validLines[1].LineNumber);
-
-        double yLe = upperRaw[0].Y;
-
-        var upperNorm = new List<ProfilePoint>(upperRaw.Count);
-        for (int i = 0; i < upperRaw.Count; i++)
-        {
-            double nx = (upperRaw[i].X - xMin) / chord;
-            double ny = (upperRaw[i].Y - yLe) / chord;
-            if (i == 0) { nx = 0; ny = 0; }
-            upperNorm.Add(new(nx, ny));
-        }
-
-        var lowerNorm = new List<ProfilePoint>(lowerRaw.Count);
-        for (int i = 0; i < lowerRaw.Count; i++)
-        {
-            double nx = (lowerRaw[i].X - xMin) / chord;
-            double ny = (lowerRaw[i].Y - yLe) / chord;
-            if (i == 0) { nx = 0; ny = 0; }
-            lowerNorm.Add(new(nx, ny));
-        }
-
-        return new DatProfile(rawName, format, upperNorm.AsReadOnly(), lowerNorm.AsReadOnly(), dat, originalPointCount);
+        return (rawName, format, upperRaw, lowerRaw, originalPointCount, validLines[1].LineNumber);
     }
 
     public static ImportedProfile Fit(DatProfile p, string name)
@@ -264,39 +276,242 @@ public static class DatImport
         return new ImportedProfile(blockText, bestMaxRes, bestN, provenance, accepted);
     }
 
-    /// <summary>Fit ordinates only. Knots and control-vertex x stay on the supplied basis.</summary>
-    public static ImportedProfile? FitToBasis(DatProfile profile, string name, double[] knots, double[] controlX, int degree)
+    /// <summary>
+    /// Fits ordinates only: knots, control x and ids stay on the supplied basis (m12d §3.6 rule 6b). Every interior tangent
+    /// row except vertical is linear in y once x is fixed, so it joins the endpoint pins as a KKT equality row; a vertical row's
+    /// sign condition is checked after the solve. A row that cannot hold refuses with DSL-LOCK naming it. Null when the system
+    /// is singular. The residual here is the vertical gap at the source points; Replace reports the Euclidean one
+    /// (<see cref="EuclideanResidual"/>).
+    /// </summary>
+    internal static BasisFit? FitToBasis(DatProfile profile, double[] knots, double[] controlX, int degree, bool closed,
+        IReadOnlyList<TangentRow>? upperRows = null, string[]? upperIds = null, IReadOnlyList<TangentRow>? lowerRows = null, string[]? lowerIds = null)
     {
         ArgumentNullException.ThrowIfNull(profile);
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
-        if (knots is null || controlX is null || degree < 1) return null;
+        ArgumentNullException.ThrowIfNull(knots);
+        ArgumentNullException.ThrowIfNull(controlX);
         int count = controlX.Length;
-        if (count < 2 || knots.Length != count + degree + 1) return null;
+        if (degree < 1 || count < 2 || knots.Length != count + degree + 1) return null;
         if (profile.Upper.Count == 0 || profile.Lower.Count == 0) return null;
-
-        bool closed = IsClosed(profile);
         bool sqrtParameter = degree == 5 && MatchesOwnSqrtBasis(knots, controlX);
-        var (constraints, bound) = EndpointPins(count, closed);
         var smoothing = new double[count, count];
-        if (!TryOrdinates(profile.Upper, knots, controlX, degree, smoothing, constraints, bound, closed, sqrtParameter, out double[] upper, out double upperResidual))
+        var upperConstraints = Constraints(count, closed, controlX, upperRows ?? [], upperIds);
+        var lowerConstraints = Constraints(count, closed, controlX, lowerRows ?? [], lowerIds);
+        if (!TryOrdinates(profile.Upper, knots, controlX, degree, smoothing, upperConstraints.A, upperConstraints.B, closed, sqrtParameter, out double[] upper, out double upperResidual))
             return null;
-        if (!TryOrdinates(profile.Lower, knots, controlX, degree, smoothing, constraints, bound, closed, sqrtParameter, out double[] lower, out double lowerResidual))
+        if (!TryOrdinates(profile.Lower, knots, controlX, degree, smoothing, lowerConstraints.A, lowerConstraints.B, closed, sqrtParameter, out double[] lower, out double lowerResidual))
             return null;
-
+        Settle(upper, upperRows ?? [], upperIds);
+        Settle(lower, lowerRows ?? [], lowerIds);
         double maxResidual = Math.Max(upperResidual, lowerResidual);
-        if (!double.IsFinite(maxResidual)) return null;
-        string provenance = ProvenanceOf(profile);
-        string block = ProfileBlock(name, degree, closed ? "closed" : "open", provenance, knots, controlX, upper, lower);
-        return new ImportedProfile(block, maxResidual, count, provenance, maxResidual <= 1e-5);
+        return double.IsFinite(maxResidual) ? new BasisFit(upper, lower, maxResidual) : null;
     }
 
-    internal static string OwnSpacingReason(double neighbourResidual)
+    // Endpoint pins, then one equality row per linear tangent condition (the Geometry.CheckProfileRow conditions with x fixed).
+    private static (double[,] A, double[] B) Constraints(int count, bool closed, double[] x, IReadOnlyList<TangentRow> rows, string[]? ids)
     {
-        string residual = neighbourResidual.ToString("G17", CultureInfo.InvariantCulture);
-        return "The imported shape needs its own vertex spacing (residual " + residual + " on the neighbour basis). Blending across different spacings is not certified yet: import it at every station that shares this profile, or Rebuild the neighbouring profiles.";
+        var (pins, pinned) = EndpointPins(count, closed);
+        var matrix = new List<double[]>();
+        var bound = new List<double>();
+        for (int row = 0; row < pins.GetLength(0); row++)
+        {
+            matrix.Add(Enumerable.Range(0, count).Select(column => pins[row, column]).ToArray());
+            bound.Add(pinned[row]);
+        }
+        foreach (var tangent in rows)
+        {
+            int i = ids is null ? -1 : Array.IndexOf(ids, tangent.Id);
+            if (i <= 0 || i >= count - 1) throw new ContractError("DSL-LOCK", $"Point {tangent.Id}'s type has no anchor on this spacing.");
+            switch (tangent.Kind)
+            {
+                case "horizontal":
+                    matrix.Add(Row(count, (i - 1, 1), (i, -1))); bound.Add(0);
+                    matrix.Add(Row(count, (i + 1, 1), (i, -1))); bound.Add(0);
+                    break;
+                case "angle":
+                    double slope = Math.Tan((tangent.Angle ?? double.NaN) * PlacementRule.RadiansPerDegree);
+                    if (!double.IsFinite(slope)) throw new ContractError("DSL-LOCK", $"Point {tangent.Id}'s angle cannot hold on this spacing.");
+                    matrix.Add(Row(count, (i + 1, 1), (i, -1))); bound.Add(slope * (x[i + 1] - x[i]));
+                    matrix.Add(Row(count, (i - 1, 1), (i, -1))); bound.Add(slope * (x[i - 1] - x[i]));
+                    break;
+                case "smooth":
+                    // (x_i - x_l)(y_r - y_l) = (x_r - x_l)(y_i - y_l)
+                    matrix.Add(Row(count, (i + 1, x[i] - x[i - 1]), (i - 1, -(x[i] - x[i - 1]) + (x[i + 1] - x[i - 1])), (i, -(x[i + 1] - x[i - 1]))));
+                    bound.Add(0);
+                    break;
+                case "symmetric":
+                    matrix.Add(Row(count, (i, 1), (i - 1, -0.5), (i + 1, -0.5))); bound.Add(0);
+                    break;
+                case "vertical":
+                    break;
+                default:
+                    throw new ContractError("DSL-LOCK", $"Point {tangent.Id}'s type cannot hold on this spacing.");
+            }
+        }
+        var a = new double[matrix.Count, count];
+        for (int row = 0; row < matrix.Count; row++)
+            for (int column = 0; column < count; column++) a[row, column] = matrix[row][column];
+        return (a, bound.ToArray());
     }
 
-    private static (double[] Knots, double[] ControlX) OwnSqrtBasis(int count)
+    private static double[] Row(int count, params (int Index, double Value)[] entries)
+    {
+        var row = new double[count];
+        foreach (var (index, value) in entries) row[index] += value;
+        return row;
+    }
+
+    // Exact equalities the certificate compares bit for bit (a horizontal row), and the vertical rows' sign condition.
+    private static void Settle(double[] y, IReadOnlyList<TangentRow> rows, string[]? ids)
+    {
+        foreach (var tangent in rows)
+        {
+            int i = Array.IndexOf(ids!, tangent.Id);
+            if (tangent.Kind == "horizontal") y[i - 1] = y[i + 1] = y[i];
+            if (tangent.Kind == "vertical" && (y[i - 1] - y[i]) * (y[i + 1] - y[i]) >= 0)
+                throw new ContractError("DSL-LOCK", $"Point {tangent.Id} is vertical, and this shape cannot keep it vertical on this spacing.");
+        }
+    }
+
+    /// <summary>
+    /// m12d §3.6 rule 5: the largest Euclidean distance, both ways, between the source and a fitted surface — every source
+    /// sample to the fitted curve, then 201 cosine samples of the fitted curve plus its knots to the source curve.
+    /// </summary>
+    internal static double EuclideanResidual(IReadOnlyList<ProfilePoint> sourceSamples, (double X, double Y)[] sourceCurve,
+        double[] knots, int degree, double[] controlX, double[] controlY)
+    {
+        throw new ContractError("RPL-NOT-BUILT", "The Euclidean residual is not built yet.");
+#pragma warning disable CS0162
+        var fitted = Dense(knots, degree, controlX, controlY, 4000);
+        double worst = 0;
+        foreach (var point in sourceSamples) worst = Math.Max(worst, Distance(fitted, point.X, point.Y));
+        var parameters = Enumerable.Range(0, 201).Select(i => 0.5 * (1 - Math.Cos(Math.PI * i / 200)))
+            .Concat(knots.Where(knot => knot > 0 && knot < 1).Distinct());
+        foreach (double u in parameters)
+        {
+            var (x, y) = Evaluate(knots, degree, controlX, controlY, u);
+            worst = Math.Max(worst, Distance(sourceCurve, x, y));
+        }
+        return worst;
+    }
+
+    internal static (double X, double Y)[] Dense(double[] knots, int degree, double[] controlX, double[] controlY, int segments) =>
+        Enumerable.Range(0, segments + 1).Select(i => Evaluate(knots, degree, controlX, controlY, (double)i / segments)).ToArray();
+
+    private static (double X, double Y) Evaluate(double[] knots, int degree, double[] controlX, double[] controlY, double u)
+    {
+        double[] values = SplineBasis.Values(knots, degree, u);
+        double x = 0, y = 0;
+        for (int index = 0; index < controlX.Length; index++) { x += values[index] * controlX[index]; y += values[index] * controlY[index]; }
+        return (x, y);
+    }
+
+    // The nearest vertex, then the two segments beside it: exact for a polyline dense against its curvature.
+    private static double Distance((double X, double Y)[] polyline, double x, double y)
+    {
+        int nearest = 0;
+        double best = double.PositiveInfinity;
+        for (int index = 0; index < polyline.Length; index++)
+        {
+            double dx = polyline[index].X - x, dy = polyline[index].Y - y, squared = dx * dx + dy * dy;
+            if (squared < best) { best = squared; nearest = index; }
+        }
+        for (int index = Math.Max(0, nearest - 1); index < Math.Min(polyline.Length - 1, nearest + 1); index++)
+        {
+            var (ax, ay) = polyline[index];
+            var (bx, by) = polyline[index + 1];
+            double vx = bx - ax, vy = by - ay, length = vx * vx + vy * vy;
+            double t = length == 0 ? 0 : Math.Clamp(((x - ax) * vx + (y - ay) * vy) / length, 0, 1);
+            double ex = ax + t * vx - x, ey = ay + t * vy - y;
+            best = Math.Min(best, ex * ex + ey * ey);
+        }
+        return Math.Sqrt(best);
+    }
+
+    /// <summary>
+    /// The source curve through a coordinate set: one natural cubic spline (chord-length parameter) through the whole
+    /// trailing edge → nose → trailing edge loop, so the nose is interior, densified and split back into surfaces from the nose.
+    /// </summary>
+    internal static ((double X, double Y)[] Upper, (double X, double Y)[] Lower) SourceCurve(DatProfile profile, int perInterval = 16)
+    {
+        var loop = profile.Upper.Reverse().Concat(profile.Lower.Skip(1)).ToList();
+        var points = new List<ProfilePoint> { loop[0] };
+        foreach (var point in loop.Skip(1))
+            if (point.X != points[^1].X || point.Y != points[^1].Y) points.Add(point);
+        int nose = points.FindIndex(point => point.X == profile.Upper[0].X && point.Y == profile.Upper[0].Y);
+        var t = new double[points.Count];
+        for (int i = 1; i < points.Count; i++) t[i] = t[i - 1] + Math.Sqrt(Math.Pow(points[i].X - points[i - 1].X, 2) + Math.Pow(points[i].Y - points[i - 1].Y, 2));
+        double[] mx = NaturalSecondDerivatives(t, points.Select(point => point.X).ToArray());
+        double[] my = NaturalSecondDerivatives(t, points.Select(point => point.Y).ToArray());
+        var dense = new List<(double X, double Y)>();
+        int noseDense = 0;
+        for (int i = 0; i + 1 < points.Count; i++)
+        {
+            if (i == nose) noseDense = dense.Count;
+            for (int k = 0; k < perInterval; k++)
+            {
+                double s = t[i] + (t[i + 1] - t[i]) * k / perInterval;
+                dense.Add((Cubic(t, points.Select(point => point.X).ToArray(), mx, i, s), Cubic(t, points.Select(point => point.Y).ToArray(), my, i, s)));
+            }
+        }
+        dense.Add((points[^1].X, points[^1].Y));
+        var upper = dense.Take(noseDense + 1).Reverse().ToArray();
+        var lower = dense.Skip(noseDense).ToArray();
+        return (upper, lower);
+    }
+
+    private static double[] NaturalSecondDerivatives(double[] t, double[] v)
+    {
+        int n = t.Length;
+        var m = new double[n];
+        if (n < 3) return m;
+        var c = new double[n];
+        var d = new double[n];
+        for (int i = 1; i < n - 1; i++)
+        {
+            double h0 = t[i] - t[i - 1], h1 = t[i + 1] - t[i];
+            double a = h0 / 6, b = (h0 + h1) / 3, cc = h1 / 6;
+            double r = (v[i + 1] - v[i]) / h1 - (v[i] - v[i - 1]) / h0;
+            double denominator = b - a * c[i - 1];
+            c[i] = cc / denominator;
+            d[i] = (r - a * d[i - 1]) / denominator;
+        }
+        for (int i = n - 2; i >= 1; i--) m[i] = d[i] - c[i] * m[i + 1];
+        return m;
+    }
+
+    private static double Cubic(double[] t, double[] v, double[] m, int i, double s)
+    {
+        double h = t[i + 1] - t[i], a = (t[i + 1] - s) / h, b = (s - t[i]) / h;
+        return a * v[i] + b * v[i + 1] + ((a * a * a - a) * m[i] + (b * b * b - b) * m[i + 1]) * h * h / 6;
+    }
+
+    /// <summary>
+    /// Reads coordinates into the chord frame (m12d F-5): the leading edge is the minimum-x sample, the chord runs to the
+    /// trailing-edge midpoint at unit length, and the shift, turn and scale are returned so Replace can report them.
+    /// </summary>
+    internal static (DatProfile Profile, double LeShift, double RotationDegrees, double Scale) ParseInChordFrame(byte[] dat)
+    {
+        var raw = ParseRaw(dat);
+        var le = raw.Upper[0];
+        double mx = (raw.Upper[^1].X + raw.Lower[^1].X) / 2 - le.X, my = (raw.Upper[^1].Y + raw.Lower[^1].Y) / 2 - le.Y;
+        double scale = Math.Sqrt(mx * mx + my * my);
+        if (!(scale > 1e-12)) throw new ContractError("DSL-IMPORT", raw.FirstLine);
+        double angle = Math.Atan2(my, mx), cos = Math.Cos(angle), sin = Math.Sin(angle);
+        List<ProfilePoint> Frame(IReadOnlyList<ProfilePoint> side)
+        {
+            var list = side.Select(point =>
+            {
+                double dx = point.X - le.X, dy = point.Y - le.Y;
+                return new ProfilePoint((dx * cos + dy * sin) / scale, (-dx * sin + dy * cos) / scale);
+            }).ToList();
+            list[0] = new(0, 0);
+            return list;
+        }
+        var profile = new DatProfile(raw.Name, raw.Format, Frame(raw.Upper).AsReadOnly(), Frame(raw.Lower).AsReadOnly(), dat, raw.Count);
+        return (profile, Math.Sqrt(le.X * le.X + le.Y * le.Y) / scale, angle / PlacementRule.RadiansPerDegree, scale);
+    }
+
+    internal static (double[] Knots, double[] ControlX) OwnSqrtBasis(int count)
     {
         var knots = new double[count + 6];
         for (int i = 0; i <= 5; i++) knots[i] = 0;

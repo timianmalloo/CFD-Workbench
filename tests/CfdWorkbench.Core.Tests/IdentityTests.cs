@@ -89,6 +89,7 @@ internal static class IdentityTests
         ConstructionTests.Run();
         FairSessionTests.Run();
         DatImportTests.Run();
+        SectionReplaceTests.Run();
         ReopenConstructionTests.Run();
         ThicknessIntentTests.Run();
         WingEstimatesTests.Run();
