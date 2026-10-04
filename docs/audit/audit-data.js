@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T17:03:24Z",
+  "generated": "2026-10-04T17:23:56Z",
   "audit": [
     {
       "actor": null,
@@ -23408,6 +23408,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T17:02:31Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M43Z360FVKT5VVGESTWCX3VV",
+      "shortname": "join-m12c-uxr",
+      "datetime": "2026-10-04T17:23:56Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12c-uxr into feature/ui-cad-direction",
+      "summary": "UXR (Opus 5.5): all EDT/PNL deviations fixed (stale Checking box, reason box top-right, COPY-187 via one composer with 0.0001 mm precision, 24 px mode bar, tokens, chip, accents, probe plate, axis labels, comb plate, outline thumbnails); comb teeth point outward (marine-CAD soft veto cleared, red first); DESIGN.md tokens + COPY-172..189; readiness rows (step apply 55.7 ms at load 28 vs 5 ms assume - measured not gated); docs/reviews/m12c-native.md with the operator checklist; app packaged. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:22:59Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
