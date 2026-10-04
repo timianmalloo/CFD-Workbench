@@ -114,3 +114,17 @@ for (const [label, lattices, m] of [['correct', [16, 32, 64], {}], ['correct', [
   console.log(`F-2/F-6 ${label} ${lattices.join('/')}: ` + rows.map(r => `CL ${r.CL.toFixed(5)} e ${r.e.toFixed(5)}`).join(' | ') + ` -> p(CL) ${ord('CL').toFixed(3)} p(e) ${ord('e').toFixed(3)}, Richardson CL ${rich('CL').toFixed(5)} e ${rich('e').toFixed(5)}`);
 }
 ```
+
+## C# product lattice (track VLM, 2026-10-04)
+
+Same planform, uniform chordwise spacing, cosine span, wake length 20 spans measured from the bound vortex (the script's far station is the absolute x = 20·b; the bound sits near x = 0, so the two differ by the bound's x). Release build, ρ = 1000, V = 1.
+
+| n per half | CL | e |
+|---:|---:|---:|
+| 32 | 0.42061592925327934 | 1.0188185139225341 |
+| 64 | 0.41906892443595917 | 1.008614926943703 |
+| 128 | 0.41833189863013637 | 1.0035578493401354 |
+
+p(CL) = 1.0696906502361061, p(e) = 1.0127005850952371. Richardson CL = 0.41766125527921233, Richardson e = 0.99858864943710468.
+
+The planted wake-per-panel mutant (wake length = 20 spans × one panel's span) gives p(CL) = −0.63208432840675044, outside 1 ± 0.2.
