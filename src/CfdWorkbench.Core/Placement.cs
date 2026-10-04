@@ -7,6 +7,9 @@ public readonly record struct Point3(double X, double Y, double Z)
     public Point3 Port() => new(X, -Y, Z);
 }
 
+/// <summary>One placed section of the display mesh. <paramref name="Assignment"/> is the authored station this section lies on
+/// (the index into <see cref="AuthoredProjection.Assignments"/>, as every <c>assignmentIndex</c> in Core), or null between
+/// stations; the station's profile is <c>Assignments[Assignment].ProfileName</c>, never this number.</summary>
 public sealed record PlacedSection(double Eta, int? Assignment, IReadOnlyList<Point3> Upper, IReadOnlyList<Point3> Lower);
 
 public sealed record SurfaceView(string SourceHash, string Basis, long Generation,
@@ -318,7 +321,7 @@ public static class Placement
         var (left, right) = PlacementRule.Select(stationEtas, stationProfiles, eta, (a, b) => SameRecord(definition.Profiles[a], definition.Profiles[b]));
         int? assignment = null;
         for (int index = 0; index < stationEtas.Length; index++)
-            if (stationEtas[index] == eta) assignment = stationProfiles[index];
+            if (stationEtas[index] == eta) assignment = index;
         var upper = new Point3[xs.Length];
         var lower = new Point3[xs.Length];
         Binary64 leading = Binary64.Point(frame.LeadingMeters);

@@ -28,6 +28,7 @@ internal static class PlacementTests
         Check("Placement_PortHalf_MirrorsYOnly", PortMirrorsY);
         Check("Placement_Surface_AuthoredStationsIncludedExactly", AuthoredStations);
         Check("Placement_Surface_AuthoredEtaOnUniformGridOnce", UniformEtaOnce);
+        Check("Placement_Surface_AssignmentIsTheStationIndex", AssignmentIsStationIndex);
         Check("Placement_Surface_NeverUsesProofBudget", NeverUsesProofBudget);
         Check("Placement_Surface_EvaluatorCallsBounded", EvaluatorCallsBounded);
         Check("Placement_Surface_CancelledBetweenStations", CancelledBetweenStations);
@@ -313,6 +314,19 @@ internal static class PlacementTests
         double[] xs = Cosine(view.Sections[0].Upper.Count);
         for (int index = 0; index < xs.Length; index++)
             Equal(true, Math.Abs(view.Sections[0].Upper[index].X - xs[index] * 0.12) <= 1e-12);
+    }
+
+    // PlacedSection.Assignment names the authored station (the index into AuthoredProjection.Assignments, as every
+    // `assignmentIndex` in Core does), never the profile it uses. The Example's root and tip share profile "section-a"
+    // (index 0), so a profile index reads 0 at the tip and opened Root on a Tip double-click in the Side view.
+    private static void AssignmentIsStationIndex()
+    {
+        string source = Example();
+        Equal(true, source.Contains("at root profile \"section-a\" at tip profile \"section-a\"", StringComparison.Ordinal));
+        var view = Placement.Surface(Encoding.UTF8.GetBytes(source), "accepted", 0, CancellationToken.None);
+        string authored = string.Join(" ", view.Sections.Where(section => section.Assignment is not null)
+            .Select(section => FormattableString.Invariant($"{section.Eta}:{section.Assignment}")));
+        Equal("0:0 1:1", authored);
     }
 
     private static void UniformEtaOnce()
