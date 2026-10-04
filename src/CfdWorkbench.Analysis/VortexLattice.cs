@@ -38,10 +38,11 @@ internal enum LatticePlant
     BoundAtMidChord,
     NormalFromLeadingEdge,
     InducedFromControlPoint,
-    NearFieldFreestreamOnly,
+    NearFieldTrailingOmitted,
     NonFiniteAsZero,
     BoundUnswept,
-    PivotWholeRow
+    PivotWholeRow,
+    DownwashNeighbour
 }
 
 /// <summary>
@@ -194,7 +195,10 @@ public static class VortexLattice
         var washes = new double[kept.Count];
         for (int s = 0; s < kept.Count; s++)
         {
-            double w = Trefftz.Downwash(kept[s].Y, stripGamma, yA, yB);
+            // w_T at the strip y-midpoint (§5.2). The θ-midpoint was measured and rejected: e turns non-monotone in the
+            // lattice and the outermost strip reads +48° at the default lattice (note §Repair).
+            int at = plant == LatticePlant.DownwashNeighbour ? (s + 1 < kept.Count ? s + 1 : s - 1) : s;
+            double w = Trefftz.Downwash(kept[at].Y, stripGamma, yA, yB);
             double ai = plant == LatticePlant.InducedFromControlPoint
                 ? InducedFromTotal(horses, gamma, kept[s], op)
                 : ToDegrees(-w / (2 * op.Speed));
@@ -220,8 +224,7 @@ public static class VortexLattice
             double py = 0.5 * (horse.A.Y + horse.B.Y);
             double pz = 0.5 * (horse.A.Z + horse.B.Z);
             double ux = 0, uy = 0, uz = 0;
-            if (plant != LatticePlant.NearFieldFreestreamOnly)
-                InducedAtBound(horses, gamma, horse, cutoff, ref ux, ref uy, ref uz);
+            InducedAtBound(horses, gamma, horse, cutoff, plant == LatticePlant.NearFieldTrailingOmitted, ref ux, ref uy, ref uz);
             double lx = horse.B.X - horse.A.X, ly = horse.B.Y - horse.A.Y, lz = horse.B.Z - horse.A.Z;
             double qx = vx + ux, qy = uy, qz = vz + uz;
             double g = gamma[j];
@@ -480,32 +483,24 @@ public static class VortexLattice
         for (int k = from; k < n; k++) (a[i * n + k], a[j * n + k]) = (a[j * n + k], a[i * n + k]);
     }
 
-    // Three-point Gauss on the bound segment. The midpoint alone sits 1.28 % under Trefftz on the F-5 lattice;
-    // the segment integral lands inside 1 %. Samples stay off the trailing-leg junctions, where the integrand is singular.
-    private static void InducedAtBound(List<Horseshoe> horses, double[] gamma, in Horseshoe horse, double cutoff,
+    // Design §5.2: one evaluation per bound segment, at its midpoint, not a quadrature tuned to land inside 1 % at one
+    // lattice. On the default chord law F-5 shows the gap to Trefftz shrinking 32 → 64 → 128 toward 0.89 % (the
+    // nc-4 chordwise error; docs/notes/area3-fixture-arithmetic.md §Repair).
+    private static void InducedAtBound(List<Horseshoe> horses, double[] gamma, in Horseshoe horse, double cutoff, bool boundOnly,
         ref double ux, ref double uy, ref double uz)
     {
-        double offset = 0.5 * Math.Sqrt(0.6);
-        ReadOnlySpan<double> station = [0.5 - offset, 0.5, 0.5 + offset];
-        ReadOnlySpan<double> weight = [5.0 / 18.0, 8.0 / 18.0, 5.0 / 18.0];
-        for (int p = 0; p < 3; p++)
+        var point = new Point3(
+            0.5 * (horse.A.X + horse.B.X),
+            0.5 * (horse.A.Y + horse.B.Y),
+            0.5 * (horse.A.Z + horse.B.Z));
+        for (int k = 0; k < horses.Count; k++)
         {
-            double t = station[p];
-            var point = new Point3(
-                horse.A.X + t * (horse.B.X - horse.A.X),
-                horse.A.Y + t * (horse.B.Y - horse.A.Y),
-                horse.A.Z + t * (horse.B.Z - horse.A.Z));
-            double sx = 0, sy = 0, sz = 0;
-            for (int k = 0; k < horses.Count; k++)
-            {
-                Velocity(horses[k], point, cutoff, true, out double vx, out double vy, out double vz);
-                sx += gamma[k] * vx;
-                sy += gamma[k] * vy;
-                sz += gamma[k] * vz;
-            }
-            ux += weight[p] * sx;
-            uy += weight[p] * sy;
-            uz += weight[p] * sz;
+            double vx, vy, vz;
+            if (boundOnly) Segment(point, horses[k].A, horses[k].B, cutoff, true, out vx, out vy, out vz);
+            else Velocity(horses[k], point, cutoff, true, out vx, out vy, out vz);
+            ux += gamma[k] * vx;
+            uy += gamma[k] * vy;
+            uz += gamma[k] * vz;
         }
     }
 

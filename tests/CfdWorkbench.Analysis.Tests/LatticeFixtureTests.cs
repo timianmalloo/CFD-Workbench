@@ -87,48 +87,88 @@ internal static class LatticeFixtureTests
             throw new InvalidOperationException("F-2 mid-panel mutant stayed inside the band: " + Num(mutant.RichCl));
     }
 
+    // F-5 (review 2026-10-04): the near field is checked for convergence, not for a band hit at one lattice. On the
+    // default chord law (cosine, design DR-ANA-7) the gap to Trefftz must shrink 32 → 64 → 128 and sit inside the
+    // reconciliation tolerance at 128 or after Richardson. One midpoint evaluation per bound segment (design §5.2).
     private static void F5()
     {
-        LatticeSolution wing = Shared().Solved[1];
-        double trefftz = Drag(wing);
-        double near = Trefftz.WindAxes(wing.Forces, 5).Drag;
-        double scale = Math.Abs(trefftz);
-        if (!(scale > 0) || Math.Abs(near - trefftz) / scale > Settings.ReconciliationTolerance)
-            throw new InvalidOperationException("near-field drag " + Num(near) + " vs Trefftz " + Num(trefftz));
-        LatticeSolution bare = Elliptic(32, LatticePlant.NearFieldFreestreamOnly);
-        double bareDrag = Trefftz.WindAxes(bare.Forces, 5).Drag;
-        double bareTrefftz = Drag(bare);
-        if (Math.Abs(bareDrag - bareTrefftz) / Math.Abs(bareTrefftz) <= Settings.ReconciliationTolerance)
-            throw new InvalidOperationException("freestream-only near field stayed within 1 % of Trefftz");
+        var wings = new LatticeSolution[3];
+        Parallel.Invoke(
+            () => wings[0] = Elliptic(Lattices[0], LatticePlant.None, "cosine"),
+            () => wings[1] = Elliptic(Lattices[1], LatticePlant.None, "cosine"),
+            () => wings[2] = Elliptic(Lattices[2], LatticePlant.None, "cosine"));
+        double[] ratio = wings.Select(NearOverTrefftz).ToArray();
+        string seen = Num(ratio[0]) + " " + Num(ratio[1]) + " " + Num(ratio[2]);
+        if (!(Math.Abs(ratio[0] - 1) > Math.Abs(ratio[1] - 1) && Math.Abs(ratio[1] - 1) > Math.Abs(ratio[2] - 1)))
+            throw new InvalidOperationException("near-field/Trefftz gap does not shrink 32 → 64 → 128: " + seen);
+        double rich = Richardson(ratio[1], ratio[2], Order(ratio[0], ratio[1], ratio[2]));
+        if (Math.Abs(ratio[2] - 1) > Settings.ReconciliationTolerance && Math.Abs(rich - 1) > Settings.ReconciliationTolerance)
+            throw new InvalidOperationException("near-field/Trefftz " + seen + ", Richardson " + Num(rich) + ": outside 1 %");
+        double legless = NearOverTrefftz(Elliptic(Lattices[0], LatticePlant.NearFieldTrailingOmitted, "cosine"));
+        if (Math.Abs(legless - 1) <= Settings.ReconciliationTolerance)
+            throw new InvalidOperationException("near field without the trailing legs stayed within 1 % of Trefftz: " + Num(legless));
     }
+
+    private static double NearOverTrefftz(LatticeSolution wing) => Trefftz.WindAxes(wing.Forces, 5).Drag / Drag(wing);
+
+    // F-15 (review 2026-10-04): pointwise α_i / (CL/(π AR)) at η 0, 0.5, 0.8, 0.9. The lattice is a lifting surface, so
+    // α_i is not uniform to 1 % (lifting-line theory); it converges at order 1 to a measured profile. The reference is
+    // the independent lattice in docs/notes/area3-fixture-arithmetic.md (F-15 block), w_T at strip y-midpoints.
+    private static readonly double[] Stations = [0, 0.5, 0.8, 0.9];
+    private static readonly double[] Reference32 = [1.01556, 1.00082, 0.93735, 0.83744];
+    private static readonly double[] ReferenceRichardson = [1.02743, 1.01678, 0.96735, 0.88407];
 
     private static void F15()
     {
-        LatticeSolution wing = Shared().Solved[1];
-        double cl = Coefficient(wing, EllipticS);
-        double expected = cl / (Math.PI * EllipticAr) * (180 / Math.PI);
-        // Pointwise α_i on this lattice is not flat to 1 %: the reference script gives root 0.976 vs 0.955
-        // and 18/128 strips inside the band (the tip self-term changes sign). The elliptic constraint that
-        // the lattice does meet is the circulation-weighted mean, which is CDi/CL.
-        double moment = 0, weight = 0;
-        foreach (LatticeStrip strip in wing.Strips)
+        Trio trio = Shared();
+        double[][] profile = trio.Solved.Select((wing, i) => Profile(wing, trio.Cl[i])).ToArray();
+        for (int k = 0; k < Stations.Length; k++)
         {
-            moment += strip.InducedAngleDeg * strip.Gamma * strip.Dy;
-            weight += strip.Gamma * strip.Dy;
+            double p = Order(profile[0][k], profile[1][k], profile[2][k]);
+            double rich = Richardson(profile[1][k], profile[2][k], p);
+            string at = "η " + Num(Stations[k]) + ": " + Num(profile[0][k]) + " " + Num(profile[1][k]) + " " + Num(profile[2][k]);
+            InRange(p, 0.8, 1.2, "α_i order at " + at + ", p");
+            if (Math.Abs(rich / ReferenceRichardson[k] - 1) > 0.005)
+                throw new InvalidOperationException("Richardson α_i ratio " + Num(rich) + " vs reference " + Num(ReferenceRichardson[k]) + " at " + at);
         }
-        double mean = moment / weight;
-        if (Math.Abs(mean - expected) / Math.Abs(expected) > 0.01)
-            throw new InvalidOperationException("mean α_i " + Num(mean) + " vs CL/(π AR) " + Num(expected));
-        LatticeSolution total = Elliptic(32, LatticePlant.InducedFromControlPoint);
-        double wrongMoment = 0, wrongWeight = 0;
-        foreach (LatticeStrip strip in total.Strips)
+        Near(profile[0], "32 per half");
+        LatticeSolution wing64 = trio.Solved[1];
+        double largest = wing64.Strips.Max(strip => Math.Abs(strip.InducedAngleDeg));
+        for (int s = 0; s < wing64.Strips.Count; s++)
         {
-            wrongMoment += strip.InducedAngleDeg * strip.Gamma * strip.Dy;
-            wrongWeight += strip.Gamma * strip.Dy;
+            double mirror = wing64.Strips[wing64.Strips.Count - 1 - s].InducedAngleDeg;
+            if (Math.Abs(wing64.Strips[s].InducedAngleDeg - mirror) > 1e-10 * largest)
+                throw new InvalidOperationException("α_i not even in y at strip " + s + ": " + Num(wing64.Strips[s].InducedAngleDeg) + " vs " + Num(mirror));
         }
-        double wrong = wrongMoment / wrongWeight;
-        if (Math.Abs(wrong - expected) / Math.Abs(expected) <= 0.01)
-            throw new InvalidOperationException("control-point α_i stayed within 1 % of CL/(π AR): " + Num(wrong));
+        foreach (LatticePlant plant in new[] { LatticePlant.InducedFromControlPoint, LatticePlant.DownwashNeighbour })
+        {
+            LatticeSolution wrong = Elliptic(Lattices[0], plant);
+            try { Near(Profile(wrong, Coefficient(wrong, EllipticS)), plant.ToString()); }
+            catch (InvalidOperationException) { continue; }
+            throw new InvalidOperationException(plant + " mutant stayed within 0.5 % of the 32-span reference profile");
+        }
+    }
+
+    private static void Near(double[] profile, string what)
+    {
+        for (int k = 0; k < Stations.Length; k++)
+            if (Math.Abs(profile[k] / Reference32[k] - 1) > 0.005)
+                throw new InvalidOperationException(what + ": α_i ratio " + Num(profile[k]) + " vs reference " + Num(Reference32[k]) + " at η " + Num(Stations[k]));
+    }
+
+    // α_i / (CL/(π AR)) at each station, linear between strip centres.
+    private static double[] Profile(LatticeSolution wing, double cl)
+    {
+        double ideal = cl / (Math.PI * EllipticAr) * (180 / Math.PI);
+        var result = new double[Stations.Length];
+        for (int k = 0; k < Stations.Length; k++)
+        {
+            LatticeStrip inboard = wing.Strips.Where(strip => strip.Eta <= Stations[k]).MaxBy(strip => strip.Eta)!;
+            LatticeStrip outboard = wing.Strips.Where(strip => strip.Eta > Stations[k]).MinBy(strip => strip.Eta)!;
+            double t = (Stations[k] - inboard.Eta) / (outboard.Eta - inboard.Eta);
+            result[k] = (inboard.InducedAngleDeg + t * (outboard.InducedAngleDeg - inboard.InducedAngleDeg)) / ideal;
+        }
+        return result;
     }
 
     private static void F1()
@@ -359,7 +399,7 @@ internal static class LatticeFixtureTests
 
     private static Trio Shared() => shared ?? throw new InvalidOperationException("F-6 did not build the shared solves");
 
-    private static LatticeSolution Elliptic(int nPerHalf, LatticePlant plant)
+    private static LatticeSolution Elliptic(int nPerHalf, LatticePlant plant, string chordSpacing = "uniform")
     {
         double[] nodes = Nodes(-EllipticHalf, EllipticHalf, nPerHalf, "cosine");
         var sections = new List<SectionSample>(nodes.Length);
@@ -368,7 +408,7 @@ internal static class LatticeFixtureTests
             double chord = EllipticC0 * Math.Sqrt(Math.Max(0, 1 - (y / EllipticHalf) * (y / EllipticHalf)));
             sections.Add(Section(y, -chord / 4, chord, 0, 0, y / EllipticHalf, 2 * EllipticHalf, null));
         }
-        return VortexLattice.Solve(sections, Lattice(nPerHalf, 4), At(5), Rho, plant, default);
+        return VortexLattice.Solve(sections, Lattice(nPerHalf, 4, chordSpacing), At(5), Rho, plant, default);
     }
 
     private static double FlatPlateSlope(double aspect, int nPerHalf, LatticePlant plant = LatticePlant.None)
