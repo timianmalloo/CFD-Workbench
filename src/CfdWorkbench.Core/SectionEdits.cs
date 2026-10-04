@@ -98,8 +98,12 @@ internal static class SectionEdits
         for (int offset = -1; offset <= 1; offset++) editedPoints[anchor + offset][1] += delta;
         var rows = edited.Tangents.Where(row => row.Id != step.VertexId).ToList();
         rows.Add(new TangentRow(step.VertexId, "smooth", null));
+        var partner = step.Side == SurfaceSide.Upper ? lower : upper;
+        string partnerId = (step.Side == SurfaceSide.Upper ? lowerIds : upperIds)[anchor];
+        var partnerRows = partner.Tangents.Where(row => row.Id != partnerId).ToList();
+        partnerRows.Add(new TangentRow(partnerId, "smooth", null));
         byte[] geometry = FoilSource.WriteSurfaces(bytes, profile.Name, upperKnots, upperPoints, upperIds, lowerPoints, lowerIds);
-        byte[] next = FoilSource.WriteSideTangents(geometry, profile.Name, step.Side, rows.ToArray());
+        byte[] next = WriteBothTangents(geometry, profile.Name, step.Side, rows, partnerRows);
         return (next, ReportOf("set-type", bytes, next, assignment, Array.Empty<string>()));
     }
 
@@ -126,7 +130,9 @@ internal static class SectionEdits
         if (!FoilSource.IsAnchor(edited.Knots, edited.Points.Length, edited.Degree, index))
             throw new ContractError("DSL-LOCK", "Only an interior anchor can become a control.");
         var kept = edited.Tangents.Where(row => row.Id != step.VertexId).ToArray();
-        byte[] stripped = FoilSource.WriteSideTangents(bytes, profile.Name, step.Side, kept);
+        string partnerId = other.Ids[index];
+        var partnerKept = other.Tangents.Where(row => row.Id != partnerId).ToList();
+        byte[] stripped = WriteBothTangents(bytes, profile.Name, step.Side, kept.ToList(), partnerKept);
         (profile, upper, lower) = Sides(stripped, assignment);
         edited = step.Side == SurfaceSide.Upper ? upper : lower;
         other = step.Side == SurfaceSide.Upper ? lower : upper;
@@ -191,12 +197,21 @@ internal static class SectionEdits
         var upperPoints = Copy(upper.Points);
         var lowerPoints = Copy(lower.Points);
         var points = step.Side == SurfaceSide.Upper ? upperPoints : lowerPoints;
+        var partner = step.Side == SurfaceSide.Upper ? lower : upper;
+        var partnerPoints = step.Side == SurfaceSide.Upper ? lowerPoints : upperPoints;
+        string partnerId = partner.Ids[index];
         PlaceHandles(points, edited.Ids, index, step);
+        PlaceHandles(partnerPoints, partner.Ids, index, step with { VertexId = partnerId, KeepHandleId = KeptPartnerHandle(step, edited, partner, index) });
         var rows = edited.Tangents.Where(row => row.Id != step.VertexId).ToList();
+        var partnerRows = partner.Tangents.Where(row => row.Id != partnerId).ToList();
         if (step.Kind != TangentKind.Corner)
-            rows.Add(new TangentRow(step.VertexId, KindName(step.Kind), step.Kind == TangentKind.Angle ? step.AngleDegrees : null));
+        {
+            double? angle = step.Kind == TangentKind.Angle ? step.AngleDegrees : null;
+            rows.Add(new TangentRow(step.VertexId, KindName(step.Kind), angle));
+            partnerRows.Add(new TangentRow(partnerId, KindName(step.Kind), angle));
+        }
         byte[] geometry = FoilSource.WriteSurfaces(bytes, profile.Name, upper.Knots, upperPoints, upper.Ids, lowerPoints, lower.Ids);
-        byte[] next = FoilSource.WriteSideTangents(geometry, profile.Name, step.Side, rows.ToArray());
+        byte[] next = WriteBothTangents(geometry, profile.Name, step.Side, rows, partnerRows);
         return (next, ReportOf("set-tangent", bytes, next, assignment, step.Kind == TangentKind.Corner ? new[] { step.VertexId } : Array.Empty<string>()));
     }
 
@@ -241,6 +256,21 @@ internal static class SectionEdits
         next = FoilSource.WriteSideTangents(next, profile.Name, SurfaceSide.Upper, Array.Empty<TangentRow>());
         next = FoilSource.WriteSideTangents(next, profile.Name, SurfaceSide.Lower, Array.Empty<TangentRow>());
         return (next, ReportOf("rebuild", bytes, next, assignment, Array.Empty<string>()));
+    }
+
+    // Under paired point types a point's kind applies to the matching point on both surfaces (Rulings 60, 61).
+    private static byte[] WriteBothTangents(byte[] bytes, string profileName, SurfaceSide editedSide, List<TangentRow> edited, List<TangentRow> partner)
+    {
+        bytes = FoilSource.WriteSideTangents(bytes, profileName, editedSide, edited.ToArray());
+        var other = editedSide == SurfaceSide.Upper ? SurfaceSide.Lower : SurfaceSide.Upper;
+        return FoilSource.WriteSideTangents(bytes, profileName, other, partner.ToArray());
+    }
+
+    private static string? KeptPartnerHandle(SectionStep.SetTangent step, Curve edited, Curve partner, int index)
+    {
+        if (step.KeepHandleId == edited.Ids[index - 1]) return partner.Ids[index - 1];
+        if (step.KeepHandleId == edited.Ids[index + 1]) return partner.Ids[index + 1];
+        return null;
     }
 
     private static void PlaceHandles(double[][] points, string[] ids, int index, SectionStep.SetTangent step)

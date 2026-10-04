@@ -102,18 +102,38 @@ internal static class PointModelTests
             var curve = parsed.Definition!.Curves["leading"];
             var view = Planform.View(source, "spline", 1);
             var spans = Bernstein.Spans(curve, new ProofBudget());
-            var parameters = SampleParameters(curve);
-            Equal(parameters.Count, view.Leading.Samples.Count);
+            var parameters = RecoveredParameters(curve, view.Leading.Samples, view.HalfSpanMeters);
             for (int index = 0; index < parameters.Count; index++)
             {
                 double t = parameters[index];
                 var spline = At(curve, t, view.HalfSpanMeters);
-                var span = spans.Single(item => t >= item.Start.Nearest() && t <= item.End.Nearest());
+                var span = spans.Last(item => t >= item.Start.Nearest() && t <= item.End.Nearest());
                 double u = (t - span.Start.Nearest()) / (span.End.Nearest() - span.Start.Nearest());
                 Rel(spline.Span, BernsteinOrdinate(span.X, u) * view.HalfSpanMeters);
                 Rel(spline.Aft, BernsteinOrdinate(span.Y, u));
                 Rel(spline.Span, view.Leading.Samples[index].SpanMeters);
                 Rel(spline.Aft, view.Leading.Samples[index].Ordinate);
+            }
+        });
+        Check("PlanformView_Sampler_IncludesEndsKnotsAndDensity", () =>
+        {
+            foreach (string path in new[] { Fx("foil-41-multiplicity-two.foil"), Example })
+            {
+                byte[] source = File.ReadAllBytes(path);
+                var curve = FoilSource.Parse(source).Definition!.Curves["leading"];
+                var view = Planform.View(source, "spline", 1);
+                var parameters = RecoveredParameters(curve, view.Leading.Samples, view.HalfSpanMeters);
+                Equal(true, parameters.Count >= 64);
+                Near(curve.Knots[curve.Degree], parameters[0], 1e-9);
+                Near(curve.Knots[curve.Points.Length], parameters[^1], 1e-9);
+                for (int index = 1; index < parameters.Count; index++) Equal(true, parameters[index] > parameters[index - 1]);
+                var edges = new List<double>();
+                for (int span = curve.Degree; span <= curve.Points.Length; span++)
+                    if (edges.Count == 0 || curve.Knots[span] > edges[^1]) edges.Add(curve.Knots[span]);
+                foreach (double knot in edges)
+                    Equal(1, parameters.Count(t => Math.Abs(t - knot) < 1e-9));
+                for (int span = 0; span + 1 < edges.Count; span++)
+                    Equal(true, parameters.Count(t => t >= edges[span] - 1e-9 && t <= edges[span + 1] + 1e-9) >= 8);
             }
         });
         Check("Planform_Probe_ChordAndRailsAtEta", () =>
@@ -188,15 +208,27 @@ internal static class PointModelTests
         });
     }
 
-    private static List<double> SampleParameters(Curve curve)
+    /// <summary>
+    /// Recovers each sample's curve parameter from the sample's own span coordinate by bisection on the spline evaluator
+    /// (the span coordinate rises with the parameter), so the checks read the sampler's output and never re-implement its rule.
+    /// </summary>
+    private static List<double> RecoveredParameters(Curve curve, IReadOnlyList<PlanSample> samples, double halfSpan)
     {
+        var edges = new List<double>();
+        for (int span = curve.Degree; span <= curve.Points.Length; span++)
+            if (edges.Count == 0 || curve.Knots[span] > edges[^1]) edges.Add(curve.Knots[span]);
         var parameters = new List<double>();
-        for (int span = curve.Degree; span < curve.Points.Length; span++)
+        foreach (var sample in samples)
         {
-            if (curve.Knots[span] >= curve.Knots[span + 1]) continue;
-            double start = curve.Knots[span], end = curve.Knots[span + 1];
-            for (int step = 0; step < 8; step++)
-                parameters.Add(start + (step + 0.5) / 8.0 * (end - start));
+            int index = 0;
+            while (index < edges.Count - 2 && sample.SpanMeters > At(curve, edges[index + 1], halfSpan).Span) index++;
+            double low = edges[index], high = edges[index + 1];
+            for (int step = 0; step < 100; step++)
+            {
+                double middle = (low + high) / 2;
+                if (At(curve, middle, halfSpan).Span < sample.SpanMeters) low = middle; else high = middle;
+            }
+            parameters.Add((low + high) / 2);
         }
         return parameters;
     }

@@ -484,7 +484,8 @@ public static class ControllerShellTests
     private static (WorkbenchController Controller, PointRef Reference, PointView Point) OpenPoint(int index = 3, string curve = "trailing")
     {
         var controller = new WorkbenchController();
-        controller.NewFoilAsync().GetAwaiter().GetResult();
+        // New foil ships 4 control vertices per rail (Ruling 64); these checks drag a real interior control point of the saved 10-point foil.
+        controller.OpenFoilAsync(DesktopChecks.TenPointFoil(), "New foil 10").GetAwaiter().GetResult();
         var plan = Planform.View(System.Text.Encoding.UTF8.GetBytes(controller.AcceptedSource), "accepted", 0);
         var point = (curve == "leading" ? plan.Leading : plan.Trailing).Points[index];
         if (point.Freedom == PointFreedom.Fixed) throw new InvalidOperationException("Fixture point is fixed.");

@@ -137,17 +137,25 @@ public static class Planform
             points[index] = new(name, curve.Ids[index], index, eta, eta * definition.HalfSpan, curve.Points[index][1],
                 role, anchorId, kind, freedom, locks, angle);
         }
+        int spans = 0;
+        for (int span = curve.Degree; span < curve.Points.Length; span++)
+            if (curve.Knots[span] < curve.Knots[span + 1]) spans++;
+        int per = 8;
+        if (spans > 0)
+            while (per + (spans - 1) * (per - 1) < 64) per++;
         var samples = new List<PlanSample>();
+        bool firstSpan = true;
         for (int span = curve.Degree; span < curve.Points.Length; span++)
         {
             if (curve.Knots[span] >= curve.Knots[span + 1]) continue;
             double start = curve.Knots[span], end = curve.Knots[span + 1];
-            for (int step = 0; step < 8; step++)
+            for (int step = firstSpan ? 0 : 1; step < per; step++)
             {
-                double t = start + (step + 0.5) / 8.0 * (end - start);
+                double t = start + step / (double)(per - 1) * (end - start);
                 var place = Evaluate(curve.Knots, curve.Points, curve.Degree, t, definition.HalfSpan);
                 samples.Add(new(place.Span, place.Aft));
             }
+            firstSpan = false;
         }
         return new(name, ceiling, curve.Knots, points, samples);
     }

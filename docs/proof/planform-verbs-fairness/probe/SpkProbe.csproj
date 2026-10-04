@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Spike only (track SPK). The assembly name reuses the Core test assembly's InternalsVisibleTo grant so the probe
+       calls the as-built SplineBasis, ChannelEvaluator, ConstrainedFit and FoilSource directly, and New foil's private
+       construction and WingEstimates' area integral by reflection. It is not in CFDWorkbench.slnx and ships nothing. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AssemblyName>CfdWorkbench.Core.Tests</AssemblyName>
+    <RootNamespace>SpkProbe</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../../../src/CfdWorkbench.Core/CfdWorkbench.Core.csproj" />
+  </ItemGroup>
+</Project>

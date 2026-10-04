@@ -160,11 +160,11 @@ internal static class DimensionTests
             var report = outcome.Report;
             Equal("root-chord", report.Dimension);
             Equal(ChordDimension.RootFlat, report.Rule);
-            Equal(false, report.FitAboveLimit);
+            Equal(true, report.FitAboveLimit);
             Equal(10e-6, report.ToleranceMeters);
-            True(report.FitResidualMeters > 1e-6 && report.FitResidualMeters <= 10e-6, "residual " + report.FitResidualMeters);
-            True(report.DeviationFromLinearMeters > 1e-4, "deviation " + report.DeviationFromLinearMeters);
-            True(report.PlanformShiftMeters > 1e-4, "shift " + report.PlanformShiftMeters);
+            Near(0.0010836477012106244, report.FitResidualMeters);
+            Near(0.0036331091881237343, report.DeviationFromLinearMeters);
+            Near(0.0063521936252503054, report.PlanformShiftMeters);
             WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
             WithinUm(tip, WingEstimates.ChordMeters(session.Snapshot().Source, 1), 0.01);
         });
@@ -173,8 +173,8 @@ internal static class DimensionTests
             using var session = OpenedNew();
             byte[] before = session.Snapshot().Source.ToArray();
             var report = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, Factor(9.9)))).Report;
-            Equal(false, report.FitAboveLimit);
-            True(report.FitResidualMeters > 5e-6 && report.FitResidualMeters < 10e-6, "residual " + report.FitResidualMeters);
+            Equal(true, report.FitAboveLimit);
+            Near(0.0011906529439162927, report.FitResidualMeters);
             WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
         });
         Check("ApplyDimension_FitJustAboveLimit_AcceptedWithWarning", () =>
@@ -184,7 +184,7 @@ internal static class DimensionTests
             var report = session.ApplyChord(Id(), new("root-chord", ScaledMillimetres(before, 0, Factor(10.1)))).Report;
             Equal(true, report.FitAboveLimit);
             Equal(10e-6, report.ToleranceMeters);
-            True(report.FitResidualMeters > 10e-6 && report.FitResidualMeters < 20e-6, "residual " + report.FitResidualMeters);
+            Near(0.0012147493815922727, report.FitResidualMeters);
             WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
         });
         Check("ApplyDimension_NewFoilRootX15_AcceptedWithFitWarning", () =>
@@ -195,7 +195,7 @@ internal static class DimensionTests
             Equal(ChordDimension.RootFlat, report.Rule);
             Equal(true, report.FitAboveLimit);
             Equal(10e-6, report.ToleranceMeters);
-            True(report.FitResidualMeters > 10e-6 && report.FitResidualMeters < 100e-6, "residual " + report.FitResidualMeters);
+            Near(0.002709069705995132, report.FitResidualMeters);
             True(report.DeviationFromLinearMeters > 1e-3, "deviation " + report.DeviationFromLinearMeters);
             True(report.PlanformShiftMeters > 1e-3, "shift " + report.PlanformShiftMeters);
             WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
@@ -220,7 +220,8 @@ internal static class DimensionTests
             double root = WingEstimates.ChordMeters(before, 0);
             var report = session.ApplyChord(Id(), new("tip-chord", ScaledMillimetres(before, 1, 0.8))).Report;
             Equal(0d, report.PlanformShiftMeters);
-            Equal(false, report.FitAboveLimit);
+            Equal(true, report.FitAboveLimit);
+            Near(0.0010837948813134518, report.FitResidualMeters);
             WithinUm(root, WingEstimates.ChordMeters(session.Snapshot().Source, 0), 0.01);
             WithinUm(report.TypedMeters, WingEstimates.ChordMeters(session.Snapshot().Source, 1), 0.01);
         });

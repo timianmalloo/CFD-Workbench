@@ -2726,8 +2726,11 @@ public static class ShellWindowTests
             try
             {
                 Pump(host.OpenNewFoilAsync());
+                // New foil ships 4 control vertices per rail (Ruling 64): anchor the interior point one Add point creates, not the tip end.
+                if (Run(controller.ApplyPointCommandAsync(new PointCommand.AddPoint("trailing", 0.45))) is not CommitOutcome.Committed)
+                    throw new InvalidOperationException("Add point was not committed");
                 Settle(window);
-                var point = controller.Planform!.Trailing.Points[3];
+                var point = controller.Planform!.Trailing.Points.First(p => p.Role == PointRole.Control);
                 if (Run(controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id))) is not CommitOutcome.Committed)
                     throw new InvalidOperationException("Make Anchor was not committed");
                 var anchor = controller.Planform!.Trailing.Points.Single(p => p.Role == PointRole.Anchor);

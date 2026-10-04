@@ -251,10 +251,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-planform-point-verbs",
           "rel": "relates-to"
+        },
+        {
+          "to": "proof-planform-verbs-fairness",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "202d6f04eee8b3a949290dfa89ef3fec8dbb207b412ca8a071d25072d1eb3c73"
+      "sourceSha256": "f471429c838a8954de4ecd383c41ca1797cbc4405b96e730ae193000fe3377dc"
     },
     {
       "id": "adr-0005-point-types",
@@ -614,6 +618,67 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "f80244fbefc0ceb2f15b42560e959e19837f67f38169391b71969041a9c99cf1"
+    },
+    {
+      "id": "adr-0012-openfoam-backend-macos",
+      "path": "docs/adr/0012-openfoam-backend-macos.md",
+      "title": "ADR-0012: the OpenFOAM backend on macOS arm64 — substrate pin, product launcher, A4 convergence oracle and SA numerics (what rounds 1 and 2 proved)",
+      "type": "adr",
+      "status": "proposed",
+      "owner": "@fluids-f1",
+      "phase": "spike — fluids rounds 1 and 2 (Rulings 60, 65), round 3 planned",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "Pins only what fluids rounds 1 and 2 measured on macOS arm64. Substrate: OpenFOAM ESI v2512, the gerlero native app, by DMG sha256 and build id, launched by argv. Product launcher: allow-listed environment, product HOME plus FOAM_CONTROLDICT from one hashed bundle, case record, token allow-list lint, checkMesh \"Disallowing\" pre-flight; the operator probe set S-1..S-8 is written but not yet run. Convergence: the A4 oracle (it rejected a period-2 cycle and accepted four runs). Numerics: SA-noft2 with first-order nuTilda and relaxation 0.7 (met A4 on TMR only). Compressibility delta measured once (+1.147 % Cl, +0.81 % Cd; U_delta not stated). Open: Windows, Docker digests, v2512 vs v2606, the mesh route, GCI. The DR-F2-6 determinant floor needs an amendment; this ADR files a request (DR-F3-1) and does not decide it.",
+      "tags": [
+        "adr",
+        "backend",
+        "openfoam",
+        "v2512",
+        "security",
+        "launcher",
+        "convergence",
+        "a4",
+        "spalart-allmaras",
+        "mesh-gate",
+        "macos"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-spike-03",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-04",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-03-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-04-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-fluids-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-fluids-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0cc50e90515757c42167057bc1a5f72cec7ef31d2dabafa4c9d32e80a523f68b"
     },
     {
       "id": "adr-application-project-contract",
@@ -2262,7 +2327,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8fbebd0e1dfbcdd19c4c740ad5aadb1f7a10c2d70ea755fa1e0a7e73f55f45eb"
+      "sourceSha256": "6dcdf5dd9ed5f3caf2c4c0d3cd4f237af8b8f1e467897663d831b52e401afb86"
     },
     {
       "id": "design-authoring-decisions",
@@ -2731,7 +2796,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "26eb4560d70bd103a53db9a2b3ab7ee24b704b540b1793c1a9d8df367f9572d3"
+      "sourceSha256": "e35ce80b339aec16e94209f4e211760cce4801708ccc9a0a4283846e1bbae088"
     },
     {
       "id": "design-planform-point-verbs",
@@ -4199,7 +4264,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b058b95a9a9b9b534d88040fb363bce094374221f973349da28d0cc746bdba25"
+      "sourceSha256": "017461a5ff99526036371791fbb7e8d5c17ede667572210302c86b9986013dec"
     },
     {
       "id": "domain-experts",
@@ -4268,7 +4333,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ece9151e6db29e8085315292b585b42689c9cec3d9d8c52a65157fbc62257096"
+      "sourceSha256": "790d1260faea480f213a19882fd77808c8803c32c917d9b265077592b50e2111"
     },
     {
       "id": "investigation-desktop-launch-abort",
@@ -4479,6 +4544,53 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "58e3f7b591e63e1c9190c9bc6b14332b60cd43a509cbe02577015746bacec2ab"
+    },
+    {
+      "id": "plan-fluids-round3",
+      "path": "docs/plans/fluids-round3.md",
+      "title": "Fluids round 3 — bring the Gmsh wing mesh inside the gate (SPIKE-03) and find a monotone TMR grid family (SPIKE-04)",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "Round 3 plan, documents only, for the two round-2 NO-GOs. Mesh: locate the 811 faces above 70 degrees on the Gmsh AR 8 mesh with checkMesh sets (no new app), then two unattended variants aimed at the measured cluster (TE arc resolution, tip poles, the prism-top/tet size jump), the first height cut to 6.0 um, then AR 5 and 12. GCI: a cheap L6 test of the one scheme that acts on L6 only (the limited laplacian), then one numerics cycle on L6/L5/L4 with the iteration band held at 1 % of the grid change; L3 (4-10 h) only by ruling. Core budget about 4.5 h wall plus 1.5 h authoring.",
+      "tags": [
+        "plan",
+        "spike-03",
+        "spike-04",
+        "openfoam",
+        "gmsh",
+        "mesh-gate",
+        "gci",
+        "tmr",
+        "round-3"
+      ],
+      "links": [
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-03-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-spike-04-round2",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-fluids-round2",
+          "rel": "supersedes"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f6698b2297c80dfe2eca34d2309e11670c0d6a57d52f3075931c5bfb0d2bb5aa"
     },
     {
       "id": "plan-foil-editing-flow-results",
@@ -5693,7 +5805,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a18fbd2371aa3630b75ae05acd8f076c5fcf78bbb97e89da63dd06ec65b03b55"
+      "sourceSha256": "4a499e0d14cb84eae21a7ef75f37c079d432efa107884a5cc0d30d1616ecdee0"
     },
     {
       "id": "kb-hw-glossary",
@@ -8440,7 +8552,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "99274226e8833a52ba2f38a59a360d5957354bee74413f55fd770a458ca9a2d2"
+      "sourceSha256": "0de3b6ced737285a2bb7f206b2dc2488a2b5841e2957285cddb4a34cab5df7bd"
     },
     {
       "id": "proof-m12c-certificate-spike",
@@ -8678,6 +8790,99 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
+    },
+    {
+      "id": "proof-planform-verbs-fairness",
+      "path": "docs/proof/planform-verbs-fairness/README.md",
+      "title": "SPK — fairness and Rebuild evidence for 4- and 5-vertex channels (planform point verbs)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-spk",
+      "phase": "implementation",
+      "reviewBy": "2026-10-31",
+      "reviewSuggested": [],
+      "summary": "Measured with the as-built Core (SplineBasis, ChannelEvaluator, ConstrainedFit, FoilSource's own New foil construction, WingEstimates' area integral): at 4 and 5 vertices the five Example curves are fairer (lower κ′ energy) and have no curvature breaks, but no longer pass through their six anchors (LE 0.84 mm, chord 1.0 mm at 4). Support is global. The 4-point New foil (Ruling 64) moves the rails by LE 3.05 mm and TE 8.83 mm at 467.5 mm and turns the TE tip 35.0°. Its κ′ energy is about 10⁻⁷ of today's 10-point rails. Each 4-point rail has one comb sign change 24 mm from the root. The other three channels are constants, exact at any count.",
+      "tags": [
+        "planform-verbs",
+        "fairness",
+        "rebuild",
+        "adr-0001",
+        "amendment-2",
+        "ruling-62",
+        "ruling-64",
+        "spk",
+        "spike"
+      ],
+      "links": [
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0001-master-curve-degree",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a567df6e890a28be5ba57eb8d6dbf31525aadcd71bf315ccccc424c7471da129"
+    },
+    {
+      "id": "proof-planform-verbs-fairness-table",
+      "path": "docs/proof/planform-verbs-fairness/output/table.md",
+      "title": "SPK — generated fairness and Rebuild table (do not edit; re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-spk",
+      "phase": "implementation",
+      "reviewBy": "2026-10-31",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/planform-verbs-fairness/probe from fixture.json; the full SPK table.",
+      "tags": [
+        "planform-verbs",
+        "fairness",
+        "rebuild",
+        "spk",
+        "generated"
+      ],
+      "links": [
+        {
+          "to": "proof-planform-verbs-fairness",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2bfeb5dc35cc7ad5317645dbe18828695d0bcf11358ce15613ccfd345745f6b0"
+    },
+    {
+      "id": "proof-planform-verbs-old-build",
+      "path": "docs/proof/planform-verbs-old-build/receipt.md",
+      "title": "PVC old-build characterization and planted-mutant receipt",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-pvc",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Pre-PVC commit 0cf4e4feae65e844fb6eac0c3825100b6d1c56e5 refuses a 4-point 4.1 source with DSL-CURVE and refuses point-add, point-remove and curve-rebuild envelopes with DOC-REFERENCE. Each file's SHA-256 is unchanged. An alpha denominator one span high turns AddPoint_Boehm_ShapeUnchangedWithin1e12Relative red.",
+      "tags": [
+        "planform",
+        "point-verbs",
+        "foildsl",
+        "characterization",
+        "pvc"
+      ],
+      "links": [
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8b85b88e777fe865de4d9857177e1d883e951180512270c36cff9ea1e6d00490"
     },
     {
       "id": "proof-readyfix2",
@@ -10289,7 +10494,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\n  A[Accepted source and shape] --> B[Visual edit or source draft bound to base]\n  B --> C[Validate]\n  C -->|Invalid or incomplete| D[Locate error; accepted view labelled; Apply disabled]\n  D --> B\n  C -->|Valid supported definition| E[Preview shape and source diff]\n  C -->|Valid unsupported feature| U[Keep source; explicit unsupported message]\n  E -->|Cancel| A\n  B -->|Cancel| A\n  E -->|Apply at unchanged base| F[Atomic source revision and geometric identity]\n  E -->|Base changed| G[Conflict; rebase or discard]\n  G --> B\n  F --> H[Recompute result freshness from run key]\n  H -->|Undo| A\n  A -->|Redo accepted edit| F"
         }
       ],
-      "sourceSha256": "2e5491affa63a5ae11ffd1ff1bcaa374b0eafe12cee8eb11315f53e6c418886a"
+      "sourceSha256": "25f071b72c9676cd418be3606adf4a79a0e36315b529ce03a3b414e357649955"
     },
     {
       "id": "threat-model",
@@ -10570,5 +10775,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "784c5dad68434f56fe7bb405da188af94bc3620096e90ee504eabccdcfdc2001"
+  "graphSha256": "351ad52ad65fd1400a8cba736de8e256ce3f16acf0b844933c6c91e46d5b9605"
 };

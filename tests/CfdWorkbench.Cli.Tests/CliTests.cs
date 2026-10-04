@@ -94,3 +94,29 @@ catch (Exception error)
     Console.WriteLine("FAIL Cli_InspectJson_ChannelPointsRolesAndKinds");
     throw new InvalidOperationException(error.Message);
 }
+// Moved from the Core suite (SPT): the Core harness runs from a published copy where the CLI binary is not built, so the
+// check now calls the CLI in-process like its neighbours. Same name and assertions.
+output.GetStringBuilder().Clear();
+try
+{
+    exit = await Cli.RunAsync(["inspect", "example", "--json"], output);
+    if (exit != 0) throw new Exception($"Example inspect returned {exit}: {output}");
+    using var sectionJson = JsonDocument.Parse(output.ToString());
+    var sectionPoints = sectionJson.RootElement.GetProperty("sectionPoints");
+    if (sectionPoints.GetArrayLength() == 0) throw new Exception("No section points");
+    bool anchor = false, control = false, kindField = false;
+    foreach (var point in sectionPoints.EnumerateArray())
+    {
+        kindField |= point.TryGetProperty("kind", out _);
+        string? type = point.GetProperty("type").GetString();
+        anchor |= type == "Anchor";
+        control |= type == "Control";
+    }
+    if (!anchor || !control || !kindField) throw new Exception($"anchor={anchor} control={control} kindField={kindField}");
+    Console.WriteLine("PASS Cli_Inspect_ListsSectionPointTypesAndKinds");
+}
+catch (Exception error)
+{
+    Console.WriteLine("FAIL Cli_Inspect_ListsSectionPointTypesAndKinds");
+    throw new InvalidOperationException(error.Message);
+}
