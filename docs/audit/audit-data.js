@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T17:39:38Z",
+  "generated": "2026-10-04T17:42:25Z",
   "audit": [
     {
       "actor": null,
@@ -23483,6 +23483,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T17:38:45Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M44051PVWJER4G95BZGTB4SQ",
+      "shortname": "join-a3a-pre",
+      "datetime": "2026-10-04T17:42:25Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/a3a-pre into feature/ui-cad-direction",
+      "summary": "PRE (Opus 5.5, 16 of 60 min): ADR-0011 analysis run storage Accepted (cfdw-project-2 only when a run exists, .v1.bak, invariants, content hash, reachability retention); CfdWorkbench.Analysis skeleton; Core RunRecord shape; Placement.SectionSample + throwing Sections(..., CancellationToken); Analysis harness with PASS/COST; architecture check on the built assembly (red on planted ProfileAt and BeginSectionDraft); --analysis Desktop mode; check-named-tests --track-section/--named-sections (self-test 9/9). PlacedSection.Assignment now stores the station index (red first; surface-bit pin moved for the 3 shared-profile fixtures only, integer not coordinates). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:41:27Z",
+      "duration_seconds": 58.0
     }
   ],
   "changes": [
