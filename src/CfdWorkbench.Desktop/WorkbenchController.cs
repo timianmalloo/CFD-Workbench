@@ -933,9 +933,12 @@ public sealed class WorkbenchController : IDisposable
         if (Gesture != GestureState.Nudging || gestureOrigin is null || gesturePoint is null) return;
         if (Section is not null)
         {
+            // D-7: the run accumulates from its own pending target and lands as one step on key-up. A key records the target
+            // and nothing else, as a drag frame does (UpdateSectionGesture): a shell refresh per key cost ~209 ms under load.
             double sectionStep = modifier switch { NudgeModifier.Command => .0001, NudgeModifier.Shift => .01, _ => .001 };
             var sectionAt = pendingGestureTarget ?? (gestureOrigin.SpanMeters, gestureOrigin.Ordinate);
-            UpdateGestureTarget(sectionAt.Item1 + spanDirection * sectionStep, sectionAt.Item2 + aftDirection * sectionStep);
+            (double Span, double Aft) next = (sectionAt.Item1 + spanDirection * sectionStep, sectionAt.Item2 + aftDirection * sectionStep);
+            if (double.IsFinite(next.Span) && double.IsFinite(next.Aft)) pendingGestureTarget = next;
             return;
         }
         // The channel's own ladder (§3.6): 0.01 · 0.1 · 1 mm on lengths, ° on twist, % on t/c. The span step stays in metres.

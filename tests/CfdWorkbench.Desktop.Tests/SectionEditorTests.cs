@@ -137,6 +137,44 @@ public static class SectionEditorTests
             if (Math.Abs(moved.SpanMeters - point.SpanMeters - .003) > 1e-8)
                 throw new Exception("Arrow run did not accumulate three nudges into one step");
         });
+        // release-freeze: after the key that begins the run (one refresh, as a press), a nudge only records its target. Each
+        // key used to refresh the whole shell (~209 ms a key under load). The run still accumulates (D-7) into one step.
+        DesktopChecks.Check("SectionEditor_NudgeRun_NoShellRefreshPerKey", () =>
+        {
+            fixture.Reset();
+            var point = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            fixture.Select(point);
+            Dispatcher.UIThread.RunJobs();
+            int cursor = fixture.Controller.Section!.Draft.Cursor;
+            fixture.Key(Key.Up);
+            Dispatcher.UIThread.RunJobs();
+            int changes = 0;
+            void Count() => changes++;
+            fixture.Controller.Changed += Count;
+            fixture.Controller.SectionChanged += Count;
+            fixture.Controller.SelectionChanged += Count;
+            try
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    fixture.Key(Key.Up);
+                    Dispatcher.UIThread.RunJobs();
+                }
+            }
+            finally
+            {
+                fixture.Controller.Changed -= Count;
+                fixture.Controller.SectionChanged -= Count;
+                fixture.Controller.SelectionChanged -= Count;
+            }
+            if (changes != 0) throw new Exception($"Four nudge keys raised {changes} controller changes; the shell refreshed per key");
+            if (fixture.Controller.Section!.Draft.Cursor != cursor) throw new Exception("The nudge run committed before KeyUp");
+            fixture.KeyUp(Key.Up);
+            WaitUntil(() => fixture.Controller.Section!.Draft.Cursor == cursor + 1 && fixture.Controller.Section.Assessment is not null);
+            var moved = fixture.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            if (Math.Abs(moved.Ordinate - point.Ordinate - .005) > 1e-8)
+                throw new Exception($"Five nudges moved y by {moved.Ordinate - point.Ordinate:G6}, not 0.005 in one step");
+        });
         DesktopChecks.Check("SectionEditor_BracketKeys_WalkInOrder", () =>
         {
             fixture.Reset();
@@ -659,6 +697,97 @@ public static class SectionEditorTests
                 $"READINESS SectionDragMove value_ms={p95:F3} target_ms=16 median_ms={moves.Order().ElementAt(moves.Count / 2):F3} press_ms={press:F3} release_to_drawn_ms={released:F3} release_to_assessed_ms={assessed:F3} samples={moves.Count}"));
             if (p95 >= 16) Console.WriteLine("READINESS-MISS SectionDragMove p95 over one 60 Hz frame; read with the load average");
         });
+        // The UI thread's longest block from a release (or a nudge run's key-up) until the certificate answers: the release
+        // handler itself, then each dispatcher turn. landing_ms is the turn in which the assessment result was applied.
+        // Measured before release-freeze (load 34): ~660 ms on release (step apply 173-219 ms + one RefreshPanes 240-300 ms),
+        // ~300-400 ms on the assessment landing.
+        DesktopChecks.Check("Readiness_SectionReleaseFreeze_Under50Ms", () =>
+        {
+            using var shell = new ShellFixture(1280, 800);
+            shell.Enter();
+            var canvas = shell.Canvas;
+            Point At(Point local) => canvas.TranslatePoint(local, shell.Window)!.Value;
+            var handlers = new List<double>();
+            var blocks = new List<double>();
+            var landings = new List<double>();
+            (double Block, double Landing) Settle(int cursor)
+            {
+                double block = 0, landing = 0;
+                var turn = System.Diagnostics.Stopwatch.StartNew();
+                for (int i = 0; i < 100000; i++)
+                {
+                    bool assessed = shell.Controller.Section!.Assessment is not null;
+                    if (assessed && shell.Controller.Section.Draft.Cursor == cursor) return (block, landing);
+                    turn.Restart();
+                    Dispatcher.UIThread.RunJobs();
+                    double ms = turn.Elapsed.TotalMilliseconds;
+                    block = Math.Max(block, ms);
+                    if (!assessed && shell.Controller.Section!.Assessment is not null) landing = ms;
+                    Thread.Yield();
+                }
+                throw new TimeoutException("The released step was not assessed");
+            }
+            for (int run = 0; run < 3; run++)
+            {
+                var point = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+                var from = canvas.ModelToScreen(point.SpanMeters, point.Ordinate);
+                using var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+                canvas.RaiseEvent(new PointerPressedEventArgs(canvas, pointer, shell.Window, At(from), 1,
+                    new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed), KeyModifiers.None, 1));
+                Dispatcher.UIThread.RunJobs();
+                var to = from + new Vector(6, run % 2 == 0 ? -6 : 6);
+                canvas.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, canvas, pointer, shell.Window, At(to), 2,
+                    new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.Other), KeyModifiers.None));
+                Dispatcher.UIThread.RunJobs();
+                int cursor = shell.Controller.Section!.Draft.Cursor;
+                var watch = System.Diagnostics.Stopwatch.StartNew();
+                canvas.RaiseEvent(new PointerReleasedEventArgs(canvas, pointer, shell.Window, At(to), 3,
+                    new PointerPointProperties(RawInputModifiers.None, PointerUpdateKind.LeftButtonReleased), KeyModifiers.None, MouseButton.Left));
+                double handler = watch.Elapsed.TotalMilliseconds;
+                var (block, landing) = Settle(cursor + 1);
+                handlers.Add(handler);
+                blocks.Add(Math.Max(handler, block));
+                landings.Add(landing);
+            }
+            // A nudge run: ten plain arrow presses, then the key-up that makes it one step.
+            var nudged = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            canvas.SelectedVertex = (nudged.Curve, nudged.Id);
+            shell.Controller.Select(new Selection.Points([new PointRef(nudged.Curve, nudged.Id, shell.Controller.Section!.Draft.Profile)]));
+            Dispatcher.UIThread.RunJobs();
+            int before = shell.Controller.Section!.Draft.Cursor;
+            var keys = new List<double>();
+            var key = System.Diagnostics.Stopwatch.StartNew();
+            for (int i = 0; i < 10; i++)
+            {
+                key.Restart();
+                canvas.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = canvas, Key = Key.Up });
+                Dispatcher.UIThread.RunJobs();
+                keys.Add(key.Elapsed.TotalMilliseconds);
+            }
+            key.Restart();
+            canvas.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyUpEvent, Source = canvas, Key = Key.Up });
+            double keyUp = key.Elapsed.TotalMilliseconds;
+            var (nudgeBlock, nudgeLanding) = Settle(before + 1);
+            static double Median(List<double> values) => values.Order().ElementAt(values.Count / 2);
+            double worst = blocks.Max();
+            Console.WriteLine(string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                $"READINESS SectionReleaseFreeze value_ms={worst:F3} target_ms=50 release_handler_median_ms={Median(handlers):F3} release_block_median_ms={Median(blocks):F3} landing_median_ms={Median(landings):F3} nudge_key_median_ms={Median(keys):F3} nudge_key_max_ms={keys.Max():F3} nudge_keyup_ms={keyUp:F3} nudge_block_ms={Math.Max(keyUp, nudgeBlock):F3} nudge_landing_ms={nudgeLanding:F3} load={LoadAverage()} samples={blocks.Count}"));
+            if (worst >= 50) Console.WriteLine("READINESS-MISS SectionReleaseFreeze UI thread blocked past 50 ms; read with the load average");
+        });
+    }
+
+    [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "getloadavg")]
+    private static extern int GetLoadAverage(double[] values, int count);
+
+    // The 1-minute load average for a readiness line; "not-recorded" where libc has no getloadavg (Windows), never a guess.
+    private static string LoadAverage()
+    {
+        try
+        {
+            var values = new double[1];
+            return GetLoadAverage(values, 1) == 1 ? values[0].ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "not-recorded";
+        }
+        catch (Exception error) when (error is DllNotFoundException or EntryPointNotFoundException) { return "not-recorded"; }
     }
 
     /// <summary>The drawn curves' screen polylines, for "did the curve follow" checks.</summary>

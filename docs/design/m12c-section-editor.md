@@ -1117,6 +1117,8 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `SectionMode_StripSwitchNoEdits_DraftRebindsToNewStation` (CTL).
 Release-freeze (2026-10-04; fast ring, `tools/run-tests.sh`, each under 1 s): `Sections_Facts_MemoInvalidatedByNewBytes` (CTL):
 the facts memo answers the same byte array from memory and computes a new array afresh, so a step's facts are never stale.
+`SectionEditor_NudgeRun_NoShellRefreshPerKey` (EDT): after the key that begins a run, a nudge key raises no controller change
+(no shell refresh); the run still accumulates (D-7) into one step on key-up.
 
 **EDT — the editor surface.**
 `SectionEditor_EnterFromSideDoubleClick_ModeShown` (EDT) · `SectionEditor_ReturnOnSelectedStation_ModeShown` (EDT) ·
