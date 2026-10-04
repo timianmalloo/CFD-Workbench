@@ -20,7 +20,8 @@ summary: >-
   and -0.053), so there is no observed order and no GCI. The measured compressible-minus-incompressible delta at TMR
   conditions on level 5 (one grid, alpha 10, Re 6e6, M 0.15) is +1.147 % in Cl and +0.81 % in Cd, U_Delta not
   stated. Fully turbulent air, 2-D. macOS arm64 only.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-04, reason: "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized" }
 ---
 
 # SPIKE-04 round 2 verdict — A4 convergence and the three-grid study

@@ -20,7 +20,8 @@ summary: >-
   resolved mesh fails the DR-F2-6 floor (cellDeterminant >= 0.001) on its thin wall cells, and the gate's
   non-orthogonality limit. Security: the product launcher printed Disallowing on every round-2 process; the probe set
   S-1..S-8 is ready for the operator, not yet run. macOS arm64 only.
-review-suggested: []
+review-suggested:
+  - { by: spec-cfd-workbench-v1, on: 2026-10-04, reason: "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized" }
 ---
 
 # SPIKE-03 round 2 verdict — wall-resolved meshing and the solver-security launcher

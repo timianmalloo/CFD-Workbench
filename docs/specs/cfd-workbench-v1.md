@@ -52,6 +52,9 @@ summary: >-
   section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the
   revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in
   the right side bar; Add point and Remove point applying at once (Appendix H; the batch is amendments/spec-1.7.md).
+  Revision 1.7.1 applies Ruling 68: the A8.5 backend-substrate row and the A5.10 readiness text take the verified
+  controlDict refusal and the right-sized launcher rules, and Run is enabled when the install smoke test shows
+  Disallowing (Appendix H.1; amendments/spec-1.7.1.md).
 review-suggested:
   - { by: mockup-workbench-v3, on: 2026-09-20, reason: "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a." }
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
@@ -67,7 +70,7 @@ review-suggested:
 
 ## One definition. Every number with its basis. Nothing claimed that a fixture has not earned.
 
-Product specification · revision 1.7 · 3 October 2026 · *(1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
+Product specification · revision 1.7.1 · 4 October 2026 · *(1.7.1: the solver-security right-size, Appendix H, section H.1 and [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md); 1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.** Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
@@ -1056,8 +1059,8 @@ SU2 v8.5.0 release binaries; Foundation OpenFOAM excluded. SU2 has no VOF, cavit
 and cavitation are OpenFOAM-only, and `Unsupported` is decided from the **Backend environment's capability
 record** before a sample leaves Pending (08). **Readiness** = detection + a passing pinned-version smoke test — the bundled cavity-lid fixture run at the
 pinned digest: pass = the named output files exist with the recorded column layout and the fixture's Cl lies inside
-its tolerance; recorded as a Backend check fact; a Ready row without such a fact is Not ready — re-checked at every
-launch; the **environment assistant** (AI-11) proposes allow-listed setup steps (install
+its tolerance *(1.7.1: and the launch's master banner reads `Disallowing`; Run is enabled when this smoke test shows Disallowing on the user's machine — Ruling 68)*; recorded as a Backend check fact; a Ready row without such a fact is Not ready — ~~re-checked at every
+launch~~ *(1.7.1: run at install and on a pin change; at every app launch only the install path is re-checked, and the build id is compared on every run from the banner — ADR-0012 D2 rule 2; an existing install is detected and hash-checked against the known builds, and one that does not match runs only after an "unverified install" disclosure is accepted — DR-SEC-1 A)*; the **environment assistant** (AI-11) proposes allow-listed setup steps (install
 Docker Desktop · pull image by digest · create the WSL2 distribution · run the smoke test · set the resource
 limit) as typed environment-step proposals that carry **only the step id** (and, for the resource limit, one integer
 inside the product-declared range); **every other parameter — image digest, installer URL and hash, distribution
@@ -1326,7 +1329,7 @@ the Proof Pack.
 | Bundled decision data (sanity-bounds fixture, class-rule presets, discipline presets, knowledge files) | data files that decide a DRC or feasibility outcome | hash at load against the build manifest | tampering | fail closed: a mismatched file makes its rules Unavailable with the reason | one-bit flip in a class-rule file → the rule reads Unavailable, never a changed verdict |
 | Headless CLI | file paths, args | same parsers as GUI | as above | stable error codes | invalid path; oversized file |
 | Build-time polar pipeline | generator output | hash + command recorded | provenance loss | admission fails closed | bit flip |
-| Backend substrate | images, binaries, argv, dictionaries | digest/hash; typed templates; argv arrays never shell strings; `#codeStream`/`#calc` forbidden *(assume: OpenFOAM dictionaries can execute code — confirm at SPIKE-03)* | supply chain, command injection, privilege | vendor channel only; verbatim terms before download; never disable Gatekeeper/SmartScreen; case directory names from the run key | injected profile name; floating tag; a spoofed backend "Ready" must not enable Run |
+| Backend substrate | images, binaries, argv, dictionaries | digest/hash; typed templates; argv arrays never shell strings; `#codeStream`/`#calc` forbidden ~~*(assume: OpenFOAM dictionaries can execute code — confirm at SPIKE-03)*~~ *(1.7.1: digest/hash at install and on a pin change, an install the app did not verify runs only after an "unverified install" disclosure; the app writes its own controlDict with `allowSystemOperations 0` and stops any launch whose master banner is not `Disallowing` — Verified 2026-10-04: dictionaries execute code under the default (S-1) and are refused under the app's controlDict (S-2, S-4); the app runs only case directories whose every file it emitted — Ruling 68, ADR-0012 D2)* | supply chain, command injection, privilege | vendor channel only; verbatim terms before download; never disable Gatekeeper/SmartScreen; case directory names from the run key | injected profile name; floating tag; a spoofed backend "Ready" must not enable Run *(1.7.1: the injected profile name `; #codeStream {…}` emits no directive; a `1,5` or NaN value is refused before emission; a launch whose banner is not `Disallowing` is stopped; removing `com.apple.quarantine` is a refused setup step — Ruling 68)* |
 | Environment assistant | proposed setup steps | allow-list of step ids; every parameter bound by the tool from the published matrix and detection; consent per step; the exact command shown | prompt injection into a shell; a well-formed wrong parameter; privilege | the model never receives a shell; a step outside the allow-list or carrying a parameter field is refused; the tool never runs elevated; every executed step emits `environment.step` | a proposal naming `curl … \| sh`; a step with an unpinned tag; a syntactically valid digest that differs from the pin → refused; a resource-limit value outside the range → refused; a distribution name or path containing `;`, `$(`, a backtick or a newline → refused before launch |
 | Layout preference file (`layout.json`) | closed-DTO JSON, user-writable, ≤ 64 KiB | `LayoutCodec.Peek`/`Parse`, version-first, `UnmappedMemberHandling = Disallow`, `MaxDepth = 8` (app-shell §3.4–3.5) | tampering, DoS | fail closed: a malformed or unknown-shaped file falls back per pane, then to the preset; a newer version is never written this session (V3 wins) | > 64 KiB file; unknown top-level member; a `version` newer than this build's |
 | Recent-files store (`recent.json`) | ≤ 10 absolute paths, ≤ 1024 bytes each (personal data), user-writable | the same version-first closed-DTO parser (app-shell §3.5, §4.5) | tampering, disclosure of personal data | fail closed to an empty list; a newer version is never written this session; never enters the layout file or telemetry | a corrupted `recent.json`; an oversized path entry |
@@ -2883,3 +2886,32 @@ until A3a). **Outside the spec:** the knowledge-base correction KB-1 (ITTC Eq. 1
 in `docs/knowledge/hydrofoil-workbench/`; the spec cites the ITTC floors, not the formula. **Count:** 49 amendments
 (CAD 24 · Analysis 8 · Run 7 · Copy 3 · Shell 7); no acceptance criterion added or removed; 18 items superseded in
 whole or in part, each marked in place.
+
+
+### H.1 — Changes from revision 1.7 (revision 1.7.1, 2026-10-04)
+
+**Why.** Ruling 67 asked whether the solver security requirements were over-complicated for one trusted user on one
+laptop. The review found they were, and the 2026-10-04 probe run verified the one control that matters
+(`docs/proof/spike-03/security/20261004T155708Z/`). **The owner approved the right-size in Ruling 68**
+(2026-10-04): the amendments are [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md), each with its quoted
+before-text and exact after-text, and the decision note is `docs/notes/solver-security-right-size.md` (M1 to M8). The
+product launcher is decided in ADR-0012 D2; the spec cites it and does not repeat it. No amendment invents a product
+decision.
+
+**Changed.** A8.5's backend-substrate row (Validated where: the `assume` that dictionaries execute code is replaced by
+the verified facts and the M1, M2 and M4 rules; Negative test: the injected-name, malformed-number, non-`Disallowing`
+banner and quarantine cases). A5.10's readiness text (pass includes the master banner `Disallowing`; run at install and
+on a pin change, not at every launch; Run is enabled when the smoke test shows `Disallowing`; an existing OpenFOAM
+install is detected and hash-checked, DR-SEC-1 A).
+
+**Superseded — marked in place, not deleted.**
+
+| Item | Superseded by | What stands |
+|---|---|---|
+| A8.5 "assume: OpenFOAM dictionaries can execute code — confirm at SPIKE-03" | Verified 2026-10-04 (S-1 runs code under the default; S-2 and S-4 refuse it under the app's controlDict) | typed templates; argv arrays; `#codeStream`/`#calc` forbidden |
+| A5.10 readiness "re-checked at every launch" | run at install and on a pin change; the banner and build id are read on every run | the smoke-test fixture and its Backend check fact |
+
+**Unchanged.** The A5.10 environment assistant rule (step ids only, every parameter bound by the tool, never elevated,
+no free-form shell); the Threat and Disposition columns of the A8.5 row; every tolerance, label and licence contract.
+**Count:** 4 amendments (A8.5 2 · A5.10 2); no acceptance criterion added or removed; 2 items superseded in part, each
+marked in place.
