@@ -7963,6 +7963,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "45f0254b7dff5e2d3230608516b6073a347d3a2d1fba3aa2654011fdca7aebba"
     },
     {
+      "id": "proof-a3a-cor-red-first",
+      "path": "docs/proof/a3a-cor/red-first.md",
+      "title": "A3a COR red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-cor",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "The red runs of the COR track: both named tests failed on the skeleton, the bitwise test failed when Sections placed camber with its own formula, and the counter test failed when the Interlocked increments were restored to ++.",
+      "tags": [
+        "a3a",
+        "cor",
+        "placement",
+        "sections",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8dec74f7a259e8cc2a66cd8927451e1bedb5512f8a665826dacafe0f01fb5886"
+    },
+    {
       "id": "proof-a3a-pre-red-first",
       "path": "docs/proof/a3a-pre/red-first.md",
       "title": "A3a PRE red-first receipt",
@@ -11350,5 +11381,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "98cc3b5a60a4904bf337df1954cd5852a4cea5e0360abc91af680689edce1a39"
+  "graphSha256": "c3d011aff42e9861c871071bb052f6242853a87ee04567ebe40e4f7481bb4517"
 };

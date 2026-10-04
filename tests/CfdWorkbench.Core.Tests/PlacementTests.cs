@@ -38,6 +38,7 @@ internal static class PlacementTests
         Check("ChannelEvaluator_WingEstimatesFold_BitsUnchanged", WingGolden);
         Check("ChannelEvaluator_PlanformViewFold_SamplesUnchanged", PlanformGolden);
         Check("Placement_ProbeChord_EqualsWingEstimatesOnPl0Fixtures", () => ProbeEqualsEstimates(10));
+        SectionsTests.Run();
     }
 
     internal static void RunReadiness()
