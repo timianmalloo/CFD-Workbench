@@ -819,3 +819,9 @@ Operator 2026-10-04 (AskUserQuestion): the guided solver setup mockup (docs/mock
 Operator 2026-10-04 (AskUserQuestion), as spec owner: approve and merge spec 1.7.2 (23 amendments from Rulings 67 and 69, flow F7a, stories SETUP-01..09). OQ-1: the Windows route is pinned by the Linux image hash plus the openfoam2512 package version, set in an ADR-0012 amendment after the operator's Windows run. OQ-2: the setup state table and the assistant eval stay in the design, not the spec (the eval joins A8.6 when the assistant track starts). OQ-3: the macOS smoke test compares to 0.222158 at six printed digits until one shared tolerance is set after the Windows run. OQ-4: the moot Docker Desktop licence line is struck with the Windows ADR. OQ-5: Intel Macs are dropped; macOS is Apple silicon (arm64) only.
 
 - request: req-01M43ZD1BJQ2CN0T4ZCYFB4EE5 · ruled by: operator-timianmalloo · at: 2026-10-04T17:29:19Z
+
+### Ruling 71 — Unique sections: refuse early now; design cross-profile abscissa sync
+
+Operator 2026-10-04 (native look): editing after 'Make unique to Root' gives 'abscissae differ from neighbouring profile' and the section cannot be saved. Ruling: do both - (2) now: refuse a section step the moment it would make a profile's abscissae differ from a neighbouring station's profile, with a plain reason and nothing changed (no unsaveable drafts); (1) the computational-geometry lens designs keeping abscissae in step across neighbouring profiles (exact knot insertion propagated to the neighbour, x moves paired or refused), documents only, for operator approval before any build. Option 3 (re-open DR-11 per-section certificate) stays parked.
+
+- request: req-01M44C33TE03GKV4PX3VZ8EPC7 · ruled by: operator-timianmalloo · at: 2026-10-04T21:11:05Z
