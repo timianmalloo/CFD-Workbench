@@ -4843,6 +4843,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "b80e0ce647471b451674c0f740bd2dab113675824867a2e1f2e540cb59aeef97"
     },
     {
+      "id": "plan-test-cost",
+      "path": "docs/plans/test-cost.md",
+      "title": "Test time and cost — measured baseline and ranked levers (Ruling 67)",
+      "type": "doc",
+      "status": "proposed",
+      "owner": "@track-test-cost-study",
+      "phase": "",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Where the fast ring, the readiness ring and agent repair loops spend their time on 2026-10-04 (measured), and the levers that cut it, each with its saving, coverage risk and cost to build, in a recommended order. Proposals only; no product code or test changed.",
+      "tags": [
+        "testing",
+        "ci",
+        "cost",
+        "rings",
+        "performance",
+        "agents"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "review-test-ci-waste",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "968d62fe6b0f066d967d568118eba88e46bb341bdbff6b7f50f9e6f3142b31ad"
+    },
+    {
       "id": "review-area3-analysis-personas",
       "path": "docs/reviews/area3-analysis-personas.md",
       "title": "Area 3 analysis design — five lenses in Adversary Mode, and the folds",
@@ -10775,5 +10807,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "351ad52ad65fd1400a8cba736de8e256ce3f16acf0b844933c6c91e46d5b9605"
+  "graphSha256": "ee5769e13548f3c0b1b8ef59b9d4adf158a532797c39352ae94c57de61203d75"
 };

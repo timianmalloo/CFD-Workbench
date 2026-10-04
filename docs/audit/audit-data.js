@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T01:55:33Z",
+  "generated": "2026-10-04T16:13:05Z",
   "audit": [
     {
       "actor": null,
@@ -23172,6 +23172,37 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T01:54:40Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M43V1FDKJ60NX61SP0K21M1K",
+      "shortname": "test-cost-study",
+      "datetime": "2026-10-04T16:13:05Z",
+      "session": "test-cost",
+      "prompt": "Ruling 67: how to get our tests even further down in terms of time and cost - profile the fast ring, readiness and agent re-runs; rank levers by measured saving with coverage risk; write docs/plans/test-cost.md (proposals only).",
+      "summary": "Fast ring 53 s (63 s under load 15, TEST-BUDGET), Desktop pole 49 s with 76% slot use; readiness 310 s of which 163 s re-runs full Core and Desktop suites in Debug. Ranked L0-L9; readiness 310 to about 125 s serial (Inferred). Found 224 GB of leaked gate scratch and no fast-ring timeout.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "sre-diagnostician",
+      "artifacts": [
+        "docs/plans/test-cost.md",
+        "docs/proof/test-cost"
+      ],
+      "tags": [
+        "testing",
+        "cost"
+      ],
+      "outcome": "success",
+      "goal": "A measured baseline and ranked test-cost levers in docs/plans/test-cost.md",
+      "done_when": "plan committed with frontmatter; docs-graph derived; check-docs green",
+      "tier": "T1",
+      "fan_out": 0,
+      "git": {
+        "sha": "b504d854dd200420a04e8f49a321f4118f27bff1",
+        "short": "b504d854d",
+        "branch": "design/test-cost-study",
+        "pushed": null
+      }
     }
   ],
   "changes": [
