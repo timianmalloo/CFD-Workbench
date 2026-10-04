@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T22:52:11Z",
+  "generated": "2026-10-04T23:09:44Z",
   "audit": [
     {
       "actor": null,
@@ -23828,6 +23828,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T22:50:37Z",
       "duration_seconds": 94.0
+    },
+    {
+      "id": "al-01M44JWBYX3EY0KQJX3DSPFFRJ",
+      "shortname": "join-paired-angle-y-only",
+      "datetime": "2026-10-04T23:09:44Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/paired-angle-y-only-clean into feature/ui-cad-direction",
+      "summary": "Angle y-only (Opus 5.5): PlaceHandles Angle branch keeps paired x (y = ay + tan(a)*(x-ax)); |cos|<1e-9 refused with DSL-LOCK. Rebuilt clean from 7b7c482 after the agent merged feature/r54-integration (52 foreign commits) instead of the integration head. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:08:00Z",
+      "duration_seconds": 104.0
     }
   ],
   "changes": [
