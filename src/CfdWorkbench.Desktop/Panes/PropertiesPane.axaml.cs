@@ -264,7 +264,9 @@ public partial class PropertiesPane : UserControl
             ContentPanel.IsVisible = false;
             EmptyPanel.IsVisible = false;
             ShowRenderFailure(controller?.Inspection is not null);
-            ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", exceptionType: ex.GetType().Name);
+            // The message names what failed; the type alone could not tell one render failure from another.
+            ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", pane: "properties",
+                exceptionType: ex.GetType().Name, exceptionMessage: ex.Message);
         }
     }
 

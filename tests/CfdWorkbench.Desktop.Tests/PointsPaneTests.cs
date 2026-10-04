@@ -254,6 +254,22 @@ public static class PointsPaneTests
     /// <summary>Properties' section rows (§11.4), run from the properties-view suite so the window checks split across two.</summary>
     public static void RunProperties()
     {
+        // A render that throws (here: a status subscriber, reached through an estimate becoming unavailable) shows its
+        // reason in the pane, never a blank pane, and its telemetry carries the exception's message, not only its type.
+        Pane("Properties_RenderFailure_ShowsVisibleReason", (controller, host, window) =>
+        {
+            const string why = "render-failure probe";
+            ShellEvents.Clear();
+            host.Properties.Reported += _ => throw new InvalidOperationException(why);
+            host.Properties.Bind(controller, controller.Estimates! with { AreaSquareMeters = double.NaN });
+            Settle(window);
+            var error = Need<TextBlock>(host.Properties, "ErrorText");
+            var failure = ShellEvents.Read().LastOrDefault(item => item is { Name: "shell.pane.render", Outcome: "error" });
+            if (!error.IsEffectivelyVisible || error.Bounds.Height <= 0 || error.Text?.StartsWith("Properties couldn't be shown.", StringComparison.Ordinal) != true ||
+                failure is not { ExceptionType: nameof(InvalidOperationException) } || failure.ExceptionMessage != why)
+                throw new InvalidOperationException($"failure text visible {error.IsEffectivelyVisible} height {error.Bounds.Height} '{error.Text}'; event {failure}");
+        });
+
         Section("Properties_SectionPoint_TypeXYRowsInPercentChord", (controller, host, window) =>
         {
             var point = SelectUpper(controller, "cv-3");
