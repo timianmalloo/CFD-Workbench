@@ -1,8 +1,7 @@
 name: Disposable Windows x64 W0 qualification
 on:
-  push:
-    branches:
-      - feature/windows-w1-qualification-20260925
+  workflow_dispatch:
+
 permissions:
   contents: read
 jobs:
