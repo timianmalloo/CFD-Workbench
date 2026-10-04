@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T17:26:08Z",
+  "generated": "2026-10-04T17:39:38Z",
   "audit": [
     {
       "actor": null,
@@ -23458,6 +23458,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T17:25:10Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M43ZZY2P7D98Z0BVQZEH7611",
+      "shortname": "join-spec-1.7.2",
+      "datetime": "2026-10-04T17:39:38Z",
+      "session": "f19a2b12",
+      "prompt": "the join of docs/spec-1.7.2 into feature/ui-cad-direction",
+      "summary": "Spec 1.7.2 (owner approval Ruling 70): 29 amendments + flow F7a + stories SETUP-01..09; smoke test by Courant; Windows default an app-owned WSL Linux; one verb without a key; Shift-Cmd-A; macOS arm64 only; design §11.4 fixed. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:38:45Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
