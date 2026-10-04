@@ -27,6 +27,40 @@ internal static class SectionEdits
         };
     }
 
+    // Ruling 71: a step that would give the edited profile other abscissae than a neighbouring station's different profile
+    // is refused before it lands, nothing changed; the certificate's blend rule (Geometry.SharedAbscissa) would refuse the
+    // whole draft at Finish. Judged on the result, so it holds for every step kind. A pair that already differed before the
+    // step is left to the certificate: refusing every step there would trap the draft.
+    internal static void RequireNeighbourAbscissa(Definition before, Definition after, int assignment)
+    {
+        ArgumentNullException.ThrowIfNull(before);
+        ArgumentNullException.ThrowIfNull(after);
+        int edited = after.Assignments[assignment].Profile;
+        var watch = new ProofBudget();
+        for (int index = 0; index + 1 < after.Assignments.Length; index++)
+        {
+            int left = after.Assignments[index].Profile, right = after.Assignments[index + 1].Profile;
+            if (left == right || left != edited && right != edited) continue;
+            if (Geometry.SharedAbscissa(after.Profiles[left], after.Profiles[right], watch)) continue;
+            if (index + 1 >= before.Assignments.Length || !Geometry.SharedAbscissa(before.Profiles[before.Assignments[index].Profile],
+                    before.Profiles[before.Assignments[index + 1].Profile], watch))
+                continue;
+            int own = left == edited ? index : index + 1, other = left == edited ? index + 1 : index;
+            throw new ContractError("DSL-GEOMETRY", NeighbourAbscissaReason(StationName(own, after.Assignments[own].Eta),
+                StationName(other, after.Assignments[other].Eta)));
+        }
+    }
+
+    // COPY-209 (m12c design §11.4).
+    private static string NeighbourAbscissaReason(string station, string neighbour) =>
+        $"This edit would give {station}'s section different point positions from {neighbour}'s, and the wing between them " +
+        "can't be checked then. Move points up or down only, or keep the section shared.";
+
+    // simplify: the Desktop's station naming (ElevationView.StationName, PointsView.StationName) restated for a Core reason.
+    // Ceiling: three copies of one rule. Upgrade trigger: the next station-name change moves the rule here and both
+    // Desktop copies call it.
+    private static string StationName(int index, double eta) => eta == 0 ? "Root" : eta == 1 ? "Tip" : $"Station {index + 1}";
+
     private static (byte[] Bytes, SectionStepReport Report) Move(byte[] bytes, int assignment, SectionStep.Move move)
     {
         var (profile, upper, lower) = Sides(bytes, assignment);

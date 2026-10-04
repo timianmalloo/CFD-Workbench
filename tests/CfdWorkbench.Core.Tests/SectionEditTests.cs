@@ -271,10 +271,15 @@ internal static class SectionEditTests
             int index = before.Upper.ToList().FindIndex(item => item.Id == "cv-3");
             string draft = Id();
             var begun = session.BeginSectionEdit(draft, 1, SectionScope.Independent, "upper", "cv-3");
-            var updated = session.UpdateSectionPoint(draft, begun.Generation, 0.4, before.Upper[index].Y);
-            var assessment = session.Validate(draft, updated.Generation);
-            Equal("DSL-GEOMETRY", assessment.Code);
-            Equal("Profile 'section-a-i1' abscissae differ from neighbouring profile 'section-a'.", assessment.Diagnostics[0].Reason);
+            // Ruling 71: was a landed step that the certificate refused at Validate ("Profile 'section-a-i1' abscissae differ
+            // from neighbouring profile 'section-a'."); now the step is refused, naming the neighbour, and nothing changes.
+            ContractError? error = null;
+            try { session.UpdateSectionPoint(draft, begun.Generation, 0.4, before.Upper[index].Y); }
+            catch (ContractError refused) { error = refused; }
+            Equal("DSL-GEOMETRY", error?.Code);
+            Equal("This edit would give Station 2's section different point positions from Root's, and the wing between them " +
+                "can't be checked then. Move points up or down only, or keep the section shared.", error?.Reason);
+            Equal(begun.Generation, session.Snapshot().Draft!.Generation);
         });
     }
 
