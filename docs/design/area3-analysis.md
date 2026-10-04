@@ -823,7 +823,7 @@ exists, the load — not the mass — enters the manifest). Telemetry carries no
 |---|---|
 | **Completed** | Area 3 design rev 3 (data model, reading contract, tiers, envelope, manifest, toggle, fixtures with mutants, rings, story matrix with ring and cost per test, timing checks C-1…C-6, telemetry, DR-ANA-1…14); mockup `docs/mockups/area3-analysis.html` (nine screens); fixture numbers `docs/notes/area3-fixture-arithmetic.md`; persona review folded (rev 3 repairs) |
 | **Remaining** | operator approval of the mockup; rulings on DR-ANA-1…14; SPIKE-ANA-1; spec 1.7 rows (DR-ANA-2, -4, -6, -12, and the DR-ANA-13 amendment of A5.6 :962); ADR-0011 (DR-ANA-4); clearance of the two rev 2 blocks by their lenses |
-| **Best next action** | operator reviews the mockup and rules the DR-ANA batch; then `/implement` slice A3a |
+| **Best next action** | mockup approved and DR-ANA-1…14 ruled (Ruling 63); spec 1.7 approved (Ruling 66). The operator rules OD-1…OD-5 (§18.10); after M1.2c joins, dispatch slice A3a by §18 |
 
 ## 17. Gate record
 
@@ -854,3 +854,401 @@ are **conditions on the build track (A3a)**, not a third design cycle:
   strip verdict now prints ">" for an exceeded part (mockup `stripEnvOf`).
 - Residual (both lenses): DR-ANA-14 bounds are Inferred until the polar brackets land; timing is estimated until the C#
   build measures it; Windows parity is untested.
+
+## 18. Build tracks for A3a (exclusive file ownership)
+
+Written 2026-10-03 on `e8101f3` (plan only; nothing is built here). Inputs: §16 slice A3a; Ruling 63 (mockup approved,
+DR-ANA-1…14 as recommended, build conditions BC-1…BC-4 of §17); Ruling 66 (spec 1.7, the Analysis amendments
+AM-1.7-19…24, -43, -45); the 2026-10-03 defect classes OWNERSHIP-MISSES-DATA-SOURCE and DELETE-WITHOUT-CALLERS
+(`docs/lessons/defect-classes.md`) and the readiness drift fixed in `4b98e20`/`d94c413`. The form follows
+`m12c-section-editor.md` §14 and `planform-point-verbs.md` §14.
+
+### 18.1 Start condition, priors and briefs
+
+**Start.** Ruling 63: A3a builds **after M1.2c joins**. M1.2c's open tracks today are EDT (branch `feature/m12c-edt`,
+in flight) and UXR. So no A3a track ever runs beside EDT; EDT's files are free when A3a starts. The planform build
+(PVC → PVU → PVX) also starts after M1.2c, so it runs **beside** A3a. Its files are the contested ones (§18.4).
+
+**Measured priors (Ruling 54 P1: box = 3 × a measured prior of the same class).** The audit log holds no per-track
+duration for the M1.2c build tracks (searched 2026-10-03). Two spikes have one: GSPK about 30 of 120 min
+(`join-m12c-gspk`) and SPK 11 of 30 min (`join-planform-spk`). The rest are **git spans** on `main`: dispatch is taken as
+the preceding merge (Inferred), and the end is the track's last commit (Verified timestamp).
+
+| Prior | Harness | Class | Span | Source |
+|---|---|---|---|---|
+| DSP | Grok 4.7 | Core evaluator refactor, 6 names | **31 min** | merge `M1.2c PRE` 08:52 → last DSP commit 09:23 |
+| SPT | Grok 4.7 | Core numerics, 36 names, planted mutant | **72 min** | merge DSP 09:27 → 10:39 |
+| SDR | Opus 5.5 | `AuthoringSession` state + old-build receipt | **25 min** | merge PRE 08:52 → 09:17 |
+| PNL | Opus 5.5 | panes, Properties rows, copy, 18 names | **49 min** | merge CTL 15:33 → 16:22 |
+| CTL | Codex gpt-6-sol | controller and mode | **172 min** | merge SPT 12:21 → 15:13; includes 2 ownership stops and 1 stdin stall (`join-m12c-ctl`) |
+| D3a | Codex | Desktop UI | 47 min | `m12b-points.md` §14 (the prior M1.2c used) |
+| Desktop split | Sonnet 5.5 | test-ring change, 1 file | 7 min | merge 16:24 → 16:31 (`join-desktop-split`) |
+
+Measured actual-to-box ratios of the M1.2c tracks run 0.18 (SDR) to 1.23 (CTL), median 0.36.
+
+**Every brief:** foreground only; the Return section required; two repair cycles; `AGENT_SESSION` exported; Codex
+launched with `< /dev/null` (HARNESS-STDIN-STALL). Before the Return, in this order: `tools/run-tests.sh`; then
+`python3 tools/check-named-tests.py <TRK> --design docs/design/area3-analysis.md --track-section "### 18.2"
+--named-sections "### 18.8"` (the flags land in PRE, P-1; not for RNG and AUX, which own no names — RNG's exit is
+its script self-test); then the readiness verifiers §18.6 names for the track. A
+red-first receipt `docs/proof/a3a-<trk>/red-first.md` lists each owned test, its mutant (§18.8) and the commit where it
+was red (RED-FIRST-SKIPPED-UNDER-BOX; BC-1). A track that finds a data source outside its ownership **stops and sends a
+seam request**; it does not edit the file.
+
+### 18.2 Tracks
+
+| Track | Harness | Owns (exclusive) | Depends on | Box | Exit |
+|---|---|---|---|---|---|
+| **PRE** contracts, harness, ADR | Coordinator inline (Opus 5.5) | `docs/adr/0011-analysis-run-storage.md` (new; DR-ANA-4 as ruled, AM-1.7-19, the §3.6 invariants, rollback, retention); `src/CfdWorkbench.Analysis/**` skeleton (csproj, the §3.7 domain types and §6.1 signatures, bodies throw); `src/CfdWorkbench.Core/RunRecord.cs` (new; record **shape only**, P-3); in `Placement.cs` only the `SectionSample` record and a throwing `Sections` signature (seam S-A1); `tests/CfdWorkbench.Analysis.Tests/**` (console harness, Check helper printing `PASS` and `COST <name> <ms>`, `--readiness` entry, empty suite files, `DESIGN.md` linked as Content, never a runtime repo walk); `CFDWorkbench.slnx`; project references in Desktop, Cli and their test csproj; `tools/run-tests.sh` (the `Analysis` job and its `named` entry only; RNG owns the file after); `tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs` (the `--analysis` mode registration with three empty suites, S-A8); `tools/check-named-tests.py` (`--track-section`, `--named-sections`, a self-test case) | M1.2c joined | **60 min** (no same-class prior: no ADR or harness scaffold has a recorded duration; measured time recorded) | build green; run-tests green with the Analysis job; `check-named-tests.py --self-test` green; ADR-0011 committed **Accepted** (the first-track exit for ADR-0011, because §14 and the status table list it as remaining, not as written before the build); PRE names PASS; planted `ProfileAt` call turns the architecture test red |
+| **RNG** test ring and timing checks | Opus 5.5 (SRE lens) | `tools/run-tests.sh` (C-1 millisecond clocks, after PRE); `tools/check-test-costs.py` (new; C-2…C-6 and `--self-test`); the mode-scheduling region of `WorkbenchTests.cs` (the slots and spawn order, :380–560) **only if** its measurement needs it | PRE | **60 min** (no same-class prior; the 7-min Desktop split changed one file) | `check-test-costs.py --self-test` red on each failing input of the §13.4 table, then green; C-1…C-6 run inside every join; OD-2 settled by measurement: Desktop ≤ 43 s and wall ≤ 50 s on three runs, or a stop with the numbers |
+| **COR** `Placement.Sections` | Grok 4.7 | `src/CfdWorkbench.Core/Placement.cs` (`Sections` body, placement-rule version constant, G-3 counters made `Interlocked`); `tests/CfdWorkbench.Core.Tests/SectionsTests.cs` (new); `PlacementTests.cs` counter reads (unchanged values) | PRE | **93 min** (DSP 31 × 3) | COR names PASS; the `Placement` golden master and surface-bit pin unchanged; planted mutant: `Sections` places camber with its own formula (not `PlacementRule.Place`) → the bitwise test red |
+| **STO** run storage and session | Opus 5.5 | `RunRecord.cs` bodies (JCS form, `Key()`, `ContentHash()`, invariants: one definition of the run key, P-3); in `AuthoringSession.cs` only `NativeProject`, the `Envelope` record (non-positional runs member), every `Envelope` construction (:329, :1459; runs carried through), a new `Analysis runs` region (`RecordRun`, `ReadRuns`, retention and tombstones at save, `RevisionOf(acceptedId)`, the analysis event entry) and one non-positional member on `SessionEvent` (seam S-A2); `src/CfdWorkbench.Persistence/ProjectStore.cs` (`.v1.bak` before the first `-2` publish); `ProjectStoreTests.cs` additions (`Store_`, `Backup_`); `tests/CfdWorkbench.Analysis.Tests/RunStoreTests.cs`; `tools/verify-application-core.py` (`Backup_` in `STORE_PREFIXES`); `docs/proof/a3a-old-build/` (a `-2` sample opened by the build at the A3a base: COPY-130, file SHA unchanged) | PRE | **75 min** (SDR 25 × 3) | STO names PASS; old-build receipt; `verify-application-core.py` exit 0; `recount-application-contracts.py` exit 0 (the `-1` writer is byte-identical); planted mutant: content hash not checked on read → both tamper tests red |
+| **VLM** lattice, solve, forces, Trefftz | Grok 4.7 | `src/CfdWorkbench.Analysis/VortexLattice.cs`, `Trefftz.cs`, `MethodRecord.cs` (envelope bounds DR-ANA-14, order p = 1, per-strip verdict), `Settings.cs` (DR-ANA-7 defaults 64 × 4 cosine, wake 20 spans, 1 %; the 2,048-unknown cap); `tests/CfdWorkbench.Analysis.Tests/LatticeFixtureTests.cs`; `docs/notes/area3-fixture-arithmetic.md` (append the C# numbers only) | PRE (types); COR for nothing it owns | **120 min** (3 × SPT 72 = 216 for the VLM + STP pair, split by name count 12 : 10 — the split is Inferred) | VLM names PASS; **BC-2**: the shared 32/64/128 solves are built once before the checks and charged to `F6_ObservedOrder`'s COST; **BC-3**: F-2 checked against its band at red-first, a miss stops the track for a ruling (never a widened band); **BC-1** for the ANA-04 rows (each its §13.2 mutant); planted O(1) wake mutant → F-6 red |
+| **STP** strip coupling, loads, water | Grok 4.7 | `src/CfdWorkbench.Analysis/StripCoupler.cs` (α_i, α_eff, Re_local from c(y)), `Loads.cs` (totals, root and integrated bending moment, centre of lift, wing loading, attachment transfer, total drag with its missing parts), `IPolarSource.cs` + the Unavailable stub, `WaterTable.cs` + the embedded ITTC table (P-7), `ReferenceQuantities.cs` (reads Core `WingEstimates`, P-4); `tests/CfdWorkbench.Analysis.Tests/StripFixtureTests.cs`, `Fixtures/a3a/` (F-17 vector); `docs/proof/a3a-water-table/` (transcription and the second check) | VLM; COR (F-8 and F-17 run the real `Sections`) | **96 min** (the rest of the 216) | STP names PASS; **BC-4** `Strip_ReLocal_UsesLocalChord` PASS; water table second check signed in the receipt; planted mutant: ν not read from the water record → F-13a red |
+| **SVC** service, freshness, CLI | Opus 5.5 | `src/CfdWorkbench.Analysis/AnalysisService.cs` (snapshot once, compute, `RecordRun`, latest-wins cancel, idempotency, `IEvaluationBarrier`, `IAnalysisClock`, `analysis.run` emission), `OperatingPoint.cs` (validation, derived q, Re_ref, h/c, Fr_h, σ), `Freshness.cs` (current key, Current/Historical, what changed); `src/CfdWorkbench.Cli/Program.cs` (`analyse`, `inspect --runs` only); `tests/CfdWorkbench.Analysis.Tests/ServiceTests.cs`, `FreshnessTests.cs`; `tests/CfdWorkbench.Cli.Tests/CliTests.cs` additions (in process via `Cli.RunAsync`, never a binary path) | STO; COR | **75 min** (SDR 25 × 3) | SVC names PASS; **BC-1** for the ANA-07 freshness rows; planted mutant: the current key built from the run's own stored inputs → every freshness test red |
+| **PRJ** projection, labels, copy | Opus 5.5 | `src/CfdWorkbench.Analysis/AnalysisProjection.cs`, `AnalysisViewModel.cs`, `Labels.cs` (per-tier fixed parts and omissions, depth forms incl. OQ-9), the layer view data (vectors, arc, legends, twins, outside-envelope strips); `tests/CfdWorkbench.Analysis.Tests/ProjectionTests.cs`, `LabelsTests.cs`, `LoadsViewTests.cs`, `Fixtures/a3a/recorded-*.json` (pinned recorded runs; inputs only, never a golden); `DESIGN.md` §7 rows **COPY-206…239 only** (seam S-A5) | PRE; STP (`Loads`, water); SVC (`Freshness`) | **147 min** (PNL 49 × 3) | PRJ names PASS; **BC-1** for the depth rows and the ANA-23 moment arc; planted mutant: the projection's `?? 0` default → `Loads_MissingTerm_UnavailableNeverZero` red |
+| **TGL** toggle, conditions band, status | Codex gpt-6-sol | `WorkbenchController.cs` (area state, return-to-CAD mode, `LayerSet`, Evaluate/Cancel, the inert refusal for every edit verb, `analysis.project` and `analysis.toggle`), `PropertiesView.cs` (the `ShellMode` enum block only, S-A7), `ModelArea.axaml`(.cs) (navbar segment, band host, banners), `Analysis/ConditionsBand.axaml`(.cs) (new), `CurvePointLayer.cs` (dimmed and inert in Analysis), `Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs` (View ▸ Analysis; shortcut per OD-1), `Shell/StatusStrip.axaml`(.cs) (the Analysis item and reports), `tests/CfdWorkbench.Desktop.Tests/AnalysisToggleTests.cs`, the Desktop `--readiness` registration of the p95 check; theme rows for its controls in `ShellWindowTests.cs` and `tools/verify-application-adapters.py`; allow-list lines in `tools/check-event-subscribers.py` | SVC; PRJ's view-model shape (PRE); **PVU joined**; RNG | **141 min** (D3a 47 × 3; CTL measured 172, over its box by its three stops — the stops this plan's trace removes) | TGL names PASS; **BC-1** for the ANA-22 Historical-banner row; UX-29 S1 row (AM-1.7-43); planted mutant: the toggle refits the Plan camera → round-trip test red |
+| **LAY** layers on the views | Codex gpt-6-sol | `Analysis/PlanLoadLayer.cs`, `Analysis/View3dLoadLayer.cs`, `Analysis/ElevationDepthLayer.cs` (new); one layer hook of at most 15 lines in each of `PlanCanvas.cs`, `View3d.cs`, `ElevationView.cs` and the peers' accessible names (seam S-A6); `tests/CfdWorkbench.Desktop.Tests/AnalysisLayerTests.cs` | TGL; PRJ | **141 min** (D3a 47 × 3) | LAY names PASS; Desktop `--readiness` `Readiness_CameraStep_NoPaneRefresh_Under8Ms` still green with layers on; planted mutant: the outline drawn without dash and count → its test red |
+| **PNA** panes and bottom panel | Opus 5.5 | `PropertiesView.cs` (after TGL: the Analysis groups — wing, strip, verdict, section, conditions, labels, error card, skeleton, tampered), `Panes/PropertiesPane.axaml.cs`, `Analysis/LayersPane.axaml`(.cs), `Analysis/AnalysisPanel.axaml`(.cs), `Analysis/LoadingChart.cs` (new), `Shell/ShellHost.cs` (the bottom-panel slot and pane registration), `Shell/ShellLayout.cs`, `Shell/WorkspacePresets.cs`, `src/CfdWorkbench.Persistence/LayoutCodec.cs` (the `layers` Homes row), `LayoutFileTests.cs` additions (`LayoutCodec_`), `ShellModelTests.cs` (registered-pane count updated, not deleted), `tests/CfdWorkbench.Desktop.Tests/AnalysisPanelTests.cs`; theme rows for its tabs (after TGL) | TGL; PRJ; STP | **147 min** (PNL 49 × 3) | PNA names PASS; `verify-application-core.py` and `verify-application-adapters.py` exit 0; planted mutant: focus lost when the table twin re-renders → its test red |
+| **AUX** review, polish, Proof Pack | Claude (hydrodynamicist and test-architect lenses) | `DESIGN.md` component rows (conditions band, layer legend, bottom panel) and tokens; `Styles.axaml`; `docs/reviews/a3a-native.md` (new); the event allow-list removals in `check-event-subscribers.py`; captures of the nine screens from the packaged app against the approved mockup | LAY, PNA | **90 min** (no same-class prior: M1.2c UXR has not joined; measured time recorded) | the Proof Pack; the test architect's build-time veto (§17) cleared or its findings listed; hydrodynamicist re-review of labels, envelope and depth forms on the native build; `python3 tools/run-readiness.py --check` green for the A3a head |
+
+### 18.3 Seams
+
+| Seam | Rule | Fallback |
+|---|---|---|
+| **S-A1** `Placement.cs` | PRE lands the `SectionSample` record and a throwing `Sections` signature; COR owns the file after PRE | — |
+| **S-A2** `AuthoringSession.cs` with planform PVC | STO edits `NativeProject`, `Envelope`, the two `Envelope` constructions, its new region, and adds one **non-positional** member to `SessionEvent` (S-6 shape). PVC edits the point-command region, `EditReference`, the replay guard and `Run` events (S-PV-1) | the second to merge rebases; a conflict outside those regions stops both for the Coordinator |
+| **S-A3** `RunRecord.cs` | PRE lands the shape; STO owns bodies; VLM, STP, SVC and PRJ read it and never add members | a missing field is a seam request to STO |
+| **S-A4** `Program.cs` | SVC adds `analyse` and `inspect --runs` only; `inspect --json` is untouched (PVC leaves the CLI unchanged, `planform-point-verbs.md`:516) | — |
+| **S-A5** `DESIGN.md` | PRJ appends §7 rows COPY-206…239 only. M1.2c reserved 172…189 and planform 190…205 (P-2). AUX owns the rest of the file after PRJ. PVX may be writing 190…205 at the same time | append conflicts only; the second to merge rebases |
+| **S-A6** view hooks | LAY adds one layer hook (≤ 15 lines) per view file and draws everything in its own files | if PVU is still open, LAY waits — never edits a PVU-owned file in flight |
+| **S-A7** `PropertiesView.cs` | TGL edits the `ShellMode` enum block only (add `Analysis`; the duplicate `Mode` and its cast at :551 stay — G-5 finding); PNA owns the file after TGL | — |
+| **S-A8** `WorkbenchTests.cs` | PRE registers `--analysis` (three empty suites); RNG then owns the scheduling region; TGL adds the `--readiness` row; LAY and PNA fill their own suite files only | — |
+| **S-A9** theme rows | TGL then PNA add rows to `ShellWindowTests.cs` and `verify-application-adapters.py` `SHELL_THEME_ROWS` in the same commit as the control; LAY adds none (it draws on canvases) | a row LAY needs is a seam request to PNA |
+
+### 18.4 Contested files, order and width
+
+**Contested with the planform build** (it starts after M1.2c too): PVC owns `AuthoringSession.cs` regions (→ S-A2) and
+`FoilSource.cs`, `PointModel.cs`, `ChannelEdits.cs` (A3a touches none). PVU owns `WorkbenchController.cs`,
+`PlanCanvas.cs`, `ElevationView.cs`, `CurvePointLayer.cs`, `ModelArea.axaml`(.cs), `PropertiesView.cs`, `PointsView.cs`,
+`Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs`. **Rule: TGL, LAY and PNA start only after PVU joins.** PVX owns
+`DESIGN.md` COPY-190…205 (→ S-A5). M1.2c EDT (`SectionCanvas.cs`, `SectionEditorView`, `ModelArea`, `ElevationView`,
+`CurvePointLayer`, `WorkbenchController`, and `SectionEdits.cs` and `check-event-subscribers.py` on its branch) and UXR
+(`DESIGN.md`, `Styles.axaml`, readiness rows) are joined before A3a starts, so they never overlap.
+
+**Width.** At most **3 compiling tracks across both builds**. While PVC or PVU compiles, A3a has 2 slots. RNG is
+tools-only and does not take a slot unless it edits the Desktop harness. PVX and AUX are review tracks.
+
+**Order (boxes, minutes from the M1.2c join; planform PVC from 0 and PVU joined at about 276, Inferred from its boxes).**
+
+| Slot | Tracks |
+|---|---|
+| — | PRE 0–60 |
+| A | VLM 60–180 → STP 180–276 → PRJ 303–450 (waits for SVC) |
+| B | COR 60–153 → STO 153–228 → SVC 228–303 |
+| tools | RNG 60–120 |
+| C (free when PVU joins) | TGL 303–444 |
+| B and C | LAY 450–591 ∥ PNA 450–597 (both wait for PRJ) |
+| review | AUX 597–687 |
+
+STO and COR are interchangeable in slot B (SVC needs both). **Critical path:** PRE → COR → STO → SVC → PRJ → PNA → AUX
+= 60 + 93 + 75 + 75 + 147 + 147 + 90 = **687 min of boxes**; TGL (ends 444) has 6 min of slack. At the measured median
+ratio 0.36 that is about **4 h of real time** (Inferred). The A3a Desktop wave also waits for PVU; if PVU joins after
+303, every Desktop track moves by the difference.
+
+### 18.5 Trace — every promised visible behaviour to the file that produces its data
+
+From the approved mockup (`docs/mockups/area3-analysis.html`, nine screens) and §12. "Existing" means no track edits the
+file; it is read only.
+
+| # | Visible behaviour (screen) | Data | Producing file | Owner |
+|---|---|---|---|---|
+| 1 | CAD \| Analysis segment; camera, layout, selection unchanged (1) | area state, `ShellMode`, cameras, `Selection` | `WorkbenchController.cs`, `PropertiesView.cs` (enum), `ModelArea.axaml`(.cs) | TGL |
+| 2 | View ▸ Analysis and a shortcut | command rows | `Shell/CommandTable.cs`, `Shell/NativeMenuBuilder.cs` | TGL (OD-1) |
+| 3 | Speed, Depth h_ref ("Not set"), α inputs; Evaluate (1) | pending operating point; `ANA-INPUT-*` refusals | `Analysis/ConditionsBand.axaml`(.cs); `OperatingPoint.cs` | TGL; SVC |
+| 4 | Water ▾ "Salt · 15 °C" (1) | Water record from the ITTC table, its hash | `WaterTable.cs` + embedded table | STP (control TGL; **gap G-T4**) |
+| 5 | Derived q, Re_ref, h/c, Fr_h, σ; COPY-45 when depth unset; `More ▾` at 1024 px (1, 3, 3b) | derived on read from op, water, c_ref | `OperatingPoint.cs`; c_ref from `WingEstimates.cs` (existing); strings `AnalysisProjection.cs` | SVC; PRJ; TGL (layout) |
+| 6 | Evaluate → Cancel; "Evaluating — VLM + strip · <n> panels…"; skeleton rows; prior layers Historical with "operating point changed (α 2.00° → 3.00°)" (2) | in-flight state; panel count from settings; what changed | `AnalysisService.cs`, `Freshness.cs`; `Settings.cs`; strings PRJ | SVC; VLM; PRJ; TGL, PNA |
+| 7 | CL, CDi (Trefftz), e (computed), L, induced drag (3) | stored Γ and w_T; strip forces | `VortexLattice.cs`, `Trefftz.cs`; `Loads.cs` | VLM; STP; PRJ |
+| 8 | Envelope verdict on the row after CL, full bound, "<n> of <m> strips", exceeded parts (3, 7) | per-strip α_eff, Cl_local, sweep against the bounds | `MethodRecord.cs`; strings PRJ | VLM; PRJ |
+| 9 | "e above 1 … lattice effect at 64 × 4" note (3) | e; settings | `Trefftz.cs`, `Settings.cs`; PRJ | VLM; PRJ |
+| 10 | Total drag "Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray" (3, 4) | polar stub; omission list | `IPolarSource.cs`, `Loads.cs`; PRJ | STP; PRJ |
+| 11 | S_ref, b, moment datum, force axes, "Wing only" (3) | reference quantities | `WingEstimates.cs` (existing) via `ReferenceQuantities.cs`; manifest `reference` | STP (**gap G-T2**) |
+| 12 | Tier chip, COPY-63, VLM fixed label (depth form), COPY-46 with numbers, COPY-47, Not-modelled list (3, 3b) | label table per tier; depth state | `Labels.cs` | PRJ |
+| 13 | Plan: Γ batlow strips, loading curve, legend (variable, unit, range, map, run key) (3) | strip Γ and edges; run key | `VortexLattice.cs`; `RunRecord.cs`; layer data PRJ; `PlanLoadLayer.cs` + `PlanCanvas.cs` hook | VLM; STO; PRJ; LAY |
+| 14 | Plan: dashed outline and a text count for strips outside (7) | per-strip verdict | `MethodRecord.cs`; PRJ; `PlanLoadLayer.cs` | VLM; PRJ; LAY |
+| 15 | 3D: lift per strip ∝ N/m on the local normal, total at the centre line, root-moment arc with datum and sense (3) | strip forces and normals; root M_x | `Loads.cs`; vectors and arc PRJ; `View3dLoadLayer.cs` + `View3d.cs` hook | STP; PRJ; LAY |
+| 16 | 3D free-surface line and tip depth; none when depth unset (3, 3b); Side/Front depth band (§12.2) | h_ref; placed z of each station | `OperatingPoint.cs`; `Placement.cs` `Sections` (placed camber); layer list PRJ; `ElevationDepthLayer.cs` + `ElevationView.cs` hook | SVC; COR; PRJ; LAY |
+| 17 | Points dimmed and inert; a press reports "Points are edited in CAD…" (4) | area state; refusal | `CurvePointLayer.cs`; `WorkbenchController.cs` — every edit verb, incl. a Points-pane commit (**gap G-T5**) | TGL |
+| 18 | Station → "Strip of wing run (α_eff) · η": Cl_local, α_eff, Re_local, lift/span, cd Unavailable (4) | strip at η; Re_local from c(y) | `StripCoupler.cs`; PRJ `StripAt(η)`; `PropertiesView.cs` | STP; PRJ; PNA |
+| 19 | Strip verdict per part; polar Re range Unavailable; Not-modelled (4) | per-part values; no polar | `MethodRecord.cs`; PRJ | VLM; PRJ; PNA |
+| 20 | Section (2D) group: Cl, Cd, Cm, x_tr and Cp_min Unavailable with reasons (4) | polar stub; no Cp method (DR-ANA-2) | `IPolarSource.cs`; PRJ | STP; PRJ; PNA |
+| 21 | Error card "Analysis failed — … (ANA-SOLVE-RESIDUAL)"; previous result kept Historical (6) | Failed row (code, reason); selected-run rule (§3.3) | `AnalysisService.cs`; `RunRecord.cs`; PRJ | SVC; STO; PRJ; PNA |
+| 22 | Historical banner and chip "geometry changed (r4 → r5)" (5) | key inequality; **revision ordinals** | `Freshness.cs`; `AuthoringSession.cs` `RevisionOf` (new) | SVC; STO (**gap G-T1**); banner TGL |
+| 23 | "Preview hidden — Apply or Cancel in CAD"; the draft and the section editor back on return (5; UX-29 S1) | session draft (existing); return-to mode | `WorkbenchController.cs`, `ModelArea.axaml`(.cs) | TGL |
+| 24 | Tampered run "Unavailable — run payload failed its check", nothing deleted (8) | per-run content hash; recomputed key | `RunRecord.cs`, `NativeProject` | STO; PRJ; PNA |
+| 25 | Spanwise loading Cl·c/c̄ vs η, elliptic of the same CL, table twin (3) | strip Cl_local, chord; CL | `StripCoupler.cs`, `Loads.cs`; series PRJ; `LoadingChart.cs`, `AnalysisPanel.axaml`(.cs) | STP; PRJ; PNA |
+| 26 | Loads: COPY-60, lift, centre of lift, root bending moment, L/S_ref, attachment moment Unavailable, total drag Unavailable; COPY-42 with the list; t/c (root) and EI/EI_ref (4) | `Loads.cs`; root t/c from the station frame | `Loads.cs`; `Placement.cs` `Frame.ThicknessRatio` (existing, also carried in `SectionSample.Frame`) | STP; PRJ; PNA (OD-3) |
+| 27 | Provenance: run, method and settings, inputs (revision, surface, profiles, evaluator), water with source, op, "Changed since … (a twist point moved)" (5) | manifest; revision ordinal and the edit receipt's rail | `RunRecord.cs`, `AnalysisService.cs`; `AuthoringSession.cs` `RevisionOf`; `Freshness.cs` | STO; SVC; PNA (**gap G-T1**) |
+| 28 | Bottom-panel tabs Section and Checks | Section: PRJ rows; **Checks: no producer** | — | **gap G-T3** (OD-4) |
+| 29 | Status item "Analysis: no result / Running / Current / Historical / Failed / Unavailable"; reports "Analysis complete — VLM + strip · <t> s" (all) | run state, freshness, integrity, `wallMs` | `Shell/StatusStrip.axaml`(.cs); SVC; PRJ | TGL |
+| 30 | Layers tab in the left dock (all) | pane registration and home | `LayoutCodec.cs` Homes, `ShellLayout.cs`, `WorkspacePresets.cs`, `LayersPane.axaml`(.cs) | PNA (**gap G-T6**) |
+| 31 | Bottom panel in Analysis only (all) | a shell region the shell does not have yet | `Shell/ShellHost.cs` slot, `AnalysisPanel.axaml`(.cs) | PNA (**gap G-T7**) |
+| 32 | Saved `cfdw-project-2`; `.v1.bak`; reopen keeps freshness | runs in the document | `RunRecord.cs`, `NativeProject`, `ProjectStore.cs` | STO (**gap G-T8**) |
+| 33 | `analysis.run`, `.toggle`, `.project` on the normal path (§11) | session event queue (`Record` is private) | `AuthoringSession.cs` entry; `AnalysisService.cs`; `WorkbenchController.cs` | STO (**gap G-T10**); SVC; TGL |
+| 34 | Every string above | DESIGN.md §7 rows | `DESIGN.md` COPY-206…239 | PRJ (**gap G-T11**) |
+
+**Gaps found and how they are resolved (plan defects fixed here):**
+
+- **G-T1** "r4 → r5" and "a twist point moved" have no producer: Core keeps `AcceptedRow` (with its `EditReceipt.Rail`)
+  but exposes no ordinal and no history read (`AuthoringSession.cs`:14–18, Verified by search). → STO adds
+  `RevisionOf(acceptedId)` (ordinal in accepted-row order and the rail of the edit that made it); test
+  `RevisionLabel_TwistEdit_OrdinalsAndRail`.
+- **G-T2** Analysis would compute S_ref, b and AR beside Core's `WingEstimates` — two definitions (DM7). → STP reads
+  `WingEstimates`; test `Reference_SrefAndSpan_FromWingEstimates`. *assume:* `WingEstimates` span is the developed span
+  (`2 · HalfSpan`, `WingEstimates.cs`:34), which F-8 pins as S_ref; confirmed by F-8 and that test on the dihedral wing;
+  if false, the F-8 target is a ruling.
+- **G-T3** The Checks tab has no data source: no DRC exists in `src/` (search). → OD-4.
+- **G-T4** The water table: the knowledge base holds 5–30 °C rows (`data-and-constants.md`:144–151); ANA-15 needs
+  0–50 °C. → STP transcribes the ITTC 7.5-02-01-03 Rev 03 table from its published PDF (the URL is in
+  `cfd-workbench-grounding.md`:87) into an embedded resource (no file read at run time), with a second agent's
+  independent check recorded in `docs/proof/a3a-water-table/`.
+- **G-T5** Spec 1.7 moved Points to the right side bar (AM-1.7-35); §12.2's "Layers replaces Points" is stale. A
+  Points-pane commit in Analysis would edit geometry. → TGL puts the refusal in the controller for every edit verb;
+  test `Analysis_EditVerb_RefusedWithInertMessage`. Layers is a new left-dock tab (as the mockup draws).
+- **G-T6** A new pane needs a `LayoutCodec.Homes` row (Persistence) or it is not registered. → PNA owns `LayoutCodec.cs`;
+  test `LayoutCodec_LayersPane_HomeLeftOldFileOpens`.
+- **G-T7** The shell has no bottom panel (spec B7 calls it optional; none is built). → PNA owns the `ShellHost.cs` slot.
+- **G-T8 (P-3)** `NativeProject` is in Core and Core cannot reference `CfdWorkbench.Analysis`, so the stored run row,
+  its JCS form, the run key and the content hash live in Core `RunRecord.cs` — still one definition; Analysis computes
+  and projects.
+- **G-T10** `AuthoringSession.Record` is private and `SessionEvent` is positional. → STO adds the entry and one
+  non-positional member.
+- **G-T11** §12.6 says "next ids after COPY-171", but M1.2c reserved 172–189 and planform 190–205. → A3a takes
+  COPY-206…239: the 18 §12.6 rows plus the mockup strings §12.6 lacks ("Inside the method envelope at this strip …",
+  "Unavailable — no section Cp method (DR-ANA-2)", "Unavailable — no attachment point named (DR-ANA-5)", the Total drag
+  missing-parts form, "Unavailable — needs −Cp_min", the e-above-1 note, the tampered-run note, "computed, not the goal
+  state's W/S", the dashed-outline count, "Layers show run <key>; Evaluate to compute r<n>.").
+- No gap: root t/c for the stiffness readout is `Placement.Frame(...).ThicknessRatio` (existing, `Placement.cs`:17).
+
+### 18.6 Readiness verifiers each track runs before its Return
+
+The fast ring does not run `verify-application-core.py`, `verify-application-adapters.py`, the recounts or the
+`--readiness` entries (`docs/coordination/join.json` `gates` skip both verifiers), which is how readiness drifted
+between joins on 2026-10-03. So each track runs the verifiers its files reach:
+
+| Track | Its change reaches | Runs before the Return |
+|---|---|---|
+| PRE | new projects in the solution; `RunRecord.cs` in `src/CfdWorkbench.Core` (scanned by STORE-SUBSET); the checker | `run-tests.sh`, `check-named-tests.py --self-test`, `verify-application-core.py`, `check-docs.py` |
+| RNG | `run-tests.sh` output read by `check-named-tests.py` and `run-readiness.py` (`.tmp-tests`, `Core.part`) | `check-test-costs.py --self-test`, `run-tests.sh` × 3, `check-named-tests.py --self-test`, `run-readiness.py --self-test` |
+| COR | `Placement.cs` (STORE-SUBSET scan; the Placement golden) | `run-tests.sh`, `verify-application-core.py`, `recount-architecture-spike.py` |
+| STO | store checks (`Store_`, `Backup_` must sit in `ProjectStoreTests.cs`; `STORE_PREFIXES`), the native format, the `--readiness` Core entry | `verify-application-core.py`, `recount-application-contracts.py`, Core `--readiness` |
+| VLM, STP | the Analysis harness and C-5 COST lines | `run-tests.sh`, `check-test-costs.py` |
+| SVC | the Cli suite (in process only — the `4b98e20` class) | `run-tests.sh` |
+| PRJ | `DESIGN.md` read as linked Content; LAB-01 | `run-tests.sh` (incl. Desktop `SelfLaunchTests.NoRuntimeRepoRootWalk`), `check-docs.py` |
+| TGL | theme rows (S-A9), new events, new axaml | `verify-application-adapters.py`, `check-event-subscribers.py`, `xaml-token-lint.py`, Desktop `--readiness` |
+| LAY | camera-step frame cost | Desktop `--readiness`, `check-event-subscribers.py` |
+| PNA | `LayoutCodec_` checks (STORE-SUBSET), theme rows for tabs, axaml | `verify-application-core.py`, `verify-application-adapters.py`, `xaml-token-lint.py`, `check-event-subscribers.py` |
+| AUX | everything | `run-readiness.py --check` |
+
+**Rings and cost of the new suites** (est. = Inferred, measured at red-first by C-1 and C-5):
+
+| Suite | Ring | Runs where | Cost |
+|---|---|---|---|
+| `CfdWorkbench.Analysis.Tests` (PRE, STO in-memory, VLM, STP, SVC, PRJ) | every join | its own `run-tests.sh` job, concurrent with the other four; never the critical path | est. 3.5–5.0 s against the 5 s C-2 limit; F-1 and F-6 ≤ 1.5 s each, the rest ≤ 0.5 s. If C-2 fires, a non-exempt check moves to readiness with its measured cost (§13.4) |
+| Desktop `--analysis` mode (TGL, LAY, PNA) | every join | one child of the Desktop harness, **inside the Desktop job** (DR-ANA-10's split rule applies to it) | est. 1.5–2 s; Desktop is already 48 s (OD-2) |
+| Core additions (COR, STO `Store_`/`Backup_`, PNA `LayoutCodec_`) | every join | Core parts | est. +0.5 s |
+| Cli addition | every join | Cli job | est. +0.3 s |
+| `Store_HundredThousandStrips_RefusedDocSize` | readiness | Core `--readiness` | est. 2 s |
+| `Toggle_LayersFirstFrame_P95WithinPreviewBudget` | readiness | Desktop `--readiness` | est. 3 s |
+
+**Measured base (this session, `e8101f3`, load 4.5):** build 3 s, Core 1/2 18 s, Core 2/2 35 s, **Desktop 48 s**, Cli 2 s,
+**wall 51 s**. `4b98e20` recorded 52 s.
+
+### 18.7 Callers of everything A3a changes (DELETE-WITHOUT-CALLERS)
+
+Searched on `e8101f3` (`src`, `tests`, `tools`; `bin`/`obj` excluded). A3a **deletes nothing**. It changes these:
+
+| Change | Callers (count · files) | Assigned |
+|---|---|---|
+| `ShellMode` gains `Analysis` | 12 · `PropertiesPane.axaml.cs`, `PropertiesView.cs` ×2, `ControllerShellTests.cs` ×4, `PropertiesViewTests.cs` ×4, `ShellWindowTests.cs` ×1; the `(ShellMode)mode` cast from the duplicate `Mode` (`PropertiesView.cs`:551) stays valid | TGL (enum, any exhaustive switch); PNA (the `Build` branch) |
+| `Envelope` gains a runs member | 3 constructions · `AuthoringSession.cs`:329, :1459 (both must carry runs, or Accept drops them), `ReopenSectionDraftTests.cs` ×1 (compiles unchanged: non-positional) | STO |
+| `"cfdw-project-1"` becomes the derived format | 11 · `AuthoringSession.cs` ×3 (replaced by the one format function), `AuthoringSessionTests.cs`, `ReopenSectionDraftTests.cs`, `Fixtures/m12b/m12a-rail-recovery.cfdw` (stay: they are `-1` documents), `tools/spikes/application-contract-vectors.py`, `tools/spikes/ApplicationContracts/Program.cs` ×4 (stay; `recount-application-contracts.py` proves it) | STO |
+| `SessionEvent` gains a member | 2 constructions · `AuthoringSession.cs` | STO (non-positional) |
+| Placement counters become `Interlocked` | 14 · `Placement.cs` ×9, `PlacementTests.cs` ×5 (reads; values unchanged) | COR |
+| `ProjectStore.SaveAsync` writes `.v1.bak` on the first `-2` publish | 23 `.SaveAsync(` hits · `MainWindow.axaml.cs`, `WorkbenchController.cs` ×2, Desktop tests ×7, `ProjectStoreTests.cs` ×9; `PreferenceStore` has its own `SaveAsync` (not affected) | STO (inside the store; callers unchanged) |
+| `run-tests.sh` writes `.ms` beside `.seconds` and a new job | `.seconds`: 3, all in `run-tests.sh`; `.tmp-tests`/`Core.part` readers: `check-named-tests.py` ×2, `run-readiness.py` ×1 | RNG (keeps `.seconds`; runs both readers' self-tests) |
+| `LayoutCodec.Homes` gains `layers` | 10 · `WorkspacePresets.cs` ×3, `LayoutCodec.cs` ×4, `LayoutFileTests.cs` ×1, `ShellModelTests.cs` ×2 (count assertions updated with the new number, never deleted) | PNA |
+| ⌘1/⌘2/⌘3 (only under OD-1 b) | 8 · `CommandTable.cs` ×3, `NativeMenuBuilder.cs`, `ShellHost.cs` ×3, `PointsPaneTests.cs`; plus `m12c-section-editor.md` §11.8 | not changed under the recommended OD-1 a |
+| `Snapshot()` (290 callers), `ProfileAt` (37) | unchanged; Analysis only adds `Snapshot()` callers and the PRE architecture test bans `ProfileAt` in Analysis | — |
+| Retired from the A3a ledger (design rows, no code) | `PolarProcess_HangingStub_TimeoutKillsTree` (0 code hits): DR-ANA-1 (b) is in process, so FM-10 never applies | — |
+
+### 18.8 Named-test ledger (A3a; the checker reads this section)
+
+Ring: **A** Analysis harness (every join) · **D** Desktop `--analysis` (every join) · **C0** Core (every join; store
+subset where marked) · **Cli** · **R** readiness. Cost from §13 where it gives one; new rows est. Mutant: "§13.x" means
+the mutant written there; otherwise the mutant written here closes BC-1 for that row. New names (added by this plan)
+are marked ✚.
+
+| Test (track) | Ring | Cost | Mutant (red first) |
+|---|---|---|---|
+| `Architecture_AnalysisAssembly_NoEditVerbsNoProfileAt` (PRE) ✚ | A | est. < 50 ms | a `ProfileAt` call planted in an Analysis type (§4 item 2) |
+| `Sections_PlaceEqualsSurfaceMidline_Bitwise` (COR) | C0 | est. < 50 ms | `Sections` places camber with its own formula, not `PlacementRule.Place` |
+| `Placement_Counters_ExactUnderConcurrentSections` (COR) ✚ | C0 | est. 0.1 s | the `++` counters restored; 8 threads lose updates (FM-12) |
+| `RunKey_PinnedVector_HexEqual` (STO) | A | < 1 ms | §13.3 |
+| `Project2_RoundTrip_ByteEqual` (STO) | A | < 50 ms | strips written in reverse j order |
+| `Project1_NoRun_ByteIdenticalToToday` (STO) | A | < 50 ms | §13.3 |
+| `Project2_TodaysReader_FailsClosedCopy130` (STO) | A + receipt | < 50 ms | the reader accepts any `cfdw-project-*`; the old build is proven by `docs/proof/a3a-old-build/` |
+| `Backup_V1Bak_TodayReaderByteEqual` (STO) | C0 store | < 100 ms | an existing `.bak` overwritten |
+| `RecordRun_SameRunIdTwice_Refused` (STO) | A | < 5 ms | the `runId` uniqueness check removed |
+| `RecordRun_SameKeyTwice_OneCompletedRow` (STO) | A | < 5 ms | the per-key Completed check removed |
+| `RecordRun_StripGap_Refused` (STO) | A | < 5 ms | the contiguity check removed |
+| `Tamper_EditedStripValue_RunUnavailable` (STO) | A | < 50 ms | the content hash not checked on read |
+| `Tamper_StoredKeySetToCurrent_RunUnavailable` (STO) | A | < 50 ms | the stored key trusted |
+| `Retention_PruneThenUndo_TombstoneReadsPruned` (STO) | A | < 50 ms | prune without a tombstone |
+| `Store_SizeAtStripCap_UnderDocLimit` (STO) | C0 store | 0.2 s | the strip cap raised to 4,096 |
+| `Store_HundredThousandStrips_RefusedDocSize` (STO) | R (Core) | 2 s | the `DOC-SIZE` preflight removed |
+| `RevisionLabel_TwistEdit_OrdinalsAndRail` (STO) ✚ | A | < 5 ms | the rail read from the first accepted row, not the edit's own |
+| `F1_FlatPlate_RichardsonClAlphaTo2Pi` (VLM) | A | ≤ 1.5 s | §13.2 F-1 |
+| `F2_EllipticAR8_RichardsonClInRecordedBand` (VLM) | A | in F-6 | §13.2 F-2 (BC-3) |
+| `F3_SymmetricSection_ZeroLiftOddInAlpha` (VLM) | A | < 10 ms | §13.2 F-3 |
+| `F4_MirroredWing_NoSideForceRollYaw` (VLM) | A | ≈ 50 ms | §13.2 F-4 |
+| `F5_InducedDrag_TrefftzWithin1PercentOfNearField` (VLM) | A | in F-6 | §13.2 F-5 |
+| `F6_ObservedOrder` (VLM) | A | ≤ 1.5 s incl. the shared solves (BC-2) | §13.2 F-6 |
+| `F7_LinearWashout_TipAlphaEffBelowRoot` (VLM) | A | est. 0.1 s | §13.2 F-7 |
+| `F15_EllipticWing_InducedAngleUniform` (VLM) | A | in F-6 | §13.2 F-15 |
+| `F16_BertinSmithSwept_ClAlpha3p443` (VLM) | A | µs | §13.2 F-16 |
+| `Vlm_ClosingTip_FiniteAndListed` (VLM) | A | < 10 ms | the panel normal from the leading-edge segment (zero area at the tip) |
+| `Vlm_NonFinite_RecordsFailedNotZero` (VLM) | A | < 10 ms | a non-finite Γ replaced by 0 |
+| `Vlm_AlphaBeyondEnvelope_ShowsEnvelopeFinding` (VLM) | A | ≈ 50 ms | the verdict computed on α_geo, not α_eff |
+| `F8_Dihedral20_ClRatioToPlanar0p8938` (STP) | A | est. 50 ms | §13.2 F-8 |
+| `F9_Ana03Arithmetic_LiftDragAndRatio` (STP) | A | µs | §13.2 F-9 |
+| `F10_Bookkeeping_NearFieldVsTrefftzWithinTolerance` (STP) | A | est. 0.2 s | §13.2 F-10 |
+| `F11_GeometryScaleK_CoefficientsInvariant` (STP) | A | est. 50 ms | §13.2 F-11 |
+| `F12_SpeedScaleK_ForcesScaleK2` (STP) | A | est. 50 ms | §13.2 F-12 |
+| `F13a_FreshToSalt_ReFalls4p25Percent` (STP) | A | est. 0.2 s | §13.2 F-13a |
+| `F17_GoldenMaster_ExampleFoilVector` (STP) | A | est. 0.1 s | §13.2 F-17 |
+| `Strip_ReLocal_UsesLocalChord` (STP) ✚ | A | est. < 50 ms | BC-4: a 120 → 60 mm taper, tip Re_local half the root; mutant: c_ref used for every strip |
+| `Reference_SrefAndSpan_FromWingEstimates` (STP) ✚ | A | est. < 10 ms | S_ref recomputed as projected b · c̄ (differs on the F-8 dihedral wing) |
+| `Water_OutsideTable_Unavailable` (STP) | A | < 1 ms | §13.5 (clamp) |
+| `Provenance_WaterTableHash_Shown` (STP) | A | < 5 ms | the table hash not compared at load (a one-bit flip passes) |
+| `Loads_AttachmentMoment_TransferAboutNamedPoint` (STP) | A | µs | §13.5 ((P − O) × F) |
+| `Analysis_DraftOpen_EvaluatesAcceptedRevision` (SVC) | A | est. < 20 ms | the service reads `Draft.Bytes` when a draft is open |
+| `Freshness_SurfaceEdit_Historical` (SVC) | A | < 5 ms | §13.3 |
+| `Freshness_ProfileEdit_Historical` (SVC) | A | < 5 ms | the current key built from the run's own stored inputs |
+| `Freshness_WaterChange_Historical` (SVC) | A | < 5 ms | §13.3 |
+| `Freshness_OperatingPointChange_Historical` (SVC) | A | < 5 ms | α rounded to 0.1° before hashing |
+| `Freshness_MethodVersionBump_Historical` (SVC) | A | < 5 ms | the method version left out of the key |
+| `Freshness_EachSettingsField_Historical` (SVC) | A | < 10 ms | §13.3 |
+| `Freshness_UndoToEqualKey_CurrentAgain` (SVC) | A | < 5 ms | §13.3 |
+| `Freshness_SaveReopen_Unchanged` (SVC) | A | < 50 ms | the reader ignores the `analysis` member (runs lost on reopen) |
+| `Units_Lbf_KeyUnchanged` (SVC) | A | < 5 ms | §13.3 |
+| `Evaluate_Supersede_OlderCancelledViaBarrier` (SVC) | A | < 20 ms | no generation check (both runs recorded) |
+| `Evaluate_Cancel_NoRowRecorded` (SVC) | A | < 20 ms | a cancelled run recorded as Failed |
+| `Evaluate_CloseMidCompute_DocClosedNoRow` (SVC) | A | < 20 ms | `RecordRun`'s closed guard skipped for analysis rows |
+| `OperatingPoint_SpeedZeroOrNegative_Undefined` (SVC) | A | < 1 ms | §13.5 (\|V\|) |
+| `Telemetry_AnalysisRun_EmittedWithSubDurations` (SVC) ✚ | A | est. < 20 ms | `solveMs` written as 0 when not reached (must read "not recorded", IO8) |
+| `Cli_AnalyseRunKey_EqualsGui` (SVC) | Cli | est. 0.3 s | §13.3 |
+| `Projection_SectionVsWingUnits` (PRJ) | A | < 5 ms | §13.5 |
+| `Projection_CdZeroOrNegative_ClCdUndefined` (PRJ) | A | < 1 ms | §13.5 |
+| `Projection_NoRun_NoAnalysisYetNoLayers` (PRJ) ✚ | A | < 5 ms | an empty selection renders CL 0.000 and layers |
+| `Projection_FailedLatest_PreviousRunHistoricalWithErrorCard` (PRJ) ✚ | A | < 5 ms | the selected run is the latest attempt of any outcome |
+| `Layers_DepthUnset_NoFreeSurfaceOrTipDepth` (PRJ) ✚ | A | < 5 ms | the free-surface layer always listed (screen 3b) |
+| `Loads_PolarUnavailable_TotalDragNamesProfile` (PRJ) | A | < 5 ms | a null total rendered as its induced part |
+| `Loads_RendersSafetyVerbatim` (PRJ) | A | < 5 ms | §13.5 |
+| `Loads_StiffnessReadoutBesideTc` (PRJ) | A | < 5 ms | (t/c ÷ 0.10)² in place of the cube |
+| `Loads_MissingTerm_UnavailableNeverZero` (PRJ) | A | < 5 ms | §13.5 (`?? 0`) |
+| `Loads_StructuralNotAssessed_ListComplete` (PRJ) | A | < 5 ms | §13.5 |
+| `Section_EditedProfileNoPolar_Unavailable` (PRJ) | A | < 5 ms | §13.5 |
+| `Strips_OutsideEnvelope_SectionBasedInference` (PRJ) | A | < 5 ms | §13.5 |
+| `Provenance_RunContentHash_Shown` (PRJ) | A | < 5 ms | the row shows the stored key in place of the content hash |
+| `Depth_Unset_NoDeepWaterLabel` (PRJ) | A | < 5 ms | §13.5 |
+| `Depth_HcBelow5_Copy46WithNumbers` (PRJ) | A | < 5 ms | §13.5 |
+| `Depth_StationPiercing_EstimatorUnavailableFlagOnly` (PRJ) | A | < 5 ms | §13.5 |
+| `Depth_SetAllSubmerged_TipMarginFrCopy47` (PRJ) | A | < 5 ms | COPY-47 printed only when h/c < 5 |
+| `Labels_PerTier_FixedPartsAndOmissions` (PRJ) | A | < 5 ms | the estimator label a constant "deep water" (OQ-9, AM-1.7-45) |
+| `Labels_DepthUnset_FreeSurfaceNotModelled` (PRJ) | A | < 5 ms | §13.5 |
+| `Envelope_RunVerdict_BesideCL_FullBound` (PRJ) | A | < 5 ms | §13.5 |
+| `Envelope_EOutOfBand_AdvisoryNotBlocking` (PRJ) | A | < 5 ms | e outside 0.85–1.00 hides the wing result |
+| `Station_StripReadout_EnvelopeVerdictPerPart` (PRJ) | A | < 5 ms | §13.5 |
+| `Station_StripReadout_ReAgainstPolarRange` (PRJ) | A | < 5 ms | §13.5 |
+| `Station_StripReadout_NotModelledList` (PRJ) | A | < 5 ms | §13.5 |
+| `Layers_ArrowLengthProportional_NormalDirection` (PRJ) | A | < 10 ms | length ∝ Γ, not N/m |
+| `Layers_EveryVisualHasTwinAndChip` (PRJ) | A | < 10 ms | the 3D arrow layer without its table twin |
+| `Layers_UnavailableVectorNotDrawn_AbsenceStated` (PRJ) | A | < 10 ms | an Unavailable value drawn as a zero-length vector |
+| `Layers_MomentArc_SenseFollowsSignAboutNamedDatum` (PRJ) | A | < 10 ms | §13.5 |
+| `Layers_Vectors_BodyFrameSignConventionLabelled` (PRJ) | A | < 10 ms | §13.5 |
+| `Copy_AnalysisStrings_MatchDesignMd` (PRJ) | A | < 10 ms | §13.3, over COPY-206…239 |
+| `Lab01_EveryProjectionString_Lints` (PRJ) | A | < 50 ms | §13.3; also "Verified" rendered without an A7 grant (§12.5) |
+| `Toggle_RoundTrip_CameraSelectionStationViewportEqual` (TGL) | D | est. < 50 ms | entering Analysis refits the Plan camera |
+| `Toggle_PreviewOpen_HiddenThenRestoredUntouched` (TGL) | D | est. < 50 ms | the toggle cancels the draft |
+| `Toggle_SectionDraftOpen_EditorRestoredOnReturn` (TGL) ✚ | D | est. < 50 ms | UX-29 S1 (AM-1.7-43): the return lands in Workspace, not the section editor |
+| `Toggle_PreviewOpen_LayersOverAcceptedRevision` (TGL) | D | est. < 50 ms | §13.3 |
+| `Toggle_HistoricalRun_BannerInBothModes` (TGL) | D | est. < 50 ms | the banner drawn in Analysis only |
+| `Toggle_NeverEvaluates` (TGL) | D | est. < 50 ms | §13.3 (AM-1.7-24) |
+| `Toggle_LayersFirstFrame_P95WithinPreviewBudget` (TGL) | R (Desktop) | est. 3 s | §13.3 |
+| `Analysis_EditVerb_RefusedWithInertMessage` (TGL) ✚ | D | est. < 50 ms | the refusal only in the Plan pointer path (a Points-pane commit edits) |
+| `ConditionsBand_Running_EvaluateBecomesCancelAnnounced` (TGL) ✚ | D | est. < 50 ms | completion not raised to the status live region |
+| `ConditionsBand_At1024_MoreHoldsDerivedExceptQAndSigma` (TGL) ✚ | D | est. < 50 ms | the derived group clipped at 1024 px |
+| `StatusStrip_AnalysisItem_FollowsRunState` (TGL) ✚ | D | est. < 50 ms | Historical shown as Current |
+| `Telemetry_AnalysisProject_FreshnessOnRebuild` (TGL) ✚ | D | est. < 50 ms | the event omitted on a Historical rebuild |
+| `PlanLayer_OutsideStrips_DashedOutlineAndCount` (LAY) ✚ | D | est. < 50 ms | the outline by colour only, no dash and no count |
+| `LayersPane_HideLayer_ViewDropsLayerTwinKept` (PNA) ✚ | D | est. < 50 ms | hiding a layer hides its table twin |
+| `AnalysisPanel_Tabs_BoundToSelectedRun` (PNA) ✚ | D | est. < 50 ms | the tabs bound to the latest attempt, not the selected run |
+| `LoadingChart_TableTwin_TogglesAndKeepsFocus` (PNA) ✚ | D | est. < 50 ms | focus lost when the twin re-renders |
+| `PropertiesView_Analysis_StationShowsStripOfWingRun` (PNA) ✚ | D | est. < 50 ms | a station shows a 2D section result under the strip header |
+| `LayoutCodec_LayersPane_HomeLeftOldFileOpens` (PNA) ✚ | C0 store | est. < 20 ms | the `layers` Homes row missing |
+
+Not A3a (other slices or decisions; names left unquoted so the checker does not read them here): the panel-Cp and
+cavitation rows go to A3b; F-13b, the Find-α rows and the transition/bucket chart row to A3c; the Compare rows to A3d;
+F-14 waits on OD-5; the hanging-stub polar-process row is retired (§18.7).
+
+### 18.9 Ruling 63, spec 1.7 and the build conditions, by track
+
+| Item | Where it lands |
+|---|---|
+| DR-ANA-1 (a) polar Unavailable for A3a | STP stub; (b) is A3c behind SPIKE-ANA-1 |
+| DR-ANA-2 panel Cp | A3b; A3a shows "Unavailable — no section Cp method (DR-ANA-2)" (PRJ) |
+| DR-ANA-3 new assembly + `Placement.Sections` | PRE, COR |
+| DR-ANA-4 `cfdw-project-2`, `.v1.bak`, invariants, per-run hash, retention; ADR-0011 | STO; ADR-0011 is PRE's exit |
+| DR-ANA-5 attachment point a project value | STP transfer math and Unavailable; the authoring field is OD-3 |
+| DR-ANA-6 explicit Evaluate (AM-1.7-23, -24) | SVC, TGL (`Toggle_NeverEvaluates`) |
+| DR-ANA-7 64 × 4 cosine, 1 % | VLM `Settings.cs`; F-6 confirms before A3a ships |
+| DR-ANA-8 shortcut "after a conflict check" | TGL; the check fails today → OD-1 |
+| DR-ANA-9 Custom operating point only | TGL band; the mockup draws no source picker, so the disabled "From Goal state" entry is not built (OD-4) |
+| DR-ANA-10 split Desktop over 43 s | RNG; already over on the base (OD-2) |
+| DR-ANA-11 estimator e = 1 labelled | the label row only (PRJ); the estimator wing tier is not in §16's A3a list (P-8) |
+| DR-ANA-12 ANA-04 oracles (AM-1.7-22) | VLM F-1, F-2, F-6, F-16 |
+| DR-ANA-13 depth-unset label (AM-1.7-21; OQ-9 AM-1.7-45 for every tier) | PRJ |
+| DR-ANA-14 envelope bounds | VLM `MethodRecord.cs`; strings PRJ |
+| AM-1.7-19 run rows with an outcome | STO, ADR-0011 |
+| AM-1.7-43 UX-29 S1 Switch-to-Analysis row | TGL `Toggle_SectionDraftOpen_EditorRestoredOnReturn` |
+| BC-1 one mutant per row | every track's ledger rows (§18.8) and red-first receipt; the rows §17 cites: ANA-04 (VLM), ANA-07 (SVC), depth (PRJ), ANA-22 banner (TGL), ANA-23 arc (PRJ) |
+| BC-2 shared-solve COST | VLM exit |
+| BC-3 F-2 band | VLM exit (a miss is a ruling) |
+| BC-4 Re_local from c(y) | STP exit (`Strip_ReLocal_UsesLocalChord`) |
+
+### 18.10 Plan findings and decisions for the operator
+
+**Findings fixed in this plan:** P-1 `check-named-tests.py` cannot read this design as is — run on it, it reports 24
+failures (§9 names carry no track; §12.4 and §14 hold other content), so PRE adds `--track-section` and
+`--named-sections`. P-2 the COPY range (G-T11). P-3 the run row in Core (G-T8). P-4 one S_ref (G-T2). P-5 the
+edit-verb refusal (G-T5). P-6 file-touching store tests sit in `ProjectStoreTests.cs` under store prefixes, with
+`Backup_` added to `STORE_PREFIXES`. P-7 the water table (G-T4). P-8 the estimator wing tier is not built in A3a; §5.3
+stays for A3d. P-9 "today's reader" needs the old build, so it is a receipt plus a forward guard. P-10 `ShellMode` holds
+`SectionEditor`, so entering Analysis from the section editor stores the CAD mode to return to. P-11 the ledger adds 21
+names for promised behaviour that had none (§18.8 ✚), among them the §4 architecture test and the FM-12 counter test.
+
+**Decisions requested (one batch):**
+
+| ID | Question | Options | Evidence | Recommendation |
+|---|---|---|---|---|
+| **OD-1** | DR-ANA-8 chose ⌘/Ctrl+2 and 3 "after a conflict check". The check fails: ⌘1/⌘2/⌘3 are Window ▸ Planform, Precision, Review (`CommandTable.cs`:138–140; `m12c-section-editor.md` §11.8) | (a) ⇧⌘A / Ctrl+Shift+A toggles (free on `e8101f3`) · (b) take ⌘2/⌘3 and move the workspaces (changes 8 call sites and the M1.2c design) · (c) menu and segment only | `CommandTable.cs`: 36 shortcut rows, ⇧⌘A unused | **(a)** |
+| **OD-2** | C-3 (wall ≤ 50 s) and C-4 (Desktop ≤ 43 s) fail before A3a adds a test: measured 51 s and 48 s here; 52 s at `4b98e20`. §13.4 assumed 46 s and 41 s | (a) RNG first brings the base under both (DR-ANA-10 b: spread or split the Desktop job) and stops with numbers if it cannot · (b) restate both as deltas: A3a may add ≤ 2 s to the measured base wall and Desktop · (c) raise the limits (not allowed unmeasured) | this session's run; `join-desktop-split` (in-harness split already done, 34–47 s per suite) | **(a)**, with **(b)** as the fallback if RNG's measurement shows (a) costs coverage |
+| **OD-3** | DR-ANA-5 puts the attachment point in the Loads tab. The mockup shows only "Unavailable — no attachment point named". A field means a new document value | (a) A3a ships the transfer math and the Unavailable state; the field lands in A3c · (b) build the field now (a second format change) | mockup screen 4; §3.3 history rule (Type-1) | **(a)** |
+| **OD-4** | Two visible differences from the approved mockup: the **Checks** tab has no data source (no DRC exists), and DR-ANA-9's disabled "From Goal state point n" entry has no place (the mockup draws no picker) | (a) show Section with its Unavailable rows; omit Checks until a DRC exists; no picker until Area 1 · (b) show an empty Checks tab · (c) add a picker with the disabled entry | trace rows 28 and 3 | **(a)** — say yes before TGL and PNA start (feedback: the operator sees what the build will not show) |
+| **OD-5** | F-14 (AeroSandbox cross-check) is a readiness row in §13.4 but "data only" and not in A3a's gate (§16) | (a) after A3a, a small Claude track with its `cases/` YAML and `runs/<timestamp>/` · (b) inside STP's box | §13.2 F-14; the global CFD-case rule | **(a)** |
+
+**Residual risks.** The Analysis harness estimate (3.5–5.0 s) sits near the 5 s C-2 limit. The water-table transcription
+depends on the published PDF. TGL is the longest Codex track; CTL overran its box by its stops. Windows parity stays
+untested (§12.5), so no "Verified" label renders.

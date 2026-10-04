@@ -14,6 +14,7 @@ links:
   - { to: design-m12b-points, rel: relates-to }
   - { to: rulings, rel: depends-on }
   - { to: design-planform-point-verbs, rel: relates-to }
+  - { to: proof-planform-verbs-fairness, rel: relates-to }
 review-by: "none while accepted"
 summary: >-
   Re-decides the knowledge base's degree-5 reading for the five master (distribution) curves: the record's default
@@ -175,6 +176,37 @@ Read: at seven vertices, degree 3 is fairer than degree 5 on all five curves (a 
   4. support (expected global — 100 % of the span — at 4 and 5; recorded, not assumed) and the lever effect;
   5. the comb's sign-change count, so the A4.3 claim "C² inside the curve, no breaks" is measured at 4 and 5.
   The mockup's in-page computation of item 3 for the New foil trailing edge is a preview of that run, not the evidence.
+- **Fairness evidence for 4 and 5 (measured by track SPK, 2026-10-03):** `docs/proof/planform-verbs-fairness/` (the
+  committed probe, its fixture and its output). The probe calls the as-built Core: `SplineBasis`,
+  `ChannelEvaluator`, `ConstrainedFit`, `FoilSource`'s own New foil construction and `WingEstimates`' area integral.
+  A re-run reproduces `output/` byte for byte. The Example curves are the six anchors of the mockup's *Example · race
+  light*, fitted with the root-tangent row. The definitions are in the proof README and replace the unrecorded
+  2026-09-21 ones. Cell: κ′ energy · monotone pieces · comb sign changes · anchor residual (curve unit; New foil:
+  mm to the analytic target).
+
+  | Curve (unit) | d3 · 4 | d3 · 5 | d3 · 7 (recomputed) | Rebuild 7 → 4 · 7 → 5 (max Δ @ η) |
+  |---|---|---|---|---|
+  | LE rail (m) | 0.00238 · 1 · 0 · 8.4e-4 | 0.0766 · 2 · 0 · 4.4e-4 | 0.962 · 4 · 0 · 0 | 8.7e-4 @ 0.910 · 5.2e-4 @ 0.925 |
+  | TE rail, chord (m) | 0.0121 · 1 · 0 · 1.0e-3 | 0.145 · 2 · 0 · 2.3e-4 | 0.253 · 2 · 0 · 0 | 1.5e-3 @ 0.860 · 3.4e-4 @ 0.235 |
+  | Dihedral (m) | 0.00193 · 1 · 0 · 3.4e-4 | 0.00781 · 2 · 0 · 2.3e-4 | 0.123 · 4 · 0 · 0 | 6.2e-4 @ 0.270 · 3.5e-4 @ 0.235 |
+  | Twist (°) | 16.6 · 1 · 0 · 0.042 | 17.7 · 2 · 1 · 0.025 | 35 280 · 4 · 4 · 0 | 0.104 @ 0.915 · 0.080 @ 0.920 |
+  | Thickness t/c | 0.00444 · 1 · 1 · 4.5e-4 | 0.0243 · 2 · 1 · 3.1e-4 | 0.235 · 4 · 4 · 0 | 8.2e-4 @ 0.270 · 4.7e-4 @ 0.235 |
+  | New foil LE (m; last column d3 · 10) | 0.0388 · 1 · 1 · 2.99 | 38.4 · 1 · 0 · 0.48 | 4.7e5 · 1 · 0 · 0.017 | 10 → 4: 2.99 mm @ 467.5 mm · 10 → 5: 0.45 mm @ 495.0 mm |
+  | New foil TE (m; last column d3 · 10) | 0.298 · 1 · 1 · 8.98 | 193 · 2 · 0 · 1.43 | 7.2e5 · 3 · 0 · 0.050 | 10 → 4: 8.97 mm @ 467.5 mm · 10 → 5: 1.34 mm @ 495.0 mm |
+  | Support · lever (middle vertex) | 0.999 · 0.444 | 0.999 · 0.500 (New foil 0.463) | 0.999 · 0.667 (New foil d3 · 10: 0.361 · 0.668) | — |
+  | Curvature breaks inside the curve (A4.3) | 0 | 0 | 0 | — |
+
+  Read: at 4 and 5 vertices every curve is C² with no measured break, and support is global (0.999: zero only at
+  the ends), as expected. κ′ energy falls as vertices are removed, but the six anchors are no longer interpolated
+  (4 vertices: LE 0.84 mm, chord 1.0 mm, twist 0.042°). **New foil at 4 (Ruling 64)**, built by `NewDefault`'s own
+  construction, moves LE 3.05 mm and TE 8.83 mm at 467.5 mm from today's 10-point rails, turns the tip LE −23.45°
+  and TE +34.97°, and holds the area at 1000.0 cm². The design's Rebuild 10 → 4 reproduces the mockup's TE 8.97 mm
+  and LE 2.99 mm (area 997.7 cm²). Each 4-point rail has one comb sign change 24 mm from the root, from the root
+  square with one free vertex; its overshoot is 0.013 mm (LE) and 0.040 mm (TE). The other three New foil channels
+  are constants, exact at any count (Rebuild 10 → 4 max Δ 0), so the numbers give no reason to change their default.
+  The recomputed d3 · 7 column differs from the 2026-09-21 one (κ′ energy within 1–5 % on four curves, +32 % on
+  twist; pieces, support and lever differ). The original definitions were not recorded; this script is now the
+  reference.
 - **Alternatives considered:** *floor 5* — keeps one Control point on every curve, but the operator named 3–4 points and
   a cubic with 4 vertices is the smallest clamped curve the record can hold; *floor 2 or 3 at a lower degree* — breaks
   ADR-0001's one degree for channels and the parser's degree rule; *floor 4 for rails only* — a second count rule per

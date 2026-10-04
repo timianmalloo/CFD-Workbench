@@ -158,7 +158,7 @@ SHELL_THEME_ROWS = {
     "focus.tab": 3, "focus.tab.vs-fill": 3,
     "tab.Plan.unselected.rest": 4.5, "tab.Section sample.selected.rest": 4.5, "select.tab.Section sample": 3,
     "tab.Foil source.unselected.rest": 4.5,
-    "tab.Section.unselected.rest": 4.5, "tab.Foil source.unselected.hover": 4.5,
+    "tab.Foil source.unselected.hover": 4.5,  # the Section tab retired with OD-2 A (spec 1.7 AM-31..36); tab.Plan covers it
     "focus.tab.selected-while-focused": 3, "focus.tab.selected-while-focused.vs-fill": 3,
     "tab.Foil source.selected.rest": 4.5, "select.tab.Foil source": 3, "tab.Foil source.selected.hover": 4.5,
     "tool.Properties.selected.rest": 4.5, "select.tool.Properties": 3, "tool.Properties.selected.hover": 4.5,
@@ -182,7 +182,7 @@ SHELL_THEME_ROWS = {
     # The point fields that replace the retired per-control numeric field.
     "point-span.text": 4.5, "focus.point-span": 3,
 }
-SHELL_LIVE_FLIP_ROWS = {"live-flip.dark.tab.Section.unselected": 4.5, "live-flip.dark.select.tab.Foil source": 3}
+SHELL_LIVE_FLIP_ROWS = {"live-flip.dark.tab.Plan.unselected": 4.5, "live-flip.dark.select.tab.Foil source": 3}
 SHELL_THEMES = ("light", "dark", "high-contrast", "default")
 SHELL_EXPECTED = {f"{theme}/{row}": floor for theme in SHELL_THEMES for row, floor in SHELL_THEME_ROWS.items()}
 SHELL_EXPECTED.update({f"light/{row}": floor for row, floor in SHELL_LIVE_FLIP_ROWS.items()})

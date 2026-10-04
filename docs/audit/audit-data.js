@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-03T23:43:28Z",
+  "generated": "2026-10-04T00:33:19Z",
   "audit": [
     {
       "actor": null,
@@ -23022,6 +23022,81 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-03T23:42:34Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M423AAW8R4T84W01SWSX09ZJ",
+      "shortname": "join-readiness-fix-oct03",
+      "datetime": "2026-10-03T23:59:15Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/readiness-oct03 into feature/ui-cad-direction",
+      "summary": "Readiness on dc651b3 was red: STORE-SUBSET (3 M1.2c test lines used reads outside the allowed list), which hid a CLI check that ran a binary by relative bin path (moved to the CLI suite, in-process), and an adapters theme row for the retired Section tab. Both verifiers exit 0; run-tests 52 s. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T23:58:23Z",
+      "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M423C3GQ4DSSZ3Q0WN5Z24ZR",
+      "shortname": "join-planform-spk",
+      "datetime": "2026-10-04T00:00:13Z",
+      "session": "f19a2b12",
+      "prompt": "the join of spike/planform-spk into feature/ui-cad-direction",
+      "summary": "SPK (Opus 5.5, 11 of 30 min): committed probe against Core (bit-identical replay of NewDefault at 10; area residual 0); no curvature breaks at 4/5; New foil shipped at 4 moves LE 3.05 / TE 8.83 mm at 467.5 mm (Rebuild route 2.99 / 8.97), tip turns -23.45 / +34.97 deg; one inflection 24 mm from the root on each 4-point rail; other channels: no geometric reason to change. ADR-0001 evidence table rewritten with recorded definitions. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-03T23:59:21Z",
+      "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4258PHXJDYKFWB6ZFCKC7PC",
+      "shortname": "join-a3a-build-plan",
+      "datetime": "2026-10-04T00:33:19Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/a3a-build-plan into feature/ui-cad-direction",
+      "summary": "A3a plan (Opus 5.5, docs only): 12 tracks (PRE..AUX) with boxes from measured priors, seams S-A1..S-A9, 106 track-tagged names; trace table found 11 gaps, all resolved (RevisionOf, read WingEstimates not a second S_ref, water table 0-50 C, edit verbs refused in Analysis, Layers home, bottom panel, RunRecord in Core, COPY-206..239). OD-1..5 for the operator: toggle shortcut collides with workspaces (recommend Shift-Cmd-A); fast ring already over the design limits; attachment-point input to A3c; omit Checks tab and source picker; F-14 later. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T00:32:28Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [

@@ -210,7 +210,7 @@ internal static class DisplayProfileTests
             var view = Placement.Surface(File.ReadAllBytes(path), "accepted", 0, CancellationToken.None);
             lines.Add(Path.GetFileName(path) + " " + Hash(view));
         }
-        Equal(string.Join("\n", File.ReadAllLines(golden)), string.Join("\n", lines));
+        Equal(File.ReadAllText(golden).ReplaceLineEndings("\n").TrimEnd('\n'), string.Join("\n", lines));
     }
 
     private static string Hash(SurfaceView view)
