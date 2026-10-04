@@ -10,6 +10,13 @@ import pathlib
 import re
 import sys
 
+for _stream in (sys.stdout, sys.stderr):  # cp1252 Windows consoles (verify-portable-text-io; pack-doctor.py:25)
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (OSError, ValueError):
+            pass
+
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 TESTS = ROOT / "tests" / "CfdWorkbench.Core.Tests"
 # A File.* read whose first argument is a string literal naming a repository folder, or a path walked up from the binary.
