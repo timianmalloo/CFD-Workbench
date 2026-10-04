@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T23:09:44Z",
+  "generated": "2026-10-04T23:11:33Z",
   "audit": [
     {
       "actor": null,
@@ -23852,6 +23852,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-04T23:08:00Z",
+      "duration_seconds": 104.0
+    },
+    {
+      "id": "al-01M44JZPM1VZZ2H8Q7E5P5D8WT",
+      "shortname": "join-foreign-guard",
+      "datetime": "2026-10-04T23:11:33Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/join-foreign-guard into feature/ui-cad-direction",
+      "summary": "Join tool refuses a branch bringing > CFDW_JOIN_MAX_NEW_COMMITS (40) commits and lists its merges. Control for the Angle-fix wrong-merge (52 foreign commits). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:09:49Z",
       "duration_seconds": 104.0
     }
   ],
