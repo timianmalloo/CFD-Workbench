@@ -18,7 +18,13 @@ public sealed record EditReceipt(string DraftId, long Generation, string Rail, s
 public sealed record AcceptedRow(string Id, string? Parent, string SourceId, string DesignId, string OperationId, EditReceipt? Edit);
 public sealed record CursorRow(long Sequence, string Target, string Reason, string OperationId);
 public sealed record RecoveryRow(string DraftId, string BaseAcceptedId, long Generation, string Rail, string VertexId, string[] Utf8Base64Chunks, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent);
-public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sources, DesignRow[] Designs, AcceptedRow[] Accepted, CursorRow[] Cursors, RecoveryRow? Recovery);
+public sealed record Envelope(string Format, string ProjectId, SourceRow[] Sources, DesignRow[] Designs, AcceptedRow[] Accepted, CursorRow[] Cursors, RecoveryRow? Recovery)
+{
+    /// <summary>The Analysis run facts (ADR-0011). Written only when a run exists, so a document with no run is
+    /// <c>cfdw-project-1</c> byte for byte; non-positional, so every existing construction compiles unchanged.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public AnalysisRecords? Analysis { get; init; }
+}
 public sealed record SessionDraft(string Id, string Base, long Generation, string Rail, string VertexId, byte[] Bytes, string? Profile = null, int Assignment = -1, ThicknessIntent Intent = ThicknessIntent.KeepCurrent, string? Rule = null, string? Curve = null);
 public sealed record SessionBinding(string SourceHash, string Base, string DraftId, long Generation, string Evaluator, string SurfaceHash, string Rail, string VertexId);
 
@@ -28,7 +34,11 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null,
     double? FitMicrometres = null, double? DeviationMicrometres = null, double? ShiftMicrometres = null, bool? FitAboveLimit = null,
     int? Frames = null, string? CurveFamily = null, string? StepKind = null, int? Steps = null, bool? Independent = null,
-    double? DeviationInCurveUnit = null, int? PointsBefore = null, int? PointsAfter = null);
+    double? DeviationInCurveUnit = null, int? PointsBefore = null, int? PointsAfter = null)
+{
+    /// <summary>The Analysis fields of <c>analysis.*</c> events (design §11); null on every other event.</summary>
+    public AnalysisEvent? Analysis { get; init; }
+}
 public sealed record DimensionCommand(string Name, string Text);
 public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped);
 public abstract record PointCommand(string Curve, string VertexId)
@@ -396,7 +406,7 @@ public sealed class AuthoringSession : IDisposable
         string id = Guid.NewGuid().ToString("D");
         var row = new AcceptedRow(id, parent, p.SourceHash, design, op, draft is null ? null : new(draft.Id, draft.Generation, draft.Rail, draft.VertexId, draft.Intent, draft.Rule, draft.Curve));
         var cursor = new CursorRow(cursors.Count, id, reason, op);
-        var prospective = new Envelope("cfdw-project-1", projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null);
+        var prospective = new Envelope(RunRecord.Format(runs.Count), projectId, nextSources.ToArray(), nextDesigns.ToArray(), [.. accepted, row], [.. cursors, cursor], null) { Analysis = AnalysisCore() };
         NativeProject.Preflight(prospective, envelopeCap);
         designs.Clear(); designs.AddRange(nextDesigns); sources.Clear(); sources.AddRange(nextSources);
         accepted.Add(row); current = id; cursors.Add(cursor); redo.Clear(); return id;
@@ -1559,12 +1569,14 @@ public sealed class AuthoringSession : IDisposable
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED");
-            return new("cfdw-project-1", projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery));
+            return new(RunRecord.Format(runs.Count), projectId, sources.Select(s => s with { Utf8Base64Chunks = s.Utf8Base64Chunks.ToArray() }).ToArray(), designs.ToArray(), accepted.ToArray(), cursors.ToArray(), CopyRecovery(recovery))
+            { Analysis = AnalysisCore() };
         }
     }
     private byte[] SaveImageCore()
     {
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
+            PruneRunsAtSave();
             NativeProject.Preflight(EnvelopeCore(), envelopeCap);
             byte[] image = NativeProject.Encode(EnvelopeCore()); string hash = Identity.Sha256(image);
             Guard.Require(capturedSaveHashes.Contains(hash) || capturedSaveHashes.Count < 256, "DOC-SAVE-PENDING");
@@ -1590,6 +1602,7 @@ public sealed class AuthoringSession : IDisposable
             RequireAdmission(p, key, toleratesBudget: true);
             projectId = env.ProjectId;
             sources.AddRange(env.Sources); designs.AddRange(env.Designs); accepted.AddRange(env.Accepted); cursors.AddRange(env.Cursors); recovery = env.Recovery;
+            LoadRuns(env.Analysis);
             current = replay.Current;
             foreach (var row in accepted) if (row.Edit is not null) retiredDraftIds.Add(row.Edit.DraftId);
             if (recovery is not null) retiredDraftIds.Add(recovery.DraftId);
@@ -1615,6 +1628,140 @@ public sealed class AuthoringSession : IDisposable
             savedImageHash = Identity.Sha256(NativeProject.Encode(EnvelopeCore()));
         }
     }
+
+    #region Analysis runs
+    // ADR-0011: runs are append-only facts beside the accepted revisions. Recording one is not an edit: it never touches
+    // the cursor or the redo stack, and it makes the document dirty only because the saved image now differs.
+    readonly List<AnalysisRun> runs = [];
+    readonly List<PolarSample> polarSamples = [];
+    readonly List<PrunedRun> prunedRuns = [];
+    // simplify: the system clock stamps tombstones only (prunedAt is never compared or keyed). Upgrade trigger: a test
+    // or a reader that asserts a prune time needs a TimeProvider seam here.
+    readonly TimeProvider pruneClock = TimeProvider.System;
+    /// <summary>Retention keeps this many runs per tier beyond the reachable ones (ADR-0011 §7).</summary>
+    internal const int RetainedOthersPerTier = 20;
+
+    /// <summary>
+    /// Appends one run row (ADR-0011 §3, §8). The checks and the append are one step under the session lock: the row's
+    /// hashes must match what it holds, it must name an accepted revision and that revision's surface, its id must be
+    /// new, a key may hold one Completed row, and the document must stay within its size. Refused after close.
+    /// </summary>
+    public void RecordRun(AnalysisRun run) => Run("record-run", () => { RecordRunCore(run); return true; });
+
+    /// <summary>Every stored run in document order, each with its integrity recomputed now, and the tombstones.</summary>
+    public RunLedger ReadRuns() => Run("read-runs", ReadRunsCore);
+
+    /// <summary>The ordinal and edit rail of an accepted revision (design §18.5 G-T1).</summary>
+    public RevisionLabel RevisionOf(string acceptedId) => Run("revision-of", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            int index = accepted.FindIndex(row => row.Id == acceptedId);
+            Guard.Require(index >= 0, "DOC-REFERENCE");
+            return new RevisionLabel(index + 1, accepted[index].Edit?.Rail);
+        }
+    });
+
+    /// <summary>
+    /// The Analysis entry to the session's event queue (design §11, G-T10): <c>analysis.run</c>, <c>.toggle</c> and
+    /// <c>.project</c> arrive here because <c>Record</c> is private. A closed session drops the event (no measurement).
+    /// </summary>
+    public void RecordAnalysisEvent(string operation, string outcome, double? durationMilliseconds, AnalysisEvent fields)
+    {
+        Guard.Require(operation.StartsWith("analysis.", StringComparison.Ordinal), "DSL-RANGE");
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new SessionEvent(eventSequence++, operation, outcome, durationMilliseconds, null, null, trace.Value,
+                null, null, sources.Count, accepted.Count, operation) { Analysis = fields });
+        }
+    }
+
+    private void RecordRunCore(AnalysisRun run)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(current is not null, "DOC-EMPTY");
+            var prospective = new AnalysisRecords([.. runs, run], polarSamples.ToArray(), prunedRuns.ToArray());
+            RunRecord.CheckStore(prospective, AcceptedExists);
+            Guard.Require(RunRecord.Verify(run) && SurfaceMatches(run), "DOC-INTEGRITY");
+            NativeProject.Preflight(EnvelopeCore() with { Format = RunRecord.Format(runs.Count + 1), Analysis = prospective }, envelopeCap);
+            runs.Add(run);
+        }
+    }
+
+    private RunLedger ReadRunsCore()
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            var stored = runs.Select(run => new StoredRun(run,
+                RunRecord.Verify(run) && SurfaceMatches(run) ? RunIntegrity.Intact : RunIntegrity.PayloadFailedCheck)).ToArray();
+            return new RunLedger(stored, prunedRuns.ToArray());
+        }
+    }
+
+    private bool AcceptedExists(string acceptedId) => accepted.Any(row => row.Id == acceptedId);
+
+    // The run claims the surface of the revision it names; a claim the revision does not hold fails the run's check.
+    private bool SurfaceMatches(AnalysisRun run)
+    {
+        var row = accepted.SingleOrDefault(item => item.Id == run.Inputs.AcceptedId);
+        return row is not null && designs.Single(design => design.Id == row.DesignId).SurfaceHash == run.Inputs.SurfaceHash;
+    }
+
+    private AnalysisRecords? AnalysisCore() =>
+        runs.Count == 0 ? null : new AnalysisRecords(runs.ToArray(), polarSamples.ToArray(), prunedRuns.ToArray());
+
+    private void LoadRuns(AnalysisRecords? records)
+    {
+        if (records is null) return;
+        runs.AddRange(records.Runs); polarSamples.AddRange(records.PolarSamples); prunedRuns.AddRange(records.Pruned);
+    }
+
+    /// <summary>
+    /// Retention at save (ADR-0011 §7). Kept: every run on a surface Undo or Redo can reach (the current revision, its
+    /// ancestors and the redo stack); the latest <see cref="RetainedOthersPerTier"/> other runs per tier in document
+    /// order; the latest Failed row per key. The rest leave a tombstone, so a key that comes back reads "pruned".
+    /// assume: "reachable from a retained accepted revision" means the Undo/Redo-reachable revisions, since Core retains
+    /// every accepted row and the literal reading would never prune; confirm with the Data &amp; Persistence lens at
+    /// review; if wrong, only <see cref="ReachableSurfaces"/> changes. No Discrepancy record exists before A3d.
+    /// </summary>
+    private void PruneRunsAtSave()
+    {
+        if (runs.Count == 0) return;
+        var reachable = ReachableSurfaces();
+        var keys = runs.Select(RunRecord.RecomputedKey).ToArray();
+        var keep = new bool[runs.Count];
+        for (int i = 0; i < runs.Count; i++) keep[i] = reachable.Contains(runs[i].Inputs.SurfaceHash);
+        foreach (var tier in runs.Select((run, index) => (run, index)).Where(item => !keep[item.index]).GroupBy(item => item.run.Tier))
+            foreach (var (_, index) in tier.TakeLast(RetainedOthersPerTier)) keep[index] = true;
+        var latestFailed = new Dictionary<string, int>(StringComparer.Ordinal);
+        for (int i = 0; i < runs.Count; i++) if (runs[i].Outcome is RunOutcome.Failed) latestFailed[keys[i]] = i;
+        foreach (int index in latestFailed.Values) keep[index] = true;
+        if (keep.All(kept => kept)) return;
+        var now = pruneClock.GetUtcNow();
+        var kept = new List<AnalysisRun>();
+        int pruned = 0;
+        for (int i = 0; i < runs.Count; i++)
+        {
+            if (keep[i]) { kept.Add(runs[i]); continue; }
+            prunedRuns.Add(new PrunedRun(runs[i].RunId, keys[i], now)); pruned++;
+        }
+        runs.Clear(); runs.AddRange(kept);
+        RecordAnalysisEvent("analysis.prune", "OK", null, new AnalysisEvent { Pruned = pruned });
+    }
+
+    private HashSet<string> ReachableSurfaces()
+    {
+        var revisions = new HashSet<string>(redo, StringComparer.Ordinal);
+        for (string? id = current; id is not null; id = accepted.Single(row => row.Id == id).Parent) revisions.Add(id);
+        return accepted.Where(row => revisions.Contains(row.Id))
+            .Select(row => designs.Single(design => design.Id == row.DesignId).SurfaceHash).ToHashSet(StringComparer.Ordinal);
+    }
+    #endregion
 }
 
 internal sealed class RecoveryRowConverter : JsonConverter<RecoveryRow>
@@ -1658,7 +1805,29 @@ internal sealed class RecoveryRowConverter : JsonConverter<RecoveryRow>
 public static class NativeProject
 {
     public const int MaxBytes = 8_000_000;
-    static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow, Converters = { new RecoveryRowConverter() } };
+    // RespectRequiredConstructorParameters: a run row missing a member is refused, never read as a zero (ADR-0011 §3).
+    // Every pre-A3a member it now requires was already required by the Exact schema checks in Read.
+    static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow, RespectRequiredConstructorParameters = true, Converters = { new RecoveryRowConverter() } };
+    /// <summary>The <c>format</c> string of a native image, or null when the image is not a readable JSON object with
+    /// one. Lets the store decide on the <c>.v1.bak</c> without parsing the rest (ADR-0011 §6).</summary>
+    public static string? FormatOf(byte[] image)
+    {
+        // The writer puts `format` first, so this normally reads one property; other members are skipped, not parsed.
+        var reader = new Utf8JsonReader(image, new JsonReaderOptions { MaxDepth = 32 });
+        try
+        {
+            if (!reader.Read() || reader.TokenType != JsonTokenType.StartObject) return null;
+            while (reader.Read() && reader.TokenType == JsonTokenType.PropertyName)
+            {
+                bool isFormat = reader.ValueTextEquals("format"u8);
+                if (!reader.Read()) return null;
+                if (isFormat) return reader.TokenType == JsonTokenType.String ? reader.GetString() : null;
+                reader.Skip();
+            }
+            return null;
+        }
+        catch (JsonException) { return null; }
+    }
     public static void Uuid(string id) => Guard.Require(Regex.IsMatch(id, @"\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z") && Guid.TryParseExact(id, "D", out _), "DOC-ID");
     static void Hash(string hash) => Guard.Require(Regex.IsMatch(hash, @"\A[0-9a-f]{64}\z"), "DOC-INTEGRITY");
     public static byte[] Encode(Envelope envelope) => JsonSerializer.SerializeToUtf8Bytes(envelope, Options);
@@ -1699,8 +1868,19 @@ public static class NativeProject
         try
         {
             using var doc = JsonDocument.Parse(bytes, new JsonDocumentOptions { MaxDepth = 32 }); var root = doc.RootElement;
-            Exact(root, "format", "projectId", "sources", "designs", "accepted", "cursors", "recovery");
-            Guard.Require(root.GetProperty("format").GetString() == "cfdw-project-1", "DOC-VERSION");
+            Exact(root, ["format", "projectId", "sources", "designs", "accepted", "cursors", "recovery"], ["analysis"]);
+            // Expand (ADR-0011 §5): -1 and -2 are read. The format is derived from the run count, so it must agree with
+            // the analysis member: -1 never carries one, -2 always carries at least one run.
+            string? format = root.GetProperty("format").GetString();
+            Guard.Require(format is "cfdw-project-1" or "cfdw-project-2", "DOC-VERSION");
+            bool hasAnalysis = root.TryGetProperty("analysis", out var analysisElement);
+            if (hasAnalysis)
+            {
+                Exact(analysisElement, "runs", "polarSamples", "pruned");
+                Guard.Require(analysisElement.GetProperty("runs").ValueKind == JsonValueKind.Array, "DOC-SCHEMA");
+                Guard.Require(format == RunRecord.Format(analysisElement.GetProperty("runs").GetArrayLength()), "DOC-SCHEMA");
+            }
+            else Guard.Require(format == RunRecord.Format(0), "DOC-SCHEMA");
             foreach (var s in root.GetProperty("sources").EnumerateArray()) Exact(s, "id", "utf8Base64Chunks");
             foreach (var d in root.GetProperty("designs").EnumerateArray()) Exact(d, "id", "parent", "surfaceHash", "evaluator");
             foreach (var a in root.GetProperty("accepted").EnumerateArray())
@@ -1801,6 +1981,7 @@ public static class NativeProject
         }
         Guard.Require(e.Sources.All(s => e.Accepted.Any(a => a.SourceId == s.Id)) && e.Designs.All(d => e.Accepted.Any(a => a.DesignId == d.Id)), "DOC-REFERENCE");
         _ = Replay(e);
+        if (e.Analysis is not null) RunRecord.CheckStore(e.Analysis, accepted.ContainsKey);
         if (e.Recovery is not null)
         {
             var r = e.Recovery; Uuid(r.DraftId);
