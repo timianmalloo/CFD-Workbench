@@ -65,19 +65,27 @@ def start(command: list[str], root: Path, log: Path | None) -> tuple[subprocess.
     return process, output
 
 
-def finish(process: subprocess.Popen, output: object, deadline: float) -> tuple[int, bool]:
-    """Wait to the deadline; past it kill the step's whole process group. Returns (exit, timed out)."""
-    try:
-        return process.wait(timeout=max(0.0, deadline - time.monotonic())), False
-    except subprocess.TimeoutExpired:
-        if os.name == "nt":
-            process.kill()
-        else:
-            os.killpg(process.pid, signal.SIGKILL)
-        return process.wait(), True
-    finally:
-        if output is not None:
-            output.close()
+def finish(running: list, deadline: float) -> list[tuple[int, bool, float]]:
+    """Wait for every process to the deadline, recording when each ends; past the deadline kill each remaining
+    step's whole process group. Returns (exit, timed out, end time) per process, in order."""
+    ends: dict[int, tuple[int, bool, float]] = {}
+    while len(ends) < len(running):
+        for index, (_, _, process, output) in enumerate(running):
+            if index in ends:
+                continue
+            timed_out = time.monotonic() >= deadline and process.poll() is None
+            if timed_out:
+                if os.name == "nt":
+                    process.kill()
+                else:
+                    os.killpg(process.pid, signal.SIGKILL)
+                process.wait()
+            if process.poll() is not None:
+                ends[index] = (process.returncode, timed_out, time.monotonic())
+                if output is not None:
+                    output.close()
+        time.sleep(0.2)
+    return [ends[index] for index in range(len(running))]
 
 
 def run_entry(entry: list, root: Path, logs: Path, index: int, timeout: float) -> list[dict]:
@@ -88,9 +96,8 @@ def run_entry(entry: list, root: Path, logs: Path, index: int, timeout: float) -
     for number, command in enumerate(commands):
         log = logs / "{0:02d}-{1}.log".format(index, number) if group else None
         running.append((command, log, *start(command, root, log)))
-    for command, log, process, output in running:
-        code, timed_out = finish(process, output, started + timeout)
-        result = {"command": command, "exit": code, "seconds": round(time.monotonic() - started, 1)}
+    for (command, log, _, _), (code, timed_out, ended) in zip(running, finish(running, started + timeout)):
+        result = {"command": command, "exit": code, "seconds": round(ended - started, 1)}
         if group:
             result["concurrent"] = True
             result["log"] = str(log)
