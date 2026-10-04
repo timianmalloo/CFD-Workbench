@@ -859,6 +859,10 @@ public sealed class ShellHost : Grid
             case "point.remove":
                 await RunPoint(point => new PointCommand.RemovePoint(point.Curve, point.Id));
                 return;
+            case "point.rebuild":
+                if (SelectedPoint() is { } rebuildPoint)
+                    ModelView.BeginRebuild(rebuildPoint.Curve, ModelView.PlanCanvas);
+                return;
             case "point.make-control":
                 await RunPoint(point => new PointCommand.MakeControl(point.Curve, point.Id));
                 return;

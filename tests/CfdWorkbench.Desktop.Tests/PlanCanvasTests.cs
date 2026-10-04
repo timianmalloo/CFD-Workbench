@@ -19,6 +19,18 @@ public static class PlanCanvasTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("RebuildPopover_StepperReadoutsFromCore", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var area = fixture.Host.ModelView;
+            area.BeginRebuild("trailing", fixture.Canvas);
+            var popover = area.RebuildPanel;
+            var core = fixture.Controller.PreviewRebuilds("trailing").Single(item => item.Count == 4);
+            if (popover.Count != 4 || popover.Preview?.MaxChange != core.MaxChange ||
+                !popover.ReadoutText.Contains("Area", StringComparison.Ordinal) ||
+                !popover.ReadoutText.Contains((core.AreaAfterSquareMeters * 10000).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal))
+                throw new Exception("Rebuild readouts did not come from Core preview, including area");
+        });
         DesktopChecks.Check("EditMenu_AddPoint_TypedPositionAddsSelectsNew", () =>
         {
             using var fixture = new PlanFixture(newFoil: true);

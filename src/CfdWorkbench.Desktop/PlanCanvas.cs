@@ -149,6 +149,13 @@ public sealed class PlanCanvas : Control
         };
     }
 
+    private RebuildPreview? rebuildPreview;
+    public RebuildPreview? RebuildPreview
+    {
+        get => rebuildPreview;
+        set { rebuildPreview = value; InvalidateVisual(); }
+    }
+
     public Point ScreenPoint(PointView point)
     {
         var plan = Controller?.Planform;
@@ -376,8 +383,8 @@ public sealed class PlanCanvas : Control
         if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
         var add = new MenuItem { Header = "Add Point Here", IsEnabled = Controller?.CurveFor(curve)?.Points.Count < Controller?.CurveFor(curve)?.Ceiling };
         add.Click += (_, _) => _ = AddAtAsync(curve, eta);
-        var rebuild = new MenuItem { Header = $"Rebuild {PropertiesView.Curves[curve].Name}…", IsEnabled = host.CanRun("point.rebuild") };
-        rebuild.Click += (_, _) => _ = host.RunCommand("point.rebuild");
+        var rebuild = new MenuItem { Header = $"Rebuild {PropertiesView.Curves[curve].Name}…", IsEnabled = Controller?.Inspection is not null };
+        rebuild.Click += (_, _) => this.FindAncestorOfType<ModelArea>()?.BeginRebuild(curve, this);
         var fit = new MenuItem { Header = "Fit" };
         fit.Click += (_, _) => _ = host.RunCommand("view.fit");
         var menu = new ContextMenu { ItemsSource = new Control[] { add, rebuild, new Separator(), fit } };
@@ -701,6 +708,35 @@ public sealed class PlanCanvas : Control
             using (context.PushOpacity(.35))
                 DrawPlan(context, map, plan, Controller.Selection);
             DrawLabel(context, RenderBanner!, new Point(12, 12));
+        }
+        if (rebuildPreview is { } preview)
+        {
+            var station = SelectionBrush ?? Brushes.White;
+            var dash = new Pen(station, 2, new DashStyle([7, 4], 0));
+            map.DrawCurve(context, preview.Curve.Samples, dash);
+            using (context.PushOpacity(.7))
+            {
+                var polygon = new Pen(station, 1, new DashStyle([4, 3], 0));
+                for (int i = 1; i < preview.Curve.Points.Count; i++)
+                    context.DrawLine(polygon, map.ToScreen(preview.Curve.Points[i - 1]), map.ToScreen(preview.Curve.Points[i]));
+            }
+            var glyphs = new PointGlyphBrushes(station, station, BackgroundBrush ?? Brushes.Transparent, MuteBrush ?? Brushes.White);
+            foreach (var point in preview.Curve.Points)
+                CurvePointLayer.DrawGlyph(context, point, map.ToScreen(point), glyphs, false);
+            if (Controller.CombVisible)
+                foreach (var tooth in CfdWorkbench.Core.Planform.Comb(preview.Curve))
+                {
+                    var start = map.ToScreen(tooth.SpanMeters, tooth.Ordinate);
+                    context.DrawLine(new Pen(station, 1), start,
+                        start + new Vector(tooth.NormalSpan, tooth.NormalAft) * Math.Clamp(Math.Abs(tooth.Curvature) * 100, 6, 24));
+                }
+            var current = preview.Curve.Curve == "leading" ? plan.Leading : plan.Trailing;
+            var at = current.Samples.OrderBy(item => Math.Abs(item.SpanMeters - preview.AtEta * plan.HalfSpanMeters)).First();
+            var changed = preview.Curve.Samples.OrderBy(item => Math.Abs(item.SpanMeters - preview.AtEta * plan.HalfSpanMeters)).First();
+            var first = map.ToScreen(at.SpanMeters, at.Ordinate);
+            var second = map.ToScreen(changed.SpanMeters, changed.Ordinate);
+            context.DrawLine(new Pen(WarningBrush ?? Brushes.White, 2), first, second);
+            DrawLabel(context, $"{preview.MaxChange * 1000:0.00} mm", second + new Vector(8, -18));
         }
         if (Controller.CombVisible && Controller.Selection is Selection.Points points && points.Items.Count > 0)
         {

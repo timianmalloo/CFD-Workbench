@@ -184,6 +184,10 @@
           </Border>
         </Grid>
 
+        <local:RebuildPopover x:Name="RebuildPopoverView" IsVisible="False"
+                              HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                              Margin="12,12,12,52" />
+
         <!-- The navbar (§11.7: v10's Fit and Views ▾, plus Display ▾ and Fit Selection). Each control runs a CommandTable row
              through the shell's view-command runner, the same action as its View-menu row; ModelArea fills the menus. -->
         <Border x:Name="Navbar" Classes="navbar">

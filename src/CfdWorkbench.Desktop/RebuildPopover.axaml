@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.RebuildPopover"
+             Width="316" AutomationProperties.Name="Rebuild curve">
+  <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+          BorderThickness="1" CornerRadius="6" Padding="{StaticResource Space2}">
+    <StackPanel Spacing="8">
+      <TextBlock x:Name="TitleText" Classes="heading" Text="Rebuild curve" />
+      <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="4">
+        <TextBlock Text="Points" VerticalAlignment="Center" />
+        <Button Grid.Column="1" x:Name="FewerButton" Content="−" Width="24" Height="24"
+                AutomationProperties.Name="Fewer points" />
+        <TextBox Grid.Column="2" x:Name="CountInput" Width="40" TextAlignment="Center"
+                 AutomationProperties.Name="Points, from 4 to 10" />
+        <Button Grid.Column="3" x:Name="MoreButton" Content="+" Width="24" Height="24"
+                AutomationProperties.Name="More points" />
+      </Grid>
+      <TextBlock Text="From 4 to 10. The new points keep the curve's current spacing."
+                 TextWrapping="Wrap" />
+      <TextBlock x:Name="Readouts" TextWrapping="Wrap" />
+      <TextBlock x:Name="ErrorText" IsVisible="False" TextWrapping="Wrap"
+                 Foreground="{DynamicResource DangerBrush}" />
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="6">
+        <Button x:Name="CancelButton" Content="Cancel" />
+        <Button x:Name="ApplyButton" Content="Rebuild" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

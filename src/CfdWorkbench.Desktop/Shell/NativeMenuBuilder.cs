@@ -2,6 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.VisualTree;
 using CfdWorkbench.Persistence;
+using CfdWorkbench.Core;
 
 namespace CfdWorkbench.Desktop.Shell;
 
@@ -9,6 +10,7 @@ public static class NativeMenuBuilder
 {
     public static void RefreshEditMenu(Window window, Func<string, bool> canExecute)
     {
+        var host = FindHost(window);
         var edit = NativeMenu.GetMenu(window)?.Items.OfType<NativeMenuItem>()
             .FirstOrDefault(item => Equals(item.Header, "Edit"));
         if (edit?.Menu is null) return;
@@ -18,10 +20,20 @@ public static class NativeMenuBuilder
             {
                 "Undo" => "edit.undo",
                 "Redo" => "edit.redo",
+                "Add point…" => "point.add",
+                "Remove point" => "point.remove",
+                var title when title?.StartsWith("Rebuild ", StringComparison.Ordinal) == true => "point.rebuild",
                 _ => null
             };
             if (id is null) continue;
-            item.IsEnabled = canExecute(id);
+            if (id == "point.rebuild")
+            {
+                string? curve = host?.Controller.Selection is Selection.Points { Items.Count: 1 } points
+                    ? points.Items[0].Curve : null;
+                item.Header = curve is not null && PropertiesView.Curves.TryGetValue(curve, out var rows)
+                    ? $"Rebuild {rows.Name.ToLowerInvariant()}…" : "Rebuild curve…";
+            }
+            item.IsEnabled = id.StartsWith("point.", StringComparison.Ordinal) ? host?.CanRun(id) == true : canExecute(id);
             (item.Command as DelegateCommand)?.RaiseCanExecuteChanged();
         }
     }

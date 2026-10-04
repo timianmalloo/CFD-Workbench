@@ -48,6 +48,7 @@ public partial class ModelArea : UserControl
                 CancelAddPoint();
             }
         };
+        RebuildPopoverView.PreviewChanged += preview => PlanCanvas.RebuildPreview = preview;
         Gutter = ViewArrangementGrid.ColumnSpacing;
 
         DismissAlertBandButton.Click += (_, _) => AlertBand.IsVisible = false;
@@ -136,6 +137,11 @@ public partial class ModelArea : UserControl
     public WorkbenchController? Controller => controller;
 
     public TextBox AddPointInput => AddPointTextBox;
+
+    public RebuildPopover RebuildPanel => RebuildPopoverView;
+
+    public void BeginRebuild(string curve, Control? focusReturn = null) =>
+        RebuildPopoverView.Open(controller ?? throw new InvalidOperationException("No foil is open."), curve, focusReturn ?? PlanCanvas);
 
     public void BeginAddPoint(PointView selected, Control? focusReturn = null)
     {
