@@ -827,7 +827,8 @@ public partial class PropertiesPane : UserControl
     private void FillCopyMenu(ContextMenu menu, IReadOnlyList<PropertyGroup> groups)
     {
         // DN-3: no row context menus; the group header's menu copies the group, or one row with or without its unit.
-        var keys = groups.SelectMany(group => group.Rows).Select(row => (row.Key, row.Label, CopiesWithUnit(row))).ToList();
+        // An action row (Rebuild…, Edit section…) is a link, not a value: it has nothing to copy.
+        var keys = Copyable(groups).Select(row => (row.Key, row.Label, CopiesWithUnit(row))).ToList();
         var signature = string.Join("|", keys.Select(key => key.Key + key.Item3));
         if (menu.Tag as string == signature) return;
         menu.Tag = signature;
@@ -848,6 +849,9 @@ public partial class PropertiesPane : UserControl
         }
         menu.ItemsSource = items;
     }
+
+    private static IEnumerable<PropertyRow> Copyable(IReadOnlyList<PropertyGroup> groups) =>
+        groups.SelectMany(group => group.Rows).Where(row => row.Kind is not RowKind.Action);
 
     private List<PropertyGroup> CurrentGroups(IReadOnlySet<string> ids) =>
         shownModel?.Blocks.Where(group => ids.Contains(group.Id)).ToList() ?? [];
@@ -1729,7 +1733,7 @@ public partial class PropertiesPane : UserControl
     /// <summary>The rows as "label value unit" lines, one per row (PG-25).</summary>
     private void CopyLines(IReadOnlyList<PropertyGroup> groups)
     {
-        var lines = groups.SelectMany(group => group.Rows).Select(row => $"{row.Label} {RowCopyText(row, withUnit: true)}").ToList();
+        var lines = Copyable(groups).Select(row => $"{row.Label} {RowCopyText(row, withUnit: true)}").ToList();
         if (lines.Count > 0) Write(string.Join("\n", lines));
     }
 
