@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Spike only (blend-certificate budget, Ruling 73). The assembly name reuses the Core test assembly's InternalsVisibleTo
+       grant (the GSPK, SPK and XPA pattern). By default it builds against the as-built Core; pass
+       -p:CoreProject=<copy>/CfdWorkbench.Core.csproj to build against the instrumented copy made by patch-core.py.
+       It is not in CFDWorkbench.slnx and ships nothing. -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AssemblyName>CfdWorkbench.Core.Tests</AssemblyName>
+    <RootNamespace>BudgetProbe</RootNamespace>
+    <CoreProject Condition="'$(CoreProject)' == ''">../../../../src/CfdWorkbench.Core/CfdWorkbench.Core.csproj</CoreProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(CoreProject)" />
+  </ItemGroup>
+</Project>
