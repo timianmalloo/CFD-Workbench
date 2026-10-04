@@ -1,23 +1,28 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="CfdWorkbench.Desktop.RebuildPopover"
-             Width="316" AutomationProperties.Name="Rebuild curve">
+             AutomationProperties.Name="Rebuild curve">
+  <UserControl.Resources>
+    <!-- simplify: local sizes until the design system names them (ceiling: this popover; promote with the inset). -->
+    <x:Double x:Key="RebuildPopoverWidth">316</x:Double>
+    <x:Double x:Key="RebuildCountWidth">40</x:Double>
+  </UserControl.Resources>
   <UserControl.Styles>
     <!-- The mockup's stepper (− n +) and the largest change in the warning colour. -->
     <Style Selector="Button.step"><Setter Property="Padding" Value="{StaticResource NoInset}" /><Setter Property="HorizontalContentAlignment" Value="Center" /><Setter Property="VerticalContentAlignment" Value="Center" /></Style>
     <Style Selector="TextBlock.change"><Setter Property="Foreground" Value="{DynamicResource WarningBrush}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
   </UserControl.Styles>
-  <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
-          BorderThickness="1" CornerRadius="6" Padding="{StaticResource Space2}">
+  <Border Width="{StaticResource RebuildPopoverWidth}" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+          BorderThickness="1" CornerRadius="{StaticResource NavbarRadius}" Padding="{StaticResource Space2}">
     <StackPanel Spacing="8">
       <TextBlock x:Name="TitleText" Classes="heading" Text="Rebuild curve" />
       <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="4">
         <TextBlock Text="Points" VerticalAlignment="Center" />
-        <Button Grid.Column="1" x:Name="FewerButton" Classes="modebar outline step" Content="−" Width="24" Height="24"
+        <Button Grid.Column="1" x:Name="FewerButton" Classes="modebar outline step" Content="−" Width="{StaticResource CompactTargetSize}" Height="{StaticResource CompactTargetSize}"
                 AutomationProperties.Name="Fewer points" />
-        <TextBox Grid.Column="2" x:Name="CountInput" Width="40" TextAlignment="Center"
+        <TextBox Grid.Column="2" x:Name="CountInput" Width="{StaticResource RebuildCountWidth}" TextAlignment="Center"
                  AutomationProperties.Name="Points, from 4 to 10" />
-        <Button Grid.Column="3" x:Name="MoreButton" Classes="modebar outline step" Content="+" Width="24" Height="24"
+        <Button Grid.Column="3" x:Name="MoreButton" Classes="modebar outline step" Content="+" Width="{StaticResource CompactTargetSize}" Height="{StaticResource CompactTargetSize}"
                 AutomationProperties.Name="More points" />
       </Grid>
       <TextBlock Text="From 4 to 10. The new points keep the curve's current spacing."

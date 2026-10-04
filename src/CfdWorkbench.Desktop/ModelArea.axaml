@@ -3,6 +3,12 @@
              xmlns:local="using:CfdWorkbench.Desktop"
              xmlns:panes="using:CfdWorkbench.Desktop.Panes"
              x:Class="CfdWorkbench.Desktop.ModelArea">
+  <UserControl.Resources>
+    <!-- The Rebuild popover's place: the toast inset (12) on three sides; 52 at the bottom clears the navbar.
+         simplify: a local token until the design system names it (ceiling: one popover; promote to Styles.axaml and
+         DESIGN.md when a second viewport popover needs it). -->
+    <Thickness x:Key="RebuildPopoverInset">12,12,12,52</Thickness>
+  </UserControl.Resources>
   <UserControl.Styles>
     <!-- Overlay text sits on a viewport-soft plate, never on the surface; the view-label plates are styled in Styles.axaml. -->
     <Style Selector="TextBlock.viewOverlay">
@@ -186,7 +192,7 @@
 
         <local:RebuildPopover x:Name="RebuildPopoverView" IsVisible="False"
                               HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                              Margin="12,12,12,52" />
+                              Margin="{StaticResource RebuildPopoverInset}" />
 
         <!-- The navbar (§11.7: v10's Fit and Views ▾, plus Display ▾ and Fit Selection). Each control runs a CommandTable row
              through the shell's view-command runner, the same action as its View-menu row; ModelArea fills the menus. -->
