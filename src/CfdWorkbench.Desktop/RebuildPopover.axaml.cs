@@ -39,6 +39,7 @@ public partial class RebuildPopover : UserControl
             ReadoutGrid.Children.Add(label);
             ReadoutGrid.Children.Add(value);
             readoutValues[row] = value;
+            if (row == 1) value.Classes.Add("change");
         }
         FewerButton.Click += (_, _) => SetCount(Count - 1);
         MoreButton.Click += (_, _) => SetCount(Count + 1);
@@ -117,6 +118,7 @@ public partial class RebuildPopover : UserControl
         string name = PropertiesView.Curves[curve].Name.ToLowerInvariant();
         double halfSpan = controller.Planform?.HalfSpanMeters ?? 0;
         string unit = PropertiesView.Curves[curve].ValueUnit;
+        string along = PropertiesView.Curves[curve].ValueLabel.ToLowerInvariant();   // COPY-207: "126.74 mm aft"
         double scale = PropertiesView.FieldScale[PropertiesView.Curves[curve].ValueFamily];
         string anchors = current is null ? "none to remove" : string.Join(" ", current.Points
             .Where(item => item.Role == PointRole.Anchor)
@@ -125,8 +127,8 @@ public partial class RebuildPopover : UserControl
         readoutValues[0].Text = $"{current?.Points.Count ?? 0} → {Count}";
         readoutValues[1].Text = $"{preview.MaxChange * scale:0.00} {unit} at {preview.AtEta * halfSpan * 1000:0.00} mm from root";
         readoutValues[2].Text = $"{preview.BreaksBefore} → {preview.BreaksAfter} (C² throughout)";
-        readoutValues[3].Text = $"root end {preview.Curve.Points[0].Ordinate * scale:0.00} {unit}, tangent square to the centre line; " +
-            $"tip end {preview.Curve.Points[^1].Ordinate * scale:0.00} {unit}";
+        readoutValues[3].Text = $"root end {preview.Curve.Points[0].Ordinate * scale:0.00} {unit} {along}, tangent square to the centre line; " +
+            $"tip end {preview.Curve.Points[^1].Ordinate * scale:0.00} {unit} {along}";
         readoutValues[4].Text = $"changed by {preview.TipTurnDegrees:0.00}°";
         readoutValues[5].Text = $"{preview.AreaBeforeSquareMeters * 10000:0.00} → {preview.AreaAfterSquareMeters * 10000:0.00} cm²";
         readoutValues[6].Text = anchors;

@@ -40,21 +40,21 @@ public static class ControllerShellTests
             controller.NewFoilAsync().GetAwaiter().GetResult();
             var added = controller.ApplyPointCommandAsync(new PointCommand.AddPoint("twist", 0.45))
                 .GetAwaiter().GetResult() as CommitOutcome.Committed ?? throw new Exception("Twist Add refused");
-            if (!added.Report.StartsWith("Added Twist point ", StringComparison.Ordinal) ||
+            if (!added.Report.StartsWith("Added twist point ", StringComparison.Ordinal) ||
                 !added.Report.Contains("Shape unchanged: largest change ", StringComparison.Ordinal) ||
                 !added.Report.Contains(" °.", StringComparison.Ordinal))
                 throw new Exception("Add report lacks the outcome or degree unit: " + added.Report);
             var selected = controller.Selection as Selection.Points ?? throw new Exception("Added point was not selected");
             var removed = controller.ApplyPointCommandAsync(new PointCommand.RemovePoint("twist", selected.Items.Single().VertexId))
                 .GetAwaiter().GetResult() as CommitOutcome.Committed ?? throw new Exception("Twist Remove refused");
-            if (!removed.Report.StartsWith("Removed Twist point ", StringComparison.Ordinal) ||
+            if (!removed.Report.StartsWith("Removed twist point ", StringComparison.Ordinal) ||
                 !removed.Report.Contains(" ° at ", StringComparison.Ordinal) ||
                 !removed.Report.EndsWith(" mm from root.", StringComparison.Ordinal))
                 throw new Exception("Remove report lacks the outcome, unit, or location: " + removed.Report);
             controller.ApplyPointCommandAsync(new PointCommand.AddPoint("twist", 0.45)).GetAwaiter().GetResult();
             var rebuilt = controller.ApplyPointCommandAsync(new PointCommand.RebuildCurve("twist", 4))
                 .GetAwaiter().GetResult() as CommitOutcome.Committed ?? throw new Exception("Twist Rebuild refused");
-            if (!rebuilt.Report.StartsWith("Rebuilt the Twist with 4 points.", StringComparison.Ordinal) ||
+            if (!rebuilt.Report.StartsWith("Rebuilt the twist with 4 points.", StringComparison.Ordinal) ||
                 !rebuilt.Report.Contains(" ° at ", StringComparison.Ordinal) ||
                 !rebuilt.Report.EndsWith(" mm from root. ⌘Z undoes it.", StringComparison.Ordinal))
                 throw new Exception("Rebuild report lacks the outcome, unit, or location: " + rebuilt.Report);

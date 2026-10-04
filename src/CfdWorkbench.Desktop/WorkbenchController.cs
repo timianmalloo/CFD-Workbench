@@ -527,9 +527,14 @@ public sealed class WorkbenchController : IDisposable
         return (history.Accepted.Single(item => item.Id == current).Parent is not null, redo.Length != 0);
     }
 
+    /// <summary>The point whose Remove was just refused (§11 state table: a dashed warning ring while it stays the
+    /// selection). Cleared by the next point command and by any other selection.</summary>
+    public PointRef? RefusedPoint { get; private set; }
+
     public void Select(Selection selection)
     {
         ArgumentNullException.ThrowIfNull(selection);
+        if (selection is not Selection.Points { Items: [var only] } || only != RefusedPoint) RefusedPoint = null;
         if (isNotifying)
         {
             queuedSelection = selection;
@@ -1193,24 +1198,32 @@ public sealed class WorkbenchController : IDisposable
         int removedNumber = command is PointCommand.RemovePoint remove
             ? CurveFor(command.Curve)?.Points.FirstOrDefault(point => point.Id == remove.VertexId)?.Index + 1 ?? 0 : 0;
         double halfSpan = Planform?.HalfSpanMeters ?? 0;
+        RefusedPoint = null;
         return RunDirectCommandAsync(() =>
         {
-            var result = session.ApplyPointCommand(Guid.NewGuid().ToString("D"), command);
+            PointOutcome result;
+            try { result = session.ApplyPointCommand(Guid.NewGuid().ToString("D"), command); }
+            catch (ContractError) when (command is PointCommand.RemovePoint refused)
+            {
+                RefusedPoint = new PointRef(refused.Curve, refused.VertexId);   // read after the refusal's Notify
+                throw;
+            }
             var rows = PropertiesView.Curves[command.Curve];
             string change = Quantity.Typed(result.MaxDeviationMeters * PropertiesView.FieldScale[rows.ValueFamily]) + " " + rows.ValueUnit;
             string where = Quantity.TypedLength(result.AtEta * halfSpan) + " mm from root";
+            string name = rows.Name.ToLowerInvariant();   // running text: "trailing edge", as COPY-190/191/200 write it
             string report;
             if (command is PointCommand.AddPoint)
             {
                 var curve = Channels.View(session.Snapshot().Source, command.Curve, "accepted", 0);
                 int number = curve.Points.First(point => point.Id == result.SelectId).Index + 1;
-                report = $"Added {rows.Name} point {number} of {result.PointsAfter}. Shape unchanged: largest change {change}. " +
+                report = $"Added {name} point {number} of {result.PointsAfter}. Shape unchanged: largest change {change}. " +
                     $"Points {number - 1} and {number + 1} moved to keep it.";
             }
             else if (command is PointCommand.RemovePoint)
-                report = $"Removed {rows.Name} point {removedNumber}. Now {result.PointsAfter} points. Largest change {change} at {where}.";
+                report = $"Removed {name} point {removedNumber}. Now {result.PointsAfter} points. Largest change {change} at {where}.";
             else if (command is PointCommand.RebuildCurve)
-                report = $"Rebuilt the {rows.Name} with {result.PointsAfter} points. Largest change {change} at {where}. ⌘Z undoes it.";
+                report = $"Rebuilt the {name} with {result.PointsAfter} points. Largest change {change} at {where}. ⌘Z undoes it.";
             else
                 report = $"Point change applied. Max deviation {change}.";
             if (!string.IsNullOrWhiteSpace(result.Notice)) report += " " + result.Notice;

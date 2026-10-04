@@ -473,7 +473,11 @@ public static partial class UnitEntry
 /// <see cref="AngleSense"/> is the positive sense of a handle angle (COPY-158, COPY-164).
 /// </summary>
 public sealed record CurveRows(string Name, string ValueLabel, string ValueUnit, UnitFamily ValueFamily, string AngleLabel,
-    bool HandlesByAngle, string Noun = "rail", string AngleSense = "aft");
+    bool HandlesByAngle, string Noun = "rail", string AngleSense = "aft")
+{
+    /// <summary>The name in a context-menu row, which is title case ("Rebuild Trailing Edge…", as "Make Anchor Point").</summary>
+    public string MenuName => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(Name);
+}
 
 public static class PropertiesView
 {

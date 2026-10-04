@@ -803,9 +803,9 @@ public sealed class ShellHost : Grid
         var point = SelectedPoint();
         if (point is null || Controller.CurveFor(point.Curve) is not { } curve)
             return "Select a point on the curve first.";
-        if (id == "point.add") return curve.Points.Count >= curve.Ceiling
-            ? $"The {PropertiesView.Curves[point.Curve].Name.ToLowerInvariant()} has {curve.Ceiling} points, the most a curve can have. Remove a point or rebuild with fewer."
-            : null;
+        // Add's only limit is Core's verb ceiling (16, §3.6; CurveView.Ceiling is the file version's, 10 under 4.0):
+        // Core refuses past it with COPY-196, which the strip shows (Controller_RefusalCopy_UsesCoreReasonNotCode).
+        if (id == "point.add") return null;
         if (id == "point.rebuild") return null;
         if (id != "point.remove") return "Unknown point command.";
         if (curve.Points.Count <= 4) return "A curve needs at least 4 points.";

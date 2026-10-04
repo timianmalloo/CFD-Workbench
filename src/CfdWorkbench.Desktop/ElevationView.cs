@@ -405,14 +405,10 @@ public sealed class ElevationView : Control
     {
         if (IsFront || controller?.Surface is not { } surface || controller.Planform is not { } plan || Camera is not { } camera) return [];
         var result = new List<(int, double, string, Point[])>();
-        // PlacedSection.Assignment is the station's profile index (Placement.PlaceStation), so Root and Tip sharing one
-        // profile both read 0; the station is the one at the section's exact η, as View3d picks it (ADR-0009 §4).
-        foreach (var section in surface.Sections.Where(section => section.Assignment is not null))
+        // PlacedSection.Assignment is the authored station index (Placement.PlaceStation), the index into plan.Stations.
+        foreach (var section in surface.Sections)
         {
-            int index = -1;
-            for (int station = 0; station < plan.Stations.Count; station++)
-                if (plan.Stations[station].Eta == section.Eta) { index = station; break; }
-            if (index < 0) continue;
+            if (section.Assignment is not int index || index >= plan.Stations.Count) continue;
             var outline = section.Upper.Concat(section.Lower.Reverse()).Select(point => camera.Project(point, BandRect.Size)).ToArray();
             result.Add((index, section.Eta, StationName(index, section.Eta), outline));
         }
@@ -935,7 +931,7 @@ public sealed class ElevationView : Control
         var menu = new ContextMenu
         {
             ItemsSource = new Control[] { Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent,
-                new Separator(), Row("Remove Point", "point.remove"), Row($"Rebuild {PropertiesView.Curves[reference.Curve].Name}…", "point.rebuild"),
+                new Separator(), Row("Remove Point", "point.remove"), Row($"Rebuild {PropertiesView.Curves[reference.Curve].MenuName}…", "point.rebuild"),
                 new Separator(), Row("Fit", "view.fit") }
         };
         menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };

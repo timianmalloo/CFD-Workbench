@@ -153,6 +153,10 @@ public sealed class CurvePointLayer(Func<double, double, Point> project, Func<Po
     public void DrawHoverRing(DrawingContext context, PointView point, IBrush brush) =>
         context.DrawEllipse(null, new Pen(brush, 1.5), ToScreen(point), 10, 10);
 
+    /// <summary>The 17 px dashed warning ring on a point whose Remove was refused (§11 state table).</summary>
+    public void DrawRefusalRing(DrawingContext context, PointView point, IBrush brush) =>
+        context.DrawEllipse(null, new Pen(brush, 2, new DashStyle([3, 2], 0)), ToScreen(point), 17, 17);
+
     /// <summary>The 13 px, 3 px focus ring.</summary>
     public void DrawFocusRing(DrawingContext context, PointView point, IBrush brush) =>
         context.DrawEllipse(null, new Pen(brush, 3), ToScreen(point), 13, 13);
