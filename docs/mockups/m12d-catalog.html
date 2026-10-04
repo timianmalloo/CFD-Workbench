@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M1.2d Catalog Replace</title>
+<!--
+  Stop-and-show page for slice M1.2c (docs/design/m12c-section-editor.md). The operator, 2026-10-03: "I should be able to
+  edit the sections". Three screens of the 1280 x 800 shell (today's: structure-B Properties, the V2 status strip,
+  DR-VIEW-1 frames and DR-VIEW-7 plates), then the four decisions as side-by-side variants.
+  Geometry is COMPUTED here from src/CfdWorkbench.Desktop/Assets/example.foil: section-a's two degree-5 surfaces, a
+  PAIRED Control -> Anchor conversion (Ruling 60, ADR-0005 §6: Boehm insertion to multiplicity 5 and the ADR-0005 shift on
+  the selected surface; the same knots inserted in the other surface, shape exact), a Horizontal tangent kind on both
+  surfaces, a paired x move, a paired Anchor -> Control refit refused over 10 µm, per-side x inversion for thickness and
+  crossing, Rule A for the placed section, and the FoilDSL §6 placement for the views. Every number printed on this page is read from that computation (window.__measure).
+  Display only; nothing is built from this page.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --warn:#895900; --danger:#a92e37; --on-accent:#ffffff; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --warn:#efc576; --danger:#ffaeb5; --on-accent:#10201f; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --vp-grid:#344b50; --foil:#85c9c4; --foil-edge:#c4e7df; --station:#66ddc8; --lit:#3f6a6c; --danger-vp:#ffaeb5; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button{ font:inherit; color:inherit; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
+.top label{ margin-left:auto; display:flex; align-items:center; gap:6px; color:var(--mute); font-size:12px; }
+.top select{ min-height:28px; padding:0 6px; border:1px solid var(--control); border-radius:4px; background:var(--surface); color:var(--ink); font:inherit; }
+.top button{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+main{ padding:16px 20px 40px; }
+section.screen{ margin:0 0 28px; }
+.screen h2, .decision h2{ margin:0 0 4px; font-size:14px; }
+.screen .what, .decision .what{ margin:0 0 8px; max-width:1280px; font-size:12px; color:var(--mute); }
+.what b{ color:var(--ink); font-weight:600; }
+.decision{ margin:8px 0 32px; padding-top:12px; border-top:1px solid var(--line); }
+.variants{ display:flex; flex-wrap:wrap; gap:16px; }
+.card{ width:640px; }
+.card .frame{ width:640px; height:400px; overflow:hidden; border-radius:6px; position:relative; }
+.card .frame > .shell{ transform:scale(.5); transform-origin:0 0; }
+.card h3{ margin:6px 0 2px; font-size:13px; } .card p{ margin:0; font-size:12px; color:var(--mute); max-width:640px; }
+.card .rec{ display:inline-block; margin-left:6px; padding:0 6px; border-radius:3px; background:var(--accent); color:var(--on-accent); font-size:11px; font-weight:600; }
+.card .rec.lost{ background:var(--soft); color:var(--mute); }
+.textcard{ width:640px; height:400px; border:1px solid var(--line); border-radius:6px; background:var(--surface); padding:14px 16px; position:relative; font-size:12px; }
+.textcard canvas{ width:100%; height:230px; display:block; background:var(--vp); border-radius:4px; margin-top:8px; }
+.measured{ max-width:1280px; font-size:12px; color:var(--mute); } .measured code{ color:var(--ink); }
+
+/* ---------- the shell ---------- */
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); font-size:11px; line-height:14px; position:relative; }
+.title{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.title i{ width:11px; height:11px; border-radius:50%; background:var(--line); display:inline-block; }
+.title b{ margin:0 auto; color:var(--ink); font-weight:600; }
+.work{ flex:1; min-height:0; display:flex; }
+.dock{ flex:0 0 260px; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--line); min-height:0; }
+.dock.right{ border-right:0; border-left:1px solid var(--line); }
+.tabs{ flex:0 0 28px; display:flex; border-bottom:1px solid var(--line); background:var(--surface); }
+.tabs span{ display:flex; align-items:center; padding:0 10px; font-weight:600; color:var(--mute); border-bottom:2px solid transparent; }
+.tabs span.on{ color:var(--ink); border-bottom-color:var(--accent); }
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; min-height:0; }
+.area{ flex:1; min-height:0; position:relative; background:var(--canvas); display:flex; flex-direction:column; }
+.bottom{ flex:0 0 190px; display:flex; flex-direction:column; background:var(--surface); border-top:1px solid var(--line); min-height:0; }
+.views{ flex:1; min-height:0; position:relative; display:grid; gap:4px; }
+.views.plan3d{ grid-template-columns:2fr 1fr; } .views.quad{ grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; } .views.one{ grid-template-columns:1fr; }
+.view{ position:relative; min-width:0; min-height:0; background:var(--vp); border:1px solid var(--line); overflow:hidden; }
+.view canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.plate{ position:absolute; background:var(--vp-soft); color:var(--vp-ink); border-radius:3px; padding:5px 8px; white-space:nowrap; }
+.vlabel{ left:6px; top:6px; min-height:24px; min-width:24px; padding:0 8px; border:0; display:flex; align-items:center; font-weight:600; }
+.vlabel.on{ box-shadow:inset 0 -2px 0 var(--station); }
+.probe{ right:6px; top:6px; } .lb{ left:6px; bottom:6px; } .scalebar{ right:6px; bottom:6px; color:var(--vp-mute); }
+.navbar{ position:absolute; left:50%; bottom:10px; transform:translateX(-50%); display:flex; gap:2px; padding:3px; background:var(--surface); border:1px solid var(--line); border-radius:6px; z-index:2; }
+.navbar button{ min-height:24px; padding:0 8px; border:0; border-radius:4px; background:none; white-space:nowrap; }
+.navbar .sep{ width:1px; background:var(--line); margin:3px 2px; }
+/* the section editor mode: mode bar, canvas, station strip */
+.modebar{ flex:0 0 32px; display:flex; align-items:center; gap:4px; padding:0 8px; background:var(--surface); border-bottom:1px solid var(--line); }
+.modebar .ttl{ font-weight:600; font-size:12px; margin-right:6px; white-space:nowrap; } .modebar .ttl em{ font-style:normal; color:var(--accent); }
+.modebar .chip{ display:flex; align-items:center; gap:4px; min-height:24px; padding:0 8px; border:1px solid var(--line); border-radius:12px; white-space:nowrap; color:var(--mute); }
+.modebar .chip a{ color:var(--accent); text-decoration:underline; }
+.modebar button{ min-height:24px; padding:0 8px; border:1px solid transparent; border-radius:4px; background:none; white-space:nowrap; }
+.modebar button[aria-pressed="true"]{ background:var(--soft); border-color:var(--line); }
+.modebar .sp{ flex:1; }
+.modebar .btn{ border-color:var(--control); }
+.modebar .primary{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
+.modebar .primary[aria-disabled="true"]{ background:var(--soft); color:var(--mute); border-color:var(--line); }
+.why{ position:absolute; right:8px; top:38px; z-index:3; max-width:360px; padding:6px 8px; background:var(--surface); border:1px solid var(--danger); border-left-width:3px; border-radius:3px; color:var(--danger); }
+.secbody{ flex:1; min-height:0; display:flex; flex-direction:column; gap:4px; padding-top:4px; }
+.secbody .view{ flex:1; }
+.strip{ flex:0 0 84px; overflow:hidden; display:flex; gap:4px; padding:4px; background:var(--surface); border-top:1px solid var(--line); }
+.thumb{ width:170px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:3px; background:var(--vp); overflow:hidden; }
+.thumb canvas{ flex:1 1 0; min-height:0; width:100%; display:block; }
+.thumb .m{ color:var(--mute); }
+.thumb span{ display:flex; justify-content:space-between; padding:1px 6px; background:var(--surface); font-variant-numeric:tabular-nums; }
+.thumb.on{ border-color:var(--station); box-shadow:inset 0 -2px 0 var(--station); }
+.navbar.sec{ bottom:96px; }
+
+/* structure-B Properties (DR-CELL-1) */
+.sel{ flex:1; min-height:0; overflow:hidden; }
+.ident{ display:flex; align-items:center; gap:6px; padding:6px 8px; font-size:13px; line-height:18px; font-weight:600; border-bottom:1px solid var(--line); }
+.ident svg{ width:12px; height:12px; flex:none; }
+.gh{ display:flex; align-items:center; gap:6px; min-height:24px; padding:0 8px; font-weight:600; }
+.gh .tw{ color:var(--mute); width:10px; } .gh .sum{ margin-left:auto; font-weight:400; color:var(--mute); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:120px; }
+.grp{ border-bottom:1px solid var(--line); }
+.row{ display:flex; align-items:center; gap:3px; min-height:20px; padding:0 8px 0 19px; }
+.row.e{ min-height:24px; }
+.row + .row{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.row .k{ flex:1; color:var(--mute); }
+.row .v{ min-width:62px; padding-right:5px; text-align:right; font-variant-numeric:tabular-nums; }
+.row.e .v{ color:var(--accent); text-decoration:underline dotted; text-underline-offset:2px; }
+.row .u{ width:34px; color:var(--mute); }
+.row .en{ color:var(--accent); } .row .en::after{ content:" ▾"; color:var(--mute); }
+.row.focus .v, .row.focus .en{ outline:1px solid var(--accent); outline-offset:1px; }
+.sub{ padding:4px 8px 0 19px; color:var(--mute); font-weight:600; }
+.note{ padding:2px 8px 4px 19px; color:var(--mute); }
+.link{ padding:0 8px 0 19px; min-height:24px; display:flex; align-items:center; color:var(--accent); text-decoration:underline; }
+.wing{ flex:none; border-top:1px solid var(--control); }
+.wing.ro .row .v{ color:var(--ink); text-decoration:none; }
+.defs{ padding:0 8px 0 22px; min-height:24px; display:flex; align-items:center; color:var(--accent); text-decoration:underline; }
+/* Points pane grid */
+.pts{ flex:1; min-height:0; overflow:hidden; }
+.pts .cn{ padding:4px 8px; color:var(--mute); font-weight:600; border-bottom:1px solid var(--line); }
+.pts .ph{ display:grid; grid-template-columns:34px 1fr 46px 46px 58px; gap:4px; padding:0 8px; min-height:22px; align-items:center; color:var(--mute); border-bottom:1px solid var(--line); }
+.pts .pr{ display:grid; grid-template-columns:34px 1fr 46px 46px 58px; gap:4px; padding:0 8px 0 12px; min-height:20px; align-items:center; font-variant-numeric:tabular-nums; }
+.pts .pr + .pr{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.pts .pr .n{ color:var(--mute); } .pts .pr .x{ text-align:right; color:var(--accent); text-decoration:underline dotted; text-underline-offset:2px; }
+.pts .pr .x.ro{ color:var(--ink); text-decoration:none; }
+.pts .pr.on{ background:color-mix(in srgb, var(--accent) 14%, transparent); box-shadow:inset 2px 0 0 var(--accent); }
+.pts .pr.pair{ background:color-mix(in srgb, var(--accent) 7%, transparent); box-shadow:inset 2px 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+.pts .pr .lk{ color:var(--accent); }
+.pts .pnote{ padding:3px 8px; color:var(--mute); border-bottom:1px solid var(--line); }
+.pairline{ display:flex; align-items:center; gap:6px; padding:3px 8px 4px; color:var(--accent); border-bottom:1px solid var(--line); }
+.msglist{ flex:1; overflow:hidden; } .msglist div{ padding:4px 8px; border-bottom:1px solid var(--line); } .msglist .t{ color:var(--mute); } .msglist a{ color:var(--accent); text-decoration:underline; }
+/* V2 status strip (DR-STATUS-1) */
+.sb{ flex:0 0 24px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); position:relative; }
+.sb .msg{ flex:1; min-width:0; display:flex; align-items:center; gap:6px; padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sb .msg.warn{ color:var(--warn); box-shadow:inset 3px 0 0 var(--warn); }
+.sb .msg svg{ width:12px; height:12px; flex:none; }
+.sb .act{ margin:0 4px; min-height:20px; align-self:center; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.sb .item{ display:flex; align-items:center; padding:0 8px; border-left:1px solid var(--line); color:var(--mute); white-space:nowrap; }
+.sb .item.btn{ color:var(--warn); font-weight:600; background:var(--soft); }
+.pop{ position:absolute; right:250px; bottom:28px; width:380px; background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.18); z-index:4; }
+.pop .hd{ padding:6px 10px; font-weight:600; border-bottom:1px solid var(--line); } .pop .it{ display:flex; gap:8px; align-items:center; padding:6px 10px; color:var(--warn); } .pop .it a{ margin-left:auto; color:var(--accent); text-decoration:underline; }
+
+/* ---------- M1.2d: catalog sheet, save dialog, Section menu ---------- */
+.srcchip{ position:absolute; z-index:2; top:36px; left:8px; padding:2px 10px; border:1px solid var(--vp-mute); border-radius:12px; background:var(--vp-soft); color:var(--vp-ink); font-size:11px; }
+.secbody.withdlg{ margin-right:404px; }
+.dlg{ position:absolute; z-index:5; background:var(--surface); border:1px solid var(--control); box-shadow:0 8px 24px rgba(0,0,0,.28); display:flex; flex-direction:column; gap:6px; padding:12px; font-size:12px; line-height:16px; }
+.dlg.cat{ right:0; top:32px; bottom:0; width:400px; border-radius:6px 0 0 6px; }
+.dlg.save{ left:50%; top:120px; width:380px; transform:translateX(-50%); border-radius:6px; }
+.dlg .dh{ font-weight:600; font-size:13px; } .dlg .dsub, .dlg .dnote{ color:var(--mute); }
+.dlg .fl{ font-weight:600; margin-top:4px; }
+.dlg input{ min-height:28px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--canvas); color:var(--ink); font:inherit; }
+.dlg input.focus{ outline:2px solid var(--accent); outline-offset:1px; }
+.dlg input[aria-invalid="true"]{ border-color:var(--danger); }
+.dlg .count{ color:var(--mute); }
+.dlg .list{ flex:1; min-height:0; overflow:hidden; border:1px solid var(--line); border-radius:4px; background:var(--canvas); }
+.dlg .fam{ padding:4px 8px; font-weight:600; color:var(--mute); background:var(--soft); }
+.dlg .opt{ display:flex; align-items:center; gap:8px; min-height:24px; padding:0 8px; }
+.dlg .opt .on{ white-space:nowrap; } .dlg .opt .ex{ color:var(--mute); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dlg .opt .tag{ margin-left:auto; padding:0 6px; border:1px solid var(--line); border-radius:8px; color:var(--mute); white-space:nowrap; }
+.dlg .opt.dis .on{ color:var(--mute); }
+.dlg .opt.act{ outline:2px solid var(--accent); outline-offset:-2px; background:var(--soft); }
+.dlg .empty, .dlg .err{ padding:6px 8px; color:var(--mute); }
+.dlg .err{ color:var(--danger); border-bottom:1px solid var(--line); }
+.dlg .detail{ min-height:64px; padding:6px 8px; border:1px solid var(--line); border-radius:4px; background:var(--canvas); }
+.dlg .detail.warn{ border-color:var(--warn); border-left-width:3px; color:var(--ink); }
+.dlg .detail b{ font-weight:600; }
+.dlg .ferr{ color:var(--danger); }
+.dlg .prov{ display:flex; gap:8px; } .dlg .prov span{ width:80px; color:var(--mute); } .dlg .prov b{ font-weight:600; }
+.dlg .dbtns{ display:flex; gap:6px; align-items:center; } .dlg .dbtns .sp{ flex:1; }
+.dlg button{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.dlg .primary{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
+.dlg .primary[aria-disabled="true"]{ background:var(--soft); color:var(--mute); border-color:var(--line); }
+.dlg .tcopt{ display:flex; gap:6px; align-items:center; min-height:24px; }
+.menu{ position:absolute; z-index:5; left:250px; top:30px; width:280px; padding:4px 0; background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.28); font-size:12px; }
+.menu .mi{ display:flex; align-items:center; min-height:24px; padding:0 10px 0 4px; } .menu .mi .ck{ width:18px; text-align:center; color:var(--accent); }
+.menu .mi.focus{ background:var(--accent); color:var(--on-accent); } .menu .mi.focus .ck{ color:var(--on-accent); }
+.menu .msep{ height:1px; margin:4px 0; background:var(--line); }
+table.drt{ border-collapse:collapse; max-width:1280px; font-size:12px; } table.drt th, table.drt td{ text-align:left; vertical-align:top; padding:6px 8px; border-bottom:1px solid var(--line); }
+table.drt th{ color:var(--mute); font-weight:600; } table.drt td:nth-child(3){ color:var(--ink); } table.drt td:nth-child(4){ color:var(--mute); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>M1.2d — Replace from catalog and My sections, in today's section editor</h1>
+  <p>Example foil · Root and Tip share section-a · fits and records from the probe receipt (docs/proof/m12d-catalog) · previews computed from the NACA closed form</p>
+  <label for="state">State <select id="state"></select></label>
+  <button type="button" id="theme" aria-pressed="false">Dark theme</button>
+</header>
+<main id="screens"></main>
+<script>
+'use strict';
+const MEASURE = {};
+const PROBE = {"n":{"fit4412OwnUm":5.544,"points4412":15,"change4412Chord":0.0409,"change4412Mm":4.908,"change4412X":0.3955,"fit4412AUm":26.86,"fit4412NUm":17.21,"fit0012AUm":9.749,"change0012Mm":0.7942,"change0012X":0.1123,"fit0009AUm":7.313,"rot4412Deg":-0.174,"le4412X":-0.0003002},"shared4412":{"knots":[0,0,0,0,0,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1,1,1,1,1],"upper":[[0,0],[0,0.003639155673387691],[0.0020000000000000005,0.010897263666707494],[0.011,0.02264855258681747],[0.035,0.03935879183296997],[0.085,0.060518223139211604],[0.155,0.07965057737700044],[0.24500000000000002,0.09372630199624021],[0.355,0.09998779813026984],[0.485,0.09325517941896125],[0.635,0.07811965701828028],[0.7710000000000001,0.05510656370617808],[0.882,0.031300004659509544],[0.96,0.011158330328679085],[1,0]],"lower":[[0,0],[0,-0.0034991549045206697],[0.0020000000000000005,-0.010423226459801772],[0.011,-0.019067784692288207],[0.035,-0.027326219310647912],[0.085,-0.03229470185756074],[0.155,-0.0321279227374732],[0.24500000000000002,-0.027999660590464354],[0.355,-0.021209060494736528],[0.485,-0.01658340571697492],[0.635,-0.008823341377451097],[0.7710000000000001,-0.004456364238702758],[0.882,-0.0016860483500064699],[0.96,-0.0005700360275956077],[1,0]]}};
+// ================================================================ geometry (example.foil)
+const RAD = 0.017453292519943295, HALF = 450, LEAD = 0, TRAIL = 120, CHORD = TRAIL - LEAD, TC = 0.12, P5 = 5;
+const K3 = [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1], K5 = [0, 0, 0, 0, 0, 0, 1 / 3, 2 / 3, 1, 1, 1, 1, 1, 1];
+const TWIST = [[0, 0], [0.1, 0], [0.3, -0.25], [0.5, -0.5], [0.7, -1], [0.9, -1.5], [1, -2]];
+const DIHEDRAL = [[0, 0], [0.1, 0], [0.3, 0], [0.5, 0], [0.7, 0], [0.9, 0], [1, 0]];           // the fixture's (flat)
+const THICK = [[0, 12], [0.1, 12], [0.3, 12], [0.5, 12], [0.7, 12], [0.9, 12], [1, 12]];
+const UPPER = [[0, 0], [0, 0.025], [0.15, 0.055], [0.35, 0.065], [0.55, 0.05], [0.75, 0.03], [0.9, 0.01], [1, 0]];
+const LOWER = UPPER.map(([x, z]) => [x, -z]);
+function deBoor(p, U, P, u){
+  const n = P.length - 1; u = Math.min(Math.max(u, U[p]), U[n + 1]);
+  let k = p; while (k < n && u >= U[k + 1]) k++;
+  const d = []; for (let j = 0; j <= p; j++) d.push(P[k - p + j].slice());
+  for (let r = 1; r <= p; r++) for (let j = p; j >= r; j--){
+    const i = k - p + j, den = U[i + p - r + 1] - U[i], a = den ? (u - U[i]) / den : 0;
+    d[j] = [(1 - a) * d[j - 1][0] + a * d[j][0], (1 - a) * d[j - 1][1] + a * d[j][1]]; }
+  return d[p];
+}
+const crv = (U, P) => ({ U, P });
+const at = (c, u) => deBoor(P5, c.U, c.P, u);
+function insertOnce(c, u){                                    // Boehm (Piegl–Tiller A5.1, r = 1)
+  let k = P5; while (k < c.P.length - 1 && u >= c.U[k + 1]) k++;
+  const Q = []; for (let i = 0; i <= k - P5; i++) Q.push(c.P[i].slice());
+  for (let i = k - P5 + 1; i <= k; i++){ const a = (u - c.U[i]) / (c.U[i + P5] - c.U[i]); Q.push([(1 - a) * c.P[i - 1][0] + a * c.P[i][0], (1 - a) * c.P[i - 1][1] + a * c.P[i][1]]); }
+  for (let i = k; i < c.P.length; i++) Q.push(c.P[i].slice());
+  return crv(c.U.slice(0, k + 1).concat([u], c.U.slice(k + 1)), Q);
+}
+function uOfX(c, x){ let a = 0, b = 1; for (let i = 0; i < 64; i++){ const m = (a + b) / 2; if (at(c, m)[0] < x) a = m; else b = m; } return (a + b) / 2; }
+const yOfX = (c, x) => at(c, uOfX(c, x))[1];
+// an interior vertex is an anchor iff one interior knot of multiplicity exactly p sits at it (ADR-0005; FoilSource.IsAnchor, p-general)
+function isAnchor(c, i){ const U = c.U, n = c.P.length; if (i < 1 || i > n - 2) return false; const k = U[i + 1];
+  for (let j = 2; j <= P5; j++) if (U[i + j] !== k) return false; return U[i] !== k && U[i + P5 + 1] !== k && k > 0 && k < 1; }
+function roles(c){ const n = c.P.length, r = c.P.map((_, i) => 'control');
+  r[0] = 'nose'; r[1] = 'nosehandle'; r[n - 1] = 'te'; r[n - 2] = 'tehandle';
+  for (let i = 2; i < n - 2; i++) if (isAnchor(c, i)){ r[i] = 'anchor'; if (r[i - 1] === 'control') r[i - 1] = 'handle'; if (r[i + 1] === 'control') r[i + 1] = 'handle'; }
+  return r; }
+// Control -> Anchor on ONE surface (ADR-0005 decision 5, per surface under DR-11)
+function makeAnchor(c, idx){
+  const P = c.P[idx], u = uOfX(c, P[0]); let d = c;
+  for (let r = 0; r < P5; r++) d = insertOnce(d, u);
+  const on = at(d, u), ai = d.P.findIndex(q => Math.hypot(q[0] - on[0], q[1] - on[1]) < 1e-12), dy = P[1] - on[1];
+  let boehm = 0; for (let i = 0; i <= 400; i++){ const a = at(c, i / 400), b = at(d, i / 400); boehm = Math.max(boehm, Math.hypot(a[0] - b[0], a[1] - b[1])); }
+  return { c:crv(d.U, d.P.map((q, i) => i >= ai - 1 && i <= ai + 1 ? [q[0], q[1] + dy] : q.slice())), ai, dy, u, boehm };
+}
+const horizontal = (c, ai) => crv(c.U, c.P.map((q, i) => i === ai - 1 || i === ai + 1 ? [q[0], c.P[ai][1]] : q.slice()));
+function maxChange(a, b){ let m = 0; for (let i = 1; i < 800; i++){ const x = i / 800; m = Math.max(m, Math.abs(yOfX(a, x) - yOfX(b, x))); } return m; }
+function thickness(up, lo){ let t = 0, xt = 0; for (let i = 1; i < 800; i++){ const x = i / 800, d = yOfX(up, x) - yOfX(lo, x); if (d > t){ t = d; xt = x; } } return { t, x:xt }; }
+function crossing(up, lo){ let a = null, b = null; for (let i = 1; i < 800; i++){ const x = i / 800; if (yOfX(up, x) <= yOfX(lo, x)){ if (a === null) a = x; b = x; } } return a === null ? null : [a, b]; }
+const UP0 = crv(K5, UPPER), LO0 = crv(K5, LOWER);
+const ANCH = makeAnchor(UP0, 3), UP1 = horizontal(ANCH.c, ANCH.ai);
+const T0 = thickness(UP0, LO0);
+const knotsHave = (c, k) => c.U.includes(k);
+const handleLen = (c, ai, k) => Math.hypot(c.P[ai + k][0] - c.P[ai][0], c.P[ai + k][1] - c.P[ai][1]);
+Object.assign(MEASURE, { anchorU: +ANCH.u.toFixed(6), upperPointsBefore: UP0.P.length, upperPointsAfter: UP1.P.length, lowerPoints: LO0.P.length,
+  boehmShapeChange: ANCH.boehm, anchorShiftPctChord: +(ANCH.dy * 100).toFixed(3), largestChangePct: +(maxChange(UP0, ANCH.c) * 100).toFixed(2),
+  horizontalLargestChangePct: +(maxChange(UP0, UP1) * 100).toFixed(2), ownThicknessBefore: [+(T0.t * 100).toFixed(2), +(T0.x * 100).toFixed(1)] });
+// curvature from the analytic B-spline derivatives (derivative control points, Piegl–Tiller §3.3), never finite differences
+function derivOf(U, P, p){ const Q = []; for (let i = 0; i < P.length - 1; i++){ const d = U[i + p + 1] - U[i + 1]; Q.push(d ? [p * (P[i + 1][0] - P[i][0]) / d, p * (P[i + 1][1] - P[i][1]) / d] : [0, 0]); } return { U:U.slice(1, -1), P:Q, p:p - 1 }; }
+function kappa(c, u){ const d1 = derivOf(c.U, c.P, P5), d2 = derivOf(d1.U, d1.P, d1.p), a = deBoor(d1.p, d1.U, d1.P, u), b = deBoor(d2.p, d2.U, d2.P, u);
+  return (a[0] * b[1] - a[1] * b[0]) / Math.pow(Math.hypot(a[0], a[1]), 3); }
+const leRadius = c => 1 / Math.abs(kappa(c, 0));                                      // chord fractions
+// the same readouts as BUILT at a station (Rule A, one profile): placed y = C ± tc·T/2. LE radius from y² ≈ 2 r x at the
+// nose (vertical tangent), wedge from the placed slopes at x = 1 (Marine-CAD MC-12C-R1: own vs at-station)
+function placedFacts(up, lo, tc){ const m = thickness(up, lo).t, Y = x => { const u = yOfX(up, x), l = yOfX(lo, x), C = (u + l) / 2, T = (u - l) / m; return [C + tc * T / 2, C - tc * T / 2]; };
+  const x0 = 1e-6, n = Y(x0), h = 1e-5, a = Y(1 - h), b = Y(1);
+  return { leUp: n[0] * n[0] / (2 * x0), leLo: n[1] * n[1] / (2 * x0), wedge: Math.abs(Math.atan((b[0] - a[0]) / h) - Math.atan((b[1] - a[1]) / h)) * 180 / Math.PI, gap: b[0] - b[1] }; }
+function teWedgeDeg(up, lo){ const n = up.P.length - 1, m = lo.P.length - 1, du = [up.P[n][0] - up.P[n - 1][0], up.P[n][1] - up.P[n - 1][1]], dl = [lo.P[m][0] - lo.P[m - 1][0], lo.P[m][1] - lo.P[m - 1][1]];
+  return Math.abs(Math.atan2(du[1], du[0]) - Math.atan2(dl[1], dl[0])) * 180 / Math.PI; }
+const KBREAK = [kappa(UP1, ANCH.u - 1e-9), kappa(UP1, ANCH.u + 1e-9)];             // one-sided curvature either side of the anchor
+// Anchor -> Control on the new anchor (multiplicity 5 -> 3, the two handles removed): its measured change
+const ANCH_BACK = (function(){ const ai = ANCH.ai, U = UP1.U.slice(), k = U.indexOf(ANCH.u); U.splice(k, 2); return crv(U, UP1.P.filter((_, i) => i !== ai - 1 && i !== ai + 1)); })();
+// ================================================================ paired point types (Ruling 60; ADR-0005 §6; design §3.4 SPTF)
+// Control -> Anchor: the selected surface gets the ADR-0005 decision-5 step; the other surface gets the same knots by Boehm
+// (exact: the alphas depend only on the knots), so its vertex at u* becomes an anchor with its shape unchanged.
+const LO_K = (function(){ let d = LO0; for (let r = 0; r < P5; r++) d = insertOnce(d, ANCH.u); return d; })();
+const LO1 = horizontal(LO_K, ANCH.ai);                                                   // the kind applies to both surfaces
+const sameKnots = (a, b) => a.U.length === b.U.length && a.U.every((k, i) => k === b.U[i]);
+const sameX = (a, b) => a.P.length === b.P.length && a.P.every((q, i) => q[0] === b.P[i][0]);
+function maxDev(a, b, n){ let m = 0; for (let i = 0; i <= n; i++){ const p = at(a, i / n), q = at(b, i / n); m = Math.max(m, Math.hypot(p[0] - q[0], p[1] - q[1])); } return m; }
+const TP = thickness(UP1, LO1);
+Object.assign(MEASURE, { pairedKnotsEqual: sameKnots(UP1, LO1), pairedAbscissaeEqual: sameX(UP1, LO1), pairedLowerPoints: LO1.P.length,
+  pairedLowerBoehmChange: maxDev(LO0, LO_K, 400), pairedLowerIsAnchor: isAnchor(LO1, ANCH.ai),
+  pairedLowerHorizontalChangePct: +(maxChange(LO0, LO1) * 100).toFixed(3), ownThicknessAfter: [+(TP.t * 100).toFixed(2), +(TP.x * 100).toFixed(1)] });
+
+// paired x move: a control point well clear of the anchor moves in x on both surfaces (the abscissa stays shared)
+const XM = (function(){ const i = ANCH.ai + 3, to = 0.60;                                // the control point after the anchor's tail handle, typed to 60 %
+  const mv = c => crv(c.U, c.P.map((q, k) => k === i ? [to, q[1]] : q.slice()));
+  return { i, to, from:UP1.P[i][0], up:mv(UP1), lo:mv(LO1) }; })();
+const TX = thickness(XM.up, XM.lo);
+Object.assign(MEASURE, { xMoveIndex: XM.i, xMoveFromPct: +(XM.from * 100).toFixed(2), xMoveToPct: +(XM.up.P[XM.i][0] * 100).toFixed(2),
+  xMoveAbscissaeEqual: sameX(XM.up, XM.lo), xMoveMonotone: XM.up.P.every((q, k) => !k || q[0] >= XM.up.P[k - 1][0]),
+  xMoveChangePct: [+(maxChange(UP1, XM.up) * 100).toFixed(2), +(maxChange(LO1, XM.lo) * 100).toFixed(2)], xMoveOwnThickness: [+(TX.t * 100).toFixed(2), +(TX.x * 100).toFixed(1)] });
+
+// paired Anchor -> Control on the anchor: the upper surface loses its two handles (multiplicity 5 -> 3, ADR-0005 decision 5);
+// the shared x-mapping changes, so the LOWER surface is refitted on the new basis by least squares at equal x, with the nose
+// and trailing-edge vertices held (the neighbouring anchors). Its deviation is measured at equal x against 10 µm at the
+// largest local chord using the section (Root and Tip, both 120.00 mm in example.foil).
+function solve(A, b){ const n = b.length, M = A.map((r, i) => r.concat([b[i]]));
+  for (let c = 0; c < n; c++){ let p = c; for (let r = c + 1; r < n; r++) if (Math.abs(M[r][c]) > Math.abs(M[p][c])) p = r; [M[c], M[p]] = [M[p], M[c]];
+    for (let r = 0; r < n; r++) if (r !== c){ const f = M[r][c] / M[c][c]; for (let k = c; k <= n; k++) M[r][k] -= f * M[c][k]; } }
+  return M.map((r, i) => r[n] / r[i]); }
+const REFIT = (function(){
+  const U = ANCH_BACK.U, X = ANCH_BACK.P.map(q => q[0]), n = X.length, free = [];
+  for (let i = 1; i < n - 1; i++) free.push(i);
+  const xc = crv(U, X.map(x => [x, 0])), basis = u => X.map((_, j) => deBoor(P5, U, X.map((x, k) => [x, k === j ? 1 : 0]), u)[1]);
+  const fixedY = i => LO1.P[i === 0 ? 0 : LO1.P.length - 1][1], rows = [], rhs = [];
+  for (let s = 1; s < 400; s++){ const x = s / 400, u = uOfX(xc, x), N = basis(u); let r = yOfX(LO1, x);
+    [0, n - 1].forEach(i => { r -= N[i] * fixedY(i); }); rows.push(free.map(i => N[i])); rhs.push(r); }
+  const A = free.map((_, a) => free.map((_, b) => rows.reduce((s, row) => s + row[a] * row[b], 0))), b = free.map((_, a) => rows.reduce((s, row, k) => s + row[a] * rhs[k], 0));
+  const y = solve(A, b), P = X.map((x, i) => [x, i === 0 || i === n - 1 ? fixedY(i) : y[free.indexOf(i)]]), c = crv(U, P);
+  let dev = 0, xAt = 0; for (let s = 1; s < 2000; s++){ const x = s / 2000, d = Math.abs(yOfX(c, x) - yOfX(LO1, x)); if (d > dev){ dev = d; xAt = x; } }
+  return { c, dev, xAt }; })();
+const LIMIT_MM = 0.010, CHORDS = [['Root', 120], ['Tip', 120]], LIMIT_CHORD = Math.min(...CHORDS.map(c => c[1]));
+Object.assign(MEASURE, { refitLowerDevPct: +(REFIT.dev * 100).toFixed(4), refitLowerDevMm: +(REFIT.dev * LIMIT_CHORD).toFixed(4), refitAtPct: +(REFIT.xAt * 100).toFixed(1),
+  refitLimitMm: LIMIT_MM, refitLimitPct: +(LIMIT_MM / LIMIT_CHORD * 100).toFixed(4), refitRefused: REFIT.dev * LIMIT_CHORD > LIMIT_MM,
+  refitUpperChangePct: +(maxChange(UP1, ANCH_BACK) * 100).toFixed(2) });
+
+// the crossing screen under paired types: the lower vertex nearest 75 % chord (the approved show's "lower point 6") dragged to 10 % chord (a denser net needs a longer drag to cross)
+const XI = LO1.P.reduce((b, q, k) => Math.abs(q[0] - 0.75) < Math.abs(LO1.P[b][0] - 0.75) ? k : b, 0);
+const LO2 = crv(LO1.U, LO1.P.map((q, i) => i === XI ? [q[0], 0.10] : q.slice()));
+const CROSS = crossing(UP1, LO2);
+Object.assign(MEASURE, { crossIndex: XI, crossingPct: CROSS && CROSS.map(v => +(v * 100).toFixed(1)) });
+Object.assign(MEASURE, { curvatureBreakAtAnchorLower: [kappa(LO1, ANCH.u - 1e-9), kappa(LO1, ANCH.u + 1e-9)].map(v => +v.toFixed(3)) });
+Object.assign(MEASURE, { leRadiusUpperPct:+(leRadius(UP1) * 100).toFixed(2), leRadiusLowerPct:+(leRadius(LO1) * 100).toFixed(2),
+  teWedgeDeg:+teWedgeDeg(UP1, LO1).toFixed(2), teGapPct:+((UP1.P[UP1.P.length - 1][1] - LO1.P[LO1.P.length - 1][1]) * 100).toFixed(2),
+  curvatureBreakAtAnchor:KBREAK.map(v => +v.toFixed(3)), anchorToControlPoints:ANCH_BACK.P.length, anchorToControlChangePct:+(maxChange(UP1, ANCH_BACK) * 100).toFixed(2) });
+
+// ================================================================ placement (Rule A, FoilDSL §6) for the views
+function channel(P){ const s = []; for (let i = 0; i <= 800; i++) s.push(deBoor(3, K3, P, i / 800));
+  return { samples:s, at(eta){ for (let i = 1; i < s.length; i++) if (s[i][0] >= eta){ const a = s[i - 1], b = s[i], w = b[0] === a[0] ? 0 : (eta - a[0]) / (b[0] - a[0]); return a[1] + w * (b[1] - a[1]); } return s[s.length - 1][1]; } }; }
+const twist = channel(TWIST), dihedral = channel(DIHEDRAL), thick = channel(THICK);
+const NS = 36;
+function ringOf(up, lo){                                       // Rule A at equal x (each side on its own basis)
+  const m = thickness(up, lo).t, U = [], L = [];
+  for (let s = 0; s <= NS; s++){ const x = (1 - Math.cos(Math.PI * s / NS)) / 2, u = s === 0 ? 0 : yOfX(up, x), l = s === 0 ? 0 : yOfX(lo, x);
+    const C = (u + l) / 2, T = (u - l) / m; U.push([x, C + T * TC / 2]); L.push([x, C - T * TC / 2]); }
+  return U.concat(L.slice(1, NS).reverse());
+}
+function place(e, [x, z]){ const eta = Math.abs(e), phi = twist.at(eta) * RAD, D = dihedral.at(eta), c = Math.cos(phi), s = Math.sin(phi);
+  return [LEAD + CHORD * (x * c + z * s), e * HALF, D + CHORD * (z * c - x * s)]; }
+function meshOf(ring){ const M = []; for (let i = 0; i <= 40; i++){ const e = -1 + i / 20; M.push(ring.map(p => place(e, p))); } return M; }
+const RING0 = ringOf(UP0, LO0), RING1 = ringOf(UP1, LO1), MESH0 = meshOf(RING0), MESH1 = meshOf(RING1);
+// OD-1 C: raise RECORD upper point 4 by 0.5 % chord (0.6 mm at 120 mm); how far do the PLACED surfaces move at the root?
+(function(){ const up = crv(K5, UPPER.map((q, i) => i === 3 ? [q[0], q[1] + 0.005] : q.slice())), m0 = thickness(UP0, LO0).t, m1 = thickness(up, LO0).t, D = [];
+  let at35 = null; for (let i = 1; i < 120; i++){ const x = i / 120, u0 = yOfX(UP0, x), l0 = yOfX(LO0, x), u1 = yOfX(up, x), l1 = l0;
+    const pu0 = (u0 + l0) / 2 + TC * (u0 - l0) / m0 / 2, pl0 = (u0 + l0) / 2 - TC * (u0 - l0) / m0 / 2, pu1 = (u1 + l1) / 2 + TC * (u1 - l1) / m1 / 2, pl1 = (u1 + l1) / 2 - TC * (u1 - l1) / m1 / 2;
+    D.push([x, CHORD * (pu1 - pu0), CHORD * (pl1 - pl0)]); }
+  const u35 = yOfX(up, .35), l35 = yOfX(LO0, .35), b35 = yOfX(UP0, .35);
+  at35 = [CHORD * (((u35 + l35) / 2 + TC * (u35 - l35) / m1 / 2) - ((b35 + l35) / 2 + TC * (b35 - l35) / m0 / 2)), CHORD * (((u35 + l35) / 2 - TC * (u35 - l35) / m1 / 2) - ((b35 + l35) / 2 - TC * (b35 - l35) / m0 / 2))];
+  MEASURE.od1c = { recordMoveMm: +(0.005 * CHORD).toFixed(2), placedUpperAt35Mm: +at35[0].toFixed(3), placedLowerAt35Mm: +at35[1].toFixed(3), samples:D }; })();
+
+// ================================================================ drawing helpers
+const C = { vp:'#17272c', soft:'#243a40', ink:'#edf4f2', mute:'#afc6c7', grid:'#344b50', foil:'#85c9c4', edge:'#c4e7df', station:'#66ddc8', lit:'#3f6a6c', danger:'#ffaeb5' };
+const f2 = v => (v < 0 ? '−' : '') + Math.abs(v).toFixed(2), f1 = v => (v < 0 ? '−' : '') + Math.abs(v).toFixed(1);
+function mix(a, b, t){ const p = h => [1, 3, 5].map(i => parseInt(h.substr(i, 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(',')})`; }
+function line(g, pts, color, w, dash){ g.save(); g.strokeStyle = color; g.lineWidth = w; g.setLineDash(dash || []); g.lineJoin = 'round'; g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); g.restore(); }
+function chip(g, x, y, text){ g.save(); g.font = '600 11px system-ui, sans-serif'; const w = g.measureText(text).width + 12; g.fillStyle = C.soft; g.fillRect(x, y - 9, w, 18); g.strokeStyle = C.station; g.lineWidth = 1; g.strokeRect(x + .5, y - 8.5, w - 1, 17); g.fillStyle = C.ink; g.fillText(text, x + 6, y + 4); g.restore(); }
+// M1.2b glyphs (§11.2): anchor 12 px hollow square; control 11 px filled circle; named 14 px hollow diamond; handle 9 px hollow circle
+function glyph(g, x, y, kind, selected, focus){
+  g.save(); g.lineWidth = 1.5;
+  if (focus){ g.beginPath(); g.arc(x, y, 13, 0, 7); g.strokeStyle = C.vp; g.lineWidth = 5; g.stroke(); g.strokeStyle = C.station; g.lineWidth = 3; g.stroke(); g.lineWidth = 1.5; }
+  if (kind === 'nose' || kind === 'te'){ g.beginPath(); g.moveTo(x, y - 7); g.lineTo(x + 7, y); g.lineTo(x, y + 7); g.lineTo(x - 7, y); g.closePath(); g.fillStyle = selected ? C.station : C.vp; g.fill(); g.strokeStyle = C.foil; g.stroke(); }
+  else if (kind === 'anchor'){ g.fillStyle = selected ? C.station : C.vp; g.fillRect(x - 6, y - 6, 12, 12); g.strokeStyle = selected ? C.station : C.foil; g.strokeRect(x - 6, y - 6, 12, 12); }
+  else if (kind === 'handle' || kind === 'nosehandle' || kind === 'tehandle'){ g.beginPath(); g.arc(x, y, 4.5, 0, 7); g.fillStyle = selected ? C.station : C.vp; g.fill(); g.strokeStyle = C.station; g.stroke(); }
+  else if (selected){ g.beginPath(); g.arc(x, y, 5.5, 0, 7); g.fillStyle = C.vp; g.fill(); g.lineWidth = 2; g.strokeStyle = C.station; g.stroke(); g.beginPath(); g.arc(x, y, 2, 0, 7); g.fillStyle = C.station; g.fill(); }
+  else { g.beginPath(); g.arc(x, y, 5.5, 0, 7); g.fillStyle = C.foil; g.fill(); }
+  g.restore();
+}
+function polyGlyphs(g, pts){ line(g, pts, 'rgba(133,201,196,0.55)', 1, [4, 3]); pts.forEach((p, i) => glyph(g, p[0], p[1], i === 0 || i === pts.length - 1 ? 'te' : 'ctrl', false)); }
+
+// ---------------------------------------------------------------- the section editor canvas (record coordinates, % chord)
+function drawSection(g, w, h, o){
+  const [x0, x1] = o.view || [-0.04, 1.04], ys = o.x2 ? 2 : 1, s = (w - 60) / (x1 - x0);
+  const cy = h / 2 + (o.yShift || 0) * s * ys, S = ([x, y]) => [30 + (x - x0) * s, cy - y * s * ys];
+  const step = (x1 - x0) > 0.6 ? 0.1 : 0.05;
+  g.font = '11px system-ui, sans-serif';
+  const lstep = s * step < 44 ? step * 2 : step; for (let x = Math.ceil(x0 / step) * step; x <= x1 + 1e-9; x += step){ const X = S([x, 0])[0]; line(g, [[X, 34], [X, h - 30]], C.grid, 1); if (Math.abs(Math.round(x / lstep) * lstep - x) < 1e-9 && X < w - 40){ g.fillStyle = C.mute; g.fillText(`${Math.round(x * 100)} %`, X + 3, h - 34); } }
+  line(g, [S([x0, 0]), S([x1, 0])], C.mute, 1);
+  const curvePts = c => { const r = []; for (let i = 0; i <= 600; i++) r.push(S(at(c, i / 600))); return r; };
+  if (o.ghost) o.ghost.forEach(c => line(g, curvePts(c), C.mute, 1, [3, 3]));
+  if (o.preview) o.preview.forEach(pts => line(g, pts.map(S), C.station, 2, [7, 4]));
+  const crossMark = () => { if (o.cross){ [o.up, o.lo].forEach(c => { const r = []; for (let i = 0; i <= 80; i++){ const x = o.cross[0] + (o.cross[1] - o.cross[0]) * i / 80; r.push(S([x, yOfX(c, x)])); } line(g, r, C.danger, 4, [6, 4]); }); } };
+  const out = { pts:[] };
+  if (o.comb){                                                 // comb: teeth outward, length ∝ κ, auto-scaled; nose teeth clipped and marked
+    const teeth = [];
+    [o.up, o.lo].forEach(c => { const knots = [...new Set(c.U)].filter(k => k > 0 && k < 1);
+      for (let i = 1; i < 400; i++){ const u = i / 400; if (knots.some(k => Math.abs(u - k) < 1e-6)) continue; teeth.push([c, u]); }
+      if (knots.includes(ANCH.u)){ teeth.push([c, ANCH.u - 1e-9, true]); teeth.push([c, ANCH.u + 1e-9, true]); } });
+    const vals = teeth.map(([c, u]) => Math.abs(kappa(c, u))).sort((a, b) => a - b), p90 = vals[Math.floor(vals.length * 0.9)];
+    const scale = 30 / p90, maxLen = 60; let clipped = 0;
+    teeth.forEach(([c, u, brk]) => { const k = kappa(c, u), d1 = derivOf(c.U, c.P, P5), t = deBoor(d1.p, d1.U, d1.P, u), L = Math.hypot(t[0], t[1]), n = [-t[1] / L, t[0] / L];
+      const q = at(c, u), A = S(q), len = Math.min(Math.abs(k) * scale, maxLen), dir = -Math.sign(k), B = [A[0] + dir * n[0] * len, A[1] - dir * n[1] * len];
+      if (Math.abs(k) * scale > maxLen){ clipped++; line(g, [[B[0] - 2, B[1] - 2], [B[0] + 2, B[1] + 2]], C.mute, 1); }
+      line(g, [A, B], brk ? C.station : 'rgba(175,198,199,0.5)', brk ? 2 : 1); });
+    [o.up, o.lo].forEach(c => { if (knotsHave(c, ANCH.u)){ const ap = S(at(c, ANCH.u)); line(g, [[ap[0], ap[1] - 20], [ap[0], ap[1] + 20]], C.station, 2, [3, 2]); } });
+    out.combClipped = clipped;
+  }
+  line(g, curvePts(o.up), C.foil, 2); line(g, curvePts(o.lo), C.foil, 2); crossMark();
+  if (o.moved) [o.up, o.lo].forEach(c => { const to = S(c.P[o.moved.i]), from = S([o.moved.from, c.P[o.moved.i][1]]);   // paired x move: ghost, arrow
+    g.save(); g.beginPath(); g.arc(from[0], from[1], 5.5, 0, 7); g.strokeStyle = C.mute; g.lineWidth = 1.5; g.setLineDash([2, 2]); g.stroke(); g.restore();
+    const d = Math.sign(to[0] - from[0]); line(g, [[from[0] + d * 8, from[1]], [to[0] - d * 9, to[1]]], C.station, 1.5);
+    line(g, [[to[0] - d * 15, to[1] - 4], [to[0] - d * 9, to[1]], [to[0] - d * 15, to[1] + 4]], C.station, 1.5); });
+  if (o.refuse){ const q = S([o.refuse.x, yOfX(o.lo, o.refuse.x)]); line(g, [[q[0], q[1] - 14], [q[0], q[1] + 14]], C.danger, 2, [4, 3]);
+    g.save(); g.font = '11px system-ui, sans-serif'; g.fillStyle = C.danger; g.fillText(o.refuse.label, q[0] - 40, q[1] + 46); g.restore(); }
+  if (o.pointer !== undefined){ const p = S([o.pointer, yOfX(o.up, o.pointer)]), q = S([o.pointer, yOfX(o.lo, o.pointer)]); line(g, [[p[0], p[1] - 16], [q[0], q[1] + 16]], C.ink, 1, [2, 2]); }
+  [['upper', o.up], ['lower', o.lo]].forEach(([side, c]) => {
+    const active = o.sel ? o.sel.side === side : side === 'upper', R = roles(c), P = c.P.map(S);
+    line(g, P, active ? 'rgba(133,201,196,0.62)' : 'rgba(133,201,196,0.38)', 1, [4, 3]);
+    R.forEach((r, i) => { if (r === 'anchor'){ line(g, [P[i - 1], P[i + 1]], C.station, 1); } });
+    line(g, [P[0], P[1]], C.station, 1); line(g, [P[P.length - 2], P[P.length - 1]], C.station, 1);
+    R.forEach((r, i) => { if (side === 'lower' && r === 'nose') return; const sel = o.sel && o.sel.side === side && o.sel.i === i;
+      glyph(g, P[i][0], P[i][1], r, sel, sel); out.pts.push({ side, i, r, x:P[i][0], y:P[i][1] }); });
+  });
+  if (o.sel && o.partner){                                    // the pairing cue: the partner on the other surface, linked at the shared x
+    const a = out.pts.find(p => p.side === o.sel.side && p.i === o.sel.i), b = out.pts.find(p => p.side === o.partner.side && p.i === o.partner.i);
+    if (a && b){ line(g, [[a.x, a.y], [b.x, b.y]], C.station, 1, [2, 3]);
+      g.save(); g.beginPath(); g.arc(b.x, b.y, 10, 0, 7); g.strokeStyle = C.station; g.lineWidth = 1.5; g.setLineDash([3, 2]); g.stroke();
+      g.font = '11px system-ui, sans-serif'; g.fillStyle = C.station; g.fillText(`${o.partner.side} pt ${o.partner.i + 1} · paired`, b.x + 14, b.y + (b.y > a.y ? 16 : -10)); g.restore(); }
+    out.partnerPx = a && b ? +Math.abs(a.x - b.x).toFixed(3) : null; }
+  const lab = (c, dy, t) => { const p = S(c.P[c.P.length - 1]); g.fillStyle = C.mute; g.fillText(t, Math.min(p[0] + 12, w - 44), p[1] + dy); };
+  if (x1 >= 1) { lab(o.up, -10, 'Upper'); lab(o.lo, 18, 'Lower'); }
+  out.pxPerPct = s / 100;
+  return out;
+}
+function minGap(pts){ let m = 1e9; for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++){ const d = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y); if (d < m) m = d; } return m; }
+function gapAround(pts, side, i){ const a = pts.find(p => p.side === side && p.i === i); let m = 1e9; pts.forEach(p => { if (p !== a){ const d = Math.hypot(p.x - a.x, p.y - a.y); if (d < m) m = d; } }); return m; }
+function thumbDraw(g, w, h, up, lo){ const s = (w - 16) / 1, S = ([x, y]) => [8 + x * s, h / 2 - y * s * 2]; const r = []; for (let i = 0; i <= 200; i++) r.push(S(at(up, i / 200))); const q = []; for (let i = 0; i <= 200; i++) q.push(S(at(lo, i / 200))); line(g, r, C.foil, 1.5); line(g, q, C.foil, 1.5); }
+
+// ---------------------------------------------------------------- Plan, 3D, Side, Front (as the M1.2b2 views page)
+function drawPlan(g, w, h){
+  const s = Math.min((w - 80) / (2 * HALF), (h - 140) / CHORD), cx = w / 2, y0 = (h - CHORD * s) / 2 - 10, P = (y, x) => [cx + y * s, y0 + x * s];
+  for (let y = -500; y <= 500; y += 100) line(g, [P(y, -60), P(y, 180)], C.grid, 1); for (let x = -50; x <= 170; x += 50) line(g, [P(-500, x), P(500, x)], C.grid, 1);
+  line(g, [P(0, -40), P(0, 160)], C.mute, 1);
+  g.fillStyle = 'rgba(133,201,196,0.22)'; g.fillRect(P(-HALF, 0)[0], P(0, 0)[1], 2 * HALF * s, CHORD * s);
+  line(g, [P(-HALF, LEAD), P(HALF, LEAD)], C.foil, 1.5); line(g, [P(-HALF, TRAIL), P(HALF, TRAIL)], C.foil, 1.5); line(g, [P(-HALF, LEAD), P(-HALF, TRAIL)], C.edge, 1);
+  polyGlyphs(g, [0, .1, .3, .5, .7, .9, 1].map(e => P(e * HALF, LEAD))); polyGlyphs(g, [0, .1, .3, .5, .7, .9, 1].map(e => P(e * HALF, TRAIL)));
+  line(g, [P(0, LEAD - 6), P(0, TRAIL + 6)], C.station, 3); chip(g, P(0, 0)[0] + 8, P(0, TRAIL + 22)[1], 'Root'); chip(g, P(HALF, 0)[0] - 40, P(0, TRAIL + 22)[1], 'Tip');
+  return { probe:'Root station · η 0.000 · from root 0.00 mm · chord 120.00 mm', scale:`100 mm = ${Math.round(100 * s)} px` };
+}
+function camera(azDeg, elDeg, R){
+  const az = azDeg * Math.PI / 180, el = elDeg * Math.PI / 180, dir = [Math.cos(el) * Math.cos(az), Math.cos(el) * Math.sin(az), Math.sin(el)];
+  const T = [60, 0, 0], eye = T.map((v, i) => v + R * dir[i]), fwd = dir.map(v => -v);
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]], nrm = a => { const l = Math.hypot(...a); return a.map(v => v / l); };
+  const right = nrm(cross(fwd, [0, 0, 1])), up = cross(right, fwd), dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  return { eye, dir, right, up, fwd, dot, cross, nrm, proj(p){ const d = [p[0] - eye[0], p[1] - eye[1], p[2] - eye[2]], zc = dot(d, fwd); return [dot(d, right) / zc, -dot(d, up) / zc, zc]; } };
+}
+function draw3D(g, w, h, MESH){
+  const NR = MESH[0].length, M = 20, cam = camera(135, 28, 2600), PR = MESH.map(r => r.map(p => cam.proj(p)));
+  let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9; PR.flat().forEach(([x, y]) => { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); });
+  const top = 44, bot = 64, s = Math.min((w - 60) / (x1 - x0), (h - top - bot) / (y1 - y0)), ox = (w - (x1 - x0) * s) / 2 - x0 * s, oy = top + (h - top - bot - (y1 - y0) * s) / 2 - y0 * s;
+  const S = p => { const q = cam.proj(p); return [ox + q[0] * s, oy + q[1] * s, q[2]]; };
+  const zmin = Math.min(...MESH.flat().map(p => p[2])) - 10;
+  for (let x = -100; x <= 220; x += 40) line(g, [S([x, -560, zmin]), S([x, 560, zmin])], C.grid, 1);
+  for (let y = -560; y <= 560; y += 80) line(g, [S([-100, y, zmin]), S([220, y, zmin])], C.grid, 1);
+  const V = MESH.map(r => r.map(S)), items = [], facing = [], shade = [];
+  for (let i = 0; i < 2 * M; i++){ facing.push([]); shade.push([]);
+    for (let j = 0; j < NR; j++){ const a = MESH[i][j], b = MESH[i + 1][j], d = MESH[i][(j + 1) % NR];
+      const n = cam.nrm(cam.cross([b[0] - a[0], b[1] - a[1], b[2] - a[2]], [d[0] - a[0], d[1] - a[1], d[2] - a[2]])), v = cam.nrm(cam.eye.map((e, k) => e - a[k])), dv = cam.dot(n, v);
+      facing[i].push(dv > 0); shade[i].push(Math.min(1, Math.abs(dv))); } }
+  const seg = (p, q, color, width) => items.push({ z:(p[2] + q[2]) / 2 - 1.5, f(){ line(g, [p, q], color, width); } });
+  for (let i = 0; i < 2 * M; i++) for (let j = 0; j < NR; j++){
+    const q = [V[i][j], V[i + 1][j], V[i + 1][(j + 1) % NR], V[i][(j + 1) % NR]], col = mix(C.soft, C.lit, shade[i][j]);
+    items.push({ z:(q[0][2] + q[1][2] + q[2][2] + q[3][2]) / 4, f(){ g.beginPath(); q.forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fillStyle = col; g.fill(); g.strokeStyle = col; g.lineWidth = .6; g.stroke(); } }); }
+  for (let i = 0; i < 2 * M; i++) for (let j = 0; j < NR; j++){
+    if (facing[i][j] !== facing[i][(j + NR - 1) % NR]) seg(V[i][j], V[i + 1][j], C.foil, 1.5);
+    if (i > 0 && facing[i][j] !== facing[i - 1][j]) seg(V[i][j], V[i][(j + 1) % NR], C.foil, 1.5); }
+  for (let j = 0; j < NR; j++){ seg(V[M][j], V[M][(j + 1) % NR], C.station, 3); seg(V[0][j], V[0][(j + 1) % NR], C.foil, 1.5); seg(V[2 * M][j], V[2 * M][(j + 1) % NR], C.edge, 1); }
+  items.sort((a, b) => b.z - a.z).forEach(it => it.f());
+  const rootTE = V[M][NS]; chip(g, rootTE[0] + 8, rootTE[1] + 4, 'Root');
+}
+function drawSide(g, w, h, ring){
+  const bandH = Math.round(h * 0.6), sections = [ring.map(p => place(0, p)), ring.map(p => place(1, p))];
+  const xs = sections.flat().map(p => p[0]), zs = sections.flat().map(p => p[2]), xa = Math.min(...xs), xb = Math.max(...xs), za = Math.min(...zs), zb = Math.max(...zs);
+  const s = Math.min((w - 120) / (xb - xa), (bandH - 80) / (zb - za)), right = (w + (xb - xa) * s) / 2, base = 40 + (bandH - 80 + (zb - za) * s) / 2;
+  const S = p => [right - (p[0] - xa) * s, base - (p[2] - za) * s];
+  line(g, [S([xa - 20, 0, 0]), S([xb + 20, 0, 0])], C.grid, 1);
+  const root = sections[0].map(S), tip = sections[1].map(S);
+  line(g, tip.concat([tip[0]]), C.edge, 1); line(g, root.concat([root[0]]), C.station, 3);
+  chip(g, root[0][0] + 10, root[0][1] + 14, 'Root'); chip(g, tip[0][0] + 10, tip[0][1] - 12, 'Tip');
+  line(g, [[0, bandH + .5], [w, bandH + .5]], C.grid, 1);
+  const L = { x0:56, x1:w - 30, y0:bandH + 30, y1:h - 52, v0:-2.5, v1:0.5 }, LX = e => L.x0 + e * (L.x1 - L.x0), LY = v => L.y1 - (v - L.v0) / (L.v1 - L.v0) * (L.y1 - L.y0);
+  g.font = '11px system-ui, sans-serif'; g.fillStyle = C.mute;
+  [0, -1, -2].forEach(v => { line(g, [[L.x0 - 4, LY(v)], [L.x1, LY(v)]], v === 0 ? C.mute : C.grid, 1); g.fillText(`${v === 0 ? '0' : '−' + Math.abs(v)}°`, 14, LY(v) + 4); });
+  line(g, twist.samples.map(([e, v]) => [LX(e), LY(v)]), C.foil, 2); polyGlyphs(g, TWIST.map(([e, v]) => [LX(e), LY(v)]));
+  return { probe:'Root · η 0.000 · twist 0.00° · chord 120.00 mm', lanecap:'Twist (°) · root → tip', laneTop:bandH + 6, scale:`20 mm = ${Math.round(20 * s)} px` };
+}
+function drawFront(g, w, h, ring){
+  const bandH = Math.round(h * 0.6), rows = []; for (let i = 0; i <= 80; i++){ const e = -1 + i / 40, r = ring.map(p => place(e, p)); rows.push({ y:e * HALF, lo:Math.min(...r.map(p => p[2])), hi:Math.max(...r.map(p => p[2])) }); }
+  const za = Math.min(...rows.map(r => r.lo)), zb = Math.max(...rows.map(r => r.hi)), s = Math.min((w - 60) / (2 * HALF), (bandH - 80) / (zb - za)), cx = w / 2, base = 40 + (bandH - 80 + (zb - za) * s) / 2;
+  const S = (y, z) => [cx - y * s, base - (z - za) * s];
+  line(g, [S(0, za - 12), S(0, zb + 12)], C.mute, 1);
+  const topL = rows.map(r => S(r.y, r.hi)), botL = rows.map(r => S(r.y, r.lo)).reverse();
+  g.beginPath(); topL.concat(botL).forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.closePath(); g.fillStyle = mix(C.soft, C.lit, .7); g.fill();
+  line(g, topL, C.foil, 1.5); line(g, botL, C.foil, 1.5); line(g, [S(0, za - 6), S(0, zb + 6)], C.station, 3);
+  line(g, [[0, bandH + .5], [w, bandH + .5]], C.grid, 1);
+  const L = { y0:bandH + 30, y1:h - 52, v0:0, v1:20 }, LY = v => L.y1 - (v - L.v0) / (L.v1 - L.v0) * (L.y1 - L.y0), LX = e => S(e * HALF, 0)[0];
+  g.font = '11px system-ui, sans-serif'; [0, 10, 20].forEach(v => { line(g, [[LX(1) - 4, LY(v)], [cx, LY(v)]], C.grid, 1); g.fillStyle = C.mute; g.fillText(`${v} %`, cx + 6, LY(v) + 4); });
+  line(g, thick.samples.map(([e, v]) => [LX(e), LY(v)]), C.foil, 2); polyGlyphs(g, THICK.map(([e, v]) => [LX(e), LY(v)]));
+  return { probe:'η 0.000 · height 0.00 mm · t/c 12.00 %', lanecap:'Thickness t/c (%) · tip ← root', laneTop:bandH + 6, scale:`100 mm = ${Math.round(100 * s)} px` };
+}
+function drawDelta(g, w, h){                                    // OD-1 C: placed Δ (mm) along chord for a 0.6 mm record move
+  const D = MEASURE.od1c.samples, vmax = 0.6, X = x => 40 + x * (w - 60), Y = v => h / 2 - v / vmax * (h / 2 - 24);
+  g.font = '11px system-ui, sans-serif'; [0, 0.25, 0.5, 0.75, 1].forEach(x => { line(g, [[X(x), 14], [X(x), h - 14]], C.grid, 1); g.fillStyle = C.mute; g.fillText(`${x * 100} %`, X(x) + 3, h - 4); });
+  [-0.5, 0, 0.5].forEach(v => { line(g, [[36, Y(v)], [w - 20, Y(v)]], v ? C.grid : C.mute, 1); g.fillStyle = C.mute; g.fillText(f1(v), 4, Y(v) + 4); });
+  line(g, [[X(0.35), Y(0)], [X(0.35), Y(0.6)]], C.ink, 1, [2, 3]); g.fillStyle = C.ink; g.fillText('record point moved 0.60 mm', X(0.35) + 6, Y(0.58));
+  line(g, D.map(([x, u]) => [X(x), Y(u)]), C.station, 2); line(g, D.map(([x, , l]) => [X(x), Y(l)]), C.foil, 2, [6, 3]);
+  g.fillStyle = C.station; g.fillText('placed upper Δ (mm)', w - 150, 20); g.fillStyle = C.foil; g.fillText('placed lower Δ (mm, dashed)', w - 168, 36);
+}
+
+// ================================================================ chrome
+const IC = { station:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 0V12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2 1.5"/></svg>',
+  anchor:'<svg viewBox="0 0 12 12" aria-hidden="true"><rect x="1.5" y="1.5" width="9" height="9" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
+  ctrl:'<svg viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="currentColor"/></svg>',
+  info:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6.5 5 9l5-6" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>',
+  warn:'<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 11.5 11H.5Z M6 4.5V7.5 M6 9v.8" fill="none" stroke="currentColor" stroke-width="1.2"/></svg>' };
+const r = (k, v, u, e = 0, cls = '') => `<div class="row${e ? ' e' : ''}${cls ? ' ' + cls : ''}"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${u}</span></div>`;
+const en = (k, v, cls = '') => `<div class="row e${cls ? ' ' + cls : ''}"><span class="k">${k}</span><span class="en">${v}</span></div>`;
+const pc = v => (v * 100).toFixed(2);
+const other = side => side === 'upper' ? 'lower' : 'upper';
+const pairline = (side, i) => `<div class="pairline">⇄ Paired with ${other(side)} point ${i + 1}. Type, kind and x are shared.</div>`;
+function wing(ro){ const e = ro ? 0 : 1; return `<div class="wing${ro ? ' ro' : ''}"><div class="gh">Wing</div>${r('Span', '900.00', 'mm', e)}${r('Root chord', '120.00', 'mm', e)}${r('Tip chord', '120.00', 'mm', e)}${ro ? '<div class="note">Set these in the workspace.</div>' : ''}<div class="defs">Estimates · definitions</div>${r('Max t/c', '≈ 12.0', '%')}${r('Area', '≈ 1080', 'cm²')}</div>`; }
+// Section group (Marine-CAD MC-12C-1): the section's own t/c and what each station builds, said as a consequence
+function sectionGroup(up, lo){ const t = thickness(up, lo);
+  return `<div class="grp"><div class="gh"><span class="tw">⌄</span>Section<span class="sum">${up.name || 'section-a'} · degree 5</span></div>${r('Own t/c', `${pc(t.t)} % at ${pc(t.x)}`, '% c')}${r('t/c at Root', '12.00', '%')}${r('t/c at Tip', '12.00', '%')}<div class="note">From the Thickness curve. At each station this shape is scaled to that t/c.</div>${en('Station t/c', 'From the Thickness curve')}${(() => { const p = placedFacts(up, lo, TC); MEASURE.placedLe = [+(p.leUp * 100).toFixed(2), +(p.leLo * 100).toFixed(2)]; MEASURE.placedWedgeDeg = +p.wedge.toFixed(2);
+    return `${r('LE radius own', `${pc(leRadius(up))} · ${pc(leRadius(lo))}`, '% c')}${r('LE radius at Root', `${pc(p.leUp)} · ${pc(p.leLo)}`, '% c')}<div class="note">Upper · lower. Tip is the same (same t/c).</div>${r('TE gap own · Root', `${pc(up.P[up.P.length - 1][1] - lo.P[lo.P.length - 1][1])} · ${pc(p.gap)}`, '% c')}${r('TE wedge own · Root', `${teWedgeDeg(up, lo).toFixed(2)} · ${p.wedge.toFixed(2)}`, '°')}`; })()}${r('Points', `${up.P.length} upper · ${lo.P.length} lower`, '')}</div>`; }
+function properties(kind){
+  let body;
+  if (kind === 'station') body = `<div class="ident">${IC.station}Root station</div><div class="grp"><div class="gh"><span class="tw">⌄</span>Station<span class="sum">section-a</span></div>${r('From root', '0.00', 'mm')}${r('η', '0.000', '')}${r('Chord', '120.00', 'mm', 1)}${r('t/c', '12.00', '%')}${r('Section', 'section-a', '')}<div class="link">Edit section…</div></div>`;
+  else if (kind === 'anchor'){ const ai = ANCH.ai, c = UP1;
+    body = `<div class="ident">${IC.anchor}Upper surface · point ${ai + 1} of ${c.P.length}</div>${pairline('upper', ai)}<div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${en('Type · both surfaces', 'Anchor point', 'focus')}${r('x', pc(c.P[ai][0]), '% c', 1)}${r('y', pc(c.P[ai][1]), '% c', 1)}</div>
+      <div class="grp"><div class="gh"><span class="tw">⌄</span>Tangent<span class="sum">Horizontal</span></div>${en('Kind · both surfaces', 'Horizontal')}<div class="sub">Upper handle toward the nose</div>${r('Angle', '180.00', '°', 1)}${r('Length', pc(handleLen(c, ai, -1)), '% c', 1)}<div class="sub">Upper handle toward the tail</div>${r('Angle', '0.00', '°', 1)}${r('Length', pc(handleLen(c, ai, 1)), '% c', 1)}<div class="note">Angles are in the section's own chord coordinates.</div></div>${sectionGroup(UP1, LO1)}`; }
+  else if (kind === 'xmove'){ const i = XM.i, c = XM.up;
+    body = `<div class="ident">${IC.ctrl}Upper surface · point ${i + 1} of ${c.P.length}</div>${pairline('upper', i)}<div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${en('Type · both surfaces', 'Control point')}<div class="note">A control point pulls the curve toward it. The curve does not pass through it.</div>${r('x · both surfaces', pc(c.P[i][0]), '% c', 1, 'focus')}${r('y', pc(c.P[i][1]), '% c', 1)}</div>${sectionGroup(XM.up, XM.lo)}`; }
+  else { body = `<div class="ident">${IC.ctrl}Lower surface · point ${XI + 1} of ${LO2.P.length}</div>${pairline('lower', XI)}<div class="grp"><div class="gh"><span class="tw">⌄</span>Point</div>${en('Type · both surfaces', 'Control point')}<div class="note">A control point pulls the curve toward it. The curve does not pass through it.</div>${r('x · both surfaces', pc(LO2.P[XI][0]), '% c', 1)}${r('y', pc(LO2.P[XI][1]), '% c', 1, 'focus')}</div>${sectionGroup(UP1, LO2)}`; }
+  return `<div class="dock"><div class="tabs"><span class="on">Properties</span><span>Browser</span></div><div class="sel">${body}</div>${wing(kind !== 'station')}</div>`;
+}
+const NAMEOF = { nose:'Nose', nosehandle:'Handle', te:'TE', tehandle:'Handle', anchor:'Anchor', handle:'Handle', control:'Control' };
+// the Points pane lists the control net (vertices, not ordinates on the curve); Kind for anchors (MC-12C-12)
+function pointsRows(c, side, sel){ const R = roles(c); return R.map((role, i) => { if (side === 'lower' && i === 0) return '';
+  const on = sel && sel.side === side && sel.i === i, pair = sel && sel.side !== side && sel.i === i;
+  return `<div class="pr${on ? ' on' : pair ? ' pair' : ''}"><span class="n">${on || pair ? '<span class="lk">⇄</span> ' : ''}${i === 0 ? 'Nose' : i + 1}</span><span>${NAMEOF[role]}</span><span class="x${role === 'nose' ? ' ro' : ''}">${pc(c.P[i][0])}</span><span class="x${role === 'nose' ? ' ro' : ''}">${pc(c.P[i][1])}</span><span class="kd">${role === 'anchor' ? 'Horizontal' : role === 'nose' ? 'Vertical' : ''}</span></div>`; }).join(''); }
+function pointsPane(up, lo, sel, where){ return `<div class="pts"><div class="cn">Control net · degree 5</div><div class="pnote">Type and Kind apply to both surfaces. x is shared.</div><div class="ph"><span>Point</span><span>Type</span><span style="text-align:right">x % c</span><span style="text-align:right">y % c</span><span>Kind</span></div>
+  <div class="gh"><span class="tw">⌄</span>Upper surface<span class="sum">${up.P.length}</span></div>${pointsRows(up, 'upper', sel)}<div class="gh"><span class="tw">⌄</span>Lower surface<span class="sum">${lo.P.length}</span></div>${pointsRows(lo, 'lower', sel)}</div>`; }
+function messagesPane(){ return `<div class="msglist"><div><span class="t">14:02</span> ⚠ Upper and lower surfaces cross at ${CROSS.map(v => Math.round(v * 100)).join('–')} % chord. <a>Show</a></div><div><span class="t">14:01</span> Moved lower point ${XI + 1} by ${pc(LO2.P[XI][1] - LO1.P[XI][1])} % chord. <a>Show</a></div><div><span class="t">13:58</span> Point 4 is now an anchor on both surfaces. Upper 8 → 13 points, lower 8 → 13. <a>Show</a></div><div><span class="t">13:57</span> Selected Root station. <a>Show</a></div><div><span class="t">13:55</span> Opened example.foil.</div></div>`; }
+function modebar(blocked, o){ o = o || {}; return `<div class="modebar"><span class="ttl">Editing <em>Root</em> section</span><span class="chip">${o.scope || 'Shared with Tip · <a>Make unique to Root</a>'}</span><button type="button" aria-haspopup="menu">Section ▾</button><button type="button" aria-pressed="true">Curvature</button><button type="button" aria-pressed="false">Thickness ×2</button><span class="sp"></span><button type="button" class="btn">Cancel</button><button type="button" class="primary"${blocked ? ' aria-disabled="true" aria-describedby="why"' : ''}>Finish section</button></div>${blocked ? `<div class="why" id="why">⚠ Upper and lower surfaces cross. Move the point back to finish.</div>` : ''}`; }
+function stripHTML(o){ o = o || {}; return `<div class="strip">${[['Root', '0.00'], ['Tip', '450.00']].map(([n, d], i) => `<div class="thumb${i ? '' : ' on'}"><canvas data-k="${(o.thumbs || ['thumb', 'thumb'])[i]}"></canvas><span><b>${n}</b><span>${d} mm</span></span><span class="m"><span>c 120.00 mm</span><span>t/c 12.00 %</span></span></div>`).join('')}</div>`; }
+function statusbar(o){ const warn = o.kind === 'warn';
+  return `<div class="sb" role="status" aria-live="polite"><span class="msg${warn ? ' warn' : ''}">${warn ? IC.warn : IC.info}<span>${o.text}</span></span>${o.action ? `<button type="button" class="act">${o.action}</button>` : ''}${o.issues ? '<span class="item btn">1 issue ▴</span>' : ''}<span class="item">${o.sel}</span><span class="item">${o.unit || 'mm'}</span><span class="item">Text 100 %</span>${o.pop ? `<div class="pop"><div class="hd">Stops Finish</div><div class="it">⚠ Upper and lower surfaces cross at ${CROSS.map(v => Math.round(v * 100)).join('–')} % chord.<a>Show</a></div></div>` : ''}</div>`; }
+const NAMES = { plan:'Plan', '3d':'3D · Iso', side:'Side · from starboard', front:'Front · looking aft', sec:'Section' };
+function viewsHTML(layout, views, on){ return `<div class="views ${layout}">${views.map(v => `<div class="view" data-v="${v}"><canvas data-k="${v}"></canvas><span class="plate vlabel${v === on ? ' on' : ''}">${NAMES[v]}</span></div>`).join('')}</div>`; }
+function shell(o){
+  let area;
+  if (o.mode === 'views') area = `${viewsHTML(o.layout, o.views, o.on)}<div class="navbar"><button>Views ▾ ${o.layout === 'quad' ? 'Four views' : 'Plan + 3D'}</button><button>Display ▾ Shaded</button><span class="sep"></span><button>Fit</button><button>Fit Selection</button></div>`;
+  else if (o.mode === 'sideslot') area = `${modebar(false)}<div class="views quad" style="flex:1;margin-top:4px">${['plan', '3d', 'sec', 'front'].map(v => `<div class="view" data-v="${v}"><canvas data-k="${v === 'sec' ? o.sec : v === '3d' ? '3dDraft' : v === 'front' ? 'frontDraft' : v}"></canvas><span class="plate vlabel${v === 'sec' ? ' on' : ''}">${v === 'sec' ? 'Section · Root (in the Side slot)' : NAMES[v]}</span></div>`).join('')}</div>`;
+  else area = `${modebar(o.blocked, o)}<div class="secbody${o.dialog && o.dialog.includes('dlg cat') ? ' withdlg' : ''}"><div class="view" data-v="sec">${o.src ? `<span class="srcchip" role="note" aria-label="Section source">${o.src}</span>` : ''}<canvas data-k="${o.sec}"></canvas><span class="plate vlabel on">Section · Root · 0.00 mm from root · display</span></div></div>${stripHTML(o)}<div class="navbar sec"><button>Fit</button><button>Fit Selection</button></div>${o.dialog || ''}${o.menu || ''}`;
+  const right = o.right ? `<div class="dock right"><div class="tabs">${o.right === 'messages' ? '<span>Points</span><span class="on">Messages</span>' : '<span class="on">Points</span>'}</div>${o.right === 'messages' ? messagesPane() : pointsPane(o.up, o.lo, o.sel)}</div>` : '';
+  const bottom = o.bottom ? `<div class="bottom"><div class="tabs"><span class="on">Points</span></div>${pointsPane(o.up, o.lo, o.sel)}</div>` : '';
+  return `<div class="shell"><div class="title"><i></i><i></i><i></i><b>CFD Workbench — example.foil</b></div>
+    <div class="work">${o.leftPoints ? `<div class="dock"><div class="tabs"><span>Properties</span><span>Browser</span><span class="on">Points</span></div>${pointsPane(o.up, o.lo, o.sel)}</div>` : (o.propsHTML || properties(o.props))}<div class="main"><div class="tabs"><span class="on">Plan</span><span>Section sample</span><span>Foil source</span></div><div class="area">${area}</div>${bottom}</div>${right}</div>${statusbar(o.status)}</div>`;
+}
+
+// ================================================================ M1.2d: Replace from catalog and My sections
+// Records and numbers come from the probe receipt (docs/proof/m12d-catalog/output/results.json), run through the as-built
+// Core; previews are the NACA closed form (4-digit, standard open TE). The page checks one number against its operands.
+const RECA = Object.assign(crv(K5, UPPER), { name:'section-a' }), RECA_LO = Object.assign(crv(K5, LOWER), { name:'section-a' });
+const REC4412 = Object.assign(crv(PROBE.shared4412.knots, PROBE.shared4412.upper), { name:'section-a' });
+const REC4412_LO = Object.assign(crv(PROBE.shared4412.knots, PROBE.shared4412.lower), { name:'section-a' });
+// one point edit after Replace (screen 4): upper point 7 raised 0.20 % chord, computed here
+const REC4412M = Object.assign(crv(REC4412.U, REC4412.P.map((q, k) => k === 6 ? [q[0], q[1] + 0.002] : q.slice())), { name:'section-a' });
+function naca4(code){ const m = +code[0] / 100, p = +code[1] / 10, t = +code.slice(2) / 100, up = [], lo = [];
+  for (let i = 0; i <= 120; i++){ const x = 0.5 * (1 - Math.cos(Math.PI * i / 120));
+    const yt = 5 * t * (0.2969 * Math.sqrt(x) - 0.1260 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4);   // closed TE (DR-M12D-7)
+    const yc = m === 0 ? 0 : x < p ? m / (p * p) * (2 * p * x - x * x) : m / ((1 - p) ** 2) * (1 - 2 * p + 2 * p * x - x * x);
+    const dy = m === 0 ? 0 : x < p ? 2 * m / (p * p) * (p - x) : 2 * m / ((1 - p) ** 2) * (p - x), th = Math.atan(dy);
+    up.push([x - yt * Math.sin(th), yc + yt * Math.cos(th)]); lo.push([x + yt * Math.sin(th), yc - yt * Math.cos(th)]); }
+  return [up, lo]; }
+const PV4412 = naca4('4412'), PV0012 = naca4('0012'), PV0009 = naca4('0009');
+// largest change from a record to a polyline source, and where (x inversion on the record; linear on the source)
+function changeAt(up, lo, pv){ let worst = 0, at = 0; const yIn = (pts, x) => { for (let i = 1; i < pts.length; i++) if (pts[i][0] >= x){ const a = pts[i - 1], b = pts[i], t = (x - a[0]) / ((b[0] - a[0]) || 1); return a[1] + t * (b[1] - a[1]); } return pts[pts.length - 1][1]; };
+  for (let i = 1; i < 400; i++){ const x = 0.5 * (1 - Math.cos(Math.PI * i / 400)); const d = Math.max(Math.abs(yOfX(up, x) - yIn(pv[0], x)), Math.abs(yOfX(lo, x) - yIn(pv[1], x))); if (d > worst){ worst = d; at = x; } }
+  return { d:worst, x:at }; }
+const CH0009 = changeAt(RECA, RECA_LO, PV0009);
+function changeRec(a, b, alo, blo){ let worst = 0, at = 0; for (let i = 1; i < 400; i++){ const x = 0.5 * (1 - Math.cos(Math.PI * i / 400)); const d = Math.max(Math.abs(yOfX(a, x) - yOfX(b, x)), Math.abs(yOfX(alo, x) - yOfX(blo, x))); if (d > worst){ worst = d; at = x; } } return { d:worst, x:at }; }
+// consistency: the page's own largest change between section-a and the probe's 4412 record, against the probe's oracle number
+MEASURE.change4412PagePct = +(Math.max(maxChange(RECA, REC4412), maxChange(RECA_LO, REC4412_LO)) * 100).toFixed(3);
+MEASURE.change4412ProbePct = +(PROBE.n.change4412Chord * 100).toFixed(3);
+MEASURE.points4412 = REC4412.P.length;
+const um = v => v.toFixed(2), mm2 = v => v.toFixed(2), pcc = v => (v / 1200).toFixed(4);   // µm at 120 mm → % chord
+const OWN4412 = thickness(REC4412, REC4412_LO).t * 100;
+MEASURE.own4412Pct = +OWN4412.toFixed(2);
+
+// ---------------------------------------------------------------- the catalog (DR-M12D-2 a)
+const NOT_GEN = 'Not generated in this build. GEN sections above can be used.';
+const PENDING = 'Pending admission — terms requested from UIUC · GEN sections remain';
+const CITE = 'Cite only (LINK) — its coordinates may not be copied, so it cannot be edited here';
+const CATALOG = [
+  { f:'NACA', rows:[['NACA 0009', null, null, 'closed TE'], ['NACA 0012', null, null, 'closed TE'], ['NACA 4412', null, null, 'closed TE']].concat(['16-012', '63-209', '63-412', '64A410', '66-012', '66-209', '66-018'].map(d => ['NACA ' + d, NOT_GEN, 'Not generated'])) },
+  { f:'Eppler', rows:['E817', 'E818', 'E874', 'E904', 'E908', 'E836 (strut)', 'E837 (strut)', 'E838 (strut)'].map(d => ['Eppler ' + d, PENDING, 'Pending terms']) },
+  { f:'Speer', rows:[['Speer H105', CITE, 'Cite only']] } ];
+function optionHTML(id, [name, reason, tag, ex], active, extra){ extra = extra || ex;
+  return `<div class="opt${active ? ' act' : ''}${reason ? ' dis' : ''}" role="option" id="${id}" aria-selected="${active}"${reason ? ' aria-disabled="true"' : ''}><span class="on">${name}</span>${extra ? `<span class="ex">${extra}</span>` : ''}${tag ? `<span class="tag">${tag}</span>` : ''}</div>`; }
+function catalogDialog(o){
+  const q = (o.q || '').toLowerCase(), match = n => !q || n.toLowerCase().includes(q);
+  let count = 0, idx = 0;
+  const groups = CATALOG.map(g => { const rows = g.rows.filter(r => match(r[0])); count += rows.length;
+    return rows.length ? `<div role="group" aria-label="${g.f}"><div class="fam">${g.f}</div>${rows.map(r => optionHTML(`o${idx++}`, r, r[0] === o.active)).join('')}</div>` : ''; }).join('');
+  const mine = o.mine === undefined ? [] : o.mine, mineRows = mine.filter(e => match(e.name)); count += mineRows.length;
+  const mineHTML = `<div role="group" aria-label="My sections"><div class="fam">My sections</div>${o.mine === undefined || (!mine.length && !q)
+      ? '<div class="empty">No saved sections yet. To keep one here, choose Save to My sections… from the Section menu in the section editor.</div>'
+      : mineRows.map(e => optionHTML(`m${idx++}`, [e.name, e.reason || null, e.reason ? 'Damaged' : null], e.name === o.active, e.prov)).join('')}</div>`;
+  const status = o.unavailable ? '' : `<div class="count" role="status">${count === 1 ? '1 section matches' : `${count} sections match`}</div>`;
+  const body = o.unavailable
+    ? `<div class="err" role="alert">The catalog didn't load: a catalog file failed its check. Your section hasn't changed. Choose Cancel to go back.</div>${mineHTML}`
+    : `${groups}${mineHTML}`;
+  return `<div class="dlg cat" role="dialog" aria-modal="true" aria-labelledby="cat-h"><div class="dh" id="cat-h">Replace ${o.station || 'Root'} section</div><div class="dsub">From the catalog or My sections. The preview is dashed on the section.</div>
+    <label class="fl" for="cat-q">Search sections</label><div class="combo"><input id="cat-q" role="combobox" aria-expanded="true" aria-controls="cat-list" aria-activedescendant="${o.active ? 'act' : ''}" value="${o.q || ''}" placeholder="NACA, Eppler or a name"${o.focusQ ? ' class="focus"' : ''}></div>${status}
+    <div class="list" role="listbox" id="cat-list" aria-label="Sections">${body}</div>
+    <div class="detail${o.refused ? ' warn' : ''}" id="cat-detail">${o.detail || ''}</div>
+    ${o.tcOption ? `<label class="tcopt"><input type="checkbox"> ${o.tcOption}</label>` : ''}<div class="dbtns"><button type="button" class="btn">Cancel</button><span class="sp"></span>${o.chain ? `<button type="button" class="btn">${o.chain}</button>` : ''}<button type="button" class="primary"${o.replaceOff ? ' aria-disabled="true" aria-describedby="cat-detail"' : ''}>Replace</button></div></div>`; }
+function saveDialog(o){
+  return `<div class="dlg save" role="dialog" aria-modal="true" aria-labelledby="save-h"><div class="dh" id="save-h">Save to My sections</div>
+    <label class="fl" for="save-name">Name</label><input id="save-name" class="focus" value="${o.name}"${o.err ? ' aria-invalid="true" aria-describedby="save-err"' : ''}>
+    ${o.err ? `<div class="ferr" id="save-err" role="alert">${o.err}</div>` : ''}
+    <div class="prov"><span>Provenance</span><b>${o.prov}</b></div><div class="prov"><span>Rights</span><b>${o.rights}</b></div><div class="prov"><span>What is saved</span><b>${o.what}</b></div>
+    <div class="dnote">Saving keeps a copy for any foil. It doesn't change this section, its stations or the catalog.</div>
+    <div class="dbtns"><span class="sp"></span><button type="button" class="btn">Cancel</button><button type="button" class="primary">Save</button></div></div>`; }
+function menuHTML(){ const items = [['Replace from catalog…', true], ['Save to My sections…'], ['Import .dat…'], ['Smooth…'], null, ['Make unique to Root'], ['Station t/c from the Thickness curve', false, '✓'], ['Station t/c from this section']];
+  return `<div class="menu" role="menu" aria-label="Section">${items.map(i => i ? `<div class="mi${i[1] ? ' focus' : ''}" role="menuitem"><span class="ck">${i[2] || ''}</span>${i[0]}</div>` : '<div class="msep" role="separator"></div>').join('')}</div>`; }
+function secProps(up, lo, name, src){
+  return `<div class="dock"><div class="tabs"><span class="on">Properties</span><span>Browser</span></div><div class="sel"><div class="ident">${IC.station}Root section</div>
+    <div class="grp"><div class="gh"><span class="tw">⌄</span>Source</div>${r('Section', name, '')}${r('Source', src, '')}</div>${sectionGroup(up, lo)}</div>${wing(true)}</div>`; }
+
+// ---------------------------------------------------------------- screens
+const N = PROBE.n, CH = 120;
+const D_SHARED = `Replaces <b>Root and Tip</b> (they share this section). NACA 4412 (closed TE) fits on its own ${N.points4412} points: <b>${um(N.fit4412OwnUm)} µm</b> (${pcc(N.fit4412OwnUm)} % chord; limit 10 µm at ${CH.toFixed(2)} mm). 8 → ${N.points4412} points per surface; point types reset. Largest change ${mm2(N.change4412Mm)} mm at ${Math.round(N.change4412X * 100)} % chord (marked). t/c stays 12.00 % from the Thickness curve; NACA 4412 is ${OWN4412.toFixed(2)} % thick. Frame: leading edge moved ${(Math.abs(N.le4412X) * CH).toFixed(3)} mm, chord turned ${Math.abs(N.rot4412Deg).toFixed(2)}°. A section next to a different section can have at most 10 points.`;
+const D_REFUSED = `⚠ Root blends point-to-point with Tip, so Root must keep Tip's 8 points at the same chord positions. On those points NACA 4412 is <b>${um(N.fit4412AUm)} µm</b> off (${pcc(N.fit4412AUm)} % chord; limit 10 µm at ${CH.toFixed(2)} mm). Nothing changed.`;
+const D_FITS = `Fits Root's 8 points: <b>${um(N.fit0012AUm)} µm</b> (${pcc(N.fit0012AUm)} % chord; limit 10 µm at ${CH.toFixed(2)} mm). Points and types kept. Largest change ${mm2(N.change0012Mm)} mm at ${Math.round(N.change0012X * 100)} % chord (marked). t/c stays 12.00 %; NACA 0012 is 12.00 % thick. Tip keeps section-a.`;
+const CH_ENTRY = changeRec(RECA, REC4412M, RECA_LO, REC4412_LO);
+const D_ENTRY = `Replaces <b>Root and Tip</b> (they share this section). Kite root 4412 is copied exactly on its own ${REC4412M.P.length} points (0 µm; Modified from NACA 4412 · GEN). 8 → ${REC4412M.P.length} points per surface. Largest change ${(CH_ENTRY.d * CH).toFixed(2)} mm at ${Math.round(CH_ENTRY.x * 100)} % chord. t/c stays 12.00 % from the Thickness curve.`;
+const OWN0009 = 9.0;   // the closed form's maximum thickness (t = 0.09); A4.4 scales the unit shape to the station's t/c
+const D_SCALED = `Replaces <b>Root and Tip</b> (they share this section). NACA 0009 (closed TE) fits Root's 8 points: <b>${um(N.fit0009AUm)} µm</b> (${pcc(N.fit0009AUm)} % chord; limit 10 µm at ${CH.toFixed(2)} mm). Points and types kept. Largest change ${(CH0009.d * CH).toFixed(2)} mm at ${Math.round(CH0009.x * 100)} % chord (marked). <b>NACA 0009 is ${OWN0009.toFixed(2)} % thick; Root and Tip will be scaled to 12.00 % (Thickness curve).</b> After Replace the chip reads "Catalog original · NACA 0009 · scaled to 12.00 % t/c".`;
+const MINE = [{ name:'Kite root 4412', prov:'Modified from NACA 4412 · GEN' }, { name:'3f9a0c….foil', reason:'“3f9a0c….foil” is damaged and was skipped.' }];
+const SHARED = 'Shared with Tip · <a>Make unique to Root</a>', ONLY = 'Only Root uses this section';
+const base = { mode:'section', right:'points', scope:SHARED };
+const M1 = Object.assign({}, base, { sec:'secA', up:RECA, lo:RECA_LO, src:'Source not recorded', menu:menuHTML(), thumbs:['thumbA', 'thumbA'],
+  propsHTML:secProps(RECA, RECA_LO, 'section-a', 'Not recorded'), status:{ text:'Editing Root section. Choose Replace from catalog… to put a known section here.', sel:'Root section', unit:'% chord' } });
+const M2 = Object.assign({}, base, { sec:'secPv4412', up:RECA, lo:RECA_LO, src:'Source not recorded', thumbs:['thumbPv4412', 'thumbPv4412'], propsHTML:M1.propsHTML,
+  dialog:catalogDialog({ active:'NACA 4412', detail:D_SHARED, focusQ:true }), status:{ text:'Previewing NACA 4412 on Root and Tip. Nothing has changed yet.', sel:'Root section', unit:'% chord' } });
+const M3 = Object.assign({}, base, { sec:'secR4412', up:REC4412, lo:REC4412_LO, src:'Catalog original · NACA 4412', thumbs:['thumb4412', 'thumb4412'],
+  propsHTML:secProps(REC4412, REC4412_LO, 'section-a', 'Catalog original · NACA 4412 (GEN)'),
+  status:{ text:`Replaced Root and Tip with NACA 4412. Fit ${um(N.fit4412OwnUm)} µm (limit 10 µm). ⌘Z puts the old section back.`, sel:'Root section', unit:'% chord' } });
+const M4 = Object.assign({}, base, { sec:'secR4412M', up:REC4412M, lo:REC4412_LO, src:'Modified from NACA 4412', thumbs:['thumb4412M', 'thumb4412M'],
+  propsHTML:secProps(REC4412M, REC4412_LO, 'section-a', 'Modified from NACA 4412 (GEN)'),
+  dialog:saveDialog({ name:'kite ROOT 4412', err:'“kite ROOT 4412” is already in My sections. Choose another name.', prov:'Modified from NACA 4412', rights:'GEN — from its source, NACA 4412', what:`${REC4412M.P.length} points per surface · own t/c ${(thickness(REC4412M, REC4412_LO).t * 100).toFixed(2)} %` }),
+  status:{ text:'Moved upper point 7.', sel:'Root section', unit:'% chord' } });
+const M5 = Object.assign({}, base, { scope:ONLY, sec:'secPv4412', up:RECA, lo:RECA_LO, src:'Source not recorded', thumbs:['thumbPv4412', 'thumbPv4412'], propsHTML:M1.propsHTML,
+  dialog:catalogDialog({ q:'4412', active:'NACA 4412', detail:D_REFUSED, refused:true, replaceOff:true, chain:'Replace Root and Tip (Tip changes too)' }),
+  status:{ kind:'warn', text:"NACA 4412 can't replace Root alone. Nothing changed.", sel:'Root section', unit:'% chord' } });
+const M6 = Object.assign({}, base, { scope:ONLY, sec:'secPv0012', up:RECA, lo:RECA_LO, src:'Source not recorded', thumbs:['thumbA', 'thumbA'], propsHTML:M1.propsHTML,
+  dialog:catalogDialog({ q:'0012', active:'NACA 0012', detail:D_FITS }), status:{ text:'Previewing NACA 0012 on Root. Nothing has changed yet.', sel:'Root section', unit:'% chord' } });
+const M6B = Object.assign({}, base, { sec:'secPv0009', up:RECA, lo:RECA_LO, src:'Source not recorded', thumbs:['thumbPv0009', 'thumbPv0009'], propsHTML:M1.propsHTML,
+  dialog:catalogDialog({ q:'0009', active:'NACA 0009', detail:D_SCALED, tcOption:"Use NACA 0009's t/c (9.00 %) at these stations" }), status:{ text:'Previewing NACA 0009 on Root and Tip. Nothing has changed yet.', sel:'Root section', unit:'% chord' } });
+const M7 = Object.assign({}, base, { sec:'secPvEntry', up:RECA, lo:RECA_LO, src:'Source not recorded', thumbs:['thumbPvEntry', 'thumbPvEntry'], propsHTML:M1.propsHTML,
+  dialog:catalogDialog({ q:'kite', mine:MINE, active:'Kite root 4412', detail:D_ENTRY }),
+  status:{ text:'1 section matches.', sel:'Root section', unit:'% chord' } });
+const M8 = Object.assign({}, base, { sec:'secA', up:RECA, lo:RECA_LO, src:'Source not recorded', thumbs:['thumbA', 'thumbA'], propsHTML:M1.propsHTML,
+  dialog:catalogDialog({ unavailable:true, replaceOff:true, detail:'Choose a section to preview it.' }), status:{ kind:'warn', text:"The catalog didn't load. Your section hasn't changed.", sel:'Root section', unit:'% chord' } });
+const M5D = Object.assign({}, M5, { dialog:catalogDialog({ q:'4412', active:'NACA 4412', refused:true,
+  detail:`⚠ On Root's 8 points NACA 4412 is ${um(N.fit4412AUm)} µm off — over the 10 µm limit. Replace anyway; the chip will read "Fitted to NACA 4412 · ${um(N.fit4412AUm)} µm".` }) });
+
+const SCREENS = [
+  { id:'r1', h:'1 · Section ▾ open: Replace from catalog… and Save to My sections…', o:M1,
+    what:`<b>Shows</b> the Example's Root section in the editor (shared with Tip, 8 points per surface, source not recorded) with Section ▾ open. The two new rows sit at the top; Import .dat… stays and now runs the same Replace rule (DR-M12D-3). <b>Implements</b> design §0.1 steps 1–2, CAD-21, §5.3.` },
+  { id:'r2', h:'2 · Replace from catalog: NACA 4412 previewed on the shared section', o:M2,
+    what:`<b>Shows</b> the dialog at the right of the model area so the section stays visible: search (focus), the families NACA · Eppler · Speer · My sections, GEN rows choosable, the seven unbuilt NACA rows, the Eppler rows and Speer H105 listed with a short tag (their full reason is the detail line when active, UI-38). NACA 4412 is active: the <b>dashed accent outline</b> is NACA 4412 over the current section-a. The detail line names every station replaced, the fit (${um(N.fit4412OwnUm)} µm on ${N.points4412} points, measured from the closed form as a Euclidean distance, probe CF rows) in µm and % chord against 10 µm at 120.00 mm, the point-count change, the largest change (${mm2(N.change4412Mm)} mm, marked on the canvas), the t/c rule with the source's own t/c, the frame change (the cambered leading edge is the minimum-x point; the chord is turned to the trailing-edge midpoint), and the 10-point note (COPY-193). Both strip thumbnails carry the dashed preview because both stations change. My sections is empty here (spec string). <b>Implements</b> CAD-18, UI-38, §3.6 rule 3, §11.1 screen 2.` },
+  { id:'r3', h:'3 · Replace applied: the section is NACA 4412 at Root and Tip', o:M3,
+    what:`<b>Shows</b> the probe's fitted record (${MEASURE.points4412} points per surface, all Control points after a fresh fit; NACA 4412 closed TE, ${um(N.fit4412OwnUm)} µm) drawn as the section over section-a (dotted, labelled), the chip "Catalog original · NACA 4412", Properties' Source group (the section keeps its name, DR-M12D-5 b), the Points pane with the new count, both station thumbnails changed, and the status line with the residual and the ⌘Z route. One inner Undo puts section-a back. <b>Implements</b> CAD-18 Replace clause, §3.6 rule 1, §11.1 screen 3.` },
+  { id:'r4', h:'4 · Save to My sections: name, provenance, duplicate name refused', o:M4,
+    what:`<b>Shows</b> one point edit after Replace (upper point 7 raised 0.20 % chord, computed here) so the chip reads "Modified from NACA 4412". Save to My sections… is open with the name "kite ROOT 4412": it equals the saved "Kite root 4412" ignoring case, so COPY-114 shows inline, the field is invalid and focus stays in it; nothing is saved. The provenance and rights lines are derived from the section's provenance (never stored). The empty-name case shows COPY-113 the same way. <b>Implements</b> CAD-19, §3.7, §11.3 V-Empty-or-duplicate.` },
+  { id:'r5', h:'5 · The abscissa refusal: Root made unique, NACA 4412 does not fit Root\'s point spacing', o:M5,
+    what:`<b>Shows</b> Root after Make unique (chip "Only Root uses this section"); Tip still uses section-a, so Root's new section must keep Root's point spacing (Ruling 71). NACA 4412 on Root's 8 points is <b>${um(N.fit4412AUm)} µm</b> off (probe CF rule 4), over 10 µm: <b>Replace</b> is disabled with the reason (COPY-191, worded for a designer) and <b>Replace Root and Tip (Tip changes too)</b> is offered (DR-M12D-1 B; with more stations it reads 'Replace at every station'). The preview stays drawn, and the Tip thumbnail shows what B would do to Tip. Nothing changed. <b>Implements</b> §3.6 rule 4, FM-3, CAD-18 "Given a disabled entry and Replace, then nothing changes" (by extension).` },
+  { id:'r6', h:'6 · The abscissa fit: NACA 0012 fits Root\'s point spacing', o:M6,
+    what:`<b>Shows</b> the same unique Root with NACA 0012: on Root's 8 points it is <b>${um(N.fit0012AUm)} µm</b> off (probe CF rule 4, closed form), inside 10 µm, so Replace keeps Root's 8 points, their ids and types, and the blend with Tip still certifies (probe: Certified). Largest change ${mm2(N.change0012Mm)} mm. <b>Implements</b> §3.6 rule 4 (option A).` },
+  { id:'r6b', h:'6b · Thickness scaling: NACA 0009 at a 12 % station', o:M6B,
+    what:`<b>Shows</b> the rule that the chip must name what the station builds (design §3.6 rule 6c). Each station scales the section to its Thickness-curve t/c, so NACA 0009 at Root and Tip (12.00 %) builds a 12 % section. The detail line says so, the sheet offers <b>Use NACA 0009's t/c at these stations</b> (the existing Station t/c from this section step), and the chip after Replace carries "scaled to 12.00 % t/c". The fit is ${um(N.fit0009AUm)} µm on the Example's 8 points (probe CF NACA 0009c); the largest change is computed in the page against the closed form. <b>Implements</b> §3.6 rule 6c, COPY-193b, FM-7d.` },
+  { id:'r7', h:'7 · My sections from any foil: a saved entry, and a damaged file reported', o:M7,
+    what:`<b>Shows</b> the library as every foil sees it (the canvas behind is still the Example): searching "kite" finds "Kite root 4412" with its provenance; a file whose name is not its hash is listed disabled with COPY-198, never hidden. Choosing the entry previews it like a catalog section, with the same readout: on the shared section it is copied exactly on its own points (the largest change is computed here from the two records). <b>Implements</b> CAD-19 "in another foil", ADR-0008 scan, FM-15.` },
+  { id:'r8', h:'8 · Hard states: catalog unavailable, My sections empty', o:M8,
+    what:`<b>Shows</b> the catalog-unavailable state (spec string, cause "a catalog file failed its check") with Cancel as the way out, and the My sections empty string with its next action. Replace is disabled. <b>Implements</b> UI-38 C2 rows, FM-1.` } ];
+const DECISIONS = [
+  { id:'dr1', h:'DR-M12D-1 · How does Replace meet the shared point-spacing rule?', what:'Neighbouring sections that differ must share point spacing and have at most 10 points per surface (Geometry.Assess; probe P-E6). A catalog section brings its own spacing.',
+    cards:[ { rec:true, h:'A + B · Fit on the current spacing, else offer Replace at the whole blend', p:`Symmetric sections fit beside anything (0012: ${um(N.fit0012AUm)} µm). Cambered ones are refused at one station with the number and can replace every station together (4412: ${um(N.fit4412OwnUm)} µm on its own ${N.points4412} points). Spec-conformant now.`, o:M5 },
+      { h:'D · Accept a fit over 10 µm with a warning', p:`NACA 4412 would sit ${um(N.fit4412AUm)} µm off on the Example's spacing (${um(N.fit4412NUm)} µm on New foil's). Rhino-like (report, let the user decide); needs an A4.6 change, and the chip must then read "Fitted to NACA 4412 · ${um(N.fit4412AUm)} µm", never "Catalog original".`, o:M5D },
+      { text:true, h:'C · Common spacing + refit the neighbours  ·  E · Raise the blend proof budget', p:`<b>C</b> (rejected for M1.2d): at 10 points 4412 is still ${um(N.fit4412NUm)} µm off; at 11 or more points the blend is Not assessed (probe E6). <b>E</b> (follow-up spike): let 16-point sections blend, then C at 16 points admits a cambered root beside a symmetric tip. A proof change (GCRT class), not measured.` } ] },
+  { id:'dr2', h:'DR-M12D-2 … DR-M12D-6 · The other decisions', what:'Each is in the design §13.1 with its reason; the recommendation is marked.', list:[
+      ['DR-M12D-2', 'Which GEN rows are choosable now', 'a · NACA 0009, 0012, 4412 (closed form); the other seven listed disabled "Not generated in this build" (screen 2)', 'b · hold M1.2d for a TM 4741 generator'],
+      ['DR-M12D-3', 'Import .dat… in the Section menu', 'a · runs the same Replace rule (fixes the as-built unsaveable and DSL-PATCH cases, P-E1/E2)', 'b · keep the as-built path'],
+      ['DR-M12D-4', 'Save when the surfaces cross', 'a · refuse: "Fix the crossing before saving this section."', 'b · save anyway'],
+      ['DR-M12D-5', 'The section name after Replace', 'b · keep the section\'s name ("section-a"); the Source row and chip say NACA 4412 (screen 3). Renaming would break today\'s scope-by-name logic in six places', 'a · rename to "naca-4412"'],
+      ['DR-M12D-7', 'Trailing edge of the generated NACA rows', 'a · the closed-TE form (a₄ = −0.1036), as New foil already uses: 4412 fits in 15 points at ' + um(N.fit4412OwnUm) + ' µm', 'b · the standard open TE: a cambered open TE ends its two surfaces at different x, which the record cannot hold — about 20 µm at 120 mm on every spacing (probe CF NACA 4412)'],
+      ['DR-M12D-6', 'A 15-point section, later made unique and edited', 'a · refuse that edit at once: "Root and Tip have 15 points; neighbouring sections that differ can have at most 10. Rebuild to 10 points first, or edit Root and Tip together."', 'b · refuse Make unique itself'] ] } ];
+function thumb2(g, w, h, up, lo, pv){ const s = (w - 16), S = ([x, y]) => [8 + x * s, h * 0.5 - y * s * 1.1];
+  const q = c => { const r = []; for (let i = 0; i <= 200; i++) r.push(S(at(c, i / 200))); return r; };
+  line(g, q(up), C.foil, 1.5); line(g, q(lo), C.foil, 1.5); if (pv) pv.forEach(pts => line(g, pts.map(S), C.station, 1.5, [4, 3])); }
+function marker(g, w, h, x, label){ const x0 = -0.04, x1 = 1.04, s = (w - 60) / (x1 - x0), X = 30 + (x - x0) * s;
+  line(g, [[X, 40], [X, h - 52]], C.station, 1, [2, 3]); g.save(); g.font = '11px system-ui, sans-serif'; g.fillStyle = C.station; g.fillText(label, Math.min(X + 4, w - 150), 52); g.restore(); }
+const entryPts = n => [REC4412M, REC4412_LO].map(c => { const r = []; for (let i = 0; i <= n; i++) r.push(at(c, i / n)); return r; });
+const DRAW = ({
+  secA:(g, w, h) => drawSection(g, w, h, { up:RECA, lo:RECA_LO, comb:false }),
+  secPv4412:(g, w, h) => { drawSection(g, w, h, { up:RECA, lo:RECA_LO, preview:PV4412 }); marker(g, w, h, N.change4412X, `largest change ${mm2(N.change4412Mm)} mm`); },
+  secPvEntry:(g, w, h) => drawSection(g, w, h, { up:RECA, lo:RECA_LO, preview:entryPts(300) }),
+  secPv0009:(g, w, h) => { drawSection(g, w, h, { up:RECA, lo:RECA_LO, preview:PV0009 }); marker(g, w, h, CH0009.x, `largest change ${(CH0009.d * CH).toFixed(2)} mm`); },
+  secPv0012:(g, w, h) => { drawSection(g, w, h, { up:RECA, lo:RECA_LO, preview:PV0012 }); marker(g, w, h, N.change0012X, `largest change ${mm2(N.change0012Mm)} mm`); },
+  secR4412:(g, w, h) => { drawSection(g, w, h, { up:REC4412, lo:REC4412_LO, ghost:[RECA, RECA_LO] }); g.save(); g.font = '11px system-ui, sans-serif'; g.fillStyle = C.mute; g.fillText('section-a (before), dotted', 40, 52); g.restore(); },
+  secR4412M:(g, w, h) => drawSection(g, w, h, { up:REC4412M, lo:REC4412_LO, ghost:[REC4412], sel:{ side:'upper', i:6 } }),
+  thumbA:(g, w, h) => thumb2(g, w, h, RECA, RECA_LO), thumb4412:(g, w, h) => thumb2(g, w, h, REC4412, REC4412_LO),
+  thumb4412M:(g, w, h) => thumb2(g, w, h, REC4412M, REC4412_LO), thumbPv4412:(g, w, h) => thumb2(g, w, h, RECA, RECA_LO, PV4412), thumbPv0009:(g, w, h) => thumb2(g, w, h, RECA, RECA_LO, PV0009),
+  thumbPvEntry:(g, w, h) => thumb2(g, w, h, RECA, RECA_LO, entryPts(200)) });
+function cardHTML2(c){ if (c.text) return `<div class="card"><div class="textcard"><h3 style="margin-top:0">${c.h}</h3><p>${c.p}</p></div></div>`;
+  return `<div class="card"><div class="frame">${shell(c.o)}</div><h3>${c.h}${c.rec ? '<span class="rec">Recommended</span>' : '<span class="rec lost">Not recommended</span>'}</h3><p>${c.p}</p></div>`; }
+function listHTML(d){ return `<table class="drt"><thead><tr><th>DR</th><th>Question</th><th>Recommended</th><th>Other</th></tr></thead><tbody>${d.list.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('')}</tbody></table>`; }
+document.getElementById('screens').innerHTML =
+  SCREENS.map(sc => `<section class="screen" id="${sc.id}"><h2>${sc.h}</h2><p class="what">${sc.what}</p>${shell(sc.o)}</section>`).join('') +
+  `<h2 style="font-size:15px;margin:8px 0 0">The decisions — for the operator to rule (design §13.1)</h2>` +
+  DECISIONS.map(d => `<section class="decision" id="${d.id}"><h2>${d.h}</h2><p class="what">${d.what}</p>${d.list ? listHTML(d) : `<div class="variants">${d.cards.map(cardHTML2).join('')}</div>`}</section>`).join('') +
+  `<p class="measured" id="measured"></p>`;
+function paint(){
+  document.querySelectorAll('canvas[data-k]').forEach(cv => {
+    const w = cv.clientWidth, h = cv.clientHeight; if (!w || !h) return; const dpr = window.devicePixelRatio || 1;
+    cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = C.vp; g.fillRect(0, 0, w, h);
+    DRAW[cv.dataset.k](g, w, h); });
+  document.getElementById('measured').innerHTML = `Numbers: the probe receipt <code>docs/proof/m12d-catalog/output/table.md</code> (as-built Core: DatImport.FitToBasis, DatImport.Fit, Geometry.Assess). Check on this page: the largest change from section-a to the probe's NACA 4412 record, computed here by x inversion, is <code>${MEASURE.change4412PagePct} %</code> chord; the probe's A4.5 oracle says <code>${MEASURE.change4412ProbePct} %</code>. Records drawn: section-a (example.foil) and the probe's fitted records; dashed previews: the NACA closed form.`;
+  window.__measure = MEASURE; }
+paint();
+const stateSel = document.getElementById('state');
+stateSel.innerHTML = SCREENS.concat(DECISIONS).map(x => `<option value="${x.id}">${x.h.split(':')[0].split(' — ')[0]}</option>`).join('');
+stateSel.addEventListener('change', () => document.getElementById(stateSel.value).scrollIntoView());
+document.getElementById('theme').addEventListener('click', e => { const d = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = d ? 'dark' : 'light'; e.currentTarget.textContent = d ? 'Light theme' : 'Dark theme'; e.currentTarget.setAttribute('aria-pressed', String(d)); });
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T19:05:59Z",
+  "generated": "2026-10-04T21:55:08Z",
   "audit": [
     {
       "actor": null,
@@ -23633,6 +23633,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T19:05:02Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M44EKRBMKYAX25GRAB1Q7XED",
+      "shortname": "design-slice-m12d-catalog",
+      "datetime": "2026-10-04T21:55:07Z",
+      "session": "m12d-design",
+      "prompt": "Run /design-slice for M1.2d (catalog Replace and My sections), then a /ui-design mockup extending the approved section-editor look, for the operator's approval; design Replace under the shared-abscissa constraint (Ruling 71); DR-M12D batch; four lenses in Adversary mode, one repair cycle.",
+      "summary": "M1.2d design (docs/design/m12d-catalog.md): DDD model, Replace rule A+B (fit on the current point spacing, refuse over 10 um with the number, offer Replace at every station), closed-form GEN in the chord frame, My sections store, provenance, tests, tracks; mockup docs/mockups/m12d-catalog.html (9 screens); probe receipt docs/proof/m12d-catalog; DR-M12D-1..7; geometry veto and test block cleared after one repair cycle.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/m12d-catalog.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "started_at": "2026-10-04T21:27:49Z",
+      "duration_seconds": 1638.0
     }
   ],
   "changes": [
@@ -24446,6 +24466,28 @@ window.AUDIT_DATA = {
         "before": "a46020f",
         "after": "a46020f909a13c5b9d8920f6544c25ee7a15a14f",
         "branch": "design/guided-install",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M44EKRQV8M8A58TBCHRC2EJR",
+      "datetime": "2026-10-04T21:55:08Z",
+      "session": null,
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "M1.2d Replace rule under the shared point-spacing constraint (A+B; closed-form GEN)",
+      "prompt": "Operator 2026-10-04: apply an existing profile from the catalog to the section (M1.2d)",
+      "summary": "Replace fits on the current spacing within 10 um (Euclidean, chord frame) beside differing neighbours, else is refused with the number and Replace at every station is offered; GEN rows generated closed-TE from the closed form; keep the section name; My sections per ADR-0008 with claim-scoped publish.",
+      "rationale": "Probe through the as-built Core: symmetric sections fit the shared spacing (0012 9.75 um), cambered do not (4412 26.86 um) and need 15 points, which the blend budget forbids beside a different section; a partial chain cannot certify (B3).",
+      "artifacts": [
+        "docs/design/m12d-catalog.md"
+      ],
+      "tags": [],
+      "git": {
+        "before": "e454ca0",
+        "after": "e454ca01ea429edc7aa697bcb3eadfe779dacbb9",
+        "branch": "design/m12d-catalog",
         "pushed": null,
         "commits": []
       }

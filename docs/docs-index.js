@@ -2998,6 +2998,82 @@ window.DOCS_INDEX = {
       "sourceSha256": "5e541c6948b139fcc6fb128d6968f00f3875db2df7f414e92e019b596030d1bc"
     },
     {
+      "id": "design-m12d-catalog",
+      "path": "docs/design/m12d-catalog.md",
+      "title": "Design: M1.2d — Replace from catalog and My sections in the section editor",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — M1.2d (operator 2026-10-04, \"apply an existing profile from the catalog to the section\")",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Detailed design of slice M1.2d. In the section editor, Replace from catalog… puts a NACA section or a My sections entry on the section as one undoable draft step, and Save to My sections… keeps the current section for any foil. Neighbouring sections must share their point spacing for the blend to certify (Ruling 71), so Replace fits the chosen shape onto the section's existing spacing and reports the fit against the 10 µm rule; when that fit is over the limit and a neighbour uses a different section, Replace for this station is refused with the number, and a Replace at every station of the blend is offered instead. A probe measured every number. Gate: four lenses, one repair cycle.",
+      "tags": [
+        "desktop",
+        "core",
+        "persistence",
+        "cad",
+        "section",
+        "catalog",
+        "my-sections",
+        "replace",
+        "provenance",
+        "rights",
+        "abscissa",
+        "m1.2d",
+        "dr-4",
+        "dr-8"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0008-section-library",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-0007-edit-transactions",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0005-point-types",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0010-one-placement-rule",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "refines"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-m12d-catalog",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e51b62efe7b2f33af4b7d635546251d66a4d190cd22bb8d674d63544f503d852"
+    },
+    {
       "id": "design-planform-point-verbs",
       "path": "docs/design/planform-point-verbs.md",
       "title": "Design: planform outline point verbs — Add point, Remove point, Rebuild to N (floor 4 at degree 3)",
@@ -3412,6 +3488,48 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "2d01610ad2fde60524ce1184f215ebb87428bb211a731e2483d65585616273b7"
+    },
+    {
+      "id": "mockup-m12d-catalog",
+      "path": "docs/mockups/m12d-catalog.md",
+      "title": "M1.2d catalog Replace and My sections — the section editor's Replace sheet, Save to My sections, and the point-spacing refusal",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The operator asked to apply an existing catalog profile to a section (2026-10-04). This page extends the approved M1.2c section-editor look with nine screens of today's 1280 × 800 shell for the Example foil: the Section menu, the Replace sheet with NACA 4412 previewed on the shared section, Replace applied, Save to My sections with a duplicate name refused, the point-spacing refusal after Make unique (with Replace Root and Tip offered), a symmetric section that fits, a thin section scaled to the station t/c, My sections seen from any foil, and the hard states. Every fit and change number comes from the probe receipt; previews are the NACA closed form.",
+      "tags": [
+        "mockup",
+        "m12d",
+        "section-editor",
+        "catalog",
+        "my-sections",
+        "replace",
+        "abscissa",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-m12d-catalog",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-m12c-section-editor",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "edad592b6dd921c03a7749266dc155d9e30eab6c7c7d1dc7330990d150e7ec34"
     },
     {
       "id": "mockup-planform-point-verbs",
@@ -9084,6 +9202,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "64ea1243991e70530d48470a9937235fd7c554a799409a97219a27bcd4e351fc"
     },
     {
+      "id": "proof-m12d-catalog-probe",
+      "path": "docs/proof/m12d-catalog/output/table.md",
+      "title": "M1.2d Replace probe — fits, certificates and the shared point-spacing rule",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design — M1.2d",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/m12d-catalog/probe (dotnet run -c Release -- <proof dir> <repo>) through the as-built Core. Rows CF and B3 are the design's evidence; the earlier NACA rows through DatImport.Parse are the as-built DAT path.",
+      "tags": [
+        "m1.2d",
+        "catalog",
+        "replace",
+        "abscissa",
+        "probe"
+      ],
+      "links": [
+        {
+          "to": "design-m12d-catalog",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e1bb249783feea665a0463b4843647acf8cfbb12ebc4c3f2a2240bd3a9093023"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -11418,6 +11563,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-m12c-section-editor"
     },
     {
+      "id": "surface-mockups-m12d-catalog",
+      "path": "docs/mockups/m12d-catalog.html",
+      "title": "M1.2d Catalog Replace",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-m12d-catalog"
+    },
+    {
       "id": "surface-mockups-planform-point-verbs",
       "path": "docs/mockups/planform-point-verbs.html",
       "title": "Planform point verbs",
@@ -11450,5 +11603,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "06ad20e30cc138eb0c4d29301765d13d9351211462206c41b923466c523626ff"
+  "graphSha256": "7543f73c2a64372832613239f7e8c4d4171f56a97adc378a853775543e714916"
 };
