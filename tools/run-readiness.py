@@ -60,8 +60,17 @@ def load() -> str:
 def start(command: list[str], root: Path, log: Path | None) -> tuple[subprocess.Popen, object]:
     argv = [sys.executable if c in ("python3", "python") else c for c in command]
     output = log.open("w", encoding="utf-8") if log is not None else None
+    env = None
+    if argv and argv[0] == "dotnet":
+        # The test harnesses' store checks refuse a symlinked temp root (macOS /tmp and /var are links), so the dotnet
+        # steps get the same non-symlinked TMPDIR tools/run-tests.sh exports. The verifiers keep their own scratch
+        # (one writes ~2.75 GB per run), so only dotnet steps are redirected. Found 2026-10-04: STO's readiness-tier
+        # Store_HundredThousandStrips_RefusedDocSize read DOC-UNSUPPORTED-PERSISTENCE inside readiness only.
+        scratch = root.resolve() / ".tmp-tests"
+        scratch.mkdir(parents=True, exist_ok=True)
+        env = {**os.environ, "TMPDIR": str(scratch) + "/", "TMP": str(scratch), "TEMP": str(scratch)}
     process = subprocess.Popen(argv, cwd=root, stdout=output, stderr=subprocess.STDOUT if output else None,
-                               start_new_session=os.name != "nt")
+                               start_new_session=os.name != "nt", env=env)
     return process, output
 
 
