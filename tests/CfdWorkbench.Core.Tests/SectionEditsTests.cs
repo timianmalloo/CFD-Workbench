@@ -26,6 +26,7 @@ internal static class SectionEditsTests
         IdentityTests.Check(nameof(SectionEdits_PairedAnchorToControlRefitOverLimit_Refused), SectionEdits_PairedAnchorToControlRefitOverLimit_Refused);
         IdentityTests.Check(nameof(SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold), SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold);
         IdentityTests.Check(nameof(SectionEdits_PairedSetTangent_BothSurfacesSameKind), SectionEdits_PairedSetTangent_BothSurfacesSameKind);
+        IdentityTests.Check(nameof(SectionEdits_PairedAngle_HandlesKeepPairedX_Certifies), SectionEdits_PairedAngle_HandlesKeepPairedX_Certifies);
         IdentityTests.Check(nameof(SectionEdits_PairedToAnchorWithKind_PartnerRowWritten), SectionEdits_PairedToAnchorWithKind_PartnerRowWritten);
         IdentityTests.Check(nameof(SectionEdits_PairedToControl_PartnerRowRemoved), SectionEdits_PairedToControl_PartnerRowRemoved);
         IdentityTests.Check(nameof(SectionEdits_TwoProfiles_ControlToAnchor_Observed), SectionEdits_TwoProfiles_ControlToAnchor_Observed);
@@ -260,6 +261,23 @@ internal static class SectionEditsTests
         string lowerId = anchoredProfile.Lower.Ids[Array.IndexOf(anchoredProfile.Upper.Ids, "cv-4")];
         var level = ProfileOf(AfterBytes(new SectionStep.SetTangent(SurfaceSide.Lower, lowerId, TangentKind.Horizontal, null, null), anchored));
         SameKindOnBoth(level, "horizontal", null);
+    }
+
+    // F-XPA-1 (Ruling 73 DR-XPA-6 a): Angle is built y-only, so a paired point keeps one x on both surfaces.
+    private static void SectionEdits_PairedAngle_HandlesKeepPairedX_Certifies()
+    {
+        // Lift the lower right handle in y only, so the two surfaces' handle distances differ and an x-moving build shows.
+        byte[] anchored = Anchor();
+        var before = ProfileOf(anchored);
+        int at = Array.IndexOf(before.Upper.Ids, "cv-4");
+        var lowerHandle = before.Lower.Points[at + 1];
+        byte[] lifted = AfterBytes(new SectionStep.Move(SurfaceSide.Lower, before.Lower.Ids[at + 1], lowerHandle[0], lowerHandle[1] - 0.03), anchored);
+        byte[] bytes = AfterBytes(new SectionStep.SetTangent(SurfaceSide.Upper, "cv-4", TangentKind.Angle, 20, null), lifted);
+        var profile = ProfileOf(bytes);
+        int index = Array.IndexOf(profile.Upper.Ids, "cv-4");
+        foreach (int handle in new[] { index - 1, index, index + 1 })
+            IdentityTests.Equal(profile.Upper.Points[handle][0], profile.Lower.Points[handle][0]);
+        IdentityTests.Equal(GeometryStatus.Certified, Geometry.Assess(FoilSource.Parse(bytes)).Status);
     }
 
     private static void SectionEdits_PairedToAnchorWithKind_PartnerRowWritten()
