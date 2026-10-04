@@ -266,6 +266,15 @@
     <Thickness x:Key="ToastTextGap">8,0</Thickness>
     <CornerRadius x:Key="RoundedSm">4</CornerRadius>          <!-- rounded.sm -->
     <BoxShadows x:Key="PopoverShadow">0 8 24 0 #29000000</BoxShadows>   <!-- elevation.popover: 0 8px 24px rgba(0,0,0,0.16) -->
+    <!-- The section editor's mode surface (M1.2c §11; docs/mockups/m12c-section-editor.html .modebar, .chip, .strip). -->
+    <Thickness x:Key="ModeBarInset">8,0</Thickness>           <!-- spacing.mode-bar-inset -->
+    <Thickness x:Key="ScopeChipPadding">6,2</Thickness>       <!-- spacing.scope-chip-pad -->
+    <Thickness x:Key="ModeOverlayInset">12</Thickness>        <!-- spacing.mode-overlay-inset: plate, probe and reason off the canvas edge -->
+    <Thickness x:Key="ModeProbePadding">8,4</Thickness>       <!-- spacing.mode-probe-pad -->
+    <x:Double x:Key="ModeProbeMaxWidth">420</x:Double>        <!-- spacing.mode-probe-w -->
+    <Thickness x:Key="ModeReasonPadding">8</Thickness>        <!-- spacing.mode-reason-pad -->
+    <Thickness x:Key="ModeActionsInset">0,0,0,12</Thickness>  <!-- spacing.mode-overlay-inset, bottom only: Fit / Fit Selection -->
+    <Thickness x:Key="StationStripInset">8</Thickness>        <!-- spacing.station-strip-inset -->
     </ResourceDictionary>
   </Styles.Resources>
   <Style Selector="Window"><Setter Property="Background" Value="{DynamicResource CanvasBrush}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="FontSize" Value="{StaticResource BodySize}" /></Style>
