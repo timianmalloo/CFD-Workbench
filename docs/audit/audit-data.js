@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T16:13:19Z",
+  "generated": "2026-10-04T16:31:41Z",
   "audit": [
     {
       "actor": null,
@@ -23222,6 +23222,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T16:12:22Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M43W3H8TXYVJ8GJ0E89YPARJ",
+      "shortname": "design-guided-install",
+      "datetime": "2026-10-04T16:31:41Z",
+      "session": "f19a2b12",
+      "prompt": "Read your brief at briefs/guided-install.md and execute it (guided, on-rails OpenFOAM/SU2 install; documents only)",
+      "summary": "Guided solver setup, documents only (Ruling 67 (b); Opus 5.5). Spec amendment proposal (flow F7a, SETUP-01..09, AM-SET-1..6: rails without a key, assistant explains and suggests one allowed step id, smoke scalar = final-time Courant mean because a cavity has no Cl, \"Set up a solver\", command under Technical details); design (Route catalogue + Host survey / Environment step / Install acceptance facts, current step and Ready derived so resume is a re-derivation; macOS OpenFOAM.app 6 steps with Verified pins: zip 22ffc888, inner image 5eb2ab10, etc/openfoam fa900c4e, volume a1d4e57b; Windows WSL app-owned distro 8 steps: Ubuntu 24.04.5 bb415d82, openfoam2512 2512.0-2 c59e65ff, key DC93C096; SU2 win64-omp 4466fe21; 25 cause codes, 14 Windows eval cases Flagged; telemetry; test plan; tracks T1-T5); mockup solver-setup.html (Windows 11 states, macOS 7, assistant modes) with browser check green and 22 captures. Findings: the Homebrew cask strips quarantine (an M8-refused step), so the product never installs through Homebrew; the pinned DMG is the image inside the app bundle. DR-SETUP-1..6 open (rec: WSL default, Courant scalar, no quarantine add/remove, one verb, command in details, RunOnce). All Windows behaviour Inferred.",
+      "kind": "skill",
+      "skill": "design-slice",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/guided-solver-setup.md"
+      ],
+      "tags": [
+        "ruling-67"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Design the guided solver setup (UX amendment, AI boundaries, design slice, mockup, DR batch) as documents",
+      "done_when": "docs committed with frontmatter, derive and check-docs green",
+      "tier": "T2",
+      "fan_out": 0,
+      "git": {
+        "sha": "a46020f909a13c5b9d8920f6544c25ee7a15a14f",
+        "short": "a46020f90",
+        "branch": "design/guided-install",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -24008,6 +24038,33 @@ window.AUDIT_DATA = {
         "before": "4fa5a3f146183cf25e947aa341d210c95a0ea691",
         "after": "4fa5a3f146183cf25e947aa341d210c95a0ea691",
         "branch": "design/planform-point-verbs",
+        "pushed": null,
+        "commits": []
+      }
+    },
+    {
+      "id": "cl-01M43W3GZYM2BVC75DG3DKPKAM",
+      "datetime": "2026-10-04T16:31:41Z",
+      "session": "f19a2b12",
+      "kind": "design",
+      "skill": "design-slice",
+      "title": "Guided solver setup: UX amendment proposal, design slice, mockup, DR-SETUP-1..6",
+      "prompt": "Read your brief at briefs/guided-install.md and execute it (guided, on-rails OpenFOAM/SU2 install; documents only)",
+      "summary": "Guided solver setup, documents only (Ruling 67 (b); Opus 5.5). Spec amendment proposal (flow F7a, SETUP-01..09, AM-SET-1..6: rails without a key, assistant explains and suggests one allowed step id, smoke scalar = final-time Courant mean because a cavity has no Cl, \"Set up a solver\", command under Technical details); design (Route catalogue + Host survey / Environment step / Install acceptance facts, current step and Ready derived so resume is a re-derivation; macOS OpenFOAM.app 6 steps with Verified pins: zip 22ffc888, inner image 5eb2ab10, etc/openfoam fa900c4e, volume a1d4e57b; Windows WSL app-owned distro 8 steps: Ubuntu 24.04.5 bb415d82, openfoam2512 2512.0-2 c59e65ff, key DC93C096; SU2 win64-omp 4466fe21; 25 cause codes, 14 Windows eval cases Flagged; telemetry; test plan; tracks T1-T5); mockup solver-setup.html (Windows 11 states, macOS 7, assistant modes) with browser check green and 22 captures. Findings: the Homebrew cask strips quarantine (an M8-refused step), so the product never installs through Homebrew; the pinned DMG is the image inside the app bundle. DR-SETUP-1..6 open (rec: WSL default, Courant scalar, no quarantine add/remove, one verb, command in details, RunOnce). All Windows behaviour Inferred.",
+      "rationale": "Ruling 67 (b): an on-rails install so the operator does no tech support; security sized by the right-size note",
+      "artifacts": [
+        "docs/specs/amendments/guided-solver-setup.md",
+        "docs/design/guided-solver-setup.md",
+        "docs/mockups/solver-setup.html"
+      ],
+      "tags": [
+        "ruling-67",
+        "setup"
+      ],
+      "git": {
+        "before": "a46020f",
+        "after": "a46020f909a13c5b9d8920f6544c25ee7a15a14f",
+        "branch": "design/guided-install",
         "pushed": null,
         "commits": []
       }
