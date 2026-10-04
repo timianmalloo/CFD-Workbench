@@ -5805,7 +5805,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a18fbd2371aa3630b75ae05acd8f076c5fcf78bbb97e89da63dd06ec65b03b55"
+      "sourceSha256": "4a499e0d14cb84eae21a7ef75f37c079d432efa107884a5cc0d30d1616ecdee0"
     },
     {
       "id": "kb-hw-glossary",
@@ -8552,7 +8552,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "99274226e8833a52ba2f38a59a360d5957354bee74413f55fd770a458ca9a2d2"
+      "sourceSha256": "0de3b6ced737285a2bb7f206b2dc2488a2b5841e2957285cddb4a34cab5df7bd"
     },
     {
       "id": "proof-m12c-certificate-spike",
@@ -10775,5 +10775,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "d4db95b8042232ee941696bbe9d851640320f23fcdd2fbe6656e0626bfaaeaa5"
+  "graphSha256": "351ad52ad65fd1400a8cba736de8e256ce3f16acf0b844933c6c91e46d5b9605"
 };
