@@ -290,18 +290,21 @@ internal static class SectionDraftTests
             using var session = Opened();
             string id = Id();
             var view = session.BeginSectionDraft(id, 0);
-            byte[] dat = Naca0012Selig();
-            var fitted = FoilSource.ImportDat(dat, "naca-0012");
+            // Ruling 71 (operator 2026-10-04): was NACA 0012 at Root, landed on its own spacing (report = the own fit) and
+            // uncertified. That case is now refused (SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged);
+            // the report is checked on an import that lands, the Example's own section on the neighbour basis.
+            byte[] dat = ExampleSectionSelig();
             view = session.ApplySectionStep(id, view.Generation, new SectionStep.Import(dat));
             var report = view.Last!.Import ?? throw new InvalidOperationException("Missing import report.");
             Equal("import", view.Last.Kind);
-            Equal(fitted.MaxResidual, report.MaxResidual);
-            Equal(fitted.Provenance, report.Provenance);
-            Equal(true, report.Provenance.Length > 0);
+            Equal("neighbour", report.Basis);
+            Equal(true, report.MaxResidual <= 1e-5);
+            Equal(true, report.Provenance.Contains(Identity.Sha256(dat), StringComparison.Ordinal));
             Equal(view.Last.UpperPoints, report.VertexCount);
-            Equal("naca-0012", view.Profile);
+            Equal("example-section", view.Profile);
             Equal(SectionScope.Independent, view.Scope);
             var assessment = session.AssessSection(id, view.Generation, CancellationToken.None);
+            Equal(GeometryStatus.Certified, assessment.Status);
             Equal(report, assessment.ImportReport);
         });
         Check("SectionDraft_FairStep_ReportsAchievedDeviation", () =>
@@ -479,6 +482,26 @@ internal static class SectionDraftTests
             ?? throw new InvalidOperationException("AuthoringSession.draft is missing.");
         var current = (SessionDraft)field.GetValue(session)!;
         field.SetValue(session, current with { Bytes = bytes });
+    }
+
+    // The Example's own section sampled as a Selig DAT (upper trailing edge → nose → lower trailing edge), so an import
+    // fits the neighbour basis and lands (Ruling 71 refuses an own-spacing import beside another profile).
+    internal static byte[] ExampleSectionSelig()
+    {
+        var profile = FoilSource.Parse(FoilSourceTests.Example).Definition!.Profiles[0];
+        const int n = 60;
+        var text = new StringBuilder("Example section\n");
+        void Sample(Curve curve, double u)
+        {
+            double[] basis = SplineBasis.Values(curve.Knots, curve.Degree, u);
+            double x = curve.Points.Select((point, index) => point[0] * basis[index]).Sum();
+            double y = curve.Points.Select((point, index) => point[1] * basis[index]).Sum();
+            text.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0:F9} {1:F9}", x, y));
+        }
+        static double U(int i) => 0.5 * (1.0 - Math.Cos(Math.PI * i / n));
+        for (int i = n; i >= 0; i--) Sample(profile.Upper, U(i));
+        for (int i = 1; i <= n; i++) Sample(profile.Lower, U(i));
+        return Encoding.UTF8.GetBytes(text.ToString());
     }
 
     internal static byte[] Naca0012Selig()

@@ -960,7 +960,8 @@ underline, tabular figures.
 | 182 | "This section couldn't be checked, so Finish is off. <reason> Undo the last change or try another." | Finish reason |
 | 183 | "Angles are in the section's own chord coordinates. A flat crest stays flat at a station only if the section is symmetric or uses its own thickness." | Tangent help |
 | 184 | "A vertical tangent inside a surface makes a step. The nose already has one." | disabled Vertical, reason |
-| 209 | "This edit would give <station>'s section different point positions from <neighbour>'s, and the wing between them can't be checked then. Move points up or down only, or keep the section shared." (proposed, Ruling 71; the strip adds "Nothing changed.") | strip (warning) or reason box, for a refused step |
+| 209 | "This edit would give <station>'s section different point positions from <neighbour>'s, and the wing between them can't be checked then. Move points up or down only, or keep the section shared." (Ruling 71; approved by the operator 2026-10-04; the strip adds "Nothing changed.") | strip (warning) or reason box, for a refused step |
+| 210 | "This import has different point positions from <neighbour>'s section, so the wing between them can't be checked. Import it on a shared section, or wait for 'keep sections in step'." (Ruling 71, operator 2026-10-04; the strip adds "Nothing changed.") | strip (warning), for a refused Import |
 
 Reused: COPY-117, COPY-119, COPY-122, COPY-123, COPY-124, and "Finish or cancel <station> before editing <other>."
 
@@ -1084,7 +1085,9 @@ x move) is refused with COPY-209 and the draft is unchanged and still certifies.
 `SectionEdits_UniqueProfile_YOnlyMoveAllowed` (SPT): a y-only move on the unique profile lands and certifies.
 The check is `SectionEdits.RequireNeighbourAbscissa`, called
 at the one step choke point (`AuthoringSession.PatchSectionStep`) with the certificate's own rule (`Geometry.SharedAbscissa`).
-Import keeps its own-spacing fallback (uncertified, DatImport's reason).
+`SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged` (SPT): an Import that needs its own spacing beside
+another profile is refused with COPY-210 and nothing changes (operator 2026-10-04); an import on the neighbour basis still
+lands with its report (`SectionDraft_ImportStep_ReportsResidualAndProvenance` (SDR), below).
 
 **SPTG — per-surface operations (written only on a GSPK go). CUT 2026-10-03: GSPK no-go (S-2, OD-4 a); `docs/proof/m12c-certificate-spike/verdict.md`.**
 `SectionEdits_UpperMove_LowerBytesIdentical` (SPTG) · `SectionEdits_UpperAnchor_LowerBytesIdentical` (SPTG) ·

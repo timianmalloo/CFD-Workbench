@@ -30,11 +30,13 @@ internal static class SectionEdits
     // Ruling 71: a step that would give the edited profile other abscissae than a neighbouring station's different profile
     // is refused before it lands, nothing changed; the certificate's blend rule (Geometry.SharedAbscissa) would refuse the
     // whole draft at Finish. Judged on the result, so it holds for every step kind. A pair that already differed before the
-    // step is left to the certificate: refusing every step there would trap the draft.
-    internal static void RequireNeighbourAbscissa(Definition before, Definition after, int assignment)
+    // step is left to the certificate: refusing every step there would trap the draft. An Import that needs its own spacing
+    // is refused the same way, with its own reason (COPY-210).
+    internal static void RequireNeighbourAbscissa(Definition before, Definition after, int assignment, SectionStep step)
     {
         ArgumentNullException.ThrowIfNull(before);
         ArgumentNullException.ThrowIfNull(after);
+        ArgumentNullException.ThrowIfNull(step);
         int edited = after.Assignments[assignment].Profile;
         var watch = new ProofBudget();
         for (int index = 0; index + 1 < after.Assignments.Length; index++)
@@ -46,10 +48,17 @@ internal static class SectionEdits
                     before.Profiles[before.Assignments[index + 1].Profile], watch))
                 continue;
             int own = left == edited ? index : index + 1, other = left == edited ? index + 1 : index;
-            throw new ContractError("DSL-GEOMETRY", NeighbourAbscissaReason(StationName(own, after.Assignments[own].Eta),
-                StationName(other, after.Assignments[other].Eta)));
+            string neighbour = StationName(other, after.Assignments[other].Eta);
+            throw new ContractError("DSL-GEOMETRY", step is SectionStep.Import
+                ? ImportAbscissaReason(neighbour)
+                : NeighbourAbscissaReason(StationName(own, after.Assignments[own].Eta), neighbour));
         }
     }
+
+    // COPY-210 (m12c design §11.4).
+    private static string ImportAbscissaReason(string neighbour) =>
+        $"This import has different point positions from {neighbour}'s section, so the wing between them can't be checked. " +
+        "Import it on a shared section, or wait for 'keep sections in step'.";
 
     // COPY-209 (m12c design §11.4).
     private static string NeighbourAbscissaReason(string station, string neighbour) =>

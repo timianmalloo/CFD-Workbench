@@ -1457,9 +1457,8 @@ public sealed class AuthoringSession : IDisposable
         string name = SectionProfileName(next, assignment);
         if (intent == ThicknessIntent.UseSource) next = ThicknessFit.Fit(next, name);
         var after = SessionSource.Parse(next).Definition!;
-        // Ruling 71 at the one step choke point. Import keeps its designed own-spacing fallback: the draft lands uncertified
-        // with the import report and DatImport's own reason (DatImport_Reflexed_ExampleTip_FallsBackUncertified).
-        if (step is not SectionStep.Import) SectionEdits.RequireNeighbourAbscissa(definition, after, assignment);
+        // Ruling 71 at the one step choke point, Import included (operator 2026-10-04).
+        SectionEdits.RequireNeighbourAbscissa(definition, after, assignment, step);
         var profile = after.Profiles.Single(item => item.Name == name);
         ThicknessProposal? proposal = intent == ThicknessIntent.UseSource ? ThicknessFit.Describe(next, name, baseBytes).Proposal : null;
         var report = delegated is not null

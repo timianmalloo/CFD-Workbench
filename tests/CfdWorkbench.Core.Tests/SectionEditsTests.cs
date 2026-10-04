@@ -31,7 +31,12 @@ internal static class SectionEditsTests
         IdentityTests.Check(nameof(SectionEdits_TwoProfiles_ControlToAnchor_Observed), SectionEdits_TwoProfiles_ControlToAnchor_Observed);
         IdentityTests.Check(nameof(SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged), SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged);
         IdentityTests.Check(nameof(SectionEdits_UniqueProfile_YOnlyMoveAllowed), SectionEdits_UniqueProfile_YOnlyMoveAllowed);
+        IdentityTests.Check(nameof(SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged), SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged);
     }
+
+    // COPY-210 (Ruling 71, operator 2026-10-04): an import at Root whose own spacing differs from Tip's section.
+    internal const string ImportOwnSpacingReason = "This import has different point positions from Tip's section, so the wing between " +
+        "them can't be checked. Import it on a shared section, or wait for 'keep sections in step'.";
 
     // COPY-209 (Ruling 71): the Example's Root after Make unique; Tip keeps the shared profile.
     private const string UniqueRootReason = "This edit would give Root's section different point positions from Tip's, and the wing " +
@@ -348,6 +353,23 @@ internal static class SectionEditsTests
         IdentityTests.Equal("section-a-i1", view.Profile);
         var assessment = session.AssessSection(id, view.Generation, CancellationToken.None);
         IdentityTests.Equal(GeometryStatus.Certified, assessment.Status);
+    }
+
+    // Ruling 71 (operator 2026-10-04): an import assigns a new, unique profile at one station. When the DAT needs its own
+    // spacing (NACA 0012 on the Example: the neighbour-basis residual is over 1e-5) the step is refused with COPY-210 and
+    // nothing changes; before, it landed uncertified with DatImport's own-spacing reason.
+    private static void SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged()
+    {
+        using var session = SectionDraftTests.Opened();
+        string id = SectionDraftTests.Id();
+        var view = session.BeginSectionDraft(id, 0);
+        var error = Throws(() => session.ApplySectionStep(id, view.Generation, new SectionStep.Import(SectionDraftTests.Naca0012Selig())));
+        IdentityTests.Equal("DSL-GEOMETRY", error.Code);
+        IdentityTests.Equal(ImportOwnSpacingReason, error.Reason);
+        var draft = session.Snapshot().Draft!;
+        IdentityTests.Equal(view.Generation, draft.Generation);
+        IdentityTests.Equal(true, draft.Bytes.AsSpan().SequenceEqual(view.Bytes));
+        IdentityTests.Equal(0, session.UndoSectionStep(id).Cursor);
     }
 
     private static byte[] Anchor() =>

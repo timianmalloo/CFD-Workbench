@@ -136,9 +136,13 @@ internal static class DatImportTests
             ImportAtExampleTip(GenerateReflexedSelig(), allowNeighbour: false));
     }
 
-    private const string OwnSpacingPrefix = "The imported shape needs its own vertex spacing (residual ";
-    private const string OwnSpacingSuffix = " on the neighbour basis). Blending across different spacings is not certified yet: import it at every station that shares this profile, or Rebuild the neighbouring profiles.";
+    // COPY-210 at the Example's Tip, whose neighbour Root keeps the shared section.
+    private const string OwnSpacingRefusal = "This import has different point positions from Root's section, so the wing between " +
+        "them can't be checked. Import it on a shared section, or wait for 'keep sections in step'.";
 
+    // The neighbour-basis case is unchanged: it lands, certifies, applies and undoes. Ruling 71 (operator 2026-10-04): the
+    // own-spacing case was a landed, uncertified draft with DatImport's own-spacing reason; it is now refused at the step
+    // with COPY-210, and the draft keeps its opened bytes.
     private static void ImportAtExampleTip(byte[] dat, bool allowNeighbour)
     {
         byte[] originalBytes = FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example));
@@ -147,37 +151,31 @@ internal static class DatImportTests
         byte[] opened = session.Snapshot().Source.ToArray();
 
         string draftId = Id();
-        var draft = session.BeginSectionImport(draftId, 1, dat);
+        SessionDraft draft;
+        try { draft = session.BeginSectionImport(draftId, 1, dat); }
+        catch (ContractError refused)
+        {
+            Equal("DSL-GEOMETRY", refused.Code);
+            Equal(OwnSpacingRefusal, refused.Reason);
+            var unchanged = session.Snapshot().Draft!;
+            Equal(0L, unchanged.Generation);
+            Equal(true, opened.AsSpan().SequenceEqual(unchanged.Bytes));
+            Console.WriteLine("IMPORT-BASIS: own (refused)");
+            return;
+        }
+        Equal(true, allowNeighbour);
         Equal(1, draft.Assignment);
 
         var assessment = session.Validate(draftId, draft.Generation);
-        Equal(true, assessment.ImportReport is not null);
-        var report = assessment.ImportReport!;
-
-        if (allowNeighbour && report.Basis == "neighbour")
-        {
-            Equal(true, report.MaxResidual <= 1e-5);
-            Equal(GeometryStatus.Certified, assessment.Status);
-            Equal(false, assessment.Diagnostics.Any(item => item.Reason.StartsWith(OwnSpacingPrefix, StringComparison.Ordinal)));
-            session.Apply(Id(), assessment);
-            Equal(false, opened.AsSpan().SequenceEqual(session.Snapshot().Source));
-            session.Undo(Id());
-            Equal(true, opened.AsSpan().SequenceEqual(session.Snapshot().Source));
-            Console.WriteLine(FormattableString.Invariant($"IMPORT-BASIS: neighbour {report.MaxResidual}"));
-            return;
-        }
-
-        Equal("own", report.Basis);
-        Equal(true, assessment.Status != GeometryStatus.Certified);
-        var diagnostic = assessment.Diagnostics.FirstOrDefault(item => item.Reason.StartsWith(OwnSpacingPrefix, StringComparison.Ordinal));
-        Equal(true, diagnostic is not null);
-        string reason = diagnostic!.Reason;
-        Equal(true, reason.EndsWith(OwnSpacingSuffix, StringComparison.Ordinal));
-        string token = reason[OwnSpacingPrefix.Length..^OwnSpacingSuffix.Length];
-        double neighbourResidual = double.Parse(token, CultureInfo.InvariantCulture);
-        Equal(true, neighbourResidual > 1e-5);
-        Equal(OwnSpacingPrefix + neighbourResidual.ToString("G17", CultureInfo.InvariantCulture) + OwnSpacingSuffix, reason);
-        Console.WriteLine(FormattableString.Invariant($"IMPORT-BASIS: own {neighbourResidual}"));
+        var report = assessment.ImportReport ?? throw new InvalidOperationException("Missing import report.");
+        Equal("neighbour", report.Basis);
+        Equal(true, report.MaxResidual <= 1e-5);
+        Equal(GeometryStatus.Certified, assessment.Status);
+        session.Apply(Id(), assessment);
+        Equal(false, opened.AsSpan().SequenceEqual(session.Snapshot().Source));
+        session.Undo(Id());
+        Equal(true, opened.AsSpan().SequenceEqual(session.Snapshot().Source));
+        Console.WriteLine(FormattableString.Invariant($"IMPORT-BASIS: neighbour {report.MaxResidual}"));
     }
 
     private static void RefusesLine(string code, int expectedLine, Action action)
