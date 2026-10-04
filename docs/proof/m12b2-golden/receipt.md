@@ -71,3 +71,14 @@ Operator ruling 2026-10-02: the geometry proof limit counts work, not clock. `Pr
 The entry keeps its kind (`assess`), its code (`GEOMETRY-BUDGET`) and its status (`NotAssessed`). The fixture call is unchanged too: `Geometry.Assess(parsed, TimeSpan.Zero)`, where zero time now maps to zero work. `point-budget` and `section-budget` are unchanged: a contract refusal's reason is its code, `GEOMETRY-BUDGET`.
 
 How it was found and checked: after the code change, `PlacementRule_CertificateGoldenMaster_AssessWitnessesAndRefusalsUnchanged` failed with `assess-budget reason changed`. That one string was edited in `certificate-bits.json`, which is a 1-line diff. Then `CFD_TEST_ONLY=PlacementRule_` (Release) passed `PlacementRule_CertificateGoldenMaster_PointAtBitsUnchanged`, `PlacementRule_CertificateGoldenMaster_AssessWitnessesAndRefusalsUnchanged` and `PlacementRule_OperationTree_TraceGolden`. So every certificate output bit, every witness and every other refusal is identical, and the OI-11 trace golden is green.
+
+## Deliberate change, 2026-10-03: the display sampler includes the curve ends, knots and quarter points (planform point verbs, design finding F-1)
+
+Two entries changed: `/planform/leading` and `/planform/trailing` in `certificate-bits.json` went from 32 to 65 samples. The display sampler (`PointModel.cs`, the sampling loop after the point table) now evaluates the curve start and end, every knot and every quarter point of each span, with at least 8 samples per span and at least 64 in all. It had spaced samples evenly in each span with a coarser rule.
+
+| Entry | Field | Before | After |
+|---|---|---|---|
+| `/planform/leading` | sample count | 32 | 65 |
+| `/planform/trailing` | sample count | 32 | 65 |
+
+Checked with a script over `0cdab2c:docs/proof/m12b2-golden/certificate-bits.json` against the file now: each old sample `i` equals new sample `[2i + 1]` bit for bit, for both rails, all 32 samples (`span` and `aft` as IEEE-754 hex, max absolute difference 0.0). Every other key is identical: `baseCommit`, `probeEtas`, `probeXs`, `fixtures`, `refusals`, `wingEstimates`, `planform/halfSpan` and `planform/stations`. `Geometry.cs`, `Placement.cs` and `WingEstimates.cs` are unchanged, and the OI-11 trace golden (`PlacementRule_OperationTree_TraceGolden`) is unchanged. So no certificate output bit moved. Only the number of display samples did.
