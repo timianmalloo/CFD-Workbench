@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T21:48:36Z",
+  "generated": "2026-10-04T21:50:18Z",
   "audit": [
     {
       "actor": null,
@@ -23708,6 +23708,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T21:46:58Z",
       "duration_seconds": 98.0
+    },
+    {
+      "id": "al-01M44EAXPFYR4CFY2HXJ6PXDPA",
+      "shortname": "join-alongside-solver",
+      "datetime": "2026-10-04T21:50:18Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/join-alongside-solver into feature/ui-cad-direction",
+      "summary": "Operator ruling 2026-10-04: joins no longer wait for a running solver; with one running the test budget is relaxed (600 s) and the output says so; with none, the 60 s budget and quiet wait apply. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T21:48:41Z",
+      "duration_seconds": 97.0
     }
   ],
   "changes": [
