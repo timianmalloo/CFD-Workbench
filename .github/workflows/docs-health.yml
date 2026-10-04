@@ -1,12 +1,8 @@
 name: docs-health
 
 on:
-  pull_request:
-    paths: ["docs/**", "**/*.md", "tools/**", ".github/**", ".claude/**", ".agents/**", ".grok/**", ".gitattributes", ".gitignore"]
-  push:
-    branches: [main]
-    paths: ["docs/**", "**/*.md", "tools/**", ".github/**", ".claude/**", ".agents/**", ".grok/**", ".gitattributes", ".gitignore"]
   workflow_dispatch:
+
 
 permissions:
   contents: read
