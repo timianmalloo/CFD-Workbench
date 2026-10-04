@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T18:08:35Z",
+  "generated": "2026-10-04T18:40:04Z",
   "audit": [
     {
       "actor": null,
@@ -23557,6 +23557,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-04T18:07:36Z",
+      "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M443EKQFSRENT7HTSPT0H98J",
+      "shortname": "join-planform-pvu",
+      "datetime": "2026-10-04T18:40:04Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/planform-pvu into feature/ui-cad-direction",
+      "summary": "PVU (Codex gpt-6-sol 5 runs + Opus 5.5 finishing): point verbs in Edit menu, context menus, Cmd-K and canvas (double-click add, Backspace remove, dashed refusal ring), Rebuild popover with two-column readouts from RebuildPreview (area via WingEstimates), Properties Rebuild link, verb reports kept through sampling; Add enabled to 16 (Desktop had gated on the 4.0 ceiling of 10). PVU 24/24; both row mutants red; 12 captures. Open deviations listed for the operator (Fit Selection framing, selection strip report, Edit-menu accelerator, Properties summary, popover hint). Five ownership stops traced to the Coordinator's missing path trace. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T18:39:05Z",
       "duration_seconds": 59.0
     }
   ],
