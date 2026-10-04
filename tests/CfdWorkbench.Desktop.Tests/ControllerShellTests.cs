@@ -8,6 +8,20 @@ public static class ControllerShellTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("Controller_RefusalCopy_UsesCoreReasonNotCode", () =>
+        {
+            using var controller = new WorkbenchController();
+            controller.NewFoilAsync().GetAwaiter().GetResult();
+            var point = controller.Planform!.Trailing.Points[1];
+            string source = controller.AcceptedSource;
+            var refused = controller.ApplyPointCommandAsync(new PointCommand.RemovePoint(point.Curve, point.Id))
+                .GetAwaiter().GetResult() as CommitOutcome.Refused
+                ?? throw new Exception("Removing a point from the four-point rail was not refused");
+            if (!refused.Copy.Contains("A curve needs at least 4 points.", StringComparison.Ordinal) ||
+                refused.Copy.Contains("DSL-CURVE", StringComparison.Ordinal) || controller.AcceptedSource != source)
+                throw new Exception($"Core reason was lost or source changed: {refused.Copy}");
+        });
+
         DesktopChecks.Check("StatusStrip_BackgroundCompletion_DoesNotReplaceNewerReport", () =>
         {
             // STATUS-CLOBBER at the strip (docs/reviews/ui-status-bar.md §2.3): a report the strip shows from outside the

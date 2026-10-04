@@ -1234,7 +1234,7 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (ContractError error)
         {
-            SetStatus($"{error.Code}: This change wasn't applied. Nothing changed.", ReportKind.Error);
+            SetStatus(error.Reason ?? $"{error.Code}: This change wasn't applied. Nothing changed.", ReportKind.Error);
             Notify();
             return new CommitOutcome.Refused(error.Code, Status);
         }
