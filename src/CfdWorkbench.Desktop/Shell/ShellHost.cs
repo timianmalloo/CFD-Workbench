@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
@@ -27,8 +28,20 @@ public sealed class ShellHost : Grid
         // viewport unpainted after returning to its document tab.
         Dock.Controls.DeferredContentControl.DeferredContentPresentationSettings.RevealDuration = TimeSpan.Zero;
         application.Styles.Add(new DockFluentTheme());
-        application.DataTemplates.Add(new FuncDataTemplate<Document>((document, _) => document.Context as Control));
-        application.DataTemplates.Add(new FuncDataTemplate<Tool>((tool, _) => tool.Context as Control));
+        application.DataTemplates.Add(new FuncDataTemplate<Document>((document, _) => Rehost(document.Context as Control)));
+        application.DataTemplates.Add(new FuncDataTemplate<Tool>((tool, _) => Rehost(tool.Context as Control)));
+    }
+
+    /// <summary>
+    /// A dock removed from the layout and shown again (the left side bar's toggle; a workspace that hides it) gets a new view,
+    /// while its pane, one instance per shell, is still the child of the removed view's presenter. A control has one parent,
+    /// so the new view stayed blank (the 2026-10-04 blank Properties). A pane is released from a presenter no longer on screen.
+    /// </summary>
+    private static Control? Rehost(Control? pane)
+    {
+        if (pane?.GetVisualParent() is Avalonia.Controls.Presenters.ContentPresenter old && old.GetVisualRoot() is null)
+            old.Content = null;
+        return pane;
     }
     public WorkbenchController Controller { get; }
     public PreferenceStore? Preferences { get; }
@@ -137,6 +150,7 @@ public sealed class ShellHost : Grid
         Properties.EditSectionRequested += () => _ = EnterSectionAsync(EntryOrigin.Properties);
         Properties.RebuildRequested += curve => ModelView.BeginRebuild(curve, ModelView.PlanCanvas);
         Properties.SectionStepRequested += ApplySectionStepAsync;
+        Properties.DockDiagnostic = DiagnoseDock;
         ModelView.PlanCanvas.Controller = controller;
         // DR-NAV-1: Tab from a selected Plan point lands on the Properties pane's first value.
         ModelView.PlanCanvas.TabOut = Properties.FocusFirstValue;
@@ -490,19 +504,24 @@ public sealed class ShellHost : Grid
     private void OnControllerChanged() => RefreshOnUiThread();
     private void OnSelectionChanged() => RefreshOnUiThread();
 
-    private void RefreshOnUiThread()
+    private void RefreshOnUiThread([CallerMemberName] string caller = "")
     {
-        if (Dispatcher.UIThread.CheckAccess()) RefreshPanes();
-        else Dispatcher.UIThread.Post(RefreshPanes, DispatcherPriority.Background);
+        bool onUi = Dispatcher.UIThread.CheckAccess();
+        // simplify: the CFDW_DIAG_PANES trace (PaneDiagnostics); removed once the blank-Properties cause is found.
+        PaneDiagnostics.Write(() => $"shell.refresh-request caller={caller} onUi={onUi} sel={PaneDiagnostics.Describe(Controller.Selection)}");
+        if (onUi) RefreshPanes(caller);
+        else Dispatcher.UIThread.Post(() => RefreshPanes(caller + ">posted"), DispatcherPriority.Background);
     }
 
     /// <summary>How many times the panes were rebuilt (≈ 25 ms each); a camera-only change must leave it unchanged.</summary>
     public long PaneRefreshes { get; private set; }
 
-    public void RefreshPanes()
+    public void RefreshPanes([CallerMemberName] string caller = "")
     {
         PaneRefreshes++;
-        Properties.Bind(Controller);
+        PaneDiagnostics.Write(() => $"shell.refresh caller={caller} n={PaneRefreshes} sel={PaneDiagnostics.Describe(Controller.Selection)} " +
+                                    $"section={Controller.Section is not null} gesture={Controller.Gesture}");
+        Properties.Bind(Controller, caller: nameof(RefreshPanes) + "<" + caller);
         Browser.Bind(Controller);
         Points.Bind(Controller);
         ModelView.SectionEditor.Bind(Controller);
@@ -521,8 +540,21 @@ public sealed class ShellHost : Grid
         }
     }
 
+    // simplify: the CFDW_DIAG_PANES trace (PaneDiagnostics): the Properties region's active tool, whether the left dock is in
+    // the layout, and the control each on-screen presenter of the Properties tool actually hosts (its hash, or empty).
+    private string DiagnoseDock()
+    {
+        var tool = LayoutFactory.PropertiesTool;
+        string hosted = string.Join(",", DockHost.GetVisualDescendants().OfType<Avalonia.Controls.Presenters.ContentPresenter>()
+            .Where(presenter => ReferenceEquals(presenter.Content, tool))
+            .Select(presenter => presenter.Child?.GetHashCode().ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "empty"));
+        return $"dock={(tool.Owner as IDock)?.ActiveDockable?.Id ?? "none"} left-in-layout={LayoutFactory.TopProportionalDock.VisibleDockables?.Contains(LayoutFactory.LeftToolDock)} " +
+               $"workspace={Workspace} hosted={(hosted.Length == 0 ? "none" : hosted)}";
+    }
+
     public void ToggleLeftSidebar()
     {
+        PaneDiagnostics.Write(() => $"shell.left-toggle {DiagnoseDock()}");
         var dock = LayoutFactory.LeftToolDock;
         if (dock != null)
         {
@@ -900,6 +932,7 @@ public sealed class ShellHost : Grid
     /// </summary>
     public void ApplyWorkspace(WorkspaceId workspace)
     {
+        PaneDiagnostics.Write(() => $"shell.workspace from={Workspace} to={workspace} {DiagnoseDock()}");
         Workspace = workspace;
         var layout = WorkspacePresets.Preset(workspace).Workspaces.Single(item => item.Id == workspace);
         SetLeftShown(layout.Regions.Any(region => region.Id == RegionId.Left && region.Open && region.Groups.Count > 0));

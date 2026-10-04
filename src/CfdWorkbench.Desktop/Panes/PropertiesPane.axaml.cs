@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Animation;
@@ -216,13 +217,40 @@ public partial class PropertiesPane : UserControl
     private static double BaseToken(string key) =>
         Application.Current?.TryFindResource(key, out var value) == true && value is double number ? number : 0;
 
-    public void Bind(WorkbenchController controller, WingEstimates? projectedEstimates = null)
+    public void Bind(WorkbenchController controller, WingEstimates? projectedEstimates = null, [CallerMemberName] string caller = "")
+    {
+        Exception? failure = null;
+        try { failure = BindNow(controller, projectedEstimates); }
+        // The filter records an exception that escapes the bind (one thrown from its own catch) and never handles it.
+        catch (Exception escaped) when (Diagnose(caller, controller, escaped, escaped: true)) { throw; }
+        Diagnose(caller, controller, failure, escaped: false);
+    }
+
+    /// <summary>simplify: the shell's dock state for the CFDW_DIAG_PANES trace (the pane cannot find its shell while detached).</summary>
+    public Func<string>? DockDiagnostic { get; set; }
+
+    // simplify: the CFDW_DIAG_PANES trace (PaneDiagnostics); off unless the variable is set, removed once the cause is found.
+    private bool Diagnose(string caller, WorkbenchController controller, Exception? failure, bool escaped)
+    {
+        PaneDiagnostics.Write(() =>
+        {
+            string line = $"pane.bind caller={caller} sel={PaneDiagnostics.Describe(controller.Selection)} section={controller.Section is not null} " +
+                          $"content={ContentPanel.IsVisible} error={ErrorPanel.IsVisible} empty={EmptyPanel.IsVisible} holds={holds} " +
+                          $"bindPending={bindPending} title=\"{shownModel?.Identity?.Title}\" rows={shownModel?.Groups.Sum(group => group.Rows.Count)} " +
+                          $"pane={GetHashCode()} attached={this.GetVisualRoot() is not null} parent={this.GetVisualParent()?.GetType().Name ?? "none"} " +
+                          $"{DockDiagnostic?.Invoke() ?? "dock=unknown"} visible={IsEffectivelyVisible} bounds={Bounds} blocks={BlocksPanel.Children.Count}";
+            return failure is null ? line : $"{line} {(escaped ? "escaped " : "caught ")}{PaneDiagnostics.Describe(failure)}";
+        });
+        return false;
+    }
+
+    private Exception? BindNow(WorkbenchController controller, WingEstimates? projectedEstimates)
     {
         boundController = controller;
         if (holds > 0)
         {
             bindPending = true;
-            return;
+            return null;
         }
         try
         {
@@ -233,7 +261,7 @@ public partial class PropertiesPane : UserControl
                 EmptyPanel.IsVisible = true;
                 ContentPanel.IsVisible = false;
                 foreach (var box in pooledInputs.Values) box.IsEnabled = false;
-                return;
+                return null;
             }
             ResumeRecoveryIfNeeded(controller);
             var estimates = projectedEstimates ?? controller.Estimates;
@@ -260,6 +288,7 @@ public partial class PropertiesPane : UserControl
             EmptyPanel.IsVisible = false;
             ContentPanel.IsVisible = true;
             Render(model, controller);
+            return null;
         }
         catch (Exception ex)
         {
@@ -267,7 +296,10 @@ public partial class PropertiesPane : UserControl
             ContentPanel.IsVisible = false;
             EmptyPanel.IsVisible = false;
             ShowRenderFailure(controller?.Inspection is not null);
-            ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", exceptionType: ex.GetType().Name);
+            // The message names what failed; the type alone could not tell one render failure from another.
+            ShellEvents.Record("shell.pane.render", "error", 0, "pane-bind", pane: "properties",
+                exceptionType: ex.GetType().Name, exceptionMessage: ex.Message);
+            return ex;
         }
     }
 

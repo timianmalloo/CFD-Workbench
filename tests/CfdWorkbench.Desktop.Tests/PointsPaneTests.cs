@@ -254,6 +254,59 @@ public static class PointsPaneTests
     /// <summary>Properties' section rows (§11.4), run from the properties-view suite so the window checks split across two.</summary>
     public static void RunProperties()
     {
+        // The operator's blank Properties (2026-10-04): the left side bar hidden and shown again (its toggle, or the Review
+        // workspace and back) must put the one bound Properties pane back on screen. A detached pane still reports itself
+        // visible and still renders its model, so the check reads the visual root and the on-screen panes, not IsVisible.
+        foreach (var (route, hideAndShow) in new (string, Action<ShellHost>)[]
+                 {
+                     ("Toggle", host => { host.ToggleLeftSidebar(); host.ToggleLeftSidebar(); }),
+                     ("ReviewWorkspace", host => { host.ApplyWorkspace(WorkspaceId.Review); host.ApplyWorkspace(WorkspaceId.Planform); })
+                 })
+            Pane("Properties_LeftSidebarHiddenAndShown_PaneOnScreen_" + route, (controller, host, window) =>
+            {
+                hideAndShow(host);
+                Settle(window);
+                var point = controller.Planform!.Leading.Points[2];
+                controller.Select(new Selection.Points([Ref(point)]));
+                Settle(window);
+                var onScreen = window.GetVisualDescendants().OfType<PropertiesPane>().ToList();
+                string title = $"Leading edge · point {point.Index + 1} of {controller.Planform.Leading.Points.Count}";
+                bool titleShown = onScreen.SelectMany(pane => pane.GetVisualDescendants().OfType<TextBlock>())
+                    .Any(text => text.Text == title && text.IsEffectivelyVisible);
+                if (host.Properties.GetVisualRoot() is null || onScreen.Count != 1 || !ReferenceEquals(onScreen[0], host.Properties) || !titleShown)
+                    throw new InvalidOperationException($"bound pane attached {host.Properties.GetVisualRoot() is not null}; panes on screen {onScreen.Count}; " +
+                                                        $"'{title}' shown {titleShown}");
+            });
+
+        // The class, on the right side bar: Precision shows the Points pane, Planform removes its dock, Precision shows it again.
+        Pane("Points_RightSidebarHiddenAndShown_PaneOnScreen", (controller, host, window) =>
+        {
+            foreach (var workspace in new[] { WorkspaceId.Precision, WorkspaceId.Planform, WorkspaceId.Precision })
+            {
+                host.ApplyWorkspace(workspace);
+                Settle(window);
+            }
+            var onScreen = window.GetVisualDescendants().OfType<PointsPane>().ToList();
+            if (host.Points.GetVisualRoot() is null || onScreen.Count != 1 || !ReferenceEquals(onScreen[0], host.Points))
+                throw new InvalidOperationException($"bound Points pane attached {host.Points.GetVisualRoot() is not null}; Points panes on screen {onScreen.Count}");
+        });
+
+        // A render that throws (here: a status subscriber, reached through an estimate becoming unavailable) shows its
+        // reason in the pane, never a blank pane, and its telemetry carries the exception's message, not only its type.
+        Pane("Properties_RenderFailure_ShowsVisibleReason", (controller, host, window) =>
+        {
+            const string why = "render-failure probe";
+            ShellEvents.Clear();
+            host.Properties.Reported += _ => throw new InvalidOperationException(why);
+            host.Properties.Bind(controller, controller.Estimates! with { AreaSquareMeters = double.NaN });
+            Settle(window);
+            var error = Need<TextBlock>(host.Properties, "ErrorText");
+            var failure = ShellEvents.Read().LastOrDefault(item => item is { Name: "shell.pane.render", Outcome: "error" });
+            if (!error.IsEffectivelyVisible || error.Bounds.Height <= 0 || error.Text?.StartsWith("Properties couldn't be shown.", StringComparison.Ordinal) != true ||
+                failure is not { ExceptionType: nameof(InvalidOperationException) } || failure.ExceptionMessage != why)
+                throw new InvalidOperationException($"failure text visible {error.IsEffectivelyVisible} height {error.Bounds.Height} '{error.Text}'; event {failure}");
+        });
+
         Section("Properties_SectionPoint_TypeXYRowsInPercentChord", (controller, host, window) =>
         {
             var point = SelectUpper(controller, "cv-3");
