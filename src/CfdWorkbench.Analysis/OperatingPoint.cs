@@ -81,6 +81,27 @@ public static class OperatingPoints
             !moving ? speedless : op.HRef is double hs ? DerivedValue.Of((op.PAtm + water.Rho * Gravity * hs - water.Pv) / q) : depthless);
     }
 
+    /// <summary>The table's tabulated temperature band, °C (spec 1.7 water-record row: "admitted range 0–50 °C").</summary>
+    public const double TableMinTemperatureC = 0, TableMaxTemperatureC = 50;
+
+    /// <summary>
+    /// Refuses a water record outside the table before compute, nothing recorded (design §8): <c>ANA-INPUT-WATER</c> when
+    /// a property is not finite, ρ or ν is not above zero, p_v is negative, or the temperature or salinity lies outside
+    /// the table. The table itself refuses outside its band (<see cref="WaterTable.At"/>, never clamped); this guards a
+    /// record the table did not build.
+    /// </summary>
+    public static void Validate(WaterRecord water)
+    {
+        ArgumentNullException.ThrowIfNull(water);
+        bool finite = new[] { water.TemperatureC, water.SalinityGPerKg, water.Rho, water.Nu, water.Pv }.All(double.IsFinite);
+        Require(finite && water.Rho > 0 && water.Nu > 0 && water.Pv >= 0, "ANA-INPUT-WATER", "a water property is not a table value");
+        Require(water.TemperatureC is >= TableMinTemperatureC and <= TableMaxTemperatureC, "ANA-INPUT-WATER",
+            "the temperature is outside the table (0–50 °C)");
+        // assume: the table spans salinity from fresh (0) to standard seawater (35.16504 g/kg) and admits values between.
+        // Confirmed when STP's WaterTable lands (G-T4); if it holds the two columns only, this narrows to those two values.
+        Require(water.SalinityGPerKg is >= 0 and <= SaltSalinityGPerKg, "ANA-INPUT-WATER", "the salinity is outside the table");
+    }
+
     private static void Require(bool condition, string code, string reason)
     {
         if (!condition) throw new ContractError(code, reason);

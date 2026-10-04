@@ -38,7 +38,8 @@ public interface IWingMethod
 /// </summary>
 public interface IEvaluationBarrier
 {
-    ValueTask ComputedAsync(OperatingPoint op);
+    /// <summary>Called after compute, before record, with the evaluation's token (cancelled when it is superseded).</summary>
+    ValueTask ComputedAsync(OperatingPoint op, CancellationToken cancellation);
 }
 
 /// <summary>
@@ -67,9 +68,10 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
     private readonly Dictionary<Scope, CancellationTokenSource> inFlight = [];
 
     /// <summary>
-    /// Evaluates <paramref name="op"/> in <paramref name="water"/>. Refuses an invalid operating point, another tier or a
-    /// station scope before compute (<c>ANA-INPUT-*</c>, nothing recorded). Throws <see cref="OperationCanceledException"/>
-    /// when cancelled or superseded, and the session's <see cref="ContractError"/> when it closed mid-compute.
+    /// Evaluates <paramref name="op"/> in <paramref name="water"/>. Refuses an invalid operating point or water record,
+    /// another tier or a station scope before compute (<c>ANA-INPUT-*</c>, nothing recorded). Throws
+    /// <see cref="OperationCanceledException"/> when cancelled or superseded, and the session's <see cref="ContractError"/>
+    /// when it closed mid-compute.
     /// </summary>
     public async Task<AnalysisRun> EvaluateAsync(OperatingPoint op, WaterRecord water, Tier tier, Scope scope,
         CancellationToken cancellation)
@@ -79,17 +81,19 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         ArgumentNullException.ThrowIfNull(scope);
         long started = time.GetTimestamp();
         var trace = new Trace(scope is Scope.Wing ? "wing" : "station");
-        string outcome = "OK";
+        // Not OK until the run returns: an exception no catch below names propagates and is emitted as ANA-UNEXPECTED.
+        string outcome = "ANA-UNEXPECTED";
         CancellationTokenSource? generation = null;
         try
         {
             if (tier != Tier.VlmStrip) throw new ContractError("ANA-INPUT-TIER", "A3a evaluates the VLM + strip tier only");
             if (scope is not Scope.Wing) throw new ContractError("ANA-INPUT-SCOPE", "the VLM + strip tier evaluates the wing");
             OperatingPoints.Validate(op);
+            OperatingPoints.Validate(water);
             generation = Supersede(scope, cancellation);
             var token = generation.Token;
             var run = await Task.Run(() => ComputeAndRecordAsync(op, water, scope, generation, trace, token), token).ConfigureAwait(false);
-            if (run.Outcome is RunOutcome.Failed failed) outcome = failed.Code;
+            outcome = run.Outcome is RunOutcome.Failed failed ? failed.Code : "OK";
             return run;
         }
         catch (OperationCanceledException) { outcome = "ANA-CANCELLED"; throw; }
@@ -120,10 +124,13 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         string settingsHash = RunRecord.SettingsHash(method.Settings);
         string key = RunRecord.Key(inputs, water, op, method.Method, settingsHash);
         trace.RunKey12 = key[..12];
-        var existing = session.ReadRuns().Runs.FirstOrDefault(stored => stored.Integrity == RunIntegrity.Intact &&
-            stored.Run.Outcome is RunOutcome.Completed && stored.Run.RunKey == key);
+        var existing = StoredCompleted(key);
         trace.IdempotentHit = existing is not null;
-        if (existing is not null) return existing.Run;
+        if (existing is not null)
+        {
+            token.ThrowIfCancellationRequested();
+            return existing;
+        }
 
         var reference = method.Reference(view.Source);
         RunOutcome outcome = new RunOutcome.Completed();
@@ -148,31 +155,48 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         trace.Strips = strips.Count;
         double wallMs = time.GetElapsedTime(computeStarted).TotalMilliseconds;
 
-        if (barrier is not null) await barrier.ComputedAsync(op).ConfigureAwait(false);
+        if (barrier is not null) await barrier.ComputedAsync(op, token).ConfigureAwait(false);
         mark = time.GetTimestamp();
         var row = new AnalysisRun(Guid.NewGuid().ToString("D"), key, "", outcome, TierId, method.Method, method.Settings,
             settingsHash, inputs, water, op, reference, method.ReconciliationTolerance, diagnostics, strips, wallMs, Platform);
         row = row with { ContentHash = RunRecord.ContentHash(row) };
         // Check and record under the scope lock, so a newer evaluation either supersedes this one first (nothing is
-        // recorded) or starts after the row is in: never two rows from one superseded pair.
+        // recorded) or starts after the row is in: never two rows from one superseded pair. The identity check covers the
+        // window between a newer's swap and its Cancel, when this token is not cancelled yet.
         lock (sync)
         {
             token.ThrowIfCancellationRequested();
             if (!inFlight.TryGetValue(scope, out var current) || current != generation) throw new OperationCanceledException(token);
+            // Another service on this session (another view) may have recorded the key while this one computed: return
+            // its row. The session's own DOC-RUN-KEY check still refuses a duplicate that lands after this read.
+            if (outcome is RunOutcome.Completed && StoredCompleted(key) is { } recorded)
+            {
+                trace.IdempotentHit = true;
+                return recorded;
+            }
             session.RecordRun(row);
         }
         trace.RecordMs = Lap();
         return row;
     }
 
+    private AnalysisRun? StoredCompleted(string key) => session.ReadRuns().Runs.FirstOrDefault(stored =>
+        stored.Integrity == RunIntegrity.Intact && stored.Run.Outcome is RunOutcome.Completed && stored.Run.RunKey == key)?.Run;
+
+    // The swap is under the lock; Cancel is outside it, because it runs the older's callbacks synchronously on this thread.
+    // Once swapped out, the older can finish and dispose its source in Release before Cancel runs: it has nothing left to
+    // cancel then, so that one exception is the expected end of the race.
     private CancellationTokenSource Supersede(Scope scope, CancellationToken cancellation)
     {
         var generation = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        CancellationTokenSource? older;
         lock (sync)
         {
-            if (inFlight.TryGetValue(scope, out var older)) older.Cancel();
+            inFlight.TryGetValue(scope, out older);
             inFlight[scope] = generation;
         }
+        try { older?.Cancel(); }
+        catch (ObjectDisposedException) { }
         return generation;
     }
 

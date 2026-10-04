@@ -18,6 +18,12 @@ internal static class ServiceTests
         Check("Evaluate_CloseMidCompute_DocClosedNoRow", CloseMidCompute);
         Check("OperatingPoint_SpeedZeroOrNegative_Undefined", SpeedNotPositive);
         Check("Telemetry_AnalysisRun_EmittedWithSubDurations", Telemetry);
+        Check("Evaluate_SupersededBeforeCancel_RecordsNothing", SupersededBeforeCancel);
+        Check("Evaluate_Supersede_CancelsOlderOutsideTheLock", CancelOutsideTheLock);
+        Check("Telemetry_UnexpectedException_OutcomeNotOk", UnexpectedException);
+        Check("Evaluate_CancelledBeforeIdempotentHit_Throws", CancelledBeforeHit);
+        Check("Evaluate_SameKeyFromTwoServices_ReturnsRecordedRow", SameKeyTwoServices);
+        Check("Evaluate_WaterOutsideTable_RefusedNoRow", WaterOutsideTable);
     }
 
     // A point draft with a moved twist vertex is open; the run reads the accepted bytes, never Draft.Bytes (FM-1, G-1).
@@ -39,14 +45,19 @@ internal static class ServiceTests
     }
 
     // α 2° is held at the barrier; α 3° starts on the same scope and records; the older ends ANA-CANCELLED with no row.
+    // The newer cancels the older's token at once (its compute stops per lattice row), not only at the record step.
     private static void Supersede()
     {
         using var session = Fixture.Opened();
         var barrier = new HoldFirst();
-        var service = new AnalysisService(session, new FakeWing(), barrier);
+        var wing = new FakeWing();
+        var service = new AnalysisService(session, wing, barrier);
         var older = service.EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
         barrier.AwaitHeld();
+        var olderToken = wing.Tokens.First();
         var newer = Fixture.Evaluate(service, Fixture.Op(3.0));
+        Equal(true, olderToken.IsCancellationRequested, "the older's compute token cancelled while it is held;");
+        Equal(true, barrier.Token.IsCancellationRequested, "the barrier holds the older's cancelled token;");
         barrier.Release();
         Fixture.Throws<OperationCanceledException>(older);
         var runs = session.ReadRuns().Runs;
@@ -72,6 +83,8 @@ internal static class ServiceTests
     }
 
     // The document closes while the barrier holds: the record is refused DOC-CLOSED and nothing is recorded (FM-16).
+    // A closed session has no read, so "no row" is the two halves: none at the hold point (compute wrote nothing), and the
+    // one write after it refused.
     private static void CloseMidCompute()
     {
         var session = Fixture.Opened();
@@ -79,6 +92,7 @@ internal static class ServiceTests
         var evaluation = new AnalysisService(session, new FakeWing(), barrier)
             .EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
         barrier.AwaitHeld();
+        Equal(0, session.ReadRuns().Runs.Count, "rows at the hold point, before the close");
         session.Dispose();
         barrier.Release();
         var error = Fixture.Throws<ContractError>(evaluation);
@@ -139,6 +153,105 @@ internal static class ServiceTests
         Equal<double?>(null, refused.Analysis.StripMs, "stripMs not reached");
         Equal(true, refused.Analysis.SectionsMs is >= 0, "sectionsMs reached;");
         Equal(2, session.ReadRuns().Runs.Count, "rows: one Completed (the hit adds none) and one Failed");
+    }
+
+    // The window between a newer evaluation's swap and its Cancel: the older is no longer the scope's generation but its
+    // token is not cancelled yet. Only the identity check stops it recording. No public call stops a thread inside that
+    // window, so the check stages the newer's swap directly under the service lock.
+    private static void SupersededBeforeCancel()
+    {
+        using var session = Fixture.Opened();
+        var barrier = new HoldFirst();
+        var service = new AnalysisService(session, new FakeWing(), barrier);
+        var older = service.EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
+        barrier.AwaitHeld();
+        using var newer = new CancellationTokenSource();
+        lock (Fixture.ServiceLock(service)) Fixture.InFlight(service)[new Scope.Wing()] = newer;
+        barrier.Release();
+        Fixture.Throws<OperationCanceledException>(older);
+        Equal(0, session.ReadRuns().Runs.Count, "rows");
+    }
+
+    // Cancel runs the older's cancellation callbacks synchronously on the newer's thread. They run arbitrary code (the
+    // method's, the compute's), so they must not run while the service lock is held.
+    private static void CancelOutsideTheLock()
+    {
+        using var session = Fixture.Opened();
+        var barrier = new HoldFirst();
+        var wing = new FakeWing();
+        var service = new AnalysisService(session, wing, barrier);
+        var older = service.EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
+        barrier.AwaitHeld();
+        object gate = Fixture.ServiceLock(service);
+        bool? heldAtCancel = null;
+        using var registration = wing.Tokens.First().Register(() => heldAtCancel = Monitor.IsEntered(gate));
+        Fixture.Evaluate(service, Fixture.Op(3.0));
+        barrier.Release();
+        Fixture.Throws<OperationCanceledException>(older);
+        Equal<bool?>(false, heldAtCancel, "the service lock held while the older's callbacks ran");
+    }
+
+    // An exception outside the ANA contract propagates and analysis.run says so; it never reads "OK" (IO8).
+    private static void UnexpectedException()
+    {
+        using var session = Fixture.Opened();
+        var service = new AnalysisService(session, new FakeWing { Unexpected = new InvalidOperationException("a fault outside the ANA contract") });
+        Fixture.Throws<InvalidOperationException>(service.EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(),
+            CancellationToken.None));
+        Equal("ANA-UNEXPECTED", Fixture.RunEvents(session).Last().Outcome, "outcome");
+        Equal(0, session.ReadRuns().Runs.Count, "rows");
+    }
+
+    // The token is cancelled once the compute has started (the first clock read on the worker); a Completed row with the
+    // key is stored. The hit must not hand back a run for an evaluation that was cancelled.
+    private static void CancelledBeforeHit()
+    {
+        using var session = Fixture.Opened();
+        Fixture.Evaluate(new AnalysisService(session, new FakeWing()), Fixture.Op(2.0));
+        using var cancel = new CancellationTokenSource();
+        var clock = new CancelOnWorker(cancel);
+        var service = new AnalysisService(session, new FakeWing(), time: clock);
+        Fixture.Throws<OperationCanceledException>(service.EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), cancel.Token));
+        Equal(true, clock.Fired, "cancelled inside the compute;");
+        Equal("ANA-CANCELLED", Fixture.RunEvents(session).Last().Outcome, "outcome");
+        Equal(1, session.ReadRuns().Runs.Count, "rows");
+    }
+
+    // Two services on one session (two views) evaluate one key. The first is held after compute; the second records.
+    // The first then finds the Completed row under its lock and returns it instead of being refused DOC-RUN-KEY.
+    private static void SameKeyTwoServices()
+    {
+        using var session = Fixture.Opened();
+        var barrier = new HoldFirst();
+        var first = new AnalysisService(session, new FakeWing(), barrier)
+            .EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
+        barrier.AwaitHeld();
+        var second = Fixture.Evaluate(new AnalysisService(session, new FakeWing()), Fixture.Op(2.0));
+        barrier.Release();
+        var late = first.GetAwaiter().GetResult();
+        Equal(second.RunId, late.RunId, "the held evaluation returns the recorded row");
+        Equal(1, session.ReadRuns().Runs.Count, "rows");
+        Equal(true, Fixture.RunEvents(session).Last().Analysis!.IdempotentHit, "the late hit emitted as a hit;");
+    }
+
+    // Water outside the table (temperature, salinity) or not a table record (a non-finite or non-positive property) is
+    // refused before compute, ANA-INPUT-WATER, with nothing recorded (design §8).
+    private static void WaterOutsideTable()
+    {
+        using var session = Fixture.Opened();
+        var service = new AnalysisService(session, new FakeWing());
+        foreach (var (name, water) in new[]
+                 {
+                     ("60 °C", Fixture.Salt with { TemperatureC = 60 }), ("−1 °C", Fixture.Salt with { TemperatureC = -1 }),
+                     ("salinity 40 g/kg", Fixture.Salt with { SalinityGPerKg = 40 }), ("ρ NaN", Fixture.Salt with { Rho = double.NaN }),
+                     ("ν 0", Fixture.Salt with { Nu = 0 }), ("p_v ∞", Fixture.Salt with { Pv = double.PositiveInfinity })
+                 })
+        {
+            var error = Fixture.Throws<ContractError>(service.EvaluateAsync(Fixture.Op(2.0), water, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None));
+            Equal("ANA-INPUT-WATER", error.Code, name);
+        }
+        Equal(0, session.ReadRuns().Runs.Count, "rows");
+        Equal(true, Fixture.Evaluate(service, Fixture.Op(2.0), Fixture.Fresh).Outcome is RunOutcome.Completed, "fresh water at 15 °C evaluates;");
     }
 }
 
@@ -201,6 +314,30 @@ internal static class Fixture
 
     internal static bool SamePlacement(IReadOnlyList<SectionSample> expected, IReadOnlyList<SectionSample> actual) =>
         expected.Count == actual.Count && expected.Zip(actual).All(pair => pair.First.PlacedCamber.SequenceEqual(pair.Second.PlacedCamber));
+
+    // The service's lock and in-flight map, read only by the two latest-wins checks that observe or stage a state no public
+    // call reaches deterministically. A renamed field fails the check loudly, never passes it.
+    internal static object ServiceLock(AnalysisService service) => Field(service, "sync");
+
+    internal static Dictionary<Scope, CancellationTokenSource> InFlight(AnalysisService service) =>
+        (Dictionary<Scope, CancellationTokenSource>)Field(service, "inFlight");
+
+    private static object Field(AnalysisService service, string name) =>
+        typeof(AnalysisService).GetField(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)?.GetValue(service)
+        ?? throw new InvalidOperationException("AnalysisService has no field " + name);
+}
+
+/// <summary>A clock that cancels its source on the first read from a worker thread: the compute has started.</summary>
+internal sealed class CancelOnWorker(CancellationTokenSource source) : TimeProvider
+{
+    private int fired;
+    public bool Fired => Volatile.Read(ref fired) == 1;
+
+    public override long GetTimestamp()
+    {
+        if (Thread.CurrentThread.IsThreadPoolThread && Interlocked.Exchange(ref fired, 1) == 0) source.Cancel();
+        return base.GetTimestamp();
+    }
 }
 
 /// <summary>
@@ -215,13 +352,19 @@ internal sealed class FakeWing : IWingMethod
     public IReadOnlyList<double> Etas { get; } = [0, 0.5, 1];
     public IReadOnlyList<double> Xs { get; } = [0, 0.25, 0.5, 0.75, 1];
     public string? FailCode { get; init; }
+    /// <summary>An exception outside the ANA contract, thrown by the solve.</summary>
+    public Exception? Unexpected { get; init; }
     public IReadOnlyList<SectionSample>? Seen { get; private set; }
+    /// <summary>The compute token of each solve, in call order.</summary>
+    public System.Collections.Concurrent.ConcurrentQueue<CancellationToken> Tokens { get; } = new();
 
     public RunReference Reference(byte[] source) => new(0.108, 0.9, 0.12, "frame origin", "body; wind for lift/drag");
 
     public LatticeSolution Solve(IReadOnlyList<SectionSample> sections, OperatingPoint op, WaterRecord water, CancellationToken cancellation)
     {
         Seen = sections;
+        Tokens.Enqueue(cancellation);
+        if (Unexpected is not null) throw Unexpected;
         if (FailCode is not null) throw new ContractError(FailCode, "the fake lattice failed");
         return new LatticeSolution([0.31, 0.29], [-0.012, -0.013], new RunDiagnostics(1e-13, 42.5));
     }
@@ -240,9 +383,13 @@ internal sealed class HoldFirst : IEvaluationBarrier
     private readonly TaskCompletionSource released = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private int calls;
 
-    public ValueTask ComputedAsync(OperatingPoint op)
+    /// <summary>The token the held evaluation passed in.</summary>
+    public CancellationToken Token { get; private set; }
+
+    public ValueTask ComputedAsync(OperatingPoint op, CancellationToken cancellation)
     {
         if (Interlocked.Increment(ref calls) != 1) return ValueTask.CompletedTask;
+        Token = cancellation;
         held.SetResult();
         return new ValueTask(released.Task);
     }
