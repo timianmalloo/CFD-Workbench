@@ -38,7 +38,7 @@ public static class Trefftz
     /// <summary>Wind axes from body-axis strip forces. Drag is along V∞, lift is the upward perpendicular in the x–z plane.</summary>
     public static (double Lift, double Drag) WindAxes(IReadOnlyList<StripForce> forces, double alphaDeg)
     {
-        double a = alphaDeg * (Math.PI / 180);
+        double a = VortexLattice.ToRadians(alphaDeg);
         double liftX = -Math.Sin(a), liftZ = Math.Cos(a), dragX = Math.Cos(a), dragZ = Math.Sin(a);
         double lift = 0, drag = 0;
         foreach (StripForce force in forces)

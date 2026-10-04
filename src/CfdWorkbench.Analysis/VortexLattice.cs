@@ -49,6 +49,11 @@ internal enum LatticePlant
 /// </summary>
 public static class VortexLattice
 {
+    // Degrees factor without the Placement.cs-only spellings (the single-site gate).
+    private const double StraightAngleDegrees = 180;
+    internal static double ToRadians(double degrees) => degrees * (Math.PI / StraightAngleDegrees);
+    internal static double ToDegrees(double radians) => radians * (StraightAngleDegrees / Math.PI);
+
     // assume: the PRE signature has no water record. It returns forces at ρ = 1 kg/m³. Callers that have a
     // WaterRecord use the density overload. Confirmed by this signature. If a caller treats the ρ = 1 forces as
     // newtons, every load is low by ρ; CL and the Trefftz/near-field ratio are unchanged because both scale.
@@ -151,7 +156,7 @@ public static class VortexLattice
         int n = horses.Count;
         var matrix = new double[n * n];
         var rhs = new double[n];
-        double alpha = op.AlphaDeg * (Math.PI / 180);
+        double alpha = ToRadians(op.AlphaDeg);
         double vx = op.Speed * Math.Cos(alpha), vz = op.Speed * Math.Sin(alpha);
         for (int i = 0; i < n; i++)
         {
@@ -209,7 +214,7 @@ public static class VortexLattice
             double w = Trefftz.Downwash(kept[s].Y, stripGamma, yA, yB);
             double ai = plant == LatticePlant.InducedFromControlPoint
                 ? InducedFromTotal(horses, gamma, kept[s], op)
-                : -w / (2 * op.Speed) * (180 / Math.PI);
+                : ToDegrees(-w / (2 * op.Speed));
             double cl = 2 * stripGamma[s] / (op.Speed * kept[s].Chord);
             strips[s] = new LatticeStrip(s, kept[s].Y, kept[s].Eta, kept[s].Chord, kept[s].Dy, stripGamma[s], w,
                 ai, kept[s].Twist, SweepOf(horses, s), cl, kept[s].Ya, kept[s].Yb);
@@ -310,7 +315,7 @@ public static class VortexLattice
         {
             if (horse.Strip != strip) continue;
             double dx = horse.B.X - horse.A.X, dy = horse.B.Y - horse.A.Y;
-            return Math.Atan2(dx, dy) * (180 / Math.PI);
+            return ToDegrees(Math.Atan2(dx, dy));
         }
         return 0;
     }
@@ -330,10 +335,10 @@ public static class VortexLattice
             uy += gamma[k] * sy;
             uz += gamma[k] * sz;
         }
-        double alpha = op.AlphaDeg * (Math.PI / 180);
+        double alpha = ToRadians(op.AlphaDeg);
         double qx = op.Speed * Math.Cos(alpha) + ux;
         double qz = op.Speed * Math.Sin(alpha) + uz;
-        return (op.AlphaDeg - Math.Atan2(qz, qx) * (180 / Math.PI));
+        return op.AlphaDeg - ToDegrees(Math.Atan2(qz, qx));
     }
 
     private static LatticeFailedException Fail(LatticePlant plant, string code, string reason)
