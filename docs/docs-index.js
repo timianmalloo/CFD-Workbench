@@ -8323,6 +8323,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "48cf4d7c57f8942050f8c3c7fc11455084c644c03a26eeecfcfd2cb7feab6b9d"
     },
     {
+      "id": "proof-a3a-svc-red-first",
+      "path": "docs/proof/a3a-svc/red-first.md",
+      "title": "A3a SVC red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-a3a-svc",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Each of the 16 SVC checks of design §18.8 observed red against its named mutant (23 red lines), including the SVC exit mutant: the current key built from the run's own stored inputs turns all eight freshness checks red.",
+      "tags": [
+        "a3a",
+        "svc",
+        "analysis",
+        "freshness",
+        "cli",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-a3a-sto-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "80d9a61a46d8e5a6f7b4607b3756e35be1e5e9b591abe9344d8b2bb85198d4a2"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -11806,5 +11842,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "cfb590adade54bf7a216404a9f415ec45d64d6455c688b7c461a7b1a47cf3877"
+  "graphSha256": "f235ab1215b5d829ecd5d5cef5053410f17e0adbcdd3f76482f87538f70ebc82"
 };
