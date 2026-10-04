@@ -14,7 +14,7 @@ public static class SectionReplace
     private const double AcceptanceMeters = 10e-6; // A4.6
     private const int SourceSamples = 201;         // rule 5
     private const int SmallestOwnSpacing = 8, LargestOwnSpacing = 16;
-    private const int DenseSegments = 4000;
+    private const int DenseSegments = 2000;
 
     public static ReplacePreview Preview(byte[] draftBytes, int assignment, SectionScope scope, ReplaceSource source, ReplaceScope replaceScope) =>
         Run(draftBytes, assignment, scope, source, replaceScope, null);
@@ -31,9 +31,59 @@ public static class SectionReplace
     internal static SectionStep.Replace FromDat(byte[] dat) =>
         new(new ReplaceSource.Coordinates("a .dat file", new Provenance("dat:sha256:" + Identity.Sha256(dat), false), dat), ReplaceScope.Draft);
 
-    // Red first: the rule is not built yet.
-    private static ReplacePreview Run(byte[] draftBytes, int assignment, SectionScope scope, ReplaceSource source, ReplaceScope replaceScope, SectionStep? step) =>
-        throw new ContractError("RPL-NOT-BUILT", "Replace is not built yet.");
+    private static ReplacePreview Run(byte[] draftBytes, int assignment, SectionScope scope, ReplaceSource source, ReplaceScope replaceScope, SectionStep? step)
+    {
+        ArgumentNullException.ThrowIfNull(draftBytes);
+        ArgumentNullException.ThrowIfNull(source);
+        var before = SessionSource.Parse(draftBytes).Definition!;
+        Guard.Require((uint)assignment < (uint)before.Assignments.Length, "DSL-PROFILE-TARGET");
+        int edited = before.Assignments[assignment].Profile;
+        int[] serving = Enumerable.Range(0, before.Assignments.Length).Where(index => before.Assignments[index].Profile == edited).ToArray();
+        Guard.Require(scope == SectionScope.Shared || serving.Length == 1, "DSL-PROFILE-TARGET");
+        int[] stations = replaceScope == ReplaceScope.BlendChain ? Enumerable.Range(0, before.Assignments.Length).ToArray() : serving;
+        int[] outside = Enumerable.Range(0, before.Assignments.Length)
+            .Where(index => !stations.Contains(index) && (stations.Contains(index - 1) || stations.Contains(index + 1))).ToArray();
+        double acceptanceChord = stations.Max(index => Placement.Frame(draftBytes, before.Assignments[index].Eta).ChordMeters);
+        double limit = AcceptanceMeters / acceptanceChord;
+        var target = before.Profiles[edited];
+        var shape = Shape.Read(source);
+
+        var current = shape.Exact(target) ?? FitOn(shape, target, target.Upper.Knots, target.Upper.Points.Select(point => point[0]).ToArray(), keepIds: true, "current");
+        Candidate? chosen = current is not null && current.Residual <= limit ? current : null;
+        double best = current?.Residual ?? double.PositiveInfinity;
+        if (chosen is null && outside.Length > 0)
+            return Refused("CAT-SPACING", SpacingReason(before, stations, outside, source.DisplayName, best, acceptanceChord, target.Upper.Points.Length),
+                stations, best, acceptanceChord, target.Upper.Points.Length, Enumerable.Range(0, before.Assignments.Length).ToArray());
+        for (int count = SmallestOwnSpacing; chosen is null && count <= LargestOwnSpacing; count++)
+        {
+            var (knots, x) = DatImport.OwnSqrtBasis(count);
+            var own = FitOn(shape, target, knots, x, keepIds: false, "own-" + count.ToString(CultureInfo.InvariantCulture));
+            if (own is null) continue;
+            best = Math.Min(best, own.Residual);
+            if (own.Residual <= limit) chosen = own;
+        }
+        if (chosen is null)
+            return Refused("CAT-RESIDUAL", ResidualReason(source.DisplayName, best, acceptanceChord), stations, best, acceptanceChord, 0, null);
+
+        byte[] next = Write(draftBytes, target, chosen, source.Provenance, before, stations);
+        var after = SessionSource.Parse(next).Definition!;
+        try
+        {
+            // Ruling 71 and its budget clause (F-1): the one predicate for every section step, called once here for Replace.
+            SectionEdits.RequireNeighbourAbscissa(before, after, assignment, step ?? new SectionStep.Replace(source, replaceScope));
+        }
+        catch (ContractError refused)
+        {
+            return Refused("CAT-SPACING", refused.Reason ?? refused.Code, stations, chosen.Residual, acceptanceChord, chosen.Upper.Length,
+                Enumerable.Range(0, before.Assignments.Length).ToArray());
+        }
+        var replaced = after.Profiles.Single(profile => profile.Name == target.Name);
+        var (change, at) = LargestChange(stations.Select(index => before.Profiles[before.Assignments[index].Profile]).Distinct(), replaced);
+        var report = new ImportReport(chosen.Residual, chosen.Upper.Length, true, ProvenanceText(source.Provenance), chosen.Basis, stations,
+            chosen.Dropped, shape.LeShift, shape.RotationDegrees, shape.Scale, shape.Thickness);
+        return new ReplacePreview(stations, chosen.Spacing, chosen.Residual, acceptanceChord, change, at, chosen.Upper.Length, null, null, next)
+        { Report = report };
+    }
 
     private static ReplacePreview Refused(string code, string reason, int[] stations, double residual, double acceptanceChord, int points, int[]? chain) =>
         new(stations, "current", residual, acceptanceChord, 0, 0, points, code, chain, null) { RefusalReason = reason };

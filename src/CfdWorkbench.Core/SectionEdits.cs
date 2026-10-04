@@ -72,7 +72,7 @@ internal static class SectionEdits
                 !SameShape(before.Profiles[before.Assignments[index].Profile], before.Profiles[before.Assignments[index + 1].Profile]);
             if (!differedBefore) newly.Add(index);
         }
-        if (newly.Count >= 0) return; // Red first: the budget clause is not built yet.
+        if (newly.Count == 0) return;
         int limit = Geometry.BlendSpanLimit();
         foreach (int index in newly)
         {
@@ -85,11 +85,25 @@ internal static class SectionEdits
                 limit + left.Upper.Degree));
         }
         var candidate = Geometry.Assess(new SourceParse([], [], after));
-        if (!OperationBoundRefused(candidate) || OperationBoundRefused(Geometry.Assess(new SourceParse([], [], before)))) return;
+        if (!OperationBoundRefused(candidate)) return;
+        // Left alone only when the base failed the same way with as many different sections (nothing this step added).
+        if (DistinctShapes(after) <= DistinctShapes(before) && OperationBoundRefused(Geometry.Assess(new SourceParse([], [], before)))) return;
         var differing = Enumerable.Range(0, after.Assignments.Length).Where(index =>
             index > 0 && !SameShape(after.Profiles[after.Assignments[index - 1].Profile], after.Profiles[after.Assignments[index].Profile]) ||
             index + 1 < after.Assignments.Length && !SameShape(after.Profiles[after.Assignments[index].Profile], after.Profiles[after.Assignments[index + 1].Profile]));
         throw new ContractError("DSL-GEOMETRY", ManyDifferingReason(differing.Select(index => StationName(index, after.Assignments[index].Eta)).ToArray()));
+    }
+
+    // Sections the stations use, counting identical shapes once.
+    private static int DistinctShapes(Definition definition)
+    {
+        var shapes = new List<ProfileDefinition>();
+        foreach (var assignment in definition.Assignments)
+        {
+            var profile = definition.Profiles[assignment.Profile];
+            if (!shapes.Any(item => SameShape(item, profile))) shapes.Add(profile);
+        }
+        return shapes.Count;
     }
 
     private static bool OperationBoundRefused(GeometryAssessment assessment) =>

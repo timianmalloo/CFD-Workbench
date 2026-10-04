@@ -39,7 +39,12 @@ internal static class SectionReplaceTests
         });
         Check("Replace_SharedExample4412_OwnSpacing15PointsCertified", () =>
         {
+            var timer = System.Diagnostics.Stopwatch.StartNew();
             var preview = Preview(Example(), 0, Gen("4412"));
+            double first = timer.Elapsed.TotalMilliseconds;
+            timer.Restart();
+            _ = Preview(Example(), 0, Gen("4412"));
+            Console.WriteLine(FormattableString.Invariant($"RPL preview 4412 shared (scan 8..15) first {first:F1} ms, again {timer.Elapsed.TotalMilliseconds:F1} ms"));
             Equal(null, preview.RefusalCode);
             Equal("own-15", preview.Spacing);
             Equal(15, preview.PointsPerSurface);
@@ -269,8 +274,14 @@ internal static class SectionReplaceTests
             Equal(false, events[0].FitAboveLimit);
             Equal(true, Math.Abs(events[0].FitMicrometres!.Value - accepted.FitResidual * ExampleChord * 1e6) < 1e-9);
             Equal(true, events[0].DurationMilliseconds is >= 0);
+            Equal(new ReplaceEvent("draft", 2, accepted.FitResidual, "current"), events[0].Replace);
             Equal("cat-spacing", events[1].Outcome);
             Equal(true, events[1].FitAboveLimit);
+            // The applied step carries the same fields on section.step (kind replace).
+            view = session.ApplySectionStep(id, view.Generation, new SectionStep.Replace(Gen("4412"), ReplaceScope.BlendChain));
+            var step = session.ReadLocalEvents().Last(item => item.Operation == "section.step");
+            Equal("replace", step.StepKind);
+            Equal(new ReplaceEvent("chain", 2, view.Last!.Import!.MaxResidual, "own-15"), step.Replace);
         });
         Check("SectionEdits_ReplaceStep_NeverApplied", () =>
             Refuses("DSL-PATCH", () => SectionEdits.Apply(Example(), 0, new SectionStep.Replace(Gen("0012"), ReplaceScope.Draft))));
@@ -284,6 +295,9 @@ internal static class SectionReplaceTests
             view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
             Equal(10, view.Last!.UpperPoints);
             view = session.ApplySectionStep(id, view.Generation, SectionDraftTests.Raise(view, MiddleId(view), 0.002));
+            // The step that first makes Root differ runs the certificate's admission once (the F-1 clause): its cost, measured.
+            double stepMs = session.ReadLocalEvents().Last(item => item.Operation == "section.step").DurationMilliseconds!.Value;
+            Console.WriteLine(FormattableString.Invariant($"RPL first-differing step {stepMs:F1} ms"));
             Equal(GeometryStatus.Certified, session.AssessSection(id, view.Generation, CancellationToken.None).Status);
         });
         Check("Guard_SixPiecesDiffering_RefusedCopy194", () =>
@@ -315,6 +329,28 @@ internal static class SectionReplaceTests
             Equal(1, definition.Profiles.Length);
             Equal(true, definition.Assignments.All(item => item.Profile == 0));
             Equal(GeometryStatus.Certified, Certificate(preview.Bytes!));
+        });
+        Check("Replace_FourDifferingSections_RefusedCatSpacingCopy194b", () =>
+        {
+            // Blend-certificate spike §4.2: four stations whose sections all differ never certify as built (the all-query
+            // operation bound), so a Replace that would make the fourth differ is refused before it lands, and says why.
+            string text = Encoding.UTF8.GetString(Example()).Replace("sections { at root profile \"section-a\" at tip profile \"section-a\" }",
+                "sections { at root profile \"section-a\" at 33 % profile \"section-a\" at 67 % profile \"section-a\" at tip profile \"section-a\" }",
+                StringComparison.Ordinal);
+            byte[] bytes = Encoding.UTF8.GetBytes(text);
+            foreach (var (station, dy) in new[] { (2, 0.004), (3, -0.003) })
+            {
+                var (made, name) = FoilSource.MakeIndependent(bytes, "section-a", station);
+                var profile = Profile(made, name);
+                bytes = FoilSource.PatchProfilePoint(made, name, "upper", profile.Upper.Ids[3], profile.Upper.Points[3][0], profile.Upper.Points[3][1] + dy);
+            }
+            Equal(GeometryStatus.Certified, Certificate(bytes));
+            byte[] rootUnique = FoilSource.MakeIndependent(bytes, "section-a", 0).Source;
+            var preview = Preview(rootUnique, 0, Gen("0012"));
+            Equal("CAT-SPACING", preview.RefusalCode);
+            Equal(null, preview.Bytes);
+            Equal("This edit would give Root, Station 2, Station 3 and Tip all different sections, and a wing with that many different " +
+                "sections in a row can't be checked yet. Keep one of them shared with its neighbour, or edit them together.", preview.RefusalReason);
         });
         Check("Replace_ResidualEuclidean201PlusKnots_NotVerticalGap", () =>
         {

@@ -379,17 +379,16 @@ public static class DatImport
     internal static double EuclideanResidual(IReadOnlyList<ProfilePoint> sourceSamples, (double X, double Y)[] sourceCurve,
         double[] knots, int degree, double[] controlX, double[] controlY)
     {
-        throw new ContractError("RPL-NOT-BUILT", "The Euclidean residual is not built yet.");
-#pragma warning disable CS0162
-        var fitted = Dense(knots, degree, controlX, controlY, 4000);
+        var fitted = new Polyline(Dense(knots, degree, controlX, controlY, 2000));
+        var source = new Polyline(sourceCurve);
         double worst = 0;
-        foreach (var point in sourceSamples) worst = Math.Max(worst, Distance(fitted, point.X, point.Y));
+        foreach (var point in sourceSamples) worst = Math.Max(worst, fitted.Distance(point.X, point.Y));
         var parameters = Enumerable.Range(0, 201).Select(i => 0.5 * (1 - Math.Cos(Math.PI * i / 200)))
             .Concat(knots.Where(knot => knot > 0 && knot < 1).Distinct());
         foreach (double u in parameters)
         {
             var (x, y) = Evaluate(knots, degree, controlX, controlY, u);
-            worst = Math.Max(worst, Distance(sourceCurve, x, y));
+            worst = Math.Max(worst, source.Distance(x, y));
         }
         return worst;
     }
@@ -405,26 +404,45 @@ public static class DatImport
         return (x, y);
     }
 
-    // The nearest vertex, then the two segments beside it: exact for a polyline dense against its curvature.
-    private static double Distance((double X, double Y)[] polyline, double x, double y)
+    // The nearest vertex, then the two segments beside it: exact for a polyline dense against its curvature. A surface
+    // polyline's x rises from the nose, so the search starts at the matching x and stops once |Δx| alone exceeds the best.
+    private sealed class Polyline((double X, double Y)[] polyline)
     {
-        int nearest = 0;
-        double best = double.PositiveInfinity;
-        for (int index = 0; index < polyline.Length; index++)
+        private readonly double[] xs = polyline.Select(point => point.X).ToArray();
+        private readonly bool rising = polyline.Zip(polyline.Skip(1)).All(pair => pair.Second.X >= pair.First.X);
+
+        internal double Distance(double x, double y)
         {
-            double dx = polyline[index].X - x, dy = polyline[index].Y - y, squared = dx * dx + dy * dy;
-            if (squared < best) { best = squared; nearest = index; }
+            int nearest = 0;
+            double best = double.PositiveInfinity;
+            if (rising)
+            {
+                int start = Array.BinarySearch(xs, x);
+                start = Math.Clamp(start < 0 ? ~start : start, 0, polyline.Length - 1);
+                for (int index = start; index < polyline.Length && (polyline[index].X - x) * (polyline[index].X - x) < best; index++)
+                    Nearer(index);
+                for (int index = start - 1; index >= 0 && (polyline[index].X - x) * (polyline[index].X - x) < best; index--)
+                    Nearer(index);
+            }
+            else
+                for (int index = 0; index < polyline.Length; index++) Nearer(index);
+            for (int index = Math.Max(0, nearest - 1); index < Math.Min(polyline.Length - 1, nearest + 1); index++)
+            {
+                var (ax, ay) = polyline[index];
+                var (bx, by) = polyline[index + 1];
+                double vx = bx - ax, vy = by - ay, length = vx * vx + vy * vy;
+                double t = length == 0 ? 0 : Math.Clamp(((x - ax) * vx + (y - ay) * vy) / length, 0, 1);
+                double ex = ax + t * vx - x, ey = ay + t * vy - y;
+                best = Math.Min(best, ex * ex + ey * ey);
+            }
+            return Math.Sqrt(best);
+
+            void Nearer(int index)
+            {
+                double dx = polyline[index].X - x, dy = polyline[index].Y - y, squared = dx * dx + dy * dy;
+                if (squared < best) { best = squared; nearest = index; }
+            }
         }
-        for (int index = Math.Max(0, nearest - 1); index < Math.Min(polyline.Length - 1, nearest + 1); index++)
-        {
-            var (ax, ay) = polyline[index];
-            var (bx, by) = polyline[index + 1];
-            double vx = bx - ax, vy = by - ay, length = vx * vx + vy * vy;
-            double t = length == 0 ? 0 : Math.Clamp(((x - ax) * vx + (y - ay) * vy) / length, 0, 1);
-            double ex = ax + t * vx - x, ey = ay + t * vy - y;
-            best = Math.Min(best, ex * ex + ey * ey);
-        }
-        return Math.Sqrt(best);
     }
 
     /// <summary>
@@ -440,8 +458,8 @@ public static class DatImport
         int nose = points.FindIndex(point => point.X == profile.Upper[0].X && point.Y == profile.Upper[0].Y);
         var t = new double[points.Count];
         for (int i = 1; i < points.Count; i++) t[i] = t[i - 1] + Math.Sqrt(Math.Pow(points[i].X - points[i - 1].X, 2) + Math.Pow(points[i].Y - points[i - 1].Y, 2));
-        double[] mx = NaturalSecondDerivatives(t, points.Select(point => point.X).ToArray());
-        double[] my = NaturalSecondDerivatives(t, points.Select(point => point.Y).ToArray());
+        double[] px = points.Select(point => point.X).ToArray(), py = points.Select(point => point.Y).ToArray();
+        double[] mx = NaturalSecondDerivatives(t, px), my = NaturalSecondDerivatives(t, py);
         var dense = new List<(double X, double Y)>();
         int noseDense = 0;
         for (int i = 0; i + 1 < points.Count; i++)
@@ -450,7 +468,7 @@ public static class DatImport
             for (int k = 0; k < perInterval; k++)
             {
                 double s = t[i] + (t[i + 1] - t[i]) * k / perInterval;
-                dense.Add((Cubic(t, points.Select(point => point.X).ToArray(), mx, i, s), Cubic(t, points.Select(point => point.Y).ToArray(), my, i, s)));
+                dense.Add((Cubic(t, px, mx, i, s), Cubic(t, py, my, i, s)));
             }
         }
         dense.Add((points[^1].X, points[^1].Y));

@@ -38,7 +38,11 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
 {
     /// <summary>The Analysis fields of <c>analysis.*</c> events (design §11); null on every other event.</summary>
     public AnalysisEvent? Analysis { get; init; }
+    /// <summary>The Replace fields of <c>catalog.preview</c> and of a <c>section.step</c> whose kind is replace (m12d §10); null otherwise.</summary>
+    public ReplaceEvent? Replace { get; init; }
 }
+/// <summary>Scope is <c>draft</c> or <c>chain</c>; Spacing is <c>current</c>, <c>own-&lt;n&gt;</c> or <c>exact</c>; the residual is in chord fractions.</summary>
+public sealed record ReplaceEvent(string Scope, int Stations, double ResidualChord, string Spacing);
 public sealed record DimensionCommand(string Name, string Text);
 public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped);
 public abstract record PointCommand(string Curve, string VertexId)
@@ -184,10 +188,12 @@ public sealed class AuthoringSession : IDisposable
             double? deviationInUnit = pendingDeviationInUnit;
             int? pointsBefore = pendingPointsBefore;
             int? pointsAfter = pendingPointsAfter;
+            ReplaceEvent? replace = pendingReplace;
+            pendingReplace = null;
             pendingDeviationInUnit = null;
             pendingPointsBefore = pendingPointsAfter = null;
             events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind, fit, deviation, shift, above, frames, family,
-                stepKind, steps, independent, deviationInUnit, pointsBefore, pointsAfter));
+                stepKind, steps, independent, deviationInUnit, pointsBefore, pointsAfter) { Replace = replace });
         }
     }
     private SourceParse ParseOwned(byte[] bytes)
@@ -327,6 +333,7 @@ public sealed class AuthoringSession : IDisposable
             pendingFitUm = preview.FitResidual * preview.AcceptanceChord * 1e6;
             pendingFitAboveLimit = preview.RefusalCode is not null;
             pendingPointsAfter = preview.PointsPerSurface;
+            pendingReplace = new(scope == ReplaceScope.BlendChain ? "chain" : "draft", preview.Stations.Count, preview.FitResidual, preview.Spacing);
         }
         Record("catalog.preview", preview.RefusalCode?.ToLowerInvariant() ?? "ok", timer.Elapsed.TotalMilliseconds, bytes.Length, null, generation,
             "cfdw-cv/2", editKind: "section", stepKind: preview.Spacing);
@@ -397,6 +404,7 @@ public sealed class AuthoringSession : IDisposable
     SessionDraft? draft;
     double? pendingFitUm, pendingDeviationUm, pendingShiftUm, pendingDeviationInUnit;
     int? pendingPointsBefore, pendingPointsAfter;
+    ReplaceEvent? pendingReplace;
     bool? pendingFitAboveLimit;
     RecoveryRow? recovery;
     ImportReport? activeImportReport;
@@ -1281,6 +1289,9 @@ public sealed class AuthoringSession : IDisposable
             state.Steps.RemoveRange(state.Cursor + 1, state.Steps.Count - state.Cursor - 1);
             state.Steps.Add(next);
             state.Cursor++;
+            if (next.Report?.Import is { } replaced)
+                pendingReplace = new(step is SectionStep.Replace { Scope: ReplaceScope.BlendChain } ? "chain" : "draft", replaced.Stations?.Count ?? 0,
+                    replaced.MaxResidual, replaced.Basis == "own" ? "own-" + replaced.VertexCount.ToString(CultureInfo.InvariantCulture) : replaced.Basis ?? "");
             SyncSectionDraft(state, generation + 1);
             return SectionView();
         }
