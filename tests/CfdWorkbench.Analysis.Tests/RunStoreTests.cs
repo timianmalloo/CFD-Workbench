@@ -186,6 +186,9 @@ internal static class RunStoreTests
         Equal(AuthoringSession.RetainedOthersPerTier, ledger.Runs.Count, "runs kept");
         Equal(onB[0].RunId, ledger.Pruned.Single().RunId, "tombstone");
         Equal(false, ledger.Runs.Any(stored => stored.Run.RunId == onB[0].RunId), "oldest run pruned;");
+        var prune = session.ReadLocalEvents().Last(item => item.Operation == "analysis.prune");
+        Equal("planned", prune.Outcome, "prune event outcome (the save's outcome is store.save's)");
+        Equal(1, prune.Analysis?.Pruned, "pruned count");
         session.Undo(Id());
         TwistEdit(session, 1.0);
         string currentKey = Completed(session, 0).RunKey;

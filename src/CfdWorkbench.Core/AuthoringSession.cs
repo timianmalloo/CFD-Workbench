@@ -1725,9 +1725,13 @@ public sealed class AuthoringSession : IDisposable
     /// Retention at save (ADR-0011 §7). Kept: every run on a surface Undo or Redo can reach (the current revision, its
     /// ancestors and the redo stack); the latest <see cref="RetainedOthersPerTier"/> other runs per tier in document
     /// order; the latest Failed row per key. The rest leave a tombstone, so a key that comes back reads "pruned".
-    /// assume: "reachable from a retained accepted revision" means the Undo/Redo-reachable revisions, since Core retains
-    /// every accepted row and the literal reading would never prune; confirm with the Data &amp; Persistence lens at
-    /// review; if wrong, only <see cref="ReachableSurfaces"/> changes. No Discrepancy record exists before A3d.
+    /// Reachability is ruled (Data &amp; Persistence Architect, STO clearance 2026-10-04; ADR-0011 §7): the surfaces of
+    /// the current revision, its parent chain and every redo-stack id (<see cref="ReachableSurfaces"/>), because those
+    /// are the only revisions a session can return to: Undo walks parents (<c>Move</c>), reopen rebuilds the redo stack
+    /// from the cursors (<c>ReopenCore</c>, <see cref="NativeProject.Replay"/>), and a recovery resumes only on the
+    /// current revision (<c>ResumeRecoveryCore</c>). Condition C1: a later feature that opens a revision outside
+    /// Undo/Redo (a history jump, A3d Compare) widens <see cref="ReachableSurfaces"/> in the same change. No Discrepancy
+    /// record exists before A3d.
     /// </summary>
     private void PruneRunsAtSave()
     {
@@ -1751,7 +1755,9 @@ public sealed class AuthoringSession : IDisposable
             prunedRuns.Add(new PrunedRun(runs[i].RunId, keys[i], now)); pruned++;
         }
         runs.Clear(); runs.AddRange(kept);
-        RecordAnalysisEvent("analysis.prune", "OK", null, new AnalysisEvent { Pruned = pruned });
+        // "planned": the prune is part of the captured image; whether that image was saved is the store.save event's
+        // outcome, so this event never claims a completed save.
+        RecordAnalysisEvent("analysis.prune", "planned", null, new AnalysisEvent { Pruned = pruned });
     }
 
     private HashSet<string> ReachableSurfaces()

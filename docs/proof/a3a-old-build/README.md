@@ -47,7 +47,7 @@ version of CFD Workbench may open it."): the mapping is pinned at that base by `
 
 **Note on the code.** The old reader refuses on the unknown top-level `analysis` member (its `Exact` schema check runs
 before the format check), so the code is `DOC-UNSUPPORTED-FIELD`, not `DOC-VERSION`. `DOC-VERSION` would classify as
-`Newer` (COPY-103). The design's promise (COPY-130, nothing written) holds; ADR-0011's Context names the format check as
-the refusing line, which is the later of the two.
+`Newer` (COPY-103). The design's promise (COPY-130, nothing written) holds. ADR-0011's Context first named the format check as
+the refusing line (the later of the two); it was corrected to match this receipt on 2026-10-04.
 
 **Not measured here:** Windows (the store is macOS arm64 only); a Desktop UI capture of the COPY-130 card.

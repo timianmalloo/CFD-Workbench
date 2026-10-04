@@ -355,6 +355,46 @@ internal static class ProjectStoreTests
             reader.Reopen(store.ReadAsync(path).GetAwaiter().GetResult().Image);
             Equal(2048, reader.ReadRuns().Runs.Single().Run.Strips.Count);
         });
+        Check("Store_OldBuildFixtures_TodaysReaderOutcomesPinned", OldBuildFixturesThroughTodaysReader);
+    }
+
+    // Every committed old-build project fixture through today's native reader (A3a STO, Data & Persistence condition C2):
+    // RespectRequiredConstructorParameters now applies to every -1 document, so each must open or refuse exactly as pinned.
+    // A new fixture without a pin fails here, so it cannot slip past the reader unread.
+    // Pinned 2026-10-04; identical with RespectRequiredConstructorParameters off (the pre-STO reader). e1/e2 are the
+    // per-surface open row of m12c case (e): an Unsupported revision is refused at reopen admission (m12c receipt).
+    private static readonly Dictionary<string, string> OldBuildFixtureOutcomes = new(StringComparer.Ordinal)
+    {
+        ["a3a-old-build/one-run.cfdw.json"] = "OPEN cfdw-project-2",
+        ["m12b-old-build/span-drag-nudge-only.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/c1-section-receipt.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/c2-section-receipt-row.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/d0-section-recovery-no-row.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/d1-section-recovery.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/d2-section-recovery-row.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/e1-open-per-surface.cfdw.json"] = "DSL-NOT-ASSESSED",
+        ["m12c-old-build/fixtures/e2-open-per-surface-row.cfdw.json"] = "DSL-NOT-ASSESSED",
+    };
+
+    private static void OldBuildFixturesThroughTodaysReader()
+    {
+        string proof = Path.Combine(PlacementTests.RepoRoot(), "docs", "proof");
+        var fixtures = Directory.EnumerateFiles(proof, "*.cfdw.json", SearchOption.AllDirectories)
+            .Where(path => Path.GetRelativePath(proof, path).Split(Path.DirectorySeparatorChar)[0].EndsWith("-old-build", StringComparison.Ordinal))
+            .OrderBy(path => path, StringComparer.Ordinal).ToArray();
+        var observed = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (string path in fixtures)
+        {
+            string name = Path.GetRelativePath(proof, path).Replace(Path.DirectorySeparatorChar, '/');
+            byte[] image = File.ReadAllBytes(path);
+            using var reader = new AuthoringSession();
+            try { reader.Reopen(image); observed[name] = "OPEN " + NativeProject.FormatOf(image); }
+            catch (ContractError error) { observed[name] = error.Code; }
+            Console.WriteLine("OLD-BUILD-FIXTURE " + name + " " + observed[name]);
+        }
+        Equal(true, fixtures.Length > 0);
+        Equal(string.Join("; ", OldBuildFixtureOutcomes.OrderBy(item => item.Key, StringComparer.Ordinal).Select(item => item.Key + " " + item.Value)),
+              string.Join("; ", observed.Select(item => item.Key + " " + item.Value)));
     }
 
     // Readiness tier (design area3-analysis.md §18.6): never spawned by run-tests.sh.

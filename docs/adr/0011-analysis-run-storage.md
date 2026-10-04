@@ -36,8 +36,11 @@ review-suggested: []
 - An Analysis run must survive save and reopen and stay attributable to the exact inputs (ANA-07). A session-only
   store fails ANA-07; a sidecar file splits one document into two that can drift apart.
 - The native project is `cfdw-project-1` today (`src/CfdWorkbench.Core/AuthoringSession.cs`: `Envelope`, `NativeProject`).
-  Its reader refuses any other format string with `DOC-VERSION` (`AuthoringSession.cs`:1703), which the Desktop shows
-  as COPY-130 ("A newer version of CFD Workbench may open it") without changing the file (`OpenOutcome.cs`:95).
+  Its reader checks the top-level members before the format string, so a `-2` file reaches it as an unknown `analysis`
+  member and is refused with `DOC-UNSUPPORTED-FIELD`. The Desktop classifies that as `UnknownContent` and shows COPY-130
+  ("A newer version of CFD Workbench may open it") without changing the file (`OpenOutcome.cs`). *Corrected
+  2026-10-04 by the STO track from the old-build receipt `docs/proof/a3a-old-build/`; this line first said
+  `DOC-VERSION`, which would classify as `Newer` (COPY-103).*
 - `NativeProject` lives in Core, and Core cannot reference `CfdWorkbench.Analysis`. So the stored row, its canonical
   form, the run key and the content hash live in Core (`src/CfdWorkbench.Core/RunRecord.cs`); Analysis computes and
   projects (design G-T8, P-3).
@@ -72,6 +75,14 @@ review-suggested: []
    stack; plus the latest 20 other runs per tier; plus the latest Failed row per key. Never prune a run that a
    Discrepancy record references (A3d). Prune the rest at save, list them in the save report, and leave a tombstone
    fact (runId, runKey, prunedAt) in `pruned`, so an Undo that reaches a pruned run reads "pruned", not "missing".
+   **Reachability (ruled by the Data & Persistence Architect at the STO clearance, 2026-10-04):** a key is reachable
+   when its surface is the surface of the current revision, of any revision on its parent chain, or of any redo-stack
+   revision (`AuthoringSession.ReachableSurfaces`). Those are the only revisions a session can return to: Undo walks
+   parents, reopen rebuilds the redo stack from the cursors (`NativeProject.Replay`), and a recovery resumes only on the
+   current revision. (Core retains every accepted row, so "any retained accepted revision" read literally would never
+   prune.) The prune event (`analysis.prune`) reads `planned`: the save's own outcome is the `store.save` event's.
+   **Condition C1:** any later feature that opens a revision outside Undo/Redo — a history jump, A3d Compare — widens
+   `ReachableSurfaces` in the same change.
 8. **Writer and readers (DM15).** One writer: the Analysis service through `AuthoringSession.RecordRun` (append only,
    not on the undo stack, marks the document dirty, refused after close with `DOC-CLOSED`). Readers: freshness (the
    recomputed key), `AnalysisProjection`, Compare (A3d) and CLI `inspect --runs`.
