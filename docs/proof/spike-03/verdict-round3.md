@@ -129,10 +129,18 @@ knob (tip) was not added: K2 is not built, and K4 (DR-F3-5) applies only after K
   - everything else in the gate passes: skewness 1.82, volumes positive, pyramids OK, 20 layers on 100 % of 183,938
     wing faces.
   - Cells: 4.52 M (3.68 M prisms). checkMesh peak RSS 4.8 GB.
-- **Reading (Inferred):** the tip clusters sit at x/c 0.98–1.0 next to the TE pole of the revolved tip. There the
-  revolve radius is the local half-thickness, under about 1 mm, against a 1.49 mm stack. That is the same column-spread
-  mechanism, on a revolved surface that the TE strip does not cover. It is the next knob: either the fan-ratio rule
-  applied to the tip's TE region, or K4.
+- **Where the tip faces are** ([per region](receipts/20261004T181030Z-spike03r3-m1b-ar8/region-wall-distance.txt)):
+  tip pole 176 faces at x/c 0.9867–0.9968, median wall distance 66 µm; tip 34 at x/c 0.9803–0.9896, median 106 µm.
+  Both sit **low in the stack**.
+- **Reading (Inferred, cause not separated):** the column-spread mechanism alone does not explain the tip faces. With
+  isotropic wall cells it predicts failures at the top of the stack, and only where the revolve radius (the local
+  half-thickness: 0.59 mm at x/c 0.98, 0.34 mm at 0.995, 0.25 mm at 1.0) is below H/4.67 = 0.32 mm, that is aft of
+  x/c ≈ 0.996. The faces reach forward to 0.980 and sit near the wall. Two other causes fit the receipts:
+  - the pole degeneracy itself: Gmsh logs "Skipping boundary layer extrusion of degenerate curve 19/22/29/31" on every
+    run, and the revolve leaves sliver triangles at the pole;
+  - anisotropic wall triangles on the revolved TE region.
+  Separating them needs a run. The next knob is either a structured treatment of the tip's TE region or a pole-free tip
+  (K4, DR-F3-5).
 
 ## Physics and labels (for the hydrodynamicist)
 
@@ -140,9 +148,11 @@ knob (tip) was not added: K2 is not built, and K4 (DR-F3-5) applies only after K
   (stack 1.12 mm at h1 6.0 µm, y+ projection p95 0.95 / max 1.72) stay **Estimates** from the plan. They are not
   measured here.
 - Geometry is unchanged from M-2c: chord 0.12 m, half span 0.48 m, round TE base of radius 0.25 mm, round revolved tip.
-  The tip was **not** modified, so the DR-F3-5 records (design and analysis b and S) are not triggered. S_ref and b
-  stay at design values.
-- A pass would hold only at U 5 m/s, α 4°, ν 1.0e-6 m²/s (Re_c 6.0e5). No pass is claimed.
+  The tip was **not** modified, so DR-F3-5 is not triggered. S_ref and b stay at design values. The analysis geometry
+  already differs from them: the round tip extends the half span by 7.28 mm (+1.5 %) and adds about 6.0e-4 m² of
+  planform per tip (+1.05 % of the half-wing S) (hydrodynamicist's re-computation, plan :287).
+- A pass would hold only at U 5 m/s, α 4°, ν 1.0e-6 m²/s (Re_c 6.0e5). ν is nominal, not a water record (no T or S_A;
+  ITTC fresh water at 20 °C is 1.0034e-6). No pass is claimed.
 
 ## Durations, load and memory (measured)
 
@@ -178,10 +188,12 @@ knob (tip) was not added: K2 is not built, and K4 (DR-F3-5) applies only after K
 ## What ADR-0012 can add now (macOS arm64 only)
 
 - **Mesh route:** Gmsh 4.15.2 boundary-layer extrusion (prisms on a tet core) stays the only route that gives 20
-  layers on 100 % of the wing. It is repeatable bitwise on this machine. Rule, measured: **a prism column on a convex
-  surface of radius r under a stack of height H must be about √((r + H)/r) : 1 at the wall, the long side along the
-  axis of curvature**. Isotropic or 7:1 columns both fail. The TE strip built this way passes on the panel. The
-  revolved tip is still open. The next knob is the same rule at the tip's TE region, or a pole-free tip (K4, DR-F3-5).
+  layers on 100 % of the wing. It is repeatable bitwise on this machine. Sizing rule (**Inferred**: derived, then
+  confirmed once, at r 0.25 mm and H 1.49 mm): **a triangulated prism column on a singly curved convex surface of
+  radius r under a stack of height H should be about √((r + H)/r) : 1 at the wall, with the long side along the axis
+  of curvature**. Isotropic columns (M1a) and 7.6:1 columns (M0) both failed. The TE strip built this way passed on the
+  panel (M1b). The rule does not cover doubly curved or pole regions (the revolved tip), where the next cause is not yet
+  separated. The tip is still open: the options are a structured tip TE region or a pole-free tip (K4, DR-F3-5).
 - **The floor (DR-F3-1 A):** measured on three meshes. The determinant test fails 31–45 % of prisms by construction and
   only far-field corner tets in the core. So A (validity set without the determinant, non-orthogonality ≤ 70°,
   skewness ≤ 4/20, weight ≥ 0.05) is the floor to write. The determinant is reported by layer/core.
@@ -194,4 +206,4 @@ knob (tip) was not added: K2 is not built, and K4 (DR-F3-5) applies only after K
 | Lens | Verdict | Veto | Conditions → where applied |
 |---|---|---|---|
 | CFD numerical verification (author) | — | does not clear its own veto | readings stated before each run; the missed pre-registered threshold is reported as missed; no physical result from an unsolved mesh |
-| Hydrofoil hydrodynamicist (Adversary, read only) | see below | — | — |
+| Hydrofoil hydrodynamicist (Adversary, read only) | **PASS WITH CONDITIONS** (re-ran the fan ratio, the 5.67:1 limit, the 2.64 strip, the half-thickness at x/c 0.98–1.0, the tip's b and S) | not triggered (no hydrodynamic quantity displayed) | 1 the tip reading names pole degeneracy beside the fan mechanism, with wall distance per region and x/c 0.980–0.997 (R3-M1b) · 2 the ADR sizing rule is labelled Inferred and scoped to singly curved surfaces, not poles (ADR section) · 3 tip b and S increments recorded (physics section) · 4 ν marked nominal, not a water record (physics section) — all applied |

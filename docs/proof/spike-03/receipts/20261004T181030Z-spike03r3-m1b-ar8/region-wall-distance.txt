@@ -1,0 +1,4 @@
+main: n=34 wall distance median 2.69e-03 m (min 1.06e-06, max 2.97e-03); x/c -0.0016..0.9803
+te: n=2 wall distance median 1.91e-03 m (min 1.82e-03, max 2.00e-03); x/c 0.9925..1.0074
+tip: n=34 wall distance median 1.06e-04 m (min 1.32e-06, max 1.57e-03); x/c 0.9803..0.9896
+tip_pole: n=176 wall distance median 6.57e-05 m (min 3.18e-07, max 5.87e-04); x/c 0.9867..0.9968
