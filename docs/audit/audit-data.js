@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T23:21:56Z",
+  "generated": "2026-10-04T23:28:44Z",
   "audit": [
     {
       "actor": null,
@@ -23902,6 +23902,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-04T23:20:20Z",
+      "duration_seconds": 96.0
+    },
+    {
+      "id": "al-01M44KZ5V7V0M8JJA1WHARZAQ4",
+      "shortname": "join-a3a-vlm",
+      "datetime": "2026-10-04T23:28:44Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/a3a-vlm-solver into feature/ui-cad-direction",
+      "summary": "VLM + repair (Opus 5.5). CFD re-review PASS-WITH-CONDITIONS, veto cleared: LINPACK column swap verified, Rigal-Gaches backward error > 1e-10 fails closed ANA-SOLVE-RESIDUAL (planted mutant caught); F-5 at the default cosine lattice (gap 0.893 %); F-15 now order + code-to-code oracle. Open for operator: tip-strip envelope verdict varies with lattice; near-field verified on the default lattice only. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:27:08Z",
       "duration_seconds": 96.0
     }
   ],
