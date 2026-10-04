@@ -1680,7 +1680,7 @@ window.DOCS_INDEX = {
       "phase": "",
       "reviewBy": "2027-04-03",
       "reviewSuggested": [],
-      "summary": "The numbers behind design-area3-analysis §13.2 rev 3, measured with a 56-line reference horseshoe lattice (listed here, run with Node 22): the F-2 lifting-surface band 0.4156–0.4198 for the elliptic AR 8 wing at 5°, F-6's lattices 32/64/128 (observed order 1.07 for CL, 1.01 for e), an O(1) F-6 mutant that drives the order to −0.74, and the F-8 fixture at 20° dihedral with the developed S_ref, which the dihedral-ignored mutant misses by 11.9 %.",
+      "summary": "The numbers behind design-area3-analysis §13.2 rev 3, measured with a 56-line reference horseshoe lattice (listed here, run with Node 22): the F-2 lifting-surface band 0.4156–0.4198 for the elliptic AR 8 wing at 5°, F-6's lattices 32/64/128 (observed order 1.07 for CL, 1.01 for e), an O(1) F-6 mutant that drives the order to −0.74, and the F-8 fixture at 20° dihedral with the developed S_ref, which the dihedral-ignored mutant misses by 11.9 %. The 2026-10-04 repair adds the pointwise α_i oracle for F-15, the near-field convergence numbers for F-5 and the solver residuals.",
       "tags": [
         "analysis",
         "vlm",
@@ -1706,7 +1706,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "88d38d56fe7ac7a7830ed0c40b3dff04bd02f69039be426eeaa9edb185e39f4b"
+      "sourceSha256": "051d79de1bea4b4621550910d5ab24a71c119d45b86fb0f7b835c75ffea0f70b"
     },
     {
       "id": "note-backlog-2d-section-workbench",
@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6dcdf5dd9ed5f3caf2c4c0d3cd4f237af8b8f1e467897663d831b52e401afb86"
+      "sourceSha256": "f71f2ec823f72e78b98dee49a4edd5af36b87b01dbbe12ef2cc8005c3c2b611f"
     },
     {
       "id": "design-authoring-decisions",
@@ -3105,7 +3105,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6138092fba051d1384358c9e609a126901707062fa977da91bcbf88a56877994"
+      "sourceSha256": "af148f3ea84849a163f297d2b24924c116519c335304a0d656297b68210a1233"
     },
     {
       "id": "design-m12d-catalog",
@@ -8359,6 +8359,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "80d9a61a46d8e5a6f7b4607b3756e35be1e5e9b591abe9344d8b2bb85198d4a2"
     },
     {
+      "id": "proof-a3a-vlm-red-first",
+      "path": "docs/proof/a3a-vlm/red-first.md",
+      "title": "A3a VLM red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-vlm",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "The red run of the A3a VLM track. Planting the O(1) wake mutant (wake length per panel instead of per wing) turned F-6 red. The mutant was removed before the commit. The 2026-10-04 repair adds the red lines for the LU pivot defect (one-solve residual 1.98 on a 12 x 12 matrix), the convergence form of F-5 and the pointwise form of F-15.",
+      "tags": [
+        "a3a",
+        "vlm",
+        "analysis",
+        "red-first",
+        "fixtures"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-area3-fixture-arithmetic",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "90a9c5441215a9dca5bd7ea998ecd2b899e1f1841d413543338878f1a22f49a9"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -8634,6 +8665,357 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "ceeab7a707197be1050f41774ff0b8a6dce901230a617e5d941e5a82a69a01e0"
+    },
+    {
+      "id": "proof-blend-certificate-budget",
+      "path": "docs/proof/blend-certificate-budget/verdict.md",
+      "title": "Blend certificate budget spike verdict (Ruling 73, DR-XPA-1 c, DR-M12D-1 spike E)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Measured against the as-built Core. The node budget can scale with spans without weakening soundness: it never enters the enclosure (52 fixtures x 23 queries are bit-identical under five rules), and the real need is 17-21 nodes at any span count. Scaling it alone gains one span (two sections: 6; three: 5). The limit is the all-query operation bound (1e6), which charges 6 N (N + 1) for the budget N rather than for the nodes a query uses. With that bound lifted, 5-16 spans certify for two and three sections at 120 mm and 2 m within 3.9 % of the 1e9 work limit and under 1 s. New finding: four differing station sections are refused as built at any span count.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "all-query-bound",
+        "spans",
+        "ruling-73",
+        "dr-xpa-1",
+        "dr-m12d-1",
+        "spike"
+      ],
+      "links": [
+        {
+          "to": "design-cross-profile-abscissa",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-m12d-catalog",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-cross-profile-abscissa",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-m12c-certificate-spike",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7d0e374e8cb164e081ac1758b8c45c84dd7de91ed74c73d9a92bcc7fa4c96f7d"
+    },
+    {
+      "id": "proof-blend-certificate-budget-four-as-built",
+      "path": "docs/proof/blend-certificate-budget/output/four-as-built.md",
+      "title": "Blend budget probe - four, as-built Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-budget/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4e9b1232638b8c769b308b2a84d466690431c401803ab5daf85f4c5a12c055bf"
+    },
+    {
+      "id": "proof-blend-certificate-budget-four-hooked",
+      "path": "docs/proof/blend-certificate-budget/output/four-hooked.md",
+      "title": "Blend budget probe - four, hooked Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-budget/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7b5cb4df7cd8c8802db18a8385634dfe39a9833db070ac35952f2e512d2680df"
+    },
+    {
+      "id": "proof-blend-certificate-budget-neutrality-four",
+      "path": "docs/proof/blend-certificate-budget/output/neutrality-four.md",
+      "title": "Blend budget probe - neutrality check, four (generated)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by probe/neutrality.py: the hooked Core copy at its defaults equals the as-built Core, row by row.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c9e8d2244cb9f6a95134d8dc578d8a314471f2705250f3abac8602420a416e79"
+    },
+    {
+      "id": "proof-blend-certificate-budget-neutrality-stage1",
+      "path": "docs/proof/blend-certificate-budget/output/neutrality-stage1.md",
+      "title": "Blend budget probe - neutrality check, stage1 (generated)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by probe/neutrality.py: the hooked Core copy at its defaults equals the as-built Core, row by row.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "32f57280c3089590581ab7d7163b8994eb3425e7d3d707c22c887380795dff54"
+    },
+    {
+      "id": "proof-blend-certificate-budget-neutrality-stage2",
+      "path": "docs/proof/blend-certificate-budget/output/neutrality-stage2.md",
+      "title": "Blend budget probe - neutrality check, stage2 (generated)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by probe/neutrality.py: the hooked Core copy at its defaults equals the as-built Core, row by row.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f2e215b0632e4d73683269a904b4c4cc8bab4462469e0b2879eb269e1009a872"
+    },
+    {
+      "id": "proof-blend-certificate-budget-stage1-as-built",
+      "path": "docs/proof/blend-certificate-budget/output/stage1-as-built.md",
+      "title": "Blend budget probe - stage1, as-built Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-budget/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f205e8b40b61699df8bd0ac3e3d34150e2b799eb469579933d22901f32088bd1"
+    },
+    {
+      "id": "proof-blend-certificate-budget-stage1-hooked",
+      "path": "docs/proof/blend-certificate-budget/output/stage1-hooked.md",
+      "title": "Blend budget probe - stage1, hooked Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-budget/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c14c8d4bbac4fd78bb4e0db44199599592c7b6481c18f5dd904cbc12a449d159"
+    },
+    {
+      "id": "proof-blend-certificate-budget-stage2-as-built",
+      "path": "docs/proof/blend-certificate-budget/output/stage2-as-built.md",
+      "title": "Blend budget probe - stage2, as-built Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-budget/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "41c84cbf71bc7847f3b0a8d9dd1e70980f7c7026b3348ec29e15a48379f3f16d"
+    },
+    {
+      "id": "proof-blend-certificate-budget-stage2-hooked",
+      "path": "docs/proof/blend-certificate-budget/output/stage2-hooked.md",
+      "title": "Blend budget probe - stage2, hooked Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-budget/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "42638998a24dd8bfedcabc997280a72fa8d3b5ed26e699efab44861cfac233b0"
+    },
+    {
+      "id": "proof-blend-certificate-budget-summary",
+      "path": "docs/proof/blend-certificate-budget/output/summary.md",
+      "title": "Blend budget probe - summary (generated)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by probe/summarize.py from the hooked runs: maximum spans per rule, op-count decomposition, hash equality.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1384abe8803a0ead471ee0562a479766e8cfd6724623c8396588b4a8e4561fa9"
+    },
+    {
+      "id": "proof-blend-certificate-budget-timing",
+      "path": "docs/proof/blend-certificate-budget/output/timing.md",
+      "title": "Blend budget probe - re-timed heaviest fixtures (generated)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by the probe's timing mode: minimum and median wall time of the heaviest fixtures under machine load.",
+      "tags": [
+        "certificate",
+        "blend",
+        "budget",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2fb09414e43cbf319a03ae0c7605f59a53cc78797d1b73578f5ced83dbf71d56"
     },
     {
       "id": "proof-c1-red-runs",
@@ -11842,5 +12224,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "f235ab1215b5d829ecd5d5cef5053410f17e0adbcdd3f76482f87538f70ebc82"
+  "graphSha256": "5574cac67b35407a9975bd526b4f839b49b280564885f70b4f876b84b6bdd677"
 };
