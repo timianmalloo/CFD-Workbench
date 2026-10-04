@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T17:23:56Z",
+  "generated": "2026-10-04T17:26:08Z",
   "audit": [
     {
       "actor": null,
@@ -23433,6 +23433,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T17:22:59Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M43Z76WRFVNTRJD9BF2V6VKS",
+      "shortname": "join-security-apply",
+      "datetime": "2026-10-04T17:26:08Z",
+      "session": "f19a2b12",
+      "prompt": "the join of docs/security-apply into feature/ui-cad-direction",
+      "summary": "Ruling 68 applied (Sonnet 5.5): ADR-0012 D2 six short rules, Run enabled when the install smoke test shows Disallowing, only S-1 + S-2 serial kept, DR-SEC-1 A; spec 1.7.1 (AM-1.7.1-1..4); round-3 plan and the note updated; spec HTML re-rendered and checked. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T17:25:10Z",
+      "duration_seconds": 58.0
     }
   ],
   "changes": [
