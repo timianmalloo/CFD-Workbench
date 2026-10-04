@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T16:33:45Z",
+  "generated": "2026-10-04T17:00:43Z",
   "audit": [
     {
       "actor": null,
@@ -23358,6 +23358,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T16:32:42Z",
       "duration_seconds": 63.0
+    },
+    {
+      "id": "al-01M43XRPDTRHEBSDJFC27YF2W3",
+      "shortname": "join-test-tooling",
+      "datetime": "2026-10-04T17:00:43Z",
+      "session": "f19a2b12",
+      "prompt": "the join of perf/test-tooling into feature/ui-cad-direction",
+      "summary": "Test tooling (Opus 5.5, Ruling 67 + Test Architect conditions): L1 no Debug full Core run (+ check-debug-parity in check-docs, red on planted #if DEBUG / per-config csproj), L2 adapters reads a reduced Debug run emitting the same 325 THEME-* lines byte for byte (red without the prefix), L3 published Core in 3 parts with PARTITION kept, L4 concurrent readiness (green under load 16-75), L5/L6 Desktop ordering and splits; per-child FAIL TIMEOUT, readiness step limits and 240 s budget, scratch pruned on green. PASS multiset hash unchanged (1,162 lines d7ba74e68a688d06). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T16:59:44Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
