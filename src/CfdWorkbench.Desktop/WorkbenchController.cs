@@ -649,8 +649,26 @@ public sealed class WorkbenchController : IDisposable
         }
         draft = session.Snapshot().Draft;
         Section = mode with { Draft = next, Assessment = null, FinishReason = "Checking…" };
-        NotifySection();
+        // One shell refresh per step: the assessment's "Checking…" write notifies, after the strip has the step report.
+        RaiseSectionChanged();
         await AssessCurrentSectionAsync(cancellation);
+    }
+
+    /// <summary>
+    /// A section pointer-drag frame (§3.7): records where the release will move the point, and nothing else. The canvas
+    /// draws the frame from its own display state; a shell refresh here cost 0.55–0.9 s per move (edit-lag, 2026-10-04).
+    /// </summary>
+    public void UpdateSectionGesture(double x, double y, double pixelsFromPress)
+    {
+        if (Section is null || gestureInput != GestureInput.Pointer || gestureOrigin is null ||
+            Gesture is not (GestureState.Pressed or GestureState.Dragging) || !double.IsFinite(x) || !double.IsFinite(y))
+            return;
+        if (Gesture == GestureState.Pressed)
+        {
+            if (pixelsFromPress < 3) return;   // the drag threshold UpdateGestureTarget applies
+            Gesture = GestureState.Dragging;
+        }
+        pendingGestureTarget = (x, y);
     }
 
     public void UndoSectionStep()
@@ -661,8 +679,15 @@ public sealed class WorkbenchController : IDisposable
         var next = session.UndoSectionStep(mode.Draft.DraftId);
         draft = session.Snapshot().Draft;
         Section = mode with { Draft = next, Assessment = null, FinishReason = next.Cursor == mode.Draft.Cursor ? "No earlier step." : "Checking…" };
-        NotifySection();
-        if (next.Cursor != mode.Draft.Cursor) _ = AssessCurrentSectionAsync();
+        AfterCursorMove(next.Cursor != mode.Draft.Cursor);
+    }
+
+    // A moved cursor refreshes the shell once, through the assessment's "Checking…" write; a no-op says so at once.
+    private void AfterCursorMove(bool moved)
+    {
+        if (!moved) { NotifySection(); return; }
+        RaiseSectionChanged();
+        _ = AssessCurrentSectionAsync();
     }
 
     public void RedoSectionStep()
@@ -673,8 +698,7 @@ public sealed class WorkbenchController : IDisposable
         var next = session.RedoSectionStep(mode.Draft.DraftId);
         draft = session.Snapshot().Draft;
         Section = mode with { Draft = next, Assessment = null, FinishReason = next.Cursor == mode.Draft.Cursor ? "No later step." : "Checking…" };
-        NotifySection();
-        if (next.Cursor != mode.Draft.Cursor) _ = AssessCurrentSectionAsync();
+        AfterCursorMove(next.Cursor != mode.Draft.Cursor);
     }
 
     private async Task AssessCurrentSectionAsync(CancellationToken cancellation = default)
@@ -721,9 +745,13 @@ public sealed class WorkbenchController : IDisposable
 
     private void NotifySection()
     {
-        if (disposed) return;
-        SectionChanged?.Invoke();
+        RaiseSectionChanged();
         Notify();
+    }
+
+    private void RaiseSectionChanged()
+    {
+        if (!disposed) SectionChanged?.Invoke();
     }
 
     public async Task FinishSectionAsync()
