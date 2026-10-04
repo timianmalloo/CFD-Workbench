@@ -620,6 +620,49 @@ window.DOCS_INDEX = {
       "sourceSha256": "f80244fbefc0ceb2f15b42560e959e19837f67f38169391b71969041a9c99cf1"
     },
     {
+      "id": "adr-0011-analysis-run-storage",
+      "path": "docs/adr/0011-analysis-run-storage.md",
+      "title": "ADR-0011: analysis run storage — runs are append-only facts in the native project as cfdw-project-2, written only when a run exists",
+      "type": "adr",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "implementation — A3a PRE (Area 3 Analysis, Ruling 63)",
+      "reviewBy": "none while accepted",
+      "reviewSuggested": [],
+      "summary": "Analysis runs are stored in the native project file as append-only rows under a new optional top-level `analysis` member. The format string is derived from the run count, so a project with no run is still written as `cfdw-project-1`, byte for byte as today; one run makes it `cfdw-project-2`. Store invariants are checked on read and in RecordRun; each run carries a content hash and its key is recomputed, never trusted. The first save to `-2` writes a `.v1.bak` first. Retention keeps every run reachable from a retained revision or the redo stack plus the latest 20 others per tier, and leaves a tombstone for each pruned run.",
+      "tags": [
+        "analysis",
+        "persistence",
+        "native-format",
+        "run-key",
+        "retention",
+        "migration",
+        "adr",
+        "a3a",
+        "dr-ana-4"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "implements"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3a12df00e53016caa8299ee4a0e958f9724a61db1da52f81a09d506e438336b5"
+    },
+    {
       "id": "adr-0012-openfoam-backend-macos",
       "path": "docs/adr/0012-openfoam-backend-macos.md",
       "title": "ADR-0012: the OpenFOAM backend on macOS arm64 — substrate pin, product launcher, A4 convergence oracle and SA numerics (what rounds 1 and 2 proved)",
@@ -7920,6 +7963,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "45f0254b7dff5e2d3230608516b6073a347d3a2d1fba3aa2654011fdca7aebba"
     },
     {
+      "id": "proof-a3a-pre-red-first",
+      "path": "docs/proof/a3a-pre/red-first.md",
+      "title": "A3a PRE red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-a3a-pre",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "The red runs of the A3a PRE track: the architecture check turned red by a planted ProfileAt call and by a planted edit verb, the PlacedSection.Assignment check red before the station-index fix, and the checker self-test case red on a mutant that drops the new section flags.",
+      "tags": [
+        "a3a",
+        "pre",
+        "analysis",
+        "architecture",
+        "placement",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "25d7106d6ce00df21120a2b3d91593da54888f3d6c2c02b53d882807abc59c1b"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -11275,5 +11350,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "4502aebc1bb9d4b87d2e8d630590e2aa7018ba48c3a56174e204c221236978bb"
+  "graphSha256": "98cc3b5a60a4904bf337df1954cd5852a4cea5e0360abc91af680689edce1a39"
 };
