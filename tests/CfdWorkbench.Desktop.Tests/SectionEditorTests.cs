@@ -31,6 +31,7 @@ public static class SectionEditorTests
 
     public static void Run()
     {
+        Capture();
         DesktopChecks.Check("SectionEditor_RefusedPairedRefit_MarkerAtMaximum", () =>
         {
             var profile = new CfdWorkbench.Core.ProfileView("test", "test",
@@ -499,6 +500,83 @@ public static class SectionEditorTests
             using var pixels = PropertiesCellsTests.Render(fixture.Window, 1);
             Expect(pixels, fixture.Centre(moved), 0, 0, fixture.Colour("FoilBrush"), "the finished point's glyph at its new place");
         });
+    }
+
+    /// <summary>
+    /// Review captures of the built app (CFDW_EDT_CAPTURE=&lt;dir&gt;): the approved mockup's paired screens 2, 2b, 2c and 3
+    /// in the Precision workspace at 1280 × 800, light. Off by default; never part of the gate.
+    /// </summary>
+    public static void Capture()
+    {
+        if (Environment.GetEnvironmentVariable("CFDW_EDT_CAPTURE") is not { Length: > 0 } directory) return;
+        Directory.CreateDirectory(directory);
+        using var shell = new ShellFixture();
+        var controller = shell.Controller;
+        shell.Window.Width = 1280;
+        shell.Window.Height = 800;
+        shell.Host.ApplyWorkspace(WorkspaceId.Precision);
+        shell.Enter();
+        void Step(SectionStep step) { Wait(shell.Host.ApplySectionStepAsync(step)); Assessed(); }
+        void Assessed()
+        {
+            WaitUntil(() => controller.Section is not { Draft.StepCount: > 0, Assessment: null });
+            shell.Settle();
+        }
+        void Pick(string curve, string id)
+        {
+            controller.Select(new Selection.Points([new PointRef(curve, id, controller.Section!.Draft.Profile)]));
+            shell.Settle();
+        }
+        void Show()
+        {
+            if (shell.Host.StatusStrip.GetVisualDescendants().OfType<Button>().FirstOrDefault(button => button.Name == "StatusTryAgainButton") is
+                { IsEffectivelyVisible: true } action)
+                action.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            shell.Settle();
+        }
+        void Save(string name)
+        {
+            shell.Settle();
+            using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(
+                new PixelSize((int)shell.Window.ClientSize.Width, (int)shell.Window.ClientSize.Height));
+            bitmap.Render(shell.Window);
+            bitmap.Save(Path.Combine(directory, name));
+            Console.WriteLine($"CAPTURE {name} strip '{shell.Host.StatusStrip.Text}' refusal {controller.SectionRefitRefusal} reason-box {shell.View.FindControl<Border>("ModeReasonBox")!.IsVisible} '{shell.View.FindControl<TextBlock>("ModeReason")!.Text}' finish-reason '{controller.Section?.FinishReason}'");
+        }
+
+        // 2: upper point 4 made an anchor (paired), Horizontal, selected, after Fit Selection.
+        string id = controller.SectionCurve(SurfaceSide.Upper)!.Points[3].Id;
+        Step(new SectionStep.SetType(SurfaceSide.Upper, id, true));
+        Step(new SectionStep.SetTangent(SurfaceSide.Upper, id, TangentKind.Horizontal, null, null));
+        var upper = controller.SectionCurve(SurfaceSide.Upper)!.Points;
+        int anchor = upper.ToList().FindIndex(point => point.Role == PointRole.Anchor);
+        Pick("upper", upper[anchor].Id);
+        shell.Canvas.FitSelection();
+        Save("edt-s2-light.png");
+
+        // 2b: the control after the anchor's tail handle typed to x 60 % (the mockup's XM); its lower partner moves too.
+        var moved = upper[anchor + 3];
+        Step(new SectionStep.Move(SurfaceSide.Upper, moved.Id, 0.60, moved.Ordinate));
+        Pick("upper", moved.Id);
+        shell.Canvas.Fit();
+        Save("edt-s2b-light.png");
+        controller.UndoSectionStep();
+        Assessed();
+
+        // 2c: Anchor → Control on the anchor; refused when the lower refit is over the limit, with its marker.
+        Pick("upper", upper[anchor].Id);
+        Step(new SectionStep.SetType(SurfaceSide.Upper, upper[anchor].Id, false));
+        Show();
+        Save("edt-s2c-light.png");
+
+        // 3: a lower point dragged up through the upper surface: Finish off with its reason, Show frames the crossing.
+        var lower = controller.SectionCurve(SurfaceSide.Lower)!.Points;
+        var low = lower[lower.Count - 3];
+        Step(new SectionStep.Move(SurfaceSide.Lower, low.Id, low.SpanMeters, 0.10));
+        Pick("lower", low.Id);
+        Show();
+        Save("edt-s3-light.png");
+        controller.CancelSection();
     }
 
     private static int Distance(Color colour, Color target) =>
