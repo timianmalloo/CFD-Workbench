@@ -311,6 +311,137 @@ internal static class ProjectStoreTests
             using var store = new ProjectStore(); Refuses("DOC-UNSUPPORTED-PERSISTENCE", () => store.ReadAsync(link).GetAwaiter().GetResult());
             Equal((byte)7, File.ReadAllBytes(target)[0]);
         });
+        // A3a STO (ADR-0011 §6): the first -1 → -2 save keeps the -1 bytes as <name>.v1.bak, flushed before the publish.
+        Check("Backup_V1Bak_TodayReaderByteEqual", () =>
+        {
+            string root = Root(), path = Path.Combine(root, "wing.cfdw"), backup = Path.Combine(root, ProjectStore.BackupName("wing.cfdw"));
+            using var session = RunSession();
+            using var store = new ProjectStore(session);
+            byte[] one = session.SaveImage();
+            var created = Save(store, path, new(one, null, Id())); Equal("OK", created.Code); session.AcknowledgeSaved(one);
+            Equal(false, File.Exists(backup));
+            session.RecordRun(SampleRun(session, 2.0, 3));
+            byte[] two = session.SaveImage(); Equal("cfdw-project-2", NativeProject.FormatOf(two));
+            var upgraded = Save(store, path, new(two, created.PublishedSha256, Id())); Equal("OK", upgraded.Code);
+            Equal(true, File.ReadAllBytes(backup).AsSpan().SequenceEqual(one));
+            Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(two));
+            Equal(true, store.ReadLocalEvents().Any(e => e.Action == "store.backup" && e.Outcome == "OK" && e.DurabilityConfirmed == true));
+            // Today's reader opens the backup, and it round-trips byte for byte.
+            using (var reader = new AuthoringSession()) { reader.Reopen(File.ReadAllBytes(backup)); Equal(true, reader.SaveImage().AsSpan().SequenceEqual(one)); }
+            // -2 → -2 writes no backup; a -1 file whose backup already exists keeps that backup untouched.
+            session.AcknowledgeSaved(two); session.RecordRun(SampleRun(session, 3.0, 3)); byte[] three = session.SaveImage();
+            Equal("OK", Save(store, path, new(three, upgraded.PublishedSha256, Id())).Code);
+            Equal(true, File.ReadAllBytes(backup).AsSpan().SequenceEqual(one));
+            string other = Path.Combine(root, "other.cfdw"), otherBackup = Path.Combine(root, ProjectStore.BackupName("other.cfdw"));
+            File.WriteAllBytes(other, one); File.WriteAllBytes(otherBackup, [9]);
+            Equal("OK", Save(store, other, new(two, Identity.Sha256(one), Id())).Code);
+            Equal(true, File.ReadAllBytes(otherBackup).AsSpan().SequenceEqual(new byte[] { 9 }));
+            Equal(4, Directory.GetFiles(root).Length);
+        });
+        // FM-11: a run at the strip cap stays inside the 8 MB document, and one strip past the cap is refused. The cap is
+        // the spec's 2,048 written as a literal, so raising RunRecord.MaxStrips turns this red.
+        Check("Store_SizeAtStripCap_UnderDocLimit", () =>
+        {
+            using var session = RunSession();
+            Refuses("DOC-RUN-STRIPS", () => session.RecordRun(SampleRun(session, 1.0, 2049)));
+            session.RecordRun(SampleRun(session, 2.0, 2048));
+            byte[] image = session.SaveImage();
+            Console.WriteLine("STORE-SIZE 2048 strips " + image.Length + " bytes of " + NativeProject.MaxBytes);
+            Equal(true, image.Length <= NativeProject.MaxBytes);
+            string path = Path.Combine(Root(), "cap.cfdw");
+            using var store = new ProjectStore();
+            Equal("OK", Save(store, path, new(image, null, Id())).Code);
+            using var reader = new AuthoringSession();
+            reader.Reopen(store.ReadAsync(path).GetAwaiter().GetResult().Image);
+            Equal(2048, reader.ReadRuns().Runs.Single().Run.Strips.Count);
+        });
+        Check("Store_OldBuildFixtures_TodaysReaderOutcomesPinned", OldBuildFixturesThroughTodaysReader);
+    }
+
+    // Every committed old-build project fixture through today's native reader (A3a STO, Data & Persistence condition C2):
+    // RespectRequiredConstructorParameters now applies to every -1 document, so each must open or refuse exactly as pinned.
+    // A new fixture without a pin fails here, so it cannot slip past the reader unread.
+    // Pinned 2026-10-04; identical with RespectRequiredConstructorParameters off (the pre-STO reader). e1/e2 are the
+    // per-surface open row of m12c case (e): an Unsupported revision is refused at reopen admission (m12c receipt).
+    private static readonly Dictionary<string, string> OldBuildFixtureOutcomes = new(StringComparer.Ordinal)
+    {
+        ["a3a-old-build/one-run.cfdw.json"] = "OPEN cfdw-project-2",
+        ["m12b-old-build/span-drag-nudge-only.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/c1-section-receipt.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/c2-section-receipt-row.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/d0-section-recovery-no-row.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/d1-section-recovery.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/d2-section-recovery-row.cfdw.json"] = "OPEN cfdw-project-1",
+        ["m12c-old-build/fixtures/e1-open-per-surface.cfdw.json"] = "DSL-NOT-ASSESSED",
+        ["m12c-old-build/fixtures/e2-open-per-surface-row.cfdw.json"] = "DSL-NOT-ASSESSED",
+    };
+
+    private static void OldBuildFixturesThroughTodaysReader()
+    {
+        string proof = Path.Combine(PlacementTests.RepoRoot(), "docs", "proof");
+        var fixtures = Directory.EnumerateFiles(proof, "*.cfdw.json", SearchOption.AllDirectories)
+            .Where(path => Path.GetRelativePath(proof, path).Split(Path.DirectorySeparatorChar)[0].EndsWith("-old-build", StringComparison.Ordinal))
+            .OrderBy(path => path, StringComparer.Ordinal).ToArray();
+        var observed = new SortedDictionary<string, string>(StringComparer.Ordinal);
+        foreach (string path in fixtures)
+        {
+            string name = Path.GetRelativePath(proof, path).Replace(Path.DirectorySeparatorChar, '/');
+            byte[] image = File.ReadAllBytes(path);
+            using var reader = new AuthoringSession();
+            try { reader.Reopen(image); observed[name] = "OPEN " + NativeProject.FormatOf(image); }
+            catch (ContractError error) { observed[name] = error.Code; }
+            Console.WriteLine("OLD-BUILD-FIXTURE " + name + " " + observed[name]);
+        }
+        Equal(true, fixtures.Length > 0);
+        Equal(string.Join("; ", OldBuildFixtureOutcomes.OrderBy(item => item.Key, StringComparer.Ordinal).Select(item => item.Key + " " + item.Value)),
+              string.Join("; ", observed.Select(item => item.Key + " " + item.Value)));
+    }
+
+    // Readiness tier (design area3-analysis.md §18.6): never spawned by run-tests.sh.
+    internal static void RunReadiness()
+    {
+        // FM-11 / STRIDE DoS: 10⁵ strips is far past the document limit; the size preflight and the reader refuse it.
+        Check("Store_HundredThousandStrips_RefusedDocSize", () =>
+        {
+            using var session = RunSession();
+            var run = SampleRun(session, 2.0, 100_000, seal: false);
+            var envelope = session.Envelope() with { Format = RunRecord.Format(1), Analysis = new AnalysisRecords([run], [], []) };
+            Refuses("DOC-SIZE", () => NativeProject.Preflight(envelope, NativeProject.MaxBytes));
+            byte[] image = NativeProject.Encode(envelope);
+            Console.WriteLine("STORE-SIZE 100000 strips " + image.Length + " bytes");
+            Refuses("DOC-SIZE", () => NativeProject.Read(image));
+            Refuses("DOC-RUN-STRIPS", () => session.RecordRun(run));
+            if (!OperatingSystem.IsMacOS()) return;
+            string path = Path.Combine(Root(), "huge.cfdw"); File.WriteAllBytes(path, image);
+            using var store = new ProjectStore(); Refuses("DOC-SIZE", () => store.ReadAsync(path).GetAwaiter().GetResult());
+        });
+    }
+
+    private static AuthoringSession RunSession()
+    {
+        var session = new AuthoringSession(); session.Open(FoilSource.NewDefault(), Id(), true); return session;
+    }
+
+    // A run row on the session's accepted revision with full-precision strip values (the document-size worst case).
+    private static AnalysisRun SampleRun(AuthoringSession session, double alphaDeg, int strips, bool seal = true)
+    {
+        var snapshot = session.Snapshot();
+        var profiles = FoilSource.Parse(snapshot.Source).Authored().Assignments.Select(a => a.ProfileIdentity).ToArray();
+        var inputs = new RunInputs(snapshot.AcceptedId, snapshot.SurfaceHash, profiles, "cfdw-cv/2", "rule-a/1");
+        var settings = new RunSettings(64, 4, "cosine", "uniform", 20, "freestream", 1e-9, "cfdw.vlm-strip/1", null, [2, 4], "smooth", 0.3);
+        var water = new WaterRecord(15, 35.16504, 1026.021, 1.18831e-6, 1705.1, "ITTC 7.5-02-01-03 Rev 03", new string('a', 64));
+        var op = new OperatingPoint(10, 101325, null, "frame-origin", alphaDeg, null);
+        var method = new RunMethod("cfdw.vlm-strip", "1.0.0", 1);
+        string settingsHash = RunRecord.SettingsHash(settings);
+        var unavailable = new StripValue(null, "no polar method installed");
+        var rows = Enumerable.Range(0, strips).Select(j => new StripLoad(j, Math.Sin(j + 0.1), Math.Cos(j + 0.2), Math.PI / (j + 3),
+            Math.Sqrt(j + 2.0), -Math.Sin(j + 0.3) / 7, Math.Cos(j + 0.4) / 9, 421_337.123456789 + j, Math.Tanh(j + 0.5), unavailable,
+            unavailable, -Math.Sin(j + 0.6), Math.Cos(j + 0.7) / 3, 41.987654321012345 + j, Math.Sin(j + 0.8) / 11, -Math.Cos(j + 0.9) / 13,
+            Math.Sin(j + 1.1) / 17, -Math.Exp(-j - 1.3))).ToArray();
+        var run = new AnalysisRun(Id(), RunRecord.Key(inputs, water, op, method, settingsHash), new string('0', 64), new RunOutcome.Completed(),
+            "vlm-strip", method, settings, settingsHash, inputs, water, op, new RunReference(0.12, 1.0, 0.12, "frame-origin", "body"), 0.01,
+            new RunDiagnostics(1.2345678901234567e-13, 42.123456789012345), rows, 123.456789, new RunPlatform("osx", "arm64", "10.0"));
+        return seal ? run with { ContentHash = RunRecord.ContentHash(run) } : run;
     }
 
     private static string Id() => Guid.NewGuid().ToString("D");

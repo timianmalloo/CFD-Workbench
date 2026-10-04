@@ -107,7 +107,12 @@ public sealed class ProjectStore : IProjectStore, IDisposable
             {
                 claim = OwnedEntry.Create(parent.Fd, ClaimName(), hooks?.CreationMode ?? 0x180); hooks?.Visit(StoreStage.ClaimCreated);
                 target = OpenRegular(parent.Fd, parent.Name);
-                Require(Identity.Sha256(ReadAll(target.Fd, cancellation)) == request.ExpectedDiskSha256, "DOC-CONFLICT");
+                byte[] disk = ReadAll(target.Fd, cancellation);
+                Require(Identity.Sha256(disk) == request.ExpectedDiskSha256, "DOC-CONFLICT");
+                // ADR-0011 §6: the first save that turns a -1 file into -2 keeps the -1 bytes beside it, flushed, before
+                // the publish, so a build older than A3a still has a file it can open.
+                if (NativeProject.FormatOf(image) == "cfdw-project-2" && NativeProject.FormatOf(disk) == "cfdw-project-1")
+                    WriteBackup(parent, disk, request.OperationId, cancellation, traceId);
             }
             temp = OwnedEntry.Create(parent.Fd, TempName(request.OperationId), hooks?.CreationMode ?? 0x180); hooks?.Visit(StoreStage.TempCreated);
             WriteAll(temp.Fd, image, cancellation);
@@ -167,6 +172,42 @@ public sealed class ProjectStore : IProjectStore, IDisposable
     }
 
     internal static string TempName(string operation) => ".cfd-" + Guid.Parse(operation).ToString("D") + ".tmp";
+    internal static string BackupTempName(string operation) => ".cfd-" + Guid.Parse(operation).ToString("D") + ".bak.tmp";
+    /// <summary>The rollback copy beside a project that first gains an Analysis run (ADR-0011 §6).</summary>
+    public static string BackupName(string projectName) => projectName + ".v1.bak";
+
+    // Writes <name>.v1.bak by temp, fsync, link-no-replace, directory fsync. An existing backup is never overwritten: the
+    // first -1 image is the one an older build needs. A failure propagates, so the save fails before the project is replaced.
+    private void WriteBackup(ParentPath parent, byte[] disk, string operationId, CancellationToken cancellation, string traceId)
+    {
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        string name = BackupName(parent.Name);
+        if (Exists(parent.Fd, name, out _))
+        {
+            Emit("store.backup", "EXISTS", timer.Elapsed.TotalMilliseconds, disk.Length, 0, traceId, false, false);
+            return;
+        }
+        string code = "OK"; bool linked = false; OwnedEntry? temp = null;
+        try
+        {
+            temp = OwnedEntry.Create(parent.Fd, BackupTempName(operationId), hooks?.CreationMode ?? 0x180);
+            WriteAll(temp.Fd, disk, cancellation);
+            Check(Native.Fsync(temp.Fd));
+            cancellation.ThrowIfCancellationRequested(); parent.Verify();
+            int result = Native.LinkAt(parent.Fd, temp.Name, parent.Fd, name, 0);
+            // EEXIST: another writer made the backup first; it is kept, never replaced.
+            if (result < 0 && Marshal.GetLastPInvokeError() == 17) code = "EXISTS"; else { Check(result); linked = true; }
+            Require(temp.Cleanup(), "DOC-IO");
+            Check(Native.Fsync(parent.Fd));
+        }
+        catch (ContractError error) { code = error.Code; throw; }
+        catch (OperationCanceledException) { code = "DOC-CANCELLED"; throw; }
+        finally
+        {
+            temp?.Cleanup(); temp?.Dispose();
+            Emit("store.backup", code, timer.Elapsed.TotalMilliseconds, disk.Length, linked ? disk.Length : 0, traceId, linked, linked && code == "OK");
+        }
+    }
     // simplify: serialize cooperative overwrites in the selected directory. This prevents case/Unicode
     // aliases bypassing a raw-name lock. Upgrade only with measured per-file identity-lock lifetimes.
     internal static string ClaimName() => ".cfd-writer.claim";

@@ -660,7 +660,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3a12df00e53016caa8299ee4a0e958f9724a61db1da52f81a09d506e438336b5"
+      "sourceSha256": "b9fc408b0a43a595e0b1fa1734d62a280acc4da3048eeb0f420f286a47d43c87"
     },
     {
       "id": "adr-0012-openfoam-backend-macos",
@@ -7994,6 +7994,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "8dec74f7a259e8cc2a66cd8927451e1bedb5512f8a665826dacafe0f01fb5886"
     },
     {
+      "id": "proof-a3a-old-build",
+      "path": "docs/proof/a3a-old-build/README.md",
+      "title": "A3a old-build receipt: a cfdw-project-2 file opened by the build at the A3a base",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-a3a-sto",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "A cfdw-project-2 sample written by the STO writer, opened by the build at the A3a base (9709f72, before PRE): refused with DOC-UNSUPPORTED-FIELD, classified UnknownContent (COPY-130), and the file's SHA-256 is unchanged.",
+      "tags": [
+        "a3a",
+        "sto",
+        "analysis",
+        "native-format",
+        "rollback",
+        "old-build",
+        "copy-130"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a0cd33ccb663f518420dc28036021505bda9d589ad570ff1b322d30a8cdb83f1"
+    },
+    {
       "id": "proof-a3a-pre-red-first",
       "path": "docs/proof/a3a-pre/red-first.md",
       "title": "A3a PRE red-first receipt",
@@ -8024,6 +8057,42 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "25d7106d6ce00df21120a2b3d91593da54888f3d6c2c02b53d882807abc59c1b"
+    },
+    {
+      "id": "proof-a3a-sto-red-first",
+      "path": "docs/proof/a3a-sto/red-first.md",
+      "title": "A3a STO red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-a3a-sto",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Each STO check of design §18.8 observed red against its named mutant (15 red lines over 14 checks), including the planted mutant of the STO exit: the content hash not checked on read turns both tamper checks red.",
+      "tags": [
+        "a3a",
+        "sto",
+        "analysis",
+        "persistence",
+        "run-key",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-a3a-old-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "48cf4d7c57f8942050f8c3c7fc11455084c644c03a26eeecfcfd2cb7feab6b9d"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -11381,5 +11450,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "c3d011aff42e9861c871071bb052f6242853a87ee04567ebe40e4f7481bb4517"
+  "graphSha256": "f9e5f6107b816834e14d52da0db4c8c4c4416a2667f658cfe34f4df49b63285c"
 };
