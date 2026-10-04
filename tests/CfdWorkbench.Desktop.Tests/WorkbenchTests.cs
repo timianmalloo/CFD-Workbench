@@ -386,15 +386,17 @@ Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
 AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
-// Longest first, so the slots never wait on a long suite started last. The five longest suites (SUITE-TIME under load
-// 6-7, 2026-10-03: properties-view 46-62 s, status-strip 42-55 s, views 36-38 s, plan-canvas 29/21 s, shell-window
-// 26/27 s) run as two interleaved parts each; SUITE-TIME shows when another needs splitting (test-ci-waste.md §12).
+// Longest first by measured SUITE-TIME, so the slots never wait on a long part started last (docs/plans/test-cost.md
+// L5/L6; 2026-10-04 under load 14-24: status-strip 49.5/30.1 s in 2 parts, properties-view 38.8/34.0, plan-canvas
+// 34.1/29.2, shell-window 30.4/31.0, properties-cells 24.1 unsplit, views 20.4/19.4, section-editor 17.9/16.2,
+// controller-shell 17.5). status-strip runs as 3 parts and properties-cells as 2; SUITE-TIME shows when to re-order.
 if (themeEvidence) Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--shell-window --part=1/2", "--shell-window --part=2/2"));
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
-    "--properties-view --part=1/2", "--properties-view --part=2/2", "--status-strip --part=1/2", "--status-strip --part=2/2",
-    "--shell-window --part=1/2", "--shell-window --part=2/2", "--plan-canvas --part=1/2", "--plan-canvas --part=2/2",
-    "--views --part=1/2", "--views --part=2/2", "--properties-cells", "--controller-shell",
-    "--shell-model", "--section-editor --part=1/2", "--section-editor --part=2/2"));
+    "--status-strip --part=1/3", "--status-strip --part=2/3", "--status-strip --part=3/3",
+    "--properties-view --part=1/2", "--properties-view --part=2/2", "--plan-canvas --part=1/2",
+    "--shell-window --part=2/2", "--shell-window --part=1/2", "--plan-canvas --part=2/2",
+    "--views --part=1/2", "--views --part=2/2", "--controller-shell", "--section-editor --part=1/2",
+    "--section-editor --part=2/2", "--properties-cells --part=1/2", "--properties-cells --part=2/2", "--shell-model"));
 
 sealed class UncertainStore : IProjectStore
 {
