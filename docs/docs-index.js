@@ -1706,7 +1706,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "88d38d56fe7ac7a7830ed0c40b3dff04bd02f69039be426eeaa9edb185e39f4b"
+      "sourceSha256": "2c780e9282ac2ce667659860d1db15f7c5507702ff815b3bba5b197250d8a38c"
     },
     {
       "id": "note-m1-scope-decision",
@@ -7995,6 +7995,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "25d7106d6ce00df21120a2b3d91593da54888f3d6c2c02b53d882807abc59c1b"
     },
     {
+      "id": "proof-a3a-vlm-red-first",
+      "path": "docs/proof/a3a-vlm/red-first.md",
+      "title": "A3a VLM red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-vlm",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "The red run of the A3a VLM track. Planting the O(1) wake mutant (wake length per panel instead of per wing) turned F-6 red. The mutant was removed before the commit.",
+      "tags": [
+        "a3a",
+        "vlm",
+        "analysis",
+        "red-first",
+        "fixtures"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-area3-fixture-arithmetic",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "396c29105d1007a291fffecc22fb17edf3eee3e5b5c58c3f05c2c5708598b889"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -11350,5 +11381,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "98cc3b5a60a4904bf337df1954cd5852a4cea5e0360abc91af680689edce1a39"
+  "graphSha256": "bc2306425851455a9597255f66d441ac5f889bc3c06d4b6401dcdcded5da81c9"
 };
