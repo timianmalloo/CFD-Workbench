@@ -110,6 +110,7 @@ def main():
     run(ROOT / "tools" / "check-pack-hooks.py")
     run(ROOT / "tools" / "check-rollup-links.py")
     run(ROOT / "tools" / "coordination" / "check-process-match.py")
+    run(ROOT / "tools" / "coordination" / "check-test-paths.py")
     run_spiral_check()
     graph = SCRIPTS / "docs-graph.py"
     if (ROOT / "docs" / "docs-index.js").exists():
