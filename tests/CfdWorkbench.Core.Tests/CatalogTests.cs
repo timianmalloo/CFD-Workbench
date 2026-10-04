@@ -120,8 +120,10 @@ internal static class CatalogTests
         Equal(true, minX >= -1e-12);
         Near(1, upper[^1].X);
         Near(1, lower[^1].X);
-        Equal("0.0003", Math.Abs(entry.FrameLeShift).ToString("G4", CultureInfo.InvariantCulture));
-        Equal("0.17", Math.Abs(entry.FrameRotationDegrees).ToString("G4", CultureInfo.InvariantCulture));
+        // Probe table CF NACA 4412c, G4: -0.0003002; -0.174; 1. Design §3 rounds the same
+        // measurement to 3.0e-4 chord, 0.17° and scale 1.0000.
+        Equal("-0.0003002", entry.FrameLeShift.ToString("G4", CultureInfo.InvariantCulture));
+        Equal("-0.174", entry.FrameRotationDegrees.ToString("G4", CultureInfo.InvariantCulture));
         Equal("1", entry.FrameScale.ToString("G4", CultureInfo.InvariantCulture));
     }
 
