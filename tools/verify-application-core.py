@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import atexit
+from concurrent.futures import ThreadPoolExecutor
 import json
 import os
 from pathlib import Path
@@ -12,6 +13,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 
 for _stream in (sys.stdout, sys.stderr):
@@ -36,6 +38,8 @@ STORE_PREFIXES = ("Store_", "NativePrimitive_",
                    "Recent_", "StoreContract_")
 STORE_SUBSET = ",".join(STORE_PREFIXES)
 # Checks that run only under a fault variant, never in a normal run.
+# The published full suite runs as this many concurrent parts (test-cost L3; part model 16.6/14.8/15.1 s of 45 s).
+PARTS = 3
 VARIANT_CHECKS = {"Store_OwnerStrippingUmask_FailsClosedWithoutRepair", "Store_MissingOrUnloadableHelper_FailsClosed"}
 # Anything that could make a check depend on the umask, the environment or the native helper.
 # Reading the example files, and listing a directory to read it, are umask-independent and allowed
@@ -152,7 +156,8 @@ def reap_direct_child(child: subprocess.Popen[str]) -> None:
 
 
 def run(command: list[str], environment: dict[str, str], scratch: Path, child_umask: int = -1,
-        label: str | None = None, cwd: Path | None = None, suite: str | None = None) -> None:
+        label: str | None = None, cwd: Path | None = None, suite: str | None = None,
+        stop: threading.Event | None = None) -> None:
     if os.name == "nt":
         raise RuntimeError("Windows process ownership adapter: Not assessed; no child launched")
     started = time.monotonic()
@@ -182,6 +187,8 @@ def run(command: list[str], environment: dict[str, str], scratch: Path, child_um
                     break
                 if time.monotonic() - started >= 180:
                     raise subprocess.TimeoutExpired(command, 180)
+                if stop is not None and stop.is_set():
+                    raise RuntimeError("Stopped: a concurrent part of this run failed")
                 time.sleep(0.05)
             if live:
                 raise RuntimeError("Build exited with live owned descendants")
@@ -258,6 +265,42 @@ def main() -> None:
             suite="full" if only is None else f"subset CFD_TEST_ONLY={only}")
         return passes(scratch, label)
 
+    def full_in_parts(dll: Path, label: str, cwd: Path | None, count: int = PARTS) -> set[str]:
+        """The full suite at 0022 as `count` concurrent `--part=k/n` processes (test-cost L3). The parts run each
+        check once only if every part printed one `PARTITION k/n of N checks` line, k covers 1..n, N is the same,
+        and no check passed in two parts; otherwise a check could drop out silently, so the gate fails."""
+        environment["CFD_TEST_UMASK"] = "0022"
+        environment.pop("CFD_TEST_ONLY", None)
+        labels = [f"{label}-part{k}of{count}" for k in range(1, count + 1)]
+        stop, errors = threading.Event(), []
+        with ThreadPoolExecutor(count) as pool:
+            futures = [pool.submit(run, ["dotnet", str(dll), f"--part={k}/{count}"], dict(environment), scratch, 0o22,
+                                   labels[k - 1], cwd, f"full part {k}/{count}", stop) for k in range(1, count + 1)]
+            for future in futures:
+                try:
+                    future.result()
+                except BaseException as error:  # a red part (SystemExit) or a signal: stop the siblings, keep the first
+                    stop.set()
+                    errors.append(error)
+        if errors:
+            raise errors[0]
+        union: set[str] = set()
+        passed, registered, reports = 0, set(), []
+        for k, part_label in enumerate(labels, 1):
+            log = (scratch / "receipts" / f"{part_label}.log").read_text(encoding="utf-8").splitlines()
+            lines = [line for line in log if line.startswith("PARTITION ")]
+            reports += lines
+            match = re.fullmatch(r"PARTITION (\d+)/(\d+) of (\d+) checks", lines[0]) if len(lines) == 1 else None
+            registered.add(match[3] if match and (int(match[1]), int(match[2])) == (k, count) else f"bad part {k}")
+            passed += sum(1 for line in log if line.startswith("PASS "))
+            union |= passes(scratch, part_label)
+        if len(registered) != 1 or not next(iter(registered)).isdigit() or passed != len(union):
+            raise SystemExit(f"PARTITION: the {count} parts of {label} are incomplete, enumerated different checks, or "
+                             f"ran a check twice: {reports}; {passed} PASS lines, {len(union)} distinct")
+        print(f"PARTITION {label}: {count} parts, {next(iter(registered))} checks registered, "
+              f"{len(union)} passed once each", flush=True)
+        return union
+
     def store_masks(dll: Path, prefix: str, cwd: Path | None = None, full_suite: bool = True) -> None:
         """The store checks under all three masks; with `full_suite`, the whole suite at 0022.
         Every run must pass every store check named in the source, so a check that silently
@@ -265,7 +308,7 @@ def main() -> None:
         subset only (test-cost L1): the full suite runs in Release every join, and
         tools/check-debug-parity.py fails if Debug and Release could run different code."""
         if full_suite:
-            full = tests(dll, 0o22, f"{prefix}-0022", cwd)
+            full = full_in_parts(dll, f"{prefix}-0022", cwd)
             require_passes(f"{prefix}-0022 store checks", store_checks, {name for name in full if name.startswith(STORE_PREFIXES)})
         else:
             require_passes(f"{prefix}-0022", store_checks, tests(dll, 0o22, f"{prefix}-0022", cwd, only=STORE_SUBSET))
