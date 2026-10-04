@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T23:28:44Z",
+  "generated": "2026-10-04T23:31:16Z",
   "audit": [
     {
       "actor": null,
@@ -23928,6 +23928,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T23:27:08Z",
       "duration_seconds": 96.0
+    },
+    {
+      "id": "al-01M44M3SZZ17TR27D62BRZQ691",
+      "shortname": "join-blend-certificate-spike",
+      "datetime": "2026-10-04T23:31:16Z",
+      "session": "f19a2b12",
+      "prompt": "the join of spike/blend-certificate-budget into feature/ui-cad-direction",
+      "summary": "Spike (Opus 5.5, docs/proof only): 52 fixtures, 260 rows. N(s)=max(256,48s) sound (budget never enters the enclosure; bit-identical results). Binding limit is the 1e6 all-query op bound (6N(N+1) rescan term). Options: max-heap (modelled) or bound 4.2M (measured: 16 spans, 2-3 differing stations). New: 4 differing stations never certify today. First join attempt stopped on the load-flaky Desktop check at load 60. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:29:43Z",
+      "duration_seconds": 93.0
     }
   ],
   "changes": [
