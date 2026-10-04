@@ -1098,7 +1098,7 @@ lands with its report (`SectionDraft_ImportStep_ReportsResidualAndProvenance` (S
 `SectionEdits_PairedAnchor_BothSurfacesSameKnotsExact` (SPTF) · `SectionEdits_PairedXMove_BothSurfacesSameAbscissa` (SPTF) ·
 `SectionEdits_PairedAnchorToControl_RefitLocalWithin10Um` (SPTF) · `SectionEdits_PairedRefitSharedProfile_LargestChordSetsLimit` (SPTF) ·
 `SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold` (SPTF) ·
-`SectionEdits_PairedSetTangent_BothSurfacesSameKind` (SPTF) · `SectionEdits_PairedToAnchorWithKind_PartnerRowWritten` (SPTF) · `SectionEdits_PairedToControl_PartnerRowRemoved` (SPTF).
+`SectionEdits_PairedSetTangent_BothSurfacesSameKind` (SPTF) · `SectionEdits_PairedToAnchorWithKind_PartnerRowWritten` (SPTF) · `SectionEdits_PairedToControl_PartnerRowRemoved` (SPTF) · `SectionEdits_PairedAngle_HandlesKeepPairedX_Certifies` (SPTF; F-XPA-1, Ruling 73 DR-XPA-6 a).
 
 **SDR — the section draft in Core** (fixtures are shared-basis until GCRT merges).
 `SectionDraft_Begin_CursorZeroBytesEqualBase` (SDR) · `SectionDraft_StepThenUndoThenRedo_BytesRestoredExactly` (SDR) ·

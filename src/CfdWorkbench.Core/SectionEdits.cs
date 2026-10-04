@@ -344,22 +344,16 @@ internal static class SectionEdits
         }
         if (step.Kind == TangentKind.Angle)
         {
+            // F-XPA-1 (Ruling 73 DR-XPA-6 a): y only, so each handle keeps its paired x on both surfaces.
             double radians = (step.AngleDegrees ?? 0) * PlacementRule.RadiansPerDegree;
             double cos = Math.Cos(radians), sin = Math.Sin(radians);
+            if (Math.Abs(cos) < 1e-9)
+                throw new ContractError("DSL-LOCK", "An angle this steep cannot be set without moving the handles sideways.");
+            double slope = sin / cos;
             bool keepLeft = step.KeepHandleId == ids[index - 1];
             bool keepRight = step.KeepHandleId == ids[index + 1];
-            if (!keepRight)
-            {
-                double distance = Math.Sqrt(Math.Pow(points[index + 1][0] - ax, 2) + Math.Pow(points[index + 1][1] - ay, 2));
-                points[index + 1][0] = ax + cos * distance;
-                points[index + 1][1] = ay + sin * distance;
-            }
-            if (!keepLeft)
-            {
-                double distance = Math.Sqrt(Math.Pow(points[index - 1][0] - ax, 2) + Math.Pow(points[index - 1][1] - ay, 2));
-                points[index - 1][0] = ax - cos * distance;
-                points[index - 1][1] = ay - sin * distance;
-            }
+            if (!keepRight) points[index + 1][1] = ay + slope * (points[index + 1][0] - ax);
+            if (!keepLeft) points[index - 1][1] = ay + slope * (points[index - 1][0] - ax);
         }
     }
 
