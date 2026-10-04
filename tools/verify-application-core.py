@@ -2,6 +2,7 @@
 """Build and exercise the UI-free core with task-local outputs and owned processes."""
 from __future__ import annotations
 
+import atexit
 import json
 import os
 from pathlib import Path
@@ -215,6 +216,8 @@ def main() -> None:
     if os.name == "nt":
         raise SystemExit("Windows gate/runtime: Not assessed; no dotnet process launched")
     scratch = Path(tempfile.mkdtemp(prefix="cfd-application-core-20260923-", dir="/tmp"))
+    # A red run keeps its scratch for debugging; say where, whichever way the run fails.
+    atexit.register(lambda: (scratch / "artifacts").exists() and print(f"SCRATCH kept: {scratch}", flush=True))
     canonical = scratch.resolve(strict=True)
     allowed_parent = Path("/tmp").resolve(strict=True)
     if canonical.parent != allowed_parent:
@@ -255,19 +258,24 @@ def main() -> None:
             suite="full" if only is None else f"subset CFD_TEST_ONLY={only}")
         return passes(scratch, label)
 
-    def store_masks(dll: Path, prefix: str, cwd: Path | None = None) -> None:
-        """Full suite once per build shape; the store checks again under the other two masks.
+    def store_masks(dll: Path, prefix: str, cwd: Path | None = None, full_suite: bool = True) -> None:
+        """The store checks under all three masks; with `full_suite`, the whole suite at 0022.
         Every run must pass every store check named in the source, so a check that silently
-        stops running at any mask fails the gate."""
-        full = tests(dll, 0o22, f"{prefix}-0022", cwd)
-        require_passes(f"{prefix}-0022 store checks", store_checks, {name for name in full if name.startswith(STORE_PREFIXES)})
+        stops running at any mask fails the gate. The non-published Debug shape runs the store
+        subset only (test-cost L1): the full suite runs in Release every join, and
+        tools/check-debug-parity.py fails if Debug and Release could run different code."""
+        if full_suite:
+            full = tests(dll, 0o22, f"{prefix}-0022", cwd)
+            require_passes(f"{prefix}-0022 store checks", store_checks, {name for name in full if name.startswith(STORE_PREFIXES)})
+        else:
+            require_passes(f"{prefix}-0022", store_checks, tests(dll, 0o22, f"{prefix}-0022", cwd, only=STORE_SUBSET))
         for mask in (0, 0o77):
             label = f"{prefix}-{mask:04o}"
             require_passes(label, store_checks, tests(dll, mask, label, cwd, only=STORE_SUBSET))
 
     store_checks = store_checks_selectable()
     run(["dotnet", "build", "CFDWorkbench.slnx", "--artifacts-path", str(artifacts), "--disable-build-servers", "-p:UseSharedCompilation=false", "--nologo"], environment, scratch)
-    store_masks(artifacts / "bin" / "CfdWorkbench.Core.Tests" / "debug" / "CfdWorkbench.Core.Tests.dll", "tests")
+    store_masks(artifacts / "bin" / "CfdWorkbench.Core.Tests" / "debug" / "CfdWorkbench.Core.Tests.dll", "tests", full_suite=False)
     published = scratch / "published"
     run(["dotnet", "publish", str(ROOT / "tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj"),
          "-c", "Release", "--artifacts-path", str(artifacts), "--output", str(published), "--disable-build-servers",
@@ -296,6 +304,23 @@ def main() -> None:
         environment["CFD_NATIVE_CAPABILITY_PROBE"] = variant
         require_passes(variant, {check},
                        tests(isolated / "CfdWorkbench.Core.Tests.dll", 0o77, variant, isolated, only=check))
+    prune_scratch(scratch)
+
+
+def prune_scratch(scratch: Path) -> None:
+    """Green: delete the build, package cache and published copies (about 1.6 GB a run), keep receipts/ (the
+    step logs and durations). Red never reaches here, so a failed run keeps everything (test-cost F-1)."""
+    removed = 0
+    for item in scratch.iterdir():
+        if item.name == "receipts":
+            continue
+        if item.is_dir() and not item.is_symlink():
+            removed += sum(path.lstat().st_size for path in item.rglob("*") if path.is_file())
+            shutil.rmtree(item)
+        else:
+            removed += item.lstat().st_size
+            item.unlink()
+    print(f"SCRATCH green: removed {removed / 1e9:.2f} GB, kept {scratch / 'receipts'}", flush=True)
 
 
 if __name__ == "__main__":
