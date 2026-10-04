@@ -1,3 +1,6 @@
+using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
+
 namespace CfdWorkbench.Core;
 
 public sealed record SectionFacts(
@@ -40,7 +43,19 @@ public static class Sections
         return Project(curve, side == SurfaceSide.Upper ? "upper" : "lower", profile.Closure);
     }
 
+    // Facts parses the source and runs Placement.Frame (~33 ms a call under load), and the panes ask for one draft's facts
+    // on every refresh. The memo is keyed by the array instance, so the next step's bytes (a new array) always miss.
+    // assume: no caller writes into an array after passing it here; the session hands out copies (SectionView, Snapshot).
+    // If false, edited bytes would show the old facts; Sections_Facts_MemoInvalidatedByNewBytes pins the new-array path.
+    private static readonly ConditionalWeakTable<byte[], ConcurrentDictionary<int, SectionFacts>> FactsMemo = new();
+
     public static SectionFacts Facts(byte[] source, int assignment)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        return FactsMemo.GetValue(source, static _ => new()).GetOrAdd(assignment, static (index, bytes) => ComputeFacts(bytes, index), source);
+    }
+
+    private static SectionFacts ComputeFacts(byte[] source, int assignment)
     {
         var definition = Require(source);
         var profile = definition.Profiles[definition.Assignments[assignment].Profile];
