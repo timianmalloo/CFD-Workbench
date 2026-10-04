@@ -31,6 +31,7 @@ internal static class LatticeFixtureTests
         Check("F1_FlatPlate_RichardsonClAlphaTo2Pi", F1);
         Check("F3_SymmetricSection_ZeroLiftOddInAlpha", F3);
         Check("F4_MirroredWing_NoSideForceRollYaw", F4);
+        Check("Vlm_PivotingSolve_ResidualAfterOneSolve", PivotingSolve);
         Check("F7_LinearWashout_TipAlphaEffBelowRoot", F7);
         Check("F16_BertinSmithSwept_ClAlpha3p443", F16);
         Check("Vlm_ClosingTip_FiniteAndListed", ClosingTip);
@@ -172,6 +173,51 @@ internal static class LatticeFixtureTests
         LatticeSolution flipped = Rectangular(half, chord, 8, 2, 5, 0, (y, f, c) => (y < 0 ? -1 : 1) * TentCamber(y, f, c));
         if (Symmetric(flipped, Trefftz.WindAxes(flipped.Forces, 5).Lift, 2 * half))
             throw new InvalidOperationException("wrong-sign mirror stayed symmetric");
+    }
+
+    // F-4 defect (review 2026-10-04): the factor swapped whole rows, stored multipliers included, while the forward
+    // substitution applies each interchange in step order. That pairing is right only for a trailing-column swap.
+    private static void PivotingSolve()
+    {
+        const int n = 12;
+        var a = new double[n * n];
+        var b = new double[n];
+        // A fixed linear congruential sequence (glibc constants) in [-1, 1): full rank, platform independent.
+        uint state = 2026;
+        double Next() { state = state * 1103515245 + 12345; return (state >> 1) / (double)(1u << 30) - 1; }
+        for (int i = 0; i < n * n; i++) a[i] = Next();
+        for (int i = 0; i < n; i++) b[i] = Next();
+        VortexLattice.DenseSolution solved = VortexLattice.SolveDense(a, b, n, LatticePlant.None, default);
+        if (solved.Interchanges < 2) throw new InvalidOperationException("the matrix pivots " + solved.Interchanges + " times");
+        if (!(solved.ResidualInf <= 1e-12))
+            throw new InvalidOperationException("residual after one solve " + Num(solved.ResidualInf));
+        // κ₁ = ‖A‖₁ ‖A⁻¹‖₁ exactly, column by column; the ones-vector estimate is a lower bound of it.
+        double inverse = 0;
+        for (int j = 0; j < n; j++)
+        {
+            var e = new double[n];
+            e[j] = 1;
+            inverse = Math.Max(inverse, VortexLattice.SolveDense(a, e, n, LatticePlant.None, default).X.Sum(Math.Abs));
+        }
+        double norm = 0;
+        for (int j = 0; j < n; j++)
+        {
+            double column = 0;
+            for (int i = 0; i < n; i++) column += Math.Abs(a[i * n + j]);
+            norm = Math.Max(norm, column);
+        }
+        double exact = norm * inverse;
+        if (!(solved.Kappa1 <= exact * (1 + 1e-9) && solved.Kappa1 >= 1))
+            throw new InvalidOperationException("κ₁ estimate " + Num(solved.Kappa1) + " vs exact " + Num(exact));
+        try
+        {
+            VortexLattice.SolveDense(a, b, n, LatticePlant.PivotWholeRow, default);
+            throw new InvalidOperationException("whole-row swap solved without a residual failure");
+        }
+        catch (LatticeFailedException failure)
+        {
+            Equal("ANA-SOLVE-RESIDUAL", failure.Code, "whole-row swap");
+        }
     }
 
     private static void F7()

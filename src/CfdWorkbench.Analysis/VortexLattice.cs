@@ -40,7 +40,8 @@ internal enum LatticePlant
     InducedFromControlPoint,
     NearFieldFreestreamOnly,
     NonFiniteAsZero,
-    BoundUnswept
+    BoundUnswept,
+    PivotWholeRow
 }
 
 /// <summary>
@@ -171,28 +172,10 @@ public static class VortexLattice
             rhs[i] = -(vx * hi.Normal.X + vz * hi.Normal.Z);
         }
 
-        double norm = OneNorm(matrix, n);
-        var factors = (double[])matrix.Clone();
-        var pivot = new int[n];
-        try { Factor(factors, pivot, n, plant, cancellation); }
-        catch (LatticeFailedException) { throw; }
-
-        var gamma = (double[])rhs.Clone();
-        Substitute(factors, pivot, gamma, n);
-        // One refinement leaves a residual of 0.068 on the cambered F-4 matrix (0.52 before it). Pass 4 reaches roundoff.
-        double rhsScale = 0;
-        for (int i = 0; i < n; i++) rhsScale = Math.Max(rhsScale, Math.Abs(rhs[i]));
-        double residualFloor = 1e-12 * Math.Max(1, rhsScale);
-        for (int pass = 0; pass < 5 && Residual(matrix, gamma, rhs, n) > residualFloor; pass++)
-            Refine(matrix, factors, pivot, rhs, gamma, n);
-        for (int i = 0; i < n; i++)
-        {
-            if (double.IsFinite(gamma[i])) continue;
-            if (plant == LatticePlant.NonFiniteAsZero) { gamma[i] = 0; continue; }
-            throw new LatticeFailedException("ANA-NONFINITE", "A circulation is not finite.");
-        }
-        double residual = Residual(matrix, gamma, rhs, n);
-        double kappa = Condition(factors, pivot, norm, n);
+        DenseSolution dense = SolveDense(matrix, rhs, n, plant, cancellation);
+        double[] gamma = dense.X;
+        double residual = dense.ResidualInf;
+        double kappa = dense.Kappa1;
 
         var stripGamma = new double[kept.Count];
         for (int j = 0; j < n; j++) stripGamma[horses[j].Strip] += gamma[j];
@@ -348,6 +331,41 @@ public static class VortexLattice
         return new LatticeFailedException(code, reason);
     }
 
+    /// <summary>
+    /// One dense solve of A x = b: LU with partial pivoting, one forward and one back substitution, no refinement.
+    /// A non-finite x fails closed (<c>ANA-NONFINITE</c>). A normwise backward error
+    /// ‖b − A x‖∞ / (‖A‖∞ ‖x‖∞ + ‖b‖∞) above <see cref="Settings.SolveBackwardErrorTolerance"/> fails closed
+    /// (<c>ANA-SOLVE-RESIDUAL</c>): the run records Failed with the reason, never a number.
+    /// </summary>
+    internal static DenseSolution SolveDense(double[] matrix, double[] rhs, int n, LatticePlant plant, CancellationToken cancellation)
+    {
+        var factors = (double[])matrix.Clone();
+        var pivot = new int[n];
+        Factor(factors, pivot, n, plant, cancellation);
+        var x = (double[])rhs.Clone();
+        Substitute(factors, pivot, x, n);
+        for (int i = 0; i < n; i++)
+        {
+            if (double.IsFinite(x[i])) continue;
+            if (plant == LatticePlant.NonFiniteAsZero) { x[i] = 0; continue; }
+            throw new LatticeFailedException("ANA-NONFINITE", "A circulation is not finite.");
+        }
+        double residual = Residual(matrix, x, rhs, n);
+        double scale = InfNorm(matrix, n) * MaxAbs(x) + MaxAbs(rhs);
+        double backward = scale > 0 ? residual / scale : residual;
+        if (!(backward <= Settings.SolveBackwardErrorTolerance))
+            throw new LatticeFailedException("ANA-SOLVE-RESIDUAL",
+                "The solve residual ‖AΓ − b‖∞ " + residual.ToString("G3", System.Globalization.CultureInfo.InvariantCulture)
+                + " is a backward error of " + backward.ToString("G3", System.Globalization.CultureInfo.InvariantCulture)
+                + ", above the " + Settings.SolveBackwardErrorTolerance.ToString("G3", System.Globalization.CultureInfo.InvariantCulture)
+                + " tolerance.");
+        int interchanges = 0;
+        for (int k = 0; k < n; k++) if (pivot[k] != k) interchanges++;
+        return new DenseSolution(x, residual, backward, Condition(factors, pivot, OneNorm(matrix, n), n), interchanges);
+    }
+
+    internal sealed record DenseSolution(double[] X, double ResidualInf, double BackwardError, double Kappa1, int Interchanges);
+
     private static void Factor(double[] a, int[] pivot, int n, LatticePlant plant, CancellationToken cancellation)
     {
         for (int k = 0; k < n; k++)
@@ -361,7 +379,9 @@ public static class VortexLattice
                 if (v > max) { max = v; row = i; }
             }
             pivot[k] = row;
-            if (row != k) Swap(a, n, k, row);
+            // LINPACK order: interchange columns k..n-1 only. The multipliers already stored left of k stay in their
+            // rows, because the forward substitution applies each interchange at its own step.
+            if (row != k) Swap(a, n, k, row, plant == LatticePlant.PivotWholeRow ? 0 : k);
             double diag = a[k * n + k];
             if (!double.IsFinite(diag))
             {
@@ -400,20 +420,6 @@ public static class VortexLattice
         }
     }
 
-    private static void Refine(double[] original, double[] factors, int[] pivot, double[] rhs, double[] gamma, int n)
-    {
-        var r = new double[n];
-        for (int i = 0; i < n; i++)
-        {
-            double sum = rhs[i];
-            int row = i * n;
-            for (int j = 0; j < n; j++) sum -= original[row + j] * gamma[j];
-            r[i] = sum;
-        }
-        Substitute(factors, pivot, r, n);
-        for (int i = 0; i < n; i++) gamma[i] += r[i];
-    }
-
     private static double Residual(double[] original, double[] gamma, double[] rhs, int n)
     {
         double residual = 0;
@@ -450,9 +456,28 @@ public static class VortexLattice
         return norm;
     }
 
-    private static void Swap(double[] a, int n, int i, int j)
+    private static double InfNorm(double[] a, int n)
     {
-        for (int k = 0; k < n; k++) (a[i * n + k], a[j * n + k]) = (a[j * n + k], a[i * n + k]);
+        double norm = 0;
+        for (int i = 0; i < n; i++)
+        {
+            double sum = 0;
+            for (int j = 0; j < n; j++) sum += Math.Abs(a[i * n + j]);
+            if (sum > norm) norm = sum;
+        }
+        return norm;
+    }
+
+    private static double MaxAbs(double[] v)
+    {
+        double max = 0;
+        foreach (double value in v) max = Math.Max(max, Math.Abs(value));
+        return max;
+    }
+
+    private static void Swap(double[] a, int n, int i, int j, int from)
+    {
+        for (int k = from; k < n; k++) (a[i * n + k], a[j * n + k]) = (a[j * n + k], a[i * n + k]);
     }
 
     // Three-point Gauss on the bound segment. The midpoint alone sits 1.28 % under Trefftz on the F-5 lattice;
