@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T15:59:45Z",
+  "generated": "2026-10-04T16:13:19Z",
   "audit": [
     {
       "actor": null,
@@ -23197,6 +23197,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T15:58:49Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M43V1WNRGS6DD0ES70MW7NAE",
+      "shortname": "join-security-right-size",
+      "datetime": "2026-10-04T16:13:19Z",
+      "session": "f19a2b12",
+      "prompt": "the join of design/security-right-size into feature/ui-cad-direction",
+      "summary": "Right-size (Opus 5.5; security PWC, simplifier block cleared): 18 requirements -> 4 keep / 8 simplify / 6 drop; minimal set M1..M8 (app-owned controlDict, live Disallowing banner, argv only, only app-written cases, own run dir + clean env, resource caps, install hash); probes: keep S-1 + S-2 serial as the pin-change check. Operator's probe receipts 20261004T155708Z committed. ADR-0012 D2 and spec A8.5/A5.10 edits proposed, not applied. recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T16:12:22Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
