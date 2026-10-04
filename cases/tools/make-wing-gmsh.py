@@ -91,6 +91,18 @@ te_curves = gmsh.model.getEntitiesInBoundingBox(chord - 1e-7, -r_te - 1e-7, -1e-
 for p in gmsh.model.getEntities(0):  # point sizes by chord station
     x, y, z = gmsh.model.getValue(0, p[1], [])
     gmsh.model.mesh.setSize([p], lc(min(max(x / chord, 0.0), 1.0)))
+tes = s.get("te_strip")  # round 3 knob K1' (R3-M1b): structured TE arc strip, anisotropic by the fan ratio
+if tes:
+    strips = gmsh.model.getEntitiesInBoundingBox(chord - 1e-7, -r_te - 1e-7, -1e-7, chord + r_te + 1e-7, r_te + 1e-7,
+                                                 half + 1e-7, dim=2)
+    n_arc, n_span = int(tes["arc_segments_per_quarter"]), int(round(half / float(tes["span_size_m"])))
+    for st in strips:
+        for c in gmsh.model.getBoundary([st], combined=False, oriented=False):
+            xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.getBoundingBox(1, abs(c[1]))
+            gmsh.model.mesh.setTransfiniteCurve(abs(c[1]), (n_span if zmax - zmin > 0.5 * half else n_arc) + 1)
+        gmsh.model.mesh.setTransfiniteSurface(st[1], arrangement=tes.get("arrangement", "Left"))
+    print(f"te_strip: surfaces={len(strips)} arc_segments_per_quarter={n_arc} span_segments={n_span} "
+          f"(arc cell {math.pi * r_te / (2 * n_arc):.3e} m x span cell {half / n_span:.3e} m)", flush=True)
 
 # boundary layer along the surface-mesh normals (built-in kernel, discrete entities)
 heights, acc = [], 0.0

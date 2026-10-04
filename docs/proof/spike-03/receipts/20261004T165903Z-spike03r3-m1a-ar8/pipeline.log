@@ -1,0 +1,65 @@
+of-run: join lock present; waiting (0s)
+of-run: join lock present; waiting (30s)
+of-run: join lock present; waiting (60s)
+of-run: join lock present; waiting (90s)
+of-run: join lock present; waiting (120s)
+status=0 wall_s=35 peak_rss_bytes=7630127104 banner=Disallowing log=runs/20261004T165903Z-spike03r3-m1a-ar8/log.gmshToFoam
+patches: ['wing', 'symmetry', 'farfield', 'defaultFaces']
+launcher-record: updated files=22
+of-run: join lock present; waiting (0s)
+of-run: join lock present; waiting (30s)
+of-run: join lock present; waiting (60s)
+of-run: join lock present; waiting (90s)
+of-run: join lock present; waiting (120s)
+of-run: join lock present; waiting (150s)
+of-run: join lock present; waiting (180s)
+of-run: join lock present; waiting (210s)
+of-run: join lock present; waiting (240s)
+of-run: join lock present; waiting (270s)
+of-run: join lock present; waiting (300s)
+of-run: join lock present; waiting (330s)
+of-run: join lock present; waiting (360s)
+of-run: join lock present; waiting (390s)
+of-run: join lock present; waiting (420s)
+of-run: join lock present; waiting (450s)
+of-run: join lock present; waiting (480s)
+of-run: join lock present; waiting (510s)
+of-run: join lock present; waiting (540s)
+of-run: join lock present; waiting (570s)
+of-run: join lock present; waiting (600s)
+of-run: join lock present; waiting (630s)
+of-run: join lock present; waiting (660s)
+of-run: join lock present; waiting (690s)
+of-run: join lock present; waiting (720s)
+of-run: join lock present; waiting (750s)
+of-run: join lock present; waiting (780s)
+of-run: join lock present; waiting (810s)
+of-run: join lock present; waiting (840s)
+of-run: join lock present; waiting (870s)
+of-run: join lock present; waiting (900s)
+of-run: load 13.03 > 10; waiting (930s)
+status=0 wall_s=65 peak_rss_bytes=8677113856 banner=Disallowing log=runs/20261004T165903Z-spike03r3-m1a-ar8/log.checkMesh
+status=0 wall_s=24 peak_rss_bytes=2530476032 banner=Disallowing log=runs/20261004T165903Z-spike03r3-m1a-ar8/log.postProcess-C
+GATE (DR-F3-1 A) FAIL: non_orthogonality_le_70=FAIL skewness_le_4_internal_20_boundary=ok volumes_positive=FAIL face_pyramids_ok=FAIL face_weight_ge_0.05=FAIL checkMesh_validity_set_without_determinant=FAIL layers_20_on_ge95pct_and_ge10_on_100pct=FAIL
+  max_non_orthogonality=106.716117254 faces_gt_70=70183 max_skewness=3.32840829652 min_face_weight=0.00198715338734 min_volume=None min_determinant=0.0 (reported, not gated)
+  checkMesh *** lines: ['***Unused points found in the mesh, number unused by faces: 1 number unused by cells: 1', '***Open cells found, max cell openness: 0.998847694392, number of open cells 21', '***Zero or negative cell volume detected.  Minimum negative volume: -1.16301132606e-12, Number of negative volume cells: 4', '***Number of non-orthogonality errors: 12.', '***Error in face pyramids: 34 faces are incorrectly oriented.', '***Error in face tets: 89 faces with low quality or negative volume decomposition tets.', '***Cells with small determinant (< 0.001) found, number of cells: 1154735', '***Concave cells (using face planes) found, number of cells: 22', '***Faces with small interpolation weight (< 0.05) found, number of faces: 12254', '***Faces with small volume ratio (< 0.01) found, number of faces: 388']
+  layers: wing_faces=349104 layer_prisms=6981960 expected=6982080 (100.00 %); te_arc_root_segments=8; stack=1.4935e-03 m
+cells=8084718 by type: 0=4 prism=6981956 pyr=120 tet=1102638
+faces > 70 deg (nonOrthoFaces): n=70195 primary main=46 te=69503 tip=118 tip_pole=528 | flags tip_pole=528 te=69892 root=291 interface=9 tip=437 | wall distance min/median/max = 2.72e-07/1.35e-03/3.08e-03 m (stack 1.49e-03)
+    main: cell pairs (5 prism, 7 tet) 5-5:39 7-7:7; x/c -0.0166..0.9817, z 0.1886..0.4800 m
+    te: cell pairs (5 prism, 7 tet) 5-5:39095 5-6:25 5-7:7 6-6:54 6-7:2 7-7:30320; x/c 0.9955..1.0199, z 0.0001..0.4819 m
+    tip: cell pairs (5 prism, 7 tet) 5-5:112 7-7:6; x/c 0.9442..0.9891, z 0.4801..0.4819 m
+    tip_pole: cell pairs (5 prism, 7 tet) 0-5:6 0-7:2 5-5:448 5-7:2 7-7:70; x/c 0.9867..1.0162, z 0.4783..0.4815 m
+low-weight faces (< 0.05): n=12254 primary te=12216 tip_pole=38 | flags tip_pole=38 te=12254 root=53 interface=0 tip=6 | wall distance min/median/max = 7.68e-04/1.56e-03/2.17e-03 m (stack 1.49e-03)
+    te: x 0.12010..0.12233 y -0.00218..0.00221 z 0.00030..0.48048
+    tip_pole: x 0.11987..0.12184 y -0.00171..0.00172 z 0.47862..0.48175
+two-internal-face cells: n=268 primary main=120 tip=136 tip_pole=12 | flags tip_pole=12 te=12 root=0 interface=0 tip=148 | wall distance min/median/max = 3.87e-04/1.72e+00/2.90e+00 m (stack 1.49e-03)
+    main: types 7:120
+    tip: types 7:136
+    tip_pole: types 0:1 5:11
+wing faces=349098; faces whose owner is not a prism (no layer column): 0
+cellDeterminant < 0.001, layer (prism): 1134992 of 6981956 (16.26 %), min 0.000e+00, median 1.325e-01
+cellDeterminant < 0.001, core (tet): 19708 of 1102638 (1.79 %), min 0.000e+00, median 1.336e-01
+cellDeterminant < 0.001, pyramid: 34 of 120 (28.33 %), min 1.348e-05, median 8.816e-03
+core (tet) cells with determinant < 0.001: n=19708 primary main=122 te=19407 tip=141 tip_pole=38 | flags tip_pole=38 te=19445 root=72 interface=0 tip=158 | wall distance min/median/max = 1.43e-03/1.70e-03/2.90e+00 m (stack 1.49e-03)
+run=runs/20261004T165903Z-spike03r3-m1a-ar8
