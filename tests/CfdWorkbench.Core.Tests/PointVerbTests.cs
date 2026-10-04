@@ -568,7 +568,7 @@ internal static class PointVerbTests
         });
         Check("Reopen_OldBuildNewReceiptKind_RefusedFileUnchanged", () =>
         {
-            string text = File.ReadAllText("docs/proof/planform-verbs-old-build/receipt.md");
+            string text = File.ReadAllText(Path.Combine(PlacementTests.RepoRoot(), "docs", "proof", "planform-verbs-old-build", "receipt.md"));
             True(text.Contains("PASS Reopen_OldBuildNewReceiptKind_RefusedFileUnchanged", StringComparison.Ordinal), "receipt");
             True(text.Contains("DSL-CURVE", StringComparison.Ordinal) && text.Contains("point-add", StringComparison.Ordinal), text);
             True(text.Contains("point-remove", StringComparison.Ordinal) && text.Contains("curve-rebuild", StringComparison.Ordinal), text);
