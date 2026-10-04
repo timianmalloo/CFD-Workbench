@@ -35,12 +35,14 @@ STORE_TEST_FILES = (
 STORE_PREFIXES = ("Store_", "NativePrimitive_",
                    "LayoutParse_", "LayoutCodec_", "RecentParse_",
                    "LayoutLoad_", "Rollback_", "PrefStore_", "PrefsSave_", "LayoutSave_",
-                   "Recent_", "StoreContract_")
+                   "Recent_", "StoreContract_", "Backup_")
 STORE_SUBSET = ",".join(STORE_PREFIXES)
 # Checks that run only under a fault variant, never in a normal run.
 # The published full suite runs as this many concurrent parts (test-cost L3; part model 16.6/14.8/15.1 s of 45 s).
 PARTS = 3
 VARIANT_CHECKS = {"Store_OwnerStrippingUmask_FailsClosedWithoutRepair", "Store_MissingOrUnloadableHelper_FailsClosed"}
+# Store checks registered only in the Core `--readiness` tier (design area3-analysis.md §18.6): never in a normal run.
+READINESS_CHECKS = {"Store_HundredThousandStrips_RefusedDocSize"}
 # Anything that could make a check depend on the umask, the environment or the native helper.
 # Reading the example files, and listing a directory to read it, are umask-independent and allowed
 # (a umask only shapes the modes of files a process creates). The harness entry point reads
@@ -70,7 +72,7 @@ def store_checks_selectable() -> set[str]:
     if leaks:
         raise SystemExit(f"STORE-SUBSET: umask/native-sensitive code outside {STORE_TEST_FILES} would run at one "
                          f"umask only; move it into the store checks or widen the subset: {leaks}")
-    return set(names) - VARIANT_CHECKS
+    return set(names) - VARIANT_CHECKS - READINESS_CHECKS
 
 
 def passes(scratch: Path, label: str) -> set[str]:

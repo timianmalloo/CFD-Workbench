@@ -34,6 +34,7 @@ internal static class IdentityTests
             PlacementTests.RunReadiness();
             ProofBudgetTests.RunReadiness();
             DisplayProfileTests.RunReadiness();
+            ProjectStoreTests.RunReadiness();
             SectionEditsTests.RunReadiness();
             SectionDraftTests.RunReadiness();
             Console.WriteLine($"RESULT failures={failures}");
