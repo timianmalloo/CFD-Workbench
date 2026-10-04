@@ -19,7 +19,8 @@ summary: >-
   L6 test of the one scheme that acts on L6 only (the limited laplacian), then one numerics cycle on L6/L5/L4 with
   the iteration band held at 1 % of the grid change; L3 (4-10 h) only by ruling. Core budget about 4.5 h wall plus
   1.5 h authoring.
-review-suggested: []
+review-suggested:
+  - { by: adr-0012-openfoam-backend-macos, on: 2026-10-04, reason: "ADR-0012 D2 right-sized and DR-SEC-1 A recorded (Ruling 68)" }
 ---
 
 # Fluids round 3 — plan (documents only)
@@ -36,7 +37,7 @@ measurements, stop rules and a budget, and each open decision has a recommendati
 - any run;
 - snappy (it reached 20 layers on 0 % of faces, and round 3 does not revisit it);
 - Windows, v2606 and Docker (ADR-0012);
-- the S-1..S-8 probe run (the operator's).
+- the security probes (S-1..S-8 ran 2026-10-04; Ruling 68 keeps only S-1 and S-2 serial, as the pin-change check).
 
 **Tier:** T1. **Lead:** CFD numerical verification. **Reviewer:** the hydrofoil hydrodynamicist.
 
@@ -125,7 +126,7 @@ Verified facts; **Estimate** = a number from a stated model; **Flagged** = recal
 `assume:` v2512 `checkMesh` accepts `-writeSets vtk` and `-writeFields '(nonOrthoAngle cellDeterminant)'`.
 *Check:* `checkMesh -help` through the launcher, as the first R3-M0 step. *If false:* R3-M0 extends
 `faceset-location.py` to read the binary polyMesh and the `nonOrthoFaces` set. That is about 30 min of authoring, and
-it adds no OpenFOAM app to the launcher allow-list.
+it adds no OpenFOAM app to the harness's app list.
 
 ### 2.4 Run list M (stop rule: two variants; the first to pass the gate advances; none → stop and report)
 
@@ -234,10 +235,10 @@ Clause 5 (U_I ≤ 0.01 |ε| for each pair, Cl and Cd) is the admission test:
 | Id | Run | Expected wall | Reading, stated before the run |
 |---|---|---|---|
 | R3-G0 | L6, D4 numerics but `laplacian Gauss linear corrected` and `snGrad corrected` (no limiter), A4 | ≤ 5 min (cap 40k × 7.8 ms) | **H1 supported** if \|Cl − 1.051704\| > 2.8e-3 (10 × \|ε21\|) and Cl moves toward the L5/L4 level. **H1 rejected** if the change is < 2.8e-4. **Untestable this way** if A4 fails (unlimited correction on > 70° faces). Then go to G1b |
-| R3-G1a | *(cycle 1 if H1)* L5 and L4 with the same unlimited schemes, restarted from the C-2 and C-3 final fields (copied in at generation, so the launcher record holds them), A4 + §3.3 | ≈ 50–95 min | L5 ≤ 17k × 18.5 ms ≈ 5 min; L4 10k–41k × 90 ms ≈ 15–62 min; extension ≤ 30 min |
+| R3-G1a | *(cycle 1 if H1)* L5 and L4 with the same unlimited schemes, restarted from the C-2 and C-3 final fields (copied in at generation, so the harness's case record holds them), A4 + §3.3 | ≈ 50–95 min | L5 ≤ 17k × 18.5 ms ≈ 5 min; L4 10k–41k × 90 ms ≈ 15–62 min; extension ≤ 30 min |
 | R3-G1b | *(cycle 1 if not H1)* `bounded Gauss limitedLinear 1` for nuTilda at **relaxation 0.7** on L6/L5/L4. Never run: C-1 ran TVD at 0.9. This matches FUN3D's 2nd-order numerics | ≈ 70–90 min | measured rates × round-2 iteration counts (**Estimate**). Worst case at the caps ≈ 2.9 h, so the 25 % overrun stop fires at 113 min |
 | Cycle 2 | the other of G1a/G1b, only if cycle 1 meets A4 but is non-monotone | ≈ 70–95 min | as above |
-| R3-G2 | *(conditional, DR-F3-3)* add L3 for the L5/L4/L3 triplet with the best numerics | 4.1–9.9 h + ≈ 1 h fetch and generation | §3.1 estimate. Initialise from freestream: `mapFields` is not on the launcher allow-list (DR-F3-2) |
+| R3-G2 | *(conditional, DR-F3-3)* add L3 for the L5/L4/L3 triplet with the best numerics | 4.1–9.9 h + ≈ 1 h fetch and generation | §3.1 estimate. Initialise from freestream: `mapFields` is not on the harness's app list (DR-F3-2; the security reason no longer holds, Ruling 68) |
 
 **GCI acceptance (unchanged from round 2).** All three grids are admitted under A4 with clause 5, and 0 < R < 1 on
 Cl and Cd. The result is p and GCI_fine per Celik et al. (Fs 1.25). The TMR comparison stays code-to-code
@@ -252,7 +253,12 @@ but not sufficient (H3).
 
 ## 4. Resources, stop rules and budget
 
-- **Resources:** every OpenFOAM process goes through the launcher (ADR-0012 D2):
+- **Resources:** every OpenFOAM process goes through the spike harness (`cases/tools/of-run.sh`):
+  - *Ruling 68:* ADR-0012 D2 is now the six short product rules; the case record, per-launch lint, checkMesh
+    pre-flight, stop file and the two hashed controlDict sources are no longer product requirements, and the
+    S-1..S-8 gate is dropped. **On this dev machine round 3 still runs through the harness unchanged** (its record,
+    lint, hashed bundle and `Disallowing` banner check) because it is the working tool and costs nothing to keep;
+    the load and `join.lock` waits below stay because they serve this repo's agents, not the product.
   - ≤ 6 ranks, `nice 10`, waits while the 1-minute load is above 10 or `join.lock` exists, one job at a time;
   - peak RSS via `/usr/bin/time -l`;
   - memory ceiling: checkMesh at AR 12 is ≈ 5 GB (**Estimate**). Do not overlap it with a join.
@@ -281,11 +287,11 @@ Round 2 for comparison: the planned core was 4.1 h. The measured blocks were C 8
 | Id | Decision | Recommendation |
 |---|---|---|
 | DR-F3-1 | Amend DR-F2-6 (ADR-0012): on OpenFOAM unstructured meshes, use checkMesh's validity set in place of `cellDeterminant` ≥ 0.001, beside non-orthogonality ≤ 70° and skewness ≤ 4/20, and report the determinant split by layer and core cells | **A**, then revisit a core-only floor after R3-M0 |
-| DR-F3-2 | Launcher allow-list in round 3: no new app (`checkMesh -writeSets/-writeFields` instead of `foamToVTK`; freestream start instead of `mapFields`) | **no additions**. Any addition changes the launcher hash, the probe pins and the security review |
+| DR-F3-2 | Launcher allow-list in round 3: no new app (`checkMesh -writeSets/-writeFields` instead of `foamToVTK`; freestream start instead of `mapFields`) | **no additions** (still the plan). Ruling 68: the security reason (a change to the launcher hash, the probe pins and the review) no longer holds, so Gmsh may join the launcher's app enum if a later round needs it; round 3 adds nothing |
 | DR-F3-3 | The L3 run (4.1–9.9 h, Estimate) if both numerics cycles fail. L2 (16–95 h) is never run on this host | approve **only after** R3-G1 fails, cap 12 h, overnight, no other track running |
 | DR-F3-4 | R3-M4: an AR 8 3-D A4 solve for the y+ gate (2.4–7 h, Estimate) once the AR 8 mesh passes | **yes**, cap 8 h. It is the only route to a SPIKE-03 GO at AR 8 |
 | DR-F3-5 | If R3-M0 puts the bad faces at the tip poles and K2 does not clear them: a pole-free tip variant (K4) as a declared analysis-geometry change under DR-F2-4, with the planform change measured and recorded. Record design and analysis b and S: the round tip already extends the half-span by up to 7.28 mm (+1.5 %). S_ref and b stay at their design values. Label "tip modified for analysis". Results compare only with the same tip | yes, declared and labelled |
-| DR-F3-6 | Run the S-1..S-8 probes before round 3 starts (≈ 5 min, operator; script sha256 `f0e8242c…7a5ce`) | yes. Round 3 adds no app. Its only new options are `-allGeometry -writeSets vtk -writeFields '(nonOrthoAngle cellDeterminant)'`, and both fields are on the lint's `OF_OUTPUT_FIELDS` list. Where these options write is **Inferred** to be inside the case; R3-M0 records the paths written. ADR-0012 D2 stays unverified until the probes run |
+| DR-F3-6 | Run the S-1..S-8 probes before round 3 starts (≈ 5 min, operator; script sha256 `f0e8242c…7a5ce`) | **Done 2026-10-04** (Ruling 68: S-1..S-8 ran; only S-1 and S-2 serial stay, as the pin-change check). Round 3 adds no app. Its only new options are `-allGeometry -writeSets vtk -writeFields '(nonOrthoAngle cellDeterminant)'`, and both fields are on the lint's `OF_OUTPUT_FIELDS` list. Where these options write is **Inferred** to be inside the case; R3-M0 records the paths written. ADR-0012 D2 rule 1 is now Verified (S-1, S-2, S-4) |
 | DR-F3-7 | If no monotone triplet is found within budget: (a) an oscillatory-bound uncertainty, U = ½(S_U − S_L) (ITTC 7.5-03-01-01, **Flagged**: re-open the text before ruling); (b) a least-squares fit over ≥ 4 grids (Eça–Hoekstra, **Flagged**; needs L3); (c) keep the TMR + A4 fixture without its GCI clause | decide after round 3. Default (c) |
 
 ## 6. Reviewer verdicts

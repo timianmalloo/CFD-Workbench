@@ -628,8 +628,14 @@ window.DOCS_INDEX = {
       "owner": "@fluids-f1",
       "phase": "spike — fluids rounds 1 and 2 (Rulings 60, 65), round 3 planned",
       "reviewBy": "2026-11-03",
-      "reviewSuggested": [],
-      "summary": "Pins only what fluids rounds 1 and 2 measured on macOS arm64. Substrate: OpenFOAM ESI v2512, the gerlero native app, by DMG sha256 and build id, launched by argv. Product launcher: allow-listed environment, product HOME plus FOAM_CONTROLDICT from one hashed bundle, case record, token allow-list lint, checkMesh \"Disallowing\" pre-flight; the operator probe set S-1..S-8 is written but not yet run. Convergence: the A4 oracle (it rejected a period-2 cycle and accepted four runs). Numerics: SA-noft2 with first-order nuTilda and relaxation 0.7 (met A4 on TMR only). Compressibility delta measured once (+1.147 % Cl, +0.81 % Cd; U_delta not stated). Open: Windows, Docker digests, v2512 vs v2606, the mesh route, GCI. The DR-F2-6 determinant floor needs an amendment; this ADR files a request (DR-F3-1) and does not decide it.",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized"
+        }
+      ],
+      "summary": "Pins only what fluids rounds 1 and 2 measured on macOS arm64. Substrate: OpenFOAM ESI v2512, the gerlero native app, by DMG sha256 and build id, launched by argv. Product launcher (right-sized, Ruling 68): six short rules for one trusted user on one laptop, the app-owned controlDict turns case code off and a live \"Disallowing\" banner proves it; verified by the 2026-10-04 probes (S-1, S-2, S-4); Run is enabled when the install smoke test shows Disallowing; an existing OpenFOAM install is detected and hash-checked (DR-SEC-1 A). Convergence: the A4 oracle (it rejected a period-2 cycle and accepted four runs). Numerics: SA-noft2 with first-order nuTilda and relaxation 0.7 (met A4 on TMR only). Compressibility delta measured once (+1.147 % Cl, +0.81 % Cd; U_delta not stated). Open: Windows, Docker digests, v2512 vs v2606, the mesh route, GCI. The DR-F2-6 determinant floor needs an amendment; this ADR files a request (DR-F3-1) and does not decide it.",
       "tags": [
         "adr",
         "backend",
@@ -678,7 +684,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0cc50e90515757c42167057bc1a5f72cec7ef31d2dabafa4c9d32e80a523f68b"
+      "sourceSha256": "fd0143551ea6ffa5f28284037ee2f5b522bf49e5d21c2038a9181ff53f993fe3"
     },
     {
       "id": "adr-application-project-contract",
@@ -1796,12 +1802,23 @@ window.DOCS_INDEX = {
       "path": "docs/notes/solver-security-right-size.md",
       "title": "Solver security, right-sized: one trusted user on one laptop, cases the app writes",
       "type": "decision-note",
-      "status": "proposed",
+      "status": "applied (Ruling 68)",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2026-11-04",
-      "reviewSuggested": [],
-      "summary": "Ruling 67 asked whether the solver security requirements are over-complicated. They are. The threat model is one trusted user on his own laptop, running cases the app writes from typed templates. Against that model, 4 of the 18 current requirements stay as they are, 8 get simpler and 6 are dropped. The minimal set (M1-M8) is: the app writes its own controlDict with allowSystemOperations 0; it stops any launch whose master-rank banner is not Disallowing; argv only, built from typed values; it runs only cases whose every file it emitted (one CI emitter test, with the existing lint as oracle); each run gets an exclusive app-owned run directory; a clean child environment; resource caps with a kill fallback; the install, new or existing, is checked against the pinned hashes. Today's probe run (3 PASS / 5 FAIL) verifies the one control that matters. The 5 FAILs are 3 probe over-expectations, 1 probe defect (S-7 never reached the environment) and 1 lint gap. None is a failure of the refusal. Security review: PASS WITH CONDITIONS; simplifier: soft BLOCK cleared. All conditions are applied. The ADR and spec edits are proposals; they are not applied. DR-SEC-1 (detect an existing install or always install) is open.",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized"
+        },
+        {
+          "by": "adr-0012-openfoam-backend-macos",
+          "on": "2026-10-04",
+          "reason": "ADR-0012 D2 right-sized and DR-SEC-1 A recorded (Ruling 68)"
+        }
+      ],
+      "summary": "Ruling 67 asked whether the solver security requirements are over-complicated. They are. The threat model is one trusted user on his own laptop, running cases the app writes from typed templates. Against that model, 4 of the 18 current requirements stay as they are, 8 get simpler and 6 are dropped. The minimal set (M1-M8) is: the app writes its own controlDict with allowSystemOperations 0; it stops any launch whose master-rank banner is not Disallowing; argv only, built from typed values; it runs only cases whose every file it emitted (one CI emitter test, with the existing lint as oracle); each run gets an exclusive app-owned run directory; a clean child environment; resource caps with a kill fallback; the install, new or existing, is checked against the pinned hashes. Today's probe run (3 PASS / 5 FAIL) verifies the one control that matters. The 5 FAILs are 3 probe over-expectations, 1 probe defect (S-7 never reached the environment) and 1 lint gap. None is a failure of the refusal. Security review: PASS WITH CONDITIONS; simplifier: soft BLOCK cleared. All conditions are applied. Applied by Ruling 68 (2026-10-04): ADR-0012 D2, spec 1.7.1 A8.5 and A5.10, and the round-3 plan. DR-SEC-1 was ruled A (detect an existing install).",
       "tags": [
         "security",
         "openfoam",
@@ -1835,7 +1852,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9430c1b8fda2fa739c2c68cf48034262733f3458f725ebe6d70d7f3e610be5ea"
+      "sourceSha256": "36f4140ad8227f371e8514b58ac7b42c846b73aab8b3ab334063ce1f8961a144"
     },
     {
       "id": "note-sweep-replay-semantics",
@@ -4600,7 +4617,13 @@ window.DOCS_INDEX = {
       "owner": "@fluids-f1",
       "phase": "",
       "reviewBy": "2026-11-03",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "adr-0012-openfoam-backend-macos",
+          "on": "2026-10-04",
+          "reason": "ADR-0012 D2 right-sized and DR-SEC-1 A recorded (Ruling 68)"
+        }
+      ],
       "summary": "Round 3 plan, documents only, for the two round-2 NO-GOs. Mesh: locate the 811 faces above 70 degrees on the Gmsh AR 8 mesh with checkMesh sets (no new app), then two unattended variants aimed at the measured cluster (TE arc resolution, tip poles, the prism-top/tet size jump), the first height cut to 6.0 um, then AR 5 and 12. GCI: a cheap L6 test of the one scheme that acts on L6 only (the limited laplacian), then one numerics cycle on L6/L5/L4 with the iteration band held at 1 % of the grid change; L3 (4-10 h) only by ruling. Core budget about 4.5 h wall plus 1.5 h authoring.",
       "tags": [
         "plan",
@@ -4636,7 +4659,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f6698b2297c80dfe2eca34d2309e11670c0d6a57d52f3075931c5bfb0d2bb5aa"
+      "sourceSha256": "433b18582db86fd28aecda3d727dd82b63e744c9aee4fd0c633e564b6dcc0ffc"
     },
     {
       "id": "plan-foil-editing-flow-results",
@@ -9037,7 +9060,13 @@ window.DOCS_INDEX = {
       "owner": "@fluids-f1",
       "phase": "spike",
       "reviewBy": "2026-11-03",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized"
+        }
+      ],
       "summary": "Meshing NO-GO at AR 8, so AR 5 and 12 were not run. snappyHexMesh with wall-resolved absolute layers (8 um, ER 1.2, 20 layers) on the finite-TE, round-tip analysis wing stops at 14-15 layers (0 % of faces reach 20; 10 or more on 89 % / 75 %). The Gmsh boundary-layer probe puts 20 layers on 100 % of the wing faces by construction. Every wall- resolved mesh fails the DR-F2-6 floor (cellDeterminant >= 0.001) on its thin wall cells, and the gate's non-orthogonality limit. Security: the product launcher printed Disallowing on every round-2 process; the probe set S-1..S-8 is ready for the operator, not yet run. macOS arm64 only.",
       "tags": [
         "spike-03",
@@ -9072,7 +9101,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0925a83f77cb1a4c610e648f8242445ab8437491baf21e1fae51fbbe1ab91902"
+      "sourceSha256": "d7b210f3102adc05f4c0216de3fd9cea9fa92b5ffbd4c9c26fcd61f9fa256838"
     },
     {
       "id": "proof-spike-04",
@@ -9126,7 +9155,13 @@ window.DOCS_INDEX = {
       "owner": "@fluids-f1",
       "phase": "spike",
       "reviewBy": "2026-11-03",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized"
+        }
+      ],
       "summary": "NO-GO on the GCI clause, GO on the iterative oracle. After two numerics repairs on level 6 (first-order upwind nuTilda, then relaxation 0.7), OpenFOAM v2512 simpleFoam SA-noft2 meets the A4 criterion on TMR Family II levels 6, 5 and 4 and rhoSimpleFoam meets it on level 5. The three-grid sequence is oscillatory for Cl and Cd (R = -0.010 and -0.053), so there is no observed order and no GCI. The measured compressible-minus-incompressible delta at TMR conditions on level 5 (one grid, alpha 10, Re 6e6, M 0.15) is +1.147 % in Cl and +0.81 % in Cd, U_Delta not stated. Fully turbulent air, 2-D. macOS arm64 only.",
       "tags": [
         "spike-04",
@@ -9162,7 +9197,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ae61a05e9b0d015a4beb7bbb64a1c05fe75520ede1ecffe91e2aa0120066deb7"
+      "sourceSha256": "383f7afc75666a6a5ccde35bc048b72fc8faa4a15fd6191dd57603fd56df5e59"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -10088,7 +10123,13 @@ window.DOCS_INDEX = {
       "owner": "@timianmalloo",
       "phase": "specification",
       "reviewBy": "2027-04-01",
-      "reviewSuggested": [],
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized"
+        }
+      ],
       "summary": "One batch for the spec owner, approved in Ruling 66. 49 amendments to cfd-workbench-v1 (CAD 24, Analysis 8, Run 7, Copy 3, Shell 7), each with the quoted before-text, the exact 1.7 text, the ruling it comes from and the tests or designs it touches; revision 1.7 carries them all. AM-1.7-37 to -49 are the 13 open questions the owner accepted as recommended. The knowledge-base correction KB-1 (ITTC Eq. 10, ln to log10) is made in the knowledge base.",
       "tags": [
         "spec",
@@ -10159,7 +10200,62 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e248b8b3baecbf02c88311b3ed6d886d412daa83a1d6ce67aa61b9da2dfa5388"
+      "sourceSha256": "eeaa0b25f4a0896fb18df297a833e6d6c71927198d5e46c9f7d044d1ccbc27ce"
+    },
+    {
+      "id": "spec-amendments-1-7-1",
+      "path": "docs/specs/amendments/spec-1.7.1.md",
+      "title": "Spec 1.7.1 amendment batch — the solver-security right-size, as exact text, approved in Ruling 68",
+      "type": "spec",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [
+        {
+          "by": "spec-cfd-workbench-v1",
+          "on": "2026-10-04",
+          "reason": "Spec 1.7.1 (Ruling 68): A8.5 backend-substrate row and A5.10 readiness right-sized"
+        },
+        {
+          "by": "adr-0012-openfoam-backend-macos",
+          "on": "2026-10-04",
+          "reason": "ADR-0012 D2 right-sized and DR-SEC-1 A recorded (Ruling 68)"
+        }
+      ],
+      "summary": "One small batch for the spec owner, approved in Ruling 68. Four amendments to cfd-workbench-v1 (A8.5 two, A5.10 two), each with the quoted before-text and the exact 1.7.1 text. They record the verified controlDict refusal, the right-sized launcher rules (ADR-0012 D2) and the install check, and make Run depend on the install smoke test showing Disallowing. Revision 1.7.1 carries them all; the change record is Appendix H, section H.1.",
+      "tags": [
+        "spec",
+        "amendments",
+        "rulings",
+        "security",
+        "backend",
+        "openfoam"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-solver-security-right-size",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e641848c00abc3c83c662f5ee4689086d7f796d2dee3ce4b1173f9294907de5b"
     },
     {
       "id": "spec-cfd-workbench",
@@ -10292,7 +10388,7 @@ window.DOCS_INDEX = {
           "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
-      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G). Revision 1.7 applies one batch of 49 spec-owner amendments approved in Ruling 66, each traced to a ruling (Rulings 53–66, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in the right side bar; Add point and Remove point applying at once (Appendix H; the batch is amendments/spec-1.7.md).",
+      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G). Revision 1.7 applies one batch of 49 spec-owner amendments approved in Ruling 66, each traced to a ruling (Rulings 53–66, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in the right side bar; Add point and Remove point applying at once (Appendix H; the batch is amendments/spec-1.7.md). Revision 1.7.1 applies Ruling 68: the A8.5 backend-substrate row and the A5.10 readiness text take the verified controlDict refusal and the right-sized launcher rules, and Run is enabled when the install smoke test shows Disallowing (Appendix H.1; amendments/spec-1.7.1.md).",
       "tags": [
         "hydrofoil",
         "cad",
@@ -10478,7 +10574,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "d6787952e5f47a11ba76a3e7abd231ac860e70c918570abba4240aedc3dc3bb9"
+      "sourceSha256": "c7c5e3a6919f04358538a973d79c8fb76c7a6ed0f167295969122e8e3d71788e"
     },
     {
       "id": "spec-foildsl",
@@ -10821,5 +10917,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "898418eb98ca4dc89175093cd7ed6d7f3753b5bc2c91fc9d1346ea6f73befab1"
+  "graphSha256": "f904ac601e544d9849801102d53f3d43a9611ded3c480b020bbf4b928667a675"
 };
