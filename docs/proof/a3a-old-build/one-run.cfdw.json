@@ -1,0 +1,202 @@
+{
+  "format": "cfdw-project-2",
+  "projectId": "0264502a-cf5a-4099-89aa-6feb090072fc",
+  "sources": [
+    {
+      "id": "443198c54cbb863cf4a89004cc475e7e498aa9a34e6c72371ff834500d39a36d",
+      "utf8Base64Chunks": [
+        "Zm9pbGRzbCAiNC4wIgojIExhbmd1YWdlIGNvbmZvcm1hbmNlIGZpeHR1cmU6IGEgbWFudWZhY3R1cmVkIHNlY3Rpb24sIG5vdCBhIGNhdGFsb2cgTkFDQSBmb2lsLgpmb2lsICJCYXNpYyBmb2lsIiB7CiAgdW5pdHMgbW0KICBoYWxmX3NwYW4gNDUwIG1tCiAgZXZhbHVhdG9yICJjZmR3LWN2IiAiMiIKICBzeW1tZXRyeSBtaXJyb3JfeQogIHBsYW5mb3JtIHsKICAgIGxlYWRpbmcgY3YgeyBkZWdyZWUgMyBrbm90cyBbMCwgMCwgMCwgMCwgMC4yNSwgMC41LCAwLjc1LCAxLCAxLCAxLCAxXSBwb2ludHMgWygwLCAwKSwgKDAuMSwgMCksICgwLjMsIDApLCAoMC41LCAwKSwgKDAuNywgMCksICgwLjksIDApLCAoMSwgMCldICBpZHMgWyJjdi0wIiwiY3YtMSIsImN2LTIiLCJjdi0zIiwiY3YtNCIsImN2LTUiLCJjdi02Il0gfQogICAgdHJhaWxpbmcgY3YgeyBkZWdyZWUgMyBrbm90cyBbMCwgMCwgMCwgMCwgMC4yNSwgMC41LCAwLjc1LCAxLCAxLCAxLCAxXSBwb2ludHMgWygwLCAxMjApLCAoMC4xLCAxMjApLCAoMC4zLCAxMjApLCAoMC41LCAxMjApLCAoMC43LCAxMjApLCAoMC45LCAxMjApLCAoMSwgMTIwKV0gIGlkcyBbImN2LTAiLCJjdi0xIiwiY3YtMiIsImN2LTMiLCJjdi00IiwiY3YtNSIsImN2LTYiXSB9CiAgfQogIGRpaGVkcmFsIGN2IHsgZGVncmVlIDMga25vdHMgWzAsIDAsIDAsIDAsIDAuMjUsIDAuNSwgMC43NSwgMSwgMSwgMSwgMV0gcG9pbnRzIFsoMCwgMCksICgwLjEsIDApLCAoMC4zLCAwKSwgKDAuNSwgMCksICgwLjcsIDApLCAoMC45LCAwKSwgKDEsIDApXSAgaWRzIFsiY3YtMCIsImN2LTEiLCJjdi0yIiwiY3YtMyIsImN2LTQiLCJjdi01IiwiY3YtNiJdIH0KICB0d2lzdCBjdiB7IGRlZ3JlZSAzIGtub3RzIFswLCAwLCAwLCAwLCAwLjI1LCAwLjUsIDAuNzUsIDEsIDEsIDEsIDFdIHBvaW50cyBbKDAsIDApLCAoMC4xLCAwKSwgKDAuMywgLTAuMjUpLCAoMC41LCAtMC41KSwgKDAuNywgLTEpLCAoMC45LCAtMS41KSwgKDEsIC0yKV0gIGlkcyBbImN2LTAiLCJjdi0xIiwiY3YtMiIsImN2LTMiLCJjdi00IiwiY3YtNSIsImN2LTYiXSB9CiAgdGhpY2tuZXNzIGN2IHsgZGVncmVlIDMga25vdHMgWzAsIDAsIDAsIDAsIDAuMjUsIDAuNSwgMC43NSwgMSwgMSwgMSwgMV0gcG9pbnRzIFsoMCwgMC4xMiksICgwLjEsIDAuMTIpLCAoMC4zLCAwLjEyKSwgKDAuNSwgMC4xMiksICgwLjcsIDAuMTIpLCAoMC45LCAwLjEyKSwgKDEsIDAuMTIpXSAgaWRzIFsiY3YtMCIsImN2LTEiLCJjdi0yIiwiY3YtMyIsImN2LTQiLCJjdi01IiwiY3YtNiJdIH0KICBwcm9maWxlcyB7CiAgICBwcm9maWxlICJzZWN0aW9uLWEiIHsKICAgICAgdXBwZXIgY3YgeyBkZWdyZWUgNSBrbm90cyBbMCwgMCwgMCwgMCwgMCwgMCwgMC4zMzMzMzMzMzMzMzMzMzMzLCAwLjY2NjY2NjY2NjY2NjY2NjYsIDEsIDEsIDEsIDEsIDEsIDFdIHBvaW50cyBbKDAsIDApLCAoMCwgMC4wMjUpLCAoMC4xNSwgMC4wNTUpLCAoMC4zNSwgMC4wNjUpLCAoMC41NSwgMC4wNSksICgwLjc1LCAwLjAzKSwgKDAuOSwgMC4wMSksICgxLCAwKV0gIGlkcyBbImN2LTAiLCJjdi0xIiwiY3YtMiIsImN2LTMiLCJjdi00IiwiY3YtNSIsImN2LTYiLCJjdi03Il0gfQogICAgICBsb3dlciBjdiB7IGRlZ3JlZSA1IGtub3RzIFswLCAwLCAwLCAwLCAwLCAwLCAwLjMzMzMzMzMzMzMzMzMzMzMsIDAuNjY2NjY2NjY2NjY2NjY2NiwgMSwgMSwgMSwgMSwgMSwgMV0gcG9pbnRzIFsoMCwgMCksICgwLCAtMC4wMjUpLCAoMC4xNSwgLTAuMDU1KSwgKDAuMzUsIC0wLjA2NSksICgwLjU1LCAtMC4wNSksICgwLjc1LCAtMC4wMyksICgwLjksIC0wLjAxKSwgKDEsIDApXSAgaWRzIFsiY3YtMCIsImN2LTEiLCJjdi0yIiwiY3YtMyIsImN2LTQiLCJjdi01IiwiY3YtNiIsImN2LTciXSB9CiAgICB9CiAgfQogIHNlY3Rpb25zIHsgYXQgcm9vdCBwcm9maWxlICJzZWN0aW9uLWEiIGF0IHRpcCBwcm9maWxlICJzZWN0aW9uLWEiIH0KfQo="
+      ]
+    }
+  ],
+  "designs": [
+    {
+      "id": "819356b7-5533-45d5-a247-bf31dd61d99f",
+      "parent": null,
+      "surfaceHash": "f4181fe578502e1ad24c4a6d7935adc7a46710535f761b112157dddb2aaaf9ae",
+      "evaluator": "cfdw-cv/2"
+    }
+  ],
+  "accepted": [
+    {
+      "id": "d7fdaa23-a809-4c39-94d5-5506d1ca2b6d",
+      "parent": null,
+      "sourceId": "443198c54cbb863cf4a89004cc475e7e498aa9a34e6c72371ff834500d39a36d",
+      "designId": "819356b7-5533-45d5-a247-bf31dd61d99f",
+      "operationId": "6f0c2d1e-8a4b-4c3d-9e2f-1a2b3c4d5e6f",
+      "edit": null
+    }
+  ],
+  "cursors": [
+    {
+      "sequence": 0,
+      "target": "d7fdaa23-a809-4c39-94d5-5506d1ca2b6d",
+      "reason": "open",
+      "operationId": "6f0c2d1e-8a4b-4c3d-9e2f-1a2b3c4d5e6f"
+    }
+  ],
+  "recovery": null,
+  "analysis": {
+    "runs": [
+      {
+        "runId": "0d9a8b7c-6e5f-4a3b-8c2d-1e0f9a8b7c6d",
+        "runKey": "97b857a240b269706eca087b3375bcbc3a106e29684a796e78166709f076b43d",
+        "contentHash": "43bfc3454c43664f672190bef1b675cad6f1aec3becad37c752579c95afc6d5b",
+        "outcome": {
+          "status": "completed"
+        },
+        "tier": "vlm-strip",
+        "method": {
+          "id": "cfdw.vlm-strip",
+          "version": "1.0.0",
+          "order": 1
+        },
+        "settings": {
+          "nSpanPerHalf": 64,
+          "nChord": 4,
+          "spanSpacing": "cosine",
+          "chordSpacing": "uniform",
+          "wakeSpans": 20,
+          "wakeDirection": "freestream",
+          "singularityCutoff": 1E-09,
+          "envelope": "cfdw.vlm-strip/1",
+          "polar": null,
+          "ncrit": [
+            2,
+            4
+          ],
+          "surfaceState": "smooth",
+          "teFloorMm": 0.3
+        },
+        "settingsHash": "cda4f4ecec9026851db10dde69cbd75bd3bd699d6139980cf96448949c9d31c8",
+        "inputs": {
+          "acceptedId": "d7fdaa23-a809-4c39-94d5-5506d1ca2b6d",
+          "surfaceHash": "f4181fe578502e1ad24c4a6d7935adc7a46710535f761b112157dddb2aaaf9ae",
+          "profileHashes": [
+            "c2b6ace58272ca8488357e98be0b8ab5b7dfe247aa4d0dd43b3e00d531d84f04",
+            "c2b6ace58272ca8488357e98be0b8ab5b7dfe247aa4d0dd43b3e00d531d84f04"
+          ],
+          "evaluator": "cfdw-cv/2",
+          "placementRule": "rule-a/1"
+        },
+        "water": {
+          "temperatureC": 15,
+          "salinityGPerKg": 35.16504,
+          "rho": 1026.021,
+          "nu": 1.18831E-06,
+          "pv": 1705.1,
+          "source": "ITTC 7.5-02-01-03 Rev 03",
+          "tableHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "op": {
+          "speed": 10,
+          "pAtm": 101325,
+          "hRef": null,
+          "datum": "frame-origin",
+          "alphaDeg": 2,
+          "load": null
+        },
+        "reference": {
+          "sRef": 0.12,
+          "bRef": 1,
+          "cRef": 0.12,
+          "momentDatum": "frame-origin",
+          "axes": "body"
+        },
+        "reconciliationTolerance": 0.01,
+        "diagnostics": {
+          "residualInf": 1E-13,
+          "kappa1": 42.5
+        },
+        "strips": [
+          {
+            "j": 0,
+            "y": 0,
+            "eta": 0,
+            "chord": 0.12,
+            "gamma": 0.31,
+            "alphaI": 0.01,
+            "alphaEff": 0.05,
+            "reLocal": 420000,
+            "clLocal": 0.4,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "no polar method installed"
+            },
+            "fx": 0.1,
+            "fy": 0.2,
+            "fz": 40.5,
+            "mx": 1.5,
+            "my": -0.25,
+            "mz": 0.75,
+            "downwashTrefftz": -0.0125
+          },
+          {
+            "j": 1,
+            "y": 0.1,
+            "eta": 0.3333333333333333,
+            "chord": 0.12,
+            "gamma": 0.31,
+            "alphaI": 0.01,
+            "alphaEff": 0.05,
+            "reLocal": 420000,
+            "clLocal": 0.4,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "no polar method installed"
+            },
+            "fx": 0.1,
+            "fy": 0.2,
+            "fz": 40.5,
+            "mx": 1.5,
+            "my": -0.25,
+            "mz": 0.75,
+            "downwashTrefftz": -0.0125
+          },
+          {
+            "j": 2,
+            "y": 0.2,
+            "eta": 0.6666666666666666,
+            "chord": 0.12,
+            "gamma": 0.31,
+            "alphaI": 0.01,
+            "alphaEff": 0.05,
+            "reLocal": 420000,
+            "clLocal": 0.4,
+            "cdNcrit2": {
+              "value": null,
+              "unavailableReason": "no polar method installed"
+            },
+            "cdNcrit4": {
+              "value": null,
+              "unavailableReason": "no polar method installed"
+            },
+            "fx": 0.1,
+            "fy": 0.2,
+            "fz": 40.5,
+            "mx": 1.5,
+            "my": -0.25,
+            "mz": 0.75,
+            "downwashTrefftz": -0.0125
+          }
+        ],
+        "wallMs": 12.5,
+        "platform": {
+          "os": "osx",
+          "arch": "arm64",
+          "dotnet": "10.0"
+        }
+      }
+    ],
+    "polarSamples": [],
+    "pruned": []
+  }
+}

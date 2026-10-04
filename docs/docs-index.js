@@ -7963,6 +7963,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "45f0254b7dff5e2d3230608516b6073a347d3a2d1fba3aa2654011fdca7aebba"
     },
     {
+      "id": "proof-a3a-old-build",
+      "path": "docs/proof/a3a-old-build/README.md",
+      "title": "A3a old-build receipt: a cfdw-project-2 file opened by the build at the A3a base",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-a3a-sto",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "A cfdw-project-2 sample written by the STO writer, opened by the build at the A3a base (9709f72, before PRE): refused with DOC-UNSUPPORTED-FIELD, classified UnknownContent (COPY-130), and the file's SHA-256 is unchanged.",
+      "tags": [
+        "a3a",
+        "sto",
+        "analysis",
+        "native-format",
+        "rollback",
+        "old-build",
+        "copy-130"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "641e2575fb1c92fb2b89ee12bec20eb2a8f8ad04ec6d58641606c861b5b50604"
+    },
+    {
       "id": "proof-a3a-pre-red-first",
       "path": "docs/proof/a3a-pre/red-first.md",
       "title": "A3a PRE red-first receipt",
@@ -7993,6 +8026,42 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "25d7106d6ce00df21120a2b3d91593da54888f3d6c2c02b53d882807abc59c1b"
+    },
+    {
+      "id": "proof-a3a-sto-red-first",
+      "path": "docs/proof/a3a-sto/red-first.md",
+      "title": "A3a STO red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-a3a-sto",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Each STO check of design §18.8 observed red against its named mutant (15 red lines over 14 checks), including the planted mutant of the STO exit: the content hash not checked on read turns both tamper checks red.",
+      "tags": [
+        "a3a",
+        "sto",
+        "analysis",
+        "persistence",
+        "run-key",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-a3a-old-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "48cf4d7c57f8942050f8c3c7fc11455084c644c03a26eeecfcfd2cb7feab6b9d"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -11350,5 +11419,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "98cc3b5a60a4904bf337df1954cd5852a4cea5e0360abc91af680689edce1a39"
+  "graphSha256": "cd2b447571594969cb96ac9b9aabf2fe6419dd6d4f0224cfe45899d88c802741"
 };
