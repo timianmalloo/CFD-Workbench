@@ -1,4 +1,6 @@
+using CfdWorkbench.Analysis;
 using CfdWorkbench.Cli;
+using CfdWorkbench.Core;
 using System.Text.Json;
 
 var output = new StringWriter();
@@ -119,4 +121,81 @@ catch (Exception error)
 {
     Console.WriteLine("FAIL Cli_Inspect_ListsSectionPointTypesAndKinds");
     throw new InvalidOperationException(error.Message);
+}
+// CLI-01 (design area3-analysis.md §13.3, track SVC): `analyse` and the GUI path on one operating point give one run key,
+// and `inspect --runs` lists the GUI's stored run under the key recomputed from its manifest. In process, never a binary.
+long analyseStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+try
+{
+    const string op = "{\"speed\":5.14444,\"alphaDeg\":3,\"hRef\":0.5}";
+    var host = new AnalysisHost(new CliFakeWing(), CliFakeWing.Water);
+    output.GetStringBuilder().Clear();
+    exit = await Cli.RunAsync(["analyse", "example", "--op", op], output, CancellationToken.None, host);
+    if (exit != 0) throw new Exception($"analyse returned {exit}: {output}");
+    string? cliKey;
+    using (var runJson = JsonDocument.Parse(output.ToString())) cliKey = runJson.RootElement.GetProperty("run").GetProperty("runKey").GetString();
+    using var session = new AuthoringSession();
+    session.Open(Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), false);
+    var gui = await new AnalysisService(session, host.Method).EvaluateAsync(OperatingPoints.Custom(5.14444, 3, 0.5),
+        host.Water(OperatingPoints.DefaultTemperatureC, OperatingPoints.SaltSalinityGPerKg), Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
+    if (cliKey != gui.RunKey) throw new Exception($"CLI key {cliKey} differs from the GUI key {gui.RunKey}");
+    string file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".cfdw.json");
+    try
+    {
+        await File.WriteAllBytesAsync(file, session.SaveImage());
+        output.GetStringBuilder().Clear();
+        exit = await Cli.RunAsync(["inspect", file, "--runs"], output);
+        if (exit != 0) throw new Exception($"inspect --runs returned {exit}: {output}");
+        using var runsJson = JsonDocument.Parse(output.ToString());
+        var runs = runsJson.RootElement.GetProperty("runs");
+        if (runs.GetArrayLength() != 1 || runs[0].GetProperty("runKey").GetString() != gui.RunKey ||
+            runs[0].GetProperty("integrity").GetString() != "Intact")
+            throw new Exception($"inspect --runs did not list the GUI run: {output}");
+    }
+    finally { File.Delete(file); }
+    foreach (var (refused, code) in new (string[] Args, string Code)[]
+             {
+                 (["analyse", "example", "--op", op], "ANA-METHOD-UNAVAILABLE"),
+                 (["analyse", "example", "--op", "{\"speed\":5,\"alphaDeg\":3,\"units\":\"lbf\"}"], "ANA-INPUT-OP"),
+                 (["analyse", "example", "--op", "{\"speed\":0,\"alphaDeg\":3}"], "ANA-INPUT-SPEED")
+             })
+    {
+        output.GetStringBuilder().Clear();
+        exit = await Cli.RunAsync(refused, output, CancellationToken.None, code == "ANA-METHOD-UNAVAILABLE" ? null : host);
+        if (exit != 2 || !output.ToString().Contains(code, StringComparison.Ordinal)) throw new Exception($"{refused[3]} returned {exit}: {output}");
+    }
+    Console.WriteLine("PASS Cli_AnalyseRunKey_EqualsGui");
+}
+catch (Exception error)
+{
+    Console.WriteLine("FAIL Cli_AnalyseRunKey_EqualsGui");
+    throw new InvalidOperationException(error.Message);
+}
+finally
+{
+    Console.WriteLine("COST Cli_AnalyseRunKey_EqualsGui " +
+        System.Diagnostics.Stopwatch.GetElapsedTime(analyseStarted).TotalMilliseconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
+}
+
+/// <summary>A fixed wing method for the CLI-01 check: the key depends on inputs and settings, never on these numbers.</summary>
+internal sealed class CliFakeWing : IWingMethod
+{
+    public RunMethod Method { get; } = new("cfdw.vlm-strip", "1.0.0", 1);
+    public RunSettings Settings { get; } = new(64, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, [2, 4], "clean", 0.3);
+    public double ReconciliationTolerance => 0.01;
+    public IReadOnlyList<double> Etas { get; } = [0, 1];
+    public IReadOnlyList<double> Xs { get; } = [0, 0.5, 1];
+
+    public static WaterRecord Water(double temperatureC, double salinityGPerKg) =>
+        new(temperatureC, salinityGPerKg, 1026.021, 1.18831e-6, 1705.1, "ITTC 7.5-02-01-03 Rev 03", new string('a', 64));
+
+    public RunReference Reference(byte[] source) => new(0.108, 0.9, 0.12, "frame origin", "body; wind for lift/drag");
+
+    public LatticeSolution Solve(IReadOnlyList<SectionSample> sections, OperatingPoint op, WaterRecord water, CancellationToken cancellation) =>
+        new([0.3], [-0.01], new RunDiagnostics(1e-13, 42.5));
+
+    public IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op,
+        WaterRecord water, CancellationToken cancellation) =>
+        [new StripLoad(0, 0.1, 0.5, 0.12, 0.3, 0.01, 3.0, 4.2e5, 0.4, new StripValue(null, "no polar method installed"),
+            new StripValue(null, "no polar method installed"), 0.1, 0.2, 40.5, 1.5, -0.25, 0.75, -0.01)];
 }
