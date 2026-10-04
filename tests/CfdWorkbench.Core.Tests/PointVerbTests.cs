@@ -341,6 +341,16 @@ internal static class PointVerbTests
             double direct = ChannelEdits.TipAngleDegrees(rebuilt.Curve, definition.HalfSpan) - before;
             Near(direct, preview.TipTurnDegrees, 1e-6);
         });
+        Check("PreviewRebuild_AreaUsesWingEstimatesForCurrentAndCandidate", () =>
+        {
+            using var session = Open(File.ReadAllBytes(TenPoint));
+            double before = WingEstimates.From(session.Snapshot().Source, "accepted", 0).AreaSquareMeters;
+            var preview = session.PreviewRebuilds("trailing").Single(item => item.Count == 4);
+            Near(before, preview.AreaBeforeSquareMeters, 1e-9);
+            session.ApplyPointCommand(Id(), new PointCommand.RebuildCurve("trailing", 4));
+            double after = WingEstimates.From(session.Snapshot().Source, "accepted", 0).AreaSquareMeters;
+            Near(after, preview.AreaAfterSquareMeters, 1e-9);
+        });
         Check("CurvatureBreaks_SmoothAnchor_OneBreakSimpleKnotsNone", () =>
         {
             var plain = CurveOf(FoilSourceTests.Example, "leading");
