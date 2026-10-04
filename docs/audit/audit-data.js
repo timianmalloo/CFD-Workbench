@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T23:11:33Z",
+  "generated": "2026-10-04T23:21:56Z",
   "audit": [
     {
       "actor": null,
@@ -23878,6 +23878,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T23:09:49Z",
       "duration_seconds": 104.0
+    },
+    {
+      "id": "al-01M44KJQCAB9SXGW6KSFBN7C2F",
+      "shortname": "join-a3a-svc",
+      "datetime": "2026-10-04T23:21:56Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/a3a-svc into feature/ui-cad-direction",
+      "summary": "SVC (Opus 5.5): AnalysisService (one snapshot, latest-wins per scope, idempotent on key, analysis.run telemetry), Freshness (one Inputs function, derived state), OperatingPoints (one builder, ANA-INPUT-*), CLI analyse/inspect --runs. 16/16 named PASS, 16 mutants red. Open: product wing method has no owner (seam to STP after VLM); STO Failed-row diagnostics need nullable fields (S-A3). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:20:20Z",
+      "duration_seconds": 96.0
     }
   ],
   "changes": [
