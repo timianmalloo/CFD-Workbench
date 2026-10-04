@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="../CfdWorkbench.Core/CfdWorkbench.Core.csproj" />
     <ProjectReference Include="../CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj" />
+    <ProjectReference Include="../CfdWorkbench.Analysis/CfdWorkbench.Analysis.csproj" />
     <EmbeddedResource Include="../CfdWorkbench.Desktop/Assets/example.foil" LogicalName="CfdWorkbench.Example.foil" />
   </ItemGroup>
 </Project>

@@ -16,6 +16,16 @@ public sealed record SurfaceView(string SourceHash, string Basis, long Generatio
     double MinimumX, double MinimumY, double MinimumZ, double MaximumX, double MaximumY, double MaximumZ,
     IReadOnlyList<PlacedSection> Sections);
 
+/// <summary>
+/// The Rule A section at one η, for Analysis (design area3-analysis.md §4 item 3; ADR-0010: one placement authority).
+/// <paramref name="X"/> are the chord stations; <paramref name="Camber"/> is (zu + zl)/2 and <paramref name="Thickness"/>
+/// zu − zl, both normalised to the local chord; <paramref name="CamberSlope"/> is the analytic dz_c/dx from the profile
+/// jet, never a difference; <paramref name="PlacedCamber"/> is the camber placed by the placement rule, in metres.
+/// Derived on read, never stored.
+/// </summary>
+public sealed record SectionSample(StationFrame Frame, IReadOnlyList<double> X, IReadOnlyList<double> Camber,
+    IReadOnlyList<double> Thickness, IReadOnlyList<double> CamberSlope, IReadOnlyList<Point3> PlacedCamber);
+
 public sealed record StationFrame(double Eta, double SpanMeters, double LeadingMeters, double TrailingMeters,
     double ElevationMeters, double TwistDegrees, double ThicknessRatio)
 {
@@ -297,6 +307,14 @@ public static class Placement
         }
         return new(parsed.SourceHash, basis, generation, minX, minY, minZ, maxX, maxY, maxZ, sections);
     }
+
+    /// <summary>
+    /// The section at each η, sampled at the chord stations <paramref name="xs"/>; parses the source once. Built with
+    /// the existing PlacementRule.Section/Blend/Place and ProfileEvaluator.Jet — no second evaluator (seam S-A1: COR owns
+    /// the body). Pattern: Query (a read-only projection over the record).
+    /// </summary>
+    public static IReadOnlyList<SectionSample> Sections(byte[] source, IReadOnlyList<double> etas, IReadOnlyList<double> xs,
+        CancellationToken cancellation) => throw new NotImplementedException("COR: Placement.Sections");
 
     public static StationFrame Frame(byte[] source, double eta)
     {

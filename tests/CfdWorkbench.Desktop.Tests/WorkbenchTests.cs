@@ -98,6 +98,17 @@ if (args.Contains("--status-strip", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+// Area 3 Analysis (docs/design/area3-analysis.md §18.2, seam S-A8): one child of the Desktop harness. PRE registers the mode
+// with three empty suites; TGL, LAY and PNA fill their own suite files only.
+if (args.Contains("--analysis", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.AnalysisToggleTests.Run();
+    CfdWorkbench.Desktop.Tests.AnalysisLayerTests.Run();
+    CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 // Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh or DesktopChecks.Spawn.
 // PRE adds the switch; U1a and U1b fill the RunReadiness members it calls.
 if (args.Contains("--readiness", StringComparer.Ordinal))
@@ -396,7 +407,8 @@ Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
     "--properties-view --part=1/2", "--properties-view --part=2/2", "--plan-canvas --part=1/2",
     "--shell-window --part=2/2", "--shell-window --part=1/2", "--plan-canvas --part=2/2",
     "--views --part=1/2", "--views --part=2/2", "--controller-shell", "--section-editor --part=1/2",
-    "--section-editor --part=2/2", "--properties-cells --part=1/2", "--properties-cells --part=2/2", "--shell-model"));
+    "--section-editor --part=2/2", "--properties-cells --part=1/2", "--properties-cells --part=2/2", "--shell-model",
+    "--analysis"));
 
 sealed class UncertainStore : IProjectStore
 {

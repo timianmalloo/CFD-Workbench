@@ -271,9 +271,16 @@
         "resolved": "0.21.3",
         "contentHash": "hDwB8WsQoyALQKqIbwzS68UKdlnafDm4T/DkO/JrA/YIneP/rKv96SxYPVXeh3FP4i/SXfShrYftKLtciJAIlw=="
       },
+      "cfdworkbench.analysis": {
+        "type": "Project",
+        "dependencies": {
+          "CfdWorkbench.Core": "[1.0.0, )"
+        }
+      },
       "cfdworkbench.cli": {
         "type": "Project",
         "dependencies": {
+          "CfdWorkbench.Analysis": "[1.0.0, )",
           "CfdWorkbench.Core": "[1.0.0, )",
           "CfdWorkbench.Persistence": "[1.0.0, )"
         }
