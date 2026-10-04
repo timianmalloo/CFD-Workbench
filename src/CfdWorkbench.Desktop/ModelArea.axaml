@@ -3,6 +3,12 @@
              xmlns:local="using:CfdWorkbench.Desktop"
              xmlns:panes="using:CfdWorkbench.Desktop.Panes"
              x:Class="CfdWorkbench.Desktop.ModelArea">
+  <UserControl.Resources>
+    <!-- The Rebuild popover's place: the toast inset (12) on three sides; 52 at the bottom clears the navbar.
+         simplify: a local token until the design system names it (ceiling: one popover; promote to Styles.axaml and
+         DESIGN.md when a second viewport popover needs it). -->
+    <Thickness x:Key="RebuildPopoverInset">12,12,12,52</Thickness>
+  </UserControl.Resources>
   <UserControl.Styles>
     <!-- Overlay text sits on a viewport-soft plate, never on the surface; the view-label plates are styled in Styles.axaml. -->
     <Style Selector="TextBlock.viewOverlay">
@@ -70,6 +76,20 @@
                               DangerBrush="{DynamicResource PlanDangerBrush}"
                               WarningBrush="{DynamicResource PlanWarningBrush}"
                               SoftBrush="{DynamicResource PlanSoftBrush}" />
+            <Border x:Name="AddPointPanel" IsVisible="False" HorizontalAlignment="Right" VerticalAlignment="Top"
+                    Margin="{StaticResource Space4}" Padding="{StaticResource Space2}"
+                    Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
+              <StackPanel Spacing="4">
+                <TextBlock Text="Add point · from root" />
+                <TextBox x:Name="AddPointTextBox" MinWidth="{StaticResource PropValueMinWidth}" Watermark="mm"
+                         AutomationProperties.Name="From root in millimetres" />
+                <TextBlock x:Name="AddPointError" IsVisible="False" TextWrapping="Wrap" />
+                <StackPanel Orientation="Horizontal" Spacing="4">
+                  <Button x:Name="AddPointCancelButton" Content="Cancel" />
+                  <Button x:Name="AddPointApplyButton" Content="Add point" />
+                </StackPanel>
+              </StackPanel>
+            </Border>
             <Border x:Name="PlanRenderErrorBand" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
                     BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1"
                     Padding="{StaticResource Space2}" HorizontalAlignment="Right" VerticalAlignment="Top">
@@ -169,6 +189,10 @@
           </Grid>
           </Border>
         </Grid>
+
+        <local:RebuildPopover x:Name="RebuildPopoverView" IsVisible="False"
+                              HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                              Margin="{StaticResource RebuildPopoverInset}" />
 
         <!-- The navbar (§11.7: v10's Fit and Views ▾, plus Display ▾ and Fit Selection). Each control runs a CommandTable row
              through the shell's view-command runner, the same action as its View-menu row; ModelArea fills the menus. -->

@@ -405,14 +405,10 @@ public sealed class ElevationView : Control
     {
         if (IsFront || controller?.Surface is not { } surface || controller.Planform is not { } plan || Camera is not { } camera) return [];
         var result = new List<(int, double, string, Point[])>();
-        // PlacedSection.Assignment is the station's profile index (Placement.PlaceStation), so Root and Tip sharing one
-        // profile both read 0; the station is the one at the section's exact η, as View3d picks it (ADR-0009 §4).
-        foreach (var section in surface.Sections.Where(section => section.Assignment is not null))
+        // PlacedSection.Assignment is the authored station index (Placement.PlaceStation), the index into plan.Stations.
+        foreach (var section in surface.Sections)
         {
-            int index = -1;
-            for (int station = 0; station < plan.Stations.Count; station++)
-                if (plan.Stations[station].Eta == section.Eta) { index = station; break; }
-            if (index < 0) continue;
+            if (section.Assignment is not int index || index >= plan.Stations.Count) continue;
             var outline = section.Upper.Concat(section.Lower.Reverse()).Select(point => camera.Project(point, BandRect.Size)).ToArray();
             result.Add((index, section.Eta, StationName(index, section.Eta), outline));
         }
@@ -753,6 +749,14 @@ public sealed class ElevationView : Control
     private PointView? Focused() => focusedPoint is { } focus
         ? CurrentTargets.FirstOrDefault(point => point.Curve == focus.Curve && point.Id == focus.VertexId) : null;
 
+    private async Task AddAtAsync(string curve, double eta)
+    {
+        if (controller is null) return;
+        var outcome = await controller.ApplyPointCommandAsync(new PointCommand.AddPoint(curve, eta));
+        if (outcome is CommitOutcome.Committed && controller.Selection is Selection.Points { Items: [var point] })
+            FocusPoint(point);
+    }
+
     // ---------------------------------------------------------------- pointer
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
@@ -764,6 +768,17 @@ public sealed class ElevationView : Control
         var hit = HitTestPoint(position);
         if (hit is null)
         {
+            if (pressed.IsLeftButtonPressed && e.ClickCount >= 2 && controller.Gesture == GestureState.Idle)
+            {
+                foreach (var curveName in Curves)
+                {
+                    if (LayerFor(curveName) is not { } layer || controller.CurveFor(curveName) is not { } curve) continue;
+                    if (layer.HitTestCurve(curve.Samples, position) is not { } onCurve) continue;
+                    _ = AddAtAsync(curveName, onCurve.Span / controller.Planform.HalfSpanMeters);
+                    e.Handled = true;
+                    return;
+                }
+            }
             if (!IsFront && pressed.IsLeftButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Shift) &&
                 PickSection(position, e.ClickCount) is { } section)
             {
@@ -915,7 +930,9 @@ public sealed class ElevationView : Control
         var tangent = new MenuItem { Header = "Tangent", ItemsSource = tangents, IsEnabled = tangents.Any(item => item.IsEnabled) };
         var menu = new ContextMenu
         {
-            ItemsSource = new Control[] { Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent }
+            ItemsSource = new Control[] { Row("Make Anchor Point", "point.make-anchor"), Row("Make Control Point", "point.make-control"), tangent,
+                new Separator(), Row("Remove Point", "point.remove"), Row($"Rebuild {PropertiesView.Curves[reference.Curve].MenuName}…", "point.rebuild"),
+                new Separator(), Row("Fit", "view.fit") }
         };
         menu.Closed += (_, _) => { if (ReferenceEquals(ContextMenu, menu)) ContextMenu = null; };
         ContextMenu = menu;

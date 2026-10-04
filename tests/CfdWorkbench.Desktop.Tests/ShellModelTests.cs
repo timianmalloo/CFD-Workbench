@@ -11,6 +11,18 @@ public static class ShellModelTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("CommandTable_PointRemove_GesturesPerOs", () =>
+        {
+            var rows = CommandTable.MenuFor("Edit");
+            var verbs = rows.Where(row => row.Id is "point.add" or "point.remove" or "point.rebuild").ToArray();
+            if (verbs.Select(row => row.Id).SequenceEqual(["point.add", "point.remove", "point.rebuild"]) is false)
+                throw new Exception("Point verbs are absent or out of Edit menu order");
+            if (verbs[1].Gesture != "⌫" || NativeMenuBuilder.ParseGesture(verbs[1].Gesture) is not null)
+                throw new Exception("Remove point must display Backspace without binding it in text fields");
+            if (CommandTable.Bindings().Any(row => row.Id == "point.remove"))
+                throw new Exception("Unmodified Backspace was bound at window scope");
+        });
+
         DesktopChecks.Check("Preset_EveryPaneSubset_ExactlyOnePlacement", () =>
         {
             var registered = WorkspacePresets.RegisteredPanes;
@@ -356,9 +368,9 @@ public static class ShellModelTests
                 if (!paletteIds.Contains(row.Id))
                     throw new Exception($"Row {row.Id} missing from PaletteEntries");
 
-                // Point commands have no default gesture (m12b-points.md §5.2). Every other row keeps a key route.
+                // PVU adds a displayed, view-scoped Backspace route for Remove; other point commands have no default gesture.
                 bool pointCommand = row.Id.StartsWith("point.", StringComparison.Ordinal);
-                if (pointCommand && !string.IsNullOrWhiteSpace(row.Gesture))
+                if (pointCommand && row.Id != "point.remove" && !string.IsNullOrWhiteSpace(row.Gesture))
                     throw new Exception($"Row {row.Id} has a default gesture");
                 // DR-DEN-4: the Text size key route is ⌘= / ⌘− (the zoom rows), routed by focus; a second binding of the
                 // same keys on Bigger / Smaller would make two menu items claim one gesture.

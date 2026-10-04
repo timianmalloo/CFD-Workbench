@@ -473,7 +473,11 @@ public static partial class UnitEntry
 /// <see cref="AngleSense"/> is the positive sense of a handle angle (COPY-158, COPY-164).
 /// </summary>
 public sealed record CurveRows(string Name, string ValueLabel, string ValueUnit, UnitFamily ValueFamily, string AngleLabel,
-    bool HandlesByAngle, string Noun = "rail", string AngleSense = "aft");
+    bool HandlesByAngle, string Noun = "rail", string AngleSense = "aft")
+{
+    /// <summary>The name in a context-menu row, which is title case ("Rebuild Trailing Edge…", as "Make Anchor Point").</summary>
+    public string MenuName => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(Name);
+}
 
 public static class PropertiesView
 {
@@ -948,7 +952,9 @@ public static class PropertiesView
         return new PropertyGroup("rail", curve.Name, summary, true,
         [
             Count("r:degree", "Degree", degree == 3 ? "3 (cubic)" : degree.ToString(CultureInfo.InvariantCulture)),
-            Count("r:points", "Points", $"{rail.Points.Count} of {rail.Ceiling} max")
+            Count("r:points", "Points", $"{rail.Points.Count} of {rail.Ceiling} max"),
+            new PropertyRow { Key = "r:rebuild", Label = "", Kind = RowKind.Action, Value = "Rebuild…",
+                AutomationName = $"Rebuild {curve.Name}", Target = new PointRef(rail.Points[0].Curve, rail.Points[0].Id) }
         ], []);
     }
 
