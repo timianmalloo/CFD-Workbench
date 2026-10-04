@@ -27,7 +27,8 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     int? OutputBytes, string? TraceId, long? Generation, string? Evaluator, int RetainedSources, int AcceptedFacts, string Action,
     bool? PublicationKnown = null, bool? DurabilityConfirmed = null, string? EditKind = null,
     double? FitMicrometres = null, double? DeviationMicrometres = null, double? ShiftMicrometres = null, bool? FitAboveLimit = null,
-    int? Frames = null, string? CurveFamily = null, string? StepKind = null, int? Steps = null, bool? Independent = null);
+    int? Frames = null, string? CurveFamily = null, string? StepKind = null, int? Steps = null, bool? Independent = null,
+    double? DeviationInCurveUnit = null, int? PointsBefore = null, int? PointsAfter = null);
 public sealed record DimensionCommand(string Name, string Text);
 public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped);
 public abstract record PointCommand(string Curve, string VertexId)
@@ -35,8 +36,18 @@ public abstract record PointCommand(string Curve, string VertexId)
     public sealed record MakeAnchor(string Curve, string VertexId) : PointCommand(Curve, VertexId);
     public sealed record MakeControl(string Curve, string VertexId) : PointCommand(Curve, VertexId);
     public sealed record SetTangent(string Curve, string VertexId, TangentKind Kind, string? KeepHandleId) : PointCommand(Curve, VertexId);
+    public sealed record AddPoint(string Curve, double Eta) : PointCommand(Curve, "");
+    public sealed record RemovePoint(string Curve, string VertexId) : PointCommand(Curve, VertexId);
+    public sealed record RebuildCurve(string Curve, int Count) : PointCommand(Curve, Curve);
 }
-public sealed record PointOutcome(string AcceptedId, double MaxDeviationMeters, int PointsBefore, int PointsAfter);
+public sealed record PointOutcome(string AcceptedId, double MaxDeviationMeters, int PointsBefore, int PointsAfter)
+{
+    public double AtEta { get; init; }
+    public string? SelectId { get; init; }
+    public string? Notice { get; init; }
+}
+public sealed record RebuildPreview(int Count, CurveView Curve, double MaxChange, double AtEta,
+    int BreaksBefore, int BreaksAfter, double TipTurnDegrees, string? Refusal);
 public sealed record SessionPreview(SessionBinding Binding, PlacedPointEnclosure Point, double UniformWidthUpper);
 
 public sealed class SessionAssessment
@@ -156,8 +167,13 @@ public sealed class AuthoringSession : IDisposable
             pendingFitAboveLimit = null;
             if (closed) return;
             if (events.Count == 256) events.Dequeue();
+            double? deviationInUnit = pendingDeviationInUnit;
+            int? pointsBefore = pendingPointsBefore;
+            int? pointsAfter = pendingPointsAfter;
+            pendingDeviationInUnit = null;
+            pendingPointsBefore = pendingPointsAfter = null;
             events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind, fit, deviation, shift, above, frames, family,
-                stepKind, steps, independent));
+                stepKind, steps, independent, deviationInUnit, pointsBefore, pointsAfter));
         }
     }
     private SourceParse ParseOwned(byte[] bytes)
@@ -182,7 +198,60 @@ public sealed class AuthoringSession : IDisposable
     public GestureFrame UpdatePointGesture(string draftId, long generation, double spanMeters, double ordinate) =>
         Run("update", () => UpdatePointGestureCore(draftId, generation, spanMeters, ordinate), 2 * sizeof(double), generation);
     public PointOutcome ApplyPointCommand(string operationId, PointCommand command) =>
-        Run("apply", () => ApplyPointCommandCore(operationId, command), editKind: command is PointCommand.SetTangent ? "tangent-kind" : "point-type");
+        Run("apply", () => ApplyPointCommandCore(operationId, command), editKind: PointEditKind(command));
+    /// <summary>Seven rebuild previews, counts 4 through 10. Does not certify and does not add a row.</summary>
+    public IReadOnlyList<RebuildPreview> PreviewRebuilds(string curve)
+    {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        byte[] bytes;
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            Guard.Require(PointModel.EditableCurves.Contains(curve), "DSL-TARGET");
+            Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            bytes = CurrentBytes;
+        }
+        var parsed = FoilSource.Parse(bytes);
+        Guard.Require(parsed.IsParsed && parsed.Definition is not null, "DSL-PATCH");
+        var definition = parsed.Definition!;
+        var original = definition.Curves[curve];
+        bool mirror = definition.Locks.Any(item => item.Kind == "root_mirror" && item.Channel.Text == curve);
+        int beforeBreaks = ChannelEdits.CurvatureBreaks(original);
+        double beforeTip = ChannelEdits.TipAngleDegrees(original, definition.HalfSpan);
+        var list = new List<RebuildPreview>();
+        for (int count = ChannelEdits.Floor; count <= 10; count++)
+        {
+            try
+            {
+                var rebuilt = ChannelEdits.Rebuild(original, count, mirror);
+                if (rebuilt.Identity)
+                {
+                    list.Add(new(count, Channels.View(bytes, curve, "Accepted", 0), 0, 0, beforeBreaks, beforeBreaks, 0, null));
+                    continue;
+                }
+                string? refusal = RailCrossing(definition, curve, rebuilt.Curve);
+                var change = ChannelEdits.MaxChange(original, rebuilt.Curve);
+                int afterBreaks = ChannelEdits.CurvatureBreaks(rebuilt.Curve);
+                double turn = ChannelEdits.TipAngleDegrees(rebuilt.Curve, definition.HalfSpan) - beforeTip;
+                var view = Channels.View(PrintCurve(definition, curve, rebuilt.Curve), curve, "Accepted", 0);
+                list.Add(new(count, view, change.Max, change.AtEta, beforeBreaks, afterBreaks, turn, refusal));
+            }
+            catch (ContractError error)
+            {
+                list.Add(new(count, Channels.View(bytes, curve, "Accepted", 0), 0, 0, beforeBreaks, beforeBreaks, 0, error.Reason ?? error.Code));
+            }
+        }
+        Record("rebuild.preview", "OK", watch.Elapsed.TotalMilliseconds, bytes.Length, null, null, "cfdw-cv/2", "rebuild.preview", curveFamily: Channels.Family(curve));
+        return list;
+    }
+    private static string PointEditKind(PointCommand? command) => command switch
+    {
+        PointCommand.SetTangent => "tangent-kind",
+        PointCommand.AddPoint => "point-add",
+        PointCommand.RemovePoint => "point-remove",
+        PointCommand.RebuildCurve => "curve-rebuild",
+        _ => "point-type"
+    };
     public ProfileView ProfileAt(int assignmentIndex) => Run("profile", () => ProfileAtCore(assignmentIndex));
     public ScopeImpact DescribeScope(string profile, int assignmentIndex, SectionScope scope) => Run("scope", () => DescribeScopeCore(profile, assignmentIndex, scope));
     public SectionDraftView BeginSectionDraft(string draftId, int assignmentIndex) =>
@@ -264,7 +333,8 @@ public sealed class AuthoringSession : IDisposable
     readonly HashSet<string> retiredDraftIds = [];
     readonly HashSet<string> capturedSaveHashes = [];
     SessionDraft? draft;
-    double? pendingFitUm, pendingDeviationUm, pendingShiftUm;
+    double? pendingFitUm, pendingDeviationUm, pendingShiftUm, pendingDeviationInUnit;
+    int? pendingPointsBefore, pendingPointsAfter;
     bool? pendingFitAboveLimit;
     RecoveryRow? recovery;
     ImportReport? activeImportReport;
@@ -848,36 +918,60 @@ public sealed class AuthoringSession : IDisposable
             NativeProject.Uuid(operationId);
             Guard.Require(command is not null && PointModel.EditableCurves.Contains(command.Curve), "DSL-TARGET");
             pendingCurveFamily = Channels.Family(command!.Curve);
+            string kind = PointEditKind(command);
             bool replay = operations.ContainsKey(operationId);
             Guard.Require(replay || current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
             var priorOperation = replay ? accepted.SingleOrDefault(row => row.OperationId == operationId) : null;
-            if (replay && priorOperation?.Edit?.Rail is not ("point-type" or "tangent-kind"))
+            if (replay && priorOperation?.Edit?.Rail != kind)
                 throw new ContractError("DOC-OPERATION-CONFLICT");
             string? parent = replay ? priorOperation!.Parent : current;
             byte[] basis = replay ? BaseBytes(parent!) : CurrentBytes;
             var prior = ParseOwned(basis);
-            var oldCurve = prior.Definition!.Curves[command!.Curve];
-            int index = Array.IndexOf(oldCurve.Ids, command.VertexId);
-            Guard.Require(index >= 0, "DSL-TARGET");
-            byte[] bytes;
-            try { bytes = EvaluatePointCommand(prior, command, index); }
+            var oldCurve = prior.Definition!.Curves[command.Curve];
+            int index = command is PointCommand.AddPoint or PointCommand.RebuildCurve ? -1 : Array.IndexOf(oldCurve.Ids, command.VertexId);
+            if (command is PointCommand.RemovePoint)
+            {
+                Guard.Require(index >= 0, "DSL-TARGET");
+                var refusal = ChannelEdits.RemoveRefusal(Channels.View(basis, command.Curve, "Accepted", 0), command.VertexId);
+                if (refusal is not null) throw new ContractError(refusal.Value.Code, refusal.Value.Reason);
+            }
+            else if (command is not (PointCommand.AddPoint or PointCommand.RebuildCurve))
+                Guard.Require(index >= 0, "DSL-TARGET");
+            PointPatch patch;
+            try { patch = EvaluatePointCommand(prior, command, index, basis); }
             catch (ContractError) when (replay) { throw new ContractError("DOC-OPERATION-CONFLICT"); }
+            byte[] bytes = patch.Bytes;
+            bool identity = patch.Identity || bytes.AsSpan().SequenceEqual(basis);
             var next = ParseOwned(bytes);
-            string kind = command is PointCommand.SetTangent ? "tangent-kind" : "point-type";
-            var receipt = new EditReceipt(operationId, 0, kind, command.VertexId, Curve: command.Curve);
+            string vertex = command switch
+            {
+                PointCommand.AddPoint => patch.SelectId ?? "",
+                PointCommand.RebuildCurve => command.Curve,
+                _ => command.VertexId
+            };
+            var receipt = new EditReceipt(operationId, 0, kind, vertex, Curve: command.Curve);
             string payload = Fingerprint(receipt, parent, next.SourceHash, command.Curve);
+            int before = oldCurve.Points.Length;
+            int after = identity ? before : next.Definition!.Curves[command.Curve].Points.Length;
+            double deviation = identity ? 0 : MaxPointDelta(basis, bytes, command.Curve);
+            PointOutcome Done(string id) => FinishPoint(kind, id, deviation, before, after, patch);
             if (Retry(operationId, payload, out string existing))
-                return new(existing, MaxPointDelta(basis, bytes, command.Curve), oldCurve.Points.Length, next.Definition!.Curves[command.Curve].Points.Length);
+                return Done(existing);
+            if (identity)
+            {
+                operations.Add(operationId, (payload, current!));
+                return Done(current!);
+            }
             Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
             retiredDraftIds.Add(operationId);
-            draft = new(operationId, current!, 0, kind, command.VertexId, bytes, Curve: command.Curve);
+            draft = new(operationId, current!, 0, kind, vertex, bytes, Curve: command.Curve);
             try
             {
                 RequireAdmission(next, Key(next, draft));
                 string id = Commit(next, operationId, "apply");
                 operations.Add(operationId, (payload, id));
                 draft = null; recovery = null;
-                return new(id, MaxPointDelta(basis, bytes, command.Curve), oldCurve.Points.Length, next.Definition!.Curves[command.Curve].Points.Length);
+                return Done(id);
             }
             catch
             {
@@ -886,45 +980,53 @@ public sealed class AuthoringSession : IDisposable
         }
     }
 
+    private readonly record struct PointPatch(byte[] Bytes, string? SelectId, string? Notice, double AtEta, bool Identity);
+
+    private PointOutcome FinishPoint(string kind, string id, double deviation, int before, int after, PointPatch patch)
+    {
+        if (kind is "point-add" or "point-remove" or "curve-rebuild")
+        {
+            pendingDeviationInUnit = deviation;
+            pendingPointsBefore = before;
+            pendingPointsAfter = after;
+        }
+        return new PointOutcome(id, deviation, before, after) { AtEta = patch.AtEta, SelectId = patch.SelectId, Notice = patch.Notice };
+    }
+
     private static double MaxPointDelta(byte[] before, byte[] after, string curve)
     {
-        if (curve is "dihedral" or "twist" or "thickness")
-        {
-            var first = Channels.View(before, curve, "Accepted", 0);
-            var second = Channels.View(after, curve, "Accepted", 0);
-            double channel = 0;
-            for (int step = 0; step <= 200; step++)
-            {
-                double eta = step / 200d;
-                channel = Math.Max(channel, Math.Abs(SampleOrdinate(second, eta) - SampleOrdinate(first, eta)));
-            }
-            return channel;
-        }
-        var leading = Planform.View(before, "Accepted", 0);
-        var trailing = Planform.View(after, "Accepted", 0);
-        double max = 0;
-        for (int step = 0; step <= 200; step++)
-        {
-            double eta = step / 200d;
-            var a = Planform.Probe(leading, eta);
-            var b = Planform.Probe(trailing, eta);
-            max = Math.Max(max, Math.Abs(curve == "leading" ? b.LeadingAftMeters - a.LeadingAftMeters : b.TrailingAftMeters - a.TrailingAftMeters));
-        }
-        return max;
+        var first = FoilSource.Parse(before).Definition!.Curves[curve];
+        var second = FoilSource.Parse(after).Definition!.Curves[curve];
+        return ChannelEdits.MaxChange(first, second).Max;
     }
 
-    private static double SampleOrdinate(CurveView curve, double eta)
-    {
-        var points = new double[curve.Points.Count][];
-        for (int index = 0; index < points.Length; index++)
-            points[index] = [curve.Points[index].Eta, curve.Points[index].Ordinate];
-        return ChannelEvaluator.Value(curve.Knots as double[] ?? curve.Knots.ToArray(), 3, points, eta);
-    }
-
-    private static byte[] EvaluatePointCommand(SourceParse parsed, PointCommand command, int index)
+    private static PointPatch EvaluatePointCommand(SourceParse parsed, PointCommand command, int index, byte[] basis)
     {
         var definition = parsed.Definition!;
         var original = definition.Curves[command.Curve];
+        bool mirror = definition.Locks.Any(item => item.Kind == "root_mirror" && item.Channel.Text == command.Curve);
+        if (command is PointCommand.AddPoint add)
+        {
+            var added = ChannelEdits.Add(original, add.Eta);
+            byte[] printed = PrintCurve(definition, add.Curve, added.Curve);
+            return new(printed, added.Curve.Ids[added.Index], added.Notice, add.Eta, false);
+        }
+        if (command is PointCommand.RemovePoint)
+        {
+            var removed = ChannelEdits.Remove(original, index, mirror);
+            byte[] printed = PrintCurve(definition, command.Curve, removed.Curve);
+            return new(printed, removed.Curve.Ids[removed.SelectIndex], removed.Notice, original.Points[index][0], false);
+        }
+        if (command is PointCommand.RebuildCurve rebuild)
+        {
+            var result = ChannelEdits.Rebuild(original, rebuild.Count, mirror);
+            if (result.Identity) return new(basis, null, null, 0, true);
+            string? crossing = RailCrossing(definition, rebuild.Curve, result.Curve);
+            if (crossing is not null) throw new ContractError("DSL-GEOMETRY", crossing);
+            byte[] printed = PrintCurve(definition, rebuild.Curve, result.Curve);
+            double at = ChannelEdits.MaxChange(original, result.Curve).AtEta;
+            return new(printed, null, result.Notice, at, false);
+        }
         var point = Channels.View(parsed.Source, command.Curve, "Accepted", 0).Points[index];
         Curve changed = command switch
         {
@@ -933,13 +1035,28 @@ public sealed class AuthoringSession : IDisposable
             PointCommand.SetTangent tangent => SetTangent(original, index, point, tangent),
             _ => throw new ContractError("DSL-TARGET")
         };
-        var curves = new Dictionary<string, Curve>(definition.Curves, StringComparer.Ordinal) { [command.Curve] = changed };
+        byte[] document = PrintCurve(definition, command.Curve, changed);
+        return new(document, null, null, 0, false);
+    }
+
+    private static byte[] PrintCurve(Definition definition, string curve, Curve changed)
+    {
+        var curves = new Dictionary<string, Curve>(definition.Curves, StringComparer.Ordinal) { [curve] = changed };
         byte[] printed = FoilSource.Print(definition with { Curves = curves });
-        if (changed.Tangents.Length > 0 || changed.Points.Length > 10)
+        if (changed.Tangents.Length > 0 || changed.Points.Length > 10 || changed.Points.Length < 6)
             printed = FoilSource.EnsureHeader41(printed);
         var check = FoilSource.Parse(printed);
-        Guard.Require(check.IsParsed, "DSL-PATCH");
+        Guard.Require(check.IsParsed, check.Diagnostics.Count == 0 ? "DSL-PATCH" : check.Diagnostics[0].Code);
         return printed;
+    }
+
+    private static string? RailCrossing(Definition definition, string curve, Curve changed)
+    {
+        if (curve is not ("leading" or "trailing")) return null;
+        var leading = curve == "leading" ? changed : definition.Curves["leading"];
+        var trailing = curve == "trailing" ? changed : definition.Curves["trailing"];
+        if (!ChannelEdits.RailsCross(leading, trailing, out double at)) return null;
+        return ChannelEdits.CrossingCopy(changed.Points.Length, at * definition.HalfSpan * 1000);
     }
 
     private static Curve MakeAnchor(Curve curve, int index, PointView point)
@@ -968,23 +1085,9 @@ public sealed class AuthoringSession : IDisposable
         int suffix = ids.Select(id => id.StartsWith("cv-", StringComparison.Ordinal) && int.TryParse(id.AsSpan(3), out int n) ? n : -1).Max() + 1;
         for (int turn = 0; turn < additions; turn++)
         {
-            int k = curve.Degree;
-            while (k + 1 < points.Length && knots[k + 1] <= knot) k++;
-            int s = knots.Count(value => value == knot);
-            var nextKnots = new double[knots.Length + 1];
-            Array.Copy(knots, nextKnots, k + 1); nextKnots[k + 1] = knot;
-            Array.Copy(knots, k + 1, nextKnots, k + 2, knots.Length - k - 1);
-            var nextPoints = new double[points.Length + 1][];
-            for (int i = 0; i <= k - 3; i++) nextPoints[i] = points[i].ToArray();
-            for (int i = k - s; i < points.Length; i++) nextPoints[i + 1] = points[i].ToArray();
-            for (int i = k - 2; i <= k - s; i++)
-            {
-                double alpha = (knot - knots[i]) / (knots[i + 3] - knots[i]);
-                nextPoints[i] = [(1 - alpha) * points[i - 1][0] + alpha * points[i][0],
-                    (1 - alpha) * points[i - 1][1] + alpha * points[i][1]];
-            }
-            int inserted = (2 * (k + 1) - (s + 1) - 3) / 2;
-            var nextIds = ids.ToList(); nextIds.Insert(inserted, "cv-" + suffix++);
+            var (nextKnots, nextPoints, inserted) = FoilSource.InsertOnce(knots, points, curve.Degree, knot);
+            var nextIds = ids.ToList();
+            nextIds.Insert(inserted, "cv-" + suffix++);
             knots = nextKnots; points = nextPoints; ids = nextIds.ToArray();
         }
         int anchor = Enumerable.Range(3, points.Length - 6).Single(i =>
@@ -1009,7 +1112,7 @@ public sealed class AuthoringSession : IDisposable
     private static Curve MakeControl(Curve curve, int index, PointView point)
     {
         Guard.Require(point.Role == PointRole.Anchor, "DSL-LOCK");
-        Guard.Require(curve.Points.Length >= 8, "DSL-CURVE");
+        Guard.Require(curve.Points.Length >= 7, "DSL-CURVE");
         double knot = curve.Knots[index + 1];
         var points = curve.Points.Where((_, i) => i != index - 1 && i != index + 1).ToArray();
         var ids = curve.Ids.Where((_, i) => i != index - 1 && i != index + 1).ToArray();
@@ -1643,6 +1746,14 @@ public static class NativeProject
         "point-type" or "tangent-kind" => edit.Rule is null && edit.Curve is not null &&
             PointModel.EditableCurves.Contains(edit.Curve) &&
             EditTarget(child, edit.Curve, edit.VertexId) && EditTarget(parent, edit.Curve, edit.VertexId),
+        "point-add" => edit.Rule is null && edit.Curve is not null &&
+            PointModel.EditableCurves.Contains(edit.Curve) &&
+            EditTarget(child, edit.Curve, edit.VertexId) && !EditTarget(parent, edit.Curve, edit.VertexId),
+        "point-remove" => edit.Rule is null && edit.Curve is not null &&
+            PointModel.EditableCurves.Contains(edit.Curve) &&
+            EditTarget(parent, edit.Curve, edit.VertexId) && !EditTarget(child, edit.Curve, edit.VertexId),
+        "curve-rebuild" => edit.Rule is null && edit.Curve is not null &&
+            PointModel.EditableCurves.Contains(edit.Curve) && edit.VertexId == edit.Curve,
         // A section receipt names the profile at Finish (§3.3): the parent has it, or the child newly assigns it (Make unique, Import).
         "section" => edit.Curve is null && edit.Rule is null && ProfileNamed(child, edit.VertexId) &&
             (ProfileNamed(parent, edit.VertexId) || child.Assignments.Any(item => child.Profiles[item.Profile].Name == edit.VertexId)),

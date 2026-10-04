@@ -105,8 +105,8 @@ public static class PlanCanvasTests
             foreach (var rail in new[] { plan.Leading, plan.Trailing })
                 foreach (var point in rail.Points)
                     fixture.AssertGlyphPixel(point);
-            var leading = fixture.Canvas.ScreenPoint(plan.Leading.Points[4]);
-            var trailing = fixture.Canvas.ScreenPoint(plan.Trailing.Points[4]);
+            var leading = fixture.Canvas.ScreenPoint(plan.Leading.Points[plan.Leading.Points.Count / 2]);
+            var trailing = fixture.Canvas.ScreenPoint(plan.Trailing.Points[plan.Trailing.Points.Count / 2]);
             var interior = fixture.RgbAtCanvas((leading.X + trailing.X) / 2, (leading.Y + trailing.Y) / 2);
             if (interior == fixture.BackgroundPixel())
                 throw new Exception("The planform fill is absent from the rendered window");
@@ -471,7 +471,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_AutomationPeers_HandleNamesCarryAngleAndLength", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             Task.Run(() => fixture.Controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)))
                 .GetAwaiter().GetResult();
@@ -485,7 +485,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_DragFrame_RenderedCurveThroughDraftSample", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             var before = fixture.RgbAtPoint(point);
             fixture.BeginDrag(point);
@@ -502,7 +502,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_DragDeltaReadout_Live", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             fixture.BeginDrag(point);
             fixture.MoveDrag(point, 0, 20);
@@ -513,7 +513,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_ShiftDragFromPoint_OrthoLocked", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             fixture.BeginDrag(point);
             fixture.MoveDrag(point, 32, 3, KeyModifiers.Shift);
@@ -601,7 +601,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_ClickStationChip_SelectsStation", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var chip = fixture.Canvas.VisibleStationChips.First();
             fixture.ClickAt(chip.Bounds.Center);
             if (fixture.Controller.Selection is not Selection.Station station || station.Index != chip.Index)
@@ -610,7 +610,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_CollidingChips_AlternateHiddenStillInBrowser", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             fixture.Canvas.ZoomAt(.1, new Point(fixture.Canvas.Bounds.Width / 2, 100));
             fixture.Settle();
             int all = fixture.Controller.Planform!.Stations.Count;
@@ -658,7 +658,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_LockedNudge_AssertiveLockCopy", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var point = fixture.Controller.Planform!.Leading.Points[0];
             fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
             fixture.KeyDown(Key.Down);
@@ -674,7 +674,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_EscapeOnHandle_FocusBackToPoint", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             Task.Run(() => fixture.Controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)))
                 .GetAwaiter().GetResult();
@@ -688,7 +688,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_ArrowOnHandle_MovesHandleWithCoMotion", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             Task.Run(() => fixture.Controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)))
                 .GetAwaiter().GetResult();
@@ -709,7 +709,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_ReleaseEdgesCross_PointRenderedAtOriginal", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var plan = fixture.Controller.Planform!;
             var point = plan.Trailing.Points[4];
             var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
@@ -730,7 +730,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_AdvisoryCrossingClear_CertificateStillDecides", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var plan = fixture.Controller.Planform!;
             var point = plan.Trailing.Points[4];
             var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
@@ -755,7 +755,7 @@ public static class PlanCanvasTests
         DesktopChecks.Check("PlanCanvas_CrossingMarker_OnlyWhileReleaseWouldBeRefused", () =>
         {
             // D-2 (docs/reviews/m12b-native.md §3.1, design §0.1 step 6): the marker shows during the drag, never after.
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var plan = fixture.Controller.Planform!;
             var point = plan.Trailing.Points[4];
             var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
@@ -805,7 +805,7 @@ public static class PlanCanvasTests
         DesktopChecks.Check("StatusStrip_GestureRefused_ErrorInStrip_NoToast", () =>
         {
             // DR-STATUS-1: a refused gesture shows in the strip as an error, with its marker on the Plan; errors never toast.
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var plan = fixture.Controller.Planform!;
             var point = plan.Trailing.Points[4];
             var leading = CfdWorkbench.Core.Planform.Probe(plan, point.Eta).LeadingAftMeters;
@@ -837,7 +837,7 @@ public static class PlanCanvasTests
 
         DesktopChecks.Check("PlanCanvas_NotCertifiedFoil_PointsDimmedBannerNoDraft", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true);
+            using var fixture = new PlanFixture(tenPoint: true);
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             var before = fixture.RgbAtPoint(point);
             var uncertified = CfdWorkbench.Core.Geometry.Assess(FoilSource.Parse(System.Text.Encoding.UTF8.GetBytes(fixture.Controller.AcceptedSource.Replace("points [(0, 0)", "points [(0, 1)", StringComparison.Ordinal))));
@@ -882,7 +882,7 @@ public static class PlanCanvasTests
         // view beside it (One view: Plan), median of warm frames. It fails above its budget.
         DesktopChecks.Check("Readiness_PlanRender_Under8Ms", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true, width: 1440, height: 900);
+            using var fixture = new PlanFixture(tenPoint: true, width: 1440, height: 900);
             fixture.Controller.Layout = ViewLayout.One(CfdWorkbench.Persistence.SingleView.Plan);
             fixture.Settle();
             var canvas = fixture.Canvas;
@@ -895,7 +895,7 @@ public static class PlanCanvasTests
         // (§1237). Baseline when this check was written (VW1, 2026-10-02): see docs/design/m12b2-3d-elevations.md §12.3.
         DesktopChecks.Check("Readiness_WindowRenderPlan3d_Under33Ms", () =>
         {
-            using var fixture = new PlanFixture(newFoil: true, width: 1440, height: 900);
+            using var fixture = new PlanFixture(tenPoint: true, width: 1440, height: 900);
             var deadline = System.Diagnostics.Stopwatch.StartNew();
             while (fixture.Controller.Surface is null || fixture.Controller.SurfaceUpdating)
             {
@@ -961,16 +961,17 @@ public static class PlanCanvasTests
         private Pointer? dragPointer;
 
         public PlanFixture(bool newFoil = false, double width = 1280, double height = 800,
-            ThemeVariant? theme = null)
+            ThemeVariant? theme = null, bool tenPoint = false)
         {
-            if (newFoil) Task.Run(() => Controller.NewFoilAsync()).GetAwaiter().GetResult();
+            if (tenPoint) Task.Run(() => Controller.OpenFoilAsync(DesktopChecks.TenPointFoil(), "New foil 10")).GetAwaiter().GetResult();
+            else if (newFoil) Task.Run(() => Controller.NewFoilAsync()).GetAwaiter().GetResult();
             else Task.Run(() => Controller.OpenExampleAsync()).GetAwaiter().GetResult();
             Host = new ShellHost(Controller);
             Window = new Window { Content = Host, Width = width, Height = height,
                 RequestedThemeVariant = theme ?? ThemeVariant.Light };
             Window.Show();
             Settle();
-            AssertGlyphPixel(Controller.Planform!.Trailing.Points[4]);
+            AssertGlyphPixel(Controller.Planform!.Trailing.Points[Controller.Planform.Trailing.Points.Count / 2]);
         }
 
         public void Settle()

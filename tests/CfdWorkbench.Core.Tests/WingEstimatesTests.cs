@@ -65,7 +65,9 @@ internal static class WingEstimatesTests
             // D-4 (docs/reviews/m12b-native.md §3.1): a short handle beside the anchor makes chord²(η) near-singular
             // at a piece end; the fixed Gauss ladder never agreed, so MAC and AR went NaN after the first edit.
             using var session = PointGestureTests.Open(FoilSource.NewDefault());
-            session.ApplyPointCommand(Id(), new PointCommand.MakeAnchor("trailing", PointGestureTests.Point(session, "trailing", 3).Id));
+            session.ApplyPointCommand(Id(), new PointCommand.AddPoint("trailing", 0.45));
+            var control = Planform.View(session.Snapshot().Source, "Accepted", 0).Trailing.Points.First(point => point.Role == PointRole.Control);
+            session.ApplyPointCommand(Id(), new PointCommand.MakeAnchor("trailing", control.Id));
             session.ApplyPointCommand(Id(), new PointCommand.SetTangent("trailing",
                 Planform.View(session.Snapshot().Source, "Accepted", 0).Trailing.Points.Single(p => p.Role == PointRole.Anchor).Id, TangentKind.Symmetric, null));
             var estimate = WingEstimates.From(session.Snapshot().Source.ToArray(), "accepted", 0);

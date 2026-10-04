@@ -476,14 +476,15 @@ public static class FoilSource
 
     /// <summary>
     /// Untitled symmetric NACA 0012 wing: span 1 m, area 0.1 m², open tip, no twist, no dihedral.
-    /// Channels are degree 3 with at most 10 vertices (FoilDSL 4.0). Power 3 clusters those knots
-    /// at the tip, the spacing that measured the smallest A4.5 chord deviation in that family.
+    /// Leading and trailing rails are degree 3 with 4 vertices (Ruling 64, FoilDSL 4.1).
+    /// Dihedral, twist and thickness stay at 10. Power 3 clusters the 10-point knots at the tip.
     /// The section is the degree-5 sqrt basis used by <see cref="DatImport"/>, at 10 vertices.
     /// </summary>
     public static byte[] NewDefault()
     {
         const int profileCount = 10;
-        const int railCount = 10;
+        const int railCount = 4;
+        const int channelCount = 10;
         const double tipPower = 3;
         var (profileKnots, profileX) = SqrtProfileBasis(profileCount);
         double[] upper = FitNaca(profileKnots, profileCount);
@@ -491,6 +492,7 @@ public static class FoilSource
         lower[0] = 0;
         lower[^1] = 0;
         var (railKnots, railX) = TipClusteredChannel(railCount, tipPower);
+        var (channelKnots, channelX) = TipClusteredChannel(channelCount, tipPower);
         const int samples = 401;
         var eta = new double[samples];
         var leadTarget = new double[samples];
@@ -508,7 +510,7 @@ public static class FoilSource
         byte[] source = [];
         for (int step = 0; step < 4; step++)
         {
-            source = DefaultDocument(railKnots, railX, Scale(lead, scale), Scale(trail, scale), profileKnots, profileX, upper, lower);
+            source = DefaultDocument(railKnots, railX, Scale(lead, scale), Scale(trail, scale), channelKnots, channelX, profileKnots, profileX, upper, lower);
             var parsed = Parse(source);
             if (!parsed.IsParsed) throw new ContractError(parsed.Diagnostics[0].Code);
             double area = WingEstimates.From(source, "accepted", 0).AreaSquareMeters;
@@ -616,12 +618,12 @@ public static class FoilSource
     }
 
     private static byte[] DefaultDocument(double[] railKnots, double[] railX, double[] lead, double[] trail,
-        double[] profileKnots, double[] profileX, double[] upper, double[] lower)
+        double[] channelKnots, double[] channelX, double[] profileKnots, double[] profileX, double[] upper, double[] lower)
     {
-        string flat = ChannelText(3, railKnots, railX, new double[railX.Length]);
-        string thick = ChannelText(3, railKnots, railX, Enumerable.Repeat(0.12, railX.Length).ToArray());
+        string flat = ChannelText(3, channelKnots, channelX, new double[channelX.Length]);
+        string thick = ChannelText(3, channelKnots, channelX, Enumerable.Repeat(0.12, channelX.Length).ToArray());
         string text =
-            "foildsl \"4.0\"\n" +
+            "foildsl \"4.1\"\n" +
             "foil \"Untitled\" {\n" +
             "  units m\n" +
             "  half_span " + ExactDecimal(0.5) + " m\n" +
@@ -850,10 +852,13 @@ public static class FoilSource
         {
             double width = knots[index + degree] - knots[index];
             double alpha = width == 0 ? 0 : (t - knots[index]) / width;
+            double x0 = points[index - 1][0], x1 = points[index][0];
+            double y0 = points[index - 1][1], y1 = points[index][1];
+            // Equal ordinates stay bitwise equal: (1-α)y + αy is not y.
             next[index] = new[]
             {
-                (1 - alpha) * points[index - 1][0] + alpha * points[index][0],
-                (1 - alpha) * points[index - 1][1] + alpha * points[index][1]
+                x0 == x1 ? x0 : (1 - alpha) * x0 + alpha * x1,
+                y0 == y1 ? y0 : (1 - alpha) * y0 + alpha * y1
             };
         }
         int firstNew = k - degree + 1;
@@ -1331,7 +1336,7 @@ public static class FoilSource
             catch (SourceFailure failure) when (failure.Code == "DSL-CURVE")
             {
                 int degree = raw.Profile ? 5 : 3;
-                string range = raw.Profile ? "6–32" : version.String == "4.1" ? "6–16" : "6–10";
+                string range = raw.Profile ? "6–32" : version.String == "4.1" ? "4–16" : "6–10";
                 throw new SourceFailure(failure.Code, failure.Phase, failure.Token, raw.Path,
                     $"Curve {raw.Path} requires degree {degree}, {range} points and {raw.Points.Length + degree + 1} knots for its {raw.Points.Length} points; knots must be ordered and clamped, with ordered abscissae from 0 to 1.");
             }
@@ -1360,7 +1365,8 @@ public static class FoilSource
         {
             Need(int.TryParse(raw.Degree.Text, CultureInfo.InvariantCulture, out int degree) && degree == (raw.Profile ? 5 : 3), "DSL-CURVE", "Structural", raw.Degree);
             int max = raw.Profile ? 32 : version.String == "4.1" ? 16 : 10;
-        Need(raw.Points.Length >= 6 && raw.Points.Length <= max, "DSL-CURVE", "Structural", raw.Degree);
+            int min = raw.Profile || version.String != "4.1" ? 6 : 4;
+        Need(raw.Points.Length >= min && raw.Points.Length <= max, "DSL-CURVE", "Structural", raw.Degree);
             var knots = raw.Knots.Select(token => ConvertNumber(token)).ToArray();
             var points = raw.Points.Select(point => new[] { ConvertNumber(point.X), ConvertNumber(point.Y, scale) }).ToArray();
             Need(knots.Length == points.Length + degree + 1, "DSL-CURVE", "Structural", raw.Degree);

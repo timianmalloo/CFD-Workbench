@@ -35,6 +35,7 @@ the supplied v3 references and earlier recorded observations remain unchanged hi
 | `foil-leading-only.foil` | Accept; relative to foil-basic only leading CV at eta-coordinate 0.3 changes to 14.049 mm. Trailing record and evaluated rail stay identical; derived chord/area change. |
 | `foil-trailing-only.foil` | Accept; relative to foil-basic only trailing CV at eta-coordinate 0.3 changes to 134.049 mm. Leading record and evaluated rail stay identical; derived chord/area change. |
 | `foil-independent-bases.foil` | Accept; leading uses seven CVs and trailing eight, with different knot and abscissa arrays and nonconstant ordinates on both rails. Rail independence and derived chord cannot depend on matching point indexes or a shared inverse mapping. Positive chord is guaranteed here by disjoint ordinate ranges: LE 0–30 mm, TE 120–151 mm. |
+| `foil-41-four-rail.foil` | Accept; FoilDSL 4.1 New foil. Leading and trailing are degree 3 with 4 points. Dihedral, twist and thickness stay at 10. Half-span 0.5 m. |
 | `foil-comment.foil` | Accept; same geometry identity as foil-basic, different exact source identity. |
 | `foil-assertions.foil` | Accept with both explicit-tolerance assertions passing, or prototype DSL-UNSUPPORTED before any mutation. |
 | `invalid-syntax.foil` | Missing final brace → DSL-SYNTAX; preserve accepted shape and draft. |

@@ -46,6 +46,8 @@ public static class PropertiesCellsTests
             var host = (ShellHost)window.Content!;
             host.ModelView.FindControl<StartView>("StartCardView")!.FindControl<Button>("StartNewButton")!.Focus(NavigationMethod.Pointer);
             Pump(host.OpenNewFoilAsync());
+            // New foil ships 4 control vertices per rail (Ruling 64): one Add point gives the trailing rail a Control point to click.
+            Pump(host.Controller.ApplyPointCommandAsync(new PointCommand.AddPoint("trailing", 0.45)));
             Settle(window);
             var canvas = host.ModelView.GetVisualDescendants().OfType<PlanCanvas>().Single();
             var clicked = host.Controller.Planform!.Trailing.Points.First(point => point.Role == PointRole.Control);

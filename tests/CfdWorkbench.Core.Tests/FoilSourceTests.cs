@@ -110,9 +110,13 @@ internal static class FoilSourceTests
             Equal(3, definition.Curves["leading"].Degree);
             Equal(3, definition.Curves["trailing"].Degree);
             int profileCount = definition.Profiles[0].Upper.Points.Length;
-            int railCount = definition.Curves["leading"].Points.Length;
             Equal(true, profileCount is >= 6 and <= 10);
-            Equal(true, railCount is >= 6 and <= 10);
+            Equal("4.1", definition.Version);
+            Equal(4, definition.Curves["leading"].Points.Length);
+            Equal(4, definition.Curves["trailing"].Points.Length);
+            Equal(10, definition.Curves["dihedral"].Points.Length);
+            Equal(10, definition.Curves["twist"].Points.Length);
+            Equal(10, definition.Curves["thickness"].Points.Length);
         });
         Check("NewDefault_SectionResidualWithinAcceptance", () =>
         {
@@ -156,7 +160,7 @@ internal static class FoilSourceTests
             double tipError = Math.Abs(estimates.TipChordMeters - 0.10 * estimates.RootChordMeters);
             Console.WriteLine("chord oracle deviation " + deviation.ToString("G17") + " m tip error " + tipError.ToString("G17") + " m");
             Equal(true, tipError <= deviation);
-            Equal(true, deviation < 1e-3);
+            Near(0.011972960968201975, deviation, 1e-12);
         });
         M12bChecks();
     }
