@@ -29,6 +29,8 @@ public class SectionCanvas : Control
     /// <summary>The comb teeth the last render drew, in canvas pixels (start on the curve, tip at the tooth end).</summary>
     public IReadOnlyList<(Point Start, Point Tip)> CombTeeth { get; private set; } = [];
     public double CombScale { get; private set; }
+    /// <summary>The upper and lower curves the last section render drew, in canvas pixels.</summary>
+    public IReadOnlyList<IReadOnlyList<Point>> DrawnCurves { get; private set; } = [];
     public (double X0, double X1)? CrossingInterval { get; private set; }
     private double viewMinX;
     private double viewSpan = 1;
@@ -368,17 +370,18 @@ public class SectionCanvas : Control
         var curvePen = new Pen(foil, 2);
         var mode = Controller!.Section!;
         var ghostPen = new Pen(mute, 1, new DashStyle([4, 4], 0));
-        foreach (var side in new[] { SurfaceSide.Upper, SurfaceSide.Lower })
+        foreach (var entry in EntryCurves(mode))
         {
-            var entry = Sections.View(mode.BaseBytes, mode.Draft.Assignment, side, "entry", 0);
             DrawPolyline(context, ghostPen, Enumerable.Range(0, 101)
                 .Select(index => Jet(entry, index / 100.0))
                 .Select(jet => ModelToScreen(jet.X, jet.Y)));
         }
+        var rest = RestFrame(mode);
+        var (upper, lower) = DragFrame(rest.Upper, rest.Lower);
+        bool live = !ReferenceEquals(upper, rest.Upper) || !ReferenceEquals(lower, rest.Lower);
         if (CurvatureVisible)
         {
-            var teeth = new[] { Controller.SectionCurve(SurfaceSide.Upper)!, Controller.SectionCurve(SurfaceSide.Lower)! }
-                .SelectMany(Comb).ToArray();
+            var teeth = new[] { upper, lower }.SelectMany(Comb).ToArray();
             var magnitudes = teeth.Select(tooth => Math.Abs(tooth.Curvature)).Order().ToArray();
             double p90 = magnitudes.Length == 0 ? 0 : magnitudes[(int)Math.Floor(.9 * (magnitudes.Length - 1))];
             CombScale = p90 <= 1e-12 ? 0 : 30 / p90;
@@ -406,8 +409,7 @@ public class SectionCanvas : Control
             }
             // §11.2: the comb breaks at an interior anchor; a dashed station mark shows where.
             var breakPen = new Pen(station, 2, new DashStyle([1.5, 1], 0));
-            foreach (var anchor in new[] { SurfaceSide.Upper, SurfaceSide.Lower }.Select(side => Controller.SectionCurve(side)!)
-                .SelectMany(curve => curve.Points).Where(point => point.Role == PointRole.Anchor))
+            foreach (var anchor in new[] { upper, lower }.SelectMany(curve => curve.Points).Where(point => point.Role == PointRole.Anchor))
             {
                 var at = layer.ToScreen(anchor);
                 context.DrawLine(breakPen, at - new Vector(0, 20), at + new Vector(0, 20));
@@ -416,29 +418,30 @@ public class SectionCanvas : Control
         }
         else { CombScale = 0; CombClippedCount = 0; CombTeeth = []; }
         ReportComb();
-        DrawPolyline(context, curvePen, Profile!.UpperCurve.Select(p => ModelToScreen(p.X, p.Y)));
-        DrawPolyline(context, curvePen, Profile.LowerCurve.Select(p => ModelToScreen(p.X, p.Y)));
-        var crossing = Sections.DisplayCrossing(mode.Draft.Bytes, mode.Draft.Assignment);
+        // At rest the curves are the Core display samples; during a drag, the same B-spline through the moved control net.
+        DrawnCurves = live
+            ? [LiveSamples(upper), LiveSamples(lower)]
+            : [Profile!.UpperCurve.Select(p => ModelToScreen(p.X, p.Y)).ToArray(), Profile.LowerCurve.Select(p => ModelToScreen(p.X, p.Y)).ToArray()];
+        foreach (var drawnCurve in DrawnCurves) DrawPolyline(context, curvePen, drawnCurve);
+        // The crossing marker belongs to the step's bytes: hidden during a drag rather than drawn where the curves were.
+        var crossing = live ? null : rest.Crossing;
         CrossingInterval = crossing;
         if (crossing is { } range && (DangerBrush ?? ResolveThemeBrush("DangerBrush")) is { } crossingBrush)
         {
             // §11.2 and the mockup's crossMark: a 4 px dashed danger line along both curves over the crossing.
             var crossingPen = new Pen(crossingBrush, 4, new DashStyle([1.5, 1], 0));
-            foreach (var curve in new[] { Profile.UpperCurve, Profile.LowerCurve })
+            foreach (var curve in new[] { Profile!.UpperCurve, Profile.LowerCurve })
                 DrawPolyline(context, crossingPen, curve.Where(p => p.X >= range.X0 && p.X <= range.X1).Select(p => ModelToScreen(p.X, p.Y)));
         }
         // The mockup's surface names at the trailing edge, whenever the whole chord is in view.
         if (ScreenToModel(new Point(Bounds.Width, 0)).X >= 1)
         {
-            var upperEnd = ModelToScreen(Profile.UpperCurve[^1].X, Profile.UpperCurve[^1].Y);
+            var upperEnd = ModelToScreen(Profile!.UpperCurve[^1].X, Profile.UpperCurve[^1].Y);
             var lowerEnd = ModelToScreen(Profile.LowerCurve[^1].X, Profile.LowerCurve[^1].Y);
             foreach (var (text, at) in new[] { ("Upper", upperEnd + new Vector(0, -24)), ("Lower", lowerEnd + new Vector(0, 6)) })
                 context.DrawText(new FormattedText(text, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
                     new Typeface(FontFamily.Default), 11, mute), new Point(Math.Min(at.X + 12, Bounds.Width - 44), at.Y));
         }
-        var upper = Controller.SectionCurve(SurfaceSide.Upper);
-        var lower = Controller.SectionCurve(SurfaceSide.Lower);
-        if (upper is null || lower is null) return;
         var brushes = new PointGlyphBrushes(foil, station, background, mute);
         foreach (var curve in new[] { upper, lower })
         {
@@ -449,8 +452,7 @@ public class SectionCanvas : Control
             {
                 if (curve == lower && point.Role == PointRole.Nose) continue;
                 bool selected = SelectedVertex == (point.Curve, point.Id);
-                var at = selected && draggedPoint is not null && previewPoint is { } preview
-                    ? ModelToScreen(preview.X, preview.Y) : layer.ToScreen(point);
+                var at = layer.ToScreen(point);
                 CurvePointLayer.DrawGlyph(context, point, at, brushes, selected);
                 if (selected && focus is not null) context.DrawEllipse(null, new Pen(focus, 3), at, 13, 13);
             }
@@ -481,6 +483,58 @@ public class SectionCanvas : Control
                     new Typeface(FontFamily.Default), 11, danger), new Point(at.X - 40, at.Y + 28 > Bounds.Height - 64 ? at.Y - 44 : at.Y + 28));   // clear of the axis labels
         }
     }
+
+    // Per-bytes projections: a drag frame re-reads none of them (each Sections call re-parses the source).
+    private (byte[] Bytes, int Assignment, CurveView[] Curves)? entryFrame;
+    private (byte[] Bytes, int Assignment, CurveView Upper, CurveView Lower, (double X0, double X1)? Crossing)? restFrame;
+
+    private CurveView[] EntryCurves(SectionMode mode)
+    {
+        if (entryFrame is { } cached && ReferenceEquals(cached.Bytes, mode.BaseBytes) && cached.Assignment == mode.Draft.Assignment)
+            return cached.Curves;
+        CurveView[] curves = [Sections.View(mode.BaseBytes, mode.Draft.Assignment, SurfaceSide.Upper, "entry", 0),
+            Sections.View(mode.BaseBytes, mode.Draft.Assignment, SurfaceSide.Lower, "entry", 0)];
+        entryFrame = (mode.BaseBytes, mode.Draft.Assignment, curves);
+        return curves;
+    }
+
+    private (CurveView Upper, CurveView Lower, (double X0, double X1)? Crossing) RestFrame(SectionMode mode)
+    {
+        if (restFrame is not { } cached || !ReferenceEquals(cached.Bytes, mode.Draft.Bytes) || cached.Assignment != mode.Draft.Assignment)
+        {
+            cached = (mode.Draft.Bytes, mode.Draft.Assignment, Controller!.SectionCurve(SurfaceSide.Upper)!, Controller.SectionCurve(SurfaceSide.Lower)!,
+                Sections.DisplayCrossing(mode.Draft.Bytes, mode.Draft.Assignment));
+            restFrame = cached;
+        }
+        return (cached.Upper, cached.Lower, cached.Crossing);
+    }
+
+    /// <summary>
+    /// The drag's display state: the control net as the release step will write it. This mirrors SectionEdits.Move (the
+    /// point takes x and y; the paired point on the other surface takes x), for drawing only; the step decides on release.
+    /// </summary>
+    private (CurveView Upper, CurveView Lower) DragFrame(CurveView upper, CurveView lower)
+    {
+        if (draggedPoint is not { } dragged || previewPoint is not { } at) return (upper, lower);
+        bool onUpper = dragged.Curve == "upper";
+        var own = onUpper ? upper : lower;
+        var other = onUpper ? lower : upper;
+        int index = own.Points.ToList().FindIndex(point => point.Id == dragged.Id);
+        if (index < 0) return (upper, lower);
+        own = Moved(own, index, at.X, at.Y);
+        if (index < other.Points.Count) other = Moved(other, index, at.X, other.Points[index].Ordinate);
+        return onUpper ? (own, other) : (other, own);
+
+        static CurveView Moved(CurveView curve, int index, double x, double y)
+        {
+            var points = curve.Points.ToArray();
+            points[index] = points[index] with { SpanMeters = x, Ordinate = y };
+            return curve with { Points = points };
+        }
+    }
+
+    private Point[] LiveSamples(CurveView curve) =>
+        Enumerable.Range(0, 201).Select(index => Jet(curve, index / 200.0)).Select(jet => ModelToScreen(jet.X, jet.Y)).ToArray();
 
     private readonly record struct JetPoint(double X, double Y, double Nx, double Ny, double Curvature);
 
@@ -654,8 +708,8 @@ public class SectionCanvas : Control
             }
             SelectedVertex = (hit.Curve, hit.Id);
             var reference = new PointRef(hit.Curve, hit.Id, mode.Draft.Profile);
-            Controller.Select(new Selection.Points([reference]));
             Focus();
+            // A started gesture selects the point itself: one shell refresh per press, not two.
             if (hit.Freedom != PointFreedom.Fixed && e.ClickCount == 1 && Controller.BeginGesture(reference, GestureInput.Pointer))
             {
                 draggedPoint = hit;
@@ -663,6 +717,7 @@ public class SectionCanvas : Control
                 pressPoint = position;
                 e.Pointer.Capture(this);
             }
+            else Controller.Select(new Selection.Points([reference]));
             InvalidateVisual();
             e.Handled = true;
             return;
@@ -715,8 +770,9 @@ public class SectionCanvas : Control
                     if (Math.Abs(position.X - from.X) > Math.Abs(position.Y - from.Y)) y = origin.Ordinate;
                     else x = origin.SpanMeters;
                 }
-                Controller.UpdateGesture(x, y, Point.Distance(position, pressPoint));
-                previewPoint = new Point(x, y);
+                // §3.7: the frame is drawn here from the gesture; the controller only keeps the release target.
+                Controller.UpdateSectionGesture(x, y, Point.Distance(position, pressPoint));
+                if (Controller.Gesture == GestureState.Dragging) previewPoint = new Point(x, y);
                 SetProbe(string.Create(CultureInfo.InvariantCulture,
                     $"Display · Δx {(x - origin.SpanMeters) * 100:F2} % c · Δy {(y - origin.Ordinate) * 100:F2} % c"));
             }
