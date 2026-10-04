@@ -1,0 +1,111 @@
+name: spike04r3-g0-l6
+description: >-
+  SPIKE-04 round 3, run R3-G0 (plan docs/plans/fluids-round3.md §3.4, Ruling 68). Diagnostic, not a numerics cycle.
+  TMR Family II level 6 (225 x 65), 2DN00, SA-noft2, alpha 10 deg, Re 6e6, incompressible simpleFoam, the round-2
+  D4 numerics of C-1 repair 2 (nuTilda bounded Gauss upwind, U and nuTilda relaxation 0.7, SIMPLEC p 1) with one
+  change: laplacian Gauss linear corrected and snGrad corrected (no limiter). L6 has 206 far-wake faces above 70 deg;
+  L5's maximum is 57.9 deg and L4's 31.6 deg. Reading stated before the run: H1 supported if |Cl - 1.051704| >
+  2.8e-3 and Cl moves toward the L5/L4 level (1.0781/1.0778); H1 rejected if the change is < 2.8e-4; untestable this
+  way if A4 fails. Judged by A4 (DR-F2-1). Launched through cases/tools/of-run.sh.
+purpose:
+  spike: SPIKE-04
+  stage: 1
+  round: 3
+  run_id: R3-G0
+  question: Does removing the limited laplacian/snGrad correction (the only scheme term that acts on L6 alone) move L6's Cl toward the L5/L4 level (H1)?
+geometry:
+  airfoil: naca0012 (TMR sharp-trailing-edge definition, 2DN00)
+  chord: 1.0
+  source:
+    kind: tmr-grid
+    path: n0012familyII.6.p2dfmt.gz
+    sha256: 5664336523cb02c8410c4f9dc67eccdfa79b34ea9549b712c0d9fd988aff3244
+    generator: >-
+      python3 cases/tools/fetch-tmr-grid.py <dir> n0012familyII.6.p2dfmt.gz; cases/tools/run-tmr-case.sh
+      cases/spike04r3-g0-l6.yaml <dir>
+    reference: >-
+      https://tmbwg.github.io/turbmodels/naca0012numerics_grids.html (grid page; zip
+      https://www.nasa.gov/wp-content/uploads/2026/02/naca0012numerics-grids.zip, member
+      u/piyer/nasa_tmr/gitlab/turbmodels/NACA0012numerics_grids/n0012familyII.6.p2dfmt.gz)
+    deviation: >-
+      Incompressible simpleFoam (the hydrofoil solver) instead of the TMR compressible M 0.15 run; the compressibility
+      delta is measured by run C-4 (rhoSimpleFoam on level 5), not modelled. Standard (non-point-vortex) far field.
+      SA-noft2 (ESI SpalartAllmaras, S-hat limiter Cs 0.3), not SA-neg.
+conditions:
+  reynolds: 6000000
+  mach: 0.0
+  alpha: 10.0
+  speed_m_s: 1.0
+  reference_length_m: 1.0
+solver: openfoam
+backend:
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  binary_sha256:
+    simpleFoam: a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296
+  activation: >-
+    cases/tools/of-run.sh <case> <log> <app> <args...>: env -i allow-list, product HOME and FOAM_CONTROLDICT from
+    cases/tools/foam-bundle/controlDict (sha256 f3debe8b...a6ef854), lint, checkMesh pre-flight banner, then
+    /bin/zsh -f <app>/Contents/Resources/etc/openfoam -- <app> <args...> (argv, no shell string)
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: plot3d-direct
+  target_y_plus: null
+  first_cell_height_m: null
+  settings:
+    family: II
+    level: 6
+    dims: [225, 65]
+    span_m: 1.0
+    wake_cut: merged into internal faces by the converter
+  gate: { max_non_orthogonality_deg: 70, max_skewness: 4, min_cell_determinant: 0.001 }
+physics:
+  application: simpleFoam
+  flow: incompressible-steady
+  turbulence_model: SpalartAllmaras
+  wall_treatment: wall-resolved (nuTilda = 0 and nut = 0 at the wall)
+  transition: none (fully turbulent)
+  fluid: { name: non-dimensional, nu_m2_s: 1.6666666666666667e-7 }
+  freestream: { U_m_s: 1.0, nuTilda_over_nu: 3.0 }
+boundary_conditions:
+  farfield: freestreamVelocity (cos 10, sin 10, 0) / freestreamPressure 0; nuTilda inletOutlet 3 nu; about 500 c
+  airfoil: noSlip; nuTilda 0; nut 0; p zeroGradient
+  frontAndBack: empty
+numerics:
+  schemes:
+    grad: Gauss linear
+    div_U: bounded Gauss linearUpwind grad(U)
+    div_nuTilda: bounded Gauss upwind
+    laplacian: Gauss linear corrected
+    snGrad: corrected
+  consistent: "yes"
+  relaxation: { U: 0.7, nuTilda: 0.7, p: 1 }
+  max_iterations: 40000
+  a4:
+    residual_drop_orders: 3
+    window_iterations: 2000
+    cl_half_band_cap: 1.0e-5
+    cd_half_band_cap: 1.0e-6
+    clean_window: true
+    poll_every_iterations: 1000
+    gci_admission_ratio: 0.01
+    stop_mechanism: a4-monitor.py sends SIGUSR1; bundled controlDict stopAtWriteNowSignal 30
+  residual_criterion: >-
+    A4 (DR-F2-1, Ruling 65), stated before the run: (1) every equation's initial residual, max over the last 2
+    iterations, <= 1e-3 x its iteration-1 value (ITTC 7.5-03-02-03 three orders); (2) over the last W = 2,000
+    iterations, U_I = (max - min)/2 <= 1e-5 for Cl and <= 1e-6 for Cd; (3) zero "bounding nuTilda" lines inside W;
+    (4) cases/tools/a4-monitor.py checks every 1,000 iterations and stops the run when 1-3 hold. Reaching
+    max_iterations without A4 is "Completed - residual criterion not met (ran to limit)", a gap and not a number.
+    (5) Admission into GCI: U_I <= 0.01 x |epsilon| of the neighbouring grid pair, for Cl and Cd. Reported value =
+    window mean.
+decomposition: { method: scotch, n_subdomains: 2, nice: 10, max_load_1min: 10 }
+outputs_expected:
+  - log.lint (only on a refusal), log.checkMesh (pre-flight banner), log.simpleFoam
+  - a4-monitor.log, a4-stop.txt, convergence.txt (A4 report)
+  - postProcessing/forceCoeffs1, postProcessing/solverInfo1, postProcessing/yPlus1, postProcessing/wallP
+  - time.<log> (peak RSS from /usr/bin/time -l)
+run_dir: runs/20261004T175236Z-spike04r3-g0-l6
