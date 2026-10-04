@@ -404,7 +404,8 @@ wired at the composition root, mirroring `CfdWorkbench.Persistence`.
   "settings": { "nSpanPerHalf": 64, "nChord": 4, "spanSpacing": "cosine", "chordSpacing": "cosine",
                 "wakeSpans": 20, "wakeDirection": "+x", "singularityCutoff": 1e-8, "envelope": "vlm-envelope/1",
                 "polar": null /* or { "id", "version", "model" } */, "ncrit": [2, 4], "surfaceState": "clean",
-                "teFloorMm": 0.3 },
+                "teFloorMm": 0.3,
+                "sectionEtas": [ /* η stations Placement.Sections samples */ ], "sectionXs": [ /* chord abscissae */ ] },
   "settingsHash": "blake3(JCS(settings))",
   "inputs": { "acceptedId": "…", "surfaceHash": "…", "profileHashes": ["…"], "evaluator": "cfdw-cv/2",
               "placementRule": "foildsl-6/1" },
@@ -413,7 +414,7 @@ wired at the composition root, mirroring `CfdWorkbench.Persistence`.
   "op": { "speed": 5.14444, "pAtm": 101325, "hRef": 0.5, "datum": "root LE", "alphaDeg": 3.0, "load": null },
   "reference": { "sRef": 0.108, "bRef": 0.9, "cRef": 0.12, "momentDatum": "frame origin", "axes": "body; wind for lift/drag" },
   "reconciliationTolerance": 0.01, "drc": [ { "rule": "…", "version": "…", "outcome": "…" } ],
-  "diagnostics": { "residualInf": 0, "kappa1": 0 },
+  "diagnostics": { "residualInf": 0, "kappa1": 0 } /* Completed only; a Failed row has no member (SVC-2, IO8) */,
   "strips": [ /* Strip load rows, §3.3 */ ],
   "wallMs": 0, "platform": { "os": "macOS 26", "arch": "arm64", "dotnet": "10.0.x" } }
 ```
@@ -421,6 +422,9 @@ wired at the composition root, mirroring `CfdWorkbench.Persistence`.
 `reference` records the values used (derived at run time) so a later evaluator change is visible as a manifest
 difference. `teFloorMm` is copied per the A3.1 reserved-terms row. `placementRule` names ADR-0010's rule version
 (*assume:* no such version string exists yet; the Core track adds a constant beside the evaluator id).
+`sectionEtas`/`sectionXs` (SVC-2) are the stations the service samples for the method: they reach the compute, so they
+are settings and in the key; they are omitted when null, so a settings record without them keeps its hash, and the
+service refuses to evaluate without them (`ANA-INPUT-STATIONS`). The product method sets them when VLM and STP join.
 
 ## 6. Contracts
 
@@ -468,9 +472,11 @@ fixture).
   cancels the older (generation token), checked per lattice row and per strip.
 - **Binding.** A run computed against r4 is recorded as r4 evidence even if the user moved to r5; it shows Historical.
   The manifest carries the snapshot's `AcceptedId`/`SurfaceHash`, captured before compute.
-- **Errors (stable codes).** `ANA-INPUT-*` (V ≤ 0, non-finite, water outside table — refused before compute, recorded as
-  nothing), `ANA-GEOM-*` (h(y) ≤ 0 everywhere, zero area), `ANA-SOLVE-SINGULAR`, `ANA-SOLVE-RESIDUAL`, `ANA-NONFINITE`,
-  `ANA-POLAR-UNAVAILABLE`, `ANA-CANCELLED` (telemetry only). Compute errors become a Failed row.
+- **Errors (stable codes).** `ANA-INPUT-*` (V ≤ 0, non-finite, water outside table `ANA-INPUT-WATER`, settings with no
+  section stations `ANA-INPUT-STATIONS` — refused before compute, recorded as nothing), `ANA-GEOM-*` (h(y) ≤ 0
+  everywhere, zero area), `ANA-SOLVE-SINGULAR`, `ANA-SOLVE-RESIDUAL`, `ANA-NONFINITE`, `ANA-POLAR-UNAVAILABLE`,
+  `ANA-CANCELLED` (telemetry only), `ANA-UNEXPECTED` (telemetry only: an exception outside this list propagates).
+  Compute errors become a Failed row.
 - **Idempotency.** `RecordRun` checks and appends in one step under the session lock; a Completed row with the key
   short-circuits `EvaluateAsync`. Failed rows do not block a retry.
 
@@ -662,7 +668,7 @@ against the failing input or mutant named.
 | `Evaluate_Supersede_OlderCancelledViaBarrier` | two Evaluates; the barrier holds the first; the first ends `ANA-CANCELLED`, one row | 0 | est. < 20 ms |
 | `Evaluate_Cancel_NoRowRecorded` | Cancel while the barrier holds → no row | 0 | est. < 20 ms |
 | `Evaluate_CloseMidCompute_DocClosedNoRow` | close while the barrier holds → `DOC-CLOSED`, no row | 0 | est. < 20 ms |
-| `Cli_AnalyseRunKey_EqualsGui` | `cfdw analyse` and the GUI path on one op → equal keys; mutant: CLI defaults one setting differently | Cli | est. 0.3 s |
+| `Cli_AnalyseRunKey_EqualsServiceOnCustomOp` (SVC-2 rename of `…EqualsGui`) | `cfdw analyse` and the service on `OperatingPoints.Custom` (the builder the GUI band calls) on one op → equal keys; mutant: CLI defaults one setting differently | Cli | est. 0.3 s |
 | `Toggle_RoundTrip_CameraSelectionStationViewportEqual` | CAD → Analysis → CAD with a station selected and an orbited camera; each value equal | Desktop | est. < 50 ms |
 | `Toggle_PreviewOpen_HiddenThenRestoredUntouched` | a point draft open; the banner shows; on return the draft bytes are equal | Desktop | est. < 50 ms |
 | `Toggle_PreviewOpen_LayersOverAcceptedRevision` | a draft with a moved vertex; the layers' surface hash equals the accepted `SurfaceHash`; mutant: layers built from the draft bytes | Desktop | est. < 50 ms |
@@ -1143,12 +1149,22 @@ are marked ✚.
 | `Freshness_UndoToEqualKey_CurrentAgain` (SVC) | A | < 5 ms | §13.3 |
 | `Freshness_SaveReopen_Unchanged` (SVC) | A | < 50 ms | the reader ignores the `analysis` member (runs lost on reopen) |
 | `Units_Lbf_KeyUnchanged` (SVC) | A | < 5 ms | §13.3 |
-| `Evaluate_Supersede_OlderCancelledViaBarrier` (SVC) | A | < 20 ms | no generation check (both runs recorded) |
+| `Evaluate_Supersede_OlderCancelledViaBarrier` (SVC) | A | < 20 ms | SVC-2: the older's `Cancel` removed (its token not cancelled while held); the barrier given `CancellationToken.None` |
 | `Evaluate_Cancel_NoRowRecorded` (SVC) | A | < 20 ms | a cancelled run recorded as Failed |
-| `Evaluate_CloseMidCompute_DocClosedNoRow` (SVC) | A | < 20 ms | `RecordRun`'s closed guard skipped for analysis rows |
+| `Evaluate_CloseMidCompute_DocClosedNoRow` (SVC) | A | < 20 ms | `RecordRun`'s closed guard skipped for analysis rows; SVC-2: the record moved before the barrier (a row at the hold point) |
 | `OperatingPoint_SpeedZeroOrNegative_Undefined` (SVC) | A | < 1 ms | §13.5 (\|V\|) |
 | `Telemetry_AnalysisRun_EmittedWithSubDurations` (SVC) ✚ | A | est. < 20 ms | `solveMs` written as 0 when not reached (must read "not recorded", IO8) |
-| `Cli_AnalyseRunKey_EqualsGui` (SVC) | Cli | est. 0.3 s | §13.3 |
+| `Cli_AnalyseRunKey_EqualsServiceOnCustomOp` (SVC) | Cli | est. 0.3 s | §13.3 (SVC-2 rename of `Cli_AnalyseRunKey_EqualsGui`: it compares the CLI with the service on `OperatingPoints.Custom`) |
+| `Evaluate_SupersededBeforeCancel_RecordsNothing` (SVC; SVC-2) ✚ | A | < 20 ms | the record step's identity check removed |
+| `Evaluate_Supersede_CancelsOlderOutsideTheLock` (SVC; SVC-2) ✚ | A | < 20 ms | the older's `Cancel` moved back under the service lock |
+| `Telemetry_UnexpectedException_OutcomeNotOk` (SVC; SVC-2) ✚ | A | < 5 ms | `analysis.run`'s outcome starts "OK" |
+| `Evaluate_CancelledBeforeIdempotentHit_Throws` (SVC; SVC-2) ✚ | A | < 5 ms | the hit returns without checking the token |
+| `Evaluate_SameKeyFromTwoServices_ReturnsRecordedRow` (SVC; SVC-2) ✚ | A | < 20 ms | no re-read of the key under the lock (`DOC-RUN-KEY`) |
+| `Evaluate_WaterOutsideTable_RefusedNoRow` (SVC; SVC-2) ✚ | A | < 5 ms | the water record not validated |
+| `Evaluate_ComputeFails_FailedRowHasNoDiagnostics` (SVC; SVC-2) ✚ | A | < 20 ms | zeros written on a Failed row; the solve's diagnostics kept when the coupling fails; the writer writes a null member |
+| `Evaluate_SectionStationsChanged_NewKeyNotAHit` (SVC; SVC-2) ✚ | A | < 20 ms | `sectionEtas` left out of the settings hash; fixed stations sampled; settings without stations not refused |
+| `RecordRun_DiagnosticsByOutcome_CompletedOnly` (SVC; SVC-2) ✚ | A | < 50 ms | the outcome/diagnostics rule removed from `CheckStore` |
+| `Cli_AnalyseFailedRun_PrintsNoDiagnostics` (SVC; SVC-2) ✚ | Cli | < 50 ms | the writer writes a null `diagnostics` member |
 | `Projection_SectionVsWingUnits` (PRJ) | A | < 5 ms | §13.5 |
 | `Projection_CdZeroOrNegative_ClCdUndefined` (PRJ) | A | < 1 ms | §13.5 |
 | `Projection_NoRun_NoAnalysisYetNoLayers` (PRJ) ✚ | A | < 5 ms | an empty selection renders CL 0.000 and layers |
