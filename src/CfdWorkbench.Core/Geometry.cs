@@ -259,6 +259,12 @@ public static class Geometry
         return true;
     }
 
+    // The blend rule asked before a section step lands (Ruling 71). A certified profile's difference spans take the upper
+    // spans' X, Start and End, and their Y length is the shared degree + 1 (both sides share degree and knots), so the
+    // upper spans give the same answer as the differences the certificate compares.
+    internal static bool SharedAbscissa(ProfileDefinition left, ProfileDefinition right, ProofBudget watch) =>
+        SharedAbscissa(Bernstein.Spans(left.Upper, watch), Bernstein.Spans(right.Upper, watch));
+
     private static bool SharedAbscissa(PolynomialSpan[] left, PolynomialSpan[] right)
     {
         if (left.Length != right.Length) return false;

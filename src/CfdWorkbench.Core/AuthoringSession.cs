@@ -1456,7 +1456,10 @@ public sealed class AuthoringSession : IDisposable
         }
         string name = SectionProfileName(next, assignment);
         if (intent == ThicknessIntent.UseSource) next = ThicknessFit.Fit(next, name);
-        var profile = SessionSource.Parse(next).Definition!.Profiles.Single(item => item.Name == name);
+        var after = SessionSource.Parse(next).Definition!;
+        // Ruling 71 at the one step choke point, Import included (operator 2026-10-04).
+        SectionEdits.RequireNeighbourAbscissa(definition, after, assignment, step);
+        var profile = after.Profiles.Single(item => item.Name == name);
         ThicknessProposal? proposal = intent == ThicknessIntent.UseSource ? ThicknessFit.Describe(next, name, baseBytes).Proposal : null;
         var report = delegated is not null
             ? delegated with { Thickness = proposal ?? delegated.Thickness }

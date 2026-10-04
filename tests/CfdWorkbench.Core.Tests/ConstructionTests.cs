@@ -150,12 +150,14 @@ internal static class ConstructionTests
         Check("Profile_Insert_IndependentCopiesFirst", () =>
         {
             using var session = Opened();
-            var begun = session.BeginSectionInsert(Id(), 0, SectionScope.Independent, 0.37);
-            string text = Encoding.UTF8.GetString(begun.Bytes);
+            // Ruling 71: was copy-then-insert on the copy (9 ids on section-a-i1); an insert gives the copy other knots than
+            // Tip's section-a, so the step is now refused and the draft keeps the copy unchanged.
+            Refuses("DSL-GEOMETRY", () => session.BeginSectionInsert(Id(), 0, SectionScope.Independent, 0.37));
+            string text = Encoding.UTF8.GetString(session.Snapshot().Draft!.Bytes);
             int copy = text.IndexOf("profile \"section-a-i1\"", StringComparison.Ordinal);
             Equal(true, copy > 0);
-            Equal(9, Ids(text[copy..], "upper").Length);
-            Equal(9, Ids(text[copy..], "lower").Length);
+            Equal(8, Ids(text[copy..], "upper").Length);
+            Equal(8, Ids(text[copy..], "lower").Length);
             Equal(8, Ids(text, "upper").Length);
             Equal(true, text.Contains("at root profile \"section-a-i1\"", StringComparison.Ordinal));
             Equal(true, text.Contains("at tip profile \"section-a\"", StringComparison.Ordinal));

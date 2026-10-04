@@ -611,6 +611,32 @@ public static class SectionEditorTests
                 focused = shell.Window.FocusManager?.GetFocusedElement();
                 if (focused is not ComboBox) throw new Exception("Tab from a section point did not land on its Type: " + focused);
             });
+            // Ruling 71 (native look): after Make unique to Root, Control → Anchor would give Root other knots than Tip.
+            // The step is refused in the strip with COPY-209, and the draft and its Finish state stay as they were.
+            DesktopChecks.Check("SectionEditor_UniqueSectionAbscissaStep_RefusedInStripFinishUnchanged", () =>
+            {
+                shell.Enter();
+                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.MakeUnique()));
+                WaitUntil(() => shell.Controller.Section is { Assessment: not null });
+                shell.Settle();
+                var before = shell.Controller.Section!;
+                var finish = shell.View.FindControl<Button>("ModeFinishButton")!;
+                bool finishBefore = finish.IsEnabled;
+                var target = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+                Wait(shell.Host.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, target.Id, true)));
+                shell.Settle();
+                var after = shell.Controller.Section!;
+                const string expected = "This edit would give Root's section different point positions from Tip's, and the wing between " +
+                    "them can't be checked then. Move points up or down only, or keep the section shared. Nothing changed.";
+                if (shell.Host.StatusStrip.Text != expected)
+                    throw new Exception($"The refusal is not in the strip: '{shell.Host.StatusStrip.Text}'");
+                if (after.Draft.Cursor != before.Draft.Cursor || after.Draft.Generation != before.Draft.Generation ||
+                    !after.CanFinish || after.CanFinish != before.CanFinish || after.FinishReason != before.FinishReason ||
+                    !finish.IsEnabled || finish.IsEnabled != finishBefore)
+                    throw new Exception($"The refused step changed the draft or Finish: cursor {before.Draft.Cursor} → {after.Draft.Cursor}, " +
+                        $"can finish {before.CanFinish} → {after.CanFinish}, reason '{before.FinishReason}' → '{after.FinishReason}', button {finishBefore} → {finish.IsEnabled}");
+                shell.Controller.CancelSection();
+            });
             DesktopChecks.Check("SectionEditor_Crossing_MarkerAndReasonRendered", () =>
             {
                 shell.Enter();

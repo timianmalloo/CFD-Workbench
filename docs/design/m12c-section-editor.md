@@ -960,6 +960,8 @@ underline, tabular figures.
 | 182 | "This section couldn't be checked, so Finish is off. <reason> Undo the last change or try another." | Finish reason |
 | 183 | "Angles are in the section's own chord coordinates. A flat crest stays flat at a station only if the section is symmetric or uses its own thickness." | Tangent help |
 | 184 | "A vertical tangent inside a surface makes a step. The nose already has one." | disabled Vertical, reason |
+| 209 | "This edit would give <station>'s section different point positions from <neighbour>'s, and the wing between them can't be checked then. Move points up or down only, or keep the section shared." (Ruling 71; approved by the operator 2026-10-04; the strip adds "Nothing changed.") | strip (warning) or reason box, for a refused step |
+| 210 | "This section has its own point spacing, which differs from <neighbour>'s, so the wing between them can't be checked yet. Importing sections with their own spacing will work once sections can be kept in step." (corrected 2026-10-04, operator: the earlier "Import it on a shared section" named a path that does not exist) | strip (warning), for a refused Import |
 
 Reused: COPY-117, COPY-119, COPY-122, COPY-123, COPY-124, and "Finish or cancel <station> before editing <other>."
 
@@ -1077,6 +1079,15 @@ Each name protects one behaviour. Names that protect nothing are not listed.
 `SectionEdits_DeleteBelowSevenPoints_Refused` (SPT) · `SectionEdits_FairWithAnchorRows_AnchorsKeptRowsHold` (SPT) ·
 `SectionEdits_FirstRow_HeaderBecomes41` (SPT) · `Assess_ProfileVerticalRowOffByOneUlp_Invalid` (SPT) ·
 `Assess_ProfileSmoothRowNearVertical_Certified` (SPT) · `Cli_Inspect_ListsSectionPointTypesAndKinds` (SPT).
+Ruling 71 (refuse early): `SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged` (SPT): after Make unique, a
+step that would give the profile other abscissae than a neighbouring station's different profile (Control → Anchor, Insert, an
+x move) is refused with COPY-209 and the draft is unchanged and still certifies.
+`SectionEdits_UniqueProfile_YOnlyMoveAllowed` (SPT): a y-only move on the unique profile lands and certifies.
+The check is `SectionEdits.RequireNeighbourAbscissa`, called
+at the one step choke point (`AuthoringSession.PatchSectionStep`) with the certificate's own rule (`Geometry.SharedAbscissa`).
+`SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged` (SPT): an Import that needs its own spacing beside
+another profile is refused with COPY-210 and nothing changes (operator 2026-10-04); an import on the neighbour basis still
+lands with its report (`SectionDraft_ImportStep_ReportsResidualAndProvenance` (SDR), below).
 
 **SPTG — per-surface operations (written only on a GSPK go). CUT 2026-10-03: GSPK no-go (S-2, OD-4 a); `docs/proof/m12c-certificate-spike/verdict.md`.**
 `SectionEdits_UpperMove_LowerBytesIdentical` (SPTG) · `SectionEdits_UpperAnchor_LowerBytesIdentical` (SPTG) ·
@@ -1135,6 +1146,7 @@ certificate.
 `SectionEditor_Rendered_AnchorSquareControlCircleNamedDiamond` (EDT) · `SectionEditor_SelectedVsUnselected_ShapeNotColourOnly` (EDT) ·
 `SectionEditor_DragUnderPointer_WithinTwoPixels` (EDT) · `SectionEditor_ArrowRun_OneStepOnKeyUp` (EDT) ·
 `SectionEditor_BracketKeys_WalkInOrder` (EDT) · `SectionEditor_ReturnToX_TabToType` (EDT) ·
+`SectionEditor_UniqueSectionAbscissaStep_RefusedInStripFinishUnchanged` (EDT; Ruling 71: COPY-209 in the strip, cursor and Finish unchanged) ·
 `SectionEditor_DoubleClickInserts_BackspaceDeletesNotNamed` (EDT) · `SectionEditor_ThicknessX2_DrawingOnlyValuesUnchanged` (EDT) ·
 `SectionEditor_CombAutoScale_ClippedTeethMarked` (EDT) · `SectionEditor_ProbeFollowsPointer_PlacedMmAtStation` (EDT) ·
 `SectionEditor_StripThumbnails_OnePerStationCurrentMarked` (EDT) · `SectionEditor_ModeBar_NamesStationAndScopeChip` (EDT) ·
