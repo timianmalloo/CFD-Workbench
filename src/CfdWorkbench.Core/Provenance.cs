@@ -47,7 +47,7 @@ public sealed record Provenance(string? Origin, bool Modified)
         ProfileDefinition? previous = Profile(before, profile);
         if (next?.Provenance is not string raw || previous is null) return bytes;
         Provenance parsed = Parse(raw);
-        if (parsed.Origin is null || parsed.Modified || !BeyondIdentity(previous, next)) return bytes;
+        if (parsed.Origin is null || parsed.Modified || !FoilSource.BeyondProfileIdentity(previous, next)) return bytes;
         string text = FoilSource.Utf8.GetString(bytes);
         string needle = "provenance " + Jcs.Quote(raw);
         int length = next.BlockEnd - next.BlockStart;
@@ -61,54 +61,6 @@ public sealed record Provenance(string? Origin, bool Modified)
 
     private static ProfileDefinition? Profile(byte[] bytes, string name) =>
         FoilSource.Parse(bytes).Definition?.Profiles.FirstOrDefault(item => item.Name == name);
-
-    // A4.5 profile oracle: 201 cosine samples per curve in normalised chord, plus every knot.
-    // A difference is a Euclidean gap above 1e-6 (1 µm on a unit chord). Equality at the bound is identity.
-    private static bool BeyondIdentity(ProfileDefinition before, ProfileDefinition after) =>
-        SideChanged(before.Upper, after.Upper) || SideChanged(before.Lower, after.Lower);
-
-    private static bool SideChanged(Curve before, Curve after)
-    {
-        const int samples = 201;
-        for (int index = 0; index < samples; index++)
-        {
-            double x = 0.5 * (1 - Math.Cos(Math.PI * index / (samples - 1)));
-            if (Gap(AtX(before, x), AtX(after, x)) > 1e-6) return true;
-        }
-        foreach (double t in before.Knots.Concat(after.Knots))
-            if (t is >= 0 and <= 1 && Gap(At(before, t), At(after, t)) > 1e-6) return true;
-        return false;
-    }
-
-    private static (double X, double Y) AtX(Curve curve, double x)
-    {
-        double lo = 0, hi = 1;
-        for (int step = 0; step < 80; step++)
-        {
-            double mid = (lo + hi) / 2;
-            if (At(curve, mid).X < x) lo = mid;
-            else hi = mid;
-        }
-        return At(curve, (lo + hi) / 2);
-    }
-
-    private static (double X, double Y) At(Curve curve, double t)
-    {
-        double[] basis = SplineBasis.Values(curve.Knots, curve.Degree, t);
-        double x = 0, y = 0;
-        for (int index = 0; index < basis.Length; index++)
-        {
-            x += basis[index] * curve.Points[index][0];
-            y += basis[index] * curve.Points[index][1];
-        }
-        return (x, y);
-    }
-
-    private static double Gap((double X, double Y) left, (double X, double Y) right)
-    {
-        double dx = left.X - right.X, dy = left.Y - right.Y;
-        return Math.Sqrt(dx * dx + dy * dy);
-    }
 
     private static RightsClass Classify(string? origin)
     {

@@ -175,7 +175,7 @@ public static class CatalogGenerator
         var text = new StringBuilder("NACA ").Append(digits).Append('\n');
         for (int index = 80; index >= 0; index--) Append(text, upper[index]);
         for (int index = 1; index <= 80; index++) Append(text, lower[index]);
-        return new(Encoding.UTF8.GetBytes(text.ToString()), le.X, angle * 180 / Math.PI, length);
+        return new(Encoding.UTF8.GetBytes(text.ToString()), le.X, angle / PlacementRule.RadiansPerDegree, length);
     }
 
     private static void Append(StringBuilder text, (double X, double Y) point) =>

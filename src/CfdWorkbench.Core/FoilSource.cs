@@ -938,6 +938,37 @@ public static class FoilSource
         return kept;
     }
 
+    // A4.5 profile oracle. Reuses ParameterAt so this is not a second inversion loop.
+    internal static bool BeyondProfileIdentity(ProfileDefinition before, ProfileDefinition after) =>
+        SideBeyond(before.Upper, after.Upper) || SideBeyond(before.Lower, after.Lower);
+
+    private static bool SideBeyond(Curve before, Curve after)
+    {
+        const int samples = 201;
+        for (int index = 0; index < samples; index++)
+        {
+            double x = 0.5 * (1 - Math.Cos(Math.PI * index / (samples - 1)));
+            if (GapAt(before, after, x) > 1e-6) return true;
+        }
+        foreach (double t in before.Knots.Concat(after.Knots))
+        {
+            if (t is < 0 or > 1) continue;
+            double[] left = Evaluate(before.Points, before.Knots, before.Degree, t);
+            double[] right = Evaluate(after.Points, after.Knots, after.Degree, t);
+            double dx = left[0] - right[0], dy = left[1] - right[1];
+            if (Math.Sqrt(dx * dx + dy * dy) > 1e-6) return true;
+        }
+        return false;
+    }
+
+    private static double GapAt(Curve before, Curve after, double x)
+    {
+        double[] left = Evaluate(before.Points, before.Knots, before.Degree, ParameterAt(before.Points, before.Knots, before.Degree, x));
+        double[] right = Evaluate(after.Points, after.Knots, after.Degree, ParameterAt(after.Points, after.Knots, after.Degree, x));
+        double dx = left[0] - right[0], dy = left[1] - right[1];
+        return Math.Sqrt(dx * dx + dy * dy);
+    }
+
     private static double SideDeviation(Curve before, Curve after, int samples)
     {
         double worst = 0;
