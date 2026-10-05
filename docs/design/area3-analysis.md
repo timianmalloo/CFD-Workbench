@@ -320,8 +320,9 @@ non-planar cases at the default 64 × 4 cosine/cosine lattice; F-21 supplies the
 passes, cambered wings are **spanwise-converged; chordwise camber not verified**. The verified label still has the
 default-lattice boundary.
 The outermost tip strip is not judged against the envelope (Ruling 78); the η* law of Ruling 75 was rejected
-(Ruling 88 D1, [tip-handling study](../plans/tip-handling.md)). The scope is certified finite-chord tips. Whether and
-how the tip strip is judged is decided by that study's S2 and S3 steps.
+(Ruling 88 D1, [tip-handling study](../plans/tip-handling.md)). Ruling 91 keeps Ruling 78: the certified scope is
+finite-chord tips with tip chord at least 2 % of the root chord (r ≥ 0.02, `AnalysisService.TipChordRatioFloor`). Below the
+floor the analysis refuses the planform (`ANA-TIP-BELOW-FLOOR`); it still opens and edits.
 
 - **Solve.** Dense LU with partial pivoting (interchanges on columns k…n−1, LINPACK order), **one** solve, no iterative
   refinement; record ‖AΓ − b‖∞ and a 1-norm condition estimate κ₁. A normwise backward error

@@ -152,6 +152,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         try
         {
             var sections = Placement.Sections(view.Source, stations.Etas, stations.Xs, token);
+            RequireTipChordAboveFloor(sections);
             trace.SectionsMs = Lap();
             var solution = method.Solve(sections, op, water, token);
             trace.SolveMs = Lap();
@@ -160,7 +161,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
             strips = method.Couple(sections, solution, op, water, token);
             trace.StripMs = Lap();
         }
-        catch (ContractError error) when (error.Code.StartsWith("ANA-", StringComparison.Ordinal))
+        catch (ContractError error) when (error.Code.StartsWith("ANA-", StringComparison.Ordinal) && error.Code != TipBelowFloorCode)
         {
             // A Failed row stores no diagnostics, even when the solve measured them before the coupling failed: the row's
             // numbers are for Completed runs only (the trace keeps what was measured).
@@ -194,6 +195,25 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         }
         trace.RecordMs = Lap();
         return row;
+    }
+
+    /// <summary>Ruling 91: the smallest tip chord, as a fraction of the root chord, that the VLM tip strip is certified for.</summary>
+    internal const double TipChordRatioFloor = 0.02;
+
+    /// <summary>The refusal for a placed tip below <see cref="TipChordRatioFloor"/>. Not a Failed row: nothing is recorded.</summary>
+    internal const string TipBelowFloorCode = "ANA-TIP-BELOW-FLOOR";
+
+    // Ruling 91 limits analysis certification only: such a wing still opens and edits (Geometry certifies it). The
+    // chord is the placed trailing minus leading edge at the outermost and innermost stations.
+    private static void RequireTipChordAboveFloor(IReadOnlyList<SectionSample> sections)
+    {
+        if (sections.Count == 0) return;
+        var root = sections.MinBy(section => section.Frame.Eta)!.Frame;
+        var tip = sections.MaxBy(section => section.Frame.Eta)!.Frame;
+        double rootChord = root.TrailingMeters - root.LeadingMeters;
+        double tipChord = tip.TrailingMeters - tip.LeadingMeters;
+        if (!(tipChord >= TipChordRatioFloor * rootChord))
+            throw new ContractError(TipBelowFloorCode, "the tip chord is below 2 % of the root chord (Ruling 91)");
     }
 
     private AnalysisRun? StoredCompleted(string key) => session.ReadRuns().Runs.FirstOrDefault(stored =>
