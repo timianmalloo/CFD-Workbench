@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T15:25:08Z",
+  "generated": "2026-10-05T15:44:57Z",
   "audit": [
     {
       "actor": null,
@@ -24924,6 +24924,34 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T15:24:11Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M46BTMWNEK35KMA6QJD21F7C",
+      "shortname": "trk-c",
+      "datetime": "2026-10-05T15:44:56Z",
+      "session": "trk-c",
+      "prompt": "Track C copy markers and small findings",
+      "summary": "Ruling 82 copy markers; security probe lock path and pin; STORE-SUBSET static check; analysis service nits (CloseMidCompute assertion, throwing cancel callback leak, CLI key vs written-out Custom point, inspect --runs revision label); F-4 analytic tent slopes; red-first record",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Apply Ruling 82 copy markers and close the small findings, each red-first",
+      "done_when": "items 1-5 committed with red and green evidence; run-tests, check-docs, run-verify-gates pass",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-10-05T15:32:54Z",
+      "duration_seconds": 722.0,
+      "git": {
+        "sha": "949e04f87119ece250a6877d83799cc1ea0eb92a",
+        "short": "949e04f87",
+        "branch": "chore/c-copy-findings",
+        "pushed": null
+      }
     }
   ],
   "changes": [
