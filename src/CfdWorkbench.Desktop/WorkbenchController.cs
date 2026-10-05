@@ -768,6 +768,8 @@ public sealed class WorkbenchController : IDisposable
         if (Section is not { } mode) return Task.FromException(new ContractError("DSL-DRAFT-OWNED"));
         Interlocked.Increment(ref previewTicket);
         CancelSectionAssessment();
+        // Drop the painted preview. Keep the choice so a later Replace still refuses DSL-STALE.
+        ClearReplacePreview(keepApplyTarget: true);
         if (mode.Assessment is not null || mode.FinishReason != SectionChecking)
         {
             Section = mode with { Assessment = null, FinishReason = SectionChecking };
@@ -947,7 +949,7 @@ public sealed class WorkbenchController : IDisposable
         LibraryScan scan = sections is null ? new([], []) : sections.Scan();
         scanClock.Stop();
         session.RecordCatalog(new("library.scan", scan.Problems.Count == 0 ? "ok" : "problems",
-            scanClock.Elapsed.TotalMilliseconds, 0, 0, 0, scan.Entries.Count, 0, scan.Problems.Count, scan.Entries.Count));
+            scanClock.Elapsed.TotalMilliseconds, null, null, null, scan.Entries.Count, null, scan.Problems.Count, scan.Entries.Count));
         clock.Stop();
         session.RecordCatalog(new("catalog.open", outcome, clock.Elapsed.TotalMilliseconds,
             naca, eppler, speer, scan.Entries.Count, disabled, scan.Problems.Count, entries.Count));
@@ -1007,20 +1009,22 @@ public sealed class WorkbenchController : IDisposable
             {
                 byte[] block = ProfileBlock(bytes, profile);
                 var provenance = ProvenanceFor(bytes, profile);
+                // Save takes no token and returns only after the claim publish, so a cancel that
+                // arrives once Save has started still reports success: the write completed.
                 var entry = library.Save(name, block, provenance);
                 clock.Stop();
                 session.RecordCatalog(new CatalogTelemetry("library.save", "saved", clock.Elapsed.TotalMilliseconds,
-                    0, 0, 0, 0, 0, 0, 1));
+                    null, null, null, null, null, null, null));
                 return entry.Name;
             }
             catch (ContractError error)
             {
                 clock.Stop();
                 session.RecordCatalog(new CatalogTelemetry("library.save", error.Code, clock.Elapsed.TotalMilliseconds,
-                    0, 0, 0, 0, 0, 0, 0));
+                    null, null, null, null, null, null, null));
                 throw;
             }
-        }, CancellationToken.None);
+        }, cancellation);
         return saved.ContinueWith(task =>
         {
             if (task.IsCanceled) return Task.FromCanceled(cancellation);
@@ -1079,7 +1083,7 @@ public sealed class WorkbenchController : IDisposable
                 fault = task.Result.Item2;
             }
             if (fault is not null && fault is not ContractError)
-                session.RecordCatalog(new CatalogTelemetry("catalog.preview", "INTERNAL-ERROR", 0, 0, 0, 0, 0, 0, 0, 0));
+                session.RecordPreviewFault("INTERNAL-ERROR");
             OnUiThread(() => FinishPreview(ticket, preview, source.DisplayName, choice, draftId, generation, fault));
         }, TaskScheduler.Default);
     }
@@ -1179,25 +1183,24 @@ public sealed class WorkbenchController : IDisposable
         return parsed;
     }
 
-    private static ProfileDefinition ProfileOf(byte[] foil, string profile)
-    {
-        var definition = FoilSource.Parse(foil).Definition ?? throw new ContractError("LIB-SECTION-INVALID");
-        return definition.Profiles.FirstOrDefault(item => item.Name == profile)
-            ?? throw new ContractError("LIB-SECTION-INVALID");
-    }
+    private static ProfileDefinition ProfileOf(byte[] foil, string profile) =>
+        FoilSource.Parse(foil).Profile(profile) ?? throw new ContractError("LIB-SECTION-INVALID");
 
-    private void ClearReplacePreview()
+    private void ClearReplacePreview(bool keepApplyTarget = false)
     {
         Interlocked.Increment(ref previewTicket);
         previewWaiting = null;
-        bool had = CurrentPreview is not null || PreviewChoice is not null || PreviewFault is not null
-            || PreviewSourceName is not null;
+        bool had = CurrentPreview is not null || PreviewSourceName is not null || PreviewFault is not null
+            || (!keepApplyTarget && PreviewChoice is not null);
         CurrentPreview = null;
-        PreviewChoice = null;
         PreviewSourceName = null;
         PreviewFault = null;
-        previewDraftId = null;
-        previewGeneration = 0;
+        if (!keepApplyTarget)
+        {
+            PreviewChoice = null;
+            previewDraftId = null;
+            previewGeneration = 0;
+        }
         if (had && !disposed) PreviewChanged?.Invoke();
     }
 
@@ -2549,6 +2552,7 @@ public sealed class WorkbenchController : IDisposable
         currentAssessment = null;
         SectionReport = null;
         sectionViews.Clear();
+        replaceNames.Clear();
         UpdateEstimates();
         var prevSelection = Selection;
         Selection = new Selection.Foil();

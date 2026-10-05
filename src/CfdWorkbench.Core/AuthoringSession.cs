@@ -43,10 +43,10 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     /// <summary>Named fields of <c>catalog.open</c>, <c>library.save</c> and <c>library.scan</c> (m12d §10); null otherwise.</summary>
     public CatalogTelemetry? Catalog { get; init; }
 }
+/// <summary>One catalog or library telemetry row on the session ring (m12d §10). Counts are never stored in the point fields. A count this event does not measure is null.</summary>
+public sealed record CatalogTelemetry(string Operation, string Outcome, double? Milliseconds,
+    int? Naca, int? Eppler, int? Speer, int? Mine, int? Disabled, int? Problems, int? Count);
 /// <summary>Scope is <c>draft</c> or <c>chain</c>; Spacing is <c>current</c>, <c>own-&lt;n&gt;</c> or <c>exact</c>; the residual is in chord fractions.</summary>
-/// <summary>One catalog or library telemetry row on the session ring (m12d §10). Counts are never stored in the point fields.</summary>
-public sealed record CatalogTelemetry(string Operation, string Outcome, double Milliseconds,
-    int Naca, int Eppler, int Speer, int Mine, int Disabled, int Problems, int Count);
 public sealed record ReplaceEvent(string Scope, int Stations, double ResidualChord, string Spacing)
 {
     /// <summary>catalog.preview only: the catalog family (null for a .dat file) and the rights class of the source.</summary>
@@ -149,6 +149,21 @@ public sealed class AuthoringSession : IDisposable
             if (events.Count == 256) events.Dequeue();
             events.Enqueue(new(eventSequence++, entry.Operation, entry.Outcome, entry.Milliseconds,
                 null, null, null, null, null, sources.Count, accepted.Count, entry.Operation) { Catalog = entry });
+        }
+    }
+
+    /// <summary>
+    /// A <c>catalog.preview</c> fault measured nowhere (m12d §10). Same event as <see cref="PreviewReplace"/>:
+    /// duration and Replace fields are null, never a catalog-count row and never a zero.
+    /// </summary>
+    public void RecordPreviewFault(string outcome)
+    {
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new(eventSequence++, "catalog.preview", outcome, null,
+                null, null, null, null, null, sources.Count, accepted.Count, "catalog.preview"));
         }
     }
     public void Dispose()

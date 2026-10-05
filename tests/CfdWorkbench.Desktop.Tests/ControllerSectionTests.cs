@@ -929,7 +929,151 @@ public static class ControllerSectionTests
                 ReleaseRoot(root);
             }
         });
+
+        DesktopChecks.Check("Controller_ProfileBlock_PublicWithoutDesktopGrant", () =>
+        {
+            var block = typeof(FoilSource).GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .FirstOrDefault(item => item.Name == "ProfileBlock"
+                    && item.GetParameters() is [{ } parameter]
+                    && parameter.ParameterType.Name == "ProfileDefinition");
+            if (block is null)
+                throw new InvalidOperationException("FoilSource.ProfileBlock(ProfileDefinition) is not public");
+            bool grant = typeof(FoilSource).Assembly
+                .GetCustomAttributes(typeof(System.Runtime.CompilerServices.InternalsVisibleToAttribute), false)
+                .Cast<System.Runtime.CompilerServices.InternalsVisibleToAttribute>()
+                .Any(item => item.AssemblyName.Split(',')[0] == "CfdWorkbench.Desktop");
+            if (grant)
+                throw new InvalidOperationException("Core still grants InternalsVisibleTo Desktop");
+        });
+
+        DesktopChecks.Check("Controller_SectionStep_ClearsLandedPreview", () =>
+        {
+            using var controller = new WorkbenchController();
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            controller.PreviewReplace(Naca("naca-0012"));
+            WaitFor(() => controller.CurrentPreview is not null);
+            Wait(controller.ApplySectionStepAsync(Raise(controller)));
+            if (controller.CurrentPreview is not null || controller.PreviewSourceName is not null)
+                throw new InvalidOperationException("a landed preview stayed painted over the stepped draft");
+            ExpectRefusal(controller.ApplyReplaceAsync(ReplaceScope.Draft), "DSL-STALE");
+        });
+
+        DesktopChecks.Check("Controller_CatalogTelemetry_OmitsInapplicableFields", () =>
+        {
+            string root = BindRoot();
+            try
+            {
+                using var controller = new WorkbenchController(previewGate: _ => throw new InvalidOperationException("boom"));
+                Wait(controller.OpenExampleAsync());
+                _ = controller.OpenCatalog();
+                var scan = SessionOf(controller).ReadLocalEvents().Last(item => item.Operation == "library.scan");
+                if (scan.Catalog is not { } scanFields)
+                    throw new InvalidOperationException("library.scan has no catalog fields");
+                object? naca = Field(scanFields, "Naca");
+                object? eppler = Field(scanFields, "Eppler");
+                object? speer = Field(scanFields, "Speer");
+                object? disabled = Field(scanFields, "Disabled");
+                if (naca is not null || eppler is not null || speer is not null || disabled is not null)
+                    throw new InvalidOperationException(
+                        $"library.scan wrote family counts naca={naca ?? "null"} eppler={eppler ?? "null"} speer={speer ?? "null"} disabled={disabled ?? "null"}");
+                if (Field(scanFields, "Count") is null || Field(scanFields, "Problems") is null || Field(scanFields, "Milliseconds") is null)
+                    throw new InvalidOperationException("library.scan dropped count, problems, or milliseconds");
+
+                Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+                Wait(controller.SaveToMySectionsAsync("Telemetry nulls"));
+                var saved = SessionOf(controller).ReadLocalEvents().Last(item => item.Operation == "library.save");
+                if (saved.Catalog is not { } saveFields || saved.Outcome != "saved" || Field(saveFields, "Milliseconds") is null)
+                    throw new InvalidOperationException("library.save lost its measured outcome");
+                foreach (string name in new[] { "Naca", "Eppler", "Speer", "Mine", "Disabled", "Problems", "Count" })
+                {
+                    if (Field(saveFields, name) is not null)
+                        throw new InvalidOperationException("library.save wrote " + name + "=" + Field(saveFields, name));
+                }
+
+                controller.PreviewReplace(Naca("naca-0012"));
+                WaitFor(() => !controller.PreviewPending);
+                var events = SessionOf(controller).ReadLocalEvents().Where(item => item.Operation == "catalog.preview").ToArray();
+                var measured = events.LastOrDefault(item => item.Replace is not null);
+                var fault = events.LastOrDefault(item => item.Outcome == "INTERNAL-ERROR");
+                if (measured is null)
+                    throw new InvalidOperationException("a measured catalog.preview has no Replace event");
+                if (measured.Catalog is not null)
+                    throw new InvalidOperationException("a measured catalog.preview used the catalog-count shape");
+                if (fault is null)
+                    throw new InvalidOperationException("the preview fault was not recorded as catalog.preview");
+                if (fault.Catalog is not null)
+                    throw new InvalidOperationException("catalog.preview INTERNAL-ERROR used the catalog-count shape");
+                if (fault.DurationMilliseconds is not null)
+                    throw new InvalidOperationException("catalog.preview INTERNAL-ERROR recorded " + fault.DurationMilliseconds + " ms");
+            }
+            finally
+            {
+                ReleaseRoot(root);
+            }
+        });
+
+        DesktopChecks.Check("Controller_SaveCancelDuringWrite_IsCanceledNotFaulted", () =>
+        {
+            // The gate runs after SaveToMySectionsAsync has started and before library.Save.
+            // A cancel there must cancel the task. library.Save itself takes no token and returns
+            // only after the claim publish, so a cancel that arrives once Save has started still
+            // reports success: the write completed.
+            string root = BindRoot();
+            try
+            {
+                using var entered = new ManualResetEventSlim(false);
+                using var release = new ManualResetEventSlim(false);
+                using var controller = ControllerWithLibraryGate(() =>
+                {
+                    entered.Set();
+                    release.Wait(TimeSpan.FromSeconds(5));
+                });
+                Wait(controller.OpenExampleAsync());
+                Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+                using var cancel = new CancellationTokenSource();
+                var saving = SaveMine(controller, "Midway", cancel.Token);
+                if (!entered.Wait(TimeSpan.FromSeconds(5)))
+                    throw new InvalidOperationException("the save never reached the library gate");
+                cancel.Cancel();
+                release.Set();
+                WaitFor(() => saving.IsCompleted);
+                if (saving.IsFaulted)
+                    throw new InvalidOperationException("cancel during save faulted the task: " + saving.Exception!.GetBaseException().GetType().Name);
+                if (!saving.IsCanceled)
+                    throw new InvalidOperationException("cancel during save status: " + saving.Status);
+                if (controller.OpenCatalog().Mine.Any(item => item.Name == "Midway"))
+                    throw new InvalidOperationException("a cancelled save published");
+            }
+            finally
+            {
+                ReleaseRoot(root);
+            }
+        });
+
+        DesktopChecks.Check("Controller_OpenSecondDocument_ClearsSharedReplaceName", () =>
+        {
+            using var controller = new WorkbenchController();
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            string profile = controller.Section!.Draft.Profile;
+            controller.PreviewReplace(Naca("naca-0012"));
+            WaitFor(() => controller.CurrentPreview is not null);
+            Wait(controller.ApplyReplaceAsync(ReplaceScope.Draft));
+            if (controller.LastReplaceName is null)
+                throw new InvalidOperationException("the first document did not record a replace name");
+            WaitFor(() => controller.Section!.CanFinish);
+            Wait(controller.FinishSectionAsync());
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            if (controller.Section!.Draft.Profile != profile)
+                throw new InvalidOperationException("second document profile " + controller.Section.Draft.Profile + " does not share " + profile);
+            if (controller.LastReplaceName is not null)
+                throw new InvalidOperationException("shared profile " + profile + " kept " + controller.LastReplaceName + " from the first document");
+        });
     }
+
+    private static object? Field(object target, string name) => target.GetType().GetProperty(name)!.GetValue(target);
 
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
