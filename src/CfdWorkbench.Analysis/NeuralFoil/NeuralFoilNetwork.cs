@@ -82,7 +82,7 @@ public sealed class NeuralFoilNetwork
         Span<double> input = stackalloc double[25];
         cst.Upper.CopyTo(input);
         cst.Lower.CopyTo(input[8..]);
-        double angle = alphaDeg * Math.PI / 180;
+        double angle = VortexLattice.ToRadians(alphaDeg);
         input[16] = cst.LeadingEdge;
         input[17] = cst.TrailingEdge * 50;
         input[18] = Math.Sin(2 * angle);
