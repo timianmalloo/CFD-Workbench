@@ -172,7 +172,7 @@ knob (tip) was not added: K2 is not built, and K4 (DR-F3-5) applies only after K
   Estimate was for AR 12 at 4.8 M cells. Measured RSS is about 1.07 kB per cell (8.68 GB / 8.08 M; 4.82 GB / 4.52 M).
 - **Load:** the 1-minute load at our own launch and end boundaries was ≤ 22.2. During waits (other tracks) it reached
   **111.7** (sampled 18:03 UTC). Every OpenFOAM process ran `nice 10`, ≤ 6 ranks, one job at a time.
-- **Launcher:** all 17 round-3 OpenFOAM launches (this spike and SPIKE-04) printed `Disallowing`. No stop file was
+- **Launcher:** all 21 round-3 OpenFOAM launches (9 here, 12 in SPIKE-04) printed `Disallowing`. No stop file was
   written.
 
 ## Defects found and fixed (class → control)
@@ -183,7 +183,7 @@ knob (tip) was not added: K2 is not built, and K4 (DR-F3-5) applies only after K
   pinned for the operator's probes. It is recorded here for the security right-size work.
 - **Size-field floor:** a Threshold with SizeMax below the far size, inside a Min field, floors the whole domain (M1a
   attempt 1). The control is the ramp to lc_far, plus the generator wall cap.
-- **Monitor start race (SPIKE-04 tooling, found here):** see the SPIKE-04 round-3 verdict.
+- **Monitor start race (SPIKE-04 tooling):** see the SPIKE-04 round-3 verdict.
 
 ## What ADR-0012 can add now (macOS arm64 only)
 

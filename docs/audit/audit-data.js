@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T16:13:19Z",
+  "generated": "2026-10-05T05:23:54Z",
   "audit": [
     {
       "actor": null,
@@ -23222,6 +23222,29 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T16:12:22Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M4589GB3PRPXNXVVHX9AM41E",
+      "shortname": "fluids-round3-runs",
+      "datetime": "2026-10-05T05:23:54Z",
+      "session": "fluids-round3",
+      "prompt": "Lead fluids round 3 as the CFD numerical verification expert per docs/plans/fluids-round3.md and Ruling 68 (DR-F3-1 A, DR-F3-3 L3 if cycle 1 fails with a 12 h cap, DR-F3-4, DR-F3-5, DR-F3-7 after round 3); write docs/proof/spike-03/verdict-round3.md and docs/proof/spike-04/verdict-round3.md",
+      "summary": "SPIKE-03 NO-GO at AR 8: M0 located 616/811 faces >70 deg on the TE arc strip; fan-ratio mechanism measured; M1b structured TE strip cleared the panel TE (616->1) but 246 tip faces and 4 low-weight faces remain; M2-M4 not run. SPIKE-04 GCI NO-GO: G0 rejects H1 (-1.03e-4), G1b misses A4 on L6 (period-8 clipping cycle), L3 hit the 10 h cap at 41,005 iterations without A4; DR-F3-7 (c) recommended.",
+      "kind": "skill",
+      "skill": "cfd-run",
+      "tool": null,
+      "actor": "claude-opus-5-5",
+      "artifacts": [
+        "docs/proof/spike-03/verdict-round3.md",
+        "docs/proof/spike-04/verdict-round3.md"
+      ],
+      "tags": [
+        "spike-03",
+        "spike-04"
+      ],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Run fluids round 3 (R3-M0..M1b, R3-G0, G1b, G2 L3) per docs/plans/fluids-round3.md and Ruling 68; write both round-3 verdicts"
     }
   ],
   "changes": [

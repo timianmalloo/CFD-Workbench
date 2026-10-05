@@ -9116,7 +9116,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cb66d6308612d4cd70eacbc03b7bf428d2bce21bdac9054b5b0e0319f88342a9"
+      "sourceSha256": "21746faee23c69059cc4534d362e1744a99503cc6acb4f450ad565ce8e4ab2d9"
     },
     {
       "id": "proof-spike-04",
@@ -9253,7 +9253,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "da0ea862f7f454e836fde338463f1ea1f66053a09d19b41837373335a1eb9b7b"
+      "sourceSha256": "4fb99111a558deab5e10d9f3eb5c70674e6e077fbc1cc68bde8540ade240461f"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -10912,5 +10912,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "7af3ffcfd85033eb6fd7b69fe444a0e64bbb02d2d7d725e4001b1229a0658559"
+  "graphSha256": "985336abf23c334ac7ab2c53f6a2c6b46ebde3a818a95c38a6ea3f7ac05200c5"
 };

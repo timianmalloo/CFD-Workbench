@@ -52,7 +52,10 @@ failure.
 | R3-G1b L6 ([g1b-l6](../../../cases/spike04r3-g1b-l6.yaml)) | L6 · 2 | nuTilda `bounded Gauss limitedLinear 1` at relaxation 0.7 | 40,000 (cap) · 203 s | **no**: clause 3 (250 clipped iterations in W) | not reported (A4 not met) | not reported |
 | R3-G2 L3 ([g2-l3](../../../cases/spike04r3-g2-l3.yaml)) | L3 1793×513 (917,504 cells) · 6 | none (D4: upwind nuTilda, relaxation 0.7, SIMPLEC p 1, limited corrected 0.5) | 41,005 · 36,038 s (10 h wall cap) | **no**: clause 2 (Cl U_I 9.8e-5 vs 1e-5; Cd 3.9e-6 vs 1e-6) | not reported (A4 not met) | not reported |
 
-Residual drop at the last window: ≥ 7.6 orders on every equation in R3-G2 (clause 1 passes). There was no clipping
+R3-G0's values are a **scheme-sensitivity diagnostic**: incompressible, code-to-code, grid U not quantified. L6 sits
+−2.9 % from CFL3D in Cl, and Cd is fully turbulent. They are not a result for the family.
+
+Residual drop at the last window: ≥ 7.5 orders on every equation in R3-G2 (7.57 at worst, nuTilda) (clause 1 passes). There was no clipping
 (clause 3 passes). The forces were still drifting: Cl moved by about −1e-3 per 10,000 iterations between 20,000 and
 41,000 ([every 10k](receipts/20261004T181801Z-spike04r3-g2-l3/cl-cd-every-10k.txt)). By the round-2 rule a run that
 ends without A4 is "Completed — residual criterion not met (ran to limit)": a gap, not a number. Its forces are
@@ -70,11 +73,16 @@ therefore not compared with any reference.
 
 - The cycle was chosen because G0 did not support H1 (plan §3.4).
 - `limitedLinear 1` at relaxation 0.7 (never run before) clipped nuTilda in **5,013 of 40,000** iterations, and in 250
-  of the final 2,000. Round-2 C-1 at relaxation 0.9 clipped in 8,000 of 40,000. Lowering the relaxation did not remove
-  the clipping. Stationarity alone would have passed (Cl 1.9e-6, Cd 8.3e-7).
+  of the final 2,000 ([count](receipts/20261004T181213Z-spike04r3-g1b-l6/bounding-count.txt)). Round-2 C-1 at
+  relaxation 0.9 clipped in 8,000 of 40,000. Lowering the relaxation did not remove the clipping.
+- **The solution is an exact period-8 cycle** (Verified, same receipt). Clipping falls every 8th iteration (…39,985,
+  39,993), and Cl and Cd repeat with period 8 to about 1e-8 (Cl 1.0550942 ↔ 1.0550905). 2,000 / 8 = 250 clipped
+  iterations per window, and the window mean is constant across monitor polls. The monitor re-read the table: Cl_last
+  changed between polls. So stationarity "passes" (Cl 1.9e-6, Cd 8.3e-7) on a limit cycle. Clause 3 is what rejects it,
+  as clause 2 rejected round 2's period-2 cycle.
 - **Cycle 1 fails on its coarsest grid**, so the triplet cannot be admitted. L5 and L4 with these numerics were **not
   run**: a triplet with one grid outside A4 cannot pass. Cycle 2 (G1a) runs "only if cycle 1 meets A4 but is
-  non-monotone" (plan §3.4), so it was not run. H2 is **untestable** under A4 with this limiter on this case.
+  non-monotone" (plan §3.4), so it was not run. H2 is **untested**: the one second-order scheme tried could not be admitted under A4.
 
 ### R3-G2 — L3 (H3: L6 is outside the asymptotic range; test the finer triplet), D4 numerics
 
@@ -87,23 +95,25 @@ therefore not compared with any reference.
   ≈ 0.36 s/it (L4's rate scaled by cells). The measured rate is 2.4× slower. Ten-minute samples ranged from about 0.6
   s/it (1-min load 8–20) to 1.4 s/it (load 20–40).
 - **Consequence:** the L4 and L5 re-runs were not run (the triplet cannot be admitted without L3). **H3 is untested.**
-  At the measured rate, L3 to A4 needs more than 41,005 iterations. Iterations to A4 grew 2.67× and then 2.41× per
-  level, which points to about 99k (**Estimate**), or about 24 h at 0.88 s/it. That does not fit a 12 h cap on this
-  shared host.
+  L3 to A4 needs more than 41,005 iterations. **Estimate** (model: round-2 iterations to A4 grew 2.67× and then 2.41×
+  per level, applied to L4's 41,055): 99k–110k iterations, or 24–27 h at 0.88 s/it and 16–18 h at 0.6 s/it. The L3
+  trajectory does not yet show a decay. Over the last polls U_I rose from 8.7e-5 to 9.8e-5, and Cl rose and then fell.
+  So even the Estimate may be low. It does not fit a 12 h cap on this shared host.
 
 ## The GCI procedure on CFL3D, reported beside the result (hydrodynamicist condition)
 
 Run with [`gci.py`](../../../cases/tools/gci.py) on [reference/cfl3d_results_sa_nopv_withN.dat](reference/cfl3d_results_sa_nopv_withN.dat)
 (Family II, first-order turbulence advection):
 
-| Triplet · QoI | R | p | GCI_fine (absolute) | True error of the fine grid vs L1 | Ratio |
+| Triplet · QoI | R | p | GCI_fine (absolute) | Error of the fine grid vs CFL3D L1 (L1 itself not error-free) | Ratio |
 |---|---|---|---|---|---|
 | L6/L5/L4 · Cl | 0.259 | 1.95 | 5.0e-4 | 2.15e-3 | **under-states 4.3×** |
 | L5/L4/L3 · Cl | 0.836 | 0.26 | 6.1e-3 | 1.18e-3 | conservative (5.2×) |
 | L5/L4/L3 · Cd | 0.197 | 2.34 | 2.8e-5 | 8.1e-6 | conservative (3.5×) |
 
-So even for the reference code, L6/L5/L4 is not a safe GCI triplet. L5/L4/L3 was conservative here, at p = 0.26 for Cl.
-This supports the plan's reading that a usable GCI on this case needs L3 or finer.
+So even for the reference code, L6/L5/L4 is not a safe GCI triplet. L5/L4/L3 was conservative here, but only because
+p = 0.26 for Cl, far below the formal order, makes the factor 1/(r^p − 1) about 5.1. That a usable GCI on this case
+needs L3 or finer is **Inferred**.
 
 ## Durations, load and memory (measured)
 
@@ -117,7 +127,7 @@ This supports the plan's reading that a usable GCI on this case needs L3 or fine
 - **Peak RSS** (`/usr/bin/time -l`, one process): L3 solver 400 MB, checkMesh 2.22 GB, reconstructPar 1.16 GB. L6
   solver 117–193 MB.
 - **Load:** the 1-minute load at our launch boundaries was 7.2–9.6. During the L3 solve, other tracks raised it to
-  40 in samples. Every process ran `nice 10`, ≤ 6 ranks, one job at a time. All launches printed `Disallowing`.
+  40 in samples. Every process ran `nice 10`, ≤ 6 ranks, one job at a time. All 12 SPIKE-04 launches printed `Disallowing` (21 in round 3 with SPIKE-03); no stop file.
 
 ## Defects found and fixed (class → control)
 
@@ -133,14 +143,21 @@ This supports the plan's reading that a usable GCI on this case needs L3 or fine
 
 - **A4 and D4 stand** as decided in round 2 (D4 met A4 on L6, L5 and L4). R3-G0 adds that the `limited corrected 0.5`
   laplacian is not why L6 is offset.
-- **Second-order turbulence advection is not admissible under A4 on this case.** `limitedLinear 1` clips nuTilda at
-  relaxation 0.9 and at 0.7.
+- **The two second-order nuTilda schemes tried fail A4 clause 3 on TMR L6** (OpenFOAM v2512):
+  - `limitedLinear 1` at relaxation 0.9 (round 2) and 0.7 (round 3, a period-8 limit cycle);
+  - `linearUpwind` (round 1: clipped in 39,994 of 40,000 iterations).
+  Other limiters, L5/L4 and the 3-D wing cases are untested. The round-2 wing cases used `limitedLinear 1`, so this
+  says nothing yet about them. A 3-D solve uses D4 or declares the deviation (ADR-0012 D4).
 - **GCI: documented absence.** No monotone admitted triplet exists among L6, L5, L4 and L3 within round 3's cycles and
   caps. The application shows "Grid U: not quantified". It never shows a GCI from L6/L5/L4, which under-states the
   error 4.3× even for CFL3D.
 - **Cost of L3 on this host:** more than 10 h and more than 41k iterations without reaching A4. The L3 triplet is
   therefore not a pin-change fixture.
 - **DR-F3-7 recommendation: (c).** Keep the TMR + A4 fixture (C-1r2, C-2, C-3, C-4) without its GCI clause.
+  - The fixture's label stays "code-to-code comparison; U_num not computable". It never says "verified" or
+    "validated against TMR".
+  - Its envelope is Re 6e6, 2-D, single-phase and fully turbulent. That is outside the product's transitional
+    Re 5e5–2e6 band.
   - Option (a), an oscillatory-bound uncertainty, needs the ITTC 7.5-03-01-01 text re-opened (**Flagged**). It would
     rest on the round-2 L6/L5/L4 oscillation, which includes the L6 outlier.
   - Option (b), a least-squares fit over ≥ 4 grids, needs an admitted L3, which this round could not produce.
@@ -151,4 +168,4 @@ This supports the plan's reading that a usable GCI on this case needs L3 or fine
 | Lens | Verdict | Veto | Conditions → where applied |
 |---|---|---|---|
 | CFD numerical verification (author) | — | does not clear its own veto | readings stated before each run; no value reported from a run without A4; no GCI from a non-admitted triplet |
-| Hydrofoil hydrodynamicist (Adversary, read only) | see below | — | — |
+| Hydrofoil hydrodynamicist (Adversary, read only) | **PASS WITH CONDITIONS** (re-ran G0's delta and thresholds, the CFL3D GCI table, the L3 rate and the 24 h Estimate) | not triggered | 1 the second-order statement scoped to the schemes, grid and code tried (ADR section) · 2 "H2 untested" (G1b) · 3 a receipt for the 5,013 count (G1b; it also showed the period-8 cycle) · 4 the L3 Estimate given as 99k–110k with its model and the missing decay (G2) · 5 the CFL3D L1 column labelled and "needs L3 or finer" marked Inferred (GCI table) · 6 G0 values scoped as a diagnostic (runs) · 7 "≥ 7.5 orders" (runs) · 8 the DR-F3-7 (c) label and envelope (ADR section) — all applied |
