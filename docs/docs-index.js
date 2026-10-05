@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c663e9f1878397fb2e47b35407caa3aba34879b3d0c614e195d8374ee41908ad"
+      "sourceSha256": "14edff5b3ab702874ea3871ea1d8e0aec2ce21c845e85403fc0de43d2acb1b0a"
     },
     {
       "id": "design-authoring-decisions",
@@ -4748,7 +4748,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "580f7cf37782e8d461e7375ef79d2b39e52ab91459d2e98ac65aaaa2c1a3f416"
+      "sourceSha256": "749e8afc40c77944ff9220d78659de4dbc54f8e33e7eb4d31b70a618b99c9b9f"
     },
     {
       "id": "domain-experts",
@@ -11461,6 +11461,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "8ba9b363a2dc1f706d2dc6e3ac217494b68d67563f6ec363acedde1c2a4a98be"
     },
     {
+      "id": "proof-vlm-tip-repaired",
+      "path": "docs/proof/vlm-tip-study/repaired-verdict.md",
+      "title": "Tip-strip law on the repaired 1.1.0 lattice",
+      "type": "proof-pack",
+      "status": "superseded",
+      "owner": "@vlm4",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "Superseded by the tip-handling study (docs/plans/tip-handling.md, Ruling 88). Historical record of the rejected eta-star convention: tests the fixed-station tip convention against an analytic midspan anchor and local lift; the rectangular high-alpha falsifier blocks a universal tip verdict.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "tip-strip"
+      ],
+      "links": [
+        {
+          "to": "proof-vlm-tip-study",
+          "rel": "refines"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "02d9debd201e44ce2372db58673134d39780944f5f7711e6e7431ead6ec5947f"
+    },
+    {
       "id": "proof-vlm-tip-s2-preregistration",
       "path": "docs/proof/vlm-tip-study/s2-sweep/preregistration.md",
       "title": "S2 small-tip-chord VLM sweep: pre-registration",
@@ -11546,7 +11575,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "37d5868b910b5a7398fdbdf5eb15d9ecbd89c0516cbf0905b61aa2d5ef648d70"
+      "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
       "id": "proof-windows-runtime",
@@ -13389,5 +13418,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "6f2bc54d7de9e4486f798b0a93b37014482654d460c22dcd6006af9c3bd796e2"
+  "graphSha256": "58b517c155e84250651ba8b7577958a2c13d1b227c12cd557611c45764cadcb6"
 };

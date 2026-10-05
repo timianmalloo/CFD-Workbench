@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("CfdWorkbench.Persistence")]
+[assembly: InternalsVisibleTo("CfdWorkbench.Analysis.Tests")]
 
 namespace CfdWorkbench.Core;
 
