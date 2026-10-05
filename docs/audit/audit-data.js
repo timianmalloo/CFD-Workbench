@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T18:55:28Z",
+  "generated": "2026-10-05T18:56:50Z",
   "audit": [
     {
       "actor": null,
@@ -26042,6 +26042,33 @@ window.AUDIT_DATA = {
         "branch": "fix/a3a-ctx-projection-feed",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M46PT143PAFFCR7SYX2X9ZFQ",
+      "shortname": "join-a3a-ctx",
+      "datetime": "2026-10-05T18:56:50Z",
+      "session": "4e90c621",
+      "prompt": "the join of fix/a3a-ctx-projection-feed into main",
+      "summary": "CTX: controller feeds ProjectionContext; DeriveVerdicts on read with the lattice's own sweep and exact per-strip panel alpha_L0 (no approximation); only the outermost strip per half reads Not judged; near-bound tests; SetLayerVisible; CFD review conditions met recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join a3a-ctx into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T18:55:58Z",
+      "duration_seconds": 52.0
     }
   ],
   "changes": [
