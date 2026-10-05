@@ -101,6 +101,12 @@
       <local:SectionCanvas x:Name="ModeCanvas" BackgroundBrush="{DynamicResource ViewportBrush}"
                            FoilBrush="{DynamicResource FoilBrush}" StationBrush="{DynamicResource StationBrush}"
                            FocusBrush="{DynamicResource PrimaryBrush}" DangerBrush="{DynamicResource PlanDangerBrush}" />
+      <Border x:Name="ModeSourceChip" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="{StaticResource ViewPlateInset}"
+              Padding="{StaticResource Space2}" CornerRadius="{StaticResource ViewPlateRadius}"
+              Background="{DynamicResource PlanSoftBrush}" BorderBrush="{DynamicResource PlanMuteBrush}" BorderThickness="1"
+              IsHitTestVisible="False">
+        <TextBlock x:Name="ModeSourceChipText" Foreground="{DynamicResource ViewportInkBrush}" />
+      </Border>
       <!-- One plate line: the view plate at the left, the reason (when there is one) and the probe at the right. -->
       <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Top" Margin="{StaticResource ViewPlateInset}">
         <Border Classes="modeplate target" IsHitTestVisible="False">

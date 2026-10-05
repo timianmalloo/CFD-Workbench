@@ -53,19 +53,23 @@ public static class SectionReplace
             ?? throw new System.Diagnostics.UnreachableException();
         Candidate? chosen = current.Residual <= limit ? current : null;
         double best = current.Residual;
+        Candidate bestCandidate = current;
         if (chosen is null && outside.Length > 0)
             return Refused("CAT-SPACING", SpacingReason(before, stations, outside, source.DisplayName, best, acceptanceChord, target.Upper.Points.Length),
-                stations, best, acceptanceChord, target.Upper.Points.Length, Enumerable.Range(0, before.Assignments.Length).ToArray());
+                stations, best, acceptanceChord, target.Upper.Points.Length, Enumerable.Range(0, before.Assignments.Length).ToArray(),
+                Write(draftBytes, target, current, source.Provenance, before, stations));
         for (int count = SmallestOwnSpacing; chosen is null && count <= LargestOwnSpacing; count++)
         {
             var (knots, x) = DatImport.OwnSqrtBasis(count);
             var own = FitOn(shape, target, knots, x, keepIds: false, "own-" + count.ToString(CultureInfo.InvariantCulture), source.DisplayName);
             if (own is null) continue;
-            best = Math.Min(best, own.Residual);
+            if (own.Residual < best) { best = own.Residual; bestCandidate = own; }
             if (own.Residual <= limit) chosen = own;
         }
         if (chosen is null)
-            return Refused("CAT-RESIDUAL", ResidualReason(source.DisplayName, best, acceptanceChord), stations, best, acceptanceChord, 0, null);
+            return Refused("CAT-RESIDUAL", ResidualReason(source.DisplayName, best, acceptanceChord), stations, best,
+                acceptanceChord, bestCandidate.Upper.Length, null,
+                Write(draftBytes, target, bestCandidate, source.Provenance, before, stations));
 
         byte[] next = Write(draftBytes, target, chosen, source.Provenance, before, stations);
         var after = SessionSource.Parse(next).Definition!;
@@ -77,7 +81,7 @@ public static class SectionReplace
         catch (ContractError refused)
         {
             return Refused("CAT-SPACING", refused.Reason ?? refused.Code, stations, chosen.Residual, acceptanceChord, chosen.Upper.Length,
-                Enumerable.Range(0, before.Assignments.Length).ToArray());
+                Enumerable.Range(0, before.Assignments.Length).ToArray(), next);
         }
         var replaced = after.Profiles.Single(profile => profile.Name == target.Name);
         var (change, at) = LargestChange(stations.Select(index => before.Profiles[before.Assignments[index].Profile]).Distinct(), replaced);
@@ -87,8 +91,10 @@ public static class SectionReplace
         { Report = report };
     }
 
-    private static ReplacePreview Refused(string code, string reason, int[] stations, double residual, double acceptanceChord, int points, int[]? chain) =>
-        new(stations, "current", residual, acceptanceChord, 0, 0, points, code, chain, null) { RefusalReason = reason };
+    // Bytes on a refused preview are visual evidence only. Patch checks RefusalCode before reading Bytes.
+    private static ReplacePreview Refused(string code, string reason, int[] stations, double residual, double acceptanceChord,
+        int points, int[]? chain, byte[] candidate) =>
+        new(stations, "current", residual, acceptanceChord, 0, 0, points, code, chain, candidate) { RefusalReason = reason };
 
     // A fitted record on one spacing. Residual is the rule-5 Euclidean residual in chord fractions.
     private sealed record Candidate(string Spacing, string Basis, double[] Knots, double[][] Upper, double[][] Lower, string[] UpperIds,

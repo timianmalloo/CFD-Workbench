@@ -899,6 +899,9 @@ public sealed class WorkbenchController : IDisposable
 
     public ReplacePreview? CurrentPreview { get; private set; }
 
+    /// <summary>A candidate shown for diagnosis only; RefusalCode is set and it is never an Apply target.</summary>
+    public ReplacePreview? RefusedPreview { get; private set; }
+
     public bool PreviewPending => Volatile.Read(ref previewBusy) != 0;
 
     public CatalogChoice? PreviewChoice { get; private set; }
@@ -956,6 +959,8 @@ public sealed class WorkbenchController : IDisposable
         return OpenedCatalog = new(entries, scan.Entries, choosable, disabled, scan.Problems.Count, outcome);
     }
 
+    public void ClearCatalogPreview() => ClearReplacePreview();
+
     /// <summary>
     /// One preview at a time, off the UI thread. A newer choice replaces the one waiting; the in-flight result is dropped
     /// when it is no longer the latest. The compute is the 140–240 ms catalog fit, so it never runs on the dispatcher.
@@ -964,6 +969,14 @@ public sealed class WorkbenchController : IDisposable
     {
         if (Section is null) throw new ContractError("DSL-DRAFT-OWNED");
         int ticket = Interlocked.Increment(ref previewTicket);
+        CurrentPreview = null;
+        RefusedPreview = null;
+        PreviewChoice = null;
+        PreviewSourceName = null;
+        PreviewFault = null;
+        previewDraftId = null;
+        previewGeneration = 0;
+        PreviewChanged?.Invoke();
         if (Interlocked.CompareExchange(ref previewBusy, 1, 0) != 0)
         {
             previewWaiting = choice;
@@ -1110,6 +1123,7 @@ public sealed class WorkbenchController : IDisposable
             if (sameDraft && preview is not null && !refused)
             {
                 CurrentPreview = preview;
+                RefusedPreview = null;
                 PreviewSourceName = name;
                 PreviewChoice = choice;
                 PreviewFault = null;
@@ -1121,6 +1135,7 @@ public sealed class WorkbenchController : IDisposable
             else if (ticketLatest)
             {
                 CurrentPreview = null;
+                RefusedPreview = sameDraft && preview?.RefusalCode is not null && preview.Bytes is not null ? preview : null;
                 PreviewChoice = null;
                 PreviewSourceName = null;
                 PreviewFault = fault as ContractError
@@ -1190,9 +1205,10 @@ public sealed class WorkbenchController : IDisposable
     {
         Interlocked.Increment(ref previewTicket);
         previewWaiting = null;
-        bool had = CurrentPreview is not null || PreviewSourceName is not null || PreviewFault is not null
+        bool had = CurrentPreview is not null || RefusedPreview is not null || PreviewSourceName is not null || PreviewFault is not null
             || (!keepApplyTarget && PreviewChoice is not null);
         CurrentPreview = null;
+        RefusedPreview = null;
         PreviewSourceName = null;
         PreviewFault = null;
         if (!keepApplyTarget)

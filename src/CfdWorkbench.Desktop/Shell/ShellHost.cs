@@ -85,6 +85,9 @@ public sealed class ShellHost : Grid
 
     /// <summary>DLG asks for the My-sections name. Null reports the empty-name sentence and writes nothing.</summary>
     public Func<Task<string?>>? AskSaveName { get; set; }
+
+    /// <summary>The save sheet owns its attempt and returns the name only after a successful publish.</summary>
+    public Func<Task<string?>>? ShowSaveDialog { get; set; }
     private string? failedPath;
 
     public static void BindF6(Window window, ShellHost host)
@@ -1284,7 +1287,7 @@ public sealed class ShellHost : Grid
 
     private void OnCatalogPreview()
     {
-        // ReplacePreview is painted by the section canvas (DLG). Rebuilding panes here costs the release-freeze refresh.
+        ModelView.SectionEditor.RefreshPreview();
         if (Controller.PreviewFault is { } error)
             Report(new StatusReport(RefusalCopy(error), ReportKind.Warning));
     }
@@ -1297,6 +1300,16 @@ public sealed class ShellHost : Grid
             await ShowCatalogDialog();
             return;
         }
+        if (TopLevel.GetTopLevel(this) is Window owner)
+        {
+            var dialog = new CatalogDialog(Controller, snapshot, ModelView.SectionEditor.SectionButton)
+            {
+                WindowStartupLocation = WindowStartupLocation.Manual
+            };
+            dialog.Position = new PixelPoint(owner.Position.X + (int)owner.Bounds.Width - (int)dialog.Width, owner.Position.Y);
+            await dialog.ShowDialog(owner);
+            return;
+        }
         string text = snapshot.Outcome == "CAT-UNAVAILABLE"
             ? "Catalog unavailable."
             : $"Catalog open: {snapshot.Choosable} sections.";
@@ -1305,6 +1318,20 @@ public sealed class ShellHost : Grid
 
     private async Task SaveMineAsync()
     {
+        if (ShowSaveDialog is not null || AskSaveName is null && TopLevel.GetTopLevel(this) is Window)
+        {
+            string? saved;
+            if (ShowSaveDialog is not null) saved = await ShowSaveDialog();
+            else
+            {
+                var owner = (Window)TopLevel.GetTopLevel(this)!;
+                var dialog = new SaveSectionDialog(Controller, name => Controller.SaveToMySectionsAsync(name),
+                    ModelView.SectionEditor.SectionButton);
+                saved = await dialog.ShowDialog<string?>(owner);
+            }
+            if (saved is not null) Report(new StatusReport($"Saved “{saved}” to My sections"));
+            return;
+        }
         if (AskSaveName is null)
         {
             Report(new StatusReport("Name the section to save it."));

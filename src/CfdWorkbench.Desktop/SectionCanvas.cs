@@ -32,6 +32,9 @@ public class SectionCanvas : Control
     /// <summary>The upper and lower curves the last section render drew, in canvas pixels.</summary>
     public IReadOnlyList<IReadOnlyList<Point>> DrawnCurves { get; private set; } = [];
     public (double X0, double X1)? CrossingInterval { get; private set; }
+    /// <summary>Candidate outline; set from a landed preview and drawn above the current section.</summary>
+    public ProfileView? PreviewProfile { get; set; }
+    public double? PreviewLargestX { get; set; }
     private double viewMinX;
     private double viewSpan = 1;
     private double viewCenterY;
@@ -427,6 +430,17 @@ public class SectionCanvas : Control
             ? [LiveSamples(upper), LiveSamples(lower)]
             : [Profile!.UpperCurve.Select(p => ModelToScreen(p.X, p.Y)).ToArray(), Profile.LowerCurve.Select(p => ModelToScreen(p.X, p.Y)).ToArray()];
         foreach (var drawnCurve in DrawnCurves) DrawPolyline(context, curvePen, drawnCurve);
+        if (PreviewProfile is { } candidate && (ResolveThemeBrush("PrimaryBrush") ?? station) is { } accent)
+        {
+            var previewPen = new Pen(accent, 2, new DashStyle([5, 3], 0));
+            DrawPolyline(context, previewPen, candidate.UpperCurve.Select(point => ModelToScreen(point.X, point.Y)));
+            DrawPolyline(context, previewPen, candidate.LowerCurve.Select(point => ModelToScreen(point.X, point.Y)));
+            if (PreviewLargestX is double x)
+            {
+                var at = ModelToScreen(x, 0);
+                context.DrawLine(new Pen(accent, 2), new Point(at.X, at.Y - 22), new Point(at.X, at.Y + 22));
+            }
+        }
         // The crossing marker belongs to the step's bytes: hidden during a drag rather than drawn where the curves were.
         var crossing = live ? null : rest.Crossing;
         CrossingInterval = crossing;

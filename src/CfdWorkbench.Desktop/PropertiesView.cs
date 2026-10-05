@@ -1110,8 +1110,10 @@ public static class PropertiesView
     {
         var facts = section.Facts;
         int degree = section.Upper.Knots.Count - section.Upper.Points.Count - 1;
+        string source = SourceDisplay(section.Mode.Draft.Bytes, section.Mode.Draft.Profile);
         var rows = new List<PropertyRow>
         {
+            Prose("sec:source", "Source", source),
             Prose("sec:own", "Own t/c", $"{Quantity.Typed(facts.OwnThickness * 100)} % at {Quantity.Typed(facts.OwnThicknessX * 100)}") with { Unit = "% c" }
         };
         foreach (var (name, station) in section.Stations)
@@ -1145,11 +1147,37 @@ public static class PropertiesView
         // The notes sit where the mockup draws them: under the t/c rows and under the LE radius rows (B continuations).
         return
         [
-            new PropertyGroup("sec", "Section", $"{section.Mode.Draft.Profile} · degree {degree}", true, thickness,
+            new PropertyGroup("sec", "Section", $"{section.Mode.Draft.Profile} · {SourceName(section.Mode.Draft.Bytes, section.Mode.Draft.Profile)} · degree {degree}", true, thickness,
                 [new RowMessage(ThicknessNote, MessageKind.Info)]),
             new PropertyGroup("sec-le", "Section", "", true, radius, [new RowMessage(leNote, MessageKind.Info)], Continues: true),
             new PropertyGroup("sec-te", "Section", "", true, rows, [], Continues: true)
         ];
+    }
+
+    public static string SourceName(byte[] foil, string profile)
+    {
+        string? raw = FoilSource.Parse(foil).Profile(profile)?.Provenance;
+        var provenance = Provenance.Parse(raw);
+        if (provenance.Origin is not { } origin) return "Source not recorded";
+        int colon = origin.IndexOf(':');
+        if (colon > 0 && origin.StartsWith("gen:", StringComparison.Ordinal))
+        {
+            try
+            {
+                var row = Catalog.Load().FirstOrDefault(entry => entry.Id == origin[(colon + 1)..]);
+                if (row is not null) return row.Designation;
+            }
+            catch (ContractError) { }
+        }
+        return origin;
+    }
+
+    public static string SourceDisplay(byte[] foil, string profile)
+    {
+        string? raw = FoilSource.Parse(foil).Profile(profile)?.Provenance;
+        var provenance = Provenance.Parse(raw);
+        string display = provenance.ChipText(SourceName(foil, profile));
+        return provenance.Rights == RightsClass.NotRecorded ? display : display + " (" + provenance.Rights.ToString().ToUpperInvariant() + ")";
     }
 
     private static PropertyRow Pair(string key, string label, double first, double second, string unit) => new()

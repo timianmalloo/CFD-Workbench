@@ -1,4 +1,13 @@
 using CfdWorkbench.Desktop;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Markup.Xaml;
+using Avalonia.Automation;
+using Avalonia.Threading;
+using Avalonia;
+using Avalonia.Media;
+using CfdWorkbench.Core;
+using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop.Tests;
 
@@ -25,32 +34,315 @@ public static class CatalogDialogTests
     public static void Run()
     {
         foreach (string name in CatalogNames)
-            DesktopChecks.Check(name, () => NeedType("CfdWorkbench.Desktop.CatalogDialog"));
+            DesktopChecks.Check(name, () => CheckCatalog(name));
         foreach (string name in SaveNames)
-            DesktopChecks.Check(name, () => NeedType("CfdWorkbench.Desktop.SaveSectionDialog"));
-        DesktopChecks.Check("SectionCanvas_Preview_DashedAccentPixelsOverCurrent", () =>
-            NeedProperty(typeof(SectionCanvas), "PreviewProfile"));
-        DesktopChecks.Check("SourceChip_AfterReplaceAndEdit_TextNotColour", () =>
-            NeedProperty(typeof(SectionEditorView), "SourceChipText"));
-        DesktopChecks.Check("SourceChip_StationTcDiffers_SaysScaled", () =>
-            NeedProperty(typeof(SectionEditorView), "SourceChipText"));
-        DesktopChecks.Check("BrowserRow_AfterReplace_NameThenSource", () =>
-            NeedMethod(typeof(Panes.BrowserPane), "StationSourceText"));
+            DesktopChecks.Check(name, () => CheckSave(name));
+        DesktopChecks.Check("SectionCanvas_Preview_DashedAccentPixelsOverCurrent", CheckCanvasPixels);
+        DesktopChecks.Check("SourceChip_AfterReplaceAndEdit_TextNotColour", CheckChipAfterEdit);
+        DesktopChecks.Check("SourceChip_StationTcDiffers_SaysScaled", CheckScaledChip);
+        DesktopChecks.Check("BrowserRow_AfterReplace_NameThenSource", CheckBrowserText);
     }
 
-    private static void NeedType(string name)
+    private static void CheckCatalog(string name)
     {
-        if (typeof(SectionEditorView).Assembly.GetType(name) is null)
-            throw new Exception($"The realized {name} surface is missing");
+        using var controller = new WorkbenchController();
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+        if (name is "CatalogDialog_SpacingRefusal_ReasonAndChainOffered" or "CatalogDialog_ChainButton_AppliesAllStations")
+            Wait(controller.ApplySectionStepAsync(new SectionStep.MakeUnique()));
+        Action? count = null;
+        var snapshot = name == "CatalogDialog_CatalogUnavailable_ShowsCauseAndCancel"
+            ? new CatalogSnapshot([], [], 0, 0, 0, "CAT-UNAVAILABLE") : controller.OpenCatalog();
+        var dialog = new CatalogDialog(controller, snapshot, schedule: (_, callback) => count = callback);
+        dialog.Show();
+        Dispatcher.UIThread.RunJobs();
+        try
+        {
+            var search = Need<TextBox>(dialog, "SearchBox");
+            var list = Need<ListBox>(dialog, "SectionList");
+            var detail = Need<TextBlock>(dialog, "DetailLine");
+            var replace = Need<Button>(dialog, "ReplaceButton");
+            var chain = Need<Button>(dialog, "ChainButton");
+            switch (name)
+            {
+                case "CatalogDialog_Open_FocusInSearch":
+                    Require(ReferenceEquals(dialog.FocusManager?.GetFocusedElement(), search), "Search lacks opening focus");
+                    break;
+                case "CatalogDialog_FamiliesGrouped_ListboxShape":
+                    string[] headings = list.Items.OfType<ListBoxItem>().Where(item => item.Tag is null)
+                        .Select(item => item.Content?.ToString() ?? "").ToArray();
+                    Require(headings.Contains("NACA") && headings.Contains("Eppler") && headings.Contains("Speer") &&
+                        headings.Contains("My sections"), "Catalog family headings are missing");
+                    Require(list.Items.OfType<ListBoxItem>().Any(item => item.Tag is CatalogChoice.Catalog { Entry.DisabledReason: not null }),
+                        "Disabled entries are missing from the listbox");
+                    break;
+                case "CatalogDialog_ArrowsReachDisabledRows_Quiet":
+                    search.Text = "E817";
+                    Dispatcher.UIThread.RunJobs();
+                    count?.Invoke();
+                    PressKey(search, Key.Down);
+                    Require(dialog.ActiveOption == 0 && Need<TextBlock>(dialog, "MatchCount").Text == "1 sections match",
+                        $"Arrow did not reach the disabled row quietly: active={dialog.ActiveOption}, count={Need<TextBlock>(dialog, "MatchCount").Text}");
+                    break;
+                case "CatalogDialog_TypingPause_AnnouncesCountOnce":
+                    search.Text = "NACA";
+                    Dispatcher.UIThread.RunJobs();
+                    var old = count;
+                    search.Text = "NACA 0";
+                    Dispatcher.UIThread.RunJobs();
+                    string? before = Need<TextBlock>(dialog, "MatchCount").Text;
+                    old?.Invoke();
+                    Require(Need<TextBlock>(dialog, "MatchCount").Text == before, "Stale debounce announced a count");
+                    count?.Invoke();
+                    Require(Need<TextBlock>(dialog, "MatchCount").Text == $"{dialog.FindControl<ListBox>("SectionList")!.Items.OfType<ListBoxItem>().Count(item => item.Tag is CatalogChoice)} sections match",
+                        "Latest count was not announced after the pause");
+                    break;
+                case "CatalogDialog_NoMatch_Copy115ReplaceDisabled":
+                    search.Text = "there-is-no-such-section";
+                    Dispatcher.UIThread.RunJobs();
+                    Require(detail.Text == "No sections match “there-is-no-such-section”. Try NACA, Eppler or a name." && !replace.IsEnabled,
+                        $"COPY-115 or disabled Replace is missing: '{detail.Text}', enabled={replace.IsEnabled}");
+                    break;
+                case "CatalogDialog_PendingRowEnter_NothingChanges":
+                    byte[] beforeBytes = controller.Section!.Draft.Bytes.ToArray();
+                    SelectCatalog(list, "E817");
+                    PressKey(search, Key.Enter);
+                    Require(beforeBytes.AsSpan().SequenceEqual(controller.Section!.Draft.Bytes) && !replace.IsEnabled &&
+                        detail.Text?.Contains("Pending admission", StringComparison.Ordinal) == true,
+                        "Enter on a pending row changed the section or hid its reason");
+                    break;
+                case "CatalogDialog_SharedPreview_DetailNamesStationsFitLimit":
+                    SelectCatalog(list, "NACA 0012");
+                    WaitFor(() => controller.CurrentPreview is not null);
+                    Require(detail.Text?.Contains("Root and Tip") == true && detail.Text.Contains("µm") &&
+                        detail.Text.Contains("% chord") && detail.Text.Contains("limit 10 µm") &&
+                        detail.Text.Contains("points per surface") && detail.Text.Contains("Largest change") &&
+                        detail.Text.Contains("t/c stays") && detail.Text.Contains("Frame:"), "Preview detail is incomplete");
+                    break;
+                case "CatalogDialog_Replace_FocusToSectionMenu":
+                    SelectCatalog(list, "NACA 0012");
+                    WaitFor(() => controller.CurrentPreview is not null);
+                    replace.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                    WaitFor(() => controller.Section!.Draft.Cursor == 1 && !dialog.IsVisible);
+                    Require(!dialog.IsVisible, "Replace did not close the dialog");
+                    break;
+                case "CatalogDialog_Escape_NothingChangedFocusToSectionMenu":
+                    byte[] original = controller.Section!.Draft.Bytes.ToArray();
+                    PressKey(search, Key.Escape);
+                    Require(!dialog.IsVisible && original.AsSpan().SequenceEqual(controller.Section!.Draft.Bytes),
+                        "Escape changed the section or left the dialog open");
+                    break;
+                case "CatalogDialog_SpacingRefusal_ReasonAndChainOffered":
+                    SelectCatalog(list, "NACA 4412");
+                    WaitFor(() => controller.RefusedPreview is not null);
+                    Require(!replace.IsEnabled && chain.IsVisible &&
+                        detail.Text?.StartsWith("Root blends point-to-point with Tip", StringComparison.Ordinal) == true &&
+                        controller.CurrentPreview is null, "Spacing refusal did not show reason and chain");
+                    break;
+                case "CatalogDialog_ChainButton_AppliesAllStations":
+                    SelectCatalog(list, "NACA 4412");
+                    WaitFor(() => controller.RefusedPreview is not null);
+                    chain.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                    WaitFor(() => controller.Section!.Draft.Cursor == 2);
+                    Require(controller.Section!.LastReport?.Import?.Stations?.Count == controller.Inspection!.Authored.Assignments.Count,
+                        "Chain button did not apply at all stations");
+                    break;
+                case "CatalogDialog_CatalogUnavailable_ShowsCauseAndCancel":
+                    Require(detail.Text?.StartsWith("The catalog didn't load:", StringComparison.Ordinal) == true &&
+                        !replace.IsEnabled && Need<Button>(dialog, "CancelButton").IsEnabled,
+                        "Catalog-unavailable state lacks cause or Cancel");
+                    break;
+                case "CatalogDialog_MySectionsEmpty_ShowsNextAction":
+                    Require(list.Items.OfType<ListBoxItem>().Any(item => item.Content?.ToString()?.StartsWith("No saved sections yet.", StringComparison.Ordinal) == true),
+                        "My sections empty state lacks its next action");
+                    break;
+                case "CatalogDialog_DoubleClickRow_Replaces":
+                    var row = SelectCatalog(list, "NACA 0012");
+                    WaitFor(() => controller.CurrentPreview is not null);
+                    row.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
+                    WaitFor(() => controller.Section!.Draft.Cursor == 1);
+                    break;
+                case "CatalogDialog_Preview_LargestChangeMarkerAtMeasuredX":
+                    SelectCatalog(list, "NACA 0012");
+                    WaitFor(() => controller.CurrentPreview is not null);
+                    Require(controller.CurrentPreview!.LargestChangeAtX is >= 0 and <= 1, "Largest-change x is not on chord");
+                    break;
+            }
+        }
+        finally { dialog.Close(); }
     }
 
-    private static void NeedProperty(Type type, string name)
+    private static T Need<T>(Control root, string name) where T : Control =>
+        root.FindControl<T>(name) ?? throw new Exception($"{name} missing");
+
+    private static void Require(bool condition, string message)
     {
-        if (type.GetProperty(name) is null) throw new Exception($"{type.Name}.{name} is missing");
+        if (!condition) throw new Exception(message);
     }
 
-    private static void NeedMethod(Type type, string name)
+    private static ListBoxItem SelectCatalog(ListBox list, string designation)
     {
-        if (type.GetMethod(name) is null) throw new Exception($"{type.Name}.{name} is missing");
+        var item = list.Items.OfType<ListBoxItem>().First(row => row.Tag is CatalogChoice.Catalog choice &&
+            choice.Entry.Designation.EndsWith(designation, StringComparison.Ordinal));
+        list.SelectedItem = item;
+        return item;
+    }
+
+    private static void PressKey(Control control, Key key) => control.RaiseEvent(new KeyEventArgs
+    {
+        RoutedEvent = InputElement.KeyDownEvent, Source = control, Key = key
+    });
+
+    private static void WaitFor(Func<bool> condition)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!condition())
+        {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("DLG result did not settle");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Yield();
+        }
+        Dispatcher.UIThread.RunJobs();
+    }
+
+    private static void Wait(Task task)
+    {
+        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(20);
+        while (!task.IsCompleted)
+        {
+            if (DateTime.UtcNow >= deadline) throw new TimeoutException("DLG setup did not complete");
+            Dispatcher.UIThread.RunJobs();
+            Thread.Yield();
+        }
+        task.GetAwaiter().GetResult();
+    }
+
+    private static void CheckSave(string name)
+    {
+        string root = Path.Combine(Path.GetTempPath(), "dlg-save-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            var library = new SectionLibrary(root);
+            using var controller = new WorkbenchController(sections: library);
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+            var dialog = new SaveSectionDialog(controller, value => controller.SaveToMySectionsAsync(value));
+            dialog.Show();
+            Dispatcher.UIThread.RunJobs();
+            var input = Need<TextBox>(dialog, "NameBox");
+            switch (name)
+            {
+                case "SaveDialog_Open_FocusInName":
+                    Require(ReferenceEquals(dialog.FocusManager?.GetFocusedElement(), input) &&
+                        Need<TextBlock>(dialog, "RightsLine").Text?.Contains("Rights:") == true,
+                        "Save did not focus Name or show rights");
+                    break;
+                case "SaveDialog_EmptyOrDuplicate_ErrorFocusStays":
+                    input.Text = " ";
+                    Wait(dialog.SaveAsync());
+                    Require(Need<TextBlock>(dialog, "SaveError").Text == "Name the section to save it." && input.IsFocused,
+                        "Empty name did not show COPY-113 in Name");
+                    Wait(controller.SaveToMySectionsAsync("Sample"));
+                    input.Text = "sample";
+                    Wait(dialog.SaveAsync());
+                    Require(Need<TextBlock>(dialog, "SaveError").Text == "“sample” is already in My sections. Choose another name." &&
+                        input.IsFocused && AutomationProperties.GetItemStatus(input) == "invalid",
+                        "Duplicate name did not show COPY-114 with invalid Name focus");
+                    break;
+                case "SaveDialog_Escape_NothingSavedFocusToSectionMenu":
+                    input.Text = "Unsaved";
+                    PressKey(input, Key.Escape);
+                    Require(!dialog.IsVisible && controller.OpenCatalog().Mine.Count == 0, "Escape wrote a library entry");
+                    break;
+                case "SaveDialog_Save_LiveRegionFocusToSectionMenu":
+                    input.Text = "Kite root";
+                    Wait(dialog.SaveAsync());
+                    Require(dialog.SavedName == "Kite root" && Need<TextBlock>(dialog, "SavedRegion").Text ==
+                        "Saved “Kite root” to My sections" && controller.OpenCatalog().Mine.Any(entry => entry.Name == "Kite root"),
+                        "Save did not publish and announce the exact name");
+                    break;
+            }
+            dialog.Close();
+        }
+        finally { Directory.Delete(root, recursive: true); }
+    }
+
+    private static WorkbenchController Replaced(string designation)
+    {
+        var controller = new WorkbenchController();
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+        var entry = Catalog.Load().Single(row => row.Designation == designation);
+        controller.PreviewReplace(new CatalogChoice.Catalog(entry));
+        WaitFor(() => controller.CurrentPreview is not null);
+        Wait(controller.ApplyReplaceAsync(ReplaceScope.Draft));
+        return controller;
+    }
+
+    private static void CheckChipAfterEdit()
+    {
+        using var controller = Replaced("NACA 0012");
+        var view = new SectionEditorView();
+        var window = new Window { Content = view, Width = 800, Height = 400 };
+        window.Show();
+        view.Bind(controller);
+        Require(view.SourceChipText?.StartsWith("Catalog original · NACA 0012", StringComparison.Ordinal) == true,
+            "The source chip did not name the catalog original");
+        var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+        Wait(controller.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, point.Id, point.SpanMeters, point.Ordinate + .01)));
+        view.Bind(controller);
+        Require(view.SourceChipText?.StartsWith("Modified from NACA 0012", StringComparison.Ordinal) == true,
+            "The chip did not report modification in text");
+        window.Close();
+    }
+
+    private static void CheckScaledChip()
+    {
+        using var controller = Replaced("NACA 0009");
+        var view = new SectionEditorView();
+        var window = new Window { Content = view, Width = 800, Height = 400 };
+        window.Show();
+        view.Bind(controller);
+        Require(view.SourceChipText?.Contains("scaled to", StringComparison.Ordinal) == true &&
+            view.SourceChipText.Contains("% t/c", StringComparison.Ordinal), "Station t/c scaling is missing from chip text");
+        window.Close();
+    }
+
+    private static void CheckBrowserText()
+    {
+        using var controller = Replaced("NACA 0012");
+        string profile = controller.Section!.Draft.Profile;
+        string text = Panes.BrowserPane.StationSourceText(profile, controller.Section.Draft.Bytes);
+        Require(text == profile + " · NACA 0012", "Browser did not show name then source: " + text);
+    }
+
+    private static void CheckCanvasPixels()
+    {
+        using var controller = Replaced("NACA 0012");
+        var current = controller.SectionView(0);
+        var preview = current with
+        {
+            UpperCurve = current.UpperCurve.Select(point => new ProfilePoint(point.X, point.Y + .04)).ToArray(),
+            LowerCurve = current.LowerCurve.Select(point => new ProfilePoint(point.X, point.Y - .04)).ToArray()
+        };
+        var canvas = new SectionCanvas
+        {
+            Controller = controller, Profile = current, Width = 800, Height = 400,
+            BackgroundBrush = Brushes.Black, FoilBrush = Brushes.White, StationBrush = Brushes.Gray,
+            PreviewLargestX = .47
+        };
+        var window = new Window { Content = canvas, Width = 800, Height = 400 };
+        window.Show();
+        using var before = PropertiesCellsTests.Render(window, 1);
+        canvas.PreviewProfile = preview;
+        canvas.InvalidateVisual();
+        using var after = PropertiesCellsTests.Render(window, 1);
+        int changed = 0;
+        for (int y = 100; y < 300; y += 2)
+            for (int x = 100; x < 700; x += 2)
+                if (before.At(x, y) != after.At(x, y)) changed++;
+        window.Close();
+        Require(changed > 20, "No dashed preview pixels over the current section: " + changed);
     }
 }
