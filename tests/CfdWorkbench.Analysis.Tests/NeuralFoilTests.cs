@@ -31,7 +31,7 @@ internal static class NeuralFoilTests
         AnalysisChecks.Check("NeuralFoil_Envelope_InsideBracket_NotFlagged", InsideBracketNotFlagged);
         AnalysisChecks.Check("NeuralFoil_Envelope_CstResidual", () => Refused(0, 500000, 4, "naca0012", true, "CST"));
         AnalysisChecks.Check("NeuralFoil_Envelope_OutsideValidatedBracket", OutsideBracket);
-        AnalysisChecks.Check("NeuralFoil_Confidence_BelowFloorNonComputable", ConfidenceGate);
+        AnalysisChecks.Check("NeuralFoil_Confidence_Low_ComputedFlaggedNeverRefused", LowConfidenceAdvisory);
         AnalysisChecks.Check("NeuralFoil_Telemetry_EmittedOnNormalPath", Telemetry);
         AnalysisChecks.Check("NeuralFoil_InferenceCost", InferenceCost);
     }
@@ -189,11 +189,26 @@ internal static class NeuralFoilTests
             throw new Exception("outside-bracket prediction or flag missing");
     }
 
-    private static void ConfidenceGate()
+    private static void LowConfidenceAdvisory()
     {
-        if (NeuralFoilPolarSource.ConfidenceReason(0.49) is null ||
-            NeuralFoilPolarSource.ConfidenceReason(0.5) is not null)
-            throw new Exception("advisory confidence floor does not gate the polar point");
+        // Python: alpha 27, Re 1e3, Ncrit 0 on NACA 0012 gives analysis_confidence 6.7e-6 (inside the training range).
+        NeuralFoilSection section = Section(false, "naca0012");
+        var source = new NeuralFoilPolarSource(_ => section);
+        NeuralFoilEvaluation result = source.Evaluate(section, 27, 1000, 0, CancellationToken.None);
+        if (!result.Computable || result.Prediction is null) throw new Exception("low-confidence point was refused: " + result.Reason);
+        if (result.Prediction.AnalysisConfidence >= NeuralFoilPolarSource.LowConfidenceBelow)
+            throw new Exception("fixture point is not low confidence: " + result.Prediction.AnalysisConfidence);
+        if (!result.LowConfidence || result.ConfidenceWarning is null) throw new Exception("low-confidence flag missing");
+        string text = result.ConfidenceWarning;
+        if (!text.Contains("advisory", StringComparison.OrdinalIgnoreCase) ||
+            !text.Contains("not an accuracy", StringComparison.OrdinalIgnoreCase))
+            throw new Exception("warning does not say the confidence is advisory and not an accuracy statement: " + text);
+        var water = new WaterRecord(15, 0, 999, 1e-6, 1000, "fixture", new string('b', 64));
+        PolarSample? sample = source.Sample(section.ProfileHash, 1000, 0, 27, water, CancellationToken.None);
+        if (sample?.Confidence is not { } carried || carried >= NeuralFoilPolarSource.LowConfidenceBelow)
+            throw new Exception("sample dropped the advisory confidence");
+        NeuralFoilEvaluation fine = source.Evaluate(section, 0, 500000, 4, CancellationToken.None);
+        if (fine.LowConfidence || fine.ConfidenceWarning is not null) throw new Exception("high-confidence point was flagged");
     }
 
     private static void Telemetry()
