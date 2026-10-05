@@ -4,7 +4,6 @@ using CfdWorkbench.Persistence;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Threading;
 
@@ -140,13 +139,16 @@ public sealed class WorkbenchController : IDisposable
     private readonly Action<long>? sectionStepGate;
     private readonly SectionLibrary? sections;
     private readonly Action<int>? previewGate;
+    private readonly Action? libraryGate;
     private int previewTicket;
     private int previewBusy;
     private CatalogChoice? previewWaiting;
     private ReplaceScope previewWaitingScope;
     private int previewWaitingTicket;
-    private static readonly Regex ProvenanceField = new(
-        @"\bprovenance\s+""(?<value>(?:\\.|[^""\\])*)""", RegexOptions.CultureInvariant);
+    private string? previewDraftId;
+    private long previewGeneration;
+    private readonly Dictionary<string, string> replaceNames = new(StringComparer.Ordinal);
+    private IReadOnlyList<CatalogEntry>? catalogRows;
     private SessionDraft? draft;
     private AuthoredProjection? draftProjection;
     private string? projectedDraftId;
@@ -228,7 +230,8 @@ public sealed class WorkbenchController : IDisposable
 
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null,
         SurfaceCompute? surfaceCompute = null, TimeProvider? time = null, Func<long, Task>? sectionAssessmentGate = null,
-        Action<long>? sectionStepGate = null, SectionLibrary? sections = null, Action<int>? previewGate = null)
+        Action<long>? sectionStepGate = null, SectionLibrary? sections = null, Action<int>? previewGate = null,
+        Action? libraryGate = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
         store = this.storeFactory(session);
@@ -239,6 +242,7 @@ public sealed class WorkbenchController : IDisposable
         this.sectionStepGate = sectionStepGate;
         this.sections = sections ?? App.Sections;
         this.previewGate = previewGate;
+        this.libraryGate = libraryGate;
     }
     /// <summary>Document, selection, status, estimate and layout changes; the shell rebuilds its panes on each (≈ 25 ms).</summary>
     public event Action? Changed;
@@ -540,7 +544,7 @@ public sealed class WorkbenchController : IDisposable
 
     private static void OnUiThread(Action action)
     {
-        if (Application.Current is null || Dispatcher.UIThread.CheckAccess()) action();
+        if (Dispatcher.UIThread.CheckAccess()) action();
         else Dispatcher.UIThread.Post(action);
     }
 
@@ -648,6 +652,7 @@ public sealed class WorkbenchController : IDisposable
     public Task EnterSectionAsync(int assignment, EntryOrigin origin)
     {
         if (disposed) throw new ContractError("DOC-CLOSED");
+        ClearReplacePreview();
         if (Section is { } open)
         {
             // A step still applying counts as an edit: switching now would drop it.
@@ -711,8 +716,10 @@ public sealed class WorkbenchController : IDisposable
             if (SectionStale(mode)) return;
             draft = landed;
             SectionRefitRefusal = null;
-            if (step is SectionStep.Replace replace) LastReplaceName = replace.Source.DisplayName;
+            if (step is SectionStep.Replace replace)
+                replaceNames[next.Profile] = replace.Source.DisplayName;
             Section = Section! with { Draft = next, Assessment = null, FinishReason = SectionChecking };
+            if (step is SectionStep.Replace) ClearReplacePreview();
             // One shell refresh per step: the assessment's "Checking…" write notifies, after the strip has the step report.
             RaiseSectionChanged();
             assessed = AssessCurrentSectionAsync(cancellation);
@@ -759,6 +766,7 @@ public sealed class WorkbenchController : IDisposable
     private Task QueueSectionStep(Func<SectionMode, Task> land)
     {
         if (Section is not { } mode) return Task.FromException(new ContractError("DSL-DRAFT-OWNED"));
+        Interlocked.Increment(ref previewTicket);
         CancelSectionAssessment();
         if (mode.Assessment is not null || mode.FinishReason != SectionChecking)
         {
@@ -893,7 +901,11 @@ public sealed class WorkbenchController : IDisposable
 
     public CatalogChoice? PreviewChoice { get; private set; }
 
-    public string? LastReplaceName { get; private set; }
+    public string? LastReplaceName =>
+        Section?.Draft.Profile is { } profile && replaceNames.TryGetValue(profile, out string? name) ? name : null;
+
+    /// <summary>The contract error of the latest preview when it refused; null when a preview is showing or none was asked.</summary>
+    public ContractError? PreviewFault { get; private set; }
 
     public CatalogSnapshot? OpenedCatalog { get; private set; }
 
@@ -905,7 +917,7 @@ public sealed class WorkbenchController : IDisposable
         get
         {
             if (Section is not { } mode) return null;
-            var parsed = CfdWorkbench.Core.Provenance.Parse(ProvenanceText(mode.Draft.Bytes, mode.Draft.Profile));
+            var parsed = ProvenanceFor(mode.Draft.Bytes, mode.Draft.Profile);
             return parsed.ChipText(ChipSourceName(parsed));
         }
     }
@@ -925,17 +937,20 @@ public sealed class WorkbenchController : IDisposable
             entries = [];
             outcome = error.Code;
         }
+        if (outcome == "ok") catalogRows = entries;
         int choosable = entries.Count(entry => entry.Coordinates is not null && entry.DisabledReason is null);
         int disabled = entries.Count - choosable;
+        int naca = entries.Count(entry => entry.Family == CatalogFamily.Naca);
+        int eppler = entries.Count(entry => entry.Family == CatalogFamily.Eppler);
+        int speer = entries.Count(entry => entry.Family == CatalogFamily.Speer);
         var scanClock = Stopwatch.StartNew();
         LibraryScan scan = sections is null ? new([], []) : sections.Scan();
         scanClock.Stop();
-        Shell.ShellEvents.Record("library.scan", scan.Problems.Count == 0 ? "ok" : "problems",
-            scanClock.Elapsed.TotalMilliseconds, Guid.NewGuid().ToString("N"),
-            stations: scan.Entries.Count, pointsAfter: scan.Problems.Count);
+        session.RecordCatalog(new("library.scan", scan.Problems.Count == 0 ? "ok" : "problems",
+            scanClock.Elapsed.TotalMilliseconds, 0, 0, 0, scan.Entries.Count, 0, scan.Problems.Count, scan.Entries.Count));
         clock.Stop();
-        Shell.ShellEvents.Record("catalog.open", outcome, clock.Elapsed.TotalMilliseconds, Guid.NewGuid().ToString("N"),
-            stations: choosable, pointsAfter: disabled);
+        session.RecordCatalog(new("catalog.open", outcome, clock.Elapsed.TotalMilliseconds,
+            naca, eppler, speer, scan.Entries.Count, disabled, scan.Problems.Count, entries.Count));
         return OpenedCatalog = new(entries, scan.Entries, choosable, disabled, scan.Problems.Count, outcome);
     }
 
@@ -959,35 +974,71 @@ public sealed class WorkbenchController : IDisposable
 
     public Task ApplyReplaceAsync(ReplaceScope scope)
     {
-        if (PreviewChoice is not { } choice)
-            throw new ContractError("CAT-NOT-ADMITTED", "This section has no coordinates in this build. Nothing changed.");
-        return ApplySectionStepAsync(new SectionStep.Replace(SourceOf(choice), scope));
+        if (PreviewChoice is not { } choice || previewDraftId is null)
+            return Task.FromException(new ContractError("CAT-NOT-ADMITTED",
+                "This section has no coordinates in this build. Nothing changed."));
+        if (Section is not { } mode || mode.Draft.DraftId != previewDraftId || mode.Draft.Generation != previewGeneration)
+            return Task.FromException(new ContractError("DSL-STALE",
+                "The section changed after this preview. Nothing changed."));
+        ReplaceSource source;
+        try { source = SourceOf(choice); }
+        catch (ContractError error) { return Task.FromException(error); }
+        return ApplySectionStepAsync(new SectionStep.Replace(source, scope));
     }
 
-    public Task SaveToMySectionsAsync(string name)
+    public Task SaveToMySectionsAsync(string name, CancellationToken cancellation = default)
     {
-        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
+        if (Section is not { } mode)
+            return Task.FromException(new ContractError("DSL-DRAFT-OWNED"));
         if (sections is null)
-            throw new ContractError("LIB-IO", "Couldn't save to My sections: no library root. Nothing was saved.");
-        var clock = Stopwatch.StartNew();
-        try
+            return Task.FromException(new ContractError("LIB-IO", "Couldn't save to My sections: no library root. Nothing was saved."));
+        if (cancellation.IsCancellationRequested)
+            return Task.FromCanceled(cancellation);
+        byte[] bytes = mode.Draft.Bytes.ToArray();
+        string profile = mode.Draft.Profile;
+        var library = sections;
+        var saved = Task.Run(() =>
         {
-            byte[] block = ProfileBlock(mode.Draft.Bytes, mode.Draft.Profile);
-            var provenance = CfdWorkbench.Core.Provenance.Parse(ProvenanceText(mode.Draft.Bytes, mode.Draft.Profile));
-            var entry = sections.Save(name, block, provenance);
-            clock.Stop();
-            Shell.ShellEvents.Record("library.save", "saved", clock.Elapsed.TotalMilliseconds, Guid.NewGuid().ToString("N"));
-            Status = "Saved " + entry.Name + " to My sections.";
-            Notify();
-            return Task.CompletedTask;
-        }
-        catch (ContractError error)
+            cancellation.ThrowIfCancellationRequested();
+            libraryGate?.Invoke();
+            cancellation.ThrowIfCancellationRequested();
+            var clock = Stopwatch.StartNew();
+            try
+            {
+                byte[] block = ProfileBlock(bytes, profile);
+                var provenance = ProvenanceFor(bytes, profile);
+                var entry = library.Save(name, block, provenance);
+                clock.Stop();
+                session.RecordCatalog(new CatalogTelemetry("library.save", "saved", clock.Elapsed.TotalMilliseconds,
+                    0, 0, 0, 0, 0, 0, 1));
+                return entry.Name;
+            }
+            catch (ContractError error)
+            {
+                clock.Stop();
+                session.RecordCatalog(new CatalogTelemetry("library.save", error.Code, clock.Elapsed.TotalMilliseconds,
+                    0, 0, 0, 0, 0, 0, 0));
+                throw;
+            }
+        }, CancellationToken.None);
+        return saved.ContinueWith(task =>
         {
-            clock.Stop();
-            Shell.ShellEvents.Record("library.save", error.Code, clock.Elapsed.TotalMilliseconds,
-                Guid.NewGuid().ToString("N"), code: error.Code);
-            throw;
-        }
+            if (task.IsCanceled) return Task.FromCanceled(cancellation);
+            if (task.IsFaulted) return Task.FromException(task.Exception!.GetBaseException());
+            string savedName = task.Result;
+            var done = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            OnUiThread(() =>
+            {
+                try
+                {
+                    Status = "Saved " + savedName + " to My sections.";
+                    Notify();
+                    done.TrySetResult();
+                }
+                catch (Exception error) { done.TrySetException(error); }
+            });
+            return done.Task;
+        }, CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default).Unwrap();
     }
 
     private void StartPreview(int ticket, CatalogChoice choice, ReplaceScope scope)
@@ -995,44 +1046,47 @@ public sealed class WorkbenchController : IDisposable
         var mode = Section;
         if (mode is null)
         {
-            FinishPreview(ticket, null, null, choice);
+            FinishPreview(ticket, null, null, choice, null, 0, new ContractError("DSL-DRAFT-OWNED"));
             return;
         }
         string draftId = mode.Draft.DraftId;
         long generation = mode.Draft.Generation;
         ReplaceSource source;
         try { source = SourceOf(choice); }
-        catch (ContractError)
+        catch (ContractError error)
         {
-            FinishPreview(ticket, null, null, choice);
+            FinishPreview(ticket, null, null, choice, draftId, generation, error);
             return;
         }
         _ = Task.Run(() =>
         {
-            previewGate?.Invoke(ticket);
-            if (ticket != Volatile.Read(ref previewTicket)) return (ReplacePreview?)null;
-            return session.PreviewReplace(draftId, generation, source, scope);
+            if (ticket != Volatile.Read(ref previewTicket)) return ((ReplacePreview?)null, (Exception?)null);
+            try
+            {
+                ReplacePreview computed = session.PreviewReplace(draftId, generation, source, scope);
+                previewGate?.Invoke(ticket);
+                return (computed, (Exception?)null);
+            }
+            catch (Exception error) { return ((ReplacePreview?)null, error); }
         }).ContinueWith(task =>
         {
-            if (task.IsFaulted) _ = task.Exception;
-            ReplacePreview? preview = task.Status == TaskStatus.RanToCompletion ? task.Result : null;
-            OnUiThread(() => FinishPreview(ticket, preview, source.DisplayName, choice));
+            ReplacePreview? preview = null;
+            Exception? fault = null;
+            if (task.IsFaulted) fault = task.Exception!.GetBaseException();
+            else
+            {
+                preview = task.Result.Item1;
+                fault = task.Result.Item2;
+            }
+            if (fault is not null && fault is not ContractError)
+                session.RecordCatalog(new CatalogTelemetry("catalog.preview", "INTERNAL-ERROR", 0, 0, 0, 0, 0, 0, 0, 0));
+            OnUiThread(() => FinishPreview(ticket, preview, source.DisplayName, choice, draftId, generation, fault));
         }, TaskScheduler.Default);
     }
 
-    private void FinishPreview(int ticket, ReplacePreview? preview, string? name, CatalogChoice choice)
+    private void FinishPreview(int ticket, ReplacePreview? preview, string? name, CatalogChoice choice,
+        string? draftId, long generation, Exception? fault)
     {
-        bool latest = ticket == Volatile.Read(ref previewTicket) && preview is not null && !disposed && Section is not null;
-        if (latest)
-        {
-            CurrentPreview = preview;
-            PreviewSourceName = name;
-            PreviewChoice = choice;
-            PreviewLandings++;
-            PreviewChanged?.Invoke();
-        }
-        else PreviewDrops++;
-
         CatalogChoice? next = null;
         ReplaceScope nextScope = default;
         int nextTicket = 0;
@@ -1043,8 +1097,42 @@ public sealed class WorkbenchController : IDisposable
             nextTicket = previewWaitingTicket;
         }
         previewWaiting = null;
-        if (next is not null) StartPreview(nextTicket, next, nextScope);
-        else Interlocked.Exchange(ref previewBusy, 0);
+        try
+        {
+            bool ticketLatest = ticket == Volatile.Read(ref previewTicket) && !disposed && Section is not null;
+            bool sameDraft = ticketLatest && draftId is not null
+                && Section!.Draft.DraftId == draftId && Section.Draft.Generation == generation;
+            bool refused = fault is not null || preview?.RefusalCode is not null;
+            if (sameDraft && preview is not null && !refused)
+            {
+                CurrentPreview = preview;
+                PreviewSourceName = name;
+                PreviewChoice = choice;
+                PreviewFault = null;
+                previewDraftId = draftId;
+                previewGeneration = generation;
+                PreviewLandings++;
+                PreviewChanged?.Invoke();
+            }
+            else if (ticketLatest)
+            {
+                CurrentPreview = null;
+                PreviewChoice = null;
+                PreviewSourceName = null;
+                PreviewFault = fault as ContractError
+                    ?? (preview?.RefusalCode is { } code ? new ContractError(code, preview.RefusalReason ?? code) : null);
+                previewDraftId = null;
+                previewGeneration = 0;
+                PreviewDrops++;
+                PreviewChanged?.Invoke();
+            }
+            else PreviewDrops++;
+        }
+        finally
+        {
+            if (next is not null) StartPreview(nextTicket, next, nextScope);
+            else Interlocked.Exchange(ref previewBusy, 0);
+        }
     }
 
     private static ReplaceSource SourceOf(CatalogChoice choice) => choice switch
@@ -1062,48 +1150,55 @@ public sealed class WorkbenchController : IDisposable
         if (colon > 0 && (origin.StartsWith("gen:", StringComparison.Ordinal) || origin.StartsWith("vend:", StringComparison.Ordinal)))
         {
             string id = origin[(colon + 1)..];
-            try
-            {
-                var entry = CfdWorkbench.Core.Catalog.Load().FirstOrDefault(item => item.Id == id);
-                if (entry is not null) return entry.Designation;
-            }
-            catch (ContractError) { }
+            var entry = CatalogRows().FirstOrDefault(item => item.Id == id);
+            if (entry is not null) return entry.Designation;
         }
         return LastReplaceName is { Length: > 0 } name ? name : origin;
     }
 
-    private static byte[] ProfileBlock(byte[] foil, string profile)
+    private IReadOnlyList<CatalogEntry> CatalogRows()
     {
-        string text = Encoding.UTF8.GetString(foil);
-        int at = text.IndexOf("profile \"" + profile + "\"", StringComparison.Ordinal);
-        int end = at < 0 ? -1 : BlockEnd(text, at);
-        if (end < 0) throw new ContractError("LIB-SECTION-INVALID");
-        return Encoding.UTF8.GetBytes(text[at..(end + 1)]);
-    }
-
-    private static string? ProvenanceText(byte[] foil, string profile)
-    {
-        string text = Encoding.UTF8.GetString(foil);
-        int at = text.IndexOf("profile \"" + profile + "\"", StringComparison.Ordinal);
-        int end = at < 0 ? -1 : BlockEnd(text, at);
-        if (end < 0) return null;
-        var match = ProvenanceField.Match(text, at, end - at);
-        return match.Success
-            ? System.Text.Json.JsonSerializer.Deserialize<string>("\"" + match.Groups["value"].Value + "\"")
-            : null;
-    }
-
-    private static int BlockEnd(string text, int at)
-    {
-        int open = text.IndexOf('{', at);
-        if (open < 0) return -1;
-        int depth = 0;
-        for (int i = open; i < text.Length; i++)
+        if (catalogRows is { } rows) return rows;
+        try
         {
-            if (text[i] == '{') depth++;
-            else if (text[i] == '}' && --depth == 0) return i;
+            catalogRows = Catalog.Load();
+            return catalogRows;
         }
-        return -1;
+        catch (ContractError) { return []; }
+    }
+
+    private static byte[] ProfileBlock(byte[] foil, string profile) =>
+        FoilSource.ProfileBlock(ProfileOf(foil, profile));
+
+    private static Provenance ProvenanceFor(byte[] foil, string profile)
+    {
+        string? raw = ProfileOf(foil, profile).Provenance;
+        var parsed = CfdWorkbench.Core.Provenance.Parse(raw);
+        if (parsed.Origin is null && !string.IsNullOrEmpty(raw))
+            return new CfdWorkbench.Core.Provenance(raw, false);
+        return parsed;
+    }
+
+    private static ProfileDefinition ProfileOf(byte[] foil, string profile)
+    {
+        var definition = FoilSource.Parse(foil).Definition ?? throw new ContractError("LIB-SECTION-INVALID");
+        return definition.Profiles.FirstOrDefault(item => item.Name == profile)
+            ?? throw new ContractError("LIB-SECTION-INVALID");
+    }
+
+    private void ClearReplacePreview()
+    {
+        Interlocked.Increment(ref previewTicket);
+        previewWaiting = null;
+        bool had = CurrentPreview is not null || PreviewChoice is not null || PreviewFault is not null
+            || PreviewSourceName is not null;
+        CurrentPreview = null;
+        PreviewChoice = null;
+        PreviewSourceName = null;
+        PreviewFault = null;
+        previewDraftId = null;
+        previewGeneration = 0;
+        if (had && !disposed) PreviewChanged?.Invoke();
     }
 
     private void NotifySection()
@@ -1132,6 +1227,7 @@ public sealed class WorkbenchController : IDisposable
             throw new ContractError("DSL-NOT-ASSESSED");
         }
         CancelSectionAssessment();
+        ClearReplacePreview();
         session.FinishSection(Guid.NewGuid().ToString("D"), mode.Assessment);
         Section = null;
         SectionRefitRefusal = null;
@@ -1148,6 +1244,7 @@ public sealed class WorkbenchController : IDisposable
     {
         if (Section is not { } mode) return;
         CancelSectionAssessment();
+        ClearReplacePreview();
         session.Cancel(mode.Draft.DraftId);
         Section = null;
         SectionRefitRefusal = null;

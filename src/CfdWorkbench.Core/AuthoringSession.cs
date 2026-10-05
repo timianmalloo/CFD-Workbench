@@ -40,8 +40,13 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     public AnalysisEvent? Analysis { get; init; }
     /// <summary>The Replace fields of <c>catalog.preview</c> and of a <c>section.step</c> whose kind is replace (m12d §10); null otherwise.</summary>
     public ReplaceEvent? Replace { get; init; }
+    /// <summary>Named fields of <c>catalog.open</c>, <c>library.save</c> and <c>library.scan</c> (m12d §10); null otherwise.</summary>
+    public CatalogTelemetry? Catalog { get; init; }
 }
 /// <summary>Scope is <c>draft</c> or <c>chain</c>; Spacing is <c>current</c>, <c>own-&lt;n&gt;</c> or <c>exact</c>; the residual is in chord fractions.</summary>
+/// <summary>One catalog or library telemetry row on the session ring (m12d §10). Counts are never stored in the point fields.</summary>
+public sealed record CatalogTelemetry(string Operation, string Outcome, double Milliseconds,
+    int Naca, int Eppler, int Speer, int Mine, int Disabled, int Problems, int Count);
 public sealed record ReplaceEvent(string Scope, int Stations, double ResidualChord, string Spacing)
 {
     /// <summary>catalog.preview only: the catalog family (null for a .dat file) and the rights class of the source.</summary>
@@ -134,6 +139,18 @@ public sealed class AuthoringSession : IDisposable
     }
     public IReadOnlyList<SessionEvent> ReadLocalEvents()
     { lock (sync) return Array.AsReadOnly(events.ToArray()); }
+
+    /// <summary>Appends one named catalog or library event to the 256-event ring.</summary>
+    public void RecordCatalog(CatalogTelemetry entry)
+    {
+        lock (sync)
+        {
+            if (closed) return;
+            if (events.Count == 256) events.Dequeue();
+            events.Enqueue(new(eventSequence++, entry.Operation, entry.Outcome, entry.Milliseconds,
+                null, null, null, null, null, sources.Count, accepted.Count, entry.Operation) { Catalog = entry });
+        }
+    }
     public void Dispose()
     {
         lock (sync)

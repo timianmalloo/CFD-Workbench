@@ -1,8 +1,11 @@
 using System.Globalization;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+
+[assembly: InternalsVisibleTo("CfdWorkbench.Desktop")]
 
 namespace CfdWorkbench.Core;
 
@@ -190,6 +193,24 @@ public static class FoilSource
         return bytes;
     }
 
+    internal static byte[] ProfileBlock(ProfileDefinition profile)
+    {
+        var text = new StringBuilder();
+        AppendProfile(text, profile);
+        return Utf8.GetBytes(text.ToString());
+    }
+
+    internal static void AppendProfile(StringBuilder text, ProfileDefinition profile)
+    {
+        text.Append("    profile ").Append(Jcs.Quote(profile.Name)).Append(" {\n");
+        text.Append("      upper cv { ").Append(CurveBody(profile.Upper, 0)).Append(" }\n");
+        text.Append("      lower cv { ").Append(CurveBody(profile.Lower, 0)).Append(" }\n");
+        text.Append("      closure ").Append(profile.Closure).Append('\n');
+        if (profile.Provenance is not null)
+            text.Append("      provenance ").Append(Jcs.Quote(profile.Provenance)).Append('\n');
+        text.Append("    }\n");
+    }
+
     internal static byte[] Print(Definition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
@@ -210,15 +231,7 @@ public static class FoilSource
         text.Append("  thickness cv { ").Append(CurveBody(definition.Curves["thickness"], 0)).Append(" }\n");
         text.Append("  profiles {\n");
         foreach (var profile in definition.Profiles)
-        {
-            text.Append("    profile ").Append(Jcs.Quote(profile.Name)).Append(" {\n");
-            text.Append("      upper cv { ").Append(CurveBody(profile.Upper, 0)).Append(" }\n");
-            text.Append("      lower cv { ").Append(CurveBody(profile.Lower, 0)).Append(" }\n");
-            text.Append("      closure ").Append(profile.Closure).Append('\n');
-            if (profile.Provenance is not null)
-                text.Append("      provenance ").Append(Jcs.Quote(profile.Provenance)).Append('\n');
-            text.Append("    }\n");
-        }
+            AppendProfile(text, profile);
         text.Append("  }\n");
         text.Append("  sections {");
         foreach (var assignment in definition.Assignments)

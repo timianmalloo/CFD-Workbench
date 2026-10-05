@@ -1005,7 +1005,10 @@ public static class ControllerSectionTests
 
     private static string BindRoot()
     {
-        string root = Path.Combine(Path.GetTempPath(), "cfdw-ctl-" + Guid.NewGuid().ToString("N"));
+        string temp = Path.GetTempPath();
+        if (temp.StartsWith("/tmp/", StringComparison.Ordinal) || temp.StartsWith("/var/", StringComparison.Ordinal))
+            temp = "/private" + temp;
+        string root = Path.Combine(temp, "cfdw-ctl-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         App.BindPreferenceRoot(root);
         return root;

@@ -1285,7 +1285,8 @@ public sealed class ShellHost : Grid
     private void OnCatalogPreview()
     {
         // ReplacePreview is painted by the section canvas (DLG). Rebuilding panes here costs the release-freeze refresh.
-        _ = Controller.CurrentPreview;
+        if (Controller.PreviewFault is { } error)
+            Report(new StatusReport(RefusalCopy(error), ReportKind.Warning));
     }
 
     private async Task ReplaceFromCatalogAsync()
