@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T03:45:10Z",
+  "generated": "2026-10-05T05:25:50Z",
   "audit": [
     {
       "actor": null,
@@ -24564,12 +24564,60 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M452MPPRGEAVH6M1JCM0CDK0",
-      "shortname": "join-m12d-dlg",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T03:45:10Z",
-      "session": "f19a2b12",
+      "duration_seconds": 87.0,
+      "fan_out": 0,
+      "id": "al-01M452MPPRGEAVH6M1JCM0CDK0",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of feature/m12d-dlg into feature/ui-cad-direction",
+      "session": "f19a2b12",
+      "shortname": "join-m12d-dlg",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T03:43:43Z",
       "summary": "DLG + DLG-2 (Codex GPT-6): CatalogDialog (families, disabled rows with reasons, damaged My sections rows, failure cause, detail line, Replace-at-chain), SaveSectionDialog owning the save with inline LIB-* refusals, refused candidate shown dashed via separate RefusedBytes (Apply never reads it), source chip, Properties Source row and station card. 23/23 DLG named PASS. Proposed copy COPY-200..203 awaiting the operator. Found the status-strip timeout cause: the command sweep opened modal dialogs without a choice (repaired). recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "claude-opus-5-5",
+      "artifacts": [
+        "docs/proof/spike-03/verdict-round3.md",
+        "docs/proof/spike-04/verdict-round3.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-05T05:23:54Z",
+      "goal": "Run fluids round 3 (R3-M0..M1b, R3-G0, G1b, G2 L3) per docs/plans/fluids-round3.md and Ruling 68; write both round-3 verdicts",
+      "id": "al-01M4589GB3PRPXNXVVHX9AM41E",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Lead fluids round 3 as the CFD numerical verification expert per docs/plans/fluids-round3.md and Ruling 68 (DR-F3-1 A, DR-F3-3 L3 if cycle 1 fails with a 12 h cap, DR-F3-4, DR-F3-5, DR-F3-7 after round 3); write docs/proof/spike-03/verdict-round3.md and docs/proof/spike-04/verdict-round3.md",
+      "session": "fluids-round3",
+      "shortname": "fluids-round3-runs",
+      "skill": "cfd-run",
+      "summary": "SPIKE-03 NO-GO at AR 8: M0 located 616/811 faces >70 deg on the TE arc strip; fan-ratio mechanism measured; M1b structured TE strip cleared the panel TE (616->1) but 246 tip faces and 4 low-weight faces remain; M2-M4 not run. SPIKE-04 GCI NO-GO: G0 rejects H1 (-1.03e-4), G1b misses A4 on L6 (period-8 clipping cycle), L3 hit the 10 h cap at 41,005 iterations without A4; DR-F3-7 (c) recommended.",
+      "tags": [
+        "spike-03",
+        "spike-04"
+      ],
+      "tool": null
+    },
+    {
+      "id": "al-01M458D0VV3TPZ57HFBBGSHZQB",
+      "shortname": "join-fluids-round3",
+      "datetime": "2026-10-05T05:25:50Z",
+      "session": "f19a2b12",
+      "prompt": "the join of spike/fluids-round3 into feature/ui-cad-direction",
+      "summary": "Fluids round 3 (Opus 5.5; hydrodynamicist PASS WITH CONDITIONS): SPIKE-03 NO-GO — TE fan-ratio sizing cut panel TE bad faces 616 -> 1, tip/pole still 210 faces; DR-F3-1 A floor measured on 3 meshes. SPIKE-04 NO-GO — L3 hit its 10 h cap at 41,005 it without A4 (est. 24-27 h); no admitted triplet, no GCI; recommends DR-F3-7 (c) code-to-code fixture without GCI. New cases/tools: mesh-gate-r3.sh, mesh-locate-r3.py; a4-monitor launch-delay fix. security-probe.sh still carries the old join-lock path (sha256 pinned). recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -24585,8 +24633,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-05T03:43:43Z",
-      "duration_seconds": 87.0
+      "started_at": "2026-10-05T05:24:52Z",
+      "duration_seconds": 58.0
     }
   ],
   "changes": [
