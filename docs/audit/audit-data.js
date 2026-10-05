@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T15:45:10Z",
+  "generated": "2026-10-05T15:45:26Z",
   "audit": [
     {
       "actor": null,
@@ -24966,6 +24966,34 @@ window.AUDIT_DATA = {
       "summary": "FLK-1 no longer shows Finish Checking on a refused section step, and MakeIndependent retargets a tangent row when it rewrites point ids. Both fixes were red first. The full test ring passed and check-docs exited 0.",
       "tags": [],
       "tier": "T0",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T15:39:36Z",
+      "done_when": "The three reviewer conditions are each committed, the named tests passed red then green where behaviour changed, tools/run-tests.sh passed once, and check-docs.py exits 0.",
+      "duration_seconds": 1554.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "fix/cad-e2-defects",
+        "pushed": null,
+        "sha": "598a59b221c3e969fac500f512e70aa4187fd22c",
+        "short": "598a59b22"
+      },
+      "goal": "Repair the three C# reviewer conditions on the tangent retarget, the refusal check name, and the saved section certificate.",
+      "id": "al-01M46BGVSZM3BN5CJP0PRR3RYG",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "REPAIR CYCLE 1 of Track E2 (same worktree /Users/mallalieut/projects/CFD-Workbench-fix-cad-e2-defects, branch fix/cad-e2-defects, AGENT_SESSION=trk-e2). Box 45 min. This is repair cycle 1 of 2.\n\nA C# reviewer cleared the work WITH CONDITIONS. Fix these, red-first where a behaviour changes, each as its own commit:\n\n1. [Major] FoilSource.cs tangent retarget searches the text for Jcs.Quote(oldId) in the window [last id token end, InsertAt). Fix: carry the tangent id token span on TangentRow and emit one positional edit per row. Guard.Require that every tangent row was retargeted. Tests: tangents block precedes the ids list (red on the current code), and ids that collide with another vertex's new id (tangent on cv-1) proving no cascade.\n2. [Minor] Rename SectionStep_Refused_NeverShowsChecking to SectionStep_Refused_RestoresCertificate and update the receipt. The comment says the check covers the re-check window after a refusal only.\n3. [Minor] Clear sectionBeforeChecking when the section editor exits and when a step lands successfully. Confirm DraftId is unique per draft.\n\nSame ownership. Named tests via CFD_TEST_ONLY, tools/run-tests.sh once, python3 tools/check-docs.py. Append the audit entry with --prompt, render, derive, commit.",
+      "session": "trk-e2",
+      "shortname": "trk-e2",
+      "skill": "implement",
+      "started_at": "2026-10-05T15:13:42Z",
+      "summary": "Repair cycle 1 retargets each tangent row from its parsed id span, renames the refusal check, and clears the certificate saved before a section step. The full test ring passed (wall 54 s) and the three fixes are separate commits.",
+      "tags": [],
+      "tier": "T1",
       "tool": null
     }
   ],

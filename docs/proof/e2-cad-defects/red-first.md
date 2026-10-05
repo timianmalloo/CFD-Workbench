@@ -26,7 +26,7 @@ Track `trk-e2`, branch `fix/cad-e2-defects`, 2026-10-05. Plan: `docs/coordinatio
 | `MakeIndependent_TangentRow_NoDslPatch` | `FoilSource.MakeIndependent` throws `DSL-PATCH` when a tangent row names a point whose id the copy rewrites | `21cd34696da73a6fa53f7da990f78a9874ee3789` | `bba1aa8d9293e16e8038bdb63922b95892050475` |
 | `MakeIndependent_TangentsBeforeIds_RetargetsRow` | A tangents block written before the ids list is skipped, and the copy throws `DSL-PATCH` | observed red below, before the span edit | `db7195a28abb1afbb726083420f2f47b7dca81ef` |
 | `MakeIndependent_CollidingIds_TangentNotCascaded` | Rewriting one id also rewrites a later id, or a comment that quotes an id | observed red below, before the span edit | `db7195a28abb1afbb726083420f2f47b7dca81ef` |
-| `SectionStep_LandedOrExit_ClearsPriorCertificate` | A landed step, or leaving the editor, keeps the certificate saved for a later refusal | observed red below, before the clear | the clear commit |
+| `SectionStep_LandedOrExit_ClearsPriorCertificate` | A landed step, or leaving the editor, keeps the certificate saved for a later refusal | observed red below, before the clear | `598a59b221c3e969fac500f512e70aa4187fd22c` |
 
 ## FLK-1
 

@@ -9917,7 +9917,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-05",
       "reviewSuggested": [],
-      "summary": "Two CAD defects, each red before its fix. A refused section step republished Finish \"Checking…\" for the re-check of unchanged bytes. MakeIndependent threw DSL-PATCH when a tangent row still named a point id that the copy had rewritten.",
+      "summary": "Two CAD defects, each red before its fix. A refused section step republished Finish \"Checking…\" for the re-check of unchanged bytes. MakeIndependent threw DSL-PATCH when a tangent row still named a point id that the copy had rewritten. The retarget now edits each row's id token span.",
       "tags": [
         "cad",
         "flk-1",
@@ -9936,7 +9936,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fbe108c1cd901030dc752fc7d22c102c0e1addef6cc9a0a64db383f765f6d52d"
+      "sourceSha256": "a56a5f308af3f59ba37597efa7a37c92644d2683dd836c19b9861f1b96c840e8"
     },
     {
       "id": "proof-foildsl-authoring",
@@ -13145,5 +13145,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "4dc6ee755531c61343c8e9b251950b58c5ff570400694f3a41e712fbc3811a53"
+  "graphSha256": "7cd34878f533fd0c703093a95bc153389bdfc7e4a213132938e598f069d61c50"
 };
