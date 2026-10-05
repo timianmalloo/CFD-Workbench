@@ -8,7 +8,8 @@ namespace CfdWorkbench.Core;
 // The stored Analysis run row (ADR-0011; design area3-analysis.md §3.3, §3.6, §5.6). Core holds it because NativeProject
 // is in Core and Core cannot reference CfdWorkbench.Analysis (G-T8, P-3): one definition of the row, its canonical form,
 // its run key and its content hash. PRE lands the shape; STO owns the bodies (seam S-A3). VLM, STP, SVC and PRJ read
-// these records and never add members: a missing field is a seam request to STO.
+// these records and never add members: a missing field is a seam request to STO. Exception, granted to STP-3:
+// StripLoad.Provisional and ProvisionalReason (Ruling 77(5)), omitted when unset so older documents keep their hash.
 
 /// <summary>The optional top-level <c>analysis</c> member of a <c>cfdw-project-2</c> document. Append-only facts.</summary>
 public sealed record AnalysisRecords(IReadOnlyList<AnalysisRun> Runs, IReadOnlyList<PolarSample> PolarSamples,
@@ -82,10 +83,18 @@ public sealed record RunPlatform(string Os, string Arch, string Dotnet);
 /// <summary>
 /// Spanwise lattice row <paramref name="J"/> of one Completed run (contiguous 0…n−1). Forces and moments are near-field,
 /// about the frame origin, in body axes, and additive across the strips of one run only.
+/// <paramref name="Provisional"/> marks the outermost strip of each half until the η* law exists (Ruling 77(5)).
+/// Both new members are omitted when unset, so a document written before them keeps its content hash and reads false.
 /// </summary>
 public sealed record StripLoad(int J, double Y, double Eta, double Chord, double Gamma, double AlphaI, double AlphaEff,
     double ReLocal, double ClLocal, StripValue CdNcrit2, StripValue CdNcrit4,
-    double Fx, double Fy, double Fz, double Mx, double My, double Mz, double DownwashTrefftz);
+    double Fx, double Fy, double Fz, double Mx, double My, double Mz, double DownwashTrefftz,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool Provisional = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ProvisionalReason = null)
+{
+    /// <summary>Reason on a provisional tip strip. Any other reason is a schema error; absent reads false.</summary>
+    public const string TipProvisionalReason = "ANA-TIP-PROVISIONAL";
+}
 
 /// <summary>A value, or Unavailable with its reason — never a zero standing in for a missing number.</summary>
 public sealed record StripValue(double? Value, string? UnavailableReason);
@@ -297,6 +306,9 @@ public static class RunRecord
             // A value, or Unavailable with its reason: never both, never neither.
             Guard.Require((strip.CdNcrit2.Value is null) != (strip.CdNcrit2.UnavailableReason is null) &&
                           (strip.CdNcrit4.Value is null) != (strip.CdNcrit4.UnavailableReason is null), "DOC-SCHEMA");
+            // Expand only: absent provisional is false and carries no reason. The one accepted reason is the tip code.
+            bool tip = strip.ProvisionalReason == StripLoad.TipProvisionalReason;
+            Guard.Require(strip.Provisional == tip && (strip.Provisional || strip.ProvisionalReason is null), "DOC-SCHEMA");
         }
     }
 

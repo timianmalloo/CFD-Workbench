@@ -51,7 +51,41 @@ public sealed class ProductWingMethod : IWingMethod
     }
 
     public IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op, WaterRecord water, CancellationToken cancellation) =>
-        StripCoupler.Couple(sections, solution, op, water, polar, cancellation);
+        MarkOutermostProvisional(StripCoupler.Couple(sections, solution, op, water, polar, cancellation));
+
+    /// <summary>
+    /// Ruling 77(5): the outermost strip of each half (greatest |y|, one port and one starboard) is provisional
+    /// until the η* tolerance law exists. Every other strip is left unset, which the reader stores as false.
+    /// </summary>
+    internal static IReadOnlyList<StripLoad> MarkOutermostProvisional(IReadOnlyList<StripLoad> loads)
+    {
+        int port = Outermost(loads, negative: true);
+        int starboard = Outermost(loads, negative: false);
+        if (port < 0 && starboard < 0) return loads;
+        var marked = loads.ToArray();
+        if (port >= 0) marked[port] = Flag(marked[port]);
+        if (starboard >= 0) marked[starboard] = Flag(marked[starboard]);
+        return marked;
+    }
+
+    private static int Outermost(IReadOnlyList<StripLoad> loads, bool negative)
+    {
+        int at = -1;
+        double best = 0;
+        for (int i = 0; i < loads.Count; i++)
+        {
+            double y = loads[i].Y;
+            if (negative ? y >= 0 : y <= 0) continue;
+            double abs = Math.Abs(y);
+            if (at >= 0 && abs <= best) continue;
+            at = i;
+            best = abs;
+        }
+        return at;
+    }
+
+    private static StripLoad Flag(StripLoad strip) =>
+        strip with { Provisional = true, ProvisionalReason = StripLoad.TipProvisionalReason };
 
     /// <summary>Port is the starboard section with Y and η negated. The root (Y = 0) is kept once. Z is unchanged.</summary>
     internal static SectionSample[] Mirror(IReadOnlyList<SectionSample> starboard)
