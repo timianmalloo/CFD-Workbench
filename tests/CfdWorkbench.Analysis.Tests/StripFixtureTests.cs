@@ -187,6 +187,9 @@ internal static class StripFixtureTests
         OperatingPoint op = OperatingPoints.Custom(8, 5, null);
         AnalysisRun run = Fixture.Evaluate(new AnalysisService(session, method), op, Salt());
         IReadOnlyList<StripLoad> strips = run.Strips;
+        AnalysisViewModel projection = ProjectionTests.View(run);
+        if (ProjectionTests.Cell(projection, "Wing result", "CL/CD").Value != "Unavailable — total drag missing")
+            throw new InvalidOperationException("Example foil CL/CD claim");
         if (strips.Count != 128) throw new InvalidOperationException("strips " + strips.Count);
         int port = -1, starboard = -1;
         for (int i = 0; i < strips.Count; i++)
@@ -201,6 +204,8 @@ internal static class StripFixtureTests
         {
             bool tip = i == 0 || i == 127;
             StripLoad strip = strips[i];
+            if (strip.Ya is null || strip.Yb is null || !(strip.Yb > strip.Ya))
+                throw new InvalidOperationException("strip " + i + " edges missing");
             if (strip.Provisional != tip || (tip ? strip.ProvisionalReason != StripLoad.TipProvisionalReason : strip.ProvisionalReason is not null))
                 throw new InvalidOperationException("strip " + i + " provisional " + strip.Provisional + " " + strip.ProvisionalReason);
             StripVerdict verdict = MethodRecord.JudgeStrip(strip.AlphaEff, 0, strip.ClLocal, 0, strip.Provisional);

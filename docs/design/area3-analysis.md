@@ -178,7 +178,7 @@ One aggregate per transaction (DM2): recording a run appends one row with its st
 | Fact | Grain — "one row is exactly one …" | Identified by · recorded when | Measures and class |
 |---|---|---|---|
 | **Analysis run** | evaluation attempt of one Surface revision (with its Profile revisions) at one Operating point by one method id + version under one settings hash | `runId` (UUID v4); `runKey` (§3.4) — at most one **Completed** row per key (store invariant); Failed rows may repeat · recorded when the method returns | solver residual ‖AΓ − b‖∞, condition estimate κ₁, wall time — **non-additive**. Everything else on a run is derived (§3.5) |
-| **Strip load** | spanwise lattice row j of one Completed VLM + strip run | (`runId`, `j`), j contiguous 0…n−1 · with its run | y, η, chord, Γ (strip total), α_i, α_eff, Re_local, Cl_local, cd_profile at Ncrit 2 and at Ncrit 4 (each or Unavailable + reason), near-field force (Fx, Fy, Fz) and moment (Mx, My, Mz) about the frame origin in **body axes**, Trefftz downwash w_T, envelope flag. Forces and moments **additive across strips within one run only**; the rest **non-additive** |
+| **Strip load** | spanwise lattice row j of one Completed VLM + strip run | (`runId`, `j`), j contiguous 0…n−1 · with its run | y, η, optional original span edges ya/yb (omitted in older rows), chord, Γ (strip total), α_i, α_eff, Re_local, Cl_local, cd_profile at Ncrit 2 and at Ncrit 4 (each or Unavailable + reason), near-field force (Fx, Fy, Fz) and moment (Mx, My, Mz) about the frame origin in **body axes**, Trefftz downwash w_T, envelope flag. Forces and moments **additive across strips within one run only**; the rest **non-additive**. The original edges determine width after an excluded closing-tip strip renumbers j; older rows without edges use j only for a complete lattice, otherwise width-dependent quantities are Unavailable. |
 | **Polar sample** | (Profile revision hash, method + version, Re, Ncrit, surface state, α, Water record) evaluation (A3.3) | its grain key, unique · when the method returns | Cl, Cd, Cm, x_tr upper/lower, Cp_min (+ N stations), confidence or "not recorded", converged — **non-additive** |
 | **Section result** | not a fact: an Analysis run of a section method at one station η (an Operating-point attribute), referencing its Polar samples (both Ncrit) by key | as Analysis run | as Polar sample |
 
@@ -400,6 +400,11 @@ ventilation; free surface not modelled" (DR-ANA-13) — never "deep water", and 
 depth to state). **A station selected in Analysis shows the "Strip of wing run (α_eff)" result**, labelled so,
 distinct from a 2D section result at α_geo, with its own verdict and omissions (above). LAB-01 lints every string this
 area renders.
+
+assume: h/c = 5 is the conservative project threshold for the depth advisory, inferred from the measured
+submergence trends and asymptotic fit in [Martínez-Barberá et al. (2026)](https://html.rhhz.net/jmsa/html/20260101.htm),
+§4.3, rather than an exact cutoff stated by the authors. Confirm against a wing-only depth series before treating it
+as a validity bound; otherwise the advisory can hide material free-surface effects above this threshold.
 
 ### 5.5 In-process vs process boundary, per tier
 
@@ -754,7 +759,7 @@ clauses rev 2 left at story level (B-T1).
 | ANA-02 Unavailable | `Cavitation_PvOrDepthMissing_Unavailable` — p_v missing; depth unset | 0 | est. < 1 ms | A3b |
 | ANA-02 governing station | `Cavitation_GoverningStation_AtAlphaEffAndLocalDepth` — mutant: α_geo and h_ref used | 0 | est. 0.1 s | A3b |
 | ANA-03 per span N/m; wing CL, CD, L, D with basis; arithmetic | F-9; `Projection_SectionVsWingUnits` — mutant: section loads in N | 0 | µs · est. < 5 ms | A3a |
-| **ANA-03 "CD ≤ 0 → Undefined"** | `Projection_CdZeroOrNegative_ClCdUndefined` — CD = 0 and CD = −0.001: CL/CD reads "Undefined — CD ≤ 0", never ∞ or a negative ratio; mutant: plain division (renders "Infinity") | 0 | est. < 1 ms | A3a |
+| **ANA-03 "CD ≤ 0 → Undefined"** | `Projection_CdiZeroOrNegative_TotalDragMissing` — A3a has no total CD, so CL/CD reads "Unavailable — total drag missing" even when CDi = 0 or negative; mutant: dividing by CDi prints a false total-drag ratio | 0 | est. < 1 ms | A3a |
 | **ANA-03 "V ≤ 0 → Undefined"** | `OperatingPoint_SpeedZeroOrNegative_Undefined` — V = 0 and V = −1 kn: q, Re_ref, Fr_h and σ read "Undefined — speed ≤ 0", Evaluate is refused (`ANA-INPUT-SPEED`), no run is recorded; mutant: \|V\| used | 0 | est. < 1 ms | A3a |
 | ANA-03 missing component | `Loads_PolarUnavailable_TotalDragNamesProfile` — no polar; mutant: profile drag 0 | 0 | est. < 5 ms | A3a |
 | ANA-04 lattice rows | F-1, F-2, F-3, F-4, F-5, F-6, F-7, F-8, F-15, F-16 (§13.2, each with its mutant) | 0 | §13.2 | A3a |
@@ -1198,7 +1203,15 @@ are marked ✚.
 | `RecordRun_DiagnosticsByOutcome_CompletedOnly` (SVC; SVC-2) ✚ | A | 90 ms measured (load 24–31) | the outcome/diagnostics rule removed from `CheckStore` |
 | `Cli_AnalyseFailedRun_PrintsNoDiagnostics` (SVC; SVC-2) ✚ | Cli | 23 ms measured (load 24–31) | the writer writes a null `diagnostics` member |
 | `Projection_SectionVsWingUnits` (PRJ) | A | < 5 ms | §13.5 |
-| `Projection_CdZeroOrNegative_ClCdUndefined` (PRJ) | A | < 1 ms | §13.5 |
+| `Projection_CdiZeroOrNegative_TotalDragMissing` (PRJ) | A | < 1 ms | §13.5, A3a total drag missing |
+| `Projection_TotalDragMissing_ClCdUnavailable` (PRJ; PRJ-2) ✚ | A | < 5 ms | CDi shown as total drag; the product Example foil is also checked in its strip fixture |
+| `Projection_TrefftzLiftUsedForE` (PRJ; PRJ-2) ✚ | A | < 5 ms | near-field CL mixed with Trefftz CDi |
+| `Projection_ProvisionalTip_NotJudgedOutside` (PRJ; PRJ-2) ✚ | A | < 5 ms | text-matched provisional counted outside |
+| `Projection_ProvisionalVerdict_EmptyExceededNeverOutside` (PRJ; PRJ-2) ✚ | A | < 5 ms | false Outside sentence with no exceeded part |
+| `Projection_ExcludedClosingTip_UsesKeptStripEdges` (PRJ; PRJ-2) ✚ | A | < 5 ms | renumbered J used as an edge index |
+| `Projection_LegacyStripEdges_OmittedAndHashIntact` (PRJ; PRJ-2) ✚ | A | < 5 ms | new optional edges rewrite older hashes |
+| `Projection_OneMissingSpanEdge_WidthUnavailable` (PRJ; PRJ-2) ✚ | A | < 5 ms | a half-populated edge pair silently falls back to J |
+| `Layers_MomentArc_RightHandPositiveXMatchesRootMoment` (PRJ; PRJ-2) ✚ | A | < 5 ms | arc vector sign flipped |
 | `Projection_NoRun_NoAnalysisYetNoLayers` (PRJ) ✚ | A | < 5 ms | an empty selection renders CL 0.000 and layers |
 | `Projection_FailedLatest_PreviousRunHistoricalWithErrorCard` (PRJ) ✚ | A | < 5 ms | the selected run is the latest attempt of any outcome |
 | `Layers_DepthUnset_NoFreeSurfaceOrTipDepth` (PRJ) ✚ | A | < 5 ms | the free-surface layer always listed (screen 3b) |
@@ -1218,6 +1231,8 @@ are marked ✚.
 | `Labels_DepthUnset_FreeSurfaceNotModelled` (PRJ) | A | < 5 ms | §13.5 |
 | `Envelope_RunVerdict_BesideCL_FullBound` (PRJ) | A | < 5 ms | §13.5 |
 | `Envelope_EOutOfBand_AdvisoryNotBlocking` (PRJ) | A | < 5 ms | e outside 0.85–1.00 hides the wing result |
+| `Labels_EAboveOne_LatticeAttributionOnlyMeasuredBand` (PRJ; PRJ-2) ✚ | A | < 5 ms | lattice cause asserted beyond measured e band |
+| `Labels_VerifiedLattice_NamesFixtureScope` (PRJ; PRJ-2) ✚ | A | < 5 ms | COPY-217 omits the tested shape and angle limits |
 | `Station_StripReadout_EnvelopeVerdictPerPart` (PRJ) | A | < 5 ms | §13.5 |
 | `Station_StripReadout_ReAgainstPolarRange` (PRJ) | A | < 5 ms | §13.5 |
 | `Station_StripReadout_NotModelledList` (PRJ) | A | < 5 ms | §13.5 |
