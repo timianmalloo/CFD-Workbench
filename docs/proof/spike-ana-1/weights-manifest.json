@@ -1,0 +1,19 @@
+{
+  "model": "xxxlarge",
+  "source_npz": "nn-xxxlarge.npz",
+  "source_sha256": "94638c04bca3c303515cf0c2944e2b09f587818cbd2860183bd85f2fbeeef428",
+  "distribution_npz": "scaled_input_distribution.npz",
+  "distribution_sha256": "63a33149c902ad01ecf537dd2d127d9e7ffbf86527893f4dc76f25f7087a3573",
+  "binary_sha256": "e037bd2b92d5a964ffcda33ce0ea39af9d8807bcbb07fe182fb5ec1f1815c689",
+  "binary_bytes": 5717832,
+  "format": "NFPRB1, little-endian int32 layer count; each layer int32 rows, int32 columns, float32 row-major weights and biases; float32[25] mean, float64[25,25] inverse covariance",
+  "layers": [
+    0,
+    2,
+    4,
+    6,
+    8,
+    10,
+    12
+  ]
+}
