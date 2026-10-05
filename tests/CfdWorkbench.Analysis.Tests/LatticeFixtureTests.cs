@@ -39,6 +39,7 @@ internal static class LatticeFixtureTests
         Check("Vlm_ClosingTip_FiniteAndListed", ClosingTip);
         Check("Vlm_NonFinite_RecordsFailedNotZero", NonFinite);
         Check("Vlm_AlphaBeyondEnvelope_ShowsEnvelopeFinding", Envelope);
+        Check("TipLaw_EllipticAlpha4_StableInside", TipLawElliptic4);
     }
 
     private static void F6()
@@ -511,6 +512,19 @@ internal static class LatticeFixtureTests
             throw new InvalidOperationException(MethodRecord.JudgeRun(verdicts));
     }
 
+    private static void TipLawElliptic4()
+    {
+        foreach (int n in new[] { 16, 128 })
+        {
+            LatticeSolution wing = Elliptic(n, LatticePlant.None, "cosine", 4);
+            LatticeStrip tip = Outermost(wing);
+            StripVerdict verdict = MethodRecord.Verdicts(wing, 4, 0)[tip.J];
+            if (!verdict.Inside || verdict.Provisional)
+                throw new InvalidOperationException("n=" + n + " raw α_eff=" + Num(4 - tip.InducedAngleDeg)
+                    + " verdict=" + verdict.Text);
+        }
+    }
+
     private sealed class Trio
     {
         public required LatticeSolution[] Solved { get; init; }
@@ -547,7 +561,7 @@ internal static class LatticeFixtureTests
 
     private static Trio Shared() => shared ?? throw new InvalidOperationException("F-6 did not build the shared solves");
 
-    private static LatticeSolution Elliptic(int nPerHalf, LatticePlant plant, string chordSpacing = "uniform")
+    private static LatticeSolution Elliptic(int nPerHalf, LatticePlant plant, string chordSpacing = "uniform", double alpha = 5)
     {
         double[] nodes = Nodes(-EllipticHalf, EllipticHalf, nPerHalf, "cosine");
         var sections = new List<SectionSample>(nodes.Length);
@@ -556,7 +570,7 @@ internal static class LatticeFixtureTests
             double chord = EllipticC0 * Math.Sqrt(Math.Max(0, 1 - (y / EllipticHalf) * (y / EllipticHalf)));
             sections.Add(Section(y, -chord / 4, chord, 0, 0, y / EllipticHalf, 2 * EllipticHalf, null));
         }
-        return VortexLattice.Solve(sections, Lattice(nPerHalf, 4, chordSpacing), At(5), Rho, plant, default);
+        return VortexLattice.Solve(sections, Lattice(nPerHalf, 4, chordSpacing), At(alpha), Rho, plant, default);
     }
 
     private static double FlatPlateSlope(double aspect, int nPerHalf, LatticePlant plant = LatticePlant.None)
