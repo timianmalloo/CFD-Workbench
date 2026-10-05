@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "22c88c7c729df8fd3e64eeb156959efd16e7272fd703c3989894bc185018f5ba"
+      "sourceSha256": "d543a2a28c91ded6377f88495a698426bf48c8b7374e80d77ef8b0ec945761ae"
     },
     {
       "id": "design-authoring-decisions",
@@ -5398,7 +5398,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3d3aad1fc318448f21e839f67e9b92eaf59421883ec473e27ff04f1506c48e0a"
+      "sourceSha256": "f618e24760069e4077b34a145d958fc7344df15a0e4f43301ee8462d5e901ebe"
     },
     {
       "id": "plan-tip-handling",
@@ -11017,6 +11017,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "53823766f1d679444af5731548fbe23364c56d203ed72ac469d0cb961e78e076"
     },
     {
+      "id": "proof-ring-b2-moves",
+      "path": "docs/proof/ring-b2/moves.md",
+      "title": "Ring B2 move list: Analysis checks moved from the join ring to readiness",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-b2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Five convergence and oracle checks move from the Analysis join ring to readiness so C-2 holds at quiet load; PASS union unchanged.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "c-2"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ea040191e753e426058d781fa7f7626e81753e20179eb4e5a45816668e303970"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -13418,5 +13447,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ee71ab9c68278917e9f7aea03dbca214031256c5a6607a5d386a2823ef57bb2a"
+  "graphSha256": "89ef1dd0d02069d94cc95b11454b86c18e3d09cc4f13d9a54380e39c5f1b11ab"
 };

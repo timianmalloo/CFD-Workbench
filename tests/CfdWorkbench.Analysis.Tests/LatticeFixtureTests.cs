@@ -24,16 +24,11 @@ internal static class LatticeFixtureTests
 
     internal static void Run()
     {
-        Check("F6_ObservedOrder", F6);
-        Check("F15_EllipticWing_InducedAngleUniform", F15);
-        Check("F15b_EllipticMidspan_InducedAngleMatchesCLOverPiAR", F15MidspanAnchor);
         Check("F1_FlatPlate_RichardsonClAlphaTo2Pi", F1);
         Check("F3_SymmetricSection_ZeroLiftOddInAlpha", F3);
         Check("F4_MirroredWing_NoSideForceRollYaw", F4);
         Check("Vlm_PivotingSolve_ResidualAfterOneSolve", PivotingSolve);
         Check("F7_LinearWashout_TipAlphaEffBelowRoot", F7);
-        Check("F18_Camber4_DefaultLatticeTipConverges", F18);
-        Check("F19_Washin1_DefaultLatticeTipConverges", F19);
         Check("F20_EllipticStraightQuarterChord_SweepZero", F20);
         Check("F21_ParabolicCamber_ZeroLiftAngleThinAirfoil", F21);
         Check("F16_BertinSmithSwept_ClAlpha3p443", F16);
@@ -310,8 +305,13 @@ internal static class LatticeFixtureTests
         Check("Readiness_Camber4_N256Point", ReadinessCamber256);
         Check("Readiness_Washin1_N256Solves", ReadinessWashin256);
         Check("Readiness_EllipticQuarterChord_SweepZeroFine", ReadinessSweepFine);
-        // F-2 reads the trio F-6 builds. The join still runs F-6; this process does not.
-        F6();
+        // B2 (docs/proof/ring-b2/moves.md): the convergence and oracle evidence moved here from the join ring.
+        // F-6 builds the shared 32/64/128 trio that F-15, F-15b and F-2 read, so it runs first.
+        Check("F6_ObservedOrder", F6);
+        Check("F15_EllipticWing_InducedAngleUniform", F15);
+        Check("F15b_EllipticMidspan_InducedAngleMatchesCLOverPiAR", F15MidspanAnchor);
+        Check("F18_Camber4_DefaultLatticeTipConverges", F18);
+        Check("F19_Washin1_DefaultLatticeTipConverges", F19);
         Check("F2_EllipticAR8_RichardsonClInRecordedBand", F2);
         Check("F5_InducedDrag_TrefftzWithin1PercentOfNearField", F5);
     }

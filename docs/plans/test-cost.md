@@ -416,3 +416,13 @@ path under `src/`, `tests/`, `tools/`, `cases/` and no `*.csproj`, `*.slnx`, `gl
 the other join checks and the verify gates still run, and the readiness ring before main is unchanged. `tools/join-ring.sh
 --self-test` plants merges in a scratch repo (11 cases). check-docs TEST-RING now accepts the wrapper and requires it to name
 both `tools/run-tests.sh` and `tools/check-test-costs.py`. A `RING-SKIPPED` line in a join log means no cost reading was taken.
+
+### 9.4 Track B2 item 1: five Analysis checks move to readiness (2026-10-05)
+
+C-2 failed at quiet load: Analysis 5,386 ms at end load 13 (join-tip-salvage-s1). The limit is unchanged. Five checks that are
+convergence or oracle evidence moved from the join ring to `--readiness` (the Analysis harness, 149 to 144 fast PASS lines):
+`F6_ObservedOrder` (ring R, about 0.5 s), `F15_EllipticWing_InducedAngleUniform` (R, 13 ms), `F15b_EllipticMidspan_InducedAngleMatchesCLOverPiAR`
+(R, 34 ms), `F18_Camber4_DefaultLatticeTipConverges` (R, about 0.23 s), `F19_Washin1_DefaultLatticeTipConverges` (R, about 0.23 s).
+After: Analysis 4,089 ms at end load 13.45 in `run-tests.sh`. The fast plus readiness `PASS` union is identical (157 names,
+`docs/proof/ring-b2/union-before.txt`, `union-after.txt`). Reasons and the review points are in `docs/proof/ring-b2/moves.md`;
+the design ledger rows (area3-analysis.md 18.8) now read ring R.
