@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:08:42Z",
+  "generated": "2026-10-05T16:23:25Z",
   "audit": [
     {
       "actor": null,
@@ -25263,6 +25263,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T16:08:38Z",
       "duration_seconds": 4.0
+    },
+    {
+      "id": "al-01M46E134Q9464X2A0V54A6EJJ",
+      "shortname": "s2-tip-vlm-sweep",
+      "datetime": "2026-10-05T16:23:25Z",
+      "session": "trk-s2",
+      "prompt": "S2 tip VLM sweep",
+      "summary": "Pre-registered then ran the 72-case small-tip-chord VLM sweep (60 decision + 12 control) on main. One judged-strip flip: r=0.01 alpha 8, coarse n, false-out direction. D2 alpha-18 cases: no flip. Recommendation: keep Ruling 78, add tip-chord-ratio floor r>=0.02.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/vlm-tip-study/s2-sweep/verdict.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Measure whether the VLM judged-strip verdict flips with n at small tip chord",
+      "done_when": "Pre-registration committed before solve; sweep CSV and verdict committed",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-05T16:19:39Z",
+      "duration_seconds": 226.0,
+      "git": {
+        "sha": "106b58809009f609b3e9d4765027f993a9e41292",
+        "short": "106b58809",
+        "branch": "spike/tip-vlm-sweep-s2",
+        "pushed": null
+      }
     }
   ],
   "changes": [

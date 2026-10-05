@@ -11359,6 +11359,67 @@ window.DOCS_INDEX = {
       "sourceSha256": "8ba9b363a2dc1f706d2dc6e3ac217494b68d67563f6ec363acedde1c2a4a98be"
     },
     {
+      "id": "proof-vlm-tip-s2-preregistration",
+      "path": "docs/proof/vlm-tip-study/s2-sweep/preregistration.md",
+      "title": "S2 small-tip-chord VLM sweep: pre-registration",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-s2",
+      "phase": "implementation",
+      "reviewBy": "2027-04-05",
+      "reviewSuggested": [],
+      "summary": "Case grid, recorded fields and decision rules for the S2 sweep, written before any solve.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "tip-strip",
+        "taper",
+        "preregistration",
+        "ruling-78",
+        "ruling-88"
+      ],
+      "links": [
+        {
+          "to": "plan-tip-handling",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "495d4fb663b53437ac42f5e23f69acf313ed7729b6bdc015430dcc7585e39425"
+    },
+    {
+      "id": "proof-vlm-tip-s2-verdict",
+      "path": "docs/proof/vlm-tip-study/s2-sweep/verdict.md",
+      "title": "S2 small-tip-chord VLM sweep: verdict",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@trk-s2",
+      "phase": "implementation",
+      "reviewBy": "2027-04-05",
+      "reviewSuggested": [],
+      "summary": "One judged-strip flip in 15 (ratio, alpha) pairs: r = 0.01 at alpha 8, coarse lattice only, in the conservative direction.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "tip-strip",
+        "taper",
+        "ruling-78",
+        "ruling-88"
+      ],
+      "links": [
+        {
+          "to": "proof-vlm-tip-s2-preregistration",
+          "rel": "implements"
+        },
+        {
+          "to": "plan-tip-handling",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6d64b2f1fc999b79594d596dc98814f0ccf97719f64d5796523d842c7243135d"
+    },
+    {
       "id": "proof-vlm-tip-study",
       "path": "docs/proof/vlm-tip-study/verdict.md",
       "title": "VLM tip-strip envelope study",
@@ -13226,5 +13287,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "09f1842ccfdca77cc3f3c56ed7a86eaefec84cf419c5a73a840ce284edf8c2c6"
+  "graphSha256": "4f8fc5144ac2a939430edeca04ffead625769049a60eae247ecd6760adbdda9f"
 };
