@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T01:13:35Z",
+  "generated": "2026-10-05T01:15:25Z",
   "audit": [
     {
       "actor": null,
@@ -24207,6 +24207,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T01:12:07Z",
       "duration_seconds": 88.0
+    },
+    {
+      "id": "al-01M44T2GJ8JN0DAGM3ENMR0S91",
+      "shortname": "join-a3a-vlm-lattice",
+      "datetime": "2026-10-05T01:15:25Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/a3a-vlm-lattice into feature/ui-cad-direction",
+      "summary": "VLM-3 (Codex), VLM-3b (Grok), VLM-3c (Codex): horseshoes/control points in each panel plane (camber n64 tip -2.3e6 deg -> 4.96; washin n256 solves), normals from the control-point camber slope (F21 alpha_L0 -4.593 vs thin-airfoil -4.584; was -3.39), SweepOf on the quarter-chord (54-87 -> 0 deg); fast/readiness split; Analysis --readiness added to the ring. cfdw.vlm-strip 1.1.0. CFD review PASS-WITH-CONDITIONS, veto cleared. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T01:13:58Z",
+      "duration_seconds": 87.0
     }
   ],
   "changes": [
