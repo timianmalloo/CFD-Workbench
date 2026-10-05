@@ -40,7 +40,7 @@ def read_ms(directory: Path, name: str) -> int | None:
         return None
 
 
-def check(directory: Path, jobs: tuple[str, ...]) -> list[str]:
+def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded") -> tuple[list[str], list[str]]:
     errors: list[str] = []
     readings: dict[str, int] = {}
     for name in (*jobs, "wall"):  # C-6: a reading that is missing is a failure, never a pass
@@ -61,7 +61,7 @@ def check(directory: Path, jobs: tuple[str, ...]) -> list[str]:
             lines = (directory / "Analysis.log").read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError:
             errors.append("C-6 Analysis.log is missing: its COST lines are not recorded")
-            return errors
+            return errors, []
         costs: dict[str, float] = {}
         for line in lines:
             match = re.fullmatch(r"COST (\S+) (\d+(?:\.\d+)?)", line.strip())
@@ -74,37 +74,54 @@ def check(directory: Path, jobs: tuple[str, ...]) -> list[str]:
             limit = EXEMPT_LIMIT_MS if name in EXEMPT_CHECKS else CHECK_LIMIT_MS
             if ms > limit:
                 errors.append(f"C-5 {name} took {ms} ms, over {limit:.0f} ms (move it to readiness with its cost, or make it cheaper)")
-    return errors
+    return errors, []
 
 
 def self_test() -> int:
-    """Every row of the 13.4 table: a green baseline, then each failing input planted alone must turn it red."""
+    """Every row of the 13.4 table plus Ruling 84: a green baseline, then each failing input planted alone must turn it red."""
     passes = "".join(f"PASS {name}\nCOST {name} 12.500\n" for name in ("Units_Lbf_KeyUnchanged", "F6_ObservedOrder"))
     good = {"Core.part1of2.ms": "38000", "Core.part2of2.ms": "38000", "Desktop.ms": "40000", "Analysis.ms": "3000",
-            "Cli.ms": "1500", "wall.ms": "45000", "Analysis.log": passes}
-    cases = [  # label, files replacing the baseline (None deletes), expected message fragment (None: green)
-        ("baseline is green", {}, None),
-        ("C-2 Analysis.ms 5900", {"Analysis.ms": "5900"}, "C-2"),
-        ("C-3 wall.ms 50400", {"wall.ms": "50400"}, "C-3"),
-        ("C-4 Desktop.ms 43100 names DR-ANA-10", {"Desktop.ms": "43100"}, "DR-ANA-10"),
-        ("C-5 COST Units_Lbf_KeyUnchanged 512.3", {"Analysis.log": passes.replace("Units_Lbf_KeyUnchanged 12.500", "Units_Lbf_KeyUnchanged 512.3")}, "Units_Lbf_KeyUnchanged"),
-        ("C-5 COST F6_ObservedOrder 1612.0", {"Analysis.log": passes + "COST F6_ObservedOrder 1612.0\n"}, "F6_ObservedOrder"),
-        ("C-5 F6_ObservedOrder 1499.0 is inside its exemption", {"Analysis.log": passes + "COST F6_ObservedOrder 1499.0\n"}, None),
-        ("C-6 Analysis.ms deleted", {"Analysis.ms": None}, "Analysis.ms"),
-        ("C-6 wall.ms deleted", {"wall.ms": None}, "wall.ms"),
-        ("C-6 Analysis PASS without COST", {"Analysis.log": passes + "PASS NoCost\n"}, "NoCost"),
+            "Cli.ms": "1500", "wall.ms": "45000", "build.ms": "1000", "Analysis.log": passes}
+    quiet = "5.0"
+    # label, files replacing the baseline (None deletes), end load, expected error fragment (None: no error),
+    # COST-MISS fragments that must be printed (an empty tuple: none)
+    cases = [
+        ("baseline is green", {}, quiet, None, ()),
+        ("C-2 Analysis.ms 5900", {"Analysis.ms": "5900"}, quiet, "C-2", ()),
+        ("C-2 stays strict at high load", {"Analysis.ms": "5900"}, "40.0", "C-2", ()),
+        ("C-3 net 55000 (wall 56000 - build 1000) at quiet load", {"wall.ms": "56000"}, quiet, "C-3", ()),
+        ("C-3 net 53900 is inside the limit", {"wall.ms": "54900"}, quiet, None, ()),
+        ("C-3 reads net: wall 54500 - build 1000 = 53500 is green", {"wall.ms": "54500"}, quiet, None, ()),
+        ("C-4 Desktop.ms 53100 at quiet load names DR-ANA-10", {"Desktop.ms": "53100"}, quiet, "DR-ANA-10", ()),
+        ("C-3 and C-4 at load 30.2 print COST-MISS and do not fail", {"wall.ms": "56000", "Desktop.ms": "53100"}, "30.2",
+         None, ("COST-MISS C-3 55000 load 30.2", "COST-MISS C-4 53100 load 30.2")),
+        ("load 24.0 is still gated: C-4 fails", {"Desktop.ms": "53100"}, "24.0", "DR-ANA-10", ()),
+        ("load 24.1 is not gated: C-4 is a COST-MISS", {"Desktop.ms": "53100"}, "24.1", None, ("COST-MISS C-4 53100 load 24.1",)),
+        ("load not recorded: C-4 is a COST-MISS, never a pass", {"Desktop.ms": "53100"}, "not-recorded", None,
+         ("COST-MISS C-4 53100 load not-recorded",)),
+        ("C-5 COST Units_Lbf_KeyUnchanged 512.3", {"Analysis.log": passes.replace("Units_Lbf_KeyUnchanged 12.500", "Units_Lbf_KeyUnchanged 512.3")},
+         quiet, "Units_Lbf_KeyUnchanged", ()),
+        ("C-5 COST F6_ObservedOrder 1612.0", {"Analysis.log": passes + "COST F6_ObservedOrder 1612.0\n"}, quiet, "F6_ObservedOrder", ()),
+        ("C-5 stays strict at high load", {"Analysis.log": passes + "COST F6_ObservedOrder 1612.0\n"}, "40.0", "F6_ObservedOrder", ()),
+        ("C-5 F6_ObservedOrder 1499.0 is inside its exemption", {"Analysis.log": passes + "COST F6_ObservedOrder 1499.0\n"}, quiet, None, ()),
+        ("C-6 Analysis.ms deleted", {"Analysis.ms": None}, quiet, "Analysis.ms", ()),
+        ("C-6 wall.ms deleted", {"wall.ms": None}, quiet, "wall.ms", ()),
+        ("C-6 build.ms deleted", {"build.ms": None}, quiet, "build.ms", ()),
+        ("C-6 Analysis PASS without COST", {"Analysis.log": passes + "PASS NoCost\n"}, quiet, "NoCost", ()),
     ]
     failures = 0
     with tempfile.TemporaryDirectory() as scratch:
-        for number, (label, change, expected) in enumerate(cases):
+        for number, (label, change, load, expected, miss_fragments) in enumerate(cases):
             case = Path(scratch) / f"case{number}"
             case.mkdir()
             for name, text in {**good, **change}.items():
                 if text is not None:
                     (case / name).write_text(text, encoding="utf-8", newline="\n")
-            errors = check(case, DEFAULT_JOBS)
+            errors, misses = check(case, DEFAULT_JOBS, load)
             ok = not errors if expected is None else any(expected in error for error in errors)
-            print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else f": expected {expected or 'green'}, got {errors or 'green'}"))
+            ok = ok and (all(any(fragment in miss for miss in misses) for fragment in miss_fragments) if miss_fragments else not misses)
+            print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else
+                  f": expected {expected or 'no error'} and {miss_fragments or 'no miss'}, got {errors or 'no error'} and {misses or 'no miss'}"))
             failures += not ok
     print(f"SELFTEST {len(cases) - failures}/{len(cases)} cases")
     return 1 if failures else 0
@@ -126,7 +143,7 @@ def main(argv: list[str]) -> int:
         else:
             print(__doc__.strip().splitlines()[2], file=sys.stderr)
             return 2
-    errors = check(directory, jobs)
+    errors, misses = check(directory, jobs)
     for error in errors:
         print("FAILED: " + error)
     print(f"test costs: {len(errors)} failures")
