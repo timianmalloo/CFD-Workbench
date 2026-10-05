@@ -14,6 +14,7 @@ summary: >-
   Two CAD defects, each red before its fix. A refused section step republished Finish "Checking…"
   for the re-check of unchanged bytes. MakeIndependent threw DSL-PATCH when a tangent row still
   named a point id that the copy had rewritten. The retarget now edits each row's id token span.
+  A tangents block before ids stays DSL-SYNTAX.
 ---
 
 # E2 CAD defects red-first receipt
@@ -22,11 +23,11 @@ Track `trk-e2`, branch `fix/cad-e2-defects`, 2026-10-05. Plan: `docs/coordinatio
 
 | Test | What it catches | Red commit | Green commit |
 |---|---|---|---|
-| `SectionStep_Refused_RestoresCertificate` | A refused abscissa step shows Finish "Checking…" (the button help and the reason box) while the unchanged draft is re-checked. The check covers that re-check window only | `585eefba599d25c3f844daed047c924f0095171e` | `d2f286cff917c4c4755ab52a625ab541cb31f855` |
-| `MakeIndependent_TangentRow_NoDslPatch` | `FoilSource.MakeIndependent` throws `DSL-PATCH` when a tangent row names a point whose id the copy rewrites | `21cd34696da73a6fa53f7da990f78a9874ee3789` | `bba1aa8d9293e16e8038bdb63922b95892050475` |
-| `MakeIndependent_TangentsBeforeIds_RetargetsRow` | A tangents block written before the ids list is skipped, and the copy throws `DSL-PATCH` | observed red below, before the span edit | `db7195a28abb1afbb726083420f2f47b7dca81ef` |
-| `MakeIndependent_CollidingIds_TangentNotCascaded` | Rewriting one id also rewrites a later id, or a comment that quotes an id | observed red below, before the span edit | `db7195a28abb1afbb726083420f2f47b7dca81ef` |
-| `SectionStep_LandedOrExit_ClearsPriorCertificate` | A landed step, or leaving the editor, keeps the certificate saved for a later refusal | observed red below, before the clear | `598a59b221c3e969fac500f512e70aa4187fd22c` |
+| `SectionStep_Refused_RestoresCertificate` | A refused abscissa step shows Finish "Checking…" (the button help and the reason box) while the unchanged draft is re-checked. The check covers that re-check window only | `87d744bed4b4877185e2f276afade60337749f5c` | `25e15992dbed9c0fec31a73deda3703cc525a6b9` |
+| `MakeIndependent_TangentRow_NoDslPatch` | `FoilSource.MakeIndependent` throws `DSL-PATCH` when a tangent row names a point whose id the copy rewrites | `35a91fbccf8ea5221bb377b83b96065e387d3b94` | `087b027cbfe8b32105c350d8a902a38dd19fea55` |
+| `Parse_TangentsBeforeIds_RefusedDslSyntax` | A tangents block written before the ids list parses. The specified refusal is `DSL-SYNTAX` | `b7b9361ec5febca8f8ec9f73888bfc8c77d1a4d7` accepted the order | `caf2635d3e36c10c15323c14d946291e3ec86105` |
+| `MakeIndependent_CollidingIds_TangentNotCascaded` | Rewriting one id also rewrites a later id, or a comment that quotes an id | observed red below, before the span edit | `b7b9361ec5febca8f8ec9f73888bfc8c77d1a4d7` |
+| `SectionStep_LandedOrExit_ClearsPriorCertificate` | A landed step, or leaving the editor, keeps the certificate saved for a later refusal | observed red below, before the clear | `baff954a3004cbef74ddc4798f40e78be871c1cd` |
 
 ## FLK-1
 
@@ -61,9 +62,9 @@ FAIL MakeIndependent_TangentsBeforeIds_RetargetsRow InvalidOperationException: F
 FAIL MakeIndependent_CollidingIds_TangentNotCascaded InvalidOperationException: Expected True; actual False
 ```
 
-The first fixture puts `tangents` before `ids`. The parser accepted only the canonical order, so the row never reached the retarget. The parser now reads either order. A second ids or tangents block still fails at `}`. The canonical writer still emits ids, then tangents. `docs/specs/foildsl.md` still says the block is after `ids`. That sentence was not edited.
+The first fixture puts `tangents` before `ids`. The parser on main accepts only the canonical order, so that fixture is `DSL-SYNTAX` and the row never reached the retarget. Cycle 1 taught the parser to read either order. That widened the grammar. `docs/specs/foildsl.md` says a tangents block is legal only in 4.1, after `ids`. Repair cycle 2 removes the acceptance. `Parse_TangentsBeforeIds_RefusedDslSyntax` builds the same swapped fixture and requires `DSL-SYNTAX` on the `ids` token.
 
-The second fixture puts the anchor's id at `cv-1` and index 1's id at `cv-5` (index 0 is not an interior anchor, so the list cannot literally start `["cv-1","cv-0",...]`). The tangent stayed on `cv-5` even under the text search, because edits were collected against the original text and the second id did not see the first replacement. The same search rewrote `# keep "cv-1" here`, which is why the check was red. After the span edit the row is `cv-5`, index 1 is `cv-1`, and the comment is unchanged. The same three checks printed PASS, and `Profile_MakeIndependent_MiddleStationSplitsIntervals` passed with them.
+The second fixture puts the anchor's id at `cv-1` and index 1's id at `cv-5` (index 0 is not an interior anchor, so the list cannot literally start `["cv-1","cv-0",...]`). The tangent stayed on `cv-5` even under the text search, because edits were collected against the original text and the second id did not see the first replacement. The same search rewrote `# keep "cv-1" here`, which is why the check was red. After the span edit the row is `cv-5`, index 1 is `cv-1`, and the comment is unchanged. `MakeIndependent_CollidingIds_TangentNotCascaded` and `MakeIndependent_TangentRow_NoDslPatch` still pass. The before-ids fixture is refused, not retargeted.
 
 ## Saved certificate
 

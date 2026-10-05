@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T15:45:26Z",
+  "generated": "2026-10-05T15:54:01Z",
   "audit": [
     {
       "actor": null,
@@ -24995,6 +24995,44 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M46CB8DH4EWZG1YMAY2XTXBB",
+      "shortname": "trk-e2-repair-2",
+      "datetime": "2026-10-05T15:54:01Z",
+      "session": "trk-e2",
+      "prompt": "REPAIR CYCLE 2 (the last) of Track E2 — worktree /Users/mallalieut/projects/CFD-Workbench-fix-cad-e2-defects, branch fix/cad-e2-defects, AGENT_SESSION=trk-e2. Box 30 min.\n\nFirst command: start the implement audit marker for session trk-e2.\n\nCycle-1 work stands except the parser change that accepts a tangents block before ids. FoilDSL is the geometry of record (ADR-0002) and docs/specs/foildsl.md says a tangents block is legal only in 4.1, after ids. A grammar change cannot land inside a bug fix.\n\n1. Revert only the parser change in src/CfdWorkbench.Core/FoilSource.cs that lets tangents appear before ids. A tangents block before ids must fail parse with DSL-SYNTAX again, exactly as on origin/main. Keep the id-token spans on TangentRow (IdToken), the one-edit-per-row retarget, the Guard.Require count check, the cleared certificate, and the rename.\n2. Replace MakeIndependent_TangentsBeforeIds_RetargetsRow with Parse_TangentsBeforeIds_RefusedDslSyntax. Keep MakeIndependent_CollidingIds_TangentNotCascaded.\n3. Show git diff origin/main..HEAD -- src/CfdWorkbench.Core/FoilSource.cs contains no grammar change.\n4. Rebase onto origin/main first. Run the named Core and Desktop checks with CFD_TEST_ONLY, then the full tools/run-tests.sh once, then python3 tools/check-docs.py. Audit entry with --prompt, render, derive, commit.",
+      "summary": "Repair cycle 2 restores the FoilDSL rule that a tangents block is legal only after ids. ReadCurve matches origin/main again. Parse_TangentsBeforeIds_RefusedDslSyntax requires DSL-SYNTAX on the ids token. IdToken spans, one edit per row, the Guard.Require count check, the cleared certificate, and the rename stay. Named Core and Desktop checks passed. tools/run-tests.sh exited 1: harness logs have no FAIL line (Core 335+335, Desktop 663, Analysis 109, Cli 5, RESULT failures=0) and check-test-costs failed C-2 plus eleven C-5 rows under load 149.35 to 193.71; wall 128 s. Class: a bug fix widened the grammar. Sweep: the cumulative FoilSource diff has no ReadCurve hunk. Derive: restore the specified refusal. Prevent: the renamed parse check. The defect-class register was not edited.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Core/FoilSource.cs",
+        "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs",
+        "docs/proof/e2-cad-defects/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Restore the FoilDSL refusal of a tangents block before ids, and keep the id-span retarget.",
+      "done_when": "Parser matches origin/main on that production, Parse_TangentsBeforeIds_RefusedDslSyntax passes, named checks and the full ring have been run, check-docs exits 0, and the audit entry is committed.",
+      "tier": "T0",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-10-05T15:41:27Z",
+      "duration_seconds": 754.0,
+      "git": {
+        "sha": "caf2635d3e36c10c15323c14d946291e3ec86105",
+        "short": "caf2635d3",
+        "branch": "fix/cad-e2-defects",
+        "pushed": null
+      }
     }
   ],
   "changes": [
