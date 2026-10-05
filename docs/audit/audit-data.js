@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:08:42Z",
+  "generated": "2026-10-05T16:12:08Z",
   "audit": [
     {
       "actor": null,
@@ -25211,58 +25211,86 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46D5GRMKYA2769PZGAMWD7E",
-      "shortname": "join-cad-e2-defects",
-      "datetime": "2026-10-05T16:08:21Z",
-      "session": "4e90c621",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "E2: refused section step restores the prior certificate (FLK-1), certificate cleared on land/exit; MakeIndependent retargets tangent rows from parsed id spans with a count guard; tangents-before-ids stays DSL-SYNTAX per foildsl.md:194 recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join cad-e2-defects into main (round-oct05)",
+      "datetime": "2026-10-05T16:08:21Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 64.0,
       "fan_out": 0,
+      "goal": "join cad-e2-defects into main (round-oct05)",
+      "id": "al-01M46D5GRMKYA2769PZGAMWD7E",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-cad-e2-defects",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-05T16:07:17Z",
-      "duration_seconds": 64.0
+      "summary": "E2: refused section step restores the prior certificate (FLK-1), certificate cleared on land/exit; MakeIndependent retargets tangent rows from parsed id spans with a count guard; tangents-before-ids stays DSL-SYNTAX per foildsl.md:194 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M46D651VH7V6JVWZCG0Z6442",
-      "shortname": "join-tip-handling",
-      "datetime": "2026-10-05T16:08:42Z",
-      "session": "4e90c621",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "docs/plans/tip-handling.md: 9-agent judge panel proposal; Ruling 78 kept with scope, two bounded measurements, 16 decisions (Ruling 88) recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join tip-handling into main (round-oct05)",
+      "datetime": "2026-10-05T16:08:42Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 4.0,
       "fan_out": 0,
+      "goal": "join tip-handling into main (round-oct05)",
+      "id": "al-01M46D651VH7V6JVWZCG0Z6442",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-tip-handling",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-05T16:08:38Z",
-      "duration_seconds": 4.0
+      "summary": "docs/plans/tip-handling.md: 9-agent judge panel proposal; Ruling 78 kept with scope, two bounded measurements, 16 decisions (Ruling 88) recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T16:10:32Z",
+      "done_when": "Evidence per exit item, proof pack committed, gates run",
+      "duration_seconds": 563.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/a3c-polar-source",
+        "pushed": null,
+        "sha": "c4eb466b83bced8d59204a320c4e26f8b938dad2",
+        "short": "c4eb466b8"
+      },
+      "goal": "Verify and close A3c-1 NeuralFoil polar source",
+      "id": "al-01M46D9GVMGM58NXTBVG84T3XY",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "A3c-1 NeuralFoil polar source (close-out)",
+      "session": "trk-a3c1",
+      "shortname": "trk-a3c1",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:01:09Z",
+      "summary": "Verified A3c-1 exit evidence; proof pack finished; stdio guard fixed; full ring red on one Core rule (Math.PI/180 site) needing a seam",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     }
   ],
   "changes": [

@@ -8751,7 +8751,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6bef95a2fff5f01c9653ddf2a42b0afeed79166cc9bf8212171df0cb48412c82"
+      "sourceSha256": "05e582f8f63c3d728e183380b2ef25a9cc4ca5f1e568800fd37d923a5f139ae0"
     },
     {
       "id": "proof-a3c-polar-source-red-first",
@@ -13293,5 +13293,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "5db339e425e48314c618259ec7f7677f522204a37b532df3007ae9ab4034272a"
+  "graphSha256": "7aed66353eefddf2a47e61d9a57f77833273f04ba4cb10ea350eef4dda7533cc"
 };
