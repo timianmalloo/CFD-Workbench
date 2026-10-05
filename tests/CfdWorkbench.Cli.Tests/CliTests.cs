@@ -204,6 +204,70 @@ finally
         System.Diagnostics.Stopwatch.GetElapsedTime(failedStarted).TotalMilliseconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
 }
 
+// Track C item 4: `inspect --runs` prints each run's revision as the session's own label for the revision the run was made
+// on: the ordinal in accepted-row order and the rail of the edit that made it (RevisionOf, the label the GUI shows).
+long revisionStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+try
+{
+    var revisionHost = new AnalysisHost(new CliFakeWing(), CliFakeWing.Water);
+    using var revisionSession = new AuthoringSession();
+    revisionSession.Open(Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), false);
+    var revisionService = new AnalysisService(revisionSession, revisionHost.Method);
+    var revisionWater = revisionHost.Water(OperatingPoints.DefaultTemperatureC, OperatingPoints.SaltSalinityGPerKg);
+    var expected = new List<(string RunKey, RevisionLabel Label)>();
+    async Task EvaluateHere(double alphaDeg)
+    {
+        var run = await revisionService.EvaluateAsync(OperatingPoints.Custom(5.14444, alphaDeg, 0.5), revisionWater, Tier.VlmStrip,
+            new Scope.Wing(), CancellationToken.None);
+        expected.Add((run.RunKey, revisionSession.RevisionOf(run.Inputs.AcceptedId)));
+    }
+    void TwistEdit(double delta)
+    {
+        var point = Channels.View(revisionSession.Snapshot().Source, "twist", "Accepted", 0).Points[0];
+        var draft = revisionSession.BeginPointGesture(Guid.NewGuid().ToString("D"), "twist", point.Id);
+        var frame = revisionSession.UpdatePointGesture(draft.Id, draft.Generation, point.SpanMeters, point.Ordinate + delta);
+        revisionSession.Apply(Guid.NewGuid().ToString("D"), revisionSession.Validate(frame.Draft.Id, frame.Draft.Generation));
+    }
+    await EvaluateHere(3);
+    TwistEdit(1.0);
+    TwistEdit(2.0);
+    await EvaluateHere(3);
+    if (expected[0].Label.Ordinal != 1 || expected[1].Label.Ordinal != 3 || expected[1].Label.Rail != "twist")
+        throw new Exception($"the fixture's own labels are wrong: {string.Join(", ", expected.Select(item => item.Label))}");
+    string revisionFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".cfdw.json");
+    try
+    {
+        await File.WriteAllBytesAsync(revisionFile, revisionSession.SaveImage());
+        output.GetStringBuilder().Clear();
+        exit = await Cli.RunAsync(["inspect", revisionFile, "--runs"], output);
+        if (exit != 0) throw new Exception($"inspect --runs returned {exit}: {output}");
+        using var listed = JsonDocument.Parse(output.ToString());
+        var rows = listed.RootElement.GetProperty("runs").EnumerateArray().ToArray();
+        if (rows.Length != expected.Count) throw new Exception($"listed {rows.Length} runs, stored {expected.Count}: {output}");
+        foreach (var (row, (key, label)) in rows.Zip(expected))
+        {
+            if (row.GetProperty("runKey").GetString() != key) throw new Exception($"run order or key differs: {output}");
+            var printed = row.GetProperty("revision");
+            bool hasRail = printed.ValueKind == JsonValueKind.Object && printed.TryGetProperty("rail", out var rail) && rail.ValueKind == JsonValueKind.String;
+            if (printed.ValueKind != JsonValueKind.Object || printed.GetProperty("ordinal").GetInt32() != label.Ordinal ||
+                hasRail != (label.Rail is not null) || (hasRail && printed.GetProperty("rail").GetString() != label.Rail))
+                throw new Exception($"run {key[..12]} printed revision {printed}, session label {label}: {output}");
+        }
+    }
+    finally { File.Delete(revisionFile); }
+    Console.WriteLine("PASS Cli_InspectRuns_RevisionIsSessionLabel");
+}
+catch (Exception error)
+{
+    Console.WriteLine("FAIL Cli_InspectRuns_RevisionIsSessionLabel");
+    throw new InvalidOperationException(error.Message);
+}
+finally
+{
+    Console.WriteLine("COST Cli_InspectRuns_RevisionIsSessionLabel " +
+        System.Diagnostics.Stopwatch.GetElapsedTime(revisionStarted).TotalMilliseconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
+}
+
 /// <summary>A fixed wing method for the CLI checks: the key depends on inputs and settings, never on these numbers.</summary>
 internal sealed class CliFakeWing : IWingMethod
 {
