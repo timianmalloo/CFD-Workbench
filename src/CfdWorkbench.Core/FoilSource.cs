@@ -726,7 +726,7 @@ public static class FoilSource
         int nameAt = text.IndexOf(quoted, profile.BlockStart, profile.BlockEnd - profile.BlockStart, StringComparison.Ordinal);
         Guard.Require(nameAt >= 0, "DSL-PROFILE-TARGET");
         edits.Add((nameAt, nameAt + quoted.Length, Jcs.Quote(newName)));
-        RewriteIds(profile.Upper, edits); RewriteIds(profile.Lower, edits);
+        RewriteIds(profile.Upper, edits, text); RewriteIds(profile.Lower, edits, text);
         string block = text[profile.BlockStart..profile.BlockEnd];
         foreach (var edit in edits.OrderByDescending(item => item.Start))
         {
@@ -735,11 +735,31 @@ public static class FoilSource
         }
         return block;
     }
-    private static void RewriteIds(Curve curve, List<(int Start, int End, string Value)> edits)
+    private static void RewriteIds(Curve curve, List<(int Start, int End, string Value)> edits, string text)
     {
         string joined = string.Join(",", Enumerable.Range(0, curve.Points.Length).Select(index => Jcs.Quote("cv-" + index.ToString(CultureInfo.InvariantCulture))));
         if (curve.IdTokens is null) edits.Add((curve.InsertAt, curve.InsertAt, " ids [" + joined + "] "));
-        else for (int index = 0; index < curve.Points.Length; index++) edits.Add((curve.IdTokens[index].Start, curve.IdTokens[index].End, Jcs.Quote("cv-" + index.ToString(CultureInfo.InvariantCulture))));
+        else
+        {
+            // A tangent row names a point id. The ids list is rewritten below; the row sits after
+            // that list and must name the same vertex's new id, with its kind and angle left as written.
+            int tangentFrom = curve.IdTokens[^1].End;
+            for (int index = 0; index < curve.Points.Length; index++)
+            {
+                string next = "cv-" + index.ToString(CultureInfo.InvariantCulture);
+                edits.Add((curve.IdTokens[index].Start, curve.IdTokens[index].End, Jcs.Quote(next)));
+                if (curve.Tangents.Length == 0 || curve.Ids[index] == next || tangentFrom >= curve.InsertAt) continue;
+                string quoted = Jcs.Quote(curve.Ids[index]);
+                int cursor = tangentFrom;
+                while (cursor < curve.InsertAt)
+                {
+                    int at = text.IndexOf(quoted, cursor, curve.InsertAt - cursor, StringComparison.Ordinal);
+                    if (at < 0) break;
+                    edits.Add((at, at + quoted.Length, Jcs.Quote(next)));
+                    cursor = at + quoted.Length;
+                }
+            }
+        }
     }
 
     internal static (byte[] Source, string VertexId) InsertProfileKnot(byte[] source, string profile, double parameterX)
