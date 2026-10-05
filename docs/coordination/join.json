@@ -13,6 +13,8 @@
     ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py", "--skip", "verify-application-core.py", "verify-application-adapters.py"]
   ],
   "readiness": [
+    ["python3", "tools/check-neuralfoil-weights.py"],
+    ["python3", "tools/check-notices.py"],
     [
       ["python3", "tools/verify-application-core.py"],
       ["python3", "tools/verify-application-adapters.py"],

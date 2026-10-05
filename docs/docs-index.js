@@ -6411,7 +6411,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "12868923ca9b76532898a44f075b0c57bb3054ea3764a2d862ed72d72598985a"
+      "sourceSha256": "f414c1ac2cb007b12121579b2a8ea8cdb92601279a0a3f46b4c4533b1ebc4fd4"
     },
     {
       "id": "kb-hw-glossary",
@@ -8750,6 +8750,73 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5cf2c6fcd22d1025fa39c668d46ba98e9c9e66e0ac77ebe9f399825dfac7514f"
+    },
+    {
+      "id": "proof-a3c-polar-source",
+      "path": "docs/proof/a3c-polar-source/proof-pack.md",
+      "title": "A3c-1 production NeuralFoil polar source proof",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Ports the xxxlarge NeuralFoil 0.3.2 model into an integrity-checked in-process polar source, with CST fit, envelope refusals, measured fidelity, pinned wheel conversion and third-party notice gates. The source is not yet wired into the analysis service or UI.",
+      "tags": [
+        "analysis",
+        "neuralfoil",
+        "polar",
+        "cst",
+        "weights",
+        "licence",
+        "ruling-85"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-ana-1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-round-oct05",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a03725be264cb49de2583171d5a79688e00118df31e1cd8ef203b8f70d4e3f19"
+    },
+    {
+      "id": "proof-a3c-polar-source-red-first",
+      "path": "docs/proof/a3c-polar-source/red-first.md",
+      "title": "A3c-1 NeuralFoil red-first evidence",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Records the observed red and green commits for the NeuralFoil fixture, integrity, envelope, confidence, telemetry and non-computable-result checks, including the limits of the first compile-red observation.",
+      "tags": [
+        "analysis",
+        "neuralfoil",
+        "polar",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-a3c-polar-source",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-spike-ana-1",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b0673fdb6f2871565c8fc0f5b1be74a6148438f314dab6e8a27e7c4ac00effe4"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -13322,5 +13389,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ce556efe9cabe661c2fbc7d2d2666e90c3f80d2948e8e8101e812b2145501081"
+  "graphSha256": "6f2bc54d7de9e4486f798b0a93b37014482654d460c22dcd6006af9c3bd796e2"
 };

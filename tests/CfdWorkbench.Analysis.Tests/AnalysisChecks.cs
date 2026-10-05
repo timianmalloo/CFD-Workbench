@@ -40,6 +40,7 @@ internal static class AnalysisChecks
         PanelCpTests.Run();
         SectionEstimatorTests.Run();
         CavitationTests.Run();
+        NeuralFoilTests.Run();
         return Finish();
     }
 
