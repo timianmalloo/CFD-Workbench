@@ -231,7 +231,8 @@ or fixing:
 that matches nothing fails loudly, so a typo cannot pass. Run **`tools/run-tests.sh` once**, at
 the end of the repair cycle, before you report. Do not run it after every edit. Run
 `tools/run-readiness.py` **only for a main move**, never inside a repair loop. A subset green is
-evidence about that subset only: never report it as the ring.
+evidence about that subset only: never report it as the ring. A whole mode or Core part is a heavy job: run it as
+`tools/run-suite.sh dotnet <dll> --<mode>` (section 9.5), which takes a ring slot; a `CFD_TEST_ONLY` run needs no slot.
 
 ## 5. Operational findings (SRE, Adversary Mode)
 
@@ -387,6 +388,8 @@ end load, so it reports C-3/C-4 as COST-MISS only; the enforcing call is the one
 **When Track B2 lands, re-measure quiet. If Desktop <= 43 s and wall <= 50 s, revert to the §13.4 absolute limits and
 remove the deltas.**
 
+*Done in section 9.5 (Track B2): the deltas are removed and the section 13.4 limits are back.*
+
 ### 9.2 Ruling 87: C-2 and TEST-BUDGET join the load gate; the ring lock (2026-10-05, track B1b)
 
 Ruling 87 (DR-RING-2) gives C-2 (Analysis <= 5,000 ms) and the 60 s TEST-BUDGET the same load gate as C-3/C-4: at an end
@@ -416,3 +419,35 @@ path under `src/`, `tests/`, `tools/`, `cases/` and no `*.csproj`, `*.slnx`, `gl
 the other join checks and the verify gates still run, and the readiness ring before main is unchanged. `tools/join-ring.sh
 --self-test` plants merges in a scratch repo (11 cases). check-docs TEST-RING now accepts the wrapper and requires it to name
 both `tools/run-tests.sh` and `tools/check-test-costs.py`. A `RING-SKIPPED` line in a join log means no cost reading was taken.
+
+### 9.4 Track B2 item 1: Analysis cheaper, A8.4 checks kept in ring 0 (2026-10-05)
+
+C-2 failed at quiet load: Analysis 5,386 ms at end load 13 (join-tip-salvage-s1). The limit is unchanged. The spec (A8.4,
+design 13.4) keeps analytic oracles and observed order in ring 0, so nothing of that kind moved. Instead: `F6_ObservedOrder`
+builds its honest and mutant trios together (517 to about 240 ms, assertions untouched); `F18`/`F19` are fast at n32 and n64
+(447/384 ms to about 40 ms): tip alpha_i finite, within +-10 deg, within 0.1 deg of n32, kappa1 bound, and the horseshoe mutant outside +-10 deg;
+their n64-against-n128 originals are the new readiness checks `Readiness_Camber4_N128Convergence` and `Readiness_Washin1_N128Convergence`;
+the long jobs of `run-tests.sh` start 2 s after Analysis and Cli, so the 4 s harness is not queued behind the JIT surge. After:
+Analysis 4.33 / 4.41 / 4.40 s at end load 12-18 (before: 5.4 s). The fast plus readiness `PASS` union lost no name and gained
+the two readiness names (`docs/proof/ring-b2/union-before.txt`, `union-after.txt`). Details: `docs/proof/ring-b2/moves.md`.
+
+### 9.5 Track B2 item 2: the ring beside a concurrent build; C-3 and C-4 back to section 13.4 (2026-10-05)
+
+Profile, levers and runs: `docs/proof/ring-b2/profile.md`. Ring: every join. Cost: none added (the wrapper below is not in the ring).
+
+- **Shipped.** `tools/run-tests.sh` exports `DOTNET_TieredPGO=0` (CPU 553-568 to 476-487 s, paired runs); Core runs as three parts
+  (the old part 2 ran 47 s against part 1's 33 s); the Desktop mode list is in true longest-first order (the greedy fill ends at 40.6 s
+  against 44.7 s). `tools/check-test-costs.py` follows the three Core part names. No check dropped: the whole-ring `PASS` set is identical
+  before and after this change (1,484 names, `docs/proof/ring-b2/ring-pass-before.txt`, `ring-pass-after.txt`).
+- **Result.** Beside one concurrent heavy job (a second solution build in another worktree, repeated for the whole ring; load up to 125),
+  three runs: wall 57.2 (5 s of it a cold build) / 53.4 / 52.8 s against 63.2 / 60.9 / 63.0 s before; the target was 60 s. Ring alone, end load 12-18:
+  wall 44.4-46.2 s, Desktop 40.3-42.4 s.
+- **Ruling 84 condition 3 is met: C-3 and C-4 are the section 13.4 limits again** (net wall <= 50,000 ms, Desktop <= 43,000 ms); the deltas, bases and
+  baseline path are removed; the load gate stays. The margin on C-4 is 0.6-2.7 s.
+- **The ring lock and single-suite runs.** `tools/ring-lock.sh` covered only `run-tests.sh`. Single-suite runs (`dotnet run` of one harness,
+  `--views`, a Core part) carry no lock and several agents ran them at once (load 100-200). New `tools/run-suite.sh <command...>` takes a slot from
+  the same 2-slot lock with a bounded wait (`CFD_SUITE_LOCK_WAIT_SECONDS`, default 120 s, then it runs and prints `RING-LOCK-TIMEOUT`) and returns the
+  command's status; a run with `CFD_TEST_ONLY` set (one check, under 3 s) bypasses it. `tools/run-suite.sh --self-test` has 6 cases. It is advice, not
+  enforcement: nothing stops a raw `dotnet run`. Making it binding needs a hook that refuses a bare harness run, which is a decision for the operator.
+- **Open.** Ruling 81 (a planted slow 3D frame fails at low load and prints READINESS-MISS at high load) was not part of this dispatch. C-5 (500 ms per
+  check) is not load-gated: one run at load 100 failed it on five 500-1,200 ms checks; that is Ruling 84's choice and was not changed.

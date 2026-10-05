@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6636c4521d1b134f56a347247ab658f5074cb249c2e6429c263c3d4616df7aae"
+      "sourceSha256": "9c8c0398eedd1b389a4eaa06aefe6b1146520350fb7a845ced0f3e84ad7c2fbe"
     },
     {
       "id": "design-authoring-decisions",
@@ -5398,7 +5398,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3d3aad1fc318448f21e839f67e9b92eaf59421883ec473e27ff04f1506c48e0a"
+      "sourceSha256": "dbeff43511c9b48192eb71384ea30cdbed203163789e9aa1e31d474f5c8b9faf"
     },
     {
       "id": "plan-tip-handling",
@@ -6411,7 +6411,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9ab9c574037463dcf3b9ee4adfe4007efa2e969e9ea24a798bf6c3ede45b9ce9"
+      "sourceSha256": "9e0243a442f89a36e361b7b88e63b83fd4698098914972ffba7e5b8259754f2e"
     },
     {
       "id": "kb-hw-glossary",
@@ -11017,6 +11017,65 @@ window.DOCS_INDEX = {
       "sourceSha256": "53823766f1d679444af5731548fbe23364c56d203ed72ac469d0cb961e78e076"
     },
     {
+      "id": "proof-ring-b2-moves",
+      "path": "docs/proof/ring-b2/moves.md",
+      "title": "Ring B2 move list: Analysis under C-2 with every A8.4 check kept in ring 0",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-b2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Analysis harness made cheaper without moving any A8.4 oracle or observed-order check out of the fast ring; two n128 convergence halves move to readiness; PASS union loses no name.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "c-2"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2cbcd895cae7c31ac2cea448e77eaa14e101b7e9afefe1cb473203553a7a412a"
+    },
+    {
+      "id": "proof-ring-b2-profile",
+      "path": "docs/proof/ring-b2/profile.md",
+      "title": "Ring B2 profile: the fast ring under a concurrent build",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-b2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Measured profile of tools/run-tests.sh with and without one concurrent heavy build, the levers tried, what shipped, and the Ruling 84 condition 3 verdict.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "profile",
+        "concurrency"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-b2-moves",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b9043f4735b485762ba5bb31f2d07761274c57f5c616a6e2ddc9e6523719ae60"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -13418,5 +13477,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "60617bc7ecca1dc3c4bbbe948f2a904d6f66919276c8ab8698efceaacfd014c6"
+  "graphSha256": "1a72dba5ae37b6d16d9c2004b4eb071495d0ab40b7dbde23df43dc17146dd7fc"
 };

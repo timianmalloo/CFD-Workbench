@@ -1154,10 +1154,12 @@ are marked ✚.
 | `F7_LinearWashout_TipAlphaEffBelowRoot` (VLM) | A | est. 0.1 s | §13.2 F-7 |
 | `F15_EllipticWing_InducedAngleUniform` (VLM) | A | in F-6 | §13.2 F-15 |
 | `F16_BertinSmithSwept_ClAlpha3p443` (VLM) | A | µs | §13.2 F-16 |
-| `F18_Camber4_DefaultLatticeTipConverges` (VLM) | A | 447 ms measured alone | §13.2 F-18 |
-| `F19_Washin1_DefaultLatticeTipConverges` (VLM) | A | 384 ms measured alone | §13.2 F-19 |
+| `F18_Camber4_DefaultLatticeTipConverges` (VLM) | A | 40 ms (B2: n32 and n64 only; was 447 ms) | §13.2 F-18, fast half: tip α_i finite, within ±10° and within 0.1° of n32, κ₁ bound, horseshoe mutant outside ±10° |
+| `F19_Washin1_DefaultLatticeTipConverges` (VLM) | A | 37 ms (B2: n32 and n64 only; was 384 ms) | §13.2 F-19, fast half, as F-18 |
 | `F20_EllipticStraightQuarterChord_SweepZero` (VLM) | A | 220 ms measured alone | §13.2 F-20 |
 | `F21_ParabolicCamber_ZeroLiftAngleThinAirfoil` (VLM) | A | 3.392 ms measured alone | §13.2 F-21 (corner normals) |
+| `Readiness_Camber4_N128Convergence` (VLM) ✚ | R | 0.4 s est. | F-18 original: n64 vs n128 tip α_i within 0.1° and CL within 1 %; the horseshoe mutant outside that band (moved from the fast check by B2) |
+| `Readiness_Washin1_N128Convergence` (VLM) ✚ | R | 0.4 s est. | F-19 original, as above |
 | `Readiness_Camber4_N256Point` (VLM) | R | 2.427 s measured | §13.2 F-18 |
 | `Readiness_Washin1_N256Solves` (VLM) | R | 2.254 s measured | §13.2 F-19 |
 | `Readiness_EllipticQuarterChord_SweepZeroFine` (VLM) | R | 2.575 s measured | §13.2 F-20 |

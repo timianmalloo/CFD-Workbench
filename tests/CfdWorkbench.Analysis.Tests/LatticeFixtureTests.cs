@@ -67,13 +67,16 @@ internal static class LatticeFixtureTests
         }
         catch (ArgumentOutOfRangeException) { }
 
-        shared = Trio.Build(LatticePlant.None);
+        // The honest trio and the wake-per-panel mutant trio share no data: build them together (B2; assertions unchanged).
+        Trio? honestTrio = null, mutantTrio = null;
+        Parallel.Invoke(() => honestTrio = Trio.Build(LatticePlant.None), () => mutantTrio = Trio.Build(LatticePlant.WakePerPanel));
+        shared = honestTrio!;
         Console.WriteLine("MEASURE F6 CL=" + string.Join("/", shared.Cl.Select(Num))
             + " e=" + string.Join("/", shared.E.Select(Num)) + " pCL=" + Num(shared.OrderCl)
             + " pE=" + Num(shared.OrderE));
         InRange(shared.OrderCl, 0.8, 1.2, "p(CL)");
         InRange(shared.OrderE, 0.8, 1.2, "p(e)");
-        Trio mutant = Trio.Build(LatticePlant.WakePerPanel);
+        Trio mutant = mutantTrio!;
         if (Math.Abs(mutant.OrderCl - 1) <= 0.2 && Math.Abs(mutant.OrderE - 1) <= 0.2)
             throw new InvalidOperationException("F-6 wake-per-panel mutant stayed inside 1 ± 0.2: p(CL) "
                 + Num(mutant.OrderCl) + " p(e) " + Num(mutant.OrderE));
@@ -307,6 +310,8 @@ internal static class LatticeFixtureTests
 
     internal static void RunReadiness()
     {
+        Check("Readiness_Camber4_N128Convergence", () => NonplanarN128("camber", ParabolicCamber, 0));
+        Check("Readiness_Washin1_N128Convergence", () => NonplanarN128("washin", null, 1));
         Check("Readiness_Camber4_N256Point", ReadinessCamber256);
         Check("Readiness_Washin1_N256Solves", ReadinessWashin256);
         Check("Readiness_EllipticQuarterChord_SweepZeroFine", ReadinessSweepFine);
@@ -318,14 +323,14 @@ internal static class LatticeFixtureTests
 
     private static void F18()
     {
-        SolveNonplanar("camber", 32, ParabolicCamber, 0);
-        FastNonplanar("camber", ParabolicCamber, 0);
+        LatticeSolution wing32 = SolveNonplanar("camber", 32, ParabolicCamber, 0);
+        FastNonplanar("camber", ParabolicCamber, 0, wing32);
     }
 
     private static void F19()
     {
-        SolveNonplanar("washin", 32, null, 1);
-        FastNonplanar("washin", null, 1);
+        LatticeSolution wing32 = SolveNonplanar("washin", 32, null, 1);
+        FastNonplanar("washin", null, 1, wing32);
     }
 
     // Four cosine chord panels must read the tangent at each 3/4-panel control point.
@@ -349,10 +354,36 @@ internal static class LatticeFixtureTests
             throw new InvalidOperationException("alpha_L0 " + Num(alphaL0) + " vs thin-airfoil " + Num(thinAirfoil) + " ±0.05°");
     }
 
-    // Ruling 77 (2), fast half. n64 against n128: tip α_i within 0.1° and CL within 1% of n128.
-    // κ₁ at n64 stays within 10× the flat plate. The camber-surface horseshoe mutant must leave that α_i band.
-    // A returned solve has already passed SolveDense's 1e-10 backward-error gate. n256 is readiness.
-    private static void FastNonplanar(string label, Func<double, double, double, double>? camber, double tipTwist)
+    // Ruling 77 (2), fast half (B2: n32 and n64 only, one n64 solve of each kind). The tip α_i at n64 is finite and bounded
+    // (measured 4.96° camber, 2.37° washin; the camber-surface horseshoe mutant reads -3.5e6° and 725°) and within 0.1° of n32;
+    // κ₁ at n64 stays within 10× the flat plate. The n128 convergence and the mutant against the n128 band are readiness.
+    private const double TipBoundDeg = 10;
+    private static readonly Lazy<LatticeSolution> Flat64 = new(() => SolveNonplanar("flat", 64, null, 0));
+
+    private static void FastNonplanar(string label, Func<double, double, double, double>? camber, double tipTwist, LatticeSolution wing32)
+    {
+        var wings = new LatticeSolution[3];
+        Parallel.Invoke(
+            () => wings[0] = SolveNonplanar(label, 64, camber, tipTwist),
+            () => wings[1] = Flat64.Value,
+            () => wings[2] = StudyRectangle(64, camber, tipTwist, LatticePlant.CamberSurfaceHorseshoe));
+        double ai32 = Outermost(wing32).InducedAngleDeg, ai64 = Outermost(wings[0]).InducedAngleDeg;
+        if (!(Math.Abs(ai64) <= TipBoundDeg))
+            throw new InvalidOperationException(label + " tip α_i n64 " + Num(ai64) + " is not within ±" + Num(TipBoundDeg) + "°");
+        if (!(Math.Abs(ai64 - ai32) <= 0.1))
+            throw new InvalidOperationException(label + " tip α_i n32/n64 " + Num(ai32) + "/" + Num(ai64));
+        if (!(wings[0].Diagnostics.Kappa1 <= 10 * wings[1].Diagnostics.Kappa1))
+            throw new InvalidOperationException(label + " κ₁ " + Num(wings[0].Diagnostics.Kappa1)
+                + " exceeds 10× flat " + Num(wings[1].Diagnostics.Kappa1));
+        double mutantTip = Outermost(wings[2]).InducedAngleDeg;
+        if (Math.Abs(mutantTip) <= TipBoundDeg)
+            throw new InvalidOperationException(label + " camber-surface horseshoe mutant stayed within ±" + Num(TipBoundDeg) + "°: " + Num(mutantTip));
+        Console.WriteLine("MUTANT " + label + " camber-surface n64 tipAi=" + Num(mutantTip) + " RED (fast bound)");
+    }
+
+    // Ruling 77 (2), readiness half: the original fast check. n64 against n128: tip α_i within 0.1° and CL within 1% of n128.
+    // The camber-surface horseshoe mutant must leave that α_i band.
+    private static void NonplanarN128(string label, Func<double, double, double, double>? camber, double tipTwist)
     {
         const double area = 0.5;
         // The four lattices share no data. Wall time is the n=128 solve (F-5 and F-6 use the same split).

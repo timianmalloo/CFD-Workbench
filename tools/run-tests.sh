@@ -16,6 +16,9 @@ set -euo pipefail
 # associative arrays, no `${!prefix@}`).
 unset CFD_TEST_ONLY CFD_NATIVE_CAPABILITY_PROBE
 for v in $(compgen -e | grep '^CFD_OWNER_STRIPPING_'); do unset "$v"; done
+# B2 (docs/plans/test-cost.md 9.5): dynamic PGO instruments every tier-0 method and re-JITs it, work a harness that lives
+# 5-50 s never earns back. Off, the ring used 476-487 CPU-s against 553-568 (paired runs, same tree), wall 3-6 s shorter.
+export DOTNET_TieredPGO=0
 root="$(cd "$(dirname "$0")/.." && pwd -P)"
 scratch="$root/.tmp-tests"
 mkdir -p "$scratch"
@@ -31,10 +34,11 @@ trap ring_lock_release EXIT
 configuration="${CFD_TEST_CONFIGURATION:-Release}"
 budget="${CFD_TEST_BUDGET_SECONDS:-60}"
 named=" Core Desktop Analysis "   # suites that print PASS <name>; an exit 0 with no PASS line fails
-# Core (43 s alone, one core) runs as two interleaved parts (`--part=k/n`), so it is no longer the critical path
+# Core (43 s alone, one core) runs as three interleaved parts (`--part=k/n`; B2: with two, part 2 held the heavier checks and
+# ran 47 s against part 1's 33 s, and under a concurrent build it outlasted Desktop), so it is not the critical path
 # (docs/reviews/test-ci-waste.md §12). Longest first. A part's log is <project>.part<k>of<n>.log.
 # Analysis (A3a, design area3-analysis.md §18.2 PRE): its own job, concurrent with the others, never the critical path.
-jobs=("Core 1/2" "Core 2/2" "Desktop" "Analysis" "Cli")
+jobs=("Core 1/3" "Core 2/3" "Core 3/3" "Desktop" "Analysis" "Cli")
 # A log left by an earlier layout (e.g. Core.log before the split) would feed old PASS lines to
 # tools/check-named-tests.py, which reads every .tmp-tests/*.log.
 rm -f "$scratch"/*.log "$scratch"/*.seconds "$scratch"/*.ms
@@ -64,6 +68,9 @@ for job in "${jobs[@]}"; do
   if [ "$job" != "$project" ]; then part="${job#* }"; name="$project.part${part/\//of}"; fi
   names+=("$name")
   (
+    # C-2 reads the Analysis wall clock and the first 2-3 s of every other job is a JIT surge. The long jobs wait 2 s so the
+    # 4 s Analysis harness is not queued behind it; the wait is before their own clock starts, so C-4 is not charged (B2).
+    if [ "$project" != "Analysis" ] && [ "$project" != "Cli" ]; then sleep 2; fi
     suite_start=$SECONDS
     suite_start_ms=$(now_ms)
     status=0
