@@ -28,6 +28,7 @@ summary: Records the failing TGL named checks before each implementation step an
 | `StatusStrip_AnalysisItem_FollowsRunState` | pending commit | Historical is displayed as Current | pending |
 | `Toggle_HistoricalRun_BannerInBothModes` | pending commit | Historical banner draws only in Analysis | pending |
 | `Telemetry_AnalysisProject_FreshnessOnRebuild` | pending commit | the Historical projection rebuild omits its event | pending |
+| `Toggle_NavbarAndMenuReachable` | pending commit | the visible segment, menu command or Shift-Command-A shortcut is missing | pending |
 
 Both checks printed `FAIL` under `CFD_TEST_ONLY=Toggle_ dotnet run -c Release --no-restore --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --analysis` before implementation. The missing toggle was the observed red condition.
 
@@ -36,3 +37,5 @@ The four added checks each printed `FAIL` under `CFD_TEST_ONLY=Toggle_PreviewOpe
 The three band and status checks each printed `FAIL` under `CFD_TEST_ONLY=ConditionsBand_,StatusStrip_AnalysisItem_ dotnet run -c Release --no-restore --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --analysis` before those controls existed.
 
 The Historical and project-event checks each printed `FAIL` under `CFD_TEST_ONLY=Toggle_HistoricalRun_,Telemetry_AnalysisProject_ dotnet run -c Release --no-restore --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --analysis` before a selected-run projection existed. Their final assertions will exercise a Historical run in both modes.
+
+The reachability check printed `FAIL` under `CFD_TEST_ONLY=Toggle_NavbarAndMenuReachable dotnet run -c Release --no-restore --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --analysis` because the navbar segment was absent.

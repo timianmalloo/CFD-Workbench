@@ -124,22 +124,41 @@ public static class AnalysisToggleTests
         });
         DesktopChecks.Check("Toggle_HistoricalRun_BannerInBothModes", () =>
         {
-            using var controller = Open();
-            var project = typeof(WorkbenchController).GetProperty("AnalysisView")
-                ?? throw new Exception("The selected run projection is absent.");
-            var evaluate = typeof(WorkbenchController).GetMethod("EvaluateAnalysisAsync")
-                ?? throw new Exception("Explicit Evaluate is absent.");
-            if (project.GetValue(controller) is null || evaluate is null)
-                throw new Exception("The selected run has no visible projection.");
+            using var controller = OpenSmallAnalysis();
+            var run = Evaluate(controller);
+            if (run.Outcome is not RunOutcome.Completed) throw new Exception("Fixture run did not complete.");
+            var edited = Task.Run(() => controller.ApplySpanAsync("1400"))
+                .WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
+            if (edited is not CommitOutcome.Committed) throw new Exception("Fixture geometry edit was refused.");
+            string? cad = controller.AnalysisView.Banner;
+            if (controller.AnalysisView.State != RunState.Historical || cad is null ||
+                !cad.Contains("geometry changed (r1 → r2)", StringComparison.Ordinal))
+                throw new Exception("CAD did not show the Historical revision transition: " + cad);
+            Toggle(controller);
+            Equal(cad, controller.AnalysisView.Banner, "Historical banner in Analysis");
         });
         DesktopChecks.Check("Telemetry_AnalysisProject_FreshnessOnRebuild", () =>
         {
-            using var controller = Open();
-            var project = typeof(WorkbenchController).GetProperty("AnalysisView")
-                ?? throw new Exception("The projection entry is absent.");
-            _ = project.GetValue(controller);
-            if (!controller.LocalEvents.Any(item => item.Operation == "analysis.project"))
-                throw new Exception("A projection rebuild emitted no analysis.project event.");
+            using var controller = OpenSmallAnalysis();
+            _ = Evaluate(controller);
+            _ = controller.AnalysisView;
+            controller.SetAnalysisConditions(OperatingPoints.Custom(5.14, 3, null), controller.AnalysisWater);
+            if (controller.AnalysisView.State != RunState.Historical)
+                throw new Exception("The changed operating point did not make the run Historical.");
+            var projected = controller.LocalEvents.LastOrDefault(item => item.Operation == "analysis.project");
+            if (projected?.Analysis?.Freshness != "Historical" ||
+                projected.Analysis.WhatChanged?.Contains("op.alphaDeg", StringComparison.Ordinal) != true)
+                throw new Exception("The Historical rebuild omitted freshness and what changed.");
+        });
+        DesktopChecks.Check("Toggle_NavbarAndMenuReachable", () =>
+        {
+            var area = new ModelArea();
+            if (area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton") is null)
+                throw new Exception("The navbar has no Analysis segment.");
+            var row = CommandTable.Rows.FirstOrDefault(item => item.Id == "view.analysis")
+                ?? throw new Exception("View ▸ Analysis has no command row.");
+            if (row.Gesture != "⇧⌘A" || NativeMenuBuilder.ParseGesture(row.Gesture) is null)
+                throw new Exception("View ▸ Analysis does not carry Ruling 67's shortcut.");
         });
     }
 
@@ -160,6 +179,19 @@ public static class AnalysisToggleTests
         Task.Run(controller.OpenExampleAsync).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
         return controller;
     }
+
+    private static WorkbenchController OpenSmallAnalysis()
+    {
+        var settings = Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null };
+        var controller = new WorkbenchController(analysisMethod: new ProductWingMethod(settings));
+        Task.Run(controller.OpenExampleAsync).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
+        return controller;
+    }
+
+    private static AnalysisRun Evaluate(WorkbenchController controller) =>
+        Task.Run(() => controller.EvaluateAnalysisAsync(OperatingPoints.Custom(5.14, 2, null), controller.AnalysisWater))
+            .WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult()
+        ?? throw new Exception("Fixture Evaluate returned no run.");
 
     private static Control NewBand()
     {
