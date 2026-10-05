@@ -8416,6 +8416,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "8dec74f7a259e8cc2a66cd8927451e1bedb5512f8a665826dacafe0f01fb5886"
     },
     {
+      "id": "proof-a3a-ctx-red-first",
+      "path": "docs/proof/a3a-ctx/red-first.md",
+      "title": "A3a CTX projection feed receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-ctx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "The red runs of the A3a CTX track: every non-tip strip read \"Not judged - tip strip\", and the controller fed the projection no stations, verdicts or root t/c. Verdicts are derived on read; no schema changed.",
+      "tags": [
+        "a3a",
+        "ctx",
+        "analysis",
+        "projection",
+        "verdict",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a3a9b117e1e6abbf469aace540e5f4fb35a61fbeccb04e7b3bbd176d5831ed40"
+    },
+    {
       "id": "proof-a3a-old-build",
       "path": "docs/proof/a3a-old-build/README.md",
       "title": "A3a old-build receipt: a cfdw-project-2 file opened by the build at the A3a base",
@@ -13552,5 +13584,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "c8f4f2e2816efce7cef4a3926b1374e0f3762ed93a98536410c484ff4deea09c"
+  "graphSha256": "9b3c91e0d254fe8eec952405ebf0f1ac8a16edd4fda96335941f610ffc21f048"
 };

@@ -237,12 +237,25 @@ public sealed class WorkbenchController : IDisposable
     private WaterRecord analysisWater = WaterTable.At(OperatingPoints.DefaultTemperatureC, OperatingPoints.SaltSalinityGPerKg);
     private AnalysisViewModel? analysisView;
     private string? analysisProjectionKey;
+    private string? projectionFeedKey;
+    private (IReadOnlyList<StripVerdict>?, IReadOnlyList<StationFrame>?, double?) projectionFeed;
+    private readonly HashSet<string> hiddenLayers = new(StringComparer.Ordinal);
 
     /// <summary>The model area's CAD or Analysis state; a section draft remains open while hidden.</summary>
     public ShellMode AreaMode => areaMode == ShellMode.Analysis ? areaMode : Section is null ? ShellMode.Workspace : ShellMode.SectionEditor;
     public bool IsAnalysis => AreaMode == ShellMode.Analysis;
     /// <summary>The selected run's visible layers, empty before the first result.</summary>
     public IReadOnlyList<LayerData> LayerSet { get; private set; } = [];
+    /// <summary>Layers pane visibility (§18.5 row 30). The flag is controller state; the projection reads it, so it survives a re-projection.</summary>
+    public bool IsLayerVisible(string layerId) => !hiddenLayers.Contains(layerId);
+
+    public void SetLayerVisible(string layerId, bool visible)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(layerId);
+        if (visible ? !hiddenLayers.Remove(layerId) : !hiddenLayers.Add(layerId)) return;
+        analysisProjectionKey = null;
+    }
+
     public OperatingPoint AnalysisOperatingPoint => analysisOp;
     public WaterRecord AnalysisWater => analysisWater;
     public bool AnalysisRunning => analysisCancellation is not null;
@@ -256,15 +269,26 @@ public sealed class WorkbenchController : IDisposable
             if (Inspection is null)
                 return new AnalysisViewModel(RunState.NoResult, "Analysis: no result", null, null, [], [], null);
             long started = time.GetTimestamp();
-            var current = Freshness.Current(session.Snapshot(), analysisWater, analysisOp, analysisMethod.Method, analysisMethod.Settings);
+            var snapshot = session.Snapshot();
+            var current = Freshness.Current(snapshot, analysisWater, analysisOp, analysisMethod.Method, analysisMethod.Settings);
             var selected = session.ReadRuns().Runs.LastOrDefault();
             string key = Freshness.CurrentKey(current) + ":" + selected?.Run.RunId + ":" + selected?.Integrity + ":" + AnalysisRunning;
             if (analysisProjectionKey == key && analysisView is not null) return analysisView;
             var previous = selected?.Run.Outcome is RunOutcome.Failed
                 ? session.ReadRuns().Runs.Reverse().Skip(1).FirstOrDefault(row =>
                     row.Integrity == RunIntegrity.Intact && row.Run.Outcome is RunOutcome.Completed)?.Run : null;
+            // The feed is a function of the run and the accepted source only, so a layer toggle or a new operating point
+            // does not re-derive it (measured 0.9 s on the default lattice).
+            string feedKey = selected is { Integrity: RunIntegrity.Intact } ? selected.Run.RunId + ":" + snapshot.AcceptedId : "";
+            if (feedKey != projectionFeedKey)
+            {
+                projectionFeed = feedKey.Length > 0 ? ProjectionFeed(selected!.Run, snapshot) : default;
+                projectionFeedKey = feedKey;
+            }
+            var (verdicts, stations, rootThickness) = projectionFeed;
             var view = AnalysisProjection.Build(selected?.Run, current, Units.Metric,
-                new ProjectionContext(Integrity: selected?.Integrity ?? RunIntegrity.Intact, PreviousCompleted: previous));
+                new ProjectionContext(verdicts, stations, rootThickness, Integrity: selected?.Integrity ?? RunIntegrity.Intact,
+                    PreviousCompleted: previous, HiddenLayers: hiddenLayers.ToHashSet(StringComparer.Ordinal)));
             if (view.State == RunState.Historical && selected is not null)
                 view = view with { Banner = HistoricalBanner(selected.Run, current) };
             if (AnalysisRunning)
@@ -278,6 +302,26 @@ public sealed class WorkbenchController : IDisposable
                         string.Join(",", Freshness.WhatChanged(selected.Run, current)), LayersDrawn = LayerSet.Count });
             return view;
         }
+    }
+
+    /// <summary>
+    /// What the projection reads that the durable run does not hold, derived on read from the run and the accepted source it was
+    /// solved on (design §3: stored facts only; DM7). A run on an earlier revision gets none of it: only the current accepted
+    /// source is readable here, and a missing input stays missing (the projection then prints Unavailable, never a guess).
+    /// </summary>
+    private static (IReadOnlyList<StripVerdict>? Verdicts, IReadOnlyList<StationFrame>? Stations, double? RootThicknessRatio)
+        ProjectionFeed(AnalysisRun run, SessionView view)
+    {
+        if (run.Outcome is not RunOutcome.Completed || run.Inputs.AcceptedId != view.AcceptedId) return default;
+        try
+        {
+            var verdicts = MethodRecord.DeriveVerdicts(run, view.Source);
+            if (run.Settings.SectionEtas is not { Count: > 0 } etas) return (verdicts, null, null);
+            double[] all = etas.Append(0).Distinct().Order().ToArray();
+            var frames = Placement.Sections(view.Source, all, [0d, 1d], CancellationToken.None).Select(section => section.Frame).ToArray();
+            return (verdicts, frames.Where((_, i) => etas.Contains(all[i])).ToArray(), frames[0].ThicknessRatio);
+        }
+        catch (ContractError) { return default; }
     }
 
     private string HistoricalBanner(AnalysisRun run, CurrentInputs current)

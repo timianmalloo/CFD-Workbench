@@ -41,6 +41,31 @@ internal static class ProjectionTests
             Equal(false, sentence.Contains("provisional", StringComparison.OrdinalIgnoreCase));
             Equal(false, v.Layers.Single(l => l.Id == "plan-gamma").Samples[3].Outside);
         });
+        Check("Projection_NoVerdicts_NonTipStripNeverReadsTipNotJudged", () => {
+            var (run, _) = Data();
+            run = Rehash(run with { Strips = run.Strips.Select(s => s.J == 3 ? s with { Provisional = true,
+                ProvisionalReason = StripLoad.TipProvisionalReason } : s).ToArray() });
+            var v = View(run);
+            var notes = v.Groups.Single(g => g.Title == "Strips").Rows.Select(r => r.Note).ToArray();
+            Equal(true, notes[3] == Labels.TipNotJudged, "the tip strip");
+            for (int j = 0; j < 3; j++) Equal(false, notes[j] == Labels.TipNotJudged, "strip " + j);
+            var samples = v.Layers.Single(l => l.Id == "plan-gamma").Samples;
+            for (int j = 0; j < 3; j++) Equal(false, samples[j].Verdict == Labels.TipNotJudged, "layer strip " + j);
+            Equal(false, Cell(v, "Wing result", "Envelope").Value == Labels.TipNotJudged, "run sentence");
+        });
+        Check("Projection_InsideAndOutsideStrips_NeverTipNotJudged", () => {
+            var (run, _) = Data();
+            run = Rehash(run with { Strips = run.Strips.Select(s => s.J == 3 ? s with { Provisional = true,
+                ProvisionalReason = StripLoad.TipProvisionalReason } : s).ToArray() });
+            var verdicts = Enumerable.Range(0, 4).Select(j => j == 3
+                ? MethodRecord.JudgeStrip(2, 0, 0.4, 0, provisional: true)
+                : MethodRecord.JudgeStrip(j == 1 ? 12 : 2, 0, 0.4, 0)).ToArray();
+            var v = View(run, new ProjectionContext(Verdicts: verdicts));
+            var samples = v.Layers.Single(l => l.Id == "plan-gamma").Samples;
+            Equal(true, samples[0].Verdict!.StartsWith("Inside", StringComparison.Ordinal), "inside strip");
+            Equal(true, samples[1].Verdict!.StartsWith("Outside", StringComparison.Ordinal), "outside strip");
+            Equal(1, samples.Count(x => x.Verdict == Labels.TipNotJudged), "exactly the tip");
+        });
         Check("Projection_ProvisionalVerdict_EmptyExceededNeverOutside", () => {
             var (run, _) = Data();
             var verdicts = Enumerable.Range(0, 4).Select(j => j == 3
