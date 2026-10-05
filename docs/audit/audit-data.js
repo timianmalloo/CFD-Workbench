@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T19:45:45Z",
+  "generated": "2026-10-05T19:45:55Z",
   "audit": [
     {
       "actor": null,
@@ -26069,6 +26069,34 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T18:55:58Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M46SKWZ8T1ESAR7ETVMR8SGP",
+      "shortname": "trk-pna",
+      "datetime": "2026-10-05T19:45:55Z",
+      "session": "trk-pna",
+      "prompt": "Track PNA of round-oct05: build the A3a panes and bottom panel per design area3-analysis.md 18.2 row PNA (brief full-trk-pna.md)",
+      "summary": "A3a PNA: Layers pane (left tab, layers Homes row), Analysis bottom panel slot with Spanwise loading chart and table twin, Section, Loads, Provenance tabs, Properties Analysis groups (StripAt, verdict, section, conditions, labels, error card, skeleton), Build call fix, cheap-refresh key, view.toggle-bottom and window.layers routes; rail-controls tab retired from the default dock",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Build track PNA panes and bottom panel to the approved Area 3 mockup (design 18.2 row PNA)",
+      "done_when": "PNA names PASS, verify-application-core/adapters exit 0, planted mutant red, red-first receipt, one full run-tests, check-docs, run-verify-gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-05T18:57:18Z",
+      "duration_seconds": 2917.0,
+      "git": {
+        "sha": "b663a01743b78c89d70a911870830cdc9afb6f4f",
+        "short": "b663a0174",
+        "branch": "feature/a3a-pna",
+        "pushed": null
+      }
     }
   ],
   "changes": [
