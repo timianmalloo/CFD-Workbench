@@ -8678,7 +8678,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-05",
       "reviewSuggested": [],
-      "summary": "A3b red-first receipt and numerical proof for the linear-vorticity section panel, the estimator's Glauert and ITTC reads, and the cavitation screen. Includes the conformal-map Cp oracle, measured panel convergence, planted mutants, ring costs, and the integration seams left to the coordinator.",
+      "summary": "A3b red-first receipt and numerical proof for the linear-vorticity section panel, the panel-based section estimator and cavitation screen. Includes the corrected conformal-map oracle, measured interior convergence and Cp_min error, red-first repair receipts, test-ring costs, and integration limits.",
       "tags": [
         "analysis",
         "section",
@@ -8701,7 +8701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6937e10ab526795b86cdb8cf24894d1c75117f9de3f60528003415aaeae9798b"
+      "sourceSha256": "448123fa4929793e899307cf7f733386912216852179049c69112d97de0df5ca"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -13149,5 +13149,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "f7287a8d079bbce00f233bfcb8f16df7d3228d51fb6d6328dcc29f502f0a63a2"
+  "graphSha256": "3dcdb8f2508b1141247de7f046dbd909ec2fe9735002dd3881fddf03023608b5"
 };
