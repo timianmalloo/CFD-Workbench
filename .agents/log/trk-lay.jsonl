@@ -1,2 +1,3 @@
 {"agent": "4e90c621", "at": 1791226629.9974778, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-lay", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feature-a3a-lay"}
 {"action": "add", "agent": "trk-lay", "at": 1791226784.30272, "deadline_at": 1791227684.30272, "id": "req-01M46PZAHFDZ566P6TJ33HC6F4", "kind": "request", "path": "-", "seq": 2, "session": "trk-lay", "to": "4e90c621", "type": "request", "wi": "WI-0"}
+{"action": "add", "agent": "trk-lay", "at": 1791227077.500371, "deadline_at": 1791227977.500371, "id": "req-01M46Q88VXTRNJ0RYYM97KFXMS", "kind": "request", "path": "-", "seq": 3, "session": "trk-lay", "to": "4e90c621", "type": "request", "wi": "WI-0"}
