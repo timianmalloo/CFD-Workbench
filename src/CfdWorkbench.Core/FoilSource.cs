@@ -86,7 +86,10 @@ internal sealed record RawCurve(string Path, SourceToken Degree, SourceToken[] K
 {
     internal TangentDraft[] Tangents { get; init; } = [];
 }
-internal sealed record ProfileSource(SourceToken Name, RawCurve? Upper, RawCurve? Lower, string Closure, SourceToken? Asset, int BlockStart = 0, int BlockEnd = 0);
+internal sealed record ProfileSource(SourceToken Name, RawCurve? Upper, RawCurve? Lower, string Closure, SourceToken? Asset, int BlockStart = 0, int BlockEnd = 0)
+{
+    internal string? Provenance { get; init; }
+}
 internal sealed record StationSource(SourceToken Value, SourceToken? Unit);
 internal sealed record AssignmentSource(StationSource Station, SourceToken Profile);
 internal sealed record LockSource(string Kind, SourceToken Channel, SourceToken? Id, StationSource? Station, SourceToken[] Values);
@@ -102,6 +105,7 @@ internal sealed record Curve(string Path, int Degree, double[] Knots, double[][]
 }
 internal sealed record ProfileDefinition(string Name, Curve Upper, Curve Lower, string Closure, int BlockStart, int BlockEnd)
 {
+    internal string? Provenance { get; init; }
     internal object Semantic => new Dictionary<string, object?>
     { ["evaluator"] = new[] { "cfdw-cv", "2" }, ["upper"] = Upper.Semantic(), ["lower"] = Lower.Semantic(), ["closure"] = Closure };
 }
@@ -209,6 +213,8 @@ public static class FoilSource
             text.Append("      upper cv { ").Append(CurveBody(profile.Upper, 0)).Append(" }\n");
             text.Append("      lower cv { ").Append(CurveBody(profile.Lower, 0)).Append(" }\n");
             text.Append("      closure ").Append(profile.Closure).Append('\n');
+            if (profile.Provenance is not null)
+                text.Append("      provenance ").Append(Jcs.Quote(profile.Provenance)).Append('\n');
             text.Append("    }\n");
         }
         text.Append("  }\n");
@@ -932,6 +938,37 @@ public static class FoilSource
         return kept;
     }
 
+    // A4.5 profile oracle. Reuses ParameterAt so this is not a second inversion loop.
+    internal static bool BeyondProfileIdentity(ProfileDefinition before, ProfileDefinition after) =>
+        SideBeyond(before.Upper, after.Upper) || SideBeyond(before.Lower, after.Lower);
+
+    private static bool SideBeyond(Curve before, Curve after)
+    {
+        const int samples = 201;
+        for (int index = 0; index < samples; index++)
+        {
+            double x = 0.5 * (1 - Math.Cos(Math.PI * index / (samples - 1)));
+            if (GapAt(before, after, x) > 1e-6) return true;
+        }
+        foreach (double t in before.Knots.Concat(after.Knots))
+        {
+            if (t is < 0 or > 1) continue;
+            double[] left = Evaluate(before.Points, before.Knots, before.Degree, t);
+            double[] right = Evaluate(after.Points, after.Knots, after.Degree, t);
+            double dx = left[0] - right[0], dy = left[1] - right[1];
+            if (Math.Sqrt(dx * dx + dy * dy) > 1e-6) return true;
+        }
+        return false;
+    }
+
+    private static double GapAt(Curve before, Curve after, double x)
+    {
+        double[] left = Evaluate(before.Points, before.Knots, before.Degree, ParameterAt(before.Points, before.Knots, before.Degree, x));
+        double[] right = Evaluate(after.Points, after.Knots, after.Degree, ParameterAt(after.Points, after.Knots, after.Degree, x));
+        double dx = left[0] - right[0], dy = left[1] - right[1];
+        return Math.Sqrt(dx * dx + dy * dy);
+    }
+
     private static double SideDeviation(Curve before, Curve after, int samples)
     {
         double worst = 0;
@@ -1227,8 +1264,8 @@ public static class FoilSource
             Expect("upper"); var upper = ReadCurve($"profile:{index}:upper", true);
             Expect("lower"); var lower = ReadCurve($"profile:{index}:lower", true);
             string closure = Optional("closure") ? Choice("open", "closed") : "closed";
-            if (Optional("provenance")) Name();
-            return new(name, upper, lower, closure, null);
+            string? provenance = Optional("provenance") ? Name().String : null;
+            return new(name, upper, lower, closure, null) { Provenance = provenance };
         }
         private StationSource ReadStation()
         {
@@ -1427,7 +1464,7 @@ public static class FoilSource
             }
             Need(profiles.All(profile => profile.Name.String.Length > 0) && profiles.Select(profile => profile.Name.String).Distinct(StringComparer.Ordinal).Count() == profiles.Count, "DSL-REFERENCE", "References", profiles[0].Name);
             foreach (var profile in profiles) if (profile.Asset is not null) throw Failure("DSL-REFERENCE", "References", profile.Asset);
-            var definitions = profiles.Select(profile => new ProfileDefinition(profile.Name.String, curves[profile.Upper!.Path], curves[profile.Lower!.Path], profile.Closure, profile.BlockStart, profile.BlockEnd)).ToArray();
+            var definitions = profiles.Select(profile => new ProfileDefinition(profile.Name.String, curves[profile.Upper!.Path], curves[profile.Lower!.Path], profile.Closure, profile.BlockStart, profile.BlockEnd) { Provenance = profile.Provenance }).ToArray();
             var resolved = new List<(double Eta, int Profile)>();
             foreach (var assignment in assignments)
             {

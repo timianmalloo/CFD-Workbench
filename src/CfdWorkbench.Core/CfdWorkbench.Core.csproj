@@ -6,4 +6,9 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup><PackageReference Include="Blake3" Version="2.2.1" /></ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="CatalogData\**\*">
+      <LogicalName>CfdWorkbench.Core.CatalogData.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

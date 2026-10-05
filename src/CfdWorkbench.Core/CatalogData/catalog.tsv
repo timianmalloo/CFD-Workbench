@@ -1,0 +1,20 @@
+# id family designation class reason generator sha256 le rotation scale
+naca-0009	Naca	NACA 0009	Gen		naca4-closed/1	d01975170d771992779b64fe641eebc05f65cd69e5f0f90de0fc4735ed97a8ea	0	0	1
+naca-0012	Naca	NACA 0012	Gen		naca4-closed/1	d7ed230985fe4ec4577239fe0b1db82f244edb49bf0b68e9c5fe7965bb8974c9	0	0	1
+naca-4412	Naca	NACA 4412	Gen		naca4-closed/1	fab12bf318540b45dee89c3a091cb12d24692078d8db2465d0f8099a2e95cf45	-0.00030024789938986609	-0.17398455663928378	1.0003048597813819
+naca-16-012	Naca	NACA 16-012	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
+naca-63-209	Naca	NACA 63-209	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
+naca-63-412	Naca	NACA 63-412	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
+naca-64a410	Naca	NACA 64A410	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
+naca-66-012	Naca	NACA 66-012	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
+naca-66-209	Naca	NACA 66-209	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
+naca-66-018	Naca	NACA 66-018	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
+e817	Eppler	Eppler E817	Vend	Pending admission — terms requested from UIUC · GEN sections remain			0	0	1
+e818	Eppler	Eppler E818	Vend	Pending admission — terms requested from UIUC · GEN sections remain			0	0	1
+e874	Eppler	Eppler E874	Vend	Pending admission — terms requested from UIUC · GEN sections remain			0	0	1
+e904	Eppler	Eppler E904	Vend	Pending admission — terms requested from UIUC · GEN sections remain			0	0	1
+e908	Eppler	Eppler E908	Vend	Pending admission — terms requested from UIUC · GEN sections remain			0	0	1
+e836	Eppler	Eppler E836	Vend	Pending admission — terms requested from UIUC · GEN sections remain			0	0	1
+e837	Eppler	Eppler E837	Vend	Pending admission — terms requested from UIUC · GEN sections remain			0	0	1
+e838	Eppler	Eppler E838	Vend	Pending admission — terms requested from UIUC · GEN sections remain			0	0	1
+speer-h105	Speer	Speer H105	Link	Cite only (LINK) — its coordinates may not be copied, so it cannot be edited here			0	0	1
