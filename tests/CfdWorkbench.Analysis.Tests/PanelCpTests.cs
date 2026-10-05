@@ -59,7 +59,7 @@ internal static class PanelCpTests
         const double offset = 0.08;
         double leadingZeta = -1 - 2 * offset;
         double chord = 2 - (leadingZeta + 1 / leadingZeta);
-        Complex w = new(leadingZeta + chord * x, chord * z);
+        Complex w = new(leadingZeta + 1 / leadingZeta + chord * x, chord * z);
         Complex root = Complex.Sqrt(w * w - 4);
         Complex a = (w + root) / 2, b = (w - root) / 2;
         Complex zeta = Math.Abs(Complex.Abs(a + offset) - (1 + offset)) <

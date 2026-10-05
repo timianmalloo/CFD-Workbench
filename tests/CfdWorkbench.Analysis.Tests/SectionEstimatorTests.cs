@@ -26,7 +26,8 @@ internal static class SectionEstimatorTests
         SectionEstimate zero = SectionEstimator.Estimate(Section(0, 0.002, 200), 0, 1e6);
         SectionEstimate atThree = SectionEstimator.Estimate(Section(0, 0.002, 200), 3, 1e6);
         double slope = (atThree.Cl - zero.Cl) / (3 * Math.PI / 180);
-        Near(2 * Math.PI, slope, 0.6, "panel Cl small-angle slope");
+        Console.WriteLine($"OBSERVED thin symmetric panel Cl slope: {slope:G9}");
+        Near(2 * Math.PI, slope, 0.01 * 2 * Math.PI, "panel Cl small-angle slope");
         Near(0, zero.AlphaL0Deg, 0.01, "symmetric α_L0");
     }
 
