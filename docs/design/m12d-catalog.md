@@ -628,6 +628,10 @@ source is visible outside Properties (marine-CAD lens F3).
 | COPY-198 | "“<file>” is damaged and was skipped." |
 | COPY-196b | "My sections is locked by a save that didn't finish. If no other CFD Workbench is open, delete “sections/.cfd-writer.claim” and save again." |
 | COPY-199 | "“<name>” appears twice in My sections. Neither can be used until one file is removed." |
+| COPY-200 | "This system can't save to My sections safely. Nothing was saved." — **proposed — awaiting operator** (`DOC-UNSUPPORTED-PERSISTENCE`) |
+| COPY-201 | "Couldn't save to My sections: the file couldn't be written. Nothing was saved." — **proposed — awaiting operator** (`LIB-IO`; fixed plain-language cause for COPY-197) |
+| COPY-202 | "CFD Workbench couldn't confirm whether this section was saved. Check My sections before trying again." — **proposed — awaiting operator** (`DOC-SAVE-UNCERTAIN`) |
+| COPY-203 | "Couldn't finish saving this section (<code>). Check My sections before trying again." — **proposed — awaiting operator** (unrecognised save refusal) |
 | status | "Replaced <stations> with <source>. Fit <r> µm (limit 10 µm). ⌘Z puts the old section back." |
 
 Spec strings used as is: COPY-109, 110, 111, 112, 113, 114, 115, 121, "Saved “<name>” to My sections", the My sections

@@ -41,6 +41,9 @@ public static class CatalogDialogTests
         DesktopChecks.Check("SourceChip_AfterReplaceAndEdit_TextNotColour", CheckChipAfterEdit);
         DesktopChecks.Check("SourceChip_StationTcDiffers_SaysScaled", CheckScaledChip);
         DesktopChecks.Check("BrowserRow_AfterReplace_NameThenSource", CheckBrowserText);
+        DesktopChecks.Check("CatalogDialog_DamagedLibraryRow_DisabledWithReason", CheckDamagedRow);
+        DesktopChecks.Check("SaveDialog_UnsupportedPersistence_ExplainsSafety", CheckUnsupportedSave);
+        DesktopChecks.Check("Properties_StationSource_UsesProfileProvenance", CheckStationSource);
     }
 
     private static void CheckCatalog(string name)
@@ -52,7 +55,8 @@ public static class CatalogDialogTests
             Wait(controller.ApplySectionStepAsync(new SectionStep.MakeUnique()));
         Action? count = null;
         var snapshot = name == "CatalogDialog_CatalogUnavailable_ShowsCauseAndCancel"
-            ? new CatalogSnapshot([], [], 0, 0, 0, "CAT-UNAVAILABLE") : controller.OpenCatalog();
+            ? new CatalogSnapshot([], [], 0, 0, 0, "CAT-UNAVAILABLE")
+                { FailureCause = "a catalog file is missing from this installation" } : controller.OpenCatalog();
         var dialog = new CatalogDialog(controller, snapshot, schedule: (_, callback) => count = callback);
         dialog.Show();
         Dispatcher.UIThread.RunJobs();
@@ -148,7 +152,7 @@ public static class CatalogDialogTests
                         "Chain button did not apply at all stations");
                     break;
                 case "CatalogDialog_CatalogUnavailable_ShowsCauseAndCancel":
-                    Require(detail.Text?.StartsWith("The catalog didn't load:", StringComparison.Ordinal) == true &&
+                    Require(detail.Text == "The catalog didn't load: a catalog file is missing from this installation. Your section hasn't changed. Choose Cancel to go back." &&
                         !replace.IsEnabled && Need<Button>(dialog, "CancelButton").IsEnabled,
                         "Catalog-unavailable state lacks cause or Cancel");
                     break;
@@ -215,6 +219,76 @@ public static class CatalogDialogTests
             Thread.Yield();
         }
         task.GetAwaiter().GetResult();
+    }
+
+    private static void CheckDamagedRow()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "dlg-damaged-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try
+        {
+            File.WriteAllText(Path.Combine(root, "bad.foil"), "damaged");
+            using var controller = new WorkbenchController(sections: new SectionLibrary(root));
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+            var snapshot = controller.OpenCatalog();
+            string reason = "“bad.foil” is damaged and was skipped.";
+            Require(snapshot.ProblemRows.Single().Reason == reason, "Controller dropped the scan problem");
+            var dialog = new CatalogDialog(controller, snapshot);
+            dialog.Show();
+            Dispatcher.UIThread.RunJobs();
+            try
+            {
+                var list = Need<ListBox>(dialog, "SectionList");
+                var row = list.Items.OfType<ListBoxItem>().Single(item => item.Tag is CatalogChoice.Damaged);
+                list.SelectedItem = row;
+                Require(AutomationProperties.GetHelpText(row) == reason &&
+                    Need<TextBlock>(dialog, "DetailLine").Text == reason &&
+                    !Need<Button>(dialog, "ReplaceButton").IsEnabled,
+                    "Damaged row did not show its reason and disable Replace");
+            }
+            finally { dialog.Close(); }
+        }
+        finally { Directory.Delete(root, recursive: true); }
+    }
+
+    private static void CheckUnsupportedSave()
+    {
+        foreach (var (code, expected) in new[]
+        {
+            ("DOC-UNSUPPORTED-PERSISTENCE", "This system can't save to My sections safely. Nothing was saved."),
+            ("LIB-IO", "Couldn't save to My sections: the file couldn't be written. Nothing was saved."),
+            ("DOC-SAVE-UNCERTAIN", "CFD Workbench couldn't confirm whether this section was saved. Check My sections before trying again."),
+            ("LIB-UNKNOWN", "Couldn't finish saving this section (LIB-UNKNOWN). Check My sections before trying again.")
+        })
+        {
+            using var controller = new WorkbenchController();
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+            var dialog = new SaveSectionDialog(controller, _ => Task.FromException(new ContractError(code)));
+            dialog.Show();
+            Dispatcher.UIThread.RunJobs();
+            try
+            {
+                Need<TextBox>(dialog, "NameBox").Text = "Kept";
+                Wait(dialog.SaveAsync());
+                Require(Need<TextBlock>(dialog, "SaveError").Text == expected,
+                    code + " did not show its proposed failure copy");
+            }
+            finally { dialog.Close(); }
+        }
+    }
+
+    private static void CheckStationSource()
+    {
+        using var controller = Replaced("NACA 0012");
+        var projection = controller.CurrentProjection!;
+        var model = PropertiesView.Build(new Selection.Station(0, projection.Assignments[0].Eta), projection,
+            controller.Estimates, ShellMode.Workspace,
+            new PropertiesContext(controller.Planform, StationSource: controller.StationSource));
+        var row = model.Groups.Single(group => group.Id == "stn").Rows.Single(item => item.Key == "s:source");
+        Require(row.Value == "Catalog original · NACA 0012 (GEN)",
+            "Station card did not show the profile's parsed provenance");
     }
 
     private static void CheckSave(string name)

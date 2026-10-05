@@ -194,7 +194,8 @@ public partial class SectionEditorView : UserControl
     {
         if (controller?.Section is not { } mode) return;
         ReplacePreview? preview = controller.CurrentPreview ?? controller.RefusedPreview;
-        if (preview?.Bytes is not { } bytes)
+        byte[]? bytes = preview?.RefusalCode is not null ? preview.RefusedBytes : preview?.Bytes;
+        if (bytes is null)
         {
             ModeCanvas.PreviewProfile = null;
             ModeCanvas.PreviewLargestX = null;
@@ -216,7 +217,7 @@ public partial class SectionEditorView : UserControl
             previewShape = (bytes, assignment, new ProfileView("", "", [], [], upper, lower, "closed"));
         }
         ModeCanvas.PreviewProfile = previewShape.Value.View;
-        ModeCanvas.PreviewLargestX = preview.LargestChangeChord > 0 ? preview.LargestChangeAtX : null;
+        ModeCanvas.PreviewLargestX = preview is { LargestChangeChord: > 0 } ? preview.LargestChangeAtX : null;
         ModeCanvas.InvalidateVisual();
     }
 

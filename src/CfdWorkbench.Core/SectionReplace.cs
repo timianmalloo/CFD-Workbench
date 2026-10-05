@@ -91,10 +91,11 @@ public static class SectionReplace
         { Report = report };
     }
 
-    // Bytes on a refused preview are visual evidence only. Patch checks RefusalCode before reading Bytes.
+    // A refused candidate is visual evidence only. Patch reads Bytes only after checking RefusalCode.
     private static ReplacePreview Refused(string code, string reason, int[] stations, double residual, double acceptanceChord,
         int points, int[]? chain, byte[] candidate) =>
-        new(stations, "current", residual, acceptanceChord, 0, 0, points, code, chain, candidate) { RefusalReason = reason };
+        new(stations, "current", residual, acceptanceChord, 0, 0, points, code, chain, null)
+        { RefusalReason = reason, RefusedBytes = candidate, RefusedResidual = residual };
 
     // A fitted record on one spacing. Residual is the rule-5 Euclidean residual in chord fractions.
     private sealed record Candidate(string Spacing, string Basis, double[] Knots, double[][] Upper, double[][] Lower, string[] UpperIds,

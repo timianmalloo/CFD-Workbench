@@ -80,6 +80,9 @@ public partial class CatalogDialog : Window
             var rows = family == CatalogFamily.MySections
                 ? snapshot.Mine.Where(entry => entry.Name.Contains(query, StringComparison.OrdinalIgnoreCase))
                     .Select(entry => (Name: entry.Name, Choice: (CatalogChoice)new CatalogChoice.Mine(entry), Reason: (string?)null, Tag: "saved")).ToArray()
+                    .Concat(snapshot.ProblemRows.Where(problem => problem.File.Contains(query, StringComparison.OrdinalIgnoreCase))
+                        .Select(problem => (Name: problem.File, Choice: (CatalogChoice)new CatalogChoice.Damaged(problem.File, problem.Reason),
+                            Reason: (string?)problem.Reason, Tag: "damaged"))).ToArray()
                 : snapshot.Entries.Where(entry => entry.Family == family && entry.Designation.Contains(query, StringComparison.OrdinalIgnoreCase))
                     .Select(entry => (Name: entry.Designation, Choice: (CatalogChoice)new CatalogChoice.Catalog(entry), Reason: entry.DisabledReason,
                         Tag: entry.Class.ToString().ToUpperInvariant())).ToArray();
@@ -117,7 +120,8 @@ public partial class CatalogDialog : Window
         {
             controller.ClearCatalogPreview();
             DetailLine.Text = snapshot.Outcome == "CAT-UNAVAILABLE"
-                ? "The catalog didn't load: a catalog file failed its check. Your section hasn't changed. Choose Cancel to go back."
+                ? "The catalog didn't load: " + (snapshot.FailureCause ?? "a catalog file failed its check") +
+                  ". Your section hasn't changed. Choose Cancel to go back."
                 : $"No sections match “{query}”. Try NACA, Eppler or a name.";
             ReplaceButton.IsEnabled = false;
             ChainButton.IsVisible = false;
@@ -159,7 +163,12 @@ public partial class CatalogDialog : Window
     private void SelectRow()
     {
         if (SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice } item || !options.Contains(item)) return;
-        string? reason = choice is CatalogChoice.Catalog { Entry.DisabledReason: { } disabled } ? disabled : null;
+        string? reason = choice switch
+        {
+            CatalogChoice.Catalog { Entry.DisabledReason: { } disabled } => disabled,
+            CatalogChoice.Damaged damaged => damaged.Reason,
+            _ => null
+        };
         if (reason is not null)
         {
             controller.ClearCatalogPreview();
@@ -266,7 +275,7 @@ public partial class CatalogDialog : Window
     private async Task ApplyAsync(ReplaceScope scope)
     {
         if (replacing || SectionList.SelectedItem is not ListBoxItem { Tag: CatalogChoice choice } ||
-            choice is CatalogChoice.Catalog { Entry.DisabledReason: not null } || controller.CurrentPreview is null)
+            choice is CatalogChoice.Catalog { Entry.DisabledReason: not null } or CatalogChoice.Damaged || controller.CurrentPreview is null)
             return;
         replacing = true;
         ReplaceButton.IsEnabled = false;

@@ -42,8 +42,12 @@ public static class Catalog
     public static IReadOnlyList<CatalogEntry> Load()
     {
         byte[]? table = Resource(ResourcePrefix + "catalog.tsv");
-        if (table is null) throw new ContractError("CAT-UNAVAILABLE");
-        return Read(Encoding.UTF8.GetString(table), id => Resource(ResourcePrefix + id + ".dat"));
+        if (table is null) throw new ContractError("CAT-UNAVAILABLE", "a catalog file is missing from this installation");
+        try { return Read(Encoding.UTF8.GetString(table), id => Resource(ResourcePrefix + id + ".dat")); }
+        catch (ContractError error) when (error.Code == "CAT-UNAVAILABLE")
+        { throw new ContractError(error.Code, error.Reason ?? "a catalog file failed its check"); }
+        catch (Exception error) when (error is FormatException or ArgumentException or OverflowException)
+        { throw new ContractError("CAT-UNAVAILABLE", "a catalog file failed its check"); }
     }
 
     internal static IReadOnlyList<CatalogEntry> Read(string table, Func<string, byte[]?> coordinates)

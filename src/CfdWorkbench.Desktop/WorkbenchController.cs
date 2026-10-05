@@ -26,6 +26,7 @@ public abstract record CatalogChoice
 {
     public sealed record Catalog(CatalogEntry Entry) : CatalogChoice;
     public sealed record Mine(LibraryEntry Entry) : CatalogChoice;
+    public sealed record Damaged(string File, string Reason) : CatalogChoice;
 }
 
 /// <summary>What <see cref="WorkbenchController.OpenCatalog"/> last read. Choosable rows have coordinates and no disabled reason.</summary>
@@ -35,7 +36,11 @@ public sealed record CatalogSnapshot(
     int Choosable,
     int Disabled,
     int Problems,
-    string Outcome);
+    string Outcome)
+{
+    public string? FailureCause { get; init; }
+    public IReadOnlyList<(string File, string Reason)> ProblemRows { get; init; } = [];
+}
 
 public enum GestureState { Idle, Pressed, Dragging, Nudging, Busy }
 public enum GestureInput { Pointer, Keyboard, Typed }
@@ -927,11 +932,24 @@ public sealed class WorkbenchController : IDisposable
         }
     }
 
+    /// <summary>The station card's Source value, read from the profile provenance in the current foil bytes.</summary>
+    public string StationSource(int station)
+    {
+        var projection = CurrentProjection ?? throw new ContractError("DSL-PROFILE-TARGET");
+        if ((uint)station >= (uint)projection.Assignments.Count) throw new ContractError("DSL-PROFILE-TARGET");
+        string profile = projection.Assignments[station].ProfileName;
+        byte[] foil = Section?.Draft.Bytes ?? session.Snapshot().Source;
+        var source = ProvenanceFor(foil, profile);
+        string display = source.ChipText(ChipSourceName(source));
+        return source.Rights == RightsClass.NotRecorded ? display : display + " (" + source.Rights.ToString().ToUpperInvariant() + ")";
+    }
+
     public CatalogSnapshot OpenCatalog()
     {
         var clock = Stopwatch.StartNew();
         IReadOnlyList<CatalogEntry> entries;
         string outcome;
+        string? failureCause = null;
         try
         {
             entries = CfdWorkbench.Core.Catalog.Load();
@@ -941,6 +959,7 @@ public sealed class WorkbenchController : IDisposable
         {
             entries = [];
             outcome = error.Code;
+            failureCause = error.Reason;
         }
         if (outcome == "ok") catalogRows = entries;
         int choosable = entries.Count(entry => entry.Coordinates is not null && entry.DisabledReason is null);
@@ -956,7 +975,8 @@ public sealed class WorkbenchController : IDisposable
         clock.Stop();
         session.RecordCatalog(new("catalog.open", outcome, clock.Elapsed.TotalMilliseconds,
             naca, eppler, speer, scan.Entries.Count, disabled, scan.Problems.Count, entries.Count));
-        return OpenedCatalog = new(entries, scan.Entries, choosable, disabled, scan.Problems.Count, outcome);
+        return OpenedCatalog = new CatalogSnapshot(entries, scan.Entries, choosable, disabled, scan.Problems.Count, outcome)
+        { FailureCause = failureCause, ProblemRows = scan.Problems };
     }
 
     public void ClearCatalogPreview() => ClearReplacePreview();
@@ -1135,7 +1155,7 @@ public sealed class WorkbenchController : IDisposable
             else if (ticketLatest)
             {
                 CurrentPreview = null;
-                RefusedPreview = sameDraft && preview?.RefusalCode is not null && preview.Bytes is not null ? preview : null;
+                RefusedPreview = sameDraft && preview?.RefusalCode is not null && preview.RefusedBytes is not null ? preview : null;
                 PreviewChoice = null;
                 PreviewSourceName = null;
                 PreviewFault = fault as ContractError

@@ -118,6 +118,9 @@ internal static class SectionReplaceTests
             view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
             var preview = session.PreviewReplace(id, view.Generation, Gen("4412"), ReplaceScope.Draft);
             Equal("CAT-SPACING", preview.RefusalCode);
+            Equal(null, preview.Bytes);
+            Equal(true, preview.RefusedBytes is { Length: > 0 });
+            Equal(preview.FitResidual, preview.RefusedResidual);
             Equal(true, preview.BlendChain!.SequenceEqual([0, 1]));
             Equal(true, preview.RefusalReason!.StartsWith("Root blends point-to-point with Tip, so Root must keep Tip's 8 points", StringComparison.Ordinal));
             var refused = Throws(() => session.ApplySectionStep(id, view.Generation, new SectionStep.Replace(Gen("4412"), ReplaceScope.Draft)));

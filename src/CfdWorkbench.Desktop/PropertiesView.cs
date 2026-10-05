@@ -103,7 +103,8 @@ public sealed record PropertiesContext(
     bool NotChecked = false,
     Func<string, CurveView?>? Curves = null,
     Func<double, StationFrame?>? Frame = null,
-    SectionContext? Section = null);
+    SectionContext? Section = null,
+    Func<int, string>? StationSource = null);
 
 /// <summary>
 /// The open section draft as the Properties pane shows it (design §11.4): both surfaces of the cursor bytes, the section's
@@ -536,7 +537,7 @@ public static class PropertiesView
         var identity = selection switch
         {
             Selection.Station station when station.Index >= 0 && station.Index < projection.Assignments.Count =>
-                StationRows(station, projection, plan, context.Frame, groups),
+                StationRows(station, projection, plan, context.Frame, context.StationSource, groups),
             Selection.Points { Items.Count: > 1 } points when curves is not null => SeveralRows(points, curves, groups),
             Selection.Points { Items.Count: 1 } points when curves is not null && Find(curves, points.Items[0]) is { } point =>
                 PointRows(point, curves(point.Curve)!, context.NotChecked, groups),
@@ -666,7 +667,7 @@ public static class PropertiesView
     }
 
     private static SelectionIdentity StationRows(Selection.Station station, AuthoredProjection projection, PlanformView? plan,
-        Func<double, StationFrame?>? frame, List<PropertyGroup> groups)
+        Func<double, StationFrame?>? frame, Func<int, string>? stationSource, List<PropertyGroup> groups)
     {
         var assignment = projection.Assignments[station.Index];
         var rows = new List<PropertyRow>
@@ -690,6 +691,7 @@ public static class PropertiesView
                 Value = Quantity.PlacedPercent(placed.ThicknessRatio * FieldScale[UnitFamily.Percent])
             });
         rows.Add(Prose("s:section", "Section", assignment.ProfileName));
+        if (stationSource is not null) rows.Add(Prose("s:source", "Source", stationSource(station.Index)));
         // CAD-20 / COPY-172: the Station group ends with the link that opens the section editor.
         rows.Add(new PropertyRow { Key = "s:edit", Label = "", Kind = RowKind.Action, Value = EditSection, AutomationName = EditSection });
         groups.Add(new PropertyGroup("stn", "Station", assignment.ProfileName, true, rows, []));
