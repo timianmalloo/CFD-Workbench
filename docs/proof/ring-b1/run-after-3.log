@@ -1,0 +1,21 @@
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:00.61
+build 1 s (Release)
+== CfdWorkbench.Core.Tests 1/2 42 s (41483 ms), 334 PASS
+RESULT failures=0
+== CfdWorkbench.Core.Tests 2/2 42 s (41699 ms), 333 PASS
+RESULT failures=0
+== CfdWorkbench.Desktop.Tests 54 s (53182 ms), 661 PASS
+SUITE-TIME --analysis 0.3 s
+== CfdWorkbench.Analysis.Tests 5 s (4143 ms), 109 PASS
+RESULT failures=0
+== CfdWorkbench.Cli.Tests 2 s (1507 ms), 5 PASS
+COST Cli_AnalyseFailedRun_PrintsNoDiagnostics 13.816
+FAILED: C-3 run-tests wall 54447 ms, over 50000 ms
+FAILED: C-4 Desktop took 53182 ms, over 43000 ms: DR-ANA-10 applies (spread or split the Desktop job)
+test costs: 2 failures
+wall 55 s (54447 ms) (budget 60 s) cpu 581 s load 56.93 -> 70.09

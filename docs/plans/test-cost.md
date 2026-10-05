@@ -347,3 +347,28 @@ quiet-machine saving is still Inferred (§2: −5.8 to −7.5 s).
 - **The Core fast-ring parts have no timeout.** F-2 was fixed for the Desktop children (the native-window
   risk). A hung Core part still waits in `run-tests.sh` until the agent's tool timeout.
 - **L0** needed nothing built (already in the briefs). **L7–L9** were not approved for this track.
+
+## 9. Millisecond clocks and the cost checker (2026-10-05, track B1, branch `feature/ring-b1-rng`)
+
+**Shipped.** `tools/run-tests.sh` writes `<name>.ms` per harness and `wall.ms` from one millisecond wall clock (C-1) and
+prints them. `tools/check-test-costs.py` enforces C-2…C-6 (design `area3-analysis.md` §13.4) and has a `--self-test`
+that plants each failing input of the table. `run-tests.sh` calls it after the wait loop, and `join.json` runs it again
+after `run-tests.sh`. Ring: every join. Cost: under 0.1 s. The fast ring's `PASS` set is unchanged (1,442 lines, before
+and after; `docs/proof/ring-b1/pass-before.txt`, `pass-after.txt`).
+
+**OD-2 is not met, and the numbers are load-polluted.** Three runs after the change, with other agents' work on this
+laptop (1-minute load 16 → 70, 16 logical CPUs). Desktop is the long pole in all three.
+
+| Run | Desktop | wall | Core 1/2 | Analysis | C-3 (≤ 50 s) | C-4 (≤ 43 s) |
+|---|---|---|---|---|---|---|
+| 1 | 54.5 s | 56.8 s | 44.8 s | 4.9 s | red | red |
+| 2 | 52.1 s | 53.5 s | 39.9 s | 4.0 s | red | red |
+| 3 | 53.2 s | 54.4 s | 41.5 s | 4.1 s | red | red |
+
+The idle baseline (`docs/proof/ring-oct05/baseline-2026-10-05.csv`) was wall 50–57 s, Desktop 50–51 s. Total CPU per
+run is 560–600 s; over 16 cores that is a floor of 35–37 s for the whole ring, and the Desktop children (8 slots, about
+1.4 cores each) plus two Core parts already fill the machine. The Desktop child times sum to about 400 s under load.
+Reordering the slots cannot cut CPU-seconds, so **`WorkbenchTests.cs` was not touched** and no check moved or loosened.
+Meeting OD-2 needs fewer CPU-seconds (Track B2) or the fallback (b) of OD-2 (restate C-3/C-4 as deltas, which needs a
+ruling). Until then every `run-tests.sh` exits 1 with C-3 and C-4 named. Analysis at 4.0–4.9 s sits close to its
+5 s limit (C-2); the slowest check is `F6_ObservedOrder` at 478 ms (limit 1,500 ms).

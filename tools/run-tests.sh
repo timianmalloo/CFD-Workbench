@@ -29,7 +29,10 @@ named=" Core Desktop Analysis "   # suites that print PASS <name>; an exit 0 wit
 jobs=("Core 1/2" "Core 2/2" "Desktop" "Analysis" "Cli")
 # A log left by an earlier layout (e.g. Core.log before the split) would feed old PASS lines to
 # tools/check-named-tests.py, which reads every .tmp-tests/*.log.
-rm -f "$scratch"/*.log "$scratch"/*.seconds
+rm -f "$scratch"/*.log "$scratch"/*.seconds "$scratch"/*.ms
+# C-1 (docs/design/area3-analysis.md 13.4): a millisecond wall clock, one clock for every process. Bash 3.2 on macOS has
+# no EPOCHREALTIME and SECONDS counts whole seconds (a 5 s limit read from it lets 5.9 s pass).
+now_ms() { python3 -c 'import time; print(time.time_ns() // 1000000)'; }
 # The 1-minute load average, so a TEST-BUDGET red can be told from contention (test-cost F-3); "not recorded"
 # where neither source exists, never a guess.
 load() {
@@ -39,6 +42,7 @@ load() {
 }
 load_start=$(load)
 started=$SECONDS
+started_ms=$(now_ms)
 dotnet build CFDWorkbench.slnx -c "$configuration" -nologo -v q
 echo "build $((SECONDS - started)) s ($configuration)"
 pids=()
@@ -51,11 +55,13 @@ for job in "${jobs[@]}"; do
   names+=("$name")
   (
     suite_start=$SECONDS
+    suite_start_ms=$(now_ms)
     status=0
     args=()
     if [ -n "$part" ]; then args=(-- "--part=$part"); fi
     dotnet run -c "$configuration" --no-build --project "tests/CfdWorkbench.$project.Tests/CfdWorkbench.$project.Tests.csproj" \
       ${args[@]+"${args[@]}"} > "$scratch/$name.log" 2>&1 || status=$?
+    echo "$(( $(now_ms) - suite_start_ms ))" > "$scratch/$name.ms"
     echo "$((SECONDS - suite_start))" > "$scratch/$name.seconds"
     exit "$status"
   ) &
@@ -70,7 +76,7 @@ for index in "${!jobs[@]}"; do
   status=0
   wait "${pids[$index]}" || status=$?
   passes=$(grep -c '^PASS ' "$scratch/$name.log" || true)
-  echo "== $label $(cat "$scratch/$name.seconds") s, $passes PASS"
+  echo "== $label $(cat "$scratch/$name.seconds") s ($(cat "$scratch/$name.ms") ms), $passes PASS"
   if [ "$status" -eq 0 ] && [ "$passes" -eq 0 ] && [[ "$named" == *" $project "* ]]; then
     echo "FAILED: $label exited 0 but printed no PASS line"
     failed=1
@@ -99,11 +105,16 @@ if [ "$reported" != "$(printf '%s' "$expected" | sort)" ] || [ "$reported" != "$
   failed=1
 fi
 wall=$((SECONDS - started))
+echo "$(( $(now_ms) - started_ms ))" > "$scratch/wall.ms"
 # CPU-seconds (user + sys) of every finished child: the work done, which load does not inflate the way it does wall.
 # `times` must run in this shell (a pipe or $(...) would report a subshell), so it writes a file first.
 times > "$scratch/times.txt"
 cpu=$(tail -1 "$scratch/times.txt" | awk '{ total = 0; for (i = 1; i <= 2; i++) { split($i, t, "m"); total += t[1] * 60 + t[2] } printf "%.0f", total }')
-echo "wall $wall s (budget $budget s) cpu $cpu s load $load_start -> $(load)"
+# C-2..C-6: the cost rules, from the millisecond clocks and the Analysis COST lines (tools/check-test-costs.py).
+cost_jobs=""
+for name in "${names[@]}"; do cost_jobs="$cost_jobs${cost_jobs:+,}$name"; done
+if ! python3 "$root/tools/check-test-costs.py" --dir "$scratch" --jobs "$cost_jobs"; then failed=1; fi
+echo "wall $wall s ($(cat "$scratch/wall.ms") ms) (budget $budget s) cpu $cpu s load $load_start -> $(load)"
 if [ "$failed" -ne 0 ]; then exit 1; fi
 if [ "$wall" -gt "$budget" ]; then
   echo "TEST-BUDGET: green, but $wall s is over the $budget s budget. Find the new cost before raising it (docs/reviews/test-ci-waste.md)."
