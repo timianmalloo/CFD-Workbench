@@ -108,6 +108,9 @@ public sealed record ReplacePreview(IReadOnlyList<int> Stations, string Spacing,
     double LargestChangeChord, double LargestChangeAtX, int PointsPerSurface, string? RefusalCode, IReadOnlyList<int>? BlendChain, byte[]? Bytes)
 {
     public string? RefusalReason { get; init; }
+    /// <summary>Candidate for drawing a refusal only; Apply reads <see cref="Bytes"/> after admission.</summary>
+    public byte[]? RefusedBytes { get; init; }
+    public double? RefusedResidual { get; init; }
     public ImportReport? Report { get; init; }
 }
 /// <summary>Whether a profile edit may retarget the foil-wide thickness channel. Keep current is the source-compatible default.</summary>

@@ -1,0 +1,25 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="CfdWorkbench.Desktop.CatalogDialog" Title="Replace from catalog"
+        Width="{StaticResource ToastWidth}" SizeToContent="Height" CanResize="False"
+        Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource InkBrush}">
+  <Border Padding="{StaticResource Space3}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}">
+    <StackPanel Spacing="8">
+      <TextBlock Classes="heading" Text="Replace from catalog" />
+      <TextBlock Text="Search" />
+      <TextBox x:Name="SearchBox" AutomationProperties.Name="Search sections" />
+      <TextBlock x:Name="MatchCount" AutomationProperties.Name="Sections match count" AutomationProperties.LiveSetting="Polite" />
+      <ListBox x:Name="SectionList" MinHeight="{StaticResource StationThumbWidth}" MaxHeight="{StaticResource WindowMinWidth}"
+               AutomationProperties.Name="Catalog sections" />
+      <Border Background="{DynamicResource CanvasBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineThickness}"
+              Padding="{StaticResource Space2}">
+        <TextBlock x:Name="DetailLine" TextWrapping="Wrap" AutomationProperties.Name="Selected section details" />
+      </Border>
+      <CheckBox x:Name="UseSourceThickness" IsVisible="False" Content="Use source's t/c at these stations" />
+      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+        <Button x:Name="ChainButton" IsVisible="False" Content="Replace at every station" />
+        <Button x:Name="CancelButton" Content="Cancel" />
+        <Button x:Name="ReplaceButton" Content="Replace" Classes="primary" />
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>

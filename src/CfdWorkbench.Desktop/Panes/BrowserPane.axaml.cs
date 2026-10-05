@@ -7,6 +7,7 @@ using Avalonia.Media;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
 using System.Globalization;
+using System.Text;
 
 namespace CfdWorkbench.Desktop.Panes;
 
@@ -14,6 +15,7 @@ public partial class BrowserPane : UserControl
 {
     private WorkbenchController? boundController;
     private string? lastAcceptedIdentity;
+    private string? lastSectionSourceKey;
     private bool refreshing;
 
     public BrowserPane()
@@ -50,6 +52,7 @@ public partial class BrowserPane : UserControl
                 ContentPanel.IsVisible = false;
                 StationList.ItemsSource = null;
                 lastAcceptedIdentity = null;
+                lastSectionSourceKey = null;
                 return;
             }
 
@@ -57,7 +60,9 @@ public partial class BrowserPane : UserControl
             ContentPanel.IsVisible = true;
 
             string? currentIdentity = controller.Inspection?.Authored.Binding.AcceptedId;
-            bool acceptedChanged = currentIdentity != lastAcceptedIdentity;
+            string? sourceKey = controller.Section is { } mode
+                ? mode.Draft.DraftId + ":" + mode.Draft.Generation.ToString(CultureInfo.InvariantCulture) : null;
+            bool acceptedChanged = currentIdentity != lastAcceptedIdentity || sourceKey != lastSectionSourceKey;
 
             if (acceptedChanged || StationList.ItemsSource == null)
             {
@@ -65,13 +70,16 @@ public partial class BrowserPane : UserControl
                 int index = 0;
                 foreach (var station in authored.Assignments)
                 {
-                    string text = $"η {station.Eta.ToString("G3", CultureInfo.InvariantCulture)} · {station.ProfileName}";
+                    byte[] source = controller.Section?.Draft.Bytes ?? Encoding.UTF8.GetBytes(controller.AcceptedSource);
+                    string text = $"η {station.Eta.ToString("G3", CultureInfo.InvariantCulture)} · " +
+                        StationSourceText(station.ProfileName, source);
                     var item = new ListBoxItem { Content = text, Tag = (index, station.Eta) };
                     items.Add(item);
                     index++;
                 }
                 BindStations(StationList, items, acceptedChanged: true);
                 lastAcceptedIdentity = currentIdentity;
+                lastSectionSourceKey = sourceKey;
             }
 
             // Sync selection
@@ -96,6 +104,12 @@ public partial class BrowserPane : UserControl
             refreshing = false;
             return;
         }
+    }
+
+    public static string StationSourceText(string profile, byte[] foil)
+    {
+        string source = PropertiesView.SourceName(foil, profile);
+        return source == "Source not recorded" ? profile : profile + " · " + source;
     }
 
     public static void BindStations(ListBox list, IReadOnlyList<ListBoxItem> items, bool acceptedChanged)

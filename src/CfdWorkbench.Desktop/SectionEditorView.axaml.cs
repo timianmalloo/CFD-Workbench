@@ -20,6 +20,10 @@ public partial class SectionEditorView : UserControl
     private string? reasonDraft;   // the draft id and generation the reason box last followed
     private string? shownStateReason; // the state reason (Checking…, why Finish is off, a refused refit) the box last showed
     private ((SurfaceSide, double, double, double) Refusal, string? Copy)? refitCopy;
+    private (byte[] Bytes, int Assignment, ProfileView View)? previewShape;
+
+    public string? SourceChipText => ModeSourceChipText.Text;
+    public Button SectionButton => ModeSectionButton;
 
     public SectionEditorView()
     {
@@ -110,6 +114,7 @@ public partial class SectionEditorView : UserControl
         if (mode is null) focusedDraft = null;
         ModeEditor.IsVisible = mode is not null;
         LegacyEditor.IsVisible = mode is null;
+        ModeSourceChip.IsVisible = mode is not null;
         int? assignment = mode?.Draft.Assignment ?? (controller.Selection is Selection.Station station ? station.Index : null);
         if (controller.Inspection is null || assignment is null)
         {
@@ -132,6 +137,9 @@ public partial class SectionEditorView : UserControl
                 string name = ElevationView.StationName(assignment.Value, assignments[assignment.Value].Eta);
                 SetTitle(name);
                 SetScopeChip(mode, assignments, assignment.Value, name);
+                ModeSourceChipText.Text = ChipText(controller, mode);
+                AutomationProperties.SetName(ModeSourceChip, ModeSourceChipText.Text);
+                RefreshPreview();
                 ModePlate.Text = PlateText();
                 ModeFinishButton.IsEnabled = mode.CanFinish;
                 string? reason = mode.FinishReason;
@@ -179,6 +187,48 @@ public partial class SectionEditorView : UserControl
             EditableSectionCanvas.RefitMarker = null;
             SectionEmptyText.IsVisible = true;
         }
+    }
+
+    /// <summary>Paint only the section viewport when a latest-wins catalog preview lands.</summary>
+    public void RefreshPreview()
+    {
+        if (controller?.Section is not { } mode) return;
+        ReplacePreview? preview = controller.CurrentPreview ?? controller.RefusedPreview;
+        byte[]? bytes = preview?.RefusalCode is not null ? preview.RefusedBytes : preview?.Bytes;
+        if (bytes is null)
+        {
+            ModeCanvas.PreviewProfile = null;
+            ModeCanvas.PreviewLargestX = null;
+            ModeCanvas.InvalidateVisual();
+            return;
+        }
+        int assignment = mode.Draft.Assignment;
+        if (previewShape is not { } cached || !ReferenceEquals(cached.Bytes, bytes) || cached.Assignment != assignment)
+        {
+            var upper = new List<ProfilePoint>();
+            var lower = new List<ProfilePoint>();
+            for (int i = 0; i <= 40; i++)
+            {
+                double x = (1 - Math.Cos(Math.PI * i / 40)) / 2;
+                var point = Sections.Probe(bytes, assignment, x);
+                upper.Add(new ProfilePoint(x, point.UpperY));
+                lower.Add(new ProfilePoint(x, point.LowerY));
+            }
+            previewShape = (bytes, assignment, new ProfileView("", "", [], [], upper, lower, "closed"));
+        }
+        ModeCanvas.PreviewProfile = previewShape.Value.View;
+        ModeCanvas.PreviewLargestX = preview is { LargestChangeChord: > 0 } ? preview.LargestChangeAtX : null;
+        ModeCanvas.InvalidateVisual();
+    }
+
+    private static string ChipText(WorkbenchController controller, SectionMode mode)
+    {
+        string text = controller.SourceChip ?? "Source not recorded";
+        double? source = mode.Draft.Last?.Import?.SourceThickness;
+        if (source is null) return text;
+        double station = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment).StationThicknessRatio;
+        if (Math.Abs(source.Value - station) <= 1e-4 || mode.Draft.Intent == ThicknessIntent.UseSource) return text;
+        return text + string.Create(CultureInfo.InvariantCulture, $" · scaled to {station * 100:F2} % t/c");
     }
 
     // COPY-173: "Editing <station> section", the station in the accent (mockup .ttl em).

@@ -273,7 +273,8 @@ public partial class PropertiesPane : UserControl
                 NotChecked: controller.Inspection is { } inspection && inspection.Geometry.Status != GeometryStatus.Certified,
                 Curves: controller.CurveFor,
                 Frame: eta => StationFrameAt(controller, eta),
-                Section: SectionContext.Of(controller));
+                Section: SectionContext.Of(controller),
+                StationSource: controller.StationSource);
             string key = SelectionKey(controller.Selection);
             if (key != selectionKey)
             {

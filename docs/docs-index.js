@@ -3181,7 +3181,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4cadd85cfb1381ed228f5c12bef2b62b18553976ec36b09e1c92ab6f9ff71c5f"
+      "sourceSha256": "31d7e2cb4f8f8726ddf42067896ffbc1635b269232f330918ef92fdf5b16e6ac"
     },
     {
       "id": "design-planform-point-verbs",
@@ -4748,7 +4748,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3b29a7eb8321bb7a92409e736fd74561d40fa5e889fc0c7029bf7bcaff10b5db"
+      "sourceSha256": "40832f5a3b6f0a1852a765b05905dd3373e8ea3903e93cb03103c121e1e5ee40"
     },
     {
       "id": "domain-experts",
@@ -10425,6 +10425,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "e1bb249783feea665a0463b4843647acf8cfbb12ebc4c3f2a2240bd3a9093023"
     },
     {
+      "id": "proof-m12d-dlg2",
+      "path": "docs/proof/m12d-dlg2/proof-pack.md",
+      "title": "DLG-2 granted seams and dialog proof",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-dlg2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "DLG-2 proof for refused candidate bytes, station provenance, catalog failure cause, damaged library rows, and proposed save copy. Records the rendered tests, one full ring attempt, the isolated repairs, and the remaining gate failures.",
+      "tags": [
+        "m12d",
+        "dlg",
+        "catalog",
+        "provenance",
+        "library",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-m12d-catalog",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-m12d-catalog",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1ea31f885299d0cb449f3d45f253820b41e5fe40d9336490f71c8bcf94554bab"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -12826,5 +12862,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "232dcc654f259e669d3fe0acf11c965c54bb6c5578393262b7ab00dc070f79cb"
+  "graphSha256": "f4a00c585c3f771f755df0624713d52defa22d4c5340bf57262f862991e892b5"
 };

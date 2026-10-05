@@ -32,6 +32,13 @@ if (args.Contains("--section-canvas", StringComparer.Ordinal))
     Environment.Exit(0);
 }
 
+if (args.Contains("--catalog-dialog", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 // Named-check suites (docs/design/app-shell.md §12.2): each prints PASS/FAIL lines and exits nonzero if any failed.
 if (args.Contains("--shell-model", StringComparer.Ordinal))
 {
@@ -88,6 +95,7 @@ if (args.Contains("--section-editor", StringComparer.Ordinal))
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
     CfdWorkbench.Desktop.Tests.ControllerSectionTests.Run();
     CfdWorkbench.Desktop.Tests.SectionEditorTests.Run();
+    CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 

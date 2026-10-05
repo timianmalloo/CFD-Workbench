@@ -103,7 +103,8 @@ public sealed record PropertiesContext(
     bool NotChecked = false,
     Func<string, CurveView?>? Curves = null,
     Func<double, StationFrame?>? Frame = null,
-    SectionContext? Section = null);
+    SectionContext? Section = null,
+    Func<int, string>? StationSource = null);
 
 /// <summary>
 /// The open section draft as the Properties pane shows it (design §11.4): both surfaces of the cursor bytes, the section's
@@ -536,7 +537,7 @@ public static class PropertiesView
         var identity = selection switch
         {
             Selection.Station station when station.Index >= 0 && station.Index < projection.Assignments.Count =>
-                StationRows(station, projection, plan, context.Frame, groups),
+                StationRows(station, projection, plan, context.Frame, context.StationSource, groups),
             Selection.Points { Items.Count: > 1 } points when curves is not null => SeveralRows(points, curves, groups),
             Selection.Points { Items.Count: 1 } points when curves is not null && Find(curves, points.Items[0]) is { } point =>
                 PointRows(point, curves(point.Curve)!, context.NotChecked, groups),
@@ -666,7 +667,7 @@ public static class PropertiesView
     }
 
     private static SelectionIdentity StationRows(Selection.Station station, AuthoredProjection projection, PlanformView? plan,
-        Func<double, StationFrame?>? frame, List<PropertyGroup> groups)
+        Func<double, StationFrame?>? frame, Func<int, string>? stationSource, List<PropertyGroup> groups)
     {
         var assignment = projection.Assignments[station.Index];
         var rows = new List<PropertyRow>
@@ -690,6 +691,7 @@ public static class PropertiesView
                 Value = Quantity.PlacedPercent(placed.ThicknessRatio * FieldScale[UnitFamily.Percent])
             });
         rows.Add(Prose("s:section", "Section", assignment.ProfileName));
+        if (stationSource is not null) rows.Add(Prose("s:source", "Source", stationSource(station.Index)));
         // CAD-20 / COPY-172: the Station group ends with the link that opens the section editor.
         rows.Add(new PropertyRow { Key = "s:edit", Label = "", Kind = RowKind.Action, Value = EditSection, AutomationName = EditSection });
         groups.Add(new PropertyGroup("stn", "Station", assignment.ProfileName, true, rows, []));
@@ -1110,8 +1112,10 @@ public static class PropertiesView
     {
         var facts = section.Facts;
         int degree = section.Upper.Knots.Count - section.Upper.Points.Count - 1;
+        string source = SourceDisplay(section.Mode.Draft.Bytes, section.Mode.Draft.Profile);
         var rows = new List<PropertyRow>
         {
+            Prose("sec:source", "Source", source),
             Prose("sec:own", "Own t/c", $"{Quantity.Typed(facts.OwnThickness * 100)} % at {Quantity.Typed(facts.OwnThicknessX * 100)}") with { Unit = "% c" }
         };
         foreach (var (name, station) in section.Stations)
@@ -1145,11 +1149,37 @@ public static class PropertiesView
         // The notes sit where the mockup draws them: under the t/c rows and under the LE radius rows (B continuations).
         return
         [
-            new PropertyGroup("sec", "Section", $"{section.Mode.Draft.Profile} · degree {degree}", true, thickness,
+            new PropertyGroup("sec", "Section", $"{section.Mode.Draft.Profile} · {SourceName(section.Mode.Draft.Bytes, section.Mode.Draft.Profile)} · degree {degree}", true, thickness,
                 [new RowMessage(ThicknessNote, MessageKind.Info)]),
             new PropertyGroup("sec-le", "Section", "", true, radius, [new RowMessage(leNote, MessageKind.Info)], Continues: true),
             new PropertyGroup("sec-te", "Section", "", true, rows, [], Continues: true)
         ];
+    }
+
+    public static string SourceName(byte[] foil, string profile)
+    {
+        string? raw = FoilSource.Parse(foil).Profile(profile)?.Provenance;
+        var provenance = Provenance.Parse(raw);
+        if (provenance.Origin is not { } origin) return "Source not recorded";
+        int colon = origin.IndexOf(':');
+        if (colon > 0 && origin.StartsWith("gen:", StringComparison.Ordinal))
+        {
+            try
+            {
+                var row = Catalog.Load().FirstOrDefault(entry => entry.Id == origin[(colon + 1)..]);
+                if (row is not null) return row.Designation;
+            }
+            catch (ContractError) { }
+        }
+        return origin;
+    }
+
+    public static string SourceDisplay(byte[] foil, string profile)
+    {
+        string? raw = FoilSource.Parse(foil).Profile(profile)?.Provenance;
+        var provenance = Provenance.Parse(raw);
+        string display = provenance.ChipText(SourceName(foil, profile));
+        return provenance.Rights == RightsClass.NotRecorded ? display : display + " (" + provenance.Rights.ToString().ToUpperInvariant() + ")";
     }
 
     private static PropertyRow Pair(string key, string label, double first, double second, string unit) => new()

@@ -1556,3 +1556,15 @@ Older incomplete rows without edges report width-dependent outputs as Unavailabl
 **CFD-ADVISORY-SILENT-OUTSIDE-CLAIM · An advisory that names a band stays silent outside that band.** The e note stated a lattice-bias cause only for 1 < e ≤ 1.02 at 64 × 4, and said nothing for e > 1.02 or for e > 1 on any other lattice. Sweep: `EAdvisory` and COPY-232/233/240. Derive: the measured-band sentence stays inside its band; outside it the note names the check and no cause. Control: `Labels_EAboveOne_LatticeAttributionOnlyMeasuredBand` (e = 1.03 at 64 × 4, and e = 1.01 at 32 × 4) expects COPY-240 and refuses "lattice bias" there. COPY-217's blanket "at the 64 × 4" is the same class as CFD-CLAIM-SCOPE: `Labels_VerifiedLattice_NamesFixtureScope` now requires each fixture's lattice (F-8 32 × 4, F-16 AR 5 4 × 1, F-18/F-19 32/64/128 × 4, F-6 32/64/128 × 4 cosine span uniform chord, F-21 16 × 4 per half).
 
 **CFD-SPAN-EDGE-NAMED-INBOARD · A span edge called inboard is the lower-y edge.** Lattice stations increase in y, so the first edge of a strip is the lower-y edge; on a port strip that edge is outboard. Sweep: `StripLoad` edges and `AnalysisProjection.Width`. Derive: store `YLow`/`YHigh` (wire `yLow`/`yHigh`; no stored document had used `ya`/`yb`). Control: the `StripLoad` declaration states `YLow` < `YHigh` and the port fact; `Projection_LegacyStripEdges_OmittedAndHashIntact` requires those wire names when present and neither name when absent; `TipStrip_ExampleFoil_OutermostProvisional` requires `YHigh` > `YLow` on every produced strip.
+**DLG-ROW-INDEX · A rendered row test treats position as identity.** The Section Source row made the existing
+Own t/c test fail because it read `Rows[0]`. Sweep: the station and section row checks in `PointsPaneTests` and
+`CatalogDialogTests`; the other checks use stable keys or labels. Derive: a test of one quantity selects its
+stable row key and then asserts the value and surrounding state. Control: `Properties_SectionGroup_OwnTcAndPerStationTcConsequence`
+now reads `sec:own` by key and passes with the Source row present.
+
+**DLG-MODAL-AWAIT · A command sweep awaits a modal choice it never supplies.** Adding the catalog and save commands
+made the status-strip command sweep stop after its earlier checks. Sweep: the section command table's three modal
+entries (Import, Replace, Save); all remain in the availability/reason pass. Derive: the generic command sweep
+does not execute modal rows; rendered dialog checks supply each choice and assert the result. Control:
+`SectionCommands_EveryRow_RunsOrNamesReason` excludes those three from its execution loop and passes in the
+`--status-strip --part=1/3` fast partition; DLG's dialog checks cover Replace and Save.
