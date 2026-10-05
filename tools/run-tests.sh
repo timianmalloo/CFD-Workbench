@@ -37,8 +37,10 @@ named=" Core Desktop Analysis "   # suites that print PASS <name>; an exit 0 wit
 # Core (43 s alone, one core) runs as three interleaved parts (`--part=k/n`; B2: with two, part 2 held the heavier checks and
 # ran 47 s against part 1's 33 s, and under a concurrent build it outlasted Desktop), so it is not the critical path
 # (docs/reviews/test-ci-waste.md §12). Longest first. A part's log is <project>.part<k>of<n>.log.
-# Analysis (A3a, design area3-analysis.md §18.2 PRE): its own job, concurrent with the others, never the critical path.
-jobs=("Core 1/3" "Core 2/3" "Core 3/3" "Desktop" "Analysis" "Cli")
+# Analysis (A3a, design area3-analysis.md §18.2 PRE): its own job, concurrent with the others, never the critical path. B4:
+# it runs as two parts too (`--part=k/n`, whole test classes, longest first onto the lighter part), so its wall does not grow
+# with every track (ANALYSIS-HARNESS-GROWTH); C-2 limits each part to 5 s.
+jobs=("Core 1/3" "Core 2/3" "Core 3/3" "Desktop" "Analysis 1/2" "Analysis 2/2" "Cli")
 # A log left by an earlier layout (e.g. Core.log before the split) would feed old PASS lines to
 # tools/check-named-tests.py, which reads every .tmp-tests/*.log.
 rm -f "$scratch"/*.log "$scratch"/*.seconds "$scratch"/*.ms
@@ -106,21 +108,25 @@ for index in "${!jobs[@]}"; do
     tail -1 "$scratch/$name.log"
   fi
 done
-# The parts run each Core check once only if the jobs hold parts 1..n of one n and every part enumerated the
-# same registrations: one PARTITION line per part, one count. Otherwise a check could drop out silently.
-expected=""
-for job in "${jobs[@]}"; do
-  if [[ "$job" == "Core "* ]]; then expected="$expected${job#* }"$'\n'; fi
-done
-reported=$(cat "$scratch"/Core.part*.log | grep '^PARTITION ' | cut -d' ' -f2 | sort || true)
-counts=$( (cat "$scratch"/Core.part*.log | grep '^PARTITION ' || true) | sed 's/.* of //' | sort -u | wc -l | tr -d ' ')
-total=$(printf '%s' "$expected" | grep -c . || true)
-complete=$(seq 1 "$total" | sed "s|\$|/$total|" | sort)
-if [ "$reported" != "$(printf '%s' "$expected" | sort)" ] || [ "$reported" != "$complete" ] || [ "$counts" -ne 1 ]; then
-  echo "FAILED: Core parts are incomplete or enumerated different checks:"
-  grep -H '^PARTITION ' "$scratch"/Core.part*.log || true
-  failed=1
-fi
+# The parts run each check once only if the jobs hold parts 1..n of one n and every part enumerated the same registrations
+# (Core: checks; Analysis: test classes): one PARTITION line per part, one count. Otherwise a check could drop out silently.
+check_parts() {
+  local proj="$1" expected="" job reported counts total complete
+  for job in "${jobs[@]}"; do
+    if [[ "$job" == "$proj "* ]]; then expected="$expected${job#* }"$'\n'; fi
+  done
+  reported=$(cat "$scratch"/"$proj".part*.log | grep '^PARTITION ' | cut -d' ' -f2 | sort || true)
+  counts=$( (cat "$scratch"/"$proj".part*.log | grep '^PARTITION ' || true) | sed 's/.* of //' | sort -u | wc -l | tr -d ' ')
+  total=$(printf '%s' "$expected" | grep -c . || true)
+  complete=$(seq 1 "$total" | sed "s|\$|/$total|" | sort)
+  if [ "$reported" != "$(printf '%s' "$expected" | sort)" ] || [ "$reported" != "$complete" ] || [ "$counts" -ne 1 ]; then
+    echo "FAILED: $proj parts are incomplete or enumerated different checks:"
+    grep -H '^PARTITION ' "$scratch"/"$proj".part*.log || true
+    failed=1
+  fi
+}
+check_parts Core
+check_parts Analysis
 wall=$((SECONDS - started))
 echo "$(( $(now_ms) - started_ms ))" > "$scratch/wall.ms"
 # CPU-seconds (user + sys) of every finished child: the work done, which load does not inflate the way it does wall.

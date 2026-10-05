@@ -474,3 +474,25 @@ Profile, levers and runs: `docs/proof/ring-b2/profile.md`. Ring: every join. Cos
   times (`SUITE-TIME`) sum to 308 s; plan-canvas 34.5/29.5 s is the longest. Splitting plan-canvas in 3 does not help in the greedy model (42.7 s against 40.9 s).
   Desktop slots 8 to 10 (`Spawn`, one expression) gives Desktop 40.5 / 40.4 / 40.3 s and wall 44-45 s (net 43.1-43.3 s) in three runs at start load 13-23. No check
   dropped or changed; C-4 stays 43,000 ms. Risk: 10 slots in each of two locked rings is 20 child processes; untested above load 40.
+
+### 9.7 Track B4: the Analysis harness runs as two parts (2026-10-06)
+
+C-2 failed strictly at quiet load again: Analysis 5,314 ms at load 14 (join-tip-mesh-coupon-s4-cont). The cause is growth: every A3 track adds checks (about 4.3 s of
+check time in one process, plus start-up), so a trim (section 9.4) buys one track. The harness is now partitioned like Core: ANALYSIS-HARNESS-GROWTH in
+`docs/lessons/defect-classes.md`.
+
+- **Partition.** `AnalysisChecks` takes `--part=k/n`. A group is one test class (checks in a class share fixtures: F-6's trio feeds F-15 and F-15b), run whole.
+  Groups go longest first onto the lighter part by a measured cost hint, the same arithmetic in every part, so each check runs in exactly one part. Each part prints
+  `PARTITION k/n of 13 groups` and `GROUP <name> <ms>`; `tools/run-tests.sh` (`check_parts`, now for Core and Analysis) fails if a part is missing or the parts
+  disagree. A new test class is one line in the `groups` array. Ring: every join, A8.4 oracles unchanged (F-6, F-15, F-15b, F-2 stay in the fast ring, in the same group).
+- **n = 2, from measurement.** One process: check time 4.33 s. Two parts: 2.29 s and 2.27 s of check time; in the ring 2.9-3.0 s and 3.2-3.3 s wall per part
+  (three quiet runs, start load 7-21), against the 5 s limit. n = 3 would add a third start-up (about 0.4 s of CPU) for headroom the next two tracks do not need; raise n when a part nears 4 s.
+- **C-2 reading.** Design 13.4's "Analysis <= 5 s" is read **per Analysis part**, as C-4/DR-ANA-10 limits Desktop's split job. `tools/check-test-costs.py` applies the
+  5,000 ms limit to each `Analysis.part<k>of<n>` clock (an unsplit `Analysis` still works), keeps the Ruling 87 load gate, reads the COST lines of every Analysis log for C-5
+  and C-6 (a missing part log is a C-6 failure), and C-3 applies whenever an Analysis job is present. The self-test has 30 cases (was 26): part 2 over 5 s fails alone;
+  two parts of 4.9 s are green.
+- **Logs.** The harness logs are `.tmp-tests/Analysis.part1of2.log` and `Analysis.part2of2.log`; `Analysis.log` no longer exists in the split ring. A coordinator grep for
+  a name uses `.tmp-tests/Analysis.part*.log` (or `*.log`).
+- **PASS union identical.** The 156 PASS names of the single-process run equal the 156 of the two parts, no name twice: `docs/proof/ring-b4/analysis-pass-whole.txt`, `analysis-pass-parts.txt`.
+- **Open.** The extra process adds a little CPU (ring CPU 516-543 s). In three quiet runs Desktop read 42.5 / 43.5 / 42.8 s, and the 43.5 s run failed C-4 at end load 20.9 (limit
+  43,000 ms, Ruling 84 gate <= 24). That is the C-4 margin B3 recorded (2.5 s then), now 0.2-0.5 s; it needs its own decision (Desktop order or slots), not a re-base.

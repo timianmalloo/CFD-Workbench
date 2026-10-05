@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Enforce the test-ring cost rules C-2..C-6 (docs/design/area3-analysis.md section 13.4) from tools/run-tests.sh output.
 
-  python3 tools/check-test-costs.py [--dir .tmp-tests] [--jobs Core.part1of3,Core.part2of3,Core.part3of3,Desktop,Analysis,Cli] [--load <1-minute load>]
+  python3 tools/check-test-costs.py [--dir .tmp-tests] [--jobs Core.part1of3,Core.part2of3,Core.part3of3,Desktop,Analysis.part1of2,Analysis.part2of2,Cli] [--load <1-minute load>]
   python3 tools/check-test-costs.py --budget <wall s> <budget s> <load>    (TEST-BUDGET, Ruling 87: exit 3 or 0)
   python3 tools/check-test-costs.py --self-test
 
-Reads <name>.ms and wall.ms (C-1, millisecond clocks written by run-tests.sh) and the COST lines of Analysis.log.
+Reads <name>.ms and wall.ms (C-1, millisecond clocks written by run-tests.sh) and the COST lines of every Analysis log (Analysis.log, or Analysis.part<k>of<n>.log).
 Exit 0 every rule holds . 1 a rule failed, or a reading is missing ("not recorded" never passes) . 2 usage.
 Ring: every join (run-tests.sh calls it after its wait loop; join.json runs it again). Cost: under 0.1 s.
 """
@@ -25,12 +25,12 @@ for _stream in (sys.stdout, sys.stderr):
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DIR = ROOT / ".tmp-tests"
-DEFAULT_JOBS = ("Core.part1of3", "Core.part2of3", "Core.part3of3", "Desktop", "Analysis", "Cli")
-ANALYSIS_LIMIT_MS = 5000      # C-2
+DEFAULT_JOBS = ("Core.part1of3", "Core.part2of3", "Core.part3of3", "Desktop", "Analysis.part1of2", "Analysis.part2of2", "Cli")
+ANALYSIS_LIMIT_MS = 5000      # C-2, per Analysis part (B4: the harness is split like Core; section 13.4's "Analysis <= 5 s" reads per part)
 # Ruling 84 (DR-RING-1) stated C-3 and C-4 as deltas on the quiet base while the section 13.4 absolute limits were out of
 # reach. Track B2 met its condition 3 (Desktop <= 43 s, wall <= 50 s: docs/proof/ring-b2/profile.md), so the absolute limits
 # are back and the deltas, the bases and the baseline path are gone:
-#   C-3 measures wall.ms - build.ms (net ring time, while Analysis is in the jobs; a cold build is not a test cost); limit 50000 ms.
+#   C-3 measures wall.ms - build.ms (net ring time, while an Analysis job is in the jobs; a cold build is not a test cost); limit 50000 ms.
 #   C-4 measures Desktop.ms; limit 43000 ms (DR-ANA-10).
 WALL_LIMIT_MS = 50000   # C-3
 DESKTOP_LIMIT_MS = 43000  # C-4
@@ -40,6 +40,11 @@ LOAD_GATE = 24.0
 CHECK_LIMIT_MS = 500.0        # C-5
 EXEMPT_LIMIT_MS = 1500.0      # C-5, the two named A8.4 exemptions
 EXEMPT_CHECKS = ("F1_FlatPlate_RichardsonClAlphaTo2Pi", "F6_ObservedOrder")
+
+
+def is_analysis(name: str) -> bool:
+    """The Analysis job, whole or one part of it (Analysis.part1of2)."""
+    return name == "Analysis" or name.startswith("Analysis.part")
 
 
 def read_ms(directory: Path, name: str) -> int | None:
@@ -88,22 +93,27 @@ def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded") ->
         else:
             misses.append(f"COST-MISS {rule} {ms} load {load}")
 
-    # C-2 takes the same load gate as C-3 and C-4 (Ruling 87): a wall clock of one job under CPU contention.
-    if "Analysis" in readings:
-        timing("C-2", readings["Analysis"], ANALYSIS_LIMIT_MS,
-               f"C-2 Analysis took {readings['Analysis']} ms, over {ANALYSIS_LIMIT_MS} ms")
-    if "Analysis" in jobs and "wall" in readings and "build" in readings:
+    # C-2 takes the same load gate as C-3 and C-4 (Ruling 87): a wall clock of one job under CPU contention. It applies to each
+    # Analysis part on its own (B4, ANALYSIS-HARNESS-GROWTH): a split harness is limited per part, as DR-ANA-10 limits Desktop.
+    analysis = [name for name in jobs if is_analysis(name)]
+    for name in analysis:
+        if name in readings:
+            timing("C-2", readings[name], ANALYSIS_LIMIT_MS,
+                   f"C-2 {name} took {readings[name]} ms, over {ANALYSIS_LIMIT_MS} ms")
+    if analysis and "wall" in readings and "build" in readings:
         net = readings["wall"] - readings["build"]
         timing("C-3", net, WALL_LIMIT_MS, f"C-3 run-tests net wall {net} ms (wall - build), over {WALL_LIMIT_MS} ms")
     if "Desktop" in readings:
         timing("C-4", readings["Desktop"], DESKTOP_LIMIT_MS, f"C-4 Desktop took {readings['Desktop']} ms, over "
                f"{DESKTOP_LIMIT_MS} ms: DR-ANA-10 applies (spread or split the Desktop job)")
-    if "Analysis" in jobs:
-        try:
-            lines = (directory / "Analysis.log").read_text(encoding="utf-8", errors="replace").splitlines()
-        except OSError:
-            errors.append("C-6 Analysis.log is missing: its COST lines are not recorded")
-            return errors, misses
+    if analysis:
+        lines: list[str] = []
+        for name in analysis:
+            try:
+                lines += (directory / f"{name}.log").read_text(encoding="utf-8", errors="replace").splitlines()
+            except OSError:
+                errors.append(f"C-6 {name}.log is missing: its COST lines are not recorded")
+                return errors, misses
         costs: dict[str, float] = {}
         for line in lines:
             match = re.fullmatch(r"COST (\S+) (\d+(?:\.\d+)?)", line.strip())
@@ -122,18 +132,19 @@ def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded") ->
 def self_test() -> int:
     """Every row of the 13.4 table plus Ruling 84: a green baseline, then each failing input planted alone must turn it red."""
     passes = "".join(f"PASS {name}\nCOST {name} 12.500\n" for name in ("Units_Lbf_KeyUnchanged", "F6_ObservedOrder"))
-    good = {"Core.part1of3.ms": "30000", "Core.part2of3.ms": "30000", "Core.part3of3.ms": "30000", "Desktop.ms": "40000", "Analysis.ms": "3000",
-            "Cli.ms": "1500", "wall.ms": "45000", "build.ms": "1000", "Analysis.log": passes}
+    good = {"Core.part1of3.ms": "30000", "Core.part2of3.ms": "30000", "Core.part3of3.ms": "30000", "Desktop.ms": "40000", "Analysis.part1of2.ms": "2500",
+            "Analysis.part2of2.ms": "2500", "Cli.ms": "1500", "wall.ms": "45000", "build.ms": "1000",
+            "Analysis.part1of2.log": passes, "Analysis.part2of2.log": "PASS Other_Check\nCOST Other_Check 3.000\n"}
     quiet = "5.0"
     # label, files replacing the baseline (None deletes), end load, expected error fragment (None: no error),
     # COST-MISS fragments that must be printed (an empty tuple: none)
     cases = [
         ("baseline is green", {}, quiet, None, ()),
-        ("C-2 Analysis.ms 5900", {"Analysis.ms": "5900"}, quiet, "C-2", ()),
-        ("C-2 Analysis.ms 5900 at load 40 is a COST-MISS, not a failure (Ruling 87)", {"Analysis.ms": "5900"}, "40.0", None,
+        ("C-2 Analysis.ms 5900", {"Analysis.part1of2.ms": "5900"}, quiet, "C-2", ()),
+        ("C-2 Analysis.ms 5900 at load 40 is a COST-MISS, not a failure (Ruling 87)", {"Analysis.part1of2.ms": "5900"}, "40.0", None,
          ("COST-MISS C-2 5900 load 40.0",)),
-        ("C-2 load 24.0 is still gated", {"Analysis.ms": "5900"}, "24.0", "C-2", ()),
-        ("C-2 load not recorded is a COST-MISS", {"Analysis.ms": "5900"}, "not-recorded", None,
+        ("C-2 load 24.0 is still gated", {"Analysis.part1of2.ms": "5900"}, "24.0", "C-2", ()),
+        ("C-2 load not recorded is a COST-MISS", {"Analysis.part1of2.ms": "5900"}, "not-recorded", None,
          ("COST-MISS C-2 5900 load not-recorded",)),
         ("C-3 net 51000 (wall 52000 - build 1000) at quiet load", {"wall.ms": "52000"}, quiet, "C-3", ()),
         ("C-3 net 49900 is inside the limit", {"wall.ms": "50900"}, quiet, None, ()),
@@ -145,15 +156,19 @@ def self_test() -> int:
         ("load 24.1 is not gated: C-4 is a COST-MISS", {"Desktop.ms": "43100"}, "24.1", None, ("COST-MISS C-4 43100 load 24.1",)),
         ("load not recorded: C-4 is a COST-MISS, never a pass", {"Desktop.ms": "43100"}, "not-recorded", None,
          ("COST-MISS C-4 43100 load not-recorded",)),
-        ("C-5 COST Units_Lbf_KeyUnchanged 512.3", {"Analysis.log": passes.replace("Units_Lbf_KeyUnchanged 12.500", "Units_Lbf_KeyUnchanged 512.3")},
+        ("C-5 COST Units_Lbf_KeyUnchanged 512.3", {"Analysis.part1of2.log": passes.replace("Units_Lbf_KeyUnchanged 12.500", "Units_Lbf_KeyUnchanged 512.3")},
          quiet, "Units_Lbf_KeyUnchanged", ()),
-        ("C-5 COST F6_ObservedOrder 1612.0", {"Analysis.log": passes + "COST F6_ObservedOrder 1612.0\n"}, quiet, "F6_ObservedOrder", ()),
-        ("C-5 stays strict at high load", {"Analysis.log": passes + "COST F6_ObservedOrder 1612.0\n"}, "40.0", "F6_ObservedOrder", ()),
-        ("C-5 F6_ObservedOrder 1499.0 is inside its exemption", {"Analysis.log": passes + "COST F6_ObservedOrder 1499.0\n"}, quiet, None, ()),
-        ("C-6 Analysis.ms deleted", {"Analysis.ms": None}, quiet, "Analysis.ms", ()),
+        ("C-5 COST F6_ObservedOrder 1612.0", {"Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1612.0\n"}, quiet, "F6_ObservedOrder", ()),
+        ("C-5 stays strict at high load", {"Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1612.0\n"}, "40.0", "F6_ObservedOrder", ()),
+        ("C-5 F6_ObservedOrder 1499.0 is inside its exemption", {"Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1499.0\n"}, quiet, None, ()),
+        ("C-2 is per part: part 2 at 5900 fails alone", {"Analysis.part2of2.ms": "5900"}, quiet, "Analysis.part2of2", ()),
+        ("C-2 is per part: two parts of 4900 are green though they sum over 5000", {"Analysis.part1of2.ms": "4900", "Analysis.part2of2.ms": "4900"}, quiet, None, ()),
+        ("C-5 reads part 2's log too", {"Analysis.part2of2.log": "PASS Slow_Check\nCOST Slow_Check 612.0\n"}, quiet, "Slow_Check", ()),
+        ("C-6 Analysis part 2 log missing", {"Analysis.part2of2.log": None}, quiet, "Analysis.part2of2.log", ()),
+        ("C-6 Analysis.part1of2.ms deleted", {"Analysis.part1of2.ms": None}, quiet, "Analysis.part1of2.ms", ()),
         ("C-6 wall.ms deleted", {"wall.ms": None}, quiet, "wall.ms", ()),
         ("C-6 build.ms deleted", {"build.ms": None}, quiet, "build.ms", ()),
-        ("C-6 Analysis PASS without COST", {"Analysis.log": passes + "PASS NoCost\n"}, quiet, "NoCost", ()),
+        ("C-6 Analysis PASS without COST", {"Analysis.part1of2.log": passes + "PASS NoCost\n"}, quiet, "NoCost", ()),
     ]
     failures = 0
     # TEST-BUDGET planted checks (Ruling 87): label, wall s, budget s, load, expected exit, expected line fragment
