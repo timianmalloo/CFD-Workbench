@@ -8751,7 +8751,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ceeb0acfbe43fb0c5e66299f380b1734afd2b97a73087aa8ccd0c74ebdb72ead"
+      "sourceSha256": "a03725be264cb49de2583171d5a79688e00118df31e1cd8ef203b8f70d4e3f19"
     },
     {
       "id": "proof-a3c-polar-source-red-first",
@@ -8781,7 +8781,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ab6488933973e7564f3ccd5e6d1fa6f66a5a8a25584a2e77ea2e996c286a91fc"
+      "sourceSha256": "b0673fdb6f2871565c8fc0f5b1be74a6148438f314dab6e8a27e7c4ac00effe4"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -13293,5 +13293,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "66274302ecb2986332f5004619f917202d453631267d4f994da83b6fa4908413"
+  "graphSha256": "b2a04c3ddb0008366ef4684ab950c33cb2461fca4592332d89b21b56798c8461"
 };

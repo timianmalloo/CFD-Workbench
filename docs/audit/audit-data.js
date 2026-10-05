@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:15:39Z",
+  "generated": "2026-10-05T16:30:50Z",
   "audit": [
     {
       "actor": null,
@@ -25316,6 +25316,34 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "8db50bc6c52f185ce0663146554def9af3b59796",
         "short": "8db50bc6c",
+        "branch": "feature/a3c-polar-source",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M46EENJBXJ4BBPFEDPGJ7XH3",
+      "shortname": "trk-a3c1",
+      "datetime": "2026-10-05T16:30:49Z",
+      "session": "trk-a3c1",
+      "prompt": "A3c-1 repair cycle 1 (numerical-verification review conditions)",
+      "summary": "Training-range envelope with bracket flags, advisory confidence, geometry-derived NACA 0012 family, end-to-end Python fixture, Sample doc truth, rebased red-first hashes",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Clear the review conditions 1-5",
+      "done_when": "Tests per condition green, full ring, check-docs, 12 gates pass",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-10-05T16:19:09Z",
+      "duration_seconds": 700.0,
+      "git": {
+        "sha": "03deb659c8c6cb5b825cf16c980dcdeea5e159be",
+        "short": "03deb659c",
         "branch": "feature/a3c-polar-source",
         "pushed": null
       }
