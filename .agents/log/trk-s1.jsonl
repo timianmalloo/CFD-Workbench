@@ -1,1 +1,2 @@
 {"agent": "4e90c621", "at": 1791217122.306456, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-s1", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-tip-salvage-s1"}
+{"action": "add", "agent": "trk-s1", "at": 1791217883.560713, "deadline_at": 1791218783.560713, "id": "req-01M46EFPD9T628G6RYZV7V4XJQ", "kind": "request", "path": "-", "seq": 2, "session": "trk-s1", "to": "coordinator", "type": "request", "wi": "WI-0"}

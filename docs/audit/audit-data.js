@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:29:02Z",
+  "generated": "2026-10-05T16:32:48Z",
   "audit": [
     {
       "actor": null,
@@ -25423,12 +25423,123 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46EBC8FF4XTR2BAHRYS0GFG",
-      "shortname": "join-tip-vlm-sweep-s2",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T16:29:02Z",
+      "done_when": "join gates green",
+      "duration_seconds": 85.0,
+      "fan_out": 0,
+      "goal": "join tip-vlm-sweep-s2 into main (round-oct05)",
+      "id": "al-01M46EBC8FF4XTR2BAHRYS0GFG",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-tip-vlm-sweep-s2",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T16:27:37Z",
+      "summary": "S2: pre-registered 72-case sweep; one conservative false-out flip at r=0.01 alpha 8 coarse n; default lattice stable at every ratio; alpha-18 falsifier survives; S3 recommendation: keep Ruling 78 with a tip-chord-ratio floor r>=0.02 recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T16:10:32Z",
+      "done_when": "Evidence per exit item, proof pack committed, gates run",
+      "duration_seconds": 563.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/a3c-polar-source",
+        "pushed": null,
+        "sha": "c4eb466b83bced8d59204a320c4e26f8b938dad2",
+        "short": "c4eb466b8"
+      },
+      "goal": "Verify and close A3c-1 NeuralFoil polar source",
+      "id": "al-01M46D9GVMGM58NXTBVG84T3XY",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "A3c-1 NeuralFoil polar source (close-out)",
+      "session": "trk-a3c1",
+      "shortname": "trk-a3c1",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:01:09Z",
+      "summary": "Verified A3c-1 exit evidence; proof pack finished; stdio guard fixed; full ring red on one Core rule (Math.PI/180 site) needing a seam",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T16:15:39Z",
+      "done_when": "Placement rule green, full ring and gates pass",
+      "duration_seconds": 233.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/a3c-polar-source",
+        "pushed": null,
+        "sha": "8db50bc6c52f185ce0663146554def9af3b59796",
+        "short": "8db50bc6c"
+      },
+      "goal": "Close A3c-1 green",
+      "id": "al-01M46DJWA9E8KBAHZKA6GDEFSJ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "A3c-1 radians via the Analysis conversion",
+      "session": "trk-a3c1",
+      "shortname": "trk-a3c1",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:11:46Z",
+      "summary": "Alpha conversion uses VortexLattice.ToRadians; rebased; full ring, check-docs and 12 verify gates green",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T16:30:49Z",
+      "done_when": "Tests per condition green, full ring, check-docs, 12 gates pass",
+      "duration_seconds": 700.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/a3c-polar-source",
+        "pushed": null,
+        "sha": "03deb659c8c6cb5b825cf16c980dcdeea5e159be",
+        "short": "03deb659c"
+      },
+      "goal": "Clear the review conditions 1-5",
+      "id": "al-01M46EENJBXJ4BBPFEDPGJ7XH3",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "A3c-1 repair cycle 1 (numerical-verification review conditions)",
+      "session": "trk-a3c1",
+      "shortname": "trk-a3c1",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:19:09Z",
+      "summary": "Training-range envelope with bracket flags, advisory confidence, geometry-derived NACA 0012 family, end-to-end Python fixture, Sample doc truth, rebased red-first hashes",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M46EJ9B27MZHYE464DDDP1GK",
+      "shortname": "join-a3c-polar-source",
+      "datetime": "2026-10-05T16:32:48Z",
       "session": "4e90c621",
       "prompt": "the join of the resolved merge into main",
-      "summary": "S2: pre-registered 72-case sweep; one conservative false-out flip at r=0.01 alpha 8 coarse n; default lattice stable at every ratio; alpha-18 falsifier survives; S3 recommendation: keep Ruling 78 with a tip-chord-ratio floor r>=0.02 recount_seconds=0 (docs_only=True).",
+      "summary": "A3c-1: C# NeuralFoil xxxlarge behind IPolarSource, weights hash checked at load, wheel and notices gates in readiness, envelope refuses only outside training range and flags outside the validated bracket, advisory confidence, family from geometry, e2e CstFit fixture; CFD review conditions met; AnalysisChecks registration union with D1 recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -25437,7 +25548,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join tip-vlm-sweep-s2 into main (round-oct05)",
+      "goal": "join a3c-polar-source into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -25446,8 +25557,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-05T16:27:37Z",
-      "duration_seconds": 85.0
+      "started_at": "2026-10-05T16:31:51Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
@@ -26702,6 +26813,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M46E2WM0FZJ0703CNWB6MEM7",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M46EDDVQ26KGEJAG86RBRGEG",
+      "ts": "2026-10-05T16:30:09Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46EDDVK6VS255ZQ9XCVYN9Q",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46EDE69YAEA0SC11Q9QPTEW",
+      "ts": "2026-10-05T16:30:09Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46EDDVK6VS255ZQ9XCVYN9Q",
+      "session": "operator-timianmalloo"
     }
   ]
 };
