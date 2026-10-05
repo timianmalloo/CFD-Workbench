@@ -1706,7 +1706,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e20990cee165b9f126919da5f001ea55b4509a39dc36c68db7d68873e2a69069"
+      "sourceSha256": "4d6ccf04838c59e5f8ce0c4d0c2d44e9e1f85205a702e03fac807d7a675c47c4"
     },
     {
       "id": "note-backlog-2d-section-workbench",
@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "87ab336995c3a5078cdc51d37072492f4ae07701af43de9c4102282638f92e5f"
+      "sourceSha256": "7159af401051e3a6f784b7c8e0bdef0bfe747bde3522f795dc63aa0541281129"
     },
     {
       "id": "design-authoring-decisions",
@@ -3105,7 +3105,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "af148f3ea84849a163f297d2b24924c116519c335304a0d656297b68210a1233"
+      "sourceSha256": "2055ed8f07942a1533818b99b6821ab3bee9261a3fb70e5555bda11c824faa42"
     },
     {
       "id": "design-m12d-catalog",
@@ -3181,7 +3181,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e51b62efe7b2f33af4b7d635546251d66a4d190cd22bb8d674d63544f503d852"
+      "sourceSha256": "4cadd85cfb1381ed228f5c12bef2b62b18553976ec36b09e1c92ab6f9ff71c5f"
     },
     {
       "id": "design-planform-point-verbs",
@@ -6327,7 +6327,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "30254ba17add8324bb7191555a7ea892cb876cfd290b2e23f78ec608f84d6b5e"
+      "sourceSha256": "02b6e8637401c11c67361409ec09f845bea34c300a0b99206badf5d30c8a7e9a"
     },
     {
       "id": "kb-hw-glossary",
@@ -8065,6 +8065,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "08ff878ce4ea473d342dce59214849a1c29f0caa3deeaf78fb38e1e9f6a5eba4"
+    },
+    {
+      "id": "a3a-vlm3c-camber-normals",
+      "path": "docs/proof/a3a-vlm3/vlm3c-camber-normals.md",
+      "title": "VLM-3c control-point camber normal proof",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm3c",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "F-21 fails on corner normals and passes on control-point camber slope normals; the existing spanwise and flat-wing fixtures remain green.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "camber",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "tested-by"
+        },
+        {
+          "to": "note-area3-fixture-arithmetic",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "76fa1762e300218cec0ff3f7cc9d02a26f727eb703a76e5c25786b5d8af15f69"
     },
     {
       "id": "coordination-application-c-launch",
@@ -12312,5 +12342,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "bfc6af5f1428032ecbe4053b6296daad0f1a30adc20850775fc49936c38c8dc2"
+  "graphSha256": "07617eb77842ea60dfbc4a2a4fc7e623e37d7e7af63366e5e538013acb914312"
 };

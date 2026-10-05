@@ -49,7 +49,7 @@ internal enum LatticePlant
 
 /// <summary>
 /// Horseshoe vortices in each panel's local uncambered plane on both halves (design §5.2).
-/// Placed camber supplies panel normals; the frame supplies the vortex geometry. VLM owns the body.
+/// Control-point camber slope and twist supply normals; the frame supplies the elevated vortex geometry.
 /// </summary>
 public static class VortexLattice
 {
@@ -146,13 +146,23 @@ public static class VortexLattice
                     a = new Point3(rootBoundX, a.Y, a.Z);
                     b = new Point3(rootBoundX, b.Y, b.Z);
                 }
-                Vector3 normal = plant == LatticePlant.NormalFromLeadingEdge
+                Vector3 cornerNormal = plant == LatticePlant.NormalFromLeadingEdge
                     ? Cross(Sub(c01, c00), Sub(c11, c01))
                     : Cross(Sub(c11, c00), Sub(c10, c01));
-                double area = 0.5 * normal.Length;
+                double area = 0.5 * cornerNormal.Length;
                 if (area < minArea) minArea = area;
-                if (!(area > 1e-14) || !normal.IsFinite)
+                if (!(area > 1e-14) || !cornerNormal.IsFinite)
                     throw Fail(plant, "ANA-SOLVE-SINGULAR", "A panel has no area.");
+                double slope = CamberSlopeAt(mid, fc);
+                double twist = ToRadians(mid.Frame.TwistDegrees);
+                Point3 tangent = new(Math.Cos(twist) + Math.Sin(twist) * slope, 0,
+                    -Math.Sin(twist) + Math.Cos(twist) * slope);
+                // The bound segment retains the elevated local plane; the chord tangent reads the
+                // camber derivative at this panel's control point, rotated by the section twist.
+                Vector3 normal = plant == LatticePlant.NormalFromLeadingEdge
+                    ? cornerNormal : Cross(tangent, Sub(b, a));
+                if (!normal.IsFinite || !(normal.Length > 0))
+                    throw Fail(plant, "ANA-NONFINITE", "A panel normal is not finite.");
                 if (normal.Z < 0) normal = new Vector3(-normal.X, -normal.Y, -normal.Z);
                 normal = normal.Unit();
                 var farA = new Point3(a.X + wakeReach, a.Y, a.Z);
@@ -627,6 +637,19 @@ public static class VortexLattice
         double t = den == 0 ? 0 : (fraction - x[i]) / den;
         Point3 a = p[i], b = p[i + 1];
         return new Point3(a.X + t * (b.X - a.X), a.Y + t * (b.Y - a.Y), a.Z + t * (b.Z - a.Z));
+    }
+
+    private static double CamberSlopeAt(SectionSample section, double fraction)
+    {
+        IReadOnlyList<double> x = section.X;
+        IReadOnlyList<double> slope = section.CamberSlope;
+        if (fraction <= x[0]) return slope[0];
+        int last = x.Count - 1;
+        if (fraction >= x[last]) return slope[last];
+        int i = 0;
+        while (i + 1 < last && x[i + 1] < fraction) i++;
+        double t = (fraction - x[i]) / (x[i + 1] - x[i]);
+        return slope[i] + t * (slope[i + 1] - slope[i]);
     }
 
     private static double ChordOf(SectionSample section)

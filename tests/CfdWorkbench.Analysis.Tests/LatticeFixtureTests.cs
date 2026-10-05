@@ -312,13 +312,21 @@ internal static class LatticeFixtureTests
         Check("Readiness_EllipticQuarterChord_SweepZeroFine", ReadinessSweepFine);
     }
 
-    private static void F18() => FastNonplanar("camber", ParabolicCamber, 0);
+    private static void F18()
+    {
+        SolveNonplanar("camber", 32, ParabolicCamber, 0);
+        FastNonplanar("camber", ParabolicCamber, 0);
+    }
 
-    private static void F19() => FastNonplanar("washin", null, 1);
+    private static void F19()
+    {
+        SolveNonplanar("washin", 32, null, 1);
+        FastNonplanar("washin", null, 1);
+    }
 
     // Four cosine chord panels must read the tangent at each 3/4-panel control point.
-    // AR 40 leaves a finite-span correction; 0.25° allows 5.5% of the 2D angle while
-    // excluding the 1.20° secant-normal defect measured by the independent 2D probe.
+    // AR 40 leaves a 0.0096° finite-span offset measured against the independent 2D
+    // result. A 0.05° band allows five times that offset and excludes the 1.20° defect.
     private static void F21()
     {
         const double half = 20, chord = 1, area = 40;
@@ -333,8 +341,8 @@ internal static class LatticeFixtureTests
         double alphaL0 = -Math.Atan2(cl0 * Math.Sin(alpha5), cl5 - cl0 * Math.Cos(alpha5)) * 180 / Math.PI;
         Console.WriteLine("MEASURE F21 AR=40 nc=4 alphaL0=" + Num(alphaL0) + " CL0=" + Num(cl0) + " CL5=" + Num(cl5));
         const double thinAirfoil = -0.08 * 180 / Math.PI;
-        if (!(Math.Abs(alphaL0 - thinAirfoil) <= 0.25))
-            throw new InvalidOperationException("alpha_L0 " + Num(alphaL0) + " vs thin-airfoil " + Num(thinAirfoil) + " ±0.25°");
+        if (!(Math.Abs(alphaL0 - thinAirfoil) <= 0.05))
+            throw new InvalidOperationException("alpha_L0 " + Num(alphaL0) + " vs thin-airfoil " + Num(thinAirfoil) + " ±0.05°");
     }
 
     // Ruling 77 (2), fast half. n64 against n128: tip α_i within 0.1° and CL within 1% of n128.
@@ -625,7 +633,8 @@ internal static class LatticeFixtureTests
             if (camber is not null && chord > 0)
             {
                 double lo = Math.Max(0, f - 1e-6), hi = Math.Min(1, f + 1e-6);
-                slopes[i] = (camber(y, hi, chord) - camber(y, lo, chord)) / ((hi - lo) * chord);
+                slopes[i] = camber == ParabolicCamber ? 0.16 * (1 - 2 * f)
+                    : (camber(y, hi, chord) - camber(y, lo, chord)) / ((hi - lo) * chord);
             }
         }
         var frame = new StationFrame(eta, span, xLe, xLe + chord, z, twistDeg, 0);

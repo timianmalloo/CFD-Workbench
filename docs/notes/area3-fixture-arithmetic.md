@@ -243,3 +243,44 @@ The method identity changes from `cfdw.vlm-strip` 1.0.0 to 1.1.0. `RunKey_Pinned
 its explicit historical 1.0.0 input and pinned hash; it is a wire-format pin, not a pin on the current method
 record. Current runs use 1.1.0 in the key and prior 1.0.0 runs become Historical. The new geometry also changes
 numeric results for cambered and twisted wings, and the sweep verdict changes on straight-quarter-chord closing tips.
+
+## VLM-3c control-point camber slope (2026-10-04)
+
+The panel-corner cross product gave the panel-average camber slope. The corrected normal uses the interpolated
+`CamberSlope` at the control point, rotated by twist, with the elevated bound segment retaining dihedral. Panel
+corners still supply the area check. These are Release Analysis harness results on macOS arm64, .NET 10.0.203;
+`old` is the planted corner-normal predecessor and `new` the corrected code, each run with the same slope-bearing
+section fixture. Tip α_i is the outermost strip, CL uses the 0.5 m² reference area, and κ₁ is the recorded estimate.
+
+| Fixture | n/half | Tip α_i, ° old → new | CL old → new | κ₁ old → new |
+|---|---:|---:|---:|---:|
+| F-18 camber | 32 | 4.61277 → 4.91348 | 0.685038 → 0.781344 | 278.33 → 278.59 |
+| F-18 camber | 64 | 4.65839 → 4.95762 | 0.682516 → 0.778423 | 1103.01 → 1104.02 |
+| F-18 camber | 128 | 4.67838 → 4.97706 | 0.681238 → 0.776942 | 4391.56 → 4395.58 |
+| F-18 camber | 256 | 4.68770 → 4.98615 | 0.680594 → 0.776196 | 17525.72 → 17541.79 |
+| F-19 washin | 32 | 2.35395 → 2.35395 | 0.438815 → 0.438815 | 278.40 → 278.40 |
+| F-19 washin | 64 | 2.36596 → 2.36596 | 0.437050 → 0.437050 | 1103.26 → 1103.26 |
+| F-19 washin | 128 | 2.37138 → 2.37138 | 0.436156 → 0.436156 | 4392.56 → 4392.56 |
+| F-19 washin | 256 | 2.37395 → 2.37395 | 0.435707 → 0.435707 | 17529.72 → 17529.70 |
+
+F-18 n64→n128 differs by 0.01944° in tip α_i and 0.191% in CL. F-19 differs by 0.00542° and 0.205%.
+Both meet the 0.1° and 1% spanwise conditions. The flat n64 κ₁ is 1103.37. F-19's minute κ₁ change is
+floating-point arithmetic from a mathematically equivalent flat-camber slope and twist normal.
+
+| Other check | Corner normals (old) | Control-point slope normals (new) |
+|---|---:|---:|
+| F-4 curved mirror wing CL | 0.56362320 | 0.60452365 |
+| F-4 curved mirror wing e | 1.03896148 | 1.04244041 |
+| F-6 elliptic CL n32/64/128 | 0.42061593 / 0.41906892 / 0.41833190 | unchanged to printed digits |
+| F-6 observed p(CL), p(e) | 1.06969065, 1.01270059 | unchanged to printed digits |
+| F-20 straight quarter-chord max sweep n16/32/64 | 0° / 0° / 0° | 0° / 0° / 0° |
+
+For F-21, `z/c = 0.16 f(1−f)` has thin-airfoil zero-lift angle −0.08 rad = −4.583662°.
+The independent 2D discrete-vortex check found exactly that value at four cosine chord panels with control-point
+slope, versus about −3.38° with secants. The AR 40 lattice at four cosine chord panels measured −3.392477° with
+corner normals and **−4.593225°** with control-point slope; the latter is 0.009563° from the 2D target.
+F-21's ±0.05° tolerance is five times that measured finite-span offset and excludes the 1.191° mutant gap.
+It took 3.392 ms in the isolated corrected run (ring A). The planted corner-normal mutant prints `FAIL`.
+
+The method remains `cfdw.vlm-strip` **1.1.0**, which has not shipped. The earlier VLM-3 table remains the
+local-plane repair history, not the current camber-normal values.

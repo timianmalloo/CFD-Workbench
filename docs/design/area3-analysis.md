@@ -306,16 +306,19 @@ Section results are per span: N/m, lowercase Cl, Cd (A5.6).
 - **Lattice.** Horseshoe vortices in each panel's own local uncambered plane, both halves (full span): bound segment at
   the panel quarter chord, control point at three-quarter chord, no-penetration (V∞ + v)·n = 0; trailing legs to
   `wakeSpans` spans along +x (the wake direction is a setting). Each panel's plane follows its frame elevation, so
-  dihedral remains in the bound segment and wake legs. The placed camber surface (`PlacedCamber`) supplies panel normals
-  and carries camber and twist (AVL convention); horseshoe points do not leave that local plane. Panel normals come
-  from the cross product of the placed panel diagonals, never from an edge (a closing tip panel is a triangle with
-  real area). Strip sweep reads the line through each side's quarter-chord point, not a chordwise panel's bound line.
+  dihedral remains in the bound segment and wake legs. The placed camber surface (`PlacedCamber`) supplies panel area;
+  `CamberSlope` and frame twist supply the normal (AVL convention). Horseshoe points stay in that local plane. Each normal uses
+  `CamberSlope` interpolated at that panel's three-quarter-chord control point, rotated by the mid-section twist,
+  and crossed with the elevated bound segment. The placed panel diagonals still measure area and reject a closing
+  tip panel with zero area. Strip sweep reads the line through each side's quarter-chord point, not a chordwise panel's bound line.
   A strip is excluded only when its control-point chord is below 10 µm, and the exclusion is listed. Spacing laws
   and counts: DR-ANA-7.
 
 Before F-18 passed on the repaired lattice, Ruling 76's default-lattice verified label had evidence only for flat
 wings. It was not a verified claim for cambered or twisted wings. F-18 and F-19 now cover the two named rectangular
-non-planar cases at the default 64 × 4 cosine/cosine lattice; the label still has the default-lattice boundary.
+non-planar cases at the default 64 × 4 cosine/cosine lattice; F-21 supplies the chordwise camber check. Until F-21
+passes, cambered wings are **spanwise-converged; chordwise camber not verified**. The verified label still has the
+default-lattice boundary.
 The outermost tip-strip envelope verdict remains provisional until Ruling 75's η* law is built and checked on this
 repaired lattice (Ruling 77); this repair does not implement that law.
 
@@ -647,9 +650,10 @@ mutant** (§13.2 column), not only a stub — a constant or zero stub satisfies 
 | F-15 | induced angle (CFD lens) | **Rev (review 2026-10-04).** α_i/(CL/(π AR)) at η 0, 0.5, 0.8, 0.9 on F-6's lattices: observed order 1 ± 0.2 at each station and Richardson within 0.5 % of the independent reference **1.02743, 1.01678, 0.96735, 0.88407** ([note](../notes/area3-fixture-arithmetic.md) §Repair); the 32-span profile within 0.5 % of the reference; α_i even in y within 10⁻¹⁰. Old: "uniform within 1 % and equal to CL/(π AR)" is the lifting-line result — the lattice is a lifting surface and its α_i converges (p ≈ 1, with y- and θ-midpoint w_T alike) to a non-uniform profile; the build's Γ·Δy-weighted mean equals CDi/CL by construction and repeated F-2's e | α_i from the total control-point velocity (→ 5.25 at the root); **w_T assigned to the neighbouring strip** (→ 0.9200 vs 0.93735 at η 0.8) | ring 0 · shares F-6's solves + two 256-unknown solves |
 | F-16 | swept (Bertin–Smith) | AR 5, Λ_c/4 45°, 4 panels per half, 1 chordwise: C_Lα 3.443 /rad ± 0.5 % (CFD re-run 3.4440) | sweep ignored in the bound-vortex placement | ring 0 · µs (8 unknowns) |
 | F-17 | own-code golden master | Example foil, default settings: outputs equal a committed vector within 10⁻¹² rel with platform, runtime and commit provenance; the same vector on Windows when it resumes | any numeric change without a version bump | ring 0 · est. 0.1 s (one 512-unknown solve) |
-| F-18 | rectangular AR 8, 4 % parabolic camber, α 5°, default cosine/cosine 64 × 4; n32/64/128/256 study | tip α_i n64 4.658° vs n128 4.678° (≤ 0.1°); CL 0.68252 vs 0.68124 (≤ 1 %); κ₁ n64 1,103.0 ≤ 10 × flat 1,103.37; backward error ≤ 10⁻¹⁰ at all four n by the fail-closed solver. Old n64: tip −2.34 × 10⁶°, CL 0.62053, κ₁ 11,789; n256 raw residual 1.07 × 10⁻⁷. [Study](../proof/vlm-tip-study/verdict.md) | horseshoes returned to the camber-surface bound/control points → n64 tip −2.34 × 10⁶°, red | ring 0 · measured 2.8–5.3 s |
+| F-18 | rectangular AR 8, 4 % parabolic camber, α 5°, default cosine/cosine 64 × 4; n32/64/128/256 study | control-point slope normals: tip α_i n64 4.958° vs n128 4.977° (≤ 0.1°); CL 0.77842 vs 0.77694 (≤ 1 %); κ₁ n64 1,104.0 ≤ 10 × flat 1,103.37; backward error ≤ 10⁻¹⁰ at all four n by the fail-closed solver. Panel-average predecessor n64: 4.658°, CL 0.68252. [Study](../proof/vlm-tip-study/verdict.md) | horseshoes returned to the camber-surface bound/control points → n64 tip −3.52 × 10⁶°, red | ring 0 · 313 ms fast, 4.94 s n256 measured in VLM-3c |
 | F-19 | rectangular AR 8, 1° linear washin, α 5°, same lattice and four n | tip α_i n64 2.366° vs n128 2.371° (≤ 0.1°); CL 0.43705 vs 0.43616 (≤ 1 %); κ₁ n64 1,103.3 ≤ 10 × flat 1,103.37; backward error ≤ 10⁻¹⁰ by the fail-closed solver; n256 solves without `ANA-SOLVE-SINGULAR`. Old n64 tip 725° | horseshoes returned to twisted bound/control points → n64 tip 725°, red | ring 0 · measured 2.6–3.5 s |
 | F-20 | elliptic AR 8, straight quarter-chord, n16/32/64/128/256, 4 cosine chord panels | every strip's quarter-chord sweep ≈ 0° (observed exactly 0); F-16's swept lift-slope oracle stays unchanged | sweep from front chordwise panel's bound line → maximum 54.1/70.1/79.8/84.8/87.4°, red | ring 0 · measured 6.6 s |
+| F-21 | 4 % parabolic camber, rectangular AR 40, 16 cosine span panels per half, default 4 cosine chord panels; two incidence solves locate α_L0 | α_L0 = −4.584° thin-airfoil target ± 0.05°; measured −4.59322° (0.00956° finite-span offset). The band is five times that measured offset and far below the 1.19° corner-normal defect. This is the chordwise camber evidence for the default lattice | restore panel-corner diagonal normals → −3.39248°, red | ring 0 / A · 3.392 ms measured alone |
 | — | Warren-12 | admitted only after its reference numbers are re-established (07 open question 3) | — | not in v1 |
 
 ### 13.3 Domain, persistence and UI tests — each named, with its failing input, ring and cost
@@ -1146,6 +1150,7 @@ are marked ✚.
 | `F18_Camber4_DefaultLatticeTipConverges` (VLM) | A | 447 ms measured alone | §13.2 F-18 |
 | `F19_Washin1_DefaultLatticeTipConverges` (VLM) | A | 384 ms measured alone | §13.2 F-19 |
 | `F20_EllipticStraightQuarterChord_SweepZero` (VLM) | A | 220 ms measured alone | §13.2 F-20 |
+| `F21_ParabolicCamber_ZeroLiftAngleThinAirfoil` (VLM) | A | 3.392 ms measured alone | §13.2 F-21 (corner normals) |
 | `Readiness_Camber4_N256Point` (VLM) | R | 2.427 s measured | §13.2 F-18 |
 | `Readiness_Washin1_N256Solves` (VLM) | R | 2.254 s measured | §13.2 F-19 |
 | `Readiness_EllipticQuarterChord_SweepZeroFine` (VLM) | R | 2.575 s measured | §13.2 F-20 |
