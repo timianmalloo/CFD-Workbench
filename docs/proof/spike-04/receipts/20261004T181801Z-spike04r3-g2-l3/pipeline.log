@@ -1,0 +1,20 @@
+after.sh: start 2026-10-04T18:18:01Z: cases/tools/run-tmr-case.sh cases/spike04r3-g2-l3.yaml <SCRATCH>/tmr/grids
+grid=n0012familyII.3.p2dfmt.gz sha256=23db6ddbf6de258a0921f5870482d56e70e604ed2dc795902c038b7b3fd606e1 dims=1793x513 te_lower_i=384 te_upper_i=1408 airfoil_points=1025
+points=1838848 cells=917504 faces=3671936 internal=1833088 airfoil_faces=1024 farfield_faces=2816
+first_wall_spacing_min=4.056e-07
+freestream U=(0.984807753012 0.173648177667 0) nu=1.66667e-07 nuTilda=5e-07 nut=3.5073e-08
+launcher-record: init files=16 manifest=8257c176ce7c record=runs/.launcher/2dde0a14027020da972b
+status=0 wall_s=5 peak_rss_bytes=2224242688 banner=Disallowing log=runs/20261004T181801Z-spike04r3-g2-l3/log.checkMesh
+status=0 wall_s=3 peak_rss_bytes=746209280 banner=Disallowing log=runs/20261004T181801Z-spike04r3-g2-l3/log.decomposePar
+status=0 wall_s=36038 peak_rss_bytes=400408576 banner=Disallowing log=runs/20261004T181801Z-spike04r3-g2-l3/log.simpleFoam
+status=0 wall_s=2 peak_rss_bytes=1162575872 banner=Disallowing log=runs/20261004T181801Z-spike04r3-g2-l3/log.reconstructPar
+iterations=41005 A4=NOT MET
+clauses 1_residual_drop=pass 2_stationarity=fail 3_clean_window=pass
+residual_ratio_last2_over_first Ux=7.579e-09 Uy=4.600e-09 nuTilda=2.722e-08 p=1.927e-10
+window iterations 39006..41005 (W=2000)
+Cl_window_mean=1.080534951 Cl_U_I=9.807e-05 cap=1.0e-05 Cl_last=1.080437439
+Cd_window_mean=0.012320234 Cd_U_I=3.938e-06 cap=1.0e-06 Cd_last=0.012316488
+bounding_nuTilda_iterations_in_window=0
+stopped_by_A4=wall cap 36000 s reached at iteration 41003 (A4 first met: None); SIGUSR1 sent to pids 93799 93800 93801 93802 93803 93804 at 2026-10-04T22:14:59-0700
+run=runs/20261004T181801Z-spike04r3-g2-l3
+after.sh: exit 0 2026-10-05T05:15:05Z

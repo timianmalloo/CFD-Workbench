@@ -1,0 +1,18 @@
+grid=n0012familyII.6.p2dfmt.gz sha256=5664336523cb02c8410c4f9dc67eccdfa79b34ea9549b712c0d9fd988aff3244 dims=225x65 te_lower_i=48 te_upper_i=176 airfoil_points=129
+points=29152 cells=14336 faces=57584 internal=28432 airfoil_faces=128 farfield_faces=352
+first_wall_spacing_min=3.706e-06
+freestream U=(0.984807753012 0.173648177667 0) nu=1.66667e-07 nuTilda=5e-07 nut=3.5073e-08
+launcher-record: init files=16 manifest=0aacab97b929 record=runs/.launcher/9da3f6e5273943847ddc
+status=0 wall_s=1 peak_rss_bytes=83034112 banner=Disallowing log=runs/20261004T175236Z-spike04r3-g0-l6/log.checkMesh
+status=0 wall_s=1 peak_rss_bytes=66977792 banner=Disallowing log=runs/20261004T175236Z-spike04r3-g0-l6/log.decomposePar
+status=0 wall_s=39 peak_rss_bytes=116604928 banner=Disallowing log=runs/20261004T175236Z-spike04r3-g0-l6/log.simpleFoam
+status=0 wall_s=1 peak_rss_bytes=68452352 banner=Disallowing log=runs/20261004T175236Z-spike04r3-g0-l6/log.reconstructPar
+iterations=6545 A4=MET
+clauses 1_residual_drop=pass 2_stationarity=pass 3_clean_window=pass
+residual_ratio_last2_over_first Ux=5.704e-10 Uy=1.491e-08 nuTilda=5.002e-09 p=1.686e-08
+window iterations 4546..6545 (W=2000)
+Cl_window_mean=1.051600898 Cl_U_I=7.925e-06 cap=1.0e-05 Cl_last=1.051594155
+Cd_window_mean=0.014812212 Cd_U_I=3.314e-07 cap=1.0e-06 Cd_last=0.014811940
+bounding_nuTilda_iterations_in_window=0
+stopped_by_A4=A4 met at iteration 6540; SIGUSR1 sent to pids 63637 63638 at 2026-10-04T11:10:22-0700
+run=runs/20261004T175236Z-spike04r3-g0-l6

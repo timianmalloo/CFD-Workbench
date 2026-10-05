@@ -10,7 +10,7 @@ yaml="$1"; np="$2"; screen="${3:-}"
 here="$(cd "$(dirname "$0")" && pwd)"
 of="$here/of-run.sh"
 rec="$here/launcher-record.py"
-join_lock="${CFDW_JOIN_LOCK:-/private/tmp/claude-501/-Users-mallalieut-projects-CFD-Workbench/f19a2b12-f8df-4dcc-bc84-7353cfbcda0f/scratchpad/join.lock}"
+join_lock="${CFDW_JOIN_LOCK:-$(git -C "$(dirname "$0")" rev-parse --path-format=absolute --git-common-dir)/coord/join.lock}"
 name=$(basename "$yaml" .yaml)
 grep -q '^run_dir: PENDING$' "$yaml" || { echo "refusing: $yaml already names a run" >&2; exit 2; }
 run="runs/$(date -u +%Y%m%dT%H%M%SZ)-$name"

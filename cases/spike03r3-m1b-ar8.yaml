@@ -1,0 +1,121 @@
+name: spike03r3-m1b-ar8
+description: >-
+  SPIKE-03 round 3, run R3-M1b, the last mesh repair (plan docs/plans/fluids-round3.md §2.4 stop rule; Ruling 68).
+  Measured before this run: M0 (4 arc segments, triangles about 0.2 x 1.5 mm on the arc strip) had 677 TE faces > 70
+  deg, median wall distance 83 um (low in the stack); M1a (K1: 0.1 mm isotropic at the TE) had 69,892 TE faces > 70
+  deg, median wall distance 1.35 mm (top of the stack), max 106.7 deg, 4 negative-volume cells. Reading (Inferred):
+  around the TE arc (r 0.25 mm) the 1.49 mm stack spreads each prism column (r + H)/r = 7.0 times around the arc and
+  not at all along the span, so a column that is isotropic at the wall is 7:1 at the top and one that is 7.5:1 at
+  the wall (M0) is isotropic at the top. A right-split a x b cell pair has non-orthogonality acos(2ab/(a^2+b^2)), which
+  passes 70 deg above 5.7:1. Knob K1' (stated before the run): the two TE arc strip surfaces made transfinite, 4
+  segments per quarter arc (0.098 mm) by 1,846 spanwise segments (0.26 mm, the geometric mean sqrt(7.0) = 2.64 of the
+  arc cell), so the column is 2.6:1 at the wall and 2.6:1 the other way at the top (about 48 deg); the K1 size field
+  at 0.26 mm within 0.3 mm of the TE curves, graded to 1.5 mm at 3.6 mm. The second cluster's knob (tip) is not
+  added: K2 is not built (its out-of-support behaviour is Flagged) and K4 (DR-F3-5) applies only after K2 fails.
+  Reading stated before the run: TE mechanism supported if TE-flag faces > 70 deg fall below 68 (10 % of M0's 677);
+  the gate is expected to fail on the tip cluster (M0: 173 tip-flag faces). Gate DR-F3-1 A; no y+ screen.
+purpose:
+  spike: SPIKE-03
+  stage: 1
+  round: 3
+  run_id: R3-M1b (repair 1 of 1 after M1a; last mesh cycle)
+  question: Does a structured TE arc strip sized by the fan ratio (0.098 mm around the arc x 0.26 mm along the span) clear the TE cluster that M0 had at the wall and M1a at the stack top?
+geometry:
+  airfoil: naca0012
+  chord: 0.12
+  span: 0.96
+  half_span: 0.48
+  aspect_ratio: 8.0
+  twist_deg: [0.0, 0.0]
+  te_thickness_m: 0.0005
+  te_method: >-
+    thicken, as M-1 (linear ramp x t_TE / c; S_ref unchanged), but the TE base is a half circle of diameter
+    t_TE (radius 0.25 mm; analysis chord c + 0.25 mm, +0.21 %), the treatment in Gmsh's own example
+    examples/api/naca_boundary_layer_3d.py; snappy's M-1 case has a flat base. Same assume: on 0.5 mm as M-1.
+  tip: round
+  tip_method: the tip section curves revolved 2 x 90 deg about the chord line at the half span (as the Gmsh example)
+  label: TE blunted for analysis; fully turbulent; transition not modelled
+  source:
+    kind: built-planform
+    path: wing.msh
+    sha256: c5fbe13f345581a8cb5ea4552805b1e3ad3325a58cc10dcb3638df7c1805d4b6
+    generator: cases/tools/mesh-gate-r3.sh cases/spike03r3-m1b-ar8.yaml 6 (make-wing-gmsh.py, Gmsh 4.15.2 Homebrew, /opt/homebrew/Cellar/gmsh/4.15.2)
+    deviation: >-
+      As M-1, plus: Gmsh frame (x chord, y thickness, z span, root on z = 0), round TE base instead of flat; the msh
+      sha256 is recorded in the run's generator.txt (Gmsh's HXT tetrahedral core is not asserted bitwise repeatable).
+conditions:
+  reynolds: 600000
+  mach: 0.0
+  alpha: 4.0
+  speed_m_s: 5.0
+  reference_length_m: 0.12
+solver: openfoam
+backend:
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  binary_sha256:
+    simpleFoam: a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296
+    gmshToFoam: c722aa805e83c47275ff3c8583fbdb68bda78f2ba359a4c658b7bbca412d21b3
+  activation: >-
+    Gmsh: its own process (nice 10, same load / join-lock wait). OpenFOAM: cases/tools/of-run.sh (env -i allow-list,
+    product HOME + FOAM_CONTROLDICT from cases/tools/foam-bundle, launcher record, lint, pre-flight, argv launch)
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: gmsh
+  target_y_plus: 1
+  first_cell_height_m: 8.0e-6
+  layers: { n: 20, expansion_ratio: 1.2 }
+  gate:
+    max_non_orthogonality_deg: 70
+    max_skewness: 4
+    min_cell_determinant: 0.001
+    min_layers_95pct: 20
+    min_layers_100pct: 10
+    y_plus_p95_max: 1
+    y_plus_max: 2
+  settings:
+    domain_m: { x: [-1.2, 2.64], thickness: [-1.2, 1.2], span_beyond_tip: 0.96 }
+    lc_le_m: 0.0015
+    lc_mid_m: 0.0015
+    lc_te_m: 0.0015
+    lc_near_m: 0.0015
+    near_dist_m: 0.002
+    far_dist_m: 0.4
+    lc_far_m: 0.12
+    gmsh_threads: 6
+    algorithm_3d_id: 1
+    algorithm_3d: Delaunay (1)
+    symmetry_tolerance_m: 1.0e-4
+    symmetry_patch_type: symmetry
+    write_format: ascii
+    write_precision: 12
+    te_strip: { arc_segments_per_quarter: 4, span_size_m: 2.6e-4, arrangement: Left }
+    te_refine: { size_m: 2.6e-4, dist_min_m: 3.0e-4, dist_max_m: 3.6e-3, sampling: 5000 }
+physics:
+  application: simpleFoam
+  flow: incompressible-steady
+  turbulence_model: SpalartAllmaras
+  wall_treatment: wall-resolved (nuTilda = 0, nut = 0 at the wall); W3
+  transition: none (fully turbulent; transition not modelled)
+  fluid: { name: "fresh water 20 C (nu rounded; ITTC Rev 03 = 1.0034e-6)", nu_m2_s: 1.0e-6, rho_kg_m3: 998.2 }
+  freestream: { U_m_s: 5.0, nuTilda_over_nu: 3.0 }
+boundary_conditions:
+  farfield: freestreamVelocity / freestreamPressure; nuTilda inletOutlet 3 nu
+  symmetry: symmetry (z = 0, wing root, incl. the layer side faces there; the layer extrusion leaves them up to 1.5e-5 m off-plane)
+  wing: noSlip; nuTilda 0; nut 0
+numerics:
+  schemes: { div_U: bounded Gauss linearUpwindV grad(U), div_nuTilda: bounded Gauss limitedLinear 1, laplacian: Gauss linear limited corrected 0.5 }
+  max_iterations: 500
+  residual_criterion: >-
+    none: the 500-iteration solve is a y+ screen (M-2y), not a convergence claim; the DR-F2-3 y+ gate needs an
+    A4-stationary field.
+decomposition: { method: scotch, n_subdomains: 6, nice: 10, max_load_1min: 10 }
+outputs_expected:
+  - generator.txt (layer prisms vs 20 x wing faces, TE arc segments, msh sha256), log.gmshToFoam, log.checkMesh (gate, sets, fields), log.postProcess-C
+  - log.locate (DR-F3-1 A gate; region of every bad face and cell; determinant split by layer and core)
+  - time.<log> (peak RSS), time.gmsh
+run_dir: runs/20261004T181030Z-spike03r3-m1b-ar8

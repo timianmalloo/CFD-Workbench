@@ -119,27 +119,75 @@ if mode == "report":
     print("stopped_by_A4=" + (open(stop).read().strip() if os.path.exists(stop) else "no (ran to max_iterations or failed)"))
     sys.exit(0)
 
+# Round 3 (plan docs/plans/fluids-round3.md §3.3): optional numerics.a4.clause5_extension. Once A4 holds, the same
+# run continues (no setting changed) until clause 5 holds against the coarser grid of its pair, U_I <= ratio x |mean -
+# coarser mean| with the coarser U_I included, and any absolute target caps hold (the middle grid, whose finer
+# neighbour is not run yet), or until extend_cap_iterations past the first A4 iteration.
+c5 = a4.get("clause5_extension")
+a4_first = None
+
+
+def clause5(r):
+    if not c5:
+        return True, ""
+    ok, parts = True, []
+    w = r["window"]
+    ref = c5.get("coarser")
+    for q in ("Cl", "Cd"):
+        if ref:
+            eps = abs(w[q]["mean"] - float(ref[q.lower()]))
+            bound = float(a4["gci_admission_ratio"]) * eps
+            ui = max(w[q]["U_I"], float(ref[f"{q.lower()}_U_I"]))
+            ok &= ui <= bound
+            parts.append(f"{q} max U_I {ui:.2e} vs {bound:.2e} (|eps| {eps:.3e})")
+        tgt = (c5.get("target_caps") or {}).get(q.lower())
+        if tgt is not None:
+            ok &= w[q]["U_I"] <= float(tgt)
+            parts.append(f"{q} U_I {w[q]['U_I']:.2e} vs target {float(tgt):.1e}")
+    return ok, "; ".join(parts)
+
+
 # watch
 abs_run = os.path.abspath(run)
 pattern = rf"^([^ ]*/)?{solver} -parallel -case {re.escape(abs_run)}$"
 next_check = poll
-started = time.time()
+started = time.time()  # reset when the solver is first seen: of-run may wait for load or the join lock first
+seen = False
 while True:
     time.sleep(5)
     pids = subprocess.run(["pgrep", "-f", pattern], capture_output=True, text=True).stdout.split()
     hs, rs = table("solverInfo1/0/solverInfo.dat")
     n = len(rs)
-    if not pids and time.time() - started > 120:
+    if pids and not seen:
+        seen, started = True, time.time()
+        print(f"a4-monitor: solver seen at {time.strftime('%H:%M:%S')}", flush=True)
+    # gone: seen once and now absent, or never seen within of-run's own 60-min wait limit (+5 min)
+    if not pids and ((seen and time.time() - started > 120) or (not seen and time.time() - started > 3900)):
         print(f"a4-monitor: solver gone at {n} iterations; exiting", flush=True)
         break
     if n >= next_check:
         next_check = (n // poll + 1) * poll
         r = evaluate()
         print(f"a4-monitor: {time.strftime('%H:%M:%S')} " + fmt(r).replace("\n", " | "), flush=True)
-        if r["ok"] and pids:
+        if r["ok"] and a4_first is None:
+            a4_first = n
+            print(f"a4-monitor: A4 first met at {n}", flush=True)
+        why = None
+        wall_cap = a4.get("wall_cap_s")  # round 3 (DR-F3-3 L3 cap): stop and write at the wall cap, A4 or not
+        if wall_cap and time.time() - started > float(wall_cap):
+            why = f"wall cap {float(wall_cap):.0f} s reached at iteration {n} (A4 first met: {a4_first})"
+        elif a4_first is not None:
+            c5_ok, c5_text = clause5(r)
+            if c5_ok:
+                why = f"A4 met at iteration {a4_first}; clause-5 extension: {c5_text} at {n}" if c5 else f"A4 met at iteration {n}"
+            elif n >= a4_first + c5["extend_cap_iterations"]:
+                why = f"A4 met at iteration {a4_first}; clause-5 extension cap +{c5['extend_cap_iterations']} reached at {n} without it ({c5_text})"
+            else:
+                print(f"a4-monitor: extending ({c5_text})", flush=True)
+        if why and pids:
             with open(os.path.join(run, "a4-stop.txt"), "w") as f:
-                f.write(f"A4 met at iteration {n}; SIGUSR1 sent to pids {' '.join(pids)} at {time.strftime('%Y-%m-%dT%H:%M:%S%z')}\n")
+                f.write(f"{why}; SIGUSR1 sent to pids {' '.join(pids)} at {time.strftime('%Y-%m-%dT%H:%M:%S%z')}\n")
             for p in pids:
                 os.kill(int(p), signal.SIGUSR1)
-            print(f"a4-monitor: A4 met at {n}; SIGUSR1 -> {pids}", flush=True)
+            print(f"a4-monitor: {why}; SIGUSR1 -> {pids}", flush=True)
             break

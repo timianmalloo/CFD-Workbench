@@ -1,0 +1,118 @@
+of-run: wait 2026-10-04T18:19:08Z load 24.27 > 10
+of-run: wait 2026-10-04T18:19:38Z load 30.48 > 10
+of-run: wait 2026-10-04T18:20:08Z load 33.97 > 10
+of-run: wait 2026-10-04T18:20:38Z load 25.19 > 10
+of-run: wait 2026-10-04T18:21:08Z load 19.45 > 10
+of-run: wait 2026-10-04T18:21:38Z load 14.73 > 10
+of-run: wait 2026-10-04T18:22:08Z load 12.36 > 10
+of-run: wait 2026-10-04T18:22:38Z load 10.13 > 10
+of-run: wait 2026-10-04T18:23:08Z load 10.03 > 10
+of-run: wait 2026-10-04T18:23:38Z load 27.00 > 10
+of-run: wait 2026-10-04T18:24:08Z load 52.63 > 10
+of-run: wait 2026-10-04T18:24:38Z load 60.65 > 10
+of-run: wait 2026-10-04T18:25:08Z load 54.00 > 10
+of-run: wait 2026-10-04T18:25:38Z load 39.32 > 10
+of-run: wait 2026-10-04T18:26:08Z load 55.41 > 10
+of-run: wait 2026-10-04T18:26:38Z load 61.76 > 10
+of-run: wait 2026-10-04T18:27:08Z load 49.19 > 10
+of-run: wait 2026-10-04T18:27:38Z load 35.05 > 10
+of-run: wait 2026-10-04T18:28:08Z join lock present
+of-run: wait 2026-10-04T18:28:38Z join lock present
+of-run: wait 2026-10-04T18:29:08Z join lock present
+of-run: wait 2026-10-04T18:29:39Z join lock present
+of-run: wait 2026-10-04T18:30:09Z join lock present
+of-run: wait 2026-10-04T18:30:39Z join lock present
+of-run: wait 2026-10-04T18:31:09Z join lock present
+of-run: wait 2026-10-04T18:31:39Z join lock present
+of-run: wait 2026-10-04T18:32:09Z join lock present
+of-run: wait 2026-10-04T18:32:39Z join lock present
+of-run: wait 2026-10-04T18:33:09Z join lock present
+of-run: wait 2026-10-04T18:33:39Z join lock present
+of-run: wait 2026-10-04T18:34:09Z join lock present
+of-run: wait 2026-10-04T18:34:39Z join lock present
+of-run: wait 2026-10-04T18:35:09Z join lock present
+of-run: wait 2026-10-04T18:35:39Z join lock present
+of-run: wait 2026-10-04T18:36:09Z join lock present
+of-run: wait 2026-10-04T18:36:39Z join lock present
+of-run: wait 2026-10-04T18:37:09Z join lock present
+of-run: wait 2026-10-04T18:37:39Z join lock present
+of-run: wait 2026-10-04T18:38:09Z join lock present
+of-run: wait 2026-10-04T18:38:39Z join lock present
+of-run: wait 2026-10-04T18:39:09Z join lock present
+of-run: wait 2026-10-04T18:39:39Z join lock present
+of-run: wait 2026-10-04T18:40:09Z join lock present
+of-run: wait 2026-10-04T18:40:39Z join lock present
+of-run: wait 2026-10-04T18:41:09Z join lock present
+of-run: wait 2026-10-04T18:41:39Z join lock present
+of-run: wait 2026-10-04T18:42:09Z join lock present
+of-run: wait 2026-10-04T18:42:39Z join lock present
+of-run: wait 2026-10-04T18:43:09Z join lock present
+of-run: wait 2026-10-04T18:43:39Z join lock present
+of-run: wait 2026-10-04T18:44:09Z join lock present
+of-run: wait 2026-10-04T18:44:39Z join lock present
+of-run: wait 2026-10-04T18:45:10Z join lock present
+of-run: wait 2026-10-04T18:45:40Z join lock present
+of-run: wait 2026-10-04T18:46:10Z join lock present
+of-run: wait 2026-10-04T18:46:40Z join lock present
+of-run: wait 2026-10-04T18:47:10Z join lock present
+of-run: wait 2026-10-04T18:47:40Z join lock present
+of-run: wait 2026-10-04T18:48:10Z join lock present
+of-run: wait 2026-10-04T18:48:40Z join lock present
+of-run: wait 2026-10-04T18:49:10Z join lock present
+of-run: wait 2026-10-04T18:49:40Z join lock present
+of-run: wait 2026-10-04T18:50:10Z join lock present
+of-run: wait 2026-10-04T18:50:40Z join lock present
+of-run: wait 2026-10-04T18:51:10Z join lock present
+of-run: wait 2026-10-04T18:51:40Z join lock present
+of-run: wait 2026-10-04T18:52:10Z join lock present
+of-run: wait 2026-10-04T18:52:40Z join lock present
+of-run: wait 2026-10-04T18:53:10Z join lock present
+of-run: wait 2026-10-04T18:53:40Z join lock present
+of-run: wait 2026-10-04T18:54:10Z join lock present
+of-run: wait 2026-10-04T18:54:40Z join lock present
+of-run: wait 2026-10-04T18:55:10Z join lock present
+of-run: wait 2026-10-04T18:55:40Z join lock present
+of-run: wait 2026-10-04T18:56:10Z join lock present
+of-run: wait 2026-10-04T18:56:40Z join lock present
+of-run: wait 2026-10-04T18:57:10Z join lock present
+of-run: wait 2026-10-04T18:57:40Z join lock present
+of-run: wait 2026-10-04T18:58:10Z join lock present
+of-run: wait 2026-10-04T18:58:40Z join lock present
+of-run: wait 2026-10-04T18:59:10Z join lock present
+of-run: wait 2026-10-04T18:59:40Z join lock present
+of-run: wait 2026-10-04T19:00:10Z join lock present
+of-run: wait 2026-10-04T19:00:40Z join lock present
+of-run: wait 2026-10-04T19:01:10Z join lock present
+of-run: wait 2026-10-04T19:01:40Z join lock present
+of-run: wait 2026-10-04T19:02:10Z join lock present
+of-run: wait 2026-10-04T19:02:40Z join lock present
+of-run: wait 2026-10-04T19:03:10Z join lock present
+of-run: wait 2026-10-04T19:03:40Z join lock present
+of-run: wait 2026-10-04T19:04:10Z join lock present
+of-run: wait 2026-10-04T19:04:41Z join lock present
+of-run: wait 2026-10-04T19:05:11Z join lock present
+of-run: wait 2026-10-04T19:05:41Z join lock present
+of-run: wait 2026-10-04T19:06:11Z load 14.30 > 10
+of-run: wait 2026-10-04T19:06:41Z load 13.02 > 10
+of-run: wait 2026-10-04T19:07:11Z load 11.26 > 10
+of-run: start 2026-10-04T19:07:41Z load1=8.05 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh
+of-run: end status=0 wall_s=5 load1=8.05 peak_rss_bytes=2224242688 banner=Disallowing cmd=checkMesh
+of-run: wait 2026-10-04T19:07:46Z load 11.33 > 10
+of-run: wait 2026-10-04T19:08:16Z load 19.84 > 10
+of-run: wait 2026-10-04T19:08:46Z load 17.10 > 10
+of-run: wait 2026-10-04T19:09:16Z load 18.95 > 10
+of-run: wait 2026-10-04T19:09:46Z load 20.21 > 10
+of-run: wait 2026-10-04T19:10:16Z load 21.06 > 10
+of-run: wait 2026-10-04T19:10:46Z load 20.31 > 10
+of-run: wait 2026-10-04T19:11:16Z load 23.08 > 10
+of-run: wait 2026-10-04T19:11:46Z load 21.44 > 10
+of-run: wait 2026-10-04T19:12:16Z load 20.70 > 10
+of-run: wait 2026-10-04T19:12:46Z load 20.79 > 10
+of-run: wait 2026-10-04T19:13:17Z load 16.23 > 10
+of-run: wait 2026-10-04T19:13:47Z load 11.46 > 10
+of-run: start 2026-10-04T19:14:17Z load1=8.74 record=verified lint=clean bundle=f3debe8b5541 cmd=decomposePar -force
+of-run: end status=0 wall_s=3 load1=8.74 peak_rss_bytes=746209280 banner=Disallowing cmd=decomposePar -force
+of-run: start 2026-10-04T19:14:22Z load1=8.74 record=verified lint=clean bundle=f3debe8b5541 cmd=mpirun -np 6 simpleFoam -parallel -case <HOME>/projects/CFD-Workbench-spike-fluids-round3/runs/20261004T181801Z-spike04r3-g2-l3
+of-run: end status=0 wall_s=36038 load1=7.41 peak_rss_bytes=400408576 banner=Disallowing cmd=mpirun -np 6 simpleFoam -parallel -case <HOME>/projects/CFD-Workbench-spike-fluids-round3/runs/20261004T181801Z-spike04r3-g2-l3
+of-run: start 2026-10-05T05:15:02Z load1=7.41 record=verified lint=clean bundle=f3debe8b5541 cmd=reconstructPar -latestTime
+of-run: end status=0 wall_s=2 load1=7.30 peak_rss_bytes=1162575872 banner=Disallowing cmd=reconstructPar -latestTime

@@ -1,0 +1,42 @@
+of-run: wait 2026-10-04T17:52:38Z load 18.87 > 10
+of-run: wait 2026-10-04T17:53:08Z load 14.37 > 10
+of-run: wait 2026-10-04T17:53:38Z load 10.50 > 10
+of-run: wait 2026-10-04T17:54:08Z load 19.49 > 10
+of-run: wait 2026-10-04T17:54:38Z load 30.63 > 10
+of-run: wait 2026-10-04T17:55:08Z load 25.11 > 10
+of-run: wait 2026-10-04T17:55:38Z load 28.65 > 10
+of-run: wait 2026-10-04T17:56:08Z load 27.22 > 10
+of-run: wait 2026-10-04T17:56:38Z load 19.93 > 10
+of-run: wait 2026-10-04T17:57:08Z load 25.68 > 10
+of-run: wait 2026-10-04T17:57:38Z load 23.05 > 10
+of-run: wait 2026-10-04T17:58:08Z load 43.48 > 10
+of-run: wait 2026-10-04T17:58:38Z load 50.99 > 10
+of-run: wait 2026-10-04T17:59:08Z load 41.70 > 10
+of-run: wait 2026-10-04T17:59:38Z load 32.33 > 10
+of-run: wait 2026-10-04T18:00:08Z load 22.11 > 10
+of-run: wait 2026-10-04T18:00:38Z join lock present
+of-run: wait 2026-10-04T18:01:08Z join lock present
+of-run: wait 2026-10-04T18:01:38Z join lock present
+of-run: wait 2026-10-04T18:02:08Z join lock present
+of-run: wait 2026-10-04T18:02:38Z join lock present
+of-run: wait 2026-10-04T18:03:08Z join lock present
+of-run: wait 2026-10-04T18:03:38Z join lock present
+of-run: wait 2026-10-04T18:04:08Z join lock present
+of-run: wait 2026-10-04T18:04:38Z join lock present
+of-run: wait 2026-10-04T18:05:08Z join lock present
+of-run: wait 2026-10-04T18:05:38Z join lock present
+of-run: wait 2026-10-04T18:06:08Z join lock present
+of-run: wait 2026-10-04T18:06:38Z join lock present
+of-run: wait 2026-10-04T18:07:08Z join lock present
+of-run: wait 2026-10-04T18:07:38Z join lock present
+of-run: wait 2026-10-04T18:08:08Z join lock present
+of-run: wait 2026-10-04T18:08:38Z join lock present
+of-run: wait 2026-10-04T18:09:08Z load 13.19 > 10
+of-run: start 2026-10-04T18:09:39Z load1=9.55 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh
+of-run: end status=0 wall_s=1 load1=9.55 peak_rss_bytes=83034112 banner=Disallowing cmd=checkMesh
+of-run: start 2026-10-04T18:09:41Z load1=9.55 record=verified lint=clean bundle=f3debe8b5541 cmd=decomposePar -force
+of-run: end status=0 wall_s=1 load1=9.55 peak_rss_bytes=66977792 banner=Disallowing cmd=decomposePar -force
+of-run: start 2026-10-04T18:09:43Z load1=9.55 record=verified lint=clean bundle=f3debe8b5541 cmd=mpirun -np 2 simpleFoam -parallel -case <HOME>/projects/CFD-Workbench-spike-fluids-round3/runs/20261004T175236Z-spike04r3-g0-l6
+of-run: end status=0 wall_s=39 load1=7.21 peak_rss_bytes=116604928 banner=Disallowing cmd=mpirun -np 2 simpleFoam -parallel -case <HOME>/projects/CFD-Workbench-spike-fluids-round3/runs/20261004T175236Z-spike04r3-g0-l6
+of-run: start 2026-10-04T18:10:23Z load1=7.20 record=verified lint=clean bundle=f3debe8b5541 cmd=reconstructPar -latestTime
+of-run: end status=0 wall_s=1 load1=7.20 peak_rss_bytes=68452352 banner=Disallowing cmd=reconstructPar -latestTime

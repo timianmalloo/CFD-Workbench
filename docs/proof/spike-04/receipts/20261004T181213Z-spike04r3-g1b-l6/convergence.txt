@@ -1,0 +1,8 @@
+iterations=40000 A4=NOT MET
+clauses 1_residual_drop=pass 2_stationarity=pass 3_clean_window=fail
+residual_ratio_last2_over_first Ux=2.025e-09 Uy=1.989e-08 nuTilda=8.808e-06 p=3.275e-08
+window iterations 38001..40000 (W=2000)
+Cl_window_mean=1.055092321 Cl_U_I=1.896e-06 cap=1.0e-05 Cl_last=1.055094225
+Cd_window_mean=0.015164504 Cd_U_I=8.344e-07 cap=1.0e-06 Cd_last=0.015165320
+bounding_nuTilda_iterations_in_window=250
+stopped_by_A4=no (ran to max_iterations or failed)

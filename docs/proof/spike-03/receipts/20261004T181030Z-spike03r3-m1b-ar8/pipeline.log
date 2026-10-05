@@ -1,0 +1,34 @@
+after.sh: start 2026-10-04T18:10:30Z: cases/tools/mesh-gate-r3.sh cases/spike03r3-m1b-ar8.yaml 6
+gmsh: status=0 wall_s=32 waited_s=0 load1_end=7.83
+te_arc_root_curves=2 te_arc_root_segments=8 Mesh.MinimumCirclePoints=7
+gmsh_wing_surface_elements=183938 layer_prisms=3678760 expected=3678760 layer_coverage=100.00% core_cells=839793 symmetry_lateral_surfaces=4
+layer_total_thickness_m=1.4935e-03 first=8e-06 ratio=1.2 n=20
+msh_sha256=85c8192ce0141f1efc33254d05e11f3574187588f016eb76686fd3098962f2af msh_bytes=405861140
+launcher-record: init files=13 manifest=1c90b2a2ea3a record=runs/.launcher/d3af6aab91856dfc5d86
+status=0 wall_s=14 peak_rss_bytes=4120412160 banner=Disallowing log=runs/20261004T181030Z-spike03r3-m1b-ar8/log.gmshToFoam
+patches: ['wing', 'symmetry', 'farfield']
+launcher-record: updated files=22
+status=0 wall_s=33 peak_rss_bytes=4822007808 banner=Disallowing log=runs/20261004T181030Z-spike03r3-m1b-ar8/log.checkMesh
+status=0 wall_s=10 peak_rss_bytes=1445085184 banner=Disallowing log=runs/20261004T181030Z-spike03r3-m1b-ar8/log.postProcess-C
+GATE (DR-F3-1 A) FAIL: non_orthogonality_le_70=FAIL skewness_le_4_internal_20_boundary=ok volumes_positive=ok face_pyramids_ok=ok face_weight_ge_0.05=FAIL checkMesh_validity_set_without_determinant=FAIL layers_20_on_ge95pct_and_ge10_on_100pct=ok
+  max_non_orthogonality=85.2413148343 faces_gt_70=246 max_skewness=1.81576727554 min_face_weight=0.0323645525364 min_volume=3.28053223025e-14 min_determinant=0.0 (reported, not gated)
+  checkMesh *** lines: ['***Cells with small determinant (< 0.001) found, number of cells: 1133809', '***Faces with small interpolation weight (< 0.05) found, number of faces: 4']
+  layers: wing_faces=183938 layer_prisms=3678760 expected=3678760 (100.00 %); te_arc_root_segments=8; stack=1.4935e-03 m
+cells=4518553 by type: prism=3678760 tet=839793
+faces > 70 deg (nonOrthoFaces): n=246 primary main=34 te=2 tip=34 tip_pole=176 | flags tip_pole=176 te=73 root=0 interface=0 tip=211 | wall distance min/median/max = 3.18e-07/8.80e-05/2.97e-03 m (stack 1.49e-03)
+    main: cell pairs (5 prism, 7 tet) 5-5:13 7-7:21; x/c -0.0016..0.9803, z 0.0379..0.4799 m
+    te: cell pairs (5 prism, 7 tet) 7-7:2; x/c 0.9925..1.0074, z 0.0362..0.4820 m
+    tip: cell pairs (5 prism, 7 tet) 5-5:33 7-7:1; x/c 0.9803..0.9896, z 0.4803..0.4818 m
+    tip_pole: cell pairs (5 prism, 7 tet) 5-5:176; x/c 0.9867..0.9968, z 0.4801..0.4809 m
+low-weight faces (< 0.05): n=4 primary te=2 tip=2 | flags tip_pole=0 te=2 root=0 interface=0 tip=2 | wall distance min/median/max = 1.70e-03/1.83e-03/2.02e-03 m (stack 1.49e-03)
+    te: x 0.12173..0.12175 y -0.00147..-0.00127 z 0.47392..0.47407
+    tip: x 0.08425..0.08462 y 0.00208..0.00238 z 0.48579..0.48582
+two-internal-face cells: n=256 primary main=120 tip=136 | flags tip_pole=0 te=0 root=0 interface=0 tip=136 | wall distance min/median/max = 1.16e+00/1.75e+00/2.90e+00 m (stack 1.49e-03)
+    main: types 7:120
+    tip: types 7:136
+wing faces=183938; faces whose owner is not a prism (no layer column): 0
+cellDeterminant < 0.001, layer (prism): 1133543 of 3678760 (30.81 %), min 3.064e-07, median 1.382e-02
+cellDeterminant < 0.001, core (tet): 266 of 839793 (0.03 %), min 0.000e+00, median 1.689e-01
+core (tet) cells with determinant < 0.001: n=266 primary main=122 te=6 tip=138 | flags tip_pole=0 te=6 root=0 interface=0 tip=138 | wall distance min/median/max = 1.45e-03/1.72e+00/2.90e+00 m (stack 1.49e-03)
+run=runs/20261004T181030Z-spike03r3-m1b-ar8
+after.sh: exit 0 2026-10-04T18:12:10Z
