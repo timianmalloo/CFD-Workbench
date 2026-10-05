@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.Analysis.AnalysisPanel" AutomationProperties.Name="Analysis results"
+             FontFamily="{StaticResource PropFontFamily}" Height="190">
+  <!-- The Analysis bottom panel (A3a §18.5 rows 25, 28, 31): a shell slot shown in Analysis only. The tabs read the selected
+       run's projection (AnalysisView), never the latest attempt: after a failed Evaluate they keep the previous run
+       Historical beside the error card. Checks has no data source (no DRC exists, OD-4 a), so it is omitted. -->
+  <UserControl.Styles>
+    <Style Selector="TextBlock.pnl-head"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+    <Style Selector="TextBlock.pnl-note"><Setter Property="FontSize" Value="{DynamicResource PropNoteSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
+    <Style Selector="TextBlock.pnl-cell"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
+    <Style Selector="Border.pnl-bar"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="Height" Value="10" /><Setter Property="CornerRadius" Value="2" /></Style>
+    <Style Selector="Border.pnl-error"><Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" /><Setter Property="BorderThickness" Value="1" /><Setter Property="Padding" Value="{StaticResource Space1}" /></Style>
+  </UserControl.Styles>
+  <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0">
+    <DockPanel>
+      <StackPanel DockPanel.Dock="Top" Margin="{StaticResource Space1}" Spacing="{StaticResource StackGap2}">
+        <TextBlock x:Name="PanelBanner" Classes="pnl-note" IsVisible="False" />
+        <Border x:Name="PanelErrorCard" Classes="pnl-error" IsVisible="False">
+          <TextBlock x:Name="PanelErrorText" Classes="pnl-cell" AutomationProperties.LiveSetting="Assertive" />
+        </Border>
+        <StackPanel x:Name="PanelSkeleton" Spacing="{StaticResource StackGap2}" IsVisible="False" AutomationProperties.Name="Evaluating">
+          <Border Classes="pnl-bar" Width="320" HorizontalAlignment="Left" />
+          <Border Classes="pnl-bar" Width="240" HorizontalAlignment="Left" />
+        </StackPanel>
+      </StackPanel>
+      <TabControl x:Name="PanelTabs" AutomationProperties.Name="Analysis result tabs">
+        <TabItem x:Name="LoadingTab" Header="Spanwise loading" AutomationProperties.Name="Spanwise loading">
+          <Grid>
+            <TextBlock x:Name="LoadingEmpty" Classes="pnl-note" IsVisible="False" Margin="{StaticResource Space2}" />
+            <ContentControl x:Name="LoadingHost" Margin="{StaticResource Space1}" />
+          </Grid>
+        </TabItem>
+        <TabItem x:Name="SectionTab" Header="Section" AutomationProperties.Name="Section">
+          <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="SectionBody" Margin="{StaticResource Space1}" /></ScrollViewer>
+        </TabItem>
+        <TabItem x:Name="LoadsTab" Header="Loads" AutomationProperties.Name="Loads">
+          <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="LoadsBody" Margin="{StaticResource Space1}" /></ScrollViewer>
+        </TabItem>
+        <TabItem x:Name="ProvenanceTab" Header="Provenance" AutomationProperties.Name="Provenance">
+          <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="ProvenanceBody" Margin="{StaticResource Space1}" /></ScrollViewer>
+        </TabItem>
+      </TabControl>
+    </DockPanel>
+  </Border>
+</UserControl>

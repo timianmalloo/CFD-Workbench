@@ -104,6 +104,7 @@ public sealed partial class MainWindow : Window
             case "file.save-as": await Guarded(SaveWithPickerAsync); break;
             case "file.close": Close(); break;
             case "view.toggle-left": shellHost.ToggleLeftSidebar(); break;
+            case "view.toggle-bottom": shellHost.ToggleBottomPanel(); break;
             case "view.analysis": workbench.ToggleAnalysis(); break;
             case "view.palette": shellHost.OpenPalette(); break;
             case "edit.undo": shellHost.RouteEditVerb("undo", FocusManager?.GetFocusedElement()); break;

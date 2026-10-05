@@ -9,7 +9,10 @@ public sealed class ShellLayoutFactory : Factory
 {
     public ITool PropertiesTool { get; private set; } = null!;
     public ITool BrowserTool { get; private set; } = null!;
+    /// <summary>An unfilled tool with no Homes row. A3a took its tab: the approved Analysis mockup draws Properties, Browser, Layers, and a fourth tab no longer fits the 260 px bar (270 px measured). It stays findable, not in the default dock.</summary>
     public ITool RailControlsTool { get; private set; } = null!;
+    /// <summary>The Layers pane (A3a G-T6): a left-dock tab after Browser; its home is a LayoutCodec Homes row.</summary>
+    public ITool LayersTool { get; private set; } = null!;
     public IDocument ModelDocument { get; private set; } = null!;
     public IDocument SectionSampleDocument { get; private set; } = null!;
     public IDocument FoilSourceDocument { get; private set; } = null!;
@@ -38,6 +41,15 @@ public sealed class ShellLayoutFactory : Factory
         {
             Id = "browser",
             Title = "Browser",
+            CanPin = false,
+            CanClose = true,
+            CanFloat = true
+        };
+
+        LayersTool = new Tool
+        {
+            Id = "layers",
+            Title = "Layers",
             CanPin = false,
             CanClose = true,
             CanFloat = true
@@ -92,7 +104,7 @@ public sealed class ShellLayoutFactory : Factory
             Proportion = 0.25,
             Alignment = Alignment.Left,
             ActiveDockable = PropertiesTool,
-            VisibleDockables = CreateList<IDockable>(PropertiesTool, BrowserTool, RailControlsTool)
+            VisibleDockables = CreateList<IDockable>(PropertiesTool, BrowserTool, LayersTool)
         };
 
         MainDocumentDock = new DocumentDock
@@ -140,6 +152,7 @@ public sealed class ShellLayoutFactory : Factory
         "properties" => PropertiesTool,
         "browser" => BrowserTool,
         "rail-controls" => RailControlsTool,
+        "layers" => LayersTool,
         "model" => ModelDocument,
         "section-sample" => SectionSampleDocument,
         "foil-source" => FoilSourceDocument,

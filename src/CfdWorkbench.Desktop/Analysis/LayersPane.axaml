@@ -1,0 +1,17 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.Analysis.LayersPane" AutomationProperties.Name="Layers"
+             FontFamily="{StaticResource PropFontFamily}">
+  <!-- The Layers pane (A3a §18.5 row 30): one check per view layer of the selected run, with its legend. The visible flag
+       is the controller's (SetLayerVisible); this pane keeps no state of its own. -->
+  <UserControl.Styles>
+    <Style Selector="TextBlock.lay-legend"><Setter Property="FontSize" Value="{DynamicResource PropNoteSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
+    <Style Selector="CheckBox.lay-check"><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /></Style>
+  </UserControl.Styles>
+  <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Margin="{StaticResource Space3}" Spacing="{StaticResource StackGap2}">
+      <TextBlock x:Name="LayersEmpty" Classes="caption" TextWrapping="Wrap" IsVisible="False" />
+      <StackPanel x:Name="LayerList" Spacing="{StaticResource StackGap2}" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

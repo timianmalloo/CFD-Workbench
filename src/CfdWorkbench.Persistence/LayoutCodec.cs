@@ -23,11 +23,15 @@ public static class LayoutCodec
     /// Each registered pane's home region, in placement order: the one table the presets, the desktop's
     /// <c>WorkspacePresets</c> and a repair of a saved file read. M1.2c (OD-2 A, OD-3 B): there is no Messages pane, and
     /// Points lives in the right side bar. A saved file that still names "messages" loses it with LAYOUT-PANE.
+    /// A3a (G-T6): Layers is a left-dock tab after Browser; a file saved before it gets it placed, never refused.
+    /// The Analysis bottom panel is not a pane (no Homes row): it is a shell slot shown only in Analysis, so no saved
+    /// layout can place, close or float it. <c>rail-controls</c> likewise has no row: it is an unfilled left tool.
     /// </summary>
     public static IReadOnlyList<(string Pane, RegionId Region)> Homes { get; } =
     [
         ("properties", RegionId.Left),
         ("browser", RegionId.Left),
+        ("layers", RegionId.Left),
         ("points", RegionId.Right)
     ];
 
