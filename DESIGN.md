@@ -531,41 +531,41 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-187 | Point <n> stays an anchor. As a control point the <other> surface would move <d> mm, over the <limit> mm limit at <c> mm chord. Nothing changed. (<d> to 0.0001 mm, so a move just over the limit never reads as equal to it) |
 | COPY-188 | Type and Kind apply to both surfaces. x is shared. |
 | COPY-189 | Paired with <other> point <n>. Type, kind and x are shared. |
-| COPY-206 | No analysis yet. Set the conditions, then Evaluate. — proposed — awaiting operator |
-| COPY-207 | Evaluating — VLM + strip · <n> panels… — proposed — awaiting operator |
-| COPY-208 | Analysis failed — <reason> (<code>). The previous result is kept as Historical. — proposed — awaiting operator |
-| COPY-209 | Analysis complete — VLM + strip · <t> s — proposed — awaiting operator |
-| COPY-210 | Unavailable — no polar method installed — proposed — awaiting operator |
-| COPY-211 | Unavailable — run payload failed its check — proposed — awaiting operator |
-| COPY-212 | Unavailable — no section Cp method (DR-ANA-2) — proposed — awaiting operator |
-| COPY-213 | VLM + strip · local calculation — proposed — awaiting operator |
-| COPY-214 | Estimator · local calculation — proposed — awaiting operator |
-| COPY-215 | Polar · local calculation — proposed — awaiting operator |
-| COPY-216 | outside the verified lattice family — proposed — awaiting operator |
-| COPY-217 | Verified fixture family: rectangular and elliptic planforms; ±20° dihedral at 32 × 4 cosine span, uniform chord (F-8); 45° sweep, AR 5, at 4 × 1 uniform (F-16); 4% camber at 32/64/128 × 4 cosine/cosine (F-18); 1° washin at 32/64/128 × 4 cosine/cosine (F-19); F-6 order at 32/64/128 × 4 cosine span, uniform chord; F-21 at 16 × 4 cosine/cosine per half — proposed — awaiting operator |
+| COPY-206 | No analysis yet. Set the conditions, then Evaluate. — approved — Ruling 82 |
+| COPY-207 | Evaluating — VLM + strip · <n> panels… — approved — Ruling 82 |
+| COPY-208 | Analysis failed — <reason> (<code>). The previous result is kept as Historical. — approved — Ruling 82 |
+| COPY-209 | Analysis complete — VLM + strip · <t> s — approved — Ruling 82 |
+| COPY-210 | Unavailable — no polar method installed — approved — Ruling 82 |
+| COPY-211 | Unavailable — run payload failed its check — approved — Ruling 82 |
+| COPY-212 | Unavailable — no section Cp method (DR-ANA-2) — approved — Ruling 82 |
+| COPY-213 | VLM + strip · local calculation — approved — Ruling 82 |
+| COPY-214 | Estimator · local calculation — approved — Ruling 82 |
+| COPY-215 | Polar · local calculation — approved — Ruling 82 |
+| COPY-216 | outside the verified lattice family — approved — Ruling 82 |
+| COPY-217 | Verified fixture family: rectangular and elliptic planforms; ±20° dihedral at 32 × 4 cosine span, uniform chord (F-8); 45° sweep, AR 5, at 4 × 1 uniform (F-16); 4% camber at 32/64/128 × 4 cosine/cosine (F-18); 1° washin at 32/64/128 × 4 cosine/cosine (F-19); F-6 order at 32/64/128 × 4 cosine span, uniform chord; F-21 at 16 × 4 cosine/cosine per half — approved — Ruling 82 |
 | COPY-218 | provisional — tip law cannot judge this strip (ANA-TIP-PROVISIONAL) — proposed — awaiting operator |
 | COPY-219 | at the bound (+-U) — proposed — awaiting operator |
 | COPY-220 | indeterminate — the tip law cannot judge this strip — proposed — awaiting operator |
-| COPY-221 | inside the method envelope — proposed — awaiting operator |
-| COPY-222 | outside the method envelope — proposed — awaiting operator |
-| COPY-223 | attached flow; no stall; no ventilation; deep water — proposed — awaiting operator |
-| COPY-224 | attached flow; no stall; no ventilation; free surface not modelled — proposed — awaiting operator |
-| COPY-225 | Not modelled: ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”. — proposed — awaiting operator |
-| COPY-226 | Not modelled: free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”. — proposed — awaiting operator |
-| COPY-227 | Not assessed: take-off, pumping, breach and slam, ventilation shock, impact, fatigue. — proposed — awaiting operator |
-| COPY-228 | Unavailable — station depth not recorded — proposed — awaiting operator |
-| COPY-229 | Unavailable — root thickness not recorded — proposed — awaiting operator |
-| COPY-230 | Undefined — CD ≤ 0 — proposed — awaiting operator |
-| COPY-231 | Near-field diagnostics flagged outside the verified lattice family — proposed — awaiting operator |
-| COPY-232 | e below 0.85; result remains available — proposed — awaiting operator |
-| COPY-233 | 1 < e ≤ 1.02 at 64 × 4 — small lattice bias (~+0.01); result remains available — proposed — awaiting operator |
-| COPY-234 | Unavailable — needs −Cp_min — proposed — awaiting operator |
-| COPY-235 | Unavailable — strip width not recorded; vector omitted — proposed — awaiting operator |
-| COPY-236 | Body axes: +x aft, +y starboard, +z up; lift and drag in wind axes — proposed — awaiting operator |
-| COPY-237 | Root bending moment about the root plane; positive sense about +x — proposed — awaiting operator |
-| COPY-238 | Spanwise loading Cl·c/c̄ vs η; dashed elliptic reference at the same CL — proposed — awaiting operator |
-| COPY-239 | Strip of wing run (α_eff) · η <η> — proposed — awaiting operator |
-| COPY-240 | e above 1 — check the lattice — proposed — awaiting operator |
+| COPY-221 | inside the method envelope — approved — Ruling 82 |
+| COPY-222 | outside the method envelope — approved — Ruling 82 |
+| COPY-223 | attached flow; no stall; no ventilation; deep water — approved — Ruling 82 |
+| COPY-224 | attached flow; no stall; no ventilation; free surface not modelled — approved — Ruling 82 |
+| COPY-225 | Not modelled: ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”. — approved — Ruling 82 |
+| COPY-226 | Not modelled: free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”. — approved — Ruling 82 |
+| COPY-227 | Not assessed: take-off, pumping, breach and slam, ventilation shock, impact, fatigue. — approved — Ruling 82 |
+| COPY-228 | Unavailable — station depth not recorded — approved — Ruling 82 |
+| COPY-229 | Unavailable — root thickness not recorded — approved — Ruling 82 |
+| COPY-230 | Undefined — CD ≤ 0 — approved — Ruling 82 |
+| COPY-231 | Near-field diagnostics flagged outside the verified lattice family — approved — Ruling 82 |
+| COPY-232 | e below 0.85; result remains available — approved — Ruling 82 |
+| COPY-233 | 1 < e ≤ 1.02 at 64 × 4 — small lattice bias (~+0.01); result remains available — approved — Ruling 82 |
+| COPY-234 | Unavailable — needs −Cp_min — approved — Ruling 82 |
+| COPY-235 | Unavailable — strip width not recorded; vector omitted — approved — Ruling 82 |
+| COPY-236 | Body axes: +x aft, +y starboard, +z up; lift and drag in wind axes — approved — Ruling 82 |
+| COPY-237 | Root bending moment about the root plane; positive sense about +x — approved — Ruling 82 |
+| COPY-238 | Spanwise loading Cl·c/c̄ vs η; dashed elliptic reference at the same CL — approved — Ruling 82 |
+| COPY-239 | Strip of wing run (α_eff) · η <η> — approved — Ruling 82 |
+| COPY-240 | e above 1 — check the lattice — approved — Ruling 82 |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's
