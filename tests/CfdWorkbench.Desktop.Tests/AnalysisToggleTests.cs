@@ -2,7 +2,9 @@ using CfdWorkbench.Core;
 using Avalonia.Controls;
 using Avalonia;
 using CfdWorkbench.Analysis;
+using CfdWorkbench.Persistence;
 using CfdWorkbench.Desktop.Shell;
+using System.Text.Json;
 
 namespace CfdWorkbench.Desktop.Tests;
 
@@ -43,16 +45,22 @@ public static class AnalysisToggleTests
             controller.Select(new Selection.Station(1, .5));
             var selection = controller.Selection;
             var layout = controller.Layout;
+            var threeD = controller.Camera3d;
+            var side = controller.CameraFor(SingleView.Side);
             Toggle(controller);
             Equal("Analysis", AreaMode(controller), "enter Analysis");
             Equal(camera, controller.PlanCamera, "enter camera");
             Equal(selection, controller.Selection, "enter selection");
             Equal(layout, controller.Layout, "enter layout");
+            Equal(threeD, controller.Camera3d, "enter 3D camera");
+            Equal(side, controller.CameraFor(SingleView.Side), "enter elevation camera");
             Toggle(controller);
             Equal("Workspace", AreaMode(controller), "return to CAD");
             Equal(camera, controller.PlanCamera, "return camera");
             Equal(selection, controller.Selection, "return selection");
             Equal(layout, controller.Layout, "return layout");
+            Equal(threeD, controller.Camera3d, "return 3D camera");
+            Equal(side, controller.CameraFor(SingleView.Side), "return elevation camera");
         });
         DesktopChecks.Check("Toggle_NeverEvaluates", () =>
         {
@@ -70,6 +78,10 @@ public static class AnalysisToggleTests
             double preview = controller.Planform!.Trailing.Points.Single(item => item.Id == point.Id).Ordinate;
             Toggle(controller);
             Equal("Analysis", AreaMode(controller), "preview hidden in Analysis");
+            var hiddenRelease = Task.Run(() => controller.EndGestureAsync(GestureEnd.Release))
+                .WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
+            if (hiddenRelease is GestureOutcome.Committed || controller.Draft is null)
+                throw new Exception("A held point gesture committed while its draft was hidden in Analysis.");
             Equal(point.Ordinate, controller.Planform!.Trailing.Points.Single(item => item.Id == point.Id).Ordinate,
                 "Analysis reads accepted geometry");
             Toggle(controller);
@@ -95,12 +107,15 @@ public static class AnalysisToggleTests
             area.PlanCanvas.Controller = controller;
             area.ShowFoilOpen(true);
             Equal(ModelAreaMode.Section, area.Mode, "CAD section editor before toggle");
+            if (!Need<Control>(area, "SectionModeEditor").IsVisible) throw new Exception("CAD section editor is not rendered.");
             Toggle(controller);
             area.ShowFoilOpen(true);
             Equal(ModelAreaMode.Views, area.Mode, "Analysis views hide the editor");
+            if (Need<Control>(area, "SectionModeEditor").IsVisible) throw new Exception("Analysis still renders the editor.");
             Toggle(controller);
             area.ShowFoilOpen(true);
             Equal(ModelAreaMode.Section, area.Mode, "section editor after return");
+            if (!Need<Control>(area, "SectionModeEditor").IsVisible) throw new Exception("The editor did not render on return.");
             Equal(draft, controller.Section?.Draft, "section draft after return");
         });
         DesktopChecks.Check("Analysis_EditVerb_RefusedWithInertMessage", () =>
@@ -138,6 +153,32 @@ public static class AnalysisToggleTests
                 Need<TextBlock>(band, "DerivedRe").IsVisible)
                 throw new Exception("The 1024 px band did not keep q and σ while moving the other derived cells to More.");
         });
+        DesktopChecks.Check("ConditionsBand_CliRunKey_EqualsAnalyse", () =>
+        {
+            var band = NewBand();
+            Need<TextBox>(band, "SpeedInput").Text = "5.14444";
+            Need<TextBox>(band, "DepthInput").Text = "0.5";
+            Need<TextBox>(band, "AlphaInput").Text = "3";
+            var op = (OperatingPoint)(band.GetType().GetMethod("BuildOperatingPoint")?.Invoke(band, null)
+                ?? throw new Exception("The band has no operating point builder."));
+            var water = (WaterRecord)(band.GetType().GetMethod("BuildWater")?.Invoke(band, null)
+                ?? throw new Exception("The band has no water builder."));
+            var method = new ProductWingMethod(Settings.Default with
+                { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null });
+            using var output = new StringWriter();
+            int exit = Task.Run(() => CfdWorkbench.Cli.Cli.RunAsync(
+                ["analyse", "example", "--op", "{\"speed\":5.14444,\"alphaDeg\":3,\"hRef\":0.5}"],
+                output, analysis: new CfdWorkbench.Cli.AnalysisHost(method, WaterTable.At)))
+                .WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
+            if (exit != 0) throw new Exception("CLI analysis failed: " + output);
+            using var json = JsonDocument.Parse(output.ToString());
+            string? cliKey = json.RootElement.GetProperty("run").GetProperty("runKey").GetString();
+            using var session = new AuthoringSession();
+            session.Open(CfdWorkbench.Cli.Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), false);
+            var bandKey = Freshness.CurrentKey(Freshness.Current(session.Snapshot(), water, op,
+                method.Method, method.Settings));
+            Equal(cliKey, bandKey, "CLI and conditions band run keys");
+        });
         DesktopChecks.Check("StatusStrip_AnalysisItem_FollowsRunState", () =>
         {
             var strip = new StatusStrip();
@@ -157,11 +198,19 @@ public static class AnalysisToggleTests
                 .WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
             if (edited is not CommitOutcome.Committed) throw new Exception("Fixture geometry edit was refused.");
             string? cad = controller.AnalysisView.Banner;
+            var area = new ModelArea();
+            area.PlanCanvas.Controller = controller;
+            area.ShowFoilOpen(true);
             if (controller.AnalysisView.State != RunState.Historical || cad is null ||
                 !cad.Contains("geometry changed (r1 → r2)", StringComparison.Ordinal))
                 throw new Exception("CAD did not show the Historical revision transition: " + cad);
+            Equal(cad, Need<TextBlock>(area, "HistoricalBannerText").Text, "CAD banner copy");
+            if (!Need<Control>(area, "HistoricalBanner").IsVisible) throw new Exception("CAD banner is not rendered.");
             Toggle(controller);
+            area.ShowFoilOpen(true);
             Equal(cad, controller.AnalysisView.Banner, "Historical banner in Analysis");
+            Equal(cad, Need<TextBlock>(area, "HistoricalBannerText").Text, "Analysis banner copy");
+            if (!Need<Control>(area, "HistoricalBanner").IsVisible) throw new Exception("Analysis banner is not rendered.");
         });
         DesktopChecks.Check("Telemetry_AnalysisProject_FreshnessOnRebuild", () =>
         {
