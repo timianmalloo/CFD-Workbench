@@ -14,6 +14,7 @@ internal static class NeuralFoilTests
         AnalysisChecks.Check("NeuralFoil_CorruptWeights_Refused", CorruptWeights);
         AnalysisChecks.Check("NeuralFoil_CstFit_RecoversSection", CstFitRecoversSection);
         AnalysisChecks.Check("NeuralFoil_Source_ProducesPolarSample", ProducesPolarSample);
+        AnalysisChecks.Check("NeuralFoil_Source_NoncomputableNamesReason", NoncomputableNamesReason);
         AnalysisChecks.Check("NeuralFoil_Envelope_Alpha", () => Refused(30, 500000, 4, "naca0012", false, "alpha"));
         AnalysisChecks.Check("NeuralFoil_Envelope_Re", () => Refused(0, 10000, 4, "naca0012", false, "Re"));
         AnalysisChecks.Check("NeuralFoil_Envelope_Ncrit", () => Refused(0, 500000, 0, "naca0012", false, "Ncrit"));
@@ -97,6 +98,19 @@ internal static class NeuralFoilTests
             Math.Abs(sample.Confidence!.Value - expected.Confidence) > 1e-8 ||
             sample.MethodVersion != NeuralFoilNetwork.MethodVersion || sample.WaterHash.Length != 64)
             throw new Exception("polar source lost a coefficient, confidence, or method key");
+    }
+
+    private static void NoncomputableNamesReason()
+    {
+        NeuralFoilSection section = Section(false, "naca0012");
+        IPolarSource source = new NeuralFoilPolarSource(_ => section);
+        var water = new WaterRecord(15, 0, 999, 1e-6, 1000, "fixture", new string('b', 64));
+        try { source.Sample(section.ProfileHash, 500000, 4, 30, water, CancellationToken.None); }
+        catch (ContractError error) when (error.Code == "ANA-POLAR-NONCOMPUTABLE" && error.Reason?.Contains("alpha") == true)
+        {
+            return;
+        }
+        throw new Exception("IPolarSource silently dropped a non-computable point");
     }
 
     private static void Refused(double alpha, double reynolds, double ncrit, string family, bool badResidual, string reason)
