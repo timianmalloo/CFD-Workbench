@@ -27,6 +27,13 @@ rectangular, taper 0.5, F18 4% parabolic camber, F19 1° linear washin, each at
 α=2/4/5/8° and n=16/32/64/128/256 per half. The two falsifiers are rectangular
 α=18° and elliptic α=14°, at all five n.
 
+The repaired nonplanar fixtures agree with the §13.2 references:
+
+| Fixture, α=5° | measured tip αᵢ n64 / n128 | design reference | measured CL n64 / n128 | design reference |
+|---|---|---|---|---|
+| F18 camber | 4.957617° / 4.977061° | 4.958° / 4.977° | 0.778423 / 0.776942 | 0.77842 / 0.77694 |
+| F19 washin | 2.365957° / 2.371380° | 2.366° / 2.371° | 0.437050 / 0.436156 | 0.43705 / 0.43616 |
+
 The station is η* = (1 + cos(π/128))/2 = 0.999849409348102. αᵢ* is linear in
 ln(1−η) between the run's bracketing strips. For n=16/32 it extrapolates from k1/k2.
 The finite-resolution reference for each case is the **mean** of n=128 and n=256
@@ -69,6 +76,9 @@ gets no n=256 solve from VLM-4. The repaired elliptic quarter-chord sweep is 0°
 at every strip for n=16/32/64/128/256 in the calibration check, so its ≤30°
 verdict is stable. The old study's 54°→87° front-bound sweep readings do not
 describe this lattice.
+
+The committed readiness suite repeated all four tip tests: COST 1569.550,
+230296.282, 23368.220, and 12.714 ms respectively; `RESULT failures=0`.
 
 Red-first receipt: commit `026fd7a` added `TipLaw_EllipticAlpha4_StableInside`
 before the law. It failed at n128: raw α_eff 10.450681952936586° and Outside.

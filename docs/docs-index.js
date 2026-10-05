@@ -10926,7 +10926,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d2e16b984b7188e4511732b63e1a9491cb1381ae00e82917e018b37bd5292c09"
+      "sourceSha256": "16cbc304626f9bc225664b0c77b32cbab2e788fd49e4e2ea950a6f9981d390d7"
     },
     {
       "id": "proof-vlm-tip-study",
@@ -12788,5 +12788,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "671f6595ef8089d908dfeb997e619563ddb444add625aef613f60802b25fcb2b"
+  "graphSha256": "37ec4c99c1a1573a5ea73641d7195945e569dac9a4e481f331613ac3c8fbdf31"
 };
