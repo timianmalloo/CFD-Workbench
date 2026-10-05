@@ -963,3 +963,9 @@ Option (a), as recommended. Operator (2026-10-05): "its ok for us to limit tips 
 Operator (2026-10-05, AskUserQuestion). (1) Editor refusal when a planform edit would take the tip chord below the Ruling 93 minimum: "Tip chord can't go below <min> (the larger of 5 mm and 2 % of the root chord)." with <min> the computed minimum, e.g. "5 mm". (2) The analysis backstop refusal (ANA-TIP-BELOW-FLOOR) replaces Ruling 92 item (2): "Unavailable — tip chord under the minimum (<min>). The tip is not certified for analysis."
 
 - request: req-01M46FFDFCSR0SV240Y1YG7ZB0 · ruled by: operator-timianmalloo · at: 2026-10-05T16:48:43Z
+
+### Ruling 95 — Spec 1.7.4: the Ruling 93 tip-chord paragraph approved as drafted (DR-SPEC-93)
+
+Operator (2026-10-05, AskUserQuestion): "Approve as drafted". The paragraph "Tip chord. A wing tip is always a finite chord ..." (TIP-RULES Return) is inserted after the tip-of-record sentence at spec :799 as revision 1.7.4, and the :3023 copy note is updated to the Ruling 92/94 copy (COPY-218/219 retired, COPY-220, COPY-241, COPY-242).
+
+- request: req-01M46GPT9Z227PS7GNTB8TN1A7 · ruled by: operator-timianmalloo · at: 2026-10-05T17:10:14Z
