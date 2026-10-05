@@ -2602,7 +2602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "87d8802a114df70d0ebce4e02e7f86d0ec06aad878b30d15134bb7d9cf829d74"
+      "sourceSha256": "42724f92082c7bfa90d2f87dc3267f138f05de6083636c2469ef7c8fe4d87e71"
     },
     {
       "id": "design-foildsl-authoring",
@@ -12611,5 +12611,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "c05d1024b2769c7e6a88eb3b49573fe94d035855ea2a9f6ede3e34c4d60025f4"
+  "graphSha256": "3c79a7bc8d1fab89b74a152bfcba9b9043a07aaf22bb1a83b0f6adeac2435f1b"
 };

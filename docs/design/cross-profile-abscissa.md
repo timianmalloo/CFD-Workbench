@@ -359,8 +359,8 @@ budget; **readiness** = `tools/run-readiness.py`.
 | 22 | `Readiness_CompatibleCheck_FiveSectionsUnder1s` (XPAC) | §3.4 cost on a five-station, 32-vertex fixture | readiness, ≤ 5 s |
 | 23 | `Compatible_FixtureHash_SameOnMacAndWindows` (XPAC) | XPA-I6 | readiness (Windows lane), ≤ 2 s |
 | 24 | old-build receipt `docs/proof/xpa-old-build/` (XPAD) | §3.6, observed with the pre-CF app | readiness checklist, once per release |
-| 25 | `Guard_TwentySevenSpansDiffering_Certifies` (CAP) | Ruling 74: 27 spans (32 points) with differing Root and Tip certify | fast, 3.86 s measured standalone Release subset (includes harness start) |
-| 26 | `Guard_ThirtyThirdPoint_RefusedDslCurveBeforeCopy194` (CAP) | the 33rd point is stopped by `DSL-CURVE` before COPY-194 can fire; draft bytes stay equal | fast, 2.67 s measured standalone Release subset (includes harness start) |
+| 25 | `Guard_TwentySevenSpansDiffering_Certifies` (CAP) | Ruling 74: 27 spans (32 points) with differing Root and Tip certify | fast, 4.26 s measured standalone Release subset (includes harness start) |
+| 26 | `Guard_ThirtyThirdPoint_RefusedDslCurveBeforeCopy194` (CAP) | the 33rd point is stopped by `DSL-CURVE` before COPY-194 can fire; draft bytes stay equal | fast, 2.80 s measured standalone Release subset (includes harness start) |
 | 27 | `Replace_FourDifferingSections_Certified_SevenRefusedCopy194b` (CAP) | four differing stations land; the seventh reaches `GEOMETRY-QUERY-OPERATIONS` and preserves COPY-194b | fast, 1.35 s measured standalone Release subset (includes harness start) |
 
 **Red-first.** Tests 2, 5, 9, 13 (Angle) and 14 are behaviourally red at the **early-refusal track's HEAD**, the real

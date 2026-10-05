@@ -315,6 +315,7 @@ internal static class SectionReplaceTests
                 view = session.ApplySectionStep(id, view.Generation, new SectionStep.Insert(SurfaceSide.Upper, 0.10 + index * 0.035));
             view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
             Equal(32, view.Last!.UpperPoints);
+            Equal(Geometry.BlendSpanLimit(), Bernstein.Spans(Profile(view.Bytes, view.Profile).Upper, new ProofBudget()).Length);
             view = session.ApplySectionStep(id, view.Generation, SectionDraftTests.Raise(view, MiddleId(view), 0.002));
             Equal(GeometryStatus.Certified, session.AssessSection(id, view.Generation, CancellationToken.None).Status);
         });
@@ -327,6 +328,7 @@ internal static class SectionReplaceTests
             for (int index = 0; index < 22; index++)
                 view = session.ApplySectionStep(id, view.Generation, new SectionStep.Insert(SurfaceSide.Upper, 0.10 + index * 0.035));
             Equal(32, view.Last!.UpperPoints);
+            Equal(Geometry.BlendSpanLimit(), Bernstein.Spans(Profile(view.Bytes, view.Profile).Upper, new ProofBudget()).Length);
             var refused = Throws(() => session.ApplySectionStep(id, view.Generation, new SectionStep.Insert(SurfaceSide.Upper, 0.90)));
             Equal("DSL-CURVE", refused.Code);
             Equal("A surface holds at most 32 points.", refused.Reason);
