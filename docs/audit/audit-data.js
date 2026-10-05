@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T18:15:52Z",
+  "generated": "2026-10-05T18:16:57Z",
   "audit": [
     {
       "actor": null,
@@ -25703,12 +25703,95 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46MF00JC8RYD33RCV75JYBC",
-      "shortname": "join-ring-b2",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T18:15:52Z",
+      "done_when": "join gates green",
+      "duration_seconds": 51.0,
+      "fan_out": 0,
+      "goal": "join ring-b2 into main (round-oct05)",
+      "id": "al-01M46MF00JC8RYD33RCV75JYBC",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-ring-b2",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T18:15:01Z",
+      "summary": "B2: Analysis 4.3-4.4 s quiet (F6 parallel trios, F18/F19 n32/n64 smokes + n128 readiness), ring CPU -15 % (DOTNET_TieredPGO=0), Core 3 parts, Desktop longest-first, ring under one concurrent build 53-57 s, quiet 44-46 s; Ruling 84 cond. 3 met so C-3/C-4 absolute; run-suite.sh lock; test-architect cleared recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T17:07:57Z",
+      "done_when": "named tests, full ring (C-2 aside), check-docs and verify gates green; commits on feature/tip-rules",
+      "duration_seconds": 1118.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/tip-rules",
+        "pushed": null,
+        "sha": "fa4917c6ff0411594c8f2258b63cd4361f5d4b1a",
+        "short": "fa4917c6f"
+      },
+      "goal": "Rulings 93/94 minimum tip chord in Core, enforced at Commit; analysis backstop on the same definition; copy rows 218-220, 241, 242",
+      "id": "al-01M46GJN5HZPME0THWSDHDYEG0",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "TIP-RULES Rulings 92-94",
+      "session": "trk-tip",
+      "shortname": "tip-rules",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:49:19Z",
+      "summary": "Core TipChord (max 5 mm, 2 % root), enforced in AuthoringSession.Commit with DSL-TIP-CHORD-MIN; Open exempt, edits no worse than the revision admitted; ANA-TIP-BELOW-FLOOR reads Core, COPY-241; COPY-218/219 retired, COPY-220 Not judged, COPY-241/242 added; status-strip toast tests adjusted.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T17:21:56Z",
+      "done_when": "findings answered, spec rendered and checked, ring/check-docs/gates green",
+      "duration_seconds": 672.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/tip-rules",
+        "pushed": null,
+        "sha": "dba6be952fe3b3cad61de7a655d1be096b202b29",
+        "short": "dba6be952"
+      },
+      "goal": "repair cycle 1: reviewer findings 1-6 and spec 1.7.4 per Ruling 95",
+      "id": "al-01M46HC8K8FXAZH9FT43J3RCKC",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "TIP-RULES repair 1 + spec 1.7.4",
+      "session": "trk-tip",
+      "shortname": "tip-rules-repair1",
+      "skill": "implement",
+      "started_at": "2026-10-05T17:10:44Z",
+      "summary": "Refusal cleanup (pendingCurveFamily), Admits without ratchet slack and non-finite old tip, JudgeStrip text via Labels.TipNotJudged, verbatim verdict test, TipChord constants regrouped, spec 1.7.4 with H.4 and copy note, HTML re-rendered.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M46MGZP5XN1B8ZD57MDAEAZ2",
+      "shortname": "join-tip-rules",
+      "datetime": "2026-10-05T18:16:57Z",
       "session": "4e90c621",
       "prompt": "the join of the resolved merge into main",
-      "summary": "B2: Analysis 4.3-4.4 s quiet (F6 parallel trios, F18/F19 n32/n64 smokes + n128 readiness), ring CPU -15 % (DOTNET_TieredPGO=0), Core 3 parts, Desktop longest-first, ring under one concurrent build 53-57 s, quiet 44-46 s; Ruling 84 cond. 3 met so C-3/C-4 absolute; run-suite.sh lock; test-architect cleared recount_seconds=0 (docs_only=False).",
+      "summary": "TIP-RULES: Core TipChord.cs one definition, enforced in AuthoringSession.Commit (edits toward legality admitted, no ratchet), DSL-TIP-CHORD-MIN; ANA-TIP-BELOW-FLOOR reads it; COPY-218/219 retired, COPY-220 Not judged - tip strip, COPY-241/242; spec 1.7.4; C# review conditions met recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -25717,7 +25800,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join ring-b2 into main (round-oct05)",
+      "goal": "join tip-rules into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -25726,8 +25809,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-05T18:15:01Z",
-      "duration_seconds": 51.0
+      "started_at": "2026-10-05T18:16:05Z",
+      "duration_seconds": 52.0
     }
   ],
   "changes": [
