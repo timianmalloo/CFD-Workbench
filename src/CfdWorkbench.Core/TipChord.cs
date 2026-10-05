@@ -15,6 +15,12 @@ public static class TipChord
     /// <summary>The absolute floor, 5 mm.</summary>
     public const double FloorMeters = 0.005;
 
+    /// <summary>Ruling 94 (COPY-242): the editor refusal text, with the minimum as <c>&lt;min&gt;</c>.</summary>
+    public const string RefusalTemplate = "Tip chord can't go below <min> (the larger of 5 mm and 2 % of the root chord).";
+
+    // 1 nm for the curve evaluation; only Meets uses it, so repeated edits cannot ratchet below the minimum.
+    private const double Slack = 1e-9;
+
     /// <summary>The relative floor, 2 % of the root chord.</summary>
     public const double RootRatio = 0.02;
 
@@ -30,9 +36,6 @@ public static class TipChord
     public static string Format(double rootChordMeters) =>
         (MinimumMeters(rootChordMeters) * 1e3).ToString("0.##", CultureInfo.InvariantCulture) + " mm";
 
-    /// <summary>Ruling 94 (COPY-242): the editor refusal text, with the minimum as <c>&lt;min&gt;</c>.</summary>
-    public const string RefusalTemplate = "Tip chord can't go below <min> (the larger of 5 mm and 2 % of the root chord).";
-
     public static string RefusalReason(double rootChordMeters) => RefusalTemplate.Replace("<min>", Format(rootChordMeters));
 
     /// <summary>
@@ -43,10 +46,10 @@ public static class TipChord
     public static bool Admits(double oldTip, double oldRoot, double newTip, double newRoot)
     {
         if (Meets(newTip, newRoot)) return true;
-        double before = Math.Max(0, MinimumMeters(oldRoot) - oldTip);
+        // A non-finite old tip or root is no prior constraint, so a repairing edit is admitted.
+        double before = double.IsFinite(oldTip) && double.IsFinite(oldRoot)
+            ? Math.Max(0, MinimumMeters(oldRoot) - oldTip) : double.PositiveInfinity;
         double after = MinimumMeters(newRoot) - newTip;
-        return after <= before + Slack;
+        return after <= before;
     }
-
-    private const double Slack = 1e-9;
 }

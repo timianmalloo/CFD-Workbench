@@ -1012,7 +1012,7 @@ public sealed class AuthoringSession : IDisposable
             }
             catch
             {
-                draft = null; retiredDraftIds.Remove(operationId); throw;
+                draft = null; retiredDraftIds.Remove(operationId); pendingCurveFamily = null; throw;
             }
         }
     }
@@ -1214,7 +1214,10 @@ public sealed class AuthoringSession : IDisposable
             bool gesture = gestureDraftId == draft.Id;
             string? family = Channels.Family(draft.Curve ?? draft.Rail);
             pendingCurveFamily = family;
-            string id = Commit(p, operationId, "apply"); operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; section = null;
+            string id;
+            try { id = Commit(p, operationId, "apply"); }
+            catch { pendingCurveFamily = null; throw; }   // a refusal (DSL-TIP-CHORD-MIN) keeps the draft owned but leaves no stale family
+            operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; section = null;
             if (gesture) { Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
             return id;
         }

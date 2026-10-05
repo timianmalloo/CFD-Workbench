@@ -77,6 +77,51 @@ internal static class TipChordTests
             s.ApplyChord(Id(), new("tip-chord", "3"));
             s.ApplyChord(Id(), new("tip-chord", "6"));
         });
+        Check("TipChord_Admits_RepeatedTinyDownwardEdits_CannotRatchetBelowMinimum", () =>
+        {
+            double root = 0.120, min = TipChord.MinimumMeters(root), tip = min;
+            int admitted = 0;
+            for (int i = 0; i < 10; i++)
+            {
+                double next = tip - 0.9e-9;
+                if (!TipChord.Admits(tip, root, next, root)) break;
+                tip = next; admitted++;
+            }
+            if (tip < min - 1.1e-9) throw new InvalidOperationException($"ratcheted {admitted} edits to {min - tip} m under the minimum");
+        });
+        Check("TipChord_Admits_NonFiniteOldTip_AdmitsRepairingEdit", () =>
+        {
+            if (!TipChord.Admits(double.NaN, 0.120, 0.001, 0.120)) throw new InvalidOperationException("repair refused");
+            if (!TipChord.Admits(0.001, double.NaN, 0.001, 0.120)) throw new InvalidOperationException("repair refused (root)");
+        });
+        Check("TipChord_RefusedDimension_RetryReportsRefusalThenLegalEditAccepted", () =>
+        {
+            using var s = Open();
+            string op = Id();
+            Equal(Code, Throws(() => s.ApplyChord(op, new("tip-chord", "3"))).Code);
+            Equal(Code, Throws(() => s.ApplyChord(op, new("tip-chord", "3"))).Code);
+            Equal(null, s.Snapshot().Draft);
+            s.ApplyChord(Id(), new("tip-chord", "50"));
+        });
+        Check("TipChord_RefusedGestureApply_SessionStaysUsableAndLegalEditsAccepted", () =>
+        {
+            using var s = Open();
+            var tip = TipPoint(s);
+            var draft = s.BeginPointGesture(Id(), "trailing", tip.Id);
+            var frame = s.UpdatePointGesture(draft.Id, draft.Generation, tip.SpanMeters, 0.003);
+            string op = Id();
+            var assessment = s.Validate(draft.Id, frame.Draft.Generation);
+            Equal(Code, Throws(() => s.Apply(op, assessment)).Code);
+            Equal(Code, Throws(() => s.Apply(op, assessment)).Code);
+            int seen = s.ReadLocalEvents().Count;
+            s.Cancel(draft.Id);
+            Equal(null, s.Snapshot().Draft);
+            s.ApplyChord(Id(), new("tip-chord", "50"));
+            Equal("", string.Join(",", s.ReadLocalEvents().Skip(seen).Where(item => item.CurveFamily is not null && item.Operation != "gesture.end").Select(item => item.Operation + ":" + item.CurveFamily)));
+            var again = s.BeginPointGesture(Id(), "trailing", TipPoint(s).Id);
+            var next = s.UpdatePointGesture(again.Id, again.Generation, TipPoint(s).SpanMeters, 0.04);
+            s.Apply(Id(), s.Validate(again.Id, next.Draft.Generation));
+        });
         Check("TipChord_EditThatDoesNotTouchThePlanform_AdmittedOnOldFile", () =>
         {
             using var s = Open(tipMm: 2);
