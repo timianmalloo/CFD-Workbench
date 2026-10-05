@@ -60,6 +60,9 @@ summary: >-
   cavity cannot have; the Windows default route is OpenFOAM in an app-owned WSL distribution (Inferred until the
   Windows run); the exact command moves under Technical details; and the CAD ↔ Analysis shortcut is ⇧⌘A
   (Appendix H.2; amendments/spec-1.7.2.md).
+  Revision 1.7.3 applies Ruling 92 (with Rulings 86, 88 D3 and D16, and 79): the cavitation screen is governed by the
+  station with the smallest σ_i/(−Cp_min,i), the v1 tip of record is the open planar end at the last authored station,
+  and SPIKE-04 is code-to-code against CFL3D until an L3 grid triplet is admitted (Appendix H.3).
 review-suggested:
   - { by: mockup-workbench-v3, on: 2026-09-20, reason: "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a." }
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
@@ -75,7 +78,7 @@ review-suggested:
 
 ## One definition. Every number with its basis. Nothing claimed that a fixture has not earned.
 
-Product specification · revision 1.7.2 · 4 October 2026 · *(1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md); 1.7.1: the solver-security right-size, Appendix H, section H.1 and [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md); 1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
+Product specification · revision 1.7.3 · 5 October 2026 · *(1.7.3: Ruling 92 amendments to A5.4, the tip end and SPIKE-04, Appendix H, section H.3; 1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md); 1.7.1: the solver-security right-size, Appendix H, section H.1 and [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md); 1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.** Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
@@ -796,7 +799,7 @@ with the specific semantics for them"*):
   handles.
 - **Named points** keep a constrained type that cannot be changed: the **root end** of each rail (Anchor; stays on the
   centre line with its tangent perpendicular to it — the root-mirror tangent lock of A4.2); the **tip end** (Anchor;
-  carries the tip closure); the section **nose** (Anchor; fixed, vertical tangent, shared by both surfaces, with an
+  carries the tip closure *(1.7.3, Ruling 88 D3, Ruling 92: in v1 the open planar end at the last authored station, the one tip every consumer (VLM, RANS mesh, STEP export) reads)*); the section **nose** (Anchor; fixed, vertical tangent, shared by both surfaces, with an
   upper and a lower handle length and the LE radius as readouts); the **upper and lower trailing-edge terminal
   points** (Anchor; move up and down only; the TE gap and wedge angle are readouts). Selecting a named point and typing
   its position is how the designer "specifies a point".
@@ -941,7 +944,7 @@ bracket at both Ncrit; NeuralFoil-class results carry `analysis_confidence` (or 
 **Cavitation** — the fixed string "Cavitation screening (sheet, by −Cp_min): inception is possible above V_crit;
 not a prediction of inception, extent, tip-vortex or cloud cavitation; Cp_min resolution: N stations"; a user
 **margin** setting (default 15 %, labelled "practitioner assumption, not sourced"); σ_operating per station at
-h(y); the wing-level screen names the governing station and its depth; −Cp_min ≤ 0 → Undefined; missing p_v →
+h(y); the wing-level screen ~~names the governing station and its depth~~ *(1.7.3, Ruling 86, Ruling 92: is governed by the station with the smallest σ_i/(−Cp_min,i) and names that station and its depth)*; −Cp_min ≤ 0 → Undefined; missing p_v →
 Unavailable. **Ventilation** — the tip-depth margin from static geometry, Fr_h, and the fixed string "Static
 geometry; steady analysis cannot predict ventilation onset; onset is dynamic and hysteretic" (rendered per ANA-19).
 **Undefined** is a ratio whose denominator is ≤ 0 or non-physical; **Unavailable** is a missing input, component
@@ -1327,7 +1330,7 @@ occur (the twist rotation is one); the identity triple for geometry round trips.
 | 10⁻¹² relative | evaluated coordinates, loft samples, twisted station readouts, every hydrodynamic output |
 | identity oracle | geometry round trips (A4.5) |
 
-~~At readiness~~ *(1.7, DR-F2-9: when the backend pin changes, not at every readiness run)*: NASA TMR NACA 0012 with GCI (SPIKE-04, the Run/Results acceptance gate); readiness keeps the cavity-lid smoke test (A5.10). Every fixture is observed red before green and recorded in
+~~At readiness~~ *(1.7, DR-F2-9: when the backend pin changes, not at every readiness run)*: ~~NASA TMR NACA 0012 with GCI (SPIKE-04, the Run/Results acceptance gate)~~ *(1.7.3, Ruling 88 D16, Ruling 79, Ruling 92: NASA TMR NACA 0012, code-to-code against CFL3D (SPIKE-04); the GCI clause returns when an L3 grid triplet is admitted (Ruling 79))* (the Run/Results acceptance gate); readiness keeps the cavity-lid smoke test (A5.10). Every fixture is observed red before green and recorded in
 the Proof Pack.
 
 #### A8.5 Threat boundaries and the licence register
@@ -2702,7 +2705,7 @@ revision 1.1. Their **acceptance** waits on two spikes whose exit evidence is na
 stories are specified, testable against stubs, and labelled "gated" in the area strip. **SPIKE-03:** unattended
 `snappyHexMesh` across AR 5/8/12 wings on both OSes passing the ITTC mesh floors; **SPIKE-03b:** Gmsh
 boundary-layer mesh of the same wings to `.su2`; **SPIKE-04:** the three-grid convergence oracle on NASA TMR NACA
-0012 with GCI. The reserved items that remain vocabulary only: the Beam tier and every structural field (KB-18);
+~~0012 with GCI~~ *(1.7.3, Ruling 88 D16, Ruling 79, Ruling 92: NASA TMR NACA 0012, code-to-code against CFL3D (SPIKE-04); the GCI clause returns when an L3 grid triplet is admitted (Ruling 79))*. The reserved items that remain vocabulary only: the Beam tier and every structural field (KB-18);
 CFD-in-the-loop optimization (the optimize tier above VLM + strip); free-surface, cavitation and ventilation
 simulation (OpenFOAM-only, after the Duncan-class 2D de-risk slice below). The backend contract text of 1.0 that
 now lives in A5.10 and A5.11 is not repeated; what follows is the remainder. **Installation** is a state machine
@@ -3003,3 +3006,19 @@ digits until one shared tolerance is set; the Docker Desktop licence line is not
 Intel Macs are not supported; the state table and assistant eval stay in the design.
 **Count:** 29 amendments (23 + six from Ruling 70, AM-1.7.2-26 to -31) and two insertions (flow F7a; stories SETUP-01–09, which add nine acceptance criteria; the amendment ids AM-1.7.2-24 and -25 name these two) and no
 criterion removed; 7 items superseded in whole or in part, each marked in place.
+
+### H.3 — Changes from revision 1.7.2 (revision 1.7.3, 2026-10-05)
+
+**Why.** Ruling 92 (operator, 2026-10-05) approved, as drafted, the spec text that Rulings 86, 88 and 79 had left to the
+operator's wording. No amendment invents a product decision; the text is the ruling's text.
+
+**Changed** (each marked in place, the old text struck, not deleted):
+
+| Where | Before | After | Ruling |
+|---|---|---|---|
+| A5.4 Cavitation (the wing-level screen) | "names the governing station and its depth" | "is governed by the station with the smallest σ_i/(−Cp_min,i) and names that station and its depth" | Ruling 86, Ruling 92 |
+| A4 Named points, the tip end | "carries the tip closure" | "carries the tip closure — in v1 the open planar end at the last authored station, the one tip every consumer (VLM, RANS mesh, STEP export) reads" | Ruling 88 D3, Ruling 92 |
+| A5.10 readiness fixture and the SPIKE-03/04 paragraph (SPIKE-04) | "NASA TMR NACA 0012 with GCI" | "NASA TMR NACA 0012, code-to-code against CFL3D (SPIKE-04); the GCI clause returns when an L3 grid triplet is admitted (Ruling 79)" | Ruling 88 D16, Ruling 79, Ruling 92 |
+
+**Not in this revision.** The tip copy (COPY-218, COPY-219, COPY-220 and the new floor refusal) is a Ruling 92 code and
+Labels change, made by a separate track.

@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "22c88c7c729df8fd3e64eeb156959efd16e7272fd703c3989894bc185018f5ba"
+      "sourceSha256": "6636c4521d1b134f56a347247ab658f5074cb249c2e6429c263c3d4616df7aae"
     },
     {
       "id": "design-authoring-decisions",
@@ -6411,7 +6411,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f414c1ac2cb007b12121579b2a8ea8cdb92601279a0a3f46b4c4533b1ebc4fd4"
+      "sourceSha256": "9ab9c574037463dcf3b9ee4adfe4007efa2e969e9ea24a798bf6c3ede45b9ce9"
     },
     {
       "id": "kb-hw-glossary",
@@ -12865,7 +12865,7 @@ window.DOCS_INDEX = {
           "reason": "M1.2b adds token warning-viewport (#efc576, 9.48:1 on the viewport), a Point (v10) component row superseding the v5 control-vertex row on the Plan view, and re-measures danger-viewport at 8.78:1."
         }
       ],
-      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G). Revision 1.7 applies one batch of 49 spec-owner amendments approved in Ruling 66, each traced to a ruling (Rulings 53–66, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in the right side bar; Add point and Remove point applying at once (Appendix H; the batch is amendments/spec-1.7.md). Revision 1.7.1 applies Ruling 68: the A8.5 backend-substrate row and the A5.10 readiness text take the verified controlDict refusal and the right-sized launcher rules, and Run is enabled when the install smoke test shows Disallowing (Appendix H.1; amendments/spec-1.7.1.md). Revision 1.7.2 applies Ruling 69 and Ruling 67 OD-1: one verb, Set up a solver, that works with no key (RUN-01, AI-11, flow F7a, stories SETUP-01–09); the smoke test reads the final-time mean Courant number, not a Cl that a cavity cannot have; the Windows default route is OpenFOAM in an app-owned WSL distribution (Inferred until the Windows run); the exact command moves under Technical details; and the CAD ↔ Analysis shortcut is ⇧⌘A (Appendix H.2; amendments/spec-1.7.2.md).",
+      "summary": "The specification the product is built against. Seven discrete, complementary areas — Setup · CAD · Analysis · Experiment setup · Run · Results · Export — each with an AI prompt entry whose output is a typed, validated, previewed proposal. One explicit parametric definition whose payload reproduces its surface; an operating point that carries depth, water and a goal state; analysis tiers that may claim only what their fixtures earn; a catalog admitted by rights class; a sweep-or-optimize experiment driven end to end against OpenFOAM or SU2 with evidence by files; results as sequences of admitted samples with named bases; hard states and fixed copy for every honest limit. Revision 1.5 adds persistent section editing, shared-profile scope, draft-safe inspection, named design alternatives and explicit geometry-intent commands to FoilDSL authoring. Revision 1.6 makes the CAD area CAD-first (mockup v10): a start card, a workspace of views with a narrow left Properties pane and optional docks, per-point Anchor/Control types, typed Span/Root chord/Tip chord with always-visible derived Wing estimates (mean chord S/b, MAC, max t/c, AR, area), a section editor mode with Finish/Cancel, and Replace from catalog / Save to My sections; superseded 1.1a–1.5 wording is marked in place (Appendix G). Revision 1.7 applies one batch of 49 spec-owner amendments approved in Ruling 66, each traced to a ruling (Rulings 53–66, the property-grid and M1.2c rulings): the 4–16 vertex range under FoilDSL 4.1 with Add point, Remove point and Rebuild to N; paired section point types; the quarter-chord held line; the Evaluate verb, panel Cp, the depth-unset VLM label and the revised lattice oracles; the three-part residual criterion and the revised mesh gate; no Messages pane and Points in the right side bar; Add point and Remove point applying at once (Appendix H; the batch is amendments/spec-1.7.md). Revision 1.7.1 applies Ruling 68: the A8.5 backend-substrate row and the A5.10 readiness text take the verified controlDict refusal and the right-sized launcher rules, and Run is enabled when the install smoke test shows Disallowing (Appendix H.1; amendments/spec-1.7.1.md). Revision 1.7.2 applies Ruling 69 and Ruling 67 OD-1: one verb, Set up a solver, that works with no key (RUN-01, AI-11, flow F7a, stories SETUP-01–09); the smoke test reads the final-time mean Courant number, not a Cl that a cavity cannot have; the Windows default route is OpenFOAM in an app-owned WSL distribution (Inferred until the Windows run); the exact command moves under Technical details; and the CAD ↔ Analysis shortcut is ⇧⌘A (Appendix H.2; amendments/spec-1.7.2.md). Revision 1.7.3 applies Ruling 92 (with Rulings 86, 88 D3 and D16, and 79): the cavitation screen is governed by the station with the smallest σ_i/(−Cp_min,i), the v1 tip of record is the open planar end at the last authored station, and SPIKE-04 is code-to-code against CFL3D until an L3 grid triplet is admitted (Appendix H.3).",
       "tags": [
         "hydrofoil",
         "cad",
@@ -13051,7 +13051,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "22bb2ad519e1f2d6ccdfe2b8a9759f366d4672a6653d82dbf45da5a9b65cfe25"
+      "sourceSha256": "fd30de9c3c6b3f297c58c92c32c082f6d5b2d62489547d2e370be7b6f5d09464"
     },
     {
       "id": "spec-foildsl",
@@ -13418,5 +13418,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ee71ab9c68278917e9f7aea03dbca214031256c5a6607a5d386a2823ef57bb2a"
+  "graphSha256": "60617bc7ecca1dc3c4bbbe948f2a904d6f66919276c8ab8698efceaacfd014c6"
 };
