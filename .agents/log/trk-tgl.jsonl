@@ -1,0 +1,3 @@
+{"agent": "4e90c621", "at": 1791216701.67544, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-tgl", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feature-a3a-tgl"}
+{"action": "add", "agent": "trk-tgl", "at": 1791217024.8268108, "deadline_at": 1791217924.8268108, "id": "req-01M46DNFSVWSMSV5W2FKBBN7RJ", "kind": "request", "path": "-", "seq": 2, "session": "trk-tgl", "to": "4e90c621", "type": "request", "wi": "WI-0"}
+{"at": 1791217114.51959, "from": "trk-tgl", "kind": "blocked", "mail_id": "mail-01M46DR7CQ84C4JYHKQ1F82NPS", "ref": "req-01M46DNFSVWSMSV5W2FKBBN7RJ", "session": "trk-tgl", "to": "4e90c621", "type": "mail"}

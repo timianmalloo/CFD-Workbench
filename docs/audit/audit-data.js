@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:08:42Z",
+  "generated": "2026-10-05T16:25:58Z",
   "audit": [
     {
       "actor": null,
@@ -25211,39 +25211,167 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46D5GRMKYA2769PZGAMWD7E",
-      "shortname": "join-cad-e2-defects",
-      "datetime": "2026-10-05T16:08:21Z",
-      "session": "4e90c621",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "E2: refused section step restores the prior certificate (FLK-1), certificate cleared on land/exit; MakeIndependent retargets tangent rows from parsed id spans with a count guard; tangents-before-ids stays DSL-SYNTAX per foildsl.md:194 recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join cad-e2-defects into main (round-oct05)",
+      "datetime": "2026-10-05T16:08:21Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 64.0,
       "fan_out": 0,
+      "goal": "join cad-e2-defects into main (round-oct05)",
+      "id": "al-01M46D5GRMKYA2769PZGAMWD7E",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-cad-e2-defects",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-05T16:07:17Z",
-      "duration_seconds": 64.0
+      "summary": "E2: refused section step restores the prior certificate (FLK-1), certificate cleared on land/exit; MakeIndependent retargets tangent rows from parsed id spans with a count guard; tangents-before-ids stays DSL-SYNTAX per foildsl.md:194 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M46D651VH7V6JVWZCG0Z6442",
-      "shortname": "join-tip-handling",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T16:08:42Z",
+      "done_when": "join gates green",
+      "duration_seconds": 4.0,
+      "fan_out": 0,
+      "goal": "join tip-handling into main (round-oct05)",
+      "id": "al-01M46D651VH7V6JVWZCG0Z6442",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-tip-handling",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T16:08:38Z",
+      "summary": "docs/plans/tip-handling.md: 9-agent judge panel proposal; Ruling 78 kept with scope, two bounded measurements, 16 decisions (Ruling 88) recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T15:19:13Z",
+      "done_when": "Red-first A3b tests pass with 1% thin-section slope tolerance, planted mutants fail, full run-tests and check-docs pass, owned changes committed",
+      "duration_seconds": 1042.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/a3b-numerics",
+        "pushed": null,
+        "sha": "8775bcbe18f81043c390db98001f5df614641386",
+        "short": "8775bcbe1"
+      },
+      "goal": "Build Track D1 A3b section numerics on feature/a3b-numerics",
+      "id": "al-01M46ABHCCCPX2484RNJRV6Y8X",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Resume Track D1 A3b numerics from red-first commit 0322d70 and three uncommitted implementation files. Preserve them; prove red before green; implement inviscid linear-vorticity panel Cp, section estimator with one panel Cl definition and ITTC drag bound, and cavitation screen with COPY-48, N, 15% margin, alpha_eff and local depth. Tighten the thin symmetric panel lift slope to within 1% of 2pi at 200 panels and report observed value. Show planted mutants red, measured test costs, full run-tests and check-docs green, commit owned files and return evidence plus seams.",
+      "session": "trk-d1",
+      "shortname": "trk-d1",
+      "skill": "implement",
+      "started_at": "2026-10-05T15:01:51Z",
+      "summary": "Implemented A3b panel Cp, section estimator and cavitation screen; red-first proof and mutant checks; full ring and docs gate green",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/a3b/red-first.md",
+        "src/CfdWorkbench.Analysis/PanelMethod.cs",
+        "src/CfdWorkbench.Analysis/SectionEstimator.cs",
+        "src/CfdWorkbench.Analysis/Cavitation.cs"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-05T15:59:01Z",
+      "done_when": "Each finding committed, named tests and requested gates pass, proof and audit updated.",
+      "duration_seconds": 1635.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/a3b-numerics",
+        "pushed": null,
+        "sha": "f41fcfa60bb0ad679d9ec3e748d7f8f3f746182d",
+        "short": "f41fcfa60"
+      },
+      "goal": "Repair all five A3b review findings and produce honest numerical proof.",
+      "id": "al-01M46CMEA0VE91WY35456812GC",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "REPAIR CYCLE 1 of Track D1: repair reviewer blocker on cusp Cp and convergence proof, bound Cp_min error at the product default, make panel Cl/Cm/alpha_L0 single-source, apply operator Ruling 86 minimum local cavitation ratio, and test depth rotation and distinct unavailable reasons; rebase, run named tests, the full ring once, check docs, render and derive; each finding its own commit.",
+      "session": "trk-d1",
+      "shortname": "implement-a3b-review-repair",
+      "signals": {
+        "verification_executed": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-05T15:31:46Z",
+      "summary": "Five review findings repaired in separate commits with red-first numerical, section and cavitation tests. Fast oracle moved to 100/200/400 panels and 800-panel cusp proof to readiness after one full-ring cost failure under load 211.58. Proof records interior order, Cp_min error, 24-panel default deficit, and unresolved full-ring cost gate.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Analysis/PanelMethod.cs",
+        "src/CfdWorkbench.Analysis/SectionEstimator.cs",
+        "tests/CfdWorkbench.Analysis.Tests/PanelCpTests.cs",
+        "tests/CfdWorkbench.Analysis.Tests/SectionEstimatorTests.cs",
+        "docs/proof/a3b/red-first.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-05T16:14:04Z",
+      "done_when": "Source-station entry, red/green named tests, one full ring, docs check, proof, audit, derived views and commit are complete.",
+      "duration_seconds": 688.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "feature/a3b-numerics",
+        "pushed": null,
+        "sha": "c63104a2c8273ecd536800e74ec17b1565166572",
+        "short": "c63104a2c"
+      },
+      "goal": "Give A3b Cp an independent, measured default panel resolution below 2% KT Cp_min error.",
+      "id": "al-01M46DFZP39VPDF7PR4WRXT2N9",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "REPAIR CYCLE 2 (the last) of Track D1 — worktree /Users/mallalieut/projects/CFD-Workbench-feature-a3b-numerics, branch feature/a3b-numerics, AGENT_SESSION=trk-d1. Box 60 min.\n\nFirst command: `cd /Users/mallalieut/projects/CFD-Workbench-feature-a3b-numerics && export AGENT_SESSION=trk-d1 && python3 docs/ai-forward-pack/scripts/audit-log.py start --session trk-d1 --skill implement`\n\nYour cycle-1 repairs are accepted (TE exclusion with interior order ≈ 1, panel as the one definition, Ruling 86 governing\nrule, depth rotation, split reasons). One finding you surfaced is now the blocker: the product default feeds the panel\nmethod the VLM section sample — 13 chord positions, about 24 panels — and at that count Cp_min under-reads the suction\npeak by 26.6 %, more than the whole 15 % cavitation margin. The screen would be non-conservative at product defaults.\n\nFix it inside your own files, no Core change: `Placement.Sections(source, etas, xs, token)` takes the chord positions as a\nparameter (src/CfdWorkbench.Core/Placement.cs:319). The panel tier must sample each section at ITS OWN resolution,\nindependent of the VLM's xs:\n1. Add to `SectionEstimator.cs` / `PanelMethod.cs` an entry that takes the source, the station eta and a panel count and\n   calls `Placement.Sections` with its own cosine-spaced xs (do not touch AnalysisService.cs — the service wiring is a\n   later seam; expose the entry it will call).\n2. Choose the default panel count from evidence: Cp_min error vs the exact KT reference must be <= 2 % at the default\n   (reviewer measured 6.8 / 3.5 / 1.6 % at 100 / 200 / 400 panels). Put the default and its measured error in a constant\n   with a comment citing the measurement. A test asserts the error at the default count (red at 24 panels). Measure the\n   per-section cost at the default and state the per-wing cost for the default station count.\n3. The proof states: Cp_min error at the default, the share of the 15 % margin it consumes, and that the VLM sample is not\n   used for Cp.\n4. Do not change C-2/C-5 limits. The full-ring cost failure you saw (Analysis 15.7 s at load 211) is load: Ruling 87 gates\n   C-2 above load 24 once Track B1b joins. If a NEW test of yours is individually over its C-5 per-test limit on a quiet\n   run, move it to the readiness ring with its stated cost (as you did for the 800-panel case).\nRebase onto origin/main first. Named tests via CFD_TEST_ONLY, then one full `tools/run-tests.sh` (report cost lines with\nthe load; a cost line at load > 24 is not your failure), `python3 tools/check-docs.py`. Audit entry WITH `--prompt`,\nrender, derive, commit. Return `## Return trk-d1` with commits, evidence, and \"### Not done / risks\".",
+      "session": "trk-d1",
+      "shortname": "implement-a3b-panel-resolution",
+      "signals": {
+        "verification_executed": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-05T16:02:36Z",
+      "summary": "Added a 400-panel source-station entry; KT Cp_min error 1.612%; named tests and docs passed; full ring 124 Analysis PASS but 65 s wall at load 66.68→88.70 exited 3 on 60 s budget.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M46E5RRJ6K9NTFTC2Y6GVK14",
+      "shortname": "join-a3b-numerics",
+      "datetime": "2026-10-05T16:25:58Z",
       "session": "4e90c621",
       "prompt": "the join of the resolved merge into main",
-      "summary": "docs/plans/tip-handling.md: 9-agent judge panel proposal; Ruling 78 kept with scope, two bounded measurements, 16 decisions (Ruling 88) recount_seconds=0 (docs_only=True).",
+      "summary": "D1: linear-vorticity panel method with TE-cusp exclusion (interior order ~1), panel as the single source of Cl/Cm/alpha_L0, 400-panel independent section sampling (Cp_min 1.61 % KT), cavitation screen governed by min sigma/(-Cp_min) (Ruling 86); CFD re-review cleared; cost option pending DR-A3b-COST recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -25252,7 +25380,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join tip-handling into main (round-oct05)",
+      "goal": "join a3b-numerics into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -25261,8 +25389,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-05T16:08:38Z",
-      "duration_seconds": 4.0
+      "started_at": "2026-10-05T16:24:48Z",
+      "duration_seconds": 70.0
     }
   ],
   "changes": [
@@ -26490,6 +26618,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M46CM5RT3RPPHPR3CD96KD34",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46DR7CQ84C4JYHKQ1F82NPS",
+      "ts": "2026-10-05T16:18:34Z",
+      "from": "trk-tgl",
+      "to": "4e90c621",
+      "kind": "blocked",
+      "ref": "req-01M46DNFSVWSMSV5W2FKBBN7RJ",
+      "session": "trk-tgl"
+    },
+    {
+      "id": "mail-01M46E2WM6PBTAJYD5NQ1J71KG",
+      "ts": "2026-10-05T16:24:23Z",
+      "from": "4e90c621",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M46E2WM0FZJ0703CNWB6MEM7",
+      "session": "4e90c621"
     }
   ]
 };
