@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T02:03:05Z",
+  "generated": "2026-10-05T03:01:36Z",
   "audit": [
     {
       "actor": null,
@@ -24336,6 +24336,31 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-05T02:01:41Z",
+      "duration_seconds": 84.0
+    },
+    {
+      "id": "al-01M4504XTFKZ3SHH2EA4YT9ZMV",
+      "shortname": "join-m12d-ctl",
+      "datetime": "2026-10-05T03:01:36Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12d-ctl into feature/ui-cad-direction",
+      "summary": "CTL (Grok 4.7) + CTL-2 + CTL-3: preview off the UI thread, latest-wins with DraftId/Generation check (stale apply refuses DSL-STALE), cleared on refusal/step/exit/apply, refusals reported with CAT-* copy; FoilSource.Parse + public ProfileBlock (no InternalsVisibleTo); catalog/library telemetry on the session ring with null for not-recorded; save off the UI thread with a token; replace status arm. C# review: 2 rounds, all findings closed. 7/7 named PASS. One intermittent status-strip part timeout seen once under the full suite (5/5 alone). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T03:00:12Z",
       "duration_seconds": 84.0
     }
   ],
