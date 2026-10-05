@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T00:08:50Z",
+  "generated": "2026-10-05T00:10:30Z",
   "audit": [
     {
       "actor": null,
@@ -24003,6 +24003,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T00:07:14Z",
       "duration_seconds": 96.0
+    },
+    {
+      "id": "al-01M44PBMP40JEWNKQWGZG8Q6TX",
+      "shortname": "join-a3a-svc2",
+      "datetime": "2026-10-05T00:10:30Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/a3a-svc-review into feature/ui-cad-direction",
+      "summary": "SVC-2 (Opus 5.5): 9 review findings closed (16 planted mutants red). RunDiagnostics? on Failed rows (CheckRow enforces), ANA-UNEXPECTED outcome, SectionEtas/Xs in RunSettings (ANA-INPUT-STATIONS), cancel outside the lock, same-key re-read, ANA-INPUT-WATER. Re-review PASS; open nits: IsFaulted tautology, CLI-vs-GUI key check, inspect --runs RevisionOf, CTS leak if a cancel callback throws. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:08:56Z",
+      "duration_seconds": 94.0
     }
   ],
   "changes": [
