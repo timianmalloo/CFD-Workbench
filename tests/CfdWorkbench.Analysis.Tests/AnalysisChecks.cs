@@ -25,6 +25,7 @@ internal static class AnalysisChecks
             LatticeFixtureTests.RunReadiness();
             RunStoreTests.RunReadiness();
             FreshnessTests.RunReadiness();
+            PanelCpTests.RunReadiness();
             return Finish();
         }
         ArchitectureTests.Run();
