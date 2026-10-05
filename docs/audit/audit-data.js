@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T01:15:25Z",
+  "generated": "2026-10-05T01:32:23Z",
   "audit": [
     {
       "actor": null,
@@ -24232,6 +24232,21 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T01:13:58Z",
       "duration_seconds": 87.0
+    },
+    {
+      "id": "al-01M44V1J9E75NBQ6037KX4H8BW",
+      "shortname": "Track STP-2: merge integration head dd6b985, regenerate F-17 on vlm-stri…",
+      "datetime": "2026-10-05T01:32:23Z",
+      "session": "prompt-log",
+      "prompt": "Track STP-2: merge integration head dd6b985, regenerate F-17 on vlm-strip 1.1.0, reconfirm F-8, move four Analysis checks to --readiness, run the join gates.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [
