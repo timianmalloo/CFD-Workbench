@@ -9,6 +9,7 @@ internal static class PanelCpTests
 
     private static void KarmanTrefftz()
     {
+        AnalysisChecks.Equal("inviscid; no boundary layer", PanelMethod.ModelLabel, "method label");
         // The Kármán–Trefftz family at exponent 2 is the Joukowski cusp. The circle passes through ζ=1;
         // W'(1)=0 fixes the circulation. This independent conformal-map oracle tests both surfaces.
         double[] errors = new double[3];

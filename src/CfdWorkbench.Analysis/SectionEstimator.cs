@@ -59,6 +59,6 @@ public static class SectionEstimator
         double tc = section.Frame.ThicknessRatio;
         double cd = 2 * cf * (1 + 2 * tc + 60 * Math.Pow(tc, 4));
         PanelResult panel = PanelMethod.Solve(section, alphaDeg, cancellation);
-        return new(panel, alphaL0 * 180 / Math.PI, cmQuarter, cd);
+        return new(panel, VortexLattice.ToDegrees(alphaL0), cmQuarter, cd);
     }
 }

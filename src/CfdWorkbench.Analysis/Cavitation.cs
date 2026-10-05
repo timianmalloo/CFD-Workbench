@@ -77,7 +77,7 @@ public static class Cavitation
         if (op.HRef is double h)
         {
             // Rotate each leading-edge position about the run's root-LE datum by the geometric incidence.
-            double alpha = op.AlphaDeg * Math.PI / 180;
+            double alpha = VortexLattice.ToRadians(op.AlphaDeg);
             StationFrame frame = governing!.Section.Frame;
             double rise = (frame.ElevationMeters - datum.ElevationMeters) * Math.Cos(alpha) -
                 (frame.LeadingMeters - datum.LeadingMeters) * Math.Sin(alpha);

@@ -18,6 +18,7 @@ public sealed record PanelResult(IReadOnlyList<PanelCp> Upper, IReadOnlyList<Pan
 /// </summary>
 public static class PanelMethod
 {
+    public const string ModelLabel = "inviscid; no boundary layer";
     private const double TwoPi = 2 * Math.PI;
 
     public static PanelResult Solve(SectionSample section, double alphaDeg, CancellationToken cancellation = default)
@@ -58,7 +59,7 @@ public static class PanelMethod
             if (!(length > 1e-12)) throw new ContractError("ANA-PANEL-GEOMETRY", "A panel has zero length.");
             segments[j] = new(p, q, length, (q.X - p.X) / length, (q.Z - p.Z) / length);
         }
-        double angle = alphaDeg * Math.PI / 180;
+        double angle = VortexLattice.ToRadians(alphaDeg);
         double vx = Math.Cos(angle), vz = Math.Sin(angle);
         double[] matrix = new double[unknowns * unknowns];
         double[] tangential = new double[panels * unknowns];
