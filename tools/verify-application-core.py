@@ -16,27 +16,14 @@ import tempfile
 import threading
 import time
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from store_subset import STORE_PREFIXES, partition_names  # noqa: E402
+
 for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parents[1]
-# The umask- and native-sensitive checks: every check in ProjectStoreTests.cs, LayoutFileTests.cs,
-# PreferenceStoreTests.cs and SectionLibraryTests.cs (My sections writes files, M1.2d). They are the only Core checks that create files, read
-# CFD_TEST_UMASK, load libcfd_store, or (P1) depend on the preference store's owner-only file
-# modes. The rest of the suite runs once per build shape; these also run under the other masks
-# and the fault variants (F2).
-STORE_TESTS = ROOT / "tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs"
-STORE_TEST_FILES = (
-    STORE_TESTS,
-    ROOT / "tests/CfdWorkbench.Core.Tests/LayoutFileTests.cs",
-    ROOT / "tests/CfdWorkbench.Core.Tests/PreferenceStoreTests.cs",
-    ROOT / "tests/CfdWorkbench.Core.Tests/SectionLibraryTests.cs",
-)
-STORE_PREFIXES = ("Store_", "NativePrimitive_",
-                   "LayoutParse_", "LayoutCodec_", "RecentParse_",
-                   "LayoutLoad_", "Rollback_", "PrefStore_", "PrefsSave_", "LayoutSave_",
-                   "Recent_", "StoreContract_", "Backup_", "Library_")
 STORE_SUBSET = ",".join(STORE_PREFIXES)
 # Checks that run only under a fault variant, never in a normal run.
 # The published full suite runs as this many concurrent parts (test-cost L3; part model 16.6/14.8/15.1 s of 45 s).
@@ -44,36 +31,11 @@ PARTS = 3
 VARIANT_CHECKS = {"Store_OwnerStrippingUmask_FailsClosedWithoutRepair", "Store_MissingOrUnloadableHelper_FailsClosed"}
 # Store checks registered only in the Core `--readiness` tier (design area3-analysis.md §18.6): never in a normal run.
 READINESS_CHECKS = {"Store_HundredThousandStrips_RefusedDocSize"}
-# Anything that could make a check depend on the umask, the environment or the native helper.
-# Reading the example files, and listing a directory to read it, are umask-independent and allowed
-# (a umask only shapes the modes of files a process creates). The harness entry point reads
-# CFD_TEST_ONLY and names every suite, so it is exempt.
-SENSITIVE = re.compile(r"\bFile\.(?!ReadAll(?:Bytes|Text)\b)|\bDirectory\.(?!(?:EnumerateFiles|GetFiles)\b)|\bFileStream\b|\bFileInfo\b|GetTempPath"
-                       r"|GetEnvironmentVariable|DllImport|LibraryImport|\bProjectStore\b"
-                       r'|(?<!InternalsVisibleTo\(")CfdWorkbench\.Persistence')
-PARTITION_EXEMPT = {path.name for path in STORE_TEST_FILES} | {"IdentityTests.cs"}
 
 
 def store_checks_selectable() -> set[str]:
     """Return the normal-run store check names; fail if the umask partition no longer holds."""
-    names: list[str] = []
-    for file in STORE_TEST_FILES:
-        source = file.read_text(encoding="utf-8")
-        file_names = re.findall(r'\bCheck\("([^"]+)"', source)
-        stray = [name for name in file_names if not name.startswith(STORE_PREFIXES)]
-        if not file_names or stray or len(file_names) != len(re.findall(r"\bCheck\(", source)):
-            raise SystemExit(f"STORE-SUBSET: every check in {file.name} needs a literal name "
-                             f"starting with one of {STORE_PREFIXES}; found {len(file_names)}, stray {stray}")
-        names.extend(file_names)
-    # A file, environment or native dependency outside the store files would run at one umask only.
-    others = [path for path in sorted(STORE_TESTS.parent.glob("*.cs")) if path.name not in PARTITION_EXEMPT]
-    others += sorted((ROOT / "src/CfdWorkbench.Core").glob("*.cs"))
-    leaks = [f"{path.parent.name}/{path.name}:{number}" for path in others
-             for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1) if SENSITIVE.search(line)]
-    if leaks:
-        raise SystemExit(f"STORE-SUBSET: umask/native-sensitive code outside {STORE_TEST_FILES} would run at one "
-                         f"umask only; move it into the store checks or widen the subset: {leaks}")
-    return set(names) - VARIANT_CHECKS - READINESS_CHECKS
+    return set(partition_names()) - VARIANT_CHECKS - READINESS_CHECKS
 
 
 def passes(scratch: Path, label: str) -> set[str]:
@@ -86,6 +48,7 @@ def require_passes(label: str, expected: set[str], actual: set[str]) -> None:
     if not expected or actual != expected:
         raise SystemExit(f"STORE-SUBSET: {label} passed {len(actual)} checks, expected {len(expected)}; "
                          f"missing {sorted(expected - actual)}, extra {sorted(actual - expected)}")
+
 
 def process_table() -> dict[int, dict[str, object]]:
     """Read POSIX process identities; never substitute a guessed identity."""

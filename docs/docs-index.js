@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0d77e44415deb2b81fc60c118ff30176a4fb9ac59da8e4b12809b16caf35e91e"
+      "sourceSha256": "c663e9f1878397fb2e47b35407caa3aba34879b3d0c614e195d8374ee41908ad"
     },
     {
       "id": "design-authoring-decisions",
@@ -5080,7 +5080,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dd3e893e4e73cb5aa44a3e830c045f89ce8500f5f53a88ae1ee9ab089a703b77"
+      "sourceSha256": "433b18582db86fd28aecda3d727dd82b63e744c9aee4fd0c633e564b6dcc0ffc"
     },
     {
       "id": "plan-foil-editing-flow-results",
@@ -13147,5 +13147,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "6f82cde0fa0d6f745c1cc0788ad31a4200e960c30775b095b599b733234852ba"
+  "graphSha256": "852ffb81587155746060c08b9b5561aee281ac22418c46a427a5eff68c7ef488"
 };

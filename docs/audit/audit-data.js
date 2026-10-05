@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T15:44:57Z",
+  "generated": "2026-10-05T15:52:44Z",
   "audit": [
     {
       "actor": null,
@@ -24949,6 +24949,34 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "949e04f87119ece250a6877d83799cc1ea0eb92a",
         "short": "949e04f87",
+        "branch": "chore/c-copy-findings",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M46C8XN2HKBTQ9SH4VF6X60T",
+      "shortname": "trk-c",
+      "datetime": "2026-10-05T15:52:44Z",
+      "session": "trk-c",
+      "prompt": "Track C repair: one STORE-SUBSET definition",
+      "summary": "STORE-SUBSET rule moved to tools/store_subset.py; check-docs.py and verify-application-core.py both import it (no copy); planted File.WriteAllText exits 1, clean 0; 83 selectable checks unchanged; inspect --runs revision label line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "One STORE-SUBSET definition and the revision label line",
+      "done_when": "check-docs planted nonzero and clean zero; run-verify-gates green",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-10-05T15:48:10Z",
+      "duration_seconds": 274.0,
+      "git": {
+        "sha": "09b17b9003362e40a66f06d08da06bbbb689d6bc",
+        "short": "09b17b900",
         "branch": "chore/c-copy-findings",
         "pushed": null
       }
