@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:47:04Z",
+  "generated": "2026-10-05T17:07:58Z",
   "audit": [
     {
       "actor": null,
@@ -25674,6 +25674,34 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T16:47:01Z",
       "duration_seconds": 3.0
+    },
+    {
+      "id": "al-01M46GJN5HZPME0THWSDHDYEG0",
+      "shortname": "tip-rules",
+      "datetime": "2026-10-05T17:07:57Z",
+      "session": "trk-tip",
+      "prompt": "TIP-RULES Rulings 92-94",
+      "summary": "Core TipChord (max 5 mm, 2 % root), enforced in AuthoringSession.Commit with DSL-TIP-CHORD-MIN; Open exempt, edits no worse than the revision admitted; ANA-TIP-BELOW-FLOOR reads Core, COPY-241; COPY-218/219 retired, COPY-220 Not judged, COPY-241/242 added; status-strip toast tests adjusted.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Rulings 93/94 minimum tip chord in Core, enforced at Commit; analysis backstop on the same definition; copy rows 218-220, 241, 242",
+      "done_when": "named tests, full ring (C-2 aside), check-docs and verify gates green; commits on feature/tip-rules",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-05T16:49:19Z",
+      "duration_seconds": 1118.0,
+      "git": {
+        "sha": "fa4917c6ff0411594c8f2258b63cd4361f5d4b1a",
+        "short": "fa4917c6f",
+        "branch": "feature/tip-rules",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -26981,6 +27009,24 @@ window.AUDIT_DATA = {
       "to": "4e90c621",
       "kind": "ruling",
       "ref": "req-01M46F8Q4RB9GRVPNT6NV7T8YD",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46FFDFGTV005DTBZFG4MGZE",
+      "ts": "2026-10-05T16:48:42Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46FFDFCSR0SV240Y1YG7ZB0",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46FFDRCW4CAKQFZM7CD32Z6",
+      "ts": "2026-10-05T16:48:43Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46FFDFCSR0SV240Y1YG7ZB0",
       "session": "operator-timianmalloo"
     }
   ]
