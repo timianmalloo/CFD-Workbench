@@ -211,7 +211,7 @@ internal static class StripFixtureTests
             StripVerdict verdict = MethodRecord.JudgeStrip(strip.AlphaEff, 0, strip.ClLocal, 0, strip.Provisional);
             if (tip)
             {
-                if (!verdict.Provisional || verdict.Text != "provisional")
+                if (!verdict.Provisional || verdict.Text != Labels.TipNotJudged)
                     throw new InvalidOperationException("strip " + i + " verdict " + verdict.Text);
             }
             else if (verdict.Provisional

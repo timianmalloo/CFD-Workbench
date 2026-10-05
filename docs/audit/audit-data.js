@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T17:07:58Z",
+  "generated": "2026-10-05T17:21:57Z",
   "audit": [
     {
       "actor": null,
@@ -25702,6 +25702,34 @@ window.AUDIT_DATA = {
         "branch": "feature/tip-rules",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M46HC8K8FXAZH9FT43J3RCKC",
+      "shortname": "tip-rules-repair1",
+      "datetime": "2026-10-05T17:21:56Z",
+      "session": "trk-tip",
+      "prompt": "TIP-RULES repair 1 + spec 1.7.4",
+      "summary": "Refusal cleanup (pendingCurveFamily), Admits without ratchet slack and non-finite old tip, JudgeStrip text via Labels.TipNotJudged, verbatim verdict test, TipChord constants regrouped, spec 1.7.4 with H.4 and copy note, HTML re-rendered.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "repair cycle 1: reviewer findings 1-6 and spec 1.7.4 per Ruling 95",
+      "done_when": "findings answered, spec rendered and checked, ring/check-docs/gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-05T17:10:44Z",
+      "duration_seconds": 672.0,
+      "git": {
+        "sha": "dba6be952fe3b3cad61de7a655d1be096b202b29",
+        "short": "dba6be952",
+        "branch": "feature/tip-rules",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -27027,6 +27055,24 @@ window.AUDIT_DATA = {
       "to": "4e90c621",
       "kind": "ruling",
       "ref": "req-01M46FFDFCSR0SV240Y1YG7ZB0",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46GPTA47W8MK269Q1V980C8",
+      "ts": "2026-10-05T17:10:14Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46GPT9Z227PS7GNTB8TN1A7",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46GPTVSZYYYHAGE5DK0P6HR",
+      "ts": "2026-10-05T17:10:14Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46GPT9Z227PS7GNTB8TN1A7",
       "session": "operator-timianmalloo"
     }
   ]
