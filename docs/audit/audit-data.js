@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T01:58:19Z",
+  "generated": "2026-10-05T02:03:05Z",
   "audit": [
     {
       "actor": null,
@@ -24312,6 +24312,31 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M44WSS2FZTNCZKGXFD8E00D6",
+      "shortname": "join-a3a-stp-followup",
+      "datetime": "2026-10-05T02:03:05Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/a3a-stp-followup into feature/ui-cad-direction",
+      "summary": "STP-3 (Grok 4.7), the CFD review's two conditions: F-17 compares lift/induced drag/strip gamma at 1e-12, the residual as a <= 1e-10 bound, kappa1 at 1e-6, with a provenance header (mutants: residual 3rd digit green, lift 1e-9 red). StripLoad gains provisional + provisionalReason (omitted when false; hashes unchanged); the outermost strip per half is ANA-TIP-PROVISIONAL and its envelope reads provisional (Example foil: strips 0 and 127). No UI copy (held for the operator). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T02:01:41Z",
+      "duration_seconds": 84.0
     }
   ],
   "changes": [
