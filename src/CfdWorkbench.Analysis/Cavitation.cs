@@ -34,9 +34,15 @@ public static class Cavitation
         if (pv is null || depth is null)
             return new(CavitationState.Unavailable, copy, margin, marginFraction, null, null, cpMin, stationCount,
                 station, depth, pv is null ? "Unavailable — vapour pressure missing" : "Unavailable — depth not set");
-        if (!double.IsFinite(pv.Value) || pv < 0 || !double.IsFinite(depth.Value) || depth <= 0)
+        if (!double.IsFinite(pv.Value) || pv < 0)
             return new(CavitationState.Unavailable, copy, margin, marginFraction, null, null, cpMin, stationCount,
-                station, depth, "Unavailable — local station is surface piercing or water is invalid");
+                station, depth, "Unavailable — water is invalid");
+        if (!double.IsFinite(depth.Value))
+            return new(CavitationState.Unavailable, copy, margin, marginFraction, null, null, cpMin, stationCount,
+                station, depth, "Unavailable — local depth is invalid");
+        if (depth <= 0)
+            return new(CavitationState.Unavailable, copy, margin, marginFraction, null, null, cpMin, stationCount,
+                station, depth, "Unavailable — local station is surface piercing");
         double suction = -cpMin;
         if (suction <= 0)
             return new(CavitationState.Undefined, copy, margin, marginFraction, null, null, cpMin, stationCount,

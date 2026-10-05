@@ -13,6 +13,8 @@ internal static class CavitationTests
         AnalysisChecks.Check("Cavitation_PvOrDepthMissing_Unavailable", Unavailable);
         AnalysisChecks.Check("Cavitation_GoverningStation_AtAlphaEffAndLocalDepth", Governing);
         AnalysisChecks.Check("Cavitation_GoverningStation_MinLocalRatio", MinLocalRatio);
+        AnalysisChecks.Check("Cavitation_DepthRotation_PositiveAftRise", DepthRotation);
+        AnalysisChecks.Check("Cavitation_SurfacePiercingAndInvalidWater_DistinctReasons", DistinctReasons);
     }
 
     private static void String()
@@ -92,6 +94,27 @@ internal static class CavitationTests
         AnalysisChecks.Equal("η 0", wing.GoverningStation, "minimum σ/(-Cp_min) station");
         Near(0.1, wing.GoverningDepth, "shallower governing depth");
         Near(rootCp.CpMin, wing.CpMin, "shallower station Cp_min");
+    }
+
+    private static void DepthRotation()
+    {
+        SectionSample basic = SectionEstimatorTests.Section(0, 0.08, 100);
+        StationFrame datum = basic.Frame;
+        SectionSample aft = basic with { Frame = datum with { LeadingMeters = datum.LeadingMeters + 0.2 } };
+        CavitationResult wing = Cavitation.ScreenWing([new CavitationStation(aft, 0)],
+            OperatingPoints.Custom(5, 30, 0.4), 1000, 1700, datum);
+        // +x aft, +z up: positive incidence lowers an aft LE, increasing depth by 0.2 sin(30°).
+        Near(0.5, wing.GoverningDepth, "positive-incidence aft LE depth");
+    }
+
+    private static void DistinctReasons()
+    {
+        CavitationResult piercing = Cavitation.Screen(-2, 100, -0.1, 5, 1000, 101325, 1700, "η 0");
+        CavitationResult invalidWater = Cavitation.Screen(-2, 100, 0.4, 5, 1000, 101325, double.NaN, "η 0");
+        AnalysisChecks.Equal(CavitationState.Unavailable, piercing.State, "surface piercing state");
+        AnalysisChecks.Equal(CavitationState.Unavailable, invalidWater.State, "invalid water state");
+        AnalysisChecks.Equal("Unavailable — local station is surface piercing", piercing.Reason, "surface reason");
+        AnalysisChecks.Equal("Unavailable — water is invalid", invalidWater.Reason, "water reason");
     }
 
     private static void Near(double expected, double? actual, string what)
