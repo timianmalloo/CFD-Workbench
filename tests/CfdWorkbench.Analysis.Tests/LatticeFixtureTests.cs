@@ -33,6 +33,9 @@ internal static class LatticeFixtureTests
         Check("F4_MirroredWing_NoSideForceRollYaw", F4);
         Check("Vlm_PivotingSolve_ResidualAfterOneSolve", PivotingSolve);
         Check("F7_LinearWashout_TipAlphaEffBelowRoot", F7);
+        Check("F18_Camber4_DefaultLatticeTipConverges", F18);
+        Check("F19_Washin1_DefaultLatticeTipConverges", F19);
+        Check("F20_EllipticStraightQuarterChord_SweepZero", F20);
         Check("F16_BertinSmithSwept_ClAlpha3p443", F16);
         Check("Vlm_ClosingTip_FiniteAndListed", ClosingTip);
         Check("Vlm_NonFinite_RecordsFailedNotZero", NonFinite);
@@ -288,6 +291,61 @@ internal static class LatticeFixtureTests
             throw new InvalidOperationException("flipped twist tip " + Num(flippedTipEff) + " root " + Num(flippedRootEff));
     }
 
+    private static void F18() => NonplanarTip("camber", ParabolicCamber, 0);
+
+    private static void F19() => NonplanarTip("washin", null, 1);
+
+    private static void NonplanarTip(string label, Func<double, double, double, double>? camber, double tipTwist)
+    {
+        const double area = 0.5;
+        var wings = new Dictionary<int, LatticeSolution>();
+        foreach (int n in new[] { 32, 64, 128, 256 })
+        {
+            LatticeSolution wing = StudyRectangle(n, camber, tipTwist);
+            wings.Add(n, wing);
+            Console.WriteLine("MEASURE " + label + " n=" + n + " tipAi=" + Num(Outermost(wing).InducedAngleDeg)
+                + " CL=" + Num(Coefficient(wing, area)) + " kappa1=" + Num(wing.Diagnostics.Kappa1)
+                + " backward=" + Num(wing.Diagnostics.ResidualInf));
+            if (!(wing.Diagnostics.ResidualInf <= 1e-10))
+                throw new InvalidOperationException(label + " n=" + n + " backward error " + Num(wing.Diagnostics.ResidualInf));
+        }
+        double ai64 = Outermost(wings[64]).InducedAngleDeg;
+        double ai128 = Outermost(wings[128]).InducedAngleDeg;
+        if (!(Math.Abs(ai64 - ai128) <= 0.1))
+            throw new InvalidOperationException(label + " tip α_i n64/n128 " + Num(ai64) + "/" + Num(ai128));
+        double cl64 = Coefficient(wings[64], area), cl128 = Coefficient(wings[128], area);
+        if (!(Math.Abs(cl64 - cl128) / Math.Abs(cl128) <= 0.01))
+            throw new InvalidOperationException(label + " CL n64/n128 " + Num(cl64) + "/" + Num(cl128));
+        LatticeSolution flat = StudyRectangle(64, null, 0);
+        if (!(wings[64].Diagnostics.Kappa1 <= 10 * flat.Diagnostics.Kappa1))
+            throw new InvalidOperationException(label + " κ₁ " + Num(wings[64].Diagnostics.Kappa1)
+                + " exceeds 10× flat " + Num(flat.Diagnostics.Kappa1));
+    }
+
+    private static void F20()
+    {
+        foreach (int n in new[] { 16, 32, 64, 128, 256 })
+        {
+            LatticeSolution wing = Elliptic(n, LatticePlant.None, "cosine");
+            double maximum = wing.Strips.Max(strip => Math.Abs(strip.SweepDeg));
+            Console.WriteLine("MEASURE straight-quarter-chord n=" + n + " maxSweep=" + Num(maximum));
+            if (!(maximum <= 1e-9))
+                throw new InvalidOperationException("quarter-chord sweep at n=" + n + " is " + Num(maximum));
+        }
+    }
+
+    private static double ParabolicCamber(double y, double f, double chord) => 0.16 * f * (1 - f) * chord;
+
+    private static LatticeSolution StudyRectangle(int n, Func<double, double, double, double>? camber, double tipTwist)
+    {
+        const double half = 1, chord = 0.25;
+        var sections = new List<SectionSample>();
+        foreach (double y in Nodes(-half, half, n, "cosine"))
+            sections.Add(Section(y, -chord / 4, chord, 0, tipTwist * Math.Abs(y) / half,
+                y / half, 2 * half, camber, camber is null ? 4 : 20));
+        return VortexLattice.Solve(sections, Lattice(n, 4, "cosine"), At(5), Rho, default);
+    }
+
     private static void F16()
     {
         double slope = SweptSlope(LatticePlant.None);
@@ -464,9 +522,10 @@ internal static class LatticeFixtureTests
             .Select(y => Section(y, 0, chord, 0, 0, y / half, 2 * half, null)).ToList();
 
     private static SectionSample Section(double y, double xLe, double chord, double z, double twistDeg, double eta, double span,
-        Func<double, double, double, double>? camber)
+        Func<double, double, double, double>? camber, int camberIntervals = 4)
     {
-        double[] fractions = camber is null ? [0, 1] : [0, 0.25, 0.5, 0.75, 1];
+        double[] fractions = camber is null ? [0, 1] : Enumerable.Range(0, camberIntervals + 1)
+            .Select(i => i / (double)camberIntervals).ToArray();
         double rad = twistDeg * (Math.PI / 180);
         double cosine = Math.Cos(rad), sine = Math.Sin(rad);
         double pivot = xLe + 0.25 * chord;
