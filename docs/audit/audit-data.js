@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:47:04Z",
+  "generated": "2026-10-05T18:15:52Z",
   "audit": [
     {
       "actor": null,
@@ -25649,12 +25649,66 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46FCDDNYBA87WTMZH5DDP8R",
-      "shortname": "join-rulings-92-93",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T16:47:04Z",
+      "done_when": "join gates green",
+      "duration_seconds": 3.0,
+      "fan_out": 0,
+      "goal": "join rulings-92-93 into main (round-oct05)",
+      "id": "al-01M46FCDDNYBA87WTMZH5DDP8R",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-rulings-92-93",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T16:47:01Z",
+      "summary": "Rulings 92 (tip copy, spec amendments) and 93 (min tip chord max(5 mm, 2 % root) as a design rule); spec 1.7.3 rendered and parity-checked; design 5.1 rows (panel single definition, 200 panels, cavitation governing rule, residual margin) recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T18:12:55Z",
+      "done_when": "C-2 margin, ring <= 60 s x3 under load, PASS union unchanged, gates green",
+      "duration_seconds": 5161.0,
+      "git": {
+        "branch": "perf/ring-b2",
+        "pushed": null,
+        "sha": "1a02e4884c25f7a2b6b336ec1338ba7939263bb6",
+        "short": "1a02e4884"
+      },
+      "goal": "Bring Analysis under C-2 at quiet load and the ring under 60 s with a concurrent build",
+      "id": "al-01M46M9KWSSVF7YAVTJ4MA0YNT",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "B2 fast ring",
+      "session": "trk-b2",
+      "shortname": "b2-fast-ring",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:46:54Z",
+      "summary": "B2: Analysis harness cheaper with A8.4 checks kept in ring 0 (F6 trios parallel, F18/F19 n64 smokes, n128 bodies to readiness, 2 s stagger): 5.39 s to 4.3-4.4 s at quiet load. Ring beside a concurrent build 63 to 53-57 s (TieredPGO off, Core 3 parts, Desktop longest-first). C-3/C-4 reverted to 13.4 limits. tools/run-suite.sh lock wrapper.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M46MF00JC8RYD33RCV75JYBC",
+      "shortname": "join-ring-b2",
+      "datetime": "2026-10-05T18:15:52Z",
       "session": "4e90c621",
       "prompt": "the join of the resolved merge into main",
-      "summary": "Rulings 92 (tip copy, spec amendments) and 93 (min tip chord max(5 mm, 2 % root) as a design rule); spec 1.7.3 rendered and parity-checked; design 5.1 rows (panel single definition, 200 panels, cavitation governing rule, residual margin) recount_seconds=0 (docs_only=True).",
+      "summary": "B2: Analysis 4.3-4.4 s quiet (F6 parallel trios, F18/F19 n32/n64 smokes + n128 readiness), ring CPU -15 % (DOTNET_TieredPGO=0), Core 3 parts, Desktop longest-first, ring under one concurrent build 53-57 s, quiet 44-46 s; Ruling 84 cond. 3 met so C-3/C-4 absolute; run-suite.sh lock; test-architect cleared recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -25663,7 +25717,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join rulings-92-93 into main (round-oct05)",
+      "goal": "join ring-b2 into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -25672,8 +25726,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-05T16:47:01Z",
-      "duration_seconds": 3.0
+      "started_at": "2026-10-05T18:15:01Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
@@ -26981,6 +27035,42 @@ window.AUDIT_DATA = {
       "to": "4e90c621",
       "kind": "ruling",
       "ref": "req-01M46F8Q4RB9GRVPNT6NV7T8YD",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46FFDFGTV005DTBZFG4MGZE",
+      "ts": "2026-10-05T16:48:42Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46FFDFCSR0SV240Y1YG7ZB0",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46FFDRCW4CAKQFZM7CD32Z6",
+      "ts": "2026-10-05T16:48:43Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46FFDFCSR0SV240Y1YG7ZB0",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46GPTA47W8MK269Q1V980C8",
+      "ts": "2026-10-05T17:10:14Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46GPT9Z227PS7GNTB8TN1A7",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46GPTVSZYYYHAGE5DK0P6HR",
+      "ts": "2026-10-05T17:10:14Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46GPT9Z227PS7GNTB8TN1A7",
       "session": "operator-timianmalloo"
     }
   ]
