@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:08:21Z",
+  "generated": "2026-10-05T16:08:42Z",
   "audit": [
     {
       "actor": null,
@@ -25236,6 +25236,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T16:07:17Z",
       "duration_seconds": 64.0
+    },
+    {
+      "id": "al-01M46D651VH7V6JVWZCG0Z6442",
+      "shortname": "join-tip-handling",
+      "datetime": "2026-10-05T16:08:42Z",
+      "session": "4e90c621",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "docs/plans/tip-handling.md: 9-agent judge panel proposal; Ruling 78 kept with scope, two bounded measurements, 16 decisions (Ruling 88) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join tip-handling into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T16:08:38Z",
+      "duration_seconds": 4.0
     }
   ],
   "changes": [
