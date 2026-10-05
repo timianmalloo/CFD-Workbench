@@ -209,6 +209,8 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         }
         try { older?.Cancel(); }
         catch (ObjectDisposedException) { }
+        // A cancel callback threw: the caller never receives this source, so release it here (map entry and disposal).
+        catch { Release(scope, generation); throw; }
         return generation;
     }
 
