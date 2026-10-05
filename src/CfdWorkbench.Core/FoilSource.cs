@@ -126,6 +126,8 @@ internal sealed class SourceFailure(string code, string phase, SourceToken token
 
 public static class FoilSource
 {
+    internal const int ProfileDegree = 5;
+    internal const int ProfilePointLimit = 32;
     internal static readonly UTF8Encoding Utf8 = new(false, true);
     public static SourceParse Parse(byte[] source)
     {
@@ -1400,8 +1402,8 @@ public static class FoilSource
         }
         private Curve ConvertCurveValues(RawCurve raw, int scale)
         {
-            Need(int.TryParse(raw.Degree.Text, CultureInfo.InvariantCulture, out int degree) && degree == (raw.Profile ? 5 : 3), "DSL-CURVE", "Structural", raw.Degree);
-            int max = raw.Profile ? 32 : version.String == "4.1" ? 16 : 10;
+            Need(int.TryParse(raw.Degree.Text, CultureInfo.InvariantCulture, out int degree) && degree == (raw.Profile ? ProfileDegree : 3), "DSL-CURVE", "Structural", raw.Degree);
+            int max = raw.Profile ? ProfilePointLimit : version.String == "4.1" ? 16 : 10;
             int min = raw.Profile || version.String != "4.1" ? 6 : 4;
         Need(raw.Points.Length >= min && raw.Points.Length <= max, "DSL-CURVE", "Structural", raw.Degree);
             var knots = raw.Knots.Select(token => ConvertNumber(token)).ToArray();

@@ -86,7 +86,7 @@ public static class Geometry
     // The minimum node budget and per-span bisection depth. Every parsed degree-5 profile has at most 32 points,
     // hence at most 27 nonzero spans. N(s) = max(256, 48s) covers every such span; SectionEdits reads this limit.
     internal const int BlendNodes = 256, BlendDepth = 48;
-    internal static int BlendSpanLimit() => 32 - 5;
+    internal static int BlendSpanLimit() => FoilSource.ProfilePointLimit - FoilSource.ProfileDegree;
     // The all-query operation bound's own refusal code (Not assessed), distinct from the arithmetic bit bound's
     // GEOMETRY-QUERY-RESOURCE, so a caller can tell the capacity limit from other resource refusals.
     internal const string OperationBoundCode = "GEOMETRY-QUERY-OPERATIONS";
@@ -1076,6 +1076,7 @@ internal static class Bernstein
 
     internal static (Rational Lower, Rational Upper, int Nodes) Maximum(Rational[][] spans, ProofBudget watch, int nodeBudget = 4096)
     {
+        LastMaximumComparisons = 0;
         // The heap's total order preserves the list rescan's first-inserted choice on equal maxima.
         var pending = new MaximumHeap();
         Rational lower = spans[0][0];
@@ -1101,7 +1102,12 @@ internal static class Bernstein
         throw new ProofRefusal("Maximum enclosure node budget exhausted.");
     }
 
-    private static int Compare(Rational left, Rational right) => left.CompareTo(right);
+    [ThreadStatic] internal static long LastMaximumComparisons;
+    private static int Compare(Rational left, Rational right)
+    {
+        LastMaximumComparisons++;
+        return left.CompareTo(right);
+    }
 
     private readonly record struct MaximumNode(Rational[] Coefficients, int Depth, Rational Maximum, long Sequence);
 

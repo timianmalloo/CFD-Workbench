@@ -54,7 +54,7 @@ internal static class SectionEdits
     }
 
     // F-1 (m12d §3.6 rule 7, DR-M12D-6 a): a step that makes the edited section differ from a neighbour it matched is
-    // judged by the certificate's own capacity before it lands: the span limit Assess admits (Geometry.BlendSpanLimit), then
+    // checked before it lands: the parser-derived span ceiling (Geometry.BlendSpanLimit), then
     // Assess itself on the candidate, whose all-query operation bound refuses four differing sections at any span count
     // (docs/proof/blend-certificate-budget/verdict.md §4.2). A pair that already differed is left to the certificate, and a
     // candidate is refused only when the base did not fail the same way, so a draft is never trapped.
@@ -109,7 +109,7 @@ internal static class SectionEdits
     private static bool OperationBoundRefused(GeometryAssessment assessment) =>
         assessment.Status == GeometryStatus.NotAssessed && assessment.Code == Geometry.OperationBoundCode;
 
-    // COPY-194 (m12d design §11.2). One side over the limit names that station only.
+    // COPY-194 (m12d design §11.2). Reachable only if the parser's point ceiling rises; one side over names that station only.
     private static string BudgetReason(string a, string b, bool aOver, bool bOver, int aPoints, int bPoints, int limit)
     {
         string who = aOver && bOver && aPoints == bPoints ? $"{a} and {b} have {aPoints} points"
