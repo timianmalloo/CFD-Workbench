@@ -612,6 +612,8 @@ source is visible outside Properties (marine-CAD lens F3).
 | COPY-193 | "A section next to a different section can have at most 10 points." (appended when <n> > 10) |
 | COPY-193b | "<source> is <ts> % thick; <stations> will be scaled to <t> % (Thickness curve)." · option "Use <source>'s t/c at these stations" · chip suffix " · scaled to <t> % t/c" |
 | COPY-194 | "<a> and <b> have <n> points; neighbouring sections that differ can have at most 10. Rebuild to 10 points first, or edit <a> and <b> together." |
+| COPY-194b | "This edit would give <stations> all different sections, and a wing with that many different sections in a row can't be checked yet. Keep one of them shared with its neighbour, or edit them together." — **approved (operator, 2026-10-04)**; four or more differing sections in a row, the all-query operation bound (`docs/proof/blend-certificate-budget/verdict.md` §4.2) |
+| CAT-RESIDUAL | "No point spacing from 8 to 16 points holds <source> within 10 µm: the closest is <r> µm (<f> % chord; limit 10 µm at <c> mm). Nothing changed." — **approved (operator, 2026-10-04)** |
 | COPY-195 | "Fix the crossing before saving this section." |
 | COPY-196 | "Another save is in progress. Try again in a moment." |
 | COPY-197 | "Couldn't save to My sections: <cause>. Nothing was saved." |

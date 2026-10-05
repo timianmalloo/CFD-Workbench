@@ -42,7 +42,12 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     public ReplaceEvent? Replace { get; init; }
 }
 /// <summary>Scope is <c>draft</c> or <c>chain</c>; Spacing is <c>current</c>, <c>own-&lt;n&gt;</c> or <c>exact</c>; the residual is in chord fractions.</summary>
-public sealed record ReplaceEvent(string Scope, int Stations, double ResidualChord, string Spacing);
+public sealed record ReplaceEvent(string Scope, int Stations, double ResidualChord, string Spacing)
+{
+    /// <summary>catalog.preview only: the catalog family (null for a .dat file) and the rights class of the source.</summary>
+    public string? Family { get; init; }
+    public string? Class { get; init; }
+}
 public sealed record DimensionCommand(string Name, string Text);
 public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped);
 public abstract record PointCommand(string Curve, string VertexId)
@@ -333,7 +338,9 @@ public sealed class AuthoringSession : IDisposable
             pendingFitUm = preview.FitResidual * preview.AcceptanceChord * 1e6;
             pendingFitAboveLimit = preview.RefusalCode is not null;
             pendingPointsAfter = preview.PointsPerSurface;
-            pendingReplace = new(scope == ReplaceScope.BlendChain ? "chain" : "draft", preview.Stations.Count, preview.FitResidual, preview.Spacing);
+            var (family, rights) = SectionReplace.Describe(source);
+            pendingReplace = new(scope == ReplaceScope.BlendChain ? "chain" : "draft", preview.Stations.Count, preview.FitResidual, preview.Spacing)
+            { Family = family, Class = rights };
         }
         Record("catalog.preview", preview.RefusalCode?.ToLowerInvariant() ?? "ok", timer.Elapsed.TotalMilliseconds, bytes.Length, null, generation,
             "cfdw-cv/2", editKind: "section", stepKind: preview.Spacing);
@@ -1398,10 +1405,10 @@ public sealed class AuthoringSession : IDisposable
                 break;
             }
             case SectionStep.Import importStep:
-                (next, import) = SectionReplace.Patch(bytes, assignment, ScopeOf(definition, assignment), SectionReplace.FromDat(importStep.Dat), step);
+                (next, import) = SectionReplace.Patch(bytes, assignment, ScopeOf(definition, assignment), SectionReplace.FromDat(importStep.Dat));
                 break;
             case SectionStep.Replace replace:
-                (next, import) = SectionReplace.Patch(bytes, assignment, ScopeOf(definition, assignment), replace, step);
+                (next, import) = SectionReplace.Patch(bytes, assignment, ScopeOf(definition, assignment), replace);
                 break;
             case SectionStep.MakeUnique:
                 Guard.Require(definition.Assignments.Count(item => item.Profile == definition.Assignments[assignment].Profile) > 1, "DSL-PROFILE-TARGET");
@@ -1418,10 +1425,12 @@ public sealed class AuthoringSession : IDisposable
         }
         string name = SectionProfileName(next, assignment);
         if (intent == ThicknessIntent.UseSource) next = ThicknessFit.Fit(next, name);
+        // m12d §5.1: the one writer of " modified", after any step but Replace (and Import, a Replace) that changed the shape.
+        if (step is not (SectionStep.Replace or SectionStep.Import)) next = Provenance.MarkModified(next, name, bytes);
         var after = SessionSource.Parse(next).Definition!;
         // Ruling 71 at the one step choke point (operator 2026-10-04). Replace (and Import, which is a Replace) is judged once,
         // inside SectionReplace, before its preview is offered.
-        if (step is not (SectionStep.Replace or SectionStep.Import)) SectionEdits.RequireNeighbourAbscissa(definition, after, assignment, step);
+        if (step is not (SectionStep.Replace or SectionStep.Import)) SectionEdits.RequireNeighbourAbscissa(definition, after, assignment);
         var profile = after.Profiles.Single(item => item.Name == name);
         ThicknessProposal? proposal = intent == ThicknessIntent.UseSource ? ThicknessFit.Describe(next, name, baseBytes).Proposal : null;
         var report = delegated is not null

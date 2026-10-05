@@ -384,7 +384,7 @@ internal static class SectionEditsTests
         IdentityTests.Equal(GeometryStatus.Certified, session.AssessSection(id, view.Generation, CancellationToken.None).Status);
     }
 
-    // The own-spacing case that COPY-210 refused is now a unique Root beside Tip, fitted on the shared spacing only: a cambered
+    // The own-spacing case that the retired COPY-210 refused is now a unique Root beside Tip, fitted on the shared spacing only: a cambered
     // file over 10 µm there is refused with CAT-SPACING (COPY-191) and nothing changes.
     private static void SectionEdits_UniqueImportOverLimit_RefusedNothingChanged()
     {

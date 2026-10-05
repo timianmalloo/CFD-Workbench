@@ -1085,9 +1085,12 @@ x move) is refused with COPY-209 and the draft is unchanged and still certifies.
 `SectionEdits_UniqueProfile_YOnlyMoveAllowed` (SPT): a y-only move on the unique profile lands and certifies.
 The check is `SectionEdits.RequireNeighbourAbscissa`, called
 at the one step choke point (`AuthoringSession.PatchSectionStep`) with the certificate's own rule (`Geometry.SharedAbscissa`).
-`SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged` (SPT): an Import that needs its own spacing beside
-another profile is refused with COPY-210 and nothing changes (operator 2026-10-04); an import on the neighbour basis still
-lands with its report (`SectionDraft_ImportStep_ReportsResidualAndProvenance` (SDR), below).
+`SectionEdits_SharedImport0012_LandsAsSharedReplaceCertified` (SPT; was `SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged`):
+under Ruling 72 (m12d DR-M12D-3 a) Import runs as a Replace in place, so NACA 0012 at the Example's shared Root lands on the
+current spacing and certifies. **COPY-210 is retired** (superseded by CAT-SPACING / COPY-191, `docs/design/m12d-catalog.md`
+§3.6): a Replace never takes its own spacing beside a neighbour, so the own-spacing refusal can no longer arise. Its live
+successor is `SectionEdits_UniqueImportOverLimit_RefusedNothingChanged` (CAT-SPACING, nothing changes); an import that lands
+still carries its report (`SectionDraft_ImportStep_ReportsResidualAndProvenance` (SDR), below).
 
 **SPTG — per-surface operations (written only on a GSPK go). CUT 2026-10-03: GSPK no-go (S-2, OD-4 a); `docs/proof/m12c-certificate-spike/verdict.md`.**
 `SectionEdits_UpperMove_LowerBytesIdentical` (SPTG) · `SectionEdits_UpperAnchor_LowerBytesIdentical` (SPTG) ·

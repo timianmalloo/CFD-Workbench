@@ -30,13 +30,12 @@ internal static class SectionEdits
     // Ruling 71: a step that would give the edited profile other abscissae than a neighbouring station's different profile
     // is refused before it lands, nothing changed; the certificate's blend rule (Geometry.SharedAbscissa) would refuse the
     // whole draft at Finish. Judged on the result, so it holds for every step kind. A pair that already differed before the
-    // step is left to the certificate: refusing every step there would trap the draft. An Import that needs its own spacing
-    // is refused the same way, with its own reason (COPY-210).
-    internal static void RequireNeighbourAbscissa(Definition before, Definition after, int assignment, SectionStep step)
+    // step is left to the certificate: refusing every step there would trap the draft. Replace (and Import, a Replace) never
+    // takes its own spacing beside a neighbour (m12d §3.6), so COPY-210 is retired (Ruling 72).
+    internal static void RequireNeighbourAbscissa(Definition before, Definition after, int assignment)
     {
         ArgumentNullException.ThrowIfNull(before);
         ArgumentNullException.ThrowIfNull(after);
-        ArgumentNullException.ThrowIfNull(step);
         int edited = after.Assignments[assignment].Profile;
         var watch = new ProofBudget();
         for (int index = 0; index + 1 < after.Assignments.Length; index++)
@@ -49,9 +48,7 @@ internal static class SectionEdits
                 continue;
             int own = left == edited ? index : index + 1, other = left == edited ? index + 1 : index;
             string neighbour = StationName(other, after.Assignments[other].Eta);
-            throw new ContractError("DSL-GEOMETRY", step is SectionStep.Import
-                ? ImportAbscissaReason(neighbour)
-                : NeighbourAbscissaReason(StationName(own, after.Assignments[own].Eta), neighbour));
+            throw new ContractError("DSL-GEOMETRY", NeighbourAbscissaReason(StationName(own, after.Assignments[own].Eta), neighbour));
         }
         RequireBlendBudget(before, after, edited, watch);
     }
@@ -134,11 +131,6 @@ internal static class SectionEdits
 
     internal static string JoinNames(IReadOnlyList<string> names) =>
         names.Count <= 1 ? string.Concat(names) : string.Join(", ", names.Take(names.Count - 1)) + " and " + names[^1];
-
-    // COPY-210 (m12c design §11.4).
-    private static string ImportAbscissaReason(string neighbour) =>
-        $"This section has its own point spacing, which differs from {neighbour}'s, so the wing between them can't be checked yet. " +
-        "Importing sections with their own spacing will work once sections can be kept in step.";
 
     // COPY-209 (m12c design §11.4).
     private static string NeighbourAbscissaReason(string station, string neighbour) =>

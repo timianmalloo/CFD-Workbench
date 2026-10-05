@@ -92,6 +92,11 @@ internal static class SectionReplaceTests
             Equal("section-a", view.Profile);
             Equal(SectionScope.Shared, view.Scope);
             Equal("section-a", SectionDraftTests.Assigned(view.Bytes, 1));
+            Equal("gen:naca-0012", ProvenanceLine(view.Bytes));
+            // The chip derives from the bytes: an edit after Replace marks the shape modified (the one writer, m12d §5.1).
+            view = session.ApplySectionStep(id, view.Generation, SectionDraftTests.Raise(view, "cv-3", 0.002));
+            Equal("gen:naca-0012 modified", ProvenanceLine(view.Bytes));
+            Equal("Modified from NACA 0012", Provenance.Parse(ProvenanceLine(view.Bytes)).ChipText("NACA 0012"));
         });
         Check("Replace_UniqueRootSymmetric_FitsCurrentSpacingKeepsPoints", () =>
         {
@@ -176,7 +181,7 @@ internal static class SectionReplaceTests
                 "  upper cv { " + CurveText(entry.Upper.Knots, Scaled(entry.Upper)) + " }\n" +
                 "  lower cv { " + CurveText(entry.Lower.Knots, Scaled(entry.Lower)) + " }\n}\n");
             var preview = Preview(FoilSource.MakeIndependent(Example(), "section-a", 0).Source, 0,
-                new ReplaceSource.Record("Mine", new Provenance("lib:mine", false), document));
+                new ReplaceSource.Record("Mine", new Provenance("gen:naca-4412", true), document));
             Equal("exact", preview.Spacing);
             Equal(0.0, preview.FitResidual);
             var after = Profile(preview.Bytes!, "section-a-i1");
@@ -187,7 +192,7 @@ internal static class SectionReplaceTests
             using var session = SectionDraftTests.Opened();
             string id = SectionDraftTests.Id();
             var view = session.BeginSectionDraft(id, 0);
-            var vend = new ReplaceSource.Coordinates("Eppler 817", new Provenance("vend:eppler/e817", false), []);
+            var vend = new ReplaceSource.Coordinates("Eppler 817", new Provenance("vend:e817", false), []);
             Refuses("CAT-NOT-ADMITTED", () => session.PreviewReplace(id, view.Generation, vend, ReplaceScope.Draft));
             Refuses("CAT-NOT-ADMITTED", () => session.ApplySectionStep(id, view.Generation, new SectionStep.Replace(vend, ReplaceScope.Draft)));
             var draft = session.CurrentSectionDraft()!;
@@ -200,7 +205,7 @@ internal static class SectionReplaceTests
             string id = SectionDraftTests.Id();
             var opened = session.BeginSectionDraft(id, 0);
             var replaced = session.ApplySectionStep(id, opened.Generation, new SectionStep.Replace(Gen("0012"), ReplaceScope.Draft));
-            Equal(true, ProvenanceLine(replaced.Bytes) == "gen:naca4-closed/1:0012");
+            Equal("gen:naca-0012", ProvenanceLine(replaced.Bytes));
             var undone = session.UndoSectionStep(id);
             SectionDraftTests.Same(opened.Bytes, undone.Bytes);
             Equal(null, ProvenanceLine(undone.Bytes));
@@ -274,7 +279,7 @@ internal static class SectionReplaceTests
             Equal(false, events[0].FitAboveLimit);
             Equal(true, Math.Abs(events[0].FitMicrometres!.Value - accepted.FitResidual * ExampleChord * 1e6) < 1e-9);
             Equal(true, events[0].DurationMilliseconds is >= 0);
-            Equal(new ReplaceEvent("draft", 2, accepted.FitResidual, "current"), events[0].Replace);
+            Equal(new ReplaceEvent("draft", 2, accepted.FitResidual, "current") { Family = "Naca", Class = "Gen" }, events[0].Replace);
             Equal("cat-spacing", events[1].Outcome);
             Equal(true, events[1].FitAboveLimit);
             // The applied step carries the same fields on section.step (kind replace).
@@ -413,7 +418,7 @@ internal static class SectionReplaceTests
         });
         Check("Replace_Frame_ReportsLeShiftRotationScale", () =>
         {
-            var plain = Preview(Example(), 0, Gen("0012"));
+            var plain = Preview(Example(), 0, Coordinates("NACA 0012", Selig(Naca4("0012"))));
             const double scale = 2, degrees = 0.2, shiftX = 0.5, shiftY = 0.2;
             var moved = Preview(Example(), 0, Coordinates("NACA 0012 moved", Selig(Naca4("0012"), scale, degrees, shiftX, shiftY)));
             Equal(true, Math.Abs(moved.Report!.FrameScale!.Value - scale) < 1e-9);
@@ -438,10 +443,12 @@ internal static class SectionReplaceTests
         return SectionReplace.Preview(bytes, assignment, scope, source, ReplaceScope.Draft);
     }
 
+    // A GEN catalog row as the dialog hands it over: the catalog's own coordinates and origin.
     private static ReplaceSource Gen(string digits) =>
-        new ReplaceSource.Coordinates("NACA " + digits, new Provenance("gen:naca4-closed/1:" + digits, false), Selig(Naca4(digits)));
+        new ReplaceSource.Coordinates("NACA " + digits, new Provenance("gen:naca-" + digits, false), CatalogGenerator.Naca4(digits));
 
-    private static ReplaceSource Coordinates(string name, byte[] selig) => new ReplaceSource.Coordinates(name, new Provenance("dat:sha256:test", false), selig);
+    private static ReplaceSource Coordinates(string name, byte[] selig) =>
+        new ReplaceSource.Coordinates(name, new Provenance("dat:sha256:" + Identity.Sha256(selig), false), selig);
 
     private static Definition Definition(byte[] bytes) => FoilSource.Parse(bytes).Definition!;
 

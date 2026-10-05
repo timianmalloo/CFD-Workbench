@@ -17,12 +17,12 @@ public static class SectionReplace
     private const int DenseSegments = 2000;
 
     public static ReplacePreview Preview(byte[] draftBytes, int assignment, SectionScope scope, ReplaceSource source, ReplaceScope replaceScope) =>
-        Run(draftBytes, assignment, scope, source, replaceScope, null);
+        Run(draftBytes, assignment, scope, source, replaceScope);
 
     // The step: the preview's bytes and report, or the preview's refusal as a ContractError. Nothing changes on a refusal.
-    internal static (byte[] Bytes, ImportReport Report) Patch(byte[] bytes, int assignment, SectionScope scope, SectionStep.Replace replace, SectionStep step)
+    internal static (byte[] Bytes, ImportReport Report) Patch(byte[] bytes, int assignment, SectionScope scope, SectionStep.Replace replace)
     {
-        var preview = Run(bytes, assignment, scope, replace.Source, replace.Scope, step);
+        var preview = Run(bytes, assignment, scope, replace.Source, replace.Scope);
         if (preview.RefusalCode is string code) throw new ContractError(code, preview.RefusalReason ?? code);
         return (preview.Bytes!, preview.Report!);
     }
@@ -31,7 +31,7 @@ public static class SectionReplace
     internal static SectionStep.Replace FromDat(byte[] dat) =>
         new(new ReplaceSource.Coordinates("a .dat file", new Provenance("dat:sha256:" + Identity.Sha256(dat), false), dat), ReplaceScope.Draft);
 
-    private static ReplacePreview Run(byte[] draftBytes, int assignment, SectionScope scope, ReplaceSource source, ReplaceScope replaceScope, SectionStep? step)
+    private static ReplacePreview Run(byte[] draftBytes, int assignment, SectionScope scope, ReplaceSource source, ReplaceScope replaceScope)
     {
         ArgumentNullException.ThrowIfNull(draftBytes);
         ArgumentNullException.ThrowIfNull(source);
@@ -70,7 +70,7 @@ public static class SectionReplace
         try
         {
             // Ruling 71 and its budget clause (F-1): the one predicate for every section step, called once here for Replace.
-            SectionEdits.RequireNeighbourAbscissa(before, after, assignment, step ?? new SectionStep.Replace(source, replaceScope));
+            SectionEdits.RequireNeighbourAbscissa(before, after, assignment);
         }
         catch (ContractError refused)
         {
@@ -79,7 +79,7 @@ public static class SectionReplace
         }
         var replaced = after.Profiles.Single(profile => profile.Name == target.Name);
         var (change, at) = LargestChange(stations.Select(index => before.Profiles[before.Assignments[index].Profile]).Distinct(), replaced);
-        var report = new ImportReport(chosen.Residual, chosen.Upper.Length, true, ProvenanceText(source.Provenance), chosen.Basis, stations,
+        var report = new ImportReport(chosen.Residual, chosen.Upper.Length, true, source.Provenance.Format(), chosen.Basis, stations,
             chosen.Dropped, shape.LeShift, shape.RotationDegrees, shape.Scale, shape.Thickness);
         return new ReplacePreview(stations, chosen.Spacing, chosen.Residual, acceptanceChord, change, at, chosen.Upper.Length, null, null, next)
         { Report = report };
@@ -135,7 +135,7 @@ public static class SectionReplace
             next = FoilSource.WriteSideTangents(next, name, SurfaceSide.Upper, chosen.UpperRows);
             next = FoilSource.WriteSideTangents(next, name, SurfaceSide.Lower, chosen.LowerRows);
         }
-        next = WriteTail(next, name, chosen.Closure, ProvenanceText(provenance));
+        next = WriteTail(next, name, chosen.Closure, provenance.Format());
         if (stations.Length == before.Assignments.Length && stations.Any(index => before.Assignments[index].Profile != before.Assignments[stations[0]].Profile))
             next = RepointAll(next, name);
         Guard.Require(FoilSource.Parse(next).IsParsed, "DSL-PATCH");
@@ -214,10 +214,23 @@ public static class SectionReplace
         return span == 0 ? curve[low].Y : curve[low].Y + (curve[high].Y - curve[low].Y) * (x - curve[low].X) / span;
     }
 
-    // assume: Provenance.Format() is "<origin>[ modified]" (m12d §5.1); its body lands with CAT (seam S-1) and throws on this
-    // base. Confirm: CAT's join. Breaks if CAT formats differently; then this text and the chip disagree. Swap to Format().
-    private static string ProvenanceText(Provenance provenance) =>
-        provenance.Origin is null ? "" : provenance.Origin + (provenance.Modified ? " modified" : "");
+    // catalog.preview's family and class (m12d §10): a My sections entry, or the catalog row its origin names; a .dat file
+    // has no family. Class is the rights its provenance derives.
+    internal static (string? Family, string Class) Describe(ReplaceSource source)
+    {
+        var rights = source.Provenance.Rights;
+        string? family = source is ReplaceSource.Record ? nameof(CatalogFamily.MySections)
+            : rights is RightsClass.Gen or RightsClass.Vend ? CatalogFamilies.Value?.GetValueOrDefault(source.Provenance.Origin![(source.Provenance.Origin!.IndexOf(':') + 1)..])
+            : null;
+        return (family, rights.ToString());
+    }
+
+    // The catalog's families by row id, read once; null when the catalog is unavailable (the event then records no family).
+    private static readonly Lazy<Dictionary<string, string>?> CatalogFamilies = new(() =>
+    {
+        try { return Catalog.Load().ToDictionary(entry => entry.Id, entry => entry.Family.ToString(), StringComparer.Ordinal); }
+        catch (ContractError) { return null; }
+    });
 
     // COPY-191 (m12d design §11.2).
     private static string SpacingReason(Definition definition, int[] stations, int[] outside, string source, double residual, double chord, int points)
