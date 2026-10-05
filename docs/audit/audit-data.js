@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T14:44:42Z",
+  "generated": "2026-10-05T14:55:39Z",
   "audit": [
     {
       "actor": null,
@@ -24729,6 +24729,34 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "48746913c91e4f6cd43f5d0d1b9b9e57b584740d",
         "short": "48746913c",
+        "branch": "feature/ring-b1-rng",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4690CBQFKFNDRQ9S15A8YVW",
+      "shortname": "trk-b1",
+      "datetime": "2026-10-05T14:55:38Z",
+      "session": "trk-b1",
+      "prompt": "Resume B1: apply Ruling 84 (C-3 net wall and C-4 as load-gated deltas, COST-MISS, build.ms before the checker)",
+      "summary": "Ruling 84 in check-test-costs.py and run-tests.sh: net-wall C-3 limit 54000, C-4 limit 53000, load gate 24, COST-MISS lines; self-test 19/19, red first at 84a3892; full ring exit 0 (net 51.9 s, Desktop 51.2 s, load 15.45), PASS set identical",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Apply Ruling 84 to the RNG checker",
+      "done_when": "self-test red then green with new cases; one ring exit 0; docs and gates green; PASS set identical",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-05T14:51:31Z",
+      "duration_seconds": 247.0,
+      "git": {
+        "sha": "97dc7911fa14b746fab004c0e33df6bbad77af95",
+        "short": "97dc7911f",
         "branch": "feature/ring-b1-rng",
         "pushed": null
       }
