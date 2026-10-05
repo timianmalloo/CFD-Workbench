@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d543a2a28c91ded6377f88495a698426bf48c8b7374e80d77ef8b0ec945761ae"
+      "sourceSha256": "be5e47655e3660895bcd0152d8f9b2f1f515d52e525b401265cb5a4fe8ddb9ac"
     },
     {
       "id": "design-authoring-decisions",
@@ -5398,7 +5398,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f618e24760069e4077b34a145d958fc7344df15a0e4f43301ee8462d5e901ebe"
+      "sourceSha256": "f68aa1514655a7d2a06832b3d740f2a51ebc74d52767aa58e13a0ba2dd502e04"
     },
     {
       "id": "plan-tip-handling",
@@ -11019,14 +11019,14 @@ window.DOCS_INDEX = {
     {
       "id": "proof-ring-b2-moves",
       "path": "docs/proof/ring-b2/moves.md",
-      "title": "Ring B2 move list: Analysis checks moved from the join ring to readiness",
+      "title": "Ring B2 move list: Analysis under C-2 with every A8.4 check kept in ring 0",
       "type": "proof-pack",
       "status": "active",
       "owner": "@trk-b2",
       "phase": "implementation",
       "reviewBy": "2026-11-04",
       "reviewSuggested": [],
-      "summary": "Five convergence and oracle checks move from the Analysis join ring to readiness so C-2 holds at quiet load; PASS union unchanged.",
+      "summary": "Analysis harness made cheaper without moving any A8.4 oracle or observed-order check out of the fast ring; two n128 convergence halves move to readiness; PASS union loses no name.",
       "tags": [
         "ring",
         "test-cost",
@@ -11043,7 +11043,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ea040191e753e426058d781fa7f7626e81753e20179eb4e5a45816668e303970"
+      "sourceSha256": "2cbcd895cae7c31ac2cea448e77eaa14e101b7e9afefe1cb473203553a7a412a"
     },
     {
       "id": "proof-shellfix-red-runs",
@@ -13447,5 +13447,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "89ef1dd0d02069d94cc95b11454b86c18e3d09cc4f13d9a54380e39c5f1b11ab"
+  "graphSha256": "f94f91f9875a1613e555789a5ff0c94770d3a23a529a1d1c5bcafac319d0eecd"
 };

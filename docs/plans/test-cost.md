@@ -417,12 +417,13 @@ the other join checks and the verify gates still run, and the readiness ring bef
 --self-test` plants merges in a scratch repo (11 cases). check-docs TEST-RING now accepts the wrapper and requires it to name
 both `tools/run-tests.sh` and `tools/check-test-costs.py`. A `RING-SKIPPED` line in a join log means no cost reading was taken.
 
-### 9.4 Track B2 item 1: five Analysis checks move to readiness (2026-10-05)
+### 9.4 Track B2 item 1: Analysis cheaper, A8.4 checks kept in ring 0 (2026-10-05)
 
-C-2 failed at quiet load: Analysis 5,386 ms at end load 13 (join-tip-salvage-s1). The limit is unchanged. Five checks that are
-convergence or oracle evidence moved from the join ring to `--readiness` (the Analysis harness, 149 to 144 fast PASS lines):
-`F6_ObservedOrder` (ring R, about 0.5 s), `F15_EllipticWing_InducedAngleUniform` (R, 13 ms), `F15b_EllipticMidspan_InducedAngleMatchesCLOverPiAR`
-(R, 34 ms), `F18_Camber4_DefaultLatticeTipConverges` (R, about 0.23 s), `F19_Washin1_DefaultLatticeTipConverges` (R, about 0.23 s).
-After: Analysis 4,089 ms at end load 13.45 in `run-tests.sh`. The fast plus readiness `PASS` union is identical (157 names,
-`docs/proof/ring-b2/union-before.txt`, `union-after.txt`). Reasons and the review points are in `docs/proof/ring-b2/moves.md`;
-the design ledger rows (area3-analysis.md 18.8) now read ring R.
+C-2 failed at quiet load: Analysis 5,386 ms at end load 13 (join-tip-salvage-s1). The limit is unchanged. The spec (A8.4,
+design 13.4) keeps analytic oracles and observed order in ring 0, so nothing of that kind moved. Instead: `F6_ObservedOrder`
+builds its honest and mutant trios together (517 to about 240 ms, assertions untouched); `F18`/`F19` are fast at n32 and n64
+(447/384 ms to about 40 ms): tip alpha_i finite, within +-10 deg, within 0.1 deg of n32, kappa1 bound, and the horseshoe mutant outside +-10 deg;
+their n64-against-n128 originals are the new readiness checks `Readiness_Camber4_N128Convergence` and `Readiness_Washin1_N128Convergence`;
+the long jobs of `run-tests.sh` start 2 s after Analysis and Cli, so the 4 s harness is not queued behind the JIT surge. After:
+Analysis 4.33 / 4.41 / 4.40 s at end load 12-18 (before: 5.4 s). The fast plus readiness `PASS` union lost no name and gained
+the two readiness names (`docs/proof/ring-b2/union-before.txt`, `union-after.txt`). Details: `docs/proof/ring-b2/moves.md`.
