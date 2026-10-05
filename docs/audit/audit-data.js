@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:25:58Z",
+  "generated": "2026-10-05T16:29:02Z",
   "audit": [
     {
       "actor": null,
@@ -25366,12 +25366,69 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46E5RRJ6K9NTFTC2Y6GVK14",
-      "shortname": "join-a3b-numerics",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T16:25:58Z",
+      "done_when": "join gates green",
+      "duration_seconds": 70.0,
+      "fan_out": 0,
+      "goal": "join a3b-numerics into main (round-oct05)",
+      "id": "al-01M46E5RRJ6K9NTFTC2Y6GVK14",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-a3b-numerics",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T16:24:48Z",
+      "summary": "D1: linear-vorticity panel method with TE-cusp exclusion (interior order ~1), panel as the single source of Cl/Cm/alpha_L0, 400-panel independent section sampling (Cp_min 1.61 % KT), cavitation screen governed by min sigma/(-Cp_min) (Ruling 86); CFD re-review cleared; cost option pending DR-A3b-COST recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/vlm-tip-study/s2-sweep/verdict.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-05T16:23:25Z",
+      "done_when": "Pre-registration committed before solve; sweep CSV and verdict committed",
+      "duration_seconds": 226.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "spike/tip-vlm-sweep-s2",
+        "pushed": null,
+        "sha": "106b58809009f609b3e9d4765027f993a9e41292",
+        "short": "106b58809"
+      },
+      "goal": "Measure whether the VLM judged-strip verdict flips with n at small tip chord",
+      "id": "al-01M46E134Q9464X2A0V54A6EJJ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "S2 tip VLM sweep",
+      "session": "trk-s2",
+      "shortname": "s2-tip-vlm-sweep",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:19:39Z",
+      "summary": "Pre-registered then ran the 72-case small-tip-chord VLM sweep (60 decision + 12 control) on main. One judged-strip flip: r=0.01 alpha 8, coarse n, false-out direction. D2 alpha-18 cases: no flip. Recommendation: keep Ruling 78, add tip-chord-ratio floor r>=0.02.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M46EBC8FF4XTR2BAHRYS0GFG",
+      "shortname": "join-tip-vlm-sweep-s2",
+      "datetime": "2026-10-05T16:29:02Z",
       "session": "4e90c621",
       "prompt": "the join of the resolved merge into main",
-      "summary": "D1: linear-vorticity panel method with TE-cusp exclusion (interior order ~1), panel as the single source of Cl/Cm/alpha_L0, 400-panel independent section sampling (Cp_min 1.61 % KT), cavitation screen governed by min sigma/(-Cp_min) (Ruling 86); CFD re-review cleared; cost option pending DR-A3b-COST recount_seconds=0 (docs_only=False).",
+      "summary": "S2: pre-registered 72-case sweep; one conservative false-out flip at r=0.01 alpha 8 coarse n; default lattice stable at every ratio; alpha-18 falsifier survives; S3 recommendation: keep Ruling 78 with a tip-chord-ratio floor r>=0.02 recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -25380,7 +25437,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join a3b-numerics into main (round-oct05)",
+      "goal": "join tip-vlm-sweep-s2 into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -25389,8 +25446,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-05T16:24:48Z",
-      "duration_seconds": 70.0
+      "started_at": "2026-10-05T16:27:37Z",
+      "duration_seconds": 85.0
     }
   ],
   "changes": [
@@ -26636,6 +26693,15 @@ window.AUDIT_DATA = {
       "kind": "decision-request",
       "ref": "req-01M46E2WM0FZJ0703CNWB6MEM7",
       "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46E6G7724XA30R16TB6J94V",
+      "ts": "2026-10-05T16:26:22Z",
+      "from": "fable-owner",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46E2WM0FZJ0703CNWB6MEM7",
+      "session": "fable-owner"
     }
   ]
 };
