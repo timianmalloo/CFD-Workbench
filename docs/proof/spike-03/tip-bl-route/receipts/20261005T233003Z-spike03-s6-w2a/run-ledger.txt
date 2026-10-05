@@ -1,0 +1,18 @@
+of-run: wait 2026-10-05T23:30:03Z load 31.14 > 30
+of-run: start 2026-10-05T23:30:34Z load1=20.49 record=verified lint=clean bundle=f3debe8b5541 cmd=blockMesh
+of-run: end status=0 wall_s=1 load1=20.49 peak_rss_bytes=120619008 banner=Disallowing cmd=blockMesh
+of-run: start 2026-10-05T23:30:35Z load1=20.49 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh
+of-run: end status=0 wall_s=1 load1=20.49 peak_rss_bytes=113623040 banner=Disallowing cmd=checkMesh
+of-run: start 2026-10-05T23:30:37Z load1=20.49 record=verified lint=clean bundle=f3debe8b5541 cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: end status=0 wall_s=0 load1=19.09 peak_rss_bytes=33226752 banner=Disallowing cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: start 2026-10-05T23:30:38Z load1=19.09 record=verified lint=clean bundle=f3debe8b5541 cmd=surfaceFeatureExtract
+of-run: end status=0 wall_s=1 load1=19.09 peak_rss_bytes=34275328 banner=Disallowing cmd=surfaceFeatureExtract
+of-run: start 2026-10-05T23:30:40Z load1=19.09 record=verified lint=clean bundle=f3debe8b5541 cmd=snappyHexMesh -overwrite
+of-run: end status=0 wall_s=276 load1=38.52 peak_rss_bytes=1657470976 banner=Disallowing cmd=snappyHexMesh -overwrite
+of-run: wait 2026-10-05T23:35:17Z load 38.52 > 30
+of-run: wait 2026-10-05T23:35:47Z load 52.45 > 30
+of-run: wait 2026-10-05T23:36:17Z load 33.77 > 30
+of-run: start 2026-10-05T23:36:47Z load1=22.90 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh -constant -allGeometry -allTopology -writeSets vtk -writeFields (nonOrthoAngle cellDeterminant cellShapes faceWeight cellVolume)
+of-run: end status=0 wall_s=4 load1=21.39 peak_rss_bytes=644464640 banner=Disallowing cmd=checkMesh -constant -allGeometry -allTopology -writeSets vtk -writeFields (nonOrthoAngle cellDeterminant cellShapes faceWeight cellVolume)
+of-run: start 2026-10-05T23:36:52Z load1=21.39 record=verified lint=clean bundle=f3debe8b5541 cmd=postProcess -constant -func writeCellCentres
+of-run: end status=0 wall_s=2 load1=20.15 peak_rss_bytes=243630080 banner=Disallowing cmd=postProcess -constant -func writeCellCentres

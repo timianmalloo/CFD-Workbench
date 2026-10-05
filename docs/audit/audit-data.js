@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T19:04:23Z",
+  "generated": "2026-10-05T23:44:30Z",
   "audit": [
     {
       "actor": null,
@@ -26096,31 +26096,91 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46Q7VFBS3ACP1DX7K4R89DD",
-      "shortname": "join-next-cad-increment",
-      "datetime": "2026-10-05T19:04:23Z",
-      "session": "4e90c621",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "E3: CAD-*/GEO-* inventory vs main; proposed increment: tip/root hold at the Ruling 93 limit during drag, keyboard hold, typed refusal; mockup docs/mockups/cad-limits-in-gesture.html with variants A/B/C; DR-LIM-1..6 for the operator recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join next-cad-increment into main (round-oct05)",
+      "datetime": "2026-10-05T19:04:23Z",
       "done_when": "join gates green",
+      "duration_seconds": 3.0,
+      "fan_out": 0,
+      "goal": "join next-cad-increment into main (round-oct05)",
+      "id": "al-01M46Q7VFBS3ACP1DX7K4R89DD",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-next-cad-increment",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T19:04:20Z",
+      "summary": "E3: CAD-*/GEO-* inventory vs main; proposed increment: tip/root hold at the Ruling 93 limit during drag, keyboard hold, typed refusal; mockup docs/mockups/cad-limits-in-gesture.html with variants A/B/C; DR-LIM-1..6 for the operator recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/spike-03/tip-coupon/verdict.md",
+        "docs/proof/spike-03/tip-coupon/preregistration.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-05T19:06:13Z",
+      "done_when": "prereg committed before any mesh; four variants meshed and gated; rules applied verbatim; verdict written",
+      "duration_seconds": 1027.0,
+      "fan_out": 0,
+      "goal": "S4: RANS tip mesh coupon V0-V3, pre-registered rules applied",
+      "id": "al-01M46QB6D8S0A1RKY8X0HCP7QM",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "S4 tip mesh coupon",
+      "session": "trk-s4",
+      "shortname": "s4-tip-coupon",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-05T18:49:06Z",
+      "summary": "S4 coupon V0-V3 (25 mm half span, R3-M1b settings): V0 reproduces round 3 (tip pole 178, tip 37); V1 planar cut 3813 faces >70 deg (99 pct at convex edge, 263 negative cells); V2 pole flats 312 faces, 63 negative cells; V3 stack 0.47 mm 213 faces (-5 pct). Rule applied: all variants fail regardless of pole and H, stop; S5 not triggered; cause not separated.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4778QX79MR7SNSSJTMMGGQM",
+      "shortname": "s6-tip-bl-route",
+      "datetime": "2026-10-05T23:44:30Z",
+      "session": "trk-s6",
+      "prompt": "S6 tip BL route",
+      "summary": "S6: four BL routes on the V1 coupon. W1 fan option no 3-D effect (msh byte-identical to V1); W2a/W2b snappy 61/6 tip faces >70, 6/0 negative cells, 0 pct full layers; W4 8 um loft round fails with a Gmsh PLC error; W3 no tool. Rule 4: no variant passes, stop and report, S5 not triggered.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/spike-03/tip-bl-route/verdict.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "A boundary-layer route that can mesh the flat tip of record (Ruling 97), measured on the V1 coupon",
+      "done_when": "Pre-registration committed before any mesh, set run once, rules applied verbatim, verdict written",
       "tier": "T1",
       "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-05T19:04:20Z",
-      "duration_seconds": 3.0
+      "started_at": "2026-10-05T23:15:42Z",
+      "duration_seconds": 1728.0,
+      "git": {
+        "sha": "2b0399927ab945dbb849b912e52522914ebd7ce3",
+        "short": "2b0399927",
+        "branch": "spike/tip-bl-route-s6",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -27464,6 +27524,42 @@ window.AUDIT_DATA = {
       "to": "4e90c621",
       "kind": "ruling",
       "ref": "req-01M46GPT9Z227PS7GNTB8TN1A7",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M475C1Q56JKX8TE73J4PHFPH",
+      "ts": "2026-10-05T23:11:21Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M475C1Q18SNB14QRSYB08KDB",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M475C1ZSVDSDXPHS12BYJEMA",
+      "ts": "2026-10-05T23:11:21Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M475C1Q18SNB14QRSYB08KDB",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M475FN9DN1VNASN0A6S1R64P",
+      "ts": "2026-10-05T23:13:19Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M475FN998NNDF4Y3VN01JRQ0",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M475FNHYC54D1CFDF1SYRXAD",
+      "ts": "2026-10-05T23:13:19Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M475FN998NNDF4Y3VN01JRQ0",
       "session": "operator-timianmalloo"
     }
   ]

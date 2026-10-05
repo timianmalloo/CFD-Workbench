@@ -1,0 +1,13 @@
+--
+10836:patch faces        layers        overall thickness
+10837-              target   mesh     [m]       [%]
+10838------ -----    -----    ----     ---       ---
+10839-wing 23762    20       6.15     0.000809  54.2    
+10840-
+10841-Writing 146110 added cells to cellSet addedCells
+10842-Writing 128864 faces inside added layer to faceSet layerFaces
+Mesh with layers : cells:340532  faces:1081803  points:402583
+Mesh with layers : cells:404435  faces:1282422  points:475262
+Mesh with layers : cells:404578  faces:1282858  points:475415
+Writing 146110 added cells to cellSet addedCells
+Writing 128864 faces inside added layer to faceSet layerFaces

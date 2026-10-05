@@ -1,0 +1,13 @@
+--
+9982:patch faces        layers        overall thickness
+9983-              target   mesh     [m]       [%]
+9984------ -----    -----    ----     ---       ---
+9985-wing 23762    20       4.88     0.00102   70      
+9986-
+9987-Writing 115954 added cells to cellSet addedCells
+9988-Writing 94462 faces inside added layer to faceSet layerFaces
+Mesh with layers : cells:318516  faces:1014519  points:379480
+Mesh with layers : cells:371250  faces:1179570  points:439075
+Mesh with layers : cells:374422  faces:1189256  points:442429
+Writing 115954 added cells to cellSet addedCells
+Writing 94462 faces inside added layer to faceSet layerFaces

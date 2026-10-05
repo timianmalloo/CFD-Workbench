@@ -1,0 +1,108 @@
+name: spike03-s6-w1
+description: >-
+  SPIKE-03 S6 route W1 (Ruling 97): V1 planar flat cut with Mesh.BoundaryLayerFanElements = 8 set (the corner-fan option, documented for 2-D). Pre-registered in docs/proof/spike-03/tip-bl-route/preregistration.md before any mesh. Every other setting is S4 V1.
+purpose:
+  spike: SPIKE-03
+  stage: 1
+  round: 5
+  run_id: S6-W1
+  question: Does the Gmsh boundary-layer fan option change the V1 mesh in 3-D?
+geometry:
+  airfoil: naca0012
+  chord: 0.12
+  span: 0.05
+  half_span: 0.025
+  aspect_ratio: 0.4167
+  twist_deg: [0.0, 0.0]
+  te_thickness_m: 0.0005
+  te_method: >-
+    thicken (linear ramp x t_TE / c; S_ref unchanged), the TE base a half circle of diameter t_TE (radius 0.25 mm), as R3-M1b.
+  tip: flat
+  tip_variant: v1
+  tip_method: planar cap at the half span (z = b/2); cap-to-skin seams are convex edges of about 90 deg
+  label: TE blunted for analysis; tip variant for a mesh coupon only; no flow solution
+  source:
+    kind: built-planform
+    path: wing.msh
+    sha256: 7d5174a3c658ba4ce6d6cb5f099b8acf1f045a112f42278701c1e35ca0aeb987
+    generator: cases/tools/mesh-gate-tipbl.sh CASE 6 (make-tip-bl-gmsh.py, Gmsh 4.15.2 Homebrew, /opt/homebrew/Cellar/gmsh/4.15.2)
+    deviation: >-
+      A 25 mm half-span coupon (not the AR 8 wing); the msh sha256 above was filled in after the run (the case was
+      written before any mesh existed).
+conditions:
+  reynolds: 600000
+  mach: 0.0
+  alpha: 4.0
+  speed_m_s: 5.0
+  reference_length_m: 0.12
+solver: openfoam
+backend:
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  binary_sha256:
+    simpleFoam: a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296
+    gmshToFoam: c722aa805e83c47275ff3c8583fbdb68bda78f2ba359a4c658b7bbca412d21b3
+  activation: >-
+    Gmsh: its own process (nice 10, same load / join-lock wait). OpenFOAM: cases/tools/of-run.sh (env -i allow-list,
+    product HOME + FOAM_CONTROLDICT from cases/tools/foam-bundle, launcher record, lint, pre-flight, argv launch)
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: gmsh
+  target_y_plus: 1
+  first_cell_height_m: 8.0e-6
+  layers: { n: 20, expansion_ratio: 1.2 }
+  gate:
+    max_non_orthogonality_deg: 70
+    max_skewness: 4
+    min_cell_determinant: 0.001
+    min_layers_95pct: 20
+    min_layers_100pct: 10
+    y_plus_p95_max: 1
+    y_plus_max: 2
+  settings:
+    domain_m: { x: [-1.2, 2.64], thickness: [-1.2, 1.2], span_beyond_tip: 0.96 }
+    lc_le_m: 0.0015
+    lc_mid_m: 0.0015
+    lc_te_m: 0.0015
+    lc_near_m: 0.0015
+    near_dist_m: 0.002
+    far_dist_m: 0.4
+    lc_far_m: 0.12
+    gmsh_threads: 6
+    algorithm_3d_id: 1
+    algorithm_3d: Delaunay (1)
+    symmetry_tolerance_m: 1.0e-4
+    symmetry_patch_type: symmetry
+    write_format: ascii
+    write_precision: 12
+    te_strip: { arc_segments_per_quarter: 4, span_size_m: 2.6e-4, arrangement: Left }
+    gmsh_options: { Mesh.BoundaryLayerFanElements: 8 }
+    te_refine: { size_m: 2.6e-4, dist_min_m: 3.0e-4, dist_max_m: 3.6e-3, sampling: 5000 }
+physics:
+  application: simpleFoam
+  flow: incompressible-steady
+  turbulence_model: SpalartAllmaras
+  wall_treatment: wall-resolved (nuTilda = 0, nut = 0 at the wall); W3
+  transition: none (fully turbulent; transition not modelled)
+  fluid: { name: "fresh water 20 C (nu rounded; ITTC Rev 03 = 1.0034e-6)", nu_m2_s: 1.0e-6, rho_kg_m3: 998.2 }
+  freestream: { U_m_s: 5.0, nuTilda_over_nu: 3.0 }
+boundary_conditions:
+  farfield: freestreamVelocity / freestreamPressure; nuTilda inletOutlet 3 nu
+  symmetry: symmetry (z = 0, wing root, incl. the layer side faces there; the layer extrusion leaves them up to 1.5e-5 m off-plane)
+  wing: noSlip; nuTilda 0; nut 0
+numerics:
+  schemes: { div_U: bounded Gauss linearUpwindV grad(U), div_nuTilda: bounded Gauss limitedLinear 1, laplacian: Gauss linear limited corrected 0.5 }
+  max_iterations: 500
+  residual_criterion: >-
+    none: the 500-iteration solve is a y+ screen (M-2y), not a convergence claim; the DR-F2-3 y+ gate needs an
+    A4-stationary field.
+decomposition: { method: scotch, n_subdomains: 6, nice: 10, max_load_1min: 10 }
+outputs_expected:
+  - generator.txt (layer prisms vs 20 x wing faces, TE arc segments, msh sha256), log.gmshToFoam, log.checkMesh (gate, sets, fields), log.postProcess-C
+  - log.locate (DR-F3-1 A gate; region of every bad face and cell; determinant split by layer and core)
+  - time.<log> (peak RSS), time.gmsh
+run_dir: runs/20261005T232838Z-spike03-s6-w1

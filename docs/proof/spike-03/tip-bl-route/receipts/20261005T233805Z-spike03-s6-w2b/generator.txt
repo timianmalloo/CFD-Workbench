@@ -1,0 +1,4 @@
+stl_sha256=107d74ffb0abedb3ea1329e8e493c015a039f5d4f46c13d1eaed02294a2aa6ee triangles=2064 enclosed_volume_m3=4.223060e-05 expected=4.223326e-05
+te_thickness_m=0.0005 analysis_tip_extension_m=0.00728 S_ref_half_m2=0.003000
+background=80x21x50=84000 cells, base=0.048 m, y_max=1.0080 m
+freestream U=(4.987820251 0 0.3487823687) nuTilda=3e-06 nut=2.10438e-07

@@ -1,0 +1,13 @@
+stl_sha256=107d74ffb0abedb3ea1329e8e493c015a039f5d4f46c13d1eaed02294a2aa6ee triangles=2064 enclosed_volume_m3=4.223060e-05 expected=4.223326e-05
+te_thickness_m=0.0005 analysis_tip_extension_m=0.00728 S_ref_half_m2=0.003000
+background=80x21x50=84000 cells, base=0.048 m, y_max=1.0080 m
+freestream U=(4.987820251 0 0.3487823687) nuTilda=3e-06 nut=2.10438e-07
+launcher-record: init files=16 manifest=6f61eb468421 record=runs/.launcher/ec2dcf657596c9b2e49a
+status=0 wall_s=1 peak_rss_bytes=120619008 banner=Disallowing log=runs/20261005T233003Z-spike03-s6-w2a/log.blockMesh
+status=0 wall_s=1 peak_rss_bytes=113623040 banner=Disallowing log=runs/20261005T233003Z-spike03-s6-w2a/log.checkMesh-preflight
+status=0 wall_s=0 peak_rss_bytes=33226752 banner=Disallowing log=runs/20261005T233003Z-spike03-s6-w2a/log.surfaceCheck
+status=0 wall_s=1 peak_rss_bytes=34275328 banner=Disallowing log=runs/20261005T233003Z-spike03-s6-w2a/log.surfaceFeatureExtract
+status=0 wall_s=276 peak_rss_bytes=1657470976 banner=Disallowing log=runs/20261005T233003Z-spike03-s6-w2a/log.snappyHexMesh
+status=0 wall_s=4 peak_rss_bytes=644464640 banner=Disallowing log=runs/20261005T233003Z-spike03-s6-w2a/log.checkMesh
+status=0 wall_s=2 peak_rss_bytes=243630080 banner=Disallowing log=runs/20261005T233003Z-spike03-s6-w2a/log.postProcess-C
+python3: can't open file '/Users/mallalieut/projects/CFD-Workbench-spike-tip-bl-route-s6/cases/tools/mesh-locate-snappy.py': [Errno 2] No such file or directory
