@@ -504,29 +504,45 @@ public static class DatImport
     }
 
     /// <summary>
-    /// Reads coordinates into the chord frame (m12d F-5): the leading edge is the minimum-x sample, the chord runs to the
-    /// trailing-edge midpoint at unit length, and the shift, turn and scale are returned so Replace can report them.
+    /// Reads coordinates into the chord frame (m12d F-5): the leading edge is the sample of minimum x in the chord frame
+    /// itself, the chord runs to the trailing-edge midpoint at unit length, and the shift, turn and scale are returned so
+    /// Replace can report them. The leading edge and the frame depend on each other, so the frame is iterated: split at the
+    /// minimum-x sample, frame, re-split at the framed minimum, until the split is stable — at most four times, else
+    /// DSL-IMPORT. The result does not depend on the frame the coordinates arrive in.
     /// </summary>
     internal static (DatProfile Profile, double LeShift, double RotationDegrees, double Scale) ParseInChordFrame(byte[] dat)
     {
         var raw = ParseRaw(dat);
-        var le = raw.Upper[0];
-        double mx = (raw.Upper[^1].X + raw.Lower[^1].X) / 2 - le.X, my = (raw.Upper[^1].Y + raw.Lower[^1].Y) / 2 - le.Y;
-        double scale = Math.Sqrt(mx * mx + my * my);
-        if (!(scale > 1e-12)) throw new ContractError("DSL-IMPORT", raw.FirstLine);
-        double angle = Math.Atan2(my, mx), cos = Math.Cos(angle), sin = Math.Sin(angle);
-        List<ProfilePoint> Frame(IReadOnlyList<ProfilePoint> side)
+        var loop = raw.Upper.AsEnumerable().Reverse().Concat(raw.Lower[0] == raw.Upper[0] ? raw.Lower.Skip(1) : raw.Lower).ToList();
+        int nose = raw.Upper.Count - 1;
+        var te = new ProfilePoint((loop[0].X + loop[^1].X) / 2, (loop[0].Y + loop[^1].Y) / 2);
+        for (int turn = 0; ; turn++)
         {
-            var list = side.Select(point =>
+            var le = loop[nose];
+            double mx = te.X - le.X, my = te.Y - le.Y, scale = Math.Sqrt(mx * mx + my * my);
+            if (!(scale > 1e-12)) throw new ContractError("DSL-IMPORT", raw.FirstLine);
+            double angle = Math.Atan2(my, mx), cos = Math.Cos(angle), sin = Math.Sin(angle);
+            ProfilePoint Frame(ProfilePoint point)
             {
                 double dx = point.X - le.X, dy = point.Y - le.Y;
-                return new ProfilePoint((dx * cos + dy * sin) / scale, (-dx * sin + dy * cos) / scale);
-            }).ToList();
-            list[0] = new(0, 0);
-            return list;
+                return new((dx * cos + dy * sin) / scale, (-dx * sin + dy * cos) / scale);
+            }
+            var framed = loop.Select(Frame).ToList();
+            int lowest = 0;
+            for (int index = 1; index < framed.Count; index++)
+                if (framed[index].X < framed[lowest].X) lowest = index;
+            if (lowest != nose)
+            {
+                if (turn == 3 || lowest == 0 || lowest == framed.Count - 1) throw new ContractError("DSL-IMPORT", raw.FirstLine);
+                nose = lowest;
+                continue;
+            }
+            var upper = framed.Take(nose + 1).Reverse().ToList();
+            var lower = framed.Skip(nose).ToList();
+            upper[0] = lower[0] = new(0, 0);
+            var profile = new DatProfile(raw.Name, raw.Format, upper.AsReadOnly(), lower.AsReadOnly(), dat, raw.Count);
+            return (profile, Math.Sqrt(le.X * le.X + le.Y * le.Y) / scale, angle / PlacementRule.RadiansPerDegree, scale);
         }
-        var profile = new DatProfile(raw.Name, raw.Format, Frame(raw.Upper).AsReadOnly(), Frame(raw.Lower).AsReadOnly(), dat, raw.Count);
-        return (profile, Math.Sqrt(le.X * le.X + le.Y * le.Y) / scale, angle / PlacementRule.RadiansPerDegree, scale);
     }
 
     internal static (double[] Knots, double[] ControlX) OwnSqrtBasis(int count)

@@ -80,11 +80,12 @@ public sealed record ConstructionReport(double MaxDeviation, double? Tolerance, 
 /// <summary>
 /// The fit a Replace (or Import, which is a Replace) made. MaxResidual is the largest Euclidean distance between source and
 /// fitted curve, both ways, in chord fractions (m12d §3.6 rule 5). Basis is <c>current</c>, <c>own</c> or <c>exact</c>.
-/// The optional fields are expand-only (m12d §5.1); Frame* are null for a source that is not coordinates.
+/// The optional fields are expand-only (m12d §5.1); Frame* are null for a source that is not coordinates. FrameResidual is
+/// how far behind the sampled leading edge the source curve's own minimum x lies, in chord fractions (the frame's residual).
 /// </summary>
 public sealed record ImportReport(double MaxResidual, int VertexCount, bool Accepted, string Provenance, string? Basis = null,
     IReadOnlyList<int>? Stations = null, IReadOnlyList<string>? DroppedRows = null, double? FrameLeShift = null,
-    double? FrameRotationDegrees = null, double? FrameScale = null, double? SourceThickness = null);
+    double? FrameRotationDegrees = null, double? FrameScale = null, double? SourceThickness = null, double? FrameResidual = null);
 
 /// <summary>Where a Replace takes its shape from (m12d §5.1).</summary>
 public abstract record ReplaceSource(string DisplayName, Provenance Provenance)

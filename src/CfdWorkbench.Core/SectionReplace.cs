@@ -80,7 +80,7 @@ public static class SectionReplace
         var replaced = after.Profiles.Single(profile => profile.Name == target.Name);
         var (change, at) = LargestChange(stations.Select(index => before.Profiles[before.Assignments[index].Profile]).Distinct(), replaced);
         var report = new ImportReport(chosen.Residual, chosen.Upper.Length, true, source.Provenance.Format(), chosen.Basis, stations,
-            chosen.Dropped, shape.LeShift, shape.RotationDegrees, shape.Scale, shape.Thickness);
+            chosen.Dropped, shape.LeShift, shape.RotationDegrees, shape.Scale, shape.Thickness, shape.FrameResidual);
         return new ReplacePreview(stations, chosen.Spacing, chosen.Residual, acceptanceChord, change, at, chosen.Upper.Length, null, null, next)
         { Report = report };
     }
@@ -254,6 +254,8 @@ public static class SectionReplace
     private sealed record Shape(DatProfile Samples, (double X, double Y)[] UpperCurve, (double X, double Y)[] LowerCurve, bool Closed,
         double? LeShift, double? RotationDegrees, double? Scale, double Thickness, ProfileDefinition? Record)
     {
+        internal double? FrameResidual => LeShift is null ? null : -Math.Min(0, Math.Min(UpperCurve.Min(point => point.X), LowerCurve.Min(point => point.X)));
+
         internal static Shape Read(ReplaceSource source)
         {
             switch (source)

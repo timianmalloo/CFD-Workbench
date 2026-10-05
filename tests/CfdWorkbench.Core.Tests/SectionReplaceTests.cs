@@ -446,6 +446,8 @@ internal static class SectionReplaceTests
                 Equal(level.Spacing, turned.Spacing);
                 Equal(true, apart * ExampleChord <= Limit);
                 Equal(true, Math.Abs(turned.Report!.FrameRotationDegrees!.Value - degrees) < 1e-6);
+                Equal(true, turned.Report.FrameResidual is >= 0 and < 1e-4);
+                Equal(true, Math.Abs(turned.Report.FrameResidual!.Value - level.Report!.FrameResidual!.Value) < 1e-9);
             });
         Check("Replace_CurrentSpacing_KeepsAngleSmoothSymmetricRows", () =>
         {
