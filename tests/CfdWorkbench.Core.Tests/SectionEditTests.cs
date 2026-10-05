@@ -177,6 +177,9 @@ internal static class SectionEditTests
             }
             Equal(true, outside > 0); Equal(true, moved > 0);
         });
+        Check("MakeIndependent_TangentRow_NoDslPatch", MakeIndependent_TangentRow_NoDslPatch);
+        Check("Parse_TangentsBeforeIds_RefusedDslSyntax", Parse_TangentsBeforeIds_RefusedDslSyntax);
+        Check("MakeIndependent_CollidingIds_TangentNotCascaded", MakeIndependent_CollidingIds_TangentNotCascaded);
         Check("Profile_MakeIndependent_MiddleStationSplitsIntervals", () =>
         {
             byte[] raw = ThreeStations();
@@ -281,6 +284,107 @@ internal static class SectionEditTests
                 "can't be checked then. Move points up or down only, or keep the section shared.", error?.Reason);
             Equal(begun.Generation, session.Snapshot().Draft!.Generation);
         });
+    }
+
+    /// <summary>
+    /// A section with a tangent row must become an independent profile. The row stays on the same
+    /// vertex, including when that vertex's id is rewritten to the cv-N ids MakeIndependent assigns.
+    /// </summary>
+    private static void MakeIndependent_TangentRow_NoDslPatch()
+    {
+        byte[] canonical = SectionPointTests.Anchored("smooth", SectionPointTests.SmoothUpper(), SectionPointTests.SmoothLower());
+        ExpectIndependentTangent(canonical, "smooth", null);
+
+        byte[] renamed = Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(canonical).Replace("\"cv-", "\"pt-", StringComparison.Ordinal));
+        ExpectIndependentTangent(renamed, "smooth", "cv-5");
+    }
+
+    // A tangents block is legal only in 4.1, after ids (docs/specs/foildsl.md). The same
+    // fixture the retarget used, with the block moved in front of the ids list, is DSL-SYNTAX.
+    private static void Parse_TangentsBeforeIds_RefusedDslSyntax()
+    {
+        byte[] canonical = SectionPointTests.Anchored("smooth", SectionPointTests.SmoothUpper(), SectionPointTests.SmoothLower());
+        string text = Encoding.UTF8.GetString(canonical).Replace("\"cv-", "\"pt-", StringComparison.Ordinal);
+        const string row = "tangents { \"pt-5\" smooth }";
+        int rowAt = text.IndexOf(row, StringComparison.Ordinal);
+        int idsAt = text.LastIndexOf("ids [", rowAt, StringComparison.Ordinal);
+        if (rowAt < 0 || idsAt < 0) throw new InvalidOperationException("Fixture lost its tangent row or ids list");
+        string idsClause = text[idsAt..rowAt];
+        text = text[..idsAt] + row + " " + idsClause + text[(rowAt + row.Length)..];
+        int movedRow = text.IndexOf(row, StringComparison.Ordinal);
+        if (movedRow < 0 || text.IndexOf(idsClause.Trim(), movedRow, StringComparison.Ordinal) < movedRow)
+            throw new InvalidOperationException("Tangents block did not move before the ids list");
+        var parsed = FoilSource.Parse(Encoding.UTF8.GetBytes(text));
+        Equal(false, parsed.IsParsed);
+        Equal("DSL-SYNTAX", parsed.Diagnostics[0].Code);
+        Equal("Syntactic", parsed.Diagnostics[0].Phase);
+        Equal("ids", Encoding.UTF8.GetString(parsed.Source.AsSpan(parsed.Diagnostics[0].ByteStart, parsed.Diagnostics[0].ByteLength)));
+    }
+
+    // The anchor's id is "cv-1" and the vertex at index 1 is "cv-5", which is that anchor's new id.
+    // Index 0 is not an interior anchor, so the collision cannot be the literal list ["cv-1","cv-0",...].
+    // A second pass over the rewritten text would point the row back at cv-1. The comment quotes the
+    // same id and must stay, because it is not the row's id token.
+    private static void MakeIndependent_CollidingIds_TangentNotCascaded()
+    {
+        byte[] canonical = SectionPointTests.Anchored("smooth", SectionPointTests.SmoothUpper(), SectionPointTests.SmoothLower());
+        string text = Encoding.UTF8.GetString(canonical);
+        int upper = text.IndexOf("upper cv {", StringComparison.Ordinal);
+        int tangentAt = text.IndexOf("tangents {", upper, StringComparison.Ordinal);
+        int curveClose = text.IndexOf('}', text.IndexOf('}', tangentAt) + 1);
+        string upperCurve = text[upper..(curveClose + 1)];
+        string swapped = upperCurve.Replace("\"cv-1\"", "\"cv-TMP\"", StringComparison.Ordinal)
+            .Replace("\"cv-5\"", "\"cv-1\"", StringComparison.Ordinal)
+            .Replace("\"cv-TMP\"", "\"cv-5\"", StringComparison.Ordinal);
+        const string note = "# keep \"cv-1\" here";
+        swapped = swapped.Replace("tangents { \"cv-1\" smooth } }", "tangents { \"cv-1\" smooth }\n      " + note + "\n    }", StringComparison.Ordinal);
+        text = text[..upper] + swapped + text[(curveClose + 1)..];
+        byte[] source = Encoding.UTF8.GetBytes(text);
+        var before = FoilSource.Parse(source);
+        if (!before.IsParsed || before.Definition is null) throw new InvalidOperationException("Fixture did not parse: " + before.Diagnostics[0].Code);
+        var profile = before.Definition.Profiles[0];
+        int vertex = Array.IndexOf(profile.Upper.Ids, "cv-1");
+        Equal(5, vertex);
+        Equal("cv-5", profile.Upper.Ids[1]);
+        var made = FoilSource.MakeIndependent(source, profile.Name, 0);
+        var after = FoilSource.Parse(made.Source);
+        if (!after.IsParsed || after.Definition is null) throw new InvalidOperationException("Clone did not parse: " + after.Diagnostics[0].Code);
+        var clone = after.Definition.Profiles.Single(item => item.Name == made.NewProfile);
+        var kept = after.Definition.Profiles.Single(item => item.Name == profile.Name);
+        Equal("cv-5", clone.Upper.Tangents[0].Id);
+        Equal("cv-5", clone.Upper.Ids[vertex]);
+        Equal("cv-1", clone.Upper.Ids[1]);
+        Equal("smooth", clone.Upper.Tangents[0].Kind);
+        string written = Encoding.UTF8.GetString(made.Source);
+        Equal(true, ProfileBlock(written, made.NewProfile).Contains(note, StringComparison.Ordinal));
+        Equal(true, ProfileBlock(written, profile.Name).Contains(note, StringComparison.Ordinal));
+        Equal("cv-1", kept.Upper.Tangents[0].Id);
+    }
+
+    private static void ExpectIndependentTangent(byte[] source, string kind, string? translatedId)
+    {
+        var before = FoilSource.Parse(source);
+        if (!before.IsParsed)
+            throw new InvalidOperationException("Fixture did not parse: " + before.Diagnostics[0].Code + " " + before.Diagnostics[0].Reason);
+        var profile = before.Definition!.Profiles[0];
+        string oldTangentId = profile.Upper.Tangents[0].Id;
+        int vertex = Array.IndexOf(profile.Upper.Ids, oldTangentId);
+        if (vertex < 0) throw new InvalidOperationException("Tangent id " + oldTangentId + " is not an upper point");
+        var made = FoilSource.MakeIndependent(source, profile.Name, 0);
+        var after = FoilSource.Parse(made.Source);
+        if (!after.IsParsed)
+            throw new InvalidOperationException("Clone did not parse: " + after.Diagnostics[0].Code + " " + after.Diagnostics[0].Reason);
+        var clone = after.Definition!.Profiles.Single(item => item.Name == made.NewProfile);
+        var kept = after.Definition.Profiles.Single(item => item.Name == profile.Name);
+        Equal(1, clone.Upper.Tangents.Length);
+        Equal(kind, clone.Upper.Tangents[0].Kind);
+        Equal(translatedId ?? oldTangentId, clone.Upper.Tangents[0].Id);
+        Equal(clone.Upper.Ids[vertex], clone.Upper.Tangents[0].Id);
+        Equal(1, kept.Upper.Tangents.Length);
+        Equal(oldTangentId, kept.Upper.Tangents[0].Id);
+        var stations = after.Authored().Assignments;
+        Equal(made.NewProfile, stations[0].ProfileName);
+        Equal(profile.Name, stations[1].ProfileName);
     }
 
     private static AuthoringSession Opened()

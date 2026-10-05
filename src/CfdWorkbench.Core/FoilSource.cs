@@ -83,7 +83,16 @@ internal sealed record SourceToken(string Text, int Start, int End)
     internal string String => JsonSerializer.Deserialize<string>(Text) ?? "";
 }
 internal readonly record struct TangentDraft(SourceToken Id, SourceToken Kind, SourceToken? Angle);
-internal readonly record struct TangentRow(string Id, string Kind, double? Angle);
+internal readonly record struct TangentRow(string Id, string Kind, double? Angle)
+{
+    // The id token in the source that produced this row. Copied rows leave it unset.
+    // Equality ignores it: a row's meaning is the id, kind and angle, not where it was written.
+    internal SourceToken? IdToken { get; init; }
+
+    public bool Equals(TangentRow other) => Id == other.Id && Kind == other.Kind && Angle == other.Angle;
+
+    public override int GetHashCode() => HashCode.Combine(Id, Kind, Angle);
+}
 internal sealed record RawCurve(string Path, SourceToken Degree, SourceToken[] Knots,
     (SourceToken X, SourceToken Y)[] Points, SourceToken[]? Ids, int InsertAt, bool Profile, int PointsStart, int PointsEnd)
 {
@@ -737,9 +746,28 @@ public static class FoilSource
     }
     private static void RewriteIds(Curve curve, List<(int Start, int End, string Value)> edits)
     {
-        string joined = string.Join(",", Enumerable.Range(0, curve.Points.Length).Select(index => Jcs.Quote("cv-" + index.ToString(CultureInfo.InvariantCulture))));
-        if (curve.IdTokens is null) edits.Add((curve.InsertAt, curve.InsertAt, " ids [" + joined + "] "));
-        else for (int index = 0; index < curve.Points.Length; index++) edits.Add((curve.IdTokens[index].Start, curve.IdTokens[index].End, Jcs.Quote("cv-" + index.ToString(CultureInfo.InvariantCulture))));
+        string Next(int index) => "cv-" + index.ToString(CultureInfo.InvariantCulture);
+        if (curve.IdTokens is null)
+        {
+            string joined = string.Join(",", Enumerable.Range(0, curve.Points.Length).Select(index => Jcs.Quote(Next(index))));
+            edits.Add((curve.InsertAt, curve.InsertAt, " ids [" + joined + "] "));
+            return;
+        }
+        for (int index = 0; index < curve.Points.Length; index++)
+            edits.Add((curve.IdTokens[index].Start, curve.IdTokens[index].End, Jcs.Quote(Next(index))));
+        // One edit per row, at the id token the parser recorded. A text search misses a different
+        // escape, misses a row that sits before the ids list, and rewrites a comment that quotes an id.
+        int retargeted = 0;
+        foreach (var row in curve.Tangents)
+        {
+            SourceToken token = row.IdToken ?? throw new ContractError("DSL-PATCH");
+            Guard.Require(token.End > token.Start, "DSL-PATCH");
+            int index = Array.IndexOf(curve.Ids, row.Id);
+            Guard.Require(index >= 0, "DSL-PATCH");
+            edits.Add((token.Start, token.End, Jcs.Quote(Next(index))));
+            retargeted++;
+        }
+        Guard.Require(retargeted == curve.Tangents.Length, "DSL-PATCH");
     }
 
     internal static (byte[] Source, string VertexId) InsertProfileKnot(byte[] source, string profile, double parameterX)
@@ -1399,7 +1427,7 @@ public static class FoilSource
                 var curve = ConvertCurveValues(raw, scale);
                 BindTangents(curve, raw);
                 if (raw.Tangents.Length == 0) return curve;
-                var rows = raw.Tangents.Select(row => new TangentRow(row.Id.String, row.Kind.Text, row.Angle is null ? null : ConvertNumber(row.Angle))).ToArray();
+                var rows = raw.Tangents.Select(row => new TangentRow(row.Id.String, row.Kind.Text, row.Angle is null ? null : ConvertNumber(row.Angle)) { IdToken = row.Id }).ToArray();
                 return curve with { Tangents = rows };
             }
             catch (SourceFailure failure) when (failure.Code == "DSL-CURVE")

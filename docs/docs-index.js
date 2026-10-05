@@ -9941,6 +9941,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "2c327ae792fd61658e4e6c3d11829f42cbe68ff861652200638b19b3c3722084"
     },
     {
+      "id": "proof-e2-cad-defects-red-first",
+      "path": "docs/proof/e2-cad-defects/red-first.md",
+      "title": "E2 CAD defects red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-e2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Two CAD defects, each red before its fix. A refused section step republished Finish \"Checking…\" for the re-check of unchanged bytes. MakeIndependent threw DSL-PATCH when a tangent row still named a point id that the copy had rewritten. The retarget now edits each row's id token span. A tangents block before ids stays DSL-SYNTAX.",
+      "tags": [
+        "cad",
+        "flk-1",
+        "make-independent",
+        "tangent",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "spec-foildsl",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9cbbe5c0a750558d520e47c982e1b944d873a49d45152427f3e41ccfeada4a93"
+    },
+    {
       "id": "proof-foildsl-authoring",
       "path": "docs/proof/foildsl-authoring.md",
       "title": "FoilDSL authoring specification and mockup proof",
@@ -13147,5 +13178,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "4960acb59a11b47635121da44505aaf7d33ad7cb8224f86b1166ce289edc2233"
+  "graphSha256": "2ee409552b7c9a2d2104fe36ae7fa9b82600aeeec49ea8564140b881ff2f3a1a"
 };

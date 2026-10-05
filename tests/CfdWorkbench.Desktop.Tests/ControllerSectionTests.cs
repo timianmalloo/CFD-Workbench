@@ -1,10 +1,12 @@
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using Avalonia.Automation;
+using Avalonia.Controls;
+using Avalonia.Threading;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop;
 using CfdWorkbench.Desktop.Shell;
-using Avalonia.Threading;
 
 namespace CfdWorkbench.Desktop.Tests;
 
@@ -46,8 +48,117 @@ public static class ControllerSectionTests
         task.GetAwaiter().GetResult();
     }
 
+    /// <summary>
+    /// FLK-1: a refused step re-checks the unchanged draft. This covers the re-check window after a refusal only.
+    /// "Checking…" from the moment the step is queued until the refusal is known is unavoidable, because the refusal
+    /// is not known beforehand.
+    /// </summary>
+    private static void SectionStep_Refused_RestoresCertificate()
+    {
+        var held = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int heldCalls = 0;
+        bool arm = false;
+        using var controller = new WorkbenchController(sectionAssessmentGate: _ =>
+        {
+            if (!arm) return Task.CompletedTask;
+            Interlocked.Increment(ref heldCalls);
+            return held.Task;
+        });
+        var view = new SectionEditorView();
+        var window = new Window { Content = view, Width = 900, Height = 600 };
+        window.Show();
+        string? failure = null;
+        try
+        {
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            Wait(controller.ApplySectionStepAsync(new SectionStep.MakeUnique()));
+            WaitFor(() => controller.Section is { Assessment: not null, CanFinish: true });
+            var before = controller.Section!;
+            var target = controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            arm = true;
+            var refused = controller.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, target.Id, true));
+            WaitFor(() => refused.IsCompleted && Volatile.Read(ref heldCalls) > 0);
+            Dispatcher.UIThread.RunJobs();
+            var during = controller.Section;
+            view.Bind(controller);
+            Dispatcher.UIThread.RunJobs();
+            string? help = AutomationProperties.GetHelpText(view.FindControl<Button>("ModeFinishButton")!);
+            string? box = view.FindControl<TextBlock>("ModeReason")!.Text;
+            if (during is null)
+                failure = "The refused step closed the section";
+            else if (during.FinishReason == "Checking…" || help == "Checking…" || box == "Checking…")
+                failure = $"A refused step showed Finish \"Checking…\" while it re-checked: reason '{during.FinishReason}', help '{help}', box '{box}'";
+            else if (during.Draft.Generation != before.Draft.Generation || during.CanFinish != before.CanFinish || during.FinishReason != before.FinishReason)
+                failure = $"The re-check changed Finish before it returned: can finish {before.CanFinish} → {during.CanFinish}, reason '{before.FinishReason}' → '{during.FinishReason}'";
+            held.TrySetResult();
+            try { Wait(refused); }
+            catch (ContractError) { }
+            WaitFor(() => controller.Section?.Assessment is not null);
+            if (failure is null && controller.Section?.FinishReason == "Checking…")
+                failure = "Finish stayed on Checking… after the refused step's re-check";
+        }
+        finally
+        {
+            held.TrySetResult();
+            try { WaitFor(() => controller.Section?.Assessment is not null || controller.Section is null); }
+            catch (TimeoutException) { }
+            window.Close();
+        }
+        if (failure is not null) throw new Exception(failure);
+    }
+
+    /// <summary>
+    /// A landed step, and leaving the editor, drop the certificate saved for a refusal.
+    /// A refusal itself keeps it: that is the re-check window.
+    /// </summary>
+    private static void SectionStep_LandedOrExit_ClearsPriorCertificate()
+    {
+        var held = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        int heldCalls = 0;
+        using var controller = new WorkbenchController(sectionAssessmentGate: generation =>
+        {
+            if (generation < 1) return Task.CompletedTask;
+            Interlocked.Increment(ref heldCalls);
+            return held.Task;
+        });
+        try
+        {
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            var nose = controller.SectionCurve(SurfaceSide.Upper)!.Points[0];
+            var refused = controller.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, nose.Id, true));
+            try
+            {
+                Wait(refused);
+                throw new Exception("The nose step landed");
+            }
+            catch (ContractError) { }
+            WaitFor(() => controller.Section?.Assessment is not null);
+            if (SavedCertificate(controller) is null)
+                throw new Exception("A refusal dropped the certificate its re-check still needs");
+            controller.CancelSection();
+            if (controller.Section is not null || SavedCertificate(controller) is not null)
+                throw new Exception("Leaving the section editor kept the saved certificate");
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            var landed = controller.ApplySectionStepAsync(Raise(controller));
+            WaitFor(() => Volatile.Read(ref heldCalls) > 0);
+            if (SavedCertificate(controller) is not null)
+                throw new Exception("A landed step kept the certificate from before the bytes changed");
+            held.TrySetResult(true);
+            Wait(landed);
+        }
+        finally { held.TrySetResult(true); }
+    }
+
+    private static object? SavedCertificate(WorkbenchController controller) =>
+        typeof(WorkbenchController).GetField("sectionBeforeChecking", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .GetValue(controller);
+
     public static void Run()
     {
+        DesktopChecks.Check("SectionStep_Refused_RestoresCertificate", SectionStep_Refused_RestoresCertificate);
+        DesktopChecks.Check("SectionStep_LandedOrExit_ClearsPriorCertificate", SectionStep_LandedOrExit_ClearsPriorCertificate);
         DesktopChecks.Check("SectionMode_Crossing_FinishDisabledWithReason", () =>
         {
             using var controller = Open();
