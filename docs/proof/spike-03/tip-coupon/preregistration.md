@@ -47,6 +47,16 @@ Nothing below changes after the first mesh run. Where a result forces a change, 
 
 The V3 layer-count criterion (at least 20 layers) fails by construction. V3 is a diagnostic for the tip classes only.
 
+## Amendment 1 (written before any mesh run; geometry-only checks had been run)
+
+The V2 row above states the LE flat as "x/c = 3.43e-4, radius 0.396 mm, x = 41 um". That arithmetic is wrong: the section
+grid point 1 is x/c = 0.5 (1 - cos(pi/120)) = 1.714e-4. The construction is unchanged (the revolve starts at section grid
+point 1). The values that apply are: LE flat at x = 20.6 um, radius 0.278 mm (read from `GEOM_ONLY=1` output of
+`cases/tools/make-tip-coupon-gmsh.py`); TE flat at x = c + 0.2165 mm, radius 0.125 mm; the tip chord is 54 um shorter
+(20.6 um at the LE, 33.5 um at the TE). The geometry check also read the B-rep predicate for each variant before meshing:
+V0 has 4 wing curves used by one surface (all zero length, the degenerate pole curves), V1 0, V2 0, V3 4 (as V0).
+The decision rules and thresholds are not touched.
+
 ## Regions
 
 First match wins, as `mesh-locate-r3.py`: tip_pole (within 2 mm of a pole point (0,0,b/2) or (c + r_TE, 0, b/2)), te (x at least c - 1 mm and wall distance below 2.5 mm), root (z below 2 mm), interface (a prism/tet face), tip (z above b/2), main. For V1 a face within the stack height (1.49 mm) of the cap-to-skin seam is also flagged `edge`; the flag does not change the primary region.
