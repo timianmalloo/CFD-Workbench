@@ -61,30 +61,30 @@ public static class Cavitation
         ArgumentNullException.ThrowIfNull(op);
         ArgumentNullException.ThrowIfNull(datum);
         if (stations.Count == 0) throw new ContractError("ANA-CAV-INPUT", "A wing screen needs a station.");
-        CavitationStation? governing = null;
-        PanelResult? governingCp = null;
+        CavitationResult? governing = null, unavailable = null, undefined = null;
+        double minimumRatio = double.PositiveInfinity;
+        double alpha = VortexLattice.ToRadians(op.AlphaDeg);
         foreach (CavitationStation candidate in stations)
         {
             cancellation.ThrowIfCancellationRequested();
-            PanelResult result = PanelMethod.Solve(candidate.Section, candidate.AlphaEffDeg, cancellation);
-            if (governingCp is null || result.CpMin < governingCp.CpMin)
+            PanelResult panel = PanelMethod.Solve(candidate.Section, candidate.AlphaEffDeg, cancellation);
+            double? depth = null;
+            if (op.HRef is double h)
             {
-                governing = candidate;
-                governingCp = result;
+                // The body frame is +x aft, +y starboard, +z up (docs/specs/cfd-workbench.md:167).
+                StationFrame frame = candidate.Section.Frame;
+                double rise = (frame.ElevationMeters - datum.ElevationMeters) * Math.Cos(alpha) -
+                    (frame.LeadingMeters - datum.LeadingMeters) * Math.Sin(alpha);
+                depth = h - rise;
             }
+            string name = "η " + candidate.Section.Frame.Eta.ToString("0.###", CultureInfo.InvariantCulture);
+            CavitationResult screen = Screen(panel.CpMin, panel.StationCount, depth, op.Speed, rho, op.PAtm, pv,
+                name, marginFraction);
+            if (screen.State == CavitationState.Unavailable) { unavailable ??= screen; continue; }
+            if (screen.State == CavitationState.Undefined) { undefined ??= screen; continue; }
+            double ratio = screen.Sigma!.Value / -panel.CpMin;
+            if (governing is null || ratio < minimumRatio) { governing = screen; minimumRatio = ratio; }
         }
-        double? depth = null;
-        if (op.HRef is double h)
-        {
-            // Rotate each leading-edge position about the run's root-LE datum by the geometric incidence.
-            double alpha = VortexLattice.ToRadians(op.AlphaDeg);
-            StationFrame frame = governing!.Section.Frame;
-            double rise = (frame.ElevationMeters - datum.ElevationMeters) * Math.Cos(alpha) -
-                (frame.LeadingMeters - datum.LeadingMeters) * Math.Sin(alpha);
-            depth = h - rise;
-        }
-        string name = "η " + governing!.Section.Frame.Eta.ToString("0.###", CultureInfo.InvariantCulture);
-        return Screen(governingCp!.CpMin, governingCp.StationCount, depth, op.Speed, rho, op.PAtm, pv,
-            name, marginFraction);
+        return unavailable ?? governing ?? undefined!;
     }
 }

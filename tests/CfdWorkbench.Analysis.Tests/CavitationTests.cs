@@ -12,6 +12,7 @@ internal static class CavitationTests
         AnalysisChecks.Check("Cavitation_NegCpMinNonPositive_Undefined", Undefined);
         AnalysisChecks.Check("Cavitation_PvOrDepthMissing_Unavailable", Unavailable);
         AnalysisChecks.Check("Cavitation_GoverningStation_AtAlphaEffAndLocalDepth", Governing);
+        AnalysisChecks.Check("Cavitation_GoverningStation_MinLocalRatio", MinLocalRatio);
     }
 
     private static void String()
@@ -72,5 +73,30 @@ internal static class CavitationTests
             throw new InvalidOperationException("local depth was not 0.25 m");
         if (wing.CpMin is null || Math.Abs(wing.CpMin.Value - outerCp.CpMin) > 1e-10)
             throw new InvalidOperationException("Cp did not use α_eff");
+    }
+
+    private static void MinLocalRatio()
+    {
+        SectionSample basic = SectionEstimatorTests.Section(0, 0.08, 100);
+        StationFrame root = basic.Frame;
+        SectionSample deep = basic with { Frame = root with { Eta = 0.75, ElevationMeters = -5 } };
+        var stations = new[] { new CavitationStation(basic, 4), new CavitationStation(deep, 5) };
+        OperatingPoint op = OperatingPoints.Custom(5, 0, 0.1) with { PAtm = 11700 };
+        PanelResult rootCp = PanelMethod.Solve(basic, 4);
+        PanelResult deepCp = PanelMethod.Solve(deep, 5);
+        double rootRatio = (op.PAtm + 1000 * OperatingPoints.Gravity * 0.1 - 1700) / (-rootCp.CpMin);
+        double deepRatio = (op.PAtm + 1000 * OperatingPoints.Gravity * 5.1 - 1700) / (-deepCp.CpMin);
+        if (!(deepCp.CpMin < rootCp.CpMin && rootRatio < deepRatio))
+            throw new InvalidOperationException($"bad ratio fixture: Cp {rootCp.CpMin}/{deepCp.CpMin}, pressure/suction {rootRatio}/{deepRatio}");
+        CavitationResult wing = Cavitation.ScreenWing(stations, op, 1000, 1700, root);
+        AnalysisChecks.Equal("η 0", wing.GoverningStation, "minimum σ/(-Cp_min) station");
+        Near(0.1, wing.GoverningDepth, "shallower governing depth");
+        Near(rootCp.CpMin, wing.CpMin, "shallower station Cp_min");
+    }
+
+    private static void Near(double expected, double? actual, string what)
+    {
+        if (actual is null || Math.Abs(expected - actual.Value) > 1e-8)
+            throw new InvalidOperationException($"{what}: expected {expected}, actual {actual}");
     }
 }
