@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CAD limits in the gesture</title>
+<!--
+  Review mockup for the operator's approval before any build (docs/design/next-cad-increment.md, track E3).
+  Shows what a planform drag does at the Ruling 93 minimum tip chord: today (free drag, refused at release) and two
+  alternatives side by side, then the root-chord copy, the keyboard run and the hard states.
+  Every number is computed in this page from the Example foil (900 mm span, 120 mm root chord, linear taper) and from the
+  rule max(5 mm, 2 % of the root chord). The pointer and vertex positions are scripted, not captured from the product.
+  Display only; nothing is built from this page. Tokens follow area3-analysis.html and design-language.md.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --on-accent:#ffffff; --sel:#d8eeea; --warn:#895900; --danger:#a92e37; --ok:#24653f; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --on-accent:#172326; --sel:#274c47; --warn:#efc576; --danger:#ffaeb5; --ok:#92d1a5; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --vp-grid:#344b50; --foil:#85c9c4; --foil-edge:#c4e7df; --warn-vp:#efc576; --danger-vp:#ffaeb5; --pt:#edf4f2; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button, input{ font:inherit; color:inherit; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:22px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
+.harness{ margin-left:auto; display:flex; gap:8px; align-items:center; }
+.harness button{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.audit{ flex-basis:100%; font-size:12px; color:var(--mute); }
+.audit b.pass{ color:var(--ok); } .audit b.fail{ color:var(--danger); }
+main{ padding:16px 20px 40px; max-width:1360px; }
+section.screen{ margin:0 0 30px; }
+.screen h2{ margin:0 0 4px; font-size:18px; }
+.what{ margin:0 0 10px; max-width:1100px; font-size:12px; color:var(--mute); }
+.what b{ color:var(--ink); font-weight:600; }
+.row{ display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:12px; align-items:start; }
+.card{ background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:10px 12px 12px; min-width:0; }
+.card h3{ margin:0 0 2px; font-size:15px; }
+.card .tag{ margin:0 0 8px; color:var(--mute); font-size:12px; }
+.card .reco{ display:inline-block; margin-left:6px; padding:0 6px; border:1px solid var(--accent); border-radius:4px; color:var(--accent); font-size:12px; font-weight:600; }
+.frame{ margin:8px 0 0; }
+.frame .cap{ margin:0 0 3px; font-size:12px; font-weight:600; }
+.vp{ background:var(--vp); border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+.vp svg{ display:block; width:100%; height:auto; }
+.vp text{ fill:var(--vp-ink); font:12px var(--font); }
+.vp .mute{ fill:var(--vp-mute); }
+.vp .wing{ fill:var(--foil); fill-opacity:.28; stroke:var(--foil-edge); stroke-width:1.5; }
+.vp .below{ fill:var(--danger-vp); fill-opacity:.22; }
+.vp .limit{ stroke:var(--warn-vp); stroke-width:1.5; stroke-dasharray:6 4; }
+.vp .limit-t{ fill:var(--warn-vp); font-weight:600; }
+.vp .vertex{ fill:var(--pt); stroke:var(--vp); stroke-width:1.5; }
+.vp .vertex.bad{ fill:var(--danger-vp); }
+.vp .ptr{ fill:none; stroke:var(--vp-ink); stroke-width:1.5; }
+.vp .tether{ stroke:var(--vp-mute); stroke-width:1; stroke-dasharray:2 3; }
+.vp .ghost{ fill:none; stroke:var(--vp-mute); stroke-width:1; stroke-dasharray:3 3; }
+.wing-block{ margin:6px 0 0; border:1px solid var(--line); border-radius:4px; background:var(--surface); font-size:12px; }
+.wing-block div{ display:flex; justify-content:space-between; gap:8px; padding:3px 8px; border-top:1px solid var(--line); }
+.wing-block div:first-child{ border-top:0; font-weight:600; }
+.wing-block span:last-child{ font-variant-numeric:tabular-nums; }
+.wing-block .hl span:last-child{ font-weight:600; }
+.wing-block .bad span:last-child{ color:var(--danger); font-weight:600; }
+.wing-block .lim span:last-child{ color:var(--warn); font-weight:600; }
+.strip{ margin:6px 0 0; padding:5px 8px; border:1px solid var(--line); border-left:3px solid var(--control); border-radius:4px; background:var(--soft); font-size:12px; min-height:30px; }
+.strip.warn{ border-left-color:var(--warn); } .strip.err{ border-left-color:var(--danger); } .strip.ok{ border-left-color:var(--ok); }
+.strip small{ display:block; color:var(--mute); font-size:12px; }
+.pc{ margin:8px 0 0; padding:0; list-style:none; font-size:12px; }
+.pc li{ margin:0 0 2px; padding-left:16px; position:relative; }
+.pc li::before{ content:"+"; position:absolute; left:2px; color:var(--ok); font-weight:700; }
+.pc li.con::before{ content:"\2212"; color:var(--danger); }
+.field{ display:flex; align-items:center; gap:6px; margin:6px 0 0; font-size:12px; }
+.field label{ width:92px; color:var(--mute); }
+.field input{ width:96px; min-height:26px; padding:0 6px; border:1px solid var(--control); border-radius:4px; background:var(--surface); text-align:right; font-variant-numeric:tabular-nums; }
+.field input[aria-invalid="true"]{ border-color:var(--danger); border-width:2px; }
+.field .unit{ color:var(--mute); }
+.msg{ margin:4px 0 0 98px; font-size:12px; color:var(--danger); max-width:330px; }
+.msg.hint{ color:var(--mute); }
+table.t{ border-collapse:collapse; width:100%; font-size:12px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ padding:3px 6px; border-top:1px solid var(--line); text-align:left; }
+table.t th{ color:var(--mute); font-weight:600; }
+table.t tr.held td{ color:var(--warn); font-weight:600; }
+.choices{ max-width:1100px; font-size:12px; } .choices h2{ font-size:18px; margin:0 0 6px; } .choices li{ margin:0 0 6px; }
+.choices code{ font-family:ui-monospace, Menlo, Consolas, monospace; font-size:12px; }
+.live{ margin:6px 0 0; font-size:12px; color:var(--mute); }
+</style>
+</head>
+<body>
+<header class="top">
+  <div><h1>CAD limits in the gesture</h1><p>Proposal for the next CAD increment · mockup for approval before any build · Example foil, trailing-edge tip vertex</p></div>
+  <div class="harness">
+    <button id="theme" type="button" aria-pressed="false">Dark theme</button>
+    <button id="narrow" type="button" aria-pressed="false">Narrow (560 px)</button>
+  </div>
+  <div class="audit" id="audit" role="status">Checking…</div>
+</header>
+<main id="screens">
+
+<section class="screen" aria-labelledby="s1">
+  <h2 id="s1">1 · The drag at the limit: today and two alternatives</h2>
+  <p class="what"><b>What to compare.</b> Same gesture in each column: the pointer drags the trailing-edge tip vertex toward the leading edge, down to a tip chord of 2 mm. The rule is max(5 mm, 2 % of the root chord), so the limit here is <span data-v="limit"></span> mm. The drawing is the outer 60 mm of the half-wing at 6 px per mm. <b>Today is column C.</b> Columns A and B are the choice in DR-LIM-1.</p>
+  <div class="row" id="variants"></div>
+</section>
+
+<section class="screen" aria-labelledby="s2">
+  <h2 id="s2">2 · Widening the root: the message says what to do</h2>
+  <p class="what"><b>Same rule, other end.</b> The Example foil's tip is 6 mm. A root chord above <span data-v="rootmax"></span> mm would put the tip under 2 % of it. Today the refusal names the tip, which the designer did not touch. The proposal names the root, gives the limit, and says what lifts it.</p>
+  <div class="row">
+    <div class="card"><h3>Today</h3><p class="tag">Ruling 94 text, built with the new root as its argument</p>
+      <div class="field"><label for="r1">Root chord</label><input id="r1" value="400" aria-invalid="true" aria-describedby="m1"><span class="unit">mm</span></div>
+      <p class="msg" id="m1">Tip chord can’t go below <span data-v="min400"></span> mm (the larger of 5 mm and 2 % of the root chord).</p>
+      <ul class="pc"><li class="con">The designer edited the root and is told about the tip.</li><li class="con">Nothing says what to do next.</li></ul></div>
+    <div class="card"><h3>Proposed (COPY-D)<span class="reco">Recommended</span></h3><p class="tag">Names the root, the limit and the way out; the typed 400 is kept</p>
+      <div class="field"><label for="r2">Root chord</label><input id="r2" value="400" aria-invalid="true" aria-describedby="m2"><span class="unit">mm</span></div>
+      <p class="msg" id="m2">Root chord can’t go above <span data-v="rootmax"></span> mm while the tip chord is 6 mm (the tip must stay at least 2 % of the root). Widen the tip first.</p>
+      <ul class="pc"><li>Field stays as typed and marked invalid; geometry and undo depth unchanged.</li><li>Dragging the root vertex holds at <span data-v="rootmax"></span> mm and says the same in the strip.</li><li>Below a 250 mm root the 5 mm floor governs and the root is never limited by the tip.</li></ul></div>
+    <div class="card"><h3>Typed tip chord (COPY-A plus one clause)</h3><p class="tag">Ruling 94 text kept; the allowed value is appended</p>
+      <div class="field"><label for="r3">Tip chord</label><input id="r3" value="3" aria-invalid="true" aria-describedby="m3"><span class="unit">mm</span></div>
+      <p class="msg" id="m3">Tip chord can’t go below <span data-v="limit"></span> mm (the larger of 5 mm and 2 % of the root chord). Enter <span data-v="limit"></span> mm or more.</p>
+      <ul class="pc"><li>A typed number is never changed for the designer.</li></ul></div>
+  </div>
+</section>
+
+<section class="screen" aria-labelledby="s3">
+  <h2 id="s3">3 · Keyboard: arrows hold at the limit, one announcement</h2>
+  <p class="what"><b>Shift+Down moves the tip vertex 1 mm per press</b> (the channel ladder: 0.01 · 0.1 · 1 mm for Command, plain, Shift). Tip chord starts at 8 mm. Presses past the limit do not bank steps, so one Up press moves it back at once. The strip is a live region and speaks once, on arrival at the limit. Key-up ends the run as one undo step.</p>
+  <div class="row"><div class="card"><h3>Ten presses of Shift+Down</h3><p class="tag">Computed with the same rule as the other screens</p><div id="keys"></div><p class="live">Live region text, spoken once at press 3: “Tip chord is at its minimum, <span data-v="limit"></span> mm.”</p></div></div>
+</section>
+
+<section class="screen" aria-labelledby="s4">
+  <h2 id="s4">4 · Hard states</h2>
+  <p class="what"><b>Under variant A.</b> Each card is a state the build must render. Empty and Mixed show what does not appear.</p>
+  <div class="row" id="hard"></div>
+</section>
+
+<section class="choices" aria-labelledby="s5">
+  <h2 id="s5">Choices for the operator</h2>
+  <ol>
+    <li><b>DR-LIM-1 drag at the limit.</b> A hold (recommended) · B drag freely, release lands at the limit · C keep today. A matches how a constrained sketch point behaves in Fusion, SolidWorks and SolveSpace (recalled, not cited), and keeps every frame legal so the Wing block never shows a wing the product would refuse. B shows an illegal wing during the drag and surprises at release. C loses the gesture.</li>
+    <li><b>DR-LIM-2 root drag holds too</b> (recommended) or refuses at release.</li>
+    <li><b>DR-LIM-3 copy.</b> COPY-B to COPY-F as drawn here; COPY-A is Ruling 94.</li>
+    <li><b>DR-LIM-4 spec line</b> under CAD-04 and the tip-chord paragraph.</li>
+    <li><b>DR-LIM-5 order.</b> This now, then group move and typed value for several points (node M), or the reverse.</li>
+    <li><b>DR-LIM-6</b> a real marine-cad-ux-expert Adversary pass before build.</li>
+  </ol>
+  <p class="what">Full note: <code>docs/design/next-cad-increment.md</code>.</p>
+</section>
+</main>
+
+<script>
+'use strict';
+// ---- the rule (Core: TipChord.MinimumMeters / Admits), restated in mm for display ----
+const SPAN = 900, ROOT = 120, TIP0 = 30, TE_INBOARD = 36;
+const minTip = root => Math.max(5, 0.02 * root);
+const rootMax = tip => Math.max(250, tip / 0.02);            // above 250 mm the 2 % branch governs
+const LIMIT = minTip(ROOT);
+const f = (v, d = 2) => v.toFixed(d);
+const area = tip => SPAN * (ROOT + tip) / 2 / 100;           // cm^2, linear taper over the full span
+const ar = tip => (SPAN * SPAN) / (area(tip) * 100);
+// held and landed values for a pointer position (what Core's clamp and the release must agree on)
+const holdA = (pointer, limit) => Math.max(pointer, limit);
+const landB = (pointer, limit) => Math.max(pointer, limit);
+
+function wingBlock(tip, cls, note){
+  return `<div class="wing-block" aria-label="Wing estimates"><div><span>Wing</span><span>Example foil</span></div>
+  <div><span>Span</span><span>${SPAN} mm</span></div><div><span>Root chord</span><span>${ROOT} mm</span></div>
+  <div class="hl ${cls || ''}"><span>Tip chord</span><span>${f(tip)} mm${note ? ' · ' + note : ''}</span></div>
+  <div><span>≈ Area</span><span>${f(area(tip), 1)} cm²</span></div><div><span>≈ Aspect ratio</span><span>${f(ar(tip))}</span></div></div>`;
+}
+// A tip-region drawing: x is span (0 to 60 mm from the 390 mm station), y is aft from the leading edge.
+function tipSvg(o){
+  const S = 6, x0 = 20, y0 = 26, W = 62 * S + 60, H = 40 * S + 44;
+  const X = mm => x0 + mm * S, Y = mm => y0 + mm * S;
+  const tipX = 60, teIn = TE_INBOARD, v = o.vertex;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}">`;
+  s += `<text class="mute" x="${x0}" y="16">Leading edge</text>`;
+  s += `<polygon class="wing" points="${X(0)},${Y(0)} ${X(tipX)},${Y(0)} ${X(tipX)},${Y(v)} ${X(0)},${Y(teIn)}"/>`;
+  if (o.zone) s += `<rect class="below" x="${X(tipX - 40)}" y="${Y(0)}" width="${40 * S + 18}" height="${LIMIT * S}"/>`;
+  if (o.marker){
+    s += `<line class="limit" x1="${X(tipX - 40)}" x2="${X(tipX) + 22}" y1="${Y(LIMIT)}" y2="${Y(LIMIT)}"/>`;
+    s += `<text class="limit-t" x="${X(tipX) - 40 * S + 2}" y="${Y(LIMIT) + 15}">Minimum tip chord ${f(LIMIT, 0)} mm</text>`;
+  }
+  if (o.ghost) s += `<line class="ghost" x1="${X(0)}" y1="${Y(teIn)}" x2="${X(tipX)}" y2="${Y(o.ghost)}"/>`;
+  if (o.pointer !== undefined && Math.abs(o.pointer - v) > 0.01){
+    s += `<line class="tether" x1="${X(tipX)}" x2="${X(tipX)}" y1="${Y(v)}" y2="${Y(o.pointer)}"/>`;
+    s += `<circle class="ptr" cx="${X(tipX)}" cy="${Y(o.pointer)}" r="7"/>`;
+  }
+  s += `<rect class="vertex ${o.bad ? 'bad' : ''}" x="${X(tipX) - 5}" y="${Y(v) - 5}" width="10" height="10"/>`;
+  s += `<text x="${X(tipX) - 118}" y="${Y(Math.max(v, 12)) + 28}">Trailing edge tip vertex</text>`;
+  s += `<text class="mute" x="${x0}" y="${H - 8}">Plan, outer 60 mm of the half-wing · 6 px per mm</text>`;
+  return s + '</svg>';
+}
+const strip = (cls, text, small) => `<div class="strip ${cls}" role="status">${text}${small ? `<small>${small}</small>` : ''}</div>`;
+const frame = (cap, svg, wb, st) => `<div class="frame"><p class="cap">${cap}</p><div class="vp">${svg}</div>${wb}${st}</div>`;
+
+const P = 2;  // pointer ends at a 2 mm chord in every column
+const VARIANTS = [
+  { id: 'A', title: 'A · Hold at the limit', reco: true, tag: 'The vertex stops at the limit. The pointer keeps going; a dotted tether shows the gap.',
+    drag: () => frame('During the drag, pointer at 2 mm',
+      tipSvg({ label: 'Variant A during the drag: vertex held at the minimum, pointer below it', vertex: holdA(P, LIMIT), pointer: P, marker: true, zone: true, ghost: null }),
+      wingBlock(holdA(P, LIMIT), 'lim', 'minimum'), strip('warn', 'Tip chord is at its minimum, ' + f(LIMIT, 0) + ' mm.')),
+    rel: () => frame('After release',
+      tipSvg({ label: 'Variant A after release: the held value is committed', vertex: holdA(P, LIMIT), marker: false }),
+      wingBlock(holdA(P, LIMIT), 'hl'), strip('ok', 'Moved trailing edge point 10. Tip chord ' + f(holdA(P, LIMIT)) + ' mm.', 'One undo step. Undo restores 30.00 mm exactly.')),
+    pros: ['Every frame is a wing the product accepts; the Wing block never shows a refused wing.', 'Release cannot fail, so no gesture is lost.', 'Same shape as the spacing and domain clamps the drag already has.'],
+    cons: ['Pointer and vertex part company; the tether and the marker must explain it.'] },
+  { id: 'B', title: 'B · Drag freely, release lands at the limit', tag: 'The vertex follows the pointer in a warning style. Release commits the limit, not the pointer.',
+    drag: () => frame('During the drag, pointer at 2 mm',
+      tipSvg({ label: 'Variant B during the drag: vertex follows the pointer below the minimum, drawn as a warning', vertex: P, marker: true, zone: true, bad: true }),
+      wingBlock(P, 'bad', 'below the minimum'), strip('warn', 'Tip chord ' + f(P) + ' mm is under the minimum. Release to land at ' + f(LIMIT, 0) + ' mm.')),
+    rel: () => frame('After release',
+      tipSvg({ label: 'Variant B after release: the wing lands at the minimum', vertex: landB(P, LIMIT), marker: false }),
+      wingBlock(landB(P, LIMIT), 'hl'), strip('ok', 'Landed at the minimum tip chord, ' + f(LIMIT, 0) + ' mm.', 'One undo step. Undo restores 30.00 mm exactly.')),
+    pros: ['The vertex always follows the hand.', 'Release still cannot fail.'],
+    cons: ['The Wing block and the 3D view show a wing the product would refuse while the drag runs.', 'The result at release differs from what was on screen a moment before.', 'Core must either accept illegal drafts mid-gesture or the preview must be faked.'] },
+  { id: 'C', title: 'C · Today: free drag, refused at release', tag: 'The vertex follows the pointer; nothing marks the limit; release throws and the work snaps back.',
+    drag: () => frame('During the drag, pointer at 2 mm',
+      tipSvg({ label: 'Today during the drag: vertex follows the pointer, nothing marks the limit', vertex: P, marker: false }),
+      wingBlock(P, ''), strip('', 'Dragging trailing edge point 10.')),
+    rel: () => frame('After release',
+      tipSvg({ label: 'Today after release: the edit is refused and the vertex returns', vertex: TIP0, marker: false, ghost: P }),
+      wingBlock(TIP0, ''), strip('err', 'Tip chord can’t go below ' + f(LIMIT, 0) + ' mm (the larger of 5 mm and 2 % of the root chord).', 'As built the strip also carries the code DSL-TIP-CHORD-MIN (inferred from the refusal path, not captured). Nothing changed; undo depth unchanged.')),
+    pros: ['Already built and tested (TipChord_Drag_BelowMinimum_RefusedNothingAccepted).'],
+    cons: ['The gesture is lost with no warning while it runs.', 'The Wing block shows 2.00 mm, a value the product will refuse.'] }
+];
+document.getElementById('variants').innerHTML = VARIANTS.map(v =>
+  `<div class="card"><h3>${v.title}${v.reco ? '<span class="reco">Recommended</span>' : ''}</h3><p class="tag">${v.tag}</p>${v.drag()}${v.rel()}
+   <ul class="pc">${v.pros.map(t => `<li>${t}</li>`).join('')}${v.cons.map(t => `<li class="con">${t}</li>`).join('')}</ul></div>`).join('');
+
+// ---- keyboard run ----
+(function(){
+  let tip = 8, rows = '', said = false;
+  for (let i = 1; i <= 10; i++){
+    const wanted = tip - 1, next = Math.max(wanted, LIMIT), held = next === LIMIT;
+    const announce = held && !said; if (announce) said = true;
+    rows += `<tr class="${held ? 'held' : ''}"><td>${i}</td><td>${f(wanted)} mm</td><td>${f(next)} mm</td><td>${held ? 'held at minimum' : ''}</td><td>${announce ? 'announced once' : ''}</td></tr>`;
+    tip = next;
+  }
+  document.getElementById('keys').innerHTML = `<table class="t"><thead><tr><th>Press</th><th>Asked for</th><th>Tip chord</th><th>State</th><th>Live region</th></tr></thead><tbody>${rows}</tbody></table>`;
+})();
+
+// ---- hard states ----
+(function(){
+  const cards = [
+    ['Legacy file under the minimum', 'Opens; edits may not go lower than where the tip was at press.',
+      `${wingBlock(2, 'lim', 'already under the minimum')}${strip('warn', 'This tip is already under the minimum. It can’t go lower.')}`],
+    ['Tip closes (point tip)', 'Tip chord is text, not a field. No limit, no marker (Ruling 93 puts tip points out of scope).',
+      `<div class="wing-block"><div><span>Wing</span><span>Closing tip</span></div><div class="hl"><span>Tip chord</span><span>Tip closes — edit the tip station</span></div></div>`],
+    ['Empty: no foil open', 'No Wing block, no marker. The Start card is unchanged.',
+      `${strip('', 'Start with a foil, then make it yours.')}`],
+    ['Mixed: several points selected', 'Rows read Mixed and are read-only. No marker. Group drag is not part of this increment.',
+      `<div class="wing-block"><div><span>Points (2 selected)</span><span>Mixed</span></div><div><span>Type</span><span>Mixed</span></div><div><span>From root</span><span>Mixed</span></div><div><span>Aft</span><span>Mixed</span></div></div>`],
+    ['Escape during the hold', 'Cancels. The vertex returns to 30.00 mm; no undo step.',
+      `${wingBlock(TIP0, 'hl')}${strip('', 'Cancelled. Nothing changed.', 'Undo depth unchanged.')}`],
+    ['Analysis area', 'Edits are inert (as built). No marker is drawn; the pointer does nothing to the foil.',
+      `${strip('', 'Switch to CAD to edit the foil.', 'Existing refusal text for Analysis; unchanged by this proposal.')}`]
+  ];
+  document.getElementById('hard').innerHTML = cards.map(c => `<div class="card"><h3>${c[0]}</h3><p class="tag">${c[1]}</p>${c[2]}</div>`).join('');
+})();
+
+document.querySelectorAll('[data-v]').forEach(el => {
+  const k = el.dataset.v;
+  el.textContent = k === 'limit' ? f(LIMIT, 0) : k === 'rootmax' ? f(rootMax(6), 0) : k === 'min400' ? f(minTip(400), 0) : '';
+});
+
+// ---- in-artifact checks (review chrome; never ships) ----
+function lum(c){ const m = c.match(/\d+(\.\d+)?/g).map(Number).slice(0, 3).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; }
+function ratio(a, b){ const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function bg(el){ while (el){ const c = getComputedStyle(el).backgroundColor; if (c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) return c; el = el.parentElement; } return 'rgb(255,255,255)'; }
+function audit(){
+  const out = [];
+  let worst = 99, what = '';
+  document.querySelectorAll('main *').forEach(el => {
+    if (el.closest('svg') && el.tagName !== 'text') return;
+    if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return;
+    const fill = el.tagName === 'text' ? getComputedStyle(el).fill : getComputedStyle(el).color;
+    if (!/\d/.test(fill)) return;
+    const r = ratio(fill, bg(el.tagName === 'text' ? el.closest('.vp') : el));
+    if (r < worst){ worst = r; what = el.textContent.trim().slice(0, 30); }
+  });
+  out.push(worst >= 4.5 ? `<b class="pass">text contrast ≥ 4.5:1</b> (lowest ${worst.toFixed(2)})` : `<b class="fail">text contrast ${worst.toFixed(2)}:1</b> at “${what}”`);
+  const small = [...document.querySelectorAll('button, input')].filter(el => el.offsetParent !== null).filter(el => { const b = el.getBoundingClientRect(); return b.height < 23.5 || b.width < 23.5; });
+  out.push(small.length ? `<b class="fail">${small.length} targets under 24 px</b>` : '<b class="pass">targets ≥ 24 px</b>');
+  const txt = document.getElementById('screens').innerText, bad = ['NaN', 'undefined', 'Infinity', '<min>', '<max>'].filter(s => txt.includes(s));
+  out.push(bad.length ? `<b class="fail">placeholder or non-number: ${bad.join(', ')}</b>` : '<b class="pass">no NaN / placeholder</b>');
+  const minFont = Math.min(...[...document.querySelectorAll('main *')].filter(el => el.children.length === 0 && el.textContent.trim()).map(el => parseFloat(getComputedStyle(el).fontSize)));
+  out.push(minFont >= 11 ? '<b class="pass">text ≥ 11 px</b>' : `<b class="fail">text ${minFont}px</b>`);
+  // rule check: over a sweep of pointer positions, A and B never produce a tip under the minimum, and the 2 % branch bites above a 250 mm root
+  let ok = true;
+  for (let p = -5; p <= 60; p += 0.25){ if (holdA(p, LIMIT) < LIMIT - 1e-9 || landB(p, LIMIT) < LIMIT - 1e-9) ok = false; }
+  ok = ok && minTip(250) === 5 && Math.abs(minTip(400) - 8) < 1e-12 && Math.abs(rootMax(6) - 300) < 1e-9 && rootMax(4) === 250;
+  out.push(ok ? '<b class="pass">rule sweep</b> (A and B never below ' + f(LIMIT, 0) + ' mm; root max for a 6 mm tip = 300 mm)' : '<b class="fail">rule sweep</b>');
+  document.getElementById('audit').innerHTML = out.join(' · ');
+}
+document.getElementById('theme').addEventListener('click', e => { const d = document.documentElement.dataset.theme === 'light'; document.documentElement.dataset.theme = d ? 'dark' : 'light'; e.currentTarget.setAttribute('aria-pressed', String(d)); e.currentTarget.textContent = d ? 'Light theme' : 'Dark theme'; audit(); });
+document.getElementById('narrow').addEventListener('click', e => { const n = document.getElementById('screens').style.maxWidth === '560px'; document.getElementById('screens').style.maxWidth = n ? '' : '560px'; e.currentTarget.setAttribute('aria-pressed', String(!n)); e.currentTarget.textContent = n ? 'Narrow (560 px)' : 'Wide'; audit(); });
+audit();
+</script>
+</body>
+</html>
