@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T00:38:31Z",
+  "generated": "2026-10-05T00:41:52Z",
   "audit": [
     {
       "actor": null,
@@ -24078,6 +24078,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T00:36:38Z",
       "duration_seconds": 113.0
+    },
+    {
+      "id": "al-01M44R52DFXBRF62TRG2HWDDD3",
+      "shortname": "join-m12d-rpl",
+      "datetime": "2026-10-05T00:41:52Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12d-rpl into feature/ui-cad-direction",
+      "summary": "RPL + RPL-2 (Opus 5.5): SectionReplace preview/patch, FitToBasis (ids, KKT tangent rows, Euclidean residual), Import mapped to Replace, ImportPatch/NeighbourBases deleted, COPY-210 retired; budget clause inside the Ruling 71 predicate via Geometry.BlendSpanLimit()/OperationBoundCode; chord frame iterated (rotated sources land 0.00 µm from unrotated). Geometry review BLOCK -> PASS after RPL-2. COPY-194b and CAT-RESIDUAL approved by the operator. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:38:41Z",
+      "duration_seconds": 191.0
     }
   ],
   "changes": [
