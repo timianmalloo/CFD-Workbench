@@ -494,9 +494,22 @@ public sealed class AuthoringSession : IDisposable
             string id = Commit(p, operationId, "open"); operations.Add(operationId, ("open:" + p.SourceHash, id)); return candidate;
         }
     }
+    // Ruling 93: every accepted edit passes Commit, so the minimum tip chord is enforced here and nowhere else. Open is
+    // exempt (a file under the minimum still opens); an edit is admitted when it meets the minimum or is no worse than
+    // the revision it edits (TipChord.Admits).
+    void RequireTipChord(SourceParse p)
+    {
+        if (current is null || p.Definition is not { Kind: "foil" } next) return;
+        var before = ParseOwned(CurrentBytes).Definition;
+        if (before is not { Kind: "foil" }) return;
+        double newRoot = WingEstimates.Chord(next, 0), newTip = WingEstimates.Chord(next, 1);
+        if (!TipChord.Admits(WingEstimates.Chord(before, 1), WingEstimates.Chord(before, 0), newTip, newRoot))
+            throw new ContractError(TipChord.RefusalCode, TipChord.RefusalReason(newRoot));
+    }
     string Commit(SourceParse p, string op, string reason)
     {
         NativeProject.Uuid(op);
+        if (reason != "open") RequireTipChord(p);
         string? parent = current; string? priorDesign = current is null ? null : Current.DesignId;
         string design = priorDesign is not null && designs.Single(d => d.Id == priorDesign).SurfaceHash! == p.SurfaceHash! ? priorDesign : Guid.NewGuid().ToString("D");
         var nextDesigns = designs.ToList(); var nextSources = sources.ToList();
