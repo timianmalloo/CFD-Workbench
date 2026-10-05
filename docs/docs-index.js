@@ -3184,6 +3184,64 @@ window.DOCS_INDEX = {
       "sourceSha256": "a72cac34fd2d1f165afd734f2418c3d146964ac0d9b171441eba678cadbfdaf7"
     },
     {
+      "id": "design-next-cad-increment",
+      "path": "docs/design/next-cad-increment.md",
+      "title": "Proposal: the next CAD increment — planform limits felt during the gesture (drag holds at the minimum tip chord; root-widen refusal says what to do)",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design — operator sees the mockup before any build (memory rule); track E3, round oct05",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Inventory of the CAD-* and GEO-* rows against main, a ranked list of candidate CAD increments for one foil designer, and one pick: make the Ruling 93 minimum tip chord a limit the drag holds at during the gesture (instead of a refusal at release), with a visible limit marker and readout, the same hold under keyboard nudge, and a root-chord refusal that says \"widen the tip first\". Core change is one clamp in the point-gesture frame; no new row flips to built, so the proposal also names the next two candidates that do (group move and typed value for several points, then comb scale and the monotone count). Mockup shows today's behaviour, three drag variants side by side, and the hard states.",
+      "tags": [
+        "desktop",
+        "core",
+        "cad",
+        "planform",
+        "tip-chord",
+        "gesture",
+        "clamp",
+        "copy",
+        "ruling-93",
+        "ruling-94",
+        "proposal",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "refines"
+        },
+        {
+          "to": "design-planform-point-verbs",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-cad-limits-in-gesture",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6e740747c19fbb2f10f079f02dd51a792982fffd166d0b10de877389b9f7feed"
+    },
+    {
       "id": "design-planform-point-verbs",
       "path": "docs/design/planform-point-verbs.md",
       "title": "Design: planform outline point verbs — Add point, Remove point, Rebuild to N (floor 4 at degree 3)",
@@ -3494,6 +3552,48 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "be86d3dee46e04b950f1aae878be23f6bef5ef5363915f5840e9f88696d0ef56"
+    },
+    {
+      "id": "mockup-cad-limits-in-gesture",
+      "path": "docs/mockups/cad-limits-in-gesture.md",
+      "title": "CAD limits in the gesture — a planform drag at the minimum tip chord, three variants side by side",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Four screens for the operator's approval before any build: the tip-vertex drag at the Ruling 93 limit as today (free, refused at release), A hold at the limit, and B land at the limit on release, side by side with the Wing block and status strip; the root-chord refusal copy before and after; a keyboard run of ten presses; and the hard states (legacy file, closing tip, empty, mixed, Escape, Analysis). Every number is computed in the page from the rule max(5 mm, 2 % of root); positions are scripted, not captured from the product.",
+      "tags": [
+        "mockup",
+        "planform",
+        "tip-chord",
+        "gesture",
+        "clamp",
+        "ruling-93",
+        "ruling-94",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-next-cad-increment",
+          "rel": "documents"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "915aa2d27250f12d3f378ade1408e336842365b6e5576a2ce9404b2dc1135d14"
     },
     {
       "id": "mockup-m12b2-views",
@@ -13337,6 +13437,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-area3-analysis"
     },
     {
+      "id": "surface-mockups-cad-limits-in-gesture",
+      "path": "docs/mockups/cad-limits-in-gesture.html",
+      "title": "CAD limits in the gesture",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-cad-limits-in-gesture"
+    },
+    {
       "id": "surface-mockups-workbench-v8",
       "path": "docs/mockups/workbench-v8.html",
       "title": "CFD Workbench — CAD-first direction (v8 r2)",
@@ -13552,5 +13660,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "c8f4f2e2816efce7cef4a3926b1374e0f3762ed93a98536410c484ff4deea09c"
+  "graphSha256": "406908904c448bbd0497605337ac0e10590d9ad2b354adc7f0fc60d3805aa3db"
 };

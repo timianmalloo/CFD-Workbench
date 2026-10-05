@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T18:36:45Z",
+  "generated": "2026-10-05T19:02:44Z",
   "audit": [
     {
       "actor": null,
@@ -25986,6 +25986,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T18:35:51Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M46Q4T22EZ9535EYHDXESZMV",
+      "shortname": "e3-next-cad-increment",
+      "datetime": "2026-10-05T19:02:44Z",
+      "session": "trk-e3",
+      "prompt": "E3 next CAD increment proposal",
+      "summary": "Proposal: planform limits held during the gesture (drag holds at the Ruling 93 minimum tip chord; root-widen copy). Inventory of CAD-*/GEO-* rows, ranked candidates, mockup with three drag variants, decision requests DR-LIM-1..6. Docs and mockup only. check-docs, run-verify-gates, ui-craft-gate clean.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/next-cad-increment.md",
+        "docs/mockups/cad-limits-in-gesture.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Propose the smallest CAD increment with a mockup before any build",
+      "done_when": "design note, mockup, check-docs and verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-05T18:49:05Z",
+      "duration_seconds": 819.0
     }
   ],
   "changes": [
