@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T00:20:39Z",
+  "generated": "2026-10-05T00:38:31Z",
   "audit": [
     {
       "actor": null,
@@ -24053,6 +24053,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T00:19:01Z",
       "duration_seconds": 98.0
+    },
+    {
+      "id": "al-01M44QYYHZDGA1WCKRB2PYPVBV",
+      "shortname": "join-flaky-unique-strip",
+      "datetime": "2026-10-05T00:38:31Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/flaky-unique-strip into feature/ui-cad-direction",
+      "summary": "FLK-1 (Grok 4.7; first tried on Agy --sandbox, which stalled headless): the refusal clears the certificate and re-checks, so Finish read 'Checking…' under load; the test now waits for the assessment. 10/10 PASS at load 46-52. Finding for the operator: a refused step briefly shows Finish disabled while the re-check runs. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:36:38Z",
+      "duration_seconds": 113.0
     }
   ],
   "changes": [
