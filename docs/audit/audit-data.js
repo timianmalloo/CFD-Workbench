@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:32:48Z",
+  "generated": "2026-10-05T16:42:30Z",
   "audit": [
     {
       "actor": null,
@@ -25559,6 +25559,38 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T16:31:51Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M46F41QSG3FNV7Q2MCMZDEDP",
+      "shortname": "trk-docs",
+      "datetime": "2026-10-05T16:42:30Z",
+      "session": "trk-docs",
+      "prompt": "DOCS spec and design amendments (Rulings 86, 88, 90, 92)",
+      "summary": "Spec 1.7.3: A5.4 governing station (Ruling 86), tip end of record (Ruling 88 D3), SPIKE-04 code-to-code (Ruling 88 D16, 79), Appendix H.3; spec HTML re-rendered, parity check green. Design 5.1 section tier row (A3b D1, Ruling 90), cavitation paragraph (Ruling 86), 10.7 % margin beside the p95 trigger.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/specs/cfd-workbench-v1.html",
+        "docs/design/area3-analysis.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Apply Ruling 92 spec amendments and the Ruling 86/90 design amendments",
+      "done_when": "Spec re-rendered and parity-checked, check-docs 0, 12 gates pass",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-10-05T16:37:33Z",
+      "duration_seconds": 297.0,
+      "git": {
+        "sha": "6d5be30f48c2ce619d7a633285e47ff153981e4a",
+        "short": "6d5be30f4",
+        "branch": "chore/ruling-92",
+        "pushed": null
+      }
     }
   ],
   "changes": [

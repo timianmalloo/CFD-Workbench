@@ -290,14 +290,12 @@ the envelope verdict per strip; the omissions list. Stored: only facts and solve
 
 | Method | Computes | Source | Status |
 |---|---|---|---|
-| `cfdw.estimator.section` v1 | thin-airfoil Cl(α) = 2π(α − α_L0) and Cm_c/4 from `CamberSlope` (Glauert integrals, Gauss–Chebyshev, split at knots); drag as the **fully turbulent bound (pessimistic): 2 C_F(Re)(1 + 2 t/c + 60 (t/c)⁴), ITTC-1957 line; no lift-dependent profile drag** | own C#, in process | specified |
+| `cfdw.estimator.section` v1 | the inviscid panel method is the single source of Cl, Cm_c/4 and α_L0 (the α where panel Cl = 0) ~~thin-airfoil Cl(α) = 2π(α − α_L0) and Cm_c/4 from `CamberSlope` (Glauert integrals)~~ *(Ruling 90, A3b D1)*; Cp_min excludes the three TE-adjacent panels per side; drag is the **ITTC-1957 fully turbulent bound (pessimistic): 2 C_F(Re)(1 + 2 t/c + 60 (t/c)⁴); no lift-dependent profile drag**. **200 cosine panels at every station**, sampled independently of the VLM chord positions *(Ruling 90)*; a 200-vs-400 two-grid check at the governing station only, emitted on `analysis.run` as the measured per-run under-read, replaces the 1.61 % constant. Worst measured Cp_min under-read on the tested foils: **3.71 %**, leaving **10.7 %** of the 15 % margin; the 1.61 % figure is the Kármán–Trefftz test foil only | own C#, in process | specified |
 | polar (XFOIL-class) | Cl, Cd, Cm, x_tr, Cp at the Ncrit pair {2, 4} and the surface state | **DR-ANA-1** | `IPolarSource` stub: "Unavailable — no polar method installed" |
 | Cp on the profile and the cavitation screen | Cp(x) upper/lower, Cp_min with station count | **DR-ANA-2** | Unavailable until ruled |
 
-**Cavitation screen (A3b, conditions from the hydrodynamics lens).** The A5.4 string verbatim (COPY-48) with N; the
-margin setting (default 15 %, "practitioner assumption, not sourced"); σ evaluated at h(y) of the station whose −Cp_min
-is governing; Cp_min taken at that strip's **α_eff from the wing run** (not α_geo) when the screen is wing-level; the
-governing station and its depth named; −Cp_min ≤ 0 → Undefined; missing p_v or depth → Unavailable.
+**Cavitation screen (A3b, conditions from the hydrodynamics lens; Ruling 86).** The A5.4 string verbatim (COPY-48) with N; the
+margin setting (default 15 %, "practitioner assumption, not sourced"); Cp_min taken at each strip's **α_eff from the wing run** (not α_geo) when the screen is wing-level. The wing-level screen evaluates every station and is **governed by the station with the smallest σ_i/(−Cp_min,i)** (equivalently the largest −Cp_min,i/σ_i), σ_i evaluated at that station's depth h(y); it names that station and its depth. ~~σ evaluated at h(y) of the station whose −Cp_min is governing~~ *(Ruling 86)*. Stations with −Cp_min ≤ 0 are Undefined and do not govern; a station with missing p_v or depth is Unavailable.
 
 Section results are per span: N/m, lowercase Cl, Cd (A5.6).
 
@@ -487,7 +485,7 @@ service refuses to evaluate without them (`ANA-INPUT-STATIONS`). The product met
 **Rejected:** a message bus or background service; a method plugin system; a separate result store; storing wing totals
 or Trefftz quantities (DM7); Math.NET for the LU (*simplify:* plain dense LU; settings validation caps unknowns
 (strips × chordwise panels) at 2,048 — the default is 512; upgrade trigger: `analysis.run` p95 > 1 s on the reference
-fixture).
+fixture; **residual Cp_min margin at the shipped 200 panels: 10.7 % of the 15 % margin left (worst measured under-read 3.71 %), Ruling 90 condition 5**).
 
 ## 8. Error and concurrency model
 
