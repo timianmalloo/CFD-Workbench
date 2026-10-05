@@ -34,7 +34,40 @@ def read_ms(directory: Path, name: str) -> int | None:
 
 
 def check(directory: Path, jobs: tuple[str, ...]) -> list[str]:
-    return []
+    errors: list[str] = []
+    readings: dict[str, int] = {}
+    for name in (*jobs, "wall"):  # C-6: a reading that is missing is a failure, never a pass
+        value = read_ms(directory, name)
+        if value is None:
+            errors.append(f"C-6 {name}.ms is missing or unreadable: not recorded (run tools/run-tests.sh)")
+        else:
+            readings[name] = value
+    if readings.get("Analysis", 0) > ANALYSIS_LIMIT_MS:
+        errors.append(f"C-2 Analysis took {readings['Analysis']} ms, over {ANALYSIS_LIMIT_MS} ms")
+    if "Analysis" in jobs and readings.get("wall", 0) > WALL_LIMIT_MS:
+        errors.append(f"C-3 run-tests wall {readings['wall']} ms, over {WALL_LIMIT_MS} ms")
+    if readings.get("Desktop", 0) > DESKTOP_LIMIT_MS:
+        errors.append(f"C-4 Desktop took {readings['Desktop']} ms, over {DESKTOP_LIMIT_MS} ms: DR-ANA-10 applies "
+                      "(spread or split the Desktop job)")
+    if "Analysis" in jobs:
+        try:
+            lines = (directory / "Analysis.log").read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            errors.append("C-6 Analysis.log is missing: its COST lines are not recorded")
+            return errors
+        costs: dict[str, float] = {}
+        for line in lines:
+            match = re.fullmatch(r"COST (\S+) (\d+(?:\.\d+)?)", line.strip())
+            if match:
+                costs[match.group(1)] = float(match.group(2))
+        for name in (line[5:].strip() for line in lines if line.startswith("PASS ")):
+            if name not in costs:
+                errors.append(f"C-6 {name} printed PASS but no COST line: not recorded")
+        for name, ms in costs.items():
+            limit = EXEMPT_LIMIT_MS if name in EXEMPT_CHECKS else CHECK_LIMIT_MS
+            if ms > limit:
+                errors.append(f"C-5 {name} took {ms} ms, over {limit:.0f} ms (move it to readiness with its cost, or make it cheaper)")
+    return errors
 
 
 def self_test() -> int:
