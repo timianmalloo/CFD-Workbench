@@ -8678,7 +8678,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "435858f9cf5b2867e31e651cc577ddc05c86d1839611c8235c33a46f83da5ebd"
+      "sourceSha256": "6308a0647aa352a85761dde8d3afeac98bfea0cfba83b669965ef5443aa1d720"
     },
     {
       "id": "proof-a3a-vlm-red-first",
@@ -13443,5 +13443,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "3b4d87f94e2b93931986ed29b02048ff9bc72eca3b7df59d41a2eec9f7b6a18a"
+  "graphSha256": "202fbefc1739b186f94a8941466f4c7c78910e7224b94423c1bd103ab108b21b"
 };

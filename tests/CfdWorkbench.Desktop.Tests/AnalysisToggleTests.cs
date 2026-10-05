@@ -234,6 +234,25 @@ public static class AnalysisToggleTests
                 ?? throw new Exception("View ▸ Analysis has no command row.");
             if (row.Gesture != "⇧⌘A" || NativeMenuBuilder.ParseGesture(row.Gesture) is null)
                 throw new Exception("View ▸ Analysis does not carry Ruling 67's shortcut.");
+            var window = new MainWindow { Width = 1024, Height = 700 };
+            try
+            {
+                window.Show();
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                var host = (ShellHost)window.Content!;
+                host.OpenPalette();
+                host.PaletteSearch.Text = "Analysis";
+                if (host.PaletteMatches.Count != 1 || host.PaletteMatches[0].Id != row.Id)
+                    throw new Exception("The palette does not offer View ▸ Analysis.");
+                host.PaletteSearch.RaiseEvent(new Avalonia.Input.KeyEventArgs
+                {
+                    RoutedEvent = Avalonia.Input.InputElement.KeyDownEvent,
+                    Source = host.PaletteSearch,
+                    Key = Avalonia.Input.Key.Enter
+                });
+                if (!host.Controller.IsAnalysis) throw new Exception("Palette Enter did not enter Analysis.");
+            }
+            finally { window.Close(); }
         });
     }
 

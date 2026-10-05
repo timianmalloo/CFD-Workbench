@@ -1146,19 +1146,21 @@ public static class ControllerViewTests
 
         DesktopChecks.Check("ModelArea_Navbar_KeyboardPath_TabAfterTheViews", () =>
         {
-            // §11.3: every pointer verb has a keyboard path. The navbar follows the views in Tab order, Views ▾ → Display ▾
-            // → Fit → Fit Selection, and Shift+Tab from Views ▾ returns into the views.
+            // §11.3: every pointer verb has a keyboard path. The navbar follows the views in Tab order,
+            // CAD → Analysis → Views ▾ → Display ▾ → Fit → Fit Selection.
             using var fixture = new AreaFixture(width: 1400, height: 1000);
             var area = fixture.Area;
-            var buttons = new[] { area.NavViewsButton, area.NavDisplayButton, area.NavFitButton, area.NavFitSelectionButton };
+            Button[] buttons = [area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavCadButton")!,
+                area.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton")!, area.NavViewsButton,
+                area.NavDisplayButton, area.NavFitButton, area.NavFitSelectionButton];
             for (int k = 0; k + 1 < buttons.Length; k++)
                 if (!ReferenceEquals(KeyboardNavigationHandler.GetNext(buttons[k], NavigationDirection.Next), buttons[k + 1]))
                     throw new Exception($"Tab from {buttons[k].Content} does not reach {buttons[k + 1].Content}");
             if (KeyboardNavigationHandler.GetNext(buttons[0], NavigationDirection.Previous) is not { } before ||
                 before is not Visual visual || !Avalonia.VisualTree.VisualExtensions.IsVisualAncestorOf(area.ViewArrangementGrid, visual))
-                throw new Exception("Shift+Tab from Views ▾ does not return into the views");
+                throw new Exception("Shift+Tab from CAD does not return into the views");
             if (KeyboardNavigationHandler.GetNext(before, NavigationDirection.Next) != buttons[0])
-                throw new Exception("Tab from the last view stop does not reach Views ▾");
+                throw new Exception("Tab from the last view stop does not reach CAD");
             if (buttons.Any(button => !button.Focus(NavigationMethod.Tab))) throw new Exception("A navbar button takes no keyboard focus");
             area.NavViewsButton.Focus(NavigationMethod.Tab);
             area.NavViewsButton.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = Key.Space, Source = area.NavViewsButton });

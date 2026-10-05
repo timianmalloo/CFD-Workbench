@@ -359,6 +359,11 @@ public static class ShellModelTests
 
             var palette = CommandTable.PaletteEntries();
             var paletteIds = palette.Select(p => p.Id).ToHashSet();
+            var analysis = rows.Single(r => r.Id == "view.analysis");
+            if (analysis.Menu != "View" || analysis.Gesture != "⇧⌘A" ||
+                !paletteIds.Contains(analysis.Id) ||
+                !CommandTable.MenuFor("View").Any(r => r.Id == analysis.Id))
+                throw new Exception("View ▸ Analysis must have menu, palette, and shortcut parity");
 
             foreach (var row in rows)
             {

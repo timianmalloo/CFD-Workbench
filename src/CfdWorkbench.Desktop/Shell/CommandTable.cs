@@ -152,7 +152,7 @@ public static class CommandTable
     public static IReadOnlyList<CommandRow> Rows => DefaultRows;
 
     public static IReadOnlyList<PaletteEntry> PaletteEntries() =>
-        Rows.Where(r => r.Id != "view.analysis").Select(r => new PaletteEntry(r.Id, r.Title, r.Gesture, r.Menu)).ToList();
+        Rows.Select(r => new PaletteEntry(r.Id, r.Title, r.Gesture, r.Menu)).ToList();
 
     public static IReadOnlyList<CommandRow> MenuFor(string menuName) =>
         Rows.Where(r => string.Equals(r.Menu, menuName, StringComparison.OrdinalIgnoreCase)).ToList();

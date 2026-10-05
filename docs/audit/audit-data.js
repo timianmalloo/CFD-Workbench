@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:47:04Z",
+  "generated": "2026-10-05T17:50:03Z",
   "audit": [
     {
       "actor": null,
@@ -25649,31 +25649,125 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46FCDDNYBA87WTMZH5DDP8R",
-      "shortname": "join-rulings-92-93",
-      "datetime": "2026-10-05T16:47:04Z",
-      "session": "4e90c621",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "Rulings 92 (tip copy, spec amendments) and 93 (min tip chord max(5 mm, 2 % root) as a design rule); spec 1.7.3 rendered and parity-checked; design 5.1 rows (panel single definition, 200 panels, cavitation governing rule, residual margin) recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join rulings-92-93 into main (round-oct05)",
+      "datetime": "2026-10-05T16:47:04Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 3.0,
       "fan_out": 0,
+      "goal": "join rulings-92-93 into main (round-oct05)",
+      "id": "al-01M46FCDDNYBA87WTMZH5DDP8R",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-rulings-92-93",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-05T16:47:01Z",
-      "duration_seconds": 3.0
+      "summary": "Rulings 92 (tip copy, spec amendments) and 93 (min tip chord max(5 mm, 2 % root) as a design rule); spec 1.7.3 rendered and parity-checked; design 5.1 rows (panel single definition, 200 panels, cavitation governing rule, residual margin) recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T16:17:50Z",
+      "done_when": "TGL named tests, readiness verifiers, red-first proof, CLI band key equality, and final ring pass",
+      "duration_seconds": 343.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/a3a-tgl",
+        "pushed": null,
+        "sha": "94900e2b1f1b1a83003521286f91b0e02e2a7c91",
+        "short": "94900e2b1"
+      },
+      "goal": "Build TGL exactly as area3-analysis design section 18",
+      "id": "al-01M46DPWFD3GF5DNBJR2TTKP7H",
+      "kind": "skill",
+      "outcome": "blocked",
+      "prompt": "Track TGL — A3a toggle, conditions band, status (round-oct05); build exactly docs/design/area3-analysis.md section 18 within assigned owned files and stop on an unowned data-source seam.",
+      "session": "trk-tgl",
+      "shortname": "trk-tgl",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:12:07Z",
+      "summary": "Stopped before edits: current point draw and press callers live in unowned PlanCanvas.cs and ElevationView.cs; seam request req-01M46DNFSVWSMSV5W2FKBBN7RJ sent",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T17:29:25Z",
+      "done_when": "TGL named tests, Historical and section return checks, planted camera mutant, readiness verifiers, full ring, docs and gates pass.",
+      "duration_seconds": 4129.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/a3a-tgl",
+        "pushed": null,
+        "sha": "099412ccba87799a0c781b754addbe0a98c31fa5",
+        "short": "099412ccb"
+      },
+      "goal": "Build TGL exactly as area3-analysis section 18 with approved CAD/Analysis controls and proof.",
+      "id": "al-01M46HSYT10E2JQRV7G4JNE77T",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "RESUME Track TGL after seam resolution; implement docs/design/area3-analysis.md section 18 with bounded PlanCanvas and ElevationView hooks and CLI-band run-key parity.",
+      "session": "trk-tgl",
+      "shortname": "trk-tgl",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:20:36Z",
+      "summary": "Built TGL area state, conditions band, status, inert edits, events, and red-first checks; full ring exposed two unowned integration seams filed as req-01M46HR8V8F58145YEYPGP2VPS.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M46JZHSBF5P6PB0NYDM69KPJ",
+      "shortname": "implement-a3a-tgl-seam",
+      "datetime": "2026-10-05T17:49:57Z",
+      "session": "trk-tgl",
+      "prompt": "RESUME Track TGL (worktree /Users/mallalieut/projects/CFD-Workbench-feature-a3a-tgl, branch feature/a3a-tgl, AGENT_SESSION=trk-tgl). First command: `cd /Users/mallalieut/projects/CFD-Workbench-feature-a3a-tgl && export AGENT_SESSION=trk-tgl && python3 docs/ai-forward-pack/scripts/audit-log.py start --session trk-tgl --skill implement`. Box 45 min.\n\nYour seam req-01M46HR8V8F58145YEYPGP2VPS is RESOLVED: you now also own (a) one bounded palette route for View > Analysis in src/CfdWorkbench.Desktop/MainWindow.axaml.cs (the route only, <= 15 lines) and (b) the test updates for the approved CAD -> Analysis -> Views tab order (ModelArea_Navbar_KeyboardPath_TabAfterTheViews) and the CommandTable parity row for the new command (CommandTable_Parity_EveryRowInMenuPaletteKey). Nothing else in those files.\n\n1. `git rebase main` first (local main is ahead of origin: tip rules, rulings 90-95, A3b, A3c-1; regenerate derived files on conflict; AnalysisChecks/registry conflicts are unions). Note Ruling 92 is now decided: the tip strip state reads 'Not judged — tip strip' (COPY-220, Labels.TipNotJudged on main) — use it where you rendered the reason code.\n2. Make the palette route and the two test updates; each red then green.\n3. Then the full exit evidence: check-named-tests TGL (all 12 PASS), one full tools/run-tests.sh (report load; COST-MISS / TEST-BUDGET-MISS above load 24 are not failures; a timing flake at very high load: rerun that part alone and report both), check-docs, run-verify-gates. Audit entry with --prompt, render, derive, commit. Return as before.",
+      "summary": "Rebased onto main; palette route, command parity, and CAD→Analysis→Views tab proof red then green. All 12 TGL named checks printed PASS. Full ring red at load 99.57 from Section Editor and C-5 cost; isolated reruns cleared the original Section Editor failures and the three cost limits, with two later SaveDialog failures in the part. check-docs and 12 verify gates passed; residual ring failure recorded in proof.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/a3a-tgl/red-first.md",
+        "src/CfdWorkbench.Desktop/MainWindow.axaml.cs",
+        "src/CfdWorkbench.Desktop/Shell/CommandTable.cs",
+        "tests/CfdWorkbench.Desktop.Tests/AnalysisToggleTests.cs",
+        "tests/CfdWorkbench.Desktop.Tests/ControllerViewTests.cs",
+        "tests/CfdWorkbench.Desktop.Tests/ShellModelTests.cs"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Finish TGL after the resolved palette and shared-test seam",
+      "done_when": "TGL named checks, full ring, docs and verify gates complete; proof rendered, derived, and committed",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_executed": true
+      },
+      "started_at": "2026-10-05T17:31:23Z",
+      "duration_seconds": 1114.0,
+      "git": {
+        "sha": "85244e90439ac3f2005956d3e7c060627151b2de",
+        "short": "85244e904",
+        "branch": "feature/a3a-tgl",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -26981,6 +27075,42 @@ window.AUDIT_DATA = {
       "to": "4e90c621",
       "kind": "ruling",
       "ref": "req-01M46F8Q4RB9GRVPNT6NV7T8YD",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46FFDFGTV005DTBZFG4MGZE",
+      "ts": "2026-10-05T16:48:42Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46FFDFCSR0SV240Y1YG7ZB0",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46FFDRCW4CAKQFZM7CD32Z6",
+      "ts": "2026-10-05T16:48:43Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46FFDFCSR0SV240Y1YG7ZB0",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46GPTA47W8MK269Q1V980C8",
+      "ts": "2026-10-05T17:10:14Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46GPT9Z227PS7GNTB8TN1A7",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46GPTVSZYYYHAGE5DK0P6HR",
+      "ts": "2026-10-05T17:10:14Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46GPT9Z227PS7GNTB8TN1A7",
       "session": "operator-timianmalloo"
     }
   ]

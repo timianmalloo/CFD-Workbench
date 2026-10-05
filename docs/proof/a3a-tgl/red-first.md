@@ -52,3 +52,19 @@ The planted Plan-camera refit (`PlanCamera = new PlanCamera()` inside `ToggleAna
 The Historical-banner mutant returned only `Historical` in place of the geometry revision transition. `Toggle_HistoricalRun_BannerInBothModes` printed `FAIL`, then passed after the banner was restored. The rendered check observes the banner in both CAD and Analysis.
 
 The conditions-band mutant added one degree to `OperatingPoints.Custom`. `ConditionsBand_CliRunKey_EqualsAnalyse` printed `FAIL` with CLI key `c625b701cf8768f0ced6521bd602ba8b2426a576038e19929e5e8529323350c2` and band key `63c37053575dc5ef5881d954038158d679206679d3fdfe25872034c624c78a7e`; restoring the builder made it pass.
+
+## Rebase and integration seam (2026-10-05, `trk-tgl`)
+
+The branch rebased onto local `main` at `c826909`. `docs/docs-index.js` was the only conflict and was regenerated with `docs-graph.py derive` from frontmatter before the rebase continued.
+
+| Claim and source | Red observation | Green observation | Residual |
+|---|---|---|---|
+| View ▸ Analysis is in the menu, palette and shortcut row (`Shell/CommandTable.cs`; `ShellModelTests.cs`) | `CommandTable_Parity_EveryRowInMenuPaletteKey` failed: `View ▸ Analysis must have menu, palette, and shortcut parity` while `PaletteEntries` excluded `view.analysis` | The same named check passed after the exclusion was removed | The native menu already owned the `⇧⌘A` binding; this change adds no duplicate binding |
+| The palette actually enters Analysis (`MainWindow.axaml.cs`; `AnalysisToggleTests.cs`) | With the `view.analysis` route absent, `Toggle_NavbarAndMenuReachable` failed: `Palette Enter did not enter Analysis.` | The same rendered-window check passed after the one-line route called `ToggleAnalysis` | The route uses the existing controller transition and its normal `analysis.toggle` event |
+| Tab follows CAD → Analysis → Views (`ModelArea.axaml`; `ControllerViewTests.cs`) | Swapping CAD and Analysis in a temporary XAML mutant made `ModelArea_Navbar_KeyboardPath_TabAfterTheViews` fail: `Tab from CAD does not reach Analysis` | Restoring the approved XAML order made the check pass; the mutant left no diff | Keyboard focus is checked through Avalonia's actual navigation handler |
+
+The Release ring built with zero warnings and zero errors. It printed every TGL `--analysis` PASS line and the two shared checks passed. Its Desktop child failed in `--section-editor --part=2/2`: `SectionEditor_DragMove_DrawsWithinOneFrame` failed under an end load of 99.57, followed by five `DSL-DRAFT-OWNED` failures. The full ring reported 122 s wall time, start load 26.40 and end load 99.57; `COST-MISS` for C-2/C-3/C-4 was load-exempt, but C-5 reported three over-limit measurements (F6 2107.211 ms, F18 741.916 ms, F19 938.588 ms). This ring is **red**, not accepted as green.
+
+The instructed isolated rerun of `--section-editor --part=2/2` passed the original six failing checks, then failed two SaveDialog checks later in that part. The three C-5 checks passed in an isolated Analysis run at 465.659 ms, 230.145 ms and 224.730 ms, respectively. The readiness toggle check passed at p95 1.131 ms. With that readiness PASS in `.tmp-tests/TGL-readiness.log`, `check-named-tests.py TGL` counted **12/12 named tests PASS**, but exited 1 because it also rejects the Desktop failures in the original ring log. These are distinct observations; the red full ring remains unresolved at this session's two-cycle repair cap.
+
+Ruling 92's approved tip wording is `Not judged — tip strip` (COPY-220). Local `main` at the rebase tip has no `Labels.TipNotJudged` symbol, and the TGL-owned UI receives the projection's verdict text rather than rendering a tip reason code. The label migration remains an upstream integration dependency; this track has not invented a second copy string.
