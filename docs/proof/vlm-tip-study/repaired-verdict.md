@@ -111,8 +111,9 @@ input-derived values; this table rounds angles to 0.001°.
 
 No calibration case has both IN and OUT under the revised law. The original
 100-solve readiness test took **228742.421 ms**; the revised
-`TipLaw_Calibration_NoInsideOutsideFlip` passed in **41983.010 ms** with all 20
-cases and five resolutions each. The rectangular α18 falsifier **does not hold**: its local lift angle is
+`TipLaw_Calibration_NoInsideOutsideFlip` passed in **41983.010 ms** (and
+**42504.907 ms** in the final eight-row log) with all 20 cases and five
+resolutions each. The rectangular α18 falsifier **does not hold**: its local lift angle is
 2.499° at n16 and decreases to 0.169° at n256, so all five tips must stay
 Provisional under the independent-angle rule. Elliptic α14 remains Outside at
 all five n. `TipLaw_Falsifiers_OutsideEveryN` reported all ten cases, then failed
@@ -152,6 +153,17 @@ The revised readiness checks measured 35.504 ms (stored flag), 78.204 ms
 (mirrored read), 2888.123 ms (elliptic α5 at five n), 58.659 ms (midspan
 anchor), and 13.583 ms (seven out-of-family geometries) in one selective
 Release run. The cost of the revised 100-solve calibration is stated above.
+
+**Post-merge gates.** The required merge by SHA `d65892a5de08e0ed738b6aab57854dccf8722d93`
+was already up to date. The one fast `tools/run-tests.sh` invocation built cleanly
+and its Analysis suite passed 63 checks, but Core part 1 failed the existing
+single-site radians conversion check on the new `MethodRecord.cs` literal; wall
+time was 80 s against the 60 s budget. The one-line repair uses
+`VortexLattice.ToDegrees`, and the Core check then passed alone. The complete
+VLM4 readiness log has seven PASS and one FAIL: rectangular α18 at n16/32/64/128/256.
+The named-test gate reports 7/8 and also retains the fast-ring Core failure
+from before that repair. `python3 tools/check-docs.py` passed. These results do
+not clear the CFD veto or claim a green full ring after the final source edit.
 
 **Residual limit and ruling need.** The η* extrapolation lacks a physical tip
 anchor. The `Cl_local` check prevents a false Outside from that angle alone, but

@@ -160,7 +160,7 @@ public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
                         ? StripVerdictState.Inside : StripVerdictState.AtBound;
                 // Cl_local/(2π) radians is an independent thin-airfoil angle check. U is only the
                 // discretisation of η*, not model uncertainty: it cannot certify a physics disagreement.
-                double clImpliedAngleDeg = Math.Abs(point.Cl) / (2 * Math.PI) * (180 / Math.PI);
+                double clImpliedAngleDeg = VortexLattice.ToDegrees(Math.Abs(point.Cl) / (2 * Math.PI));
                 if (state != StripVerdictState.Inside && !otherOutside
                     && alpha + uncertainty > VlmStrip.Envelope.AlphaEffFromZeroLiftMaxDeg
                     && clImpliedAngleDeg <= VlmStrip.Envelope.AlphaEffFromZeroLiftMaxDeg)

@@ -4748,7 +4748,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8060b697db8113a92cd84dfd05886292f28242ca1892535199730753fe495644"
+      "sourceSha256": "93337d4880ac827ebcf1163f7acfa88eb99566f2dbcf8b7180da6f48cb600d0a"
     },
     {
       "id": "domain-experts",
@@ -10926,7 +10926,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e083855d00f0ee490ea6148de3e4ebfc12238c9fcf3e10697ee582fddaaa4ed2"
+      "sourceSha256": "8eb3d2e3121cf756613a7e03691b617bd5bf1744c0b4dba2051f687eafd5dbc9"
     },
     {
       "id": "proof-vlm-tip-study",
@@ -12788,5 +12788,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ce67f79fb1ceeaf6ce033125b9924b98a2782506c836e7d7d5cd8702e84cfcd5"
+  "graphSha256": "b12c0a5eea7d82ebca6dc6e8f5cf35b1eabb4eb96cc6cace094c8d5665406779"
 };

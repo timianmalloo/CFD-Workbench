@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T02:47:26Z",
+  "generated": "2026-10-05T02:52:03Z",
   "audit": [
     {
       "actor": null,
@@ -24352,6 +24352,41 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M44ZKEZHEJ184NHAFXEFPWAP",
+      "shortname": "implement-vlm4b-tip-veto",
+      "datetime": "2026-10-05T02:52:03Z",
+      "session": "vlm4b",
+      "prompt": "# Track VLM-4b — clear the CFD veto on the tip law\n\nYou are track VLM-4b (AGENT_SESSION=vlm4b) in the VLM-4 worktree (branch fix/a3a-vlm-tip-law; commits 026fd7a, 3b236f9,\n6779f88 in place). Foreground only; one-line intent per shell call; commit with `AGENT_SESSION=vlm4b git commit ...` and\na Co-Authored-By line naming your model. Red first per fix. Box 60 min; two repair cycles. Rulings 75 and 77(5) in\ndocs/notes/rulings.md: the tip strip stays **provisional** unless it can be judged honestly.\n\nA CFD review BLOCKED VLM-4 (hard veto). Fix (MethodRecord.cs at 6779f88):\n1. [Blocker] Asymmetric stored path: `:69` passes the stored `s.Eta` with its sign while the lattice path (`:60`) uses\n   `Math.Abs`; port strips fail the eta check in `TryTipBasis` and the target test at `:88`, so the port tip is judged\n   raw (elliptic AR 8, alpha 5, n64: starboard 127 AtBound U 0.520, port 0 Outside with no code). Use |eta|. Test: on a\n   symmetric wing both tips get the same verdict on the stored (read) path and the solve path.\n2. [Blocker] U is not an error bar: the calibration reference is the n128/n256 mean, so c = 0 at n >= 128 by\n   construction; alpha_i* converges but to a value far from the physics — elliptic alpha 5: exact alpha_i = CL/(pi AR) =\n   0.955 deg so alpha_eff ~ 4.04, the law judges 10.548 ± 0.05 (Outside), and the tip strips' own Cl_local implies only\n   3.2-4.7 deg. Do:\n   a. Name U in code, docs and the proof \"discretisation of the eta* convention, not model uncertainty\".\n   b. A tip strip is never judged **Outside** from alpha_eff alone: require the angle implied by the strip's own Cl_local\n      (Cl_local / (2 pi), in degrees — state the slope used) to exceed the envelope too; when they disagree, the verdict\n      is Provisional with reason code e.g. ANA-TIP-INCONSISTENT. Inside and AtBound as before.\n   c. Add a fixture comparing the elliptic AR 8 wing's mid-span alpha_i with CL/(pi AR) (state the tolerance, and the\n      mid-span station used) — the analytic anchor the calibration lacked — and a fixture that the elliptic alpha 5 tip\n      reads Provisional (inconsistent), not Outside, at every n.\n   d. Falsifiers still hold: rectangular alpha 18 and elliptic alpha 14 must read OUT at every n with the Cl_local check\n      too (if one cannot, report it plainly — do not tune it to pass).\n3. [Major] Uncalibrated geometry judged as calibrated: `TryTipBasis` (`:120-138`) checks only n and the cosine eta law.\n   Read Provisional (reason code, e.g. ANA-TIP-UNCALIBRATED) outside the calibrated family: chordwise panel count other\n   than 4, aspect ratio outside the calibrated range, sweep, dihedral, taper beyond 0.5 — name the family exactly in\n   the code and the proof. Test one out-of-family case per bound.\n4. Keep the field names PRJ reads: `StripVerdict.State` (Inside/Outside/AtBound/Provisional), `ReasonCode`,\n   `UncertaintyDeg`, `EvaluatedAlphaEffDeg`, `Provisional`; at-bound Text stays \"\" (copy is operator-held); `JudgeRun`\n   unchanged in shape. New reason codes listed in your Return.\n5. Update docs/proof/vlm-tip-study/repaired-verdict.md and the §13.2/§18.8 rows. No UI copy.\nBefore gates: `git merge $(git -C /Users/mallalieut/projects/CFD-Workbench-feature-ui-cad-direction rev-parse HEAD)` (by SHA\nonly). Gates: `tools/run-tests.sh` once, check-named-tests for the VLM4 rows\n(`--design docs/design/area3-analysis.md --track-section \"### 18.2\" --named-sections \"### 18.8\"`), `python3 tools/check-docs.py`.\nSingle check: `CFD_TEST_ONLY=<name> TMPDIR=<wt>/.tmp-tests/ dotnet run -c Release --project tests/CfdWorkbench.Analysis.Tests/CfdWorkbench.Analysis.Tests.csproj`.\nReturn: commits, red lines, the elliptic alpha_i vs CL/(pi AR) number, the raw/law/Cl_local table for the 22 cases, the\nfalsifiers, new reason codes, gate tails.",
+      "summary": "Repaired mirrored read and guarded tip law; 20-case calibration and 7/8 VLM4 readiness checks pass, but rectangular alpha18 local lift contradicts Outside. Fast ring failed once before a verified single-site conversion repair; CFD veto remains.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Analysis/MethodRecord.cs",
+        "tests/CfdWorkbench.Analysis.Tests/LatticeFixtureTests.cs",
+        "docs/proof/vlm-tip-study/repaired-verdict.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Clear the VLM-4 CFD veto with honest, geometry-bounded tip verdicts",
+      "done_when": "Stored and solve tips agree, the independent Cl-local rule and analytic anchor hold, both falsifiers read Outside, proof and design rows are updated, and required gates pass",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true
+      },
+      "started_at": "2026-10-05T02:33:51Z",
+      "duration_seconds": 1092.0,
+      "git": {
+        "sha": "f5f5763a2c55fbafea6f70d7f307d8be9de23f89",
+        "short": "f5f5763a2",
+        "branch": "fix/a3a-vlm-tip-law",
+        "pushed": null
+      }
     }
   ],
   "changes": [
