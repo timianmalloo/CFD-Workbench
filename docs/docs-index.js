@@ -8669,6 +8669,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "3200a4d15b168872a8d39187379c0b65da541222ed1cd1f2c96aa2dd3a4127e4"
     },
     {
+      "id": "proof-a3b-red-first",
+      "path": "docs/proof/a3b/red-first.md",
+      "title": "A3b section numerics red-first and proof pack",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-d1",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "A3b red-first receipt and numerical proof for the linear-vorticity section panel, the estimator's Glauert and ITTC reads, and the cavitation screen. Includes the conformal-map Cp oracle, measured panel convergence, planted mutants, ring costs, and the integration seams left to the coordinator.",
+      "tags": [
+        "analysis",
+        "section",
+        "panel-method",
+        "cavitation",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6937e10ab526795b86cdb8cf24894d1c75117f9de3f60528003415aaeae9798b"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -13114,5 +13149,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "a6f9294c0ea17a60685ad440420fec407d14ebed47bd2f62bc3f50494ce3933f"
+  "graphSha256": "f7287a8d079bbce00f233bfcb8f16df7d3228d51fb6d6328dcc29f502f0a63a2"
 };
