@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T18:36:45Z",
+  "generated": "2026-10-05T19:06:13Z",
   "audit": [
     {
       "actor": null,
@@ -25986,6 +25986,36 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T18:35:51Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M46QB6D8S0A1RKY8X0HCP7QM",
+      "shortname": "s4-tip-coupon",
+      "datetime": "2026-10-05T19:06:13Z",
+      "session": "trk-s4",
+      "prompt": "S4 tip mesh coupon",
+      "summary": "S4 coupon V0-V3 (25 mm half span, R3-M1b settings): V0 reproduces round 3 (tip pole 178, tip 37); V1 planar cut 3813 faces >70 deg (99 pct at convex edge, 263 negative cells); V2 pole flats 312 faces, 63 negative cells; V3 stack 0.47 mm 213 faces (-5 pct). Rule applied: all variants fail regardless of pole and H, stop; S5 not triggered; cause not separated.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/spike-03/tip-coupon/verdict.md",
+        "docs/proof/spike-03/tip-coupon/preregistration.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "S4: RANS tip mesh coupon V0-V3, pre-registered rules applied",
+      "done_when": "prereg committed before any mesh; four variants meshed and gated; rules applied verbatim; verdict written",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T18:49:06Z",
+      "duration_seconds": 1027.0
     }
   ],
   "changes": [

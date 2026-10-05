@@ -11314,6 +11314,87 @@ window.DOCS_INDEX = {
       "sourceSha256": "21746faee23c69059cc4534d362e1744a99503cc6acb4f450ad565ce8e4ab2d9"
     },
     {
+      "id": "proof-spike-03-tip-coupon",
+      "path": "docs/proof/spike-03/tip-coupon/verdict.md",
+      "title": "SPIKE-03 tip mesh coupon S4 — verdict",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-s4",
+      "phase": "spike",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "All four coupon variants fail DR-F3-1 A in the tip region, so the pre-registered stop rule fires and S5 is not triggered. V0 reproduces round 3 (178 tip-pole and 37 tip faces above 70 degrees). V1, the tip of record, is far worse: 3,813 faces, 99 % at the convex cap edge, 263 negative-volume cells. V2 (short pole flats) leaves 312 faces and 63 negative-volume cells. V3 (stack cut to 0.47 mm) leaves 213, 5 % below V0. The cause is not separated; the stack-height fan reading is not supported. macOS arm64 only.",
+      "tags": [
+        "spike-03",
+        "gmsh",
+        "mesh-gate",
+        "tip",
+        "coupon",
+        "ruling-88"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-03-tip-coupon-prereg",
+          "rel": "implements"
+        },
+        {
+          "to": "plan-tip-handling",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-spike-03-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cb3f9c2e50e04a314f9ec73768437edc3a9ff80f8fbb922678419db666ff9885"
+    },
+    {
+      "id": "proof-spike-03-tip-coupon-prereg",
+      "path": "docs/proof/spike-03/tip-coupon/preregistration.md",
+      "title": "SPIKE-03 tip mesh coupon S4 — pre-registration (variants, metrics, receipts, decision rules)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-s4",
+      "phase": "spike",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Written and committed before any coupon mesh is generated. Four variants of a 25 mm tip-only coupon (V0 current revolve, V1 planar flat cut at b/2, V2 short flats at the poles, V3 stack height cut at fixed first height), the metrics and receipts for each, and the decision rules of docs/plans/tip-handling.md section 4.2 verbatim, with every term that needed a number given one here, now.",
+      "tags": [
+        "spike-03",
+        "gmsh",
+        "mesh-gate",
+        "tip",
+        "coupon",
+        "pre-registration",
+        "ruling-88"
+      ],
+      "links": [
+        {
+          "to": "plan-tip-handling",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-spike-03-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-fluids-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "61f09198b08e03c6bb46e05e604f108332035827471ff46b782a3617d7285fdf"
+    },
+    {
       "id": "proof-spike-04",
       "path": "docs/proof/spike-04/verdict.md",
       "title": "SPIKE-04 verdict — three-grid convergence oracle on NASA TMR NACA 0012 (OpenFOAM v2512)",
@@ -13552,5 +13633,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "c8f4f2e2816efce7cef4a3926b1374e0f3762ed93a98536410c484ff4deea09c"
+  "graphSha256": "7efdb86b3f7bb6f5000e441bfcf98f817d6f92fa113fcba5d311ca775f18ee1c"
 };

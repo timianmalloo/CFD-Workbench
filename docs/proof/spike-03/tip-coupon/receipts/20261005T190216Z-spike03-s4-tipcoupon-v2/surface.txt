@@ -1,0 +1,20 @@
+degenerate-curve 'Skipping boundary layer extrusion' lines: 0
+B-rep: brep_surfaces=14 brep_curves=28 brep_free_curves_off_root=0 brep_free_curve_lengths_m=[] variant=v2
+wing triangles=11875 nodes_used=6030 b-rep surfaces=14
+triangles by region: tip_pole=342 tip=2064 te=2752 root=562 main=6155
+watertight: edges used once off the root plane = 0; edges used more than twice = 0
+watertight: node pairs closer than 10 um = 0, of which share no mesh edge = 0
+seam fold angle, tip seams (z >= b/2 - 1 um): edges=286 max=90.00 median=9.66 p95=44.60 deg; edges with fold > 30 deg = 26
+seam fold angle, panel seams: edges=418 max=29.88 median=20.00 p95=24.73 deg; edges with fold > 30 deg = 0
+largest fold by surface pair (max deg, edges, surfaces): 90.0 2 (7, 13); 90.0 2 (1, 7); 90.0 3 (5, 8); 90.0 2 (8, 14)
+wall nodes vs reference: n=6030 max=3.349e-05 m p99=4.464e-06 nodes > 10 um = 2
+    tip_pole: n=115 max=6.926e-07 m nodes > 10 um = 0
+    tip: n=1167 max=3.349e-05 m nodes > 10 um = 2
+    main: n=4269 max=4.698e-06 m nodes > 10 um = 0
+    root: n=479 max=4.604e-06 m nodes > 10 um = 0
+wall-triangle aspect ratio (longest edge / shortest altitude):
+    tip_pole: n=342 median=1.87 p95=3.33 max=13.6 min_edge=2.06e-05 m
+    tip: n=2064 median=1.24 p95=1.79 max=2.3 min_edge=5.60e-04 m
+    te: n=2752 median=3.33 p95=3.33 max=3.3 min_edge=8.68e-05 m
+    root: n=562 median=1.29 p95=1.67 max=5.5 min_edge=2.79e-04 m
+    main: n=6155 median=1.16 p95=1.60 max=3.0 min_edge=3.30e-04 m

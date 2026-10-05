@@ -1,0 +1,7 @@
+gmsh: load1_start=5.29 status=0 wall_s=3 waited_s=0 load1_end=5.19
+of-run: start 2026-10-05T19:02:06Z load1=5.19 record=verified lint=clean bundle=f3debe8b5541 cmd=gmshToFoam wing.msh
+of-run: end status=0 wall_s=2 load1=5.19 peak_rss_bytes=319602688 banner=Disallowing cmd=gmshToFoam wing.msh
+of-run: start 2026-10-05T19:02:09Z load1=5.34 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh -constant -allGeometry -allTopology -writeSets vtk -writeFields (nonOrthoAngle cellDeterminant cellShapes faceWeight)
+of-run: end status=0 wall_s=3 load1=5.34 peak_rss_bytes=372359168 banner=Disallowing cmd=checkMesh -constant -allGeometry -allTopology -writeSets vtk -writeFields (nonOrthoAngle cellDeterminant cellShapes faceWeight)
+of-run: start 2026-10-05T19:02:13Z load1=5.34 record=verified lint=clean bundle=f3debe8b5541 cmd=postProcess -constant -func writeCellCentres
+of-run: end status=0 wall_s=2 load1=5.55 peak_rss_bytes=181633024 banner=Disallowing cmd=postProcess -constant -func writeCellCentres

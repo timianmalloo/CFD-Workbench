@@ -1,0 +1,53 @@
+gmsh: load1_start=5.55 status=0 wall_s=3 waited_s=0 load1_end=5.90
+te_arc_root_curves=3 te_arc_root_segments=9 Mesh.MinimumCirclePoints=7
+gmsh_wing_surface_elements=11875 layer_prisms=237500 expected=237500 layer_coverage=100.00% core_cells=90643 symmetry_lateral_surfaces=6
+layer_total_thickness_m=1.4935e-03 first=8e-06 ratio=1.2 n=20
+msh_sha256=6ea691ddda9bdf2002dcc9f1a1cebd6b7ba6e3da7cc7eb8f230de9e19d8e1f5d msh_bytes=26386833
+launcher-record: init files=13 manifest=851668829f02 record=runs/.launcher/cfb5a7fa047d2577b196
+status=0 wall_s=2 peak_rss_bytes=332431360 banner=Disallowing log=runs/20261005T190216Z-spike03-s4-tipcoupon-v2/log.gmshToFoam
+patches: ['wing', 'symmetry', 'farfield', 'defaultFaces']
+launcher-record: updated files=22
+status=0 wall_s=3 peak_rss_bytes=388104192 banner=Disallowing log=runs/20261005T190216Z-spike03-s4-tipcoupon-v2/log.checkMesh
+status=0 wall_s=2 peak_rss_bytes=187269120 banner=Disallowing log=runs/20261005T190216Z-spike03-s4-tipcoupon-v2/log.postProcess-C
+GATE (DR-F3-1 A) FAIL: non_orthogonality_le_70=FAIL skewness_le_4_internal_20_boundary=FAIL volumes_positive=FAIL face_pyramids_ok=FAIL face_weight_ge_0.05=FAIL checkMesh_validity_set_without_determinant=FAIL layers_20_on_ge95pct_and_ge10_on_100pct=ok
+  max_non_orthogonality=176.083917507 faces_gt_70=136 max_skewness=1222.9295449 min_face_weight=0.000200830819793 min_volume=None min_determinant=0.0 (reported, not gated)
+  checkMesh *** lines: ['***Open cells found, max cell openness: 1, number of open cells 318', '***Zero or negative cell volume detected.  Minimum negative volume: -1.298150487e-12, Number of negative volume cells: 63', '***Number of non-orthogonality errors: 176.', '***Error in face pyramids: 542 faces are incorrectly oriented.', '***Max skewness = 1222.9295449, 98 highly skew faces detected which may impair the quality of the results', '***Error in face tets: 1211 faces with low quality or negative volume decomposition tets.', '***Cells with small determinant (< 0.001) found, number of cells: 78318', '***Concave cells (using face planes) found, number of cells: 329', '***Faces with small interpolation weight (< 0.05) found, number of faces: 29', '***Faces with small volume ratio (< 0.01) found, number of faces: 41']
+  layers: wing_faces=11875 layer_prisms=237500 expected=237500 (100.00 %); te_arc_root_segments=9; stack=1.4935e-03 m
+cells=328143 by type: 0=50 prism=237450 tet=90643
+faces > 70 deg (nonOrthoFaces): n=312 primary main=1 tip_pole=311 | flags tip_pole=311 te=209 root=0 interface=0 tip=207 edge=0 | wall distance min/median/max = 4.17e-07/2.56e-04/3.86e-03 m (stack 1.49e-03)
+    main: cell pairs (5 prism, 7 tet) 5-5:1; x/c 0.0289..0.0289, z 0.0234..0.0234 m
+    tip_pole: cell pairs (5 prism, 7 tet) 0-0:12 0-5:58 0-7:11 5-5:229 7-7:1; x/c -0.0040..1.0112, z 0.0241..0.0268 m
+TIPREGION faces > 70 deg: n=312 (z >= b/2 - 2 mm) primary main=1 tip_pole=311 | edge_flag=0
+low-weight faces (< 0.05): n=29 primary main=1 tip_pole=28 | flags tip_pole=28 te=12 root=0 interface=0 tip=9 edge=0 | wall distance min/median/max = 1.06e-06/2.24e-05/3.86e-03 m (stack 1.49e-03)
+    main: x 0.00347..0.00347 y -0.00751..-0.00751 z 0.02342..0.02342
+    tip_pole: x -0.00010..0.12072 y -0.00075..0.00048 z 0.02443..0.02637
+TIPREGION low-weight faces: n=29 (z >= b/2 - 2 mm) primary main=1 tip_pole=28 | edge_flag=0
+two-internal-face cells: n=342 primary main=22 tip=222 tip_pole=98 | flags tip_pole=98 te=39 root=0 interface=0 tip=307 edge=0 | wall distance min/median/max = 7.87e-07/1.56e+00/2.91e+00 m (stack 1.49e-03)
+    main: types 7:22
+    tip: types 7:222
+    tip_pole: types 5:98
+wing faces=11875; faces whose owner is not a prism (no layer column): 0
+cellDeterminant < 0.001, layer (prism): 78063 of 237450 (32.88 %), min 0.000e+00, median 1.080e-02
+cellDeterminant < 0.001, core (tet): 246 of 90643 (0.27 %), min 0.000e+00, median 1.683e-01
+core (tet) cells with determinant < 0.001: n=246 primary main=22 tip=222 tip_pole=2 | flags tip_pole=2 te=2 root=0 interface=0 tip=223 edge=0 | wall distance min/median/max = 1.37e-03/1.75e+00/2.91e+00 m (stack 1.49e-03)
+degenerate-curve 'Skipping boundary layer extrusion' lines: 0
+B-rep: brep_surfaces=14 brep_curves=28 brep_free_curves_off_root=0 brep_free_curve_lengths_m=[] variant=v2
+wing triangles=11875 nodes_used=6030 b-rep surfaces=14
+triangles by region: tip_pole=342 tip=2064 te=2752 root=562 main=6155
+watertight: edges used once off the root plane = 0; edges used more than twice = 0
+watertight: node pairs closer than 10 um = 0, of which share no mesh edge = 0
+seam fold angle, tip seams (z >= b/2 - 1 um): edges=286 max=90.00 median=9.66 p95=44.60 deg; edges with fold > 30 deg = 26
+seam fold angle, panel seams: edges=418 max=29.88 median=20.00 p95=24.73 deg; edges with fold > 30 deg = 0
+largest fold by surface pair (max deg, edges, surfaces): 90.0 2 (7, 13); 90.0 2 (1, 7); 90.0 3 (5, 8); 90.0 2 (8, 14)
+wall nodes vs reference: n=6030 max=3.349e-05 m p99=4.464e-06 nodes > 10 um = 2
+    tip_pole: n=115 max=6.926e-07 m nodes > 10 um = 0
+    tip: n=1167 max=3.349e-05 m nodes > 10 um = 2
+    main: n=4269 max=4.698e-06 m nodes > 10 um = 0
+    root: n=479 max=4.604e-06 m nodes > 10 um = 0
+wall-triangle aspect ratio (longest edge / shortest altitude):
+    tip_pole: n=342 median=1.87 p95=3.33 max=13.6 min_edge=2.06e-05 m
+    tip: n=2064 median=1.24 p95=1.79 max=2.3 min_edge=5.60e-04 m
+    te: n=2752 median=3.33 p95=3.33 max=3.3 min_edge=8.68e-05 m
+    root: n=562 median=1.29 p95=1.67 max=5.5 min_edge=2.79e-04 m
+    main: n=6155 median=1.16 p95=1.60 max=3.0 min_edge=3.30e-04 m
+run=runs/20261005T190216Z-spike03-s4-tipcoupon-v2
