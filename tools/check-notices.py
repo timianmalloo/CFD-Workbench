@@ -21,6 +21,8 @@ def run():
     parser = argparse.ArgumentParser()
     parser.add_argument("--notice", type=Path, default=ROOT / "THIRD-PARTY-NOTICES.md")
     parser.add_argument("--tracked-list", type=Path)
+    parser.add_argument("--network-source", type=Path,
+                        default=ROOT / "src/CfdWorkbench.Analysis/NeuralFoil/NeuralFoilNetwork.cs")
     args = parser.parse_args()
     notice = args.notice.read_text()
     required = (
@@ -32,14 +34,17 @@ def run():
     )
     missing = [text for text in required if text not in notice]
     manifest = json.loads((ROOT / "docs/proof/spike-ana-1/weights-manifest.json").read_text())
-    network = (ROOT / "src/CfdWorkbench.Analysis/NeuralFoil/NeuralFoilNetwork.cs").read_text()
+    network = args.network_source.read_text()
     for field in ("wheel_sha256", "source_sha256", "distribution_sha256", "binary_sha256"):
         value = manifest.get(field)
         if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
             missing.append(field)
-    for field in ("source_sha256", "distribution_sha256", "binary_sha256"):
+    constants = {"source_sha256": "SourceSha256", "distribution_sha256": "DistributionSha256",
+                 "binary_sha256": "WeightsSha256"}
+    for field, constant in constants.items():
         value = manifest.get(field)
-        if value and value not in network:
+        declaration = rf'\bconst\s+string\s+{constant}\s*=\s*"{re.escape(value or "")}"'
+        if value and re.search(declaration, network) is None:
             missing.append("C# constant " + field)
     if args.tracked_list:
         tracked = args.tracked_list.read_text().splitlines()
