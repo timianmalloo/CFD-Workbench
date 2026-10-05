@@ -55,7 +55,7 @@ internal static class LatticeFixtureTests
         Equal(0.01, Settings.ReconciliationTolerance, "reconciliation");
         Equal(2048, Settings.UnknownCap, "cap");
         Equal("cfdw.vlm-strip", MethodRecord.VlmStrip.Method.Id, "method");
-        Equal("1.0.0", MethodRecord.VlmStrip.Method.Version, "version");
+        Equal("1.1.0", MethodRecord.VlmStrip.Method.Version, "version");
         Equal(1, MethodRecord.VlmStrip.Method.Order, "order");
         Equal(10, MethodRecord.VlmStrip.Envelope.AlphaEffFromZeroLiftMaxDeg, "envelope alpha");
         Equal(1.0, MethodRecord.VlmStrip.Envelope.ClLocalMax, "envelope cl");
@@ -68,6 +68,9 @@ internal static class LatticeFixtureTests
         catch (ArgumentOutOfRangeException) { }
 
         shared = Trio.Build(LatticePlant.None);
+        Console.WriteLine("MEASURE F6 CL=" + string.Join("/", shared.Cl.Select(Num))
+            + " e=" + string.Join("/", shared.E.Select(Num)) + " pCL=" + Num(shared.OrderCl)
+            + " pE=" + Num(shared.OrderE));
         InRange(shared.OrderCl, 0.8, 1.2, "p(CL)");
         InRange(shared.OrderE, 0.8, 1.2, "p(e)");
         Trio mutant = Trio.Build(LatticePlant.WakePerPanel);
@@ -209,6 +212,11 @@ internal static class LatticeFixtureTests
     {
         const double half = 3, chord = 1;
         LatticeSolution wing = Rectangular(half, chord, 8, 2, 5, 0, TentCamber);
+        LatticeSolution oldWing = Rectangular(half, chord, 8, 2, 5, 0, TentCamber, LatticePlant.CamberSurfaceHorseshoe);
+        double area = 2 * half * chord, ar = 2 * half / chord;
+        double oldCl = Coefficient(oldWing, area), newCl = Coefficient(wing, area);
+        Console.WriteLine("MEASURE F4 old/new CL=" + Num(oldCl) + "/" + Num(newCl)
+            + " e=" + Num(Oswald(oldWing, oldCl, area, ar)) + "/" + Num(Oswald(wing, newCl, area, ar)));
         double lift = Trefftz.WindAxes(wing.Forces, 5).Lift;
         double qS = Q * 2 * half * chord;
         if (!(lift / qS > 0.1)) throw new InvalidOperationException("CL " + Num(lift / qS));
@@ -268,6 +276,11 @@ internal static class LatticeFixtureTests
         const double half = 3, chord = 1, alpha = 4;
         LatticeSolution plain = Rectangular(half, chord, 12, 2, alpha, 0, null);
         LatticeSolution washed = Rectangular(half, chord, 12, 2, alpha, -3, null);
+        LatticeSolution oldWashed = Rectangular(half, chord, 12, 2, alpha, -3, null, LatticePlant.CamberSurfaceHorseshoe);
+        double area = 2 * half * chord, ar = 2 * half / chord;
+        double oldCl = Coefficient(oldWashed, area), newCl = Coefficient(washed, area);
+        Console.WriteLine("MEASURE F7 old/new CL=" + Num(oldCl) + "/" + Num(newCl)
+            + " e=" + Num(Oswald(oldWashed, oldCl, area, ar)) + "/" + Num(Oswald(washed, newCl, area, ar)));
         double plainCl = Coefficient(plain, 2 * half * chord);
         double washedCl = Coefficient(washed, 2 * half * chord);
         LatticeStrip root = Nearest(washed, 0);
@@ -305,9 +318,10 @@ internal static class LatticeFixtureTests
             wings.Add(n, wing);
             Console.WriteLine("MEASURE " + label + " n=" + n + " tipAi=" + Num(Outermost(wing).InducedAngleDeg)
                 + " CL=" + Num(Coefficient(wing, area)) + " kappa1=" + Num(wing.Diagnostics.Kappa1)
-                + " backward=" + Num(wing.Diagnostics.ResidualInf));
-            if (!(wing.Diagnostics.ResidualInf <= 1e-10))
-                throw new InvalidOperationException(label + " n=" + n + " backward error " + Num(wing.Diagnostics.ResidualInf));
+                + " residualInf=" + Num(wing.Diagnostics.ResidualInf));
+            // SolveDense rejects a backward error above 1e-10 before this solution is returned.
+            if (!double.IsFinite(wing.Diagnostics.ResidualInf))
+                throw new InvalidOperationException(label + " n=" + n + " residual is not finite");
         }
         double ai64 = Outermost(wings[64]).InducedAngleDeg;
         double ai128 = Outermost(wings[128]).InducedAngleDeg;
@@ -317,9 +331,15 @@ internal static class LatticeFixtureTests
         if (!(Math.Abs(cl64 - cl128) / Math.Abs(cl128) <= 0.01))
             throw new InvalidOperationException(label + " CL n64/n128 " + Num(cl64) + "/" + Num(cl128));
         LatticeSolution flat = StudyRectangle(64, null, 0);
+        Console.WriteLine("MEASURE flat n=64 kappa1=" + Num(flat.Diagnostics.Kappa1));
         if (!(wings[64].Diagnostics.Kappa1 <= 10 * flat.Diagnostics.Kappa1))
             throw new InvalidOperationException(label + " κ₁ " + Num(wings[64].Diagnostics.Kappa1)
                 + " exceeds 10× flat " + Num(flat.Diagnostics.Kappa1));
+        LatticeSolution mutant = StudyRectangle(64, camber, tipTwist, LatticePlant.CamberSurfaceHorseshoe);
+        double mutantTip = Outermost(mutant).InducedAngleDeg;
+        if (Math.Abs(mutantTip - ai128) <= 0.1)
+            throw new InvalidOperationException(label + " camber-surface horseshoe mutant stayed within 0.1°: " + Num(mutantTip));
+        Console.WriteLine("MUTANT " + label + " camber-surface n64 tipAi=" + Num(mutantTip) + " RED");
     }
 
     private static void F20()
@@ -331,19 +351,24 @@ internal static class LatticeFixtureTests
             Console.WriteLine("MEASURE straight-quarter-chord n=" + n + " maxSweep=" + Num(maximum));
             if (!(maximum <= 1e-9))
                 throw new InvalidOperationException("quarter-chord sweep at n=" + n + " is " + Num(maximum));
+            LatticeSolution mutant = Elliptic(n, LatticePlant.FrontBoundSweep, "cosine");
+            double wrong = mutant.Strips.Max(strip => Math.Abs(strip.SweepDeg));
+            if (!(wrong > 1e-9)) throw new InvalidOperationException("front-bound sweep mutant at n=" + n + " stayed at zero");
+            Console.WriteLine("MUTANT front-bound sweep n=" + n + " max=" + Num(wrong) + " RED");
         }
     }
 
     private static double ParabolicCamber(double y, double f, double chord) => 0.16 * f * (1 - f) * chord;
 
-    private static LatticeSolution StudyRectangle(int n, Func<double, double, double, double>? camber, double tipTwist)
+    private static LatticeSolution StudyRectangle(int n, Func<double, double, double, double>? camber, double tipTwist,
+        LatticePlant plant = LatticePlant.None)
     {
         const double half = 1, chord = 0.25;
         var sections = new List<SectionSample>();
         foreach (double y in Nodes(-half, half, n, "cosine"))
             sections.Add(Section(y, -chord / 4, chord, 0, tipTwist * Math.Abs(y) / half,
                 y / half, 2 * half, camber, camber is null ? 4 : 20));
-        return VortexLattice.Solve(sections, Lattice(n, 4, "cosine"), At(5), Rho, default);
+        return VortexLattice.Solve(sections, Lattice(n, 4, "cosine"), At(5), Rho, plant, default);
     }
 
     private static void F16()
@@ -401,7 +426,7 @@ internal static class LatticeFixtureTests
 
     private static void Envelope()
     {
-        LatticeSolution wing = Rectangular(3, 1, 8, 2, 1, 10.5, null);
+        LatticeSolution wing = Rectangular(3, 1, 8, 2, 1, 20, null);
         IReadOnlyList<StripVerdict> verdicts = MethodRecord.Verdicts(wing, 1, 0);
         bool split = false;
         for (int i = 0; i < wing.Strips.Count; i++)

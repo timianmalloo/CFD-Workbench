@@ -200,3 +200,46 @@ and the recorded oracle above uses it. The outermost strip's α_i diverges with 
 that strip's envelope verdict (MethodRecord, α_eff = α + twist − α_i) is not trustworthy. This is an open finding for a
 design ruling; F-7 keeps its 0.9-half strip for this reason. The C# profile matches the script to 5 digits: 1.0155563,
 1.0008162, 0.9373495, 0.8374434 at 32.
+
+## VLM-3 local-plane and quarter-chord repair (2026-10-04)
+
+The [tip study](../proof/vlm-tip-study/verdict.md) is archived unchanged below its added proof frontmatter. The
+Analysis Release harness measured the old code and the repaired code on macOS arm64, .NET 10.0.203. The product
+default is four cosine chord panels, cosine span, wake 20 spans. Rectangle: half-span 1 m, chord 0.25 m, AR 8,
+α 5°. Camber is `0.16 f(1−f) c`; washin is +1° linearly to either tip. Each cell is old → new. The old values are
+the red-first run; the new values are the green run. `κ₁` is the solver's 1-norm estimate, not an exact condition
+number. `residualInf` is the raw ‖AΓ − b‖∞ residual. `SolveDense` gates the separate normwise backward error at
+1e−10 before it returns, so every solved row passed that bound; its exact value is not stored in `RunDiagnostics`.
+
+| Fixture | n per half | Tip α_i, ° old → new | CL old → new | κ₁ old → new | residualInf old → new |
+|---|---:|---:|---:|---:|---:|
+| F-18 camber | 32 | −1695.805 → 4.61277 | 0.684394 → 0.685038 | 87.65 → 278.33 | 3.64e−15 → 2.58e−15 |
+| F-18 camber | 64 | −2,341,626.45 → 4.65839 | 0.620533 → 0.682516 | 11,788.98 → 1103.01 | 3.83e−13 → 1.13e−14 |
+| F-18 camber | 128 | 580,313,046.79 → 4.67838 | 0.700056 → 0.681238 | 40,653,769.90 → 4391.56 | 8.21e−11 → 8.59e−14 |
+| F-18 camber | 256 | 389,096,353,247.07 → 4.68770 | 0.704000 → 0.680594 | 11,524,036,536.79 → 17,525.72 | 1.07e−7 → 3.45e−13 |
+| F-19 washin | 32 | 51.0037 → 2.35395 | 0.440107 → 0.438815 | 75.98 → 278.40 | 1.67e−15 → 3.46e−15 |
+| F-19 washin | 64 | 725.306 → 2.36596 | 0.439080 → 0.437050 | 113.28 → 1103.26 | 2.84e−15 → 9.06e−15 |
+| F-19 washin | 128 | 29,942.93 → 2.37138 | 0.438820 → 0.436156 | 149.30 → 4392.56 | 9.96e−15 → 3.30e−14 |
+| F-19 washin | 256 | 15,018,241.04 → 2.37395 | 0.438835 → 0.435707 | 459.14 → 17,529.72 | 2.31e−13 → 2.21e−13 |
+
+At n64 the flat rectangle's κ₁ is 1103.36886, and both repaired ratios to flat are near 1. The camber
+tip difference n64→128 is 0.0200°, and CL differs by 0.188%; washin is 0.00542° and 0.205%. The camber-surface
+horseshoe mutant returns the old n64 α_i for both fixtures; each violates the 0.1° oracle.
+
+| F-20 elliptic straight-quarter-chord sweep, maximum over every strip | n16 | n32 | n64 | n128 | n256 |
+|---|---:|---:|---:|---:|---:|
+| Front chordwise bound line (old and planted mutant), ° | 54.1231 | 70.1294 | 79.7583 | 84.8381 | 87.4138 |
+| Quarter-chord line (new), ° | 0 | 0 | 0 | 0 | 0 |
+
+Flat F-1, F-2, F-3, F-5, F-6, F-15 and F-16 use the same uncambered panel plane before and after, so their
+CL/e/order are unchanged to the measured digits. F-6 prints CL 0.4206159293 / 0.4190689244 / 0.4183318986,
+e 1.018818514 / 1.008614927 / 1.003557849, p(CL) 1.069690650 and p(e) 1.012700585. The curved F-4 case
+changes CL 0.564721037 → 0.563623199 (−0.194%) and e 1.034058372 → 1.038961482 (+0.474%). F-7's coarse
+washout changes CL 0.201504188 → 0.200709679 (−0.394%) and e 1.013800922 → 1.016659535 (+0.282%). Order p is
+not defined for those single-lattice fixtures. The F-7 sign check remains but is not evidence of default-lattice
+twist convergence; F-19 is that evidence. F-8's ±20° dihedral plane remains represented by the frame elevation.
+
+The method identity changes from `cfdw.vlm-strip` 1.0.0 to 1.1.0. `RunKey_PinnedVector_HexEqual` still passes with
+its explicit historical 1.0.0 input and pinned hash; it is a wire-format pin, not a pin on the current method
+record. Current runs use 1.1.0 in the key and prior 1.0.0 runs become Historical. The new geometry also changes
+numeric results for cambered and twisted wings, and the sweep verdict changes on straight-quarter-chord closing tips.

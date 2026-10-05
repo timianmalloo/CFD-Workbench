@@ -3,7 +3,7 @@ window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
   "generator": "docs-graph.py derive",
-  "rootId": "adr-0001-master-curve-degree",
+  "rootId": "a3a-vlm3-red-first",
   "artifactTypes": [
     "knowledge",
     "glossary",
@@ -1706,7 +1706,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "051d79de1bea4b4621550910d5ab24a71c119d45b86fb0f7b835c75ffea0f70b"
+      "sourceSha256": "e20990cee165b9f126919da5f001ea55b4509a39dc36c68db7d68873e2a69069"
     },
     {
       "id": "note-backlog-2d-section-workbench",
@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "808352e034cdc778b4f158f929dbcbf7489462de8e236cdb88ca8429d13791ff"
+      "sourceSha256": "87ab336995c3a5078cdc51d37072492f4ae07701af43de9c4102282638f92e5f"
     },
     {
       "id": "design-authoring-decisions",
@@ -6327,7 +6327,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2254125fbfd0a03e26f02d8bdfbcd5ea1fd5753e5b66ae88e22dc8c478f29fe3"
+      "sourceSha256": "30254ba17add8324bb7191555a7ea892cb876cfd290b2e23f78ec608f84d6b5e"
     },
     {
       "id": "kb-hw-glossary",
@@ -8040,6 +8040,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "c89007c3e991f6f152f1351f58df542875488e16b29c7ca435688379bca840ae"
+    },
+    {
+      "id": "a3a-vlm3-red-first",
+      "path": "docs/proof/a3a-vlm3/red-first-receipt.md",
+      "title": "VLM-3 red-first receipt",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm3",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "The three VLM-3 fixtures fail on the old camber-surface horseshoes and front-bound sweep.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "08ff878ce4ea473d342dce59214849a1c29f0caa3deeaf78fb38e1e9f6a5eba4"
     },
     {
       "id": "coordination-application-c-launch",
@@ -10428,6 +10453,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "8ba9b363a2dc1f706d2dc6e3ac217494b68d67563f6ec363acedde1c2a4a98be"
     },
     {
+      "id": "proof-vlm-tip-study",
+      "path": "docs/proof/vlm-tip-study/verdict.md",
+      "title": "VLM tip-strip envelope study",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm3",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "Measured tip-strip refinement, tolerance-law proposal, and the default lattice's camber and twist failure.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "tip-strip",
+        "camber",
+        "twist"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "37d5868b910b5a7398fdbdf5eb15d9ecbd89c0516cbf0905b61aa2d5ef648d70"
+    },
+    {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
       "title": "Windows W0 preparation and failed W1 hosted qualification",
@@ -12260,5 +12312,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "68d7dc76e6cba4612e4773411c8ade4566fb3a1cb7cb68677021ac931c8be6ab"
+  "graphSha256": "bfc6af5f1428032ecbe4053b6296daad0f1a30adc20850775fc49936c38c8dc2"
 };
