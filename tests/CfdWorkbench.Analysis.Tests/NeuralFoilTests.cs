@@ -19,6 +19,7 @@ internal static class NeuralFoilTests
         AnalysisChecks.Check("NeuralFoil_Envelope_Family", () => Refused(0, 500000, 4, "edited", false, "family"));
         AnalysisChecks.Check("NeuralFoil_Envelope_CstResidual", () => Refused(0, 500000, 4, "naca0012", true, "CST"));
         AnalysisChecks.Check("NeuralFoil_Envelope_OutsideValidatedBracket", OutsideBracket);
+        AnalysisChecks.Check("NeuralFoil_Confidence_BelowFloorNonComputable", ConfidenceGate);
         AnalysisChecks.Check("NeuralFoil_InferenceCost", InferenceCost);
     }
 
@@ -111,6 +112,13 @@ internal static class NeuralFoilTests
         NeuralFoilEvaluation result = source.Evaluate(Section(false, "naca2412"), 3, 500000, 5, CancellationToken.None);
         if (!result.Computable || !result.OutsideValidatedBracket || result.Prediction is null)
             throw new Exception("outside-bracket prediction or flag missing");
+    }
+
+    private static void ConfidenceGate()
+    {
+        if (NeuralFoilPolarSource.ConfidenceReason(0.49) is null ||
+            NeuralFoilPolarSource.ConfidenceReason(0.5) is not null)
+            throw new Exception("advisory confidence floor does not gate the polar point");
     }
 
     private static void InferenceCost()
