@@ -21,10 +21,14 @@ internal static class NeuralFoilTests
         AnalysisChecks.Check("NeuralFoil_CstFit_RecoversSection", CstFitRecoversSection);
         AnalysisChecks.Check("NeuralFoil_Source_ProducesPolarSample", ProducesPolarSample);
         AnalysisChecks.Check("NeuralFoil_Source_NoncomputableNamesReason", NoncomputableNamesReason);
-        AnalysisChecks.Check("NeuralFoil_Envelope_Alpha", () => Refused(30, 500000, 4, "naca0012", false, "alpha"));
-        AnalysisChecks.Check("NeuralFoil_Envelope_Re", () => Refused(0, 10000, 4, "naca0012", false, "Re"));
-        AnalysisChecks.Check("NeuralFoil_Envelope_Ncrit", () => Refused(0, 500000, 0, "naca0012", false, "Ncrit"));
-        AnalysisChecks.Check("NeuralFoil_Envelope_Family", () => Refused(0, 500000, 4, "edited", false, "family"));
+        AnalysisChecks.Check("NeuralFoil_Envelope_Alpha_OutsideTraining_NonComputable", () => Refused(40, 500000, 4, "naca0012", false, "alpha"));
+        AnalysisChecks.Check("NeuralFoil_Envelope_Re_OutsideTraining_NonComputable", () => Refused(0, 1e11, 4, "naca0012", false, "Re"));
+        AnalysisChecks.Check("NeuralFoil_Envelope_Ncrit_OutsideTraining_NonComputable", () => Refused(0, 500000, 25, "naca0012", false, "Ncrit"));
+        AnalysisChecks.Check("NeuralFoil_Envelope_Alpha_InsideTraining_ComputedFlagged", () => Flagged(10, 500000, 4, "alpha"));
+        AnalysisChecks.Check("NeuralFoil_Envelope_Re_InsideTraining_ComputedFlagged", () => Flagged(0, 50000, 4, "Re"));
+        AnalysisChecks.Check("NeuralFoil_Envelope_Ncrit_InsideTraining_ComputedFlagged", () => Flagged(0, 500000, 12, "Ncrit"));
+        AnalysisChecks.Check("NeuralFoil_Envelope_Ncrit_IntermediateValue_Flagged", () => Flagged(0, 500000, 5, "Ncrit"));
+        AnalysisChecks.Check("NeuralFoil_Envelope_InsideBracket_NotFlagged", InsideBracketNotFlagged);
         AnalysisChecks.Check("NeuralFoil_Envelope_CstResidual", () => Refused(0, 500000, 4, "naca0012", true, "CST"));
         AnalysisChecks.Check("NeuralFoil_Envelope_OutsideValidatedBracket", OutsideBracket);
         AnalysisChecks.Check("NeuralFoil_Confidence_BelowFloorNonComputable", ConfidenceGate);
@@ -154,6 +158,27 @@ internal static class NeuralFoilTests
         if (result.Computable || result.Reason is null || !result.Reason.Contains(reason, StringComparison.OrdinalIgnoreCase))
             throw new Exception("point was not marked non-computable: " + result.Reason);
         if (!double.IsFinite(result.CstResidualMax)) throw new Exception("CST residual missing");
+    }
+
+    private static void Flagged(double alpha, double reynolds, double ncrit, string axis)
+    {
+        NeuralFoilSection section = Section(false, "naca0012");
+        var source = new NeuralFoilPolarSource(_ => section);
+        NeuralFoilEvaluation result = source.Evaluate(section, alpha, reynolds, ncrit, CancellationToken.None);
+        if (!result.Computable || result.Prediction is null) throw new Exception("point inside the training range was refused: " + result.Reason);
+        if (!result.OutsideValidatedBracket ||
+            !result.OutsideBracketReasons.Any(text => text.Contains(axis, StringComparison.OrdinalIgnoreCase)))
+            throw new Exception("outside-bracket flag for " + axis + " missing: " + string.Join("; ", result.OutsideBracketReasons));
+        if (!double.IsFinite(result.CstResidualMax)) throw new Exception("CST residual missing");
+    }
+
+    private static void InsideBracketNotFlagged()
+    {
+        NeuralFoilSection section = Section(false, "naca0012");
+        var source = new NeuralFoilPolarSource(_ => section);
+        NeuralFoilEvaluation result = source.Evaluate(section, 3, 500000, 4, CancellationToken.None);
+        if (!result.Computable || result.OutsideValidatedBracket)
+            throw new Exception("validated point was flagged: " + string.Join("; ", result.OutsideBracketReasons));
     }
 
     private static void OutsideBracket()
