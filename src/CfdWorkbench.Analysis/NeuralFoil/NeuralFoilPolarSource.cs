@@ -41,11 +41,16 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
         bool outside = section.Family != "naca0012" || ncrit is not (2 or 4 or 9);
         if (reason is not null) return new(null, fit.RmsResidual, fit.MaxResidual, outside, reason);
         NeuralFoilPrediction prediction = NeuralFoilNetwork.FromEmbedded().Predict(fit.Parameters, alphaDeg, reynolds, ncrit);
-        if (prediction.AnalysisConfidence < ConfidenceFloor)
-            return new(prediction, fit.RmsResidual, fit.MaxResidual, outside,
-                "analysis_confidence below the advisory floor 0.5");
+        string? confidenceReason = ConfidenceReason(prediction.AnalysisConfidence);
+        if (confidenceReason is not null)
+            return new(prediction, fit.RmsResidual, fit.MaxResidual, outside, confidenceReason);
         return new(prediction, fit.RmsResidual, fit.MaxResidual, outside, null);
     }
+
+    public static string? ConfidenceReason(double confidence) =>
+        !double.IsFinite(confidence) || confidence < ConfidenceFloor
+            ? "analysis_confidence below the advisory floor 0.5"
+            : null;
 
     public PolarSample? Sample(string profileHash, double reynolds, double ncrit, double alphaDeg,
         WaterRecord water, CancellationToken cancellation)
