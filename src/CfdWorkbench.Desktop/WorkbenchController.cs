@@ -1,4 +1,5 @@
 using CfdWorkbench.Cli;
+using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 using CfdWorkbench.Persistence;
 using System.Diagnostics;
@@ -226,6 +227,31 @@ public sealed class WorkbenchController : IDisposable
     private readonly Dictionary<SingleView, DisplayMode> displayModes = new();
     private readonly Dictionary<string, CurveView> channelViews = new(StringComparer.Ordinal);
     private string? channelViewsKey;
+    private ShellMode areaMode = ShellMode.Workspace;
+    private ShellMode returnToCadMode = ShellMode.Workspace;
+
+    /// <summary>The model area's CAD or Analysis state; a section draft remains open while hidden.</summary>
+    public ShellMode AreaMode => areaMode == ShellMode.Analysis ? areaMode : Section is null ? ShellMode.Workspace : ShellMode.SectionEditor;
+    public bool IsAnalysis => AreaMode == ShellMode.Analysis;
+    /// <summary>The selected run's visible layers, empty before the first result.</summary>
+    public IReadOnlyList<LayerData> LayerSet { get; private set; } = [];
+
+    /// <summary>Switches the area over the same selection, cameras, layout and document. Evaluation is explicit.</summary>
+    public void ToggleAnalysis()
+    {
+        long started = time.GetTimestamp();
+        ShellMode from = AreaMode;
+        if (IsAnalysis)
+            areaMode = returnToCadMode == ShellMode.SectionEditor && Section is null ? ShellMode.Workspace : returnToCadMode;
+        else
+        {
+            returnToCadMode = from;
+            areaMode = ShellMode.Analysis;
+        }
+        session.RecordAnalysisEvent("analysis.toggle", "OK", time.GetElapsedTime(started).TotalMilliseconds,
+            new AnalysisEvent { From = from.ToString(), To = AreaMode.ToString(), LayersDrawn = LayerSet.Count });
+        Notify();
+    }
 
     /// <summary>Computes one display mesh off the UI thread; the default is <see cref="Placement.Surface"/>.</summary>
     public delegate Task<SurfaceView> SurfaceCompute(byte[] source, string basis, long generation, CancellationToken cancellation);

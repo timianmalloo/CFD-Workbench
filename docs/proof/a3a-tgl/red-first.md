@@ -17,7 +17,7 @@ summary: Records the failing TGL named checks before each implementation step an
 
 | Check | Red commit | Mutant caught | Green commit |
 |---|---|---|---|
-| `Toggle_RoundTrip_CameraSelectionStationViewportEqual` | pending commit | entering Analysis refits the Plan camera or changes selection/layout | pending |
-| `Toggle_NeverEvaluates` | pending commit | entering Analysis starts a run without Evaluate | pending |
+| `Toggle_RoundTrip_CameraSelectionStationViewportEqual` | `0da6ef5` | entering Analysis refits the Plan camera or changes selection/layout | this step |
+| `Toggle_NeverEvaluates` | `0da6ef5` | entering Analysis starts a run without Evaluate | this step |
 
 Both checks printed `FAIL` under `CFD_TEST_ONLY=Toggle_ dotnet run -c Release --no-restore --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --analysis` before implementation. The missing toggle was the observed red condition.
