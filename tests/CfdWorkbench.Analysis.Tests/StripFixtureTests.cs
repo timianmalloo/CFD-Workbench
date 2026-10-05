@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
@@ -21,6 +23,7 @@ internal static class StripFixtureTests
         AnalysisChecks.Check("F12_SpeedScaleK_ForcesScaleK2", F12);
         AnalysisChecks.Check("F13a_FreshToSalt_ReFalls4p25Percent", F13a);
         AnalysisChecks.Check("F17_GoldenMaster_ExampleFoilVector", F17);
+        AnalysisChecks.Check("TipStrip_ExampleFoil_OutermostProvisional", TipProvisional);
         AnalysisChecks.Check("Strip_ReLocal_UsesLocalChord", StripReynolds);
         AnalysisChecks.Check("Reference_SrefAndSpan_FromWingEstimates", Reference);
         AnalysisChecks.Check("Water_OutsideTable_Unavailable", WaterOutside);
@@ -123,22 +126,146 @@ internal static class StripFixtureTests
     {
         string path = Path.Combine(RepoRoot(), "tests", "CfdWorkbench.Analysis.Tests", "Fixtures", "a3a", "f17-example.txt");
         byte[] source = File.ReadAllBytes(Path.Combine(RepoRoot(), "docs", "examples", "foildsl", "foil-basic.foil"));
+        if (!File.Exists(path)) throw new InvalidOperationException("missing golden vector");
+        string[] lines = File.ReadAllLines(path);
+        var provenance = new Dictionary<string, string>(StringComparer.Ordinal);
+        var expected = new List<string>();
+        foreach (string line in lines)
+        {
+            if (line.Length == 0) continue;
+            if (line.StartsWith("# ", StringComparison.Ordinal))
+            {
+                int colon = line.IndexOf(':');
+                if (colon < 3) throw new InvalidOperationException("provenance line has no key");
+                string key = line[2..colon].Trim();
+                string value = line[(colon + 1)..].Trim();
+                if (key.Length == 0 || value.Length == 0 || !provenance.TryAdd(key, value))
+                    throw new InvalidOperationException("provenance line " + line);
+                continue;
+            }
+            expected.Add(line);
+        }
+        // Read, do not compare. The header is the vector's origin, not an oracle for this process.
+        foreach (string key in new[] { "method", "version", "lattice", "commit", "runtime", "os", "arch" })
+            if (!provenance.ContainsKey(key)) throw new InvalidOperationException("provenance missing " + key);
+
         var method = new ProductWingMethod();
         OperatingPoint op = OperatingPoints.Custom(8, 5, null);
         WaterRecord water = Salt();
         LatticeSolution solution = Solve(source, method.Settings, op, water);
-        string actual = Vector(solution, water.Rho, op.Speed);
-        if (!File.Exists(path)) throw new InvalidOperationException("missing golden vector\n" + actual);
-        string[] expected = File.ReadAllLines(path);
-        string[] got = actual.Split('\n');
-        if (expected.Length != got.Length) throw new InvalidOperationException("vector length " + got.Length + "\n" + actual);
-        for (int i = 0; i < expected.Length; i++)
+        string[] got = Vector(solution, water.Rho, op.Speed).Split('\n');
+        if (expected.Count != got.Length) throw new InvalidOperationException("vector length " + got.Length);
+        for (int i = 0; i < expected.Count; i++)
         {
             string[] left = expected[i].Split(' ');
             string[] right = got[i].Split(' ');
-            if (left[0] != right[0]) throw new InvalidOperationException(expected[i] + " vs " + got[i]);
-            if (left.Length == 2) Relative(double.Parse(left[1], CultureInfo.InvariantCulture), double.Parse(right[1], CultureInfo.InvariantCulture), left[0]);
+            if (left[0] != right[0] || left.Length != 2 || right.Length != 2)
+                throw new InvalidOperationException(expected[i] + " vs " + got[i]);
+            double recorded = double.Parse(left[1], CultureInfo.InvariantCulture);
+            double solved = double.Parse(right[1], CultureInfo.InvariantCulture);
+            if (left[0] == "residual")
+            {
+                // ‖AΓ − b‖∞ at round-off is not a physical output. Equality at 1e-12 rel fails on x64/Windows.
+                // The pass condition is the solver's normalised backward-error tolerance.
+                if (!double.IsFinite(recorded) || !(solved <= Settings.SolveBackwardErrorTolerance))
+                    throw new InvalidOperationException("residual " + solved.ToString("G17", CultureInfo.InvariantCulture)
+                        + " exceeds " + Settings.SolveBackwardErrorTolerance.ToString("G17", CultureInfo.InvariantCulture));
+                continue;
+            }
+            // κ₁ is a 1-norm estimate. Trailing digits move with FMA and libm (arm64 macOS vs x64 Windows).
+            // 1e-6 keeps six digits: a pivot or geometry change moves κ₁ by far more, and the design uses it as an order-of-magnitude gate.
+            Relative(recorded, solved, left[0], left[0] == "kappa1" ? 1e-6 : 1e-12);
         }
+    }
+
+    private static void TipProvisional()
+    {
+        byte[] source = File.ReadAllBytes(Path.Combine(RepoRoot(), "docs", "examples", "foildsl", "foil-basic.foil"));
+        using var session = new AuthoringSession();
+        session.Open(source, Guid.NewGuid().ToString("D"), true);
+        var method = new ProductWingMethod();
+        OperatingPoint op = OperatingPoints.Custom(8, 5, null);
+        AnalysisRun run = Fixture.Evaluate(new AnalysisService(session, method), op, Salt());
+        IReadOnlyList<StripLoad> strips = run.Strips;
+        if (strips.Count != 128) throw new InvalidOperationException("strips " + strips.Count);
+        int port = -1, starboard = -1;
+        for (int i = 0; i < strips.Count; i++)
+        {
+            double y = strips[i].Y;
+            if (y < 0 && (port < 0 || Math.Abs(y) > Math.Abs(strips[port].Y))) port = i;
+            if (y > 0 && (starboard < 0 || Math.Abs(y) > Math.Abs(strips[starboard].Y))) starboard = i;
+        }
+        if (port != 0 || starboard != 127)
+            throw new InvalidOperationException("outermost " + port + " and " + starboard);
+        for (int i = 0; i < strips.Count; i++)
+        {
+            bool tip = i == 0 || i == 127;
+            StripLoad strip = strips[i];
+            if (strip.Provisional != tip || (tip ? strip.ProvisionalReason != StripLoad.TipProvisionalReason : strip.ProvisionalReason is not null))
+                throw new InvalidOperationException("strip " + i + " provisional " + strip.Provisional + " " + strip.ProvisionalReason);
+            StripVerdict verdict = MethodRecord.JudgeStrip(strip.AlphaEff, 0, strip.ClLocal, 0, strip.Provisional);
+            if (tip)
+            {
+                if (!verdict.Provisional || verdict.Text != "provisional")
+                    throw new InvalidOperationException("strip " + i + " verdict " + verdict.Text);
+            }
+            else if (verdict.Provisional
+                     || !(verdict.Text.StartsWith("Inside ", StringComparison.Ordinal) || verdict.Text.StartsWith("Outside ", StringComparison.Ordinal)))
+                throw new InvalidOperationException("strip " + i + " verdict " + verdict.Text);
+        }
+        string runSentence = MethodRecord.JudgeRun(
+        [
+            MethodRecord.JudgeStrip(1, 0, 0.2, 0, provisional: true),
+            MethodRecord.JudgeStrip(1, 0, 0.2, 0)
+        ]);
+        if (!runSentence.StartsWith("Inside the method envelope ", StringComparison.Ordinal) || !runSentence.Contains("at all 1 strips", StringComparison.Ordinal))
+            throw new InvalidOperationException(runSentence);
+
+        byte[] image = session.SaveImage();
+        using var reopened = new AuthoringSession();
+        reopened.Reopen(image);
+        StoredRun stored = reopened.ReadRuns().Runs.Single();
+        if (stored.Integrity != RunIntegrity.Intact) throw new InvalidOperationException("integrity " + stored.Integrity);
+        if (!stored.Run.Strips[0].Provisional || !stored.Run.Strips[127].Provisional || stored.Run.Strips[1].Provisional)
+            throw new InvalidOperationException("reopened flags");
+
+        using var document = JsonDocument.Parse(image);
+        JsonElement rows = document.RootElement.GetProperty("analysis").GetProperty("runs")[0].GetProperty("strips");
+        int written = 0;
+        for (int i = 0; i < rows.GetArrayLength(); i++)
+        {
+            bool present = rows[i].TryGetProperty("provisional", out JsonElement flag);
+            if (i is 0 or 127)
+            {
+                if (!present || !flag.GetBoolean() || rows[i].GetProperty("provisionalReason").GetString() != StripLoad.TipProvisionalReason)
+                    throw new InvalidOperationException("document strip " + i);
+                written++;
+            }
+            else if (present)
+                throw new InvalidOperationException("strip " + i + " wrote provisional");
+        }
+        if (written != 2) throw new InvalidOperationException("written " + written);
+
+        // A tip object with the members removed is the document shape from before the field. Absent reads false.
+        JsonObject older = JsonNode.Parse(rows[0].GetRawText())!.AsObject();
+        older.Remove("provisional");
+        older.Remove("provisionalReason");
+        var options = new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            RespectRequiredConstructorParameters = true
+        };
+        StripLoad absent = JsonSerializer.Deserialize<StripLoad>(older.ToJsonString(), options)
+            ?? throw new InvalidOperationException("strip did not read");
+        if (absent.Provisional || absent.ProvisionalReason is not null)
+            throw new InvalidOperationException("absent provisional read " + absent.Provisional);
+
+        string cli = JsonSerializer.Serialize(run, new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true });
+        using var cliDoc = JsonDocument.Parse(cli);
+        int cliTips = 0;
+        foreach (JsonElement strip in cliDoc.RootElement.GetProperty("strips").EnumerateArray())
+            if (strip.TryGetProperty("provisional", out JsonElement flag) && flag.GetBoolean()) cliTips++;
+        if (cliTips != 2) throw new InvalidOperationException("cli provisional " + cliTips);
     }
 
     private static void StripReynolds()
@@ -383,10 +510,10 @@ internal static class StripFixtureTests
             throw new InvalidOperationException(name + " " + actual.ToString("G17", CultureInfo.InvariantCulture) + " vs " + expected.ToString("G17", CultureInfo.InvariantCulture));
     }
 
-    private static void Relative(double expected, double actual, string name)
+    private static void Relative(double expected, double actual, string name, double tolerance = 1e-12)
     {
         double scale = Math.Max(Math.Abs(expected), 1e-30);
-        if (Math.Abs(actual - expected) / scale > 1e-12)
+        if (Math.Abs(actual - expected) / scale > tolerance)
             throw new InvalidOperationException(name + " " + actual.ToString("G17", CultureInfo.InvariantCulture) + " vs " + expected.ToString("G17", CultureInfo.InvariantCulture));
     }
 

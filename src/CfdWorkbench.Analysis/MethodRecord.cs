@@ -7,7 +7,11 @@ namespace CfdWorkbench.Analysis;
 public sealed record MethodEnvelope(double AlphaEffFromZeroLiftMaxDeg, double ClLocalMax, double QuarterChordSweepMaxDeg);
 
 /// <summary>One strip's envelope verdict, derived on read from α_eff, Cl_local and sweep (DM7: not a stored flag).</summary>
-public sealed record StripVerdict(bool Inside, IReadOnlyList<string> Exceeded, string Text);
+public sealed record StripVerdict(bool Inside, IReadOnlyList<string> Exceeded, string Text)
+{
+    /// <summary>Outermost strip per half. The status is provisional; <see cref="Inside"/> is not an outside claim.</summary>
+    public bool Provisional { get; init; }
+}
 
 /// <summary>A method: its stored identity (id, version, convergence order) and its envelope. VLM owns the values.</summary>
 public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
@@ -20,9 +24,12 @@ public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
     /// <summary>
     /// The per-strip verdict. <paramref name="alphaEffDeg"/> is α + twist − α_i, never α_geo alone.
     /// An exceeded part is named and prints "&gt;"; a part inside its bound prints "≤".
+    /// A provisional strip (Ruling 77(5)) reads <c>provisional</c>, not inside or outside. The sentence is held.
     /// </summary>
-    public static StripVerdict JudgeStrip(double alphaEffDeg, double alphaL0Deg, double clLocal, double sweepDeg)
+    public static StripVerdict JudgeStrip(double alphaEffDeg, double alphaL0Deg, double clLocal, double sweepDeg, bool provisional = false)
     {
+        if (provisional)
+            return new StripVerdict(false, Array.Empty<string>(), "provisional") { Provisional = true };
         MethodEnvelope env = VlmStrip.Envelope;
         double alpha = Math.Abs(alphaEffDeg - alphaL0Deg);
         double sweep = Math.Abs(sweepDeg);
@@ -58,17 +65,21 @@ public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
         string bound = "(|α_eff − α_L0| ≤ " + Num(env.AlphaEffFromZeroLiftMaxDeg) + "°, Cl_local ≤ " + Num(env.ClLocalMax)
             + ", quarter-chord sweep ≤ " + Num(env.QuarterChordSweepMaxDeg) + "°)";
         int outside = 0;
+        int judged = 0;
         var parts = new List<string>();
         foreach (StripVerdict strip in strips)
         {
+            // A provisional tip is not inside and not outside. It does not change the run sentence's count.
+            if (strip.Provisional) continue;
+            judged++;
             if (strip.Inside) continue;
             outside++;
             foreach (string part in strip.Exceeded)
                 if (!parts.Contains(part)) parts.Add(part);
         }
         return outside == 0
-            ? "Inside the method envelope " + bound + " at all " + strips.Count + " strips"
-            : "Outside the method envelope " + bound + " — " + outside + " of " + strips.Count
+            ? "Inside the method envelope " + bound + " at all " + judged + " strips"
+            : "Outside the method envelope " + bound + " — " + outside + " of " + judged
                 + " strips; exceeded: " + string.Join(", ", parts);
     }
 
