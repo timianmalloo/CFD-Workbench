@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T00:10:30Z",
+  "generated": "2026-10-05T00:56:48Z",
   "audit": [
     {
       "actor": null,
@@ -24028,6 +24028,106 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T00:08:56Z",
       "duration_seconds": 94.0
+    },
+    {
+      "id": "al-01M44PY73K0JE3NWV3GNXVDC18",
+      "shortname": "join-store-subset-library",
+      "datetime": "2026-10-05T00:20:39Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/store-subset-library into feature/ui-cad-direction",
+      "summary": "Readiness at 0b20a59 refused STORE-SUBSET: SectionLibraryTests.cs writes files outside the store checks. Added it and the Library_ prefix; core verifier green (83 store checks). Also carries Rulings 74-77 into the register. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:19:01Z",
+      "duration_seconds": 98.0
+    },
+    {
+      "id": "al-01M44QYYHZDGA1WCKRB2PYPVBV",
+      "shortname": "join-flaky-unique-strip",
+      "datetime": "2026-10-05T00:38:31Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/flaky-unique-strip into feature/ui-cad-direction",
+      "summary": "FLK-1 (Grok 4.7; first tried on Agy --sandbox, which stalled headless): the refusal clears the certificate and re-checks, so Finish read 'Checking…' under load; the test now waits for the assessment. 10/10 PASS at load 46-52. Finding for the operator: a refused step briefly shows Finish disabled while the re-check runs. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:36:38Z",
+      "duration_seconds": 113.0
+    },
+    {
+      "id": "al-01M44R52DFXBRF62TRG2HWDDD3",
+      "shortname": "join-m12d-rpl",
+      "datetime": "2026-10-05T00:41:52Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12d-rpl into feature/ui-cad-direction",
+      "summary": "RPL + RPL-2 (Opus 5.5): SectionReplace preview/patch, FitToBasis (ids, KKT tangent rows, Euclidean residual), Import mapped to Replace, ImportPatch/NeighbourBases deleted, COPY-210 retired; budget clause inside the Ruling 71 predicate via Geometry.BlendSpanLimit()/OperationBoundCode; chord frame iterated (rotated sources land 0.00 µm from unrotated). Geometry review BLOCK -> PASS after RPL-2. COPY-194b and CAT-RESIDUAL approved by the operator. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:38:41Z",
+      "duration_seconds": 191.0
+    },
+    {
+      "id": "al-01M44S0D5EB87B49M93137NVAV",
+      "shortname": "join-flaky-toast-hold",
+      "datetime": "2026-10-05T00:56:48Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/flaky-toast-hold into feature/ui-cad-direction",
+      "summary": "FLK-2 + FLK-2b (Grok 4.7): the commit pumped the dispatcher after the hold started, so under load the tick queued before the hover; the check now hovers before the pump and bounds hide to 4 holds on the dispatcher clock (mutant 2 s hold red). 10/10 under 8 yes workers. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:54:13Z",
+      "duration_seconds": 155.0
     }
   ],
   "changes": [

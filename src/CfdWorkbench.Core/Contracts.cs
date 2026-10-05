@@ -77,7 +77,39 @@ public sealed record ProfileView(string Name, string Identity, IReadOnlyList<Pro
 
 /// <summary>Shape report for one profile construction. MaxDeviation is the maximum |Δy| over 2001 chord samples, both sides. Tolerance is set by fairing, not by insert or delete.</summary>
 public sealed record ConstructionReport(double MaxDeviation, double? Tolerance, int VertexCount);
-public sealed record ImportReport(double MaxResidual, int VertexCount, bool Accepted, string Provenance, string? Basis = null);
+/// <summary>
+/// The fit a Replace (or Import, which is a Replace) made. MaxResidual is the largest Euclidean distance between source and
+/// fitted curve, both ways, in chord fractions (m12d §3.6 rule 5). Basis is <c>current</c>, <c>own</c> or <c>exact</c>.
+/// The optional fields are expand-only (m12d §5.1); Frame* are null for a source that is not coordinates. FrameResidual is
+/// how far behind the sampled leading edge the source curve's own minimum x lies, in chord fractions (the frame's residual).
+/// </summary>
+public sealed record ImportReport(double MaxResidual, int VertexCount, bool Accepted, string Provenance, string? Basis = null,
+    IReadOnlyList<int>? Stations = null, IReadOnlyList<string>? DroppedRows = null, double? FrameLeShift = null,
+    double? FrameRotationDegrees = null, double? FrameScale = null, double? SourceThickness = null, double? FrameResidual = null);
+
+/// <summary>Where a Replace takes its shape from (m12d §5.1).</summary>
+public abstract record ReplaceSource(string DisplayName, Provenance Provenance)
+{
+    /// <summary>Selig or Lednicer coordinates: a GEN catalog row or a .dat file.</summary>
+    public sealed record Coordinates(string DisplayName, Provenance Provenance, byte[] Selig) : ReplaceSource(DisplayName, Provenance);
+    /// <summary>A standalone section document: a My sections entry.</summary>
+    public sealed record Record(string DisplayName, Provenance Provenance, byte[] SectionDocument) : ReplaceSource(DisplayName, Provenance);
+}
+
+/// <summary>Draft: the draft's scope (shared → every station using the section; unique → this station). BlendChain: every station.</summary>
+public enum ReplaceScope { Draft, BlendChain }
+
+/// <summary>
+/// One Replace preview. FitResidual and LargestChangeChord are chord fractions; AcceptanceChord is metres (the largest local
+/// chord of the stations replaced). Spacing is <c>current</c>, <c>own-&lt;n&gt;</c> or <c>exact</c>. A refused preview has
+/// RefusalCode set (CAT-SPACING or CAT-RESIDUAL), its RefusalReason in the operator's words, and no Bytes.
+/// </summary>
+public sealed record ReplacePreview(IReadOnlyList<int> Stations, string Spacing, double FitResidual, double AcceptanceChord,
+    double LargestChangeChord, double LargestChangeAtX, int PointsPerSurface, string? RefusalCode, IReadOnlyList<int>? BlendChain, byte[]? Bytes)
+{
+    public string? RefusalReason { get; init; }
+    public ImportReport? Report { get; init; }
+}
 /// <summary>Whether a profile edit may retarget the foil-wide thickness channel. Keep current is the source-compatible default.</summary>
 public enum ThicknessIntent { KeepCurrent, UseSource }
 
@@ -102,8 +134,10 @@ public abstract record SectionStep
     /// <summary>A null side fairs each surface on its own knots.</summary>
     public sealed record Fair(SurfaceSide? Side, double Tolerance, PreserveEnds Ends) : SectionStep;
     public sealed record Rebuild(SurfaceSide? Side, int VertexCount, double Tolerance, PreserveEnds Ends) : SectionStep;
-    /// <summary>Both surfaces, shared basis.</summary>
+    /// <summary>Import .dat… (DR-M12D-3 a): runs as a Replace from the file's coordinates at the draft's scope.</summary>
     public sealed record Import(byte[] Dat) : SectionStep;
+    /// <summary>Rewrites the section block in place, keeping its name (m12d §3.6). Never reaches SectionEdits.Apply.</summary>
+    public sealed record Replace(ReplaceSource Source, ReplaceScope Scope) : SectionStep;
     public sealed record MakeUnique : SectionStep;
     public sealed record Thickness(ThicknessIntent Intent) : SectionStep;
 }

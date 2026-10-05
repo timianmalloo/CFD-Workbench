@@ -4,6 +4,7 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Persistence;
@@ -77,20 +78,23 @@ public static class StatusStripTests
 
         Pane("Toast_Hold_ClosesAfterHold_PausedWhileHovered", (controller, host, window) =>
         {
-            SetHold(host, TimeSpan.FromMilliseconds(150));
-            CommitRootChord(controller, host, window, 10.1);
+            var hold = TimeSpan.FromMilliseconds(150);
+            SetHold(host, hold);
+            // The hold starts when the toast opens. A pump after that can outlast 150 ms under load and
+            // queue the tick before the pointer arrives, so this commit returns before the dispatcher runs again.
+            CommitChord(controller, host, 10.1);
             var toast = NeedToast(host);
             if (!toast.IsVisible) throw new InvalidOperationException("no toast after the warning");
-            Wait(TimeSpan.FromMilliseconds(600));
-            if (toast.IsVisible) throw new InvalidOperationException("the toast outlived its hold");
-            CommitRootChord(controller, host, window, 9.5);
+            WaitUntilHidden(toast, hold, "the toast outlived its hold");
+            CommitChord(controller, host, 9.5);
             if (!toast.IsVisible) throw new InvalidOperationException("no toast after the second warning");
             Hover(toast, entered: true);
-            Wait(TimeSpan.FromMilliseconds(600));
-            if (!toast.IsVisible) throw new InvalidOperationException("the hold ran while the pointer was over the toast");
+            if (!HoldElapsedWhileOpen(hold, toast))
+                throw new InvalidOperationException(toast.IsVisible
+                    ? "the hold interval never elapsed"
+                    : "the hold ran while the pointer was over the toast");
             Hover(toast, entered: false);
-            Wait(TimeSpan.FromMilliseconds(600));
-            if (toast.IsVisible) throw new InvalidOperationException("the hold did not restart when the pointer left");
+            WaitUntilHidden(toast, hold, "the hold did not restart when the pointer left");
         });
 
         Pane("Toast_EscInside_ClosesAndReturnsFocus", (controller, host, window) =>
@@ -263,12 +267,21 @@ public static class StatusStripTests
     /// <summary>Types a root chord <paramref name="factor"/> × the current one and commits it: the fit lands above the limit.</summary>
     internal static void CommitRootChord(WorkbenchController controller, ShellHost host, Window window, double factor)
     {
+        CommitChord(controller, host, factor);
+        WaitIdle(controller, window);
+    }
+
+    /// <summary>
+    /// <see cref="CommitRootChord"/> without the trailing dispatcher pump. The hold starts inside the key
+    /// handling, and a pump here lets it fire before the caller can hover.
+    /// </summary>
+    private static void CommitChord(WorkbenchController controller, ShellHost host, double factor)
+    {
         var input = Need<TextBox>(host.Properties, "RootChordInput");
         string before = controller.AcceptedSource;
         input.Focus();
         input.Text = (controller.Estimates!.RootChordMeters * 1000 * factor).ToString("0.##", Inv);
         Key(input, Avalonia.Input.Key.Enter);
-        WaitIdle(controller, window);
         if (controller.AcceptedSource == before) throw new InvalidOperationException("the root chord was not committed: " + controller.Status);
     }
 
@@ -281,11 +294,63 @@ public static class StatusStripTests
             KeyModifiers.None));
     }
 
-    /// <summary>Runs the dispatcher's own loop for a while, so its timers fire.</summary>
-    private static void Wait(TimeSpan time)
+    // Four holds on the dispatcher clock, started while the toast is open and before the dispatcher
+    // runs again. Load delays this timer and the toast's own hold alike. Eight seconds only fails
+    // when neither the hide nor this bound ever arrives. It is not the hold.
+    private static readonly TimeSpan HoldDeadline = TimeSpan.FromSeconds(8);
+    private const int HoldBoundFactor = 4;
+
+    private static void WaitUntilHidden(Control toast, TimeSpan hold, string failure)
     {
-        using var timeout = new CancellationTokenSource(time);
-        Avalonia.Threading.Dispatcher.UIThread.MainLoop(timeout.Token);
+        bool outlived = false;
+        var timer = new DispatcherTimer { Interval = hold * HoldBoundFactor };
+        PumpUntil(toast, () => outlived || !toast.IsVisible, stop =>
+        {
+            timer.Tick += (_, _) => { outlived = true; timer.Stop(); stop(); };
+            timer.Start();
+        });
+        timer.Stop();
+        if (toast.IsVisible) throw new InvalidOperationException(failure);
+    }
+
+    /// <summary>True when one hold interval elapses on the dispatcher and the toast is still open.</summary>
+    private static bool HoldElapsedWhileOpen(TimeSpan hold, Control toast)
+    {
+        bool fired = false;
+        var timer = new DispatcherTimer { Interval = hold };
+        PumpUntil(toast, () => fired || !toast.IsVisible, stop =>
+        {
+            timer.Tick += (_, _) => { fired = true; timer.Stop(); stop(); };
+            timer.Start();
+        });
+        timer.Stop();
+        return fired && toast.IsVisible;
+    }
+
+    private static void PumpUntil(Control toast, Func<bool> done, Action<Action>? arm)
+    {
+        if (done()) return;
+        using var timeout = new CancellationTokenSource(HoldDeadline);
+        void Stop() { if (done()) timeout.Cancel(); }
+        void OnChanged(object? _, AvaloniaPropertyChangedEventArgs change)
+        {
+            if (change.Property == Visual.IsVisibleProperty) Stop();
+        }
+        toast.PropertyChanged += OnChanged;
+        arm?.Invoke(Stop);
+        if (done())
+        {
+            toast.PropertyChanged -= OnChanged;
+            return;
+        }
+        try
+        {
+            Dispatcher.UIThread.MainLoop(timeout.Token);
+        }
+        finally
+        {
+            toast.PropertyChanged -= OnChanged;
+        }
     }
 
     private static string Scratch(string name)

@@ -21,8 +21,8 @@ for _stream in (sys.stdout, sys.stderr):
         _stream.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parents[1]
-# The umask- and native-sensitive checks: every check in ProjectStoreTests.cs, LayoutFileTests.cs
-# and PreferenceStoreTests.cs. They are the only Core checks that create files, read
+# The umask- and native-sensitive checks: every check in ProjectStoreTests.cs, LayoutFileTests.cs,
+# PreferenceStoreTests.cs and SectionLibraryTests.cs (My sections writes files, M1.2d). They are the only Core checks that create files, read
 # CFD_TEST_UMASK, load libcfd_store, or (P1) depend on the preference store's owner-only file
 # modes. The rest of the suite runs once per build shape; these also run under the other masks
 # and the fault variants (F2).
@@ -31,11 +31,12 @@ STORE_TEST_FILES = (
     STORE_TESTS,
     ROOT / "tests/CfdWorkbench.Core.Tests/LayoutFileTests.cs",
     ROOT / "tests/CfdWorkbench.Core.Tests/PreferenceStoreTests.cs",
+    ROOT / "tests/CfdWorkbench.Core.Tests/SectionLibraryTests.cs",
 )
 STORE_PREFIXES = ("Store_", "NativePrimitive_",
                    "LayoutParse_", "LayoutCodec_", "RecentParse_",
                    "LayoutLoad_", "Rollback_", "PrefStore_", "PrefsSave_", "LayoutSave_",
-                   "Recent_", "StoreContract_", "Backup_")
+                   "Recent_", "StoreContract_", "Backup_", "Library_")
 STORE_SUBSET = ",".join(STORE_PREFIXES)
 # Checks that run only under a fault variant, never in a normal run.
 # The published full suite runs as this many concurrent parts (test-cost L3; part model 16.6/14.8/15.1 s of 45 s).

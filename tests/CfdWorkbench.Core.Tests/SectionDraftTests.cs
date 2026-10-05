@@ -290,19 +290,18 @@ internal static class SectionDraftTests
             using var session = Opened();
             string id = Id();
             var view = session.BeginSectionDraft(id, 0);
-            // Ruling 71 (operator 2026-10-04): was NACA 0012 at Root, landed on its own spacing (report = the own fit) and
-            // uncertified. That case is now refused (SectionEdits_UniqueProfile_ImportWithOwnSpacingRefusedNothingChanged);
-            // the report is checked on an import that lands, the Example's own section on the neighbour basis.
+            // DR-M12D-3 a: Import runs as a shared Replace in place (m12d §3.6); the Example's own section, sampled, fits the
+            // current spacing, so the section keeps its name, scope and points, and the report carries the file's hash.
             byte[] dat = ExampleSectionSelig();
             view = session.ApplySectionStep(id, view.Generation, new SectionStep.Import(dat));
             var report = view.Last!.Import ?? throw new InvalidOperationException("Missing import report.");
-            Equal("import", view.Last.Kind);
-            Equal("neighbour", report.Basis);
-            Equal(true, report.MaxResidual <= 1e-5);
+            Equal("replace", view.Last.Kind);
+            Equal("current", report.Basis);
+            Equal(true, report.MaxResidual * 0.120 <= 10e-6);
             Equal(true, report.Provenance.Contains(Identity.Sha256(dat), StringComparison.Ordinal));
             Equal(view.Last.UpperPoints, report.VertexCount);
-            Equal("example-section", view.Profile);
-            Equal(SectionScope.Independent, view.Scope);
+            Equal("section-a", view.Profile);
+            Equal(SectionScope.Shared, view.Scope);
             var assessment = session.AssessSection(id, view.Generation, CancellationToken.None);
             Equal(GeometryStatus.Certified, assessment.Status);
             Equal(report, assessment.ImportReport);
