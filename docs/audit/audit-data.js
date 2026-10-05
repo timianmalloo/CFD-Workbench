@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T15:23:52Z",
+  "generated": "2026-10-05T15:25:08Z",
   "audit": [
     {
       "actor": null,
@@ -24844,12 +24844,67 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46AM2CMQ44RQ9ZSPYJMQC6Z",
-      "shortname": "join-ring-b1-rng",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T15:23:52Z",
+      "done_when": "join gates green",
+      "duration_seconds": 57.0,
+      "fan_out": 0,
+      "goal": "join ring-b1-rng into main (round-oct05)",
+      "id": "al-01M46AM2CMQ44RQ9ZSPYJMQC6Z",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-ring-b1-rng",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T15:22:55Z",
+      "summary": "B1: run-tests ms clocks (C-1), check-test-costs.py with 19-case self-test, C-3 net wall and C-4 as Ruling 84 load-gated deltas, join runs the checker; PASS set unchanged recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T15:14:09Z",
+      "done_when": "clean branch, wording fixed, gates green",
+      "duration_seconds": 155.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "spike/ana-1-clean",
+        "pushed": false,
+        "sha": "f94e9d2f8b6c76a5f8b907adfce936fa5074b726",
+        "short": "f94e9d2f8"
+      },
+      "goal": "SPIKE-ANA-1 verdict joinable without the weights",
+      "id": "al-01M46A28Z2THJ4WERHXG6V4A81",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "SPIKE-ANA-1 clean branch and review fixes",
+      "session": "trk-d2",
+      "shortname": "trk-d2",
+      "skill": "implement",
+      "started_at": "2026-10-05T15:11:34Z",
+      "summary": "Clean branch spike/ana-1-clean from origin/main with proof folder, weights.bin untracked and ignored; verdict wording fixed (XFOIL GPL, 78/78 qualified, Cd bias), added not-covered and A3c-conditions sections",
+      "tags": [],
+      "tier": "T0",
+      "tool": null
+    },
+    {
+      "id": "al-01M46APCJGYVTHYAHP6EFRVSBB",
+      "shortname": "join-spike-ana-1",
+      "datetime": "2026-10-05T15:25:08Z",
       "session": "4e90c621",
       "prompt": "the join of the resolved merge into main",
-      "summary": "B1: run-tests ms clocks (C-1), check-test-costs.py with 19-case self-test, C-3 net wall and C-4 as Ruling 84 load-gated deltas, join runs the checker; PASS set unchanged recount_seconds=0 (docs_only=False).",
+      "summary": "SPIKE-ANA-1 verdict: fidelity 3.9e-14 over 90 cases; 78/78 (about 42 distinct) NACA 0012 pre-stall points within Cl 0.02 / ln Cd 0.03 of local XFOIL 6.99; MIT licence (Ruling 85); weights untracked; CFD and security conditions recorded for A3c recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -24858,7 +24913,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join ring-b1-rng into main (round-oct05)",
+      "goal": "join spike-ana-1 into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -24867,7 +24922,7 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-05T15:22:55Z",
+      "started_at": "2026-10-05T15:24:11Z",
       "duration_seconds": 57.0
     }
   ],
