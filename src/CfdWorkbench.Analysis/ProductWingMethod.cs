@@ -50,8 +50,16 @@ public sealed class ProductWingMethod : IWingMethod
         }
     }
 
-    public IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op, WaterRecord water, CancellationToken cancellation) =>
-        MarkOutermostProvisional(StripCoupler.Couple(sections, solution, op, water, polar, cancellation));
+    public IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op, WaterRecord water, CancellationToken cancellation)
+    {
+        IReadOnlyList<StripLoad> loads = StripCoupler.Couple(sections, solution, op, water, polar, cancellation);
+        var withEdges = loads.Select((load, i) => load with
+        {
+            Ya = solution.Strips[i].YInboard,
+            Yb = solution.Strips[i].YOutboard
+        }).ToArray();
+        return MarkOutermostProvisional(withEdges);
+    }
 
     /// <summary>
     /// Ruling 77(5): the outermost strip of each half (greatest |y|, one port and one starboard) is provisional

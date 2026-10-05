@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6b8fd9604547b995ba2e1ac6b01acb5b419c1384469d7ba49098e276a27bf79b"
+      "sourceSha256": "0d77e44415deb2b81fc60c118ff30176a4fb9ac59da8e4b12809b16caf35e91e"
     },
     {
       "id": "design-authoring-decisions",
@@ -2602,7 +2602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "42724f92082c7bfa90d2f87dc3267f138f05de6083636c2469ef7c8fe4d87e71"
+      "sourceSha256": "aa9802f6d721e3a4278285e29a3a349904eff21506879a94b7dac47756329798"
     },
     {
       "id": "design-foildsl-authoring",
@@ -4748,7 +4748,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "017461a5ff99526036371791fbb7e8d5c17ede667572210302c86b9986013dec"
+      "sourceSha256": "3b29a7eb8321bb7a92409e736fd74561d40fa5e889fc0c7029bf7bcaff10b5db"
     },
     {
       "id": "domain-experts",
@@ -5286,6 +5286,42 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "6c59fc20555b4c53c4e869f806b11ffb9c792d04016d9df7688e9b45e8814bcb"
+    },
+    {
+      "id": "plan-prj2-cfd-veto",
+      "path": "docs/plans/prj2-cfd-veto.md",
+      "title": "PRJ-2 CFD veto repair graph",
+      "type": "doc",
+      "status": "active",
+      "owner": "@track-prj2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Bounded one-worker execution graph for the six PRJ-2 CFD corrections, with red-first checks, a shared convergence step, and the required join gates.",
+      "tags": [
+        "a3a",
+        "prj",
+        "analysis",
+        "execution-graph"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-a3a-prj2-cfd-veto",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "PRJ-2 execution graph",
+          "mermaid": "flowchart LR\n    M --> R --> F --> P --> G --> C"
+        }
+      ],
+      "sourceSha256": "c9bfc23f35fdc549fa42267a519290dfd4066ba1c2b1cec7e45dac4d08b95387"
     },
     {
       "id": "plan-specification-and-ui",
@@ -8340,6 +8376,37 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "25d7106d6ce00df21120a2b3d91593da54888f3d6c2c02b53d882807abc59c1b"
+    },
+    {
+      "id": "proof-a3a-prj2-cfd-veto",
+      "path": "docs/proof/a3a-prj2/proof-pack.md",
+      "title": "PRJ-2 CFD label veto proof",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-prj2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Red-first and planted-mutant evidence for the PRJ-2 CFD veto. Checks cover the displayed CL/CD claim, provisional tip verdicts, Trefftz e, original strip widths, moment-arc sign, and proposed copy scope.",
+      "tags": [
+        "a3a",
+        "analysis",
+        "prj",
+        "cfd",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e8569fc5d21241366dd4a31c2ef9323bda6b060678f10a8cb9ebb1fb59fde3bc"
     },
     {
       "id": "proof-a3a-sto-red-first",
@@ -12759,5 +12826,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ba7683c8802ca4c6b82aa4ab15b5eb93b85989439fb68214c5849ed2873a9256"
+  "graphSha256": "232dcc654f259e669d3fe0acf11c965c54bb6c5578393262b7ab00dc070f79cb"
 };

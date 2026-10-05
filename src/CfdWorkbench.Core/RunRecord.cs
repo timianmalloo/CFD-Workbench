@@ -84,13 +84,16 @@ public sealed record RunPlatform(string Os, string Arch, string Dotnet);
 /// Spanwise lattice row <paramref name="J"/> of one Completed run (contiguous 0…n−1). Forces and moments are near-field,
 /// about the frame origin, in body axes, and additive across the strips of one run only.
 /// <paramref name="Provisional"/> marks the outermost strip of each half until the η* law exists (Ruling 77(5)).
-/// Both new members are omitted when unset, so a document written before them keeps its content hash and reads false.
+/// Optional span edges carry the original lattice geometry when excluded strips renumber J. Absent edges preserve
+/// older content hashes; a reader may reconstruct widths only for a complete, unexcluded lattice.
 /// </summary>
 public sealed record StripLoad(int J, double Y, double Eta, double Chord, double Gamma, double AlphaI, double AlphaEff,
     double ReLocal, double ClLocal, StripValue CdNcrit2, StripValue CdNcrit4,
     double Fx, double Fy, double Fz, double Mx, double My, double Mz, double DownwashTrefftz,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool Provisional = false,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ProvisionalReason = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? ProvisionalReason = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? Ya = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? Yb = null)
 {
     /// <summary>Reason on a provisional tip strip. Any other reason is a schema error; absent reads false.</summary>
     public const string TipProvisionalReason = "ANA-TIP-PROVISIONAL";
