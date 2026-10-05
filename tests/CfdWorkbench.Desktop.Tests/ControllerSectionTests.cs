@@ -1,10 +1,12 @@
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using Avalonia.Automation;
+using Avalonia.Controls;
+using Avalonia.Threading;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop;
 using CfdWorkbench.Desktop.Shell;
-using Avalonia.Threading;
 
 namespace CfdWorkbench.Desktop.Tests;
 
@@ -46,8 +48,68 @@ public static class ControllerSectionTests
         task.GetAwaiter().GetResult();
     }
 
+    /// <summary>
+    /// FLK-1: a refused step re-checks the unchanged draft. Finish must not say "Checking…" during that re-check.
+    /// The queue publishes the placeholder before the outcome is known; this samples the window after the refusal.
+    /// </summary>
+    private static void SectionStep_Refused_NeverShowsChecking()
+    {
+        var held = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        int heldCalls = 0;
+        bool arm = false;
+        using var controller = new WorkbenchController(sectionAssessmentGate: _ =>
+        {
+            if (!arm) return Task.CompletedTask;
+            Interlocked.Increment(ref heldCalls);
+            return held.Task;
+        });
+        var view = new SectionEditorView();
+        var window = new Window { Content = view, Width = 900, Height = 600 };
+        window.Show();
+        string? failure = null;
+        try
+        {
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            Wait(controller.ApplySectionStepAsync(new SectionStep.MakeUnique()));
+            WaitFor(() => controller.Section is { Assessment: not null, CanFinish: true });
+            var before = controller.Section!;
+            var target = controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            arm = true;
+            var refused = controller.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, target.Id, true));
+            WaitFor(() => refused.IsCompleted && Volatile.Read(ref heldCalls) > 0);
+            Dispatcher.UIThread.RunJobs();
+            var during = controller.Section;
+            view.Bind(controller);
+            Dispatcher.UIThread.RunJobs();
+            string? help = AutomationProperties.GetHelpText(view.FindControl<Button>("ModeFinishButton")!);
+            string? box = view.FindControl<TextBlock>("ModeReason")!.Text;
+            if (during is null)
+                failure = "The refused step closed the section";
+            else if (during.FinishReason == "Checking…" || help == "Checking…" || box == "Checking…")
+                failure = $"A refused step showed Finish \"Checking…\" while it re-checked: reason '{during.FinishReason}', help '{help}', box '{box}'";
+            else if (during.Draft.Generation != before.Draft.Generation || during.CanFinish != before.CanFinish || during.FinishReason != before.FinishReason)
+                failure = $"The re-check changed Finish before it returned: can finish {before.CanFinish} → {during.CanFinish}, reason '{before.FinishReason}' → '{during.FinishReason}'";
+            held.TrySetResult();
+            try { Wait(refused); }
+            catch (ContractError) { }
+            WaitFor(() => controller.Section?.Assessment is not null);
+            if (failure is null && controller.Section?.FinishReason == "Checking…")
+                failure = "Finish stayed on Checking… after the refused step's re-check";
+        }
+        finally
+        {
+            held.TrySetResult();
+            try { WaitFor(() => controller.Section?.Assessment is not null || controller.Section is null); }
+            catch (TimeoutException) { }
+            window.Close();
+        }
+        if (failure is not null) throw new Exception(failure);
+    }
+
     public static void Run()
     {
+        DesktopChecks.Check("SectionStep_Refused_NeverShowsChecking", SectionStep_Refused_NeverShowsChecking);
         DesktopChecks.Check("SectionMode_Crossing_FinishDisabledWithReason", () =>
         {
             using var controller = Open();
