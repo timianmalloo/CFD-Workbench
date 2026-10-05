@@ -36,6 +36,9 @@ internal static class AnalysisChecks
         ProjectionTests.Run();
         LabelsTests.Run();
         LoadsViewTests.Run();
+        PanelCpTests.Run();
+        SectionEstimatorTests.Run();
+        CavitationTests.Run();
         return Finish();
     }
 
