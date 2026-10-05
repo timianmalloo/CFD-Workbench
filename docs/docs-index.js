@@ -5398,7 +5398,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f68aa1514655a7d2a06832b3d740f2a51ebc74d52767aa58e13a0ba2dd502e04"
+      "sourceSha256": "dbeff43511c9b48192eb71384ea30cdbed203163789e9aa1e31d474f5c8b9faf"
     },
     {
       "id": "plan-tip-handling",
@@ -11046,6 +11046,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "2cbcd895cae7c31ac2cea448e77eaa14e101b7e9afefe1cb473203553a7a412a"
     },
     {
+      "id": "proof-ring-b2-profile",
+      "path": "docs/proof/ring-b2/profile.md",
+      "title": "Ring B2 profile: the fast ring under a concurrent build",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-b2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Measured profile of tools/run-tests.sh with and without one concurrent heavy build, the levers tried, what shipped, and the Ruling 84 condition 3 verdict.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "profile",
+        "concurrency"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-b2-moves",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b9043f4735b485762ba5bb31f2d07761274c57f5c616a6e2ddc9e6523719ae60"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -13447,5 +13477,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "f94f91f9875a1613e555789a5ff0c94770d3a23a529a1d1c5bcafac319d0eecd"
+  "graphSha256": "c9003417f33d5ad919cc931dd0e78d959076bd5f6ce9eeebf44314693b78a20b"
 };

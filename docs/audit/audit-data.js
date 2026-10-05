@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:41:55Z",
+  "generated": "2026-10-05T18:12:56Z",
   "audit": [
     {
       "actor": null,
@@ -25613,6 +25613,33 @@ window.AUDIT_DATA = {
         "sha": "7fef7e59daef726aec06f4aa83383dfbca21dd06",
         "short": "7fef7e59d",
         "branch": "fix/tip-salvage-s1",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M46M9KWSSVF7YAVTJ4MA0YNT",
+      "shortname": "b2-fast-ring",
+      "datetime": "2026-10-05T18:12:55Z",
+      "session": "trk-b2",
+      "prompt": "B2 fast ring",
+      "summary": "B2: Analysis harness cheaper with A8.4 checks kept in ring 0 (F6 trios parallel, F18/F19 n64 smokes, n128 bodies to readiness, 2 s stagger): 5.39 s to 4.3-4.4 s at quiet load. Ring beside a concurrent build 63 to 53-57 s (TieredPGO off, Core 3 parts, Desktop longest-first). C-3/C-4 reverted to 13.4 limits. tools/run-suite.sh lock wrapper.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Bring Analysis under C-2 at quiet load and the ring under 60 s with a concurrent build",
+      "done_when": "C-2 margin, ring <= 60 s x3 under load, PASS union unchanged, gates green",
+      "tier": "T1",
+      "started_at": "2026-10-05T16:46:54Z",
+      "duration_seconds": 5161.0,
+      "git": {
+        "sha": "1a02e4884c25f7a2b6b336ec1338ba7939263bb6",
+        "short": "1a02e4884",
+        "branch": "perf/ring-b2",
         "pushed": null
       }
     }
