@@ -4748,7 +4748,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cd3423a8d1c4bfc01acb5c1c04360c9a613eb6d6133073a62f127b0ee6e492c9"
+      "sourceSha256": "580f7cf37782e8d461e7375ef79d2b39e52ab91459d2e98ac65aaaa2c1a3f416"
     },
     {
       "id": "domain-experts",
@@ -13016,5 +13016,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "afbd0d9a4d322229d1e0b57131344d0eac1bb843753a3f604b9a8a390d5b2b89"
+  "graphSha256": "b58b41fa12d8e618744be5c111907a745d04323cba9a0dbf2c0cbe3e4472a7b1"
 };
