@@ -40,7 +40,7 @@ public static class AnalysisProjection
         bool isCurrent = RunRecord.RecomputedKey(run) == Freshness.CurrentKey(current);
         string? banner = isCurrent ? null : "Historical — " + string.Join(", ", Freshness.WhatChanged(run, current));
         double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
-        double a = run.Op.AlphaDeg * Math.PI / 180;
+        double a = VortexLattice.ToRadians(run.Op.AlphaDeg);
         double lift = run.Strips.Sum(s => -s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a));
         double? cl = q > 0 && run.Reference.SRef > 0 ? lift / (q * run.Reference.SRef) : null;
         double? drag = TrefftzDrag(run);
