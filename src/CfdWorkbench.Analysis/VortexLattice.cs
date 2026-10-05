@@ -20,6 +20,7 @@ public sealed record LatticeSolution(IReadOnlyList<double> Gamma, IReadOnlyList<
     public IReadOnlyList<StripForce> Forces { get; init; } = Array.Empty<StripForce>();
     public IReadOnlyList<string> Exclusions { get; init; } = Array.Empty<string>();
     public double MinimumPanelArea { get; init; }
+    public TipLawGeometry? TipLawGeometry { get; init; }
 }
 
 /// <summary>A lattice that cannot return a finite solution. <see cref="Code"/> is the stable failure code.</summary>
@@ -275,7 +276,8 @@ public static class VortexLattice
             Strips = strips,
             Forces = forces,
             Exclusions = exclusions,
-            MinimumPanelArea = minArea
+            MinimumPanelArea = minArea,
+            TipLawGeometry = TipLawGeometry.FromSections(samples, settings)
         };
     }
 

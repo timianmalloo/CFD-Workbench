@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c0eec1fedb8200f386a21608bf5beabf2d7df029cebc5578cc8f43af1b209628"
+      "sourceSha256": "713b7d840efea6b0ed2f36f08eb5b7c0ebb795b3f2ea385885f0c483ff37cdc2"
     },
     {
       "id": "design-authoring-decisions",
@@ -4748,7 +4748,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "017461a5ff99526036371791fbb7e8d5c17ede667572210302c86b9986013dec"
+      "sourceSha256": "8060b697db8113a92cd84dfd05886292f28242ca1892535199730753fe495644"
     },
     {
       "id": "domain-experts",
@@ -10904,12 +10904,12 @@ window.DOCS_INDEX = {
       "path": "docs/proof/vlm-tip-study/repaired-verdict.md",
       "title": "Tip-strip law on the repaired 1.1.0 lattice",
       "type": "proof-pack",
-      "status": "verified",
+      "status": "blocked",
       "owner": "@vlm4",
       "phase": "implementation",
       "reviewBy": "2027-04-04",
       "reviewSuggested": [],
-      "summary": "Recalibrates the fixed-station tip law on cfdw.vlm-strip 1.1.0, including camber and washin, and records the falsifiers and runtime cost.",
+      "summary": "Tests the fixed-station tip convention against an analytic midspan anchor and local lift; the rectangular high-alpha falsifier blocks a universal tip verdict.",
       "tags": [
         "analysis",
         "vlm",
@@ -10926,7 +10926,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "16cbc304626f9bc225664b0c77b32cbab2e788fd49e4e2ea950a6f9981d390d7"
+      "sourceSha256": "e083855d00f0ee490ea6148de3e4ebfc12238c9fcf3e10697ee582fddaaa4ed2"
     },
     {
       "id": "proof-vlm-tip-study",
@@ -12788,5 +12788,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "37ec4c99c1a1573a5ea73641d7195945e569dac9a4e481f331613ac3c8fbdf31"
+  "graphSha256": "ce67f79fb1ceeaf6ce033125b9924b98a2782506c836e7d7d5cd8702e84cfcd5"
 };

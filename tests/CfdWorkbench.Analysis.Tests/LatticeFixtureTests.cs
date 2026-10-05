@@ -312,6 +312,10 @@ internal static class LatticeFixtureTests
         Check("TipLaw_Calibration_NoInsideOutsideFlip", TipLawCalibration);
         Check("TipLaw_Falsifiers_OutsideEveryN", TipLawFalsifiers);
         Check("TipLaw_StoredFlag_DerivedOnRead", TipLawStoredFlag);
+        Check("TipLaw_StoredAndSolve_MirroredTipsAgree", TipLawMirroredRead);
+        Check("TipLaw_EllipticAlpha5_InconsistentProvisionalEveryN", TipLawInconsistent);
+        Check("TipLaw_EllipticMidspan_InducedAngleMatchesCLOverPiAR", TipLawMidspanAnchor);
+        Check("TipLaw_OutOfFamily_ProvisionalAtEveryBound", TipLawOutOfFamily);
         // F-2 reads the trio F-6 builds. The join still runs F-6; this process does not.
         F6();
         Check("F2_EllipticAR8_RichardsonClInRecordedBand", F2);
@@ -538,8 +542,9 @@ internal static class LatticeFixtureTests
             {
                 LatticeSolution wing = TipFixture(shape, n, alpha);
                 StripVerdict verdict = MethodRecord.Verdicts(wing, alpha, 0)[Outermost(wing).J];
-                if (verdict.Provisional || verdict.UncertaintyDeg is null)
-                    throw new InvalidOperationException(shape + " α=" + alpha + " n=" + n + " was not judged");
+                if (verdict.UncertaintyDeg is null ||
+                    (verdict.Provisional && verdict.ReasonCode != "ANA-TIP-INCONSISTENT"))
+                    throw new InvalidOperationException(shape + " α=" + alpha + " n=" + n + " lost its tip basis");
                 states.Add(verdict.State);
                 if (shape == "ell" && wing.Strips.Any(s => Math.Abs(s.SweepDeg) > 1e-9))
                     throw new InvalidOperationException("elliptic sweep changed at n=" + n);
@@ -552,16 +557,20 @@ internal static class LatticeFixtureTests
 
     private static void TipLawFalsifiers()
     {
-        foreach ((string shape, double alpha) in new[] { ("rect", 18.0), ("ell", 14.0) })
+        var failures = new List<string>();
+        foreach ((string shape, double alpha) in new[] { ("ell", 14.0), ("rect", 18.0) })
         foreach (int n in new[] { 16, 32, 64, 128, 256 })
         {
             LatticeSolution wing = TipFixture(shape, n, alpha);
             StripVerdict verdict = MethodRecord.Verdicts(wing, alpha, 0)[Outermost(wing).J];
-            if (verdict.State != StripVerdictState.Outside || !verdict.Exceeded.Contains("|α_eff − α_L0|"))
-                throw new InvalidOperationException(shape + " α=" + alpha + " n=" + n + " " + verdict.State);
+            double clImpliedDeg = Math.Abs(Outermost(wing).ClLocal) / (2 * Math.PI) * (180 / Math.PI);
+            if (verdict.State != StripVerdictState.Outside || clImpliedDeg <= MethodRecord.VlmStrip.Envelope.AlphaEffFromZeroLiftMaxDeg)
+                failures.Add(shape + " α=" + alpha + " n=" + n + " " + verdict.State
+                    + " Cl_local implied=" + Num(clImpliedDeg) + "°");
             Console.WriteLine("MEASURE falsifier " + shape + " α=" + alpha + " n=" + n + " "
                 + Num(verdict.EvaluatedAlphaEffDeg!.Value) + "±" + Num(verdict.UncertaintyDeg!.Value));
         }
+        if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
     }
 
     private static void TipLawStoredFlag()
@@ -572,15 +581,93 @@ internal static class LatticeFixtureTests
             new StripValue(null, "unavailable"), new StripValue(null, "unavailable"),
             0, 0, 0, 0, 0, 0, s.Downwash, Math.Abs(s.Eta) > .99, Math.Abs(s.Eta) > .99 ? StripLoad.TipProvisionalReason : null)).ToArray();
         var sweeps = wing.Strips.Select(s => s.SweepDeg).ToArray();
-        StripVerdict tip = MethodRecord.Verdicts(strips, sweeps, 0)[Outermost(wing).J];
-        if (tip.State != StripVerdictState.AtBound || tip.Provisional || tip.ReasonCode != "ANA-TIP-AT-BOUND"
+        StripVerdict tip = MethodRecord.Verdicts(strips, sweeps, 0, wing.TipLawGeometry)[Outermost(wing).J];
+        if (tip.State != StripVerdictState.Provisional || !tip.Provisional || tip.ReasonCode != "ANA-TIP-INCONSISTENT"
             || tip.UncertaintyDeg is null || tip.EvaluatedAlphaEffDeg is null)
-            throw new InvalidOperationException("stored tip did not derive a bounded verdict: " + tip.State);
-        if (MethodRecord.JudgeRun(MethodRecord.Verdicts(strips, sweeps, 0)) != string.Empty)
+            throw new InvalidOperationException("stored tip did not derive an inconsistent verdict: " + tip.State);
+        StripVerdict unknownGeometry = MethodRecord.Verdicts(strips, sweeps, 0)[Outermost(wing).J];
+        if (unknownGeometry.State != StripVerdictState.Provisional || unknownGeometry.ReasonCode != "ANA-TIP-UNCALIBRATED")
+            throw new InvalidOperationException("stored reader judged without geometry: " + unknownGeometry.State);
+        if (MethodRecord.JudgeRun(new[] { tip, new StripVerdict(false, Array.Empty<string>(), "")
+            { State = StripVerdictState.AtBound, ReasonCode = "ANA-TIP-AT-BOUND" } }) != string.Empty)
             throw new InvalidOperationException("an at-bound strip produced a run-level inside claim");
-        StripVerdict unsupported = MethodRecord.Verdicts(strips[..^1], sweeps[..^1], 0)[strips.Length - 2];
+        StripVerdict unsupported = MethodRecord.Verdicts(strips[..^1], sweeps[..^1], 0, wing.TipLawGeometry)[strips.Length - 2];
         if (unsupported.State != StripVerdictState.Provisional || unsupported.ReasonCode != StripLoad.TipProvisionalReason)
             throw new InvalidOperationException("unsupported lattice was judged: " + unsupported.State);
+    }
+
+    private static void TipLawMirroredRead()
+    {
+        LatticeSolution wing = TipFixture("ell", 64, 5);
+        var strips = wing.Strips.Select(s => new StripLoad(s.J, s.Y, s.Eta, s.Chord, s.Gamma,
+            s.InducedAngleDeg, 5 + s.TwistDeg - s.InducedAngleDeg, 1, s.ClLocal,
+            new StripValue(null, "unavailable"), new StripValue(null, "unavailable"),
+            0, 0, 0, 0, 0, 0, s.Downwash, Math.Abs(s.Eta) > .99,
+            Math.Abs(s.Eta) > .99 ? StripLoad.TipProvisionalReason : null)).ToArray();
+        var sweeps = wing.Strips.Select(s => s.SweepDeg).ToArray();
+        IReadOnlyList<StripVerdict> stored = MethodRecord.Verdicts(strips, sweeps, 0, wing.TipLawGeometry);
+        IReadOnlyList<StripVerdict> solved = MethodRecord.Verdicts(wing, 5, 0);
+        foreach (int j in new[] { 0, strips.Length - 1 })
+            if (stored[j].State != solved[j].State || stored[j].ReasonCode != solved[j].ReasonCode)
+                throw new InvalidOperationException("tip " + j + " stored " + stored[j].State + "/" + stored[j].ReasonCode
+                    + " solve " + solved[j].State + "/" + solved[j].ReasonCode);
+        if (stored[0].State != stored[^1].State || stored[0].ReasonCode != stored[^1].ReasonCode
+            || solved[0].State != solved[^1].State || solved[0].ReasonCode != solved[^1].ReasonCode)
+            throw new InvalidOperationException("mirrored tips have different verdicts");
+    }
+
+    private static void TipLawInconsistent()
+    {
+        foreach (int n in new[] { 16, 32, 64, 128, 256 })
+        {
+            LatticeSolution wing = TipFixture("ell", n, 5);
+            LatticeStrip tip = Outermost(wing);
+            StripVerdict verdict = MethodRecord.Verdicts(wing, 5, 0)[tip.J];
+            if (verdict.State != StripVerdictState.Provisional || verdict.ReasonCode != "ANA-TIP-INCONSISTENT")
+                throw new InvalidOperationException("ell α5 n=" + n + " " + verdict.State + "/" + verdict.ReasonCode
+                    + " geometry=" + wing.TipLawGeometry);
+        }
+    }
+
+    private static void TipLawMidspanAnchor()
+    {
+        const int n = 64;
+        const double toleranceDeg = 0.05;
+        LatticeSolution wing = TipFixture("ell", n, 5);
+        double cl = Coefficient(wing, EllipticS);
+        double idealDeg = cl / (Math.PI * EllipticAr) * (180 / Math.PI);
+        LatticeStrip midspan = Nearest(wing, 0);
+        double measuredDeg = midspan.InducedAngleDeg;
+        Console.WriteLine("MEASURE elliptic midspan n=" + n + " stationEta=" + Num(midspan.Eta)
+            + " measured=" + Num(measuredDeg)
+            + " CL/(π AR)=" + Num(idealDeg) + " tolerance=" + Num(toleranceDeg));
+        if (Math.Abs(measuredDeg - idealDeg) > toleranceDeg)
+            throw new InvalidOperationException("midspan induced angle exceeds analytic anchor");
+    }
+
+    private static void TipLawOutOfFamily()
+    {
+        foreach (string variant in new[] { "chord", "ar", "sweep", "dihedral", "taper", "taper0", "washin2" })
+        {
+            const int n = 16;
+            double half = variant == "ar" ? 0.75 : 1;
+            var sections = new List<SectionSample>();
+            foreach (double y in Nodes(-half, half, n, "cosine"))
+            {
+                double eta = Math.Abs(y) / half;
+                double taper = variant switch { "taper" => 0.6, "taper0" => 1, _ => 0 };
+                double chord = 0.25 * (1 - taper * eta);
+                double quarter = variant == "sweep" ? 0.1 * eta : 0;
+                double z = variant == "dihedral" ? 0.1 * eta : 0;
+                double twist = variant == "washin2" ? 2 * eta : 0;
+                sections.Add(Section(y, quarter - chord / 4, chord, z, twist, y / half, 2 * half, null));
+            }
+            LatticeSolution wing = VortexLattice.Solve(sections, Lattice(n, variant == "chord" ? 2 : 4, "cosine"),
+                At(4), Rho, default);
+            StripVerdict verdict = MethodRecord.Verdicts(wing, 4, 0)[Outermost(wing).J];
+            if (verdict.State != StripVerdictState.Provisional || verdict.ReasonCode != "ANA-TIP-UNCALIBRATED")
+                throw new InvalidOperationException(variant + " " + verdict.State + "/" + verdict.ReasonCode);
+        }
     }
 
     private static LatticeSolution TipFixture(string shape, int n, double alpha) => shape switch

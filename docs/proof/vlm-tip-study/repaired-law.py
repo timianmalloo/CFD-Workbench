@@ -57,8 +57,17 @@ for case in cases:
         # Every strip outboard of eta* has its own twist, recovered as alpha_eff + alpha_i - alpha.
         outboard = [s for s in strips if s[0] >= ETA] or [outer]
         worst = max(abs(s[2] + s[1] - ai) for s in outboard)
-        verdict = "IN" if worst + u <= 10 else ("OUT" if worst - u > 10 else "BOUND")
+        # The 2π rad^-1 section slope gives an independent angle from the strip's own Cl_local.
+        # U describes only discretisation at eta*, so a disagreement is provisional.
+        cl_implied = abs(outer[3]) / (2 * math.pi) * (180 / math.pi)
+        other_outside = outer[3] > 1 or abs(outer[4]) > 30
+        verdict = ("OUT" if other_outside else
+                   "IN" if worst + u <= 10 else
+                   "PROV" if cl_implied <= 10 else
+                   "OUT" if worst - u > 10 else "BOUND")
         law.append(verdict)
         values.append(f"{worst:.3f}±{u:.3f}")
-    print("FLIP", *case, "raw=" + "/".join(raw), "law=" + "/".join(law), "values=" + "/".join(values))
+    implied = [abs(rows[(*case, n)][0][3]) / (2 * math.pi) * (180 / math.pi) for n in NS]
+    print("FLIP", *case, "raw=" + "/".join(raw), "law=" + "/".join(law),
+          "Cl_angle=" + "/".join(f"{v:.3f}" for v in implied), "values=" + "/".join(values))
 print("CONSTANTS", [(n, needed[n]) for n in NS])
