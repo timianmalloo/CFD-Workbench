@@ -35,6 +35,8 @@ public static class Labels
     public const string EAboveLatticeCheck = "e above 1 — check the lattice"; // COPY-240, no cause claimed
     public const string NoVcrit = "Unavailable — needs −Cp_min"; // COPY-234
     public const string StripWidthMissing = "Unavailable — strip width not recorded; vector omitted"; // COPY-235
+    // simplify: working copy for the unheld-revision note (HIST); ceiling one string, upgrade when a copy ruling names it.
+    public const string FeedRevisionNotHeld = "Unavailable — this run's geometry revision is not held by this session; verdicts, stations and normals omitted";
     public const string BodyAxes = "Body axes: +x aft, +y starboard, +z up; lift and drag in wind axes"; // COPY-236
     public const string RootMoment = "Root bending moment about the root plane; positive sense about +x"; // COPY-237
     public const string ChartBasis = "Spanwise loading Cl·c/c̄ vs η; dashed elliptic reference at the same CL"; // COPY-238

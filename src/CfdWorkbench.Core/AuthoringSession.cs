@@ -1695,6 +1695,21 @@ public sealed class AuthoringSession : IDisposable
     /// <summary>Every stored run in document order, each with its integrity recomputed now, and the tombstones.</summary>
     public RunLedger ReadRuns() => Run("read-runs", ReadRunsCore);
 
+    /// <summary>
+    /// The accepted source bytes of a revision this session holds (its accepted history, which undo and redo only move a cursor
+    /// over, and a reopened native file's envelope). Null when the id names no held revision: never another revision's bytes.
+    /// Read-only; nothing is stored or changed.
+    /// </summary>
+    public byte[]? AcceptedSourceOf(string acceptedId) => Run("accepted-source-of", () =>
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            var row = accepted.Find(item => item.Id == acceptedId);
+            return row is null ? null : BaseBytes(row.Id);
+        }
+    });
+
     /// <summary>The ordinal and edit rail of an accepted revision (design §18.5 G-T1).</summary>
     public RevisionLabel RevisionOf(string acceptedId) => Run("revision-of", () =>
     {

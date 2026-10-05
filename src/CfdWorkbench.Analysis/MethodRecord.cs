@@ -94,6 +94,29 @@ public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
         catch (ContractError) { return null; }
     }
 
+    /// <summary>
+    /// The unit normal of every strip of a stored run, derived on read from the source the run was solved on (the lattice's own
+    /// definition, <c>VortexLattice.StripNormals</c>; DM7: nothing is stored). Null under the same conditions as
+    /// <see cref="DeriveVerdicts"/>: a missing input is never a default normal standing in for it.
+    /// </summary>
+    public static IReadOnlyList<Loads.Vec>? DeriveNormals(AnalysisRun run, byte[] source, CancellationToken cancellation = default)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(source);
+        if (run.Outcome is not RunOutcome.Completed || run.Strips.Count == 0 || run.Settings.SectionEtas is not { Count: > 0 } etas
+            || run.Settings.SectionXs is not { Count: > 0 } xs
+            || run.Strips.Any(strip => strip.YLow is null || strip.YHigh is null)) return null;
+        try
+        {
+            var strips = run.Strips.OrderBy(strip => strip.J).ToArray();
+            if (strips.Where((strip, i) => strip.J != i).Any()) return null;
+            var wing = ProductWingMethod.Mirror(Placement.Sections(source, etas, xs, cancellation));
+            return VortexLattice.StripNormals(wing, strips.Select(strip => (strip.YLow!.Value, strip.YHigh!.Value)).ToArray(),
+                run.Settings.NChord, run.Settings.ChordSpacing).Select(n => new Loads.Vec(n.X, n.Y, n.Z)).ToArray();
+        }
+        catch (ContractError) { return null; }
+    }
+
     /// <summary>The run sentence: inside at all strips, or "&lt;n&gt; of &lt;m&gt;" with the exceeded parts.</summary>
     public static string JudgeRun(IReadOnlyList<StripVerdict> strips)
     {

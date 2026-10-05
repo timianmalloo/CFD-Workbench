@@ -49,6 +49,8 @@ public sealed record LayerData(string Id, string Title, bool Visible, string Leg
 public sealed record LayerSample(double Eta, double Y, double? Value, Loads.Vec? Vector, bool Outside, bool Provisional)
 {
     public string? Verdict { get; init; }
+    /// <summary>The strip's unit normal in the lattice's frame, derived from the run's own revision; null when it cannot be derived.</summary>
+    public Loads.Vec? Normal { get; init; }
 }
 
 /// <summary>The chart and table consume the same spanwise loading values.</summary>
