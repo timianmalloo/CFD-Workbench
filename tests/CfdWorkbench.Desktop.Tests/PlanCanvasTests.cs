@@ -1315,6 +1315,7 @@ public static class PlanCanvasTests
         // (§1237). Baseline when this check was written (VW1, 2026-10-02): see docs/design/m12b2-3d-elevations.md §12.3.
         DesktopChecks.Check("Readiness_WindowRenderPlan3d_Under33Ms", () =>
         {
+            double? loadBefore = DesktopChecks.LoadAverage1();
             using var fixture = new PlanFixture(tenPoint: true, width: 1440, height: 900);
             var deadline = System.Diagnostics.Stopwatch.StartNew();
             while (fixture.Controller.Surface is null || fixture.Controller.SurfaceUpdating)
@@ -1326,7 +1327,8 @@ public static class PlanCanvasTests
             fixture.Settle();
             double median = MedianRenderMilliseconds(fixture.Window);
             Console.WriteLine(FormattableString.Invariant($"READINESS-MEASURE WindowRenderPlan3d median {median:F2} ms target 33.00 ms"));
-            if (median > 33) throw new Exception(FormattableString.Invariant($"Plan + 3D window render median {median:F2} ms is over 33 ms"));
+            // Ruling 81: fails at a quiet load, prints READINESS-MISS (no PASS) above the load gate.
+            DesktopChecks.RequireFrameBudget("Readiness_WindowRenderPlan3d_Under33Ms", median, 33, loadBefore);
         });
     }
 

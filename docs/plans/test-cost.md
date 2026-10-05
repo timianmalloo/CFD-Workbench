@@ -451,3 +451,26 @@ Profile, levers and runs: `docs/proof/ring-b2/profile.md`. Ring: every join. Cos
   enforcement: nothing stops a raw `dotnet run`. Making it binding needs a hook that refuses a bare harness run, which is a decision for the operator.
 - **Open.** Ruling 81 (a planted slow 3D frame fails at low load and prints READINESS-MISS at high load) was not part of this dispatch. C-5 (500 ms per
   check) is not load-gated: one run at load 100 failed it on five 500-1,200 ms checks; that is Ruling 84's choice and was not changed.
+
+### 9.6 Track B3: follow-ups to the B2 join (2026-10-05)
+
+- **Stagger accounting (test-architect condition a).** The 2 s stagger in `tools/run-tests.sh` sits before `suite_start`, so `Desktop.ms` and the
+  Core part clocks read about 2 s short of the time from ring start. C-4's 43,000 ms is therefore effectively about 45 s from ring start. C-3
+  (`wall.ms - build.ms`) still includes the stagger.
+- **TieredPGO is result-neutral (condition b).** One Analysis `--readiness` pass with `DOTNET_TieredPGO=1` and one with `0` print identical
+  PASS names (10) and identical MEASURE values (11, to the last digit): `docs/proof/ring-b2/pgo-compare.md`.
+- **A gated join that reads red at quiet load is a defect class, not a re-base (condition c).** If C-2, C-3 or C-4 fails at an end load <= 24, record
+  it in `docs/lessons/defect-classes.md` as a class with its sweep and control; never re-set the limit or a base without a new recorded 3-run quiet
+  baseline (Ruling 84 (2)).
+- **Ruling 81 shipped.** `Readiness_WindowRenderPlan3d_Under33Ms` and `Readiness_OrbitFrameP95Under33Ms` call `DesktopChecks.RequireFrameBudget`: over 33 ms they
+  FAIL when the larger of the 1-minute load before and after the timed frames is <= 24, and otherwise print
+  `READINESS-MISS <name> value_ms=.. target_ms=33 load=.. gate=24` with no PASS and no FAIL (an unrecorded load is a MISS). The gate is Ruling 84/87's 24, kept on
+  measured data: quiet rings end at load 12-18, loaded runs at 40-125, and the frame readings at load 13-47 were 22 ms (orbit p95) and 22 ms (window median)
+  against 33. Red-first, with a planted 40 ms sleep per orbit frame: load 5 gave `FAIL ... 61.68 ms is over 33 ms at load 5.00`; load 60 gave
+  `READINESS-MISS ... load=60.00 gate=24` and no PASS; the unplanted frame passed at load 60 and at the real load 47
+  (`docs/proof/ring-b2/ruling81-red-first.md`). A new fast check, `ReadinessGate_PlantedSlowFrame_FailsQuietMissesLoaded` (ring: fast `--shell-model`, under 1 ms),
+  drives the pure verdict and the MISS-never-PASS boundary on planted values. Consequence: a loaded readiness run prints no PASS line for these two names.
+- **C-4 margin.** After TGL joined, three quiet runs (start load 13-20, end 17-20) read Desktop 46.0 / 46.4 / 43.7 s, over 43 s. Desktop child
+  times (`SUITE-TIME`) sum to 308 s; plan-canvas 34.5/29.5 s is the longest. Splitting plan-canvas in 3 does not help in the greedy model (42.7 s against 40.9 s).
+  Desktop slots 8 to 10 (`Spawn`, one expression) gives Desktop 40.5 / 40.4 / 40.3 s and wall 44-45 s (net 43.1-43.3 s) in three runs at start load 13-23. No check
+  dropped or changed; C-4 stays 43,000 ms. Risk: 10 slots in each of two locked rings is 20 child processes; untested above load 40.

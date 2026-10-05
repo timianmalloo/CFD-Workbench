@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T18:18:03Z",
+  "generated": "2026-10-05T18:35:24Z",
   "audit": [
     {
       "actor": null,
@@ -25932,6 +25932,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T18:17:08Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M46NJRZFMRCRWXDEP3Z1P5BC",
+      "shortname": "b3-ring-followups",
+      "datetime": "2026-10-05T18:35:24Z",
+      "session": "trk-b2",
+      "prompt": "B3 ring follow-ups",
+      "summary": "B3: Ruling 81 load-gated frame checks (RequireFrameBudget, gate 24, MISS never PASS, red-first receipt, fast planted-input check); TieredPGO on/off readiness identical; stagger accounting and defect-class note in test-cost 9.6; Desktop slots 8 to 10: quiet Desktop 46 to 40.4 s.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close the B2 join conditions, ship Ruling 81, restore the C-4 margin",
+      "done_when": "gate verdict proven red-first, PGO compare committed, Desktop quiet <= 43 s x3, gates green",
+      "tier": "T1",
+      "started_at": "2026-10-05T18:21:23Z",
+      "duration_seconds": 841.0,
+      "git": {
+        "sha": "d98e05c238178cb244d7b5779c62f8319a3e007c",
+        "short": "d98e05c23",
+        "branch": "perf/ring-b3",
+        "pushed": null
+      }
     }
   ],
   "changes": [
