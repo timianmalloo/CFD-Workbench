@@ -500,7 +500,7 @@ public sealed class AuthoringSession : IDisposable
     void RequireTipChord(SourceParse p)
     {
         if (current is null || p.Definition is not { Kind: "foil" } next) return;
-        var before = ParseOwned(CurrentBytes).Definition;
+        var before = FoilSource.Parse(CurrentBytes).Definition; // not ParseOwned: its telemetry would consume the pending curve family
         if (before is not { Kind: "foil" }) return;
         double newRoot = WingEstimates.Chord(next, 0), newTip = WingEstimates.Chord(next, 1);
         if (!TipChord.Admits(WingEstimates.Chord(before, 1), WingEstimates.Chord(before, 0), newTip, newRoot))
