@@ -317,6 +317,22 @@ public static class VortexLattice
         return OnCamber(root, f).X;
     }
 
+    /// <summary>
+    /// The sweep of each strip given its span edges, by the lattice's own section lookup (<c>At</c>) and definition
+    /// (<c>SweepOf</c>), so a verdict derived on read and the solve share one sweep. <paramref name="wing"/> is the
+    /// mirrored section set the solve ran on; the span is that set's, never the kept strips'.
+    /// </summary>
+    internal static double[] StripSweeps(IReadOnlyList<SectionSample> wing, IReadOnlyList<(double Low, double High)> edges)
+    {
+        SectionSample[] samples = wing.ToArray();
+        Array.Sort(samples, (a, b) => SectionY(a).CompareTo(SectionY(b)));
+        double span = SectionY(samples[^1]) - SectionY(samples[0]);
+        var sweeps = new double[edges.Count];
+        for (int i = 0; i < sweeps.Length; i++)
+            sweeps[i] = SweepOf(At(samples, edges[i].Low, span), At(samples, edges[i].High, span), edges[i].Low, edges[i].High);
+        return sweeps;
+    }
+
     private static double SweepOf(SectionSample a, SectionSample b, double ya, double yb)
     {
         double quarterA = a.Frame.LeadingMeters + 0.25 * a.Frame.ChordMeters;

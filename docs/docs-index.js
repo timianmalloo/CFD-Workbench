@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9c8c0398eedd1b389a4eaa06aefe6b1146520350fb7a845ced0f3e84ad7c2fbe"
+      "sourceSha256": "398d73a7e36f2b8d45b780d9a1187b34610b2a368e1ecaa1e7440bcbe81cc3e4"
     },
     {
       "id": "design-authoring-decisions",
@@ -8416,6 +8416,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "8dec74f7a259e8cc2a66cd8927451e1bedb5512f8a665826dacafe0f01fb5886"
     },
     {
+      "id": "proof-a3a-ctx-red-first",
+      "path": "docs/proof/a3a-ctx/red-first.md",
+      "title": "A3a CTX projection feed receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-ctx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "The red runs of the A3a CTX track: every non-tip strip read \"Not judged - tip strip\", and the controller fed the projection no stations, verdicts or root t/c. Verdicts are derived on read; no schema changed.",
+      "tags": [
+        "a3a",
+        "ctx",
+        "analysis",
+        "projection",
+        "verdict",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7ff95489d408015b143594123d13d98b8a88ad0d9c01e35a4c1a457cb6edb422"
+    },
+    {
       "id": "proof-a3a-old-build",
       "path": "docs/proof/a3a-old-build/README.md",
       "title": "A3a old-build receipt: a cfdw-project-2 file opened by the build at the A3a base",
@@ -13552,5 +13584,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "c8f4f2e2816efce7cef4a3926b1374e0f3762ed93a98536410c484ff4deea09c"
+  "graphSha256": "06f4509d4270413f84ff267475555a4711fd9f472e8c1a8f75ab15fac36152aa"
 };

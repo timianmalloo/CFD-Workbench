@@ -376,6 +376,13 @@ full, every part named (rev 2 minor: the string had dropped α_L0 and the sweep 
 - inside: "Inside the method envelope (|α_eff − α_L0| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°) at all <m>
   strips" (new copy row).
 
+The envelope's α_L0 is the section estimator's panel zero-lift angle at the strip's own η, the single source (DR-ANA-2,
+Ruling 90), not the thin-airfoil value the lattice lifts to. Measured offset (`Section_ParabolicCamber_PanelZeroLiftAndMoment`
+and `Section_ThinCambered_GlauertOracleOnly`): a 4 % parabolic camber, 10 % thick section reads −4.142° against the
+thin-airfoil −4.584°, +0.44°; the same camber at 0.2 % thickness reads −4.627°, −0.04°. The default example foil
+(`foil-basic.foil`) is uncambered, so its α_L0 is 0° and the two agree there. The quarter-chord sweep is the lattice's own
+(`VortexLattice.StripSweeps`, one definition).
+
 With a polar the parenthesis gains "Re_local in <Re range>" and Cl_local's bound becomes the polar's bracket. COPY-49
 stays the ANA-20 *catalog* finding — a different thing.
 

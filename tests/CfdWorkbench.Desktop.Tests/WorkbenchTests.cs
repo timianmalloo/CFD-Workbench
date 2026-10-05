@@ -112,6 +112,7 @@ if (args.Contains("--analysis", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
     CfdWorkbench.Desktop.Tests.AnalysisToggleTests.Run();
+    CfdWorkbench.Desktop.Tests.AnalysisFeedTests.Run();
     CfdWorkbench.Desktop.Tests.AnalysisLayerTests.Run();
     CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
@@ -128,6 +129,7 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
     // PlanCanvasTests.RunReadiness set up the Avalonia app above.
     CfdWorkbench.Desktop.Tests.SectionEditorTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.AnalysisToggleTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.AnalysisFeedTests.RunReadiness();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 

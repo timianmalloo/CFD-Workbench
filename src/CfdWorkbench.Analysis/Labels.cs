@@ -56,7 +56,7 @@ public static class Labels
 
     public static string LatticeClaim(RunSettings settings) => DefaultLattice(settings) ? VerifiedLattice : OutsideLattice;
 
-    public static string Verdict(StripLoad strip, double alphaL0Deg = 0, double sweepDeg = 0)
+    public static string Verdict(StripLoad strip, double alphaL0Deg, double sweepDeg)
     {
         if (strip.Provisional) return TipNotJudged;
         StripVerdict verdict = MethodRecord.JudgeStrip(strip.AlphaEff, alphaL0Deg, strip.ClLocal, sweepDeg);

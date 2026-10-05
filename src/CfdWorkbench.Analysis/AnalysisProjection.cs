@@ -6,12 +6,15 @@ namespace CfdWorkbench.Analysis;
 /// <summary>Read-only inputs absent from the durable run. A missing verdict remains indeterminate.</summary>
 public sealed record ProjectionContext(IReadOnlyList<StripVerdict>? Verdicts = null,
     IReadOnlyList<StationFrame>? Stations = null, double? RootThicknessRatio = null,
-    RunIntegrity Integrity = RunIntegrity.Intact, AnalysisRun? PreviousCompleted = null);
+    RunIntegrity Integrity = RunIntegrity.Intact, AnalysisRun? PreviousCompleted = null,
+    IReadOnlySet<string>? HiddenLayers = null);
 
 /// <summary>Pure projection of the selected run into rows, chart points and layer data.</summary>
 public static class AnalysisProjection
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
+    // simplify: the generic "Unavailable" of COPY-210..229 stands in until a copy ruling names a no-verdict string.
+    private const string VerdictUnavailable = "Unavailable";
     private enum VerdictState { Inside, Outside, Provisional, Indeterminate }
 
     public static AnalysisViewModel Build(AnalysisRun? run, CurrentInputs current, Units units) => Build(run, current, units, null);
@@ -167,14 +170,15 @@ public static class AnalysisProjection
         return State(strip, verdict) switch
         {
             VerdictState.Provisional => Labels.TipNotJudged,
-            VerdictState.Indeterminate => verdict?.Text ?? Labels.TipNotJudged,
+            VerdictState.Indeterminate => verdict?.Text ?? VerdictUnavailable,
             _ => verdict!.Text
         };
     }
 
     private static string RunVerdict(IReadOnlyList<StripVerdict>? verdicts, IReadOnlyList<StripLoad> strips)
     {
-        if (verdicts is null || verdicts.Count != strips.Count) return Labels.TipNotJudged;
+        // Only the outermost strip of each half reads "Not judged — tip strip" (Ruling 78); a missing verdict is Unavailable.
+        if (verdicts is not null && verdicts.Count != strips.Count) verdicts = null;
         var judged = new List<StripVerdict>(strips.Count);
         int provisional = 0, indeterminate = 0;
         foreach (StripLoad strip in strips)
@@ -194,9 +198,10 @@ public static class AnalysisProjection
                     break;
             }
         }
-        string sentence = judged.Any(v => !v.Provisional) ? MethodRecord.JudgeRun(judged) : Labels.TipNotJudged;
-        if (provisional > 0) sentence += $"; {provisional} {Labels.TipNotJudged}";
-        if (indeterminate > 0) sentence += $"; {indeterminate} {Labels.TipNotJudged}";
+        int decided = judged.Count(v => !v.Provisional);
+        string sentence = decided > 0 ? MethodRecord.JudgeRun(judged) : indeterminate > 0 ? VerdictUnavailable : Labels.TipNotJudged;
+        if (provisional > 0 && (decided > 0 || indeterminate > 0)) sentence += $"; {provisional} {Labels.TipNotJudged}";
+        if (indeterminate > 0 && decided > 0) sentence += $"; {indeterminate} strips: {VerdictUnavailable}";
         return sentence;
     }
 
@@ -233,18 +238,19 @@ public static class AnalysisProjection
             Width(run, s) > 0 ? (-s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a)) / Width(run, s) : null)).ToArray();
     private static IReadOnlyList<LayerData> Layers(AnalysisRun run, ProjectionContext context, double? rootMoment)
     {
+        bool Shown(string id) => context.HiddenLayers?.Contains(id) != true;
         double max = run.Strips.Count == 0 ? 0 : run.Strips.Max(s => Math.Abs(s.Gamma));
         string key = run.RunKey.Length >= 12 ? run.RunKey[..12] : run.RunKey;
         var layers = new List<LayerData>
         {
-            new LayerData("plan-gamma", "Γ per strip", true, "Γ per strip · batlow 1.0 · 0–" + Num(max, "0.###") + " m²/s · run " + key, "strips-table")
+            new LayerData("plan-gamma", "Γ per strip", Shown("plan-gamma"), "Γ per strip · batlow 1.0 · 0–" + Num(max, "0.###") + " m²/s · run " + key, "strips-table")
             {
                 Samples = run.Strips.Select(s => new LayerSample(s.Eta, s.Y, s.Gamma, null,
                     State(s, At(context.Verdicts, s)) == VerdictState.Outside, s.Provisional)
                     { Verdict = VerdictText(s, context.Verdicts) }).ToArray(),
                 Note = "Outside strips have dashed outlines and a text count."
             },
-            new LayerData("strip-lift", "Lift per strip", true, "Lift per strip · N/m · " + Labels.BodyAxes + " · " + Labels.VlmChip, "loads-table")
+            new LayerData("strip-lift", "Lift per strip", Shown("strip-lift"), "Lift per strip · N/m · " + Labels.BodyAxes + " · " + Labels.VlmChip, "loads-table")
             {
                 Samples = run.Strips.Select(s => new LayerSample(s.Eta, s.Y,
                     Width(run, s) > 0 ? s.Fz / Width(run, s) : null,
@@ -253,13 +259,13 @@ public static class AnalysisProjection
                 Note = run.Strips.Any(s => Width(run, s) <= 0) ? Labels.StripWidthMissing : null
             }
         };
-        if (rootMoment.HasValue) layers.Add(new LayerData("root-moment", "Root moment arc", true,
+        if (rootMoment.HasValue) layers.Add(new LayerData("root-moment", "Root moment arc", Shown("root-moment"),
             Labels.RootMoment + " · " + Num(rootMoment.Value, "0.###") + " N·m", "loads-table")
         {
             Samples = [new LayerSample(0, 0, rootMoment.Value, new Loads.Vec(rootMoment.Value, 0, 0), false, false)]
         });
         if (run.Op.HRef.HasValue && context.Stations is { Count: > 0 })
-            layers.Add(new LayerData("depth-band", "Free surface and tip depth", true,
+            layers.Add(new LayerData("depth-band", "Free surface and tip depth", Shown("depth-band"),
                 "h_ref " + Num(run.Op.HRef.Value, "0.###") + " m · datum " + run.Op.Datum, "conditions-table")
             { Samples = context.Stations.Select(s => new LayerSample(s.Eta, s.SpanMeters,
                 run.Op.HRef.Value - s.ElevationMeters, null, false, false)).ToArray() });
