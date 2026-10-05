@@ -531,6 +531,40 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-187 | Point <n> stays an anchor. As a control point the <other> surface would move <d> mm, over the <limit> mm limit at <c> mm chord. Nothing changed. (<d> to 0.0001 mm, so a move just over the limit never reads as equal to it) |
 | COPY-188 | Type and Kind apply to both surfaces. x is shared. |
 | COPY-189 | Paired with <other> point <n>. Type, kind and x are shared. |
+| COPY-206 | No analysis yet. Set the conditions, then Evaluate. — proposed — awaiting operator |
+| COPY-207 | Evaluating — VLM + strip · <n> panels… — proposed — awaiting operator |
+| COPY-208 | Analysis failed — <reason> (<code>). The previous result is kept as Historical. — proposed — awaiting operator |
+| COPY-209 | Analysis complete — VLM + strip · <t> s — proposed — awaiting operator |
+| COPY-210 | Unavailable — no polar method installed — proposed — awaiting operator |
+| COPY-211 | Unavailable — run payload failed its check — proposed — awaiting operator |
+| COPY-212 | Unavailable — no section Cp method (DR-ANA-2) — proposed — awaiting operator |
+| COPY-213 | VLM + strip · local calculation — proposed — awaiting operator |
+| COPY-214 | Estimator · local calculation — proposed — awaiting operator |
+| COPY-215 | Polar · local calculation — proposed — awaiting operator |
+| COPY-216 | outside the verified lattice family — proposed — awaiting operator |
+| COPY-217 | Verified fixture family: 64 × 4 cosine/cosine lattice — proposed — awaiting operator |
+| COPY-218 | provisional — tip law cannot judge this strip (ANA-TIP-PROVISIONAL) — proposed — awaiting operator |
+| COPY-219 | at the bound (+-U) — proposed — awaiting operator |
+| COPY-220 | indeterminate — the tip law cannot judge this strip — proposed — awaiting operator |
+| COPY-221 | inside the method envelope — proposed — awaiting operator |
+| COPY-222 | outside the method envelope — proposed — awaiting operator |
+| COPY-223 | attached flow; no stall; no ventilation; deep water — proposed — awaiting operator |
+| COPY-224 | attached flow; no stall; no ventilation; free surface not modelled — proposed — awaiting operator |
+| COPY-225 | Not modelled: ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”. — proposed — awaiting operator |
+| COPY-226 | Not modelled: free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”. — proposed — awaiting operator |
+| COPY-227 | Not assessed: take-off, pumping, breach and slam, ventilation shock, impact, fatigue. — proposed — awaiting operator |
+| COPY-228 | Unavailable — station depth not recorded — proposed — awaiting operator |
+| COPY-229 | Unavailable — root thickness not recorded — proposed — awaiting operator |
+| COPY-230 | Undefined — CD ≤ 0 — proposed — awaiting operator |
+| COPY-231 | Near-field diagnostics flagged outside the verified lattice family — proposed — awaiting operator |
+| COPY-232 | e outside 0.85–1.00 — lattice effect; result remains available — proposed — awaiting operator |
+| COPY-233 | e above 1 at 64 × 4 — lattice effect — proposed — awaiting operator |
+| COPY-234 | Unavailable — needs −Cp_min — proposed — awaiting operator |
+| COPY-235 | Unavailable — strip width not recorded; vector omitted — proposed — awaiting operator |
+| COPY-236 | Body axes: +x aft, +y starboard, +z up; lift and drag in wind axes — proposed — awaiting operator |
+| COPY-237 | Root bending moment about the root plane; positive sense about +x — proposed — awaiting operator |
+| COPY-238 | Spanwise loading Cl·c/c̄ vs η; dashed elliptic reference at the same CL — proposed — awaiting operator |
+| COPY-239 | Strip of wing run (α_eff) · η <η> — proposed — awaiting operator |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

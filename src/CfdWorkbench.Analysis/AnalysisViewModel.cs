@@ -26,7 +26,11 @@ public enum Units
 
 /// <summary>Everything the Analysis surfaces render for one selected run, already worded.</summary>
 public sealed record AnalysisViewModel(RunState State, string StatusText, string? Banner, string? ErrorCard,
-    IReadOnlyList<ResultGroup> Groups, IReadOnlyList<LayerData> Layers, string? RunKey);
+    IReadOnlyList<ResultGroup> Groups, IReadOnlyList<LayerData> Layers, string? RunKey)
+{
+    public IReadOnlyList<LoadingPoint> Loading { get; init; } = [];
+    public IReadOnlyList<StripDetail> StripDetails { get; init; } = [];
+}
 
 /// <summary>A titled group of rows (Wing result, Loads, Labels, Provenance…).</summary>
 public sealed record ResultGroup(string Title, IReadOnlyList<ResultRow> Rows);
@@ -35,4 +39,21 @@ public sealed record ResultGroup(string Title, IReadOnlyList<ResultRow> Rows);
 public sealed record ResultRow(string Label, string Value, string? Unit, string? Note);
 
 /// <summary>One view layer (Plan Γ strips, 3D vectors, depth band…), its legend and its table twin's id.</summary>
-public sealed record LayerData(string Id, string Title, bool Visible, string Legend, string TwinId);
+public sealed record LayerData(string Id, string Title, bool Visible, string Legend, string TwinId)
+{
+    public IReadOnlyList<LayerSample> Samples { get; init; } = [];
+    public string? Note { get; init; }
+}
+
+/// <summary>Measured strip load and its body-frame vector; absent values are omitted, never drawn at zero.</summary>
+public sealed record LayerSample(double Eta, double Y, double? Value, Loads.Vec? Vector, bool Outside, bool Provisional)
+{
+    public string? Verdict { get; init; }
+}
+
+/// <summary>The chart and table consume the same spanwise loading values.</summary>
+public sealed record LoadingPoint(double Eta, double? ClChordOverMeanChord, double? EllipticReference,
+    double AlphaEffDeg, double? LiftPerSpan);
+
+/// <summary>Station selection reads this complete strip result from one projected run.</summary>
+public sealed record StripDetail(double Eta, IReadOnlyList<ResultRow> Rows);
