@@ -26,9 +26,10 @@ public sealed class App : Application
         {
             try
             {
-                var preferences = new PreferenceStore(
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CFD Workbench"),
-                    () => new ProjectStore());
+                string preferenceRoot = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CFD Workbench");
+                BindPreferenceRoot(preferenceRoot);
+                var preferences = new PreferenceStore(preferenceRoot, () => new ProjectStore());
                 desktop.MainWindow = CreateMainWindow(preferences);
                 Console.Error.WriteLine($"NATIVE-STARTUP main-window-assigned={desktop.MainWindow is not null}");
             }

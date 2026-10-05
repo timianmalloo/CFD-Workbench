@@ -4,6 +4,7 @@ using CfdWorkbench.Persistence;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 using Avalonia;
 using Avalonia.Threading;
 
@@ -139,6 +140,13 @@ public sealed class WorkbenchController : IDisposable
     private readonly Action<long>? sectionStepGate;
     private readonly SectionLibrary? sections;
     private readonly Action<int>? previewGate;
+    private int previewTicket;
+    private int previewBusy;
+    private CatalogChoice? previewWaiting;
+    private ReplaceScope previewWaitingScope;
+    private int previewWaitingTicket;
+    private static readonly Regex ProvenanceField = new(
+        @"\bprovenance\s+""(?<value>(?:\\.|[^""\\])*)""", RegexOptions.CultureInvariant);
     private SessionDraft? draft;
     private AuthoredProjection? draftProjection;
     private string? projectedDraftId;
@@ -703,6 +711,7 @@ public sealed class WorkbenchController : IDisposable
             if (SectionStale(mode)) return;
             draft = landed;
             SectionRefitRefusal = null;
+            if (step is SectionStep.Replace replace) LastReplaceName = replace.Source.DisplayName;
             Section = Section! with { Draft = next, Assessment = null, FinishReason = SectionChecking };
             // One shell refresh per step: the assessment's "Checking…" write notifies, after the strip has the step report.
             RaiseSectionChanged();
@@ -880,41 +889,221 @@ public sealed class WorkbenchController : IDisposable
 
     public ReplacePreview? CurrentPreview { get; private set; }
 
-    public bool PreviewPending => false;
+    public bool PreviewPending => Volatile.Read(ref previewBusy) != 0;
 
     public CatalogChoice? PreviewChoice { get; private set; }
 
-    public string? SourceChip => null;
-
     public string? LastReplaceName { get; private set; }
 
-    public CatalogSnapshot? Catalog { get; private set; }
+    public CatalogSnapshot? OpenedCatalog { get; private set; }
 
-    public CatalogSnapshot OpenCatalog() => Catalog = new([], [], 0, 0, 0, "missing");
+    /// <summary>DLG repaints the dashed preview. The shell subscribes and does not rebuild panes.</summary>
+    public event Action? PreviewChanged;
 
+    public string? SourceChip
+    {
+        get
+        {
+            if (Section is not { } mode) return null;
+            var parsed = CfdWorkbench.Core.Provenance.Parse(ProvenanceText(mode.Draft.Bytes, mode.Draft.Profile));
+            return parsed.ChipText(ChipSourceName(parsed));
+        }
+    }
+
+    public CatalogSnapshot OpenCatalog()
+    {
+        var clock = Stopwatch.StartNew();
+        IReadOnlyList<CatalogEntry> entries;
+        string outcome;
+        try
+        {
+            entries = CfdWorkbench.Core.Catalog.Load();
+            outcome = "ok";
+        }
+        catch (ContractError error) when (error.Code == "CAT-UNAVAILABLE")
+        {
+            entries = [];
+            outcome = error.Code;
+        }
+        int choosable = entries.Count(entry => entry.Coordinates is not null && entry.DisabledReason is null);
+        int disabled = entries.Count - choosable;
+        var scanClock = Stopwatch.StartNew();
+        LibraryScan scan = sections is null ? new([], []) : sections.Scan();
+        scanClock.Stop();
+        Shell.ShellEvents.Record("library.scan", scan.Problems.Count == 0 ? "ok" : "problems",
+            scanClock.Elapsed.TotalMilliseconds, Guid.NewGuid().ToString("N"),
+            stations: scan.Entries.Count, pointsAfter: scan.Problems.Count);
+        clock.Stop();
+        Shell.ShellEvents.Record("catalog.open", outcome, clock.Elapsed.TotalMilliseconds, Guid.NewGuid().ToString("N"),
+            stations: choosable, pointsAfter: disabled);
+        return OpenedCatalog = new(entries, scan.Entries, choosable, disabled, scan.Problems.Count, outcome);
+    }
+
+    /// <summary>
+    /// One preview at a time, off the UI thread. A newer choice replaces the one waiting; the in-flight result is dropped
+    /// when it is no longer the latest. The compute is the 140–240 ms catalog fit, so it never runs on the dispatcher.
+    /// </summary>
     public void PreviewReplace(CatalogChoice choice, ReplaceScope scope = ReplaceScope.Draft)
     {
-        _ = (previewGate, scope, sections);
-        PreviewLandings++;
-        PreviewDrops = 0;
-        PreviewSourceName = choice switch
+        if (Section is null) throw new ContractError("DSL-DRAFT-OWNED");
+        int ticket = Interlocked.Increment(ref previewTicket);
+        if (Interlocked.CompareExchange(ref previewBusy, 1, 0) != 0)
         {
-            CatalogChoice.Catalog row => row.Entry.Designation,
-            CatalogChoice.Mine row => row.Entry.Name,
-            _ => ""
-        };
+            previewWaiting = choice;
+            previewWaitingScope = scope;
+            previewWaitingTicket = ticket;
+            return;
+        }
+        StartPreview(ticket, choice, scope);
     }
 
     public Task ApplyReplaceAsync(ReplaceScope scope)
     {
-        _ = scope;
-        return Task.CompletedTask;
+        if (PreviewChoice is not { } choice)
+            throw new ContractError("CAT-NOT-ADMITTED", "This section has no coordinates in this build. Nothing changed.");
+        return ApplySectionStepAsync(new SectionStep.Replace(SourceOf(choice), scope));
     }
 
     public Task SaveToMySectionsAsync(string name)
     {
-        _ = name;
-        return Task.CompletedTask;
+        if (Section is not { } mode) throw new ContractError("DSL-DRAFT-OWNED");
+        if (sections is null)
+            throw new ContractError("LIB-IO", "Couldn't save to My sections: no library root. Nothing was saved.");
+        var clock = Stopwatch.StartNew();
+        try
+        {
+            byte[] block = ProfileBlock(mode.Draft.Bytes, mode.Draft.Profile);
+            var provenance = CfdWorkbench.Core.Provenance.Parse(ProvenanceText(mode.Draft.Bytes, mode.Draft.Profile));
+            var entry = sections.Save(name, block, provenance);
+            clock.Stop();
+            Shell.ShellEvents.Record("library.save", "saved", clock.Elapsed.TotalMilliseconds, Guid.NewGuid().ToString("N"));
+            Status = "Saved " + entry.Name + " to My sections.";
+            Notify();
+            return Task.CompletedTask;
+        }
+        catch (ContractError error)
+        {
+            clock.Stop();
+            Shell.ShellEvents.Record("library.save", error.Code, clock.Elapsed.TotalMilliseconds,
+                Guid.NewGuid().ToString("N"), code: error.Code);
+            throw;
+        }
+    }
+
+    private void StartPreview(int ticket, CatalogChoice choice, ReplaceScope scope)
+    {
+        var mode = Section;
+        if (mode is null)
+        {
+            FinishPreview(ticket, null, null, choice);
+            return;
+        }
+        string draftId = mode.Draft.DraftId;
+        long generation = mode.Draft.Generation;
+        ReplaceSource source;
+        try { source = SourceOf(choice); }
+        catch (ContractError)
+        {
+            FinishPreview(ticket, null, null, choice);
+            return;
+        }
+        _ = Task.Run(() =>
+        {
+            previewGate?.Invoke(ticket);
+            if (ticket != Volatile.Read(ref previewTicket)) return (ReplacePreview?)null;
+            return session.PreviewReplace(draftId, generation, source, scope);
+        }).ContinueWith(task =>
+        {
+            if (task.IsFaulted) _ = task.Exception;
+            ReplacePreview? preview = task.Status == TaskStatus.RanToCompletion ? task.Result : null;
+            OnUiThread(() => FinishPreview(ticket, preview, source.DisplayName, choice));
+        }, TaskScheduler.Default);
+    }
+
+    private void FinishPreview(int ticket, ReplacePreview? preview, string? name, CatalogChoice choice)
+    {
+        bool latest = ticket == Volatile.Read(ref previewTicket) && preview is not null && !disposed && Section is not null;
+        if (latest)
+        {
+            CurrentPreview = preview;
+            PreviewSourceName = name;
+            PreviewChoice = choice;
+            PreviewLandings++;
+            PreviewChanged?.Invoke();
+        }
+        else PreviewDrops++;
+
+        CatalogChoice? next = null;
+        ReplaceScope nextScope = default;
+        int nextTicket = 0;
+        if (previewWaiting is { } waiting && previewWaitingTicket == Volatile.Read(ref previewTicket))
+        {
+            next = waiting;
+            nextScope = previewWaitingScope;
+            nextTicket = previewWaitingTicket;
+        }
+        previewWaiting = null;
+        if (next is not null) StartPreview(nextTicket, next, nextScope);
+        else Interlocked.Exchange(ref previewBusy, 0);
+    }
+
+    private static ReplaceSource SourceOf(CatalogChoice choice) => choice switch
+    {
+        CatalogChoice.Catalog row when row.Entry.Coordinates is { } bytes =>
+            new ReplaceSource.Coordinates(row.Entry.Designation, new Provenance("gen:" + row.Entry.Id, false), bytes),
+        CatalogChoice.Mine row => new ReplaceSource.Record(row.Entry.Name, row.Entry.Provenance, row.Entry.Bytes),
+        _ => throw new ContractError("CAT-NOT-ADMITTED", "This section has no coordinates in this build. Nothing changed.")
+    };
+
+    private string ChipSourceName(Provenance parsed)
+    {
+        if (parsed.Origin is not { } origin) return LastReplaceName ?? "";
+        int colon = origin.IndexOf(':');
+        if (colon > 0 && (origin.StartsWith("gen:", StringComparison.Ordinal) || origin.StartsWith("vend:", StringComparison.Ordinal)))
+        {
+            string id = origin[(colon + 1)..];
+            try
+            {
+                var entry = CfdWorkbench.Core.Catalog.Load().FirstOrDefault(item => item.Id == id);
+                if (entry is not null) return entry.Designation;
+            }
+            catch (ContractError) { }
+        }
+        return LastReplaceName is { Length: > 0 } name ? name : origin;
+    }
+
+    private static byte[] ProfileBlock(byte[] foil, string profile)
+    {
+        string text = Encoding.UTF8.GetString(foil);
+        int at = text.IndexOf("profile \"" + profile + "\"", StringComparison.Ordinal);
+        int end = at < 0 ? -1 : BlockEnd(text, at);
+        if (end < 0) throw new ContractError("LIB-SECTION-INVALID");
+        return Encoding.UTF8.GetBytes(text[at..(end + 1)]);
+    }
+
+    private static string? ProvenanceText(byte[] foil, string profile)
+    {
+        string text = Encoding.UTF8.GetString(foil);
+        int at = text.IndexOf("profile \"" + profile + "\"", StringComparison.Ordinal);
+        int end = at < 0 ? -1 : BlockEnd(text, at);
+        if (end < 0) return null;
+        var match = ProvenanceField.Match(text, at, end - at);
+        return match.Success
+            ? System.Text.Json.JsonSerializer.Deserialize<string>("\"" + match.Groups["value"].Value + "\"")
+            : null;
+    }
+
+    private static int BlockEnd(string text, int at)
+    {
+        int open = text.IndexOf('{', at);
+        if (open < 0) return -1;
+        int depth = 0;
+        for (int i = open; i < text.Length; i++)
+        {
+            if (text[i] == '{') depth++;
+            else if (text[i] == '}' && --depth == 0) return i;
+        }
+        return -1;
     }
 
     private void NotifySection()
