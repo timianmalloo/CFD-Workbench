@@ -16,7 +16,7 @@ internal static class PanelCpTests
         AnalysisChecks.Equal("inviscid; no boundary layer", PanelMethod.ModelLabel, "method label");
         // The Kármán–Trefftz family at exponent 2 is the Joukowski cusp. The circle passes through ζ=1;
         // W'(1)=0 fixes the circulation. This independent conformal-map oracle tests both surfaces.
-        double[] errors = new double[4];
+        double[] errors = new double[4], minimumErrors = new double[4];
         int[] counts = [100, 200, 400, 800];
         double exactMin = Enumerable.Range(1, 199999).Min(i => JoukowskiCpAtTheta(2 * Math.PI * i / 200000, 4));
         double[] cpMinCeilings = [0.13, 0.07, 0.04, 0.025];
@@ -37,13 +37,18 @@ internal static class PanelCpTests
                 sum += Math.Pow(samples[i].Cp - expected, 2);
             }
             errors[k] = Math.Sqrt(sum / (n - 6));
-            if (Math.Abs(result.CpMin - exactMin) > cpMinCeilings[k] || result.Cl <= 0)
+            minimumErrors[k] = Math.Abs(result.CpMin - exactMin);
+            if (minimumErrors[k] > cpMinCeilings[k] || result.Cl <= 0)
                 throw new InvalidOperationException($"n={n}: Cp_min {result.CpMin}, exact {exactMin}, Cl {result.Cl}");
         }
         double[] orders = Enumerable.Range(0, 3).Select(i => Math.Log2(errors[i] / errors[i + 1])).ToArray();
         if (orders.Any(p => p < 0.9))
             throw new InvalidOperationException($"KT interior Cp RMS {string.Join(" / ", errors)}; order {string.Join(" / ", orders)}");
-        Console.WriteLine($"OBSERVED KT interior Cp RMS 100/200/400/800: {string.Join(" / ", errors.Select(e => e.ToString("G6", System.Globalization.CultureInfo.InvariantCulture)))}; p {string.Join(" / ", orders.Select(p => p.ToString("G4", System.Globalization.CultureInfo.InvariantCulture)))}; exact Cp_min {exactMin:G7}");
+        Console.WriteLine($"OBSERVED KT interior Cp RMS 100/200/400/800: {string.Join(" / ", errors.Select(e => e.ToString("G6", System.Globalization.CultureInfo.InvariantCulture)))}; p {string.Join(" / ", orders.Select(p => p.ToString("G4", System.Globalization.CultureInfo.InvariantCulture)))}; exact Cp_min {exactMin:G7}; |ΔCp_min| {string.Join(" / ", minimumErrors.Select(e => e.ToString("G6", System.Globalization.CultureInfo.InvariantCulture)))}");
+        int defaultPanels = 2 * (Settings.Default.SectionXs!.Count - 1);
+        AnalysisChecks.Equal(24, defaultPanels, "default product SectionXs panel count");
+        PanelResult atDefaultCount = PanelMethod.Solve(JoukowskiContour(defaultPanels), 4);
+        Console.WriteLine($"OBSERVED KT at default product count {defaultPanels}: Cp_min {atDefaultCount.CpMin:G7}, |ΔCp_min| {Math.Abs(atDefaultCount.CpMin - exactMin):G7}");
     }
 
     private static void Cusp800()
