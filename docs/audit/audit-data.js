@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T14:06:59Z",
+  "generated": "2026-10-05T15:14:10Z",
   "audit": [
     {
       "actor": null,
@@ -24704,6 +24704,34 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M46A28Z2THJ4WERHXG6V4A81",
+      "shortname": "trk-d2",
+      "datetime": "2026-10-05T15:14:09Z",
+      "session": "trk-d2",
+      "prompt": "SPIKE-ANA-1 clean branch and review fixes",
+      "summary": "Clean branch spike/ana-1-clean from origin/main with proof folder, weights.bin untracked and ignored; verdict wording fixed (XFOIL GPL, 78/78 qualified, Cd bias), added not-covered and A3c-conditions sections",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "SPIKE-ANA-1 verdict joinable without the weights",
+      "done_when": "clean branch, wording fixed, gates green",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-10-05T15:11:34Z",
+      "duration_seconds": 155.0,
+      "git": {
+        "sha": "f94e9d2f8b6c76a5f8b907adfce936fa5074b726",
+        "short": "f94e9d2f8",
+        "branch": "spike/ana-1-clean",
+        "pushed": false
+      }
     }
   ],
   "changes": [
