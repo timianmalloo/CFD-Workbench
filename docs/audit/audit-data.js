@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T00:41:52Z",
+  "generated": "2026-10-05T00:56:48Z",
   "audit": [
     {
       "actor": null,
@@ -24103,6 +24103,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T00:38:41Z",
       "duration_seconds": 191.0
+    },
+    {
+      "id": "al-01M44S0D5EB87B49M93137NVAV",
+      "shortname": "join-flaky-toast-hold",
+      "datetime": "2026-10-05T00:56:48Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/flaky-toast-hold into feature/ui-cad-direction",
+      "summary": "FLK-2 + FLK-2b (Grok 4.7): the commit pumped the dispatcher after the hold started, so under load the tick queued before the hover; the check now hovers before the pump and bounds hide to 4 holds on the dispatcher clock (mutant 2 s hold red). 10/10 under 8 yes workers. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:54:13Z",
+      "duration_seconds": 155.0
     }
   ],
   "changes": [
