@@ -48,16 +48,18 @@ public static class SectionReplace
         var target = before.Profiles[edited];
         var shape = Shape.Read(source);
 
-        var current = shape.Exact(target) ?? FitOn(shape, target, target.Upper.Knots, target.Upper.Points.Select(point => point[0]).ToArray(), keepIds: true, "current");
-        Candidate? chosen = current is not null && current.Residual <= limit ? current : null;
-        double best = current?.Residual ?? double.PositiveInfinity;
+        // The current spacing always yields a candidate or refuses (rule 6b), so every number below is finite.
+        Candidate current = shape.Exact(target) ?? FitOn(shape, target, target.Upper.Knots, target.Upper.Points.Select(point => point[0]).ToArray(), keepIds: true, "current", source.DisplayName)
+            ?? throw new System.Diagnostics.UnreachableException();
+        Candidate? chosen = current.Residual <= limit ? current : null;
+        double best = current.Residual;
         if (chosen is null && outside.Length > 0)
             return Refused("CAT-SPACING", SpacingReason(before, stations, outside, source.DisplayName, best, acceptanceChord, target.Upper.Points.Length),
                 stations, best, acceptanceChord, target.Upper.Points.Length, Enumerable.Range(0, before.Assignments.Length).ToArray());
         for (int count = SmallestOwnSpacing; chosen is null && count <= LargestOwnSpacing; count++)
         {
             var (knots, x) = DatImport.OwnSqrtBasis(count);
-            var own = FitOn(shape, target, knots, x, keepIds: false, "own-" + count.ToString(CultureInfo.InvariantCulture));
+            var own = FitOn(shape, target, knots, x, keepIds: false, "own-" + count.ToString(CultureInfo.InvariantCulture), source.DisplayName);
             if (own is null) continue;
             best = Math.Min(best, own.Residual);
             if (own.Residual <= limit) chosen = own;
@@ -92,18 +94,29 @@ public static class SectionReplace
     private sealed record Candidate(string Spacing, string Basis, double[] Knots, double[][] Upper, double[][] Lower, string[] UpperIds,
         string[] LowerIds, TangentRow[] UpperRows, TangentRow[] LowerRows, string Closure, double Residual, IReadOnlyList<string> Dropped);
 
-    private static Candidate? FitOn(Shape shape, ProfileDefinition target, double[] knots, double[] x, bool keepIds, string spacing)
+    // On the current spacing (keepIds) a fit that cannot keep the spacing or its point types refuses with DSL-LOCK naming the
+    // conflict (rule 6b): never a silent fall back to an own spacing that would drop the rows. On an own spacing a singular
+    // fit is only that spacing failing, and the scan goes on.
+    private static Candidate? FitOn(Shape shape, ProfileDefinition target, double[] knots, double[] x, bool keepIds, string spacing, string source)
     {
         int degree = target.Upper.Degree;
         if (keepIds && (!target.Upper.Knots.SequenceEqual(target.Lower.Knots) ||
                         !target.Upper.Points.Select(point => point[0]).SequenceEqual(target.Lower.Points.Select(point => point[0]))))
-            return null;
+            throw new ContractError("DSL-LOCK", $"This section's upper and lower points sit at different chord positions, so {source} can't be fitted " +
+                "on its spacing. Nothing changed.");
         string[] upperIds = keepIds ? target.Upper.Ids : Enumerable.Range(0, x.Length).Select(index => "cv-" + index.ToString(CultureInfo.InvariantCulture)).ToArray();
         string[] lowerIds = keepIds ? target.Lower.Ids : upperIds;
         TangentRow[] upperRows = keepIds ? target.Upper.Tangents : [];
         TangentRow[] lowerRows = keepIds ? target.Lower.Tangents : [];
         bool closed = shape.Closed;
         var fit = DatImport.FitToBasis(shape.Samples, knots, x, keepIds ? degree : 5, closed, upperRows, upperIds, lowerRows, lowerIds);
+        if (fit is null && keepIds)
+        {
+            string[] rows = upperRows.Concat(lowerRows).Select(row => row.Id).Distinct(StringComparer.Ordinal).ToArray();
+            throw new ContractError("DSL-LOCK", rows.Length == 0
+                ? $"{source} can't be fitted on this section's spacing. Nothing changed."
+                : $"The point types at {SectionEdits.JoinNames(rows)} can't all hold for {source} on this section's spacing. Nothing changed.");
+        }
         if (fit is null) return null;
         int curveDegree = keepIds ? degree : 5;
         double residual = Math.Max(
