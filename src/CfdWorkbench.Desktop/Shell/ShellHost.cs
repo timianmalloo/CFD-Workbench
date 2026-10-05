@@ -79,6 +79,12 @@ public sealed class ShellHost : Grid
     private Control? paletteOrigin;
     private CancellationTokenSource? opening;
     private readonly Func<Task<string?>>? pickOpenFile;
+
+    /// <summary>DLG shows the catalog. Null runs the command as a status count and draws no dialog.</summary>
+    public Func<Task>? ShowCatalogDialog { get; set; }
+
+    /// <summary>DLG asks for the My-sections name. Null reports the empty-name sentence and writes nothing.</summary>
+    public Func<Task<string?>>? AskSaveName { get; set; }
     private string? failedPath;
 
     public static void BindF6(Window window, ShellHost host)

@@ -41,6 +41,14 @@ public sealed class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
+    /// <summary>My sections for the preference root this process bound (F-6, ADR-0008). One root, every window.</summary>
+    public static SectionLibrary? Sections { get; private set; }
+
+    public static void BindPreferenceRoot(string preferenceRoot) =>
+        Sections = new SectionLibrary(SectionLibrary.Root(preferenceRoot));
+
+    public static void ClearSectionLibrary() => Sections = null;
+
     public static MainWindow CreateMainWindow(PreferenceStore? preferences = null) =>
         new(preferences);
 }

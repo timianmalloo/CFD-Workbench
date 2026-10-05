@@ -21,6 +21,22 @@ public sealed record DisplayFrame(IReadOnlyList<DisplayPoint> Points, SectionEnc
 
 public sealed record SectionReportLine(string Label, string Value);
 
+/// <summary>One catalog row or one My-sections entry. DLG passes it to preview and Replace; this track draws no dialog.</summary>
+public abstract record CatalogChoice
+{
+    public sealed record Catalog(CatalogEntry Entry) : CatalogChoice;
+    public sealed record Mine(LibraryEntry Entry) : CatalogChoice;
+}
+
+/// <summary>What <see cref="WorkbenchController.OpenCatalog"/> last read. Choosable rows have coordinates and no disabled reason.</summary>
+public sealed record CatalogSnapshot(
+    IReadOnlyList<CatalogEntry> Entries,
+    IReadOnlyList<LibraryEntry> Mine,
+    int Choosable,
+    int Disabled,
+    int Problems,
+    string Outcome);
+
 public enum GestureState { Idle, Pressed, Dragging, Nudging, Busy }
 public enum GestureInput { Pointer, Keyboard, Typed }
 public enum GestureEnd { Release, KeyUp, Escape, CaptureLost, FocusLost, Deactivated, Save, Close, Open, New }
@@ -121,6 +137,8 @@ public sealed class WorkbenchController : IDisposable
     private readonly Func<long, Task>? sectionAssessmentGate;
     // Test seam (CTL): runs on the thread a section step applies on, before Core's patch; it may hold the step, never replace it.
     private readonly Action<long>? sectionStepGate;
+    private readonly SectionLibrary? sections;
+    private readonly Action<int>? previewGate;
     private SessionDraft? draft;
     private AuthoredProjection? draftProjection;
     private string? projectedDraftId;
@@ -202,7 +220,7 @@ public sealed class WorkbenchController : IDisposable
 
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null,
         SurfaceCompute? surfaceCompute = null, TimeProvider? time = null, Func<long, Task>? sectionAssessmentGate = null,
-        Action<long>? sectionStepGate = null)
+        Action<long>? sectionStepGate = null, SectionLibrary? sections = null, Action<int>? previewGate = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
         store = this.storeFactory(session);
@@ -211,6 +229,8 @@ public sealed class WorkbenchController : IDisposable
         this.time = time ?? TimeProvider.System;
         this.sectionAssessmentGate = sectionAssessmentGate;
         this.sectionStepGate = sectionStepGate;
+        this.sections = sections ?? App.Sections;
+        this.previewGate = previewGate;
     }
     /// <summary>Document, selection, status, estimate and layout changes; the shell rebuilds its panes on each (≈ 25 ms).</summary>
     public event Action? Changed;
@@ -850,6 +870,51 @@ public sealed class WorkbenchController : IDisposable
         ++sectionAssessmentTicket;
         sectionAssessmentCancellation?.Cancel();
         sectionAssessmentCancellation = null;
+    }
+
+    public int PreviewLandings { get; private set; }
+
+    public int PreviewDrops { get; private set; }
+
+    public string? PreviewSourceName { get; private set; }
+
+    public ReplacePreview? CurrentPreview { get; private set; }
+
+    public bool PreviewPending => false;
+
+    public CatalogChoice? PreviewChoice { get; private set; }
+
+    public string? SourceChip => null;
+
+    public string? LastReplaceName { get; private set; }
+
+    public CatalogSnapshot? Catalog { get; private set; }
+
+    public CatalogSnapshot OpenCatalog() => Catalog = new([], [], 0, 0, 0, "missing");
+
+    public void PreviewReplace(CatalogChoice choice, ReplaceScope scope = ReplaceScope.Draft)
+    {
+        _ = (previewGate, scope, sections);
+        PreviewLandings++;
+        PreviewDrops = 0;
+        PreviewSourceName = choice switch
+        {
+            CatalogChoice.Catalog row => row.Entry.Designation,
+            CatalogChoice.Mine row => row.Entry.Name,
+            _ => ""
+        };
+    }
+
+    public Task ApplyReplaceAsync(ReplaceScope scope)
+    {
+        _ = scope;
+        return Task.CompletedTask;
+    }
+
+    public Task SaveToMySectionsAsync(string name)
+    {
+        _ = name;
+        return Task.CompletedTask;
     }
 
     private void NotifySection()

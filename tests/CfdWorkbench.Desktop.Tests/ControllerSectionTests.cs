@@ -1,5 +1,7 @@
+using System.Globalization;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop;
+using CfdWorkbench.Desktop.Shell;
 using Avalonia.Threading;
 
 namespace CfdWorkbench.Desktop.Tests;
@@ -414,5 +416,220 @@ public static class ControllerSectionTests
             if (view.Assignment != 0 || view.Cursor != 0 || controller.Selection is not Selection.Points { Items.Count: 1 })
                 throw new Exception("Entry did not bind station 0 and select its first section point");
         });
+
+        DesktopChecks.Check("Controller_PreviewLatestWins_OlderDropped", () =>
+        {
+            bool? onUi = null;
+            int entered = 0;
+            using var hold = new ManualResetEventSlim(false);
+            using var controller = new WorkbenchController(previewGate: _ =>
+            {
+                onUi = Dispatcher.UIThread.CheckAccess();
+                if (Interlocked.Increment(ref entered) == 1) hold.Wait(TimeSpan.FromMilliseconds(200));
+            });
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            controller.PreviewReplace(Naca("naca-4412"));
+            controller.PreviewReplace(Naca("naca-0012"));
+            WaitFor(() => !controller.PreviewPending && controller.PreviewLandings + controller.PreviewDrops >= 1);
+            if (controller.PreviewLandings != 1 || controller.PreviewDrops < 1 || onUi != false
+                || controller.PreviewSourceName != "NACA 0012")
+                throw new InvalidOperationException(
+                    $"older preview landed (landings {controller.PreviewLandings}, drops {controller.PreviewDrops}, onUi {onUi}, source {controller.PreviewSourceName})");
+            int landed = controller.PreviewLandings;
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            controller.PreviewReplace(Naca("naca-4412"));
+            WaitFor(() => !controller.PreviewPending && controller.PreviewLandings > landed);
+            Console.WriteLine(
+                $"MEASURE catalog.preview naca-4412 {clock.Elapsed.TotalMilliseconds:0} ms off-ui (design 140-240 under load, readiness target 50)");
+        });
+
+        DesktopChecks.Check("Controller_ApplyReplace_OneStepChipResidualStatus", () =>
+        {
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            Wait(controller.OpenExampleAsync());
+            Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            controller.PreviewReplace(Naca("naca-0012"));
+            WaitFor(() => controller.CurrentPreview is not null || controller.PreviewLandings > 0);
+            Wait(controller.ApplyReplaceAsync(ReplaceScope.Draft));
+            var mode = controller.Section ?? throw new InvalidOperationException("section closed");
+            if (mode.Draft.Cursor != 1 || mode.Draft.StepCount != 1)
+                throw new InvalidOperationException($"replace was not one step (cursor {mode.Draft.Cursor} of {mode.Draft.StepCount})");
+            if (controller.SourceChip != "Catalog original · NACA 0012")
+                throw new InvalidOperationException("chip: " + (controller.SourceChip ?? "null"));
+            var import = mode.LastReport?.Import ?? throw new InvalidOperationException("no replace report");
+            if (import.Stations is not { Count: 2 })
+                throw new InvalidOperationException("replace stations: " + (import.Stations?.Count.ToString() ?? "none"));
+            double chord = import.Stations.Max(index =>
+                Placement.Frame(mode.Draft.Bytes, controller.Inspection!.Authored.Assignments[index].Eta).ChordMeters);
+            double microns = import.MaxResidual * chord * 1e6;
+            if (microns > 10)
+                throw new InvalidOperationException($"fit {microns.ToString("0.00", Inv)} µm was over the 10 µm limit");
+            string fit = microns.ToString("0.00", Inv);
+            string undo = OperatingSystem.IsMacOS() ? "⌘Z" : "Ctrl+Z";
+            string text = host.StatusStrip.Text ?? "";
+            string expected = $"Replaced Root and Tip with NACA 0012. Fit {fit} µm (limit 10 µm). {undo} puts the old section back.";
+            if (text != expected)
+                throw new InvalidOperationException("status: " + text);
+        });
+
+        DesktopChecks.Check("Controller_SaveMine_DraftDocumentUndoUnchanged", () =>
+        {
+            string root = BindRoot();
+            try
+            {
+                using var controller = new WorkbenchController();
+                Wait(controller.OpenExampleAsync());
+                Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+                var mode = controller.Section!;
+                byte[] bytes = mode.Draft.Bytes.ToArray();
+                long generation = mode.Draft.Generation;
+                int cursor = mode.Draft.Cursor;
+                int steps = mode.Draft.StepCount;
+                bool undo = controller.CanUndo;
+                Wait(controller.SaveToMySectionsAsync("NACA kept"));
+                mode = controller.Section!;
+                bool same = mode.Draft.Bytes.AsSpan().SequenceEqual(bytes)
+                    && mode.Draft.Generation == generation
+                    && mode.Draft.Cursor == cursor
+                    && mode.Draft.StepCount == steps
+                    && controller.CanUndo == undo;
+                bool listed = controller.OpenCatalog().Mine.Any(entry => entry.Name == "NACA kept");
+                if (!listed)
+                    throw new InvalidOperationException("Save did not publish \"NACA kept\" (draft unchanged " + same + ")");
+                if (!same)
+                    throw new InvalidOperationException("Save changed the draft or the undo depth");
+                controller.CancelSection();
+                if (controller.CanUndo)
+                    throw new InvalidOperationException("Save added a document undo step");
+            }
+            finally
+            {
+                ReleaseRoot(root);
+            }
+        });
+
+        DesktopChecks.Check("Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo", () =>
+        {
+            string root = BindRoot();
+            try
+            {
+                using var controller = new WorkbenchController();
+                Wait(controller.OpenExampleAsync());
+                Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+                Wait(controller.SaveToMySectionsAsync("Kept section"));
+                controller.CancelSection();
+                if (!controller.OpenCatalog().Mine.Any(entry => entry.Name == "Kept section"))
+                    throw new InvalidOperationException("Save did not survive Cancel");
+                Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+                Wait(controller.ApplySectionStepAsync(Raise(controller)));
+                WaitFor(() => controller.Section!.Assessment?.Status == GeometryStatus.Certified);
+                if (!controller.Section!.CanFinish)
+                    throw new InvalidOperationException("moved section did not certify: " + controller.Section.FinishReason);
+                Wait(controller.FinishSectionAsync());
+                if (!controller.CanUndo) throw new InvalidOperationException("Finish did not add a document undo");
+                controller.Undo();
+                if (!controller.OpenCatalog().Mine.Any(entry => entry.Name == "Kept section"))
+                    throw new InvalidOperationException("Document undo removed the saved section");
+            }
+            finally
+            {
+                ReleaseRoot(root);
+            }
+        });
+
+        DesktopChecks.Check("Controller_SaveMine_ListedAfterOpeningAnotherFoil", () =>
+        {
+            string root = BindRoot();
+            try
+            {
+                using (var first = new WorkbenchController())
+                {
+                    Wait(first.OpenExampleAsync());
+                    Wait(first.EnterSectionAsync(0, EntryOrigin.Properties));
+                    Wait(first.SaveToMySectionsAsync("From the first foil"));
+                }
+                using var second = new WorkbenchController();
+                var opening = second.NewFoilAsync();
+                Wait(opening);
+                if (opening.Result is not OpenOutcome.Opened)
+                    throw new InvalidOperationException("the second foil did not open: " + opening.Result);
+                if (!second.OpenCatalog().Mine.Any(entry => entry.Name == "From the first foil"))
+                    throw new InvalidOperationException("My sections did not list the saved section after opening another foil");
+            }
+            finally
+            {
+                ReleaseRoot(root);
+            }
+        });
+
+        DesktopChecks.Check("Commands_SectionMenu_ReplaceSaveImportRowsRun", () =>
+        {
+            (string Id, string Title)[] rows =
+            [
+                ("section.replace-catalog", "Replace from catalog…"),
+                ("section.save-mine", "Save to My sections…"),
+                ("section.import-dat", "Import .dat…")
+            ];
+            string[] missing = rows.Where(row => !CommandTable.Rows.Any(command =>
+                command.Menu == CommandTable.SectionMenu && command.Id == row.Id && command.Title == row.Title))
+                .Select(row => row.Id).ToArray();
+            if (missing.Length > 0)
+                throw new InvalidOperationException("section menu row missing: " + string.Join(", ", missing));
+
+            string root = BindRoot();
+            try
+            {
+                var entry = Naca("naca-0012").Entry;
+                string path = Path.Combine(root, "naca0012.dat");
+                File.WriteAllBytes(path, entry.Coordinates!);
+                using var controller = new WorkbenchController();
+                var host = new ShellHost(controller, pickOpenFile: () => Task.FromResult<string?>(path));
+                host.AskSaveName = () => Task.FromResult<string?>("Menu save");
+                Wait(controller.OpenExampleAsync());
+                Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+                Wait(host.RunCommand("section.replace-catalog"));
+                if (host.StatusStrip.Text is not { } opened || !opened.StartsWith("Catalog open: ", StringComparison.Ordinal))
+                    throw new InvalidOperationException("catalog command: " + host.StatusStrip.Text);
+                Wait(host.RunCommand("section.save-mine"));
+                if (!controller.OpenCatalog().Mine.Any(item => item.Name == "Menu save"))
+                    throw new InvalidOperationException("Save to My sections did not write the named section");
+                int cursor = controller.Section!.Draft.Cursor;
+                Wait(host.RunCommand("section.import-dat"));
+                var mode = controller.Section!;
+                if (mode.Draft.Cursor != cursor + 1 || mode.LastReport?.Kind != "replace")
+                    throw new InvalidOperationException($"import did not Replace (cursor {mode.Draft.Cursor}, kind {mode.LastReport?.Kind})");
+                if (host.StatusStrip.Text is not { } replaced || !replaced.Contains("µm", StringComparison.Ordinal)
+                    || replaced.Contains("Imported the .dat", StringComparison.Ordinal))
+                    throw new InvalidOperationException("import status: " + host.StatusStrip.Text);
+            }
+            finally
+            {
+                ReleaseRoot(root);
+            }
+        });
+    }
+
+    private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
+
+    private static CatalogChoice.Catalog Naca(string id)
+    {
+        var entry = Catalog.Load().Single(item => item.Id == id && item.Coordinates is not null);
+        return new CatalogChoice.Catalog(entry);
+    }
+
+    private static string BindRoot()
+    {
+        string root = Path.Combine(Path.GetTempPath(), "cfdw-ctl-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        App.BindPreferenceRoot(root);
+        return root;
+    }
+
+    private static void ReleaseRoot(string root)
+    {
+        App.ClearSectionLibrary();
+        if (Directory.Exists(root)) Directory.Delete(root, true);
     }
 }
