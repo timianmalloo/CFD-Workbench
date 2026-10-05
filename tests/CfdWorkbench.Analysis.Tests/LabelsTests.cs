@@ -54,30 +54,27 @@ internal static class LabelsTests
             Equal(false, note.Contains("lattice effect"));
         });
         Check("Labels_EAboveOne_LatticeAttributionOnlyMeasuredBand", () => {
-            foreach (double target in new[] { 1.01, 1.03 })
-            {
-                var (baseRun, _) = ProjectionTests.Data();
-                var settings = baseRun.Settings with { NSpanPerHalf = 64 };
-                string settingsHash = RunRecord.SettingsHash(settings);
-                double q = 0.5 * baseRun.Water.Rho * baseRun.Op.Speed * baseRun.Op.Speed;
-                double sumGammaDy = baseRun.Strips.Sum(s => s.Gamma * 0.2);
-                double cl = baseRun.Water.Rho * baseRun.Op.Speed * sumGammaDy / (q * baseRun.Reference.SRef);
-                double ar = baseRun.Reference.BRef * baseRun.Reference.BRef / baseRun.Reference.SRef;
-                double drag = cl * cl / (Math.PI * ar * target) * q * baseRun.Reference.SRef;
-                double downwash = -drag / (0.5 * baseRun.Water.Rho * sumGammaDy);
-                var strips = baseRun.Strips.Select((s, i) => s with
-                { Ya = -0.4 + 0.2 * i, Yb = -0.2 + 0.2 * i, DownwashTrefftz = downwash }).ToArray();
-                var run = baseRun with { Settings = settings, SettingsHash = settingsHash,
-                    RunKey = RunRecord.Key(baseRun.Inputs, baseRun.Water, baseRun.Op, baseRun.Method, settingsHash), Strips = strips };
-                run = ProjectionTests.Rehash(run);
-                string? note = ProjectionTests.Cell(ProjectionTests.View(run), "Wing result", "e (computed)").Note;
-                Equal(target < 1.02, note?.Contains("lattice bias") == true);
-            }
+            const string checkLattice = "e above 1 — check the lattice";
+            string? measured = ENote(1.01, 64);
+            Equal(true, measured?.Contains("lattice bias") == true, "measured band");
+            Equal(false, measured?.Contains(checkLattice) == true, "measured band is not the open check");
+            string? coarse = ENote(1.01, 32);
+            Equal(false, coarse?.Contains("lattice bias") == true, "non-default");
+            Equal(checkLattice, coarse, "e > 1 off the default lattice");
+            string? beyond = ENote(1.03, 64);
+            Equal(false, beyond?.Contains("lattice bias") == true, "above 1.02");
+            Equal(checkLattice, beyond, "e > 1.02");
         });
         Check("Labels_VerifiedLattice_NamesFixtureScope", () => {
             string claim = Labels.VerifiedLattice;
-            foreach (string part in new[] { "rectangular and elliptic", "±20° dihedral", "45° sweep", "4% camber", "1° washin", "64 × 4" })
-                Equal(true, claim.Contains(part, StringComparison.Ordinal), part);
+            Equal(true, claim.Contains("rectangular and elliptic", StringComparison.Ordinal), "planforms");
+            Equal(true, claim.Contains("±20° dihedral at 32 × 4", StringComparison.Ordinal), "F-8");
+            Equal(true, claim.Contains("45° sweep, AR 5, at 4 × 1", StringComparison.Ordinal), "F-16");
+            Equal(true, claim.Contains("4% camber at 32/64/128 × 4 cosine/cosine (F-18)", StringComparison.Ordinal), "F-18");
+            Equal(true, claim.Contains("1° washin at 32/64/128 × 4 cosine/cosine (F-19)", StringComparison.Ordinal), "F-19");
+            Equal(true, claim.Contains("F-6 order at 32/64/128 × 4 cosine span, uniform chord", StringComparison.Ordinal), "F-6");
+            Equal(true, claim.Contains("F-21 at 16 × 4 cosine/cosine per half", StringComparison.Ordinal), "F-21");
+            Equal(false, claim.Contains("at the 64 × 4", StringComparison.Ordinal), "blanket lattice");
         });
         Check("Station_StripReadout_EnvelopeVerdictPerPart", () => {
             var run = ProjectionTests.Data().Run; var verdicts = Enumerable.Range(0, 4).Select(_ => MethodRecord.JudgeStrip(12, 0, 0.4, 0)).ToArray();
@@ -106,5 +103,25 @@ internal static class LabelsTests
             Labels.VlmChip, Labels.OutsideLattice, Labels.VerifiedLattice, Labels.Provisional, Labels.AtBound,
             Labels.Indeterminate, Labels.FixedVlmNoDepth, Labels.StructuralList, Labels.BodyAxes })
             Equal(true, design.Contains(copy), copy);
+        Equal(true, design.Contains("| COPY-240 |") && design.Contains("e above 1 — check the lattice — proposed — awaiting operator"), "COPY-240");
+    }
+
+    private static string? ENote(double target, int spanPerHalf)
+    {
+        var (baseRun, _) = ProjectionTests.Data();
+        var settings = baseRun.Settings with { NSpanPerHalf = spanPerHalf };
+        string settingsHash = RunRecord.SettingsHash(settings);
+        double q = 0.5 * baseRun.Water.Rho * baseRun.Op.Speed * baseRun.Op.Speed;
+        double sumGammaDy = baseRun.Strips.Sum(s => s.Gamma * 0.2);
+        double cl = baseRun.Water.Rho * baseRun.Op.Speed * sumGammaDy / (q * baseRun.Reference.SRef);
+        double ar = baseRun.Reference.BRef * baseRun.Reference.BRef / baseRun.Reference.SRef;
+        double drag = cl * cl / (Math.PI * ar * target) * q * baseRun.Reference.SRef;
+        double downwash = -drag / (0.5 * baseRun.Water.Rho * sumGammaDy);
+        var strips = baseRun.Strips.Select((s, i) => s with
+        { YLow = -0.4 + 0.2 * i, YHigh = -0.2 + 0.2 * i, DownwashTrefftz = downwash }).ToArray();
+        var run = baseRun with { Settings = settings, SettingsHash = settingsHash,
+            RunKey = RunRecord.Key(baseRun.Inputs, baseRun.Water, baseRun.Op, baseRun.Method, settingsHash), Strips = strips };
+        run = ProjectionTests.Rehash(run);
+        return ProjectionTests.Cell(ProjectionTests.View(run), "Wing result", "e (computed)").Note;
     }
 }
