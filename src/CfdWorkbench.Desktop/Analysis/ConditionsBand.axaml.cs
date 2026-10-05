@@ -33,7 +33,7 @@ public partial class ConditionsBand : UserControl
         double speed = Parse(SpeedInput.Text, "ANA-INPUT-SPEED");
         double alpha = Parse(AlphaInput.Text, "ANA-INPUT-ALPHA");
         double? depth = string.IsNullOrWhiteSpace(DepthInput.Text) ? null : Parse(DepthInput.Text, "ANA-INPUT-DEPTH");
-        var op = OperatingPoints.Custom(speed, alpha + 1, depth);
+        var op = OperatingPoints.Custom(speed, alpha, depth);
         OperatingPoints.Validate(op);
         return op;
     }
