@@ -129,7 +129,9 @@ public static class VortexLattice
                 double fc = f0 + controlFrac * (f1 - f0);
                 Point3 c00 = OnCamber(sideA, f0), c10 = OnCamber(sideA, f1);
                 Point3 c01 = OnCamber(sideB, f0), c11 = OnCamber(sideB, f1);
-                Point3 a = OnPlane(sideA, fb, ya), b = OnPlane(sideB, fb, yb), cp = OnPlane(mid, fc, ym);
+                Point3 a = OnPlane(sideA, fb, ya), b = OnPlane(sideB, fb, yb);
+                Point3 midPoint = OnPlane(mid, fc, ym);
+                Point3 cp = new(midPoint.X, ym, 0.5 * (a.Z + b.Z));
                 if (plant == LatticePlant.CamberSurfaceHorseshoe)
                 {
                     a = OnCamber(sideA, fb);
