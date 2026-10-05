@@ -7,8 +7,9 @@ internal static class SectionEstimatorTests
 {
     internal static void Run()
     {
-        AnalysisChecks.Check("Section_ParabolicCamber_ZeroLiftMinus4p584Deg", Camber);
+        AnalysisChecks.Check("Section_ParabolicCamber_PanelZeroLiftAndMoment", Camber);
         AnalysisChecks.Check("Section_ThinSymmetric_PanelClApproaches2PiSlope", Lift);
+        AnalysisChecks.Check("Section_ThinCambered_GlauertOracleOnly", ThinCamber);
         AnalysisChecks.Check("Section_Ittc1957_TurbulentBound", Drag);
     }
 
@@ -16,9 +17,12 @@ internal static class SectionEstimatorTests
     {
         SectionSample section = Section(0.04, 0.10, 200);
         SectionEstimate estimate = SectionEstimator.Estimate(section, 0, 1e6);
-        Near(-4.583662361, estimate.AlphaL0Deg, 0.05, "α_L0");
-        Near(-Math.PI * 0.04, estimate.CmQuarter, 0.003, "Cm_c/4");
+        PanelResult zeroLift = PanelMethod.Solve(section, estimate.AlphaL0Deg);
+        Near(0, zeroLift.Cl, 1e-8, "panel Cl at reported α_L0");
+        Near(estimate.Panel.CmQuarter, estimate.CmQuarter, 1e-12, "one panel Cm_c/4 definition");
+        Near(-Math.PI * 0.04, estimate.CmQuarter, 0.003, "thin-airfoil moment oracle");
         AnalysisChecks.Equal(estimate.Panel.Cl, estimate.Cl, "one Cl definition");
+        Console.WriteLine($"OBSERVED panel α_L0 {estimate.AlphaL0Deg:G9} deg, Cm_c/4 {estimate.CmQuarter:G9}");
     }
 
     private static void Lift()
@@ -29,6 +33,14 @@ internal static class SectionEstimatorTests
         Console.WriteLine($"OBSERVED thin symmetric panel Cl slope: {slope:G9}");
         Near(2 * Math.PI, slope, 0.01 * 2 * Math.PI, "panel Cl small-angle slope");
         Near(0, zero.AlphaL0Deg, 0.01, "symmetric α_L0");
+    }
+
+    private static void ThinCamber()
+    {
+        SectionEstimate estimate = SectionEstimator.Estimate(Section(0.04, 0.002, 200), 0, 1e6);
+        Near(-4.583662361, estimate.AlphaL0Deg, 0.1, "thin-section Glauert α_L0 oracle");
+        Near(-Math.PI * 0.04, estimate.CmQuarter, 0.003, "thin-section Glauert Cm_c/4 oracle");
+        Console.WriteLine($"OBSERVED thin-camber panel α_L0 {estimate.AlphaL0Deg:G9} deg, Cm_c/4 {estimate.CmQuarter:G9}");
     }
 
     private static void Drag()
