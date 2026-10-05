@@ -7,9 +7,12 @@ namespace CfdWorkbench.Analysis.NeuralFoil;
 
 /// <summary>A polar result with the fit residual and the explicit envelope verdict for every section.</summary>
 public sealed record NeuralFoilEvaluation(NeuralFoilPrediction? Prediction, double CstResidualRms,
-    double CstResidualMax, bool OutsideValidatedBracket, string? Reason)
+    double CstResidualMax, IReadOnlyList<string> OutsideBracketReasons, string? Reason)
 {
     public bool Computable => Prediction is not null && Reason is null;
+
+    /// <summary>True when the point is computed but is not inside the XFOIL-validated bracket.</summary>
+    public bool OutsideValidatedBracket => OutsideBracketReasons.Count > 0;
 }
 
 /// <summary>
@@ -31,6 +34,15 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
     public const double NcritMin = 2;
     public const double NcritMax = 9;
     public const double MaxCstResidual = 0.00036;
+    // Network training range, the hard limit. Source: docs/knowledge/hydrofoil-workbench/07-low-order-hydrodynamics.md:38,
+    // citing the NeuralFoil paper (Sharpe and Hansman, arXiv 2503.16323): alpha -27.9..+28.6 degrees, Re about 1e2..1e10,
+    // Ncrit uniformly sampled in [0, 18]. Not re-read from upstream in this track; the installed package does not state it.
+    public const double TrainingAlphaMinDeg = -27.9;
+    public const double TrainingAlphaMaxDeg = 28.6;
+    public const double TrainingReynoldsMin = 1e2;
+    public const double TrainingReynoldsMax = 1e10;
+    public const double TrainingNcritMin = 0;
+    public const double TrainingNcritMax = 18;
     // assume: 0.5 is a conservative advisory confidence floor; the spike's five fixture cases are >0.95.
     // Confirm by a wider XFOIL comparison before making the floor an accuracy claim; if false, valid points may be refused.
     public const double ConfidenceFloor = 0.5;
@@ -48,8 +60,8 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
         {
             cancellation.ThrowIfCancellationRequested();
             CstFitResult fit = CstFit.Fit(section);
-            string? reason = EnvelopeReason(section.Family, fit.MaxResidual, alphaDeg, reynolds, ncrit);
-            bool outside = section.Family != "naca0012" || ncrit is not (2 or 4 or 9);
+            IReadOnlyList<string> outside = BracketFlags(section.Family, alphaDeg, reynolds, ncrit);
+            string? reason = RefusalReason(fit.MaxResidual, alphaDeg, reynolds, ncrit);
             if (reason is not null)
             {
                 outcome = "noncomputable";
@@ -104,18 +116,28 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
             prediction.Cm, prediction.XtrUpper, prediction.XtrLower, null, null, prediction.AnalysisConfidence, true);
     }
 
-    private static string? EnvelopeReason(string family, double residual, double alphaDeg, double reynolds, double ncrit)
+    // Hard refusals: outside the network's training range, or a CST fit too poor to represent the section.
+    private static string? RefusalReason(double residual, double alphaDeg, double reynolds, double ncrit)
     {
-        if (!double.IsFinite(alphaDeg) || alphaDeg < AlphaMinDeg || alphaDeg > AlphaMaxDeg)
-            return "alpha outside -6..+6 degrees";
-        if (!double.IsFinite(reynolds) || reynolds < ReynoldsMin || reynolds > ReynoldsMax)
-            return "Re outside 200000..1000000";
-        if (!double.IsFinite(ncrit) || ncrit < NcritMin || ncrit > NcritMax)
-            return "Ncrit outside 2..9";
-        if (family is not ("naca0012" or "naca2412" or "naca4412"))
-            return "section family outside spike fidelity grid";
+        if (!double.IsFinite(alphaDeg) || alphaDeg < TrainingAlphaMinDeg || alphaDeg > TrainingAlphaMaxDeg)
+            return "alpha outside the network training range -27.9..+28.6 degrees";
+        if (!double.IsFinite(reynolds) || reynolds < TrainingReynoldsMin || reynolds > TrainingReynoldsMax)
+            return "Re outside the network training range 1e2..1e10";
+        if (!double.IsFinite(ncrit) || ncrit < TrainingNcritMin || ncrit > TrainingNcritMax)
+            return "Ncrit outside the network training range 0..18";
         if (residual > MaxCstResidual)
             return "CST residual above 0.00036 c";
         return null;
+    }
+
+    // Flags, never refusals: the point is computed but the XFOIL validation does not cover it (SPIKE-ANA-1 verdict).
+    private static List<string> BracketFlags(string family, double alphaDeg, double reynolds, double ncrit)
+    {
+        var flags = new List<string>();
+        if (alphaDeg < AlphaMinDeg || alphaDeg > AlphaMaxDeg) flags.Add("alpha outside the validated -6..+6 degrees");
+        if (reynolds < ReynoldsMin || reynolds > ReynoldsMax) flags.Add("Re outside the validated 200000..1000000");
+        if (ncrit is not (2 or 4 or 9)) flags.Add("Ncrit is not one of the validated 2, 4, 9");
+        if (family != "naca0012") flags.Add("section is not the validated NACA 0012");
+        return flags;
     }
 }
