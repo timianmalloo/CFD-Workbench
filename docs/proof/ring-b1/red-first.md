@@ -1,3 +1,20 @@
+---
+id: proof-ring-b1-red-first
+title: "Ring B1 red-first receipt"
+type: proof-pack
+status: active
+owner: "@trk-b1"
+phase: implementation
+tags: [ring, test-cost, red-first]
+links:
+  - { to: design-area3-analysis, rel: depends-on }
+  - { to: plan-test-cost, rel: relates-to }
+review-by: "2026-11-04"
+summary: >-
+  Each self-test case of tools/check-test-costs.py was red against a stub checker (7429f70) and green once the
+  checker landed; OD-2 measured and not met.
+---
+
 # Track B1 red-first record
 
 | Test (`python3 tools/check-test-costs.py --self-test`) | Catches | Red commit | Green commit |

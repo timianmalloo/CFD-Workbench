@@ -5398,7 +5398,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "464d28c03f37ff7cf828ac39f6a23d6aec8180419adbfae79110e516c01e0faa"
+      "sourceSha256": "5494ec3e6cc96b23ef036fd54132679c99467bd58a459289304247172ee7a98f"
     },
     {
       "id": "review-area3-analysis-personas",
@@ -10774,6 +10774,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "535bf69270259d3c7d8e7b9b0e10deae5b78da9b7dd98df1ebad355d92d99bb5"
     },
     {
+      "id": "proof-ring-b1-red-first",
+      "path": "docs/proof/ring-b1/red-first.md",
+      "title": "Ring B1 red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-b1",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Each self-test case of tools/check-test-costs.py was red against a stub checker (7429f70) and green once the checker landed; OD-2 measured and not met.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "41878ea26c30b00baec18cc68c55dc4a2f64486731e05ad77ffec3b45749e532"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -13016,5 +13045,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "afbd0d9a4d322229d1e0b57131344d0eac1bb843753a3f604b9a8a390d5b2b89"
+  "graphSha256": "eaf59abc2fc7c9946b3c39f986db96a5898ff481dfbae25e18a74d250ae0e506"
 };

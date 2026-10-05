@@ -15,6 +15,13 @@ import sys
 import tempfile
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DIR = ROOT / ".tmp-tests"
 DEFAULT_JOBS = ("Core.part1of2", "Core.part2of2", "Desktop", "Analysis", "Cli")
