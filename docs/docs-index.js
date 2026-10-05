@@ -8481,6 +8481,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "a0cd33ccb663f518420dc28036021505bda9d589ad570ff1b322d30a8cdb83f1"
     },
     {
+      "id": "proof-a3a-pna-red-first",
+      "path": "docs/proof/a3a-pna/red-first.md",
+      "title": "A3a PNA panes and bottom panel receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-pna",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "The red runs of the A3a PNA track: the Layers pane, the Analysis bottom panel with its chart twin, the Properties Analysis groups and the shell slots. Each owned test with its red commit and the planted mutant that turns it red.",
+      "tags": [
+        "a3a",
+        "pna",
+        "analysis",
+        "layers",
+        "bottom-panel",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-ctx-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e0d0949e985922614b3e21e32bdb40617adb89e4eac18ecf7eb77ca4ed86cdb9"
+    },
+    {
       "id": "proof-a3a-pre-red-first",
       "path": "docs/proof/a3a-pre/red-first.md",
       "title": "A3a PRE red-first receipt",
@@ -13584,5 +13616,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "06f4509d4270413f84ff267475555a4711fd9f472e8c1a8f75ab15fac36152aa"
+  "graphSha256": "05f1bdc7bbfb155e78c80ae03237a60ab6f2b688a0490aaf6bfdeae4e40afd9d"
 };

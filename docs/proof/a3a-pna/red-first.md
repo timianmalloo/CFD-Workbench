@@ -1,3 +1,20 @@
+---
+id: proof-a3a-pna-red-first
+title: "A3a PNA panes and bottom panel receipt"
+type: proof-pack
+status: active
+owner: "@trk-pna"
+phase: implementation
+tags: [a3a, pna, analysis, layers, bottom-panel, red-first]
+links:
+  - { to: design-area3-analysis, rel: depends-on }
+  - { to: proof-a3a-ctx-red-first, rel: relates-to }
+review-by: "2026-11-05"
+summary: >-
+  The red runs of the A3a PNA track: the Layers pane, the Analysis bottom panel with its chart twin, the Properties
+  Analysis groups and the shell slots. Each owned test with its red commit and the planted mutant that turns it red.
+---
+
 # Track PNA red-first receipt (A3a, 2026-10-05)
 
 Each owned test, what it catches, the commit where it was red, the commit where it is green, and the planted mutant that
