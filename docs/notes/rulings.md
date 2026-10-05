@@ -855,3 +855,9 @@ Option c, not the recommendation. The outermost strip per half stays in the enve
 Option a. Only the default lattice (64 span x 4 chord, cosine/cosine) carries the verified label; results on other lattices read 'outside the verified lattice family' and flag their near-field diagnostics. The design records chordwise near-field convergence as not quantified.
 
 - request: req-01M44N5AQ3P3G15T40AB6N1SMB · ruled by: operator-timianmalloo · at: 2026-10-04T23:58:36Z
+
+### Ruling 77 — VLM lattice repair before STP joins; Ruling 75 built on the repaired lattice (DR-VLM-3)
+
+Ruled by the Fable owner under the operator's overnight delegation (2026-10-04). Option a, modified: horseshoes lie in each panel's own local plane (dihedral kept; F-8 +-20 deg must pass), camber and twist carried in the normals (AVL convention); SweepOf reads the quarter-chord line; one VLM-3 track lands before STP joins. Conditions: (1) STP does not join until VLM-3 is in its base and readiness is green; (2) VLM-3 adds two default-lattice fixtures red-first (rect AR 8, 4 % parabolic camber, alpha 5; rect 1 deg linear washin): tip alpha_i n64 vs n128 within 0.1 deg, CL within 1 % of n128, kappa1 within 10x the flat plate's, backward error <= 1e-10, washin n256 solves; F-7 kept but not the twist proof; (3) SweepOf fixture: elliptic AR 8 straight quarter-chord reads ~0 at every strip n16..256, F-16 unchanged; (4) F-1..F-17 pass; cfdw.vlm-strip 1.0.0 bumped and F-17 vector re-committed; (5) Ruling 76's verified label is not claimed for cambered or twisted wings until (2) passes; the tip strip stays provisional until the eta* law is built on the repaired lattice and re-checked. Held for the operator: verdict copy ('at the bound (+-U)', 'provisional', 'indeterminate'), eta* as a convention (reversible to option b), Rulings 75/76 text.
+
+- request: req-01M44PN1GGDZ75EM3MSJ6D8AFG · ruled by: fable-owner · at: 2026-10-05T00:18:11Z

@@ -38,6 +38,15 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
 {
     /// <summary>The Analysis fields of <c>analysis.*</c> events (design §11); null on every other event.</summary>
     public AnalysisEvent? Analysis { get; init; }
+    /// <summary>The Replace fields of <c>catalog.preview</c> and of a <c>section.step</c> whose kind is replace (m12d §10); null otherwise.</summary>
+    public ReplaceEvent? Replace { get; init; }
+}
+/// <summary>Scope is <c>draft</c> or <c>chain</c>; Spacing is <c>current</c>, <c>own-&lt;n&gt;</c> or <c>exact</c>; the residual is in chord fractions.</summary>
+public sealed record ReplaceEvent(string Scope, int Stations, double ResidualChord, string Spacing)
+{
+    /// <summary>catalog.preview only: the catalog family (null for a .dat file) and the rights class of the source.</summary>
+    public string? Family { get; init; }
+    public string? Class { get; init; }
 }
 public sealed record DimensionCommand(string Name, string Text);
 public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped);
@@ -131,7 +140,7 @@ public sealed class AuthoringSession : IDisposable
         {
             closed = true; events.Clear(); capturedSaveHashes.Clear(); retiredDraftIds.Clear();
             sources.Clear(); designs.Clear(); accepted.Clear(); cursors.Clear(); redo.Clear(); operations.Clear();
-            draft = null; recovery = null; current = null; activeImportReport = null; importBasisFallback = null;
+            draft = null; recovery = null; current = null; activeImportReport = null;
             section = null;
         }
     }
@@ -184,10 +193,12 @@ public sealed class AuthoringSession : IDisposable
             double? deviationInUnit = pendingDeviationInUnit;
             int? pointsBefore = pendingPointsBefore;
             int? pointsAfter = pendingPointsAfter;
+            ReplaceEvent? replace = pendingReplace;
+            pendingReplace = null;
             pendingDeviationInUnit = null;
             pendingPointsBefore = pendingPointsAfter = null;
             events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind, fit, deviation, shift, above, frames, family,
-                stepKind, steps, independent, deviationInUnit, pointsBefore, pointsAfter));
+                stepKind, steps, independent, deviationInUnit, pointsBefore, pointsAfter) { Replace = replace });
         }
     }
     private SourceParse ParseOwned(byte[] bytes)
@@ -296,6 +307,45 @@ public sealed class AuthoringSession : IDisposable
     /// <summary>Appends one step at the cursor (dropping any redo tail). Refuses a step that does not parse or pass structure; the draft is then unchanged.</summary>
     public SectionDraftView ApplySectionStep(string draftId, long generation, SectionStep step) =>
         Run("section.step", () => ApplySectionStepCore(draftId, generation, step), generation: generation, editKind: "section", stepKind: SectionStepKind(step));
+    /// <summary>
+    /// Previews a Replace over the draft's bytes at this generation (m12d §5.3); nothing changes. Emits <c>catalog.preview</c>
+    /// with the spacing, points, fit and outcome (§10). Applying it is <see cref="ApplySectionStep"/> with the same generation,
+    /// so a stale preview is refused.
+    /// </summary>
+    public ReplacePreview PreviewReplace(string draftId, long generation, ReplaceSource source, ReplaceScope scope)
+    {
+        byte[] bytes;
+        int assignment;
+        SectionScope draftScope;
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            RequireSection(draftId);
+            Guard.Require(draft!.Generation == generation, "DSL-CONFLICT");
+            var view = SectionView();
+            (bytes, assignment, draftScope) = (view.Bytes, view.Assignment, view.Scope);
+        }
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        ReplacePreview preview;
+        try { preview = SectionReplace.Preview(bytes, assignment, draftScope, source, scope); }
+        catch (ContractError error)
+        {
+            Record("catalog.preview", error.Code, timer.Elapsed.TotalMilliseconds, bytes.Length, null, generation, "cfdw-cv/2", editKind: "section");
+            throw;
+        }
+        lock (sync)
+        {
+            pendingFitUm = preview.FitResidual * preview.AcceptanceChord * 1e6;
+            pendingFitAboveLimit = preview.RefusalCode is not null;
+            pendingPointsAfter = preview.PointsPerSurface;
+            var (family, rights) = SectionReplace.Describe(source);
+            pendingReplace = new(scope == ReplaceScope.BlendChain ? "chain" : "draft", preview.Stations.Count, preview.FitResidual, preview.Spacing)
+            { Family = family, Class = rights };
+        }
+        Record("catalog.preview", preview.RefusalCode?.ToLowerInvariant() ?? "ok", timer.Elapsed.TotalMilliseconds, bytes.Length, null, generation,
+            "cfdw-cv/2", editKind: "section", stepKind: preview.Spacing);
+        return preview;
+    }
     /// <summary>Moves the cursor back one step; a no-op at cursor 0. Never document undo.</summary>
     public SectionDraftView UndoSectionStep(string draftId) => Run("section.undo", () => MoveSectionCursor(draftId, -1), editKind: "section");
     /// <summary>Moves the cursor forward one step; a no-op at the end.</summary>
@@ -361,10 +411,10 @@ public sealed class AuthoringSession : IDisposable
     SessionDraft? draft;
     double? pendingFitUm, pendingDeviationUm, pendingShiftUm, pendingDeviationInUnit;
     int? pendingPointsBefore, pendingPointsAfter;
+    ReplaceEvent? pendingReplace;
     bool? pendingFitAboveLimit;
     RecoveryRow? recovery;
     ImportReport? activeImportReport;
-    string? importBasisFallback;
     string? current;
     string projectId = Guid.NewGuid().ToString("D");
     string? savedImageHash;
@@ -678,87 +728,6 @@ public sealed class AuthoringSession : IDisposable
         }
         return merged.ToArray();
     }
-    private static List<(double[] Knots, double[] X, int Degree)> NeighbourBases(Definition definition, int assignmentIndex)
-    {
-        var found = new List<(double[] Knots, double[] X, int Degree)>();
-        foreach (int index in new[] { assignmentIndex - 1, assignmentIndex + 1 })
-        {
-            if ((uint)index >= (uint)definition.Assignments.Length) continue;
-            var profile = definition.Profiles[definition.Assignments[index].Profile];
-            if (profile.Upper.Degree != profile.Lower.Degree || profile.Upper.Points.Length != profile.Lower.Points.Length) continue;
-            if (!profile.Upper.Knots.SequenceEqual(profile.Lower.Knots)) continue;
-            bool sameX = true;
-            for (int point = 0; point < profile.Upper.Points.Length; point++)
-                if (profile.Upper.Points[point][0] != profile.Lower.Points[point][0]) { sameX = false; break; }
-            if (!sameX) continue;
-            int degree = profile.Upper.Degree;
-            double[] knots = profile.Upper.Knots.ToArray();
-            double[] abscissae = profile.Upper.Points.Select(point => point[0]).ToArray();
-            if (knots.Length != abscissae.Length + degree + 1) continue;
-            if (found.Any(item => item.Degree == degree && item.Knots.SequenceEqual(knots) && item.X.SequenceEqual(abscissae))) continue;
-            found.Add((knots, abscissae, degree));
-        }
-        return found;
-    }
-    // Fits a DAT to a new profile and assigns it at one station: on a neighbour's shared basis when that fits within
-    // 1e-5, else on its own spacing with the fallback reason.
-    private static (byte[] Candidate, string Profile, ImportReport Report, string? Fallback) ImportPatch(byte[] bytes, int assignmentIndex, byte[] dat)
-    {
-        var definition = FoilSource.Parse(bytes).Definition ?? throw new ContractError("DSL-PROFILE-TARGET");
-        Guard.Require((uint)assignmentIndex < (uint)definition.Assignments.Length, "DSL-PROFILE-TARGET");
-
-        var datProfile = DatImport.Parse(dat);
-        string baseSlug = DatImport.Slug(datProfile.Name);
-        var names = definition.Profiles.Select(item => item.Name).ToHashSet(StringComparer.Ordinal);
-        string profileName = baseSlug;
-        if (names.Contains(profileName))
-        {
-            for (int k = 1; ; k++)
-            {
-                profileName = $"{baseSlug}-i{k.ToString(CultureInfo.InvariantCulture)}";
-                if (!names.Contains(profileName)) break;
-                Guard.Require(k < 100000, "DSL-LIMIT");
-            }
-        }
-
-        var bases = NeighbourBases(definition, assignmentIndex);
-        ImportedProfile? neighbourFit = null;
-        foreach (var basis in bases)
-        {
-            var attempt = DatImport.FitToBasis(datProfile, profileName, basis.Knots, basis.X, basis.Degree);
-            if (attempt is null) continue;
-            if (neighbourFit is null || attempt.MaxResidual < neighbourFit.MaxResidual)
-                neighbourFit = attempt;
-        }
-        ImportedProfile fitted;
-        string? fallback = null;
-        string basisUsed;
-        if (neighbourFit is not null && neighbourFit.MaxResidual <= 1e-5)
-        {
-            fitted = neighbourFit;
-            basisUsed = "neighbour";
-        }
-        else
-        {
-            fitted = DatImport.Fit(datProfile, profileName);
-            basisUsed = "own";
-            fallback = DatImport.OwnSpacingReason(neighbourFit?.MaxResidual ?? double.PositiveInfinity);
-        }
-        var report = new ImportReport(fitted.MaxResidual, fitted.VertexCount, fitted.Accepted, fitted.Provenance, basisUsed);
-
-        var target = definition.Profiles[definition.Assignments[assignmentIndex].Profile];
-        string text = FoilSource.Utf8.GetString(bytes);
-        int newline = text.LastIndexOf('\n', target.BlockStart);
-        string indent = newline < 0 ? "" : text[(newline + 1)..target.BlockStart];
-        string indentedBlock = string.Join("\n" + indent, fitted.ProfileBlock.Split('\n'));
-        string insertion = "\n" + indent + indentedBlock;
-        var token = definition.AssignmentProfiles[assignmentIndex];
-        Guard.Require(token.Start >= target.BlockEnd, "DSL-PROFILE-TARGET");
-        string result = text[..target.BlockEnd] + insertion + text[target.BlockEnd..token.Start] + Jcs.Quote(profileName) + text[token.End..];
-        byte[] candidate = FoilSource.Utf8.GetBytes(result);
-        Guard.Require(FoilSource.Parse(candidate).IsParsed, "DSL-PATCH");
-        return (candidate, profileName, report, fallback);
-    }
     private static Diagnostic ThicknessDiagnostic(SessionDraft capture, string fault) => new(fault, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, "thickness",
         fault == "DSL-LOCK" ? "A thickness lock contradicts the source-thickness target." : "The thickness fit is singular or its residual exceeds 1e-9.",
         "Keep the current thickness or relax the lock.");
@@ -766,13 +735,11 @@ public sealed class AuthoringSession : IDisposable
     {
         SessionDraft capture;
         byte[] baseline;
-        string? basisFallback;
         lock (sync) { Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft is not null && draft.Id == draftId && draft.Generation == generation, "DSL-CONFLICT");
             Guard.Require(Interlocked.CompareExchange(ref validating, 1, 0) == 0, "DSL-VALIDATION-BUSY");
             capture = Copy(draft!);
             baseline = CurrentBytes;
-            basisFallback = importBasisFallback;
         }
         try
         {
@@ -794,8 +761,6 @@ public sealed class AuthoringSession : IDisposable
             var diagnostics = new List<Diagnostic>();
             if (status != GeometryStatus.Certified)
                 diagnostics.Add(new(code, "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, reason, "Revise the authored curves or retain the last accepted revision."));
-            if (basisFallback is not null)
-                diagnostics.Add(new("DSL-GEOMETRY", "Geometry", "Error", 0, capture.Bytes.Length, 1, 1, capture.Rail, basisFallback, "Import the profile at every station that shares it, or Rebuild the neighbouring profiles."));
             return new(authorityId, status, code, key, status == GeometryStatus.Certified ? result.Certificate : null, DraftBinding(capture, parsed), diagnostics, thickness: thickness?.Proposal, importReport: activeImportReport);
         }
         catch (ContractError error)
@@ -1203,7 +1168,7 @@ public sealed class AuthoringSession : IDisposable
             bool gesture = gestureDraftId == draft.Id;
             string? family = Channels.Family(draft.Curve ?? draft.Rail);
             pendingCurveFamily = family;
-            string id = Commit(p, operationId, "apply"); operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; importBasisFallback = null; section = null;
+            string id = Commit(p, operationId, "apply"); operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; section = null;
             if (gesture) { Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
             return id;
         }
@@ -1215,7 +1180,7 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(!closed, "DOC-CLOSED"); Guard.Require(draft?.Id == draftId, "DSL-CONFLICT");
             string? family = gestureDraftId == draftId ? Channels.Family(draft!.Rail) : null;
             if (section is not null && draft!.Rail == "section") EndSection("section.cancel", "OK", null);
-            draft = null; recovery = null; activeImportReport = null; importBasisFallback = null;
+            draft = null; recovery = null; activeImportReport = null;
             if (gestureDraftId == draftId) { Record("gesture.end", "NoChange", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, null, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
         }
     }
@@ -1223,7 +1188,7 @@ public sealed class AuthoringSession : IDisposable
     // with a cursor: Steps[0] holds the entry bytes and Steps[i] the bytes after step i. The session draft always carries
     // the cursor's bytes, so Assess, Finish, Snapshot and recovery read one place. simplify: a full byte copy per step;
     // ceiling and upgrade trigger: a draft measured over 64 MB.
-    private sealed record SectionMemento(byte[] Bytes, string Profile, ThicknessIntent Intent, SectionStepReport? Report, string? BasisFallback);
+    private sealed record SectionMemento(byte[] Bytes, string Profile, ThicknessIntent Intent, SectionStepReport? Report);
     private sealed class SectionState(string entryProfile, long began)
     {
         /// <summary>The base profile at the assignment at entry; a section recovery names it (§3.3).</summary>
@@ -1245,7 +1210,7 @@ public sealed class AuthoringSession : IDisposable
         SectionStep.Delete => "delete",
         SectionStep.Fair => "fair",
         SectionStep.Rebuild => "rebuild",
-        SectionStep.Import => "import",
+        SectionStep.Import or SectionStep.Replace => "replace",
         SectionStep.MakeUnique => "make-unique",
         SectionStep.Thickness => "thickness",
         _ => "unknown"
@@ -1256,8 +1221,8 @@ public sealed class AuthoringSession : IDisposable
     private void StartSection(string entryProfile, byte[] bytes, string profile, ThicknessIntent intent)
     {
         section = new SectionState(entryProfile, System.Diagnostics.Stopwatch.GetTimestamp());
-        section.Steps.Add(new(bytes.ToArray(), profile, intent, null, null));
-        activeImportReport = null; importBasisFallback = null;
+        section.Steps.Add(new(bytes.ToArray(), profile, intent, null));
+        activeImportReport = null;
     }
 
     // Closes the open section draft with its event: the steps at the cursor and the milliseconds since it began.
@@ -1316,7 +1281,6 @@ public sealed class AuthoringSession : IDisposable
         draft = draft! with { Generation = generation, Bytes = at.Bytes.ToArray(), VertexId = at.Profile, Profile = at.Profile, Intent = at.Intent };
         var imported = state.Steps.Take(state.Cursor + 1).LastOrDefault(item => item.Report?.Import is not null);
         activeImportReport = imported?.Report!.Import;
-        importBasisFallback = imported?.BasisFallback;
     }
 
     private SectionDraftView ApplySectionStepCore(string draftId, long generation, SectionStep step)
@@ -1332,6 +1296,9 @@ public sealed class AuthoringSession : IDisposable
             state.Steps.RemoveRange(state.Cursor + 1, state.Steps.Count - state.Cursor - 1);
             state.Steps.Add(next);
             state.Cursor++;
+            if (next.Report?.Import is { } replaced)
+                pendingReplace = new(step is SectionStep.Replace { Scope: ReplaceScope.BlendChain } ? "chain" : "draft", replaced.Stations?.Count ?? 0,
+                    replaced.MaxResidual, replaced.Basis == "own" ? "own-" + replaced.VertexCount.ToString(CultureInfo.InvariantCulture) : replaced.Basis ?? "");
             SyncSectionDraft(state, generation + 1);
             return SectionView();
         }
@@ -1379,7 +1346,7 @@ public sealed class AuthoringSession : IDisposable
             if (draft.Bytes.AsSpan().SequenceEqual(BaseBytes(draft.Base)))
             {
                 EndSection("section.finish", "NoChange", draft.Generation);
-                draft = null; recovery = null; activeImportReport = null; importBasisFallback = null;
+                draft = null; recovery = null; activeImportReport = null;
                 return null;
             }
             int steps = state.Cursor;
@@ -1402,7 +1369,6 @@ public sealed class AuthoringSession : IDisposable
         byte[] next;
         double? achieved = null;
         ImportReport? import = null;
-        string? fallback = null;
         SectionStepReport? delegated = null;
         switch (step)
         {
@@ -1439,7 +1405,10 @@ public sealed class AuthoringSession : IDisposable
                 break;
             }
             case SectionStep.Import importStep:
-                (next, _, import, fallback) = ImportPatch(bytes, assignment, importStep.Dat);
+                (next, import) = SectionReplace.Patch(bytes, assignment, ScopeOf(definition, assignment), SectionReplace.FromDat(importStep.Dat));
+                break;
+            case SectionStep.Replace replace:
+                (next, import) = SectionReplace.Patch(bytes, assignment, ScopeOf(definition, assignment), replace);
                 break;
             case SectionStep.MakeUnique:
                 Guard.Require(definition.Assignments.Count(item => item.Profile == definition.Assignments[assignment].Profile) > 1, "DSL-PROFILE-TARGET");
@@ -1456,9 +1425,12 @@ public sealed class AuthoringSession : IDisposable
         }
         string name = SectionProfileName(next, assignment);
         if (intent == ThicknessIntent.UseSource) next = ThicknessFit.Fit(next, name);
+        // m12d §5.1: the one writer of " modified", after any step but Replace (and Import, a Replace) that changed the shape.
+        if (step is not (SectionStep.Replace or SectionStep.Import)) next = Provenance.MarkModified(next, name, bytes);
         var after = SessionSource.Parse(next).Definition!;
-        // Ruling 71 at the one step choke point, Import included (operator 2026-10-04).
-        SectionEdits.RequireNeighbourAbscissa(definition, after, assignment, step);
+        // Ruling 71 at the one step choke point (operator 2026-10-04). Replace (and Import, which is a Replace) is judged once,
+        // inside SectionReplace, before its preview is offered.
+        if (step is not (SectionStep.Replace or SectionStep.Import)) SectionEdits.RequireNeighbourAbscissa(definition, after, assignment);
         var profile = after.Profiles.Single(item => item.Name == name);
         ThicknessProposal? proposal = intent == ThicknessIntent.UseSource ? ThicknessFit.Describe(next, name, baseBytes).Proposal : null;
         var report = delegated is not null
@@ -1466,8 +1438,12 @@ public sealed class AuthoringSession : IDisposable
             : new SectionStepReport(SectionStepKind(step), achieved ?? FoilSource.MaxOrdinateDeviation(prior, profile),
                 achieved is null ? ProfileChangeOracle : "ProfileFair.MaxDeviation", profile.Upper.Points.Length, profile.Lower.Points.Length,
                 import, proposal, RowsRemoved(prior, profile));
-        return new(next, name, intent, report, fallback);
+        return new(next, name, intent, report);
     }
+
+    // The block's scope at this station: shared when another station uses it too.
+    private static SectionScope ScopeOf(Definition definition, int assignment) =>
+        definition.Assignments.Count(item => item.Profile == definition.Assignments[assignment].Profile) > 1 ? SectionScope.Shared : SectionScope.Independent;
 
     private static byte[] MoveSectionPoint(byte[] bytes, ProfileDefinition profile, SectionStep.Move move)
     {

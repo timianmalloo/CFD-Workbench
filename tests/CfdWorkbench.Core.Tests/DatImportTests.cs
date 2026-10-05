@@ -46,16 +46,18 @@ internal static class DatImportTests
             session.Open(originalBytes, Id(), true);
 
             string draftId = Id();
+            // DR-M12D-3 a: Import is a Replace in place; the shared section keeps its name and its spacing (m12d §3.6).
             var draft = session.BeginSectionImport(draftId, 0, seligBytes);
             Equal(1L, draft.Generation);
-            Equal("naca-0012", draft.Profile);
+            Equal("base-section", draft.Profile);
             Equal(0, draft.Assignment);
 
             var assessment = session.Validate(draftId, draft.Generation);
             Equal(GeometryStatus.Certified, assessment.Status);
             Equal(true, assessment.ImportReport is not null);
             Equal(true, assessment.ImportReport!.Accepted);
-            Equal(fitted.MaxResidual, assessment.ImportReport.MaxResidual);
+            Equal("current", assessment.ImportReport.Basis);
+            Equal(true, assessment.ImportReport.MaxResidual * 0.120 <= 10e-6);
             Equal(fitted.VertexCount, assessment.ImportReport.VertexCount);
 
             session.Apply(Id(), assessment);
@@ -126,24 +128,20 @@ internal static class DatImportTests
             Equal(true, fitted.ProfileBlock.Contains(expectedHash));
         });
 
-        Check("DatImport_Naca0012_ExampleTip_NeighbourBasisOrFallback", () =>
-            ImportAtExampleTip(GenerateNaca0012Selig(), allowNeighbour: true));
+        Check("DatImport_Naca0012_ExampleTip_SharedReplaceCurrentSpacing", () =>
+            ImportAtExampleTip(GenerateNaca0012Selig(), "current"));
 
-        Check("DatImport_Naca2412_ExampleTip_NeighbourBasisOrFallback", () =>
-            ImportAtExampleTip(GenerateNaca2412Selig(), allowNeighbour: true));
+        Check("DatImport_Naca2412_ExampleTip_SharedReplaceOwnSpacing", () =>
+            ImportAtExampleTip(GenerateNaca2412Selig(), "own"));
 
-        Check("DatImport_Reflexed_ExampleTip_FallsBackUncertified", () =>
-            ImportAtExampleTip(GenerateReflexedSelig(), allowNeighbour: false));
+        Check("DatImport_Reflexed_ExampleTip_RefusedCatResidualNothingChanged", () =>
+            ImportAtExampleTip(GenerateReflexedSelig(), null));
     }
 
-    // COPY-210 at the Example's Tip, whose neighbour Root keeps the shared section.
-    private const string OwnSpacingRefusal = "This section has its own point spacing, which differs from Root's, so the wing " +
-        "between them can't be checked yet. Importing sections with their own spacing will work once sections can be kept in step.";
-
-    // The neighbour-basis case is unchanged: it lands, certifies, applies and undoes. Ruling 71 (operator 2026-10-04): the
-    // own-spacing case was a landed, uncertified draft with DatImport's own-spacing reason; it is now refused at the step
-    // with COPY-210, and the draft keeps its opened bytes.
-    private static void ImportAtExampleTip(byte[] dat, bool allowNeighbour)
+    // DR-M12D-3 a: an import at the Example's Tip is a shared Replace at Root and Tip (no neighbour outside the set), so it
+    // keeps the current spacing when the file fits within 10 µm, else takes its own; a file no spacing holds is refused
+    // with CAT-RESIDUAL and the draft keeps its opened bytes. Every landed import certifies, applies and undoes.
+    private static void ImportAtExampleTip(byte[] dat, string? basis)
     {
         byte[] originalBytes = FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example));
         using var session = new AuthoringSession();
@@ -155,27 +153,28 @@ internal static class DatImportTests
         try { draft = session.BeginSectionImport(draftId, 1, dat); }
         catch (ContractError refused)
         {
-            Equal("DSL-GEOMETRY", refused.Code);
-            Equal(OwnSpacingRefusal, refused.Reason);
+            Equal(null, basis);
+            Equal("CAT-RESIDUAL", refused.Code);
             var unchanged = session.Snapshot().Draft!;
             Equal(0L, unchanged.Generation);
             Equal(true, opened.AsSpan().SequenceEqual(unchanged.Bytes));
-            Console.WriteLine("IMPORT-BASIS: own (refused)");
+            Console.WriteLine("IMPORT-BASIS: refused " + refused.Reason);
             return;
         }
-        Equal(true, allowNeighbour);
+        Equal(basis is not null, true);
         Equal(1, draft.Assignment);
+        Equal("section-a", draft.Profile);
 
         var assessment = session.Validate(draftId, draft.Generation);
         var report = assessment.ImportReport ?? throw new InvalidOperationException("Missing import report.");
-        Equal("neighbour", report.Basis);
-        Equal(true, report.MaxResidual <= 1e-5);
+        Equal(basis, report.Basis);
+        Equal(true, report.MaxResidual * 0.120 <= 10e-6);
         Equal(GeometryStatus.Certified, assessment.Status);
         session.Apply(Id(), assessment);
         Equal(false, opened.AsSpan().SequenceEqual(session.Snapshot().Source));
         session.Undo(Id());
         Equal(true, opened.AsSpan().SequenceEqual(session.Snapshot().Source));
-        Console.WriteLine(FormattableString.Invariant($"IMPORT-BASIS: neighbour {report.MaxResidual}"));
+        Console.WriteLine(FormattableString.Invariant($"IMPORT-BASIS: {report.Basis} {report.MaxResidual}"));
     }
 
     private static void RefusesLine(string code, int expectedLine, Action action)
