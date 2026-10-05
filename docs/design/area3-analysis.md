@@ -301,13 +301,27 @@ governing station and its depth named; −Cp_min ≤ 0 → Undefined; missing p_
 
 Section results are per span: N/m, lowercase Cl, Cd (A5.6).
 
-### 5.2 Wing (3D) tier — VLM + strip (`cfdw.vlm-strip` v1)
+### 5.2 Wing (3D) tier — VLM + strip (`cfdw.vlm-strip` v1.1.0)
 
-- **Lattice.** Horseshoe vortices on the mean camber surface (`PlacedCamber`), both halves (full span): bound segment at
+- **Lattice.** Horseshoe vortices in each panel's own local uncambered plane, both halves (full span): bound segment at
   the panel quarter chord, control point at three-quarter chord, no-penetration (V∞ + v)·n = 0; trailing legs to
-  `wakeSpans` spans along +x (the wake direction is a setting). Panel normals from the cross product of the panel
-  diagonals, never from an edge (a closing tip panel is a triangle with real area). A strip is excluded only when its
-  control-point chord is below 10 µm, and the exclusion is listed. Spacing laws and counts: DR-ANA-7.
+  `wakeSpans` spans along +x (the wake direction is a setting). Each panel's plane follows its frame elevation, so
+  dihedral remains in the bound segment and wake legs. The placed camber surface (`PlacedCamber`) supplies panel area;
+  `CamberSlope` and frame twist supply the normal (AVL convention). Horseshoe points stay in that local plane. Each normal uses
+  `CamberSlope` interpolated at that panel's three-quarter-chord control point, rotated by the mid-section twist,
+  and crossed with the elevated bound segment. The placed panel diagonals still measure area and reject a closing
+  tip panel with zero area. Strip sweep reads the line through each side's quarter-chord point, not a chordwise panel's bound line.
+  A strip is excluded only when its control-point chord is below 10 µm, and the exclusion is listed. Spacing laws
+  and counts: DR-ANA-7.
+
+Before F-18 passed on the repaired lattice, Ruling 76's default-lattice verified label had evidence only for flat
+wings. It was not a verified claim for cambered or twisted wings. F-18 and F-19 now cover the two named rectangular
+non-planar cases at the default 64 × 4 cosine/cosine lattice; F-21 supplies the chordwise camber check. Until F-21
+passes, cambered wings are **spanwise-converged; chordwise camber not verified**. The verified label still has the
+default-lattice boundary.
+The outermost tip-strip envelope verdict remains provisional until Ruling 75's η* law is built and checked on this
+repaired lattice (Ruling 77); this repair does not implement that law.
+
 - **Solve.** Dense LU with partial pivoting (interchanges on columns k…n−1, LINPACK order), **one** solve, no iterative
   refinement; record ‖AΓ − b‖∞ and a 1-norm condition estimate κ₁. A normwise backward error
   ‖AΓ − b‖∞ / (‖A‖∞‖Γ‖∞ + ‖b‖∞) above 10⁻¹⁰ fails closed (`ANA-SOLVE-RESIDUAL`, a Failed run with its reason, never a
@@ -404,7 +418,7 @@ wired at the composition root, mirroring `CfdWorkbench.Persistence`.
 ```jsonc
 { "runId": "uuid", "runKey": "blake3-hex (recomputed on read, never trusted)", "contentHash": "blake3-hex",
   "outcome": "Completed" /* | { "failed": { "code": "ANA-SOLVE-RESIDUAL", "reason": "…" } } */,
-  "tier": "vlm-strip", "method": { "id": "cfdw.vlm-strip", "version": "1.0.0", "order": 1 },
+  "tier": "vlm-strip", "method": { "id": "cfdw.vlm-strip", "version": "1.1.0", "order": 1 },
   "settings": { "nSpanPerHalf": 64, "nChord": 4, "spanSpacing": "cosine", "chordSpacing": "cosine",
                 "wakeSpans": 20, "wakeDirection": "+x", "singularityCutoff": 1e-8, "envelope": "vlm-envelope/1",
                 "polar": null /* or { "id", "version", "model" } */, "ncrit": [2, 4], "surfaceState": "clean",
@@ -624,7 +638,7 @@ mutant** (§13.2 column), not only a stub — a constant or zero stub satisfies 
 | F-4 | mirrored wing, β 0 | side force, roll and yaw = 0 within 10⁻¹² of lift; CL > 0.1. **Rev (review 2026-10-04):** plus `Vlm_PivotingSolve_ResidualAfterOneSolve` — a 12 × 12 matrix with 8 interchanges reaches ‖AΓ − b‖∞ ≤ 10⁻¹² after **one** solve (measured 2.4 × 10⁻¹⁵) and κ₁ ≤ the exact ‖A‖₁‖A⁻¹‖₁. Old: the symmetry held only because four refinement passes hid a whole-row pivot swap (one-solve residual 0.52 on this wing) | one half mirrored with the wrong sign; **whole-row pivot swap** → `ANA-SOLVE-RESIDUAL` (12 × 12: residual 1.98, backward error 0.047) | ring 0 · ≈ 50 ms |
 | F-5 | Trefftz vs near-field induced drag | **Rev (review 2026-10-04).** Elliptic AR 8 at the default chord law (cosine, 4 chordwise), 32/64/128 per half, one midpoint evaluation per bound segment (§5.2): \|near/Trefftz − 1\| shrinks with refinement and is ≤ 1 % at 128 or after Richardson (measured 0.99082, 0.99104, 0.99107; Richardson 0.99107). Old: within 1 % at one lattice, met by a 3-point Gauss rule along the bound segment — a crossing (1.0186, 1.0030, 0.9951 on F-6's uniform trio). The gap converges to 0.89 % (cosine chord) or 1.28 % (uniform chord) under span refinement: a chordwise near-field error, not verified further | **trailing legs omitted from the near-field induced velocity** → 0.0217 (old mutant, freestream only, too weak) | ring 0 · ≈ 0.43 s (its own cosine-chord trio) |
 | F-6 | refinement, elliptic AR 8, **32/64/128** per half (r = 2) | observed order p = ln((f₂ − f₁)/(f₃ − f₂))/ln 2 within 1.0 ± 0.2 for CL and e (reference p(CL) 1.070, p(e) 1.013; 16/32/64 is not used — p(CL) 1.183 sits at the band edge); the method record states p = 1 | **O(1) mutant: the wake length read per panel (`wakeSpans` × panel span, not × wing span).** The error grows with refinement (CL +5.9, +11.9, +21.3 %), so p(CL) = −0.735 and p(e) = 0.515 — red (measured, [note](../notes/area3-fixture-arithmetic.md)). Rev 2's off-by-one strip is O(h) and leaves p near 1 | ring 0 by A8.4 (observed order is ring 0) · ≈ 0.8 s in the JS reference; C# measured at red-first; exempt from the 0.5 s rule by name (§13.4) |
-| F-7 | twist sign, −3° linear washout | tip α_eff < root by ≈ 3° minus the induced change; CL below untwisted | twist sign flipped | ring 0 · est. 0.1 s (two 512-unknown solves) |
+| F-7 | twist sign, −3° linear washout, 12 × 2 | tip α_eff < root by ≈ 3° minus the induced change; CL below untwisted. This coarse fixture checks the sign; it is no longer the twist proof at the default lattice (F-19 is) | twist sign flipped | ring 0 · measured 1.4 ms plus mutant and measurement |
 | F-8 | dihedral **±20°**, Example-foil rectangle, α 5°, 32 × 4 | S_ref **pinned to the developed area** (b·c): CL ratio to planar **0.8938 ± 1 %** (both signs; [note](../notes/area3-fixture-arithmetic.md)) | dihedral ignored in placement → ratio 1.0000, **11.9 % off** — 12 × the tolerance. Rev 2's ±10° projected target let it pass (0.8 % on the CFD lens' wing, 1.25 % here) | ring 0 · est. 50 ms (three 256-unknown solves) |
 | F-9 | ANA-03 arithmetic | L 2688 N, D 156.8 N, CL/CD 17.142857 | q without ½ | ring 0 · µs |
 | F-10 | bookkeeping (ANA-11) | near-field wind-axis Σ vs L_T and half-span root moment, normalised by L·b/2, within the manifest tolerance; up to α 10° | drop or double one strip | ring 0 · est. 0.2 s (two solves) |
@@ -636,6 +650,10 @@ mutant** (§13.2 column), not only a stub — a constant or zero stub satisfies 
 | F-15 | induced angle (CFD lens) | **Rev (review 2026-10-04).** α_i/(CL/(π AR)) at η 0, 0.5, 0.8, 0.9 on F-6's lattices: observed order 1 ± 0.2 at each station and Richardson within 0.5 % of the independent reference **1.02743, 1.01678, 0.96735, 0.88407** ([note](../notes/area3-fixture-arithmetic.md) §Repair); the 32-span profile within 0.5 % of the reference; α_i even in y within 10⁻¹⁰. Old: "uniform within 1 % and equal to CL/(π AR)" is the lifting-line result — the lattice is a lifting surface and its α_i converges (p ≈ 1, with y- and θ-midpoint w_T alike) to a non-uniform profile; the build's Γ·Δy-weighted mean equals CDi/CL by construction and repeated F-2's e | α_i from the total control-point velocity (→ 5.25 at the root); **w_T assigned to the neighbouring strip** (→ 0.9200 vs 0.93735 at η 0.8) | ring 0 · shares F-6's solves + two 256-unknown solves |
 | F-16 | swept (Bertin–Smith) | AR 5, Λ_c/4 45°, 4 panels per half, 1 chordwise: C_Lα 3.443 /rad ± 0.5 % (CFD re-run 3.4440) | sweep ignored in the bound-vortex placement | ring 0 · µs (8 unknowns) |
 | F-17 | own-code golden master | Example foil, default settings: outputs equal a committed vector within 10⁻¹² rel with platform, runtime and commit provenance; the same vector on Windows when it resumes | any numeric change without a version bump | ring 0 · est. 0.1 s (one 512-unknown solve) |
+| F-18 | rectangular AR 8, 4 % parabolic camber, α 5°, default cosine/cosine 64 × 4; n32/64/128/256 study | control-point slope normals: tip α_i n64 4.958° vs n128 4.977° (≤ 0.1°); CL 0.77842 vs 0.77694 (≤ 1 %); κ₁ n64 1,104.0 ≤ 10 × flat 1,103.37; backward error ≤ 10⁻¹⁰ at all four n by the fail-closed solver. Panel-average predecessor n64: 4.658°, CL 0.68252. [Study](../proof/vlm-tip-study/verdict.md) | horseshoes returned to the camber-surface bound/control points → n64 tip −3.52 × 10⁶°, red | ring 0 · 313 ms fast, 4.94 s n256 measured in VLM-3c |
+| F-19 | rectangular AR 8, 1° linear washin, α 5°, same lattice and four n | tip α_i n64 2.366° vs n128 2.371° (≤ 0.1°); CL 0.43705 vs 0.43616 (≤ 1 %); κ₁ n64 1,103.3 ≤ 10 × flat 1,103.37; backward error ≤ 10⁻¹⁰ by the fail-closed solver; n256 solves without `ANA-SOLVE-SINGULAR`. Old n64 tip 725° | horseshoes returned to twisted bound/control points → n64 tip 725°, red | ring 0 · measured 2.6–3.5 s |
+| F-20 | elliptic AR 8, straight quarter-chord, n16/32/64/128/256, 4 cosine chord panels | every strip's quarter-chord sweep ≈ 0° (observed exactly 0); F-16's swept lift-slope oracle stays unchanged | sweep from front chordwise panel's bound line → maximum 54.1/70.1/79.8/84.8/87.4°, red | ring 0 · measured 6.6 s |
+| F-21 | 4 % parabolic camber, rectangular AR 40, 16 cosine span panels per half, default 4 cosine chord panels; two incidence solves locate α_L0 | α_L0 = −4.584° thin-airfoil target ± 0.05°; measured −4.59322° (0.00956° finite-span offset). The band is five times that measured offset and far below the 1.19° corner-normal defect. This is the chordwise camber evidence for the default lattice | restore panel-corner diagonal normals → −3.39248°, red | ring 0 / A · 3.392 ms measured alone |
 | — | Warren-12 | admitted only after its reference numbers are re-established (07 open question 3) | — | not in v1 |
 
 ### 13.3 Domain, persistence and UI tests — each named, with its failing input, ring and cost
@@ -1129,6 +1147,13 @@ are marked ✚.
 | `F7_LinearWashout_TipAlphaEffBelowRoot` (VLM) | A | est. 0.1 s | §13.2 F-7 |
 | `F15_EllipticWing_InducedAngleUniform` (VLM) | A | in F-6 | §13.2 F-15 |
 | `F16_BertinSmithSwept_ClAlpha3p443` (VLM) | A | µs | §13.2 F-16 |
+| `F18_Camber4_DefaultLatticeTipConverges` (VLM) | A | 447 ms measured alone | §13.2 F-18 |
+| `F19_Washin1_DefaultLatticeTipConverges` (VLM) | A | 384 ms measured alone | §13.2 F-19 |
+| `F20_EllipticStraightQuarterChord_SweepZero` (VLM) | A | 220 ms measured alone | §13.2 F-20 |
+| `F21_ParabolicCamber_ZeroLiftAngleThinAirfoil` (VLM) | A | 3.392 ms measured alone | §13.2 F-21 (corner normals) |
+| `Readiness_Camber4_N256Point` (VLM) | R | 2.427 s measured | §13.2 F-18 |
+| `Readiness_Washin1_N256Solves` (VLM) | R | 2.254 s measured | §13.2 F-19 |
+| `Readiness_EllipticQuarterChord_SweepZeroFine` (VLM) | R | 2.575 s measured | §13.2 F-20 |
 | `Vlm_ClosingTip_FiniteAndListed` (VLM) | A | < 10 ms | the panel normal from the leading-edge segment (zero area at the tip) |
 | `Vlm_NonFinite_RecordsFailedNotZero` (VLM) | A | < 10 ms | a non-finite Γ replaced by 0 |
 | `Vlm_AlphaBeyondEnvelope_ShowsEnvelopeFinding` (VLM) | A | ≈ 50 ms | the verdict computed on α_geo, not α_eff |

@@ -3,7 +3,7 @@ window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
   "generator": "docs-graph.py derive",
-  "rootId": "adr-0001-master-curve-degree",
+  "rootId": "a3a-vlm3-red-first",
   "artifactTypes": [
     "knowledge",
     "glossary",
@@ -1706,7 +1706,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "051d79de1bea4b4621550910d5ab24a71c119d45b86fb0f7b835c75ffea0f70b"
+      "sourceSha256": "4d6ccf04838c59e5f8ce0c4d0c2d44e9e1f85205a702e03fac807d7a675c47c4"
     },
     {
       "id": "note-backlog-2d-section-workbench",
@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "808352e034cdc778b4f158f929dbcbf7489462de8e236cdb88ca8429d13791ff"
+      "sourceSha256": "6b8fd9604547b995ba2e1ac6b01acb5b419c1384469d7ba49098e276a27bf79b"
     },
     {
       "id": "design-authoring-decisions",
@@ -2602,7 +2602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f705a8e6d0ea74a1ebc3b323f6b8c9240197ce28bc4f024450e2911b23692f0b"
+      "sourceSha256": "42724f92082c7bfa90d2f87dc3267f138f05de6083636c2469ef7c8fe4d87e71"
     },
     {
       "id": "design-foildsl-authoring",
@@ -3105,7 +3105,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "af148f3ea84849a163f297d2b24924c116519c335304a0d656297b68210a1233"
+      "sourceSha256": "2055ed8f07942a1533818b99b6821ab3bee9261a3fb70e5555bda11c824faa42"
     },
     {
       "id": "design-m12d-catalog",
@@ -3181,7 +3181,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e51b62efe7b2f33af4b7d635546251d66a4d190cd22bb8d674d63544f503d852"
+      "sourceSha256": "4cadd85cfb1381ed228f5c12bef2b62b18553976ec36b09e1c92ab6f9ff71c5f"
     },
     {
       "id": "design-planform-point-verbs",
@@ -6327,7 +6327,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "30254ba17add8324bb7191555a7ea892cb876cfd290b2e23f78ec608f84d6b5e"
+      "sourceSha256": "02b6e8637401c11c67361409ec09f845bea34c300a0b99206badf5d30c8a7e9a"
     },
     {
       "id": "kb-hw-glossary",
@@ -8042,6 +8042,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "c89007c3e991f6f152f1351f58df542875488e16b29c7ca435688379bca840ae"
     },
     {
+      "id": "a3a-vlm3-red-first",
+      "path": "docs/proof/a3a-vlm3/red-first-receipt.md",
+      "title": "VLM-3 red-first receipt",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm3",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "The three VLM-3 fixtures fail on the old camber-surface horseshoes and front-bound sweep.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "08ff878ce4ea473d342dce59214849a1c29f0caa3deeaf78fb38e1e9f6a5eba4"
+    },
+    {
+      "id": "a3a-vlm3c-camber-normals",
+      "path": "docs/proof/a3a-vlm3/vlm3c-camber-normals.md",
+      "title": "VLM-3c control-point camber normal proof",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm3c",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "F-21 fails on corner normals and passes on control-point camber slope normals; the existing spanwise and flat-wing fixtures remain green.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "camber",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "tested-by"
+        },
+        {
+          "to": "note-area3-fixture-arithmetic",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4bcb15a6a095cc5b44cdc797c742395ab92807dd4e1f8a08c36767a12fbe8f9d"
+    },
+    {
       "id": "coordination-application-c-launch",
       "path": "docs/coordination/application-c-launch.md",
       "title": "Native adapter author launch and monitoring receipt",
@@ -9120,6 +9175,357 @@ window.DOCS_INDEX = {
       "sourceSha256": "2fb09414e43cbf319a03ae0c7605f59a53cc78797d1b73578f5ced83dbf71d56"
     },
     {
+      "id": "proof-blend-certificate-heap",
+      "path": "docs/proof/blend-certificate-heap/verdict.md",
+      "title": "Blend certificate heap spike verdict (Ruling 73, DR-XPA-1 c)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Measured on a branch build. A binary max-heap in Bernstein.Maximum, keyed on (coefficient maximum, insertion sequence), reproduces the rescan bit for bit: 52 of 52 fixtures, 1,196 queries, admission and query work equal. With its comparisons charged instead of 6 N (N + 1), the 1e6 all-query bound admits the 27-span (32-point) ceiling for two to four differing stations, 20 spans for five and 5 spans for six. GO for heap + max(256, 48 s) with the bound kept at 1e6.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "budget",
+        "all-query-bound",
+        "spans",
+        "ruling-73",
+        "dr-xpa-1",
+        "spike"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-budget",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-cross-profile-abscissa",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-m12d-catalog",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-m12b2-golden",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "da8fa0a653567a2223906b70c4ec83df3dd80b985c437243caf8aeec8fee7414"
+    },
+    {
+      "id": "proof-blend-certificate-heap-ceiling-heap",
+      "path": "docs/proof/blend-certificate-heap/output/ceiling-heap.md",
+      "title": "Blend heap probe - ceiling, heap Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-heap/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "dad23eb0ecb4dd4579b99028f33f951642788c553858bb58fa6203b40f9f4c82"
+    },
+    {
+      "id": "proof-blend-certificate-heap-ceiling-heap-hooked",
+      "path": "docs/proof/blend-certificate-heap/output/ceiling-heap-hooked.md",
+      "title": "Blend heap probe - ceiling, heap-hooked Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-heap/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a2b4bfd0b0973f8bf70d251db25089a15846247f36ee91da1a8b98160da1ec9c"
+    },
+    {
+      "id": "proof-blend-certificate-heap-four-heap",
+      "path": "docs/proof/blend-certificate-heap/output/four-heap.md",
+      "title": "Blend heap probe - four, heap Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-heap/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8b582ee0c39344c4566dced48408f95d81ecfb0fe8bc01e0f780011eb603d778"
+    },
+    {
+      "id": "proof-blend-certificate-heap-four-heap-hooked",
+      "path": "docs/proof/blend-certificate-heap/output/four-heap-hooked.md",
+      "title": "Blend heap probe - four, heap-hooked Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-heap/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c9554dac47c7d15c86fc7324e9cbafe7b7858b7d1cd0d6f3d444eed7a39e19fd"
+    },
+    {
+      "id": "proof-blend-certificate-heap-neutrality",
+      "path": "docs/proof/blend-certificate-heap/output/neutrality.md",
+      "title": "Blend heap probe - neutrality check (generated)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by probe/neutrality.py: the heap build reproduces the rescan build's admission and query results row by row.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fdfb79766e19c2dc2ac73cfea24c427538a6095640181a5222eef1d2a65b1f9c"
+    },
+    {
+      "id": "proof-blend-certificate-heap-stage1-heap",
+      "path": "docs/proof/blend-certificate-heap/output/stage1-heap.md",
+      "title": "Blend heap probe - stage1, heap Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-heap/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c131478ded31b3c2c72882de4a8b070d53ce9c392c0ffc61fe521a861655e028"
+    },
+    {
+      "id": "proof-blend-certificate-heap-stage1-heap-hooked",
+      "path": "docs/proof/blend-certificate-heap/output/stage1-heap-hooked.md",
+      "title": "Blend heap probe - stage1, heap-hooked Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-heap/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4a19e009a8b620c6e50424e5ef2602358b1d81c41f846486624e9e103fe82cd5"
+    },
+    {
+      "id": "proof-blend-certificate-heap-stage2-heap",
+      "path": "docs/proof/blend-certificate-heap/output/stage2-heap.md",
+      "title": "Blend heap probe - stage2, heap Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-heap/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f1abcc9ed79d6c5ab02ae615ff488aa54bfe5965b6a010072eb7e431c494ffcd"
+    },
+    {
+      "id": "proof-blend-certificate-heap-stage2-heap-hooked",
+      "path": "docs/proof/blend-certificate-heap/output/stage2-heap-hooked.md",
+      "title": "Blend heap probe - stage2, heap-hooked Core (generated; do not edit, re-run the probe)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by docs/proof/blend-certificate-heap/probe. Times vary by machine; every other column is deterministic.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "220ad8a7f5c0de591345387bcd923ec5f720361575d3a76aa23278727f6da6d2"
+    },
+    {
+      "id": "proof-blend-certificate-heap-summary",
+      "path": "docs/proof/blend-certificate-heap/output/summary.md",
+      "title": "Blend heap probe - summary (generated)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by probe/summarize.py: capacity per family (as built, 4.2 M alternative, heap), op counts, measured costs.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "90698f069ee1b77d12d0fe0113fbed274dc5baf549e21985e0194cfcb66bd16f"
+    },
+    {
+      "id": "proof-blend-certificate-heap-timing",
+      "path": "docs/proof/blend-certificate-heap/output/timing.md",
+      "title": "Blend heap probe - re-timed heaviest fixtures (generated)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Generated by the probe's timing mode: minimum and median wall time of the heaviest fixtures under machine load.",
+      "tags": [
+        "certificate",
+        "blend",
+        "heap",
+        "probe",
+        "generated",
+        "ruling-73"
+      ],
+      "links": [
+        {
+          "to": "proof-blend-certificate-heap",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c3c2e20ddb41ade9bb6869725dbf84d648ca1916d1b08e9ff62af890fc7f6f04"
+    },
+    {
       "id": "proof-c1-red-runs",
       "path": "docs/proof/c1-red-runs.md",
       "title": "C1 wing estimates and span red-first run",
@@ -9819,7 +10225,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0de3b6ced737285a2bb7f206b2dc2488a2b5841e2957285cddb4a34cab5df7bd"
+      "sourceSha256": "744d50e63498b484cb0878f8035cfdbda89af6d9dedfd5a979d713da225cd5e7"
     },
     {
       "id": "proof-m12c-certificate-spike",
@@ -10492,6 +10898,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "8ba9b363a2dc1f706d2dc6e3ac217494b68d67563f6ec363acedde1c2a4a98be"
+    },
+    {
+      "id": "proof-vlm-tip-study",
+      "path": "docs/proof/vlm-tip-study/verdict.md",
+      "title": "VLM tip-strip envelope study",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm3",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "Measured tip-strip refinement, tolerance-law proposal, and the default lattice's camber and twist failure.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "tip-strip",
+        "camber",
+        "twist"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "37d5868b910b5a7398fdbdf5eb15d9ecbd89c0516cbf0905b61aa2d5ef648d70"
     },
     {
       "id": "proof-windows-runtime",
@@ -12326,5 +12759,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "feb3b7ad8d75e0ddd2f6520b8027cf49070817dd19e329250e5d8d955696bb50"
+  "graphSha256": "ba7683c8802ca4c6b82aa4ab15b5eb93b85989439fb68214c5849ed2873a9256"
 };

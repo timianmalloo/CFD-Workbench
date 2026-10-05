@@ -42,12 +42,14 @@ internal enum LatticePlant
     NonFiniteAsZero,
     BoundUnswept,
     PivotWholeRow,
-    DownwashNeighbour
+    DownwashNeighbour,
+    CamberSurfaceHorseshoe,
+    FrontBoundSweep
 }
 
 /// <summary>
-/// Horseshoe vortices on the placed camber surface of both halves (design §5.2). Panel corners come from
-/// <see cref="SectionSample.PlacedCamber"/> only, so the layers cannot disagree with the drawn foil. VLM owns the body.
+/// Horseshoe vortices in each panel's local uncambered plane on both halves (design §5.2).
+/// Control-point camber slope and twist supply normals; the frame supplies the elevated vortex geometry.
 /// </summary>
 public static class VortexLattice
 {
@@ -118,7 +120,8 @@ public static class VortexLattice
                 continue;
             }
             int strip = kept.Count;
-            kept.Add(new StripGeom(strip, ym, mid.Frame.Eta, chord, yb - ya, mid.Frame.TwistDegrees, ya, yb));
+            double sweep = SweepOf(sideA, sideB, ya, yb);
+            kept.Add(new StripGeom(strip, ym, mid.Frame.Eta, chord, yb - ya, mid.Frame.TwistDegrees, sweep, ya, yb));
             for (int k = 0; k < settings.NChord; k++)
             {
                 double f0 = fractions[k], f1 = fractions[k + 1];
@@ -126,7 +129,15 @@ public static class VortexLattice
                 double fc = f0 + controlFrac * (f1 - f0);
                 Point3 c00 = OnCamber(sideA, f0), c10 = OnCamber(sideA, f1);
                 Point3 c01 = OnCamber(sideB, f0), c11 = OnCamber(sideB, f1);
-                Point3 a = OnCamber(sideA, fb), b = OnCamber(sideB, fb), cp = OnCamber(mid, fc);
+                Point3 a = OnPlane(sideA, fb, ya), b = OnPlane(sideB, fb, yb);
+                Point3 midPoint = OnPlane(mid, fc, ym);
+                Point3 cp = new(midPoint.X, ym, 0.5 * (a.Z + b.Z));
+                if (plant == LatticePlant.CamberSurfaceHorseshoe)
+                {
+                    a = OnCamber(sideA, fb);
+                    b = OnCamber(sideB, fb);
+                    cp = OnCamber(mid, fc);
+                }
                 if (!Finite(a) || !Finite(b) || !Finite(cp) || !Finite(c00) || !Finite(c10) || !Finite(c01) || !Finite(c11))
                     throw new LatticeFailedException("ANA-NONFINITE", "A panel coordinate is not finite.");
                 if (plant == LatticePlant.BoundUnswept)
@@ -135,13 +146,23 @@ public static class VortexLattice
                     a = new Point3(rootBoundX, a.Y, a.Z);
                     b = new Point3(rootBoundX, b.Y, b.Z);
                 }
-                Vector3 normal = plant == LatticePlant.NormalFromLeadingEdge
+                Vector3 cornerNormal = plant == LatticePlant.NormalFromLeadingEdge
                     ? Cross(Sub(c01, c00), Sub(c11, c01))
                     : Cross(Sub(c11, c00), Sub(c10, c01));
-                double area = 0.5 * normal.Length;
+                double area = 0.5 * cornerNormal.Length;
                 if (area < minArea) minArea = area;
-                if (!(area > 1e-14) || !normal.IsFinite)
+                if (!(area > 1e-14) || !cornerNormal.IsFinite)
                     throw Fail(plant, "ANA-SOLVE-SINGULAR", "A panel has no area.");
+                double slope = CamberSlopeAt(mid, fc);
+                double twist = ToRadians(mid.Frame.TwistDegrees);
+                Point3 tangent = new(Math.Cos(twist) + Math.Sin(twist) * slope, 0,
+                    -Math.Sin(twist) + Math.Cos(twist) * slope);
+                // The bound segment retains the elevated local plane; the chord tangent reads the
+                // camber derivative at this panel's control point, rotated by the section twist.
+                Vector3 normal = plant == LatticePlant.NormalFromLeadingEdge
+                    ? cornerNormal : Cross(tangent, Sub(b, a));
+                if (!normal.IsFinite || !(normal.Length > 0))
+                    throw Fail(plant, "ANA-NONFINITE", "A panel normal is not finite.");
                 if (normal.Z < 0) normal = new Vector3(-normal.X, -normal.Y, -normal.Z);
                 normal = normal.Unit();
                 var farA = new Point3(a.X + wakeReach, a.Y, a.Z);
@@ -204,7 +225,8 @@ public static class VortexLattice
                 : ToDegrees(-w / (2 * op.Speed));
             double cl = 2 * stripGamma[s] / (op.Speed * kept[s].Chord);
             strips[s] = new LatticeStrip(s, kept[s].Y, kept[s].Eta, kept[s].Chord, kept[s].Dy, stripGamma[s], w,
-                ai, kept[s].Twist, SweepOf(horses, s), cl, kept[s].Ya, kept[s].Yb);
+                ai, kept[s].Twist, plant == LatticePlant.FrontBoundSweep ? FrontBoundSweepOf(horses, s) : kept[s].Sweep,
+                cl, kept[s].Ya, kept[s].Yb);
             gammas[s] = stripGamma[s];
             washes[s] = w;
         }
@@ -295,16 +317,23 @@ public static class VortexLattice
         return OnCamber(root, f).X;
     }
 
-    private static double SweepOf(List<Horseshoe> horses, int strip)
+    private static double SweepOf(SectionSample a, SectionSample b, double ya, double yb)
+    {
+        double quarterA = a.Frame.LeadingMeters + 0.25 * a.Frame.ChordMeters;
+        double quarterB = b.Frame.LeadingMeters + 0.25 * b.Frame.ChordMeters;
+        return ToDegrees(Math.Atan2(quarterB - quarterA, yb - ya));
+    }
+
+    private static double FrontBoundSweepOf(List<Horseshoe> horses, int strip)
     {
         foreach (Horseshoe horse in horses)
-        {
-            if (horse.Strip != strip) continue;
-            double dx = horse.B.X - horse.A.X, dy = horse.B.Y - horse.A.Y;
-            return ToDegrees(Math.Atan2(dx, dy));
-        }
+            if (horse.Strip == strip)
+                return ToDegrees(Math.Atan2(horse.B.X - horse.A.X, horse.B.Y - horse.A.Y));
         return 0;
     }
+
+    private static Point3 OnPlane(SectionSample section, double fraction, double y) =>
+        new(section.Frame.LeadingMeters + fraction * section.Frame.ChordMeters, y, section.Frame.ElevationMeters);
 
     private static double InducedFromTotal(List<Horseshoe> horses, double[] gamma, StripGeom strip, OperatingPoint op)
     {
@@ -610,6 +639,19 @@ public static class VortexLattice
         return new Point3(a.X + t * (b.X - a.X), a.Y + t * (b.Y - a.Y), a.Z + t * (b.Z - a.Z));
     }
 
+    private static double CamberSlopeAt(SectionSample section, double fraction)
+    {
+        IReadOnlyList<double> x = section.X;
+        IReadOnlyList<double> slope = section.CamberSlope;
+        if (fraction <= x[0]) return slope[0];
+        int last = x.Count - 1;
+        if (fraction >= x[last]) return slope[last];
+        int i = 0;
+        while (i + 1 < last && x[i + 1] < fraction) i++;
+        double t = (fraction - x[i]) / (x[i + 1] - x[i]);
+        return slope[i] + t * (slope[i + 1] - slope[i]);
+    }
+
     private static double ChordOf(SectionSample section)
     {
         Point3 a = OnCamber(section, 0), b = OnCamber(section, 1);
@@ -619,7 +661,7 @@ public static class VortexLattice
 
     private static double SectionY(SectionSample section) => section.PlacedCamber[0].Y;
 
-    private readonly record struct StripGeom(int Index, double Y, double Eta, double Chord, double Dy, double Twist, double Ya, double Yb);
+    private readonly record struct StripGeom(int Index, double Y, double Eta, double Chord, double Dy, double Twist, double Sweep, double Ya, double Yb);
 
     private readonly record struct Vector3(double X, double Y, double Z)
     {
