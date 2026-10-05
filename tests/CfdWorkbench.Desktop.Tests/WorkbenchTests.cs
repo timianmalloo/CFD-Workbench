@@ -471,6 +471,68 @@ namespace CfdWorkbench.Desktop.Tests
     public static class DesktopChecks
     {
         private static int failures;
+
+        /// <summary>
+        /// Ruling 81 (DR-RDY-1): a frame-time readiness budget fails only when the machine is quiet. Above the gate, or where the
+        /// load is not recorded, the check prints <c>READINESS-MISS</c> with the load and neither passes nor fails: a loaded run
+        /// is not evidence about the frame. The gate is Ruling 84/87's value (24) and it is kept on measured data: the quiet ring
+        /// ends at load 12-18 and loaded runs at 40-125 (docs/proof/ring-b2/profile.md), so 24 separates them, and a frame
+        /// median at load 12-18 sits at 9-14 ms against the 33 ms budget.
+        /// </summary>
+        public const double ReadinessLoadGate = 24.0;
+
+        public enum FrameVerdict { Pass, Fail, Miss }
+
+        /// <summary>Pure verdict: over the limit is Fail at a recorded load at or below the gate, else Miss; at or under it, Pass.</summary>
+        public static FrameVerdict FrameBudgetVerdict(double valueMs, double limitMs, double? load) =>
+            valueMs <= limitMs ? FrameVerdict.Pass
+            : load is { } l && l <= ReadinessLoadGate ? FrameVerdict.Fail : FrameVerdict.Miss;
+
+        [System.Runtime.InteropServices.DllImport("libc", EntryPoint = "getloadavg")]
+        private static extern int GetLoadAverage(double[] values, int count);
+
+        /// <summary>The 1-minute load average; null where libc has no getloadavg (Windows), never a guess.</summary>
+        public static double? LoadAverage1()
+        {
+            try
+            {
+                var values = new double[1];
+                return GetLoadAverage(values, 1) == 1 ? values[0] : null;
+            }
+            catch (Exception error) when (error is DllNotFoundException or EntryPointNotFoundException) { return null; }
+        }
+
+        /// <summary>The larger of two load readings (before and after the timed frames), so a load spike inside the check counts.</summary>
+        public static double? LoadDuring(double? before, double? after) =>
+            before is { } b && after is { } a ? Math.Max(a, b) : null;
+
+        private sealed class ReadinessMissException(string line) : Exception(line);
+
+        /// <summary>Applies the Ruling 81 verdict to a measured value; a Miss ends the check without PASS or FAIL.</summary>
+        public static void RequireFrameBudget(string name, double valueMs, double limitMs, double? loadBefore)
+        {
+            double? load = LoadDuring(loadBefore, LoadAverage1());
+            string loadText = load is { } l ? l.ToString("F2", System.Globalization.CultureInfo.InvariantCulture) : "not-recorded";
+            switch (FrameBudgetVerdict(valueMs, limitMs, load))
+            {
+                case FrameVerdict.Fail:
+                    throw new Exception(FormattableString.Invariant($"{name} {valueMs:F2} ms is over {limitMs:F0} ms at load {loadText} (gate {ReadinessLoadGate:F0})"));
+                case FrameVerdict.Miss:
+                    throw new ReadinessMissException(FormattableString.Invariant(
+                        $"READINESS-MISS {name} value_ms={valueMs:F2} target_ms={limitMs:F0} load={loadText} gate={ReadinessLoadGate:F0}"));
+            }
+        }
+
+        /// <summary>
+        /// The Check boundary for a Miss, exposed so the planted-input check can drive it: runs the assertion and returns the
+        /// printed outcome line, "PASS name", "FAIL name ..." or the READINESS-MISS line. Never prints.
+        /// </summary>
+        public static string Outcome(string name, Action assertion)
+        {
+            try { assertion(); return "PASS " + name; }
+            catch (ReadinessMissException miss) { return miss.Message; }
+            catch (Exception failure) { return "FAIL " + name + " " + failure.Message; }
+        }
         /// <summary>
         /// The saved 10-point New foil of the build before Ruling 64 (the Core tests' fixture, copied by the csproj). A check that
         /// needs a real interior control point or a rail index beyond 3 opens it; New foil now ships 4 control vertices per rail.
@@ -535,6 +597,7 @@ namespace CfdWorkbench.Desktop.Tests
             // flake debuggable from the log alone: a job queued by an earlier check surfaces inside this check's
             // RunJobs, and only the stack shows whose job it was (UI-LIFETIME, 2026-10-02).
             try { assertion(); Console.WriteLine("PASS " + name); }
+            catch (ReadinessMissException miss) { Console.WriteLine(miss.Message); }   // Ruling 81: no PASS, no FAIL
             catch (Exception failure)
             {
                 failures++;
@@ -554,8 +617,9 @@ namespace CfdWorkbench.Desktop.Tests
         {
             // A child uses about 1.4 cores. The proof budget now counts deterministic bit-work rather than wall time,
             // so thread contention cannot starve proofs into GEOMETRY-BUDGET failures. 1/2 (8 of 16) uses the available
-            // headroom to parallelize child runs faster.
-            using var slots = new SemaphoreSlim(Math.Clamp(Environment.ProcessorCount / 2, 1, modes.Length));
+            // headroom to parallelize child runs faster. B3: 5/8 (10 of 16). At quiet load, 3 runs each: 8 slots read Desktop
+            // 46.0 / 46.4 / 43.7 s, 10 slots 40.5 / 40.4 / 40.3 s (the greedy fill of the measured child times predicts 40.5 and 34.5 s at 8 and 10).
+            using var slots = new SemaphoreSlim(Math.Clamp(Environment.ProcessorCount * 5 / 8, 1, modes.Length));
             var runs = new Task<(List<(bool Error, string Text)> Lines, int ExitCode, double Seconds)>[modes.Length];
             for (int index = 0; index < modes.Length; index++)
             {

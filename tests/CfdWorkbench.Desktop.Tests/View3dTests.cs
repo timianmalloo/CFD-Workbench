@@ -720,6 +720,7 @@ public static class View3dTests
         // camera, the cube and title, layout, and the 3D view's draw (mesh to screen, painter's sort, one Skia draw).
         DesktopChecks.Check("Readiness_OrbitFrameP95Under33Ms", () =>
         {
+            double? loadBefore = DesktopChecks.LoadAverage1();
             using var fixture = new Fixture(width: 1440, height: 900);
             var renderer = fixture.Area.ThreeDRenderer;
             var size = new PixelSize((int)renderer.Bounds.Width, (int)renderer.Bounds.Height);
@@ -742,7 +743,8 @@ public static class View3dTests
             double p95 = warm[(int)Math.Ceiling(0.95 * warm.Length) - 1];
             Console.WriteLine(FormattableString.Invariant(
                 $"READINESS Readiness_OrbitFrameP95Under33Ms value_ms={p95:F3} target_ms=33 samples={warm.Length} median_ms={warm[warm.Length / 2]:F3} size={size.Width}x{size.Height}"));
-            if (p95 > 33) throw new Exception(FormattableString.Invariant($"orbit frame p95 {p95:F1} ms is over 33 ms"));
+            // Ruling 81: fails at a quiet load, prints READINESS-MISS (no PASS) above the load gate.
+            DesktopChecks.RequireFrameBudget("Readiness_OrbitFrameP95Under33Ms", p95, 33, loadBefore);
         });
         // Wall-clock (TEST-RING): one wheel step and one arrow pan on the 3D view and on the Side elevation, Four views at
         // 1440 × 900. The gated step is the input event and layout: the UI thread's own work for a camera step (before the

@@ -11,6 +11,27 @@ public static class ShellModelTests
 {
     public static void Run()
     {
+        // Ruling 81, red-first: a planted slow frame (50 ms against 33) fails at a quiet load and prints READINESS-MISS, never
+        // PASS, above the gate or with no load recorded; a fast frame passes at any load. Ring: fast. Cost: under 1 ms.
+        DesktopChecks.Check("ReadinessGate_PlantedSlowFrame_FailsQuietMissesLoaded", () =>
+        {
+            static void Equal<T>(T expected, T actual, string what)
+            {
+                if (!EqualityComparer<T>.Default.Equals(expected, actual)) throw new Exception($"{what}: expected {expected}, got {actual}");
+            }
+            Equal(DesktopChecks.FrameVerdict.Fail, DesktopChecks.FrameBudgetVerdict(50, 33, 5), "slow frame at load 5");
+            Equal(DesktopChecks.FrameVerdict.Fail, DesktopChecks.FrameBudgetVerdict(50, 33, 24), "slow frame at the gate");
+            Equal(DesktopChecks.FrameVerdict.Miss, DesktopChecks.FrameBudgetVerdict(50, 33, 24.01), "slow frame just above the gate");
+            Equal(DesktopChecks.FrameVerdict.Miss, DesktopChecks.FrameBudgetVerdict(50, 33, null), "slow frame, load not recorded");
+            Equal(DesktopChecks.FrameVerdict.Pass, DesktopChecks.FrameBudgetVerdict(20, 33, 90), "fast frame at load 90");
+            Equal(24.5, DesktopChecks.LoadDuring(5, 24.5), "the larger load counts");
+            Equal(true, DesktopChecks.LoadDuring(5, null) is null, "an unrecorded load stays unrecorded");
+            string loaded = DesktopChecks.Outcome("X", () => DesktopChecks.RequireFrameBudget("X", 50, 33, 90));
+            if (!loaded.StartsWith("READINESS-MISS X ", StringComparison.Ordinal) || loaded.Contains("PASS"))
+                throw new Exception("a slow frame at load 90 did not end in READINESS-MISS: " + loaded);
+            if (DesktopChecks.Outcome("X", () => DesktopChecks.RequireFrameBudget("X", 20, 33, 90)) != "PASS X")
+                throw new Exception("a fast frame did not pass");
+        });
         DesktopChecks.Check("CommandTable_PointRemove_GesturesPerOs", () =>
         {
             var rows = CommandTable.MenuFor("Edit");

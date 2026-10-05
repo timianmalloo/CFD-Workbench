@@ -5398,7 +5398,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dbeff43511c9b48192eb71384ea30cdbed203163789e9aa1e31d474f5c8b9faf"
+      "sourceSha256": "683847078dc646c26cf7125b6ffc03ef8ecfe79ba381714964b0b945c90f25fc"
     },
     {
       "id": "plan-tip-handling",
@@ -11071,6 +11071,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "2cbcd895cae7c31ac2cea448e77eaa14e101b7e9afefe1cb473203553a7a412a"
     },
     {
+      "id": "proof-ring-b2-pgo-compare",
+      "path": "docs/proof/ring-b2/pgo-compare.md",
+      "title": "Ring B2: Analysis readiness with TieredPGO on and off",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-b2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "One Analysis --readiness pass with DOTNET_TieredPGO=1 and one with 0 print identical PASS names and identical MEASURE values.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "tiered-pgo"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-b2-profile",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "54f751cc1a9d564d3161ca836907e7f3f66666d2f718d1a818e20466453dece4"
+    },
+    {
       "id": "proof-ring-b2-profile",
       "path": "docs/proof/ring-b2/profile.md",
       "title": "Ring B2 profile: the fast ring under a concurrent build",
@@ -11099,6 +11124,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "b9043f4735b485762ba5bb31f2d07761274c57f5c616a6e2ddc9e6523719ae60"
+    },
+    {
+      "id": "proof-ring-b2-ruling81-red-first",
+      "path": "docs/proof/ring-b2/ruling81-red-first.md",
+      "title": "Ring B2: Ruling 81 red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-b2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "A planted slow orbit frame fails at low load and prints READINESS-MISS, never PASS, at high load; the unplanted frame passes.",
+      "tags": [
+        "ring",
+        "ruling-81",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-b2-profile",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "95f212dc46d2f49e65072aab721162cf59d63518f214b2325143fa40777cd95f"
     },
     {
       "id": "proof-shellfix-red-runs",
@@ -13502,5 +13552,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "a28cee205ff2704b7b397e0a481a59c3745f9568a4220ce19db7371b1b7fba83"
+  "graphSha256": "c8f4f2e2816efce7cef4a3926b1374e0f3762ed93a98536410c484ff4deea09c"
 };
