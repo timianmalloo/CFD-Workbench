@@ -88,6 +88,9 @@ public static class Geometry
     // change (docs/proof/blend-certificate-budget/verdict.md §5) reaches both.
     internal const int BlendNodes = 256, BlendDepth = 48;
     internal static int BlendSpanLimit() => BlendNodes / BlendDepth;
+    // The all-query operation bound's own refusal code (Not assessed), distinct from the arithmetic bit bound's
+    // GEOMETRY-QUERY-RESOURCE, so a caller can tell the capacity limit from other resource refusals.
+    internal const string OperationBoundCode = "GEOMETRY-QUERY-OPERATIONS";
     // Pinned literal (design §5.1), not computed on first use: a static initializer's exact-rational search would be
     // charged to whichever proof first touched it, so the same proof's work would depend on order (DET-CLOCK).
     // Geometry_TwistDomain_LargestAssessableDegreesPinned requires it to equal LargestAdmissibleTwist() bit for bit.
@@ -243,6 +246,12 @@ public static class Geometry
         }
         return result;
     }
+
+    // The certificate's "differ" for two profiles outside a certificate (the section-step budget clause asks it before Assess),
+    // as SharedAbscissa is: equal Bernstein spans on both surfaces.
+    internal static bool SameGeometry(ProfileDefinition left, ProfileDefinition right, ProofBudget watch) =>
+        ReferenceEquals(left, right) || SameSpans(Bernstein.Spans(left.Upper, watch), Bernstein.Spans(right.Upper, watch)) &&
+        SameSpans(Bernstein.Spans(left.Lower, watch), Bernstein.Spans(right.Lower, watch));
 
     private static bool SameGeometry(GeometryCertificate certificate, int left, int right) =>
         SameGeometry(certificate.Spans, certificate.Profiles[left], certificate.Profiles[right]);
@@ -738,7 +747,7 @@ internal sealed class QueryFeasibility
             operations += 8L * pair.Value.Length + 128L * (8L * p * (p + 1) + 32L * (p + 1) + 64);
         }
         if (blend) operations += 2L * blendNodes * 32L + 6L * blendNodes * (blendNodes + 1L);
-        Geometry.Require(operations <= 1000000, "All-query operation bound exceeds one million.", GeometryStatus.NotAssessed, "GEOMETRY-QUERY-RESOURCE");
+        Geometry.Require(operations <= 1000000, "All-query operation bound exceeds one million.", GeometryStatus.NotAssessed, Geometry.OperationBoundCode);
         Size half = new(1, 2);
         var up = bounds[profile.Upper.Path]; var lo = bounds[profile.Lower.Path];
         if (blend)

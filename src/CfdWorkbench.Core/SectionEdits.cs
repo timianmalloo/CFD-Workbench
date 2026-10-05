@@ -64,9 +64,9 @@ internal static class SectionEdits
         for (int index = 0; index + 1 < after.Assignments.Length; index++)
         {
             int left = after.Assignments[index].Profile, right = after.Assignments[index + 1].Profile;
-            if (left == right || left != edited && right != edited || SameShape(after.Profiles[left], after.Profiles[right])) continue;
+            if (left == right || left != edited && right != edited || Geometry.SameGeometry(after.Profiles[left], after.Profiles[right], watch)) continue;
             bool differedBefore = index + 1 < before.Assignments.Length &&
-                !SameShape(before.Profiles[before.Assignments[index].Profile], before.Profiles[before.Assignments[index + 1].Profile]);
+                !Geometry.SameGeometry(before.Profiles[before.Assignments[index].Profile], before.Profiles[before.Assignments[index + 1].Profile], watch);
             if (!differedBefore) newly.Add(index);
         }
         if (newly.Count == 0) return;
@@ -84,36 +84,30 @@ internal static class SectionEdits
         var candidate = Geometry.Assess(new SourceParse([], [], after));
         if (!OperationBoundRefused(candidate)) return;
         // Left alone only when the base failed the same way with as many different sections (nothing this step added).
-        if (DistinctShapes(after) <= DistinctShapes(before) && OperationBoundRefused(Geometry.Assess(new SourceParse([], [], before)))) return;
+        if (DistinctShapes(after, watch) <= DistinctShapes(before, watch) && OperationBoundRefused(Geometry.Assess(new SourceParse([], [], before)))) return;
         var differing = Enumerable.Range(0, after.Assignments.Length).Where(index =>
-            index > 0 && !SameShape(after.Profiles[after.Assignments[index - 1].Profile], after.Profiles[after.Assignments[index].Profile]) ||
-            index + 1 < after.Assignments.Length && !SameShape(after.Profiles[after.Assignments[index].Profile], after.Profiles[after.Assignments[index + 1].Profile]));
+            index > 0 && !Geometry.SameGeometry(after.Profiles[after.Assignments[index - 1].Profile], after.Profiles[after.Assignments[index].Profile], watch) ||
+            index + 1 < after.Assignments.Length && !Geometry.SameGeometry(after.Profiles[after.Assignments[index].Profile], after.Profiles[after.Assignments[index + 1].Profile], watch));
         throw new ContractError("DSL-GEOMETRY", ManyDifferingReason(differing.Select(index => StationName(index, after.Assignments[index].Eta)).ToArray()));
     }
 
     // Sections the stations use, counting identical shapes once.
-    private static int DistinctShapes(Definition definition)
+    private static int DistinctShapes(Definition definition, ProofBudget watch)
     {
         var shapes = new List<ProfileDefinition>();
         foreach (var assignment in definition.Assignments)
         {
             var profile = definition.Profiles[assignment.Profile];
-            if (!shapes.Any(item => SameShape(item, profile))) shapes.Add(profile);
+            if (!shapes.Any(item => Geometry.SameGeometry(item, profile, watch))) shapes.Add(profile);
         }
         return shapes.Count;
     }
 
+    // The clause catches exactly two refusals: the blend span limit (Geometry.BlendSpanLimit, COPY-194) and the all-query
+    // operation bound (Geometry.OperationBoundCode, COPY-194b). Every other Not assessed or Unsupported verdict on the
+    // candidate (the depth bound, the arithmetic bit bound, proof work) is left to the Finish gate, which assesses the bytes.
     private static bool OperationBoundRefused(GeometryAssessment assessment) =>
-        assessment.Status == GeometryStatus.NotAssessed && assessment.Code == "GEOMETRY-QUERY-RESOURCE" &&
-        assessment.Reason.StartsWith("All-query operation bound", StringComparison.Ordinal);
-
-    // Identical shapes under two names (Make unique alone) are not a differing pair (DR-M12D-6 a).
-    private static bool SameShape(ProfileDefinition left, ProfileDefinition right) =>
-        left.Closure == right.Closure && SameCurve(left.Upper, right.Upper) && SameCurve(left.Lower, right.Lower);
-
-    private static bool SameCurve(Curve left, Curve right) =>
-        left.Degree == right.Degree && left.Knots.SequenceEqual(right.Knots) && left.Points.Length == right.Points.Length &&
-        left.Points.Zip(right.Points).All(pair => pair.First[0] == pair.Second[0] && pair.First[1] == pair.Second[1]);
+        assessment.Status == GeometryStatus.NotAssessed && assessment.Code == Geometry.OperationBoundCode;
 
     // COPY-194 (m12d design §11.2). One side over the limit names that station only.
     private static string BudgetReason(string a, string b, bool aOver, bool bOver, int aPoints, int bPoints, int limit)
