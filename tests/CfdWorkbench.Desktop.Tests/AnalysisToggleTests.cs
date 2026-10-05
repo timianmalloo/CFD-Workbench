@@ -1,5 +1,8 @@
 using CfdWorkbench.Core;
 using Avalonia.Controls;
+using Avalonia;
+using CfdWorkbench.Analysis;
+using CfdWorkbench.Desktop.Shell;
 
 namespace CfdWorkbench.Desktop.Tests;
 
@@ -91,6 +94,34 @@ public static class AnalysisToggleTests
             if (!controller.Status.Contains("Points are edited in CAD", StringComparison.Ordinal))
                 throw new Exception("The inert point refusal was not reported.");
         });
+        DesktopChecks.Check("ConditionsBand_Running_EvaluateBecomesCancelAnnounced", () =>
+        {
+            var band = NewBand();
+            Call(band, "ShowRunState", RunState.Running);
+            var button = Need<Button>(band, "EvaluateButton");
+            Equal("Cancel", button.Content?.ToString(), "running action");
+            Call(band, "ShowRunState", RunState.Current);
+            Equal("Evaluate", button.Content?.ToString(), "completed action");
+        });
+        DesktopChecks.Check("ConditionsBand_At1024_MoreHoldsDerivedExceptQAndSigma", () =>
+        {
+            var band = NewBand();
+            Call(band, "SetAvailableWidth", 1024d);
+            if (!Need<Button>(band, "MoreButton").IsVisible ||
+                !Need<TextBlock>(band, "DerivedQ").IsVisible || !Need<TextBlock>(band, "DerivedSigma").IsVisible ||
+                Need<TextBlock>(band, "DerivedRe").IsVisible)
+                throw new Exception("The 1024 px band did not keep q and σ while moving the other derived cells to More.");
+        });
+        DesktopChecks.Check("StatusStrip_AnalysisItem_FollowsRunState", () =>
+        {
+            var strip = new StatusStrip();
+            Call(strip, "ShowAnalysisState", RunState.Historical);
+            Equal("Analysis: Historical", Need<TextBlock>(strip, "AnalysisItemText").Text, "Historical item");
+            Call(strip, "ShowAnalysisState", RunState.Current);
+            Equal("Analysis: Current", Need<TextBlock>(strip, "AnalysisItemText").Text, "Current item");
+            Call(strip, "ShowAnalysisState", RunState.Unavailable);
+            Equal("Analysis: Unavailable", Need<TextBlock>(strip, "AnalysisItemText").Text, "Unavailable item");
+        });
     }
 
     private static PointView OpenPointDraft(WorkbenchController controller)
@@ -110,6 +141,20 @@ public static class AnalysisToggleTests
         Task.Run(controller.OpenExampleAsync).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
         return controller;
     }
+
+    private static Control NewBand()
+    {
+        var type = typeof(ModelArea).Assembly.GetType("CfdWorkbench.Desktop.Analysis.ConditionsBand")
+            ?? throw new Exception("The conditions band is absent.");
+        return (Control)(Activator.CreateInstance(type) ?? throw new Exception("The conditions band could not be created."));
+    }
+
+    private static void Call(object target, string method, object argument) =>
+        (target.GetType().GetMethod(method) ?? throw new Exception(method + " is absent."))
+        .Invoke(target, [argument]);
+
+    private static T Need<T>(Control root, string name) where T : Control =>
+        root.FindControl<T>(name) ?? throw new Exception(name + " is absent.");
 
     private static void Toggle(WorkbenchController controller) =>
         (typeof(WorkbenchController).GetMethod("ToggleAnalysis") ?? throw new Exception("The Analysis toggle is absent."))
