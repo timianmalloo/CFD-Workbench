@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T14:44:31Z",
+  "generated": "2026-10-05T14:44:42Z",
   "audit": [
     {
       "actor": null,
@@ -24704,6 +24704,34 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M468CAV0V7Z1D8TWJHTC72XY",
+      "shortname": "trk-b1",
+      "datetime": "2026-10-05T14:44:41Z",
+      "session": "trk-b1",
+      "prompt": "Track B1 RNG brief: ms clocks, check-test-costs.py, OD-2 by measurement",
+      "summary": "check-test-costs.py (C-2..C-6, self-test per failing input), run-tests.sh millisecond clocks (C-1), join.json entry; OD-2 measured on a loaded machine and not met (Desktop 52-55 s, wall 53-57 s)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "RNG track: ms clocks, check-test-costs.py, OD-2 by measurement",
+      "done_when": "self-test red then green; C-1..C-6 in the join; OD-2 met or stop with numbers",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-05T14:32:54Z",
+      "duration_seconds": 707.0,
+      "git": {
+        "sha": "48746913c91e4f6cd43f5d0d1b9b9e57b584740d",
+        "short": "48746913c",
+        "branch": "feature/ring-b1-rng",
+        "pushed": null
+      }
     }
   ],
   "changes": [
