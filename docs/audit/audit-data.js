@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T01:07:36Z",
+  "generated": "2026-10-05T01:13:35Z",
   "audit": [
     {
       "actor": null,
@@ -24182,6 +24182,31 @@ window.AUDIT_DATA = {
         "branch": "feature/blend-capacity",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M44SZ5F9HCKBT1WY50BQHB1J",
+      "shortname": "join-blend-capacity",
+      "datetime": "2026-10-05T01:13:35Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/blend-capacity into feature/ui-cad-direction",
+      "summary": "CAP (Codex GPT-6): Bernstein.Maximum max-heap (tie order = insertion; bit-identical), N(s)=max(256,48s), op model 64N+2C; old admission check removed. 27 spans/32 points certify; 4 differing stations certify; 7 refused (COPY-194b). Golden op counts 859,600 -> 487,922, result bits unchanged. Geometry review PASS-WITH-CONDITIONS (3,000-case differential probe: 0 differences; model >= real comparisons). Follow-up CAP-2: derive the span limit from FoilSource's constants, differential test; COPY-194 retirement held for the operator. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T01:12:07Z",
+      "duration_seconds": 88.0
     }
   ],
   "changes": [
