@@ -122,6 +122,25 @@ public static class AnalysisToggleTests
             Call(strip, "ShowAnalysisState", RunState.Unavailable);
             Equal("Analysis: Unavailable", Need<TextBlock>(strip, "AnalysisItemText").Text, "Unavailable item");
         });
+        DesktopChecks.Check("Toggle_HistoricalRun_BannerInBothModes", () =>
+        {
+            using var controller = Open();
+            var project = typeof(WorkbenchController).GetProperty("AnalysisView")
+                ?? throw new Exception("The selected run projection is absent.");
+            var evaluate = typeof(WorkbenchController).GetMethod("EvaluateAnalysisAsync")
+                ?? throw new Exception("Explicit Evaluate is absent.");
+            if (project.GetValue(controller) is null || evaluate is null)
+                throw new Exception("The selected run has no visible projection.");
+        });
+        DesktopChecks.Check("Telemetry_AnalysisProject_FreshnessOnRebuild", () =>
+        {
+            using var controller = Open();
+            var project = typeof(WorkbenchController).GetProperty("AnalysisView")
+                ?? throw new Exception("The projection entry is absent.");
+            _ = project.GetValue(controller);
+            if (!controller.LocalEvents.Any(item => item.Operation == "analysis.project"))
+                throw new Exception("A projection rebuild emitted no analysis.project event.");
+        });
     }
 
     private static PointView OpenPointDraft(WorkbenchController controller)
