@@ -5401,6 +5401,54 @@ window.DOCS_INDEX = {
       "sourceSha256": "113c9e68af2054f0defc9e609fc472c3e172dedad228468e01a30e074bf70a4e"
     },
     {
+      "id": "plan-tip-handling",
+      "path": "docs/plans/tip-handling.md",
+      "title": "Tip handling — one proposal for the VLM tip strip, the RANS tip mesh and the tip geometry",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@cfd-leader-4e90c621",
+      "phase": "",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Track A of round-oct05 (Ruling 80): a 9-agent judge panel (Sonnet grounding, Opus proposals, Fable comparison and synthesis, Opus completeness pass) recommends keeping Ruling 78 with a written scope (certified finite-chord tips), no tip zone for the envelope verdict, two bounded measurements (a small-tip-chord VLM sweep and a 4-variant tip mesh coupon), the open planar end as the v1 tip of record, salvage of the held branch's evidence without the eta* law, and 16 decision requests for the operator.",
+      "tags": [
+        "plan",
+        "tip",
+        "vlm",
+        "a3a",
+        "a3c",
+        "spike-03",
+        "mesh",
+        "geometry",
+        "ruling-78",
+        "ruling-80"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-fluids-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-round-oct05",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
+    },
+    {
       "id": "review-area3-analysis-personas",
       "path": "docs/reviews/area3-analysis-personas.md",
       "title": "Area 3 analysis design — five lenses in Adversary Mode, and the folds",
@@ -13114,5 +13162,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "a6f9294c0ea17a60685ad440420fec407d14ebed47bd2f62bc3f50494ce3933f"
+  "graphSha256": "5bcebfc43edb81e77c9d2498caf876c6dceb21119c671655d859375222115158"
 };
