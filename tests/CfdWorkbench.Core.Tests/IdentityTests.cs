@@ -95,6 +95,7 @@ internal static class IdentityTests
         ThicknessIntentTests.Run();
         WingEstimatesTests.Run();
         DimensionTests.Run();
+        TipChordTests.Run();
         LayoutFileTests.Run();
         PreferenceStoreTests.Run();
         PointModelTests.Run();

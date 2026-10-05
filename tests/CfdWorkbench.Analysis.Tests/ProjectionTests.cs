@@ -37,7 +37,8 @@ internal static class ProjectionTests
             string sentence = Cell(v, "Wing result", "Envelope").Value;
             Equal(false, sentence.Contains("Outside", StringComparison.Ordinal));
             Equal(true, sentence.Contains("3 strips", StringComparison.Ordinal));
-            Equal(true, sentence.Contains("provisional", StringComparison.Ordinal));
+            Equal(true, sentence.Contains(Labels.TipNotJudged, StringComparison.Ordinal));
+            Equal(false, sentence.Contains("provisional", StringComparison.OrdinalIgnoreCase));
             Equal(false, v.Layers.Single(l => l.Id == "plan-gamma").Samples[3].Outside);
         });
         Check("Projection_ProvisionalVerdict_EmptyExceededNeverOutside", () => {

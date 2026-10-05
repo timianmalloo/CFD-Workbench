@@ -87,7 +87,7 @@ public static class StatusStripTests
             var toast = NeedToast(host);
             if (!toast.IsVisible) throw new InvalidOperationException("no toast after the warning");
             WaitUntilHidden(toast, hold, "the toast outlived its hold");
-            CommitChord(controller, host, 9.5);
+            CommitChord(controller, host, 0.95);
             if (!toast.IsVisible) throw new InvalidOperationException("no toast after the second warning");
             Hover(toast, entered: true);
             if (!HoldElapsedWhileOpen(hold, toast))
@@ -128,7 +128,7 @@ public static class StatusStripTests
             CommitRootChord(controller, host, window, 10.1);
             var toast = NeedToast(host);
             string first = Need<TextBlock>(host.ModelView, "ToastText").Text ?? "";
-            CommitRootChord(controller, host, window, 9.5);
+            CommitRootChord(controller, host, window, 0.95);
             string second = Need<TextBlock>(host.ModelView, "ToastText").Text ?? "";
             int toasts = window.GetVisualDescendants().OfType<Border>().Count(border => border.Name == "WarningToast" && border.IsVisible);
             if (!toast.IsVisible || second == first || second != Text(host).Text || toasts != 1)

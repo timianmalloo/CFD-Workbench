@@ -15,9 +15,11 @@ public static class Labels
     public const string PolarChip = "Polar · local calculation"; // COPY-215
     public const string OutsideLattice = "outside the verified lattice family"; // COPY-216, operator proposal
     public const string VerifiedLattice = "Verified fixture family: rectangular and elliptic planforms; ±20° dihedral at 32 × 4 cosine span, uniform chord (F-8); 45° sweep, AR 5, at 4 × 1 uniform (F-16); 4% camber at 32/64/128 × 4 cosine/cosine (F-18); 1° washin at 32/64/128 × 4 cosine/cosine (F-19); F-6 order at 32/64/128 × 4 cosine span, uniform chord; F-21 at 16 × 4 cosine/cosine per half"; // COPY-217, operator proposal
-    public const string Provisional = "provisional — tip law cannot judge this strip (ANA-TIP-PROVISIONAL)"; // COPY-218, operator proposal
-    public const string AtBound = "at the bound (+-U)"; // COPY-219, operator proposal
-    public const string Indeterminate = "indeterminate — the tip law cannot judge this strip"; // COPY-220, operator proposal
+    // COPY-218 and COPY-219 are retired (Ruling 92); their rows stay in DESIGN.md and no string survives here.
+    public const string TipNotJudged = "Not judged — tip strip"; // COPY-220, approved Ruling 92 (the state of Rulings 78 and 88 D13)
+    public const string TipChordUnderMinimumTemplate = "Unavailable — tip chord under the minimum (<min>). The tip is not certified for analysis."; // COPY-241, Ruling 94
+    public static string TipChordUnderMinimum(double rootChordMeters) =>
+        TipChordUnderMinimumTemplate.Replace("<min>", TipChord.Format(rootChordMeters));
     public const string Inside = "inside the method envelope"; // COPY-221
     public const string Outside = "outside the method envelope"; // COPY-222
     public const string FixedVlmDeep = "attached flow; no stall; no ventilation; deep water"; // COPY-223
@@ -56,7 +58,7 @@ public static class Labels
 
     public static string Verdict(StripLoad strip, double alphaL0Deg = 0, double sweepDeg = 0)
     {
-        if (strip.Provisional) return Provisional;
+        if (strip.Provisional) return TipNotJudged;
         StripVerdict verdict = MethodRecord.JudgeStrip(strip.AlphaEff, alphaL0Deg, strip.ClLocal, sweepDeg);
         return verdict.Text;
     }

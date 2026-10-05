@@ -57,7 +57,7 @@ public sealed record WingEstimates(
         return definition;
     }
 
-    private static double Chord(Definition definition, double eta) =>
+    internal static double Chord(Definition definition, double eta) =>
         OrdinateAt(definition.Curves["trailing"], eta) - OrdinateAt(definition.Curves["leading"], eta);
 
     // ∫x dη = ∫x(u)·η′(u) du, degree 2p−1 on each span, so p-point Gauss–Legendre is exact up to round-off.

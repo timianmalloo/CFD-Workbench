@@ -166,15 +166,15 @@ public static class AnalysisProjection
         StripVerdict? verdict = At(verdicts, strip);
         return State(strip, verdict) switch
         {
-            VerdictState.Provisional => Labels.Provisional,
-            VerdictState.Indeterminate => verdict?.Text ?? Labels.Indeterminate,
+            VerdictState.Provisional => Labels.TipNotJudged,
+            VerdictState.Indeterminate => verdict?.Text ?? Labels.TipNotJudged,
             _ => verdict!.Text
         };
     }
 
     private static string RunVerdict(IReadOnlyList<StripVerdict>? verdicts, IReadOnlyList<StripLoad> strips)
     {
-        if (verdicts is null || verdicts.Count != strips.Count) return Labels.Indeterminate;
+        if (verdicts is null || verdicts.Count != strips.Count) return Labels.TipNotJudged;
         var judged = new List<StripVerdict>(strips.Count);
         int provisional = 0, indeterminate = 0;
         foreach (StripLoad strip in strips)
@@ -184,7 +184,7 @@ public static class AnalysisProjection
             {
                 case VerdictState.Provisional:
                     provisional++;
-                    judged.Add(new StripVerdict(false, [], Labels.Provisional) { Provisional = true });
+                    judged.Add(new StripVerdict(false, [], Labels.TipNotJudged) { Provisional = true });
                     break;
                 case VerdictState.Indeterminate:
                     indeterminate++;
@@ -194,9 +194,9 @@ public static class AnalysisProjection
                     break;
             }
         }
-        string sentence = judged.Any(v => !v.Provisional) ? MethodRecord.JudgeRun(judged) : Labels.Provisional;
-        if (provisional > 0) sentence += $"; {provisional} {Labels.Provisional}";
-        if (indeterminate > 0) sentence += $"; {indeterminate} {Labels.Indeterminate}";
+        string sentence = judged.Any(v => !v.Provisional) ? MethodRecord.JudgeRun(judged) : Labels.TipNotJudged;
+        if (provisional > 0) sentence += $"; {provisional} {Labels.TipNotJudged}";
+        if (indeterminate > 0) sentence += $"; {indeterminate} {Labels.TipNotJudged}";
         return sentence;
     }
 

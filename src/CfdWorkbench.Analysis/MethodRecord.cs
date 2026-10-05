@@ -24,12 +24,12 @@ public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
     /// <summary>
     /// The per-strip verdict. <paramref name="alphaEffDeg"/> is α + twist − α_i, never α_geo alone.
     /// An exceeded part is named and prints "&gt;"; a part inside its bound prints "≤".
-    /// A provisional strip (Ruling 77(5)) reads <c>provisional</c>, not inside or outside. The sentence is held.
+    /// A provisional strip (Ruling 77(5)) reads <c>Labels.TipNotJudged</c>, not inside or outside. The sentence is held.
     /// </summary>
     public static StripVerdict JudgeStrip(double alphaEffDeg, double alphaL0Deg, double clLocal, double sweepDeg, bool provisional = false)
     {
         if (provisional)
-            return new StripVerdict(false, Array.Empty<string>(), "provisional") { Provisional = true };
+            return new StripVerdict(false, Array.Empty<string>(), Labels.TipNotJudged) { Provisional = true };
         MethodEnvelope env = VlmStrip.Envelope;
         double alpha = Math.Abs(alphaEffDeg - alphaL0Deg);
         double sweep = Math.Abs(sweepDeg);
