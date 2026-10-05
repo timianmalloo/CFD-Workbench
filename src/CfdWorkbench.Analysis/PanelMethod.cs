@@ -21,7 +21,25 @@ public static class PanelMethod
 {
     public const string ModelLabel = "inviscid; no boundary layer";
     public const int CpMinTrailingEdgePanelsPerSide = 3;
+    // docs/proof/a3b/red-first.md: KT Cp_min at 400 panels is -1.685973 vs exact -1.713602662,
+    // a measured 1.61% suction-peak under-read; 200 panels under-read by 3.48%.
+    public const int DefaultPanelCount = 400;
+    public const double DefaultCpMinRelativeError = 0.0161;
     private const double TwoPi = 2 * Math.PI;
+
+    /// <summary>Sample one foil station for Cp at the panel tier's own cosine chord resolution.</summary>
+    public static SectionSample SampleSection(byte[] source, double eta, int panelCount,
+        CancellationToken cancellation = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        if (panelCount < 4 || panelCount > 800 || panelCount % 2 != 0)
+            throw new ContractError("ANA-PANEL-GEOMETRY", "An even panel count from 4 through 800 is required.");
+        int half = panelCount / 2;
+        var xs = new double[half + 1];
+        for (int i = 0; i <= half; i++)
+            xs[i] = (1 - Math.Cos(Math.PI * i / half)) / 2;
+        return Placement.Sections(source, [eta], xs, cancellation)[0];
+    }
 
     public static PanelResult Solve(SectionSample section, double alphaDeg, CancellationToken cancellation = default)
     {

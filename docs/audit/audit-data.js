@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T15:59:08Z",
+  "generated": "2026-10-05T16:14:08Z",
   "audit": [
     {
       "actor": null,
@@ -24985,6 +24985,43 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "f41fcfa60bb0ad679d9ec3e748d7f8f3f746182d",
         "short": "f41fcfa60",
+        "branch": "feature/a3b-numerics",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M46DFZP39VPDF7PR4WRXT2N9",
+      "shortname": "implement-a3b-panel-resolution",
+      "datetime": "2026-10-05T16:14:04Z",
+      "session": "trk-d1",
+      "prompt": "REPAIR CYCLE 2 (the last) of Track D1 — worktree /Users/mallalieut/projects/CFD-Workbench-feature-a3b-numerics, branch feature/a3b-numerics, AGENT_SESSION=trk-d1. Box 60 min.\n\nFirst command: `cd /Users/mallalieut/projects/CFD-Workbench-feature-a3b-numerics && export AGENT_SESSION=trk-d1 && python3 docs/ai-forward-pack/scripts/audit-log.py start --session trk-d1 --skill implement`\n\nYour cycle-1 repairs are accepted (TE exclusion with interior order ≈ 1, panel as the one definition, Ruling 86 governing\nrule, depth rotation, split reasons). One finding you surfaced is now the blocker: the product default feeds the panel\nmethod the VLM section sample — 13 chord positions, about 24 panels — and at that count Cp_min under-reads the suction\npeak by 26.6 %, more than the whole 15 % cavitation margin. The screen would be non-conservative at product defaults.\n\nFix it inside your own files, no Core change: `Placement.Sections(source, etas, xs, token)` takes the chord positions as a\nparameter (src/CfdWorkbench.Core/Placement.cs:319). The panel tier must sample each section at ITS OWN resolution,\nindependent of the VLM's xs:\n1. Add to `SectionEstimator.cs` / `PanelMethod.cs` an entry that takes the source, the station eta and a panel count and\n   calls `Placement.Sections` with its own cosine-spaced xs (do not touch AnalysisService.cs — the service wiring is a\n   later seam; expose the entry it will call).\n2. Choose the default panel count from evidence: Cp_min error vs the exact KT reference must be <= 2 % at the default\n   (reviewer measured 6.8 / 3.5 / 1.6 % at 100 / 200 / 400 panels). Put the default and its measured error in a constant\n   with a comment citing the measurement. A test asserts the error at the default count (red at 24 panels). Measure the\n   per-section cost at the default and state the per-wing cost for the default station count.\n3. The proof states: Cp_min error at the default, the share of the 15 % margin it consumes, and that the VLM sample is not\n   used for Cp.\n4. Do not change C-2/C-5 limits. The full-ring cost failure you saw (Analysis 15.7 s at load 211) is load: Ruling 87 gates\n   C-2 above load 24 once Track B1b joins. If a NEW test of yours is individually over its C-5 per-test limit on a quiet\n   run, move it to the readiness ring with its stated cost (as you did for the 800-panel case).\nRebase onto origin/main first. Named tests via CFD_TEST_ONLY, then one full `tools/run-tests.sh` (report cost lines with\nthe load; a cost line at load > 24 is not your failure), `python3 tools/check-docs.py`. Audit entry WITH `--prompt`,\nrender, derive, commit. Return `## Return trk-d1` with commits, evidence, and \"### Not done / risks\".",
+      "summary": "Added a 400-panel source-station entry; KT Cp_min error 1.612%; named tests and docs passed; full ring 124 Analysis PASS but 65 s wall at load 66.68→88.70 exited 3 on 60 s budget.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Analysis/PanelMethod.cs",
+        "src/CfdWorkbench.Analysis/SectionEstimator.cs",
+        "tests/CfdWorkbench.Analysis.Tests/PanelCpTests.cs",
+        "tests/CfdWorkbench.Analysis.Tests/SectionEstimatorTests.cs",
+        "docs/proof/a3b/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Give A3b Cp an independent, measured default panel resolution below 2% KT Cp_min error.",
+      "done_when": "Source-station entry, red/green named tests, one full ring, docs check, proof, audit, derived views and commit are complete.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_executed": true
+      },
+      "started_at": "2026-10-05T16:02:36Z",
+      "duration_seconds": 688.0,
+      "git": {
+        "sha": "c63104a2c8273ecd536800e74ec17b1565166572",
+        "short": "c63104a2c",
         "branch": "feature/a3b-numerics",
         "pushed": null
       }

@@ -8701,7 +8701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "448123fa4929793e899307cf7f733386912216852179049c69112d97de0df5ca"
+      "sourceSha256": "5cf2c6fcd22d1025fa39c668d46ba98e9c9e66e0ac77ebe9f399825dfac7514f"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -13149,5 +13149,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "3dcdb8f2508b1141247de7f046dbd909ec2fe9735002dd3881fddf03023608b5"
+  "graphSha256": "ca739ad8a78d81bab6d65c5e035966755015bbb529cd5d758f83b3d5d078e750"
 };

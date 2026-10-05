@@ -11,6 +11,7 @@ internal static class PanelCpTests
     internal static void Run()
     {
         AnalysisChecks.Check("PanelCp_KarmanTrefftz_InteriorOrderAndCpMin", KarmanTrefftz);
+        AnalysisChecks.Check("PanelCp_DefaultResolution_CpMinWithin2Percent", DefaultResolution);
     }
 
     internal static void RunReadiness()
@@ -52,10 +53,18 @@ internal static class PanelCpTests
         if (orders.Any(p => p < 0.9))
             throw new InvalidOperationException($"KT interior Cp RMS {string.Join(" / ", errors)}; order {string.Join(" / ", orders)}");
         Console.WriteLine($"OBSERVED KT interior Cp RMS 100/200/400: {string.Join(" / ", errors.Select(e => e.ToString("G6", System.Globalization.CultureInfo.InvariantCulture)))}; p {string.Join(" / ", orders.Select(p => p.ToString("G4", System.Globalization.CultureInfo.InvariantCulture)))}; exact Cp_min {exactMin:G7}; |ΔCp_min| {string.Join(" / ", minimumErrors.Select(e => e.ToString("G6", System.Globalization.CultureInfo.InvariantCulture)))}");
-        int defaultPanels = 2 * (Settings.Default.SectionXs!.Count - 1);
-        AnalysisChecks.Equal(24, defaultPanels, "default product SectionXs panel count");
-        PanelResult atDefaultCount = PanelMethod.Solve(JoukowskiContour(defaultPanels), 4);
-        Console.WriteLine($"OBSERVED KT at default product count {defaultPanels}: Cp_min {atDefaultCount.CpMin:G7}, |ΔCp_min| {Math.Abs(atDefaultCount.CpMin - exactMin):G7}");
+    }
+
+    private static void DefaultResolution()
+    {
+        int panels = PanelMethod.DefaultPanelCount;
+        PanelResult result = PanelMethod.Solve(JoukowskiContour(panels), 4);
+        double relativeError = Math.Abs(result.CpMin - ExactJoukowskiCpMin) / -ExactJoukowskiCpMin;
+        if (relativeError > 0.02)
+            throw new InvalidOperationException($"{panels} panels: Cp_min {result.CpMin:G9}, exact {ExactJoukowskiCpMin:G9}, relative error {relativeError:P3} > 2%");
+        if (Math.Abs(relativeError - PanelMethod.DefaultCpMinRelativeError) > 0.0001)
+            throw new InvalidOperationException("documented default Cp_min error differs from the KT oracle");
+        Console.WriteLine($"OBSERVED default {panels}-panel KT Cp_min relative error {relativeError:P3}");
     }
 
     private static void Cusp800()

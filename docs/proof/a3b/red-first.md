@@ -90,7 +90,7 @@ this discretisation does not promise second-order interior Cp. The 800-panel
 readiness check observes TE Cp `−1.941107` but reported `CpMin = −1.699673`,
 equal to the interior minimum and within 0.025 of the analytic reference.
 
-The current product `Settings.Default` has 13 chord positions (`SectionXs`),
+The VLM product `Settings.Default` has 13 chord positions (`SectionXs`),
 which form **24 section panels** if passed to `PanelMethod`. A 24-panel KT
 contour at 4° gives Cp_min `−1.257621`: absolute error `0.455982`, or a
 **26.6% under-read** of the true suction peak. This is the same panel count,
@@ -100,6 +100,14 @@ would give only `0.844 ×` the true suction threshold. Section Cp/cavitation are
 not yet wired into the production service. Integration must use a demonstrated
 resolution or preserve an Unavailable screen at the default count; this proof
 does not certify a 24-panel cavitation decision.
+
+Repair cycle 2 adds `PanelMethod.SampleSection(source, eta, panelCount)` and
+`SectionEstimator.Estimate(source, eta, alpha, Re, panelCount)`. Both use the
+panel tier's own cosine chord grid through `Placement.Sections`; the latter
+defaults to 400 panels. The VLM's `SectionXs` is not an input to this new Cp
+path. The service has not yet been wired to call this entry, so an existing
+`SectionSample` supplied to the older overload is not certified at product
+resolution.
 
 The panel is the sole source of section Cl, Cm_c/4 and α_L0. At 4% parabolic
 camber and 10% thickness, α_L0 is `−4.14220529°`, found by solving panel Cl = 0;
@@ -165,7 +173,7 @@ existing Freshness checks also crossed C-5. C-3/C-4 emitted `COST-MISS` under
 Ruling 84's load rule. The 800-panel case was then moved to readiness and the
 fast oracle's 200,000-point reference was replaced by the measured literal;
 warm focused costs became `32.244 ms` fast and `111.030 ms` readiness. The
-full ring was run once as requested and **has not been rerun** after this move;
+full ring was run once in repair cycle 1 and **was not rerun in that cycle** after this move;
 the repair does not claim a green full-ring receipt. The strong host contention
 also means those warm focused costs do not establish C-2 under comparable load.
 
@@ -173,7 +181,7 @@ also means those warm focused costs do not establish C-2 under comparable load.
 
 | Claim | Writer and compute reader | Evidence and confidence | Residual |
 |---|---|---|---|
-| Section Cp, Cl, Cm_c/4 and α_L0 share the panel | `PanelMethod.Solve` → `SectionEstimate` | KT interior order and Cp_min bounds, zero-lift root and thin-section oracle; Verified in Analysis harness | No production service or rendered Section tab consumes it yet; 24-panel default is too coarse for this KT screen example |
+| Section Cp, Cl, Cm_c/4 and α_L0 share the panel | `PanelMethod.Solve` → `SectionEstimate` | KT interior order and Cp_min bounds, zero-lift root and thin-section oracle; Verified in Analysis harness | No production service or rendered Section tab consumes the new 400-panel source entry yet |
 | Drag is the ITTC turbulent bound | `SectionEstimator.Estimate` → `SectionEstimate.CdTurbulentBound` | exact ITTC check; Verified | No transition or lift-dependent drag is modeled |
 | Wing screen uses α_eff, local depth and minimum local σ/(−Cp_min) | `Cavitation.ScreenWing` / `.Screen` → `CavitationResult` | exact-copy, threshold, two-station ratio, depth-rotation and status tests; Verified | Wing service must pass stored strip α_eff and accepted geometry; product surface not wired |
 
@@ -202,3 +210,50 @@ convergence; the 800-panel readiness assertion checks the TE exclusion;
 (3) a wing reduction uses a numerator peak without each station's denominator;
 the two-depth test requires the minimum local ratio. This track does not own
 `docs/lessons/defect-classes.md`.
+
+## Repair cycle 2: independent panel resolution
+
+The new `PanelCp_DefaultResolution_CpMinWithin2Percent` check was first run
+against the VLM default's 24-panel count and failed: `Cp_min = −1.2576208`
+versus exact `−1.71360266`, a **26.610%** relative error. The source-station
+entry test was also run red before its implementation; compilation failed on
+the absent `PanelMethod.DefaultPanelCount`, `SampleSection` and source overload
+of `SectionEstimator.Estimate`. After implementation, the two named checks
+passed. The KT oracle measured **1.612%** Cp_min error at the new 400-panel
+default, below the 2% acceptance limit. The default and the documented
+1.61% measurement are constants in `PanelMethod` with the earlier oracle
+table cited there. The test checks both the 2% ceiling and the documented
+measurement.
+
+The 1.612% suction-peak under-read is **10.75% of the nominal 15-percentage-point
+screen margin**. For a threshold multiplied by 1.15, it reduces the effective
+margin against this KT reference to `1.15 × (1 − 0.01612) − 1 = 13.15%`:
+about 1.85 percentage points of the 15% margin are consumed after the
+multiplier. This is a numerical bound for the tested KT section at 4°, not a
+general geometry error bound or a cavitation prediction.
+
+`Section_SourceStation_IndependentPanelResolution` checks a real
+`FoilSource.NewDefault()` at η = 0.5. The panel path takes 201 cosine-spaced
+x/c positions for 400 panels; the VLM default has 13. Passing 100 explicitly
+returns 51 positions and a 100-panel estimate. The default estimator returns
+400 panels and finite Cp_min. This proves that the new source entry never
+uses the VLM chord sample for Cp. It does not prove that the later service
+seam calls the new entry; that remains outside Track D1's files.
+
+The focused warm Analysis run measured **64.552 ms per default section**;
+`129 × 64.552 = 8,327 ms` is the inferred per-wing cost at the default 129
+section stations. The full ring, under load 66.68 → 88.70, measured
+**78.476 ms per section**, projecting to `129 × 78.476 = 10,123 ms` per wing.
+These projections are serial estimates; an entire wing panel pass was not
+timed. Both checks stayed in the fast ring: their full-ring C-5 lines were
+20.875 ms (KT default oracle) and 111.602 ms (source-station entry), below
+the 500 ms per-test limit.
+
+The requested single full `tools/run-tests.sh` run built successfully and
+all harness checks passed (Core 334 + 333, Desktop 661, Analysis 124, CLI 5).
+Analysis cost was 4,242 ms, inside the unchanged C-2 limit of 5,000 ms.
+The cost checker reported `0 failures, 2 COST-MISS` (C-3 and C-4 at load
+88.70), but the wrapper exited 3 because wall time was 65 s against its 60 s
+budget. This is a load-bound budget miss, not a green full-ring receipt.
+Ruling 87's future C-2 load gate is not present on this branch; C-2 and C-5
+limits were left unchanged, and no new test exceeded C-5.

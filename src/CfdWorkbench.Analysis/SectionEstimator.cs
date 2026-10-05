@@ -12,6 +12,11 @@ public sealed record SectionEstimate(PanelResult Panel, double AlphaL0Deg, doubl
 /// <summary>In-process section estimate: inviscid panel lift, moment and Cp, plus an ITTC drag bound.</summary>
 public static class SectionEstimator
 {
+    /// <summary>Estimate a source station using the panel tier's chord sample, independent of the VLM xs.</summary>
+    public static SectionEstimate Estimate(byte[] source, double eta, double alphaDeg, double reynolds,
+        int panelCount = PanelMethod.DefaultPanelCount, CancellationToken cancellation = default) =>
+        Estimate(PanelMethod.SampleSection(source, eta, panelCount, cancellation), alphaDeg, reynolds, cancellation);
+
     public static SectionEstimate Estimate(SectionSample section, double alphaDeg, double reynolds,
         CancellationToken cancellation = default)
     {

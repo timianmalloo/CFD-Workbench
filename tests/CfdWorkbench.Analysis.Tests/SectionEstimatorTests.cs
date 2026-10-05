@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 
@@ -11,6 +12,7 @@ internal static class SectionEstimatorTests
         AnalysisChecks.Check("Section_ThinSymmetric_PanelClApproaches2PiSlope", Lift);
         AnalysisChecks.Check("Section_ThinCambered_GlauertOracleOnly", ThinCamber);
         AnalysisChecks.Check("Section_Ittc1957_TurbulentBound", Drag);
+        AnalysisChecks.Check("Section_SourceStation_IndependentPanelResolution", SourceStation);
     }
 
     private static void Camber()
@@ -51,6 +53,29 @@ internal static class SectionEstimatorTests
         Near(expected, estimate.CdTurbulentBound, 1e-12, "ITTC-1957 bound");
         Near(expected, SectionEstimator.Estimate(Section(0, 0.12, 100), -3, 1e6).CdTurbulentBound, 1e-12,
             "no lift-dependent profile drag");
+    }
+
+    private static void SourceStation()
+    {
+        byte[] source = FoilSource.NewDefault();
+        SectionSample section = PanelMethod.SampleSection(source, 0.5, PanelMethod.DefaultPanelCount);
+        AnalysisChecks.Equal(PanelMethod.DefaultPanelCount / 2 + 1, section.X.Count, "panel chord samples");
+        Near(0.5, section.Frame.Eta, 0, "requested station eta");
+        Near((1 - Math.Cos(Math.PI / 200)) / 2, section.X[1], 1e-15, "panel cosine abscissa");
+        if (section.X.Count == Settings.Default.SectionXs!.Count)
+            throw new InvalidOperationException("section Cp reused the VLM chord sample");
+        SectionSample coarse = PanelMethod.SampleSection(source, 0.5, 100);
+        AnalysisChecks.Equal(51, coarse.X.Count, "explicit panel count");
+        AnalysisChecks.Equal(100, SectionEstimator.Estimate(source, 0.5, 3, 1e6, 100).Panel.StationCount,
+            "estimator explicit panel count");
+        long started = Stopwatch.GetTimestamp();
+        SectionEstimate estimate = SectionEstimator.Estimate(source, 0.5, 3, 1e6);
+        double elapsedMs = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+        AnalysisChecks.Equal(PanelMethod.DefaultPanelCount, estimate.Panel.StationCount, "estimator default panel count");
+        if (!double.IsFinite(estimate.Panel.CpMin))
+            throw new InvalidOperationException("source-station Cp_min is not finite");
+        Console.WriteLine($"OBSERVED section estimator default {PanelMethod.DefaultPanelCount} panels: {elapsedMs:F3} ms; " +
+            $"wing {Settings.Default.SectionEtas!.Count} stations at that measured rate: {elapsedMs * Settings.Default.SectionEtas.Count:F3} ms");
     }
 
     internal static SectionSample Section(double camber, double thickness, int panels)
