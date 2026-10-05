@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T00:10:30Z",
+  "generated": "2026-10-05T00:20:39Z",
   "audit": [
     {
       "actor": null,
@@ -24028,6 +24028,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T00:08:56Z",
       "duration_seconds": 94.0
+    },
+    {
+      "id": "al-01M44PY73K0JE3NWV3GNXVDC18",
+      "shortname": "join-store-subset-library",
+      "datetime": "2026-10-05T00:20:39Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/store-subset-library into feature/ui-cad-direction",
+      "summary": "Readiness at 0b20a59 refused STORE-SUBSET: SectionLibraryTests.cs writes files outside the store checks. Added it and the Library_ prefix; core verifier green (83 store checks). Also carries Rulings 74-77 into the register. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:19:01Z",
+      "duration_seconds": 98.0
     }
   ],
   "changes": [
