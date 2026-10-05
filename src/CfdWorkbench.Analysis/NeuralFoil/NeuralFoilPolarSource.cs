@@ -85,11 +85,13 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
         cancellation.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(water);
         NeuralFoilSection? section = resolveSection(profileHash);
-        if (section is null) return null;
+        if (section is null)
+            throw new ContractError("ANA-POLAR-PROFILE-MISSING", "The requested profile revision has no section geometry.");
         if (section.ProfileHash != profileHash)
             throw new ContractError("ANA-POLAR-PROFILE-HASH", "The polar resolver returned another profile revision.");
         NeuralFoilEvaluation result = Evaluate(section, alphaDeg, reynolds, ncrit, cancellation);
-        if (!result.Computable) return null;
+        if (!result.Computable)
+            throw new ContractError("ANA-POLAR-NONCOMPUTABLE", result.Reason ?? "The polar point is non-computable.");
         NeuralFoilPrediction prediction = result.Prediction!;
         string waterHash = Identity.Blake3(Encoding.UTF8.GetBytes(Jcs.Write(new Dictionary<string, object?>
         {
