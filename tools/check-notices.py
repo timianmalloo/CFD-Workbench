@@ -12,6 +12,14 @@ import subprocess
 import sys
 
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
+
 ROOT = Path(__file__).resolve().parents[1]
 PREFIX = "docs/proof/spike-ana-1/xfoil/"
 ALLOWED = {PREFIX + ".gitignore", PREFIX + "build.sh"}

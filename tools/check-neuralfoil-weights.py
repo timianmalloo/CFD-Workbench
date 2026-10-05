@@ -18,6 +18,14 @@ import urllib.request
 import zipfile
 
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
+
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "docs/proof/spike-ana-1/weights-manifest.json"
 RESOURCE = ROOT / "src/CfdWorkbench.Analysis/NeuralFoil/weights.bin"
