@@ -365,7 +365,7 @@ public partial class ModelArea : UserControl
 
     private void RefreshViews(WorkbenchController controller)
     {
-        Mode = controller.Section is null ? ModelAreaMode.Views : ModelAreaMode.Section;
+        Mode = controller.IsAnalysis || controller.Section is null ? ModelAreaMode.Views : ModelAreaMode.Section;
         PlanContent.IsVisible = foilOpen && Mode == ModelAreaMode.Views;
         SectionModeEditor.IsVisible = foilOpen && Mode == ModelAreaMode.Section;
         SectionModeEditor.Bind(controller);
