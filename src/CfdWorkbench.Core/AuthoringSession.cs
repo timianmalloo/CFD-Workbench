@@ -153,8 +153,8 @@ public sealed class AuthoringSession : IDisposable
     }
 
     /// <summary>
-    /// A <c>catalog.preview</c> fault measured nowhere (m12d §10). Same event as <see cref="PreviewReplace"/>:
-    /// duration and Replace fields are null, never a catalog-count row and never a zero.
+    /// Records <c>catalog.preview</c> when the fault was measured nowhere (m12d §10).
+    /// Duration and Replace fields are null, never a catalog-count row and never a zero.
     /// </summary>
     public void RecordPreviewFault(string outcome)
     {
