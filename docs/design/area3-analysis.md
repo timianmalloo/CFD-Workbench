@@ -319,8 +319,10 @@ wings. It was not a verified claim for cambered or twisted wings. F-18 and F-19 
 non-planar cases at the default 64 × 4 cosine/cosine lattice; F-21 supplies the chordwise camber check. Until F-21
 passes, cambered wings are **spanwise-converged; chordwise camber not verified**. The verified label still has the
 default-lattice boundary.
-The outermost tip-strip envelope verdict remains provisional until Ruling 75's η* law is built and checked on this
-repaired lattice (Ruling 77); this repair does not implement that law.
+The outermost tip strip is not judged against the envelope (Ruling 78); the η* law of Ruling 75 was rejected
+(Ruling 88 D1, [tip-handling study](../plans/tip-handling.md)). Ruling 91 keeps Ruling 78: the certified scope is
+finite-chord tips with tip chord at least 2 % of the root chord (r ≥ 0.02, `AnalysisService.TipChordRatioFloor`). Below the
+floor the analysis refuses the planform (`ANA-TIP-BELOW-FLOOR`); it still opens and edits.
 
 - **Solve.** Dense LU with partial pivoting (interchanges on columns k…n−1, LINPACK order), **one** solve, no iterative
   refinement; record ‖AΓ − b‖∞ and a 1-norm condition estimate κ₁. A normwise backward error
@@ -1146,6 +1148,7 @@ are marked ✚.
 | `F1_FlatPlate_RichardsonClAlphaTo2Pi` (VLM) | A | ≤ 1.5 s | §13.2 F-1 |
 | `F2_EllipticAR8_RichardsonClInRecordedBand` (VLM) | R | 241 ms measured | §13.2 F-2 (BC-3) |
 | `F3_SymmetricSection_ZeroLiftOddInAlpha` (VLM) | A | < 10 ms | §13.2 F-3 |
+| `F15b_EllipticMidspan_InducedAngleMatchesCLOverPiAR` (VLM) | A | 34 ms measured | induced angle at the strip nearest η 0 is CL/(π AR) within 0.05°; no scale anchor |
 | `F4_MirroredWing_NoSideForceRollYaw` (VLM) | A | ≈ 50 ms | §13.2 F-4 |
 | `Vlm_PivotingSolve_ResidualAfterOneSolve` (VLM) | A | < 10 ms | §13.2 F-4 rev (whole-row pivot swap) |
 | `F5_InducedDrag_TrefftzWithin1PercentOfNearField` (VLM) | R | 236 ms measured | §13.2 F-5 |
@@ -1200,6 +1203,7 @@ are marked ✚.
 | `Evaluate_WaterOutsideTable_RefusedNoRow` (SVC; SVC-2) ✚ | A | 44 ms measured (load 24–31) | the water record not validated |
 | `Evaluate_ComputeFails_FailedRowHasNoDiagnostics` (SVC; SVC-2) ✚ | A | 95 ms measured (load 24–31) | zeros written on a Failed row; the solve's diagnostics kept when the coupling fails; the writer writes a null member |
 | `Evaluate_SectionStationsChanged_NewKeyNotAHit` (SVC; SVC-2) ✚ | A | 57 ms measured (load 24–31) | `sectionEtas` left out of the settings hash; fixed stations sampled; settings without stations not refused |
+| `Evaluate_UncertifiedGeometry_RefusedNotAssessedNoCompute` (SVC; Ruling 88) ✚ | A | 99 ms measured | the service evaluating accepted geometry that is not certified (NotAssessed reopen): no `DSL-NOT-ASSESSED` refusal, a lattice given sections, or a row recorded |
 | `RecordRun_DiagnosticsByOutcome_CompletedOnly` (SVC; SVC-2) ✚ | A | 90 ms measured (load 24–31) | the outcome/diagnostics rule removed from `CheckStore` |
 | `Cli_AnalyseFailedRun_PrintsNoDiagnostics` (SVC; SVC-2) ✚ | Cli | 23 ms measured (load 24–31) | the writer writes a null `diagnostics` member |
 | `Projection_SectionVsWingUnits` (PRJ) | A | < 5 ms | §13.5 |

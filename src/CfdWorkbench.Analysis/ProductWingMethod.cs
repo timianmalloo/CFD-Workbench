@@ -63,9 +63,14 @@ public sealed class ProductWingMethod : IWingMethod
     }
 
     /// <summary>
-    /// Ruling 77(5): the outermost strip of each half (greatest |y|, one port and one starboard) is provisional
-    /// until the η* tolerance law exists. Every other strip is left unset, which the reader stores as false.
+    /// Rulings 78, 88 and 91: the outermost strip of each half (greatest |y|, one port and one starboard) is not
+    /// judged against the envelope. It is marked provisional, and no tolerance law replaces that. The scope is certified
+    /// finite-chord tips with tip chord at least 2 % of the root chord (<c>AnalysisService.TipChordRatioFloor</c>); the
+    /// service refuses every other planform before compute (<c>ANA-TIP-BELOW-FLOOR</c>, or <c>DSL-NOT-ASSESSED</c>). Every other strip is left unset, which the
+    /// reader stores as false.
     /// </summary>
+    // simplify: the whole tip strip is excluded from judgement, not only its unreliable angle. Ceiling: certified
+    // finite-chord tips, r >= 0.02. Upgrade trigger: a new tip study or a lattice change.
     internal static IReadOnlyList<StripLoad> MarkOutermostProvisional(IReadOnlyList<StripLoad> loads)
     {
         int port = Outermost(loads, negative: true);

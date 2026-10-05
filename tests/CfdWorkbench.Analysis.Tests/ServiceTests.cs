@@ -27,6 +27,43 @@ internal static class ServiceTests
         Check("Evaluate_ComputeFails_FailedRowHasNoDiagnostics", FailedRowWithoutDiagnostics);
         Check("Evaluate_SectionStationsChanged_NewKeyNotAHit", SectionStationsInKey);
         Check("Evaluate_ThrowingCancelCallback_NewerSourceReleased", ThrowingCancelCallbackReleasesNewerSource);
+        Check("Evaluate_UncertifiedGeometry_RefusedNotAssessedNoCompute", UncertifiedRefused);
+        Check("Evaluate_TipChordBelowFloor_RefusedOpensAndEditsStillWork", TipBelowFloor);
+    }
+
+    // Ruling 88 (tip-handling S1): the VLM is reachable only for certified geometry. A closing tip is never certified, and
+    // the one way a session holds uncertified geometry is a reopen whose proof ran out of budget (NotAssessed). The
+    // service refuses it with the stable code before any compute, and records no row.
+    private static void UncertifiedRefused()
+    {
+        using var session = Fixture.OpenedNotAssessed();
+        Equal(GeometryStatus.NotAssessed, session.InspectAccepted().Geometry.Status, "the fixture is uncertified;");
+        var wing = new FakeWing();
+        var error = Fixture.Throws<ContractError>(new AnalysisService(session, wing)
+            .EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None));
+        Equal("DSL-NOT-ASSESSED", error.Code, "refusal");
+        Equal(true, wing.Seen is null, "the lattice was never given sections;");
+        Equal(0, session.ReadRuns().Runs.Count, "rows");
+        Equal(true, Fixture.RunEvents(session).Any(item => item.Outcome == "DSL-NOT-ASSESSED"), "an analysis.run event with the code;");
+    }
+
+    // Ruling 91: tip chord / root chord below 0.02 is refused by the analysis only. The example's root chord is 120, so a
+    // tip of 1.2 is r = 0.01 (refused) and 2.4 is r = 0.02 (evaluates). The r = 0.01 wing still opens and edits.
+    private static void TipBelowFloor()
+    {
+        using var below = Fixture.OpenedWithTip("1.2");
+        var wing = new FakeWing();
+        var error = Fixture.Throws<ContractError>(new AnalysisService(below, wing)
+            .EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None));
+        Equal("ANA-TIP-BELOW-FLOOR", error.Code, "refusal");
+        Equal(true, wing.Seen is null, "the lattice was never given sections;");
+        Equal(0, below.ReadRuns().Runs.Count, "rows (not even a Failed row)");
+        Equal(true, Fixture.RunEvents(below).Any(item => item.Outcome == "ANA-TIP-BELOW-FLOOR"), "an analysis.run event with the code;");
+        Equal(GeometryStatus.Certified, below.InspectAccepted().Geometry.Status, "the r = 0.01 wing is certified, so it opens;");
+        Fixture.TwistEdit(below, 1.0);
+        using var atFloor = Fixture.OpenedWithTip("2.4");
+        var run = Fixture.Evaluate(new AnalysisService(atFloor, new FakeWing()), Fixture.Op(2.0));
+        Equal(true, run.Outcome is RunOutcome.Completed, "r = 0.02 evaluates;");
     }
 
     // A point draft with a moved twist vertex is open; the run reads the accepted bytes, never Draft.Bytes (FM-1, G-1).
@@ -354,6 +391,27 @@ internal static class Fixture
     {
         var session = new AuthoringSession();
         session.Reopen(OpenedImage.Value);
+        return session;
+    }
+
+    // The same opened image, reopened with a proof work limit of 0: carried in as NotAssessed / GEOMETRY-BUDGET.
+    internal static AuthoringSession OpenedNotAssessed()
+    {
+        var session = AuthoringSession.WithProofWorkLimit(0);
+        session.Reopen(OpenedImage.Value);
+        return session;
+    }
+
+    // The example foil (root chord 120) with its tip chord set by the last trailing-rail point; certified and opened.
+    internal static AuthoringSession OpenedWithTip(string tipChord)
+    {
+        string text = System.Text.Encoding.UTF8.GetString(File.ReadAllBytes(
+            Path.Combine(StripFixtureTests.RepoRoot(), "docs", "examples", "foildsl", "foil-basic.foil")));
+        int rail = text.IndexOf("trailing cv", StringComparison.Ordinal);
+        int last = text.IndexOf("(1, 120)", rail, StringComparison.Ordinal);
+        byte[] edited = System.Text.Encoding.UTF8.GetBytes(text[..last] + "(1, " + tipChord + ")" + text[(last + "(1, 120)".Length)..]);
+        var session = new AuthoringSession();
+        session.Open(FoilSource.MaterializeIds(FoilSource.Parse(edited)), Guid.NewGuid().ToString("D"), true);
         return session;
     }
 

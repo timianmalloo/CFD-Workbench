@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:32:48Z",
+  "generated": "2026-10-05T16:41:55Z",
   "audit": [
     {
       "actor": null,
@@ -25534,31 +25534,87 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46EJ9B27MZHYE464DDDP1GK",
-      "shortname": "join-a3c-polar-source",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T16:32:48Z",
-      "session": "4e90c621",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "A3c-1: C# NeuralFoil xxxlarge behind IPolarSource, weights hash checked at load, wheel and notices gates in readiness, envelope refuses only outside training range and flags outside the validated bracket, advisory confidence, family from geometry, e2e CstFit fixture; CFD review conditions met; AnalysisChecks registration union with D1 recount_seconds=0 (docs_only=False).",
+      "done_when": "join gates green",
+      "duration_seconds": 57.0,
+      "fan_out": 0,
+      "goal": "join a3c-polar-source into main (round-oct05)",
+      "id": "al-01M46EJ9B27MZHYE464DDDP1GK",
       "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-a3c-polar-source",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
       "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T16:31:51Z",
+      "summary": "A3c-1: C# NeuralFoil xxxlarge behind IPolarSource, weights hash checked at load, wheel and notices gates in readiness, envelope refuses only outside training range and flags outside the validated bracket, advisory confidence, family from geometry, e2e CstFit fixture; CFD review conditions met; AnalysisChecks registration union with D1 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T16:30:16Z",
+      "done_when": "grep for law types empty, controls red then green, run-tests/check-docs/verify gates green",
+      "duration_seconds": 636.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "fix/tip-salvage-s1",
+        "pushed": null,
+        "sha": "da9228d9d642f5c6ea17fc937c97fb6a8334094f",
+        "short": "da9228d9d"
+      },
+      "goal": "Salvage the held tip-law branch onto main per section 6.2 with two red-first controls",
+      "id": "al-01M46EDNA4KCBP0QVTE9X3FKPM",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "S1 tip branch salvage",
+      "session": "trk-s1",
+      "shortname": "s1-tip-salvage",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:19:40Z",
+      "summary": "Salvaged fix/a3a-vlm-tip-law per tip-handling 6.2: proof data/harness/verdict (superseded), VLM-TIP-B/D lessons, law-free mid-span anchor test; dropped MethodRecord/VortexLattice law code and 8 law tests. Added simplify marker, DSL-NOT-ASSESSED service guard, two red-first controls, fixed stale eta-star text. Full run-tests green, check-docs and 12 verify gates ok.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M46F2ZGX1Q07Z90EDF303A3P",
+      "shortname": "s1-ruling-91-floor",
+      "datetime": "2026-10-05T16:41:55Z",
+      "session": "trk-s1",
+      "prompt": "S1 Ruling 91 tip-chord floor",
+      "summary": "Added AnalysisService.TipChordRatioFloor=0.02 (Ruling 91) with ANA-TIP-BELOW-FLOOR refused before compute/row, red-first (mutant floor 0 red), r=0.01 still opens and edits, r=0.02 evaluates. Core Geometry.cs not edited per seam ruling. Marker, doc comment, area3 updated. Full ring green, check-docs and 12 gates ok.",
+      "kind": "skill",
+      "skill": "implement",
       "tool": null,
       "actor": null,
       "artifacts": [],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join a3c-polar-source into main (round-oct05)",
-      "done_when": "join gates green",
+      "goal": "Ruling 91 tip-chord floor on the Analysis side",
+      "done_when": "r=0.01 refused red-first, r=0.02 evaluates, gates green",
       "tier": "T1",
       "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-05T16:31:51Z",
-      "duration_seconds": 57.0
+      "started_at": "2026-10-05T16:36:02Z",
+      "duration_seconds": 353.0,
+      "git": {
+        "sha": "7fef7e59daef726aec06f4aa83383dfbca21dd06",
+        "short": "7fef7e59d",
+        "branch": "fix/tip-salvage-s1",
+        "pushed": null
+      }
     }
   ],
   "changes": [

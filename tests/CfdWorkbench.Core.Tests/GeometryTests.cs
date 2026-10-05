@@ -66,6 +66,19 @@ internal static class GeometryTests
             Geometry.Assess(Prepared(Text.Replace("(1, -2)", "(1, -90)"))).Status));
         Check("Geometry_PlacementWidthBeyondBudget_NotAssessed", () => Equal(GeometryStatus.NotAssessed,
             Geometry.Assess(Prepared(Text.Replace("120)", "1e20)"))).Status));
+        // Ruling 88 (tip-handling S1): a closing tip is not certified, so no session ever holds one and the VLM never
+        // sees one. Pins the status, not the message (the copy is operator-held).
+        Check("Geometry_TipPoint_UnsupportedAndNeverAdmitted", () =>
+        {
+            string text = Encoding.UTF8.GetString(FoilSourceTests.Example);
+            byte[] closing = Encoding.UTF8.GetBytes(text[..text.LastIndexOf('}')] + "  tip point\n}\n");
+            var assessment = Geometry.Assess(Prepared(Encoding.UTF8.GetString(closing)));
+            Equal(GeometryStatus.Unsupported, assessment.Status);
+            Equal(null, assessment.Certificate);
+            byte[] withIds = FoilSource.MaterializeIds(FoilSource.Parse(closing));
+            using var session = new AuthoringSession();
+            Refuses("DSL-NOT-ASSESSED", () => session.Open(withIds, Guid.NewGuid().ToString("D"), true));
+        });
         Check("Geometry_ExhaustedWorkLimit_ProducesNoCertificate", () =>
         {
             var parsed = Prepared(DyadicProfile());

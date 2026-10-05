@@ -26,6 +26,7 @@ internal static class LatticeFixtureTests
     {
         Check("F6_ObservedOrder", F6);
         Check("F15_EllipticWing_InducedAngleUniform", F15);
+        Check("F15b_EllipticMidspan_InducedAngleMatchesCLOverPiAR", F15MidspanAnchor);
         Check("F1_FlatPlate_RichardsonClAlphaTo2Pi", F1);
         Check("F3_SymmetricSection_ZeroLiftOddInAlpha", F3);
         Check("F4_MirroredWing_NoSideForceRollYaw", F4);
@@ -510,6 +511,19 @@ internal static class LatticeFixtureTests
         }
         if (!MethodRecord.JudgeRun(verdicts).StartsWith("Outside the method envelope", StringComparison.Ordinal))
             throw new InvalidOperationException(MethodRecord.JudgeRun(verdicts));
+    }
+
+    // The analytic scale anchor for the induced angle (VLM-TIP-B): at the strip nearest η 0 the elliptic wing's α_i
+    // is CL/(π AR) within 0.05 deg. It supports the mid-span scale only and says nothing about the tip strip.
+    private static void F15MidspanAnchor()
+    {
+        const double toleranceDeg = 0.05;
+        LatticeSolution wing = Elliptic(64, LatticePlant.None, "cosine");
+        double idealDeg = Coefficient(wing, EllipticS) / (Math.PI * EllipticAr) * (180 / Math.PI);
+        LatticeStrip midspan = Nearest(wing, 0);
+        if (Math.Abs(midspan.InducedAngleDeg - idealDeg) > toleranceDeg)
+            throw new InvalidOperationException("midspan α_i " + Num(midspan.InducedAngleDeg) + " at η " + Num(midspan.Eta)
+                + " vs CL/(π AR) " + Num(idealDeg) + " exceeds " + Num(toleranceDeg));
     }
 
     private sealed class Trio
