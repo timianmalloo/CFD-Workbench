@@ -9,7 +9,8 @@ public enum ShellMode
     Start,
     Opening,
     Workspace,
-    SectionEditor
+    SectionEditor,
+    Analysis
 }
 
 public enum Mode

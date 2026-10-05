@@ -8656,6 +8656,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "3f58feb2f4786e41aa837920cca6671d06f2d6fa11dc076951feac0396ed1443"
     },
     {
+      "id": "proof-a3a-tgl-red-first",
+      "path": "docs/proof/a3a-tgl/red-first.md",
+      "title": "A3a TGL red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-a3a-tgl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Records the failing TGL named checks before each implementation step and the mutant each check must catch.",
+      "tags": [
+        "analysis",
+        "desktop",
+        "tdd"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6308a0647aa352a85761dde8d3afeac98bfea0cfba83b669965ef5443aa1d720"
+    },
+    {
       "id": "proof-a3a-vlm-red-first",
       "path": "docs/proof/a3a-vlm/red-first.md",
       "title": "A3a VLM red-first receipt",
@@ -13477,5 +13502,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "d5c56ac1e34a20f83dcabe714b98a117fff1dc35309e9560b3d859b6fa521fbc"
+  "graphSha256": "a28cee205ff2704b7b397e0a481a59c3745f9568a4220ce19db7371b1b7fba83"
 };

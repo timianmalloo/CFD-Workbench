@@ -660,6 +660,7 @@ public sealed class ElevationView : Control
         bool option = e.KeyModifiers.HasFlag(KeyModifiers.Alt);
         if (e.Key == Key.Return && controller.Selection is Selection.Station selectedStation)
         {
+            if (controller.IsAnalysis) { controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
             _ = controller.EnterSectionAsync(selectedStation.Index, EntryOrigin.Side);
             e.Handled = true;
             return;
@@ -768,6 +769,8 @@ public sealed class ElevationView : Control
         var hit = HitTestPoint(position);
         if (hit is null)
         {
+            if (controller.IsAnalysis && pressed.IsLeftButtonPressed && e.ClickCount >= 2)
+            { controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
             if (pressed.IsLeftButtonPressed && e.ClickCount >= 2 && controller.Gesture == GestureState.Idle)
             {
                 foreach (var curveName in Curves)
@@ -803,6 +806,7 @@ public sealed class ElevationView : Control
         bool control = e.KeyModifiers.HasFlag(KeyModifiers.Control);
         if (pressed.IsRightButtonPressed || OperatingSystem.IsMacOS() && control && pressed.IsLeftButtonPressed)
         {
+            if (controller.IsAnalysis) { SelectPoint(reference, false, false); controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
             OpenPointMenu(reference);
             e.Handled = true;
             return;
@@ -811,6 +815,7 @@ public sealed class ElevationView : Control
         bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || !OperatingSystem.IsMacOS() && control;
         SelectPoint(reference, extend, toggle);
         FocusPoint(reference);
+        if (controller.IsAnalysis) { controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
         if (e.ClickCount >= 2) LastValueRequest = $"{hit.Curve}:{hit.Id}";
         else if (!extend && !toggle && pressed.IsLeftButtonPressed)
         {
@@ -1090,7 +1095,7 @@ public sealed class ElevationView : Control
                     context.DrawLine(new Pen(brushes.Station, 3), top - new Vector(0, 6), bottom + new Vector(0, 6));
                 }
             }
-            layer.DrawPoints(context, dihedral, brushes, controller.Selection);
+            layer.DrawPoints(context, dihedral, brushes, controller.Selection, controller.IsAnalysis);
         }
         DrawText(context, "starboard", new Point(12, band.Bottom - 24), MuteBrush ?? brushes.Foil, TickFont);
         DrawText(context, "port", new Point(Bounds.Width - 40, band.Bottom - 24), MuteBrush ?? brushes.Foil, TickFont);
@@ -1135,7 +1140,7 @@ public sealed class ElevationView : Control
         using (context.PushClip(new Rect(0, BandRect.Bottom + 1, Bounds.Width, Math.Max(0, Bounds.Height - BandRect.Bottom - 1))))
         {
             layer.DrawCurve(context, view.Samples, new Pen(brushes.Foil, 2));
-            layer.DrawPoints(context, view, brushes, controller.Selection);
+            layer.DrawPoints(context, view, brushes, controller.Selection, controller.IsAnalysis);
         }
     }
 

@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="using:CfdWorkbench.Desktop"
              xmlns:panes="using:CfdWorkbench.Desktop.Panes"
+             xmlns:analysis="using:CfdWorkbench.Desktop.Analysis"
              x:Class="CfdWorkbench.Desktop.ModelArea">
   <UserControl.Resources>
     <!-- The Rebuild popover's place: the toast inset (12) on three sides; 52 at the bottom clears the navbar.
@@ -30,8 +31,26 @@
       <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
       <Setter Property="BorderThickness" Value="{StaticResource HairlineThickness}" />
     </Style>
+    <Style Selector="ToggleButton.navbar">
+      <Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" />
+      <Setter Property="Padding" Value="{StaticResource NavbarButtonPadding}" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+      <Setter Property="BorderThickness" Value="{StaticResource NoInset}" />
+    </Style>
+    <Style Selector="ToggleButton.navbar:checked">
+      <Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="ToggleButton.navbar:checked /template/ ContentPresenter#PART_ContentPresenter,
+                     ToggleButton.navbar:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter,
+                     ToggleButton.navbar:checked:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
   </UserControl.Styles>
   <Grid RowDefinitions="Auto,*">
+    <StackPanel Grid.Row="0">
     <!-- Alert Band -->
     <Border Grid.Row="0" x:Name="AlertBand" IsVisible="False" AutomationProperties.LiveSetting="Assertive" Background="{DynamicResource SurfaceSoftBrush}"
             BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="{StaticResource Space2}">
@@ -50,6 +69,16 @@
         <Button x:Name="DismissAlertBandButton" Content="Dismiss" IsVisible="False" />
       </StackPanel>
     </Border>
+    <analysis:ConditionsBand x:Name="AnalysisConditionsBand" IsVisible="False" />
+    <Border x:Name="HistoricalBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+            BorderBrush="{DynamicResource WarningBrush}" BorderThickness="0,0,0,1" Padding="{StaticResource Space2}">
+      <TextBlock x:Name="HistoricalBannerText" TextWrapping="Wrap" />
+    </Border>
+    <Border x:Name="PreviewHiddenBanner" IsVisible="False" Background="{DynamicResource SurfaceSoftBrush}"
+            BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="{StaticResource Space2}">
+      <TextBlock Text="Preview hidden — Apply or Cancel in CAD" />
+    </Border>
+    </StackPanel>
 
     <!-- Main Content Area. Reports go to the shell's status strip (DR-STATUS-1); the model area has no status line. -->
     <Grid Grid.Row="1" x:Name="ModelRoot">
@@ -198,6 +227,11 @@
              through the shell's view-command runner, the same action as its View-menu row; ModelArea fills the menus. -->
         <Border x:Name="Navbar" Classes="navbar">
           <StackPanel Orientation="Horizontal" Spacing="{StaticResource NavbarGap}">
+            <ToggleButton x:Name="NavCadButton" Classes="navbar" Content="CAD" IsChecked="True"
+                          AutomationProperties.Name="CAD area" />
+            <ToggleButton x:Name="NavAnalysisButton" Classes="navbar" Content="Analysis"
+                          AutomationProperties.Name="Analysis area" />
+            <Border Classes="navbar-separator" />
             <Button x:Name="NavViewsButton" Classes="navbar" Content="Views ▾ Plan + 3D">
               <Button.Flyout>
                 <MenuFlyout Placement="TopEdgeAlignedLeft" FlyoutPresenterClasses="navbar-menu" />

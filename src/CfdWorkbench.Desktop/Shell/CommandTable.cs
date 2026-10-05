@@ -78,6 +78,7 @@ public static class CommandTable
         new("point.rebuild", "Rebuild curve…", "Edit", null, false, NoOp),
 
         // View
+        new("view.analysis", "Analysis", "View", "⇧⌘A", false, NoOp),
         new("view.toggle-left", "Left side bar", "View", "⌘B", false, NoOp),
         new("view.toggle-bottom", "Bottom panel", "View", "⌘J", false, NoOp),
         new("view.toggle-right", "Right side bar", "View", "⌥⌘B", false, NoOp),
@@ -157,7 +158,7 @@ public static class CommandTable
         Rows.Where(r => string.Equals(r.Menu, menuName, StringComparison.OrdinalIgnoreCase)).ToList();
 
     public static IReadOnlyList<CommandRow> Bindings(IReadOnlySet<string>? exportedGestures = null) =>
-        Rows.Where(r => r.Id != "point.remove" && !string.IsNullOrEmpty(r.Gesture) &&
+        Rows.Where(r => r.Id is not ("point.remove" or "view.analysis") && !string.IsNullOrEmpty(r.Gesture) &&
             (exportedGestures == null || !exportedGestures.Contains(r.Gesture))).ToList();
 }
 

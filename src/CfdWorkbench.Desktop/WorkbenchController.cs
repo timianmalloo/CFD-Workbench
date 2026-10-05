@@ -1,4 +1,5 @@
 using CfdWorkbench.Cli;
+using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 using CfdWorkbench.Persistence;
 using System.Diagnostics;
@@ -226,6 +227,145 @@ public sealed class WorkbenchController : IDisposable
     private readonly Dictionary<SingleView, DisplayMode> displayModes = new();
     private readonly Dictionary<string, CurveView> channelViews = new(StringComparer.Ordinal);
     private string? channelViewsKey;
+    private ShellMode areaMode = ShellMode.Workspace;
+    private ShellMode returnToCadMode = ShellMode.Workspace;
+    private readonly IWingMethod analysisMethod;
+    private readonly IEvaluationBarrier? analysisBarrier;
+    private AnalysisService analysisService;
+    private CancellationTokenSource? analysisCancellation;
+    private OperatingPoint analysisOp = OperatingPoints.Custom(5.14, 2, null);
+    private WaterRecord analysisWater = WaterTable.At(OperatingPoints.DefaultTemperatureC, OperatingPoints.SaltSalinityGPerKg);
+    private AnalysisViewModel? analysisView;
+    private string? analysisProjectionKey;
+
+    /// <summary>The model area's CAD or Analysis state; a section draft remains open while hidden.</summary>
+    public ShellMode AreaMode => areaMode == ShellMode.Analysis ? areaMode : Section is null ? ShellMode.Workspace : ShellMode.SectionEditor;
+    public bool IsAnalysis => AreaMode == ShellMode.Analysis;
+    /// <summary>The selected run's visible layers, empty before the first result.</summary>
+    public IReadOnlyList<LayerData> LayerSet { get; private set; } = [];
+    public OperatingPoint AnalysisOperatingPoint => analysisOp;
+    public WaterRecord AnalysisWater => analysisWater;
+    public bool AnalysisRunning => analysisCancellation is not null;
+    public RunState AnalysisState => AnalysisRunning ? RunState.Running : AnalysisView.State;
+
+    /// <summary>The selected run is projected against the current accepted source and pending conditions on read.</summary>
+    public AnalysisViewModel AnalysisView
+    {
+        get
+        {
+            if (Inspection is null)
+                return new AnalysisViewModel(RunState.NoResult, "Analysis: no result", null, null, [], [], null);
+            long started = time.GetTimestamp();
+            var current = Freshness.Current(session.Snapshot(), analysisWater, analysisOp, analysisMethod.Method, analysisMethod.Settings);
+            var selected = session.ReadRuns().Runs.LastOrDefault();
+            string key = Freshness.CurrentKey(current) + ":" + selected?.Run.RunId + ":" + selected?.Integrity + ":" + AnalysisRunning;
+            if (analysisProjectionKey == key && analysisView is not null) return analysisView;
+            var previous = selected?.Run.Outcome is RunOutcome.Failed
+                ? session.ReadRuns().Runs.Reverse().Skip(1).FirstOrDefault(row =>
+                    row.Integrity == RunIntegrity.Intact && row.Run.Outcome is RunOutcome.Completed)?.Run : null;
+            var view = AnalysisProjection.Build(selected?.Run, current, Units.Metric,
+                new ProjectionContext(Integrity: selected?.Integrity ?? RunIntegrity.Intact, PreviousCompleted: previous));
+            if (view.State == RunState.Historical && selected is not null)
+                view = view with { Banner = HistoricalBanner(selected.Run, current) };
+            if (AnalysisRunning)
+                view = view with { State = RunState.Running, StatusText = "Analysis: Running" };
+            LayerSet = view.Layers;
+            analysisProjectionKey = key;
+            analysisView = view;
+            session.RecordAnalysisEvent("analysis.project", "OK", time.GetElapsedTime(started).TotalMilliseconds,
+                new AnalysisEvent { Tier = "vlm-strip", RunKey12 = view.RunKey is { Length: >= 12 } runKey ? runKey[..12] : view.RunKey,
+                    Freshness = view.State.ToString(), WhatChanged = selected is null ? null :
+                        string.Join(",", Freshness.WhatChanged(selected.Run, current)), LayersDrawn = LayerSet.Count });
+            return view;
+        }
+    }
+
+    private string HistoricalBanner(AnalysisRun run, CurrentInputs current)
+    {
+        var changed = Freshness.WhatChanged(run, current);
+        if (changed.Contains("surface"))
+        {
+            var was = session.RevisionOf(run.Inputs.AcceptedId);
+            var now = session.RevisionOf(current.Inputs.AcceptedId);
+            return $"Historical — geometry changed (r{was.Ordinal} → r{now.Ordinal})";
+        }
+        if (changed.Contains("op.alphaDeg"))
+            return string.Create(CultureInfo.InvariantCulture,
+                $"Historical — operating point changed (α {run.Op.AlphaDeg:0.00}° → {analysisOp.AlphaDeg:0.00}°)");
+        return "Historical — " + string.Join(", ", changed);
+    }
+
+    /// <summary>Changes the pending Custom point. A prior run remains Historical until Evaluate is pressed.</summary>
+    public void SetAnalysisConditions(OperatingPoint op, WaterRecord water)
+    {
+        OperatingPoints.Validate(op);
+        OperatingPoints.Validate(water);
+        analysisOp = op;
+        analysisWater = water;
+        analysisProjectionKey = null;
+        Notify();
+    }
+
+    /// <summary>The only compute entry in the desktop: Cancel records no run, and a failure keeps prior evidence.</summary>
+    public async Task<AnalysisRun?> EvaluateAnalysisAsync(OperatingPoint op, WaterRecord water, CancellationToken cancellation = default)
+    {
+        if (analysisCancellation is not null) return null;
+        SetAnalysisConditions(op, water);
+        var running = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        analysisCancellation = running;
+        analysisProjectionKey = null;
+        SetStatus($"Evaluating — VLM + strip · {2 * analysisMethod.Settings.NSpanPerHalf * analysisMethod.Settings.NChord} panels…", ReportKind.Info);
+        Notify();
+        try
+        {
+            var run = await analysisService.EvaluateAsync(op, water, Tier.VlmStrip, new Scope.Wing(), running.Token);
+            if (run.Outcome is RunOutcome.Failed failed)
+                SetStatus($"Analysis failed — {failed.Reason} ({failed.Code}). The previous result is kept as Historical.", ReportKind.Error);
+            else
+                SetStatus(string.Create(CultureInfo.InvariantCulture, $"Analysis complete — VLM + strip · {run.WallMs / 1000:0.###} s"), ReportKind.Info);
+            return run;
+        }
+        catch (OperationCanceledException) { SetStatus("Analysis cancelled.", ReportKind.Info); return null; }
+        catch (ContractError error) { SetStatus(error.Code + ": " + (error.Reason ?? error.Message), ReportKind.Warning); return null; }
+        finally
+        {
+            if (ReferenceEquals(analysisCancellation, running)) analysisCancellation = null;
+            running.Dispose();
+            analysisProjectionKey = null;
+            if (!disposed && Inspection is not null) _ = AnalysisView;
+            Notify();
+        }
+    }
+
+    public void CancelAnalysis() => analysisCancellation?.Cancel();
+    public const string AnalysisPointRefusal = "Points are edited in CAD. Switch with the CAD | Analysis toggle.";
+
+    /// <summary>A shared refusal at every controller edit boundary, including the Points pane's typed gesture.</summary>
+    private bool RefuseAnalysisEdit()
+    {
+        if (!IsAnalysis) return false;
+        SetStatus(AnalysisPointRefusal, ReportKind.Info);
+        Notify();
+        return true;
+    }
+
+    /// <summary>Switches the area over the same selection, cameras, layout and document. Evaluation is explicit.</summary>
+    public void ToggleAnalysis()
+    {
+        long started = time.GetTimestamp();
+        ShellMode from = AreaMode;
+        if (IsAnalysis)
+            areaMode = returnToCadMode == ShellMode.SectionEditor && Section is null ? ShellMode.Workspace : returnToCadMode;
+        else
+        {
+            returnToCadMode = from;
+            areaMode = ShellMode.Analysis;
+        }
+        if (Inspection is not null) _ = AnalysisView;
+        session.RecordAnalysisEvent("analysis.toggle", "OK", time.GetElapsedTime(started).TotalMilliseconds,
+            new AnalysisEvent { From = from.ToString(), To = AreaMode.ToString(), LayersDrawn = LayerSet.Count });
+        Notify();
+    }
 
     /// <summary>Computes one display mesh off the UI thread; the default is <see cref="Placement.Surface"/>.</summary>
     public delegate Task<SurfaceView> SurfaceCompute(byte[] source, string basis, long generation, CancellationToken cancellation);
@@ -240,13 +380,16 @@ public sealed class WorkbenchController : IDisposable
     public WorkbenchController(Func<AuthoringSession, IProjectStore>? storeFactory = null,
         SurfaceCompute? surfaceCompute = null, TimeProvider? time = null, Func<long, Task>? sectionAssessmentGate = null,
         Action<long>? sectionStepGate = null, SectionLibrary? sections = null, Action<int>? previewGate = null,
-        Action? libraryGate = null)
+        Action? libraryGate = null, IWingMethod? analysisMethod = null, IEvaluationBarrier? analysisBarrier = null)
     {
         this.storeFactory = storeFactory ?? (active => new ProjectStore(active));
         store = this.storeFactory(session);
         this.surfaceCompute = surfaceCompute ?? ((source, basis, generation, cancellation) =>
             Task.Run(() => Placement.Surface(source, basis, generation, cancellation), cancellation));
         this.time = time ?? TimeProvider.System;
+        this.analysisMethod = analysisMethod ?? new ProductWingMethod();
+        this.analysisBarrier = analysisBarrier;
+        analysisService = new AnalysisService(session, this.analysisMethod, analysisBarrier, this.time);
         this.sectionAssessmentGate = sectionAssessmentGate;
         this.sectionStepGate = sectionStepGate;
         this.sections = sections ?? App.Sections;
@@ -270,7 +413,8 @@ public sealed class WorkbenchController : IDisposable
     public (SurfaceSide Side, double ChordX, double DeviationMeters, double LimitMeters)? SectionRefitRefusal { get; private set; }
     public WingEstimates? Estimates { get; private set; }
     public PlanformView? Planform => Inspection is null ? null : CfdWorkbench.Core.Planform.View(
-        draft?.Bytes ?? session.Snapshot().Source, draft is null ? "accepted" : "preview", draft?.Generation ?? 0);
+        !IsAnalysis ? draft?.Bytes ?? session.Snapshot().Source : session.Snapshot().Source,
+        draft is null || IsAnalysis ? "accepted" : "preview", IsAnalysis ? 0 : draft?.Generation ?? 0);
     public GestureState Gesture
     {
         get;
@@ -455,15 +599,15 @@ public sealed class WorkbenchController : IDisposable
         CurveView view;
         try
         {
-            view = Channels.View(draft?.Bytes ?? session.Snapshot().Source, curve, draft is null ? "accepted" : "preview",
-                draft?.Generation ?? 0);
+            view = Channels.View(!IsAnalysis ? draft?.Bytes ?? session.Snapshot().Source : session.Snapshot().Source,
+                curve, draft is null || IsAnalysis ? "accepted" : "preview", IsAnalysis ? 0 : draft?.Generation ?? 0);
         }
         catch (ContractError) { return null; }
         channelViews[curve] = view;
         return view;
     }
 
-    private string SourceKey() => draft is { } active
+    private string SourceKey() => !IsAnalysis && draft is { } active
         ? "d:" + active.Id + ":" + active.Generation.ToString(CultureInfo.InvariantCulture)
         : "a:" + Inspection?.Authored.Binding.SourceHash;
 
@@ -567,8 +711,8 @@ public sealed class WorkbenchController : IDisposable
     public AuthoredProjection? CurrentProjection => DraftProjection ?? Inspection?.Authored ?? PendingProjection;
 
     // Changed is raised after each accepted edit and cursor move; menu commands requery these values.
-    public bool CanUndo => HistoryAvailability().Undo;
-    public bool CanRedo => HistoryAvailability().Redo;
+    public bool CanUndo => !IsAnalysis && HistoryAvailability().Undo;
+    public bool CanRedo => !IsAnalysis && HistoryAvailability().Redo;
 
     private (bool Undo, bool Redo) HistoryAvailability()
     {
@@ -660,6 +804,7 @@ public sealed class WorkbenchController : IDisposable
 
     public Task EnterSectionAsync(int assignment, EntryOrigin origin)
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         if (disposed) throw new ContractError("DOC-CLOSED");
         ClearReplacePreview();
         if (Section is { } open)
@@ -701,6 +846,7 @@ public sealed class WorkbenchController : IDisposable
     /// </summary>
     public async Task ApplySectionStepAsync(SectionStep step, CancellationToken cancellation = default)
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         Task assessed = Task.CompletedTask;
         await QueueSectionStep(async mode =>
         {
@@ -747,10 +893,10 @@ public sealed class WorkbenchController : IDisposable
     }
 
     /// <summary>Moves the section cursor back one step, after any step still applying. Never document undo.</summary>
-    public Task UndoSectionStepAsync() => MoveSectionCursorAsync(-1);
+    public Task UndoSectionStepAsync() => RefuseAnalysisEdit() ? Task.CompletedTask : MoveSectionCursorAsync(-1);
 
     /// <summary>Moves the section cursor forward one step, after any step still applying.</summary>
-    public Task RedoSectionStepAsync() => MoveSectionCursorAsync(1);
+    public Task RedoSectionStepAsync() => RefuseAnalysisEdit() ? Task.CompletedTask : MoveSectionCursorAsync(1);
 
     private Task MoveSectionCursorAsync(int delta) => QueueSectionStep(async mode =>
     {
@@ -849,6 +995,7 @@ public sealed class WorkbenchController : IDisposable
     /// </summary>
     public void UpdateSectionGesture(double x, double y, double pixelsFromPress)
     {
+        if (IsAnalysis) return;
         if (Section is null || gestureInput != GestureInput.Pointer || gestureOrigin is null ||
             Gesture is not (GestureState.Pressed or GestureState.Dragging) || !double.IsFinite(x) || !double.IsFinite(y))
             return;
@@ -1004,6 +1151,7 @@ public sealed class WorkbenchController : IDisposable
     /// </summary>
     public void PreviewReplace(CatalogChoice choice, ReplaceScope scope = ReplaceScope.Draft)
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         if (Section is null) throw new ContractError("DSL-DRAFT-OWNED");
         int ticket = Interlocked.Increment(ref previewTicket);
         CurrentPreview = null;
@@ -1026,6 +1174,7 @@ public sealed class WorkbenchController : IDisposable
 
     public Task ApplyReplaceAsync(ReplaceScope scope)
     {
+        if (RefuseAnalysisEdit()) return Task.FromException(new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal));
         if (PreviewChoice is not { } choice || previewDraftId is null)
             return Task.FromException(new ContractError("CAT-NOT-ADMITTED",
                 "This section has no coordinates in this build. Nothing changed."));
@@ -1040,6 +1189,7 @@ public sealed class WorkbenchController : IDisposable
 
     public Task SaveToMySectionsAsync(string name, CancellationToken cancellation = default)
     {
+        if (RefuseAnalysisEdit()) return Task.FromException(new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal));
         if (Section is not { } mode)
             return Task.FromException(new ContractError("DSL-DRAFT-OWNED"));
         if (sections is null)
@@ -1270,6 +1420,7 @@ public sealed class WorkbenchController : IDisposable
 
     public async Task FinishSectionAsync()
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         if (Section is null) throw new ContractError("DSL-DRAFT-OWNED");
         // Finish follows the certificate of the landed bytes: a step still applying lands (or is refused) first.
         await sectionStepTail.ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext | ConfigureAwaitOptions.SuppressThrowing);
@@ -1299,6 +1450,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void CancelSection()
     {
+        if (RefuseAnalysisEdit()) return;
         if (Section is not { } mode) return;
         CancelSectionAssessment();
         ClearReplacePreview();
@@ -1332,6 +1484,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void ApplySpan(string text)
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         if (Section is not null)
         {
             Status = PropertyCopy.SetInWorkspace;
@@ -1357,6 +1510,7 @@ public sealed class WorkbenchController : IDisposable
 
     public bool BeginGesture(PointRef point, GestureInput input)
     {
+        if (RefuseAnalysisEdit()) return false;
         if (Section is { } mode)
         {
             if (Gesture != GestureState.Idle || point.Profile != mode.Draft.Profile || point.Curve is not ("upper" or "lower")) return false;
@@ -1422,6 +1576,7 @@ public sealed class WorkbenchController : IDisposable
     /// </summary>
     public void UpdateGesture(double spanMeters, double aftMeters, double? pixelsFromPress)
     {
+        if (IsAnalysis) return;
         if (Gesture == GestureState.Nudging && gestureInput == GestureInput.Keyboard) return;
         UpdateGestureTarget(spanMeters, aftMeters, pixelsFromPress);
     }
@@ -1451,6 +1606,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void Nudge(int spanDirection, int aftDirection, NudgeModifier modifier)
     {
+        if (RefuseAnalysisEdit()) return;
         if (Gesture != GestureState.Nudging || gestureOrigin is null || gesturePoint is null) return;
         if (Section is not null)
         {
@@ -1497,6 +1653,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void FlushGestureFrame()
     {
+        if (IsAnalysis) return;
         if (draft is null || pendingGestureTarget is not { } target || Gesture is GestureState.Idle or GestureState.Busy)
             return;
         pendingGestureTarget = null;
@@ -1563,6 +1720,7 @@ public sealed class WorkbenchController : IDisposable
 
     public Task<GestureOutcome> EndGestureAsync(GestureEnd reason, CancellationToken cancellation = default)
     {
+        if (RefuseAnalysisEdit()) return Task.FromResult<GestureOutcome>(new GestureOutcome.Refused("ANA-EDIT-INERT", AnalysisPointRefusal));
         if (Section is not null) return EndSectionGestureAsync(reason, cancellation);
         if (Gesture == GestureState.Busy) return Task.FromResult<GestureOutcome>(new GestureOutcome.NoChange());
         if (Gesture == GestureState.Idle)
@@ -1811,6 +1969,8 @@ public sealed class WorkbenchController : IDisposable
     private Task<CommitOutcome> RunDirectCommandAsync(Func<CommitOutcome> action, bool warningOnRefusal = false,
         bool preserveStatusAfterCommit = false)
     {
+        if (RefuseAnalysisEdit())
+            return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("ANA-EDIT-INERT", AnalysisPointRefusal));
         if (Gesture != GestureState.Idle || draft is not null)
             return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-DRAFT-OWNED", "Finish the current change first."));
         if (Inspection?.Geometry.Status != GeometryStatus.Certified)
@@ -2206,6 +2366,7 @@ public sealed class WorkbenchController : IDisposable
 
     public async Task AcceptCandidateAsync(CancellationToken cancellation = default)
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         if (PendingOriginal is null || PendingCandidate is null) throw new ContractError("DSL-IDS-REQUIRED");
         var next = new AuthoringSession();
         try { next.Open(PendingOriginal, Guid.NewGuid().ToString("D"), true); }
@@ -2233,6 +2394,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void InvalidateDraftInput(string? reason = null)
     {
+        if (RefuseAnalysisEdit()) return;
         if (draft is null) return;
         CancelSampling();
         draftInputValid = false;
@@ -2246,6 +2408,7 @@ public sealed class WorkbenchController : IDisposable
 
     public async Task PreviewAsync(CancellationToken cancellation = default)
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         if (draft is null) throw new ContractError("DSL-DRAFT-OWNED");
         if (!draftInputValid) throw new ContractError("DSL-INVALID-NUMERIC");
         CancelSampling();
@@ -2284,6 +2447,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void Apply()
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         // A resumed rail recovery has a draft but no latched preview: ResumeRecovery samples the
         // accepted frame, and that refresh can finish the version check inside PreviewAsync before
         // Remember runs. Certify the open draft here, then commit it.
@@ -2309,6 +2473,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void Cancel()
     {
+        if (RefuseAnalysisEdit()) return;
         if (draft is null) return;
         CancelSampling();
         session.Cancel(draft.Id);
@@ -2325,6 +2490,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void Undo()
     {
+        if (RefuseAnalysisEdit()) return;
         if (Section is not null) { _ = UndoSectionStepAsync(); return; }
         if (Gesture != GestureState.Idle || draft is not null) throw new ContractError("DSL-DRAFT-OWNED");
         CancelSampling();
@@ -2340,6 +2506,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void Redo()
     {
+        if (RefuseAnalysisEdit()) return;
         if (Section is not null) { _ = RedoSectionStepAsync(); return; }
         if (Gesture != GestureState.Idle || draft is not null) throw new ContractError("DSL-DRAFT-OWNED");
         CancelSampling();
@@ -2457,6 +2624,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void ResumeRecovery()
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         session.ResumeRecovery();
         draft = session.Snapshot().Draft;
         draftInputValid = true;
@@ -2485,6 +2653,7 @@ public sealed class WorkbenchController : IDisposable
 
     public void DiscardRecovery()
     {
+        if (RefuseAnalysisEdit()) throw new ContractError("ANA-EDIT-INERT", AnalysisPointRefusal);
         session.DiscardRecovery();
         Status = "Recovery draft discarded. Accepted project retained.";
         Notify();
@@ -2577,9 +2746,17 @@ public sealed class WorkbenchController : IDisposable
             return false;
         }
         CancelSampling();
+        CancelAnalysis();
+        analysisCancellation = null;
         store.Dispose();
         session.Dispose();
         session = next;
+        analysisService = new AnalysisService(session, analysisMethod, analysisBarrier, time);
+        analysisProjectionKey = null;
+        analysisView = null;
+        LayerSet = [];
+        areaMode = ShellMode.Workspace;
+        returnToCadMode = ShellMode.Workspace;
         store = storeFactory(session);
         Inspection = session.InspectAccepted();
         ClearPendingImport();
@@ -2751,6 +2928,7 @@ public sealed class WorkbenchController : IDisposable
         sectionBeforeChecking = null;
         Gesture = GestureState.Idle;
         CancelSampling();
+        CancelAnalysis();
         surfaceRunning?.Cancel();
         surfaceBehindTimer?.Dispose();
         surfaceSettled.TrySetResult();

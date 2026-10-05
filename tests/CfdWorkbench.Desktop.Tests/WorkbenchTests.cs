@@ -127,6 +127,7 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
     CfdWorkbench.Desktop.Tests.View3dTests.RunReadiness();
     // PlanCanvasTests.RunReadiness set up the Avalonia app above.
     CfdWorkbench.Desktop.Tests.SectionEditorTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.AnalysisToggleTests.RunReadiness();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
