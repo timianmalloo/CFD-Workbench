@@ -26,6 +26,7 @@ internal static class ServiceTests
         Check("Evaluate_WaterOutsideTable_RefusedNoRow", WaterOutsideTable);
         Check("Evaluate_ComputeFails_FailedRowHasNoDiagnostics", FailedRowWithoutDiagnostics);
         Check("Evaluate_SectionStationsChanged_NewKeyNotAHit", SectionStationsInKey);
+        Check("Evaluate_ThrowingCancelCallback_NewerSourceReleased", ThrowingCancelCallbackReleasesNewerSource);
     }
 
     // A point draft with a moved twist vertex is open; the run reads the accepted bytes, never Draft.Bytes (FM-1, G-1).
@@ -91,15 +92,43 @@ internal static class ServiceTests
     {
         var session = Fixture.Opened();
         var barrier = new HoldFirst();
-        var evaluation = new AnalysisService(session, new FakeWing(), barrier)
-            .EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
+        var service = new AnalysisService(session, new FakeWing(), barrier);
+        var evaluation = service.EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
         barrier.AwaitHeld();
         Equal(0, session.ReadRuns().Runs.Count, "rows at the hold point, before the close");
+        Equal(1, Fixture.InFlight(service).Count, "evaluations in flight at the hold point");
         session.Dispose();
         barrier.Release();
         var error = Fixture.Throws<ContractError>(evaluation);
         Equal("DOC-CLOSED", error.Code, "refusal");
-        Equal(true, evaluation.IsFaulted, "no run returned;");
+        Equal(0, Fixture.InFlight(service).Count, "evaluations in flight after the refusal (the source is released);");
+    }
+
+    // A cancel callback of the older evaluation throws while the newer one supersedes it. The newer evaluation is refused
+    // with that exception, and the source it created is neither left in the in-flight map nor left undisposed.
+    private static void ThrowingCancelCallbackReleasesNewerSource()
+    {
+        using var session = Fixture.Opened();
+        var barrier = new HoldFirst();
+        var wing = new FakeWing();
+        var service = new AnalysisService(session, wing, barrier);
+        var older = service.EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
+        barrier.AwaitHeld();
+        CancellationTokenSource? newerSource = null;
+        using var registration = wing.Tokens.First().Register(() =>
+        {
+            newerSource = Fixture.InFlight(service)[new Scope.Wing()];
+            throw new InvalidOperationException("a cancel callback failed");
+        });
+        var refused = Fixture.Throws<AggregateException>(service.EvaluateAsync(Fixture.Op(3.0), Fixture.Salt, Tier.VlmStrip,
+            new Scope.Wing(), CancellationToken.None));
+        Equal("a cancel callback failed", refused.InnerExceptions.Single().Message, "the callback's exception reaches the caller");
+        Equal(false, newerSource is null, "the callback saw the newer source in flight;");
+        Equal(0, Fixture.InFlight(service).Count, "evaluations in flight after the refusal;");
+        Fixture.Throws<ObjectDisposedException>(Task.Run(() => newerSource!.Token.WaitHandle));
+        barrier.Release();
+        Fixture.Throws<OperationCanceledException>(older);
+        Equal(0, session.ReadRuns().Runs.Count, "rows");
     }
 
     // V = 0 and V = −1 kn: q, Re_ref, Fr_h and σ are Undefined (speed ≤ 0); Evaluate is refused ANA-INPUT-SPEED, no row.

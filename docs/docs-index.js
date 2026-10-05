@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0d77e44415deb2b81fc60c118ff30176a4fb9ac59da8e4b12809b16caf35e91e"
+      "sourceSha256": "c663e9f1878397fb2e47b35407caa3aba34879b3d0c614e195d8374ee41908ad"
     },
     {
       "id": "design-authoring-decisions",
@@ -3181,7 +3181,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "31d7e2cb4f8f8726ddf42067896ffbc1635b269232f330918ef92fdf5b16e6ac"
+      "sourceSha256": "a72cac34fd2d1f165afd734f2418c3d146964ac0d9b171441eba678cadbfdaf7"
     },
     {
       "id": "design-planform-point-verbs",
@@ -9648,6 +9648,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "c3c2e20ddb41ade9bb6869725dbf84d648ca1916d1b08e9ff62af890fc7f6f04"
     },
     {
+      "id": "proof-c-copy-findings-red-first",
+      "path": "docs/proof/c-copy-findings/red-first.md",
+      "title": "Track C red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-c",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Track C of round-oct05: Ruling 82 copy markers, the security probe lock path, the STORE-SUBSET static check, four analysis-service nits and the F-4 helper, each with its red run and its green run.",
+      "tags": [
+        "round-oct05",
+        "copy",
+        "ruling-82",
+        "security-probe",
+        "store-subset",
+        "analysis",
+        "cli"
+      ],
+      "links": [
+        {
+          "to": "proof-a3a-svc2-red-first",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "908c26e00577c4e7878486e68e94cd3da98dcb4e8551c757e89463c07431bc79"
+    },
+    {
       "id": "proof-c1-red-runs",
       "path": "docs/proof/c1-red-runs.md",
       "title": "C1 wing estimates and span red-first run",
@@ -13114,5 +13147,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ba17b7151270c5f1bfb1ee8f07906d7c7769478a076fcdb4e645186fae4470ce"
+  "graphSha256": "4960acb59a11b47635121da44505aaf7d33ad7cb8224f86b1166ce289edc2233"
 };

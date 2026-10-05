@@ -459,7 +459,7 @@ service refuses to evaluate without them (`ANA-INPUT-STATIONS`). The product met
 | `AnalysisProjection.Build(AnalysisRun?, CurrentInputs, Units) → AnalysisViewModel` | pure | every rendered string comes from here |
 | `AuthoringSession.RecordRun(AnalysisRun)` · `ReadRuns()` | append-only, check-and-append under the session lock | not on the undo stack; marks the document dirty; refuses after close (`DOC-CLOSED`) |
 | `Placement.Sections(...)` | §4 | the one Core addition |
-| CLI `analyse`, `inspect --runs` | JSON | same run key as the GUI (CLI-01) |
+| CLI `analyse`, `inspect --runs` | JSON | same run key as the GUI (CLI-01); each run's `revision` field is `{ordinal, rail}` (`rail` omitted or null for a run with no edit) |
 
 ### 6.2 Consumed
 

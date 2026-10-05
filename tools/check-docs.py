@@ -3,10 +3,14 @@
 
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
 import tempfile
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from store_subset import partition_names  # noqa: E402
 
 for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
@@ -122,8 +126,15 @@ def check_join_rings():
     print("join rings ok: tests every code join (docs-only joins skip, Ruling 89), slow gates and recounts at readiness", flush=True)
 
 
+def check_store_subset():
+    """STORE-SUBSET: the umask partition rule caught statically instead of waiting for readiness."""
+    partition_names()
+    print("store subset ok: umask partition holds statically", flush=True)
+
+
 def main():
     check_join_rings()
+    check_store_subset()
     run(ROOT / "tools" / "check-pack-hooks.py")
     run(ROOT / "tools" / "check-rollup-links.py")
     run(ROOT / "tools" / "coordination" / "check-process-match.py")

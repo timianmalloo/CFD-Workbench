@@ -221,7 +221,7 @@ public static class Cli
                 stored.Run.Tier,
                 method = new { stored.Run.Method.Id, stored.Run.Method.Version },
                 stored.Run.Inputs.AcceptedId,
-                revision = session.RevisionOf(stored.Run.Inputs.AcceptedId).Ordinal,
+                revision = Revision(session, stored.Run.Inputs.AcceptedId),
                 stored.Run.Op,
                 water = new { stored.Run.Water.TemperatureC, stored.Run.Water.SalinityGPerKg },
                 strips = stored.Run.Strips.Count
@@ -233,6 +233,13 @@ public static class Cli
         catch (ContractError error) { await WriteAsync(output, new { code = error.Code }); return ExitForCode(error.Code); }
         catch (IOException) { await output.WriteLineAsync("{\"code\":\"DOC-IO\"}"); return 5; }
         catch (UnauthorizedAccessException) { await output.WriteLineAsync("{\"code\":\"DOC-IO\"}"); return 5; }
+    }
+
+    // The session's own label for the revision a run was made on: the ordinal and the rail of the edit that made it.
+    private static object Revision(AuthoringSession session, string acceptedId)
+    {
+        var label = session.RevisionOf(acceptedId);
+        return new { ordinal = label.Ordinal, rail = label.Rail };
     }
 
     // The accepted revision of a native document, the Example or a .foil (the inspect path's three inputs).

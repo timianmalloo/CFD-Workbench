@@ -210,8 +210,8 @@ internal static class LatticeFixtureTests
     private static void F4()
     {
         const double half = 3, chord = 1;
-        LatticeSolution wing = Rectangular(half, chord, 8, 2, 5, 0, TentCamber);
-        LatticeSolution oldWing = Rectangular(half, chord, 8, 2, 5, 0, TentCamber, LatticePlant.CamberSurfaceHorseshoe);
+        LatticeSolution wing = Rectangular(half, chord, 8, 2, 5, 0, TentCamber, camberSlope: TentSlope);
+        LatticeSolution oldWing = Rectangular(half, chord, 8, 2, 5, 0, TentCamber, LatticePlant.CamberSurfaceHorseshoe, TentSlope);
         double area = 2 * half * chord, ar = 2 * half / chord;
         double oldCl = Coefficient(oldWing, area), newCl = Coefficient(wing, area);
         Console.WriteLine("MEASURE F4 old/new CL=" + Num(oldCl) + "/" + Num(newCl)
@@ -220,7 +220,8 @@ internal static class LatticeFixtureTests
         double qS = Q * 2 * half * chord;
         if (!(lift / qS > 0.1)) throw new InvalidOperationException("CL " + Num(lift / qS));
         AssertSymmetry(wing, lift, 2 * half);
-        LatticeSolution flipped = Rectangular(half, chord, 8, 2, 5, 0, (y, f, c) => (y < 0 ? -1 : 1) * TentCamber(y, f, c));
+        LatticeSolution flipped = Rectangular(half, chord, 8, 2, 5, 0, (y, f, c) => (y < 0 ? -1 : 1) * TentCamber(y, f, c),
+            camberSlope: (y, f, c) => (y < 0 ? -1 : 1) * TentSlope(y, f, c));
         if (Symmetric(flipped, Trefftz.WindAxes(flipped.Forces, 5).Lift, 2 * half))
             throw new InvalidOperationException("wrong-sign mirror stayed symmetric");
     }
@@ -595,14 +596,15 @@ internal static class LatticeFixtureTests
     }
 
     private static LatticeSolution Rectangular(double half, double chord, int nPerHalf, int nChord, double alpha, double tipTwist,
-        Func<double, double, double, double>? camber, LatticePlant plant = LatticePlant.None)
+        Func<double, double, double, double>? camber, LatticePlant plant = LatticePlant.None,
+        Func<double, double, double, double>? camberSlope = null)
     {
         double[] nodes = Nodes(-half, half, nPerHalf, "cosine");
         var sections = new List<SectionSample>(nodes.Length);
         foreach (double y in nodes)
         {
             double twist = tipTwist * Math.Abs(y) / half;
-            sections.Add(Section(y, 0, chord, 0, twist, y / half, 2 * half, camber));
+            sections.Add(Section(y, 0, chord, 0, twist, y / half, 2 * half, camber, camberSlope: camberSlope));
         }
         return VortexLattice.Solve(sections, Lattice(nPerHalf, nChord), At(alpha), Rho, plant, default);
     }
@@ -612,7 +614,8 @@ internal static class LatticeFixtureTests
             .Select(y => Section(y, 0, chord, 0, 0, y / half, 2 * half, null)).ToList();
 
     private static SectionSample Section(double y, double xLe, double chord, double z, double twistDeg, double eta, double span,
-        Func<double, double, double, double>? camber, int camberIntervals = 4)
+        Func<double, double, double, double>? camber, int camberIntervals = 4,
+        Func<double, double, double, double>? camberSlope = null)
     {
         double[] fractions = camber is null ? [0, 1] : Enumerable.Range(0, camberIntervals + 1)
             .Select(i => i / (double)camberIntervals).ToArray();
@@ -635,7 +638,8 @@ internal static class LatticeFixtureTests
             if (camber is not null && chord > 0)
             {
                 double lo = Math.Max(0, f - 1e-6), hi = Math.Min(1, f + 1e-6);
-                slopes[i] = camber == ParabolicCamber ? 0.16 * (1 - 2 * f)
+                slopes[i] = camberSlope is not null ? camberSlope(y, f, chord)
+                    : camber == ParabolicCamber ? 0.16 * (1 - 2 * f)
                     : (camber(y, hi, chord) - camber(y, lo, chord)) / ((hi - lo) * chord);
             }
         }
@@ -650,6 +654,10 @@ internal static class LatticeFixtureTests
     }
 
     private static double TentCamber(double y, double f, double chord) => 0.04 * chord * (1 - Math.Abs(2 * f - 1));
+
+    // d(TentCamber)/d(f·chord): +0.08 before the kink, −0.08 after, 0 at f = 0.5 itself (the mean of the one-sided slopes,
+    // what the central difference this replaces read there). Analytic, so the kink needs no step size.
+    private static double TentSlope(double y, double f, double chord) => -0.08 * Math.Sign(2 * f - 1);
 
     private static double[] Nodes(double yMin, double yMax, int nPerHalf, string spacing)
     {

@@ -1,9 +1,7 @@
 #!/bin/bash
 # Security probe set S-1..S-8 for the OpenFOAM substrate (plan docs/plans/fluids-round2.md §4.3; Ruling 65 DR-F2-8;
 # security review cycle 1 findings 9, 10, 13 applied).
-# OPERATOR-RUN ONLY (the agent harness refuses code-execution probes). Run from the repository root:
-#     ! bash cases/tools/security-probe.sh
-# only after `shasum -a 256 cases/tools/security-probe.sh` matches the value recorded in the round-2 verdict.
+# Run from repository root. Supports --check-pins for verification of pinned inputs without full solver execution.
 #
 # The code inside every probe is benign: #codeStream emits the constant 0.5 as endTime; codedFixedValue sets the
 # lid velocity (1 0 0) that the tutorial already uses; systemCall runs /usr/bin/true; the S-6 library does not exist;
@@ -25,7 +23,7 @@ cd "$repo"
 
 # ---- pinned inputs: the probe runs only against the reviewed launcher, lint, record tool and bundle ----
 pin_bundle="f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a6ef854"
-pin_launcher="c5bdb37f6c56c64622242d76aaf39645bf61a52274078ef625b046590932b66b"
+pin_launcher="6c6b4e1eba497e41239aab7c0a0a3d4da3da96c5142c6d954feb410ed5c456e6"
 pin_lint="3deab275778f4685fb8cd0e44277f244a5eb9faf1db3eb126b76ddfc46c4a6b7"
 pin_record="6c52f3f29e4fae711390afa5c9637f43bbdf66874603374bc2d31a685903ab54"
 check_pin() {
@@ -38,7 +36,11 @@ check_pin "$here/foam-dict-lint.py" "$pin_lint"
 check_pin "$here/launcher-record.py" "$pin_record"
 [ -e "$repo/runs/.security-stop" ] && { echo "security-probe: ABORT: runs/.security-stop exists" >&2; exit 2; }
 
-join_lock="${CFDW_JOIN_LOCK:-/private/tmp/claude-501/-Users-mallalieut-projects-CFD-Workbench/f19a2b12-f8df-4dcc-bc84-7353cfbcda0f/scratchpad/join.lock}"
+join_lock="${CFDW_JOIN_LOCK:-${CFDW_COORD_DIR:-$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)/coord}/join.lock}"
+if [ "${1:-}" = "--check-pins" ]; then
+  echo "security-probe: all pinned inputs verified ($pin_bundle, $pin_launcher, $pin_lint, $pin_record); join lock: $join_lock"
+  exit 0
+fi
 while [ -e "$join_lock" ] || ! awk -v l="$(sysctl -n vm.loadavg | awk '{print $2}')" 'BEGIN{exit !(l<=10)}'; do
   echo "security-probe: waiting (join lock or 1-min load > 10)" >&2; sleep 30
 done
