@@ -171,6 +171,58 @@ public sealed class ProjectStore : IProjectStore, IDisposable
         return new(code, published ? hash : null, published, durable && code == "OK");
     }
 
+    /// <summary>Claim-scoped create-only publication for an immutable, hash-named library entry.</summary>
+    public SaveResult PublishUnderClaim(string dir, string fileName, byte[] bytes, Func<bool> precondition)
+    {
+        ArgumentNullException.ThrowIfNull(bytes);
+        ArgumentNullException.ThrowIfNull(precondition);
+        string traceId = Guid.NewGuid().ToString("N");
+        var timer = System.Diagnostics.Stopwatch.StartNew();
+        string code = "OK", hash = Identity.Sha256(bytes);
+        bool published = false, durable = false;
+        ParentPath? parent = null; OwnedEntry? claim = null, temp = null;
+        try
+        {
+            lock (lifecycle) Require(!disposed, "DOC-CLOSED");
+            Supported();
+            Require(bytes.Length <= 1_048_576 &&
+                Regex.IsMatch(fileName, @"\A[0-9a-f]{64}\.foil\z") && fileName == hash + ".foil", "DOC-HASH");
+            parent = ParentPath.Open(Path.Combine(dir, fileName));
+            hooks?.Visit(StoreStage.ParentOpened);
+            claim = OwnedEntry.Create(parent.Fd, ClaimName(), hooks?.CreationMode ?? 0x180);
+            hooks?.Visit(StoreStage.ClaimCreated);
+            Require(precondition(), "DOC-CONFLICT");
+            Require(!Exists(parent.Fd, parent.Name, out _), "DOC-CONFLICT");
+            temp = OwnedEntry.Create(parent.Fd, TempName(Guid.NewGuid().ToString("D")), hooks?.CreationMode ?? 0x180);
+            hooks?.Visit(StoreStage.TempCreated);
+            WriteAll(temp.Fd, bytes, CancellationToken.None);
+            Check(Native.Fsync(temp.Fd)); hooks?.Visit(StoreStage.FileFlushed);
+            hooks?.Visit(StoreStage.BeforePublish);
+            parent.Verify(); Require(claim.IsOwned && temp.IsOwned, "DOC-CONFLICT");
+            if (hooks?.PublicationError is int error) throw Failure(error);
+            Check(Native.LinkAt(parent.Fd, temp.Name, parent.Fd, parent.Name, 0));
+            published = true; hooks?.Visit(StoreStage.Published);
+            using (var held = OpenRegular(parent.Fd, parent.Name))
+                Require(SameEntry(parent.Fd, parent.Name, temp.Fd) &&
+                    Identity.Sha256(ReadAll(held.Fd, CancellationToken.None)) == hash, "DOC-CONFLICT");
+            Require(temp.Cleanup() & claim.Cleanup(), "DOC-IO");
+            hooks?.Visit(StoreStage.BeforeDirectoryFlush);
+            Check(Native.Fsync(parent.Fd)); durable = true;
+        }
+        catch (ContractError error) { code = published ? "DOC-SAVE-UNCERTAIN" : error.Code; }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException or DllNotFoundException or EntryPointNotFoundException or BadImageFormatException)
+        { code = published ? "DOC-SAVE-UNCERTAIN" : error is DllNotFoundException or EntryPointNotFoundException or BadImageFormatException ? "DOC-UNSUPPORTED-PERSISTENCE" : "DOC-IO"; }
+        finally
+        {
+            bool cleaned = (temp?.Cleanup() ?? true) & (claim?.Cleanup() ?? true);
+            if (!cleaned && code == "OK") code = published ? "DOC-SAVE-UNCERTAIN" : "DOC-IO";
+            temp?.Dispose(); claim?.Dispose(); parent?.Dispose();
+            Emit("library.save", code, timer.Elapsed.TotalMilliseconds, bytes.Length, published ? bytes.Length : 0,
+                traceId, published, durable && code == "OK");
+        }
+        return new(code, published ? hash : null, published, durable && code == "OK");
+    }
+
     internal static string TempName(string operation) => ".cfd-" + Guid.Parse(operation).ToString("D") + ".tmp";
     internal static string BackupTempName(string operation) => ".cfd-" + Guid.Parse(operation).ToString("D") + ".bak.tmp";
     /// <summary>The rollback copy beside a project that first gains an Analysis run (ADR-0011 §6).</summary>
