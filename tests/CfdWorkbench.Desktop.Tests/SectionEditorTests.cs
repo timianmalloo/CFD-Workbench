@@ -624,6 +624,9 @@ public static class SectionEditorTests
                 bool finishBefore = finish.IsEnabled;
                 var target = shell.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
                 Wait(shell.Host.ApplySectionStepAsync(new SectionStep.SetType(SurfaceSide.Upper, target.Id, true)));
+                // The shell task ends when the refusal is in the strip. That refusal cleared the certificate
+                // and asked for it again, so Finish stays "Checking…" until this re-check lands.
+                WaitUntil(() => shell.Controller.Section?.Assessment is not null);
                 shell.Settle();
                 var after = shell.Controller.Section!;
                 const string expected = "This edit would give Root's section different point positions from Tip's, and the wing between " +
