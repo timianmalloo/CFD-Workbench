@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T01:15:25Z",
+  "generated": "2026-10-05T01:25:55Z",
   "audit": [
     {
       "actor": null,
@@ -24232,6 +24232,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T01:13:58Z",
       "duration_seconds": 87.0
+    },
+    {
+      "id": "al-01M44TNQR9M9E89J0CDSZY4NW8",
+      "shortname": "join-blend-capacity-followup",
+      "datetime": "2026-10-05T01:25:55Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/blend-capacity-followup into feature/ui-cad-direction",
+      "summary": "CAP-2 (Codex GPT-6), the geometry review's two conditions: BlendSpanLimit() derives from FoilSource's degree and point ceiling (no second definition); a seeded differential test (320 cases, 81 both-refused) matches the pre-heap list algorithm on lower/upper/nodes/ProofBudget.Spent, worst comparison ratio 0.844 of the model, 42 ms. COPY-194 kept (unreachable while the point ceiling is 32); retirement held for the operator. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T01:24:29Z",
+      "duration_seconds": 86.0
     }
   ],
   "changes": [
