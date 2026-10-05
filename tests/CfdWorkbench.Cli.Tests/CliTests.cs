@@ -122,8 +122,10 @@ catch (Exception error)
     Console.WriteLine("FAIL Cli_Inspect_ListsSectionPointTypesAndKinds");
     throw new InvalidOperationException(error.Message);
 }
-// CLI-01 (design area3-analysis.md §13.3, track SVC): `analyse` and the GUI path on one operating point give one run key,
-// and `inspect --runs` lists the GUI's stored run under the key recomputed from its manifest. In process, never a binary.
+// CLI-01 (design area3-analysis.md §13.3, track SVC): `analyse --op <json>` and the service on OperatingPoints.Custom (the
+// one builder the conditions band also calls) give one run key for one operating point and the default water; and
+// `inspect --runs` lists that stored run under the key recomputed from its manifest. In process, never a binary. What it
+// does not prove: the conditions band's own call (TGL's check).
 long analyseStarted = System.Diagnostics.Stopwatch.GetTimestamp();
 try
 {
@@ -136,9 +138,9 @@ try
     using (var runJson = JsonDocument.Parse(output.ToString())) cliKey = runJson.RootElement.GetProperty("run").GetProperty("runKey").GetString();
     using var session = new AuthoringSession();
     session.Open(Cli.ExampleBytes(), Guid.NewGuid().ToString("D"), false);
-    var gui = await new AnalysisService(session, host.Method).EvaluateAsync(OperatingPoints.Custom(5.14444, 3, 0.5),
+    var service = await new AnalysisService(session, host.Method).EvaluateAsync(OperatingPoints.Custom(5.14444, 3, 0.5),
         host.Water(OperatingPoints.DefaultTemperatureC, OperatingPoints.SaltSalinityGPerKg), Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
-    if (cliKey != gui.RunKey) throw new Exception($"CLI key {cliKey} differs from the GUI key {gui.RunKey}");
+    if (cliKey != service.RunKey) throw new Exception($"CLI key {cliKey} differs from the service key on OperatingPoints.Custom {service.RunKey}");
     string file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".cfdw.json");
     try
     {
@@ -148,9 +150,9 @@ try
         if (exit != 0) throw new Exception($"inspect --runs returned {exit}: {output}");
         using var runsJson = JsonDocument.Parse(output.ToString());
         var runs = runsJson.RootElement.GetProperty("runs");
-        if (runs.GetArrayLength() != 1 || runs[0].GetProperty("runKey").GetString() != gui.RunKey ||
+        if (runs.GetArrayLength() != 1 || runs[0].GetProperty("runKey").GetString() != service.RunKey ||
             runs[0].GetProperty("integrity").GetString() != "Intact")
-            throw new Exception($"inspect --runs did not list the GUI run: {output}");
+            throw new Exception($"inspect --runs did not list the service run: {output}");
     }
     finally { File.Delete(file); }
     foreach (var (refused, code) in new (string[] Args, string Code)[]
@@ -164,27 +166,53 @@ try
         exit = await Cli.RunAsync(refused, output, CancellationToken.None, code == "ANA-METHOD-UNAVAILABLE" ? null : host);
         if (exit != 2 || !output.ToString().Contains(code, StringComparison.Ordinal)) throw new Exception($"{refused[3]} returned {exit}: {output}");
     }
-    Console.WriteLine("PASS Cli_AnalyseRunKey_EqualsGui");
+    Console.WriteLine("PASS Cli_AnalyseRunKey_EqualsServiceOnCustomOp");
 }
 catch (Exception error)
 {
-    Console.WriteLine("FAIL Cli_AnalyseRunKey_EqualsGui");
+    Console.WriteLine("FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp");
     throw new InvalidOperationException(error.Message);
 }
 finally
 {
-    Console.WriteLine("COST Cli_AnalyseRunKey_EqualsGui " +
+    Console.WriteLine("COST Cli_AnalyseRunKey_EqualsServiceOnCustomOp " +
         System.Diagnostics.Stopwatch.GetElapsedTime(analyseStarted).TotalMilliseconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
 }
+// SVC-2 (IO8): `analyse` on a run whose compute fails prints the Failed run with its code and no diagnostics member, never
+// a measured-looking "residualInf": 0; the exit is the code's.
+long failedStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+try
+{
+    var failing = new AnalysisHost(new CliFakeWing { FailCode = "ANA-SOLVE-SINGULAR" }, CliFakeWing.Water);
+    output.GetStringBuilder().Clear();
+    exit = await Cli.RunAsync(["analyse", "example", "--op", "{\"speed\":5.14444,\"alphaDeg\":3}"], output, CancellationToken.None, failing);
+    using var failedJson = JsonDocument.Parse(output.ToString());
+    var printed = failedJson.RootElement.GetProperty("run");
+    if (exit != Cli.ExitForCode("ANA-SOLVE-SINGULAR")) throw new Exception($"analyse of a failing run returned {exit}: {output}");
+    if (printed.GetProperty("outcome").GetProperty("code").GetString() != "ANA-SOLVE-SINGULAR") throw new Exception($"no failure code: {output}");
+    if (printed.TryGetProperty("diagnostics", out _)) throw new Exception($"a Failed run printed diagnostics: {output}");
+    Console.WriteLine("PASS Cli_AnalyseFailedRun_PrintsNoDiagnostics");
+}
+catch (Exception error)
+{
+    Console.WriteLine("FAIL Cli_AnalyseFailedRun_PrintsNoDiagnostics");
+    throw new InvalidOperationException(error.Message);
+}
+finally
+{
+    Console.WriteLine("COST Cli_AnalyseFailedRun_PrintsNoDiagnostics " +
+        System.Diagnostics.Stopwatch.GetElapsedTime(failedStarted).TotalMilliseconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
+}
 
-/// <summary>A fixed wing method for the CLI-01 check: the key depends on inputs and settings, never on these numbers.</summary>
+/// <summary>A fixed wing method for the CLI checks: the key depends on inputs and settings, never on these numbers.</summary>
 internal sealed class CliFakeWing : IWingMethod
 {
     public RunMethod Method { get; } = new("cfdw.vlm-strip", "1.0.0", 1);
-    public RunSettings Settings { get; } = new(64, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, [2, 4], "clean", 0.3);
+    public RunSettings Settings { get; } = new(64, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, [2, 4], "clean", 0.3,
+        SectionEtas: [0, 1], SectionXs: [0, 0.5, 1]);
     public double ReconciliationTolerance => 0.01;
-    public IReadOnlyList<double> Etas { get; } = [0, 1];
-    public IReadOnlyList<double> Xs { get; } = [0, 0.5, 1];
+    /// <summary>Makes the solve fail with that code.</summary>
+    public string? FailCode { get; init; }
 
     public static WaterRecord Water(double temperatureC, double salinityGPerKg) =>
         new(temperatureC, salinityGPerKg, 1026.021, 1.18831e-6, 1705.1, "ITTC 7.5-02-01-03 Rev 03", new string('a', 64));
@@ -192,7 +220,7 @@ internal sealed class CliFakeWing : IWingMethod
     public RunReference Reference(byte[] source) => new(0.108, 0.9, 0.12, "frame origin", "body; wind for lift/drag");
 
     public LatticeSolution Solve(IReadOnlyList<SectionSample> sections, OperatingPoint op, WaterRecord water, CancellationToken cancellation) =>
-        new([0.3], [-0.01], new RunDiagnostics(1e-13, 42.5));
+        FailCode is not null ? throw new ContractError(FailCode, "the fake lattice failed") : new([0.3], [-0.01], new RunDiagnostics(1e-13, 42.5));
 
     public IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op,
         WaterRecord water, CancellationToken cancellation) =>
