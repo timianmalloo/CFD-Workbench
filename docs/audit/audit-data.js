@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:07:05Z",
+  "generated": "2026-10-05T16:08:21Z",
   "audit": [
     {
       "actor": null,
@@ -25075,12 +25075,148 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46D366QA1SPR8YBGQFTHDMM",
-      "shortname": "join-c-copy-findings",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T16:07:05Z",
+      "done_when": "join gates green",
+      "duration_seconds": 65.0,
+      "fan_out": 0,
+      "goal": "join c-copy-findings into main (round-oct05)",
+      "id": "al-01M46D366QA1SPR8YBGQFTHDMM",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-c-copy-findings",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-05T16:06:00Z",
+      "summary": "C: COPY-200..203/206..217/221..240 approved (Ruling 82), security-probe join-lock path, STORE-SUBSET shared module, linked CTS released on a throwing cancel callback, inspect --runs revision {ordinal, rail}, F-4 analytic slopes recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-05T14:32:56Z",
+      "id": "al-01M467PSQ0XTFJY3VHEKNNGQY1",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "# Track E2 — CAD defects (round-oct05)\nFix FLK-1 (refused section step must never show Checking…) first and commit alone, then MakeIndependent tangent-row DSL-PATCH. Red-first. T0 fan-out 0. Worktree fix/cad-e2-defects.",
+      "session": "prompt-log",
+      "shortname": "Track E2 — CAD defects (round-oct05)",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T15:08:33Z",
+      "done_when": "SectionStep_Refused_NeverShowsChecking and MakeIndependent_TangentRow_NoDslPatch are red then green in their own commits, tools/run-tests.sh passes once, and check-docs.py exits 0.",
+      "duration_seconds": 2137.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "fix/cad-e2-defects",
+        "pushed": null,
+        "sha": "a3d44189ae1f4b412880f5f2285a5e539fb7a4eb",
+        "short": "a3d44189a"
+      },
+      "goal": "Fix the refused-step Checking flicker and the MakeIndependent DSL-PATCH on a tangent row, red-first.",
+      "id": "al-01M469R0ZTJA66MAQVA3MEGK2P",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Track E2 (trk-e2, fix/cad-e2-defects). Fix two CAD defects, red-first. FLK-1 first, in its own commit: a refused section step must never show Finish \"Checking…\" while it re-checks. Then MakeIndependent must succeed on a section that carries a tangent row, preserving or translating that row per FoilDSL. Full tools/run-tests.sh once at the end, and check-docs.py exit 0.",
+      "session": "trk-e2",
+      "shortname": "trk-e2",
+      "skill": "implement",
+      "started_at": "2026-10-05T14:32:56Z",
+      "summary": "FLK-1 no longer shows Finish Checking on a refused section step, and MakeIndependent retargets a tangent row when it rewrites point ids. Both fixes were red first. The full test ring passed and check-docs exited 0.",
+      "tags": [],
+      "tier": "T0",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T15:39:36Z",
+      "done_when": "The three reviewer conditions are each committed, the named tests passed red then green where behaviour changed, tools/run-tests.sh passed once, and check-docs.py exits 0.",
+      "duration_seconds": 1554.0,
+      "fan_out": 1,
+      "git": {
+        "branch": "fix/cad-e2-defects",
+        "pushed": null,
+        "sha": "598a59b221c3e969fac500f512e70aa4187fd22c",
+        "short": "598a59b22"
+      },
+      "goal": "Repair the three C# reviewer conditions on the tangent retarget, the refusal check name, and the saved section certificate.",
+      "id": "al-01M46BGVSZM3BN5CJP0PRR3RYG",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "REPAIR CYCLE 1 of Track E2 (same worktree /Users/mallalieut/projects/CFD-Workbench-fix-cad-e2-defects, branch fix/cad-e2-defects, AGENT_SESSION=trk-e2). Box 45 min. This is repair cycle 1 of 2.\n\nA C# reviewer cleared the work WITH CONDITIONS. Fix these, red-first where a behaviour changes, each as its own commit:\n\n1. [Major] FoilSource.cs tangent retarget searches the text for Jcs.Quote(oldId) in the window [last id token end, InsertAt). Fix: carry the tangent id token span on TangentRow and emit one positional edit per row. Guard.Require that every tangent row was retargeted. Tests: tangents block precedes the ids list (red on the current code), and ids that collide with another vertex's new id (tangent on cv-1) proving no cascade.\n2. [Minor] Rename SectionStep_Refused_NeverShowsChecking to SectionStep_Refused_RestoresCertificate and update the receipt. The comment says the check covers the re-check window after a refusal only.\n3. [Minor] Clear sectionBeforeChecking when the section editor exits and when a step lands successfully. Confirm DraftId is unique per draft.\n\nSame ownership. Named tests via CFD_TEST_ONLY, tools/run-tests.sh once, python3 tools/check-docs.py. Append the audit entry with --prompt, render, derive, commit.",
+      "session": "trk-e2",
+      "shortname": "trk-e2",
+      "skill": "implement",
+      "started_at": "2026-10-05T15:13:42Z",
+      "summary": "Repair cycle 1 retargets each tangent row from its parsed id span, renames the refusal check, and clears the certificate saved before a section step. The full test ring passed (wall 54 s) and the three fixes are separate commits.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Core/FoilSource.cs",
+        "tests/CfdWorkbench.Core.Tests/SectionEditTests.cs",
+        "docs/proof/e2-cad-defects/red-first.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-05T15:54:01Z",
+      "done_when": "Parser matches origin/main on that production, Parse_TangentsBeforeIds_RefusedDslSyntax passes, named checks and the full ring have been run, check-docs exits 0, and the audit entry is committed.",
+      "duration_seconds": 754.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "fix/cad-e2-defects",
+        "pushed": null,
+        "sha": "caf2635d3e36c10c15323c14d946291e3ec86105",
+        "short": "caf2635d3"
+      },
+      "goal": "Restore the FoilDSL refusal of a tangents block before ids, and keep the id-span retarget.",
+      "id": "al-01M46CB8DH4EWZG1YMAY2XTXBB",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "REPAIR CYCLE 2 (the last) of Track E2 — worktree /Users/mallalieut/projects/CFD-Workbench-fix-cad-e2-defects, branch fix/cad-e2-defects, AGENT_SESSION=trk-e2. Box 30 min.\n\nFirst command: start the implement audit marker for session trk-e2.\n\nCycle-1 work stands except the parser change that accepts a tangents block before ids. FoilDSL is the geometry of record (ADR-0002) and docs/specs/foildsl.md says a tangents block is legal only in 4.1, after ids. A grammar change cannot land inside a bug fix.\n\n1. Revert only the parser change in src/CfdWorkbench.Core/FoilSource.cs that lets tangents appear before ids. A tangents block before ids must fail parse with DSL-SYNTAX again, exactly as on origin/main. Keep the id-token spans on TangentRow (IdToken), the one-edit-per-row retarget, the Guard.Require count check, the cleared certificate, and the rename.\n2. Replace MakeIndependent_TangentsBeforeIds_RetargetsRow with Parse_TangentsBeforeIds_RefusedDslSyntax. Keep MakeIndependent_CollidingIds_TangentNotCascaded.\n3. Show git diff origin/main..HEAD -- src/CfdWorkbench.Core/FoilSource.cs contains no grammar change.\n4. Rebase onto origin/main first. Run the named Core and Desktop checks with CFD_TEST_ONLY, then the full tools/run-tests.sh once, then python3 tools/check-docs.py. Audit entry with --prompt, render, derive, commit.",
+      "session": "trk-e2",
+      "shortname": "trk-e2-repair-2",
+      "signals": {
+        "acceptance_met": false,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-05T15:41:27Z",
+      "summary": "Repair cycle 2 restores the FoilDSL rule that a tangents block is legal only after ids. ReadCurve matches origin/main again. Parse_TangentsBeforeIds_RefusedDslSyntax requires DSL-SYNTAX on the ids token. IdToken spans, one edit per row, the Guard.Require count check, the cleared certificate, and the rename stay. Named Core and Desktop checks passed. tools/run-tests.sh exited 1: harness logs have no FAIL line (Core 335+335, Desktop 663, Analysis 109, Cli 5, RESULT failures=0) and check-test-costs failed C-2 plus eleven C-5 rows under load 149.35 to 193.71; wall 128 s. Class: a bug fix widened the grammar. Sweep: the cumulative FoilSource diff has no ReadCurve hunk. Derive: restore the specified refusal. Prevent: the renamed parse check. The defect-class register was not edited.",
+      "tags": [],
+      "tier": "T0",
+      "tool": null
+    },
+    {
+      "id": "al-01M46D5GRMKYA2769PZGAMWD7E",
+      "shortname": "join-cad-e2-defects",
+      "datetime": "2026-10-05T16:08:21Z",
       "session": "4e90c621",
       "prompt": "the join of the resolved merge into main",
-      "summary": "C: COPY-200..203/206..217/221..240 approved (Ruling 82), security-probe join-lock path, STORE-SUBSET shared module, linked CTS released on a throwing cancel callback, inspect --runs revision {ordinal, rail}, F-4 analytic slopes recount_seconds=0 (docs_only=False).",
+      "summary": "E2: refused section step restores the prior certificate (FLK-1), certificate cleared on land/exit; MakeIndependent retargets tangent rows from parsed id spans with a count guard; tangents-before-ids stays DSL-SYNTAX per foildsl.md:194 recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -25089,7 +25225,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join c-copy-findings into main (round-oct05)",
+      "goal": "join cad-e2-defects into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -25098,8 +25234,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-05T16:06:00Z",
-      "duration_seconds": 65.0
+      "started_at": "2026-10-05T16:07:17Z",
+      "duration_seconds": 64.0
     }
   ],
   "changes": [
