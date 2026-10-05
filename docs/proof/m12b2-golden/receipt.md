@@ -82,3 +82,19 @@ Two entries changed: `/planform/leading` and `/planform/trailing` in `certificat
 | `/planform/trailing` | sample count | 32 | 65 |
 
 Checked with a script over `0cdab2c:docs/proof/m12b2-golden/certificate-bits.json` against the file now: each old sample `i` equals new sample `[2i + 1]` bit for bit, for both rails, all 32 samples (`span` and `aft` as IEEE-754 hex, max absolute difference 0.0). Every other key is identical: `baseCommit`, `probeEtas`, `probeXs`, `fixtures`, `refusals`, `wingEstimates`, `planform/halfSpan` and `planform/stations`. `Geometry.cs`, `Placement.cs` and `WingEstimates.cs` are unchanged, and the OI-11 trace golden (`PlacementRule_OperationTree_TraceGolden`) is unchanged. So no certificate output bit moved. Only the number of display samples did.
+
+## Deliberate change, 2026-10-04 (spike branch `spike/blend-certificate-heap`): the blend maximum keeps a heap
+
+`Bernstein.Maximum` keeps its pending nodes in a binary max-heap instead of rescanning a list. The all-query operation
+model charges the heap's comparisons instead of the rescan's `6 N (N + 1)` (`proof-blend-certificate-heap` §2). Two
+entries changed: `feasibility/RationalOperationsUpper` of `blended-dihedral` and `blended-peaks`, from 859,600 to
+487,922. Both are single-span blends at N = 256: the rescan term was 6·256·257 = 394,752, and the heap term is
+2·11,537 = 23,074, where 11,537 is `QueryFeasibility.MaximumComparisons(256, 1, 5)`. So 859,600 − 394,752 + 23,074 =
+487,922.
+
+How it was found and checked: after the code change, `PlacementRule_CertificateGoldenMaster_AssessWitnessesAndRefusalsUnchanged`
+failed with `Expected 859600; actual 487922`. The two values were edited, and nothing else in the file changed. Then
+`CFD_TEST_ONLY=Blend,Geometry,Assess,PlacementRule,ProofBudget,BlendRule` (Release) ran 59 checks with 0 failures,
+including `PlacementRule_CertificateGoldenMaster_PointAtBitsUnchanged` and `PlacementRule_OperationTree_TraceGolden`.
+So every certificate output bit, every witness, every refusal and every query bit is identical. Only the declared
+operation count moved.

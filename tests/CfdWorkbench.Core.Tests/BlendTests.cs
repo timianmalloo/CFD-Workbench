@@ -84,13 +84,19 @@ internal static class BlendTests
             long firstWork = OneSplit(first), reverseWork = OneSplit(reversed);
             Equal(352L, firstWork);
             Equal(434L, reverseWork);
-            Equal(true, Geometry.BlendSpanLimit() >= 27);
+            Equal(27, Geometry.BlendSpanLimit());
         });
         Check("Blend_FourDifferingStations_Certify_SevenRefusedByOperations", () =>
         {
             var four = Geometry.Assess(Prepared(DifferingStations(4)));
             Equal(GeometryStatus.Certified, four.Status);
             Equal(true, four.Certificate!.QueryFeasibility.RationalOperationsUpper <= 1_000_000);
+            string fixture = Path.Combine(PlacementTests.RepoRoot(), "docs", "proof", "blend-certificate-heap", "fixtures", "C-4st-s27-c120.foil");
+            var atCeiling = Geometry.Assess(Prepared(File.ReadAllText(fixture)));
+            Equal(GeometryStatus.Certified, atCeiling.Status);
+            Equal(48 * 27, atCeiling.Certificate!.BlendNodeBudget);
+            Equal(925_354L, atCeiling.Certificate.QueryFeasibility.RationalOperationsUpper);
+            Equal(37_890L, QueryFeasibility.MaximumComparisons(768, 16, 5));
             var seven = Geometry.Assess(Prepared(DifferingStations(7)));
             Equal(GeometryStatus.NotAssessed, seven.Status);
             Equal(Geometry.OperationBoundCode, seven.Code);
