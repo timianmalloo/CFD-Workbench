@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:02:50Z",
+  "generated": "2026-10-05T16:04:30Z",
   "audit": [
     {
       "actor": null,
@@ -24990,6 +24990,33 @@ window.AUDIT_DATA = {
         "branch": "fix/ring-r87-load-gate",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M46CYF9SGS6D5WV1YRTABB05",
+      "shortname": "join-ring-r87-r89",
+      "datetime": "2026-10-05T16:04:30Z",
+      "session": "4e90c621",
+      "prompt": "the join of fix/ring-r87-load-gate into main",
+      "summary": "B1b: C-2 and TEST-BUDGET load-gated (Ruling 87), tools/ring-lock.sh caps concurrent rings at 2, tools/join-ring.sh skips the ring for docs-only merges (Ruling 89), AGENTS.md test-ring line; Rulings 88 (tip batch) and 89 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join ring-r87-r89 into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T16:03:30Z",
+      "duration_seconds": 60.0
     }
   ],
   "changes": [
@@ -26181,6 +26208,42 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M46BPVRGF47KMVQ24YAHV8FX",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M46CM567RW6Q72X8ECPDFEFZ",
+      "ts": "2026-10-05T15:58:52Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46CM563M3E3A7K13ZR9PQNC",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46CM5F7BARPB364XEE0ASEK",
+      "ts": "2026-10-05T15:58:52Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46CM563M3E3A7K13ZR9PQNC",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46CM5RYPXBQN4X44Z6FGRY9",
+      "ts": "2026-10-05T15:58:53Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46CM5RT3RPPHPR3CD96KD34",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46CM620RDVRSQ6EB5QQ1SGP",
+      "ts": "2026-10-05T15:58:53Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46CM5RT3RPPHPR3CD96KD34",
+      "session": "operator-timianmalloo"
     }
   ]
 };
