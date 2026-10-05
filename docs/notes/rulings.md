@@ -861,3 +861,39 @@ Option a. Only the default lattice (64 span x 4 chord, cosine/cosine) carries th
 Ruled by the Fable owner under the operator's overnight delegation (2026-10-04). Option a, modified: horseshoes lie in each panel's own local plane (dihedral kept; F-8 +-20 deg must pass), camber and twist carried in the normals (AVL convention); SweepOf reads the quarter-chord line; one VLM-3 track lands before STP joins. Conditions: (1) STP does not join until VLM-3 is in its base and readiness is green; (2) VLM-3 adds two default-lattice fixtures red-first (rect AR 8, 4 % parabolic camber, alpha 5; rect 1 deg linear washin): tip alpha_i n64 vs n128 within 0.1 deg, CL within 1 % of n128, kappa1 within 10x the flat plate's, backward error <= 1e-10, washin n256 solves; F-7 kept but not the twist proof; (3) SweepOf fixture: elliptic AR 8 straight quarter-chord reads ~0 at every strip n16..256, F-16 unchanged; (4) F-1..F-17 pass; cfdw.vlm-strip 1.0.0 bumped and F-17 vector re-committed; (5) Ruling 76's verified label is not claimed for cambered or twisted wings until (2) passes; the tip strip stays provisional until the eta* law is built on the repaired lattice and re-checked. Held for the operator: verdict copy ('at the bound (+-U)', 'provisional', 'indeterminate'), eta* as a convention (reversible to option b), Rulings 75/76 text.
 
 - request: req-01M44PN1GGDZ75EM3MSJ6D8AFG · ruled by: fable-owner · at: 2026-10-05T00:18:11Z
+
+### Ruling 78 — Tip strip is not judged against the section envelope (DR-VLM-4); amends Ruling 75
+
+Option a, as recommended. Operator: "go with your recommendation". The outermost strip per half is never judged against the section envelope; its verdict reads indeterminate (the provisional flag already does this; PRJ reserved the state). The eta* law of Ruling 75 is not built into the verdict. Interim: the operator commissioned one tip-handling study across the VLM tip strip, the RANS tip mesh and the tip geometry (Ruling 80) and asked whether this ruling should evolve; the study may propose a revision. Held branch fix/a3a-vlm-tip-law is not joined until that study says which parts are kept (proof docs and fixtures vs the law code). Tip verdict wording COPY-218..220 waits for the study (Ruling 82).
+
+- request: req-01M44ZP67KYPVEBAFJW7ZMGN6S · ruled by: operator-timianmalloo (recorded by 4e90c621) · at: 2026-10-05T13:43:35Z
+
+### Ruling 79 — SPIKE-04 fixture stays code-to-code without the GCI clause; L3 to convergence is an operator to-do (DR-F3-7)
+
+Option a, as recommended. Operator: "go with your recommendation: i can set up a parallel machine to run this later, so keep it as a to-do that i will do on a windows laptop". The fixture is labelled code-to-code vs CFL3D without the GCI clause. To-do (operator, separate Windows laptop): run L3 to convergence (estimated 24-27 h) so a triplet can be admitted; the GCI clause returns only when that triplet passes. No L3 run on this machine.
+
+- request: req-01M464VSHQXM59YETAVD9M6BX9 · ruled by: operator-timianmalloo · at: 2026-10-05T13:43:45Z
+
+### Ruling 80 — ADR-0012 stays Proposed; tip mesh and tip strip are decided together by one tip-handling study (DR-F3-8)
+
+Operator: "create a parallel workstream and sub-agent workflow (using fable) to really analyze the best options for dealing with the tip issue and come up with a proposal" and "couple this with Q3... lets just figure out tip handling all together... and think if there are things that need to evolve with Q1". ADR-0012 stays Proposed. No tip mesh spike runs before the study. The study is a Fable judge panel (3 grounding readers: VLM tip numerics, RANS tip mesh, tip geometry; 3 independent proposals; adversarial comparison; synthesis; completeness pass), at most 3 concurrent agents, session-model fallback. Its output is a proposal for the operator (docs/plans/tip-handling.md), including whether Ruling 78 should evolve and the next bounded mesh step.
+
+- request: req-01M464VST2SHPQQAX1TEAEF1N0 · ruled by: operator-timianmalloo · at: 2026-10-05T13:43:45Z
+
+### Ruling 81 — 3D frame-time readiness checks fail only under low machine load (DR-RDY-1)
+
+Recommended option. Operator: "go with your recommendation". Readiness_WindowRenderPlan3d_Under33Ms and Readiness_OrbitFrameP95Under33Ms fail only when the 1-minute load average measured during the check is below a threshold; above it they print READINESS-MISS with the load and do not fail. The threshold is set from measured load and timing data by the implementing track and recorded in the test.
+
+- request: req-01M464VT2ADFMGSQF1398V60BT · ruled by: operator-timianmalloo · at: 2026-10-05T13:43:46Z
+
+### Ruling 82 — Save-error and analysis copy approved; tip wording waits for the tip study (DR-COPY-1)
+
+Operator: "Yes". Approved as written, including the CFD-review notes (217, 232, 233, 240): COPY-200..203 (docs/design/m12d-catalog.md s11.2), COPY-206..217 and COPY-221..240 (DESIGN.md s7). COPY-218..220 (tip verdict wording) are not approved yet: they follow Ruling 78 and the tip-handling study (Ruling 80). The 'proposed - awaiting operator' markers are flipped by a track, because LabelsTests pins them.
+
+- request: req-01M464VTAS6N04PBDQJE2QMSPG · ruled by: operator-timianmalloo · at: 2026-10-05T13:43:46Z
+
+### Ruling 83 — COPY-194 kept as a derived guard (DR-COPY-2)
+
+Operator: "keep it". COPY-194 stays. It is unreachable while the span limit (27) equals the parser ceiling (32 - degree 5), and the limit is derived from the parser's constants, so the refusal comes back into play if the ceiling rises. It is a derived guard, not dead code.
+
+- request: req-01M464VTK1RXEGDMNCQYKEV5JG · ruled by: operator-timianmalloo · at: 2026-10-05T13:43:46Z

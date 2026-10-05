@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T05:25:50Z",
+  "generated": "2026-10-05T13:45:09Z",
   "audit": [
     {
       "actor": null,
@@ -24635,6 +24635,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T05:24:52Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M464ZAJ1GBZ7NKK2BTVTKEFF",
+      "shortname": "rulings-78-83-and-kickoff",
+      "datetime": "2026-10-05T13:45:09Z",
+      "session": "4e90c621",
+      "prompt": "Q1: go with your recommendation\nQ2: go with your recommendation: i can set up a parallel machine to run this later, so keep it as a to-do that i will do on a windows laptop\nQ3: create a parallel workstream and sub-agent workflow (using fable) to really analyze the best options for dealing with the tip issue and come up with a proposal\nQ4: couple this with Q3... lets just figure out tip hanlding all together... and think if there are things that need to evolve with Q1 to get to a better solution\nQ5: go with your recommendationn\nQ6: Yes\nQ7: keep it\n---\nonce you capture the decisions create a new prompt to kick off the next round of work:\nLook at the right next steps to work on as well as the following\n- remove the stale worktrees\n- break down safe parallel workstreams (prepare-for-coordination skill)\n- claude code will be the leader, fable the owner, opus the coordinator, use latest sonnet for coding tasks in claude, use codex and grok for coding subtasks with their latest models\n- have a workstream to optimize the fast test ring\n- do the 9-agent judge panel on Fable (3 grounding readers, 3 independent proposals, then comparison, synthesis, and a completeness pass), capped at 3 concurrent agents to stay under Fable's rate limit, with session-model fallback if any agent fails, use Fable as the decision maker but use sonnet and opus to be as efficient as possible\n- do the 2D section analysis\n- do any next steps needed on the cad experience\nLet me review the prompt ans then we can either edit it or execute it",
+      "summary": "Recorded Rulings 78-83 (DR-VLM-4 a; DR-F3-7 code-to-code, L3 run is an operator to-do on a Windows laptop; DR-F3-8 ADR-0012 Proposed + joint tip-handling study; DR-RDY-1 load-gated frame checks; DR-COPY-1 copy approved except tip wording 218-220; DR-COPY-2 COPY-194 kept). Removed 110 merged worktrees. Drafted the next-round kickoff prompt for operator review.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Capture the operator's Q1-Q7 decisions as rulings and draft the next-round kickoff prompt for review",
+      "done_when": "Rulings 78-83 are in docs/notes/rulings.md on a committed branch and the kickoff prompt file exists for operator review",
+      "tier": "T0",
+      "git": {
+        "sha": "103e752ae4d70591db41fa939375a9d0f9c42dc9",
+        "short": "103e752ae",
+        "branch": "chore/rulings-oct05",
+        "pushed": null
+      }
     }
   ],
   "changes": [
