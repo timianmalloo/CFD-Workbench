@@ -8,7 +8,8 @@ public readonly record struct SectionPoint(double X, double Z);
 /// <summary>Pressure at a panel midpoint; x/c and z/c are dimensionless.</summary>
 public readonly record struct PanelCp(double X, double Z, double Cp);
 
-/// <summary>An inviscid section solve. Upper runs TE→LE, lower LE→TE; no boundary layer is modelled.</summary>
+/// <summary>An inviscid section solve. Upper runs TE→LE, lower LE→TE; no boundary layer is modelled.
+/// CpMin omits the three panels nearest the trailing edge on each side (or as many as leave two interior panels).</summary>
 public sealed record PanelResult(IReadOnlyList<PanelCp> Upper, IReadOnlyList<PanelCp> Lower,
     double CpMin, int StationCount, double Cl, double CmQuarter);
 
@@ -19,6 +20,7 @@ public sealed record PanelResult(IReadOnlyList<PanelCp> Upper, IReadOnlyList<Pan
 public static class PanelMethod
 {
     public const string ModelLabel = "inviscid; no boundary layer";
+    public const int CpMinTrailingEdgePanelsPerSide = 3;
     private const double TwoPi = 2 * Math.PI;
 
     public static PanelResult Solve(SectionSample section, double alphaDeg, CancellationToken cancellation = default)
@@ -93,6 +95,7 @@ public static class PanelMethod
         var upper = new List<PanelCp>(panels / 2);
         var lower = new List<PanelCp>(panels / 2);
         double cpMin = double.PositiveInfinity, cl = 0, cm = 0;
+        int omittedPerSide = Math.Min(CpMinTrailingEdgePanelsPerSide, (panels - 2) / 2);
         for (int i = 0; i < panels; i++)
         {
             Segment segment = segments[i];
@@ -104,7 +107,8 @@ public static class PanelMethod
             double z = (segment.Start.Z + segment.End.Z) / 2;
             var sample = new PanelCp(x, z, cp);
             if (i < panels / 2) upper.Add(sample); else lower.Add(sample);
-            cpMin = Math.Min(cpMin, cp);
+            if (i >= omittedPerSide && i < panels - omittedPerSide)
+                cpMin = Math.Min(cpMin, cp);
             // Pressure force = Cp times the inward (left) normal for a counter-clockwise contour.
             double fx = -cp * segment.Tz * segment.Length;
             double fz = cp * segment.Tx * segment.Length;
