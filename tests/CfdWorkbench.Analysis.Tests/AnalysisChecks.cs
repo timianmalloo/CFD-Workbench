@@ -36,6 +36,7 @@ internal static class AnalysisChecks
         ProjectionTests.Run();
         LabelsTests.Run();
         LoadsViewTests.Run();
+        NeuralFoilTests.Run();
         return Finish();
     }
 
