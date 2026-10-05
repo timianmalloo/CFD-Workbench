@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Globalization;
+using System.Diagnostics.Metrics;
 using CfdWorkbench.Analysis.NeuralFoil;
 using CfdWorkbench.Core;
 
@@ -20,6 +21,7 @@ internal static class NeuralFoilTests
         AnalysisChecks.Check("NeuralFoil_Envelope_CstResidual", () => Refused(0, 500000, 4, "naca0012", true, "CST"));
         AnalysisChecks.Check("NeuralFoil_Envelope_OutsideValidatedBracket", OutsideBracket);
         AnalysisChecks.Check("NeuralFoil_Confidence_BelowFloorNonComputable", ConfidenceGate);
+        AnalysisChecks.Check("NeuralFoil_Telemetry_EmittedOnNormalPath", Telemetry);
         AnalysisChecks.Check("NeuralFoil_InferenceCost", InferenceCost);
     }
 
@@ -119,6 +121,29 @@ internal static class NeuralFoilTests
         if (NeuralFoilPolarSource.ConfidenceReason(0.49) is null ||
             NeuralFoilPolarSource.ConfidenceReason(0.5) is not null)
             throw new Exception("advisory confidence floor does not gate the polar point");
+    }
+
+    private static void Telemetry()
+    {
+        int durations = 0, calls = 0;
+        using var listener = new MeterListener();
+        listener.InstrumentPublished = (instrument, self) =>
+        {
+            if (instrument.Meter.Name == "CfdWorkbench.Analysis.NeuralFoil") self.EnableMeasurementEvents(instrument);
+        };
+        listener.SetMeasurementEventCallback<double>((instrument, _, _, _) =>
+        {
+            if (instrument.Name == "neuralfoil.evaluate.duration_ms") durations++;
+        });
+        listener.SetMeasurementEventCallback<long>((instrument, _, _, _) =>
+        {
+            if (instrument.Name == "neuralfoil.evaluate.calls") calls++;
+        });
+        listener.Start();
+        NeuralFoilSection section = Section(false, "naca0012");
+        var source = new NeuralFoilPolarSource(_ => section);
+        source.Evaluate(section, 0, 500000, 4, CancellationToken.None);
+        if (durations != 1 || calls != 1) throw new Exception($"telemetry missing: durations={durations}, calls={calls}");
     }
 
     private static void InferenceCost()
