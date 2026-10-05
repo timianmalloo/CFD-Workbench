@@ -183,8 +183,7 @@ public static class ShellWindowTests
                 window.Show();
                 Settle(window);
                 // The class, not the instance: every left-pane tool shows its name once, in the one tab row at the top.
-                foreach (var tool in new[] { host.LayoutFactory.PropertiesTool, host.LayoutFactory.BrowserTool,
-                             host.LayoutFactory.RailControlsTool })
+                foreach (var tool in new[] { host.LayoutFactory.PropertiesTool, host.LayoutFactory.BrowserTool, host.LayoutFactory.LayersTool })
                 {
                     host.LayoutFactory.LeftToolDock.ActiveDockable = tool;
                     Settle(window);
@@ -720,7 +719,7 @@ public static class ShellWindowTests
             if (!ids.SequenceEqual(["model", "section-sample", "foil-source"]))
                 throw new InvalidOperationException("Model area document tabs are absent");
             var paneIds = host.LayoutFactory.LeftToolDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
-            if (!paneIds.Contains("properties") || !paneIds.Contains("browser") || !paneIds.Contains("rail-controls"))
+            if (!paneIds.Contains("properties") || !paneIds.Contains("browser") || !paneIds.Contains("layers"))
                 throw new InvalidOperationException("Planform side bar is incomplete");
             if (host.DockHost.Layout is null || host.DockHost.Factory is null)
                 throw new InvalidOperationException("Dock host is not connected to its layout");
@@ -1172,7 +1171,7 @@ public static class ShellWindowTests
                 Settle(window);
                 host.ClosePane("browser");
                 Settle(window);
-                host.ClosePane("rail-controls");
+                host.ClosePane("layers");
                 Settle(window);
                 if (!host.LeftSidebarToggle.IsFocused)
                     throw new InvalidOperationException("Closing the final tool pane did not focus the dock toggle");
@@ -2335,6 +2334,10 @@ public static class ShellWindowTests
                         band.FindControl<TextBlock>("DerivedQ")!));
                     Probe(theme, "analysis.status.text", () => TextRow(theme, "analysis.status.text",
                         host.StatusStrip.FindControl<TextBlock>("AnalysisItemText")!));
+                    Probe(theme, "analysis.panel.tab.selected", () => TextRow(theme, "analysis.panel.tab.selected",
+                        host.AnalysisPanel.FindControl<TabItem>("LoadingTab")!));
+                    Probe(theme, "analysis.panel.tab.unselected", () => TextRow(theme, "analysis.panel.tab.unselected",
+                        host.AnalysisPanel.FindControl<TabItem>("LoadsTab")!));
                     controller.ToggleAnalysis();
                     host.RefreshPanes();
                     Settle(window);
