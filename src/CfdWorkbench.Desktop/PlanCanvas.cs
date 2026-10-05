@@ -317,6 +317,7 @@ public sealed class PlanCanvas : Control
             var emptyButtons = e.GetCurrentPoint(this).Properties;
             if (outline is { } target && e.ClickCount >= 2 && emptyButtons.IsLeftButtonPressed)
             {
+                if (Controller.IsAnalysis) { Controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
                 if (target.Port) Controller.ReportPointWarning("Add points on the starboard half, where the points are.");
                 else _ = AddAtAsync(target.Curve, target.Eta);
                 e.Handled = true;
@@ -324,6 +325,7 @@ public sealed class PlanCanvas : Control
             }
             if (outline is { Port: false } context && emptyButtons.IsRightButtonPressed)
             {
+                if (Controller.IsAnalysis) { Controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
                 OpenOutlineMenu(context.Curve, context.Eta);
                 e.Handled = true;
                 return;
@@ -353,6 +355,7 @@ public sealed class PlanCanvas : Control
         bool control = e.KeyModifiers.HasFlag(KeyModifiers.Control);
         if (buttons.IsRightButtonPressed || OperatingSystem.IsMacOS() && control && buttons.IsLeftButtonPressed)
         {
+            if (Controller.IsAnalysis) { SelectPoint(reference, false, false); Controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
             OpenPointMenu(reference);
             e.Handled = true;
             return;
@@ -361,6 +364,7 @@ public sealed class PlanCanvas : Control
         bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || !OperatingSystem.IsMacOS() && control;
         SelectPoint(reference, extend, toggle);
         FocusPoint(reference);
+        if (Controller.IsAnalysis) { Controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
         if (e.ClickCount >= 2) RequestValue(hit);
         else if (!extend && !toggle && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
@@ -921,7 +925,7 @@ public sealed class PlanCanvas : Control
         {
             foreach (double side in new[] { -1d, 1d })
                 map.DrawCurve(context, rail.Samples, railPen, side);
-            map.DrawPoints(context, rail, brushes, selection);
+            map.DrawPoints(context, rail, brushes, selection, Controller?.IsAnalysis == true);
         }
     }
 }

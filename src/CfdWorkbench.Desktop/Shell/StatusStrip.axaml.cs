@@ -4,6 +4,7 @@ using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Media;
 using CfdWorkbench.Core;
+using CfdWorkbench.Analysis;
 
 namespace CfdWorkbench.Desktop.Shell;
 
@@ -93,6 +94,19 @@ public partial class StatusStrip : UserControl
         string size = string.Create(CultureInfo.InvariantCulture, $"Text {textScale * 100:0} %");
         if (TextSizeItemText.Text != size) TextSizeItemText.Text = size;
         wanted = (selection is not null, foilOpen, estimates && foilOpen, true);
+        FitItems();
+    }
+
+    /// <summary>Read-only state of the selected Analysis run, in either area mode.</summary>
+    public void ShowAnalysisState(RunState state)
+    {
+        AnalysisItemText.Text = state switch
+        {
+            RunState.NoResult => "Analysis: no result",
+            _ => "Analysis: " + state
+        };
+        AutomationProperties.SetName(AnalysisItem, AnalysisItemText.Text);
+        AnalysisItem.IsVisible = true;
         FitItems();
     }
 

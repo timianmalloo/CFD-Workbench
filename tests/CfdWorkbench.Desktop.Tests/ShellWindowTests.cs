@@ -2318,6 +2318,29 @@ public static class ShellWindowTests
                         host.Properties.FindControl<TextBlock>("WingHeading") is null)
                         throw new InvalidOperationException("Rail-editor CV list or numeric field absent from the pane namescope");
 
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.ModelDocument;
+                    Settle(window);
+                    controller.ToggleAnalysis();
+                    host.RefreshPanes();
+                    Settle(window);
+                    var band = host.ModelView.FindControl<CfdWorkbench.Desktop.Analysis.ConditionsBand>("AnalysisConditionsBand")
+                        ?? throw new InvalidOperationException("Analysis conditions band is absent");
+                    Probe(theme, "analysis.nav.selected", () => TextRow(theme, "analysis.nav.selected",
+                        host.ModelView.FindControl<Avalonia.Controls.Primitives.ToggleButton>("NavAnalysisButton")!));
+                    Probe(theme, "analysis.band.speed", () => TextBoxRow(theme, "analysis.band.speed",
+                        band.FindControl<TextBox>("SpeedInput")!));
+                    Probe(theme, "analysis.band.evaluate", () => TextRow(theme, "analysis.band.evaluate",
+                        band.FindControl<Button>("EvaluateButton")!));
+                    Probe(theme, "analysis.band.derived", () => TextRow(theme, "analysis.band.derived",
+                        band.FindControl<TextBlock>("DerivedQ")!));
+                    Probe(theme, "analysis.status.text", () => TextRow(theme, "analysis.status.text",
+                        host.StatusStrip.FindControl<TextBlock>("AnalysisItemText")!));
+                    controller.ToggleAnalysis();
+                    host.RefreshPanes();
+                    Settle(window);
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.FoilSourceDocument;
+                    Settle(window);
+
                     if (variant == ThemeVariant.Light)
                     {
                         // The variant must follow a live switch on an open window, not only the one it opened with.

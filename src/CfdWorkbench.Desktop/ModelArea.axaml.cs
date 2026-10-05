@@ -33,6 +33,13 @@ public partial class ModelArea : UserControl
     public ModelArea()
     {
         InitializeComponent();
+        NavCadButton.Click += (_, _) => { if (controller?.IsAnalysis == true) controller.ToggleAnalysis(); };
+        NavAnalysisButton.Click += (_, _) => { if (controller?.IsAnalysis == false) controller.ToggleAnalysis(); };
+        AnalysisConditionsBand.EvaluateRequested += (op, water) =>
+        {
+            if (controller is not null) _ = controller.EvaluateAnalysisAsync(op, water);
+        };
+        AnalysisConditionsBand.CancelRequested += () => controller?.CancelAnalysis();
         AddPointApplyButton.Click += async (_, _) => await ApplyAddPointAsync();
         AddPointCancelButton.Click += (_, _) => CancelAddPoint();
         AddPointTextBox.KeyDown += async (_, args) =>
@@ -140,11 +147,15 @@ public partial class ModelArea : UserControl
 
     public RebuildPopover RebuildPanel => RebuildPopoverView;
 
-    public void BeginRebuild(string curve, Control? focusReturn = null) =>
+    public void BeginRebuild(string curve, Control? focusReturn = null)
+    {
+        if (controller?.IsAnalysis == true) { controller.ReportPointInfo(WorkbenchController.AnalysisPointRefusal); return; }
         RebuildPopoverView.Open(controller ?? throw new InvalidOperationException("No foil is open."), curve, focusReturn ?? PlanCanvas);
+    }
 
     public void BeginAddPoint(PointView selected, Control? focusReturn = null)
     {
+        if (controller?.IsAnalysis == true) { controller.ReportPointInfo(WorkbenchController.AnalysisPointRefusal); return; }
         if (controller?.CurveFor(selected.Curve) is not { } curve) return;
         addCurve = selected.Curve;
         addFocusReturn = focusReturn ?? PlanCanvas;
@@ -365,6 +376,17 @@ public partial class ModelArea : UserControl
 
     private void RefreshViews(WorkbenchController controller)
     {
+        NavCadButton.IsChecked = !controller.IsAnalysis;
+        NavAnalysisButton.IsChecked = controller.IsAnalysis;
+        AnalysisConditionsBand.IsVisible = foilOpen && controller.IsAnalysis;
+        AnalysisConditionsBand.ReferenceChordMeters = controller.Estimates?.MeanChordMeters;
+        AnalysisConditionsBand.ShowRunState(controller.AnalysisState);
+        AnalysisConditionsBand.RefreshDerived();
+        var analysis = controller.AnalysisView;
+        HistoricalBannerText.Text = analysis.Banner;
+        HistoricalBanner.IsVisible = foilOpen && analysis.Banner is not null;
+        PreviewHiddenBanner.IsVisible = foilOpen && controller.IsAnalysis && controller.Draft is not null;
+        showHost?.StatusStrip.ShowAnalysisState(controller.AnalysisState);
         Mode = controller.IsAnalysis || controller.Section is null ? ModelAreaMode.Views : ModelAreaMode.Section;
         PlanContent.IsVisible = foilOpen && Mode == ModelAreaMode.Views;
         SectionModeEditor.IsVisible = foilOpen && Mode == ModelAreaMode.Section;

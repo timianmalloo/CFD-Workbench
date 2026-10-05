@@ -107,8 +107,9 @@ public sealed class CurvePointLayer(Func<double, double, Point> project, Func<Po
     }
 
     /// <summary>The dashed control polygon, then each point's glyph (M1.2b §11.2).</summary>
-    public void DrawPoints(DrawingContext context, CurveView curve, PointGlyphBrushes brushes, Selection selection)
+    public void DrawPoints(DrawingContext context, CurveView curve, PointGlyphBrushes brushes, Selection selection, bool dimmed = false)
     {
+        using var opacity = context.PushOpacity(dimmed ? .35 : 1);
         var polygon = new Pen(brushes.Mute, 1, new DashStyle([3, 3], 0));
         for (int index = 1; index < curve.Points.Count; index++)
             context.DrawLine(polygon, ToScreen(curve.Points[index - 1]), ToScreen(curve.Points[index]));

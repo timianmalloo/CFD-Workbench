@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="CfdWorkbench.Desktop.Analysis.ConditionsBand">
+  <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}"
+          BorderThickness="0,0,0,1" Padding="{StaticResource Space1}">
+    <StackPanel Orientation="Horizontal" Spacing="{StaticResource NavbarGap}" VerticalAlignment="Center">
+      <TextBlock Text="Speed" VerticalAlignment="Center" />
+      <TextBox x:Name="SpeedInput" Text="5.14" Width="{StaticResource PropValueMinWidth}"
+               AutomationProperties.Name="Speed in metres per second" />
+      <TextBlock Text="m/s" VerticalAlignment="Center" />
+      <ComboBox x:Name="WaterInput" SelectedIndex="0" MinWidth="{StaticResource PropValueMinWidth}"
+                AutomationProperties.Name="Water record">
+        <ComboBoxItem Content="Salt · 15 °C" />
+        <ComboBoxItem Content="Fresh · 15 °C" />
+      </ComboBox>
+      <TextBlock Text="Depth h_ref" VerticalAlignment="Center" />
+      <TextBox x:Name="DepthInput" Watermark="Not set" Width="{StaticResource PropValueMinWidth}"
+               AutomationProperties.Name="Reference depth in metres, not set when empty" />
+      <TextBlock Text="m" VerticalAlignment="Center" />
+      <TextBlock Text="α" VerticalAlignment="Center" />
+      <TextBox x:Name="AlphaInput" Text="2.00" Width="{StaticResource PropValueMinWidth}"
+               AutomationProperties.Name="Incidence alpha in degrees" />
+      <TextBlock Text="°" VerticalAlignment="Center" />
+      <Button x:Name="EvaluateButton" Content="Evaluate" AutomationProperties.Name="Evaluate" />
+      <TextBlock x:Name="DerivedQ" VerticalAlignment="Center" Text="q —" />
+      <StackPanel x:Name="WideDerived" Orientation="Horizontal" Spacing="{StaticResource NavbarGap}">
+        <TextBlock x:Name="DerivedRe" VerticalAlignment="Center" Text="Re_ref —" />
+        <TextBlock x:Name="DerivedDepth" VerticalAlignment="Center" Text="h/c —" />
+        <TextBlock x:Name="DerivedFroude" VerticalAlignment="Center" Text="Fr_h —" />
+      </StackPanel>
+      <TextBlock x:Name="DerivedSigma" VerticalAlignment="Center" Text="σ —" />
+      <Button x:Name="MoreButton" Content="More ▾" IsVisible="False" AutomationProperties.Name="More derived conditions">
+        <Button.Flyout>
+          <MenuFlyout Placement="BottomEdgeAlignedLeft" FlyoutPresenterClasses="navbar-menu">
+            <MenuItem x:Name="MoreRe" Header="Re_ref —" />
+            <MenuItem x:Name="MoreDepth" Header="h/c —" />
+            <MenuItem x:Name="MoreFroude" Header="Fr_h —" />
+          </MenuFlyout>
+        </Button.Flyout>
+      </Button>
+      <TextBlock x:Name="InputError" IsVisible="False" VerticalAlignment="Center"
+                 AutomationProperties.LiveSetting="Assertive" />
+    </StackPanel>
+  </Border>
+</UserControl>

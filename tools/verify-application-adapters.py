@@ -182,6 +182,8 @@ SHELL_THEME_ROWS = {
     "span.selection": 4.5, "span.returned": 4.5, "source.focus.text": 4.5, "source.selection": 4.5,
     # The point fields that replace the retired per-control numeric field.
     "point-span.text": 4.5, "focus.point-span": 3,
+    "analysis.nav.selected": 4.5, "analysis.band.speed": 4.5, "analysis.band.evaluate": 4.5,
+    "analysis.band.derived": 4.5, "analysis.status.text": 4.5,
 }
 SHELL_LIVE_FLIP_ROWS = {"live-flip.dark.tab.Plan.unselected": 4.5, "live-flip.dark.select.tab.Foil source": 3}
 SHELL_THEMES = ("light", "dark", "high-contrast", "default")

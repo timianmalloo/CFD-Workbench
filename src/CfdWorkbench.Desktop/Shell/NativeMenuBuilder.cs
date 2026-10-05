@@ -221,6 +221,10 @@ public static class NativeMenuBuilder
                     var focus = TopLevel.GetTopLevel(window)?.FocusManager?.GetFocusedElement();
                     EditVerbRouter.Execute(row.Id.Replace("edit.", ""), focus, () => onAction?.Invoke(row.Id));
                 }
+                else if (row.Id == "view.analysis" && FindHost(window) is { } analysisHost)
+                {
+                    analysisHost.Controller.ToggleAnalysis();
+                }
                 else if (IsPaneCommand(row.Id) && FindHost(window) is { } host)
                 {
                     _ = host.RunCommand(row.Id);
