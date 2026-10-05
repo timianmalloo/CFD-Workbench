@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T18:35:24Z",
+  "generated": "2026-10-05T18:36:45Z",
   "audit": [
     {
       "actor": null,
@@ -25959,6 +25959,33 @@ window.AUDIT_DATA = {
         "branch": "perf/ring-b3",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M46NN7QZGMA5DRWWA8Z1YYKP",
+      "shortname": "join-ring-b3",
+      "datetime": "2026-10-05T18:36:45Z",
+      "session": "4e90c621",
+      "prompt": "the join of perf/ring-b3 into main",
+      "summary": "B3: RequireFrameBudget gates the two 3D frame checks on load <= 24 (Ruling 81, red-first), TieredPGO on/off readiness identical, Desktop slots 8 -> 10 (quiet Desktop 40.3-40.5 s), stagger and gated-red rules recorded in test-cost.md 9.6 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join ring-b3 into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T18:35:51Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [
