@@ -354,6 +354,9 @@ internal static class SectionReplaceTests
             var preview = Preview(rootUnique, 0, Gen("0012"));
             Equal("CAT-SPACING", preview.RefusalCode);
             Equal(null, preview.Bytes);
+            // The certificate's own refusal carries a stable code the clause matches (RPL-2 item 5); the base after Make unique
+            // already holds four profile blocks, and the bound counts every block.
+            Equal("GEOMETRY-QUERY-OPERATIONS", Geometry.Assess(FoilSource.Parse(rootUnique)).Code);
             Equal("This edit would give Root, Station 2, Station 3 and Tip all different sections, and a wing with that many different " +
                 "sections in a row can't be checked yet. Keep one of them shared with its neighbour, or edit them together.", preview.RefusalReason);
         });
@@ -429,9 +432,106 @@ internal static class SectionReplaceTests
             Equal(0.0, plain.Report.FrameRotationDegrees);
             Equal(1.0, plain.Report.FrameScale);
         });
+        foreach (double degrees in new[] { 0.5, 3.0, 5.0 })
+            Check(FormattableString.Invariant($"Replace_RotatedSource{degrees:0.0}Deg_SameRecordAsUnrotated"), () =>
+            {
+                // RPL-2 Blocker 1: the chord frame must not depend on the frame the coordinates arrive in.
+                byte[] plain = CatalogGenerator.Naca4("4412");
+                var level = Preview(Example(), 0, Coordinates("NACA 4412", plain));
+                var turned = Preview(Example(), 0, Coordinates("NACA 4412 turned", Turned(plain, degrees)));
+                if (turned.Bytes is null) Console.WriteLine(FormattableString.Invariant($"RPL rotated {degrees} deg: refused {turned.RefusalCode}: {turned.RefusalReason}"));
+                double apart = RecordDistance(level.Bytes!, turned.Bytes!);
+                Console.WriteLine(FormattableString.Invariant(
+                    $"RPL rotated {degrees} deg: records {apart * ExampleChord * 1e6:F2} um apart; reported turn {turned.Report!.FrameRotationDegrees:F4} deg; fit {turned.FitResidual * ExampleChord * 1e6:F2} um"));
+                Equal(level.Spacing, turned.Spacing);
+                Equal(true, apart * ExampleChord <= Limit);
+                Equal(true, Math.Abs(turned.Report!.FrameRotationDegrees!.Value - degrees) < 1e-6);
+            });
+        Check("Replace_CurrentSpacing_KeepsAngleSmoothSymmetricRows", () =>
+        {
+            foreach (var kind in new[] { TangentKind.Angle, TangentKind.Smooth, TangentKind.Symmetric })
+            {
+                byte[] typed = Typed(kind);
+                var before = Profile(typed, "section-a");
+                var preview = Preview(typed, 0, Coordinates("Thicker", SampledSelig(before, 1.05)));
+                Equal("current", preview.Spacing);
+                var after = Profile(preview.Bytes!, "section-a");
+                Equal(true, before.Upper.Tangents.SequenceEqual(after.Upper.Tangents) && before.Lower.Tangents.SequenceEqual(after.Lower.Tangents));
+                Equal(GeometryStatus.Certified, Certificate(preview.Bytes!));
+            }
+        });
+        Check("Replace_VerticalRow_KeptWhenBetweenRefusedWhenNot", () =>
+        {
+            // A vertical row's sign condition is checked after the solve (m12d §3.6 rule 6b): the anchor's y must lie between
+            // its handles'. On the Example's spacing the upper cv-1 rises from the nose (kept); the control crest is refused.
+            var source = DatImport.ParseInChordFrame(CatalogGenerator.Naca4("0012")).Profile;
+            var example = Profile(Example(), "section-a");
+            double[] x = example.Upper.Points.Select(p => p[0]).ToArray();
+            string[] ids = example.Upper.Ids;
+            TangentRow[] Vertical(string id) => [new TangentRow(id, "vertical", null)];
+            var kept = DatImport.FitToBasis(source, example.Upper.Knots, x, 5, true, Vertical("cv-1"), ids, Vertical("cv-1"), ids)!;
+            Equal(true, (kept.Upper[0] - kept.Upper[1]) * (kept.Upper[2] - kept.Upper[1]) < 0);
+            var free = DatImport.FitToBasis(source, example.Upper.Knots, x, 5, true)!;
+            int crest = Enumerable.Range(1, x.Length - 2).First(i => (free.Upper[i - 1] - free.Upper[i]) * (free.Upper[i + 1] - free.Upper[i]) > 0);
+            var refused = Throws(() => DatImport.FitToBasis(source, example.Upper.Knots, x, 5, true, Vertical(ids[crest]), ids, Vertical(ids[crest]), ids));
+            Equal("DSL-LOCK", refused.Code);
+            Equal(true, refused.Reason!.Contains(ids[crest], StringComparison.Ordinal));
+        });
+        Check("Replace_UnpairedSpacing_RefusedDslLockNamingConflict", () =>
+        {
+            // Rule 6b: a fit that cannot keep the current spacing refuses with the reason; it never falls back silently.
+            byte[] example = Example();
+            var section = Profile(example, "section-a");
+            byte[] unpaired = FoilSource.PatchProfilePoint(example, "section-a", "lower", section.Lower.Ids[3], section.Lower.Points[3][0] + 0.01, section.Lower.Points[3][1]);
+            var refused = Throws(() => Preview(unpaired, 0, Gen("0012")));
+            Equal("DSL-LOCK", refused.Code);
+            Equal(true, refused.Reason!.Contains("different chord positions", StringComparison.Ordinal));
+            Equal(false, refused.Reason.Contains("Infinity", StringComparison.Ordinal) || refused.Reason.Contains("∞", StringComparison.Ordinal));
+        });
+        Check("Replace_DesignNumbers_PinnedAtHundredthMicrometre", () =>
+        {
+            // m12d §3.6: P-CF-0012 (current spacing) and P-CF-rule3 (own 15) through the catalog generator's 81 stations.
+            double symmetric = Preview(Example(), 0, Gen("0012")).FitResidual * ExampleChord * 1e6;
+            double cambered = Preview(Example(), 0, Gen("4412")).FitResidual * ExampleChord * 1e6;
+            double fixture = Preview(Example(), 0, Coordinates("NACA 4412 (201)", Selig(Naca4("4412")))).FitResidual * ExampleChord * 1e6;
+            Console.WriteLine(FormattableString.Invariant($"RPL pinned 0012 {symmetric:F3} um; 4412 own-15 {cambered:F3} um (generator, 81 stations); {fixture:F3} um (201-sample closed form)"));
+            Equal(true, Math.Abs(symmetric - 9.75) <= 0.01);
+            Equal(true, Math.Abs(cambered - 5.59) <= 0.01);
+        });
     }
 
     // ---- fixtures ----
+
+    // Selig rows turned by <paramref name="degrees"/> about the origin.
+    private static byte[] Turned(byte[] selig, double degrees)
+    {
+        double radians = degrees * Math.PI / 180, cos = Math.Cos(radians), sin = Math.Sin(radians);
+        var lines = Encoding.UTF8.GetString(selig).Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        var text = new StringBuilder(lines[0]).Append('\n');
+        foreach (string line in lines.Skip(1))
+        {
+            var parts = line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(part => double.Parse(part, CultureInfo.InvariantCulture)).ToArray();
+            text.Append(R(parts[0] * cos - parts[1] * sin)).Append(' ').Append(R(parts[0] * sin + parts[1] * cos)).Append('\n');
+        }
+        return Encoding.UTF8.GetBytes(text.ToString());
+    }
+
+    // The largest distance between two records of section-a on one spacing: a bound on the curves' distance (partition of unity).
+    private static double RecordDistance(byte[] left, byte[] right)
+    {
+        var a = Profile(left, "section-a");
+        var b = Profile(right, "section-a");
+        if (!a.Upper.Knots.SequenceEqual(b.Upper.Knots)) return double.PositiveInfinity;
+        return a.Upper.Points.Zip(b.Upper.Points).Concat(a.Lower.Points.Zip(b.Lower.Points))
+            .Max(pair => Math.Sqrt(Math.Pow(pair.First[0] - pair.Second[0], 2) + Math.Pow(pair.First[1] - pair.Second[1], 2)));
+    }
+
+    // The Example with an anchor at upper cv-4 carrying one tangent kind on both surfaces.
+    private static byte[] Typed(TangentKind kind)
+    {
+        byte[] anchored = SectionEdits.Apply(Example(), 0, new SectionStep.SetType(SurfaceSide.Upper, "cv-4", true)).Bytes;
+        return SectionEdits.Apply(anchored, 0, new SectionStep.SetTangent(SurfaceSide.Upper, "cv-4", kind, kind == TangentKind.Angle ? -2.0 : null, null)).Bytes;
+    }
 
     private static byte[] Example() => FoilSource.MaterializeIds(FoilSource.Parse(FoilSourceTests.Example));
 
