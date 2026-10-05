@@ -304,56 +304,89 @@ internal static class LatticeFixtureTests
             throw new InvalidOperationException("flipped twist tip " + Num(flippedTipEff) + " root " + Num(flippedRootEff));
     }
 
-    private static void F18() => NonplanarTip("camber", ParabolicCamber, 0);
+    internal static void RunReadiness()
+    {
+        Check("Readiness_Camber4_N256Point", ReadinessCamber256);
+        Check("Readiness_Washin1_N256Solves", ReadinessWashin256);
+        Check("Readiness_EllipticQuarterChord_SweepZeroFine", ReadinessSweepFine);
+    }
 
-    private static void F19() => NonplanarTip("washin", null, 1);
+    private static void F18() => FastNonplanar("camber", ParabolicCamber, 0);
 
-    private static void NonplanarTip(string label, Func<double, double, double, double>? camber, double tipTwist)
+    private static void F19() => FastNonplanar("washin", null, 1);
+
+    // Ruling 77 (2), fast half. n64 against n128: tip α_i within 0.1° and CL within 1% of n128.
+    // κ₁ at n64 stays within 10× the flat plate. The camber-surface horseshoe mutant must leave that α_i band.
+    // A returned solve has already passed SolveDense's 1e-10 backward-error gate. n256 is readiness.
+    private static void FastNonplanar(string label, Func<double, double, double, double>? camber, double tipTwist)
     {
         const double area = 0.5;
-        var wings = new Dictionary<int, LatticeSolution>();
-        foreach (int n in new[] { 32, 64, 128, 256 })
-        {
-            LatticeSolution wing = StudyRectangle(n, camber, tipTwist);
-            wings.Add(n, wing);
-            Console.WriteLine("MEASURE " + label + " n=" + n + " tipAi=" + Num(Outermost(wing).InducedAngleDeg)
-                + " CL=" + Num(Coefficient(wing, area)) + " kappa1=" + Num(wing.Diagnostics.Kappa1)
-                + " residualInf=" + Num(wing.Diagnostics.ResidualInf));
-            // SolveDense rejects a backward error above 1e-10 before this solution is returned.
-            if (!double.IsFinite(wing.Diagnostics.ResidualInf))
-                throw new InvalidOperationException(label + " n=" + n + " residual is not finite");
-        }
-        double ai64 = Outermost(wings[64]).InducedAngleDeg;
-        double ai128 = Outermost(wings[128]).InducedAngleDeg;
+        // The four lattices share no data. Wall time is the n=128 solve (F-5 and F-6 use the same split).
+        var wings = new LatticeSolution[4];
+        Parallel.Invoke(
+            () => wings[0] = SolveNonplanar(label, 64, camber, tipTwist),
+            () => wings[1] = SolveNonplanar(label, 128, camber, tipTwist),
+            () => wings[2] = SolveNonplanar("flat", 64, null, 0),
+            () => wings[3] = StudyRectangle(64, camber, tipTwist, LatticePlant.CamberSurfaceHorseshoe));
+        LatticeSolution wing64 = wings[0], wing128 = wings[1], flat = wings[2], mutant = wings[3];
+        double ai64 = Outermost(wing64).InducedAngleDeg;
+        double ai128 = Outermost(wing128).InducedAngleDeg;
         if (!(Math.Abs(ai64 - ai128) <= 0.1))
             throw new InvalidOperationException(label + " tip α_i n64/n128 " + Num(ai64) + "/" + Num(ai128));
-        double cl64 = Coefficient(wings[64], area), cl128 = Coefficient(wings[128], area);
+        double cl64 = Coefficient(wing64, area), cl128 = Coefficient(wing128, area);
         if (!(Math.Abs(cl64 - cl128) / Math.Abs(cl128) <= 0.01))
             throw new InvalidOperationException(label + " CL n64/n128 " + Num(cl64) + "/" + Num(cl128));
-        LatticeSolution flat = StudyRectangle(64, null, 0);
-        Console.WriteLine("MEASURE flat n=64 kappa1=" + Num(flat.Diagnostics.Kappa1));
-        if (!(wings[64].Diagnostics.Kappa1 <= 10 * flat.Diagnostics.Kappa1))
-            throw new InvalidOperationException(label + " κ₁ " + Num(wings[64].Diagnostics.Kappa1)
+        if (!(wing64.Diagnostics.Kappa1 <= 10 * flat.Diagnostics.Kappa1))
+            throw new InvalidOperationException(label + " κ₁ " + Num(wing64.Diagnostics.Kappa1)
                 + " exceeds 10× flat " + Num(flat.Diagnostics.Kappa1));
-        LatticeSolution mutant = StudyRectangle(64, camber, tipTwist, LatticePlant.CamberSurfaceHorseshoe);
         double mutantTip = Outermost(mutant).InducedAngleDeg;
         if (Math.Abs(mutantTip - ai128) <= 0.1)
             throw new InvalidOperationException(label + " camber-surface horseshoe mutant stayed within 0.1°: " + Num(mutantTip));
         Console.WriteLine("MUTANT " + label + " camber-surface n64 tipAi=" + Num(mutantTip) + " RED");
     }
 
-    private static void F20()
+    private static void ReadinessCamber256() => SolveNonplanar("camber", 256, ParabolicCamber, 0);
+
+    private static void ReadinessWashin256()
     {
-        foreach (int n in new[] { 16, 32, 64, 128, 256 })
+        try { SolveNonplanar("washin", 256, null, 1); }
+        catch (LatticeFailedException failure) when (failure.Code == "ANA-SOLVE-SINGULAR")
+        {
+            throw new InvalidOperationException("washin n=256 raised ANA-SOLVE-SINGULAR: " + failure.Message);
+        }
+    }
+
+    private static LatticeSolution SolveNonplanar(string label, int n,
+        Func<double, double, double, double>? camber, double tipTwist)
+    {
+        LatticeSolution wing = StudyRectangle(n, camber, tipTwist);
+        Console.WriteLine("MEASURE " + label + " n=" + n + " tipAi=" + Num(Outermost(wing).InducedAngleDeg)
+            + " CL=" + Num(Coefficient(wing, 0.5)) + " kappa1=" + Num(wing.Diagnostics.Kappa1)
+            + " residualInf=" + Num(wing.Diagnostics.ResidualInf));
+        if (!double.IsFinite(wing.Diagnostics.ResidualInf))
+            throw new InvalidOperationException(label + " n=" + n + " residual is not finite");
+        return wing;
+    }
+
+    private static void F20() => StraightQuarterChord([16, 32, 64], plantMutant: true);
+
+    private static void ReadinessSweepFine() => StraightQuarterChord([128, 256], plantMutant: false);
+
+    // Ruling 77 (3). Fast owns n16/32/64 and the front-bound sweep mutant. Readiness owns n128/256.
+    private static void StraightQuarterChord(int[] counts, bool plantMutant)
+    {
+        foreach (int n in counts)
         {
             LatticeSolution wing = Elliptic(n, LatticePlant.None, "cosine");
             double maximum = wing.Strips.Max(strip => Math.Abs(strip.SweepDeg));
             Console.WriteLine("MEASURE straight-quarter-chord n=" + n + " maxSweep=" + Num(maximum));
             if (!(maximum <= 1e-9))
                 throw new InvalidOperationException("quarter-chord sweep at n=" + n + " is " + Num(maximum));
+            if (!plantMutant) continue;
             LatticeSolution mutant = Elliptic(n, LatticePlant.FrontBoundSweep, "cosine");
             double wrong = mutant.Strips.Max(strip => Math.Abs(strip.SweepDeg));
-            if (!(wrong > 1e-9)) throw new InvalidOperationException("front-bound sweep mutant at n=" + n + " stayed at zero");
+            if (!(wrong > 1e-9))
+                throw new InvalidOperationException("front-bound sweep mutant at n=" + n + " stayed at zero");
             Console.WriteLine("MUTANT front-bound sweep n=" + n + " max=" + Num(wrong) + " RED");
         }
     }
