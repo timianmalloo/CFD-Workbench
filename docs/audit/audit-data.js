@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T00:56:48Z",
+  "generated": "2026-10-05T01:07:36Z",
   "audit": [
     {
       "actor": null,
@@ -24128,6 +24128,60 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T00:54:13Z",
       "duration_seconds": 155.0
+    },
+    {
+      "id": "al-01M44SJX7J90QRXVR6P4G073VE",
+      "shortname": "cap-ruling74-finish",
+      "datetime": "2026-10-05T01:06:54Z",
+      "session": "cap",
+      "prompt": "# Track CAP — finish (coordinator grants your seam request)\n\nYou are track CAP again (AGENT_SESSION=cap) in the same worktree (branch feature/blend-capacity; your commits 547676c and\ndf43ddc are in place). Same rules as before: foreground only, one-line intent per shell call, commit with\n`AGENT_SESSION=cap git commit ...` and a Co-Authored-By line naming your model, merge nothing except as step 4 says. Box 40 min.\n\n**Granted:**\n1. `tests/CfdWorkbench.Core.Tests/SectionReplaceTests.cs` — only the two checks that assert the old capacity:\n   `Guard_SixPiecesDiffering_RefusedCopy194` (line ~308) and `Replace_FourDifferingSections_RefusedCatSpacingCopy194b`\n   (~338). Under Ruling 74 the span limit is `BlendSpanLimit()` = 27 (32-point ceiling - degree 5) and four differing\n   stations certify. Move each to the new boundary and rename to say so: the COPY-194 guard just over the new span limit\n   (if the 32-point ceiling refuses earlier with its own code, say which code fires and test what is reachable; do not\n   keep a test of an unreachable path), with its boundary-side twin certifying at the limit; the COPY-194b check at seven\n   differing stations (refused by the operation bound), with four differing now landing. Keep the exact approved COPY-194b\n   text.\n2. Ledger: add a **CAP** row to `docs/design/cross-profile-abscissa.md` §11 (Build tracks; Ruling 74, files as you\n   changed them) and your named tests to §10's test table in its existing format, with ring and measured cost. Then\n   `python3 tools/check-named-tests.py CAP --design docs/design/cross-profile-abscissa.md --track-section \"## 11.\" --named-sections \"## 10.\"`\n   must pass (run `tools/run-tests.sh` first; it reads that run's logs; known load-flaky Desktop checks may fail — report).\n3. `python3 docs/ai-forward-pack/scripts/docs-graph.py derive` (the derived index is anyone's to regenerate), then\n   `python3 tools/check-docs.py`.\n4. Merge the integration head by its SHA only:\n   `git merge $(git -C /Users/mallalieut/projects/CFD-Workbench-feature-ui-cad-direction rev-parse HEAD)`; a conflict only\n   in docs/docs-index.js: take theirs and derive again.\nReturn: commits, the new boundary values and which code fires at each, red lines, gate tails.",
+      "summary": "27 spans/32 points certify; 33rd point DSL-CURVE; four stations certify; seven CAT-SPACING from GEOMETRY-QUERY-OPERATIONS with approved copy. CAP 3/3 and docs pass; full suite 1608 PASS but TEST-BUDGET 78/60 s. Integration 3c72db6 merged at 4178ff5.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Finish CAP Ruling 74 capacity boundaries, ledger, checks, and integration SHA merge.",
+      "done_when": "Boundary tests, ledger, CAP named gate, derived index, docs gate, and specified SHA merge are complete; report any test-ring red lines.",
+      "tier": "T1",
+      "fan_out": 1,
+      "signals": {
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "git": {
+        "sha": "e024b1c3af96677a3815be966aa13d6cbfd35332",
+        "short": "e024b1c3a",
+        "branch": "feature/blend-capacity",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M44SM6MMJ6VNNA14QNDA9B2G",
+      "shortname": "cap-ruling74-count-correction",
+      "datetime": "2026-10-05T01:07:36Z",
+      "session": "cap",
+      "prompt": "Correct the CAP completion audit aggregate PASS count.",
+      "summary": "Correction to al-01M44SJX7J90QRXVR6P4G073VE: the last run had 334 Core part 1 + 333 Core part 2 + 610 Desktop + 49 Analysis + 5 CLI = 1331 PASS, not 1608. TEST-BUDGET remains 78/60 s; CAP 3/3 and docs pass.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Make the CAP verification record numerically accurate.",
+      "done_when": "Audit states the sum of five suite PASS counts as 1331.",
+      "tier": "T0",
+      "fan_out": 0,
+      "git": {
+        "sha": "31298478f8c2afcb2cb4546cdf2058ef37fa1ab5",
+        "short": "31298478f",
+        "branch": "feature/blend-capacity",
+        "pushed": null
+      }
     }
   ],
   "changes": [
