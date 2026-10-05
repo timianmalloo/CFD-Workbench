@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T14:06:59Z",
+  "generated": "2026-10-05T15:21:29Z",
   "audit": [
     {
       "actor": null,
@@ -24704,6 +24704,33 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M46AFPRTXDNVQJJXWCAX766H",
+      "shortname": "join-rulings-84-85",
+      "datetime": "2026-10-05T15:21:29Z",
+      "session": "4e90c621",
+      "prompt": "the join of chore/ruling-84 into main",
+      "summary": "Rulings 84 (Fable owner, OD-2 fallback b) and 85 (operator, NeuralFoil licence) into the register recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join rulings-84-85 into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T15:20:33Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
@@ -25544,5 +25571,321 @@ window.AUDIT_DATA = {
       }
     }
   ],
-  "messages": []
+  "messages": [
+    {
+      "id": "mail-01M3WK6S1ADVPDMT14YJ54Y536",
+      "ts": "2026-10-01T20:41:29Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M3WK66H5M7ZHRV25CGSFP1BW",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4177855923R7W0237E1ATQM",
+      "ts": "2026-10-03T15:48:14Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M4176W99TG0VZS3JX0K5DYQE",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M41A4WMP07WJCMX7KN9YVYBV",
+      "ts": "2026-10-03T16:39:23Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M41A4NQ3QXNFHNY24QJGCRT3",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M41B1SHP0RR5A538CCS9TWTQ",
+      "ts": "2026-10-03T16:55:10Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M41B1S5MKNDJ5J6XSZFPPGNC",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M41B9BH096Y6PD2JB0AAQHWA",
+      "ts": "2026-10-03T16:59:17Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M41B9B3Z488E63CC28M4DQRT",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M41JRBD4V7Q1JNBA8R9RJ53M",
+      "ts": "2026-10-03T19:09:49Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M41JRB3XDGSC92M9CMWT4KSN",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M41KF0DVNGS1RMP0M6NZ2D6A",
+      "ts": "2026-10-03T19:22:11Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M41KF04NWDEH1HRX2RR4HMRZ",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M41Q50PEGAAQ981HG1MY5ZY6",
+      "ts": "2026-10-03T20:26:38Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M41Q50CX2NHY3HS5X4FM5ACM",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M41XZVQD6TK1ZQBY8D077DBG",
+      "ts": "2026-10-03T22:26:09Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M41XZVE15CNAVMPHWZCW56MG",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M43T55FEYGFTJ416GGN0ZQDK",
+      "ts": "2026-10-04T15:57:38Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M43T555RK46X3N6YY71BNC18",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M43V9QNQ2MMV1V7Y7CVN2B5B",
+      "ts": "2026-10-04T16:17:36Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M43V9QB58TD1S88N71BT891D",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M43XPB7268H5RSEB21JXHB7J",
+      "ts": "2026-10-04T16:59:26Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M43XPAVWE9XKCRP26TR1T5Z4",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M43ZD1N48P9EPCCH46X6CA5S",
+      "ts": "2026-10-04T17:29:19Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M43ZD1BJQ2CN0T4ZCYFB4EE5",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M44C346MKY8TYPZ6VRJ8ZRN1",
+      "ts": "2026-10-04T21:11:05Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M44C33TE03GKV4PX3VZ8EPC7",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M44HNA5BFQYZ9M60XN58CGEM",
+      "ts": "2026-10-04T22:48:24Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M44HN9PDD6HH24G19WQ7EWW5",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M44J0QSQ0J0VHS1PWVN0MDBR",
+      "ts": "2026-10-04T22:54:38Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M44J0QAH6867GVF6R0VZ8N8X",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M44NNTBD6FP7XKHSSRESBSBK",
+      "ts": "2026-10-04T23:58:35Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M44N59WXS56EP0VQAZD8MKMV",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M44NNTRH3FG56QJ0NYQ60QFW",
+      "ts": "2026-10-04T23:58:35Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M44N5A9NCSBPQYVX8N6VAASP",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M44NNV52SV3C2GSMZEC636M5",
+      "ts": "2026-10-04T23:58:36Z",
+      "from": "operator-timianmalloo",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M44N5AQ3P3G15T40AB6N1SMB",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M44PSPNBGKVJ99MHSAJV0ACJ",
+      "ts": "2026-10-05T00:18:11Z",
+      "from": "fable-owner",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M44PN1GGDZ75EM3MSJ6D8AFG",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M464VSHVCPT1GP8JAQ7H8H8T",
+      "ts": "2026-10-05T13:43:14Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M464VSHQXM59YETAVD9M6BX9",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M464VST6TAE52QE7XJ3QK3FY",
+      "ts": "2026-10-05T13:43:14Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M464VST2SHPQQAX1TEAEF1N0",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M464VT2EX5M6KT4VJ5X9BP9T",
+      "ts": "2026-10-05T13:43:14Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M464VT2ADFMGSQF1398V60BT",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M464VTAWMZCMHWSSS3PEBG24",
+      "ts": "2026-10-05T13:43:15Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M464VTAS6N04PBDQJE2QMSPG",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M464VTK5P7Y1BRAA8T4CNRHE",
+      "ts": "2026-10-05T13:43:15Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M464VTK1RXEGDMNCQYKEV5JG",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M464WED29CN8V2RNV5RG6BMS",
+      "ts": "2026-10-05T13:43:35Z",
+      "from": "4e90c621",
+      "to": "f19a2b12",
+      "kind": "ruling",
+      "ref": "req-01M44ZP67KYPVEBAFJW7ZMGN6S",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M464WR6QW1AV89FVY4BK90A4",
+      "ts": "2026-10-05T13:43:45Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M464VSHQXM59YETAVD9M6BX9",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M464WRF8H2BGBHCTVRSVCED0",
+      "ts": "2026-10-05T13:43:45Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M464VST2SHPQQAX1TEAEF1N0",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M464WRQPE3ZV3WZ0KCM7Z6C4",
+      "ts": "2026-10-05T13:43:46Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M464VT2ADFMGSQF1398V60BT",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M464WS040Y9E6MTPRRN3ECZS",
+      "ts": "2026-10-05T13:43:46Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M464VTAS6N04PBDQJE2QMSPG",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M464WS8HP1H1RABK7WGW3WWK",
+      "ts": "2026-10-05T13:43:46Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M464VTK1RXEGDMNCQYKEV5JG",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M468JH387TSG0KDNXSG11MCG",
+      "ts": "2026-10-05T14:48:04Z",
+      "from": "4e90c621",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M468JH34N4SCY6Q8RHHM5KTB",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M468Q9B139G77R1RKX6X592H",
+      "ts": "2026-10-05T14:50:40Z",
+      "from": "fable-owner",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M468JH34N4SCY6Q8RHHM5KTB",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M46A14KSSD0X7FZSTE921C83",
+      "ts": "2026-10-05T15:13:32Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46A14KMMF5JHPA6NZGSPN7S",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46A14YK47FBD37EKX1D67T0",
+      "ts": "2026-10-05T15:13:32Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46A14KMMF5JHPA6NZGSPN7S",
+      "session": "operator-timianmalloo"
+    }
+  ]
 };
