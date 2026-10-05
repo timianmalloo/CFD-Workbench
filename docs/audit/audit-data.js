@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:12:08Z",
+  "generated": "2026-10-05T16:15:39Z",
   "audit": [
     {
       "actor": null,
@@ -25291,6 +25291,34 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T2",
       "tool": null
+    },
+    {
+      "id": "al-01M46DJWA9E8KBAHZKA6GDEFSJ",
+      "shortname": "trk-a3c1",
+      "datetime": "2026-10-05T16:15:39Z",
+      "session": "trk-a3c1",
+      "prompt": "A3c-1 radians via the Analysis conversion",
+      "summary": "Alpha conversion uses VortexLattice.ToRadians; rebased; full ring, check-docs and 12 verify gates green",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close A3c-1 green",
+      "done_when": "Placement rule green, full ring and gates pass",
+      "tier": "T2",
+      "fan_out": 0,
+      "started_at": "2026-10-05T16:11:46Z",
+      "duration_seconds": 233.0,
+      "git": {
+        "sha": "8db50bc6c52f185ce0663146554def9af3b59796",
+        "short": "8db50bc6c",
+        "branch": "feature/a3c-polar-source",
+        "pushed": null
+      }
     }
   ],
   "changes": [

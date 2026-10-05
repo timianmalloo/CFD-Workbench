@@ -84,11 +84,7 @@ The About-box notice link and the run/result contract fields are seam requests. 
 
 ## Close-out findings (trk-a3c1 takeover)
 
-- Full `tools/run-tests.sh` is **red on one check**: `PlacementRule_RadiansConstant_SingleSiteInSource` (Core.Tests) rejects
-  `Math.PI / 180` in `NeuralFoilNetwork.cs` (alpha to radians for the network input). The rule lists the permitted
-  spellings outside `Placement.cs`; the Analysis project cannot reach the internal `PlacementRule.RadiansPerDegree`. Fix needs
-  a file this track does not own (seam request: add the site to the rule's named exceptions, or expose a public conversion).
-  Not evaded by respelling. `verify-application-core.py` fails for the same single check.
+- The first full ring was red on `PlacementRule_RadiansConstant_SingleSiteInSource` (`Math.PI / 180` in `NeuralFoilNetwork.cs`). Fixed by calling the Analysis assembly's `VortexLattice.ToRadians`; after the fix the full ring (124 Analysis checks, 0 COST-MISS), `check-docs.py` and all 12 verify gates pass.
 - `verify-portable-text-io.py` flagged both new gate scripts (no stdio guard); fixed in this close-out.
 - Analysis harness 4.3 s under load 36 to 40 against the 5 s C-2 limit; `COST NeuralFoil_InferencePerCall 1.901` ms.
 - Offline: `check-neuralfoil-weights.py --offline --cache-dir <empty>` prints `NOT RECORDED` and exits 2 (a red readiness
