@@ -372,3 +372,17 @@ Reordering the slots cannot cut CPU-seconds, so **`WorkbenchTests.cs` was not to
 Meeting OD-2 needs fewer CPU-seconds (Track B2) or the fallback (b) of OD-2 (restate C-3/C-4 as deltas, which needs a
 ruling). Until then every `run-tests.sh` exits 1 with C-3 and C-4 named. Analysis at 4.0–4.9 s sits close to its
 5 s limit (C-2); the slowest check is `F6_ObservedOrder` at 478 ms (limit 1,500 ms).
+
+### 9.1 Ruling 84: OD-2 settled as deltas, load-gated (2026-10-05)
+
+Ruling 84 (DR-RING-1, the Ruling 67 fallback (b) in Ruling 81's load-gated shape) replaces the §13.4 absolute C-3 and
+C-4 limits with limits on the measured quiet base. C-3 measures `wall.ms - build.ms` (net ring time), base 52 s, limit
+54,000 ms. C-4 measures `Desktop.ms`, base 51 s (quiet max), limit 53,000 ms. Both fail only when the 1-minute load at
+ring end is at or below 24; above 24, or not recorded, the checker prints `COST-MISS <rule> <ms> load <value>` in the
+ring log and does not fail. C-2, C-5 and C-6 stay strict, and the 60 s TEST-BUDGET stays the ceiling. `run-tests.sh`
+writes `build.ms` and reads the end load before it calls the checker. The bases and threshold are constants in
+`tools/check-test-costs.py` and change only from a new recorded 3-run quiet baseline. The standalone join entry has no
+end load, so it reports C-3/C-4 as COST-MISS only; the enforcing call is the one inside `run-tests.sh`.
+
+**When Track B2 lands, re-measure quiet. If Desktop <= 43 s and wall <= 50 s, revert to the §13.4 absolute limits and
+remove the deltas.**

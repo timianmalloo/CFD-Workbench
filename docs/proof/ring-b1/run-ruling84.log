@@ -1,0 +1,25 @@
+/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+
+Build succeeded.
+
+/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.57
+build 4 s (Release)
+== CfdWorkbench.Core.Tests 1/2 41 s (40278 ms), 334 PASS
+RESULT failures=0
+== CfdWorkbench.Core.Tests 2/2 40 s (39647 ms), 333 PASS
+RESULT failures=0
+== CfdWorkbench.Desktop.Tests 52 s (51161 ms), 661 PASS
+SUITE-TIME --analysis 0.3 s
+== CfdWorkbench.Analysis.Tests 5 s (4168 ms), 109 PASS
+RESULT failures=0
+== CfdWorkbench.Cli.Tests 2 s (1716 ms), 5 PASS
+COST Cli_AnalyseFailedRun_PrintsNoDiagnostics 13.536
+test costs: 0 failures, 0 COST-MISS (load 15.45)
+wall 56 s (55825 ms, net 51911 ms) (budget 60 s) cpu 553 s load 1.89 -> 15.45
+all test harnesses passed

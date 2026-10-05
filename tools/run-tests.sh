@@ -43,7 +43,9 @@ load() {
 load_start=$(load)
 started=$SECONDS
 started_ms=$(now_ms)
+build_start_ms=$(now_ms)
 dotnet build CFDWorkbench.slnx -c "$configuration" -nologo -v q
+echo "$(( $(now_ms) - build_start_ms ))" > "$scratch/build.ms"   # C-3 reads net ring time, wall - build (Ruling 84)
 echo "build $((SECONDS - started)) s ($configuration)"
 pids=()
 names=()
@@ -113,8 +115,10 @@ cpu=$(tail -1 "$scratch/times.txt" | awk '{ total = 0; for (i = 1; i <= 2; i++) 
 # C-2..C-6: the cost rules, from the millisecond clocks and the Analysis COST lines (tools/check-test-costs.py).
 cost_jobs=""
 for name in "${names[@]}"; do cost_jobs="$cost_jobs${cost_jobs:+,}$name"; done
-if ! python3 "$root/tools/check-test-costs.py" --dir "$scratch" --jobs "$cost_jobs"; then failed=1; fi
-echo "wall $wall s ($(cat "$scratch/wall.ms") ms) (budget $budget s) cpu $cpu s load $load_start -> $(load)"
+# The end load is read first: C-3 and C-4 fail only at a quiet end load (Ruling 84).
+load_end=$(load)
+if ! python3 "$root/tools/check-test-costs.py" --dir "$scratch" --jobs "$cost_jobs" --load "$load_end"; then failed=1; fi
+echo "wall $wall s ($(cat "$scratch/wall.ms") ms, net $(( $(cat "$scratch/wall.ms") - $(cat "$scratch/build.ms") )) ms) (budget $budget s) cpu $cpu s load $load_start -> $load_end"
 if [ "$failed" -ne 0 ]; then exit 1; fi
 if [ "$wall" -gt "$budget" ]; then
   echo "TEST-BUDGET: green, but $wall s is over the $budget s budget. Find the new cost before raising it (docs/reviews/test-ci-waste.md)."

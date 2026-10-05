@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Enforce the test-ring cost rules C-2..C-6 (docs/design/area3-analysis.md section 13.4) from tools/run-tests.sh output.
 
-  python3 tools/check-test-costs.py [--dir .tmp-tests] [--jobs Core.part1of2,Core.part2of2,Desktop,Analysis,Cli]
+  python3 tools/check-test-costs.py [--dir .tmp-tests] [--jobs Core.part1of2,Core.part2of2,Desktop,Analysis,Cli] [--load <1-minute load>]
   python3 tools/check-test-costs.py --self-test
 
 Reads <name>.ms and wall.ms (C-1, millisecond clocks written by run-tests.sh) and the COST lines of Analysis.log.
@@ -26,8 +26,22 @@ ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DIR = ROOT / ".tmp-tests"
 DEFAULT_JOBS = ("Core.part1of2", "Core.part2of2", "Desktop", "Analysis", "Cli")
 ANALYSIS_LIMIT_MS = 5000      # C-2
-WALL_LIMIT_MS = 50000         # C-3, while Analysis is in the jobs
-DESKTOP_LIMIT_MS = 43000      # C-4
+# Ruling 84 (DR-RING-1, OD-2 fallback b in Ruling 81's load-gated shape). The section 13.4 absolute limits (wall 50000 ms,
+# Desktop 43000 ms) were not met by the measured base, so C-3 and C-4 are limits on the base plus 2 s:
+#   C-3 measures wall.ms - build.ms (net ring time, while Analysis is in the jobs); base 52 s; limit 54000 ms.
+#   C-4 measures Desktop.ms; base 51 s (the quiet maximum); limit 53000 ms.
+# The bases come from the recorded 3-run quiet baseline BASELINE_CSV. They change only from a new recorded 3-run quiet
+# baseline, never raised unmeasured. When Track B2 lands, re-measure quiet; if Desktop <= 43 s and wall <= 50 s, revert to
+# the section 13.4 absolute limits and remove the deltas (docs/plans/test-cost.md section 9).
+BASELINE_CSV = "docs/proof/ring-oct05/baseline-2026-10-05.csv"
+WALL_NET_BASE_MS = 52000
+DESKTOP_BASE_MS = 51000
+DELTA_MS = 2000
+WALL_LIMIT_MS = WALL_NET_BASE_MS + DELTA_MS   # C-3
+DESKTOP_LIMIT_MS = DESKTOP_BASE_MS + DELTA_MS  # C-4
+# C-3 and C-4 fail only when the 1-minute load at ring end is at or below this; above it, or not recorded, they print
+# COST-MISS (Ruling 84). C-2, C-5 and C-6 are never gated.
+LOAD_GATE = 24.0
 CHECK_LIMIT_MS = 500.0        # C-5
 EXEMPT_LIMIT_MS = 1500.0      # C-5, the two named A8.4 exemptions
 EXEMPT_CHECKS = ("F1_FlatPlate_RichardsonClAlphaTo2Pi", "F6_ObservedOrder")
@@ -42,8 +56,9 @@ def read_ms(directory: Path, name: str) -> int | None:
 
 def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded") -> tuple[list[str], list[str]]:
     errors: list[str] = []
+    misses: list[str] = []
     readings: dict[str, int] = {}
-    for name in (*jobs, "wall"):  # C-6: a reading that is missing is a failure, never a pass
+    for name in (*jobs, "wall", "build"):  # C-6: a reading that is missing is a failure, never a pass
         value = read_ms(directory, name)
         if value is None:
             errors.append(f"C-6 {name}.ms is missing or unreadable: not recorded (run tools/run-tests.sh)")
@@ -51,17 +66,31 @@ def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded") ->
             readings[name] = value
     if readings.get("Analysis", 0) > ANALYSIS_LIMIT_MS:
         errors.append(f"C-2 Analysis took {readings['Analysis']} ms, over {ANALYSIS_LIMIT_MS} ms")
-    if "Analysis" in jobs and readings.get("wall", 0) > WALL_LIMIT_MS:
-        errors.append(f"C-3 run-tests wall {readings['wall']} ms, over {WALL_LIMIT_MS} ms")
-    if readings.get("Desktop", 0) > DESKTOP_LIMIT_MS:
-        errors.append(f"C-4 Desktop took {readings['Desktop']} ms, over {DESKTOP_LIMIT_MS} ms: DR-ANA-10 applies "
-                      "(spread or split the Desktop job)")
+    try:
+        gated = float(load) <= LOAD_GATE
+    except ValueError:
+        gated = False  # "not recorded" never passes and never fails a load-gated rule
+
+    def timing(rule: str, ms: int, limit: int, message: str) -> None:
+        if ms <= limit:
+            return
+        if gated:
+            errors.append(message)
+        else:
+            misses.append(f"COST-MISS {rule} {ms} load {load}")
+
+    if "Analysis" in jobs and "wall" in readings and "build" in readings:
+        net = readings["wall"] - readings["build"]
+        timing("C-3", net, WALL_LIMIT_MS, f"C-3 run-tests net wall {net} ms (wall - build), over {WALL_LIMIT_MS} ms (Ruling 84)")
+    if "Desktop" in readings:
+        timing("C-4", readings["Desktop"], DESKTOP_LIMIT_MS, f"C-4 Desktop took {readings['Desktop']} ms, over "
+               f"{DESKTOP_LIMIT_MS} ms: DR-ANA-10 applies (spread or split the Desktop job)")
     if "Analysis" in jobs:
         try:
             lines = (directory / "Analysis.log").read_text(encoding="utf-8", errors="replace").splitlines()
         except OSError:
             errors.append("C-6 Analysis.log is missing: its COST lines are not recorded")
-            return errors, []
+            return errors, misses
         costs: dict[str, float] = {}
         for line in lines:
             match = re.fullmatch(r"COST (\S+) (\d+(?:\.\d+)?)", line.strip())
@@ -74,7 +103,7 @@ def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded") ->
             limit = EXEMPT_LIMIT_MS if name in EXEMPT_CHECKS else CHECK_LIMIT_MS
             if ms > limit:
                 errors.append(f"C-5 {name} took {ms} ms, over {limit:.0f} ms (move it to readiness with its cost, or make it cheaper)")
-    return errors, []
+    return errors, misses
 
 
 def self_test() -> int:
@@ -131,22 +160,26 @@ def main(argv: list[str]) -> int:
     args = list(argv[1:])
     if args == ["--self-test"]:
         return self_test()
-    directory, jobs = DEFAULT_DIR, DEFAULT_JOBS
+    directory, jobs, load = DEFAULT_DIR, DEFAULT_JOBS, "not-recorded"
     while args:
         flag = args.pop(0)
-        if flag in ("--dir", "--jobs") and args:
+        if flag in ("--dir", "--jobs", "--load") and args:
             value = args.pop(0)
             if flag == "--dir":
                 directory = Path(value)
+            elif flag == "--load":
+                load = value
             else:
                 jobs = tuple(part for part in value.split(",") if part)
         else:
             print(__doc__.strip().splitlines()[2], file=sys.stderr)
             return 2
-    errors, misses = check(directory, jobs)
+    errors, misses = check(directory, jobs, load)
+    for miss in misses:
+        print(miss)
     for error in errors:
         print("FAILED: " + error)
-    print(f"test costs: {len(errors)} failures")
+    print(f"test costs: {len(errors)} failures, {len(misses)} COST-MISS (load {load})")
     return 1 if errors else 0
 
 

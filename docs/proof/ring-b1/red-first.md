@@ -33,3 +33,12 @@ summary: >-
 The red commit holds the full self-test table and a checker that returns no errors. C-1 (the clocks in `run-tests.sh`) is
 proved by C-6: a run without `<name>.ms` or `wall.ms` is red, and the three runs in `run-after-*.log` print them.
 Timing thresholds touched: none (the constants are new in `check-test-costs.py` with the §13.4 values).
+
+## Ruling 84 cases
+
+Red commit 84a3892 (the Ruling 84 self-test table against the absolute-limit checker: 13/19, six red). Green: the
+`feat: Ruling 84` commit that follows it (19/19). Red cases: net 53900 inside the limit; net = wall - build; C-3 and C-4
+at load 30.2 print COST-MISS and exit 0; load 24.1 is a miss; load not recorded is a miss; build.ms deleted is red.
+Quiet-load cases (net 55000 fails; Desktop 53100 fails and names DR-ANA-10; load 24.0 still gated) and the strict C-2 and C-5
+cases at high load are in the same table. Full ring after the change: `run-ruling84.log` (exit 0, net 51,911 ms, Desktop 51,161 ms,
+load 15.45, 0 COST-MISS); the PASS set is identical to `pass-before.txt`.
