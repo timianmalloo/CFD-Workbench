@@ -47,8 +47,9 @@ internal static class ServiceTests
         Equal(true, Fixture.RunEvents(session).Any(item => item.Outcome == "DSL-NOT-ASSESSED"), "an analysis.run event with the code;");
     }
 
-    // Ruling 91: tip chord / root chord below 0.02 is refused by the analysis only. The example's root chord is 120, so a
-    // tip of 1.2 is r = 0.01 (refused) and 2.4 is r = 0.02 (evaluates). The r = 0.01 wing still opens and edits.
+    // Rulings 91, 93, 94: a tip chord below max(5 mm, 2 % of root) is refused by the analysis only, with the one Core
+    // definition. The example's root chord is 120 mm, so the minimum is 5 mm: 1.2 and 4.9 are refused, 5 evaluates.
+    // The 1.2 mm wing still opens and edits.
     private static void TipBelowFloor()
     {
         using var below = Fixture.OpenedWithTip("1.2");
@@ -56,14 +57,18 @@ internal static class ServiceTests
         var error = Fixture.Throws<ContractError>(new AnalysisService(below, wing)
             .EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None));
         Equal("ANA-TIP-BELOW-FLOOR", error.Code, "refusal");
+        Equal(Labels.TipChordUnderMinimum(0.120), error.Reason!, "COPY-241 with the Core minimum;");
         Equal(true, wing.Seen is null, "the lattice was never given sections;");
         Equal(0, below.ReadRuns().Runs.Count, "rows (not even a Failed row)");
         Equal(true, Fixture.RunEvents(below).Any(item => item.Outcome == "ANA-TIP-BELOW-FLOOR"), "an analysis.run event with the code;");
         Equal(GeometryStatus.Certified, below.InspectAccepted().Geometry.Status, "the r = 0.01 wing is certified, so it opens;");
         Fixture.TwistEdit(below, 1.0);
-        using var atFloor = Fixture.OpenedWithTip("2.4");
+        using var justBelow = Fixture.OpenedWithTip("4.9");
+        Equal("ANA-TIP-BELOW-FLOOR", Fixture.Throws<ContractError>(new AnalysisService(justBelow, new FakeWing())
+            .EvaluateAsync(Fixture.Op(2.0), Fixture.Salt, Tier.VlmStrip, new Scope.Wing(), CancellationToken.None)).Code, "4.9 mm refused;");
+        using var atFloor = Fixture.OpenedWithTip("5");
         var run = Fixture.Evaluate(new AnalysisService(atFloor, new FakeWing()), Fixture.Op(2.0));
-        Equal(true, run.Outcome is RunOutcome.Completed, "r = 0.02 evaluates;");
+        Equal(true, run.Outcome is RunOutcome.Completed, "5 mm evaluates;");
     }
 
     // A point draft with a moved twist vertex is open; the run reads the accepted bytes, never Draft.Bytes (FM-1, G-1).

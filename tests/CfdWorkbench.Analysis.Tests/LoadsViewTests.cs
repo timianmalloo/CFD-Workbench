@@ -66,14 +66,8 @@ internal static class LoadsViewTests
             run = ProjectionTests.Rehash(run with { Strips = strips });
             var verdicts = Enumerable.Range(0, 4).Select(j => j == 3 ? MethodRecord.JudgeStrip(12, 0, 0.4, 0, provisional: true) : MethodRecord.JudgeStrip(2, 0, 0.4, 0)).ToArray();
             var v = ProjectionTests.View(run, new ProjectionContext(Verdicts: verdicts));
-            Equal(Labels.Provisional, v.Groups.Single(g => g.Title == "Strips").Rows[3].Note);
+            Equal(Labels.TipNotJudged, v.Groups.Single(g => g.Title == "Strips").Rows[3].Note);
             Equal(false, v.Layers.Single(l => l.Id == "plan-gamma").Samples[3].Outside);
-        });
-        Check("Loads_AtBoundVerdict_ProjectedVerbatim", () => {
-            var (run, _) = ProjectionTests.Data();
-            var verdicts = Enumerable.Range(0, 4).Select(j => j == 0 ? new StripVerdict(false, [], Labels.AtBound) : MethodRecord.JudgeStrip(2, 0, 0.4, 0)).ToArray();
-            var v = ProjectionTests.View(run, new ProjectionContext(Verdicts: verdicts));
-            Equal(Labels.AtBound, v.Groups.Single(g => g.Title == "Strips").Rows[0].Note);
         });
     }
 }

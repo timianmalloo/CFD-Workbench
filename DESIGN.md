@@ -543,9 +543,9 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-215 | Polar · local calculation — approved — Ruling 82 |
 | COPY-216 | outside the verified lattice family — approved — Ruling 82 |
 | COPY-217 | Verified fixture family: rectangular and elliptic planforms; ±20° dihedral at 32 × 4 cosine span, uniform chord (F-8); 45° sweep, AR 5, at 4 × 1 uniform (F-16); 4% camber at 32/64/128 × 4 cosine/cosine (F-18); 1° washin at 32/64/128 × 4 cosine/cosine (F-19); F-6 order at 32/64/128 × 4 cosine span, uniform chord; F-21 at 16 × 4 cosine/cosine per half — approved — Ruling 82 |
-| COPY-218 | provisional — tip law cannot judge this strip (ANA-TIP-PROVISIONAL) — proposed — awaiting operator |
-| COPY-219 | at the bound (+-U) — proposed — awaiting operator |
-| COPY-220 | indeterminate — the tip law cannot judge this strip — proposed — awaiting operator |
+| COPY-218 | provisional — tip law cannot judge this strip (ANA-TIP-PROVISIONAL) — retired — Ruling 92 |
+| COPY-219 | at the bound (+-U) — retired — Ruling 92 |
+| COPY-220 | Not judged — tip strip — approved — Ruling 92 |
 | COPY-221 | inside the method envelope — approved — Ruling 82 |
 | COPY-222 | outside the method envelope — approved — Ruling 82 |
 | COPY-223 | attached flow; no stall; no ventilation; deep water — approved — Ruling 82 |
@@ -566,6 +566,8 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-238 | Spanwise loading Cl·c/c̄ vs η; dashed elliptic reference at the same CL — approved — Ruling 82 |
 | COPY-239 | Strip of wing run (α_eff) · η <η> — approved — Ruling 82 |
 | COPY-240 | e above 1 — check the lattice — approved — Ruling 82 |
+| COPY-241 | Unavailable — tip chord under the minimum (<min>). The tip is not certified for analysis. — approved — Ruling 94 |
+| COPY-242 | Tip chord can't go below <min> (the larger of 5 mm and 2 % of the root chord). — approved — Ruling 94 |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

@@ -65,7 +65,7 @@ public sealed class ProductWingMethod : IWingMethod
     /// <summary>
     /// Rulings 78, 88 and 91: the outermost strip of each half (greatest |y|, one port and one starboard) is not
     /// judged against the envelope. It is marked provisional, and no tolerance law replaces that. The scope is certified
-    /// finite-chord tips with tip chord at least 2 % of the root chord (<c>AnalysisService.TipChordRatioFloor</c>); the
+    /// finite-chord tips with tip chord at least <c>max(5 mm, 2 % of the root chord)</c> (<c>TipChord</c> in Core); the
     /// service refuses every other planform before compute (<c>ANA-TIP-BELOW-FLOOR</c>, or <c>DSL-NOT-ASSESSED</c>). Every other strip is left unset, which the
     /// reader stores as false.
     /// </summary>

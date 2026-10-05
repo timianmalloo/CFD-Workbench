@@ -99,14 +99,19 @@ internal static class LabelsTests
         string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
         foreach (int id in Enumerable.Range(206, 34))
         {
-            string marker = (id >= 218 && id <= 220) ? "proposed — awaiting operator" : "approved — Ruling 82";
+            string marker = id is 218 or 219 ? "retired — Ruling 92" : id == 220 ? "approved — Ruling 92" : "approved — Ruling 82";
             string? row = design.Split('\n').FirstOrDefault(l => l.Contains("| COPY-" + id + " |"));
             Equal(true, row != null && row.Contains(marker), "COPY-" + id);
         }
         foreach (string copy in new[] { Labels.NoResult, Labels.NoPolar, Labels.PayloadFailed, Labels.SectionCp,
-            Labels.VlmChip, Labels.OutsideLattice, Labels.VerifiedLattice, Labels.Provisional, Labels.AtBound,
-            Labels.Indeterminate, Labels.FixedVlmNoDepth, Labels.StructuralList, Labels.BodyAxes })
+            Labels.VlmChip, Labels.OutsideLattice, Labels.VerifiedLattice,
+            Labels.TipNotJudged, Labels.FixedVlmNoDepth, Labels.StructuralList, Labels.BodyAxes })
             Equal(true, design.Contains(copy), copy);
+        Equal("Not judged — tip strip", Labels.TipNotJudged, "COPY-220 text (Ruling 92)");
+        Equal(true, design.Contains("| COPY-220 | Not judged — tip strip — approved — Ruling 92 |"), "COPY-220 row");
+        Equal(true, design.Contains("| COPY-241 | " + Labels.TipChordUnderMinimumTemplate + " — approved — Ruling 94 |"), "COPY-241 row");
+        Equal(true, design.Contains("| COPY-242 | " + TipChord.RefusalTemplate + " — approved — Ruling 94 |"), "COPY-242 row");
+        Equal("Unavailable — tip chord under the minimum (5 mm). The tip is not certified for analysis.", Labels.TipChordUnderMinimum(0.12), "COPY-241 formatted");
         Equal(true, design.Contains("| COPY-240 |") && design.Contains("e above 1 — check the lattice — approved — Ruling 82"), "COPY-240");
     }
 

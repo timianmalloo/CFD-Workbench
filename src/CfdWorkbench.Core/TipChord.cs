@@ -30,9 +30,10 @@ public static class TipChord
     public static string Format(double rootChordMeters) =>
         (MinimumMeters(rootChordMeters) * 1e3).ToString("0.##", CultureInfo.InvariantCulture) + " mm";
 
-    /// <summary>Ruling 94: the editor refusal text.</summary>
-    public static string RefusalReason(double rootChordMeters) =>
-        $"Tip chord can't go below {Format(rootChordMeters)} (the larger of 5 mm and 2 % of the root chord).";
+    /// <summary>Ruling 94 (COPY-242): the editor refusal text, with the minimum as <c>&lt;min&gt;</c>.</summary>
+    public const string RefusalTemplate = "Tip chord can't go below <min> (the larger of 5 mm and 2 % of the root chord).";
+
+    public static string RefusalReason(double rootChordMeters) => RefusalTemplate.Replace("<min>", Format(rootChordMeters));
 
     /// <summary>
     /// Whether an edit from (<paramref name="oldTip"/>, <paramref name="oldRoot"/>) to (<paramref name="newTip"/>,

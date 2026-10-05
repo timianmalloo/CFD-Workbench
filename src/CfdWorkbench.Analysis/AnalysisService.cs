@@ -197,10 +197,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         return row;
     }
 
-    /// <summary>Ruling 91: the smallest tip chord, as a fraction of the root chord, that the VLM tip strip is certified for.</summary>
-    internal const double TipChordRatioFloor = 0.02;
-
-    /// <summary>The refusal for a placed tip below <see cref="TipChordRatioFloor"/>. Not a Failed row: nothing is recorded.</summary>
+    /// <summary>The refusal for a placed tip below the Core minimum (<see cref="TipChord"/>, Rulings 91 and 93). Not a Failed row: nothing is recorded.</summary>
     internal const string TipBelowFloorCode = "ANA-TIP-BELOW-FLOOR";
 
     // Ruling 91 limits analysis certification only: such a wing still opens and edits (Geometry certifies it). The
@@ -212,8 +209,8 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         var tip = sections.MaxBy(section => section.Frame.Eta)!.Frame;
         double rootChord = root.TrailingMeters - root.LeadingMeters;
         double tipChord = tip.TrailingMeters - tip.LeadingMeters;
-        if (!(tipChord >= TipChordRatioFloor * rootChord))
-            throw new ContractError(TipBelowFloorCode, "the tip chord is below 2 % of the root chord (Ruling 91)");
+        if (!TipChord.Meets(tipChord, rootChord))
+            throw new ContractError(TipBelowFloorCode, Labels.TipChordUnderMinimum(rootChord));
     }
 
     private AnalysisRun? StoredCompleted(string key) => session.ReadRuns().Runs.FirstOrDefault(stored =>
