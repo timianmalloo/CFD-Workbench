@@ -185,7 +185,7 @@ public sealed class WorkbenchController : IDisposable
     private const string SectionChecking = "Checking…";
     // Certificate Finish showed before a step published "Checking…". A refusal leaves the bytes
     // unchanged, so Finish keeps it until the re-check returns. A later queued step must not
-    // overwrite this with the placeholder.
+    // overwrite this with the placeholder. Cleared when a step lands and when the editor exits.
     private SectionMode? sectionBeforeChecking;
 
     private long openRequestGeneration;
@@ -669,6 +669,7 @@ public sealed class WorkbenchController : IDisposable
             CancelSectionAssessment();
             session.Cancel(open.Draft.DraftId);
             Section = null;
+            sectionBeforeChecking = null;
             draft = null;
         }
         if (draft is not null || Gesture != GestureState.Idle)
@@ -718,6 +719,9 @@ public sealed class WorkbenchController : IDisposable
                 Status = error.Message;
                 // The refused step left the draft unchanged. Keep the certificate this step cleared:
                 // "Checking…" is for bytes that moved, and a refused step must not show it while the re-check runs.
+                // DraftId is one id per draft. EnterSectionAsync mints it with Guid.NewGuid, and
+                // BeginSectionDraftCore rejects an id this session already retired. A resumed draft keeps
+                // that id. Generation distinguishes its steps, so the pair is the identity this guard needs.
                 if (Section is { } current && sectionBeforeChecking is { } prior &&
                     current.Draft.DraftId == prior.Draft.DraftId &&
                     current.Draft.Generation == prior.Draft.Generation)
@@ -732,6 +736,7 @@ public sealed class WorkbenchController : IDisposable
             SectionRefitRefusal = null;
             if (step is SectionStep.Replace replace)
                 replaceNames[next.Profile] = replace.Source.DisplayName;
+            sectionBeforeChecking = null;
             Section = Section! with { Draft = next, Assessment = null, FinishReason = SectionChecking };
             if (step is SectionStep.Replace) ClearReplacePreview();
             // One shell refresh per step: the assessment's "Checking…" write notifies, after the strip has the step report.
@@ -762,6 +767,7 @@ public sealed class WorkbenchController : IDisposable
         draft = landed;
         SectionRefitRefusal = null;
         bool moved = next.Cursor != mode.Draft.Cursor;
+        if (moved) sectionBeforeChecking = null;
         Section = Section! with
         {
             Draft = next, Assessment = null,
@@ -1280,6 +1286,7 @@ public sealed class WorkbenchController : IDisposable
         ClearReplacePreview();
         session.FinishSection(Guid.NewGuid().ToString("D"), mode.Assessment);
         Section = null;
+        sectionBeforeChecking = null;
         SectionRefitRefusal = null;
         draft = null;
         Inspection = session.InspectAccepted();
@@ -1297,6 +1304,7 @@ public sealed class WorkbenchController : IDisposable
         ClearReplacePreview();
         session.Cancel(mode.Draft.DraftId);
         Section = null;
+        sectionBeforeChecking = null;
         SectionRefitRefusal = null;
         draft = null;
         Status = "Section cancelled. Accepted source and history are unchanged.";
@@ -2455,6 +2463,7 @@ public sealed class WorkbenchController : IDisposable
         MarkSavedDraft(session.Snapshot());
         if (session.CurrentSectionDraft() is { } sectionView)
         {
+            sectionBeforeChecking = null;
             Section = new SectionMode(sectionView, session.Snapshot().Source, EntryOrigin.Recovery);
             interiorEta = Inspection!.Authored.Assignments[sectionView.Assignment].Eta;
             Frame = acceptedFrame;
@@ -2739,6 +2748,7 @@ public sealed class WorkbenchController : IDisposable
     {
         if (disposed) return;
         disposed = true;
+        sectionBeforeChecking = null;
         Gesture = GestureState.Idle;
         CancelSampling();
         surfaceRunning?.Cancel();

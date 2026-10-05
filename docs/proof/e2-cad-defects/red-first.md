@@ -24,8 +24,9 @@ Track `trk-e2`, branch `fix/cad-e2-defects`, 2026-10-05. Plan: `docs/coordinatio
 |---|---|---|---|
 | `SectionStep_Refused_RestoresCertificate` | A refused abscissa step shows Finish "Checking…" (the button help and the reason box) while the unchanged draft is re-checked. The check covers that re-check window only | `585eefba599d25c3f844daed047c924f0095171e` | `d2f286cff917c4c4755ab52a625ab541cb31f855` |
 | `MakeIndependent_TangentRow_NoDslPatch` | `FoilSource.MakeIndependent` throws `DSL-PATCH` when a tangent row names a point whose id the copy rewrites | `21cd34696da73a6fa53f7da990f78a9874ee3789` | `bba1aa8d9293e16e8038bdb63922b95892050475` |
-| `MakeIndependent_TangentsBeforeIds_RetargetsRow` | A tangents block written before the ids list is skipped, and the copy throws `DSL-PATCH` | observed red below, before the span edit | this repair's retarget commit |
-| `MakeIndependent_CollidingIds_TangentNotCascaded` | Rewriting one id also rewrites a later id, or a comment that quotes an id | observed red below, before the span edit | this repair's retarget commit |
+| `MakeIndependent_TangentsBeforeIds_RetargetsRow` | A tangents block written before the ids list is skipped, and the copy throws `DSL-PATCH` | observed red below, before the span edit | `db7195a28abb1afbb726083420f2f47b7dca81ef` |
+| `MakeIndependent_CollidingIds_TangentNotCascaded` | Rewriting one id also rewrites a later id, or a comment that quotes an id | observed red below, before the span edit | `db7195a28abb1afbb726083420f2f47b7dca81ef` |
+| `SectionStep_LandedOrExit_ClearsPriorCertificate` | A landed step, or leaving the editor, keeps the certificate saved for a later refusal | observed red below, before the clear | the clear commit |
 
 ## FLK-1
 
@@ -63,3 +64,15 @@ FAIL MakeIndependent_CollidingIds_TangentNotCascaded InvalidOperationException: 
 The first fixture puts `tangents` before `ids`. The parser accepted only the canonical order, so the row never reached the retarget. The parser now reads either order. A second ids or tangents block still fails at `}`. The canonical writer still emits ids, then tangents. `docs/specs/foildsl.md` still says the block is after `ids`. That sentence was not edited.
 
 The second fixture puts the anchor's id at `cv-1` and index 1's id at `cv-5` (index 0 is not an interior anchor, so the list cannot literally start `["cv-1","cv-0",...]`). The tangent stayed on `cv-5` even under the text search, because edits were collected against the original text and the second id did not see the first replacement. The same search rewrote `# keep "cv-1" here`, which is why the check was red. After the span edit the row is `cv-5`, index 1 is `cv-1`, and the comment is unchanged. The same three checks printed PASS, and `Profile_MakeIndependent_MiddleStationSplitsIntervals` passed with them.
+
+## Saved certificate
+
+`sectionBeforeChecking` was set when a step was queued and never cleared. A landed step and an exit from the editor both left it set.
+
+Observed red, suite `--section-editor`, `CFD_TEST_ONLY=SectionStep_LandedOrExit_ClearsPriorCertificate`, exit 1:
+
+```
+FAIL SectionStep_LandedOrExit_ClearsPriorCertificate Exception: A landed step kept the certificate from before the bytes changed
+```
+
+A landed step, an undo or redo that moves, Finish, Cancel, switching sections, recovery and Dispose now clear it. A refusal does not: that is the re-check window. `DraftId` is one id per draft. `EnterSectionAsync` mints it with `Guid.NewGuid`, and `AuthoringSession.BeginSectionDraftCore` rejects an id this session already retired. A resumed draft keeps that id. `Generation` distinguishes its steps. The guard compares that pair, so it does not need another identity. After the clear the check printed `PASS SectionStep_LandedOrExit_ClearsPriorCertificate`, and `SectionStep_Refused_RestoresCertificate` still passed.
