@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T18:48:21Z",
+  "generated": "2026-10-05T18:55:28Z",
   "audit": [
     {
       "actor": null,
@@ -26014,6 +26014,34 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M46PQGK137MYXSN5TRPNB94Z",
+      "shortname": "ctx-repair-1",
+      "datetime": "2026-10-05T18:55:28Z",
+      "session": "trk-ctx",
+      "prompt": "CTX repair 1",
+      "summary": "Review conditions: sweep is the lattice's own (VortexLattice.StripSweeps); alpha_L0 exact per strip eta; near-bound and tapered-planform tests; Labels.Verdict zero defaults removed; design 5.4 line with measured alpha_L0 offset; only the tip reason gets the tip rule (tested).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Remove the verdict approximations rather than label them",
+      "done_when": "Named suites, one full run-tests, check-docs, run-verify-gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-05T18:48:12Z",
+      "duration_seconds": 436.0,
+      "git": {
+        "sha": "6c6a7bd0bedfe1e789eb5d22bd9fb68a80932d9b",
+        "short": "6c6a7bd0b",
+        "branch": "fix/a3a-ctx-projection-feed",
+        "pushed": null
+      }
     }
   ],
   "changes": [

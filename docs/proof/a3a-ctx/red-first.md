@@ -21,8 +21,9 @@ Design: `docs/design/area3-analysis.md` §3 (stored facts only), §5.4 (verdict 
 Session `trk-ctx`, branch `fix/a3a-ctx-projection-feed`, 2026-10-05.
 
 **Verdict source: derived on read (option a).** The stored strip holds alpha_eff, Cl_local and the span edges, not the sweep or alpha_L0.
-`MethodRecord.DeriveVerdicts(run, source)` takes the sweep from the quarter-chord line of the run's accepted source over each
-strip's edges, and alpha_L0 from `SectionEstimator` at the run's section stations, interpolated in eta. No run-row field was added.
+`MethodRecord.DeriveVerdicts(run, source)` calls the lattice's own sweep (`VortexLattice.StripSweeps`, the same `At`/`SweepOf`
+over the stored strip edges and the run's mirrored sections) and alpha_L0 from `SectionEstimator` exactly at each strip's own eta
+(repair 1: the interpolation and the re-derived sweep were removed). No run-row field was added.
 A run on an earlier revision gets no feed (only the current accepted source is readable); its strips read "Unavailable".
 
 | Test | Red line | Then |
@@ -36,4 +37,9 @@ A run on an earlier revision gets no feed (only the current accepted source is r
 
 Cost (default 64 x 4 lattice, 126 judged strips): the derivation runs once per run and revision (cached in the controller);
 a layer toggle re-projects in about 9 ms (`COST Feed_DefaultLattice_LayerToggleReprojection`). The derivation itself was
-0.9 s measured on first projection before the cache.
+0.9 s measured on first projection before the cache. After repair 1 (exact alpha_L0 at 64 distinct strip etas, 200 panels) the
+first projection is 594 ms (`COST Feed_DefaultLattice_FirstViewDerivation`) and a toggle stays about 11 ms.
+
+Repair 1 tests: `DeriveVerdicts_TaperedPlanform_SweepIsTheLatticeSweepAndAlphaL0IsTheStripSection` (|sweep - solve sweep| < 1e-9 deg),
+`DeriveVerdicts_AlphaBound_9p9InsideAnd10p1Outside`, `JudgeStrip_SweepBound_29p9InsideAnd30p1Outside`,
+`DeriveVerdicts_OnlyTheTipReasonGetsTheTipRule`.

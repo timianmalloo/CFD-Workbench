@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9c8c0398eedd1b389a4eaa06aefe6b1146520350fb7a845ced0f3e84ad7c2fbe"
+      "sourceSha256": "398d73a7e36f2b8d45b780d9a1187b34610b2a368e1ecaa1e7440bcbe81cc3e4"
     },
     {
       "id": "design-authoring-decisions",
@@ -8445,7 +8445,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a3a9b117e1e6abbf469aace540e5f4fb35a61fbeccb04e7b3bbd176d5831ed40"
+      "sourceSha256": "7ff95489d408015b143594123d13d98b8a88ad0d9c01e35a4c1a457cb6edb422"
     },
     {
       "id": "proof-a3a-old-build",
@@ -13584,5 +13584,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "9b3c91e0d254fe8eec952405ebf0f1ac8a16edd4fda96335941f610ffc21f048"
+  "graphSha256": "06f4509d4270413f84ff267475555a4711fd9f472e8c1a8f75ab15fac36152aa"
 };

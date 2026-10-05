@@ -96,7 +96,10 @@ public static class AnalysisFeedTests
             long started = System.Diagnostics.Stopwatch.GetTimestamp();
             var notes = StripNotes(controller);
             double ms = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
-            Console.WriteLine("COST Feed_DefaultLattice_JudgesAllNonTipStrips " + ms.ToString("F1", System.Globalization.CultureInfo.InvariantCulture));
+            // The evaluation projects once on its own, so the derivation lands in that first analysis.project event.
+            double firstProject = controller.LocalEvents.Where(item => item.Operation == "analysis.project").Max(item => item.DurationMilliseconds ?? 0);
+            Console.WriteLine("COST Feed_DefaultLattice_FirstViewDerivation " + firstProject.ToString("F1", System.Globalization.CultureInfo.InvariantCulture));
+            Equal(true, firstProject < 3000, "the first projection with the derivation stays under 3 s");
             controller.SetLayerVisible("plan-gamma", false);
             started = System.Diagnostics.Stopwatch.GetTimestamp();
             _ = controller.AnalysisView;
