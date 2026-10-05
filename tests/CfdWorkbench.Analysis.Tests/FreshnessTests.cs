@@ -14,7 +14,6 @@ internal static class FreshnessTests
     internal static void Run()
     {
         Check("Freshness_SurfaceEdit_Historical", SurfaceEdit);
-        Check("Freshness_ProfileEdit_Historical", ProfileEdit);
         Check("Freshness_WaterChange_Historical", WaterChange);
         Check("Freshness_OperatingPointChange_Historical", OperatingPointChange);
         Check("Freshness_MethodVersionBump_Historical", MethodVersionBump);
@@ -23,6 +22,8 @@ internal static class FreshnessTests
         Check("Freshness_SaveReopen_Unchanged", SaveReopen);
         Check("Units_Lbf_KeyUnchanged", UnitsOutsideKey);
     }
+
+    internal static void RunReadiness() => Check("Freshness_ProfileEdit_Historical", ProfileEdit);
 
     private static void SurfaceEdit()
     {
