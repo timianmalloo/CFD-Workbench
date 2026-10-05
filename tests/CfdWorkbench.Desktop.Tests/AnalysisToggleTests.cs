@@ -117,6 +117,8 @@ public static class AnalysisToggleTests
                 throw new Exception("A direct dimension edit changed the accepted revision in Analysis.");
             if (!controller.Status.Contains("Points are edited in CAD", StringComparison.Ordinal))
                 throw new Exception("The inert point refusal was not reported.");
+            if (typeof(CurvePointLayer).GetMethod("DrawPoints")?.GetParameters().LastOrDefault()?.ParameterType != typeof(bool))
+                throw new Exception("CurvePointLayer has no Analysis dimming input from the views.");
         });
         DesktopChecks.Check("ConditionsBand_Running_EvaluateBecomesCancelAnnounced", () =>
         {

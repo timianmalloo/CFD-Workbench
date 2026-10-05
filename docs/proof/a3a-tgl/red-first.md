@@ -22,7 +22,7 @@ summary: Records the failing TGL named checks before each implementation step an
 | `Toggle_PreviewOpen_HiddenThenRestoredUntouched` | `065e5f8` | Analysis draws the point draft or discards it | this step |
 | `Toggle_PreviewOpen_LayersOverAcceptedRevision` | `065e5f8` | layers use draft geometry as their base | this step |
 | `Toggle_SectionDraftOpen_EditorRestoredOnReturn` | `065e5f8` | returning from Analysis lands in Workspace or loses the editor | this step |
-| `Analysis_EditVerb_RefusedWithInertMessage` | `065e5f8` | a Points-pane gesture or direct dimension edit changes geometry in Analysis | this step |
+| `Analysis_EditVerb_RefusedWithInertMessage` | `065e5f8`; second red pending | a Points-pane gesture or direct dimension edit changes geometry in Analysis; view points lack dimming input | pending view step |
 | `ConditionsBand_Running_EvaluateBecomesCancelAnnounced` | pending commit | the action stays Evaluate while a run is in flight | pending |
 | `ConditionsBand_At1024_MoreHoldsDerivedExceptQAndSigma` | pending commit | the derived group clips at 1024 px | pending |
 | `StatusStrip_AnalysisItem_FollowsRunState` | pending commit | Historical is displayed as Current | pending |
@@ -42,3 +42,5 @@ The Historical and project-event checks each printed `FAIL` under `CFD_TEST_ONLY
 The reachability check printed `FAIL` under `CFD_TEST_ONLY=Toggle_NavbarAndMenuReachable dotnet run -c Release --no-restore --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --analysis` because the navbar segment was absent.
 
 The readiness check printed `FAIL` under `CFD_TEST_ONLY=Toggle_LayersFirstFrame_P95WithinPreviewBudget dotnet run -c Release --no-restore --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --readiness` because the first frame had no selected-run layers. The existing readiness suite also printed its independent drag-frame measurement; the selector made only the TGL name affect the exit.
+
+The edit check printed a second `FAIL` under `CFD_TEST_ONLY=Analysis_EditVerb_RefusedWithInertMessage dotnet run -c Release --no-restore --project tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj -- --analysis`: the view layer had no Analysis dimming input.
