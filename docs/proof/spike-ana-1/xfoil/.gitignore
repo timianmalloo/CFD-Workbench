@@ -1,0 +1,10 @@
+Xfoil/
+xfoil6.99.tgz
+xfoil-build.log
+plotlib-build.log
+polar-*.txt
+run-*.log
+run-*.in
+version.log
+xfoil
+:00.bl

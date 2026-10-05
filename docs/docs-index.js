@@ -11080,6 +11080,75 @@ window.DOCS_INDEX = {
       "sourceSha256": "4fb99111a558deab5e10d9f3eb5c70674e6e077fbc1cc68bde8540ade240461f"
     },
     {
+      "id": "proof-spike-ana-1",
+      "path": "docs/proof/spike-ana-1/verdict.md",
+      "title": "SPIKE-ANA-1: in-process NeuralFoil port fidelity, XFOIL accuracy, CST fit and licence facts",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "GO on C# port fidelity: 198 outputs across 90 shared CST cases differ from Python NeuralFoil by at most 3.91e-14 absolute. GO on the measured NACA 0012 accuracy grid: 78 of 78 local XFOIL 6.99 points meet both Cl and ln Cd limits. The package declares MIT and includes the weight files, but the weights have no separate notice in the installed wheel; distribution awaits security and operator licence review.",
+      "tags": [
+        "analysis",
+        "neuralfoil",
+        "xfoil",
+        "cst",
+        "kulfan",
+        "polar",
+        "licence",
+        "spike",
+        "dr-ana-1"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-round-oct05",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "98fc323b64cc5321cef2814b7e0a4bc22c94176923d646d7f274a05a6744392f"
+    },
+    {
+      "id": "proof-spike-ana-1-red-first",
+      "path": "docs/proof/spike-ana-1/red-first.md",
+      "title": "SPIKE-ANA-1 red-first probe test",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Records the observed failing Python-oracle test on the placeholder C# probe and its passing commit after the port.",
+      "tags": [
+        "analysis",
+        "neuralfoil",
+        "spike",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-ana-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9eadaee45e837755d74b4a2b2444a7f426ab118b7d2c53526e615c858a17f992"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -13016,5 +13085,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "afbd0d9a4d322229d1e0b57131344d0eac1bb843753a3f604b9a8a390d5b2b89"
+  "graphSha256": "821ceeff70d13c331f033b9b5b9fbbd96fd552d7021e430b051138b4d227c920"
 };
