@@ -60,6 +60,14 @@ internal static class LoadsViewTests
             var v = ProjectionTests.View(); Equal(true, v.Loading.Count > 0);
             Equal(true, v.Loading.All(p => p.ClChordOverMeanChord.HasValue && p.EllipticReference.HasValue));
         });
+        Check("Loads_JudgedStripVerdictText_ProjectedVerbatim", () => {
+            var (run, _) = ProjectionTests.Data();
+            var verdicts = Enumerable.Range(0, 4).Select(j => j == 0 ? new StripVerdict(true, [], "custom verdict text") : MethodRecord.JudgeStrip(2, 0, 0.4, 0)).ToArray();
+            var v = ProjectionTests.View(run, new ProjectionContext(Verdicts: verdicts));
+            Equal("custom verdict text", v.Groups.Single(g => g.Title == "Strips").Rows[0].Note);
+        });
+        Check("Loads_ProvisionalVerdict_TextIsTipNotJudged", () =>
+            Equal(Labels.TipNotJudged, MethodRecord.JudgeStrip(12, 0, 0.4, 0, provisional: true).Text));
         Check("Loads_ProvisionalTip_NotOutside", () => {
             var (run, _) = ProjectionTests.Data();
             var strips = run.Strips.Select(s => s.J == 3 ? s with { Provisional = true, ProvisionalReason = StripLoad.TipProvisionalReason } : s).ToArray();
