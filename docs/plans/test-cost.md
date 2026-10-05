@@ -496,3 +496,21 @@ check time in one process, plus start-up), so a trim (section 9.4) buys one trac
 - **PASS union identical.** The 156 PASS names of the single-process run equal the 156 of the two parts, no name twice: `docs/proof/ring-b4/analysis-pass-whole.txt`, `analysis-pass-parts.txt`.
 - **Open.** The extra process adds a little CPU (ring CPU 516-543 s). In three quiet runs Desktop read 42.5 / 43.5 / 42.8 s, and the 43.5 s run failed C-4 at end load 20.9 (limit
   43,000 ms, Ruling 84 gate <= 24). That is the C-4 margin B3 recorded (2.5 s then), now 0.2-0.5 s; it needs its own decision (Desktop order or slots), not a re-base.
+
+### 9.8 Track B4 follow-up: splitting Desktop into two concurrent jobs does not buy C-4 margin (2026-10-06, negative result, nothing shipped)
+
+C-4 read 42.5 / 43.5 / 42.8 s at quiet load (one red in three, section 9.7). The ANALYSIS-HARNESS-GROWTH control (partition, limit per part) was built for Desktop as
+`Desktop 1/2` and `Desktop 2/2` (`--desktop-part=k/n`, whole mode families, longest first onto the lighter part by measured child seconds, 5 process slots each so the total stays 10;
+`DESKTOP-PART k/n of N modes` lines checked in `run-tests.sh`; C-4 per part; self-test 33/33; every mode in exactly one part). It was measured, and not kept:
+
+| Variant | Runs | Desktop part clocks (s) | wall net (s) | CPU-s |
+|---|---|---|---|---|
+| one job, 10 slots (committed) | 3, start load 7-21 | 42.5 / 43.5 / 42.8 | 45.2-46.3 | 516-543 |
+| two parts, 5 + 5 slots | 4, start load 13-14 | 43.9+44.2 / 46.5+46.5 / 43.8+44.3 / 53.8+51.6 (load 48) | 47.0 / 49.3 / 47.1 / 56.6 | 536-588 |
+| two parts, 5 + 6 slots | 3, start load 13-34 | 46.8+41.6 / 48.0+42.5 / 44.1+39.7 | 49.6 / 50.8 / 47.0 | 534-573 |
+
+Why: the ring is CPU-bound (500+ CPU-s on 16 cores) and the parts run concurrently, so each part's clock tracks the whole Desktop wall; two jobs of the same work finish at the same
+time, and fixing mode families to a part loses the global longest-first fill (net wall is 1-3 s worse). A per-part limit only helps a split whose parts do not compete (sequential or on
+separate machines), which would lengthen the ring. Analysis was different: its parts (3 s each) were short and the single process was start-up and JIT bound.
+Consequence: the C-4 margin (0.2-0.5 s) is a Desktop CPU problem, not a partition problem. Options, for a ruling or the next track: reduce Desktop CPU (the heaviest children are
+plan-canvas 34/29 s, properties-view 26/23 s, shell-window 25/22 s), or move C-4's limit from a measured 3-run quiet baseline (Ruling 84 (2)); not a re-base without one.

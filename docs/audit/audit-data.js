@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T23:21:50Z",
+  "generated": "2026-10-05T23:44:45Z",
   "audit": [
     {
       "actor": null,
@@ -26175,6 +26175,33 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "59a337bbd4ea69c2dfbba3c898abc9ce7b15e989",
         "short": "59a337bbd",
+        "branch": "perf/ring-b4-analysis-split",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M47796Z855F981QAK04JK5Y1",
+      "shortname": "b4-desktop-split",
+      "datetime": "2026-10-05T23:44:45Z",
+      "session": "trk-b2",
+      "prompt": "B4 Desktop split",
+      "summary": "B4 Desktop split built (--desktop-part, family partition, C-4 per part, self-test 33/33) and measured: parts read 43.8-46.5 s each, worse than the single job (42.5-43.5 s), because the ring is CPU-bound and parts run concurrently. Not kept; negative result recorded in test-cost 9.8.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Apply the split control to Desktop",
+      "done_when": "each Desktop part >= 4 s under 43 s x3",
+      "tier": "T1",
+      "started_at": "2026-10-05T23:22:24Z",
+      "duration_seconds": 1341.0,
+      "git": {
+        "sha": "eaef00310f0f94880a417186d80a8afc92809e21",
+        "short": "eaef00310",
         "branch": "perf/ring-b4-analysis-split",
         "pushed": null
       }

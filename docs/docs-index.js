@@ -5498,7 +5498,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "eea6d59d7025aa01d0600369b6860a5b9fa6299a76786d25e544c849444d73da"
+      "sourceSha256": "c24e3598a355296614515a351d88d484e206a65a72cdc9d79c1e30c935976dbe"
     },
     {
       "id": "plan-tip-handling",
@@ -13773,5 +13773,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "4e5ba5e2c6f0fe6ce63ed38920c33d5561e891f714c7fee808f8a9ee16c566c1"
+  "graphSha256": "b93fa0b7198373ae8fa05f3ad70a03f32cdf1af42d94450d16e1e18eafc819d4"
 };
