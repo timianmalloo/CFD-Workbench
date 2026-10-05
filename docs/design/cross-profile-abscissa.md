@@ -362,6 +362,7 @@ budget; **readiness** = `tools/run-readiness.py`.
 | 25 | `Guard_TwentySevenSpansDiffering_Certifies` (CAP) | Ruling 74: 27 spans (32 points) with differing Root and Tip certify | fast, 4.26 s measured standalone Release subset (includes harness start) |
 | 26 | `Guard_ThirtyThirdPoint_RefusedDslCurveBeforeCopy194` (CAP) | the 33rd point is stopped by `DSL-CURVE` before COPY-194 can fire; draft bytes stay equal | fast, 2.80 s measured standalone Release subset (includes harness start) |
 | 27 | `Replace_FourDifferingSections_Certified_SevenRefusedCopy194b` (CAP) | four differing stations land; the seventh reaches `GEOMETRY-QUERY-OPERATIONS` and preserves COPY-194b | fast, 1.35 s measured standalone Release subset (includes harness start) |
+| 28 | `Blend_HeapMaximum_MatchesListOracleAndComparisonBound` (CAP) | seeded pre-heap list oracle agrees on lower, upper, nodes, refusal and `ProofBudget.Spent` for 320 tie-heavy cases, all 1–27 span counts and node budgets 1–1296; heap comparisons stay within `MaximumComparisons` | fast, 57.4 ms measured Release test body (standalone subset) |
 
 **Red-first.** Tests 2, 5, 9, 13 (Angle) and 14 are behaviourally red at the **early-refusal track's HEAD**, the real
 baseline; the build records each red run. Planted mutants: a display that blends the authored sections (must fail 5);
