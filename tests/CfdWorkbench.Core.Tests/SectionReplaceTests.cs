@@ -496,7 +496,12 @@ internal static class SectionReplaceTests
             double symmetric = Preview(Example(), 0, Gen("0012")).FitResidual * ExampleChord * 1e6;
             double cambered = Preview(Example(), 0, Gen("4412")).FitResidual * ExampleChord * 1e6;
             double fixture = Preview(Example(), 0, Coordinates("NACA 4412 (201)", Selig(Naca4("4412")))).FitResidual * ExampleChord * 1e6;
-            Console.WriteLine(FormattableString.Invariant($"RPL pinned 0012 {symmetric:F3} um; 4412 own-15 {cambered:F3} um (generator, 81 stations); {fixture:F3} um (201-sample closed form)"));
+            // Why 5.59 and not the probe's 5.54: the metric or the input? Both-ways vs one-way on the generator's own fit.
+            var generator = DatImport.ParseInChordFrame(CatalogGenerator.Naca4("4412")).Profile;
+            var (k15, x15) = DatImport.OwnSqrtBasis(15);
+            var fit15 = DatImport.FitToBasis(generator, k15, x15, 5, true)!;
+            double oneWay = Math.Max(OneWay(generator.Upper, k15, x15, fit15.Upper), OneWay(generator.Lower, k15, x15, fit15.Lower)) * ExampleChord * 1e6;
+            Console.WriteLine(FormattableString.Invariant($"RPL pinned 0012 {symmetric:F3} um; 4412 own-15 {cambered:F3} um both ways ({oneWay:F3} um one way) on the generator's 81 stations; {fixture:F3} um both ways on the 201-sample closed form"));
             Equal(true, Math.Abs(symmetric - 9.75) <= 0.01);
             Equal(true, Math.Abs(cambered - 5.59) <= 0.01);
         });
@@ -651,7 +656,14 @@ internal static class SectionReplaceTests
     private static double OneWay(IReadOnlyList<ProfilePoint> samples, double[] knots, double[] x, double[] y)
     {
         var dense = DatImport.Dense(knots, 5, x, y, 20000);
-        return samples.Max(point => dense.Min(q => Math.Sqrt((q.X - point.X) * (q.X - point.X) + (q.Y - point.Y) * (q.Y - point.Y))));
+        return samples.Max(point => Enumerable.Range(0, dense.Length - 1).Min(i =>
+        {
+            var (ax, ay) = dense[i];
+            var (bx, by) = dense[i + 1];
+            double vx = bx - ax, vy = by - ay, length = vx * vx + vy * vy;
+            double t = length == 0 ? 0 : Math.Clamp(((point.X - ax) * vx + (point.Y - ay) * vy) / length, 0, 1);
+            return Math.Sqrt(Math.Pow(ax + t * vx - point.X, 2) + Math.Pow(ay + t * vy - point.Y, 2));
+        }));
     }
 
     // NACA 4-digit with the closed trailing edge (DR-M12D-7 a), in the chord frame: the leading edge at the continuous

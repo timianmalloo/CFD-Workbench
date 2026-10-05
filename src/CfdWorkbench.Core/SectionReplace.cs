@@ -189,7 +189,11 @@ public static class SectionReplace
         return FoilSource.Utf8.GetBytes(text);
     }
 
-    // The largest |Δy| between any replaced station's old section and the new one, and the chord position where it is.
+    // The largest |Δy| between any replaced station's old section and the new one, and the chord position where it is. This
+    // is the vertical change at equal x on purpose: it answers "how much does the section move, and where" for the canvas
+    // marker and the detail line, in the A4.5 profile oracle's terms (FoilSource.MaxOrdinateDeviation). Acceptance is a
+    // different question — how far the fit is from the source shape — and is Euclidean (rule 5), because at the vertical
+    // nose a gap at equal x overstates the true distance many times.
     private static (double Change, double AtX) LargestChange(IEnumerable<ProfileDefinition> olds, ProfileDefinition replaced)
     {
         double worst = 0, at = 0;

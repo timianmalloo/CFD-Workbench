@@ -291,6 +291,14 @@ spacing. A catalog section arrives with its own spacing.
 | P-E7 | My sections entry already on the shared spacing | exact copy (0 change), Certified |
 | P-B3 | Three stations Root X, Mid X, Tip Y; B over {Mid, Tip} only vs over every station | {Mid, Tip}: **Unsupported** (Root ↔ Mid differ); every station (one block, all re-pointed, unreferenced blocks deleted): parses, **Certified** |
 
+**As built (RPL-2, measured; `Replace_DesignNumbers_PinnedAtHundredthMicrometre` pins both at ±0.01 µm):** through the
+catalog generator (`CatalogGenerator.Naca4`, 81 stations per surface) Replace reads **0012 on the current spacing
+9.747 µm** and **4412 own-15 5.589 µm**. The 4412 row differs from P-CF-rule3's 5.54 by the source, not the metric's
+direction: the same RPL residual on a 201-sample closed form reads 5.540 µm, matching the probe, while on the
+generator's 81 stations it reads 5.589 µm both ways (5.383 µm one way, stations to curve). The 0.05 µm is the source
+curve between the 81 stations (RPL's cubic-spline interpolant against the probe's closed form) — Inferred from those
+three measurements; 15 points is the smallest own spacing within 10 µm either way.
+
 Residuals in the P-CF rows are the **largest Euclidean distance** from the closed form (201 cosine samples per surface)
 to the fitted curve; the as-built `FitToBasis` vertical residual is printed beside each in the receipt. The first
 draft's rows through `DatImport.Parse` (`table.md` "NACA …" and E1c/E3/E8/E9) are kept in the receipt as the as-built
