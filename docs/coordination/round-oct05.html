@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="6ba3edb60677ac578928b4a17d40c4aee030af768999918c2e622105810bf09a">
+<style>
+:root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
+body{margin:0;background:Canvas;color:CanvasText}
+main{max-width:1180px;margin:auto;padding:clamp(1rem,3vw,3rem)}
+h1,h2,h3{line-height:1.2;margin:2rem 0 .7rem}h1{font-size:2rem}h2{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding-bottom:.4rem}
+a{color:LinkText}a:focus-visible{outline:3px solid Highlight;outline-offset:3px}
+.table-wrap{overflow-x:auto;margin:1rem 0 2rem}table{border-collapse:collapse;min-width:720px;width:100%}th,td{border:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding:.65rem;vertical-align:top;text-align:left}th{background:color-mix(in srgb,CanvasText 8%,Canvas)}
+code,pre{font: .9em/1.4 ui-monospace,SFMono-Regular,monospace}code{overflow-wrap:anywhere}pre{overflow-x:auto;padding:1rem;background:color-mix(in srgb,CanvasText 7%,Canvas);border-radius:.5rem}
+header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.note{font-size:.9rem;opacity:.75}
+</style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="round-oct05.md">round-oct05.md</a> · 2026-10-05</p></header>
+<h1>Coordination plan: the round of 2026-10-05</h1>
+<ul>
+<li><strong>Scope:</strong> the operator&#39;s kickoff prompt rev 2 (<code>~/projects/CFD-Workbench-kickoff-2026-10-05.md</code>, approved and run
+2026-10-05), plus two operator answers given during planning (2026-10-05, AskUserQuestion): <strong>build the A3a desktop
+UI this round</strong> (&quot;Yes, add it&quot;) and <strong>fold RNG into Track B</strong> (&quot;Fold into B&quot;).</li>
+<li><strong>Finding that reshaped the round (Verified):</strong> A3a&#39;s desktop tracks TGL, LAY, PNA, AUX and the RNG ring track
+(<code>docs/design/area3-analysis.md</code> §18.2) never ran. <code>git log main</code> has joins for PRE, COR, STO, SVC/SVC-2, VLM,
+VLM-lattice, STP, PRJ and their follow-ups, and none for RNG/TGL/LAY/PNA/AUX. The app still shows
+<code>Analysis Unavailable — no method implemented.</code> (<code>src/CfdWorkbench.Desktop/ModelArea.axaml:234</code>), and no Desktop
+file references <code>AnalysisViewModel</code>. The section (A3b) and polar (A3c) displays plug into PNA&#39;s panes.</li>
+<li><strong>Seats:</strong> Leader <strong>and</strong> Coordinator = this Claude Code session <code>4e90c621</code> (Opus 5.5). Owner = a Fable sub-agent
+(<code>claude-fable-5-1</code>), one at a time, ruling into <code>docs/notes/rulings.md</code> (class <code>register</code>) and noting &quot;ruled by the
+Fable owner&quot;. Held for the operator: spec and copy wording, mockup approval, irreversible or outward-facing steps,
+anything the operator ruled before. Coders: Sonnet 5.5 (Claude sub-agents), Codex <code>gpt-6-sol</code>, Grok <code>grok-4.7</code>, Agy
+<code>gemini-3.8-flash-high</code>.</li>
+<li><strong>Base:</strong> <code>main</code> = <code>origin/main</code> = <code>bf07a8f</code> (readiness green: 116.7 s of 240 s). Planning tree
+<code>CFD-Workbench-chore-coordination-round-oct05</code>.</li>
+</ul>
+<p>Labels: <strong>Verified</strong> = observed in this run; <strong>Inferred</strong> = reasoned, not observed; <strong>Flagged</strong> = observed but suspect.</p>
+<h2>Layer state</h2>
+<p>Measured in the primary checkout on 2026-10-05 with <code>coord-core.py doctor</code> and <code>pack-doctor.py --json</code>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>check</th>
+<th>result</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>registry</td>
+<td>ok - 8 patterns</td>
+<td><code>.agents/artifacts.yml</code> classifies the audit views, docs index, logs and rulings (Verified)</td>
+</tr>
+<tr>
+<td>merge driver</td>
+<td>effective - coord-regen, coord-register</td>
+<td>derived files regenerate and registers union-merge at every merge (Verified)</td>
+</tr>
+<tr>
+<td>leader</td>
+<td>was EXPIRED (epoch 53, fbfa35dc, 375,479 s)</td>
+<td>the designation TTL is capped at 900 s and renewed every 100 s. This session reclaims it <strong>immediately before each move of <code>main</code></strong> rather than holding it (Verified: <code>COORD-LEADER-TTL-CAP</code>)</td>
+</tr>
+<tr>
+<td>requests</td>
+<td>was FAIL (2 silently expired) → ok, 97 terminal, 0 open</td>
+<td><code>coord request expire</code> recorded both fallbacks (Verified)</td>
+</tr>
+<tr>
+<td>lease overlap</td>
+<td>none</td>
+<td>no live leases (Verified)</td>
+</tr>
+<tr>
+<td>heartbeat</td>
+<td>16 sessions, 0 live</td>
+<td>old sessions only (Verified)</td>
+</tr>
+<tr>
+<td>harness capability</td>
+<td>claude: enforcing (spike S5, 2026-08-24, version not pinned); copilot: historical</td>
+<td><strong>not measured here</strong>; see the harness column</td>
+</tr>
+<tr>
+<td>doorbells</td>
+<td>not recorded</td>
+<td>no harness was probed with <code>coord-mail.py dispatch</code>; dispatch is by direct launch</td>
+</tr>
+<tr>
+<td>install</td>
+<td>once, in the primary checkout</td>
+<td>every worktree this plan creates <strong>inherits</strong> the drivers and hooks through the shared <code>.git/config</code>; run <code>coord doctor</code> in a tree to read it back; never <code>coord install</code> in a worktree</td>
+</tr>
+</tbody></table></div>
+<h2>Artifact classes</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>path / pattern</th>
+<th>class</th>
+<th>mechanism</th>
+<th>coordination needed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docs/docs-index.js</code></td>
+<td>derived</td>
+<td><code>docs-graph.py derive</code> (coord-regen)</td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>docs/audit/audit-data.js</code>, <code>docs/audit/index.html</code></td>
+<td>derived</td>
+<td><code>audit-log.py render</code> (coord-regen)</td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>docs/audit/audit-log.jsonl</code>, <code>docs/audit/change-log.jsonl</code></td>
+<td>register</td>
+<td>union merge (coord-register)</td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>docs/notes/rulings.md</code></td>
+<td>register</td>
+<td>union merge; numbers taken only through <code>coord-decide.py rule next</code> by the one Owner</td>
+<td><strong>none</strong> (the Owner is the only writer)</td>
+</tr>
+<tr>
+<td><code>.agents/log/*.jsonl</code>, <code>.agents/requests.jsonl</code></td>
+<td>register</td>
+<td>union merge</td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>docs/proof/&lt;track&gt;/**</code></td>
+<td>authored, new per track</td>
+<td>each track writes only its own folder</td>
+<td>none (disjoint)</td>
+</tr>
+<tr>
+<td><code>tests/CfdWorkbench.Analysis.Tests/AnalysisChecks.cs</code> (<code>X.Run();</code> lines)</td>
+<td>authored</td>
+<td>append one registration line per new suite; second to merge rebases</td>
+<td>append conflicts only (D1, D2, C may touch)</td>
+</tr>
+<tr>
+<td><code>tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs</code></td>
+<td>authored</td>
+<td>design S-A8: B owns the scheduling region; TGL adds the <code>--readiness</code> row; LAY and PNA fill only their own suite files</td>
+<td>owner per region (below)</td>
+</tr>
+<tr>
+<td><code>DESIGN.md</code></td>
+<td>authored</td>
+<td>C flips §7 markers first; AUX owns component rows and tokens after; DX appends new COPY rows only</td>
+<td>serial (C → AUX/DX)</td>
+</tr>
+<tr>
+<td><code>src/CfdWorkbench.Desktop/WorkbenchController.cs</code></td>
+<td>authored</td>
+<td>E2 (FLK-1) joins <strong>before</strong> TGL is dispatched; TGL owns it after</td>
+<td>serial spine</td>
+</tr>
+<tr>
+<td>every other authored file</td>
+<td>authored</td>
+<td>one owner, from the Tracks table</td>
+<td>the owner only</td>
+</tr>
+</tbody></table></div>
+<h2>Tracks</h2>
+<p>Boxes are 3 × a measured prior of the same class (Ruling 54 P1), from <code>area3-analysis.md</code> §18.1 where the design gives
+one. Measured actual-to-box ratios on the last build ran 0.18–1.23, median 0.36. Every coding brief: foreground only,
+a Return section, two repair cycles, <code>AGENT_SESSION</code> exported, Codex with <code>&lt; /dev/null</code>, <code>CFD_TEST_ONLY=&lt;name&gt;</code> inner
+loop, the full <code>tools/run-tests.sh</code> <strong>once</strong> before the Return, a red-first receipt in <code>docs/proof/&lt;trk&gt;/red-first.md</code>.
+A track that finds a data source outside its ownership <strong>stops and sends a seam request</strong>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>owns (authored)</th>
+<th>depends on</th>
+<th>tier</th>
+<th>fan-out cap</th>
+<th>budget</th>
+<th>exit evidence</th>
+<th>harness</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>A</strong> tip study (running: <code>wf_2c98fb91-cac</code>)</td>
+<td><code>docs/plans/tip-handling.md</code> (new) on branch <code>design/tip-handling</code></td>
+<td>—</td>
+<td>T1</td>
+<td>3 agents at once (Sonnet ×3 → Opus ×3 → Fable → Fable → Opus)</td>
+<td>9 agents; ~1–2 h wall (Inferred)</td>
+<td>the proposal committed with V2 frontmatter; its decision requests filed to the operator; workflow journal shows which agents fell back</td>
+<td>Workflow (Claude; enforcing per S5, not re-measured)</td>
+</tr>
+<tr>
+<td><strong>B1</strong> RNG (checkpoint 1 of B)</td>
+<td><code>tools/run-tests.sh</code> (design C-1 millisecond clocks); <code>tools/check-test-costs.py</code> (new, C-2…C-6 + <code>--self-test</code>); <code>WorkbenchTests.cs</code> scheduling region (:380–560) only if its measurement needs it</td>
+<td>— (dispatched after the baseline profile)</td>
+<td>T1</td>
+<td>1</td>
+<td><strong>60 min</strong> (design §18.2 RNG)</td>
+<td>design §18.2 RNG exit: <code>check-test-costs.py --self-test</code> red on each failing input of the §13.4 table, then green; C-1…C-6 run inside every join; a <strong>diff of every threshold constant</strong> in the join shows none loosened</td>
+<td>Sonnet sub-agent; owner seat <code>trk-b-&lt;id&gt;</code> recorded in the delegation contract at dispatch</td>
+</tr>
+<tr>
+<td><strong>B2</strong> fast ring under concurrent load + Ruling 81 (checkpoint 2 of B)</td>
+<td><code>tools/run-tests.sh</code> (after B1 joins); <code>View3dTests.cs</code> <code>Readiness_OrbitFrameP95Under33Ms</code> block (:721–750); <code>PlanCanvasTests.cs</code> <code>Readiness_WindowRenderPlan3d_Under33Ms</code> block (:1316–); <code>docs/coordination/join.json</code> ring entries; <code>docs/plans/test-cost.md</code>; <code>docs/proof/ring-oct05/</code></td>
+<td>B1</td>
+<td>T1</td>
+<td>1</td>
+<td><strong>120 min</strong></td>
+<td><strong>Baseline (Verified, this run, 3 runs at idle start):</strong> wall 57 / 51 / 50 s inside the 60 s budget; build 5 / 1 / 0 s; Desktop 51 / 50 / 50 s (the long pole — not Core: Core parts 38–40 s); Analysis 3–4 s; Cli 1–2 s; the ring alone drives load 1.6 → 19 on 16 CPUs. The handoff&#39;s ~80 s is the ring <strong>beside another heavy job</strong>. Exit: the ring ≤ 60 s on 3 runs with one concurrent heavy job (a second <code>dotnet build</code> of the solution in another tree), or a stop with the numbers; profile table committed; <strong>no check dropped</strong> (before/after <code>PASS</code> name sets identical) and <strong>no threshold loosened</strong> (constants diff); every ring move states its ring and cost and test-architect clears it. Ruling 81: a planted slow frame <strong>fails at low load</strong> and <strong>prints READINESS-MISS with the load (never PASS) at high load</strong>; the threshold comes from measured data</td>
+<td>Sonnet sub-agent (or Codex <code>gpt-6-sol</code>); owner seat recorded at dispatch</td>
+</tr>
+<tr>
+<td><strong>C</strong> copy markers + small findings</td>
+<td><code>DESIGN.md</code> §7 marker text of COPY-206…217, 221…240 only; <code>docs/design/m12d-catalog.md</code> §11.2 COPY-200…203; <code>tests/CfdWorkbench.Analysis.Tests/LabelsTests.cs</code>; <code>cases/tools/security-probe.sh</code> + its sha256 pin; <code>tools/check-docs.py</code> (STORE-SUBSET static check); <code>src/CfdWorkbench.Analysis/AnalysisService.cs</code> (linked-CTS leak, :201–215 only); <code>ServiceTests.cs</code> (IsFaulted tautology, CLI-vs-GUI key check); <code>src/CfdWorkbench.Cli/Program.cs</code> (<code>inspect --runs</code> RevisionOf); <code>LatticeFixtureTests.cs</code> F-4 helper only</td>
+<td>— ; <strong>joins before D1 or D2 edit <code>Labels.cs</code>, <code>AnalysisProjection.cs</code>, <code>LabelsTests.cs</code> or <code>AnalysisService.cs</code></strong></td>
+<td>T0</td>
+<td>1</td>
+<td><strong>60 min</strong></td>
+<td>each item: a test red on the defect then green (marker flip: LabelsTests reads &quot;approved&quot; for the approved ids and still &quot;proposed — awaiting operator&quot; for 218–220); <code>check-docs</code> green with a planted STORE-SUBSET violation red; security probe: a planted change to a probed path is reported red, then green on the clean tree (behaviour, not the re-pinned hash)</td>
+<td>Agy <code>gemini-3.8-flash-high</code> for the pure-code items (bounded; observed-only; exit 0 is not a result) else Sonnet; owner seat recorded at dispatch</td>
+</tr>
+<tr>
+<td><strong>E2</strong> CAD defects</td>
+<td><code>WorkbenchController.cs</code> (FLK-1 lines only: :185, :726–778) and <code>SectionEditorView.axaml.cs</code> (FLK-1 state-reason lines); <code>src/CfdWorkbench.Core/FoilSource.cs</code> (<code>MakeIndependent</code> with a tangent row); their tests</td>
+<td>— ; <strong>the FLK-1 commit joins before TGL is dispatched</strong>; the <code>MakeIndependent</code> fix may join after (it is off TGL&#39;s path)</td>
+<td>T0</td>
+<td>1</td>
+<td><strong>90 min</strong> (two fixes; DSP prior 31 × 3)</td>
+<td><code>MakeIndependent_TangentRow_NoDslPatch</code> red then green; FLK-1: a refused step never shows Finish &quot;Checking…&quot; (test red then green)</td>
+<td>Grok <code>grok-4.7</code> (observed-only); owner seat recorded at dispatch</td>
+</tr>
+<tr>
+<td><strong>TGL</strong> toggle, conditions band, status</td>
+<td>as <code>area3-analysis.md</code> §18.2 row TGL (WorkbenchController, PropertiesView <code>ShellMode</code> block, ModelArea, ConditionsBand, CurvePointLayer, CommandTable, NativeMenuBuilder, StatusStrip, AnalysisToggleTests, theme rows, event allow-list lines)</td>
+<td><strong>B1</strong> (not B2), E2&#39;s FLK-1 join, PRJ ✓, SVC ✓, PVU ✓ (<code>1bf1fe3</code>)</td>
+<td>T1</td>
+<td>1</td>
+<td><strong>141 min</strong></td>
+<td>§18.2 TGL exit: TGL names PASS (<code>check-named-tests.py TGL --design docs/design/area3-analysis.md --track-section &quot;### 18.2&quot; --named-sections &quot;### 18.8&quot;</code>); BC-1 for ANA-22; UX-29 S1 row; planted mutant (toggle refits the Plan camera) red</td>
+<td>Codex <code>gpt-6-sol</code> (observed-only); owner seat recorded at dispatch</td>
+</tr>
+<tr>
+<td><strong>LAY</strong> layers on the views</td>
+<td>as §18.2 row LAY</td>
+<td>TGL</td>
+<td>T1</td>
+<td>1</td>
+<td><strong>141 min</strong></td>
+<td>§18.2 LAY exit; <code>Readiness_CameraStep_NoPaneRefresh_Under8Ms</code> green with layers on</td>
+<td>Codex <code>gpt-6-sol</code></td>
+</tr>
+<tr>
+<td><strong>PNA</strong> panes and bottom panel</td>
+<td>as §18.2 row PNA</td>
+<td>TGL</td>
+<td>T1</td>
+<td>1</td>
+<td><strong>147 min</strong></td>
+<td>§18.2 PNA exit; <code>verify-application-core.py</code>, <code>verify-application-adapters.py</code> exit 0</td>
+<td>Sonnet sub-agent (design named Opus; Sonnet per the operator&#39;s model split; Opus reviews)</td>
+</tr>
+<tr>
+<td><strong>AUX</strong> A3a review, polish, Proof Pack</td>
+<td>as §18.2 row AUX</td>
+<td>LAY, PNA, C (DESIGN.md)</td>
+<td>T1</td>
+<td>1</td>
+<td><strong>90 min</strong></td>
+<td>§18.2 AUX exit; nine screens captured from the packaged app vs the approved mockup; hydrodynamicist re-review; readiness green for the A3a head; <strong>operator demo</strong> (§16 gate)</td>
+<td>Claude persona reviewers (Opus)</td>
+</tr>
+<tr>
+<td><strong>D1</strong> A3b numerics</td>
+<td><code>src/CfdWorkbench.Analysis/PanelMethod.cs</code>, <code>Cavitation.cs</code> (new); <code>tests/CfdWorkbench.Analysis.Tests/PanelCpTests.cs</code>, <code>CavitationTests.cs</code> (new); their <code>AnalysisChecks.cs</code> lines; <code>docs/proof/a3b/</code>; <strong>after C joins:</strong> the cavitation screen string in <code>Labels.cs</code>, the section-tier projection in <code>AnalysisProjection.cs</code>, their rows in <code>LabelsTests.cs</code> / <code>ProjectionTests.cs</code></td>
+<td>— for the numerics; C for the label/projection files</td>
+<td>T1</td>
+<td>1</td>
+<td><strong>216 min</strong> (SPT 72 × 3)</td>
+<td>the <strong>six</strong> design §13.3 A3b names (:755–760) each print <code>PASS &lt;name&gt;</code> in <code>.tmp-tests/Analysis.log</code> — <code>PanelCp_KarmanTrefftz_100_200_400</code>, <code>Cavitation_ScreenString_NamesStationCount</code>, <code>Cavitation_Margin15Percent_Applied</code>, <code>Cavitation_NegCpMinNonPositive_Undefined</code>, <code>Cavitation_PvOrDepthMissing_Unavailable</code>, <code>Cavitation_GoverningStation_AtAlphaEffAndLocalDepth</code> (the coordinator greps each line; a missing line is red, so a never-registered test cannot pass vacuously); planted mutants from the design (TE panel dropped; N omitted; margin ignored; α_geo and h_ref used) red; CFD-V&amp;V and hydrodynamicist reviews clear</td>
+<td>Codex <code>gpt-6-sol</code>; owner seat recorded at dispatch</td>
+</tr>
+<tr>
+<td><strong>D2</strong> SPIKE-ANA-1 → A3c numerics</td>
+<td>spike: <code>docs/proof/spike-ana-1/**</code> (probe, CSVs, verdict). On GO and clearance: <code>src/CfdWorkbench.Analysis/NeuralFoil*.cs</code> + weights resource (new), the <code>IPolarSource</code> implementation, profile drag at both Ncrit in <code>StripCoupler.cs</code>, Total drag in <code>Loads.cs</code>, Find α (ANA-05, new file), the A5.2 correction layer, the polar wiring in <code>AnalysisService.cs</code> (after C joins), polar labels in <code>Labels.cs</code> / <code>AnalysisProjection.cs</code> (after D1&#39;s label commit joins); F-13b and the A3c test files</td>
+<td>spike: — ; A3c build: spike GO <strong>and</strong> the licence ruling below</td>
+<td>T2</td>
+<td>1</td>
+<td>spike <strong>120 min</strong> (GSPK box); A3c <strong>216 min</strong></td>
+<td>spike verdict with: port fidelity C# vs Python ≤ ~10⁻⁶; accuracy vs XFOIL on NACA 0012, Re 10⁶ and 2 × 10⁵, Ncrit 2/4/9 (Cl ± 0.02, ln Cd ± 0.03); licence, CST residual and model size reported. <strong>Licence:</strong> security-identity-architect reviews the weights&#39; licence and the ship route (A8.5); shipping third-party weights is outward-facing, so it goes to the <strong>operator</strong> as a decision request; the A3c build does not start until it is ruled. A3c names each print <code>PASS &lt;name&gt;</code>: <code>FindAlpha_TargetCL_RootWithinTolerance</code>, <code>FindAlpha_NoRoot_UnavailableWithReason</code> (:766), F-13b (§13.2, :653), <code>Station_StripReadout_ReAgainstPolarRange</code> (:799, now with a real polar); planted mutants from the design red</td>
+<td>Codex <code>gpt-6-sol</code> for the port; Python oracle in the <code>~/dev/sim</code> venv; owner seat recorded at dispatch</td>
+</tr>
+<tr>
+<td><strong>DX</strong> section and polar displays</td>
+<td>the A3b Section tab and A3c polar/drag views in PNA&#39;s <code>Analysis/</code> files (handed over at PNA&#39;s join); their Desktop tests; <strong>after AUX joins:</strong> new COPY rows appended to <code>DESIGN.md</code> §7 marked &quot;proposed — awaiting operator&quot; and any <code>Styles.axaml</code> tokens</td>
+<td>PNA, D1, <strong>AUX</strong> (for <code>DESIGN.md</code> and <code>Styles.axaml</code>); D2&#39;s A3c for the polar part</td>
+<td>T1</td>
+<td>1</td>
+<td><strong>147 min</strong> (PNL 49 × 3)</td>
+<td>step 1: a check that every A3b/A3c screen state is in the approved mockup (<code>docs/mockups/area3-analysis.html</code> rev 3); any state not in it is rendered and shown to the operator <strong>before</strong> its UI build; step 2: <strong>DX&#39;s test names listed and cleared by the test-architect before the build</strong> (including <code>Charts_TransitionAndBucket_Overlays</code>, :771); exit: each listed name prints <code>PASS &lt;name&gt;</code>; ux-accessibility review; <code>python3 tools/run-readiness.py --check</code> green for the DX head</td>
+<td>Sonnet sub-agent or Grok; owner seat recorded at dispatch</td>
+</tr>
+<tr>
+<td><strong>E3</strong> next CAD increment proposal</td>
+<td><code>docs/design/&lt;next-cad-increment&gt;.md</code> (new, V2 frontmatter) and its mockup under <code>docs/mockups/</code></td>
+<td>E1 (the operator&#39;s native review) informs it; not blocked by it</td>
+<td>T1</td>
+<td>1</td>
+<td><strong>90 min</strong></td>
+<td>a design note naming the unbuilt CAD-<em>/GEO-</em> rows it closes, the smallest increment, and a rendered mockup; <code>python3 tools/check-docs.py</code> exit 0 with the new node in <code>docs/docs-index.js</code>; marine-cad-ux-expert review; operator sees the mockup before any build</td>
+<td>Opus persona agents (marine-cad-ux-expert lead); owner seat recorded at dispatch</td>
+</tr>
+</tbody></table></div>
+<p><strong>E1</strong> (the operator&#39;s native review of M1.2d with the packaged app) is not a track: it is operator time. Its findings
+become E2-class fixes, scheduled by ownership at the time they arrive.</p>
+<h2>Serial spine</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>item</th>
+<th>why it cannot be parallel</th>
+<th>who owns it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>B&#39;s baseline profile</td>
+<td>it measures timing; any other build on the machine changes the answer (GO5 c: the CPU is a shared exclusive resource)</td>
+<td>Coordinator inline, before any coding dispatch — <strong>done 2026-10-05</strong> (B2 row)</td>
+</tr>
+<tr>
+<td>B1 → TGL</td>
+<td>design §18.2: TGL depends on RNG; RNG owns <code>run-tests.sh</code> and the WorkbenchTests scheduling region that TGL&#39;s readiness row lands in. Only B1 (RNG) gates TGL; B2 runs beside TGL</td>
+<td>B1, then TGL</td>
+</tr>
+<tr>
+<td>E2 (FLK-1) → TGL</td>
+<td>FLK-1 is in <code>WorkbenchController.cs</code> (<code>SectionChecking</code>, :185, :726–778), which TGL owns; two authors of one file fail GO5 (a)</td>
+<td>E2&#39;s FLK-1 commit joins first</td>
+</tr>
+<tr>
+<td>TGL → LAY ∥ PNA → AUX</td>
+<td>design §18.4 order; TGL fixes the area state and <code>ShellMode</code> both read</td>
+<td>as design</td>
+</tr>
+<tr>
+<td>PNA → DX</td>
+<td>DX fills PNA&#39;s panes; the pane shape is PNA&#39;s interface (GO5 a)</td>
+<td>PNA, then DX</td>
+</tr>
+<tr>
+<td>C → AUX → DX on <code>DESIGN.md</code> (and AUX → DX on <code>Styles.axaml</code>)</td>
+<td>C flips markers; AUX then owns component rows and tokens; DX appends COPY rows and any tokens <strong>after AUX joins</strong>. One writer at a time, in this order</td>
+<td>C, AUX, DX</td>
+</tr>
+<tr>
+<td>C → D1/D2 on <code>Labels.cs</code>, <code>AnalysisProjection.cs</code>, <code>LabelsTests.cs</code>, <code>AnalysisService.cs</code></td>
+<td>C edits <code>LabelsTests.cs</code> and <code>AnalysisService.cs</code>; D1 and D2 need those files plus the projection for their labels and wiring. D1&#39;s numerics files do not wait</td>
+<td>C, then D1&#39;s label commit, then D2&#39;s</td>
+</tr>
+<tr>
+<td>SPIKE-ANA-1 → A3c build</td>
+<td>a decision edge (GO5 b): NO-GO changes the whole A3c shape</td>
+<td>D2</td>
+</tr>
+<tr>
+<td>every move of <code>main</code></td>
+<td>one leader; readiness green for that HEAD; reclaim the designation first</td>
+<td>Leader</td>
+</tr>
+<tr>
+<td>heavy test runs</td>
+<td>at most 2 at once on this laptop (fast ring and 3D frame checks fail under load; readiness went 1.79 → 7.04 load by itself)</td>
+<td>Coordinator staggers the full-ring runs and joins</td>
+</tr>
+</tbody></table></div>
+<h2>Seams</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>from -&gt; to</th>
+<th>the request</th>
+<th>resolved by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>C -&gt; AUX -&gt; DX</td>
+<td><code>DESIGN.md</code> §7 markers flipped first; AUX&#39;s component rows and tokens next</td>
+<td>C joins before AUX edits <code>DESIGN.md</code>; DX edits <code>DESIGN.md</code> and <code>Styles.axaml</code> only after AUX joins; a token DX needs earlier is a seam request to AUX</td>
+</tr>
+<tr>
+<td>C -&gt; D1, D2</td>
+<td><code>LabelsTests.cs</code>, <code>AnalysisService.cs</code></td>
+<td>C joins before D1&#39;s label commit and D2&#39;s service wiring</td>
+</tr>
+<tr>
+<td>E2 -&gt; TGL</td>
+<td><code>WorkbenchController.cs</code> FLK-1 lines</td>
+<td>E2 joins before TGL dispatch; TGL rebases</td>
+</tr>
+<tr>
+<td>B1, B2 -&gt; every track</td>
+<td>the fast ring&#39;s new shape (<code>run-tests.sh</code>, parts, cost checks)</td>
+<td>each joins; later tracks run the new ring; a track already in flight rebases at its join</td>
+</tr>
+<tr>
+<td>D1, D2, C -&gt; <code>AnalysisChecks.cs</code></td>
+<td>one registration line each</td>
+<td>append; the second to merge rebases</td>
+</tr>
+<tr>
+<td>D2 (A3c) -&gt; STP files</td>
+<td>profile drag in <code>StripCoupler.cs</code>, Total drag in <code>Loads.cs</code></td>
+<td>D2 owns those regions during A3c; no other track touches them this round</td>
+</tr>
+<tr>
+<td>D2 -&gt; A (tip)</td>
+<td>how the tip verdict uses a real section envelope</td>
+<td>Track A&#39;s proposal states it; any tip code waits for the operator&#39;s ruling</td>
+</tr>
+<tr>
+<td>PNA -&gt; DX</td>
+<td>Section tab and polar view hosts</td>
+<td>PNA hands over the <code>Analysis/</code> pane files at its join</td>
+</tr>
+<tr>
+<td>LAY -&gt; PNA</td>
+<td>a theme row LAY needs (design S-A9)</td>
+<td>seam request to PNA</td>
+</tr>
+<tr>
+<td>any -&gt; Owner</td>
+<td>a decision request</td>
+<td><code>coord-decide.py request --to &lt;Fable owner seat&gt;</code>; spec/copy/mockup items go to the operator, batched</td>
+</tr>
+</tbody></table></div>
+<p><strong>Joint satisfiability of shared surfaces (GO14a).</strong> <code>AnalysisChecks.cs</code>: the scan is <code>tools/check-named-tests.py</code>
+over the design&#39;s §18.8 / §13.3 names (root <code>tests/</code>, recursive, token <code>PASS &lt;name&gt;</code>, allowlist none); appending a line
+never removes a name, so all three appenders satisfy it jointly. <code>DESIGN.md</code>: C edits only marker suffixes on existing
+rows; <code>LabelsTests</code> (C&#39;s own guard) reads row text + marker; AUX&#39;s and DX&#39;s edits add rows or component sections and
+leave existing COPY rows&#39; text intact, so C&#39;s guard stays green after them. <code>WorkbenchTests.cs</code>: B&#39;s scheduling region
+and TGL&#39;s registration row are disjoint line ranges (S-A8).</p>
+<h2>Struck tracks</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>why it was not worth its multiplier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>RNG as its own track</td>
+<td>operator folded it into B (2026-10-05); both own <code>run-tests.sh</code>, so separate tracks would be two authors of one file</td>
+</tr>
+<tr>
+<td>Ruling 81 as its own track</td>
+<td>same files as B&#39;s ring work (the two readiness checks); merged into B</td>
+</tr>
+<tr>
+<td>A3b UI and A3c UI as two tracks</td>
+<td>both fill PNA&#39;s panes in sequence; one track (DX) holds the pane files once</td>
+</tr>
+<tr>
+<td>C split into &quot;copy&quot; and &quot;findings&quot;</td>
+<td>each part is under 30 min; two sessions would double context load for no isolation gain</td>
+</tr>
+<tr>
+<td>LAY merged into PNA</td>
+<td>not struck: the design runs them in parallel on disjoint files (§18.4), and both are ≥ 140 min boxes</td>
+</tr>
+</tbody></table></div>
+<p><strong>Cost.</strong> An orchestrator-worker round costs roughly 15× a single session in tokens (GO6). This round pays it for
+<strong>genuine independence</strong> (D1, D2 numerics vs the UI chain share no files), <strong>machine time</strong> (D2&#39;s spike and Track A run
+unattended), <strong>context hygiene</strong> (each UI track carries its own §18 trace), and <strong>isolation</strong> (B&#39;s profiling). The
+UI chain itself is serial; its width is 2 only at LAY ∥ PNA.</p>
+<h2>Order of operations</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>action</th>
+<th>cost</th>
+<th>why now</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Track A runs (launched before this plan)</td>
+<td>9 agents, no builds</td>
+<td>docs-only; no contention</td>
+</tr>
+<tr>
+<td>2</td>
+<td>B baseline profile, Coordinator inline, quiet machine</td>
+<td>~3 min — <strong>done</strong> (B2 row)</td>
+<td>must precede any coding dispatch</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Commit and join this plan (readiness green)</td>
+<td>~5 min</td>
+<td>the briefs cite it</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Dispatch wave 1 (≤ 3 coding): <strong>B1</strong> (Sonnet), <strong>E2</strong> (Grok, FLK-1 first), <strong>C</strong> (Agy)</td>
+<td>boxes 60 / 90 / 60</td>
+<td>B1 and E2 gate TGL; C gates D1&#39;s labels, D2&#39;s wiring, AUX and DX on <code>DESIGN.md</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td>As slots free: <strong>D1</strong> numerics (Codex), <strong>D2 spike</strong> (Codex)</td>
+<td>216 / 120</td>
+<td>independent of the UI chain; the spike is a decision edge for A3c</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Join E2 (FLK-1), B1, C as each clears review (readiness green; reclaim leader; ff + push)</td>
+<td>per join ~5 min + readiness ~2 min</td>
+<td>TGL needs E2 + B1</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Dispatch <strong>TGL</strong> (Codex) and <strong>B2</strong> (Sonnet)</td>
+<td>141 / 120</td>
+<td>TGL is the critical path; B2 is off it</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>E3</strong> proposal (Opus personas, docs only) whenever a Claude slot is free; operator&#39;s <strong>E1</strong> review any time</td>
+<td>90</td>
+<td>not on any build path</td>
+</tr>
+<tr>
+<td>9</td>
+<td>On TGL join: <strong>LAY</strong> (Codex) ∥ <strong>PNA</strong> (Sonnet)</td>
+<td>141 / 147</td>
+<td>design §18.4</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Spike verdict → GO: licence review → operator ruling → <strong>A3c</strong> build (Codex); NO-GO: options to the operator</td>
+<td>216</td>
+<td>decision edge</td>
+</tr>
+<tr>
+<td>11</td>
+<td>On LAY + PNA + C: <strong>AUX</strong> and the operator demo</td>
+<td>90</td>
+<td>design §16 gate</td>
+</tr>
+<tr>
+<td>12</td>
+<td>On PNA + D1 + AUX (+ A3c for the polar part): <strong>DX</strong> — mockup check, test names cleared, operator approval for missing states, then build</td>
+<td>147</td>
+<td>needs the panes and AUX&#39;s <code>DESIGN.md</code>/<code>Styles.axaml</code></td>
+</tr>
+<tr>
+<td>13</td>
+<td>Close: Completed / Remaining / Next, planned vs actual per track, one list of open operator decisions</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody></table></div>
+<p><strong>Critical path (Inferred from boxes):</strong> B1 60 → TGL 141 → PNA 147 → AUX 90 → DX 147 ≈ 585 min of boxes; at the
+measured median ratio 0.36, ≈ 3.5 h. Splitting B moved 120 box-minutes off the path; serialising DX after AUX put 90
+back on it, which is the price of one writer on <code>DESIGN.md</code>.</p>
+<h2>Review record (Stage 8 DISCONFIRM)</h2>
+<p>Reviewer: test-architect + the-simplifier persona (Sonnet sub-agent, Adversary Mode), 2026-10-05, read the plan and
+<code>area3-analysis.md</code>. Verdict <strong>CLEAR WITH CONDITIONS</strong>; all nine findings applied in this revision:
+(1) D1/D2/DX name checks could pass vacuously → explicit name lists, each line grepped as <code>PASS &lt;name&gt;</code>; DX names cleared
+before build · (2) &quot;six <code>Cavitation_*</code>&quot; was wrong → five plus <code>PanelCp</code> · (3) unowned <code>Labels.cs</code> /
+<code>AnalysisProjection.cs</code> / service wiring → assigned to D1/D2 after C · (4) <code>DESIGN.md</code> order contradicted itself → strict
+C → AUX → DX, <code>Styles.axaml</code> seam · (5) TGL over-serialised on all of B → B split into B1/B2 · (6) contention spot-checks
+confirmed · (7) weak exits → security-probe behaviour, E3 <code>check-docs</code>, Ruling 81 high-load MISS, thresholds diff ·
+(8) owner seat per row recorded at dispatch · (9) licence clearance owner → security review, then the operator.
+Simplifier: no track struck; E2&#39;s <code>MakeIndependent</code> fix decoupled from the TGL gate; E3 kept because the operator asked
+for CAD next steps.</p>
+<p><strong>Termination.</strong> Each track ends at its exit evidence, at its box (a box firing is a defect signal and stops the
+track with a report), or at its second failed repair cycle. A decision request ends at its deadline through its
+fallback. The round ends when the prompt&#39;s done-when list is met or every remaining item is waiting on the operator.</p>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>6ba3edb60677ac578928b4a17d40c4aee030af768999918c2e622105810bf09a</code>.</p></footer></main></body></html>

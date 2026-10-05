@@ -6363,7 +6363,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "02b6e8637401c11c67361409ec09f845bea34c300a0b99206badf5d30c8a7e9a"
+      "sourceSha256": "f94e8c6549c7f6edc0485cc2e1f2c7cd139e32f5f48e4eea07f421200a5469fe"
     },
     {
       "id": "kb-hw-glossary",
@@ -7949,6 +7949,61 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "00f11106030f8afe3b2eb66526a744b92064898ecc9bf5d4e6a502dd4d6348b3"
+    },
+    {
+      "id": "coordination-round-oct05",
+      "path": "docs/coordination/round-oct05.md",
+      "title": "Coordination plan - round of 2026-10-05 (tip study, fast ring, A3a UI, A3b, A3c polars, CAD)",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@cfd-leader-4e90c621",
+      "phase": "",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Schedules the operator-approved round of 2026-10-05: the Fable tip study (A, running), the fast ring with RNG and Ruling 81 (B), copy markers and small findings (C), the never-built A3a desktop UI (TGL, LAY, PNA, AUX as design section 18 cuts it), A3b section numerics (D1), SPIKE-ANA-1 then A3c polars (D2), the section and polar displays (DX) and CAD fixes plus the next CAD increment (E) - at most 3 coding tracks and 2 heavy test runs at once.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "analysis",
+        "a3a",
+        "a3b",
+        "a3c",
+        "test-ring",
+        "cad"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-m12b-build",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6ba3edb60677ac578928b4a17d40c4aee030af768999918c2e622105810bf09a"
     },
     {
       "id": "coordination-windows-runtime-route",
@@ -12817,6 +12872,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-m12b-build"
     },
     {
+      "id": "surface-coordination-round-oct05",
+      "path": "docs/coordination/round-oct05.html",
+      "title": "CFD-Workbench — coordination plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-round-oct05"
+    },
+    {
       "id": "surface-specs-cfd-workbench-v1",
       "path": "docs/specs/cfd-workbench-v1.html",
       "title": "CFD-Workbench — Product specification",
@@ -12953,5 +13016,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "7b1e9ca67600feeaaf57385904e5400eaf76eb58bdbf118400cf1995575f0565"
+  "graphSha256": "afbd0d9a4d322229d1e0b57131344d0eac1bb843753a3f604b9a8a390d5b2b89"
 };
