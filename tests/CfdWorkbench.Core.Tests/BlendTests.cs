@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using CfdWorkbench.Core;
 using static CfdWorkbench.Core.Tests.IdentityTests;
@@ -68,6 +69,44 @@ internal static class BlendTests
                 .Replace("(.375,-.09375)", "(.5,-.09375)", StringComparison.Ordinal);
             Equal(GeometryStatus.Unsupported, Geometry.Assess(Prepared(source)).Status);
         });
+        Check("Blend_EqualMaximum_EarlierPendingNodeSplitsFirst", () =>
+        {
+            // Both spans have maximum 1. Their different coefficients make the first split's bit-work observable.
+            Rational[][] first = [[0, 1, 0], [0, 1, (Rational)1 / 1024]];
+            Rational[][] reversed = [first[1], first[0]];
+            long OneSplit(Rational[][] spans)
+            {
+                var watch = new ProofBudget();
+                try { Bernstein.Maximum(spans, watch, 1); }
+                catch (ProofRefusal refusal) when (refusal.Message == "Maximum enclosure node budget exhausted.") { return watch.Spent; }
+                throw new InvalidOperationException("One split must exhaust the node budget.");
+            }
+            long firstWork = OneSplit(first), reverseWork = OneSplit(reversed);
+            Equal(352L, firstWork);
+            Equal(434L, reverseWork);
+            Equal(true, Geometry.BlendSpanLimit() >= 27);
+        });
+        Check("Blend_FourDifferingStations_Certify_SevenRefusedByOperations", () =>
+        {
+            var four = Geometry.Assess(Prepared(DifferingStations(4)));
+            Equal(GeometryStatus.Certified, four.Status);
+            Equal(true, four.Certificate!.QueryFeasibility.RationalOperationsUpper <= 1_000_000);
+            var seven = Geometry.Assess(Prepared(DifferingStations(7)));
+            Equal(GeometryStatus.NotAssessed, seven.Status);
+            Equal(Geometry.OperationBoundCode, seven.Code);
+        });
+        Check("Blend_MakeUniqueThreeDiffering_DraftCertifies", () =>
+        {
+            string source = ReplaceProfiles(ProfileVariant(0) + ProfileVariant(1) + ProfileVariant(2),
+                "at root profile \"section-0\" at 25 % profile \"section-0\" at 50 % profile \"section-1\" at tip profile \"section-2\"");
+            using var session = new AuthoringSession();
+            session.Open(Encoding.UTF8.GetBytes(source), SectionDraftTests.Id(), true);
+            string id = SectionDraftTests.Id();
+            var view = session.BeginSectionDraft(id, 0);
+            view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
+            Equal(4, FoilSource.Parse(view.Bytes).Definition!.Profiles.Length);
+            Equal(GeometryStatus.Certified, session.AssessSection(id, view.Generation, CancellationToken.None).Status);
+        });
     }
 
     // Symmetric degree-5 Bézier thickness peaks at t=1/2, and these x controls put that parameter at x=1/2.
@@ -91,6 +130,23 @@ internal static class BlendTests
         "[(0,0),(.125,.078125),(.375,.15625),(.625,.15625),(.875,.078125),(1,0)]",
         "[(0,0),(.125,-.046875),(.375,-.09375),(.625,-.09375),(.875,-.046875),(1,0)]");
     private static string Cambered() => ReplaceProfiles(ProfileA() + ProfileB(), "at root profile \"section-a\" at tip profile \"section-b\"");
+    private static string DifferingStations(int count)
+    {
+        double[] positions = count switch { 3 => [0, 50, 100], 4 => [0, 25, 50, 100], 7 => [0, 12.5, 25, 37.5, 50, 75, 100], _ => throw new ArgumentOutOfRangeException(nameof(count)) };
+        string[] assignments = Enumerable.Range(0, count).Select(index =>
+            "at " + (index == 0 ? "root" : index == count - 1 ? "tip" : positions[index].ToString(CultureInfo.InvariantCulture) + " %") +
+            " profile \"section-" + index.ToString(CultureInfo.InvariantCulture) + "\"").ToArray();
+        return ReplaceProfiles(string.Concat(Enumerable.Range(0, count).Select(ProfileVariant)), string.Join(" ", assignments));
+    }
+
+    private static string ProfileVariant(int index)
+    {
+        double shoulder = .0625 + index * .0078125, peak = 2 * shoulder;
+        string Number(double value) => value.ToString("0.########", CultureInfo.InvariantCulture);
+        return Profile("section-" + index.ToString(CultureInfo.InvariantCulture),
+            "[(0,0),(.125," + Number(shoulder) + "),(.375," + Number(peak) + "),(.625," + Number(peak) + "),(.875," + Number(shoulder) + "),(1,0)]",
+            "[(0,0),(.125," + Number(-shoulder) + "),(.375," + Number(-peak) + "),(.625," + Number(-peak) + "),(.875," + Number(-shoulder) + "),(1,0)]");
+    }
     private static string Only(string which) => which == "a"
         ? ReplaceProfiles(ProfileA(), "at root profile \"section-a\" at tip profile \"section-a\"")
         : ReplaceProfiles(ProfileB(), "at root profile \"section-b\" at tip profile \"section-b\"");
