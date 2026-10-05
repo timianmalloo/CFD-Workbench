@@ -3,6 +3,7 @@
 
 import json
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
@@ -115,8 +116,45 @@ def check_join_rings():
     print("join rings ok: tests every join, slow gates and recounts at readiness", flush=True)
 
 
+STORE_TESTS = ROOT / "tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs"
+STORE_TEST_FILES = (
+    STORE_TESTS,
+    ROOT / "tests/CfdWorkbench.Core.Tests/LayoutFileTests.cs",
+    ROOT / "tests/CfdWorkbench.Core.Tests/PreferenceStoreTests.cs",
+    ROOT / "tests/CfdWorkbench.Core.Tests/SectionLibraryTests.cs",
+)
+STORE_PREFIXES = ("Store_", "NativePrimitive_",
+                   "LayoutParse_", "LayoutCodec_", "RecentParse_",
+                   "LayoutLoad_", "Rollback_", "PrefStore_", "PrefsSave_", "LayoutSave_",
+                   "Recent_", "StoreContract_", "Backup_", "Library_")
+SENSITIVE = re.compile(r"\bFile\.(?!ReadAll(?:Bytes|Text)\b)|\bDirectory\.(?!(?:EnumerateFiles|GetFiles)\b)|\bFileStream\b|\bFileInfo\b|GetTempPath"
+                       r"|GetEnvironmentVariable|DllImport|LibraryImport|\bProjectStore\b"
+                       r'|(?<!InternalsVisibleTo\(")CfdWorkbench\.Persistence')
+PARTITION_EXEMPT = {path.name for path in STORE_TEST_FILES} | {"IdentityTests.cs"}
+
+
+def check_store_subset():
+    """STORE-SUBSET: the umask partition rule caught statically instead of waiting for readiness."""
+    for file in STORE_TEST_FILES:
+        source = file.read_text(encoding="utf-8")
+        file_names = re.findall(r'\bCheck\("([^"]+)"', source)
+        stray = [name for name in file_names if not name.startswith(STORE_PREFIXES)]
+        if not file_names or stray or len(file_names) != len(re.findall(r"\bCheck\(", source)):
+            raise SystemExit(f"STORE-SUBSET: every check in {file.name} needs a literal name "
+                             f"starting with one of {STORE_PREFIXES}; found {len(file_names)}, stray {stray}")
+    others = [path for path in sorted(STORE_TESTS.parent.glob("*.cs")) if path.name not in PARTITION_EXEMPT]
+    others += sorted((ROOT / "src/CfdWorkbench.Core").glob("*.cs"))
+    leaks = [f"{path.parent.name}/{path.name}:{number}" for path in others
+             for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1) if SENSITIVE.search(line)]
+    if leaks:
+        raise SystemExit(f"STORE-SUBSET: umask/native-sensitive code outside {STORE_TEST_FILES} would run at one "
+                         f"umask only; move it into the store checks or widen the subset: {leaks}")
+    print("store subset ok: umask partition holds statically", flush=True)
+
+
 def main():
     check_join_rings()
+    check_store_subset()
     run(ROOT / "tools" / "check-pack-hooks.py")
     run(ROOT / "tools" / "check-rollup-links.py")
     run(ROOT / "tools" / "coordination" / "check-process-match.py")
