@@ -98,12 +98,16 @@ internal static class LabelsTests
     {
         string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
         foreach (int id in Enumerable.Range(206, 34))
-            Equal(true, design.Contains("| COPY-" + id + " |") && design.Contains("proposed — awaiting operator"), "COPY-" + id);
+        {
+            string marker = (id >= 218 && id <= 220) ? "proposed — awaiting operator" : "approved — Ruling 82";
+            string? row = design.Split('\n').FirstOrDefault(l => l.Contains("| COPY-" + id + " |"));
+            Equal(true, row != null && row.Contains(marker), "COPY-" + id);
+        }
         foreach (string copy in new[] { Labels.NoResult, Labels.NoPolar, Labels.PayloadFailed, Labels.SectionCp,
             Labels.VlmChip, Labels.OutsideLattice, Labels.VerifiedLattice, Labels.Provisional, Labels.AtBound,
             Labels.Indeterminate, Labels.FixedVlmNoDepth, Labels.StructuralList, Labels.BodyAxes })
             Equal(true, design.Contains(copy), copy);
-        Equal(true, design.Contains("| COPY-240 |") && design.Contains("e above 1 — check the lattice — proposed — awaiting operator"), "COPY-240");
+        Equal(true, design.Contains("| COPY-240 |") && design.Contains("e above 1 — check the lattice — approved — Ruling 82"), "COPY-240");
     }
 
     private static string? ENote(double target, int spanPerHalf)
