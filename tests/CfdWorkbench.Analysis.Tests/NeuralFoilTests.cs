@@ -192,6 +192,10 @@ internal static class NeuralFoilTests
         var edited = new NeuralFoilSection(pure.ProfileHash, "naca0012", pure.X, upper, pure.Lower);
         var source = new NeuralFoilPolarSource(_ => edited);
         NeuralFoilEvaluation result = source.Evaluate(edited, 3, 500000, 4, CancellationToken.None);
+        Console.WriteLine("MEASURE naca0012 match tolerance " + Naca0012Reference.MatchTolerance.ToString("G3", CultureInfo.InvariantCulture)
+            + " spike-open " + Naca0012Reference.MaxOrdinateDifference(CstFit.Fit(pure).Parameters).ToString("G3", CultureInfo.InvariantCulture)
+            + " edited " + Naca0012Reference.MaxOrdinateDifference(CstFit.Fit(edited).Parameters).ToString("G3", CultureInfo.InvariantCulture)
+            + " editedFitResidual " + result.CstResidualMax.ToString("G3", CultureInfo.InvariantCulture));
         if (!result.Computable) throw new Exception("edited section was refused instead of flagged: " + result.Reason);
         if (!result.OutsideBracketReasons.Any(text => text.Contains("NACA 0012", StringComparison.Ordinal)))
             throw new Exception("edited NACA 0012 kept the validated family: " + string.Join("; ", result.OutsideBracketReasons));

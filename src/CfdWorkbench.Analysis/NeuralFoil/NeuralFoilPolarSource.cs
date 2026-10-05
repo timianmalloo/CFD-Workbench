@@ -64,7 +64,7 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
         {
             cancellation.ThrowIfCancellationRequested();
             CstFitResult fit = CstFit.Fit(section);
-            IReadOnlyList<string> outside = BracketFlags(section.Family, alphaDeg, reynolds, ncrit);
+            IReadOnlyList<string> outside = BracketFlags(Naca0012Reference.Matches(fit.Parameters), alphaDeg, reynolds, ncrit);
             string? reason = RefusalReason(fit.MaxResidual, alphaDeg, reynolds, ncrit);
             if (reason is not null)
             {
@@ -130,13 +130,13 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
     }
 
     // Flags, never refusals: the point is computed but the XFOIL validation does not cover it (SPIKE-ANA-1 verdict).
-    private static List<string> BracketFlags(string family, double alphaDeg, double reynolds, double ncrit)
+    private static List<string> BracketFlags(bool validatedSection, double alphaDeg, double reynolds, double ncrit)
     {
         var flags = new List<string>();
         if (alphaDeg < AlphaMinDeg || alphaDeg > AlphaMaxDeg) flags.Add("alpha outside the validated -6..+6 degrees");
         if (reynolds < ReynoldsMin || reynolds > ReynoldsMax) flags.Add("Re outside the validated 200000..1000000");
         if (ncrit is not (2 or 4 or 9)) flags.Add("Ncrit is not one of the validated 2, 4, 9");
-        if (family != "naca0012") flags.Add("section is not the validated NACA 0012");
+        if (!validatedSection) flags.Add("section geometry is not the validated NACA 0012");
         return flags;
     }
 }
