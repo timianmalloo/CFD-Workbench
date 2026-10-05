@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T01:38:15Z",
+  "generated": "2026-10-05T01:58:19Z",
   "audit": [
     {
       "actor": null,
@@ -24297,6 +24297,21 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T01:36:47Z",
       "duration_seconds": 87.0
+    },
+    {
+      "id": "al-01M44WH1QBW8M75HBGG6ZENDG3",
+      "shortname": "STP-3 F-17 and tip provisional",
+      "datetime": "2026-10-05T01:58:19Z",
+      "session": "stp3",
+      "prompt": "Track STP-3 — F-17 compares physics, not round-off; the tip strip is flagged provisional in the data.\n\nAGENT_SESSION=stp3. F-17 keeps lift, induced drag and strip gamma at the stated tolerance; the residual is a backward-error bound (<= 1e-10), not equality; kappa1 uses 1e-6 relative. Provenance header is read and not compared. Mutants: residual 3rd digit stays green; lift 1e-9 relative turns red. Outermost strip per half gets provisional=true and ANA-TIP-PROVISIONAL through the run document and CLI. Absent reads false. Envelope verdict for those strips is provisional. Example foil marks strips 0 and 127 only. Update §13.2 F-17 and §18.8.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [

@@ -1,3 +1,10 @@
+# method: cfdw.vlm-strip
+# version: 1.1.0
+# lattice: 64x4 cosine/cosine
+# commit: b37d701105707d2769d885bc6156df589fc884dc
+# runtime: 10.0.7
+# os: macOS 27.0.1
+# arch: arm64
 lift 1238.1663680672593
 drag 18.195970750251927
 residual 3.6914915568786455E-14
