@@ -5398,7 +5398,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "464d28c03f37ff7cf828ac39f6a23d6aec8180419adbfae79110e516c01e0faa"
+      "sourceSha256": "113c9e68af2054f0defc9e609fc472c3e172dedad228468e01a30e074bf70a4e"
     },
     {
       "id": "review-area3-analysis-personas",
@@ -6363,7 +6363,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f94e8c6549c7f6edc0485cc2e1f2c7cd139e32f5f48e4eea07f421200a5469fe"
+      "sourceSha256": "e16bfa3e4d6366cb145bff685c7f067eb460fe5eca8166bd0d0018937ffe93c2"
     },
     {
       "id": "kb-hw-glossary",
@@ -10774,6 +10774,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "535bf69270259d3c7d8e7b9b0e10deae5b78da9b7dd98df1ebad355d92d99bb5"
     },
     {
+      "id": "proof-ring-b1-red-first",
+      "path": "docs/proof/ring-b1/red-first.md",
+      "title": "Ring B1 red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-b1",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Each self-test case of tools/check-test-costs.py was red against a stub checker (7429f70) and green once the checker landed; OD-2 measured and not met.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "53823766f1d679444af5731548fbe23364c56d203ed72ac469d0cb961e78e076"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -13016,5 +13045,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "b58b41fa12d8e618744be5c111907a745d04323cba9a0dbf2c0cbe3e4472a7b1"
+  "graphSha256": "93b0881a41ed7154428a6e95e979ba1d83d5fbad2625ea590b976a0016318014"
 };

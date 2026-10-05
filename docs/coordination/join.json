@@ -2,6 +2,7 @@
   "checks": [
     ["python3", "tools/check-docs.py"],
     ["tools/run-tests.sh"],
+    ["python3", "tools/check-test-costs.py"],
     ["python3", "docs/ai-forward-pack/scripts/xaml-token-lint.py", "--root", ".", "src/CfdWorkbench.Desktop"],
     ["python3", "tools/check-event-subscribers.py"]
   ],

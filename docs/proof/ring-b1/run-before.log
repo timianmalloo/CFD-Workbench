@@ -1,0 +1,25 @@
+/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+
+Build succeeded.
+
+/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-feature-ring-b1-rng/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:04.78
+build 5 s (Release)
+== CfdWorkbench.Core.Tests 1/2 54 s, 334 PASS
+RESULT failures=0
+== CfdWorkbench.Core.Tests 2/2 54 s, 333 PASS
+RESULT failures=0
+== CfdWorkbench.Desktop.Tests 60 s, 661 PASS
+SUITE-TIME --analysis 0.4 s
+== CfdWorkbench.Analysis.Tests 4 s, 109 PASS
+RESULT failures=0
+== CfdWorkbench.Cli.Tests 2 s, 5 PASS
+COST Cli_AnalyseFailedRun_PrintsNoDiagnostics 14.404
+wall 65 s (budget 60 s) cpu 600 s load 5.21 -> 22.60
+TEST-BUDGET: green, but 65 s is over the 60 s budget. Find the new cost before raising it (docs/reviews/test-ci-waste.md).
+tools/run-tests-before.sh  577.90s user 22.32s system 923% cpu 1:04.96 total
