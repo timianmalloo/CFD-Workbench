@@ -31,7 +31,7 @@ bundle="$here/foam-bundle/controlDict"
 bundle_sha256_pinned="f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a6ef854"
 app_launcher="/Applications/OpenFOAM-v2512.app/Contents/Resources/etc/openfoam"
 stop_file="$repo/runs/.security-stop"
-max_load=10
+max_load="${CFDW_MAX_LOAD:-10}"  # S4 coupon driver sets 30 (operator machine-courtesy rule for the session)
 join_lock="${CFDW_JOIN_LOCK:-${CFDW_COORD_DIR:-$(git -C "$repo" rev-parse --path-format=absolute --git-common-dir)/coord}/join.lock}"
 APPS=" checkMesh blockMesh gmshToFoam decomposePar reconstructPar reconstructParMesh snappyHexMesh surfaceCheck surfaceFeatureExtract simpleFoam rhoSimpleFoam postProcess topoSet "
 ledger="$case_dir/run-ledger.txt"

@@ -1,0 +1,18 @@
+GATE (DR-F3-1 A) FAIL: non_orthogonality_le_70=FAIL skewness_le_4_internal_20_boundary=ok volumes_positive=ok face_pyramids_ok=ok face_weight_ge_0.05=ok checkMesh_validity_set_without_determinant=ok layers_20_on_ge95pct_and_ge10_on_100pct=ok
+  max_non_orthogonality=85.2434029223 faces_gt_70=225 max_skewness=1.82107562492 min_face_weight=0.0601810924987 min_volume=2.9257914639e-14 min_determinant=0.0 (reported, not gated)
+  checkMesh *** lines: ['***Cells with small determinant (< 0.001) found, number of cells: 78003']
+  layers: wing_faces=11640 layer_prisms=232800 expected=232800 (100.00 %); te_arc_root_segments=8; stack=1.4935e-03 m
+cells=322666 by type: prism=232800 tet=89866
+faces > 70 deg (nonOrthoFaces): n=225 primary main=10 tip=37 tip_pole=178 | flags tip_pole=178 te=73 root=0 interface=0 tip=215 edge=0 | wall distance min/median/max = 2.27e-07/6.67e-05/2.69e-03 m (stack 1.49e-03)
+    main: cell pairs (5 prism, 7 tet) 5-5:9 7-7:1; x/c 0.8052..0.9805, z 0.0113..0.0249 m
+    tip: cell pairs (5 prism, 7 tet) 5-5:36 7-7:1; x/c 0.9803..0.9894, z 0.0251..0.0265 m
+    tip_pole: cell pairs (5 prism, 7 tet) 5-5:178; x/c 0.9867..0.9968, z 0.0251..0.0259 m
+TIPREGION faces > 70 deg: n=224 (z >= b/2 - 2 mm) primary main=9 tip=37 tip_pole=178 | edge_flag=0
+low-weight faces (< 0.05): none
+two-internal-face cells: n=244 primary main=20 tip=224 | flags tip_pole=0 te=0 root=0 interface=0 tip=224 edge=0 | wall distance min/median/max = 1.16e+00/1.75e+00/2.91e+00 m (stack 1.49e-03)
+    main: types 7:20
+    tip: types 7:224
+wing faces=11640; faces whose owner is not a prism (no layer column): 0
+cellDeterminant < 0.001, layer (prism): 77758 of 232800 (33.40 %), min 3.112e-07, median 9.251e-03
+cellDeterminant < 0.001, core (tet): 245 of 89866 (0.27 %), min 0.000e+00, median 1.686e-01
+core (tet) cells with determinant < 0.001: n=245 primary main=20 tip=225 | flags tip_pole=0 te=0 root=0 interface=0 tip=225 edge=0 | wall distance min/median/max = 1.51e-03/1.75e+00/2.91e+00 m (stack 1.49e-03)

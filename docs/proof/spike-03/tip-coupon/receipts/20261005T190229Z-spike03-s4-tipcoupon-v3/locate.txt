@@ -1,0 +1,18 @@
+GATE (DR-F3-1 A) FAIL: non_orthogonality_le_70=FAIL skewness_le_4_internal_20_boundary=ok volumes_positive=ok face_pyramids_ok=ok face_weight_ge_0.05=ok checkMesh_validity_set_without_determinant=ok layers_20_on_ge95pct_and_ge10_on_100pct=FAIL
+  max_non_orthogonality=85.2434029223 faces_gt_70=213 max_skewness=1.76039927861 min_face_weight=0.0506245505748 min_volume=2.9257914639e-14 min_determinant=0.0 (reported, not gated)
+  checkMesh *** lines: ['***Cells with small determinant (< 0.001) found, number of cells: 78009']
+  layers: wing_faces=11640 layer_prisms=162960 expected=162960 (100.00 %); te_arc_root_segments=8; stack=4.7357e-04 m
+cells=269771 by type: prism=162960 tet=106811
+faces > 70 deg (nonOrthoFaces): n=213 primary main=9 tip=29 tip_pole=175 | flags tip_pole=175 te=68 root=0 interface=1 tip=204 edge=0 | wall distance min/median/max = 2.27e-07/6.38e-05/9.19e-04 m (stack 4.74e-04)
+    main: cell pairs (5 prism, 7 tet) 5-5:9; x/c 0.9801..0.9805, z 0.0249..0.0249 m
+    tip: cell pairs (5 prism, 7 tet) 5-5:22 7-7:7; x/c 0.9803..0.9873, z 0.0251..0.0261 m
+    tip_pole: cell pairs (5 prism, 7 tet) 5-5:168 5-7:1 7-7:6; x/c 0.9867..0.9968, z 0.0251..0.0260 m
+TIPREGION faces > 70 deg: n=213 (z >= b/2 - 2 mm) primary main=9 tip=29 tip_pole=175 | edge_flag=0
+low-weight faces (< 0.05): none
+two-internal-face cells: n=244 primary main=20 tip=224 | flags tip_pole=0 te=0 root=0 interface=0 tip=224 edge=0 | wall distance min/median/max = 1.16e+00/1.75e+00/2.91e+00 m (stack 4.74e-04)
+    main: types 7:20
+    tip: types 7:224
+wing faces=11640; faces whose owner is not a prism (no layer column): 0
+cellDeterminant < 0.001, layer (prism): 77758 of 162960 (47.72 %), min 3.112e-07, median 1.295e-03
+cellDeterminant < 0.001, core (tet): 251 of 106811 (0.23 %), min 0.000e+00, median 1.754e-01
+core (tet) cells with determinant < 0.001: n=251 primary main=21 tip=227 tip_pole=3 | flags tip_pole=3 te=1 root=0 interface=0 tip=230 edge=0 | wall distance min/median/max = 5.18e-04/1.75e+00/2.91e+00 m (stack 4.74e-04)

@@ -1,0 +1,26 @@
+gmsh: load1_start=4.22 status=0 wall_s=3 waited_s=0 load1_end=4.22
+te_arc_root_curves=2 te_arc_root_segments=8 Mesh.MinimumCirclePoints=7
+gmsh_wing_surface_elements=11640 layer_prisms=232800 expected=232800 layer_coverage=100.00% core_cells=89866 symmetry_lateral_surfaces=4
+layer_total_thickness_m=1.4935e-03 first=8e-06 ratio=1.2 n=20
+msh_sha256=2c77119c63d88ea08de20257ea6c8c0aca6e14a2c88b7c5b6fccf88dc2ab33b6 msh_bytes=25784250
+launcher-record: init files=13 manifest=851668829f02 record=runs/.launcher/e71000f805149ad72751
+status=0 wall_s=2 peak_rss_bytes=327565312 banner=Disallowing log=runs/20261005T190104Z-spike03-s4-tipcoupon-v0/log.gmshToFoam
+patches: ['wing', 'symmetry', 'farfield']
+launcher-record: updated files=22
+status=0 wall_s=3 peak_rss_bytes=390004736 banner=Disallowing log=runs/20261005T190104Z-spike03-s4-tipcoupon-v0/log.checkMesh
+status=0 wall_s=1 peak_rss_bytes=186580992 banner=Disallowing log=runs/20261005T190104Z-spike03-s4-tipcoupon-v0/log.postProcess-C
+GATE (DR-F3-1 A) FAIL: non_orthogonality_le_70=FAIL skewness_le_4_internal_20_boundary=ok volumes_positive=ok face_pyramids_ok=ok face_weight_ge_0.05=ok checkMesh_validity_set_without_determinant=ok layers_20_on_ge95pct_and_ge10_on_100pct=ok
+  max_non_orthogonality=85.2434029223 faces_gt_70=225 max_skewness=1.82107562492 min_face_weight=0.0601810924987 min_volume=2.9257914639e-14 min_determinant=0.0 (reported, not gated)
+  checkMesh *** lines: ['***Cells with small determinant (< 0.001) found, number of cells: 78003']
+  layers: wing_faces=11640 layer_prisms=232800 expected=232800 (100.00 %); te_arc_root_segments=8; stack=1.4935e-03 m
+cells=322666 by type: prism=232800 tet=89866
+faces > 70 deg (nonOrthoFaces): n=225 primary main=10 tip=37 tip_pole=178 | flags tip_pole=178 te=73 root=0 interface=0 tip=215 edge=0 | wall distance min/median/max = 2.27e-07/6.67e-05/2.69e-03 m (stack 1.49e-03)
+    main: cell pairs (5 prism, 7 tet) 5-5:9 7-7:1; x/c 0.8052..0.9805, z 0.0113..0.0249 m
+    tip: cell pairs (5 prism, 7 tet) 5-5:36 7-7:1; x/c 0.9803..0.9894, z 0.0251..0.0265 m
+    tip_pole: cell pairs (5 prism, 7 tet) 5-5:178; x/c 0.9867..0.9968, z 0.0251..0.0259 m
+Traceback (most recent call last):
+  File "/Users/mallalieut/projects/CFD-Workbench-spike-tip-mesh-coupon-s4/cases/tools/mesh-locate-coupon.py", line 220, in <module>
+    tip_region("faces > 70 deg", Pf, prim)
+    ^^^^^^^^^^
+NameError: name 'tip_region' is not defined
+cases/tools/mesh-gate-coupon.sh cases/spike03-s4-tipcoupon-v0.yaml 6  8.04s user 0.89s system 64% cpu 13.900 total

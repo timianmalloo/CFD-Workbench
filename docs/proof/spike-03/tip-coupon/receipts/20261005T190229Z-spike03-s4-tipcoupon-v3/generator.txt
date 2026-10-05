@@ -1,0 +1,247 @@
+Info    : Could not make plane from 3 points - assuming z=0
+Warning : Fragments - BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed BOPAlgo_AlertIntersectionOfPairOfShapesFailed 
+brep_surfaces=8 brep_curves=20 brep_free_curves_off_root=4 brep_free_curve_lengths_m=[0.0, 0.0, 0.0, 0.0] variant=v3
+te_strip: surfaces=2 arc_segments_per_quarter=4 span_segments=96 (arc cell 9.817e-05 m x span cell 2.604e-04 m)
+Info    : Skipping boundary layer extrusion of degenerate curve 19
+Info    : Skipping boundary layer extrusion of degenerate curve 22
+Info    : Skipping boundary layer extrusion of degenerate curve 29
+Info    : Skipping boundary layer extrusion of degenerate curve 31
+te_refine: curves=12 size=0.00026 at <= 0.0003 m, lc_near 0.0015 at 0.0036 m (ramp to lc_far 0.12 at 0.3190 m) sampling=5000
+Info    : Meshing 1D...
+Info    : Done meshing 1D (Wall 0.0403954s, CPU 0.040246s)
+Info    : Meshing 2D...
+Info    : 0 dependencies in mesh of source faces
+Info    : Meshing surface 1 (Unknown, Frontal-Delaunay)
+Info    : Meshing surface 2 (Unknown, Frontal-Delaunay)
+Info    : Meshing surface 3 (Transfinite)
+Info    : Meshing surface 4 (Transfinite)
+Info    : Meshing surface 5 (Surface of Revolution, Frontal-Delaunay)
+Info    : Meshing surface 6 (Sphere, Frontal-Delaunay)
+Info    : Meshing surface 7 (Surface of Revolution, Frontal-Delaunay)
+Info    : Meshing surface 8 (Sphere, Frontal-Delaunay)
+Info    : Meshing curve 157 (Line)
+Info    : Meshing curve 158 (Line)
+Info    : Meshing curve 159 (Line)
+Info    : Meshing curve 160 (Line)
+Info    : Meshing curve 161 (Line)
+Info    : Meshing curve 162 (Line)
+Info    : Meshing curve 163 (Line)
+Info    : Meshing curve 164 (Line)
+Info    : Meshing curve 165 (Line)
+Info    : Meshing curve 166 (Line)
+Info    : Meshing curve 167 (Line)
+Info    : Meshing curve 168 (Line)
+Info    : Meshing curve 33
+Info    : Meshing curve 33 (Extruded)
+Info    : Meshing curve 34
+Info    : Meshing curve 34 (Extruded)
+Info    : Meshing curve 35
+Info    : Meshing curve 35 (Extruded)
+Info    : Meshing curve 36
+Info    : Meshing curve 36 (Extruded)
+Info    : Meshing curve 38
+Info    : Meshing curve 38 (Extruded)
+Info    : Meshing curve 39
+Info    : Meshing curve 39 (Extruded)
+Info    : Meshing curve 43
+Info    : Meshing curve 43 (Extruded)
+Info    : Meshing curve 47
+Info    : Meshing curve 47 (Extruded)
+Info    : Meshing curve 55
+Info    : Meshing curve 55 (Extruded)
+Info    : Meshing curve 57
+Info    : Meshing curve 57 (Extruded)
+Info    : Meshing curve 58
+Info    : Meshing curve 58 (Extruded)
+Info    : Meshing curve 61
+Info    : Meshing curve 61 (Extruded)
+Info    : Meshing curve 69
+Info    : Meshing curve 69 (Extruded)
+Info    : Meshing curve 77
+Info    : Meshing curve 77 (Extruded)
+Info    : Meshing curve 79
+Info    : Meshing curve 79 (Extruded)
+Info    : Meshing curve 80
+Info    : Meshing curve 80 (Extruded)
+Info    : Meshing curve 83
+Info    : Meshing curve 83 (Extruded)
+Info    : Meshing curve 91
+Info    : Meshing curve 91 (Extruded)
+Info    : Meshing curve 99
+Info    : Meshing curve 99 (Extruded)
+Info    : Meshing curve 101
+Info    : Meshing curve 101 (Extruded)
+Info    : Meshing curve 121
+Info    : Meshing curve 121 (Extruded)
+Info    : Meshing curve 122
+Info    : Meshing curve 122 (Extruded)
+Info    : Meshing curve 126
+Info    : Meshing curve 126 (Extruded)
+Info    : Meshing curve 139
+Info    : Meshing curve 139 (Extruded)
+Info    : Meshing curve 156
+Info    : Meshing curve 156 (Extruded)
+Info    : Meshing surface 40 (Extruded)
+Info    : Meshing surface 44 (Extruded)
+Info    : Meshing surface 48 (Extruded)
+Info    : Meshing surface 52 (Extruded)
+Info    : Meshing surface 53 (Extruded)
+Info    : Meshing surface 62 (Extruded)
+Info    : Meshing surface 70 (Extruded)
+Info    : Meshing surface 74 (Extruded)
+Info    : Meshing surface 75 (Extruded)
+Info    : Meshing surface 84 (Extruded)
+Info    : Meshing surface 92 (Extruded)
+Info    : Meshing surface 96 (Extruded)
+Info    : Meshing surface 97 (Extruded)
+Info    : Meshing surface 106 (Extruded)
+Info    : Meshing surface 114 (Extruded)
+Info    : Meshing surface 119 (Extruded)
+Info    : Meshing surface 127 (Extruded)
+Info    : Meshing surface 131 (Extruded)
+Info    : Meshing surface 136 (Extruded)
+Info    : Meshing surface 148 (Extruded)
+Info    : Meshing surface 153 (Extruded)
+Info    : Meshing surface 165 (Extruded)
+Info    : Meshing surface 170 (Extruded)
+Info    : Meshing surface 187 (Extruded)
+Info    : Meshing surface 188 (Plane, Frontal-Delaunay)
+Info    : Meshing surface 189 (Plane, Frontal-Delaunay)
+Info    : Meshing surface 190 (Plane, Frontal-Delaunay)
+Info    : Meshing surface 191 (Plane, Frontal-Delaunay)
+Info    : Meshing surface 192 (Plane, Frontal-Delaunay)
+Info    : Meshing surface 193 (Plane, Frontal-Delaunay)
+Info    : Meshing surface 40 (Boundary layer surface)
+Info    : Meshing surface 40 (Extruded)
+Info    : Meshing surface 44 (Boundary layer surface)
+Info    : Meshing surface 44 (Extruded)
+Info    : Meshing surface 48 (Boundary layer surface)
+Info    : Meshing surface 48 (Extruded)
+Info    : Meshing surface 52 (Boundary layer surface)
+Info    : Meshing surface 52 (Extruded)
+Info    : Meshing surface 53 (Boundary layer surface)
+Info    : Meshing surface 53 (Extruded)
+Info    : Meshing surface 62 (Boundary layer surface)
+Info    : Meshing surface 62 (Extruded)
+Info    : Meshing surface 70 (Boundary layer surface)
+Info    : Meshing surface 70 (Extruded)
+Info    : Meshing surface 74 (Boundary layer surface)
+Info    : Meshing surface 74 (Extruded)
+Info    : Meshing surface 75 (Boundary layer surface)
+Info    : Meshing surface 75 (Extruded)
+Info    : Meshing surface 84 (Boundary layer surface)
+Info    : Meshing surface 84 (Extruded)
+Info    : Meshing surface 92 (Boundary layer surface)
+Info    : Meshing surface 92 (Extruded)
+Info    : Meshing surface 96 (Boundary layer surface)
+Info    : Meshing surface 96 (Extruded)
+Info    : Meshing surface 97 (Boundary layer surface)
+Info    : Meshing surface 97 (Extruded)
+Info    : Meshing surface 106 (Boundary layer surface)
+Info    : Meshing surface 106 (Extruded)
+Info    : Meshing surface 114 (Boundary layer surface)
+Info    : Meshing surface 114 (Extruded)
+Info    : Meshing surface 119 (Boundary layer surface)
+Info    : Meshing surface 119 (Extruded)
+Info    : Meshing surface 127 (Boundary layer surface)
+Info    : Meshing surface 127 (Extruded)
+Info    : Meshing surface 131 (Boundary layer surface)
+Info    : Meshing surface 131 (Extruded)
+Info    : Meshing surface 136 (Boundary layer surface)
+Info    : Meshing surface 136 (Extruded)
+Info    : Meshing surface 148 (Boundary layer surface)
+Info    : Meshing surface 148 (Extruded)
+Info    : Meshing surface 153 (Boundary layer surface)
+Info    : Meshing surface 153 (Extruded)
+Info    : Meshing surface 165 (Boundary layer surface)
+Info    : Meshing surface 165 (Extruded)
+Info    : Meshing surface 170 (Boundary layer surface)
+Info    : Meshing surface 170 (Extruded)
+Info    : Meshing surface 187 (Boundary layer surface)
+Info    : Meshing surface 187 (Extruded)
+Info    : Done meshing 2D (Wall 0.252307s, CPU 0.25133s)
+Info    : Meshing 3D...
+Info    : Meshing volume 1 (Extruded)
+Info    : Meshing volume 2 (Extruded)
+Info    : Meshing volume 3 (Extruded)
+Info    : Meshing volume 4 (Extruded)
+Info    : Meshing volume 5 (Extruded)
+Info    : Meshing volume 6 (Extruded)
+Info    : Meshing volume 7 (Extruded)
+Info    : Meshing volume 8 (Extruded)
+Info    : 3D Meshing 1 volume with 1 connected component
+Info    : Tetrahedrizing 9719 nodes...
+Info    : Done tetrahedrizing 9727 nodes (Wall 0.0725293s, CPU 0.072099s)
+Info    : Reconstructing mesh...
+Info    :  - Creating surface mesh
+Info    :  - Identifying boundary edges
+Info    :  - Recovering boundary
+Info    : Done reconstructing mesh (Wall 0.141547s, CPU 0.13978s)
+Info    : Found volume 9
+Info    : It. 0 - 0 nodes created - worst tet radius 271.876 (nodes removed 0 0)
+Info    : It. 500 - 493 nodes created - worst tet radius 3.00659 (nodes removed 3 4)
+Info    : It. 1000 - 989 nodes created - worst tet radius 2.3259 (nodes removed 3 8)
+Info    : It. 1500 - 1483 nodes created - worst tet radius 1.97372 (nodes removed 3 14)
+Info    : It. 2000 - 1974 nodes created - worst tet radius 1.81625 (nodes removed 3 23)
+Info    : It. 2500 - 2465 nodes created - worst tet radius 1.67472 (nodes removed 3 32)
+Info    : It. 3000 - 2963 nodes created - worst tet radius 1.57727 (nodes removed 3 34)
+Info    : It. 3500 - 3463 nodes created - worst tet radius 1.49842 (nodes removed 3 34)
+Info    : It. 4000 - 3954 nodes created - worst tet radius 1.43836 (nodes removed 3 43)
+Info    : It. 4500 - 4454 nodes created - worst tet radius 1.37955 (nodes removed 3 43)
+Info    : It. 5000 - 4954 nodes created - worst tet radius 1.33066 (nodes removed 3 43)
+Info    : It. 5500 - 5454 nodes created - worst tet radius 1.28992 (nodes removed 3 43)
+Info    : It. 6000 - 5954 nodes created - worst tet radius 1.25389 (nodes removed 3 43)
+Info    : It. 6500 - 6447 nodes created - worst tet radius 1.2467 (nodes removed 3 50)
+Info    : It. 7000 - 6947 nodes created - worst tet radius 1.21081 (nodes removed 3 50)
+Info    : It. 7500 - 7422 nodes created - worst tet radius 1.17216 (nodes removed 3 75)
+Info    : It. 8000 - 7920 nodes created - worst tet radius 1.1493 (nodes removed 3 77)
+Info    : It. 8500 - 8406 nodes created - worst tet radius 1.12816 (nodes removed 3 91)
+Info    : It. 9000 - 8830 nodes created - worst tet radius 1.11099 (nodes removed 7 163)
+Info    : It. 9500 - 9329 nodes created - worst tet radius 1.09322 (nodes removed 7 164)
+Info    : It. 10000 - 9807 nodes created - worst tet radius 1.07694 (nodes removed 9 184)
+Info    : It. 10500 - 10293 nodes created - worst tet radius 1.06077 (nodes removed 9 198)
+Info    : It. 11000 - 10792 nodes created - worst tet radius 1.04505 (nodes removed 9 199)
+Info    : It. 11500 - 11292 nodes created - worst tet radius 1.03106 (nodes removed 9 199)
+Info    : It. 12000 - 11789 nodes created - worst tet radius 1.01743 (nodes removed 9 202)
+Info    : It. 12500 - 12289 nodes created - worst tet radius 1.00484 (nodes removed 9 202)
+Info    : 3D refinement terminated (28115 nodes total):
+Info    :  - 33 Delaunay cavities modified for star shapeness
+Info    :  - 211 nodes could not be inserted
+Info    :  - 108718 tetrahedra created in 0.464322 sec. (234143 tets/s)
+Info    : 28 node relocations
+Info    : Done meshing 3D (Wall 0.945858s, CPU 0.938161s)
+Info    : Optimizing mesh...
+Info    : Optimizing volume 9
+Info    : Optimization starts (volume = 9.07774) with worst = 0 / average = 0.755108:
+Info    : 0.00 < quality < 0.10 :       272 elements
+Info    : 0.10 < quality < 0.20 :       734 elements
+Info    : 0.20 < quality < 0.30 :      1204 elements
+Info    : 0.30 < quality < 0.40 :      2009 elements
+Info    : 0.40 < quality < 0.50 :      3666 elements
+Info    : 0.50 < quality < 0.60 :      7415 elements
+Info    : 0.60 < quality < 0.70 :     14518 elements
+Info    : 0.70 < quality < 0.80 :     28566 elements
+Info    : 0.80 < quality < 0.90 :     34509 elements
+Info    : 0.90 < quality < 1.00 :     15825 elements
+Info    : 2145 edge swaps, 77 node relocations (volume = 9.07774): worst = 0.000412514 / average = 0.766743 (Wall 0.0207098s, CPU 0.020636s)
+Info    : 2185 edge swaps, 113 node relocations (volume = 9.07774): worst = 0.00684968 / average = 0.766809 (Wall 0.0258185s, CPU 0.025723s)
+Info    : 2198 edge swaps, 126 node relocations (volume = 9.07774): worst = 0.00684968 / average = 0.76686 (Wall 0.0305247s, CPU 0.030413s)
+Info    : No ill-shaped tets in the mesh :-)
+Info    : 0.00 < quality < 0.10 :        19 elements
+Info    : 0.10 < quality < 0.20 :        10 elements
+Info    : 0.20 < quality < 0.30 :        13 elements
+Info    : 0.30 < quality < 0.40 :      1993 elements
+Info    : 0.40 < quality < 0.50 :      3571 elements
+Info    : 0.50 < quality < 0.60 :      7377 elements
+Info    : 0.60 < quality < 0.70 :     14532 elements
+Info    : 0.70 < quality < 0.80 :     28776 elements
+Info    : 0.80 < quality < 0.90 :     34722 elements
+Info    : 0.90 < quality < 1.00 :     15782 elements
+Info    : Done optimizing mesh (Wall 0.0889641s, CPU 0.086314s)
+Info    : 105204 nodes 313602 elements
+Info    : Writing 'runs/20261005T190229Z-spike03-s4-tipcoupon-v3/wing.msh'...
+Info    : Done writing 'runs/20261005T190229Z-spike03-s4-tipcoupon-v3/wing.msh'
+te_arc_root_curves=2 te_arc_root_segments=8 Mesh.MinimumCirclePoints=7
+gmsh_wing_surface_elements=11640 layer_prisms=162960 expected=162960 layer_coverage=100.00% core_cells=106811 symmetry_lateral_surfaces=4
+layer_total_thickness_m=4.7357e-04 first=8e-06 ratio=1.2 n=14
+msh_sha256=3dbb5c1870951f14f9aae478abc2e2cbb1caf026b789b0efb66b9bd0f9d33b91 msh_bytes=20133896
