@@ -942,6 +942,6 @@ Ruling: option (ii), modified. The panel tier samples every one of the 129 stati
 
 ### Ruling 91 — Ruling 78 kept with a tip-chord-ratio floor r >= 0.02 (DR-TIP-S3, after S2)
 
-Option (a), as recommended. Operator (2026-10-05, AskUserQuestion): "Keep + floor r>=0.02 (Recommended)". Ruling 78 stays: the outermost strip per half is not judged against the section envelope. Its certified scope is finite-chord tips with tip chord >= 2 % of root chord (r >= 0.02), from the S2 sweep (docs/proof/vlm-tip-study/s2-sweep/verdict.md): the only judged-strip flip was at r = 0.01, alpha 8, coarse lattices, in the conservative direction. No band, correction law or distance zone; nothing fitted. Below the floor the wing is analysed but carries the uncertified-tip state. Judging k1 on finite tips is not adopted.
+Option (a), as recommended. Operator (2026-10-05, AskUserQuestion): "Keep + floor r>=0.02 (Recommended)". Ruling 78 stays: the outermost strip per half is not judged against the section envelope. Its certified scope is finite-chord tips with tip chord >= 2 % of root chord (r >= 0.02), from the S2 sweep (docs/proof/vlm-tip-study/s2-sweep/verdict.md): the only judged-strip flip was at r = 0.01, alpha 8, coarse lattices, in the conservative direction. No band, correction law or distance zone; nothing fitted. Below the floor the tip is not certified for analysis, the same as a closing tip (Ruling 88 D1). Judging k1 on finite tips is not adopted.
 
 - request: req-01M46EDDVK6VS255ZQ9XCVYN9Q · ruled by: operator-timianmalloo · at: 2026-10-05T16:30:09Z
