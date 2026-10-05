@@ -141,6 +141,11 @@ try
     var service = await new AnalysisService(session, host.Method).EvaluateAsync(OperatingPoints.Custom(5.14444, 3, 0.5),
         host.Water(OperatingPoints.DefaultTemperatureC, OperatingPoints.SaltSalinityGPerKg), Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
     if (cliKey != service.RunKey) throw new Exception($"CLI key {cliKey} differs from the service key on OperatingPoints.Custom {service.RunKey}");
+    // Neither side's builder: the conditions band's Custom point written out field by field (1 atm, datum "root LE", no
+    // load; design §3.5). A default drifting in OperatingPoints.Custom, which the CLI and the band share, changes this key.
+    var band = await new AnalysisService(session, host.Method).EvaluateAsync(new OperatingPoint(5.14444, 101325, 0.5, "root LE", 3, null),
+        host.Water(15, 35.16504), Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
+    if (cliKey != band.RunKey) throw new Exception($"CLI key {cliKey} differs from the key of the Custom point written out {band.RunKey}");
     string file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".cfdw.json");
     try
     {
