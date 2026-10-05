@@ -11,6 +11,8 @@ internal static class NeuralFoilTests
     {
         AnalysisChecks.Check("NeuralFoil_Fidelity_Python032", Fidelity);
         AnalysisChecks.Check("NeuralFoil_CorruptWeights_Refused", CorruptWeights);
+        AnalysisChecks.Check("NeuralFoil_CstFit_RecoversSection", CstFitRecoversSection);
+        AnalysisChecks.Check("NeuralFoil_Source_ProducesPolarSample", ProducesPolarSample);
         AnalysisChecks.Check("NeuralFoil_Envelope_Alpha", () => Refused(30, 500000, 4, "naca0012", false, "alpha"));
         AnalysisChecks.Check("NeuralFoil_Envelope_Re", () => Refused(0, 10000, 4, "naca0012", false, "Re"));
         AnalysisChecks.Check("NeuralFoil_Envelope_Ncrit", () => Refused(0, 500000, 0, "naca0012", false, "Ncrit"));
@@ -54,13 +56,44 @@ internal static class NeuralFoilTests
 
     private static NeuralFoilSection Section(bool badResidual, string family)
     {
-        var cst = NeuralFoilCaseTable.Rows[0];
+        var cst = family switch
+        {
+            "naca2412" => NeuralFoilCaseTable.Rows[3],
+            "naca4412" => NeuralFoilCaseTable.Rows[4],
+            _ => NeuralFoilCaseTable.Rows[0]
+        };
         var parameters = new CstParameters(cst.Upper, cst.Lower, cst.Leading, cst.Trailing);
         double[] x = Enumerable.Range(0, 200).Select(i => 0.5 * (1 - Math.Cos(Math.PI * i / 199))).ToArray();
         double[] upper = x.Select(value => CstFit.Ordinate(parameters, value, upper: true)).ToArray();
         double[] lower = x.Select(value => CstFit.Ordinate(parameters, value, upper: false)).ToArray();
         if (badResidual) upper[100] += 0.03;
-        return new NeuralFoilSection("fixture", family, x, upper, lower);
+        return new NeuralFoilSection(new string('a', 64), family, x, upper, lower);
+    }
+
+    private static void CstFitRecoversSection()
+    {
+        NeuralFoilSection section = Section(false, "naca2412");
+        CstFitResult fit = CstFit.Fit(section);
+        if (fit.MaxResidual > 1e-8 || fit.RmsResidual > 1e-8)
+            throw new Exception($"exact CST section fit residual {fit.MaxResidual:G17}");
+        var expected = NeuralFoilCaseTable.Rows[3];
+        if (Math.Abs(fit.Parameters.Upper[2] - expected.Upper[2]) > 1e-6 ||
+            Math.Abs(fit.Parameters.TrailingEdge - expected.Trailing) > 1e-6)
+            throw new Exception("CST coefficient recovery changed");
+    }
+
+    private static void ProducesPolarSample()
+    {
+        NeuralFoilSection section = Section(false, "naca0012");
+        IPolarSource source = new NeuralFoilPolarSource(hash => hash == section.ProfileHash ? section : null);
+        var water = new WaterRecord(15, 0, 999, 1e-6, 1000, "fixture", new string('b', 64));
+        PolarSample? sample = source.Sample(section.ProfileHash, 1000000, 4, 0, water, CancellationToken.None);
+        var expected = NeuralFoilCaseTable.Rows[1];
+        if (sample is null || Math.Abs(sample.Cl!.Value - expected.Cl) > 1e-8 ||
+            Math.Abs(sample.Cd!.Value - expected.Cd) > 1e-8 ||
+            Math.Abs(sample.Confidence!.Value - expected.Confidence) > 1e-8 ||
+            sample.MethodVersion != NeuralFoilNetwork.MethodVersion || sample.WaterHash.Length != 64)
+            throw new Exception("polar source lost a coefficient, confidence, or method key");
     }
 
     private static void Refused(double alpha, double reynolds, double ncrit, string family, bool badResidual, string reason)
@@ -75,7 +108,7 @@ internal static class NeuralFoilTests
     private static void OutsideBracket()
     {
         var source = new NeuralFoilPolarSource(_ => Section(false, "naca0012"));
-        NeuralFoilEvaluation result = source.Evaluate(Section(false, "naca0012"), 7, 500000, 4, CancellationToken.None);
+        NeuralFoilEvaluation result = source.Evaluate(Section(false, "naca2412"), 3, 500000, 5, CancellationToken.None);
         if (!result.Computable || !result.OutsideValidatedBracket || result.Prediction is null)
             throw new Exception("outside-bracket prediction or flag missing");
     }

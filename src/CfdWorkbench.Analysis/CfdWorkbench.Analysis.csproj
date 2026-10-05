@@ -10,5 +10,6 @@
   <ItemGroup><InternalsVisibleTo Include="CfdWorkbench.Analysis.Tests" /></ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="IttcWater.csv" LogicalName="CfdWorkbench.Analysis.IttcWater.csv" />
+    <EmbeddedResource Include="NeuralFoil/weights.bin" LogicalName="CfdWorkbench.Analysis.NeuralFoil.weights.bin" />
   </ItemGroup>
 </Project>
