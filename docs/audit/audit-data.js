@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T14:37:35Z",
+  "generated": "2026-10-05T14:37:41Z",
   "audit": [
     {
       "actor": null,
@@ -24704,6 +24704,34 @@ window.AUDIT_DATA = {
       "artifacts": [],
       "tags": [],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M467ZG6K59F9DB47Q0CYJMXJ",
+      "shortname": "trk-hk",
+      "datetime": "2026-10-05T14:37:41Z",
+      "session": "trk-hk",
+      "prompt": "Track HK: fix HOOK-CWD-RELATIVE in agent hook commands (relative script path breaks after a cwd change)",
+      "summary": "Hook commands in claude/grok/copilot configs fall back to git toplevel when cwd moved (agy already did); check-pack-hooks controls all four configs; defect class HOOK-CWD-RELATIVE recorded, upstream pack fix open",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Hook commands survive a cwd change; class swept and controlled",
+      "done_when": "planted bare command red, fixed configs green, subdir invocation proven",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-10-05T14:33:41Z",
+      "duration_seconds": 240.0,
+      "git": {
+        "sha": "c8782b7bd3ba75185ca3138eed7534868fb7f7ff",
+        "short": "c8782b7bd",
+        "branch": "fix/hook-paths-cwd",
+        "pushed": null
+      }
     }
   ],
   "changes": [
