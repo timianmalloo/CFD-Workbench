@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T03:22:42Z",
+  "generated": "2026-10-05T03:39:32Z",
   "audit": [
     {
       "actor": null,
@@ -24487,6 +24487,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T03:21:17Z",
       "duration_seconds": 85.0
+    },
+    {
+      "id": "al-01M452ACQKPXCBZWW074WMYSWK",
+      "shortname": "join-a3a-prj-followup",
+      "datetime": "2026-10-05T03:39:32Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/a3a-prj-followup into feature/ui-cad-direction",
+      "summary": "PRJ-3 (Grok 4.7), the CFD review's conditions: proposed COPY-240 'e above 1 — check the lattice' for e > 1.02 and e > 1 off the default lattice; proposed COPY-217 names each fixture's lattice; StripLoad edges renamed YLow/YHigh (new this session; no stored use). 41/41 PRJ named PASS. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T03:38:05Z",
+      "duration_seconds": 87.0
     }
   ],
   "changes": [
