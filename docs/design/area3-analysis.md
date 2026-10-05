@@ -1143,6 +1143,12 @@ are marked ✚.
 | `F7_LinearWashout_TipAlphaEffBelowRoot` (VLM) | A | est. 0.1 s | §13.2 F-7 |
 | `F15_EllipticWing_InducedAngleUniform` (VLM) | A | in F-6 | §13.2 F-15 |
 | `F16_BertinSmithSwept_ClAlpha3p443` (VLM) | A | µs | §13.2 F-16 |
+| `F18_Camber4_DefaultLatticeTipConverges` (VLM) | A | 447 ms measured alone | §13.2 F-18 |
+| `F19_Washin1_DefaultLatticeTipConverges` (VLM) | A | 384 ms measured alone | §13.2 F-19 |
+| `F20_EllipticStraightQuarterChord_SweepZero` (VLM) | A | 220 ms measured alone | §13.2 F-20 |
+| `Readiness_Camber4_N256Point` (VLM) | R | 2.427 s measured | §13.2 F-18 |
+| `Readiness_Washin1_N256Solves` (VLM) | R | 2.254 s measured | §13.2 F-19 |
+| `Readiness_EllipticQuarterChord_SweepZeroFine` (VLM) | R | 2.575 s measured | §13.2 F-20 |
 | `Vlm_ClosingTip_FiniteAndListed` (VLM) | A | < 10 ms | the panel normal from the leading-edge segment (zero area at the tip) |
 | `Vlm_NonFinite_RecordsFailedNotZero` (VLM) | A | < 10 ms | a non-finite Γ replaced by 0 |
 | `Vlm_AlphaBeyondEnvelope_ShowsEnvelopeFinding` (VLM) | A | ≈ 50 ms | the verdict computed on α_geo, not α_eff |
