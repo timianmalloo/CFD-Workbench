@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T02:03:05Z",
+  "generated": "2026-10-05T02:18:39Z",
   "audit": [
     {
       "actor": null,
@@ -24337,6 +24337,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T02:01:41Z",
       "duration_seconds": 84.0
+    },
+    {
+      "id": "al-01M44XP9KNG1ZW9KJ2DSMWG04H",
+      "shortname": "a3a-prj-projection",
+      "datetime": "2026-10-05T02:18:39Z",
+      "session": "prj",
+      "prompt": "Track PRJ — analysis projection, labels, copy (A3a)",
+      "summary": "Implemented Analysis projection and COPY-206…239 proposals; 31/31 PRJ names pass. Null-to-zero mutant red then green. All four suites pass, but run-tests exits 3: wall 87 s versus 60 s, load 14.42 to 21.45; repair cap reached.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Analysis/AnalysisProjection.cs",
+        "DESIGN.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Project the joined Area 3 run data into labelled analysis results, loads, layers, and copy.",
+      "done_when": "PRJ named tests and required gates pass, copy proposals are listed, and measured costs are reported.",
+      "tier": "T1",
+      "started_at": "2026-10-05T02:08:26Z",
+      "duration_seconds": 613.0
     }
   ],
   "changes": [
