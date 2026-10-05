@@ -837,3 +837,21 @@ Operator 2026-10-04: 'the catalog mockup looks great'. DR-M12D-1: Replace fits t
 Operator 2026-10-04 (AskUserQuestion). DR-XPA-0 (a): compatible fit - each station section stays as drawn (different point counts allowed); a derived compatible copy of each section on a shared spacing feeds the blend and the certificate (one definition), admitted at 10 um. DR-XPA-1 (c): edits past the blend certificate's capacity (about 5 Bezier spans per section for two different sections) are refused early now, and a spike tries to raise the node budget and re-derive the all-query bound. DR-XPA-2 (a): evaluator id cfdw-cv/3 written only when station sections differ in spacing. DR-XPA-3 (a): a compatible copy over 10 um refuses the step. DR-XPA-4 (a): the residual measured on the placed surface decides. DR-XPA-5 (a): the match is checked on release only in the first build. DR-XPA-6 (a): SetTangent Angle is built y-only (fixes F-XPA-1). Start now: the certificate budget spike, the M1.2d build (after the Angle fix, which shares SectionEdits.cs), the Angle y-only fix, and A3a SVC; the VLM solver repair (CFD review BLOCK: LU pivot defect) starts regardless.
 
 - request: req-01M44J0QAH6867GVF6R0VZ8N8X · ruled by: operator-timianmalloo · at: 2026-10-04T22:54:38Z
+
+### Ruling 74 — Blend certificate capacity: heap, node budget scales, bound kept (DR-XPA-1)
+
+Option a. Bernstein.Maximum keeps pending nodes in a max-heap (tie order = insertion, bit-identical results); node budget N(s) = max(256, 48 s); the 1e6 all-query operation bound stays, its model charging the heap's comparisons. Evidence: docs/proof/blend-certificate-heap/verdict.md (0 differences on 52 fixtures; 2-4 differing stations to 27 spans). Lands after M1.2d RPL, through Geometry.BlendSpanLimit().
+
+- request: req-01M44N59WXS56EP0VQAZD8MKMV · ruled by: operator-timianmalloo · at: 2026-10-04T23:58:35Z
+
+### Ruling 75 — Tip strip envelope verdict: lattice-scaled tolerance (DR-VLM-1)
+
+Option c, not the recommendation. The outermost strip per half stays in the envelope verdict, judged with a tolerance that scales with lattice resolution so the verdict does not flip with refinement. The tolerance law needs its own study (measured alpha_i at the tip vs resolution, the default cosine lattice included) before it is built; until then the tip strip's verdict is shown provisional.
+
+- request: req-01M44N5A9NCSBPQYVX8N6VAASP · ruled by: operator-timianmalloo · at: 2026-10-04T23:58:35Z
+
+### Ruling 76 — VLM verified label: default lattice only (DR-VLM-2)
+
+Option a. Only the default lattice (64 span x 4 chord, cosine/cosine) carries the verified label; results on other lattices read 'outside the verified lattice family' and flag their near-field diagnostics. The design records chordwise near-field convergence as not quantified.
+
+- request: req-01M44N5AQ3P3G15T40AB6N1SMB · ruled by: operator-timianmalloo · at: 2026-10-04T23:58:36Z

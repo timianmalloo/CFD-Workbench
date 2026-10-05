@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-04T23:31:16Z",
+  "generated": "2026-10-05T00:00:34Z",
   "audit": [
     {
       "actor": null,
@@ -23953,6 +23953,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T23:29:43Z",
       "duration_seconds": 93.0
+    },
+    {
+      "id": "al-01M44NSEBZC9NX796S4EZBBVM5",
+      "shortname": "join-m12d-cat",
+      "datetime": "2026-10-05T00:00:34Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12d-cat into feature/ui-cad-direction",
+      "summary": "CAT (Grok 4.7): Catalog (19 rows; NACA 0009/0012/4412 generated, hashes embedded; VEND/LINK disabled; fairings absent), Provenance (format/parse, legacy DAT, rights, MarkModified, not-recorded never guessed) carried through every block rewriter. 13/13 named PASS; 4412 frame matches probe G4. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-04T23:59:06Z",
+      "duration_seconds": 88.0
     }
   ],
   "changes": [
