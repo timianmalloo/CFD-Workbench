@@ -1552,3 +1552,16 @@ strip detail and 3D lift arrows. Derive: carry original `ya/yb` with each stored
 reader. Control: `Projection_ExcludedClosingTip_UsesKeptStripEdges` compares all width-dependent outputs with direct
 integration after excluding a closing-tip strip; `Projection_LegacyStripEdges_OmittedAndHashIntact` guards expansion.
 Older incomplete rows without edges report width-dependent outputs as Unavailable.
+
+**DLG-ROW-INDEX · A rendered row test treats position as identity.** The Section Source row made the existing
+Own t/c test fail because it read `Rows[0]`. Sweep: the station and section row checks in `PointsPaneTests` and
+`CatalogDialogTests`; the other checks use stable keys or labels. Derive: a test of one quantity selects its
+stable row key and then asserts the value and surrounding state. Control: `Properties_SectionGroup_OwnTcAndPerStationTcConsequence`
+now reads `sec:own` by key and passes with the Source row present.
+
+**DLG-MODAL-AWAIT · A command sweep awaits a modal choice it never supplies.** Adding the catalog and save commands
+made the status-strip command sweep stop after its earlier checks. Sweep: the section command table's three modal
+entries (Import, Replace, Save); all remain in the availability/reason pass. Derive: the generic command sweep
+does not execute modal rows; rendered dialog checks supply each choice and assert the result. Control:
+`SectionCommands_EveryRow_RunsOrNamesReason` excludes those three from its execution loop and passes in the
+`--status-strip --part=1/3` fast partition; DLG's dialog checks cover Replace and Save.

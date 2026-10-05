@@ -220,7 +220,9 @@ public static class PointsPaneTests
             // In the mode with a control point selected, every row runs or names why not; a run leaves a report.
             SelectControl(controller);
             Settle(window);
-            foreach (var id in ids.Where(id => id is not ("section.finish" or "section.cancel" or "section.import-dat")))
+            // Modal commands have their own dialog checks; awaiting them here would wait for an operator choice.
+            foreach (var id in ids.Where(id => id is not ("section.finish" or "section.cancel" or "section.import-dat"
+                or "section.replace-catalog" or "section.save-mine")))
             {
                 string? reason = host.ShellCommandReason(id);
                 string before = host.StatusStrip.Text;
@@ -387,9 +389,10 @@ public static class PointsPaneTests
             var facts = Sections.Facts(mode.Draft.Bytes, mode.Draft.Assignment);
             var groups = host.Properties.ShownModel!.Groups;
             var section = groups.Single(group => group.Id == "sec");
+            var ownRow = section.Rows.Single(row => row.Key == "sec:own");
             string own = $"{Quantity.Typed(facts.OwnThickness * 100)} % at {Quantity.Typed(facts.OwnThicknessX * 100)}";
             var stations = section.Rows.Where(row => row.Label.StartsWith("t/c at ", StringComparison.Ordinal)).ToList();
-            if (section.Rows[0] is not { Label: "Own t/c" } || section.Rows[0].Value != own || stations.Count != 2 ||
+            if (ownRow is not { Label: "Own t/c" } || ownRow.Value != own || stations.Count != 2 ||
                 stations.Any(row => row.Unit != "%") || section.Notes[0].Text != PropertiesView.ThicknessNote ||
                 !groups.Single(group => group.Id == "sec-le").Rows.Any(row => row is { Key: "sec:intent", Value: "channel" }))
                 throw new InvalidOperationException("Section group: " + string.Join(" | ", section.Rows.Select(row => $"{row.Label}={row.Value}")));
@@ -399,8 +402,9 @@ public static class PointsPaneTests
             Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, point.Ordinate + 0.01)));
             Settle(window);
             section = host.Properties.ShownModel!.Groups.Single(group => group.Id == "sec");
-            if (section.Rows[0].Value == own || section.Rows.First(row => row.Label.StartsWith("t/c at ", StringComparison.Ordinal)).Value != rootBefore)
-                throw new InvalidOperationException($"own t/c {section.Rows[0].Value} (was {own}); station t/c moved");
+            ownRow = section.Rows.Single(row => row.Key == "sec:own");
+            if (ownRow.Value == own || section.Rows.First(row => row.Label.StartsWith("t/c at ", StringComparison.Ordinal)).Value != rootBefore)
+                throw new InvalidOperationException($"own t/c {ownRow.Value} (was {own}); station t/c moved");
             var texts = host.Properties.GetVisualDescendants().OfType<TextBlock>().Where(text => text.IsEffectivelyVisible).Select(text => text.Text).ToList();
             if (!texts.Contains("Own t/c") || !texts.Contains(PropertiesView.ThicknessNote))
                 throw new InvalidOperationException("Section group not rendered");
