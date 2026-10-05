@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T16:41:55Z",
+  "generated": "2026-10-05T16:47:04Z",
   "audit": [
     {
       "actor": null,
@@ -25589,32 +25589,91 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46F2ZGX1Q07Z90EDF303A3P",
-      "shortname": "s1-ruling-91-floor",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-05T16:41:55Z",
-      "session": "trk-s1",
-      "prompt": "S1 Ruling 91 tip-chord floor",
-      "summary": "Added AnalysisService.TipChordRatioFloor=0.02 (Ruling 91) with ANA-TIP-BELOW-FLOOR refused before compute/row, red-first (mutant floor 0 red), r=0.01 still opens and edits, r=0.02 evaluates. Core Geometry.cs not edited per seam ruling. Marker, doc comment, area3 updated. Full ring green, check-docs and 12 gates ok.",
+      "done_when": "r=0.01 refused red-first, r=0.02 evaluates, gates green",
+      "duration_seconds": 353.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "fix/tip-salvage-s1",
+        "pushed": null,
+        "sha": "7fef7e59daef726aec06f4aa83383dfbca21dd06",
+        "short": "7fef7e59d"
+      },
+      "goal": "Ruling 91 tip-chord floor on the Analysis side",
+      "id": "al-01M46F2ZGX1Q07Z90EDF303A3P",
       "kind": "skill",
+      "outcome": "success",
+      "prompt": "S1 Ruling 91 tip-chord floor",
+      "session": "trk-s1",
+      "shortname": "s1-ruling-91-floor",
       "skill": "implement",
+      "started_at": "2026-10-05T16:36:02Z",
+      "summary": "Added AnalysisService.TipChordRatioFloor=0.02 (Ruling 91) with ANA-TIP-BELOW-FLOOR refused before compute/row, red-first (mutant floor 0 red), r=0.01 still opens and edits, r=0.02 evaluates. Core Geometry.cs not edited per seam ruling. Marker, doc comment, area3 updated. Full ring green, check-docs and 12 gates ok.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/specs/cfd-workbench-v1.md",
+        "docs/specs/cfd-workbench-v1.html",
+        "docs/design/area3-analysis.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-05T16:42:30Z",
+      "done_when": "Spec re-rendered and parity-checked, check-docs 0, 12 gates pass",
+      "duration_seconds": 297.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "chore/ruling-92",
+        "pushed": null,
+        "sha": "6d5be30f48c2ce619d7a633285e47ff153981e4a",
+        "short": "6d5be30f4"
+      },
+      "goal": "Apply Ruling 92 spec amendments and the Ruling 86/90 design amendments",
+      "id": "al-01M46F41QSG3FNV7Q2MCMZDEDP",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "DOCS spec and design amendments (Rulings 86, 88, 90, 92)",
+      "session": "trk-docs",
+      "shortname": "trk-docs",
+      "skill": "implement",
+      "started_at": "2026-10-05T16:37:33Z",
+      "summary": "Spec 1.7.3: A5.4 governing station (Ruling 86), tip end of record (Ruling 88 D3), SPIKE-04 code-to-code (Ruling 88 D16, 79), Appendix H.3; spec HTML re-rendered, parity check green. Design 5.1 section tier row (A3b D1, Ruling 90), cavitation paragraph (Ruling 86), 10.7 % margin beside the p95 trigger.",
+      "tags": [],
+      "tier": "T0",
+      "tool": null
+    },
+    {
+      "id": "al-01M46FCDDNYBA87WTMZH5DDP8R",
+      "shortname": "join-rulings-92-93",
+      "datetime": "2026-10-05T16:47:04Z",
+      "session": "4e90c621",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Rulings 92 (tip copy, spec amendments) and 93 (min tip chord max(5 mm, 2 % root) as a design rule); spec 1.7.3 rendered and parity-checked; design 5.1 rows (panel single definition, 200 panels, cavitation governing rule, residual margin) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Ruling 91 tip-chord floor on the Analysis side",
-      "done_when": "r=0.01 refused red-first, r=0.02 evaluates, gates green",
+      "goal": "join rulings-92-93 into main (round-oct05)",
+      "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
-      "started_at": "2026-10-05T16:36:02Z",
-      "duration_seconds": 353.0,
-      "git": {
-        "sha": "7fef7e59daef726aec06f4aa83383dfbca21dd06",
-        "short": "7fef7e59d",
-        "branch": "fix/tip-salvage-s1",
-        "pushed": null
-      }
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T16:47:01Z",
+      "duration_seconds": 3.0
     }
   ],
   "changes": [
@@ -26886,6 +26945,42 @@ window.AUDIT_DATA = {
       "to": "4e90c621",
       "kind": "ruling",
       "ref": "req-01M46EDDVK6VS255ZQ9XCVYN9Q",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46ET6X4GGMFYZCMY5DBT6FK",
+      "ts": "2026-10-05T16:37:08Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46ET6X0RNQ8E6J1BE5KNG5E",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46ET765J40F6ENBZ5886A3M",
+      "ts": "2026-10-05T16:37:08Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46ET6X0RNQ8E6J1BE5KNG5E",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46F8Q4WGE05MNCKB21MK7VA",
+      "ts": "2026-10-05T16:45:03Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46F8Q4RB9GRVPNT6NV7T8YD",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46F8QDHGAG3AN1CQ07SKTQ2",
+      "ts": "2026-10-05T16:45:03Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46F8Q4RB9GRVPNT6NV7T8YD",
       "session": "operator-timianmalloo"
     }
   ]
