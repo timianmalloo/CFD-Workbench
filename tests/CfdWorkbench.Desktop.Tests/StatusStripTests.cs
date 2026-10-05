@@ -85,7 +85,7 @@ public static class StatusStripTests
             CommitChord(controller, host, 10.1);
             var toast = NeedToast(host);
             if (!toast.IsVisible) throw new InvalidOperationException("no toast after the warning");
-            WaitUntilHidden(toast, "the toast outlived its hold");
+            WaitUntilHidden(toast, hold, "the toast outlived its hold");
             CommitChord(controller, host, 9.5);
             if (!toast.IsVisible) throw new InvalidOperationException("no toast after the second warning");
             Hover(toast, entered: true);
@@ -94,7 +94,7 @@ public static class StatusStripTests
                     ? "the hold interval never elapsed"
                     : "the hold ran while the pointer was over the toast");
             Hover(toast, entered: false);
-            WaitUntilHidden(toast, "the hold did not restart when the pointer left");
+            WaitUntilHidden(toast, hold, "the hold did not restart when the pointer left");
         });
 
         Pane("Toast_EscInside_ClosesAndReturnsFocus", (controller, host, window) =>
@@ -294,12 +294,22 @@ public static class StatusStripTests
             KeyModifiers.None));
     }
 
-    // Eight seconds only fails when the toast never hides or the hold interval never elapses. It is not the hold.
+    // Four holds on the dispatcher clock, started while the toast is open and before the dispatcher
+    // runs again. Load delays this timer and the toast's own hold alike. Eight seconds only fails
+    // when neither the hide nor this bound ever arrives. It is not the hold.
     private static readonly TimeSpan HoldDeadline = TimeSpan.FromSeconds(8);
+    private const int HoldBoundFactor = 4;
 
-    private static void WaitUntilHidden(Control toast, string failure)
+    private static void WaitUntilHidden(Control toast, TimeSpan hold, string failure)
     {
-        PumpUntil(toast, () => !toast.IsVisible, null);
+        bool outlived = false;
+        var timer = new DispatcherTimer { Interval = hold * HoldBoundFactor };
+        PumpUntil(toast, () => outlived || !toast.IsVisible, stop =>
+        {
+            timer.Tick += (_, _) => { outlived = true; timer.Stop(); stop(); };
+            timer.Start();
+        });
+        timer.Stop();
         if (toast.IsVisible) throw new InvalidOperationException(failure);
     }
 
