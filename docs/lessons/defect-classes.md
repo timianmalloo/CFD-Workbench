@@ -1568,3 +1568,19 @@ entries (Import, Replace, Save); all remain in the availability/reason pass. Der
 does not execute modal rows; rendered dialog checks supply each choice and assert the result. Control:
 `SectionCommands_EveryRow_RunsOrNamesReason` excludes those three from its execution loop and passes in the
 `--status-strip --part=1/3` fast partition; DLG's dialog checks cover Replace and Save.
+
+**HOOK-CWD-RELATIVE · A hook command names its script by a path relative to the shell's working directory.** On
+2026-10-05 one Bash call ran `cd .claude/skills/execute-with-coordination`; the session cwd stayed there; every
+PreToolUse hook then failed (`can't open file '.../skills/execute-with-coordination/docs/ai-forward-pack/hooks/mail-doorbell.py'`)
+and blocked every tool call until the operator ran `cd <repo>`. Sweep: all four configs. `.claude/settings.json` (10)
+and `.grok/hooks/ai-forward.json` (8) and `.github/hooks/ai-forward.json` (12 bash + 12 powershell) used the bare
+form; `.agents/hooks.json` already used `$(git rev-parse --show-toplevel)/...`. The hook scripts themselves locate
+the repo from cwd by walking parents (`coord-core.repo_root`), so they are subdirectory-safe; `session-start.py`
+alone gates on `<cwd>/docs` and silently no-ops from a subdirectory (fail-open, not a crash; not changed here).
+Derive: keep the relative path when it exists (so the hook still acts on the tree it runs in), else fall back to
+`git rev-parse --show-toplevel` from the same cwd (same tree in a primary checkout and a linked worktree);
+PowerShell gets the equivalent `Test-Path` / `Join-Path` form. Control: `tools/check-pack-hooks.py` now reads all four
+configs and fails on any hook command that names `docs/ai-forward-pack/hooks/*.py` without the toplevel fallback;
+planted bare command red, restored green. OPEN UPSTREAM: these configs are installed by the AI-Forward pack
+(`docs/ai-forward-pack/hooks/copilot.ai-forward-hooks.json` and the pack's Claude/Grok templates), so the fix must
+also land in the pack source or `/updatepack` reinstalls the bare form and the new control goes red.
