@@ -204,7 +204,7 @@ internal static class StripFixtureTests
         {
             bool tip = i == 0 || i == 127;
             StripLoad strip = strips[i];
-            if (strip.Ya is null || strip.Yb is null || !(strip.Yb > strip.Ya))
+            if (strip.YLow is null || strip.YHigh is null || !(strip.YHigh > strip.YLow))
                 throw new InvalidOperationException("strip " + i + " edges missing");
             if (strip.Provisional != tip || (tip ? strip.ProvisionalReason != StripLoad.TipProvisionalReason : strip.ProvisionalReason is not null))
                 throw new InvalidOperationException("strip " + i + " provisional " + strip.Provisional + " " + strip.ProvisionalReason);

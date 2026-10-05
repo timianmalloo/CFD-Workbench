@@ -55,8 +55,9 @@ public sealed class ProductWingMethod : IWingMethod
         IReadOnlyList<StripLoad> loads = StripCoupler.Couple(sections, solution, op, water, polar, cancellation);
         var withEdges = loads.Select((load, i) => load with
         {
-            Ya = solution.Strips[i].YInboard,
-            Yb = solution.Strips[i].YOutboard
+            // Lattice YInboard/YOutboard are the lower-y and higher-y edges; stations increase in y.
+            YLow = solution.Strips[i].YInboard,
+            YHigh = solution.Strips[i].YOutboard
         }).ToArray();
         return MarkOutermostProvisional(withEdges);
     }

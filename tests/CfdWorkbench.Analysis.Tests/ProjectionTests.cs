@@ -55,13 +55,25 @@ internal static class ProjectionTests
             var (run, _) = Data();
             string json = System.Text.Json.JsonSerializer.Serialize(run,
                 new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
-            Equal(false, json.Contains("\"ya\"", StringComparison.Ordinal));
-            Equal(false, json.Contains("\"yb\"", StringComparison.Ordinal));
+            Equal(false, json.Contains("\"ya\":", StringComparison.Ordinal));
+            Equal(false, json.Contains("\"yb\":", StringComparison.Ordinal));
+            Equal(false, json.Contains("\"yLow\":", StringComparison.Ordinal));
+            Equal(false, json.Contains("\"yHigh\":", StringComparison.Ordinal));
             Equal(run.ContentHash, RunRecord.ContentHash(run));
             Equal(true, Cell(View(run), "Wing result", "CDi (Trefftz)").Value != "Unavailable");
+            var edged = Rehash(run with
+            {
+                Strips = run.Strips.Select((s, i) => s with { YLow = -0.4 + 0.2 * i, YHigh = -0.2 + 0.2 * i }).ToArray()
+            });
+            string edgedJson = System.Text.Json.JsonSerializer.Serialize(edged,
+                new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+            Equal(true, edgedJson.Contains("\"yLow\":", StringComparison.Ordinal), "yLow");
+            Equal(true, edgedJson.Contains("\"yHigh\":", StringComparison.Ordinal), "yHigh");
+            Equal(false, edgedJson.Contains("\"ya\":", StringComparison.Ordinal), "ya retired");
+            Equal(false, edgedJson.Contains("\"yb\":", StringComparison.Ordinal), "yb retired");
         });
         Check("Projection_OneMissingSpanEdge_WidthUnavailable", () => {
-            var view = View(s => s.J == 0 ? s with { Ya = -0.4 } : s);
+            var view = View(s => s.J == 0 ? s with { YLow = -0.4 } : s);
             Equal("Unavailable", Cell(view, "Wing result", "CDi (Trefftz)").Value);
             Equal("Unavailable", Cell(view, "Wing result", "e (computed)").Value);
         });
@@ -70,18 +82,18 @@ internal static class ProjectionTests
             double Edge(int j) => -Math.Cos(Math.PI * j / 4) * run.Reference.BRef / 2;
             var kept = run.Strips.Skip(1).Select(s => s with
             {
-                J = s.J - 1, Ya = Edge(s.J), Yb = Edge(s.J + 1)
+                J = s.J - 1, YLow = Edge(s.J), YHigh = Edge(s.J + 1)
             }).ToArray();
             run = Rehash(run with { Strips = kept });
             var view = View(run);
-            double drag = 0.5 * run.Water.Rho * kept.Sum(s => s.Gamma * -s.DownwashTrefftz * (s.Yb!.Value - s.Ya!.Value));
+            double drag = 0.5 * run.Water.Rho * kept.Sum(s => s.Gamma * -s.DownwashTrefftz * (s.YHigh!.Value - s.YLow!.Value));
             double moment = run.Water.Rho * run.Op.Speed * kept.Where(s => s.Y >= 0)
-                .Sum(s => s.Gamma * s.Y * (s.Yb!.Value - s.Ya!.Value));
+                .Sum(s => s.Gamma * s.Y * (s.YHigh!.Value - s.YLow!.Value));
             Equal(drag.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture), Cell(view, "Wing result", "Induced drag").Value);
             double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
             Equal((drag / (q * run.Reference.SRef)).ToString("0.00000", System.Globalization.CultureInfo.InvariantCulture),
                 Cell(view, "Wing result", "CDi (Trefftz)").Value);
-            double trefftzLift = run.Water.Rho * run.Op.Speed * kept.Sum(s => s.Gamma * (s.Yb!.Value - s.Ya!.Value));
+            double trefftzLift = run.Water.Rho * run.Op.Speed * kept.Sum(s => s.Gamma * (s.YHigh!.Value - s.YLow!.Value));
             double cl = trefftzLift / (q * run.Reference.SRef);
             double ar = run.Reference.BRef * run.Reference.BRef / run.Reference.SRef;
             Equal(Trefftz.Oswald(cl, ar, drag / (q * run.Reference.SRef))
@@ -90,7 +102,7 @@ internal static class ProjectionTests
             Equal(moment.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture), Cell(view, "Loads", "Root bending moment").Value);
             var samples = view.Layers.Single(l => l.Id == "strip-lift").Samples;
             for (int i = 0; i < kept.Length; i++)
-                Equal(kept[i].Fz / (kept[i].Yb!.Value - kept[i].Ya!.Value), samples[i].Value!.Value);
+                Equal(kept[i].Fz / (kept[i].YHigh!.Value - kept[i].YLow!.Value), samples[i].Value!.Value);
         });
         Check("Projection_NoRun_NoAnalysisYetNoLayers", () => {
             var (_, current) = Data(); var v = AnalysisProjection.Build(null, current, Units.Metric); Equal(RunState.NoResult, v.State);

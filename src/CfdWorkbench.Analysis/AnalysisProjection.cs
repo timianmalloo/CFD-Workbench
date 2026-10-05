@@ -204,8 +204,8 @@ public static class AnalysisProjection
         0.5 * run.Water.Rho * run.Strips.Sum(s => s.Gamma * -s.DownwashTrefftz * Width(run, s));
     private static double Width(AnalysisRun run, StripLoad strip)
     {
-        if (strip.Ya.HasValue != strip.Yb.HasValue) return 0;
-        if (strip.Ya.HasValue && strip.Yb.HasValue) return strip.Yb.Value - strip.Ya.Value;
+        if (strip.YLow.HasValue != strip.YHigh.HasValue) return 0;
+        if (strip.YLow.HasValue && strip.YHigh.HasValue) return strip.YHigh.Value - strip.YLow.Value;
         if (run.Strips.Count != 2 * run.Settings.NSpanPerHalf) return 0;
         int j = strip.J;
         int n = run.Settings.NSpanPerHalf, total = 2 * n;
@@ -267,7 +267,8 @@ public static class AnalysisProjection
     }
     private static string? EAdvisory(double? e, RunSettings settings) => e is null ? null
         : e < 0.85 ? Labels.EBelowBand
-        : e > 1 && e <= 1.02 && Labels.DefaultLattice(settings) ? Labels.EAboveOne : null;
+        : e > 1 && e <= 1.02 && Labels.DefaultLattice(settings) ? Labels.EAboveOne
+        : e > 1.02 || (e > 1 && !Labels.DefaultLattice(settings)) ? Labels.EAboveLatticeCheck : null;
     private static string Derived(DerivedValue value, string format) => value.Value.HasValue ? Num(value.Value.Value, format)
         : value.Reason == DerivedReason.DepthNotSet ? "Unavailable — depth not set" : "Undefined — speed ≤ 0";
     private static string Val(double? value, string format) => value.HasValue && double.IsFinite(value.Value) ? Num(value.Value, format) : "Unavailable";
