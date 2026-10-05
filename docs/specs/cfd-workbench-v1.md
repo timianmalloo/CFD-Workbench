@@ -63,6 +63,9 @@ summary: >-
   Revision 1.7.3 applies Ruling 92 (with Rulings 86, 88 D3 and D16, and 79): the cavitation screen is governed by the
   station with the smallest σ_i/(−Cp_min,i), the v1 tip of record is the open planar end at the last authored station,
   and SPIKE-04 is code-to-code against CFL3D until an L3 grid triplet is admitted (Appendix H.3).
+  Revision 1.7.4 applies Rulings 93, 94 and 95: a wing tip is always a finite chord (a tip point is out of scope for
+  v1), the tip chord is never less than max(5 mm, 2 % of the root chord), the planform edits refuse an edit that would
+  cross it, and the analysis refusal for older files names the same minimum (Appendix H.4).
 review-suggested:
   - { by: mockup-workbench-v3, on: 2026-09-20, reason: "Mockup v3 (thick-client shell) supersedes v2 as the review artifact; shell contract proven by tools/check-mockup-v3.mjs; UI-23 and the activity rail in spec 1.1a." }
   - { by: mockup-workbench-v4, on: 2026-09-20, reason: "Mockup v4 (CAD editing views) supersedes v3; spec 1.2 CAD-04–06, UX-23, UI-24–25; oracle tools/check-mockup-v4.mjs." }
@@ -78,7 +81,7 @@ review-suggested:
 
 ## One definition. Every number with its basis. Nothing claimed that a fixture has not earned.
 
-Product specification · revision 1.7.3 · 5 October 2026 · *(1.7.3: Ruling 92 amendments to A5.4, the tip end and SPIKE-04, Appendix H, section H.3; 1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md); 1.7.1: the solver-security right-size, Appendix H, section H.1 and [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md); 1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
+Product specification · revision 1.7.4 · 5 October 2026 · *(1.7.4: Rulings 93 and 95, the minimum tip chord, Appendix H, section H.4; 1.7.3: Ruling 92 amendments to A5.4, the tip end and SPIKE-04, Appendix H, section H.3; 1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md); 1.7.1: the solver-security right-size, Appendix H, section H.1 and [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md); 1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.** Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
@@ -803,6 +806,14 @@ with the specific semantics for them"*):
   upper and a lower handle length and the LE radius as readouts); the **upper and lower trailing-edge terminal
   points** (Anchor; move up and down only; the TE gap and wedge angle are readouts). Selecting a named point and typing
   its position is how the designer "specifies a point".
+- **Tip chord** *(1.7.4, Ruling 93, Ruling 95)*. A wing tip is always a finite chord. A tip point or closing tip is out
+  of scope for v1. The tip chord is never less than the minimum tip chord, max(5 mm, 2 % of the root chord). The
+  planform edit verbs (point drag and nudge, numeric entry, driving dimensions, add, remove, rebuild) refuse an edit
+  that would take the tip chord below the minimum, with the message "Tip chord can't go below <min> (the larger of 5 mm
+  and 2 % of the root chord)." A file already below the minimum opens (geometry certification is unchanged) and may be
+  edited toward the minimum. Analysis refuses such a file with ANA-TIP-BELOW-FLOOR ("Unavailable — tip chord under the
+  minimum (<min>). The tip is not certified for analysis."). The minimum is a geometry and analysis-validity rule, not a
+  buildability rule; per-route minimum tip thickness is an advisory DRC finding.
 - Changing a point's type is one undoable step. It changes this curve only between the nearest Anchor points on either
   side of the point, and never another curve. *(1.7: on a section the point types are **paired** — Ruling 60; per-surface
   types are parked as OI-12C-DR11. Type, tangent kind and x act on a point and its partner on the other surface as one
@@ -3020,5 +3031,18 @@ operator's wording. No amendment invents a product decision; the text is the rul
 | A4 Named points, the tip end | "carries the tip closure" | "carries the tip closure — in v1 the open planar end at the last authored station, the one tip every consumer (VLM, RANS mesh, STEP export) reads" | Ruling 88 D3, Ruling 92 |
 | A5.10 readiness fixture and the SPIKE-03/04 paragraph (SPIKE-04) | "NASA TMR NACA 0012 with GCI" | "NASA TMR NACA 0012, code-to-code against CFL3D (SPIKE-04); the GCI clause returns when an L3 grid triplet is admitted (Ruling 79)" | Ruling 88 D16, Ruling 79, Ruling 92 |
 
-**Not in this revision.** The tip copy (COPY-218, COPY-219, COPY-220 and the new floor refusal) is a Ruling 92 code and
-Labels change, made by a separate track.
+**Not in this revision.** The tip copy is a Labels and DESIGN.md §7 change, made by the TIP-RULES track under Rulings 92
+and 94 (see H.4): COPY-218 and COPY-219 retired, COPY-220, COPY-241 and COPY-242.
+
+### H.4 — Changes from revision 1.7.3 (revision 1.7.4, 2026-10-05)
+
+**Why.** Ruling 93 (operator, 2026-10-05) made a finite tip chord with a minimum a design rule; Ruling 94 approved the
+copy; Ruling 95 approved the paragraph below as drafted. No amendment invents a product decision; the text is the
+rulings' text.
+
+**Changed** (inserted in place, marked *(1.7.4, Ruling 93, Ruling 95)*):
+
+| Where | Before | After | Ruling |
+|---|---|---|---|
+| A4 Named points, after the tip end | (no statement of tip chord) | New **Tip chord** paragraph: a finite chord always; minimum max(5 mm, 2 % of the root chord); the planform edit verbs refuse an edit below it; files below it open and edit toward it; analysis refuses with ANA-TIP-BELOW-FLOOR; the minimum is not a buildability rule | Ruling 93, Ruling 94, Ruling 95 |
+| H.3 "Not in this revision" note | "The tip copy (COPY-218, COPY-219, COPY-220 and the new floor refusal) is … made by a separate track." | COPY-218 and COPY-219 retired, COPY-220 "Not judged — tip strip", COPY-241 the analysis refusal, COPY-242 the editor refusal | Ruling 92, Ruling 94, Ruling 95 |
