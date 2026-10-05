@@ -1296,39 +1296,26 @@ public static class FoilSource
                 pointsEnd = close.End;
                 points.Add((x, y));
             } while (Optional(","));
-            Expect("]");
-            SourceToken[]? ids = null;
+            Expect("]"); SourceToken[]? ids = Optional("ids") ? List(Name) : null;
             var tangents = new List<TangentDraft>();
-            // Either order. The canonical text writes ids then tangents; a row that sits first still
-            // has an id token, which MakeIndependent retargets by span. A second block fails at '}'.
             if (Current.Text == "tangents")
             {
-                ReadTangentBlock(tangents);
-                if (Optional("ids")) ids = List(Name);
-            }
-            else if (Optional("ids"))
-            {
-                ids = List(Name);
-                if (Current.Text == "tangents") ReadTangentBlock(tangents);
+                var keyword = Current;
+                if (version.String != "4.1") throw Failure("DSL-SYNTAX", "Syntactic", keyword);
+                Take();
+                Expect("{");
+                while (Current.Text != "}")
+                {
+                    var id = Name();
+                    var kindToken = Word();
+                    SourceToken? angle = kindToken.Text == "angle" ? Number() : null;
+                    tangents.Add(new(id, kindToken, angle));
+                }
+                Expect("}");
             }
             int insert = Current.Start; Expect("}");
             var curve = new RawCurve(path, degree, knots, points.ToArray(), ids, insert, profile, pointsStart, pointsEnd) { Tangents = tangents.ToArray() };
             rawCurves.Add(curve); return curve;
-        }
-        private void ReadTangentBlock(List<TangentDraft> tangents)
-        {
-            var keyword = Current;
-            if (version.String != "4.1") throw Failure("DSL-SYNTAX", "Syntactic", keyword);
-            Take();
-            Expect("{");
-            while (Current.Text != "}")
-            {
-                var id = Name();
-                var kindToken = Word();
-                SourceToken? angle = kindToken.Text == "angle" ? Number() : null;
-                tangents.Add(new(id, kindToken, angle));
-            }
-            Expect("}");
         }
         private void ReadEvaluator() { Expect("evaluator"); evaluator = Name(); evaluatorVersion = Name(); }
         private ProfileSource ReadProfile(SourceToken name, int index)

@@ -178,7 +178,7 @@ internal static class SectionEditTests
             Equal(true, outside > 0); Equal(true, moved > 0);
         });
         Check("MakeIndependent_TangentRow_NoDslPatch", MakeIndependent_TangentRow_NoDslPatch);
-        Check("MakeIndependent_TangentsBeforeIds_RetargetsRow", MakeIndependent_TangentsBeforeIds_RetargetsRow);
+        Check("Parse_TangentsBeforeIds_RefusedDslSyntax", Parse_TangentsBeforeIds_RefusedDslSyntax);
         Check("MakeIndependent_CollidingIds_TangentNotCascaded", MakeIndependent_CollidingIds_TangentNotCascaded);
         Check("Profile_MakeIndependent_MiddleStationSplitsIntervals", () =>
         {
@@ -299,9 +299,9 @@ internal static class SectionEditTests
         ExpectIndependentTangent(renamed, "smooth", "cv-5");
     }
 
-    // The tangents block sits before the ids list. A window that starts at the last id token
-    // never sees the row, so the copy used to come back as DSL-PATCH.
-    private static void MakeIndependent_TangentsBeforeIds_RetargetsRow()
+    // A tangents block is legal only in 4.1, after ids (docs/specs/foildsl.md). The same
+    // fixture the retarget used, with the block moved in front of the ids list, is DSL-SYNTAX.
+    private static void Parse_TangentsBeforeIds_RefusedDslSyntax()
     {
         byte[] canonical = SectionPointTests.Anchored("smooth", SectionPointTests.SmoothUpper(), SectionPointTests.SmoothLower());
         string text = Encoding.UTF8.GetString(canonical).Replace("\"cv-", "\"pt-", StringComparison.Ordinal);
@@ -314,7 +314,11 @@ internal static class SectionEditTests
         int movedRow = text.IndexOf(row, StringComparison.Ordinal);
         if (movedRow < 0 || text.IndexOf(idsClause.Trim(), movedRow, StringComparison.Ordinal) < movedRow)
             throw new InvalidOperationException("Tangents block did not move before the ids list");
-        ExpectIndependentTangent(Encoding.UTF8.GetBytes(text), "smooth", "cv-5");
+        var parsed = FoilSource.Parse(Encoding.UTF8.GetBytes(text));
+        Equal(false, parsed.IsParsed);
+        Equal("DSL-SYNTAX", parsed.Diagnostics[0].Code);
+        Equal("Syntactic", parsed.Diagnostics[0].Phase);
+        Equal("ids", Encoding.UTF8.GetString(parsed.Source.AsSpan(parsed.Diagnostics[0].ByteStart, parsed.Diagnostics[0].ByteLength)));
     }
 
     // The anchor's id is "cv-1" and the vertex at index 1 is "cv-5", which is that anchor's new id.
