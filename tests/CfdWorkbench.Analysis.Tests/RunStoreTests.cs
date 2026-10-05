@@ -25,6 +25,26 @@ internal static class RunStoreTests
         Check("Tamper_StoredKeySetToCurrent_RunUnavailable", TamperStoredKey);
         Check("Retention_PruneThenUndo_TombstoneReadsPruned", PruneThenUndo);
         Check("RevisionLabel_TwistEdit_OrdinalsAndRail", RevisionLabels);
+        Check("RecordRun_DiagnosticsByOutcome_CompletedOnly", DiagnosticsByOutcome);
+    }
+
+    // SVC-2 (IO8): a Completed row carries its diagnostics and a Failed row carries none, in RecordRun and on read alike.
+    // A Failed row with zeros is refused, never stored as a measured "residual 0"; a stored Failed row has no member.
+    private static void DiagnosticsByOutcome()
+    {
+        using var session = Opened();
+        var failed = Failed(session, 2.0);
+        Refuses("DOC-SCHEMA", () => session.RecordRun(Seal(failed with { Diagnostics = new RunDiagnostics(0, 0) })));
+        Refuses("DOC-SCHEMA", () => session.RecordRun(Seal(Completed(session, 2.0) with { Diagnostics = null })));
+        session.RecordRun(failed);
+        string image = Encoding.UTF8.GetString(session.SaveImage());
+        Equal(false, image.Contains("\"diagnostics\"", StringComparison.Ordinal), "a Failed row's diagnostics member written;");
+        using var reopened = new AuthoringSession();
+        reopened.Reopen(Encoding.UTF8.GetBytes(image));
+        Equal(RunIntegrity.Intact, reopened.ReadRuns().Runs.Single().Integrity, "the Failed row read without the member");
+        // The reader applies the same rule: a Failed row given diagnostics in the file is refused.
+        int at = image.IndexOf("\"wallMs\"", StringComparison.Ordinal);
+        RefusedEmpty("DOC-SCHEMA", image.Insert(at, "\"diagnostics\": { \"residualInf\": 0, \"kappa1\": 0 },\n      "));
     }
 
     // One committed manifest → one committed key. Any change to the JCS form of the key (a member renamed, a value moved
@@ -267,7 +287,7 @@ internal static class RunStoreTests
             new StripValue(null, "no polar method installed"), 0.1, 0.2, 40.5 + j, 1.5, -0.25, 0.75, -0.0125)).ToArray();
         var run = new AnalysisRun(runId ?? Id(), RunRecord.Key(inputs, water, op, method, settingsHash), "", outcome, "vlm-strip",
             method, settings, settingsHash, inputs, water, op, new RunReference(0.12, 1.0, 0.12, "frame-origin", "body"), 0.01,
-            new RunDiagnostics(1e-13, 42.5), rows, 12.5, new RunPlatform("osx", "arm64", "10.0"));
+            rows, 12.5, new RunPlatform("osx", "arm64", "10.0"), outcome is RunOutcome.Completed ? new RunDiagnostics(1e-13, 42.5) : null);
         return Seal(run);
     }
 

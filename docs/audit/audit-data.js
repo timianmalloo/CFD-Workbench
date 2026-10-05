@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T00:00:34Z",
+  "generated": "2026-10-05T00:20:39Z",
   "audit": [
     {
       "actor": null,
@@ -23978,6 +23978,81 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-04T23:59:06Z",
       "duration_seconds": 88.0
+    },
+    {
+      "id": "al-01M44P8KGZAGRVFD70PMCMR2ZS",
+      "shortname": "join-m12d-lib",
+      "datetime": "2026-10-05T00:08:50Z",
+      "session": "f19a2b12",
+      "prompt": "the join of feature/m12d-lib into feature/ui-cad-direction",
+      "summary": "LIB (Codex GPT-6; test fix Opus 5.5): SectionLibrary scan/save with LIB-* refusals, ProjectStore.PublishUnderClaim. 12/12 named PASS after CAT joined; first join stopped on a test asserting the word 'name' in COPY-199 (test pinned to the exact copy; code unchanged). Scan of 100 entries: median 20 ms (informal, macOS). recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:07:14Z",
+      "duration_seconds": 96.0
+    },
+    {
+      "id": "al-01M44PBMP40JEWNKQWGZG8Q6TX",
+      "shortname": "join-a3a-svc2",
+      "datetime": "2026-10-05T00:10:30Z",
+      "session": "f19a2b12",
+      "prompt": "the join of fix/a3a-svc-review into feature/ui-cad-direction",
+      "summary": "SVC-2 (Opus 5.5): 9 review findings closed (16 planted mutants red). RunDiagnostics? on Failed rows (CheckRow enforces), ANA-UNEXPECTED outcome, SectionEtas/Xs in RunSettings (ANA-INPUT-STATIONS), cancel outside the lock, same-key re-read, ANA-INPUT-WATER. Re-review PASS; open nits: IsFaulted tautology, CLI-vs-GUI key check, inspect --runs RevisionOf, CTS leak if a cancel callback throws. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:08:56Z",
+      "duration_seconds": 94.0
+    },
+    {
+      "id": "al-01M44PY73K0JE3NWV3GNXVDC18",
+      "shortname": "join-store-subset-library",
+      "datetime": "2026-10-05T00:20:39Z",
+      "session": "f19a2b12",
+      "prompt": "the join of chore/store-subset-library into feature/ui-cad-direction",
+      "summary": "Readiness at 0b20a59 refused STORE-SUBSET: SectionLibraryTests.cs writes files outside the store checks. Added it and the Library_ prefix; core verifier green (83 store checks). Also carries Rulings 74-77 into the register. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-05T00:19:01Z",
+      "duration_seconds": 98.0
     }
   ],
   "changes": [
