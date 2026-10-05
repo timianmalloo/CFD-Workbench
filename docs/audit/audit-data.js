@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T15:25:08Z",
+  "generated": "2026-10-05T15:45:10Z",
   "audit": [
     {
       "actor": null,
@@ -24899,31 +24899,74 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M46APCJGYVTHYAHP6EFRVSBB",
-      "shortname": "join-spike-ana-1",
-      "datetime": "2026-10-05T15:25:08Z",
-      "session": "4e90c621",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "SPIKE-ANA-1 verdict: fidelity 3.9e-14 over 90 cases; 78/78 (about 42 distinct) NACA 0012 pre-stall points within Cl 0.02 / ln Cd 0.03 of local XFOIL 6.99; MIT licence (Ruling 85); weights untracked; CFD and security conditions recorded for A3c recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join spike-ana-1 into main (round-oct05)",
+      "datetime": "2026-10-05T15:25:08Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 57.0,
       "fan_out": 0,
+      "goal": "join spike-ana-1 into main (round-oct05)",
+      "id": "al-01M46APCJGYVTHYAHP6EFRVSBB",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-spike-ana-1",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-05T15:24:11Z",
-      "duration_seconds": 57.0
+      "summary": "SPIKE-ANA-1 verdict: fidelity 3.9e-14 over 90 cases; 78/78 (about 42 distinct) NACA 0012 pre-stall points within Cl 0.02 / ln Cd 0.03 of local XFOIL 6.99; MIT licence (Ruling 85); weights untracked; CFD and security conditions recorded for A3c recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-05T14:32:56Z",
+      "id": "al-01M467PSQ0XTFJY3VHEKNNGQY1",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "# Track E2 — CAD defects (round-oct05)\nFix FLK-1 (refused section step must never show Checking…) first and commit alone, then MakeIndependent tangent-row DSL-PATCH. Red-first. T0 fan-out 0. Worktree fix/cad-e2-defects.",
+      "session": "prompt-log",
+      "shortname": "Track E2 — CAD defects (round-oct05)",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T15:08:33Z",
+      "done_when": "SectionStep_Refused_NeverShowsChecking and MakeIndependent_TangentRow_NoDslPatch are red then green in their own commits, tools/run-tests.sh passes once, and check-docs.py exits 0.",
+      "duration_seconds": 2137.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "fix/cad-e2-defects",
+        "pushed": null,
+        "sha": "a3d44189ae1f4b412880f5f2285a5e539fb7a4eb",
+        "short": "a3d44189a"
+      },
+      "goal": "Fix the refused-step Checking flicker and the MakeIndependent DSL-PATCH on a tangent row, red-first.",
+      "id": "al-01M469R0ZTJA66MAQVA3MEGK2P",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Track E2 (trk-e2, fix/cad-e2-defects). Fix two CAD defects, red-first. FLK-1 first, in its own commit: a refused section step must never show Finish \"Checking…\" while it re-checks. Then MakeIndependent must succeed on a section that carries a tangent row, preserving or translating that row per FoilDSL. Full tools/run-tests.sh once at the end, and check-docs.py exit 0.",
+      "session": "trk-e2",
+      "shortname": "trk-e2",
+      "skill": "implement",
+      "started_at": "2026-10-05T14:32:56Z",
+      "summary": "FLK-1 no longer shows Finish Checking on a refused section step, and MakeIndependent retargets a tangent row when it rewrites point ids. Both fixes were red first. The full test ring passed and check-docs exited 0.",
+      "tags": [],
+      "tier": "T0",
+      "tool": null
     }
   ],
   "changes": [
