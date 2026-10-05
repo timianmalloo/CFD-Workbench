@@ -8717,6 +8717,73 @@ window.DOCS_INDEX = {
       "sourceSha256": "3200a4d15b168872a8d39187379c0b65da541222ed1cd1f2c96aa2dd3a4127e4"
     },
     {
+      "id": "proof-a3c-polar-source",
+      "path": "docs/proof/a3c-polar-source/proof-pack.md",
+      "title": "A3c-1 production NeuralFoil polar source proof",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Ports the xxxlarge NeuralFoil 0.3.2 model into an integrity-checked in-process polar source, with CST fit, envelope refusals, measured fidelity, pinned wheel conversion and third-party notice gates. The source is not yet wired into the analysis service or UI.",
+      "tags": [
+        "analysis",
+        "neuralfoil",
+        "polar",
+        "cst",
+        "weights",
+        "licence",
+        "ruling-85"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-ana-1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-round-oct05",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6bef95a2fff5f01c9653ddf2a42b0afeed79166cc9bf8212171df0cb48412c82"
+    },
+    {
+      "id": "proof-a3c-polar-source-red-first",
+      "path": "docs/proof/a3c-polar-source/red-first.md",
+      "title": "A3c-1 NeuralFoil red-first evidence",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Records the observed red and green commits for the NeuralFoil fixture, integrity, envelope, confidence, telemetry and non-computable-result checks, including the limits of the first compile-red observation.",
+      "tags": [
+        "analysis",
+        "neuralfoil",
+        "polar",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-a3c-polar-source",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-spike-ana-1",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ab6488933973e7564f3ccd5e6d1fa6f66a5a8a25584a2e77ea2e996c286a91fc"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -13226,5 +13293,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "09f1842ccfdca77cc3f3c56ed7a86eaefec84cf419c5a73a840ce284edf8c2c6"
+  "graphSha256": "5db339e425e48314c618259ec7f7677f522204a37b532df3007ae9ab4034272a"
 };
