@@ -12,9 +12,9 @@ public sealed record StripVerdict(bool Inside, IReadOnlyList<string> Exceeded, s
 /// <summary>A method: its stored identity (id, version, convergence order) and its envelope. VLM owns the values.</summary>
 public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
 {
-    /// <summary><c>cfdw.vlm-strip</c> 1.0.0, order 1, envelope 10°, Cl 1.0, sweep 30°.</summary>
+    /// <summary><c>cfdw.vlm-strip</c> 1.1.0, order 1, envelope 10°, Cl 1.0, sweep 30°.</summary>
     public static MethodRecord VlmStrip { get; } = new(
-        new RunMethod("cfdw.vlm-strip", "1.0.0", 1),
+        new RunMethod("cfdw.vlm-strip", "1.1.0", 1),
         new MethodEnvelope(10, 1.0, 30));
 
     /// <summary>

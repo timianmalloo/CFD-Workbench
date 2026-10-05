@@ -3,7 +3,7 @@ window.DOCS_INDEX = {
   "schemaVersion": "docs-index/v2",
   "project": "CFD-Workbench",
   "generator": "docs-graph.py derive",
-  "rootId": "adr-0001-master-curve-degree",
+  "rootId": "a3a-vlm3-red-first",
   "artifactTypes": [
     "knowledge",
     "glossary",
@@ -1706,7 +1706,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "051d79de1bea4b4621550910d5ab24a71c119d45b86fb0f7b835c75ffea0f70b"
+      "sourceSha256": "4d6ccf04838c59e5f8ce0c4d0c2d44e9e1f85205a702e03fac807d7a675c47c4"
     },
     {
       "id": "note-backlog-2d-section-workbench",
@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "808352e034cdc778b4f158f929dbcbf7489462de8e236cdb88ca8429d13791ff"
+      "sourceSha256": "6b8fd9604547b995ba2e1ac6b01acb5b419c1384469d7ba49098e276a27bf79b"
     },
     {
       "id": "design-authoring-decisions",
@@ -8042,6 +8042,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "c89007c3e991f6f152f1351f58df542875488e16b29c7ca435688379bca840ae"
     },
     {
+      "id": "a3a-vlm3-red-first",
+      "path": "docs/proof/a3a-vlm3/red-first-receipt.md",
+      "title": "VLM-3 red-first receipt",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm3",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "The three VLM-3 fixtures fail on the old camber-surface horseshoes and front-bound sweep.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "08ff878ce4ea473d342dce59214849a1c29f0caa3deeaf78fb38e1e9f6a5eba4"
+    },
+    {
+      "id": "a3a-vlm3c-camber-normals",
+      "path": "docs/proof/a3a-vlm3/vlm3c-camber-normals.md",
+      "title": "VLM-3c control-point camber normal proof",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm3c",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "F-21 fails on corner normals and passes on control-point camber slope normals; the existing spanwise and flat-wing fixtures remain green.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "camber",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "tested-by"
+        },
+        {
+          "to": "note-area3-fixture-arithmetic",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4bcb15a6a095cc5b44cdc797c742395ab92807dd4e1f8a08c36767a12fbe8f9d"
+    },
+    {
       "id": "coordination-application-c-launch",
       "path": "docs/coordination/application-c-launch.md",
       "title": "Native adapter author launch and monitoring receipt",
@@ -10779,6 +10834,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "8ba9b363a2dc1f706d2dc6e3ac217494b68d67563f6ec363acedde1c2a4a98be"
     },
     {
+      "id": "proof-vlm-tip-study",
+      "path": "docs/proof/vlm-tip-study/verdict.md",
+      "title": "VLM tip-strip envelope study",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm3",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "Measured tip-strip refinement, tolerance-law proposal, and the default lattice's camber and twist failure.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "tip-strip",
+        "camber",
+        "twist"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "37d5868b910b5a7398fdbdf5eb15d9ecbd89c0516cbf0905b61aa2d5ef648d70"
+    },
+    {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
       "title": "Windows W0 preparation and failed W1 hosted qualification",
@@ -12611,5 +12693,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "3c79a7bc8d1fab89b74a152bfcba9b9043a07aaf22bb1a83b0f6adeac2435f1b"
+  "graphSha256": "a9013301a53d98c2cd88ef00bd25da8e97062f2794372f93d63cb9d552990daa"
 };

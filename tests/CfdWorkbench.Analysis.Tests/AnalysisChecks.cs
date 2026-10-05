@@ -21,7 +21,10 @@ internal static class AnalysisChecks
     {
         // Readiness tier: never spawned by tools/run-tests.sh, which calls this harness with no arguments.
         if (args.Contains("--readiness"))
+        {
+            LatticeFixtureTests.RunReadiness();
             return Finish();
+        }
         ArchitectureTests.Run();
         RunStoreTests.Run();
         LatticeFixtureTests.Run();
