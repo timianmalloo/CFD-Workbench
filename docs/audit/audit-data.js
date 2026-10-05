@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T02:18:39Z",
+  "generated": "2026-10-05T03:16:19Z",
   "audit": [
     {
       "actor": null,
@@ -24361,6 +24361,82 @@ window.AUDIT_DATA = {
       "tier": "T1",
       "started_at": "2026-10-05T02:08:26Z",
       "duration_seconds": 613.0
+    },
+    {
+      "id": "al-01M450Z2KC930KWBM135N1VNR1",
+      "shortname": "Track PRJ-2 — CFD label veto",
+      "datetime": "2026-10-05T03:15:53Z",
+      "session": "prj2",
+      "prompt": "# Track PRJ-2 — clear the CFD veto on PRJ's labels\n\nYou are track PRJ-2 (AGENT_SESSION=prj2) in the PRJ worktree (branch feature/a3a-prj; PRJ's commits 7e57e7d, 8b404dc,\n850e358 are in place). Foreground only; one-line intent per shell call; commit with `AGENT_SESSION=prj2 git commit ...`\nand a Co-Authored-By line naming your model. Red first per fix. Box 60 min; two repair cycles.\n**First:** `git merge $(git -C /Users/mallalieut/projects/CFD-Workbench-feature-ui-cad-direction rev-parse HEAD)` (by SHA\nonly). Note: the tip-law track VLM-4 is **held unjoined** (an operator decision, DR-VLM-4, is pending: the tip strip will\nmost likely read 'indeterminate'). The integration head's verdict model is STP-3's: the outermost strip per half carries\n`StripLoad.provisional` / `ANA-TIP-PROVISIONAL` and its envelope status reads provisional. Read MethodRecord.cs after the merge.\n\nA CFD review BLOCKED PRJ (hard veto: a label claiming more than its evidence). Fix (file:line at 850e358):\n1. [Blocker] `AnalysisProjection.cs:61` shows `cl / cdi` under \"CL/CD\" while total drag is Unavailable. Show CL/CD as\n   \"Unavailable — total drag missing\" (no number) — or, if the design's row wants a number, label it CL/CDi with the\n   omission stated in the same row. Test: the Example foil's CL/CD row reads Unavailable (or CL/CDi with the omission).\n2. [Blocker] Tip verdicts: `:153-154` detects verdicts by matching display text and `:151` rebuilds `JudgeRun` with\n   hard-coded bounds. **Call `MethodRecord.JudgeRun`** (one definition) and switch on the verdict data the integration head\n   actually emits (status/reason code, `StripLoad.provisional`, `ANA-TIP-PROVISIONAL`) — never on display text. A provisional\n   tip strip is shown provisional and is **not counted** inside or outside; the run sentence never says \"Outside … exceeded:\"\n   with an empty list. Keep the projection's verdict states as an enum with a fourth, unused-today value for\n   'indeterminate' so the pending ruling is a data change, not a rewrite. Tests: a provisional tip is not counted; the\n   run sentence with only provisional tips outside reads no Outside.\n3. [Major] COPY-232 (`Labels.cs:32`, `:224`) attributes any e < 0.85 to \"lattice effect\" — wrong: twist at low CL lowers e\n   physically (lifting line on the Example foil's washout: e 0.208 / 0.015 / 0.504 / 0.841 at alpha 0.5/1/1.5/2 deg).\n   Restrict the \"lattice effect\" advisory to 1 < e <= 1.02 (the measured n64 bias is ~+0.01); for e < 0.85 show no lattice\n   attribution (a neutral \"e below 0.85\" note at most, proposed copy). Also `:49` mixes near-field CL with Trefftz CDi:\n   use Trefftz lift for e. Update the proposed COPY-232/233 rows accordingly (still \"proposed — awaiting operator\").\n4. [Major] Strip widths after an exclusion: `Width` (`:165`) maps strip J to edge J, but the lattice numbers strips by\n   `kept.Count` (VortexLattice.cs:122), so after an excluded closing-tip strip every J is one edge off (CDi, root moment,\n   lift per span and e shift). Carry each strip's Ya/Yb (or Dy) on `StripLoad` (src/CfdWorkbench.Core/RunRecord.cs — you\n   own that one field pair; expand-only, omitted when absent so older hashes stay) set by ProductWingMethod.cs, and use it.\n   Test: a wing with an excluded closing-tip strip gives the same totals as integrating the kept strips directly.\n5. [Minor] BC-1: plant the moment-arc sign mutant (flip the arc vector at :215) and add the test that turns red; keep\n   COPY-237's sign (verified by derivation: +x aft × +y starboard = +z up; arc (M,0,0) correct).\n6. [Minor] COPY-217: name the evidenced scope in the proposed label (rectangular and elliptic planforms, ±20 deg\n   dihedral, 45 deg sweep, 4 % camber, 1 deg washin at the default lattice). Cite a source for the h/c 5 threshold\n   (`:83`) in the design or mark it `assume:`.\nOwns: the PRJ files, the StripLoad Ya/Yb pair in RunRecord.cs, ProductWingMethod.cs (setting them), and the PRJ rows of\nDESIGN.md §7 and design §18.8. Gates: `tools/run-tests.sh` once, then check-named-tests PRJ\n(`--design docs/design/area3-analysis.md --track-section \"### 18.2\" --named-sections \"### 18.8\"`), `python3 tools/check-docs.py`,\n`python3 tools/check-event-subscribers.py`. Return: commits, a red line per fix, the updated proposed copy rows, gate tails.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M450ZGH3WVGWFZR85ZGVVW6N",
+      "shortname": "prj2-cfd-veto-plan",
+      "datetime": "2026-10-05T03:16:07Z",
+      "session": "prj2",
+      "prompt": "# Track PRJ-2 — clear the CFD veto on PRJ's labels\n\nYou are track PRJ-2 (AGENT_SESSION=prj2) in the PRJ worktree (branch feature/a3a-prj; PRJ's commits 7e57e7d, 8b404dc,\n850e358 are in place). Foreground only; one-line intent per shell call; commit with `AGENT_SESSION=prj2 git commit ...`\nand a Co-Authored-By line naming your model. Red first per fix. Box 60 min; two repair cycles.\n**First:** `git merge $(git -C /Users/mallalieut/projects/CFD-Workbench-feature-ui-cad-direction rev-parse HEAD)` (by SHA\nonly). Note: the tip-law track VLM-4 is **held unjoined** (an operator decision, DR-VLM-4, is pending: the tip strip will\nmost likely read 'indeterminate'). The integration head's verdict model is STP-3's: the outermost strip per half carries\n`StripLoad.provisional` / `ANA-TIP-PROVISIONAL` and its envelope status reads provisional. Read MethodRecord.cs after the merge.\n\nA CFD review BLOCKED PRJ (hard veto: a label claiming more than its evidence). Fix (file:line at 850e358):\n1. [Blocker] `AnalysisProjection.cs:61` shows `cl / cdi` under \"CL/CD\" while total drag is Unavailable. Show CL/CD as\n   \"Unavailable — total drag missing\" (no number) — or, if the design's row wants a number, label it CL/CDi with the\n   omission stated in the same row. Test: the Example foil's CL/CD row reads Unavailable (or CL/CDi with the omission).\n2. [Blocker] Tip verdicts: `:153-154` detects verdicts by matching display text and `:151` rebuilds `JudgeRun` with\n   hard-coded bounds. **Call `MethodRecord.JudgeRun`** (one definition) and switch on the verdict data the integration head\n   actually emits (status/reason code, `StripLoad.provisional`, `ANA-TIP-PROVISIONAL`) — never on display text. A provisional\n   tip strip is shown provisional and is **not counted** inside or outside; the run sentence never says \"Outside … exceeded:\"\n   with an empty list. Keep the projection's verdict states as an enum with a fourth, unused-today value for\n   'indeterminate' so the pending ruling is a data change, not a rewrite. Tests: a provisional tip is not counted; the\n   run sentence with only provisional tips outside reads no Outside.\n3. [Major] COPY-232 (`Labels.cs:32`, `:224`) attributes any e < 0.85 to \"lattice effect\" — wrong: twist at low CL lowers e\n   physically (lifting line on the Example foil's washout: e 0.208 / 0.015 / 0.504 / 0.841 at alpha 0.5/1/1.5/2 deg).\n   Restrict the \"lattice effect\" advisory to 1 < e <= 1.02 (the measured n64 bias is ~+0.01); for e < 0.85 show no lattice\n   attribution (a neutral \"e below 0.85\" note at most, proposed copy). Also `:49` mixes near-field CL with Trefftz CDi:\n   use Trefftz lift for e. Update the proposed COPY-232/233 rows accordingly (still \"proposed — awaiting operator\").\n4. [Major] Strip widths after an exclusion: `Width` (`:165`) maps strip J to edge J, but the lattice numbers strips by\n   `kept.Count` (VortexLattice.cs:122), so after an excluded closing-tip strip every J is one edge off (CDi, root moment,\n   lift per span and e shift). Carry each strip's Ya/Yb (or Dy) on `StripLoad` (src/CfdWorkbench.Core/RunRecord.cs — you\n   own that one field pair; expand-only, omitted when absent so older hashes stay) set by ProductWingMethod.cs, and use it.\n   Test: a wing with an excluded closing-tip strip gives the same totals as integrating the kept strips directly.\n5. [Minor] BC-1: plant the moment-arc sign mutant (flip the arc vector at :215) and add the test that turns red; keep\n   COPY-237's sign (verified by derivation: +x aft × +y starboard = +z up; arc (M,0,0) correct).\n6. [Minor] COPY-217: name the evidenced scope in the proposed label (rectangular and elliptic planforms, ±20 deg\n   dihedral, 45 deg sweep, 4 % camber, 1 deg washin at the default lattice). Cite a source for the h/c 5 threshold\n   (`:83`) in the design or mark it `assume:`.\nOwns: the PRJ files, the StripLoad Ya/Yb pair in RunRecord.cs, ProductWingMethod.cs (setting them), and the PRJ rows of\nDESIGN.md §7 and design §18.8. Gates: `tools/run-tests.sh` once, then check-named-tests PRJ\n(`--design docs/design/area3-analysis.md --track-section \"### 18.2\" --named-sections \"### 18.8\"`), `python3 tools/check-docs.py`,\n`python3 tools/check-event-subscribers.py`. Return: commits, a red line per fix, the updated proposed copy rows, gate tails.",
+      "summary": "One-worker graph executed; six repairs complete. Full test ring had 0 failures but exceeded its 60 s wall budget at 80 s under load; other requested gates passed.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/prj2-cfd-veto.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Clear the CFD veto on PRJ labels and geometry-backed projection.",
+      "done_when": "Six fixes are red-first proven, requested gates run, and the repair is committed.",
+      "tier": "T2",
+      "fan_out": 1,
+      "git": {
+        "sha": "850e358124e5185a764a25123c2927c43bdd05e6",
+        "short": "850e35812",
+        "branch": "feature/a3a-prj",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M450ZWSDV6HM5TZFKSQVSFY1",
+      "shortname": "prj2-cfd-veto-repair",
+      "datetime": "2026-10-05T03:16:19Z",
+      "session": "prj2",
+      "prompt": "# Track PRJ-2 — clear the CFD veto on PRJ's labels\n\nYou are track PRJ-2 (AGENT_SESSION=prj2) in the PRJ worktree (branch feature/a3a-prj; PRJ's commits 7e57e7d, 8b404dc,\n850e358 are in place). Foreground only; one-line intent per shell call; commit with `AGENT_SESSION=prj2 git commit ...`\nand a Co-Authored-By line naming your model. Red first per fix. Box 60 min; two repair cycles.\n**First:** `git merge $(git -C /Users/mallalieut/projects/CFD-Workbench-feature-ui-cad-direction rev-parse HEAD)` (by SHA\nonly). Note: the tip-law track VLM-4 is **held unjoined** (an operator decision, DR-VLM-4, is pending: the tip strip will\nmost likely read 'indeterminate'). The integration head's verdict model is STP-3's: the outermost strip per half carries\n`StripLoad.provisional` / `ANA-TIP-PROVISIONAL` and its envelope status reads provisional. Read MethodRecord.cs after the merge.\n\nA CFD review BLOCKED PRJ (hard veto: a label claiming more than its evidence). Fix (file:line at 850e358):\n1. [Blocker] `AnalysisProjection.cs:61` shows `cl / cdi` under \"CL/CD\" while total drag is Unavailable. Show CL/CD as\n   \"Unavailable — total drag missing\" (no number) — or, if the design's row wants a number, label it CL/CDi with the\n   omission stated in the same row. Test: the Example foil's CL/CD row reads Unavailable (or CL/CDi with the omission).\n2. [Blocker] Tip verdicts: `:153-154` detects verdicts by matching display text and `:151` rebuilds `JudgeRun` with\n   hard-coded bounds. **Call `MethodRecord.JudgeRun`** (one definition) and switch on the verdict data the integration head\n   actually emits (status/reason code, `StripLoad.provisional`, `ANA-TIP-PROVISIONAL`) — never on display text. A provisional\n   tip strip is shown provisional and is **not counted** inside or outside; the run sentence never says \"Outside … exceeded:\"\n   with an empty list. Keep the projection's verdict states as an enum with a fourth, unused-today value for\n   'indeterminate' so the pending ruling is a data change, not a rewrite. Tests: a provisional tip is not counted; the\n   run sentence with only provisional tips outside reads no Outside.\n3. [Major] COPY-232 (`Labels.cs:32`, `:224`) attributes any e < 0.85 to \"lattice effect\" — wrong: twist at low CL lowers e\n   physically (lifting line on the Example foil's washout: e 0.208 / 0.015 / 0.504 / 0.841 at alpha 0.5/1/1.5/2 deg).\n   Restrict the \"lattice effect\" advisory to 1 < e <= 1.02 (the measured n64 bias is ~+0.01); for e < 0.85 show no lattice\n   attribution (a neutral \"e below 0.85\" note at most, proposed copy). Also `:49` mixes near-field CL with Trefftz CDi:\n   use Trefftz lift for e. Update the proposed COPY-232/233 rows accordingly (still \"proposed — awaiting operator\").\n4. [Major] Strip widths after an exclusion: `Width` (`:165`) maps strip J to edge J, but the lattice numbers strips by\n   `kept.Count` (VortexLattice.cs:122), so after an excluded closing-tip strip every J is one edge off (CDi, root moment,\n   lift per span and e shift). Carry each strip's Ya/Yb (or Dy) on `StripLoad` (src/CfdWorkbench.Core/RunRecord.cs — you\n   own that one field pair; expand-only, omitted when absent so older hashes stay) set by ProductWingMethod.cs, and use it.\n   Test: a wing with an excluded closing-tip strip gives the same totals as integrating the kept strips directly.\n5. [Minor] BC-1: plant the moment-arc sign mutant (flip the arc vector at :215) and add the test that turns red; keep\n   COPY-237's sign (verified by derivation: +x aft × +y starboard = +z up; arc (M,0,0) correct).\n6. [Minor] COPY-217: name the evidenced scope in the proposed label (rectangular and elliptic planforms, ±20 deg\n   dihedral, 45 deg sweep, 4 % camber, 1 deg washin at the default lattice). Cite a source for the h/c 5 threshold\n   (`:83`) in the design or mark it `assume:`.\nOwns: the PRJ files, the StripLoad Ya/Yb pair in RunRecord.cs, ProductWingMethod.cs (setting them), and the PRJ rows of\nDESIGN.md §7 and design §18.8. Gates: `tools/run-tests.sh` once, then check-named-tests PRJ\n(`--design docs/design/area3-analysis.md --track-section \"### 18.2\" --named-sections \"### 18.8\"`), `python3 tools/check-docs.py`,\n`python3 tools/check-event-subscribers.py`. Return: commits, a red line per fix, the updated proposed copy rows, gate tails.",
+      "summary": "CL/CD unavailable without total drag; provisional tips judged from data; Trefftz e and scoped advisories; original strip edges; BC-1 arc sign and COPY-217 scope. Red receipt committed. Analysis and 41/41 PRJ names pass; full ring exit 3 solely on 80 s wall versus 60 s budget under observed simpleFoam contention.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/a3a-prj2/proof-pack.md",
+        "src/CfdWorkbench.Analysis/AnalysisProjection.cs"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Clear the CFD veto on PRJ labels and geometry-backed projection.",
+      "done_when": "Six fixes are red-first proven, requested gates run, and the repair is committed.",
+      "tier": "T2",
+      "fan_out": 1,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true
+      },
+      "git": {
+        "sha": "850e358124e5185a764a25123c2927c43bdd05e6",
+        "short": "850e35812",
+        "branch": "feature/a3a-prj",
+        "pushed": null
+      }
     }
   ],
   "changes": [

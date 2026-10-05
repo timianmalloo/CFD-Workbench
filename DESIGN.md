@@ -542,7 +542,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-214 | Estimator · local calculation — proposed — awaiting operator |
 | COPY-215 | Polar · local calculation — proposed — awaiting operator |
 | COPY-216 | outside the verified lattice family — proposed — awaiting operator |
-| COPY-217 | Verified fixture family: 64 × 4 cosine/cosine lattice — proposed — awaiting operator |
+| COPY-217 | Verified fixture family: rectangular and elliptic planforms; ±20° dihedral, 45° sweep, 4% camber, 1° washin at the 64 × 4 cosine/cosine lattice — proposed — awaiting operator |
 | COPY-218 | provisional — tip law cannot judge this strip (ANA-TIP-PROVISIONAL) — proposed — awaiting operator |
 | COPY-219 | at the bound (+-U) — proposed — awaiting operator |
 | COPY-220 | indeterminate — the tip law cannot judge this strip — proposed — awaiting operator |
@@ -557,8 +557,8 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-229 | Unavailable — root thickness not recorded — proposed — awaiting operator |
 | COPY-230 | Undefined — CD ≤ 0 — proposed — awaiting operator |
 | COPY-231 | Near-field diagnostics flagged outside the verified lattice family — proposed — awaiting operator |
-| COPY-232 | e outside 0.85–1.00 — lattice effect; result remains available — proposed — awaiting operator |
-| COPY-233 | e above 1 at 64 × 4 — lattice effect — proposed — awaiting operator |
+| COPY-232 | e below 0.85; result remains available — proposed — awaiting operator |
+| COPY-233 | 1 < e ≤ 1.02 at 64 × 4 — small lattice bias (~+0.01); result remains available — proposed — awaiting operator |
 | COPY-234 | Unavailable — needs −Cp_min — proposed — awaiting operator |
 | COPY-235 | Unavailable — strip width not recorded; vector omitted — proposed — awaiting operator |
 | COPY-236 | Body axes: +x aft, +y starboard, +z up; lift and drag in wind axes — proposed — awaiting operator |

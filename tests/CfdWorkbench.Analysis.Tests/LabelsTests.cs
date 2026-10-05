@@ -47,8 +47,37 @@ internal static class LabelsTests
             Equal(true, rows[2].Value.Contains("quarter-chord sweep ≤ 30°"));
         });
         Check("Envelope_EOutOfBand_AdvisoryNotBlocking", () => {
-            var v = ProjectionTests.View(); Equal(RunState.Current, v.State);
-            Equal(true, ProjectionTests.Cell(v, "Wing result", "e (computed)").Note!.Contains("lattice effect"));
+            var run = ProjectionTests.Data(s => s with { DownwashTrefftz = -0.032 }).Run;
+            var v = ProjectionTests.View(run); Equal(RunState.Current, v.State);
+            string note = ProjectionTests.Cell(v, "Wing result", "e (computed)").Note!;
+            Equal(true, note.Contains("e below 0.85"));
+            Equal(false, note.Contains("lattice effect"));
+        });
+        Check("Labels_EAboveOne_LatticeAttributionOnlyMeasuredBand", () => {
+            foreach (double target in new[] { 1.01, 1.03 })
+            {
+                var (baseRun, _) = ProjectionTests.Data();
+                var settings = baseRun.Settings with { NSpanPerHalf = 64 };
+                string settingsHash = RunRecord.SettingsHash(settings);
+                double q = 0.5 * baseRun.Water.Rho * baseRun.Op.Speed * baseRun.Op.Speed;
+                double sumGammaDy = baseRun.Strips.Sum(s => s.Gamma * 0.2);
+                double cl = baseRun.Water.Rho * baseRun.Op.Speed * sumGammaDy / (q * baseRun.Reference.SRef);
+                double ar = baseRun.Reference.BRef * baseRun.Reference.BRef / baseRun.Reference.SRef;
+                double drag = cl * cl / (Math.PI * ar * target) * q * baseRun.Reference.SRef;
+                double downwash = -drag / (0.5 * baseRun.Water.Rho * sumGammaDy);
+                var strips = baseRun.Strips.Select((s, i) => s with
+                { Ya = -0.4 + 0.2 * i, Yb = -0.2 + 0.2 * i, DownwashTrefftz = downwash }).ToArray();
+                var run = baseRun with { Settings = settings, SettingsHash = settingsHash,
+                    RunKey = RunRecord.Key(baseRun.Inputs, baseRun.Water, baseRun.Op, baseRun.Method, settingsHash), Strips = strips };
+                run = ProjectionTests.Rehash(run);
+                string? note = ProjectionTests.Cell(ProjectionTests.View(run), "Wing result", "e (computed)").Note;
+                Equal(target < 1.02, note?.Contains("lattice bias") == true);
+            }
+        });
+        Check("Labels_VerifiedLattice_NamesFixtureScope", () => {
+            string claim = Labels.VerifiedLattice;
+            foreach (string part in new[] { "rectangular and elliptic", "±20° dihedral", "45° sweep", "4% camber", "1° washin", "64 × 4" })
+                Equal(true, claim.Contains(part, StringComparison.Ordinal), part);
         });
         Check("Station_StripReadout_EnvelopeVerdictPerPart", () => {
             var run = ProjectionTests.Data().Run; var verdicts = Enumerable.Range(0, 4).Select(_ => MethodRecord.JudgeStrip(12, 0, 0.4, 0)).ToArray();

@@ -1536,3 +1536,19 @@ the case where only `docs/docs-index.js` and the two audit logs conflict. Contro
 `tools/coordination/check-jsonl.py` fails a log that has a non-JSON line or a duplicate id after the conflict markers are
 removed; `join-when-quiet.sh` runs it before it continues. Self-test fixture run: a good file passes (exit 0), a file with a
 duplicate id fails (exit 1), a file with a bad line fails (exit 1).
+
+**CFD-CLAIM-SCOPE · A label names a stronger quantity or cause than its data supports.** PRJ displayed `CL/CD` using
+`CDi`, and attributed every e below 0.85 to a lattice effect even though physical washout can lower e at low CL.
+Sweep: the Analysis projection's ratio, e, envelope and layer rows plus proposed COPY-217/232/233. Derive: a ratio's
+denominator and a diagnostic's causal range travel in the same row as the value; missing total drag gives Unavailable.
+Control: `Projection_TotalDragMissing_ClCdUnavailable`, `Projection_TrefftzLiftUsedForE`,
+`Envelope_EOutOfBand_AdvisoryNotBlocking`, `Labels_EAboveOne_LatticeAttributionOnlyMeasuredBand` and
+`Labels_VerifiedLattice_NamesFixtureScope` in ring A. Their red or planted-mutant failures are recorded in
+`docs/proof/a3a-prj2/proof-pack.md`.
+
+**CFD-RENUMBERED-GEOMETRY · A compacted strip id is mistaken for its original span edge.** The lattice numbers kept
+strips by `kept.Count`; projection reconstructed widths from J. Sweep: CDi, Trefftz e, root bending, the loading curve,
+strip detail and 3D lift arrows. Derive: carry original `ya/yb` with each stored strip and use them for every width
+reader. Control: `Projection_ExcludedClosingTip_UsesKeptStripEdges` compares all width-dependent outputs with direct
+integration after excluding a closing-tip strip; `Projection_LegacyStripEdges_OmittedAndHashIntact` guards expansion.
+Older incomplete rows without edges report width-dependent outputs as Unavailable.

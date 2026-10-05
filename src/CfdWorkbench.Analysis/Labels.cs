@@ -14,7 +14,7 @@ public static class Labels
     public const string EstimatorChip = "Estimator · local calculation"; // COPY-214
     public const string PolarChip = "Polar · local calculation"; // COPY-215
     public const string OutsideLattice = "outside the verified lattice family"; // COPY-216, operator proposal
-    public const string VerifiedLattice = "Verified fixture family: 64 × 4 cosine/cosine lattice"; // COPY-217, operator proposal
+    public const string VerifiedLattice = "Verified fixture family: rectangular and elliptic planforms; ±20° dihedral, 45° sweep, 4% camber, 1° washin at the 64 × 4 cosine/cosine lattice"; // COPY-217, operator proposal
     public const string Provisional = "provisional — tip law cannot judge this strip (ANA-TIP-PROVISIONAL)"; // COPY-218, operator proposal
     public const string AtBound = "at the bound (+-U)"; // COPY-219, operator proposal
     public const string Indeterminate = "indeterminate — the tip law cannot judge this strip"; // COPY-220, operator proposal
@@ -27,10 +27,9 @@ public static class Labels
     public const string StructuralList = "Not assessed: take-off, pumping, breach and slam, ventilation shock, impact, fatigue."; // COPY-227
     public const string TipDepthMissing = "Unavailable — station depth not recorded"; // COPY-228
     public const string ThicknessMissing = "Unavailable — root thickness not recorded"; // COPY-229
-    public const string ClCdUndefined = "Undefined — CD ≤ 0"; // COPY-230
     public const string NearFieldFlag = "Near-field diagnostics flagged outside the verified lattice family"; // COPY-231
-    public const string EAdvisory = "e outside 0.85–1.00 — lattice effect; result remains available"; // COPY-232
-    public const string EAboveOne = "e above 1 at 64 × 4 — lattice effect"; // COPY-233
+    public const string EBelowBand = "e below 0.85; result remains available"; // COPY-232, no cause attributed
+    public const string EAboveOne = "1 < e ≤ 1.02 at 64 × 4 — small lattice bias (~+0.01); result remains available"; // COPY-233
     public const string NoVcrit = "Unavailable — needs −Cp_min"; // COPY-234
     public const string StripWidthMissing = "Unavailable — strip width not recorded; vector omitted"; // COPY-235
     public const string BodyAxes = "Body axes: +x aft, +y starboard, +z up; lift and drag in wind axes"; // COPY-236

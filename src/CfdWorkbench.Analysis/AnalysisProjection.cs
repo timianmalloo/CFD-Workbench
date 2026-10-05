@@ -12,6 +12,7 @@ public sealed record ProjectionContext(IReadOnlyList<StripVerdict>? Verdicts = n
 public static class AnalysisProjection
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
+    private enum VerdictState { Inside, Outside, Provisional, Indeterminate }
 
     public static AnalysisViewModel Build(AnalysisRun? run, CurrentInputs current, Units units) => Build(run, current, units, null);
 
@@ -45,20 +46,24 @@ public static class AnalysisProjection
         double? cl = q > 0 && run.Reference.SRef > 0 ? lift / (q * run.Reference.SRef) : null;
         double? drag = TrefftzDrag(run);
         double? cdi = drag.HasValue && q > 0 && run.Reference.SRef > 0 ? drag / (q * run.Reference.SRef) : null;
+        double? trefftzLift = run.Strips.Count > 0 && run.Strips.All(s => Width(run, s) > 0)
+            ? run.Water.Rho * run.Op.Speed * run.Strips.Sum(s => s.Gamma * Width(run, s)) : null;
+        double? clTrefftz = trefftzLift.HasValue && q > 0 && run.Reference.SRef > 0
+            ? trefftzLift / (q * run.Reference.SRef) : null;
         double ar = run.Reference.SRef > 0 ? run.Reference.BRef * run.Reference.BRef / run.Reference.SRef : 0;
-        double? e = cl.HasValue && cdi > 0 && ar > 0 ? Trefftz.Oswald(cl.Value, ar, cdi.Value) : null;
+        double? e = clTrefftz.HasValue && cdi > 0 && ar > 0 ? Trefftz.Oswald(clTrefftz.Value, ar, cdi.Value) : null;
         var derived = OperatingPoints.Derive(run.Op, run.Water, run.Reference.CRef);
         bool depth = run.Op.HRef.HasValue;
         var groups = new List<ResultGroup>();
         groups.Add(new("Wing result", [
             Row("Tier", Labels.VlmChip),
             Row("CL", Val(cl, "0.000"), note: "Wing only · S_ref " + Num(run.Reference.SRef, "0.####") + " m²"),
-            Row("Envelope", RunVerdict(context.Verdicts, run.Strips.Count)),
+            Row("Envelope", RunVerdict(context.Verdicts, run.Strips)),
             Row("CDi (Trefftz)", Val(cdi, "0.00000")),
             Row("e (computed)", Val(e, "0.000"), note: EAdvisory(e, run.Settings)),
             Force("Lift L", lift, units), Force("Induced drag", drag, units),
             Row("Total drag", Loads.TotalDragReason),
-            Row("CL/CD", cdi > 0 && cl.HasValue ? Val(cl / cdi, "0.###") : Labels.ClCdUndefined),
+            Row("CL/CD", "Unavailable — total drag missing"),
             Row("Basis", "b " + Num(run.Reference.BRef, "0.###") + " m · moment datum: " + run.Reference.MomentDatum + " · " + Labels.BodyAxes)
         ]));
         groups.Add(new("Conditions", [
@@ -107,7 +112,7 @@ public static class AnalysisProjection
         ]));
         groups.Add(new("Strips", run.Strips.Select(s => Row("Strip " + s.J + " · η " + Num(s.Eta, "0.###"),
             "Cl_local " + Num(s.ClLocal, "0.###") + " · α_eff " + Num(s.AlphaEff, "0.##") + "° · Re_local " + Num(s.ReLocal, "0.###E+0"),
-            note: s.Provisional ? Labels.Provisional : context.Verdicts is { } v && s.J >= 0 && s.J < v.Count ? v[s.J].Text : Labels.Indeterminate)).ToArray()));
+            note: VerdictText(s, context.Verdicts))).ToArray()));
         groups.Add(new("Section (2D)", [Row("Cl, Cd, Cm, x_tr", Labels.NoPolar), Row("Cp_min", Labels.SectionCp)]));
         groups.Add(new("Provenance", [Row("Run key", RunRecord.RecomputedKey(run)), Row("Content hash", RunRecord.ContentHash(run)),
             Row("Water table hash", run.Water.TableHash), Row("Settings hash", run.SettingsHash)]));
@@ -130,47 +135,87 @@ public static class AnalysisProjection
         var details = new List<StripDetail>();
         foreach (var s in run.Strips)
         {
-            double width = Width(run, s.J);
+            double width = Width(run, s);
             double localLift = -s.Fx * Math.Sin(alpha) + s.Fz * Math.Cos(alpha);
-            StripVerdict? verdict = context.Verdicts is { } v && s.J >= 0 && s.J < v.Count ? v[s.J] : null;
             details.Add(new(s.Eta, [
                 Row("Cl_local", Num(s.ClLocal, "0.###")), Row("α_eff", Num(s.AlphaEff, "0.##"), "°"),
                 Row("Re_local", Num(s.ReLocal, "0.###E+0")),
                 Row("Lift / span", width > 0 ? Num(localLift / width, "0.###") : Labels.StripWidthMissing, width > 0 ? "N/m" : null),
                 Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : s.CdNcrit2.UnavailableReason ?? Labels.NoPolar),
-                Row("Envelope (this strip)", s.Provisional ? Labels.Provisional : verdict?.Text ?? Labels.Indeterminate),
+                Row("Envelope (this strip)", VerdictText(s, context.Verdicts)),
                 Row("Polar Re range", Labels.NoPolar), Row("Not modelled", Labels.NotModelled(run.Op.HRef.HasValue))
             ]));
         }
         return details;
     }
 
-    private static string RunVerdict(IReadOnlyList<StripVerdict>? verdicts, int count)
+    private static VerdictState State(StripLoad strip, StripVerdict? verdict)
     {
-        if (verdicts is null || verdicts.Count != count) return Labels.Indeterminate;
-        string bound = "(|α_eff − α_L0| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°)";
-        int provisional = verdicts.Count(v => v.Provisional);
-        int atBound = verdicts.Count(v => v.Text == Labels.AtBound);
-        int outside = verdicts.Count(v => !v.Inside && !v.Provisional && v.Text != Labels.AtBound);
-        int judged = count - provisional - atBound;
-        string outcome = outside > 0 ? $"Outside the method envelope {bound} — {outside} of {judged} strips; exceeded: "
-            + string.Join(", ", verdicts.SelectMany(v => v.Exceeded).Distinct())
-            : $"Inside the method envelope {bound} at all {judged} judged strips";
-        if (atBound > 0) outcome += $"; {atBound} {Labels.AtBound}";
-        if (provisional > 0) outcome += $"; {provisional} {Labels.Provisional}";
-        return outcome;
+        if ((strip.Provisional && strip.ProvisionalReason == StripLoad.TipProvisionalReason) || verdict?.Provisional == true)
+            return VerdictState.Provisional;
+        if (verdict is null) return VerdictState.Indeterminate;
+        if (verdict.Inside) return VerdictState.Inside;
+        return verdict.Exceeded.Count > 0 ? VerdictState.Outside : VerdictState.Indeterminate;
     }
-    private static double? TrefftzDrag(AnalysisRun run) => run.Strips.Count == 0 ? null :
-        0.5 * run.Water.Rho * run.Strips.Sum(s => s.Gamma * -s.DownwashTrefftz * Width(run, s.J));
-    private static double Width(AnalysisRun run, int j)
+
+    private static StripVerdict? At(IReadOnlyList<StripVerdict>? verdicts, StripLoad strip) =>
+        verdicts is { } v && strip.J >= 0 && strip.J < v.Count ? v[strip.J] : null;
+
+    private static string VerdictText(StripLoad strip, IReadOnlyList<StripVerdict>? verdicts)
     {
+        StripVerdict? verdict = At(verdicts, strip);
+        return State(strip, verdict) switch
+        {
+            VerdictState.Provisional => Labels.Provisional,
+            VerdictState.Indeterminate => verdict?.Text ?? Labels.Indeterminate,
+            _ => verdict!.Text
+        };
+    }
+
+    private static string RunVerdict(IReadOnlyList<StripVerdict>? verdicts, IReadOnlyList<StripLoad> strips)
+    {
+        if (verdicts is null || verdicts.Count != strips.Count) return Labels.Indeterminate;
+        var judged = new List<StripVerdict>(strips.Count);
+        int provisional = 0, indeterminate = 0;
+        foreach (StripLoad strip in strips)
+        {
+            StripVerdict? verdict = At(verdicts, strip);
+            switch (State(strip, verdict))
+            {
+                case VerdictState.Provisional:
+                    provisional++;
+                    judged.Add(new StripVerdict(false, [], Labels.Provisional) { Provisional = true });
+                    break;
+                case VerdictState.Indeterminate:
+                    indeterminate++;
+                    break;
+                default:
+                    judged.Add(verdict!);
+                    break;
+            }
+        }
+        string sentence = judged.Any(v => !v.Provisional) ? MethodRecord.JudgeRun(judged) : Labels.Provisional;
+        if (provisional > 0) sentence += $"; {provisional} {Labels.Provisional}";
+        if (indeterminate > 0) sentence += $"; {indeterminate} {Labels.Indeterminate}";
+        return sentence;
+    }
+
+    private static double? TrefftzDrag(AnalysisRun run) => run.Strips.Count == 0 || run.Strips.Any(s => Width(run, s) <= 0) ? null :
+        0.5 * run.Water.Rho * run.Strips.Sum(s => s.Gamma * -s.DownwashTrefftz * Width(run, s));
+    private static double Width(AnalysisRun run, StripLoad strip)
+    {
+        if (strip.Ya.HasValue != strip.Yb.HasValue) return 0;
+        if (strip.Ya.HasValue && strip.Yb.HasValue) return strip.Yb.Value - strip.Ya.Value;
+        if (run.Strips.Count != 2 * run.Settings.NSpanPerHalf) return 0;
+        int j = strip.J;
         int n = run.Settings.NSpanPerHalf, total = 2 * n;
         if (j < 0 || j >= total) return 0;
         double Edge(int i) => run.Settings.SpanSpacing == "cosine" ? -Math.Cos(Math.PI * i / total) : -1 + 2.0 * i / total;
         return (Edge(j + 1) - Edge(j)) * run.Reference.BRef / 2;
     }
     private static double? RootBending(AnalysisRun run) => run.Strips.Count == 0 ? null :
-        run.Water.Rho * run.Op.Speed * run.Strips.Where(s => s.Y >= 0).Sum(s => s.Gamma * s.Y * Width(run, s.J));
+        run.Strips.Where(s => s.Y >= 0).All(s => Width(run, s) > 0)
+            ? run.Water.Rho * run.Op.Speed * run.Strips.Where(s => s.Y >= 0).Sum(s => s.Gamma * s.Y * Width(run, s)) : null;
     private static double? CentreOfLift(AnalysisRun run, double a)
     {
         double weighted = 0, total = 0;
@@ -185,7 +230,7 @@ public static class AnalysisProjection
         run.Strips.Where(s => s.Y >= 0).OrderBy(s => s.Eta).Select(s => new LoadingPoint(s.Eta,
             run.Reference.CRef > 0 ? s.ClLocal * s.Chord / run.Reference.CRef : null,
             cl * 4 / Math.PI * Math.Sqrt(Math.Max(0, 1 - s.Eta * s.Eta)), s.AlphaEff,
-            Width(run, s.J) > 0 ? (-s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a)) / Width(run, s.J) : null)).ToArray();
+            Width(run, s) > 0 ? (-s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a)) / Width(run, s) : null)).ToArray();
     private static IReadOnlyList<LayerData> Layers(AnalysisRun run, ProjectionContext context, double? rootMoment)
     {
         double max = run.Strips.Count == 0 ? 0 : run.Strips.Max(s => Math.Abs(s.Gamma));
@@ -195,18 +240,17 @@ public static class AnalysisProjection
             new LayerData("plan-gamma", "Γ per strip", true, "Γ per strip · batlow 1.0 · 0–" + Num(max, "0.###") + " m²/s · run " + key, "strips-table")
             {
                 Samples = run.Strips.Select(s => new LayerSample(s.Eta, s.Y, s.Gamma, null,
-                    context.Verdicts is { } v && s.J >= 0 && s.J < v.Count && !v[s.J].Inside && !v[s.J].Provisional
-                        && v[s.J].Text != Labels.AtBound, s.Provisional)
-                    { Verdict = context.Verdicts is { } all && s.J >= 0 && s.J < all.Count ? all[s.J].Text : Labels.Indeterminate }).ToArray(),
+                    State(s, At(context.Verdicts, s)) == VerdictState.Outside, s.Provisional)
+                    { Verdict = VerdictText(s, context.Verdicts) }).ToArray(),
                 Note = "Outside strips have dashed outlines and a text count."
             },
             new LayerData("strip-lift", "Lift per strip", true, "Lift per strip · N/m · " + Labels.BodyAxes + " · " + Labels.VlmChip, "loads-table")
             {
                 Samples = run.Strips.Select(s => new LayerSample(s.Eta, s.Y,
-                    Width(run, s.J) > 0 ? s.Fz / Width(run, s.J) : null,
-                    Width(run, s.J) > 0 ? new Loads.Vec(s.Fx / Width(run, s.J), s.Fy / Width(run, s.J), s.Fz / Width(run, s.J)) : null,
+                    Width(run, s) > 0 ? s.Fz / Width(run, s) : null,
+                    Width(run, s) > 0 ? new Loads.Vec(s.Fx / Width(run, s), s.Fy / Width(run, s), s.Fz / Width(run, s)) : null,
                     false, s.Provisional)).ToArray(),
-                Note = run.Strips.Any(s => Width(run, s.J) <= 0) ? Labels.StripWidthMissing : null
+                Note = run.Strips.Any(s => Width(run, s) <= 0) ? Labels.StripWidthMissing : null
             }
         };
         if (rootMoment.HasValue) layers.Add(new LayerData("root-moment", "Root moment arc", true,
@@ -222,8 +266,8 @@ public static class AnalysisProjection
         return layers;
     }
     private static string? EAdvisory(double? e, RunSettings settings) => e is null ? null
-        : e > 1 && Labels.DefaultLattice(settings) ? Labels.EAboveOne
-        : e < 0.85 || e > 1 ? Labels.EAdvisory : null;
+        : e < 0.85 ? Labels.EBelowBand
+        : e > 1 && e <= 1.02 && Labels.DefaultLattice(settings) ? Labels.EAboveOne : null;
     private static string Derived(DerivedValue value, string format) => value.Value.HasValue ? Num(value.Value.Value, format)
         : value.Reason == DerivedReason.DepthNotSet ? "Unavailable — depth not set" : "Undefined — speed ≤ 0";
     private static string Val(double? value, string format) => value.HasValue && double.IsFinite(value.Value) ? Num(value.Value, format) : "Unavailable";

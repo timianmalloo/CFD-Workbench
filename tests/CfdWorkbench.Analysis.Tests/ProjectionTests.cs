@@ -10,9 +10,87 @@ internal static class ProjectionTests
         Check("Projection_SectionVsWingUnits", () => {
             var v = View(); Equal("N", Cell(v, "Wing result", "Lift L").Unit); Equal("Unavailable — no polar method installed", Cell(v, "Section (2D)", "Cl, Cd, Cm, x_tr").Value);
         });
-        Check("Projection_CdZeroOrNegative_ClCdUndefined", () => {
+        Check("Projection_CdiZeroOrNegative_TotalDragMissing", () => {
             foreach (double downwash in new[] { 0d, 0.1 })
-            { var v = View(s => s with { DownwashTrefftz = downwash }); Equal(Labels.ClCdUndefined, Cell(v, "Wing result", "CL/CD").Value); }
+            { var v = View(s => s with { DownwashTrefftz = downwash }); Equal("Unavailable — total drag missing", Cell(v, "Wing result", "CL/CD").Value); }
+        });
+        Check("Projection_TotalDragMissing_ClCdUnavailable", () => {
+            var v = View();
+            Equal("Unavailable — total drag missing", Cell(v, "Wing result", "CL/CD").Value);
+        });
+        Check("Projection_TrefftzLiftUsedForE", () => {
+            var (run, _) = Data(s => s with { Fz = 100, DownwashTrefftz = -0.032 });
+            var v = View(run);
+            double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
+            double dy = run.Reference.BRef / run.Strips.Count;
+            double clTrefftz = run.Water.Rho * run.Op.Speed * run.Strips.Sum(s => s.Gamma * dy) / (q * run.Reference.SRef);
+            double cdi = 0.5 * run.Water.Rho * run.Strips.Sum(s => s.Gamma * -s.DownwashTrefftz * dy) / (q * run.Reference.SRef);
+            double expected = Trefftz.Oswald(clTrefftz, run.Reference.BRef * run.Reference.BRef / run.Reference.SRef, cdi);
+            Equal(expected.ToString("0.000", System.Globalization.CultureInfo.InvariantCulture), Cell(v, "Wing result", "e (computed)").Value);
+        });
+        Check("Projection_ProvisionalTip_NotJudgedOutside", () => {
+            var (run, _) = Data();
+            run = Rehash(run with { Strips = run.Strips.Select(s => s.J == 3 ? s with { Provisional = true,
+                ProvisionalReason = StripLoad.TipProvisionalReason } : s).ToArray() });
+            var verdicts = Enumerable.Range(0, 4).Select(j => MethodRecord.JudgeStrip(j == 3 ? 12 : 2, 0, 0.4, 0)).ToArray();
+            var v = View(run, new ProjectionContext(Verdicts: verdicts));
+            string sentence = Cell(v, "Wing result", "Envelope").Value;
+            Equal(false, sentence.Contains("Outside", StringComparison.Ordinal));
+            Equal(true, sentence.Contains("3 strips", StringComparison.Ordinal));
+            Equal(true, sentence.Contains("provisional", StringComparison.Ordinal));
+            Equal(false, v.Layers.Single(l => l.Id == "plan-gamma").Samples[3].Outside);
+        });
+        Check("Projection_ProvisionalVerdict_EmptyExceededNeverOutside", () => {
+            var (run, _) = Data();
+            var verdicts = Enumerable.Range(0, 4).Select(j => j == 3
+                ? MethodRecord.JudgeStrip(12, 0, 0.4, 0, provisional: true)
+                : MethodRecord.JudgeStrip(2, 0, 0.4, 0)).ToArray();
+            var view = View(run, new ProjectionContext(Verdicts: verdicts));
+            string sentence = Cell(view, "Wing result", "Envelope").Value;
+            Equal(false, sentence.Contains("Outside", StringComparison.Ordinal));
+            Equal(false, sentence.Contains("exceeded:", StringComparison.Ordinal));
+            Equal(false, view.Layers.Single(l => l.Id == "plan-gamma").Samples[3].Outside);
+        });
+        Check("Projection_LegacyStripEdges_OmittedAndHashIntact", () => {
+            var (run, _) = Data();
+            string json = System.Text.Json.JsonSerializer.Serialize(run,
+                new System.Text.Json.JsonSerializerOptions(System.Text.Json.JsonSerializerDefaults.Web));
+            Equal(false, json.Contains("\"ya\"", StringComparison.Ordinal));
+            Equal(false, json.Contains("\"yb\"", StringComparison.Ordinal));
+            Equal(run.ContentHash, RunRecord.ContentHash(run));
+            Equal(true, Cell(View(run), "Wing result", "CDi (Trefftz)").Value != "Unavailable");
+        });
+        Check("Projection_OneMissingSpanEdge_WidthUnavailable", () => {
+            var view = View(s => s.J == 0 ? s with { Ya = -0.4 } : s);
+            Equal("Unavailable", Cell(view, "Wing result", "CDi (Trefftz)").Value);
+            Equal("Unavailable", Cell(view, "Wing result", "e (computed)").Value);
+        });
+        Check("Projection_ExcludedClosingTip_UsesKeptStripEdges", () => {
+            var (run, _) = Data();
+            double Edge(int j) => -Math.Cos(Math.PI * j / 4) * run.Reference.BRef / 2;
+            var kept = run.Strips.Skip(1).Select(s => s with
+            {
+                J = s.J - 1, Ya = Edge(s.J), Yb = Edge(s.J + 1)
+            }).ToArray();
+            run = Rehash(run with { Strips = kept });
+            var view = View(run);
+            double drag = 0.5 * run.Water.Rho * kept.Sum(s => s.Gamma * -s.DownwashTrefftz * (s.Yb!.Value - s.Ya!.Value));
+            double moment = run.Water.Rho * run.Op.Speed * kept.Where(s => s.Y >= 0)
+                .Sum(s => s.Gamma * s.Y * (s.Yb!.Value - s.Ya!.Value));
+            Equal(drag.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture), Cell(view, "Wing result", "Induced drag").Value);
+            double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
+            Equal((drag / (q * run.Reference.SRef)).ToString("0.00000", System.Globalization.CultureInfo.InvariantCulture),
+                Cell(view, "Wing result", "CDi (Trefftz)").Value);
+            double trefftzLift = run.Water.Rho * run.Op.Speed * kept.Sum(s => s.Gamma * (s.Yb!.Value - s.Ya!.Value));
+            double cl = trefftzLift / (q * run.Reference.SRef);
+            double ar = run.Reference.BRef * run.Reference.BRef / run.Reference.SRef;
+            Equal(Trefftz.Oswald(cl, ar, drag / (q * run.Reference.SRef))
+                .ToString("0.000", System.Globalization.CultureInfo.InvariantCulture),
+                Cell(view, "Wing result", "e (computed)").Value);
+            Equal(moment.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture), Cell(view, "Loads", "Root bending moment").Value);
+            var samples = view.Layers.Single(l => l.Id == "strip-lift").Samples;
+            for (int i = 0; i < kept.Length; i++)
+                Equal(kept[i].Fz / (kept[i].Yb!.Value - kept[i].Ya!.Value), samples[i].Value!.Value);
         });
         Check("Projection_NoRun_NoAnalysisYetNoLayers", () => {
             var (_, current) = Data(); var v = AnalysisProjection.Build(null, current, Units.Metric); Equal(RunState.NoResult, v.State);
@@ -49,6 +127,15 @@ internal static class ProjectionTests
             Equal(true, moment.Legend.Contains("root plane")); Equal(true, moment.Samples[0].Vector!.Value.X > 0);
             var negative = View(s => s with { Gamma = -s.Gamma });
             Equal(true, negative.Layers.Single(l => l.Id == "root-moment").Samples[0].Vector!.Value.X < 0);
+        });
+        Check("Layers_MomentArc_RightHandPositiveXMatchesRootMoment", () => {
+            var view = View();
+            double value = double.Parse(Cell(view, "Loads", "Root bending moment").Value,
+                System.Globalization.CultureInfo.InvariantCulture);
+            var arc = view.Layers.Single(l => l.Id == "root-moment").Samples.Single();
+            Equal(true, value > 0); // +z lift at +y gives +x bending in the chosen body convention.
+            Equal(true, arc.Vector!.Value.X > 0);
+            Equal(arc.Value, arc.Vector.Value.X);
         });
         Check("Layers_Vectors_BodyFrameSignConventionLabelled", () => {
             var v = View(); Equal(true, v.Layers.Single(l => l.Id == "strip-lift").Legend.Contains("+x aft, +y starboard, +z up"));
