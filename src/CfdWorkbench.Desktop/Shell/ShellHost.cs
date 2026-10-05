@@ -79,6 +79,12 @@ public sealed class ShellHost : Grid
     private Control? paletteOrigin;
     private CancellationTokenSource? opening;
     private readonly Func<Task<string?>>? pickOpenFile;
+
+    /// <summary>DLG shows the catalog. Null runs the command as a status count and draws no dialog.</summary>
+    public Func<Task>? ShowCatalogDialog { get; set; }
+
+    /// <summary>DLG asks for the My-sections name. Null reports the empty-name sentence and writes nothing.</summary>
+    public Func<Task<string?>>? AskSaveName { get; set; }
     private string? failedPath;
 
     public static void BindF6(Window window, ShellHost host)
@@ -117,6 +123,7 @@ public sealed class ShellHost : Grid
     public ShellHost(WorkbenchController controller, PreferenceStore? preferences = null, Func<Task<string?>>? pickOpenFile = null)
     {
         Controller = controller;
+        Controller.PreviewChanged += OnCatalogPreview;
         Preferences = preferences;
         this.pickOpenFile = pickOpenFile;
 
@@ -1128,6 +1135,12 @@ public sealed class ShellHost : Grid
             case "section.import-dat":
                 await ImportDatAsync();
                 return;
+            case "section.replace-catalog":
+                await ReplaceFromCatalogAsync();
+                return;
+            case "section.save-mine":
+                await SaveMineAsync();
+                return;
         }
         if (SectionStepFor(id) is { } step) await ApplySectionStepAsync(step);
     }
@@ -1228,7 +1241,9 @@ public sealed class ShellHost : Grid
             Report(new StatusReport($"The .dat file couldn't be read. Nothing changed.", ReportKind.Error));
             return;
         }
-        await ApplySectionStepAsync(new SectionStep.Import(dat));
+        await ApplySectionStepAsync(new SectionStep.Replace(
+            new ReplaceSource.Coordinates("a .dat file", new Provenance("dat:sha256:" + Identity.Sha256(dat), false), dat),
+            ReplaceScope.Draft));
     }
 
     /// <summary>
@@ -1253,7 +1268,63 @@ public sealed class ShellHost : Grid
             Report(new StatusReport(copy, ReportKind.Warning), new StripAction("Show", () => ShowBlocker(named, null)));
             return;
         }
-        Report(new StatusReport($"{error.Reason ?? error.Code} Nothing changed.", ReportKind.Warning));
+        Report(new StatusReport(RefusalCopy(error), ReportKind.Warning));
+    }
+
+    /// <summary>CAT and LIB reasons are already the operator sentence. Other refusals gain "Nothing changed." once.</summary>
+    internal static string RefusalCopy(ContractError error)
+    {
+        bool catalogOrLibrary = error.Code.StartsWith("CAT-", StringComparison.Ordinal)
+            || error.Code.StartsWith("LIB-", StringComparison.Ordinal);
+        if (catalogOrLibrary)
+            return string.IsNullOrWhiteSpace(error.Reason) ? error.Code + " Nothing changed." : error.Reason;
+        string reason = error.Reason ?? error.Code;
+        return reason.Contains("Nothing changed.", StringComparison.Ordinal) ? reason : reason + " Nothing changed.";
+    }
+
+    private void OnCatalogPreview()
+    {
+        // ReplacePreview is painted by the section canvas (DLG). Rebuilding panes here costs the release-freeze refresh.
+        if (Controller.PreviewFault is { } error)
+            Report(new StatusReport(RefusalCopy(error), ReportKind.Warning));
+    }
+
+    private async Task ReplaceFromCatalogAsync()
+    {
+        var snapshot = Controller.OpenCatalog();
+        if (ShowCatalogDialog is not null)
+        {
+            await ShowCatalogDialog();
+            return;
+        }
+        string text = snapshot.Outcome == "CAT-UNAVAILABLE"
+            ? "Catalog unavailable."
+            : $"Catalog open: {snapshot.Choosable} sections.";
+        Report(new StatusReport(text, snapshot.Outcome == "CAT-UNAVAILABLE" ? ReportKind.Warning : ReportKind.Info));
+    }
+
+    private async Task SaveMineAsync()
+    {
+        if (AskSaveName is null)
+        {
+            Report(new StatusReport("Name the section to save it."));
+            return;
+        }
+        string? name = await AskSaveName();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            Report(new StatusReport("Name the section to save it."));
+            return;
+        }
+        try
+        {
+            await Controller.SaveToMySectionsAsync(name);
+            Report(new StatusReport(Controller.Status));
+        }
+        catch (ContractError error)
+        {
+            Report(new StatusReport(RefusalCopy(error), ReportKind.Warning));
+        }
     }
 
     private string? RefitRefusal(SectionStep.SetType step, ContractError error) =>

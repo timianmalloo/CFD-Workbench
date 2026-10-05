@@ -16,6 +16,9 @@ public sealed class SourceParse
     private readonly Lazy<string> sourceIdentity;
     private readonly Lazy<string?> surfaceIdentity;
     internal Definition? Definition { get; }
+    /// <summary>The named profile, or null when this source did not parse or has no profile of that name.</summary>
+    public ProfileDefinition? Profile(string name) =>
+        Definition?.Profiles.FirstOrDefault(item => item.Name == name);
     internal SourceParse(byte[] source, IEnumerable<Diagnostic> diagnostics, Definition? definition = null)
     {
         this.source = source.ToArray();
@@ -103,9 +106,26 @@ internal sealed record Curve(string Path, int Degree, double[] Knots, double[][]
     internal object Semantic() => new Dictionary<string, object?>
     { ["degree"] = Degree, ["knots"] = Knots, ["points"] = Points.Select(point => new[] { point[0], point[1] }).ToArray() };
 }
-internal sealed record ProfileDefinition(string Name, Curve Upper, Curve Lower, string Closure, int BlockStart, int BlockEnd)
+/// <summary>One profile block inside a parsed source. Curve grammar stays inside Core; Desktop reads the name, the provenance, and the block bytes.</summary>
+public sealed record ProfileDefinition
 {
-    internal string? Provenance { get; init; }
+    internal ProfileDefinition(string name, Curve upper, Curve lower, string closure, int blockStart, int blockEnd)
+    {
+        Name = name;
+        Upper = upper;
+        Lower = lower;
+        Closure = closure;
+        BlockStart = blockStart;
+        BlockEnd = blockEnd;
+    }
+
+    public string Name { get; init; }
+    internal Curve Upper { get; init; }
+    internal Curve Lower { get; init; }
+    internal string Closure { get; init; }
+    internal int BlockStart { get; init; }
+    internal int BlockEnd { get; init; }
+    public string? Provenance { get; init; }
     internal object Semantic => new Dictionary<string, object?>
     { ["evaluator"] = new[] { "cfdw-cv", "2" }, ["upper"] = Upper.Semantic(), ["lower"] = Lower.Semantic(), ["closure"] = Closure };
 }
@@ -190,6 +210,24 @@ public static class FoilSource
         return bytes;
     }
 
+    public static byte[] ProfileBlock(ProfileDefinition profile)
+    {
+        var text = new StringBuilder();
+        AppendProfile(text, profile);
+        return Utf8.GetBytes(text.ToString());
+    }
+
+    internal static void AppendProfile(StringBuilder text, ProfileDefinition profile)
+    {
+        text.Append("    profile ").Append(Jcs.Quote(profile.Name)).Append(" {\n");
+        text.Append("      upper cv { ").Append(CurveBody(profile.Upper, 0)).Append(" }\n");
+        text.Append("      lower cv { ").Append(CurveBody(profile.Lower, 0)).Append(" }\n");
+        text.Append("      closure ").Append(profile.Closure).Append('\n');
+        if (profile.Provenance is not null)
+            text.Append("      provenance ").Append(Jcs.Quote(profile.Provenance)).Append('\n');
+        text.Append("    }\n");
+    }
+
     internal static byte[] Print(Definition definition)
     {
         ArgumentNullException.ThrowIfNull(definition);
@@ -210,15 +248,7 @@ public static class FoilSource
         text.Append("  thickness cv { ").Append(CurveBody(definition.Curves["thickness"], 0)).Append(" }\n");
         text.Append("  profiles {\n");
         foreach (var profile in definition.Profiles)
-        {
-            text.Append("    profile ").Append(Jcs.Quote(profile.Name)).Append(" {\n");
-            text.Append("      upper cv { ").Append(CurveBody(profile.Upper, 0)).Append(" }\n");
-            text.Append("      lower cv { ").Append(CurveBody(profile.Lower, 0)).Append(" }\n");
-            text.Append("      closure ").Append(profile.Closure).Append('\n');
-            if (profile.Provenance is not null)
-                text.Append("      provenance ").Append(Jcs.Quote(profile.Provenance)).Append('\n');
-            text.Append("    }\n");
-        }
+            AppendProfile(text, profile);
         text.Append("  }\n");
         text.Append("  sections {");
         foreach (var assignment in definition.Assignments)

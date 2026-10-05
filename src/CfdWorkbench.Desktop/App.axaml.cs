@@ -26,9 +26,10 @@ public sealed class App : Application
         {
             try
             {
-                var preferences = new PreferenceStore(
-                    Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CFD Workbench"),
-                    () => new ProjectStore());
+                string preferenceRoot = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CFD Workbench");
+                BindPreferenceRoot(preferenceRoot);
+                var preferences = new PreferenceStore(preferenceRoot, () => new ProjectStore());
                 desktop.MainWindow = CreateMainWindow(preferences);
                 Console.Error.WriteLine($"NATIVE-STARTUP main-window-assigned={desktop.MainWindow is not null}");
             }
@@ -40,6 +41,14 @@ public sealed class App : Application
         }
         base.OnFrameworkInitializationCompleted();
     }
+
+    /// <summary>My sections for the preference root this process bound (F-6, ADR-0008). One root, every window.</summary>
+    public static SectionLibrary? Sections { get; private set; }
+
+    public static void BindPreferenceRoot(string preferenceRoot) =>
+        Sections = new SectionLibrary(SectionLibrary.Root(preferenceRoot));
+
+    public static void ClearSectionLibrary() => Sections = null;
 
     public static MainWindow CreateMainWindow(PreferenceStore? preferences = null) =>
         new(preferences);

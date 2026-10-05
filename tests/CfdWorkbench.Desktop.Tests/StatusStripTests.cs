@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using CfdWorkbench.Core;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Persistence;
 using static CfdWorkbench.Desktop.Tests.PropertiesViewTests;
@@ -193,6 +194,26 @@ public static class StatusStripTests
             {
                 if (Directory.Exists(root)) Directory.Delete(root, recursive: true);
             }
+        });
+
+        Pane("StatusStrip_ReplaceReport_NamesStationsAndResidual", (controller, host, window) =>
+        {
+            Pump(controller.EnterSectionAsync(0, EntryOrigin.Properties));
+            var entry = Catalog.Load().Single(item => item.Id == "naca-0012" && item.Coordinates is not null);
+            var source = new ReplaceSource.Coordinates(
+                entry.Designation, new Provenance("gen:" + entry.Id, false), entry.Coordinates!);
+            Pump(host.ApplySectionStepAsync(new SectionStep.Replace(source, ReplaceScope.Draft)));
+            string text = Text(host).Text ?? "";
+            var import = controller.Section?.LastReport?.Import;
+            if (import?.Stations is not { Count: > 0 } || controller.Section!.Draft.Cursor != 1)
+                throw new InvalidOperationException("replace did not land: " + text);
+            double chord = import.Stations.Max(index =>
+                Placement.Frame(controller.Section.Draft.Bytes, controller.Inspection!.Authored.Assignments[index].Eta).ChordMeters);
+            string fit = (import.MaxResidual * chord * 1e6).ToString("0.00", CultureInfo.InvariantCulture);
+            string undo = OperatingSystem.IsMacOS() ? "⌘Z" : "Ctrl+Z";
+            string expected = $"Replaced Root and Tip with NACA 0012. Fit {fit} µm (limit 10 µm). {undo} puts the old section back.";
+            if (text != expected)
+                throw new InvalidOperationException("replace report: " + text);
         });
 
         Capture();

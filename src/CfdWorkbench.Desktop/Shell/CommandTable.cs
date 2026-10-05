@@ -130,6 +130,8 @@ public static class CommandTable
         new("section.insert-anchor", "Insert anchor (keep shape)", SectionMenu, null, false, NoOp),
         new("section.delete-point", "Delete point", SectionMenu, "⌫", false, NoOp),
         new("section.smooth", "Smooth", SectionMenu, null, false, NoOp),
+        new("section.replace-catalog", "Replace from catalog…", SectionMenu, null, false, NoOp),
+        new("section.save-mine", "Save to My sections…", SectionMenu, null, false, NoOp),
         new("section.import-dat", "Import .dat…", SectionMenu, null, false, NoOp),
         new("section.make-unique", "Make unique to this station", SectionMenu, null, false, NoOp),
         new("section.thickness-channel", "Station t/c from the Thickness curve", SectionMenu, null, false, NoOp),

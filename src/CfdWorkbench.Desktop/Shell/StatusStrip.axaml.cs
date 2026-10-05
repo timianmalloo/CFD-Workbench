@@ -192,10 +192,17 @@ public static class SectionStrip
                 return new($"Tangent changed on both surfaces. {largest}", null);
             case "fair" or "rebuild":
                 return new($"Smoothed the section ({counts}). {largest}", null);
-            case "import":
-                return new(report.Import is { } import
-                    ? $"Imported the .dat section: {import.VertexCount} points, largest residual {Pct(import.MaxResidual)} % chord."
-                    : $"Imported the .dat section. {largest}", null);
+            case "replace":
+            {
+                if (report.Import is not { } import)
+                    return new($"Section changed. {largest}", null);
+                string stations = ReplaceStations(controller, import.Stations);
+                string source = string.IsNullOrWhiteSpace(controller.LastReplaceName) ? "the section" : controller.LastReplaceName;
+                string undo = OperatingSystem.IsMacOS() ? "⌘Z" : "Ctrl+Z";
+                return new(
+                    $"Replaced {stations} with {source}. Fit {ReplaceMicrons(controller, import)} µm (limit 10 µm). {undo} puts the old section back.",
+                    null);
+            }
             case "make-unique":
                 return new($"{station} now has its own copy of the section. The other stations keep {mode.Draft.Profile}.", null);
             case "thickness":
@@ -230,6 +237,38 @@ public static class SectionStrip
             }
         }
         return null;
+    }
+
+    private static string ReplaceStations(WorkbenchController controller, IReadOnlyList<int>? stations)
+    {
+        if (stations is not { Count: > 0 } || controller.Inspection is not { } inspection) return "the stations";
+        var names = new List<string>(stations.Count);
+        foreach (int index in stations)
+        {
+            if ((uint)index >= (uint)inspection.Authored.Assignments.Count) continue;
+            names.Add(ElevationView.StationName(index, inspection.Authored.Assignments[index].Eta));
+        }
+        return names.Count switch
+        {
+            0 => "the stations",
+            1 => names[0],
+            2 => names[0] + " and " + names[1],
+            _ => string.Join(", ", names.Take(names.Count - 1)) + " and " + names[^1]
+        };
+    }
+
+    private static string ReplaceMicrons(WorkbenchController controller, ImportReport import)
+    {
+        double chord = 0;
+        if (import.Stations is { Count: > 0 } stations && controller.Inspection is { } inspection && controller.Section is { } mode)
+        {
+            foreach (int index in stations)
+            {
+                if ((uint)index >= (uint)inspection.Authored.Assignments.Count) continue;
+                chord = Math.Max(chord, Placement.Frame(mode.Draft.Bytes, inspection.Authored.Assignments[index].Eta).ChordMeters);
+            }
+        }
+        return (import.MaxResidual * chord * 1e6).ToString("0.00", Inv);
     }
 
     private static string Pct(double fraction) => (fraction * 100).ToString("0.00", Inv).Replace('-', Quantity.Minus);
