@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T01:06:54Z",
+  "generated": "2026-10-05T01:07:36Z",
   "audit": [
     {
       "actor": null,
@@ -24154,6 +24154,31 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "e024b1c3af96677a3815be966aa13d6cbfd35332",
         "short": "e024b1c3a",
+        "branch": "feature/blend-capacity",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M44SM6MMJ6VNNA14QNDA9B2G",
+      "shortname": "cap-ruling74-count-correction",
+      "datetime": "2026-10-05T01:07:36Z",
+      "session": "cap",
+      "prompt": "Correct the CAP completion audit aggregate PASS count.",
+      "summary": "Correction to al-01M44SJX7J90QRXVR6P4G073VE: the last run had 334 Core part 1 + 333 Core part 2 + 610 Desktop + 49 Analysis + 5 CLI = 1331 PASS, not 1608. TEST-BUDGET remains 78/60 s; CAP 3/3 and docs pass.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Make the CAP verification record numerically accurate.",
+      "done_when": "Audit states the sum of five suite PASS counts as 1331.",
+      "tier": "T0",
+      "fan_out": 0,
+      "git": {
+        "sha": "31298478f8c2afcb2cb4546cdf2058ef37fa1ab5",
+        "short": "31298478f",
         "branch": "feature/blend-capacity",
         "pushed": null
       }
