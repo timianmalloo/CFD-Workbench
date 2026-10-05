@@ -9075,6 +9075,50 @@ window.DOCS_INDEX = {
       "sourceSha256": "0925a83f77cb1a4c610e648f8242445ab8437491baf21e1fae51fbbe1ab91902"
     },
     {
+      "id": "proof-spike-03-round3",
+      "path": "docs/proof/spike-03/verdict-round3.md",
+      "title": "SPIKE-03 round 3 verdict — locating and repairing the Gmsh AR 8 wing mesh against the DR-F3-1 A gate",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "spike",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "Mesh NO-GO at AR 8 after both repair cycles, so R3-M2, R3-M3 (AR 5, 12) and R3-M4 (the 3-D y+ gate solve) were not run. R3-M0 located the 811 faces above 70 deg: 616 on the TE arc strip, 173 at the tip's TE end, none at the prism/tet interface. The cause is measured, not assumed: the 1.49 mm layer stack spreads each prism column 7.0x around the 0.25 mm TE arc and not along the span. A structured TE strip sized by that ratio (R3-M1b) took the panel TE from 616 faces to 1. The gate still fails on the revolved tip (246 faces > 70 deg, max 85.2 deg) and on 4 faces with weight < 0.05. Gmsh repeated M-2c bitwise. macOS arm64 only.",
+      "tags": [
+        "spike-03",
+        "openfoam",
+        "gmsh",
+        "mesh-gate",
+        "boundary-layer",
+        "round-3"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-03-round2",
+          "rel": "supersedes"
+        },
+        {
+          "to": "plan-fluids-round3",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-spike-04-round3",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cb66d6308612d4cd70eacbc03b7bf428d2bce21bdac9054b5b0e0319f88342a9"
+    },
+    {
       "id": "proof-spike-04",
       "path": "docs/proof/spike-04/verdict.md",
       "title": "SPIKE-04 verdict — three-grid convergence oracle on NASA TMR NACA 0012 (OpenFOAM v2512)",
@@ -9163,6 +9207,53 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "ae61a05e9b0d015a4beb7bbb64a1c05fe75520ede1ecffe91e2aa0120066deb7"
+    },
+    {
+      "id": "proof-spike-04-round3",
+      "path": "docs/proof/spike-04/verdict-round3.md",
+      "title": "SPIKE-04 round 3 verdict — searching for a monotone TMR grid family (OpenFOAM v2512)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@fluids-f1",
+      "phase": "spike",
+      "reviewBy": "2026-11-03",
+      "reviewSuggested": [],
+      "summary": "GCI NO-GO: no monotone triplet was admitted, so no observed order and no GCI. R3-G0 rejects H1: the unlimited laplacian moves L6 Cl by -1.03e-4, below the 2.8e-4 threshold. Numerics cycle 1 (limitedLinear 1 nuTilda at relaxation 0.7) misses A4 on L6 on clause 3 (5,013 clipped iterations in 40,000), so cycle 2 is not run. Per DR-F3-3 the L3 run used the D4 numerics. It reached the 10 h solve cap at 41,005 iterations without A4 (Cl half-band 9.8e-5 against 1e-5), so the L5/L4/L3 triplet is not admitted. A4 and D4 stand. DR-F3-7 default (c) is recommended.",
+      "tags": [
+        "spike-04",
+        "openfoam",
+        "verification",
+        "gci",
+        "tmr",
+        "naca0012",
+        "spalart-allmaras",
+        "round-3",
+        "a4"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-04-round2",
+          "rel": "supersedes"
+        },
+        {
+          "to": "plan-fluids-round3",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-spike-03-round3",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "da0ea862f7f454e836fde338463f1ea1f66053a09d19b41837373335a1eb9b7b"
     },
     {
       "id": "proof-u1fix-red-runs",
@@ -10821,5 +10912,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "898418eb98ca4dc89175093cd7ed6d7f3753b5bc2c91fc9d1346ea6f73befab1"
+  "graphSha256": "7af3ffcfd85033eb6fd7b69fe444a0e64bbb02d2d7d725e4001b1229a0658559"
 };
