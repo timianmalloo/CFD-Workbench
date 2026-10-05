@@ -19,6 +19,10 @@ public partial class AnalysisPanel : UserControl
     {
         InitializeComponent();
         LoadingHost.Content = loading;
+        // The slot height is the Bottom region's preset size (LayoutCodec Chrome: 190); the skeleton bars are static placeholders.
+        Height = 190;
+        SkeletonLong.Width = 320;
+        SkeletonShort.Width = 240;
     }
 
     public LoadingChart LoadingView => loading;

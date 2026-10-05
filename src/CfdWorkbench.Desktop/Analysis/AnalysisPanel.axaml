@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="CfdWorkbench.Desktop.Analysis.AnalysisPanel" AutomationProperties.Name="Analysis results"
-             FontFamily="{StaticResource PropFontFamily}" Height="190">
+             FontFamily="{StaticResource PropFontFamily}">
   <!-- The Analysis bottom panel (A3a §18.5 rows 25, 28, 31): a shell slot shown in Analysis only. The tabs read the selected
        run's projection (AnalysisView), never the latest attempt: after a failed Evaluate they keep the previous run
        Historical beside the error card. Checks has no data source (no DRC exists, OD-4 a), so it is omitted. -->
@@ -20,8 +20,8 @@
           <TextBlock x:Name="PanelErrorText" Classes="pnl-cell" AutomationProperties.LiveSetting="Assertive" />
         </Border>
         <StackPanel x:Name="PanelSkeleton" Spacing="{StaticResource StackGap2}" IsVisible="False" AutomationProperties.Name="Evaluating">
-          <Border Classes="pnl-bar" Width="320" HorizontalAlignment="Left" />
-          <Border Classes="pnl-bar" Width="240" HorizontalAlignment="Left" />
+          <Border x:Name="SkeletonLong" Classes="pnl-bar" HorizontalAlignment="Left" />
+          <Border x:Name="SkeletonShort" Classes="pnl-bar" HorizontalAlignment="Left" />
         </StackPanel>
       </StackPanel>
       <TabControl x:Name="PanelTabs" AutomationProperties.Name="Analysis result tabs">

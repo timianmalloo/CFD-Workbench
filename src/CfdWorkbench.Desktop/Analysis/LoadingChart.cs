@@ -29,14 +29,15 @@ public sealed class LoadingChart : UserControl
         AutomationProperties.SetName(TwinToggle, "Spanwise loading table twin");
         TwinToggle.IsCheckedChanged += (_, _) => ShowBody();
         var caption = new TextBlock { Text = Labels.ChartBasis, TextWrapping = TextWrapping.Wrap, Classes = { "caption" } };
-        var header = new DockPanel { LastChildFill = true };
-        DockPanel.SetDock(TwinToggle, Avalonia.Controls.Dock.Right);
-        header.Children.Add(TwinToggle);
+        // Grids, not a dock panel: the Dock library is confined to Shell/ (Architecture_DockConfinedToShell).
+        var header = new Grid { ColumnDefinitions = new ColumnDefinitions("*,Auto") };
+        Grid.SetColumn(TwinToggle, 1);
         header.Children.Add(caption);
+        header.Children.Add(TwinToggle);
         AutomationProperties.SetName(table, "Spanwise loading table");
         AutomationProperties.SetName(plot, Labels.ChartBasis + ", starboard half; table twin available");
-        var root = new DockPanel();
-        DockPanel.SetDock(header, Avalonia.Controls.Dock.Top);
+        var root = new Grid { RowDefinitions = new RowDefinitions("Auto,*") };
+        Grid.SetRow(body, 1);
         root.Children.Add(header);
         root.Children.Add(body);
         Content = root;

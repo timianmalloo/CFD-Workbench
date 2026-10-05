@@ -140,8 +140,10 @@ public static class ShellWindowTests
             {
                 window.Show();
                 Settle(window);
-                // Two rows: the dock host and, under it, the status strip (DR-STATUS-1). No third row is a header band.
-                if (host.RowDefinitions.Count != 2 || Grid.GetRow(host.StatusStrip) != 1 || !host.LeftSidebarToggle.IsEffectivelyVisible ||
+                // Three rows: the dock host, the Analysis slot (collapsed outside Analysis, A3a G-T7) and the status strip (DR-STATUS-1).
+                // No row above the dock host is a header band.
+                if (host.RowDefinitions.Count != 3 || Grid.GetRow(host.DockHost) != 0 || Grid.GetRow(host.AnalysisPanel) != 1 || host.AnalysisPanel.IsVisible ||
+                    Grid.GetRow(host.StatusStrip) != 2 || !host.LeftSidebarToggle.IsEffectivelyVisible ||
                     host.GetVisualDescendants().OfType<TextBlock>().Any(text => text.IsEffectivelyVisible && text.Text == "Sidebar") ||
                     host.LeftSidebarToggle.Content is string { Length: > 2 })
                     throw new InvalidOperationException("Standalone Sidebar header band is visible");
