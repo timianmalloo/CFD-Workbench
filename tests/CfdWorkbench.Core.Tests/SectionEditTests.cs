@@ -177,6 +177,7 @@ internal static class SectionEditTests
             }
             Equal(true, outside > 0); Equal(true, moved > 0);
         });
+        Check("MakeIndependent_TangentRow_NoDslPatch", MakeIndependent_TangentRow_NoDslPatch);
         Check("Profile_MakeIndependent_MiddleStationSplitsIntervals", () =>
         {
             byte[] raw = ThreeStations();
@@ -281,6 +282,45 @@ internal static class SectionEditTests
                 "can't be checked then. Move points up or down only, or keep the section shared.", error?.Reason);
             Equal(begun.Generation, session.Snapshot().Draft!.Generation);
         });
+    }
+
+    /// <summary>
+    /// A section with a tangent row must become an independent profile. The row stays on the same
+    /// vertex, including when that vertex's id is rewritten to the cv-N ids MakeIndependent assigns.
+    /// </summary>
+    private static void MakeIndependent_TangentRow_NoDslPatch()
+    {
+        byte[] canonical = SectionPointTests.Anchored("smooth", SectionPointTests.SmoothUpper(), SectionPointTests.SmoothLower());
+        ExpectIndependentTangent(canonical, "smooth", null);
+
+        byte[] renamed = Encoding.UTF8.GetBytes(Encoding.UTF8.GetString(canonical).Replace("\"cv-", "\"pt-", StringComparison.Ordinal));
+        ExpectIndependentTangent(renamed, "smooth", "cv-5");
+    }
+
+    private static void ExpectIndependentTangent(byte[] source, string kind, string? translatedId)
+    {
+        var before = FoilSource.Parse(source);
+        if (!before.IsParsed)
+            throw new InvalidOperationException("Fixture did not parse: " + before.Diagnostics[0].Code + " " + before.Diagnostics[0].Reason);
+        var profile = before.Definition!.Profiles[0];
+        string oldTangentId = profile.Upper.Tangents[0].Id;
+        int vertex = Array.IndexOf(profile.Upper.Ids, oldTangentId);
+        if (vertex < 0) throw new InvalidOperationException("Tangent id " + oldTangentId + " is not an upper point");
+        var made = FoilSource.MakeIndependent(source, profile.Name, 0);
+        var after = FoilSource.Parse(made.Source);
+        if (!after.IsParsed)
+            throw new InvalidOperationException("Clone did not parse: " + after.Diagnostics[0].Code + " " + after.Diagnostics[0].Reason);
+        var clone = after.Definition!.Profiles.Single(item => item.Name == made.NewProfile);
+        var kept = after.Definition.Profiles.Single(item => item.Name == profile.Name);
+        Equal(1, clone.Upper.Tangents.Length);
+        Equal(kind, clone.Upper.Tangents[0].Kind);
+        Equal(translatedId ?? oldTangentId, clone.Upper.Tangents[0].Id);
+        Equal(clone.Upper.Ids[vertex], clone.Upper.Tangents[0].Id);
+        Equal(1, kept.Upper.Tangents.Length);
+        Equal(oldTangentId, kept.Upper.Tangents[0].Id);
+        var stations = after.Authored().Assignments;
+        Equal(made.NewProfile, stations[0].ProfileName);
+        Equal(profile.Name, stations[1].ProfileName);
     }
 
     private static AuthoringSession Opened()
