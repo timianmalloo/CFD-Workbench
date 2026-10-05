@@ -36,6 +36,7 @@ internal static class LatticeFixtureTests
         Check("F18_Camber4_DefaultLatticeTipConverges", F18);
         Check("F19_Washin1_DefaultLatticeTipConverges", F19);
         Check("F20_EllipticStraightQuarterChord_SweepZero", F20);
+        Check("F21_ParabolicCamber_ZeroLiftAngleThinAirfoil", F21);
         Check("F16_BertinSmithSwept_ClAlpha3p443", F16);
         Check("Vlm_ClosingTip_FiniteAndListed", ClosingTip);
         Check("Vlm_NonFinite_RecordsFailedNotZero", NonFinite);
@@ -315,6 +316,27 @@ internal static class LatticeFixtureTests
 
     private static void F19() => FastNonplanar("washin", null, 1);
 
+    // Four cosine chord panels must read the tangent at each 3/4-panel control point.
+    // AR 40 leaves a finite-span correction; 0.25° allows 5.5% of the 2D angle while
+    // excluding the 1.20° secant-normal defect measured by the independent 2D probe.
+    private static void F21()
+    {
+        const double half = 20, chord = 1, area = 40;
+        var sections = Nodes(-half, half, 16, "cosine")
+            .Select(y => Section(y, -chord / 4, chord, 0, 0, y / half, 2 * half, ParabolicCamber, 20)).ToList();
+        RunSettings settings = Lattice(16, 4, "cosine");
+        double cl0 = Coefficient(VortexLattice.Solve(sections, settings, At(0), Rho, default), area);
+        double cl5 = Coefficient(VortexLattice.Solve(sections, settings, At(5), Rho, default), area);
+        // The linear no-penetration system makes circulation A cos(alpha) + B sin(alpha).
+        // Recover its zero from two solves without a small-angle extrapolation.
+        double alpha5 = Math.PI * 5 / 180;
+        double alphaL0 = -Math.Atan2(cl0 * Math.Sin(alpha5), cl5 - cl0 * Math.Cos(alpha5)) * 180 / Math.PI;
+        Console.WriteLine("MEASURE F21 AR=40 nc=4 alphaL0=" + Num(alphaL0) + " CL0=" + Num(cl0) + " CL5=" + Num(cl5));
+        const double thinAirfoil = -0.08 * 180 / Math.PI;
+        if (!(Math.Abs(alphaL0 - thinAirfoil) <= 0.25))
+            throw new InvalidOperationException("alpha_L0 " + Num(alphaL0) + " vs thin-airfoil " + Num(thinAirfoil) + " ±0.25°");
+    }
+
     // Ruling 77 (2), fast half. n64 against n128: tip α_i within 0.1° and CL within 1% of n128.
     // κ₁ at n64 stays within 10× the flat plate. The camber-surface horseshoe mutant must leave that α_i band.
     // A returned solve has already passed SolveDense's 1e-10 backward-error gate. n256 is readiness.
@@ -591,6 +613,7 @@ internal static class LatticeFixtureTests
         var xs = new double[fractions.Length];
         var cambers = new double[fractions.Length];
         var zeros = new double[fractions.Length];
+        var slopes = new double[fractions.Length];
         for (int i = 0; i < fractions.Length; i++)
         {
             double f = fractions[i];
@@ -599,9 +622,14 @@ internal static class LatticeFixtureTests
             placed[i] = new Point3(pivot + cosine * dx + sine * local, y, z - sine * dx + cosine * local);
             xs[i] = f;
             cambers[i] = chord == 0 ? 0 : local / chord;
+            if (camber is not null && chord > 0)
+            {
+                double lo = Math.Max(0, f - 1e-6), hi = Math.Min(1, f + 1e-6);
+                slopes[i] = (camber(y, hi, chord) - camber(y, lo, chord)) / ((hi - lo) * chord);
+            }
         }
         var frame = new StationFrame(eta, span, xLe, xLe + chord, z, twistDeg, 0);
-        return new SectionSample(frame, xs, cambers, zeros, zeros, placed);
+        return new SectionSample(frame, xs, cambers, zeros, slopes, placed);
     }
 
     private static double UpperSurface(double y, double f, double chord)
