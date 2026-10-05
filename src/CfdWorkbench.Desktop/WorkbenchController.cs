@@ -183,6 +183,10 @@ public sealed class WorkbenchController : IDisposable
     private Task sectionAssessmentCall = Task.CompletedTask;
     private int sectionStepsPending;
     private const string SectionChecking = "Checking…";
+    // Certificate Finish showed before a step published "Checking…". A refusal leaves the bytes
+    // unchanged, so Finish keeps it until the re-check returns. A later queued step must not
+    // overwrite this with the placeholder.
+    private SectionMode? sectionBeforeChecking;
 
     private long openRequestGeneration;
     private bool isNotifying;
@@ -712,7 +716,12 @@ public sealed class WorkbenchController : IDisposable
                     error.Data["RefitDeviationMeters"] is double deviation &&
                     error.Data["RefitLimitMeters"] is double limit ? (side, x, deviation, limit) : null;
                 Status = error.Message;
-                // The refused step left the draft unchanged; its certificate (cleared when the step was asked for) is asked again.
+                // The refused step left the draft unchanged. Keep the certificate this step cleared:
+                // "Checking…" is for bytes that moved, and a refused step must not show it while the re-check runs.
+                if (Section is { } current && sectionBeforeChecking is { } prior &&
+                    current.Draft.DraftId == prior.Draft.DraftId &&
+                    current.Draft.Generation == prior.Draft.Generation)
+                    Section = current with { Assessment = prior.Assessment, FinishReason = prior.FinishReason };
                 assessed = AssessCurrentSectionAsync();
                 NotifySection();
                 throw;
@@ -777,6 +786,8 @@ public sealed class WorkbenchController : IDisposable
         ClearReplacePreview(keepApplyTarget: true);
         if (mode.Assessment is not null || mode.FinishReason != SectionChecking)
         {
+            if (mode.FinishReason != SectionChecking)
+                sectionBeforeChecking = mode;
             Section = mode with { Assessment = null, FinishReason = SectionChecking };
             // The mode bar's Finish and reason follow at once; the panes' inputs are unchanged, so no shell refresh.
             RaiseSectionChanged();
