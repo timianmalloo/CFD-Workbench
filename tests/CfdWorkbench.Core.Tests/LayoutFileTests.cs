@@ -271,7 +271,7 @@ internal static class LayoutFileTests
     [
         new WorkspaceLayout(WorkspaceId.Planform, new WorkspaceViews(ViewArrangement.Plan3d, SingleView.Plan),
         [
-            new RegionLayout(RegionId.Left, true, 260, [new PaneGroup(["browser"], "browser", 1)]),
+            new RegionLayout(RegionId.Left, true, 260, [new PaneGroup(["browser", "layers"], "browser", 1)]),
             new RegionLayout(RegionId.Bottom, false, 190, []),
             new RegionLayout(RegionId.Right, false, 260, [new PaneGroup(["points"], "points", 1)])
         ],
