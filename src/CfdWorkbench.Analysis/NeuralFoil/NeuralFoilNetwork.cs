@@ -77,7 +77,7 @@ public sealed class NeuralFoilNetwork
     {
         ArgumentNullException.ThrowIfNull(cst);
         if (cst.Upper.Length != 8 || cst.Lower.Length != 8 || !double.IsFinite(alphaDeg) ||
-            !double.IsFinite(reynolds) || reynolds <= 0 || !double.IsFinite(ncrit) || ncrit <= 0)
+            !double.IsFinite(reynolds) || reynolds <= 0 || !double.IsFinite(ncrit) || ncrit < 0)
             throw new ContractError("ANA-POLAR-INPUT", "NeuralFoil needs eight CST weights per side and finite flow inputs.");
         Span<double> input = stackalloc double[25];
         cst.Upper.CopyTo(input);

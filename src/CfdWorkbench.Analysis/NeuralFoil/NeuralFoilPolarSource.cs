@@ -7,9 +7,12 @@ namespace CfdWorkbench.Analysis.NeuralFoil;
 
 /// <summary>A polar result with the fit residual and the explicit envelope verdict for every section.</summary>
 public sealed record NeuralFoilEvaluation(NeuralFoilPrediction? Prediction, double CstResidualRms,
-    double CstResidualMax, IReadOnlyList<string> OutsideBracketReasons, string? Reason)
+    double CstResidualMax, IReadOnlyList<string> OutsideBracketReasons, string? Reason, string? ConfidenceWarning = null)
 {
     public bool Computable => Prediction is not null && Reason is null;
+
+    /// <summary>NeuralFoil's analysis_confidence is below the advisory flag threshold; the point is still computed.</summary>
+    public bool LowConfidence => ConfidenceWarning is not null;
 
     /// <summary>True when the point is computed but is not inside the XFOIL-validated bracket.</summary>
     public bool OutsideValidatedBracket => OutsideBracketReasons.Count > 0;
@@ -43,9 +46,10 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
     public const double TrainingReynoldsMax = 1e10;
     public const double TrainingNcritMin = 0;
     public const double TrainingNcritMax = 18;
-    // assume: 0.5 is a conservative advisory confidence floor; the spike's five fixture cases are >0.95.
-    // Confirm by a wider XFOIL comparison before making the floor an accuracy claim; if false, valid points may be refused.
-    public const double ConfidenceFloor = 0.5;
+    // analysis_confidence is NeuralFoil's learned convergence and in-distribution indicator. It is advisory: a point below
+    // this threshold is computed and flagged, never refused. The threshold only places the flag; the five spike cases
+    // are all above 0.95, so no evidence ties it to an error size.
+    public const double LowConfidenceBelow = 0.5;
 
     public string? UnavailableReason => null;
     public static RunMethod Method { get; } = new(NeuralFoilNetwork.MethodId, NeuralFoilNetwork.MethodVersion, 0);
@@ -68,14 +72,9 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
                 return new(null, fit.RmsResidual, fit.MaxResidual, outside, reason);
             }
             NeuralFoilPrediction prediction = NeuralFoilNetwork.FromEmbedded().Predict(fit.Parameters, alphaDeg, reynolds, ncrit);
-            string? confidenceReason = ConfidenceReason(prediction.AnalysisConfidence);
-            if (confidenceReason is not null)
-            {
-                outcome = "noncomputable";
-                return new(prediction, fit.RmsResidual, fit.MaxResidual, outside, confidenceReason);
-            }
             outcome = "computed";
-            return new(prediction, fit.RmsResidual, fit.MaxResidual, outside, null);
+            return new(prediction, fit.RmsResidual, fit.MaxResidual, outside, null,
+                ConfidenceWarning(prediction.AnalysisConfidence));
         }
         finally
         {
@@ -86,9 +85,9 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
         }
     }
 
-    public static string? ConfidenceReason(double confidence) =>
-        !double.IsFinite(confidence) || confidence < ConfidenceFloor
-            ? "analysis_confidence below the advisory floor 0.5"
+    public static string? ConfidenceWarning(double confidence) =>
+        !double.IsFinite(confidence) || confidence < LowConfidenceBelow
+            ? "analysis_confidence is below 0.5. NeuralFoil's confidence is an advisory convergence and in-distribution indicator, not an accuracy statement."
             : null;
 
     public PolarSample? Sample(string profileHash, double reynolds, double ncrit, double alphaDeg,
