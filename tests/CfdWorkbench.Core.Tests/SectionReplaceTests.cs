@@ -305,19 +305,31 @@ internal static class SectionReplaceTests
             Console.WriteLine(FormattableString.Invariant($"RPL first-differing step {stepMs:F1} ms"));
             Equal(GeometryStatus.Certified, session.AssessSection(id, view.Generation, CancellationToken.None).Status);
         });
-        Check("Guard_SixPiecesDiffering_RefusedCopy194", () =>
+        Check("Guard_TwentySevenSpansDiffering_Certifies", () =>
         {
             using var session = new AuthoringSession();
             session.Open(FoilSource.NewDefault(), SectionDraftTests.Id(), true);
             string id = SectionDraftTests.Id();
             var view = session.BeginSectionDraft(id, 0);
-            view = session.ApplySectionStep(id, view.Generation, new SectionStep.Insert(SurfaceSide.Upper, 0.62));
+            for (int index = 0; index < 22; index++)
+                view = session.ApplySectionStep(id, view.Generation, new SectionStep.Insert(SurfaceSide.Upper, 0.10 + index * 0.035));
             view = session.ApplySectionStep(id, view.Generation, new SectionStep.MakeUnique());
-            Equal(11, view.Last!.UpperPoints);
-            var refused = Throws(() => session.ApplySectionStep(id, view.Generation, SectionDraftTests.Raise(view, MiddleId(view), 0.002)));
-            Equal("DSL-GEOMETRY", refused.Code);
-            Equal("Root and Tip have 11 points; neighbouring sections that differ can have at most 10. Rebuild to 10 points first, or edit Root and Tip together.",
-                refused.Reason);
+            Equal(32, view.Last!.UpperPoints);
+            view = session.ApplySectionStep(id, view.Generation, SectionDraftTests.Raise(view, MiddleId(view), 0.002));
+            Equal(GeometryStatus.Certified, session.AssessSection(id, view.Generation, CancellationToken.None).Status);
+        });
+        Check("Guard_ThirtyThirdPoint_RefusedDslCurveBeforeCopy194", () =>
+        {
+            using var session = new AuthoringSession();
+            session.Open(FoilSource.NewDefault(), SectionDraftTests.Id(), true);
+            string id = SectionDraftTests.Id();
+            var view = session.BeginSectionDraft(id, 0);
+            for (int index = 0; index < 22; index++)
+                view = session.ApplySectionStep(id, view.Generation, new SectionStep.Insert(SurfaceSide.Upper, 0.10 + index * 0.035));
+            Equal(32, view.Last!.UpperPoints);
+            var refused = Throws(() => session.ApplySectionStep(id, view.Generation, new SectionStep.Insert(SurfaceSide.Upper, 0.90)));
+            Equal("DSL-CURVE", refused.Code);
+            Equal("A surface holds at most 32 points.", refused.Reason);
             SectionDraftTests.Same(view.Bytes, session.CurrentSectionDraft()!.Bytes);
         });
         Check("Replace_ThreeStationsEveryStation_OneBlockCertified", () =>
@@ -335,10 +347,9 @@ internal static class SectionReplaceTests
             Equal(true, definition.Assignments.All(item => item.Profile == 0));
             Equal(GeometryStatus.Certified, Certificate(preview.Bytes!));
         });
-        Check("Replace_FourDifferingSections_RefusedCatSpacingCopy194b", () =>
+        Check("Replace_FourDifferingSections_Certified_SevenRefusedCopy194b", () =>
         {
-            // Blend-certificate spike §4.2: four stations whose sections all differ never certify as built (the all-query
-            // operation bound), so a Replace that would make the fourth differ is refused before it lands, and says why.
+            // Ruling 74: four differing stations now land; seven reach the unchanged all-query operation bound.
             string text = Encoding.UTF8.GetString(Example()).Replace("sections { at root profile \"section-a\" at tip profile \"section-a\" }",
                 "sections { at root profile \"section-a\" at 33 % profile \"section-a\" at 67 % profile \"section-a\" at tip profile \"section-a\" }",
                 StringComparison.Ordinal);
@@ -352,12 +363,27 @@ internal static class SectionReplaceTests
             Equal(GeometryStatus.Certified, Certificate(bytes));
             byte[] rootUnique = FoilSource.MakeIndependent(bytes, "section-a", 0).Source;
             var preview = Preview(rootUnique, 0, Gen("0012"));
+            Equal(null, preview.RefusalCode);
+            Equal(GeometryStatus.Certified, Certificate(preview.Bytes!));
+
+            text = Encoding.UTF8.GetString(Example()).Replace("sections { at root profile \"section-a\" at tip profile \"section-a\" }",
+                "sections { at root profile \"section-a\" at 16 % profile \"section-a\" at 33 % profile \"section-a\" at 50 % profile \"section-a\" at 67 % profile \"section-a\" at 83 % profile \"section-a\" at tip profile \"section-a\" }",
+                StringComparison.Ordinal);
+            bytes = Encoding.UTF8.GetBytes(text);
+            foreach (var (station, dy) in new[] { (2, 0.002), (3, -0.002), (4, 0.003), (5, -0.003), (6, 0.004) })
+            {
+                var (made, name) = FoilSource.MakeIndependent(bytes, "section-a", station);
+                var profile = Profile(made, name);
+                bytes = FoilSource.PatchProfilePoint(made, name, "upper", profile.Upper.Ids[3], profile.Upper.Points[3][0], profile.Upper.Points[3][1] + dy);
+            }
+            Equal(GeometryStatus.Certified, Certificate(bytes));
+            rootUnique = FoilSource.MakeIndependent(bytes, "section-a", 0).Source;
+            preview = Preview(rootUnique, 0, Gen("0012"));
             Equal("CAT-SPACING", preview.RefusalCode);
             Equal(null, preview.Bytes);
-            // The certificate's own refusal carries a stable code the clause matches (RPL-2 item 5); the base after Make unique
-            // already holds four profile blocks, and the bound counts every block.
+            // The seventh different section reaches the operation bound; the preview keeps the approved COPY-194b text.
             Equal("GEOMETRY-QUERY-OPERATIONS", Geometry.Assess(FoilSource.Parse(rootUnique)).Code);
-            Equal("This edit would give Root, Station 2, Station 3 and Tip all different sections, and a wing with that many different " +
+            Equal("This edit would give Root, Station 2, Station 3, Station 4, Station 5, Station 6 and Tip all different sections, and a wing with that many different " +
                 "sections in a row can't be checked yet. Keep one of them shared with its neighbour, or edit them together.", preview.RefusalReason);
         });
         Check("Replace_ResidualEuclidean201PlusKnots_NotVerticalGap", () =>
