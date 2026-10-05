@@ -406,3 +406,13 @@ the atomic claim; a slot whose PID is dead, or with no pid file after a minute, 
 fake `sleep` holders, no ring) proves two live holders block a third and that crashed slots never deadlock. Both lines
 stay in the ring log, so the wait and timeout counts are countable. Open for the operator, not changed here: whether a
 docs-only join must run the ring at all (Ruling 87 (4)).
+
+### 9.3 Ruling 89: docs-only joins skip the ring (2026-10-05, track B1b)
+
+`docs/coordination/join.json` runs `tools/join-ring.sh` in place of the two entries `tools/run-tests.sh` and
+`tools/check-test-costs.py`. It diffs `HEAD^1..HEAD` (HEAD is the merge commit in the checks step). A merge that changes no
+path under `src/`, `tests/`, `tools/`, `cases/` and no `*.csproj`, `*.slnx`, `global.json` or `Directory.*.props` prints
+`RING-SKIPPED docs-only: <paths>`; anything else, a non-merge HEAD or an unreadable diff runs the ring (fail safe). check-docs,
+the other join checks and the verify gates still run, and the readiness ring before main is unchanged. `tools/join-ring.sh
+--self-test` plants merges in a scratch repo (11 cases). check-docs TEST-RING now accepts the wrapper and requires it to name
+both `tools/run-tests.sh` and `tools/check-test-costs.py`. A `RING-SKIPPED` line in a join log means no cost reading was taken.

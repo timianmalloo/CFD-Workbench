@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T15:57:54Z",
+  "generated": "2026-10-05T16:02:50Z",
   "audit": [
     {
       "actor": null,
@@ -24954,6 +24954,39 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "50bbab59bb11b2950778ee519d7971a0c694b084",
         "short": "50bbab59b",
+        "branch": "fix/ring-r87-load-gate",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M46CVCYM1T5K4WE4P7QBCAEQ",
+      "shortname": "ring-r89-docs-only",
+      "datetime": "2026-10-05T16:02:49Z",
+      "session": "trk-b1b",
+      "prompt": "Ruling 89 docs-only joins skip the ring",
+      "summary": "Ruling 89: tools/join-ring.sh derives docs-only from HEAD^1..HEAD and prints RING-SKIPPED, else runs run-tests.sh and check-test-costs.py (non-merge HEAD runs); join.json uses it; check-docs TEST-RING accepts the wrapper; AGENTS.md test-ring line amended. Self-test 11/11.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tools/join-ring.sh",
+        "docs/coordination/join.json",
+        "tools/check-docs.py",
+        "AGENTS.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Implement Ruling 89",
+      "done_when": "self-test, check-docs, verify gates green",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-10-05T15:59:31Z",
+      "duration_seconds": 198.0,
+      "git": {
+        "sha": "d74bddbba913749730b37478ee970646abaa401b",
+        "short": "d74bddbba",
         "branch": "fix/ring-r87-load-gate",
         "pushed": null
       }
