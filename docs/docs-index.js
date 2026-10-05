@@ -6327,7 +6327,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2254125fbfd0a03e26f02d8bdfbcd5ea1fd5753e5b66ae88e22dc8c478f29fe3"
+      "sourceSha256": "30254ba17add8324bb7191555a7ea892cb876cfd290b2e23f78ec608f84d6b5e"
     },
     {
       "id": "kb-hw-glossary",
@@ -8323,6 +8323,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "48cf4d7c57f8942050f8c3c7fc11455084c644c03a26eeecfcfd2cb7feab6b9d"
     },
     {
+      "id": "proof-a3a-stp-red-first",
+      "path": "docs/proof/a3a-stp/red-first.md",
+      "title": "A3a STP red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-stp",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "The red run of the A3a STP track. Each owned check was observed red against its named mutant, then the mutant was removed before the commit. The water-table second check is signed in the water-table proof.",
+      "tags": [
+        "a3a",
+        "stp",
+        "analysis",
+        "red-first",
+        "fixtures",
+        "water"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "note-area3-fixture-arithmetic",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-a3a-water-table",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5447f97817bdc16d3331d7ca08c5bb5d3ce3eb926d14ca000675e0e962093d25"
+    },
+    {
       "id": "proof-a3a-svc-red-first",
       "path": "docs/proof/a3a-svc/red-first.md",
       "title": "A3a SVC red-first receipt",
@@ -8424,6 +8460,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "90a9c5441215a9dca5bd7ea998ecd2b899e1f1841d413543338878f1a22f49a9"
+    },
+    {
+      "id": "proof-a3a-water-table",
+      "path": "docs/proof/a3a-water-table/transcription.md",
+      "title": "ITTC water table transcription and second check",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-stp",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Integer fresh-water and standard-seawater rows from ITTC 7.5-02-01-03 Rev 03, hashed at load. The second check matched Table 1 and Table 3 against the 0.1 °C appendix. The 0 °C row is a one-step extension.",
+      "tags": [
+        "a3a",
+        "stp",
+        "water",
+        "ittc"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-stp-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3200a4d15b168872a8d39187379c0b65da541222ed1cd1f2c96aa2dd3a4127e4"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -12260,5 +12326,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "68d7dc76e6cba4612e4773411c8ade4566fb3a1cb7cb68677021ac931c8be6ab"
+  "graphSha256": "feb3b7ad8d75e0ddd2f6520b8027cf49070817dd19e329250e5d8d955696bb50"
 };
