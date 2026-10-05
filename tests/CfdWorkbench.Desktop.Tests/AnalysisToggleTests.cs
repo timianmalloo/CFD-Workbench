@@ -9,6 +9,30 @@ namespace CfdWorkbench.Desktop.Tests;
 /// <summary>ANA-22: the area switch is a state change over the same viewport and accepted document.</summary>
 public static class AnalysisToggleTests
 {
+    public static void RunReadiness()
+    {
+        DesktopChecks.Check("Toggle_LayersFirstFrame_P95WithinPreviewBudget", () =>
+        {
+            using var controller = OpenSmallAnalysis();
+            _ = Evaluate(controller);
+            var samples = new List<double>();
+            for (int i = 0; i < 20; i++)
+            {
+                long started = System.Diagnostics.Stopwatch.GetTimestamp();
+                controller.ToggleAnalysis();
+                if (controller.LayerSet.Count == 0)
+                    throw new Exception("The first Analysis frame has no selected-run layers.");
+                samples.Add(System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
+                controller.ToggleAnalysis();
+            }
+            samples.Sort();
+            double p95 = samples[(int)Math.Ceiling(samples.Count * .95) - 1];
+            Console.WriteLine("COST Toggle_LayersFirstFrame_P95WithinPreviewBudget " +
+                p95.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
+            if (p95 > 250) throw new Exception($"Toggle p95 {p95:F3} ms exceeds 250 ms.");
+        });
+    }
+
     public static void Run()
     {
         DesktopChecks.Check("Toggle_RoundTrip_CameraSelectionStationViewportEqual", () =>
