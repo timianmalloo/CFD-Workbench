@@ -29,6 +29,8 @@ internal static class NeuralFoilTests
         AnalysisChecks.Check("NeuralFoil_Envelope_Ncrit_InsideTraining_ComputedFlagged", () => Flagged(0, 500000, 12, "Ncrit"));
         AnalysisChecks.Check("NeuralFoil_Envelope_Ncrit_IntermediateValue_Flagged", () => Flagged(0, 500000, 5, "Ncrit"));
         AnalysisChecks.Check("NeuralFoil_Envelope_InsideBracket_NotFlagged", InsideBracketNotFlagged);
+        AnalysisChecks.Check("NeuralFoil_Family_EditedNaca0012_LosesValidatedFamily", EditedLosesFamily);
+        AnalysisChecks.Check("NeuralFoil_Family_CatalogNaca0012_DerivedNotLabelled", CatalogDerivedFamily);
         AnalysisChecks.Check("NeuralFoil_Envelope_CstResidual", () => Refused(0, 500000, 4, "naca0012", true, "CST"));
         AnalysisChecks.Check("NeuralFoil_Envelope_OutsideValidatedBracket", OutsideBracket);
         AnalysisChecks.Check("NeuralFoil_Confidence_Low_ComputedFlaggedNeverRefused", LowConfidenceAdvisory);
@@ -179,6 +181,30 @@ internal static class NeuralFoilTests
         NeuralFoilEvaluation result = source.Evaluate(section, 3, 500000, 4, CancellationToken.None);
         if (!result.Computable || result.OutsideValidatedBracket)
             throw new Exception("validated point was flagged: " + string.Join("; ", result.OutsideBracketReasons));
+    }
+
+    // A smooth 0.4 percent chord bump on the upper surface, labelled "naca0012": the CST fit absorbs it (small residual),
+    // so only the geometry comparison can notice that the section is no longer the validated one.
+    private static void EditedLosesFamily()
+    {
+        NeuralFoilSection pure = Section(false, "naca0012");
+        double[] upper = pure.X.Select((x, i) => pure.Upper[i] + 0.004 * Math.Exp(-Math.Pow((x - 0.4) / 0.15, 2))).ToArray();
+        var edited = new NeuralFoilSection(pure.ProfileHash, "naca0012", pure.X, upper, pure.Lower);
+        var source = new NeuralFoilPolarSource(_ => edited);
+        NeuralFoilEvaluation result = source.Evaluate(edited, 3, 500000, 4, CancellationToken.None);
+        if (!result.Computable) throw new Exception("edited section was refused instead of flagged: " + result.Reason);
+        if (!result.OutsideBracketReasons.Any(text => text.Contains("NACA 0012", StringComparison.Ordinal)))
+            throw new Exception("edited NACA 0012 kept the validated family: " + string.Join("; ", result.OutsideBracketReasons));
+    }
+
+    private static void CatalogDerivedFamily()
+    {
+        CatalogEntry entry = Catalog.Load().Single(item => item.Id == "naca-0012");
+        NeuralFoilSection section = Naca0012Reference.FromSelig(new string('d', 64), "caller-label-ignored", entry.Coordinates!);
+        var source = new NeuralFoilPolarSource(_ => section);
+        NeuralFoilEvaluation result = source.Evaluate(section, 3, 500000, 4, CancellationToken.None);
+        if (!result.Computable || result.OutsideValidatedBracket)
+            throw new Exception("catalog NACA 0012 was not recognised from its geometry: " + string.Join("; ", result.OutsideBracketReasons));
     }
 
     private static void OutsideBracket()
