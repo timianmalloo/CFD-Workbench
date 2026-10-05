@@ -27,12 +27,14 @@ DR-ANA-1. **Tier:** T2. **Branch:** `feature/a3c-polar-source`.
 
 | Claim | Oracle and observed result | Red | Confidence and limit |
 |---|---|---|---|
-| C# inference reproduces Python NeuralFoil 0.3.2 xxxlarge for Cl, Cd, Cm, upper/lower x_tr and analysis_confidence | `NeuralFoil_Fidelity_Python032`: five rows from spike `cases.tsv`/`python.tsv`, max absolute difference 2.4424906541753444e-15; tolerance 1e-10 on macOS arm64 | `4840786`, compile red before port | Verified for the five shared-CST cases; Windows not measured; this does not validate Cm or x_tr against XFOIL |
-| The model resource is intact and identical to the pinned wheel conversion | `NeuralFoil_CorruptWeights_Refused` catches `ANA-POLAR-WEIGHTS-HASH`; `python3 tools/check-neuralfoil-weights.py` PASS with wheel e0067af2… and converted e037bd2b… (5,717,832 B) | `4840786`; wheel comparison independently fails on a bad hash | Verified on this wheel; offline empty cache exits 2 with `NOT RECORDED` |
-| Every section receives a CST fit residual; the guard names each refused limit | `NeuralFoil_Envelope_Alpha/Re/Ncrit/Family/CstResidual`; each has a reason and finite residual. `NeuralFoil_Source_NoncomputableNamesReason` catches silent null | `4840786`; `830130b` for interface reason | Verified for fixture geometry; real edited sections require the resolver seam |
-| Inside the probe grid but outside the XFOIL-validated bracket, prediction stays visible and flagged | `NeuralFoil_Envelope_OutsideValidatedBracket`: NACA 2412, Ncrit 5, α 3°, Re 5e5 is computed with flag | `4840786` | Verified as computation only; no XFOIL accuracy claim |
-| Low advisory confidence blocks a sample and stays available in the detailed result | `NeuralFoil_Confidence_BelowFloorNonComputable`, 0.49 blocked and 0.50 admitted | `3ff82f9` | Verified boundary; floor 0.5 is an explicit assumption, not an accuracy threshold established by the spike |
-| Inference cost and normal-path telemetry are observable | selected harness `COST NeuralFoil_InferencePerCall 2.169` ms; `NeuralFoil_Telemetry_EmittedOnNormalPath` observed one call and duration | `4840786`; `3ebc929` | Verified on macOS arm64 under this run's load; no Windows measurement |
+| C# inference reproduces Python NeuralFoil 0.3.2 xxxlarge for Cl, Cd, Cm, upper/lower x_tr and analysis_confidence | `NeuralFoil_Fidelity_Python032`: five rows from spike `cases.tsv`/`python.tsv`, max absolute difference 2.4424906541753444e-15; tolerance 1e-10 on macOS arm64 | `a79bd8c`, compile red before port | Verified for the five shared-CST cases; Windows not measured; this does not validate Cm or x_tr against XFOIL |
+| The model resource is intact and identical to the pinned wheel conversion | `NeuralFoil_CorruptWeights_Refused` catches `ANA-POLAR-WEIGHTS-HASH`; `python3 tools/check-neuralfoil-weights.py` PASS with wheel e0067af2… and converted e037bd2b… (5,717,832 B) | `a79bd8c`; wheel comparison independently fails on a bad hash | Verified on this wheel; offline empty cache exits 2 with `NOT RECORDED` |
+| Every section receives a CST fit residual; a point outside the network training range is non-computable with a reason | `NeuralFoil_Envelope_{Alpha,Re,Ncrit}_OutsideTraining_NonComputable`, `_CstResidual`; each has a reason and a finite residual. `NeuralFoil_Source_NoncomputableNamesReason` catches silent null | `a79bd8c`; `836264c` for the interface reason; `3806278` for the training-range tests | Verified for fixture geometry; the training range is cited from the repo knowledge doc (paper values), not re-read from upstream |
+| Inside the training range but outside the XFOIL-validated bracket (alpha, Re, Ncrit, section geometry) the point is computed and flagged | `NeuralFoil_Envelope_*_InsideTraining_ComputedFlagged`, `_Ncrit_IntermediateValue_Flagged`, `_InsideBracket_NotFlagged`, `_OutsideValidatedBracket` | `3806278` | Verified as computation only; no XFOIL accuracy claim |
+| The validated family is derived from geometry; an edited NACA 0012 loses it | `NeuralFoil_Family_EditedNaca0012_LosesValidatedFamily`, `_CatalogNaca0012_DerivedNotLabelled`; spike-open section differs 1.26e-3 c from the catalog, edited 3.87e-3 c, tolerance 1.5e-3 c | `69bf9de` | Verified; a tolerance between 1.26e-3 and 3.87e-3 is a chosen limit, and the margin to the spike-open section is thin |
+| `analysis_confidence` is advisory: low values are computed and flagged, never refused | `NeuralFoil_Confidence_Low_ComputedFlaggedNeverRefused` (alpha 27, Re 1e3, Ncrit 0: Python 6.7e-6) | `e175525` | Verified; the 0.5 threshold only places the flag, with no accuracy evidence behind it |
+| Section coordinates through CstFit and the network match Python end to end | `NeuralFoil_EndToEnd_SectionToPolar_Python032`: 6 rows, max difference 7.8e-4, tolerance 2e-3 (a fit-path difference) | not red observed | Verified on macOS arm64; Windows not measured |
+| Inference cost and normal-path telemetry are observable | selected harness `COST NeuralFoil_InferencePerCall 2.169` ms; `NeuralFoil_Telemetry_EmittedOnNormalPath` observed one call and duration | `a79bd8c`; `6053d79` | Verified on macOS arm64 under this run's load; no Windows measurement |
 | Notice and XFOIL exclusion gates fail on violations | `check-notices.py`: planted missing NeuralFoil entry exit 1; planted tracked `xfoil/binary` exit 1; planted missing C# weights constant exit 1; clean exit 0 | planted faults, uncommitted | Verified for gate inputs and current tracked paths |
 
 ## Model and envelope
@@ -42,10 +44,13 @@ water hash)`; coefficients and confidence are non-additive. The source is transi
 definition. `NeuralFoilPolarSource.Method` supplies `NeuralFoil` and
 `NeuralFoil-0.3.2/xxxlarge/94638c04/weights=5717832B` for run keys.
 
-The hard guard uses the spike's observed fidelity grid: α −6…+6 degrees, Re 2e5…1e6, Ncrit 2…9, families NACA
-0012/2412/4412, and CST maximum ordinate residual ≤ 3.6e-4 c (the largest measured was 3.58e-4 c). Only NACA 0012
-with Ncrit exactly 2, 4 or 9 has the XFOIL validation claim, and then only Cl/Cd at pre-stall conditions. The
-guard computes the fitted residual before it returns any refusal. `analysis_confidence` is advisory, not an error bar.
+The hard refusals are the network training range (alpha −27.9…+28.6 degrees, Re 1e2…1e10, Ncrit 0…18; source
+`docs/knowledge/hydrofoil-workbench/07-low-order-hydrodynamics.md:38`, citing the NeuralFoil paper) and a CST maximum
+ordinate residual above 3.6e-4 c (the largest measured was 3.58e-4 c). The XFOIL-validated bracket is NACA 0012 geometry,
+Re 2e5…1e6, Ncrit exactly 2, 4 or 9, alpha −6…+6 degrees, Cl/Cd at pre-stall conditions; a computed point outside it
+carries a reason per axis in `OutsideBracketReasons`. NACA 0012 is recognised from the fitted geometry against the
+catalog section, never from a caller's family string. `analysis_confidence` is advisory: below 0.5 a warning is attached
+and the point is still computed; it is not an error bar and not an accuracy statement.
 
 An embedded .NET assembly resource is chosen because the same manifest-resource lookup and hash check runs on macOS
 and Windows, and packaging cannot silently omit a loose adjacent file. The source has no Python process, CasADi,
@@ -89,3 +94,25 @@ The About-box notice link and the run/result contract fields are seam requests. 
 - Analysis harness 4.3 s under load 36 to 40 against the 5 s C-2 limit; `COST NeuralFoil_InferencePerCall 1.901` ms.
 - Offline: `check-neuralfoil-weights.py --offline --cache-dir <empty>` prints `NOT RECORDED` and exits 2 (a red readiness
   entry offline, by design); with a warm cache it passes without network.
+
+## Repair cycle 1 (numerical-verification review conditions)
+
+1. Envelope: training-range refusal, per-axis bracket flag (`3806278` red, `47d4716` green).
+2. Confidence advisory (`e175525` red, `d9f2f33` green). The same fix removed a mismatch: the network input guard refused
+   Ncrit 0, which is inside the training range.
+3. End-to-end fixture `NeuralFoilE2eTable.cs` generated by `Fixtures/neuralfoil/generate_e2e.py` with neuralfoil 0.3.2 and
+   aerosandbox 4.2.9 under `~/dev/sim/.venv`; tolerance 2e-3, observed 7.8e-4. The test header says the case table is a
+   copy of the spike `cases.tsv`/`python.tsv`.
+4. Family derived from geometry (`69bf9de` red, `4934147` green); no seam needed because the catalog generator is public in Core.
+5. `IPolarSource.Sample` documentation now states the current per-source behaviour.
+
+## Tracked items
+
+| Item | State |
+|---|---|
+| Windows fidelity (inference and end-to-end) | **Not measured, pending** |
+| A3c-2 must reconcile `Sample`'s contract (null versus `ContractError`) before any caller wires it | Open |
+| `PolarSample` has no field for the outside-bracket reasons, the low-confidence warning or the CST residual; only `NeuralFoilPolarSource.Evaluate` carries them | Open, A3c-2 seam |
+| Resolver must return the accepted profile revision (not the catalog ancestor) | Open, A3c-2 |
+| Training range cited from the repo knowledge doc, not re-read from upstream | Open, confirm against arXiv 2503.16323 |
+| NACA 0012 match tolerance 1.5e-3 c is a chosen limit | Open, revisit with the wider-bracket spike |
