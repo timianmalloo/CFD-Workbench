@@ -1133,16 +1133,16 @@ are marked ✚.
 | `RecordRun_StripGap_Refused` (STO) | A | < 5 ms | the contiguity check removed |
 | `Tamper_EditedStripValue_RunUnavailable` (STO) | A | < 50 ms | the content hash not checked on read |
 | `Tamper_StoredKeySetToCurrent_RunUnavailable` (STO) | A | < 50 ms | the stored key trusted |
-| `Retention_PruneThenUndo_TombstoneReadsPruned` (STO) | A | < 50 ms | prune without a tombstone |
+| `Retention_PruneThenUndo_TombstoneReadsPruned` (STO) | R | 569 ms measured | prune without a tombstone |
 | `Store_SizeAtStripCap_UnderDocLimit` (STO) | C0 store | 0.2 s | the strip cap raised to 4,096 |
 | `Store_HundredThousandStrips_RefusedDocSize` (STO) | R (Core) | 2 s | the `DOC-SIZE` preflight removed |
 | `RevisionLabel_TwistEdit_OrdinalsAndRail` (STO) ✚ | A | < 5 ms | the rail read from the first accepted row, not the edit's own |
 | `F1_FlatPlate_RichardsonClAlphaTo2Pi` (VLM) | A | ≤ 1.5 s | §13.2 F-1 |
-| `F2_EllipticAR8_RichardsonClInRecordedBand` (VLM) | A | in F-6 | §13.2 F-2 (BC-3) |
+| `F2_EllipticAR8_RichardsonClInRecordedBand` (VLM) | R | 241 ms measured | §13.2 F-2 (BC-3) |
 | `F3_SymmetricSection_ZeroLiftOddInAlpha` (VLM) | A | < 10 ms | §13.2 F-3 |
 | `F4_MirroredWing_NoSideForceRollYaw` (VLM) | A | ≈ 50 ms | §13.2 F-4 |
 | `Vlm_PivotingSolve_ResidualAfterOneSolve` (VLM) | A | < 10 ms | §13.2 F-4 rev (whole-row pivot swap) |
-| `F5_InducedDrag_TrefftzWithin1PercentOfNearField` (VLM) | A | ≈ 0.43 s (own trio) | §13.2 F-5 |
+| `F5_InducedDrag_TrefftzWithin1PercentOfNearField` (VLM) | R | 236 ms measured | §13.2 F-5 |
 | `F6_ObservedOrder` (VLM) | A | ≤ 1.5 s incl. the shared solves (BC-2) | §13.2 F-6 |
 | `F7_LinearWashout_TipAlphaEffBelowRoot` (VLM) | A | est. 0.1 s | §13.2 F-7 |
 | `F15_EllipticWing_InducedAngleUniform` (VLM) | A | in F-6 | §13.2 F-15 |
@@ -1171,7 +1171,7 @@ are marked ✚.
 | `Loads_AttachmentMoment_TransferAboutNamedPoint` (STP) | A | µs | §13.5 ((P − O) × F) |
 | `Analysis_DraftOpen_EvaluatesAcceptedRevision` (SVC) | A | est. < 20 ms | the service reads `Draft.Bytes` when a draft is open |
 | `Freshness_SurfaceEdit_Historical` (SVC) | A | < 5 ms | §13.3 |
-| `Freshness_ProfileEdit_Historical` (SVC) | A | < 5 ms | the current key built from the run's own stored inputs |
+| `Freshness_ProfileEdit_Historical` (SVC) | R | 415 ms measured | the current key built from the run's own stored inputs |
 | `Freshness_WaterChange_Historical` (SVC) | A | < 5 ms | §13.3 |
 | `Freshness_OperatingPointChange_Historical` (SVC) | A | < 5 ms | α rounded to 0.1° before hashing |
 | `Freshness_MethodVersionBump_Historical` (SVC) | A | < 5 ms | the method version left out of the key |

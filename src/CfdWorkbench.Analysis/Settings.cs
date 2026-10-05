@@ -5,6 +5,8 @@ namespace CfdWorkbench.Analysis;
 /// <summary>
 /// The lattice settings (DR-ANA-7): 64 spanwise per half by 4 chordwise, both cosine, wake 20 spans along +x,
 /// singularity cutoff 10⁻⁸, and the 1 % near-field/Trefftz reconciliation tolerance. The unknown cap is 2,048.
+/// Section stations on <see cref="Default"/> are the starboard edges and strip centres, and the chord edges plus
+/// the bound (¼) and control (¾) abscissa of each panel. The service refuses a method whose stations are empty.
 /// </summary>
 public static class Settings
 {
@@ -23,6 +25,72 @@ public static class Settings
     /// </summary>
     public const double SolveBackwardErrorTolerance = 1e-10;
 
-    public static RunSettings Default { get; } = new(
-        64, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, new[] { 2, 4 }, "clean", 0.3);
+    public static RunSettings Default { get; } = WithStations(new RunSettings(
+        64, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, new[] { 2, 4 }, "clean", 0.3));
+
+    /// <summary>Fills empty section stations from the spacing law. Stations a caller already set are kept; they are in the run key.</summary>
+    public static RunSettings WithStations(RunSettings settings)
+    {
+        if (settings.SectionEtas is { Count: > 0 } && settings.SectionXs is { Count: > 0 }) return settings;
+        return settings with
+        {
+            SectionEtas = SpanEtas(settings.NSpanPerHalf, settings.SpanSpacing),
+            SectionXs = ChordXs(settings.NChord, settings.ChordSpacing)
+        };
+    }
+
+    internal static double[] SpanEtas(int nPerHalf, string spacing)
+    {
+        int n = checked(2 * nPerHalf);
+        var values = new List<double> { 0 };
+        for (int i = n / 2; i < n; i++)
+        {
+            double outer = Edge(i + 1, n, spacing);
+            values.Add(0.5 * (Edge(i, n, spacing) + outer));
+            values.Add(outer);
+        }
+        return Unique(values);
+    }
+
+    internal static double[] ChordXs(int nChord, string spacing)
+    {
+        var values = new List<double>();
+        for (int k = 0; k < nChord; k++)
+        {
+            double inner = Fraction(k, nChord, spacing);
+            double outer = Fraction(k + 1, nChord, spacing);
+            double width = outer - inner;
+            values.Add(inner);
+            values.Add(inner + 0.25 * width);
+            values.Add(inner + 0.75 * width);
+        }
+        values.Add(1);
+        return Unique(values);
+    }
+
+    private static double Edge(int index, int n, string spacing) => spacing switch
+    {
+        "cosine" => -Math.Cos(Math.PI * index / n),
+        "uniform" => -1 + 2.0 * index / n,
+        _ => throw new ArgumentOutOfRangeException(nameof(spacing), spacing, "VLM: spacing is cosine or uniform.")
+    };
+
+    private static double Fraction(int index, int n, string spacing) => spacing switch
+    {
+        "cosine" => 0.5 * (1 - Math.Cos(Math.PI * index / n)),
+        "uniform" => (double)index / n,
+        _ => throw new ArgumentOutOfRangeException(nameof(spacing), spacing, "VLM: spacing is cosine or uniform.")
+    };
+
+    private static double[] Unique(List<double> values)
+    {
+        values.Sort();
+        var kept = new List<double>();
+        foreach (double value in values)
+        {
+            double clamped = Math.Clamp(value, 0, 1);
+            if (kept.Count == 0 || clamped - kept[^1] > 1e-12) kept.Add(clamped);
+        }
+        return kept.ToArray();
+    }
 }

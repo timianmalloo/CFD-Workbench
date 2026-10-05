@@ -23,10 +23,11 @@ internal static class RunStoreTests
         Check("RecordRun_StripGap_Refused", StripGap);
         Check("Tamper_EditedStripValue_RunUnavailable", TamperStripValue);
         Check("Tamper_StoredKeySetToCurrent_RunUnavailable", TamperStoredKey);
-        Check("Retention_PruneThenUndo_TombstoneReadsPruned", PruneThenUndo);
         Check("RevisionLabel_TwistEdit_OrdinalsAndRail", RevisionLabels);
         Check("RecordRun_DiagnosticsByOutcome_CompletedOnly", DiagnosticsByOutcome);
     }
+
+    internal static void RunReadiness() => Check("Retention_PruneThenUndo_TombstoneReadsPruned", PruneThenUndo);
 
     // SVC-2 (IO8): a Completed row carries its diagnostics and a Failed row carries none, in RecordRun and on read alike.
     // A Failed row with zeros is refused, never stored as a measured "residual 0"; a stored Failed row has no member.

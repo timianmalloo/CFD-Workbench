@@ -8,4 +8,7 @@
   </PropertyGroup>
   <ItemGroup><ProjectReference Include="../CfdWorkbench.Core/CfdWorkbench.Core.csproj" /></ItemGroup>
   <ItemGroup><InternalsVisibleTo Include="CfdWorkbench.Analysis.Tests" /></ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="IttcWater.csv" LogicalName="CfdWorkbench.Analysis.IttcWater.csv" />
+  </ItemGroup>
 </Project>

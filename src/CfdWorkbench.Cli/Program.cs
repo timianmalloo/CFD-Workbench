@@ -184,9 +184,6 @@ public static class Cli
         {
             cancellation.ThrowIfCancellationRequested();
             var (point, temperatureC, salinity) = ParseOp(op);
-            // simplify: the product VLM + strip method composes VLM's lattice and STP's coupler, polar stub, water table
-            // and reference quantities, which are not on this branch, so the shipped binary has no method to run. Upgrade
-            // trigger: VLM and STP joined — Program.Main passes the product AnalysisHost.
             if (analysis is null) throw new ContractError("ANA-METHOD-UNAVAILABLE", "no wing method is installed in this build");
             using var session = await OpenAsync(input, cancellation);
             var service = new AnalysisService(session, analysis.Method);
@@ -252,7 +249,7 @@ public static class Cli
             else if (input == "example" || input.EndsWith(".foil", StringComparison.OrdinalIgnoreCase))
             {
                 byte[] source = input == "example" ? ExampleBytes() : await ReadFoilBoundedAsync(input, cancellation);
-                session.Open(source, Guid.NewGuid().ToString("D"), false);
+                session.Open(source, Guid.NewGuid().ToString("D"), true);
             }
             else throw new ContractError("DOC-TYPE");
             return session;
@@ -311,7 +308,7 @@ internal static class Program
         using var cancellation = new CancellationTokenSource();
         ConsoleCancelEventHandler handler = (_, eventArgs) => { eventArgs.Cancel = true; cancellation.Cancel(); };
         Console.CancelKeyPress += handler;
-        try { return await Cli.RunAsync(args, Console.Out, cancellation.Token); }
+        try { return await Cli.RunAsync(args, Console.Out, cancellation.Token, new AnalysisHost(new ProductWingMethod(), WaterTable.At)); }
         finally { Console.CancelKeyPress -= handler; }
     }
 }

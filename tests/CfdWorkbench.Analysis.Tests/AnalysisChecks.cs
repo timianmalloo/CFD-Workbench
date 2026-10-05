@@ -23,6 +23,8 @@ internal static class AnalysisChecks
         if (args.Contains("--readiness"))
         {
             LatticeFixtureTests.RunReadiness();
+            RunStoreTests.RunReadiness();
+            FreshnessTests.RunReadiness();
             return Finish();
         }
         ArchitectureTests.Run();
