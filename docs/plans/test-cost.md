@@ -386,3 +386,33 @@ end load, so it reports C-3/C-4 as COST-MISS only; the enforcing call is the one
 
 **When Track B2 lands, re-measure quiet. If Desktop <= 43 s and wall <= 50 s, revert to the §13.4 absolute limits and
 remove the deltas.**
+
+### 9.2 Ruling 87: C-2 and TEST-BUDGET join the load gate; the ring lock (2026-10-05, track B1b)
+
+Ruling 87 (DR-RING-2) gives C-2 (Analysis <= 5,000 ms) and the 60 s TEST-BUDGET the same load gate as C-3/C-4: at an end
+load <= 24 they fail as before (C-2 exit 1, TEST-BUDGET exit 3); above 24, or load not recorded, the ring log gets
+`COST-MISS C-2 <ms> load <value>` or `TEST-BUDGET-MISS <wall> s load <value>` and the ring exits 0. The limits are
+unchanged. Evidence for the change: join-ruling-86 failed at load 107 with Analysis 5,332 ms. A log that carries a MISS
+is a loaded run, not a cost proof; the next quiet run is the proof. The gate and the TEST-BUDGET verdict live in
+`tools/check-test-costs.py` (`budget_verdict`, `--budget <wall> <budget> <load>`), so the self-test drives them without a
+ring (26 cases). The standalone join entry has no end load, so a C-2 overrun there is a MISS only; the enforcing call is
+the one inside `run-tests.sh`.
+
+Condition 3, done early in B1b: `tools/run-tests.sh` sources `tools/ring-lock.sh` and takes one of 2 slots
+(`~/.cache/cfd-workbench/ring-slots/slot-<k>/pid`, one directory shared by every worktree) before the build. `mkdir` is
+the atomic claim; a slot whose PID is dead, or with no pid file after a minute, is reclaimed by an atomic rename. The wait is bounded at 15 min
+(`CFD_RING_LOCK_WAIT_SECONDS`), then the ring runs and prints `RING-LOCK-TIMEOUT`; every run prints
+`RING-LOCK waited <s> s`. The wait is taken before the wall clock starts. `tools/ring-lock.sh --self-test` (7 cases,
+fake `sleep` holders, no ring) proves two live holders block a third and that crashed slots never deadlock. Both lines
+stay in the ring log, so the wait and timeout counts are countable. Open for the operator, not changed here: whether a
+docs-only join must run the ring at all (Ruling 87 (4)).
+
+### 9.3 Ruling 89: docs-only joins skip the ring (2026-10-05, track B1b)
+
+`docs/coordination/join.json` runs `tools/join-ring.sh` in place of the two entries `tools/run-tests.sh` and
+`tools/check-test-costs.py`. It diffs `HEAD^1..HEAD` (HEAD is the merge commit in the checks step). A merge that changes no
+path under `src/`, `tests/`, `tools/`, `cases/` and no `*.csproj`, `*.slnx`, `global.json` or `Directory.*.props` prints
+`RING-SKIPPED docs-only: <paths>`; anything else, a non-merge HEAD or an unreadable diff runs the ring (fail safe). check-docs,
+the other join checks and the verify gates still run, and the readiness ring before main is unchanged. `tools/join-ring.sh
+--self-test` plants merges in a scratch repo (11 cases). check-docs TEST-RING now accepts the wrapper and requires it to name
+both `tools/run-tests.sh` and `tools/check-test-costs.py`. A `RING-SKIPPED` line in a join log means no cost reading was taken.

@@ -5398,7 +5398,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "113c9e68af2054f0defc9e609fc472c3e172dedad228468e01a30e074bf70a4e"
+      "sourceSha256": "3d3aad1fc318448f21e839f67e9b92eaf59421883ec473e27ff04f1506c48e0a"
     },
     {
       "id": "review-area3-analysis-personas",
@@ -6363,7 +6363,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e16bfa3e4d6366cb145bff685c7f067eb460fe5eca8166bd0d0018937ffe93c2"
+      "sourceSha256": "a27f30996810824e6cb69328589d0edce05edab8e710e25b61a21d03d2c175c7"
     },
     {
       "id": "kb-hw-glossary",
@@ -13114,5 +13114,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "a6f9294c0ea17a60685ad440420fec407d14ebed47bd2f62bc3f50494ce3933f"
+  "graphSha256": "ba17b7151270c5f1bfb1ee8f07906d7c7769478a076fcdb4e645186fae4470ce"
 };

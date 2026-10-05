@@ -5,8 +5,11 @@
 # each harness writes its own log. Build, per-suite and wall seconds and PASS counts print on every run.
 #
 # Exit 0 green · 1 a suite failed, or a named suite printed no PASS line (an exit 0 is not a result)
-# · 3 green but over the wall budget (TEST-BUDGET; CFD_TEST_BUDGET_SECONDS, default 60 s = 2x the
-# measured 30 s; the serial Debug runner this replaced took 67 s).
+# · 3 green but over the wall budget at an end load <= 24 (TEST-BUDGET; CFD_TEST_BUDGET_SECONDS, default 60 s = 2x the
+# measured 30 s; the serial Debug runner this replaced took 67 s). Above 24, or load not recorded, it prints
+# TEST-BUDGET-MISS <wall> s load <value> and exits 0 (Ruling 87, DR-RING-2, the same gate as C-2..C-4).
+# Before the build it takes a slot from tools/ring-lock.sh: at most 2 rings at once on this machine, across every
+# worktree (Ruling 87 condition 3); it prints RING-LOCK waited <s> s, or RING-LOCK-TIMEOUT after 15 min.
 set -euo pipefail
 # Clear any inherited Core-harness test-subset/probe selectors so an exported one from a prior
 # debugging session cannot silently narrow this run and still report green (bash 3.2-safe: no
@@ -18,6 +21,11 @@ scratch="$root/.tmp-tests"
 mkdir -p "$scratch"
 export TMPDIR="$scratch/" TMP="$scratch" TEMP="$scratch"
 cd "$root"
+# Ruling 87 (3): cap concurrent rings at 2. The wait is before `started`, so it is never counted as ring wall time.
+# shellcheck source=tools/ring-lock.sh
+. "$root/tools/ring-lock.sh"
+ring_lock_acquire "$$"
+trap ring_lock_release EXIT
 # Release: the shipped configuration. Measured 2026-09-27: Core suite 40 s Debug, 27 s Release.
 # A certificate-precision display-sampling mutant (BUDGET-DISPLAY) is red in both configurations.
 configuration="${CFD_TEST_CONFIGURATION:-Release}"
@@ -120,8 +128,8 @@ load_end=$(load)
 if ! python3 "$root/tools/check-test-costs.py" --dir "$scratch" --jobs "$cost_jobs" --load "$load_end"; then failed=1; fi
 echo "wall $wall s ($(cat "$scratch/wall.ms") ms, net $(( $(cat "$scratch/wall.ms") - $(cat "$scratch/build.ms") )) ms) (budget $budget s) cpu $cpu s load $load_start -> $load_end"
 if [ "$failed" -ne 0 ]; then exit 1; fi
-if [ "$wall" -gt "$budget" ]; then
-  echo "TEST-BUDGET: green, but $wall s is over the $budget s budget. Find the new cost before raising it (docs/reviews/test-ci-waste.md)."
-  exit 3
-fi
+# TEST-BUDGET (Ruling 87): exit 3 only at an end load <= 24; above it a MISS line is printed and the run exits 0.
+budget_status=0
+python3 "$root/tools/check-test-costs.py" --budget "$wall" "$budget" "$load_end" || budget_status=$?
+if [ "$budget_status" -ne 0 ]; then exit "$budget_status"; fi
 echo "all test harnesses passed"

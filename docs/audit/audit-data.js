@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T15:25:08Z",
+  "generated": "2026-10-05T16:02:50Z",
   "audit": [
     {
       "actor": null,
@@ -24924,6 +24924,72 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-05T15:24:11Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M46CJCCJ65BVMG6Q6QM2CHK2",
+      "shortname": "ring-r87-load-gate",
+      "datetime": "2026-10-05T15:57:54Z",
+      "session": "trk-b1b",
+      "prompt": "Ruling 87 load gates and ring lock",
+      "summary": "Ruling 87: C-2 and TEST-BUDGET take the load gate (<=24 fails, above prints COST-MISS / TEST-BUDGET-MISS); tools/ring-lock.sh caps concurrent rings at 2 across worktrees (bounded 15 min wait, RING-LOCK lines). check-test-costs self-test 26/26, ring-lock self-test 7/7, one ring green (load 26.7, no MISS), PASS set identical to old script.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tools/check-test-costs.py",
+        "tools/run-tests.sh",
+        "tools/ring-lock.sh",
+        "docs/plans/test-cost.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Implement Ruling 87 gates and ring lock",
+      "done_when": "self-tests green, ring green, check-docs and verify gates green, PASS set identical",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-10-05T15:45:19Z",
+      "duration_seconds": 755.0,
+      "git": {
+        "sha": "50bbab59bb11b2950778ee519d7971a0c694b084",
+        "short": "50bbab59b",
+        "branch": "fix/ring-r87-load-gate",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M46CVCYM1T5K4WE4P7QBCAEQ",
+      "shortname": "ring-r89-docs-only",
+      "datetime": "2026-10-05T16:02:49Z",
+      "session": "trk-b1b",
+      "prompt": "Ruling 89 docs-only joins skip the ring",
+      "summary": "Ruling 89: tools/join-ring.sh derives docs-only from HEAD^1..HEAD and prints RING-SKIPPED, else runs run-tests.sh and check-test-costs.py (non-merge HEAD runs); join.json uses it; check-docs TEST-RING accepts the wrapper; AGENTS.md test-ring line amended. Self-test 11/11.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "tools/join-ring.sh",
+        "docs/coordination/join.json",
+        "tools/check-docs.py",
+        "AGENTS.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Implement Ruling 89",
+      "done_when": "self-test, check-docs, verify gates green",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-10-05T15:59:31Z",
+      "duration_seconds": 198.0,
+      "git": {
+        "sha": "d74bddbba913749730b37478ee970646abaa401b",
+        "short": "d74bddbba",
+        "branch": "fix/ring-r87-load-gate",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -26079,6 +26145,42 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M46A14KMMF5JHPA6NZGSPN7S",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46B0QVHDWBYC0435EDMB8XZ",
+      "ts": "2026-10-05T15:30:47Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M46B0QVDGFDCZ7CSXDZYTM80",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46B0R4N879CV8M24MSMGXSA",
+      "ts": "2026-10-05T15:30:48Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46B0QVDGFDCZ7CSXDZYTM80",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M46BPVRNSGBEP22J9M0PPDEH",
+      "ts": "2026-10-05T15:42:52Z",
+      "from": "4e90c621",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M46BPVRGF47KMVQ24YAHV8FX",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M46BSVDE88RYNCGGMQ5YKTQY",
+      "ts": "2026-10-05T15:44:30Z",
+      "from": "fable-owner",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M46BPVRGF47KMVQ24YAHV8FX",
+      "session": "fable-owner"
     }
   ]
 };

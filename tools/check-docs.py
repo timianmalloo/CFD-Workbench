@@ -76,8 +76,15 @@ def join_ring_problems(contract):
 
     checks, gates, readiness = lines("checks"), lines("gates"), lines("readiness")
     problems = []
-    if not any("tools/run-tests.sh" in line for line in checks):
-        problems.append("join checks do not run tools/run-tests.sh")
+    # Ruling 89: the join runs the ring through tools/join-ring.sh, which skips it for a docs-only merge and
+    # otherwise runs tools/run-tests.sh and tools/check-test-costs.py. A literal run-tests.sh entry is also accepted.
+    wrapper = ROOT / "tools" / "join-ring.sh"
+    if any("tools/join-ring.sh" in line for line in checks):
+        text = wrapper.read_text(encoding="utf-8") if wrapper.exists() else ""
+        if "tools/run-tests.sh" not in text or "tools/check-test-costs.py" not in text:
+            problems.append("tools/join-ring.sh does not run tools/run-tests.sh and tools/check-test-costs.py")
+    elif not any("tools/run-tests.sh" in line for line in checks):
+        problems.append("join checks do not run tools/run-tests.sh (directly or through tools/join-ring.sh)")
     if not any("xaml-token-lint.py" in line for line in checks):
         problems.append("join checks do not run xaml-token-lint.py")
     if any(recount in line for line in lines("recount") + gates for recount in RECOUNTS):
@@ -112,7 +119,7 @@ def check_join_rings():
     problems = join_ring_problems(json.loads(path.read_text(encoding="utf-8")))
     if problems:
         raise SystemExit("TEST-RING: " + "; ".join(problems) + " (" + str(path.relative_to(ROOT)) + ")")
-    print("join rings ok: tests every join, slow gates and recounts at readiness", flush=True)
+    print("join rings ok: tests every code join (docs-only joins skip, Ruling 89), slow gates and recounts at readiness", flush=True)
 
 
 def main():
