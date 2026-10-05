@@ -22,14 +22,14 @@ Track `trk-e2`, branch `fix/cad-e2-defects`, 2026-10-05. Plan: `docs/coordinatio
 
 | Test | What it catches | Red commit | Green commit |
 |---|---|---|---|
-| `SectionStep_Refused_NeverShowsChecking` | A refused abscissa step shows Finish "Checking…" (the button help and the reason box) while the unchanged draft is re-checked | `585eefba599d25c3f844daed047c924f0095171e` | `d2f286cff917c4c4755ab52a625ab541cb31f855` |
+| `SectionStep_Refused_RestoresCertificate` | A refused abscissa step shows Finish "Checking…" (the button help and the reason box) while the unchanged draft is re-checked. The check covers that re-check window only | `585eefba599d25c3f844daed047c924f0095171e` | `d2f286cff917c4c4755ab52a625ab541cb31f855` |
 | `MakeIndependent_TangentRow_NoDslPatch` | `FoilSource.MakeIndependent` throws `DSL-PATCH` when a tangent row names a point whose id the copy rewrites | `21cd34696da73a6fa53f7da990f78a9874ee3789` | `bba1aa8d9293e16e8038bdb63922b95892050475` |
 | `MakeIndependent_TangentsBeforeIds_RetargetsRow` | A tangents block written before the ids list is skipped, and the copy throws `DSL-PATCH` | observed red below, before the span edit | this repair's retarget commit |
 | `MakeIndependent_CollidingIds_TangentNotCascaded` | Rewriting one id also rewrites a later id, or a comment that quotes an id | observed red below, before the span edit | this repair's retarget commit |
 
 ## FLK-1
 
-Observed red, suite `--section-editor`, `CFD_TEST_ONLY=SectionStep_Refused_NeverShowsChecking`, exit 1:
+Observed red, suite `--section-editor`, `CFD_TEST_ONLY=SectionStep_Refused_NeverShowsChecking` (renamed `SectionStep_Refused_RestoresCertificate`), exit 1:
 
 ```
 FAIL SectionStep_Refused_NeverShowsChecking Exception: A refused step showed Finish "Checking…" while it re-checked: reason 'Checking…', help 'Checking…', box 'Checking…'
@@ -37,7 +37,7 @@ FAIL SectionStep_Refused_NeverShowsChecking Exception: A refused step showed Fin
 
 `QueueSectionStep` publishes `FinishReason = "Checking…"` and clears the certificate as soon as a step is queued, before the outcome is known. That write stays for an in-flight step whose bytes will change. On refusal, `ApplySectionStepAsync` asks for the certificate again and notifies while the placeholder is still set. The assessment replaces `FinishReason` only when the certificate returns. The section is dirty and cannot finish while the certificate is clear, so the mode bar shows that placeholder for the whole re-check.
 
-The refusal path now puts the previous certificate back when the draft id and generation are unchanged, before that re-check is published. A later queued step does not overwrite the saved certificate with the placeholder. A step that lands still shows "Checking…" until its own certificate returns. After the fix the same check printed `PASS SectionStep_Refused_NeverShowsChecking`. `SectionMode_StepsWhileApplying_QueueInOrder` and `SectionEditor_UniqueSectionAbscissaStep_RefusedInStripFinishUnchanged` also passed.
+The refusal path now puts the previous certificate back when the draft id and generation are unchanged, before that re-check is published. A later queued step does not overwrite the saved certificate with the placeholder. A step that lands still shows "Checking…" until its own certificate returns. "Checking…" from the queue until the refusal is unavoidable, because the refusal is not known beforehand. The check covers the re-check window after the refusal only. It was renamed `SectionStep_Refused_RestoresCertificate`. After the fix the same check printed `PASS SectionStep_Refused_NeverShowsChecking`. `SectionMode_StepsWhileApplying_QueueInOrder` and `SectionEditor_UniqueSectionAbscissaStep_RefusedInStripFinishUnchanged` also passed.
 
 ## MakeIndependent
 

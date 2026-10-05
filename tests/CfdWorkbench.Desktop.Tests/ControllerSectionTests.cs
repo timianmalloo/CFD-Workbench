@@ -49,10 +49,11 @@ public static class ControllerSectionTests
     }
 
     /// <summary>
-    /// FLK-1: a refused step re-checks the unchanged draft. Finish must not say "Checking…" during that re-check.
-    /// The queue publishes the placeholder before the outcome is known; this samples the window after the refusal.
+    /// FLK-1: a refused step re-checks the unchanged draft. This covers the re-check window after a refusal only.
+    /// "Checking…" from the moment the step is queued until the refusal is known is unavoidable, because the refusal
+    /// is not known beforehand.
     /// </summary>
-    private static void SectionStep_Refused_NeverShowsChecking()
+    private static void SectionStep_Refused_RestoresCertificate()
     {
         var held = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         int heldCalls = 0;
@@ -109,7 +110,7 @@ public static class ControllerSectionTests
 
     public static void Run()
     {
-        DesktopChecks.Check("SectionStep_Refused_NeverShowsChecking", SectionStep_Refused_NeverShowsChecking);
+        DesktopChecks.Check("SectionStep_Refused_RestoresCertificate", SectionStep_Refused_RestoresCertificate);
         DesktopChecks.Check("SectionMode_Crossing_FinishDisabledWithReason", () =>
         {
             using var controller = Open();
