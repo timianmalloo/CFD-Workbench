@@ -72,7 +72,9 @@ internal static class SectionLibraryTests
             WriteEntry(root, "same", new Provenance("gen:naca-4412", false));
             var scan = new SectionLibrary(root).Scan();
             Equal(0, scan.Entries.Count); Equal(2, scan.Problems.Count);
-            Equal(true, scan.Problems.All(item => item.Reason.Contains("name", StringComparison.OrdinalIgnoreCase)));
+            const string Copy199 = "” appears twice in My sections. Neither can be used until one file is removed.";
+            Equal(string.Join("|", new[] { "“Same" + Copy199, "“same" + Copy199 }.Order(StringComparer.Ordinal)),
+                string.Join("|", scan.Problems.Select(item => item.Reason).Order(StringComparer.Ordinal)));
         });
         Check("Library_OversizedFile_SkippedAsProblem", () =>
         {
