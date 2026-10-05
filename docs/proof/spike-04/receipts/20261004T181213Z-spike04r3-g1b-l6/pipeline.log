@@ -1,4 +1,4 @@
-after.sh: start 2026-10-04T18:12:13Z: cases/tools/run-tmr-case.sh cases/spike04r3-g1b-l6.yaml /private/tmp/claude-501/-Users-mallalieut-projects-CFD-Workbench/f19a2b12-f8df-4dcc-bc84-7353cfbcda0f/scratchpad/tmr/grids
+after.sh: start 2026-10-04T18:12:13Z: cases/tools/run-tmr-case.sh cases/spike04r3-g1b-l6.yaml <SCRATCH>/tmr/grids
 grid=n0012familyII.6.p2dfmt.gz sha256=5664336523cb02c8410c4f9dc67eccdfa79b34ea9549b712c0d9fd988aff3244 dims=225x65 te_lower_i=48 te_upper_i=176 airfoil_points=129
 points=29152 cells=14336 faces=57584 internal=28432 airfoil_faces=128 farfield_faces=352
 first_wall_spacing_min=3.706e-06
