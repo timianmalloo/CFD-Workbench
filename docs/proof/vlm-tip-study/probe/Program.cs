@@ -78,7 +78,8 @@ static SectionSample Section(double y, double chord, double twistDeg, bool cambe
         placed[i] = new Point3(pivot + cs * dx + sn * local, y, -sn * dx + cs * local);
     }
     var zeros = new double[fr.Length];
-    return new SectionSample(new StationFrame(y / 1, 2, xLe, xLe + chord, 0, twistDeg, 0), fr, camb, zeros, zeros, placed);
+    var slopes = fr.Select(f => cambered ? 0.16 * (1 - 2 * f) : 0).ToArray();
+    return new SectionSample(new StationFrame(y / 1, 2, xLe, xLe + chord, 0, twistDeg, 0), fr, camb, zeros, slopes, placed);
 }
 
 static double[] Nodes(double yMin, double yMax, int nPerHalf, string sp)
@@ -88,4 +89,3 @@ static double[] Nodes(double yMin, double yMax, int nPerHalf, string sp)
     for (int i = 0; i < e.Length; i++) { nodes.Add(e[i]); if (i + 1 < e.Length) nodes.Add(0.5 * (e[i] + e[i + 1])); }
     return nodes.ToArray();
 }
-

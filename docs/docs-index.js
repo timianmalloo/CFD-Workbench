@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6b8fd9604547b995ba2e1ac6b01acb5b419c1384469d7ba49098e276a27bf79b"
+      "sourceSha256": "c0eec1fedb8200f386a21608bf5beabf2d7df029cebc5578cc8f43af1b209628"
     },
     {
       "id": "design-authoring-decisions",
@@ -2602,7 +2602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "42724f92082c7bfa90d2f87dc3267f138f05de6083636c2469ef7c8fe4d87e71"
+      "sourceSha256": "aa9802f6d721e3a4278285e29a3a349904eff21506879a94b7dac47756329798"
     },
     {
       "id": "design-foildsl-authoring",
@@ -10900,6 +10900,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "8ba9b363a2dc1f706d2dc6e3ac217494b68d67563f6ec363acedde1c2a4a98be"
     },
     {
+      "id": "proof-vlm-tip-repaired",
+      "path": "docs/proof/vlm-tip-study/repaired-verdict.md",
+      "title": "Tip-strip law on the repaired 1.1.0 lattice",
+      "type": "proof-pack",
+      "status": "verified",
+      "owner": "@vlm4",
+      "phase": "implementation",
+      "reviewBy": "2027-04-04",
+      "reviewSuggested": [],
+      "summary": "Recalibrates the fixed-station tip law on cfdw.vlm-strip 1.1.0, including camber and washin, and records the falsifiers and runtime cost.",
+      "tags": [
+        "analysis",
+        "vlm",
+        "tip-strip"
+      ],
+      "links": [
+        {
+          "to": "proof-vlm-tip-study",
+          "rel": "refines"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d2e16b984b7188e4511732b63e1a9491cb1381ae00e82917e018b37bd5292c09"
+    },
+    {
       "id": "proof-vlm-tip-study",
       "path": "docs/proof/vlm-tip-study/verdict.md",
       "title": "VLM tip-strip envelope study",
@@ -10924,7 +10953,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "37d5868b910b5a7398fdbdf5eb15d9ecbd89c0516cbf0905b61aa2d5ef648d70"
+      "sourceSha256": "69d535c9dd103345033519840701896b6db917246d062c56e001ad711fe2fe7a"
     },
     {
       "id": "proof-windows-runtime",
@@ -12759,5 +12788,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "ba7683c8802ca4c6b82aa4ab15b5eb93b85989439fb68214c5849ed2873a9256"
+  "graphSha256": "671f6595ef8089d908dfeb997e619563ddb444add625aef613f60802b25fcb2b"
 };

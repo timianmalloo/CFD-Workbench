@@ -39,7 +39,6 @@ internal static class LatticeFixtureTests
         Check("Vlm_ClosingTip_FiniteAndListed", ClosingTip);
         Check("Vlm_NonFinite_RecordsFailedNotZero", NonFinite);
         Check("Vlm_AlphaBeyondEnvelope_ShowsEnvelopeFinding", Envelope);
-        Check("TipLaw_EllipticAlpha4_StableInside", TipLawElliptic4);
     }
 
     private static void F6()
@@ -309,6 +308,10 @@ internal static class LatticeFixtureTests
         Check("Readiness_Camber4_N256Point", ReadinessCamber256);
         Check("Readiness_Washin1_N256Solves", ReadinessWashin256);
         Check("Readiness_EllipticQuarterChord_SweepZeroFine", ReadinessSweepFine);
+        Check("TipLaw_EllipticAlpha4_StableInside", TipLawElliptic4);
+        Check("TipLaw_Calibration_NoInsideOutsideFlip", TipLawCalibration);
+        Check("TipLaw_Falsifiers_OutsideEveryN", TipLawFalsifiers);
+        Check("TipLaw_StoredFlag_DerivedOnRead", TipLawStoredFlag);
         // F-2 reads the trio F-6 builds. The join still runs F-6; this process does not.
         F6();
         Check("F2_EllipticAR8_RichardsonClInRecordedBand", F2);
@@ -427,14 +430,14 @@ internal static class LatticeFixtureTests
     private static double ParabolicCamber(double y, double f, double chord) => 0.16 * f * (1 - f) * chord;
 
     private static LatticeSolution StudyRectangle(int n, Func<double, double, double, double>? camber, double tipTwist,
-        LatticePlant plant = LatticePlant.None)
+        LatticePlant plant = LatticePlant.None, double alpha = 5)
     {
         const double half = 1, chord = 0.25;
         var sections = new List<SectionSample>();
         foreach (double y in Nodes(-half, half, n, "cosine"))
             sections.Add(Section(y, -chord / 4, chord, 0, tipTwist * Math.Abs(y) / half,
                 y / half, 2 * half, camber, camber is null ? 4 : 20));
-        return VortexLattice.Solve(sections, Lattice(n, 4, "cosine"), At(5), Rho, plant, default);
+        return VortexLattice.Solve(sections, Lattice(n, 4, "cosine"), At(alpha), Rho, plant, default);
     }
 
     private static void F16()
@@ -523,6 +526,82 @@ internal static class LatticeFixtureTests
                 throw new InvalidOperationException("n=" + n + " raw α_eff=" + Num(4 - tip.InducedAngleDeg)
                     + " verdict=" + verdict.Text);
         }
+    }
+
+    private static void TipLawCalibration()
+    {
+        foreach (double alpha in new[] { 2.0, 4, 5, 8 })
+        foreach (string shape in new[] { "ell", "rect", "tap", "camber", "washin" })
+        {
+            var states = new List<StripVerdictState>();
+            foreach (int n in new[] { 16, 32, 64, 128, 256 })
+            {
+                LatticeSolution wing = TipFixture(shape, n, alpha);
+                StripVerdict verdict = MethodRecord.Verdicts(wing, alpha, 0)[Outermost(wing).J];
+                if (verdict.Provisional || verdict.UncertaintyDeg is null)
+                    throw new InvalidOperationException(shape + " α=" + alpha + " n=" + n + " was not judged");
+                states.Add(verdict.State);
+                if (shape == "ell" && wing.Strips.Any(s => Math.Abs(s.SweepDeg) > 1e-9))
+                    throw new InvalidOperationException("elliptic sweep changed at n=" + n);
+            }
+            Console.WriteLine("MEASURE tip-law " + shape + " α=" + alpha + " " + string.Join("/", states));
+            if (states.Contains(StripVerdictState.Inside) && states.Contains(StripVerdictState.Outside))
+                throw new InvalidOperationException(shape + " α=" + alpha + " flipped inside/outside");
+        }
+    }
+
+    private static void TipLawFalsifiers()
+    {
+        foreach ((string shape, double alpha) in new[] { ("rect", 18.0), ("ell", 14.0) })
+        foreach (int n in new[] { 16, 32, 64, 128, 256 })
+        {
+            LatticeSolution wing = TipFixture(shape, n, alpha);
+            StripVerdict verdict = MethodRecord.Verdicts(wing, alpha, 0)[Outermost(wing).J];
+            if (verdict.State != StripVerdictState.Outside || !verdict.Exceeded.Contains("|α_eff − α_L0|"))
+                throw new InvalidOperationException(shape + " α=" + alpha + " n=" + n + " " + verdict.State);
+            Console.WriteLine("MEASURE falsifier " + shape + " α=" + alpha + " n=" + n + " "
+                + Num(verdict.EvaluatedAlphaEffDeg!.Value) + "±" + Num(verdict.UncertaintyDeg!.Value));
+        }
+    }
+
+    private static void TipLawStoredFlag()
+    {
+        LatticeSolution wing = TipFixture("ell", 16, 5);
+        var strips = wing.Strips.Select(s => new StripLoad(s.J, s.Y, Math.Abs(s.Eta), s.Chord, s.Gamma,
+            s.InducedAngleDeg, 5 + s.TwistDeg - s.InducedAngleDeg, 1, s.ClLocal,
+            new StripValue(null, "unavailable"), new StripValue(null, "unavailable"),
+            0, 0, 0, 0, 0, 0, s.Downwash, Math.Abs(s.Eta) > .99, Math.Abs(s.Eta) > .99 ? StripLoad.TipProvisionalReason : null)).ToArray();
+        var sweeps = wing.Strips.Select(s => s.SweepDeg).ToArray();
+        StripVerdict tip = MethodRecord.Verdicts(strips, sweeps, 0)[Outermost(wing).J];
+        if (tip.State != StripVerdictState.AtBound || tip.Provisional || tip.ReasonCode != "ANA-TIP-AT-BOUND"
+            || tip.UncertaintyDeg is null || tip.EvaluatedAlphaEffDeg is null)
+            throw new InvalidOperationException("stored tip did not derive a bounded verdict: " + tip.State);
+        if (MethodRecord.JudgeRun(MethodRecord.Verdicts(strips, sweeps, 0)) != string.Empty)
+            throw new InvalidOperationException("an at-bound strip produced a run-level inside claim");
+        StripVerdict unsupported = MethodRecord.Verdicts(strips[..^1], sweeps[..^1], 0)[strips.Length - 2];
+        if (unsupported.State != StripVerdictState.Provisional || unsupported.ReasonCode != StripLoad.TipProvisionalReason)
+            throw new InvalidOperationException("unsupported lattice was judged: " + unsupported.State);
+    }
+
+    private static LatticeSolution TipFixture(string shape, int n, double alpha) => shape switch
+    {
+        "ell" => Elliptic(n, LatticePlant.None, "cosine", alpha),
+        "rect" => StudyRectangle(n, null, 0, alpha: alpha),
+        "camber" => StudyRectangle(n, ParabolicCamber, 0, alpha: alpha),
+        "washin" => StudyRectangle(n, null, 1, alpha: alpha),
+        "tap" => TaperTip(n, alpha),
+        _ => throw new InvalidOperationException(shape)
+    };
+
+    private static LatticeSolution TaperTip(int n, double alpha)
+    {
+        var sections = new List<SectionSample>();
+        foreach (double y in Nodes(-1, 1, n, "cosine"))
+        {
+            double chord = (1 - 0.5 * Math.Abs(y)) / 3;
+            sections.Add(Section(y, -chord / 4, chord, 0, 0, y, 2, null));
+        }
+        return VortexLattice.Solve(sections, Lattice(n, 4, "cosine"), At(alpha), Rho, default);
     }
 
     private sealed class Trio

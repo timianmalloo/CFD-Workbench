@@ -14,6 +14,10 @@ summary: "Measured tip-strip refinement, tolerance-law proposal, and the default
 
 # Tip-strip envelope verdict — tolerance-law study (Ruling 75, DR-VLM-1)
 
+The 1.1.0 repaired-lattice calibration and implemented law are in
+[repaired-verdict.md](repaired-verdict.md). The measurements below are retained
+as the old-lattice study and are not the production calibration.
+
 Status: study, scratch only. Source: `feature/ui-cad-direction` at c4fc4ad (copied `src/CfdWorkbench.Core` and
 `src/CfdWorkbench.Analysis` into scratch; no repo edit). Release build, .NET 10.0.203, osx-arm64, 2026-10-04.
 Every number below was printed by `probe/` (`run-matrix.sh`, `run-falsify*.sh`, `run-nonplanar.sh`) and reduced by
