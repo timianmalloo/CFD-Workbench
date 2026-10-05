@@ -83,11 +83,10 @@ public sealed class GeometryAssessment
 
 public static class Geometry
 {
-    // The blend maximum's node budget and bisection depth (Assess). BlendSpanLimit is the one place the admission check and
-    // the section-step budget clause (Ruling 71 F-1, SectionEdits.RequireNeighbourAbscissa) read the span limit, so a capacity
-    // change (docs/proof/blend-certificate-budget/verdict.md §5) reaches both.
+    // The minimum node budget and per-span bisection depth. Every parsed degree-5 profile has at most 32 points,
+    // hence at most 27 nonzero spans. N(s) = max(256, 48s) covers every such span; SectionEdits reads this limit.
     internal const int BlendNodes = 256, BlendDepth = 48;
-    internal static int BlendSpanLimit() => BlendNodes / BlendDepth;
+    internal static int BlendSpanLimit() => FoilSource.ProfilePointLimit - FoilSource.ProfileDegree;
     // The all-query operation bound's own refusal code (Not assessed), distinct from the arithmetic bit bound's
     // GEOMETRY-QUERY-RESOURCE, so a caller can tell the capacity limit from other resource refusals.
     internal const string OperationBoundCode = "GEOMETRY-QUERY-OPERATIONS";
@@ -405,7 +404,7 @@ public static class Geometry
                 spanCount = Math.Max(spanCount, Math.Max(left.Difference.Length, right.Difference.Length));
                 degree = left.Difference[0].Y.Length - 1;
             }
-            const int blendNodes = BlendNodes;
+            int blendNodes = Math.Max(BlendNodes, BlendDepth * spanCount);
             if (distinct)
             {
                 Rational range = 0;
@@ -416,7 +415,7 @@ public static class Geometry
                     if (unitRange > range) range = unitRange;
                 }
                 const int depth = BlendDepth;
-                Require(spanCount <= BlendSpanLimit(), "Blend maximum enclosure node budget is insufficient.");
+                // The old spanCount * BlendDepth <= blendNodes admission check is true by construction of N(s).
                 // Degree times the unit-shape range bounds the derivative. After `depth`
                 // bisections every subspan hull is inside the maximum tolerance.
                 Require(new Rational(degree, 1) * range / new Rational(BigInteger.One << depth, 1) <= Rational.From(1e-12) / 4,
@@ -429,7 +428,7 @@ public static class Geometry
                 ? BlendPlacementWidth(spans, certified, definition.HalfSpan, watch)
                 : PlacementWidth(spans, rootProfile, root.Maximum.Lower, root.Maximum.Upper, definition.HalfSpan, watch);
             var feasibility = QueryFeasibility.Prove(spans, rootProfile, root.Maximum.Lower, root.Maximum.Upper, definition.HalfSpan, watch,
-                distinct, distinct ? blendNodes : 0, distinct ? certified.Select(item => item.Maximum.Lower).ToArray() : null);
+                distinct, distinct ? blendNodes : 0, distinct ? certified.Select(item => item.Maximum.Lower).ToArray() : null, spanCount, degree);
             var witnesses = spans.SelectMany(pair => pair.Value.Select(span => Witness(pair.Key, span))).ToList();
             foreach (var profile in certified)
                 witnesses.AddRange(profile.Difference.Select(span => Witness("profile-separation", span)));
@@ -689,8 +688,16 @@ internal sealed class QueryFeasibility
         // Outward conversion compares against a finite binary64 rational.
         Observe(Math.Max(value.N + 1075, value.D + 1025), path + "/outward-comparison");
     }
+    /// <summary>Worst-case rational comparisons in one heap-backed Bernstein.Maximum call. L = floor(log2(s + N)).</summary>
+    internal static long MaximumComparisons(int nodes, int spans, int degree)
+    {
+        long height = BitOperations.Log2((uint)(spans + nodes));
+        return 2L * spans + spans * (degree + height) + nodes * (2L * degree + 4L * height + 3L) + 2L;
+    }
+
     internal static QueryFeasibilityWitness Prove(Dictionary<string, PolynomialSpan[]> spans, ProfileDefinition profile,
-        Rational maximumLower, Rational maximumUpper, double halfSpan, ProofBudget watch, bool blend = false, int blendNodes = 0, Rational[]? profileMaxima = null)
+        Rational maximumLower, Rational maximumUpper, double halfSpan, ProofBudget watch, bool blend = false, int blendNodes = 0, Rational[]? profileMaxima = null,
+        int blendSpans = 0, int blendDegree = 0)
     {
         var proof = new QueryFeasibility();
         var bounds = new Dictionary<string, Size>();
@@ -746,7 +753,8 @@ internal sealed class QueryFeasibility
             // Counts primitive rational operations and comparison products.
             operations += 8L * pair.Value.Length + 128L * (8L * p * (p + 1) + 32L * (p + 1) + 64);
         }
-        if (blend) operations += 2L * blendNodes * 32L + 6L * blendNodes * (blendNodes + 1L);
+        // Two Maximum calls per query: 32 split/tolerance operations per node, plus bounded heap comparisons.
+        if (blend) operations += 64L * blendNodes + 2L * MaximumComparisons(blendNodes, blendSpans, blendDegree);
         Geometry.Require(operations <= 1000000, "All-query operation bound exceeds one million.", GeometryStatus.NotAssessed, Geometry.OperationBoundCode);
         Size half = new(1, 2);
         var up = bounds[profile.Upper.Path]; var lo = bounds[profile.Lower.Path];
@@ -1068,26 +1076,85 @@ internal static class Bernstein
 
     internal static (Rational Lower, Rational Upper, int Nodes) Maximum(Rational[][] spans, ProofBudget watch, int nodeBudget = 4096)
     {
-        var pending = spans.Select(coefficients => (Coefficients: coefficients, Depth: 0)).ToList();
-        Rational lower = pending.SelectMany(item => new[] { item.Coefficients[0], item.Coefficients[^1] }).Max();
+        LastMaximumComparisons = 0;
+        // The heap's total order preserves the list rescan's first-inserted choice on equal maxima.
+        var pending = new MaximumHeap();
+        Rational lower = spans[0][0];
+        foreach (var coefficients in spans)
+        {
+            if (Compare(coefficients[0], lower) > 0) lower = coefficients[0];
+            if (Compare(coefficients[^1], lower) > 0) lower = coefficients[^1];
+        }
         var tolerance = Rational.From(1e-12);
-        // simplify: each node rescans every pending node's coefficients, so the cost is quadratic in nodes, and those
-        // comparisons (CompareTo) are not charged as bit-work. Ceiling: the node budget (4096; 256 for blends). Measured
-        // 2026-10-03: Maximum is 5.3% of all proof work over 11,780 budgets. Upgrade trigger: the node budget rises,
-        // or Maximum passes 25% of any proof's work; then keep pending nodes in a max-heap keyed on their maximum.
+        foreach (var coefficients in spans) pending.Push(coefficients, 0);
         for (int nodes = 0; nodes < nodeBudget; nodes++)
         {
             Budget(watch);
-            var upper = pending.SelectMany(item => item.Coefficients).Max();
-            if (lower > 0 && upper - lower <= tolerance * lower) return (lower, upper, nodes);
-            int index = pending.FindIndex(item => item.Coefficients.Max().CompareTo(upper) == 0);
-            var chosen = pending[index];
+            var chosen = pending.Top;
+            var upper = chosen.Maximum;
+            if (Compare(lower, 0) > 0 && Compare(upper - lower, tolerance * lower) <= 0) return (lower, upper, nodes);
             Geometry.Require(chosen.Depth < 64, "Maximum enclosure depth budget exhausted.");
-            pending.RemoveAt(index);
+            pending.Pop();
             var (left, right) = Split(chosen.Coefficients);
-            if (left[^1] > lower) lower = left[^1];
-            pending.Add((left, chosen.Depth + 1)); pending.Add((right, chosen.Depth + 1));
+            if (Compare(left[^1], lower) > 0) lower = left[^1];
+            pending.Push(left, chosen.Depth + 1); pending.Push(right, chosen.Depth + 1);
         }
         throw new ProofRefusal("Maximum enclosure node budget exhausted.");
+    }
+
+    [ThreadStatic] internal static long LastMaximumComparisons;
+    private static int Compare(Rational left, Rational right)
+    {
+        LastMaximumComparisons++;
+        return left.CompareTo(right);
+    }
+
+    private readonly record struct MaximumNode(Rational[] Coefficients, int Depth, Rational Maximum, long Sequence);
+
+    // Kept here rather than using PriorityQueue: the all-query bound counts this heap's exact comparison sites.
+    private sealed class MaximumHeap
+    {
+        private readonly List<MaximumNode> nodes = new();
+        private long sequence;
+
+        internal MaximumNode Top => nodes[0];
+
+        // p comparisons for the coefficient maximum, then at most floor(log2 size) sift-up comparisons.
+        internal void Push(Rational[] coefficients, int depth)
+        {
+            Rational maximum = coefficients[0];
+            for (int index = 1; index < coefficients.Length; index++)
+                if (Compare(coefficients[index], maximum) > 0) maximum = coefficients[index];
+            nodes.Add(new(coefficients, depth, maximum, sequence++));
+            for (int child = nodes.Count - 1; child > 0;)
+            {
+                int parent = (child - 1) / 2;
+                if (!Before(nodes[child], nodes[parent])) break;
+                (nodes[child], nodes[parent]) = (nodes[parent], nodes[child]);
+                child = parent;
+            }
+        }
+
+        // At most two comparisons at each of floor(log2 size) sift-down levels.
+        internal void Pop()
+        {
+            nodes[0] = nodes[^1];
+            nodes.RemoveAt(nodes.Count - 1);
+            for (int parent = 0; ;)
+            {
+                int child = 2 * parent + 1;
+                if (child >= nodes.Count) break;
+                if (child + 1 < nodes.Count && Before(nodes[child + 1], nodes[child])) child++;
+                if (!Before(nodes[child], nodes[parent])) break;
+                (nodes[child], nodes[parent]) = (nodes[parent], nodes[child]);
+                parent = child;
+            }
+        }
+
+        private static bool Before(MaximumNode left, MaximumNode right)
+        {
+            int order = Compare(left.Maximum, right.Maximum);
+            return order != 0 ? order > 0 : left.Sequence < right.Sequence;
+        }
     }
 }

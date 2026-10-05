@@ -359,6 +359,10 @@ budget; **readiness** = `tools/run-readiness.py`.
 | 22 | `Readiness_CompatibleCheck_FiveSectionsUnder1s` (XPAC) | §3.4 cost on a five-station, 32-vertex fixture | readiness, ≤ 5 s |
 | 23 | `Compatible_FixtureHash_SameOnMacAndWindows` (XPAC) | XPA-I6 | readiness (Windows lane), ≤ 2 s |
 | 24 | old-build receipt `docs/proof/xpa-old-build/` (XPAD) | §3.6, observed with the pre-CF app | readiness checklist, once per release |
+| 25 | `Guard_TwentySevenSpansDiffering_Certifies` (CAP) | Ruling 74: 27 spans (32 points) with differing Root and Tip certify | fast, 4.26 s measured standalone Release subset (includes harness start) |
+| 26 | `Guard_ThirtyThirdPoint_RefusedDslCurveBeforeCopy194` (CAP) | the 33rd point is stopped by `DSL-CURVE` before COPY-194 can fire; draft bytes stay equal | fast, 2.80 s measured standalone Release subset (includes harness start) |
+| 27 | `Replace_FourDifferingSections_Certified_SevenRefusedCopy194b` (CAP) | four differing stations land; the seventh reaches `GEOMETRY-QUERY-OPERATIONS` and preserves COPY-194b | fast, 1.35 s measured standalone Release subset (includes harness start) |
+| 28 | `Blend_HeapMaximum_MatchesListOracleAndComparisonBound` (CAP) | seeded pre-heap list oracle agrees on lower, upper, nodes, refusal and `ProofBudget.Spent` for 320 tie-heavy cases, all 1–27 span counts and node budgets 1–1296; heap comparisons stay within `MaximumComparisons` | fast, 57.4 ms measured Release test body (standalone subset) |
 
 **Red-first.** Tests 2, 5, 9, 13 (Angle) and 14 are behaviourally red at the **early-refusal track's HEAD**, the real
 baseline; the build records each red run. Planted mutants: a display that blends the authored sections (must fail 5);
@@ -373,9 +377,10 @@ without the other sections' anchors (must fail 9).
 | **XPAC** | `src/CfdWorkbench.Core/Compatible.cs` (new: basis, shared spacing, copies, residuals, memo); `Geometry.cs` (entry: assess the compatible definition); `Placement.cs` (`Prepare` reads the compatible definition); `SectionEdits.cs` (`PlaceHandles` Angle; report `Matches`); `AuthoringSession.cs` (`PatchSectionStep` refusal on the candidate check; `ImportPatch` fallback becomes CF); `src/CfdWorkbench.Core/Contracts.cs` (`BlendMatch`, `SectionStepReport.Matches`); tests `tests/CfdWorkbench.Core.Tests/CompatibleTests.cs` (new), `SectionEditsTests.cs`, `SectionDraftTests.cs`, `ReopenSectionDraftTests.cs`, `PlacementTests.cs`, `IdentityTests.cs` (one `Run()` line) | the early-refusal track joined first |
 | **XPAU** | `src/CfdWorkbench.Desktop/Shell/StatusStrip.axaml.cs` (`SectionStrip`, make-unique copy), `WorkbenchController.cs` (refusal data), `PropertiesView.cs` (Section block line), `RebuildPopover.axaml.cs`; `tests/CfdWorkbench.Desktop.Tests/SectionEditorTests.cs`; `docs/reviews/ui-xpa.md` (new: COPY-C1…C7 for UXR) | XPAC contracts frozen |
 | **XPAD** | ADR-0005 Amendment 1, ADR-0010 Amendment 2, ADR-0007 note, `docs/lessons/defect-classes.md` entry, `docs/proof/xpa-old-build/`, m12c §0.1 step 8 wording | XPAC merged |
+| **CAP** (Ruling 74) | `src/CfdWorkbench.Core/Geometry.cs` (stable maximum heap, scaled node budget, operation charge); `tests/CfdWorkbench.Core.Tests/BlendTests.cs` and `SectionReplaceTests.cs` (capacity boundaries); `docs/proof/blend-certificate-heap/` (measured spike and fixtures); `docs/proof/m12b2-golden/` (changed operation counts) | M1.2d RPL joined; Ruling 74 |
 
-`Geometry.cs` changes only at its entry (which definition it certifies); `SharedAbscissa` and the Bernstein path are
-not touched. A capacity change (DR-XPA-1 a) is XPAS's spike, then its own track.
+XPAC changes `Geometry.cs` only at its entry (which definition it certifies); `SharedAbscissa` stays untouched.
+CAP applies the Ruling 74 capacity change to the Bernstein path after XPAS's spike.
 
 **Behaviour → data → file.**
 
