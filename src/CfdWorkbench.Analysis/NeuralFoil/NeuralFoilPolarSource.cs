@@ -1,4 +1,6 @@
 using CfdWorkbench.Core;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 using System.Text;
 
 namespace CfdWorkbench.Analysis.NeuralFoil;
@@ -16,6 +18,10 @@ public sealed record NeuralFoilEvaluation(NeuralFoilPrediction? Prediction, doub
 /// </summary>
 public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resolveSection) : IPolarSource
 {
+    private static readonly Meter Meter = new("CfdWorkbench.Analysis.NeuralFoil", "0.3.2");
+    private static readonly ActivitySource ActivitySource = new("CfdWorkbench.Analysis.NeuralFoil", "0.3.2");
+    private static readonly Counter<long> Calls = Meter.CreateCounter<long>("neuralfoil.evaluate.calls");
+    private static readonly Histogram<double> Duration = Meter.CreateHistogram<double>("neuralfoil.evaluate.duration_ms", "ms");
     // SPIKE-ANA-1/verdict.md: 78 XFOIL points for NACA 0012, alpha -6..6, Re 2e5..1e6, Ncrit 2/4/9.
     // Fidelity (not XFOIL accuracy) also covers NACA 2412/4412. Its largest fit max was 3.58e-4 c.
     public const double AlphaMinDeg = -6;
@@ -35,16 +41,37 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
     public NeuralFoilEvaluation Evaluate(NeuralFoilSection section, double alphaDeg, double reynolds,
         double ncrit, CancellationToken cancellation)
     {
-        cancellation.ThrowIfCancellationRequested();
-        CstFitResult fit = CstFit.Fit(section);
-        string? reason = EnvelopeReason(section.Family, fit.MaxResidual, alphaDeg, reynolds, ncrit);
-        bool outside = section.Family != "naca0012" || ncrit is not (2 or 4 or 9);
-        if (reason is not null) return new(null, fit.RmsResidual, fit.MaxResidual, outside, reason);
-        NeuralFoilPrediction prediction = NeuralFoilNetwork.FromEmbedded().Predict(fit.Parameters, alphaDeg, reynolds, ncrit);
-        string? confidenceReason = ConfidenceReason(prediction.AnalysisConfidence);
-        if (confidenceReason is not null)
-            return new(prediction, fit.RmsResidual, fit.MaxResidual, outside, confidenceReason);
-        return new(prediction, fit.RmsResidual, fit.MaxResidual, outside, null);
+        long started = Stopwatch.GetTimestamp();
+        using Activity? activity = ActivitySource.StartActivity("neuralfoil.evaluate");
+        string outcome = "failed";
+        try
+        {
+            cancellation.ThrowIfCancellationRequested();
+            CstFitResult fit = CstFit.Fit(section);
+            string? reason = EnvelopeReason(section.Family, fit.MaxResidual, alphaDeg, reynolds, ncrit);
+            bool outside = section.Family != "naca0012" || ncrit is not (2 or 4 or 9);
+            if (reason is not null)
+            {
+                outcome = "noncomputable";
+                return new(null, fit.RmsResidual, fit.MaxResidual, outside, reason);
+            }
+            NeuralFoilPrediction prediction = NeuralFoilNetwork.FromEmbedded().Predict(fit.Parameters, alphaDeg, reynolds, ncrit);
+            string? confidenceReason = ConfidenceReason(prediction.AnalysisConfidence);
+            if (confidenceReason is not null)
+            {
+                outcome = "noncomputable";
+                return new(prediction, fit.RmsResidual, fit.MaxResidual, outside, confidenceReason);
+            }
+            outcome = "computed";
+            return new(prediction, fit.RmsResidual, fit.MaxResidual, outside, null);
+        }
+        finally
+        {
+            activity?.SetTag("outcome", outcome);
+            Calls.Add(1, new KeyValuePair<string, object?>("outcome", outcome));
+            Duration.Record(Stopwatch.GetElapsedTime(started).TotalMilliseconds,
+                new KeyValuePair<string, object?>("outcome", outcome));
+        }
     }
 
     public static string? ConfidenceReason(double confidence) =>
