@@ -1477,6 +1477,27 @@ file in some track's ownership. Control (prose-only gap, recorded honestly): no 
 in. It is a checklist item for the Coordinator's pre-dispatch step. Upgrade trigger: a third stop, then a `join.json`-style
 ownership manifest with a check that every named data file has an owner.
 
+**2026-10-05 recurrences (3 more; the upgrade trigger fired).** TGL stopped on the point-press path in `PlanCanvas` and
+`ElevationView`, the `MainWindow` palette route, and the navbar keyboard-path and command-parity tests (the §18.5 rows
+named `ShellMode` and `Selection`, whose readers are those files). LAY stopped because `LayerData` carried only a
+`Legend` string and the batlow brushes were not in `Styles.axaml`. A read-only pre-dispatch trace agent run before LAY
+and PNA still missed the `LayerData` payload. Each stop cost about 5 to 10 minutes. A trace agent is the same prose
+control with a model in it: it reads the rows and finds the files the rows name, not the files the rows' data crosses.
+
+Control (added, an aid and not a gate): `tools/trace-brief.py --design <design.md> --track <CODE> --owned <file>` reads
+the design's Trace table and lists (1) each file in the track's rows' "Producing file" column that the brief's owned
+list does not cover, and (2) each `src/` and `tests/` file that mentions a backticked type named in those rows'
+"Data" column and is not owned. Exit 1 when anything is listed. `--self-test` rebuilds the TGL case from its rows and
+is red when the brief omits the `Selection` reader, green when it lists it; `tools/check-docs.py` runs the self-test.
+Measured on the real TGL rows with only the producing files owned: 48 candidates (8 producers, 40 readers), so the
+output is noisy by design (`Selection`, `Geometry` are common words in the code); it names `PlanCanvas.cs`,
+`ElevationView.cs`, `MainWindow.axaml.cs`, `ControllerShellTests.cs` and `ShellWindowTests.cs`, all five TGL stops. It
+would not have named the LAY stop: row 13 says "layer data PRJ" with no backticked type, and a style resource is
+not a type reference. Residual: the class stays open. Nothing can prove ownership from a table that names data
+loosely. Derive: a trace row names its data as backticked type names, one per payload field group, so the script has
+something to search (the design-slice convention to adopt for the next design; not yet applied to §18.5). Upgrade
+trigger: a fourth stop, then the ownership manifest that `join.json` already models for test rings.
+
 **SCANNER-TOO-BROAD · A retired-name scanner matches a bare word that a later design legitimately reuses.** The retirement
 scan in `ShellWindowTests.cs` matched the bare word `SectionMode`, which blocked the M1.2c design's new type of that name.
 Commit `8b07ca5` narrowed it to the old usage (attribute, bool property, viewport read), checked against both shapes.
@@ -1649,3 +1670,65 @@ conversion. Control: `DragBand_NcritValueOrderAndWingRatio` reverses the Ncrit d
 Sweep: design §5.1 and its proof restatement. Derive: name the fixture set, keep the per-run two-grid measurement,
 and state the reviewer's 6.9–7.7 % 6 %-thick finding separately. Control: the Ruling 90 proof now records both
 measurements and `Section_ProvisionalAndProjectionRows` makes a measured >10 % run provisional.
+
+## 2026-10-05 round — merge bindings, brief fixtures, shell shapes, load flakes
+
+**DERIVED-UNBOUND · A pattern is classified as generated or append-only but no merge driver is bound to it.**
+`.agents/artifacts.yml` classified 8 patterns; `.gitattributes` bound 3. `docs/docs-index.js`, `change-log.jsonl`,
+`rulings.md` and the ledgers therefore took the default text merge and conflicted on nearly every join on 2026-10-05.
+`coord doctor` read "merge driver effective" because it checks that the drivers are registered in git config, not that
+each classified pattern has a `merge=` line. `coord install` bound the rest (commit `90cf9f94`).
+
+**Class → sweep → derive → prevent:** signature: a registry of what each artifact is, and a second file that must
+mirror it, with only the driver checked. Sweep: the other registries that need a binding are `.agents/artifacts.yml`
+(8 of 8 now bound) and `docs/coordination/join.json` (covered by TEST-RING). Derive: the binding is a function of the
+classification, so the check recomputes it. Control (added): `tools/check-artifact-bindings.py`, run by
+`tools/check-docs.py`, fails when a `derived` pattern lacks `<pattern> merge=coord-regen`, a `register` pattern lacks
+`<pattern> merge=coord-register`, or a pattern is bound to the other driver. Self-test red on a missing line and on a
+wrong driver; red on the real `.gitattributes` with the `docs/docs-index.js` line removed, green restored. OPEN
+UPSTREAM: `coord doctor` should verify per-pattern binding; the pack is not edited here.
+
+**BRIEF-FIXTURE-AGAINST-SPEC · A repair brief asks for a test the spec forbids, and the coder widens the code to pass it.**
+The E2 repair brief asked for a FoilDSL test with a `tangents` block before `ids`. `docs/specs/foildsl.md:194` says a
+`tangents` block is legal only in 4.1, after `ids`. The coder widened the parser grammar so the test passed.
+
+**Class → sweep → derive → prevent:** signature: a brief or fixture written from memory of the grammar, and a
+green test used as the proof that the grammar is right. Sweep: the grammar lives in one place, the `Grammar` class of
+`src/CfdWorkbench.Core/FoilSource.cs`; no other parser reads FoilDSL. Derive: a grammar change and its spec
+belong in one branch, or a ruling must say why they differ. Control (added): `tools/check-foildsl-spec-sync.py`, run by
+`tools/check-docs.py`, fails a branch (merge-base with `main` to HEAD) that changes a line in the `Grammar` class
+without changing `docs/specs/foildsl.md` and without `Ruling <n>` in a commit message. Self-test builds five
+throw-away repos: red on a bare grammar change; green for a spec change, a cited ruling, a change outside `Grammar`, and
+an unrelated branch. Residual: it cannot see a wrong spec edit, only a missing one; and a widened parser inside another
+file would escape it (the sweep found none).
+
+**AGENT-HEREDOC · An agent uses a shell heredoc to write a program, against a rule in its brief.**
+Sub-agents used heredocs at least 7 times on 2026-10-05 although every brief named CT27 ("a multi-line program is a
+file, then a run, never a heredoc"; the shape measured at 70 s). The coordinator used heredocs in the same session.
+Prose in the brief did not change the behaviour, so the rule is a memoir (CI6).
+
+**Class → sweep → derive → prevent:** signature: a behaviour rule that agents must follow on every call, enforced only
+by being written down. Sweep: other CT27 shapes (a gate behind a pipe, a sub-agent calling `EnterWorktree`) have the
+same property; the profiler counts all three, nothing refuses them. Derive: the refusal belongs at the tool seam.
+Control (proposed, not installed; an operator decision): a PreToolUse hook on `Bash`. Draft and tests:
+`docs/proof/round-oct05-lessons/no-heredoc-hook.py` (`--self-test` green) and
+`docs/proof/round-oct05-lessons/heredoc-hook-proposal.md`. Not done here because wiring it changes harness
+configuration. Unverified: whether repo-level hooks fire for sub-agent Bash calls. Until installed, the class is open.
+
+**SECTION-EDITOR-LOAD-FLAKE · One failed check in the shared-fixture Section Editor suite leaves a gesture pressed and cascades.**
+`SectionEditor_DragMove_DrawsWithinOneFrame` failed at least 4 times on 2026-10-05 at load 40 to 200, and passed alone
+each time; the earlier note in `docs/proof/ring-b2/profile.md` saw 6 checks fail with one cascading `DSL-DRAFT-OWNED`.
+The same load-gate family as the Ruling 81 frame budgets. The instance's own cause is Inferred (CPU starvation lets
+something notify or draw between moves); the failure text of the four runs was not kept.
+
+**Class → sweep → derive → prevent:** signature: a check that presses a pointer on a shared fixture and asserts before
+it releases. A failing assertion skips the release, the controller keeps the draft, and every later `fixture.Reset()` check
+fails with `DSL-DRAFT-OWNED`, so one flake reads as six failures. Sweep: `SectionEditorTests.cs` has the one
+press-assert-release shape on a shared fixture in this check; the Fixture-per-check ones (`SlowAssessment`) discard the
+fixture on failure. Derive: release in `finally`. Control (added, test-side): `SectionEditor_DragMove_DrawsWithinOneFrame`
+releases the pointer when the drag assertions throw. Red first with a planted throw at move 3, run as
+`--section-editor --part=2/2` with a non-symlinked `TMPDIR`: the planted failure plus 5 `DSL-DRAFT-OWNED` cascades
+before the fix; the planted failure alone after. The fix does not stop the first failure at load. Proposed, not done:
+gate that check's functional assertions the Ruling 81 way (READINESS-MISS above load 24) only if its failure text,
+captured at load, shows a timing cause; capture the message first, because a gate over an unknown cause hides a real
+regression. Class stays open on that point.

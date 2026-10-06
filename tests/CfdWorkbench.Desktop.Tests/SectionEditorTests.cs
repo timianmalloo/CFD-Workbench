@@ -287,6 +287,7 @@ public static class SectionEditorTests
             var pointer = fixture.Press(from);
             long generation = fixture.Controller.Section!.Draft.Generation;
             int changes = 0;
+            bool dragMeasured = false;
             void Count() => changes++;
             fixture.Controller.Changed += Count;
             fixture.Controller.SectionChanged += Count;
@@ -306,11 +307,15 @@ public static class SectionEditorTests
                     previous = drawn;
                 }
                 if (MaxOffset(previous, rest) < 4) throw new Exception($"The drawn curve moved only {MaxOffset(previous, rest):F2} px over a 36 px drag");
+                dragMeasured = true;
             }
             finally
             {
                 fixture.Controller.Changed -= Count;
                 fixture.Controller.SectionChanged -= Count;
+                // SECTION-EDITOR-LOAD-FLAKE: a failed drag must not leave the gesture pressed and the draft owned,
+                // or every later check on this shared fixture fails DSL-DRAFT-OWNED.
+                if (!dragMeasured) fixture.Release(pointer, from);
             }
             int cursor = fixture.Controller.Section!.Draft.Cursor;
             fixture.Release(pointer, from + new Vector(24, -36));
