@@ -5044,7 +5044,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d8240424b63fd31eda891a5284a106e9c9a1b5dc339384b76f57199fa85eb9b3"
+      "sourceSha256": "eec813f13a7d55c5f556010f20c7a2abc15a129da2b0c657f46c6a4d58f8ec39"
     },
     {
       "id": "domain-experts",
@@ -8434,6 +8434,54 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "8908f5a29bbf71b05ec706a8a262415689d3d84cd31c5f21e1453c7182c3f802"
+    },
+    {
+      "id": "coordination-round-oct06",
+      "path": "docs/coordination/round-oct06.md",
+      "title": "Coordination plan - Mac round of 2026-10-06 (copy fixes, adaptive panels, DX, group move, 1280x800 layout, hook, spec 1.7.5)",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@cfd-leader-14e5e8d5",
+      "phase": "",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Schedules the Mac half of Rulings 101-108: a docs-first copy and spec commit (DOC) that removes DESIGN.md contention, the A3a copy and display fixes (CPY), adaptive panels (PNL), the DX section and polar build, group move (Core then Desktop), the 1280x800 four-view layout behind an operator pick, and the heredoc hook inline. At most 3 coding tracks and 2 heavy test runs at once; the PC's W-0..W-5 run on their own machine and reach main only as reviewed PRs.",
+      "tags": [
+        "coordination",
+        "worktrees",
+        "parallelism",
+        "analysis",
+        "a3b",
+        "a3c",
+        "dx",
+        "group-move",
+        "layout",
+        "spec"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-round-oct05",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "15b3ed7fc97c3cd5f524b776805c506bf6dffd023b29d963ab8b535617bdb7e8"
     },
     {
       "id": "coordination-two-machine",
@@ -11940,7 +11988,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "539de22461d7207c2ea4aeef8774f4447943458b7af914df183461db24e5008e"
+      "sourceSha256": "3431b4251b27d49c4c9ced0518f61fcbd7bb7d89a908ebc51033467b6f03777e"
     },
     {
       "id": "proof-shellfix-red-runs",
@@ -14392,6 +14440,14 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-round-oct05"
     },
     {
+      "id": "surface-coordination-round-oct06",
+      "path": "docs/coordination/round-oct06.html",
+      "title": "CFD-Workbench — coordination plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-round-oct06"
+    },
+    {
       "id": "surface-specs-cfd-workbench-v1",
       "path": "docs/specs/cfd-workbench-v1.html",
       "title": "CFD-Workbench — Product specification",
@@ -14536,5 +14592,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "eb971cd9d3e75e8bce39d4122209659ea9d185ce94f9c9c8c7fd5f47246cf5bd"
+  "graphSha256": "73a811d1d7dc1426dc6be86cb8aee71a5962ba058e0010223928cdd7c0974d54"
 };

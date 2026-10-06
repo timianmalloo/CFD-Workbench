@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="15b3ed7fc97c3cd5f524b776805c506bf6dffd023b29d963ab8b535617bdb7e8">
+<style>
+:root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
+body{margin:0;background:Canvas;color:CanvasText}
+main{max-width:1180px;margin:auto;padding:clamp(1rem,3vw,3rem)}
+h1,h2,h3{line-height:1.2;margin:2rem 0 .7rem}h1{font-size:2rem}h2{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding-bottom:.4rem}
+a{color:LinkText}a:focus-visible{outline:3px solid Highlight;outline-offset:3px}
+.table-wrap{overflow-x:auto;margin:1rem 0 2rem}table{border-collapse:collapse;min-width:720px;width:100%}th,td{border:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding:.65rem;vertical-align:top;text-align:left}th{background:color-mix(in srgb,CanvasText 8%,Canvas)}
+code,pre{font: .9em/1.4 ui-monospace,SFMono-Regular,monospace}code{overflow-wrap:anywhere}pre{overflow-x:auto;padding:1rem;background:color-mix(in srgb,CanvasText 7%,Canvas);border-radius:.5rem}
+header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.note{font-size:.9rem;opacity:.75}
+</style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="round-oct06.md">round-oct06.md</a> · 6 October 2026</p></header>
+<h1>Coordination plan: the Mac round of 2026-10-06</h1>
+<ul>
+<li><strong>Scope:</strong> the seven items the operator approved on 2026-10-06 (&quot;go&quot;), from Rulings 101, 103, 104, 107 and 108, and the
+spec amendments they carry, plus reviewing the PC session&#39;s pull requests (Ruling 106). Not in scope: the PC&#39;s W-0..W-5
+(<a href="pc-kickoff.md">pc-kickoff.md</a>); the open section-editor flake (SECTION-EDITOR-LOAD-FLAKE); export, backend, signing.</li>
+<li><strong>Seats:</strong> Leader and Coordinator = this Claude Code session <code>14e5e8d5</code> (Opus 5.5). Owner = a Fable sub-agent
+(<code>claude-fable-5-1</code>), one at a time, ruling into <code>docs/notes/rulings.md</code> and noting &quot;ruled by the Fable owner&quot;; it also
+reviews PC pull requests. Held for the operator: copy and spec wording, a mockup or layout pick, anything irreversible
+or public. Coders: Sonnet 5.5 sub-agents (they carried every build last round after Codex and Agy each failed once);
+Codex <code>gpt-6-sol</code> is the fallback with <code>&lt; /dev/null</code>.</li>
+<li><strong>Base:</strong> <code>main</code> = <code>origin/main</code> = <code>dbdfa561</code> (readiness green, 128.7 s of 240 s). Planning tree
+<code>CFD-Workbench-chore-coordination-round-oct06</code>.</li>
+</ul>
+<p>Labels: <strong>Verified</strong> = observed in this run; <strong>Inferred</strong> = reasoned, not observed; <strong>Flagged</strong> = observed but suspect.</p>
+<h2>Layer state</h2>
+<p><code>coord-core.py doctor</code>, run in the planning tree on 2026-10-06.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>check</th>
+<th>result</th>
+<th>meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>registry</td>
+<td>ok - 9 patterns</td>
+<td><code>.agents/artifacts.yml</code> now also classifies <code>docs/coordination/xmsg.jsonl</code> (Verified)</td>
+</tr>
+<tr>
+<td>merge driver</td>
+<td>effective - coord-regen, coord-register declared and registered</td>
+<td>derived files regenerate and registers union-merge at every merge (Verified)</td>
+</tr>
+<tr>
+<td>leader</td>
+<td>EXPIRED 157 s ago (epoch 77, 14e5e8d5)</td>
+<td>TTL is 300 s; this session reclaims immediately before each move of <code>main</code>, as last round (Verified)</td>
+</tr>
+<tr>
+<td>heartbeat</td>
+<td>not recorded</td>
+<td>no heartbeat is wired; dispatch is observed by <code>git log</code> / <code>git status</code> per track</td>
+</tr>
+<tr>
+<td>requests</td>
+<td>ok - 128, 0 open</td>
+<td>Rulings 101-108 left nothing open (Verified)</td>
+</tr>
+<tr>
+<td>lease overlap</td>
+<td>none</td>
+<td>no live leases (Verified)</td>
+</tr>
+<tr>
+<td>harness capability</td>
+<td>claude edit boundary: enforcing (spike S5, 2026-08-24, version not pinned); copilot: historical</td>
+<td><strong>not re-measured here</strong>; the commit floor enforces regardless</td>
+</tr>
+<tr>
+<td>install</td>
+<td>once, in the primary checkout</td>
+<td>every worktree <strong>inherits</strong> the drivers and hooks through the shared <code>.git/config</code>; <code>coord doctor</code> in a tree reads it back; never <code>coord install</code> in a worktree. The PC clone installs its own (two-machine.md)</td>
+</tr>
+</tbody></table></div>
+<h2>Artifact classes</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>path / pattern</th>
+<th>class</th>
+<th>mechanism</th>
+<th>coordination needed</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>docs/docs-index.js</code>, <code>docs/audit/audit-data.js</code>, <code>docs/audit/index.html</code></td>
+<td>derived</td>
+<td>coord-regen</td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>docs/audit/audit-log.jsonl</code>, <code>docs/audit/change-log.jsonl</code>, <code>docs/notes/rulings.md</code>, <code>.agents/log/*.jsonl</code>, <code>docs/coordination/xmsg.jsonl</code></td>
+<td>register</td>
+<td>coord-register union merge; ruling numbers only through <code>coord-decide.py rule next</code> on the Mac</td>
+<td><strong>none</strong></td>
+</tr>
+<tr>
+<td><code>docs/proof/&lt;track&gt;/**</code></td>
+<td>authored, new per track</td>
+<td>each track writes only its own folder</td>
+<td>none (disjoint)</td>
+</tr>
+<tr>
+<td><code>DESIGN.md</code> §7</td>
+<td>authored</td>
+<td><strong>DOC adds every new row this round approves, once, first, and edits no existing row</strong>. <code>LabelsTests.CopyRows</code> pins the markers of COPY-206..239 (<code>LabelsTests.cs:102-104</code>) and runs <code>design.Contains(...)</code> for 11 <code>Labels</code> constants (<code>:106-108</code>), so an edited row turns it red while a new row does not (Verified). A change to an existing row&#39;s text is made by the code track, in the same commit as the constant it mirrors</td>
+<td>serial: DOC first (new rows); CPY/DX for rows mirroring a constant they change</td>
+</tr>
+<tr>
+<td><code>docs/specs/cfd-workbench-v1.md</code>, <code>docs/specs/amendments/spec-1.7.5.md</code> (new), the spec HTML</td>
+<td>authored</td>
+<td>DOC only</td>
+<td>none after DOC</td>
+</tr>
+<tr>
+<td><code>tests/CfdWorkbench.Analysis.Tests/AnalysisChecks.cs</code> (<code>X.Run();</code> lines)</td>
+<td>authored</td>
+<td>append one line per new suite; the second to merge rebases</td>
+<td>append conflicts only (PNL, CPY, DX)</td>
+</tr>
+<tr>
+<td><code>tests/CfdWorkbench.Analysis.Tests/LabelsTests.cs</code></td>
+<td>authored</td>
+<td>CPY then DX (serial); GRP puts its copy assertions in its own new suite</td>
+<td>serial</td>
+</tr>
+<tr>
+<td><code>src/CfdWorkbench.Analysis/Labels.cs</code>, <code>AnalysisProjection.cs</code>, <code>Loads.cs</code></td>
+<td>authored</td>
+<td>CPY, then DX (serial)</td>
+<td>serial</td>
+</tr>
+<tr>
+<td><code>src/CfdWorkbench.Desktop/Analysis/ConditionsBand.axaml(.cs)</code></td>
+<td>authored</td>
+<td>CPY (units, cut cells), then DX (Find α beside Evaluate, <code>ConditionsBand.axaml:27</code>)</td>
+<td>serial</td>
+</tr>
+<tr>
+<td><code>src/CfdWorkbench.Desktop/PropertiesView.cs</code>, <code>WorkbenchController.cs</code></td>
+<td>authored</td>
+<td>CPY owns the Analysis regions (ShellMode Analysis block; <code>AnalysisView</code>&#39;s error card and tampered note); GRP owns the CAD regions (<code>SeveralRows</code>, <code>BeginGesture</code>, <code>SelectPoint</code>) <strong>after CPY joins</strong></td>
+<td>serial by time: GRP does Core first and rebases before its Desktop edits</td>
+</tr>
+<tr>
+<td><code>.claude/settings.json</code>, <code>tools/hooks/no-heredoc.py</code> (new)</td>
+<td>authored</td>
+<td>Coordinator inline (HOOK)</td>
+<td>none</td>
+</tr>
+<tr>
+<td>every other authored file</td>
+<td>authored</td>
+<td>one owner, from the Tracks table</td>
+<td>the owner only</td>
+</tr>
+</tbody></table></div>
+<h2>Tracks</h2>
+<p>Boxes follow last round&#39;s measured ratios: Sonnet build tracks ran at 0.1-0.5 of their box, median about 0.3, so boxes are
+about 0.4× of what last round would have set. Every coding brief: foreground only; a Return section; two repair cycles;
+<code>AGENT_SESSION</code> exported; a separate session id per task (B2&#39;s pooling hid per-task cost); <code>audit-log.py start</code> again on a
+resume; <code>CFD_TEST_ONLY=&lt;name&gt;</code> in the inner loop and the full <code>tools/run-tests.sh</code> <strong>once</strong> before the Return; a red-first
+receipt in <code>docs/proof/&lt;trk&gt;/red-first.md</code>; <code>tools/trace-brief.py</code> run by the Coordinator before dispatch, every listed
+file either owned or named as read-only. A track that needs a file outside its ownership <strong>stops and sends a seam
+request</strong>. Decision requests go <code>--to</code> the Fable owner seat; copy, spec and layout picks go to the operator, batched.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>owns (authored)</th>
+<th>depends on</th>
+<th>tier</th>
+<th>fan-out cap</th>
+<th>budget</th>
+<th>exit evidence</th>
+<th>harness</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>DOC</strong> copy rows + spec 1.7.5</td>
+<td><code>DESIGN.md</code> §7, <strong>new rows only</strong> (Ruling 101&#39;s four mockup strings and the 18 built strings as approved, with the two fixes&#39; final text; the Total-drag row of DXM-5 written <strong>only after HYD&#39;s verdict</strong>, which the Coordinator relays, and held &quot;proposed — awaiting operator&quot; if HYD changes the label; COPY-G1..G12; the DX NEW rows of <code>docs/design/dx-screen-states.md</code> verbatim; <strong>drafted</strong> display text for every SEAM reason code marked &quot;proposed — awaiting operator&quot;); <code>docs/specs/cfd-workbench-v1.md</code> (revision 1.7.5: the CAD-04 clause and the AM-1.7-15 retirement of Ruling 107; A5.6 Total drag of Ruling 108 DXM-5; Appendix H §H.5); <code>docs/specs/amendments/spec-1.7.5.md</code>; the rendered spec HTML; <code>docs/proof/doc-oct06/</code></td>
+<td>—</td>
+<td>T1</td>
+<td>1</td>
+<td>40 min</td>
+<td>every row&#39;s text equals its ruling&#39;s or design&#39;s text (a script compares, listed in the proof); <code>git diff</code> shows no existing `</td>
+<td>COPY-<code>row changed;</code>Copy_AnalysisStrings_MatchDesignMd<code> green on DOC&#39;s head (</code>CFD_TEST_ONLY=Copy_AnalysisStrings_MatchDesignMd tools/run-suite.sh dotnet <Analysis tests dll><code>; </code>run-tests.sh<code>unsets the filter) (the join may skip the ring, so DOC proves</code>LabelsTests<code>itself);</code>python3 tools/check-docs.py<code> green; spec rendered and parity-checked (</code>tools/render-spec.mjs<code>, </code>tools/check-spec-html.mjs<code>, </code>SPEC_NAME=cfd-workbench-v1<code>); the canonical </code>Product specification · revision 1.7.5 ·` line intact; a docs-only join (ring skipped, Ruling 89)</td>
+</tr>
+<tr>
+<td><strong>HYD</strong> Wing-only label check</td>
+<td><code>docs/reviews/dxm5-wing-only.md</code> (new)</td>
+<td>—</td>
+<td>T1</td>
+<td>1</td>
+<td>15 min</td>
+<td>verdict on Ruling 108 DXM-5 (the Total drag row showing wing drag marked &quot;Wing only&quot; with the omitted components listed): CLEAR, or CLEAR WITH CONDITIONS naming the label change; a label change goes to the operator before CPY&#39;s Total-drag commit</td>
+<td>hydrofoil-hydrodynamicist persona (Opus)</td>
+</tr>
+<tr>
+<td><strong>PNL</strong> adaptive panels</td>
+<td><code>src/CfdWorkbench.Analysis/SectionTier.cs</code>, <code>PanelMethod.cs</code>, <code>MethodRecord.cs</code> (the method version string only), <code>Cavitation.cs</code> (governing Cp_min source only); <code>tests/CfdWorkbench.Analysis.Tests/PanelCpTests.cs</code>, <code>SectionSeamTests.cs</code> (incl. <code>Section_CamberedWing129_WarmTime</code>, <code>:19</code>), the cavitation suite, its <code>AnalysisChecks.cs</code> line; <code>docs/proof/pnl/</code></td>
+<td>— ; step 0&#39;s decision for the other-station clause</td>
+<td>T1</td>
+<td>1</td>
+<td>60 min</td>
+<td><strong>Step 0 (Flagged):</strong> today the 200-vs-400 under-read is measured only at the governing station (<code>SectionTier.cs:115-117</code>), so Ruling 103&#39;s &quot;other stations keep the DR-DXM-7 provisional row when their under-read is above 10 %&quot; has no measurement behind it. PNL proposes how that under-read is known (a bound by thickness from the Kármán–Trefftz study, or a 400 solve at stations within a stated margin of the governing one), with its cost; the decision request goes to the Fable owner after a cfd-numerical-verification-expert opinion. <strong>Then</strong>, each red then green, the first two joining first and the other-station test as a follow-on commit once the ruling exists (it is outside the box): the governing station&#39;s screen uses its 400-panel Cp_min and every other station 200; a non-governing station whose under-read exceeds 10 % by the ruled measure carries the provisional flag (the planted case uses a thin section); the run still records the governing under-read; the method version moves so older runs read Historical. Timing re-measured warm and first-run with the extra solve, inside 1 s. Four figures <strong>reconciled in writing</strong> (which workload each measured): 419 ms (readiness MEASURE line, 2026-10-06, session output in <code>.tmp-tests</code>; PNL commits the excerpt to <code>docs/proof/pnl/</code> or keeps it labelled Inferred), 723 ms (Ruling 103&#39;s citation of the previous session&#39;s readiness), 430 ms (<code>docs/proof/a3bc-seam/proof-pack.md:48</code>), 1.6 s (SEAM CFD review); each labelled Inferred until re-measured by PNL. cfd-numerical-verification-expert review clears</td>
+<td>Sonnet sub-agent</td>
+</tr>
+<tr>
+<td><strong>MCAD</strong> group-move Adversary review</td>
+<td><code>docs/reviews/group-move-adversary.md</code> (new)</td>
+<td>—</td>
+<td>T1</td>
+<td>1</td>
+<td>20 min</td>
+<td>Ruling 107 DR-GM-9: a real Adversary pass on <code>docs/design/group-move-node-m.md</code> and its mockup; findings ranked; Blockers become design edits by GRP or an operator item</td>
+<td>marine-cad-ux-expert persona (Opus)</td>
+</tr>
+<tr>
+<td><strong>CPY</strong> A3a copy and display fixes</td>
+<td><code>Labels.cs</code>, <code>AnalysisProjection.cs</code>, <code>Loads.cs</code>; <code>LabelsTests.cs</code>, <code>ProjectionTests.cs</code>; <code>PropertiesView.cs</code> (ShellMode Analysis block), <code>Panes/PropertiesPane.axaml(.cs)</code>, <code>Analysis/ConditionsBand.axaml(.cs)</code>, <code>Analysis/LoadingChart.cs</code>, <code>WorkbenchController.cs</code> (<code>AnalysisView</code> error card and tampered note only); <code>Analysis/AnalysisPanel.axaml(.cs)</code> (the Loads tab&#39;s cut cells only, before DX starts); the Total-drag assertions in <code>LoadsViewTests.cs</code>, <code>StripFixtureTests.cs</code>, <code>PolarNumericsTests.cs</code>; the Desktop suites of these files; <code>ShellWindowTests.cs</code> (Analysis checks only; GRP edits its CAD checks after CPY joins); <code>docs/proof/cpy/</code></td>
+<td>DOC (rows), HYD (Total drag label)</td>
+<td>T1</td>
+<td>1</td>
+<td>60 min</td>
+<td>Ruling 101 and DXM-5, each red then green: shallow station (h/c &lt; 5 anywhere) shows COPY-224/226 not COPY-223; no bare &quot;Unavailable&quot; in any projection state (a scan over every projection fixture); one Total-drag reason string; Total row shows wing drag marked &quot;Wing only&quot; with omitted components; the four new strings rendered where the mockup shows them; the band in kn under Imperial and m/s under Metric; any <code>DESIGN.md</code> row mirroring a constant CPY changes is updated in the same commit and <code>Copy_AnalysisStrings_MatchDesignMd</code> stays green; Envelope, Total drag and band cells not cut and the chart x ticks visible while Running at 1500x870 (captures); one green ring</td>
+<td>Sonnet sub-agent</td>
+</tr>
+<tr>
+<td><strong>GRP</strong> group move</td>
+<td>Core: <code>src/CfdWorkbench.Core/AuthoringSession.cs</code> (group gesture and typed group command), its Core tests (new suite <code>GroupGestureTests</code>); then, <strong>after CPY joins</strong>: <code>WorkbenchController.cs</code> (<code>BeginGesture</code>, <code>SelectPoint</code>, nudge), <code>Selection.cs</code>, <code>PlanCanvas.cs</code>, <code>ElevationView.cs</code>, <code>CurvePointLayer.cs</code>, <code>PropertiesView.cs</code> (<code>SeveralRows</code>), <code>Shell/StatusStrip.axaml(.cs)</code>, Desktop suite <code>GroupDragTests</code> (new) with its copy-row assertions, <code>ShellWindowTests.cs</code> (<code>Properties_MultiplePoints_MixedReadOnly</code>, <code>:2630</code>, which the editable several-point rows replace); read-only with <strong>no signature change</strong> (new overloads only): <code>SectionCanvas.cs</code> (<code>BeginGesture</code> at <code>:739</code>, <code>:962</code>), <code>PointsView.cs</code>; <code>docs/proof/grp/</code></td>
+<td>MCAD (design edits), DOC (COPY-G rows); CPY for the Desktop half</td>
+<td>T1</td>
+<td>1</td>
+<td>Core 60 min; Desktop 60 min</td>
+<td><code>docs/design/group-move-node-m.md</code> §9&#39;s named tests each print <code>PASS &lt;name&gt;</code> (Coordinator greps every line; a missing line is red); the §6 <code>assume:</code> confirmed by the one-member byte-equality sweep; planted mutants red (clamp per member instead of rigid; collapse on press); <code>gesture.end</code> carries <code>members</code>; captures of drag, hold at limit and typed Set to / Move by vs the approved mockup; marine-cad-ux-expert re-check of the build</td>
+<td>Sonnet sub-agent, one session id per half</td>
+</tr>
+<tr>
+<td><strong>DX</strong> section and polar displays</td>
+<td><code>Analysis/AnalysisPanel.axaml(.cs)</code> (Section tab), new <code>Analysis/Section*.cs</code>, <code>Analysis/PolarChart.cs</code>, <code>Analysis/FindAlphaDialog.axaml(.cs)</code>; after CPY: <code>AnalysisProjection.cs</code> Section group (<code>:145</code> and <code>SectionRows</code>), <code>Labels.cs</code> DX strings, <code>LabelsTests.cs</code> DX rows, <code>ConditionsBand.axaml(.cs)</code> Find α button; <code>Styles.axaml</code> (tokens); Desktop suites; <code>docs/proof/dx/</code></td>
+<td>CPY (shared files); DOC (rows); the operator&#39;s answer on the reason-code drafts <strong>for the reason-rendering step only</strong></td>
+<td>T1</td>
+<td>1</td>
+<td>120 min</td>
+<td>test names listed from <code>dx-screen-states.md</code> and cleared by the test-architect <strong>before</strong> the build, each printing <code>PASS &lt;name&gt;</code>; every state in the approved mockup <code>docs/mockups/dx-section-polar-states.html</code> captured from the app and compared (a state not in the mockup is shown to the operator before it is built); DXM-2..9 each pinned by a test; ux-accessibility review as advice (operator priority); <code>run-readiness.py --check</code> green for the DX head</td>
+<td>Sonnet sub-agent</td>
+</tr>
+<tr>
+<td><strong>LAY</strong> 1280x800 four views</td>
+<td>step a: <code>docs/proof/lay-1280/</code> (captures and options only). Step b, after the operator picks: <code>ModelArea.axaml(.cs)</code> (the fallback at <code>:242-243</code>; the floor <code>:21</code> stays), <code>Shell/ShellLayout.cs</code>, <code>Shell/WorkspacePresets.cs</code>, <code>ViewCamera.cs</code> if the layout enum changes; Desktop layout tests</td>
+<td>step a: —. Step b: the operator&#39;s pick</td>
+<td>T1</td>
+<td>1</td>
+<td>a 30 min; b 60 min</td>
+<td>a: two or three layouts captured at 1280x800 in Analysis with today&#39;s docks (what shrinks: dock widths, rails, bottom panel), each with measured view sizes vs the four-view minimum; b: Analysis keeps four views at 1280x800 (test red then green) <strong>with <code>MinimumFourViewSize</code> pinned at 320x240 in the test</strong> (<code>ModelArea.axaml.cs:21</code>) and every measured view size ≥ it, so lowering the floor cannot pass; no layout regresses at 1500x870 (captures); one green ring</td>
+<td>Sonnet sub-agent</td>
+</tr>
+</tbody></table></div>
+<p><strong>HOOK</strong> (Ruling 104) is not a track. The Coordinator does it inline: <code>tools/hooks/no-heredoc.py</code> from the proposal, wired in
+<code>.claude/settings.json</code> with the existing portable <code>python3</code>/<code>python</code> command form. A planted heredoc command is
+refused, a plain command passes, and one Sonnet sub-agent is asked to run a heredoc. Whether the hook fires for a
+sub-agent is recorded in AGENT-HEREDOC. About 10 minutes.</p>
+<p><strong>PC pull requests</strong> are not a track. On each <code>pr-ready</code> message the Coordinator fetches, and the Fable owner reviews the
+diff and its receipt (two-machine.md). On approval the Leader joins it through <code>conductor-join.py</code>, with Mac readiness
+green. A PC branch never waits on this round, and this round never edits the PC&#39;s paths.</p>
+<h2>Serial spine</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>item</th>
+<th>why it cannot be parallel</th>
+<th>who owns it</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DOC → every build on <code>DESIGN.md</code></td>
+<td>one writer of the approved rows; GO5(a) on <code>DESIGN.md</code> §7, the file that cost a serial C → AUX → DX chain last round</td>
+<td>DOC</td>
+</tr>
+<tr>
+<td>HYD → CPY&#39;s Total-drag commit</td>
+<td>a decision edge (GO5 b): a label condition changes the string CPY writes</td>
+<td>HYD, then CPY</td>
+</tr>
+<tr>
+<td>CPY → DX on <code>Labels.cs</code>, <code>AnalysisProjection.cs</code>, <code>Loads.cs</code>, <code>LabelsTests.cs</code>, <code>ConditionsBand</code></td>
+<td>two authors of one file fail GO5(a)</td>
+<td>CPY, then DX</td>
+</tr>
+<tr>
+<td>CPY → GRP&#39;s Desktop half on <code>PropertiesView.cs</code>, <code>WorkbenchController.cs</code></td>
+<td>same files, different regions; serial by time is cheaper than region leases</td>
+<td>CPY, then GRP Desktop</td>
+</tr>
+<tr>
+<td>MCAD → GRP</td>
+<td>a decision edge: a Blocker changes the design GRP builds</td>
+<td>MCAD, then GRP</td>
+</tr>
+<tr>
+<td>operator&#39;s pick → LAY step b</td>
+<td>a decision edge, and the rule that the operator sees a layout before it is built</td>
+<td>operator</td>
+</tr>
+<tr>
+<td>operator&#39;s answer on reason-code drafts → DX&#39;s reason rendering</td>
+<td>copy is the operator&#39;s (Ruling 108 approved text that did not exist yet)</td>
+<td>operator, then DX</td>
+</tr>
+<tr>
+<td>every move of <code>main</code></td>
+<td>one leader (Ruling 106); readiness green for that HEAD; reclaim the designation first</td>
+<td>Leader</td>
+</tr>
+<tr>
+<td>heavy test runs</td>
+<td>at most 2 at once (<code>tools/ring-lock.sh</code>, 2 slots); the 3D frame checks fail under load</td>
+<td>Coordinator staggers</td>
+</tr>
+</tbody></table></div>
+<h2>Seams</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>from -&gt; to</th>
+<th>the request</th>
+<th>resolved by</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DOC -&gt; CPY, DX, GRP</td>
+<td>the approved rows&#39; exact text</td>
+<td>DOC joins first; builds cite row ids</td>
+</tr>
+<tr>
+<td>HYD -&gt; CPY</td>
+<td>the Wing-only label condition, if any</td>
+<td>HYD&#39;s file; a wording change goes to the operator first</td>
+</tr>
+<tr>
+<td>CPY -&gt; DX</td>
+<td>the projection, labels and band after the Ruling 101 fixes</td>
+<td>CPY joins; DX rebases</td>
+</tr>
+<tr>
+<td>CPY -&gt; GRP</td>
+<td><code>PropertiesView.cs</code>, <code>WorkbenchController.cs</code></td>
+<td>CPY joins before GRP&#39;s Desktop half starts</td>
+</tr>
+<tr>
+<td>PNL -&gt; DX</td>
+<td>the section tier&#39;s data shape (unchanged by design: adaptive panels change values, not fields)</td>
+<td>PNL keeps the projection&#39;s fields; a field change is a seam request to DX</td>
+</tr>
+<tr>
+<td>PNL, CPY, DX -&gt; <code>AnalysisChecks.cs</code></td>
+<td>one registration line each</td>
+<td>append; the second to merge rebases</td>
+</tr>
+<tr>
+<td>MCAD -&gt; GRP</td>
+<td>Blocker findings</td>
+<td>design edits by GRP before code, or an operator item</td>
+</tr>
+<tr>
+<td>LAY -&gt; CPY</td>
+<td>the Properties dock width, if a layout option narrows it</td>
+<td>LAY step b starts after CPY joins; a width change is LAY&#39;s, the cell content CPY&#39;s</td>
+</tr>
+<tr>
+<td>PC -&gt; Mac</td>
+<td>a <code>win/*</code> pull request</td>
+<td>Fable review, then the Leader&#39;s join</td>
+</tr>
+<tr>
+<td>any -&gt; Owner</td>
+<td>a decision request</td>
+<td><code>coord-decide.py request --to &lt;Fable owner seat&gt;</code>; copy, spec and layout to the operator, batched</td>
+</tr>
+</tbody></table></div>
+<p><strong>Joint satisfiability of shared surfaces (GO14a).</strong> <code>DESIGN.md</code>: after DOC, no track edits it, so the only guard is
+<code>LabelsTests</code>. It is a set of <code>Contains</code> checks on row text plus marker (<code>LabelsTests.cs:99-120</code>; no scan root or
+recursion; token = the literal row; allowlist none). CPY and DX each add their own <code>Contains</code> lines for rows DOC wrote,
+so all are jointly satisfiable. <code>AnalysisChecks.cs</code>: <code>tools/check-named-tests.py</code> scans <code>tests/</code> recursively for the
+token <code>PASS &lt;name&gt;</code>, allowlist none. Appending never removes a name. <code>PropertiesView.cs</code> / <code>WorkbenchController.cs</code>:
+CPY&#39;s guards are Analysis-mode Desktop tests and GRP&#39;s are CAD-mode tests. Neither asserts on the other&#39;s region, so
+the files are serial by time, with no joint guard to satisfy.</p>
+<h2>Review record (Stage 8 DISCONFIRM)</h2>
+<p>Reviewer: test-architect + the-simplifier persona (Sonnet sub-agent, Adversary Mode), 2026-10-06. Verdict <strong>BLOCK</strong>
+(findings 1 and 2), cleared by plan edits only; every finding was checked against the repo before it was applied:
+(1) DOC could break <code>LabelsTests</code> with the ring skipped → DOC adds rows only, proves <code>Copy_AnalysisStrings_MatchDesignMd</code>
+itself, and the code track edits any row mirroring a constant · (2) Ruling 103&#39;s other-station clause and the timing
+figures had no test → PNL step 0 (the under-read is measured only at the governing station, <code>SectionTier.cs:115-117</code>),
+a planted thin-section test, four figures reconciled · (3) DXM-5 row raced HYD → the row waits for HYD&#39;s verdict ·
+(4) LAY-b could pass by lowering the floor → <code>MinimumFourViewSize</code> pinned · (5) unowned test files → named per track,
+<code>ShellWindowTests.cs</code> serial CPY → GRP · (6) <code>BeginGesture</code> callers → read-only, no signature change · (7) Loads-tab cut
+cells → CPY before DX · (8) line references corrected (<code>:145</code>, <code>:21</code>; <code>LabelsTests</code> scope) · (10) HYD and MCAD run as
+single review calls, not tracks. Finding 9 (GRP&#39;s tests do not exist yet) is expected for red-first and stays as the
+grep of every <code>PASS &lt;name&gt;</code> line.</p>
+<p>Re-check, same reviewer: <strong>CLEARS-THE-VETO yes</strong>, PASS-WITH-CONDITIONS; its three Minor conditions (PNL&#39;s ruled test as a
+follow-on commit, the 419 ms source, CPY&#39;s row-mirroring duty in its exit) are applied above. A Proof Pack is still
+required at each track&#39;s join.</p>
+<h2>Struck tracks</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>why it was not worth its multiplier</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HOOK as a track</td>
+<td>about 10 min of settings work; done inline (commit <code>1616d891</code>): self-test, refuse/allow payloads, <code>check-pack-hooks.py</code> extended to <code>tools/hooks/</code>; sub-agent firing measured in a new session after the join</td>
+</tr>
+<tr>
+<td>HYD and MCAD as tracks</td>
+<td>single persona review calls; a track&#39;s 15× multiplier buys nothing for one file each</td>
+</tr>
+<tr>
+<td>Spec 1.7.5 as its own track</td>
+<td>same reviewer, same render tooling and same docs-only join as the copy rows; merged into DOC</td>
+</tr>
+<tr>
+<td>CPY and DX merged</td>
+<td>considered (they share five files). Kept apart: CPY is about 60 min of small fixes that unblock GRP&#39;s Desktop half and LAY, and DX is the longest track. Merging would put GRP and LAY behind DX</td>
+</tr>
+<tr>
+<td>GRP Core and Desktop as two tracks</td>
+<td>one track with two halves and one session id each; the Core half is independent of CPY, the Desktop half is not</td>
+</tr>
+<tr>
+<td>A separate &quot;reason-code copy&quot; track</td>
+<td>the drafts are rows like any other; DOC drafts them and the operator answers in the next batch</td>
+</tr>
+</tbody></table></div>
+<h2>Order of operations</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>action</th>
+<th>cost</th>
+<th>why now</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>Commit and join this plan (docs-only); HOOK inline</td>
+<td>~15 min</td>
+<td>the briefs cite it; the hook guards every later brief</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Reviews first, as single Opus calls (not tracks): <strong>HYD</strong>, <strong>MCAD</strong>. With them: <strong>DOC</strong> (Sonnet; its Total-drag row waits for HYD), <strong>PNL</strong> (Sonnet), <strong>LAY-a</strong> (Sonnet, captures)</td>
+<td>15 / 20; boxes 40 / 60 / 30</td>
+<td>DOC is on the critical path; PNL and LAY-a are independent; the reviews feed DOC, CPY and GRP</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Join DOC (docs-only). Operator batch 1: the reason-code drafts, the LAY options, any HYD or MCAD item for the operator</td>
+<td>~5 min + operator</td>
+<td>unblocks CPY now and DX&#39;s reason step later</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>CPY</strong> (Sonnet) and <strong>GRP Core</strong> (Sonnet)</td>
+<td>60 / 60</td>
+<td>CPY gates DX and GRP Desktop; GRP Core needs only MCAD</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Join PNL and CPY as each clears review (readiness green; reclaim leader; push)</td>
+<td>~5 min + readiness ~2 min each</td>
+<td>—</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>DX</strong> (Sonnet); <strong>GRP Desktop</strong> (Sonnet); <strong>LAY-b</strong> once the operator has picked</td>
+<td>120 / 60 / 60</td>
+<td>after CPY; at most 3 coding at once</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Join GRP, LAY, DX; PC pull requests joined whenever the Fable owner approves one</td>
+<td>per join</td>
+<td>—</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Close: Completed / Remaining / Next, planned vs actual per track, one list of operator items</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody></table></div>
+<p><strong>Critical path (Inferred from boxes):</strong> DOC 40 → CPY 60 → DX 120 ≈ 220 min of boxes. At last round&#39;s measured median
+of about 0.3 of the box, that is about 1.1 h plus join and operator time. The operator&#39;s answer on the reason codes can
+put the end of DX on the path; DX builds its other states first.</p>
+<p><strong>Cost.</strong> An orchestrator-worker round costs roughly 15× a single session in tokens (GO6). It is paid here for:</p>
+<ul>
+<li><strong>genuine independence:</strong> PNL&#39;s numerics and GRP&#39;s Core half share no file with the CPY → DX chain;</li>
+<li><strong>context hygiene:</strong> each build carries its own design trace;</li>
+<li><strong>operator latency:</strong> LAY&#39;s options and the reason-code drafts wait on you while the builds run.</li>
+</ul>
+<p>The chain CPY → DX is serial, and its width is 3 only in wave 2.</p>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>15b3ed7fc97c3cd5f524b776805c506bf6dffd023b29d963ab8b535617bdb7e8</code>.</p></footer></main></body></html>
