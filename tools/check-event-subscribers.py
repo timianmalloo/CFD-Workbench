@@ -27,7 +27,6 @@ ALLOWED = {
     "CanExecuteChanged": "ICommand member; the framework subscribes through command bindings, not src/",
     "VertexSelected": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
     "VertexMoved": "SectionCanvas: the section editor's canvas is not wired to a commit path until M1.2c",
-    "LayersChanged": "WorkbenchController: raised by SetLayerVisible (HIST); the Layers pane (PNA) and the layer views (LAY) subscribe when those tracks merge; remove this entry then",
     "FocusedTargetChanged": "SectionCanvas and Viewport: focus-into-view is not wired in the shell until app-shell D4 (M1.2e)",
 }
 

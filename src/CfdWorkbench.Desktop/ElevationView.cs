@@ -179,13 +179,18 @@ public sealed class ElevationView : Control
     {
         source.Changed += Update;
         source.CameraChanged += OnCameraChanged;
+        source.LayersChanged += OnLayersChanged;
     }
 
     private void Unsubscribe(WorkbenchController source)
     {
         source.Changed -= Update;
         source.CameraChanged -= OnCameraChanged;
+        source.LayersChanged -= OnLayersChanged;
     }
+
+    // Reading AnalysisView refreshes the controller's LayerSet before this elevation redraws it.
+    private void OnLayersChanged() { _ = controller?.AnalysisView; Redraw(); }
 
     private void OnCameraChanged(SingleView view)
     {
@@ -1058,6 +1063,9 @@ public sealed class ElevationView : Control
         {
             if (IsFront) DrawFrontBand(context, brushes);
             else DrawSideChips(context);
+            if (controller.IsAnalysis && controller.Surface is { } surface && Camera is { } camera)
+                ElevationDepthLayer.Draw(context, controller.LayerSet.FirstOrDefault(l => l.Id == "depth-band"),
+                    camera, surface, band, IsFront, InkBrush ?? foil, mute, SoftBrush ?? BackgroundBrush ?? Brushes.Black);
             DrawLane(context, brushes, plan);
         }
         Plate(context, LaneCaption, new Point(PlateInset, band.Bottom + 6), InkBrush ?? foil, left: true);

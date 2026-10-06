@@ -247,7 +247,7 @@ public static class AnalysisProjection
             {
                 Samples = run.Strips.Select(s => new LayerSample(s.Eta, s.Y, s.Gamma, null,
                     State(s, At(context.Verdicts, s)) == VerdictState.Outside, s.Provisional)
-                    { Verdict = VerdictText(s, context.Verdicts) }).ToArray(),
+                    { Verdict = VerdictText(s, context.Verdicts), YLow = s.YLow, YHigh = s.YHigh }).ToArray(),
                 Note = "Outside strips have dashed outlines and a text count."
             },
             new LayerData("strip-lift", "Lift per strip", Shown("strip-lift"), "Lift per strip · N/m · " + Labels.BodyAxes + " · " + Labels.VlmChip, "loads-table")
@@ -265,10 +265,11 @@ public static class AnalysisProjection
             Samples = [new LayerSample(0, 0, rootMoment.Value, new Loads.Vec(rootMoment.Value, 0, 0), false, false)]
         });
         if (run.Op.HRef.HasValue && context.Stations is { Count: > 0 })
+            // Margin = HRef − Elevation, so each view's z = Elevation + Margin recovers the same free-surface HRef.
             layers.Add(new LayerData("depth-band", "Free surface and tip depth", Shown("depth-band"),
                 "h_ref " + Num(run.Op.HRef.Value, "0.###") + " m · datum " + run.Op.Datum, "conditions-table")
             { Samples = context.Stations.Select(s => new LayerSample(s.Eta, s.SpanMeters,
-                run.Op.HRef.Value - s.ElevationMeters, null, false, false)).ToArray() });
+                run.Op.HRef.Value - s.ElevationMeters, null, false, false) { Elevation = s.ElevationMeters }).ToArray() });
         return layers;
     }
     private static string? EAdvisory(double? e, RunSettings settings) => e is null ? null

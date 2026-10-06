@@ -29,7 +29,7 @@ public sealed record CubeFace(NamedCamera Camera, string Letter, IReadOnlyList<P
 /// they take focus in Tab order and carry Button peers. Geometry comes only from the controller's mesh; this control
 /// projects it through the camera and never evaluates a curve.
 /// </summary>
-public sealed class View3d : Panel
+public sealed partial class View3d : Panel
 {
     public static readonly StyledProperty<IBrush?> SoftBrushProperty = AvaloniaProperty.Register<View3d, IBrush?>(nameof(SoftBrush));
     public static readonly StyledProperty<IBrush?> InkBrushProperty = AvaloniaProperty.Register<View3d, IBrush?>(nameof(InkBrush));
@@ -153,9 +153,13 @@ public sealed class View3d : Panel
         get => controller;
         set
         {
-            if (attached && controller is not null) controller.CameraChanged -= OnCameraChanged;
+            if (attached && controller is not null) { controller.CameraChanged -= OnCameraChanged; controller.LayersChanged -= OnLayersChanged; }
             controller = value;
-            if (attached && controller is not null) controller.CameraChanged += OnCameraChanged;
+            layerView = null;
+            seenLayers = null;
+            layerScene = null;
+            seenSceneLayers = null;
+            if (attached && controller is not null) { controller.CameraChanged += OnCameraChanged; controller.LayersChanged += OnLayersChanged; }
             Refresh();
         }
     }
@@ -166,14 +170,14 @@ public sealed class View3d : Panel
     {
         base.OnAttachedToVisualTree(e);
         attached = true;
-        if (controller is not null) controller.CameraChanged += OnCameraChanged;
+        if (controller is not null) { controller.CameraChanged += OnCameraChanged; controller.LayersChanged += OnLayersChanged; }
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnDetachedFromVisualTree(e);
         attached = false;
-        if (controller is not null) controller.CameraChanged -= OnCameraChanged;
+        if (controller is not null) { controller.CameraChanged -= OnCameraChanged; controller.LayersChanged -= OnLayersChanged; }
     }
 
     // A camera write (wheel, key, pinch, preset, release) redraws this view alone; the shell's panes do not rebuild.
@@ -188,6 +192,8 @@ public sealed class View3d : Panel
         Refresh();
         LiveCameraChanged?.Invoke();
     }
+
+    private void OnLayersChanged() { layerView = controller?.AnalysisView; seenLayers = controller?.LayerSet; layerScene = null; UpdateName(); overlay.InvalidateVisual(); }
 
     /// <summary>The renderer under this view; its frames feed <c>view.navigate.end</c>.</summary>
     public SurfaceRenderer? Renderer
@@ -413,6 +419,9 @@ public sealed class View3d : Panel
         ChipText = null;
         ChipBounds = null;
         if (Camera is not { } camera) return;
+        if (controller?.IsAnalysis == true && Surface is { } surface)
+            View3dLoadLayer.Draw(context, camera, surface, Bounds.Size, LayerView(), LayerScene(),
+                InkBrush ?? Brushes.White, MuteBrush ?? Brushes.White, StationBrush ?? Brushes.White, SoftBrush ?? Brushes.Black);
         DrawChip(context, camera);
         DrawTriad(context, camera);
         if (CubeVisible) DrawCube(context, camera);
@@ -745,6 +754,7 @@ public sealed class View3d : Panel
             { } free => $"3D view, camera Free, azimuth {Degrees(free.AzimuthDegrees)}°, elevation {Degrees(free.ElevationDegrees)}°",
             _ => "3D view"
         };
+        name += LayerNameSuffix();
         if (AutomationProperties.GetName(this) != name) AutomationProperties.SetName(this, name);
     }
 

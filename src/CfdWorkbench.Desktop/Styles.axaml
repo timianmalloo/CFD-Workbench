@@ -2,6 +2,16 @@
         xmlns:local="using:CfdWorkbench.Desktop" xmlns:dock="using:Dock.Avalonia.Controls">
   <Styles.Resources>
     <ResourceDictionary>
+    <Color x:Key="Batlow0Color">#011959</Color>
+    <Color x:Key="Batlow1Color">#215f61</Color>
+    <Color x:Key="Batlow2Color">#818232</Color>
+    <Color x:Key="Batlow3Color">#f19d6b</Color>
+    <Color x:Key="Batlow4Color">#faccfa</Color>
+    <SolidColorBrush x:Key="Batlow0Brush" Color="{StaticResource Batlow0Color}" />
+    <SolidColorBrush x:Key="Batlow1Brush" Color="{StaticResource Batlow1Color}" />
+    <SolidColorBrush x:Key="Batlow2Brush" Color="{StaticResource Batlow2Color}" />
+    <SolidColorBrush x:Key="Batlow3Brush" Color="{StaticResource Batlow3Color}" />
+    <SolidColorBrush x:Key="Batlow4Brush" Color="{StaticResource Batlow4Color}" />
     <Color x:Key="DarkCanvasColor">#172326</Color>
     <Color x:Key="DarkSurfaceColor">#1e2d31</Color>
     <Color x:Key="DarkSoftColor">#2a3d40</Color>

@@ -6707,7 +6707,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0061666ffa8d6c5a1cde8ca315021322faa8e42b7bc14a1c54e8153fc524150b"
+      "sourceSha256": "32105a83f13014957ebdc0dcf6b273b646070860bcba906a551ba699be901b38"
     },
     {
       "id": "kb-hw-glossary",
@@ -8778,6 +8778,71 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "1d98cea1eca8e2d053636527a92f25027d84da2119500f19c380263af7a19c54"
+    },
+    {
+      "id": "proof-a3a-lay-pack",
+      "path": "docs/proof/a3a-lay/proof-pack.md",
+      "title": "A3a LAY canvas layer proof pack",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-lay",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Evidence for the A3a Plan Γ, 3D load, and Side/Front depth layers on the existing desktop views. The pack ties selected-run projection samples to their visible glyphs, accessible names, table twins, and camera-step cost.",
+      "tags": [
+        "a3a",
+        "lay",
+        "analysis",
+        "canvas",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-lay-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e78838c40e80ccace7aa1420150bb15371d8f1f9156ead430ddc353b173b867a"
+    },
+    {
+      "id": "proof-a3a-lay-red-first",
+      "path": "docs/proof/a3a-lay/red-first.md",
+      "title": "A3a LAY red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-lay",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "The LAY Desktop ring was committed red before its three canvas-layer classes existed. A planted removal of both the dashed outside outline and its text count later made the named Plan test fail on the implemented code.",
+      "tags": [
+        "a3a",
+        "lay",
+        "analysis",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-lay-pack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "664f24159907fb5fa3911ca328e7cdab3ba133a629eb613fdbd1f2c745622deb"
     },
     {
       "id": "proof-a3a-old-build",
@@ -14140,5 +14205,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "fe985580627ec247e726d382a55265f6b57a72ca799fb2c01d0f67f69d12d2cf"
+  "graphSha256": "0455ebd4588fcc9c76cc349ccf5231bbcc0ed2efbc8fb9e36cc1a4d974c51907"
 };
