@@ -46,7 +46,7 @@ public static class FindAlpha
         if (depthOverChord is { } shallow && shallow < DepthFloorHOverC)
             return None(Labels.FindReason("ANA-FIND-DEPTH-BELOW-FLOOR", DepthFloorHOverC), "ANA-FIND-DEPTH-BELOW-FLOOR");
         SearchResult search = OperatingSearch.FindAlpha(counted, target, lower, upper, "deep-water-uncorrected", cancellation);
-        if (search.Value is not { } alpha) return None(Labels.FindReason(search.TerminationCode), search.TerminationCode);
+        if (search.Value is not { } alpha) return None(Labels.FindReason(search.TerminationCode, iterations: search.Iterations), search.TerminationCode);
         var rows = new List<ResultRow>
         {
             new(Labels.FindTarget, Labels.Number(target, "0.###"), null, null),

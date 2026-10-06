@@ -70,14 +70,14 @@ public sealed class FindAlphaDialog : Window
             !double.TryParse(LowerInput.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double lower) ||
             !double.TryParse(UpperInput.Text, NumberStyles.Float, CultureInfo.InvariantCulture, out double upper) || lower >= upper)
         {
-            Sentence.Text = "Enter a target CL and an ordered α bracket.";
+            Sentence.Text = Labels.FindNeedsInput;
             return;
         }
         running?.Cancel();
         running = new CancellationTokenSource();
         FindButton.IsEnabled = false;
         ApplyButton.IsEnabled = false;
-        Sentence.Text = "Finding…";
+        Sentence.Text = Labels.FindRunning;
         try
         {
             Outcome = await controller.FindAlphaAsync(target, lower, upper, running.Token);

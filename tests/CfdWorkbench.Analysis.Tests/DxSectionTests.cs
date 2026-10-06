@@ -339,8 +339,9 @@ internal static class DxSectionTests
         Build(WithStation(F.Other, F.Other with { PanelUnderread = 0.02 }), selected: F.Other.Eta, seam: spy);
         Equal(0, calls, "no second call when the shown station is already 400-solved");
         Equal(true, Build().IsGoverning && !Build(selected: F.Other.Eta).IsGoverning, "governing fallback versus selected");
-        Equal(true, Cell(Build(), "Station", "Station").Value.EndsWith("governing cavitation station") &&
-            Cell(Build(selected: F.Other.Eta), "Station", "Station").Value.EndsWith("selected strip"), "both are named");
+        Equal(true, Cell(Build(), "Station", "Station").Value.StartsWith("Governing cavitation station · η ") &&
+            Cell(Build(), "Station", "Station").Value.EndsWith(" (no strip selected)") &&
+            Cell(Build(selected: F.Other.Eta), "Station", "Station").Value.StartsWith("Selected strip · η "), "both are named (Ruling 118)");
     }
 
     // ---- A3c: polar ----

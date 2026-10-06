@@ -88,8 +88,8 @@ public static class AnalysisProjection
             Row("CDi (Trefftz)", Val(cdi, "0.00000", inducedReason)),
             Row("e (computed)", Val(e, "0.000", "ANA-OSWALD-UNDEFINED"), note: EAdvisory(e, run.Settings)),
             Force("Lift L", lift, units), Force("Induced drag", drag, units, reason: inducedReason),
-            WingDragRow(wing2, wing4, units, run.Settings.Polar is null, missingCd),
-            WingRatioRow(lift, wing2, wing4),
+            WingDragRow(wing2, wing4, units, run.Settings.Polar is null, missingCd, LowStrips(run)),
+            WingRatioRow(lift, wing2, wing4, LowStrips(run)),
             Row("CL/CD", run.Settings.Polar is null ? Loads.TotalDragReason : Labels.TotalDragMissingWithProfile),
             Row("Basis", "b " + Num(run.Reference.BRef, "0.###") + " m · moment datum: " + run.Reference.MomentDatum + " · " + Labels.BodyAxes)
         ]));
@@ -137,9 +137,9 @@ public static class AnalysisProjection
             Row("Wing loading L/S_ref", run.Reference.SRef > 0 ? Num(lift / run.Reference.SRef / 1000, "0.###") : Labels.UnavailableBecause("ANA-REFERENCE-AREA-MISSING"), "kPa"),
             Row("Moment about attachment point", Loads.AttachmentReason),
             DragBandRow("Profile drag", profile2, profile4, units, run.Settings.Polar is null ? Labels.NoPolar : null,
-                Labels.ProfileDragNote + " · " + SurrogateLabel, null, run.Strips.Count(strip => strip.CdNcrit2.Value is null || strip.CdNcrit4.Value is null)),
-            WingDragRow(wing2, wing4, units, run.Settings.Polar is null, missingCd),
-            WingRatioRow(lift, wing2, wing4),
+                Labels.ProfileDragNote + " · " + SurrogateLabel, null, run.Strips.Count(strip => strip.CdNcrit2.Value is null || strip.CdNcrit4.Value is null), LowStrips(run)),
+            WingDragRow(wing2, wing4, units, run.Settings.Polar is null, missingCd, LowStrips(run)),
+            WingRatioRow(lift, wing2, wing4, LowStrips(run)),
             Row("Structural", "Structural: Not assessed", note: Labels.StructuralList),
             Row("t/c (root)", context.RootThicknessRatio.HasValue ? Num(context.RootThicknessRatio.Value * 100, "0.#") : Labels.ThicknessMissing,
                 context.RootThicknessRatio.HasValue ? "%" : null),
@@ -249,14 +249,19 @@ public static class AnalysisProjection
         result is { SectionUnvalidated: true } ? " · " + Labels.BracketOutsideFamily(Labels.UnvalidatedFamily) : "";
 
     /// <summary>One note per distinct flag on the values a row aggregates (COPY-364, COPY-316), in a fixed order.</summary>
-    private static string FlagNotes(params StripValue[] values)
+    private static string FlagNotes(StripValue[] values, int? lowStrips = null)
     {
         var codes = values.SelectMany(value => StripFlags.Codes(value.FlagCode)).ToHashSet();
         var notes = new List<string>();
         if (codes.Contains(StripFlags.SectionUnvalidated)) notes.Add(Labels.BracketOutsideFamily(Labels.UnvalidatedFamily));
-        if (codes.Contains(StripFlags.LowConfidence)) notes.Add(Labels.LowConfidence(null));
+        if (codes.Contains(StripFlags.LowConfidence))
+            notes.Add(lowStrips is { } count ? Labels.LowConfidenceStrips(count) : Labels.LowConfidence(null));
         return string.Join(" · ", notes);
     }
+
+    /// <summary>Strips whose cd at either Ncrit is flagged low confidence: the k of the drag band note (Ruling 118).</summary>
+    private static int LowStrips(AnalysisRun run) => run.Strips.Count(strip =>
+        StripFlags.Has(strip.CdNcrit2.FlagCode, StripFlags.LowConfidence) || StripFlags.Has(strip.CdNcrit4.FlagCode, StripFlags.LowConfidence));
 
     private static string PolarText(PolarResult? result, string? reason)
     {
@@ -269,12 +274,12 @@ public static class AnalysisProjection
     }
 
     private static ResultRow DragBandRow(string label, StripValue n2, StripValue n4, Units units,
-        string? legacyReason, string? tierNote = null, string? reasonLine = null, int missingCd = 0)
+        string? legacyReason, string? tierNote = null, string? reasonLine = null, int missingCd = 0, int lowStrips = 0)
     {
         if (n2.Value is not { } low || n4.Value is not { } high)
             return Row(label, ReasonText(legacyReason ?? n2.UnavailableReason ?? n4.UnavailableReason ?? "ANA-DRAG-UNAVAILABLE", missingCd));
         double factor = units == Units.Imperial ? 4.4482216152605 : 1;
-        string flagNotes = FlagNotes(n2, n4);
+        string flagNotes = FlagNotes([n2, n4], lowStrips);
         string? note = flagNotes.Length > 0
             ? string.Join(" · ", new[] { tierNote, flagNotes }.Where(part => part is not null))
             : tierNote;
@@ -285,9 +290,9 @@ public static class AnalysisProjection
     }
 
     /// <summary>Ruling 109: the one Drag (Wing only) row (COPY-354..356). The craft total is never shown; CL/CD for the craft is Unavailable.</summary>
-    private static ResultRow WingDragRow(StripValue n2, StripValue n4, Units units, bool noPolar, int missingCd = 0) =>
+    private static ResultRow WingDragRow(StripValue n2, StripValue n4, Units units, bool noPolar, int missingCd = 0, int lowStrips = 0) =>
         DragBandRow(Labels.WingDragLabel, n2, n4, units, noPolar ? Loads.TotalDragReason : null,
-            Labels.WingDragNote + " · " + SurrogateLabel, Labels.WingDragNotIncluded, missingCd);
+            Labels.WingDragNote + " · " + SurrogateLabel, Labels.WingDragNotIncluded, missingCd, lowStrips);
 
     /// <summary>Shallowest h/c over the root reference chord and every station; null when depth is unset or every h/c is at least 5 (Ruling 101 3a).</summary>
     private static double? ShallowDepthOverChord(AnalysisRun run, IReadOnlyList<StationFrame>? stations)
@@ -300,7 +305,7 @@ public static class AnalysisProjection
         return least < Labels.DeepWaterHc ? least : null;
     }
 
-    private static ResultRow WingRatioRow(double lift, StripValue n2, StripValue n4)
+    private static ResultRow WingRatioRow(double lift, StripValue n2, StripValue n4, int lowStrips = 0)
     {
         if (n2.Value is null || n4.Value is null)
             return Row("Wing-only CL/CD", Labels.UnavailableBecause("ANA-WING-RATIO-UNAVAILABLE"));
@@ -308,7 +313,7 @@ public static class AnalysisProjection
         double a = lift / n2.Value.Value, b = lift / n4.Value.Value;
         return Row("Wing-only CL/CD", Num(Math.Min(a, b), "0.###") + "–" + Num(Math.Max(a, b), "0.###"),
             note: Labels.ReasonTexts["ANA-WING-ONLY-RATIO"] + " · " + SurrogateLabel +
-                (FlagNotes(n2, n4) is { Length: > 0 } flagNotes ? " · " + flagNotes : ""));
+                (FlagNotes([n2, n4], lowStrips) is { Length: > 0 } flagNotes ? " · " + flagNotes : ""));
     }
 
     public static ResultGroup StripAt(AnalysisViewModel view, double eta)
@@ -339,7 +344,7 @@ public static class AnalysisProjection
                             : ReasonText(s.CdNcrit2.UnavailableReason ?? Labels.NoPolar),
                     note: s.CdNcrit2.Value.HasValue ? SurrogateLabel : null),
                 Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : ReasonText(s.CdNcrit2.UnavailableReason ?? Labels.NoPolar),
-                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (FlagNotes(s.CdNcrit2) is { Length: > 0 } flagNotes ? " · " + flagNotes : "") : null),
+                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (FlagNotes([s.CdNcrit2]) is { Length: > 0 } flagNotes ? " · " + flagNotes : "") : null),
                 Row("Not modelled", Labels.NotModelled(run.Op.HRef.HasValue))
             ]));
         }

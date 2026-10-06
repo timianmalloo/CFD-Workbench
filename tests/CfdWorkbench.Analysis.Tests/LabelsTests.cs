@@ -35,6 +35,23 @@ internal static class LabelsTests
             Equal(Labels.EstimatorChip, Labels.Chip(Tier.Estimator));
             Equal(true, ProjectionTests.Cell(ProjectionTests.View(), "Labels", "Not modelled").Value.Contains("tip-vortex cavitation"));
         });
+        Check("Labels_Ruling118_ApprovedTextsAndDesignRows", () => {
+            string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
+            (string Text, string Template, string Row)[] rows = [
+                (Labels.StationName(0.5, false), "Selected strip · η <η>", "COPY-394"),
+                (Labels.StationName(0.5, true), "Governing cavitation station · η <η> (no strip selected)", "COPY-395"),
+                (Labels.FindNeedsInput, "Enter a target CL and an ordered α bracket.", "COPY-396"),
+                (Labels.FindRunning, "Finding…", "COPY-397"),
+                (Labels.FindReason("ANA-FIND-MAX-ITERATIONS", iterations: 32), "the search stopped after <n> iterations without converging", "COPY-398"),
+                (Labels.LowConfidenceStrips(3), "Low confidence — analysis_confidence below 0.5 at <k> strips", "COPY-399")];
+            foreach ((string text, string template, string row) in rows)
+            {
+                Equal(true, design.Contains("| " + row + " | " + template + " — approved — Ruling 118"), row + " row in DESIGN.md");
+                Equal(template.Replace("<η>", "0.5").Replace("<n>", "32").Replace("<k>", "3"), text, row + " text");
+            }
+            Equal("the foil is too shallow (h/c below 0.5)", Labels.FindReason("ANA-FIND-DEPTH-BELOW-FLOOR", FindAlpha.DepthFloorHOverC), "the depth floor is the free-surface limit and shows its number");
+            Equal(0.5, FreeSurfaceCorrection.MinHOverC, "the floor Ruling 118 names");
+        });
         Check("Labels_DepthUnset_FreeSurfaceNotModelled", () => {
             Equal(true, Labels.FixedVlm(false).EndsWith("free surface not modelled"));
             Equal(true, Labels.NotModelled(false).Contains("free surface"));

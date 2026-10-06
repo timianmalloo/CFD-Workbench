@@ -115,7 +115,12 @@ public static class Labels
     public const string FindTarget = "Target CL", FindBracket = "Bracket", FindIterations = "Iterations", // COPY-367..372
         FindStopped = "Stopped because", FindBasis = "Basis", FindPolarLimit = "Polar limit";
     public const string ClMaxLimit = "attached-flow polar limit, not measured stall; pumping not modelled"; // spec ANA-05
-    public const string StationSelected = "selected strip", StationGoverning = "governing cavitation station"; // DXM-9 naming (Ruling 108)
+    public static string StationName(double eta, bool governing) => governing // COPY-394, COPY-395 (Ruling 118)
+        ? $"Governing cavitation station · η {Number(eta, "0.###")} (no strip selected)"
+        : $"Selected strip · η {Number(eta, "0.###")}";
+    public const string FindNeedsInput = "Enter a target CL and an ordered α bracket."; // COPY-396 (Ruling 118)
+    public const string FindRunning = "Finding…"; // COPY-397 (Ruling 118)
+    public static string LowConfidenceStrips(int strips) => $"Low confidence — analysis_confidence below 0.5 at {strips} strips"; // COPY-399 (Ruling 118)
 
     public static string LowConfidence(double? confidence) => confidence is { } value // COPY-316
         ? $"Low confidence — analysis_confidence {Number(value, "0.00")} is below 0.5. Computed and flagged, never refused; not an error bar."
@@ -146,8 +151,9 @@ public static class Labels
     public static string CstOverLimit(double residual) => $"Unavailable — section fit residual {Sci(residual)} c exceeds the limit 3.6 × 10⁻⁴ c"; // COPY-321
 
     /// <summary>The five Find α no-root reasons (COPY-373..377), keyed by the termination or source code that names them.</summary>
-    public static string FindReason(string code, double? hOverC = null) => code switch
+    public static string FindReason(string code, double? hOverC = null, int? iterations = null) => code switch
     {
+        "ANA-FIND-MAX-ITERATIONS" => $"the search stopped after {iterations ?? 0} iterations without converging", // COPY-398 (Ruling 118)
         "ANA-FIND-NO-SIGN-CHANGE" => "CL never reaches the target in the bracket", // COPY-373
         "ANA-POLAR-NOT-CONVERGED" => "the polar did not converge", // COPY-374
         "ANA-POLAR-LOW-CONFIDENCE" => "polar confidence is below the floor", // COPY-375

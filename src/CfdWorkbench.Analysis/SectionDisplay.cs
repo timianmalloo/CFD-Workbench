@@ -50,7 +50,7 @@ public static class SectionDisplay
             : null;
         SectionStationResult station = picked ?? governing;
         bool isGoverning = picked is null;
-        string name = "η " + N(station.Eta, "0.###") + " · " + (isGoverning ? Labels.StationGoverning : Labels.StationSelected);
+        string name = Labels.StationName(station.Eta, isGoverning);
         var groups = new List<ResultGroup> { new("Station", [R("Station", name)]) };
 
         // ---- estimator tier (A3b) ----
