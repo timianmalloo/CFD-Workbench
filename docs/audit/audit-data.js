@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T00:51:10Z",
+  "generated": "2026-10-06T00:51:49Z",
   "audit": [
     {
       "actor": null,
@@ -26285,6 +26285,33 @@ window.AUDIT_DATA = {
       "fan_out": 0,
       "started_at": "2026-10-06T00:41:49Z",
       "duration_seconds": 561.0
+    },
+    {
+      "id": "al-01M47B40F2N65VV8Z65V0BMFZE",
+      "shortname": "join-group-move-node-m",
+      "datetime": "2026-10-06T00:51:49Z",
+      "session": "4e90c621",
+      "prompt": "the join of design/group-move-node-m into main",
+      "summary": "E4: design docs/design/group-move-node-m.md and mockup docs/mockups/group-move-node-m.html (variants for group hold, typed value, refusals, keyboard, ten hard states); DR-GM-1..9 for the operator recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join group-move-node-m into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T00:51:45Z",
+      "duration_seconds": 4.0
     }
   ],
   "changes": [

@@ -1,3 +1,4 @@
 {"agent": "4e90c621", "at": 1791218809.732824, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-b2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-perf-ring-b2"}
 {"agent": "4e90c621", "at": 1791224473.7122939, "kind": "session-start", "path": "-", "seq": 2, "session": "trk-b2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-perf-ring-b3"}
 {"agent": "4e90c621", "at": 1791242082.749983, "kind": "session-start", "path": "-", "seq": 3, "session": "trk-b2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-perf-ring-b4-analysis-split"}
+{"agent": "4e90c621", "at": 1791247260.0220082, "kind": "session-start", "path": "-", "seq": 4, "session": "trk-b2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-perf-ring-b5-desktop-cpu"}
