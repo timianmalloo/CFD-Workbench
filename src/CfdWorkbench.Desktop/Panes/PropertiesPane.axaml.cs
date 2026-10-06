@@ -274,7 +274,8 @@ public partial class PropertiesPane : UserControl
                 Curves: controller.CurveFor,
                 Frame: eta => StationFrameAt(controller, eta),
                 Section: SectionContext.Of(controller),
-                StationSource: controller.StationSource);
+                StationSource: controller.StationSource,
+                Analysis: controller.IsAnalysis && controller.Inspection is not null ? controller.AnalysisView : null);
             string key = SelectionKey(controller.Selection);
             if (key != selectionKey)
             {
@@ -285,7 +286,8 @@ public partial class PropertiesPane : UserControl
                 typeField.Pending = null;
                 kindField.Pending = null;
             }
-            var model = PropertiesView.Build(controller.Selection, authored, estimates, ShellMode.Workspace, context);
+            var model = PropertiesView.Build(controller.Selection, authored, estimates,
+                controller.IsAnalysis ? ShellMode.Analysis : ShellMode.Workspace, context);
             EmptyPanel.IsVisible = false;
             ContentPanel.IsVisible = true;
             Render(model, controller);

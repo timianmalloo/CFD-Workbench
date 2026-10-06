@@ -15,13 +15,14 @@ internal static class LayoutFileTests
         Check("LayoutParse_UnknownPane_DroppedOthersKept", UnknownPane);
         Check("LayoutParse_MissingPane_PlacedByPreset", MissingPane);
         Check("LayoutParse_RetiredSamplesPane_DroppedOthersKept", RetiredSamplesPane);
+        Check("LayoutCodec_LayersPane_HomeLeftOldFileOpens", LayersPane);
         Check("LayoutParse_OutOfRange_Clamped", OutOfRange);
         Check("RecentParse_RelativePath_Dropped", RelativeRecent);
         Check("LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9", Deepest);
     }
 
-    // M1.2c (OD-2 A, OD-3 B): no Messages pane; Points lives in the right side bar (LayoutCodec.Homes).
-    internal static IReadOnlySet<string> Panes() => new HashSet<string>(["properties", "browser", "points"], StringComparer.Ordinal);
+    // M1.2c (OD-2 A, OD-3 B): no Messages pane; Points lives in the right side bar (LayoutCodec.Homes). A3a: Layers is a left tab.
+    internal static IReadOnlySet<string> Panes() => new HashSet<string>(["properties", "browser", "layers", "points"], StringComparer.Ordinal);
 
     internal static string Fixture(string name)
     {
@@ -142,6 +143,36 @@ internal static class LayoutFileTests
         Equal(0, Count(workspace, "messages"));
     }
 
+    // A3a G-T6: Layers has a Homes row (left, after Browser). A file saved by the build before it (three panes, a customised
+    // left width and active tab) opens: nothing is refused, the left size and active tab are kept and Layers is placed once.
+    private static void LayersPane()
+    {
+        Equal(true, LayoutCodec.Homes.Contains(("layers", RegionId.Left)));
+        string[] left = [.. LayoutCodec.Homes.Where(home => home.Region == RegionId.Left).Select(home => home.Pane)];
+        Equal("properties,browser,layers", string.Join(",", left));
+        const string saved = """
+        {"format":"cfdw-layout","version":1,"active":"planform","workspaces":[{"id":"planform",
+         "views":{"arrangement":"plan-3d","single":"plan"},
+         "regions":[
+          {"id":"left","open":true,"size":300,"groups":[{"panes":["properties","browser"],"active":"browser","share":1}]},
+          {"id":"bottom","open":false,"size":190,"groups":[]},
+          {"id":"right","open":false,"size":260,"groups":[{"panes":["points"],"active":"points","share":1}]}],
+         "floats":[],"closed":[]}]}
+        """;
+        var parsed = LayoutCodec.Parse(Encoding.UTF8.GetBytes(saved), Panes());
+        HasNot(parsed.Codes, "LAYOUT-SCHEMA");
+        Equal(false, parsed.NeverWrite);
+        var workspace = parsed.Document.Workspaces.Single();
+        var leftRegion = workspace.Regions.Single(region => region.Id == RegionId.Left);
+        Equal(300d, leftRegion.Size);
+        Equal("browser", leftRegion.Groups[0].Active);
+        Equal("properties,browser,layers", string.Join(",", leftRegion.Groups[0].Panes));
+        foreach (var pane in new[] { "properties", "browser", "layers", "points" }) Equal(1, Count(workspace, pane));
+        // The Analysis bottom panel is a shell slot, not a pane: it has no home and the Bottom region stays pane-free.
+        Equal(0, workspace.Regions.Single(region => region.Id == RegionId.Bottom).Groups.Count);
+        Equal(false, LayoutCodec.Homes.Any(home => home.Region == RegionId.Bottom));
+    }
+
     private static void UnknownPane()
     {
         var parsed = LayoutCodec.Parse(File.ReadAllBytes(Fixture("unknown-pane.json")), Panes());
@@ -240,7 +271,7 @@ internal static class LayoutFileTests
     [
         new WorkspaceLayout(WorkspaceId.Planform, new WorkspaceViews(ViewArrangement.Plan3d, SingleView.Plan),
         [
-            new RegionLayout(RegionId.Left, true, 260, [new PaneGroup(["browser"], "browser", 1)]),
+            new RegionLayout(RegionId.Left, true, 260, [new PaneGroup(["browser", "layers"], "browser", 1)]),
             new RegionLayout(RegionId.Bottom, false, 190, []),
             new RegionLayout(RegionId.Right, false, 260, [new PaneGroup(["points"], "points", 1)])
         ],
@@ -257,7 +288,7 @@ internal static class LayoutFileTests
         Equal(SingleView.Plan, workspace.Views.Single);
         Equal(leftOpen, workspace.Regions.Single(region => region.Id == RegionId.Left).Open);
         Equal(260d, Left(workspace));
-        Equal(2, workspace.Regions.Single(region => region.Id == RegionId.Left).Groups[0].Panes.Count);
+        Equal(3, workspace.Regions.Single(region => region.Id == RegionId.Left).Groups[0].Panes.Count);
         Equal("properties", workspace.Regions.Single(region => region.Id == RegionId.Left).Groups[0].Active);
         // M1.2c: no pane's home is the bottom panel; Points is in the right side bar, open in Precision only (§11.8).
         var bottom = workspace.Regions.Single(region => region.Id == RegionId.Bottom);
@@ -269,7 +300,7 @@ internal static class LayoutFileTests
         Equal("points", right.Groups[0].Active);
         Equal(0, workspace.Floats.Count);
         Equal(0, workspace.Closed.Count);
-        foreach (var pane in new[] { "properties", "browser", "points" })
+        foreach (var pane in new[] { "properties", "browser", "layers", "points" })
             Equal(1, Count(workspace, pane));
         Equal(0, Count(workspace, "messages"));
     }

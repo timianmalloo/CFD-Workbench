@@ -145,6 +145,7 @@ public static class CommandTable
         new("window.workspace-precision", "Precision", "Window", "⌘2", false, NoOp),
         new("window.workspace-review", "Review", "Window", "⌘3", false, NoOp),
         new("window.points", "Points", "Window", null, false, NoOp),
+        new("window.layers", "Layers", "Window", null, false, NoOp),
         new("window.reset-layout", "Reset layout", "Window", "⌥⌘R", false, NoOp),
         new("window.maximize-pane", "Maximize pane", "Window", "⇧⌘M", false, NoOp)
     ];

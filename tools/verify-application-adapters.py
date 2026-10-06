@@ -164,7 +164,7 @@ SHELL_THEME_ROWS = {
     "tab.Foil source.selected.rest": 4.5, "select.tab.Foil source": 3, "tab.Foil source.selected.hover": 4.5,
     "tool.Properties.selected.rest": 4.5, "select.tool.Properties": 3, "tool.Properties.selected.hover": 4.5,
     "tool.Browser.unselected.rest": 4.5, "tool.Browser.unselected.hover": 4.5,
-    "tool.Rail controls.unselected.rest": 4.5, "tool.Rail controls.unselected.hover": 4.5,
+    "tool.Layers.unselected.rest": 4.5, "tool.Layers.unselected.hover": 4.5,
     "appbar.sidebar.rest": 4.5, "focus.appbar": 3, "focus.appbar.vs-fill": 3,
     "browser.selected": 4.5, "browser.unselected": 4.5, "focus.browser": 3, "focus.browser.vs-fill": 3,
     "focus.browser.selected": 3, "focus.browser.selected.vs-fill": 3,
@@ -184,6 +184,7 @@ SHELL_THEME_ROWS = {
     "point-span.text": 4.5, "focus.point-span": 3,
     "analysis.nav.selected": 4.5, "analysis.band.speed": 4.5, "analysis.band.evaluate": 4.5,
     "analysis.band.derived": 4.5, "analysis.status.text": 4.5,
+    "analysis.panel.tab.selected": 4.5, "analysis.panel.tab.unselected": 4.5,
 }
 SHELL_LIVE_FLIP_ROWS = {"live-flip.dark.tab.Plan.unselected": 4.5, "live-flip.dark.select.tab.Foil source": 3}
 SHELL_THEMES = ("light", "dark", "high-contrast", "default")

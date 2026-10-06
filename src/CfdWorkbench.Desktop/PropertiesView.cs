@@ -105,7 +105,8 @@ public sealed record PropertiesContext(
     Func<string, CurveView?>? Curves = null,
     Func<double, StationFrame?>? Frame = null,
     SectionContext? Section = null,
-    Func<int, string>? StationSource = null);
+    Func<int, string>? StationSource = null,
+    CfdWorkbench.Analysis.AnalysisViewModel? Analysis = null);
 
 /// <summary>
 /// The open section draft as the Properties pane shows it (design §11.4): both surfaces of the cursor bytes, the section's
@@ -524,6 +525,9 @@ public static class PropertiesView
         var plan = context.Plan;
         Func<string, CurveView?>? curves = context.Curves ?? (plan is null ? null : curve => Rail(plan, curve));
         var groups = new List<PropertyGroup>();
+        // A3a: the Analysis rows come before the section branch, because a section draft hidden by the toggle is still open.
+        if (mode == ShellMode.Analysis && context.Analysis is { } analysis)
+            return AnalysisModel(selection, projection, estimates, analysis, context, groups);
         if (context.Section is { } section)
         {
             // The section mode (§11.4): a section point's rows, the Section group always, the Wing read-only (COPY-122).
@@ -1196,6 +1200,65 @@ public static class PropertiesView
         return new SelectionIdentity(IdentityGlyph.Station, $"{section.Station} section", "Select a point to change it.");
     }
 
+    // ---------------- Analysis (A3a §18.5 rows 18-27): the projection's rows, verbatim ----------------
+
+    private static readonly string[] AnalysisFoilGroups = ["Wing result", "Conditions", "Labels", "Section (2D)"];
+
+    /// <summary>
+    /// The Properties pane in Analysis. A station shows the strip of the wing run under <see cref="CfdWorkbench.Analysis.Labels.StripHeader"/>
+    /// (<c>StripAt</c>) and its Section (2D) group; anything else shows the wing result, conditions, labels and Section (2D). Every
+    /// value and note is the projection's <c>ResultRow</c> text, never reworded; the CAD rows are read-only here (Wing locked).
+    /// </summary>
+    private static PropertiesModel AnalysisModel(Selection selection, AuthoredProjection projection, WingEstimates? estimates,
+        CfdWorkbench.Analysis.AnalysisViewModel view, PropertiesContext context, List<PropertyGroup> groups)
+    {
+        SelectionIdentity identity;
+        var shown = new List<PropertyGroup>();
+        if (view.ErrorCard is { } error)
+            shown.Add(new PropertyGroup("ana-error", "Analysis failed", "", false, [], [new RowMessage(error, MessageKind.Warning)]));
+        if (view.State == CfdWorkbench.Analysis.RunState.Running)
+            shown.Add(new PropertyGroup("ana-skeleton", "Evaluating", "", false,
+                [.. new[] { "CL", "CDi (Trefftz)", "Envelope" }.Select(label =>
+                    new PropertyRow { Key = "a:skeleton:" + label, Label = label, Kind = RowKind.Fact, Value = "…", Dimensionless = true })], []));
+        if (selection is Selection.Station station && station.Index >= 0 && station.Index < projection.Assignments.Count)
+        {
+            identity = StationRows(station, projection, context.Plan, context.Frame, context.StationSource, groups);
+            // Analysis never edits the revision (§4): the Station group's "Edit section…" link is not offered here.
+            groups[0] = groups[0] with { Rows = [.. groups[0].Rows.Where(row => row.Kind != RowKind.Action)] };
+            var strip = CfdWorkbench.Analysis.AnalysisProjection.StripAt(view, station.Eta);
+            shown.Add(AnalysisGroup("ana-strip", strip.Title, strip.Rows));
+            if (view.Groups.FirstOrDefault(group => group.Title == "Section (2D)") is { } section)
+                shown.Add(AnalysisGroup("ana-section", section.Title, section.Rows));
+        }
+        else
+        {
+            string name = projection.Name ?? "Unnamed";
+            identity = new SelectionIdentity(IdentityGlyph.Foil, name, selection is Selection.Points ? "Foil" : "Foil · nothing selected");
+            foreach (string title in AnalysisFoilGroups)
+                if (view.Groups.FirstOrDefault(group => group.Title == title) is { } group)
+                    shown.Add(AnalysisGroup("ana-" + title.ToLowerInvariant().Replace(" ", "-"), group.Title, group.Rows));
+        }
+        groups.AddRange(shown);
+        var (wing, availability) = Wing(projection, estimates, ShellMode.Analysis, context);
+        return new PropertiesModel(identity, groups, wing, view.Banner is { } banner ? new RowMessage(banner, MessageKind.Info) : null,
+            AvailabilityStatus: availability);
+    }
+
+    private static PropertyGroup AnalysisGroup(string id, string title, IReadOnlyList<CfdWorkbench.Analysis.ResultRow> rows) =>
+        new(id, title, "", true, [.. rows.Select(row => AnalysisRow(title, row))], []);
+
+    /// <summary>One <c>ResultRow</c> as a Fact row: its note is the always-visible help line; text values are wide, numbers carry their unit.</summary>
+    private static PropertyRow AnalysisRow(string group, CfdWorkbench.Analysis.ResultRow row)
+    {
+        bool number = row.Value.Length > 0 && (char.IsAsciiDigit(row.Value[0]) || row.Value[0] == '-' && row.Value.Length > 1 && char.IsAsciiDigit(row.Value[1]));
+        return new PropertyRow
+        {
+            Key = "a:" + group + ":" + row.Label, Label = row.Label, Kind = RowKind.Fact, Value = row.Value,
+            Unit = row.Unit, Dimensionless = number && row.Unit is null,
+            Description = row.Note, DescriptionAlwaysVisible = row.Note is not null
+        };
+    }
+
     // ---------------- the Wing (always last; never collapsible) ----------------
 
     private static (PropertyGroup Group, string? Status) Wing(AuthoredProjection projection, WingEstimates? estimates, ShellMode mode,
@@ -1204,7 +1267,7 @@ public static class PropertiesView
         double spanMeters = estimates?.SpanMeters ?? (projection.HalfSpanMeters ?? 0) * 2;
         var rows = new List<PropertyRow>();
         var notes = new List<RowMessage>();
-        if (mode == ShellMode.SectionEditor)
+        if (mode is ShellMode.SectionEditor or ShellMode.Analysis)
         {
             foreach (var (key, label, meters) in new[] { ("w:span", "Span", spanMeters),
                          ("w:root", "Root chord", estimates?.RootChordMeters ?? double.NaN),

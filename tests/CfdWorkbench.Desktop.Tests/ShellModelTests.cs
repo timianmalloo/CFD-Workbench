@@ -411,7 +411,7 @@ public static class ShellModelTests
                 // M1.2c §5.2 names keys for section.edit (↩), section.finish (⌘↩) and section.delete-point (⌫) only; the
                 // other section rows, Thickness ×2 and Window ▸ Points are "—": reached from the menus and the palette.
                 choice |= row.Menu == CommandTable.SectionMenu && row.Id is not ("section.edit" or "section.finish" or "section.delete-point") ||
-                          row.Id is "view.thickness-x2" or "window.points";
+                          row.Id is "view.thickness-x2" or "window.points" or "window.layers";
                 if (!pointCommand && !textSize && !choice && string.IsNullOrWhiteSpace(row.Gesture))
                     throw new Exception($"Row {row.Id} has no Gesture/key route");
             }

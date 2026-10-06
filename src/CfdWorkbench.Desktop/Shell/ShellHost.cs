@@ -10,6 +10,7 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
+using CfdWorkbench.Desktop.Analysis;
 using CfdWorkbench.Desktop.Panes;
 using CfdWorkbench.Persistence;
 using Dock.Avalonia.Controls;
@@ -53,6 +54,19 @@ public sealed class ShellHost : Grid
     public BrowserPane Browser { get; }
     /// <summary>The Points pane (§11.4); its home is the right side bar (OD-3 B).</summary>
     public PointsPane Points { get; }
+    /// <summary>The Layers pane (A3a G-T6): a left-dock tab after Browser.</summary>
+    public LayersPane Layers { get; }
+    /// <summary>
+    /// The Analysis bottom panel (G-T7): a shell slot between the dock and the status strip, shown in Analysis only. It is not a
+    /// layout pane (no <see cref="LayoutCodec.Homes"/> row), so no saved layout can place, float or close it.
+    /// </summary>
+    public AnalysisPanel AnalysisPanel { get; }
+
+    /// <summary>⌘J: the user folded the bottom panel away; it stays folded until ⌘J again, whatever the area mode.</summary>
+    private bool bottomFolded;
+
+    /// <summary>The bottom panel is on screen: Analysis, and not folded.</summary>
+    public bool BottomPanelShown => AnalysisPanel.IsVisible;
 
     /// <summary>The workspace last applied (⌘1 / ⌘2 / ⌘3); Planform at start (§11.8, no memory: simplify).</summary>
     public WorkspaceId Workspace { get; private set; } = WorkspaceId.Planform;
@@ -130,7 +144,7 @@ public sealed class ShellHost : Grid
         Preferences = preferences;
         this.pickOpenFile = pickOpenFile;
 
-        RowDefinitions = new RowDefinitions("*,Auto");
+        RowDefinitions = new RowDefinitions("*,Auto,Auto");
         AttachedToVisualTree += (_, _) =>
         {
             RefreshPanes();
@@ -149,6 +163,8 @@ public sealed class ShellHost : Grid
         Properties = new PropertiesPane();
         Browser = new BrowserPane();
         Points = new PointsPane { Name = "PointsPane" };
+        Layers = new LayersPane { Name = "LayersPane" };
+        AnalysisPanel = new AnalysisPanel { Name = "AnalysisPanel", IsVisible = false };
         ModelView = new ModelArea();
         StatusStrip = new StatusStrip { Name = "StatusStrip" };
         // The strip starts empty (DR-STATUS-4): the controller's opening prompt is the Start view's to show.
@@ -157,6 +173,7 @@ public sealed class ShellHost : Grid
         // strip; a field error stays on the field's own assertive message and never reaches it.
         Properties.Reported += Report;
         Points.Reported += Report;
+        Layers.LayerVisibilityChanged += OnLayerVisibilityChanged;
         Properties.EditSectionRequested += () => _ = EnterSectionAsync(EntryOrigin.Properties);
         Properties.RebuildRequested += curve => ModelView.BeginRebuild(curve, ModelView.PlanCanvas);
         Properties.SectionStepRequested += ApplySectionStepAsync;
@@ -171,6 +188,7 @@ public sealed class ShellHost : Grid
         LayoutFactory.BrowserTool.Context = Browser;
         LayoutFactory.RailControlsTool.Context = null;
         LayoutFactory.PointsTool.Context = Points;
+        LayoutFactory.LayersTool.Context = Layers;
 
         // A view has one logical parent. Dock owns the only document tab strip.
         var sectionSample = ModelView.SectionSampleBody;
@@ -198,7 +216,9 @@ public sealed class ShellHost : Grid
         };
         SetRow(DockHost, 0);
         Children.Add(DockHost);
-        SetRow(StatusStrip, 1);
+        SetRow(AnalysisPanel, 1);
+        Children.Add(AnalysisPanel);
+        SetRow(StatusStrip, 2);
         Children.Add(StatusStrip);
 
         PaletteSearch = new AutoCompleteBox
@@ -532,14 +552,16 @@ public sealed class ShellHost : Grid
     // an assessment landing changes none. Browser, Points and the editor always rebind: measured negligible, and the
     // editor follows the assessment. Outside the mode every refresh stays full, because there Properties also reads the
     // session's recovery state (HasRecovery), which no cheap key sees. An explicit RefreshPanes() is always full.
+    // A3a: the key also holds the Analysis view (reference identity), because a section draft hidden by the toggle keeps the
+    // mode open, and an Evaluate landing there changes only that view; without it the Properties groups never repaint.
     private SectionPaneInputs? sectionPaneInputs;
 
     private readonly record struct SectionPaneInputs(Selection Selection, object? Inspection, object? Draft, object SectionDraft,
-        object? Estimates, bool Busy)
+        object? Estimates, bool Busy, object? Analysis)
     {
         public static SectionPaneInputs? Of(WorkbenchController controller) => controller.Section is { } mode
             ? new(controller.Selection, controller.Inspection, controller.Draft, mode.Draft, controller.Estimates,
-                controller.Gesture == GestureState.Busy)
+                controller.Gesture == GestureState.Busy, controller.IsAnalysis && controller.Inspection is not null ? controller.AnalysisView : null)
             : null;
 
         // Reference identity for the documents (a new step, estimate or acceptance is a new object); the selection by value,
@@ -547,6 +569,7 @@ public sealed class ShellHost : Grid
         public bool Same(SectionPaneInputs other) =>
             ReferenceEquals(Inspection, other.Inspection) && ReferenceEquals(Draft, other.Draft) &&
             ReferenceEquals(SectionDraft, other.SectionDraft) && ReferenceEquals(Estimates, other.Estimates) && Busy == other.Busy &&
+            ReferenceEquals(Analysis, other.Analysis) &&
             (Selection, other.Selection) switch
             {
                 (Selection.Points mine, Selection.Points theirs) => mine.Items.SequenceEqual(theirs.Items),
@@ -557,6 +580,40 @@ public sealed class ShellHost : Grid
     public void RefreshPanes() => RefreshPanes(full: true);
 
     private void RefreshChangedPanes() => RefreshPanes(full: false);
+
+    /// <summary>The bottom panel binds the selected run only while it is on screen; Analysis shows it, ⌘J folds it.</summary>
+    private void BindAnalysisPanel()
+    {
+        bool shown = Controller.IsAnalysis && !bottomFolded;
+        if (AnalysisPanel.IsVisible != shown) AnalysisPanel.IsVisible = shown;
+        if (shown) AnalysisPanel.Bind(Controller);
+    }
+
+    /// <summary>
+    /// A layer check changed the controller's flag, which raises no notification: the panel is re-read and every view that may
+    /// carry a layer repaints. Properties is not re-bound (its rows do not depend on layer visibility).
+    /// </summary>
+    private void OnLayerVisibilityChanged()
+    {
+        BindAnalysisPanel();
+        foreach (var view in ModelView.GetVisualDescendants().OfType<Control>().Where(item => item is PlanCanvas or View3d or ElevationView))
+            view.InvalidateVisual();
+    }
+
+    /// <summary>What ⌘J says outside Analysis (every row runs or names why, UI-DEAD-CONTROL). New copy: flagged to the operator.</summary>
+    public const string BottomPanelInAnalysis = "The bottom panel shows the analysis results. Switch with the CAD | Analysis toggle.";
+
+    /// <summary>The bottom panel's fold (⌘J, View ▸ Bottom panel): it appears in Analysis only, and folds there.</summary>
+    public void ToggleBottomPanel()
+    {
+        if (!Controller.IsAnalysis)
+        {
+            Report(new StatusReport(BottomPanelInAnalysis));
+            return;
+        }
+        bottomFolded = !bottomFolded;
+        BindAnalysisPanel();
+    }
 
     private void RefreshPanes(bool full)
     {
@@ -571,6 +628,8 @@ public sealed class ShellHost : Grid
         }
         Browser.Bind(Controller);
         Points.Bind(Controller);
+        Layers.Bind(Controller);
+        BindAnalysisPanel();
         ModelView.SectionEditor.Bind(Controller);
         ReportControllerStatus();
         // The toast closes when the next commit starts (DESIGN.md §4 Toast).
@@ -1040,7 +1099,7 @@ public sealed class ShellHost : Grid
 
     /// <summary>The rows the shell runs itself: the section rows, Thickness ×2, the Points pane and the workspaces.</summary>
     public static bool IsShellCommand(string id) =>
-        id.StartsWith("section.", StringComparison.Ordinal) || id is "view.thickness-x2" or "window.points" ||
+        id.StartsWith("section.", StringComparison.Ordinal) || id is "view.thickness-x2" or "window.points" or "window.layers" ||
         id.StartsWith("window.workspace-", StringComparison.Ordinal);
 
     /// <summary>The copy a section row names when the mode is not open.</summary>
@@ -1073,7 +1132,7 @@ public sealed class ShellHost : Grid
     /// <summary>Why a shell row cannot run now, or null when it can (UI-DEAD-CONTROL: every row runs or names why).</summary>
     public string? ShellCommandReason(string id)
     {
-        if (id.StartsWith("window.workspace-", StringComparison.Ordinal) || id == "window.points") return null;
+        if (id.StartsWith("window.workspace-", StringComparison.Ordinal) || id is "window.points" or "window.layers") return null;
         var mode = Controller.Section;
         if (id == "section.edit")
         {
@@ -1122,6 +1181,10 @@ public sealed class ShellHost : Grid
             case "window.workspace-planform": ApplyWorkspace(WorkspaceId.Planform); return;
             case "window.workspace-precision": ApplyWorkspace(WorkspaceId.Precision); return;
             case "window.workspace-review": ApplyWorkspace(WorkspaceId.Review); return;
+            case "window.layers":
+                ShowPane("layers");
+                Report(new StatusReport("Layers pane shown in the left side bar."));
+                return;
             case "window.points":
                 SetRightShown(true);
                 Report(new StatusReport("Points pane shown in the right side bar."));
@@ -1485,6 +1548,8 @@ public sealed class ShellHost : Grid
 
     public void ShowPane(string id)
     {
+        // Layers' home is the left side bar (G-T6); a hidden left bar opens first, as the Points route opens the right one.
+        if (id == "layers") SetLeftShown(true);
         if (id == "points")
         {
             // The Points pane's home is the right side bar (OD-3 B).

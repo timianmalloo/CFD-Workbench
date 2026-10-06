@@ -6511,7 +6511,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a21b1a847efa3458d039b9336bf8452cea6c94d76399ce88ae81e3a484808fc2"
+      "sourceSha256": "03e9875617b6c894b2c49d6ffc9bfe83590f60bfdcd709fc53337d44bfcb02a1"
     },
     {
       "id": "kb-hw-glossary",
@@ -8579,6 +8579,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "a0cd33ccb663f518420dc28036021505bda9d589ad570ff1b322d30a8cdb83f1"
+    },
+    {
+      "id": "proof-a3a-pna-red-first",
+      "path": "docs/proof/a3a-pna/red-first.md",
+      "title": "A3a PNA panes and bottom panel receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-pna",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "The red runs of the A3a PNA track: the Layers pane, the Analysis bottom panel with its chart twin, the Properties Analysis groups and the shell slots. Each owned test with its red commit and the planted mutant that turns it red.",
+      "tags": [
+        "a3a",
+        "pna",
+        "analysis",
+        "layers",
+        "bottom-panel",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-ctx-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e0d0949e985922614b3e21e32bdb40617adb89e4eac18ecf7eb77ca4ed86cdb9"
     },
     {
       "id": "proof-a3a-pre-red-first",
@@ -13773,5 +13805,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "b93fa0b7198373ae8fa05f3ad70a03f32cdf1af42d94450d16e1e18eafc819d4"
+  "graphSha256": "8e35eefab955e5d04fdc3aa403e40e26e8b20e102ac06eb8d385a76243f5144d"
 };
