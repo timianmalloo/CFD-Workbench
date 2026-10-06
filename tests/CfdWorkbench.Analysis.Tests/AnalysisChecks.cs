@@ -51,7 +51,7 @@ internal static class AnalysisChecks
             ("PolarNumerics", 304, PolarNumericsTests.Run),
             ("OperatingSearch", 45, OperatingSearchTests.Run),
             ("TipPolar", 50, TipPolarTests.Run),
-            ("DxSection", 700, DxSectionTests.Run),
+            ("DxSection", 1500, DxSectionTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T17:37:58Z",
+  "generated": "2026-10-06T18:17:37Z",
   "audit": [
     {
       "actor": null,
@@ -27740,6 +27740,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T17:37:54Z",
       "duration_seconds": 4.0
+    },
+    {
+      "id": "al-01M496YWRFYTW9HPVRW257Y5FF",
+      "shortname": "trk-dx",
+      "datetime": "2026-10-06T18:17:36Z",
+      "session": "trk-dx",
+      "prompt": "trk-dx round-oct06 step 2",
+      "summary": "Section tab (chart selector, Section view, tables), SectionDisplay/FindAlpha models, Labels reason lookup (no raw ANA codes), Find alpha button+dialog+controller apply, 39 checks, captures; C-2 over under load, gaps in docs/proof/dx/red-first.md",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "A3b Section tab and A3c polar displays, Find alpha, reason texts as approved (Rulings 108-116)",
+      "done_when": "plan names pass, captures, one full run-tests, check-docs 0",
+      "started_at": "2026-10-06T17:39:38Z",
+      "duration_seconds": 2278.0
     }
   ],
   "changes": [

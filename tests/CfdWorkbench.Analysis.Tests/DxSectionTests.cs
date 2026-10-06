@@ -23,26 +23,17 @@ internal static class DxSectionTests
         Check("SectionProjection_Values_ClCmAlphaL0PerSpan", Values);
         Check("SectionView_CpOnProfile_DrawsAndPinsVik", ProfileView);
         Check("Cavitation_Screen_ValueStateAndFixedString", ScreenValues);
-        Check("Cavitation_MarginStates_ClearInsidePossible", MarginStates);
         Check("Cavitation_GoverningStation_NamedWithDepth", GoverningLine);
-        Check("Cavitation_UnavailableAndUndefined_ReasonRows", ReasonRows);
         Check("Cavitation_PanelUnderread_MeasuredNotConstant", UnderreadMeasured);
         Check("Cavitation_Provisional_AboveTenPercent", ProvisionalBoundary);
         Check("Section_UnderreadNotMeasured_ShowsRatifiedText", NotMeasured);
         Check("Section_Cp_NoMethodString_Retired", CpRetired);
         Check("Section_CpUnavailable_NoProfileAndSolveFailed_Row10", Row10);
         Check("Section_StripCdNoPolar_Copy210", StripCdNoPolar);
-        Check("Section_ShownStation_SelectedElseGoverning_Dxm9", ShownStation);
-        Check("Polar_Chart_BandAndAlphaEffMarker", PolarChart);
         Check("Polar_TierChipAndLabels_Dxm3", PolarChipAndLabels);
         Check("Provenance_PolarMethodId_Shown", PolarMethodId);
         Check("Polar_Confidence_PresentNotRecordedLow", Confidence);
-        Check("Polar_CstResidual_ShownAndLimit", CstResidual);
-        Check("Polar_Bracket_FlaggedPerAxis_Dxm2Dxm8", BracketAxes);
-        Check("Polar_OutsideTrainingRange_UnavailableNoNumber_Dxm2", TrainingRange);
-        Check("Strips_PolarRe_InsideOutsideNotExtrapolated", StripRe);
         Check("Polar_TrippedSurface_NotComputed", Tripped);
-        Check("Charts_TransitionAndBucket_Overlays", TransitionAndBucket);
         Check("Drag_ProfileSources_BandBoundKeptApart", ProfileSources);
         Check("Drag_StripsMissingCd_NamesCountNoSubstitute", MissingCd);
         Check("Drag_WingOnly_OneRow_Ruling109", WingOnly);
@@ -55,7 +46,20 @@ internal static class DxSectionTests
     }
 
     /// <summary>Readiness ring: one run per registered code, about 1 s.</summary>
-    internal static void RunReadiness() => Check("Projection_NoRawAnaCodeInAnyCell", NoRawCode);
+    internal static void RunReadiness()
+    {
+        // moved from the fast ring by C-5 (each measured 0.43-0.82 s under load; they build several views or sweep the polar)
+        Check("Cavitation_UnavailableAndUndefined_ReasonRows", ReasonRows);
+        Check("Section_ShownStation_SelectedElseGoverning_Dxm9", ShownStation);
+        Check("Polar_Bracket_FlaggedPerAxis_Dxm2Dxm8", BracketAxes);
+        Check("Polar_OutsideTrainingRange_UnavailableNoNumber_Dxm2", TrainingRange);
+        Check("Cavitation_MarginStates_ClearInsidePossible", MarginStates);
+        Check("Charts_TransitionAndBucket_Overlays", TransitionAndBucket);
+        Check("Polar_Chart_BandAndAlphaEffMarker", PolarChart);
+        Check("Polar_CstResidual_ShownAndLimit", CstResidual);
+        Check("Strips_PolarRe_InsideOutsideNotExtrapolated", StripRe);
+        Check("Projection_NoRawAnaCodeInAnyCell", NoRawCode);
+    }
 
     // ---- fixture: the default foil at four stations, one tier, one run with the polar installed ----
 

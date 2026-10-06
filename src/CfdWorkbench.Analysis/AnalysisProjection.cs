@@ -171,7 +171,7 @@ public static class AnalysisProjection
             banner, null, groups, Layers(run, context, rootMoment), run.RunKey)
         {
             Loading = Loading(run, cl, a), StripDetails = StripDetails(run, context, a),
-            SectionTier = section,
+            SectionTier = section, Run = run,
             PolarConsistency = section?.PolarConsistency,
             WingDragNcrit2 = wing2, WingDragNcrit4 = wing4,
             FreeSurface = run.Op.HRef is { } correctionDepth ? FreeSurfaceCorrection.Evaluate(lift, wing2.Value,
@@ -239,7 +239,8 @@ public static class AnalysisProjection
     private static string ReasonText(string reason, int missingCd = 0)
     {
         const string missingCdPrefix = "ANA-PROFILE-DRAG-MISSING-CD";
-        if (reason.StartsWith(missingCdPrefix, StringComparison.Ordinal)) return Labels.CdMissingAt(Math.Max(1, missingCd));
+        if (reason.StartsWith(missingCdPrefix, StringComparison.Ordinal) || (reason == "ANA-TOTAL-DRAG-MISSING-PROFILE" && missingCd > 0))
+            return Labels.CdMissingAt(Math.Max(1, missingCd));
         return reason.StartsWith("ANA-", StringComparison.Ordinal) ? Labels.UnavailableBecause(reason) : reason;
     }
 

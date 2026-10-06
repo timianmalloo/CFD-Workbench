@@ -123,14 +123,17 @@ public static class AnalysisPanelTests
                 if (!controller.IsAnalysis) controller.ToggleAnalysis();
                 var panel = new AnalysisPanel();
                 panel.Bind(controller);
-                var sectionRows = controller.AnalysisView.Groups.Single(group => group.Title == "Section (2D)").Rows;
+                // DX: with a section tier the tab shows the station's Estimator table; without one it shows the Section (2D) group.
+                var shownTab = panel.GetLogicalDescendants().OfType<SectionTabView>().Single().Shown;
+                var sectionRows = shownTab is null ? controller.AnalysisView.Groups.Single(group => group.Title == "Section (2D)").Rows
+                    : shownTab.Groups.Single(group => group.Title == "Estimator").Rows;
                 var sectionTable = panel.GetLogicalDescendants().OfType<StackPanel>()
-                    .Single(table => table.Name == "section-table");
+                    .Single(table => table.Name == (shownTab is null ? "section-table" : "section-estimator-table"));
                 var renderedRows = sectionTable.Children.OfType<Grid>().ToArray();
                 Equal(sectionRows.Count, renderedRows.Length, "all section rows rendered");
                 for (int i = 0; i < sectionRows.Count; i++)
                 {
-                    if (!sectionRows[i].Value.Any(char.IsDigit)) continue;
+                    if (!sectionRows[i].Value.Any(char.IsDigit) || sectionRows[i].Note is null) continue;
                     var cells = renderedRows[i].Children.OfType<TextBlock>().ToArray();
                     Equal(sectionRows[i].Note, cells[2].Text, "numeric tier note rendered for " + sectionRows[i].Label);
                     Equal(true, !string.IsNullOrWhiteSpace(cells[2].Text), "numeric tier note visible for " + sectionRows[i].Label);

@@ -84,7 +84,7 @@ internal static class PolarNumericsTests
             loadRows[wingIndex].Note?.Contains("Wing only: induced (VLM + strip) plus profile (polar). Not a total.", StringComparison.Ordinal) != true ||
             loadRows[wingIndex].Note?.EndsWith("\nNot included: junction, mast, wave, spray", StringComparison.Ordinal) != true)
             throw new InvalidOperationException("Drag (Wing only) lacks its COPY-330 note or COPY-356 reason line");
-        AnalysisChecks.Equal(Loads.TotalDragReason, projected.Groups.Single(group => group.Title == "Wing result").Rows
+        AnalysisChecks.Equal(Labels.TotalDragMissingWithProfile, projected.Groups.Single(group => group.Title == "Wing result").Rows
             .Single(row => row.Label == "CL/CD").Value, "craft CL/CD stays Unavailable");
         AnalysisRun missing = ProjectionTests.Data().Run;
         if (Loads.TotalDrag(missing, 2).UnavailableReason?.Contains("PROFILE", StringComparison.Ordinal) != true)
@@ -177,9 +177,7 @@ internal static class PolarNumericsTests
         }).Run;
         ResultRow row = AnalysisProjection.StripAt(AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric),
             run.Strips[0].Eta).Rows.Single(item => item.Label == "Polar Re range");
-        if (!row.Value.Contains("2E+5", StringComparison.Ordinal) ||
-            !row.Value.Contains("1E+6", StringComparison.Ordinal) ||
-            row.Value.Contains("5.432E+5", StringComparison.Ordinal))
+        if (!row.Value.Contains("2.00 × 10⁵ to 1.00 × 10⁶", StringComparison.Ordinal))   // COPY-322 names the strip Re and the validated bounds
             throw new InvalidOperationException("polar Re range displayed the strip Re instead of validated bounds: " + row.Value);
     }
 

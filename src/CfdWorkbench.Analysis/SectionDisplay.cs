@@ -225,10 +225,12 @@ public static class SectionDisplay
         {
             var src = new NeuralFoilPolarSource(_ => section);
             var rows = new Dictionary<int, List<(double A, NeuralFoilPrediction P)>> { [2] = [], [4] = [] };
-            // One CST fit serves the whole sweep. Only points inside the validated bracket are drawn; nothing is extrapolated.
+            // One CST fit serves the whole sweep. DXM-2: points are computed inside the training range and flagged by the bracket row
+            // (validated or not); the sweep is the bracket's α range, so nothing is extrapolated beyond it, and a section the fit
+            // cannot represent draws nothing.
             CstFitResult fit = CstFit.Fit(section);
-            bool validated = Naca0012Reference.Matches(fit.Parameters) && fit.MaxResidual <= NeuralFoilPolarSource.MaxCstResidual &&
-                station.Reynolds is >= NeuralFoilPolarSource.ReynoldsMin and <= NeuralFoilPolarSource.ReynoldsMax;
+            bool validated = fit.MaxResidual <= NeuralFoilPolarSource.MaxCstResidual &&
+                station.Reynolds is >= NeuralFoilPolarSource.TrainingReynoldsMin and <= NeuralFoilPolarSource.TrainingReynoldsMax;
             NeuralFoilNetwork network = NeuralFoilNetwork.FromEmbedded();
             if (validated)
                 for (double a = NeuralFoilPolarSource.AlphaMinDeg; a <= NeuralFoilPolarSource.AlphaMaxDeg + 1e-9; a += 1)

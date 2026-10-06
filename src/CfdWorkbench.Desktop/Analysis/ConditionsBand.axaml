@@ -25,6 +25,9 @@
                AutomationProperties.Name="Incidence alpha in degrees" />
       <TextBlock Text="°" VerticalAlignment="Center" />
       <Button x:Name="EvaluateButton" Classes="modebar primary" Content="Evaluate" AutomationProperties.Name="Evaluate" />
+      <!-- Find α (DR-DXM-6): the 24 px target with the navbar padding keeps the band at 41 px, as the More button does (Ruling 112). -->
+      <Button x:Name="FindAlphaButton" Content="Find α…" VerticalAlignment="Center" MinHeight="{StaticResource CompactTargetSize}"
+              Padding="{StaticResource NavbarButtonPadding}" AutomationProperties.Name="Find operating alpha" />
       <Border Height="{StaticResource CompactTargetSize}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="{StaticResource HairlineLeft}" Margin="{StaticResource NavbarButtonPadding}" />
       <TextBlock x:Name="DerivedQ" Classes="cond-derived" VerticalAlignment="Center" Text="q —" />
       <StackPanel x:Name="WideDerived" Orientation="Horizontal" Spacing="{StaticResource NavbarGap}">

@@ -389,6 +389,23 @@ public sealed class WorkbenchController : IDisposable
         Notify();
     }
 
+    /// <summary>
+    /// Find operating α (ANA-05, DR-DXM-6): re-solves the lattice for the accepted source at the pending conditions, off the UI thread.
+    /// It records no run and changes no condition; Apply is <see cref="ApplyFoundAlpha"/> and Evaluate stays explicit.
+    /// </summary>
+    public Task<FindAlphaOutcome> FindAlphaAsync(double targetCl, double lowerDeg, double upperDeg, CancellationToken cancellation = default)
+    {
+        var op = analysisOp;
+        var water = analysisWater;
+        byte[] source = session.Snapshot().Source;
+        double? hOverC = op.HRef is { } depth && Estimates?.MeanChordMeters is > 0 ? depth / Estimates.MeanChordMeters : null;
+        return Task.Run(() => FindAlpha.Run(FindAlpha.ClAt(analysisMethod, source, op, water, cancellation), targetCl, lowerDeg, upperDeg,
+            hOverC, cancellation: cancellation), cancellation);
+    }
+
+    /// <summary>Apply of the Find α dialog: writes α into the pending conditions only. A prior run stays Historical until Evaluate.</summary>
+    public void ApplyFoundAlpha(double alphaDeg) => SetAnalysisConditions(analysisOp with { AlphaDeg = alphaDeg }, analysisWater);
+
     /// <summary>The only compute entry in the desktop: Cancel records no run, and a failure keeps prior evidence.</summary>
     public async Task<AnalysisRun?> EvaluateAnalysisAsync(OperatingPoint op, WaterRecord water, CancellationToken cancellation = default)
     {

@@ -10959,7 +10959,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0ae3ce29185963194bedb43a711ec7e201fd3f33683bd26d76a74faf9bcdb2d2"
+      "sourceSha256": "49d004c4567a9a1dbba0bc946b28f474727e5860ab28e3474b54bb2db53c1719"
     },
     {
       "id": "proof-dock-split-s8",
@@ -10989,6 +10989,34 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "2c327ae792fd61658e4e6c3d11829f42cbe68ff861652200638b19b3c3722084"
+    },
+    {
+      "id": "proof-dx-red-first",
+      "path": "docs/proof/dx/red-first.md",
+      "title": "DX step 2: red-first record, exit evidence and gaps",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-dx",
+      "phase": "implementation",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "What DX built, how each check was shown red, the observed run results and the known gaps (cost ring, unapproved validation copy, example foil family, two-sided defaults).",
+      "tags": [
+        "analysis",
+        "a3b",
+        "a3c",
+        "dx",
+        "proof",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-dx-test-plan",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ad8d5f9dbbdf2e7fff3a34235e79234cde4fbd5502feec710be605e866dd1e59"
     },
     {
       "id": "proof-dx-test-plan",
@@ -14867,5 +14895,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "02fa1f8bc3d272f5d8e578480937fe338a066188dbb5013d6ec4b37026fede22"
+  "graphSha256": "4590fa3ba555e858f15f0eaaae75066b3637ec0b245521d07477dbd1b1976708"
 };

@@ -38,6 +38,8 @@ public sealed record AnalysisViewModel(RunState State, string StatusText, string
     public SectionTierResult? SectionTier { get; init; }
     /// <summary>Per-strip polar/lattice comparison and measured exemption edge; null without a run polar.</summary>
     public PolarConsistencyResult? PolarConsistency { get; init; }
+    /// <summary>The selected completed run (null before a result or when it is not intact); the Section tab reads its operating point, water and polar record.</summary>
+    public AnalysisRun? Run { get; init; }
     public StripValue? WingDragNcrit2 { get; init; }
     public StripValue? WingDragNcrit4 { get; init; }
 }
