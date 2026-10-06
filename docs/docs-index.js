@@ -5754,7 +5754,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-05",
       "reviewSuggested": [],
-      "summary": "Nine mockup screens compared with the A3a build, with captures, differences and severity; the hydrodynamicist's re-review and the test architect's build-time veto folded in; strings with no approved copy row; what AUX fixed and what is listed.",
+      "summary": "Nine mockup screens compared with the A3a build, with captures, differences and severity; the hydrodynamicist's re-review and the test architect's build-time veto folded in; strings with no approved copy row; what AUX fixed, what POL (the polish track) fixed after the review, and what is still listed.",
       "tags": [
         "a3a",
         "aux",
@@ -5782,7 +5782,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2a011bb37658f82adde639b8fde6602fcc64168341cbd08f4d51c20cc427d14d"
+      "sourceSha256": "cc870231b82c7ced26e161276c2f2fb38fc1803723269d85dacb074c4556179e"
     },
     {
       "id": "review-area3-analysis-personas",
@@ -8985,7 +8985,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6b491fbf0d07710b2be2142b4610e929436feab73567ca43c91e5d815ea29c78"
+      "sourceSha256": "e9fdeb86a45f377a81b4507f7d113cfeb8592e2578d60d31eddaa1939c20be08"
     },
     {
       "id": "proof-a3a-pna-red-first",
@@ -14419,5 +14419,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "31812ce0c583a091ac6f13cf0b37cfc4089798530f77dac6af442fefed6f5216"
+  "graphSha256": "0035b982977e25f1a9286ba1b23c9057b61a4d0a6f1f295470b671358c6cde0d"
 };
