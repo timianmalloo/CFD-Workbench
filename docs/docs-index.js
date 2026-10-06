@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18c65e502911af61ca2f5f95bd045a665453446a800e2818747d9c6dc3709df1"
+      "sourceSha256": "77ec4e3b9d048cdbc95e052e47e47a964f473c526447ddc4d3eb60be297a2f7e"
     },
     {
       "id": "kb-hw-glossary",
@@ -12258,6 +12258,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "95f212dc46d2f49e65072aab721162cf59d63518f214b2325143fa40777cd95f"
     },
     {
+      "id": "proof-ring-split-profile",
+      "path": "docs/proof/ring-split/profile.md",
+      "title": "Ring split profile: a Desktop 1/2 + 2/2 split cannot pay",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-spl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Round-oct06 track SPL profile of tools/run-tests.sh at main fedac036 (Ruling 122): the ring is CPU-bound and Core 3/3 is co-critical, so splitting the Desktop job into two parent jobs saves nothing; no split shipped.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "profile",
+        "split"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-b2-profile",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2e8260c229bf0471a5a7ab899f7baf53c3c8b57d426fb681ba86c50be826822d"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -14949,5 +14979,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "e5bb1c8a608d78de817a3ca81d1f97d706be0a4795d3c7a5d9656e5237502feb"
+  "graphSha256": "b1dacf8d545edd3be23dde58a34de27ea781092d77859a198042f1d27479edd8"
 };

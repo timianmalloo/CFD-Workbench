@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T21:26:52Z",
+  "generated": "2026-10-06T21:49:33Z",
   "audit": [
     {
       "actor": null,
@@ -27954,6 +27954,26 @@ window.AUDIT_DATA = {
       "done_when": "classes in register, self-tests red then green, check-docs and verify gates exit 0",
       "started_at": "2026-10-06T21:16:25Z",
       "duration_seconds": 627.0
+    },
+    {
+      "id": "al-01M49K2ZXCT7BFS7PVKPTSFTKK",
+      "shortname": "trk-spl",
+      "datetime": "2026-10-06T21:49:33Z",
+      "session": "trk-spl",
+      "prompt": "trk-spl round-oct06",
+      "summary": "Profile: ring CPU-bound (538-548 CPU-s), Core 3/3 co-critical at 46 s, Desktop already 18 children on 10 slots; 12-slot variant measured 4 s worse. No split shipped; profile.md committed.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Split the Desktop harness if the profile shows it pays (Ruling 122)",
+      "done_when": "Profile committed; split shipped only if it saves >= 2 s net",
+      "started_at": "2026-10-06T21:41:11Z",
+      "duration_seconds": 502.0
     }
   ],
   "changes": [
@@ -29720,6 +29740,24 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49GGMBR0XZSY7KQTC6JTX5X",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49J66NA3GK00PY4VJKS8NK7",
+      "ts": "2026-10-06T21:33:50Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49J66JA8D0VXZH1R9YZ98QT",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49J7X8VWGKJ198YXQ5500VF",
+      "ts": "2026-10-06T21:34:46Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49J7X5XMNSSEEPHCG8NGH3S",
       "session": "operator-timianmalloo"
     }
   ]
