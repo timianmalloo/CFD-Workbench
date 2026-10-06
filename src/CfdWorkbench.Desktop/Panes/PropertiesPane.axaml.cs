@@ -71,6 +71,8 @@ public partial class PropertiesPane : UserControl
     private readonly Dictionary<TextBox, (EditCue Cue, Border Ring)> cues = [];
     private readonly Dictionary<string, RowMessage> messages = new(StringComparer.Ordinal);
     private readonly Dictionary<string, (string Text, string Error)> errors = new(StringComparer.Ordinal);
+    // Ruling 96: the legal value a refused typed chord offers as "Use <value>". Applied only by a click, never by the refusal.
+    private readonly Dictionary<string, string> useValues = new(StringComparer.Ordinal);
     private readonly EnumField typeField;
     private readonly EnumField kindField;
     // The section mode's third enum (Station t/c, §11.4), pooled like Type and Kind so focus survives a re-render.
@@ -275,7 +277,8 @@ public partial class PropertiesPane : UserControl
                 Frame: eta => StationFrameAt(controller, eta),
                 Section: SectionContext.Of(controller),
                 StationSource: controller.StationSource,
-                Analysis: controller.IsAnalysis && controller.Inspection is not null ? controller.AnalysisView : null);
+                Analysis: controller.IsAnalysis && controller.Inspection is not null ? controller.AnalysisView : null,
+                Limit: controller.GestureLimit);
             string key = SelectionKey(controller.Selection);
             if (key != selectionKey)
             {
@@ -566,6 +569,12 @@ public partial class PropertiesPane : UserControl
         bool stateOnly = !hasError && held?.Kind == MessageKind.Warning;
         ShowMessage(view, stateOnly ? null : message);
         ShowStateIcon(view, stateOnly ? held!.Text : null);
+        if (view.UseLink is { } useLink)
+        {
+            bool offered = hasError && useValues.ContainsKey(row.Key);
+            useLink.IsVisible = offered;
+            if (offered) useLink.Content = PropertyCopy.UseValue(useValues[row.Key]);
+        }
         bool showUnit = row.State is not (RowState.Mixed or RowState.Unavailable);
         view.Unit.Text = showUnit ? row.Unit ?? "" : "";
 
@@ -713,14 +722,24 @@ public partial class PropertiesPane : UserControl
         messageIcon.Classes.Add("prop-icon");
         AutomationProperties.SetAccessibilityView(messageIcon, AccessibilityView.Raw);
         Grid.SetColumn(messageText, 1);
-        messageBox.Child = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*"), Children = { messageIcon, messageText } };
+        var messageGrid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), Children = { messageIcon, messageText } };
+        HyperlinkButton? useLink = null;
+        if (row.Key is "w:root" or "w:tip" && row.Kind == RowKind.Input)
+        {
+            useLink = new HyperlinkButton { Name = Part("UseLimit", row.Key), IsVisible = false };
+            useLink.Classes.Add("prop-crumb");
+            useLink.Click += (_, _) => UseLimitValue(row.Key);
+            Grid.SetColumn(useLink, 2);
+            messageGrid.Children.Add(useLink);
+        }
+        messageBox.Child = messageGrid;
         Grid.SetRow(messageBox, 3);
         Grid.SetColumnSpan(messageBox, 3);
         var root = new Border { Child = grid, Name = Part("Row", row.Key) };
         root.Classes.Add("prop-row");
         var rule = RuleLine();
         var outer = new Border { Child = new StackPanel { Children = { rule, root } } };
-        var view = new RowView(outer, root, grid, label, unit, description, messageBox, messageText) { Row = row, MessageIcon = messageIcon, Rule = rule };
+        var view = new RowView(outer, root, grid, label, unit, description, messageBox, messageText) { Row = row, MessageIcon = messageIcon, Rule = rule, UseLink = useLink };
         outer.Tag = view;
 
         Control value;
@@ -1208,7 +1227,8 @@ public partial class PropertiesPane : UserControl
     {
         if (boundController is not { } controller) return false;
         var row = view.Row;
-        string text = (box.Text ?? "").Trim();
+        string typedText = box.Text ?? "";
+        string text = typedText.Trim();
         if (text.Length == 0) return Refuse(view, box, PropertyCopy.NotANumber(row.Label));
         bool parsed = UnitEntry.TryParse(text, UnitFamily.Length, Dimensions(), out var entry);
         Task<CommitOutcome> task = row.Key == "w:span"
@@ -1232,10 +1252,21 @@ public partial class PropertiesPane : UserControl
             return true;
         }
         string code = ((CommitOutcome.Refused)outcome).Code;
+        // The commit's refresh re-binds the row to the accepted value; a refused typed entry keeps what was typed (Ruling 96).
+        if (box.Text != typedText) box.Text = typedText;
         if (code == "DSL-TARGET" && row.Key == "w:tip")
         {
             messages[row.Key] = new RowMessage(PropertyCopy.TipCloses, MessageKind.Reason);
             return Refuse(view, box, PropertyCopy.TipCloses);
+        }
+        if (code == TipChord.RefusalCode && boundController?.Estimates is { } wing)
+        {
+            // Ruling 96: the refusal keeps what was typed, says what limits (root first when the root caused it), and offers
+            // the legal value as a click. The text is Core's; the offer is the same one definition.
+            string use = row.Key == "w:root"
+                ? TipChord.FormatMm(TipChord.MaximumRootMeters(wing.TipChordMeters, wing.RootChordMeters))
+                : TipChord.FormatMm(TipChord.MinimumMeters(wing.RootChordMeters));
+            return Refuse(view, box, ((CommitOutcome.Refused)outcome).Copy, use);
         }
         return Refuse(view, box, code switch
         {
@@ -1244,6 +1275,16 @@ public partial class PropertiesPane : UserControl
             "DSL-NOT-ASSESSED" => $"The new {row.Label.ToLowerInvariant()} couldn't be checked. {row.Label} is unchanged. Try again or enter a different value.",
             _ => PropertyCopy.NotANumber(row.Label)
         });
+    }
+
+    /// <summary>The click on "Use <value>": types the offered legal value into the row and commits it as any typed entry.</summary>
+    private void UseLimitValue(string key)
+    {
+        if (!useValues.TryGetValue(key, out string? value) || rows.GetValueOrDefault(key + "|" + RowKind.Input) is not { Input: { } box } view) return;
+        box.Text = value;
+        errors.Remove(key);
+        useValues.Remove(key);
+        Commit(view, box);
     }
 
     private double CommittedWingValue(string key, double typed)
@@ -1446,10 +1487,11 @@ public partial class PropertiesPane : UserControl
     }
 
     /// <summary>PG-22 / B10: an error is announced once per failed commit, never on a re-render.</summary>
-    private bool Refuse(RowView view, TextBox box, string message)
+    private bool Refuse(RowView view, TextBox box, string message, string? use = null)
     {
         string before = view.Message.Text ?? "";
         errors[view.Row.Key] = (box.Text ?? "", message);
+        if (use is null) useValues.Remove(view.Row.Key); else useValues[view.Row.Key] = use;
         messages.Remove(view.Row.Key);
         RenderRow(view.Row, []);
         if (before == message)
@@ -1964,6 +2006,7 @@ public partial class PropertiesPane : UserControl
         public TextBlock? Value { get; set; }
         public Path? Lock { get; set; }
         public Path? MessageIcon { get; init; }
+        public HyperlinkButton? UseLink { get; init; }  // Ruling 96: "Use <value>" on a refused typed chord
         public Path? StateIcon { get; set; }           // the inline warning icon of a state-only commit warning
         public required Border Rule { get; init; }     // the half-strength rule above the row, shown after another row
         public TextBox? Input { get; set; }

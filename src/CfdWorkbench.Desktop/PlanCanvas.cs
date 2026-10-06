@@ -48,6 +48,7 @@ public sealed class PlanCanvas : Control
     private PointView? hoveredPoint;
     private int keyboardIndex = -1;
     private bool advisoryCrossing;
+    private Point? gesturePointer;   // Ruling 96: where the pointer is while a held limit keeps the vertex elsewhere
     private Point advisoryPoint;
     private bool renderFailureNotified;
     // A press on empty canvas (§11.3 Pan row, F-2): a drag pans the camera, a click clears the selection.
@@ -427,6 +428,7 @@ public sealed class PlanCanvas : Control
             }
         }
         Controller.UpdateGesture(target.Span, target.Ordinate);
+        gesturePointer = position;
         if (focusedPoint is { } selected)
         {
             var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
@@ -664,6 +666,7 @@ public sealed class PlanCanvas : Control
         {
             targets.Add(point);
         }
+        if (Controller!.Gesture != GestureState.Dragging) gesturePointer = null;
         // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
         advisoryCrossing = Controller!.GestureCrossing is not null;
         if (Controller.GestureCrossing is { } crossing) advisoryPoint = map.ToScreen(crossing.SpanMeters, crossing.Ordinate);
@@ -766,6 +769,7 @@ public sealed class PlanCanvas : Control
                     Math.Clamp(Math.Abs(tooth.Curvature) * 100, 6, 24));
             }
         }
+        DrawGestureLimit(context);
         if (advisoryCrossing)
         {
             var marker = new Pen(DangerBrush ?? Brushes.White, 4, new DashStyle([6, 3], 0));
@@ -827,6 +831,27 @@ public sealed class PlanCanvas : Control
         }
     }
 
+    /// <summary>
+    /// Ruling 96, variant A: while a limit holds the vertex, a dashed line across it with the one hold sentence; while the
+    /// pointer is also held off the vertex, a dotted tether and a ring at the pointer. The cursor stays normal.
+    /// </summary>
+    private void DrawGestureLimit(DrawingContext context)
+    {
+        if (Controller?.GestureLimitText is not { } text || Controller.GestureLimitPoint is not { } held) return;
+        var vertex = targets.FirstOrDefault(point => point.Curve == held.Curve && point.Id == held.VertexId);
+        if (vertex is null) return;
+        var at = ScreenPoint(vertex);
+        var limitPen = new Pen(WarningBrush ?? Brushes.White, 2, new DashStyle([5, 3], 0));
+        context.DrawLine(limitPen, at + new Vector(-40, 0), at + new Vector(22, 0));
+        DrawLabel(context, text, at + new Vector(-40, 8));
+        if (gesturePointer is { } pointer && Point.Distance(pointer, at) > 4)
+        {
+            var tether = new Pen(MuteBrush ?? Brushes.White, 1.5, new DashStyle([1, 3], 0));
+            context.DrawLine(tether, at, pointer);
+            context.DrawEllipse(null, new Pen(MuteBrush ?? Brushes.White, 1.5), pointer, 7, 7);
+        }
+    }
+
     private void DrawLabel(DrawingContext context, string copy, Point position)
     {
         var formatted = new FormattedText(copy, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
@@ -860,8 +885,11 @@ public sealed class PlanCanvas : Control
             double length = Math.Sqrt(span * span + aft * aft) * 1000;
             role = $"{(point.Index < anchor.Index ? "in" : "out")} handle, angle {angle:F2}°, length {length:F2} mm";
         }
-        return $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of {curve?.Points.Count ?? 0}, " +
+        string name = $"{(point.Curve == "leading" ? "Leading" : "Trailing")} edge, point {point.Index + 1} of {curve?.Points.Count ?? 0}, " +
             $"{role}, from root {point.SpanMeters * 1000:F2} mm, aft {point.Ordinate * 1000:F2} mm";
+        // Ruling 96: the held limit is in the accessible name, in the same words as the strip and the marker.
+        return Controller?.GestureLimitPoint is { } held && held.Curve == point.Curve && held.VertexId == point.Id
+            && Controller.GestureLimitText is { } limit ? name + ". " + limit : name;
     }
 
     // F-3: the fitted view keeps the planform, both halves, every point glyph and every station chip clear of the

@@ -568,6 +568,13 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-240 | e above 1 — check the lattice — approved — Ruling 82 |
 | COPY-241 | Unavailable — tip chord under the minimum (<min>). The tip is not certified for analysis. — approved — Ruling 94 |
 | COPY-242 | Tip chord can't go below <min> (the larger of 5 mm and 2 % of the root chord). — approved — Ruling 94 |
+| COPY-243 | Tip chord can't go below <min> (the larger of 5 mm and 2 % of the root chord). Enter <min> or more. — approved — Ruling 96 (typed entry; Ruling 94's text plus the way out; COPY-A) |
+| COPY-244 | Tip chord is at its minimum, <min>. — approved — Ruling 96 (drag and nudge hold, tip; COPY-B) |
+| COPY-245 | Root chord is at its maximum, <max>, for a <tip> tip. Widen the tip first. — approved — Ruling 96 (drag and nudge hold, root; COPY-C) |
+| COPY-246 | Root chord can't go above <max> while the tip chord is <tip> (the tip must stay at least 2 % of the root). Widen the tip first. — approved — Ruling 96 (typed Root chord refused; COPY-D) |
+| COPY-247 | This tip is already under the minimum. It can't go lower. — approved — Ruling 96 (legacy file; COPY-E) |
+| COPY-248 | <value> mm · minimum — approved — Ruling 96 (held tip chord in the Wing block; COPY-F) |
+| COPY-249 | Use <value> — approved — Ruling 96 (action on a refused typed chord, never applied by itself; the Ruling's "Use <min>") |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's
