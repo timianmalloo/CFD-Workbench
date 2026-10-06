@@ -11106,6 +11106,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
     },
     {
+      "id": "proof-grp-desktop-red-first",
+      "path": "docs/proof/grp-desktop/red-first.md",
+      "title": "Track GRP half 2 (Desktop): planted mutants, observed red then green",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Three planted mutants of the group-move build, each turned red by a named Desktop check and green again once restored. Ring: --controller-shell (controller checks) and --properties-cells (window checks), one check each, CFD_TEST_ONLY. Captures against the approved mockup are beside this file.",
+      "tags": [
+        "proof",
+        "group-move",
+        "desktop",
+        "mutants",
+        "round-oct06"
+      ],
+      "links": [
+        {
+          "to": "design-group-move-node-m",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "31b540f38b8b81476bd63c3b473c98088a149657c8f49ed1e194591b34a0c6f2"
+    },
+    {
       "id": "proof-grp-red-first",
       "path": "docs/proof/grp/red-first.md",
       "title": "GRP half 1 red-first receipt",
@@ -14836,5 +14863,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "845a5b5de60036cc9b95deead250a5955b7828a8a4a91b38c73f73b964fb9449"
+  "graphSha256": "1b45c9bdf3da5f9681270b74c51388d013a899d04e171b9185c1662fe4db8d72"
 };

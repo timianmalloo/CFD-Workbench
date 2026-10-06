@@ -321,7 +321,8 @@ public static class GroupDragTests
 
     public static void RunPane()
     {
-        Check("GroupDrag_Captures_AgainstTheMockup", rig =>
+        // The mockup captures cost ~8 s, so they are registered only when asked for (GRP_CAPTURE_DIR), never in the ring.
+        if (Environment.GetEnvironmentVariable("GRP_CAPTURE_DIR") is { Length: > 0 }) Check("GroupDrag_Captures_AgainstTheMockup", rig =>
         {
             var c = rig.Controller;
             // Frame A: a group mid-drag in the Plan. Frame D: grab point 4, the tip (point 7) binds and holds the group.
