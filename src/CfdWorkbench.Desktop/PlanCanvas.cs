@@ -84,6 +84,7 @@ public sealed class PlanCanvas : Control
         source.LayersChanged -= OnLayersChanged;
     }
 
+    // Reading AnalysisView refreshes the controller's LayerSet before this canvas redraws it.
     private void OnLayersChanged() { _ = Controller?.AnalysisView; InvalidateVisual(); }
 
     private void OnCameraChanged(SingleView view)

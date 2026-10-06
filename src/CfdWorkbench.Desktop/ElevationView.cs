@@ -189,6 +189,7 @@ public sealed class ElevationView : Control
         source.LayersChanged -= OnLayersChanged;
     }
 
+    // Reading AnalysisView refreshes the controller's LayerSet before this elevation redraws it.
     private void OnLayersChanged() { _ = controller?.AnalysisView; Redraw(); }
 
     private void OnCameraChanged(SingleView view)

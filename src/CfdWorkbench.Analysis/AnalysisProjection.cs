@@ -265,6 +265,7 @@ public static class AnalysisProjection
             Samples = [new LayerSample(0, 0, rootMoment.Value, new Loads.Vec(rootMoment.Value, 0, 0), false, false)]
         });
         if (run.Op.HRef.HasValue && context.Stations is { Count: > 0 })
+            // Margin = HRef − Elevation, so each view's z = Elevation + Margin recovers the same free-surface HRef.
             layers.Add(new LayerData("depth-band", "Free surface and tip depth", Shown("depth-band"),
                 "h_ref " + Num(run.Op.HRef.Value, "0.###") + " m · datum " + run.Op.Datum, "conditions-table")
             { Samples = context.Stations.Select(s => new LayerSample(s.Eta, s.SpanMeters,
