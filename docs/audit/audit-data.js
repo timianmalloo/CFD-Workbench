@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T03:42:42Z",
+  "generated": "2026-10-06T04:01:02Z",
   "audit": [
     {
       "actor": null,
@@ -26994,6 +26994,34 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T03:41:46Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M47NYFB5114DMDQVDPWBXW4E",
+      "shortname": "ci-round-oct05-lessons",
+      "datetime": "2026-10-06T04:01:02Z",
+      "session": "trk-ci",
+      "prompt": "CI round-oct05 lessons",
+      "summary": "Defect classes DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, AGENT-HEREDOC, SECTION-EDITOR-LOAD-FLAKE added; OWNERSHIP-MISSES-DATA-SOURCE extended. Controls: tools/check-artifact-bindings.py and tools/check-foildsl-spec-sync.py (in check-docs, self-tests red then green), tools/trace-brief.py aid, Section Editor drag release in finally (cascade 5 to 0 under a planted failure), heredoc hook proposed only. Area3 design 5.1 under-read definition. recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Turn round-oct05 findings into defect classes with controls",
+      "done_when": "Each class recorded with a control or a stated reason; gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-06T03:45:47Z",
+      "duration_seconds": 915.0,
+      "git": {
+        "sha": "95b26ad1ede305482837427d29c0f1d70682854a",
+        "short": "95b26ad1e",
+        "branch": "chore/round-oct05-lessons",
+        "pushed": null
+      }
     }
   ],
   "changes": [

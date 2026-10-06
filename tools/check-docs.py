@@ -65,6 +65,26 @@ def run_spiral_check():
         raise SystemExit(result.stdout.strip() or "check-spiral.py failed.")
 
 
+def run_lesson_controls():
+    """Controls from docs/lessons/defect-classes.md, fast ring (each self-test is red on its planted shape):
+    DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, and the OWNERSHIP-MISSES-DATA-SOURCE aid's own test."""
+    for script, arguments in (
+        ("check-artifact-bindings.py", ("--self-test",)),
+        ("check-artifact-bindings.py", ()),
+        ("check-foildsl-spec-sync.py", ("--self-test",)),
+        ("check-foildsl-spec-sync.py", ()),
+        ("trace-brief.py", ("--self-test",)),
+    ):
+        result = subprocess.run(
+            [sys.executable, str(ROOT / "tools" / script), *arguments],
+            cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=120,
+        )
+        print(result.stdout, end="", flush=True)
+        if result.returncode != 0:
+            print(result.stderr, end="", file=sys.stderr, flush=True)
+            raise SystemExit(script + " " + " ".join(arguments) + " failed.")
+
+
 SLOW_GATES = ("verify-application-core.py", "verify-application-adapters.py")
 RECOUNTS = ("tools/recount-architecture-spike.py", "tools/recount-application-contracts.py")
 
@@ -141,7 +161,8 @@ def main():
     run(ROOT / "tools" / "coordination" / "check-test-paths.py")
     run(ROOT / "tools" / "check-debug-parity.py")
     run_spiral_check()
-    graph = SCRIPTS / "docs-graph.py"
+    run_lesson_controls()
+    graph =SCRIPTS / "docs-graph.py"
     if (ROOT / "docs" / "docs-index.js").exists():
         run(graph, "validate")
         run(graph, "freshness", "--gate", "warn")
