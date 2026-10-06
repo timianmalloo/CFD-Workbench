@@ -11795,6 +11795,96 @@ window.DOCS_INDEX = {
       "sourceSha256": "8b85b88e777fe865de4d9857177e1d883e951180512270c36cff9ea1e6d00490"
     },
     {
+      "id": "proof-pnl-red-first",
+      "path": "docs/proof/pnl/red-first.md",
+      "title": "PNL red-first ledger (adaptive panels)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Red then green receipts for Ruling 103: the governing station's screen and Cp_min from the 400-panel solve, and the method version change that turns older runs Historical. Test 3 is not done (waits on the step-0 ruling).",
+      "tags": [
+        "analysis",
+        "section",
+        "panel-method",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-pnl-timing",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-pnl-step0-other-stations",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "846a2c77eb691c626d18adf11feade4c5d4022b39439f1fbb9a7ee889d7b913b"
+    },
+    {
+      "id": "proof-pnl-step0-other-stations",
+      "path": "docs/proof/pnl/step0-other-stations.md",
+      "title": "PNL step 0: how to know a non-governing station's panel under-read",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Ruling 103 says other stations keep the provisional row when their 200-vs-400 under-read is above 10 %, but nothing measures a non-governing station. Three ways to know it, with measured or estimated cost against the 1 s budget, and a recommendation for the Fable owner.",
+      "tags": [
+        "analysis",
+        "section",
+        "panel-method",
+        "decision-request"
+      ],
+      "links": [
+        {
+          "to": "proof-a3bc-seam",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cf35abeb791e23b8e35e6843564cd98bedebb540667bd3a55d915c7c8ade5278"
+    },
+    {
+      "id": "proof-pnl-timing",
+      "path": "docs/proof/pnl/timing.md",
+      "title": "PNL timing: adaptive panels and the four whole-wing figures",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Re-measured Section_CamberedWing129_WarmTime with the governing 400-panel estimate, and reconciled the 419 / 723 / 430 ms and 1.6 s whole-wing figures by workload.",
+      "tags": [
+        "analysis",
+        "section",
+        "timing",
+        "budget"
+      ],
+      "links": [
+        {
+          "to": "proof-a3bc-seam",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-pnl-step0-other-stations",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a1e362bb3013a0315fbce06b215c761a8c2bebbdd627446b81b7c7e56cc8724d"
+    },
+    {
       "id": "proof-readyfix2",
       "path": "docs/proof/readyfix2.md",
       "title": "READYFIX2 — Core fixture cwd-relative paths and the Plan-canvas theme key set",
@@ -14592,5 +14682,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "73a811d1d7dc1426dc6be86cb8aee71a5962ba058e0010223928cdd7c0974d54"
+  "graphSha256": "faede5839a22bd11fa9d8b77ca263c4917cd5f38f6da7ae104e7437d81ff8d18"
 };
