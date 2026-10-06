@@ -111,6 +111,10 @@ def join_ring_problems(contract):
         problems.append("join checks do not run tools/run-tests.sh (directly or through tools/join-ring.sh)")
     if not any("xaml-token-lint.py" in line for line in checks):
         problems.append("join checks do not run xaml-token-lint.py")
+    # JOIN-CHECK-BEFORE-REGEN: the merge driver keeps main's copy of a derived view and records the regeneration as owed;
+    # conductor-join pays it at step 6, after the step-4 checks read the tree, so the first check must regenerate.
+    if contract.get("regenerate") and not (checks and "coord-core.py regen" in checks[0]):
+        problems.append("join checks do not regenerate derived views first (coord-core.py regen)")
     if any(recount in line for line in lines("recount") + gates for recount in RECOUNTS):
         problems.append("a spike recount is in the every-join ring")
     for gate in SLOW_GATES:

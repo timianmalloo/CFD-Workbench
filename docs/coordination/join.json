@@ -1,5 +1,6 @@
 {
   "checks": [
+    ["python3", "docs/ai-forward-pack/scripts/coord-core.py", "regen"],
     ["python3", "tools/check-docs.py"],
     ["tools/join-ring.sh"],
     ["python3", "docs/ai-forward-pack/scripts/xaml-token-lint.py", "--root", ".", "src/CfdWorkbench.Desktop"],

@@ -1732,3 +1732,20 @@ before the fix; the planted failure alone after. The fix does not stop the first
 gate that check's functional assertions the Ruling 81 way (READINESS-MISS above load 24) only if its failure text,
 captured at load, shows a timing cause; capture the message first, because a gate over an unknown cause hides a real
 regression. Class stays open on that point.
+
+**JOIN-CHECK-BEFORE-REGEN · The join checks the tree before it pays the regeneration the merge driver deferred.**
+After `coord install` bound `docs/docs-index.js` to `merge=coord-regen` (commit `90cf9f94`), the POL and CI joins
+both stopped at step 4 with `validate: 1 index-drift item(s)` (CI: `file not in index:
+proof-round-oct05-heredoc-hook-proposal`; POL's item was not captured). `coord-core.py merge-derived` resolves a
+derived file to ours and records the regeneration as owed; `conductor-join.py` pays it at step 6, after the step-4
+checks, so any branch that adds a docs node while main also moved fails its first check. Correction: the coordinator
+first attributed this to the driver regenerating against a half-written tree; reading `cmd_merge_derived` showed the
+driver never regenerates.
+
+**Class → sweep → derive → prevent:** signature: a deferred side effect (owed work) and a reader that runs before the
+step that pays it. Sweep: the only owed work in the join is `coord regen`; the derived patterns are the 8 in
+`.agents/artifacts.yml`, and `check-docs.py` (docs-graph validate) is the step-4 reader that sees them. Derive: the
+first check must pay the debt. Control (added): `docs/coordination/join.json` `checks` now opens with
+`coord-core.py regen`, and the TEST-RING guard in `tools/check-docs.py` fails when `regenerate` is set and the first
+check is not `coord-core.py regen` (red before the `join.json` edit, green after). OPEN UPSTREAM: `conductor-join.py`
+should run the regeneration before its checks; the pack is not edited here.
