@@ -750,7 +750,7 @@ public partial class PropertiesPane : UserControl
         Grid.SetColumn(messageText, 1);
         var messageGrid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), Children = { messageIcon, messageText } };
         HyperlinkButton? useLink = null;
-        if (row.Key is "w:root" or "w:tip" or "p:aft" && row.Kind == RowKind.Input)
+        if (row.Key is "w:root" or "w:tip" or "p:aft" or "p:from" && row.Kind == RowKind.Input)
         {
             useLink = new HyperlinkButton { Name = Part("UseLimit", row.Key), IsVisible = false };
             useLink.Classes.Add("prop-crumb");
@@ -1342,8 +1342,8 @@ public partial class PropertiesPane : UserControl
                 ? TipChord.FormatMm(TipChord.MinimumMeters(wing.RootChordMeters)) : null;
         var most = Regex.Match(refused.Copy, @"The most they can move that way is (\d+(?:\.\d+)?)");
         if (!most.Success || !double.TryParse(most.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double amount)) return null;
-        double inField = row.Family == UnitFamily.Percent ? amount * 100 : amount;   // Core words a channel's amount in its own unit
-        return Quantity.WithUnit((typed < 0 ? "-" : "") + Quantity.Typed(inField), row.Unit ?? "");
+        // Core words the amount in the field's own unit at two decimals, so the Use label and the message agree (Ruling 116, finding 11).
+        return Quantity.WithUnit((typed < 0 ? "-" : "") + Quantity.Typed(amount), row.Unit ?? "");
     }
 
     private bool CommitWing(RowView view, TextBox box)

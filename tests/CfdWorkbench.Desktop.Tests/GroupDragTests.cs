@@ -447,7 +447,7 @@ public static class GroupDragTests
             PropertiesViewTests.Need<ToggleButton>(rig.Host.Properties, "GroupModeMoveBy").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             rig.Settle();
             TypeInto(rig, Aft(rig), "-200");
-            Require(Msg(rig, "Message_p_aft").EndsWith("would take the tip chord below 5 mm. The most they can move that way is 115 mm.", StringComparison.Ordinal),
+            Require(Msg(rig, "Message_p_aft").EndsWith("would take the tip chord below 5 mm. The most they can move that way is 115.00 mm.", StringComparison.Ordinal),
                 "refusal: " + Msg(rig, "Message_p_aft"));
             Require(Aft(rig).Text == "-200" && c.AcceptedSource == before, "text rewritten or applied");
             use = PropertiesViewTests.Need<HyperlinkButton>(rig.Host.Properties, "UseLimit_p_aft");
@@ -455,6 +455,27 @@ public static class GroupDragTests
             use.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             rig.Settle();
             Require(Math.Abs(At(c, "trailing", 6).Ordinate - 0.005) < 1e-6, "Use did not move the group by the most it can");
+        });
+        Check("Properties_MultiplePoints_TwistMoveBySpan_RefusalHasUnitAndPointNumber_UseEqualsTheAllowedAmount", rig =>
+        {
+            // Repair 2, 8: the message carries mm and "point <n>", and the Use offer is the amount the message names.
+            var c = rig.Controller;
+            var free = c.CurveFor("twist")!.Points.Where(point => point.Role is PointRole.Control or PointRole.Anchor && point.Freedom == PointFreedom.Free).Take(2).ToArray();
+            c.Select(new Selection.Points(free.Select(point => new PointRef("twist", point.Id)).ToArray()));
+            rig.Settle();
+            PropertiesViewTests.Need<ToggleButton>(rig.Host.Properties, "GroupModeMoveBy").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            rig.Settle();
+            string before = c.AcceptedSource;
+            TypeInto(rig, PropertiesViewTests.Need<TextBox>(rig.Host.Properties, "PointSpanInput"), "200");
+            string message = Msg(rig, "Message_p_from");
+            var match = System.Text.RegularExpressions.Regex.Match(message, @"^Moving these points by 200\.00 mm would pass point (\d+)\. The most they can move that way is (\d+\.\d\d) mm\.$");
+            Require(match.Success, "refusal: " + message);
+            var use = PropertiesViewTests.Need<HyperlinkButton>(rig.Host.Properties, "UseLimit_p_from");
+            Require(use.IsVisible && use.Content?.ToString() == $"Use {match.Groups[2].Value} mm" && c.AcceptedSource == before, "Use offer: " + use.Content);
+            use.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            rig.Settle();
+            double moved = (c.CurveFor("twist")!.Points.First(point => point.Id == free[0].Id).SpanMeters - free[0].SpanMeters) * 1000;
+            Require(Math.Abs(moved - double.Parse(match.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture)) < 0.011, $"Use moved the group by {moved:F3} mm");
         });
         Check("GroupDrag_Plan_ReadoutDelta_EqualsTheAppliedMove_SpanAndAft", rig =>
         {
