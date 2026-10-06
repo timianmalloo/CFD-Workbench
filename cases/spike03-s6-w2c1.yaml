@@ -1,0 +1,142 @@
+backend:
+  activation: cases/tools/of-run.sh (env -i allow-list, product HOME + FOAM_CONTROLDICT from cases/tools/foam-bundle, lint, checkMesh pre-flight
+    banner before the solver, argv launch)
+  binary_sha256:
+    simpleFoam: a9bd4e41a5a5e6927aa05561e3b851a07fb9e76622d4d66c8671a58ebdc5e296
+    snappyHexMesh: d36f997edd31453f2b7a9a9025bafb4a9adbb5916166e65ec1c62288d8f7795a
+  build: _87ed40d256-20251219
+  distribution: /Applications/OpenFOAM-v2512.app (Contents/Resources/OpenFOAM-v2512.dmg)
+  distribution_sha256: 5eb2ab10af3e90b7e284276b7046632b9c9bc14885c67d6664bd2628eb393439
+  docker_used: false
+  image_digest: null
+  name: OpenFOAM (ESI-OpenCFD), native macOS app gerlero/openfoam-app
+  version: v2512
+boundary_conditions:
+  farfield: freestreamVelocity / freestreamPressure; nuTilda inletOutlet 3 nu
+  symmetry: symmetryPlane (y = 0, wing root)
+  wing: noSlip; nuTilda 0; nut 0
+conditions:
+  alpha: 4.0
+  mach: 0.0
+  reference_length_m: 0.12
+  reynolds: 600000
+  speed_m_s: 5.0
+decomposition:
+  max_load_1min: 10
+  method: scotch
+  n_subdomains: 6
+  nice: 10
+description: 'SPIKE-03 S6 route W2c (Ruling 98): V1 coupon, snappyHexMesh as W2b (featureAngle 80, nBufferCellsNoExtrude 1) with surface, feature-edge
+  and TE-box levels raised by 1. Pre-registered in docs/proof/spike-03/tip-bl-route/preregistration.md (Amendment 2) before any mesh.'
+geometry:
+  airfoil: naca0012
+  aspect_ratio: 0.4167
+  chord: 0.12
+  half_span: 0.025
+  label: TE blunted for analysis; tip variant for a mesh coupon only; no flow solution
+  source:
+    generator: cases/tools/make-tip-bl-snappy.py (copy of make-wing-r2.py), run by hand-written script per preregistration
+    kind: built-planform
+    path: constant/triSurface/wing.stl
+    sha256: 107d74ffb0abedb3ea1329e8e493c015a039f5d4f46c13d1eaed02294a2aa6ee
+  span: 0.05
+  te_method: thicken (linear ramp), the TE base a half circle of radius 0.25 mm, as the S4 coupon
+  te_thickness_m: 0.0005
+  tip: flat
+  tip_method: 'planar cap at the half span (y = b/2 in the snappy frame: x chord, y span, z thickness); convex cap-to-skin edges of about 90 deg'
+  twist_deg:
+  - 0.0
+  - 0.0
+mesh:
+  first_cell_height_m: 8.0e-06
+  gate:
+    max_non_orthogonality_deg: 70
+    max_skewness: 4
+    min_cell_determinant: 0.001
+    min_layers_100pct: 10
+    min_layers_95pct: 20
+    y_plus_max: 2
+    y_plus_p95_max: 1
+  generator: snappyHexMesh
+  layers:
+    expansion_ratio: 1.2
+    n: 20
+  settings:
+    base_cell_m: 0.048
+    domain_m:
+      x:
+      - -1.2
+      - 2.64
+      y_beyond_tip: 0.96
+      z:
+      - -1.2
+      - 1.2
+    feature_included_angle_deg: 150
+    feature_levels:
+    - - 0.0005
+      - 9
+    - - 0.002
+      - 8
+    layer_feature_angle_deg: 80
+    layer_termination_angle_deg: -180
+    location_in_mesh:
+    - -0.6
+    - 0.012
+    - 0.6
+    max_thickness_to_medial_ratio: 0.3
+    mesh_shrinker: displacementMotionSolver
+    min_tet_quality: 1.0e-15
+    min_thickness_m: 1.0e-06
+    n_buffer_cells_no_extrude: 1
+    n_cells_between_levels: 3
+    n_layer_iter: 50
+    n_outer_iter: 3
+    n_relaxed_iter: 20
+    near_box_level: 3
+    near_box_pad_m: 0.06
+    resolve_feature_angle_deg: 15
+    surface_level:
+    - 6
+    - 7
+    te_box_level: 8
+    te_box_pad_m: 0.004
+    wake_box_level: 3
+    wake_box_x_m:
+    - 0.1
+    - 0.6
+  target_y_plus: 1
+name: spike03-s6-w2c1
+numerics:
+  max_iterations: 500
+  residual_criterion: 'none: the 500-iteration solve is a y+ screen (M-1y), not a convergence claim; the DR-F2-3 y+ gate needs an A4-stationary
+    field (SPIKE-03''s later solve).'
+  schemes:
+    div_U: bounded Gauss linearUpwindV grad(U)
+    div_nuTilda: bounded Gauss limitedLinear 1
+    laplacian: Gauss linear limited corrected 0.5
+outputs_expected:
+- generator.txt (STL sha256, volume check)
+- log.snappyHexMesh
+- log.checkMesh
+- log.locate (tip gate)
+physics:
+  application: simpleFoam
+  flow: incompressible-steady
+  fluid:
+    name: fresh water 20 C (nu rounded; ITTC Rev 03 = 1.0034e-6)
+    nu_m2_s: 1.0e-06
+    rho_kg_m3: 998.2
+  freestream:
+    U_m_s: 5.0
+    nuTilda_over_nu: 3.0
+  transition: none (fully turbulent; transition not modelled)
+  turbulence_model: SpalartAllmaras
+  wall_treatment: wall-resolved (nuTilda = 0, nut = 0 at the wall); W3
+purpose:
+  question: Does snappy with surface and feature refinement +1 level (W2c-1) grow the layers and clear the tip region?
+  round: 5
+  run_id: S6-W2C1
+  spike: SPIKE-03
+  stage: 1
+run_dir: runs/20261006T003928Z-spike03-s6-w2c1
+solver: openfoam

@@ -1,0 +1,28 @@
+GATE (DR-F3-1 A) FAIL: non_orthogonality_le_70=FAIL skewness_le_4_internal_20_boundary=FAIL volumes_positive=FAIL face_pyramids_ok=FAIL face_weight_ge_0.05=FAIL checkMesh_validity_set_without_determinant=FAIL layers_20_on_ge95pct_and_ge10_on_100pct=ok
+  max_non_orthogonality=174.546301403 faces_gt_70=321 max_skewness=2833.541406 min_face_weight=3.74055651947e-05 min_volume=None min_determinant=0.0 (reported, not gated)
+  checkMesh *** lines: ['***Boundary openness (-1.73031729945e-09 2.71195083544e-08 7.79212976446e-05) possible hole in boundary description.', '***Open cells found, max cell openness: 1, number of open cells 4959', '***Zero or negative cell volume detected.  Minimum negative volume: -2.46087960732e-11, Number of negative volume cells: 263', '***Number of non-orthogonality errors: 3492.', '***Error in face pyramids: 5603 faces are incorrectly oriented.', '***Max skewness = 2833.541406, 2157 highly skew faces detected which may impair the quality of the results', '***Error in face tets: 11983 faces with low quality or negative volume decomposition tets.', '***Cells with small determinant (< 0.001) found, number of cells: 71534', '***Concave cells (using face planes) found, number of cells: 5104', '***Faces with small interpolation weight (< 0.05) found, number of faces: 250', '***Faces with small volume ratio (< 0.01) found, number of faces: 418']
+  layers: wing_faces=10806 layer_prisms=216120 expected=216120 (100.00 %); te_arc_root_segments=8; stack=1.4935e-03 m
+cells=309031 by type: 0=4564 prism=211556 tet=92911
+faces > 70 deg (nonOrthoFaces): n=3813 primary interface=16 main=3328 te=2 tip_pole=467 | flags tip_pole=467 te=392 root=0 interface=17 tip=0 edge=3778 | wall distance min/median/max = 0.00e+00/0.00e+00/1.86e-03 m (stack 1.49e-03)
+    interface: cell pairs (5 prism, 7 tet) 5-7:16; x/c 0.0537..0.9230, z 0.0240..0.0244 m
+    main: cell pairs (5 prism, 7 tet) 0-0:48 0-5:3074 0-7:25 5-5:181; x/c 0.0027..0.9912, z 0.0238..0.0249 m
+    te: cell pairs (5 prism, 7 tet) 0-5:1 0-7:1; x/c 0.9926..0.9929, z 0.0243..0.0244 m
+    tip_pole: cell pairs (5 prism, 7 tet) 0-0:11 0-5:250 0-7:61 5-5:141 5-7:1 7-7:3; x/c -0.0060..1.0111, z 0.0236..0.0250 m
+TIPREGION faces > 70 deg: n=3813 (z >= b/2 - 2 mm) primary interface=16 main=3328 te=2 tip_pole=467 | edge_flag=3778
+low-weight faces (< 0.05): n=250 primary main=242 tip_pole=8 | flags tip_pole=8 te=5 root=0 interface=0 tip=0 edge=189 | wall distance min/median/max = 0.00e+00/3.06e-04/1.86e-03 m (stack 1.49e-03)
+    main: x 0.00024..0.11813 y -0.00878..0.00913 z 0.02382..0.02446
+    tip_pole: x -0.00013..0.12015 y -0.00080..0.00056 z 0.02411..0.02484
+TIPREGION low-weight faces: n=250 (z >= b/2 - 2 mm) primary main=242 tip_pole=8 | edge_flag=189
+two-internal-face cells: n=511 primary main=237 tip=222 tip_pole=52 | flags tip_pole=52 te=44 root=0 interface=0 tip=222 edge=111 | wall distance min/median/max = 0.00e+00/1.59e-03/2.91e+00 m (stack 1.49e-03)
+    main: types 5:215 7:22
+    tip: types 7:222
+    tip_pole: types 5:52
+wing faces=10806; faces whose owner is not a prism (no layer column): 180
+wing faces without layers (owner-cell centres): n=180 primary main=162 tip_pole=18 | flags tip_pole=18 te=14 root=0 interface=0 tip=0 edge=180 | wall distance min/median/max = 0.00e+00/0.00e+00/0.00e+00 m (stack 1.49e-03)
+    main: owner types 0:162
+    tip_pole: owner types 0:18
+cellDeterminant < 0.001, layer (prism): 69594 of 211556 (32.90 %), min 0.000e+00, median 9.400e-03
+cellDeterminant < 0.001, core (tet): 244 of 92911 (0.26 %), min 0.000e+00, median 1.696e-01
+core (tet) cells with determinant < 0.001: n=244 primary main=22 tip=222 | flags tip_pole=0 te=0 root=0 interface=0 tip=222 edge=0 | wall distance min/median/max = 1.16e+00/1.75e+00/2.91e+00 m (stack 1.49e-03)
+TIPGATE faces>70deg=3813 low_weight_faces=250 negative_volume_cells_tip=263 (whole coupon 263) wing_faces_tip=2082 with_prism_owner=1902 (91.35 %)
+TIPGATE checkMesh error lines (whole coupon): ***Boundary openness (-1.73031729945e-09 2.71195083544e-08 7.79212976446e-05) possible hole in boundary description. | ***Open cells found, max cell openness: 1, number of open cells 4959 | ***Zero or negative cell volume detected.  Minimum negative volume: -2.46087960732e-11, Number of negative volume cells: 263 | ***Number of non-orthogonality errors: 3492. | ***Error in face pyramids: 5603 faces are incorrectly oriented. | ***Max skewness = 2833.541406, 2157 highly skew faces detected which may impair the quality of the results | ***Error in face tets: 11983 faces with low quality or negative volume decomposition tets. | ***Concave cells (using face planes) found, number of cells: 5104 | ***Faces with small interpolation weight (< 0.05) found, number of faces: 250 | ***Faces with small volume ratio (< 0.01) found, number of faces: 418

@@ -11710,6 +11710,93 @@ window.DOCS_INDEX = {
       "sourceSha256": "21746faee23c69059cc4534d362e1744a99503cc6acb4f450ad565ce8e4ab2d9"
     },
     {
+      "id": "proof-spike-03-tip-bl-route",
+      "path": "docs/proof/spike-03/tip-bl-route/verdict.md",
+      "title": "SPIKE-03 tip BL route S6 — verdict",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-s6",
+      "phase": "spike",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "No boundary-layer route meshes the flat tip of record to DR-F3-1 A. W1 (Gmsh fan option) is byte-identical to S4 V1: the option has no 3-D effect. W2a and W2b (snappyHexMesh) cut the failures from 3,813 faces to 61 and 6 and remove the negative cells in W2b, but reach 0 % full layer columns on the tip (at most 14 of 20). W4 (8 um round) fails before a mesh exists (Gmsh PLC error). W3 had no tool. The rule says stop and report; S5 stays untriggered. W2b is the nearest and had one untested cause (surface cells vs stack). W2c (Ruling 98) tested it: finer refinement gave cleaner tip cells but fewer layers (mean 2.8 of 20), so the hypothesis is refuted at +1 and +2 did not finish. S5 stays untriggered. macOS arm64 only.",
+      "tags": [
+        "spike-03",
+        "gmsh",
+        "snappyhexmesh",
+        "mesh-gate",
+        "tip",
+        "boundary-layer",
+        "ruling-97"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-03-tip-bl-route-prereg",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-spike-03-tip-coupon",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-tip-handling",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "132ffd2765f29e99e85e652ffc0af77d2c9295ee48ce62692fe78b3638271167"
+    },
+    {
+      "id": "proof-spike-03-tip-bl-route-prereg",
+      "path": "docs/proof/spike-03/tip-bl-route/preregistration.md",
+      "title": "SPIKE-03 tip BL route S6 — pre-registration (variants, metrics, decision rule)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-s6",
+      "phase": "spike",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Written and committed before any S6 mesh. Four boundary-layer route variants on S4's V1 coupon (the planar flat cut at b/2 of Ruling 93): W1 Gmsh with the corner-fan option set, W2a and W2b snappyHexMesh addLayers (layers around the edge, layers terminated at the edge), W4 an in-mesh 8 um perimeter round (needs an operator ruling). W3 (K2 normal smoothing) has no available tool and is not run. The S4 metrics, the pass definition and the decision rule.",
+      "tags": [
+        "spike-03",
+        "gmsh",
+        "snappyhexmesh",
+        "mesh-gate",
+        "tip",
+        "boundary-layer",
+        "pre-registration",
+        "ruling-97"
+      ],
+      "links": [
+        {
+          "to": "proof-spike-03-tip-coupon",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-spike-03-tip-coupon-prereg",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-tip-handling",
+          "rel": "implements"
+        },
+        {
+          "to": "plan-fluids-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b92a51dd7acb8363449c183b1fb35aea9fd0dd5fb2f247f7755bcab3ff44ab2b"
+    },
+    {
       "id": "proof-spike-03-tip-coupon",
       "path": "docs/proof/spike-03/tip-coupon/verdict.md",
       "title": "SPIKE-03 tip mesh coupon S4 — verdict",
@@ -14053,5 +14140,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "aadf1a3d4485de9d1e44646d5e6922119a969600c9a01ed2d8c5d1784264ce48"
+  "graphSha256": "fe985580627ec247e726d382a55265f6b57a72ca799fb2c01d0f67f69d12d2cf"
 };

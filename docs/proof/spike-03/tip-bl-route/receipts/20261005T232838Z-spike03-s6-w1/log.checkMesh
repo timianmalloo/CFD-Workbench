@@ -1,0 +1,145 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : checkMesh -constant -allGeometry -allTopology -writeSets vtk -writeFields (nonOrthoAngle cellDeterminant cellShapes faceWeight cellVolume)
+Date   : Oct 05 2026
+Time   : 16:28:44
+Host   : Mac
+PID    : 21673
+I/O    : uncollated
+Case   : /Users/mallalieut/projects/CFD-Workbench-spike-tip-bl-route-s6/runs/20261005T232838Z-spike03-s6-w1
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+Create mesh for time = constant
+
+Check mesh...
+    Enabling all (cell, face, edge, point) topology checks.
+    Enabling all geometry checks.
+    Reconstructing and writing vtk representation of all faceSets and cellSets.
+    Writing mesh quality as fields (cellDeterminant cellShapes cellVolume faceWeight nonOrthoAngle)
+
+Time = constant
+
+Mesh stats 
+    points:           129572
+    faces:            737808
+    internal faces:   714436
+    cells:            309031
+    faces per cell:   4.69934731467
+    boundary patches: 4
+    point zones:      0
+    face zones:       0
+    cell zones:       1
+
+Overall number of cells of each type:
+    hexahedra:     0
+    prisms:        211556
+    wedges:        0
+    pyramids:      0
+    tet wedges:    0
+    tetrahedra:    92911
+    polyhedra:     4564
+    Breakdown of polyhedra by number of faces:
+        faces   number of cells
+            5   4564
+
+Checking topology...
+    Boundary definition OK.
+    Cell to face addressing OK.
+    Point usage OK.
+    Upper triangular ordering OK.
+    Face vertices OK.
+    Topological cell zip-up check OK.
+    Number of identical duplicate faces (baffle faces): 201
+  <<Number of faces with non-consecutive shared points: 2166. This might indicate a problem.
+  <<Writing 2767 faces with non-standard edge connectivity to set edgeFaces
+  <<Writing 511 cells with two non-boundary faces to set twoInternalFacesCells
+    Number of regions: 1 (OK).
+
+Checking patch topology for multiply connected surfaces...
+                   Patch    Faces   Points  Surface topology  Bounding box
+                    wing    10806     5494  ok (non-closed singly connected) (0 -0.00727630801542 0) (0.12025 0.00727630799675 0.025)
+                symmetry     7480     5682  ok (non-closed singly connected) (-1.2 -1.2 -7.52425549414e-05) (2.64 1.2 7.13728807738e-19)
+                farfield     3614     1860  ok (non-closed singly connected) (-1.2 -1.2 0) (2.64 1.2 0.985)
+            defaultFaces     1472      888  multiply connected (shared edge) (-0.00118960386923 -0.0087690599676 0.0236155244655) (0.120723567386 0.00876890364903 0.0248833518949)
+                    ".*"    23372    13640  multiply connected (shared edge) (-1.2 -1.2 -7.52425549414e-05) (2.64 1.2 0.985)
+
+Detected 470 bad edges (possibly relevant for finite-area)
+
+Checking faceZone topology for multiply connected surfaces...
+    No faceZones found.
+  <<Writing 523 conflicting points to set nonManifoldPoints
+
+Checking basic cellZone addressing...
+                CellZone        Cells       Points       VolumeBoundingBox
+                  fluid       309031       129572 9.07780908488 (-1.2 -1.2 -7.52425549414e-05) (2.64 1.2 0.985)
+
+Checking basic pointZone addressing...
+    No pointZones found.
+
+Checking geometry...
+    Overall domain bounding box (-1.2 -1.2 -7.52425549414e-05) (2.64 1.2 0.985)
+    Mesh has 3 geometric (non-empty/wedge) directions (1 1 1)
+    Mesh has 3 solution (non-empty) directions (1 1 1)
+ ***Boundary openness (-1.73031729945e-09 2.71195083544e-08 7.79212976446e-05) possible hole in boundary description.
+ ***Open cells found, max cell openness: 1, number of open cells 4959
+  <<Writing 4959 non closed cells to set nonClosedCells
+  <<Writing 263 cells with high aspect ratio to set highAspectRatioCells
+    Minimum face area = 6.18758174255e-13. Maximum face area = 0.0203339887286.  Face area magnitudes OK.
+ ***Zero or negative cell volume detected.  Minimum negative volume: -2.46087960732e-11, Number of negative volume cells: 263
+  <<Writing 263 zero volume cells to set zeroVolumeCells
+    Mesh non-orthogonality Max: 174.546301403 average: 16.4373498696
+   *Number of severely non-orthogonal (> 70 degrees) faces: 321.
+ ***Number of non-orthogonality errors: 3492.
+  <<Writing 3813 non-orthogonal faces to set nonOrthoFaces
+ ***Error in face pyramids: 5603 faces are incorrectly oriented.
+  <<Writing 5518 faces with incorrect orientation to set wrongOrientedFaces
+ ***Max skewness = 2833.541406, 2157 highly skew faces detected which may impair the quality of the results
+  <<Writing 2157 skew faces to set skewFaces
+    Coupled point location match (average 0) OK.
+ ***Error in face tets: 11983 faces with low quality or negative volume decomposition tets.
+  <<Writing 6050 faces with low quality or negative volume decomposition tets to set lowQualityTetFaces
+    Min/max edge length = 7.9999997597e-06 0.246231720683 OK.
+   *There are 543 faces with concave angles between consecutive edges. Max concave angle = 89.9929269439 degrees.
+  <<Writing 543 faces with concave angles to set concaveFaces
+    Face flatness (1 = flat, 0 = butterfly) : min = 9.1858744572e-05  average = 0.997831337029
+   *There are 536 faces with ratio between projected and actual area < 0.8
+    Minimum ratio (minimum flatness, maximum warpage) = 9.1858744572e-05
+  <<Writing 536 warped faces to set warpedFaces
+    Cell determinant (wellposedness) : minimum: 0 average: 0.103199716425
+ ***Cells with small determinant (< 0.001) found, number of cells: 71534
+  <<Writing 71534 under-determined cells to set underdeterminedCells
+ ***Concave cells (using face planes) found, number of cells: 5104
+  <<Writing 5104 concave cells to set concaveCells
+    Face interpolation weight : minimum: 3.74055651947e-05 average: 0.454315626812
+ ***Faces with small interpolation weight (< 0.05) found, number of faces: 250
+  <<Writing 250 faces with low interpolation weights to set lowWeightFaces
+    Face volume ratio : minimum: -17.7767282524 average: 0.846163191167
+ ***Faces with small volume ratio (< 0.01) found, number of faces: 418
+  <<Writing 418 faces with low volume ratio cells to set lowVolRatioFaces
+
+Failed 11 mesh checks.
+
+Writing fields with mesh quality parameters
+    Writing non-orthogonality (angle) to nonOrthoAngle
+    Writing face interpolation weights (0..0.5) to faceWeight
+    Writing cell determinant to cellDeterminant
+    Writing cell shape (hex, tet etc.) to cellShapes
+    Writing cell volume to cellVolume
+
+End
+

@@ -1,0 +1,14 @@
+of-run: start 2026-10-06T00:39:29Z load1=14.38 record=verified lint=clean bundle=f3debe8b5541 cmd=blockMesh
+of-run: end status=0 wall_s=1 load1=14.38 peak_rss_bytes=120766464 banner=Disallowing cmd=blockMesh
+of-run: start 2026-10-06T00:39:30Z load1=14.38 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh
+of-run: end status=0 wall_s=1 load1=14.38 peak_rss_bytes=113655808 banner=Disallowing cmd=checkMesh
+of-run: start 2026-10-06T00:39:32Z load1=14.38 record=verified lint=clean bundle=f3debe8b5541 cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: end status=0 wall_s=1 load1=13.39 peak_rss_bytes=33144832 banner=Disallowing cmd=surfaceCheck constant/triSurface/wing.stl
+of-run: start 2026-10-06T00:39:34Z load1=13.39 record=verified lint=clean bundle=f3debe8b5541 cmd=surfaceFeatureExtract
+of-run: end status=0 wall_s=0 load1=13.39 peak_rss_bytes=34340864 banner=Disallowing cmd=surfaceFeatureExtract
+of-run: start 2026-10-06T00:39:35Z load1=13.39 record=verified lint=clean bundle=f3debe8b5541 cmd=snappyHexMesh -overwrite
+of-run: end status=0 wall_s=1628 load1=16.02 peak_rss_bytes=3282386944 banner=Disallowing cmd=snappyHexMesh -overwrite
+of-run: start 2026-10-06T01:06:44Z load1=16.02 record=verified lint=clean bundle=f3debe8b5541 cmd=checkMesh -constant -allGeometry -allTopology -writeSets vtk -writeFields (nonOrthoAngle cellDeterminant cellShapes faceWeight cellVolume)
+of-run: end status=0 wall_s=9 load1=15.70 peak_rss_bytes=1582022656 banner=Disallowing cmd=checkMesh -constant -allGeometry -allTopology -writeSets vtk -writeFields (nonOrthoAngle cellDeterminant cellShapes faceWeight cellVolume)
+of-run: start 2026-10-06T01:06:55Z load1=17.73 record=verified lint=clean bundle=f3debe8b5541 cmd=postProcess -constant -func writeCellCentres
+of-run: end status=0 wall_s=4 load1=20.15 peak_rss_bytes=493043712 banner=Disallowing cmd=postProcess -constant -func writeCellCentres

@@ -1,0 +1,22 @@
+stl_sha256=107d74ffb0abedb3ea1329e8e493c015a039f5d4f46c13d1eaed02294a2aa6ee triangles=2064 enclosed_volume_m3=4.223060e-05 expected=4.223326e-05
+te_thickness_m=0.0005 analysis_tip_extension_m=0.00728 S_ref_half_m2=0.003000
+background=80x21x50=84000 cells, base=0.048 m, y_max=1.0080 m
+freestream U=(4.987820251 0 0.3487823687) nuTilda=3e-06 nut=2.10438e-07
+launcher-record: init files=16 manifest=80d8ed69a2b8 record=runs/.launcher/7a586b343cadd9bdcd93
+status=0 wall_s=1 peak_rss_bytes=120766464 banner=Disallowing log=runs/20261006T003928Z-spike03-s6-w2c1/log.blockMesh
+status=0 wall_s=1 peak_rss_bytes=113655808 banner=Disallowing log=runs/20261006T003928Z-spike03-s6-w2c1/log.checkMesh-preflight
+status=0 wall_s=1 peak_rss_bytes=33144832 banner=Disallowing log=runs/20261006T003928Z-spike03-s6-w2c1/log.surfaceCheck
+status=0 wall_s=0 peak_rss_bytes=34340864 banner=Disallowing log=runs/20261006T003928Z-spike03-s6-w2c1/log.surfaceFeatureExtract
+status=0 wall_s=1628 peak_rss_bytes=3282386944 banner=Disallowing log=runs/20261006T003928Z-spike03-s6-w2c1/log.snappyHexMesh
+status=0 wall_s=9 peak_rss_bytes=1582022656 banner=Disallowing log=runs/20261006T003928Z-spike03-s6-w2c1/log.checkMesh
+status=0 wall_s=4 peak_rss_bytes=493043712 banner=Disallowing log=runs/20261006T003928Z-spike03-s6-w2c1/log.postProcess-C
+GATE inputs: max_non_orthogonality=80.34261939 faces_gt_70=130 max_skewness=1.54618706126 min_face_weight=0.0220585539899 min_volume=4.40267272051e-13
+  checkMesh *** lines: ['***Error in face tets: 4 faces with low quality or negative volume decomposition tets.', '***Concave cells (using face planes) found, number of cells: 31939', '***Faces with small interpolation weight (< 0.05) found, number of faces: 32']
+  snappy layer table (last): wing faces=69724 target=20 mean layers=2.79 thickness=0.000367 m (24.6 % of target)
+cells=1059695 by type: 0=94119 hex=956154 4=544 prism=8452 9=426
+faces > 70 deg (nonOrthoFaces): n=130 tip_region=4 | x/c 0.1778..0.9286, span 0.0004..0.0250 m, tip-region span 0.0250..0.0250
+low-weight faces (< 0.05): n=32 tip_region=4 | x/c 0.2106..0.9998, span 0.0217..0.0251 m, tip-region span 0.0251..0.0251
+wing faces=69724; whole coupon faces with 20 layers: 1382 (1.98 %), mean layers 2.79; tip-region layer histogram {np.int64(0): np.int64(47274), np.int64(1): np.int64(260), np.int64(2): np.int64(338), np.int64(3): np.int64(914), np.int64(4): np.int64(96), np.int64(5): np.int64(78), np.int64(6): np.int64(462), np.int64(7): np.int64(34), np.int64(8): np.int64(30), np.int64(9): np.int64(236), np.int64(10): np.int64(18), np.int64(11): np.int64(24), np.int64(12): np.int64(102)}
+TIPGATE faces>70deg=4 low_weight_faces=4 negative_volume_cells_tip=0 (whole coupon 0) wing_faces_tip=49866 with_full_layers=0 (0.00 %)
+TIPGATE checkMesh error lines (whole coupon): ***Error in face tets: 4 faces with low quality or negative volume decomposition tets. | ***Concave cells (using face planes) found, number of cells: 31939 | ***Faces with small interpolation weight (< 0.05) found, number of faces: 32
+run=runs/20261006T003928Z-spike03-s6-w2c1

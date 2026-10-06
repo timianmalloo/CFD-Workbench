@@ -1,0 +1,32 @@
+Error   : Unknown option 'SurfacesList' in field 1 of type 'BoundaryLayer'
+Error   : Unknown option 'SurfacesList' in field 1 of type 'BoundaryLayer'
+Warning : Field option 'IntersectMetrics' is not a list
+Warning : Field option 'Quads' is not a list
+Warning : Field option 'Ratio' is not a list
+Warning : Field option 'Size' is not a list
+Warning : Field option 'Thickness' is not a list
+Warning : Field option 'NbLayers' is not a list
+Warning : Field option 'SizeFar' is not a list
+Warning : Field option 'AnisoMax' is not a list
+Warning : Field option 'hwall_n' is not a list
+Warning : Field option 'hfar' is not a list
+Warning : Field option 'BetaLaw' is not a list
+ok list CurvesList
+ok list EdgesList
+ok list PointsList
+NO SurfacesList
+ok list FanPointsList
+ok list FanNodesList
+ok list FanPointsSizesList
+ok list IntersectMetrics
+ok list Quads
+ok list Ratio
+ok list Size
+ok list Thickness
+ok list NbLayers
+ok list SizeFar
+ok list ExcludedSurfacesList
+ok list AnisoMax
+ok list hwall_n
+ok list hfar
+ok list BetaLaw

@@ -1,0 +1,22 @@
+--
+20600:patch faces        layers        overall thickness
+20601-              target   mesh     [m]       [%]
+20602------ -----    -----    ----     ---       ---
+20603-wing 69724    20       2.79     0.000367  24.6    
+20604-
+20605-Writing 194311 added cells to cellSet addedCells
+20606-Writing 172703 faces inside added layer to faceSet layerFaces
+Mesh with layers : cells:962276  faces:3030951  points:1111475
+Mesh with layers : cells:1041051  faces:3271222  points:1194213
+Mesh with layers : cells:1059695  faces:3328261  points:1213979
+Writing 194311 added cells to cellSet addedCells
+Writing 172703 faces inside added layer to faceSet layerFaces
+---- tail
+    faces with face twist < 0.02                           : 0
+    faces on cells with determinant < 0.001                : 0
+Finished meshing with 430 illegal faces (concave, zero area or negative cell pyramid volume)
+Finished meshing in = 1548.46 s.
+End
+
+Layer addition iteration 48
+Layer addition iteration 49
