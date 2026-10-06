@@ -79,6 +79,7 @@ public static class AnalysisProjection
             Force("Lift L", lift, units), Force("Induced drag", drag, units),
             DragBandRow("Wing-only drag", wing2, wing4, units, null, "ANA-WING-ONLY-DRAG · " + SurrogateLabel),
             DragBandRow("Total drag", total2, total4, units, run.Settings.Polar is null ? Loads.TotalDragReason : null),
+            WingRatioRow(lift, wing2, wing4),
             Row("CL/CD", total2.Value is > 0 && total4.Value is > 0 ?
                 Num(lift / total4.Value.Value, "0.###") + "–" + Num(lift / total2.Value.Value, "0.###") :
                 "Unavailable — total drag missing"),
@@ -130,6 +131,7 @@ public static class AnalysisProjection
                 SurrogateLabel),
             DragBandRow("Wing-only drag", wing2, wing4, units, null, "ANA-WING-ONLY-DRAG · " + SurrogateLabel),
             DragBandRow("Total drag", total2, total4, units, run.Settings.Polar is null ? Loads.TotalDragReason : null),
+            WingRatioRow(lift, wing2, wing4),
             Row("Structural", "Structural: Not assessed", note: Labels.StructuralList),
             Row("t/c (root)", context.RootThicknessRatio.HasValue ? Num(context.RootThicknessRatio.Value * 100, "0.#") : Labels.ThicknessMissing,
                 context.RootThicknessRatio.HasValue ? "%" : null),
@@ -230,8 +232,20 @@ public static class AnalysisProjection
         string? note = n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
             ? string.Join(" · ", new[] { tierNote, "ANA-POLAR-LOW-CONFIDENCE" }.Where(part => part is not null))
             : tierNote;
-        return Row(label, Num(low / factor, "0.###") + "–" + Num(high / factor, "0.###"),
+        return Row(label, Num(Math.Min(low, high) / factor, "0.###") + "–" +
+            Num(Math.Max(low, high) / factor, "0.###"),
             units == Units.Imperial ? "lbf" : "N", note);
+    }
+
+    private static ResultRow WingRatioRow(double lift, StripValue n2, StripValue n4)
+    {
+        if (n2.Value is not > 0 || n4.Value is not > 0)
+            return Row("Wing-only CL/CD", "ANA-WING-RATIO-UNAVAILABLE");
+        double a = lift / n2.Value.Value, b = lift / n4.Value.Value;
+        return Row("Wing-only CL/CD", Num(Math.Min(a, b), "0.###") + "–" + Num(Math.Max(a, b), "0.###"),
+            note: "ANA-WING-ONLY-RATIO · " + SurrogateLabel +
+                (n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
+                    ? " · ANA-POLAR-LOW-CONFIDENCE" : ""));
     }
 
     public static ResultGroup StripAt(AnalysisViewModel view, double eta)
