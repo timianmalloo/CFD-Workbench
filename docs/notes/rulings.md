@@ -1119,3 +1119,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. (1) The
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. COPY-400 reads "Point <n> would leave its allowed range (<min> to <max>)", each bound carrying its unit through the app rule (Quantity.WithUnit): "(−57.30° to 57.30°)" for angles, "(0.00 mm to 450.00 mm)" and "(4.00 % to 20.00 %)" otherwise.
 
 - request: req-01M49GGMBR0XZSY7KQTC6JTX5X · ruled by: operator-timianmalloo · at: 2026-10-06T21:04:34Z
+
+### Ruling 121 — Units: remembered by a shared preference key added on the Mac; Analysis only; one status item
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. (1) The Mac session adds an optional units key to the cfdw-display preferences (load and save beside text size, platform-neutral) and posts a handoff to the PC session, whose Windows preference work builds on it; this is a one-time exception to two-machine.md Paths for PreferenceStore.cs. (2) Imperial changes Analysis display only (ANA-18: N to lbf, m/s to kn, and the rest); CAD lengths stay in millimetres. (3) The status bar has one unit control, the Metric/Imperial button; the section editor no longer shows a % chord status label, its fields carry their own units.
+
+- request: req-01M49J66JA8D0VXZH1R9YZ98QT · ruled by: operator-timianmalloo · at: 2026-10-06T21:33:50Z
