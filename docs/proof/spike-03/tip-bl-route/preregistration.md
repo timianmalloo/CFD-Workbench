@@ -136,3 +136,44 @@ terminated", **not** as a pass.
 
 Terms not defined here take S4's [preregistration](../tip-coupon/preregistration.md) meaning. A cause named by any result
 is Inferred from one mesh per variant, never Verified. O5 stays rejected: no mesh here feeds a result shown as current.
+
+## Amendment 2 — W2c (Ruling 98), written and committed before any W2c mesh
+
+Authority: Ruling 98 (operator, 2026-10-05): one more snappyHexMesh coupon set at finer surface and feature refinement;
+no other tuning. Amendment 1 does not exist; this numbering follows the verdict's reference to "a new pre-registration".
+
+**Hypothesis (H-S).** The layer collapse seen in W2a and W2b (mean 4.9-6.2 of 20 layers, 0 % full columns on the tip) is
+caused by surface cells that are coarse relative to the layer stack. Round 2's M1b levels give wing surface cells of 1.5 mm
+(level 5) and 0.75 mm (level 6), 0.19 mm at feature edges, against a 1.49 mm stack. The prediction: with finer cells the
+tip-region full-layer share rises. H-S is **refuted** if it does not rise at either level (below).
+**Not tested here:** whether the stack itself (8 um, ER 1.2, 20 layers) is too thick for snappy at any resolution.
+
+**Variants** (W2b exactly: `featureAngle 80`, `nBufferCellsNoExtrude 1`, same STL, domain, layer recipe, shrinker and every
+other setting; base cell 48 mm; only the levels change). Cell size = 48 mm / 2^level:
+
+| Id | Wing surface level (min, max) | Feature-edge levels (distance, level) | TE box level | Surface cell on the cap |
+|---|---|---|---|---|
+| W2b (reference) | 5, 6 | (0.5 mm, 8), (2 mm, 7) | 7 | 1.5 / 0.75 mm |
+| W2c-1 (+1) | 6, 7 | (0.5 mm, 9), (2 mm, 8) | 8 | 0.75 / 0.375 mm |
+| W2c-2 (+2) | 7, 8 | (0.5 mm, 10), (2 mm, 9) | 9 | 0.375 / 0.19 mm |
+
+W2c-2's surface cell (0.19-0.375 mm) is at most about a quarter of the stack. Cases: `cases/spike03-s6-w2c1.yaml`,
+`cases/spike03-s6-w2c2.yaml` (sha256 `705e3a3009f48ab04f6958b413d63becdebcb2b69587a8d5fc5902756cd0a068`,
+`1cac401c97636d48ce1502ed5f98bb7e0e7ad2e5b284765aedb4a54db6222f75`). Driver, generator and locator are W2b's, unchanged
+(`mesh-gate-snappy.sh`, `make-tip-bl-snappy.py`, `mesh-locate-snappy.py`).
+
+**Order and budget.** W2c-1 first, W2c-2 second, one run each, serial, 1-minute load below 30 before each (of-run polls).
+Wall cap 30 min per run: a run that does not finish is killed and reported "not possible" with the last snappy iteration
+read; a kill is not repeated. Cell count rises about 4x per level (Inferred from the surface face count), so W2c-2 may not
+fit the box; if W2c-1 has not finished by minute 45 of the 75-minute box, W2c-2 is not started and that is reported.
+Metrics: the same as the pre-registration (faces above 70 degrees, weight below 0.05, negative cells, checkMesh against
+DR-F3-1 A, layer coverage in the tip region from `nSurfaceLayers`, cells, time, RSS, load).
+
+**Decision rule** (the same pass definition, applied verbatim to each run):
+1. A W2c run **passes** when its tip region has zero faces above 70 degrees, zero faces with weight below 0.05, zero
+   negative-volume cells, no located checkMesh error line, and at least 95 % of tip wing faces with the full 20 layers.
+   Then S5 becomes one AR 8 snappyHexMesh run on the tip of record, under a new pre-registration (not an edit of this one).
+2. If neither run passes: stop and report the measured trend (tip-region full-layer share, mean layers, faces above 70
+   degrees and negative cells against level: W2b, +1, +2). H-S is **supported** if the full-layer share rises with level and
+   **refuted** if it does not rise at either level. A rise short of 95 % is a trend, not a pass.
+3. A pass at +1 makes +2 unnecessary only if +2 has not been started; if it was started it is reported too.

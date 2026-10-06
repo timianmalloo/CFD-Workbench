@@ -11530,7 +11530,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9fd742ccf1650fe1f0442df8c95cf0e51b7af4a04b5bd98392dce48203b2d43a"
+      "sourceSha256": "b92a51dd7acb8363449c183b1fb35aea9fd0dd5fb2f247f7755bcab3ff44ab2b"
     },
     {
       "id": "proof-spike-03-tip-coupon",
@@ -13860,5 +13860,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "6751b606f32157d37db98e4bb4bfea16097cb964d53004800998dd51a926e620"
+  "graphSha256": "210e366c5766e9c5f080fbe1cc3d3747864b609d92d433f92fa4adb3b63ca99b"
 };
