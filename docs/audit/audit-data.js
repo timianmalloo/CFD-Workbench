@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T16:36:43Z",
+  "generated": "2026-10-06T16:39:52Z",
   "audit": [
     {
       "actor": null,
@@ -27465,6 +27465,33 @@ window.AUDIT_DATA = {
       "done_when": "compare 0 mismatches, Copy test green, spec parity 0, check-docs 0",
       "started_at": "2026-10-06T16:35:55Z",
       "duration_seconds": 48.0
+    },
+    {
+      "id": "al-01M491BY88QCN1Z87V5J25NP67",
+      "shortname": "join-doc",
+      "datetime": "2026-10-06T16:39:52Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of docs/round-oct06-copy-spec into main",
+      "summary": "COPY-250..356: R101 31, R107 12 (COPY-G1..12), R108 41, reason-code drafts 19 proposed, Drag (Wing only) 4 (Ruling 109); spec 1.7.5 CAD-04 group clause, A5.6/ANA-03 Drag (Wing only), H.5; existing rows untouched; Copy_AnalysisStrings_MatchDesignMd PASS recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join docs/round-oct06-copy-spec into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T16:39:48Z",
+      "duration_seconds": 4.0
     }
   ],
   "changes": [
