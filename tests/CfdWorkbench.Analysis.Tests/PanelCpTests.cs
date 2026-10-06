@@ -1,5 +1,6 @@
 using System.Numerics;
 using CfdWorkbench.Analysis;
+using CfdWorkbench.Core;
 
 namespace CfdWorkbench.Analysis.Tests;
 
@@ -11,7 +12,8 @@ internal static class PanelCpTests
     internal static void Run()
     {
         AnalysisChecks.Check("PanelCp_KarmanTrefftz_InteriorOrderAndCpMin", KarmanTrefftz);
-        AnalysisChecks.Check("PanelCp_DefaultResolution_CpMinWithin2Percent", DefaultResolution);
+        AnalysisChecks.Check("PanelCp_DefaultResolution_CpMinWithin4Percent", DefaultResolution);
+        AnalysisChecks.Check("RunKey_PanelCountAndTeExclusion_ChangeKey", PanelKey);
     }
 
     internal static void RunReadiness()
@@ -67,6 +69,19 @@ internal static class PanelCpTests
         if (relativeError > 0.04)
             throw new InvalidOperationException($"{panels} panels: Cp_min {result.CpMin:G9}, exact {ExactJoukowskiCpMin:G9}, relative error {relativeError:P3} > 4%");
         Console.WriteLine($"OBSERVED default {panels}-panel KT Cp_min relative error {relativeError:P3}");
+    }
+
+    private static void PanelKey()
+    {
+        var inputs = new RunInputs(Guid.NewGuid().ToString("D"), new string('a', 64), [new string('b', 64)], "cfdw-cv/2", "placement/1");
+        var water = new WaterRecord(15, 0, 999, 1e-6, 1700, "fixture", new string('c', 64));
+        var op = new OperatingPoint(5, 101325, 0.5, "root", 3, null);
+        RunMethod current = MethodRecord.VlmStrip.Method;
+        string settings = new string('d', 64);
+        string key = RunRecord.Key(inputs, water, op, current, settings);
+        string coarse = RunRecord.Key(inputs, water, op, current with { Version = current.Version.Replace("panel200", "panel400", StringComparison.Ordinal) }, settings);
+        string te = RunRecord.Key(inputs, water, op, current with { Version = current.Version.Replace("te3", "te2", StringComparison.Ordinal) }, settings);
+        if (key == coarse || key == te || coarse == te) throw new InvalidOperationException("panel count or TE exclusion did not change the run key");
     }
 
     private static void Cusp800()

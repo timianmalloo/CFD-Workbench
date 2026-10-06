@@ -21,10 +21,8 @@ public static class PanelMethod
 {
     public const string ModelLabel = "inviscid; no boundary layer";
     public const int CpMinTrailingEdgePanelsPerSide = 3;
-    // docs/proof/a3b/red-first.md: KT Cp_min at 400 panels is -1.685973 vs exact -1.713602662,
-    // a measured 1.61% suction-peak under-read; 200 panels under-read by 3.48%.
-    public const int DefaultPanelCount = 400;
-    public const double DefaultCpMinRelativeError = 0.0161;
+    // Ruling 90: every station uses 200 cosine panels. The earlier 1.61% figure is KT-only at 400 panels.
+    public const int DefaultPanelCount = 200;
     private const double TwoPi = 2 * Math.PI;
 
     /// <summary>Sample one foil station for Cp at the panel tier's own cosine chord resolution.</summary>
