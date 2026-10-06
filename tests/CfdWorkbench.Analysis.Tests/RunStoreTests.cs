@@ -25,9 +25,33 @@ internal static class RunStoreTests
         Check("Tamper_StoredKeySetToCurrent_RunUnavailable", TamperStoredKey);
         Check("RevisionLabel_TwistEdit_OrdinalsAndRail", RevisionLabels);
         Check("RecordRun_DiagnosticsByOutcome_CompletedOnly", DiagnosticsByOutcome);
+        Check("RecordRun_PanelProvisionalCode_ValidatedOldRowReads", PanelReason);
     }
 
     internal static void RunReadiness() => Check("Retention_PruneThenUndo_TombstoneReadsPruned", PruneThenUndo);
+
+    private static void PanelReason()
+    {
+        using var session = Opened();
+        session.RecordRun(Completed(session, 2));
+        using (var old = new AuthoringSession())
+        {
+            old.Reopen(session.SaveImage());
+            Equal<string?>(null, old.ReadRuns().Runs.Single().Run.Strips[0].ProvisionalReason, "old row has no new reason");
+        }
+        AnalysisRun next = Completed(session, 3);
+        var strips = next.Strips.ToArray();
+        strips[0] = strips[0] with { Provisional = true, ProvisionalReason = "ANA-PANEL-UNDERREAD" };
+        session.RecordRun(Seal(next with { Strips = strips }));
+        using (var reopened = new AuthoringSession())
+        {
+            reopened.Reopen(session.SaveImage());
+            Equal("ANA-PANEL-UNDERREAD", reopened.ReadRuns().Runs.Last().Run.Strips[0].ProvisionalReason,
+                "new reason survives read");
+        }
+        strips[0] = strips[0] with { ProvisionalReason = "ANA-PANEL-UNKNOWN" };
+        Refuses("DOC-SCHEMA", () => session.RecordRun(Seal(Completed(session, 4) with { Strips = strips })));
+    }
 
     // SVC-2 (IO8): a Completed row carries its diagnostics and a Failed row carries none, in RecordRun and on read alike.
     // A Failed row with zeros is refused, never stored as a measured "residual 0"; a stored Failed row has no member.
