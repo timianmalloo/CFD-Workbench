@@ -2,3 +2,4 @@
 {"action": "add", "agent": "trk-seam", "at": 1791251884.96188, "deadline_at": 1791252484.96188, "id": "req-01M47EXAX2R4PS5SZAE3QS88ZM", "kind": "request", "path": "-", "seq": 2, "session": "trk-seam", "to": "4e90c621", "type": "request", "wi": "WI-0"}
 {"at": 1791251884.966634, "from": "trk-seam", "kind": "decision-request", "mail_id": "mail-01M47EXAX6H9WEEJV4ADPK3P5G", "ref": "req-01M47EXAX2R4PS5SZAE3QS88ZM", "session": "trk-seam", "to": "4e90c621", "type": "mail"}
 {"action": "add", "agent": "trk-seam", "at": 1791252239.495178, "deadline_at": 1791253139.495178, "id": "req-01M47F85471B31G0010ED3GBE5", "kind": "request", "path": "-", "seq": 4, "session": "trk-seam", "to": "fable-owner", "type": "request", "wi": "WI-0"}
+{"at": 1791255670.561929, "from": "trk-seam", "kind": "done", "mail_id": "mail-01M47JGVS1Y8MJ9BKY4JE7NQZD", "ref": "990ab9ab", "session": "trk-seam", "to": "fable-owner", "type": "mail"}

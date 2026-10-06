@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T02:54:37Z",
+  "generated": "2026-10-06T03:03:54Z",
   "audit": [
     {
       "actor": null,
@@ -26843,6 +26843,33 @@ window.AUDIT_DATA = {
       "fan_out": 2,
       "started_at": "2026-10-06T02:37:11Z",
       "duration_seconds": 1046.0
+    },
+    {
+      "id": "al-01M47JNVH319WJQVJ4YWY45JT8",
+      "shortname": "join-a3a-aux",
+      "datetime": "2026-10-06T03:03:54Z",
+      "session": "4e90c621",
+      "prompt": "the join of feature/a3a-aux into main",
+      "summary": "AUX: packaged app review-apps/7981a8bd; nine-screen review docs/reviews/a3a-native.md (in-process renders; packaged-app capture blocked by Accessibility permission); DESIGN.md component rows; polish (Evaluate button, divider, Re format, tab type); reviewers PASS-WITH-CONDITIONS; Proof Pack docs/proof/a3a/proof-pack.md with demo script; 139/139 named tests recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join a3a-aux into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T03:03:01Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
@@ -28277,6 +28304,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M47EXAX2R4PS5SZAE3QS88ZM",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M47JGVS1Y8MJ9BKY4JE7NQZD",
+      "ts": "2026-10-06T03:01:10Z",
+      "from": "trk-seam",
+      "to": "fable-owner",
+      "kind": "done",
+      "ref": "990ab9ab",
+      "session": "trk-seam"
     }
   ]
 };
