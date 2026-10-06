@@ -21,6 +21,55 @@ public static class PointsPaneTests
     private const string Copy123 = "Upper and lower surfaces cross. Move the point back to finish.";
     private const string Copy124 = "Surfaces no longer cross. Finish is available.";
 
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        Section("SectionCommands_EveryRow_RunsOrNamesReason", (controller, host, window) =>
+        {
+            var ids = CommandTable.Rows.Select(row => row.Id).Where(ShellHost.IsShellCommand).ToList();
+            var failures = new List<string>();
+            foreach (var id in ids)
+            {
+                string? reason = host.ShellCommandReason(id);
+                if (reason is null != host.CanRun(id)) failures.Add($"{id}: CanRun disagrees with its reason");
+                if (reason is { Length: 0 }) failures.Add($"{id}: empty reason");
+            }
+            // In the mode with a control point selected, every row runs or names why not; a run leaves a report.
+            SelectControl(controller);
+            Settle(window);
+            // Modal commands have their own dialog checks; awaiting them here would wait for an operator choice.
+            foreach (var id in ids.Where(id => id is not ("section.finish" or "section.cancel" or "section.import-dat"
+                or "section.replace-catalog" or "section.save-mine")))
+            {
+                string? reason = host.ShellCommandReason(id);
+                string before = host.StatusStrip.Text;
+                long generation = controller.Section?.Draft.Generation ?? -1;
+                Pump(host.RunCommand(id));
+                WaitAssessed(controller, window);
+                if (reason is not null && host.StatusStrip.Text != reason) failures.Add($"{id}: refusal not reported ('{host.StatusStrip.Text}')");
+                if (reason is null && host.StatusStrip.Text == before && (controller.Section?.Draft.Generation ?? -1) == generation)
+                    failures.Add($"{id}: ran with no visible effect");
+                if (controller.Section is null) Pump(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+                if (controller.Selection is not Selection.Points) SelectControl(controller);
+                Settle(window);
+            }
+            // UI-DEAD-CONTROL in the section mode: every enabled button in the shell has an action.
+            foreach (var button in host.GetVisualDescendants().OfType<Button>().Where(button => button.IsEffectivelyVisible && button.IsEnabled &&
+                         button.Name?.StartsWith("PART_", StringComparison.Ordinal) != true))
+            {
+                if (button.Command is not null || button.Flyout is MenuFlyout { Items.Count: > 0 }) continue;
+                var store = typeof(Interactive).GetField("_eventHandlers", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+                    .GetValue(button) as System.Collections.IDictionary;
+                if (store?.Contains(Button.ClickEvent) != true) failures.Add("dead button " + (button.Name ?? button.Content?.ToString()));
+            }
+            Pump(host.RunCommand("section.cancel"));
+            Settle(window);
+            if (controller.Section is not null || !host.StatusStrip.Text.StartsWith("Cancelled. ", StringComparison.Ordinal))
+                failures.Add($"section.cancel: '{host.StatusStrip.Text}'");
+            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+        });
+    }
+
     public static void Run()
     {
         Capture();
@@ -207,50 +256,6 @@ public static class PointsPaneTests
                 throw new InvalidOperationException($"insert report '{strip}' (max change {report.MaxChange:R}, {before} → {upper.Points.Count})");
         });
 
-        Section("SectionCommands_EveryRow_RunsOrNamesReason", (controller, host, window) =>
-        {
-            var ids = CommandTable.Rows.Select(row => row.Id).Where(ShellHost.IsShellCommand).ToList();
-            var failures = new List<string>();
-            foreach (var id in ids)
-            {
-                string? reason = host.ShellCommandReason(id);
-                if (reason is null != host.CanRun(id)) failures.Add($"{id}: CanRun disagrees with its reason");
-                if (reason is { Length: 0 }) failures.Add($"{id}: empty reason");
-            }
-            // In the mode with a control point selected, every row runs or names why not; a run leaves a report.
-            SelectControl(controller);
-            Settle(window);
-            // Modal commands have their own dialog checks; awaiting them here would wait for an operator choice.
-            foreach (var id in ids.Where(id => id is not ("section.finish" or "section.cancel" or "section.import-dat"
-                or "section.replace-catalog" or "section.save-mine")))
-            {
-                string? reason = host.ShellCommandReason(id);
-                string before = host.StatusStrip.Text;
-                long generation = controller.Section?.Draft.Generation ?? -1;
-                Pump(host.RunCommand(id));
-                WaitAssessed(controller, window);
-                if (reason is not null && host.StatusStrip.Text != reason) failures.Add($"{id}: refusal not reported ('{host.StatusStrip.Text}')");
-                if (reason is null && host.StatusStrip.Text == before && (controller.Section?.Draft.Generation ?? -1) == generation)
-                    failures.Add($"{id}: ran with no visible effect");
-                if (controller.Section is null) Pump(controller.EnterSectionAsync(0, EntryOrigin.Palette));
-                if (controller.Selection is not Selection.Points) SelectControl(controller);
-                Settle(window);
-            }
-            // UI-DEAD-CONTROL in the section mode: every enabled button in the shell has an action.
-            foreach (var button in host.GetVisualDescendants().OfType<Button>().Where(button => button.IsEffectivelyVisible && button.IsEnabled &&
-                         button.Name?.StartsWith("PART_", StringComparison.Ordinal) != true))
-            {
-                if (button.Command is not null || button.Flyout is MenuFlyout { Items.Count: > 0 }) continue;
-                var store = typeof(Interactive).GetField("_eventHandlers", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
-                    .GetValue(button) as System.Collections.IDictionary;
-                if (store?.Contains(Button.ClickEvent) != true) failures.Add("dead button " + (button.Name ?? button.Content?.ToString()));
-            }
-            Pump(host.RunCommand("section.cancel"));
-            Settle(window);
-            if (controller.Section is not null || !host.StatusStrip.Text.StartsWith("Cancelled. ", StringComparison.Ordinal))
-                failures.Add($"section.cancel: '{host.StatusStrip.Text}'");
-            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
-        });
     }
 
     /// <summary>Properties' section rows (§11.4), run from the properties-view suite so the window checks split across two.</summary>

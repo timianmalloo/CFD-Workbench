@@ -85,41 +85,6 @@ public static class ControllerShellTests
                 $"the sampling completion replaced the newer report: '{controller.Status}'");
         });
 
-        DesktopChecks.Check("StatusSlot_CompletionRacingNewerWrite_NewerAlwaysWins", () =>
-        {
-            // STATUS-CLOBBER across threads: each round writes a placeholder, then a thread-pool completion of that
-            // placeholder and a newer write on this thread (the UI thread's role) start together. Whichever runs first, the
-            // newer report must be what the slot shows. The interleaving is not forced; many rounds make it likely.
-            const int rounds = 20000;
-            var slot = new StatusSlot("");
-            var placeholders = new long[rounds];
-            using var start = new Barrier(2);
-            using var done = new Barrier(2);
-            var completion = Task.Run(() =>
-            {
-                for (int round = 0; round < rounds; round++)
-                {
-                    start.SignalAndWait();
-                    Thread.SpinWait(round % 97);   // jitter the start so the two writers overlap at every offset
-                    slot.TryReplace(placeholders[round], "completion " + round);
-                    done.SignalAndWait();
-                }
-            });
-            int lost = 0;
-            for (int round = 0; round < rounds; round++)
-            {
-                placeholders[round] = slot.Write("placeholder " + round);
-                start.SignalAndWait();
-                Thread.SpinWait(round * 31 % 89);
-                slot.Write("newer " + round);
-                done.SignalAndWait();
-                if (slot.Snapshot().Text != "newer " + round) lost++;
-            }
-            completion.GetAwaiter().GetResult();
-            Console.WriteLine($"MEASURE status-slot race rounds={rounds} lost={lost}");
-            Require(lost == 0, $"a background completion replaced a newer report in {lost} of {rounds} rounds");
-        });
-
         DesktopChecks.Check("ApplySpan_EdgesCross_Refused", () =>
         {
             using var controller = new WorkbenchController();
@@ -1067,5 +1032,39 @@ public static class ControllerShellTests
         static double P95(List<double> values) => values.OrderBy(value => value).ElementAt((int)Math.Ceiling(values.Count * .95) - 1);
         Console.WriteLine($"READINESS Readiness_NewFoilDrag_FrameP95Under100Ms value_ms={P95(frameMilliseconds):F3} target_ms=100 samples={frameMilliseconds.Count}");
         Console.WriteLine($"READINESS Readiness_NewFoilCommit_P95Under250Ms value_ms={P95(commitMilliseconds):F3} target_ms=250 samples={commitMilliseconds.Count}");
+        DesktopChecks.Check("StatusSlot_CompletionRacingNewerWrite_NewerAlwaysWins", () =>
+        {
+            // STATUS-CLOBBER across threads: each round writes a placeholder, then a thread-pool completion of that
+            // placeholder and a newer write on this thread (the UI thread's role) start together. Whichever runs first, the
+            // newer report must be what the slot shows. The interleaving is not forced; many rounds make it likely.
+            const int rounds = 20000;
+            var slot = new StatusSlot("");
+            var placeholders = new long[rounds];
+            using var start = new Barrier(2);
+            using var done = new Barrier(2);
+            var completion = Task.Run(() =>
+            {
+                for (int round = 0; round < rounds; round++)
+                {
+                    start.SignalAndWait();
+                    Thread.SpinWait(round % 97);   // jitter the start so the two writers overlap at every offset
+                    slot.TryReplace(placeholders[round], "completion " + round);
+                    done.SignalAndWait();
+                }
+            });
+            int lost = 0;
+            for (int round = 0; round < rounds; round++)
+            {
+                placeholders[round] = slot.Write("placeholder " + round);
+                start.SignalAndWait();
+                Thread.SpinWait(round * 31 % 89);
+                slot.Write("newer " + round);
+                done.SignalAndWait();
+                if (slot.Snapshot().Text != "newer " + round) lost++;
+            }
+            completion.GetAwaiter().GetResult();
+            Console.WriteLine($"MEASURE status-slot race rounds={rounds} lost={lost}");
+            Require(lost == 0, $"a background completion replaced a newer report in {lost} of {rounds} rounds");
+        });
     }
 }

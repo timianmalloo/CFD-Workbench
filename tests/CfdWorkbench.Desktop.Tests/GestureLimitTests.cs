@@ -38,6 +38,30 @@ public static class GestureLimitTests
         if (!condition) throw new InvalidOperationException(message);
     }
 
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        Pane("PropertiesPane_TypedRootAboveMaximum_LeadsWithRootAndUseAppliesTheMaximum", (controller, host, window) =>
+        {
+            var tip = Need<TextBox>(host.Properties, "TipChordInput");
+            tip.Text = "6";
+            Key(tip, Avalonia.Input.Key.Enter);
+            Settle(window);
+            var rootBox = Need<TextBox>(host.Properties, "RootChordInput");
+            rootBox.Text = "400";
+            Key(rootBox, Avalonia.Input.Key.Enter);
+            Settle(window);
+            Require(rootBox.Text == "400", "the typed root was rewritten");
+            Require(Text(host.Properties, "ChordWarningText") == "Root chord can't go above 300 mm while the tip chord is 6 mm (the tip must stay at least 2 % of the root). Widen the tip first.",
+                "refusal: " + Text(host.Properties, "ChordWarningText"));
+            var use = Need<HyperlinkButton>(host.Properties, "UseLimit_w_root");
+            Require(use.IsVisible && use.Content?.ToString() == "Use 300 mm", "no Use 300 mm: " + use.Content);
+            use.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Settle(window);
+            Require(Math.Abs(controller.Estimates!.RootChordMeters - 0.3) < 1e-6, "Use did not apply the root maximum");
+        });
+    }
+
     public static void RunController()
     {
         DesktopChecks.Check("GestureLimit_TipDragPastMinimum_HoldsAndSpeaksOnce_ReleaseCommitsHeldValueAsOneUndoStep", () =>
@@ -155,25 +179,6 @@ public static class GestureLimitTests
             Settle(window);
             Require(controller.AcceptedSource != before && Math.Abs(controller.Estimates!.TipChordMeters - 0.005) < 1e-6, "Use did not apply the minimum");
             Require(!Need<HyperlinkButton>(host.Properties, "UseLimit_w_tip").IsVisible, "Use stayed after it was applied");
-        });
-        Pane("PropertiesPane_TypedRootAboveMaximum_LeadsWithRootAndUseAppliesTheMaximum", (controller, host, window) =>
-        {
-            var tip = Need<TextBox>(host.Properties, "TipChordInput");
-            tip.Text = "6";
-            Key(tip, Avalonia.Input.Key.Enter);
-            Settle(window);
-            var rootBox = Need<TextBox>(host.Properties, "RootChordInput");
-            rootBox.Text = "400";
-            Key(rootBox, Avalonia.Input.Key.Enter);
-            Settle(window);
-            Require(rootBox.Text == "400", "the typed root was rewritten");
-            Require(Text(host.Properties, "ChordWarningText") == "Root chord can't go above 300 mm while the tip chord is 6 mm (the tip must stay at least 2 % of the root). Widen the tip first.",
-                "refusal: " + Text(host.Properties, "ChordWarningText"));
-            var use = Need<HyperlinkButton>(host.Properties, "UseLimit_w_root");
-            Require(use.IsVisible && use.Content?.ToString() == "Use 300 mm", "no Use 300 mm: " + use.Content);
-            use.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            Settle(window);
-            Require(Math.Abs(controller.Estimates!.RootChordMeters - 0.3) < 1e-6, "Use did not apply the root maximum");
         });
         Pane("PropertiesPane_HeldTipDrag_WingRowStripAndPointNameSpeakTheSameWords_MarkerRenders", (controller, host, window) =>
         {

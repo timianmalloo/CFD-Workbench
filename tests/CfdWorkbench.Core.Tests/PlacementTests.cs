@@ -19,7 +19,6 @@ internal static class PlacementTests
         Check("PlacementRule_TaylorAndGridConstants_SharedByAllModels", ConstantsShared);
         Check("PlacementRule_SelectBlend_SameStationsAsCertificate", SelectMatchesGolden);
         Check("PlacementRule_FoilFixtures_MatchGoldenSources", FoilFixturesMatchGolden);
-        Check("Placement_DisplayWithinCertifiedEnclosure_Fixtures", () => DisplayWithin(false, full: false));
         Check("Placement_RandomFixtures_WithinCertifiedEnclosure", () => DisplayWithin(true, full: false));
         Check("Placement_DisplayMaximum_WithinCertifiedMaximum", DisplayMaximum);
         Check("Placement_FrameLeadingEdge_EqualsCertifiedPointAtXZero", FrameLeadingEdge);
@@ -60,6 +59,7 @@ internal static class PlacementTests
         Check("Readiness_Placement_DisplayWithinCertifiedEnclosure_AllSamples", () => DisplayWithin(false, full: true));
         Check("Readiness_Placement_RandomFixtures_AllFour", () => DisplayWithin(true, full: true));
         Check("Readiness_Placement_ProbeChord_1001Samples", () => ProbeEqualsEstimates(1));
+        Check("Placement_DisplayWithinCertifiedEnclosure_Fixtures", () => DisplayWithin(false, full: false));
     }
 
     private static void CertificatePointBits() => CertificateGolden(false);

@@ -10,6 +10,34 @@ internal static class TipChordTests
 {
     private const string Code = "DSL-TIP-CHORD-MIN";
 
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        Check("TipChord_Drag_EveryHeldFrame_IsAdmitted_ReleaseNeverRefused", () =>
+        {
+            foreach (double tipMm in new[] { 120.0, 6, 2 })
+            foreach (string rail in new[] { "leading", "trailing" })
+            foreach (int end in new[] { 0, -1 })
+            foreach (double aft in new[] { -0.5, -0.05, -0.0123456, 0.0003, 0.0049, 0.00501, 0.1, 0.31, 0.5 })
+            {
+                using var s = Open(tipMm);
+                var plan = Planform.View(s.Snapshot().Source, "test", 0);
+                var curve = rail == "leading" ? plan.Leading : plan.Trailing;
+                var vertex = end == 0 ? curve.Points[0] : curve.Points[^1];
+                if (vertex.Freedom == PointFreedom.Fixed) continue;
+                var draft = s.BeginPointGesture(Id(), rail, vertex.Id);
+                var frame = s.UpdatePointGesture(draft.Id, draft.Generation, vertex.SpanMeters, aft);
+                double root = WingEstimates.ChordMeters(frame.Draft.Bytes, 0), tip = WingEstimates.ChordMeters(frame.Draft.Bytes, 1);
+                double oldRoot = WingEstimates.ChordMeters(s.Snapshot().Source, 0), oldTip = WingEstimates.ChordMeters(s.Snapshot().Source, 1);
+                if (!TipChord.Admits(oldTip, oldRoot, tip, root))
+                    throw new InvalidOperationException($"{rail}/{end}/{aft} tip {tipMm}: held frame is not admitted (tip {tip}, root {root})");
+                try { s.Apply(Id(), s.Validate(draft.Id, frame.Draft.Generation)); }
+                catch (ContractError error) when (error.Code == Code) { throw new InvalidOperationException($"{rail}/{end}/{aft} tip {tipMm}: release refused after a hold"); }
+                catch (ContractError) { s.Cancel(draft.Id); } // another rule (for example crossing edges) is not this track's
+            }
+        });
+    }
+
     internal static void Run()
     {
         Check("TipChordMinimum_Definition_LargerOfFiveMmAndTwoPercent", () =>
@@ -91,29 +119,6 @@ internal static class TipChordTests
             var up = s.UpdatePointGesture(draft.Id, down.Draft.Generation, tip.SpanMeters, 0.04);
             if (up.Limit is not null) throw new InvalidOperationException("an upward move was held");
             Within(0.04, WingEstimates.ChordMeters(up.Draft.Bytes, 1), 1.1e-6);
-        });
-        Check("TipChord_Drag_EveryHeldFrame_IsAdmitted_ReleaseNeverRefused", () =>
-        {
-            foreach (double tipMm in new[] { 120.0, 6, 2 })
-            foreach (string rail in new[] { "leading", "trailing" })
-            foreach (int end in new[] { 0, -1 })
-            foreach (double aft in new[] { -0.5, -0.05, -0.0123456, 0.0003, 0.0049, 0.00501, 0.1, 0.31, 0.5 })
-            {
-                using var s = Open(tipMm);
-                var plan = Planform.View(s.Snapshot().Source, "test", 0);
-                var curve = rail == "leading" ? plan.Leading : plan.Trailing;
-                var vertex = end == 0 ? curve.Points[0] : curve.Points[^1];
-                if (vertex.Freedom == PointFreedom.Fixed) continue;
-                var draft = s.BeginPointGesture(Id(), rail, vertex.Id);
-                var frame = s.UpdatePointGesture(draft.Id, draft.Generation, vertex.SpanMeters, aft);
-                double root = WingEstimates.ChordMeters(frame.Draft.Bytes, 0), tip = WingEstimates.ChordMeters(frame.Draft.Bytes, 1);
-                double oldRoot = WingEstimates.ChordMeters(s.Snapshot().Source, 0), oldTip = WingEstimates.ChordMeters(s.Snapshot().Source, 1);
-                if (!TipChord.Admits(oldTip, oldRoot, tip, root))
-                    throw new InvalidOperationException($"{rail}/{end}/{aft} tip {tipMm}: held frame is not admitted (tip {tip}, root {root})");
-                try { s.Apply(Id(), s.Validate(draft.Id, frame.Draft.Generation)); }
-                catch (ContractError error) when (error.Code == Code) { throw new InvalidOperationException($"{rail}/{end}/{aft} tip {tipMm}: release refused after a hold"); }
-                catch (ContractError) { s.Cancel(draft.Id); } // another rule (for example crossing edges) is not this track's
-            }
         });
         Check("TipChord_InteriorVerticesAndHandles_NeverChangeEitherChord", () =>
         {
