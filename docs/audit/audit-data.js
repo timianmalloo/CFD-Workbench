@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T22:20:50Z",
+  "generated": "2026-10-06T22:21:09Z",
   "audit": [
     {
       "actor": null,
@@ -28261,6 +28261,33 @@ window.AUDIT_DATA = {
         "branch": "docs/round-oct06-close",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M49MWV2N2FTFA3Q48V358EAY",
+      "shortname": "join-close",
+      "datetime": "2026-10-06T22:21:09Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of docs/round-oct06-close into main",
+      "summary": "planned vs actual, operator items carried, units-key handoff to the PC recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join docs/round-oct06-close",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T22:21:04Z",
+      "duration_seconds": 5.0
     }
   ],
   "changes": [
