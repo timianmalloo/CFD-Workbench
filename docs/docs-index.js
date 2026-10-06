@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "32105a83f13014957ebdc0dcf6b273b646070860bcba906a551ba699be901b38"
+      "sourceSha256": "af92c011230b9c9d2e90f210b851401d44c4286db4b23e1a3b752770a7587f5f"
     },
     {
       "id": "kb-hw-glossary",
@@ -8271,6 +8271,52 @@ window.DOCS_INDEX = {
       "sourceSha256": "58b48f57cdf0861c1fef89081e40150be60eb7f03b062762e23756751fd3573e"
     },
     {
+      "id": "coordination-pc-kickoff",
+      "path": "docs/coordination/pc-kickoff.md",
+      "title": "PC session kickoff - Windows setup, smoke test, Windows Save/Open, OpenFOAM and SU2 runs, cfMesh",
+      "type": "plan",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "The first prompt for the Claude Code session on the Windows PC (Rulings 79, 102, 106). Tasks W-0 to W-5 with their done-when evidence: setup and coord install, the first Windows smoke test, Windows Save/Open, the WSL OpenFOAM and native SU2 routes verified step by step, NACA 0012 code-to-code runs and the SPIKE-04 L3 run, and the cfMesh tip spike.",
+      "tags": [
+        "coordination",
+        "windows",
+        "kickoff",
+        "openfoam",
+        "su2",
+        "wsl",
+        "cfmesh",
+        "smoke-test"
+      ],
+      "links": [
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-windows-runtime-route",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-tip-handling",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "889a1a56d46d2a913d39a324a0914b9d641e484a2987269b28ffcf7b4a3c7cca"
+    },
+    {
       "id": "coordination-r17-companions",
       "path": "docs/coordination/contract-r17-companions.md",
       "title": "Exact companion assignment for evaluator version 2 and native store rulings",
@@ -8388,6 +8434,50 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "8908f5a29bbf71b05ec706a8a262415689d3d84cd31c5f21e1453c7182c3f802"
+    },
+    {
+      "id": "coordination-two-machine",
+      "path": "docs/coordination/two-machine.md",
+      "title": "Two machines - the Mac session and the Windows PC session, and how they meet in git",
+      "type": "plan",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Ruling 106. The Mac session is the only leader and owns Mac-only and shared work; the Windows PC session owns Windows-only work (setup, smoke test, Windows Save/Open, WSL OpenFOAM and native SU2, NACA 0012 runs, L3, cfMesh). The PC pushes win/* branches and opens pull requests; the Fable owner on the Mac reviews them; the Mac leader merges through conductor-join. Messages travel in docs/coordination/xmsg.jsonl through tools/xmsg.py.",
+      "tags": [
+        "coordination",
+        "windows",
+        "macos",
+        "git",
+        "rendezvous",
+        "pull-request"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-windows-runtime-route",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "relates-to"
+        },
+        {
+          "to": "adr-0012-openfoam-backend-macos",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "17f64e07ff79ade4bbe0a1ae2156fb4885b435fd6c202762b07cba7e672d4efa"
     },
     {
       "id": "coordination-windows-runtime-route",
@@ -14446,5 +14536,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "4ff00e1a0f7bfe9b053664c7ef31fdbedb61ec622aee38c9d93c17ca96e140d8"
+  "graphSha256": "eb971cd9d3e75e8bce39d4122209659ea9d185ce94f9c9c8c7fd5f47246cf5bd"
 };
