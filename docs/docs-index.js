@@ -11044,6 +11044,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
     },
     {
+      "id": "proof-lay-1280-options",
+      "path": "docs/proof/lay-1280/options.md",
+      "title": "Four views at 1280x800 in Analysis - layout options with measurements (round-oct06, Ruling 101 3d)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-lay",
+      "phase": "design",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Today Analysis falls back to One view at 1280x800 because the four views are 503 x 239.5, half a pixel under the 320 x 240 floor. Width is not the shortage, height is. Four measured options, what each costs, and a recommendation for the operator to pick before step b builds it.",
+      "tags": [
+        "layout",
+        "analysis",
+        "four-views",
+        "1280x800",
+        "ruling-101"
+      ],
+      "links": [
+        {
+          "to": "proof-a3a-pack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "78cfaac4542c92c4be7fb1b69a324d63b87b73946451d647843c98d3dab5ed57"
+    },
+    {
       "id": "proof-legacy-gate-retarget",
       "path": "docs/proof/legacy-gate-retarget.md",
       "title": "Legacy gate retarget — the adapters gate's applied-contrast step moves from the pre-shell window to the shell matrix",
@@ -14592,5 +14619,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "73a811d1d7dc1426dc6be86cb8aee71a5962ba058e0010223928cdd7c0974d54"
+  "graphSha256": "9c86913a6272519e6eccb0d77e455743c55d2171273fe2392e579b1d2f51af3a"
 };
