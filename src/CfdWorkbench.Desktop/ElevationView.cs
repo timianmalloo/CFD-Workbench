@@ -578,6 +578,18 @@ public sealed class ElevationView : Control
             var pieces = text.Split(" · ");
             int half = (pieces.Length + 1) / 2;
             lines = pieces.Length > 1 ? [string.Join(" · ", pieces.Take(half)), string.Join(" · ", pieces.Skip(half))] : [text];
+            if (!narrow)
+            {
+                // A group readout fills each line with whole pieces up to the room, so no piece is cut at the edge.
+                var filled = new List<string>();
+                foreach (string piece in pieces)
+                {
+                    string joined = filled.Count == 0 ? piece : filled[^1] + " · " + piece;
+                    if (filled.Count > 0 && TextWidth(joined, PlateFont) + 2 * PlatePadX <= room) filled[^1] = joined;
+                    else filled.Add(piece);
+                }
+                lines = [.. filled];
+            }
         }
         double maxWidth = narrow ? Bounds.Width * ProbeWrapShare : wrap ? room : Bounds.Width - 2 * PlateInset;
         double width = Math.Min(maxWidth, lines.Max(line => TextWidth(line, PlateFont)) + 2 * PlatePadX);
