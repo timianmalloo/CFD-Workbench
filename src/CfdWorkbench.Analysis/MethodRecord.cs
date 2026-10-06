@@ -16,9 +16,9 @@ public sealed record StripVerdict(bool Inside, IReadOnlyList<string> Exceeded, s
 /// <summary>A method: its stored identity (id, version, convergence order) and its envelope. VLM owns the values.</summary>
 public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
 {
-    /// <summary><c>cfdw.vlm-strip</c> with the section-panel identity of Rulings 90, 103 and 110 (200 everywhere, the governing and near-tie stations at 400), order 1, envelope 10°, Cl 1.0, sweep 30°.</summary>
+    /// <summary><c>cfdw.vlm-strip</c> with the section-panel identity of Rulings 90, 103, 110 and 117 (200 everywhere, the governing and near-tie stations at 400), order 1, envelope 10°, Cl 1.0, sweep 30°.</summary>
     public static MethodRecord VlmStrip { get; } = new(
-        new RunMethod("cfdw.vlm-strip", $"1.3.0/panel{PanelMethod.DefaultPanelCount}-gov{PanelMethod.GoverningPanelCount}-te{PanelMethod.CpMinTrailingEdgePanelsPerSide}", 1),
+        new RunMethod("cfdw.vlm-strip", $"1.4.0/panel{PanelMethod.DefaultPanelCount}-gov{PanelMethod.GoverningPanelCount}-te{PanelMethod.CpMinTrailingEdgePanelsPerSide}", 1),
         new MethodEnvelope(10, 1.0, 30));
 
     /// <summary>

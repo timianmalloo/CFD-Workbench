@@ -115,3 +115,9 @@ Example foil (docs/examples/foildsl/foil-basic.foil, not NACA 0012), V 5.14 m/s,
 ## Repair cycle 2 (trk-dx2): Stations table
 
 The product tier samples every lattice span eta (126 on the example), so "the run section stations" is 126, not four. The Stations table now lists the stations that carry a measurement or are on screen: solved at 400 panels (at most four), the governing station and the shown station (about 5 rows on the example; tab height 3030 px to 1050 px). Red: `Section_StationsTable_ListsSolvedGoverningAndShownOnly` failed "expected 3; actual 42", passes now. `Section_UnderreadNotMeasured_ShowsRatifiedText` now selects the unmeasured station so it is listed. Captures 01, 02, 07, 08 re-rendered; the Polar group is at about 720 px of the 1050 px tab, so in the short 1500x870 bottom panel it is one scroll away, not visible at rest. No station marker words were added (no approved copy).
+
+## Third pass (trk-dx3)
+
+### Item 1: pre-117 runs go Historical
+
+Red: `Freshness_Pre117MethodVersion_HistoricalAndEvaluateComputesNew` (Analysis fast ring, 0.17 s) on method version `1.3.0/panel200-gov400-te3`: `FAIL ... pre-117 run expected Historical; actual Current`. Green after the bump to `1.4.0/panel200-gov400-te3` (`MethodRecord.cs:21`, pin in `LatticeFixtureTests.cs:58` updated): `PASS ...`. Evaluate computes a second run (distinct RunKey, two stored).

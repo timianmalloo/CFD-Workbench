@@ -43,3 +43,4 @@ PASS Section_TabBody_BuildsChartSelector	readiness (Desktop --readiness)
 PASS Section_UnderreadNotMeasured_ShowsRatifiedText	readiness (Analysis --readiness)
 PASS Strips_PolarRe_InsideOutsideNotExtrapolated	readiness (Analysis --readiness)
 # 44 of 44 names print a PASS line; missing: none
+PASS Freshness_Pre117MethodVersion_HistoricalAndEvaluateComputesNew	fast ring (tools/run-tests.sh, Analysis log)
