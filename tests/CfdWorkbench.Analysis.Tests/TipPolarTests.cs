@@ -23,7 +23,7 @@ internal static class TipPolarTests
         int tip = rows.FindIndex(row => row.Label == "Envelope (this strip)");
         int cd = rows.FindIndex(row => row.Label == "cd (profile)");
         if (tip < 0 || cd < 0 || tip >= cd || rows[tip].Value != Labels.TipNotJudged ||
-            rows[cd].Value != "ANA-POLAR-RE-OUTSIDE")
+            rows[cd].Value != Labels.UnavailableBecause("ANA-POLAR-RE-OUTSIDE"))
             throw new InvalidOperationException("low-Re tip did not retain its first not-judged reason and Re flag");
     }
 

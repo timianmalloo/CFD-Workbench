@@ -67,8 +67,10 @@ public static class StripCoupler
             if (result is null) return new(null, polar.UnavailableReason ?? "ANA-POLAR-UNAVAILABLE");
             // D14: a computed network point outside the validated bracket is not a supported profile drag.
             if (result.AvailabilityCode is { } code) return new(null, code);
+            // Ruling 117: a section outside the NACA 0012 family is computed and carries COPY-364, not refused.
             return result.Sample.Cd is { } cd && double.IsFinite(cd) && cd > 0
-                ? new(cd, null, result.LowConfidence ? "ANA-POLAR-LOW-CONFIDENCE" : null)
+                ? new(cd, null, StripFlags.Join(result.SectionUnvalidated ? StripFlags.SectionUnvalidated : null,
+                    result.LowConfidence ? StripFlags.LowConfidence : null))
                 : new(null, "ANA-POLAR-CD-UNAVAILABLE");
         }
         catch (ContractError error) when (error.Code.StartsWith("ANA-POLAR-", StringComparison.Ordinal))
@@ -76,4 +78,21 @@ public static class StripCoupler
             return new(null, error.Code);
         }
     }
+}
+
+/// <summary>A <see cref="StripValue"/> flag is one code or several joined by '|'; a flagged value is computed, never refused.</summary>
+public static class StripFlags
+{
+    public const string LowConfidence = "ANA-POLAR-LOW-CONFIDENCE";
+    public const string SectionUnvalidated = "ANA-POLAR-SECTION-UNVALIDATED";
+
+    public static string? Join(params string?[] codes)
+    {
+        string[] present = codes.Where(code => code is not null).Select(code => code!).Distinct().Order().ToArray();
+        return present.Length == 0 ? null : string.Join('|', present);
+    }
+
+    public static bool Has(string? flags, string code) => flags is not null && flags.Split('|').Contains(code);
+
+    public static IEnumerable<string> Codes(string? flags) => flags is null ? [] : flags.Split('|');
 }

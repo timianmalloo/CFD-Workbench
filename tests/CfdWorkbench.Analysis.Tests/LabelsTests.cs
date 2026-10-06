@@ -35,6 +35,29 @@ internal static class LabelsTests
             Equal(Labels.EstimatorChip, Labels.Chip(Tier.Estimator));
             Equal(true, ProjectionTests.Cell(ProjectionTests.View(), "Labels", "Not modelled").Value.Contains("tip-vortex cavitation"));
         });
+        Check("Labels_Ruling118_ApprovedTextsAndDesignRows", () => {
+            string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
+            (string Text, string Template, string Row)[] rows = [
+                (Labels.StationName(0.5, false), "Selected strip · η <η>", "COPY-394"),
+                (Labels.StationName(0.5, true), "Governing cavitation station · η <η> (no strip selected)", "COPY-395"),
+                (Labels.FindNeedsInput, "Enter a target CL and an ordered α bracket.", "COPY-396"),
+                (Labels.FindRunning, "Finding…", "COPY-397"),
+                (Labels.FindReason("ANA-FIND-MAX-ITERATIONS", iterations: 32), "the search stopped after <n> iterations without converging", "COPY-398"),
+                (Labels.LowConfidenceStrips(3), "Low confidence — analysis_confidence below 0.5 at <k> strips", "COPY-399")];
+            foreach ((string text, string template, string row) in rows)
+            {
+                Equal(true, design.Contains("| " + row + " | " + template + " — approved — Ruling 118"), row + " row in DESIGN.md");
+                Equal(template.Replace("<η>", "0.5").Replace("<n>", "32").Replace("<k>", "3"), text, row + " text");
+            }
+            Equal("the foil is too shallow (h/c below 0.5)", Labels.FindReason("ANA-FIND-DEPTH-BELOW-FLOOR", FindAlpha.DepthFloorHOverC), "the depth floor is the free-surface limit and shows its number");
+            Equal(0.5, FreeSurfaceCorrection.MinHOverC, "the floor Ruling 118 names");
+        });
+        Check("Labels_Copy364_Ruling119_TextAndDesignRow", () => {
+            string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
+            const string text = "Outside the validated bracket — the surrogate is validated on NACA 0012 only. Computed, not validated.";
+            Equal(text, Labels.BracketOutsideFamily, "the Labels constant");
+            Equal(true, design.Contains("| COPY-364 | " + text + " — approved — Ruling 119"), "the DESIGN.md row, marker approved — Ruling 119");
+        });
         Check("Labels_DepthUnset_FreeSurfaceNotModelled", () => {
             Equal(true, Labels.FixedVlm(false).EndsWith("free surface not modelled"));
             Equal(true, Labels.NotModelled(false).Contains("free surface"));
@@ -99,7 +122,7 @@ internal static class LabelsTests
             ResultRow n = ProjectionTests.Cell(metric, "Loads", "Drag (Wing only)"), lbf = ProjectionTests.Cell(imperial, "Loads", "Drag (Wing only)");
             Equal("N", n.Unit); Equal("lbf", lbf.Unit);
             double[] newtons = n.Value.Split('–').Select(double.Parse).ToArray(), pounds = lbf.Value.Split('–').Select(double.Parse).ToArray();
-            Equal(true, Math.Abs(newtons[0] / 4.4482216152605 - pounds[0]) < 0.001 && Math.Abs(newtons[1] / 4.4482216152605 - pounds[1]) < 0.001, "lbf = N / 4.4482");
+            Equal(true, Math.Abs(newtons[0] / 4.4482216152605 - pounds[0]) < 0.011 && Math.Abs(newtons[1] / 4.4482216152605 - pounds[1]) < 0.011, "lbf = N / 4.4482, within the two-decimal rounding of both ends");
             Equal(true, n.Note!.StartsWith("Wing only: induced (VLM + strip) plus profile (polar). Not a total.", StringComparison.Ordinal), "note");
             Equal(true, n.Note.Contains("XFOIL-class surrogate"), "surrogate label");
             Equal(true, n.Note.EndsWith("\nNot included: junction, mast, wave, spray", StringComparison.Ordinal), "reason line");
@@ -214,7 +237,7 @@ internal static class LabelsTests
             string? row = design.Split('\n').FirstOrDefault(l => l.Contains("| COPY-" + id + " |"));
             Equal(true, row != null && row.Contains(marker), "COPY-" + id);
         }
-        foreach (string copy in new[] { Labels.NoResult, Labels.NoPolar, Labels.PayloadFailed, Labels.SectionCp,
+        foreach (string copy in new[] { Labels.NoResult, Labels.NoPolar, Labels.PayloadFailed,
             Labels.VlmChip, Labels.OutsideLattice, Labels.VerifiedLattice,
             Labels.TipNotJudged, Labels.FixedVlmNoDepth, Labels.StructuralList, Labels.BodyAxes })
             Equal(true, design.Contains(copy), copy);

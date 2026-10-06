@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cba83f2facce2d7ac3a5992a20f0d5b0196e77a78c969020fc3d78bd230e0b99"
+      "sourceSha256": "2c89f6b9c1dbdb02565488b7a112cc7678a6538a5f1d97e7fb97459edd939ba3"
     },
     {
       "id": "kb-hw-glossary",
@@ -10991,6 +10991,65 @@ window.DOCS_INDEX = {
       "sourceSha256": "2c327ae792fd61658e4e6c3d11829f42cbe68ff861652200638b19b3c3722084"
     },
     {
+      "id": "proof-dx-red-first",
+      "path": "docs/proof/dx/red-first.md",
+      "title": "DX step 2: red-first record, exit evidence and gaps",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-dx",
+      "phase": "implementation",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "What DX built, how each check was shown red, the observed run results and the known gaps (cost ring, unapproved validation copy, example foil family, two-sided defaults).",
+      "tags": [
+        "analysis",
+        "a3b",
+        "a3c",
+        "dx",
+        "proof",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-dx-test-plan",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5c53d15ab06481bb52721a0c81e04b00797f4e61edbc7e7979525251b12eb7f9"
+    },
+    {
+      "id": "proof-dx-test-plan",
+      "path": "docs/proof/dx/test-plan.md",
+      "title": "DX test plan and state coverage (round-oct06 step 1)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-dx",
+      "phase": "implementation",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Which of the 54 A3b and A3c states the approved mockup draws, the states to show the operator first, and 39 named checks (35 fast, 4 readiness) covering every state, DXM-2..9 and Charts_TransitionAndBucket_Overlays.",
+      "tags": [
+        "analysis",
+        "a3b",
+        "a3c",
+        "test-plan",
+        "dx"
+      ],
+      "links": [
+        {
+          "to": "design-dx-screen-states",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-dx-section-polar-states",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cc1943ae0d8e69f9d96c347e55421297d97fbe39896be48f2542495f7f2701c6"
+    },
+    {
       "id": "proof-e2-cad-defects-red-first",
       "path": "docs/proof/e2-cad-defects/red-first.md",
       "title": "E2 CAD defects red-first receipt",
@@ -14836,5 +14895,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "845a5b5de60036cc9b95deead250a5955b7828a8a4a91b38c73f73b964fb9449"
+  "graphSha256": "5dfdb6c260385290212f34d6541d620101c29df2b514e993df625a7ce9d8266e"
 };

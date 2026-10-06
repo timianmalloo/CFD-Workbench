@@ -2,6 +2,7 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
+using Avalonia.VisualTree;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
 
@@ -16,6 +17,7 @@ public partial class ConditionsBand : UserControl
     {
         InitializeComponent();
         EvaluateButton.Click += (_, _) => Activate();
+        FindAlphaButton.Click += (_, _) => OpenFindAlpha();
         SpeedInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) RefreshDerived(); };
         DepthInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) RefreshDerived(); };
         AlphaInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) RefreshDerived(); };
@@ -51,6 +53,21 @@ public partial class ConditionsBand : UserControl
             }
             RefreshDerived();
         }
+    }
+
+    /// <summary>The dialog this band last opened (null before one), for the shell's checks.</summary>
+    public FindAlphaDialog? FindDialog { get; private set; }
+
+    private void OpenFindAlpha()
+    {
+        if (this.FindAncestorOfType<Shell.ShellHost>()?.Controller is not { } controller || TryBuildSpeed() is not { } speed) return;
+        FindDialog = new FindAlphaDialog(controller, speed, alpha =>
+        {
+            AlphaInput.Text = Labels.Number(alpha, "0.00");
+            controller.ApplyFoundAlpha(alpha);   // the pending α only; Evaluate stays explicit
+        });
+        if (TopLevel.GetTopLevel(this) is Window owner) FindDialog.Show(owner);
+        else FindDialog.Show();
     }
 
     public static string SpeedUnitText(Units value) => value == Units.Imperial ? "kn" : "m/s";

@@ -18,6 +18,7 @@ internal static class FreshnessTests
         Check("Freshness_OperatingPointChange_Historical", OperatingPointChange);
         Check("Freshness_MethodVersionBump_Historical", MethodVersionBump);
         Check("Freshness_EachSettingsField_Historical", EachSettingsField);
+        Check("Freshness_Pre117MethodVersion_HistoricalAndEvaluateComputesNew", Pre117MethodVersion);
         Check("Freshness_UndoToEqualKey_CurrentAgain", UndoToEqualKey);
         Check("Freshness_SaveReopen_Unchanged", SaveReopen);
         Check("Units_Lbf_KeyUnchanged", UnitsOutsideKey);
@@ -84,6 +85,21 @@ internal static class FreshnessTests
         var current = Fixture.Current(session, op, wing: bumped);
         Equal(RunState.Historical, Fixture.StateOf(session, run, current), "1.0.0 → 1.0.1");
         Equal("method.version", string.Join(",", Freshness.WhatChanged(run, current)), "what changed");
+    }
+
+    // Ruling 117 changed the coupling, so the product method version moved on from 1.3.0: a run stored under it must not be
+    // re-served as the current one, and Evaluate must compute a new run.
+    private static void Pre117MethodVersion()
+    {
+        using var session = Fixture.Opened();
+        var op = Fixture.Op(2.0);
+        var old = new FakeWing { Method = new RunMethod("cfdw.vlm-strip", "1.3.0/panel200-gov400-te3", 1) };
+        var stale = Fixture.Evaluate(new AnalysisService(session, old), op);
+        var product = new FakeWing { Method = MethodRecord.VlmStrip.Method };
+        Equal(RunState.Historical, Fixture.StateOf(session, stale, Fixture.Current(session, op, wing: product)), "pre-117 run");
+        var fresh = Fixture.Evaluate(new AnalysisService(session, product), op);
+        Equal(true, fresh.RunKey != stale.RunKey, "Evaluate computes a new run, not the stored one");
+        Equal(2, session.ReadRuns().Runs.Count, "both runs stored");
     }
 
     // Each settings field changed alone makes the run Historical; the failure names the field. A field added to

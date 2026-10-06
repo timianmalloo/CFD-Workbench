@@ -14,11 +14,13 @@ namespace CfdWorkbench.Desktop.Analysis;
 public partial class AnalysisPanel : UserControl
 {
     private readonly LoadingChart loading = new();
+    private readonly SectionTabView section = new();
 
     public AnalysisPanel()
     {
         InitializeComponent();
         LoadingHost.Content = loading;
+        SectionBody.Children.Add(section);
         // The slot height is the Bottom region's preset size (LayoutCodec Chrome: 190), 150 in a short window (HeightFor);
         // the skeleton bars are static placeholders.
         Height = FullHeight;
@@ -84,7 +86,7 @@ public partial class AnalysisPanel : UserControl
         LoadingEmpty.Text = LoadingEmpty.IsVisible ? EmptyText(view) : "";
         loading.IsVisible = !LoadingEmpty.IsVisible;
         loading.Update(unavailable ? [] : view.Loading);
-        Fill(SectionBody, view, ("Section (2D)", "section-table"));
+        section.Bind(view, controller);
         Fill(LoadsBody, view, ("Loads", "loads-table"), ("Strips", "strips-table"));
         Fill(ProvenanceBody, view, ("Conditions", "conditions-table"), ("Labels", "labels-table"), ("Provenance", "provenance-table"));
     }
@@ -108,7 +110,7 @@ public partial class AnalysisPanel : UserControl
         if (!any) host.Children.Add(new TextBlock { Text = EmptyText(view), Classes = { "pnl-note" }, TextWrapping = Avalonia.Media.TextWrapping.Wrap });
     }
 
-    private static StackPanel Table(string name, ResultGroup group)
+    internal static StackPanel Table(string name, ResultGroup group)
     {
         var table = new StackPanel { Name = name, Margin = new Thickness(0, 0, 0, 6) };
         AutomationProperties.SetName(table, group.Title);

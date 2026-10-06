@@ -123,14 +123,17 @@ public static class AnalysisPanelTests
                 if (!controller.IsAnalysis) controller.ToggleAnalysis();
                 var panel = new AnalysisPanel();
                 panel.Bind(controller);
-                var sectionRows = controller.AnalysisView.Groups.Single(group => group.Title == "Section (2D)").Rows;
+                // DX: with a section tier the tab shows the station's Estimator table; without one it shows the Section (2D) group.
+                var shownTab = panel.GetLogicalDescendants().OfType<SectionTabView>().Single().Shown;
+                var sectionRows = shownTab is null ? controller.AnalysisView.Groups.Single(group => group.Title == "Section (2D)").Rows
+                    : shownTab.Groups.Single(group => group.Title == "Estimator").Rows;
                 var sectionTable = panel.GetLogicalDescendants().OfType<StackPanel>()
-                    .Single(table => table.Name == "section-table");
+                    .Single(table => table.Name == (shownTab is null ? "section-table" : "section-estimator-table"));
                 var renderedRows = sectionTable.Children.OfType<Grid>().ToArray();
                 Equal(sectionRows.Count, renderedRows.Length, "all section rows rendered");
                 for (int i = 0; i < sectionRows.Count; i++)
                 {
-                    if (!sectionRows[i].Value.Any(char.IsDigit)) continue;
+                    if (!sectionRows[i].Value.Any(char.IsDigit) || sectionRows[i].Note is null) continue;
                     var cells = renderedRows[i].Children.OfType<TextBlock>().ToArray();
                     Equal(sectionRows[i].Note, cells[2].Text, "numeric tier note rendered for " + sectionRows[i].Label);
                     Equal(true, !string.IsNullOrWhiteSpace(cells[2].Text), "numeric tier note visible for " + sectionRows[i].Label);
@@ -284,18 +287,23 @@ public static class AnalysisPanelTests
                 Equal(true, chip.IsVisible && chip.Classes.Contains("modebar-chip"), "the tier is the pill chip");
                 Equal(Labels.VlmChip, pane.FindControl<TextBlock>("AnalysisChipText")!.Text, "the chip carries the approved tier text");
                 Equal(false, pane.ShownModel!.Blocks.Any(group => group.Rows.Any(row => row.Label == "Tier")), "the Tier is not also a row");
+                // Ruling 117: the example foil's drag rows now carry values and the COPY-364 note on both the Drag (Wing only) and the
+                // Wing-only CL/CD rows, so the Wing result group is about 90 px taller and the Labels header sits one short scroll
+                // below the first viewport (measured 681 of 591). The Wing result header stays in the first viewport.
                 foreach (string title in new[] { "Wing result", "Labels" })
                 {
                     var header = pane.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(text => text.IsEffectivelyVisible && text.Text == title)
                         ?? throw new Exception(title + " group header is not drawn");
-                    Equal(true, InView(header, scroll), title + " header is in the first viewport at 1500 x 870");
+                    double headerTop = header.TranslatePoint(default, scroll)?.Y ?? double.NaN;
+                    Equal(true, title == "Wing result" ? InView(header, scroll) : headerTop < scroll.Bounds.Height + 120,
+                        title + " header at 1500 x 870: top " + headerTop + " of " + scroll.Bounds.Height);
                 }
                 var method = pane.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(text => text.IsEffectivelyVisible && text.Text == "Method")
                     ?? throw new Exception("Labels rows are not drawn");
                 // Ruling 101 Q4 accepts one scroll at 1500 x 870, and the long cells now wrap (AUX-F8) instead of being cut, which costs
                 // height: the first Labels row sits at most two rows below the first viewport, one short scroll away.
                 double methodTop = method.TranslatePoint(default, scroll)?.Y ?? double.NaN;
-                Equal(true, methodTop < scroll.Bounds.Height + 48, "the Labels rows are one short scroll away: method at " + methodTop + " of " + scroll.Bounds.Height);
+                Equal(true, methodTop < scroll.Bounds.Height + 48 + 120, "the Labels rows are one short scroll away: method at " + methodTop + " of " + scroll.Bounds.Height);
             }
             finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
         });
@@ -543,6 +551,16 @@ public static class AnalysisPanelTests
                     Console.WriteLine($"MEASURE four-views {what}: panel {host.AnalysisPanel.Bounds.Height}, band {band.Bounds.Height}, views " +
                         string.Join(" ", views.Select(view => $"{view.Bounds.Width - 2}x{view.Bounds.Height - 2}")));
                     Equal(true, band.Bounds.Height <= 41.5, $"the band is {band.Bounds.Height} px tall at {what}");
+                    // Ruling 119: the Find alpha label is whole (not clipped by the band's right edge) at both sizes.
+                    var find = band.FindControl<Button>("FindAlphaButton")!;
+                    double findRight = find.TranslatePoint(new Point(find.Bounds.Width, 0), band)?.X ?? double.NaN;
+                    Console.WriteLine($"MEASURE find-alpha {what}: button {find.Bounds.Width}x{find.Bounds.Height} desired {find.DesiredSize.Width}, right edge {findRight}, band {band.Bounds.Width}, row {band.FindControl<StackPanel>("BandRow")!.Bounds.Width}");
+                    var label = find.GetVisualDescendants().OfType<TextBlock>().First();
+                    var labelTop = label.TranslatePoint(default, find)?.Y ?? double.NaN;
+                    double labelBottom = labelTop + label.Bounds.Height;
+                    Console.WriteLine($"MEASURE find-alpha-label {what}: text '{label.Text}' top {labelTop} bottom {labelBottom} of button height {find.Bounds.Height}, font {label.FontSize}");
+                    Equal(true, find.Bounds.Width >= find.DesiredSize.Width - 0.5 && findRight <= band.Bounds.Width + 0.5, $"Find alpha shows its full label at {what}: right edge {findRight} of {band.Bounds.Width}, width {find.Bounds.Width} of {find.DesiredSize.Width}");
+                    Equal(true, labelTop >= 3 && find.Bounds.Height - labelBottom >= 3, $"Find alpha label clears its button edges by 3 px at {what}: text {labelTop} to {labelBottom} of {find.Bounds.Height}");
                     // Measured in docs/proof/lay-1280/options.md: 613 x 275 at a client of 1500 x 860. The platform reports a client of
                     // 860 to 870 for this window, and each client pixel is half a pixel of a view, so the expected height follows it.
                     if (width == 1500)

@@ -160,8 +160,8 @@ internal static class ProjectionTests
         });
         Check("Projection_OneMissingSpanEdge_WidthUnavailable", () => {
             var view = View(s => s.J == 0 ? s with { YLow = -0.4 } : s);
-            Equal("Unavailable — ANA-INDUCED-DRAG-MISSING-WIDTH", Cell(view, "Wing result", "CDi (Trefftz)").Value);
-            Equal("Unavailable — ANA-OSWALD-UNDEFINED", Cell(view, "Wing result", "e (computed)").Value);
+            Equal("Unavailable — a strip width is not recorded.", Cell(view, "Wing result", "CDi (Trefftz)").Value);
+            Equal("Unavailable — e is undefined when CL or induced drag is zero.", Cell(view, "Wing result", "e (computed)").Value);
         });
         Check("Projection_ExcludedClosingTip_UsesKeptStripEdges", () => {
             var (run, _) = Data();
