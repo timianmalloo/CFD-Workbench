@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T15:19:45Z",
+  "generated": "2026-10-06T15:21:10Z",
   "audit": [
     {
       "actor": null,
@@ -27342,6 +27342,33 @@ window.AUDIT_DATA = {
         "branch": "chore/two-machine-rendezvous",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M48WVTY8039HFYKQ6BJG9XBR",
+      "shortname": "join-two-machine",
+      "datetime": "2026-10-06T15:21:10Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of chore/two-machine-rendezvous into main",
+      "summary": "Rulings 101-108; docs/coordination/two-machine.md and pc-kickoff.md; tools/xmsg.py with its register docs/coordination/xmsg.jsonl bound to coord-register and its self-test in check-docs recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join chore/two-machine-rendezvous into main",
+      "done_when": "join gates green, readiness green, pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T15:20:14Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
@@ -28785,6 +28812,150 @@ window.AUDIT_DATA = {
       "kind": "done",
       "ref": "990ab9ab",
       "session": "trk-seam"
+    },
+    {
+      "id": "mail-01M48WCYMZ06PEZCVWDKWFWPK3",
+      "ts": "2026-10-06T15:13:02Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M48WCYMVB1CNVG1N5PPFDPPQ",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M48WCYQR59H92RNX1DZ1TNHQ",
+      "ts": "2026-10-06T15:13:02Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M48WCYMVB1CNVG1N5PPFDPPQ",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M48WCYTCSAYPBYDYF67DAZ20",
+      "ts": "2026-10-06T15:13:02Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M48WCYT844DTV8GAWXGBHMD8",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M48WCYX4N07W6DF1MQN9JDYS",
+      "ts": "2026-10-06T15:13:02Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M48WCYT844DTV8GAWXGBHMD8",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M48WCYZSKXXJJXPBNQ4W7SJK",
+      "ts": "2026-10-06T15:13:02Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M48WCYZNANTJVE901VHZPF9D",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M48WCZ2HG0Z9JFYRTMBD7XY7",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M48WCYZNANTJVE901VHZPF9D",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M48WCZ575J0XQD5NF9ZGMZSY",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M48WCZ53AVKNP4Q2PKATX4C7",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M48WCZ812N3E7YJAV8YSSB28",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M48WCZ53AVKNP4Q2PKATX4C7",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M48WCZANK3ZDQNZ46ASQYBH9",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M48WCZAHCVQZEWMWXT5RY45D",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M48WCZDE2H54FVFWCFC0HEZM",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M48WCZAHCVQZEWMWXT5RY45D",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M48WCZG3FRZ7BPZN2SCWFJ7W",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M48WCZFZJVAHJBXDPCHNCHRG",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M48WCZJWH1XNBEQJK77YZ2N1",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M48WCZFZJVAHJBXDPCHNCHRG",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M48WCZNH70CC2ZNX7GCZ4SWX",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M48WCZNDVNWA819VPTP8Z3Y0",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M48WCZR9AAPZ4ZFRDH393ZE5",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M48WCZNDVNWA819VPTP8Z3Y0",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M48WCZTXYYFC94QDSYAV2F2A",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M48WCZTTPESRJ7TE9M6VQF16",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M48WCZXQR7MHJBBHA91KS4PS",
+      "ts": "2026-10-06T15:13:03Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M48WCZTTPESRJ7TE9M6VQF16",
+      "session": "operator-timianmalloo"
     }
   ]
 };
