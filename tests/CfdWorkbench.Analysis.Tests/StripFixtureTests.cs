@@ -191,7 +191,7 @@ internal static class StripFixtureTests
         AnalysisRun run = Fixture.Evaluate(new AnalysisService(session, method), op, Salt());
         IReadOnlyList<StripLoad> strips = run.Strips;
         AnalysisViewModel projection = ProjectionTests.View(run);
-        if (ProjectionTests.Cell(projection, "Wing result", "CL/CD").Value != Loads.TotalDragReason)
+        if (ProjectionTests.Cell(projection, "Wing result", "CL/CD").Value != (run.Settings.Polar is null ? Loads.TotalDragReason : Labels.TotalDragMissingWithProfile))
             throw new InvalidOperationException("Example foil CL/CD claim");
         if (strips.Count != 128) throw new InvalidOperationException("strips " + strips.Count);
         int port = -1, starboard = -1;

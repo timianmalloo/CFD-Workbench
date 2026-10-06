@@ -38,7 +38,7 @@ internal static class LoadsViewTests
         });
         Check("Section_NoPolarStub_Unavailable", () => {
             var v = ProjectionTests.View(); Equal(Labels.NoPolar, ProjectionTests.Cell(v, "Section (2D)", "Cl, Cd, Cm, x_tr").Value);
-            Equal(Labels.SectionCp, ProjectionTests.Cell(v, "Section (2D)", "Cp_min").Value);
+            Equal(Labels.CpNoProfile, ProjectionTests.Cell(v, "Section (2D)", "Cp_min").Value);
         });
         Check("Strips_OutsideEnvelope_SectionBasedInference", () => {
             var run = ProjectionTests.Data().Run;

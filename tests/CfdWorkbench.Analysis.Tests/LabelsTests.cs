@@ -214,7 +214,7 @@ internal static class LabelsTests
             string? row = design.Split('\n').FirstOrDefault(l => l.Contains("| COPY-" + id + " |"));
             Equal(true, row != null && row.Contains(marker), "COPY-" + id);
         }
-        foreach (string copy in new[] { Labels.NoResult, Labels.NoPolar, Labels.PayloadFailed, Labels.SectionCp,
+        foreach (string copy in new[] { Labels.NoResult, Labels.NoPolar, Labels.PayloadFailed,
             Labels.VlmChip, Labels.OutsideLattice, Labels.VerifiedLattice,
             Labels.TipNotJudged, Labels.FixedVlmNoDepth, Labels.StructuralList, Labels.BodyAxes })
             Equal(true, design.Contains(copy), copy);

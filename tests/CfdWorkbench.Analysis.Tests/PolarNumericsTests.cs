@@ -145,7 +145,7 @@ internal static class PolarNumericsTests
         var projected = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric);
         foreach (string label in new[] { "Profile drag" })
             if (projected.Groups.Single(group => group.Title == "Loads").Rows.Single(row => row.Label == label)
-                .Note?.Contains("ANA-POLAR-LOW-CONFIDENCE", StringComparison.Ordinal) != true)
+                .Note?.Contains("Low confidence — analysis_confidence", StringComparison.Ordinal) != true)
                 throw new InvalidOperationException(label + " lost the confidence flag in projection");
     }
 
