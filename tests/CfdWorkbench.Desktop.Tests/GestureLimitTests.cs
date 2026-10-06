@@ -173,7 +173,7 @@ public static class GestureLimitTests
             Settle(window);
             Require(Math.Abs(controller.Estimates!.RootChordMeters - 0.3) < 1e-6, "Use did not apply the root maximum");
         });
-        Pane("PropertiesPane_HeldTipDrag_WingRowReadsMinimumInTheStripsWords", (controller, host, window) =>
+        Pane("PropertiesPane_HeldTipDrag_WingRowStripAndPointNameSpeakTheSameWords_MarkerRenders", (controller, host, window) =>
         {
             var tipView = controller.Planform!.Trailing.Points[^1];
             var tip = new PointRef("trailing", tipView.Id);
@@ -184,25 +184,16 @@ public static class GestureLimitTests
             Require(description.IsVisible && description.Text == $"{Quantity.TypedLength(controller.Estimates!.TipChordMeters)} mm · minimum",
                 "tip row: " + description.Text);
             Require(controller.Status == "Tip chord is at its minimum, 5 mm.", "strip: " + controller.Status);
-            controller.EndGestureAsync(GestureEnd.Escape).GetAwaiter().GetResult();
-            Settle(window);
-            Require(!Need<TextBlock>(host.Properties, "Description_w_tip").IsVisible, "the minimum note outlived the gesture");
-        });
-        Pane("PlanCanvas_HeldLimit_PointNameCarriesTheStripsWordsAndTheMarkerRenders", (controller, host, window) =>
-        {
-            var tipView = controller.Planform!.Trailing.Points[^1];
-            Require(controller.BeginGesture(new PointRef("trailing", tipView.Id), GestureInput.Pointer), "begin refused");
-            DragTo(controller, tipView.SpanMeters, controller.Planform!.Leading.Points[^1].Ordinate + 0.001);
-            Settle(window);
             var canvas = host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!;
             var peer = ControlAutomationPeer.CreatePeerForElement(canvas)!;
             var named = peer.GetChildren()!.Where(child => child.GetName().Contains("Tip chord is at its minimum, 5 mm.", StringComparison.Ordinal)).ToArray();
             Require(named.Length == 1 && named[0].GetName().Contains("Trailing edge, point", StringComparison.Ordinal),
                 $"{named.Length} points carry the hold sentence; it belongs on the held point only");
-            using var pixels = PropertiesCellsTests.Render(canvas, 1);
-            Require(canvas.RenderBanner is null, "the plan could not render with a held limit: " + canvas.RenderBanner);
+            using (PropertiesCellsTests.Render(canvas, 1))
+                Require(canvas.RenderBanner is null, "the plan could not render with a held limit: " + canvas.RenderBanner);
             controller.EndGestureAsync(GestureEnd.Escape).GetAwaiter().GetResult();
             Settle(window);
+            Require(!Need<TextBlock>(host.Properties, "Description_w_tip").IsVisible, "the minimum note outlived the gesture");
             Require(!peer.GetChildren()!.Any(child => child.GetName().Contains("minimum", StringComparison.Ordinal)), "the hold sentence outlived the gesture");
         });
     }
