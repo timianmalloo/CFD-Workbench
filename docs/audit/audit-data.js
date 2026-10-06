@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T15:36:33Z",
+  "generated": "2026-10-06T16:26:20Z",
   "audit": [
     {
       "actor": null,
@@ -27425,6 +27425,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T15:35:39Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M490K56721W9PVM142J308QF",
+      "shortname": "pnl-adaptive-panels",
+      "datetime": "2026-10-06T16:26:20Z",
+      "session": "trk-pnl",
+      "prompt": "pnl round-oct06",
+      "summary": "Governing station estimate/screen/Cp_min from 400 panels; method version 1.3.0/panel200-gov400-te3; timing unchanged (432-488 ms warm Release); step-0 decision filed; test 3 not done",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Ruling 103: 200 panels everywhere, governing station re-solved at 400, screen and Cp_min from the 400 value, inside the 1 s budget",
+      "done_when": "red-first receipts for tests 1-2, timing reconciliation, step-0 recommendation, run-tests green, check-docs 0",
+      "started_at": "2026-10-06T16:14:04Z",
+      "duration_seconds": 736.0
     }
   ],
   "changes": [
