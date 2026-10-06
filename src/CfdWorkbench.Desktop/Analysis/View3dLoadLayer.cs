@@ -14,6 +14,9 @@ public static class View3dLoadLayer
     public sealed record Scene(LayerData? Lift, IReadOnlyList<Arrow> Arrows, LayerData? Moment,
         IReadOnlyList<ElevationDepthLayer.DepthMark> Depth);
 
+    /// <summary>The legend plate's left edge: in the caption's column, right of the triad plate, so the two never overlap.</summary>
+    public static double LegendLeft => View3d.CaptionMargin.Left + 4;
+
     public static Scene BuildScene(AnalysisViewModel view)
     {
         var lift = view.Layers.FirstOrDefault(layer => layer.Id == "strip-lift");
@@ -64,10 +67,12 @@ public static class View3dLoadLayer
                     var to = camera.Project(new Point3(le.X + .25 * (te.X - le.X), 0,
                         le.Z + Math.Max(.03, surface.MaximumY * .3)), viewport);
                     DrawArrow(context, from, to, station, 3);
-                    Text(context, "L " + total.Value + " " + total.Unit, to + new Vector(8, 4), ink, soft);
+                    TextWithin(context, "L " + total.Value + " " + total.Unit, to + new Vector(8, 4), viewport, ink, soft);
                 }
             }
-            Text(context, lift!.Legend, new Point(8, Math.Max(28, viewport.Height - 56)), ink, soft);
+            // The legend plate starts right of the triad plate (the caption's column) and sits above the caption, so the two never overlap.
+            double left = LegendLeft;
+            PlateAbove(context, lift!.Legend, new Point(left, Math.Max(48, viewport.Height - 48)), ink, soft, viewport.Width - left - 8);
         }
         var moment = scene.Moment;
         if (moment is not null && surface.Sections.Count > 0)
@@ -76,7 +81,7 @@ public static class View3dLoadLayer
             var arc = Enumerable.Range(0, 13).Select(i => origin + new Vector(18 * Math.Cos((.9 + .7 * i / 12) * Math.PI),
                 18 * Math.Sin((.9 + .7 * i / 12) * Math.PI))).ToArray();
             context.DrawGeometry(null, new Pen(ink, 1.5), new PolylineGeometry(arc, false));
-            Text(context, moment.Legend, origin + new Vector(24, 26), ink, soft);
+            TextWithin(context, moment.Legend, origin + new Vector(24, 26), viewport, ink, soft);
         }
         var depth = scene.Depth;
         if (depth.Count > 0 && depth[0].Elevation.HasValue)
@@ -91,16 +96,16 @@ public static class View3dLoadLayer
                 camera.Project(new Point3(surface.MinimumX, -surface.MaximumY, z), viewport)
             };
             context.DrawGeometry(null, new Pen(mute, 1, new DashStyle([5, 4], 0)), new PolylineGeometry(line, false));
-            Text(context, "free surface · " + view.Layers.First(l => l.Id == "depth-band").Legend,
-                line[0] + new Vector(8, -18), mute, soft);
+            TextWithin(context, "free surface · " + view.Layers.First(l => l.Id == "depth-band").Legend,
+                line[0] + new Vector(8, -18), viewport, mute, soft);
             var tip = depth.MaxBy(d => d.Y);
             if (tip is not null)
             {
                 var foot = camera.Project(new Point3(surface.MinimumX, tip.Y, tip.Elevation ?? 0), viewport);
                 var top = camera.Project(new Point3(surface.MinimumX, tip.Y, z), viewport);
                 context.DrawLine(new Pen(mute, 1, new DashStyle([2, 3], 0)), foot, top);
-                Text(context, "tip depth " + tip.Margin.ToString("0.###", CultureInfo.InvariantCulture) + " m",
-                    new Point(top.X + 6, (foot.Y + top.Y) / 2), ink, soft);
+                TextWithin(context, "tip depth " + tip.Margin.ToString("0.###", CultureInfo.InvariantCulture) + " m",
+                    new Point(top.X + 6, (foot.Y + top.Y) / 2), viewport, ink, soft);
             }
         }
     }
