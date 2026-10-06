@@ -74,6 +74,8 @@ public partial class PropertiesPane : UserControl
     private readonly Dictionary<string, (string Text, string Error)> errors = new(StringComparer.Ordinal);
     // Ruling 96: the legal value a refused typed chord offers as "Use <value>". Applied only by a click, never by the refusal.
     private readonly Dictionary<string, string> useValues = new(StringComparer.Ordinal);
+    // Ruling 111 (9): the value row's Set to / Move by mode resets to the row default when the selection changes and stays while it is kept.
+    private GroupValueMode groupMode = GroupValueMode.SetTo;
     private readonly EnumField typeField;
     private readonly EnumField kindField;
     // The section mode's third enum (Station t/c, §11.4), pooled like Type and Kind so focus survives a re-render.
@@ -183,7 +185,12 @@ public partial class PropertiesPane : UserControl
         .FirstOrDefault(item => item is TextBox or ComboBox && item.Focusable && item.IsEffectivelyVisible && item.IsEffectivelyEnabled) as Control;
 
     /// <summary>DR-NAV-1: focuses the pane's first value, as Tab from a selected Plan point does.</summary>
-    public bool FocusFirstValue() => FirstValue() is { } value && value.Focus(NavigationMethod.Tab);
+    public bool FocusFirstValue() => (GroupValueBox() ?? FirstValue()) is { } value && value.Focus(NavigationMethod.Tab);
+
+    /// <summary>Ruling 111 (10): for several points on one curve the group's value row is where focus goes, not From root.</summary>
+    private Control? GroupValueBox() =>
+        shownModel?.Blocks.SelectMany(group => group.Rows).Any(row => row.Key == "p:aft" && row.Group) == true &&
+        PointAftInput is { IsEffectivelyVisible: true, IsEffectivelyEnabled: true } box ? box : null;
 
     // The pane sees Shift+Tab before its first value does, and asks the Plan to focus the selected point again.
     private void OnShiftTabFromFirstValue(object? sender, KeyEventArgs e)
@@ -280,6 +287,8 @@ public partial class PropertiesPane : UserControl
                 StationSource: controller.StationSource,
                 Analysis: controller.IsAnalysis && controller.Inspection is not null ? controller.AnalysisView : null,
                 Limit: controller.GestureLimit,
+                GroupMode: groupMode,
+                GroupHold: controller.GroupHold,
                 ConditionsSummary: controller.IsAnalysis ? CfdWorkbench.Analysis.Labels.ConditionsSummary(
                     controller.AnalysisOperatingPoint.Speed, controller.AnalysisWater, controller.AnalysisUnits) : null);
             string key = SelectionKey(controller.Selection);
@@ -287,6 +296,8 @@ public partial class PropertiesPane : UserControl
             {
                 selectionKey = key;
                 copyTarget = null;
+                groupMode = GroupValueMode.SetTo;
+                useValues.Clear();
                 messages.Clear();
                 errors.Clear();
                 typeField.Pending = null;
@@ -605,6 +616,14 @@ public partial class PropertiesPane : UserControl
                 used.Add(KindControl);
                 RenderEnum(kindField, view, row);
                 break;
+            case RowKind.Mode when view.Modes is var (setTo, moveBy):
+                setTo.IsChecked = row.EntryMode == GroupValueMode.SetTo;
+                moveBy.IsChecked = row.EntryMode == GroupValueMode.MoveBy;
+                AutomationProperties.SetName(setTo, "Set to");
+                AutomationProperties.SetName(moveBy, "Move by");
+                AutomationProperties.SetHelpText(setTo, row.AutomationName);
+                AutomationProperties.SetHelpText(moveBy, row.AutomationName);
+                break;
             default:
                 string text = row.Kind == RowKind.Estimate && row.State == RowState.Normal ? "≈ " + row.Value : row.Value;
                 if (view.Value!.Text != text) view.Value.Text = text;
@@ -629,6 +648,7 @@ public partial class PropertiesPane : UserControl
         AutomationProperties.SetName(box, row.AutomationName ?? row.Label);
         AutomationProperties.SetHelpText(box, HelpText(view));
         string modelText = Quantity.ForField(row.Value);
+        box.Watermark = row.Placeholder;
         if (invalidText is not null) return;   // keep what the user typed until Escape or the next commit
         if (run?.Box == box) return;            // a field run owns its text
         if (!box.IsKeyboardFocusWithin || !Dirty(box)) SetShown(box, modelText);
@@ -730,7 +750,7 @@ public partial class PropertiesPane : UserControl
         Grid.SetColumn(messageText, 1);
         var messageGrid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), Children = { messageIcon, messageText } };
         HyperlinkButton? useLink = null;
-        if (row.Key is "w:root" or "w:tip" && row.Kind == RowKind.Input)
+        if (row.Key is "w:root" or "w:tip" or "p:aft" && row.Kind == RowKind.Input)
         {
             useLink = new HyperlinkButton { Name = Part("UseLimit", row.Key), IsVisible = false };
             useLink.Classes.Add("prop-crumb");
@@ -790,6 +810,20 @@ public partial class PropertiesPane : UserControl
                 AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
                 label.Name = "TangentLabel";
                 break;
+            case RowKind.Mode:
+                // Design §3.6, DR-GM-2 C: a two-way switch, Set to | Move by, beside the value row.
+                var setTo = new ToggleButton { Name = "GroupModeSetTo", Content = "Set to", Tag = GroupValueMode.SetTo };
+                var moveBy = new ToggleButton { Name = "GroupModeMoveBy", Content = "Move by", Tag = GroupValueMode.MoveBy };
+                foreach (var toggle in new[] { setTo, moveBy })
+                {
+                    toggle.Classes.Add("prop-b");
+                    toggle.Click += (_, _) => ChooseGroupMode((GroupValueMode)toggle.Tag!);
+                }
+                var modes = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Children = { setTo, moveBy } };
+                view.Modes = (setTo, moveBy);
+                value = modes;
+                AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
+                break;
             default:
                 var text = new TextBlock { Name = ValueName(row.Key) };
                 text.Classes.Add("prop-value");
@@ -810,7 +844,7 @@ public partial class PropertiesPane : UserControl
         }
         view.Cell = value;
         // A wide value (an enum, or words rather than a number) sits right-aligned across the row; the label wraps short of it.
-        view.Wide = row.Kind is RowKind.Choice or RowKind.KindList || row.Kind == RowKind.Fact && row.Unit is null && !row.Dimensionless;
+        view.Wide = row.Kind is RowKind.Choice or RowKind.KindList or RowKind.Mode || row.Kind == RowKind.Fact && row.Unit is null && !row.Dimensionless;
         if (view.Wide)
         {
             value.SizeChanged += (_, _) => Layout(view);
@@ -1252,7 +1286,64 @@ public partial class PropertiesPane : UserControl
     private void Commit(RowView view, TextBox box)
     {
         if (view.Row.Key.StartsWith("w:", StringComparison.Ordinal)) CommitWing(view, box);
+        else if (view.Row.Group) CommitGroup(view, box);
         else CommitPoint(view, box);
+    }
+
+    private void ChooseGroupMode(GroupValueMode mode)
+    {
+        if (groupMode == mode || boundController is not { } controller) return;
+        groupMode = mode;
+        errors.Remove("p:aft");
+        useValues.Remove("p:aft");
+        messages.Remove("p:aft");
+        Bind(controller);
+    }
+
+    /// <summary>
+    /// Design group-move §3.6, §3.7, Ruling 111 (9): one typed Set to or Move by for the selected points, as one undo step.
+    /// A refusal keeps the typed text, names the cause (Core's words) and offers "Use <value>" by click only; a commit clears a
+    /// Move by field to 0 and the row re-reads the shared or Mixed value.
+    /// </summary>
+    private bool CommitGroup(RowView view, TextBox box)
+    {
+        if (boundController is not { } controller) return false;
+        var row = view.Row;
+        if (!Parse(view, box, Dimensions(), out double typed)) return false;
+        bool span = row.Axis == RowAxis.Span;
+        var mode = span ? GroupValueMode.MoveBy : groupMode;
+        double amount = typed / PropertiesView.FieldScale[row.Family];
+        string typedText = box.Text ?? "";
+        Task<CommitOutcome> task;
+        using (Hold())
+        {
+            task = controller.ApplyGroupValueAsync(mode, span ? GroupValueAxis.Span : GroupValueAxis.Value, amount);
+            PumpUi(task);
+        }
+        var outcome = task.IsCompletedSuccessfully ? task.Result : new CommitOutcome.Refused("DSL-NOT-ASSESSED", controller.Status);
+        if (outcome is CommitOutcome.Committed)
+        {
+            errors.Remove(row.Key); messages.Remove(row.Key); useValues.Remove(row.Key);
+            // Move by clears to 0, and so does Set to once it re-reads the shared value: the row shows the model's text again.
+            shown[box] = box.Text = mode == GroupValueMode.MoveBy ? "0" : typedText;
+            Bind(controller);
+            return true;
+        }
+        var refused = (CommitOutcome.Refused)outcome;
+        if (box.Text != typedText) box.Text = typedText;
+        return Refuse(view, box, refused.Copy, UseOffer(refused, row, mode, typed, controller));
+    }
+
+    /// <summary>The nearest legal value of a refused typed group entry (design §3.7): the tip minimum for a Set to, "the most they can move" for a Move by.</summary>
+    private static string? UseOffer(CommitOutcome.Refused refused, PropertyRow row, GroupValueMode mode, double typed, WorkbenchController controller)
+    {
+        if (mode == GroupValueMode.SetTo)
+            return refused.Code == TipChord.RefusalCode && controller.Estimates is { } wing
+                ? TipChord.FormatMm(TipChord.MinimumMeters(wing.RootChordMeters)) : null;
+        var most = Regex.Match(refused.Copy, @"The most they can move that way is (\d+(?:\.\d+)?)");
+        if (!most.Success || !double.TryParse(most.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double amount)) return null;
+        double inField = row.Family == UnitFamily.Percent ? amount * 100 : amount;   // Core words a channel's amount in its own unit
+        return Quantity.WithUnit((typed < 0 ? "-" : "") + Quantity.Typed(inField), row.Unit ?? "");
     }
 
     private bool CommitWing(RowView view, TextBox box)
@@ -2044,6 +2135,7 @@ public partial class PropertiesPane : UserControl
         public TextBox? Input { get; set; }
         public ComboBox? Enum { get; set; }
         public HyperlinkButton? Link { get; set; }
+        public (ToggleButton SetTo, ToggleButton MoveBy)? Modes { get; set; }
         public InputElement? Editor => (InputElement?)Input ?? (InputElement?)Enum ?? Link;
         public required PropertyRow Row { get; set; }
     }

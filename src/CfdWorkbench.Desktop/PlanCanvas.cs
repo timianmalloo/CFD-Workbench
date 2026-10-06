@@ -368,7 +368,11 @@ public sealed class PlanCanvas : Control
         }
         bool extend = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || !OperatingSystem.IsMacOS() && control;
-        SelectPoint(reference, extend, toggle);
+        // Design §3.2 (DR-GM-4 A): a plain press on a member of several selected points keeps the selection; a click that never
+        // drags collapses it on release. The second press of a double-click puts the group back (Ruling 111 (10)).
+        bool plain = !extend && !toggle && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
+        bool keepGroup = plain && !Controller.IsAnalysis && (e.ClickCount >= 2 && Controller.RestoreCollapsedGroup(reference) || Controller.IsGroupMember(reference));
+        if (!keepGroup) SelectPoint(reference, extend, toggle);
         FocusPoint(reference);
         if (Controller.IsAnalysis) { Controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
         if (e.ClickCount >= 2) RequestValue(hit);
@@ -438,8 +442,13 @@ public sealed class PlanCanvas : Control
         {
             var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
             if (origin is not null)
-                ProbeText += $" · Δ from root {(target.Span - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
-                    $" · Δ aft {(target.Ordinate - origin.Ordinate) * 1000:+0.00;-0.00;0.00} mm";
+            {
+                // Design §3.3 (findings 1, 2): a group shows the move Core applied, not the pointer's.
+                var (shownSpan, shownAft) = Controller.GestureGroup is not null && Controller.GestureApplied is { } applied
+                    ? (applied.SpanMeters, applied.Ordinate) : (target.Span, target.Ordinate);
+                ProbeText += $" · Δ from root {(shownSpan - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
+                    $" · Δ aft {(shownAft - origin.Ordinate) * 1000:+0.00;-0.00;0.00} mm";
+            }
         }
         InvalidateVisual();
         e.Handled = true;
@@ -452,7 +461,7 @@ public sealed class PlanCanvas : Control
     public void OpenPointMenu(PointRef reference)
     {
         if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
-        SelectPoint(reference, extend: false, toggle: false);
+        if (Controller?.IsGroupMember(reference) != true) SelectPoint(reference, extend: false, toggle: false);   // design §3.2 (4): a context click on a member keeps the group
         FocusPoint(reference);
         MenuItem Row(string header, string id)
         {
@@ -678,7 +687,17 @@ public sealed class PlanCanvas : Control
         InvalidateVisual();
     }
 
-    private void RequestValue(PointView point) => LastValueRequest = $"{point.Curve}:{point.Id}";
+    // Ruling 111 (10): on a member of several selected points the value request goes to the group's value row, and the group stays selected.
+    private void RequestValue(PointView point)
+    {
+        if (Controller is { } controller && controller.IsGroupMember(new PointRef(point.Curve, point.Id)))
+        {
+            LastValueRequest = $"group:{point.Curve}";
+            TabOut?.Invoke();
+            return;
+        }
+        LastValueRequest = $"{point.Curve}:{point.Id}";
+    }
 
     public override void Render(DrawingContext context)
     {
@@ -842,6 +861,31 @@ public sealed class PlanCanvas : Control
     /// </summary>
     private void DrawGestureLimit(DrawingContext context)
     {
+        if (Controller?.GestureGroup is not null && Controller.GestureApplied is { } applied && gesturePointer is { } requested)
+        {
+            // Design §3.3, mockup frame D: the tether runs from the grabbed point's applied place to the pointer; the warn
+            // outline (a square, not a ring) is on the binding member, even when the pointer is on another one.
+            var grabbed = Layer(Controller.Planform!).ToScreen(applied.SpanMeters, applied.Ordinate);
+            if (Point.Distance(requested, grabbed) > 4)
+            {
+                var tether = new Pen(MuteBrush ?? Brushes.White, 1.5, new DashStyle([1, 3], 0));
+                context.DrawLine(tether, grabbed, requested);
+                context.DrawEllipse(null, new Pen(MuteBrush ?? Brushes.White, 1.5), requested, 7, 7);
+            }
+        }
+        if (Controller?.GestureGroup is not null && Controller.GestureBinding is { } binding &&
+            targets.FirstOrDefault(point => point.Curve == binding.Point.Curve && point.Id == binding.Point.VertexId) is { } bound)
+        {
+            var centre = ScreenPoint(bound);
+            context.DrawRectangle(null, new Pen(WarningBrush ?? Brushes.White, 2), new Rect(centre.X - 11, centre.Y - 11, 22, 22));
+            if (Controller.GestureLimitText is { } limitText)
+            {
+                var dashed = new Pen(WarningBrush ?? Brushes.White, 2, new DashStyle([5, 3], 0));
+                context.DrawLine(dashed, centre + new Vector(-40, 0), centre + new Vector(22, 0));
+                DrawLabel(context, limitText, centre + new Vector(-40, 14));
+            }
+            return;
+        }
         if (Controller?.GestureLimitText is not { } text || Controller.GestureLimitPoint is not { } held) return;
         var vertex = targets.FirstOrDefault(point => point.Curve == held.Curve && point.Id == held.VertexId);
         if (vertex is null) return;

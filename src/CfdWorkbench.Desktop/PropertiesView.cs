@@ -23,7 +23,7 @@ public enum Mode
 
 // The property grid's model (docs/reviews/ui-property-grid.md §10.1): one row type, filled per selection.
 public enum IdentityGlyph { Foil, Control, Anchor, End, Handle, Several, Station }
-public enum RowKind { Input, Fact, Estimate, Choice, KindList, Action }
+public enum RowKind { Input, Fact, Estimate, Choice, KindList, Action, Mode }
 public enum UnitFamily { None, Length, Angle, Percent }
 public enum RowState { Normal, Warning, Error, Unavailable, Mixed, Locked }
 public enum MessageKind { Report, Echo, Warning, Error, Reason, Info }
@@ -62,6 +62,9 @@ public sealed record PropertyRow
     public string? Subhead { get; init; }                      // "Handle toward the root" above a Corner handle's rows
     public PointRef? Target { get; init; }                     // the point an input or Kind list edits
     public RowAxis Axis { get; init; }                         // what a point or handle input moves (None elsewhere)
+    public bool Group { get; init; }                           // a typed value of several points on one curve (design group-move §3.6)
+    public GroupValueMode EntryMode { get; init; }             // Group rows: Set to or Move by; on a Mode row, the one chosen
+    public string? Placeholder { get; init; }                  // the text a Group field shows while empty ("Mixed", "0")
 
     public bool IsEditable => Kind is RowKind.Input or RowKind.Choice or RowKind.KindList;
 
@@ -109,7 +112,9 @@ public sealed record PropertiesContext(
     Func<int, string>? StationSource = null,
     CfdWorkbench.Analysis.AnalysisViewModel? Analysis = null,
     GestureLimit? Limit = null,
-    string? ConditionsSummary = null);   // COPY-280: the collapsed Conditions group's line, from the band's live values   // Ruling 96: the planform limit holding the drag in progress
+    string? ConditionsSummary = null,    // COPY-280: the collapsed Conditions group's line, from the band's live values
+    GroupValueMode GroupMode = GroupValueMode.SetTo,   // design group-move §3.6: the value row's entry mode, kept while the selection is kept
+    string? GroupHold = null);           // design group-move §3.3: the applied move and binding point of a group drag in progress
 
 /// <summary>
 /// The open section draft as the Properties pane shows it (design §11.4): both surfaces of the cursor bytes, the section's
@@ -250,6 +255,43 @@ public static class PropertyCopy
         TangentKind.Symmetric => Symmetric,
         _ => Corner
     };
+}
+
+/// <summary>
+/// The group-move strings (design group-move-node-m §5, §5a; Rulings 107, 111, 116), behind one lookup so a wording change is a
+/// data change. Tokens: n, curve ("trailing edge"), axis ("aft", "dihedral", "twist", "thickness", "span"), point, value (with
+/// its unit), end-chord ("Tip chord" or "Root chord").
+/// </summary>
+public static class GroupCopy
+{
+    private static readonly IReadOnlyDictionary<string, string> Templates = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["G1"] = "Moving <n> <curve> points.",
+        ["G2"] = "Moved <n> <curve> points.",
+        ["G2.end"] = " <end-chord> <value> mm.",
+        ["G3"] = "<point> is locked. Deselect it to move the others.",
+        ["G4"] = "The <point> can't move along the span, so the selection moves in <axis> only.",
+        ["G4.none"] = "The <point> can't change, so the selection holds.",
+        ["G5"] = "Handles move on their own, or with their anchor. Deselect the handle or select its anchor.",
+        ["G6"] = "The selection is held by point <n>. Points can't close up on a neighbour.",
+        ["G7"] = "Select points on one curve to move them together.",
+        ["G9"] = "Points can't share a position along the span. Move them by an amount instead.",
+        ["G11"] = "Set <axis> of <n> points to <value>.",
+        ["G12"] = "Moved <n> points by <value> in <axis>."
+    };
+
+    public static string Text(string id, params (string Token, string Value)[] tokens)
+    {
+        string text = Templates[id];
+        foreach (var (token, value) in tokens) text = text.Replace("<" + token + ">", value, StringComparison.Ordinal);
+        return text;
+    }
+
+    /// <summary>The curve noun for running text ("trailing edge", "twist").</summary>
+    public static string Curve(string curve) => PropertiesView.Curves[curve].Name.ToLowerInvariant();
+
+    /// <summary>The value row's own axis word: "aft" on the rails, else the curve's name.</summary>
+    public static string Axis(string curve) => curve is "leading" or "trailing" ? "aft" : Curve(curve);
 }
 
 /// <summary>One formatter per quantity (DR-UID-1, §10.2). Read-only text uses U+2212 for a negative number.</summary>
@@ -552,7 +594,7 @@ public static class PropertiesView
         {
             Selection.Station station when station.Index >= 0 && station.Index < projection.Assignments.Count =>
                 StationRows(station, projection, plan, context.Frame, context.StationSource, groups),
-            Selection.Points { Items.Count: > 1 } points when curves is not null => SeveralRows(points, curves, groups),
+            Selection.Points { Items.Count: > 1 } points when curves is not null => SeveralRows(points, curves, groups, context.GroupMode, context.GroupHold),
             Selection.Points { Items.Count: 1 } points when curves is not null && Find(curves, points.Items[0]) is { } point =>
                 PointRows(point, curves(point.Curve)!, context.NotChecked, groups),
             _ => FoilRows(projection, groups)
@@ -713,23 +755,72 @@ public static class PropertiesView
         return new SelectionIdentity(IdentityGlyph.Station, title, $"Station {station.Index + 1} of {projection.Assignments.Count}");
     }
 
-    private static SelectionIdentity SeveralRows(Selection.Points points, Func<string, CurveView?> curves, List<PropertyGroup> groups)
+    private static SelectionIdentity SeveralRows(Selection.Points points, Func<string, CurveView?> curves, List<PropertyGroup> groups,
+        GroupValueMode mode, string? hold)
     {
         var found = points.Items.Select(item => Find(curves, item)).OfType<PointView>().ToArray();
         var roles = found.Select(point => RoleText(point.Role)).Distinct().ToArray();
         string type = roles.Length == 1 ? roles[0] : "Mixed";
         var names = found.Select(point => point.Curve).Distinct().ToArray();
         var shared = names.Length == 1 && Curves.TryGetValue(names[0], out var one) ? one : Curves["trailing"];
-        groups.Add(new PropertyGroup("pos", "Point", "Mixed", true,
-        [
-            Prose("p:type", "Type", type) with { State = type == "Mixed" ? RowState.Mixed : RowState.Normal },
-            Mixed("p:from", "From root", "mm", UnitFamily.Length),
-            Mixed("p:aft", shared.ValueLabel, shared.ValueUnit, shared.ValueFamily)
-        ], [new RowMessage(PropertyCopy.SelectOne, MessageKind.Reason)]));
+        var typeRow = Prose("p:type", "Type", type) with { State = type == "Mixed" ? RowState.Mixed : RowState.Normal };
+        if (names.Length == 1 && found.Length == points.Items.Count)
+            groups.Add(new PropertyGroup("pos", "Point", hold ?? "Mixed", true, GroupRows(typeRow, found, shared, names[0], mode), []));
+        else
+            groups.Add(new PropertyGroup("pos", "Point", "Mixed", true,
+            [
+                typeRow,
+                Mixed("p:from", "From root", "mm", UnitFamily.Length),
+                Mixed("p:aft", shared.ValueLabel, shared.ValueUnit, shared.ValueFamily)
+            ], [new RowMessage(PropertyCopy.SelectOne, MessageKind.Reason)]));
         string crumb = names.Length == 1
             ? $"{Curves[names[0]].Name} · points {Join(found.Select(point => (point.Index + 1).ToString(CultureInfo.InvariantCulture)))}"
             : Join(names.Select(curve => Curves.TryGetValue(curve, out var rows) ? rows.Name : curve));
         return new SelectionIdentity(IdentityGlyph.Several, $"{points.Items.Count} points", crumb);
+    }
+
+    /// <summary>
+    /// Design group-move §3.6, Rulings 111 and 116: the Point rows of two or more points on one curve. From root is Move by only;
+    /// the value row is Set to or Move by. A shared value is equal at the displayed precision (finding 11); a range shows the
+    /// same two decimals. Move by shows 0 and re-reads the shared value in its note.
+    /// </summary>
+    private static List<PropertyRow> GroupRows(PropertyRow typeRow, PointView[] found, CurveRows curve, string curveName, GroupValueMode mode)
+    {
+        double scale = FieldScale[curve.ValueFamily];
+        var target = new PointRef(found[0].Curve, found[0].Id);
+        string[] values = found.Select(point => Quantity.Typed(point.Ordinate * scale)).ToArray();
+        bool same = values.Distinct().Count() == 1;
+        string valueRange = "Range " + Quantity.Typed(found.Min(point => point.Ordinate) * scale) + " to " +
+            Quantity.WithUnit(Quantity.Typed(found.Max(point => point.Ordinate) * scale), curve.ValueUnit) + ".";
+        string spanRange = "Range " + Quantity.TypedLength(found.Min(point => point.SpanMeters)) + " to " +
+            Quantity.WithUnit(Quantity.TypedLength(found.Max(point => point.SpanMeters)), "mm") + ".";
+        string note = curveName == "thickness" ? " Percent of each point's local chord." : "";
+        bool setTo = mode == GroupValueMode.SetTo;
+        string valueNote = setTo
+            ? (same ? "" : valueRange) + note
+            : (same ? "Now " + Quantity.WithUnit(values[0], curve.ValueUnit) + "." : "Now Mixed. " + valueRange) + note;
+        return
+        [
+            typeRow,
+            new PropertyRow
+            {
+                Key = "p:from", Label = "From root", Kind = RowKind.Input, Unit = "mm", Family = UnitFamily.Length, Value = "0", Placeholder = "0",
+                AutomationName = "From root, move all points by", Target = target, Axis = RowAxis.Span, Group = true,
+                EntryMode = GroupValueMode.MoveBy, Description = spanRange, DescriptionAlwaysVisible = true
+            },
+            new PropertyRow
+            {
+                Key = "p:mode", Label = "Entry", Kind = RowKind.Mode, Group = true, EntryMode = mode, AutomationName = curve.ValueLabel + " entry mode"
+            },
+            new PropertyRow
+            {
+                Key = "p:aft", Label = curve.ValueLabel, Kind = RowKind.Input, Unit = curve.ValueUnit, Family = curve.ValueFamily,
+                Value = setTo ? (same ? values[0] : "") : "0", Placeholder = setTo && !same ? "Mixed" : "0",
+                AutomationName = curve.ValueLabel + (setTo ? ", set all points to" : ", move all points by"), Target = target,
+                Axis = RowAxis.Value, Group = true, EntryMode = mode, Description = valueNote.Length > 0 ? valueNote.Trim() : null,
+                DescriptionAlwaysVisible = true
+            }
+        ];
     }
 
     private static SelectionIdentity PointRows(PointView point, CurveView rail, bool readOnly, List<PropertyGroup> groups)

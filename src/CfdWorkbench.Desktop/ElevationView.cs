@@ -700,7 +700,7 @@ public sealed class ElevationView : Control
         }
         if (e.Key == Key.Return && Focused() is { } valueTarget)
         {
-            LastValueRequest = $"{valueTarget.Curve}:{valueTarget.Id}";
+            RequestValue(new PointRef(valueTarget.Curve, valueTarget.Id));
             e.Handled = true;
             return;
         }
@@ -750,6 +750,18 @@ public sealed class ElevationView : Control
             gestureOrigin = null;
             e.Handled = true;
         }
+    }
+
+    /// <summary>Ruling 111 (10): on a member of several selected points the request goes to the group's value row; the group stays selected.</summary>
+    private void RequestValue(PointRef point)
+    {
+        if (controller?.IsGroupMember(point) == true)
+        {
+            LastValueRequest = $"group:{point.Curve}";
+            this.FindAncestorOfType<Shell.ShellHost>()?.Properties.FocusFirstValue();
+            return;
+        }
+        LastValueRequest = $"{point.Curve}:{point.VertexId}";
     }
 
     private PointView? Focused() => focusedPoint is { } focus
@@ -818,10 +830,13 @@ public sealed class ElevationView : Control
         }
         bool extend = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || !OperatingSystem.IsMacOS() && control;
-        SelectPoint(reference, extend, toggle);
+        // Design §3.2 (DR-GM-4 A) in an elevation too (Ruling 111 (6)): a plain press on a member keeps the group.
+        bool plain = !extend && !toggle && pressed.IsLeftButtonPressed;
+        bool keepGroup = plain && !controller.IsAnalysis && (e.ClickCount >= 2 && controller.RestoreCollapsedGroup(reference) || controller.IsGroupMember(reference));
+        if (!keepGroup) SelectPoint(reference, extend, toggle);
         FocusPoint(reference);
         if (controller.IsAnalysis) { controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
-        if (e.ClickCount >= 2) LastValueRequest = $"{hit.Curve}:{hit.Id}";
+        if (e.ClickCount >= 2) RequestValue(reference);
         else if (!extend && !toggle && pressed.IsLeftButtonPressed)
         {
             // As on the Plan: Shift held during the drag locks it to one axis (§11.3).
@@ -865,9 +880,13 @@ public sealed class ElevationView : Control
             else target.Span = origin.SpanMeters;
         }
         gestureTarget = target;
+        gesturePointer = position;
         controller.UpdateGesture(target.Span, target.Ordinate, Point.Distance(position, pressPosition));
-        ProbeText = PointProbe(origin with { SpanMeters = target.Span, Ordinate = target.Ordinate }) +
-            " · Δ " + ValueName(origin.Curve) + " " + Delta(origin.Curve, target.Ordinate - origin.Ordinate) + ClampReason(origin.Curve, target.Ordinate);
+        // Design §3.3: a group shows the move Core applied, not the pointer's; a held channel names the domain.
+        var shown = controller.GestureGroup is not null && controller.GestureApplied is { } applied ? (applied.SpanMeters, applied.Ordinate) : (target.Span, target.Ordinate);
+        ProbeText = PointProbe(origin with { SpanMeters = shown.Item1, Ordinate = shown.Item2 }) +
+            " · Δ " + ValueName(origin.Curve) + " " + Delta(origin.Curve, shown.Item2 - origin.Ordinate) + ClampReason(origin.Curve, target.Ordinate);
+        if (controller.GestureGroup is not null && controller.GroupHold is { } groupHold) ProbeText += " · " + groupHold;
         Redraw();
         e.Handled = true;
     }
@@ -928,7 +947,7 @@ public sealed class ElevationView : Control
     public void OpenPointMenu(PointRef reference)
     {
         if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
-        SelectPoint(reference, extend: false, toggle: false);
+        if (controller?.IsGroupMember(reference) != true) SelectPoint(reference, extend: false, toggle: false);   // design §3.2 (4)
         FocusPoint(reference);
         MenuItem Row(string header, string id)
         {
@@ -1072,6 +1091,7 @@ public sealed class ElevationView : Control
         if (ScaleText is { } scale) Plate(context, scale, new Point(Bounds.Width - PlateInset, band.Bottom - 30), mute, left: false);
         if (hoveredPoint is { } hovered && LayerFor(hovered.Curve) is { } hoverLayer) hoverLayer.DrawHoverRing(context, hovered, mute);
         if (Focused() is { } focus && LayerFor(focus.Curve) is { } focusLayer) focusLayer.DrawFocusRing(context, focus, FocusBrush ?? Brushes.White);
+        DrawGroupHold(context, mute);
         if (ProbeText is { } probe)
         {
             var (lines, box) = ProbeLayout(probe);
@@ -1079,6 +1099,37 @@ public sealed class ElevationView : Control
             for (int line = 0; line < lines.Length; line++)
                 DrawText(context, lines[line], new Point(box.Left + PlatePadX, box.Top + PlatePadY + line * LineHeight(PlateFont)),
                     InkBrush ?? foil, PlateFont, maxWidth: box.Width - 2 * PlatePadX);
+        }
+    }
+
+    private Point? gesturePointer;
+
+    /// <summary>The viewport warning colour, read from the theme at draw time (the Plan's PlanWarningBrush).</summary>
+    private IBrush? WarningBrush => this.TryFindResource("PlanWarningBrush", ActualThemeVariant, out var found) && found is IBrush brush ? brush : null;
+
+    /// <summary>
+    /// Design §3.3 in an elevation (Ruling 111 (6)): the tether from the grabbed point's applied place to the pointer, and the warn
+    /// outline (a square) on the member or neighbour that binds the group.
+    /// </summary>
+    private void DrawGroupHold(DrawingContext context, IBrush mute)
+    {
+        if (controller?.GestureGroup is not { } group) return;
+        string curve = group[0].Curve;
+        if (LayerFor(curve) is not { } layer) return;
+        if (controller.GestureApplied is { } applied && gesturePointer is { } pointer)
+        {
+            var grabbed = layer.ToScreen(applied.SpanMeters, applied.Ordinate);
+            if (Point.Distance(pointer, grabbed) > 4)
+            {
+                context.DrawLine(new Pen(mute, 1.5, new DashStyle([1, 3], 0)), grabbed, pointer);
+                context.DrawEllipse(null, new Pen(mute, 1.5), pointer, 7, 7);
+            }
+        }
+        if (controller.GestureBinding is { } binding && binding.Point.Curve == curve &&
+            CurrentTargets.FirstOrDefault(point => point.Curve == curve && point.Id == binding.Point.VertexId) is { } bound)
+        {
+            var centre = layer.ToScreen(bound);
+            context.DrawRectangle(null, new Pen(WarningBrush ?? Brushes.White, 2), new Rect(centre.X - 11, centre.Y - 11, 22, 22));
         }
     }
 
