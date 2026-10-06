@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T17:07:41Z",
+  "generated": "2026-10-06T17:29:12Z",
   "audit": [
     {
       "actor": null,
@@ -27621,12 +27621,59 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M492YVY7861NAY006P8467QG",
-      "shortname": "join-grp-core",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-06T17:07:41Z",
-      "session": "14e5e8d5",
+      "done_when": "join gates green",
+      "duration_seconds": 56.0,
+      "fan_out": 0,
+      "goal": "join feature/group-move (half 1) into main",
+      "id": "al-01M492YVY7861NAY006P8467QG",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of feature/group-move into main",
+      "session": "14e5e8d5",
+      "shortname": "join-grp-core",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-06T17:06:45Z",
       "summary": "design folds marine-CAD findings 1-8 and Ruling 111; token wording proposed (5a); mockup fixes; Core BeginGroupGesture/UpdateGroupGesture/ApplyGroupValue on one clamp path, root seeding, handles never seeded twice, gesture.end members; 20 PASS; mutants red; Desktop half not started recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-06T17:14:41Z",
+      "done_when": "red-first receipts, captures, Copy_AnalysisStrings_MatchDesignMd green, one full run-tests green, check-docs exit 0",
+      "duration_seconds": 1836.0,
+      "goal": "Built Analysis screens say what Rulings 101 and 109 approved, nothing cut off at 1500x870, four views at 1280x800 (C+D)",
+      "id": "al-01M493BP538ZZWGT67FGBW2CPF",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-cpy round-oct06",
+      "session": "trk-cpy",
+      "shortname": "trk-cpy",
+      "skill": "implement",
+      "started_at": "2026-10-06T16:44:05Z",
+      "summary": "Shallow-station label, no bare Unavailable, one Drag (Wing only) row, COPY-274..280 strings, Units on the band, wrapped Properties cells, band overflow to More, 150 px panel below client 820 px, chart tick row kept while Running; 3 commits on fix/a3a-copy-display",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M49468S066NN75QVN1Q3PSNS",
+      "shortname": "join-cpy",
+      "datetime": "2026-10-06T17:29:12Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "CPY joined (see b872d341) plus the C-3 repair: the 1280x800 four-view layout check moved to the Desktop readiness ring (1.6 s), fast ring net 48.3 s; reason cells show codes until the operator approves text recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -27635,7 +27682,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join feature/group-move (half 1) into main",
+      "goal": "join fix/a3a-copy-display into main",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -27644,8 +27691,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-06T17:06:45Z",
-      "duration_seconds": 56.0
+      "started_at": "2026-10-06T17:28:17Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
