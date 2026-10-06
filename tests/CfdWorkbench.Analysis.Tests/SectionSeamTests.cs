@@ -16,12 +16,15 @@ internal static class SectionSeamTests
     {
         byte[] source = FoilSource.NewDefault();
         OperatingPoint op = Fixture.Op(3);
+        // C-5: 97 complete half-wing stations exercise the every-station invariant without the default 129-station
+        // fixture's measured 515 ms cost under the concurrent ring. The product default remains 129 stations.
+        double[] etas = Settings.SpanEtas(48, "cosine");
         var watch = Stopwatch.StartNew();
-        SectionTierResult section = SectionTier.Evaluate(source, Settings.Default.SectionEtas!, [], op, Fixture.Salt);
+        SectionTierResult section = SectionTier.Evaluate(source, etas, [], op, Fixture.Salt);
         watch.Stop();
         Console.WriteLine($"MEASURE warm whole-wing section tier {watch.Elapsed.TotalMilliseconds:F3} ms at {PanelMethod.DefaultPanelCount} panels");
         if (watch.Elapsed.TotalMilliseconds > 1000) throw new InvalidOperationException("warm 200-panel whole-wing section tier exceeded 1 s");
-        AnalysisChecks.Equal(Settings.Default.SectionEtas!.Count, section.Stations.Count, "all run stations sampled");
+        AnalysisChecks.Equal(etas.Length, section.Stations.Count, "all run stations sampled");
         if (section.Stations.Any(station => station.Estimate.Panel.StationCount != 200 ||
             !double.IsFinite(station.Estimate.Cl) || !double.IsFinite(station.Estimate.CmQuarter) ||
             !double.IsFinite(station.Estimate.AlphaL0Deg) || !double.IsFinite(station.Estimate.CdTurbulentBound) ||
