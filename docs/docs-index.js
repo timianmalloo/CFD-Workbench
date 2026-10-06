@@ -12944,6 +12944,56 @@ window.DOCS_INDEX = {
       "sourceSha256": "ef3473e02f906e97f98dceed90f7019c88f42445232d4aeec1e785c6c85c30f9"
     },
     {
+      "id": "proof-uni-red-first",
+      "path": "docs/proof/uni/red-first.md",
+      "title": "UNI red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-uni",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Units switch (Ruling 115) red-first of the UNI track.",
+      "tags": [
+        "uni",
+        "units",
+        "ruling-115"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fbb5834cbe77f6fa1486079c5ea0c3be1e8733ac88e36758fa37f812e487b0d1"
+    },
+    {
+      "id": "proof-uni-trace",
+      "path": "docs/proof/uni/trace.md",
+      "title": "UNI trace receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-uni",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Units switch (Ruling 115) trace of the UNI track.",
+      "tags": [
+        "uni",
+        "units",
+        "ruling-115"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "67463d35644d830647566adfa6aee9419ab495e8ce1b2e97b276ed84b56eed04"
+    },
+    {
       "id": "proof-visible-presentation",
       "path": "docs/proof/visible-presentation.md",
       "title": "Visible presentation feasibility proof packet",
@@ -15004,5 +15054,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "5a2c16392587f510af10a0efd7b4dcae4f074fc0d81cfb50e5b2f49d19fd7805"
+  "graphSha256": "2192bcf7b2a28dc20f2dc9b53ccab904c80634d25fd01ad52265fb4c0af6d30e"
 };

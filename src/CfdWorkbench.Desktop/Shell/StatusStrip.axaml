@@ -16,7 +16,7 @@
       <StackPanel x:Name="StatusItems" Grid.Column="2" Orientation="Horizontal">
         <Border x:Name="AnalysisItem" Classes="status-item" IsVisible="False"><TextBlock x:Name="AnalysisItemText" /></Border>
         <Border x:Name="SelectionItem" Classes="status-item" IsVisible="False"><TextBlock x:Name="SelectionItemText" /></Border>
-        <Border x:Name="UnitsItem" Classes="status-item" IsVisible="False"><Button x:Name="UnitsButton" Classes="status-action" Margin="0" Content="Metric" /></Border>
+        <Border x:Name="UnitsItem" Classes="status-item" IsVisible="False"><Button x:Name="UnitsButton" Classes="status-action" Content="Metric" /></Border>
         <Border x:Name="EstimateItem" Classes="status-item" IsVisible="False"><TextBlock Text="≈ estimates" /></Border>
         <Border x:Name="TextSizeItem" Classes="status-item"><TextBlock x:Name="TextSizeItemText" Text="Text 100 %" /></Border>
       </StackPanel>
