@@ -9,7 +9,7 @@ public sealed class UnavailablePolar : IPolarSource
 
     public string? UnavailableReason => "Unavailable — no polar method installed";
 
-    public PolarSample? Sample(string profileHash, double reynolds, double ncrit, double alphaDeg, WaterRecord water, CancellationToken cancellation)
+    public PolarResult? Sample(string profileHash, double reynolds, double ncrit, double alphaDeg, WaterRecord water, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         return null;

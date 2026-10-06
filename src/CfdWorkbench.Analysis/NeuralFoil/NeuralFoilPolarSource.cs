@@ -90,7 +90,7 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
             ? "analysis_confidence is below 0.5. NeuralFoil's confidence is an advisory convergence and in-distribution indicator, not an accuracy statement."
             : null;
 
-    public PolarSample? Sample(string profileHash, double reynolds, double ncrit, double alphaDeg,
+    public PolarResult? Sample(string profileHash, double reynolds, double ncrit, double alphaDeg,
         WaterRecord water, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
@@ -110,9 +110,27 @@ public sealed class NeuralFoilPolarSource(Func<string, NeuralFoilSection?> resol
             ["rho"] = water.Rho, ["nu"] = water.Nu, ["pv"] = water.Pv,
             ["source"] = water.Source, ["tableHash"] = water.TableHash
         })));
-        return new PolarSample(profileHash, Method.Id, Method.Version,
+        var sample = new PolarSample(profileHash, Method.Id, Method.Version,
             reynolds, ncrit, "clean", alphaDeg, waterHash, prediction.Cl, prediction.Cd,
             prediction.Cm, prediction.XtrUpper, prediction.XtrLower, null, null, prediction.AnalysisConfidence, true);
+        return new PolarResult(sample, result.OutsideBracketReasons, result.LowConfidence,
+            result.CstResidualRms, result.CstResidualMax);
+    }
+
+    /// <summary>Rebuild the flags for a stored sample using the exact section revision that produced its run.</summary>
+    public static PolarResult DeriveStored(PolarSample sample, NeuralFoilSection section)
+    {
+        ArgumentNullException.ThrowIfNull(sample);
+        ArgumentNullException.ThrowIfNull(section);
+        if (sample.MethodId != Method.Id || sample.MethodVersion != Method.Version || sample.ProfileHash != section.ProfileHash)
+            throw new ContractError("ANA-POLAR-METHOD-MISMATCH", "Stored polar method or profile differs from the run revision.");
+        CstFitResult fit = CstFit.Fit(section);
+        if (fit.MaxResidual > MaxCstResidual)
+            throw new ContractError("ANA-POLAR-NONCOMPUTABLE", "CST residual above 0.00036 c");
+        return new PolarResult(sample,
+            BracketFlags(Naca0012Reference.Matches(fit.Parameters), sample.AlphaDeg, sample.Reynolds, sample.Ncrit),
+            sample.Confidence is not { } confidence || !double.IsFinite(confidence) || confidence < LowConfidenceBelow,
+            fit.RmsResidual, fit.MaxResidual);
     }
 
     // Hard refusals: outside the network's training range, or a CST fit too poor to represent the section.

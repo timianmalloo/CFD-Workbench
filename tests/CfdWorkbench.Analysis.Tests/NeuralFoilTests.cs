@@ -131,7 +131,7 @@ internal static class NeuralFoilTests
         NeuralFoilSection section = Section(false, "naca0012");
         IPolarSource source = new NeuralFoilPolarSource(hash => hash == section.ProfileHash ? section : null);
         var water = new WaterRecord(15, 0, 999, 1e-6, 1000, "fixture", new string('b', 64));
-        PolarSample? sample = source.Sample(section.ProfileHash, 1000000, 4, 0, water, CancellationToken.None);
+        PolarSample? sample = source.Sample(section.ProfileHash, 1000000, 4, 0, water, CancellationToken.None)?.Sample;
         var expected = NeuralFoilCaseTable.Rows[1];
         if (sample is null || Math.Abs(sample.Cl!.Value - expected.Cl) > 1e-8 ||
             Math.Abs(sample.Cd!.Value - expected.Cd) > 1e-8 ||
@@ -234,7 +234,7 @@ internal static class NeuralFoilTests
             !text.Contains("not an accuracy", StringComparison.OrdinalIgnoreCase))
             throw new Exception("warning does not say the confidence is advisory and not an accuracy statement: " + text);
         var water = new WaterRecord(15, 0, 999, 1e-6, 1000, "fixture", new string('b', 64));
-        PolarSample? sample = source.Sample(section.ProfileHash, 1000, 0, 27, water, CancellationToken.None);
+        PolarSample? sample = source.Sample(section.ProfileHash, 1000, 0, 27, water, CancellationToken.None)?.Sample;
         if (sample?.Confidence is not { } carried || carried >= NeuralFoilPolarSource.LowConfidenceBelow)
             throw new Exception("sample dropped the advisory confidence");
         NeuralFoilEvaluation fine = source.Evaluate(section, 0, 500000, 4, CancellationToken.None);

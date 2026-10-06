@@ -35,7 +35,7 @@ internal static class LoadsViewTests
             foreach (string part in new[] { "take-off", "pumping", "breach and slam", "ventilation shock", "impact", "fatigue" })
                 Equal(true, structural.Note!.Contains(part), part);
         });
-        Check("Section_EditedProfileNoPolar_Unavailable", () => {
+        Check("Section_NoPolarStub_Unavailable", () => {
             var v = ProjectionTests.View(); Equal(Labels.NoPolar, ProjectionTests.Cell(v, "Section (2D)", "Cl, Cd, Cm, x_tr").Value);
             Equal(Labels.SectionCp, ProjectionTests.Cell(v, "Section (2D)", "Cp_min").Value);
         });

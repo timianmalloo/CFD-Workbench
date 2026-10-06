@@ -3,8 +3,7 @@ using CfdWorkbench.Core;
 namespace CfdWorkbench.Analysis;
 
 /// <summary>
-/// A section polar method (DR-ANA-1). A3a installs none: STP's stub reports "Unavailable — no polar method installed",
-/// so cd_profile and Total drag are Unavailable, never zero.
+/// A section polar method (DR-ANA-1). The unavailable source reports a reason, so missing profile drag is never zero.
 /// </summary>
 public interface IPolarSource
 {
@@ -12,11 +11,14 @@ public interface IPolarSource
     string? UnavailableReason { get; }
 
     /// <summary>
-    /// The polar sample at its grain key. Current behaviour differs by source: <c>UnavailablePolar</c> returns null;
-    /// <c>NeuralFoilPolarSource</c> never returns null and throws <c>ContractError</c> ANA-POLAR-NONCOMPUTABLE (with the
-    /// reason) for a point outside the network training range or a section its CST fit cannot represent. Computed points
-    /// outside the validated bracket, and low-confidence points, are returned without those flags (only
-    /// <c>NeuralFoilPolarSource.Evaluate</c> carries them). A3c-2 must reconcile this contract before a caller wires it.
+    /// A computed sample and its derived, non-persisted validity metadata. The unavailable source returns null.
+    /// NeuralFoil throws <c>ContractError</c> ANA-POLAR-NONCOMPUTABLE for a point outside the network training range
+    /// or a section its CST fit cannot represent. A computed point outside the validated bracket or below the
+    /// advisory confidence threshold still returns a result with explicit flags.
     /// </summary>
-    PolarSample? Sample(string profileHash, double reynolds, double ncrit, double alphaDeg, WaterRecord water, CancellationToken cancellation);
+    PolarResult? Sample(string profileHash, double reynolds, double ncrit, double alphaDeg, WaterRecord water, CancellationToken cancellation);
 }
+
+/// <summary>Read result. Only <see cref="Sample"/> is stored; all other members are derived from its grain and the run's own section.</summary>
+public sealed record PolarResult(PolarSample Sample, IReadOnlyList<string> OutsideBracketReasons, bool LowConfidence,
+    double CstResidualRms, double CstResidualMax);
