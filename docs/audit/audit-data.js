@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T03:03:54Z",
+  "generated": "2026-10-06T03:46:14Z",
   "audit": [
     {
       "actor": null,
@@ -26870,6 +26870,42 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T03:03:01Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M47N3C5PM1TG30YGKC8PKH6V",
+      "shortname": "pol-a3a-polish",
+      "datetime": "2026-10-06T03:46:14Z",
+      "session": "trk-pol",
+      "prompt": "POL A3a polish",
+      "summary": "POL: A3a polish from the AUX review. Properties Analysis in one visible scroll (Wing not pinned, Conditions collapsed), tier pill chip, 3D plates wrap and clear the axes plate, loading chart ticks and symbol titles from approved copy, Plan legend batlow ramp, error card hidden while Running, Tampered view and Preview hidden banner and alpha +/-3 sign tests (mutants red, restored), review file and nine screens re-captured. Ring green, Desktop 716 PASS, wall 50 s, Desktop child 44.1 s, --analysis 10.4 s against 9.0 s.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/a3a-native.md",
+        "DESIGN.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "A3a polish items 1-7 from the AUX review, Desktop only, no new copy",
+      "done_when": "named tests PASS, one green ring, gates green, nine screens re-rendered, review file updated",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T03:14:02Z",
+      "duration_seconds": 1932.0,
+      "git": {
+        "sha": "0e8a5fa9c2053fc71b5987e1efad2ab09de53194",
+        "short": "0e8a5fa9c",
+        "branch": "fix/a3a-polish",
+        "pushed": null
+      }
     }
   ],
   "changes": [

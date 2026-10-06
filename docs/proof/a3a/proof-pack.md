@@ -121,7 +121,7 @@ the Plan view draws layers (AUX-F1).
 | 2 | Model-area navbar, **Analysis** (CAD \| Analysis) | Conditions band appears (Speed 5.14 m/s, Salt, Depth "Not set", alpha 2.00, Evaluate); camera, selection and layout stay; points dim; bottom panel shows "No analysis yet. Set the conditions, then Evaluate." |
 | 3 | Click **Evaluate** | Brief "Evaluating — VLM + strip · n panels…", then "Analysis complete — VLM + strip · t s"; Plan gains batlow strips and the loading curve; band shows q, Re_ref, sigma as "Unavailable — depth not set" |
 | 4 | Type **0.6** in Depth h_ref, **Evaluate** | q, Re_ref, h/c, Fr_h, sigma show values; 3D shows lift arrows, total L, moment arc, tip depth |
-| 5 | Properties, scroll the Wing result group | Tier "VLM + strip · local calculation", CL, CDi, e, L, D_i; Total drag Unavailable naming profile, junction, mast, wave, spray; Labels, Depth basis and Not modelled below |
+| 5 | Properties, scroll the one column (its bar is visible) | Tier chip "VLM + strip · local calculation", then CL, CDi, e, L, D_i; Total drag Unavailable naming profile, junction, mast, wave, spray; Labels header and first rows in view, Basis, Not modelled and the Depth rows one scroll below |
 | 6 | Bottom panel tabs: **Spanwise loading**, **Loads**, **Provenance** | chart with the elliptic reference and **Show table**; Loads with "Structural: Not assessed" and the safety copy; Provenance with the Run manifest |
 | 7 | Browser or Plan: select the **tip station** | Properties "Strip of wing run (alpha_eff)"; Envelope row "Not judged — tip strip"; Section tab Unavailable with its reason |
 | 8 | Set alpha **12**, Evaluate | "Outside the method envelope"; Plan marks strips with dashed outlines and a count |
@@ -129,5 +129,6 @@ the Plan view draws layers (AUX-F1).
 | 10 | Toggle to **CAD**, change Span in Properties, return to **Analysis** | banner "Historical — geometry changed (r1 → r2)" on the area; layers stay until the next Evaluate |
 | 11 | In Analysis, press a point | status reads "Points are edited in CAD. Switch with the CAD \| Analysis toggle." |
 
-Known on screen (do not be surprised): 3D labels overlap at the right edge, the loading chart has no axis titles, the Plan
-legend is text without a colour ramp (review file AUX-F3, F4, F5).
+Known on screen (do not be surprised): the 3D labels, loading chart axes and Plan legend ramp were fixed by the POL polish
+(review file section 4a). Still open: the Envelope and Total drag cells are cut at the Properties cell edge (AUX-F8), and
+the chart's x tick row is cut while an Evaluate runs.
