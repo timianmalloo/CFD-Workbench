@@ -133,7 +133,7 @@ public sealed class ShellHost : Grid
         paletteOverlay.IsVisible = false;
         paletteOrigin?.Focus();
         if (id is null) return;
-        if (IsShellCommand(id)) _ = RunCommand(id);
+        if (IsShellCommand(id) || CommandTable.UnitsOf(id) is not null) _ = RunCommand(id);
         else PaletteCommand?.Invoke(id);
     }
 
@@ -263,6 +263,10 @@ public sealed class ShellHost : Grid
         ModelView.StartCardView.StartOpenButton.Click += async (_, _) => await OpenFileInteractiveAsync();
         ModelView.StartCardView.ClearRecentButton.Click += async (_, _) => await ClearRecentAsync();
         StatusStrip.TryAgain = () => _ = ClearRecentAsync();
+        // Ruling 115: the status-bar item toggles the units; the controller's event refreshes every surface that shows them.
+        StatusStrip.UnitsButton.Click += (_, _) =>
+            Controller.AnalysisUnits = Controller.AnalysisUnits == CfdWorkbench.Analysis.Units.Metric ? CfdWorkbench.Analysis.Units.Imperial : CfdWorkbench.Analysis.Units.Metric;
+        Controller.UnitsChanged += RefreshPanes;
         ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path, fromRecent: true,
             origin: ModelView.StartCardView.SelectedRecentControl);
         ModelView.StartCardView.LocateRequested += () => _ = OpenFileInteractiveAsync();
@@ -832,7 +836,8 @@ public sealed class ShellHost : Grid
         StatusStrip.ShowItems(SelectionItemText(), Controller.Inspection is not null, Controller.Estimates is not null, step, StripUnits());
     }
 
-    private string StripUnits() => Controller.Section is null ? "mm" : "% chord";
+    /// <summary>The Units item's text (Ruling 115): the display units of every area. CAD lengths stay in mm (A4.7).</summary>
+    private string StripUnits() => Controller.AnalysisUnits.ToString();
 
     /// <summary>The strip's selection item ("TE · pt 7 of 14", "Twist · pt 5 of 7"); absent with no point selected.</summary>
     private string? SelectionItemText()
@@ -967,6 +972,11 @@ public sealed class ShellHost : Grid
         if (CommandTable.TextSizeOf(id) is { } size)
         {
             SetTextScale(size);
+            return;
+        }
+        if (CommandTable.UnitsOf(id) is { } units)
+        {
+            Controller.AnalysisUnits = units;
             return;
         }
         if (IsShellCommand(id))

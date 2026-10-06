@@ -284,8 +284,12 @@ public sealed class WorkbenchController : IDisposable
             analysisUnits = value;
             analysisProjectionKey = null;
             LayersChanged?.Invoke();
+            UnitsChanged?.Invoke();
         }
     }
+
+    /// <summary>The display units changed (Ruling 115): the View ▸ Units items and the status-bar item follow it.</summary>
+    public event Action? UnitsChanged;
 
     public OperatingPoint AnalysisOperatingPoint => analysisOp;
     public WaterRecord AnalysisWater => analysisWater;

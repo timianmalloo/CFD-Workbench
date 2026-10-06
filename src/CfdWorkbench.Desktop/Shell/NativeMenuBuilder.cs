@@ -91,7 +91,7 @@ public static class NativeMenuBuilder
 
     private static bool IsPaneCommand(string id) =>
         id.StartsWith("point.", StringComparison.Ordinal) || id.StartsWith("view.text-", StringComparison.Ordinal) ||
-        id is "view.comb" || ViewCommands.Handles(id) || ShellHost.IsShellCommand(id);
+        id is "view.comb" || CommandTable.UnitsOf(id) is not null || ViewCommands.Handles(id) || ShellHost.IsShellCommand(id);
 
     /// <summary>The View submenus built from the table after Fit Selection (M1.2b2 §5.2), in this order.</summary>
     private static readonly string[] ViewSubmenus = [ViewCommands.ViewsMenu, ViewCommands.DisplayMenu, ViewCommands.CameraMenu, ViewCommands.PanMenu];
@@ -142,6 +142,26 @@ public static class NativeMenuBuilder
                     {
                         CheckTextSize(sizeMenu, shell.TextScale);
                         shell.TextScaleChanged += scale => CheckTextSize(sizeMenu, scale);
+                    }
+                }
+
+                // View ▸ Units (Ruling 115) follows Text size: Metric and Imperial as radio items that follow the controller,
+                // whichever control (this menu, the status-bar item, the palette) changed the units.
+                if (row.Id == "view.zoom-out" && menuGroups.TryGetValue(CommandTable.UnitsMenu, out var unitRows))
+                {
+                    var unitsMenu = new NativeMenu();
+                    var unitItems = new List<NativeMenuItem>();
+                    foreach (var unitRow in unitRows)
+                    {
+                        var unitItem = Item(unitRow);
+                        unitsMenu.Add(unitItem);
+                        unitItems.Add(unitItem);
+                    }
+                    menu.Add(new NativeMenuItem(CommandTable.UnitsMenu) { Menu = unitsMenu });
+                    if (FindHost(window) is { } unitsHost)
+                    {
+                        SyncUnitItems(unitRows, unitItems, unitsHost.Controller.AnalysisUnits);
+                        unitsHost.Controller.UnitsChanged += () => SyncUnitItems(unitRows, unitItems, unitsHost.Controller.AnalysisUnits);
                     }
                 }
 
@@ -211,7 +231,7 @@ public static class NativeMenuBuilder
             {
                 item.Gesture = ParseGesture(row.Gesture);
             }
-            if (CommandTable.TextSizeOf(row.Id) is not null || row.Menu is ViewCommands.ViewsMenu or ViewCommands.DisplayMenu)
+            if (CommandTable.TextSizeOf(row.Id) is not null || row.Menu is ViewCommands.ViewsMenu or ViewCommands.DisplayMenu or CommandTable.UnitsMenu)
                 item.ToggleType = NativeMenuItemToggleType.Radio;
 
             item.Command = new DelegateCommand(() =>
@@ -253,6 +273,13 @@ public static class NativeMenuBuilder
             item.IsEnabled = item.Command?.CanExecute(null) ?? true;
             (item.Command as DelegateCommand)?.RaiseCanExecuteChanged();
         }
+    }
+
+    /// <summary>Checks the Units radio item that matches the controller's units.</summary>
+    private static void SyncUnitItems(IReadOnlyList<CommandRow> rows, IReadOnlyList<NativeMenuItem> items, CfdWorkbench.Analysis.Units units)
+    {
+        for (int i = 0; i < rows.Count; i++)
+            items[i].IsChecked = CommandTable.UnitsOf(rows[i].Id) == units;
     }
 
     /// <summary>Checks the Text size radio item that matches the current multiplier.</summary>

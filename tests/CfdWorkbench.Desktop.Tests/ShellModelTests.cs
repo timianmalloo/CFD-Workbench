@@ -406,7 +406,7 @@ public static class ShellModelTests
                     throw new Exception($"Row {row.Id} does not reach its key route through ⌘= / ⌘−");
                 // M1.2b2 §5.2 names no key for a layout, a display mode or a camera other than Home = Iso: they are choices
                 // reached from the menu bar and the palette (and the cube's faces in Tab order, V3D).
-                bool choice = row.Menu is ViewCommands.ViewsMenu or ViewCommands.DisplayMenu ||
+                bool choice = row.Menu is ViewCommands.ViewsMenu or ViewCommands.DisplayMenu or CommandTable.UnitsMenu ||
                               row.Menu == ViewCommands.CameraMenu && row.Id != "view.camera-iso";
                 // M1.2c §5.2 names keys for section.edit (↩), section.finish (⌘↩) and section.delete-point (⌫) only; the
                 // other section rows, Thickness ×2 and Window ▸ Points are "—": reached from the menus and the palette.
