@@ -102,6 +102,7 @@ internal static class IdentityTests
         PointModelTests.Run();
         LengthExpressionTests.Run();
         PointGestureTests.Run();
+        GroupGestureTests.Run();
         PointCommandTests.Run();
         ReopenPointEditTests.Run();
         ChannelEditTests.Run();

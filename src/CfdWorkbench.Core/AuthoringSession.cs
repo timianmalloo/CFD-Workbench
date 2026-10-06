@@ -37,6 +37,8 @@ public sealed record SessionEvent(long Sequence, string Operation, string Outcom
     int? Frames = null, string? CurveFamily = null, string? StepKind = null, int? Steps = null, bool? Independent = null,
     double? DeviationInCurveUnit = null, int? PointsBefore = null, int? PointsAfter = null)
 {
+    /// <summary>The number of points moved together by <c>gesture.end</c> and by a group typed entry; null elsewhere.</summary>
+    public int? Members { get; init; }
     /// <summary>The Analysis fields of <c>analysis.*</c> events (design §11); null on every other event.</summary>
     public AnalysisEvent? Analysis { get; init; }
     /// <summary>The Replace fields of <c>catalog.preview</c> and of a <c>section.step</c> whose kind is replace (m12d §10); null otherwise.</summary>
@@ -55,6 +57,12 @@ public sealed record ReplaceEvent(string Scope, int Stations, double ResidualCho
     public string? Class { get; init; }
 }
 public sealed record DimensionCommand(string Name, string Text);
+/// <summary>SetTo gives every point the value; MoveBy moves every point by it. Span is the position along the span (MoveBy only: points can't share one).</summary>
+public enum GroupValueMode { SetTo, MoveBy }
+public enum GroupValueAxis { Value, Span }
+/// <summary>Meters for a rail or the dihedral, the channel's own unit otherwise, as the single-point gesture takes it.</summary>
+public sealed record GroupValueCommand(string Curve, IReadOnlyList<string> VertexIds, GroupValueMode Mode, GroupValueAxis Axis, double Amount);
+public sealed record GroupValueOutcome(string AcceptedId, int Members, double AppliedDelta);
 /// <summary>Ruling 96: which planform limit held the gesture. <c>TipMinimum</c>: the tip chord is at <see cref="TipChord.MinimumMeters"/>.
 /// <c>TipAlreadyUnder</c>: a legacy tip under the minimum can't go lower. <c>RootMaximum</c>: the root chord is at the largest the tip allows.</summary>
 public enum GestureLimitKind { TipMinimum, TipAlreadyUnder, RootMaximum }
@@ -217,6 +225,7 @@ public sealed class AuthoringSession : IDisposable
         }
     }
     private string? pendingCurveFamily;
+    private int? pendingMembers;
     private void Record(string operation, string outcome, double? elapsed, int? inputBytes, int? outputBytes, long? generation, string? evaluator, string? action = null, string? editKind = null, int? frames = null, string? curveFamily = null,
         string? stepKind = null, int? steps = null, bool? independent = null)
     {
@@ -237,10 +246,12 @@ public sealed class AuthoringSession : IDisposable
             int? pointsAfter = pendingPointsAfter;
             ReplaceEvent? replace = pendingReplace;
             pendingReplace = null;
+            int? members = operation is "gesture.end" or "document.apply" ? pendingMembers : null;
+            if (members is not null) pendingMembers = null;
             pendingDeviationInUnit = null;
             pendingPointsBefore = pendingPointsAfter = null;
             events.Enqueue(new(eventSequence++, operation, outcome, elapsed, inputBytes, outputBytes, trace.Value, generation, evaluator, sources.Count, accepted.Count, action ?? operation, null, null, editKind, fit, deviation, shift, above, frames, family,
-                stepKind, steps, independent, deviationInUnit, pointsBefore, pointsAfter) { Replace = replace });
+                stepKind, steps, independent, deviationInUnit, pointsBefore, pointsAfter) { Replace = replace, Members = members });
         }
     }
     private SourceParse ParseOwned(byte[] bytes)
@@ -264,6 +275,15 @@ public sealed class AuthoringSession : IDisposable
         Run("begin", () => BeginPointGestureCore(draftId, curve, vertexId));
     public GestureFrame UpdatePointGesture(string draftId, long generation, double spanMeters, double ordinate) =>
         Run("update", () => UpdatePointGestureCore(draftId, generation, spanMeters, ordinate), 2 * sizeof(double), generation);
+    /// <summary>Design group-move-node-m §6: several points of one curve move as one rigid gesture. Handles ride with their anchor;
+    /// point 1 without the root brings the root. The Desktop's single-point methods above are unchanged.</summary>
+    public SessionDraft BeginGroupGesture(string draftId, string curve, IReadOnlyList<string> vertexIds) =>
+        Run("begin", () => BeginGestureCore(draftId, curve, vertexIds));
+    public GestureFrame UpdateGroupGesture(string draftId, long generation, string grabbedId, double spanMeters, double ordinate) =>
+        Run("update", () => UpdateGestureCore(draftId, generation, grabbedId, spanMeters, ordinate), 2 * sizeof(double), generation);
+    /// <summary>The typed set-all or move-by of several points on one curve: one atomic edit through the same patch and admission path as a point command.</summary>
+    public GroupValueOutcome ApplyGroupValue(string operationId, GroupValueCommand command) =>
+        Run("apply", () => ApplyGroupValueCore(operationId, command), editKind: command?.Mode == GroupValueMode.SetTo ? "group-set" : "group-move");
     public PointOutcome ApplyPointCommand(string operationId, PointCommand command) =>
         Run("apply", () => ApplyPointCommandCore(operationId, command), editKind: PointEditKind(command));
     /// <summary>Seven rebuild previews, counts 4 through 10. Does not certify and does not add a row.</summary>
@@ -539,7 +559,12 @@ public sealed class AuthoringSession : IDisposable
     private string? gestureDraftId;
     private int gestureFrames;
     private long gestureStarted;
-    private SessionDraft BeginPointGestureCore(string draftId, string curve, string vertexId)
+    /// <summary>The vertex ids a gesture moves together (the one grabbed id for a point gesture, the selection plus a seeded root for a group).</summary>
+    private string[] gestureMembers = [];
+    private SessionDraft BeginPointGestureCore(string draftId, string curve, string vertexId) => BeginGestureCore(draftId, curve, [vertexId]);
+
+    /// <summary>Design group-move-node-m §6. The group is the one-member case widened: same draft, same admission.</summary>
+    private SessionDraft BeginGestureCore(string draftId, string curve, IReadOnlyList<string> vertexIds)
     {
         lock (sync)
         {
@@ -548,30 +573,94 @@ public sealed class AuthoringSession : IDisposable
             Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
             Guard.Require(!retiredDraftIds.Contains(draftId), "DSL-DRAFT-REUSED");
             Guard.Require(PointModel.EditableCurves.Contains(curve), "DSL-TARGET");
+            Guard.Require(vertexIds is { Count: > 0 }, "DSL-TARGET");
             var parsed = ParseOwned(CurrentBytes);
             var rail = parsed.Definition!.Curves[curve];
-            int index = Array.IndexOf(rail.Ids, vertexId);
-            Guard.Require(index >= 0, "DSL-TARGET");
-            var point = Channels.View(CurrentBytes, curve, "Accepted", 0).Points[index];
-            Guard.Require(point.Freedom != PointFreedom.Fixed, "DSL-LOCK");
-            RequireAdmission(parsed, new(parsed.SourceHash, current!, draftId, 0, "cfdw-cv/2", parsed.SurfaceHash!, curve, vertexId), toleratesBudget: false);
+            var members = vertexIds.Distinct().ToList();
+            Guard.Require(members.All(id => Array.IndexOf(rail.Ids, id) >= 0), "DSL-TARGET");
+            var points = Channels.View(CurrentBytes, curve, "Accepted", 0).Points;
+            bool group = members.Count > 1;
+            if (group)
+            {
+                foreach (string id in members)
+                {
+                    var point = points[Array.IndexOf(rail.Ids, id)];
+                    if (point.Role == PointRole.AnchorHandle && !members.Contains(point.AnchorId!))
+                        throw new ContractError("DSL-GROUP-HANDLE", $"{id} is a handle without its anchor.");
+                }
+                // Finding 5 (Ruling 111): point 1 without the root brings the root along, like a handle with its anchor.
+                if (members.Contains(rail.Ids[1]) && !members.Contains(rail.Ids[0]) && points[1].Locks.Contains("root_mirror"))
+                    members.Insert(0, rail.Ids[0]);
+            }
+            foreach (string id in members)
+            {
+                if (points[Array.IndexOf(rail.Ids, id)].Freedom != PointFreedom.Fixed) continue;
+                throw group ? new ContractError("DSL-LOCK", $"{id} is locked.") : new ContractError("DSL-LOCK");
+            }
+            RequireAdmission(parsed, new(parsed.SourceHash, current!, draftId, 0, "cfdw-cv/2", parsed.SurfaceHash!, curve, vertexIds[0]), toleratesBudget: false);
             retiredDraftIds.Add(draftId);
-            draft = new(draftId, current!, 0, curve, vertexId, CurrentBytes);
+            draft = new(draftId, current!, 0, curve, vertexIds[0], CurrentBytes);
+            gestureMembers = [.. members];
             gestureDraftId = draftId; gestureFrames = 0; gestureStarted = System.Diagnostics.Stopwatch.GetTimestamp();
             return Copy(draft);
         }
     }
 
-    private GestureFrame UpdatePointGestureCore(string draftId, long generation, double spanMeters, double ordinate)
+    /// <summary>The spacing rule of the gesture: the shift of the whole moved set that keeps every unselected neighbour one gap away.</summary>
+    private static (double Min, double Max) SpacingShift(CurveView rail, IReadOnlyDictionary<int, (double Eta, double Aft)> moved, double halfSpan)
+    {
+        double shiftMin = double.NegativeInfinity, shiftMax = double.PositiveInfinity;
+        foreach (var (index, target) in moved)
+        {
+            if (index > 0 && !moved.ContainsKey(index - 1))
+            {
+                double gap = Math.Min(0.001 / halfSpan, rail.Points[index].Eta - rail.Points[index - 1].Eta);
+                shiftMin = Math.Max(shiftMin, rail.Points[index - 1].Eta + gap - target.Eta);
+            }
+            if (index + 1 < rail.Points.Count && !moved.ContainsKey(index + 1))
+            {
+                double gap = Math.Min(0.001 / halfSpan, rail.Points[index + 1].Eta - rail.Points[index].Eta);
+                shiftMax = Math.Min(shiftMax, rail.Points[index + 1].Eta - gap - target.Eta);
+            }
+        }
+        return (shiftMin, shiftMax);
+    }
+
+    /// <summary>The domain rule of a translated set: one delta for every member, so a group never deforms (design §3.4).
+    /// A member outside the domain may still move toward it (<see cref="ClampGrowing"/>). The member that binds keeps its own clamped value.</summary>
+    private static bool ClampDomainRigid(CurveView rail, Dictionary<int, (double Eta, double Aft)> moved, double lower, double upper)
+    {
+        int bind = -1; double bindMove = double.PositiveInfinity; bool any = false;
+        foreach (var (index, target) in moved)
+        {
+            double original = rail.Points[index].Ordinate, next = ClampGrowing(original, target.Aft, lower, upper);
+            if (next == target.Aft) continue;
+            any = true;
+            if (Math.Abs(next - original) < bindMove) { bindMove = Math.Abs(next - original); bind = index; }
+        }
+        if (!any) return false;
+        double bound = ClampGrowing(rail.Points[bind].Ordinate, moved[bind].Aft, lower, upper), delta = bound - rail.Points[bind].Ordinate;
+        foreach (int index in moved.Keys.ToArray())
+            moved[index] = (moved[index].Eta, index == bind ? bound : rail.Points[index].Ordinate + delta);
+        return true;
+    }
+
+    private GestureFrame UpdatePointGestureCore(string draftId, long generation, double spanMeters, double ordinate) =>
+        UpdateGestureCore(draftId, generation, null, spanMeters, ordinate);
+
+    private GestureFrame UpdateGestureCore(string draftId, long generation, string? grabbedId, double spanMeters, double ordinate)
     {
         lock (sync)
         {
             Guard.Require(!closed, "DOC-CLOSED");
             Guard.Require(draft?.Id == draftId && draft.Generation == generation && gestureDraftId == draftId, "DSL-CONFLICT");
             var rail = Channels.View(BaseBytes(draft!.Base), draft.Rail, "Accepted", 0);
-            int grabbed = rail.Points.ToList().FindIndex(point => point.Id == draft.VertexId);
-            Guard.Require(grabbed >= 0, "DSL-TARGET");
+            var pointList = rail.Points.ToList();
+            int grabbed = pointList.FindIndex(point => point.Id == (grabbedId ?? draft.VertexId));
+            Guard.Require(grabbed >= 0 && gestureMembers.Contains(rail.Points[grabbed].Id), "DSL-TARGET");
             var selected = rail.Points[grabbed];
+            int[] members = gestureMembers.Select(id => pointList.FindIndex(point => point.Id == id)).ToArray();
+            bool group = members.Length > 1;
             GestureFrame LastFrame()
             {
                 var currentPoint = Channels.View(draft.Bytes, draft.Rail, "Draft", draft.Generation).Points[grabbed];
@@ -579,9 +668,16 @@ public sealed class AuthoringSession : IDisposable
             }
             if (!double.IsFinite(spanMeters) || !double.IsFinite(ordinate))
                 return LastFrame();
-            if (selected.Freedom == PointFreedom.Fixed) { spanMeters = selected.SpanMeters; ordinate = selected.Ordinate; }
-            else if (selected.Freedom == PointFreedom.ValueOnly) spanMeters = selected.SpanMeters;
-            else if (selected.Freedom == PointFreedom.SpanOnly) ordinate = selected.Ordinate;
+            // DR-GM-5 A: one member's locked axis holds the whole group on that axis. The root's mirror partner rides with the root.
+            bool Rides(int index) => group && index == 1 && rail.Points[1].Locks.Contains("root_mirror") && members.Contains(0);
+            foreach (int member in members)
+            {
+                if (Rides(member)) continue;
+                var freedom = rail.Points[member].Freedom;
+                if (freedom == PointFreedom.Fixed) { spanMeters = selected.SpanMeters; ordinate = selected.Ordinate; }
+                else if (freedom == PointFreedom.ValueOnly) spanMeters = selected.SpanMeters;
+                else if (freedom == PointFreedom.SpanOnly) ordinate = selected.Ordinate;
+            }
             double halfSpan = rail.Points[^1].SpanMeters / rail.Points[^1].Eta;
             double rawEta = (spanMeters - selected.SpanMeters) / halfSpan;
             double rawOrdinate = ordinate - selected.Ordinate;
@@ -591,17 +687,25 @@ public sealed class AuthoringSession : IDisposable
             if (!double.IsFinite(deltaEta) || !double.IsFinite(deltaOrdinate)) return LastFrame();
             var moved = new Dictionary<int, (double Eta, double Aft)>();
             void Add(int index, double eta, double aft) => moved[index] = (eta, aft);
-            Add(grabbed, selected.Eta + deltaEta, selected.Ordinate + deltaOrdinate);
-            if (selected.Role == PointRole.Anchor)
+            bool handleAlone = !group && selected.Role == PointRole.AnchorHandle;
+            foreach (int member in members)
             {
-                foreach (int index in new[] { grabbed - 1, grabbed + 1 })
-                    Add(index, rail.Points[index].Eta + deltaEta, rail.Points[index].Ordinate + deltaOrdinate);
+                var point = rail.Points[member];
+                // A handle rides with its anchor's delta and is never seeded twice (finding 4).
+                if (group && point.Role == PointRole.AnchorHandle && members.Contains(pointList.FindIndex(p => p.Id == point.AnchorId))) continue;
+                if (Rides(member)) continue;
+                Add(member, point.Eta + deltaEta, point.Ordinate + deltaOrdinate);
+                if (point.Role == PointRole.Anchor)
+                {
+                    foreach (int index in new[] { member - 1, member + 1 })
+                        Add(index, rail.Points[index].Eta + deltaEta, rail.Points[index].Ordinate + deltaOrdinate);
+                }
+                else if (point.Role == PointRole.RootEnd && point.Locks.Contains("root_mirror"))
+                    Add(1, rail.Points[1].Eta, rail.Points[1].Ordinate + deltaOrdinate);
             }
-            else if (selected.Role == PointRole.RootEnd && selected.Locks.Contains("root_mirror"))
-                Add(1, rail.Points[1].Eta, rail.Points[1].Ordinate + deltaOrdinate);
-            else if (selected.Role == PointRole.AnchorHandle)
+            if (handleAlone)
             {
-                int anchor = rail.Points.ToList().FindIndex(point => point.Id == selected.AnchorId);
+                int anchor = pointList.FindIndex(point => point.Id == selected.AnchorId);
                 int opposite = 2 * anchor - grabbed;
                 var a = rail.Points[anchor]; var h = moved[grabbed]; var old = rail.Points[opposite];
                 if (a.Kind == TangentKind.Symmetric)
@@ -615,7 +719,7 @@ public sealed class AuthoringSession : IDisposable
             bool clamped = false;
             // An anchor and its handles translate together. A handle pair instead rotates
             // around a fixed anchor, so clamp the grabbed handle and derive its mate again.
-            if (selected.Role == PointRole.AnchorHandle)
+            if (handleAlone)
             {
                 (double Min, double Max) Bounds(int i)
                 {
@@ -624,7 +728,7 @@ public sealed class AuthoringSession : IDisposable
                     return (rail.Points[i - 1].Eta + leftGap, rail.Points[i + 1].Eta - rightGap);
                 }
                 var bounds = Bounds(grabbed);
-                int anchor = rail.Points.ToList().FindIndex(point => point.Id == selected.AnchorId);
+                int anchor = pointList.FindIndex(point => point.Id == selected.AnchorId);
                 int opposite = 2 * anchor - grabbed;
                 var a = rail.Points[anchor];
                 if (a.Kind == TangentKind.Symmetric)
@@ -649,20 +753,7 @@ public sealed class AuthoringSession : IDisposable
             }
             else
             {
-                double shiftMin = double.NegativeInfinity, shiftMax = double.PositiveInfinity;
-                foreach (var (index, target) in moved)
-                {
-                    if (index > 0 && !moved.ContainsKey(index - 1))
-                    {
-                        double gap = Math.Min(0.001 / halfSpan, rail.Points[index].Eta - rail.Points[index - 1].Eta);
-                        shiftMin = Math.Max(shiftMin, rail.Points[index - 1].Eta + gap - target.Eta);
-                    }
-                    if (index + 1 < rail.Points.Count && !moved.ContainsKey(index + 1))
-                    {
-                        double gap = Math.Min(0.001 / halfSpan, rail.Points[index + 1].Eta - rail.Points[index].Eta);
-                        shiftMax = Math.Min(shiftMax, rail.Points[index + 1].Eta - gap - target.Eta);
-                    }
-                }
+                var (shiftMin, shiftMax) = SpacingShift(rail, moved, halfSpan);
                 if (shiftMin > shiftMax) return new(Copy(draft), selected.SpanMeters, selected.Ordinate, [], true);
                 double shift = Math.Clamp(0, shiftMin, shiftMax);
                 if (shift != 0) clamped = true;
@@ -671,21 +762,28 @@ public sealed class AuthoringSession : IDisposable
             var unit = Channels.Unit(draft.Rail);
             if (unit.DomainLower is double lower && unit.DomainUpper is double upper)
             {
-                foreach (int index in moved.Keys.ToArray())
+                if (handleAlone)
                 {
-                    double next = ClampGrowing(rail.Points[index].Ordinate, moved[index].Aft, lower, upper);
-                    if (next != moved[index].Aft) clamped = true;
-                    moved[index] = (moved[index].Eta, next);
+                    foreach (int index in moved.Keys.ToArray())
+                    {
+                        double next = ClampGrowing(rail.Points[index].Ordinate, moved[index].Aft, lower, upper);
+                        if (next != moved[index].Aft) clamped = true;
+                        moved[index] = (moved[index].Eta, next);
+                    }
                 }
+                else if (ClampDomainRigid(rail, moved, lower, upper)) clamped = true;
             }
             var baseParsed = ParseOwned(BaseBytes(draft.Base));
             GestureLimit? limit = null;
-            if (HoldAtChordLimit(baseParsed, draft.Rail, rail, grabbed, selected, moved[grabbed].Aft) is var (held, hold))
+            int tipIndex = rail.Points.Count - 1;
+            if (!handleAlone && (moved.ContainsKey(0) || moved.ContainsKey(tipIndex)) &&
+                HoldAtChordLimit(baseParsed, draft.Rail, rail, moved.ContainsKey(0), moved.ContainsKey(tipIndex), moved.ContainsKey(0) ? moved[0].Aft - rail.Points[0].Ordinate : moved[tipIndex].Aft - rail.Points[tipIndex].Ordinate) is var (held, hold))
             {
                 limit = hold; clamped = true;
-                moved[grabbed] = (moved[grabbed].Eta, held);
-                if (grabbed == 0 && selected.Role == PointRole.RootEnd && selected.Locks.Contains("root_mirror"))
-                    moved[1] = (moved[1].Eta, rail.Points[1].Ordinate + (held - selected.Ordinate));
+                int end = moved.ContainsKey(tipIndex) ? tipIndex : 0;
+                double endHeld = rail.Points[end].Ordinate + held, effective = endHeld - rail.Points[end].Ordinate;
+                foreach (int index in moved.Keys.ToArray())
+                    moved[index] = (moved[index].Eta, index == 0 || index == tipIndex ? rail.Points[index].Ordinate + held : rail.Points[index].Ordinate + effective);
             }
             byte[] patched = PatchGesture(baseParsed, draft.Rail, moved);
             draft = draft with { Generation = generation + 1, Bytes = patched };
@@ -699,33 +797,34 @@ public sealed class AuthoringSession : IDisposable
     /// Ruling 96: a planform end vertex (root or tip of the leading or trailing rail) holds where <see cref="TipChord.Admits"/>
     /// stops admitting it, so the drag and the release check cannot disagree. Only the two end ordinates set the root and tip
     /// chord (a clamped B-spline interpolates its ends), so interior vertices and handles never limit. The search steps the
-    /// drag's own 1 µm quantum from the vertex at press, so the held frame is a point a free drag could have reached.
+    /// drag's own 1 µm quantum from the end vertex at press, so the held frame is a point a free drag could have reached.
+    /// A group holds as one body: the delta of every moved end is searched together (design group-move-node-m §3.4).
+    /// Returns the held ordinate delta of the end vertices.
+    /// simplify: when both ends of one rail move, the limit kind reports the tip's; upgrade trigger: the Desktop needs both.
     /// </summary>
-    private static (double Held, GestureLimit Limit)? HoldAtChordLimit(SourceParse baseParsed, string railName, CurveView rail, int grabbed,
-        PointView selected, double proposed)
+    private static (double Delta, GestureLimit Limit)? HoldAtChordLimit(SourceParse baseParsed, string railName, CurveView rail, bool rootIn, bool tipIn, double proposedDelta)
     {
         // A closing tip is never held by a session (Open refuses it: Geometry_TipPoint_UnsupportedAndNeverAdmitted), so
         // neither end is limited for a non-open tip; the release check stays the backstop with its existing text.
         if (railName is not ("leading" or "trailing") || baseParsed.Definition is not { Kind: "foil", Tip: "open" }) return null;
-        bool tip = grabbed == rail.Points.Count - 1, root = grabbed == 0;
-        if (!(tip || root)) return null;
-        double from = selected.Ordinate;
+        double fromRoot = rail.Points[0].Ordinate, fromTip = rail.Points[^1].Ordinate;
         var other = Channels.View(baseParsed.Source, railName == "leading" ? "trailing" : "leading", "Accepted", 0).Points;
         var leading = railName == "leading" ? rail.Points : other;
         var trailing = railName == "leading" ? other : rail.Points;
         double oldRoot = trailing[0].Ordinate - leading[0].Ordinate, oldTip = trailing[^1].Ordinate - leading[^1].Ordinate;
-        double otherAft = other[tip ? ^1 : 0].Ordinate;
-        double Chord(double aft) => railName == "trailing" ? aft - otherAft : otherAft - aft;
-        bool Admitted(double aft) => tip ? TipChord.Admits(oldTip, oldRoot, Chord(aft), oldRoot) : TipChord.Admits(oldTip, oldRoot, oldTip, Chord(aft));
-        if (Admitted(proposed)) return null;
-        double sign = Math.Sign(proposed - from), lo = 0, hi = Math.Abs(proposed - from) * 1e6;
+        double Chord(double aft, double otherAft) => railName == "trailing" ? aft - otherAft : otherAft - aft;
+        bool Admitted(double delta) => TipChord.Admits(oldTip, oldRoot,
+            tipIn ? Chord(fromTip + delta, other[^1].Ordinate) : oldTip,
+            rootIn ? Chord(fromRoot + delta, other[0].Ordinate) : oldRoot);
+        if (Admitted(proposedDelta)) return null;
+        double sign = Math.Sign(proposedDelta), lo = 0, hi = Math.Abs(proposedDelta) * 1e6;
         while (hi - lo > 1)
         {
             double mid = Math.Floor((lo + hi) / 2);
-            if (Admitted(from + sign * mid * 1e-6)) lo = mid; else hi = mid;
+            if (Admitted(sign * mid * 1e-6)) lo = mid; else hi = mid;
         }
-        double held = lo == 0 ? from : from + sign * lo * 1e-6;
-        if (root) return (held, new(GestureLimitKind.RootMaximum, TipChord.MaximumRootMeters(oldTip, oldRoot), oldTip));
+        double held = lo == 0 ? 0 : sign * lo * 1e-6;
+        if (!tipIn) return (held, new(GestureLimitKind.RootMaximum, TipChord.MaximumRootMeters(oldTip, oldRoot), oldTip));
         return (held, TipChord.Meets(oldTip, oldRoot)
             ? new(GestureLimitKind.TipMinimum, TipChord.MinimumMeters(oldRoot), oldRoot)
             : new(GestureLimitKind.TipAlreadyUnder, oldTip, oldRoot));
@@ -1004,6 +1103,123 @@ public sealed class AuthoringSession : IDisposable
         pendingShiftUm = report.PlanformShiftMeters * 1e6;
         pendingFitAboveLimit = report.FitAboveLimit;
     }
+    // Design group-move-node-m §3.6, §3.7: a typed set-all or move-by is atomic. Anything that would break a rule refuses and
+    // nothing is applied. Handles ride with their anchor's delta (finding 4); the root mirror partner rides with the root.
+    private GroupValueOutcome ApplyGroupValueCore(string operationId, GroupValueCommand command)
+    {
+        lock (sync)
+        {
+            Guard.Require(!closed, "DOC-CLOSED");
+            NativeProject.Uuid(operationId);
+            Guard.Require(command is { VertexIds.Count: > 0 } && PointModel.EditableCurves.Contains(command.Curve), "DSL-TARGET");
+            Guard.Require(double.IsFinite(command.Amount), "DSL-UNIT");
+            Guard.Require(current is not null && draft is null && recovery is null, "DSL-DRAFT-OWNED");
+            Guard.Require(!retiredDraftIds.Contains(operationId), "DSL-DRAFT-REUSED");
+            if (command.Mode == GroupValueMode.SetTo && command.Axis == GroupValueAxis.Span)
+                throw new ContractError("DSL-GROUP-SPAN-SET", "Points can't share a position along the span. Move them by an amount instead.");
+            byte[] basis = CurrentBytes;
+            var parsed = ParseOwned(basis);
+            var rail = Channels.View(basis, command.Curve, "Accepted", 0);
+            var pointList = rail.Points.ToList();
+            var ids = command.VertexIds.Distinct().ToList();
+            var members = ids.Select(id => pointList.FindIndex(point => point.Id == id)).ToList();
+            Guard.Require(members.All(index => index >= 0), "DSL-TARGET");
+            bool group = members.Count > 1;
+            foreach (int member in members)
+            {
+                var point = rail.Points[member];
+                if (group && point.Role == PointRole.AnchorHandle && !members.Contains(pointList.FindIndex(p => p.Id == point.AnchorId)))
+                    throw new ContractError("DSL-GROUP-HANDLE", $"{point.Id} is a handle without its anchor.");
+            }
+            if (group && members.Contains(1) && !members.Contains(0) && rail.Points[1].Locks.Contains("root_mirror")) members.Insert(0, 0);
+            bool Rides(int index) => group && index == 1 && rail.Points[1].Locks.Contains("root_mirror") && members.Contains(0);
+            bool span = command.Axis == GroupValueAxis.Span;
+            foreach (int member in members)
+            {
+                if (Rides(member)) continue;
+                var point = rail.Points[member];
+                if (point.Freedom == PointFreedom.Fixed || (span && point.Freedom == PointFreedom.ValueOnly) || (!span && point.Freedom == PointFreedom.SpanOnly))
+                    throw new ContractError("DSL-LOCK", $"{point.Id} is locked.");
+            }
+            double halfSpan = rail.Points[^1].SpanMeters / rail.Points[^1].Eta;
+            var moved = new Dictionary<int, (double Eta, double Aft)>();
+            void Add(int index, double eta, double aft) => moved[index] = (eta, aft);
+            double firstDelta = 0;
+            foreach (int member in members)
+            {
+                var point = rail.Points[member];
+                if (group && point.Role == PointRole.AnchorHandle && members.Contains(pointList.FindIndex(p => p.Id == point.AnchorId))) continue;
+                if (Rides(member)) continue;
+                double dEta = span ? Math.Round(command.Amount / halfSpan, 7, MidpointRounding.ToEven) : 0;
+                double dOrd = span ? 0 : QuantizedOrdinate(command.Curve, command.Mode == GroupValueMode.SetTo ? command.Amount - point.Ordinate : command.Amount);
+                if (member == members[0]) firstDelta = span ? dEta * halfSpan : dOrd;
+                Add(member, point.Eta + dEta, point.Ordinate + dOrd);
+                if (point.Role == PointRole.Anchor)
+                {
+                    foreach (int index in new[] { member - 1, member + 1 })
+                        Add(index, rail.Points[index].Eta + dEta, rail.Points[index].Ordinate + dOrd);
+                }
+                else if (point.Role == PointRole.RootEnd && point.Locks.Contains("root_mirror"))
+                    Add(1, rail.Points[1].Eta, rail.Points[1].Ordinate + dOrd);
+            }
+            string Typed(double amount) => command.Curve is "leading" or "trailing" or "dihedral"
+                ? TipChord.FormatMm(amount) : amount.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            if (span)
+            {
+                var (shiftMin, shiftMax) = SpacingShift(rail, moved, halfSpan);
+                double shift = Math.Clamp(0, shiftMin, shiftMax);
+                if (shift != 0)
+                {
+                    double wanted = command.Amount / halfSpan, allowed = Math.Round(wanted, 7, MidpointRounding.ToEven) + shift;
+                    int near = wanted > 0
+                        ? moved.Keys.Where(index => index + 1 < rail.Points.Count && !moved.ContainsKey(index + 1)).Max() + 1
+                        : moved.Keys.Where(index => index > 0 && !moved.ContainsKey(index - 1)).Min() - 1;
+                    throw new ContractError("DSL-GROUP-NEIGHBOUR",
+                        $"Moving these points by {Typed(command.Amount)} would pass point {rail.Points[near].Id}. The most they can move that way is {Typed(Math.Abs(allowed * halfSpan))}.");
+                }
+            }
+            var unit = Channels.Unit(command.Curve);
+            if (unit.DomainLower is double lower && unit.DomainUpper is double upper &&
+                moved.Any(pair => ClampGrowing(rail.Points[pair.Key].Ordinate, pair.Value.Aft, lower, upper) != pair.Value.Aft))
+                throw new ContractError("DSL-GROUP-RANGE", "A point would leave the allowed range. Nothing was changed.");
+            int tipIndex = rail.Points.Count - 1;
+            if (!span && command.Mode == GroupValueMode.MoveBy && (moved.ContainsKey(0) || moved.ContainsKey(tipIndex)) &&
+                HoldAtChordLimit(parsed, command.Curve, rail, moved.ContainsKey(0), moved.ContainsKey(tipIndex), firstDelta) is var (held, hold))
+            {
+                string most = Typed(Math.Abs(held));
+                string reason = hold.Kind == GestureLimitKind.RootMaximum
+                    ? $"Moving these points by {Typed(command.Amount)} would take the root chord above {TipChord.FormatMm(hold.LimitMeters)}. The most they can move that way is {most}."
+                    : $"Moving these points by {Typed(command.Amount)} would take the tip chord below {TipChord.FormatMm(hold.LimitMeters)}. The most they can move that way is {most}.";
+                throw new ContractError(TipChord.RefusalCode, reason);
+            }
+            byte[] bytes = PatchGesture(parsed, command.Curve, moved);
+            var next = ParseOwned(bytes);
+            string first = ids[0];
+            string payload = Fingerprint(new EditReceipt(operationId, 0, command.Curve, first), current, next.SourceHash);
+            pendingMembers = ids.Count;
+            if (bytes.AsSpan().SequenceEqual(basis))
+            {
+                operations.Add(operationId, (payload, current!));
+                return new(current!, ids.Count, 0);
+            }
+            pendingCurveFamily = Channels.Family(command.Curve);
+            retiredDraftIds.Add(operationId);
+            draft = new(operationId, current!, 0, command.Curve, first, bytes);
+            try
+            {
+                RequireAdmission(next, Key(next, draft));
+                string id = Commit(next, operationId, "apply");
+                operations.Add(operationId, (payload, id));
+                draft = null; recovery = null;
+                return new(id, ids.Count, firstDelta);
+            }
+            catch
+            {
+                draft = null; retiredDraftIds.Remove(operationId); pendingCurveFamily = null; pendingMembers = null; throw;
+            }
+        }
+    }
+
     private PointOutcome ApplyPointCommandCore(string operationId, PointCommand command)
     {
         lock (sync)
@@ -1275,7 +1491,7 @@ public sealed class AuthoringSession : IDisposable
             try { id = Commit(p, operationId, "apply"); }
             catch { pendingCurveFamily = null; throw; }   // a refusal (DSL-TIP-CHORD-MIN) keeps the draft owned but leaves no stale family
             operations.Add(operationId, (payload, id)); draft = null; recovery = null; activeImportReport = null; section = null;
-            if (gesture) { Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
+            if (gesture) { pendingMembers = gestureMembers.Length; Record("gesture.end", "OK", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, assessment.Key!.Generation, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
             return id;
         }
     }
@@ -1287,7 +1503,7 @@ public sealed class AuthoringSession : IDisposable
             string? family = gestureDraftId == draftId ? Channels.Family(draft!.Rail) : null;
             if (section is not null && draft!.Rail == "section") EndSection("section.cancel", "OK", null);
             draft = null; recovery = null; activeImportReport = null;
-            if (gestureDraftId == draftId) { Record("gesture.end", "NoChange", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, null, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
+            if (gestureDraftId == draftId) { pendingMembers = gestureMembers.Length; Record("gesture.end", "NoChange", System.Diagnostics.Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, null, null, null, "cfdw-cv/2", frames: gestureFrames, curveFamily: family); gestureDraftId = null; gestureFrames = 0; }
         }
     }
     // Section draft (ADR-0007 with Amendment 1; m12c-section-editor.md §3.2–§3.3, §5.1, §10). Command + Memento-by-bytes
