@@ -97,6 +97,10 @@ internal static class PolarNumericsTests
         byte[] source = session.AcceptedSourceOf(run.Inputs.AcceptedId)!;
         var current = Freshness.Current(session.Snapshot(), Fixture.Salt, Fixture.Op(3), method.Method, method.Settings);
         var view = AnalysisProjection.Build(run, current, Units.Metric, new ProjectionContext(Source: source));
+        if (view.SectionTier is not { } projectedSection ||
+            Math.Abs(projectedSection.PanelUnderreadFraction - emitted.PanelUnderreadFraction!.Value) > 1e-12 ||
+            projectedSection.Stations.Any(station => station.Estimate.Panel.Upper.Count == 0))
+            throw new InvalidOperationException("section Cp curves or exact event delta did not reach projection");
         PolarConsistencyResult? consistency = view.PolarConsistency;
         if (consistency is not { Strips.Count: > 0 } ||
             consistency.Strips.All(strip => strip.Code != "ANA-TIP-PROVISIONAL"))
