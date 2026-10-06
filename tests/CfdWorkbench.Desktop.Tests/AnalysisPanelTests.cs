@@ -123,6 +123,18 @@ public static class AnalysisPanelTests
                 if (!controller.IsAnalysis) controller.ToggleAnalysis();
                 var panel = new AnalysisPanel();
                 panel.Bind(controller);
+                var sectionRows = controller.AnalysisView.Groups.Single(group => group.Title == "Section (2D)").Rows;
+                var sectionTable = panel.GetLogicalDescendants().OfType<StackPanel>()
+                    .Single(table => table.Name == "section-table");
+                var renderedRows = sectionTable.Children.OfType<Grid>().ToArray();
+                Equal(sectionRows.Count, renderedRows.Length, "all section rows rendered");
+                for (int i = 0; i < sectionRows.Count; i++)
+                {
+                    if (!sectionRows[i].Value.Any(char.IsDigit)) continue;
+                    var cells = renderedRows[i].Children.OfType<TextBlock>().ToArray();
+                    Equal(sectionRows[i].Note, cells[2].Text, "numeric tier note rendered for " + sectionRows[i].Label);
+                    Equal(true, !string.IsNullOrWhiteSpace(cells[2].Text), "numeric tier note visible for " + sectionRows[i].Label);
+                }
                 var tabs = panel.FindControl<TabControl>("PanelTabs") ?? throw new Exception("no tabs");
                 Equal("Spanwise loading,Section,Loads,Provenance",
                     string.Join(",", tabs.Items.OfType<TabItem>().Select(tab => tab.Header)), "the tabs (Checks omitted, OD-4 a)");

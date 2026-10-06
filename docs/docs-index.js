@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "398d73a7e36f2b8d45b780d9a1187b34610b2a368e1ecaa1e7440bcbe81cc3e4"
+      "sourceSha256": "358099030b9c1a752caef719bd1d841da709512547c05ffc3d18b5643f4c52ee"
     },
     {
       "id": "design-authoring-decisions",
@@ -5044,7 +5044,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8d8a5cb2b3983018e286bd71bd853d0f199cc0f237d5bf43a9ba38e141d2fe5a"
+      "sourceSha256": "da7fd89ad4268e117250907c89b7d3b84532c37f2343af9f1dd62ca7d3daab28"
     },
     {
       "id": "domain-experts",
@@ -8448,6 +8448,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "29e9139be1d7c2f42645cb1905d23a44d2e00e74f79329be1e320b20d70024a0"
     },
     {
+      "id": "plan-seam-repair-1",
+      "path": "docs/plans/seam-repair-1.md",
+      "title": "SEAM repair cycle 1 execution graph",
+      "type": "plan",
+      "status": "complete",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Bounded sequential repair graph for the eleven CFD review conditions, with red-first focused checks before a single full test ring and gate sequence.",
+      "tags": [
+        "analysis",
+        "repair",
+        "verification"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-a3bc-seam",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "SEAM repair cycle 1 graph",
+          "mermaid": "flowchart LR\n  A --> B\n  B --> C\n  B --> D\n  B --> E\n  C --> F\n  D --> F\n  E --> F\n  F --> G --> H"
+        }
+      ],
+      "sourceSha256": "6bf6faeb5edc5bcf6cbfb66014bf1eac12b194fa794531bd961c4ea868c683e7"
+    },
+    {
       "id": "privacy-review",
       "path": "docs/security/privacy-review.md",
       "title": "Offline application privacy review",
@@ -9354,7 +9389,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b803365df0f7c66d55f76cbda290dc90e073d974b1e7942eceef8cf18fd3f217"
+      "sourceSha256": "0a4922b498583f601e49dd56091c82ea98d7a57ca4bb2dc226f9151d2c41f509"
     },
     {
       "id": "proof-a3bc-seam-red-first",
@@ -9383,7 +9418,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "14e956f3b1ad91136c6a4493218f89c186aa6efff51484827a3704eb9efa16a2"
+      "sourceSha256": "807f39101543c9eea2668d132390d5f21ede8179d8cc7c3cdeac27b46bbc753e"
     },
     {
       "id": "proof-a3bc-seam-state-coverage",
@@ -14384,5 +14419,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "62734070fea372ede2b87be07418ab4e03b73ba798c9543c9385e8198f2f27b8"
+  "graphSha256": "31812ce0c583a091ac6f13cf0b37cfc4089798530f77dac6af442fefed6f5216"
 };

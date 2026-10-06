@@ -9,8 +9,8 @@ public sealed record FreeSurfaceResult(double? Lift, double? DragLow, double? Dr
     public IReadOnlyList<string> ReasonCodes { get; init; } = [];
     public IReadOnlyList<string> ModelNotes { get; init; } =
         ["ANA-FREE-SURFACE-DEPTH-ONLY", "ANA-FREE-SURFACE-WAVE-DRAG-OMITTED"];
-    public double ModelScaleReFrom => 73000;
-    public double ModelScaleReTo => 290000;
+    public double ModelScaleReFrom => FreeSurfaceCorrection.MinRe;
+    public double ModelScaleReTo => FreeSurfaceCorrection.MaxRe;
     public double FroudeLiftLossAtHc4Fr2To5 => 0.17;
     public string FroudeDependenceCode => "ANA-FREE-SURFACE-FROUDE-NOT-MODELLED";
 }

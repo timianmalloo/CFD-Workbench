@@ -35,7 +35,7 @@ public static class SectionEstimator
             double xa = section.X[i], xb = section.X[i + 1];
             if (!double.IsFinite(xa) || !double.IsFinite(xb) || !(xb > xa) ||
                 !double.IsFinite(section.Camber[i]) || !double.IsFinite(section.Camber[i + 1]))
-                throw new ContractError("ANA-SECTION-GEOMETRY", "Chord stations and camber slopes must be finite and ordered.");
+                throw new ContractError("ANA-SECTION-GEOMETRY", "Chord stations and camber coordinates must be finite and ordered.");
         }
         double cf = 0.075 / Math.Pow(Math.Log10(reynolds) - 2, 2);
         double tc = section.Frame.ThicknessRatio;
@@ -43,7 +43,7 @@ public static class SectionEstimator
         PanelMethod.Prepared prepared = PanelMethod.Prepare(section, cancellation);
         PanelResult panel = prepared.Solve(alphaDeg, cancellation);
         // A section symmetric about its chord has the panel method's zero-lift root at α = 0 by reflection.
-        // Avoid two more dense solves at each station of the common symmetric wing.
+        // Avoid extra right-side solves at each station of the common symmetric wing.
         if (section.Camber.All(value => Math.Abs(value) <= 1e-12))
             return new(panel, 0, cd);
         PanelResult atZero = alphaDeg == 0 ? panel : prepared.Solve(0, cancellation);
