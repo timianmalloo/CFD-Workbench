@@ -78,6 +78,12 @@ internal static class PolarNumericsTests
             projected.Groups.Single(group => group.Title == "Loads").Rows.Single(row => row.Label == "Total drag").Value !=
             "ANA-TOTAL-DRAG-MISSING-JUNCTION-MAST-WAVE-SPRAY")
             throw new InvalidOperationException("wing subtotal or craft missing-component code did not reach projection");
+        var loadRows = projected.Groups.Single(group => group.Title == "Loads").Rows;
+        int wingIndex = Array.FindIndex(loadRows.ToArray(), row => row.Label == "Wing-only drag");
+        if (wingIndex < 0 || loadRows[wingIndex].Value.StartsWith("Unavailable", StringComparison.Ordinal) ||
+            loadRows[wingIndex].Note?.Contains("ANA-WING-ONLY-DRAG", StringComparison.Ordinal) != true ||
+            loadRows[wingIndex + 1].Label != "Total drag")
+            throw new InvalidOperationException("wing-only subtotal is not adjacent to unavailable craft total");
         AnalysisRun missing = ProjectionTests.Data().Run;
         if (Loads.TotalDrag(missing, 2).UnavailableReason?.Contains("PROFILE", StringComparison.Ordinal) != true)
             throw new InvalidOperationException("missing profile component was not named");

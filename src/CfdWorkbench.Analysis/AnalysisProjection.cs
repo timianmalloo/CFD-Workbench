@@ -77,6 +77,7 @@ public static class AnalysisProjection
             Row("CDi (Trefftz)", Val(cdi, "0.00000")),
             Row("e (computed)", Val(e, "0.000"), note: EAdvisory(e, run.Settings)),
             Force("Lift L", lift, units), Force("Induced drag", drag, units),
+            DragBandRow("Wing-only drag", wing2, wing4, units, null, "ANA-WING-ONLY-DRAG · " + SurrogateLabel),
             DragBandRow("Total drag", total2, total4, units, run.Settings.Polar is null ? Loads.TotalDragReason : null),
             Row("CL/CD", total2.Value is > 0 && total4.Value is > 0 ?
                 Num(lift / total4.Value.Value, "0.###") + "–" + Num(lift / total2.Value.Value, "0.###") :
@@ -127,6 +128,7 @@ public static class AnalysisProjection
             Row("Moment about attachment point", Loads.AttachmentReason),
             DragBandRow("Profile drag", profile2, profile4, units, run.Settings.Polar is null ? Labels.NoPolar : null,
                 SurrogateLabel),
+            DragBandRow("Wing-only drag", wing2, wing4, units, null, "ANA-WING-ONLY-DRAG · " + SurrogateLabel),
             DragBandRow("Total drag", total2, total4, units, run.Settings.Polar is null ? Loads.TotalDragReason : null),
             Row("Structural", "Structural: Not assessed", note: Labels.StructuralList),
             Row("t/c (root)", context.RootThicknessRatio.HasValue ? Num(context.RootThicknessRatio.Value * 100, "0.#") : Labels.ThicknessMissing,
