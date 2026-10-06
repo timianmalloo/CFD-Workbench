@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T20:39:10Z",
+  "generated": "2026-10-06T20:56:02Z",
   "audit": [
     {
       "actor": null,
@@ -27820,6 +27820,33 @@ window.AUDIT_DATA = {
       "done_when": "five items committed red-first, 06 and 11 re-captured and viewed, run-tests green, check-docs 0",
       "started_at": "2026-10-06T20:26:17Z",
       "duration_seconds": 773.0
+    },
+    {
+      "id": "al-01M49G0ZRVK1N0375VR6Q91CT2",
+      "shortname": "join-dx",
+      "datetime": "2026-10-06T20:56:02Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of feature/dx-section-polar into main",
+      "summary": "Section tab (Cp, polar, transition, bucket, section view, short stations table), Find alpha dialog, approved reason texts (no raw codes), Ruling 117 compute-and-flag (CFD cleared with conditions, all met), method 1.4.0 (pre-117 runs Historical), one band precision, COPY-364 shortened; 44+6 named checks PASS; three passes (third operator-authorised cap exception) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join feature/dx-section-polar into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T20:55:05Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
