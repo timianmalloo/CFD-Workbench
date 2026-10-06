@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T03:42:42Z",
+  "generated": "2026-10-06T03:52:41Z",
   "audit": [
     {
       "actor": null,
@@ -26933,48 +26933,111 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M47MM0218DYYY0Z0EM5RRCY2",
-      "shortname": "implement-seam-repair-1",
-      "datetime": "2026-10-06T03:37:50Z",
-      "session": "trk-seam",
-      "prompt": "SEAM repair 1",
-      "summary": "Repaired eleven CFD review conditions; one full ring, docs check and 12 verify gates passed; updated proof and code-copy list.",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/a3bc-seam/proof-pack.md",
         "docs/design/area3-analysis.md",
         "docs/plans/seam-repair-1.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Repair SEAM review conditions 1–11 on feature/a3bc-seam.",
+      "datetime": "2026-10-06T03:37:50Z",
       "done_when": "Each condition has a code or documentation repair, focused evidence, one full passing ring, docs check and verify gates, and a committed proof.",
-      "tier": "T2",
-      "fan_out": 1,
-      "signals": {
-        "verification_path": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-06T03:11:22Z",
       "duration_seconds": 1588.0,
+      "fan_out": 1,
       "git": {
-        "sha": "2d4fdb6220da4684138d1b111b6ee9e8cb797590",
-        "short": "2d4fdb622",
         "branch": "feature/a3bc-seam",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "2d4fdb6220da4684138d1b111b6ee9e8cb797590",
+        "short": "2d4fdb622"
+      },
+      "goal": "Repair SEAM review conditions 1–11 on feature/a3bc-seam.",
+      "id": "al-01M47MM0218DYYY0Z0EM5RRCY2",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "SEAM repair 1",
+      "session": "trk-seam",
+      "shortname": "implement-seam-repair-1",
+      "signals": {
+        "acceptance_met": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-06T03:11:22Z",
+      "summary": "Repaired eleven CFD review conditions; one full ring, docs check and 12 verify gates passed; updated proof and code-copy list.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     },
     {
-      "id": "al-01M47MWWQCZXFXKBPA9R0FTNQS",
-      "shortname": "join-a3bc-seam",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-06T03:42:41Z",
-      "session": "4e90c621",
+      "done_when": "join gates green",
+      "duration_seconds": 55.0,
+      "fan_out": 0,
+      "goal": "join a3bc-seam into main (round-oct05)",
+      "id": "al-01M47MWWQCZXFXKBPA9R0FTNQS",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of feature/a3bc-seam into main",
+      "session": "4e90c621",
+      "shortname": "join-a3bc-seam",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-06T03:41:46Z",
       "summary": "SEAM: 200-panel section tier with governing-station 200-vs-400 under-read on the run event and panel id in the key; polar metadata derived on read (Ruling 100); profile drag at both Ncrit, wing-only drag beside craft-total Unavailable, Find alpha/take-off roots, A5.2 with per-axis S6 envelope codes, F-13b; every numeric section/polar row carries its tier label; cambered 129-station wing ~0.43-0.48 s; CFD veto lifted, hydrodynamicist cleared with conditions; reason codes await operator copy recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/a3a-native.md",
+        "DESIGN.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-06T03:46:14Z",
+      "done_when": "named tests PASS, one green ring, gates green, nine screens re-rendered, review file updated",
+      "duration_seconds": 1932.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "fix/a3a-polish",
+        "pushed": null,
+        "sha": "0e8a5fa9c2053fc71b5987e1efad2ab09de53194",
+        "short": "0e8a5fa9c"
+      },
+      "goal": "A3a polish items 1-7 from the AUX review, Desktop only, no new copy",
+      "id": "al-01M47N3C5PM1TG30YGKC8PKH6V",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "POL A3a polish",
+      "session": "trk-pol",
+      "shortname": "pol-a3a-polish",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-06T03:14:02Z",
+      "summary": "POL: A3a polish from the AUX review. Properties Analysis in one visible scroll (Wing not pinned, Conditions collapsed), tier pill chip, 3D plates wrap and clear the axes plate, loading chart ticks and symbol titles from approved copy, Plan legend batlow ramp, error card hidden while Running, Tampered view and Preview hidden banner and alpha +/-3 sign tests (mutants red, restored), review file and nine screens re-captured. Ring green, Desktop 716 PASS, wall 50 s, Desktop child 44.1 s, --analysis 10.4 s against 9.0 s.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M47NF6CR51RVXP6KDYQ74E08",
+      "shortname": "join-pol",
+      "datetime": "2026-10-06T03:52:41Z",
+      "session": "4e90c621",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "POL joined: six of seven AUX polish items fixed; Properties scroll partial (Basis/Not modelled need one scroll at 1500x870); 6 new Desktop tests; mutants red; no new copy recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -26983,7 +27046,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join a3bc-seam into main (round-oct05)",
+      "goal": "join pol into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -26992,8 +27055,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-06T03:41:46Z",
-      "duration_seconds": 55.0
+      "started_at": "2026-10-06T03:51:47Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [
