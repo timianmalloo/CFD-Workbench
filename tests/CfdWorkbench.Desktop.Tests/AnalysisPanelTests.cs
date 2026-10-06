@@ -330,46 +330,6 @@ public static class AnalysisPanelTests
             }
         });
 
-        // CPY (round-oct06, Ruling 101 3d, Q4, 3c): Ring D (every join), measured cost 1.5 + 1.0 + 1.0 s (real windows, one small-lattice
-        // evaluation each; ring2 of 2026-10-06 under load 11).
-        DesktopChecks.Check("Analysis_FourViews_At1280x800_AndGeometryUnchangedAt1500x870", () =>
-        {
-            // The floor stays 320 x 240 (Ruling 101 3d is a layout fix, not a lower floor). The panel height rule and the band's
-            // More button (layout C + D, docs/proof/lay-1280/options.md) are what make four views fit.
-            Equal(new Size(320, 240), ModelArea.MinimumFourViewSize, "the floor is pinned");
-            Equal(150d, AnalysisPanel.HeightFor(800), "the short panel at client 800");
-            Equal(190d, AnalysisPanel.HeightFor(860), "the full panel at client 860");
-            foreach (var (width, height) in new[] { (1280, 800), (1500, 870) })
-            {
-                using var controller = OpenSmall();
-                _ = EvaluateAt(controller, 2, null);
-                var (host, window) = ShowAnalysis(controller, width, height);
-                try
-                {
-                    var views = new[] { "PlanFrame", "ThreeDFrame", "SideFrame", "FrontFrame" }
-                        .Select(name => host.ModelView.FindControl<Border>(name)!).ToArray();
-                    string what = $"{width}x{height} (client {host.Bounds.Width}x{host.Bounds.Height})";
-                    Equal(CfdWorkbench.Persistence.ViewArrangement.Four, host.ModelView.EffectiveLayout.Arrangement, "four views at " + what);
-                    Equal(true, views.All(view => view.IsVisible), "all four views are shown at " + what);
-                    Equal(AnalysisPanel.HeightFor(host.Bounds.Height), host.AnalysisPanel.Bounds.Height, "panel height at " + what);
-                    foreach (var frame in views)
-                        Equal(true, frame.Bounds.Width - 2 >= ModelArea.MinimumFourViewSize.Width && frame.Bounds.Height - 2 >= ModelArea.MinimumFourViewSize.Height,
-                            $"a view is {frame.Bounds.Width - 2} x {frame.Bounds.Height - 2} at {what}");
-                    var band = host.ModelView.FindControl<ConditionsBand>("AnalysisConditionsBand")!;
-                    Console.WriteLine($"MEASURE four-views {what}: panel {host.AnalysisPanel.Bounds.Height}, band {band.Bounds.Height}, views " +
-                        string.Join(" ", views.Select(view => $"{view.Bounds.Width - 2}x{view.Bounds.Height - 2}")));
-                    Equal(true, band.Bounds.Height <= 41.5, $"the band is {band.Bounds.Height} px tall at {what}");
-                    // Measured in docs/proof/lay-1280/options.md: 613 x 275 at a client of 1500 x 860. The platform reports a client of
-                    // 860 to 870 for this window, and each client pixel is half a pixel of a view, so the expected height follows it.
-                    if (width == 1500)
-                        foreach (var frame in views)
-                            Equal(true, Math.Abs(frame.Bounds.Width - 2 - 613) <= 1 && Math.Abs(frame.Bounds.Height - 2 - (275 + (host.Bounds.Height - 860) / 2)) <= 1,
-                                $"1500x870 geometry is unchanged: a view is {frame.Bounds.Width - 2} x {frame.Bounds.Height - 2} at {what}");
-                }
-                finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
-            }
-        });
-
         DesktopChecks.Check("Analysis_Cells_NotCutAt1500x870_BandDepthUnsetAndRunningTickRow", () =>
         {
             var hold = new FlakyMethod(new ProductWingMethod(Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null }));
@@ -551,6 +511,48 @@ public static class AnalysisPanelTests
 
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
         if (shared.IsValueCreated) shared.Value.Dispose();
+    }
+
+    public static void RunReadiness()
+    {
+        // CPY (round-oct06): readiness ring (runs before every push of main), measured 1.6 s for two real windows; moved out of the fast ring (C-3).
+        DesktopChecks.Check("Analysis_FourViews_At1280x800_AndGeometryUnchangedAt1500x870", () =>
+        {
+            // The floor stays 320 x 240 (Ruling 101 3d is a layout fix, not a lower floor). The panel height rule and the band's
+            // More button (layout C + D, docs/proof/lay-1280/options.md) are what make four views fit.
+            Equal(new Size(320, 240), ModelArea.MinimumFourViewSize, "the floor is pinned");
+            Equal(150d, AnalysisPanel.HeightFor(800), "the short panel at client 800");
+            Equal(190d, AnalysisPanel.HeightFor(860), "the full panel at client 860");
+            foreach (var (width, height) in new[] { (1280, 800), (1500, 870) })
+            {
+                using var controller = OpenSmall();
+                _ = EvaluateAt(controller, 2, null);
+                var (host, window) = ShowAnalysis(controller, width, height);
+                try
+                {
+                    var views = new[] { "PlanFrame", "ThreeDFrame", "SideFrame", "FrontFrame" }
+                        .Select(name => host.ModelView.FindControl<Border>(name)!).ToArray();
+                    string what = $"{width}x{height} (client {host.Bounds.Width}x{host.Bounds.Height})";
+                    Equal(CfdWorkbench.Persistence.ViewArrangement.Four, host.ModelView.EffectiveLayout.Arrangement, "four views at " + what);
+                    Equal(true, views.All(view => view.IsVisible), "all four views are shown at " + what);
+                    Equal(AnalysisPanel.HeightFor(host.Bounds.Height), host.AnalysisPanel.Bounds.Height, "panel height at " + what);
+                    foreach (var frame in views)
+                        Equal(true, frame.Bounds.Width - 2 >= ModelArea.MinimumFourViewSize.Width && frame.Bounds.Height - 2 >= ModelArea.MinimumFourViewSize.Height,
+                            $"a view is {frame.Bounds.Width - 2} x {frame.Bounds.Height - 2} at {what}");
+                    var band = host.ModelView.FindControl<ConditionsBand>("AnalysisConditionsBand")!;
+                    Console.WriteLine($"MEASURE four-views {what}: panel {host.AnalysisPanel.Bounds.Height}, band {band.Bounds.Height}, views " +
+                        string.Join(" ", views.Select(view => $"{view.Bounds.Width - 2}x{view.Bounds.Height - 2}")));
+                    Equal(true, band.Bounds.Height <= 41.5, $"the band is {band.Bounds.Height} px tall at {what}");
+                    // Measured in docs/proof/lay-1280/options.md: 613 x 275 at a client of 1500 x 860. The platform reports a client of
+                    // 860 to 870 for this window, and each client pixel is half a pixel of a view, so the expected height follows it.
+                    if (width == 1500)
+                        foreach (var frame in views)
+                            Equal(true, Math.Abs(frame.Bounds.Width - 2 - 613) <= 1 && Math.Abs(frame.Bounds.Height - 2 - (275 + (host.Bounds.Height - 860) / 2)) <= 1,
+                                $"1500x870 geometry is unchanged: a view is {frame.Bounds.Width - 2} x {frame.Bounds.Height - 2} at {what}");
+                }
+                finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
+            }
+        });
     }
 
     private static WorkbenchController OpenSmall(IWingMethod? method = null)

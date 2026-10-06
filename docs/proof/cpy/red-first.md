@@ -37,6 +37,8 @@ Where a check needs a new symbol (a constant, `Units`, `HeightFor`) the old code
 | 7c | Q4 x tick row while Running | same check | FAIL the plot ends at 212.5 of a 190 px panel and is 120 px tall while Running | PASS |
 | 8 | R101 3d four views at 1280x800 (C + D) | Desktop `Analysis_FourViews_At1280x800_AndGeometryUnchangedAt1500x870` | FAIL the band is 52 px tall at 1280x800 (and the panel stayed 190, so the views were 503 x 239.5, under the floor) | PASS |
 
+Ring: item 8 runs in the Desktop readiness ring (`--readiness`, before every push of main), not the fast ring, because its two real windows cost 1.6 s and pushed the fast ring over C-3 (50 s).
+
 Measured by the item 8 check (floor `MinimumFourViewSize` pinned 320 x 240 in the check):
 
 | Window | Client | Panel | Band | Each view |
