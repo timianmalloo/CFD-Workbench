@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T02:34:18Z",
+  "generated": "2026-10-06T02:54:37Z",
   "audit": [
     {
       "actor": null,
@@ -26818,6 +26818,31 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T02:33:27Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M47J4VTHXNZA244A31YDJKMM",
+      "shortname": "aux-a3a-review",
+      "datetime": "2026-10-06T02:54:37Z",
+      "session": "trk-aux",
+      "prompt": "AUX A3a review and Proof Pack",
+      "summary": "Captured nine mockup screens in-process (packaged-app input blocked by missing Accessibility permission); polished conditions band and bottom tabs; DESIGN rows; hydrodynamicist and test-architect reviews folded; Proof Pack and demo script.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/a3a-native.md",
+        "docs/proof/a3a/proof-pack.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Review, polish, Proof Pack and packaged app for the A3a operator demo",
+      "done_when": "captures, review doc, DESIGN rows, proof pack, gates, reviewers folded",
+      "tier": "T1",
+      "fan_out": 2,
+      "started_at": "2026-10-06T02:37:11Z",
+      "duration_seconds": 1046.0
     }
   ],
   "changes": [

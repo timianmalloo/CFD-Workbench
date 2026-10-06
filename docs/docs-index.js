@@ -5745,6 +5745,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "review-a3a-native",
+      "path": "docs/reviews/a3a-native.md",
+      "title": "A3a native build against the approved Area 3 mockup (AUX)",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@trk-aux",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Nine mockup screens compared with the A3a build, with captures, differences and severity; the hydrodynamicist's re-review and the test architect's build-time veto folded in; strings with no approved copy row; what AUX fixed and what is listed.",
+      "tags": [
+        "a3a",
+        "aux",
+        "native-ui",
+        "review",
+        "analysis",
+        "mockup-parity"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-pack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2a011bb37658f82adde639b8fde6602fcc64168341cbd08f4d51c20cc427d14d"
+    },
+    {
       "id": "review-area3-analysis-personas",
       "path": "docs/reviews/area3-analysis-personas.md",
       "title": "Area 3 analysis design — five lenses in Adversary Mode, and the folds",
@@ -8876,6 +8916,41 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "a0cd33ccb663f518420dc28036021505bda9d589ad570ff1b322d30a8cdb83f1"
+    },
+    {
+      "id": "proof-a3a-pack",
+      "path": "docs/proof/a3a/proof-pack.md",
+      "title": "A3a Proof Pack (wing VLM + strip, inviscid): tracks, tests, residuals and the operator demo",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-aux",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "What slice A3a built, the tests that prove it (per-track named totals, receipts, mutants), the two persona verdicts, the residuals, and the script for the operator's morning demo of the packaged macOS app.",
+      "tags": [
+        "a3a",
+        "aux",
+        "proof",
+        "analysis",
+        "demo"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-a3a-native",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-a3a-lay-pack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "99a54ec7a4ca219e9376d880e065e8d61b63dbd8cb89323d926f47602ea1b0da"
     },
     {
       "id": "proof-a3a-pna-red-first",
@@ -14205,5 +14280,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "0455ebd4588fcc9c76cc349ccf5231bbcc0ed2efbc8fb9e36cc1a4d974c51907"
+  "graphSha256": "1550894f631874376958f8c31c3bf423af0b80ff54d1e99523bcc5d30aacb358"
 };

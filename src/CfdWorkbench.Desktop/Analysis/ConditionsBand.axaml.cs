@@ -45,6 +45,8 @@ public partial class ConditionsBand : UserControl
     {
         Running = state == RunState.Running;
         EvaluateButton.Content = Running ? "Cancel" : "Evaluate";
+        EvaluateButton.Classes.Set("primary", !Running);
+        EvaluateButton.Classes.Set("outline", Running);
         Avalonia.Automation.AutomationProperties.SetName(EvaluateButton, Running ? "Cancel evaluation" : "Evaluate");
     }
 
@@ -63,7 +65,7 @@ public partial class ConditionsBand : UserControl
         {
             var derived = OperatingPoints.Derive(BuildOperatingPoint(), BuildWater(), ReferenceChordMeters.Value);
             Set(DerivedQ, "q", derived.Q, "Pa");
-            Set(DerivedRe, "Re_ref", derived.ReRef);
+            Set(DerivedRe, "Re_ref", derived.ReRef, format: "0.###E+0");
             Set(DerivedDepth, "h/c", derived.DepthOverChord);
             Set(DerivedFroude, "Fr_h", derived.FroudeDepth);
             Set(DerivedSigma, "σ", derived.Sigma);
@@ -100,8 +102,8 @@ public partial class ConditionsBand : UserControl
         double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var value) && double.IsFinite(value)
             ? value : throw new ContractError(code, "the input is not a finite number");
 
-    private static void Set(TextBlock cell, string name, DerivedValue value, string unit = "") =>
+    private static void Set(TextBlock cell, string name, DerivedValue value, string unit = "", string format = "0.###") =>
         cell.Text = name + " " + (value.Value is double number
-            ? number.ToString("0.###", CultureInfo.InvariantCulture) + (unit.Length > 0 ? " " + unit : "")
+            ? number.ToString(format, CultureInfo.InvariantCulture) + (unit.Length > 0 ? " " + unit : "")
             : value.Reason == DerivedReason.DepthNotSet ? "Unavailable — depth not set" : "Undefined — speed ≤ 0");
 }
