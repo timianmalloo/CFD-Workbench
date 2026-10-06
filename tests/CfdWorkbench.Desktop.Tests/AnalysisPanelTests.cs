@@ -287,18 +287,23 @@ public static class AnalysisPanelTests
                 Equal(true, chip.IsVisible && chip.Classes.Contains("modebar-chip"), "the tier is the pill chip");
                 Equal(Labels.VlmChip, pane.FindControl<TextBlock>("AnalysisChipText")!.Text, "the chip carries the approved tier text");
                 Equal(false, pane.ShownModel!.Blocks.Any(group => group.Rows.Any(row => row.Label == "Tier")), "the Tier is not also a row");
+                // Ruling 117: the example foil's drag rows now carry values and the COPY-364 note on both the Drag (Wing only) and the
+                // Wing-only CL/CD rows, so the Wing result group is about 90 px taller and the Labels header sits one short scroll
+                // below the first viewport (measured 681 of 591). The Wing result header stays in the first viewport.
                 foreach (string title in new[] { "Wing result", "Labels" })
                 {
                     var header = pane.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(text => text.IsEffectivelyVisible && text.Text == title)
                         ?? throw new Exception(title + " group header is not drawn");
-                    Equal(true, InView(header, scroll), title + " header is in the first viewport at 1500 x 870");
+                    double headerTop = header.TranslatePoint(default, scroll)?.Y ?? double.NaN;
+                    Equal(true, title == "Wing result" ? InView(header, scroll) : headerTop < scroll.Bounds.Height + 120,
+                        title + " header at 1500 x 870: top " + headerTop + " of " + scroll.Bounds.Height);
                 }
                 var method = pane.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(text => text.IsEffectivelyVisible && text.Text == "Method")
                     ?? throw new Exception("Labels rows are not drawn");
                 // Ruling 101 Q4 accepts one scroll at 1500 x 870, and the long cells now wrap (AUX-F8) instead of being cut, which costs
                 // height: the first Labels row sits at most two rows below the first viewport, one short scroll away.
                 double methodTop = method.TranslatePoint(default, scroll)?.Y ?? double.NaN;
-                Equal(true, methodTop < scroll.Bounds.Height + 48, "the Labels rows are one short scroll away: method at " + methodTop + " of " + scroll.Bounds.Height);
+                Equal(true, methodTop < scroll.Bounds.Height + 48 + 120, "the Labels rows are one short scroll away: method at " + methodTop + " of " + scroll.Bounds.Height);
             }
             finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
         });

@@ -17,16 +17,12 @@ internal static class DxSectionTests
 {
     internal static void Run()
     {
-        Check("SectionProjection_CpPlot_SeriesAndMarker", CpPlot);
         Check("SectionProjection_EstimatorLabel_DepthAware", EstimatorLabel);
         Check("SectionProjection_EstimatorChip_Copy214", EstimatorChip);
         Check("SectionProjection_Values_ClCmAlphaL0PerSpan", Values);
         Check("SectionView_CpOnProfile_DrawsAndPinsVik", ProfileView);
         Check("Cavitation_Screen_ValueStateAndFixedString", ScreenValues);
-        Check("Cavitation_GoverningStation_NamedWithDepth", GoverningLine);
         Check("Cavitation_PanelUnderread_MeasuredNotConstant", UnderreadMeasured);
-        Check("Cavitation_Provisional_AboveTenPercent", ProvisionalBoundary);
-        Check("Section_UnderreadNotMeasured_ShowsRatifiedText", NotMeasured);
         Check("Section_Cp_NoMethodString_Retired", CpRetired);
         Check("Section_CpUnavailable_NoProfileAndSolveFailed_Row10", Row10);
         Check("Section_StripCdNoPolar_Copy210", StripCdNoPolar);
@@ -59,6 +55,11 @@ internal static class DxSectionTests
         Check("Polar_CstResidual_ShownAndLimit", CstResidual);
         Check("Strips_PolarRe_InsideOutsideNotExtrapolated", StripRe);
         Check("Projection_NoRawAnaCodeInAnyCell", NoRawCode);
+        // moved from the fast ring (trk-dx2, C-2 over 5 s per part): the four costliest DX checks by their COST lines (0.26, 0.16, 0.13, 0.13 s)
+        Check("SectionProjection_CpPlot_SeriesAndMarker", CpPlot);
+        Check("Cavitation_GoverningStation_NamedWithDepth", GoverningLine);
+        Check("Cavitation_Provisional_AboveTenPercent", ProvisionalBoundary);
+        Check("Section_UnderreadNotMeasured_ShowsRatifiedText", NotMeasured);
         Check("Polar_NonNaca0012InsideTrainingRange_ComputedAndFlagged_Ruling117", NonNacaComputedAndFlagged);
     }
 
