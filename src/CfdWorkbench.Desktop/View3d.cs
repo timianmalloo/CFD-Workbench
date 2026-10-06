@@ -769,7 +769,7 @@ public sealed class View3d : Panel
         if (controller?.IsAnalysis == true)
         {
             var visible = controller.LayerSet.Where(l => l.Visible).Select(l => l.Id).ToHashSet();
-            if (visible.Contains("strip-lift")) name += "; values in the Loads table";
+            if (visible.Contains("strip-lift")) name += "; strip lift arrows, values in the Loads table";
             if (visible.Contains("root-moment")) name += "; root moment, values in the Loads table";
             if (visible.Contains("depth-band")) name += "; free surface and tip depth, values in the conditions table";
         }
