@@ -2229,7 +2229,7 @@ public sealed class WorkbenchController : IDisposable
                 ? GroupCopy.Text("G11", ("axis", word), ("n", n), ("value", Quantity.WithUnit(value, unit)))
                 : GroupCopy.Text("G12", ("axis", word), ("n", n), ("value", Quantity.WithUnit((amount >= 0 ? "+" : "") + value, unit)));
             return new CommitOutcome.Committed(result.AcceptedId, report);
-        });
+        }, preserveStatusAfterCommit: true);
     }
 
     public Task<CommitOutcome> ApplyPointCommandAsync(PointCommand command)

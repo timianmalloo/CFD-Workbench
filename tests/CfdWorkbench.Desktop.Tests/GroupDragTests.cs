@@ -196,7 +196,312 @@ public static class GroupDragTests
         });
     }
 
+    // ---------------------------------------------------------------- window checks
+
+    private sealed class Rig : IDisposable
+    {
+        public WorkbenchController Controller { get; } = new();
+        public ShellHost Host { get; }
+        public Window Window { get; }
+        public PlanCanvas Canvas => Host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!;
+        public ElevationView Side => Host.ModelView.FindControl<ElevationView>("SideElevation")!;
+
+        public Rig()
+        {
+            PropertiesViewTests.Pump(Controller.OpenExampleAsync());
+            Host = new ShellHost(Controller);
+            Window = new Window { Content = Host, Width = 1400, Height = 1000 };
+            Window.Show();
+            Host.RefreshPanes();
+            Controller.Layout = ViewLayout.Four;
+            Settle();
+            var deadline = System.Diagnostics.Stopwatch.StartNew();
+            while ((Controller.Surface is null || Controller.SurfaceUpdating || Side.Camera is null) && deadline.Elapsed.TotalSeconds < 30)
+            {
+                Dispatcher.UIThread.RunJobs();
+                Thread.Yield();
+            }
+            Settle();
+        }
+
+        public void Settle()
+        {
+            for (int i = 0; i < 6; i++)
+            {
+                Dispatcher.UIThread.RunJobs();
+                Window.UpdateLayout();
+            }
+        }
+
+        public Point Win(Visual visual, Point local) => visual.TranslatePoint(local, Window) ?? throw new InvalidOperationException("no window point");
+
+        public Pointer Press(InputElement target, Point local, int clicks = 1, KeyModifiers modifiers = KeyModifiers.None, bool right = false)
+        {
+            var pointer = new Pointer(Pointer.GetNextFreeId(), PointerType.Mouse, true);
+            var (raw, kind) = right ? (RawInputModifiers.RightMouseButton, PointerUpdateKind.RightButtonPressed)
+                : (RawInputModifiers.LeftMouseButton, PointerUpdateKind.LeftButtonPressed);
+            target.RaiseEvent(new PointerPressedEventArgs(target, pointer, Window, Win((Visual)target, local), 1,
+                new PointerPointProperties(raw, kind), modifiers, clicks));
+            Settle();
+            return pointer;
+        }
+
+        public void Move(InputElement target, Pointer pointer, Point local)
+        {
+            target.RaiseEvent(new PointerEventArgs(InputElement.PointerMovedEvent, target, pointer, Window, Win((Visual)target, local), 2,
+                new PointerPointProperties(RawInputModifiers.LeftMouseButton, PointerUpdateKind.Other), KeyModifiers.None));
+            Settle();
+        }
+
+        public void Release(InputElement target, Pointer pointer, Point local, bool right = false)
+        {
+            target.RaiseEvent(new PointerReleasedEventArgs(target, pointer, Window, Win((Visual)target, local), 3,
+                new PointerPointProperties(RawInputModifiers.None, right ? PointerUpdateKind.RightButtonReleased : PointerUpdateKind.LeftButtonReleased),
+                KeyModifiers.None, right ? MouseButton.Right : MouseButton.Left));
+            pointer.Dispose();
+            Pump();
+        }
+
+        public void Key(InputElement target, Key key, KeyModifiers modifiers = KeyModifiers.None, bool up = false)
+        {
+            target.RaiseEvent(new KeyEventArgs { RoutedEvent = up ? InputElement.KeyUpEvent : InputElement.KeyDownEvent, Source = target, Key = key, KeyModifiers = modifiers });
+            Settle();
+        }
+
+        /// <summary>Lets a release's validate-and-apply finish.</summary>
+        public void Pump()
+        {
+            var deadline = System.Diagnostics.Stopwatch.StartNew();
+            while (Controller.Gesture != GestureState.Idle && deadline.Elapsed.TotalSeconds < 10)
+            {
+                Dispatcher.UIThread.RunJobs();
+                Thread.Yield();
+            }
+            Settle();
+        }
+
+        public void Dispose()
+        {
+            Window.Close();
+            Controller.Dispose();
+        }
+    }
+
+    private static void Pump(Task task) => PropertiesViewTests.Pump(task);
+
+    private static void TypeInto(Rig rig, TextBox box, string text)
+    {
+        box.Focus();
+        box.Text = text;
+        rig.Key(box, Avalonia.Input.Key.Enter);
+        rig.Settle();
+    }
+
+    private static void Check(string name, Action<Rig> body) => DesktopChecks.Check(name, () =>
+    {
+        using var rig = new Rig();
+        body(rig);
+    });
+
+    private static TextBox Aft(Rig rig) => PropertiesViewTests.Need<TextBox>(rig.Host.Properties, "PointAftInput");
+
+    private static string Msg(Rig rig, string key) => PropertiesViewTests.Text(rig.Host.Properties, key);
+
     public static void RunPane()
     {
+        Check("Properties_MultiplePoints_SharedValueShown_MixedWhereDiffer", rig =>
+        {
+            var c = rig.Controller;
+            Pick(c, "trailing", 2, 3, 4);
+            rig.Settle();
+            var aft = Aft(rig);
+            Require(aft.IsEnabled && aft.Text == "120.00", "shared value: " + aft.Text);
+            Require(PropertiesViewTests.Need<ToggleButton>(rig.Host.Properties, "GroupModeSetTo").IsChecked == true, "Set to is not the default");
+            // One point moved 6 mm aft: the values differ, so the field is empty with Mixed as its placeholder and a range line.
+            Pick(c, "trailing", 3);
+            Require(c.BeginGesture(Ref(c, "trailing", 3), GestureInput.Pointer), "begin");
+            DragTo(c, At(c, "trailing", 3).SpanMeters, 0.126);
+            Pump(c.EndGestureAsync(GestureEnd.Release));
+            Pick(c, "trailing", 2, 3, 4);
+            rig.Settle();
+            aft = Aft(rig);
+            Require(aft.Text == "" && aft.Watermark == "Mixed", $"mixed: '{aft.Text}' / {aft.Watermark}");
+            Require(Msg(rig, "Description_p_aft") == "Range 120.00 to 126.00 mm.", "range: " + Msg(rig, "Description_p_aft"));
+            Require(Msg(rig, "Description_p_from") == "Range 135.00 to 315.00 mm.", "span range: " + Msg(rig, "Description_p_from"));
+            Require(PropertiesViewTests.Need<TextBox>(rig.Host.Properties, "PointSpanInput").IsEnabled, "From root is not editable");
+        });
+        Check("Properties_MultiplePoints_TypedSetTo_OneUndoStep", rig =>
+        {
+            var c = rig.Controller;
+            string before = c.AcceptedSource;
+            Pick(c, "trailing", 2, 3, 4);
+            rig.Settle();
+            TypeInto(rig, Aft(rig), "30");
+            Require(new[] { 2, 3, 4 }.All(index => Math.Abs(At(c, "trailing", index).Ordinate - 0.030) < 1.1e-6), "values: " + Report(c, "trailing", 2, 3, 4));
+            Require(c.Status == "Set aft of 3 points to 30.00 mm.", "echo: " + c.Status);
+            Require(Aft(rig).Text == "30.00" && c.Selection is Selection.Points { Items.Count: 3 }, "row or selection after the commit");
+            c.Undo();
+            Require(c.AcceptedSource == before, "one Undo did not restore the source");
+        });
+        Check("Properties_MultiplePoints_TypedMoveBy_OneUndoStep", rig =>
+        {
+            var c = rig.Controller;
+            string before = c.AcceptedSource;
+            Pick(c, "trailing", 2, 3, 4);
+            rig.Settle();
+            var moveBy = PropertiesViewTests.Need<ToggleButton>(rig.Host.Properties, "GroupModeMoveBy");
+            moveBy.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            rig.Settle();
+            Require(Aft(rig).Text == "0" && Msg(rig, "Description_p_aft") == "Now 120.00 mm.", $"move-by row: {Aft(rig).Text} / {Msg(rig, "Description_p_aft")}");
+            TypeInto(rig, Aft(rig), "5");
+            Require(new[] { 2, 3, 4 }.All(index => Math.Abs(At(c, "trailing", index).Ordinate - 0.125) < 1.1e-6), "values: " + Report(c, "trailing", 2, 3, 4));
+            Require(c.Status == "Moved 3 points by +5.00 mm in aft.", "echo: " + c.Status);
+            Require(Aft(rig).Text == "0" && Msg(rig, "Description_p_aft") == "Now 125.00 mm.", $"after: {Aft(rig).Text} / {Msg(rig, "Description_p_aft")}");
+            Require(PropertiesViewTests.Need<ToggleButton>(rig.Host.Properties, "GroupModeMoveBy").IsChecked == true, "the mode did not stay while the selection was kept");
+            TypeInto(rig, PropertiesViewTests.Need<TextBox>(rig.Host.Properties, "PointSpanInput"), "2");
+            Require(Math.Abs(At(c, "trailing", 3).SpanMeters - 0.227) < 1.1e-6 && c.Status == "Moved 3 points by +2.00 mm in span.", "span: " + c.Status);
+            c.Undo();
+            c.Undo();
+            Require(c.AcceptedSource == before, "two entries are two undo steps");
+            Pick(c, "trailing", 2, 3);
+            rig.Settle();
+            Require(PropertiesViewTests.Need<ToggleButton>(rig.Host.Properties, "GroupModeSetTo").IsChecked == true, "the mode did not reset with the selection");
+        });
+        Check("Properties_MultiplePoints_RefusalKeepsText_UseNeverAutomatic", rig =>
+        {
+            var c = rig.Controller;
+            Pick(c, "trailing", 3, 6);
+            rig.Settle();
+            string before = c.AcceptedSource;
+            TypeInto(rig, Aft(rig), "3");
+            Require(Aft(rig).Text == "3", "the typed text was rewritten: " + Aft(rig).Text);
+            Require(Msg(rig, "Message_p_aft") == TipChord.TypedRefusalReason(c.Estimates!.RootChordMeters), "refusal: " + Msg(rig, "Message_p_aft"));
+            var use = PropertiesViewTests.Need<HyperlinkButton>(rig.Host.Properties, "UseLimit_p_aft");
+            Require(use.IsVisible && use.Content?.ToString() == "Use 5 mm" && c.AcceptedSource == before, "no Use offer, or the refusal applied something");
+            use.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            rig.Settle();
+            Require(c.AcceptedSource != before && Math.Abs(At(c, "trailing", 6).Ordinate - 0.005) < 1e-6, "Use did not apply the minimum");
+            // Move by past the tip limit: Core's amount and a Use of the most the group can move.
+            c.Undo();
+            Pick(c, "trailing", 3, 6);
+            rig.Settle();
+            PropertiesViewTests.Need<ToggleButton>(rig.Host.Properties, "GroupModeMoveBy").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            rig.Settle();
+            TypeInto(rig, Aft(rig), "-200");
+            Require(Msg(rig, "Message_p_aft").EndsWith("would take the tip chord below 5 mm. The most they can move that way is 115 mm.", StringComparison.Ordinal),
+                "refusal: " + Msg(rig, "Message_p_aft"));
+            Require(Aft(rig).Text == "-200" && c.AcceptedSource == before, "text rewritten or applied");
+            use = PropertiesViewTests.Need<HyperlinkButton>(rig.Host.Properties, "UseLimit_p_aft");
+            Require(use.IsVisible && use.Content?.ToString() == "Use -115.00 mm", "Use: " + use.Content);
+            use.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            rig.Settle();
+            Require(Math.Abs(At(c, "trailing", 6).Ordinate - 0.005) < 1e-6, "Use did not move the group by the most it can");
+        });
+        Check("GroupDrag_Canvas_Trackpad_TwelveSmallMoves_GlyphUnderPointer_GroupRigid", rig =>
+        {
+            var c = rig.Controller;
+            string before = c.AcceptedSource;
+            Pick(c, "trailing", 2, 3, 4);
+            rig.Settle();
+            var start = new[] { 2, 3, 4 }.Select(index => At(c, "trailing", index)).ToArray();
+            var origin = rig.Canvas.ScreenPoint(start[1]);
+            var pointer = rig.Press(rig.Canvas, origin);
+            Require(c.Selection is Selection.Points { Items.Count: 3 }, "the press dropped the group");
+            double worst = 0;
+            for (int step = 1; step <= 12; step++)
+            {
+                var local = origin + new Vector(2.5 * step, 0.7 * step);   // a trackpad: small steps, never a jump
+                rig.Move(rig.Canvas, pointer, local);
+                if (step < 2) continue;
+                worst = Math.Max(worst, Point.Distance(rig.Canvas.ScreenPoint(At(c, "trailing", 3)), local));
+            }
+            Require(worst <= 2, $"the grabbed glyph is {worst:F2} px from the pointer");
+            var delta = (At(c, "trailing", 3).SpanMeters - start[1].SpanMeters, At(c, "trailing", 3).Ordinate - start[1].Ordinate);
+            Require(delta.Item1 > 0 && delta.Item2 > 0, "the grabbed point did not follow the pointer");
+            for (int member = 0; member < 3; member++)
+            {
+                var now = At(c, "trailing", member + 2);
+                Require(Math.Abs(now.SpanMeters - start[member].SpanMeters - delta.Item1) < 1.1e-6 && Math.Abs(now.Ordinate - start[member].Ordinate - delta.Item2) < 1.1e-6,
+                    $"member {member} is not on the one delta");
+            }
+            rig.Release(rig.Canvas, pointer, origin + new Vector(30, 8.4));
+            Require(c.Status.StartsWith("Moved 3 trailing edge points.", StringComparison.Ordinal), "strip: " + c.Status);
+            c.Undo();
+            Require(c.AcceptedSource == before, "one Undo did not restore");
+        });
+        Check("GroupDrag_Canvas_ClickCollapses_ContextClickKeepsGroup_DoubleClickRestoresAndFocusesValueRow", rig =>
+        {
+            var c = rig.Controller;
+            Pick(c, "trailing", 2, 3, 4);
+            rig.Settle();
+            var at = rig.Canvas.ScreenPoint(At(c, "trailing", 3));
+            var grabbed = Ref(c, "trailing", 3);
+            // A context click on a member keeps the group (the menu is closed again).
+            var right = rig.Press(rig.Canvas, at, right: true);
+            rig.Release(rig.Canvas, right, at, right: true);
+            Require(c.Selection is Selection.Points { Items.Count: 3 }, "a context click dropped the group");
+            rig.Canvas.ContextMenu?.Close();
+            // A click without a drag collapses on release.
+            var click = rig.Press(rig.Canvas, at);
+            Require(c.Selection is Selection.Points { Items.Count: 3 }, "the press collapsed the group");
+            rig.Release(rig.Canvas, click, at);
+            Require(c.Selection is Selection.Points { Items: [var only] } && only == grabbed, "the release did not collapse");
+            // The second press of a double-click puts the group back and sends focus to the group's value row.
+            var second = rig.Press(rig.Canvas, at, clicks: 2);
+            Require(c.Selection is Selection.Points { Items.Count: 3 }, "the double-click lost the group");
+            Require(rig.Canvas.LastValueRequest == "group:trailing", "value request: " + rig.Canvas.LastValueRequest);
+            Require(Aft(rig).IsKeyboardFocusWithin, "focus is not in the group's value row");
+            rig.Release(rig.Canvas, second, at);
+            Require(c.Selection is Selection.Points { Items.Count: 3 }, "the double-click's release dropped the group");
+        });
+        Check("GroupDrag_Keyboard_SelectNudgeTypeToTheGroupRow", rig =>
+        {
+            // GEO-05 without a pointer: Space and Shift+Space select, arrows nudge as one run, Return goes to the value row.
+            var c = rig.Controller;
+            string before = c.AcceptedSource;
+            var canvas = rig.Canvas;
+            canvas.Focus();
+            c.Select(new Selection.Foil());
+            canvas.FocusPoint(Ref(c, "trailing", 2));
+            rig.Key(canvas, Avalonia.Input.Key.Space);
+            canvas.FocusPoint(Ref(c, "trailing", 3));
+            rig.Key(canvas, Avalonia.Input.Key.Space, KeyModifiers.Shift);
+            Require(c.Selection is Selection.Points { Items.Count: 2 }, "Space and Shift+Space did not select two points: " + c.Selection);
+            for (int press = 0; press < 3; press++) rig.Key(canvas, Avalonia.Input.Key.Down);
+            rig.Key(canvas, Avalonia.Input.Key.Down, up: true);
+            rig.Pump();
+            Require(Math.Abs(At(c, "trailing", 2).Ordinate - 0.1203) < 1.1e-6 && Math.Abs(At(c, "trailing", 3).Ordinate - 0.1203) < 1.1e-6, "nudged: " + Report(c, "trailing", 2, 3));
+            Require(c.Selection is Selection.Points { Items.Count: 2 }, "the nudge dropped the group");
+            rig.Key(canvas, Avalonia.Input.Key.Return);
+            Require(Aft(rig).IsKeyboardFocusWithin, "Return did not go to the value row");
+            TypeInto(rig, Aft(rig), "10");
+            Require(Math.Abs(At(c, "trailing", 2).Ordinate - 0.010) < 1.1e-6 && Math.Abs(At(c, "trailing", 3).Ordinate - 0.010) < 1.1e-6, "typed: " + Report(c, "trailing", 2, 3));
+            c.Undo();
+            c.Undo();
+            Require(c.AcceptedSource == before, "nudge run and typed entry are two undo steps");
+        });
+        Check("GroupDrag_Elevation_TwistPointsMoveAsOneGroup_ReadoutShowsTheAppliedMove", rig =>
+        {
+            var c = rig.Controller;
+            string before = c.AcceptedSource;
+            var free = c.CurveFor("twist")!.Points.Where(point => point.Role is PointRole.Control or PointRole.Anchor && point.Freedom == PointFreedom.Free).Take(2).ToArray();
+            Require(free.Length == 2, "fixture: no two free twist points");
+            c.Select(new Selection.Points(free.Select(point => new PointRef("twist", point.Id)).ToArray()));
+            rig.Settle();
+            var side = rig.Side;
+            var origin = side.ScreenPoint(free[0]);
+            var pointer = rig.Press(side, origin);
+            Require(c.Selection is Selection.Points { Items.Count: 2 } && c.GestureGroup is { Count: 2 }, "the press dropped the group in the elevation");
+            for (int step = 1; step <= 10; step++) rig.Move(side, pointer, origin + new Vector(0, -2.5 * step));
+            var moved = free.Select(point => c.CurveFor("twist")!.Points.First(item => item.Id == point.Id)).ToArray();
+            double d0 = moved[0].Ordinate - free[0].Ordinate, d1 = moved[1].Ordinate - free[1].Ordinate;
+            Require(Math.Abs(d0) > 1e-4 && Math.Abs(d0 - d1) < 1e-4 && moved[0].SpanMeters == free[0].SpanMeters && moved[1].SpanMeters == free[1].SpanMeters,
+                $"twist deltas {d0} / {d1}");
+            Require(side.ProbeText?.Contains("Δ", StringComparison.Ordinal) == true, "no readout");
+            rig.Release(side, pointer, origin + new Vector(0, -25));
+            Require(c.Status.StartsWith("Moved 2 twist points.", StringComparison.Ordinal) && !c.Status.Contains("chord", StringComparison.Ordinal), "strip: " + c.Status);
+            c.Undo();
+            Require(c.AcceptedSource == before, "one Undo did not restore");
+        });
     }
 }
