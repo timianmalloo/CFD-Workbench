@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T16:39:52Z",
+  "generated": "2026-10-06T17:14:41Z",
   "audit": [
     {
       "actor": null,
@@ -27492,6 +27492,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T16:39:48Z",
       "duration_seconds": 4.0
+    },
+    {
+      "id": "al-01M493BP538ZZWGT67FGBW2CPF",
+      "shortname": "trk-cpy",
+      "datetime": "2026-10-06T17:14:41Z",
+      "session": "trk-cpy",
+      "prompt": "trk-cpy round-oct06",
+      "summary": "Shallow-station label, no bare Unavailable, one Drag (Wing only) row, COPY-274..280 strings, Units on the band, wrapped Properties cells, band overflow to More, 150 px panel below client 820 px, chart tick row kept while Running; 3 commits on fix/a3a-copy-display",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Built Analysis screens say what Rulings 101 and 109 approved, nothing cut off at 1500x870, four views at 1280x800 (C+D)",
+      "done_when": "red-first receipts, captures, Copy_AnalysisStrings_MatchDesignMd green, one full run-tests green, check-docs exit 0",
+      "started_at": "2026-10-06T16:44:05Z",
+      "duration_seconds": 1836.0
     }
   ],
   "changes": [
@@ -29097,6 +29117,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4913X04S7NVF9QAS0J52XFA",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M491GG5CT6G7G0KF24QDRCDE",
+      "ts": "2026-10-06T16:42:21Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M491GG58YFG4TZ4XSJRSWFKM",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M491GG8A8DHVA1CCTA0R25R5",
+      "ts": "2026-10-06T16:42:21Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M491GG58YFG4TZ4XSJRSWFKM",
+      "session": "fable-owner"
     }
   ]
 };
