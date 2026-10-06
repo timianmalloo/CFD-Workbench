@@ -58,10 +58,13 @@ internal static class PolarNumericsTests
         {
             CdNcrit2 = new StripValue(0.02, null), CdNcrit4 = new StripValue(0.03, null)
         }).Run;
+        StripValue wing = Loads.WingDrag(complete, 2);
+        if (wing.Value is not { } drag || Math.Abs(drag - 20.4) > 1e-9)
+            throw new InvalidOperationException("wing-only drag must sum Trefftz induced and Ncrit 2 profile drag: " + wing);
+        AnalysisChecks.Equal(30.4, Loads.WingDrag(complete, 4).Value!.Value, "Ncrit 4 wing drag");
         StripValue total = Loads.TotalDrag(complete, 2);
-        if (total.Value is not { } drag || Math.Abs(drag - 20.4) > 1e-9)
-            throw new InvalidOperationException("wing Total drag must sum Trefftz induced and Ncrit 2 profile drag: " + total);
-        AnalysisChecks.Equal(30.4, Loads.TotalDrag(complete, 4).Value!.Value, "Ncrit 4 Total drag");
+        if (total.Value is not null || total.UnavailableReason != "ANA-TOTAL-DRAG-MISSING-JUNCTION-MAST-WAVE-SPRAY")
+            throw new InvalidOperationException("craft Total drag claimed the wing-only subtotal: " + total);
         AnalysisRun missing = ProjectionTests.Data().Run;
         if (Loads.TotalDrag(missing, 2).UnavailableReason?.Contains("PROFILE", StringComparison.Ordinal) != true)
             throw new InvalidOperationException("missing profile component was not named");
@@ -82,6 +85,11 @@ internal static class PolarNumericsTests
         byte[] source = session.AcceptedSourceOf(run.Inputs.AcceptedId)!;
         var current = Freshness.Current(session.Snapshot(), Fixture.Salt, Fixture.Op(3), method.Method, method.Settings);
         var view = AnalysisProjection.Build(run, current, Units.Metric, new ProjectionContext(Source: source));
+        PolarConsistencyResult? consistency = view.PolarConsistency;
+        if (consistency is not { Strips.Count: > 0 } ||
+            consistency.Strips.All(strip => strip.Code != "ANA-TIP-PROVISIONAL"))
+            throw new InvalidOperationException("run polar consistency and tip exemption did not reach projection: " +
+                (consistency is null ? "null" : string.Join(",", consistency.Strips.Select(strip => strip.Code))));
         var rows = view.Groups.Single(group => group.Title == "Section (2D)").Rows;
         if (!rows.Any(row => row.Label == "Ncrit 2" && row.Value != Labels.NoPolar) ||
             !rows.Any(row => row.Label == "Ncrit 4" && row.Value != Labels.NoPolar))
