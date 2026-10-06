@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T15:35:27Z",
+  "generated": "2026-10-06T15:36:33Z",
   "audit": [
     {
       "actor": null,
@@ -27398,6 +27398,33 @@ window.AUDIT_DATA = {
         "branch": "chore/coordination-round-oct06",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M48XR0DF2NQY80RMK0072CWB",
+      "shortname": "join-round-oct06-plan",
+      "datetime": "2026-10-06T15:36:33Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of chore/coordination-round-oct06 into main",
+      "summary": "round-oct06 plan (reviewed, veto cleared) and the AGENT-HEREDOC hook installed recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join chore/coordination-round-oct06 into main",
+      "done_when": "join gates green, readiness green, pushed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T15:35:39Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [
