@@ -10,6 +10,7 @@ internal static class PolarNumericsTests
         AnalysisChecks.Check("F13b_WaterWithPolar_RetrievesAtBothNewRe", WaterRetrieval);
         AnalysisChecks.Check("RunKey_PolarWeightsHashAndSize_ChangeKey", WeightsKey);
         AnalysisChecks.Check("Loads_TotalDrag_InducedPlusProfileOrNamesMissing", TotalDrag);
+        AnalysisChecks.Check("Polar_ProductRun_ReachesStripsAndSectionProjection", ProductRun);
     }
 
     private static void WaterRetrieval()
@@ -64,6 +65,24 @@ internal static class PolarNumericsTests
         AnalysisRun missing = ProjectionTests.Data().Run;
         if (Loads.TotalDrag(missing, 2).UnavailableReason?.Contains("PROFILE", StringComparison.Ordinal) != true)
             throw new InvalidOperationException("missing profile component was not named");
+    }
+
+    private static void ProductRun()
+    {
+        using var session = Fixture.Opened();
+        RunSettings settings = Settings.Default with { NSpanPerHalf = 4, NChord = 2, SectionEtas = null, SectionXs = null };
+        var method = new ProductWingMethod(settings);
+        AnalysisRun run = Fixture.Evaluate(new AnalysisService(session, method), Fixture.Op(3));
+        if (run.Outcome is not RunOutcome.Completed || run.Settings.Polar is null ||
+            !run.Strips.Any(strip => strip.CdNcrit2.Value is > 0 && strip.CdNcrit4.Value is > 0))
+            throw new InvalidOperationException("product run did not carry both polar drag values");
+        byte[] source = session.AcceptedSourceOf(run.Inputs.AcceptedId)!;
+        var current = Freshness.Current(session.Snapshot(), Fixture.Salt, Fixture.Op(3), method.Method, method.Settings);
+        var view = AnalysisProjection.Build(run, current, Units.Metric, new ProjectionContext(Source: source));
+        var rows = view.Groups.Single(group => group.Title == "Section (2D)").Rows;
+        if (!rows.Any(row => row.Label == "Ncrit 2" && row.Value != Labels.NoPolar) ||
+            !rows.Any(row => row.Label == "Ncrit 4" && row.Value != Labels.NoPolar))
+            throw new InvalidOperationException("polar source did not reach Section projection");
     }
 
     private sealed class ReynoldsPolar : IPolarSource
