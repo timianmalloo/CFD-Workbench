@@ -158,8 +158,10 @@ public static class AnalysisProjection
             PolarConsistency = section?.PolarConsistency,
             WingDragNcrit2 = wing2, WingDragNcrit4 = wing4,
             FreeSurface = run.Op.HRef is { } correctionDepth ? FreeSurfaceCorrection.Evaluate(lift, wing2.Value,
+                wing4.Value,
                 run.Strips.Count > 0 ? run.Strips.Sum(strip => strip.My) : null,
-                correctionDepth, run.Reference.CRef, run.Op.Speed) : null
+                correctionDepth, run.Reference.CRef, run.Op.Speed,
+                run.Op.Speed * run.Reference.CRef / run.Water.Nu, run.Op.AlphaDeg) : null
         };
     }
 

@@ -360,6 +360,14 @@ fully turbulent bound. It exists so a wing number is available without the latti
 
 ### 5.4 Labels, basis, envelope and omissions — every one visible (A5.6, A7, A5.1, A5.4)
 
+**A5.2 free-surface correction envelope.** The JMSA-2026 [S6] fit summarized in
+[`data-and-constants.md`](../knowledge/hydrofoil-workbench/data-and-constants.md) applies at h/c 0.5–9.5,
+Re 7.3×10⁴–2.9×10⁵, Fr_h ≲ 5 and α −5°…+10°. Each exceeded axis has its own stable
+`ANA-FREE-SURFACE-*-OUTSIDE` code. The corrected drag carries the Ncrit 2/4 wing-only band,
+ordered by value. Its result always carries `ANA-FREE-SURFACE-DEPTH-ONLY` and
+`ANA-FREE-SURFACE-WAVE-DRAG-OMITTED`; the fit does not model Froude dependence and does not
+include wave-making drag. A surface-piercing station is unavailable.
+
 | Tier | Tier chip | Fixed label parts (A5.6) | Method envelope (shown beside the number; strips outside flagged) | Always with | Omissions always listed |
 |---|---|---|---|---|---|
 | Estimator | "Estimator · local calculation" | "inviscid + turbulent-friction bound; deep water; steady" | AR ≥ 4 for Prandtl, Helmbold below; sweep ≤ 15°; attached | COPY-63; method id + version | free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state |

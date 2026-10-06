@@ -11,6 +11,7 @@ internal static class OperatingSearchTests
         AnalysisChecks.Check("FindAlpha_ZeroLift_BracketedRoot", ZeroLift);
         AnalysisChecks.Check("FindTakeoff_RetrievesLoadAtEachSpeed", Takeoff);
         AnalysisChecks.Check("FreeSurface_A52_FactorsBesideDeepWater", Correction);
+        AnalysisChecks.Check("FreeSurface_A52_EachEnvelopeAxis", CorrectionEnvelope);
     }
 
     private static void TargetAlpha()
@@ -70,18 +71,42 @@ internal static class OperatingSearchTests
 
     private static void Correction()
     {
-        FreeSurfaceResult result = FreeSurfaceCorrection.Evaluate(100, 10, 5, 0.3, 0.1, 5);
+        FreeSurfaceResult result = FreeSurfaceCorrection.Evaluate(100, 10, 20, 5, 0.3, 0.1, 2, 150000, 3);
         double expectedLift = 1 - 0.45 * Math.Exp(-Math.Pow(3, 0.70));
         double expectedDrag = 1 - 0.50 * Math.Exp(-Math.Pow(3, 0.40));
         if (Math.Abs(result.Lift!.Value - 100 * expectedLift) > 1e-9 ||
-            Math.Abs(result.Drag!.Value - 10 * expectedDrag) > 1e-9 ||
+            Math.Abs(result.DragLow!.Value - 10 * expectedDrag) > 1e-9 ||
+            Math.Abs(result.DragHigh!.Value - 20 * expectedDrag) > 1e-9 ||
             Math.Abs(result.HOverC!.Value - 3) > 1e-12 || result.FroudeDepth is not > 0 || result.Id != "JMSA-2026-depth-fit")
             throw new InvalidOperationException("A5.2 depth-only correction or provenance changed");
         if (result.ModelScaleReFrom != 73000 || result.ModelScaleReTo != 290000 ||
             result.FroudeLiftLossAtHc4Fr2To5 != 0.17 || result.FroudeDependenceCode != "ANA-FREE-SURFACE-FROUDE-NOT-MODELLED")
             throw new InvalidOperationException("A5.2 evidence limits were not projected as data");
-        FreeSurfaceResult piercing = FreeSurfaceCorrection.Evaluate(100, 10, 5, 0, 0.1, 5);
+        if (!result.ModelNotes.Contains("ANA-FREE-SURFACE-DEPTH-ONLY") ||
+            !result.ModelNotes.Contains("ANA-FREE-SURFACE-WAVE-DRAG-OMITTED"))
+            throw new InvalidOperationException("A5.2 omissions are absent");
+        FreeSurfaceResult piercing = FreeSurfaceCorrection.Evaluate(100, 10, 20, 5, 0, 0.1, 2, 150000, 3);
         if (piercing.Lift is not null || piercing.ReasonCode != "ANA-FREE-SURFACE-SURFACE-PIERCING")
             throw new InvalidOperationException("surface-piercing correction returned a plausible value");
+    }
+
+    private static void CorrectionEnvelope()
+    {
+        void Outside(string axis, double depth = 0.3, double speed = 2, double reynolds = 150000,
+            double alpha = 3)
+        {
+            FreeSurfaceResult result = FreeSurfaceCorrection.Evaluate(100, 10, 20, 5, depth, 0.1,
+                speed, reynolds, alpha);
+            if (result.Lift is not null || result.DragLow is not null || result.DragHigh is not null ||
+                !result.ReasonCodes.Contains(axis))
+                throw new InvalidOperationException("outside A5.2 " + axis + " produced a supported number");
+        }
+        Outside("ANA-FREE-SURFACE-RE-OUTSIDE", reynolds: 72999);
+        Outside("ANA-FREE-SURFACE-RE-OUTSIDE", reynolds: 290001);
+        Outside("ANA-FREE-SURFACE-FROUDE-OUTSIDE", speed: 9);
+        Outside("ANA-FREE-SURFACE-ALPHA-OUTSIDE", alpha: -5.01);
+        Outside("ANA-FREE-SURFACE-ALPHA-OUTSIDE", alpha: 10.01);
+        Outside("ANA-FREE-SURFACE-DEPTH-OUTSIDE", depth: 0.049);
+        Outside("ANA-FREE-SURFACE-DEPTH-OUTSIDE", depth: 0.951);
     }
 }
