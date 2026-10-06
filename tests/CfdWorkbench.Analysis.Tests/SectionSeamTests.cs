@@ -9,6 +9,7 @@ internal static class SectionSeamTests
     {
         AnalysisChecks.Check("Section_WingRun_PanelValuesAtEveryStation", WingRows);
         AnalysisChecks.Check("Section_ProvisionalAndProjectionRows", ProjectionRows);
+        AnalysisChecks.Check("Section_SurfacePiercing_EstimatorUnavailable", Piercing);
     }
 
     private static void WingRows()
@@ -49,5 +50,23 @@ internal static class SectionSeamTests
         if (!rows.Any(row => row.Label == "Cl" && row.Value != Labels.NoPolar) ||
             !rows.Any(row => row.Label == "Cp_min" && row.Value != Labels.SectionCp))
             throw new InvalidOperationException("section projection still shows the A3a stub");
+    }
+
+    private static void Piercing()
+    {
+        AnalysisRun run = ProjectionTests.Data().Run;
+        var panel = new PanelResult([], [], -1, 200, 0.3, -0.02);
+        var estimate = new SectionEstimate(panel, 0, 0.01);
+        CavitationResult cavitation = Cavitation.Screen(-1, 200, -0.1, run.Op.Speed,
+            run.Water.Rho, run.Op.PAtm, run.Water.Pv, "η 0.5");
+        var station = new SectionStationResult(0.5, 2, 5e5, -0.1, estimate, cavitation);
+        if (station.EstimatorAvailabilityCode != Cavitation.SurfacePiercing)
+            throw new InvalidOperationException("surface-piercing station did not flag estimator unavailable");
+        var tier = new SectionTierResult([station], cavitation, 0.5, 0);
+        var projected = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric,
+            new ProjectionContext(SectionTier: tier));
+        if (projected.Groups.Single(group => group.Title == "Section (2D)").Rows.Single(row => row.Label == "Cl").Value !=
+            Cavitation.SurfacePiercing)
+            throw new InvalidOperationException("surface-piercing estimator still projected a number");
     }
 }
