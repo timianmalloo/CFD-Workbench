@@ -45,6 +45,7 @@ internal static class AnalysisChecks
             ("PolarSeam", 20, PolarSeamTests.Run),
             ("SectionSeam", 500, SectionSeamTests.Run),
             ("ProvenanceSeam", 20, ProvenanceSeamTests.Run),
+            ("PolarNumerics", 100, PolarNumericsTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)
