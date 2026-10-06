@@ -5044,7 +5044,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "972149ee0c6e8a51b3fa20b141017e79af25724a21edc7ca828e1c93f5636970"
+      "sourceSha256": "d8240424b63fd31eda891a5284a106e9c9a1b5dc339384b76f57199fa85eb9b3"
     },
     {
       "id": "domain-experts",
@@ -8387,7 +8387,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6ba3edb60677ac578928b4a17d40c4aee030af768999918c2e622105810bf09a"
+      "sourceSha256": "8908f5a29bbf71b05ec706a8a262415689d3d84cd31c5f21e1453c7182c3f802"
     },
     {
       "id": "coordination-windows-runtime-route",
@@ -14446,5 +14446,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "2bb33bba55d10c4106caa87bc399b1fbd0009cb334c49ff5b4c760fdba9876d7"
+  "graphSha256": "4ff00e1a0f7bfe9b053664c7ef31fdbedb61ec622aee38c9d93c17ca96e140d8"
 };

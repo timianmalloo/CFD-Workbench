@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="6ba3edb60677ac578928b4a17d40c4aee030af768999918c2e622105810bf09a">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="8908f5a29bbf71b05ec706a8a262415689d3d84cd31c5f21e1453c7182c3f802">
 <style>
 :root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
 body{margin:0;background:Canvas;color:CanvasText}
@@ -10,7 +10,7 @@ a{color:LinkText}a:focus-visible{outline:3px solid Highlight;outline-offset:3px}
 .table-wrap{overflow-x:auto;margin:1rem 0 2rem}table{border-collapse:collapse;min-width:720px;width:100%}th,td{border:1px solid color-mix(in srgb,CanvasText 24%,transparent);padding:.65rem;vertical-align:top;text-align:left}th{background:color-mix(in srgb,CanvasText 8%,Canvas)}
 code,pre{font: .9em/1.4 ui-monospace,SFMono-Regular,monospace}code{overflow-wrap:anywhere}pre{overflow-x:auto;padding:1rem;background:color-mix(in srgb,CanvasText 7%,Canvas);border-radius:.5rem}
 header{border-bottom:1px solid color-mix(in srgb,CanvasText 24%,transparent)}.eyebrow{font-size:.8rem;letter-spacing:.08em;text-transform:uppercase}.note{font-size:.9rem;opacity:.75}
-</style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="round-oct05.md">round-oct05.md</a> · 2026-10-05</p></header>
+</style></head><body><main><header><div class="eyebrow">CFD-Workbench / execution</div><p class="note">Canonical source: <a href="round-oct05.md">round-oct05.md</a> · 5 October 2026</p></header>
 <h1>Coordination plan: the round of 2026-10-05</h1>
 <ul>
 <li><strong>Scope:</strong> the operator&#39;s kickoff prompt rev 2 (<code>~/projects/CFD-Workbench-kickoff-2026-10-05.md</code>, approved and run
@@ -580,4 +580,207 @@ for CAD next steps.</p>
 <p><strong>Termination.</strong> Each track ends at its exit evidence, at its box (a box firing is a defect signal and stops the
 track with a report), or at its second failed repair cycle. A decision request ends at its deadline through its
 fallback. The round ends when the prompt&#39;s done-when list is met or every remaining item is waiting on the operator.</p>
-<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>6ba3edb60677ac578928b4a17d40c4aee030af768999918c2e622105810bf09a</code>.</p></footer></main></body></html>
+<h2>Planned vs actual (Stage 7, 2026-10-06)</h2>
+<p>Measured minutes are the sum of <code>duration_seconds</code> on each track session&#39;s audit entries
+(<code>docs/audit/audit-log.jsonl</code>); the box is the brief&#39;s wall budget. 47 joins recorded; <code>main</code> at <code>1914a58a</code>, readiness
+green, pushed. Requests this round: 32 raised, 30 resolved, 2 expired (<code>.agents/requests.jsonl</code>); Rulings 78–100.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>measured min</th>
+<th>box min</th>
+<th>ratio</th>
+<th>note</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A tip (workflow)</td>
+<td>30</td>
+<td>120</td>
+<td>0.25</td>
+<td>judge panel; proposal <code>docs/plans/tip-handling.md</code>, Rulings 88, 91–96</td>
+</tr>
+<tr>
+<td>B1</td>
+<td>16</td>
+<td>60</td>
+<td>0.27</td>
+<td></td>
+</tr>
+<tr>
+<td>B1b</td>
+<td>16</td>
+<td>60</td>
+<td>0.26</td>
+<td></td>
+</tr>
+<tr>
+<td>B2–B5</td>
+<td>198</td>
+<td>120</td>
+<td>1.65</td>
+<td>one session id for four tasks and five ring runs, incl. the failed Desktop split; not one overrun</td>
+</tr>
+<tr>
+<td>C</td>
+<td>17</td>
+<td>60</td>
+<td>0.28</td>
+<td>Agy stalled; Sonnet finished in the same tree</td>
+</tr>
+<tr>
+<td>D1 (A3b)</td>
+<td>56</td>
+<td>216</td>
+<td>0.26</td>
+<td>Codex at capacity; Sonnet finished</td>
+</tr>
+<tr>
+<td>D2 (SPIKE-ANA-1)</td>
+<td>3</td>
+<td>120</td>
+<td>0.02</td>
+<td><strong>under-recorded</strong>: its Return says about 33 min; the start marker was consumed out of order (AC-09 shape)</td>
+</tr>
+<tr>
+<td>A3c-1</td>
+<td>25</td>
+<td>180</td>
+<td>0.14</td>
+<td>Codex at capacity; Sonnet finished</td>
+</tr>
+<tr>
+<td>E2</td>
+<td>74</td>
+<td>90</td>
+<td>0.82</td>
+<td>repair cycle 2 reverted a grammar widening (BRIEF-FIXTURE-AGAINST-SPEC)</td>
+</tr>
+<tr>
+<td>E3</td>
+<td>14</td>
+<td>90</td>
+<td>0.15</td>
+<td></td>
+</tr>
+<tr>
+<td>E4</td>
+<td>9</td>
+<td>100</td>
+<td>0.09</td>
+<td>mockup awaits the operator</td>
+</tr>
+<tr>
+<td>DXM</td>
+<td>19</td>
+<td>100</td>
+<td>0.19</td>
+<td>mockup awaits the operator</td>
+</tr>
+<tr>
+<td>HK</td>
+<td>4</td>
+<td>45</td>
+<td>0.09</td>
+<td>hook cwd fix</td>
+</tr>
+<tr>
+<td>S1 / S2 / S4 / S6</td>
+<td>16 / 4 / 17 / 89</td>
+<td>90 / 75 / 90 / 120</td>
+<td>0.18 / 0.05 / 0.19 / 0.74</td>
+<td>S6 = W2c tip mesh, NO-GO</td>
+</tr>
+<tr>
+<td>TGL</td>
+<td>93</td>
+<td>141</td>
+<td>0.66</td>
+<td>two ownership stops</td>
+</tr>
+<tr>
+<td>CTX</td>
+<td>26</td>
+<td>75</td>
+<td>0.35</td>
+<td></td>
+</tr>
+<tr>
+<td>HIST</td>
+<td>9</td>
+<td>90</td>
+<td>0.10</td>
+<td></td>
+</tr>
+<tr>
+<td>LAY</td>
+<td>39</td>
+<td>141</td>
+<td>0.28</td>
+<td>two ownership stops</td>
+</tr>
+<tr>
+<td>PNA</td>
+<td>49</td>
+<td>147</td>
+<td>0.33</td>
+<td></td>
+</tr>
+<tr>
+<td>AUX</td>
+<td>17</td>
+<td>90</td>
+<td>0.19</td>
+<td></td>
+</tr>
+<tr>
+<td>LIM</td>
+<td>27</td>
+<td>150</td>
+<td>0.18</td>
+<td></td>
+</tr>
+<tr>
+<td>SEAM</td>
+<td>86</td>
+<td>180</td>
+<td>0.48</td>
+<td>one schema stop, answered by Ruling 100</td>
+</tr>
+<tr>
+<td>POL</td>
+<td>32</td>
+<td>120</td>
+<td>0.27</td>
+<td>6 of 7 items; Properties scroll partial</td>
+</tr>
+<tr>
+<td>CI</td>
+<td>15</td>
+<td>90</td>
+<td>0.17</td>
+<td>4 classes, 3 controls, 1 hook proposal</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>5</td>
+<td>60</td>
+<td>0.08</td>
+<td></td>
+</tr>
+</tbody></table></div>
+<p><strong>What paid.</strong> Most tracks ran at 0.1–0.5 of the box, which matches the 0.36 median of the previous build, so boxes
+are still about 2–3× too large for Sonnet build tracks. The parallelism that paid was machine time: with the ring lock (2
+slots), POL and CI built and tested at the same time, and both joins&#39; rings recorded 0 COST-MISS (CI&#39;s own ring had
+one C-5 miss at load 21.66 that did not recur at the join). Track splits that did
+not pay: TGL and LAY each stopped twice on files outside their ownership (OWNERSHIP-MISSES-DATA-SOURCE, aid
+<code>tools/trace-brief.py</code>). Harness substitutions: Agy (C) and Codex (D1, A3c-1) each failed once, and Sonnet finished in
+the same tree; Sonnet carried every later build track.</p>
+<p><strong>Join friction.</strong> <code>docs/docs-index.js</code> conflicted on every join until <code>coord install</code> bound the derived and register
+patterns (DERIVED-UNBOUND, <code>90cf9f94</code>); after that, two joins (POL, CI) stopped at step 4 because the checks ran before
+the owed regeneration (JOIN-CHECK-BEFORE-REGEN). <code>join.json</code> now regenerates first, guarded by TEST-RING.</p>
+<p><strong>Next plan inputs.</strong> Box Sonnet build tracks at about 0.4× today&#39;s estimate; run <code>tools/trace-brief.py</code> before every
+dispatch; mark <code>audit-log.py start</code> again on any resumed node; give each task its own session id so B2-style pooling
+does not hide per-task cost.</p>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>8908f5a29bbf71b05ec706a8a262415689d3d84cd31c5f21e1453c7182c3f802</code>.</p></footer></main></body></html>

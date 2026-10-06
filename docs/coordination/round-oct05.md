@@ -190,3 +190,53 @@ for CAD next steps.
 **Termination.** Each track ends at its exit evidence, at its box (a box firing is a defect signal and stops the
 track with a report), or at its second failed repair cycle. A decision request ends at its deadline through its
 fallback. The round ends when the prompt's done-when list is met or every remaining item is waiting on the operator.
+
+## Planned vs actual (Stage 7, 2026-10-06)
+
+Measured minutes are the sum of `duration_seconds` on each track session's audit entries
+(`docs/audit/audit-log.jsonl`); the box is the brief's wall budget. 47 joins recorded; `main` at `1914a58a`, readiness
+green, pushed. Requests this round: 32 raised, 30 resolved, 2 expired (`.agents/requests.jsonl`); Rulings 78–100.
+
+| track | measured min | box min | ratio | note |
+|---|---|---|---|---|
+| A tip (workflow) | 30 | 120 | 0.25 | judge panel; proposal `docs/plans/tip-handling.md`, Rulings 88, 91–96 |
+| B1 | 16 | 60 | 0.27 | |
+| B1b | 16 | 60 | 0.26 | |
+| B2–B5 | 198 | 120 | 1.65 | one session id for four tasks and five ring runs, incl. the failed Desktop split; not one overrun |
+| C | 17 | 60 | 0.28 | Agy stalled; Sonnet finished in the same tree |
+| D1 (A3b) | 56 | 216 | 0.26 | Codex at capacity; Sonnet finished |
+| D2 (SPIKE-ANA-1) | 3 | 120 | 0.02 | **under-recorded**: its Return says about 33 min; the start marker was consumed out of order (AC-09 shape) |
+| A3c-1 | 25 | 180 | 0.14 | Codex at capacity; Sonnet finished |
+| E2 | 74 | 90 | 0.82 | repair cycle 2 reverted a grammar widening (BRIEF-FIXTURE-AGAINST-SPEC) |
+| E3 | 14 | 90 | 0.15 | |
+| E4 | 9 | 100 | 0.09 | mockup awaits the operator |
+| DXM | 19 | 100 | 0.19 | mockup awaits the operator |
+| HK | 4 | 45 | 0.09 | hook cwd fix |
+| S1 / S2 / S4 / S6 | 16 / 4 / 17 / 89 | 90 / 75 / 90 / 120 | 0.18 / 0.05 / 0.19 / 0.74 | S6 = W2c tip mesh, NO-GO |
+| TGL | 93 | 141 | 0.66 | two ownership stops |
+| CTX | 26 | 75 | 0.35 | |
+| HIST | 9 | 90 | 0.10 | |
+| LAY | 39 | 141 | 0.28 | two ownership stops |
+| PNA | 49 | 147 | 0.33 | |
+| AUX | 17 | 90 | 0.19 | |
+| LIM | 27 | 150 | 0.18 | |
+| SEAM | 86 | 180 | 0.48 | one schema stop, answered by Ruling 100 |
+| POL | 32 | 120 | 0.27 | 6 of 7 items; Properties scroll partial |
+| CI | 15 | 90 | 0.17 | 4 classes, 3 controls, 1 hook proposal |
+| docs | 5 | 60 | 0.08 | |
+
+**What paid.** Most tracks ran at 0.1–0.5 of the box, which matches the 0.36 median of the previous build, so boxes
+are still about 2–3× too large for Sonnet build tracks. The parallelism that paid was machine time: with the ring lock (2
+slots), POL and CI built and tested at the same time, and both joins' rings recorded 0 COST-MISS (CI's own ring had
+one C-5 miss at load 21.66 that did not recur at the join). Track splits that did
+not pay: TGL and LAY each stopped twice on files outside their ownership (OWNERSHIP-MISSES-DATA-SOURCE, aid
+`tools/trace-brief.py`). Harness substitutions: Agy (C) and Codex (D1, A3c-1) each failed once, and Sonnet finished in
+the same tree; Sonnet carried every later build track.
+
+**Join friction.** `docs/docs-index.js` conflicted on every join until `coord install` bound the derived and register
+patterns (DERIVED-UNBOUND, `90cf9f94`); after that, two joins (POL, CI) stopped at step 4 because the checks ran before
+the owed regeneration (JOIN-CHECK-BEFORE-REGEN). `join.json` now regenerates first, guarded by TEST-RING.
+
+**Next plan inputs.** Box Sonnet build tracks at about 0.4× today's estimate; run `tools/trace-brief.py` before every
+dispatch; mark `audit-log.py start` again on any resumed node; give each task its own session id so B2-style pooling
+does not hide per-task cost.
