@@ -63,7 +63,6 @@ public static class PropertiesCellsTests
     public static void Run()
     {
         GestureLimitTests.RunPane();
-        GroupDragTests.RunPane();
         Pane("PropertiesPane_B_EditableValueHasDottedUnderline", (controller, host, window) =>
         {
             // CL-3, SC 1.4.1: an editable value carries a dotted underline under its text, measured on pixels at 1× and 2×

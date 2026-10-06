@@ -12,7 +12,7 @@ namespace CfdWorkbench.Desktop.Tests;
 
 // Design group-move-node-m §9 (Desktop rows), Rulings 107, 111, 116: select several points of one curve and drag, nudge or type
 // a value to move them as one rigid, undoable group. Controller checks need no window (ring --controller-shell, tens of ms each);
-// the pane, canvas and elevation checks open the Example foil in a window (ring --properties-cells, one window each).
+// the pane, canvas and elevation checks open the Example foil in a window (readiness ring: 0.8-2.3 s each, over the ~500 ms a join ring may spend).
 // Wording asserted: COPY-G1..G12 and design §5a as approved by Ruling 116.
 public static class GroupDragTests
 {
@@ -178,18 +178,22 @@ public static class GroupDragTests
         DesktopChecks.Check("GroupNudge_TenPressesPastLimit_OneAnnouncement_OneUndoRow", () =>
         {
             using var c = Example();
+            Require(c.ApplyChordAsync("tip-chord", "8").GetAwaiter().GetResult() is CommitOutcome.Committed, "fixture: the 8 mm tip was refused");
             string before = c.AcceptedSource;
             Pick(c, "trailing", 3, 6);
+            double three = At(c, "trailing", 3).Ordinate, tip = At(c, "trailing", 6).Ordinate;
             Require(c.BeginGesture(Ref(c, "trailing", 3), GestureInput.Keyboard), "begin refused");
             var held = new List<long>();
-            for (int press = 0; press < 130; press++)
+            for (int press = 0; press < 16; press++)
             {
                 c.Nudge(0, -1, NudgeModifier.Shift);
                 if (c.Status == Tip) held.Add(c.StatusVersion);
             }
-            Require(c.GestureLimit is { Kind: GestureLimitKind.TipMinimum } && held.Count > 10, "the run never reached the limit");
+            Require(c.GestureLimit is { Kind: GestureLimitKind.TipMinimum } && held.Count >= 10, "the run never reached the limit");
             Require(held.Distinct().Count() == 1, $"the hold was written {held.Distinct().Count()} times; it is one announcement");
-            Require(Math.Abs(At(c, "trailing", 6).Ordinate - 0.005) < 1.1e-6 && Math.Abs(At(c, "trailing", 3).Ordinate - 0.005) < 1.1e-6, "held values");
+            double heldTip = At(c, "leading", 6).Ordinate + 0.005;   // a 5 mm chord behind the leading tip
+            Require(Math.Abs(At(c, "trailing", 6).Ordinate - heldTip) < 1.1e-6 && Math.Abs(At(c, "trailing", 3).Ordinate - (three + heldTip - tip)) < 1.1e-6,
+                $"held values: tip {At(c, "trailing", 6).Ordinate}, three {At(c, "trailing", 3).Ordinate}, was {three}/{tip}");
             c.EndGestureAsync(GestureEnd.KeyUp).GetAwaiter().GetResult();
             c.Undo();
             Require(c.AcceptedSource == before, "one Undo did not restore the whole run");
@@ -319,7 +323,7 @@ public static class GroupDragTests
         bitmap.Save(Path.Combine(dir, name + ".png"));
     }
 
-    public static void RunPane()
+    public static void RunReadiness()
     {
         // The mockup captures cost ~8 s, so they are registered only when asked for (GRP_CAPTURE_DIR), never in the ring.
         if (Environment.GetEnvironmentVariable("GRP_CAPTURE_DIR") is { Length: > 0 }) Check("GroupDrag_Captures_AgainstTheMockup", rig =>
