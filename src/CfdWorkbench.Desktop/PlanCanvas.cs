@@ -926,7 +926,7 @@ public sealed class PlanCanvas : Control
             using (context.PushOpacity(.25)) context.DrawGeometry(foil, null, fill);
         }
         if (Controller?.IsAnalysis == true && Controller.LayerSet.FirstOrDefault(l => l.Id == "plan-gamma") is { } gamma)
-            PlanLoadLayer.Draw(context, map, plan, gamma, Bounds.Size, foil, SoftBrush ?? Brushes.Black, WarningBrush ?? foil);
+            PlanLoadLayer.Draw(context, map, plan, gamma, Bounds.Size, foil, SoftBrush ?? Brushes.Black, WarningBrush ?? foil, this);
         foreach (var rail in new[] { plan.Leading, plan.Trailing })
         {
             foreach (double side in new[] { -1d, 1d })

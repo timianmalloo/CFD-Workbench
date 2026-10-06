@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Automation;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
+using Avalonia.Media;
 using Avalonia.Threading;
 
 namespace CfdWorkbench.Desktop.Tests;
@@ -14,6 +15,16 @@ public static class AnalysisLayerTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("PlanLayer_BatlowBrushes_MatchDesignTokens", () =>
+        {
+            var styles = (Avalonia.Styling.Styles)Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(
+                new Uri("avares://CfdWorkbench.Desktop/Styles.axaml"), null);
+            string[] tokens = ["#011959", "#215f61", "#818232", "#f19d6b", "#faccfa"];
+            for (int i = 0; i < tokens.Length; i++)
+                if (!styles.TryGetResource($"Batlow{i}Brush", Avalonia.Styling.ThemeVariant.Light, out var value) ||
+                    value is not ISolidColorBrush brush || brush.Color != Color.Parse(tokens[i]))
+                    throw new Exception($"Batlow{i}Brush does not match DESIGN.md batlow-{i}.");
+        });
         DesktopChecks.Check("PlanLayer_OutsideStrips_DashedOutlineAndCount", () =>
         {
             var layer = new LayerData("plan-gamma", "Γ per strip", true, "Γ · batlow 1.0 · run 123", "strips-table")
