@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Group move and typed value</title>
+<!--
+  Review mockup for the operator's approval before any build (docs/design/group-move-node-m.md, track E4).
+  Shows moving several selected points as one gesture, the Ruling 96 hold for a group that includes an end vertex, the typed
+  value for several points (three variants side by side), the keyboard run, and the hard states.
+  Every number is computed in this page from the Example foil (450 mm half-span, 120 mm root chord) and the rule
+  max(5 mm, 2 % of the root chord). The pointer and point positions are scripted, not captured from the product.
+  Display only; nothing is built from this page. Tokens follow cad-limits-in-gesture.html and design-language.md.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --on-accent:#ffffff; --sel:#d8eeea; --warn:#895900; --danger:#a92e37; --ok:#24653f; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --on-accent:#172326; --sel:#274c47; --warn:#efc576; --danger:#ffaeb5; --ok:#92d1a5; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --vp-grid:#344b50; --foil:#85c9c4; --foil-edge:#c4e7df; --warn-vp:#efc576; --danger-vp:#ffaeb5; --pt:#edf4f2; --sel-vp:#66ddc8; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button, input{ font:inherit; color:inherit; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:22px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
+.harness{ margin-left:auto; display:flex; gap:8px; align-items:center; }
+.harness button{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.audit{ flex-basis:100%; font-size:12px; color:var(--mute); }
+.audit b.pass{ color:var(--ok); } .audit b.fail{ color:var(--danger); }
+main{ padding:16px 20px 40px; max-width:1360px; }
+section.screen{ margin:0 0 30px; }
+.screen h2{ margin:0 0 4px; font-size:18px; }
+.what{ margin:0 0 10px; max-width:1100px; font-size:12px; color:var(--mute); }
+.what b{ color:var(--ink); font-weight:600; }
+.row{ display:grid; grid-template-columns:repeat(auto-fit, minmax(400px, 1fr)); gap:12px; align-items:start; }
+.card{ background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:10px 12px 12px; min-width:0; }
+.card h3{ margin:0 0 2px; font-size:15px; }
+.card .tag{ margin:0 0 8px; color:var(--mute); font-size:12px; }
+.card .reco{ display:inline-block; margin-left:6px; padding:0 6px; border:1px solid var(--accent); border-radius:4px; color:var(--accent); font-size:12px; font-weight:600; }
+.frame{ margin:8px 0 0; }
+.frame .cap{ margin:0 0 3px; font-size:12px; font-weight:600; }
+.vp{ background:var(--vp); border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+.vp svg{ display:block; width:100%; height:auto; }
+.vp text{ fill:var(--vp-ink); font:12px var(--font); }
+.vp .mute{ fill:var(--vp-mute); }
+.vp .wing{ fill:var(--foil); fill-opacity:.28; stroke:none; }
+.vp .edge{ fill:none; stroke:var(--foil-edge); stroke-width:1.5; }
+.vp .zone{ fill:var(--danger-vp); fill-opacity:.22; }
+.vp .limit{ stroke:var(--warn-vp); stroke-width:1.5; stroke-dasharray:6 4; }
+.vp .limit-t{ fill:var(--warn-vp); font-weight:600; }
+.vp .vertex{ fill:var(--pt); stroke:var(--vp); stroke-width:1.5; }
+.vp .vertex.sel{ fill:var(--vp); stroke:var(--sel-vp); stroke-width:2.5; }
+.vp .vertex.bind{ stroke:var(--warn-vp); }
+.vp .ptr{ fill:none; stroke:var(--vp-ink); stroke-width:1.5; }
+.vp .tether{ stroke:var(--vp-mute); stroke-width:1; stroke-dasharray:2 3; }
+.vp .ghost{ fill:none; stroke:var(--vp-mute); stroke-width:1; stroke-dasharray:3 3; }
+.vp .lock{ fill:var(--warn-vp); }
+.wing-block{ margin:6px 0 0; border:1px solid var(--line); border-radius:4px; background:var(--surface); font-size:12px; }
+.wing-block div{ display:flex; justify-content:space-between; gap:8px; padding:3px 8px; border-top:1px solid var(--line); }
+.wing-block div:first-child{ border-top:0; font-weight:600; }
+.wing-block span:last-child{ font-variant-numeric:tabular-nums; text-align:right; }
+.wing-block .lim span:last-child{ color:var(--warn); font-weight:600; }
+.wing-block .bad span:last-child{ color:var(--danger); font-weight:600; }
+.wing-block .hl span:last-child{ font-weight:600; }
+.wing-block .dim span{ color:var(--mute); }
+.strip{ margin:6px 0 0; padding:5px 8px; border:1px solid var(--line); border-left:3px solid var(--control); border-radius:4px; background:var(--soft); font-size:12px; min-height:30px; }
+.strip.warn{ border-left-color:var(--warn); } .strip.err{ border-left-color:var(--danger); } .strip.ok{ border-left-color:var(--ok); }
+.strip small{ display:block; color:var(--mute); font-size:12px; }
+.pc{ margin:8px 0 0; padding:0; list-style:none; font-size:12px; }
+.pc li{ margin:0 0 2px; padding-left:16px; position:relative; }
+.pc li::before{ content:"+"; position:absolute; left:2px; color:var(--ok); font-weight:700; }
+.pc li.con::before{ content:"\2212"; color:var(--danger); }
+.pane{ margin:8px 0 0; border:1px solid var(--line); border-radius:4px; background:var(--surface); font-size:12px; }
+.pane .id{ padding:5px 8px; font-weight:600; border-bottom:1px solid var(--line); background:var(--sel); }
+.pane .id small{ display:block; font-size:12px; font-weight:400; color:var(--mute); }
+.pane .rw{ display:grid; grid-template-columns:84px 1fr; gap:2px 8px; align-items:center; padding:5px 8px; border-top:1px solid var(--line); }
+.pane .rw:first-of-type{ border-top:0; }
+.pane .rw label, .pane .rw .lab{ color:var(--mute); }
+.pane .ctl{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; min-width:0; }
+.pane input{ width:92px; min-height:26px; padding:0 6px; border:1px solid var(--control); border-radius:4px; background:var(--surface); text-align:right; font-variant-numeric:tabular-nums; }
+.pane input::placeholder{ color:var(--mute); opacity:1; }
+.pane input[aria-invalid="true"]{ border-color:var(--danger); border-width:2px; }
+.pane .ro{ min-height:26px; display:inline-flex; align-items:center; padding:0 6px; color:var(--mute); }
+.pane .unit{ color:var(--mute); }
+.pane .hint{ grid-column:2; color:var(--mute); }
+.pane .msg{ grid-column:2; color:var(--danger); }
+.pane .echo{ grid-column:2; color:var(--ok); }
+.seg{ display:inline-flex; border:1px solid var(--control); border-radius:4px; overflow:hidden; }
+.seg button{ min-height:26px; padding:0 8px; border:0; background:var(--surface); cursor:pointer; }
+.seg button + button{ border-left:1px solid var(--control); }
+.seg button[aria-pressed="true"]{ background:var(--accent); color:var(--on-accent); font-weight:600; }
+.act{ min-height:26px; padding:0 8px; border:1px solid var(--accent); border-radius:4px; background:var(--surface); color:var(--accent); font-weight:600; cursor:pointer; }
+table.t{ border-collapse:collapse; width:100%; font-size:12px; font-variant-numeric:tabular-nums; }
+table.t th, table.t td{ padding:3px 6px; border-top:1px solid var(--line); text-align:left; }
+table.t th{ color:var(--mute); font-weight:600; }
+table.t tr.held td{ color:var(--warn); font-weight:600; }
+.choices{ max-width:1100px; font-size:12px; } .choices h2{ font-size:18px; margin:0 0 6px; } .choices li{ margin:0 0 6px; }
+.choices code{ font-family:ui-monospace, Menlo, Consolas, monospace; font-size:12px; }
+.live{ margin:6px 0 0; font-size:12px; color:var(--mute); }
+</style>
+</head>
+<body>
+<header class="top">
+  <div><h1>Group move and typed value</h1><p>Proposal for node M (several points) · mockup for approval before any build · Example foil, trailing-edge rail</p></div>
+  <div class="harness">
+    <button id="theme" type="button" aria-pressed="false">Dark theme</button>
+    <button id="narrow" type="button" aria-pressed="false">Narrow (560 px)</button>
+  </div>
+  <div class="audit" id="audit" role="status">Checking…</div>
+</header>
+<main id="screens">
+
+<section class="screen" aria-labelledby="s1">
+  <h2 id="s1">1 · Drag a group to the tip limit: three ways to hold</h2>
+  <p class="what"><b>Same gesture in each column.</b> Points 9 and 10 of the trailing-edge rail are selected; point 10 is the tip vertex. The pointer grabs point 10 and drags toward the leading edge, 28 mm up. The rule is max(5 mm, 2 % of the root chord), so the limit is <span data-v="limit"></span> mm. The drawing is the outer 60 mm of the half-wing at 6 px per mm. Ruling 96 says a group that includes an end vertex holds the whole group. Column A does that. Column B holds only the limited point. Column C is what a group selection does today.</p>
+  <div class="row" id="variants"></div>
+</section>
+
+<section class="screen" aria-labelledby="s2">
+  <h2 id="s2">2 · Typed value for several points: set-all, move-by, or both</h2>
+  <p class="what"><b>Three points selected</b> on the trailing-edge rail: points 8, 9 and 10 (From root 390, 420 and 450 mm; aft 36, 33 and 30 mm). Both rows read Mixed because the values differ. The columns are the choice in DR-GM-2. A shared value is shown as a value, not as Mixed (spec: "shared values, Mixed where they differ").</p>
+  <div class="row" id="typed"></div>
+</section>
+
+<section class="screen" aria-labelledby="s3">
+  <h2 id="s3">3 · Typed refusals: nothing is rewritten, and the way out is one click</h2>
+  <p class="what"><b>Same rule as a single point.</b> The typed text stays and the field is marked invalid. Geometry and undo depth do not change. A <b>Use</b> action offers the nearest allowed value and is never applied by itself (Ruling 96).</p>
+  <div class="row" id="refusals"></div>
+</section>
+
+<section class="screen" aria-labelledby="s4">
+  <h2 id="s4">4 · Keyboard: arrows move the whole selection, hold at the limit, one announcement</h2>
+  <p class="what"><b>Shift+Down moves every selected point 1 mm per press</b> (the channel ladder: 0.01 · 0.1 · 1 mm for Command, plain, Shift). Points 9 and 10 are selected; the tip starts at 8 mm. Presses past the limit do not bank steps, so one Up press moves the group back at once. The strip speaks on arrival at the limit, and again when a nudge frees the hold and a later one meets it. Key-up ends the run as one undo step.</p>
+  <div class="row"><div class="card"><h3>Ten presses: six Down, one Up, three Down</h3><p class="tag">Computed with the same rule as the other screens</p><div id="keys"></div><p class="live">Live region text, spoken at the arrival rows: “Tip chord is at its minimum, <span data-v="limit"></span> mm.” Focus stays on the focused point; the other selected points are not announced one by one.</p></div></div>
+</section>
+
+<section class="screen" aria-labelledby="s5">
+  <h2 id="s5">5 · Hard states</h2>
+  <p class="what"><b>Under the recommended choices.</b> Each card is a state the build must render.</p>
+  <div class="row" id="hard"></div>
+</section>
+
+<section class="choices" aria-labelledby="s6">
+  <h2 id="s6">Choices for the operator</h2>
+  <ol>
+    <li><b>DR-GM-1 which points can move together.</b> A one curve at a time (recommended first slice) · B the two planform rails together, so the tip can be swept as one move · C any selection.</li>
+    <li><b>DR-GM-2 typed value.</b> A set-all only · B move-by only · C both, chosen per row, with Aft and value rows defaulting to Set to and From root fixed to Move by (recommended).</li>
+    <li><b>DR-GM-3 how a group holds.</b> A the whole group holds as one rigid body for every limit (recommended; Ruling 96 for the tip) · B only the limited point holds and the group deforms.</li>
+    <li><b>DR-GM-4 press on a selected point.</b> A drags the whole selection; a click without a drag collapses to that point on release (recommended) · B drags only the pressed point, as today.</li>
+    <li><b>DR-GM-5 a point that cannot move on one axis.</b> A the group holds on that axis and moves on the other (recommended) · B refuse the whole move · C leave that point behind.</li>
+    <li><b>DR-GM-6 a handle whose anchor is not selected.</b> A refuse the group move and say why (recommended) · B leave the handle out · C move it anyway.</li>
+    <li><b>DR-GM-7 copy</b> COPY-G1 to COPY-G12 as drawn here.</li>
+    <li><b>DR-GM-8 spec</b> retire the node M note and add the CAD-04 group clause.</li>
+    <li><b>DR-GM-9 order.</b> Build this after the limit increment, or take comb scale and monotone count first.</li>
+  </ol>
+  <p class="what">Full note: <code>docs/design/group-move-node-m.md</code>.</p>
+</section>
+</main>
+
+<script>
+'use strict';
+// ---- the rule (Core: TipChord.MinimumMeters / Admits), restated in mm for display ----
+const ROOT = 120, TIP_AFT = 30, TIP_SPAN = 450;
+const minTip = root => Math.max(5, 0.02 * root);
+const LIMIT = minTip(ROOT);
+const f = (v, d = 2) => v.toFixed(d);
+const sgn = v => (v >= 0 ? '+' : '−') + f(Math.abs(v));
+const leTip = 0;                                            // leading-edge rail is straight in this window; tip chord = TE aft - LE aft
+const chordOf = pts => pts[pts.length - 1].y - leTip;
+
+// ---- group semantics (what Core must implement): every member moves by one delta; the delta is clamped as a unit ----
+// pts: rail points, outer window; sel: indices that move. Returns the delta (aft, mm) after the hold.
+function holdRigid(pts, sel, dAft, limit = LIMIT){
+  let lo = -Infinity;
+  sel.forEach(i => { if (i === pts.length - 1) lo = Math.max(lo, limit - pts[i].y); });
+  return Math.max(dAft, lo);
+}
+function applyRigid(pts, sel, dAft, limit = LIMIT){ const d = holdRigid(pts, sel, dAft, limit); return pts.map((p, i) => ({ ...p, y: sel.includes(i) ? p.y + d : p.y })); }
+function applyPerMember(pts, sel, dAft){        // variant B: each point clamps alone
+  return pts.map((p, i) => {
+    if (!sel.includes(i)) return { ...p };
+    const y = p.y + dAft;
+    return { ...p, y: i === pts.length - 1 ? Math.max(y, LIMIT) : y };
+  });
+}
+const BASE = [{ x: 0, y: 36, id: 8 }, { x: 30, y: 33, id: 9 }, { x: 60, y: 30, id: 10 }];
+const SEL = [1, 2], DRAG = -28;
+
+// ---- drawing ----
+function railSvg(o){
+  const S = 6, x0 = 20, y0 = 26, W = 62 * S + 60, H = 40 * S + 44;
+  const X = mm => x0 + mm * S, Y = mm => y0 + mm * S;
+  const pts = o.pts;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label}">`;
+  s += `<text class="mute" x="${x0}" y="16">Leading edge</text>`;
+  const te = pts.map(p => `${X(p.x)},${Y(p.y)}`).join(' ');
+  s += `<polygon class="wing" points="${X(0)},${Y(0)} ${X(60)},${Y(0)} ${pts.slice().reverse().map(p => `${X(p.x)},${Y(p.y)}`).join(' ')}"/>`;
+  s += `<line class="edge" x1="${X(0)}" y1="${Y(0)}" x2="${X(60)}" y2="${Y(0)}"/><polyline class="edge" points="${te}"/>`;
+  if (o.zone) s += `<rect class="zone" x="${X(0)}" y="${Y(0)}" width="${60 * S + 18}" height="${LIMIT * S}"/>`;
+  if (o.marker){
+    s += `<line class="limit" x1="${X(0)}" x2="${X(60) + 22}" y1="${Y(LIMIT)}" y2="${Y(LIMIT)}"/>`;
+    s += `<text class="limit-t" x="${X(0) + 2}" y="${Y(LIMIT) + 15}">Minimum tip chord ${f(LIMIT, 0)} mm</text>`;
+  }
+  (o.ghost || []).forEach(g => { s += `<polyline class="ghost" points="${g.map(p => `${X(p.x)},${Y(p.y)}`).join(' ')}"/>`; });
+  if (o.pointer !== undefined){
+    const tip = pts[pts.length - 1];
+    if (Math.abs(o.pointer - tip.y) > 0.01) s += `<line class="tether" x1="${X(60)}" x2="${X(60)}" y1="${Y(tip.y)}" y2="${Y(o.pointer)}"/><circle class="ptr" cx="${X(60)}" cy="${Y(o.pointer)}" r="7"/>`;
+  }
+  pts.forEach((p, i) => {
+    const sel = (o.sel || []).includes(i), bind = o.bind === i;
+    s += `<rect class="vertex ${sel ? 'sel' : ''} ${bind ? 'bind' : ''}" x="${X(p.x) - 6}" y="${Y(p.y) - 6}" width="12" height="12"/>`;
+    s += `<text class="mute" x="${X(p.x) - 4}" y="${Y(p.y) + 24}">${p.id}</text>`;
+  });
+  s += `<text class="mute" x="${x0}" y="${H - 8}">${o.foot || 'Plan, outer 60 mm of the half-wing · 6 px per mm · selected points are rings'}</text>`;
+  return s + '</svg>';
+}
+function wingBlock(tip, cls, note, sel){
+  return `<div class="wing-block" aria-label="Wing estimates"><div><span>Wing</span><span>Example foil</span></div>
+  <div><span>Selected</span><span>${sel || '2 points'}</span></div>
+  <div><span>Root chord</span><span>${ROOT} mm</span></div>
+  <div class="hl ${cls || ''}"><span>Tip chord</span><span>${f(tip)} mm${note ? ' · ' + note : ''}</span></div>
+  <div class="dim"><span>Other estimates</span><span>update live (not modelled here)</span></div></div>`;
+}
+const strip = (cls, text, small) => `<div class="strip ${cls}" role="status">${text}${small ? `<small>${small}</small>` : ''}</div>`;
+const capd = (cap, body, st) => `<div class="frame"><p class="cap">${cap}</p>${body}${st || ''}</div>`;
+const frame = (cap, svg, wb, st) => `<div class="frame"><p class="cap">${cap}</p><div class="vp">${svg}</div>${wb || ''}${st || ''}</div>`;
+const list = (pros, cons) => `<ul class="pc">${pros.map(t => `<li>${t}</li>`).join('')}${cons.map(t => `<li class="con">${t}</li>`).join('')}</ul>`;
+
+// ---- screen 1 ----
+const ptsA = applyRigid(BASE, SEL, DRAG), ptsB = applyPerMember(BASE, SEL, DRAG);
+const ptrY = BASE[2].y + DRAG;
+const VARIANTS = [
+  { id: 'A', title: 'A · The whole group holds', reco: true, tag: 'The group moves as one rigid body and stops when the tip reaches the limit. The pointer ring and tether show the gap.',
+    html: frame('During the drag, pointer 28 mm up',
+        railSvg({ label: 'Variant A during the drag: both selected points held, the shape between them kept', pts: ptsA, sel: SEL, bind: 2, pointer: ptrY, marker: true, zone: true, ghost: [BASE] }),
+        wingBlock(chordOf(ptsA), 'lim', 'minimum'), strip('warn', 'Tip chord is at its minimum, ' + f(LIMIT, 0) + ' mm.', 'The ring at point 10 marks the point that holds the group.')) +
+      frame('After release',
+        railSvg({ label: 'Variant A after release: the held group is committed', pts: ptsA, sel: SEL }),
+        wingBlock(chordOf(ptsA), 'hl'), strip('ok', 'Moved 2 trailing edge points. Tip chord ' + f(chordOf(ptsA)) + ' mm.', 'One undo step. Undo restores both points exactly.')),
+    pros: ['The shape the designer moved stays the shape they moved: spacing between the selected points is unchanged.', 'Every frame is a wing the product accepts, so release cannot fail (Ruling 96).', 'Same rule for tip, root, neighbours and channel limits.'],
+    cons: ['Point 9 stops short of where the pointer would put it; the tether and the ring must explain it.'] },
+  { id: 'B', title: 'B · Only the limited point holds', tag: 'Point 10 stops at the limit. Point 9 keeps following the pointer, so the group squashes.',
+    html: frame('During the drag, pointer 28 mm up',
+        railSvg({ label: 'Variant B during the drag: the tip held, point 9 still moving', pts: ptsB, sel: SEL, bind: 2, pointer: ptrY, marker: true, zone: true, ghost: [BASE] }),
+        wingBlock(chordOf(ptsB), 'lim', 'minimum'), strip('warn', 'Tip chord is at its minimum, ' + f(LIMIT, 0) + ' mm.')) +
+      frame('After release',
+        railSvg({ label: 'Variant B after release: a deformed edge is committed', pts: ptsB, sel: SEL }),
+        wingBlock(chordOf(ptsB), 'hl'), strip('ok', 'Moved 2 trailing edge points. Tip chord ' + f(chordOf(ptsB)) + ' mm.', 'One undo step.')),
+    pros: ['Point 9 follows the pointer further.'],
+    cons: ['The designer asked for a move and gets a reshape: the gap between points 9 and 10 changes from ' + f(BASE[1].y - BASE[2].y) + ' mm to ' + f(ptsB[1].y - ptsB[2].y) + ' mm.', 'Contradicts Ruling 96, which holds the whole group.', 'More than one rule for what moves with the pointer.'] },
+  { id: 'C', title: 'C · Today: a click collapses the group', tag: 'Pressing a selected point selects only that point, then drags it alone (as built: SelectPoint replaces the selection).',
+    html: frame('During the drag, pointer 28 mm up',
+        railSvg({ label: 'Today: only the pressed point moves; the other selected point stays', pts: applyPerMember(BASE, [2], DRAG), sel: [2], pointer: ptrY, marker: true, zone: true, ghost: [BASE] }),
+        wingBlock(chordOf(applyPerMember(BASE, [2], DRAG)), 'lim', 'minimum', '1 point'), strip('warn', 'Tip chord is at its minimum, ' + f(LIMIT, 0) + ' mm.', 'This holds once the limit increment is built. Point 9 was deselected by the press.')),
+    pros: ['Nothing to build.'],
+    cons: ['A multi-selection can be made but not moved; Properties shows Mixed and read-only.', 'The designer must move points one at a time and re-judge the shape each time.'] }
+];
+document.getElementById('variants').innerHTML = VARIANTS.map(v =>
+  `<div class="card"><h3>${v.title}${v.reco ? '<span class="reco">Recommended</span>' : ''}</h3><p class="tag">${v.tag}</p>${v.html}${list(v.pros, v.cons)}</div>`).join('');
+
+// ---- screen 2: typed value ----
+const T = [{ from: 390, aft: 36, id: 8 }, { from: 420, aft: 33, id: 9 }, { from: 450, aft: 30, id: 10 }];
+const same = a => a.every(v => v === a[0]);
+const shared = k => same(T.map(p => p[k])) ? f(T[0][k]) : '';
+const echoSet = v => `Set aft of 3 points to ${f(v)} mm.`;
+const echoMove = v => `Moved 3 points by ${sgn(v)} mm.`;
+function pane(o){
+  const rows = o.rows.map(r => `<div class="rw"><span class="lab">${r.label}</span><span class="ctl">${r.ctl}</span>${r.hint ? `<span class="hint">${r.hint}</span>` : ''}${r.msg ? `<span class="msg">${r.msg}</span>` : ''}${r.echo ? `<span class="echo">${r.echo}</span>` : ''}</div>`).join('');
+  return `<div class="pane" aria-label="Properties"><div class="id">${o.title}<small>${o.crumb}</small></div>${rows}</div>`;
+}
+const inp = (id, label, value, ph, invalid, desc) => `<input id="${id}" aria-label="${label}" value="${value}" placeholder="${ph || ''}" ${invalid ? 'aria-invalid="true"' : ''} ${desc ? `aria-describedby="${desc}"` : ''}><span class="unit">mm</span>`;
+const segm = (id, a, b, on) => `<span class="seg" role="group" aria-label="${id}"><button type="button" aria-pressed="${on === a}">${a}</button><button type="button" aria-pressed="${on === b}">${b}</button></span>`;
+const rangeText = k => `${f(Math.min(...T.map(p => p[k])), 1)} to ${f(Math.max(...T.map(p => p[k])), 1)} mm`;
+const ID = { title: '3 points', crumb: 'Trailing edge · points 8, 9, 10' };
+const afterSet = T.map(p => 30);
+const afterMove = T.map(p => p.aft + 5);
+const TYPED = [
+  { title: 'A · Set all to', tag: 'One field per row. Typing a value gives every point that value.',
+    html: capd('Aft: type 30', pane({ ...ID, rows: [
+        { label: 'From root', ctl: '<span class="ro">Mixed</span>', hint: 'Points can’t share a position along the span, so this row is read-only.' },
+        { label: 'Aft', ctl: inp('a1', 'Aft, set all points to', '30', 'Mixed'), hint: 'Range ' + rangeText('aft') + '.', echo: echoSet(30) } ] }),
+        strip('ok', echoSet(30), 'One undo step. Result: aft ' + afterSet.map(v => f(v, 1)).join(' · ') + ' mm.')),
+    pros: ['One idea: what you type is what the points become.', 'Straightening an edge is one entry.'],
+    cons: ['No way to shift the points by an amount, and none to move them along the span.', 'The designer who wants +5 mm must compute each value.'] },
+  { title: 'B · Move by', tag: 'One field per row. Typing an amount moves every point by it.',
+    html: capd('Aft: type 5', pane({ ...ID, rows: [
+        { label: 'From root', ctl: inp('b0', 'From root, move all points by', '', '0') + '<span class="unit">move by</span>', hint: 'Range ' + rangeText('from') + '.' },
+        { label: 'Aft', ctl: inp('b1', 'Aft, move all points by', '5', '0') + '<span class="unit">move by</span>', hint: 'Range ' + rangeText('aft') + '.', echo: echoMove(5) } ] }),
+        strip('ok', echoMove(5), 'One undo step. Result: aft ' + afterMove.map(v => f(v, 1)).join(' · ') + ' mm.')),
+    pros: ['Works on every row, including From root, without making points collide.', 'The same entry works for any number of points.'],
+    cons: ['No way to make several points equal; a designer who wants all points at 30 must work out three amounts.', 'The field is empty after the move, so the new values are not visible in the row until the points are reselected.'] },
+  { id: 'C', title: 'C · Both, chosen per row', reco: true, tag: 'A two-way switch beside each row. Aft defaults to Set to. From root is always Move by.',
+    html: capd('Aft: Set to 30, or switch to Move by 5', pane({ ...ID, rows: [
+        { label: 'From root', ctl: inp('c0', 'From root, move all points by', '', '0') + '<span class="unit">move by</span>', hint: 'Range ' + rangeText('from') + '. Set to is not offered: points can’t share a position.' },
+        { label: 'Aft', ctl: segm('Aft entry mode', 'Set to', 'Move by', 'Set to') + inp('c1', 'Aft, set all points to', '30', 'Mixed'), hint: 'Range ' + rangeText('aft') + '.', echo: echoSet(30) } ] }),
+        strip('ok', echoSet(30), 'One undo step. Switching to Move by and typing 5 gives: ' + echoMove(5))),
+    pros: ['Covers straighten (Set to) and shift (Move by) with one pane.', 'The mode is visible, so a negative number is never guessed: −2 means −2 in either mode.', 'Rows where Set to would be wrong (From root) do not offer it.'],
+    cons: ['One more control per value row.', 'The mode must be remembered per row, not per selection, to stay predictable.'] }
+];
+document.getElementById('typed').innerHTML = TYPED.map(v =>
+  `<div class="card"><h3>${v.title}${v.reco ? '<span class="reco">Recommended</span>' : ''}</h3><p class="tag">${v.tag}</p>${v.html}${list(v.pros, v.cons)}</div>`).join('');
+
+// ---- screen 3: typed refusals (tip end vertex is in the group) ----
+const moveLimit = BASE[2].y - LIMIT;                       // most the tip can move toward the leading edge
+const REF = [
+  { title: 'Set to 3', tag: 'Point 10 would be a 3 mm chord. COPY-A, as in Ruling 96, with the Use action.',
+    pane: pane({ ...ID, rows: [{ label: 'Aft', ctl: segm('Aft entry mode', 'Set to', 'Move by', 'Set to') + inp('r1', 'Aft, set all points to', '3', 'Mixed', true, 'rm1') + '<button class="act" type="button">Use ' + f(LIMIT, 0) + ' mm</button>',
+        msg: 'Tip chord can’t go below ' + f(LIMIT, 0) + ' mm (the larger of 5 mm and 2 % of the root chord). Enter ' + f(LIMIT, 0) + ' mm or more.' }] }) },
+  { title: 'Move by −28', tag: 'The group would take the tip to ' + f(BASE[2].y - 28) + ' mm. The message gives the most the group can move and offers it.',
+    pane: pane({ ...ID, rows: [{ label: 'Aft', ctl: segm('Aft entry mode', 'Set to', 'Move by', 'Move by') + inp('r2', 'Aft, move all points by', '−28', '0', true, 'rm2') + '<span class="unit">move by</span><button class="act" type="button">Use −' + f(moveLimit, 0) + ' mm</button>',
+        msg: 'Moving these points by −28 mm would take the tip chord below ' + f(LIMIT, 0) + ' mm. The most they can move that way is ' + f(moveLimit, 0) + ' mm.' }] }) },
+  { title: 'Set to on From root', tag: 'Not offered in variant C; in variant A the row is read-only with this reason.',
+    pane: pane({ ...ID, rows: [{ label: 'From root', ctl: '<span class="ro">Mixed</span>', msg: '' , hint: 'Points can’t share a position along the span. Move them by an amount instead.' }] }) }
+];
+document.getElementById('refusals').innerHTML = REF.map(r =>
+  `<div class="card"><h3>${r.title}</h3><p class="tag">${r.tag}</p>${r.pane}<ul class="pc"><li>Field keeps the typed text; geometry and undo depth unchanged.</li></ul></div>`).join('');
+
+// ---- screen 4: keyboard ----
+(function(){
+  let tip = 8, rows = '', wasHeld = false;
+  const keys = ['Down', 'Down', 'Down', 'Down', 'Down', 'Down', 'Up', 'Down', 'Down', 'Down'];
+  keys.forEach((k, i) => {
+    const dir = k === 'Down' ? -1 : 1;
+    const wanted = tip + dir, next = Math.max(wanted, LIMIT), held = next === LIMIT && dir < 0;
+    const announce = held && !wasHeld;
+    const nine = next + (BASE[1].y - BASE[2].y);
+    rows += `<tr class="${held ? 'held' : ''}"><td>${i + 1} ${k}</td><td>${f(wanted)} mm</td><td>${f(next)} mm</td><td>${f(nine)} mm</td><td>${held ? 'held at minimum' : (dir > 0 && wasHeld ? 'hold freed' : '')}</td><td>${announce ? 'announced' : ''}</td></tr>`;
+    wasHeld = held; tip = next;
+  });
+  document.getElementById('keys').innerHTML = `<table class="t"><thead><tr><th>Key</th><th>Asked for (tip)</th><th>Tip chord</th><th>Point 9 aft</th><th>State</th><th>Live region</th></tr></thead><tbody>${rows}</tbody></table>`;
+})();
+
+// ---- screen 5: hard states ----
+(function(){
+  const legacy = [{ x: 0, y: 36, id: 8 }, { x: 30, y: 33, id: 9 }, { x: 60, y: 2, id: 10 }];
+  const cards = [
+    ['Mixed point types', 'An anchor and a control point are selected. Type reads Mixed (read-only); the value rows still edit, as in screen 2.',
+      pane({ title: '2 points', crumb: 'Trailing edge · points 4, 5', rows: [{ label: 'Type', ctl: '<span class="ro">Mixed</span>' }, { label: 'From root', ctl: '<span class="ro">Mixed</span>' }, { label: 'Aft', ctl: '<span class="ro">Mixed</span>' }] })],
+    ['Points on two curves (variant A of DR-GM-1)', 'Rows stay read-only. A drag does not start. Under DR-GM-1 B, the two planform rails would move together.',
+      pane({ title: '2 points', crumb: 'Leading edge, Trailing edge', rows: [{ label: 'From root', ctl: '<span class="ro">Mixed</span>' }, { label: 'Aft', ctl: '<span class="ro">Mixed</span>', hint: 'Select points on one curve to move or change them together.' }] }) + strip('', 'Select points on one curve to move them together.')],
+    ['A locked point is selected', 'A fully locked point stops the move before it starts. Nothing changes.',
+      strip('err', 'Point 1 is locked. Deselect it to move the others.', 'No draft opens; undo depth unchanged.')],
+    ['A point cannot move along the span (DR-GM-5 A)', 'The tip vertex has a fixed span position. The group moves aft only; a one-line note at the start of the drag.',
+      strip('warn', 'The tip point can’t move along the span, so the selection moves aft only.')],
+    ['A handle without its anchor (DR-GM-6 A)', 'A tangent handle is selected with points other than its anchor. The drag does not start.',
+      strip('err', 'Handles move on their own, or with their anchor. Deselect the handle or select its anchor.')],
+    ['Held by a neighbour', 'The group meets a point that is not selected, at the minimum gap. The whole group stops; same hold as the tip.',
+      strip('warn', 'The selection is held by point 7. Points can’t close up on a neighbour.')],
+    ['Escape during the drag or in the hold', 'Cancels. Every point returns; no undo step; the selection is kept.',
+      `${wingBlock(TIP_AFT, 'hl')}${strip('', 'Cancelled. Nothing changed.', 'Undo depth unchanged.')}`],
+    ['Analysis area', 'Selecting several points works as built; the drag and typed entry are inert, and no marker is drawn.',
+      strip('', 'Switch to CAD to edit the foil.', 'Existing refusal text for Analysis; unchanged by this proposal.')],
+    ['Legacy file: tip already under the minimum', 'The limit is where the tip was at press (2 mm). The group holds there going down and moves up freely.',
+      frame('Pointer 10 mm up from the 2 mm tip', railSvg({ label: 'Legacy file: the group held at the tip chord it had at press', pts: applyRigid(legacy, SEL, -10, 2), sel: SEL, marker: false, bind: 2, foot: 'Plan, outer 60 mm · tip is 2 mm at press' }), wingBlock(2, 'lim', 'already under the minimum'), strip('warn', 'This tip is already under the minimum. It can’t go lower.'))],
+    ['One point selected', 'Unchanged: editable From root and Aft fields, one point, one undo step.',
+      pane({ title: 'Trailing edge point 9', crumb: 'Control point', rows: [{ label: 'From root', ctl: inp('o1', 'From root', '420.00', '') }, { label: 'Aft', ctl: inp('o2', 'Aft', '33.00', '') }] })]
+  ];
+  document.getElementById('hard').innerHTML = cards.map(c => `<div class="card"><h3>${c[0]}</h3><p class="tag">${c[1]}</p>${c[2]}</div>`).join('');
+})();
+
+document.querySelectorAll('[data-v]').forEach(el => { if (el.dataset.v === 'limit') el.textContent = f(LIMIT, 0); });
+
+// ---- in-artifact checks (review chrome; never ships) ----
+function lum(c){ const m = c.match(/\d+(\.\d+)?/g).map(Number).slice(0, 3).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; }
+function ratio(a, b){ const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function bg(el){ while (el){ const c = getComputedStyle(el).backgroundColor; if (c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) return c; el = el.parentElement; } return 'rgb(255,255,255)'; }
+function audit(){
+  const out = [];
+  let worst = 99, what = '';
+  document.querySelectorAll('main *').forEach(el => {
+    if (el.closest('svg') && el.tagName !== 'text') return;
+    if (![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return;
+    const fill = el.tagName === 'text' ? getComputedStyle(el).fill : getComputedStyle(el).color;
+    if (!/\d/.test(fill)) return;
+    const r = ratio(fill, bg(el.tagName === 'text' ? el.closest('.vp') : el));
+    if (r < worst){ worst = r; what = el.textContent.trim().slice(0, 30); }
+  });
+  out.push(worst >= 4.5 ? `<b class="pass">text contrast ≥ 4.5:1</b> (lowest ${worst.toFixed(2)})` : `<b class="fail">text contrast ${worst.toFixed(2)}:1</b> at “${what}”`);
+  const small = [...document.querySelectorAll('button, input')].filter(el => el.offsetParent !== null).filter(el => { const b = el.getBoundingClientRect(); return b.height < 23.5 || b.width < 23.5; });
+  out.push(small.length ? `<b class="fail">${small.length} targets under 24 px</b>` : '<b class="pass">targets ≥ 24 px</b>');
+  const txt = document.getElementById('screens').innerText, bad = ['NaN', 'undefined', 'Infinity', '<min>', '<max>'].filter(s => txt.includes(s));
+  out.push(bad.length ? `<b class="fail">placeholder or non-number: ${bad.join(', ')}</b>` : '<b class="pass">no NaN / placeholder</b>');
+  const minFont = Math.min(...[...document.querySelectorAll('main *')].filter(el => el.children.length === 0 && el.textContent.trim()).map(el => parseFloat(getComputedStyle(el).fontSize)));
+  out.push(minFont >= 11 ? '<b class="pass">text ≥ 11 px</b>' : `<b class="fail">text ${minFont}px</b>`);
+  // rule sweep: over every pointer delta, variant A never leaves the tip under the minimum and keeps the gaps between members; B breaks the gap
+  let ok = true, gapKept = true, bBreaks = false;
+  for (let d = -40; d <= 40; d += 0.25){
+    const a = applyRigid(BASE, SEL, d), b = applyPerMember(BASE, SEL, d);
+    if (chordOf(a) < LIMIT - 1e-9 || chordOf(b) < LIMIT - 1e-9) ok = false;
+    if (Math.abs((a[1].y - a[2].y) - (BASE[1].y - BASE[2].y)) > 1e-9) gapKept = false;
+    if (Math.abs((b[1].y - b[2].y) - (BASE[1].y - BASE[2].y)) > 1e-9) bBreaks = true;
+  }
+  ok = ok && gapKept && bBreaks && Math.abs(chordOf(ptsA) - LIMIT) < 1e-9 && Math.abs(moveLimit - 25) < 1e-9;
+  out.push(ok ? '<b class="pass">hold sweep</b> (A never under ' + f(LIMIT, 0) + ' mm and keeps member gaps; B deforms; most the group moves toward the leading edge: ' + f(moveLimit, 0) + ' mm)' : '<b class="fail">hold sweep</b>');
+  document.getElementById('audit').innerHTML = out.join(' · ');
+}
+document.getElementById('theme').addEventListener('click', e => { const d = document.documentElement.dataset.theme === 'light'; document.documentElement.dataset.theme = d ? 'dark' : 'light'; e.currentTarget.setAttribute('aria-pressed', String(d)); e.currentTarget.textContent = d ? 'Light theme' : 'Dark theme'; audit(); });
+document.getElementById('narrow').addEventListener('click', e => { const n = document.getElementById('screens').style.maxWidth === '560px'; document.getElementById('screens').style.maxWidth = n ? '' : '560px'; e.currentTarget.setAttribute('aria-pressed', String(!n)); e.currentTarget.textContent = n ? 'Narrow (560 px)' : 'Wide'; audit(); });
+audit();
+</script>
+</body>
+</html>

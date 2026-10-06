@@ -2654,6 +2654,59 @@ window.DOCS_INDEX = {
       "sourceSha256": "4194dc97f5d6fd7b6b4921a0e53ae92fd9dcb2e7c563c8aad18306c2d2b601bd"
     },
     {
+      "id": "design-group-move-node-m",
+      "path": "docs/design/group-move-node-m.md",
+      "title": "Proposal: group move and typed value for several points (node M, OI-3)",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design — operator sees the mockup before any build (memory rule); track E4, round oct05",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Design for the CAD increment after the limit hold: select several points on one curve, drag them as one rigid gesture and one undo step, nudge them, and type one value for all of them (set-all, move-by, or both per row). A group that includes an end vertex holds as a whole at the Ruling 93 limit (Ruling 96). Closes spec node M's typed clause (AM-1.7-15), the multi-point half of CAD-04 and the several-vertices clause of GEO-05 (OI-3). Nine decision requests; the mockup shows the hold variants, the typed-value variants and the hard states.",
+      "tags": [
+        "desktop",
+        "core",
+        "cad",
+        "group-move",
+        "typed-value",
+        "node-m",
+        "oi-3",
+        "ruling-96",
+        "ruling-93",
+        "proposal",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "refines"
+        },
+        {
+          "to": "design-next-cad-increment",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-group-move-node-m",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "48a06abf5369858964679cb3b1b99b5f219101fd1178b341c2eca77e70d9c5c4"
+    },
+    {
       "id": "design-guided-solver-setup",
       "path": "docs/design/guided-solver-setup.md",
       "title": "Design: guided solver setup — Backend environment model, step catalogue per OS and route, detection, smoke test, assistant, telemetry, tests and tracks",
@@ -3594,6 +3647,56 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "915aa2d27250f12d3f378ade1408e336842365b6e5576a2ce9404b2dc1135d14"
+    },
+    {
+      "id": "mockup-group-move-node-m",
+      "path": "docs/mockups/group-move-node-m.md",
+      "title": "Group move and typed value — several selected points as one gesture, three typed-value variants side by side",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Five screens for the operator's approval before any build: a group drag to the Ruling 96 tip limit with three ways to hold (whole group, limited point only, today); the typed value for several points as set-all, move-by or both per row; typed refusals with a Use action; a ten-press keyboard run; and the hard states (mixed types, two curves, locked point, locked axis, orphan handle, neighbour hold, Escape, Analysis, legacy file, one point). Every number is computed in the page from the rule max(5 mm, 2 % of root); positions are scripted, not captured from the product.",
+      "tags": [
+        "mockup",
+        "planform",
+        "group-move",
+        "typed-value",
+        "node-m",
+        "oi-3",
+        "ruling-96",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-group-move-node-m",
+          "rel": "documents"
+        },
+        {
+          "to": "design-next-cad-increment",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-cad-limits-in-gesture",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2c62fba4ca09e3338df968ffaf3a459b25f4803d197e2ca5b761f2b24e6e167b"
     },
     {
       "id": "mockup-m12b2-views",
@@ -6511,7 +6614,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "03e9875617b6c894b2c49d6ffc9bfe83590f60bfdcd709fc53337d44bfcb02a1"
+      "sourceSha256": "0061666ffa8d6c5a1cde8ca315021322faa8e42b7bc14a1c54e8153fc524150b"
     },
     {
       "id": "kb-hw-glossary",
@@ -13749,6 +13852,14 @@ window.DOCS_INDEX = {
       "artifactId": "spec-foildsl"
     },
     {
+      "id": "surface-mockups-group-move-node-m",
+      "path": "docs/mockups/group-move-node-m.html",
+      "title": "Group move and typed value",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-group-move-node-m"
+    },
+    {
       "id": "surface-mockups-m12b2-views",
       "path": "docs/mockups/m12b2-views.html",
       "title": "M1.2b2 views",
@@ -13805,5 +13916,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "8e35eefab955e5d04fdc3aa403e40e26e8b20e102ac06eb8d385a76243f5144d"
+  "graphSha256": "e97d22aa1465a3f05adf494caa9f9dfc4dbdba23af689aab5202b02dc5c5aa8c"
 };
