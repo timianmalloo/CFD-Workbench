@@ -1,0 +1,2 @@
+PASS Units_Switch_ChangesForceAndSpeed_KeysAndStoredValuesUnchanged
+COST Units_Switch_ChangesForceAndSpeed_KeysAndStoredValuesUnchanged 723.3

@@ -38,6 +38,17 @@ public static class CommandTable
 {
     private static readonly DelegateCommand NoOp = new(() => { });
 
+    /// <summary>The View submenu that holds the Metric and Imperial items (Ruling 115).</summary>
+    public const string UnitsMenu = "Units";
+
+    /// <summary>The Units a "view.units-*" command sets, or null for any other command.</summary>
+    public static CfdWorkbench.Analysis.Units? UnitsOf(string id) => id switch
+    {
+        "view.units-metric" => CfdWorkbench.Analysis.Units.Metric,
+        "view.units-imperial" => CfdWorkbench.Analysis.Units.Imperial,
+        _ => null
+    };
+
     /// <summary>The menu that holds the section editor's rows (§5.2).</summary>
     public const string SectionMenu = "Section";
 
@@ -117,6 +128,9 @@ public static class CommandTable
         new("view.text-125", "125 %", TextSizeMenu, null, false, NoOp),
         new("view.text-150", "150 %", TextSizeMenu, null, false, NoOp),
         new("view.text-200", "200 %", TextSizeMenu, null, false, NoOp),
+        // View ▸ Units (Ruling 115): display units for every area; the status-bar item toggles the same state.
+        new("view.units-metric", "Metric", UnitsMenu, null, false, NoOp),
+        new("view.units-imperial", "Imperial", UnitsMenu, null, false, NoOp),
         new("point.make-anchor", "Make anchor", "Edit", null, false, NoOp),
         new("point.make-control", "Make control", "Edit", null, false, NoOp),
         new("point.tangent-smooth", "Smooth tangent", "Edit", null, false, NoOp),

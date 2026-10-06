@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="CfdWorkbench.Desktop.Shell.StatusStrip">
   <!-- DR-STATUS-1 (DESIGN.md §4 Status strip): one slot, no history, no scrolling, no list. StatusText is the window's one
-       polite status live region; the right items are read-only (not buttons in this slice). -->
+       polite status live region; the right items are read-only (not buttons in this slice) except the Units item, a button (Ruling 115). -->
   <Border x:Name="StripRoot" Classes="status-strip">
     <Grid ColumnDefinitions="Auto,*,Auto">
       <Border x:Name="StatusRail" Grid.Column="0" Classes="status-rail" />
@@ -16,7 +16,7 @@
       <StackPanel x:Name="StatusItems" Grid.Column="2" Orientation="Horizontal">
         <Border x:Name="AnalysisItem" Classes="status-item" IsVisible="False"><TextBlock x:Name="AnalysisItemText" /></Border>
         <Border x:Name="SelectionItem" Classes="status-item" IsVisible="False"><TextBlock x:Name="SelectionItemText" /></Border>
-        <Border x:Name="UnitsItem" Classes="status-item" IsVisible="False"><TextBlock x:Name="UnitsItemText" Text="mm" /></Border>
+        <Border x:Name="UnitsItem" Classes="status-item" IsVisible="False"><Button x:Name="UnitsButton" Classes="status-action" Margin="0" Content="Metric" /></Border>
         <Border x:Name="EstimateItem" Classes="status-item" IsVisible="False"><TextBlock Text="≈ estimates" /></Border>
         <Border x:Name="TextSizeItem" Classes="status-item"><TextBlock x:Name="TextSizeItemText" Text="Text 100 %" /></Border>
       </StackPanel>

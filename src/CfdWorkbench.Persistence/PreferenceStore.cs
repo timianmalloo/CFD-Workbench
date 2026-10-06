@@ -14,9 +14,12 @@ public sealed record PrefSave(string Outcome, string? Code, bool PublicationKnow
 
 public sealed record TextSizeLoad(int Percent, string Outcome, IReadOnlyList<string> Codes, bool NeverWrite, bool SessionOnly, string? DiskSha256);
 
+public sealed record UnitsLoad(string Units, string Outcome, IReadOnlyList<string> Codes, bool NeverWrite, bool SessionOnly, string? DiskSha256);
+
 /// <summary>
 /// <c>cfdw-display</c> version 1 (DN-5): the Text size of one installation user, a whole percent in <see cref="TextSizes"/>.
-/// Absent means 100. Any other content is unreadable: the reader returns 100 and the store never rewrites that file.
+/// Absent means 100. An optional <c>units</c> key ("metric" or "imperial"; absent means metric) holds the display units
+/// (Ruling 121), so a file written before it existed still loads. Any other content is unreadable: the reader returns 100 and the store never rewrites that file.
 /// <see cref="Parse"/> never throws; <see cref="Serialize"/> throws on an out-of-set value (one rule for the set).
 /// </summary>
 public static class DisplayPreferences
@@ -25,9 +28,11 @@ public static class DisplayPreferences
     public const int CurrentVersion = 1;
     public const int MaxBytes = 4 * 1024;
     public const int DefaultTextSize = 100;
+    public const string Metric = "metric";
+    public const string Imperial = "imperial";
     public static readonly IReadOnlyList<int> TextSizes = [100, 125, 150, 200];
 
-    public sealed record DisplayParse(int TextSize, IReadOnlyList<string> Codes, bool NeverWrite);
+    public sealed record DisplayParse(int TextSize, IReadOnlyList<string> Codes, bool NeverWrite, string Units = Metric);
 
     public static DisplayParse Parse(ReadOnlySpan<byte> bytes)
     {
@@ -42,11 +47,18 @@ public static class DisplayPreferences
             using var doc = JsonDocument.Parse(bytes.ToArray(), new JsonDocumentOptions { MaxDepth = 2 });
             var names = new HashSet<string>(StringComparer.Ordinal);
             foreach (var property in doc.RootElement.EnumerateObject())
-                if (property.Name is not ("format" or "version" or "textSize") || !names.Add(property.Name)) return Unreadable();
+                if (property.Name is not ("format" or "version" or "textSize" or "units") || !names.Add(property.Name)) return Unreadable();
             if (!doc.RootElement.TryGetProperty("textSize", out var value) || value.ValueKind != JsonValueKind.Number
                 || !value.TryGetInt32(out int size) || !TextSizes.Contains(size))
                 return Unreadable();
-            return new DisplayParse(size, [], false);
+            string units = Metric;
+            if (doc.RootElement.TryGetProperty("units", out var unitsValue))
+            {
+                string? named = unitsValue.ValueKind == JsonValueKind.String ? unitsValue.GetString() : null;
+                if (named is not (Metric or Imperial)) return Unreadable();
+                units = named;
+            }
+            return new DisplayParse(size, [], false, units);
         }
         catch (Exception)
         {
@@ -54,9 +66,10 @@ public static class DisplayPreferences
         }
     }
 
-    /// <summary>The document for <paramref name="textSize"/>; an out-of-set value is a caller defect and throws.</summary>
-    public static byte[] Serialize(int textSize)
+    /// <summary>The document for <paramref name="textSize"/> and <paramref name="units"/> (written only when imperial); an out-of-set value is a caller defect and throws.</summary>
+    public static byte[] Serialize(int textSize, string units = Metric)
     {
+        ArgumentOutOfRangeException.ThrowIfNotEqual(units is Metric or Imperial, true, nameof(units));
         ArgumentOutOfRangeException.ThrowIfNotEqual(TextSizes.Contains(textSize), true, nameof(textSize));
         var buffer = new ArrayBufferWriter<byte>();
         using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = true }))
@@ -65,6 +78,7 @@ public static class DisplayPreferences
             writer.WriteString("format", FormatName);
             writer.WriteNumber("version", CurrentVersion);
             writer.WriteNumber("textSize", textSize);
+            if (units == Imperial) writer.WriteString("units", units);
             writer.WriteEndObject();
         }
         return buffer.WrittenSpan.ToArray();
@@ -97,6 +111,9 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     private bool displayHeld;
     private string? displayBlock;
     private int textSizeWanted = DisplayPreferences.DefaultTextSize;
+    private string unitsWanted = DisplayPreferences.Metric;
+    private bool textSizeSet, unitsSet;
+    private string loadedUnits = DisplayPreferences.Metric;
 
     private string LayoutDir => Path.Combine(root, "layout");
     private string RecentDir => Path.Combine(root, "recent");
@@ -477,6 +494,12 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
             return new TextSizeLoad(fallback, "never-write", parsed.Codes, true, true, read.DiskSha256);
         }
         displayHash = read.DiskSha256;
+        lock (sync)
+        {
+            loadedUnits = parsed.Units;
+            if (!textSizeSet) textSizeWanted = parsed.TextSize;
+            if (!unitsSet) unitsWanted = parsed.Units;
+        }
         return new TextSizeLoad(parsed.TextSize, "restored", [], false, false, read.DiskSha256);
     }
 
@@ -489,17 +512,20 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     public async Task<PrefSave> SaveTextSizeAsync(int percent, CancellationToken ct)
     {
         if (!DisplayPreferences.TextSizes.Contains(percent)) return new PrefSave("rejected", "DISPLAY-SCHEMA", false, false, false, null);
-        lock (sync) textSizeWanted = percent;
+        lock (sync) { textSizeWanted = percent; textSizeSet = true; }
+        return await SaveDisplayAsync(ct).ConfigureAwait(false);
+    }
+
+    private async Task<PrefSave> SaveDisplayAsync(CancellationToken ct)
+    {
         await gate.WaitAsync(ct).ConfigureAwait(false);
         try
         {
             if (Linked(root) || Linked(DisplayDir) || displaySession) return Session();
             if (displayNeverWrite) return new PrefSave("never-write", displayBlock ?? "DISPLAY-SCHEMA", false, false, false, null);
             if (displayHeld) return new PrefSave("claim-held", "DOC-CONFLICT", false, false, false, Claim(DisplayDir));
-            int want;
-            lock (sync) want = textSizeWanted;
             EnsureDir(DisplayDir);
-            var image = DisplayPreferences.Serialize(want);
+            var image = DisplayImage();
             var first = await Write(DisplayPath, image, displayHash, ct).ConfigureAwait(false);
             if (first.Code == "OK")
             {
@@ -512,7 +538,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
                 return Session();
             }
             if (first.Code != "DOC-CONFLICT") return Failed(first);
-            return await ResolveTextSize(image, ct).ConfigureAwait(false);
+            return await ResolveDisplay(ct).ConfigureAwait(false);
         }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
         {
@@ -521,7 +547,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         finally { gate.Release(); }
     }
 
-    private async Task<PrefSave> ResolveTextSize(byte[] image, CancellationToken ct)
+    private async Task<PrefSave> ResolveDisplay(CancellationToken ct)
     {
         var (read, error) = await Read(DisplayPath, ct).ConfigureAwait(false);
         if (error is not null || read is null)
@@ -537,7 +563,13 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
             displayBlock = parsed.Codes[0];
             return new PrefSave("never-write", displayBlock, false, false, true, null);
         }
-        var retry = await Write(DisplayPath, image, read.DiskSha256, ct).ConfigureAwait(false);
+        lock (sync)
+        {
+            // A value this session never set keeps what the file holds (a save issued before the startup read finished).
+            if (!textSizeSet) textSizeWanted = parsed.TextSize;
+            if (!unitsSet) unitsWanted = parsed.Units;
+        }
+        var retry = await Write(DisplayPath, DisplayImage(), read.DiskSha256, ct).ConfigureAwait(false);
         if (retry.Code == "OK")
         {
             displayHash = retry.PublishedSha256;
@@ -546,6 +578,33 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         if (retry.Code != "DOC-CONFLICT") return Failed(retry);
         displayHeld = true;
         return new PrefSave("claim-held", "DOC-CONFLICT", false, false, true, Claim(DisplayDir));
+    }
+
+    private byte[] DisplayImage()
+    {
+        lock (sync) return DisplayPreferences.Serialize(textSizeWanted, unitsWanted);
+    }
+
+    /// <summary>
+    /// Reads the display units ("metric" or "imperial", Ruling 121) from the same <c>cfdw-display</c> file as the Text size, with
+    /// the same outcomes. A file without the key, an absent file and an unreadable file (an unknown value included) all read
+    /// metric; an unreadable file is never rewritten.
+    /// </summary>
+    public async Task<UnitsLoad> LoadUnitsAsync(CancellationToken ct)
+    {
+        lock (sync) loadedUnits = DisplayPreferences.Metric;
+        var load = await LoadTextSizeAsync(ct).ConfigureAwait(false);
+        string units;
+        lock (sync) units = load.NeverWrite ? DisplayPreferences.Metric : loadedUnits;
+        return new UnitsLoad(units, load.Outcome, load.Codes, load.NeverWrite, load.SessionOnly, load.DiskSha256);
+    }
+
+    /// <summary>Writes the display units beside the Text size, with the outcomes and the latest-choice-wins rule of <see cref="SaveTextSizeAsync"/>.</summary>
+    public async Task<PrefSave> SaveUnitsAsync(string units, CancellationToken ct)
+    {
+        if (units is not (DisplayPreferences.Metric or DisplayPreferences.Imperial)) return new PrefSave("rejected", "DISPLAY-SCHEMA", false, false, false, null);
+        lock (sync) { unitsWanted = units; unitsSet = true; }
+        return await SaveDisplayAsync(ct).ConfigureAwait(false);
     }
 
     private static void EnsureDir(string path)
