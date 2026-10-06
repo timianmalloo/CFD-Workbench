@@ -71,17 +71,17 @@ Named tests per track (design section 18.8, `tools/check-named-tests.py`; define
 | TGL | 12 | 11 | `Toggle_LayersFirstFrame_P95WithinPreviewBudget` runs in the readiness ring |
 | LAY | 1 | 1 | |
 | PNA | 5 | 5 | |
-| **Total** | **139** | **128 + readiness (see section 4)** | CTX, HIST, LIM, AUX own no ledger names |
+| **Total** | **139** | **128 in ring 0 + 11 in readiness = 139** | CTX, HIST, LIM, AUX own no ledger names |
 
-All 139 names exist in `tests/` (test architect, grep). The readiness result is recorded in section 4.
+All 139 names exist in `tests/` (test architect, grep). The 11 readiness-ring names each printed `PASS` in the readiness run (`tools/run-readiness.py`, GREEN, 147 s of a 240 s budget): checked by grep of its log.
 
 Mutants: BC-1 requires one planted mutant per ledger row; the receipts are the `red-first.md` files above. Missing receipts
 (test architect finding T4) are the PRJ rows named in `docs/reviews/a3a-native.md` section 6.
 
 ## 4. Readiness ring
 
-`python3 tools/run-readiness.py` then `python3 tools/run-readiness.py --check` for the A3a head: result recorded in the
-join audit entry of this track (the check is bound to the commit hash, so the number cannot be written here before the commit).
+`python3 tools/run-readiness.py` then `python3 tools/run-readiness.py --check` for the A3a head: GREEN for the AUX commit
+(receipt `.tmp-tests/readiness.json`, bound to that commit hash; the hash is in the AUX return).
 
 ## 5. Persona verdicts (AUX)
 
