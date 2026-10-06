@@ -689,7 +689,12 @@ public sealed class PlanCanvas : Control
         {
             targets.Add(point);
         }
-        if (Controller!.Gesture != GestureState.Dragging) { gesturePointer = null; probeTarget = null; }
+        if (Controller!.Gesture != GestureState.Dragging)
+        {
+            gesturePointer = null;
+            if (probeTarget is not null && Controller.Gesture == GestureState.Idle) ProbeText = probeBase;   // the gesture ended: the Δ readout does not outlive it
+            probeTarget = null;
+        }
         else ApplyGestureProbe();
         // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
         advisoryCrossing = Controller!.GestureCrossing is not null;

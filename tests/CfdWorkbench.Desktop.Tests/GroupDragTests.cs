@@ -367,6 +367,18 @@ public static class GroupDragTests
             for (int step = 1; step <= 12; step++) rig.Move(rig.Side, drag, at + new Vector(0, -3 * step));
             Capture(rig, rig.Window, "drag-elevation-twist");
             rig.Release(rig.Side, drag, at + new Vector(0, -36));
+            c.Undo();
+            // A twist domain hold: both points at 56°, dragged past the 57.30° limit.
+            c.Select(new Selection.Points(free.Select(point => new PointRef("twist", point.Id)).ToArray()));
+            var setup = c.ApplyGroupValueAsync(GroupValueMode.SetTo, GroupValueAxis.Value, 56);
+            Pump(setup);
+            rig.Settle();
+            free = free.Select(point => c.CurveFor("twist")!.Points.First(item => item.Id == point.Id)).ToArray();
+            at = rig.Side.ScreenPoint(free[0]);
+            drag = rig.Press(rig.Side, at);
+            for (int step = 1; step <= 30; step++) rig.Move(rig.Side, drag, at + new Vector(0, -step * 4));
+            Capture(rig, rig.Window, "hold-twist-domain");
+            rig.Release(rig.Side, drag, at + new Vector(0, -120));
         });
         Check("Properties_MultiplePoints_SharedValueShown_MixedWhereDiffer", rig =>
         {
@@ -386,8 +398,34 @@ public static class GroupDragTests
             aft = Aft(rig);
             Require(aft.Text == "" && aft.Watermark == "Mixed", $"mixed: '{aft.Text}' / {aft.Watermark}");
             Require(Msg(rig, "Description_p_aft") == "Range 120.00 to 126.00 mm.", "range: " + Msg(rig, "Description_p_aft"));
-            Require(Msg(rig, "Description_p_from") == "Range 135.00 to 315.00 mm.", "span range: " + Msg(rig, "Description_p_from"));
+            Require(Msg(rig, "Description_p_from") == "Range 135.00 to 315.00 mm. " + GroupCopy.SetToNotOffered, "span range: " + Msg(rig, "Description_p_from"));
             Require(PropertiesViewTests.Need<TextBox>(rig.Host.Properties, "PointSpanInput").IsEnabled, "From root is not editable");
+        });
+        Check("Properties_MultiplePoints_EntrySwitch_InlineInTheValueRow_FromRootCarriesMoveByTag_KeyboardWorks", rig =>
+        {
+            // Repair 4 (operator, 2026-10-06): the compact segmented switch of the mockup, in the value row, at row height.
+            var c = rig.Controller;
+            Pick(c, "trailing", 2, 3, 4);
+            rig.Settle();
+            var props = rig.Host.Properties;
+            Require(!props.GetVisualDescendants().OfType<Control>().Any(control => control.Name == "Label_p_mode"), "the separate Entry row is still there");
+            var setTo = PropertiesViewTests.Need<ToggleButton>(props, "GroupModeSetTo");
+            var moveBy = PropertiesViewTests.Need<ToggleButton>(props, "GroupModeMoveBy");
+            var valueRow = PropertiesViewTests.Need<Border>(props, "Row_p_aft");
+            Require(setTo.GetVisualAncestors().Contains(valueRow) && moveBy.GetVisualAncestors().Contains(valueRow), "the switch is not inside the value row");
+            Require(Math.Abs(setTo.Bounds.Height - 24) <= 3 && Math.Abs(moveBy.Bounds.Height - 24) <= 3, $"the switch is {setTo.Bounds.Height:F1} px high, not row height");
+            var box = setTo.GetVisualParent()!.GetVisualParent() as Border;
+            Require(box is { BorderThickness.Left: > 0 and <= 1.5 }, "the switch has no thin outline");
+            Require(PropertiesViewTests.Need<TextBlock>(props, "Unit_p_aft") is not null, "fixture");
+            var tag = props.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(text => text.IsVisible && text.Text == GroupCopy.MoveByTag);
+            Require(tag is not null && PropertiesViewTests.Need<Border>(props, "Row_p_from").IsVisible && tag.GetVisualAncestors().Contains(PropertiesViewTests.Need<Border>(props, "Row_p_from")), "From root has no 'move by' tag");
+            // Keyboard: focus the Move by side and press Space; the mode follows.
+            moveBy.Focus();
+            rig.Key(moveBy, Avalonia.Input.Key.Space);
+            rig.Key(moveBy, Avalonia.Input.Key.Space, up: true);
+            rig.Settle();
+            Capture(rig, props, "entry-switch");
+            Require(PropertiesViewTests.Need<ToggleButton>(props, "GroupModeMoveBy").IsChecked == true, "Space on Move by did not choose it");
         });
         Check("Properties_MultiplePoints_TypedSetTo_OneUndoStep", rig =>
         {

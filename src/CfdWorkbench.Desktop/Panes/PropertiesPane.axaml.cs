@@ -623,14 +623,6 @@ public partial class PropertiesPane : UserControl
                 used.Add(KindControl);
                 RenderEnum(kindField, view, row);
                 break;
-            case RowKind.Mode when view.Modes is var (setTo, moveBy):
-                setTo.IsChecked = row.EntryMode == GroupValueMode.SetTo;
-                moveBy.IsChecked = row.EntryMode == GroupValueMode.MoveBy;
-                AutomationProperties.SetName(setTo, "Set to");
-                AutomationProperties.SetName(moveBy, "Move by");
-                AutomationProperties.SetHelpText(setTo, row.AutomationName);
-                AutomationProperties.SetHelpText(moveBy, row.AutomationName);
-                break;
             default:
                 string text = row.Kind == RowKind.Estimate && row.State == RowState.Normal ? "≈ " + row.Value : row.Value;
                 if (view.Value!.Text != text) view.Value.Text = text;
@@ -648,6 +640,7 @@ public partial class PropertiesPane : UserControl
     {
         var box = view.Input!;
         used.Add(box);
+        RenderInline(view, row);
         inputOwners[box] = view;
         box.IsEnabled = true;
         box.IsVisible = true;
@@ -659,6 +652,58 @@ public partial class PropertiesPane : UserControl
         if (invalidText is not null) return;   // keep what the user typed until Escape or the next commit
         if (run?.Box == box) return;            // a field run owns its text
         if (!box.IsKeyboardFocusWithin || !Dirty(box)) SetShown(box, modelText);
+    }
+
+    /// <summary>
+    /// Design §3.6, DR-GM-2 C, as the mockup draws it (group-move-node-m.html, `.seg`): the value row of a group carries an inline
+    /// Set to | Move by switch at row height, a thin outline and the active side lightly filled; the From root row, which allows
+    /// Move by only, carries a "move by" tag. The slot sits in the label column against the field, before it in Tab order.
+    /// </summary>
+    private void RenderInline(RowView view, PropertyRow row)
+    {
+        bool valueRow = row.Group && row.Axis == RowAxis.Value, spanRow = row.Group && row.Axis == RowAxis.Span;
+        if (!valueRow && !spanRow)
+        {
+            if (view.Inline is not null) view.Inline.IsVisible = false;
+            return;
+        }
+        if (view.Inline is null)
+        {
+            var inline = new Border { Name = Part(valueRow ? "GroupSwitch" : "GroupTag", row.Key), HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
+            if (valueRow)
+            {
+                var setTo = new ToggleButton { Name = "GroupModeSetTo", Content = "Set to", Tag = GroupValueMode.SetTo };
+                var moveBy = new ToggleButton { Name = "GroupModeMoveBy", Content = "Move by", Tag = GroupValueMode.MoveBy };
+                foreach (var toggle in new[] { setTo, moveBy })
+                {
+                    toggle.Classes.Add("prop-seg");
+                    toggle.Click += (_, _) => ChooseGroupMode((GroupValueMode)toggle.Tag!);
+                }
+                inline.Classes.Add("prop-seg-box");
+                inline.Child = new StackPanel { Orientation = Orientation.Horizontal, Children = { setTo, moveBy } };
+                view.Modes = (setTo, moveBy);
+            }
+            else
+            {
+                var tag = new TextBlock { Text = GroupCopy.MoveByTag };
+                tag.Classes.Add("prop-unit");
+                AutomationProperties.SetAccessibilityView(tag, AccessibilityView.Raw);   // the field's name says "move all points by"
+                inline.Child = tag;
+            }
+            inline.SizeChanged += (_, change) => { if (change.WidthChanged) Layout(view); };
+            view.Inline = inline;
+            view.Grid.Children.Insert(0, inline);
+        }
+        view.Inline.IsVisible = true;
+        if (view.Modes is var (setToButton, moveByButton))
+        {
+            setToButton.IsChecked = row.EntryMode == GroupValueMode.SetTo;
+            moveByButton.IsChecked = row.EntryMode == GroupValueMode.MoveBy;
+            AutomationProperties.SetName(setToButton, "Set to");
+            AutomationProperties.SetName(moveByButton, "Move by");
+            AutomationProperties.SetHelpText(setToButton, row.Label + " entry mode");
+            AutomationProperties.SetHelpText(moveByButton, row.Label + " entry mode");
+        }
     }
 
     /// <summary>The inline warning icon beside the value (the mockup's state-only row); null hides it.</summary>
@@ -817,20 +862,6 @@ public partial class PropertiesPane : UserControl
                 AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
                 label.Name = "TangentLabel";
                 break;
-            case RowKind.Mode:
-                // Design §3.6, DR-GM-2 C: a two-way switch, Set to | Move by, beside the value row.
-                var setTo = new ToggleButton { Name = "GroupModeSetTo", Content = "Set to", Tag = GroupValueMode.SetTo };
-                var moveBy = new ToggleButton { Name = "GroupModeMoveBy", Content = "Move by", Tag = GroupValueMode.MoveBy };
-                foreach (var toggle in new[] { setTo, moveBy })
-                {
-                    toggle.Classes.Add("prop-b");
-                    toggle.Click += (_, _) => ChooseGroupMode((GroupValueMode)toggle.Tag!);
-                }
-                var modes = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4, Children = { setTo, moveBy } };
-                view.Modes = (setTo, moveBy);
-                value = modes;
-                AutomationProperties.SetAccessibilityView(label, AccessibilityView.Raw);
-                break;
             default:
                 var text = new TextBlock { Name = ValueName(row.Key) };
                 text.Classes.Add("prop-value");
@@ -851,7 +882,7 @@ public partial class PropertiesPane : UserControl
         }
         view.Cell = value;
         // A wide value (an enum, or words rather than a number) sits right-aligned across the row; the label wraps short of it.
-        view.Wide = row.Kind is RowKind.Choice or RowKind.KindList or RowKind.Mode || row.Kind == RowKind.Fact && row.Unit is null && !row.Dimensionless;
+        view.Wide = row.Kind is RowKind.Choice or RowKind.KindList || row.Kind == RowKind.Fact && row.Unit is null && !row.Dimensionless;
         if (view.Wide)
         {
             value.SizeChanged += (_, _) => Layout(view);
@@ -919,7 +950,24 @@ public partial class PropertiesPane : UserControl
         Grid.SetColumn(view.Unit, 2);
         view.Unit.IsVisible = !dirty && !view.Wide;
         // A wide value reaches into the label column only by what the value and unit columns cannot hold.
-        double reserve = 2 * gap + (view.Wide && !stacked ? Math.Max(0, view.Cell.Bounds.Width - valueWidth - unitWidth) : 0);
+        double inline = view.Inline is { IsVisible: true } slot && !dirty ? slot.Bounds.Width + gap : 0;
+        // The slot shares the label's column; when the label's longest word would not fit beside it ("Thickness" in a narrow
+        // pane), the slot drops to the line under the label, still in this row and right-aligned.
+        bool below = !stacked && inline > 0 && grid.Bounds.Width > 0 && view.Cell.Bounds.Width > 0 &&
+            grid.Bounds.Width - view.Cell.Bounds.Width - unitWidth - 2 * gap < LongestWord(view.Label) + inline;
+        if (view.Inline is { } place)
+        {
+            // While the text is being typed the label column shrinks to the label; the slot waits (no flicker: it returns on commit).
+            place.Opacity = dirty ? 0 : 1;
+            place.IsHitTestVisible = !dirty;
+            Grid.SetRow(place, stacked || below ? 1 : 0);
+            Grid.SetColumn(place, 0);
+            Grid.SetColumnSpan(place, below ? 3 : 1);
+            if (place.Margin.Right != gap) place.Margin = new Thickness(0, 0, gap, 0);
+            if (below) inline = 0;
+        }
+        if (below) grid.RowDefinitions[1].MinHeight = height;
+        double reserve = 2 * gap + inline + (view.Wide && !stacked ? Math.Max(0, view.Cell.Bounds.Width - valueWidth - unitWidth) : 0);
         var margin = new Thickness(0, 0, stacked ? 0 : reserve, 0);
         if (view.Label.Margin != margin) view.Label.Margin = margin;
     }
@@ -2142,7 +2190,8 @@ public partial class PropertiesPane : UserControl
         public TextBox? Input { get; set; }
         public ComboBox? Enum { get; set; }
         public HyperlinkButton? Link { get; set; }
-        public (ToggleButton SetTo, ToggleButton MoveBy)? Modes { get; set; }
+        public (ToggleButton SetTo, ToggleButton MoveBy)? Modes { get; set; }   // the group value row's inline Set to | Move by switch
+        public Border? Inline { get; set; }            // the group rows' inline slot beside the field: the switch (value row) or the "move by" tag (From root)
         public InputElement? Editor => (InputElement?)Input ?? (InputElement?)Enum ?? Link;
         public required PropertyRow Row { get; set; }
     }

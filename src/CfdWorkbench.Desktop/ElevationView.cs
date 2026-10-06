@@ -60,6 +60,7 @@ public sealed class ElevationView : Control
     /// <summary>Below this width the probe wraps to two lines, at most this share of the view wide (§11.1, the mockup's 560 px).</summary>
     public const double ProbeWrapWidth = 560;
     public const double ProbeWrapShare = 0.46;
+    private const double CaptionReserve = 150;   // the shell's view-caption chip ("Side · from starboard") over the band's left edge
     private const double PlateFont = 13;
     private const double ChipFont = 11;
     private const double TickFont = 11;
@@ -566,7 +567,11 @@ public sealed class ElevationView : Control
 
     private (string[] Lines, Rect Box) ProbeLayout(string text)
     {
-        bool wrap = Bounds.Width < ProbeWrapWidth;
+        bool narrow = Bounds.Width < ProbeWrapWidth;
+        // The view's caption chip sits over the left of the band: a long readout (a group drag's applied move, hold and reason)
+        // wraps to two lines instead of running under the chip, so its first words (the applied value) stay readable.
+        double room = Bounds.Width - 2 * PlateInset - CaptionReserve;
+        bool wrap = narrow || TextWidth(text, PlateFont) + 2 * PlatePadX > room;
         string[] lines = [text];
         if (wrap)
         {
@@ -574,7 +579,7 @@ public sealed class ElevationView : Control
             int half = (pieces.Length + 1) / 2;
             lines = pieces.Length > 1 ? [string.Join(" · ", pieces.Take(half)), string.Join(" · ", pieces.Skip(half))] : [text];
         }
-        double maxWidth = wrap ? Bounds.Width * ProbeWrapShare : Bounds.Width - 2 * PlateInset;
+        double maxWidth = narrow ? Bounds.Width * ProbeWrapShare : wrap ? room : Bounds.Width - 2 * PlateInset;
         double width = Math.Min(maxWidth, lines.Max(line => TextWidth(line, PlateFont)) + 2 * PlatePadX);
         double height = lines.Length * LineHeight(PlateFont) + 2 * PlatePadY;
         return (lines, new Rect(Bounds.Width - PlateInset - width, PlateInset, width, height));

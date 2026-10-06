@@ -23,7 +23,7 @@ public enum Mode
 
 // The property grid's model (docs/reviews/ui-property-grid.md §10.1): one row type, filled per selection.
 public enum IdentityGlyph { Foil, Control, Anchor, End, Handle, Several, Station }
-public enum RowKind { Input, Fact, Estimate, Choice, KindList, Action, Mode }
+public enum RowKind { Input, Fact, Estimate, Choice, KindList, Action }
 public enum UnitFamily { None, Length, Angle, Percent }
 public enum RowState { Normal, Warning, Error, Unavailable, Mixed, Locked }
 public enum MessageKind { Report, Echo, Warning, Error, Reason, Info }
@@ -63,7 +63,7 @@ public sealed record PropertyRow
     public PointRef? Target { get; init; }                     // the point an input or Kind list edits
     public RowAxis Axis { get; init; }                         // what a point or handle input moves (None elsewhere)
     public bool Group { get; init; }                           // a typed value of several points on one curve (design group-move §3.6)
-    public GroupValueMode EntryMode { get; init; }             // Group rows: Set to or Move by; on a Mode row, the one chosen
+    public GroupValueMode EntryMode { get; init; }             // Group rows: Set to or Move by; the value row's inline switch shows the one chosen
     public string? Placeholder { get; init; }                  // the text a Group field shows while empty ("Mixed", "0")
 
     public bool IsEditable => Kind is RowKind.Input or RowKind.Choice or RowKind.KindList;
@@ -280,6 +280,10 @@ public static class GroupCopy
         ["G12"] = "Moved <n> points by <value> in <axis>.",
         ["G13"] = "Point <n> would leave its allowed range (<min> to <max> <unit>)."   // COPY-394, approved - Ruling 119
     };
+
+    /// <summary>The From root row's hint and tag, as the approved mockup draws them (group-move-node-m.html, option C); the row allows Move by only.</summary>
+    public const string SetToNotOffered = "Set to is not offered: points can't share a position.";
+    public const string MoveByTag = "move by";
 
     public static string Text(string id, params (string Token, string Value)[] tokens)
     {
@@ -808,11 +812,7 @@ public static class PropertiesView
             {
                 Key = "p:from", Label = "From root", Kind = RowKind.Input, Unit = "mm", Family = UnitFamily.Length, Value = "0", Placeholder = "0",
                 AutomationName = "From root, move all points by", Target = target, Axis = RowAxis.Span, Group = true,
-                EntryMode = GroupValueMode.MoveBy, Description = spanRange, DescriptionAlwaysVisible = true
-            },
-            new PropertyRow
-            {
-                Key = "p:mode", Label = "Entry", Kind = RowKind.Mode, Group = true, EntryMode = mode, AutomationName = curve.ValueLabel + " entry mode"
+                EntryMode = GroupValueMode.MoveBy, Description = spanRange + " " + GroupCopy.SetToNotOffered, DescriptionAlwaysVisible = true
             },
             new PropertyRow
             {
