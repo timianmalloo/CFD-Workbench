@@ -246,14 +246,14 @@ public static class AnalysisProjection
 
     /// <summary>Ruling 117: a computed point on a section outside the NACA 0012 family carries COPY-364.</summary>
     private static string FamilyNote(PolarResult? result) =>
-        result is { SectionUnvalidated: true } ? " · " + Labels.BracketOutsideFamily(Labels.UnvalidatedFamily) : "";
+        result is { SectionUnvalidated: true } ? " · " + Labels.BracketOutsideFamily : "";
 
     /// <summary>One note per distinct flag on the values a row aggregates (COPY-364, COPY-316), in a fixed order.</summary>
     private static string FlagNotes(StripValue[] values, int? lowStrips = null)
     {
         var codes = values.SelectMany(value => StripFlags.Codes(value.FlagCode)).ToHashSet();
         var notes = new List<string>();
-        if (codes.Contains(StripFlags.SectionUnvalidated)) notes.Add(Labels.BracketOutsideFamily(Labels.UnvalidatedFamily));
+        if (codes.Contains(StripFlags.SectionUnvalidated)) notes.Add(Labels.BracketOutsideFamily);
         if (codes.Contains(StripFlags.LowConfidence))
             notes.Add(lowStrips is { } count ? Labels.LowConfidenceStrips(count) : Labels.LowConfidence(null));
         return string.Join(" · ", notes);

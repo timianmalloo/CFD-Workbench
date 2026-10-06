@@ -68,7 +68,7 @@ internal static class DxSectionTests
         Check("Drag_Bands_OnePrecisionBothEnds_Ruling119", BandPrecision);
     }
 
-    private const string Copy364Tail = "were not validated (NACA 0012 only). Computed, not validated.";
+    private const string Copy364Tail = "Outside the validated bracket — the surrogate is validated on NACA 0012 only. Computed, not validated.";
 
     /// <summary>Ruling 117 follow-up: the polar-vs-lattice strip carries the family flag from the polar result, and the section tab's
     /// Δ row appends COPY-364 to its note (CFD finding 2). Ring: readiness, a product run (about 1 s).</summary>
@@ -374,8 +374,8 @@ internal static class DxSectionTests
             Units.Metric, new ProjectionContext(Source: session.AcceptedSourceOf(run.Inputs.AcceptedId)));
         ResultRow wing = ProjectionTests.Cell(view, "Loads", "Drag (Wing only)");
         Equal(true, wing.Value.Contains('–'), "the wing drag band has a value: " + wing.Value);
-        Equal(true, wing.Note!.Contains("were not validated (NACA 0012 only). Computed, not validated."), "the band carries COPY-364");
-        Equal(true, view.StripDetails[0].Rows.Single(r => r.Label == "cd (profile)").Note!.Contains("were not validated (NACA 0012 only)"), "the strip cd carries COPY-364");
+        Equal(true, wing.Note!.Contains(Copy364Tail), "the band carries COPY-364");
+        Equal(true, view.StripDetails[0].Rows.Single(r => r.Label == "cd (profile)").Note!.Contains(Copy364Tail), "the strip cd carries COPY-364");
     }
 
     /// <summary>The product tier samples every lattice span eta (126 on the example), so the Stations table lists only the stations that
@@ -513,7 +513,7 @@ internal static class DxSectionTests
         Equal("Outside the validated bracket — α 6.01° is beyond ±6°. Computed, not validated.", Row(at(6.01, 5e5), WithStation(F.Other, at(6.01, 5e5))), "α just past the edge");
         Equal("Outside the validated bracket — Re 1.70 × 10⁵ is beyond 2 × 10⁵ to 10⁶. Computed, not validated.", Row(at(3, 1.7e5), WithStation(F.Other, at(3, 1.7e5))), "Re axis");
         string family = Row(F.Other, F.Tier, SectionSeamTests.ThicknessSource(_ => 0.06));
-        Equal(true, family.StartsWith("Outside the validated bracket — ") && family.EndsWith("sections were not validated (NACA 0012 only). Computed, not validated."), "family axis: " + family);
+        Equal(Copy364Tail, family, "family axis (COPY-364, Ruling 119)");
         // the attached-flow envelope verdict stays beside it, unchanged
         ResultRow verdict = new("Envelope (this strip)", "Outside the method envelope at this strip", null, null);
         SectionView beside = SectionDisplay.Build(F.Run, F.Tier, F.Source, F.Other.Eta, "r1", null, [verdict]);

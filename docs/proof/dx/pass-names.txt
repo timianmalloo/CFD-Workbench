@@ -48,3 +48,4 @@ PASS Polar_DeltaVsLatticeRow_CarriesFamilyFlag_Copy364	readiness (Analysis --rea
 PASS Polar_FlagsJoined_BothNotesRender_Copy364AndLowConfidence	readiness (Analysis --readiness)
 PASS Drag_StoredPre117Refusal_ReadsBackAsRefusal	readiness (Analysis --readiness)
 PASS Drag_Bands_OnePrecisionBothEnds_Ruling119	readiness (Analysis --readiness)
+PASS Labels_Copy364_Ruling119_TextAndDesignRow	fast ring (tools/run-tests.sh, Analysis log)

@@ -693,7 +693,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-361 | V_crit (inception speed) — approved — Ruling 116 (cavitation row label) |
 | COPY-362 | Outside the validated bracket — Re <Re> is beyond <min> to <max>. Computed, not validated. — approved — Ruling 116 (bracket flag, Re axis; prefix as in dx-screen-states row 36) |
 | COPY-363 | Outside the validated bracket — Ncrit <n> is beyond <min> to <max>. Computed, not validated. — approved — Ruling 116 (bracket flag, Ncrit axis) |
-| COPY-364 | Outside the validated bracket — <family> sections were not validated (NACA 0012 only). Computed, not validated. — approved — Ruling 116 (bracket flag, section family axis) |
+| COPY-364 | Outside the validated bracket — the surrogate is validated on NACA 0012 only. Computed, not validated. — approved — Ruling 119 (bracket flag, section family axis; shortened from Ruling 116) |
 | COPY-365 | Transition x_tr/c, upper and lower · Ncrit 2 and 4 · r<rev> · Re <Re> — approved — Ruling 116 (transition overlay legend (the menu "Overlay a section ▾" is COPY-327, no new row)) |
 | COPY-366 | σ required and V_crit against Cl · dot: this operating point — approved — Ruling 116 (cavitation bucket legend) |
 | COPY-367 | Target CL — approved — Ruling 116 (Find α result row label) |

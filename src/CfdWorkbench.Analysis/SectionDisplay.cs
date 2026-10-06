@@ -145,7 +145,7 @@ public static class SectionDisplay
             polar.Add(R("Tripped", Labels.PolarNotComputed));
             if (tier.PolarConsistency?.Strips.FirstOrDefault(s => Math.Abs(s.Eta - station.Eta) < 1e-9) is { ClDelta: { } delta } consistency)
                 polar.Add(R(Labels.DeltaVsLattice, N(delta, "0.###"), note: consistency.SectionUnvalidated
-                    ? Labels.DeltaVsLatticeNote + " · " + Labels.BracketOutsideFamily(Labels.UnvalidatedFamily) : Labels.DeltaVsLatticeNote));
+                    ? Labels.DeltaVsLatticeNote + " · " + Labels.BracketOutsideFamily : Labels.DeltaVsLatticeNote));
             groups.Add(new("Polar", polar));
         }
 
@@ -167,7 +167,7 @@ public static class SectionDisplay
             parts.Add(reason.StartsWith("alpha", StringComparison.Ordinal) ? Labels.BracketOutsideAlpha(station.AlphaEffDeg)
                 : reason.StartsWith("Re ", StringComparison.Ordinal) ? Labels.BracketOutsideRe(station.Reynolds)
                 : reason.StartsWith("Ncrit", StringComparison.Ordinal) ? Labels.BracketOutsideNcrit(3)
-                : Labels.BracketOutsideFamily(Labels.UnvalidatedFamily));
+                : Labels.BracketOutsideFamily);
         return string.Join(" ", parts);
     }
 

@@ -52,6 +52,12 @@ internal static class LabelsTests
             Equal("the foil is too shallow (h/c below 0.5)", Labels.FindReason("ANA-FIND-DEPTH-BELOW-FLOOR", FindAlpha.DepthFloorHOverC), "the depth floor is the free-surface limit and shows its number");
             Equal(0.5, FreeSurfaceCorrection.MinHOverC, "the floor Ruling 118 names");
         });
+        Check("Labels_Copy364_Ruling119_TextAndDesignRow", () => {
+            string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
+            const string text = "Outside the validated bracket — the surrogate is validated on NACA 0012 only. Computed, not validated.";
+            Equal(text, Labels.BracketOutsideFamily, "the Labels constant");
+            Equal(true, design.Contains("| COPY-364 | " + text + " — approved — Ruling 119"), "the DESIGN.md row, marker approved — Ruling 119");
+        });
         Check("Labels_DepthUnset_FreeSurfaceNotModelled", () => {
             Equal(true, Labels.FixedVlm(false).EndsWith("free surface not modelled"));
             Equal(true, Labels.NotModelled(false).Contains("free surface"));
