@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T23:44:45Z",
+  "generated": "2026-10-06T00:39:29Z",
   "audit": [
     {
       "actor": null,
@@ -26205,6 +26205,33 @@ window.AUDIT_DATA = {
         "branch": "perf/ring-b4-analysis-split",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M47ADDTET933CDJTDM8FC39Q",
+      "shortname": "join-ring-b4",
+      "datetime": "2026-10-06T00:39:29Z",
+      "session": "4e90c621",
+      "prompt": "the join of perf/ring-b4-analysis-split into main",
+      "summary": "B4: Analysis --part=k/2 by whole test class (A8.4 oracles fast), each part ~3 s; C-2/C-5/C-6 per part (30/30 self-test); PASS union identical; Desktop split measured worse and not shipped (CPU-bound) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join ring-b4 into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T00:38:37Z",
+      "duration_seconds": 52.0
     }
   ],
   "changes": [
@@ -27585,6 +27612,33 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M475FN998NNDF4Y3VN01JRQ0",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M47AAQS8GS9AG60GXSWJKF5A",
+      "ts": "2026-10-06T00:38:01Z",
+      "from": "4e90c621",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M47AAQS4JEEMN13ZVVA22SEP",
+      "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M47AAR1T0DJ9H55PCT3Q4023",
+      "ts": "2026-10-06T00:38:01Z",
+      "from": "operator-timianmalloo",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M47AAQS4JEEMN13ZVVA22SEP",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M47AARDRK0TAE4WSFXP1QEZQ",
+      "ts": "2026-10-06T00:38:01Z",
+      "from": "4e90c621",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M47AARDM8WMKT8JNX5QNK5SV",
+      "session": "4e90c621"
     }
   ]
 };
