@@ -31,15 +31,20 @@ public static class AnalysisProjection
             [new ResultGroup("Wing result", [Row("Result", Labels.NoResult)])], [], null);
         if (context.Integrity != RunIntegrity.Intact || RunRecord.ContentHash(run) != run.ContentHash)
             return new(RunState.Unavailable, "Analysis: Unavailable", null, null,
-                [new ResultGroup("Wing result", [Row("Result", Labels.PayloadFailed)])], [], run.RunKey);
+                [new ResultGroup("Wing result", [Row("Result", Labels.PayloadFailed, note: Labels.TamperedNote)])], [], run.RunKey);
         if (run.Outcome is RunOutcome.Failed failed)
         {
             string error = $"Analysis failed — {failed.Reason} ({failed.Code}). The previous result is kept as Historical.";
             if (context.PreviousCompleted is { } previous)
             {
                 var old = Build(previous, current, units, context with { PreviousCompleted = null });
+                // COPY-279: the chip reads Historical while a failed attempt shows the previous result.
+                var kept = old.Groups.Select(group => group with
+                {
+                    Rows = [.. group.Rows.Select(row => row.Label == "Tier" ? row with { Value = Labels.HistoricalChip } : row)]
+                }).ToArray();
                 return old with { State = RunState.Failed, StatusText = "Analysis: Failed", ErrorCard = error,
-                    Banner = "Historical — previous result" };
+                    Banner = "Historical — previous result", Groups = kept };
             }
             return new(RunState.Failed, "Analysis: Failed", null, error,
                 [new ResultGroup("Wing result", [Row("Result", Labels.UnavailableBecause(failed.Reason), note: error)])], [], run.RunKey);
@@ -75,7 +80,7 @@ public static class AnalysisProjection
         bool shallow = shallowHc.HasValue;
         var groups = new List<ResultGroup>();
         groups.Add(new("Wing result", [
-            Row("Tier", Labels.VlmChip),
+            Row("Tier", isCurrent ? Labels.VlmChip : Labels.HistoricalChip),
             Row("CL", Val(cl, "0.000", q > 0 ? "ANA-REFERENCE-AREA-MISSING" : "ANA-SPEED-NOT-POSITIVE"), note: "Wing only · S_ref " + Num(run.Reference.SRef, "0.####") + " m²"),
             Row("Envelope", RunVerdict(context, run.Strips)),
             Row("CDi (Trefftz)", Val(cdi, "0.00000", inducedReason)),

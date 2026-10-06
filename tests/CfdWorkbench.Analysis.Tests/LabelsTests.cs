@@ -116,6 +116,40 @@ internal static class LabelsTests
             Equal("Unavailable — x", Labels.UnavailableBecause("x"), "COPY-250 builder");
             Equal(true, design.Contains("| COPY-253 | " + Labels.FeedRevisionNotHeld + " — approved — Ruling 101"), "COPY-253");
         });
+        Check("Projection_TamperedRun_NoteIsCopy274UnderCopy211", () => {
+            var (run, _) = ProjectionTests.Data();
+            var row = ProjectionTests.Cell(ProjectionTests.View(run, new ProjectionContext(Integrity: RunIntegrity.PayloadFailedCheck)), "Wing result", "Result");
+            Equal("Unavailable — run payload failed its check", row.Value, "COPY-211");
+            Equal("The stored run no longer matches its content hash. It is kept in the file and not shown. Evaluate to compute a new run.", row.Note, "COPY-274");
+        });
+        Check("Projection_HistoricalResult_TierChipReadsHistoricalVlmStrip", () => {
+            var (run, _) = ProjectionTests.Data();
+            var current = ProjectionTests.View(run);
+            Equal("VLM + strip · local calculation", ProjectionTests.Cell(current, "Wing result", "Tier").Value, "Current chip is COPY-213");
+            var moved = AnalysisProjection.Build(run, ProjectionTests.Current(run) with { Op = run.Op with { AlphaDeg = run.Op.AlphaDeg + 1 } }, Units.Metric);
+            Equal(RunState.Historical, moved.State);
+            Equal("Historical · VLM + strip", ProjectionTests.Cell(moved, "Wing result", "Tier").Value, "COPY-279");
+            var failed = ProjectionTests.Rehash(run with { Outcome = new RunOutcome.Failed("ANA-SOLVE-RESIDUAL", "residual exceeded"), Strips = [] });
+            var kept = AnalysisProjection.Build(failed, ProjectionTests.Current(run), Units.Metric, new ProjectionContext(PreviousCompleted: run));
+            Equal(RunState.Failed, kept.State);
+            Equal("Historical · VLM + strip", ProjectionTests.Cell(kept, "Wing result", "Tier").Value, "COPY-279 while a failed attempt shows the previous result");
+        });
+        Check("Labels_ConditionsSummary_Copy280Form_FollowsUnits", () => {
+            var water = WaterTable.At(15, 35.16504);
+            Equal("9.99 kn · salt 15 °C · as the band", Labels.ConditionsSummary(5.14, water, Units.Imperial), "Imperial");
+            Equal("5.14 m/s · salt 15 °C · as the band", Labels.ConditionsSummary(5.14, water, Units.Metric), "Metric");
+            Equal("5.14 m/s · fresh 15 °C · as the band", Labels.ConditionsSummary(5.14, WaterTable.At(15, 0), Units.Metric), "fresh");
+        });
+        Check("Labels_ChartAndChipConstants_MatchTheirRows", () => {
+            string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
+            Equal(true, design.Contains("| COPY-274 | " + Labels.TamperedNote + " — approved — Ruling 101"), "COPY-274");
+            Equal(true, design.Contains("| COPY-275 | " + Labels.ChartXTitle + " — approved — Ruling 101"), "COPY-275");
+            Equal(true, design.Contains("| COPY-276 | " + Labels.ChartYTitle + " — approved — Ruling 101"), "COPY-276");
+            Equal(true, design.Contains("| COPY-277 | " + Labels.ChartLegend + " — approved — Ruling 101"), "COPY-277");
+            Equal(true, design.Contains("| COPY-278 | " + Labels.ChartSeries + " — approved — Ruling 101"), "COPY-278");
+            Equal(true, design.Contains("| COPY-279 | " + Labels.HistoricalChip + " — approved — Ruling 101"), "COPY-279");
+            Equal(true, design.Contains("| COPY-280 | 10 kn · salt 15 °C · as the band — approved — Ruling 101"), "COPY-280");
+        });
         Check("Envelope_RunVerdict_BesideCL_FullBound", () => {
             var run = ProjectionTests.Data().Run; var verdicts = Enumerable.Range(0, 4).Select(_ => MethodRecord.JudgeStrip(12, 0, 0.4, 0)).ToArray();
             var v = ProjectionTests.View(run, new ProjectionContext(Verdicts: verdicts));

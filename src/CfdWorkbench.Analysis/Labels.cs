@@ -50,7 +50,22 @@ public static class Labels
         _ => throw new ArgumentOutOfRangeException(nameof(tier))
     };
 
-    public const string WingDragLabel = "Drag (Wing only)"; // COPY-354, Ruling 109
+    public const string TamperedNote = "The stored run no longer matches its content hash. It is kept in the file and not shown. Evaluate to compute a new run."; // COPY-274
+    public const string ChartXTitle = "η (root → tip)"; // COPY-275
+    public const string ChartYTitle = "Cl·c/c̄ (–)"; // COPY-276
+    public const string ChartLegend = "dashed: elliptic, same CL"; // COPY-277
+    public const string ChartSeries = "VLM + strip"; // COPY-278
+    public const string HistoricalChip = "Historical · VLM + strip"; // COPY-279
+
+    /// <summary>COPY-280 form: "&lt;speed&gt; &lt;unit&gt; · &lt;water&gt; &lt;temperature&gt; °C · as the band", from the live conditions.</summary>
+    public static string ConditionsSummary(double speedMetersPerSecond, WaterRecord water, Units units) =>
+        Number(units == Units.Imperial ? speedMetersPerSecond * KnotsPerMeterSecond : speedMetersPerSecond, "0.##") +
+        (units == Units.Imperial ? " kn" : " m/s") + " · " + (water.SalinityGPerKg > 0 ? "salt" : "fresh") + " " +
+        Number(water.TemperatureC, "0.#") + " °C · as the band";
+
+    public const double KnotsPerMeterSecond = 1.9438444924406;
+
+    public const string WingDragLabel ="Drag (Wing only)"; // COPY-354, Ruling 109
     public const string WingDragNote = "Wing only: induced (VLM + strip) plus profile (polar). Not a total."; // COPY-330
     public const string WingDragNotIncluded = "Not included: junction, mast, wave, spray"; // COPY-356
 
