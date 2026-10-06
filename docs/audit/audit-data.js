@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T22:13:49Z",
+  "generated": "2026-10-06T22:16:13Z",
   "audit": [
     {
       "actor": null,
@@ -28081,6 +28081,33 @@ window.AUDIT_DATA = {
       "done_when": "xaml-token-lint exit 0, Units checks green, capture reread",
       "started_at": "2026-10-06T22:13:27Z",
       "duration_seconds": 22.0
+    },
+    {
+      "id": "al-01M49MKT2K4ADGA2NAFXAXH17C",
+      "shortname": "join-uni",
+      "datetime": "2026-10-06T22:16:13Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "View > Units and a status-bar toggle; Analysis N/lbf, m/s/kn; CAD mm; optional units preference key; restart persistence tested; join repair: raw Margin removed for the token lint recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join feature/units-switch into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T22:15:18Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
