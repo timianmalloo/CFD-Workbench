@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a50c1980152f3e4e98d9085828d69b3fcbce3a71f076fa701f09d3841d0851fc"
+      "sourceSha256": "cba83f2facce2d7ac3a5992a20f0d5b0196e77a78c969020fc3d78bd230e0b99"
     },
     {
       "id": "kb-hw-glossary",
@@ -10756,7 +10756,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bc8aadc00ddf1d5c6d14314479284ad69464f7b92b552fdc8ed310234593f880"
+      "sourceSha256": "359ef932076656929ed94883a87e19a8f3c1b7017f90075ca322673b5e509049"
     },
     {
       "id": "proof-cross-profile-abscissa",
@@ -10989,6 +10989,37 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "2c327ae792fd61658e4e6c3d11829f42cbe68ff861652200638b19b3c3722084"
+    },
+    {
+      "id": "proof-dx-test-plan",
+      "path": "docs/proof/dx/test-plan.md",
+      "title": "DX test plan and state coverage (round-oct06 step 1)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-dx",
+      "phase": "implementation",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Which of the 54 A3b and A3c states the approved mockup draws, the states to show the operator first, and 39 named checks (35 fast, 4 readiness) covering every state, DXM-2..9 and Charts_TransitionAndBucket_Overlays.",
+      "tags": [
+        "analysis",
+        "a3b",
+        "a3c",
+        "test-plan",
+        "dx"
+      ],
+      "links": [
+        {
+          "to": "design-dx-screen-states",
+          "rel": "depends-on"
+        },
+        {
+          "to": "mockup-dx-section-polar-states",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "77581779f4550f9edc88713fd4c1ab316ad9d5fe5b2d539ffedb91853bcfca48"
     },
     {
       "id": "proof-e2-cad-defects-red-first",
@@ -14836,5 +14867,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "1cd5b3a8a13216d099353893d96cfaa4c8882da02175df873b0048d25c12f3fa"
+  "graphSha256": "02fa1f8bc3d272f5d8e578480937fe338a066188dbb5013d6ec4b37026fede22"
 };
