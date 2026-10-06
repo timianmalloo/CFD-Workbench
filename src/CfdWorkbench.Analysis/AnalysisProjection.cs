@@ -1,5 +1,6 @@
 using System.Globalization;
 using CfdWorkbench.Core;
+using CfdWorkbench.Analysis.NeuralFoil;
 
 namespace CfdWorkbench.Analysis;
 
@@ -269,7 +270,9 @@ public static class AnalysisProjection
                 Row("Envelope (this strip)", VerdictText(s, context.Verdicts),
                     note: s.ProvisionalReason == StripLoad.PanelUnderreadReason ? StripLoad.PanelUnderreadReason : null),
                 Row("Polar Re range", s.ProvisionalReason == StripLoad.TipProvisionalReason ? Labels.TipNotJudged :
-                    s.CdNcrit2.UnavailableReason ?? (s.CdNcrit2.Value.HasValue ? Num(s.ReLocal, "0.###E+0") : Labels.NoPolar)),
+                    s.CdNcrit2.UnavailableReason ?? (s.CdNcrit2.Value.HasValue
+                        ? Num(NeuralFoilPolarSource.ReynoldsMin, "0.###E+0") + "–" +
+                            Num(NeuralFoilPolarSource.ReynoldsMax, "0.###E+0") : Labels.NoPolar)),
                 Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : s.CdNcrit2.UnavailableReason ?? Labels.NoPolar,
                     note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (s.CdNcrit2.FlagCode is { } code ? " · " + code : "") : null),
                 Row("Not modelled", Labels.NotModelled(run.Op.HRef.HasValue))

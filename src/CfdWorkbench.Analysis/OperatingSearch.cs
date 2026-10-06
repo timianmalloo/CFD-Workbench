@@ -25,6 +25,8 @@ public static class OperatingSearch
         if (!double.IsFinite(target) || !double.IsFinite(lower) || !double.IsFinite(upper) ||
             lower >= upper || string.IsNullOrWhiteSpace(basisCode))
             throw new ContractError("ANA-FIND-INPUT", "A finite target, ordered finite bracket and basis code are required.");
+        // docs/specs/cfd-workbench.md ANA-05 and ANA-12 require the target load within 1%.
+        // The zero target needs an absolute floor because relative error is undefined there.
         double tolerance = target == 0 ? 1e-6 : 0.01 * Math.Abs(target);
         double scale = Math.Max(Math.Abs(target), 1e-6);
         StripValue left = evaluate(lower), right = evaluate(upper);

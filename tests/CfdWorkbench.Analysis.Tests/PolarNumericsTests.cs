@@ -13,6 +13,7 @@ internal static class PolarNumericsTests
         AnalysisChecks.Check("Polar_ProductRun_ReachesStripsAndSectionProjection", ProductRun);
         AnalysisChecks.Check("Polar_LowConfidence_AdvisoryReachesDragSums", LowConfidenceDrag);
         AnalysisChecks.Check("DragBand_NcritValueOrderAndWingRatio", DragBandOrder);
+        AnalysisChecks.Check("PolarReRange_ShowsValidatedBounds", PolarReRange);
     }
 
     private static void WaterRetrieval()
@@ -166,6 +167,20 @@ internal static class PolarNumericsTests
             if (values.Length != 2 || values[0] > values[1])
                 throw new InvalidOperationException(group + " CL/CD band is not ascending by value");
         }
+    }
+
+    private static void PolarReRange()
+    {
+        AnalysisRun run = ProjectionTests.Data(s => s with
+        {
+            ReLocal = 543210, CdNcrit2 = new StripValue(0.02, null)
+        }).Run;
+        ResultRow row = AnalysisProjection.StripAt(AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric),
+            run.Strips[0].Eta).Rows.Single(item => item.Label == "Polar Re range");
+        if (!row.Value.Contains("2E+5", StringComparison.Ordinal) ||
+            !row.Value.Contains("1E+6", StringComparison.Ordinal) ||
+            row.Value.Contains("5.432E+5", StringComparison.Ordinal))
+            throw new InvalidOperationException("polar Re range displayed the strip Re instead of validated bounds: " + row.Value);
     }
 
     private sealed class ReynoldsPolar : IPolarSource
