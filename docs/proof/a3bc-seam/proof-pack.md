@@ -50,6 +50,9 @@ zero-lift solves at every station. `Section_CamberedPreparedPanel_ReusesMatrix` 
 factorization against fresh solves. The panel matrix is factorized once per section estimate and its right side
 is reused for operating α and α_L0. The section estimator no longer rejects an imported cambered foil solely
 because its leading-edge camber derivative is singular; the panel solve uses camber coordinates, not that derivative.
+The CFD review measured **6.9–7.7 %** Cp_min under-read at 200 panels for 6 %-thick sections at α 3–6°.
+At the 7.7 % endpoint, about **7.3 %** of the 15 % screening margin remains. The earlier 3.71 % was
+the worst of a narrower tested-foil set, not a general bound.
 
 The Analysis harness measured a warm default-station whole-wing 200-panel section pass of **449.814 ms** on macOS arm64 in `.tmp-tests/analysis-inner-final.log`; it includes the 400-panel governing check. `Settings.Default` places 129 stations (root, centres and edges for 64 strips per half). The same run measured a **1.335%** governing-station suction under-read at η **0.098**. These numbers describe that fixture and run, not a universal error bound. The Kármán–Trefftz 200-panel Cp_min relative error is recorded by its own fixture and is not used as the per-run delta. The product service emits its own measured delta in the normal `analysis.run` event.
 
