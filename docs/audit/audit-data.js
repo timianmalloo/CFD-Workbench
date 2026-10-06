@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T16:22:26Z",
+  "generated": "2026-10-06T16:22:34Z",
   "audit": [
     {
       "actor": null,
@@ -27425,6 +27425,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T15:35:39Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M490C8SPBQ3QAXXJPXTBKVD8",
+      "shortname": "doc-oct06 copy rows and spec 1.7.5",
+      "datetime": "2026-10-06T16:22:34Z",
+      "session": "trk-doc",
+      "prompt": "trk-doc round-oct06",
+      "summary": "COPY-250..356 added; spec 1.7.5 with H.5 and amendments/spec-1.7.5.md; A5.6/ANA-03 proposed per HYD verdict",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Every copy row and spec clause approved on 2026-10-06 (Rulings 101, 107, 108) is in DESIGN.md and the spec",
+      "done_when": "rows compared to sources, Copy test green, spec rendered and parity-checked, check-docs 0",
+      "started_at": "2026-10-06T16:14:04Z",
+      "duration_seconds": 510.0
     }
   ],
   "changes": [
