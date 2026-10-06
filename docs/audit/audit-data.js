@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T20:23:07Z",
+  "generated": "2026-10-06T20:39:10Z",
   "audit": [
     {
       "actor": null,
@@ -27800,6 +27800,26 @@ window.AUDIT_DATA = {
       "done_when": "red check fails then passes, captures re-rendered, run-tests green, check-docs 0",
       "started_at": "2026-10-06T20:20:14Z",
       "duration_seconds": 173.0
+    },
+    {
+      "id": "al-01M49F23NT8AB689PA3CR594JC",
+      "shortname": "trk-dx3",
+      "datetime": "2026-10-06T20:39:10Z",
+      "session": "trk-dx3",
+      "prompt": "trk-dx3 round-oct06 third pass",
+      "summary": "Method version 1.4.0; delta row carries COPY-364; assertions added; one two-decimal band formatter; Find alpha label centred at 11 px; COPY-364 shortened with DESIGN.md row. Full ring all PASS but C-3 net 50.6 s under machine load 15-19",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Pre-117 runs Historical, delta row flag, COPY-364 assertions, band precision and Find alpha label, COPY-364 text (Ruling 119)",
+      "done_when": "five items committed red-first, 06 and 11 re-captured and viewed, run-tests green, check-docs 0",
+      "started_at": "2026-10-06T20:26:17Z",
+      "duration_seconds": 773.0
     }
   ],
   "changes": [
@@ -29548,6 +29568,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M499RKVE8C7HYM5S0F8PEZBQ",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49E7XPZNYT615G3PNWD8GPK",
+      "ts": "2026-10-06T20:24:52Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49E7XKY1XJFSETDW993XRFV",
       "session": "operator-timianmalloo"
     }
   ]
