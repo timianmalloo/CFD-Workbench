@@ -39,6 +39,7 @@ internal static class TipPolarTests
         PolarConsistencyResult measured = TipPolarConsistency.Evaluate(strips);
         AnalysisChecks.Equal(0.75, measured.EdgeEta, "first measured q < 0.9");
         AnalysisChecks.Equal("ANA-POLAR-CONSISTENCY-EXEMPT", measured.Strips[2].Code, "inside measured edge");
+        AnalysisChecks.Equal(-0.06, measured.Strips[2].ClDelta!.Value, "polar versus lattice Cl delta retained");
         PolarConsistencyInput[] changedSlope = strips.ToArray();
         changedSlope[2] = changedSlope[2] with { PolarSlopePerDeg = 0.08 };
         PolarConsistencyResult moved = TipPolarConsistency.Evaluate(changedSlope);
