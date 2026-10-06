@@ -9,6 +9,7 @@ internal static class PolarNumericsTests
     {
         AnalysisChecks.Check("F13b_WaterWithPolar_RetrievesAtBothNewRe", WaterRetrieval);
         AnalysisChecks.Check("RunKey_PolarWeightsHashAndSize_ChangeKey", WeightsKey);
+        AnalysisChecks.Check("Loads_TotalDrag_InducedPlusProfileOrNamesMissing", TotalDrag);
     }
 
     private static void WaterRetrieval()
@@ -48,6 +49,21 @@ internal static class PolarNumericsTests
         string changedSize = Key(method.Settings with { Polar = polar with { Version = polar.Version.Replace(NeuralFoilNetwork.WeightsBytes.ToString(), "1", StringComparison.Ordinal) } });
         if (baseline == changedHash || baseline == changedSize || changedHash == changedSize)
             throw new InvalidOperationException("polar weights hash or byte size did not change run key");
+    }
+
+    private static void TotalDrag()
+    {
+        AnalysisRun complete = ProjectionTests.Data(s => s with
+        {
+            CdNcrit2 = new StripValue(0.02, null), CdNcrit4 = new StripValue(0.03, null)
+        }).Run;
+        StripValue total = Loads.TotalDrag(complete, 2);
+        if (total.Value is not { } drag || Math.Abs(drag - 20.4) > 1e-9)
+            throw new InvalidOperationException("wing Total drag must sum Trefftz induced and Ncrit 2 profile drag: " + total);
+        AnalysisChecks.Equal(30.4, Loads.TotalDrag(complete, 4).Value!.Value, "Ncrit 4 Total drag");
+        AnalysisRun missing = ProjectionTests.Data().Run;
+        if (Loads.TotalDrag(missing, 2).UnavailableReason?.Contains("PROFILE", StringComparison.Ordinal) != true)
+            throw new InvalidOperationException("missing profile component was not named");
     }
 
     private sealed class ReynoldsPolar : IPolarSource
