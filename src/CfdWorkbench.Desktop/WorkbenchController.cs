@@ -301,7 +301,7 @@ public sealed class WorkbenchController : IDisposable
             if (view.State == RunState.Historical && selected is not null)
                 view = view with { Banner = HistoricalBanner(selected.Run, current) };
             if (AnalysisRunning)
-                view = view with { State = RunState.Running, StatusText = "Analysis: Running" };
+                view = view with { State = RunState.Running, StatusText = "Analysis: Running", ErrorCard = null };   // a failed attempt's card is not shown while the next one runs
             LayerSet = view.Layers;
             analysisProjectionKey = key;
             analysisView = view;
