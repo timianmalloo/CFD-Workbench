@@ -1588,3 +1588,17 @@ configs and fails on any hook command that names `docs/ai-forward-pack/hooks/*.p
 planted bare command red, restored green. OPEN UPSTREAM: these configs are installed by the AI-Forward pack
 (`docs/ai-forward-pack/hooks/copilot.ai-forward-hooks.json` and the pack's Claude/Grok templates), so the fix must
 also land in the pack source or `/updatepack` reinstalls the bare form and the new control goes red.
+
+**ANALYSIS-HARNESS-GROWTH · One harness's wall grows with every track, so a fixed per-harness limit fails on growth, not on a regression.**
+C-2 (Analysis <= 5 s) failed at quiet load three times in a day: 5,386 ms (load 13), then 5,314 ms (load 14) after the
+Analysis track had been trimmed once (B2) and the next tracks (CTX, S1, S4) each added checks. No check got slower; the
+sum grew. A trim buys one track of headroom and the next track spends it, and re-basing the limit would only move the
+failure. Sweep: the other single-process harnesses in the ring: Core and Desktop already run as parts (`--part=k/n`);
+Cli is 1-2 s and has no growth path in the plan. Derive: a harness that every track appends to is partitioned, and its
+limit applies per part, as DR-ANA-10 limits Desktop. Control (B4): `tests/CfdWorkbench.Analysis.Tests/AnalysisChecks.cs`
+runs as `--part=k/n` (whole test classes, placed longest first onto the lighter part, so checks that share a fixture stay
+together); `tools/run-tests.sh` runs `Analysis 1/2` and `Analysis 2/2` and its partition check fails when a part is missing or
+the parts disagree on the group count; `tools/check-test-costs.py` applies C-2 to each Analysis part, and its self-test plants
+a part over 5 s (red) and two parts of 4.9 s that sum over 5 s (green). Adding a test class means one line in the `groups`
+array with its measured cost hint; a stale hint costs balance, never coverage. When a part nears 4 s, raise n (one number in
+`jobs=`), do not re-base C-2.
