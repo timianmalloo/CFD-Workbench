@@ -31,9 +31,13 @@ ANALYSIS_LIMIT_MS = 5000      # C-2, per Analysis part (B4: the harness is split
 # reach. Track B2 met its condition 3 (Desktop <= 43 s, wall <= 50 s: docs/proof/ring-b2/profile.md), so the absolute limits
 # are back and the deltas, the bases and the baseline path are gone:
 #   C-3 measures wall.ms - build.ms (net ring time, while an Analysis job is in the jobs; a cold build is not a test cost); limit 50000 ms.
-#   C-4 measures Desktop.ms; limit 43000 ms (DR-ANA-10).
+#   C-4 measures Desktop.ms (DR-ANA-10). Ruling 99 (DR-RING-3) re-based it ONCE, from the recorded quiet baseline
+#   docs/proof/ring-b4/baseline-desktop.csv (every run of the series that ended at load <= 24, four: 42,471 / 42,865 / 47,369 / 40,546 ms): limit = max + 2,000 ms.
+#   Track B5's CPU cut (plan-canvas fixture, section 9.9) did not bring three quiet runs to <= 41 s, so 43,000 ms does not return.
+#   No second re-base: a quiet reading over this limit is a red for the track that caused it (Ruling 99 (2)).
 WALL_LIMIT_MS = 50000   # C-3
-DESKTOP_LIMIT_MS = 43000  # C-4
+DESKTOP_BASE_MAX_MS = 47369  # the slowest of the three recorded quiet runs
+DESKTOP_LIMIT_MS = DESKTOP_BASE_MAX_MS + 2000  # C-4, 49,369 ms
 # C-2, C-3 and C-4 fail only when the 1-minute load at ring end is at or below this; above it, or not recorded, they print
 # COST-MISS (Ruling 84; C-2 joined by Ruling 87, which also gates the TEST-BUDGET check the same way). C-5 and C-6 are never gated.
 LOAD_GATE = 24.0
@@ -149,13 +153,14 @@ def self_test() -> int:
         ("C-3 net 51000 (wall 52000 - build 1000) at quiet load", {"wall.ms": "52000"}, quiet, "C-3", ()),
         ("C-3 net 49900 is inside the limit", {"wall.ms": "50900"}, quiet, None, ()),
         ("C-3 reads net: wall 50500 - build 1000 = 49500 is green", {"wall.ms": "50500"}, quiet, None, ()),
-        ("C-4 Desktop.ms 43100 at quiet load names DR-ANA-10", {"Desktop.ms": "43100"}, quiet, "DR-ANA-10", ()),
-        ("C-3 and C-4 at load 30.2 print COST-MISS and do not fail", {"wall.ms": "52000", "Desktop.ms": "43100"}, "30.2",
-         None, ("COST-MISS C-3 51000 load 30.2", "COST-MISS C-4 43100 load 30.2")),
-        ("load 24.0 is still gated: C-4 fails", {"Desktop.ms": "43100"}, "24.0", "DR-ANA-10", ()),
-        ("load 24.1 is not gated: C-4 is a COST-MISS", {"Desktop.ms": "43100"}, "24.1", None, ("COST-MISS C-4 43100 load 24.1",)),
-        ("load not recorded: C-4 is a COST-MISS, never a pass", {"Desktop.ms": "43100"}, "not-recorded", None,
-         ("COST-MISS C-4 43100 load not-recorded",)),
+        ("C-4 Desktop.ms 49369 (the limit) is green at quiet load", {"Desktop.ms": "49369"}, quiet, None, ()),
+        ("C-4 Desktop.ms 49400 at quiet load names DR-ANA-10", {"Desktop.ms": "49400"}, quiet, "DR-ANA-10", ()),
+        ("C-3 and C-4 at load 30.2 print COST-MISS and do not fail", {"wall.ms": "52000", "Desktop.ms": "49400"}, "30.2",
+         None, ("COST-MISS C-3 51000 load 30.2", "COST-MISS C-4 49400 load 30.2")),
+        ("load 24.0 is still gated: C-4 fails", {"Desktop.ms": "49400"}, "24.0", "DR-ANA-10", ()),
+        ("load 24.1 is not gated: C-4 is a COST-MISS", {"Desktop.ms": "49400"}, "24.1", None, ("COST-MISS C-4 49400 load 24.1",)),
+        ("load not recorded: C-4 is a COST-MISS, never a pass", {"Desktop.ms": "49400"}, "not-recorded", None,
+         ("COST-MISS C-4 49400 load not-recorded",)),
         ("C-5 COST Units_Lbf_KeyUnchanged 512.3", {"Analysis.part1of2.log": passes.replace("Units_Lbf_KeyUnchanged 12.500", "Units_Lbf_KeyUnchanged 512.3")},
          quiet, "Units_Lbf_KeyUnchanged", ()),
         ("C-5 COST F6_ObservedOrder 1612.0", {"Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1612.0\n"}, quiet, "F6_ObservedOrder", ()),

@@ -1397,10 +1397,13 @@ public static class PlanCanvasTests
             AssertGlyphPixel(Controller.Planform!.Trailing.Points[Controller.Planform.Trailing.Points.Count / 2]);
         }
 
+        private readonly Dictionary<PointView, Point> screenMemo = new();
+
         public void Settle()
         {
             PlanCanvasTests.Settle(Window);
             frameBytes = null;
+            screenMemo.Clear();
         }
 
         public void Press(PointView point, KeyModifiers modifiers = KeyModifiers.None)
@@ -1551,7 +1554,10 @@ public static class PlanCanvasTests
 
         public (byte R, byte G, byte B) RgbNear(PointView point, int dx, int dy)
         {
-            var position = Canvas.ScreenPoint(point);
+            // PlanCanvas.ScreenPoint costs about 0.5 ms (it re-reads the planform, which re-parses the source), and the glyph
+            // assertion and the ring probes ask for one point's position hundreds of times. A point's position is stable between
+            // two Settle calls (Settle resets this), so it is asked once per point (B5, DESKTOP-HARNESS-GROWTH).
+            if (!screenMemo.TryGetValue(point, out var position)) screenMemo[point] = position = Canvas.ScreenPoint(point);
             return RgbAtCanvas(position.X + dx, position.Y + dy);
         }
 

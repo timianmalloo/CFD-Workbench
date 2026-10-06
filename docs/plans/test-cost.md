@@ -514,3 +514,30 @@ time, and fixing mode families to a part loses the global longest-first fill (ne
 separate machines), which would lengthen the ring. Analysis was different: its parts (3 s each) were short and the single process was start-up and JIT bound.
 Consequence: the C-4 margin (0.2-0.5 s) is a Desktop CPU problem, not a partition problem. Options, for a ruling or the next track: reduce Desktop CPU (the heaviest children are
 plan-canvas 34/29 s, properties-view 26/23 s, shell-window 25/22 s), or move C-4's limit from a measured 3-run quiet baseline (Ruling 84 (2)); not a re-base without one.
+
+### 9.9 Track B5: Desktop CPU cut and the one C-4 re-base (Ruling 99, 2026-10-06)
+
+**Profile (Verified, per-check `COST` lines now printed by `DesktopChecks.Check`, plus phase timers in a temporary build).** Run alone, the 17 Desktop children total 274 s
+(690 checks, about 365 ms each). The cost is fixture-shaped, not a few slow checks: the top five checks are 7 % of the total. In the Plan canvas fixture, per window:
+open 200 ms (of which `RefreshAcceptedAsync` samples 15 exact-rational points and a section, about 177 ms), settle 105 ms, the glyph-contrast assertion 160 ms, dispose 35 ms.
+The glyph assertion was almost all `PlanCanvas.ScreenPoint`, which re-reads `Controller.Planform` (a source re-parse) at about 0.5 ms a call, 13,150 calls in one mode.
+
+**Shipped.** `PlanFixture.RgbNear` now asks for a point's screen position once between two `Settle` calls (cache cleared in `Settle`), so the glyph assertion and the ring probes
+make one `ScreenPoint` call instead of hundreds. No assertion, threshold or check changed: PASS names identical (690 PASS lines in the ring, before and after). Run alone, plan-canvas
+fell from 31 + 25 s to 24 + 20 s (`prof` logs); in the contended ring its children read 42.0 / 36.2 s before and 30-34 / 27-31 s after. `DesktopChecks.Check` prints `COST <name> <ms>` for every
+Desktop check (not read by `check-test-costs.py`) so the next cut starts from a measurement.
+
+**Tried and dropped (measured, nothing shipped).** (1) Adaptive `Settle` (stop after two idle passes instead of a fixed ten) cut passes 1,390 to 335 but saved only 1.1 s of 7.2 s per mode, because the
+cost is the first pass's real render, and it made `Shell_F7_ModelTabReentry_RendersAcceptedFoil` fail (it needs the later passes). (2) Memoising `PlanCanvas.Layer` and `WorkbenchController.Planform` in
+product code gave no gain: `Planform` reads `session.Snapshot().Source`, so the memo key was never stable and the cost sits in the re-parse. Reverted.
+
+**What would still cut Desktop CPU (not done; each touches product code or fixture semantics).** `RefreshAcceptedAsync` re-samples the same certificate for the same bytes in about 177 ms per window
+open (a cache keyed by source hash and eta would need `DisplayFrame.ElapsedMilliseconds` handled); `Geometry.Assess` and `AuthoringSession.Open` certify the same bytes twice per open; Plan tests render the 3D view
+that they do not assert on (the `One(Plan)` layout used by the 8 ms readiness check would remove it, but changes the geometry the pixel assertions read).
+
+**Baseline and the re-base (Ruling 99 (1)).** The done condition (three quiet runs at 41 s or less) was not met. The series of eight rings on the final code, start load about 12, gave Desktop
+(end load): 44.5 s (24.7), 43.2 (57.4), 42.5 (20.9), 42.9 (17.3), 48.6 (24.2), 48.9 (36.6), 47.4 (21.7), 40.5 (19.0). The runs that ended at load 24 or below are four; all four are recorded in
+`docs/proof/ring-b4/baseline-desktop.csv` (42,471 / 42,865 / 47,369 / 40,546 ms; wall 44.2-51.3 s). The spread is wide because other sessions share the machine. `DESKTOP_LIMIT_MS` = max + 2,000 =
+**49,369 ms** (constant `DESKTOP_BASE_MAX_MS` = 47,369, citing Ruling 99 and the CSV); the self-test gains a green case at the limit and a red case at 49,400 ms at quiet load; the Ruling 87 load gate is unchanged;
+no second re-base. **C-3's 50,000 ms net wall is now the binding ceiling**: the 47.4 s run read net 50,240 ms and failed C-3 as well. Three of the eight runs also read Desktop over 45.5 s, the figure Ruling 99
+planned, which is why this re-base is higher than the 45,500 estimate.

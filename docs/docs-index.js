@@ -5044,7 +5044,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2bd01739640bf55b53ddc4e85f30d29d587ff31dc5be95259664dc2cd41aecd3"
+      "sourceSha256": "8d8a5cb2b3983018e286bd71bd853d0f199cc0f237d5bf43a9ba38e141d2fe5a"
     },
     {
       "id": "domain-experts",
@@ -5694,7 +5694,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c24e3598a355296614515a351d88d484e206a65a72cdc9d79c1e30c935976dbe"
+      "sourceSha256": "6888b97f9edae9f2fb2e7e885cafff8c05c441de0d32e1e2431580d08595810e"
     },
     {
       "id": "plan-tip-handling",
@@ -14017,5 +14017,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "16e0f24c9eb407ccc65905e8dbd66233736a1858d5749fe84c8733dda60788df"
+  "graphSha256": "f6d38e32b5f317ad19bcac6bf08456b6974ef84c45dd55afe261cbb11a3e6e22"
 };
