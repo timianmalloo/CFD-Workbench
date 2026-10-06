@@ -78,3 +78,16 @@ Each text goes through the one `Labels` lookup (`StationName`, `FindNeedsInput`,
 `WorkbenchController.DeriveFeed` swallowed the section ContractError, so the app always showed COPY-357. Change: `RunFeed.SectionFailureCode` (new optional last field), set from the caught error code in `DeriveFeed`, passed to `ProjectionContext.SectionFailureCode` at the one projection call (two extra lines beside DeriveFeed in the Analysis region; no gesture or selection region touched).
 
 Red: `Section_CpUnavailable_PanelSolveFailed_ShowsCopy358InApp` (Desktop readiness). A mutant that restores `catch (ContractError) { return NoFeed; }` fails it: `FAIL ... the feed names the section failure: expected ANA-SECTION-RE, got ` (empty). Restored: PASS. The check drives `DeriveFeed` with a completed run whose speed puts the section Re under 100 (ANA-SECTION-RE) and projects with the feed exactly as the controller does; a window-level run could not make a completed run fail its feed (the service runs the same station solve, so such a run is recorded Failed instead), so the controller pass-through line itself is one expression, covered by the type (the field is passed by name) and by the Desktop readiness suite.
+
+### Item 4: behavioural mutants (planted, failed for the right reason, restored via `git checkout`)
+
+| Check | Mutant | Observed failure |
+|---|---|---|
+| `Projection_NoRawAnaCodeInAnyCell` | the ANA-OSWALD-UNDEFINED text in `Labels.ReasonTexts` set to `Unavailable — ANA-OSWALD-UNDEFINED` | `raw code shown ... actual ANA-OSWALD-UNDEFINED in d./e (computed)/Unavailable — ANA-OSWALD-UNDEFINED` (a first mutant in `AnalysisProjection.ReasonText` passed: that path is not the one the e row uses, so it was not a leak; replaced) |
+| `Section_ShownStation_SelectedElseGoverning_Dxm9` | the Screen row appends " (400)" when the on-demand seam is supplied (the on-demand solve writes the screen) | `cavitation rows byte-equal with and without the call expected ... actual ... (400)` |
+| `Section_UnderreadNotMeasured_ShowsRatifiedText` | the unsolved station renders `OK` | `shown but not yet solved: exact text expected Cp_min under-read not measured at this station (200 panels only); actual OK` |
+| `Section_CpUnavailable_NoProfileAndSolveFailed_Row10` | both branches return COPY-357 | `panel solve failed expected Unavailable — the panel solve failed ...; actual Unavailable — no accepted section profile at this station` |
+| `FindAlpha_ButtonBesideEvaluate_ApplyWritesAlphaOnly_Dxm6` | `ApplyFoundAlpha` also runs Evaluate (records a run) | `Apply records no run: expected e09ae9cc..., got b2758586...` |
+| `Polar_NonNaca0012InsideTrainingRange_ComputedAndFlagged_Ruling117` | `AvailabilityCode` returns the family code again (refuse again) | `a strip cd is computed, not refused expected True; actual False` |
+
+Tool: scratchpad `dx2/mutate.py` (applies one exact replacement, builds, runs one check, restores the file). `git status` was clean after every run.
