@@ -11852,7 +11852,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fb9e83502453964c4ff0ec5f1acaa9647e0e0f9f8aa099b10dd9e4846014731b"
+      "sourceSha256": "cce40ecc3157a1a4e8e94d2eff6681497af1d7b829a6b9eceb9986603e64b938"
     },
     {
       "id": "proof-pnl-step0-other-stations",
@@ -14778,5 +14778,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "a0c8a150b4e815b65eb98923beae760bd005af521da9d9cd9badd4c585f02c87"
+  "graphSha256": "13837f21ceb3c9f143992d72eb599ba9504ef504e79eab94a81499b295e510f3"
 };

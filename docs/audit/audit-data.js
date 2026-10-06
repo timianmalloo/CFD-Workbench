@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T16:52:52Z",
+  "generated": "2026-10-06T16:55:36Z",
   "audit": [
     {
       "actor": null,
@@ -27532,6 +27532,26 @@ window.AUDIT_DATA = {
       "done_when": "red-first, six-percent measurement, timing under 1 s, run-tests green, check-docs 0",
       "started_at": "2026-10-06T16:44:04Z",
       "duration_seconds": 527.0
+    },
+    {
+      "id": "al-01M4928QXGAS2WN9RS7DK3Q5N5",
+      "shortname": "trk-pnl",
+      "datetime": "2026-10-06T16:55:36Z",
+      "session": "trk-pnl",
+      "prompt": "pnl repair cycle 2 round-oct06",
+      "summary": "AnalysisEvent.PanelCandidates added and tested; near-tie check fails on mixed-comparison mutant (expected 1, actual 0.5); 97->65 station cut disclosed",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "analysis.run PanelCandidates field, behavioural mutant red for near-tie, cost-cut disclosure",
+      "done_when": "event test red then green, mutant red/green recorded, run-tests green, check-docs 0",
+      "started_at": "2026-10-06T16:53:43Z",
+      "duration_seconds": 113.0
     }
   ],
   "changes": [
