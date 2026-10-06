@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T02:28:23Z",
+  "generated": "2026-10-06T02:30:01Z",
   "audit": [
     {
       "actor": null,
@@ -26637,6 +26637,33 @@ window.AUDIT_DATA = {
         "branch": "feature/cad-limits-in-gesture",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M47GQTV7BCV5Q6SAVBNMX9EF",
+      "shortname": "join-cad-limits-in-gesture",
+      "datetime": "2026-10-06T02:30:01Z",
+      "session": "4e90c621",
+      "prompt": "the join of feature/cad-limits-in-gesture into main",
+      "summary": "LIM: HoldAtChordLimit (TipChord.Admits oracle, 1 um search) in the gesture, GestureLimit on the frame, marker/tether/ring on Plan, Wing note, one announcement per limit state, typed refusal keeps text (scoped) with Use <value>, ClampReason telemetry, COPY-243..249; mutants M1-M3 red; C# review conditions met recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join cad-limits-in-gesture into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T02:28:56Z",
+      "duration_seconds": 65.0
     }
   ],
   "changes": [
