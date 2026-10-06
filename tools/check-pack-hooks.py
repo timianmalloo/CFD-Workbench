@@ -15,7 +15,7 @@ for _stream in (sys.stdout, sys.stderr):
 
 CONFIGS = (".claude/settings.json", ".grok/hooks/ai-forward.json", ".agents/hooks.json",
            ".github/hooks/ai-forward.json")
-HOOK_PATH = re.compile(r"docs/ai-forward-pack/hooks/[\w-]+\.py")
+HOOK_PATH = re.compile(r"(?:docs/ai-forward-pack|tools)/hooks/[\w-]+\.py")
 
 
 def command_strings(node):
@@ -54,7 +54,7 @@ def main():
     for event, groups in settings.get("hooks", {}).items():
         for group in groups:
             for hook in group.get("hooks", []):
-                match = re.search(r"docs/ai-forward-pack/hooks/[\w-]+\.py", hook.get("command", ""))
+                match = re.search(r"(?:docs/ai-forward-pack|tools)/hooks/[\w-]+\.py", hook.get("command", ""))
                 if not match:
                     continue
                 key = (event, group.get("matcher", ""), match.group())

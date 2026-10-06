@@ -1710,10 +1710,11 @@ Prose in the brief did not change the behaviour, so the rule is a memoir (CI6).
 **Class → sweep → derive → prevent:** signature: a behaviour rule that agents must follow on every call, enforced only
 by being written down. Sweep: other CT27 shapes (a gate behind a pipe, a sub-agent calling `EnterWorktree`) have the
 same property; the profiler counts all three, nothing refuses them. Derive: the refusal belongs at the tool seam.
-Control (proposed, not installed; an operator decision): a PreToolUse hook on `Bash`. Draft and tests:
-`docs/proof/round-oct05-lessons/no-heredoc-hook.py` (`--self-test` green) and
-`docs/proof/round-oct05-lessons/heredoc-hook-proposal.md`. Not done here because wiring it changes harness
-configuration. Unverified: whether repo-level hooks fire for sub-agent Bash calls. Until installed, the class is open.
+Control (installed, Ruling 104, 2026-10-06): a PreToolUse hook on `Bash`, `tools/hooks/no-heredoc.py`, wired in
+`.claude/settings.json`; its `--self-test` runs in `check-docs.py` and `check-pack-hooks.py` requires the toplevel
+fallback for `tools/hooks/`. Proposal: `docs/proof/round-oct05-lessons/heredoc-hook-proposal.md`. Open: whether
+repo-level hooks fire for sub-agent Bash calls is measured after the join, in a new session (hooks load at session
+start); until then the class stays open for sub-agents. Not covered: Grok, Copilot and agy payloads.
 
 **SECTION-EDITOR-LOAD-FLAKE · One failed check in the shared-fixture Section Editor suite leaves a gesture pressed and cascades.**
 `SectionEditor_DragMove_DrawsWithinOneFrame` failed at least 4 times on 2026-10-05 at load 40 to 200, and passed alone
