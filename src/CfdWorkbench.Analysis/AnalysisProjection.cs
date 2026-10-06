@@ -17,6 +17,7 @@ public static class AnalysisProjection
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
     // simplify: the generic "Unavailable" of COPY-210..229 stands in until a copy ruling names a no-verdict string.
     private const string VerdictUnavailable = "Unavailable";
+    private const string SurrogateLabel = "XFOIL-class surrogate; accuracy relative to XFOIL, not experiment";
     private enum VerdictState { Inside, Outside, Provisional, Indeterminate }
 
     public static AnalysisViewModel Build(AnalysisRun? run, CurrentInputs current, Units units) => Build(run, current, units, null);
@@ -170,27 +171,28 @@ public static class AnalysisProjection
                 Row("Cd", unavailable), Row("Cp_min", unavailable), Row("Cavitation", unavailable)];
         var rows = new List<ResultRow>
         {
-            Row("Cl", Num(station.Estimate.Cl, "0.###")),
-            Row("Cm_c/4", Num(station.Estimate.CmQuarter, "0.###")),
-            Row("α_L0", Num(station.Estimate.AlphaL0Deg, "0.###"), "°"),
-            Row("Cd", Num(station.Estimate.CdTurbulentBound, "0.#####")),
-            Row("Cp_min", Num(station.Estimate.Panel.CpMin, "0.###")),
-            Row("N", station.Estimate.Panel.StationCount.ToString(Inv)),
-            Row("η", Num(station.Eta, "0.###")),
+            Row("Cl", Num(station.Estimate.Cl, "0.###"), note: PanelMethod.ModelLabel),
+            Row("Cm_c/4", Num(station.Estimate.CmQuarter, "0.###"), note: PanelMethod.ModelLabel),
+            Row("α_L0", Num(station.Estimate.AlphaL0Deg, "0.###"), "°", PanelMethod.ModelLabel),
+            Row("ANA-SECTION-ITTC1957-BOUND", Num(station.Estimate.CdTurbulentBound, "0.#####"),
+                note: "ITTC-1957 fully turbulent bound; no lift-dependent profile drag"),
+            Row("Cp_min", Num(station.Estimate.Panel.CpMin, "0.###"), note: PanelMethod.ModelLabel),
+            Row("N", station.Estimate.Panel.StationCount.ToString(Inv), note: PanelMethod.ModelLabel),
+            Row("η", Num(station.Eta, "0.###"), note: PanelMethod.ModelLabel),
             Row("Cavitation", section.Cavitation.Reason == Cavitation.DepthNotSet ? "Unavailable — depth not set" :
                 section.Cavitation.Reason ?? section.Cavitation.State.ToString(), note: section.Cavitation.ScreenText)
         };
         if (section.PolarNcrit2 is not null || section.PolarNcrit4 is not null ||
             section.PolarReason2 is not null || section.PolarReason4 is not null)
         {
-            rows.Add(Row("Ncrit 2", PolarText(section.PolarNcrit2, section.PolarReason2)));
-            rows.Add(Row("Ncrit 4", PolarText(section.PolarNcrit4, section.PolarReason4)));
+            rows.Add(Row("Ncrit 2", PolarText(section.PolarNcrit2, section.PolarReason2), note: SurrogateLabel));
+            rows.Add(Row("Ncrit 4", PolarText(section.PolarNcrit4, section.PolarReason4), note: SurrogateLabel));
             PolarResult? polar = section.PolarNcrit2 ?? section.PolarNcrit4;
             if (polar is not null)
             {
-                rows.Add(Row("CST residual", Num(polar.CstResidualMax, "0.#####E+0")));
+                rows.Add(Row("CST residual", Num(polar.CstResidualMax, "0.#####E+0"), note: SurrogateLabel));
                 rows.Add(Row("analysis_confidence", Val(polar.Sample.Confidence, "0.###"),
-                    note: polar.LowConfidence ? "ANA-POLAR-LOW-CONFIDENCE" : null));
+                    note: SurrogateLabel + (polar.LowConfidence ? " · ANA-POLAR-LOW-CONFIDENCE" : "")));
             }
         }
         return rows;

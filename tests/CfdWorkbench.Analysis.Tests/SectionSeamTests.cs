@@ -42,8 +42,11 @@ internal static class SectionSeamTests
         var estimate = new SectionEstimate(panel, 0, 0.01);
         CavitationResult cavitation = Cavitation.Screen(-1, PanelMethod.DefaultPanelCount, 0.5,
             run.Op.Speed, run.Water.Rho, run.Op.PAtm, run.Water.Pv, "η 0.5");
+        var sample = new PolarSample("profile", "neuralfoil", "test", 5e5, 2, "clean", 2, "water",
+            0.3, 0.01, -0.02, 0.4, 0.5, -1, 200, 0.9, true);
+        var polar = new PolarResult(sample, [], false, 0.0001, 0.0002);
         var section = new SectionTierResult([new SectionStationResult(0.5, 2, 5e5, 0.5, estimate, cavitation)],
-            cavitation, 0.5, 0.11);
+            cavitation, 0.5, 0.11) { PolarNcrit2 = polar, PolarNcrit4 = polar };
         IReadOnlyList<StripLoad> provisional = SectionTier.MarkGoverning(run.Strips,
             section with { GoverningEta = 0.25, PanelUnderreadFraction = 0.11 });
         AnalysisChecks.Equal(StripLoad.PanelUnderreadReason, provisional[1].ProvisionalReason, "over-10% station reason");
@@ -53,6 +56,15 @@ internal static class SectionSeamTests
         if (!rows.Any(row => row.Label == "Cl" && row.Value != Labels.NoPolar) ||
             !rows.Any(row => row.Label == "Cp_min" && row.Value != Labels.SectionCp))
             throw new InvalidOperationException("section projection still shows the A3a stub");
+        foreach (string label in new[] { "Cl", "Cm_c/4", "α_L0", "Cp_min" })
+            AnalysisChecks.Equal(PanelMethod.ModelLabel, rows.Single(row => row.Label == label).Note,
+                label + " panel tier label");
+        if (rows.Any(row => row.Label == "Cd") ||
+            rows.Single(row => row.Label == "ANA-SECTION-ITTC1957-BOUND").Note is null)
+            throw new InvalidOperationException("the turbulent estimator bound is labelled as polar Cd");
+        foreach (string label in new[] { "Ncrit 2", "Ncrit 4", "CST residual", "analysis_confidence" })
+            AnalysisChecks.Equal("XFOIL-class surrogate; accuracy relative to XFOIL, not experiment",
+                rows.Single(row => row.Label == label).Note, label + " COPY-66");
     }
 
     private static void Piercing()
