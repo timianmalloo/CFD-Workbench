@@ -66,8 +66,11 @@ internal static class OperatingSearchTests
         double expectedDrag = 1 - 0.50 * Math.Exp(-Math.Pow(3, 0.40));
         if (Math.Abs(result.Lift!.Value - 100 * expectedLift) > 1e-9 ||
             Math.Abs(result.Drag!.Value - 10 * expectedDrag) > 1e-9 ||
-            result.HOverC != 3 || result.FroudeDepth is not > 0 || result.Id != "JMSA-2026-depth-fit")
+            Math.Abs(result.HOverC!.Value - 3) > 1e-12 || result.FroudeDepth is not > 0 || result.Id != "JMSA-2026-depth-fit")
             throw new InvalidOperationException("A5.2 depth-only correction or provenance changed");
+        if (result.ModelScaleReFrom != 73000 || result.ModelScaleReTo != 290000 ||
+            result.FroudeLiftLossFinding != 0.17 || result.FroudeDependenceCode != "ANA-FREE-SURFACE-FROUDE-NOT-MODELLED")
+            throw new InvalidOperationException("A5.2 evidence limits were not projected as data");
         FreeSurfaceResult piercing = FreeSurfaceCorrection.Evaluate(100, 10, 5, 0, 0.1, 5);
         if (piercing.Lift is not null || piercing.ReasonCode != "ANA-FREE-SURFACE-SURFACE-PIERCING")
             throw new InvalidOperationException("surface-piercing correction returned a plausible value");
