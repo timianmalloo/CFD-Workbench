@@ -33,6 +33,7 @@ The first-run figure was added to the MEASURE line by this track.
 | After (200 everywhere, governing station re-solved at 400 as the full estimate) | Release | quiet | 3 | 432.0, 440.9, 487.6 | 523.5, 534.3, 528.6 | 200 + 1 × 400 estimate |
 | After | Release | 8 parallel copies on 16 CPUs | 8 | 436.5–495.7 | 512–539 | same |
 | After | Release | 32 parallel copies on 16 CPUs (2× oversubscribed) | 32 | 989–1,108 (min, median, max of the sort) | 1,442–1,530 | same |
+| **Ruling 114** (width max(2u, 25 %), thinnest-station slot; same cap of 4) | Release | quiet | 2 | 551.2, 501.8 | 596.8, 590.4 | up to 4 x 400 estimate, as in cycle 1; no new budget |
 | **Cycle 1** (Ruling 110: governing plus up to 3 near-tie stations at 400) | Release | quiet | 3 | 509.8, 493.3, 537.1 | 593.8, 583.7, 578.6 | 200 + up to 4 × 400 estimate; on this uniform fixture all 4 tie, the worst case |
 | After | Debug | quiet | 3 | 1,973–2,001 | 1,992–1,996 | same |
 

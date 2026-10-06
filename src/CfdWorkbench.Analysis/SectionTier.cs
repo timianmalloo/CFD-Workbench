@@ -119,7 +119,7 @@ public static class SectionTier
         if (governing < 0)
             governing = Array.FindIndex(stations, station => station.Estimate.Panel.CpMin == stations.Min(s => s.Estimate.Panel.CpMin));
         // Ruling 103/110. The 200-pass winner is re-solved at 400; its measured under-read u sets the near-tie width.
-        // Every station within 2u of the best 200 ratio, at most MaxPanelCandidates in all, is re-solved at 400.
+        // Candidates inside the Ruling 114 width are re-solved at 400, at most MaxPanelCandidates in all.
         // The governing station is then re-selected among the 400-solved stations by 400 ratio.
         // A 400 value is never compared with a 200 value (Ruling 110 (2)).
         var solved = new List<int>(MaxPanelCandidates);
@@ -128,10 +128,14 @@ public static class SectionTier
         solved.Add(winner200);
         if (!double.IsPositiveInfinity(bestRatio))
         {
-            double width = 2 * stations[winner200].PanelUnderread!.Value;
-            int[] others = Enumerable.Range(0, stations.Length)
+            // Ruling 114: width = max(2u, 25 %). Slots: the governing station, the two lowest 200 ratios inside the
+            // width, and the thinnest station inside it (a thin station under-reads most, so it swaps most often).
+            double width = Math.Max(2 * stations[winner200].PanelUnderread!.Value, MinNearTieWidth);
+            int[] inside = Enumerable.Range(0, stations.Length)
                 .Where(i => i != winner200 && Ratio(stations[i]) is double r && r <= bestRatio * (1 + width))
-                .OrderBy(i => Ratio(stations[i])).Take(MaxPanelCandidates - 1).ToArray();
+                .OrderBy(i => Ratio(stations[i])).ToArray();
+            int[] others = inside.Take(MaxPanelCandidates - 2)
+                .Concat(inside.Skip(MaxPanelCandidates - 2).OrderBy(i => sections[i].Frame.ThicknessRatio).Take(1)).ToArray();
             foreach (int i in others) { Refine(i); solved.Add(i); }
             double bestFine = double.PositiveInfinity;
             foreach (int i in solved)
@@ -167,6 +171,9 @@ public static class SectionTier
 
     /// <summary>Most stations re-solved at 400 panels in one run: the governing station plus its near-tie candidates (Ruling 110).</summary>
     public const int MaxPanelCandidates = 4;
+
+    /// <summary>Floor of the near-tie width (Ruling 114): a station within 25 % of the best 200 ratio is a candidate.</summary>
+    public const double MinNearTieWidth = 0.25;
 
     /// <summary>
     /// The measured two-grid (200 vs 400 panels, p assumed 1) suction under-read of one station at its own α_eff and Re.

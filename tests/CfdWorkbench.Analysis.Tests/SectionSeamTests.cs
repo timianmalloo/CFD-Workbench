@@ -15,6 +15,7 @@ internal static class SectionSeamTests
         AnalysisChecks.Check("Section_SurfacePiercing_EstimatorUnavailable", Piercing);
         AnalysisChecks.Check("Section_AnalysisRunEvent_CarriesPanelCandidateCount", CandidateCountOnEvent);
         AnalysisChecks.Check("Section_NearTie_GoverningReSelectedAt400", NearTieReSelected);
+        AnalysisChecks.Check("Section_ThinStationAt112PercentOfBest_SolvedAndWins", ThinStationAt112Wins);
         AnalysisChecks.Check("Section_ThinStationOutsideNearTie_NotMeasured", NotMeasuredStation);
         AnalysisChecks.Check("Section_UniformWing_CandidateCountCappedAtFour", CandidateCap);
         AnalysisChecks.Check("Section_GoverningEstimate_Cambered_Matches400Panels", GoverningEstimateIs400);
@@ -80,6 +81,31 @@ internal static class SectionSeamTests
         if (Math.Abs(tier.PanelUnderreadFraction - thin.PanelUnderread!.Value) > 1e-15)
             throw new InvalidOperationException("the run's under-read is not the re-selected governing station's");
         Console.WriteLine($"OBSERVED near-tie: thick 200-ratio {thickRatio200:F4}, thin 200-ratio {thinRatio200:F4}; thin under-read {thin.PanelUnderread:P2}; thick {thick.PanelUnderread:P2}; governing eta {tier.GoverningEta}");
+    }
+
+    // Ruling 114: a 2 %-thick station at 1.12x the best 200 ratio, behind three thicker stations that fill the lowest-ratio
+    // slots (1.03x, 1.05x, 1.07x), is solved through the reserved thinnest-station slot and wins at 400. Under the 2x width
+    // (about 8 %) it is outside the window and the governing station stays wrong.
+    private static void ThinStationAt112Wins()
+    {
+        byte[] source = ThicknessSource(x => 0.12 + (0.02 - 0.12) * x);
+        double[] etas = [0.5, 0.6, 0.7, 0.8, 1.0];
+        double thinSuction = Suction200(source, 1.0, 3);
+        double[] k = [1.0, 1.03, 1.05, 1.07];
+        var strips = new List<StripLoad> { Strip(1.0, 3) };
+        for (int i = 0; i < k.Length; i++)
+            strips.Add(Strip(etas[i], AlphaForSuction200(source, etas[i], 1.12 * thinSuction / k[i])));
+        SectionTierResult tier = SectionTier.Evaluate(source, etas, strips, Fixture.Op(3), Fixture.Salt);
+        SectionStationResult thin = tier.Stations[4];
+        double best = tier.Stations.Take(4).Min(s => s.Cavitation.Sigma!.Value / Suction200(source, s.Eta, s.AlphaEffDeg));
+        double thinRatio = thin.Cavitation.Sigma!.Value / thinSuction;
+        if (thinRatio / best < 1.10 || thinRatio / best > 1.15)
+            throw new InvalidOperationException($"fixture: thin station at {thinRatio / best:F3}x the best 200 ratio, not 1.10-1.15x");
+        AnalysisChecks.Equal(400, thin.Estimate.Panel.StationCount, "the thin station was solved at 400");
+        AnalysisChecks.Equal(SectionTier.MaxPanelCandidates, tier.PanelCandidateCount, "cap");
+        AnalysisChecks.Equal(1.0, tier.GoverningEta, "the thin station wins at 400");
+        AnalysisChecks.Equal(StationName(1.0), tier.Cavitation.GoverningStation, "the wing screen's station");
+        Console.WriteLine($"OBSERVED thin station at {thinRatio / best:F3}x best 200 ratio solved; under-read {thin.PanelUnderread:P2}; governing eta {tier.GoverningEta}");
     }
 
     // A thin station far from the governing ratio is not solved at 400: "not measured", never provisional.

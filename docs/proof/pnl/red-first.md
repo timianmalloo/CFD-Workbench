@@ -90,6 +90,21 @@ COPY-312 row text belongs to track DX.
 
 The provisional flag is the **two-grid, p assumed 1** under-read: (S400 - S200)/S400 on the suction peak. It is a
 two-grid difference, not an error bound (CFD condition 3). The label is in the `SectionTier.cs` doc comments. The run
-trace line is not done (see the Return): it needs a field in `Core/RunRecord.cs`.
+trace line was added in cycle 2 (`AnalysisEvent.PanelCandidates`).
+
+### Ruling 114 (near-tie width max(2u, 25 %), thinnest-station slot)
+
+- Width is now best 200 ratio x (1 + max(2 u_g, 0.25)). Slots (cap 4): the governing station, the two lowest 200
+  ratios inside the width, and the thinnest station (smallest t/c) among the rest inside the width. Governing is
+  re-selected by 400 ratio among the solved set, as before.
+- **Behavioural red.** `Section_ThinStationAt112PercentOfBest_SolvedAndWins`: a 2 %-thick station at 1.120x the best 200
+  ratio, behind three thicker stations at 1.03x, 1.05x, 1.07x (they fill the lowest-ratio slots). On the 2x-width code
+  (fixture precondition 1.10-1.15x passed): `FAIL ... the thin station was solved at 400 expected 400; actual 200`.
+  On the Ruling 114 code: PASS, `OBSERVED thin station at 1.120x best 200 ratio solved; under-read 16.51%; governing eta 1`.
+- Existing near-tie, not-measured, cap and 6 %-thick checks stayed green with **no fixture change**: the not-measured
+  thin station sits at alpha 0.5, far outside 25 % of the best ratio; the uniform wing still ties at every station and
+  fills 4.
+- **Residual, recorded and not covered:** a 1 %-thick station (about 40 % under-read) can still fall outside the width.
+- Timing (`timing.md`): warm 501.8 and 551.2 ms, first run about 590-597 ms; same cap of 4 as cycle 1, no new budget.
 
 Wording (CFD condition 5): the `MethodRecord.cs` doc comment and the `PanelCpTests` message now cite Rulings 90, 103, 110.
