@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T16:39:52Z",
+  "generated": "2026-10-06T17:03:07Z",
   "audit": [
     {
       "actor": null,
@@ -27492,6 +27492,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T16:39:48Z",
       "duration_seconds": 4.0
+    },
+    {
+      "id": "al-01M492PG44Q471SXZWB8VY95SH",
+      "shortname": "trk-grp-core",
+      "datetime": "2026-10-06T17:03:06Z",
+      "session": "trk-grp-core",
+      "prompt": "GRP half 1 round-oct06",
+      "summary": "Design edits and mockup fixes; BeginGroupGesture/UpdateGroupGesture/ApplyGroupValue in AuthoringSession through one clamp path; gesture.end Members; 20 Core checks; mutants red. Full ring: Core 720 and Desktop 716 PASS; Analysis Section_WingRun_PanelValuesAtEveryStation wall-clock assertion fails at load 47-71 in two runs",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Design group-move-node-m complete (findings 1-10, Rulings 107/111) and Core group gesture plus typed group command",
+      "done_when": "design and mockup edits landed; GroupGestureTests (20 checks) green with red-first and mutants; run-tests and check-docs run",
+      "started_at": "2026-10-06T16:44:05Z",
+      "duration_seconds": 1141.0
     }
   ],
   "changes": [
@@ -29096,6 +29116,78 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M4913X04S7NVF9QAS0J52XFA",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M491GG5CT6G7G0KF24QDRCDE",
+      "ts": "2026-10-06T16:42:21Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M491GG58YFG4TZ4XSJRSWFKM",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M491GG8A8DHVA1CCTA0R25R5",
+      "ts": "2026-10-06T16:42:21Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M491GG58YFG4TZ4XSJRSWFKM",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M491NNHXQH9YDR35NSJMJS4E",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M491NNHRBHCKM7MMA1BN6X65",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M491NNN5DNJ5BADR4Y9NEVXW",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M491NNHRBHCKM7MMA1BN6X65",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M491NNYS6VGQZT7KGRC9G5YD",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M491NNYNBRNTTV9N2HYNNPJ5",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M491NP1TZSKABVKHHCH5M548",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M491NNYNBRNTTV9N2HYNNPJ5",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M491NPB9SSYWGWDN9HW0XMKX",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M491NPB5CHTRV0GZAG42TYMJ",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M491NPE39VXFT4ZN6E7K35YB",
+      "ts": "2026-10-06T16:45:12Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M491NPB5CHTRV0GZAG42TYMJ",
       "session": "operator-timianmalloo"
     }
   ]
