@@ -1613,3 +1613,10 @@ the ring is CPU-bound, only less CPU lowers a clock; a partition moves the same 
 check or loosening an assertion, and returns C-4 to 43,000 ms; (2) growth is made countable: each UI track's join note reports its Desktop
 child-seconds delta from `SUITE-TIME` (the sum over `.tmp-tests/Desktop.log`); (3) C-4 stays a load-gated tripwire (Ruling 87) with the limit
 set only from a recorded 3-run quiet baseline (`docs/proof/ring-b4/baseline-desktop.csv`), never by an unrecorded move.
+
+**ANA-UNUSED-DERIVATIVE-GATE · A panel estimate refuses valid cambered geometry because an unused endpoint derivative is singular.**
+The imported NACA 2412 wing had a finite contour but a negative-infinite leading-edge `CamberSlope`; the section estimator
+used panel coordinates, yet its old validation rejected the derivative. Sweep: `SectionEstimator` was the only section
+consumer requiring finite camber slopes; `PanelMethod` uses coordinates. Derive: validate the inputs the selected method
+actually reads. Control: `Section_CamberedWing129_WarmTime` runs all 129 stations of a 2 % cambered foil through the
+section tier and requires finite panel results and a nonzero zero-lift angle.

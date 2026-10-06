@@ -449,6 +449,39 @@ public static class VortexLattice
         return new DenseSolution(x, residual, backward, Condition(factors, pivot, OneNorm(matrix, n), n), interchanges);
     }
 
+    /// <summary>Reusable in-run factorization for multiple right sides of the same panel influence matrix.</summary>
+    internal sealed class DenseFactors
+    {
+        private readonly double[] original;
+        private readonly double[] factors;
+        private readonly int[] pivot;
+        private readonly int n;
+
+        public DenseFactors(double[] matrix, int dimension, CancellationToken cancellation)
+        {
+            original = matrix;
+            n = dimension;
+            factors = (double[])matrix.Clone();
+            pivot = new int[n];
+            Factor(factors, pivot, n, LatticePlant.None, cancellation);
+        }
+
+        public double[] Solve(double[] rhs, CancellationToken cancellation)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            var x = (double[])rhs.Clone();
+            Substitute(factors, pivot, x, n);
+            if (x.Any(value => !double.IsFinite(value)))
+                throw new LatticeFailedException("ANA-NONFINITE", "A panel strength is not finite.");
+            double residual = Residual(original, x, rhs, n);
+            double scale = InfNorm(original, n) * MaxAbs(x) + MaxAbs(rhs);
+            double backward = scale > 0 ? residual / scale : residual;
+            if (!(backward <= Settings.SolveBackwardErrorTolerance))
+                throw new LatticeFailedException("ANA-SOLVE-RESIDUAL", "The panel solve residual exceeds tolerance.");
+            return x;
+        }
+    }
+
     internal sealed record DenseSolution(double[] X, double ResidualInf, double BackwardError, double Kappa1, int Interchanges);
 
     private static void Factor(double[] a, int[] pivot, int n, LatticePlant plant, CancellationToken cancellation)

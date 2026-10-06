@@ -27,6 +27,7 @@ internal static class AnalysisChecks
             FreshnessTests.RunReadiness();
             PanelCpTests.RunReadiness();
             StripFixtureTests.RunReadiness();
+            SectionSeamTests.RunReadiness();
             return Finish();
         }
         (int Index, int Count)? part;

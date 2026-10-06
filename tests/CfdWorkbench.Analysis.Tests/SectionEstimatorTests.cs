@@ -13,6 +13,7 @@ internal static class SectionEstimatorTests
         AnalysisChecks.Check("Section_ThinCambered_GlauertOracleOnly", ThinCamber);
         AnalysisChecks.Check("Section_Ittc1957_TurbulentBound", Drag);
         AnalysisChecks.Check("Section_SourceStation_IndependentPanelResolution", SourceStation);
+        AnalysisChecks.Check("Section_CamberedPreparedPanel_ReusesMatrix", PreparedCamber);
     }
 
     private static void Camber()
@@ -75,6 +76,20 @@ internal static class SectionEstimatorTests
         if (!double.IsFinite(estimate.Panel.CpMin))
             throw new InvalidOperationException("source-station Cp_min is not finite");
         Console.WriteLine($"OBSERVED section estimator default {PanelMethod.DefaultPanelCount} panels: {elapsedMs:F3} ms");
+    }
+
+    private static void PreparedCamber()
+    {
+        SectionSample section = Section(0.02, 0.12, 200);
+        var prepared = PanelMethod.Prepare(section);
+        foreach (double alpha in new[] { -3d, 0d, 1d, 4d })
+        {
+            PanelResult reused = prepared.Solve(alpha);
+            PanelResult fresh = PanelMethod.Solve(section, alpha);
+            Near(fresh.Cl, reused.Cl, 1e-10, "reused panel Cl");
+            Near(fresh.CmQuarter, reused.CmQuarter, 1e-10, "reused panel Cm");
+            Near(fresh.CpMin, reused.CpMin, 1e-10, "reused panel Cp_min");
+        }
     }
 
     internal static SectionSample Section(double camber, double thickness, int panels)

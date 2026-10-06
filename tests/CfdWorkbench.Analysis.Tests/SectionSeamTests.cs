@@ -1,4 +1,7 @@
 using System.Diagnostics;
+using System.Globalization;
+using System.Text;
+using System.Text.RegularExpressions;
 using CfdWorkbench.Core;
 
 namespace CfdWorkbench.Analysis.Tests;
@@ -10,6 +13,51 @@ internal static class SectionSeamTests
         AnalysisChecks.Check("Section_WingRun_PanelValuesAtEveryStation", WingRows);
         AnalysisChecks.Check("Section_ProvisionalAndProjectionRows", ProjectionRows);
         AnalysisChecks.Check("Section_SurfacePiercing_EstimatorUnavailable", Piercing);
+    }
+
+    internal static void RunReadiness() =>
+        AnalysisChecks.Check("Section_CamberedWing129_WarmTime", CamberedWing);
+
+    private static void CamberedWing()
+    {
+        byte[] source = CamberedSource();
+        double[] etas = Settings.SpanEtas(Settings.Default.NSpanPerHalf, Settings.Default.SpanSpacing);
+        SectionTierResult first = SectionTier.Evaluate(source, etas, [], Fixture.Op(3), Fixture.Salt);
+        var watch = Stopwatch.StartNew();
+        SectionTierResult warm = SectionTier.Evaluate(source, etas, [], Fixture.Op(3), Fixture.Salt);
+        watch.Stop();
+        AnalysisChecks.Equal(129, warm.Stations.Count, "default whole-wing station count");
+        if (warm.Stations.Any(station => !double.IsFinite(station.Estimate.Cl) ||
+            !double.IsFinite(station.Estimate.Panel.CpMin) || station.Estimate.AlphaL0Deg >= -0.1))
+            throw new InvalidOperationException("the timing foil did not exercise cambered zero-lift solves");
+        Console.WriteLine($"MEASURE cambered 2% warm whole-wing section tier {watch.Elapsed.TotalMilliseconds:F3} ms at 129 stations; " +
+            $"first-run delta {first.PanelUnderreadFraction:P3}; warm delta {warm.PanelUnderreadFraction:P3}");
+    }
+
+    private static byte[] CamberedSource()
+    {
+        const int n = 40;
+        var dat = new StringBuilder("NACA 2412\n");
+        for (int i = n; i >= 0; i--) Point(i, true);
+        for (int i = 1; i <= n; i++) Point(i, false);
+        ImportedProfile fitted = DatImport.Fit(DatImport.Parse(Encoding.UTF8.GetBytes(dat.ToString())), "naca-2412");
+        string dsl = Encoding.UTF8.GetString(FoilSource.NewDefault());
+        dsl = Regex.Replace(dsl, @"(?s)  profiles \{.*?\n  \}\n  sections",
+            "  profiles {\n" + fitted.ProfileBlock + "\n  }\n  sections");
+        dsl = dsl.Replace("naca-0012", "naca-2412", StringComparison.Ordinal);
+        byte[] source = Encoding.UTF8.GetBytes(dsl);
+        if (!FoilSource.Parse(source).IsParsed) throw new InvalidOperationException("cambered wing source did not parse");
+        return source;
+
+        void Point(int i, bool upper)
+        {
+            double x = 0.5 * (1 - Math.Cos(Math.PI * i / n));
+            double yc = x < 0.4 ? 0.02 / 0.16 * (0.8 * x - x * x) :
+                0.02 / 0.36 * (0.2 + 0.8 * x - x * x);
+            double yt = 5 * 0.12 * (0.2969 * Math.Sqrt(x) - 0.1260 * x - 0.3516 * x * x +
+                0.2843 * Math.Pow(x, 3) - 0.1036 * Math.Pow(x, 4));
+            dat.AppendLine(string.Format(CultureInfo.InvariantCulture, "{0:F6} {1:F6}", x, yc + (upper ? yt : -yt)));
+        }
     }
 
     private static void WingRows()

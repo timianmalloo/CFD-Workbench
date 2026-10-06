@@ -44,6 +44,13 @@ The accepted foil revision is the source identity. A run references that revisio
 
 ## Measurements and limits
 
+Repair cycle 1 measured the complete 129-station NACA 2412 (2 % camber) section tier, including the governing
+400-panel check, at **430.265 ms warm** on macOS arm64. `Section_CamberedWing129_WarmTime` exercises panel
+zero-lift solves at every station. `Section_CamberedPreparedPanel_ReusesMatrix` compares four angles from one
+factorization against fresh solves. The panel matrix is factorized once per section estimate and its right side
+is reused for operating α and α_L0. The section estimator no longer rejects an imported cambered foil solely
+because its leading-edge camber derivative is singular; the panel solve uses camber coordinates, not that derivative.
+
 The Analysis harness measured a warm default-station whole-wing 200-panel section pass of **449.814 ms** on macOS arm64 in `.tmp-tests/analysis-inner-final.log`; it includes the 400-panel governing check. `Settings.Default` places 129 stations (root, centres and edges for 64 strips per half). The same run measured a **1.335%** governing-station suction under-read at η **0.098**. These numbers describe that fixture and run, not a universal error bound. The Kármán–Trefftz 200-panel Cp_min relative error is recorded by its own fixture and is not used as the per-run delta. The product service emits its own measured delta in the normal `analysis.run` event.
 
 The first full concurrent ring measured the default 129-station section pass at **505.307 ms**, below the 1 s whole-wing target, but its encompassing check cost **515.063 ms** exceeded C-5's 500 ms per-check limit. The check now uses a complete 97-station wing (48 strips per half); the targeted repair run measured **360.960 ms** for the section pass and **414.875 ms** for the check. The product default is still 129 stations. The per-check cost rule also moved `TipStrip_ExampleFoil_OutermostProvisional` to the existing Analysis readiness harness after a measured 1,285 ms ring-0 cost; it passes under `--readiness`. The 54 DX states and remaining data gaps are enumerated in [state-coverage.md](state-coverage.md). The tests' red evidence is in [red-first.md](red-first.md).
