@@ -9354,7 +9354,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9d5f7251617c67c9beb702e10023277031e55a577d20f48c9f466c8f5a344a6f"
+      "sourceSha256": "b803365df0f7c66d55f76cbda290dc90e073d974b1e7942eceef8cf18fd3f217"
     },
     {
       "id": "proof-a3bc-seam-red-first",
@@ -14384,5 +14384,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "41d964e367721aaca50a87cea73e08640c7b171f58f51e8ba429ff6fe47eaf0e"
+  "graphSha256": "62734070fea372ede2b87be07418ab4e03b73ba798c9543c9385e8198f2f27b8"
 };
