@@ -539,6 +539,9 @@ public sealed class WorkbenchController : IDisposable
     /// <summary>Design §3.3: where the pointer asked the grabbed point to go; only the tether shows it.</summary>
     public (double SpanMeters, double Ordinate)? GestureRequested { get; private set; }
 
+    /// <summary>Where the grabbed point was at the press (the gesture's origin, which the live curve no longer holds), or null.</summary>
+    public (double SpanMeters, double Ordinate)? GestureOrigin => Gesture != GestureState.Idle && gestureOrigin is { } origin ? (origin.SpanMeters, origin.Ordinate) : null;
+
     /// <summary>The applied move and binding point of a group drag, for the inspector; null when none.</summary>
     public string? GroupHold { get; private set; }
 
@@ -1920,7 +1923,11 @@ public sealed class WorkbenchController : IDisposable
         {
             var rows = PropertiesView.Curves[origin.Curve];
             double dValue = (frame.Ordinate - origin.Ordinate) * PropertiesView.FieldScale[rows.ValueFamily];
-            GroupHold = $"Applied {Quantity.WithUnit((dValue >= 0 ? "+" : "") + Quantity.Typed(dValue), rows.ValueUnit)}" +
+            double dSpan = (frame.SpanMeters - origin.SpanMeters) * 1000;
+            string value = Quantity.WithUnit((dValue >= 0 ? "+" : "") + Quantity.Typed(dValue), rows.ValueUnit);
+            string applied = Math.Abs(dSpan) < 0.005 ? value
+                : $"{Quantity.WithUnit((dSpan >= 0 ? "+" : "") + Quantity.Typed(dSpan), "mm")} from root · {value} {GroupCopy.Axis(origin.Curve)}";
+            GroupHold = $"Applied {applied}" +
                 (GestureBinding is { } held ? $" · held by point {PointNumber(held.Point)}" : "");
         }
     }
@@ -1940,6 +1947,12 @@ public sealed class WorkbenchController : IDisposable
             int next = wanted > 0 ? moved.Max() + 1 : moved.Min() - 1;
             if (next >= 0 && next < curve.Points.Count && !moved.Contains(next)) return new(At(next), "Neighbour");
         }
+        // A domain hold (twist, t/c): the moved member that sits on its channel's lower or upper bound binds the group.
+        var unit = Channels.Unit(gesturePoint.Curve);
+        if (unit.DomainLower is double lower && unit.DomainUpper is double upper)
+            foreach (int index in moved)
+                if (Math.Abs(curve.Points[index].Ordinate - lower) < 1e-9 || Math.Abs(curve.Points[index].Ordinate - upper) < 1e-9)
+                    return new(At(index), "Domain");
         return null;
     }
 

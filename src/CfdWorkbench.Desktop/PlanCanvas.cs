@@ -438,20 +438,29 @@ public sealed class PlanCanvas : Control
         }
         Controller.UpdateGesture(target.Span, target.Ordinate);
         gesturePointer = position;
-        if (focusedPoint is { } selected)
-        {
-            var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
-            if (origin is not null)
-            {
-                // Design §3.3 (findings 1, 2): a group shows the move Core applied, not the pointer's.
-                var (shownSpan, shownAft) = Controller.GestureGroup is not null && Controller.GestureApplied is { } applied
-                    ? (applied.SpanMeters, applied.Ordinate) : (target.Span, target.Ordinate);
-                ProbeText += $" · Δ from root {(shownSpan - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
-                    $" · Δ aft {(shownAft - origin.Ordinate) * 1000:+0.00;-0.00;0.00} mm";
-            }
-        }
+        probeBase = ProbeText;
+        probeTarget = (target.Span, target.Ordinate);
+        ApplyGestureProbe();
         InvalidateVisual();
         e.Handled = true;
+    }
+
+    private string? probeBase;
+    private (double Span, double Aft)? probeTarget;
+
+    /// <summary>
+    /// The Δ readout of a gesture in progress, applied value first (the box clips the tail). Δ runs from the press (the gesture's
+    /// origin), never from the live curve, which a group drag has already moved. A group shows the move Core applied, not the
+    /// pointer's (design §3.3, findings 1, 2); the controller refreshes it after each frame, so it never lags one frame.
+    /// </summary>
+    private void ApplyGestureProbe()
+    {
+        if (Controller is not { } controller || probeTarget is not { } target || probeBase is null ||
+            controller.Gesture is not (GestureState.Pressed or GestureState.Dragging) || controller.GestureOrigin is not { } origin) return;
+        var (shownSpan, shownAft) = controller.GestureGroup is not null && controller.GestureApplied is { } applied
+            ? (applied.SpanMeters, applied.Ordinate) : target;
+        ProbeText = $"Δ from root {(shownSpan - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
+            $" · Δ aft {(shownAft - origin.Ordinate) * 1000:+0.00;-0.00;0.00} mm · " + probeBase;
     }
 
     /// <summary>
@@ -680,7 +689,8 @@ public sealed class PlanCanvas : Control
         {
             targets.Add(point);
         }
-        if (Controller!.Gesture != GestureState.Dragging) gesturePointer = null;
+        if (Controller!.Gesture != GestureState.Dragging) { gesturePointer = null; probeTarget = null; }
+        else ApplyGestureProbe();
         // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
         advisoryCrossing = Controller!.GestureCrossing is not null;
         if (Controller.GestureCrossing is { } crossing) advisoryPoint = map.ToScreen(crossing.SpanMeters, crossing.Ordinate);

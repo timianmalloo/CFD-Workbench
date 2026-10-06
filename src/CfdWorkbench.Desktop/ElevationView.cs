@@ -882,13 +882,28 @@ public sealed class ElevationView : Control
         gestureTarget = target;
         gesturePointer = position;
         controller.UpdateGesture(target.Span, target.Ordinate, Point.Distance(position, pressPosition));
-        // Design §3.3: a group shows the move Core applied, not the pointer's; a held channel names the domain.
-        var shown = controller.GestureGroup is not null && controller.GestureApplied is { } applied ? (applied.SpanMeters, applied.Ordinate) : (target.Span, target.Ordinate);
-        ProbeText = PointProbe(origin with { SpanMeters = shown.Item1, Ordinate = shown.Item2 }) +
-            " · Δ " + ValueName(origin.Curve) + " " + Delta(origin.Curve, shown.Item2 - origin.Ordinate) + ClampReason(origin.Curve, target.Ordinate);
-        if (controller.GestureGroup is not null && controller.GroupHold is { } groupHold) ProbeText += " · " + groupHold;
+        ApplyGestureProbe();
         Redraw();
         e.Handled = true;
+    }
+
+    /// <summary>
+    /// The readout of a drag in progress. Design §3.3: a group shows the move Core applied, not the pointer's, applied value first
+    /// (the plate clips the tail); the controller's frame lands after the pointer event, so <see cref="Update"/> re-reads it
+    /// and the plate never lags the inspector by one frame. A domain hold by another member names that point and the reason.
+    /// </summary>
+    private void ApplyGestureProbe()
+    {
+        if (controller is null || gestureOrigin is not { } origin || gestureTarget is not { } target) return;
+        bool group = controller.GestureGroup is not null;
+        var shown = group && controller.GestureApplied is { } applied ? (applied.SpanMeters, applied.Ordinate) : (target.Span, target.Ordinate);
+        string reason = ClampReason(origin.Curve, target.Ordinate);
+        if (reason == "" && controller.GestureBinding is { Kind: "Domain" })
+            reason = " · " + (origin.Curve == "twist" ? TwistClampReason : ThicknessClampReason);
+        string point = PointProbe(origin with { SpanMeters = shown.Item1, Ordinate = shown.Item2 });
+        ProbeText = group && controller.GroupHold is { } groupHold
+            ? groupHold + reason + " · " + point
+            : point + " · Δ " + ValueName(origin.Curve) + " " + Delta(origin.Curve, shown.Item2 - origin.Ordinate) + reason;
     }
 
     /// <summary>The probe's clamp reason when a twist or t/c target lies past the checkable domain (§7, §11.4).</summary>
@@ -980,6 +995,7 @@ public sealed class ElevationView : Control
         // A hidden elevation (Plan + 3D) does no channel work per change; it rebuilds when next drawn or read.
         targetsStale = true;
         if (IsEffectivelyVisible) _ = CurrentTargets;
+        if (controller?.GestureGroup is not null && controller.Gesture == GestureState.Dragging) ApplyGestureProbe();
         Redraw();
     }
 

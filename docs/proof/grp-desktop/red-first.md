@@ -30,3 +30,13 @@ then restored with `git checkout` and rebuilt (the green runs are in the full ri
 
 M1 is the old product behaviour (a press replaces the selection), so the trackpad check is red on the old behaviour and green on
 the build. Green: all of the above print `PASS` in the full ring (`tools/run-tests.sh`).
+
+# Repair cycle 1 (marine-CAD BLOCK): red on the old src, green on the fix (2026-10-06)
+
+Method: `git stash push -- src`, build, run the check (`--readiness`, `CFD_TEST_ONLY=<check>`), `git stash pop`, build, run again.
+
+| Fix | Check | Red (old code) | Green |
+|---|---|---|---|
+| 1 Plan Δ from the press, span term in the inspector | `GroupDrag_Plan_ReadoutDelta_EqualsTheAppliedMove_SpanAndAft` | `FAIL ... the Plan readout is '... Δ from root 0.00 mm · Δ aft 0.00 mm', wanted ... 'Δ from root +59.87 mm · Δ aft +23.95 mm'` | `PASS` |
+| 3 twist domain hold names the point | `GroupDrag_Elevation_TwistDomainHold_NamesThePointAndTheReason` | `FAIL ... no domain binder:  probe=Twist · point 3 of 7 ... · Δ twist +1.30° · Twist is limited to ±57.30° ...` | `PASS` |
+| 5, 6 applied value first, no one-frame lag | `GroupDrag_Elevation_TwistPointsMoveAsOneGroup_ReadoutShowsTheAppliedMove` | `FAIL ... the readout is 'Twist · point 3 of 7 ... · Applied +0.91°', wanted it to start 'Applied +1.01°'` (one frame behind) | `PASS` |

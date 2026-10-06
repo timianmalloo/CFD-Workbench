@@ -96,6 +96,7 @@ public static class GroupDragTests
             DragTo(c, start[1].SpanMeters + 0.010, start[1].Ordinate + 0.005);
             c.EndGestureAsync(GestureEnd.Escape).GetAwaiter().GetResult();
             Require(c.AcceptedSource == before && c.Draft is null && c.Selection is Selection.Points { Items.Count: 3 }, "Escape left a change or dropped the group");
+            Require(!c.CanUndo && c.CanRedo, $"Escape changed the history: CanUndo {c.CanUndo}, CanRedo {c.CanRedo} (the undone move must stay redoable, nothing new to undo)");
             // Analysis: selecting works, the drag does not begin.
             (typeof(WorkbenchController).GetMethod("ToggleAnalysis") ?? throw new InvalidOperationException("no Analysis toggle")).Invoke(c, null);
             Require(!c.BeginGesture(Ref(c, "trailing", 3), GestureInput.Pointer) && c.GestureGroup is null, "Analysis began a group gesture");
@@ -455,6 +456,29 @@ public static class GroupDragTests
             rig.Settle();
             Require(Math.Abs(At(c, "trailing", 6).Ordinate - 0.005) < 1e-6, "Use did not move the group by the most it can");
         });
+        Check("GroupDrag_Plan_ReadoutDelta_EqualsTheAppliedMove_SpanAndAft", rig =>
+        {
+            // Repair 1 (marine-CAD BLOCK): the Δ is from the press, not from the live curve the drag has already moved.
+            var c = rig.Controller;
+            Pick(c, "trailing", 2, 3, 4);
+            rig.Settle();
+            var start = At(c, "trailing", 3);
+            var origin = rig.Canvas.ScreenPoint(start);
+            var pointer = rig.Press(rig.Canvas, origin);
+            for (int step = 1; step <= 10; step++) rig.Move(rig.Canvas, pointer, origin + new Vector(3 * step, 1.2 * step));
+            var now = At(c, "trailing", 3);
+            double dSpan = (now.SpanMeters - start.SpanMeters) * 1000, dAft = (now.Ordinate - start.Ordinate) * 1000;
+            Require(dSpan > 5 && dAft > 1, $"fixture: the drag moved span {dSpan:F2} aft {dAft:F2}");
+            string probe = rig.Canvas.ProbeText ?? "";
+            string wanted = $"Δ from root {dSpan.ToString("+0.00;-0.00;0.00", System.Globalization.CultureInfo.InvariantCulture)} mm" +
+                $" · Δ aft {dAft.ToString("+0.00;-0.00;0.00", System.Globalization.CultureInfo.InvariantCulture)} mm";
+            Require(probe.StartsWith(wanted, StringComparison.Ordinal), $"the Plan readout is '{probe}', wanted it to start '{wanted}'");
+            string hold = c.GroupHold ?? "";
+            Require(hold.Contains($"{dSpan.ToString("+0.00;-0.00;0.00", System.Globalization.CultureInfo.InvariantCulture)} mm from root", StringComparison.Ordinal),
+                "the inspector's applied move has no span term: " + hold);
+            rig.Release(rig.Canvas, pointer, origin + new Vector(30, 12));
+            c.Undo();
+        });
         Check("GroupDrag_Canvas_Trackpad_TwelveSmallMoves_GlyphUnderPointer_GroupRigid", rig =>
         {
             var c = rig.Controller;
@@ -538,6 +562,27 @@ public static class GroupDragTests
             c.Undo();
             Require(c.AcceptedSource == before, "nudge run and typed entry are two undo steps");
         });
+        Check("GroupDrag_Elevation_TwistDomainHold_NamesThePointAndTheReason", rig =>
+        {
+            // Repair 3: a group held by the twist domain says which point binds, plus the existing reason.
+            var c = rig.Controller;
+            var free = c.CurveFor("twist")!.Points.Where(point => point.Role is PointRole.Control or PointRole.Anchor && point.Freedom == PointFreedom.Free).Take(2).ToArray();
+            c.Select(new Selection.Points(free.Select(point => new PointRef("twist", point.Id)).ToArray()));
+            var setup = c.ApplyGroupValueAsync(GroupValueMode.SetTo, GroupValueAxis.Value, 56);
+            Pump(setup);
+            Require(setup.Result is CommitOutcome.Committed, "fixture: twist 56° refused: " + setup.Result);
+            rig.Settle();
+            free = free.Select(point => c.CurveFor("twist")!.Points.First(item => item.Id == point.Id)).ToArray();
+            var origin = rig.Side.ScreenPoint(free[0]);
+            var pointer = rig.Press(rig.Side, origin);
+            for (int step = 1; step <= 30; step++) rig.Move(rig.Side, pointer, origin + new Vector(0, -step * 4));
+            string probe = rig.Side.ProbeText ?? "";
+            Require(c.GestureBinding is { Kind: "Domain" }, "no domain binder: " + c.GestureBinding + " probe=" + probe + " ord=" + string.Join(",", free.Select(p => c.CurveFor("twist")!.Points.First(q => q.Id == p.Id).Ordinate)) + " lim=" + Channels.Unit("twist").DomainLower + ".." + Channels.Unit("twist").DomainUpper);
+            Require(probe.Contains(" · held by point ", StringComparison.Ordinal) && probe.Contains(ElevationView.TwistClampReason, StringComparison.Ordinal),
+                "the elevation readout does not name the domain hold: " + probe);
+            rig.Release(rig.Side, pointer, origin + new Vector(0, -720));
+            c.Undo();
+        });
         Check("GroupDrag_Elevation_TwistPointsMoveAsOneGroup_ReadoutShowsTheAppliedMove", rig =>
         {
             var c = rig.Controller;
@@ -555,7 +600,10 @@ public static class GroupDragTests
             double d0 = moved[0].Ordinate - free[0].Ordinate, d1 = moved[1].Ordinate - free[1].Ordinate;
             Require(Math.Abs(d0) > 1e-4 && Math.Abs(d0 - d1) < 1e-4 && moved[0].SpanMeters == free[0].SpanMeters && moved[1].SpanMeters == free[1].SpanMeters,
                 $"twist deltas {d0} / {d1}");
-            Require(side.ProbeText?.Contains("Δ", StringComparison.Ordinal) == true, "no readout");
+            // Repair 5, 6: the readout leads with the applied value, and it is the value the inspector shows (no one-frame lag).
+            string applied = "Applied " + Quantity.WithUnit((d0 >= 0 ? "+" : "") + Quantity.Typed(d0), "°");
+            Require(side.ProbeText?.StartsWith(applied, StringComparison.Ordinal) == true, $"the readout is '{side.ProbeText}', wanted it to start '{applied}'");
+            Require(c.GroupHold?.StartsWith(applied, StringComparison.Ordinal) == true, $"the inspector says '{c.GroupHold}', not '{applied}'");
             rig.Release(side, pointer, origin + new Vector(0, -25));
             Require(c.Status.StartsWith("Moved 2 twist points.", StringComparison.Ordinal) && !c.Status.Contains("chord", StringComparison.Ordinal), "strip: " + c.Status);
             c.Undo();
