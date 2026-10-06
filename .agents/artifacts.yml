@@ -22,3 +22,4 @@ docs/audit/change-log.jsonl: register
 docs/notes/rulings.md: register
 .agents/log/*.jsonl: register
 .agents/requests.jsonl: register
+docs/coordination/xmsg.jsonl: register

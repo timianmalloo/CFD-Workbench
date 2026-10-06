@@ -999,3 +999,51 @@ Option (3), modified. C-4 is a cost tripwire on the Desktop harness, not a produ
 Option 2: keep the persisted PolarSample unchanged. The outside-bracket reasons are a pure function of stored alpha/Re/Ncrit and the NACA 0012 match of the CST fit (NeuralFoilPolarSource.BracketFlags); the low-confidence flag is stored Confidence vs LowConfidenceBelow; the CST residual is CstFit.Fit of the run's revision (reachable via AuthoringSession.AcceptedSourceOf), and a stored sample can never carry a residual above MaxCstResidual (refused before storage), so storing it adds no fact. Derive all three on read (design area3-analysis.md section 3.5, DM7); return them in a non-persisted result type from IPolarSource.Sample, and make the Sample doc comment match the implementation. Conditions: (1) the derivation reads the run's own revision and MethodVersion, never the current catalog; (2) a test that the derived flags for a stored sample equal Evaluate's flags at write time; (3) Ruling 90: the 200-vs-400 delta is emitted on the analysis.run event and the panel count enters the method version/run key — neither is a persisted column; a new ProvisionalReason code on the existing optional field is additive and needs validator coverage plus an old-row read test. Any new persisted field remains refused pending Data and Persistence Architect review. Ruled by the Fable owner under the operator's delegation.
 
 - request: req-01M47EXAX2R4PS5SZAE3QS88ZM · ruled by: fable-owner · at: 2026-10-06T02:00:58Z
+
+### Ruling 101 — A3a copy and display after the native review (DR-A3A-COPY, H1, AUX-F1, POL residuals)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). (3a) Below h/c 5 at any station the label shows the approved COPY-224/226 'free surface not modelled' instead of COPY-223 'deep water'; the check covers every station, not only the root (hydrodynamicist H1). (3b) The 18 built strings in docs/reviews/a3a-native.md section 7 are approved as built, with two fixes: every bare 'Unavailable' carries its reason (COPY-70 form), and the two total-drag strings become one, the longer one that names what is missing. (3c) All four mockup-only strings become approved rows and are built: the tampered-run note ('The stored run no longer matches its content hash. It is kept in the file and not shown. Evaluate to compute a new run.'), the chart labels (axis titles 'eta (root -> tip)' and 'Cl.c/cbar (-)', legend 'dashed: elliptic, same CL', series 'VLM + strip' as its own row), the Historical chip ('Historical . VLM + strip') and the Conditions summary ('10 kn . salt 15 C . as the band'); exact glyphs as in docs/mockups/area3-analysis.html rev 3. (3d) The conditions band follows the Units setting (kn in Imperial, m/s in Metric), and Analysis keeps four views at 1280x800 (AUX-F1 is a layout track, not an accepted fallback). (Q4) The Analysis Properties panel may need one scroll at 1500x870; only the cut-off cells are fixed (Envelope and Total drag at the cell edge, AUX-F8; the band's derived cells at 1500 with depth unset; the chart x tick row while Running).
+
+- request: req-01M48WCYMVB1CNVG1N5PPFDPPQ · ruled by: operator-timianmalloo · at: 2026-10-06T15:13:02Z
+
+### Ruling 102 — Tip mesh: a cfMesh spike on the Windows PC after its smoke test (DR-TIP-NEXT)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Try cfMesh. The spike runs on the Windows PC (OpenFOAM v2512 in WSL) after the PC's smoke test and solver-route steps (W-1..W-3), sharing its CPU with the SPIKE-04 L3 run. Its first step checks that the installed OpenFOAM provides cfMesh (cartesianMesh) and records the version; the coupon and pass criteria are Ruling 98's W2c tip coupon. A cfMesh route that passes is added to the guided install only by a later ruling.
+
+- request: req-01M48WCYT844DTV8GAWXGBHMD8 · ruled by: operator-timianmalloo · at: 2026-10-06T15:13:02Z
+
+### Ruling 103 — Section tier: adaptive panels - 200 everywhere, 400 at the governing station (amends Ruling 90; DR-A3b-COST-2)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Adaptive, amending Ruling 90: every station is sampled at 200 cosine panels and the governing cavitation station is re-solved at 400 panels; the screen and the governing Cp_min use the 400-panel value. The 200-vs-400 under-read stays recorded on the run for the governing station, and other stations keep the DR-DXM-7 provisional row when their under-read is above 10 %. The cambered-wing timing is re-measured against the 1 s budget with the extra solve, and the 723 ms readiness reading is reconciled with the review's 1.6 s whole-wing figure in the same track.
+
+- request: req-01M48WCYZNANTJVE901VHZPF9D · ruled by: operator-timianmalloo · at: 2026-10-06T15:13:03Z
+
+### Ruling 104 — No-heredoc hook installed (AGENT-HEREDOC)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Install it in .claude/settings.json. The installing track records whether the hook fires for sub-agents; if it does not, the AGENT-HEREDOC class records that limit.
+
+- request: req-01M48WCZ53AVKNP4Q2PKATX4C7 · ruled by: operator-timianmalloo · at: 2026-10-06T15:13:03Z
+
+### Ruling 105 — Held branch fix/a3a-vlm-tip-law pushed to origin as a backup
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Push the branch to origin as is (done 2026-10-06), so it exists twice. Salvage stays as Ruling 88 D7 (tip-handling.md section 6.2); deleting the local worktree is allowed once the push is confirmed and needs no further ruling.
+
+- request: req-01M48WCZAHCVQZEWMWXT5RY45D · ruled by: operator-timianmalloo · at: 2026-10-06T15:13:03Z
+
+### Ruling 106 — Two machines: Mac and Windows PC sessions, one leader, PRs reviewed by the Fable owner (DR-2MACH)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). (P1) The split in docs/coordination/two-machine.md is approved: the PC session owns Windows-only work (W-0 setup, W-1 smoke test, W-2 Windows Save/Open, W-3 the WSL OpenFOAM and native SU2 routes, W-4 NACA 0012 code-to-code runs and the SPIKE-04 L3 run, W-5 the cfMesh tip spike); the Mac session owns Mac-only and shared work. (P2) The Mac session is the only leader: it alone joins, runs readiness, numbers rulings and pushes main. The PC pushes only win/* branches and opens a GitHub pull request for each; the Fable owner on the Mac reviews it, and on approval the Mac leader merges it through conductor-join. The repository is public and both machines push as the same account, so the review is a PR comment plus a committed review file, not a GitHub approval.
+
+- request: req-01M48WCZFZJVAHJBXDPCHNCHRG · ruled by: operator-timianmalloo · at: 2026-10-06T15:13:03Z
+
+### Ruling 107 — Group move (node M): mockup approved; DR-GM-1..9 as recommended
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Mockup docs/mockups/group-move-node-m.html approved. DR-GM-1 A (one curve at a time; B, the two planform rails, is the next slice). DR-GM-2 C (Set to / Move by per row; value rows default Set to; From root Move by only). DR-GM-3 A (the group holds as one rigid body at every limit). DR-GM-4 A (press on a selected point drags the selection; a click collapses on release). DR-GM-5 A (hold the locked axis, move on the other). DR-GM-6 A (refuse a handle without its anchor, COPY-G5). DR-GM-7 COPY-G1..G12 approved as written. DR-GM-8 spec amendment approved: retire the AM-1.7-15 note under F11 node M and add under CAD-04 'A drag, nudge or typed value of several points on one curve is one draft and one undo step; a limit holds the whole group; the typed entry refuses and never rewrites.' DR-GM-9 C: group move next, then #3 (comb scale and monotone count); a real marine-cad-ux-expert Adversary pass runs before the build.
+
+- request: req-01M48WCZNDVNWA819VPTP8Z3Y0 · ruled by: operator-timianmalloo · at: 2026-10-06T15:13:03Z
+
+### Ruling 108 — 2D section and polar displays (DX): mockup approved; DR-DXM-1..9; Total drag shows Wing drag marked 'Wing only' (amends spec A5.6)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Mockup docs/mockups/dx-section-polar-states.html approved. DR-DXM-1 the copy batch (every NEW row in docs/design/dx-screen-states.md) approved as proposed, with display text for the SEAM reason codes in the same batch. DR-DXM-2 flagged inside the training range, Unavailable outside it or past the CST limit. DR-DXM-3 (a) the chip stays 'Polar . local calculation' with COPY-66 and 'surrogate, relative to XFOIL, validated at NACA 0012 pre-stall only'. DR-DXM-4 one Section tab and Section view with a chart selector. DR-DXM-5 (b), against the recommendation: the Total drag row shows the wing drag (induced + profile) marked 'Wing only'; this amends spec A5.6 ('Total drag is Unavailable when a component is missing'), the omitted components (junction, mast, wave, spray) are still listed beside it, and the hydrodynamicist checks the label before the DX build. DR-DXM-6 a Find alpha button beside Evaluate opens a dialog; Apply writes alpha; Evaluate stays explicit. DR-DXM-7 the provisional row is approved. DR-DXM-8 as built (validated bracket flags, training range Unavailable). DR-DXM-9 the selected strip, else the governing cavitation station, named.
+
+- request: req-01M48WCZTTPESRJ7TE9M6VQF16 · ruled by: operator-timianmalloo · at: 2026-10-06T15:13:03Z

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T04:09:12Z",
+  "generated": "2026-10-06T15:19:45Z",
   "audit": [
     {
       "actor": null,
@@ -27312,6 +27312,35 @@ window.AUDIT_DATA = {
         "span_seconds": 48488.0,
         "speedup": 2.35,
         "peak_concurrency": 5
+      }
+    },
+    {
+      "id": "al-01M48WS809BQ9YPADGC2MKSY5Z",
+      "shortname": "two-machine-rendezvous",
+      "datetime": "2026-10-06T15:19:45Z",
+      "session": "14e5e8d5",
+      "prompt": "catch up after the killed session; table of to-dos; walk me through the questions; split work with the Windows PC session (smoke test, OpenFOAM, SU2 on the PC) and put in place what git rendezvous needs; then: yes keep going with these",
+      "summary": "Rulings 101-108 (A3a copy/display, cfMesh on PC, adaptive panels amending R90, heredoc hook, VLM branch backup pushed, two machines with Mac sole leader and Fable-reviewed PC PRs, group move, DX incl. DXM-5 amending spec A5.6). docs/coordination/two-machine.md and pc-kickoff.md (W-0..W-5). tools/xmsg.py + docs/coordination/xmsg.jsonl (register, bound; self-test in check-docs, red on a planted from-filter mutant and on the show() ref bug it caught). Found: .agents/requests.jsonl and mail are git-ignored, so decisions cross machines only as xmsg messages; repo is public and one GitHub account cannot approve its own PR, so the Fable review is a PR comment plus a committed file.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/two-machine.md",
+        "docs/coordination/pc-kickoff.md",
+        "tools/xmsg.py",
+        "docs/notes/rulings.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Record the operator's 2026-10-06 answers as rulings and set up the Mac/PC rendezvous in git",
+      "done_when": "Rulings 101-108 recorded; two-machine.md, pc-kickoff.md, xmsg register and tool committed with check-docs and verify gates green; joined and pushed",
+      "tier": "T1",
+      "git": {
+        "sha": "3252483ee9580540c4beef8f121bcff933bcb972",
+        "short": "3252483ee",
+        "branch": "chore/two-machine-rendezvous",
+        "pushed": null
       }
     }
   ],

@@ -67,13 +67,15 @@ def run_spiral_check():
 
 def run_lesson_controls():
     """Controls from docs/lessons/defect-classes.md, fast ring (each self-test is red on its planted shape):
-    DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, and the OWNERSHIP-MISSES-DATA-SOURCE aid's own test."""
+    DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, the OWNERSHIP-MISSES-DATA-SOURCE aid's own test, and the
+    two-machine message register (Ruling 106)."""
     for script, arguments in (
         ("check-artifact-bindings.py", ("--self-test",)),
         ("check-artifact-bindings.py", ()),
         ("check-foildsl-spec-sync.py", ("--self-test",)),
         ("check-foildsl-spec-sync.py", ()),
         ("trace-brief.py", ("--self-test",)),
+        ("xmsg.py", ("--self-test",)),
     ):
         result = subprocess.run(
             [sys.executable, str(ROOT / "tools" / script), *arguments],
