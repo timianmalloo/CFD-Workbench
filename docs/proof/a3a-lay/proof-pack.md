@@ -29,7 +29,7 @@ No persistent schema, service, simulator, new theme row, or pane was added.
 | 3D arrows are proportional to N/m and follow the local normal; absent values produce no glyph. The selected-run total, root moment and depth marks remain distinct. | `LayerSample.Normal`, `Value`, `LayerData` → `View3dLoadLayer` → `View3d.Draw` | `View3dLayer_NormalAndMissingVector` PASS; the real `ShellHost` render completed; the total is read from the projected Loads row, the root moment from its layer, and depth from the projected margin/elevation. | Verified for the unit scene and current-run render. The 3D total arrow uses a display-length glyph; its number is the projected result. |
 | Depth unset or hidden yields no free-surface/depth mark. When set, the projected run's station elevation and margin determine the line height and tip margin. | `ProjectionContext.Stations` → `LayerSample.Elevation`/`Value` → `ElevationDepthLayer` → Side/Front view | `ElevationLayer_DepthUnsetNoBand` and real-window render PASS. | Verified for empty and present scenes; the free-surface depth is a display of h_ref, not a flow correction. |
 | Canvas peers name the visible overlays and their existing table twins; toggling visibility updates the names without a pane rebuild. | `WorkbenchController.LayersChanged` → model-area/view subscriptions and `LayerSet` → automation names | `AnalysisLayers_WindowRendersAndPeersFollowVisibility` PASS; `check-event-subscribers.py` observed a production subscriber and zero findings. | Verified in a real window. |
-| Layers-on camera events do not reproject on every frame or refresh panes. | cached `LayerSet` / 3D view model → camera redraw | Four-view 1440×900 runs: event p95 below 0.11 ms, 0 pane refreshes, 32 samples; full-step p95 varied 6.1–9.4 ms. The existing Desktop readiness check separately printed PASS, with worst step p95 6.845 ms. | Event path verified on macOS arm64. A stable under-8 ms full-step result with layers on remains unverified. |
+| Layers-on camera events do not reproject on every frame or refresh panes. | cached `LayerSet` / 3D view model → camera redraw | The one full ring's four-view 1440×900 run: full-step p95 3.566 ms, event p95 0.083 ms, 0 pane refreshes, 32 samples. Earlier focused runs varied 6.1–9.4 ms. The existing Desktop readiness check separately printed PASS, with worst step p95 6.845 ms. | Verified in the full ring on macOS arm64; focused-run variability remains a performance risk. |
 
 ## Change surfaces and failure modes
 
@@ -68,5 +68,10 @@ can add an Analysis fixture to the official 8 ms gate and profile the whole wind
 ## Verification
 
 The focused Desktop `--analysis` test run passed all four LAY checks. The planted Plan mutant made its test fail and
-was restored. `check-event-subscribers.py` reported 31 events, 4 allowed, 0 findings. Final ring and documentation
-gate results are recorded in the track Return and audit entry after this pack is indexed.
+was restored. The one full `tools/run-tests.sh` run passed every harness in 50 s at end load 31.72: Desktop 698 PASS;
+Core parts 230/230/229 PASS; Analysis parts 67/89 PASS; Cli 6 PASS. Its LAY records show all four PASS lines and
+`MEASURE AnalysisLayers_CameraStep_WithLayers full_step_p95_ms=3.566 event_p95_ms=0.083 pane_refreshes=0`.
+`check-named-tests.py LAY` read the ring and reported 1/1 named PASS, zero failures. `check-event-subscribers.py`
+reported 31 events, 4 allowed, zero findings. `check-docs.py` passed; `run-verify-gates.py` passed 12/12 gates.
+`design-lint.py DESIGN.md` found zero warnings; `ui-craft-gate.py src/CfdWorkbench.Desktop --gate
+--a11y-obligation` reported no findings. The latter's no-findings result is a detector floor, not visual approval.

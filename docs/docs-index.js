@@ -8812,7 +8812,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7c7700915e076a544f70ecaeacc0afa703d32b8916ffbcbc40ad7485fe8f4b44"
+      "sourceSha256": "5c8c58969e1756b8a3a7f02accf7f28329a8537de61e9ea4ab0c5a26bed770f9"
     },
     {
       "id": "proof-a3a-lay-red-first",
@@ -14205,5 +14205,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "a5f602ad700ded808ffd082225179ece5ad8601e221e035b4eb9dcaec9f41edd"
+  "graphSha256": "ca8ddc0b0f01323584f1d962e93f3a779d545031156d03a45fe006703bb07775"
 };
