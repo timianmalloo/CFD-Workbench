@@ -1613,3 +1613,39 @@ the ring is CPU-bound, only less CPU lowers a clock; a partition moves the same 
 check or loosening an assertion, and returns C-4 to 43,000 ms; (2) growth is made countable: each UI track's join note reports its Desktop
 child-seconds delta from `SUITE-TIME` (the sum over `.tmp-tests/Desktop.log`); (3) C-4 stays a load-gated tripwire (Ruling 87) with the limit
 set only from a recorded 3-run quiet baseline (`docs/proof/ring-b4/baseline-desktop.csv`), never by an unrecorded move.
+
+**ANA-UNUSED-DERIVATIVE-GATE · A panel estimate refuses valid cambered geometry because an unused endpoint derivative is singular.**
+The imported NACA 2412 wing had a finite contour but a negative-infinite leading-edge `CamberSlope`; the section estimator
+used panel coordinates, yet its old validation rejected the derivative. Sweep: `SectionEstimator` was the only section
+consumer requiring finite camber slopes; `PanelMethod` uses coordinates. Derive: validate the inputs the selected method
+actually reads. Control: `Section_CamberedWing129_WarmTime` runs all 129 stations of a 2 % cambered foil through the
+section tier and requires finite panel results and a nonzero zero-lift angle.
+
+**ANA-TIER-NUMBER-UNLABELLED · A rendered numerical row loses the method tier that qualifies it.**
+Sweep: Section, polar, V_crit, profile Cd and drag-band projection rows. Derive: the data row owns a tier note that
+the desktop table renders verbatim. Control: `Section_ProvisionalAndProjectionRows` scans numeric section/polar rows
+and the panel-derived V_crit; `Polar_LowConfidence_AdvisoryReachesDragSums` checks the projected drag note.
+
+**ANA-ADVISORY-LOST-IN-SUM · A numeric polar confidence warning disappears when Cd is summed into drag.**
+Sweep: `StripCoupler.ProfileCd`, `Loads.ProfileDrag`, `Loads.WingDrag`, projection and tip consistency. Derive:
+`StripValue.FlagCode` follows the value without refusing it; tip judgement and confidence are separate.
+Control: `Polar_LowConfidence_AdvisoryReachesDragSums` and `Tip_ConfidenceNeverClearsNotJudged`.
+
+**ANA-GOVERNING-STATION-TRANSFER · A pressure-resolution flag is assigned to a nearby strip and replaces its envelope verdict.**
+Sweep: service strip mutation, section rows, V_crit and legacy strip display. Derive: the two-grid delta belongs to
+the selected station's Cp_min/Cavitation result. Control: `Section_ProvisionalAndProjectionRows` checks the station
+rows and preserves an outside legacy strip verdict with a separate note.
+
+**ANA-EMPIRICAL-AXIS-OMITTED · An empirical factor is returned outside an untested source axis.**
+Sweep: the A5.2 source [S6] axes h/c, Re, Fr_h and α, plus the Ncrit drag input. Derive: each exceeded axis
+adds a reason code and suppresses the corrected number. Control: `FreeSurface_A52_EachEnvelopeAxis` tests each
+boundary; `FreeSurface_A52_FactorsBesideDeepWater` checks the ordered drag band and omission codes.
+
+**ANA-BAND-ASSUMED-ORDER · A two-method drag band uses input order rather than value order.**
+Sweep: profile drag, wing drag and wing CL/CD projection. Derive: sort each band by numerical value after unit
+conversion. Control: `DragBand_NcritValueOrderAndWingRatio` reverses the Ncrit drag ordering and checks both bands.
+
+**ANA-TESTED-WORST-AS-BOUND · A tested-foil maximum is described as a universal pressure-error bound.**
+Sweep: design §5.1 and its proof restatement. Derive: name the fixture set, keep the per-run two-grid measurement,
+and state the reviewer's 6.9–7.7 % 6 %-thick finding separately. Control: the Ruling 90 proof now records both
+measurements and `Section_ProvisionalAndProjectionRows` makes a measured >10 % run provisional.

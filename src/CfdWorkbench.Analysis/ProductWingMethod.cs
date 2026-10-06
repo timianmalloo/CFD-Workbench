@@ -1,4 +1,5 @@
 using CfdWorkbench.Core;
+using CfdWorkbench.Analysis.NeuralFoil;
 
 namespace CfdWorkbench.Analysis;
 
@@ -12,20 +13,29 @@ public sealed class ProductWingMethod : IWingMethod
 {
     private readonly LatticePlant plant;
     private readonly IPolarSource polar;
+    private readonly bool builtInPolar;
 
     public ProductWingMethod()
-        : this(null, LatticePlant.None, UnavailablePolar.Instance)
+        : this(null, LatticePlant.None, null, true)
     {
     }
 
     public ProductWingMethod(RunSettings settings)
-        : this(settings, LatticePlant.None, UnavailablePolar.Instance)
+        : this(settings, LatticePlant.None, null, true)
     {
     }
 
     internal ProductWingMethod(RunSettings? settings, LatticePlant plant, IPolarSource? polar = null)
+        : this(settings, plant, polar, false)
+    {
+    }
+
+    private ProductWingMethod(RunSettings? settings, LatticePlant plant, IPolarSource? polar, bool builtInPolar)
     {
         Settings = global::CfdWorkbench.Analysis.Settings.WithStations(settings ?? global::CfdWorkbench.Analysis.Settings.Default);
+        this.builtInPolar = builtInPolar;
+        if (builtInPolar)
+            Settings = Settings with { Polar = new RunPolar(NeuralFoilPolarSource.Method.Id, NeuralFoilPolarSource.Method.Version, "xxxlarge") };
         this.plant = plant;
         this.polar = polar ?? UnavailablePolar.Instance;
     }
@@ -53,6 +63,25 @@ public sealed class ProductWingMethod : IWingMethod
     public IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op, WaterRecord water, CancellationToken cancellation)
     {
         IReadOnlyList<StripLoad> loads = StripCoupler.Couple(sections, solution, op, water, polar, cancellation);
+        return FinishCoupling(loads, solution);
+    }
+
+    public IReadOnlyList<StripLoad> Couple(byte[] source, IReadOnlyList<SectionSample> sections, LatticeSolution solution,
+        OperatingPoint op, WaterRecord water, CancellationToken cancellation)
+    {
+        if (!builtInPolar) return Couple(sections, solution, op, water, cancellation);
+        double[] etas = solution.Strips.Select(strip => Math.Abs(strip.Eta)).Distinct().ToArray();
+        var byEta = RunPolarResolver.SectionsAt(source, etas, cancellation);
+        var byHash = byEta.Values.GroupBy(section => section.ProfileHash, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First(), StringComparer.Ordinal);
+        var sourcePolar = new NeuralFoilPolarSource(hash => byHash.GetValueOrDefault(hash));
+        IReadOnlyList<StripLoad> loads = StripCoupler.Couple(sections, solution, op, water, sourcePolar,
+            eta => byEta[eta].ProfileHash, cancellation);
+        return FinishCoupling(loads, solution);
+    }
+
+    private static IReadOnlyList<StripLoad> FinishCoupling(IReadOnlyList<StripLoad> loads, LatticeSolution solution)
+    {
         var withEdges = loads.Select((load, i) => load with
         {
             // Lattice YInboard/YOutboard are the lower-y and higher-y edges; stations increase in y.

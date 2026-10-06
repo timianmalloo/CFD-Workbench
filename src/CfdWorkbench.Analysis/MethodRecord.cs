@@ -16,9 +16,9 @@ public sealed record StripVerdict(bool Inside, IReadOnlyList<string> Exceeded, s
 /// <summary>A method: its stored identity (id, version, convergence order) and its envelope. VLM owns the values.</summary>
 public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
 {
-    /// <summary><c>cfdw.vlm-strip</c> 1.1.0, order 1, envelope 10°, Cl 1.0, sweep 30°.</summary>
+    /// <summary><c>cfdw.vlm-strip</c> with the Ruling 90 section-panel identity, order 1, envelope 10°, Cl 1.0, sweep 30°.</summary>
     public static MethodRecord VlmStrip { get; } = new(
-        new RunMethod("cfdw.vlm-strip", "1.1.0", 1),
+        new RunMethod("cfdw.vlm-strip", $"1.2.0/panel{PanelMethod.DefaultPanelCount}-te{PanelMethod.CpMinTrailingEdgePanelsPerSide}", 1),
         new MethodEnvelope(10, 1.0, 30));
 
     /// <summary>
@@ -81,7 +81,7 @@ public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
             double[] sweeps = VortexLattice.StripSweeps(wing, strips.Select(strip => (strip.YLow!.Value, strip.YHigh!.Value)).ToArray());
             var alphaL0 = new Dictionary<double, double>();
             foreach (double eta in strips.Select(strip => Math.Abs(strip.Eta)).Distinct())
-                alphaL0[eta] = SectionEstimator.Estimate(source, eta, 0, 1e6, 200, cancellation).AlphaL0Deg;
+                alphaL0[eta] = SectionEstimator.Estimate(source, eta, 0, 1e6, PanelMethod.DefaultPanelCount, cancellation).AlphaL0Deg;
             var verdicts = new StripVerdict[strips.Length];
             for (int i = 0; i < strips.Length; i++)
             {

@@ -97,12 +97,14 @@ public sealed record StripLoad(int J, double Y, double Eta, double Chord, double
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? YLow = null,
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? YHigh = null)
 {
-    /// <summary>Reason on a provisional tip strip. Any other reason is a schema error; absent reads false.</summary>
+    /// <summary>Reasons on a provisional strip. Absent reads false for old rows.</summary>
     public const string TipProvisionalReason = "ANA-TIP-PROVISIONAL";
+    public const string PanelUnderreadReason = "ANA-PANEL-UNDERREAD";
 }
 
 /// <summary>A value, or Unavailable with its reason — never a zero standing in for a missing number.</summary>
-public sealed record StripValue(double? Value, string? UnavailableReason);
+public sealed record StripValue(double? Value, string? UnavailableReason,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? FlagCode = null);
 
 /// <summary>One polar evaluation at its grain key (empty in A3a: no polar method is installed).</summary>
 public sealed record PolarSample(string ProfileHash, string MethodId, string MethodVersion, double Reynolds, double Ncrit,
@@ -157,6 +159,8 @@ public sealed record AnalysisEvent
     public double? SolveMs { get; init; }
     public double? StripMs { get; init; }
     public double? RecordMs { get; init; }
+    /// <summary>Measured governing-station suction under-read of 200 panels versus 400; event only, not a run column.</summary>
+    public double? PanelUnderreadFraction { get; init; }
     public string? From { get; init; }
     public string? To { get; init; }
     public int? LayersDrawn { get; init; }
@@ -311,9 +315,9 @@ public static class RunRecord
             // A value, or Unavailable with its reason: never both, never neither.
             Guard.Require((strip.CdNcrit2.Value is null) != (strip.CdNcrit2.UnavailableReason is null) &&
                           (strip.CdNcrit4.Value is null) != (strip.CdNcrit4.UnavailableReason is null), "DOC-SCHEMA");
-            // Expand only: absent provisional is false and carries no reason. The one accepted reason is the tip code.
-            bool tip = strip.ProvisionalReason == StripLoad.TipProvisionalReason;
-            Guard.Require(strip.Provisional == tip && (strip.Provisional || strip.ProvisionalReason is null), "DOC-SCHEMA");
+            // Expand only: the existing optional field gains one code; absent still reads false for old rows.
+            bool knownReason = strip.ProvisionalReason is StripLoad.TipProvisionalReason or StripLoad.PanelUnderreadReason;
+            Guard.Require(strip.Provisional == knownReason && (strip.Provisional || strip.ProvisionalReason is null), "DOC-SCHEMA");
         }
     }
 

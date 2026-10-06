@@ -290,7 +290,7 @@ the envelope verdict per strip; the omissions list. Stored: only facts and solve
 
 | Method | Computes | Source | Status |
 |---|---|---|---|
-| `cfdw.estimator.section` v1 | the inviscid panel method is the single source of Cl, Cm_c/4 and α_L0 (the α where panel Cl = 0) ~~thin-airfoil Cl(α) = 2π(α − α_L0) and Cm_c/4 from `CamberSlope` (Glauert integrals)~~ *(Ruling 90, A3b D1)*; Cp_min excludes the three TE-adjacent panels per side; drag is the **ITTC-1957 fully turbulent bound (pessimistic): 2 C_F(Re)(1 + 2 t/c + 60 (t/c)⁴); no lift-dependent profile drag**. **200 cosine panels at every station**, sampled independently of the VLM chord positions *(Ruling 90)*; a 200-vs-400 two-grid check at the governing station only, emitted on `analysis.run` as the measured per-run under-read, replaces the 1.61 % constant. Worst measured Cp_min under-read on the tested foils: **3.71 %**, leaving **10.7 %** of the 15 % margin; the 1.61 % figure is the Kármán–Trefftz test foil only | own C#, in process | specified |
+| `cfdw.estimator.section` v1 | the inviscid panel method is the single source of Cl, Cm_c/4 and α_L0 (the α where panel Cl = 0) ~~thin-airfoil Cl(α) = 2π(α − α_L0) and Cm_c/4 from `CamberSlope` (Glauert integrals)~~ *(Ruling 90, A3b D1)*; Cp_min excludes the three TE-adjacent panels per side; drag is the **ITTC-1957 fully turbulent bound (pessimistic): 2 C_F(Re)(1 + 2 t/c + 60 (t/c)⁴); no lift-dependent profile drag**. **200 cosine panels at every station**, sampled independently of the VLM chord positions *(Ruling 90)*; a 200-vs-400 two-grid check at the governing station only, emitted on `analysis.run` as the measured per-run under-read, replaces the 1.61 % constant. The prior **3.71 %** worst was only for the tested foils, **not a bound**. The CFD reviewer measured **6.9–7.7 %** Cp_min under-read at 200 panels for 6 %-thick sections at α 3–6°, leaving about **7.3 %** of the 15 % margin at the 7.7 % endpoint. The 1.61 % figure is the Kármán–Trefftz test foil only. The α_L0 and operating solves share one in-run panel LU per section; a 129-station NACA 2412 (2 % camber) warm section pass measured **430.265 ms** on macOS arm64 (readiness check, 2026-10-05), including the 400-panel governing check | own C#, in process | specified |
 | polar (XFOIL-class) | Cl, Cd, Cm, x_tr, Cp at the Ncrit pair {2, 4} and the surface state | **DR-ANA-1** | `IPolarSource` stub: "Unavailable — no polar method installed" |
 | Cp on the profile and the cavitation screen | Cp(x) upper/lower, Cp_min with station count | **DR-ANA-2** | Unavailable until ruled |
 
@@ -359,6 +359,14 @@ on induced drag"** (DR-ANA-11); kept out of the computed-e envelope check and ou
 fully turbulent bound. It exists so a wing number is available without the lattice and as Compare's second tier.
 
 ### 5.4 Labels, basis, envelope and omissions — every one visible (A5.6, A7, A5.1, A5.4)
+
+**A5.2 free-surface correction envelope.** The JMSA-2026 [S6] fit summarized in
+[`data-and-constants.md`](../knowledge/hydrofoil-workbench/data-and-constants.md) applies at h/c 0.5–9.5,
+Re 7.3×10⁴–2.9×10⁵, Fr_h ≲ 5 and α −5°…+10°. Each exceeded axis has its own stable
+`ANA-FREE-SURFACE-*-OUTSIDE` code. The corrected drag carries the Ncrit 2/4 wing-only band,
+ordered by value. Its result always carries `ANA-FREE-SURFACE-DEPTH-ONLY` and
+`ANA-FREE-SURFACE-WAVE-DRAG-OMITTED`; the fit does not model Froude dependence and does not
+include wave-making drag. A surface-piercing station is unavailable.
 
 | Tier | Tier chip | Fixed label parts (A5.6) | Method envelope (shown beside the number; strips outside flagged) | Always with | Omissions always listed |
 |---|---|---|---|---|---|
@@ -494,7 +502,7 @@ service refuses to evaluate without them (`ANA-INPUT-STATIONS`). The product met
 **Rejected:** a message bus or background service; a method plugin system; a separate result store; storing wing totals
 or Trefftz quantities (DM7); Math.NET for the LU (*simplify:* plain dense LU; settings validation caps unknowns
 (strips × chordwise panels) at 2,048 — the default is 512; upgrade trigger: `analysis.run` p95 > 1 s on the reference
-fixture; **residual Cp_min margin at the shipped 200 panels: 10.7 % of the 15 % margin left (worst measured under-read 3.71 %), Ruling 90 condition 5**).
+fixture; **reviewer-measured 200-panel Cp_min under-read is 6.9–7.7 % for 6 %-thick sections at α 3–6°, leaving about 7.3 % of the 15 % margin at 7.7 % under-read; 3.71 % was the tested-foil worst, not a bound (Ruling 90 condition 5)**).
 
 ## 8. Error and concurrency model
 

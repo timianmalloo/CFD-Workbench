@@ -22,7 +22,7 @@ public static class SectionEstimator
     {
         ArgumentNullException.ThrowIfNull(section);
         int count = section.X.Count;
-        if (count < 3 || section.CamberSlope.Count != count || section.Thickness.Count != count ||
+        if (count < 3 || section.Thickness.Count != count ||
             section.Camber.Count != count || Math.Abs(section.X[0]) > 1e-10 || Math.Abs(section.X[^1] - 1) > 1e-10)
             throw new ContractError("ANA-SECTION-GEOMETRY", "Section samples must span x/c = 0 to 1 with matching arrays.");
         if (!double.IsFinite(reynolds) || reynolds <= 100 || !double.IsFinite(section.Frame.ThicknessRatio) ||
@@ -34,15 +34,20 @@ public static class SectionEstimator
             cancellation.ThrowIfCancellationRequested();
             double xa = section.X[i], xb = section.X[i + 1];
             if (!double.IsFinite(xa) || !double.IsFinite(xb) || !(xb > xa) ||
-                !double.IsFinite(section.CamberSlope[i]) || !double.IsFinite(section.CamberSlope[i + 1]))
-                throw new ContractError("ANA-SECTION-GEOMETRY", "Chord stations and camber slopes must be finite and ordered.");
+                !double.IsFinite(section.Camber[i]) || !double.IsFinite(section.Camber[i + 1]))
+                throw new ContractError("ANA-SECTION-GEOMETRY", "Chord stations and camber coordinates must be finite and ordered.");
         }
         double cf = 0.075 / Math.Pow(Math.Log10(reynolds) - 2, 2);
         double tc = section.Frame.ThicknessRatio;
         double cd = 2 * cf * (1 + 2 * tc + 60 * Math.Pow(tc, 4));
-        PanelResult panel = PanelMethod.Solve(section, alphaDeg, cancellation);
-        PanelResult atZero = alphaDeg == 0 ? panel : PanelMethod.Solve(section, 0, cancellation);
-        PanelResult atOne = alphaDeg == 1 ? panel : PanelMethod.Solve(section, 1, cancellation);
+        PanelMethod.Prepared prepared = PanelMethod.Prepare(section, cancellation);
+        PanelResult panel = prepared.Solve(alphaDeg, cancellation);
+        // A section symmetric about its chord has the panel method's zero-lift root at α = 0 by reflection.
+        // Avoid extra right-side solves at each station of the common symmetric wing.
+        if (section.Camber.All(value => Math.Abs(value) <= 1e-12))
+            return new(panel, 0, cd);
+        PanelResult atZero = alphaDeg == 0 ? panel : prepared.Solve(0, cancellation);
+        PanelResult atOne = alphaDeg == 1 ? panel : prepared.Solve(1, cancellation);
         double a0 = 0, a1 = 1, cl0 = atZero.Cl, cl1 = atOne.Cl;
         for (int iteration = 0; iteration < 8; iteration++)
         {
@@ -52,7 +57,7 @@ public static class SectionEstimator
                 break;
             double next = a1 - cl1 * (a1 - a0) / denominator;
             if (!double.IsFinite(next)) break;
-            PanelResult atNext = PanelMethod.Solve(section, next, cancellation);
+            PanelResult atNext = prepared.Solve(next, cancellation);
             (a0, cl0, a1, cl1) = (a1, cl1, next, atNext.Cl);
         }
         throw new ContractError("ANA-SECTION-ZEROLIFT", "The panel zero-lift angle did not converge.");

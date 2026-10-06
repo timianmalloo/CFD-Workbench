@@ -1,5 +1,6 @@
 using System.Globalization;
 using CfdWorkbench.Core;
+using CfdWorkbench.Analysis.NeuralFoil;
 
 namespace CfdWorkbench.Analysis;
 
@@ -7,7 +8,9 @@ namespace CfdWorkbench.Analysis;
 public sealed record ProjectionContext(IReadOnlyList<StripVerdict>? Verdicts = null,
     IReadOnlyList<StationFrame>? Stations = null, double? RootThicknessRatio = null,
     RunIntegrity Integrity = RunIntegrity.Intact, AnalysisRun? PreviousCompleted = null,
-    IReadOnlySet<string>? HiddenLayers = null, IReadOnlyList<Loads.Vec>? StripNormals = null, string? FeedUnavailable = null);
+    IReadOnlySet<string>? HiddenLayers = null, IReadOnlyList<Loads.Vec>? StripNormals = null, string? FeedUnavailable = null,
+    byte[]? Source = null, SectionTierResult? SectionTier = null,
+    RevisionLabel? Revision = null, string? HistoricalText = null);
 
 /// <summary>Pure projection of the selected run into rows, chart points and layer data.</summary>
 public static class AnalysisProjection
@@ -15,6 +18,7 @@ public static class AnalysisProjection
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
     // simplify: the generic "Unavailable" of COPY-210..229 stands in until a copy ruling names a no-verdict string.
     private const string VerdictUnavailable = "Unavailable";
+    private const string SurrogateLabel = "XFOIL-class surrogate; accuracy relative to XFOIL, not experiment";
     private enum VerdictState { Inside, Outside, Provisional, Indeterminate }
 
     public static AnalysisViewModel Build(AnalysisRun? run, CurrentInputs current, Units units) => Build(run, current, units, null);
@@ -42,12 +46,15 @@ public static class AnalysisProjection
         }
 
         bool isCurrent = RunRecord.RecomputedKey(run) == Freshness.CurrentKey(current);
-        string? banner = isCurrent ? null : "Historical — " + string.Join(", ", Freshness.WhatChanged(run, current));
+        string? banner = isCurrent ? null : context.HistoricalText ?? "Historical — " + string.Join(", ", Freshness.WhatChanged(run, current));
         double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
         double a = VortexLattice.ToRadians(run.Op.AlphaDeg);
         double lift = run.Strips.Sum(s => -s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a));
         double? cl = q > 0 && run.Reference.SRef > 0 ? lift / (q * run.Reference.SRef) : null;
-        double? drag = TrefftzDrag(run);
+        double? drag = Loads.InducedDrag(run).Value;
+        StripValue profile2 = Loads.ProfileDrag(run, 2), profile4 = Loads.ProfileDrag(run, 4);
+        StripValue wing2 = Loads.WingDrag(run, 2), wing4 = Loads.WingDrag(run, 4);
+        StripValue total2 = Loads.TotalDrag(run, 2), total4 = Loads.TotalDrag(run, 4);
         double? cdi = drag.HasValue && q > 0 && run.Reference.SRef > 0 ? drag / (q * run.Reference.SRef) : null;
         double? trefftzLift = run.Strips.Count > 0 && run.Strips.All(s => Width(run, s) > 0)
             ? run.Water.Rho * run.Op.Speed * run.Strips.Sum(s => s.Gamma * Width(run, s)) : null;
@@ -56,6 +63,12 @@ public static class AnalysisProjection
         double ar = run.Reference.SRef > 0 ? run.Reference.BRef * run.Reference.BRef / run.Reference.SRef : 0;
         double? e = clTrefftz.HasValue && cdi > 0 && ar > 0 ? Trefftz.Oswald(clTrefftz.Value, ar, cdi.Value) : null;
         var derived = OperatingPoints.Derive(run.Op, run.Water, run.Reference.CRef);
+        SectionTierResult? section = context.SectionTier;
+        if (section is null && context.Source is { } source)
+        {
+            try { section = SectionTier.Derive(run, source); }
+            catch (ContractError) { }
+        }
         bool depth = run.Op.HRef.HasValue;
         var groups = new List<ResultGroup>();
         groups.Add(new("Wing result", [
@@ -65,8 +78,12 @@ public static class AnalysisProjection
             Row("CDi (Trefftz)", Val(cdi, "0.00000")),
             Row("e (computed)", Val(e, "0.000"), note: EAdvisory(e, run.Settings)),
             Force("Lift L", lift, units), Force("Induced drag", drag, units),
-            Row("Total drag", Loads.TotalDragReason),
-            Row("CL/CD", "Unavailable — total drag missing"),
+            DragBandRow("Wing-only drag", wing2, wing4, units, null, "ANA-WING-ONLY-DRAG · " + SurrogateLabel),
+            DragBandRow("Total drag", total2, total4, units, run.Settings.Polar is null ? Loads.TotalDragReason : null),
+            WingRatioRow(lift, wing2, wing4),
+            Row("CL/CD", total2.Value is > 0 && total4.Value is > 0 ?
+                Num(lift / total4.Value.Value, "0.###") + "–" + Num(lift / total2.Value.Value, "0.###") :
+                "Unavailable — total drag missing"),
             Row("Basis", "b " + Num(run.Reference.BRef, "0.###") + " m · moment datum: " + run.Reference.MomentDatum + " · " + Labels.BodyAxes)
         ]));
         groups.Add(new("Conditions", [
@@ -75,7 +92,12 @@ public static class AnalysisProjection
             Row("q", Derived(derived.Q, "0.##"), "Pa"), Row("Re_ref", Derived(derived.ReRef, "0.###E+0")),
             Row("h/c", Derived(derived.DepthOverChord, "0.00")), Row("Fr_h", Derived(derived.FroudeDepth, "0.00")),
             Row("σ", Derived(derived.Sigma, "0.00")),
-            Row("V_crit", depth ? Labels.NoVcrit : "Unavailable — depth not set")
+            Row("V_crit", section?.Cavitation.CriticalSpeed is { } vcrit
+                ? Num(units == Units.Imperial ? vcrit * 1.9438444924406 : vcrit, "0.###")
+                : depth ? Labels.NoVcrit : "Unavailable — depth not set",
+                section?.Cavitation.CriticalSpeed is null ? null : units == Units.Imperial ? "kn" : "m/s",
+                section?.Cavitation.CriticalSpeed is null ? null : PanelMethod.ModelLabel +
+                    (section.GoverningProvisional ? " · " + StripLoad.PanelUnderreadReason : ""))
         ]));
         var basis = new List<ResultRow>
         {
@@ -106,8 +128,12 @@ public static class AnalysisProjection
             Row("Centre of lift, half span", Val(centre, "0.###"), "m", "from the root plane"),
             Row("Root bending moment", Val(rootMoment, "0.###"), "N·m", Labels.RootMoment),
             Row("Wing loading L/S_ref", run.Reference.SRef > 0 ? Num(lift / run.Reference.SRef / 1000, "0.###") : "Unavailable", "kPa"),
-            Row("Moment about attachment point", Loads.AttachmentReason), Row("Profile drag", Labels.NoPolar),
-            Row("Total drag", Loads.TotalDragReason),
+            Row("Moment about attachment point", Loads.AttachmentReason),
+            DragBandRow("Profile drag", profile2, profile4, units, run.Settings.Polar is null ? Labels.NoPolar : null,
+                SurrogateLabel),
+            DragBandRow("Wing-only drag", wing2, wing4, units, null, "ANA-WING-ONLY-DRAG · " + SurrogateLabel),
+            DragBandRow("Total drag", total2, total4, units, run.Settings.Polar is null ? Loads.TotalDragReason : null),
+            WingRatioRow(lift, wing2, wing4),
             Row("Structural", "Structural: Not assessed", note: Labels.StructuralList),
             Row("t/c (root)", context.RootThicknessRatio.HasValue ? Num(context.RootThicknessRatio.Value * 100, "0.#") : Labels.ThicknessMissing,
                 context.RootThicknessRatio.HasValue ? "%" : null),
@@ -116,14 +142,112 @@ public static class AnalysisProjection
         groups.Add(new("Strips", run.Strips.Select(s => Row("Strip " + s.J + " · η " + Num(s.Eta, "0.###"),
             "Cl_local " + Num(s.ClLocal, "0.###") + " · α_eff " + Num(s.AlphaEff, "0.##") + "° · Re_local " + Num(s.ReLocal, "0.###E+0"),
             note: VerdictText(s, context.Verdicts))).ToArray()));
-        groups.Add(new("Section (2D)", [Row("Cl, Cd, Cm, x_tr", Labels.NoPolar), Row("Cp_min", Labels.SectionCp)]));
-        groups.Add(new("Provenance", [Row("Run key", RunRecord.RecomputedKey(run)), Row("Content hash", RunRecord.ContentHash(run)),
-            Row("Water table hash", run.Water.TableHash), Row("Settings hash", run.SettingsHash)]));
+        groups.Add(new("Section (2D)", SectionRows(section)));
+        var provenance = new List<ResultRow>
+        {
+            Row("Run", run.RunId + " · " + run.Outcome.GetType().Name + " · " + run.RunKey),
+            Row("Method", run.Method.Id + " " + run.Method.Version + " · " + run.Settings.NSpanPerHalf + " × " + run.Settings.NChord),
+            Row("Inputs", "revision " + (context.Revision is { } revision ? "r" + revision.Ordinal.ToString(Inv) : run.Inputs.AcceptedId) +
+                " · surface " + run.Inputs.SurfaceHash + " · profiles " + string.Join(", ", run.Inputs.ProfileHashes) +
+                " · evaluator " + run.Inputs.Evaluator),
+            Row("Water", Num(run.Water.SalinityGPerKg, "0.#####") + " g/kg · " + Num(run.Water.TemperatureC, "0.##") +
+                " °C · ρ " + Num(run.Water.Rho, "0.###") + " kg/m³ · ν " + Num(run.Water.Nu, "0.#####E+0") +
+                " m²/s · p_v " + Num(run.Water.Pv / 1000, "0.####") + " kPa · " + run.Water.Source),
+            Row("Operating point", Num(run.Op.Speed, "0.###") + " m/s · p_atm " + Num(run.Op.PAtm / 1000, "0.###") +
+                " kPa · α " + Num(run.Op.AlphaDeg, "0.##") + "° · datum " + run.Op.Datum),
+            Row("Run key", RunRecord.RecomputedKey(run)), Row("Content hash", RunRecord.ContentHash(run)),
+            Row("Water table hash", run.Water.TableHash), Row("Settings hash", run.SettingsHash)
+        };
+        if (banner is not null) provenance.Add(Row("Changed since", banner));
+        groups.Add(new("Provenance", provenance));
         return new(isCurrent ? RunState.Current : RunState.Historical, isCurrent ? "Analysis: Current" : "Analysis: Historical",
             banner, null, groups, Layers(run, context, rootMoment), run.RunKey)
         {
-            Loading = Loading(run, cl, a), StripDetails = StripDetails(run, context, a)
+            Loading = Loading(run, cl, a), StripDetails = StripDetails(run, context, a),
+            SectionTier = section,
+            PolarConsistency = section?.PolarConsistency,
+            WingDragNcrit2 = wing2, WingDragNcrit4 = wing4,
+            FreeSurface = run.Op.HRef is { } correctionDepth ? FreeSurfaceCorrection.Evaluate(lift, wing2.Value,
+                wing4.Value,
+                run.Strips.Count > 0 ? run.Strips.Sum(strip => strip.My) : null,
+                correctionDepth, run.Reference.CRef, run.Op.Speed,
+                run.Op.Speed * run.Reference.CRef / run.Water.Nu, run.Op.AlphaDeg) : null
         };
+    }
+
+    private static IReadOnlyList<ResultRow> SectionRows(SectionTierResult? section)
+    {
+        if (section is null) return [Row("Cl, Cd, Cm, x_tr", Labels.NoPolar), Row("Cp_min", Labels.SectionCp)];
+        SectionStationResult station = section.Stations.MinBy(item => Math.Abs(item.Eta - section.GoverningEta))!;
+        string stationLabel = "η " + Num(station.Eta, "0.###");
+        string provisional = section.GoverningProvisional ? " · " + StripLoad.PanelUnderreadReason : "";
+        if (station.EstimatorAvailabilityCode is { } unavailable)
+            return [Row("Cl", unavailable), Row("Cm_c/4", unavailable), Row("α_L0", unavailable),
+                Row("Cd", unavailable), Row("Cp_min", unavailable), Row("Cavitation", unavailable)];
+        var rows = new List<ResultRow>
+        {
+            Row("Cl", Num(station.Estimate.Cl, "0.###"), note: PanelMethod.ModelLabel),
+            Row("Cm_c/4", Num(station.Estimate.CmQuarter, "0.###"), note: PanelMethod.ModelLabel),
+            Row("α_L0", Num(station.Estimate.AlphaL0Deg, "0.###"), "°", PanelMethod.ModelLabel),
+            Row("ANA-SECTION-ITTC1957-BOUND", Num(station.Estimate.CdTurbulentBound, "0.#####"),
+                note: "ITTC-1957 fully turbulent bound; no lift-dependent profile drag"),
+            Row("Cp_min", Num(station.Estimate.Panel.CpMin, "0.###"),
+                note: PanelMethod.ModelLabel + " · " + stationLabel + provisional),
+            Row("N", station.Estimate.Panel.StationCount.ToString(Inv), note: PanelMethod.ModelLabel),
+            Row("η", Num(station.Eta, "0.###"), note: PanelMethod.ModelLabel),
+            Row("Cavitation", section.Cavitation.Reason == Cavitation.DepthNotSet ? "Unavailable — depth not set" :
+                section.Cavitation.Reason ?? section.Cavitation.State.ToString(),
+                note: PanelMethod.ModelLabel + " · " + section.Cavitation.ScreenText + " · " + stationLabel + provisional)
+        };
+        if (section.PolarNcrit2 is not null || section.PolarNcrit4 is not null ||
+            section.PolarReason2 is not null || section.PolarReason4 is not null)
+        {
+            rows.Add(Row("Ncrit 2", PolarText(section.PolarNcrit2, section.PolarReason2), note: SurrogateLabel));
+            rows.Add(Row("Ncrit 4", PolarText(section.PolarNcrit4, section.PolarReason4), note: SurrogateLabel));
+            PolarResult? polar = section.PolarNcrit2 ?? section.PolarNcrit4;
+            if (polar is not null)
+            {
+                rows.Add(Row("CST residual", Num(polar.CstResidualMax, "0.#####E+0"), note: SurrogateLabel));
+                rows.Add(Row("analysis_confidence", Val(polar.Sample.Confidence, "0.###"),
+                    note: SurrogateLabel + (polar.LowConfidence ? " · ANA-POLAR-LOW-CONFIDENCE" : "")));
+            }
+        }
+        return rows;
+    }
+
+    private static string PolarText(PolarResult? result, string? reason)
+    {
+        if (reason is not null) return reason;
+        if (result is null) return Labels.NoPolar;
+        PolarSample sample = result.Sample;
+        return "Cl " + Val(sample.Cl, "0.###") + " · Cd " + Val(sample.Cd, "0.#####") +
+            " · Cm " + Val(sample.Cm, "0.###") + " · x_tr " + Val(sample.XtrUpper, "0.###") +
+            "/" + Val(sample.XtrLower, "0.###");
+    }
+
+    private static ResultRow DragBandRow(string label, StripValue n2, StripValue n4, Units units,
+        string? legacyReason, string? tierNote = null)
+    {
+        if (n2.Value is not { } low || n4.Value is not { } high)
+            return Row(label, legacyReason ?? n2.UnavailableReason ?? n4.UnavailableReason ?? "ANA-DRAG-UNAVAILABLE");
+        double factor = units == Units.Imperial ? 4.4482216152605 : 1;
+        string? note = n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
+            ? string.Join(" · ", new[] { tierNote, "ANA-POLAR-LOW-CONFIDENCE" }.Where(part => part is not null))
+            : tierNote;
+        return Row(label, Num(Math.Min(low, high) / factor, "0.###") + "–" +
+            Num(Math.Max(low, high) / factor, "0.###"),
+            units == Units.Imperial ? "lbf" : "N", note);
+    }
+
+    private static ResultRow WingRatioRow(double lift, StripValue n2, StripValue n4)
+    {
+        if (n2.Value is not > 0 || n4.Value is not > 0)
+            return Row("Wing-only CL/CD", "ANA-WING-RATIO-UNAVAILABLE");
+        double a = lift / n2.Value.Value, b = lift / n4.Value.Value;
+        return Row("Wing-only CL/CD", Num(Math.Min(a, b), "0.###") + "–" + Num(Math.Max(a, b), "0.###"),
+            note: "ANA-WING-ONLY-RATIO · " + SurrogateLabel +
+                (n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
+                    ? " · ANA-POLAR-LOW-CONFIDENCE" : ""));
     }
 
     public static ResultGroup StripAt(AnalysisViewModel view, double eta)
@@ -144,9 +268,16 @@ public static class AnalysisProjection
                 Row("Cl_local", Num(s.ClLocal, "0.###")), Row("α_eff", Num(s.AlphaEff, "0.##"), "°"),
                 Row("Re_local", Num(s.ReLocal, "0.###E+0")),
                 Row("Lift / span", width > 0 ? Num(localLift / width, "0.###") : Labels.StripWidthMissing, width > 0 ? "N/m" : null),
-                Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : s.CdNcrit2.UnavailableReason ?? Labels.NoPolar),
-                Row("Envelope (this strip)", VerdictText(s, context.Verdicts)),
-                Row("Polar Re range", Labels.NoPolar), Row("Not modelled", Labels.NotModelled(run.Op.HRef.HasValue))
+                Row("Envelope (this strip)", VerdictText(s, context.Verdicts),
+                    note: s.ProvisionalReason == StripLoad.PanelUnderreadReason ? StripLoad.PanelUnderreadReason : null),
+                Row("Polar Re range", s.ProvisionalReason == StripLoad.TipProvisionalReason ? Labels.TipNotJudged :
+                    s.CdNcrit2.UnavailableReason ?? (s.CdNcrit2.Value.HasValue
+                        ? Num(NeuralFoilPolarSource.ReynoldsMin, "0.###E+0") + "–" +
+                            Num(NeuralFoilPolarSource.ReynoldsMax, "0.###E+0") : Labels.NoPolar),
+                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel : null),
+                Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : s.CdNcrit2.UnavailableReason ?? Labels.NoPolar,
+                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (s.CdNcrit2.FlagCode is { } code ? " · " + code : "") : null),
+                Row("Not modelled", Labels.NotModelled(run.Op.HRef.HasValue))
             ]));
         }
         return details;
@@ -205,19 +336,7 @@ public static class AnalysisProjection
         return sentence;
     }
 
-    private static double? TrefftzDrag(AnalysisRun run) => run.Strips.Count == 0 || run.Strips.Any(s => Width(run, s) <= 0) ? null :
-        0.5 * run.Water.Rho * run.Strips.Sum(s => s.Gamma * -s.DownwashTrefftz * Width(run, s));
-    private static double Width(AnalysisRun run, StripLoad strip)
-    {
-        if (strip.YLow.HasValue != strip.YHigh.HasValue) return 0;
-        if (strip.YLow.HasValue && strip.YHigh.HasValue) return strip.YHigh.Value - strip.YLow.Value;
-        if (run.Strips.Count != 2 * run.Settings.NSpanPerHalf) return 0;
-        int j = strip.J;
-        int n = run.Settings.NSpanPerHalf, total = 2 * n;
-        if (j < 0 || j >= total) return 0;
-        double Edge(int i) => run.Settings.SpanSpacing == "cosine" ? -Math.Cos(Math.PI * i / total) : -1 + 2.0 * i / total;
-        return (Edge(j + 1) - Edge(j)) * run.Reference.BRef / 2;
-    }
+    private static double Width(AnalysisRun run, StripLoad strip) => Loads.StripWidth(run, strip);
     private static double? RootBending(AnalysisRun run) => run.Strips.Count == 0 ? null :
         run.Strips.Where(s => s.Y >= 0).All(s => Width(run, s) > 0)
             ? run.Water.Rho * run.Op.Speed * run.Strips.Where(s => s.Y >= 0).Sum(s => s.Gamma * s.Y * Width(run, s)) : null;

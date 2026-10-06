@@ -26,6 +26,8 @@ internal static class AnalysisChecks
             RunStoreTests.RunReadiness();
             FreshnessTests.RunReadiness();
             PanelCpTests.RunReadiness();
+            StripFixtureTests.RunReadiness();
+            SectionSeamTests.RunReadiness();
             return Finish();
         }
         (int Index, int Count)? part;
@@ -37,11 +39,17 @@ internal static class AnalysisChecks
         // arithmetic in every part, so the parts together run each check once. Hints are measured group wall times (2026-10-06, Release, one process). A stale hint costs balance, never coverage.
         var groups = new (string Name, int CostHintMs, Action Run)[]
         {
-            ("Architecture", 10, ArchitectureTests.Run), ("RunStore", 690, RunStoreTests.Run), ("Lattice", 470, LatticeFixtureTests.Run),
-            ("Strip", 460, StripFixtureTests.Run), ("Service", 1120, ServiceTests.Run), ("Freshness", 560, FreshnessTests.Run),
-            ("Projection", 710, ProjectionTests.Run), ("Labels", 20, LabelsTests.Run), ("LoadsView", 10, LoadsViewTests.Run),
-            ("PanelCp", 40, PanelCpTests.Run), ("SectionEstimator", 140, SectionEstimatorTests.Run),
+            ("Architecture", 10, ArchitectureTests.Run), ("RunStore", 773, RunStoreTests.Run), ("Lattice", 484, LatticeFixtureTests.Run),
+            ("Strip", 302, StripFixtureTests.Run), ("Service", 1100, ServiceTests.Run), ("Freshness", 561, FreshnessTests.Run),
+            ("Projection", 807, ProjectionTests.Run), ("Labels", 20, LabelsTests.Run), ("LoadsView", 10, LoadsViewTests.Run),
+            ("PanelCp", 40, PanelCpTests.Run), ("SectionEstimator", 60, SectionEstimatorTests.Run),
             ("Cavitation", 10, CavitationTests.Run), ("NeuralFoil", 100, NeuralFoilTests.Run),
+            ("PolarSeam", 353, PolarSeamTests.Run),
+            ("SectionSeam", 449, SectionSeamTests.Run),
+            ("ProvenanceSeam", 70, ProvenanceSeamTests.Run),
+            ("PolarNumerics", 304, PolarNumericsTests.Run),
+            ("OperatingSearch", 45, OperatingSearchTests.Run),
+            ("TipPolar", 50, TipPolarTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)

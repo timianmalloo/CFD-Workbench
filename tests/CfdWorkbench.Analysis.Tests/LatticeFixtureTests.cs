@@ -55,7 +55,7 @@ internal static class LatticeFixtureTests
         Equal(0.01, Settings.ReconciliationTolerance, "reconciliation");
         Equal(2048, Settings.UnknownCap, "cap");
         Equal("cfdw.vlm-strip", MethodRecord.VlmStrip.Method.Id, "method");
-        Equal("1.1.0", MethodRecord.VlmStrip.Method.Version, "version");
+        Equal("1.2.0/panel200-te3", MethodRecord.VlmStrip.Method.Version, "version");
         Equal(1, MethodRecord.VlmStrip.Method.Order, "order");
         Equal(10, MethodRecord.VlmStrip.Envelope.AlphaEffFromZeroLiftMaxDeg, "envelope alpha");
         Equal(1.0, MethodRecord.VlmStrip.Envelope.ClLocalMax, "envelope cl");

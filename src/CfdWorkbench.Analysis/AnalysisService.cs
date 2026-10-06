@@ -29,6 +29,10 @@ public interface IWingMethod
     LatticeSolution Solve(IReadOnlyList<SectionSample> sections, OperatingPoint op, WaterRecord water, CancellationToken cancellation);
     IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op,
         WaterRecord water, CancellationToken cancellation);
+    /// <summary>The accepted source is supplied for methods whose strip polar needs the run's exact section revision.</summary>
+    IReadOnlyList<StripLoad> Couple(byte[] source, IReadOnlyList<SectionSample> sections, LatticeSolution solution,
+        OperatingPoint op, WaterRecord water, CancellationToken cancellation) =>
+        Couple(sections, solution, op, water, cancellation);
 }
 
 /// <summary>
@@ -158,8 +162,13 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
             trace.SolveMs = Lap();
             diagnostics = solution.Diagnostics;
             trace.Diagnostics = diagnostics;
-            strips = method.Couple(sections, solution, op, water, token);
+            strips = method.Couple(view.Source, sections, solution, op, water, token);
             trace.StripMs = Lap();
+            if (method is ProductWingMethod)
+            {
+                SectionTierResult section = SectionTier.Evaluate(view.Source, stations.Etas, strips, op, water, token);
+                trace.PanelUnderreadFraction = section.PanelUnderreadFraction;
+            }
         }
         catch (ContractError error) when (error.Code.StartsWith("ANA-", StringComparison.Ordinal) && error.Code != TipBelowFloorCode)
         {
@@ -259,13 +268,15 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         public double? SolveMs { get; set; }
         public double? StripMs { get; set; }
         public double? RecordMs { get; set; }
+        public double? PanelUnderreadFraction { get; set; }
 
         public AnalysisEvent Event(IWingMethod method) => new()
         {
             Tier = TierId, MethodId = method.Method.Id, MethodVersion = method.Method.Version, RunKey12 = RunKey12,
             Scope = Scope, Unknowns = 2 * method.Settings.NSpanPerHalf * method.Settings.NChord, Strips = Strips,
             Residual = Diagnostics?.ResidualInf, Kappa1 = Diagnostics?.Kappa1, IdempotentHit = IdempotentHit,
-            SnapshotMs = SnapshotMs, SectionsMs = SectionsMs, SolveMs = SolveMs, StripMs = StripMs, RecordMs = RecordMs
+            SnapshotMs = SnapshotMs, SectionsMs = SectionsMs, SolveMs = SolveMs, StripMs = StripMs, RecordMs = RecordMs,
+            PanelUnderreadFraction = PanelUnderreadFraction
         };
     }
 }

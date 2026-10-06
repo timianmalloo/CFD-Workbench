@@ -21,14 +21,16 @@ public static class PanelMethod
 {
     public const string ModelLabel = "inviscid; no boundary layer";
     public const int CpMinTrailingEdgePanelsPerSide = 3;
-    // docs/proof/a3b/red-first.md: KT Cp_min at 400 panels is -1.685973 vs exact -1.713602662,
-    // a measured 1.61% suction-peak under-read; 200 panels under-read by 3.48%.
-    public const int DefaultPanelCount = 400;
-    public const double DefaultCpMinRelativeError = 0.0161;
+    // Ruling 90: every station uses 200 cosine panels. The earlier 1.61% figure is KT-only at 400 panels.
+    public const int DefaultPanelCount = 200;
     private const double TwoPi = 2 * Math.PI;
 
     /// <summary>Sample one foil station for Cp at the panel tier's own cosine chord resolution.</summary>
     public static SectionSample SampleSection(byte[] source, double eta, int panelCount,
+        CancellationToken cancellation = default) => SampleSections(source, [eta], panelCount, cancellation)[0];
+
+    /// <summary>Sample every wing station on the same independent cosine chord grid, parsing the source once.</summary>
+    public static IReadOnlyList<SectionSample> SampleSections(byte[] source, IReadOnlyList<double> etas, int panelCount,
         CancellationToken cancellation = default)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -38,10 +40,13 @@ public static class PanelMethod
         var xs = new double[half + 1];
         for (int i = 0; i <= half; i++)
             xs[i] = (1 - Math.Cos(Math.PI * i / half)) / 2;
-        return Placement.Sections(source, [eta], xs, cancellation)[0];
+        return Placement.Sections(source, etas, xs, cancellation);
     }
 
-    public static PanelResult Solve(SectionSample section, double alphaDeg, CancellationToken cancellation = default)
+    public static PanelResult Solve(SectionSample section, double alphaDeg, CancellationToken cancellation = default) =>
+        Prepare(section, cancellation).Solve(alphaDeg, cancellation);
+
+    public static Prepared Prepare(SectionSample section, CancellationToken cancellation = default)
     {
         ArgumentNullException.ThrowIfNull(section);
         int count = section.X.Count;
@@ -55,16 +60,18 @@ public static class PanelMethod
         }
         for (int i = 1; i < count; i++)
             contour[count - 1 + i] = new(section.X[i], section.Camber[i] - section.Thickness[i] / 2);
-        return Solve(contour, alphaDeg, cancellation);
+        return Prepare(contour, cancellation);
     }
 
     public static PanelResult Solve(IReadOnlyList<SectionPoint> contour, double alphaDeg,
-        CancellationToken cancellation = default)
+        CancellationToken cancellation = default) => Prepare(contour, cancellation).Solve(alphaDeg, cancellation);
+
+    public static Prepared Prepare(IReadOnlyList<SectionPoint> contour, CancellationToken cancellation = default)
     {
         ArgumentNullException.ThrowIfNull(contour);
         int panels = contour.Count - 1;
-        if (panels < 4 || panels > 800 || panels % 2 != 0 || !double.IsFinite(alphaDeg))
-            throw new ContractError("ANA-PANEL-GEOMETRY", "A finite angle and an even, bounded panel count are required.");
+        if (panels < 4 || panels > 800 || panels % 2 != 0)
+            throw new ContractError("ANA-PANEL-GEOMETRY", "An even, bounded panel count is required.");
         if (Math.Abs(contour[0].X - contour[^1].X) > 1e-10 ||
             Math.Abs(contour[0].Z - contour[^1].Z) > 1e-10)
             throw new ContractError("ANA-PANEL-GEOMETRY", "The trailing edge must close.");
@@ -79,18 +86,14 @@ public static class PanelMethod
             if (!(length > 1e-12)) throw new ContractError("ANA-PANEL-GEOMETRY", "A panel has zero length.");
             segments[j] = new(p, q, length, (q.X - p.X) / length, (q.Z - p.Z) / length);
         }
-        double angle = VortexLattice.ToRadians(alphaDeg);
-        double vx = Math.Cos(angle), vz = Math.Sin(angle);
         double[] matrix = new double[unknowns * unknowns];
         double[] tangential = new double[panels * unknowns];
-        double[] rhs = new double[unknowns];
         for (int i = 0; i < panels; i++)
         {
             cancellation.ThrowIfCancellationRequested();
             Segment target = segments[i];
             SectionPoint mid = new((target.Start.X + target.End.X) / 2, (target.Start.Z + target.End.Z) / 2);
             double nx = -target.Tz, nz = target.Tx;
-            rhs[i] = -(vx * nx + vz * nz);
             for (int j = 0; j < panels; j++)
             {
                 (double u0, double v0, double u1, double v1) = Influence(mid, segments[j], i == j);
@@ -109,31 +112,60 @@ public static class PanelMethod
         }
         matrix[panels * unknowns] = 1;
         matrix[panels * unknowns + panels] = 1;
-        double[] gamma = VortexLattice.SolveDense(matrix, rhs, unknowns, LatticePlant.None, cancellation).X;
-        var upper = new List<PanelCp>(panels / 2);
-        var lower = new List<PanelCp>(panels / 2);
-        double cpMin = double.PositiveInfinity, cl = 0, cm = 0;
-        int omittedPerSide = Math.Min(CpMinTrailingEdgePanelsPerSide, (panels - 2) / 2);
-        for (int i = 0; i < panels; i++)
+        return new Prepared(segments, tangential, new VortexLattice.DenseFactors(matrix, unknowns, cancellation));
+    }
+
+    /// <summary>One section matrix and LU, reused for the operating angle and zero-lift search in this estimate.</summary>
+    public sealed class Prepared
+    {
+        private readonly Segment[] segments;
+        private readonly double[] tangential;
+        private readonly VortexLattice.DenseFactors factors;
+
+        internal Prepared(Segment[] segments, double[] tangential, VortexLattice.DenseFactors factors)
         {
-            Segment segment = segments[i];
-            double speed = vx * segment.Tx + vz * segment.Tz;
-            for (int j = 0; j < unknowns; j++) speed += tangential[i * unknowns + j] * gamma[j];
-            double cp = 1 - speed * speed;
-            if (!double.IsFinite(cp)) throw new ContractError("ANA-PANEL-NONFINITE", "A panel Cp is not finite.");
-            double x = (segment.Start.X + segment.End.X) / 2;
-            double z = (segment.Start.Z + segment.End.Z) / 2;
-            var sample = new PanelCp(x, z, cp);
-            if (i < panels / 2) upper.Add(sample); else lower.Add(sample);
-            if (i >= omittedPerSide && i < panels - omittedPerSide)
-                cpMin = Math.Min(cpMin, cp);
-            // Pressure force = Cp times the inward (left) normal for a counter-clockwise contour.
-            double fx = -cp * segment.Tz * segment.Length;
-            double fz = cp * segment.Tx * segment.Length;
-            cl += -fx * Math.Sin(angle) + fz * Math.Cos(angle);
-            cm -= (x - 0.25) * fz - z * fx;
+            this.segments = segments;
+            this.tangential = tangential;
+            this.factors = factors;
         }
-        return new(upper, lower, cpMin, panels, cl, cm);
+
+        public PanelResult Solve(double alphaDeg, CancellationToken cancellation = default)
+        {
+            if (!double.IsFinite(alphaDeg))
+                throw new ContractError("ANA-PANEL-GEOMETRY", "A finite angle is required.");
+            int panels = segments.Length, unknowns = panels + 1;
+            double angle = VortexLattice.ToRadians(alphaDeg);
+            double vx = Math.Cos(angle), vz = Math.Sin(angle);
+            var rhs = new double[unknowns];
+            for (int i = 0; i < panels; i++)
+                rhs[i] = -(vx * -segments[i].Tz + vz * segments[i].Tx);
+            double[] gamma = factors.Solve(rhs, cancellation);
+            var upper = new List<PanelCp>(panels / 2);
+            var lower = new List<PanelCp>(panels / 2);
+            double cpMin = double.PositiveInfinity, cl = 0, cm = 0;
+            int omittedPerSide = Math.Min(CpMinTrailingEdgePanelsPerSide, (panels - 2) / 2);
+            for (int i = 0; i < panels; i++)
+            {
+                cancellation.ThrowIfCancellationRequested();
+                Segment segment = segments[i];
+                double speed = vx * segment.Tx + vz * segment.Tz;
+                for (int j = 0; j < unknowns; j++) speed += tangential[i * unknowns + j] * gamma[j];
+                double cp = 1 - speed * speed;
+                if (!double.IsFinite(cp)) throw new ContractError("ANA-PANEL-NONFINITE", "A panel Cp is not finite.");
+                double x = (segment.Start.X + segment.End.X) / 2;
+                double z = (segment.Start.Z + segment.End.Z) / 2;
+                var sample = new PanelCp(x, z, cp);
+                if (i < panels / 2) upper.Add(sample); else lower.Add(sample);
+                if (i >= omittedPerSide && i < panels - omittedPerSide)
+                    cpMin = Math.Min(cpMin, cp);
+                // Pressure force = Cp times the inward (left) normal for a counter-clockwise contour.
+                double fx = -cp * segment.Tz * segment.Length;
+                double fz = cp * segment.Tx * segment.Length;
+                cl += -fx * Math.Sin(angle) + fz * Math.Cos(angle);
+                cm -= (x - 0.25) * fz - z * fx;
+            }
+            return new(upper, lower, cpMin, panels, cl, cm);
+        }
     }
 
     private static (double U0, double V0, double U1, double V1) Influence(SectionPoint point, Segment panel, bool self)
@@ -159,5 +191,5 @@ public static class PanelMethod
             u1 * panel.Tx - v1 * panel.Tz, u1 * panel.Tz + v1 * panel.Tx);
     }
 
-    private readonly record struct Segment(SectionPoint Start, SectionPoint End, double Length, double Tx, double Tz);
+    internal readonly record struct Segment(SectionPoint Start, SectionPoint End, double Length, double Tx, double Tz);
 }
