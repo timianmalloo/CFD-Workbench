@@ -15,6 +15,26 @@ public static class AnalysisLayerTests
 {
     public static void Run()
     {
+        DesktopChecks.Check("ModelArea_LayersChanged_UnsubscribesOnWindowClose", () =>
+        {
+            using var controller = new WorkbenchController();
+            var area = new ModelArea();
+            area.PlanCanvas.Controller = controller;
+            area.ShowFoilOpen(true);
+            var window = new Window { Content = area, Width = 900, Height = 700 };
+            var field = typeof(WorkbenchController).GetField("LayersChanged",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                ?? throw new Exception("LayersChanged backing event was not found.");
+            int Count() => ((Delegate?)field.GetValue(controller))?.GetInvocationList()
+                .Count(handler => ReferenceEquals(handler.Target, area) && handler.Method.Name == "RefreshLayerNames") ?? 0;
+            try
+            {
+                window.Show();
+                if (Count() != 1) throw new Exception("ModelArea did not subscribe exactly once while attached.");
+            }
+            finally { window.Close(); }
+            if (Count() != 0) throw new Exception("ModelArea retained LayersChanged after window close.");
+        });
         DesktopChecks.Check("PlanLayer_BatlowBrushes_MatchDesignTokens", () =>
         {
             var styles = (Avalonia.Styling.Styles)Avalonia.Markup.Xaml.AvaloniaXamlLoader.Load(

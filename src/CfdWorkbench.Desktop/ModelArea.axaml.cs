@@ -24,6 +24,7 @@ public partial class ModelArea : UserControl
     private const double FrameThickness = 1;
 
     private WorkbenchController? controller;
+    private bool controllerSubscribed;
     private bool foilOpen;
     private string? addCurve;
     private Control? addFocusReturn;
@@ -310,24 +311,39 @@ public partial class ModelArea : UserControl
     private void Bind()
     {
         var next = PlanCanvas.Controller;
-        if (ReferenceEquals(next, controller)) return;
+        if (ReferenceEquals(next, controller))
+        {
+            if (controller is not null && this.IsAttachedToVisualTree()) SubscribeController(controller);
+            return;
+        }
         if (controller is not null)
         {
-            controller.Changed -= OnControllerChanged;
-            controller.SectionChanged -= OnControllerChanged;
-            controller.LayersChanged -= RefreshLayerNames;
+            UnsubscribeController(controller);
             controller.SurfaceWanted = false;
         }
         controller = next;
         ThreeDView.Controller = controller;
-        if (controller is not null)
-        {
-            controller.Changed += OnControllerChanged;
-            controller.SectionChanged += OnControllerChanged;
-            controller.LayersChanged += RefreshLayerNames;
-        }
+        if (controller is not null && this.IsAttachedToVisualTree()) SubscribeController(controller);
         SideElevation.Controller = controller;
         FrontElevation.Controller = controller;
+    }
+
+    private void SubscribeController(WorkbenchController source)
+    {
+        if (controllerSubscribed) return;
+        source.Changed += OnControllerChanged;
+        source.SectionChanged += OnControllerChanged;
+        source.LayersChanged += RefreshLayerNames;
+        controllerSubscribed = true;
+    }
+
+    private void UnsubscribeController(WorkbenchController source)
+    {
+        if (!controllerSubscribed) return;
+        source.Changed -= OnControllerChanged;
+        source.SectionChanged -= OnControllerChanged;
+        source.LayersChanged -= RefreshLayerNames;
+        controllerSubscribed = false;
     }
 
     private ShellHost? showHost;
@@ -337,12 +353,14 @@ public partial class ModelArea : UserControl
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
     {
         base.OnAttachedToVisualTree(e);
+        if (controller is not null) SubscribeController(controller);
         showHost = this.FindAncestorOfType<ShellHost>();
         if (showHost is not null) showHost.SectionShowRequested += FrameSectionBlocker;
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
     {
+        if (controller is not null) UnsubscribeController(controller);
         if (showHost is not null) showHost.SectionShowRequested -= FrameSectionBlocker;
         showHost = null;
         base.OnDetachedFromVisualTree(e);
