@@ -1176,6 +1176,7 @@ public static class ControllerViewTests
 
     internal static void RunReadiness()
     {
+        GroupDragTests.RunReadiness();   // the group-move window checks: Properties, canvas, elevation, keyboard (design group-move §9)
         // Wall-clock measurements (TEST-RING): the mesh on its own and a channel drag with the 3D view on screen.
         DesktopChecks.Check("Readiness_ViewSurface41x101_Measured", () =>
         {

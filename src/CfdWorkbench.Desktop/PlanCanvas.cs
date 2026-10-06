@@ -195,8 +195,11 @@ public sealed class PlanCanvas : Control
             .HitTest(targets, position, Controller!.Selection);
     }
 
+    private Point? lastHover;
+
     public void HoverAt(Point position)
     {
+        lastHover = position;
         var plan = Controller?.Planform;
         if (plan is null) return;
         hoveredPoint = HitTestPoint(position);
@@ -368,7 +371,11 @@ public sealed class PlanCanvas : Control
         }
         bool extend = e.KeyModifiers.HasFlag(KeyModifiers.Shift);
         bool toggle = e.KeyModifiers.HasFlag(KeyModifiers.Meta) || !OperatingSystem.IsMacOS() && control;
-        SelectPoint(reference, extend, toggle);
+        // Design §3.2 (DR-GM-4 A): a plain press on a member of several selected points keeps the selection; a click that never
+        // drags collapses it on release. The second press of a double-click puts the group back (Ruling 111 (10)).
+        bool plain = !extend && !toggle && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed;
+        bool keepGroup = plain && !Controller.IsAnalysis && (e.ClickCount >= 2 && Controller.RestoreCollapsedGroup(reference) || Controller.IsGroupMember(reference));
+        if (!keepGroup) SelectPoint(reference, extend, toggle);
         FocusPoint(reference);
         if (Controller.IsAnalysis) { Controller.ReportPointWarning(WorkbenchController.AnalysisPointRefusal); e.Handled = true; return; }
         if (e.ClickCount >= 2) RequestValue(hit);
@@ -434,15 +441,29 @@ public sealed class PlanCanvas : Control
         }
         Controller.UpdateGesture(target.Span, target.Ordinate);
         gesturePointer = position;
-        if (focusedPoint is { } selected)
-        {
-            var origin = targets.FirstOrDefault(item => item.Curve == selected.Curve && item.Id == selected.VertexId);
-            if (origin is not null)
-                ProbeText += $" · Δ from root {(target.Span - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
-                    $" · Δ aft {(target.Ordinate - origin.Ordinate) * 1000:+0.00;-0.00;0.00} mm";
-        }
+        probeBase = ProbeText;
+        probeTarget = (target.Span, target.Ordinate);
+        ApplyGestureProbe();
         InvalidateVisual();
         e.Handled = true;
+    }
+
+    private string? probeBase;
+    private (double Span, double Aft)? probeTarget;
+
+    /// <summary>
+    /// The Δ readout of a gesture in progress, applied value first (the box clips the tail). Δ runs from the press (the gesture's
+    /// origin), never from the live curve, which a group drag has already moved. A group shows the move Core applied, not the
+    /// pointer's (design §3.3, findings 1, 2); the controller refreshes it after each frame, so it never lags one frame.
+    /// </summary>
+    private void ApplyGestureProbe()
+    {
+        if (Controller is not { } controller || probeTarget is not { } target || probeBase is null ||
+            controller.Gesture is not (GestureState.Pressed or GestureState.Dragging) || controller.GestureOrigin is not { } origin) return;
+        var (shownSpan, shownAft) = controller.GestureGroup is not null && controller.GestureApplied is { } applied
+            ? (applied.SpanMeters, applied.Ordinate) : target;
+        ProbeText = $"Δ from root {Quantity.Delta((shownSpan - origin.SpanMeters) * 1000)} mm" +
+            $" · Δ aft {Quantity.Delta((shownAft - origin.Ordinate) * 1000)} mm · " + probeBase;
     }
 
     /// <summary>
@@ -452,7 +473,7 @@ public sealed class PlanCanvas : Control
     public void OpenPointMenu(PointRef reference)
     {
         if (this.FindAncestorOfType<Shell.ShellHost>() is not { } host) return;
-        SelectPoint(reference, extend: false, toggle: false);
+        if (Controller?.IsGroupMember(reference) != true) SelectPoint(reference, extend: false, toggle: false);   // design §3.2 (4): a context click on a member keeps the group
         FocusPoint(reference);
         MenuItem Row(string header, string id)
         {
@@ -671,14 +692,35 @@ public sealed class PlanCanvas : Control
         {
             targets.Add(point);
         }
-        if (Controller!.Gesture != GestureState.Dragging) gesturePointer = null;
+        if (Controller!.Gesture != GestureState.Dragging)
+        {
+            gesturePointer = null;
+            probeTarget = null;
+            // The gesture ended (release, Escape) or the model changed: the Δ readout does not outlive it, and the hover readout
+            // is read again from the model as it is now, never the text saved before the drag.
+            if (Controller.Gesture == GestureState.Idle && ProbeText is not null)
+            {
+                if (lastHover is { } at) HoverAt(at); else ProbeText = null;
+            }
+        }
+        else ApplyGestureProbe();
         // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
         advisoryCrossing = Controller!.GestureCrossing is not null;
         if (Controller.GestureCrossing is { } crossing) advisoryPoint = map.ToScreen(crossing.SpanMeters, crossing.Ordinate);
         InvalidateVisual();
     }
 
-    private void RequestValue(PointView point) => LastValueRequest = $"{point.Curve}:{point.Id}";
+    // Ruling 111 (10): on a member of several selected points the value request goes to the group's value row, and the group stays selected.
+    private void RequestValue(PointView point)
+    {
+        if (Controller is { } controller && controller.IsGroupMember(new PointRef(point.Curve, point.Id)))
+        {
+            LastValueRequest = $"group:{point.Curve}";
+            TabOut?.Invoke();
+            return;
+        }
+        LastValueRequest = $"{point.Curve}:{point.Id}";
+    }
 
     public override void Render(DrawingContext context)
     {
@@ -821,10 +863,11 @@ public sealed class PlanCanvas : Control
         if (ProbeText is { } probe)
         {
             double left = Math.Max(8, Bounds.Width - 428);
-            context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, new Rect(left, 8, 420, 48));
             var pieces = probe.Split(" · ");
-            DrawLabel(context, string.Join(" · ", pieces.Take(3)), new Point(left + 8, 12));
-            DrawLabel(context, string.Join(" · ", pieces.Skip(3)), new Point(left + 8, 30));
+            // Rows of three pieces, so nothing is cut at the box edge (a drag's Δ pair leads and adds a row).
+            var rows = pieces.Chunk(3).Select(row => string.Join(" · ", row)).ToArray();
+            context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, new Rect(left, 8, 420, 12 + 18 * rows.Length));
+            for (int row = 0; row < rows.Length; row++) DrawLabel(context, rows[row], new Point(left + 8, 12 + 18 * row));
         }
         if (TooltipText is { } tooltip && hoveredPoint is { } hoveredTarget)
         {
@@ -842,6 +885,31 @@ public sealed class PlanCanvas : Control
     /// </summary>
     private void DrawGestureLimit(DrawingContext context)
     {
+        if (Controller?.GestureGroup is not null && Controller.GestureApplied is { } applied && gesturePointer is { } requested)
+        {
+            // Design §3.3, mockup frame D: the tether runs from the grabbed point's applied place to the pointer; the warn
+            // outline (a square, not a ring) is on the binding member, even when the pointer is on another one.
+            var grabbed = Layer(Controller.Planform!).ToScreen(applied.SpanMeters, applied.Ordinate);
+            if (Point.Distance(requested, grabbed) > 4)
+            {
+                var tether = new Pen(MuteBrush ?? Brushes.White, 1.5, new DashStyle([1, 3], 0));
+                context.DrawLine(tether, grabbed, requested);
+                context.DrawEllipse(null, new Pen(MuteBrush ?? Brushes.White, 1.5), requested, 7, 7);
+            }
+        }
+        if (Controller?.GestureGroup is not null && Controller.GestureBinding is { } binding &&
+            targets.FirstOrDefault(point => point.Curve == binding.Point.Curve && point.Id == binding.Point.VertexId) is { } bound)
+        {
+            var centre = ScreenPoint(bound);
+            context.DrawRectangle(null, new Pen(WarningBrush ?? Brushes.White, 2), new Rect(centre.X - 11, centre.Y - 11, 22, 22));
+            if (Controller.GestureLimitText is { } limitText)
+            {
+                var dashed = new Pen(WarningBrush ?? Brushes.White, 2, new DashStyle([5, 3], 0));
+                context.DrawLine(dashed, centre + new Vector(-40, 0), centre + new Vector(22, 0));
+                DrawLabel(context, limitText, centre + new Vector(-40, 14));
+            }
+            return;
+        }
         if (Controller?.GestureLimitText is not { } text || Controller.GestureLimitPoint is not { } held) return;
         var vertex = targets.FirstOrDefault(point => point.Curve == held.Curve && point.Id == held.VertexId);
         if (vertex is null) return;

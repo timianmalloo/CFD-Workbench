@@ -47,6 +47,9 @@ public enum GestureState { Idle, Pressed, Dragging, Nudging, Busy }
 public enum GestureInput { Pointer, Keyboard, Typed }
 public enum GestureEnd { Release, KeyUp, Escape, CaptureLost, FocusLost, Deactivated, Save, Close, Open, New }
 public enum NudgeModifier { Command, Plain, Shift }
+
+/// <summary>The member that stops a group move: <see cref="Kind"/> is a <see cref="GestureLimitKind"/> name, "Neighbour" or "Domain".</summary>
+public sealed record GroupBinding(PointRef Point, string Kind);
 public enum EntryOrigin { Properties, Plan, Side, Browser, Palette, Recovery }
 
 /// <summary>One section visit. The draft's cursor bytes are the only preview source.</summary>
@@ -204,6 +207,12 @@ public sealed class WorkbenchController : IDisposable
     private int gestureClamped;
     private string? gestureClampReason;
     private string? announcedLimit;
+    // Design group-move §3: the members of a group gesture (null for a point), what stops it at its threshold, the members
+    // the last frame moved, and the selection a click without a drag collapsed (a double-click restores it, Ruling 111).
+    private IReadOnlyList<PointRef>? gestureGroup;
+    private string? groupRefusal;
+    private IReadOnlyList<string> gestureMoved = [];
+    private (IReadOnlyList<PointRef> Group, long At)? collapsedGroup;
     private (string Text, ReportKind Kind, long Version)? stripBeforeHold;
     private Task<GestureOutcome>? pendingCommit;
     private Task<CommitOutcome>? pendingDirectCommand;
@@ -523,8 +532,48 @@ public sealed class WorkbenchController : IDisposable
             field = value;
             // The preview belongs to a live drag: release, Escape, a refusal or a new gesture clear it.
             if (value != GestureState.Dragging) GestureCrossing = null;
-            if (value is not (GestureState.Dragging or GestureState.Nudging)) { GestureLimit = null; announcedLimit = null; stripBeforeHold = null; }
+            if (value is not (GestureState.Dragging or GestureState.Nudging))
+            {
+                GestureLimit = null; announcedLimit = null; stripBeforeHold = null;
+                GestureBinding = null; GestureApplied = null; GestureRequested = null; GroupHold = null;
+            }
         }
+    }
+
+    /// <summary>The members of the group gesture in progress, or null for a point gesture or none.</summary>
+    public IReadOnlyList<PointRef>? GestureGroup => Gesture == GestureState.Idle ? null : gestureGroup;
+
+    /// <summary>True when a plain press on <paramref name="point"/> would drag the whole selection (design §3.2, DR-GM-4 A).</summary>
+    public bool IsGroupMember(PointRef point) =>
+        Selection is Selection.Points { Items.Count: > 1 } picked && picked.Items.Contains(point);
+
+    /// <summary>Design §3.3: the member that stops the group (the end vertex at its chord limit, or the unselected neighbour), or null.</summary>
+    public GroupBinding? GestureBinding { get; private set; }
+
+    /// <summary>Design §3.3: where the grabbed point is now (the applied position, not the pointer's), or null.</summary>
+    public (double SpanMeters, double Ordinate)? GestureApplied { get; private set; }
+
+    /// <summary>Design §3.3: where the pointer asked the grabbed point to go; only the tether shows it.</summary>
+    public (double SpanMeters, double Ordinate)? GestureRequested { get; private set; }
+
+    /// <summary>Where the grabbed point was at the press (the gesture's origin, which the live curve no longer holds), or null.</summary>
+    public (double SpanMeters, double Ordinate)? GestureOrigin => Gesture != GestureState.Idle && gestureOrigin is { } origin ? (origin.SpanMeters, origin.Ordinate) : null;
+
+    /// <summary>The applied move and binding point of a group drag, for the inspector; null when none.</summary>
+    public string? GroupHold { get; private set; }
+
+    /// <summary>
+    /// Ruling 111 (10): a double-click is two presses and a collapsing click between them. When the second press lands on a
+    /// member of the group the first click collapsed, the group is selected again. Returns true when it was restored.
+    /// </summary>
+    public bool RestoreCollapsedGroup(PointRef point)
+    {
+        if (collapsedGroup is not { } collapsed || !collapsed.Group.Contains(point) ||
+            Stopwatch.GetElapsedTime(collapsed.At).TotalMilliseconds > 700 ||
+            Selection is not Selection.Points { Items: [var only] } || only != point) return false;
+        collapsedGroup = null;
+        Select(new Selection.Points(collapsed.Group));
+        return true;
     }
 
     /// <summary>
@@ -537,7 +586,7 @@ public sealed class WorkbenchController : IDisposable
     public string? GestureLimitText => GestureLimit is { } limit ? TipChord.HoldText(limit) : null;
 
     /// <summary>The point the held limit belongs to, or null.</summary>
-    public PointRef? GestureLimitPoint => GestureLimit is null ? null : gesturePoint;
+    public PointRef? GestureLimitPoint => GestureLimit is null ? null : GestureBinding?.Point ?? gesturePoint;
 
     /// <summary>
     /// The advisory edge-crossing preview for the drag in progress (§0.1 step 6): where the release would be refused
@@ -1656,8 +1705,24 @@ public sealed class WorkbenchController : IDisposable
         }
         if (Gesture != GestureState.Idle || draft is not null || Inspection?.Geometry.Status != GeometryStatus.Certified)
             return false;
-        Select(new Selection.Points([point]));
-        if (view.Freedom == PointFreedom.Fixed)
+        gestureGroup = null;
+        groupRefusal = null;
+        gestureMoved = [];
+        // Design §3.2: a press on a member of several selected points keeps the selection and drags all of it. What stops a
+        // group is said when the drag starts (a click without a drag collapses the selection on release instead).
+        if (input != GestureInput.Typed && IsGroupMember(point))
+        {
+            gestureGroup = ((Selection.Points)Selection).Items;
+            groupRefusal = GroupRefusal(gestureGroup, point);
+            if (input == GestureInput.Keyboard && groupRefusal is not null)
+            {
+                SetStatus(groupRefusal, ReportKind.Error);
+                Notify();
+                return false;
+            }
+        }
+        else Select(new Selection.Points([point]));
+        if (gestureGroup is null && view.Freedom == PointFreedom.Fixed)
         {
             SetStatus(view is { Curve: "dihedral", Role: PointRole.RootEnd } ? DihedralRootLocked
                 : $"This {view.Role} point is fixed by the foil definition.", ReportKind.Error);
@@ -1705,6 +1770,14 @@ public sealed class WorkbenchController : IDisposable
             double px = pixelsFromPress ?? Math.Sqrt(Math.Pow(spanMeters - gestureOrigin.SpanMeters, 2) +
                 Math.Pow(aftMeters - gestureOrigin.Ordinate, 2)) * PlanCamera.PixelsPerMeter;
             if (px < 3) return;
+            if (gestureGroup is not null && groupRefusal is { } refusal)
+            {
+                // Design §4: a refused group never opens a draft; the selection stays and the strip says why.
+                Gesture = GestureState.Idle;
+                SetStatus(refusal, ReportKind.Error);
+                Notify();
+                return;
+            }
             Gesture = GestureState.Dragging;
         }
         if (Section is not null)
@@ -1713,7 +1786,9 @@ public sealed class WorkbenchController : IDisposable
             Notify();
             return;
         }
+        bool opening = draft is null;
         EnsurePointDraft();
+        if (opening && gestureGroup is not null) AnnounceGroupStart();
         pendingGestureTarget = (spanMeters, aftMeters);
         ScheduleGestureFrame();
     }
@@ -1749,10 +1824,55 @@ public sealed class WorkbenchController : IDisposable
     {
         if (draft is not null) return;
         if (gesturePoint is null) throw new ContractError("DSL-TARGET");
-        draft = session.BeginPointGesture(Guid.NewGuid().ToString("D"), gesturePoint.Curve, gesturePoint.VertexId);
+        draft = gestureGroup is { } group
+            ? session.BeginGroupGesture(Guid.NewGuid().ToString("D"), gesturePoint.Curve, group.Select(member => member.VertexId).ToArray())
+            : session.BeginPointGesture(Guid.NewGuid().ToString("D"), gesturePoint.Curve, gesturePoint.VertexId);
         gestureOperationId = draft.Id;
         draftProjection = null;
     }
+
+    /// <summary>
+    /// Why a group can't move, in the order of design §3.1 and §4: two curves (COPY-G7), a handle without its anchor (G5), a
+    /// fully locked member (G3). Null when it can. Core refuses the same cases again at Begin.
+    /// </summary>
+    private string? GroupRefusal(IReadOnlyList<PointRef> members, PointRef grabbed)
+    {
+        if (members.Select(member => member.Curve).Distinct().Count() > 1 || CurveFor(grabbed.Curve) is not { } curve)
+            return GroupCopy.Text("G7");
+        var views = members.Select(member => curve.Points.FirstOrDefault(point => point.Id == member.VertexId)).ToList();
+        if (views.Any(view => view is null)) return GroupCopy.Text("G7");
+        if (views.Any(view => view!.Role == PointRole.AnchorHandle && members.All(member => member.VertexId != view.AnchorId)))
+            return GroupCopy.Text("G5");
+        return Seeded(curve, views!).FirstOrDefault(view => view.Freedom == PointFreedom.Fixed) is { } locked
+            ? GroupCopy.Text("G3", ("point", $"Point {locked.Index + 1}")) : null;
+    }
+
+    /// <summary>Ruling 111 (5): point 1 without the root brings the root into the group (the root-mirror coupling), as Core seeds it.</summary>
+    private static List<PointView> Seeded(CurveView curve, IReadOnlyList<PointView> members)
+    {
+        var all = members.ToList();
+        if (all.Any(point => point.Index == 1 && point.Locks.Contains("root_mirror")) && all.All(point => point.Index != 0))
+            all.Insert(0, curve.Points[0]);
+        return all;
+    }
+
+    /// <summary>The strip line when a group draft opens: the note of a held axis (COPY-G4), else "Moving n points." (COPY-G1).</summary>
+    private void AnnounceGroupStart()
+    {
+        if (gestureGroup is not { } group || CurveFor(group[0].Curve) is not { } curve) return;
+        string noun = GroupCopy.Curve(group[0].Curve);
+        var held = Seeded(curve, group.Select(member => curve.Points.First(point => point.Id == member.VertexId)).ToList())
+            .FirstOrDefault(view => view.Freedom is PointFreedom.ValueOnly or PointFreedom.SpanOnly &&
+                !(view.Index == 1 && view.Locks.Contains("root_mirror")));
+        string text = held is null ? GroupCopy.Text("G1", ("n", group.Count.ToString(CultureInfo.InvariantCulture)), ("curve", noun))
+            : held.Freedom == PointFreedom.ValueOnly
+                ? GroupCopy.Text("G4", ("point", PointNoun(held, curve)), ("axis", GroupCopy.Axis(held.Curve)))
+                : GroupCopy.Text("G4.none", ("point", PointNoun(held, curve)));
+        SetStatus(text, ReportKind.Info);
+    }
+
+    private static string PointNoun(PointView point, CurveView curve) =>
+        point.Role == PointRole.RootEnd ? "root end" : point.Role == PointRole.TipEnd ? "tip end" : $"point {point.Index + 1}";
 
     private void ScheduleGestureFrame()
     {
@@ -1772,7 +1892,9 @@ public sealed class WorkbenchController : IDisposable
             return;
         pendingGestureTarget = null;
         var timer = Stopwatch.StartNew();
-        var frame = session.UpdatePointGesture(draft.Id, draft.Generation, target.Span, target.Aft);
+        var frame = gestureGroup is not null
+            ? session.UpdateGroupGesture(draft.Id, draft.Generation, gesturePoint!.VertexId, target.Span, target.Aft)
+            : session.UpdatePointGesture(draft.Id, draft.Generation, target.Span, target.Aft);
         gestureUpdateTimes.Add(timer.Elapsed.TotalMilliseconds);
         draft = frame.Draft;
         draftProjection = null;
@@ -1780,7 +1902,8 @@ public sealed class WorkbenchController : IDisposable
         if (frame.Clamped) gestureClamped++;
         if (frame.Limit is { } held) gestureClampReason = held.Kind.ToString();
         GestureLimit = frame.Limit;
-        AnnounceLimit(frame.Limit);
+        if (gestureGroup is null) AnnounceLimit(frame.Limit);
+        else RecordGroupFrame(frame, target);
         timer.Restart();
         try { Estimates = WingEstimates.From(draft.Bytes, "preview", draft.Generation); }
         catch { Estimates = null; }
@@ -1792,16 +1915,75 @@ public sealed class WorkbenchController : IDisposable
 
     // One announcement per hold: the strip is a live region, so a frame that stays held writes nothing. A new limit value, or
     // a frame that frees the hold and a later one that re-holds, announces again.
-    private void AnnounceLimit(GestureLimit? limit)
+    private void AnnounceLimit(GestureLimit? limit) =>
+        AnnounceHold(limit is null ? null : string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{limit.Kind}:{limit.LimitMeters:F6}"),
+            limit is null ? null : TipChord.HoldText(limit));
+
+    /// <summary>
+    /// A group frame (design §3.3, §3.4): where the grabbed point is (applied), where the pointer asked (requested), the member
+    /// that binds, and the one hold sentence: Core's tip or root limit, or "held by point n" (COPY-G6). A domain hold (twist, t/c)
+    /// says its channel's clamp reason on the strip, with the hold icon.
+    /// </summary>
+    private void RecordGroupFrame(GestureFrame frame, (double Span, double Aft) target)
     {
-        string? key = limit is null ? null : string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{limit.Kind}:{limit.LimitMeters:F6}");
+        GestureRequested = target;
+        GestureApplied = (frame.SpanMeters, frame.Ordinate);
+        gestureMoved = frame.MovedIds;
+        GestureBinding = BindingOf(frame, target);
+        if (GestureBinding is { } binding && frame.Clamped)
+            gestureClampReason = $"{binding.Kind}:{GroupCopy.Curve(binding.Point.Curve)} {PointNumber(binding.Point)}";
+        string? text = frame.Limit is { } limit ? TipChord.HoldText(limit)
+            : GestureBinding is { Kind: "Neighbour" } neighbour
+                ? GroupCopy.Text("G6", ("n", PointNumber(neighbour.Point).ToString(CultureInfo.InvariantCulture)))
+            // A domain hold (twist, t/c) is a hold like the rest: the strip carries the channel's existing reason with the hold icon.
+            : GestureBinding is { Kind: "Domain" } ? (gesturePoint?.Curve == "twist" ? ElevationView.TwistClampReason : ElevationView.ThicknessClampReason) : null;
+        AnnounceHold(text is null ? null : text + "|" + GestureBinding?.Point.VertexId, text);
+        if (gestureOrigin is { } origin)
+        {
+            var rows = PropertiesView.Curves[origin.Curve];
+            double dValue = (frame.Ordinate - origin.Ordinate) * PropertiesView.FieldScale[rows.ValueFamily];
+            double dSpan = (frame.SpanMeters - origin.SpanMeters) * 1000;
+            string value = Quantity.WithUnit((dValue >= 0 ? "+" : "") + Quantity.Typed(dValue), rows.ValueUnit);
+            string applied = Math.Abs(dSpan) < 0.005 ? value
+                : $"{Quantity.WithUnit((dSpan >= 0 ? "+" : "") + Quantity.Typed(dSpan), "mm")} from root · {value} {GroupCopy.Axis(origin.Curve)}";
+            GroupHold = $"Applied {applied}" +
+                (GestureBinding is { } held ? $" · held by point {PointNumber(held.Point)}" : "");
+        }
+    }
+
+    private int PointNumber(PointRef point) => (CurveFor(point.Curve)?.Points.FirstOrDefault(item => item.Id == point.VertexId)?.Index ?? -1) + 1;
+
+    private GroupBinding? BindingOf(GestureFrame frame, (double Span, double Aft) target)
+    {
+        if (gesturePoint is null || gestureOrigin is null || CurveFor(gesturePoint.Curve) is not { } curve) return null;
+        PointRef At(int index) => new(gesturePoint.Curve, curve.Points[index].Id);
+        if (frame.Limit is { } limit) return new(At(limit.Kind == GestureLimitKind.RootMaximum ? 0 : curve.Points.Count - 1), limit.Kind.ToString());
+        var moved = frame.MovedIds.Select(id => curve.Points.ToList().FindIndex(point => point.Id == id)).Where(index => index >= 0).ToList();
+        if (!frame.Clamped || moved.Count == 0) return null;
+        double wanted = target.Span - gestureOrigin.SpanMeters, got = frame.SpanMeters - gestureOrigin.SpanMeters;
+        if (Math.Abs(wanted) - Math.Abs(got) > 1e-6)
+        {
+            int next = wanted > 0 ? moved.Max() + 1 : moved.Min() - 1;
+            if (next >= 0 && next < curve.Points.Count && !moved.Contains(next)) return new(At(next), "Neighbour");
+        }
+        // A domain hold (twist, t/c): the moved member that sits on its channel's lower or upper bound binds the group.
+        var unit = Channels.Unit(gesturePoint.Curve);
+        if (unit.DomainLower is double lower && unit.DomainUpper is double upper)
+            foreach (int index in moved)
+                if (Math.Abs(curve.Points[index].Ordinate - lower) < 1e-9 || Math.Abs(curve.Points[index].Ordinate - upper) < 1e-9)
+                    return new(At(index), "Domain");
+        return null;
+    }
+
+    private void AnnounceHold(string? key, string? text)
+    {
         if (key == announcedLimit) return;
         bool wasHeld = announcedLimit is not null;
         announcedLimit = key;
-        if (limit is not null)
+        if (text is not null)
         {
             if (!wasHeld) stripBeforeHold = statusSlot.Snapshot();
-            SetStatus(TipChord.HoldText(limit), ReportKind.Warning);
+            SetStatus(text, ReportKind.Warning);
         }
         else if (stripBeforeHold is { } before)
         {
@@ -1877,6 +2059,13 @@ public sealed class WorkbenchController : IDisposable
             Gesture == GestureState.Nudging && gestureInput == GestureInput.Keyboard &&
             reason is (GestureEnd.Release or GestureEnd.CaptureLost))
             return Task.FromResult<GestureOutcome>(new GestureOutcome.NoChange());
+        if (Gesture == GestureState.Pressed && gestureGroup is { } pressedGroup && gesturePoint is { } clicked &&
+            reason == GestureEnd.Release)
+        {
+            // Design §3.2: a click on a member that never became a drag collapses the selection to that point, on release.
+            collapsedGroup = (pressedGroup, Stopwatch.GetTimestamp());
+            Select(new Selection.Points([clicked]));
+        }
         if (reason is GestureEnd.Escape or GestureEnd.CaptureLost ||
             Gesture == GestureState.Pressed || Gesture == GestureState.Dragging && reason is GestureEnd.FocusLost or GestureEnd.Deactivated)
             return Task.FromResult(CancelPointGesture(reason, Gesture == GestureState.Pressed));
@@ -1969,7 +2158,9 @@ public sealed class WorkbenchController : IDisposable
             Notify();
         }
         // §11.4 "Committed move": one report for the Plan, the elevations and Properties, from the accepted point.
-        if (outcome is GestureOutcome.Committed accepted && gestureOrigin is { } origin && CurveFor(origin.Curve) is { } curve &&
+        if (outcome is GestureOutcome.Committed groupAccepted && gestureGroup is { } movedGroup)
+            outcome = groupAccepted with { Report = GroupMovedReport(movedGroup) };
+        else if (outcome is GestureOutcome.Committed accepted && gestureOrigin is { } origin && CurveFor(origin.Curve) is { } curve &&
             curve.Points.FirstOrDefault(point => point.Id == origin.Id) is { } moved)
             outcome = accepted with
             {
@@ -1985,6 +2176,19 @@ public sealed class WorkbenchController : IDisposable
         gestureOperationId = null;
         Notify();
         return outcome;
+    }
+
+    /// <summary>COPY-G2 with the end-chord clauses of Ruling 116: "Moved 3 trailing edge points. Tip chord 5.00 mm." Rails only, and only for an end vertex that moved.</summary>
+    private string GroupMovedReport(IReadOnlyList<PointRef> members)
+    {
+        string curveName = members[0].Curve;
+        string text = GroupCopy.Text("G2", ("n", members.Count.ToString(CultureInfo.InvariantCulture)), ("curve", GroupCopy.Curve(curveName)));
+        if (curveName is not ("leading" or "trailing") || CurveFor(curveName) is not { } curve || Estimates is not { } wing) return text;
+        if (gestureMoved.Contains(curve.Points[^1].Id))
+            text += GroupCopy.Text("G2.end", ("end-chord", "Tip chord"), ("value", Quantity.TypedLength(wing.TipChordMeters)));
+        if (gestureMoved.Contains(curve.Points[0].Id))
+            text += GroupCopy.Text("G2.end", ("end-chord", "Root chord"), ("value", Quantity.TypedLength(wing.RootChordMeters)));
+        return text;
     }
 
     private GestureOutcome CancelPointGesture(GestureEnd reason, bool noChange)
@@ -2031,6 +2235,41 @@ public sealed class WorkbenchController : IDisposable
         if (values.Count == 0) return null;
         var sorted = values.OrderBy(value => value).ToArray();
         return sorted[(int)Math.Ceiling(sorted.Length * 0.95) - 1];
+    }
+
+    /// <summary>
+    /// Design group-move §3.6, Ruling 111 (9): a typed Set to or Move by for the selected points of one curve, as one undo step.
+    /// <paramref name="amount"/> is in Core's unit (metres on the rails and dihedral, the channel's own otherwise). Core refuses
+    /// atomically and names the cause (COPY-A, G8, G9, G10); the selection is kept.
+    /// </summary>
+    public Task<CommitOutcome> ApplyGroupValueAsync(GroupValueMode mode, GroupValueAxis axis, double amount)
+    {
+        if (Selection is not Selection.Points { Items.Count: > 1 } picked || picked.Items.Select(item => item.Curve).Distinct().Count() != 1)
+            return Task.FromResult<CommitOutcome>(new CommitOutcome.Refused("DSL-TARGET", GroupCopy.Text("G7")));
+        string curve = picked.Items[0].Curve;
+        string[] ids = picked.Items.Select(item => item.VertexId).ToArray();
+        var rows = PropertiesView.Curves[curve];
+        return RunDirectCommandAsync(() =>
+        {
+            GroupValueOutcome result;
+            try { result = session.ApplyGroupValue(Guid.NewGuid().ToString("D"), new GroupValueCommand(curve, ids, mode, axis, amount)); }
+            catch (ContractError range) when (range.Code == "DSL-GROUP-RANGE")
+            {
+                // Core reports the point and the range as data; the words are GroupCopy G13 (Rulings 119, 120), one data change away.
+                var fields = range.Message.Split(';').Select(part => part.Split('=', 2)).ToDictionary(pair => pair[0], pair => pair[1]);
+                string Shown(string key) => Quantity.WithUnit(Quantity.Typed(double.Parse(fields[key], CultureInfo.InvariantCulture)), fields["unit"]);
+                throw new ContractError(range.Code, GroupCopy.Text("G13", ("n", fields["point"]), ("min", Shown("min")), ("max", Shown("max"))));
+            }
+            double scale = axis == GroupValueAxis.Span ? 1000 : PropertiesView.FieldScale[rows.ValueFamily];
+            string unit = axis == GroupValueAxis.Span ? "mm" : rows.ValueUnit;
+            string n = ids.Length.ToString(CultureInfo.InvariantCulture);
+            string word = axis == GroupValueAxis.Span ? "span" : GroupCopy.Axis(curve);
+            string value = Quantity.Typed(amount * scale);
+            string report = mode == GroupValueMode.SetTo
+                ? GroupCopy.Text("G11", ("axis", word), ("n", n), ("value", Quantity.WithUnit(value, unit)))
+                : GroupCopy.Text("G12", ("axis", word), ("n", n), ("value", Quantity.WithUnit((amount >= 0 ? "+" : "") + value, unit)));
+            return new CommitOutcome.Committed(result.AcceptedId, report);
+        }, preserveStatusAfterCommit: true);
     }
 
     public Task<CommitOutcome> ApplyPointCommandAsync(PointCommand command)

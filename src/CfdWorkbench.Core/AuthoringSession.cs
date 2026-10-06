@@ -1162,8 +1162,16 @@ public sealed class AuthoringSession : IDisposable
                 else if (point.Role == PointRole.RootEnd && point.Locks.Contains("root_mirror"))
                     Add(1, rail.Points[1].Eta, rail.Points[1].Ordinate + dOrd);
             }
-            string Typed(double amount) => command.Curve is "leading" or "trailing" or "dihedral"
-                ? TipChord.FormatMm(amount) : amount.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture);
+            // An amount carries its unit at the typed precision (Ruling 116 (3), finding 11): a span amount is a length whatever the
+            // curve; a value amount is in the channel's own unit (mm, ° or %).
+            // A "most they can move" amount is cut, never rounded up, so the figure named is always admitted.
+            string Typed(double amount, bool most = false)
+            {
+                var (shown, unitText) = span || command.Curve is "leading" or "trailing" or "dihedral" ? (amount * 1e3, " mm")
+                    : command.Curve == "twist" ? (amount, "°") : (amount * 100, " %");
+                if (most) shown = Math.Truncate(shown * 100 + 1e-6) / 100;
+                return shown.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace('-', '−') + unitText;   // U+2212, as every read-only number
+            }
             if (span)
             {
                 var (shiftMin, shiftMax) = SpacingShift(rail, moved, halfSpan);
@@ -1175,18 +1183,24 @@ public sealed class AuthoringSession : IDisposable
                         ? moved.Keys.Where(index => index + 1 < rail.Points.Count && !moved.ContainsKey(index + 1)).Max() + 1
                         : moved.Keys.Where(index => index > 0 && !moved.ContainsKey(index - 1)).Min() - 1;
                     throw new ContractError("DSL-GROUP-NEIGHBOUR",
-                        $"Moving these points by {Typed(command.Amount)} would pass point {rail.Points[near].Id}. The most they can move that way is {Typed(Math.Abs(allowed * halfSpan))}.");
+                        $"Moving these points by {Typed(command.Amount)} would pass point {near + 1}. The most they can move that way is {Typed(Math.Max(0, Math.Abs(allowed * halfSpan) - 2 * halfSpan * 1e-7), most: true)}.");   // less the eta rounding, so the named amount is admitted
                 }
             }
             var unit = Channels.Unit(command.Curve);
             if (unit.DomainLower is double lower && unit.DomainUpper is double upper &&
-                moved.Any(pair => ClampGrowing(rail.Points[pair.Key].Ordinate, pair.Value.Aft, lower, upper) != pair.Value.Aft))
-                throw new ContractError("DSL-GROUP-RANGE", "A point would leave the allowed range. Nothing was changed.");
+                moved.Where(pair => ClampGrowing(rail.Points[pair.Key].Ordinate, pair.Value.Aft, lower, upper) != pair.Value.Aft)
+                    .Select(pair => (int?)pair.Key).Min() is int outside)
+            {
+                // Data, not prose: the Desktop words it (GroupCopy G13, Ruling 119). The range is in the channel's display unit.
+                double shownScale = command.Curve == "thickness" ? 100 : 1;
+                throw new ContractError("DSL-GROUP-RANGE", string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                    $"point={outside + 1};min={lower * shownScale};max={upper * shownScale};unit={unit.DisplayUnit}"));
+            }
             int tipIndex = rail.Points.Count - 1;
             if (!span && command.Mode == GroupValueMode.MoveBy && (moved.ContainsKey(0) || moved.ContainsKey(tipIndex)) &&
                 HoldAtChordLimit(parsed, command.Curve, rail, moved.ContainsKey(0), moved.ContainsKey(tipIndex), firstDelta) is var (held, hold))
             {
-                string most = Typed(Math.Abs(held));
+                string most = Typed(Math.Abs(held), most: true);
                 string reason = hold.Kind == GestureLimitKind.RootMaximum
                     ? $"Moving these points by {Typed(command.Amount)} would take the root chord above {TipChord.FormatMm(hold.LimitMeters)}. The most they can move that way is {most}."
                     : $"Moving these points by {Typed(command.Amount)} would take the tip chord below {TipChord.FormatMm(hold.LimitMeters)}. The most they can move that way is {most}.";

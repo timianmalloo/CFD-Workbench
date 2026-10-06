@@ -74,6 +74,8 @@ public partial class PropertiesPane : UserControl
     private readonly Dictionary<string, (string Text, string Error)> errors = new(StringComparer.Ordinal);
     // Ruling 96: the legal value a refused typed chord offers as "Use <value>". Applied only by a click, never by the refusal.
     private readonly Dictionary<string, string> useValues = new(StringComparer.Ordinal);
+    // Ruling 111 (9): the value row's Set to / Move by mode resets to the row default when the selection changes and stays while it is kept.
+    private GroupValueMode groupMode = GroupValueMode.SetTo;
     private readonly EnumField typeField;
     private readonly EnumField kindField;
     // The section mode's third enum (Station t/c, §11.4), pooled like Type and Kind so focus survives a re-render.
@@ -183,7 +185,12 @@ public partial class PropertiesPane : UserControl
         .FirstOrDefault(item => item is TextBox or ComboBox && item.Focusable && item.IsEffectivelyVisible && item.IsEffectivelyEnabled) as Control;
 
     /// <summary>DR-NAV-1: focuses the pane's first value, as Tab from a selected Plan point does.</summary>
-    public bool FocusFirstValue() => FirstValue() is { } value && value.Focus(NavigationMethod.Tab);
+    public bool FocusFirstValue() => (GroupValueBox() ?? FirstValue()) is { } value && value.Focus(NavigationMethod.Tab);
+
+    /// <summary>Ruling 111 (10): for several points on one curve the group's value row is where focus goes, not From root.</summary>
+    private Control? GroupValueBox() =>
+        shownModel?.Blocks.SelectMany(group => group.Rows).Any(row => row.Key == "p:aft" && row.Group) == true &&
+        PointAftInput is { IsEffectivelyVisible: true, IsEffectivelyEnabled: true } box ? box : null;
 
     // The pane sees Shift+Tab before its first value does, and asks the Plan to focus the selected point again.
     private void OnShiftTabFromFirstValue(object? sender, KeyEventArgs e)
@@ -280,13 +287,24 @@ public partial class PropertiesPane : UserControl
                 StationSource: controller.StationSource,
                 Analysis: controller.IsAnalysis && controller.Inspection is not null ? controller.AnalysisView : null,
                 Limit: controller.GestureLimit,
+                GroupMode: groupMode,
+                GroupHold: controller.GroupHold,
                 ConditionsSummary: controller.IsAnalysis ? CfdWorkbench.Analysis.Labels.ConditionsSummary(
                     controller.AnalysisOperatingPoint.Speed, controller.AnalysisWater, controller.AnalysisUnits) : null);
             string key = SelectionKey(controller.Selection);
+            // Ruling 119 (fix 7): a refused entry is stale once a gesture starts; its message and typed text go.
+            if (controller.Gesture is GestureState.Pressed or GestureState.Dragging or GestureState.Nudging && (errors.Count > 0 || useValues.Count > 0))
+            {
+                useValues.Clear();
+                messages.Clear();
+                errors.Clear();
+            }
             if (key != selectionKey)
             {
                 selectionKey = key;
                 copyTarget = null;
+                groupMode = GroupValueMode.SetTo;
+                useValues.Clear();
                 messages.Clear();
                 errors.Clear();
                 typeField.Pending = null;
@@ -622,6 +640,7 @@ public partial class PropertiesPane : UserControl
     {
         var box = view.Input!;
         used.Add(box);
+        RenderInline(view, row);
         inputOwners[box] = view;
         box.IsEnabled = true;
         box.IsVisible = true;
@@ -629,9 +648,62 @@ public partial class PropertiesPane : UserControl
         AutomationProperties.SetName(box, row.AutomationName ?? row.Label);
         AutomationProperties.SetHelpText(box, HelpText(view));
         string modelText = Quantity.ForField(row.Value);
+        box.Watermark = row.Placeholder;
         if (invalidText is not null) return;   // keep what the user typed until Escape or the next commit
         if (run?.Box == box) return;            // a field run owns its text
         if (!box.IsKeyboardFocusWithin || !Dirty(box)) SetShown(box, modelText);
+    }
+
+    /// <summary>
+    /// Design §3.6, DR-GM-2 C, as the mockup draws it (group-move-node-m.html, `.seg`): the value row of a group carries an inline
+    /// Set to | Move by switch at row height, a thin outline and the active side lightly filled; the From root row, which allows
+    /// Move by only, carries a "move by" tag. The slot sits in the label column against the field, before it in Tab order.
+    /// </summary>
+    private void RenderInline(RowView view, PropertyRow row)
+    {
+        bool valueRow = row.Group && row.Axis == RowAxis.Value, spanRow = row.Group && row.Axis == RowAxis.Span;
+        if (!valueRow && !spanRow)
+        {
+            if (view.Inline is not null) view.Inline.IsVisible = false;
+            return;
+        }
+        if (view.Inline is null)
+        {
+            var inline = new Border { Name = Part(valueRow ? "GroupSwitch" : "GroupTag", row.Key), HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center };
+            if (valueRow)
+            {
+                var setTo = new ToggleButton { Name = "GroupModeSetTo", Content = "Set to", Tag = GroupValueMode.SetTo };
+                var moveBy = new ToggleButton { Name = "GroupModeMoveBy", Content = "Move by", Tag = GroupValueMode.MoveBy };
+                foreach (var toggle in new[] { setTo, moveBy })
+                {
+                    toggle.Classes.Add("prop-seg");
+                    toggle.Click += (_, _) => ChooseGroupMode((GroupValueMode)toggle.Tag!);
+                }
+                inline.Classes.Add("prop-seg-box");
+                inline.Child = new StackPanel { Orientation = Orientation.Horizontal, Children = { setTo, moveBy } };
+                view.Modes = (setTo, moveBy);
+            }
+            else
+            {
+                var tag = new TextBlock { Text = GroupCopy.MoveByTag };
+                tag.Classes.Add("prop-unit");
+                AutomationProperties.SetAccessibilityView(tag, AccessibilityView.Raw);   // the field's name says "move all points by"
+                inline.Child = tag;
+            }
+            inline.SizeChanged += (_, change) => { if (change.WidthChanged) Layout(view); };
+            view.Inline = inline;
+            view.Grid.Children.Insert(0, inline);
+        }
+        view.Inline.IsVisible = true;
+        if (view.Modes is var (setToButton, moveByButton))
+        {
+            setToButton.IsChecked = row.EntryMode == GroupValueMode.SetTo;
+            moveByButton.IsChecked = row.EntryMode == GroupValueMode.MoveBy;
+            AutomationProperties.SetName(setToButton, "Set to");
+            AutomationProperties.SetName(moveByButton, "Move by");
+            AutomationProperties.SetHelpText(setToButton, row.Label + " entry mode");
+            AutomationProperties.SetHelpText(moveByButton, row.Label + " entry mode");
+        }
     }
 
     /// <summary>The inline warning icon beside the value (the mockup's state-only row); null hides it.</summary>
@@ -730,7 +802,7 @@ public partial class PropertiesPane : UserControl
         Grid.SetColumn(messageText, 1);
         var messageGrid = new Grid { ColumnDefinitions = new ColumnDefinitions("Auto,*,Auto"), Children = { messageIcon, messageText } };
         HyperlinkButton? useLink = null;
-        if (row.Key is "w:root" or "w:tip" && row.Kind == RowKind.Input)
+        if (row.Key is "w:root" or "w:tip" or "p:aft" or "p:from" && row.Kind == RowKind.Input)
         {
             useLink = new HyperlinkButton { Name = Part("UseLimit", row.Key), IsVisible = false };
             useLink.Classes.Add("prop-crumb");
@@ -878,7 +950,24 @@ public partial class PropertiesPane : UserControl
         Grid.SetColumn(view.Unit, 2);
         view.Unit.IsVisible = !dirty && !view.Wide;
         // A wide value reaches into the label column only by what the value and unit columns cannot hold.
-        double reserve = 2 * gap + (view.Wide && !stacked ? Math.Max(0, view.Cell.Bounds.Width - valueWidth - unitWidth) : 0);
+        double inline = view.Inline is { IsVisible: true } slot && !dirty ? slot.Bounds.Width + gap : 0;
+        // The slot shares the label's column; when the label's longest word would not fit beside it ("Thickness" in a narrow
+        // pane), the slot drops to the line under the label, still in this row and right-aligned.
+        bool below = !stacked && inline > 0 && grid.Bounds.Width > 0 && view.Cell.Bounds.Width > 0 &&
+            grid.Bounds.Width - view.Cell.Bounds.Width - unitWidth - 2 * gap < LongestWord(view.Label) + inline;
+        if (view.Inline is { } place)
+        {
+            // While the text is being typed the label column shrinks to the label; the slot waits (no flicker: it returns on commit).
+            place.Opacity = dirty ? 0 : 1;
+            place.IsHitTestVisible = !dirty;
+            Grid.SetRow(place, stacked || below ? 1 : 0);
+            Grid.SetColumn(place, 0);
+            Grid.SetColumnSpan(place, below ? 3 : 1);
+            if (place.Margin.Right != gap) place.Margin = new Thickness(0, 0, gap, 0);
+            if (below) inline = 0;
+        }
+        if (below) grid.RowDefinitions[1].MinHeight = height;
+        double reserve = 2 * gap + inline + (view.Wide && !stacked ? Math.Max(0, view.Cell.Bounds.Width - valueWidth - unitWidth) : 0);
         var margin = new Thickness(0, 0, stacked ? 0 : reserve, 0);
         if (view.Label.Margin != margin) view.Label.Margin = margin;
     }
@@ -1252,7 +1341,64 @@ public partial class PropertiesPane : UserControl
     private void Commit(RowView view, TextBox box)
     {
         if (view.Row.Key.StartsWith("w:", StringComparison.Ordinal)) CommitWing(view, box);
+        else if (view.Row.Group) CommitGroup(view, box);
         else CommitPoint(view, box);
+    }
+
+    private void ChooseGroupMode(GroupValueMode mode)
+    {
+        if (groupMode == mode || boundController is not { } controller) return;
+        groupMode = mode;
+        errors.Remove("p:aft");
+        useValues.Remove("p:aft");
+        messages.Remove("p:aft");
+        Bind(controller);
+    }
+
+    /// <summary>
+    /// Design group-move §3.6, §3.7, Ruling 111 (9): one typed Set to or Move by for the selected points, as one undo step.
+    /// A refusal keeps the typed text, names the cause (Core's words) and offers "Use <value>" by click only; a commit clears a
+    /// Move by field to 0 and the row re-reads the shared or Mixed value.
+    /// </summary>
+    private bool CommitGroup(RowView view, TextBox box)
+    {
+        if (boundController is not { } controller) return false;
+        var row = view.Row;
+        if (!Parse(view, box, Dimensions(), out double typed)) return false;
+        bool span = row.Axis == RowAxis.Span;
+        var mode = span ? GroupValueMode.MoveBy : groupMode;
+        double amount = typed / PropertiesView.FieldScale[row.Family];
+        string typedText = box.Text ?? "";
+        Task<CommitOutcome> task;
+        using (Hold())
+        {
+            task = controller.ApplyGroupValueAsync(mode, span ? GroupValueAxis.Span : GroupValueAxis.Value, amount);
+            PumpUi(task);
+        }
+        var outcome = task.IsCompletedSuccessfully ? task.Result : new CommitOutcome.Refused("DSL-NOT-ASSESSED", controller.Status);
+        if (outcome is CommitOutcome.Committed)
+        {
+            errors.Remove(row.Key); messages.Remove(row.Key); useValues.Remove(row.Key);
+            // Move by clears to 0, and so does Set to once it re-reads the shared value: the row shows the model's text again.
+            shown[box] = box.Text = mode == GroupValueMode.MoveBy ? "0" : typedText;
+            Bind(controller);
+            return true;
+        }
+        var refused = (CommitOutcome.Refused)outcome;
+        if (box.Text != typedText) box.Text = typedText;
+        return Refuse(view, box, refused.Copy, UseOffer(refused, row, mode, typed, controller));
+    }
+
+    /// <summary>The nearest legal value of a refused typed group entry (design §3.7): the tip minimum for a Set to, "the most they can move" for a Move by.</summary>
+    private static string? UseOffer(CommitOutcome.Refused refused, PropertyRow row, GroupValueMode mode, double typed, WorkbenchController controller)
+    {
+        if (mode == GroupValueMode.SetTo)
+            return refused.Code == TipChord.RefusalCode && controller.Estimates is { } wing
+                ? TipChord.FormatMm(TipChord.MinimumMeters(wing.RootChordMeters)) : null;
+        var most = Regex.Match(refused.Copy, @"The most they can move that way is (\d+(?:\.\d+)?)");
+        if (!most.Success || !double.TryParse(most.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double amount)) return null;
+        // Core words the amount in the field's own unit at two decimals, so the Use label and the message agree (Ruling 116, finding 11).
+        return Quantity.WithUnit((typed < 0 ? Quantity.Minus.ToString() : "") + Quantity.Typed(amount), row.Unit ?? "");
     }
 
     private bool CommitWing(RowView view, TextBox box)
@@ -1313,7 +1459,7 @@ public partial class PropertiesPane : UserControl
     private void UseLimitValue(string key)
     {
         if (!useValues.TryGetValue(key, out string? value) || rows.GetValueOrDefault(key + "|" + RowKind.Input) is not { Input: { } box } view) return;
-        box.Text = value;
+        box.Text = Quantity.ForField(value);   // the label shows "−", the field takes the typeable "-"
         errors.Remove(key);
         useValues.Remove(key);
         Commit(view, box);
@@ -2044,6 +2190,8 @@ public partial class PropertiesPane : UserControl
         public TextBox? Input { get; set; }
         public ComboBox? Enum { get; set; }
         public HyperlinkButton? Link { get; set; }
+        public (ToggleButton SetTo, ToggleButton MoveBy)? Modes { get; set; }   // the group value row's inline Set to | Move by switch
+        public Border? Inline { get; set; }            // the group rows' inline slot beside the field: the switch (value row) or the "move by" tag (From root)
         public InputElement? Editor => (InputElement?)Input ?? (InputElement?)Enum ?? Link;
         public required PropertyRow Row { get; set; }
     }

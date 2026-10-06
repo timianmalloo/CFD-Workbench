@@ -9,6 +9,7 @@ public static class ControllerShellTests
     public static void Run()
     {
         GestureLimitTests.RunController();
+        GroupDragTests.RunController();
         DesktopChecks.Check("StatusStrip_VerbReport_NotClobberedBySampling", () =>
         {
             using var controller = new WorkbenchController();

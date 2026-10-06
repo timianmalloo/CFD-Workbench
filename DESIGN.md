@@ -729,6 +729,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-397 | Finding… — approved — Ruling 118 (Find α while it runs) |
 | COPY-398 | the search stopped after <n> iterations without converging — approved — Ruling 118 (sixth Find α no-root reason, code ANA-FIND-MAX-ITERATIONS; the <reason> of the Find α no-root row) |
 | COPY-399 | Low confidence — analysis_confidence below 0.5 at <k> strips — approved — Ruling 118 (drag band note, the Drag (Wing only) and Profile drag rows and the wing-only CL/CD row) |
+| COPY-400 | Point <n> would leave its allowed range (<min> to <max>). Each bound carries its unit: "(−57.30° to 57.30°)", "(0.00 mm to 450.00 mm)". — approved — Ruling 120 (amends Ruling 119 (4); typed group range refusal; GroupCopy G13) |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

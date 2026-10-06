@@ -2752,7 +2752,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6cc7ede240c60ce518c5e07895243a619d492234c59b021011c0031c0e5c3dc2"
+      "sourceSha256": "e327c4ba73924f130041dd18497734c1a3c8997150c19d838dac09bdeb28399b"
     },
     {
       "id": "design-guided-solver-setup",
@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2c89f6b9c1dbdb02565488b7a112cc7678a6538a5f1d97e7fb97459edd939ba3"
+      "sourceSha256": "18c65e502911af61ca2f5f95bd045a665453446a800e2818747d9c6dc3709df1"
     },
     {
       "id": "kb-hw-glossary",
@@ -11165,6 +11165,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
     },
     {
+      "id": "proof-grp-desktop-red-first",
+      "path": "docs/proof/grp-desktop/red-first.md",
+      "title": "Track GRP half 2 (Desktop): planted mutants, observed red then green",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Three planted mutants of the group-move build, each turned red by a named Desktop check and green again once restored. Ring: --controller-shell (controller checks) and --properties-cells (window checks), one check each, CFD_TEST_ONLY. Captures against the approved mockup are beside this file.",
+      "tags": [
+        "proof",
+        "group-move",
+        "desktop",
+        "mutants",
+        "round-oct06"
+      ],
+      "links": [
+        {
+          "to": "design-group-move-node-m",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b36101b806f5957d9c90267e1cf5865dddd9ea38f8c760db1b1a14efc61d95b7"
+    },
+    {
       "id": "proof-grp-red-first",
       "path": "docs/proof/grp/red-first.md",
       "title": "GRP half 1 red-first receipt",
@@ -14895,5 +14922,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "5dfdb6c260385290212f34d6541d620101c29df2b514e993df625a7ce9d8266e"
+  "graphSha256": "036ad2f47fd9d8f8e97f75b057247c3668a84df81c1d4b7df1dea436853dd25d"
 };

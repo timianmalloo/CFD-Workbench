@@ -279,12 +279,37 @@ internal static class GroupGestureTests
             True(source.AsSpan().SequenceEqual(s.Snapshot().Source), "no byte changed");
             s.ApplyGroupValue(Id(), new("trailing", Ids(s, "trailing", 2, 3), GroupValueMode.MoveBy, GroupValueAxis.Value, 0.001)); // the session is still usable
         });
+        Check("ApplyGroupValue_TwistSpanMoveBy_NamesTheUnitAndThePointNumber_UseAmountIsAdmitted", () =>
+        {
+            // Repair 2: a twist span amount was bare metres ("0.2") and the neighbour was its internal id ("cv-4").
+            using var s = Open();
+            var interior = Channel(s.Snapshot().Source, "twist").Points
+                .Where(p => p.Role is PointRole.Control or PointRole.Anchor && p.Freedom == PointFreedom.Free).Take(2).Select(p => p.Id).ToArray();
+            Equal(2, interior.Length);
+            var error = Throws(() => s.ApplyGroupValue(Id(), new("twist", interior, GroupValueMode.MoveBy, GroupValueAxis.Span, 0.2)));
+            Equal("DSL-GROUP-NEIGHBOUR", error.Code);
+            var match = System.Text.RegularExpressions.Regex.Match(error.Message,
+                @"^Moving these points by 200\.00 mm would pass point (\d+)\. The most they can move that way is (\d+\.\d\d) mm\.$");
+            True(match.Success, error.Message);
+            True(!error.Message.Contains("cv-", StringComparison.Ordinal), error.Message);
+            double most = double.Parse(match.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture) / 1000;
+            s.ApplyGroupValue(Id(), new("twist", interior, GroupValueMode.MoveBy, GroupValueAxis.Span, most)); // the named amount is admitted
+        });
+        Check("ApplyGroupValue_TwistSetToOutOfDomain_ReportsThePointAndTheRangeAsData", () =>
+        {
+            using var s = Open();
+            var points = Channel(s.Snapshot().Source, "twist").Points
+                .Where(p => p.Role is PointRole.Control or PointRole.Anchor && p.Freedom == PointFreedom.Free).Take(2).ToArray();
+            var error = Throws(() => s.ApplyGroupValue(Id(), new("twist", points.Select(p => p.Id).ToArray(), GroupValueMode.SetTo, GroupValueAxis.Value, 100)));
+            Equal("DSL-GROUP-RANGE", error.Code);
+            True(System.Text.RegularExpressions.Regex.IsMatch(error.Message, @"^point=\d+;min=-57\.29\d*;max=57\.29\d*;unit=°$"), error.Message);
+        });
         Check("ApplyGroupValue_MoveByPastTip_NamesMaxAmount", () =>
         {
             using var s = OpenTip(30);
             var error = Throws(() => s.ApplyGroupValue(Id(), new("trailing", Ids(s, "trailing", 5, 6), GroupValueMode.MoveBy, GroupValueAxis.Value, -0.028)));
             Equal("DSL-TIP-CHORD-MIN", error.Code);
-            True(error.Message.Contains("The most they can move that way is 25 mm.", StringComparison.Ordinal), error.Message);
+            True(error.Message.Contains("The most they can move that way is 25.00 mm.", StringComparison.Ordinal), error.Message);
             True(error.Message.Contains("below 5 mm", StringComparison.Ordinal), error.Message);
             s.ApplyGroupValue(Id(), new("trailing", Ids(s, "trailing", 5, 6), GroupValueMode.MoveBy, GroupValueAxis.Value, -0.025)); // the named amount is admitted
             Within(0.005, WingEstimates.ChordMeters(s.Snapshot().Source, 1), 1.1e-6);

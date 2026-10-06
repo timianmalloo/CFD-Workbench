@@ -275,6 +275,9 @@ interior sweep test, now with group moves. If false: release still refuses and t
 
 ## 6a. Open items
 
+- **Domain hold:** closed. A group held by the twist or thickness domain names the binding point ("held by point n") and the
+  existing clamp reason in the readout, the inspector and the strip (with the hold icon). The warn outline on the binding
+  point is drawn for a domain hold by `ElevationView.DrawGroupHold` (the `GestureBinding` rectangle, the same as for a neighbour hold).
 - **Finding 11 (small copy gaps):** open, with §5a. Findings 9 and 10 are decided (Ruling 111) and folded in at §3.2, §3.6.
 
 ## 7. What this does not do
