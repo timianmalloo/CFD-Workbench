@@ -42,6 +42,7 @@ internal static class AnalysisChecks
             ("Projection", 710, ProjectionTests.Run), ("Labels", 20, LabelsTests.Run), ("LoadsView", 10, LoadsViewTests.Run),
             ("PanelCp", 40, PanelCpTests.Run), ("SectionEstimator", 140, SectionEstimatorTests.Run),
             ("Cavitation", 10, CavitationTests.Run), ("NeuralFoil", 100, NeuralFoilTests.Run),
+            ("PolarSeam", 20, PolarSeamTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)
