@@ -571,7 +571,7 @@ public sealed class ElevationView : Control
         // The view's caption chip sits over the left of the band: a long readout (a group drag's applied move, hold and reason)
         // wraps to two lines instead of running under the chip, so its first words (the applied value) stay readable.
         double room = Bounds.Width - 2 * PlateInset - CaptionReserve;
-        bool wrap = narrow || TextWidth(text, PlateFont) + 2 * PlatePadX > room;
+        bool wrap = narrow || controller?.GestureGroup is not null && TextWidth(text, PlateFont) + 2 * PlatePadX > room;
         string[] lines = [text];
         if (wrap)
         {
