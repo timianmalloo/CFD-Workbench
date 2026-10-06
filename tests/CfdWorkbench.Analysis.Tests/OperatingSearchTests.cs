@@ -8,6 +8,7 @@ internal static class OperatingSearchTests
     {
         AnalysisChecks.Check("FindAlpha_TargetCL_RootWithinTolerance", TargetAlpha);
         AnalysisChecks.Check("FindAlpha_NoRoot_UnavailableWithReason", NoRoot);
+        AnalysisChecks.Check("FindAlpha_ZeroLift_BracketedRoot", ZeroLift);
         AnalysisChecks.Check("FindTakeoff_RetrievesLoadAtEachSpeed", Takeoff);
         AnalysisChecks.Check("FreeSurface_A52_FactorsBesideDeepWater", Correction);
     }
@@ -44,6 +45,14 @@ internal static class OperatingSearchTests
             2, 0, 6, "ANA-BASIS-DEEP-WATER");
         if (result.Value is not null || result.TerminationCode != "ANA-FIND-NO-SIGN-CHANGE")
             throw new InvalidOperationException("no-root search extrapolated or lost its reason");
+    }
+
+    private static void ZeroLift()
+    {
+        SearchResult root = OperatingSearch.FindAlpha(alpha => new StripValue(0.1 * (alpha + 2), null),
+            0, -5, 1, "ANA-BASIS-DEEP-WATER");
+        if (root.Value is not { } alpha || Math.Abs(alpha + 2) > 0.01)
+            throw new InvalidOperationException("zero-lift operating alpha was unavailable");
     }
 
     private static void Takeoff()
