@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T16:24:46Z",
+  "generated": "2026-10-06T16:24:55Z",
   "audit": [
     {
       "actor": null,
@@ -27425,6 +27425,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T15:35:39Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M490GJ05M4YX83XN9DHZ47E4",
+      "shortname": "LAY 1280 four-view options",
+      "datetime": "2026-10-06T16:24:55Z",
+      "session": "trk-lay",
+      "prompt": "trk-lay round-oct06",
+      "summary": "Measured 1280x800: views 503x239.5 (0.5 px short; height binds, not width; band More button costs 11 px). Four options captured; recommend panel 150 + band button fix (503x265).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Operator picks how Analysis keeps four views at 1280x800",
+      "done_when": "docs/proof/lay-1280/options.md with measured options and PNGs; check-docs exit 0",
+      "started_at": "2026-10-06T16:14:24Z",
+      "duration_seconds": 631.0
     }
   ],
   "changes": [
