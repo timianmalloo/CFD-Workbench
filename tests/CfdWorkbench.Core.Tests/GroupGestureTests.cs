@@ -36,6 +36,30 @@ internal static class GroupGestureTests
     private static PointView[] After(GestureFrame frame, string curve) =>
         (curve == "leading" ? Planform.View(frame.Draft.Bytes, "Draft", frame.Draft.Generation).Leading : Planform.View(frame.Draft.Bytes, "Draft", frame.Draft.Generation).Trailing).Points.ToArray();
 
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        Check("GroupGesture_ReleaseNeverThrowsTipChordMin", () =>
+        {
+            foreach (double tipMm in new[] { 120.0, 6, 2 })
+            foreach (string rail in new[] { "leading", "trailing" })
+            foreach (int[] group in new[] { new[] { 5, 6 }, new[] { 4, 6 }, new[] { 2, 3 }, new[] { 0, 2 }, new[] { 0, 6 }, new[] { 3, 4, 5, 6 } })
+            foreach (double aft in new[] { -0.5, -0.0123456, 0.0003, 0.00501, 0.1, 0.5 })
+            {
+                using var s = OpenTip(tipMm);
+                var plan = Planform.View(s.Snapshot().Source, "test", 0);
+                var points = (rail == "leading" ? plan.Leading : plan.Trailing).Points;
+                if (group.Any(i => points[i].Freedom == PointFreedom.Fixed)) continue;
+                var grabbed = points[group[^1]];
+                var d = s.BeginGroupGesture(Id(), rail, group.Select(i => points[i].Id).ToArray());
+                var frame = s.UpdateGroupGesture(d.Id, d.Generation, grabbed.Id, grabbed.SpanMeters, aft);
+                try { s.Apply(Id(), s.Validate(d.Id, frame.Draft.Generation)); }
+                catch (ContractError error) when (error.Code == "DSL-TIP-CHORD-MIN") { throw new InvalidOperationException($"{rail}/{string.Join(",", group)}/{aft} tip {tipMm}: release refused after a hold"); }
+                catch (ContractError) { s.Cancel(d.Id); } // another rule (crossing edges) is not this track's
+            }
+        });
+    }
+
     internal static void Run()
     {
         // Confirms the design's first assume: a one-member group is the single-point gesture. The oracle is the patch of the
@@ -214,25 +238,6 @@ internal static class GroupGestureTests
             var up = s.UpdateGroupGesture(down.Draft.Id, down.Draft.Generation, tip.Id, tip.SpanMeters, 0.04);
             True(up.Limit is null, "an upward move was held");
             Within(0.04, Chord(s, up, 1), 1.1e-6);
-        });
-        Check("GroupGesture_ReleaseNeverThrowsTipChordMin", () =>
-        {
-            foreach (double tipMm in new[] { 120.0, 6, 2 })
-            foreach (string rail in new[] { "leading", "trailing" })
-            foreach (int[] group in new[] { new[] { 5, 6 }, new[] { 4, 6 }, new[] { 2, 3 }, new[] { 0, 2 }, new[] { 0, 6 }, new[] { 3, 4, 5, 6 } })
-            foreach (double aft in new[] { -0.5, -0.0123456, 0.0003, 0.00501, 0.1, 0.5 })
-            {
-                using var s = OpenTip(tipMm);
-                var plan = Planform.View(s.Snapshot().Source, "test", 0);
-                var points = (rail == "leading" ? plan.Leading : plan.Trailing).Points;
-                if (group.Any(i => points[i].Freedom == PointFreedom.Fixed)) continue;
-                var grabbed = points[group[^1]];
-                var d = s.BeginGroupGesture(Id(), rail, group.Select(i => points[i].Id).ToArray());
-                var frame = s.UpdateGroupGesture(d.Id, d.Generation, grabbed.Id, grabbed.SpanMeters, aft);
-                try { s.Apply(Id(), s.Validate(d.Id, frame.Draft.Generation)); }
-                catch (ContractError error) when (error.Code == "DSL-TIP-CHORD-MIN") { throw new InvalidOperationException($"{rail}/{string.Join(",", group)}/{aft} tip {tipMm}: release refused after a hold"); }
-                catch (ContractError) { s.Cancel(d.Id); } // another rule (crossing edges) is not this track's
-            }
         });
         Check("GroupGesture_End_CarriesMembers", () =>
         {

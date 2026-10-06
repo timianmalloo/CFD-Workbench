@@ -60,6 +60,39 @@ public static class PropertiesCellsTests
         finally { window.Close(); }
     }
 
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        Pane("PropertiesPane_B_EveryEditableValueIsTabStop", (controller, host, window) =>
+        {
+            // SC 2.1.1: every editable value and enum is reached by Tab, with every group expanded, in the anchor (Smooth and
+            // Corner), handle and control-point states.
+            var anchor = MakeAnchor(controller);
+            var handle = controller.Planform!.Trailing.Points.First(point => point.AnchorId == anchor.Id);
+            var failures = new List<string>();
+            var states = new (string Name, Action Enter)[]
+            {
+                ("control", () => Select(controller, window, PropertiesViewTests.Control(controller, "leading"))),
+                ("anchor", () => Select(controller, window, anchor)),
+                ("anchor corner", () => { Pump(controller.ApplyPointCommandAsync(new PointCommand.SetTangent(anchor.Curve, anchor.Id, TangentKind.Corner, null))); Select(controller, window, Reload(controller, anchor)); }),
+                ("handle", () => Select(controller, window, handle))
+            };
+            foreach (var (name, enter) in states)
+            {
+                enter();
+                foreach (var group in host.Properties.GetVisualDescendants().OfType<Expander>()) group.IsExpanded = true;
+                Settle(window);
+                var stops = TabWalk(host.Properties, window);
+                var editors = host.Properties.GetVisualDescendants().OfType<InputElement>()
+                    .Where(item => item is TextBox or ComboBox && item.IsEffectivelyVisible && item.IsEffectivelyEnabled).ToList();
+                var missed = editors.Where(editor => !stops.Contains(editor)).Select(editor => editor.Name).ToList();
+                Console.WriteLine($"MEASURE tab stops {name}: {stops.Count}, editable values {editors.Count}");
+                if (missed.Count > 0 || editors.Count == 0) failures.Add($"{name}: not reached {string.Join(",", missed)}");
+            }
+            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+        });
+    }
+
     public static void Run()
     {
         GestureLimitTests.RunPane();
@@ -168,35 +201,6 @@ public static class PropertiesCellsTests
             Settle(window);
             if (Paint(typeBox.BorderBrush) != primary || Math.Abs(typeBox.Bounds.Height - 20) > 0.5)
                 failures.Add($"Type focused: {Paint(typeBox.BorderBrush)} h {typeBox.Bounds.Height}");
-            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
-        });
-
-        Pane("PropertiesPane_B_EveryEditableValueIsTabStop", (controller, host, window) =>
-        {
-            // SC 2.1.1: every editable value and enum is reached by Tab, with every group expanded, in the anchor (Smooth and
-            // Corner), handle and control-point states.
-            var anchor = MakeAnchor(controller);
-            var handle = controller.Planform!.Trailing.Points.First(point => point.AnchorId == anchor.Id);
-            var failures = new List<string>();
-            var states = new (string Name, Action Enter)[]
-            {
-                ("control", () => Select(controller, window, PropertiesViewTests.Control(controller, "leading"))),
-                ("anchor", () => Select(controller, window, anchor)),
-                ("anchor corner", () => { Pump(controller.ApplyPointCommandAsync(new PointCommand.SetTangent(anchor.Curve, anchor.Id, TangentKind.Corner, null))); Select(controller, window, Reload(controller, anchor)); }),
-                ("handle", () => Select(controller, window, handle))
-            };
-            foreach (var (name, enter) in states)
-            {
-                enter();
-                foreach (var group in host.Properties.GetVisualDescendants().OfType<Expander>()) group.IsExpanded = true;
-                Settle(window);
-                var stops = TabWalk(host.Properties, window);
-                var editors = host.Properties.GetVisualDescendants().OfType<InputElement>()
-                    .Where(item => item is TextBox or ComboBox && item.IsEffectivelyVisible && item.IsEffectivelyEnabled).ToList();
-                var missed = editors.Where(editor => !stops.Contains(editor)).Select(editor => editor.Name).ToList();
-                Console.WriteLine($"MEASURE tab stops {name}: {stops.Count}, editable values {editors.Count}");
-                if (missed.Count > 0 || editors.Count == 0) failures.Add($"{name}: not reached {string.Join(",", missed)}");
-            }
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
 

@@ -565,81 +565,6 @@ public static class ControllerViewTests
             Equal("Front · looking aft", area.FrontLabel.Content?.ToString(), "Front label");
         });
 
-        DesktopChecks.Check("ModelArea_Views_SeparatedByGutterAndFramed", () =>
-        {
-            // DR-VIEW-1: a 4 px gutter in the window background colour between views, a 1 px line-colour frame on each view.
-            // Measured on pixels of the window at the screen's own resolution, in DIPs (a device pixel is 1 / scale DIP).
-            foreach (var theme in new[] { Avalonia.Styling.ThemeVariant.Light, Avalonia.Styling.ThemeVariant.Dark })
-                foreach (var (layout, name) in new[] { (ViewLayout.Plan3d, "Plan + 3D"), (ViewLayout.Four, "Four views"), (ViewLayout.One(SingleView.ThreeD), "One view") })
-                {
-                    using var fixture = new AreaFixture(width: 1400, height: 1000, theme: theme);
-                    fixture.Controller.Layout = layout;
-                    fixture.ShootAtDeviceResolution();
-                    double scale = fixture.ShotScale;
-                    if (theme == Avalonia.Styling.ThemeVariant.Light && layout == ViewLayout.Plan3d &&
-                        Environment.GetEnvironmentVariable("CFD_PROOF_PNG") is { Length: > 0 } png)
-                    {
-                        using var bitmap = new RenderTargetBitmap(new PixelSize((int)Math.Round(fixture.Window.Bounds.Width * scale), (int)Math.Round(fixture.Window.Bounds.Height * scale)),
-                            new Vector(96 * scale, 96 * scale));
-                        bitmap.Render(fixture.Window);
-                        bitmap.Save(png);
-                    }
-                    var line = fixture.Brush("LineBrush");
-                    var canvas = fixture.Brush("CanvasBrush");
-                    string where = $"{theme} {name}";
-                    var area = fixture.Area;
-                    var rects = new[] { area.PlanSlot, area.ThreeDSlot, area.SideSlot, area.FrontSlot }.Where(slot => slot.IsEffectivelyVisible).Select(slot =>
-                    {
-                        var origin = slot.TranslatePoint(new Point(0, 0), fixture.Window) ?? throw new Exception("No window point");
-                        return new Rect(origin, slot.Bounds.Size);
-                    }).ToArray();
-                    int Device(double dip) => (int)Math.Round(dip * scale);
-                    bool Is((int X, int Y) at, (byte R, byte G, byte B) colour) => Distance(fixture.Rgb(at.X, at.Y), colour) <= 2;
-                    // Device pixels of one colour from a start, stepping one pixel; returned in DIPs.
-                    double Run(double x, double y, int dx, int dy, (byte R, byte G, byte B) colour)
-                    {
-                        int n = 0;
-                        while (Is((Device(x) + n * dx, Device(y) + n * dy), colour)) n++;
-                        return n / scale;
-                    }
-                    // The 1 px band just outside the slot is the line colour; the device pixel just inside it is not (a thicker frame would show).
-                    foreach (var r in rects)
-                        foreach (var (edge, band, inside) in new[]
-                        {
-                            ("left", new Point(r.X - 1, r.Center.Y), new Point(r.X, r.Center.Y)), ("right", new Point(r.Right, r.Center.Y), new Point(r.Right - 1 / scale, r.Center.Y)),
-                            ("top", new Point(r.Center.X, r.Y - 1), new Point(r.Center.X, r.Y)), ("bottom", new Point(r.Center.X, r.Bottom), new Point(r.Center.X, r.Bottom - 1 / scale))
-                        })
-                        {
-                            bool horizontal = edge is "left" or "right";
-                            for (int k = 0; k < (int)Math.Round(scale); k++)
-                                if (!Is((Device(band.X) + (horizontal ? k : 0), Device(band.Y) + (horizontal ? 0 : k)), line))
-                                    throw new Exception($"{where}: the view {r} has no 1 px line-colour frame on its {edge} edge");
-                            if (Is((Device(inside.X), Device(inside.Y)), line))
-                                throw new Exception($"{where}: the view {r} has a frame thicker than 1 px on its {edge} edge");
-                        }
-                    if (rects.Length == 1)
-                    {
-                        var host = area.PlanContent;
-                        Near(host.Bounds.Width, rects[0].Width + 2, 0, where + " one view fills the area, frame only (width)");
-                        Near(host.Bounds.Height, rects[0].Height + 2, 0, where + " one view fills the area, frame only (height)");
-                        Console.WriteLine($"  view-gutter {where}: no gutter; 1 px frame on all four edges, frame fills the area ({host.Bounds.Width} x {host.Bounds.Height})");
-                        continue;
-                    }
-                    var (left, right) = (rects[0], rects[1]);
-                    double columns = Run(left.Right + 1, left.Center.Y, 1, 0, canvas);
-                    if (columns < 4 || Math.Abs(right.X - 1 - (left.Right + 1 + columns)) > 0.001)
-                        throw new Exception($"{where}: {columns} px of canvas colour between the side-by-side views, not a 4 px gutter ending at the next frame");
-                    double rows = 0;
-                    if (rects.Length == 4)
-                    {
-                        rows = Run(left.Center.X, left.Bottom + 1, 0, 1, canvas);
-                        if (rows < 4 || Math.Abs(rects[2].Y - 1 - (left.Bottom + 1 + rows)) > 0.001)
-                            throw new Exception($"{where}: {rows} px of canvas colour between the upper and lower views, not a 4 px gutter");
-                    }
-                    Console.WriteLine($"  view-gutter {where}: scale {scale}, column gutter {columns} px" + (rows > 0 ? $", row gutter {rows} px" : "") + $", 1 px frame on every edge of {rects.Length} views");
-                }
-        });
-
         DesktopChecks.Check("ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack", () =>
         {
             using var fixture = new AreaFixture(width: 1400, height: 1000);
@@ -1238,6 +1163,80 @@ public static class ControllerViewTests
             Console.WriteLine(FormattableString.Invariant(
                 $"MEASURE gesture_end_3d_visible update_p95_ms={gesture.UpdateP95Ms:F1} estimates_p95_ms={gesture.EstimatesP95Ms:F1} frames={gesture.Frames} three_d_visible={gesture.ThreeDVisible} outcome={gesture.Outcome} surface_events={meshes}"));
             Equal(true, gesture.ThreeDVisible, "3D visible during the drag");
+        });
+        DesktopChecks.Check("ModelArea_Views_SeparatedByGutterAndFramed", () =>
+        {
+            // DR-VIEW-1: a 4 px gutter in the window background colour between views, a 1 px line-colour frame on each view.
+            // Measured on pixels of the window at the screen's own resolution, in DIPs (a device pixel is 1 / scale DIP).
+            foreach (var theme in new[] { Avalonia.Styling.ThemeVariant.Light, Avalonia.Styling.ThemeVariant.Dark })
+                foreach (var (layout, name) in new[] { (ViewLayout.Plan3d, "Plan + 3D"), (ViewLayout.Four, "Four views"), (ViewLayout.One(SingleView.ThreeD), "One view") })
+                {
+                    using var fixture = new AreaFixture(width: 1400, height: 1000, theme: theme);
+                    fixture.Controller.Layout = layout;
+                    fixture.ShootAtDeviceResolution();
+                    double scale = fixture.ShotScale;
+                    if (theme == Avalonia.Styling.ThemeVariant.Light && layout == ViewLayout.Plan3d &&
+                        Environment.GetEnvironmentVariable("CFD_PROOF_PNG") is { Length: > 0 } png)
+                    {
+                        using var bitmap = new RenderTargetBitmap(new PixelSize((int)Math.Round(fixture.Window.Bounds.Width * scale), (int)Math.Round(fixture.Window.Bounds.Height * scale)),
+                            new Vector(96 * scale, 96 * scale));
+                        bitmap.Render(fixture.Window);
+                        bitmap.Save(png);
+                    }
+                    var line = fixture.Brush("LineBrush");
+                    var canvas = fixture.Brush("CanvasBrush");
+                    string where = $"{theme} {name}";
+                    var area = fixture.Area;
+                    var rects = new[] { area.PlanSlot, area.ThreeDSlot, area.SideSlot, area.FrontSlot }.Where(slot => slot.IsEffectivelyVisible).Select(slot =>
+                    {
+                        var origin = slot.TranslatePoint(new Point(0, 0), fixture.Window) ?? throw new Exception("No window point");
+                        return new Rect(origin, slot.Bounds.Size);
+                    }).ToArray();
+                    int Device(double dip) => (int)Math.Round(dip * scale);
+                    bool Is((int X, int Y) at, (byte R, byte G, byte B) colour) => Distance(fixture.Rgb(at.X, at.Y), colour) <= 2;
+                    // Device pixels of one colour from a start, stepping one pixel; returned in DIPs.
+                    double Run(double x, double y, int dx, int dy, (byte R, byte G, byte B) colour)
+                    {
+                        int n = 0;
+                        while (Is((Device(x) + n * dx, Device(y) + n * dy), colour)) n++;
+                        return n / scale;
+                    }
+                    // The 1 px band just outside the slot is the line colour; the device pixel just inside it is not (a thicker frame would show).
+                    foreach (var r in rects)
+                        foreach (var (edge, band, inside) in new[]
+                        {
+                            ("left", new Point(r.X - 1, r.Center.Y), new Point(r.X, r.Center.Y)), ("right", new Point(r.Right, r.Center.Y), new Point(r.Right - 1 / scale, r.Center.Y)),
+                            ("top", new Point(r.Center.X, r.Y - 1), new Point(r.Center.X, r.Y)), ("bottom", new Point(r.Center.X, r.Bottom), new Point(r.Center.X, r.Bottom - 1 / scale))
+                        })
+                        {
+                            bool horizontal = edge is "left" or "right";
+                            for (int k = 0; k < (int)Math.Round(scale); k++)
+                                if (!Is((Device(band.X) + (horizontal ? k : 0), Device(band.Y) + (horizontal ? 0 : k)), line))
+                                    throw new Exception($"{where}: the view {r} has no 1 px line-colour frame on its {edge} edge");
+                            if (Is((Device(inside.X), Device(inside.Y)), line))
+                                throw new Exception($"{where}: the view {r} has a frame thicker than 1 px on its {edge} edge");
+                        }
+                    if (rects.Length == 1)
+                    {
+                        var host = area.PlanContent;
+                        Near(host.Bounds.Width, rects[0].Width + 2, 0, where + " one view fills the area, frame only (width)");
+                        Near(host.Bounds.Height, rects[0].Height + 2, 0, where + " one view fills the area, frame only (height)");
+                        Console.WriteLine($"  view-gutter {where}: no gutter; 1 px frame on all four edges, frame fills the area ({host.Bounds.Width} x {host.Bounds.Height})");
+                        continue;
+                    }
+                    var (left, right) = (rects[0], rects[1]);
+                    double columns = Run(left.Right + 1, left.Center.Y, 1, 0, canvas);
+                    if (columns < 4 || Math.Abs(right.X - 1 - (left.Right + 1 + columns)) > 0.001)
+                        throw new Exception($"{where}: {columns} px of canvas colour between the side-by-side views, not a 4 px gutter ending at the next frame");
+                    double rows = 0;
+                    if (rects.Length == 4)
+                    {
+                        rows = Run(left.Center.X, left.Bottom + 1, 0, 1, canvas);
+                        if (rows < 4 || Math.Abs(rects[2].Y - 1 - (left.Bottom + 1 + rows)) > 0.001)
+                            throw new Exception($"{where}: {rows} px of canvas colour between the upper and lower views, not a 4 px gutter");
+                    }
+                    Console.WriteLine($"  view-gutter {where}: scale {scale}, column gutter {columns} px" + (rows > 0 ? $", row gutter {rows} px" : "") + $", 1 px frame on every edge of {rects.Length} views");
+                }
         });
     }
 

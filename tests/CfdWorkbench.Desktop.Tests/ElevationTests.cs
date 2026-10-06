@@ -28,6 +28,29 @@ public static class ElevationTests
     private static Fixture Example => example ??= new Fixture();
     private static Fixture Dihedral => dihedral ??= new Fixture(bytes: DihedralBytes());
 
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        DesktopChecks.Check("Elevation_NudgeLadders_PerChannelTable", () =>
+        {
+            var f = Example.Reset();
+            foreach (var (view, curve) in new[] { (f.Front, "dihedral"), (f.Front, "thickness"), (f.Side, "twist") })
+            {
+                var unit = Channels.Unit(curve);
+                foreach (var (modifiers, step) in new[] { (KeyModifiers.Meta, unit.NudgeFine), (KeyModifiers.None, unit.NudgePlain), (KeyModifiers.Shift, unit.NudgeCoarse) })
+                {
+                    var point = f.Curve(curve).Points[3];
+                    view.FocusPoint(new PointRef(curve, point.Id));
+                    f.Key(view, Key.Up, modifiers);
+                    double moved = f.Curve(curve).Points[3].Ordinate - point.Ordinate;
+                    f.Cancel(view);
+                    if (Math.Abs(moved - step) > step * 1e-6 + 1e-12) throw new Exception($"{curve} {modifiers}: moved {moved}, ladder {step}");
+                    if (f.Curve(curve).Points[3].Ordinate != point.Ordinate) throw new Exception("Escape did not restore " + curve);
+                }
+            }
+        });
+    }
+
     public static void Run()
     {
         try
@@ -315,25 +338,6 @@ public static class ElevationTests
                 if (f.Controller.Gesture != GestureState.Idle) Await(f.Controller.EndGestureAsync(GestureEnd.Escape));
                 if (f.Controller.Inspection!.Authored.Binding.SourceHash != original) f.Controller.Undo();
                 Pump(() => f.Controller.Inspection!.Authored.Binding.SourceHash == original && !f.Controller.SurfaceUpdating, "the undo");
-            }
-        });
-
-        DesktopChecks.Check("Elevation_NudgeLadders_PerChannelTable", () =>
-        {
-            var f = Example.Reset();
-            foreach (var (view, curve) in new[] { (f.Front, "dihedral"), (f.Front, "thickness"), (f.Side, "twist") })
-            {
-                var unit = Channels.Unit(curve);
-                foreach (var (modifiers, step) in new[] { (KeyModifiers.Meta, unit.NudgeFine), (KeyModifiers.None, unit.NudgePlain), (KeyModifiers.Shift, unit.NudgeCoarse) })
-                {
-                    var point = f.Curve(curve).Points[3];
-                    view.FocusPoint(new PointRef(curve, point.Id));
-                    f.Key(view, Key.Up, modifiers);
-                    double moved = f.Curve(curve).Points[3].Ordinate - point.Ordinate;
-                    f.Cancel(view);
-                    if (Math.Abs(moved - step) > step * 1e-6 + 1e-12) throw new Exception($"{curve} {modifiers}: moved {moved}, ladder {step}");
-                    if (f.Curve(curve).Points[3].Ordinate != point.Ordinate) throw new Exception("Escape did not restore " + curve);
-                }
             }
         });
 

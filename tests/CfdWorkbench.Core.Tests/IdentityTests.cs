@@ -37,6 +37,8 @@ internal static class IdentityTests
             ProjectStoreTests.RunReadiness();
             SectionEditsTests.RunReadiness();
             SectionDraftTests.RunReadiness();
+            GroupGestureTests.RunReadiness();
+            TipChordTests.RunReadiness();
             Console.WriteLine($"RESULT failures={failures}");
             return failures == 0 ? 0 : 1;
         }

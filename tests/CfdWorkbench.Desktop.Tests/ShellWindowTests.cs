@@ -21,6 +21,78 @@ namespace CfdWorkbench.Desktop.Tests;
 
 public static class ShellWindowTests
 {
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        DesktopChecks.Check("ContextMenu_MakeAnchor_SameEffectAsProperties", () =>
+        {
+            using var controller = new WorkbenchController();
+            var window = U2Show(controller, out var host);
+            try
+            {
+                U2Open(host, window);
+                // Each step runs until its accepted sampling has settled, observed through Changed (Provenance goes through
+                // "… sampling" and back to "accepted"); bounded, no sleep. Every status written on the way is kept.
+                List<string> Settled(string step, Action act)
+                {
+                    var seen = new List<string>();
+                    bool sampling = false, settled = false;
+                    void OnChanged()
+                    {
+                        lock (seen)
+                        {
+                            seen.Add(controller.Status);
+                            if (controller.Provenance.Contains("sampling", StringComparison.Ordinal)) sampling = true;
+                            else if (sampling && controller.Provenance == "accepted") settled = true;
+                        }
+                    }
+                    controller.Changed += OnChanged;
+                    try
+                    {
+                        act();
+                        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
+                        while (!Volatile.Read(ref settled) && DateTime.UtcNow < deadline)
+                            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                    }
+                    finally { controller.Changed -= OnChanged; }
+                    Settle(window);
+                    if (!settled) throw new InvalidOperationException(step + ": sampling did not settle; provenance " + controller.Provenance);
+                    lock (seen) return [.. seen];
+                }
+                // The operation's own report, whichever path ran it. The status after settling differs by design: the
+                // Properties path's pane report supersedes the sampling line (STATUS-CLOBBER, DR-STATUS-1).
+                static string Report(List<string> seen) =>
+                    seen.FirstOrDefault(text => text.StartsWith("Point change applied.", StringComparison.Ordinal)) ?? "";
+                var trailingPoint = U2Control(controller, "trailing");
+                U2Select(controller, window, trailingPoint);
+                var viaProperties = Settled("properties", () => U2CommitType(U2Need<ComboBox>(host.Properties, "TypeControl"), TypeAnchorOption));
+                if (U2Reload(controller, trailingPoint.Curve, trailingPoint.Id).Role != PointRole.Anchor)
+                    throw new InvalidOperationException("properties did not make an anchor");
+                Settled("undo", controller.Undo);
+                var leadingPoint = U2Control(controller, "leading");
+                var list = U2Need<ListBox>(host.Browser, "LeadingEdgeList");
+                var row = list.Items.OfType<ListBoxItem>().First(item => Equals(item.Tag, leadingPoint.Id));
+                var menu = row.ContextMenu ?? list.ContextMenu ?? throw new InvalidOperationException("context menu missing");
+                var item = menu.Items.OfType<MenuItem>().FirstOrDefault(entry => entry.Header?.ToString() == "Make anchor")
+                    ?? throw new InvalidOperationException("Make anchor item missing");
+                list.SelectedItem = row;
+                var viaMenu = Settled("context menu", () =>
+                {
+                    if (item.Command is not null) item.Command.Execute(row);
+                    else item.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+                });
+                if (U2Reload(controller, leadingPoint.Curve, leadingPoint.Id).Role != PointRole.Anchor)
+                    throw new InvalidOperationException("context menu did not make an anchor");
+                if (Report(viaProperties).Length == 0 || Report(viaMenu).Length == 0)
+                    throw new InvalidOperationException("context reports '" + string.Join(" | ", viaMenu) + "' properties '" + string.Join(" | ", viaProperties) + "'");
+                Settled("context undo", controller.Undo);
+                if (U2Reload(controller, leadingPoint.Curve, leadingPoint.Id).Role != PointRole.Control)
+                    throw new InvalidOperationException("context-menu undo did not restore the control point");
+            }
+            finally { window.Close(); }
+        });
+    }
+
     public static void Run()
     {
         DesktopChecks.Check("Shell_F7_ModelTabReentry_RendersAcceptedFoil", () =>
@@ -3013,74 +3085,6 @@ public static class ShellWindowTests
                 Settle(window);
                 if (controller.Selection is not Selection.Points selected || selected.Items.Count != 1 || selected.Items[0].VertexId != point.Id)
                     throw new InvalidOperationException("selection: " + controller.Selection);
-            }
-            finally { window.Close(); }
-        });
-
-        DesktopChecks.Check("ContextMenu_MakeAnchor_SameEffectAsProperties", () =>
-        {
-            using var controller = new WorkbenchController();
-            var window = U2Show(controller, out var host);
-            try
-            {
-                U2Open(host, window);
-                // Each step runs until its accepted sampling has settled, observed through Changed (Provenance goes through
-                // "… sampling" and back to "accepted"); bounded, no sleep. Every status written on the way is kept.
-                List<string> Settled(string step, Action act)
-                {
-                    var seen = new List<string>();
-                    bool sampling = false, settled = false;
-                    void OnChanged()
-                    {
-                        lock (seen)
-                        {
-                            seen.Add(controller.Status);
-                            if (controller.Provenance.Contains("sampling", StringComparison.Ordinal)) sampling = true;
-                            else if (sampling && controller.Provenance == "accepted") settled = true;
-                        }
-                    }
-                    controller.Changed += OnChanged;
-                    try
-                    {
-                        act();
-                        var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(8);
-                        while (!Volatile.Read(ref settled) && DateTime.UtcNow < deadline)
-                            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                    }
-                    finally { controller.Changed -= OnChanged; }
-                    Settle(window);
-                    if (!settled) throw new InvalidOperationException(step + ": sampling did not settle; provenance " + controller.Provenance);
-                    lock (seen) return [.. seen];
-                }
-                // The operation's own report, whichever path ran it. The status after settling differs by design: the
-                // Properties path's pane report supersedes the sampling line (STATUS-CLOBBER, DR-STATUS-1).
-                static string Report(List<string> seen) =>
-                    seen.FirstOrDefault(text => text.StartsWith("Point change applied.", StringComparison.Ordinal)) ?? "";
-                var trailingPoint = U2Control(controller, "trailing");
-                U2Select(controller, window, trailingPoint);
-                var viaProperties = Settled("properties", () => U2CommitType(U2Need<ComboBox>(host.Properties, "TypeControl"), TypeAnchorOption));
-                if (U2Reload(controller, trailingPoint.Curve, trailingPoint.Id).Role != PointRole.Anchor)
-                    throw new InvalidOperationException("properties did not make an anchor");
-                Settled("undo", controller.Undo);
-                var leadingPoint = U2Control(controller, "leading");
-                var list = U2Need<ListBox>(host.Browser, "LeadingEdgeList");
-                var row = list.Items.OfType<ListBoxItem>().First(item => Equals(item.Tag, leadingPoint.Id));
-                var menu = row.ContextMenu ?? list.ContextMenu ?? throw new InvalidOperationException("context menu missing");
-                var item = menu.Items.OfType<MenuItem>().FirstOrDefault(entry => entry.Header?.ToString() == "Make anchor")
-                    ?? throw new InvalidOperationException("Make anchor item missing");
-                list.SelectedItem = row;
-                var viaMenu = Settled("context menu", () =>
-                {
-                    if (item.Command is not null) item.Command.Execute(row);
-                    else item.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
-                });
-                if (U2Reload(controller, leadingPoint.Curve, leadingPoint.Id).Role != PointRole.Anchor)
-                    throw new InvalidOperationException("context menu did not make an anchor");
-                if (Report(viaProperties).Length == 0 || Report(viaMenu).Length == 0)
-                    throw new InvalidOperationException("context reports '" + string.Join(" | ", viaMenu) + "' properties '" + string.Join(" | ", viaProperties) + "'");
-                Settled("context undo", controller.Undo);
-                if (U2Reload(controller, leadingPoint.Curve, leadingPoint.Id).Role != PointRole.Control)
-                    throw new InvalidOperationException("context-menu undo did not restore the control point");
             }
             finally { window.Close(); }
         });

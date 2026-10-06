@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18c65e502911af61ca2f5f95bd045a665453446a800e2818747d9c6dc3709df1"
+      "sourceSha256": "59fbd8d58b02ed6a085ac88b4d79a2bd2cd8ae5e83e7f9bc56a74d9e7f9017ce"
     },
     {
       "id": "kb-hw-glossary",
@@ -12258,6 +12258,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "95f212dc46d2f49e65072aab721162cf59d63518f214b2325143fa40777cd95f"
     },
     {
+      "id": "proof-ring-split-moved",
+      "path": "docs/proof/ring-split/moved.md",
+      "title": "Ring split: checks moved from the fast ring to readiness",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-spl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Eleven costly fast-ring checks moved into their suite's RunReadiness (Ruling 123): list with cost, ring and readiness proof, PASS union diff empty.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-split-profile",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e31c4ca8131efffd6735fc7ed07f4cc16862f6aacf7a518ce0bb48330c949372"
+    },
+    {
+      "id": "proof-ring-split-profile",
+      "path": "docs/proof/ring-split/profile.md",
+      "title": "Ring split profile: a Desktop 1/2 + 2/2 split cannot pay",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-spl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Round-oct06 track SPL profile of tools/run-tests.sh at main fedac036 (Ruling 122): the ring is CPU-bound and Core 3/3 is co-critical, so splitting the Desktop job into two parent jobs saves nothing; no split shipped.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "profile",
+        "split"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-b2-profile",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2e8260c229bf0471a5a7ab899f7baf53c3c8b57d426fb681ba86c50be826822d"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -14949,5 +15004,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "e5bb1c8a608d78de817a3ca81d1f97d706be0a4795d3c7a5d9656e5237502feb"
+  "graphSha256": "5a2c16392587f510af10a0efd7b4dcae4f074fc0d81cfb50e5b2f49d19fd7805"
 };
