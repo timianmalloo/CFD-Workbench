@@ -36,10 +36,7 @@ public static class View3dLoadLayer
             double worldScale = peak > 0 ? Math.Max(.02, surface.MaximumY * .22) / peak : 0;
             foreach (var arrow in arrows)
             {
-                var section = surface.Sections.MinBy(s => Math.Abs(s.Upper[0].Y - Math.Abs(arrow.Y)));
-                if (section is null) continue;
-                var le = section.Upper[0]; var te = section.Upper[^1];
-                var start = new Point3(le.X + .25 * (te.X - le.X), arrow.Y, le.Z);
+                if (Anchor(surface, arrow.Y) is not { } start) continue;
                 var end = new Point3(start.X + arrow.Direction.X * arrow.Magnitude * worldScale,
                     start.Y + arrow.Direction.Y * arrow.Magnitude * worldScale,
                     start.Z + arrow.Direction.Z * arrow.Magnitude * worldScale);
@@ -95,6 +92,25 @@ public static class View3dLoadLayer
                     new Point(top.X + 6, (foot.Y + top.Y) / 2), ink, soft);
             }
         }
+    }
+
+    /// <summary>Quarter-chord glyph anchor between placed sections, clamped at the root and tip.</summary>
+    public static Point3? Anchor(SurfaceView surface, double y)
+    {
+        if (!double.IsFinite(y)) return null;
+        var sections = surface.Sections.Where(section => section.Upper.Count > 0)
+            .OrderBy(section => section.Upper[0].Y).ToArray();
+        if (sections.Length == 0) return null;
+        double span = Math.Abs(y);
+        var high = sections.FirstOrDefault(section => section.Upper[0].Y >= span) ?? sections[^1];
+        int index = Array.IndexOf(sections, high);
+        var low = sections[Math.Max(0, index - 1)];
+        static double Quarter(PlacedSection section) => section.Upper[0].X +
+            .25 * (section.Upper[^1].X - section.Upper[0].X);
+        double delta = high.Upper[0].Y - low.Upper[0].Y;
+        double t = delta > 0 ? Math.Clamp((span - low.Upper[0].Y) / delta, 0, 1) : 0;
+        return new Point3(Quarter(low) + (Quarter(high) - Quarter(low)) * t, y,
+            low.Upper[0].Z + (high.Upper[0].Z - low.Upper[0].Z) * t);
     }
 
     private static void DrawArrow(DrawingContext context, Point from, Point to, IBrush brush, double width)

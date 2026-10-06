@@ -57,6 +57,17 @@ public static class AnalysisLayerTests
             if (arrows.Count != 1 || Math.Abs(arrows[0].Direction.Y - .6) > 1e-12 || Math.Abs(arrows[0].Direction.Z - .8) > 1e-12)
                 throw new Exception("Arrow must use the run's local normal; absent force must stay absent.");
         });
+        DesktopChecks.Check("View3dLayer_AnchorInterpolatesBetweenSections", () =>
+        {
+            var root = new PlacedSection(0, 0, [new Point3(0, 0, 0), new Point3(4, 0, 0)], []);
+            var tip = new PlacedSection(1, 1, [new Point3(2, 2, 1), new Point3(4, 2, 1)], []);
+            var surface = new SurfaceView("test", "test", 0, 0, 0, 0, 4, 2, 1, [root, tip]);
+            var between = View3dLoadLayer.Anchor(surface, -1);
+            if (between is not { X: 1.75, Y: -1, Z: 0.5 })
+                throw new Exception("Port anchor must interpolate quarter chord and elevation at the strip Y: " + between);
+            if (View3dLoadLayer.Anchor(surface, 3) is not { X: 2.5, Y: 3, Z: 1 })
+                throw new Exception("Tip anchor must clamp the placed section geometry.");
+        });
         DesktopChecks.Check("ElevationLayer_DepthUnsetNoBand", () =>
         {
             var layer = new LayerData("depth-band", "Depth", true, "h_ref", "conditions-table")
