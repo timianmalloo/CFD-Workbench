@@ -11074,6 +11074,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
     },
     {
+      "id": "proof-grp-red-first",
+      "path": "docs/proof/grp/red-first.md",
+      "title": "GRP half 1 red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-grp",
+      "phase": "implementation",
+      "reviewBy": "2026-11-04",
+      "reviewSuggested": [],
+      "summary": "Red on the old Core, two planted mutants red, and the design section 9 Core names green.",
+      "tags": [
+        "grp",
+        "group-move",
+        "red-first",
+        "mutants"
+      ],
+      "links": [
+        {
+          "to": "design-group-move-node-m",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d2528f7faa8bc98faab5bb1c2ece5b347d1fe8cd163e08eb15e90a4a08ed78c9"
+    },
+    {
       "id": "proof-legacy-gate-retarget",
       "path": "docs/proof/legacy-gate-retarget.md",
       "title": "Legacy gate retarget — the adapters gate's applied-contrast step moves from the pre-shell window to the shell matrix",
@@ -14658,5 +14684,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "6d9470360459c017aa2bde27a8aecc667a0516048c9cf1e95f9a3dc2f99afff5"
+  "graphSha256": "c27e609a52a7169dac5bacad2036379f56a4e14135bc3c6c39adcd9d2812534f"
 };

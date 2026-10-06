@@ -1,3 +1,18 @@
+---
+id: proof-grp-red-first
+title: "GRP half 1 red-first receipt"
+type: proof-pack
+status: active
+owner: "@track-grp"
+phase: implementation
+tags: [grp, group-move, red-first, mutants]
+links:
+  - { to: design-group-move-node-m, rel: depends-on }
+review-by: "2026-11-04"
+summary: >-
+  Red on the old Core, two planted mutants red, and the design section 9 Core names green.
+---
+
 # GRP half 1 - red-first receipt (round oct06, track trk-grp-core)
 
 Ring: fast. Command: CFD_TEST_ONLY=GroupGesture,ApplyGroupValue tools/run-suite.sh dotnet tests/CfdWorkbench.Core.Tests/bin/Release/net10.0/CfdWorkbench.Core.Tests.dll
