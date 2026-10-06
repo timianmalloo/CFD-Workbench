@@ -81,6 +81,65 @@ public static class UnitsSwitchTests
     public static void RunReadiness()
     {
         RegisterControllerCheck();
+        DesktopChecks.Check("Units_Persist_ChoiceSurvivesShellRestart_TextSizeKept", () =>
+        {
+            string root = Root();
+            Restart(root, (host, controller) =>
+            {
+                Pump(host.UnitsLoaded);
+                Pump(host.TextSizeLoaded);
+                host.SetTextScale(1.5);
+                Pump(host.TextSizeSaved);
+                Pump(host.RunCommand(Imperial));
+                Pump(host.UnitsSaved);
+            });
+            Restart(root, (host, controller) =>
+            {
+                Pump(host.UnitsLoaded);
+                Pump(host.TextSizeLoaded);
+                if (controller.AnalysisUnits != Units.Imperial || (string?)Need<Button>(host.StatusStrip, "UnitsButton").Content != "Imperial")
+                    throw new Exception($"after a restart: {controller.AnalysisUnits}");
+                if (Math.Abs(host.TextScale - 1.5) > 1e-9) throw new Exception("units save lost the Text size: " + host.TextScale);
+                Pump(host.RunCommand(Metric));
+                Pump(host.UnitsSaved);
+            });
+            Restart(root, (host, controller) =>
+            {
+                Pump(host.UnitsLoaded);
+                if (controller.AnalysisUnits != Units.Metric) throw new Exception("Metric was not kept");
+            });
+        });
+
+        DesktopChecks.Check("Units_OldPreferenceFileWithoutKey_LoadsMetric", () =>
+        {
+            string root = Root();
+            WriteDisplay(root, "{\"format\":\"cfdw-display\",\"version\":1,\"textSize\":125}");
+            Restart(root, (host, controller) =>
+            {
+                Pump(host.UnitsLoaded);
+                Pump(host.TextSizeLoaded);
+                if (controller.AnalysisUnits != Units.Metric || Math.Abs(host.TextScale - 1.25) > 1e-9)
+                    throw new Exception($"{controller.AnalysisUnits}, text {host.TextScale}");
+            });
+        });
+
+        DesktopChecks.Check("Units_UnknownValue_FallsBackToMetric_FileNeverRewritten", () =>
+        {
+            string root = Root();
+            const string bad = "{\"format\":\"cfdw-display\",\"version\":1,\"textSize\":150,\"units\":\"furlongs\"}";
+            WriteDisplay(root, bad);
+            Restart(root, (host, controller) =>
+            {
+                Pump(host.UnitsLoaded);
+                if (controller.AnalysisUnits != Units.Metric || (string?)Need<Button>(host.StatusStrip, "UnitsButton").Content != "Metric")
+                    throw new Exception("an unknown value did not read Metric");
+                Pump(host.RunCommand(Imperial));
+                Pump(host.UnitsSaved);
+                if (controller.AnalysisUnits != Units.Imperial) throw new Exception("the session choice was refused");
+                if (host.StatusStrip.Text.Contains("session only", StringComparison.OrdinalIgnoreCase)) throw new Exception("a units save wrote Text size wording");
+            });
+            if (File.ReadAllText(Path.Combine(root, "display", "display.json")) != bad) throw new Exception("the unreadable file was rewritten");
+        });
         DesktopChecks.Check("Units_MenuAndItemRoutes_ConvertTheAnalysisRows", () =>
         {
             using var controller = Evaluated();
@@ -158,6 +217,33 @@ public static class UnitsSwitchTests
         using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size);
         bitmap.Render(control);
         bitmap.Save(Path.Combine(dir, name + ".png"));
+    }
+
+    // The store refuses a symlinked root and macOS /var is a symlink, so the root is spelled through /private there.
+    private static string Root()
+    {
+        string path = Directory.CreateTempSubdirectory("units-").FullName;
+        return OperatingSystem.IsMacOS() && path.StartsWith("/var/", StringComparison.Ordinal) ? "/private" + path : path;
+    }
+
+    private static void WriteDisplay(string root, string json)
+    {
+        Directory.CreateDirectory(Path.Combine(root, "display"));
+        File.WriteAllText(Path.Combine(root, "display", "display.json"), json);
+    }
+
+    /// <summary>One shell run on a fresh controller and a fresh store over <paramref name="root"/>: a restart.</summary>
+    private static void Restart(string root, Action<ShellHost, WorkbenchController> body)
+    {
+        using var controller = new WorkbenchController();
+        var host = new ShellHost(controller, new CfdWorkbench.Persistence.PreferenceStore(root, () => new CfdWorkbench.Persistence.ProjectStore()));
+        var window = new Window { Content = host, Width = 1280, Height = 800 };
+        try
+        {
+            window.Show();
+            body(host, controller);
+        }
+        finally { window.Close(); }
     }
 
     private static List<ResultRow> Rows(WorkbenchController controller) =>

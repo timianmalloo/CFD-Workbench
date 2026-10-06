@@ -266,7 +266,7 @@ public sealed class ShellHost : Grid
         // Ruling 115: the status-bar item toggles the units; the controller's event refreshes every surface that shows them.
         StatusStrip.UnitsButton.Click += (_, _) =>
             Controller.AnalysisUnits = Controller.AnalysisUnits == CfdWorkbench.Analysis.Units.Metric ? CfdWorkbench.Analysis.Units.Imperial : CfdWorkbench.Analysis.Units.Metric;
-        Controller.UnitsChanged += RefreshPanes;
+        Controller.UnitsChanged += OnUnitsChanged;
         ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path, fromRecent: true,
             origin: ModelView.StartCardView.SelectedRecentControl);
         ModelView.StartCardView.LocateRequested += () => _ = OpenFileInteractiveAsync();
@@ -302,6 +302,52 @@ public sealed class ShellHost : Grid
         // Initial Bind
         RefreshPanes();
         if (Preferences is not null) TextSizeLoaded = LoadTextSizeAsync(Preferences);
+        if (Preferences is not null) UnitsLoaded = LoadUnitsAsync(Preferences);
+    }
+
+    /// <summary>The startup read of the persisted display units (Ruling 121); completes once the value is applied.</summary>
+    public Task UnitsLoaded { get; private set; } = Task.CompletedTask;
+
+    /// <summary>The latest units write; completed when there is none.</summary>
+    public Task UnitsSaved { get; private set; } = Task.CompletedTask;
+
+    private bool unitsChosen;
+    private bool applyingLoadedUnits;
+
+    /// <summary>A units change from any control is kept per user. A save that cannot be kept is silent: no wording is approved for it.</summary>
+    private void OnUnitsChanged()
+    {
+        RefreshPanes();
+        if (applyingLoadedUnits) return;
+        unitsChosen = true;
+        if (Preferences is null) return;
+        string value = Controller.AnalysisUnits == CfdWorkbench.Analysis.Units.Imperial ? DisplayPreferences.Imperial : DisplayPreferences.Metric;
+        UnitsSaved = SaveUnitsAsync(Preferences, value);
+    }
+
+    /// <summary>
+    /// Applies the persisted units at startup: no write back. A choice made before the read finishes wins over it. The read of
+    /// the shared display file is recorded once, as <c>display.load</c>, by <see cref="LoadTextSizeAsync"/>.
+    /// </summary>
+    private async Task LoadUnitsAsync(PreferenceStore preferences)
+    {
+        var load = await preferences.LoadUnitsAsync(CancellationToken.None);
+        await OnUiThread(() =>
+        {
+            if (unitsChosen) return;
+            applyingLoadedUnits = true;
+            try { Controller.AnalysisUnits = load.Units == DisplayPreferences.Imperial ? CfdWorkbench.Analysis.Units.Imperial : CfdWorkbench.Analysis.Units.Metric; }
+            finally { applyingLoadedUnits = false; }
+        });
+    }
+
+    private async Task SaveUnitsAsync(PreferenceStore preferences, string units)
+    {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        var save = await preferences.SaveUnitsAsync(units, CancellationToken.None);
+        ShellEvents.Record("display.save", save.Outcome, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds,
+            Guid.NewGuid().ToString("N"), code: save.Code, publicationKnown: save.PublicationKnown,
+            durabilityConfirmed: save.DurabilityConfirmed, retried: save.Retried);
     }
 
     public async Task OpenExampleAsync()
