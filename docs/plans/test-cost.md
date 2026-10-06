@@ -541,3 +541,12 @@ that they do not assert on (the `One(Plan)` layout used by the 8 ms readiness ch
 **49,369 ms** (constant `DESKTOP_BASE_MAX_MS` = 47,369, citing Ruling 99 and the CSV); the self-test gains a green case at the limit and a red case at 49,400 ms at quiet load; the Ruling 87 load gate is unchanged;
 no second re-base. **C-3's 50,000 ms net wall is now the binding ceiling**: the 47.4 s run read net 50,240 ms and failed C-3 as well. Three of the eight runs also read Desktop over 45.5 s, the figure Ruling 99
 planned, which is why this re-base is higher than the 45,500 estimate.
+
+### 9.10 Dispatch rule: at most 2 build tracks at once, and wait while the load is over 24 (round-oct06, track CI)
+
+Round-oct06 ran three build tracks at once. Their builds and ad-hoc test runs sit outside the ring lock (`tools/ring-lock.sh` caps
+only the full rings), and the 1-minute load reached 47-77. That caused the load-only failures in GRP and PNL and one C-3 join stop.
+**Rule:** the Coordinator dispatches at most 2 build tracks at the same time, and dispatches no new one while the 1-minute load is
+over 24 (the Ruling 81/84/87 gate). Before each dispatch run `python3 tools/dispatch-gate.py --running <n>`: it prints `GO load=<n>`
+(exit 0) or `WAIT load=<n> <reason>` (exit 1); an unreadable load prints `WAIT load=not-recorded`. Its `--self-test` runs in
+`tools/check-docs.py`. Review and docs-only tracks are not build tracks. Class: PARALLEL-BUILD-LOAD in `docs/lessons/defect-classes.md`.
