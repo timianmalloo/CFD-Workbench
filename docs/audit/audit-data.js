@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T19:30:46Z",
+  "generated": "2026-10-06T20:23:07Z",
   "audit": [
     {
       "actor": null,
@@ -27780,6 +27780,26 @@ window.AUDIT_DATA = {
       "done_when": "red-first receipts, pass-names complete, captures, one green run-tests, check-docs 0",
       "started_at": "2026-10-06T19:07:16Z",
       "duration_seconds": 1410.0
+    },
+    {
+      "id": "al-01M49E4QAQADPDB3QD5PQJTM1B",
+      "shortname": "trk-dx2",
+      "datetime": "2026-10-06T20:23:07Z",
+      "session": "trk-dx2",
+      "prompt": "trk-dx2 repair cycle 2",
+      "summary": "Stations table filtered; check Section_StationsTable_ListsSolvedGoverningAndShownOnly; captures 01,02,07,08 re-rendered",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Section tab Stations table lists solved, governing and shown stations, not every strip",
+      "done_when": "red check fails then passes, captures re-rendered, run-tests green, check-docs 0",
+      "started_at": "2026-10-06T20:20:14Z",
+      "duration_seconds": 173.0
     }
   ],
   "changes": [

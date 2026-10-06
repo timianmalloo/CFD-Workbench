@@ -23,6 +23,7 @@ internal static class DxSectionTests
         Check("SectionView_CpOnProfile_DrawsAndPinsVik", ProfileView);
         Check("Cavitation_Screen_ValueStateAndFixedString", ScreenValues);
         Check("Cavitation_PanelUnderread_MeasuredNotConstant", UnderreadMeasured);
+        Check("Section_StationsTable_ListsSolvedGoverningAndShownOnly", StationsTable);
         Check("Section_Cp_NoMethodString_Retired", CpRetired);
         Check("Section_CpUnavailable_NoProfileAndSolveFailed_Row10", Row10);
         Check("Section_StripCdNoPolar_Copy210", StripCdNoPolar);
@@ -260,7 +261,7 @@ internal static class DxSectionTests
         Equal(text, Cell(shown, "Under-read", "Cp_min under-read").Value, "shown but not yet solved: exact text");
         Equal(true, shown.Groups.Single(g => g.Title == "Stations").Rows.Any(r => r.Note == text), "the Stations table names it");
         SectionStationResult solved = F.Gov with { PanelUnderread = 0.0371 };
-        SectionView beside = Build(WithStation(F.Gov, solved).WithStationSwap(F.Other, unmeasured));
+        SectionView beside = Build(WithStation(F.Gov, solved).WithStationSwap(F.Other, unmeasured), selected: unmeasured.Eta);   // the table lists solved, governing and shown stations
         ResultRow[] stations = beside.Groups.Single(g => g.Title == "Stations").Rows.ToArray();
         Equal(true, stations.Any(r => r.Note!.Contains("3.71 %")), "a 400-solved station shows its measured value");
         Equal(true, stations.Any(r => r.Note == text), "beside a station that shows the exact not-measured text");
@@ -299,6 +300,21 @@ internal static class DxSectionTests
         Equal(true, wing.Value.Contains('–'), "the wing drag band has a value: " + wing.Value);
         Equal(true, wing.Note!.Contains("were not validated (NACA 0012 only). Computed, not validated."), "the band carries COPY-364");
         Equal(true, view.StripDetails[0].Rows.Single(r => r.Label == "cd (profile)").Note!.Contains("were not validated (NACA 0012 only)"), "the strip cd carries COPY-364");
+    }
+
+    /// <summary>The product tier samples every lattice span eta (126 on the example), so the Stations table lists only the stations that
+    /// carry a measurement or are on screen: those solved at 400 panels, the governing station and the shown station. Ring: fast.</summary>
+    private static void StationsTable()
+    {
+        SectionStationResult[] many = Enumerable.Range(0, 40)
+            .Select(i => F.Other with { Eta = 0.3 + i * 0.01, PanelUnderread = null }).Append(F.Gov).Append(F.Gov with { Eta = 0.05, PanelUnderread = 0.02 }).ToArray();
+        SectionTierResult tier = F.Tier with { Stations = many };
+        SectionStationResult shown = many[7];
+        int expected = many.Where(s => s.PanelUnderread is not null || s.Eta == tier.GoverningEta || s.Eta == shown.Eta).Select(s => s.Eta).Distinct().Count();
+        int rows = Build(tier, selected: shown.Eta).Groups.Single(g => g.Title == "Stations").Rows.Count;
+        Equal(expected, rows, "solved, governing and shown stations only");
+        Equal(true, rows < many.Length / 4, "not one row per sampled station: " + rows + " of " + many.Length);
+        Equal(true, Build(tier, selected: shown.Eta).Groups.Single(g => g.Title == "Stations").Rows.Any(r => r.Note == Labels.UnderreadNotMeasured), "the shown, unsolved station is listed with the not-measured text");
     }
 
     private static void Row10()

@@ -106,7 +106,9 @@ public static class SectionDisplay
         }
         else gap.Add(R("Cp_min under-read", Labels.UnderreadNotMeasured));
         groups.Add(new("Under-read", gap));
-        groups.Add(new("Stations", tier.Stations.OrderBy(s => s.Eta).Select(s => R("η " + N(s.Eta, "0.###"), N(-s.Estimate.Panel.CpMin, "0.###"),
+        // The tier samples every span eta (126 on the example); the table lists the stations that carry a measurement or are on screen.
+        groups.Add(new("Stations", tier.Stations.Where(s => s.PanelUnderread is not null || s.Eta == station.Eta || s.Eta == governing.Eta)
+            .OrderBy(s => s.Eta).Select(s => R("η " + N(s.Eta, "0.###"), N(-s.Estimate.Panel.CpMin, "0.###"),
             note: s.PanelUnderread is { } u ? Labels.UnderreadMeasured + " " + N(100 * u, "0.00") + " %" +
                 (u > 0.10 ? " · " + Labels.Provisional : "") : Labels.UnderreadNotMeasured)).ToArray()));
 
