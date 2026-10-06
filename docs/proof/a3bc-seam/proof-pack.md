@@ -48,6 +48,8 @@ The Analysis harness measured a warm default-station whole-wing 200-panel sectio
 
 The first full concurrent ring measured the default 129-station section pass at **505.307 ms**, below the 1 s whole-wing target, but its encompassing check cost **515.063 ms** exceeded C-5's 500 ms per-check limit. The check now uses a complete 97-station wing (48 strips per half); the targeted repair run measured **360.960 ms** for the section pass and **414.875 ms** for the check. The product default is still 129 stations. The per-check cost rule also moved `TipStrip_ExampleFoil_OutermostProvisional` to the existing Analysis readiness harness after a measured 1,285 ms ring-0 cost; it passes under `--readiness`. The 54 DX states and remaining data gaps are enumerated in [state-coverage.md](state-coverage.md). The tests' red evidence is in [red-first.md](red-first.md).
 
+The repair ring (`tools/run-tests.sh`, `.tmp-tests/Analysis.part1of2.log` and `part2of2.log`) passed all suites in **56 s**: Analysis parts **3.747 s** and **3.920 s**, 57 and 118 PASS respectively; the 97-station section check cost **447.845 ms** and measured **436.988 ms** for the whole-wing tier, with a **1.335%** governing delta. `check-test-costs.py` reported zero failures and one `COST-MISS C-3` because host load rose to 26.34; it did not claim a quiet-run performance measurement. `check-docs.py` passed; all 12 verify gates passed. The first ring's C-5 failure consumed one repair cycle.
+
 ## Residual risks and explicit omissions
 
 - Windows numerical behavior and latency were not measured in this macOS track.
