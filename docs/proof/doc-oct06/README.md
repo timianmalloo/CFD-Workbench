@@ -218,3 +218,36 @@ Revision line `Product specification · revision 1.7.5 · 6 October 2026 ·` is 
 2. The reason-code drafts (rows marked proposed, 19 rows).
 3. NEW rows with no drafted text (listed above).
 4. The `<n>` count for ANA-PROFILE-DRAG-MISSING-CD needs a code change (CPY or DX), not a copy decision.
+
+## Ruling 116 batch (COPY-334 to COPY-352 approved; COPY-357 to COPY-393 added)
+
+Source of every new row is `docs/notes/rulings.md` Ruling 116 (or Ruling 113, or `docs/design/group-move-node-m.md` section 5a, as the compare file names). `compare-r116.txt` has one line per row; `r116.py` made the rows and the compare (`python3 r116.py compare <repo> <out>`). The ruling's "…" in the three outside-bracket variants stands for "Outside the validated bracket" (dx-screen-states row 36); the compare checks the part after the dash.
+
+| Code or token | Row |
+|---|---|
+| COPY-334 to COPY-352 (reason-code drafts) | marker changed to approved — Ruling 116, text unchanged |
+| Cp unavailable, no profile / solve failed | COPY-357, COPY-358 |
+| cavitation labels σ, −Cp_min, V_crit | COPY-359, COPY-360, COPY-361 |
+| outside bracket: Re, Ncrit, section family | COPY-362, COPY-363, COPY-364 |
+| transition legend (menu "Overlay a section ▾") | COPY-365 (menu: existing COPY-327) |
+| bucket legend | COPY-366 |
+| Find α rows Target CL … Polar limit | COPY-367 to COPY-372 |
+| Find α found / no root | existing COPY-332 / COPY-333 |
+| Find α no-root reasons (five) | COPY-373 to COPY-377 |
+| ANA-OSWALD-UNDEFINED | COPY-378 |
+| ANA-CENTRE-OF-LIFT-UNDEFINED | COPY-379 |
+| ANA-ROOT-MOMENT-MISSING-WIDTH | existing COPY-341 (no new row) |
+| ANA-REFERENCE-AREA-MISSING | COPY-380 |
+| ANA-SPEED-NOT-POSITIVE | existing COPY-266 (no new row) |
+| ANA-FORCE-NOT-FINITE | COPY-381 |
+| ANA-POLAR-VALUE-MISSING | COPY-382 |
+| ANA-VERDICT-MISSING | COPY-383 |
+| Ruling 113 not-measured under-read | COPY-384 (approved — Ruling 113; no row existed) |
+| `<end-chord>` Tip chord / Root chord clause (COPY-G2) | COPY-385, COPY-386 |
+| COPY-G4 with `<axis>`; no span freedom | COPY-387, COPY-388 |
+| COPY-G8, G10 with `<unit>` | COPY-389, COPY-390 |
+| COPY-G11 with `<axis>` and `<unit>` | COPY-391 |
+| COPY-G12 with `<unit>` in `<axis>` | COPY-392 |
+| finding 11, three rules | COPY-393 |
+
+Superseded: COPY-282, 284, 288, 290, 291, 292 (G2, G4, G8, G10, G11, G12) got the trailing marker "superseded by COPY-n — Ruling 116"; no test or src line cites those ids (`grep -rn "COPY-<n>" tests src` empty), so their text is unchanged. Left as they were: COPY-281 (G1, text unchanged by the design), COPY-283, 285 to 287, 289 (G3, G5 to G7, G9). COPY-163 already reads "with Command (Ctrl on Windows) 0.01", so no new row; the label in `PropertiesView.cs` and `PropertiesPane.axaml.cs` is the code change for the build track. The row's text and the pre-round rows were not edited.
