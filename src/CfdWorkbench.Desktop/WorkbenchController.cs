@@ -313,7 +313,7 @@ public sealed class WorkbenchController : IDisposable
                 new ProjectionContext(projectionFeed.Verdicts, projectionFeed.Stations, projectionFeed.RootThicknessRatio, Integrity: selected?.Integrity ?? RunIntegrity.Intact,
                     PreviousCompleted: previous, HiddenLayers: hiddenLayers.ToHashSet(StringComparer.Ordinal),
                     StripNormals: projectionFeed.StripNormals, FeedUnavailable: projectionFeed.Unavailable,
-                    SectionTier: projectionFeed.SectionTier,
+                    SectionTier: projectionFeed.SectionTier, SectionFailureCode: projectionFeed.SectionFailureCode,
                     Revision: feedRun is null ? null : session.RevisionOf(feedRun.Inputs.AcceptedId),
                     HistoricalText: selected is { Integrity: RunIntegrity.Intact } &&
                         selected.Run.Outcome is RunOutcome.Completed && RunRecord.RecomputedKey(selected.Run) != Freshness.CurrentKey(current)
@@ -336,7 +336,7 @@ public sealed class WorkbenchController : IDisposable
     /// <paramref name="Unavailable"/> carries the reason when the run's revision is not held (never another revision's data).
     /// </summary>
     public sealed record RunFeed(IReadOnlyList<StripVerdict>? Verdicts, IReadOnlyList<StationFrame>? Stations, double? RootThicknessRatio,
-        IReadOnlyList<Loads.Vec>? StripNormals, string? Unavailable, SectionTierResult? SectionTier);
+        IReadOnlyList<Loads.Vec>? StripNormals, string? Unavailable, SectionTierResult? SectionTier, string? SectionFailureCode = null);
 
     private static readonly RunFeed NoFeed = new(null, null, null, null, null, null);
 
@@ -360,7 +360,7 @@ public sealed class WorkbenchController : IDisposable
             var frames = Placement.Sections(source, all, [0d, 1d], CancellationToken.None).Select(section => section.Frame).ToArray();
             return new(verdicts, frames.Where((_, i) => etas.Contains(all[i])).ToArray(), frames[0].ThicknessRatio, normals, null, sectionTier);
         }
-        catch (ContractError) { return NoFeed; }
+        catch (ContractError error) { return NoFeed with { SectionFailureCode = error.Code }; }   // Row 10: the projection tells a failed solve (COPY-358) from no profile (COPY-357)   // Row 10: the projection tells a failed solve (COPY-358) from no profile (COPY-357)
     }
 
     private string HistoricalBanner(AnalysisRun run, CurrentInputs current)

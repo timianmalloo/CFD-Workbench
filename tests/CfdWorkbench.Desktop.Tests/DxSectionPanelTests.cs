@@ -107,6 +107,22 @@ public static class DxSectionPanelTests
                 Equal(RunState.Historical, controller.AnalysisView.State, "the run is Historical until Evaluate");
                 controller.ApplyFoundAlpha(alpha0);
             });
+            DesktopChecks.Check("Section_CpUnavailable_PanelSolveFailed_ShowsCopy358InApp", () =>
+            {
+                // Row 10 in the app. The controller's feed (DeriveFeed, the one the controller projects) must carry the failure code.
+                // A completed run whose speed puts the section Re under 100 fails the station solve inside the feed (ANA-SECTION-RE).
+                var (controller, _, _, _) = shared.Value;
+                var stored = controller.AnalysisView.Run!;
+                var doctored = stored with { Op = stored.Op with { Speed = 0.0005 } };
+                byte[] source = CfdWorkbench.Cli.Cli.ExampleBytes();
+                var feed = WorkbenchController.DeriveFeed(doctored, new SessionView(stored.Inputs.AcceptedId, "", "", source, null, null, false), _ => null);
+                Equal("ANA-SECTION-RE", feed.SectionFailureCode, "the feed names the section failure");
+                var view = AnalysisProjection.Build(stored, new CurrentInputs(stored.Inputs, stored.Water, stored.Op, stored.Method, stored.SettingsHash),
+                    Units.Metric, new ProjectionContext(feed.Verdicts, feed.Stations, feed.RootThicknessRatio, StripNormals: feed.StripNormals,
+                        FeedUnavailable: feed.Unavailable, SectionTier: feed.SectionTier, SectionFailureCode: feed.SectionFailureCode));
+                Equal("Unavailable — the panel solve failed at this station. Evaluate again.",
+                    view.Groups.Single(g => g.Title == "Section (2D)").Rows.Single(r => r.Label == "Cp_min").Value, "COPY-358, not COPY-357");
+            });
         }
         finally
         {
