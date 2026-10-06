@@ -23,6 +23,8 @@ public static class PanelMethod
     public const int CpMinTrailingEdgePanelsPerSide = 3;
     // Ruling 90: every station uses 200 cosine panels. The earlier 1.61% figure is KT-only at 400 panels.
     public const int DefaultPanelCount = 200;
+    // Ruling 103 (amends 90): the governing cavitation station is re-solved at this count.
+    public const int GoverningPanelCount = 400;
     private const double TwoPi = 2 * Math.PI;
 
     /// <summary>Sample one foil station for Cp at the panel tier's own cosine chord resolution.</summary>

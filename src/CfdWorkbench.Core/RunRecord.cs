@@ -159,8 +159,10 @@ public sealed record AnalysisEvent
     public double? SolveMs { get; init; }
     public double? StripMs { get; init; }
     public double? RecordMs { get; init; }
-    /// <summary>Measured governing-station suction under-read of 200 panels versus 400; event only, not a run column.</summary>
+    /// <summary>Measured governing-station suction under-read of 200 panels versus 400 (two-grid, p assumed 1); event only, not a run column.</summary>
     public double? PanelUnderreadFraction { get; init; }
+    /// <summary>Stations re-solved at 400 panels in the section tier (the governing station and its near-tie candidates, at most 4); null reads "not recorded".</summary>
+    public int? PanelCandidates { get; init; }
     public string? From { get; init; }
     public string? To { get; init; }
     public int? LayersDrawn { get; init; }

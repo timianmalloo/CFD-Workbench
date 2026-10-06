@@ -168,6 +168,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
             {
                 SectionTierResult section = SectionTier.Evaluate(view.Source, stations.Etas, strips, op, water, token);
                 trace.PanelUnderreadFraction = section.PanelUnderreadFraction;
+                trace.PanelCandidates = section.PanelCandidateCount;
             }
         }
         catch (ContractError error) when (error.Code.StartsWith("ANA-", StringComparison.Ordinal) && error.Code != TipBelowFloorCode)
@@ -269,6 +270,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
         public double? StripMs { get; set; }
         public double? RecordMs { get; set; }
         public double? PanelUnderreadFraction { get; set; }
+        public int? PanelCandidates { get; set; }
 
         public AnalysisEvent Event(IWingMethod method) => new()
         {
@@ -276,7 +278,7 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
             Scope = Scope, Unknowns = 2 * method.Settings.NSpanPerHalf * method.Settings.NChord, Strips = Strips,
             Residual = Diagnostics?.ResidualInf, Kappa1 = Diagnostics?.Kappa1, IdempotentHit = IdempotentHit,
             SnapshotMs = SnapshotMs, SectionsMs = SectionsMs, SolveMs = SolveMs, StripMs = StripMs, RecordMs = RecordMs,
-            PanelUnderreadFraction = PanelUnderreadFraction
+            PanelUnderreadFraction = PanelUnderreadFraction, PanelCandidates = PanelCandidates
         };
     }
 }

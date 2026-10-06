@@ -9,6 +9,14 @@ public sealed record SectionStationResult(double Eta, double AlphaEffDeg, double
     SectionEstimate Estimate, CavitationResult Cavitation)
 {
     public double LiftPerSpan { get; init; }
+    /// <summary>
+    /// Two-grid (200 vs 400 panels, p assumed 1) suction under-read of this station. Null means <b>not measured</b>:
+    /// the station was not solved at 400 (Ruling 110 (4)). Never blank, never OK; its display text is operator copy.
+    /// </summary>
+    public double? PanelUnderread { get; init; }
+    public bool PanelUnderreadMeasured => PanelUnderread.HasValue;
+    /// <summary>The DR-DXM-7 provisional state: measured and above 10 %. A not-measured station is not provisional.</summary>
+    public bool Provisional => PanelUnderread > 0.10;
     public string? EstimatorAvailabilityCode => Depth is <= 0 ? global::CfdWorkbench.Analysis.Cavitation.SurfacePiercing : null;
 }
 
@@ -16,7 +24,10 @@ public sealed record SectionStationResult(double Eta, double AlphaEffDeg, double
 public sealed record SectionTierResult(IReadOnlyList<SectionStationResult> Stations, CavitationResult Cavitation,
     double GoverningEta, double PanelUnderreadFraction)
 {
+    /// <summary>Two-grid, p assumed 1: the governing station's 200-vs-400 suction under-read above 10 %.</summary>
     public bool GoverningProvisional => PanelUnderreadFraction > 0.10;
+    /// <summary>How many stations were solved at 400 panels (the governing station and its near-tie candidates, at most 4).</summary>
+    public int PanelCandidateCount { get; init; }
     public PolarResult? PolarNcrit2 { get; init; }
     public PolarResult? PolarNcrit4 { get; init; }
     public string? PolarReason2 { get; init; }
@@ -107,14 +118,81 @@ public static class SectionTier
         // With depth absent no sigma ratio exists. Keep a measurable Cp governing station; cavitation remains Unavailable.
         if (governing < 0)
             governing = Array.FindIndex(stations, station => station.Estimate.Panel.CpMin == stations.Min(s => s.Estimate.Panel.CpMin));
+        // Ruling 103/110. The 200-pass winner is re-solved at 400; its measured under-read u sets the near-tie width.
+        // Candidates inside the Ruling 114 width are re-solved at 400, at most MaxPanelCandidates in all.
+        // The governing station is then re-selected among the 400-solved stations by 400 ratio.
+        // A 400 value is never compared with a 200 value (Ruling 110 (2)).
+        var solved = new List<int>(MaxPanelCandidates);
+        int winner200 = governing;
+        Refine(winner200);
+        solved.Add(winner200);
+        if (!double.IsPositiveInfinity(bestRatio))
+        {
+            // Ruling 114: width = max(2u, 25 %). Slots: the governing station, the two lowest 200 ratios inside the
+            // width, and the thinnest station inside it (a thin station under-reads most, so it swaps most often).
+            double width = Math.Max(2 * stations[winner200].PanelUnderread!.Value, MinNearTieWidth);
+            int[] inside = Enumerable.Range(0, stations.Length)
+                .Where(i => i != winner200 && Ratio(stations[i]) is double r && r <= bestRatio * (1 + width))
+                .OrderBy(i => Ratio(stations[i])).ToArray();
+            int[] others = inside.Take(MaxPanelCandidates - 2)
+                .Concat(inside.Skip(MaxPanelCandidates - 2).OrderBy(i => sections[i].Frame.ThicknessRatio).Take(1)).ToArray();
+            foreach (int i in others) { Refine(i); solved.Add(i); }
+            double bestFine = double.PositiveInfinity;
+            foreach (int i in solved)
+                if (Ratio(stations[i]) is double r && r < bestFine) { bestFine = r; governing = i; }
+        }
         SectionStationResult selected = stations[governing];
-        SectionSample fineSection = PanelMethod.SampleSection(source, selected.Eta, 400, cancellation);
-        double fineCp = PanelMethod.Solve(fineSection, selected.AlphaEffDeg, cancellation).CpMin;
-        double coarseSuction = Math.Max(0, -selected.Estimate.Panel.CpMin);
+        CavitationResult[] screens = stations.Select(station => station.Cavitation).ToArray();
+        // An Unavailable station (for example surface-piercing) is reported whichever grid it was solved on.
+        CavitationResult wingScreen = screens.Any(screen => screen.State == CavitationState.Unavailable)
+            ? Cavitation.SelectWing(screens)
+            : Cavitation.SelectWing(solved.Select(i => screens[i]).ToArray());
+        return new(stations, wingScreen, selected.Eta, selected.PanelUnderread!.Value) { PanelCandidateCount = solved.Count };
+
+        static double? Ratio(SectionStationResult station) =>
+            station.Cavitation.Sigma is { } sigma && station.Estimate.Panel.CpMin < 0 ? sigma / -station.Estimate.Panel.CpMin : null;
+
+        void Refine(int index)
+        {
+            SectionStationResult coarse = stations[index];
+            SectionSample fineSection = PanelMethod.SampleSection(source, coarse.Eta, PanelMethod.GoverningPanelCount, cancellation);
+            SectionEstimate fine = SectionEstimator.Estimate(fineSection, coarse.AlphaEffDeg, coarse.Reynolds, cancellation);
+            double fineChord = fineSection.Frame.TrailingMeters - fineSection.Frame.LeadingMeters;
+            stations[index] = coarse with
+            {
+                Estimate = fine,
+                Cavitation = Cavitation.Screen(fine.Panel.CpMin, fine.Panel.StationCount, coarse.Depth,
+                    op.Speed, water.Rho, op.PAtm, water.Pv, coarse.Cavitation.GoverningStation ?? ""),
+                LiftPerSpan = 0.5 * water.Rho * op.Speed * op.Speed * fineChord * fine.Cl,
+                PanelUnderread = Underread(coarse.Estimate.Panel.CpMin, fine.Panel.CpMin)
+            };
+        }
+    }
+
+    /// <summary>Most stations re-solved at 400 panels in one run: the governing station plus its near-tie candidates (Ruling 110).</summary>
+    public const int MaxPanelCandidates = 4;
+
+    /// <summary>Floor of the near-tie width (Ruling 114): a station within 25 % of the best 200 ratio is a candidate.</summary>
+    public const double MinNearTieWidth = 0.25;
+
+    /// <summary>
+    /// The measured two-grid (200 vs 400 panels, p assumed 1) suction under-read of one station at its own α_eff and Re.
+    /// It feeds only the provisional state; it never changes a screen (Ruling 110 (3)). Caller: the Section tab, for the shown station.
+    /// </summary>
+    public static double UnderreadAt(byte[] source, double eta, double alphaEffDeg, double reynolds,
+        CancellationToken cancellation = default)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+        SectionEstimate coarse = SectionEstimator.Estimate(source, eta, alphaEffDeg, reynolds, PanelMethod.DefaultPanelCount, cancellation);
+        SectionEstimate fine = SectionEstimator.Estimate(source, eta, alphaEffDeg, reynolds, PanelMethod.GoverningPanelCount, cancellation);
+        return Underread(coarse.Panel.CpMin, fine.Panel.CpMin);
+    }
+
+    private static double Underread(double coarseCp, double fineCp)
+    {
+        double coarseSuction = Math.Max(0, -coarseCp);
         double fineSuction = Math.Max(0, -fineCp);
-        double underread = fineSuction > 0 ? (fineSuction - coarseSuction) / fineSuction : 0;
-        CavitationResult wingScreen = Cavitation.SelectWing(stations.Select(station => station.Cavitation).ToArray());
-        return new(stations, wingScreen, selected.Eta, underread);
+        return fineSuction > 0 ? (fineSuction - coarseSuction) / fineSuction : 0;
     }
 
 }

@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dd4f4d5bd1f9b91025eff8b158c3c925de811767da1a8e169aa4900accc08211"
+      "sourceSha256": "a50c1980152f3e4e98d9085828d69b3fcbce3a71f076fa701f09d3841d0851fc"
     },
     {
       "id": "kb-hw-glossary",
@@ -11825,6 +11825,126 @@ window.DOCS_INDEX = {
       "sourceSha256": "8b85b88e777fe865de4d9857177e1d883e951180512270c36cff9ea1e6d00490"
     },
     {
+      "id": "proof-pnl-red-first",
+      "path": "docs/proof/pnl/red-first.md",
+      "title": "PNL red-first ledger (adaptive panels)",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Red then green receipts for Ruling 103: the governing station's screen and Cp_min from the 400-panel solve, and the method version change that turns older runs Historical. Test 3 is not done (waits on the step-0 ruling).",
+      "tags": [
+        "analysis",
+        "section",
+        "panel-method",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-pnl-timing",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-pnl-step0-other-stations",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "df6a9fc9a6f877dc88d0ce1d3508c479ceca8767652e0a0df2a1270669a9c153"
+    },
+    {
+      "id": "proof-pnl-step0-other-stations",
+      "path": "docs/proof/pnl/step0-other-stations.md",
+      "title": "PNL step 0: how to know a non-governing station's panel under-read",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Ruling 103 says other stations keep the provisional row when their 200-vs-400 under-read is above 10 %, but nothing measures a non-governing station. Three ways to know it, with measured or estimated cost against the 1 s budget, and a recommendation for the Fable owner.",
+      "tags": [
+        "analysis",
+        "section",
+        "panel-method",
+        "decision-request"
+      ],
+      "links": [
+        {
+          "to": "proof-a3bc-seam",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5ad82050ed8622f29512f05ea819f68409ab5b8ac81177ab925fa5c913f60880"
+    },
+    {
+      "id": "proof-pnl-timing",
+      "path": "docs/proof/pnl/timing.md",
+      "title": "PNL timing: adaptive panels and the four whole-wing figures",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Re-measured Section_CamberedWing129_WarmTime with the governing 400-panel estimate, and reconciled the 419 / 723 / 430 ms and 1.6 s whole-wing figures by workload.",
+      "tags": [
+        "analysis",
+        "section",
+        "timing",
+        "budget"
+      ],
+      "links": [
+        {
+          "to": "proof-a3bc-seam",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-pnl-step0-other-stations",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ace33e86baa269e2496e9b195ecbc0b52b13dff9f6a509976359f7e24719a5bc"
+    },
+    {
+      "id": "proof-pnl-underread-measurements",
+      "path": "docs/proof/pnl/underread-measurements.md",
+      "title": "PNL: measured 200-vs-400 under-read by thickness (Ruling 110 (6))",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Measured two-grid (p assumed 1) 200-vs-400 suction under-read for 1-12 % thick sections at alpha 3, 6, 10 deg. The 6 %-thick value is 3.60 % at alpha 3 and 4.39 % at alpha 6; thinner sections exceed 10 %.",
+      "tags": [
+        "analysis",
+        "section",
+        "panel-method",
+        "measurement"
+      ],
+      "links": [
+        {
+          "to": "proof-pnl-step0-other-stations",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-pnl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e86a4c9b8b64650cf467324af8b9e0695383b7adfb662f3c4dbaec35f7535c38"
+    },
+    {
       "id": "proof-readyfix2",
       "path": "docs/proof/readyfix2.md",
       "title": "READYFIX2 — Core fixture cwd-relative paths and the Plan-canvas theme key set",
@@ -14658,5 +14778,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "e81b35558bab10daa5f242b2a28af31f40b654989ca313ed7b0c8cb72bf88877"
+  "graphSha256": "e2ded4610259b96cc46f7104e693814180ea2acc6dbc814a257d452842f60c9d"
 };
