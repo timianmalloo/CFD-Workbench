@@ -1125,3 +1125,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. COPY-40
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. (1) The Mac session adds an optional units key to the cfdw-display preferences (load and save beside text size, platform-neutral) and posts a handoff to the PC session, whose Windows preference work builds on it; this is a one-time exception to two-machine.md Paths for PreferenceStore.cs. (2) Imperial changes Analysis display only (ANA-18: N to lbf, m/s to kn, and the rest); CAD lengths stay in millimetres. (3) The status bar has one unit control, the Metric/Imperial button; the section editor no longer shows a % chord status label, its fields carry their own units.
 
 - request: req-01M49J66JA8D0VXZH1R9YZ98QT · ruled by: operator-timianmalloo · at: 2026-10-06T21:33:50Z
+
+### Ruling 122 — Fast ring at budget: split the Desktop harness now (option B)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), against the recommendation (C now, B next round): split the Desktop test harness further now (option B), as a measured track: profile first, split only where the measurement shows a saving, no check dropped (identical PASS name sets before and after), no threshold loosened. If the split buys under 2 s, report it and return to options A and C rather than shipping a split that does not pay (the earlier B-series Desktop split bought no margin).
+
+- request: req-01M49J7X5XMNSSEEPHCG8NGH3S · ruled by: operator-timianmalloo · at: 2026-10-06T21:34:45Z
