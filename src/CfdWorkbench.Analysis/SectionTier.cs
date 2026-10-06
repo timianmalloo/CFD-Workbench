@@ -107,12 +107,22 @@ public static class SectionTier
         // With depth absent no sigma ratio exists. Keep a measurable Cp governing station; cavitation remains Unavailable.
         if (governing < 0)
             governing = Array.FindIndex(stations, station => station.Estimate.Panel.CpMin == stations.Min(s => s.Estimate.Panel.CpMin));
-        SectionStationResult selected = stations[governing];
-        SectionSample fineSection = PanelMethod.SampleSection(source, selected.Eta, 400, cancellation);
-        double fineCp = PanelMethod.Solve(fineSection, selected.AlphaEffDeg, cancellation).CpMin;
-        double coarseSuction = Math.Max(0, -selected.Estimate.Panel.CpMin);
-        double fineSuction = Math.Max(0, -fineCp);
+        SectionStationResult coarse = stations[governing];
+        // Ruling 103: the governing station is re-solved at GoverningPanelCount; its estimate, screen and Cp_min use that solve.
+        SectionSample fineSection = PanelMethod.SampleSection(source, coarse.Eta, PanelMethod.GoverningPanelCount, cancellation);
+        SectionEstimate fineEstimate = SectionEstimator.Estimate(fineSection, coarse.AlphaEffDeg, coarse.Reynolds, cancellation);
+        double coarseSuction = Math.Max(0, -coarse.Estimate.Panel.CpMin);
+        double fineSuction = Math.Max(0, -fineEstimate.Panel.CpMin);
         double underread = fineSuction > 0 ? (fineSuction - coarseSuction) / fineSuction : 0;
+        double fineChord = fineSection.Frame.TrailingMeters - fineSection.Frame.LeadingMeters;
+        stations[governing] = coarse with
+        {
+            Estimate = fineEstimate,
+            Cavitation = Cavitation.Screen(fineEstimate.Panel.CpMin, fineEstimate.Panel.StationCount, coarse.Depth,
+                op.Speed, water.Rho, op.PAtm, water.Pv, coarse.Cavitation.GoverningStation ?? ""),
+            LiftPerSpan = 0.5 * water.Rho * op.Speed * op.Speed * fineChord * fineEstimate.Cl
+        };
+        SectionStationResult selected = stations[governing];
         CavitationResult wingScreen = Cavitation.SelectWing(stations.Select(station => station.Cavitation).ToArray());
         return new(stations, wingScreen, selected.Eta, underread);
     }

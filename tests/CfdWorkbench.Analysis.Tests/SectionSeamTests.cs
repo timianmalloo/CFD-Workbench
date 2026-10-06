@@ -13,6 +13,61 @@ internal static class SectionSeamTests
         AnalysisChecks.Check("Section_WingRun_PanelValuesAtEveryStation", WingRows);
         AnalysisChecks.Check("Section_ProvisionalAndProjectionRows", ProjectionRows);
         AnalysisChecks.Check("Section_SurfacePiercing_EstimatorUnavailable", Piercing);
+        AnalysisChecks.Check("Section_GoverningStation_ScreenAndCpMinFrom400Panels", GoverningFine);
+        AnalysisChecks.Check("Section_AdaptivePanelMethod_OldRunReadsHistorical", AdaptiveMethodIdentity);
+    }
+
+    // Ruling 103: the governing station is the only one re-solved at 400; the screen and Cp_min use that value.
+    private static void GoverningFine()
+    {
+        byte[] source = FoilSource.NewDefault();
+        double[] etas = Settings.SpanEtas(8, "cosine");
+        SectionTierResult tier = SectionTier.Evaluate(source, etas, [], Fixture.Op(3), Fixture.Salt);
+        SectionStationResult governing = tier.Stations.MinBy(s => Math.Abs(s.Eta - tier.GoverningEta))!;
+        SectionSample coarse = PanelMethod.SampleSection(source, governing.Eta, 200);
+        SectionSample fine = PanelMethod.SampleSection(source, governing.Eta, 400);
+        double cp200 = PanelMethod.Solve(coarse, governing.AlphaEffDeg).CpMin;
+        double cp400 = PanelMethod.Solve(fine, governing.AlphaEffDeg).CpMin;
+        if (Math.Abs(cp400 - cp200) < 1e-3)
+            throw new InvalidOperationException($"fixture does not separate 200 from 400: {cp200} vs {cp400}");
+        AnalysisChecks.Equal(400, governing.Estimate.Panel.StationCount, "governing station panel count");
+        if (Math.Abs(governing.Estimate.Panel.CpMin - cp400) > 1e-12)
+            throw new InvalidOperationException("governing Cp_min is not the 400-panel value");
+        AnalysisChecks.Equal(400, governing.Cavitation.StationCount, "governing screen resolution");
+        if (governing.Cavitation.CpMin is not double screenCp || Math.Abs(screenCp - cp400) > 1e-12)
+            throw new InvalidOperationException("governing screen did not use the 400-panel Cp_min");
+        if (tier.Cavitation.CpMin is not double wingCp || Math.Abs(wingCp - cp400) > 1e-12)
+            throw new InvalidOperationException("the wing screen did not use the governing 400-panel Cp_min");
+        foreach (SectionStationResult other in tier.Stations.Where(s => s != governing))
+        {
+            AnalysisChecks.Equal(200, other.Estimate.Panel.StationCount, "other station panel count");
+            AnalysisChecks.Equal(200, other.Cavitation.StationCount, "other station screen resolution");
+        }
+        double expectedUnderread = (-cp400 - -cp200) / -cp400;
+        if (Math.Abs(tier.PanelUnderreadFraction - expectedUnderread) > 1e-12)
+            throw new InvalidOperationException($"under-read {tier.PanelUnderreadFraction} != {expectedUnderread}");
+    }
+
+    // A run stored under the 200-everywhere method must read Historical against the adaptive method.
+    private static void AdaptiveMethodIdentity()
+    {
+        RunMethod oldMethod = MethodRecord.VlmStrip.Method with { Version = "1.2.0/panel200-te3" };
+        if (MethodRecord.VlmStrip.Method.Version == oldMethod.Version)
+            throw new InvalidOperationException("the method version still names the 200-everywhere method");
+        AnalysisRun run = ProjectionTests.Data().Run;
+        AnalysisRun old = ProjectionTests.Rehash(run with
+        {
+            Method = oldMethod,
+            RunKey = RunRecord.Key(run.Inputs, run.Water, run.Op, oldMethod, run.SettingsHash)
+        });
+        CurrentInputs now = ProjectionTests.Current(run) with { Method = MethodRecord.VlmStrip.Method };
+        AnalysisChecks.Equal(RunState.Historical, Freshness.State(new StoredRun(old, RunIntegrity.Intact), now), "old-method run");
+        AnalysisChecks.Equal(RunState.Current, Freshness.State(new StoredRun(
+            ProjectionTests.Rehash(run with
+            {
+                Method = MethodRecord.VlmStrip.Method,
+                RunKey = RunRecord.Key(run.Inputs, run.Water, run.Op, MethodRecord.VlmStrip.Method, run.SettingsHash)
+            }), RunIntegrity.Intact), now), "adaptive-method run");
     }
 
     internal static void RunReadiness() =>
@@ -22,7 +77,9 @@ internal static class SectionSeamTests
     {
         byte[] source = CamberedSource();
         double[] etas = Settings.SpanEtas(Settings.Default.NSpanPerHalf, Settings.Default.SpanSpacing);
+        var firstWatch = Stopwatch.StartNew();
         SectionTierResult first = SectionTier.Evaluate(source, etas, [], Fixture.Op(3), Fixture.Salt);
+        firstWatch.Stop();
         var watch = Stopwatch.StartNew();
         SectionTierResult warm = SectionTier.Evaluate(source, etas, [], Fixture.Op(3), Fixture.Salt);
         watch.Stop();
@@ -30,7 +87,7 @@ internal static class SectionSeamTests
         if (warm.Stations.Any(station => !double.IsFinite(station.Estimate.Cl) ||
             !double.IsFinite(station.Estimate.Panel.CpMin) || station.Estimate.AlphaL0Deg >= -0.1))
             throw new InvalidOperationException("the timing foil did not exercise cambered zero-lift solves");
-        Console.WriteLine($"MEASURE cambered 2% warm whole-wing section tier {watch.Elapsed.TotalMilliseconds:F3} ms at 129 stations; " +
+        Console.WriteLine($"MEASURE cambered 2% warm whole-wing section tier {watch.Elapsed.TotalMilliseconds:F3} ms (first run {firstWatch.Elapsed.TotalMilliseconds:F3} ms) at 129 stations; " +
             $"first-run delta {first.PanelUnderreadFraction:P3}; warm delta {warm.PanelUnderreadFraction:P3}");
     }
 
@@ -73,7 +130,7 @@ internal static class SectionSeamTests
         Console.WriteLine($"MEASURE warm whole-wing section tier {watch.Elapsed.TotalMilliseconds:F3} ms at {PanelMethod.DefaultPanelCount} panels");
         if (watch.Elapsed.TotalMilliseconds > 1000) throw new InvalidOperationException("warm 200-panel whole-wing section tier exceeded 1 s");
         AnalysisChecks.Equal(etas.Length, section.Stations.Count, "all run stations sampled");
-        if (section.Stations.Any(station => station.Estimate.Panel.StationCount != 200 ||
+        if (section.Stations.Any(station => station.Estimate.Panel.StationCount != (station.Eta == section.GoverningEta ? 400 : 200) ||
             !double.IsFinite(station.Estimate.Cl) || !double.IsFinite(station.Estimate.CmQuarter) ||
             !double.IsFinite(station.Estimate.AlphaL0Deg) || !double.IsFinite(station.Estimate.CdTurbulentBound) ||
             !double.IsFinite(station.LiftPerSpan)))

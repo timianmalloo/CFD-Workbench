@@ -18,7 +18,7 @@ public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
 {
     /// <summary><c>cfdw.vlm-strip</c> with the Ruling 90 section-panel identity, order 1, envelope 10°, Cl 1.0, sweep 30°.</summary>
     public static MethodRecord VlmStrip { get; } = new(
-        new RunMethod("cfdw.vlm-strip", $"1.2.0/panel{PanelMethod.DefaultPanelCount}-te{PanelMethod.CpMinTrailingEdgePanelsPerSide}", 1),
+        new RunMethod("cfdw.vlm-strip", $"1.3.0/panel{PanelMethod.DefaultPanelCount}-gov{PanelMethod.GoverningPanelCount}-te{PanelMethod.CpMinTrailingEdgePanelsPerSide}", 1),
         new MethodEnvelope(10, 1.0, 30));
 
     /// <summary>
