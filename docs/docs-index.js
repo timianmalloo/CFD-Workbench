@@ -8950,7 +8950,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "99a54ec7a4ca219e9376d880e065e8d61b63dbd8cb89323d926f47602ea1b0da"
+      "sourceSha256": "6b491fbf0d07710b2be2142b4610e929436feab73567ca43c91e5d815ea29c78"
     },
     {
       "id": "proof-a3a-pna-red-first",
@@ -9311,6 +9311,110 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5cf2c6fcd22d1025fa39c668d46ba98e9c9e66e0ac77ebe9f399825dfac7514f"
+    },
+    {
+      "id": "proof-a3bc-seam",
+      "path": "docs/proof/a3bc-seam/proof-pack.md",
+      "title": "A3b/A3c service and projection seam proof",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Connects the section and polar tiers to run and projection, adds A3c-2 numerical values, and preserves Ruling 100's persisted PolarSample grain by deriving validity metadata on read.",
+      "tags": [
+        "analysis",
+        "section",
+        "polar",
+        "projection",
+        "numerics",
+        "ruling-100"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "implements"
+        },
+        {
+          "to": "design-dx-screen-states",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-a3c-polar-source",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3bc-seam-red-first",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-a3bc-seam-state-coverage",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9d5f7251617c67c9beb702e10023277031e55a577d20f48c9f466c8f5a344a6f"
+    },
+    {
+      "id": "proof-a3bc-seam-red-first",
+      "path": "docs/proof/a3bc-seam/red-first.md",
+      "title": "Track SEAM red-first ledger",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Red commits, observed failure modes and green implementation commits for the A3b/A3c seam.",
+      "tags": [
+        "analysis",
+        "tests",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-a3bc-seam",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "14e956f3b1ad91136c6a4493218f89c186aa6efff51484827a3704eb9efa16a2"
+    },
+    {
+      "id": "proof-a3bc-seam-state-coverage",
+      "path": "docs/proof/a3bc-seam/state-coverage.md",
+      "title": "A3b/A3c projection data against DX's 54 states",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Checks each of the 54 DX screen states against the non-persisted data made available by Track SEAM. Visual rendering and the 42 proposed strings remain with DX and the operator.",
+      "tags": [
+        "analysis",
+        "section",
+        "polar",
+        "projection",
+        "screen-states"
+      ],
+      "links": [
+        {
+          "to": "design-dx-screen-states",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-a3bc-seam",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "457fbb636278d62cf3ab67e8dfe7a677e703a9231035d8d25f75c5760ad54759"
     },
     {
       "id": "proof-a3c-polar-source",
@@ -14280,5 +14384,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "1550894f631874376958f8c31c3bf423af0b80ff54d1e99523bcc5d30aacb358"
+  "graphSha256": "41d964e367721aaca50a87cea73e08640c7b171f58f51e8ba429ff6fe47eaf0e"
 };
