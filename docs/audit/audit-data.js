@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T01:01:54Z",
+  "generated": "2026-10-06T01:51:41Z",
   "audit": [
     {
       "actor": null,
@@ -26345,12 +26345,66 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M47BPEY1111E0NK2GPPY3KS7",
-      "shortname": "join-dx-mockup-states",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-06T01:01:53Z",
+      "done_when": "join gates green",
+      "duration_seconds": 7.0,
+      "fan_out": 0,
+      "goal": "join dx-mockup-states into main (round-oct05)",
+      "id": "al-01M47BPEY1111E0NK2GPPY3KS7",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-dx-mockup-states",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-06T01:01:46Z",
+      "summary": "DXM: docs/design/dx-screen-states.md (54 states: 4 covered, 3 partial, 47 not; 42 need operator copy) and docs/mockups/dx-section-polar-states.html; DR-DXM-1..9 recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-06T01:50:06Z",
+      "done_when": "three quiet runs <= 41 s, or limit = max + 2000 from CSV",
+      "duration_seconds": 4135.0,
+      "git": {
+        "branch": "perf/ring-b5-desktop-cpu",
+        "pushed": null,
+        "sha": "bc5471e6dcaefe580c0e392e69ba5880ad323956",
+        "short": "bc5471e6d"
+      },
+      "goal": "Cut Desktop CPU to return C-4 to 43 s, else one recorded re-base",
+      "id": "al-01M47EER1PZH13QRRCGBJNFG6M",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "B5 Desktop CPU cut",
+      "session": "trk-b2",
+      "shortname": "b5-desktop-cpu",
+      "skill": "implement",
+      "started_at": "2026-10-06T00:41:11Z",
+      "summary": "B5: DESKTOP-HARNESS-GROWTH class recorded; plan-canvas fixture ScreenPoint memo (plan-canvas 31+25 s to 24+20 s alone), per-check COST lines in Desktop; adaptive Settle and product memos tried and dropped; 8-ring series, quiet baseline CSV; C-4 re-based once to 49,369 ms (Ruling 99), 41 s condition not met.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M47EHMGSNVJJV3AMBVEY1BB8",
+      "shortname": "join-ring-b5",
+      "datetime": "2026-10-06T01:51:41Z",
       "session": "4e90c621",
       "prompt": "the join of the resolved merge into main",
-      "summary": "DXM: docs/design/dx-screen-states.md (54 states: 4 covered, 3 partial, 47 not; 42 need operator copy) and docs/mockups/dx-section-polar-states.html; DR-DXM-1..9 recount_seconds=0 (docs_only=True).",
+      "summary": "B5: PlanFixture.RgbNear caches screen points per Settle (plan-canvas 56 -> 44 child-s alone), per-check COST lines in Desktop, quiet 4-run baseline CSV, DESKTOP_LIMIT_MS = 47,369 + 2,000 (Ruling 99), defect class DESKTOP-HARNESS-GROWTH; validates PNA merge 078dd2c in the same ring recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -26359,7 +26413,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join dx-mockup-states into main (round-oct05)",
+      "goal": "join ring-b5 into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -26368,8 +26422,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-06T01:01:46Z",
-      "duration_seconds": 7.0
+      "started_at": "2026-10-06T01:50:49Z",
+      "duration_seconds": 52.0
     }
   ],
   "changes": [
