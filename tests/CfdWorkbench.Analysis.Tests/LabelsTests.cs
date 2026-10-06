@@ -116,7 +116,7 @@ internal static class LabelsTests
             ResultRow n = ProjectionTests.Cell(metric, "Loads", "Drag (Wing only)"), lbf = ProjectionTests.Cell(imperial, "Loads", "Drag (Wing only)");
             Equal("N", n.Unit); Equal("lbf", lbf.Unit);
             double[] newtons = n.Value.Split('–').Select(double.Parse).ToArray(), pounds = lbf.Value.Split('–').Select(double.Parse).ToArray();
-            Equal(true, Math.Abs(newtons[0] / 4.4482216152605 - pounds[0]) < 0.001 && Math.Abs(newtons[1] / 4.4482216152605 - pounds[1]) < 0.001, "lbf = N / 4.4482");
+            Equal(true, Math.Abs(newtons[0] / 4.4482216152605 - pounds[0]) < 0.011 && Math.Abs(newtons[1] / 4.4482216152605 - pounds[1]) < 0.011, "lbf = N / 4.4482, within the two-decimal rounding of both ends");
             Equal(true, n.Note!.StartsWith("Wing only: induced (VLM + strip) plus profile (polar). Not a total.", StringComparison.Ordinal), "note");
             Equal(true, n.Note.Contains("XFOIL-class surrogate"), "surrogate label");
             Equal(true, n.Note.EndsWith("\nNot included: junction, mast, wave, spray", StringComparison.Ordinal), "reason line");

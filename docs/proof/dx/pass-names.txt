@@ -47,3 +47,4 @@ PASS Freshness_Pre117MethodVersion_HistoricalAndEvaluateComputesNew	fast ring (t
 PASS Polar_DeltaVsLatticeRow_CarriesFamilyFlag_Copy364	readiness (Analysis --readiness)
 PASS Polar_FlagsJoined_BothNotesRender_Copy364AndLowConfidence	readiness (Analysis --readiness)
 PASS Drag_StoredPre117Refusal_ReadsBackAsRefusal	readiness (Analysis --readiness)
+PASS Drag_Bands_OnePrecisionBothEnds_Ruling119	readiness (Analysis --readiness)

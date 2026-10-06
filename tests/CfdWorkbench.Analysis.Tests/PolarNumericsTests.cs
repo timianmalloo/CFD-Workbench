@@ -156,12 +156,12 @@ internal static class PolarNumericsTests
             CdNcrit2 = new StripValue(0.03, null), CdNcrit4 = new StripValue(0.02, null)
         }).Run;
         var view = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric);
-        AnalysisChecks.Equal("20–30", view.Groups.Single(g => g.Title == "Loads").Rows
+        AnalysisChecks.Equal("20.00–30.00", view.Groups.Single(g => g.Title == "Loads").Rows
             .Single(r => r.Label == "Profile drag").Value, "profile drag band ordered by value");
         foreach (string group in new[] { "Loads", "Wing result" })
         {
             ResultRow row = view.Groups.Single(g => g.Title == group).Rows.Single(r => r.Label == "Drag (Wing only)");
-            AnalysisChecks.Equal("20.4–30.4", row.Value, group + " band ordered by drag value");
+            AnalysisChecks.Equal("20.40–30.40", row.Value, group + " band ordered by drag value");
             ResultRow ratio = view.Groups.Single(g => g.Title == group).Rows.Single(r => r.Label == "Wing-only CL/CD");
             double[] values = ratio.Value.Split('–').Select(double.Parse).ToArray();
             if (values.Length != 2 || values[0] > values[1])

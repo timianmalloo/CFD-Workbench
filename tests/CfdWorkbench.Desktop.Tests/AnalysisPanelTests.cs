@@ -551,6 +551,16 @@ public static class AnalysisPanelTests
                     Console.WriteLine($"MEASURE four-views {what}: panel {host.AnalysisPanel.Bounds.Height}, band {band.Bounds.Height}, views " +
                         string.Join(" ", views.Select(view => $"{view.Bounds.Width - 2}x{view.Bounds.Height - 2}")));
                     Equal(true, band.Bounds.Height <= 41.5, $"the band is {band.Bounds.Height} px tall at {what}");
+                    // Ruling 119: the Find alpha label is whole (not clipped by the band's right edge) at both sizes.
+                    var find = band.FindControl<Button>("FindAlphaButton")!;
+                    double findRight = find.TranslatePoint(new Point(find.Bounds.Width, 0), band)?.X ?? double.NaN;
+                    Console.WriteLine($"MEASURE find-alpha {what}: button {find.Bounds.Width}x{find.Bounds.Height} desired {find.DesiredSize.Width}, right edge {findRight}, band {band.Bounds.Width}, row {band.FindControl<StackPanel>("BandRow")!.Bounds.Width}");
+                    var label = find.GetVisualDescendants().OfType<TextBlock>().First();
+                    var labelTop = label.TranslatePoint(default, find)?.Y ?? double.NaN;
+                    double labelBottom = labelTop + label.Bounds.Height;
+                    Console.WriteLine($"MEASURE find-alpha-label {what}: text '{label.Text}' top {labelTop} bottom {labelBottom} of button height {find.Bounds.Height}, font {label.FontSize}");
+                    Equal(true, find.Bounds.Width >= find.DesiredSize.Width - 0.5 && findRight <= band.Bounds.Width + 0.5, $"Find alpha shows its full label at {what}: right edge {findRight} of {band.Bounds.Width}, width {find.Bounds.Width} of {find.DesiredSize.Width}");
+                    Equal(true, labelTop >= 3 && find.Bounds.Height - labelBottom >= 3, $"Find alpha label clears its button edges by 3 px at {what}: text {labelTop} to {labelBottom} of {find.Bounds.Height}");
                     // Measured in docs/proof/lay-1280/options.md: 613 x 275 at a client of 1500 x 860. The platform reports a client of
                     // 860 to 870 for this window, and each client pixel is half a pixel of a view, so the expected height follows it.
                     if (width == 1500)

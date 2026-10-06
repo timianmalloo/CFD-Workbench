@@ -65,6 +65,7 @@ internal static class DxSectionTests
         Check("Polar_DeltaVsLatticeRow_CarriesFamilyFlag_Copy364", DeltaRowFlag);
         Check("Polar_FlagsJoined_BothNotesRender_Copy364AndLowConfidence", JoinedFlagsRender);
         Check("Drag_StoredPre117Refusal_ReadsBackAsRefusal", Pre117RefusalReadsBack);
+        Check("Drag_Bands_OnePrecisionBothEnds_Ruling119", BandPrecision);
     }
 
     private const string Copy364Tail = "were not validated (NACA 0012 only). Computed, not validated.";
@@ -108,6 +109,20 @@ internal static class DxSectionTests
         }
         string stripNote = view.StripDetails[0].Rows.Single(r => r.Label == "cd (profile)").Note!;
         Equal(true, stripNote.Contains(Copy364Tail) && stripNote.Contains(Labels.LowConfidence(null)), "the strip cd carries both notes");
+    }
+
+    /// <summary>Ruling 119: every band shows one precision on both ends, two decimals ("13.10–14.61 N"), however round a bound is. Ring: fast.</summary>
+    private static void BandPrecision()
+    {
+        AnalysisRun run = RunWith(strip => strip with { CdNcrit2 = new StripValue(0.01, null), CdNcrit4 = new StripValue(0.0125, null) });
+        var band = new Regex(@"^\d+\.\d\d–\d+\.\d\d$", RegexOptions.CultureInvariant);
+        foreach (Units units in new[] { Units.Metric, Units.Imperial })
+        {
+            AnalysisViewModel view = AnalysisProjection.Build(run, ProjectionTests.Current(run), units, null);
+            foreach (ResultRow row in new[] { ProjectionTests.Cell(view, "Wing result", Labels.WingDragLabel), ProjectionTests.Cell(view, "Wing result", "Wing-only CL/CD"),
+                ProjectionTests.Cell(view, "Loads", "Profile drag"), ProjectionTests.Cell(view, "Loads", "Wing-only CL/CD") })
+                Equal(true, band.IsMatch(row.Value), $"{row.Label} shows two decimals on both ends ({units}): {row.Value}");
+        }
     }
 
     /// <summary>Rows stored before Ruling 117 hold the family refusal as an UnavailableReason; they still read back as that refusal text. Ring: fast.</summary>
@@ -560,8 +575,8 @@ internal static class DxSectionTests
         AnalysisViewModel v = ProjectionTests.View(run);
         ResultRow profile = ProjectionTests.Cell(v, "Loads", "Profile drag");
         StripValue n2 = Loads.ProfileDrag(run, 2), n4 = Loads.ProfileDrag(run, 4);
-        Equal(Math.Min(n2.Value!.Value, n4.Value!.Value).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture) + "–" +
-            Math.Max(n2.Value.Value, n4.Value.Value).ToString("0.###", System.Globalization.CultureInfo.InvariantCulture), profile.Value, "the band is the polar's, both Ncrit");
+        Equal(Math.Min(n2.Value!.Value, n4.Value!.Value).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + "–" +
+            Math.Max(n2.Value.Value, n4.Value.Value).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture), profile.Value, "the band is the polar's, both Ncrit");
         Equal(true, profile.Note!.StartsWith("Profile drag from the polar at α_eff, both Ncrit; band, not a prediction"), "COPY-328 note");
         double bound = F.Gov.Estimate.CdTurbulentBound;
         Equal(false, profile.Value.Contains(bound.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture)), "the estimator bound is not in the band");

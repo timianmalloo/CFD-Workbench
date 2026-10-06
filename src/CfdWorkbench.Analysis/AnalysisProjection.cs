@@ -273,6 +273,9 @@ public static class AnalysisProjection
             "/" + Val(sample.XtrLower, "0.###");
     }
 
+    /// <summary>The one band formatter (Ruling 119): low to high, two decimals on both ends, e.g. "13.10–14.61".</summary>
+    private static string Band(double a, double b) => Num(Math.Min(a, b), "0.00") + "–" + Num(Math.Max(a, b), "0.00");
+
     private static ResultRow DragBandRow(string label, StripValue n2, StripValue n4, Units units,
         string? legacyReason, string? tierNote = null, string? reasonLine = null, int missingCd = 0, int lowStrips = 0)
     {
@@ -284,8 +287,7 @@ public static class AnalysisProjection
             ? string.Join(" · ", new[] { tierNote, flagNotes }.Where(part => part is not null))
             : tierNote;
         if (reasonLine is not null) note = note is null ? reasonLine : note + "\n" + reasonLine;
-        return Row(label, Num(Math.Min(low, high) / factor, "0.###") + "–" +
-            Num(Math.Max(low, high) / factor, "0.###"),
+        return Row(label, Band(low / factor, high / factor),
             units == Units.Imperial ? "lbf" : "N", note);
     }
 
@@ -311,7 +313,7 @@ public static class AnalysisProjection
             return Row("Wing-only CL/CD", Labels.UnavailableBecause("ANA-WING-RATIO-UNAVAILABLE"));
         if (n2.Value <= 0 || n4.Value <= 0) return Row("Wing-only CL/CD", Labels.CdNonPositive);
         double a = lift / n2.Value.Value, b = lift / n4.Value.Value;
-        return Row("Wing-only CL/CD", Num(Math.Min(a, b), "0.###") + "–" + Num(Math.Max(a, b), "0.###"),
+        return Row("Wing-only CL/CD", Band(a, b),
             note: Labels.ReasonTexts["ANA-WING-ONLY-RATIO"] + " · " + SurrogateLabel +
                 (FlagNotes([n2, n4], lowStrips) is { Length: > 0 } flagNotes ? " · " + flagNotes : ""));
     }
