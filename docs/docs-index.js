@@ -5044,7 +5044,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "eec813f13a7d55c5f556010f20c7a2abc15a129da2b0c657f46c6a4d58f8ec39"
+      "sourceSha256": "32f9def50c01b9f1f064a2f81ec585a94541ea2cf626dee55ef0481124b87ed7"
     },
     {
       "id": "domain-experts",
@@ -5694,7 +5694,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6888b97f9edae9f2fb2e7e885cafff8c05c441de0d32e1e2431580d08595810e"
+      "sourceSha256": "4d23dbbd381bb76faf2ae6e042584c6588cf4bd53c4b85655bbd8d00c0e910c2"
     },
     {
       "id": "plan-tip-handling",
@@ -12285,6 +12285,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "3431b4251b27d49c4c9ced0518f61fcbd7bb7d89a908ebc51033467b6f03777e"
     },
     {
+      "id": "proof-round-oct06-ring-at-budget",
+      "path": "docs/proof/round-oct06-lessons/ring-at-budget.md",
+      "title": "RING-AT-BUDGET recommendation (operator decision)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@track-ci",
+      "phase": "implementation",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "The fast ring rose from about 47 s to about 49.5 s net in round-oct06 against a 50 s limit. The measured series per join, three options with their cost, and a recommendation. The operator decides.",
+      "tags": [
+        "round-oct06",
+        "test-ring",
+        "capacity",
+        "c-3",
+        "operator-decision"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cb3be0188a83c3d0e5ff019def49ab42f83f3654ff52f752164328a81e45e695"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -14922,5 +14949,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "036ad2f47fd9d8f8e97f75b057247c3668a84df81c1d4b7df1dea436853dd25d"
+  "graphSha256": "e5bb1c8a608d78de817a3ca81d1f97d706be0a4795d3c7a5d9656e5237502feb"
 };

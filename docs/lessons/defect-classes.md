@@ -1750,3 +1750,91 @@ first check must pay the debt. Control (added): `docs/coordination/join.json` `c
 `coord-core.py regen`, and the TEST-RING guard in `tools/check-docs.py` fails when `regenerate` is set and the first
 check is not `coord-core.py regen` (red before the `join.json` edit, green after). OPEN UPSTREAM: `conductor-join.py`
 should run the regeneration before its checks; the pack is not edited here.
+
+## 2026-10-06 round — copy ids, wall-clock asserts, raw codes, parallel load, brief premises, ring capacity
+
+**COPY-ID-COLLISION · Two parallel tracks append the "next" id to one numbered table.**
+DX and GRP each added a `DESIGN.md` §7 row numbered COPY-394. The merge conflict caught it; a union-merged table
+(`merge=union`, or a regenerated view) would have kept both rows and one id would have meant two sentences.
+
+**Class → sweep → derive → prevent:** signature: a sequence number taken by "last id + 1" in a file two branches edit.
+Sweep: `DESIGN.md` has 384 `| COPY-<n> |` rows with no repeated id today (observed). Other `docs/` notes repeat ids such
+as COPY-08 or COPY-103, but each note numbers its own local rows, so they are out of scope. Rulings and audit ids are
+timestamps or one-writer registers. Derive: an id must be unique per file, and a parallel track must not choose it.
+Control (added): `tools/check-copy-ids.py`, run by `tools/check-docs.py` (fast ring, no test code), fails on a repeated
+row id in `DESIGN.md`. Self-test red on a planted duplicate; red on the real file with COPY-394 appended a second time;
+green restored. Rule: a parallel track takes copy ids only at the join, or from a range the Coordinator hands out in its
+brief. Residual: the lint sees a duplicate only after the merge, so it backs up the rule and does not replace it.
+
+**WALLCLOCK-ASSERT-UNGATED · A test throws on a wall-clock budget with no load gate.**
+`Section_WingRun_PanelValuesAtEveryStation` throws when a warm run takes over 1 s. GRP's ring failed on it at load
+47-71, while the frame checks fail only at a quiet load (Rulings 81, 84: `DesktopChecks.RequireFrameBudget`, or print
+`READINESS-MISS` above load 24).
+
+**Class → sweep → derive → prevent:** signature: a duration compared with a literal, inside a check that fails, with no
+read of the machine load. A loaded run is not evidence about the code. Sweep (grep of `tests/**/*.cs` for `Stopwatch`,
+`Elapsed`, `TotalMilliseconds`, `TotalSeconds`, `GetElapsedTime`, then the comparisons that throw): three ungated
+instances, listed as tracked debt, not fixed here: `tests/CfdWorkbench.Analysis.Tests/SectionSeamTests.cs:298` (1 s,
+the GRP failure), `tests/CfdWorkbench.Desktop.Tests/AnalysisToggleTests.cs:34` (p95 over 250 ms),
+`tests/CfdWorkbench.Desktop.Tests/PlanCanvasTests.cs:1312` (median over 8 ms). The other timing sites either gate
+(`RequireFrameBudget`, `READINESS-MISS`: `View3dTests.cs:746`, `PlanCanvasTests.cs:1330`, `SectionEditorTests.cs:797`,
+`:875`, `SectionDraftTests.cs:386`), only print `MEASURE`/`COST`/`OBSERVED`, or are hang guards that throw
+`TimeoutException`. Derive: the gate is the existing Ruling 81 helper. Control (added): `tools/check-wallclock-asserts.py`,
+run by `tools/check-docs.py`, fails on a new ungated assertion, and on an allowlist entry whose line is gone, so the debt
+list only shrinks (keyed by file and line text, not line number). Self-test red on a planted ungated assertion, on a
+planted one through a variable, green on a gated one, a `READINESS-MISS` print, a `TimeoutException` guard and a bare
+`MEASURE`; red on the real tree with the allowlist emptied (3 findings), green with it. Residual: a text heuristic, not a
+parser; a budget computed in a helper whose name does not end in `Milliseconds`, `Ms` or `Seconds` can escape it. The fix
+for the three instances is a later track (`RequireFrameBudget` or `READINESS-MISS`; delete each allowlist entry).
+
+**RAW-CODE-ON-SCREEN · An internal code reaches a display cell.**
+Internal `ANA-*` codes reached display cells from CPY's eight reason rows and from the strip coupling; the operator sees a
+code, not a sentence.
+
+**Class → sweep → derive → prevent:** signature: a display string that falls back to, or is built from, a machine code.
+Control (exists, DX, readiness ring): `Projection_NoRawAnaCodeInAnyCell` (`DxSectionTests.cs:58`) builds one fixture per
+registered `Labels.ReasonTexts` code and scans every cell, note, legend and table for the raw code. Sweep of the other
+code families (src has `ANA` 263, `DOC` 269, `DSL` 448 string literals; no `SRC-`, `GEO-` family in `src/`): the scan
+covers `ANA-` only. `DSL-` and `DOC-` codes reach the screen at these sites: `PointsView.cs:219` (`error.Reason ?? error.Code`),
+`WorkbenchController.cs:123` (`item.Reason` empty, then `item.Code`), `:1197` (`?? result.Code`), `:2381`
+(`error.Reason ?? "{Code}: ..."`), `SaveSectionDialog.axaml.cs:81` (`({error.Code})` in a sentence), and the
+"`<code>: <sentence>`" status prefix at `WorkbenchController.cs:438, 2125, 2141, 2648` and `MainWindow.axaml.cs:124`. The
+prefix is a product convention with a sentence beside it, so only a code standing alone is the defect; the fallbacks at
+`:123`, `:1197` and `PointsView.cs:219` can produce one. Not fixed (product code). Proposal for the Coordinator: extend
+`NoRawCode` over the `DSL-` and `DOC-` families the same way (one fixture per registered code); that is a test-code
+change outside this track.
+
+**PARALLEL-BUILD-LOAD · The Coordinator runs more build tracks than the machine holds.**
+Three build tracks ran at once. Their builds and ad-hoc test runs sit outside the ring lock (`tools/ring-lock.sh` caps
+only full rings) and drove the 1-minute load to 47-77: load-only failures in GRP and PNL, and one C-3 join stop.
+
+**Class → sweep → derive → prevent:** signature: a capacity rule held only by the Coordinator's judgement. Sweep: the
+ring lock covers rings; builds and single-check runs have no signal (the same property as JOIN-RESOURCE-RACE and the
+solver wrapper). Derive: the signal is the 1-minute load and the count of running build tracks. Control (added): rule in
+`docs/plans/test-cost.md` §9.10 (at most 2 build tracks at once; no dispatch while load is over 24) and
+`tools/dispatch-gate.py [--running <n>]`, which prints `GO load=<n>` or `WAIT load=<n> <reason>` (exit 1) and prints
+`WAIT load=not-recorded` when the load cannot be read. Its self-test runs in `tools/check-docs.py` (red on over-cap, over
+24, and unreadable load; green at 24). Residual: it is a tool the Coordinator runs, not a refusal at the dispatch seam, so
+it is a memoir until a skill or hook calls it (cf. AGENT-HEREDOC). OPEN: wire it into the `execute-with-coordination`
+dispatch step (pack file, not edited here).
+
+**BRIEF-PREMISE-UNCHECKED · A brief states a fact about the code or the product that nobody opened.** Extends
+BRIEF-FIXTURE-AGAINST-SPEC (a brief asserting a grammar fact it had not read). Two instances this round: the DX brief
+said "the run's section stations" were a few (the mockup shows four); the product samples every lattice strip (126 on the
+example), so the Stations table was 3,030 px tall (`docs/proof/dx/red-first.md`, repair cycle 2, red `expected 3; actual
+42`). The GRP brief assumed Core exposed the binding point; it did not, which is why GRP Core came first (the round plan
+orders it so; no proof file records the premise itself, so the second instance is stated from the plan, Inferred).
+
+**Class → sweep → derive → prevent:** signature: a sentence in a brief with a number or an "exposed/owned by" claim and no
+file:line. Sweep: both instances are one shape, a premise about a data source. Would `tools/trace-brief.py` have caught
+them? Partly. It reads a design's Trace table (visible behaviour, data, producing file, owner) and flags producing files and
+type mentions the brief does not own, so the GRP premise (the producer of the binding point is in Core) is the shape it
+catches, provided the design's Trace table names that producer. It does not read counts, so the DX premise (4 versus 126)
+escapes it; that needs the proof to read the run, which the DX repair did. Derive: a brief premise is a claim; mark it
+`assume:` (NG rule) or cite the file. No new control: a second lint over free prose would flag every number in a brief
+(CI9 cost). Rule added: a brief states a count or an ownership claim only with a file:line or an `assume:` marker, and
+the Coordinator runs `trace-brief.py` on any brief whose track reads data it does not own.
+
+**RING-AT-BUDGET (capacity, not a defect).** The fast ring's net time (C-3, limit 50.0 s) rose from about 47 s to about
+49.5 s in one round across 5 joins, and 11 checks moved to readiness to fit. Measured series, options and costs:
+`docs/proof/round-oct06-lessons/ring-at-budget.md`. The operator decides.

@@ -68,7 +68,8 @@ def run_spiral_check():
 def run_lesson_controls():
     """Controls from docs/lessons/defect-classes.md, fast ring (each self-test is red on its planted shape):
     DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, the OWNERSHIP-MISSES-DATA-SOURCE aid's own test, and the
-    two-machine message register (Ruling 106), and the AGENT-HEREDOC hook (Ruling 104)."""
+    two-machine message register (Ruling 106), the AGENT-HEREDOC hook (Ruling 104), and round-oct06:
+    COPY-ID-COLLISION, WALLCLOCK-ASSERT-UNGATED and the PARALLEL-BUILD-LOAD dispatch gate."""
     for script, arguments in (
         ("check-artifact-bindings.py", ("--self-test",)),
         ("check-artifact-bindings.py", ()),
@@ -77,6 +78,11 @@ def run_lesson_controls():
         ("trace-brief.py", ("--self-test",)),
         ("xmsg.py", ("--self-test",)),
         ("hooks/no-heredoc.py", ("--self-test",)),
+        ("check-copy-ids.py", ("--self-test",)),
+        ("check-copy-ids.py", ()),
+        ("check-wallclock-asserts.py", ("--self-test",)),
+        ("check-wallclock-asserts.py", ()),
+        ("dispatch-gate.py", ("--self-test",)),
     ):
         result = subprocess.run(
             [sys.executable, str(ROOT / "tools" / script), *arguments],
