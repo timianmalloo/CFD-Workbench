@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T21:12:20Z",
+  "generated": "2026-10-06T21:25:53Z",
   "audit": [
     {
       "actor": null,
@@ -27934,6 +27934,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T21:11:20Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M49HQNAZ6QB9RCRM7ESYNF1D",
+      "shortname": "trk-uni",
+      "datetime": "2026-10-06T21:25:53Z",
+      "session": "trk-uni",
+      "prompt": "trk-uni round-oct06",
+      "summary": "Menu (radio, checked by state), status button replacing the mm item, palette route, controller UnitsChanged event, COPY-401..403, 5 readiness checks, captures. Persistence (c) blocked: needs a units key in PreferenceStore (not owned). One test exemption line in ShellModelTests (not owned).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Units switch: View > Units menu and status-bar item (Ruling 115)",
+      "done_when": "menu items, status item, keyboard, conversion proven; persistence per preference",
+      "started_at": "2026-10-06T21:15:46Z",
+      "duration_seconds": 607.0
     }
   ],
   "changes": [

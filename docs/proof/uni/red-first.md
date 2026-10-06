@@ -1,7 +1,22 @@
+---
+id: proof-uni-red-first
+title: "UNI red-first receipt"
+type: proof-pack
+status: active
+owner: "@track-uni"
+phase: implementation
+tags: [uni, units, ruling-115]
+links:
+  - { to: design-area3-analysis, rel: depends-on }
+review-by: "2026-11-04"
+summary: >-
+  Units switch (Ruling 115) red-first of the UNI track.
+---
+
 # trk-uni red-first (Ruling 115)
 
 Command: `CFD_TEST_ONLY=Units_ tools/run-suite.sh dotnet tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Desktop.Tests.dll --readiness`
-(controller check: `--controller-shell`). Logs: `red-*.txt` (before), `green-readiness.txt` (after).
+(every check is registered at readiness). Logs: `red-*.txt` (before), `green-readiness.txt` (after).
 
 | Check | Before | After |
 |---|---|---|

@@ -1,3 +1,18 @@
+---
+id: proof-uni-trace
+title: "UNI trace receipt"
+type: proof-pack
+status: active
+owner: "@track-uni"
+phase: implementation
+tags: [uni, units, ruling-115]
+links:
+  - { to: design-area3-analysis, rel: depends-on }
+review-by: "2026-11-04"
+summary: >-
+  Units switch (Ruling 115) trace of the UNI track.
+---
+
 # trk-uni step 0 trace (Ruling 115)
 
 - The strip's "mm" item is `UnitsItem` in `Shell/StatusStrip.axaml`. `ShellHost.StripUnits()` feeds it: "mm", or "% chord" in the
