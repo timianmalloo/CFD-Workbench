@@ -1107,3 +1107,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. Compute
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. Approved text: Section tab station name "Selected strip · η <η>" and "Governing cavitation station · η <η> (no strip selected)"; Find α validation "Enter a target CL and an ordered α bracket."; while running "Finding…"; sixth no-root reason (ANA-FIND-MAX-ITERATIONS) "the search stopped after <n> iterations without converging"; drag band note "Low confidence — analysis_confidence below 0.5 at <k> strips". Find α refuses below h/c 0.5, the free-surface correction's own lower limit (FreeSurfaceCorrection.MinHOverC), and the reason text shows the number.
 
 - request: req-01M499RKVE8C7HYM5S0F8PEZBQ · ruled by: operator-timianmalloo · at: 2026-10-06T19:06:36Z
+
+### Ruling 119 — DX states approved; COPY-364 shortened; Properties one scroll accepted; group range refusal names point and range
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. (1) The Drag (Wing only) band with its flag, the not-measured cell, and the Section tab naming the selected strip or the governing fallback are approved as captured, with two fixes: the band shows one precision (e.g. 13.10–14.61 N) and the Find α button shows its full label. (2) COPY-364 becomes "Outside the validated bracket — the surrogate is validated on NACA 0012 only. Computed, not validated." (3) The Analysis Properties Labels header one short scroll below the first screen at 1500x870 is accepted (as Ruling 101 Q4). (4) The group-move typed range refusal reads "Point <n> would leave its allowed range (<min> to <max> <unit>)."
+
+- request: req-01M49E7XKY1XJFSETDW993XRFV · ruled by: operator-timianmalloo · at: 2026-10-06T20:24:52Z
