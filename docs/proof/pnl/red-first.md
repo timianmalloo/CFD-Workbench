@@ -51,9 +51,29 @@ Green evidence: full Analysis harness after the change, `RESULT failures=0`, the
 Receipt kind: the new checks use API that did not exist, so on the cycle-0 `src/` the harness does not compile
 (`dotnet build` of the Analysis tests, `src/` stashed): `CS0117 'SectionTier' does not contain a definition for
 'MaxPanelCandidates'` and `'UnderreadAt'`; `CS1061 'SectionTierResult' ... 'PanelCandidateCount'`; `CS1061
-'SectionStationResult' ... 'PanelUnderread'`, `'PanelUnderreadMeasured'`, `'Provisional'`. That is a compile-red, not a
-behavioural red; the near-tie check's key assertion (governing eta 1.0, where the cycle-0 code kept the 200-pass winner
-at eta 0.5) is the behaviour it pins. All checks green after (`RESULT failures=0`, full Analysis harness).
+'SectionStationResult' ... 'PanelUnderread'`, `'PanelUnderreadMeasured'`, `'Provisional'`. That is a compile-red for
+the new API only. The behavioural red is the mutant below (cycle 2). All checks green after (`RESULT failures=0`).
+
+### Cycle 2: behavioural red by mutant, telemetry red, and the cost cut
+
+- **Mutant of the old mixed comparison.** In `SectionTier.cs` the governing station was kept at the 200-pass winner (the
+  re-selection `governing = i` removed) and the wing screen was `SelectWing` over all stations (400 and 200 values mixed),
+  as before cycle 1. Run: `CFD_TEST_ONLY=Section_NearTie tools/run-suite.sh dotnet <Analysis dll>`.
+  - Mutant: `FAIL Section_NearTie_GoverningReSelectedAt400 InvalidOperationException: governing re-selected at 400 panels
+    expected 1; actual 0.5`, `RESULT failures=1`. It fails for the governing-eta reason.
+  - Restored (`git checkout` of the file): `PASS Section_NearTie_GoverningReSelectedAt400`, `RESULT failures=0`.
+- **Telemetry (Ruling 110 (5)).** `Section_AnalysisRunEvent_CarriesPanelCandidateCount` was written first; on the code
+  without the field the harness did not compile (`CS1061 'AnalysisEvent' does not contain a definition for
+  'PanelCandidates'`). After adding `AnalysisEvent.PanelCandidates` (set from `section.PanelCandidateCount`; null reads
+  "not recorded") it passes and prints `OBSERVED analysis.run panelCandidates 1`. The `AnalysisEvent` doc comment on
+  `PanelUnderreadFraction` now says "two-grid, p assumed 1".
+- **Cost cut, disclosed.** I cut `Section_WingRun_PanelValuesAtEveryStation` from 97 stations (`SpanEtas(48)`) to 65
+  (`SpanEtas(32)`), because with up to three more 400-panel solves it cost 506 ms against the 500 ms C-5 limit at load 20.
+  Nothing it asserts was weakened: it still runs the whole wing it builds (`etas.Length == Stations.Count`, "all run
+  stations sampled"), requires every station to have finite Cl, Cm, alpha_L0, the ITTC bound and lift per span and the
+  right panel count (400 where measured, 200 elsewhere), requires the governing under-read to be finite, and keeps its 1 s
+  budget assertion. It is the same wing at lower resolution; the 129-station product default is still run, and timed, by
+  `Section_CamberedWing129_WarmTime` in the readiness ring.
 
 | Check | What it pins | Observed |
 |---|---|---|

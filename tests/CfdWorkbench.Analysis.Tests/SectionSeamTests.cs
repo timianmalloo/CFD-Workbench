@@ -13,6 +13,7 @@ internal static class SectionSeamTests
         AnalysisChecks.Check("Section_WingRun_PanelValuesAtEveryStation", WingRows);
         AnalysisChecks.Check("Section_ProvisionalAndProjectionRows", ProjectionRows);
         AnalysisChecks.Check("Section_SurfacePiercing_EstimatorUnavailable", Piercing);
+        AnalysisChecks.Check("Section_AnalysisRunEvent_CarriesPanelCandidateCount", CandidateCountOnEvent);
         AnalysisChecks.Check("Section_NearTie_GoverningReSelectedAt400", NearTieReSelected);
         AnalysisChecks.Check("Section_ThinStationOutsideNearTie_NotMeasured", NotMeasuredStation);
         AnalysisChecks.Check("Section_UniformWing_CandidateCountCappedAtFour", CandidateCap);
@@ -137,6 +138,20 @@ internal static class SectionSeamTests
             if (!(u > 0 && u < 0.10)) throw new InvalidOperationException($"6 % thick, alpha {alpha}: under-read {u:P3}");
             Console.WriteLine($"OBSERVED 6%-thick 200-vs-400 under-read at alpha {alpha}: {u:P3}");
         }
+    }
+
+    // Ruling 110 (5): analysis.run carries the number of stations solved at 400 panels.
+    private static void CandidateCountOnEvent()
+    {
+        using var session = Fixture.Opened();
+        RunSettings settings = Settings.Default with { NSpanPerHalf = 4, NChord = 2,
+            SectionEtas = [0d, 0.5, 1d], SectionXs = Settings.ChordXs(2, "cosine") };
+        AnalysisRun run = Fixture.Evaluate(new AnalysisService(session, new ProductWingMethod(settings)), Fixture.Op(3));
+        AnalysisChecks.Equal(true, run.Outcome is RunOutcome.Completed, "run completed");
+        AnalysisEvent emitted = Fixture.RunEvents(session).Last().Analysis!;
+        if (emitted.PanelCandidates is not int count || count < 1 || count > SectionTier.MaxPanelCandidates)
+            throw new InvalidOperationException("analysis.run omitted the 400-panel candidate count: " + emitted.PanelCandidates);
+        Console.WriteLine($"OBSERVED analysis.run panelCandidates {count}");
     }
 
     // Ruling 103: the governing station is re-solved at 400; the screen and Cp_min use that value.
