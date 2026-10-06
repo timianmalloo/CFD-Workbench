@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T21:12:20Z",
+  "generated": "2026-10-06T21:26:52Z",
   "audit": [
     {
       "actor": null,
@@ -27934,6 +27934,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T21:11:20Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M49HSEEV16F3PQ5RA9RFE646",
+      "shortname": "trk-ci6",
+      "datetime": "2026-10-06T21:26:52Z",
+      "session": "trk-ci6",
+      "prompt": "trk-ci6 round-oct06",
+      "summary": "COPY-ID-COLLISION lint, WALLCLOCK-ASSERT-UNGATED lint (3 allowlisted), dispatch-gate.py and test-cost 9.10 rule, RAW-CODE sweep, BRIEF-PREMISE, RING-AT-BUDGET proof with options",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Record round-oct06 lessons as classes with cheap controls",
+      "done_when": "classes in register, self-tests red then green, check-docs and verify gates exit 0",
+      "started_at": "2026-10-06T21:16:25Z",
+      "duration_seconds": 627.0
     }
   ],
   "changes": [
