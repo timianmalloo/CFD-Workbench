@@ -33,8 +33,7 @@ public static class TipChord
         tipChordMeters >= MinimumMeters(rootChordMeters) - Slack;
 
     /// <summary>The minimum as the app writes lengths, for example "5 mm" or "12.5 mm".</summary>
-    public static string Format(double rootChordMeters) =>
-        (MinimumMeters(rootChordMeters) * 1e3).ToString("0.##", CultureInfo.InvariantCulture) + " mm";
+    public static string Format(double rootChordMeters) => FormatMm(MinimumMeters(rootChordMeters));
 
     public static string RefusalReason(double rootChordMeters) => RefusalTemplate.Replace("<min>", Format(rootChordMeters));
 

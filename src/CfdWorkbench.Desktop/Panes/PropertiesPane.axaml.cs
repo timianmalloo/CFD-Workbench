@@ -1253,7 +1253,7 @@ public partial class PropertiesPane : UserControl
         }
         string code = ((CommitOutcome.Refused)outcome).Code;
         // The commit's refresh re-binds the row to the accepted value; a refused typed entry keeps what was typed (Ruling 96).
-        if (box.Text != typedText) box.Text = typedText;
+        if (code is TipChord.RefusalCode or "DSL-UNIT" or "DSL-EDGES-CROSS" or "DSL-NOT-ASSESSED" && box.Text != typedText) box.Text = typedText;
         if (code == "DSL-TARGET" && row.Key == "w:tip")
         {
             messages[row.Key] = new RowMessage(PropertyCopy.TipCloses, MessageKind.Reason);

@@ -167,6 +167,20 @@ internal static class TipChordTests
             Equal("Tip chord can't go below 5 mm (the larger of 5 mm and 2 % of the root chord). Enter 5 mm or more.",
                 Throws(() => t.ApplyChord(Id(), new("tip-chord", "3"))).Reason!);
         });
+        Check("TipChord_TypedThreeOnSixMmTip_IsTheCrossingRefusalNotTheTipMinimum", () =>
+        {
+            // The fixture's linear taper to 3 mm makes the edges cross first; that refusal has a code and no Core reason
+            // (the Desktop maps the code to its own copy), which is why a typed 3 once showed no tip-minimum text.
+            using var s = Open(tipMm: 6);
+            Equal("DSL-EDGES-CROSS", Throws(() => s.ApplyChord(Id(), new("tip-chord", "3"))).Code);
+        });
+        Check("TipChord_PointTipDocument_IsNeverOpenedSoNoSessionHoldsOne", () =>
+        {
+            string text = Encoding.UTF8.GetString(FoilSourceTests.Example);
+            byte[] closing = Encoding.UTF8.GetBytes(text[..text.LastIndexOf('}')] + "  tip point\n}\n");
+            using var s = new AuthoringSession();
+            Equal("DSL-NOT-ASSESSED", Throws(() => s.Open(FoilSource.MaterializeIds(FoilSource.Parse(closing)), Id(), true)).Code);
+        });
         Check("TipChord_RootMaximum_IsTheLargestRootAdmitted", () =>
         {
             foreach (double tip in new[] { 0.006, 0.01, 0.0123 })

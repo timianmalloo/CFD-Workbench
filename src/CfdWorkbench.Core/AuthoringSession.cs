@@ -515,7 +515,8 @@ public sealed class AuthoringSession : IDisposable
         double oldTip = WingEstimates.Chord(before, 1), oldRoot = WingEstimates.Chord(before, 0);
         if (TipChord.Admits(oldTip, oldRoot, newTip, newRoot)) return;
         // Ruling 96: an edit that left the tip alone and raised the root is the root's refusal, led by the root.
-        bool rootCaused = Math.Abs(newTip - oldTip) <= 1e-9 && newRoot > oldRoot;
+        // The root caused it when the same edit with the root left where it was is admitted.
+        bool rootCaused = TipChord.Admits(oldTip, oldRoot, newTip, oldRoot);
         throw new ContractError(TipChord.RefusalCode, rootCaused ? TipChord.RootRefusalReason(newTip, oldRoot) : TipChord.TypedRefusalReason(newRoot));
     }
     string Commit(SourceParse p, string op, string reason)
@@ -678,8 +679,14 @@ public sealed class AuthoringSession : IDisposable
                 }
             }
             var baseParsed = ParseOwned(BaseBytes(draft.Base));
-            GestureLimit? limit = HoldAtChordLimit(baseParsed, draft.Rail, rail, grabbed, selected, moved);
-            if (limit is not null) clamped = true;
+            GestureLimit? limit = null;
+            if (HoldAtChordLimit(baseParsed, draft.Rail, rail, grabbed, selected, moved[grabbed].Aft) is var (held, hold))
+            {
+                limit = hold; clamped = true;
+                moved[grabbed] = (moved[grabbed].Eta, held);
+                if (grabbed == 0 && selected.Role == PointRole.RootEnd && selected.Locks.Contains("root_mirror"))
+                    moved[1] = (moved[1].Eta, rail.Points[1].Ordinate + (held - selected.Ordinate));
+            }
             byte[] patched = PatchGesture(baseParsed, draft.Rail, moved);
             draft = draft with { Generation = generation + 1, Bytes = patched };
             gestureFrames++;
@@ -694,13 +701,15 @@ public sealed class AuthoringSession : IDisposable
     /// chord (a clamped B-spline interpolates its ends), so interior vertices and handles never limit. The search steps the
     /// drag's own 1 µm quantum from the vertex at press, so the held frame is a point a free drag could have reached.
     /// </summary>
-    private static GestureLimit? HoldAtChordLimit(SourceParse baseParsed, string railName, CurveView rail, int grabbed, PointView selected,
-        Dictionary<int, (double Eta, double Aft)> moved)
+    private static (double Held, GestureLimit Limit)? HoldAtChordLimit(SourceParse baseParsed, string railName, CurveView rail, int grabbed,
+        PointView selected, double proposed)
     {
-        if (railName is not ("leading" or "trailing") || baseParsed.Definition is not { Kind: "foil" } definition) return null;
+        // A closing tip is never held by a session (Open refuses it: Geometry_TipPoint_UnsupportedAndNeverAdmitted), so
+        // neither end is limited for a non-open tip; the release check stays the backstop with its existing text.
+        if (railName is not ("leading" or "trailing") || baseParsed.Definition is not { Kind: "foil", Tip: "open" }) return null;
         bool tip = grabbed == rail.Points.Count - 1, root = grabbed == 0;
-        if (!(tip || root) || tip && definition.Tip != "open") return null;
-        double proposed = moved[grabbed].Aft, from = selected.Ordinate;
+        if (!(tip || root)) return null;
+        double from = selected.Ordinate;
         var other = Channels.View(baseParsed.Source, railName == "leading" ? "trailing" : "leading", "Accepted", 0).Points;
         var leading = railName == "leading" ? rail.Points : other;
         var trailing = railName == "leading" ? other : rail.Points;
@@ -716,13 +725,10 @@ public sealed class AuthoringSession : IDisposable
             if (Admitted(from + sign * mid * 1e-6)) lo = mid; else hi = mid;
         }
         double held = lo == 0 ? from : from + sign * lo * 1e-6;
-        moved[grabbed] = (moved[grabbed].Eta, held);
-        if (root && selected.Role == PointRole.RootEnd && selected.Locks.Contains("root_mirror"))
-            moved[1] = (moved[1].Eta, rail.Points[1].Ordinate + (held - from));
-        if (root) return new(GestureLimitKind.RootMaximum, TipChord.MaximumRootMeters(oldTip, oldRoot), oldTip);
-        return TipChord.Meets(oldTip, oldRoot)
+        if (root) return (held, new(GestureLimitKind.RootMaximum, TipChord.MaximumRootMeters(oldTip, oldRoot), oldTip));
+        return (held, TipChord.Meets(oldTip, oldRoot)
             ? new(GestureLimitKind.TipMinimum, TipChord.MinimumMeters(oldRoot), oldRoot)
-            : new(GestureLimitKind.TipAlreadyUnder, oldTip, oldRoot);
+            : new(GestureLimitKind.TipAlreadyUnder, oldTip, oldRoot));
     }
 
     private static double QuantizedOrdinate(string curve, double delta)

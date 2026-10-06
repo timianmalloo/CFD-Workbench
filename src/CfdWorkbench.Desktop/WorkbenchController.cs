@@ -204,6 +204,7 @@ public sealed class WorkbenchController : IDisposable
     private int gestureClamped;
     private string? gestureClampReason;
     private string? announcedLimit;
+    private (string Text, ReportKind Kind, long Version)? stripBeforeHold;
     private Task<GestureOutcome>? pendingCommit;
     private Task<CommitOutcome>? pendingDirectCommand;
     private string? gestureOperationId;
@@ -486,7 +487,7 @@ public sealed class WorkbenchController : IDisposable
             field = value;
             // The preview belongs to a live drag: release, Escape, a refusal or a new gesture clear it.
             if (value != GestureState.Dragging) GestureCrossing = null;
-            if (value is not (GestureState.Dragging or GestureState.Nudging)) { GestureLimit = null; announcedLimit = null; }
+            if (value is not (GestureState.Dragging or GestureState.Nudging)) { GestureLimit = null; announcedLimit = null; stripBeforeHold = null; }
         }
     }
 
@@ -1757,10 +1758,21 @@ public sealed class WorkbenchController : IDisposable
     // a frame that frees the hold and a later one that re-holds, announces again.
     private void AnnounceLimit(GestureLimit? limit)
     {
-        string? key = limit is null ? null : $"{limit.Kind}:{limit.LimitMeters:F6}";
+        string? key = limit is null ? null : string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{limit.Kind}:{limit.LimitMeters:F6}");
         if (key == announcedLimit) return;
+        bool wasHeld = announcedLimit is not null;
         announcedLimit = key;
-        if (limit is not null) SetStatus(TipChord.HoldText(limit), ReportKind.Warning);
+        if (limit is not null)
+        {
+            if (!wasHeld) stripBeforeHold = statusSlot.Snapshot();
+            SetStatus(TipChord.HoldText(limit), ReportKind.Warning);
+        }
+        else if (stripBeforeHold is { } before)
+        {
+            // The hold freed mid-drag: put back the line it replaced, so the strip never keeps a hold that no longer holds.
+            stripBeforeHold = null;
+            SetStatus(before.Text, before.Kind);
+        }
     }
 
     /// <summary>
@@ -2091,10 +2103,10 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (ContractError error)
         {
-            SetStatus(error.Reason ?? $"{error.Code}: This change wasn't applied. Nothing changed.",
-                warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
+            string reason = error.Reason ?? $"{error.Code}: This change wasn't applied. Nothing changed.";
+            SetStatus(reason, warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
             Notify();
-            return new CommitOutcome.Refused(error.Code, Status);
+            return new CommitOutcome.Refused(error.Code, reason);
         }
         finally
         {

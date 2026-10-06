@@ -93,6 +93,7 @@ public static class GestureLimitTests
             string before = c.AcceptedSource;
             Require(c.BeginGesture(tip, GestureInput.Keyboard), "begin refused");
             var versions = new List<long>();
+            string beforeHold = c.Status;
             for (int press = 0; press < 10; press++)
             {
                 c.Nudge(0, -1, NudgeModifier.Shift);
@@ -103,6 +104,7 @@ public static class GestureLimitTests
             Require(writes == 1, $"the strip was written {writes} times in 10 presses; the hold is one announcement");
             Require(Math.Abs(c.Estimates!.TipChordMeters - 0.005) < 1.1e-6, "held tip chord " + c.Estimates.TipChordMeters);
             c.Nudge(0, 1, NudgeModifier.Shift);
+            Require(c.Status == beforeHold, "the strip kept the hold line after the hold freed: " + c.Status);
             Require(c.GestureLimit is null && Math.Abs(c.Estimates.TipChordMeters - 0.006) < 1.5e-5,
                 "one press back did not free the hold by one step (banked steps?): " + c.Estimates.TipChordMeters);
             c.Nudge(0, -1, NudgeModifier.Shift);
