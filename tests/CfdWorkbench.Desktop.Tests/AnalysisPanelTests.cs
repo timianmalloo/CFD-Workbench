@@ -292,7 +292,10 @@ public static class AnalysisPanelTests
                 }
                 var method = pane.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(text => text.IsEffectivelyVisible && text.Text == "Method")
                     ?? throw new Exception("Labels rows are not drawn");
-                Equal(true, InView(method, scroll), "the Labels rows start in view");
+                // Ruling 101 Q4 accepts one scroll at 1500 x 870, and the long cells now wrap (AUX-F8) instead of being cut, which costs
+                // height: the first Labels row sits at most two rows below the first viewport, one short scroll away.
+                double methodTop = method.TranslatePoint(default, scroll)?.Y ?? double.NaN;
+                Equal(true, methodTop < scroll.Bounds.Height + 48, "the Labels rows are one short scroll away: method at " + methodTop + " of " + scroll.Bounds.Height);
             }
             finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
         });
@@ -327,6 +330,130 @@ public static class AnalysisPanelTests
             }
         });
 
+        // CPY (round-oct06, Ruling 101 3d, Q4, 3c): Ring D (every join), measured cost 1.5 + 1.0 + 1.0 s (real windows, one small-lattice
+        // evaluation each; ring2 of 2026-10-06 under load 11).
+        DesktopChecks.Check("Analysis_FourViews_At1280x800_AndGeometryUnchangedAt1500x870", () =>
+        {
+            // The floor stays 320 x 240 (Ruling 101 3d is a layout fix, not a lower floor). The panel height rule and the band's
+            // More button (layout C + D, docs/proof/lay-1280/options.md) are what make four views fit.
+            Equal(new Size(320, 240), ModelArea.MinimumFourViewSize, "the floor is pinned");
+            Equal(150d, AnalysisPanel.HeightFor(800), "the short panel at client 800");
+            Equal(190d, AnalysisPanel.HeightFor(860), "the full panel at client 860");
+            foreach (var (width, height) in new[] { (1280, 800), (1500, 870) })
+            {
+                using var controller = OpenSmall();
+                _ = EvaluateAt(controller, 2, null);
+                var (host, window) = ShowAnalysis(controller, width, height);
+                try
+                {
+                    var views = new[] { "PlanFrame", "ThreeDFrame", "SideFrame", "FrontFrame" }
+                        .Select(name => host.ModelView.FindControl<Border>(name)!).ToArray();
+                    string what = $"{width}x{height} (client {host.Bounds.Width}x{host.Bounds.Height})";
+                    Equal(CfdWorkbench.Persistence.ViewArrangement.Four, host.ModelView.EffectiveLayout.Arrangement, "four views at " + what);
+                    Equal(true, views.All(view => view.IsVisible), "all four views are shown at " + what);
+                    Equal(AnalysisPanel.HeightFor(host.Bounds.Height), host.AnalysisPanel.Bounds.Height, "panel height at " + what);
+                    foreach (var frame in views)
+                        Equal(true, frame.Bounds.Width - 2 >= ModelArea.MinimumFourViewSize.Width && frame.Bounds.Height - 2 >= ModelArea.MinimumFourViewSize.Height,
+                            $"a view is {frame.Bounds.Width - 2} x {frame.Bounds.Height - 2} at {what}");
+                    var band = host.ModelView.FindControl<ConditionsBand>("AnalysisConditionsBand")!;
+                    Console.WriteLine($"MEASURE four-views {what}: panel {host.AnalysisPanel.Bounds.Height}, band {band.Bounds.Height}, views " +
+                        string.Join(" ", views.Select(view => $"{view.Bounds.Width - 2}x{view.Bounds.Height - 2}")));
+                    Equal(true, band.Bounds.Height <= 41.5, $"the band is {band.Bounds.Height} px tall at {what}");
+                    // Measured in docs/proof/lay-1280/options.md: 613 x 275 at a client of 1500 x 860. The platform reports a client of
+                    // 860 to 870 for this window, and each client pixel is half a pixel of a view, so the expected height follows it.
+                    if (width == 1500)
+                        foreach (var frame in views)
+                            Equal(true, Math.Abs(frame.Bounds.Width - 2 - 613) <= 1 && Math.Abs(frame.Bounds.Height - 2 - (275 + (host.Bounds.Height - 860) / 2)) <= 1,
+                                $"1500x870 geometry is unchanged: a view is {frame.Bounds.Width - 2} x {frame.Bounds.Height - 2} at {what}");
+                }
+                finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
+            }
+        });
+
+        DesktopChecks.Check("Analysis_Cells_NotCutAt1500x870_BandDepthUnsetAndRunningTickRow", () =>
+        {
+            var hold = new FlakyMethod(new ProductWingMethod(Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null }));
+            using var controller = OpenSmall(hold);
+            _ = EvaluateAt(controller, 2, null);
+            var (host, window) = ShowAnalysis(controller, 1500, 870);
+            try
+            {
+                // AUX-F8: a long value (the Envelope sentence, the Drag reason) wraps inside its row, never past the pane's edge.
+                var scroll = host.Properties.FindControl<ScrollViewer>("SelectionScroll")!;
+                var longValues = host.Properties.GetVisualDescendants().OfType<TextBlock>()
+                    .Where(text => text.Classes.Contains("prop-value") && text.IsEffectivelyVisible && (text.Text?.Length ?? 0) > 30).ToArray();
+                Equal(true, longValues.Length > 0, "the Wing result has long values to check");
+                foreach (var text in longValues)
+                {
+                    var right = text.TranslatePoint(new Point(text.Bounds.Width, 0), scroll)!.Value.X;
+                    Equal(true, right <= scroll.Bounds.Width + 0.5 && text.DesiredSize.Width <= scroll.Bounds.Width + 0.5,
+                        $"'{text.Text}' ends at {right}, the pane is {scroll.Bounds.Width} wide");
+                }
+                // Q4: with depth unset the derived cells either fit or sit under More; none runs off the band's right edge.
+                var band = host.ModelView.FindControl<ConditionsBand>("AnalysisConditionsBand")!;
+                foreach (var cell in band.GetVisualDescendants().OfType<TextBlock>().Where(text => text.Classes.Contains("cond-derived") && text.IsEffectivelyVisible))
+                {
+                    var right = cell.TranslatePoint(new Point(cell.Bounds.Width, 0), band)!.Value.X;
+                    Equal(true, right <= band.Bounds.Width + 0.5, $"'{cell.Text}' ends at {right}, the band is {band.Bounds.Width} wide");
+                }
+                // Q4: the chart's x tick row stays inside the panel while Running (banner and skeleton above it).
+                hold.Gate = new ManualResetEventSlim(false);
+                controller.SetAnalysisConditions(OperatingPoints.Custom(5.14, 4, null), controller.AnalysisWater);
+                var running = Task.Run(() => controller.EvaluateAnalysisAsync(OperatingPoints.Custom(5.14, 4, null), controller.AnalysisWater));
+                var deadline = System.Diagnostics.Stopwatch.StartNew();
+                while (!controller.AnalysisRunning && deadline.Elapsed < TimeSpan.FromSeconds(10)) Thread.Sleep(5);
+                try
+                {
+                    host.RefreshPanes();
+                    Settle(window);
+                    Equal(RunState.Running, controller.AnalysisView.State, "running");
+                    var plot = host.AnalysisPanel.LoadingView.GetVisualDescendants().First(item => item.GetType().Name == "LoadingPlot") as Control ?? throw new Exception("no plot");
+                    var bottom = plot.TranslatePoint(new Point(0, plot.Bounds.Height), host.AnalysisPanel)?.Y ?? double.NaN;
+                    Equal(true, plot.IsEffectivelyVisible && bottom <= host.AnalysisPanel.Bounds.Height + 0.5 && plot.Bounds.Height >= 82,
+                        $"the plot ends at {bottom} of a {host.AnalysisPanel.Bounds.Height} px panel and is {plot.Bounds.Height} px tall while Running");
+                }
+                finally
+                {
+                    hold.Gate.Set();
+                    running.WaitAsync(TimeSpan.FromSeconds(60)).GetAwaiter().GetResult();
+                }
+            }
+            finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
+        });
+
+        DesktopChecks.Check("Analysis_Units_BandSpeedFollowsResults_ConditionsSummaryAndHistoricalChip", () =>
+        {
+            using var controller = OpenSmall();
+            _ = EvaluateAt(controller, 2, null);
+            controller.AnalysisUnits = Units.Imperial;
+            var (host, window) = ShowAnalysis(controller, 1500, 870);
+            try
+            {
+                var band = host.ModelView.FindControl<ConditionsBand>("AnalysisConditionsBand")!;
+                host.RefreshPanes();
+                Settle(window);
+                Equal("kn", band.FindControl<TextBlock>("SpeedUnit")!.Text, "Imperial band unit");
+                Equal("9.99", band.FindControl<TextBox>("SpeedInput")!.Text, "5.14 m/s as kn");
+                Equal(5.14, band.BuildOperatingPoint().Speed, "an untouched box keeps the exact m/s");
+                band.FindControl<TextBox>("SpeedInput")!.Text = "10";
+                Equal(true, Math.Abs(band.BuildOperatingPoint().Speed - 10 / 1.9438444924406) < 1e-9, "a typed value is kn");
+                var texts = Texts(host.Properties);
+                Equal(true, texts.Contains("9.99 kn · salt 15 °C · as the band"), "COPY-280 summary on the collapsed Conditions group");
+                Equal(true, controller.AnalysisView.Groups.Single(g => g.Title == "Conditions").Rows.Single(r => r.Label == "Speed").Unit == "kn", "results are kn too");
+                controller.AnalysisUnits = Units.Metric;
+                host.RefreshPanes();
+                Settle(window);
+                Equal("m/s", band.FindControl<TextBlock>("SpeedUnit")!.Text, "Metric band unit");
+                Equal(true, Texts(host.Properties).Contains("5.14 m/s · salt 15 °C · as the band"), "Metric summary");
+                // The conditions change after the run: the result is Historical and the chip says so (COPY-279).
+                controller.SetAnalysisConditions(OperatingPoints.Custom(5.14, 4, null), controller.AnalysisWater);
+                host.RefreshPanes();
+                Settle(window);
+                Equal(true, Texts(host.Properties).Contains("Historical · VLM + strip"), "the tier chip while Historical");
+            }
+            finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
+        });
+
         DesktopChecks.Check("Tampered_RunView_UnavailableNoLayersRowKept", () =>
         {
             // A stored run whose payload no longer matches its hash: edited on disk, reopened through the controller (no seam needed).
@@ -353,11 +480,14 @@ public static class AnalysisPanelTests
                 Equal(RunState.Unavailable, view.State, "state");
                 Equal("Analysis: Unavailable", view.StatusText, "status item");
                 Equal(Labels.PayloadFailed, view.Groups.Single().Rows.Single(row => row.Label == "Result").Value, "the verdict row");
+                Equal("The stored run no longer matches its content hash. It is kept in the file and not shown. Evaluate to compute a new run.",
+                    view.Groups.Single().Rows.Single(row => row.Label == "Result").Note, "COPY-274 under COPY-211");
                 Equal(0, view.Layers.Count, "no layers are drawn from a failed payload");
                 Equal(true, view.RunKey is not null, "the run row is kept, named by its key");
                 var panel = new AnalysisPanel();
                 panel.Bind(controller);
                 Equal(0, panel.LoadingView.Points.Count, "no loading curve from a failed payload");
+                Equal(true, panel.FindControl<TextBlock>("LoadingEmpty")!.Text!.EndsWith(Labels.TamperedNote, StringComparison.Ordinal), "the panel carries COPY-274 beside COPY-211");
                 var host = new ShellHost(controller);
                 var window = new Window { Content = host, Width = 1280, Height = 800 };
                 try
@@ -381,9 +511,11 @@ public static class AnalysisPanelTests
             Equal(5, LoadingChart.XTicks.Count, "x ticks");
             Equal(true, LoadingChart.XTicks[0] == 0 && LoadingChart.XTicks[^1] == 1, "x runs 0 to 1 (root to tip)");
             Equal("0,0.08,0.16", string.Join(",", LoadingChart.YTicks(0.16).Select(v => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))), "y ticks");
-            // COPY-238 names Cl·c/c̄ and η; COPY-213 names the tier. No sentence is added.
-            Equal(true, Labels.ChartBasis.Contains(LoadingChart.XTitle) && Labels.ChartBasis.Contains(LoadingChart.YTitle), "axis titles are COPY-238 symbols");
-            Equal(true, Labels.VlmChip.StartsWith(LoadingChart.SeriesLabel, StringComparison.Ordinal), "the series label is the COPY-213 tier name");
+            // Ruling 101 3c: the approved rows COPY-275 (x title), COPY-276 (y title), COPY-277 (legend) and COPY-278 (series, its own row).
+            Equal("η (root → tip)", Labels.ChartXTitle, "COPY-275");
+            Equal("Cl·c/c̄ (–)", Labels.ChartYTitle, "COPY-276");
+            Equal("dashed: elliptic, same CL", Labels.ChartLegend, "COPY-277");
+            Equal("VLM + strip", Labels.ChartSeries, "COPY-278");
             var chart = new LoadingChart();
             var window = new Window { Content = chart, Width = 600, Height = 300 };
             try
@@ -464,6 +596,19 @@ public static class AnalysisPanelTests
         .Where(text => text.IsEffectivelyVisible && !string.IsNullOrEmpty(text.Text)).Select(text => text.Text!).ToHashSet(StringComparer.Ordinal);
 
     private static string StatusText(ShellHost host) => host.StatusStrip.FindControl<TextBlock>("StatusText")?.Text ?? "";
+
+    /// <summary>A real shell window on the controller, switched to Analysis with Four views, laid out.</summary>
+    private static (ShellHost Host, Window Window) ShowAnalysis(WorkbenchController controller, int width, int height)
+    {
+        var host = new ShellHost(controller);
+        var window = new Window { Content = host, Width = width, Height = height };
+        window.Show();
+        controller.ToggleAnalysis();
+        controller.Layout = ViewLayout.Four;
+        host.RefreshPanes();
+        for (int pass = 0; pass < 6; pass++) Settle(window);
+        return (host, window);
+    }
 
     private static void Settle(Window window)
     {

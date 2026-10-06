@@ -108,7 +108,8 @@ public sealed record PropertiesContext(
     SectionContext? Section = null,
     Func<int, string>? StationSource = null,
     CfdWorkbench.Analysis.AnalysisViewModel? Analysis = null,
-    GestureLimit? Limit = null);   // Ruling 96: the planform limit holding the drag in progress
+    GestureLimit? Limit = null,
+    string? ConditionsSummary = null);   // COPY-280: the collapsed Conditions group's line, from the band's live values   // Ruling 96: the planform limit holding the drag in progress
 
 /// <summary>
 /// The open section draft as the Properties pane shows it (design §11.4): both surfaces of the cursor bytes, the section's
@@ -1244,7 +1245,8 @@ public static class PropertiesView
             identity = new SelectionIdentity(IdentityGlyph.Foil, name, selection is Selection.Points ? "Foil" : "Foil · nothing selected");
             foreach (string title in AnalysisFoilGroups)
                 if (view.Groups.FirstOrDefault(group => group.Title == title) is { } group)
-                    shown.Add(AnalysisGroup("ana-" + title.ToLowerInvariant().Replace(" ", "-"), group.Title, group.Rows));
+                    shown.Add(AnalysisGroup("ana-" + title.ToLowerInvariant().Replace(" ", "-"), group.Title, group.Rows,
+                        title == "Conditions" ? context.ConditionsSummary ?? "" : ""));
         }
         // The Tier row is the mockup's chip above the groups: its value moves out of the Wing result group, text unchanged.
         string? tier = null;
@@ -1261,8 +1263,8 @@ public static class PropertiesView
             AvailabilityStatus: availability, TierChip: tier);
     }
 
-    private static PropertyGroup AnalysisGroup(string id, string title, IReadOnlyList<CfdWorkbench.Analysis.ResultRow> rows) =>
-        new(id, title, "", true, [.. rows.Select(row => AnalysisRow(title, row))], []);
+    private static PropertyGroup AnalysisGroup(string id, string title, IReadOnlyList<CfdWorkbench.Analysis.ResultRow> rows, string summary = "") =>
+        new(id, title, summary, true, [.. rows.Select(row => AnalysisRow(title, row))], []);
 
     /// <summary>One <c>ResultRow</c> as a Fact row: its note is the always-visible help line; text values are wide, numbers carry their unit.</summary>
     private static PropertyRow AnalysisRow(string group, CfdWorkbench.Analysis.ResultRow row)

@@ -400,6 +400,7 @@ public partial class ModelArea : UserControl
         NavAnalysisButton.IsChecked = controller.IsAnalysis;
         AnalysisConditionsBand.IsVisible = foilOpen && controller.IsAnalysis;
         AnalysisConditionsBand.ReferenceChordMeters = controller.Estimates?.MeanChordMeters;
+        AnalysisConditionsBand.Units = controller.AnalysisUnits;
         AnalysisConditionsBand.ShowRunState(controller.AnalysisState);
         AnalysisConditionsBand.RefreshDerived();
         var analysis = controller.AnalysisView;

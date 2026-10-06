@@ -12,11 +12,11 @@ internal static class ProjectionTests
         });
         Check("Projection_CdiZeroOrNegative_TotalDragMissing", () => {
             foreach (double downwash in new[] { 0d, 0.1 })
-            { var v = View(s => s with { DownwashTrefftz = downwash }); Equal("Unavailable — total drag missing", Cell(v, "Wing result", "CL/CD").Value); }
+            { var v = View(s => s with { DownwashTrefftz = downwash }); Equal(Loads.TotalDragReason, Cell(v, "Wing result", "CL/CD").Value); }
         });
         Check("Projection_TotalDragMissing_ClCdUnavailable", () => {
             var v = View();
-            Equal("Unavailable — total drag missing", Cell(v, "Wing result", "CL/CD").Value);
+            Equal(Loads.TotalDragReason, Cell(v, "Wing result", "CL/CD").Value);
         });
         Check("Projection_TrefftzLiftUsedForE", () => {
             var (run, _) = Data(s => s with { Fz = 100, DownwashTrefftz = -0.032 });
@@ -146,7 +146,7 @@ internal static class ProjectionTests
             Equal(false, json.Contains("\"yLow\":", StringComparison.Ordinal));
             Equal(false, json.Contains("\"yHigh\":", StringComparison.Ordinal));
             Equal(run.ContentHash, RunRecord.ContentHash(run));
-            Equal(true, Cell(View(run), "Wing result", "CDi (Trefftz)").Value != "Unavailable");
+            Equal(false, Cell(View(run), "Wing result", "CDi (Trefftz)").Value.StartsWith("Unavailable", StringComparison.Ordinal));
             var edged = Rehash(run with
             {
                 Strips = run.Strips.Select((s, i) => s with { YLow = -0.4 + 0.2 * i, YHigh = -0.2 + 0.2 * i }).ToArray()
@@ -160,8 +160,8 @@ internal static class ProjectionTests
         });
         Check("Projection_OneMissingSpanEdge_WidthUnavailable", () => {
             var view = View(s => s.J == 0 ? s with { YLow = -0.4 } : s);
-            Equal("Unavailable", Cell(view, "Wing result", "CDi (Trefftz)").Value);
-            Equal("Unavailable", Cell(view, "Wing result", "e (computed)").Value);
+            Equal("Unavailable — ANA-INDUCED-DRAG-MISSING-WIDTH", Cell(view, "Wing result", "CDi (Trefftz)").Value);
+            Equal("Unavailable — ANA-OSWALD-UNDEFINED", Cell(view, "Wing result", "e (computed)").Value);
         });
         Check("Projection_ExcludedClosingTip_UsesKeptStripEdges", () => {
             var (run, _) = Data();

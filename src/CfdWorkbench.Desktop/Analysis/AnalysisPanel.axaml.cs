@@ -19,10 +19,46 @@ public partial class AnalysisPanel : UserControl
     {
         InitializeComponent();
         LoadingHost.Content = loading;
-        // The slot height is the Bottom region's preset size (LayoutCodec Chrome: 190); the skeleton bars are static placeholders.
-        Height = 190;
+        // The slot height is the Bottom region's preset size (LayoutCodec Chrome: 190), 150 in a short window (HeightFor);
+        // the skeleton bars are static placeholders.
+        Height = FullHeight;
         SkeletonLong.Width = 320;
         SkeletonShort.Width = 240;
+    }
+
+    /// <summary>The panel's height, and its height in a window shorter than <see cref="ShortWindowClientHeight"/> (Ruling 101 3d, layout C).</summary>
+    public const double FullHeight = 190, ShortHeight = 150;
+
+    /// <summary>
+    /// A window client under 820 px tall gets the short panel: 1280x800 (client 800) fires it and 1500x870 (client 860) does not,
+    /// so four views fit at 1280x800 with the 320x240 floor unchanged (measured margin: docs/proof/lay-1280/options.md, C + D).
+    /// </summary>
+    public const double ShortWindowClientHeight = 820;
+
+    public static double HeightFor(double windowClientHeight) =>
+        windowClientHeight > 0 && windowClientHeight < ShortWindowClientHeight ? ShortHeight : FullHeight;
+
+    private Visual? sizedBy;
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        sizedBy = e.Root as Visual;
+        if (sizedBy is null) return;
+        sizedBy.PropertyChanged += OnRootBounds;
+        Height = HeightFor(sizedBy.Bounds.Height);
+    }
+
+    protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        if (sizedBy is not null) sizedBy.PropertyChanged -= OnRootBounds;
+        sizedBy = null;
+        base.OnDetachedFromVisualTree(e);
+    }
+
+    private void OnRootBounds(object? sender, AvaloniaPropertyChangedEventArgs change)
+    {
+        if (change.Property == BoundsProperty && sender is Visual root) Height = HeightFor(root.Bounds.Height);
     }
 
     public LoadingChart LoadingView => loading;
@@ -53,8 +89,11 @@ public partial class AnalysisPanel : UserControl
         Fill(ProvenanceBody, view, ("Conditions", "conditions-table"), ("Labels", "labels-table"), ("Provenance", "provenance-table"));
     }
 
+    // The tampered view (COPY-211) names its note (COPY-274) beside the verdict.
     private static string EmptyText(AnalysisViewModel view) =>
-        view.Groups.FirstOrDefault()?.Rows.FirstOrDefault()?.Value ?? Labels.NoResult;
+        view.Groups.FirstOrDefault()?.Rows.FirstOrDefault() is { } row
+            ? view.State == RunState.Unavailable && row.Note is not null ? row.Value + ". " + row.Note : row.Value
+            : Labels.NoResult;
 
     private static void Fill(Panel host, AnalysisViewModel view, params (string Group, string Name)[] tables)
     {

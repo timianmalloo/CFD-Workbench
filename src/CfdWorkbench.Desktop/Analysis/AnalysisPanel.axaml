@@ -16,14 +16,18 @@
   <Border Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0">
     <DockPanel>
       <StackPanel DockPanel.Dock="Top" Margin="{StaticResource Space1}" Spacing="{StaticResource StackGap2}">
-        <TextBlock x:Name="PanelBanner" Classes="pnl-note" IsVisible="False" />
+        <!-- The banner and the skeleton share one line, so while Running the chart keeps the height its x tick row needs (Ruling 101 Q4). -->
+        <StackPanel Orientation="Horizontal" Spacing="{StaticResource StackGap2}">
+          <TextBlock x:Name="PanelBanner" Classes="pnl-note" IsVisible="False" VerticalAlignment="Center" />
+          <StackPanel x:Name="PanelSkeleton" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" VerticalAlignment="Center"
+                      IsVisible="False" AutomationProperties.Name="Evaluating">
+            <Border x:Name="SkeletonLong" Classes="pnl-bar" HorizontalAlignment="Left" />
+            <Border x:Name="SkeletonShort" Classes="pnl-bar" HorizontalAlignment="Left" />
+          </StackPanel>
+        </StackPanel>
         <Border x:Name="PanelErrorCard" Classes="pnl-error" IsVisible="False">
           <TextBlock x:Name="PanelErrorText" Classes="pnl-cell" AutomationProperties.LiveSetting="Assertive" />
         </Border>
-        <StackPanel x:Name="PanelSkeleton" Spacing="{StaticResource StackGap2}" IsVisible="False" AutomationProperties.Name="Evaluating">
-          <Border x:Name="SkeletonLong" Classes="pnl-bar" HorizontalAlignment="Left" />
-          <Border x:Name="SkeletonShort" Classes="pnl-bar" HorizontalAlignment="Left" />
-        </StackPanel>
       </StackPanel>
       <TabControl x:Name="PanelTabs" AutomationProperties.Name="Analysis result tabs">
         <TabItem x:Name="LoadingTab" Header="Spanwise loading" AutomationProperties.Name="Spanwise loading">

@@ -1,4 +1,5 @@
 using System.Globalization;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using CfdWorkbench.Analysis;
@@ -19,18 +20,59 @@ public partial class ConditionsBand : UserControl
         DepthInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) RefreshDerived(); };
         AlphaInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) RefreshDerived(); };
         WaterInput.SelectionChanged += (_, _) => RefreshDerived();
-        SizeChanged += (_, _) => SetAvailableWidth(Bounds.Width);
+        SizeChanged += (_, args) => { if (args.WidthChanged) SetAvailableWidth(Bounds.Width); };
     }
 
     public event Action<OperatingPoint, WaterRecord>? EvaluateRequested;
     public event Action? CancelRequested;
     public double? ReferenceChordMeters { get; set; }
+
+    private Units units = Units.Metric;
+    private double? convertedSpeed;       // m/s behind SpeedInput while the box still shows the text a unit change wrote
+    private string? convertedText;
+
+    /// <summary>The display units (Ruling 101 3d): the speed box and its unit read kn in Imperial and m/s in Metric, as the results do.</summary>
+    public Units Units
+    {
+        get => units;
+        set
+        {
+            if (units == value) return;
+            double? metersPerSecond = TryBuildSpeed();
+            units = value;
+            SpeedUnit.Text = SpeedUnitText(value);
+            Avalonia.Automation.AutomationProperties.SetName(SpeedInput,
+                value == Units.Imperial ? "Speed in knots" : "Speed in metres per second");
+            if (metersPerSecond is { } speed)
+            {
+                convertedSpeed = speed;
+                convertedText = Labels.Number(value == Units.Imperial ? speed * Labels.KnotsPerMeterSecond : speed, "0.##");
+                SpeedInput.Text = convertedText;
+            }
+            RefreshDerived();
+        }
+    }
+
+    public static string SpeedUnitText(Units value) => value == Units.Imperial ? "kn" : "m/s";
+
+    private double? TryBuildSpeed()
+    {
+        try { return BuildSpeedMetersPerSecond(); }
+        catch (ContractError) { return null; }
+    }
+
+    private double BuildSpeedMetersPerSecond()
+    {
+        if (convertedSpeed is { } kept && SpeedInput.Text == convertedText) return kept;
+        double typed = Parse(SpeedInput.Text, "ANA-INPUT-SPEED");
+        return units == Units.Imperial ? typed / Labels.KnotsPerMeterSecond : typed;
+    }
     public bool Running { get; private set; }
 
     /// <summary>One builder for GUI and CLI run-key inputs (CLI-01).</summary>
     public OperatingPoint BuildOperatingPoint()
     {
-        double speed = Parse(SpeedInput.Text, "ANA-INPUT-SPEED");
+        double speed = BuildSpeedMetersPerSecond();
         double alpha = Parse(AlphaInput.Text, "ANA-INPUT-ALPHA");
         double? depth = string.IsNullOrWhiteSpace(DepthInput.Text) ? null : Parse(DepthInput.Text, "ANA-INPUT-DEPTH");
         var op = OperatingPoints.Custom(speed, alpha, depth);
@@ -50,12 +92,29 @@ public partial class ConditionsBand : UserControl
         Avalonia.Automation.AutomationProperties.SetName(EvaluateButton, Running ? "Cancel evaluation" : "Evaluate");
     }
 
+    /// <summary>
+    /// Re, h/c and Fr_h move under More below 1100 px, and also wherever the band's own content (the longer
+    /// "Unavailable — depth not set" cells) would run past the right edge (Ruling 101 Q4).
+    /// </summary>
     public void SetAvailableWidth(double width)
     {
-        bool compact = width > 0 && width <= CompactWidth;
+        availableWidth = width;
+        bool compact = width > 0 && (width <= CompactWidth || !WideContentFits(width));
         WideDerived.IsVisible = !compact;
         MoreButton.IsVisible = compact;
         DerivedRe.IsVisible = DerivedDepth.IsVisible = DerivedFroude.IsVisible = !compact;
+    }
+
+    private double availableWidth;
+
+    private bool WideContentFits(double width)
+    {
+        WideDerived.IsVisible = true;
+        DerivedRe.IsVisible = DerivedDepth.IsVisible = DerivedFroude.IsVisible = true;
+        MoreButton.IsVisible = false;
+        BandRow.Measure(Size.Infinity);
+        double room = width - (BandRow.Parent is Border border ? border.Padding.Left + border.Padding.Right : 0);
+        return BandRow.DesiredSize.Width <= room;
     }
 
     public void RefreshDerived()
@@ -73,6 +132,7 @@ public partial class ConditionsBand : UserControl
             MoreDepth.Header = DerivedDepth.Text;
             MoreFroude.Header = DerivedFroude.Text;
             InputError.IsVisible = false;
+            if (availableWidth > 0) SetAvailableWidth(availableWidth);   // the cells' text changed width
         }
         catch (ContractError error)
         {
