@@ -765,7 +765,8 @@ public static class PropertiesView
         var shared = names.Length == 1 && Curves.TryGetValue(names[0], out var one) ? one : Curves["trailing"];
         var typeRow = Prose("p:type", "Type", type) with { State = type == "Mixed" ? RowState.Mixed : RowState.Normal };
         if (names.Length == 1 && found.Length == points.Items.Count)
-            groups.Add(new PropertyGroup("pos", "Point", hold ?? "Mixed", true, GroupRows(typeRow, found, shared, names[0], mode), []));
+            groups.Add(new PropertyGroup("pos", "Point", hold ?? "Mixed", true, GroupRows(typeRow, found, shared, names[0], mode),
+                hold is null ? [] : [new RowMessage(hold, MessageKind.Info)]));   // design §3.3: the applied move and binding point, in the inspector
         else
             groups.Add(new PropertyGroup("pos", "Point", "Mixed", true,
             [

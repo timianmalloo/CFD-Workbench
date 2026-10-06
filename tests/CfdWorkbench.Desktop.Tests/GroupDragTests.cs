@@ -307,8 +307,61 @@ public static class GroupDragTests
 
     private static string Msg(Rig rig, string key) => PropertiesViewTests.Text(rig.Host.Properties, key);
 
+    /// <summary>Writes the window or a control to a PNG under GRP_CAPTURE_DIR (the exit evidence against the mockup); no-op when unset.</summary>
+    private static void Capture(Rig rig, Visual visual, string name)
+    {
+        if (Environment.GetEnvironmentVariable("GRP_CAPTURE_DIR") is not { Length: > 0 } dir) return;
+        Directory.CreateDirectory(dir);
+        rig.Settle();
+        var size = new PixelSize((int)visual.Bounds.Width, (int)visual.Bounds.Height);
+        using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size, new Vector(96, 96));
+        bitmap.Render(visual);
+        bitmap.Save(Path.Combine(dir, name + ".png"));
+    }
+
     public static void RunPane()
     {
+        Check("GroupDrag_Captures_AgainstTheMockup", rig =>
+        {
+            var c = rig.Controller;
+            // Frame A: a group mid-drag in the Plan. Frame D: grab point 4, the tip (point 7) binds and holds the group.
+            Pick(c, "trailing", 2, 3, 4);
+            rig.Settle();
+            var origin = rig.Canvas.ScreenPoint(At(c, "trailing", 3));
+            var pointer = rig.Press(rig.Canvas, origin);
+            for (int step = 1; step <= 10; step++) rig.Move(rig.Canvas, pointer, origin + new Vector(3 * step, 1.2 * step));
+            Capture(rig, rig.Window, "drag-plan");
+            rig.Release(rig.Canvas, pointer, origin + new Vector(30, 12));
+            c.Undo();
+            Pick(c, "trailing", 3, 6);
+            rig.Settle();
+            origin = rig.Canvas.ScreenPoint(At(c, "trailing", 3));
+            pointer = rig.Press(rig.Canvas, origin);
+            for (int step = 1; step <= 40; step++) rig.Move(rig.Canvas, pointer, origin + new Vector(0, -4 * step));
+            Require(rig.Host.Properties.GetVisualDescendants().OfType<TextBlock>().Any(text => text.IsVisible && text.Text == "Applied −115.00 mm · held by point 7"),
+                "the inspector does not show the applied move and the binding point");
+            Capture(rig, rig.Window, "hold-grab4-tip7-binds");
+            rig.Release(rig.Canvas, pointer, origin + new Vector(0, -160));
+            c.Undo();
+            // Typed: Set to, Move by, and a refusal with its Use action.
+            Pick(c, "trailing", 3, 6);
+            rig.Settle();
+            Capture(rig, rig.Host.Properties, "typed-set-to");
+            PropertiesViewTests.Need<ToggleButton>(rig.Host.Properties, "GroupModeMoveBy").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            rig.Settle();
+            Capture(rig, rig.Host.Properties, "typed-move-by");
+            TypeInto(rig, Aft(rig), "-200");
+            Capture(rig, rig.Host.Properties, "typed-refusal-use");
+            // An elevation group drag (twist).
+            var free = c.CurveFor("twist")!.Points.Where(point => point.Role is PointRole.Control or PointRole.Anchor && point.Freedom == PointFreedom.Free).Take(2).ToArray();
+            c.Select(new Selection.Points(free.Select(point => new PointRef("twist", point.Id)).ToArray()));
+            rig.Settle();
+            var at = rig.Side.ScreenPoint(free[0]);
+            var drag = rig.Press(rig.Side, at);
+            for (int step = 1; step <= 12; step++) rig.Move(rig.Side, drag, at + new Vector(0, -3 * step));
+            Capture(rig, rig.Window, "drag-elevation-twist");
+            rig.Release(rig.Side, drag, at + new Vector(0, -36));
+        });
         Check("Properties_MultiplePoints_SharedValueShown_MixedWhereDiffer", rig =>
         {
             var c = rig.Controller;
