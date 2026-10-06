@@ -598,6 +598,7 @@ namespace CfdWorkbench.Desktop.Tests
             // Test-runner boundary: report unexpected exceptions as failures and continue. The STACK line keeps a one-off
             // flake debuggable from the log alone: a job queued by an earlier check surfaces inside this check's
             // RunJobs, and only the stack shows whose job it was (UI-LIFETIME, 2026-10-02).
+            long began = System.Diagnostics.Stopwatch.GetTimestamp();
             try { assertion(); Console.WriteLine("PASS " + name); }
             catch (ReadinessMissException miss) { Console.WriteLine(miss.Message); }   // Ruling 81: no PASS, no FAIL
             catch (Exception failure)
@@ -606,6 +607,8 @@ namespace CfdWorkbench.Desktop.Tests
                 Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message);
                 Console.WriteLine("STACK " + name + " " + failure.ToString().ReplaceLineEndings(" | "));
             }
+            // Per-check wall time, for the Desktop CPU profile (B5); not read by check-test-costs.py.
+            Console.WriteLine("COST " + name + " " + System.Diagnostics.Stopwatch.GetElapsedTime(began).TotalMilliseconds.ToString("F1", System.Globalization.CultureInfo.InvariantCulture));
         }
 
         /// <summary>

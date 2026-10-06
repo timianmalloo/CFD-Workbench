@@ -1602,3 +1602,14 @@ the parts disagree on the group count; `tools/check-test-costs.py` applies C-2 t
 a part over 5 s (red) and two parts of 4.9 s that sum over 5 s (green). Adding a test class means one line in the `groups`
 array with its measured cost hint; a stale hint costs balance, never coverage. When a part nears 4 s, raise n (one number in
 `jobs=`), do not re-base C-2.
+
+**DESKTOP-HARNESS-GROWTH · A CPU-bound harness whose parts run concurrently cannot be partitioned into margin.** C-4 (Desktop <= 43 s)
+read 42.5 / 43.5 / 42.8 s at quiet load (one red in three), then 45,636 ms at load 21.8 on the PNA join, after every UI track had added
+checks. Sibling of ANALYSIS-HARNESS-GROWTH, whose control (partition, limit per part) worked for Analysis because its single process
+was start-up bound. For Desktop it failed on measurement (docs/plans/test-cost.md 9.8, the sweep): two concurrent Desktop jobs read
+43.8-46.5 s each against 42.5-43.5 s for one, because the ring is CPU-bound (500+ CPU-s on 16 cores) and the parts compete. Derive: where
+the ring is CPU-bound, only less CPU lowers a clock; a partition moves the same work between concurrent jobs. Control (Ruling 99):
+(1) Track B5 cuts Desktop CPU, starting with the heaviest children (plan-canvas, properties-view, shell-window), without dropping a
+check or loosening an assertion, and returns C-4 to 43,000 ms; (2) growth is made countable: each UI track's join note reports its Desktop
+child-seconds delta from `SUITE-TIME` (the sum over `.tmp-tests/Desktop.log`); (3) C-4 stays a load-gated tripwire (Ruling 87) with the limit
+set only from a recorded 3-run quiet baseline (`docs/proof/ring-b4/baseline-desktop.csv`), never by an unrecorded move.

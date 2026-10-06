@@ -4848,7 +4848,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2bd01739640bf55b53ddc4e85f30d29d587ff31dc5be95259664dc2cd41aecd3"
+      "sourceSha256": "8d8a5cb2b3983018e286bd71bd853d0f199cc0f237d5bf43a9ba38e141d2fe5a"
     },
     {
       "id": "domain-experts",
@@ -5498,7 +5498,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c24e3598a355296614515a351d88d484e206a65a72cdc9d79c1e30c935976dbe"
+      "sourceSha256": "6888b97f9edae9f2fb2e7e885cafff8c05c441de0d32e1e2431580d08595810e"
     },
     {
       "id": "plan-tip-handling",
@@ -6511,7 +6511,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "03e9875617b6c894b2c49d6ffc9bfe83590f60bfdcd709fc53337d44bfcb02a1"
+      "sourceSha256": "0061666ffa8d6c5a1cde8ca315021322faa8e42b7bc14a1c54e8153fc524150b"
     },
     {
       "id": "kb-hw-glossary",
@@ -13805,5 +13805,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "8e35eefab955e5d04fdc3aa403e40e26e8b20e102ac06eb8d385a76243f5144d"
+  "graphSha256": "fba12f6a855c2c89648900e8626245f5c77d758cb004ab8559bbbe06a31ecf29"
 };
