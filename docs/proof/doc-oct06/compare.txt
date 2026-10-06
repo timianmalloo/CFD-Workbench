@@ -103,6 +103,6 @@ DRAFT COPY-351 Unavailable — the polar did not converge at this strip. :: no s
 DRAFT COPY-352 Unavailable — the polar could not be computed for this section. This is a program fault; the run is kept. :: no source text; drafted by DOC for operator review; codes ANA-POLAR-NONFINITE, ANA-POLAR-INPUT, ANA-POLAR-CST-INPUT, ANA-POLAR-CST-FIT, ANA-POLAR-WEIGHTS-MISSING, ANA-POLAR-WEIGHTS-HASH, ANA-POLAR-WEIGHTS-FORMAT exist in src/CfdWorkbench.Analysis
 EQUAL COPY-353 Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray :: src/CfdWorkbench.Analysis/Loads.cs :: fragments found: 1/1
 HYD   COPY-354 Drag (Wing only) :: hydrodynamicist verdict relayed by the Coordinator (a message; no file to compare)
-HYD   COPY-355 <min>–<max> N :: hydrodynamicist verdict relayed by the Coordinator (a message; no file to compare)
+HYD   COPY-355 <min>–<max> <force unit> :: hydrodynamicist verdict relayed by the Coordinator (a message; no file to compare)
 HYD   COPY-356 Not included: junction, mast, wave, spray :: hydrodynamicist verdict relayed by the Coordinator (a message; no file to compare)
 rows 107, mismatches 0

@@ -162,13 +162,13 @@ for text, codes, where in drafts:
 add("td", "Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray", R101,
     "one string for Total drag and the craft CL/CD (Loads.TotalDragReason replaces \"Unavailable — total drag missing\"); the craft Total drag and craft CL/CD stay Unavailable (hydrodynamicist condition)",
     "code", (A + "Loads.cs", ["Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray"]))
-add("td", "Drag (Wing only)", PROP + " (HYD conditions on Ruling 108 DXM-5)",
+add("td", "Drag (Wing only)", "Ruling 109",
     "row label; one row replaces the \"Wing-only drag\" row (AnalysisProjection.cs:81 and :134); Ruling 108 text was \"Total drag\" marked \"Wing only\"",
     "hyd", None)
-add("td", "<min>–<max> N", PROP + " (HYD conditions on Ruling 108 DXM-5)",
-    "value: the Ncrit 2–4 band; keeps the surrogate label and the low-confidence flag; <min> and <max> read in lbf under Imperial units (the operator confirms)",
+add("td", "<min>–<max> <force unit>", "Ruling 109",
+    "value: the Ncrit 2–4 band; keeps the surrogate label and the low-confidence flag; the unit follows the Units setting (N in Metric, lbf in Imperial)",
     "hyd", None)
-add("td", "Not included: junction, mast, wave, spray", PROP + " (HYD conditions on Ruling 108 DXM-5)",
+add("td", "Not included: junction, mast, wave, spray", "Ruling 109",
     "new reason line under the Drag (Wing only) row; tip-vortex cavitation stays under Not modelled",
     "hyd", None)
 

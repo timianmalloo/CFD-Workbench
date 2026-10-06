@@ -24,7 +24,7 @@ summary: >-
 | Ruling 107: COPY-G1 to G12 | COPY-281 to COPY-292 | 12 | docs/design/group-move-node-m.md section 5 | approved — Ruling 107 |
 | Ruling 108: NEW rows of the DX table | COPY-293 to COPY-333 | 41 | docs/design/dx-screen-states.md | approved — Ruling 108 (DR-DXM-1) |
 | Reason-code drafts | COPY-334 to COPY-352 | 19 | drafted by DOC | proposed — awaiting operator |
-| Total drag | COPY-353 to COPY-356 | 4 | Loads.cs:9 (Ruling 101); the hydrodynamicist's verdict | Ruling 101 row approved; three rows proposed — awaiting operator (HYD conditions on Ruling 108 DXM-5) |
+| Total drag | COPY-353 to COPY-356 | 4 | Loads.cs:9 (Ruling 101); the hydrodynamicist's verdict | all four rows approved (Ruling 101, then Ruling 109 for the Drag (Wing only) rows) |
 
 ## Row to source
 
@@ -135,7 +135,7 @@ summary: >-
 | COPY-352 | Unavailable — the polar could not be computed for this section. This is a program fault; the run is kept. | drafted by DOC |
 | COPY-353 | Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray | src/CfdWorkbench.Analysis/Loads.cs |
 | COPY-354 | Drag (Wing only) | hydrodynamicist verdict (message) |
-| COPY-355 | <min>–<max> N | hydrodynamicist verdict (message) |
+| COPY-355 | <min>–<max> <force unit> | hydrodynamicist verdict (message) |
 | COPY-356 | Not included: junction, mast, wave, spray | hydrodynamicist verdict (message) |
 
 ## COPY-G mapping (Ruling 107)
@@ -210,11 +210,11 @@ The code line `ANA-PROFILE-DRAG-MISSING-CD:<reason>` carries the first missing s
 
 ## Spec 1.7.5
 
-Revision line `Product specification · revision 1.7.5 · 6 October 2026 ·` is a plain prefix (grep count 1). CAD-04 clause and the node M note retirement: approved (Ruling 107 DR-GM-8). A5.6 and ANA-03: the hydrodynamicist's form, marked "proposed — awaiting operator (HYD conditions on Ruling 108 DXM-5)" in the spec text, in section H.5 and in `docs/specs/amendments/spec-1.7.5.md`. The change record is Appendix H, section H.5.
+Revision line `Product specification · revision 1.7.5 · 6 October 2026 ·` is a plain prefix (grep count 1). CAD-04 clause and the node M note retirement: approved (Ruling 107 DR-GM-8). A5.6 and ANA-03: the hydrodynamicist's form, marked "approved — Ruling 109" in the spec text, in section H.5 and in `docs/specs/amendments/spec-1.7.5.md`. The change record is Appendix H, section H.5.
 
 ## What waits on the operator
 
-1. The A5.6 and ANA-03 clause and COPY-354 to COPY-356: the hydrodynamicist's form differs from Ruling 108's text (label `Drag (Wing only)`, craft Total drag stays Unavailable, new reason line). Also the Imperial unit of the band.
+1. Nothing on Drag (Wing only): approved as Ruling 109.
 2. The reason-code drafts (rows marked proposed, 19 rows).
 3. NEW rows with no drafted text (listed above).
 4. The `<n>` count for ANA-PROFILE-DRAG-MISSING-CD needs a code change (CPY or DX), not a copy decision.

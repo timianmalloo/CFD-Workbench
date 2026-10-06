@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "af92c011230b9c9d2e90f210b851401d44c4286db4b23e1a3b752770a7587f5f"
+      "sourceSha256": "dd4f4d5bd1f9b91025eff8b158c3c925de811767da1a8e169aa4900accc08211"
     },
     {
       "id": "kb-hw-glossary",
@@ -10927,7 +10927,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "535620160e550f14d8664a47d756f4b71559d9209776a70e9b25e6d568e05bab"
+      "sourceSha256": "0ae3ce29185963194bedb43a711ec7e201fd3f33683bd26d76a74faf9bcdb2d2"
     },
     {
       "id": "proof-dock-split-s8",
@@ -13916,7 +13916,7 @@ window.DOCS_INDEX = {
       "phase": "specification",
       "reviewBy": "2027-04-01",
       "reviewSuggested": [],
-      "summary": "Two clauses to cfd-workbench-v1 and one retired note, traced to Rulings 107 and 108. The CAD-04 clause and the retired node M note are approved (Ruling 107 DR-GM-8). The A5.6 and ANA-03 clause is the hydrodynamicist's form of Ruling 108 DXM-5, which differs from the ruling's text, so it is proposed and waits for the operator. Revision 1.7.5 of the spec carries the batch; the change record is Appendix H, section H.5.",
+      "summary": "Two clauses to cfd-workbench-v1 and one retired note, traced to Rulings 107 and 108. The CAD-04 clause and the retired node M note are approved (Ruling 107 DR-GM-8). The A5.6 and ANA-03 clause is the hydrodynamicist's form of Ruling 108 DXM-5, which differs from the ruling's text; the operator approved it as Ruling 109. Revision 1.7.5 of the spec carries the batch; the change record is Appendix H, section H.5.",
       "tags": [
         "spec",
         "amendments",
@@ -13940,7 +13940,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "de9cfdb4a29d5567aa510a99e63ab7cbd0022952f477d4c328e81c8bc317c641"
+      "sourceSha256": "f86ae43d2dafa586c8a3f8bea110c9ee530e964da91f5944e1aed37eb4d6ebe3"
     },
     {
       "id": "spec-cfd-workbench",
@@ -14259,7 +14259,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "6bf352b20563b2f2387d88174ff34610aa9d340416686b65d0470af45ff1ecb4"
+      "sourceSha256": "089d17363f4285a32add7c197d86fc21a671625ad2f8a2cb96f4b59a8bcbe157"
     },
     {
       "id": "spec-foildsl",
@@ -14658,5 +14658,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "031b3b114f36900dc526f2a57eb53ba9b0f1df262a5ea3e254574967dfb6b846"
+  "graphSha256": "e81b35558bab10daa5f242b2a28af31f40b654989ca313ed7b0c8cb72bf88877"
 };

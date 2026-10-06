@@ -5,9 +5,9 @@
   "expectedGeometryNav": 1,
   "frame": {
     "width": 1120,
-    "height": 112748.78125
+    "height": 112707.1875
   },
-  "sourceHash": "6bf352b20563b2f2387d88174ff34610aa9d340416686b65d0470af45ff1ecb4",
+  "sourceHash": "089d17363f4285a32add7c197d86fc21a671625ad2f8a2cb96f4b59a8bcbe157",
   "overflow": false,
   "visibleNavAfterFilter": 1,
   "emptyFilter": {
