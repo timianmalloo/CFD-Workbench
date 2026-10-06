@@ -168,7 +168,6 @@ public sealed class AnalysisService(AuthoringSession session, IWingMethod method
             {
                 SectionTierResult section = SectionTier.Evaluate(view.Source, stations.Etas, strips, op, water, token);
                 trace.PanelUnderreadFraction = section.PanelUnderreadFraction;
-                strips = SectionTier.MarkGoverning(strips, section);
             }
         }
         catch (ContractError error) when (error.Code.StartsWith("ANA-", StringComparison.Ordinal) && error.Code != TipBelowFloorCode)

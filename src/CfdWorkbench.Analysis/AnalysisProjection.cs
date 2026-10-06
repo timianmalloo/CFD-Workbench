@@ -240,7 +240,8 @@ public static class AnalysisProjection
                 Row("Cl_local", Num(s.ClLocal, "0.###")), Row("α_eff", Num(s.AlphaEff, "0.##"), "°"),
                 Row("Re_local", Num(s.ReLocal, "0.###E+0")),
                 Row("Lift / span", width > 0 ? Num(localLift / width, "0.###") : Labels.StripWidthMissing, width > 0 ? "N/m" : null),
-                Row("Envelope (this strip)", VerdictText(s, context.Verdicts)),
+                Row("Envelope (this strip)", VerdictText(s, context.Verdicts),
+                    note: s.ProvisionalReason == StripLoad.PanelUnderreadReason ? StripLoad.PanelUnderreadReason : null),
                 Row("Polar Re range", s.ProvisionalReason == StripLoad.TipProvisionalReason ? Labels.TipNotJudged :
                     s.CdNcrit2.UnavailableReason ?? (s.CdNcrit2.Value.HasValue ? Num(s.ReLocal, "0.###E+0") : Labels.NoPolar)),
                 Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : s.CdNcrit2.UnavailableReason ?? Labels.NoPolar,
@@ -266,8 +267,6 @@ public static class AnalysisProjection
     private static string VerdictText(StripLoad strip, IReadOnlyList<StripVerdict>? verdicts)
     {
         StripVerdict? verdict = At(verdicts, strip);
-        if (strip.Provisional && strip.ProvisionalReason == StripLoad.PanelUnderreadReason)
-            return StripLoad.PanelUnderreadReason;
         return State(strip, verdict) switch
         {
             VerdictState.Provisional => Labels.TipNotJudged,

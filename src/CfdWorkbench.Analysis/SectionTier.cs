@@ -117,22 +117,4 @@ public static class SectionTier
         return new(stations, wingScreen, selected.Eta, underread);
     }
 
-    /// <summary>Carry the Ruling 90 provisional code on the nearest judged strip; the tip's not-judged code has priority.</summary>
-    public static IReadOnlyList<StripLoad> MarkGoverning(IReadOnlyList<StripLoad> strips, SectionTierResult result)
-    {
-        if (!result.GoverningProvisional || strips.Count == 0) return strips;
-        int at = -1;
-        double nearest = double.PositiveInfinity;
-        for (int i = 0; i < strips.Count; i++)
-        {
-            double distance = Math.Abs(Math.Abs(strips[i].Eta) - result.GoverningEta);
-            if (distance >= nearest || strips[i].ProvisionalReason == StripLoad.TipProvisionalReason) continue;
-            nearest = distance;
-            at = i;
-        }
-        if (at < 0) return strips;
-        var marked = strips.ToArray();
-        marked[at] = marked[at] with { Provisional = true, ProvisionalReason = StripLoad.PanelUnderreadReason };
-        return marked;
-    }
 }

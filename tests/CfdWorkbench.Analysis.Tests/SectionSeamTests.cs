@@ -95,9 +95,18 @@ internal static class SectionSeamTests
         var polar = new PolarResult(sample, [], false, 0.0001, 0.0002);
         var section = new SectionTierResult([new SectionStationResult(0.5, 2, 5e5, 0.5, estimate, cavitation)],
             cavitation, 0.5, 0.11) { PolarNcrit2 = polar, PolarNcrit4 = polar };
-        IReadOnlyList<StripLoad> provisional = SectionTier.MarkGoverning(run.Strips,
-            section with { GoverningEta = 0.25, PanelUnderreadFraction = 0.11 });
-        AnalysisChecks.Equal(StripLoad.PanelUnderreadReason, provisional[1].ProvisionalReason, "over-10% station reason");
+        var legacy = run.Strips.Select(s => s.J == 1 ? s with
+            { Provisional = true, ProvisionalReason = StripLoad.PanelUnderreadReason } : s).ToArray();
+        AnalysisRun oldRun = ProjectionTests.Rehash(run with { Strips = legacy });
+        var verdicts = Enumerable.Range(0, legacy.Length)
+            .Select(_ => new StripVerdict(false, ["Cl_local"], "Outside the method envelope at this strip")).ToArray();
+        var oldView = AnalysisProjection.Build(oldRun, ProjectionTests.Current(oldRun), Units.Metric,
+            new ProjectionContext(Verdicts: verdicts, SectionTier: section));
+        ResultRow envelope = AnalysisProjection.StripAt(oldView, legacy[1].Eta).Rows
+            .Single(row => row.Label == "Envelope (this strip)");
+        AnalysisChecks.Equal("Outside the method envelope at this strip", envelope.Value,
+            "panel under-read does not replace envelope verdict");
+        AnalysisChecks.Equal(StripLoad.PanelUnderreadReason, envelope.Note, "separate legacy under-read note");
         var view = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric,
             new ProjectionContext(SectionTier: section));
         var rows = view.Groups.Single(group => group.Title == "Section (2D)").Rows;
