@@ -1,3 +1,5 @@
+using CfdWorkbench.Core;
+
 namespace CfdWorkbench.Analysis;
 
 // The view-model shape TGL, LAY and PNA bind to (design §18.2: "PRJ's view-model shape (PRE)"). PRJ owns this file
@@ -30,6 +32,12 @@ public sealed record AnalysisViewModel(RunState State, string StatusText, string
 {
     public IReadOnlyList<LoadingPoint> Loading { get; init; } = [];
     public IReadOnlyList<StripDetail> StripDetails { get; init; } = [];
+    /// <summary>A5.2 data beside the deep-water result; null when depth was not supplied.</summary>
+    public FreeSurfaceResult? FreeSurface { get; init; }
+    /// <summary>Per-strip polar/lattice comparison and measured exemption edge; null without a run polar.</summary>
+    public PolarConsistencyResult? PolarConsistency { get; init; }
+    public StripValue? WingDragNcrit2 { get; init; }
+    public StripValue? WingDragNcrit4 { get; init; }
 }
 
 /// <summary>A titled group of rows (Wing result, Loads, Labels, Provenance…).</summary>

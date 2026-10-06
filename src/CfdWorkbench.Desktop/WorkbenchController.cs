@@ -297,9 +297,12 @@ public sealed class WorkbenchController : IDisposable
             var view = AnalysisProjection.Build(selected?.Run, current, Units.Metric,
                 new ProjectionContext(projectionFeed.Verdicts, projectionFeed.Stations, projectionFeed.RootThicknessRatio, Integrity: selected?.Integrity ?? RunIntegrity.Intact,
                     PreviousCompleted: previous, HiddenLayers: hiddenLayers.ToHashSet(StringComparer.Ordinal),
-                    StripNormals: projectionFeed.StripNormals, FeedUnavailable: projectionFeed.Unavailable));
-            if (view.State == RunState.Historical && selected is not null)
-                view = view with { Banner = HistoricalBanner(selected.Run, current) };
+                    StripNormals: projectionFeed.StripNormals, FeedUnavailable: projectionFeed.Unavailable,
+                    SectionTier: projectionFeed.SectionTier,
+                    Revision: feedRun is null ? null : session.RevisionOf(feedRun.Inputs.AcceptedId),
+                    HistoricalText: selected is { Integrity: RunIntegrity.Intact } &&
+                        selected.Run.Outcome is RunOutcome.Completed && RunRecord.RecomputedKey(selected.Run) != Freshness.CurrentKey(current)
+                        ? HistoricalBanner(selected.Run, current) : null));
             if (AnalysisRunning)
                 view = view with { State = RunState.Running, StatusText = "Analysis: Running" };
             LayerSet = view.Layers;
@@ -318,9 +321,9 @@ public sealed class WorkbenchController : IDisposable
     /// <paramref name="Unavailable"/> carries the reason when the run's revision is not held (never another revision's data).
     /// </summary>
     public sealed record RunFeed(IReadOnlyList<StripVerdict>? Verdicts, IReadOnlyList<StationFrame>? Stations, double? RootThicknessRatio,
-        IReadOnlyList<Loads.Vec>? StripNormals, string? Unavailable);
+        IReadOnlyList<Loads.Vec>? StripNormals, string? Unavailable, SectionTierResult? SectionTier);
 
-    private static readonly RunFeed NoFeed = new(null, null, null, null, null);
+    private static readonly RunFeed NoFeed = new(null, null, null, null, null, null);
 
     /// <summary>
     /// The feed of <paramref name="run"/> from the accepted source of its own revision (<c>run.Inputs.AcceptedId</c>): the current
@@ -336,10 +339,11 @@ public sealed class WorkbenchController : IDisposable
         {
             var verdicts = MethodRecord.DeriveVerdicts(run, source);
             var normals = MethodRecord.DeriveNormals(run, source);
-            if (run.Settings.SectionEtas is not { Count: > 0 } etas) return new(verdicts, null, null, normals, null);
+            SectionTierResult sectionTier = SectionTier.Derive(run, source);
+            if (run.Settings.SectionEtas is not { Count: > 0 } etas) return new(verdicts, null, null, normals, null, sectionTier);
             double[] all = etas.Append(0).Distinct().Order().ToArray();
             var frames = Placement.Sections(source, all, [0d, 1d], CancellationToken.None).Select(section => section.Frame).ToArray();
-            return new(verdicts, frames.Where((_, i) => etas.Contains(all[i])).ToArray(), frames[0].ThicknessRatio, normals, null);
+            return new(verdicts, frames.Where((_, i) => etas.Contains(all[i])).ToArray(), frames[0].ThicknessRatio, normals, null, sectionTier);
         }
         catch (ContractError) { return NoFeed; }
     }

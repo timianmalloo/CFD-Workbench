@@ -65,6 +65,18 @@ internal static class PolarNumericsTests
         StripValue total = Loads.TotalDrag(complete, 2);
         if (total.Value is not null || total.UnavailableReason != "ANA-TOTAL-DRAG-MISSING-JUNCTION-MAST-WAVE-SPRAY")
             throw new InvalidOperationException("craft Total drag claimed the wing-only subtotal: " + total);
+        RunSettings sourcedSettings = complete.Settings with { Polar = new RunPolar("fixture", "1", "clean") };
+        string sourcedSettingsHash = RunRecord.SettingsHash(sourcedSettings);
+        AnalysisRun sourced = ProjectionTests.Rehash(complete with
+        {
+            Settings = sourcedSettings, SettingsHash = sourcedSettingsHash,
+            RunKey = RunRecord.Key(complete.Inputs, complete.Water, complete.Op, complete.Method, sourcedSettingsHash)
+        });
+        var projected = AnalysisProjection.Build(sourced, ProjectionTests.Current(sourced), Units.Metric);
+        if (projected.WingDragNcrit2?.Value is not > 0 ||
+            projected.Groups.Single(group => group.Title == "Loads").Rows.Single(row => row.Label == "Total drag").Value !=
+            "ANA-TOTAL-DRAG-MISSING-JUNCTION-MAST-WAVE-SPRAY")
+            throw new InvalidOperationException("wing subtotal or craft missing-component code did not reach projection");
         AnalysisRun missing = ProjectionTests.Data().Run;
         if (Loads.TotalDrag(missing, 2).UnavailableReason?.Contains("PROFILE", StringComparison.Ordinal) != true)
             throw new InvalidOperationException("missing profile component was not named");

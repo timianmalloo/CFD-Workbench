@@ -23,7 +23,6 @@ internal static class StripFixtureTests
         AnalysisChecks.Check("F12_SpeedScaleK_ForcesScaleK2", F12);
         AnalysisChecks.Check("F13a_FreshToSalt_ReFalls4p25Percent", F13a);
         AnalysisChecks.Check("F17_GoldenMaster_ExampleFoilVector", F17);
-        AnalysisChecks.Check("TipStrip_ExampleFoil_OutermostProvisional", TipProvisional);
         AnalysisChecks.Check("Strip_ReLocal_UsesLocalChord", StripReynolds);
         AnalysisChecks.Check("Reference_SrefAndSpan_FromWingEstimates", Reference);
         AnalysisChecks.Check("Water_OutsideTable_Unavailable", WaterOutside);
@@ -31,6 +30,10 @@ internal static class StripFixtureTests
         AnalysisChecks.Check("Loads_AttachmentMoment_TransferAboutNamedPoint", Attachment);
         AnalysisChecks.Check("SolveResidual_FailedRunHasNoDiagnostics", Residual);
     }
+
+    // Measured 1,285 ms in ring 0 with the 200/400-panel service check; C-5 requires readiness.
+    internal static void RunReadiness() =>
+        AnalysisChecks.Check("TipStrip_ExampleFoil_OutermostProvisional", TipProvisional);
 
     private static void F8()
     {

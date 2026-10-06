@@ -27,6 +27,10 @@ public static class PanelMethod
 
     /// <summary>Sample one foil station for Cp at the panel tier's own cosine chord resolution.</summary>
     public static SectionSample SampleSection(byte[] source, double eta, int panelCount,
+        CancellationToken cancellation = default) => SampleSections(source, [eta], panelCount, cancellation)[0];
+
+    /// <summary>Sample every wing station on the same independent cosine chord grid, parsing the source once.</summary>
+    public static IReadOnlyList<SectionSample> SampleSections(byte[] source, IReadOnlyList<double> etas, int panelCount,
         CancellationToken cancellation = default)
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -36,7 +40,7 @@ public static class PanelMethod
         var xs = new double[half + 1];
         for (int i = 0; i <= half; i++)
             xs[i] = (1 - Math.Cos(Math.PI * i / half)) / 2;
-        return Placement.Sections(source, [eta], xs, cancellation)[0];
+        return Placement.Sections(source, etas, xs, cancellation);
     }
 
     public static PanelResult Solve(SectionSample section, double alphaDeg, CancellationToken cancellation = default)

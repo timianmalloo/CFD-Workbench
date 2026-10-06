@@ -14,6 +14,12 @@ public static class StripCoupler
 
     public static IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution,
         OperatingPoint op, WaterRecord water, IPolarSource polar, CancellationToken cancellation)
+        => Couple(sections, solution, op, water, polar, null, cancellation);
+
+    /// <summary>Retrieve the run section's profile drag at each strip's own Re and α_eff for Ncrit 2 and 4.</summary>
+    public static IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution,
+        OperatingPoint op, WaterRecord water, IPolarSource polar, Func<double, string>? profileHashOf,
+        CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         if (solution.Strips.Count != solution.Forces.Count)
@@ -24,8 +30,8 @@ public static class StripCoupler
             etaMin = sections.Min(section => section.Frame.Eta);
             etaMax = sections.Max(section => section.Frame.Eta);
         }
-        string reason = polar.UnavailableReason ?? "Unavailable — no polar method installed";
-        var cd = new StripValue(null, reason);
+        string reason = polar.UnavailableReason ?? "ANA-POLAR-PROFILE-MISSING";
+        var unavailable = new StripValue(null, reason);
         var loads = new StripLoad[solution.Strips.Count];
         for (int i = 0; i < loads.Length; i++)
         {
@@ -39,9 +45,34 @@ public static class StripCoupler
             double alphaI = strip.InducedAngleDeg;
             double alphaEff = op.AlphaDeg + strip.TwistDeg - alphaI;
             double reynolds = op.Speed * chord / water.Nu;
+            StripValue cd2 = unavailable, cd4 = unavailable;
+            if (polar.UnavailableReason is null && profileHashOf is not null)
+            {
+                string hash = profileHashOf(eta);
+                cd2 = ProfileCd(polar, hash, reynolds, 2, alphaEff, water, cancellation);
+                cd4 = ProfileCd(polar, hash, reynolds, 4, alphaEff, water, cancellation);
+            }
             loads[i] = new StripLoad(strip.J, strip.Y, strip.Eta, chord, strip.Gamma, alphaI, alphaEff, reynolds,
-                strip.ClLocal, cd, cd, force.Fx, force.Fy, force.Fz, force.Mx, force.My, force.Mz, strip.Downwash);
+                strip.ClLocal, cd2, cd4, force.Fx, force.Fy, force.Fz, force.Mx, force.My, force.Mz, strip.Downwash);
         }
         return loads;
+    }
+
+    private static StripValue ProfileCd(IPolarSource polar, string profileHash, double reynolds, double ncrit,
+        double alphaEff, WaterRecord water, CancellationToken cancellation)
+    {
+        try
+        {
+            PolarResult? result = polar.Sample(profileHash, reynolds, ncrit, alphaEff, water, cancellation);
+            if (result is null) return new(null, polar.UnavailableReason ?? "ANA-POLAR-UNAVAILABLE");
+            // D14: a computed network point outside the validated bracket is not a supported profile drag.
+            if (result.AvailabilityCode is { } code) return new(null, code);
+            return result.Sample.Cd is { } cd && double.IsFinite(cd) && cd > 0
+                ? new(cd, null) : new(null, "ANA-POLAR-CD-UNAVAILABLE");
+        }
+        catch (ContractError error) when (error.Code.StartsWith("ANA-POLAR-", StringComparison.Ordinal))
+        {
+            return new(null, error.Code);
+        }
     }
 }

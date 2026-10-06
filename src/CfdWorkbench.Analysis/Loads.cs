@@ -43,6 +43,69 @@ public static class Loads
         return new(null, TotalDragReason);
     }
 
+    /// <summary>Wing-only induced plus profile drag at one Ncrit. Other craft components are excluded.</summary>
+    public static StripValue WingDrag(AnalysisRun run, int ncrit)
+    {
+        if (ncrit is not (2 or 4)) throw new ContractError("ANA-INPUT-NCRIT", "Total drag uses Ncrit 2 or 4.");
+        StripValue induced = InducedDrag(run);
+        if (induced.Value is null) return new(null, "ANA-TOTAL-DRAG-MISSING-INDUCED");
+        StripValue profile = ProfileDrag(run, ncrit);
+        if (profile.Value is null) return new(null, "ANA-TOTAL-DRAG-MISSING-PROFILE");
+        return new(induced.Value.Value + profile.Value.Value, null);
+    }
+
+    /// <summary>Craft total is unavailable until the named non-wing components have a source.</summary>
+    public static StripValue TotalDrag(AnalysisRun run, int ncrit)
+    {
+        StripValue wing = WingDrag(run, ncrit);
+        return wing.Value is null ? new(null, wing.UnavailableReason) :
+            new(null, "ANA-TOTAL-DRAG-MISSING-JUNCTION-MAST-WAVE-SPRAY");
+    }
+
+    public static StripValue ProfileDrag(AnalysisRun run, int ncrit)
+    {
+        if (ncrit is not (2 or 4)) throw new ContractError("ANA-INPUT-NCRIT", "Profile drag uses Ncrit 2 or 4.");
+        if (run.Strips.Count == 0) return new(null, "ANA-PROFILE-DRAG-MISSING-STRIPS");
+        double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
+        double total = 0;
+        foreach (StripLoad strip in run.Strips)
+        {
+            StripValue cd = ncrit == 2 ? strip.CdNcrit2 : strip.CdNcrit4;
+            if (cd.Value is not { } coefficient) return new(null, "ANA-PROFILE-DRAG-MISSING-CD:" + (cd.UnavailableReason ?? "ANA-POLAR-UNAVAILABLE"));
+            double width = StripWidth(run, strip);
+            if (!(width > 0)) return new(null, "ANA-PROFILE-DRAG-MISSING-WIDTH");
+            total += q * strip.Chord * width * coefficient;
+        }
+        return double.IsFinite(total) && total >= 0 ? new(total, null) : new(null, "ANA-PROFILE-DRAG-NONFINITE");
+    }
+
+    public static StripValue InducedDrag(AnalysisRun run)
+    {
+        if (run.Strips.Count == 0) return new(null, "ANA-INDUCED-DRAG-MISSING-STRIPS");
+        double sum = 0;
+        foreach (StripLoad strip in run.Strips)
+        {
+            double width = StripWidth(run, strip);
+            if (!(width > 0)) return new(null, "ANA-INDUCED-DRAG-MISSING-WIDTH");
+            sum += strip.Gamma * -strip.DownwashTrefftz * width;
+        }
+        double drag = 0.5 * run.Water.Rho * sum;
+        return double.IsFinite(drag) && drag >= 0 ? new(drag, null) : new(null, "ANA-INDUCED-DRAG-NONFINITE");
+    }
+
+    /// <summary>The stored span edges are authoritative; only older complete lattices use the spacing-law fallback.</summary>
+    public static double StripWidth(AnalysisRun run, StripLoad strip)
+    {
+        if (strip.YLow.HasValue != strip.YHigh.HasValue) return 0;
+        if (strip.YLow.HasValue && strip.YHigh.HasValue) return strip.YHigh.Value - strip.YLow.Value;
+        if (run.Strips.Count != 2 * run.Settings.NSpanPerHalf) return 0;
+        int j = strip.J;
+        int n = run.Settings.NSpanPerHalf, total = 2 * n;
+        if (j < 0 || j >= total) return 0;
+        double Edge(int i) => run.Settings.SpanSpacing == "cosine" ? -Math.Cos(Math.PI * i / total) : -1 + 2.0 * i / total;
+        return (Edge(j + 1) - Edge(j)) * run.Reference.BRef / 2;
+    }
+
     /// <summary>Fraction |D_near − D_Trefftz| / |D_Trefftz|. The near field is the wind-axis drag of the strip forces.</summary>
     public static double InducedDragGap(LatticeSolution solution, double alphaDeg, double rho)
     {

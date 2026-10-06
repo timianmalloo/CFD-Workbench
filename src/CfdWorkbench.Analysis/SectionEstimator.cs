@@ -41,6 +41,11 @@ public static class SectionEstimator
         double tc = section.Frame.ThicknessRatio;
         double cd = 2 * cf * (1 + 2 * tc + 60 * Math.Pow(tc, 4));
         PanelResult panel = PanelMethod.Solve(section, alphaDeg, cancellation);
+        // A section symmetric about its chord has the panel method's zero-lift root at α = 0 by reflection.
+        // Avoid two more dense solves at each station of the common symmetric wing.
+        if (section.Camber.All(value => Math.Abs(value) <= 1e-12) &&
+            section.CamberSlope.All(value => Math.Abs(value) <= 1e-12))
+            return new(panel, 0, cd);
         PanelResult atZero = alphaDeg == 0 ? panel : PanelMethod.Solve(section, 0, cancellation);
         PanelResult atOne = alphaDeg == 1 ? panel : PanelMethod.Solve(section, 1, cancellation);
         double a0 = 0, a1 = 1, cl0 = atZero.Cl, cl1 = atOne.Cl;

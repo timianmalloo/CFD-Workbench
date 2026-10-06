@@ -81,7 +81,7 @@ public sealed record MethodRecord(RunMethod Method, MethodEnvelope Envelope)
             double[] sweeps = VortexLattice.StripSweeps(wing, strips.Select(strip => (strip.YLow!.Value, strip.YHigh!.Value)).ToArray());
             var alphaL0 = new Dictionary<double, double>();
             foreach (double eta in strips.Select(strip => Math.Abs(strip.Eta)).Distinct())
-                alphaL0[eta] = SectionEstimator.Estimate(source, eta, 0, 1e6, 200, cancellation).AlphaL0Deg;
+                alphaL0[eta] = SectionEstimator.Estimate(source, eta, 0, 1e6, PanelMethod.DefaultPanelCount, cancellation).AlphaL0Deg;
             var verdicts = new StripVerdict[strips.Length];
             for (int i = 0; i < strips.Length; i++)
             {

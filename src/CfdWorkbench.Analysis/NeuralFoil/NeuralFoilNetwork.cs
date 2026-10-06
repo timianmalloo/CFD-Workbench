@@ -15,8 +15,8 @@ public sealed class NeuralFoilNetwork
     public const string DistributionSha256 = "63a33149c902ad01ecf537dd2d127d9e7ffbf86527893f4dc76f25f7087a3573";
     public const string WeightsSha256 = "e037bd2b92d5a964ffcda33ce0ea39af9d8807bcbb07fe182fb5ec1f1815c689";
     public const int WeightsBytes = 5717832;
-    public const string MethodId = "NeuralFoil";
-    public const string MethodVersion = "NeuralFoil-0.3.2/xxxlarge/94638c04/weights=5717832B";
+    public static string MethodId => "NeuralFoil-0.3.2/xxxlarge/" + WeightsSha256[..8];
+    public static string MethodVersion => "weights=" + WeightsBytes + "B";
 
     private sealed record Layer(int Rows, int Columns, float[] Matrix, float[] Bias);
     private static readonly Lazy<NeuralFoilNetwork> Embedded = new(LoadEmbedded);

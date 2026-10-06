@@ -21,4 +21,13 @@ public interface IPolarSource
 
 /// <summary>Read result. Only <see cref="Sample"/> is stored; all other members are derived from its grain and the run's own section.</summary>
 public sealed record PolarResult(PolarSample Sample, IReadOnlyList<string> OutsideBracketReasons, bool LowConfidence,
-    double CstResidualRms, double CstResidualMax);
+    double CstResidualRms, double CstResidualMax)
+{
+    /// <summary>Stable availability code. Re takes priority when a low-Re tip is outside several axes.</summary>
+    public string? AvailabilityCode =>
+        OutsideBracketReasons.Any(reason => reason.StartsWith("Re ", StringComparison.Ordinal)) ? "ANA-POLAR-RE-OUTSIDE" :
+        OutsideBracketReasons.Any(reason => reason.StartsWith("section ", StringComparison.Ordinal)) ? "ANA-POLAR-SECTION-UNVALIDATED" :
+        OutsideBracketReasons.Any(reason => reason.StartsWith("alpha ", StringComparison.Ordinal)) ? "ANA-POLAR-ALPHA-OUTSIDE" :
+        OutsideBracketReasons.Any(reason => reason.StartsWith("Ncrit ", StringComparison.Ordinal)) ? "ANA-POLAR-NCRIT-OUTSIDE" :
+        !Sample.Converged ? "ANA-POLAR-NOT-CONVERGED" : null;
+}

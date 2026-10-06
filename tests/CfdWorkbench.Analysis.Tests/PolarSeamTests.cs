@@ -52,6 +52,10 @@ internal static class PolarSeamTests
         NeuralFoilSection after = RunPolarResolver.SectionAt(session, edited, 0);
         if (Naca0012Reference.Matches(CstFit.Fit(after).Parameters) || after.ProfileHash == before.ProfileHash)
             throw new InvalidOperationException("edited NACA 0012 received the catalog section identity");
+        var polar = new NeuralFoilPolarSource(hash => hash == after.ProfileHash ? after : null);
+        PolarResult? sample = polar.Sample(after.ProfileHash, 500000, 2, 2, Fixture.Salt, CancellationToken.None);
+        AnalysisChecks.Equal("ANA-POLAR-SECTION-UNVALIDATED", sample?.AvailabilityCode,
+            "edited NACA must not inherit the catalog polar bracket");
         NeuralFoilSection oldRead = RunPolarResolver.SectionAt(session, original, 0);
         AnalysisChecks.Equal(before.ProfileHash, oldRead.ProfileHash, "historical run still reads its own accepted revision");
     }
