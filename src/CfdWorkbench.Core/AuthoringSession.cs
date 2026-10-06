@@ -1188,8 +1188,14 @@ public sealed class AuthoringSession : IDisposable
             }
             var unit = Channels.Unit(command.Curve);
             if (unit.DomainLower is double lower && unit.DomainUpper is double upper &&
-                moved.Any(pair => ClampGrowing(rail.Points[pair.Key].Ordinate, pair.Value.Aft, lower, upper) != pair.Value.Aft))
-                throw new ContractError("DSL-GROUP-RANGE", "A point would leave the allowed range. Nothing was changed.");
+                moved.Where(pair => ClampGrowing(rail.Points[pair.Key].Ordinate, pair.Value.Aft, lower, upper) != pair.Value.Aft)
+                    .Select(pair => (int?)pair.Key).Min() is int outside)
+            {
+                // Data, not prose: the Desktop words it (GroupCopy G13, Ruling 119). The range is in the channel's display unit.
+                double shownScale = command.Curve == "thickness" ? 100 : 1;
+                throw new ContractError("DSL-GROUP-RANGE", string.Create(System.Globalization.CultureInfo.InvariantCulture,
+                    $"point={outside + 1};min={lower * shownScale};max={upper * shownScale};unit={unit.DisplayUnit}"));
+            }
             int tipIndex = rail.Points.Count - 1;
             if (!span && command.Mode == GroupValueMode.MoveBy && (moved.ContainsKey(0) || moved.ContainsKey(tipIndex)) &&
                 HoldAtChordLimit(parsed, command.Curve, rail, moved.ContainsKey(0), moved.ContainsKey(tipIndex), firstDelta) is var (held, hold))

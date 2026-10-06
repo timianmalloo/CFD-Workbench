@@ -277,7 +277,8 @@ public static class GroupCopy
         ["G7"] = "Select points on one curve to move them together.",
         ["G9"] = "Points can't share a position along the span. Move them by an amount instead.",
         ["G11"] = "Set <axis> of <n> points to <value>.",
-        ["G12"] = "Moved <n> points by <value> in <axis>."
+        ["G12"] = "Moved <n> points by <value> in <axis>.",
+        ["G13"] = "Point <n> would leave its allowed range (<min> to <max> <unit>)."   // COPY-394, approved - Ruling 119
     };
 
     public static string Text(string id, params (string Token, string Value)[] tokens)

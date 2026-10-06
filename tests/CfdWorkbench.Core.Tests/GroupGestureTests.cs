@@ -295,6 +295,15 @@ internal static class GroupGestureTests
             double most = double.Parse(match.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture) / 1000;
             s.ApplyGroupValue(Id(), new("twist", interior, GroupValueMode.MoveBy, GroupValueAxis.Span, most)); // the named amount is admitted
         });
+        Check("ApplyGroupValue_TwistSetToOutOfDomain_ReportsThePointAndTheRangeAsData", () =>
+        {
+            using var s = Open();
+            var points = Channel(s.Snapshot().Source, "twist").Points
+                .Where(p => p.Role is PointRole.Control or PointRole.Anchor && p.Freedom == PointFreedom.Free).Take(2).ToArray();
+            var error = Throws(() => s.ApplyGroupValue(Id(), new("twist", points.Select(p => p.Id).ToArray(), GroupValueMode.SetTo, GroupValueAxis.Value, 100)));
+            Equal("DSL-GROUP-RANGE", error.Code);
+            True(System.Text.RegularExpressions.Regex.IsMatch(error.Message, @"^point=\d+;min=-57\.29\d*;max=57\.29\d*;unit=°$"), error.Message);
+        });
         Check("ApplyGroupValue_MoveByPastTip_NamesMaxAmount", () =>
         {
             using var s = OpenTip(30);

@@ -2232,7 +2232,15 @@ public sealed class WorkbenchController : IDisposable
         var rows = PropertiesView.Curves[curve];
         return RunDirectCommandAsync(() =>
         {
-            var result = session.ApplyGroupValue(Guid.NewGuid().ToString("D"), new GroupValueCommand(curve, ids, mode, axis, amount));
+            GroupValueOutcome result;
+            try { result = session.ApplyGroupValue(Guid.NewGuid().ToString("D"), new GroupValueCommand(curve, ids, mode, axis, amount)); }
+            catch (ContractError range) when (range.Code == "DSL-GROUP-RANGE")
+            {
+                // Core reports the point and the range as data; the words are GroupCopy G13 (Ruling 119), one data change away.
+                var fields = range.Message.Split(';').Select(part => part.Split('=', 2)).ToDictionary(pair => pair[0], pair => pair[1]);
+                string Shown(string key) => Quantity.Typed(double.Parse(fields[key], CultureInfo.InvariantCulture));
+                throw new ContractError(range.Code, GroupCopy.Text("G13", ("n", fields["point"]), ("min", Shown("min")), ("max", Shown("max")), ("unit", fields["unit"])));
+            }
             double scale = axis == GroupValueAxis.Span ? 1000 : PropertiesView.FieldScale[rows.ValueFamily];
             string unit = axis == GroupValueAxis.Span ? "mm" : rows.ValueUnit;
             string n = ids.Length.ToString(CultureInfo.InvariantCulture);

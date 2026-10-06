@@ -477,6 +477,26 @@ public static class GroupDragTests
             double moved = (c.CurveFor("twist")!.Points.First(point => point.Id == free[0].Id).SpanMeters - free[0].SpanMeters) * 1000;
             Require(Math.Abs(moved - double.Parse(match.Groups[2].Value, System.Globalization.CultureInfo.InvariantCulture)) < 0.011, $"Use moved the group by {moved:F3} mm");
         });
+        Check("Properties_MultiplePoints_TwistRangeRefusal_NamesPointAndRange_ClearsWhenADragStarts", rig =>
+        {
+            // Repair 7 (Ruling 119): COPY-394 through GroupCopy; a stale refusal does not survive a later gesture.
+            var c = rig.Controller;
+            var free = c.CurveFor("twist")!.Points.Where(point => point.Role is PointRole.Control or PointRole.Anchor && point.Freedom == PointFreedom.Free).Take(2).ToArray();
+            c.Select(new Selection.Points(free.Select(point => new PointRef("twist", point.Id)).ToArray()));
+            rig.Settle();
+            PropertiesViewTests.Need<ToggleButton>(rig.Host.Properties, "GroupModeMoveBy").RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            rig.Settle();
+            TypeInto(rig, Aft(rig), "-200");
+            string message = Msg(rig, "Message_p_aft");
+            Require(System.Text.RegularExpressions.Regex.IsMatch(message, @"^Point \d+ would leave its allowed range \(−57\.30 to 57\.30 °\)\.$"), "refusal: " + message);
+            Require(message == GroupCopy.Text("G13", ("n", System.Text.RegularExpressions.Regex.Match(message, @"\d+").Value), ("min", "−57.30"), ("max", "57.30"), ("unit", "°")), "not through GroupCopy: " + message);
+            var origin = rig.Side.ScreenPoint(free[0]);
+            var pointer = rig.Press(rig.Side, origin);
+            for (int step = 1; step <= 6; step++) rig.Move(rig.Side, pointer, origin + new Vector(0, -3 * step));
+            Require(Aft(rig).Text != "-200", "the refused text stayed in the row during a drag: " + Aft(rig).Text);
+            rig.Release(rig.Side, pointer, origin + new Vector(0, -18));
+            c.Undo();
+        });
         Check("GroupDrag_Plan_ReadoutDelta_EqualsTheAppliedMove_SpanAndAft", rig =>
         {
             // Repair 1 (marine-CAD BLOCK): the Δ is from the press, not from the live curve the drag has already moved.

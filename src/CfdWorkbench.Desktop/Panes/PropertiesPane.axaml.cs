@@ -292,6 +292,13 @@ public partial class PropertiesPane : UserControl
                 ConditionsSummary: controller.IsAnalysis ? CfdWorkbench.Analysis.Labels.ConditionsSummary(
                     controller.AnalysisOperatingPoint.Speed, controller.AnalysisWater, controller.AnalysisUnits) : null);
             string key = SelectionKey(controller.Selection);
+            // Ruling 119 (fix 7): a refused entry is stale once a gesture starts; its message and typed text go.
+            if (controller.Gesture is GestureState.Pressed or GestureState.Dragging or GestureState.Nudging && (errors.Count > 0 || useValues.Count > 0))
+            {
+                useValues.Clear();
+                messages.Clear();
+                errors.Clear();
+            }
             if (key != selectionKey)
             {
                 selectionKey = key;
