@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T15:21:10Z",
+  "generated": "2026-10-06T15:35:27Z",
   "audit": [
     {
       "actor": null,
@@ -27369,6 +27369,35 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T15:20:14Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M48XNZFR6RA8DKYCZ89T3ZV1",
+      "shortname": "coordination-round-oct06",
+      "datetime": "2026-10-06T15:35:26Z",
+      "session": "14e5e8d5",
+      "prompt": "go (plan the next Mac round: Ruling 101 copy/display, Ruling 103 adaptive panels, Ruling 108 DX, Ruling 107 group move, 1280x800 layout, Ruling 104 hook, spec 1.7.5; Fable owner reviews PC PRs)",
+      "summary": "Tracks DOC (new copy rows + spec 1.7.5, first), PNL (adaptive panels; step 0 Flagged: under-read measured only at the governing station), CPY (A3a copy/display fixes) -> DX (section/polar), GRP (Core, then Desktop after CPY), LAY (operator picks a 1280x800 layout first); HYD and MCAD as single review calls; HOOK installed inline (1616d891). Serial spine on DESIGN.md, Labels/Projection/Loads, PropertiesView/WorkbenchController. Struck: HOOK/HYD/MCAD/spec as tracks. Review BLOCK (2 Blockers) cleared by plan edits; re-check CLEARS-THE-VETO yes. Found: SEAM reason codes have no drafted display text despite Ruling 108.",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/round-oct06.md",
+        "docs/coordination/round-oct06.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "A committed coordination plan for the Mac round of 2026-10-06, reviewed adversarially, for operator approval before dispatch",
+      "done_when": "Plan md+html with measured layer state, classes, one owner per file, serial spine, exit evidence per track; test-architect veto cleared by the reviewer; joined and pushed",
+      "tier": "T1",
+      "fan_out": 1,
+      "git": {
+        "sha": "1616d89191ebb8bfe7861b261897529e33d00067",
+        "short": "1616d8919",
+        "branch": "chore/coordination-round-oct06",
+        "pushed": null
+      }
     }
   ],
   "changes": [

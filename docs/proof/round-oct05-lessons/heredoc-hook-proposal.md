@@ -27,7 +27,7 @@ them in the same session. A rule in prose did not hold, so the control must act 
 
 ## Draft
 
-`docs/proof/round-oct05-lessons/no-heredoc-hook.py` (stdlib, fail-open, `--self-test` passes).
+`tools/hooks/no-heredoc.py` since Ruling 104 installed it (stdlib, fail-open, `--self-test` passes).
 
 - Detects `<<` or `<<-` plus a delimiter word, optionally quoted, **and** a later line that is exactly the delimiter.
   `1 << 3`, `git commit -m "a << b"` and `<<<` here-strings are not refused.

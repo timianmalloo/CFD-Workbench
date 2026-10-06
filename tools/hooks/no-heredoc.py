@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""DRAFT PreToolUse hook for Claude Code: refuse a Bash command that contains a shell heredoc.
+"""PreToolUse hook for Claude Code: refuse a Bash command that contains a shell heredoc.
 
 AGENT-HEREDOC control (docs/lessons/defect-classes.md, CT27: a multi-line program is a file, then a run).
-NOT INSTALLED: wiring it into .claude/settings.json is an operator decision (see heredoc-hook-proposal.md).
+Installed by Ruling 104 (2026-10-06) in .claude/settings.json; proposal: docs/proof/round-oct05-lessons/heredoc-hook-proposal.md.
 
 A heredoc is `<<` or `<<-` followed by a delimiter word (optionally quoted), with a line later in the command
 that is exactly that word. Requiring the terminator line keeps `1 << 3`, `git commit -m "a << b"` and `<<<`
@@ -10,12 +10,19 @@ here-strings out of scope. Fail-open: any parse error allows the call.
 
 Claude Code contract: stdin {"tool_name","tool_input":{"command"}}; deny with exit 0 and
 {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":...}}.
-    python3 no-heredoc-hook.py            (hook mode, reads stdin)
-    python3 no-heredoc-hook.py --self-test
+    python3 tools/hooks/no-heredoc.py            (hook mode, reads stdin)
+    python3 tools/hooks/no-heredoc.py --self-test
 """
 import json
 import re
 import sys
+
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
 
 START = re.compile(r"(?<!<)<<-?[ \t]*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1(?!<)")
 REASON = ("A shell heredoc is not allowed (CT27: a multi-line program is a file, then a run). Write the file with the "
@@ -56,7 +63,7 @@ def self_test():
     assert decide({"tool_name": "Bash", "tool_input": {"command": heredoc}}) == REASON
     assert decide({"tool_name": "Read", "tool_input": {"command": heredoc}}) is None
     assert decide({"tool_name": "Bash", "tool_input": {}}) is None
-    print("no-heredoc-hook self-test OK")
+    print("no-heredoc hook self-test OK")
 
 
 def main():

@@ -19,6 +19,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "py=$(python3 -c 'import sys;print(sys.executable)' 2>/dev/null); [ -x \"$py\" ] || py=$(python -c 'import sys;print(sys.executable)'); h=tools/hooks/no-heredoc.py; [ -f \"$h\" ] || h=\"$(git rev-parse --show-toplevel)/$h\"; \"$py\" \"$h\"",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
