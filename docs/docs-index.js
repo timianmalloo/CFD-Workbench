@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f42c11266e59306d7a26492bdfd52af22d773aafba529f042d2c316ab523e56e"
+      "sourceSha256": "a50c1980152f3e4e98d9085828d69b3fcbce3a71f076fa701f09d3841d0851fc"
     },
     {
       "id": "kb-hw-glossary",
@@ -11852,7 +11852,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cce40ecc3157a1a4e8e94d2eff6681497af1d7b829a6b9eceb9986603e64b938"
+      "sourceSha256": "df6a9fc9a6f877dc88d0ce1d3508c479ceca8767652e0a0df2a1270669a9c153"
     },
     {
       "id": "proof-pnl-step0-other-stations",
@@ -11912,7 +11912,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7096c23d66e70ed1f496d89dd0ce93e595d4ccd6f8e8f12d94dcadd39d514c44"
+      "sourceSha256": "ace33e86baa269e2496e9b195ecbc0b52b13dff9f6a509976359f7e24719a5bc"
     },
     {
       "id": "proof-pnl-underread-measurements",
@@ -14778,5 +14778,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "13837f21ceb3c9f143992d72eb599ba9504ef504e79eab94a81499b295e510f3"
+  "graphSha256": "e2ded4610259b96cc46f7104e693814180ea2acc6dbc814a257d452842f60c9d"
 };

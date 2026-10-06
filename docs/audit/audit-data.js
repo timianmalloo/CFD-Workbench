@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T16:55:36Z",
+  "generated": "2026-10-06T16:58:21Z",
   "audit": [
     {
       "actor": null,
@@ -27552,6 +27552,26 @@ window.AUDIT_DATA = {
       "done_when": "event test red then green, mutant red/green recorded, run-tests green, check-docs 0",
       "started_at": "2026-10-06T16:53:43Z",
       "duration_seconds": 113.0
+    },
+    {
+      "id": "al-01M492DSK7KYYFAR4GAMRXJTWD",
+      "shortname": "trk-pnl",
+      "datetime": "2026-10-06T16:58:21Z",
+      "session": "trk-pnl",
+      "prompt": "pnl Ruling 114 round-oct06",
+      "summary": "Ruling 114 implemented; behavioural red on 2x-width code; warm 502-551 ms; 1%-thick residual recorded",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "near-tie width max(2u,25%) plus thinnest-station slot",
+      "done_when": "planted 2%-thick at 1.12x solved and wins, red on 2x code, tests green, timing under 1 s",
+      "started_at": "2026-10-06T16:55:43Z",
+      "duration_seconds": 158.0
     }
   ],
   "changes": [
@@ -29174,6 +29194,78 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M491GG58YFG4TZ4XSJRSWFKM",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M491NNHXQH9YDR35NSJMJS4E",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M491NNHRBHCKM7MMA1BN6X65",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M491NNN5DNJ5BADR4Y9NEVXW",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M491NNHRBHCKM7MMA1BN6X65",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M491NNYS6VGQZT7KGRC9G5YD",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M491NNYNBRNTTV9N2HYNNPJ5",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M491NP1TZSKABVKHHCH5M548",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M491NNYNBRNTTV9N2HYNNPJ5",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M491NPB9SSYWGWDN9HW0XMKX",
+      "ts": "2026-10-06T16:45:11Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M491NPB5CHTRV0GZAG42TYMJ",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M491NPE39VXFT4ZN6E7K35YB",
+      "ts": "2026-10-06T16:45:12Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M491NPB5CHTRV0GZAG42TYMJ",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4928HWRNSHYJAYC29MV0Q4Z",
+      "ts": "2026-10-06T16:55:29Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4928HWKHMRQPZYMSFDET50R",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M4928J01313382B2Z20SWMH4",
+      "ts": "2026-10-06T16:55:30Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4928HWKHMRQPZYMSFDET50R",
       "session": "fable-owner"
     }
   ]
