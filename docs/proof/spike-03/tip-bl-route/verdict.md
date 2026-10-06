@@ -17,7 +17,7 @@ summary: >-
   the option has no 3-D effect. W2a and W2b (snappyHexMesh) cut the failures from 3,813 faces to 61 and 6 and remove the
   negative cells in W2b, but reach 0 % full layer columns on the tip (at most 14 of 20). W4 (8 um round) fails before a
   mesh exists (Gmsh PLC error). W3 had no tool. The rule says stop and report; S5 stays untriggered. W2b is the nearest
-  and has one untested cause: surface cells (0.75 mm) smaller than the 1.49 mm stack. macOS arm64 only.
+  and had one untested cause (surface cells vs stack). W2c (Ruling 98) tested it: finer refinement gave cleaner tip cells but fewer layers (mean 2.8 of 20), so the hypothesis is refuted at +1 and +2 did not finish. S5 stays untriggered. macOS arm64 only.
 review-suggested: []
 ---
 
@@ -28,7 +28,52 @@ mesh (commit 2b03999). Receipts: [receipts/](receipts/). Labels: **Verified** = 
 **Inferred** = my reading; **Flagged** = not tested. Every mesh is the S4 V1 coupon: **TE blunted for analysis; tip variant
 for a mesh coupon only; no flow solution**. No physical result is reported.
 
-## Result
+## W2c (Ruling 98): finer snappy refinement did not grow the layers — H-S refuted at +1; +2 did not finish
+
+Pre-registered in [preregistration.md](preregistration.md) Amendment 2 (commit 70bf20d), before any W2c mesh. **Rule 2
+applies: neither run passes; stop and report the trend.** S5 is **not triggered**.
+
+| Tip region, same coupon, W2b layer controls | W2b (levels 5-6) | W2c-1 (+1, levels 6-7) | W2c-2 (+2, levels 7-8) |
+|---|---|---|---|
+| Surface cell on the cap | 1.5 / 0.75 mm | 0.75 / 0.375 mm | 0.375 / 0.19 mm |
+| Mesh produced | yes | yes | **no: killed at the 30 min cap** (castellated 5.55 M cells and snapped in 29 min; layer iteration 0 of the first outer iteration) |
+| Cells | 374,422 | 1,059,695 | n/a |
+| Tip-region wing faces with the full 20 layers | 0 % | **0 %** | n/a |
+| Tip-region wing faces with no layer at all | 12.4 % | **94.8 %** (47,274 of 49,866) | n/a |
+| Whole-coupon mean layers (of 20); thickness of target | 4.88; 70 % | **2.79; 24.6 %** | n/a |
+| Faces > 70 deg, tip region (whole coupon) | 6 (6) | 4 (130) | n/a |
+| Faces with weight < 0.05, tip region (whole) | 50 (62) | 4 (32) | n/a |
+| Negative-volume cells | 0 | 0 | n/a |
+| Max non-orthogonality; max skewness | 136.2; 5.58 | 80.3; 1.55 | n/a |
+| checkMesh error lines | 7 failed checks | 3: face tets (4 faces), concave cells, low weight (32) | n/a |
+| Snappy wall, peak RSS | 238 s, 1.43 GB | 1,628 s, 3.28 GB | killed at 1,800 s |
+| Tip region passes | no | **no** (4 faces > 70 deg, 4 low-weight faces, 0 % full layers) | no mesh |
+
+Verified from `receipts/*w2c1`, `*w2c2` (`log.locate`, `log.checkMesh`, `snappy-layers.txt`, `run-ledger.txt`). The 126 of
+W2c-1's 130 faces above 70 degrees outside the tip region sit at the root end (span 0.0004 m), where the STL crosses the
+domain boundary; they are not tip faces.
+
+**Trend (measured):** mesh quality at the tip improves with level (faces above 70 degrees 6 to 4, maximum non-orthogonality
+136 to 80 degrees, skewness 5.6 to 1.5, no negative cells), but the layers get **worse**, not better: mean layers 4.9 to
+2.8, thickness 70 % to 25 % of target, and nearly every cap face has no layer at +1. **H-S (coarse surface cells cause the
+collapse) is refuted at +1** (the full-layer share did not rise; it was 0 % at both levels, and every other layer measure
+fell). +2 gives no reading: the run could not finish in the cap, so H-S is refuted by the one level that ran, not tested at
+the second. Cause of the fall: **Flagged**, not separated. A reading consistent with the data (Inferred): finer cells make
+the 1.49 mm, 20-layer stack thick relative to the cell, so the shrinker removes more columns; this contradicts the
+pre-registered direction. The coupon cannot say whether the stack itself (8 um, ER 1.2, 20 layers) can be grown by snappy at
+any resolution: that was not varied (no other tuning, by Ruling 98).
+
+**Consequence for S5.** S5 (one AR 8 run on the tip of record) is not triggered: no BL route passes the tip region. The
+snappy route as configured gives clean tip cells without a boundary layer, not a boundary layer. What remains is outside
+Ruling 98: K2 hand extrusion, cfMesh, a thinner or fewer-layer stack in snappy (a recipe change, itself an operator
+decision because DR-F3-1 A names 20 layers), or a larger edge round (an operator decision under Rulings 88 and 93).
+
+**Not possible or not done (W2c).** W2c-2 produced no mesh (killed at the 30 min cap by `cap-watch.sh`; no snappy process
+remains; not repeated, per the pre-registration). Hydrodynamicist and CAGD reviewers did not run. Layer share is read from
+`0/nSurfaceLayers` with owner-cell centres as the tip-region test (a proxy). No load wait was recorded in the W2c ledgers; one
+mesh per level, no tuning.
+
+## Result (Ruling 97 set, before W2c)
 
 **Rule applied: "If no variant passes: stop and report, no tuning" (rule 4).** Verified: no variant has a tip region with
 zero faces above 70 degrees, zero low-weight faces, zero negative cells and 95 % full layer columns. No non-rounded route is

@@ -11455,7 +11455,7 @@ window.DOCS_INDEX = {
       "phase": "spike",
       "reviewBy": "2026-11-05",
       "reviewSuggested": [],
-      "summary": "No boundary-layer route meshes the flat tip of record to DR-F3-1 A. W1 (Gmsh fan option) is byte-identical to S4 V1: the option has no 3-D effect. W2a and W2b (snappyHexMesh) cut the failures from 3,813 faces to 61 and 6 and remove the negative cells in W2b, but reach 0 % full layer columns on the tip (at most 14 of 20). W4 (8 um round) fails before a mesh exists (Gmsh PLC error). W3 had no tool. The rule says stop and report; S5 stays untriggered. W2b is the nearest and has one untested cause: surface cells (0.75 mm) smaller than the 1.49 mm stack. macOS arm64 only.",
+      "summary": "No boundary-layer route meshes the flat tip of record to DR-F3-1 A. W1 (Gmsh fan option) is byte-identical to S4 V1: the option has no 3-D effect. W2a and W2b (snappyHexMesh) cut the failures from 3,813 faces to 61 and 6 and remove the negative cells in W2b, but reach 0 % full layer columns on the tip (at most 14 of 20). W4 (8 um round) fails before a mesh exists (Gmsh PLC error). W3 had no tool. The rule says stop and report; S5 stays untriggered. W2b is the nearest and had one untested cause (surface cells vs stack). W2c (Ruling 98) tested it: finer refinement gave cleaner tip cells but fewer layers (mean 2.8 of 20), so the hypothesis is refuted at +1 and +2 did not finish. S5 stays untriggered. macOS arm64 only.",
       "tags": [
         "spike-03",
         "gmsh",
@@ -11484,7 +11484,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2b6086b2c410d7dd4a8f50e65948bc0fc28c1faa4941a7cd471b022763c23c19"
+      "sourceSha256": "132ffd2765f29e99e85e652ffc0af77d2c9295ee48ce62692fe78b3638271167"
     },
     {
       "id": "proof-spike-03-tip-bl-route-prereg",
@@ -13860,5 +13860,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "210e366c5766e9c5f080fbe1cc3d3747864b609d92d433f92fa4adb3b63ca99b"
+  "graphSha256": "cb0f5557ce4cab7f5177ea0368b9a5d04d4636972d44e872ac1b63b93019cff2"
 };

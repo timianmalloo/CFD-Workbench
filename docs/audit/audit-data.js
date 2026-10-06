@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-05T23:44:30Z",
+  "generated": "2026-10-06T01:38:32Z",
   "audit": [
     {
       "actor": null,
@@ -26178,6 +26178,36 @@ window.AUDIT_DATA = {
       "git": {
         "sha": "2b0399927ab945dbb849b912e52522914ebd7ce3",
         "short": "2b0399927",
+        "branch": "spike/tip-bl-route-s6",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M47DSJ3KQV2QXYK1MWFK7EM4",
+      "shortname": "s6-w2c",
+      "datetime": "2026-10-06T01:38:32Z",
+      "session": "trk-s6",
+      "prompt": "S6 W2c snappy coupon",
+      "summary": "W2c (Ruling 98): snappy at +1 level gives cleaner tip cells (4 faces >70, 0 negative) but mean layers fall to 2.8 and 0 pct full tip layers; H-S refuted at +1; +2 killed at the 30 min cap (5.55M cells, layers not started). No pass; S5 not triggered.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/spike-03/tip-bl-route/verdict.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Test whether finer snappy surface refinement fixes the layer collapse on the V1 coupon",
+      "done_when": "Amendment committed before any mesh, W2c run, rule applied, verdict updated",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-06T00:38:45Z",
+      "duration_seconds": 3587.0,
+      "git": {
+        "sha": "70bf20d2374015835489cc23649eed79849b7bb8",
+        "short": "70bf20d23",
         "branch": "spike/tip-bl-route-s6",
         "pushed": null
       }

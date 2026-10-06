@@ -138,5 +138,5 @@ purpose:
   run_id: S6-W2C2
   spike: SPIKE-03
   stage: 1
-run_dir: PENDING
+run_dir: runs/20261006T010740Z-spike03-s6-w2c2
 solver: openfoam

@@ -1,0 +1,11 @@
+stl_sha256=107d74ffb0abedb3ea1329e8e493c015a039f5d4f46c13d1eaed02294a2aa6ee triangles=2064 enclosed_volume_m3=4.223060e-05 expected=4.223326e-05
+te_thickness_m=0.0005 analysis_tip_extension_m=0.00728 S_ref_half_m2=0.003000
+background=80x21x50=84000 cells, base=0.048 m, y_max=1.0080 m
+freestream U=(4.987820251 0 0.3487823687) nuTilda=3e-06 nut=2.10438e-07
+launcher-record: init files=16 manifest=9796bd130e71 record=runs/.launcher/678133b196ccc8ea7210
+status=0 wall_s=1 peak_rss_bytes=120602624 banner=Disallowing log=runs/20261006T010740Z-spike03-s6-w2c2/log.blockMesh
+status=0 wall_s=0 peak_rss_bytes=112754688 banner=Disallowing log=runs/20261006T010740Z-spike03-s6-w2c2/log.checkMesh-preflight
+status=0 wall_s=1 peak_rss_bytes=33226752 banner=Disallowing log=runs/20261006T010740Z-spike03-s6-w2c2/log.surfaceCheck
+status=0 wall_s=0 peak_rss_bytes=34340864 banner=Disallowing log=runs/20261006T010740Z-spike03-s6-w2c2/log.surfaceFeatureExtract
+/Users/mallalieut/projects/CFD-Workbench-spike-tip-bl-route-s6/cases/tools/of-run.sh: line 97: 28530 Terminated: 15          ( cd "$case_dir" && exec nice -n 10 /usr/bin/time -l -o "time.$log_name" env -i PATH=/usr/bin:/bin:/usr/sbin:/sbin HOME="$home" USER="$(id -un)" LOGNAME="$(id -un)" LANG=C FOAM_CONTROLDICT="$foam_controldict" /bin/zsh -f -e "$app_launcher" -- "$@" ) > "$case_dir/log.$log_name" 2>&1
+cases/tools/mesh-gate-snappy.sh: line 26: 28277 Terminated: 15          "$of" "$run" snappyHexMesh snappyHexMesh -overwrite

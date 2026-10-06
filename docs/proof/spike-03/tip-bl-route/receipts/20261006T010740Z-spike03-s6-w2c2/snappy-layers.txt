@@ -1,0 +1,16 @@
+4174:patch faces    layers avg thickness[m]
+4175-                     near-wall overall
+4176------ -----    ------ --------- -------
+4177-wing 279566   20     8e-06     0.00143 
+4178-
+4179-
+4180-Outer iteration : 0
+---- tail
+    faces with concavity > 80  degrees                     : 25
+    faces with skewness > 4   (internal) or 20  (boundary) : 0
+    faces with interpolation weights (0..1)  < 0.02        : 2
+    faces with volume ratio of neighbour cells < 0.01      : 12
+    faces with face twist < 0.02                           : 12
+    faces on cells with determinant < 0.001                : 10
+Outer iteration : 0
+Layer addition iteration 0

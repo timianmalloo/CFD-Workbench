@@ -1,0 +1,75 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _87ed40d256-20251219 OPENFOAM=2512 version=v2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : surfaceFeatureExtract
+Date   : Oct 05 2026
+Time   : 18:07:46
+Host   : Mac
+PID    : 27926
+I/O    : uncollated
+Case   : /Users/mallalieut/projects/CFD-Workbench-spike-tip-bl-route-s6/runs/20261006T010740Z-spike03-s6-w2c2
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+Note: Feature line extraction only valid on closed manifold surfaces
+
+Reading surfaceFeatureExtractDict
+
+Surfaces     : wing.stl
+Output       : wing
+Load options : offset
+Write options: writeObj=no writeVTK=off
+
+Statistics:
+Triangles    : 2064 in 1 region(s)
+Vertices     : 1034
+Bounding Box : (0 -0.00999999977648 -0.00727577647194) (0.12025000155 0.0250000003725 0.00727577647194)
+
+Constructing feature set from included angle 150
+Selecting edges based purely on geometric tests: no
+Removing all non-manifold edges (edges with > 2 connected faces) unless they cross multiple regions
+
+Initial Feature set:
+    points : 0
+    edges  : 688
+    of which
+        region edges   : 0
+        external edges : 688
+        internal edges : 0
+
+Final Feature set:
+    points : 688
+    of which
+        convex             : 0
+        concave            : 0
+        mixed              : 0
+        non-feature        : 688
+    edges  : 688
+    of which
+        external edges     : 688
+        internal edges     : 0
+        flat edges         : 0
+        open edges         : 0
+        multiply connected : 0
+
+Writing extendedFeatureEdgeMesh to "/Users/mallalieut/projects/CFD-Workbench-spike-tip-bl-route-s6/runs/20261006T010740Z-spike03-s6-w2c2/constant/extendedFeatureEdgeMesh/wing.extendedFeatureEdgeMesh"
+
+Writing featureEdgeMesh to "/Users/mallalieut/projects/CFD-Workbench-spike-tip-bl-route-s6/runs/20261006T010740Z-spike03-s6-w2c2/constant/triSurface/wing.eMesh"
+ExecutionTime = 0.02 s  ClockTime = 0 s
+
+End
+
