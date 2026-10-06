@@ -693,7 +693,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-361 | V_crit (inception speed) — approved — Ruling 116 (cavitation row label) |
 | COPY-362 | Outside the validated bracket — Re <Re> is beyond <min> to <max>. Computed, not validated. — approved — Ruling 116 (bracket flag, Re axis; prefix as in dx-screen-states row 36) |
 | COPY-363 | Outside the validated bracket — Ncrit <n> is beyond <min> to <max>. Computed, not validated. — approved — Ruling 116 (bracket flag, Ncrit axis) |
-| COPY-364 | Outside the validated bracket — <family> sections were not validated (NACA 0012 only). Computed, not validated. — approved — Ruling 116 (bracket flag, section family axis) |
+| COPY-364 | Outside the validated bracket — the surrogate is validated on NACA 0012 only. Computed, not validated. — approved — Ruling 119 (bracket flag, section family axis; shortened from Ruling 116) |
 | COPY-365 | Transition x_tr/c, upper and lower · Ncrit 2 and 4 · r<rev> · Re <Re> — approved — Ruling 116 (transition overlay legend (the menu "Overlay a section ▾" is COPY-327, no new row)) |
 | COPY-366 | σ required and V_crit against Cl · dot: this operating point — approved — Ruling 116 (cavitation bucket legend) |
 | COPY-367 | Target CL — approved — Ruling 116 (Find α result row label) |
@@ -723,7 +723,13 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-391 | Set <axis> of <n> points to <value> <unit>. — approved — Ruling 116 (COPY-G11 tokenised; supersedes COPY-291) |
 | COPY-392 | Moved <n> points by <signed value> <unit> in <axis>. — approved — Ruling 116 (COPY-G12 with the axis; supersedes COPY-292) |
 | COPY-393 | A range shows 2 decimals like a value; a shared value is equal at the displayed precision; thickness % is the percentage of each point's local chord. — approved — Ruling 116 (finding 11, three rules (Ruling 116 part 3)) |
-| COPY-394 | Point <n> would leave its allowed range (<min> to <max> <unit>). — approved — Ruling 119 (typed group range refusal; GroupCopy G13) |
+| COPY-394 | Selected strip · η <η> — approved — Ruling 118 (Section tab station name when a strip is selected; replaces the DXM-9 words) |
+| COPY-395 | Governing cavitation station · η <η> (no strip selected) — approved — Ruling 118 (Section tab station name when no strip is selected) |
+| COPY-396 | Enter a target CL and an ordered α bracket. — approved — Ruling 118 (Find α validation sentence) |
+| COPY-397 | Finding… — approved — Ruling 118 (Find α while it runs) |
+| COPY-398 | the search stopped after <n> iterations without converging — approved — Ruling 118 (sixth Find α no-root reason, code ANA-FIND-MAX-ITERATIONS; the <reason> of the Find α no-root row) |
+| COPY-399 | Low confidence — analysis_confidence below 0.5 at <k> strips — approved — Ruling 118 (drag band note, the Drag (Wing only) and Profile drag rows and the wing-only CL/CD row) |
+| COPY-400 | Point <n> would leave its allowed range (<min> to <max> <unit>). — approved — Ruling 119 (typed group range refusal; GroupCopy G13) |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

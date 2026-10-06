@@ -84,7 +84,7 @@ internal static class PolarNumericsTests
             loadRows[wingIndex].Note?.Contains("Wing only: induced (VLM + strip) plus profile (polar). Not a total.", StringComparison.Ordinal) != true ||
             loadRows[wingIndex].Note?.EndsWith("\nNot included: junction, mast, wave, spray", StringComparison.Ordinal) != true)
             throw new InvalidOperationException("Drag (Wing only) lacks its COPY-330 note or COPY-356 reason line");
-        AnalysisChecks.Equal(Loads.TotalDragReason, projected.Groups.Single(group => group.Title == "Wing result").Rows
+        AnalysisChecks.Equal(Labels.TotalDragMissingWithProfile, projected.Groups.Single(group => group.Title == "Wing result").Rows
             .Single(row => row.Label == "CL/CD").Value, "craft CL/CD stays Unavailable");
         AnalysisRun missing = ProjectionTests.Data().Run;
         if (Loads.TotalDrag(missing, 2).UnavailableReason?.Contains("PROFILE", StringComparison.Ordinal) != true)
@@ -145,8 +145,8 @@ internal static class PolarNumericsTests
         var projected = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric);
         foreach (string label in new[] { "Profile drag" })
             if (projected.Groups.Single(group => group.Title == "Loads").Rows.Single(row => row.Label == label)
-                .Note?.Contains("ANA-POLAR-LOW-CONFIDENCE", StringComparison.Ordinal) != true)
-                throw new InvalidOperationException(label + " lost the confidence flag in projection");
+                .Note?.Contains("Low confidence — analysis_confidence below 0.5 at " + run.Strips.Count + " strips", StringComparison.Ordinal) != true)
+                throw new InvalidOperationException(label + " lost the confidence flag in projection (Ruling 118: names the strip count)");
     }
 
     private static void DragBandOrder()
@@ -156,12 +156,12 @@ internal static class PolarNumericsTests
             CdNcrit2 = new StripValue(0.03, null), CdNcrit4 = new StripValue(0.02, null)
         }).Run;
         var view = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric);
-        AnalysisChecks.Equal("20–30", view.Groups.Single(g => g.Title == "Loads").Rows
+        AnalysisChecks.Equal("20.00–30.00", view.Groups.Single(g => g.Title == "Loads").Rows
             .Single(r => r.Label == "Profile drag").Value, "profile drag band ordered by value");
         foreach (string group in new[] { "Loads", "Wing result" })
         {
             ResultRow row = view.Groups.Single(g => g.Title == group).Rows.Single(r => r.Label == "Drag (Wing only)");
-            AnalysisChecks.Equal("20.4–30.4", row.Value, group + " band ordered by drag value");
+            AnalysisChecks.Equal("20.40–30.40", row.Value, group + " band ordered by drag value");
             ResultRow ratio = view.Groups.Single(g => g.Title == group).Rows.Single(r => r.Label == "Wing-only CL/CD");
             double[] values = ratio.Value.Split('–').Select(double.Parse).ToArray();
             if (values.Length != 2 || values[0] > values[1])
@@ -177,9 +177,7 @@ internal static class PolarNumericsTests
         }).Run;
         ResultRow row = AnalysisProjection.StripAt(AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric),
             run.Strips[0].Eta).Rows.Single(item => item.Label == "Polar Re range");
-        if (!row.Value.Contains("2E+5", StringComparison.Ordinal) ||
-            !row.Value.Contains("1E+6", StringComparison.Ordinal) ||
-            row.Value.Contains("5.432E+5", StringComparison.Ordinal))
+        if (!row.Value.Contains("2.00 × 10⁵ to 1.00 × 10⁶", StringComparison.Ordinal))   // COPY-322 names the strip Re and the validated bounds
             throw new InvalidOperationException("polar Re range displayed the strip Re instead of validated bounds: " + row.Value);
     }
 

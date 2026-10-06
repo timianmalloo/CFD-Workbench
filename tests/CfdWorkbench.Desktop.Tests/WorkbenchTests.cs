@@ -132,6 +132,7 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
     CfdWorkbench.Desktop.Tests.AnalysisToggleTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.AnalysisFeedTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.AnalysisPanelTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.DxSectionPanelTests.RunReadiness();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 

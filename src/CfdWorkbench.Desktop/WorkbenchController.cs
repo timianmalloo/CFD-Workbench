@@ -322,7 +322,7 @@ public sealed class WorkbenchController : IDisposable
                 new ProjectionContext(projectionFeed.Verdicts, projectionFeed.Stations, projectionFeed.RootThicknessRatio, Integrity: selected?.Integrity ?? RunIntegrity.Intact,
                     PreviousCompleted: previous, HiddenLayers: hiddenLayers.ToHashSet(StringComparer.Ordinal),
                     StripNormals: projectionFeed.StripNormals, FeedUnavailable: projectionFeed.Unavailable,
-                    SectionTier: projectionFeed.SectionTier,
+                    SectionTier: projectionFeed.SectionTier, SectionFailureCode: projectionFeed.SectionFailureCode,
                     Revision: feedRun is null ? null : session.RevisionOf(feedRun.Inputs.AcceptedId),
                     HistoricalText: selected is { Integrity: RunIntegrity.Intact } &&
                         selected.Run.Outcome is RunOutcome.Completed && RunRecord.RecomputedKey(selected.Run) != Freshness.CurrentKey(current)
@@ -345,7 +345,7 @@ public sealed class WorkbenchController : IDisposable
     /// <paramref name="Unavailable"/> carries the reason when the run's revision is not held (never another revision's data).
     /// </summary>
     public sealed record RunFeed(IReadOnlyList<StripVerdict>? Verdicts, IReadOnlyList<StationFrame>? Stations, double? RootThicknessRatio,
-        IReadOnlyList<Loads.Vec>? StripNormals, string? Unavailable, SectionTierResult? SectionTier);
+        IReadOnlyList<Loads.Vec>? StripNormals, string? Unavailable, SectionTierResult? SectionTier, string? SectionFailureCode = null);
 
     private static readonly RunFeed NoFeed = new(null, null, null, null, null, null);
 
@@ -369,7 +369,7 @@ public sealed class WorkbenchController : IDisposable
             var frames = Placement.Sections(source, all, [0d, 1d], CancellationToken.None).Select(section => section.Frame).ToArray();
             return new(verdicts, frames.Where((_, i) => etas.Contains(all[i])).ToArray(), frames[0].ThicknessRatio, normals, null, sectionTier);
         }
-        catch (ContractError) { return NoFeed; }
+        catch (ContractError error) { return NoFeed with { SectionFailureCode = error.Code }; }   // Row 10: the projection tells a failed solve (COPY-358) from no profile (COPY-357)   // Row 10: the projection tells a failed solve (COPY-358) from no profile (COPY-357)
     }
 
     private string HistoricalBanner(AnalysisRun run, CurrentInputs current)
@@ -397,6 +397,23 @@ public sealed class WorkbenchController : IDisposable
         analysisProjectionKey = null;
         Notify();
     }
+
+    /// <summary>
+    /// Find operating α (ANA-05, DR-DXM-6): re-solves the lattice for the accepted source at the pending conditions, off the UI thread.
+    /// It records no run and changes no condition; Apply is <see cref="ApplyFoundAlpha"/> and Evaluate stays explicit.
+    /// </summary>
+    public Task<FindAlphaOutcome> FindAlphaAsync(double targetCl, double lowerDeg, double upperDeg, CancellationToken cancellation = default)
+    {
+        var op = analysisOp;
+        var water = analysisWater;
+        byte[] source = session.Snapshot().Source;
+        double? hOverC = op.HRef is { } depth && Estimates?.MeanChordMeters is > 0 ? depth / Estimates.MeanChordMeters : null;
+        return Task.Run(() => FindAlpha.Run(FindAlpha.ClAt(analysisMethod, source, op, water, cancellation), targetCl, lowerDeg, upperDeg,
+            hOverC, cancellation: cancellation), cancellation);
+    }
+
+    /// <summary>Apply of the Find α dialog: writes α into the pending conditions only. A prior run stays Historical until Evaluate.</summary>
+    public void ApplyFoundAlpha(double alphaDeg) => SetAnalysisConditions(analysisOp with { AlphaDeg = alphaDeg }, analysisWater);
 
     /// <summary>The only compute entry in the desktop: Cancel records no run, and a failure keeps prior evidence.</summary>
     public async Task<AnalysisRun?> EvaluateAnalysisAsync(OperatingPoint op, WaterRecord water, CancellationToken cancellation = default)

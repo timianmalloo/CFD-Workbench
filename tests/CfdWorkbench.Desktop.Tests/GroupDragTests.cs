@@ -517,7 +517,7 @@ public static class GroupDragTests
         });
         Check("Properties_MultiplePoints_TwistRangeRefusal_NamesPointAndRange_ClearsWhenADragStarts", rig =>
         {
-            // Repair 7 (Ruling 119): COPY-394 through GroupCopy; a stale refusal does not survive a later gesture.
+            // Repair 7 (Ruling 119): COPY-400 through GroupCopy; a stale refusal does not survive a later gesture.
             var c = rig.Controller;
             var free = c.CurveFor("twist")!.Points.Where(point => point.Role is PointRole.Control or PointRole.Anchor && point.Freedom == PointFreedom.Free).Take(2).ToArray();
             c.Select(new Selection.Points(free.Select(point => new PointRef("twist", point.Id)).ToArray()));

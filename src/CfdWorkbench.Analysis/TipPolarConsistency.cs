@@ -5,11 +5,14 @@ namespace CfdWorkbench.Analysis;
 
 /// <summary>Inputs to the strip/polar lift consistency check, all from the selected run.</summary>
 public sealed record PolarConsistencyInput(double Eta, double AlphaEffDeg, double ClLocal, double PolarCl,
-    double PolarSlopePerDeg, double AlphaL0Deg, bool TipNotJudged, double Confidence);
+    double PolarSlopePerDeg, double AlphaL0Deg, bool TipNotJudged, double Confidence, bool SectionUnvalidated = false);
 
 public sealed record PolarConsistencyStrip(double Eta, double? Ratio, double? ClDelta, string Code)
 {
     public string? AdvisoryCode { get; init; }
+
+    /// <summary>Ruling 117: the strip's section is outside the NACA 0012 family, so its Δ row carries COPY-364.</summary>
+    public bool SectionUnvalidated { get; init; }
 }
 
 public sealed record PolarConsistencyResult(double? EdgeEta, IReadOnlyList<PolarConsistencyStrip> Strips);
@@ -45,7 +48,7 @@ public static class TipPolarConsistency
                 {
                     double slope = cl1 - cl0;
                     input = new(strip.Eta, strip.AlphaEff, strip.ClLocal, cl, slope, -cl0 / slope,
-                        tip, atStrip.Sample.Confidence ?? 0);
+                        tip, atStrip.Sample.Confidence ?? 0, atStrip.SectionUnvalidated);
                 }
             }
             catch (ContractError error) when (error.Code.StartsWith("ANA-POLAR-", StringComparison.Ordinal)) { }
@@ -85,6 +88,7 @@ public static class TipPolarConsistency
             double? delta = double.IsFinite(strip.PolarCl) ? strip.ClLocal - strip.PolarCl : null;
             result[i] = new(strip.Eta, ratio[i], delta, code)
             {
+                SectionUnvalidated = strip.SectionUnvalidated,
                 AdvisoryCode = !double.IsFinite(strip.Confidence) ||
                     strip.Confidence < NeuralFoilPolarSource.LowConfidenceBelow ? "ANA-POLAR-LOW-CONFIDENCE" : null
             };

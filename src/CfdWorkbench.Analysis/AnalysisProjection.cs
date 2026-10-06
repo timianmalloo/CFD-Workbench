@@ -10,7 +10,7 @@ public sealed record ProjectionContext(IReadOnlyList<StripVerdict>? Verdicts = n
     RunIntegrity Integrity = RunIntegrity.Intact, AnalysisRun? PreviousCompleted = null,
     IReadOnlySet<string>? HiddenLayers = null, IReadOnlyList<Loads.Vec>? StripNormals = null, string? FeedUnavailable = null,
     byte[]? Source = null, SectionTierResult? SectionTier = null,
-    RevisionLabel? Revision = null, string? HistoricalText = null);
+    RevisionLabel? Revision = null, string? HistoricalText = null, string? SectionFailureCode = null);
 
 /// <summary>Pure projection of the selected run into rows, chart points and layer data.</summary>
 public static class AnalysisProjection
@@ -18,7 +18,7 @@ public static class AnalysisProjection
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
     // COPY-250/251 (Ruling 101): a value cell that cannot be computed reads "Unavailable — <reason>", the reason being the code's own.
     private const string NoVerdictReason = "ANA-VERDICT-MISSING";
-    private const string SurrogateLabel = "XFOIL-class surrogate; accuracy relative to XFOIL, not experiment";
+    private const string SurrogateLabel = Labels.SurrogateAccuracy;
     private enum VerdictState { Inside, Outside, Provisional, Indeterminate }
 
     public static AnalysisViewModel Build(AnalysisRun? run, CurrentInputs current, Units units) => Build(run, current, units, null);
@@ -53,6 +53,7 @@ public static class AnalysisProjection
         bool isCurrent = RunRecord.RecomputedKey(run) == Freshness.CurrentKey(current);
         string? banner = isCurrent ? null : context.HistoricalText ?? "Historical — " + string.Join(", ", Freshness.WhatChanged(run, current));
         double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
+        int missingCd = run.Strips.Count(strip => strip.CdNcrit2.Value is null || strip.CdNcrit4.Value is null);
         double a = VortexLattice.ToRadians(run.Op.AlphaDeg);
         double lift = run.Strips.Sum(s => -s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a));
         double? cl = q > 0 && run.Reference.SRef > 0 ? lift / (q * run.Reference.SRef) : null;
@@ -70,10 +71,11 @@ public static class AnalysisProjection
         double? e = clTrefftz.HasValue && cdi > 0 && ar > 0 ? Trefftz.Oswald(clTrefftz.Value, ar, cdi.Value) : null;
         var derived = OperatingPoints.Derive(run.Op, run.Water, run.Reference.CRef);
         SectionTierResult? section = context.SectionTier;
+        string? sectionFailure = context.SectionFailureCode;
         if (section is null && context.Source is { } source)
         {
             try { section = SectionTier.Derive(run, source); }
-            catch (ContractError) { }
+            catch (ContractError error) { sectionFailure = error.Code; }
         }
         bool depth = run.Op.HRef.HasValue;
         double? shallowHc = ShallowDepthOverChord(run, context.Stations);
@@ -86,9 +88,9 @@ public static class AnalysisProjection
             Row("CDi (Trefftz)", Val(cdi, "0.00000", inducedReason)),
             Row("e (computed)", Val(e, "0.000", "ANA-OSWALD-UNDEFINED"), note: EAdvisory(e, run.Settings)),
             Force("Lift L", lift, units), Force("Induced drag", drag, units, reason: inducedReason),
-            WingDragRow(wing2, wing4, units, run.Settings.Polar is null),
-            WingRatioRow(lift, wing2, wing4),
-            Row("CL/CD", Loads.TotalDragReason),
+            WingDragRow(wing2, wing4, units, run.Settings.Polar is null, missingCd, LowStrips(run)),
+            WingRatioRow(lift, wing2, wing4, LowStrips(run)),
+            Row("CL/CD", run.Settings.Polar is null ? Loads.TotalDragReason : Labels.TotalDragMissingWithProfile),
             Row("Basis", "b " + Num(run.Reference.BRef, "0.###") + " m · moment datum: " + run.Reference.MomentDatum + " · " + Labels.BodyAxes)
         ]));
         groups.Add(new("Conditions", [
@@ -102,7 +104,7 @@ public static class AnalysisProjection
                 : depth ? Labels.NoVcrit : "Unavailable — depth not set",
                 section?.Cavitation.CriticalSpeed is null ? null : units == Units.Imperial ? "kn" : "m/s",
                 section?.Cavitation.CriticalSpeed is null ? null : PanelMethod.ModelLabel +
-                    (section.GoverningProvisional ? " · " + StripLoad.PanelUnderreadReason : ""))
+                    (section.GoverningProvisional ? " · " + Labels.Provisional : ""))
         ]));
         var basis = new List<ResultRow>
         {
@@ -135,9 +137,9 @@ public static class AnalysisProjection
             Row("Wing loading L/S_ref", run.Reference.SRef > 0 ? Num(lift / run.Reference.SRef / 1000, "0.###") : Labels.UnavailableBecause("ANA-REFERENCE-AREA-MISSING"), "kPa"),
             Row("Moment about attachment point", Loads.AttachmentReason),
             DragBandRow("Profile drag", profile2, profile4, units, run.Settings.Polar is null ? Labels.NoPolar : null,
-                SurrogateLabel),
-            WingDragRow(wing2, wing4, units, run.Settings.Polar is null),
-            WingRatioRow(lift, wing2, wing4),
+                Labels.ProfileDragNote + " · " + SurrogateLabel, null, run.Strips.Count(strip => strip.CdNcrit2.Value is null || strip.CdNcrit4.Value is null), LowStrips(run)),
+            WingDragRow(wing2, wing4, units, run.Settings.Polar is null, missingCd, LowStrips(run)),
+            WingRatioRow(lift, wing2, wing4, LowStrips(run)),
             Row("Structural", "Structural: Not assessed", note: Labels.StructuralList),
             Row("t/c (root)", context.RootThicknessRatio.HasValue ? Num(context.RootThicknessRatio.Value * 100, "0.#") : Labels.ThicknessMissing,
                 context.RootThicknessRatio.HasValue ? "%" : null),
@@ -146,11 +148,12 @@ public static class AnalysisProjection
         groups.Add(new("Strips", run.Strips.Select(s => Row("Strip " + s.J + " · η " + Num(s.Eta, "0.###"),
             "Cl_local " + Num(s.ClLocal, "0.###") + " · α_eff " + Num(s.AlphaEff, "0.##") + "° · Re_local " + Num(s.ReLocal, "0.###E+0"),
             note: VerdictText(s, context))).ToArray()));
-        groups.Add(new("Section (2D)", SectionRows(section)));
+        groups.Add(new("Section (2D)", SectionRows(section, sectionFailure)));
         var provenance = new List<ResultRow>
         {
             Row("Run", run.RunId + " · " + run.Outcome.GetType().Name + " · " + run.RunKey),
             Row("Method", run.Method.Id + " " + run.Method.Version + " · " + run.Settings.NSpanPerHalf + " × " + run.Settings.NChord),
+            Row("Polar method", run.Settings.Polar is null ? Labels.NoPolar : NeuralFoilPolarSource.Method.Id),
             Row("Inputs", "revision " + (context.Revision is { } revision ? "r" + revision.Ordinal.ToString(Inv) : run.Inputs.AcceptedId) +
                 " · surface " + run.Inputs.SurfaceHash + " · profiles " + string.Join(", ", run.Inputs.ProfileHashes) +
                 " · evaluator " + run.Inputs.Evaluator),
@@ -168,7 +171,7 @@ public static class AnalysisProjection
             banner, null, groups, Layers(run, context, rootMoment), run.RunKey)
         {
             Loading = Loading(run, cl, a), StripDetails = StripDetails(run, context, a),
-            SectionTier = section,
+            SectionTier = section, Run = run,
             PolarConsistency = section?.PolarConsistency,
             WingDragNcrit2 = wing2, WingDragNcrit4 = wing4,
             FreeSurface = run.Op.HRef is { } correctionDepth ? FreeSurfaceCorrection.Evaluate(lift, wing2.Value,
@@ -179,49 +182,90 @@ public static class AnalysisProjection
         };
     }
 
-    private static IReadOnlyList<ResultRow> SectionRows(SectionTierResult? section)
+    private static IReadOnlyList<ResultRow> SectionRows(SectionTierResult? section, string? failure = null)
     {
-        if (section is null) return [Row("Cl, Cd, Cm, x_tr", Labels.NoPolar), Row("Cp_min", Labels.SectionCp)];
+        // Row 10 (Ruling 116): no accepted profile, or the panel solve failed; never a number and never a code.
+        if (section is null)
+            return [Row("Cl, Cd, Cm, x_tr", Labels.NoPolar),
+                Row("Cp_min", failure is not null && PanelFailure(failure) ? Labels.CpSolveFailed : Labels.CpNoProfile)];
         SectionStationResult station = section.Stations.MinBy(item => Math.Abs(item.Eta - section.GoverningEta))!;
         string stationLabel = "η " + Num(station.Eta, "0.###");
-        string provisional = section.GoverningProvisional ? " · " + StripLoad.PanelUnderreadReason : "";
-        if (station.EstimatorAvailabilityCode is { } unavailable)
+        string provisional = section.GoverningProvisional ? " · " + Labels.Provisional : "";
+        if (station.EstimatorAvailabilityCode is { } code)
+        {
+            string unavailable = Labels.UnavailableBecause(code);
             return [Row("Cl", unavailable), Row("Cm_c/4", unavailable), Row("α_L0", unavailable),
                 Row("Cd", unavailable), Row("Cp_min", unavailable), Row("Cavitation", unavailable)];
+        }
         var rows = new List<ResultRow>
         {
             Row("Cl", Num(station.Estimate.Cl, "0.###"), note: PanelMethod.ModelLabel),
             Row("Cm_c/4", Num(station.Estimate.CmQuarter, "0.###"), note: PanelMethod.ModelLabel),
             Row("α_L0", Num(station.Estimate.AlphaL0Deg, "0.###"), "°", PanelMethod.ModelLabel),
-            Row("ANA-SECTION-ITTC1957-BOUND", Num(station.Estimate.CdTurbulentBound, "0.#####"),
-                note: "ITTC-1957 fully turbulent bound; no lift-dependent profile drag"),
+            Row(Labels.CdBoundLabel, Num(station.Estimate.CdTurbulentBound, "0.#####"), note: Labels.CdBoundNote),
             Row("Cp_min", Num(station.Estimate.Panel.CpMin, "0.###"),
                 note: PanelMethod.ModelLabel + " · " + stationLabel + provisional),
             Row("N", station.Estimate.Panel.StationCount.ToString(Inv), note: PanelMethod.ModelLabel),
             Row("η", Num(station.Eta, "0.###"), note: PanelMethod.ModelLabel),
-            Row("Cavitation", section.Cavitation.Reason == Cavitation.DepthNotSet ? "Unavailable — depth not set" :
-                section.Cavitation.Reason ?? section.Cavitation.State.ToString(),
+            Row("Cavitation", section.Cavitation.Reason is { } why ? Labels.UnavailableBecause(why) : section.Cavitation.State switch
+                {
+                    CavitationState.Clear => Labels.CavClear,
+                    CavitationState.InsideMargin => Labels.CavInside,
+                    _ => Labels.CavPossible
+                },
                 note: PanelMethod.ModelLabel + " · " + section.Cavitation.ScreenText + " · " + stationLabel + provisional)
         };
         if (section.PolarNcrit2 is not null || section.PolarNcrit4 is not null ||
             section.PolarReason2 is not null || section.PolarReason4 is not null)
         {
-            rows.Add(Row("Ncrit 2", PolarText(section.PolarNcrit2, section.PolarReason2), note: SurrogateLabel));
-            rows.Add(Row("Ncrit 4", PolarText(section.PolarNcrit4, section.PolarReason4), note: SurrogateLabel));
+            rows.Add(Row("Ncrit 2", PolarText(section.PolarNcrit2, section.PolarReason2), note: SurrogateLabel + FamilyNote(section.PolarNcrit2)));
+            rows.Add(Row("Ncrit 4", PolarText(section.PolarNcrit4, section.PolarReason4), note: SurrogateLabel + FamilyNote(section.PolarNcrit4)));
             PolarResult? polar = section.PolarNcrit2 ?? section.PolarNcrit4;
             if (polar is not null)
             {
-                rows.Add(Row("CST residual", Num(polar.CstResidualMax, "0.#####E+0"), note: SurrogateLabel));
-                rows.Add(Row("analysis_confidence", Val(polar.Sample.Confidence, "0.###"),
-                    note: SurrogateLabel + (polar.LowConfidence ? " · ANA-POLAR-LOW-CONFIDENCE" : "")));
+                rows.Add(Row("CST residual", Labels.CstResidual(polar.CstResidualMax, polar.CstResidualRms), note: SurrogateLabel));
+                rows.Add(Row("analysis_confidence", polar.Sample.Confidence is { } confidence && double.IsFinite(confidence)
+                        ? Labels.Confidence(confidence) : Labels.ConfidenceNotRecorded,
+                    note: SurrogateLabel + (polar.LowConfidence ? " · " + Labels.LowConfidence(polar.Sample.Confidence) : "")));
             }
         }
         return rows;
     }
 
+    private static bool PanelFailure(string code) => code.StartsWith("ANA-PANEL-", StringComparison.Ordinal) ||
+        code.StartsWith("ANA-SOLVE-", StringComparison.Ordinal) || code is "ANA-SECTION-GEOMETRY" or "ANA-SECTION-RE" or "ANA-SECTION-ZEROLIFT";
+
+    /// <summary>A stored reason that is a code reads its approved text; a reason that is already text stays as it is.</summary>
+    private static string ReasonText(string reason, int missingCd = 0)
+    {
+        const string missingCdPrefix = "ANA-PROFILE-DRAG-MISSING-CD";
+        if (reason.StartsWith(missingCdPrefix, StringComparison.Ordinal) || (reason == "ANA-TOTAL-DRAG-MISSING-PROFILE" && missingCd > 0))
+            return Labels.CdMissingAt(Math.Max(1, missingCd));
+        return reason.StartsWith("ANA-", StringComparison.Ordinal) ? Labels.UnavailableBecause(reason) : reason;
+    }
+
+    /// <summary>Ruling 117: a computed point on a section outside the NACA 0012 family carries COPY-364.</summary>
+    private static string FamilyNote(PolarResult? result) =>
+        result is { SectionUnvalidated: true } ? " · " + Labels.BracketOutsideFamily : "";
+
+    /// <summary>One note per distinct flag on the values a row aggregates (COPY-364, COPY-316), in a fixed order.</summary>
+    private static string FlagNotes(StripValue[] values, int? lowStrips = null)
+    {
+        var codes = values.SelectMany(value => StripFlags.Codes(value.FlagCode)).ToHashSet();
+        var notes = new List<string>();
+        if (codes.Contains(StripFlags.SectionUnvalidated)) notes.Add(Labels.BracketOutsideFamily);
+        if (codes.Contains(StripFlags.LowConfidence))
+            notes.Add(lowStrips is { } count ? Labels.LowConfidenceStrips(count) : Labels.LowConfidence(null));
+        return string.Join(" · ", notes);
+    }
+
+    /// <summary>Strips whose cd at either Ncrit is flagged low confidence: the k of the drag band note (Ruling 118).</summary>
+    private static int LowStrips(AnalysisRun run) => run.Strips.Count(strip =>
+        StripFlags.Has(strip.CdNcrit2.FlagCode, StripFlags.LowConfidence) || StripFlags.Has(strip.CdNcrit4.FlagCode, StripFlags.LowConfidence));
+
     private static string PolarText(PolarResult? result, string? reason)
     {
-        if (reason is not null) return reason;
+        if (reason is not null) return ReasonText(reason);
         if (result is null) return Labels.NoPolar;
         PolarSample sample = result.Sample;
         return "Cl " + Val(sample.Cl, "0.###") + " · Cd " + Val(sample.Cd, "0.#####") +
@@ -229,25 +273,28 @@ public static class AnalysisProjection
             "/" + Val(sample.XtrLower, "0.###");
     }
 
+    /// <summary>The one band formatter (Ruling 119): low to high, two decimals on both ends, e.g. "13.10–14.61".</summary>
+    private static string Band(double a, double b) => Num(Math.Min(a, b), "0.00") + "–" + Num(Math.Max(a, b), "0.00");
+
     private static ResultRow DragBandRow(string label, StripValue n2, StripValue n4, Units units,
-        string? legacyReason, string? tierNote = null, string? reasonLine = null)
+        string? legacyReason, string? tierNote = null, string? reasonLine = null, int missingCd = 0, int lowStrips = 0)
     {
         if (n2.Value is not { } low || n4.Value is not { } high)
-            return Row(label, legacyReason ?? n2.UnavailableReason ?? n4.UnavailableReason ?? "ANA-DRAG-UNAVAILABLE");
+            return Row(label, ReasonText(legacyReason ?? n2.UnavailableReason ?? n4.UnavailableReason ?? "ANA-DRAG-UNAVAILABLE", missingCd));
         double factor = units == Units.Imperial ? 4.4482216152605 : 1;
-        string? note = n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
-            ? string.Join(" · ", new[] { tierNote, "ANA-POLAR-LOW-CONFIDENCE" }.Where(part => part is not null))
+        string flagNotes = FlagNotes([n2, n4], lowStrips);
+        string? note = flagNotes.Length > 0
+            ? string.Join(" · ", new[] { tierNote, flagNotes }.Where(part => part is not null))
             : tierNote;
         if (reasonLine is not null) note = note is null ? reasonLine : note + "\n" + reasonLine;
-        return Row(label, Num(Math.Min(low, high) / factor, "0.###") + "–" +
-            Num(Math.Max(low, high) / factor, "0.###"),
+        return Row(label, Band(low / factor, high / factor),
             units == Units.Imperial ? "lbf" : "N", note);
     }
 
     /// <summary>Ruling 109: the one Drag (Wing only) row (COPY-354..356). The craft total is never shown; CL/CD for the craft is Unavailable.</summary>
-    private static ResultRow WingDragRow(StripValue n2, StripValue n4, Units units, bool noPolar) =>
+    private static ResultRow WingDragRow(StripValue n2, StripValue n4, Units units, bool noPolar, int missingCd = 0, int lowStrips = 0) =>
         DragBandRow(Labels.WingDragLabel, n2, n4, units, noPolar ? Loads.TotalDragReason : null,
-            Labels.WingDragNote + " · " + SurrogateLabel, Labels.WingDragNotIncluded);
+            Labels.WingDragNote + " · " + SurrogateLabel, Labels.WingDragNotIncluded, missingCd, lowStrips);
 
     /// <summary>Shallowest h/c over the root reference chord and every station; null when depth is unset or every h/c is at least 5 (Ruling 101 3a).</summary>
     private static double? ShallowDepthOverChord(AnalysisRun run, IReadOnlyList<StationFrame>? stations)
@@ -260,15 +307,15 @@ public static class AnalysisProjection
         return least < Labels.DeepWaterHc ? least : null;
     }
 
-    private static ResultRow WingRatioRow(double lift, StripValue n2, StripValue n4)
+    private static ResultRow WingRatioRow(double lift, StripValue n2, StripValue n4, int lowStrips = 0)
     {
-        if (n2.Value is not > 0 || n4.Value is not > 0)
+        if (n2.Value is null || n4.Value is null)
             return Row("Wing-only CL/CD", Labels.UnavailableBecause("ANA-WING-RATIO-UNAVAILABLE"));
+        if (n2.Value <= 0 || n4.Value <= 0) return Row("Wing-only CL/CD", Labels.CdNonPositive);
         double a = lift / n2.Value.Value, b = lift / n4.Value.Value;
-        return Row("Wing-only CL/CD", Num(Math.Min(a, b), "0.###") + "–" + Num(Math.Max(a, b), "0.###"),
-            note: "ANA-WING-ONLY-RATIO · " + SurrogateLabel +
-                (n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
-                    ? " · ANA-POLAR-LOW-CONFIDENCE" : ""));
+        return Row("Wing-only CL/CD", Band(a, b),
+            note: Labels.ReasonTexts["ANA-WING-ONLY-RATIO"] + " · " + SurrogateLabel +
+                (FlagNotes([n2, n4], lowStrips) is { Length: > 0 } flagNotes ? " · " + flagNotes : ""));
     }
 
     public static ResultGroup StripAt(AnalysisViewModel view, double eta)
@@ -290,14 +337,16 @@ public static class AnalysisProjection
                 Row("Re_local", Num(s.ReLocal, "0.###E+0")),
                 Row("Lift / span", width > 0 ? Num(localLift / width, "0.###") : Labels.StripWidthMissing, width > 0 ? "N/m" : null),
                 Row("Envelope (this strip)", VerdictText(s, context),
-                    note: s.ProvisionalReason == StripLoad.PanelUnderreadReason ? StripLoad.PanelUnderreadReason : null),
+                    note: s.ProvisionalReason == StripLoad.PanelUnderreadReason ? Labels.Provisional : null),
                 Row("Polar Re range", s.ProvisionalReason == StripLoad.TipProvisionalReason ? Labels.TipNotJudged :
-                    s.CdNcrit2.UnavailableReason ?? (s.CdNcrit2.Value.HasValue
-                        ? Num(NeuralFoilPolarSource.ReynoldsMin, "0.###E+0") + "–" +
-                            Num(NeuralFoilPolarSource.ReynoldsMax, "0.###E+0") : Labels.NoPolar),
+                    s.CdNcrit2.Value.HasValue
+                        ? Labels.ReInside(s.ReLocal, NeuralFoilPolarSource.ReynoldsMin, NeuralFoilPolarSource.ReynoldsMax)
+                        : s.CdNcrit2.UnavailableReason == "ANA-POLAR-RE-OUTSIDE"
+                            ? Labels.ReOutside(s.ReLocal, NeuralFoilPolarSource.ReynoldsMin, NeuralFoilPolarSource.ReynoldsMax)
+                            : ReasonText(s.CdNcrit2.UnavailableReason ?? Labels.NoPolar),
                     note: s.CdNcrit2.Value.HasValue ? SurrogateLabel : null),
-                Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : s.CdNcrit2.UnavailableReason ?? Labels.NoPolar,
-                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (s.CdNcrit2.FlagCode is { } code ? " · " + code : "") : null),
+                Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : ReasonText(s.CdNcrit2.UnavailableReason ?? Labels.NoPolar),
+                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (FlagNotes([s.CdNcrit2]) is { Length: > 0 } flagNotes ? " · " + flagNotes : "") : null),
                 Row("Not modelled", Labels.NotModelled(run.Op.HRef.HasValue))
             ]));
         }
