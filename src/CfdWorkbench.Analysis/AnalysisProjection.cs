@@ -121,7 +121,8 @@ public static class AnalysisProjection
             Row("Root bending moment", Val(rootMoment, "0.###"), "N·m", Labels.RootMoment),
             Row("Wing loading L/S_ref", run.Reference.SRef > 0 ? Num(lift / run.Reference.SRef / 1000, "0.###") : "Unavailable", "kPa"),
             Row("Moment about attachment point", Loads.AttachmentReason),
-            DragBandRow("Profile drag", profile2, profile4, units, run.Settings.Polar is null ? Labels.NoPolar : null),
+            DragBandRow("Profile drag", profile2, profile4, units, run.Settings.Polar is null ? Labels.NoPolar : null,
+                SurrogateLabel),
             DragBandRow("Total drag", total2, total4, units, run.Settings.Polar is null ? Loads.TotalDragReason : null),
             Row("Structural", "Structural: Not assessed", note: Labels.StructuralList),
             Row("t/c (root)", context.RootThicknessRatio.HasValue ? Num(context.RootThicknessRatio.Value * 100, "0.#") : Labels.ThicknessMissing,
@@ -208,13 +209,17 @@ public static class AnalysisProjection
             "/" + Val(sample.XtrLower, "0.###");
     }
 
-    private static ResultRow DragBandRow(string label, StripValue n2, StripValue n4, Units units, string? legacyReason)
+    private static ResultRow DragBandRow(string label, StripValue n2, StripValue n4, Units units,
+        string? legacyReason, string? tierNote = null)
     {
         if (n2.Value is not { } low || n4.Value is not { } high)
             return Row(label, legacyReason ?? n2.UnavailableReason ?? n4.UnavailableReason ?? "ANA-DRAG-UNAVAILABLE");
         double factor = units == Units.Imperial ? 4.4482216152605 : 1;
+        string? note = n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
+            ? string.Join(" · ", new[] { tierNote, "ANA-POLAR-LOW-CONFIDENCE" }.Where(part => part is not null))
+            : tierNote;
         return Row(label, Num(low / factor, "0.###") + "–" + Num(high / factor, "0.###"),
-            units == Units.Imperial ? "lbf" : "N");
+            units == Units.Imperial ? "lbf" : "N", note);
     }
 
     public static ResultGroup StripAt(AnalysisViewModel view, double eta)
@@ -238,7 +243,8 @@ public static class AnalysisProjection
                 Row("Envelope (this strip)", VerdictText(s, context.Verdicts)),
                 Row("Polar Re range", s.ProvisionalReason == StripLoad.TipProvisionalReason ? Labels.TipNotJudged :
                     s.CdNcrit2.UnavailableReason ?? (s.CdNcrit2.Value.HasValue ? Num(s.ReLocal, "0.###E+0") : Labels.NoPolar)),
-                Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : s.CdNcrit2.UnavailableReason ?? Labels.NoPolar),
+                Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : s.CdNcrit2.UnavailableReason ?? Labels.NoPolar,
+                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (s.CdNcrit2.FlagCode is { } code ? " · " + code : "") : null),
                 Row("Not modelled", Labels.NotModelled(run.Op.HRef.HasValue))
             ]));
         }

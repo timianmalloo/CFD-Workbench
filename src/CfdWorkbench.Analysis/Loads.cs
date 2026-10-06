@@ -51,7 +51,7 @@ public static class Loads
         if (induced.Value is null) return new(null, "ANA-TOTAL-DRAG-MISSING-INDUCED");
         StripValue profile = ProfileDrag(run, ncrit);
         if (profile.Value is null) return new(null, "ANA-TOTAL-DRAG-MISSING-PROFILE");
-        return new(induced.Value.Value + profile.Value.Value, null);
+        return new(induced.Value.Value + profile.Value.Value, null, profile.FlagCode);
     }
 
     /// <summary>Craft total is unavailable until the named non-wing components have a source.</summary>
@@ -68,6 +68,7 @@ public static class Loads
         if (run.Strips.Count == 0) return new(null, "ANA-PROFILE-DRAG-MISSING-STRIPS");
         double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
         double total = 0;
+        bool lowConfidence = false;
         foreach (StripLoad strip in run.Strips)
         {
             StripValue cd = ncrit == 2 ? strip.CdNcrit2 : strip.CdNcrit4;
@@ -75,8 +76,11 @@ public static class Loads
             double width = StripWidth(run, strip);
             if (!(width > 0)) return new(null, "ANA-PROFILE-DRAG-MISSING-WIDTH");
             total += q * strip.Chord * width * coefficient;
+            lowConfidence |= cd.FlagCode == "ANA-POLAR-LOW-CONFIDENCE";
         }
-        return double.IsFinite(total) && total >= 0 ? new(total, null) : new(null, "ANA-PROFILE-DRAG-NONFINITE");
+        return double.IsFinite(total) && total >= 0
+            ? new(total, null, lowConfidence ? "ANA-POLAR-LOW-CONFIDENCE" : null)
+            : new(null, "ANA-PROFILE-DRAG-NONFINITE");
     }
 
     public static StripValue InducedDrag(AnalysisRun run)

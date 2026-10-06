@@ -68,7 +68,8 @@ public static class StripCoupler
             // D14: a computed network point outside the validated bracket is not a supported profile drag.
             if (result.AvailabilityCode is { } code) return new(null, code);
             return result.Sample.Cd is { } cd && double.IsFinite(cd) && cd > 0
-                ? new(cd, null) : new(null, "ANA-POLAR-CD-UNAVAILABLE");
+                ? new(cd, null, result.LowConfidence ? "ANA-POLAR-LOW-CONFIDENCE" : null)
+                : new(null, "ANA-POLAR-CD-UNAVAILABLE");
         }
         catch (ContractError error) when (error.Code.StartsWith("ANA-POLAR-", StringComparison.Ordinal))
         {

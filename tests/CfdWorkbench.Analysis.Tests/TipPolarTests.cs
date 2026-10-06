@@ -54,5 +54,11 @@ internal static class TipPolarTests
          new(0.9, 5, 0.3, 0.5, 0.1, 0, true, 0.99)];
         PolarConsistencyResult result = TipPolarConsistency.Evaluate(strips);
         AnalysisChecks.Equal("ANA-TIP-PROVISIONAL", result.Strips[1].Code, "high confidence does not clear tip");
+        AnalysisChecks.Equal(null, result.Strips[1].AdvisoryCode, "high-confidence tip has no confidence advisory");
+        strips[1] = strips[1] with { Confidence = 0.2 };
+        PolarConsistencyResult low = TipPolarConsistency.Evaluate(strips);
+        AnalysisChecks.Equal("ANA-TIP-PROVISIONAL", low.Strips[1].Code, "low confidence does not replace tip reason");
+        AnalysisChecks.Equal("ANA-POLAR-LOW-CONFIDENCE", low.Strips[1].AdvisoryCode,
+            "low confidence is read and flagged separately");
     }
 }

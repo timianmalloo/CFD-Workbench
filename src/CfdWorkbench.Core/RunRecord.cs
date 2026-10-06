@@ -103,7 +103,8 @@ public sealed record StripLoad(int J, double Y, double Eta, double Chord, double
 }
 
 /// <summary>A value, or Unavailable with its reason — never a zero standing in for a missing number.</summary>
-public sealed record StripValue(double? Value, string? UnavailableReason);
+public sealed record StripValue(double? Value, string? UnavailableReason,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? FlagCode = null);
 
 /// <summary>One polar evaluation at its grain key (empty in A3a: no polar method is installed).</summary>
 public sealed record PolarSample(string ProfileHash, string MethodId, string MethodVersion, double Reynolds, double Ncrit,

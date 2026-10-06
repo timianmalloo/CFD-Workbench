@@ -7,7 +7,10 @@ namespace CfdWorkbench.Analysis;
 public sealed record PolarConsistencyInput(double Eta, double AlphaEffDeg, double ClLocal, double PolarCl,
     double PolarSlopePerDeg, double AlphaL0Deg, bool TipNotJudged, double Confidence);
 
-public sealed record PolarConsistencyStrip(double Eta, double? Ratio, double? ClDelta, string Code);
+public sealed record PolarConsistencyStrip(double Eta, double? Ratio, double? ClDelta, string Code)
+{
+    public string? AdvisoryCode { get; init; }
+}
 
 public sealed record PolarConsistencyResult(double? EdgeEta, IReadOnlyList<PolarConsistencyStrip> Strips);
 
@@ -80,7 +83,11 @@ public static class TipPolarConsistency
                 ratio[i] is null ? "ANA-POLAR-CONSISTENCY-UNAVAILABLE" :
                 "ANA-POLAR-CONSISTENCY-JUDGED";
             double? delta = double.IsFinite(strip.PolarCl) ? strip.ClLocal - strip.PolarCl : null;
-            result[i] = new(strip.Eta, ratio[i], delta, code);
+            result[i] = new(strip.Eta, ratio[i], delta, code)
+            {
+                AdvisoryCode = !double.IsFinite(strip.Confidence) ||
+                    strip.Confidence < NeuralFoilPolarSource.LowConfidenceBelow ? "ANA-POLAR-LOW-CONFIDENCE" : null
+            };
         }
         return new(edge, result);
     }

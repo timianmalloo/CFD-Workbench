@@ -11,6 +11,7 @@ internal static class PolarNumericsTests
         AnalysisChecks.Check("RunKey_PolarWeightsHashAndSize_ChangeKey", WeightsKey);
         AnalysisChecks.Check("Loads_TotalDrag_InducedPlusProfileOrNamesMissing", TotalDrag);
         AnalysisChecks.Check("Polar_ProductRun_ReachesStripsAndSectionProjection", ProductRun);
+        AnalysisChecks.Check("Polar_LowConfidence_AdvisoryReachesDragSums", LowConfidenceDrag);
     }
 
     private static void WaterRetrieval()
@@ -113,17 +114,46 @@ internal static class PolarNumericsTests
             throw new InvalidOperationException("polar source did not reach Section projection");
     }
 
+    private static void LowConfidenceDrag()
+    {
+        var solution = new LatticeSolution([0.1], [0.01], new RunDiagnostics(0, 1))
+        {
+            Strips = [new LatticeStrip(0, 0.1, 0.5, 0.12, 0.2, 0.1, 0.01, 0.2, 0, 0, 0.4, 0, 0.2)],
+            Forces = [new StripForce(0, 0.1, 0.5, 0.12, 0.1, 0, 0, 10, 0, 0, 0)]
+        };
+        var polar = new ReynoldsPolar { LowConfidence = true };
+        StripLoad coupled = StripCoupler.Couple([], solution, Fixture.Op(3), Fixture.Fresh, polar,
+            _ => new string('a', 64), CancellationToken.None)[0];
+        AnalysisChecks.Equal("ANA-POLAR-LOW-CONFIDENCE", coupled.CdNcrit2.FlagCode, "strip Ncrit 2 advisory");
+        AnalysisChecks.Equal("ANA-POLAR-LOW-CONFIDENCE", coupled.CdNcrit4.FlagCode, "strip Ncrit 4 advisory");
+        AnalysisRun run = ProjectionTests.Data(s => s with
+        {
+            CdNcrit2 = coupled.CdNcrit2, CdNcrit4 = coupled.CdNcrit4
+        }).Run;
+        foreach (StripValue value in new[] { Loads.ProfileDrag(run, 2), Loads.ProfileDrag(run, 4),
+            Loads.WingDrag(run, 2), Loads.WingDrag(run, 4) })
+            if (value.Value is null || value.FlagCode != "ANA-POLAR-LOW-CONFIDENCE")
+                throw new InvalidOperationException("advisory confidence was dropped from a numeric drag sum");
+        var projected = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric);
+        foreach (string label in new[] { "Profile drag" })
+            if (projected.Groups.Single(group => group.Title == "Loads").Rows.Single(row => row.Label == label)
+                .Note?.Contains("ANA-POLAR-LOW-CONFIDENCE", StringComparison.Ordinal) != true)
+                throw new InvalidOperationException(label + " lost the confidence flag in projection");
+    }
+
     private sealed class ReynoldsPolar : IPolarSource
     {
         public readonly List<(double Re, double Ncrit)> Calls = [];
+        public bool LowConfidence { get; init; }
         public string? UnavailableReason => null;
         public PolarResult? Sample(string profileHash, double reynolds, double ncrit, double alphaDeg,
             WaterRecord water, CancellationToken cancellation)
         {
             Calls.Add((reynolds, ncrit));
             var sample = new PolarSample(profileHash, "stub", "1", reynolds, ncrit, "clean", alphaDeg,
-                new string('b', 64), 0.4, reynolds / 1e8 + ncrit / 1e4, 0, null, null, null, null, 1, true);
-            return new PolarResult(sample, [], false, 0, 0);
+                new string('b', 64), 0.4, reynolds / 1e8 + ncrit / 1e4, 0, null, null, null, null,
+                LowConfidence ? 0.2 : 1, true);
+            return new PolarResult(sample, [], LowConfidence, 0, 0);
         }
     }
 }
