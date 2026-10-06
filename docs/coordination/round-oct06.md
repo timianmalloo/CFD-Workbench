@@ -2,7 +2,7 @@
 id: coordination-round-oct06
 title: "Coordination plan - Mac round of 2026-10-06 (copy fixes, adaptive panels, DX, group move, 1280x800 layout, hook, spec 1.7.5)"
 type: plan
-status: proposed
+status: completed
 owner: "@cfd-leader-14e5e8d5"
 tags: [coordination, worktrees, parallelism, analysis, a3b, a3c, dx, group-move, layout, spec]
 links:
@@ -185,3 +185,52 @@ put the end of DX on the path; DX builds its other states first.
 - **operator latency:** LAY's options and the reason-code drafts wait on you while the builds run.
 
 The chain CPY → DX is serial, and its width is 3 only in wave 2.
+
+## Planned vs actual (Stage 7, 2026-10-06)
+
+`main` at `b36f8d7b`, readiness green (182.3 s of 240 s), pushed. Rulings 101-123 this round; 14 joins. **Measured
+minutes** are the harness's agent wall time per dispatch (task notifications, Verified), summed over each track's passes;
+the audit log's `duration_seconds` under-records resumed passes (AC-09 shape again) and `trk-lay` reused last round's
+session id, so it is the cross-check, not the source. Box = the brief's budget, summed over passes.
+
+| track | passes | measured min | box min | ratio | note |
+|---|---|---|---|---|---|
+| DOC | 3 (rows + spec; R109 flip; R116 rows) | 12.0 | 40 + 10 + 20 | 0.17 | 107 + 37 rows, spec 1.7.5, 0 mismatches |
+| PNL | 3 (build; R110 + CFD conditions; telemetry + R114) | 42.1 | 60 + 2 cycles | 0.70 of build box | two Fable rulings (110, 114) reshaped it; the second closed a real gap (a thin station could govern unseen) |
+| LAY-a | 1 | 10.9 | 30 | 0.36 | its build was folded into CPY (Ruling 112) |
+| CPY | 2 (build; C-3 join repair) | 32.6 | 90 | 0.36 | grew past brief: Units plumbing (no Units setting existed) |
+| GRP Core | 1 | 20.1 | 75 | 0.27 | ring failed only under load 47-71 |
+| GRP Desktop | 1 + 2 repair | 48.8 + 40.6 | 90 + 75 + 40 | 0.43 | marine-CAD BLOCK then two conditions; real bugs: Δ 0.00, 800x unit error, stale readout |
+| DX | step 1 + step 2 | 42.6 | 120 | 0.36 | ran out of context; partial red-first |
+| DX finish | 2 (finish + stations) | 27.2 | 90 + 30 | 0.23 | Ruling 117 compute-and-flag folded in |
+| DX third pass | 1 (operator cap exception) | 13.3 | 45 | 0.30 | CFD conditions + Ruling 119 |
+| CI lessons | 1 | 10.8 | 60 | 0.18 | 6 classes, 3 new controls |
+| UNI | 3 (build; persistence; lint) | 16.6 | 60 + 25 + 15 | 0.17 | lint caught a raw margin at the join |
+| SPL | 2 (profile; move checks) | 28.8 | 90 + 40 | 0.22 | split does not pay (CPU-bound); 11 checks to readiness |
+| Reviews (11 single calls) | — | ~29 | — | — | test-architect ×3, hydrodynamicist, marine-CAD ×3, CFD-V&V ×2, Fable owner ×2 |
+
+**What paid.** Docs-first (DOC) removed every `DESIGN.md` conflict except one id collision, and made copy approval a data
+change for the builds. The adversarial reviews found real defects every time they ran: the hydrodynamicist's "Total
+drag" block, the CFD lens's governing-station flip, the Fable owner's 2x-width gap, the marine-CAD lens's Δ 0.00 and the
+800x unit error. Folding LAY-b into CPY saved a track. Boxes ran at 0.17-0.43 of plan except PNL, whose two rulings came
+mid-track; the next plan should box Sonnet build tracks at about 0.35x of this round's.
+
+**What did not.** Three tracks building at once drove load to 47-77 and produced load-only failures and one wasted join
+(PARALLEL-BUILD-LOAD; `tools/dispatch-gate.py` now exists, and the Coordinator still started one join without running it).
+DX needed three passes and an operator-authorised cap exception: its brief carried a false premise (the stations count)
+and its first agent exhausted its context. GRP's ring stayed green while the fast ring crossed its budget because the load
+gate turned the overrun into a COST-MISS; the next join on a quiet machine exposed it (51.9 s net). The Desktop split the
+operator chose measured slower (CPU-bound), and the headroom came from moving 11 checks to readiness instead.
+
+**Next plan inputs.** Run `dispatch-gate.py` before every dispatch and join; at most 2 build tracks. Give parallel tracks
+COPY id ranges at dispatch. Give large UI tracks a context checkpoint (commit + Return at ~60 % of the box). Fix the three
+ungated wall-clock checks and the five `DSL-`/`DOC-` raw-code fallbacks (register). The fast ring is at 46-47.6 s net: about
+one round of growth before the next decision (Core rebalance was partly achieved by the moves: Core 3/3 45 -> 29 s).
+
+## Operator items carried to the next round
+
+1. Review the packaged app with the new screens (DX, group move, Units); ask for a fresh package.
+2. Post the NeuralFoil weights question on GitHub (carried from round-oct05).
+3. The PC session: no `win/*` branch or message yet. A handoff about the new `units` key in `cfdw-display` is posted
+   in `docs/coordination/xmsg.jsonl` (Ruling 121).
+4. Unapproved wording UNI left out: a Units status announcement, a tooltip, a message for a units save that cannot be kept.

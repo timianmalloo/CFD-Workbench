@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T22:16:13Z",
+  "generated": "2026-10-06T22:20:50Z",
   "audit": [
     {
       "actor": null,
@@ -28108,6 +28108,159 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T22:15:18Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M49MW91PT8G1RMAT69X5JS9M",
+      "shortname": "coordinate-round-oct06",
+      "datetime": "2026-10-06T22:20:50Z",
+      "session": "14e5e8d5",
+      "prompt": "go (dispatch round-oct06: DOC, PNL, LAY-a, HYD and MCAD reviews, then the order of operations)",
+      "summary": "round-oct06 closed: DOC, PNL, CPY, GRP (Core + Desktop), DX, UNI, CI, SPL joined; main b36f8d7b readiness green and pushed; Rulings 101-123; 11 reviews found real defects (Total drag label, governing flip, 2x width gap, delta 0.00, 800x unit error, stale readout); DX three passes with an operator cap exception; fast ring crossed its budget (51.9 s), split did not pay, 11 checks moved to readiness (46-47.6 s); classes COPY-ID-COLLISION, WALLCLOCK-ASSERT-UNGATED, RAW-CODE-ON-SCREEN, PARALLEL-BUILD-LOAD, BRIEF-PREMISE-UNCHECKED, RING-AT-BUDGET",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/round-oct06.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "run the round-oct06 coordination plan to joined, readiness-green main",
+      "done_when": "every track returned or stopped, every join through conductor-join, readiness green and pushed, planned vs actual recorded",
+      "tier": "T2",
+      "fan_out": 3,
+      "agent_runs": [
+        {
+          "agent": "trk-ci6",
+          "started_at": "2026-10-06T21:16:25Z",
+          "ended_at": "2026-10-06T21:26:52Z",
+          "duration_seconds": 627.0,
+          "calls": 0,
+          "budget_calls": 60,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-cpy",
+          "started_at": "2026-10-06T16:44:05Z",
+          "ended_at": "2026-10-06T17:14:41Z",
+          "duration_seconds": 1836.0,
+          "calls": 0,
+          "budget_calls": 90,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-doc",
+          "started_at": "2026-10-06T16:14:04Z",
+          "ended_at": "2026-10-06T17:37:23Z",
+          "duration_seconds": 4999.0,
+          "calls": 0,
+          "budget_calls": 70,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-dx",
+          "started_at": "2026-10-06T17:39:38Z",
+          "ended_at": "2026-10-06T18:17:36Z",
+          "duration_seconds": 2278.0,
+          "calls": 0,
+          "budget_calls": 120,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-dx2",
+          "started_at": "2026-10-06T19:07:16Z",
+          "ended_at": "2026-10-06T20:23:07Z",
+          "duration_seconds": 4551.0,
+          "calls": 0,
+          "budget_calls": 120,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-dx3",
+          "started_at": "2026-10-06T20:26:17Z",
+          "ended_at": "2026-10-06T20:39:10Z",
+          "duration_seconds": 773.0,
+          "calls": 0,
+          "budget_calls": 45,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-grp-core",
+          "started_at": "2026-10-06T16:44:05Z",
+          "ended_at": "2026-10-06T17:03:06Z",
+          "duration_seconds": 1141.0,
+          "calls": 0,
+          "budget_calls": 75,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-grp-desk",
+          "started_at": "2026-10-06T17:33:35Z",
+          "ended_at": "2026-10-06T18:21:53Z",
+          "duration_seconds": 2898.0,
+          "calls": 0,
+          "budget_calls": 90,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-grp-fix",
+          "started_at": "2026-10-06T20:20:42Z",
+          "ended_at": "2026-10-06T21:10:48Z",
+          "duration_seconds": 3006.0,
+          "calls": 0,
+          "budget_calls": 115,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-lay",
+          "started_at": "2026-10-06T01:56:53Z",
+          "ended_at": "2026-10-06T02:32:36Z",
+          "duration_seconds": 2143.0,
+          "calls": 0,
+          "budget_calls": 30,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-pnl",
+          "started_at": "2026-10-06T16:14:04Z",
+          "ended_at": "2026-10-06T16:58:21Z",
+          "duration_seconds": 2657.0,
+          "calls": 0,
+          "budget_calls": 120,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-spl",
+          "started_at": "2026-10-06T21:41:11Z",
+          "ended_at": "2026-10-06T22:10:12Z",
+          "duration_seconds": 1741.0,
+          "calls": 0,
+          "budget_calls": 130,
+          "over_budget": false
+        },
+        {
+          "agent": "trk-uni",
+          "started_at": "2026-10-06T21:15:46Z",
+          "ended_at": "2026-10-06T22:13:49Z",
+          "duration_seconds": 3483.0,
+          "calls": 0,
+          "budget_calls": 100,
+          "over_budget": false
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 32133.0,
+        "span_seconds": 20707.0,
+        "speedup": 1.55,
+        "peak_concurrency": 4
+      },
+      "git": {
+        "sha": "b36f8d7bee0253fd8fce39f44b332d87d8a05aff",
+        "short": "b36f8d7be",
+        "branch": "docs/round-oct06-close",
+        "pushed": null
+      }
     }
   ],
   "changes": [

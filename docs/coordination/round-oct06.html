@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="15b3ed7fc97c3cd5f524b776805c506bf6dffd023b29d963ab8b535617bdb7e8">
+<title>CFD-Workbench — coordination plan</title><meta name="source-sha256" content="f15850e050b00672e2a5aad74f8fdf5c402b3f4c6fd000aac883d92b54a79636">
 <style>
 :root{color-scheme:light dark;font:16px/1.5 system-ui,-apple-system,sans-serif}
 body{margin:0;background:Canvas;color:CanvasText}
@@ -507,4 +507,148 @@ put the end of DX on the path; DX builds its other states first.</p>
 <li><strong>operator latency:</strong> LAY&#39;s options and the reason-code drafts wait on you while the builds run.</li>
 </ul>
 <p>The chain CPY → DX is serial, and its width is 3 only in wave 2.</p>
-<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>15b3ed7fc97c3cd5f524b776805c506bf6dffd023b29d963ab8b535617bdb7e8</code>.</p></footer></main></body></html>
+<h2>Planned vs actual (Stage 7, 2026-10-06)</h2>
+<p><code>main</code> at <code>b36f8d7b</code>, readiness green (182.3 s of 240 s), pushed. Rulings 101-123 this round; 14 joins. <strong>Measured
+minutes</strong> are the harness&#39;s agent wall time per dispatch (task notifications, Verified), summed over each track&#39;s passes;
+the audit log&#39;s <code>duration_seconds</code> under-records resumed passes (AC-09 shape again) and <code>trk-lay</code> reused last round&#39;s
+session id, so it is the cross-check, not the source. Box = the brief&#39;s budget, summed over passes.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>track</th>
+<th>passes</th>
+<th>measured min</th>
+<th>box min</th>
+<th>ratio</th>
+<th>note</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DOC</td>
+<td>3 (rows + spec; R109 flip; R116 rows)</td>
+<td>12.0</td>
+<td>40 + 10 + 20</td>
+<td>0.17</td>
+<td>107 + 37 rows, spec 1.7.5, 0 mismatches</td>
+</tr>
+<tr>
+<td>PNL</td>
+<td>3 (build; R110 + CFD conditions; telemetry + R114)</td>
+<td>42.1</td>
+<td>60 + 2 cycles</td>
+<td>0.70 of build box</td>
+<td>two Fable rulings (110, 114) reshaped it; the second closed a real gap (a thin station could govern unseen)</td>
+</tr>
+<tr>
+<td>LAY-a</td>
+<td>1</td>
+<td>10.9</td>
+<td>30</td>
+<td>0.36</td>
+<td>its build was folded into CPY (Ruling 112)</td>
+</tr>
+<tr>
+<td>CPY</td>
+<td>2 (build; C-3 join repair)</td>
+<td>32.6</td>
+<td>90</td>
+<td>0.36</td>
+<td>grew past brief: Units plumbing (no Units setting existed)</td>
+</tr>
+<tr>
+<td>GRP Core</td>
+<td>1</td>
+<td>20.1</td>
+<td>75</td>
+<td>0.27</td>
+<td>ring failed only under load 47-71</td>
+</tr>
+<tr>
+<td>GRP Desktop</td>
+<td>1 + 2 repair</td>
+<td>48.8 + 40.6</td>
+<td>90 + 75 + 40</td>
+<td>0.43</td>
+<td>marine-CAD BLOCK then two conditions; real bugs: Δ 0.00, 800x unit error, stale readout</td>
+</tr>
+<tr>
+<td>DX</td>
+<td>step 1 + step 2</td>
+<td>42.6</td>
+<td>120</td>
+<td>0.36</td>
+<td>ran out of context; partial red-first</td>
+</tr>
+<tr>
+<td>DX finish</td>
+<td>2 (finish + stations)</td>
+<td>27.2</td>
+<td>90 + 30</td>
+<td>0.23</td>
+<td>Ruling 117 compute-and-flag folded in</td>
+</tr>
+<tr>
+<td>DX third pass</td>
+<td>1 (operator cap exception)</td>
+<td>13.3</td>
+<td>45</td>
+<td>0.30</td>
+<td>CFD conditions + Ruling 119</td>
+</tr>
+<tr>
+<td>CI lessons</td>
+<td>1</td>
+<td>10.8</td>
+<td>60</td>
+<td>0.18</td>
+<td>6 classes, 3 new controls</td>
+</tr>
+<tr>
+<td>UNI</td>
+<td>3 (build; persistence; lint)</td>
+<td>16.6</td>
+<td>60 + 25 + 15</td>
+<td>0.17</td>
+<td>lint caught a raw margin at the join</td>
+</tr>
+<tr>
+<td>SPL</td>
+<td>2 (profile; move checks)</td>
+<td>28.8</td>
+<td>90 + 40</td>
+<td>0.22</td>
+<td>split does not pay (CPU-bound); 11 checks to readiness</td>
+</tr>
+<tr>
+<td>Reviews (11 single calls)</td>
+<td>—</td>
+<td>~29</td>
+<td>—</td>
+<td>—</td>
+<td>test-architect ×3, hydrodynamicist, marine-CAD ×3, CFD-V&amp;V ×2, Fable owner ×2</td>
+</tr>
+</tbody></table></div>
+<p><strong>What paid.</strong> Docs-first (DOC) removed every <code>DESIGN.md</code> conflict except one id collision, and made copy approval a data
+change for the builds. The adversarial reviews found real defects every time they ran: the hydrodynamicist&#39;s &quot;Total
+drag&quot; block, the CFD lens&#39;s governing-station flip, the Fable owner&#39;s 2x-width gap, the marine-CAD lens&#39;s Δ 0.00 and the
+800x unit error. Folding LAY-b into CPY saved a track. Boxes ran at 0.17-0.43 of plan except PNL, whose two rulings came
+mid-track; the next plan should box Sonnet build tracks at about 0.35x of this round&#39;s.</p>
+<p><strong>What did not.</strong> Three tracks building at once drove load to 47-77 and produced load-only failures and one wasted join
+(PARALLEL-BUILD-LOAD; <code>tools/dispatch-gate.py</code> now exists, and the Coordinator still started one join without running it).
+DX needed three passes and an operator-authorised cap exception: its brief carried a false premise (the stations count)
+and its first agent exhausted its context. GRP&#39;s ring stayed green while the fast ring crossed its budget because the load
+gate turned the overrun into a COST-MISS; the next join on a quiet machine exposed it (51.9 s net). The Desktop split the
+operator chose measured slower (CPU-bound), and the headroom came from moving 11 checks to readiness instead.</p>
+<p><strong>Next plan inputs.</strong> Run <code>dispatch-gate.py</code> before every dispatch and join; at most 2 build tracks. Give parallel tracks
+COPY id ranges at dispatch. Give large UI tracks a context checkpoint (commit + Return at ~60 % of the box). Fix the three
+ungated wall-clock checks and the five <code>DSL-</code>/<code>DOC-</code> raw-code fallbacks (register). The fast ring is at 46-47.6 s net: about
+one round of growth before the next decision (Core rebalance was partly achieved by the moves: Core 3/3 45 -&gt; 29 s).</p>
+<h2>Operator items carried to the next round</h2>
+<ol>
+<li>Review the packaged app with the new screens (DX, group move, Units); ask for a fresh package.</li>
+<li>Post the NeuralFoil weights question on GitHub (carried from round-oct05).</li>
+<li>The PC session: no <code>win/*</code> branch or message yet. A handoff about the new <code>units</code> key in <code>cfdw-display</code> is posted
+in <code>docs/coordination/xmsg.jsonl</code> (Ruling 121).</li>
+<li>Unapproved wording UNI left out: a Units status announcement, a tooltip, a message for a units save that cannot be kept.</li>
+</ol>
+<footer><p class="note">This view is generated from the canonical Markdown. Source SHA-256: <code>f15850e050b00672e2a5aad74f8fdf5c402b3f4c6fd000aac883d92b54a79636</code>.</p></footer></main></body></html>
