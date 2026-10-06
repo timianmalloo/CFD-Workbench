@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T17:37:23Z",
+  "generated": "2026-10-06T17:37:58Z",
   "audit": [
     {
       "actor": null,
@@ -27713,6 +27713,33 @@ window.AUDIT_DATA = {
       "done_when": "compare 0 mismatches, Copy test green, check-docs 0",
       "started_at": "2026-10-06T17:35:38Z",
       "duration_seconds": 105.0
+    },
+    {
+      "id": "al-01M494PB2BRG48SJ3WQSNG6PBW",
+      "shortname": "join-doc-r116",
+      "datetime": "2026-10-06T17:37:58Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of docs/copy-batch-r116 into main",
+      "summary": "COPY-334..352 approved; COPY-357..393 new (DX strings, CPY reason texts, not-measured, group-move tokens, finding 11); G2/G4/G8/G10/G11/G12 superseded markers; pinned rows untouched recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join docs/copy-batch-r116 into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T17:37:54Z",
+      "duration_seconds": 4.0
     }
   ],
   "changes": [
