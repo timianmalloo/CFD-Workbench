@@ -86,7 +86,8 @@ public sealed record PropertiesModel(
     PropertyGroup? Wing,
     RowMessage? Banner = null,
     EmptyState? Empty = null,
-    string? AvailabilityStatus = null)   // COPY-160 for the status line while an estimate is unavailable
+    string? AvailabilityStatus = null,   // COPY-160 for the status line while an estimate is unavailable
+    string? TierChip = null)             // A3a: the run's tier label, a pill under the identity (the mockup's chip), never a row
 {
     /// <summary>The groups in display order: the selection's groups, then the Wing, always last (CAD-17, UI-36).</summary>
     public IReadOnlyList<PropertyGroup> Blocks => Wing is null ? Groups : [.. Groups, Wing];
@@ -1245,10 +1246,19 @@ public static class PropertiesView
                 if (view.Groups.FirstOrDefault(group => group.Title == title) is { } group)
                     shown.Add(AnalysisGroup("ana-" + title.ToLowerInvariant().Replace(" ", "-"), group.Title, group.Rows));
         }
+        // The Tier row is the mockup's chip above the groups: its value moves out of the Wing result group, text unchanged.
+        string? tier = null;
+        for (int index = 0; index < shown.Count; index++)
+        {
+            var tierRow = shown[index].Rows.FirstOrDefault(row => row.Label == "Tier");
+            if (tierRow is null) continue;
+            tier = tierRow.Value;
+            shown[index] = shown[index] with { Rows = [.. shown[index].Rows.Where(row => row != tierRow)] };
+        }
         groups.AddRange(shown);
         var (wing, availability) = Wing(projection, estimates, ShellMode.Analysis, context);
         return new PropertiesModel(identity, groups, wing, view.Banner is { } banner ? new RowMessage(banner, MessageKind.Info) : null,
-            AvailabilityStatus: availability);
+            AvailabilityStatus: availability, TierChip: tier);
     }
 
     private static PropertyGroup AnalysisGroup(string id, string title, IReadOnlyList<CfdWorkbench.Analysis.ResultRow> rows) =>
