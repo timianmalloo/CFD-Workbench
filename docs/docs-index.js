@@ -2470,7 +2470,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "358099030b9c1a752caef719bd1d841da709512547c05ffc3d18b5643f4c52ee"
+      "sourceSha256": "04c3aa307ff7bb5311c1bba65f3a3c9140a14009fdde0279f685eff88e577be0"
     },
     {
       "id": "design-authoring-decisions",
@@ -5044,7 +5044,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "da7fd89ad4268e117250907c89b7d3b84532c37f2343af9f1dd62ca7d3daab28"
+      "sourceSha256": "972149ee0c6e8a51b3fa20b141017e79af25724a21edc7ca828e1c93f5636970"
     },
     {
       "id": "domain-experts",
@@ -11826,6 +11826,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "95f212dc46d2f49e65072aab721162cf59d63518f214b2325143fa40777cd95f"
     },
     {
+      "id": "proof-round-oct05-heredoc-hook-proposal",
+      "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
+      "title": "AGENT-HEREDOC hook proposal (operator decision)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@track-ci",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "A PreToolUse hook that refuses Bash heredocs, with a tested draft script. Not installed: wiring a hook into .claude/settings.json changes harness configuration and is the operator's call.",
+      "tags": [
+        "round-oct05",
+        "hooks",
+        "heredoc",
+        "ct27",
+        "operator-decision"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "539de22461d7207c2ea4aeef8774f4447943458b7af914df183461db24e5008e"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -14419,5 +14446,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "0035b982977e25f1a9286ba1b23c9057b61a4d0a6f1f295470b671358c6cde0d"
+  "graphSha256": "2bb33bba55d10c4106caa87bc399b1fbd0009cb334c49ff5b4c760fdba9876d7"
 };
