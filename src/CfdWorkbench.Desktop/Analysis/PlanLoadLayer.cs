@@ -65,10 +65,48 @@ public static class PlanLoadLayer
             - new Vector(0, 10 + (max > 0 ? 54 * Math.Abs(s.Gamma) / max : 0))).ToArray();
         if (curve.Length > 1) context.DrawGeometry(null, new Pen(ink, 2), new PolylineGeometry(curve, false));
         Text(context, "Γ(y) · loading", new Point(Math.Max(8, viewport.Width / 2 - 48), Math.Max(30, curve.Min(p => p.Y) - 17)), ink, soft);
+        var legend = DrawLegend(context, layer.Legend, max, viewport, ink, soft, resourceScope);
+        // The outside-strip count sits on the legend, in its column, wrapped to its width, so the two plates never overlap.
         if (scene.CountText is { } count)
-            Text(context, count, new Point(12, viewport.Height - 70), warning, soft);
-        Text(context, layer.Legend, new Point(Math.Max(8, viewport.Width - Math.Min(350, viewport.Width - 16)), 42), ink, soft);
+            LoadLayerText.PlateAbove(context, count, new Point(legend.Left + 4, legend.Top - 6), warning, soft, legend.Width - 8);
     }
+
+    private const double RampHeight = 8, LegendBottom = 48;
+
+    /// <summary>
+    /// The legend plate at the view's bottom right (the mockup's .legend): the plate text, then the batlow ramp from the
+    /// Styles brushes with its 0 and maximum ends. The text names the map and range, so colour is never the only carrier.
+    /// </summary>
+    private static Rect DrawLegend(DrawingContext context, string legend, double max, Size viewport, IBrush ink, IBrush soft, Control scope)
+    {
+        double width = Math.Min(350, viewport.Width - 16), left = viewport.Width - width - 8;
+        var text = LoadLayerText.Format(legend, ink, width);
+        var zero = LoadLayerText.Format("0", ink, double.PositiveInfinity);
+        var top = LoadLayerText.Format(max.ToString("0.###", CultureInfo.InvariantCulture), ink, double.PositiveInfinity);
+        double block = text.Height + 4 + RampHeight + 2 + zero.Height, y = Math.Max(8, viewport.Height - LegendBottom - block);
+        var plate = new Rect(left - 4, y - 2, width + 8, block + 4);
+        context.DrawRectangle(soft, null, plate);
+        context.DrawText(text, new Point(left, y));
+        double rampTop = y + text.Height + 4;
+        var stops = BatlowStops(scope);
+        var gradient = new LinearGradientBrush
+        {
+            StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative), EndPoint = new RelativePoint(1, 0, RelativeUnit.Relative),
+            GradientStops = [.. stops.Select((color, index) => new GradientStop(color, index / (double)(stops.Count - 1)))]
+        };
+        context.DrawRectangle(gradient, null, new Rect(left, rampTop, width, RampHeight), 2);
+        context.DrawText(zero, new Point(left, rampTop + RampHeight + 2));
+        context.DrawText(top, new Point(left + width - top.Width, rampTop + RampHeight + 2));
+        return plate;
+    }
+
+    /// <summary>The five batlow colours the Γ strips and the legend ramp share (Styles.axaml Batlow0..4).</summary>
+    public static IReadOnlyList<Color> BatlowStops(Control scope) => [.. Enumerable.Range(0, 5).Select(index =>
+    {
+        string key = $"Batlow{index}Brush";
+        return scope.TryFindResource(key, scope.ActualThemeVariant, out var value) && value is ISolidColorBrush brush
+            ? brush.Color : throw new InvalidOperationException($"Missing {key} in Styles.axaml.");
+    })];
 
     private static double At(IReadOnlyList<PlanSample> points, double y)
     {
@@ -86,12 +124,7 @@ public static class PlanLoadLayer
 
     private static IBrush[] MakeRamp(Control scope)
     {
-        var batlow = Enumerable.Range(0, 5).Select(index =>
-        {
-            string key = $"Batlow{index}Brush";
-            return scope.TryFindResource(key, scope.ActualThemeVariant, out var value) && value is ISolidColorBrush brush
-                ? brush.Color : throw new InvalidOperationException($"Missing {key} in Styles.axaml.");
-        }).ToArray();
+        var batlow = BatlowStops(scope);
         return Enumerable.Range(0, 256).Select(index => MakeBrush(index / 255d, batlow)).ToArray();
     }
 

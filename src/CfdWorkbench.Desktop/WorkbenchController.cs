@@ -304,7 +304,7 @@ public sealed class WorkbenchController : IDisposable
                         selected.Run.Outcome is RunOutcome.Completed && RunRecord.RecomputedKey(selected.Run) != Freshness.CurrentKey(current)
                         ? HistoricalBanner(selected.Run, current) : null));
             if (AnalysisRunning)
-                view = view with { State = RunState.Running, StatusText = "Analysis: Running" };
+                view = view with { State = RunState.Running, StatusText = "Analysis: Running", ErrorCard = null };   // a failed attempt's card is not shown while the next one runs
             LayerSet = view.Layers;
             analysisProjectionKey = key;
             analysisView = view;

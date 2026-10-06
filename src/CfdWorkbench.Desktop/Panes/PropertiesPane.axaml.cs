@@ -40,6 +40,7 @@ public static class PropertiesFieldNudge
 public partial class PropertiesPane : UserControl
 {
     private const double WingShare = 0.55;     // DR-UID-5: the Wing keeps at most 55 % of the pane's height
+    private bool analysisLayout;   // A3a: in Analysis the Wing is read-only context and follows the groups inside one scroll (the mockup's dock)
     private const double StackedFrom = 1.5;    // DN-5: at 150 % text and above the value drops under its label
 
     /// <summary>The size tokens one Text size multiplier scales (DN-5; DESIGN.md typography.prop-text-scale).</summary>
@@ -65,7 +66,7 @@ public partial class PropertiesPane : UserControl
     private readonly Dictionary<string, GroupView> groupViews = new(StringComparer.Ordinal);
     private readonly Dictionary<string, SectionView> sectionViews = new(StringComparer.Ordinal);
     private readonly Dictionary<string, List<TextBlock>> noteViews = new(StringComparer.Ordinal);
-    private readonly Dictionary<string, bool> collapsed = new(StringComparer.Ordinal) { ["rail"] = true };
+    private readonly Dictionary<string, bool> collapsed = new(StringComparer.Ordinal) { ["rail"] = true, ["ana-conditions"] = true };
     private readonly Dictionary<TextBox, RowView> inputOwners = [];
     private readonly Dictionary<TextBox, string> shown = [];
     private readonly Dictionary<TextBox, (EditCue Cue, Border Ring)> cues = [];
@@ -349,6 +350,9 @@ public partial class PropertiesPane : UserControl
             RecoveryBanner.IsVisible = recovery;
             if (recovery) RecoveryBanner.Text = "A recovered edit is open.";
             shownModel = model;
+            PlaceWing(controller.IsAnalysis);
+            AnalysisChip.IsVisible = model.TierChip is not null;
+            AnalysisChipText.Text = model.TierChip ?? "";
             // COPY-160: a change in availability is reported once in the status strip, never on a re-render.
             if (model.AvailabilityStatus != lastAvailability && model.AvailabilityStatus is { } availability)
                 Reported?.Invoke(new StatusReport(availability));
@@ -1004,7 +1008,27 @@ public partial class PropertiesPane : UserControl
 
     private void FitToPane()
     {
-        if (Bounds.Height > 0) WingBlock.MaxHeight = Bounds.Height * WingShare;
+        if (Bounds.Height > 0) WingBlock.MaxHeight = analysisLayout ? double.PositiveInfinity : Bounds.Height * WingShare;
+    }
+
+    /// <summary>
+    /// CAD pins the Wing at the foot (DR-UID-5). Analysis shows result groups that need the height, so the Wing moves to the end of
+    /// the one scrolling column, as the mockup's dock draws it, and its own scroll is off: one scrollbar, nothing clipped inside another.
+    /// </summary>
+    private void PlaceWing(bool inline)
+    {
+        if (analysisLayout == inline) return;
+        analysisLayout = inline;
+        (WingBlock.Parent as Panel)?.Children.Remove(WingBlock);
+        if (inline) SelectionPanel.Children.Add(WingBlock);
+        else
+        {
+            ContentPanel.Children.Add(WingBlock);
+            Grid.SetRow(WingBlock, 1);
+        }
+        WingScroll.VerticalScrollBarVisibility = inline ? ScrollBarVisibility.Disabled : ScrollBarVisibility.Auto;
+        SelectionScroll.AllowAutoHide = !inline;   // the one scroll shows its bar, so what is below the fold is never hidden
+        FitToPane();
     }
 
     // A pane bound before it is attached reads the application's tokens; it re-reads them on its first render attached.

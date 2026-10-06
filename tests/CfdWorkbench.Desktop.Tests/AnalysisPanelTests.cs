@@ -260,8 +260,186 @@ public static class AnalysisPanelTests
             }
             finally { window.Close(); }
         });
+        // POL (A3a polish, Ring D, est. 3 s: three small-lattice evaluations, three windows). Each check names the defect it protects.
+        DesktopChecks.Check("Properties_AnalysisLayout_OneVisibleScroll_TierChipAboveGroups", () =>
+        {
+            using var controller = OpenSmall();
+            _ = EvaluateAt(controller, 2, 0.6);
+            controller.ToggleAnalysis();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1500, Height = 870 };
+            try
+            {
+                window.Show();
+                host.RefreshPanes();
+                Settle(window);
+                var pane = host.Properties;
+                var scroll = pane.FindControl<ScrollViewer>("SelectionScroll")!;
+                Equal(true, ReferenceEquals(pane.FindControl<Border>("WingBlock")!.Parent, pane.FindControl<StackPanel>("SelectionPanel")),
+                    "the Wing follows the groups inside the one scroll");
+                Equal(ScrollBarVisibility.Disabled, pane.FindControl<ScrollViewer>("WingScroll")!.VerticalScrollBarVisibility, "no second vertical scroller");
+                Equal(false, scroll.AllowAutoHide, "the one scroll shows its bar, so nothing below the fold is hidden");
+                Equal(true, scroll.Bounds.Height > 400, "the groups get the pane, not half of it: " + scroll.Bounds.Height);
+                var chip = pane.FindControl<Border>("AnalysisChip")!;
+                Equal(true, chip.IsVisible && chip.Classes.Contains("modebar-chip"), "the tier is the pill chip");
+                Equal(Labels.VlmChip, pane.FindControl<TextBlock>("AnalysisChipText")!.Text, "the chip carries the approved tier text");
+                Equal(false, pane.ShownModel!.Blocks.Any(group => group.Rows.Any(row => row.Label == "Tier")), "the Tier is not also a row");
+                foreach (string title in new[] { "Wing result", "Labels" })
+                {
+                    var header = pane.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(text => text.IsEffectivelyVisible && text.Text == title)
+                        ?? throw new Exception(title + " group header is not drawn");
+                    Equal(true, InView(header, scroll), title + " header is in the first viewport at 1500 x 870");
+                }
+                var method = pane.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault(text => text.IsEffectivelyVisible && text.Text == "Method")
+                    ?? throw new Exception("Labels rows are not drawn");
+                Equal(true, InView(method, scroll), "the Labels rows start in view");
+            }
+            finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
+        });
+
+        DesktopChecks.Check("Analysis_Running_HidesPreviousFailureCard", () =>
+        {
+            var hold = new FlakyMethod(new ProductWingMethod(Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null }));
+            using var controller = OpenSmall(hold);
+            _ = EvaluateAt(controller, 2, null);
+            hold.Fail = true;
+            _ = EvaluateAt(controller, 3, null);
+            hold.Fail = false;
+            Equal(true, controller.AnalysisView.ErrorCard is not null, "the failed attempt shows its card");
+            hold.Gate = new ManualResetEventSlim(false);
+            var running = Task.Run(() => controller.EvaluateAnalysisAsync(OperatingPoints.Custom(5.14, 4, null), controller.AnalysisWater));
+            var deadline = System.Diagnostics.Stopwatch.StartNew();
+            while (!controller.AnalysisRunning && deadline.Elapsed < TimeSpan.FromSeconds(10)) Thread.Sleep(5);
+            try
+            {
+                Equal(true, controller.AnalysisRunning, "the next Evaluate is running");
+                var view = controller.AnalysisView;
+                Equal(RunState.Running, view.State, "state");
+                Equal(null, view.ErrorCard, "the stale card is hidden while running");
+                var panel = new AnalysisPanel();
+                panel.Bind(controller);
+                Equal(false, panel.FindControl<Border>("PanelErrorCard")!.IsVisible, "the panel's card is hidden too");
+            }
+            finally
+            {
+                hold.Gate.Set();
+                running.WaitAsync(TimeSpan.FromSeconds(60)).GetAwaiter().GetResult();
+            }
+        });
+
+        DesktopChecks.Check("Tampered_RunView_UnavailableNoLayersRowKept", () =>
+        {
+            // A stored run whose payload no longer matches its hash: edited on disk, reopened through the controller (no seam needed).
+            string path = Path.Combine(Path.GetTempPath(), "pol-tamper-" + Guid.NewGuid().ToString("N") + ".cfdw.json");
+            string resaved = path + ".again.cfdw.json";
+            try
+            {
+                using (var source = OpenSmall())
+                {
+                    _ = EvaluateAt(source, 2, 0.6);
+                    var saved = Task.Run(() => source.SaveAsync(path)).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
+                    Equal("OK", saved.Code, "the fixture saved");
+                }
+                string image = File.ReadAllText(path);
+                int at = image.IndexOf("\"fz\": ", StringComparison.Ordinal);
+                if (at < 0) throw new Exception("the saved image has no stored strip force to edit");
+                int end = image.IndexOfAny([',', '\n'], at + 6);
+                File.WriteAllText(path, image[..(at + 6)] + "123.25" + image[end..]);
+                using var controller = new WorkbenchController();
+                var outcome = Task.Run(() => controller.OpenAsync(path)).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
+                Equal(true, outcome is OpenOutcome.Opened, "the edited file still opens: " + outcome);
+                controller.ToggleAnalysis();
+                var view = controller.AnalysisView;
+                Equal(RunState.Unavailable, view.State, "state");
+                Equal("Analysis: Unavailable", view.StatusText, "status item");
+                Equal(Labels.PayloadFailed, view.Groups.Single().Rows.Single(row => row.Label == "Result").Value, "the verdict row");
+                Equal(0, view.Layers.Count, "no layers are drawn from a failed payload");
+                Equal(true, view.RunKey is not null, "the run row is kept, named by its key");
+                var panel = new AnalysisPanel();
+                panel.Bind(controller);
+                Equal(0, panel.LoadingView.Points.Count, "no loading curve from a failed payload");
+                var host = new ShellHost(controller);
+                var window = new Window { Content = host, Width = 1280, Height = 800 };
+                try
+                {
+                    window.Show();
+                    host.RefreshPanes();
+                    Settle(window);
+                    Equal(true, Texts(host.Properties).Contains(Labels.PayloadFailed), "Properties shows the verdict");
+                }
+                finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
+                // Never deleted: saving again writes the edited value back as it was read.
+                Equal("OK", Task.Run(() => controller.SaveAsync(resaved)).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult().Code, "resaved");
+                Equal(true, File.ReadAllText(resaved).Contains("123.25", StringComparison.Ordinal), "the tampered row is kept");
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();   // the save's refresh reaches the closed host while the controller is alive
+            }
+            finally { File.Delete(path); File.Delete(resaved); }
+        });
+
+        DesktopChecks.Check("LoadingChart_Axes_TicksTitlesSeriesLabel_OnlyApprovedCopy", () =>
+        {
+            Equal(5, LoadingChart.XTicks.Count, "x ticks");
+            Equal(true, LoadingChart.XTicks[0] == 0 && LoadingChart.XTicks[^1] == 1, "x runs 0 to 1 (root to tip)");
+            Equal("0,0.08,0.16", string.Join(",", LoadingChart.YTicks(0.16).Select(v => v.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))), "y ticks");
+            // COPY-238 names Cl·c/c̄ and η; COPY-213 names the tier. No sentence is added.
+            Equal(true, Labels.ChartBasis.Contains(LoadingChart.XTitle) && Labels.ChartBasis.Contains(LoadingChart.YTitle), "axis titles are COPY-238 symbols");
+            Equal(true, Labels.VlmChip.StartsWith(LoadingChart.SeriesLabel, StringComparison.Ordinal), "the series label is the COPY-213 tier name");
+            var chart = new LoadingChart();
+            var window = new Window { Content = chart, Width = 600, Height = 300 };
+            try
+            {
+                window.Show();
+                chart.Update(Points(9));
+                Settle(window);
+                using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(600, 300));
+                bitmap.Render(window);
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("PlanLayer_LegendRamp_IsTheBatlowTokens_3dPlatesStayInView", () =>
+        {
+            var scope = new Border();
+            var window = new Window { Content = scope, Width = 200, Height = 100 };
+            try
+            {
+                window.Show();
+                var stops = PlanLoadLayer.BatlowStops(scope);
+                Equal(5, stops.Count, "five stops");
+                Equal(true, stops[0] == Avalonia.Media.Color.Parse("#011959") && stops[^1] == Avalonia.Media.Color.Parse("#faccfa"), "the ramp ends are batlow 0 and 4");
+            }
+            finally { window.Close(); }
+            // 3D plates: a label that starts near the right edge slides left and wraps instead of clipping; the lift legend clears the triad plate.
+            var (x, width) = LoadLayerText.Within(1100 - 885 + 24, 620);
+            Equal(true, x + width <= 620 - 8 && width >= 160, "root-moment label stays inside the view: " + x + " + " + width);
+            var (kept, keptWidth) = LoadLayerText.Within(100, 620);
+            Equal(true, kept == 100 && keptWidth == 620 - 100 - 8, "a label with room is not moved");
+            Equal(true, View3dLoadLayer.LegendLeft >= View3d.CaptionMargin.Left, "the legend plate starts in the caption's column, right of the triad plate");
+        });
+
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
         if (shared.IsValueCreated) shared.Value.Dispose();
+    }
+
+    private static WorkbenchController OpenSmall(IWingMethod? method = null)
+    {
+        var controller = new WorkbenchController(analysisMethod: method ?? new ProductWingMethod(
+            Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null }));
+        Task.Run(controller.OpenExampleAsync).WaitAsync(TimeSpan.FromSeconds(20)).GetAwaiter().GetResult();
+        return controller;
+    }
+
+    private static AnalysisRun EvaluateAt(WorkbenchController controller, double alpha, double? depth) =>
+        Task.Run(() => controller.EvaluateAnalysisAsync(OperatingPoints.Custom(5.14, alpha, depth), controller.AnalysisWater))
+            .WaitAsync(TimeSpan.FromSeconds(60)).GetAwaiter().GetResult()
+        ?? throw new Exception("Fixture Evaluate returned no run.");
+
+    /// <summary>True when the control sits wholly inside the scroll viewer's visible rectangle, with no scrolling.</summary>
+    private static bool InView(Control control, ScrollViewer viewer)
+    {
+        var top = control.TranslatePoint(default, viewer);
+        var bottom = control.TranslatePoint(new Point(0, control.Bounds.Height), viewer);
+        return top is not null && bottom is not null && top.Value.Y >= 0 && bottom.Value.Y <= viewer.Bounds.Height;
     }
 
     private static AnalysisRun Evaluate(WorkbenchController controller, double alpha) =>
@@ -305,13 +483,20 @@ public static class AnalysisPanelTests
     private sealed class FlakyMethod(IWingMethod inner) : IWingMethod
     {
         public bool Fail { get; set; }
+
+        /// <summary>When set, a solve waits on it (a held run, so a test can look at the Running state).</summary>
+        public ManualResetEventSlim? Gate { get; set; }
         public RunMethod Method => inner.Method;
         public RunSettings Settings => inner.Settings;
         public double ReconciliationTolerance => inner.ReconciliationTolerance;
         public RunReference Reference(byte[] source) => inner.Reference(source);
 
-        public LatticeSolution Solve(IReadOnlyList<SectionSample> sections, OperatingPoint op, WaterRecord water, CancellationToken cancellation) =>
-            Fail ? throw new ContractError("ANA-SOLVE-RESIDUAL", "the lattice residual is above tolerance") : inner.Solve(sections, op, water, cancellation);
+        public LatticeSolution Solve(IReadOnlyList<SectionSample> sections, OperatingPoint op, WaterRecord water, CancellationToken cancellation)
+        {
+            if (Fail) throw new ContractError("ANA-SOLVE-RESIDUAL", "the lattice residual is above tolerance");
+            Gate?.Wait(cancellation);
+            return inner.Solve(sections, op, water, cancellation);
+        }
 
         public IReadOnlyList<StripLoad> Couple(IReadOnlyList<SectionSample> sections, LatticeSolution solution, OperatingPoint op,
             WaterRecord water, CancellationToken cancellation) => inner.Couple(sections, solution, op, water, cancellation);

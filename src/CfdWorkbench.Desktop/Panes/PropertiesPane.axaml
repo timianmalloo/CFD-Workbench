@@ -53,6 +53,12 @@
             </Grid>
             </Border>
 
+            <!-- A3a: the run's tier, as the mockup's pill chip above the result groups (the scope-chip pill, tokens only). -->
+            <Border x:Name="AnalysisChip" Classes="modebar-chip" IsVisible="False" HorizontalAlignment="Left"
+                    Margin="{StaticResource PropIdentityPadding}">
+              <TextBlock x:Name="AnalysisChipText" />
+            </Border>
+
             <Border x:Name="AlertBanner" IsVisible="False" BorderBrush="{DynamicResource WarningBrush}"
                     BorderThickness="{StaticResource PropRailThickness}" Padding="{StaticResource PropIdentityPadding}"
                     Background="{DynamicResource SurfaceSoftBrush}" AutomationProperties.LiveSetting="Assertive">
