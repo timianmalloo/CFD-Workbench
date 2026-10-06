@@ -6,6 +6,7 @@
        run's projection (AnalysisView), never the latest attempt: after a failed Evaluate they keep the previous run
        Historical beside the error card. Checks has no data source (no DRC exists, OD-4 a), so it is omitted. -->
   <UserControl.Styles>
+    <Style Selector="TabControl#PanelTabs TabItem"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource NavbarButtonPadding}" /></Style>
     <Style Selector="TextBlock.pnl-head"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
     <Style Selector="TextBlock.pnl-note"><Setter Property="FontSize" Value="{DynamicResource PropNoteSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
     <Style Selector="TextBlock.pnl-cell"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
