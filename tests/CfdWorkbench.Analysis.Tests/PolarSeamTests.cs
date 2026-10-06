@@ -9,6 +9,8 @@ internal static class PolarSeamTests
     internal static void Run()
     {
         AnalysisChecks.Check("PolarSample_DerivedFlags_EqualEvaluateAtWriteTime", DerivedFlags);
+        AnalysisChecks.Check("PolarSample_ReOutside_DerivedEqualsWriteTime", ReOutside);
+        AnalysisChecks.Check("PolarSample_LowConfidence_DerivedEqualsWriteTime", LowConfidence);
         AnalysisChecks.Check("Section_EditedProfileNoPolar_Unavailable", EditedRevision);
     }
 
@@ -58,5 +60,33 @@ internal static class PolarSeamTests
             "edited NACA must not inherit the catalog polar bracket");
         NeuralFoilSection oldRead = RunPolarResolver.SectionAt(session, original, 0);
         AnalysisChecks.Equal(before.ProfileHash, oldRead.ProfileHash, "historical run still reads its own accepted revision");
+    }
+
+    private static void ReOutside()
+    {
+        var section = Naca0012Reference.FromSelig(new string('a', 64), "catalog", CatalogGenerator.Naca4("0012"));
+        var source = new NeuralFoilPolarSource(hash => hash == section.ProfileHash ? section : null);
+        var water = new WaterRecord(15, 0, 999, 1e-6, 1700, "fixture", new string('b', 64));
+        NeuralFoilEvaluation write = source.Evaluate(section, 3, 150000, 4, CancellationToken.None);
+        PolarResult sampled = source.Sample(section.ProfileHash, 150000, 4, 3, water, CancellationToken.None)!;
+        PolarResult read = NeuralFoilPolarSource.DeriveStored(sampled.Sample, section);
+        AnalysisChecks.Equal("ANA-POLAR-RE-OUTSIDE", sampled.AvailabilityCode, "write-time Re bracket");
+        AnalysisChecks.Equal(sampled.AvailabilityCode, read.AvailabilityCode, "read-time Re bracket");
+        AnalysisChecks.Equal(string.Join("|", write.OutsideBracketReasons),
+            string.Join("|", read.OutsideBracketReasons), "read-time Re reasons");
+    }
+
+    private static void LowConfidence()
+    {
+        var section = Naca0012Reference.FromSelig(new string('a', 64), "catalog", CatalogGenerator.Naca4("0012"));
+        var source = new NeuralFoilPolarSource(hash => hash == section.ProfileHash ? section : null);
+        var water = new WaterRecord(15, 0, 999, 1e-6, 1700, "fixture", new string('b', 64));
+        PolarSample computed = source.Sample(section.ProfileHash, 500000, 4, 3, water, CancellationToken.None)!.Sample;
+        PolarSample lowAtWrite = computed with { Confidence = 0.2 };
+        bool writeFlag = NeuralFoilPolarSource.ConfidenceWarning(lowAtWrite.Confidence!.Value) is not null;
+        PolarResult read = NeuralFoilPolarSource.DeriveStored(lowAtWrite, section);
+        AnalysisChecks.Equal(true, writeFlag, "write-time advisory policy");
+        AnalysisChecks.Equal(writeFlag, read.LowConfidence, "stored low-confidence flag derived on read");
+        AnalysisChecks.Equal(null, read.AvailabilityCode, "low confidence remains advisory");
     }
 }
