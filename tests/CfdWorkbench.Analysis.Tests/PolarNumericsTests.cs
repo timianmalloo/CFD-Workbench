@@ -76,6 +76,9 @@ internal static class PolarNumericsTests
         if (run.Outcome is not RunOutcome.Completed || run.Settings.Polar is null ||
             !run.Strips.Any(strip => strip.CdNcrit2.Value is > 0 && strip.CdNcrit4.Value is > 0))
             throw new InvalidOperationException("product run did not carry both polar drag values");
+        AnalysisEvent emitted = Fixture.RunEvents(session).Last().Analysis!;
+        if (emitted.PanelUnderreadFraction is not { } delta || !double.IsFinite(delta))
+            throw new InvalidOperationException("analysis.run omitted the measured governing-station panel delta");
         byte[] source = session.AcceptedSourceOf(run.Inputs.AcceptedId)!;
         var current = Freshness.Current(session.Snapshot(), Fixture.Salt, Fixture.Op(3), method.Method, method.Settings);
         var view = AnalysisProjection.Build(run, current, Units.Metric, new ProjectionContext(Source: source));
