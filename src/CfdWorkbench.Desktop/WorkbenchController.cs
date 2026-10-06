@@ -263,6 +263,21 @@ public sealed class WorkbenchController : IDisposable
         LayersChanged?.Invoke();
     }
 
+    private Units analysisUnits = Units.Metric;
+
+    /// <summary>The display units of the Analysis results and the conditions band (Ruling 101 3d): N and m/s, or lbf and kn.</summary>
+    public Units AnalysisUnits
+    {
+        get => analysisUnits;
+        set
+        {
+            if (analysisUnits == value) return;
+            analysisUnits = value;
+            analysisProjectionKey = null;
+            LayersChanged?.Invoke();
+        }
+    }
+
     public OperatingPoint AnalysisOperatingPoint => analysisOp;
     public WaterRecord AnalysisWater => analysisWater;
     public bool AnalysisRunning => analysisCancellation is not null;
@@ -279,7 +294,7 @@ public sealed class WorkbenchController : IDisposable
             var snapshot = session.Snapshot();
             var current = Freshness.Current(snapshot, analysisWater, analysisOp, analysisMethod.Method, analysisMethod.Settings);
             var selected = session.ReadRuns().Runs.LastOrDefault();
-            string key = Freshness.CurrentKey(current) + ":" + selected?.Run.RunId + ":" + selected?.Integrity + ":" + AnalysisRunning;
+            string key = Freshness.CurrentKey(current) + ":" + selected?.Run.RunId + ":" + selected?.Integrity + ":" + AnalysisRunning + ":" + analysisUnits;
             if (analysisProjectionKey == key && analysisView is not null) return analysisView;
             var previous = selected?.Run.Outcome is RunOutcome.Failed
                 ? session.ReadRuns().Runs.Reverse().Skip(1).FirstOrDefault(row =>
@@ -294,7 +309,7 @@ public sealed class WorkbenchController : IDisposable
                 projectionFeed = feedRun is null ? NoFeed : DeriveFeed(feedRun, snapshot, session.AcceptedSourceOf);
                 projectionFeedKey = feedKey;
             }
-            var view = AnalysisProjection.Build(selected?.Run, current, Units.Metric,
+            var view = AnalysisProjection.Build(selected?.Run, current, analysisUnits,
                 new ProjectionContext(projectionFeed.Verdicts, projectionFeed.Stations, projectionFeed.RootThicknessRatio, Integrity: selected?.Integrity ?? RunIntegrity.Intact,
                     PreviousCompleted: previous, HiddenLayers: hiddenLayers.ToHashSet(StringComparer.Ordinal),
                     StripNormals: projectionFeed.StripNormals, FeedUnavailable: projectionFeed.Unavailable,

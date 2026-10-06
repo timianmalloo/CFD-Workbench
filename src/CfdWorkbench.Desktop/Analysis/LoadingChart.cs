@@ -25,7 +25,9 @@ public sealed class LoadingChart : UserControl
 
     public LoadingChart()
     {
-        TwinToggle = new ToggleButton { Name = "LoadingTwinToggle", Content = "Show table" };
+        // The toggle is a 24 px target (SC 2.5.8), not the 32 px default button, so the chart keeps its height in the 190 and 150 px panels.
+        TwinToggle = new ToggleButton { Name = "LoadingTwinToggle", Content = "Show table", MinHeight = 24, Padding = new Thickness(8, 0),
+            VerticalContentAlignment = VerticalAlignment.Center };
         AutomationProperties.SetName(TwinToggle, "Spanwise loading table twin");
         TwinToggle.IsCheckedChanged += (_, _) => ShowBody();
         var caption = new TextBlock { Text = Labels.ChartBasis, TextWrapping = TextWrapping.Wrap, Classes = { "caption" } };
@@ -96,12 +98,6 @@ public sealed class LoadingChart : UserControl
     /// <summary>The y ticks: zero, half and the top of the scale.</summary>
     public static IReadOnlyList<double> YTicks(double max) => [0, max / 2, max];
 
-    /// <summary>Axis titles: the symbols of COPY-238 (Cl·c/c̄ vs η); no sentence is added.</summary>
-    public const string XTitle = "η", YTitle = "Cl·c/c̄";
-
-    /// <summary>The solid series' label: the tier name of COPY-213 (VLM + strip · local calculation), cut at its first separator.</summary>
-    public const string SeriesLabel = "VLM + strip";
-
     private sealed class LoadingPlot : Control
     {
         private IReadOnlyList<LoadingPoint> data = [];
@@ -115,7 +111,6 @@ public sealed class LoadingChart : UserControl
 
         public LoadingPlot()
         {
-            MinHeight = 120;
             Focusable = false;
         }
 
@@ -145,11 +140,15 @@ public sealed class LoadingChart : UserControl
                 var label = Label(value.ToString("0.00", Inv), mute);
                 context.DrawText(label, new Point(area.Left - 4 - label.Width, At(0, value).Y - label.Height / 2));
             }
-            var xTitle = Label(XTitle, ink);
+            var xTitle = Label(Labels.ChartXTitle, ink);
             context.DrawText(xTitle, new Point(area.Center.X - xTitle.Width / 2, area.Bottom + 3 + xTitle.Height + 1));
-            var yTitle = Label(YTitle, ink);
+            var yTitle = Label(Labels.ChartYTitle, ink);
             using (context.PushTransform(Matrix.CreateRotation(-Math.PI / 2) * Matrix.CreateTranslation(2, area.Center.Y + yTitle.Width / 2)))
                 context.DrawText(yTitle, new Point(0, 0));
+            var legend = Label(Labels.ChartLegend, mute);
+            var legendAt = new Point(Math.Max(area.Left + 24, area.Right - legend.Width), area.Top + 2);
+            context.DrawLine(new Pen(mute, 1.5, new DashStyle([4, 3], 0)), new Point(legendAt.X - 22, legendAt.Y + legend.Height / 2), new Point(legendAt.X - 4, legendAt.Y + legend.Height / 2));
+            context.DrawText(legend, legendAt);
             if (data.Count == 0) return;
             Polyline(context, new Pen(mute, 1.5, new DashStyle([4, 3], 0)), point => point.EllipticReference, At);
             Polyline(context, new Pen(line, 2), point => point.ClChordOverMeanChord, At);
@@ -160,7 +159,7 @@ public sealed class LoadingChart : UserControl
                 .MinBy(point => Math.Abs(point.Eta - 0.62));
             if (anchor?.ClChordOverMeanChord is { } at)
             {
-                var series = Label(SeriesLabel, ink);
+                var series = Label(Labels.ChartSeries, ink);
                 var spot = At(anchor.Eta, at);
                 context.DrawText(series, new Point(Math.Min(spot.X - series.Width / 2, area.Right - series.Width), Math.Max(area.Top, spot.Y - series.Height - 6)));
             }

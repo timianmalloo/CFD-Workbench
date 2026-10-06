@@ -279,7 +279,9 @@ public partial class PropertiesPane : UserControl
                 Section: SectionContext.Of(controller),
                 StationSource: controller.StationSource,
                 Analysis: controller.IsAnalysis && controller.Inspection is not null ? controller.AnalysisView : null,
-                Limit: controller.GestureLimit);
+                Limit: controller.GestureLimit,
+                ConditionsSummary: controller.IsAnalysis ? CfdWorkbench.Analysis.Labels.ConditionsSummary(
+                    controller.AnalysisOperatingPoint.Speed, controller.AnalysisWater, controller.AnalysisUnits) : null);
             string key = SelectionKey(controller.Selection);
             if (key != selectionKey)
             {
@@ -859,6 +861,12 @@ public partial class PropertiesPane : UserControl
             // A wide value spans every column, so its row fixes the value column at 62 px to keep one value edge (F-1).
             : new ColumnDefinitions { new(1, GridUnitType.Star), view.Wide ? new(valueWidth, GridUnitType.Pixel) : new(GridLength.Auto) { MinWidth = valueWidth }, new(unitWidth, GridUnitType.Pixel) };
         if (!SameColumns(grid.ColumnDefinitions, columns)) grid.ColumnDefinitions = columns;
+        // A wide text value wraps inside the row instead of running past its edge (Ruling 101 Q4, AUX-F8).
+        if (view.Wide && view.Value is { } wide && grid.Bounds.Width > 0)
+        {
+            double room = Math.Max(valueWidth, grid.Bounds.Width - (view.Lock?.IsVisible == true ? view.Lock.Bounds.Width : 0));
+            if (Math.Abs(wide.MaxWidth - room) > 0.5) wide.MaxWidth = room;
+        }
         grid.RowDefinitions[0].MinHeight = stacked ? 0 : height;
         grid.RowDefinitions[1].MinHeight = stacked ? height : 0;
         Grid.SetRow(view.Label, 0);

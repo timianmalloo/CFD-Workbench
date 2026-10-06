@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dd4f4d5bd1f9b91025eff8b158c3c925de811767da1a8e169aa4900accc08211"
+      "sourceSha256": "f42c11266e59306d7a26492bdfd52af22d773aafba529f042d2c316ab523e56e"
     },
     {
       "id": "kb-hw-glossary",
@@ -10727,6 +10727,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "711ca0f0fa03ea865db7996d59c384f1f354a215477182310bee76d044d9f0cf"
     },
     {
+      "id": "proof-cpy-red-first",
+      "path": "docs/proof/cpy/red-first.md",
+      "title": "Track CPY, round-oct06 — red-first receipts and captures",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@trk-cpy",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "For each Ruling 101 and 109 item, the check that failed on the old code and the run that passed after the change, plus the capture list at 1500x870 and 1280x800.",
+      "tags": [
+        "proof",
+        "copy",
+        "layout",
+        "analysis",
+        "ruling-101",
+        "ruling-109"
+      ],
+      "links": [
+        {
+          "to": "proof-doc-oct06",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bc8aadc00ddf1d5c6d14314479284ad69464f7b92b552fdc8ed310234593f880"
+    },
+    {
       "id": "proof-cross-profile-abscissa",
       "path": "docs/proof/cross-profile-abscissa/README.md",
       "title": "XPA probe — compatible fit and knot propagation across station profiles (Ruling 71 option 1)",
@@ -14658,5 +14690,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "e81b35558bab10daa5f242b2a28af31f40b654989ca313ed7b0c8cb72bf88877"
+  "graphSha256": "15f98dc78e66ff620c151e8818051c02284cd849c7e9a07dc3e4029bdd0efa5c"
 };
