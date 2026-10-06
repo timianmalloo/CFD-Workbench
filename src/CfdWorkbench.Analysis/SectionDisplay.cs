@@ -164,7 +164,7 @@ public static class SectionDisplay
             parts.Add(reason.StartsWith("alpha", StringComparison.Ordinal) ? Labels.BracketOutsideAlpha(station.AlphaEffDeg)
                 : reason.StartsWith("Re ", StringComparison.Ordinal) ? Labels.BracketOutsideRe(station.Reynolds)
                 : reason.StartsWith("Ncrit", StringComparison.Ordinal) ? Labels.BracketOutsideNcrit(3)
-                : Labels.BracketOutsideFamily(string.IsNullOrWhiteSpace(section.Family) ? "this" : section.Family));
+                : Labels.BracketOutsideFamily(Labels.UnvalidatedFamily));
         return string.Join(" ", parts);
     }
 

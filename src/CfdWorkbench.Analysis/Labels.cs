@@ -137,6 +137,8 @@ public static class Labels
     public static string BracketOutsideAlpha(double alpha) => $"Outside the validated bracket — α {Number(alpha, "0.00")}° is beyond ±6°. Computed, not validated."; // COPY-319
     public static string BracketOutsideRe(double re) => $"Outside the validated bracket — Re {Sci(re)} is beyond 2 × 10⁵ to 10⁶. Computed, not validated."; // COPY-362
     public static string BracketOutsideNcrit(double ncrit) => $"Outside the validated bracket — Ncrit {Number(ncrit, "0.##")} is beyond 2 to 9. Computed, not validated."; // COPY-363
+    /// <summary>The family word for COPY-364: a derived section revision has no family name, so it reads as not NACA 0012.</summary>
+    public const string UnvalidatedFamily = "Non-NACA 0012";
     public static string BracketOutsideFamily(string family) => $"Outside the validated bracket — {family} sections were not validated (NACA 0012 only). Computed, not validated."; // COPY-364
     public static string TrainingAlpha(double alpha) => $"Unavailable — α {Number(alpha, "0.00")}° is outside the surrogate’s training range (−27.9° to 28.6°)"; // COPY-320
     public static string TrainingRe(double re) => $"Unavailable — Re {Sci(re)} is outside the surrogate’s training range (1 × 10² to 1 × 10¹⁰)"; // COPY-348

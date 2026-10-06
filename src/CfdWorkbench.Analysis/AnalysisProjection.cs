@@ -218,8 +218,8 @@ public static class AnalysisProjection
         if (section.PolarNcrit2 is not null || section.PolarNcrit4 is not null ||
             section.PolarReason2 is not null || section.PolarReason4 is not null)
         {
-            rows.Add(Row("Ncrit 2", PolarText(section.PolarNcrit2, section.PolarReason2), note: SurrogateLabel));
-            rows.Add(Row("Ncrit 4", PolarText(section.PolarNcrit4, section.PolarReason4), note: SurrogateLabel));
+            rows.Add(Row("Ncrit 2", PolarText(section.PolarNcrit2, section.PolarReason2), note: SurrogateLabel + FamilyNote(section.PolarNcrit2)));
+            rows.Add(Row("Ncrit 4", PolarText(section.PolarNcrit4, section.PolarReason4), note: SurrogateLabel + FamilyNote(section.PolarNcrit4)));
             PolarResult? polar = section.PolarNcrit2 ?? section.PolarNcrit4;
             if (polar is not null)
             {
@@ -244,6 +244,20 @@ public static class AnalysisProjection
         return reason.StartsWith("ANA-", StringComparison.Ordinal) ? Labels.UnavailableBecause(reason) : reason;
     }
 
+    /// <summary>Ruling 117: a computed point on a section outside the NACA 0012 family carries COPY-364.</summary>
+    private static string FamilyNote(PolarResult? result) =>
+        result is { SectionUnvalidated: true } ? " · " + Labels.BracketOutsideFamily(Labels.UnvalidatedFamily) : "";
+
+    /// <summary>One note per distinct flag on the values a row aggregates (COPY-364, COPY-316), in a fixed order.</summary>
+    private static string FlagNotes(params StripValue[] values)
+    {
+        var codes = values.SelectMany(value => StripFlags.Codes(value.FlagCode)).ToHashSet();
+        var notes = new List<string>();
+        if (codes.Contains(StripFlags.SectionUnvalidated)) notes.Add(Labels.BracketOutsideFamily(Labels.UnvalidatedFamily));
+        if (codes.Contains(StripFlags.LowConfidence)) notes.Add(Labels.LowConfidence(null));
+        return string.Join(" · ", notes);
+    }
+
     private static string PolarText(PolarResult? result, string? reason)
     {
         if (reason is not null) return ReasonText(reason);
@@ -260,8 +274,9 @@ public static class AnalysisProjection
         if (n2.Value is not { } low || n4.Value is not { } high)
             return Row(label, ReasonText(legacyReason ?? n2.UnavailableReason ?? n4.UnavailableReason ?? "ANA-DRAG-UNAVAILABLE", missingCd));
         double factor = units == Units.Imperial ? 4.4482216152605 : 1;
-        string? note = n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
-            ? string.Join(" · ", new[] { tierNote, Labels.LowConfidence(null) }.Where(part => part is not null))
+        string flagNotes = FlagNotes(n2, n4);
+        string? note = flagNotes.Length > 0
+            ? string.Join(" · ", new[] { tierNote, flagNotes }.Where(part => part is not null))
             : tierNote;
         if (reasonLine is not null) note = note is null ? reasonLine : note + "\n" + reasonLine;
         return Row(label, Num(Math.Min(low, high) / factor, "0.###") + "–" +
@@ -293,8 +308,7 @@ public static class AnalysisProjection
         double a = lift / n2.Value.Value, b = lift / n4.Value.Value;
         return Row("Wing-only CL/CD", Num(Math.Min(a, b), "0.###") + "–" + Num(Math.Max(a, b), "0.###"),
             note: Labels.ReasonTexts["ANA-WING-ONLY-RATIO"] + " · " + SurrogateLabel +
-                (n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
-                    ? " · " + Labels.LowConfidence(null) : ""));
+                (FlagNotes(n2, n4) is { Length: > 0 } flagNotes ? " · " + flagNotes : ""));
     }
 
     public static ResultGroup StripAt(AnalysisViewModel view, double eta)
@@ -325,7 +339,7 @@ public static class AnalysisProjection
                             : ReasonText(s.CdNcrit2.UnavailableReason ?? Labels.NoPolar),
                     note: s.CdNcrit2.Value.HasValue ? SurrogateLabel : null),
                 Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : ReasonText(s.CdNcrit2.UnavailableReason ?? Labels.NoPolar),
-                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (s.CdNcrit2.FlagCode is { } code ? " · " + ReasonText(code) : "") : null),
+                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (FlagNotes(s.CdNcrit2) is { Length: > 0 } flagNotes ? " · " + flagNotes : "") : null),
                 Row("Not modelled", Labels.NotModelled(run.Op.HRef.HasValue))
             ]));
         }

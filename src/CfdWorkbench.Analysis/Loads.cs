@@ -68,7 +68,7 @@ public static class Loads
         if (run.Strips.Count == 0) return new(null, "ANA-PROFILE-DRAG-MISSING-STRIPS");
         double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
         double total = 0;
-        bool lowConfidence = false;
+        var flags = new HashSet<string>();
         foreach (StripLoad strip in run.Strips)
         {
             StripValue cd = ncrit == 2 ? strip.CdNcrit2 : strip.CdNcrit4;
@@ -76,10 +76,10 @@ public static class Loads
             double width = StripWidth(run, strip);
             if (!(width > 0)) return new(null, "ANA-PROFILE-DRAG-MISSING-WIDTH");
             total += q * strip.Chord * width * coefficient;
-            lowConfidence |= cd.FlagCode == "ANA-POLAR-LOW-CONFIDENCE";
+            flags.UnionWith(StripFlags.Codes(cd.FlagCode));
         }
         return double.IsFinite(total) && total >= 0
-            ? new(total, null, lowConfidence ? "ANA-POLAR-LOW-CONFIDENCE" : null)
+            ? new(total, null, StripFlags.Join(flags.ToArray()))
             : new(null, "ANA-PROFILE-DRAG-NONFINITE");
     }
 

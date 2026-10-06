@@ -23,10 +23,13 @@ public interface IPolarSource
 public sealed record PolarResult(PolarSample Sample, IReadOnlyList<string> OutsideBracketReasons, bool LowConfidence,
     double CstResidualRms, double CstResidualMax)
 {
-    /// <summary>Stable availability code. Re takes priority when a low-Re tip is outside several axes.</summary>
+    /// <summary>Ruling 117: a section outside the NACA 0012 family is computed and flagged (COPY-364), never refused.</summary>
+    public bool SectionUnvalidated =>
+        OutsideBracketReasons.Any(reason => reason.StartsWith("section ", StringComparison.Ordinal));
+
+    /// <summary>Stable availability code. Re takes priority when a low-Re tip is outside several axes. The section family is a flag, not a refusal.</summary>
     public string? AvailabilityCode =>
         OutsideBracketReasons.Any(reason => reason.StartsWith("Re ", StringComparison.Ordinal)) ? "ANA-POLAR-RE-OUTSIDE" :
-        OutsideBracketReasons.Any(reason => reason.StartsWith("section ", StringComparison.Ordinal)) ? "ANA-POLAR-SECTION-UNVALIDATED" :
         OutsideBracketReasons.Any(reason => reason.StartsWith("alpha ", StringComparison.Ordinal)) ? "ANA-POLAR-ALPHA-OUTSIDE" :
         OutsideBracketReasons.Any(reason => reason.StartsWith("Ncrit ", StringComparison.Ordinal)) ? "ANA-POLAR-NCRIT-OUTSIDE" :
         !Sample.Converged ? "ANA-POLAR-NOT-CONVERGED" : null;

@@ -59,6 +59,7 @@ internal static class DxSectionTests
         Check("Polar_CstResidual_ShownAndLimit", CstResidual);
         Check("Strips_PolarRe_InsideOutsideNotExtrapolated", StripRe);
         Check("Projection_NoRawAnaCodeInAnyCell", NoRawCode);
+        Check("Polar_NonNaca0012InsideTrainingRange_ComputedAndFlagged_Ruling117", NonNacaComputedAndFlagged);
     }
 
     // ---- fixture: the default foil at four stations, one tier, one run with the polar installed ----
@@ -275,6 +276,28 @@ internal static class DxSectionTests
         Equal(true, double.TryParse(cp.Value, System.Globalization.CultureInfo.InvariantCulture, out double value) && value == Math.Round(F.Gov.Estimate.Panel.CpMin, 3), "Cp_min shows the value when a panel result exists");
         Equal(false, Text(with).Contains("no section Cp method"), "COPY-212 absent from the projection");
         Equal(false, Text(ProjectionTests.View(F.Run, new ProjectionContext())).Contains("no section Cp method"), "and absent without a result");
+    }
+
+    /// <summary>Ruling 117. The example foil's section is not NACA 0012 and lies inside the training range: strips get a cd, the wing drag
+    /// band shows, and every value it feeds carries COPY-364. Ring: readiness, a product run (about 1 s).</summary>
+    private static void NonNacaComputedAndFlagged()
+    {
+        using var session = new AuthoringSession();
+        session.Open(File.ReadAllBytes(Path.Combine(StripFixtureTests.RepoRoot(), "docs", "examples", "foildsl", "foil-basic.foil")), Fixture.Id(), true);
+        RunSettings settings = Settings.Default with { NSpanPerHalf = 4, NChord = 2,
+            SectionEtas = [0d, 0.5, 1d], SectionXs = Settings.ChordXs(2, "cosine") };
+        var method = new ProductWingMethod(settings);
+        AnalysisRun run = Fixture.Evaluate(new AnalysisService(session, method), Fixture.Op(3));
+        Equal(true, run.Strips.Any(strip => strip.CdNcrit2.Value is > 0), "a strip cd is computed, not refused");
+        Equal(true, run.Strips.Where(strip => strip.CdNcrit2.Value is not null)
+            .All(strip => strip.CdNcrit2.FlagCode?.Contains("ANA-POLAR-SECTION-UNVALIDATED", StringComparison.Ordinal) == true), "every computed strip cd carries the family flag");
+        Equal(true, run.Strips.All(strip => strip.CdNcrit2.UnavailableReason != "ANA-POLAR-SECTION-UNVALIDATED"), "no strip is refused for its family");
+        AnalysisViewModel view = AnalysisProjection.Build(run, Freshness.Current(session.Snapshot(), Fixture.Salt, Fixture.Op(3), method.Method, method.Settings),
+            Units.Metric, new ProjectionContext(Source: session.AcceptedSourceOf(run.Inputs.AcceptedId)));
+        ResultRow wing = ProjectionTests.Cell(view, "Loads", "Drag (Wing only)");
+        Equal(true, wing.Value.Contains('–'), "the wing drag band has a value: " + wing.Value);
+        Equal(true, wing.Note!.Contains("were not validated (NACA 0012 only). Computed, not validated."), "the band carries COPY-364");
+        Equal(true, view.StripDetails[0].Rows.Single(r => r.Label == "cd (profile)").Note!.Contains("were not validated (NACA 0012 only)"), "the strip cd carries COPY-364");
     }
 
     private static void Row10()

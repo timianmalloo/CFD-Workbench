@@ -60,3 +60,11 @@ mutant was run for them. The test architect's "mutant" column is therefore not m
 6. **Not covered by a check** (named in the plan, thinner than planned): the Desktop Find α dialog is exercised through the controller and the buttons, not by typing into
    the dialog; unit switch (Ruling 115) out of scope; the profile-view Cp comb is geometry-checked, not pixel-checked.
 7. The regex for raw codes is `(?<![A-Za-z-])ANA-[A-Z0-9-]+`: the approved COPY-259 text contains `DR-ANA-5`, which the plain `ANA-[A-Z0-9-]+` would flag.
+
+## Repair cycle 1 (trk-dx2)
+
+### Item 1: Ruling 117 (compute and flag unvalidated section families)
+
+Red: `Polar_NonNaca0012InsideTrainingRange_ComputedAndFlagged_Ruling117` (Analysis readiness, 0.3 s) on the pre-change `src/` (stashed): `FAIL ... a strip cd is computed, not refused expected True; actual False` (every strip refused with `ANA-POLAR-SECTION-UNVALIDATED`). Green on the change: `PASS ...`. Full Analysis fast ring and readiness: failures=0 after `Section_EditedProfileNoPolar_Unavailable` moved from "availability code = SECTION-UNVALIDATED" to "SectionUnvalidated flag true, no availability code".
+
+What changed (for the CFD reviewer): `PolarResult.AvailabilityCode` no longer returns the family code, so `StripCoupler.ProfileCd` no longer refuses a section outside the NACA 0012 family; it returns the unchanged NeuralFoil cd with `FlagCode` `ANA-POLAR-SECTION-UNVALIDATED` (joined with `ANA-POLAR-LOW-CONFIDENCE` by `|` when both apply, `StripFlags`). No number the polar computes changed: NeuralFoil weights, CST fit, `RefusalReason`, `BracketFlags` and the hashes (Ruling 85) are untouched. What changed is which runs now have numbers: runs on non-NACA-0012 sections inside the training range now carry strip cd, profile and wing drag bands, wing CL/CD and the polar-consistency inputs (previously Unavailable or NaN). Refusals that remain: Re, alpha and Ncrit outside the validated bracket (D14, unchanged, not in Ruling 117) and a CST residual above 0.00036 c or a point outside the training range. The persisted strip `FlagCode` can now hold the new code for new runs; old rows still read their stored refusal (the COPY-350 text stays in `Labels.ReasonTexts` for them). The COPY-364 family word is "Non-NACA 0012" (a derived revision has no family name).
