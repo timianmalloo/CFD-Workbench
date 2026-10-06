@@ -8440,7 +8440,7 @@ window.DOCS_INDEX = {
       "path": "docs/coordination/round-oct06.md",
       "title": "Coordination plan - Mac round of 2026-10-06 (copy fixes, adaptive panels, DX, group move, 1280x800 layout, hook, spec 1.7.5)",
       "type": "plan",
-      "status": "proposed",
+      "status": "completed",
       "owner": "@cfd-leader-14e5e8d5",
       "phase": "",
       "reviewBy": "2026-11-06",
@@ -8481,7 +8481,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "15b3ed7fc97c3cd5f524b776805c506bf6dffd023b29d963ab8b535617bdb7e8"
+      "sourceSha256": "f15850e050b00672e2a5aad74f8fdf5c402b3f4c6fd000aac883d92b54a79636"
     },
     {
       "id": "coordination-two-machine",
@@ -15054,5 +15054,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "2192bcf7b2a28dc20f2dc9b53ccab904c80634d25fd01ad52265fb4c0af6d30e"
+  "graphSha256": "d1cdbe52a22eaee32d520662dab8353ec204750321dc814cfd3826601df8d5bf"
 };
