@@ -1077,3 +1077,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Option C+D. D: the cond
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Draft A approved: "Cp_min under-read not measured at this station (200 panels only)". It shows in the Section tab for any station not solved at 400; it parallels COPY-312.
 
 - request: req-01M491NPB5CHTRV0GZAG42TYMJ · ruled by: operator-timianmalloo · at: 2026-10-06T16:45:11Z
+
+### Ruling 114 — Near-tie width: max(2u, 25 %) with a reserved thinnest-station slot; Ruling 110 (6) not met (amends Ruling 110)
+
+Ruled by the Fable owner under the operator's delegation (2026-10-06). Ruling 110 (6) is not met: the 6 %-thick run exceeded its band, which reopens the width by the clause's own text. Since r400 = r200(1-u), station j overtakes the governing station g iff r200_j/best < (1-u_g)/(1-u_j); with u_g 0.04 and u_j 0.20 that is 1.20, while the 2x width admits only 1.08 - it captures a swapper only when u_j <= 3u_g/(1+2u_g), about 10-12 %, exactly where 3 %-thick and thinner stations sit. New rule: candidate width = best 200 ratio x (1 + max(2 u_g, 0.25)); cap stays 4; slots: the governing station, the 2 lowest 200 ratios inside the width, and the thinnest station (smallest t/c) inside the width; governing re-selected by 400 ratio among the solved set. Residual, recorded not covered: a 1 %-thick station (about 40 %) can still fall outside. Timing: the cap-4 worst case (494-537 ms) becomes the common case; no new budget. Verified only after a planted 2 %-thick station at 1.10-1.15x the best 200 ratio is solved and wins.
+
+- request: req-01M4928HWKHMRQPZYMSFDET50R · ruled by: fable-owner · at: 2026-10-06T16:55:29Z
