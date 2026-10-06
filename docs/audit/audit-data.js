@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T16:26:20Z",
+  "generated": "2026-10-06T16:52:52Z",
   "audit": [
     {
       "actor": null,
@@ -27087,243 +27087,234 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M47P2G8ZQHG2H888Z00A4Q9N",
-      "shortname": "join-ci",
-      "datetime": "2026-10-06T04:03:14Z",
-      "session": "4e90c621",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "CI joined: DERIVED-UNBOUND and BRIEF-FIXTURE-AGAINST-SPEC gated in check-docs; trace-brief.py aid for OWNERSHIP-MISSES-DATA-SOURCE; SECTION-EDITOR-LOAD-FLAKE cascade isolated; AGENT-HEREDOC hook proposed only (operator decision); design 5.1 margin wording recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join ci into main (round-oct05)",
+      "datetime": "2026-10-06T04:03:14Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 54.0,
       "fan_out": 0,
+      "goal": "join ci into main (round-oct05)",
+      "id": "al-01M47P2G8ZQHG2H888Z00A4Q9N",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-ci",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-06T04:02:20Z",
-      "duration_seconds": 54.0
+      "summary": "CI joined: DERIVED-UNBOUND and BRIEF-FIXTURE-AGAINST-SPEC gated in check-docs; trace-brief.py aid for OWNERSHIP-MISSES-DATA-SOURCE; SECTION-EDITOR-LOAD-FLAKE cascade isolated; AGENT-HEREDOC hook proposed only (operator decision); design 5.1 margin wording recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M47PDE5Y25VKBVJGNX36FTY0",
-      "shortname": "coordinate-round-oct05",
-      "datetime": "2026-10-06T04:09:12Z",
-      "session": "4e90c621",
-      "prompt": "run the prompt now (kickoff ~/projects/CFD-Workbench-kickoff-2026-10-05.md rev 2); later: i am going offline for the night - keep going",
-      "summary": "round-oct05 closed: 28 track sessions, 47 joins, main 1914a58a+ readiness green and pushed; requests 32 raised / 30 resolved / 2 expired; Rulings 78-100; most tracks at 0.1-0.5 of box; B2 pooled 4 tasks (1.65); D2 under-recorded; harness substitutions Agy->Sonnet (C), Codex->Sonnet (D1, A3c-1); classes DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, AGENT-HEREDOC, SECTION-EDITOR-LOAD-FLAKE, JOIN-CHECK-BEFORE-REGEN",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
-      "artifacts": [
-        "docs/coordination/round-oct05.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "run the round-oct05 coordination plan to joined, readiness-green main",
-      "done_when": "every track returned or stopped, every join through conductor-join, readiness green and pushed, planned vs actual recorded",
-      "tier": "T2",
-      "fan_out": 3,
-      "duration_source": "session-start-hook",
-      "started_at": "2026-10-06T03:50:32Z",
-      "duration_seconds": 1120.0,
       "agent_runs": [
         {
           "agent": "trk-a3c1",
-          "started_at": "2026-10-05T16:01:09Z",
+          "duration_seconds": 1780.0,
           "ended_at": "2026-10-05T16:30:49Z",
-          "duration_seconds": 1780.0
+          "started_at": "2026-10-05T16:01:09Z"
         },
         {
           "agent": "trk-aux",
-          "started_at": "2026-10-06T02:37:11Z",
+          "duration_seconds": 1046.0,
           "ended_at": "2026-10-06T02:54:37Z",
-          "duration_seconds": 1046.0
+          "started_at": "2026-10-06T02:37:11Z"
         },
         {
           "agent": "trk-b1",
-          "started_at": "2026-10-05T14:32:54Z",
+          "duration_seconds": 1364.0,
           "ended_at": "2026-10-05T14:55:38Z",
-          "duration_seconds": 1364.0
+          "started_at": "2026-10-05T14:32:54Z"
         },
         {
           "agent": "trk-b1b",
-          "started_at": "2026-10-05T15:45:19Z",
+          "duration_seconds": 1050.0,
           "ended_at": "2026-10-05T16:02:49Z",
-          "duration_seconds": 1050.0
+          "started_at": "2026-10-05T15:45:19Z"
         },
         {
           "agent": "trk-b2",
-          "started_at": "2026-10-05T16:46:54Z",
+          "duration_seconds": 32592.0,
           "ended_at": "2026-10-06T01:50:06Z",
-          "duration_seconds": 32592.0
+          "started_at": "2026-10-05T16:46:54Z"
         },
         {
           "agent": "trk-c",
-          "started_at": "2026-10-05T15:32:54Z",
+          "duration_seconds": 1190.0,
           "ended_at": "2026-10-05T15:52:44Z",
-          "duration_seconds": 1190.0
+          "started_at": "2026-10-05T15:32:54Z"
         },
         {
           "agent": "trk-ci",
-          "started_at": "2026-10-06T03:45:47Z",
+          "duration_seconds": 915.0,
           "ended_at": "2026-10-06T04:01:02Z",
-          "duration_seconds": 915.0
+          "started_at": "2026-10-06T03:45:47Z"
         },
         {
           "agent": "trk-ctx",
-          "started_at": "2026-10-05T18:27:09Z",
+          "duration_seconds": 1699.0,
           "ended_at": "2026-10-05T18:55:28Z",
-          "duration_seconds": 1699.0
+          "started_at": "2026-10-05T18:27:09Z"
         },
         {
           "agent": "trk-d1",
-          "started_at": "2026-10-05T15:01:51Z",
+          "duration_seconds": 4333.0,
           "ended_at": "2026-10-05T16:14:04Z",
-          "duration_seconds": 4333.0
+          "started_at": "2026-10-05T15:01:51Z"
         },
         {
           "agent": "trk-d2",
-          "started_at": "2026-10-05T15:11:34Z",
+          "duration_seconds": 155.0,
           "ended_at": "2026-10-05T15:14:09Z",
-          "duration_seconds": 155.0
+          "started_at": "2026-10-05T15:11:34Z"
         },
         {
           "agent": "trk-docs",
-          "started_at": "2026-10-05T16:37:33Z",
+          "duration_seconds": 297.0,
           "ended_at": "2026-10-05T16:42:30Z",
-          "duration_seconds": 297.0
+          "started_at": "2026-10-05T16:37:33Z"
         },
         {
           "agent": "trk-dxm",
-          "started_at": "2026-10-06T00:41:49Z",
+          "duration_seconds": 1156.0,
           "ended_at": "2026-10-06T01:01:05Z",
-          "duration_seconds": 1156.0
+          "started_at": "2026-10-06T00:41:49Z"
         },
         {
           "agent": "trk-e2",
-          "started_at": "2026-10-05T14:32:56Z",
+          "duration_seconds": 4865.0,
           "ended_at": "2026-10-05T15:54:01Z",
-          "duration_seconds": 4865.0
+          "started_at": "2026-10-05T14:32:56Z"
         },
         {
           "agent": "trk-e3",
-          "started_at": "2026-10-05T18:49:05Z",
+          "duration_seconds": 819.0,
           "ended_at": "2026-10-05T19:02:44Z",
-          "duration_seconds": 819.0
+          "started_at": "2026-10-05T18:49:05Z"
         },
         {
           "agent": "trk-e4",
-          "started_at": "2026-10-06T00:41:49Z",
+          "duration_seconds": 561.0,
           "ended_at": "2026-10-06T00:51:10Z",
-          "duration_seconds": 561.0
+          "started_at": "2026-10-06T00:41:49Z"
         },
         {
           "agent": "trk-hist",
-          "started_at": "2026-10-05T23:15:32Z",
+          "duration_seconds": 567.0,
           "ended_at": "2026-10-05T23:24:59Z",
-          "duration_seconds": 567.0
+          "started_at": "2026-10-05T23:15:32Z"
         },
         {
           "agent": "trk-hk",
-          "started_at": "2026-10-05T14:33:41Z",
+          "duration_seconds": 240.0,
           "ended_at": "2026-10-05T14:37:41Z",
-          "duration_seconds": 240.0
+          "started_at": "2026-10-05T14:33:41Z"
         },
         {
           "agent": "trk-lay",
-          "started_at": "2026-10-05T18:57:19Z",
+          "duration_seconds": 27317.0,
           "ended_at": "2026-10-06T02:32:36Z",
-          "duration_seconds": 27317.0
+          "started_at": "2026-10-05T18:57:19Z"
         },
         {
           "agent": "trk-lim",
-          "started_at": "2026-10-06T01:56:49Z",
+          "duration_seconds": 1894.0,
           "ended_at": "2026-10-06T02:28:23Z",
-          "duration_seconds": 1894.0
+          "started_at": "2026-10-06T01:56:49Z"
         },
         {
           "agent": "trk-pna",
-          "started_at": "2026-10-05T18:57:18Z",
+          "duration_seconds": 2917.0,
           "ended_at": "2026-10-05T19:45:55Z",
-          "duration_seconds": 2917.0
+          "started_at": "2026-10-05T18:57:18Z"
         },
         {
           "agent": "trk-pol",
-          "started_at": "2026-10-06T03:14:02Z",
+          "duration_seconds": 1932.0,
           "ended_at": "2026-10-06T03:46:14Z",
-          "duration_seconds": 1932.0
+          "started_at": "2026-10-06T03:14:02Z"
         },
         {
           "agent": "trk-s1",
-          "started_at": "2026-10-05T16:19:40Z",
+          "duration_seconds": 1335.0,
           "ended_at": "2026-10-05T16:41:55Z",
-          "duration_seconds": 1335.0
+          "started_at": "2026-10-05T16:19:40Z"
         },
         {
           "agent": "trk-s2",
-          "started_at": "2026-10-05T16:19:39Z",
+          "duration_seconds": 226.0,
           "ended_at": "2026-10-05T16:23:25Z",
-          "duration_seconds": 226.0
+          "started_at": "2026-10-05T16:19:39Z"
         },
         {
           "agent": "trk-s4",
-          "started_at": "2026-10-05T18:49:06Z",
+          "duration_seconds": 1027.0,
           "ended_at": "2026-10-05T19:06:13Z",
-          "duration_seconds": 1027.0
+          "started_at": "2026-10-05T18:49:06Z"
         },
         {
           "agent": "trk-s6",
-          "started_at": "2026-10-05T23:15:42Z",
+          "duration_seconds": 8570.0,
           "ended_at": "2026-10-06T01:38:32Z",
-          "duration_seconds": 8570.0
+          "started_at": "2026-10-05T23:15:42Z"
         },
         {
           "agent": "trk-seam",
-          "started_at": "2026-10-06T01:56:53Z",
+          "duration_seconds": 6057.0,
           "ended_at": "2026-10-06T03:37:50Z",
-          "duration_seconds": 6057.0
+          "started_at": "2026-10-06T01:56:53Z"
         },
         {
           "agent": "trk-tgl",
-          "started_at": "2026-10-05T16:12:07Z",
+          "duration_seconds": 5870.0,
           "ended_at": "2026-10-05T17:49:57Z",
-          "duration_seconds": 5870.0
+          "started_at": "2026-10-05T16:12:07Z"
         },
         {
           "agent": "trk-tip",
-          "started_at": "2026-10-05T16:49:19Z",
+          "duration_seconds": 1957.0,
           "ended_at": "2026-10-05T17:21:56Z",
-          "duration_seconds": 1957.0
+          "started_at": "2026-10-05T16:49:19Z"
         }
       ],
+      "artifacts": [
+        "docs/coordination/round-oct05.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-06T04:09:12Z",
+      "done_when": "every track returned or stopped, every join through conductor-join, readiness green and pushed, planned vs actual recorded",
+      "duration_seconds": 1120.0,
+      "duration_source": "session-start-hook",
+      "fan_out": 3,
+      "goal": "run the round-oct05 coordination plan to joined, readiness-green main",
+      "id": "al-01M47PDE5Y25VKBVJGNX36FTY0",
+      "kind": "skill",
+      "outcome": "success",
       "parallelism": {
         "agent_seconds": 113731.0,
+        "peak_concurrency": 5,
         "span_seconds": 48488.0,
-        "speedup": 2.35,
-        "peak_concurrency": 5
-      }
+        "speedup": 2.35
+      },
+      "prompt": "run the prompt now (kickoff ~/projects/CFD-Workbench-kickoff-2026-10-05.md rev 2); later: i am going offline for the night - keep going",
+      "session": "4e90c621",
+      "shortname": "coordinate-round-oct05",
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-06T03:50:32Z",
+      "summary": "round-oct05 closed: 28 track sessions, 47 joins, main 1914a58a+ readiness green and pushed; requests 32 raised / 30 resolved / 2 expired; Rulings 78-100; most tracks at 0.1-0.5 of box; B2 pooled 4 tasks (1.65); D2 under-recorded; harness substitutions Agy->Sonnet (C), Codex->Sonnet (D1, A3c-1); classes DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, AGENT-HEREDOC, SECTION-EDITOR-LOAD-FLAKE, JOIN-CHECK-BEFORE-REGEN",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
     },
     {
-      "id": "al-01M48WS809BQ9YPADGC2MKSY5Z",
-      "shortname": "two-machine-rendezvous",
-      "datetime": "2026-10-06T15:19:45Z",
-      "session": "14e5e8d5",
-      "prompt": "catch up after the killed session; table of to-dos; walk me through the questions; split work with the Windows PC session (smoke test, OpenFOAM, SU2 on the PC) and put in place what git rendezvous needs; then: yes keep going with these",
-      "summary": "Rulings 101-108 (A3a copy/display, cfMesh on PC, adaptive panels amending R90, heredoc hook, VLM branch backup pushed, two machines with Mac sole leader and Fable-reviewed PC PRs, group move, DX incl. DXM-5 amending spec A5.6). docs/coordination/two-machine.md and pc-kickoff.md (W-0..W-5). tools/xmsg.py + docs/coordination/xmsg.jsonl (register, bound; self-test in check-docs, red on a planted from-filter mutant and on the show() ref bug it caught). Found: .agents/requests.jsonl and mail are git-ignored, so decisions cross machines only as xmsg messages; repo is public and one GitHub account cannot approve its own PR, so the Fable review is a PR comment plus a committed file.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/coordination/two-machine.md",
@@ -27331,108 +27322,204 @@ window.AUDIT_DATA = {
         "tools/xmsg.py",
         "docs/notes/rulings.md"
       ],
-      "tags": [],
-      "outcome": "success",
-      "goal": "Record the operator's 2026-10-06 answers as rulings and set up the Mac/PC rendezvous in git",
+      "datetime": "2026-10-06T15:19:45Z",
       "done_when": "Rulings 101-108 recorded; two-machine.md, pc-kickoff.md, xmsg register and tool committed with check-docs and verify gates green; joined and pushed",
-      "tier": "T1",
       "git": {
-        "sha": "3252483ee9580540c4beef8f121bcff933bcb972",
-        "short": "3252483ee",
         "branch": "chore/two-machine-rendezvous",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "3252483ee9580540c4beef8f121bcff933bcb972",
+        "short": "3252483ee"
+      },
+      "goal": "Record the operator's 2026-10-06 answers as rulings and set up the Mac/PC rendezvous in git",
+      "id": "al-01M48WS809BQ9YPADGC2MKSY5Z",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "catch up after the killed session; table of to-dos; walk me through the questions; split work with the Windows PC session (smoke test, OpenFOAM, SU2 on the PC) and put in place what git rendezvous needs; then: yes keep going with these",
+      "session": "14e5e8d5",
+      "shortname": "two-machine-rendezvous",
+      "skill": null,
+      "summary": "Rulings 101-108 (A3a copy/display, cfMesh on PC, adaptive panels amending R90, heredoc hook, VLM branch backup pushed, two machines with Mac sole leader and Fable-reviewed PC PRs, group move, DX incl. DXM-5 amending spec A5.6). docs/coordination/two-machine.md and pc-kickoff.md (W-0..W-5). tools/xmsg.py + docs/coordination/xmsg.jsonl (register, bound; self-test in check-docs, red on a planted from-filter mutant and on the show() ref bug it caught). Found: .agents/requests.jsonl and mail are git-ignored, so decisions cross machines only as xmsg messages; repo is public and one GitHub account cannot approve its own PR, so the Fable review is a PR comment plus a committed file.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M48WVTY8039HFYKQ6BJG9XBR",
-      "shortname": "join-two-machine",
-      "datetime": "2026-10-06T15:21:10Z",
-      "session": "14e5e8d5",
-      "prompt": "the join of chore/two-machine-rendezvous into main",
-      "summary": "Rulings 101-108; docs/coordination/two-machine.md and pc-kickoff.md; tools/xmsg.py with its register docs/coordination/xmsg.jsonl bound to coord-register and its self-test in check-docs recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join chore/two-machine-rendezvous into main",
+      "datetime": "2026-10-06T15:21:10Z",
       "done_when": "join gates green, readiness green, pushed",
-      "tier": "T1",
+      "duration_seconds": 56.0,
       "fan_out": 0,
+      "goal": "join chore/two-machine-rendezvous into main",
+      "id": "al-01M48WVTY8039HFYKQ6BJG9XBR",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of chore/two-machine-rendezvous into main",
+      "session": "14e5e8d5",
+      "shortname": "join-two-machine",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-06T15:20:14Z",
-      "duration_seconds": 56.0
+      "summary": "Rulings 101-108; docs/coordination/two-machine.md and pc-kickoff.md; tools/xmsg.py with its register docs/coordination/xmsg.jsonl bound to coord-register and its self-test in check-docs recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M48XNZFR6RA8DKYCZ89T3ZV1",
-      "shortname": "coordination-round-oct06",
-      "datetime": "2026-10-06T15:35:26Z",
-      "session": "14e5e8d5",
-      "prompt": "go (plan the next Mac round: Ruling 101 copy/display, Ruling 103 adaptive panels, Ruling 108 DX, Ruling 107 group move, 1280x800 layout, Ruling 104 hook, spec 1.7.5; Fable owner reviews PC PRs)",
-      "summary": "Tracks DOC (new copy rows + spec 1.7.5, first), PNL (adaptive panels; step 0 Flagged: under-read measured only at the governing station), CPY (A3a copy/display fixes) -> DX (section/polar), GRP (Core, then Desktop after CPY), LAY (operator picks a 1280x800 layout first); HYD and MCAD as single review calls; HOOK installed inline (1616d891). Serial spine on DESIGN.md, Labels/Projection/Loads, PropertiesView/WorkbenchController. Struck: HOOK/HYD/MCAD/spec as tracks. Review BLOCK (2 Blockers) cleared by plan edits; re-check CLEARS-THE-VETO yes. Found: SEAM reason codes have no drafted display text despite Ruling 108.",
-      "kind": "skill",
-      "skill": "prepare-for-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/coordination/round-oct06.md",
         "docs/coordination/round-oct06.html"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "A committed coordination plan for the Mac round of 2026-10-06, reviewed adversarially, for operator approval before dispatch",
+      "datetime": "2026-10-06T15:35:26Z",
       "done_when": "Plan md+html with measured layer state, classes, one owner per file, serial spine, exit evidence per track; test-architect veto cleared by the reviewer; joined and pushed",
-      "tier": "T1",
       "fan_out": 1,
       "git": {
-        "sha": "1616d89191ebb8bfe7861b261897529e33d00067",
-        "short": "1616d8919",
         "branch": "chore/coordination-round-oct06",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "1616d89191ebb8bfe7861b261897529e33d00067",
+        "short": "1616d8919"
+      },
+      "goal": "A committed coordination plan for the Mac round of 2026-10-06, reviewed adversarially, for operator approval before dispatch",
+      "id": "al-01M48XNZFR6RA8DKYCZ89T3ZV1",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "go (plan the next Mac round: Ruling 101 copy/display, Ruling 103 adaptive panels, Ruling 108 DX, Ruling 107 group move, 1280x800 layout, Ruling 104 hook, spec 1.7.5; Fable owner reviews PC PRs)",
+      "session": "14e5e8d5",
+      "shortname": "coordination-round-oct06",
+      "skill": "prepare-for-coordination",
+      "summary": "Tracks DOC (new copy rows + spec 1.7.5, first), PNL (adaptive panels; step 0 Flagged: under-read measured only at the governing station), CPY (A3a copy/display fixes) -> DX (section/polar), GRP (Core, then Desktop after CPY), LAY (operator picks a 1280x800 layout first); HYD and MCAD as single review calls; HOOK installed inline (1616d891). Serial spine on DESIGN.md, Labels/Projection/Loads, PropertiesView/WorkbenchController. Struck: HOOK/HYD/MCAD/spec as tracks. Review BLOCK (2 Blockers) cleared by plan edits; re-check CLEARS-THE-VETO yes. Found: SEAM reason codes have no drafted display text despite Ruling 108.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M48XR0DF2NQY80RMK0072CWB",
-      "shortname": "join-round-oct06-plan",
-      "datetime": "2026-10-06T15:36:33Z",
-      "session": "14e5e8d5",
-      "prompt": "the join of chore/coordination-round-oct06 into main",
-      "summary": "round-oct06 plan (reviewed, veto cleared) and the AGENT-HEREDOC hook installed recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join chore/coordination-round-oct06 into main",
+      "datetime": "2026-10-06T15:36:33Z",
       "done_when": "join gates green, readiness green, pushed",
-      "tier": "T1",
+      "duration_seconds": 54.0,
       "fan_out": 0,
+      "goal": "join chore/coordination-round-oct06 into main",
+      "id": "al-01M48XR0DF2NQY80RMK0072CWB",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of chore/coordination-round-oct06 into main",
+      "session": "14e5e8d5",
+      "shortname": "join-round-oct06-plan",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-06T15:35:39Z",
-      "duration_seconds": 54.0
+      "summary": "round-oct06 plan (reviewed, veto cleared) and the AGENT-HEREDOC hook installed recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M490K56721W9PVM142J308QF",
-      "shortname": "pnl-adaptive-panels",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-06T16:26:20Z",
-      "session": "trk-pnl",
+      "done_when": "red-first receipts for tests 1-2, timing reconciliation, step-0 recommendation, run-tests green, check-docs 0",
+      "duration_seconds": 736.0,
+      "goal": "Ruling 103: 200 panels everywhere, governing station re-solved at 400, screen and Cp_min from the 400 value, inside the 1 s budget",
+      "id": "al-01M490K56721W9PVM142J308QF",
+      "kind": "skill",
+      "outcome": "partial",
       "prompt": "pnl round-oct06",
+      "session": "trk-pnl",
+      "shortname": "pnl-adaptive-panels",
+      "skill": "implement",
+      "started_at": "2026-10-06T16:14:04Z",
       "summary": "Governing station estimate/screen/Cp_min from 400 panels; method version 1.3.0/panel200-gov400-te3; timing unchanged (432-488 ms warm Release); step-0 decision filed; test 3 not done",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-06T16:22:34Z",
+      "done_when": "rows compared to sources, Copy test green, spec rendered and parity-checked, check-docs 0",
+      "duration_seconds": 510.0,
+      "goal": "Every copy row and spec clause approved on 2026-10-06 (Rulings 101, 107, 108) is in DESIGN.md and the spec",
+      "id": "al-01M490C8SPBQ3QAXXJPXTBKVD8",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-doc round-oct06",
+      "session": "trk-doc",
+      "shortname": "doc-oct06 copy rows and spec 1.7.5",
+      "skill": "implement",
+      "started_at": "2026-10-06T16:14:04Z",
+      "summary": "COPY-250..356 added; spec 1.7.5 with H.5 and amendments/spec-1.7.5.md; A5.6/ANA-03 proposed per HYD verdict",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-06T16:36:43Z",
+      "done_when": "compare 0 mismatches, Copy test green, spec parity 0, check-docs 0",
+      "duration_seconds": 48.0,
+      "goal": "Drag (Wing only) rows and spec clause approved under Ruling 109",
+      "id": "al-01M49165CTXWZBTXS2Q6RMRS6P",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-doc follow-up Ruling 109",
+      "session": "trk-doc",
+      "shortname": "doc-oct06 Ruling 109 follow-up",
+      "skill": "implement",
+      "started_at": "2026-10-06T16:35:55Z",
+      "summary": "COPY-354..356 approved Ruling 109 with unit follows Units setting; spec A5.6, ANA-03, H.5 and amendment updated",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-06T16:39:52Z",
+      "done_when": "join gates green",
+      "duration_seconds": 4.0,
+      "fan_out": 0,
+      "goal": "join docs/round-oct06-copy-spec into main",
+      "id": "al-01M491BY88QCN1Z87V5J25NP67",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of docs/round-oct06-copy-spec into main",
+      "session": "14e5e8d5",
+      "shortname": "join-doc",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-06T16:39:48Z",
+      "summary": "COPY-250..356: R101 31, R107 12 (COPY-G1..12), R108 41, reason-code drafts 19 proposed, Drag (Wing only) 4 (Ruling 109); spec 1.7.5 CAD-04 group clause, A5.6/ANA-03 Drag (Wing only), H.5; existing rows untouched; Copy_AnalysisStrings_MatchDesignMd PASS recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4923QFGKNTH4BB0SWTQ7R6H",
+      "shortname": "trk-pnl",
+      "datetime": "2026-10-06T16:52:51Z",
+      "session": "trk-pnl",
+      "prompt": "pnl repair cycle 1 round-oct06",
+      "summary": "Implemented Ruling 110 and CFD conditions 1,2,3(doc),5; trace line for candidate count not done (needs Core/RunRecord.cs); 6%-thick under-read 3.60% a3, 4.39% a6",
       "kind": "skill",
       "skill": "implement",
       "tool": null,
@@ -27441,10 +27528,10 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "partial",
       "compiled": false,
-      "goal": "Ruling 103: 200 panels everywhere, governing station re-solved at 400, screen and Cp_min from the 400 value, inside the 1 s budget",
-      "done_when": "red-first receipts for tests 1-2, timing reconciliation, step-0 recommendation, run-tests green, check-docs 0",
-      "started_at": "2026-10-06T16:14:04Z",
-      "duration_seconds": 736.0
+      "goal": "Ruling 110: near-tie 400 candidates (k=4), governing re-selected at 400, UnderreadAt, CFD review conditions",
+      "done_when": "red-first, six-percent measurement, timing under 1 s, run-tests green, check-docs 0",
+      "started_at": "2026-10-06T16:44:04Z",
+      "duration_seconds": 527.0
     }
   ],
   "changes": [
@@ -29032,6 +29119,42 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M48WCZTTPESRJ7TE9M6VQF16",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4913X08SGJKQ38FJBTYRSX7",
+      "ts": "2026-10-06T16:35:28Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M4913X04S7NVF9QAS0J52XFA",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M4913X3209PT6WZ3SMVB0PZS",
+      "ts": "2026-10-06T16:35:28Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4913X04S7NVF9QAS0J52XFA",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M491GG5CT6G7G0KF24QDRCDE",
+      "ts": "2026-10-06T16:42:21Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M491GG58YFG4TZ4XSJRSWFKM",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M491GG8A8DHVA1CCTA0R25R5",
+      "ts": "2026-10-06T16:42:21Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M491GG58YFG4TZ4XSJRSWFKM",
+      "session": "fable-owner"
     }
   ]
 };

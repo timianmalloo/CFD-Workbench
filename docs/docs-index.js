@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "af92c011230b9c9d2e90f210b851401d44c4286db4b23e1a3b752770a7587f5f"
+      "sourceSha256": "f42c11266e59306d7a26492bdfd52af22d773aafba529f042d2c316ab523e56e"
     },
     {
       "id": "kb-hw-glossary",
@@ -10900,6 +10900,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "6fc8d736919d6e164dd704d9d7ffadc013b0872f5fceeec02b7bb27922c03e0a"
     },
     {
+      "id": "proof-doc-oct06",
+      "path": "docs/proof/doc-oct06/README.md",
+      "title": "Track DOC, round-oct06 — new copy rows and spec 1.7.5",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Rows COPY-250 to COPY-356 added to DESIGN.md section 7 for Rulings 101, 107 and 108, the reason-code drafts, and spec 1.7.5.",
+      "tags": [
+        "proof",
+        "copy",
+        "spec",
+        "rulings"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0ae3ce29185963194bedb43a711ec7e201fd3f33683bd26d76a74faf9bcdb2d2"
+    },
+    {
       "id": "proof-dock-split-s8",
       "path": "docs/proof/cad-first-spikes/dock-split/README.md",
       "title": "S8 spike: can Dock capability overrides block split drops",
@@ -11822,7 +11852,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "846a2c77eb691c626d18adf11feade4c5d4022b39439f1fbb9a7ee889d7b913b"
+      "sourceSha256": "fb9e83502453964c4ff0ec5f1acaa9647e0e0f9f8aa099b10dd9e4846014731b"
     },
     {
       "id": "proof-pnl-step0-other-stations",
@@ -11852,7 +11882,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cf35abeb791e23b8e35e6843564cd98bedebb540667bd3a55d915c7c8ade5278"
+      "sourceSha256": "5ad82050ed8622f29512f05ea819f68409ab5b8ac81177ab925fa5c913f60880"
     },
     {
       "id": "proof-pnl-timing",
@@ -11882,7 +11912,37 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a1e362bb3013a0315fbce06b215c761a8c2bebbdd627446b81b7c7e56cc8724d"
+      "sourceSha256": "7096c23d66e70ed1f496d89dd0ce93e595d4ccd6f8e8f12d94dcadd39d514c44"
+    },
+    {
+      "id": "proof-pnl-underread-measurements",
+      "path": "docs/proof/pnl/underread-measurements.md",
+      "title": "PNL: measured 200-vs-400 under-read by thickness (Ruling 110 (6))",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "A3c",
+      "reviewBy": "2026-11-30",
+      "reviewSuggested": [],
+      "summary": "Measured two-grid (p assumed 1) 200-vs-400 suction under-read for 1-12 % thick sections at alpha 3, 6, 10 deg. The 6 %-thick value is 3.60 % at alpha 3 and 4.39 % at alpha 6; thinner sections exceed 10 %.",
+      "tags": [
+        "analysis",
+        "section",
+        "panel-method",
+        "measurement"
+      ],
+      "links": [
+        {
+          "to": "proof-pnl-step0-other-stations",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-pnl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e86a4c9b8b64650cf467324af8b9e0695383b7adfb662f3c4dbaec35f7535c38"
     },
     {
       "id": "proof-readyfix2",
@@ -13967,6 +14027,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "59fb7876a86762911337c984f3786c4f1ef6d2fffcdd5f71fec5c99c1530f54e"
     },
     {
+      "id": "spec-amendments-1-7-5",
+      "path": "docs/specs/amendments/spec-1.7.5.md",
+      "title": "Spec 1.7.5 amendment batch — group move on a curve (CAD-04) and the wing-only drag (A5.6, ANA-03), as exact text",
+      "type": "spec",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Two clauses to cfd-workbench-v1 and one retired note, traced to Rulings 107 and 108. The CAD-04 clause and the retired node M note are approved (Ruling 107 DR-GM-8). The A5.6 and ANA-03 clause is the hydrodynamicist's form of Ruling 108 DXM-5, which differs from the ruling's text; the operator approved it as Ruling 109. Revision 1.7.5 of the spec carries the batch; the change record is Appendix H, section H.5.",
+      "tags": [
+        "spec",
+        "amendments",
+        "rulings",
+        "cad",
+        "analysis",
+        "drag"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f86ae43d2dafa586c8a3f8bea110c9ee530e964da91f5944e1aed37eb4d6ebe3"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -14283,7 +14379,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "b9387b8c5286a420612dbd23c1c9968d386f9598eb9ffe83c1355f126a2cb686"
+      "sourceSha256": "089d17363f4285a32add7c197d86fc21a671625ad2f8a2cb96f4b59a8bcbe157"
     },
     {
       "id": "spec-foildsl",
@@ -14682,5 +14778,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "faede5839a22bd11fa9d8b77ca263c4917cd5f38f6da7ae104e7437d81ff8d18"
+  "graphSha256": "a0c8a150b4e815b65eb98923beae760bd005af521da9d9cd9badd4c585f02c87"
 };
