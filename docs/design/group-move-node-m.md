@@ -14,6 +14,7 @@ links:
   - { to: mockup-group-move-node-m, rel: relates-to }
   - { to: design-language, rel: depends-on }
 review-by: 2027-04-01
+amendments: Ruling 107 (decisions), Ruling 111 (findings 5, 6, 9, 10), marine-CAD Adversary findings 1-8 folded in by track GRP, round oct06
 summary: >-
   Design for the CAD increment after the limit hold: select several points on one curve, drag them as one rigid gesture and
   one undo step, nudge them, and type one value for all of them (set-all, move-by, or both per row). A group that includes
@@ -25,6 +26,10 @@ summary: >-
 # Proposal: group move and typed value for several points
 
 - **Track / tier:** E4 of round oct05, T1, docs and mockup only. No `src/` or `tests/` change. Code read at `bc5471e6`.
+- **Round oct06 amendment (track GRP):** the operator's decisions are Ruling 107 and Ruling 111. The marine-CAD Adversary
+  findings 1-8 are folded in below, each marked **(finding N)**. Findings 9 and 10 are decided by Ruling 111 and folded in
+  (§3.2, §3.6). Only finding 11 (small copy gaps) stays open, with the token wording in §5a (proposed, awaiting the operator).
+  Scope is **all views** (Ruling 111 item 6): Plan and the elevation channels.
 - **Mockup:** [`docs/mockups/group-move-node-m.html`](../mockups/group-move-node-m.html). The operator chooses variants and
   approves copy there before any build track.
 - **Order:** this is candidate #2 of [`next-cad-increment.md`](next-cad-increment.md) and follows the limit increment
@@ -75,7 +80,7 @@ set that flips from a bounded S-M change.
 ### 3.1 Which points move together (DR-GM-1)
 
 The draft is bound to one curve today (`draft.Rail`, `AuthoringSession.cs:529-540`). The first slice therefore moves a
-selection that lies on **one curve**. A selection on two curves (for example one leading-edge and one trailing-edge point)
+selection that lies on **one curve**, in the Plan view and in the elevations (Ruling 111, item 6; finding 6). A selection on two curves (for example one leading-edge and one trailing-edge point)
 does not drag; the strip says so (COPY-G7). The case that matters most to a foil designer, sweeping the tip by moving both
 tip vertices, needs a two-rail draft and is DR-GM-1 option B. It is a larger Core change (a draft over two rails, and the
 chord rule reads both). Recommendation: A for this slice, B as the next one.
@@ -86,8 +91,19 @@ chord rule reads both). Recommendation: A for this slice, B as the next one.
 - **A press on a point that is already in a multi-selection keeps the selection and drags all of it.** A click that ends
   without movement collapses the selection to that point **on release**. A press on an unselected point replaces the
   selection, as today. (Recommended. Option B keeps today's collapse and offers no group drag without a new modifier.)
-- The grabbed point is the one under the pointer. Every other member moves by the same delta (a translation). The pointer
-  ring and tether (Ruling 96) are drawn against the grabbed point.
+- The grabbed point is the one under the pointer. Every other member moves by the same delta (a translation).
+- **Root mate (finding 5, Ruling 111 item 5).** A selection that holds point 1 but not the root **seeds the root into the
+  group**, like a handle riding with its anchor (`AuthoringSession.cs:600-601` is the root-mirror coupling). The root's span
+  lock then holds the group's span delta at zero (DR-GM-5 A); the ordinate delta applies to the root and point 1 together.
+  Tests: `{root, 1}` and `{1, 2}`.
+- **Modifier matrix, in this order (finding 3):**
+  1. Shift at press **extends** the selection and starts no drag (`PlanCanvas.cs:369-375`).
+  2. Shift **during** a drag constrains the axis, about the **grabbed** point (`PlanCanvas.cs:425-433`).
+  3. A click that ends within the existing 3 px collapses the selection to that point on release
+     (`WorkbenchController.cs:1673-1676`).
+  4. A context click (right-click, or Ctrl-click on macOS) on a member **keeps the group** (`PlanCanvas.cs:455`).
+- **Double-click or Return on a member (finding 10, Ruling 111 item 10).** Focus goes to the group's value row in
+  Properties and the group stays selected.
 
 ### 3.3 One gesture, one undo step
 
@@ -95,6 +111,12 @@ A press-drag-release of a group opens one draft, updates it per frame, and commi
 drag does (CAD-04, DR-6). Escape cancels with no undo step and keeps the selection. The status strip says "Moving 3
 trailing edge points." while dragging and "Moved 3 trailing edge points. Tip chord 5.00 mm." after release (COPY-G1, G2).
 Undo restores every point exactly.
+
+**What is shown while held (findings 1 and 2).** The strip and the inspector show the **applied** group delta and the
+binding point, not the pointer minus the press origin (`PlanCanvas.cs:437-442` reads the pointer today). Only the tether
+shows the requested delta. The tether always runs from the **grabbed** point to the pointer. A **warn outline** (not a ring)
+goes on the binding member or neighbour. The axis lock draws no warn marker. The mockup frame D (grab point 9, tip 10
+binds) shows it.
 
 ### 3.4 Rigid body for every limit (DR-GM-3)
 
@@ -109,7 +131,7 @@ The group translates as one body. Every limit is written as a bound on the **del
 | Axis freedom (a `ValueOnly` or `SpanOnly` member) | `PointFreedom`, `:569-571` | that axis delta is zero for the whole group (DR-GM-5 A) |
 
 The result is the intersection of intervals, so any limit that binds holds the whole group, as Ruling 96 requires for the
-tip. The ring on the binding point and the status line say which point and which limit. This is the Ruling 96 sentence
+tip. The warn outline on the binding point and the status line say which point and which limit. This is the Ruling 96 sentence
 "a group including an end vertex must hold the whole group at the limit" generalised to every limit, so the group never
 changes shape under the pointer. Option B (only the limited point holds) is drawn in the mockup to show what it does to the
 shape: in the example the 3 mm gap between points 9 and 10 becomes 0 mm.
@@ -117,7 +139,9 @@ shape: in the example the 3 mm gap between points 9 and 10 becomes 0 mm.
 ### 3.5 Nudge
 
 Arrow keys with a multi-selection move every selected point by one step, from the focused point's position (the nudge run
-already steps from the draft, not the pointer: `WorkbenchController.cs:1651`). The ladder is 0.01, 0.1 and 1 mm. The run
+already steps from the draft, not the pointer: `WorkbenchController.cs:1651`). The ladder is the channel's own: 0.01 / 0.1 / 1 mm on lengths, ° on twist, % on t/c
+(`WorkbenchController.cs:1703`); 0.1 plain, 0.01 with Command on macOS or Ctrl on Windows, 1 with Shift (COPY-163, finding 7).
+Up moves toward the leading edge on every screen, as in the mockup (finding 7). The run
 ends on key-up as one undo step. A limit holds the run; the strip speaks on arrival and again only when the limit changes or
 a nudge frees the hold (Ruling 96). Presses past the limit do not bank steps (mockup screen 4).
 
@@ -134,6 +158,11 @@ The Properties pane for a selection of two or more points on one curve shows the
   - **B move-by only.** Typing gives an amount; every point moves by it.
   - **C both, per row (recommended).** A two-way switch **Set to | Move by** sits beside each value row. The value row
     defaults to Set to. From root offers only Move by.
+- **Typed values act on anchors and plain points only (finding 4).** A handle rides with its anchor's delta and is never
+  seeded twice (`AuthoringSession.cs:602-613`); a selection of an anchor and its handle moves the handle once.
+- **After a commit (finding 9, Ruling 111 item 9):** the Move by field clears to 0 and the row re-reads its shared or Mixed
+  value. The Set to / Move by mode **resets to the row default when the selection changes** and **stays while the selection
+  is kept**.
 - Why a switch and not a sign convention: the value rows take negative numbers (anhedral, twist), so "−2" cannot mean
   "move by". The mode is visible and the number is never guessed.
 - Units and expressions work as for one point (mm, m, in, °, %, chord; `#root_chord * 0.5`). The resolved value is echoed:
@@ -158,7 +187,8 @@ the nearest allowed value and never applies itself:
 
 | State | What the designer sees | Why |
 |---|---|---|
-| Mixed types (an anchor and a control point) | Type `Mixed` read-only; value rows still edit | the value rows act on positions, not types; the type change stays one point at a time (CAD-15) |
+| Mixed types (an anchor and a control point) | Type `Mixed` read-only; value rows still edit, with the Set to / Move by switch (finding 8; mockup screen 5) | the value rows act on positions, not types; the type change stays one point at a time (CAD-15) |
+| Point 1 selected without the root | the root joins the group; the span delta is zero (finding 5) | §3.2 root mate |
 | Selection on two curves | rows read-only, drag does not start, strip COPY-G7 | the draft is bound to one curve (DR-GM-1 A) |
 | A fully locked member | move refused before a draft opens, strip names the point (COPY-G3) | CAD-04 lock refusal |
 | A span-locked or value-locked member (root, tip) | the group holds on that axis and moves on the other; one-line note (COPY-G4) | DR-GM-5 A; the root-mirror coupling still applies to the root end |
@@ -192,6 +222,31 @@ the nearest allowed value and never applies itself:
 The mockup draws COPY-G1 to G12 as written. The strings "Mixed" and "Select one point to change it." stay for the cases
 that remain read-only (two curves).
 
+## 5a. Tokenised wording for all views (proposed — awaiting operator)
+
+Ruling 111 item 6 makes group moves work in the Plan view and the elevations. COPY-G1, G2, G4 and G11 (COPY-281, 282, 284,
+291) name "aft", "tip chord" or a millimetre unit, and the nudge ladder is in °, % or mm. **Proposed — awaiting operator**;
+`DESIGN.md` is not edited here. The tokens are:
+
+- `<curve>`: the curve noun, one of "leading edge", "trailing edge", "dihedral", "twist", "thickness" (the Points pane's name
+  for the curve; COPY-G1 already carries it).
+- `<axis>`: the value row's own label for the curve: "aft" (leading and trailing rails), "dihedral", "twist", "thickness".
+- `<unit>`: the channel's unit: mm, ° or %.
+- `<end-chord>`: "Tip chord" or "Root chord", shown only when a leading or trailing end vertex moved.
+
+| Id | Where | Proposed text |
+|---|---|---|
+| COPY-G1 | strip while dragging | Moving `<n>` `<curve>` points. *(unchanged; `<curve>` now ranges over every channel)* |
+| COPY-G2 | strip after release | Moved `<n>` `<curve>` points.` <end-chord> <value> mm.` *(clause only on the leading or trailing rail and only when an end vertex moved; none on an elevation channel)* |
+| COPY-G4 | locked axis | The `<point>` can't move along the span, so the selection moves in `<axis>` only. *(on a channel with no span freedom: "The `<point>` can't change, so the selection holds.")* |
+| COPY-G11 | typed echo, set | Set `<axis>` of `<n>` points to `<value> <unit>`. |
+| COPY-G12 | typed echo, move | Moved `<n>` points by `<signed value> <unit>`. |
+| COPY-G8, G10 | typed refusal | `<amount>` and `<typed>` carry `<unit>`; G8 is a Plan-only row (the tip chord exists on the rails only). |
+| COPY-163 | nudge help | Add "Ctrl on Windows" beside Command on the group ladder's label (finding 7). |
+
+**Finding 11 (small copy gaps)** travels with this table: the operator rules on it when ruling on the token wording.
+`<end-chord>` for the root is a new string (the root tip's mirror is COPY-246's refusal, not a status line).
+
 ## 6. Where it lives
 
 - **Core:** `BeginGroupGesture(draftId, curve, vertexIds)` and `UpdateGroupGesture(draftId, generation, grabbedId, span,
@@ -199,12 +254,16 @@ that remain read-only (two curves).
   companions instead of one; the delta is clamped once as in §3.4). The single-point methods become the one-member case, so
   there is one clamp path, not two. A new typed command applies a set-all or move-by to several vertices atomically through
   the same patch and admission path the typed single-point entry uses. Rule A holds: geometry rules stay in Core, and
-  `TipChord.Admits` stays the only oracle for the tip.
+  `TipChord.Admits` stays the only oracle for the tip. The Desktop-facing signatures (`BeginPointGesture`,
+  `UpdatePointGesture`, `Selection`) are unchanged; the group is an overload pair beside them.
 - **Desktop:** `BeginGesture` takes the selection; `SelectPoint` on a press of a member keeps it; `SeveralRows` computes
   shared values and builds editable rows with the per-row mode; nudge uses the selection; the strip strings are §5.
 - **Instrumentation:** `gesture.end` gains `members` (count) and the clamp reason names the binding point; typed entry
   records `members` and the mode. Operator questions: how often is a group dragged, which limit binds, and is any group
   gesture still refused at release (target zero; non-zero is a defect signal).
+
+Root seeding (finding 5, Ruling 111): the group's seed set gains the root whenever point 1 is a member and the curve has
+the `root_mirror` lock, and the `{root, 1}` and `{1, 2}` cases are tests (§9).
 
 assume: a group translation is expressible as a single delta on the existing `moved` set, because the current companion
 rules (anchor with handles, root mirror) are themselves translations of a seeded set. Confirm: a Core test that drags a
@@ -214,10 +273,14 @@ update body and a second clamp path, which the Simplifier should object to.
 assume: only the end vertices of a rail change root and tip chord (the `assume:` of the limit proposal). Confirm: the same
 interior sweep test, now with group moves. If false: release still refuses and telemetry shows it.
 
+## 6a. Open items
+
+- **Finding 11 (small copy gaps):** open, with §5a. Findings 9 and 10 are decided (Ruling 111) and folded in at §3.2, §3.6.
+
 ## 7. What this does not do
 
-- No group move across two curves (DR-GM-1 B is the next slice), and no group move on the elevation channels beyond one curve
-  at a time if the Desktop selection allows it; the rule is the same.
+- No group move across two curves (DR-GM-1 B is the next slice). Elevation channels are **in** this slice (Ruling 111
+  item 6), one curve at a time.
 - No marquee or select-all on a curve. Selecting is Shift/Cmd-click and Space, as built. A marquee is a next step to propose
   if the operator finds selecting three points tedious.
 - No rotate, scale or align of a group; translation only.
@@ -254,6 +317,8 @@ interior sweep test, now with group moves. If false: release still refuses and t
 | Core: `GroupGesture_FixedMember_RefusedNamingLock`, `..._ValueOnlyMember_HoldsSpanForGroup` | fast | CAD-04 lock refusal; DR-GM-5 |
 | Core: `GroupGesture_AnchorBringsHandles`, `..._HandleWithoutAnchor_Refused` | fast | DR-GM-6 |
 | Core: `GroupGesture_LegacyTipUnderMinimum_HoldsAtPressChord` | fast | `Admits` equivalence |
+| Core: `GroupGesture_RootSeeded_WhenPointOneSelected` (`{root, 1}` and `{1, 2}`), `GroupGesture_HandleNeverSeededTwice` | fast | finding 5 (Ruling 111); finding 4 |
+| Core: `GroupGesture_End_CarriesMembers` | fast | the `gesture.end` instrumentation floor |
 | Core: `GroupGesture_ReleaseNeverThrowsTipChordMin` (sweep over groups including interior vertices) | fast | confirms both `assume:` lines |
 | Core: `ApplyGroupValue_SetTo_AllEqual`, `..._MoveBy_AllShifted`, `..._AnyViolation_NothingApplied`, `..._MoveByPastTip_NamesMaxAmount` | fast | atomic typed entry and COPY-G8 |
 | Desktop: `Properties_MultiplePoints_SharedValueShown_MixedWhereDiffer` (replaces `Properties_MultiplePoints_MixedReadOnly`; red first) | Desktop ring, one check | the spec's shared-or-Mixed rule |
@@ -261,6 +326,8 @@ interior sweep test, now with group moves. If false: release still refuses and t
 | Desktop: `GroupDrag_PressOnMember_KeepsSelection`, `GroupDrag_ClickWithoutDrag_CollapsesOnRelease` | Desktop ring | DR-GM-4 |
 | Desktop: `GroupDrag_OneUndoStep_EscapeNone_AnalysisInert` | Desktop ring | CAD-04, ANA-EDIT-INERT |
 | Desktop: `GroupNudge_TenPressesPastLimit_OneAnnouncement_OneUndoRow` | Desktop ring | no banked steps; live-region noise |
+| Core: `ApplyGroupValue_Handles_RideWithAnchor_NeverSeededTwice`, `..._SetTo_PlainPointsAndAnchors` | fast | finding 4 |
+| Mutants (Core, planted in `GroupGestureTests`): clamp per member instead of rigid; a handle seeded twice | with the suite | tests that pass but prove nothing |
 | Mutants: clamp each member alone; drop one limit from the delta intersection; read a second tip formula; select-collapse on press | per the repo's mutant practice | tests that pass but prove nothing |
 | Telemetry: `gesture.end` carries `members` and the binding reason | fast | instrumentation floor |
 

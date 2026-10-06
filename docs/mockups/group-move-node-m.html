@@ -129,8 +129,8 @@ table.t tr.held td{ color:var(--warn); font-weight:600; }
 
 <section class="screen" aria-labelledby="s4">
   <h2 id="s4">4 · Keyboard: arrows move the whole selection, hold at the limit, one announcement</h2>
-  <p class="what"><b>Shift+Down moves every selected point 1 mm per press</b> (the channel ladder: 0.01 · 0.1 · 1 mm for Command, plain, Shift). Points 9 and 10 are selected; the tip starts at 8 mm. Presses past the limit do not bank steps, so one Up press moves the group back at once. The strip speaks on arrival at the limit, and again when a nudge frees the hold and a later one meets it. Key-up ends the run as one undo step.</p>
-  <div class="row"><div class="card"><h3>Ten presses: six Down, one Up, three Down</h3><p class="tag">Computed with the same rule as the other screens</p><div id="keys"></div><p class="live">Live region text, spoken at the arrival rows: “Tip chord is at its minimum, <span data-v="limit"></span> mm.” Focus stays on the focused point; the other selected points are not announced one by one.</p></div></div>
+  <p class="what"><b>Shift+Up moves every selected point 1 mm toward the leading edge per press</b>, as the Up arrow does on screen 1 (the channel ladder: 0.01 · 0.1 · 1 mm for Command on macOS or Ctrl on Windows, plain, Shift). Points 9 and 10 are selected; the tip starts at 8 mm. Presses past the limit do not bank steps, so one Down press moves the group back at once. The strip speaks on arrival at the limit, and again when a nudge frees the hold and a later one meets it. Key-up ends the run as one undo step.</p>
+  <div class="row"><div class="card"><h3>Ten presses: six Up, one Down, three Up</h3><p class="tag">Computed with the same rule as the other screens</p><div id="keys"></div><p class="live">Live region text, spoken at the arrival rows: “Tip chord is at its minimum, <span data-v="limit"></span> mm.” Focus stays on the focused point; the other selected points are not announced one by one.</p></div></div>
 </section>
 
 <section class="screen" aria-labelledby="s5">
@@ -202,8 +202,8 @@ function railSvg(o){
   }
   (o.ghost || []).forEach(g => { s += `<polyline class="ghost" points="${g.map(p => `${X(p.x)},${Y(p.y)}`).join(' ')}"/>`; });
   if (o.pointer !== undefined){
-    const tip = pts[pts.length - 1];
-    if (Math.abs(o.pointer - tip.y) > 0.01) s += `<line class="tether" x1="${X(60)}" x2="${X(60)}" y1="${Y(tip.y)}" y2="${Y(o.pointer)}"/><circle class="ptr" cx="${X(60)}" cy="${Y(o.pointer)}" r="7"/>`;
+    const g = pts[o.grab === undefined ? pts.length - 1 : o.grab];
+    if (Math.abs(o.pointer - g.y) > 0.01) s += `<line class="tether" x1="${X(g.x)}" x2="${X(g.x)}" y1="${Y(g.y)}" y2="${Y(o.pointer)}"/><circle class="ptr" cx="${X(g.x)}" cy="${Y(o.pointer)}" r="7"/>`;
   }
   pts.forEach((p, i) => {
     const sel = (o.sel || []).includes(i), bind = o.bind === i;
@@ -229,15 +229,15 @@ const list = (pros, cons) => `<ul class="pc">${pros.map(t => `<li>${t}</li>`).jo
 const ptsA = applyRigid(BASE, SEL, DRAG), ptsB = applyPerMember(BASE, SEL, DRAG);
 const ptrY = BASE[2].y + DRAG;
 const VARIANTS = [
-  { id: 'A', title: 'A · The whole group holds', reco: true, tag: 'The group moves as one rigid body and stops when the tip reaches the limit. The pointer ring and tether show the gap.',
+  { id: 'A', title: 'A · The whole group holds', reco: true, tag: 'The group moves as one rigid body and stops when the tip reaches the limit. The tether runs from the grabbed point to the pointer and shows the gap; the warn outline marks the binding point.',
     html: frame('During the drag, pointer 28 mm up',
         railSvg({ label: 'Variant A during the drag: both selected points held, the shape between them kept', pts: ptsA, sel: SEL, bind: 2, pointer: ptrY, marker: true, zone: true, ghost: [BASE] }),
-        wingBlock(chordOf(ptsA), 'lim', 'minimum'), strip('warn', 'Tip chord is at its minimum, ' + f(LIMIT, 0) + ' mm.', 'The ring at point 10 marks the point that holds the group.')) +
+        wingBlock(chordOf(ptsA), 'lim', 'minimum'), strip('warn', 'Tip chord is at its minimum, ' + f(LIMIT, 0) + ' mm.', 'The warn outline on point 10 marks the point that holds the group. The strip shows the applied move, not the pointer.')) +
       frame('After release',
         railSvg({ label: 'Variant A after release: the held group is committed', pts: ptsA, sel: SEL }),
         wingBlock(chordOf(ptsA), 'hl'), strip('ok', 'Moved 2 trailing edge points. Tip chord ' + f(chordOf(ptsA)) + ' mm.', 'One undo step. Undo restores both points exactly.')),
     pros: ['The shape the designer moved stays the shape they moved: spacing between the selected points is unchanged.', 'Every frame is a wing the product accepts, so release cannot fail (Ruling 96).', 'Same rule for tip, root, neighbours and channel limits.'],
-    cons: ['Point 9 stops short of where the pointer would put it; the tether and the ring must explain it.'] },
+    cons: ['Point 9 stops short of where the pointer would put it; the tether and the warn outline must explain it.'] },
   { id: 'B', title: 'B · Only the limited point holds', tag: 'Point 10 stops at the limit. Point 9 keeps following the pointer, so the group squashes.',
     html: frame('During the drag, pointer 28 mm up',
         railSvg({ label: 'Variant B during the drag: the tip held, point 9 still moving', pts: ptsB, sel: SEL, bind: 2, pointer: ptrY, marker: true, zone: true, ghost: [BASE] }),
@@ -254,6 +254,12 @@ const VARIANTS = [
     pros: ['Nothing to build.'],
     cons: ['A multi-selection can be made but not moved; Properties shows Mixed and read-only.', 'The designer must move points one at a time and re-judge the shape each time.'] }
 ];
+const ptrY9 = BASE[1].y + DRAG;
+VARIANTS.push({ id: 'D', title: 'D · Grab point 9, the tip binds', tag: 'Point 9 is grabbed and point 10 is the tip. The tether runs from point 9 to the pointer. The warn outline is on point 10, the binding member. The axis lock draws no warn marker.',
+  html: frame('During the drag, pointer 28 mm up from point 9',
+      railSvg({ label: 'Grab point 9: the group holds because point 10 reaches the tip limit', pts: ptsA, sel: SEL, bind: 2, grab: 1, pointer: ptrY9, marker: true, zone: true, ghost: [BASE] }),
+      wingBlock(chordOf(ptsA), 'lim', 'minimum'), strip('warn', 'Tip chord is at its minimum, ' + f(LIMIT, 0) + ' mm.', 'Applied move ' + f(ptsA[1].y - BASE[1].y) + ' mm; binding point 10. The strip and inspector show the applied move, the tether the requested one.')),
+  pros: ['The binding member is named even when the pointer is on another one.'], cons: [] });
 document.getElementById('variants').innerHTML = VARIANTS.map(v =>
   `<div class="card"><h3>${v.title}${v.reco ? '<span class="reco">Recommended</span>' : ''}</h3><p class="tag">${v.tag}</p>${v.html}${list(v.pros, v.cons)}</div>`).join('');
 
@@ -317,9 +323,9 @@ document.getElementById('refusals').innerHTML = REF.map(r =>
 // ---- screen 4: keyboard ----
 (function(){
   let tip = 8, rows = '', wasHeld = false;
-  const keys = ['Down', 'Down', 'Down', 'Down', 'Down', 'Down', 'Up', 'Down', 'Down', 'Down'];
+  const keys = ['Up', 'Up', 'Up', 'Up', 'Up', 'Up', 'Down', 'Up', 'Up', 'Up'];
   keys.forEach((k, i) => {
-    const dir = k === 'Down' ? -1 : 1;
+    const dir = k === 'Up' ? -1 : 1;
     const wanted = tip + dir, next = Math.max(wanted, LIMIT), held = next === LIMIT && dir < 0;
     const announce = held && !wasHeld;
     const nine = next + (BASE[1].y - BASE[2].y);
@@ -334,7 +340,7 @@ document.getElementById('refusals').innerHTML = REF.map(r =>
   const legacy = [{ x: 0, y: 36, id: 8 }, { x: 30, y: 33, id: 9 }, { x: 60, y: 2, id: 10 }];
   const cards = [
     ['Mixed point types', 'An anchor and a control point are selected. Type reads Mixed (read-only); the value rows still edit, as in screen 2.',
-      pane({ title: '2 points', crumb: 'Trailing edge · points 4, 5', rows: [{ label: 'Type', ctl: '<span class="ro">Mixed</span>' }, { label: 'From root', ctl: '<span class="ro">Mixed</span>' }, { label: 'Aft', ctl: '<span class="ro">Mixed</span>' }] })],
+      pane({ title: '2 points', crumb: 'Trailing edge · points 4, 5', rows: [{ label: 'Type', ctl: '<span class="ro">Mixed</span>' }, { label: 'From root', ctl: '<span class="ro">Mixed</span>' }, { label: 'Aft', ctl: segm('Aft entry mode', 'Set to', 'Move by', 'Set to') + inp('m1', 'Aft, set all points to', '', 'Mixed') }] })],
     ['Points on two curves (variant A of DR-GM-1)', 'Rows stay read-only. A drag does not start. Under DR-GM-1 B, the two planform rails would move together.',
       pane({ title: '2 points', crumb: 'Leading edge, Trailing edge', rows: [{ label: 'From root', ctl: '<span class="ro">Mixed</span>' }, { label: 'Aft', ctl: '<span class="ro">Mixed</span>', hint: 'Select points on one curve to move or change them together.' }] }) + strip('', 'Select points on one curve to move them together.')],
     ['A locked point is selected', 'A fully locked point stops the move before it starts. Nothing changes.',
