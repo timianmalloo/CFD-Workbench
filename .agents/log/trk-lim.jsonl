@@ -1,1 +1,3 @@
 {"agent": "4e90c621", "at": 1791251802.073206, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-lim", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feature-cad-limits-in-gesture"}
+{"agent": "trk-lim", "at": 1791259926.906744, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-lim", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-lim", "at": 1791259975.817682, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-lim", "wi": "WI-0", "worktree": "CFD-Workbench-feature-cad-limits-in-gesture"}

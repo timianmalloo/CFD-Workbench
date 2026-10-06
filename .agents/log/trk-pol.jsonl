@@ -1,1 +1,3 @@
 {"agent": "4e90c621", "at": 1791256430.030605, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-pol", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-a3a-polish"}
+{"agent": "trk-pol", "at": 1791259927.407582, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-pol", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-pol", "at": 1791259976.3416479, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-pol", "wi": "WI-0", "worktree": "CFD-Workbench-fix-a3a-polish"}

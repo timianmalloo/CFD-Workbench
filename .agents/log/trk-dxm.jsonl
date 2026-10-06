@@ -1,1 +1,3 @@
 {"agent": "4e90c621", "at": 1791247302.938271, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-dxm", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-design-dx-mockup-states"}
+{"agent": "trk-dxm", "at": 1791259925.880671, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-dxm", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-dxm", "at": 1791259974.837493, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-dxm", "wi": "WI-0", "worktree": "CFD-Workbench-design-dx-mockup-states"}

@@ -2,3 +2,6 @@
 {"agent": "4e90c621", "at": 1791224473.7122939, "kind": "session-start", "path": "-", "seq": 2, "session": "trk-b2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-perf-ring-b3"}
 {"agent": "4e90c621", "at": 1791242082.749983, "kind": "session-start", "path": "-", "seq": 3, "session": "trk-b2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-perf-ring-b4-analysis-split"}
 {"agent": "4e90c621", "at": 1791247260.0220082, "kind": "session-start", "path": "-", "seq": 4, "session": "trk-b2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-perf-ring-b5-desktop-cpu"}
+{"agent": "trk-b2", "at": 1791259927.659165, "kind": "session-end", "path": "-", "seq": 5, "session": "trk-b2", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-b2", "at": 1791259976.59515, "kind": "session-end", "path": "-", "seq": 6, "session": "trk-b2", "wi": "WI-0", "worktree": "CFD-Workbench-perf-ring-b4-analysis-split"}
+{"agent": "trk-b2", "at": 1791259976.842478, "kind": "session-end", "path": "-", "seq": 7, "session": "trk-b2", "wi": "WI-0", "worktree": "CFD-Workbench-perf-ring-b5-desktop-cpu"}

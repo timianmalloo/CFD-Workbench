@@ -1,1 +1,3 @@
 {"agent": "4e90c621", "at": 1791258319.1491032, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-ci", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-chore-round-oct05-lessons"}
+{"agent": "trk-ci", "at": 1791259920.7192059, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-ci", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-ci", "at": 1791259974.592295, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-ci", "wi": "WI-0", "worktree": "CFD-Workbench-chore-round-oct05-lessons"}
