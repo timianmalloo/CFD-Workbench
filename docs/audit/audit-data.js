@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T03:37:54Z",
+  "generated": "2026-10-06T03:42:42Z",
   "audit": [
     {
       "actor": null,
@@ -26967,6 +26967,33 @@ window.AUDIT_DATA = {
         "branch": "feature/a3bc-seam",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M47MWWQCZXFXKBPA9R0FTNQS",
+      "shortname": "join-a3bc-seam",
+      "datetime": "2026-10-06T03:42:41Z",
+      "session": "4e90c621",
+      "prompt": "the join of feature/a3bc-seam into main",
+      "summary": "SEAM: 200-panel section tier with governing-station 200-vs-400 under-read on the run event and panel id in the key; polar metadata derived on read (Ruling 100); profile drag at both Ncrit, wing-only drag beside craft-total Unavailable, Find alpha/take-off roots, A5.2 with per-axis S6 envelope codes, F-13b; every numeric section/polar row carries its tier label; cambered 129-station wing ~0.43-0.48 s; CFD veto lifted, hydrodynamicist cleared with conditions; reason codes await operator copy recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join a3bc-seam into main (round-oct05)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T03:41:46Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
