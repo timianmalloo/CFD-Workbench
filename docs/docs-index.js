@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cba83f2facce2d7ac3a5992a20f0d5b0196e77a78c969020fc3d78bd230e0b99"
+      "sourceSha256": "9d2d70e0aa17af6cd97fe08da2267f32ed217d5b248c4aa26693d5fc1890dceb"
     },
     {
       "id": "kb-hw-glossary",
@@ -11016,7 +11016,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ad8d5f9dbbdf2e7fff3a34235e79234cde4fbd5502feec710be605e866dd1e59"
+      "sourceSha256": "4e266c045e4498dc0a512e0bcf982c11df6849b33b273aa354ef5aa18307bf33"
     },
     {
       "id": "proof-dx-test-plan",
@@ -11047,7 +11047,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "77581779f4550f9edc88713fd4c1ab316ad9d5fe5b2d539ffedb91853bcfca48"
+      "sourceSha256": "cc1943ae0d8e69f9d96c347e55421297d97fbe39896be48f2542495f7f2701c6"
     },
     {
       "id": "proof-e2-cad-defects-red-first",
@@ -14895,5 +14895,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "4590fa3ba555e858f15f0eaaae75066b3637ec0b245521d07477dbd1b1976708"
+  "graphSha256": "74ce1c9a361821c93817ebf6a5f47a9d500fa1b1bd487bf6d8224046913d58b7"
 };

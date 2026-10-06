@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T18:17:37Z",
+  "generated": "2026-10-06T19:30:46Z",
   "audit": [
     {
       "actor": null,
@@ -27760,6 +27760,26 @@ window.AUDIT_DATA = {
       "done_when": "plan names pass, captures, one full run-tests, check-docs 0",
       "started_at": "2026-10-06T17:39:38Z",
       "duration_seconds": 2278.0
+    },
+    {
+      "id": "al-01M49B4VSEKPYC3B4QC6JV13TD",
+      "shortname": "trk-dx2",
+      "datetime": "2026-10-06T19:30:46Z",
+      "session": "trk-dx2",
+      "prompt": "trk-dx2 round-oct06",
+      "summary": "Non-NACA-0012 sections computed and flagged (COPY-364); Ruling 118 wording via Labels with DESIGN rows COPY-394..399; DeriveFeed passes the section failure code; six mutant receipts; 44 of 44 PASS names; captures; four checks moved to readiness; run-tests green",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "DX finishing pass: Rulings 117 and 118, row 10 in the app, mutant receipts, PASS grep, captures, ring cost",
+      "done_when": "red-first receipts, pass-names complete, captures, one green run-tests, check-docs 0",
+      "started_at": "2026-10-06T19:07:16Z",
+      "duration_seconds": 1410.0
     }
   ],
   "changes": [
@@ -29490,6 +29510,24 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M494HKN1339H32CN1X2BKKKF",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M499RKJK99R9QC983M46KY0Q",
+      "ts": "2026-10-06T19:06:35Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M499RKFM4N380SJETTMTQ4FV",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M499RKYC8RH9ATQ75DT33ETJ",
+      "ts": "2026-10-06T19:06:36Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M499RKVE8C7HYM5S0F8PEZBQ",
       "session": "operator-timianmalloo"
     }
   ]
