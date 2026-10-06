@@ -152,6 +152,7 @@ public static class AnalysisProjection
             banner, null, groups, Layers(run, context, rootMoment), run.RunKey)
         {
             Loading = Loading(run, cl, a), StripDetails = StripDetails(run, context, a),
+            SectionTier = section,
             PolarConsistency = section?.PolarConsistency,
             WingDragNcrit2 = wing2, WingDragNcrit4 = wing4,
             FreeSurface = run.Op.HRef is { } correctionDepth ? FreeSurfaceCorrection.Evaluate(lift, wing2.Value,

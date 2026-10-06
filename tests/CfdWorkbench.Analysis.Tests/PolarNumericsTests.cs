@@ -85,7 +85,8 @@ internal static class PolarNumericsTests
     private static void ProductRun()
     {
         using var session = Fixture.Opened();
-        RunSettings settings = Settings.Default with { NSpanPerHalf = 4, NChord = 2, SectionEtas = null, SectionXs = null };
+        RunSettings settings = Settings.Default with { NSpanPerHalf = 4, NChord = 2,
+            SectionEtas = [0d, 0.5, 1d], SectionXs = Settings.ChordXs(2, "cosine") };
         var method = new ProductWingMethod(settings);
         AnalysisRun run = Fixture.Evaluate(new AnalysisService(session, method), Fixture.Op(3));
         if (run.Outcome is not RunOutcome.Completed || run.Settings.Polar is null ||

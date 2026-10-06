@@ -34,6 +34,8 @@ public sealed record AnalysisViewModel(RunState State, string StatusText, string
     public IReadOnlyList<StripDetail> StripDetails { get; init; } = [];
     /// <summary>A5.2 data beside the deep-water result; null when depth was not supplied.</summary>
     public FreeSurfaceResult? FreeSurface { get; init; }
+    /// <summary>Full Cp and section data from the accepted revision of the selected run.</summary>
+    public SectionTierResult? SectionTier { get; init; }
     /// <summary>Per-strip polar/lattice comparison and measured exemption edge; null without a run polar.</summary>
     public PolarConsistencyResult? PolarConsistency { get; init; }
     public StripValue? WingDragNcrit2 { get; init; }
