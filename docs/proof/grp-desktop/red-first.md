@@ -43,3 +43,13 @@ Method: `git stash push -- src`, build, run the check (`--readiness`, `CFD_TEST_
 | 7 stale refusal cleared when a gesture starts (stale-clear block disabled with `if (false && ...)`) | `Properties_MultiplePoints_TwistRangeRefusal_NamesPointAndRange_ClearsWhenADragStarts` | `FAIL ... the refused text stayed in the row during a drag: -200` | `PASS` (also asserts the range refusal reads COPY-400 through `GroupCopy` "G13"; Core `ApplyGroupValue_TwistSetToOutOfDomain_ReportsThePointAndTheRangeAsData` `PASS`) |
 | 4 compact inline Set to / Move by switch in the value row, "move by" tag on From root, no Entry row | `Properties_MultiplePoints_EntrySwitch_InlineInTheValueRow_FromRootCarriesMoveByTag_KeyboardWorks` | Compile-red only on the old src: `GroupCopy.SetToNotOffered` and `MoveByTag` do not exist there (the old build also had the separate `Label_p_mode` row the check forbids). No behavioural red was observed. | `PASS` |
 | 5, 6 applied value first, no one-frame lag | `GroupDrag_Elevation_TwistPointsMoveAsOneGroup_ReadoutShowsTheAppliedMove` | `FAIL ... the readout is 'Twist · point 3 of 7 ... · Applied +0.91°', wanted it to start 'Applied +1.01°'` (one frame behind) | `PASS` |
+
+# Repair cycle 2 (marine-CAD CLEAR WITH CONDITIONS): red on the old src (`git stash push -- src`), green on the fix
+
+| Finding | Check | Red (old code) | Green |
+|---|---|---|---|
+| 1 Plan readout outlives its gesture | `GroupDrag_Plan_ReadoutDelta_EqualsTheAppliedMove_SpanAndAft` (after release, after Escape, after undo: no Δ, chord is the model's) | `FAIL ... after release: the readout keeps a Δ: Δ from root +59.87 mm · Δ aft +23.95 mm · η 0.633 ...` | `PASS` |
+| 2 Ruling 120 bounds with units | `Properties_MultiplePoints_TwistRangeRefusal_NamesPointAndRange_ClearsWhenADragStarts` | `FAIL ... refusal: Point 3 would leave its allowed range (−57.30 to 57.30 °).` | `PASS` ("(−57.30° to 57.30°)") |
+| 3 domain hold strip is a warning | `GroupDrag_Elevation_TwistDomainHold_NamesThePointAndTheReason` | `FAIL ... the strip shows 'Moving 2 twist points.' as Info, not the hold's warning` | `PASS` |
+| 4 U+2212 in refusal and Use | `Properties_MultiplePoints_RefusalKeepsText_UseNeverAutomatic` | `FAIL ... the refusal's amount has no U+2212: Moving these points by -200.00 mm ...` | `PASS` (also "Use −115.00 mm") |
+| 5 no cut-off readouts | Plan readout wraps in rows of three; asserted by the Plan check's tail test and the captures | not separately red | captures opened |

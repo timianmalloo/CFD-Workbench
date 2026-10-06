@@ -1398,7 +1398,7 @@ public partial class PropertiesPane : UserControl
         var most = Regex.Match(refused.Copy, @"The most they can move that way is (\d+(?:\.\d+)?)");
         if (!most.Success || !double.TryParse(most.Groups[1].Value, NumberStyles.Float, CultureInfo.InvariantCulture, out double amount)) return null;
         // Core words the amount in the field's own unit at two decimals, so the Use label and the message agree (Ruling 116, finding 11).
-        return Quantity.WithUnit((typed < 0 ? "-" : "") + Quantity.Typed(amount), row.Unit ?? "");
+        return Quantity.WithUnit((typed < 0 ? Quantity.Minus.ToString() : "") + Quantity.Typed(amount), row.Unit ?? "");
     }
 
     private bool CommitWing(RowView view, TextBox box)
@@ -1459,7 +1459,7 @@ public partial class PropertiesPane : UserControl
     private void UseLimitValue(string key)
     {
         if (!useValues.TryGetValue(key, out string? value) || rows.GetValueOrDefault(key + "|" + RowKind.Input) is not { Input: { } box } view) return;
-        box.Text = value;
+        box.Text = Quantity.ForField(value);   // the label shows "−", the field takes the typeable "-"
         errors.Remove(key);
         useValues.Remove(key);
         Commit(view, box);

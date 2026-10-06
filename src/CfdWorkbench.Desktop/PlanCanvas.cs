@@ -195,8 +195,11 @@ public sealed class PlanCanvas : Control
             .HitTest(targets, position, Controller!.Selection);
     }
 
+    private Point? lastHover;
+
     public void HoverAt(Point position)
     {
+        lastHover = position;
         var plan = Controller?.Planform;
         if (plan is null) return;
         hoveredPoint = HitTestPoint(position);
@@ -459,8 +462,8 @@ public sealed class PlanCanvas : Control
             controller.Gesture is not (GestureState.Pressed or GestureState.Dragging) || controller.GestureOrigin is not { } origin) return;
         var (shownSpan, shownAft) = controller.GestureGroup is not null && controller.GestureApplied is { } applied
             ? (applied.SpanMeters, applied.Ordinate) : target;
-        ProbeText = $"Δ from root {(shownSpan - origin.SpanMeters) * 1000:+0.00;-0.00;0.00} mm" +
-            $" · Δ aft {(shownAft - origin.Ordinate) * 1000:+0.00;-0.00;0.00} mm · " + probeBase;
+        ProbeText = $"Δ from root {Quantity.Delta((shownSpan - origin.SpanMeters) * 1000)} mm" +
+            $" · Δ aft {Quantity.Delta((shownAft - origin.Ordinate) * 1000)} mm · " + probeBase;
     }
 
     /// <summary>
@@ -692,8 +695,13 @@ public sealed class PlanCanvas : Control
         if (Controller!.Gesture != GestureState.Dragging)
         {
             gesturePointer = null;
-            if (probeTarget is not null && Controller.Gesture == GestureState.Idle) ProbeText = probeBase;   // the gesture ended: the Δ readout does not outlive it
             probeTarget = null;
+            // The gesture ended (release, Escape) or the model changed: the Δ readout does not outlive it, and the hover readout
+            // is read again from the model as it is now, never the text saved before the drag.
+            if (Controller.Gesture == GestureState.Idle && ProbeText is not null)
+            {
+                if (lastHover is { } at) HoverAt(at); else ProbeText = null;
+            }
         }
         else ApplyGestureProbe();
         // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
@@ -855,10 +863,11 @@ public sealed class PlanCanvas : Control
         if (ProbeText is { } probe)
         {
             double left = Math.Max(8, Bounds.Width - 428);
-            context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, new Rect(left, 8, 420, 48));
             var pieces = probe.Split(" · ");
-            DrawLabel(context, string.Join(" · ", pieces.Take(3)), new Point(left + 8, 12));
-            DrawLabel(context, string.Join(" · ", pieces.Skip(3)), new Point(left + 8, 30));
+            // Rows of three pieces, so nothing is cut at the box edge (a drag's Δ pair leads and adds a row).
+            var rows = pieces.Chunk(3).Select(row => string.Join(" · ", row)).ToArray();
+            context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, new Rect(left, 8, 420, 12 + 18 * rows.Length));
+            for (int row = 0; row < rows.Length; row++) DrawLabel(context, rows[row], new Point(left + 8, 12 + 18 * row));
         }
         if (TooltipText is { } tooltip && hoveredPoint is { } hoveredTarget)
         {

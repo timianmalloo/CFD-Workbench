@@ -324,6 +324,19 @@ public static class GroupDragTests
         bitmap.Save(Path.Combine(dir, name + ".png"));
     }
 
+    /// <summary>The Plan readout has no Δ and its chord is the model's at the η it names (repair 1, cycle 2).</summary>
+    private static void PlanReadoutIsTheModels(Rig rig, string when)
+    {
+        string probe = rig.Canvas.ProbeText ?? "";
+        Require(!probe.Contains('Δ', StringComparison.Ordinal), $"{when}: the readout keeps a Δ: {probe}");
+        var eta = System.Text.RegularExpressions.Regex.Match(probe, @"η (\d\.\d+)");
+        var chord = System.Text.RegularExpressions.Regex.Match(probe, @"chord (\d+\.\d+) mm");
+        Require(eta.Success && chord.Success, $"{when}: no η and chord in '{probe}'");
+        double wanted = Planform.Probe(rig.Controller.Planform!, double.Parse(eta.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture)).ChordMeters * 1000;
+        Require(Math.Abs(wanted - double.Parse(chord.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture)) < 0.06,
+            $"{when}: the chord reads {chord.Groups[1].Value} mm, the model's is {wanted:F2} mm: {probe}");
+    }
+
     public static void RunReadiness()
     {
         // The mockup captures cost ~8 s, so they are registered only when asked for (GRP_CAPTURE_DIR), never in the ring.
@@ -487,9 +500,10 @@ public static class GroupDragTests
             TypeInto(rig, Aft(rig), "-200");
             Require(Msg(rig, "Message_p_aft").EndsWith("would take the tip chord below 5 mm. The most they can move that way is 115.00 mm.", StringComparison.Ordinal),
                 "refusal: " + Msg(rig, "Message_p_aft"));
+            Require(Msg(rig, "Message_p_aft").Contains("by −200.00 mm", StringComparison.Ordinal), "the refusal's amount has no U+2212: " + Msg(rig, "Message_p_aft"));
             Require(Aft(rig).Text == "-200" && c.AcceptedSource == before, "text rewritten or applied");
             use = PropertiesViewTests.Need<HyperlinkButton>(rig.Host.Properties, "UseLimit_p_aft");
-            Require(use.IsVisible && use.Content?.ToString() == "Use -115.00 mm", "Use: " + use.Content);
+            Require(use.IsVisible && use.Content?.ToString() == "Use −115.00 mm", "Use: " + use.Content);
             use.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             rig.Settle();
             Require(Math.Abs(At(c, "trailing", 6).Ordinate - 0.005) < 1e-6, "Use did not move the group by the most it can");
@@ -526,8 +540,8 @@ public static class GroupDragTests
             rig.Settle();
             TypeInto(rig, Aft(rig), "-200");
             string message = Msg(rig, "Message_p_aft");
-            Require(System.Text.RegularExpressions.Regex.IsMatch(message, @"^Point \d+ would leave its allowed range \(−57\.30 to 57\.30 °\)\.$"), "refusal: " + message);
-            Require(message == GroupCopy.Text("G13", ("n", System.Text.RegularExpressions.Regex.Match(message, @"\d+").Value), ("min", "−57.30"), ("max", "57.30"), ("unit", "°")), "not through GroupCopy: " + message);
+            Require(System.Text.RegularExpressions.Regex.IsMatch(message, @"^Point \d+ would leave its allowed range \(−57\.30° to 57\.30°\)\.$"), "refusal: " + message);   // Ruling 120: each bound carries its unit
+            Require(message == GroupCopy.Text("G13", ("n", System.Text.RegularExpressions.Regex.Match(message, @"\d+").Value), ("min", "−57.30°"), ("max", "57.30°")), "not through GroupCopy: " + message);
             var origin = rig.Side.ScreenPoint(free[0]);
             var pointer = rig.Press(rig.Side, origin);
             for (int step = 1; step <= 6; step++) rig.Move(rig.Side, pointer, origin + new Vector(0, -3 * step));
@@ -549,14 +563,22 @@ public static class GroupDragTests
             double dSpan = (now.SpanMeters - start.SpanMeters) * 1000, dAft = (now.Ordinate - start.Ordinate) * 1000;
             Require(dSpan > 5 && dAft > 1, $"fixture: the drag moved span {dSpan:F2} aft {dAft:F2}");
             string probe = rig.Canvas.ProbeText ?? "";
-            string wanted = $"Δ from root {dSpan.ToString("+0.00;-0.00;0.00", System.Globalization.CultureInfo.InvariantCulture)} mm" +
-                $" · Δ aft {dAft.ToString("+0.00;-0.00;0.00", System.Globalization.CultureInfo.InvariantCulture)} mm";
+            string wanted = $"Δ from root {Quantity.Delta(dSpan)} mm · Δ aft {Quantity.Delta(dAft)} mm";
             Require(probe.StartsWith(wanted, StringComparison.Ordinal), $"the Plan readout is '{probe}', wanted it to start '{wanted}'");
+            Require(probe.Contains("chord", StringComparison.Ordinal), "the readout lost its tail: " + probe);
             string hold = c.GroupHold ?? "";
-            Require(hold.Contains($"{dSpan.ToString("+0.00;-0.00;0.00", System.Globalization.CultureInfo.InvariantCulture)} mm from root", StringComparison.Ordinal),
-                "the inspector's applied move has no span term: " + hold);
+            Require(hold.Contains($"{Quantity.Delta(dSpan)} mm from root", StringComparison.Ordinal), "the inspector's applied move has no span term: " + hold);
             rig.Release(rig.Canvas, pointer, origin + new Vector(30, 12));
+            PlanReadoutIsTheModels(rig, "after release");
+            // A second gesture ended by Escape, then an undo: the readout never keeps the drag's Δ or a stale chord.
+            var again = rig.Press(rig.Canvas, origin);
+            for (int step = 1; step <= 6; step++) rig.Move(rig.Canvas, again, origin + new Vector(3 * step, 1.2 * step));
+            rig.Key(rig.Canvas, Avalonia.Input.Key.Escape);
+            rig.Pump();
+            PlanReadoutIsTheModels(rig, "after Escape");
             c.Undo();
+            rig.Settle();
+            PlanReadoutIsTheModels(rig, "after the undo");
         });
         Check("GroupDrag_Canvas_Trackpad_TwelveSmallMoves_GlyphUnderPointer_GroupRigid", rig =>
         {
@@ -656,7 +678,8 @@ public static class GroupDragTests
             var pointer = rig.Press(rig.Side, origin);
             for (int step = 1; step <= 30; step++) rig.Move(rig.Side, pointer, origin + new Vector(0, -step * 4));
             string probe = rig.Side.ProbeText ?? "";
-            Require(c.GestureBinding is { Kind: "Domain" }, "no domain binder: " + c.GestureBinding + " probe=" + probe + " ord=" + string.Join(",", free.Select(p => c.CurveFor("twist")!.Points.First(q => q.Id == p.Id).Ordinate)) + " lim=" + Channels.Unit("twist").DomainLower + ".." + Channels.Unit("twist").DomainUpper);
+            Require(c.StatusKind == ReportKind.Warning && c.Status == ElevationView.TwistClampReason, $"the strip shows '{c.Status}' as {c.StatusKind}, not the hold's warning");   // cycle 2, finding 3
+            Require(c.GestureBinding is { Kind: "Domain" },"no domain binder: " + c.GestureBinding + " probe=" + probe + " ord=" + string.Join(",", free.Select(p => c.CurveFor("twist")!.Points.First(q => q.Id == p.Id).Ordinate)) + " lim=" + Channels.Unit("twist").DomainLower + ".." + Channels.Unit("twist").DomainUpper);
             Require(probe.Contains(" · held by point ", StringComparison.Ordinal) && probe.Contains(ElevationView.TwistClampReason, StringComparison.Ordinal),
                 "the elevation readout does not name the domain hold: " + probe);
             rig.Release(rig.Side, pointer, origin + new Vector(0, -720));

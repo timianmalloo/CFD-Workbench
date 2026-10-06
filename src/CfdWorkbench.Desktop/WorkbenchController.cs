@@ -1922,7 +1922,7 @@ public sealed class WorkbenchController : IDisposable
     /// <summary>
     /// A group frame (design §3.3, §3.4): where the grabbed point is (applied), where the pointer asked (requested), the member
     /// that binds, and the one hold sentence: Core's tip or root limit, or "held by point n" (COPY-G6). A domain hold (twist, t/c)
-    /// has no sentence; the inspector and the clamp reason carry it.
+    /// says its channel's clamp reason on the strip, with the hold icon.
     /// </summary>
     private void RecordGroupFrame(GestureFrame frame, (double Span, double Aft) target)
     {
@@ -1934,7 +1934,9 @@ public sealed class WorkbenchController : IDisposable
             gestureClampReason = $"{binding.Kind}:{GroupCopy.Curve(binding.Point.Curve)} {PointNumber(binding.Point)}";
         string? text = frame.Limit is { } limit ? TipChord.HoldText(limit)
             : GestureBinding is { Kind: "Neighbour" } neighbour
-                ? GroupCopy.Text("G6", ("n", PointNumber(neighbour.Point).ToString(CultureInfo.InvariantCulture))) : null;
+                ? GroupCopy.Text("G6", ("n", PointNumber(neighbour.Point).ToString(CultureInfo.InvariantCulture)))
+            // A domain hold (twist, t/c) is a hold like the rest: the strip carries the channel's existing reason with the hold icon.
+            : GestureBinding is { Kind: "Domain" } ? (gesturePoint?.Curve == "twist" ? ElevationView.TwistClampReason : ElevationView.ThicknessClampReason) : null;
         AnnounceHold(text is null ? null : text + "|" + GestureBinding?.Point.VertexId, text);
         if (gestureOrigin is { } origin)
         {
@@ -2253,10 +2255,10 @@ public sealed class WorkbenchController : IDisposable
             try { result = session.ApplyGroupValue(Guid.NewGuid().ToString("D"), new GroupValueCommand(curve, ids, mode, axis, amount)); }
             catch (ContractError range) when (range.Code == "DSL-GROUP-RANGE")
             {
-                // Core reports the point and the range as data; the words are GroupCopy G13 (Ruling 119), one data change away.
+                // Core reports the point and the range as data; the words are GroupCopy G13 (Rulings 119, 120), one data change away.
                 var fields = range.Message.Split(';').Select(part => part.Split('=', 2)).ToDictionary(pair => pair[0], pair => pair[1]);
-                string Shown(string key) => Quantity.Typed(double.Parse(fields[key], CultureInfo.InvariantCulture));
-                throw new ContractError(range.Code, GroupCopy.Text("G13", ("n", fields["point"]), ("min", Shown("min")), ("max", Shown("max")), ("unit", fields["unit"])));
+                string Shown(string key) => Quantity.WithUnit(Quantity.Typed(double.Parse(fields[key], CultureInfo.InvariantCulture)), fields["unit"]);
+                throw new ContractError(range.Code, GroupCopy.Text("G13", ("n", fields["point"]), ("min", Shown("min")), ("max", Shown("max"))));
             }
             double scale = axis == GroupValueAxis.Span ? 1000 : PropertiesView.FieldScale[rows.ValueFamily];
             string unit = axis == GroupValueAxis.Span ? "mm" : rows.ValueUnit;

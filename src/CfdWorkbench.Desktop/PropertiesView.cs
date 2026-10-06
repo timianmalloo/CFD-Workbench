@@ -278,7 +278,7 @@ public static class GroupCopy
         ["G9"] = "Points can't share a position along the span. Move them by an amount instead.",
         ["G11"] = "Set <axis> of <n> points to <value>.",
         ["G12"] = "Moved <n> points by <value> in <axis>.",
-        ["G13"] = "Point <n> would leave its allowed range (<min> to <max> <unit>)."   // COPY-400, approved - Ruling 119
+        ["G13"] = "Point <n> would leave its allowed range (<min> to <max>)."   // COPY-400, approved - Ruling 120 (each bound carries its unit through Quantity.WithUnit)
     };
 
     /// <summary>The From root row's hint and tag, as the approved mockup draws them (group-move-node-m.html, option C); the row allows Move by only.</summary>

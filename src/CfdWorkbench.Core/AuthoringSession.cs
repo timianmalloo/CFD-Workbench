@@ -1170,7 +1170,7 @@ public sealed class AuthoringSession : IDisposable
                 var (shown, unitText) = span || command.Curve is "leading" or "trailing" or "dihedral" ? (amount * 1e3, " mm")
                     : command.Curve == "twist" ? (amount, "°") : (amount * 100, " %");
                 if (most) shown = Math.Truncate(shown * 100 + 1e-6) / 100;
-                return shown.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + unitText;
+                return shown.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture).Replace('-', '−') + unitText;   // U+2212, as every read-only number
             }
             if (span)
             {
