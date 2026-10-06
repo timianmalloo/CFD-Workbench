@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T02:20:12Z",
+  "generated": "2026-10-06T02:32:41Z",
   "audit": [
     {
       "actor": null,
@@ -26655,6 +26655,44 @@ window.AUDIT_DATA = {
         "branch": "feature/a3a-lay",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M47GWHSKQZ7S4M00PZTK8D21",
+      "shortname": "lay-repair-1",
+      "datetime": "2026-10-06T02:32:36Z",
+      "session": "trk-lay",
+      "prompt": "LAY repair 1",
+      "summary": "Seven review conditions repaired in separate commits; proof pack updated; full test ring and requested gates passed.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/a3a-lay/proof-pack.md",
+        "src/CfdWorkbench.Desktop/View3d.cs",
+        "src/CfdWorkbench.Desktop/Styles.axaml",
+        "src/CfdWorkbench.Desktop/Analysis/View3dLoadLayer.cs",
+        "src/CfdWorkbench.Desktop/ModelArea.axaml.cs"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete seven LAY review conditions on feature/a3a-lay",
+      "done_when": "Seven fixes in separate commits, one full test ring and all requested gates pass, proof and audit committed",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T02:22:57Z",
+      "duration_seconds": 579.0,
+      "git": {
+        "sha": "6e6339651b8aa6aa94a2623992383ce69a6fae6e",
+        "short": "6e6339651",
+        "branch": "feature/a3a-lay",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -28070,6 +28108,24 @@ window.AUDIT_DATA = {
       "to": "4e90c621",
       "kind": "ruling",
       "ref": "req-01M47AARDM8WMKT8JNX5QNK5SV",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M47EXAX6H9WEEJV4ADPK3P5G",
+      "ts": "2026-10-06T01:58:04Z",
+      "from": "trk-seam",
+      "to": "4e90c621",
+      "kind": "decision-request",
+      "ref": "req-01M47EXAX2R4PS5SZAE3QS88ZM",
+      "session": "trk-seam"
+    },
+    {
+      "id": "mail-01M47F2MN0Z1YJGETMCRRGAQPQ",
+      "ts": "2026-10-06T02:00:58Z",
+      "from": "fable-owner",
+      "to": "trk-seam",
+      "kind": "ruling",
+      "ref": "req-01M47EXAX2R4PS5SZAE3QS88ZM",
       "session": "fable-owner"
     }
   ]

@@ -81,3 +81,20 @@ Core parts 230/230/229 PASS; Analysis parts 67/89 PASS; Cli 6 PASS. Its LAY reco
 reported 31 events, 4 allowed, zero findings. `check-docs.py` passed; `run-verify-gates.py` passed 12/12 gates.
 `design-lint.py DESIGN.md` found zero warnings; `ui-craft-gate.py src/CfdWorkbench.Desktop --gate
 --a11y-obligation` reported no findings. The latter's no-findings result is a detector floor, not visual approval.
+
+## Repair cycle 1 evidence (2026-10-05)
+
+| Condition | Evidence |
+|---|---|
+| View3d hook | `git diff main --numstat -- src/CfdWorkbench.Desktop/View3d.cs` reports 15 additions, 5 deletions; the cache, fields and layer-name suffix are in `Analysis/View3d.LoadLayer.cs`. |
+| Batlow resources | `Styles.axaml` holds five brush resources backed by the `DESIGN.md` batlow-0…4 colours; `PlanLoadLayer` reads those resources. `PlanLayer_BatlowBrushes_MatchDesignTokens` passed in the Desktop ring; XAML token lint reported no findings. |
+| 3D anchor | `View3dLoadLayer.Anchor` interpolates quarter chord and elevation between placed sections at the strip Y, with root/tip clamping. `View3dLayer_AnchorInterpolatesBetweenSections` passed. |
+| Projection comments | `AnalysisProjection` states `Margin = HRef − Elevation` and `z = Elevation + Margin = HRef`; Plan and elevation layer handlers explain the `AnalysisView` read that refreshes `LayerSet`. |
+| Event lifetime | `ModelArea` subscribes while attached and removes `LayersChanged` on detach. `ModelArea_LayersChanged_UnsubscribesOnWindowClose` counted one handler while shown and zero after close. The event subscriber gate reported 31 events, 4 allowed, zero findings. |
+| Shared text and cached scene | The three load layers call one `LoadLayerText.Text`; `View3d` keeps a scene by `LayerSet` reference. The real-window camera redraw test asserts scene object identity after 32 camera steps. |
+| Historical residual | The accepted anchor/selected-run mismatch and later geometry replay option are recorded in the preceding residual paragraph. |
+
+The one repair full ring, `tools/run-tests.sh`, completed in 51 s within its 60 s budget: Desktop 701 PASS;
+Core 230/230/229 PASS; Analysis 67/89 PASS; CLI 6 PASS; zero failures. `check-docs.py` passed,
+`run-verify-gates.py` passed 12/12 gates, `check-event-subscribers.py` reported zero findings,
+and `xaml-token-lint.py` was clean. The Desktop build passed with two existing AVLN3001 resource-loader warnings.
