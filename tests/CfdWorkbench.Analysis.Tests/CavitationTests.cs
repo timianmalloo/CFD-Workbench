@@ -113,8 +113,8 @@ internal static class CavitationTests
         CavitationResult invalidWater = Cavitation.Screen(-2, 100, 0.4, 5, 1000, 101325, double.NaN, "η 0");
         AnalysisChecks.Equal(CavitationState.Unavailable, piercing.State, "surface piercing state");
         AnalysisChecks.Equal(CavitationState.Unavailable, invalidWater.State, "invalid water state");
-        AnalysisChecks.Equal("Unavailable — local station is surface piercing", piercing.Reason, "surface reason");
-        AnalysisChecks.Equal("Unavailable — water is invalid", invalidWater.Reason, "water reason");
+        AnalysisChecks.Equal("ANA-CAV-SURFACE-PIERCING", piercing.Reason, "surface reason code");
+        AnalysisChecks.Equal("ANA-CAV-WATER-INVALID", invalidWater.Reason, "water reason code");
     }
 
     private static void Near(double expected, double? actual, string what)
