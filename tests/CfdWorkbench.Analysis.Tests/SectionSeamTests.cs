@@ -130,6 +130,14 @@ internal static class SectionSeamTests
         foreach (string label in new[] { "Ncrit 2", "Ncrit 4", "CST residual", "analysis_confidence" })
             AnalysisChecks.Equal("XFOIL-class surrogate; accuracy relative to XFOIL, not experiment",
                 rows.Single(row => row.Label == label).Note, label + " COPY-66");
+        foreach (ResultRow row in rows.Where(row => row.Value.Any(char.IsDigit)))
+            if (string.IsNullOrWhiteSpace(row.Note) ||
+                !row.Note.Contains(PanelMethod.ModelLabel, StringComparison.Ordinal) &&
+                !row.Note.Contains("ITTC-1957", StringComparison.Ordinal) &&
+                !row.Note.Contains("XFOIL-class surrogate", StringComparison.Ordinal))
+                throw new InvalidOperationException("numeric section/polar row lacks its tier label: " + row.Label);
+        if (vcrit.Note?.Contains(PanelMethod.ModelLabel, StringComparison.Ordinal) != true)
+            throw new InvalidOperationException("panel-derived V_crit lacks its tier label");
     }
 
     private static void Piercing()

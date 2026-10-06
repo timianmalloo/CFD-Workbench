@@ -96,7 +96,8 @@ public static class AnalysisProjection
                 ? Num(units == Units.Imperial ? vcrit * 1.9438444924406 : vcrit, "0.###")
                 : depth ? Labels.NoVcrit : "Unavailable — depth not set",
                 section?.Cavitation.CriticalSpeed is null ? null : units == Units.Imperial ? "kn" : "m/s",
-                section?.GoverningProvisional == true ? StripLoad.PanelUnderreadReason : null)
+                section?.Cavitation.CriticalSpeed is null ? null : PanelMethod.ModelLabel +
+                    (section.GoverningProvisional ? " · " + StripLoad.PanelUnderreadReason : ""))
         ]));
         var basis = new List<ResultRow>
         {
@@ -196,7 +197,7 @@ public static class AnalysisProjection
             Row("η", Num(station.Eta, "0.###"), note: PanelMethod.ModelLabel),
             Row("Cavitation", section.Cavitation.Reason == Cavitation.DepthNotSet ? "Unavailable — depth not set" :
                 section.Cavitation.Reason ?? section.Cavitation.State.ToString(),
-                note: section.Cavitation.ScreenText + " · " + stationLabel + provisional)
+                note: PanelMethod.ModelLabel + " · " + section.Cavitation.ScreenText + " · " + stationLabel + provisional)
         };
         if (section.PolarNcrit2 is not null || section.PolarNcrit4 is not null ||
             section.PolarReason2 is not null || section.PolarReason4 is not null)
@@ -272,7 +273,8 @@ public static class AnalysisProjection
                 Row("Polar Re range", s.ProvisionalReason == StripLoad.TipProvisionalReason ? Labels.TipNotJudged :
                     s.CdNcrit2.UnavailableReason ?? (s.CdNcrit2.Value.HasValue
                         ? Num(NeuralFoilPolarSource.ReynoldsMin, "0.###E+0") + "–" +
-                            Num(NeuralFoilPolarSource.ReynoldsMax, "0.###E+0") : Labels.NoPolar)),
+                            Num(NeuralFoilPolarSource.ReynoldsMax, "0.###E+0") : Labels.NoPolar),
+                    note: s.CdNcrit2.Value.HasValue ? SurrogateLabel : null),
                 Row("cd (profile)", s.CdNcrit2.Value.HasValue ? Num(s.CdNcrit2.Value.Value, "0.#####") : s.CdNcrit2.UnavailableReason ?? Labels.NoPolar,
                     note: s.CdNcrit2.Value.HasValue ? SurrogateLabel + (s.CdNcrit2.FlagCode is { } code ? " · " + code : "") : null),
                 Row("Not modelled", Labels.NotModelled(run.Op.HRef.HasValue))
