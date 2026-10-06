@@ -33,9 +33,13 @@ The first-run figure was added to the MEASURE line by this track.
 | After (200 everywhere, governing station re-solved at 400 as the full estimate) | Release | quiet | 3 | 432.0, 440.9, 487.6 | 523.5, 534.3, 528.6 | 200 + 1 × 400 estimate |
 | After | Release | 8 parallel copies on 16 CPUs | 8 | 436.5–495.7 | 512–539 | same |
 | After | Release | 32 parallel copies on 16 CPUs (2× oversubscribed) | 32 | 989–1,108 (min, median, max of the sort) | 1,442–1,530 | same |
+| **Cycle 1** (Ruling 110: governing plus up to 3 near-tie stations at 400) | Release | quiet | 3 | 509.8, 493.3, 537.1 | 593.8, 583.7, 578.6 | 200 + up to 4 × 400 estimate; on this uniform fixture all 4 tie, the worst case |
 | After | Debug | quiet | 3 | 1,973–2,001 | 1,992–1,996 | same |
 
-Result: the governing 400-panel estimate costs nothing measurable. The old code already did one 400-panel solve at the
+Cycle 1 (Ruling 110) adds up to three more 400-panel estimates: warm 493-537 ms, about +60 ms, as the ruling predicted
+(+64 ms), still under 1 s on a quiet Release machine. The cycle-0 reading below is kept for the reconciliation.
+
+Result (cycle 0): the governing 400-panel estimate costs nothing measurable. The old code already did one 400-panel solve at the
 governing station (to measure the delta); the new code runs the full estimate there (for a cambered foil, a few more
 right-hand sides from one factorization), and the difference is inside run-to-run noise (about ±30 ms). Quiet Release
 warm stays under the 1 s budget at 432–488 ms. The readiness check prints the figure but does not assert 1 s.

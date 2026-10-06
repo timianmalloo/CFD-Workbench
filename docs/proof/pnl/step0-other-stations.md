@@ -90,7 +90,12 @@ Assumptions (marked, per the standing rule): `assume: first-order scaling holds 
 the 200-vs-400 solve on a 6 % foil at α 3–6°; breaks: the ~4 % estimate, so the 10 % gate could fire more than
 predicted).`
 
-## Decision requested
+## Outcome
+
+Ruled as Ruling 110: D + B(k=4), built in repair cycle 1 (see `red-first.md`). The thickness data this note lacked is in
+`underread-measurements.md`.
+
+## Decision requested (answered by Ruling 110)
 
 1. Pick A, B (with cap k), C, or D (recommended), or D+B(k=4).
 2. If D: authorise the DX track to call the new overload (PNL adds it; the call site and the row are DX's).
