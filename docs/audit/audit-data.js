@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T03:52:41Z",
+  "generated": "2026-10-06T04:03:14Z",
   "audit": [
     {
       "actor": null,
@@ -27032,12 +27032,67 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M47NF6CR51RVXP6KDYQ74E08",
-      "shortname": "join-pol",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-06T03:52:41Z",
+      "done_when": "join gates green",
+      "duration_seconds": 54.0,
+      "fan_out": 0,
+      "goal": "join pol into main (round-oct05)",
+      "id": "al-01M47NF6CR51RVXP6KDYQ74E08",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "4e90c621",
+      "shortname": "join-pol",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-06T03:51:47Z",
+      "summary": "POL joined: six of seven AUX polish items fixed; Properties scroll partial (Basis/Not modelled need one scroll at 1500x870); 6 new Desktop tests; mutants red; no new copy recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-06T04:01:02Z",
+      "done_when": "Each class recorded with a control or a stated reason; gates green",
+      "duration_seconds": 915.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "chore/round-oct05-lessons",
+        "pushed": null,
+        "sha": "95b26ad1ede305482837427d29c0f1d70682854a",
+        "short": "95b26ad1e"
+      },
+      "goal": "Turn round-oct05 findings into defect classes with controls",
+      "id": "al-01M47NYFB5114DMDQVDPWBXW4E",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "CI round-oct05 lessons",
+      "session": "trk-ci",
+      "shortname": "ci-round-oct05-lessons",
+      "skill": "implement",
+      "started_at": "2026-10-06T03:45:47Z",
+      "summary": "Defect classes DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, AGENT-HEREDOC, SECTION-EDITOR-LOAD-FLAKE added; OWNERSHIP-MISSES-DATA-SOURCE extended. Controls: tools/check-artifact-bindings.py and tools/check-foildsl-spec-sync.py (in check-docs, self-tests red then green), tools/trace-brief.py aid, Section Editor drag release in finally (cascade 5 to 0 under a planted failure), heredoc hook proposed only. Area3 design 5.1 under-read definition. recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M47P2G8ZQHG2H888Z00A4Q9N",
+      "shortname": "join-ci",
+      "datetime": "2026-10-06T04:03:14Z",
       "session": "4e90c621",
       "prompt": "the join of the resolved merge into main",
-      "summary": "POL joined: six of seven AUX polish items fixed; Properties scroll partial (Basis/Not modelled need one scroll at 1500x870); 6 new Desktop tests; mutants red; no new copy recount_seconds=0 (docs_only=False).",
+      "summary": "CI joined: DERIVED-UNBOUND and BRIEF-FIXTURE-AGAINST-SPEC gated in check-docs; trace-brief.py aid for OWNERSHIP-MISSES-DATA-SOURCE; SECTION-EDITOR-LOAD-FLAKE cascade isolated; AGENT-HEREDOC hook proposed only (operator decision); design 5.1 margin wording recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -27046,7 +27101,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join pol into main (round-oct05)",
+      "goal": "join ci into main (round-oct05)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -27055,7 +27110,7 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-06T03:51:47Z",
+      "started_at": "2026-10-06T04:02:20Z",
       "duration_seconds": 54.0
     }
   ],
