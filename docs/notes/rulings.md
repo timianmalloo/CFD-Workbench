@@ -1059,3 +1059,21 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. The exi
 Ruled by the Fable owner under the operator's delegation (2026-10-06). Option D + B(k=4). (1) After the 200 pass, re-solve at 400 every station whose 200-panel ratio sigma/(-Cp_min) is within 2x the measured governing under-read of the best ratio, at most 4 stations (ties by ratio ascending), plus, on demand, the station the Section tab shows (DR-DXM-9) via a new SectionTier.UnderreadAt(source, eta, alphaEff, Re) overload; every 400 solve uses that station's own alpha_eff and Re. (2) The governing station is re-selected among the 400-solved candidates by 400 ratio; SelectWing never compares a 400 value against 200 values (SectionTier.cs:125-126). (3) The on-demand solve never changes the screen; it feeds only the provisional row (COPY-312) when its measured under-read is above 10 %. (4) A station not solved at 400 carries the state not measured - never blank, never OK, never COPY-312; its display text is operator copy. (5) Budget: +64 ms worst case over the 432-488 ms warm Release figure; Section_CamberedWing129_WarmTime stays under 1 s and analysis.run records the candidate count. (6) Verified only after two runs: test 3 (planted thin non-governing section above 10 %, row shows COPY-312, governing re-selected) and a 6 %-thick 200-vs-400 run at alpha 3-6 deg confirming the first-order assumption (about 3.5-3.9 %); a larger delta reopens the 2x width.
 
 - request: req-01M491GG58YFG4TZ4XSJRSWFKM · ruled by: fable-owner · at: 2026-10-06T16:42:21Z
+
+### Ruling 111 — Group move: root seeded, all views, Move by clears, double-click to the group row (marine-CAD findings 5, 6, 9, 10)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). (5) A selection holding point 1 but not the root seeds the root into the group, like a handle riding with its anchor; the root span lock then holds the group span delta (DR-GM-5). (6) Group moves ship in the Plan view and the elevations in this slice; COPY-G1, G2, G4 and G11 become tokenised (axis, curve, unit per channel), wording drafted by track GRP as proposed and approved by the operator before the Desktop half. (9) After a commit the Move by field clears to 0 and the row re-reads its shared or Mixed value; the Set to / Move by mode resets to the row default when the selection changes and stays while it is kept. (10) A double-click or Return on a group member sends focus to the group value row; the group stays selected. Finding 11 (small copy gaps) goes with the token wording.
+
+- request: req-01M491NNHRBHCKM7MMA1BN6X65 · ruled by: operator-timianmalloo · at: 2026-10-06T16:45:11Z
+
+### Ruling 112 — 1280x800 layout: option C+D, the window size; built inside track CPY
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Option C+D. D: the conditions band More button no longer stretches the band (52 to 41 px). C: the bottom panel starts at 150 px instead of 190 below a client-height threshold of about 820 px. 1280x800 means the app window, not the screen. MinimumFourViewSize stays 320x240; the 1500x870 layout is unchanged. Built by track CPY, which owns both files (a boundary correction by the Coordinator: the separate LAY step b is struck).
+
+- request: req-01M491NNYNBRNTTV9N2HYNNPJ5 · ruled by: operator-timianmalloo · at: 2026-10-06T16:45:11Z
+
+### Ruling 113 — Not-measured under-read text approved (Ruling 110 state)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). Draft A approved: "Cp_min under-read not measured at this station (200 panels only)". It shows in the Section tab for any station not solved at 400; it parallels COPY-312.
+
+- request: req-01M491NPB5CHTRV0GZAG42TYMJ · ruled by: operator-timianmalloo · at: 2026-10-06T16:45:11Z
