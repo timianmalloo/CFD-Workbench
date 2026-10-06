@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T22:10:13Z",
+  "generated": "2026-10-06T22:11:37Z",
   "audit": [
     {
       "actor": null,
@@ -27994,6 +27994,33 @@ window.AUDIT_DATA = {
       "done_when": "PASS union diff empty; 3 ring runs net <= ~47.5 s; readiness green under 240 s",
       "started_at": "2026-10-06T21:50:28Z",
       "duration_seconds": 1184.0
+    },
+    {
+      "id": "al-01M49MBDB3JZ7XAZ7PEDBTKW4M",
+      "shortname": "join-spl",
+      "datetime": "2026-10-06T22:11:37Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of perf/desktop-split into main",
+      "summary": "profile: ring CPU-bound (540 CPU-s on 16 cores), a Desktop split measured slower (53.9 s), not shipped; 11 checks moved to readiness (8 Desktop, 3 Core), PASS union identical (1754), fast ring 47.2-47.6 s net, Core 3/3 45 -> 29 s, readiness 173.7 s of 240; also carries the CI lessons merge recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join perf/desktop-split into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T22:10:43Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [
