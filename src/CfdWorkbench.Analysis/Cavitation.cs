@@ -17,6 +17,13 @@ public sealed record CavitationResult(CavitationState State, string ScreenText, 
 public static class Cavitation
 {
     public const double DefaultMarginFraction = 0.15;
+    public const string PvMissing = "ANA-CAV-PV-MISSING";
+    public const string DepthNotSet = "ANA-CAV-DEPTH-NOT-SET";
+    public const string WaterInvalid = "ANA-CAV-WATER-INVALID";
+    public const string DepthInvalid = "ANA-CAV-DEPTH-INVALID";
+    public const string SurfacePiercing = "ANA-CAV-SURFACE-PIERCING";
+    public const string NoSuction = "ANA-CAV-NO-SUCTION";
+    public const string PressureNonpositive = "ANA-CAV-PRESSURE-NONPOSITIVE";
     private const string ScreenPrefix = "Cavitation screening (sheet, by −Cp_min): inception is possible above V_crit; " +
         "not a prediction of inception, extent, tip-vortex or cloud cavitation; Cp_min resolution: ";
     private const string MarginProvenance = "practitioner assumption, not sourced";
@@ -33,24 +40,24 @@ public static class Cavitation
             "% margin — " + MarginProvenance;
         if (pv is null || depth is null)
             return new(CavitationState.Unavailable, copy, margin, marginFraction, null, null, cpMin, stationCount,
-                station, depth, pv is null ? "Unavailable — vapour pressure missing" : "Unavailable — depth not set");
+                station, depth, pv is null ? PvMissing : DepthNotSet);
         if (!double.IsFinite(pv.Value) || pv < 0)
             return new(CavitationState.Unavailable, copy, margin, marginFraction, null, null, cpMin, stationCount,
-                station, depth, "Unavailable — water is invalid");
+                station, depth, WaterInvalid);
         if (!double.IsFinite(depth.Value))
             return new(CavitationState.Unavailable, copy, margin, marginFraction, null, null, cpMin, stationCount,
-                station, depth, "Unavailable — local depth is invalid");
+                station, depth, DepthInvalid);
         if (depth <= 0)
             return new(CavitationState.Unavailable, copy, margin, marginFraction, null, null, cpMin, stationCount,
-                station, depth, "Unavailable — local station is surface piercing");
+                station, depth, SurfacePiercing);
         double suction = -cpMin;
         if (suction <= 0)
             return new(CavitationState.Undefined, copy, margin, marginFraction, null, null, cpMin, stationCount,
-                station, depth, "Undefined — −Cp_min ≤ 0");
+                station, depth, NoSuction);
         double numerator = pAtm + rho * OperatingPoints.Gravity * depth.Value - pv.Value;
         if (!(numerator > 0))
             return new(CavitationState.Undefined, copy, margin, marginFraction, null, null, cpMin, stationCount,
-                station, depth, "Undefined — pressure above vapour pressure ≤ 0");
+                station, depth, PressureNonpositive);
         double sigma = numerator / (0.5 * rho * speed * speed);
         double criticalSpeed = Math.Sqrt(2 * numerator / (rho * suction));
         CavitationState state = sigma <= suction ? CavitationState.PossibleAboveCritical :
@@ -67,8 +74,7 @@ public static class Cavitation
         ArgumentNullException.ThrowIfNull(op);
         ArgumentNullException.ThrowIfNull(datum);
         if (stations.Count == 0) throw new ContractError("ANA-CAV-INPUT", "A wing screen needs a station.");
-        CavitationResult? governing = null, unavailable = null, undefined = null;
-        double minimumRatio = double.PositiveInfinity;
+        var screens = new List<CavitationResult>(stations.Count);
         double alpha = VortexLattice.ToRadians(op.AlphaDeg);
         foreach (CavitationStation candidate in stations)
         {
@@ -86,11 +92,19 @@ public static class Cavitation
             string name = "η " + candidate.Section.Frame.Eta.ToString("0.###", CultureInfo.InvariantCulture);
             CavitationResult screen = Screen(panel.CpMin, panel.StationCount, depth, op.Speed, rho, op.PAtm, pv,
                 name, marginFraction);
-            if (screen.State == CavitationState.Unavailable) { unavailable ??= screen; continue; }
-            if (screen.State == CavitationState.Undefined) { undefined ??= screen; continue; }
-            double ratio = screen.Sigma!.Value / -panel.CpMin;
-            if (governing is null || ratio < minimumRatio) { governing = screen; minimumRatio = ratio; }
+            screens.Add(screen);
         }
-        return unavailable ?? governing ?? undefined!;
+        return SelectWing(screens);
+    }
+
+    /// <summary>Ruling 86 reduction: the smallest local sigma/(-Cp_min) governs; a missing input stays Unavailable.</summary>
+    public static CavitationResult SelectWing(IReadOnlyList<CavitationResult> screens)
+    {
+        if (screens.Count == 0) throw new ContractError("ANA-CAV-INPUT", "A wing screen needs a station.");
+        CavitationResult? unavailable = screens.FirstOrDefault(screen => screen.State == CavitationState.Unavailable);
+        if (unavailable is not null) return unavailable;
+        CavitationResult? governing = screens.Where(screen => screen.Sigma.HasValue && screen.CpMin is < 0)
+            .MinBy(screen => screen.Sigma!.Value / -screen.CpMin!.Value);
+        return governing ?? screens.First(screen => screen.State == CavitationState.Undefined);
     }
 }
