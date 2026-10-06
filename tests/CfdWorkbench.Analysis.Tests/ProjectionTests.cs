@@ -236,16 +236,26 @@ internal static class ProjectionTests
             Equal(arc.Value, arc.Vector.Value.X);
         });
         Check("Layers_Vectors_BodyFrameSignConventionLabelled", () => {
-            var v = View(); Equal(true, v.Layers.Single(l => l.Id == "strip-lift").Legend.Contains("+x aft, +y starboard, +z up"));
+            // The legend names the body axes at either sign of alpha, and the lift vector follows the sign of the force along +z
+            // (a mutant taking the direction from |L| flips the negative-alpha vector and is red here).
+            foreach (double alpha in new[] { 3.0, -3.0 })
+            {
+                double sign = Math.Sign(alpha);
+                var run = Data(s => s with { Fz = sign * 10 }, alpha).Run;
+                var lift = View(run).Layers.Single(l => l.Id == "strip-lift");
+                Equal(true, lift.Legend.Contains("+x aft, +y starboard, +z up"));
+                Equal(true, lift.Samples.All(s => s.Vector is { } v && Math.Sign(v.Z) == sign && Math.Sign(s.Value!.Value) == sign));
+                Equal(true, lift.Samples.All(s => s.Value == s.Vector!.Value.Z));   // the signed value is the vector's z, never |L|
+            }
         });
     }
 
-    internal static (AnalysisRun Run, CurrentInputs Current) Data(Func<StripLoad, StripLoad>? change = null)
+    internal static (AnalysisRun Run, CurrentInputs Current) Data(Func<StripLoad, StripLoad>? change = null, double alpha = 3)
     {
         var settings = new RunSettings(2, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, [2, 4], "clean", 0.3);
         var inputs = new RunInputs("accepted", new string('a', 64), [new string('b', 64)], "cfdw-cv/2", "placement/1");
         var water = new WaterRecord(15, 35.16504, 1000, 1e-6, 1700, "ITTC", new string('c', 64));
-        var op = OperatingPoints.Custom(5, 3, 0.5);
+        var op = OperatingPoints.Custom(5, alpha, 0.5);
         var method = MethodRecord.VlmStrip.Method;
         string settingsHash = RunRecord.SettingsHash(settings);
         string key = RunRecord.Key(inputs, water, op, method, settingsHash);

@@ -98,6 +98,26 @@ public static class AnalysisToggleTests
                 "the layer base remains accepted while a point draft is hidden");
             if (controller.Draft is null) throw new Exception("The layer base discarded the draft.");
         });
+        // POL, Ring D, est. 0.2 s: a mutant deleting the banner line in ModelArea.RefreshViews stays green without this.
+        DesktopChecks.Check("Toggle_PreviewOpen_PreviewHiddenBannerShownInAnalysisOnly", () =>
+        {
+            using var controller = Open();
+            var area = new ModelArea();
+            area.PlanCanvas.Controller = controller;
+            area.ShowFoilOpen(true);
+            var banner = Need<Border>(area, "PreviewHiddenBanner");
+            Equal(false, banner.IsVisible, "no draft, CAD");
+            OpenPointDraft(controller);
+            area.ShowFoilOpen(true);
+            Equal(false, banner.IsVisible, "a draft open in CAD is shown, not hidden");
+            Toggle(controller);
+            area.ShowFoilOpen(true);
+            Equal(true, banner.IsVisible, "the draft is hidden in Analysis");
+            Equal("Preview hidden — Apply or Cancel in CAD", (banner.Child as TextBlock)?.Text, "banner copy");
+            Toggle(controller);
+            area.ShowFoilOpen(true);
+            Equal(false, banner.IsVisible, "gone on return to CAD");
+        });
         DesktopChecks.Check("Toggle_SectionDraftOpen_EditorRestoredOnReturn", () =>
         {
             using var controller = Open();
