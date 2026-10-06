@@ -149,3 +149,7 @@ so C-3 stays under 50 s only if the Analysis harness build is not slowed by the 
 - Row 49 and 50 mockup is superseded by Ruling 109; the Section-tab drag cell needs the operator's eyes in the capture (section 2, item 2).
 - `WorkbenchController.cs` is needed only for a Find α apply method; GRP edits the same file in other regions.
 - `Analysis/ConditionsBand.axaml` is on DX's list; confirm CPY's 41 px band height stays when the button is added.
+
+## Repair cycle 1 (trk-dx2): changes to the plan
+
+Moved fast to readiness (C-2: Analysis part cost over 5 s; the four costliest DX checks by their COST lines): `SectionProjection_CpPlot_SeriesAndMarker`, `Cavitation_GoverningStation_NamedWithDepth`, `Cavitation_Provisional_AboveTenPercent`, `Section_UnderreadNotMeasured_ShowsRatifiedText`. Added: `Polar_NonNaca0012InsideTrainingRange_ComputedAndFlagged_Ruling117` (R), `Section_CpUnavailable_PanelSolveFailed_ShowsCopy358InApp` (R, Desktop), `Labels_Ruling118_ApprovedTextsAndDesignRows` (F). PASS lines for every name: `docs/proof/dx/pass-names.txt`.
