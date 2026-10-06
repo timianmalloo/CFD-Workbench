@@ -114,8 +114,16 @@ internal static class SectionSeamTests
             !rows.Any(row => row.Label == "Cp_min" && row.Value != Labels.SectionCp))
             throw new InvalidOperationException("section projection still shows the A3a stub");
         foreach (string label in new[] { "Cl", "Cm_c/4", "α_L0", "Cp_min" })
-            AnalysisChecks.Equal(PanelMethod.ModelLabel, rows.Single(row => row.Label == label).Note,
-                label + " panel tier label");
+            if (rows.Single(row => row.Label == label).Note?.Contains(PanelMethod.ModelLabel, StringComparison.Ordinal) != true)
+                throw new InvalidOperationException(label + " lost panel tier label");
+        foreach (string label in new[] { "Cp_min", "Cavitation" })
+            if (rows.Single(row => row.Label == label).Note?.Contains("ANA-PANEL-UNDERREAD", StringComparison.Ordinal) != true ||
+                rows.Single(row => row.Label == label).Note?.Contains("η 0.5", StringComparison.Ordinal) != true)
+                throw new InvalidOperationException(label + " lost governing-station provisional flag");
+        ResultRow vcrit = view.Groups.Single(group => group.Title == "Conditions").Rows.Single(row => row.Label == "V_crit");
+        if (vcrit.Value.StartsWith("Unavailable", StringComparison.Ordinal) ||
+            vcrit.Note?.Contains("ANA-PANEL-UNDERREAD", StringComparison.Ordinal) != true)
+            throw new InvalidOperationException("governing V_crit was not marked provisional");
         if (rows.Any(row => row.Label == "Cd") ||
             rows.Single(row => row.Label == "ANA-SECTION-ITTC1957-BOUND").Note is null)
             throw new InvalidOperationException("the turbulent estimator bound is labelled as polar Cd");

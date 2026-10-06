@@ -89,7 +89,11 @@ public static class AnalysisProjection
             Row("q", Derived(derived.Q, "0.##"), "Pa"), Row("Re_ref", Derived(derived.ReRef, "0.###E+0")),
             Row("h/c", Derived(derived.DepthOverChord, "0.00")), Row("Fr_h", Derived(derived.FroudeDepth, "0.00")),
             Row("σ", Derived(derived.Sigma, "0.00")),
-            Row("V_crit", depth ? Labels.NoVcrit : "Unavailable — depth not set")
+            Row("V_crit", section?.Cavitation.CriticalSpeed is { } vcrit
+                ? Num(units == Units.Imperial ? vcrit * 1.9438444924406 : vcrit, "0.###")
+                : depth ? Labels.NoVcrit : "Unavailable — depth not set",
+                section?.Cavitation.CriticalSpeed is null ? null : units == Units.Imperial ? "kn" : "m/s",
+                section?.GoverningProvisional == true ? StripLoad.PanelUnderreadReason : null)
         ]));
         var basis = new List<ResultRow>
         {
@@ -169,6 +173,8 @@ public static class AnalysisProjection
     {
         if (section is null) return [Row("Cl, Cd, Cm, x_tr", Labels.NoPolar), Row("Cp_min", Labels.SectionCp)];
         SectionStationResult station = section.Stations.MinBy(item => Math.Abs(item.Eta - section.GoverningEta))!;
+        string stationLabel = "η " + Num(station.Eta, "0.###");
+        string provisional = section.GoverningProvisional ? " · " + StripLoad.PanelUnderreadReason : "";
         if (station.EstimatorAvailabilityCode is { } unavailable)
             return [Row("Cl", unavailable), Row("Cm_c/4", unavailable), Row("α_L0", unavailable),
                 Row("Cd", unavailable), Row("Cp_min", unavailable), Row("Cavitation", unavailable)];
@@ -179,11 +185,13 @@ public static class AnalysisProjection
             Row("α_L0", Num(station.Estimate.AlphaL0Deg, "0.###"), "°", PanelMethod.ModelLabel),
             Row("ANA-SECTION-ITTC1957-BOUND", Num(station.Estimate.CdTurbulentBound, "0.#####"),
                 note: "ITTC-1957 fully turbulent bound; no lift-dependent profile drag"),
-            Row("Cp_min", Num(station.Estimate.Panel.CpMin, "0.###"), note: PanelMethod.ModelLabel),
+            Row("Cp_min", Num(station.Estimate.Panel.CpMin, "0.###"),
+                note: PanelMethod.ModelLabel + " · " + stationLabel + provisional),
             Row("N", station.Estimate.Panel.StationCount.ToString(Inv), note: PanelMethod.ModelLabel),
             Row("η", Num(station.Eta, "0.###"), note: PanelMethod.ModelLabel),
             Row("Cavitation", section.Cavitation.Reason == Cavitation.DepthNotSet ? "Unavailable — depth not set" :
-                section.Cavitation.Reason ?? section.Cavitation.State.ToString(), note: section.Cavitation.ScreenText)
+                section.Cavitation.Reason ?? section.Cavitation.State.ToString(),
+                note: section.Cavitation.ScreenText + " · " + stationLabel + provisional)
         };
         if (section.PolarNcrit2 is not null || section.PolarNcrit4 is not null ||
             section.PolarReason2 is not null || section.PolarReason4 is not null)
