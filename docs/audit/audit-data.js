@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T04:03:14Z",
+  "generated": "2026-10-06T04:09:12Z",
   "audit": [
     {
       "actor": null,
@@ -27112,6 +27112,207 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T04:02:20Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M47PDE5Y25VKBVJGNX36FTY0",
+      "shortname": "coordinate-round-oct05",
+      "datetime": "2026-10-06T04:09:12Z",
+      "session": "4e90c621",
+      "prompt": "run the prompt now (kickoff ~/projects/CFD-Workbench-kickoff-2026-10-05.md rev 2); later: i am going offline for the night - keep going",
+      "summary": "round-oct05 closed: 28 track sessions, 47 joins, main 1914a58a+ readiness green and pushed; requests 32 raised / 30 resolved / 2 expired; Rulings 78-100; most tracks at 0.1-0.5 of box; B2 pooled 4 tasks (1.65); D2 under-recorded; harness substitutions Agy->Sonnet (C), Codex->Sonnet (D1, A3c-1); classes DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, AGENT-HEREDOC, SECTION-EDITOR-LOAD-FLAKE, JOIN-CHECK-BEFORE-REGEN",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/coordination/round-oct05.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "run the round-oct05 coordination plan to joined, readiness-green main",
+      "done_when": "every track returned or stopped, every join through conductor-join, readiness green and pushed, planned vs actual recorded",
+      "tier": "T2",
+      "fan_out": 3,
+      "duration_source": "session-start-hook",
+      "started_at": "2026-10-06T03:50:32Z",
+      "duration_seconds": 1120.0,
+      "agent_runs": [
+        {
+          "agent": "trk-a3c1",
+          "started_at": "2026-10-05T16:01:09Z",
+          "ended_at": "2026-10-05T16:30:49Z",
+          "duration_seconds": 1780.0
+        },
+        {
+          "agent": "trk-aux",
+          "started_at": "2026-10-06T02:37:11Z",
+          "ended_at": "2026-10-06T02:54:37Z",
+          "duration_seconds": 1046.0
+        },
+        {
+          "agent": "trk-b1",
+          "started_at": "2026-10-05T14:32:54Z",
+          "ended_at": "2026-10-05T14:55:38Z",
+          "duration_seconds": 1364.0
+        },
+        {
+          "agent": "trk-b1b",
+          "started_at": "2026-10-05T15:45:19Z",
+          "ended_at": "2026-10-05T16:02:49Z",
+          "duration_seconds": 1050.0
+        },
+        {
+          "agent": "trk-b2",
+          "started_at": "2026-10-05T16:46:54Z",
+          "ended_at": "2026-10-06T01:50:06Z",
+          "duration_seconds": 32592.0
+        },
+        {
+          "agent": "trk-c",
+          "started_at": "2026-10-05T15:32:54Z",
+          "ended_at": "2026-10-05T15:52:44Z",
+          "duration_seconds": 1190.0
+        },
+        {
+          "agent": "trk-ci",
+          "started_at": "2026-10-06T03:45:47Z",
+          "ended_at": "2026-10-06T04:01:02Z",
+          "duration_seconds": 915.0
+        },
+        {
+          "agent": "trk-ctx",
+          "started_at": "2026-10-05T18:27:09Z",
+          "ended_at": "2026-10-05T18:55:28Z",
+          "duration_seconds": 1699.0
+        },
+        {
+          "agent": "trk-d1",
+          "started_at": "2026-10-05T15:01:51Z",
+          "ended_at": "2026-10-05T16:14:04Z",
+          "duration_seconds": 4333.0
+        },
+        {
+          "agent": "trk-d2",
+          "started_at": "2026-10-05T15:11:34Z",
+          "ended_at": "2026-10-05T15:14:09Z",
+          "duration_seconds": 155.0
+        },
+        {
+          "agent": "trk-docs",
+          "started_at": "2026-10-05T16:37:33Z",
+          "ended_at": "2026-10-05T16:42:30Z",
+          "duration_seconds": 297.0
+        },
+        {
+          "agent": "trk-dxm",
+          "started_at": "2026-10-06T00:41:49Z",
+          "ended_at": "2026-10-06T01:01:05Z",
+          "duration_seconds": 1156.0
+        },
+        {
+          "agent": "trk-e2",
+          "started_at": "2026-10-05T14:32:56Z",
+          "ended_at": "2026-10-05T15:54:01Z",
+          "duration_seconds": 4865.0
+        },
+        {
+          "agent": "trk-e3",
+          "started_at": "2026-10-05T18:49:05Z",
+          "ended_at": "2026-10-05T19:02:44Z",
+          "duration_seconds": 819.0
+        },
+        {
+          "agent": "trk-e4",
+          "started_at": "2026-10-06T00:41:49Z",
+          "ended_at": "2026-10-06T00:51:10Z",
+          "duration_seconds": 561.0
+        },
+        {
+          "agent": "trk-hist",
+          "started_at": "2026-10-05T23:15:32Z",
+          "ended_at": "2026-10-05T23:24:59Z",
+          "duration_seconds": 567.0
+        },
+        {
+          "agent": "trk-hk",
+          "started_at": "2026-10-05T14:33:41Z",
+          "ended_at": "2026-10-05T14:37:41Z",
+          "duration_seconds": 240.0
+        },
+        {
+          "agent": "trk-lay",
+          "started_at": "2026-10-05T18:57:19Z",
+          "ended_at": "2026-10-06T02:32:36Z",
+          "duration_seconds": 27317.0
+        },
+        {
+          "agent": "trk-lim",
+          "started_at": "2026-10-06T01:56:49Z",
+          "ended_at": "2026-10-06T02:28:23Z",
+          "duration_seconds": 1894.0
+        },
+        {
+          "agent": "trk-pna",
+          "started_at": "2026-10-05T18:57:18Z",
+          "ended_at": "2026-10-05T19:45:55Z",
+          "duration_seconds": 2917.0
+        },
+        {
+          "agent": "trk-pol",
+          "started_at": "2026-10-06T03:14:02Z",
+          "ended_at": "2026-10-06T03:46:14Z",
+          "duration_seconds": 1932.0
+        },
+        {
+          "agent": "trk-s1",
+          "started_at": "2026-10-05T16:19:40Z",
+          "ended_at": "2026-10-05T16:41:55Z",
+          "duration_seconds": 1335.0
+        },
+        {
+          "agent": "trk-s2",
+          "started_at": "2026-10-05T16:19:39Z",
+          "ended_at": "2026-10-05T16:23:25Z",
+          "duration_seconds": 226.0
+        },
+        {
+          "agent": "trk-s4",
+          "started_at": "2026-10-05T18:49:06Z",
+          "ended_at": "2026-10-05T19:06:13Z",
+          "duration_seconds": 1027.0
+        },
+        {
+          "agent": "trk-s6",
+          "started_at": "2026-10-05T23:15:42Z",
+          "ended_at": "2026-10-06T01:38:32Z",
+          "duration_seconds": 8570.0
+        },
+        {
+          "agent": "trk-seam",
+          "started_at": "2026-10-06T01:56:53Z",
+          "ended_at": "2026-10-06T03:37:50Z",
+          "duration_seconds": 6057.0
+        },
+        {
+          "agent": "trk-tgl",
+          "started_at": "2026-10-05T16:12:07Z",
+          "ended_at": "2026-10-05T17:49:57Z",
+          "duration_seconds": 5870.0
+        },
+        {
+          "agent": "trk-tip",
+          "started_at": "2026-10-05T16:49:19Z",
+          "ended_at": "2026-10-05T17:21:56Z",
+          "duration_seconds": 1957.0
+        }
+      ],
+      "parallelism": {
+        "agent_seconds": 113731.0,
+        "span_seconds": 48488.0,
+        "speedup": 2.35,
+        "peak_concurrency": 5
+      }
     }
   ],
   "changes": [
