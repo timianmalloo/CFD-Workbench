@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T15:36:33Z",
+  "generated": "2026-10-06T16:36:43Z",
   "audit": [
     {
       "actor": null,
@@ -27425,6 +27425,46 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T15:35:39Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M490C8SPBQ3QAXXJPXTBKVD8",
+      "shortname": "doc-oct06 copy rows and spec 1.7.5",
+      "datetime": "2026-10-06T16:22:34Z",
+      "session": "trk-doc",
+      "prompt": "trk-doc round-oct06",
+      "summary": "COPY-250..356 added; spec 1.7.5 with H.5 and amendments/spec-1.7.5.md; A5.6/ANA-03 proposed per HYD verdict",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Every copy row and spec clause approved on 2026-10-06 (Rulings 101, 107, 108) is in DESIGN.md and the spec",
+      "done_when": "rows compared to sources, Copy test green, spec rendered and parity-checked, check-docs 0",
+      "started_at": "2026-10-06T16:14:04Z",
+      "duration_seconds": 510.0
+    },
+    {
+      "id": "al-01M49165CTXWZBTXS2Q6RMRS6P",
+      "shortname": "doc-oct06 Ruling 109 follow-up",
+      "datetime": "2026-10-06T16:36:43Z",
+      "session": "trk-doc",
+      "prompt": "trk-doc follow-up Ruling 109",
+      "summary": "COPY-354..356 approved Ruling 109 with unit follows Units setting; spec A5.6, ANA-03, H.5 and amendment updated",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Drag (Wing only) rows and spec clause approved under Ruling 109",
+      "done_when": "compare 0 mismatches, Copy test green, spec parity 0, check-docs 0",
+      "started_at": "2026-10-06T16:35:55Z",
+      "duration_seconds": 48.0
     }
   ],
   "changes": [
@@ -29011,6 +29051,24 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M48WCZTTPESRJ7TE9M6VQF16",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4913X08SGJKQ38FJBTYRSX7",
+      "ts": "2026-10-06T16:35:28Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M4913X04S7NVF9QAS0J52XFA",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M4913X3209PT6WZ3SMVB0PZS",
+      "ts": "2026-10-06T16:35:28Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4913X04S7NVF9QAS0J52XFA",
       "session": "operator-timianmalloo"
     }
   ]
