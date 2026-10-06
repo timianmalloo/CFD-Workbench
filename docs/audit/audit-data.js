@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T17:37:58Z",
+  "generated": "2026-10-06T18:21:53Z",
   "audit": [
     {
       "actor": null,
@@ -27740,6 +27740,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T17:37:54Z",
       "duration_seconds": 4.0
+    },
+    {
+      "id": "al-01M4976QT143SD46RF8AE9PG3T",
+      "shortname": "trk-grp-desk",
+      "datetime": "2026-10-06T18:21:53Z",
+      "session": "trk-grp-desk",
+      "prompt": "GRP half 2 (Desktop) round-oct06",
+      "summary": "Group press/drag/nudge/typed entry in the controller, Plan, elevations and Properties; tokenised copy behind one lookup (GroupCopy); 8 controller checks in the ring, 8 window checks in readiness; red-first mutants and captures in docs/proof/grp-desktop; full ring green (C-3 net 49.6 s)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "A user can select several points of one curve, in the Plan view or an elevation, and drag, nudge or type a value to move them as one rigid, undoable group (Rulings 107, 111, 116)",
+      "done_when": "Desktop checks of design group-move §9 print PASS, mutants red then green, captures against the mockup, keyboard-only run, full ring green with C-3 under 50 s net, check-docs exit 0",
+      "started_at": "2026-10-06T17:33:35Z",
+      "duration_seconds": 2898.0
     }
   ],
   "changes": [
