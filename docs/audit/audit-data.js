@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T00:39:29Z",
+  "generated": "2026-10-06T01:01:06Z",
   "audit": [
     {
       "actor": null,
@@ -26153,85 +26153,144 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M475Z7DCY6HWPBS8ZPFJNM3G",
-      "shortname": "b4-analysis-split",
-      "datetime": "2026-10-05T23:21:49Z",
-      "session": "trk-b2",
-      "prompt": "B4 Analysis harness split",
-      "summary": "B4: Analysis harness runs as 2 parts (--part=k/n, whole test classes, longest first); C-2 per part; run-tests partition check generalised; cost checker and self-test (30 cases) per part; ANALYSIS-HARNESS-GROWTH defect class. Parts 2.9-3.3 s in ring against 5 s; PASS union identical (156).",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Structural fix for C-2 growth failures",
+      "datetime": "2026-10-05T23:21:49Z",
       "done_when": "each part <= 4 s quiet x3, PASS union identical, gates green",
-      "tier": "T1",
-      "started_at": "2026-10-05T23:14:53Z",
       "duration_seconds": 416.0,
       "git": {
-        "sha": "59a337bbd4ea69c2dfbba3c898abc9ce7b15e989",
-        "short": "59a337bbd",
         "branch": "perf/ring-b4-analysis-split",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "59a337bbd4ea69c2dfbba3c898abc9ce7b15e989",
+        "short": "59a337bbd"
+      },
+      "goal": "Structural fix for C-2 growth failures",
+      "id": "al-01M475Z7DCY6HWPBS8ZPFJNM3G",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "B4 Analysis harness split",
+      "session": "trk-b2",
+      "shortname": "b4-analysis-split",
+      "skill": "implement",
+      "started_at": "2026-10-05T23:14:53Z",
+      "summary": "B4: Analysis harness runs as 2 parts (--part=k/n, whole test classes, longest first); C-2 per part; run-tests partition check generalised; cost checker and self-test (30 cases) per part; ANALYSIS-HARNESS-GROWTH defect class. Parts 2.9-3.3 s in ring against 5 s; PASS union identical (156).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M47796Z855F981QAK04JK5Y1",
-      "shortname": "b4-desktop-split",
-      "datetime": "2026-10-05T23:44:45Z",
-      "session": "trk-b2",
-      "prompt": "B4 Desktop split",
-      "summary": "B4 Desktop split built (--desktop-part, family partition, C-4 per part, self-test 33/33) and measured: parts read 43.8-46.5 s each, worse than the single job (42.5-43.5 s), because the ring is CPU-bound and parts run concurrently. Not kept; negative result recorded in test-cost 9.8.",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "partial",
       "compiled": false,
-      "goal": "Apply the split control to Desktop",
+      "datetime": "2026-10-05T23:44:45Z",
       "done_when": "each Desktop part >= 4 s under 43 s x3",
-      "tier": "T1",
-      "started_at": "2026-10-05T23:22:24Z",
       "duration_seconds": 1341.0,
       "git": {
-        "sha": "eaef00310f0f94880a417186d80a8afc92809e21",
-        "short": "eaef00310",
         "branch": "perf/ring-b4-analysis-split",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "eaef00310f0f94880a417186d80a8afc92809e21",
+        "short": "eaef00310"
+      },
+      "goal": "Apply the split control to Desktop",
+      "id": "al-01M47796Z855F981QAK04JK5Y1",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "B4 Desktop split",
+      "session": "trk-b2",
+      "shortname": "b4-desktop-split",
+      "skill": "implement",
+      "started_at": "2026-10-05T23:22:24Z",
+      "summary": "B4 Desktop split built (--desktop-part, family partition, C-4 per part, self-test 33/33) and measured: parts read 43.8-46.5 s each, worse than the single job (42.5-43.5 s), because the ring is CPU-bound and parts run concurrently. Not kept; negative result recorded in test-cost 9.8.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M47ADDTET933CDJTDM8FC39Q",
-      "shortname": "join-ring-b4",
-      "datetime": "2026-10-06T00:39:29Z",
-      "session": "4e90c621",
-      "prompt": "the join of perf/ring-b4-analysis-split into main",
-      "summary": "B4: Analysis --part=k/2 by whole test class (A8.4 oracles fast), each part ~3 s; C-2/C-5/C-6 per part (30/30 self-test); PASS union identical; Desktop split measured worse and not shipped (CPU-bound) recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-06T00:39:29Z",
+      "done_when": "join gates green",
+      "duration_seconds": 52.0,
+      "fan_out": 0,
+      "goal": "join ring-b4 into main (round-oct05)",
+      "id": "al-01M47ADDTET933CDJTDM8FC39Q",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of perf/ring-b4-analysis-split into main",
+      "session": "4e90c621",
+      "shortname": "join-ring-b4",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-06T00:38:37Z",
+      "summary": "B4: Analysis --part=k/2 by whole test class (A8.4 oracles fast), each part ~3 s; C-2/C-5/C-6 per part (30/30 self-test); PASS union identical; Desktop split measured worse and not shipped (CPU-bound) recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-05T19:45:55Z",
+      "done_when": "PNA names PASS, verify-application-core/adapters exit 0, planted mutant red, red-first receipt, one full run-tests, check-docs, run-verify-gates green",
+      "duration_seconds": 2917.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "feature/a3a-pna",
+        "pushed": null,
+        "sha": "b663a01743b78c89d70a911870830cdc9afb6f4f",
+        "short": "b663a0174"
+      },
+      "goal": "Build track PNA panes and bottom panel to the approved Area 3 mockup (design 18.2 row PNA)",
+      "id": "al-01M46SKWZ8T1ESAR7ETVMR8SGP",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Track PNA of round-oct05: build the A3a panes and bottom panel per design area3-analysis.md 18.2 row PNA (brief full-trk-pna.md)",
+      "session": "trk-pna",
+      "shortname": "trk-pna",
+      "skill": "implement",
+      "started_at": "2026-10-05T18:57:18Z",
+      "summary": "A3a PNA: Layers pane (left tab, layers Homes row), Analysis bottom panel slot with Spanwise loading chart and table twin, Section, Loads, Provenance tabs, Properties Analysis groups (StripAt, verdict, section, conditions, labels, error card, skeleton), Build call fix, cheap-refresh key, view.toggle-bottom and window.layers routes; rail-controls tab retired from the default dock",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M47BMZZS331XAWD6VHWHQGF2",
+      "shortname": "dxm-screen-states",
+      "datetime": "2026-10-06T01:01:05Z",
+      "session": "trk-dxm",
+      "prompt": "DXM screen-state check",
+      "summary": "Checked 54 A3b/A3c screen states against the approved Area 3 mockup: 4 covered, 3 in part, 47 not. Wrote docs/design/dx-screen-states.md and docs/mockups/dx-section-polar-states.html/.md (7 screens, 9 decision requests). Craft gate clean; check-docs and 12 verify gates pass.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/dx-screen-states.md",
+        "docs/mockups/dx-section-polar-states.html"
+      ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join ring-b4 into main (round-oct05)",
-      "done_when": "join gates green",
+      "goal": "Check A3b/A3c screen states against the approved mockup; render the missing ones",
+      "done_when": "state table, mockup, craft gate, check-docs, verify gates, commit",
       "tier": "T1",
       "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-06T00:38:37Z",
-      "duration_seconds": 52.0
+      "started_at": "2026-10-06T00:41:49Z",
+      "duration_seconds": 1156.0,
+      "git": {
+        "sha": "bc5471e6dcaefe580c0e392e69ba5880ad323956",
+        "short": "bc5471e6d",
+        "branch": "design/dx-mockup-states",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -27639,6 +27698,15 @@ window.AUDIT_DATA = {
       "kind": "decision-request",
       "ref": "req-01M47AARDM8WMKT8JNX5QNK5SV",
       "session": "4e90c621"
+    },
+    {
+      "id": "mail-01M47ADYFT0M2D821S3ZD9KMCK",
+      "ts": "2026-10-06T00:39:46Z",
+      "from": "fable-owner",
+      "to": "4e90c621",
+      "kind": "ruling",
+      "ref": "req-01M47AARDM8WMKT8JNX5QNK5SV",
+      "session": "fable-owner"
     }
   ]
 };
