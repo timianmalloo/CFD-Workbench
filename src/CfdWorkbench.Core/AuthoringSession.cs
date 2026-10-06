@@ -55,7 +55,16 @@ public sealed record ReplaceEvent(string Scope, int Stations, double ResidualCho
     public string? Class { get; init; }
 }
 public sealed record DimensionCommand(string Name, string Text);
-public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped);
+/// <summary>Ruling 96: which planform limit held the gesture. <c>TipMinimum</c>: the tip chord is at <see cref="TipChord.MinimumMeters"/>.
+/// <c>TipAlreadyUnder</c>: a legacy tip under the minimum can't go lower. <c>RootMaximum</c>: the root chord is at the largest the tip allows.</summary>
+public enum GestureLimitKind { TipMinimum, TipAlreadyUnder, RootMaximum }
+/// <summary>The held limit of a frame. LimitMeters is the held chord (tip minimum, the legacy tip at press, or the root maximum); OtherChordMeters is the root chord for a tip limit and the tip chord for a root limit.</summary>
+public sealed record GestureLimit(GestureLimitKind Kind, double LimitMeters, double OtherChordMeters);
+public sealed record GestureFrame(SessionDraft Draft, double SpanMeters, double Ordinate, IReadOnlyList<string> MovedIds, bool Clamped)
+{
+    /// <summary>Null when no planform limit holds this frame.</summary>
+    public GestureLimit? Limit { get; init; }
+}
 public abstract record PointCommand(string Curve, string VertexId)
 {
     public sealed record MakeAnchor(string Curve, string VertexId) : PointCommand(Curve, VertexId);
@@ -503,8 +512,12 @@ public sealed class AuthoringSession : IDisposable
         var before = FoilSource.Parse(CurrentBytes).Definition; // not ParseOwned: its telemetry would consume the pending curve family
         if (before is not { Kind: "foil" }) return;
         double newRoot = WingEstimates.Chord(next, 0), newTip = WingEstimates.Chord(next, 1);
-        if (!TipChord.Admits(WingEstimates.Chord(before, 1), WingEstimates.Chord(before, 0), newTip, newRoot))
-            throw new ContractError(TipChord.RefusalCode, TipChord.RefusalReason(newRoot));
+        double oldTip = WingEstimates.Chord(before, 1), oldRoot = WingEstimates.Chord(before, 0);
+        if (TipChord.Admits(oldTip, oldRoot, newTip, newRoot)) return;
+        // Ruling 96: an edit that left the tip alone and raised the root is the root's refusal, led by the root.
+        // The root caused it when the same edit with the root left where it was is admitted.
+        bool rootCaused = TipChord.Admits(oldTip, oldRoot, newTip, oldRoot);
+        throw new ContractError(TipChord.RefusalCode, rootCaused ? TipChord.RootRefusalReason(newTip, oldRoot) : TipChord.TypedRefusalReason(newRoot));
     }
     string Commit(SourceParse p, string op, string reason)
     {
@@ -666,12 +679,56 @@ public sealed class AuthoringSession : IDisposable
                 }
             }
             var baseParsed = ParseOwned(BaseBytes(draft.Base));
+            GestureLimit? limit = null;
+            if (HoldAtChordLimit(baseParsed, draft.Rail, rail, grabbed, selected, moved[grabbed].Aft) is var (held, hold))
+            {
+                limit = hold; clamped = true;
+                moved[grabbed] = (moved[grabbed].Eta, held);
+                if (grabbed == 0 && selected.Role == PointRole.RootEnd && selected.Locks.Contains("root_mirror"))
+                    moved[1] = (moved[1].Eta, rail.Points[1].Ordinate + (held - selected.Ordinate));
+            }
             byte[] patched = PatchGesture(baseParsed, draft.Rail, moved);
             draft = draft with { Generation = generation + 1, Bytes = patched };
             gestureFrames++;
             var resolved = moved[grabbed];
-            return new(Copy(draft), resolved.Eta * halfSpan, resolved.Aft, moved.Keys.Order().Select(index => rail.Points[index].Id).ToArray(), clamped);
+            return new(Copy(draft), resolved.Eta * halfSpan, resolved.Aft, moved.Keys.Order().Select(index => rail.Points[index].Id).ToArray(), clamped) { Limit = limit };
         }
+    }
+
+    /// <summary>
+    /// Ruling 96: a planform end vertex (root or tip of the leading or trailing rail) holds where <see cref="TipChord.Admits"/>
+    /// stops admitting it, so the drag and the release check cannot disagree. Only the two end ordinates set the root and tip
+    /// chord (a clamped B-spline interpolates its ends), so interior vertices and handles never limit. The search steps the
+    /// drag's own 1 µm quantum from the vertex at press, so the held frame is a point a free drag could have reached.
+    /// </summary>
+    private static (double Held, GestureLimit Limit)? HoldAtChordLimit(SourceParse baseParsed, string railName, CurveView rail, int grabbed,
+        PointView selected, double proposed)
+    {
+        // A closing tip is never held by a session (Open refuses it: Geometry_TipPoint_UnsupportedAndNeverAdmitted), so
+        // neither end is limited for a non-open tip; the release check stays the backstop with its existing text.
+        if (railName is not ("leading" or "trailing") || baseParsed.Definition is not { Kind: "foil", Tip: "open" }) return null;
+        bool tip = grabbed == rail.Points.Count - 1, root = grabbed == 0;
+        if (!(tip || root)) return null;
+        double from = selected.Ordinate;
+        var other = Channels.View(baseParsed.Source, railName == "leading" ? "trailing" : "leading", "Accepted", 0).Points;
+        var leading = railName == "leading" ? rail.Points : other;
+        var trailing = railName == "leading" ? other : rail.Points;
+        double oldRoot = trailing[0].Ordinate - leading[0].Ordinate, oldTip = trailing[^1].Ordinate - leading[^1].Ordinate;
+        double otherAft = other[tip ? ^1 : 0].Ordinate;
+        double Chord(double aft) => railName == "trailing" ? aft - otherAft : otherAft - aft;
+        bool Admitted(double aft) => tip ? TipChord.Admits(oldTip, oldRoot, Chord(aft), oldRoot) : TipChord.Admits(oldTip, oldRoot, oldTip, Chord(aft));
+        if (Admitted(proposed)) return null;
+        double sign = Math.Sign(proposed - from), lo = 0, hi = Math.Abs(proposed - from) * 1e6;
+        while (hi - lo > 1)
+        {
+            double mid = Math.Floor((lo + hi) / 2);
+            if (Admitted(from + sign * mid * 1e-6)) lo = mid; else hi = mid;
+        }
+        double held = lo == 0 ? from : from + sign * lo * 1e-6;
+        if (root) return (held, new(GestureLimitKind.RootMaximum, TipChord.MaximumRootMeters(oldTip, oldRoot), oldTip));
+        return (held, TipChord.Meets(oldTip, oldRoot)
+            ? new(GestureLimitKind.TipMinimum, TipChord.MinimumMeters(oldRoot), oldRoot)
+            : new(GestureLimitKind.TipAlreadyUnder, oldTip, oldRoot));
     }
 
     private static double QuantizedOrdinate(string curve, double delta)

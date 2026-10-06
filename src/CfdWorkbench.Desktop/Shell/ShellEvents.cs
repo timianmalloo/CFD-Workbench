@@ -32,7 +32,8 @@ public sealed record ShellEvent(
     string? CurveFamily = null,
     bool? ThreeDVisible = null,
     int? PointsAfter = null,
-    string? ExceptionMessage = null);
+    string? ExceptionMessage = null,
+    string? ClampReason = null);
 
 public static class ShellEvents
 {
@@ -80,7 +81,8 @@ public static class ShellEvents
         string? curveFamily = null,
         bool? threeDVisible = null,
         int? pointsAfter = null,
-        string? exceptionMessage = null)
+        string? exceptionMessage = null,
+        string? clampReason = null)
     {
         lock (sync)
         {
@@ -89,7 +91,7 @@ public static class ShellEvents
                 seq, name, outcome, durationMs, traceId, code, bytes, droppedCount, clampedCount,
                 trigger, pane, from, to, corner, exceptionType, publicationKnown, durabilityConfirmed, retried,
                 frames, updateP95Ms, estimatesP95Ms, renderP95Ms, commitMs, editKind, operationId,
-                basis, stations, chordSamples, curveFamily, threeDVisible, pointsAfter, exceptionMessage));
+                basis, stations, chordSamples, curveFamily, threeDVisible, pointsAfter, exceptionMessage, clampReason));
         }
     }
 

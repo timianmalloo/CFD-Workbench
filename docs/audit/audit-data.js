@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T01:53:45Z",
+  "generated": "2026-10-06T02:28:23Z",
   "audit": [
     {
       "actor": null,
@@ -26566,6 +26566,77 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T01:52:53Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M47FYDM9Q6VQC34KVFX9A8BA",
+      "shortname": "lim-gesture-limits",
+      "datetime": "2026-10-06T02:16:09Z",
+      "session": "trk-lim",
+      "prompt": "LIM limits felt during the gesture",
+      "summary": "Ruling 96: Core holds planform end vertices at TipChord.Admits during UpdatePointGesture (GestureLimit on the frame); Desktop shows hold marker, tether and ring, strip line once, point name, Wing note (COPY-F); typed refusal keeps text, root-first copy, Use <value> on click; COPY-243..249; telemetry ClampReason. Core 10 new checks, Desktop 6 controller + 3 pane checks.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Core/AuthoringSession.cs",
+        "src/CfdWorkbench.Core/TipChord.cs",
+        "src/CfdWorkbench.Desktop/PlanCanvas.cs",
+        "tests/CfdWorkbench.Desktop.Tests/GestureLimitTests.cs"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "build Ruling 96: planform limits felt during the gesture",
+      "done_when": "named tests green, one full run-tests green, check-docs and verify gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T01:56:49Z",
+      "duration_seconds": 1160.0,
+      "git": {
+        "sha": "6aef7dff7a56c5e779e06bdb32facd9f06668323",
+        "short": "6aef7dff7",
+        "branch": "feature/cad-limits-in-gesture",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M47GMTRF7QRZMTNTW32EHFPQ",
+      "shortname": "lim-repair-1",
+      "datetime": "2026-10-06T02:28:23Z",
+      "session": "trk-lim",
+      "prompt": "LIM repair 1",
+      "summary": "Review conditions: point-tip guard on both ends and Open-refuses test, one captured refusal reason, typed-text restore scoped to four codes, strip restored when a hold frees, derived rootCaused and returned held value, mutants M1-M3 red (docs/proof/lim/mutants.txt). Reasonless typed-3 case was DSL-EDGES-CROSS, not the status slot.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "repair LIM review conditions",
+      "done_when": "conditions closed, mutants red, full run green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T02:20:15Z",
+      "duration_seconds": 488.0,
+      "git": {
+        "sha": "11563702557ddbf8800055aafd2fd02d0dbc00ca",
+        "short": "115637025",
+        "branch": "feature/cad-limits-in-gesture",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -27981,6 +28052,24 @@ window.AUDIT_DATA = {
       "to": "4e90c621",
       "kind": "ruling",
       "ref": "req-01M47AARDM8WMKT8JNX5QNK5SV",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M47EXAX6H9WEEJV4ADPK3P5G",
+      "ts": "2026-10-06T01:58:04Z",
+      "from": "trk-seam",
+      "to": "4e90c621",
+      "kind": "decision-request",
+      "ref": "req-01M47EXAX2R4PS5SZAE3QS88ZM",
+      "session": "trk-seam"
+    },
+    {
+      "id": "mail-01M47F2MN0Z1YJGETMCRRGAQPQ",
+      "ts": "2026-10-06T02:00:58Z",
+      "from": "fable-owner",
+      "to": "trk-seam",
+      "kind": "ruling",
+      "ref": "req-01M47EXAX2R4PS5SZAE3QS88ZM",
       "session": "fable-owner"
     }
   ]

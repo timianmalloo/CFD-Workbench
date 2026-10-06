@@ -106,7 +106,8 @@ public sealed record PropertiesContext(
     Func<double, StationFrame?>? Frame = null,
     SectionContext? Section = null,
     Func<int, string>? StationSource = null,
-    CfdWorkbench.Analysis.AnalysisViewModel? Analysis = null);
+    CfdWorkbench.Analysis.AnalysisViewModel? Analysis = null,
+    GestureLimit? Limit = null);   // Ruling 96: the planform limit holding the drag in progress
 
 /// <summary>
 /// The open section draft as the Properties pane shows it (design §11.4): both surfaces of the cursor bytes, the section's
@@ -223,6 +224,12 @@ public static class PropertyCopy
             return $"point {anchor.Index + 1} handle toward the {(point.Index > anchor.Index ? "tip" : "root")}";
         return $"point {point.Index + 1}";
     }
+
+    /// <summary>COPY-248 (Ruling 96): the held tip chord, beside its value in the Wing block.</summary>
+    public static string AtMinimum(double tipMeters) => $"{Quantity.TypedLength(tipMeters)} mm · minimum";
+
+    /// <summary>COPY-249 (Ruling 96): the action on a refused typed chord, never applied by itself.</summary>
+    public static string UseValue(string value) => $"Use {value}";
 
     public static string NotANumber(string field) => $"Enter a number. {field} is unchanged.";                                    // COPY-118
     public static string NotPositive(string field) => $"Enter a length greater than 0 mm. {field} is unchanged.";                 // COPY-106
@@ -1278,11 +1285,22 @@ public static class PropertiesView
         else
         {
             rows.Add(SpanField(spanMeters));
-            rows.Add(LengthInput("w:root", "Root chord", estimates?.RootChordMeters ?? double.NaN, "Root chord in millimetres", null, nudge: false) with { MustBePositive = true });
+            // Ruling 96: while a limit holds the drag, the held row says so in the strip's words (COPY-F beside the tip value).
+            var rootRow = LengthInput("w:root", "Root chord", estimates?.RootChordMeters ?? double.NaN, "Root chord in millimetres", null, nudge: false) with { MustBePositive = true };
+            if (context.Limit is { Kind: GestureLimitKind.RootMaximum } rootLimit)
+                rootRow = rootRow with { Description = TipChord.HoldText(rootLimit), DescriptionAlwaysVisible = true };
+            rows.Add(rootRow);
             // COPY-108: a closing tip is a statement, not a dimension to type.
-            rows.Add(estimates is not null && estimates.TipChordMeters <= 1e-9
+            var tipRow = estimates is not null && estimates.TipChordMeters <= 1e-9
                 ? Prose("w:tip", "Tip chord", PropertyCopy.TipCloses) with { State = RowState.Locked }
-                : LengthInput("w:tip", "Tip chord", estimates?.TipChordMeters ?? double.NaN, "Tip chord in millimetres", null, nudge: false) with { MustBePositive = true });
+                : LengthInput("w:tip", "Tip chord", estimates?.TipChordMeters ?? double.NaN, "Tip chord in millimetres", null, nudge: false) with { MustBePositive = true };
+            if (context.Limit is { Kind: GestureLimitKind.TipMinimum or GestureLimitKind.TipAlreadyUnder } tipLimit && tipRow.Kind == RowKind.Input)
+                tipRow = tipRow with
+                {
+                    Description = tipLimit.Kind == GestureLimitKind.TipMinimum ? PropertyCopy.AtMinimum(estimates?.TipChordMeters ?? tipLimit.LimitMeters) : TipChord.AlreadyUnderText,
+                    DescriptionAlwaysVisible = true
+                };
+            rows.Add(tipRow);
         }
 
         // Per-quantity availability (§10.1): one non-finite estimate never blanks its neighbours (BLANK-ESTIMATE).

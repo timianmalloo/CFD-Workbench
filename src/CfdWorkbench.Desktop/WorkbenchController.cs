@@ -202,6 +202,9 @@ public sealed class WorkbenchController : IDisposable
     private long gestureStarted;
     private int gestureFrames;
     private int gestureClamped;
+    private string? gestureClampReason;
+    private string? announcedLimit;
+    private (string Text, ReportKind Kind, long Version)? stripBeforeHold;
     private Task<GestureOutcome>? pendingCommit;
     private Task<CommitOutcome>? pendingDirectCommand;
     private string? gestureOperationId;
@@ -484,8 +487,21 @@ public sealed class WorkbenchController : IDisposable
             field = value;
             // The preview belongs to a live drag: release, Escape, a refusal or a new gesture clear it.
             if (value != GestureState.Dragging) GestureCrossing = null;
+            if (value is not (GestureState.Dragging or GestureState.Nudging)) { GestureLimit = null; announcedLimit = null; stripBeforeHold = null; }
         }
     }
+
+    /// <summary>
+    /// Ruling 96: the planform limit holding the drag or nudge run in progress (the tip at its minimum, the root at its maximum,
+    /// a legacy tip that can't go lower), or null. Core decides it from <see cref="TipChord"/>; the Desktop only shows it.
+    /// </summary>
+    public GestureLimit? GestureLimit { get; private set; }
+
+    /// <summary>The one sentence for the held limit, shared by the status strip, the marker and the point's accessible name; null when none holds.</summary>
+    public string? GestureLimitText => GestureLimit is { } limit ? TipChord.HoldText(limit) : null;
+
+    /// <summary>The point the held limit belongs to, or null.</summary>
+    public PointRef? GestureLimitPoint => GestureLimit is null ? null : gesturePoint;
 
     /// <summary>
     /// The advisory edge-crossing preview for the drag in progress (§0.1 step 6): where the release would be refused
@@ -1617,6 +1633,7 @@ public sealed class WorkbenchController : IDisposable
         gestureInput = input;
         pendingGestureTarget = null;
         gestureFrames = gestureClamped = 0;
+        gestureClampReason = null;
         gestureUpdateTimes.Clear();
         gestureEstimateTimes.Clear();
         gestureStarted = Stopwatch.GetTimestamp();
@@ -1725,6 +1742,9 @@ public sealed class WorkbenchController : IDisposable
         draftProjection = null;
         gestureFrames++;
         if (frame.Clamped) gestureClamped++;
+        if (frame.Limit is { } held) gestureClampReason = held.Kind.ToString();
+        GestureLimit = frame.Limit;
+        AnnounceLimit(frame.Limit);
         timer.Restart();
         try { Estimates = WingEstimates.From(draft.Bytes, "preview", draft.Generation); }
         catch { Estimates = null; }
@@ -1732,6 +1752,27 @@ public sealed class WorkbenchController : IDisposable
         GestureCrossing = Gesture == GestureState.Dragging && gesturePoint is { Curve: "leading" or "trailing" } dragged &&
             Planform is { } plan ? EdgeHullCrossing(plan, dragged.Curve) : null;
         Notify();
+    }
+
+    // One announcement per hold: the strip is a live region, so a frame that stays held writes nothing. A new limit value, or
+    // a frame that frees the hold and a later one that re-holds, announces again.
+    private void AnnounceLimit(GestureLimit? limit)
+    {
+        string? key = limit is null ? null : string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{limit.Kind}:{limit.LimitMeters:F6}");
+        if (key == announcedLimit) return;
+        bool wasHeld = announcedLimit is not null;
+        announcedLimit = key;
+        if (limit is not null)
+        {
+            if (!wasHeld) stripBeforeHold = statusSlot.Snapshot();
+            SetStatus(TipChord.HoldText(limit), ReportKind.Warning);
+        }
+        else if (stripBeforeHold is { } before)
+        {
+            // The hold freed mid-drag: put back the line it replaced, so the strip never keeps a hold that no longer holds.
+            stripBeforeHold = null;
+            SetStatus(before.Text, before.Kind);
+        }
     }
 
     /// <summary>
@@ -1942,7 +1983,7 @@ public sealed class WorkbenchController : IDisposable
         };
         CfdWorkbench.Desktop.Shell.ShellEvents.Record("gesture.end", result,
             Stopwatch.GetElapsedTime(gestureStarted).TotalMilliseconds, Guid.NewGuid().ToString("N"),
-            code: (outcome as GestureOutcome.Refused)?.Code, clampedCount: gestureClamped,
+            code: (outcome as GestureOutcome.Refused)?.Code, clampedCount: gestureClamped, clampReason: gestureClampReason,
             trigger: reason.ToString().ToLowerInvariant(), frames: gestureFrames,
             updateP95Ms: Percentile95(gestureUpdateTimes), estimatesP95Ms: Percentile95(gestureEstimateTimes),
             editKind: "gesture", operationId: gestureOperationId,
@@ -2062,10 +2103,10 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (ContractError error)
         {
-            SetStatus(error.Reason ?? $"{error.Code}: This change wasn't applied. Nothing changed.",
-                warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
+            string reason = error.Reason ?? $"{error.Code}: This change wasn't applied. Nothing changed.";
+            SetStatus(reason, warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
             Notify();
-            return new CommitOutcome.Refused(error.Code, Status);
+            return new CommitOutcome.Refused(error.Code, reason);
         }
         finally
         {

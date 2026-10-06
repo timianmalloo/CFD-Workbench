@@ -1,0 +1,5 @@
+LIM (Ruling 96) mutant receipt, 2026-10-06, worktree feature/cad-limits-in-gesture
+M1 remove the clamp (HoldAtChordLimit never holds): RED, 6 Core checks fail (TipChord_Drag_*, TipChord_RootDrag_PastTwoPercentOfTip_*, TipChord_LegacyTip*, property sweep).
+M2 drop the reason (frame.Limit always null): RED, 4 Core checks fail.
+M3 announce every held frame (AnnounceLimit no longer suppresses repeats): RED, 2 Desktop checks fail (GestureLimit_TipDragPastMinimum_*, GestureLimit_KeyboardNudges_*).
+A first M3 attempt (if (false) return;) did not build (CS0162 as error) and ran the stale binary; it was discarded as invalid and redone.

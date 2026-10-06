@@ -112,6 +112,14 @@ internal static class LabelsTests
         Equal(true, design.Contains("| COPY-241 | " + Labels.TipChordUnderMinimumTemplate + " — approved — Ruling 94 |"), "COPY-241 row");
         Equal(true, design.Contains("| COPY-242 | " + TipChord.RefusalTemplate + " — approved — Ruling 94 |"), "COPY-242 row");
         Equal("Unavailable — tip chord under the minimum (5 mm). The tip is not certified for analysis.", Labels.TipChordUnderMinimum(0.12), "COPY-241 formatted");
+        // Ruling 96 (COPY-243 to COPY-249): the drag-hold and typed-refusal copy is Core's, pinned to its DESIGN rows.
+        Equal(true, design.Contains("| COPY-243 | " + TipChord.RefusalTemplate + " Enter <min> or more. — approved — Ruling 96"), "COPY-243 row");
+        Equal(true, design.Contains("| COPY-244 | " + TipChord.HoldTipTemplate + " — approved — Ruling 96"), "COPY-244 row");
+        Equal(true, design.Contains("| COPY-245 | " + TipChord.HoldRootTemplate + " — approved — Ruling 96"), "COPY-245 row");
+        Equal(true, design.Contains("| COPY-246 | " + TipChord.RootRefusalTemplate + " — approved — Ruling 96"), "COPY-246 row");
+        Equal(true, design.Contains("| COPY-247 | " + TipChord.AlreadyUnderText + " — approved — Ruling 96"), "COPY-247 row");
+        Equal(true, design.Contains("| COPY-248 | <value> mm · minimum — approved — Ruling 96"), "COPY-248 row");
+        Equal("Tip chord can't go below 5 mm (the larger of 5 mm and 2 % of the root chord). Enter 5 mm or more.", TipChord.TypedRefusalReason(0.12), "COPY-243 formatted");
         Equal(true, design.Contains("| COPY-240 |") && design.Contains("e above 1 — check the lattice — approved — Ruling 82"), "COPY-240");
     }
 
