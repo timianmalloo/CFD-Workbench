@@ -113,6 +113,7 @@ if (args.Contains("--analysis", StringComparer.Ordinal))
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
     CfdWorkbench.Desktop.Tests.AnalysisToggleTests.Run();
     CfdWorkbench.Desktop.Tests.AnalysisFeedTests.Run();
+    CfdWorkbench.Desktop.Tests.AnalysisHistoricalFeedTests.Run();
     CfdWorkbench.Desktop.Tests.AnalysisLayerTests.Run();
     CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);

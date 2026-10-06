@@ -7,7 +7,7 @@ namespace CfdWorkbench.Analysis;
 public sealed record ProjectionContext(IReadOnlyList<StripVerdict>? Verdicts = null,
     IReadOnlyList<StationFrame>? Stations = null, double? RootThicknessRatio = null,
     RunIntegrity Integrity = RunIntegrity.Intact, AnalysisRun? PreviousCompleted = null,
-    IReadOnlySet<string>? HiddenLayers = null);
+    IReadOnlySet<string>? HiddenLayers = null, IReadOnlyList<Loads.Vec>? StripNormals = null, string? FeedUnavailable = null);
 
 /// <summary>Pure projection of the selected run into rows, chart points and layer data.</summary>
 public static class AnalysisProjection
@@ -255,8 +255,8 @@ public static class AnalysisProjection
                 Samples = run.Strips.Select(s => new LayerSample(s.Eta, s.Y,
                     Width(run, s) > 0 ? s.Fz / Width(run, s) : null,
                     Width(run, s) > 0 ? new Loads.Vec(s.Fx / Width(run, s), s.Fy / Width(run, s), s.Fz / Width(run, s)) : null,
-                    false, s.Provisional)).ToArray(),
-                Note = run.Strips.Any(s => Width(run, s) <= 0) ? Labels.StripWidthMissing : null
+                    false, s.Provisional) { Normal = context.StripNormals is { } n && s.J >= 0 && s.J < n.Count ? n[s.J] : null }).ToArray(),
+                Note = run.Strips.Any(s => Width(run, s) <= 0) ? Labels.StripWidthMissing : context.FeedUnavailable
             }
         };
         if (rootMoment.HasValue) layers.Add(new LayerData("root-moment", "Root moment arc", Shown("root-moment"),

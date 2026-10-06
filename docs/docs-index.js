@@ -8744,6 +8744,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "7ff95489d408015b143594123d13d98b8a88ad0d9c01e35a4c1a457cb6edb422"
     },
     {
+      "id": "proof-a3a-hist-red-first",
+      "path": "docs/proof/a3a-hist/red-first.md",
+      "title": "A3a HIST selected-run feed receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hist",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "The projection feed follows the selected run's own revision. A geometry-Historical run keeps its verdicts, stations, root t/c and exact strip normals; an unheld revision reads Unavailable with a reason; a failed Evaluate keeps the previous Completed run's feed; a layer toggle raises LayersChanged. No schema or file-format change.",
+      "tags": [
+        "a3a",
+        "hist",
+        "analysis",
+        "projection",
+        "feed",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-a3a-ctx-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1d98cea1eca8e2d053636527a92f25027d84da2119500f19c380263af7a19c54"
+    },
+    {
       "id": "proof-a3a-old-build",
       "path": "docs/proof/a3a-old-build/README.md",
       "title": "A3a old-build receipt: a cfdw-project-2 file opened by the build at the A3a base",
@@ -14017,5 +14053,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "f6d38e32b5f317ad19bcac6bf08456b6974ef84c45dd55afe261cbb11a3e6e22"
+  "graphSha256": "aadf1a3d4485de9d1e44646d5e6922119a969600c9a01ed2d8c5d1784264ce48"
 };

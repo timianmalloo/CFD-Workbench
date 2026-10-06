@@ -153,14 +153,8 @@ public static class VortexLattice
                 if (area < minArea) minArea = area;
                 if (!(area > 1e-14) || !cornerNormal.IsFinite)
                     throw Fail(plant, "ANA-SOLVE-SINGULAR", "A panel has no area.");
-                double slope = CamberSlopeAt(mid, fc);
-                double twist = ToRadians(mid.Frame.TwistDegrees);
-                Point3 tangent = new(Math.Cos(twist) + Math.Sin(twist) * slope, 0,
-                    -Math.Sin(twist) + Math.Cos(twist) * slope);
-                // The bound segment retains the elevated local plane; the chord tangent reads the
-                // camber derivative at this panel's control point, rotated by the section twist.
                 Vector3 normal = plant == LatticePlant.NormalFromLeadingEdge
-                    ? cornerNormal : Cross(tangent, Sub(b, a));
+                    ? cornerNormal : SlopeNormal(mid, fc, a, b);
                 if (!normal.IsFinite || !(normal.Length > 0))
                     throw Fail(plant, "ANA-NONFINITE", "A panel normal is not finite.");
                 if (normal.Z < 0) normal = new Vector3(-normal.X, -normal.Y, -normal.Z);
@@ -331,6 +325,49 @@ public static class VortexLattice
         for (int i = 0; i < sweeps.Length; i++)
             sweeps[i] = SweepOf(At(samples, edges[i].Low, span), At(samples, edges[i].High, span), edges[i].Low, edges[i].High);
         return sweeps;
+    }
+
+    /// <summary>
+    /// The unit normal of each strip, the mean of the strip's chordwise panel normals as the solve builds them (<c>SlopeNormal</c>
+    /// on the product plant's bound segment and control fraction), so a lift arrow drawn on it and the solve share one
+    /// definition. <paramref name="wing"/> is the mirrored section set the run was solved on. Normals have Z &gt; 0.
+    /// </summary>
+    internal static (double X, double Y, double Z)[] StripNormals(IReadOnlyList<SectionSample> wing,
+        IReadOnlyList<(double Low, double High)> edges, int chordPanels, string chordSpacing)
+    {
+        SectionSample[] samples = wing.ToArray();
+        Array.Sort(samples, (a, b) => SectionY(a).CompareTo(SectionY(b)));
+        double span = SectionY(samples[^1]) - SectionY(samples[0]);
+        double[] fractions = Fractions(chordPanels, chordSpacing);
+        var normals = new (double X, double Y, double Z)[edges.Count];
+        for (int i = 0; i < normals.Length; i++)
+        {
+            double ya = edges[i].Low, yb = edges[i].High;
+            SectionSample sideA = At(samples, ya, span), sideB = At(samples, yb, span), mid = At(samples, 0.5 * (ya + yb), span);
+            double x = 0, y = 0, z = 0;
+            for (int k = 0; k < chordPanels; k++)
+            {
+                double fb = fractions[k] + 0.25 * (fractions[k + 1] - fractions[k]);
+                double fc = fractions[k] + 0.75 * (fractions[k + 1] - fractions[k]);
+                Vector3 n = SlopeNormal(mid, fc, OnPlane(sideA, fb, ya), OnPlane(sideB, fb, yb));
+                if (n.Z < 0) n = new Vector3(-n.X, -n.Y, -n.Z);
+                n = n.Unit();
+                x += n.X; y += n.Y; z += n.Z;
+            }
+            var sum = new Vector3(x, y, z).Unit();
+            normals[i] = (sum.X, sum.Y, sum.Z);
+        }
+        return normals;
+    }
+
+    // The bound segment retains the elevated local plane; the chord tangent reads the camber derivative at this panel's
+    // control point, rotated by the section twist. Unnormalised: the caller orients and normalises.
+    private static Vector3 SlopeNormal(SectionSample mid, double controlFraction, Point3 a, Point3 b)
+    {
+        double slope = CamberSlopeAt(mid, controlFraction);
+        double twist = ToRadians(mid.Frame.TwistDegrees);
+        Point3 tangent = new(Math.Cos(twist) + Math.Sin(twist) * slope, 0, -Math.Sin(twist) + Math.Cos(twist) * slope);
+        return Cross(tangent, Sub(b, a));
     }
 
     private static double SweepOf(SectionSample a, SectionSample b, double ya, double yb)

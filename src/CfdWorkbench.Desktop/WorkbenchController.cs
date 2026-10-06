@@ -238,7 +238,7 @@ public sealed class WorkbenchController : IDisposable
     private AnalysisViewModel? analysisView;
     private string? analysisProjectionKey;
     private string? projectionFeedKey;
-    private (IReadOnlyList<StripVerdict>?, IReadOnlyList<StationFrame>?, double?) projectionFeed;
+    private RunFeed projectionFeed = NoFeed;
     private readonly HashSet<string> hiddenLayers = new(StringComparer.Ordinal);
 
     /// <summary>The model area's CAD or Analysis state; a section draft remains open while hidden.</summary>
@@ -249,11 +249,15 @@ public sealed class WorkbenchController : IDisposable
     /// <summary>Layers pane visibility (§18.5 row 30). The flag is controller state; the projection reads it, so it survives a re-projection.</summary>
     public bool IsLayerVisible(string layerId) => !hiddenLayers.Contains(layerId);
 
+    /// <summary>A layer's visibility changed.</summary>
+    public event Action? LayersChanged;
+
     public void SetLayerVisible(string layerId, bool visible)
     {
         ArgumentException.ThrowIfNullOrEmpty(layerId);
         if (visible ? !hiddenLayers.Remove(layerId) : !hiddenLayers.Add(layerId)) return;
         analysisProjectionKey = null;
+        LayersChanged?.Invoke();
     }
 
     public OperatingPoint AnalysisOperatingPoint => analysisOp;
@@ -277,18 +281,20 @@ public sealed class WorkbenchController : IDisposable
             var previous = selected?.Run.Outcome is RunOutcome.Failed
                 ? session.ReadRuns().Runs.Reverse().Skip(1).FirstOrDefault(row =>
                     row.Integrity == RunIntegrity.Intact && row.Run.Outcome is RunOutcome.Completed)?.Run : null;
-            // The feed is a function of the run and the accepted source only, so a layer toggle or a new operating point
-            // does not re-derive it (measured 0.9 s on the default lattice).
-            string feedKey = selected is { Integrity: RunIntegrity.Intact } ? selected.Run.RunId + ":" + snapshot.AcceptedId : "";
+            // The feed is a function of the run and its own revision only, so a layer toggle or a new operating point does not
+            // re-derive it (measured 0.9 s on the default lattice). A Failed latest attempt shows the previous Completed run
+            // (AnalysisProjection.Build, "Historical — previous result"), so that run is the one fed.
+            var feedRun = selected is { Integrity: RunIntegrity.Intact } ? selected.Run.Outcome is RunOutcome.Failed ? previous : selected.Run : null;
+            string feedKey = feedRun?.RunId ?? "";
             if (feedKey != projectionFeedKey)
             {
-                projectionFeed = feedKey.Length > 0 ? ProjectionFeed(selected!.Run, snapshot) : default;
+                projectionFeed = feedRun is null ? NoFeed : DeriveFeed(feedRun, snapshot, session.AcceptedSourceOf);
                 projectionFeedKey = feedKey;
             }
-            var (verdicts, stations, rootThickness) = projectionFeed;
             var view = AnalysisProjection.Build(selected?.Run, current, Units.Metric,
-                new ProjectionContext(verdicts, stations, rootThickness, Integrity: selected?.Integrity ?? RunIntegrity.Intact,
-                    PreviousCompleted: previous, HiddenLayers: hiddenLayers.ToHashSet(StringComparer.Ordinal)));
+                new ProjectionContext(projectionFeed.Verdicts, projectionFeed.Stations, projectionFeed.RootThicknessRatio, Integrity: selected?.Integrity ?? RunIntegrity.Intact,
+                    PreviousCompleted: previous, HiddenLayers: hiddenLayers.ToHashSet(StringComparer.Ordinal),
+                    StripNormals: projectionFeed.StripNormals, FeedUnavailable: projectionFeed.Unavailable));
             if (view.State == RunState.Historical && selected is not null)
                 view = view with { Banner = HistoricalBanner(selected.Run, current) };
             if (AnalysisRunning)
@@ -305,23 +311,34 @@ public sealed class WorkbenchController : IDisposable
     }
 
     /// <summary>
-    /// What the projection reads that the durable run does not hold, derived on read from the run and the accepted source it was
-    /// solved on (design §3: stored facts only; DM7). A run on an earlier revision gets none of it: only the current accepted
-    /// source is readable here, and a missing input stays missing (the projection then prints Unavailable, never a guess).
+    /// What the projection reads that the durable run does not hold, derived on read (design §3: stored facts only; DM7).
+    /// <paramref name="Unavailable"/> carries the reason when the run's revision is not held (never another revision's data).
     /// </summary>
-    private static (IReadOnlyList<StripVerdict>? Verdicts, IReadOnlyList<StationFrame>? Stations, double? RootThicknessRatio)
-        ProjectionFeed(AnalysisRun run, SessionView view)
+    public sealed record RunFeed(IReadOnlyList<StripVerdict>? Verdicts, IReadOnlyList<StationFrame>? Stations, double? RootThicknessRatio,
+        IReadOnlyList<Loads.Vec>? StripNormals, string? Unavailable);
+
+    private static readonly RunFeed NoFeed = new(null, null, null, null, null);
+
+    /// <summary>
+    /// The feed of <paramref name="run"/> from the accepted source of its own revision (<c>run.Inputs.AcceptedId</c>): the current
+    /// source when that is the run's revision, else the revision <paramref name="sourceOf"/> holds. A revision not held yields
+    /// the Unavailable reason and nothing else. A missing input stays missing; the projection prints Unavailable, never a guess.
+    /// </summary>
+    public static RunFeed DeriveFeed(AnalysisRun run, SessionView current, Func<string, byte[]?> sourceOf)
     {
-        if (run.Outcome is not RunOutcome.Completed || run.Inputs.AcceptedId != view.AcceptedId) return default;
+        if (run.Outcome is not RunOutcome.Completed) return NoFeed;
+        byte[]? source = run.Inputs.AcceptedId == current.AcceptedId ? current.Source : sourceOf(run.Inputs.AcceptedId);
+        if (source is null) return NoFeed with { Unavailable = Labels.FeedRevisionNotHeld };
         try
         {
-            var verdicts = MethodRecord.DeriveVerdicts(run, view.Source);
-            if (run.Settings.SectionEtas is not { Count: > 0 } etas) return (verdicts, null, null);
+            var verdicts = MethodRecord.DeriveVerdicts(run, source);
+            var normals = MethodRecord.DeriveNormals(run, source);
+            if (run.Settings.SectionEtas is not { Count: > 0 } etas) return new(verdicts, null, null, normals, null);
             double[] all = etas.Append(0).Distinct().Order().ToArray();
-            var frames = Placement.Sections(view.Source, all, [0d, 1d], CancellationToken.None).Select(section => section.Frame).ToArray();
-            return (verdicts, frames.Where((_, i) => etas.Contains(all[i])).ToArray(), frames[0].ThicknessRatio);
+            var frames = Placement.Sections(source, all, [0d, 1d], CancellationToken.None).Select(section => section.Frame).ToArray();
+            return new(verdicts, frames.Where((_, i) => etas.Contains(all[i])).ToArray(), frames[0].ThicknessRatio, normals, null);
         }
-        catch (ContractError) { return default; }
+        catch (ContractError) { return NoFeed; }
     }
 
     private string HistoricalBanner(AnalysisRun run, CurrentInputs current)
