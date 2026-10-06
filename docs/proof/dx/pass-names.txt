@@ -44,3 +44,6 @@ PASS Section_UnderreadNotMeasured_ShowsRatifiedText	readiness (Analysis --readin
 PASS Strips_PolarRe_InsideOutsideNotExtrapolated	readiness (Analysis --readiness)
 # 44 of 44 names print a PASS line; missing: none
 PASS Freshness_Pre117MethodVersion_HistoricalAndEvaluateComputesNew	fast ring (tools/run-tests.sh, Analysis log)
+PASS Polar_DeltaVsLatticeRow_CarriesFamilyFlag_Copy364	readiness (Analysis --readiness)
+PASS Polar_FlagsJoined_BothNotesRender_Copy364AndLowConfidence	readiness (Analysis --readiness)
+PASS Drag_StoredPre117Refusal_ReadsBackAsRefusal	readiness (Analysis --readiness)

@@ -62,6 +62,67 @@ internal static class DxSectionTests
         Check("Cavitation_Provisional_AboveTenPercent", ProvisionalBoundary);
         Check("Section_UnderreadNotMeasured_ShowsRatifiedText", NotMeasured);
         Check("Polar_NonNaca0012InsideTrainingRange_ComputedAndFlagged_Ruling117", NonNacaComputedAndFlagged);
+        Check("Polar_DeltaVsLatticeRow_CarriesFamilyFlag_Copy364", DeltaRowFlag);
+        Check("Polar_FlagsJoined_BothNotesRender_Copy364AndLowConfidence", JoinedFlagsRender);
+        Check("Drag_StoredPre117Refusal_ReadsBackAsRefusal", Pre117RefusalReadsBack);
+    }
+
+    private const string Copy364Tail = "were not validated (NACA 0012 only). Computed, not validated.";
+
+    /// <summary>Ruling 117 follow-up: the polar-vs-lattice strip carries the family flag from the polar result, and the section tab's
+    /// Δ row appends COPY-364 to its note (CFD finding 2). Ring: readiness, a product run (about 1 s).</summary>
+    private static void DeltaRowFlag()
+    {
+        using var session = new AuthoringSession();
+        session.Open(File.ReadAllBytes(Path.Combine(StripFixtureTests.RepoRoot(), "docs", "examples", "foildsl", "foil-basic.foil")), Fixture.Id(), true);
+        RunSettings settings = Settings.Default with { NSpanPerHalf = 4, NChord = 2,
+            SectionEtas = [0d, 0.5, 1d], SectionXs = Settings.ChordXs(2, "cosine") };
+        var method = new ProductWingMethod(settings);
+        AnalysisRun run = Fixture.Evaluate(new AnalysisService(session, method), Fixture.Op(3));
+        PolarConsistencyResult derived = TipPolarConsistency.Derive(run, session.AcceptedSourceOf(run.Inputs.AcceptedId)!)!;
+        Equal(true, derived.Strips.Any(strip => strip.ClDelta is not null) && derived.Strips.Where(strip => strip.ClDelta is not null).All(strip => strip.SectionUnvalidated),
+            "a strip with a polar cl on a non-NACA 0012 section is flagged");
+        var flagged = new PolarConsistencyResult(null, [new PolarConsistencyStrip(F.Gov.Eta, 1, 0.02, "ANA-POLAR-CONSISTENCY-JUDGED") { SectionUnvalidated = true }]);
+        var plain = new PolarConsistencyResult(null, [new PolarConsistencyStrip(F.Gov.Eta, 1, 0.02, "ANA-POLAR-CONSISTENCY-JUDGED")]);
+        string flaggedNote = Cell(Build(F.Tier with { PolarConsistency = flagged }, selected: F.Gov.Eta), "Polar", Labels.DeltaVsLattice).Note!;
+        Equal(true, flaggedNote.Contains(Copy364Tail) && flaggedNote.StartsWith(Labels.DeltaVsLatticeNote, StringComparison.Ordinal), "the flagged Δ row carries its note and COPY-364");
+        Equal(Labels.DeltaVsLatticeNote, Cell(Build(F.Tier with { PolarConsistency = plain }, selected: F.Gov.Eta), "Polar", Labels.DeltaVsLattice).Note, "an unflagged row keeps only its note");
+    }
+
+    /// <summary>A cd carrying both flags joined by "|" renders both notes on the drag band and the strip row (COPY-364, COPY-316). Ring: fast.</summary>
+    private static void JoinedFlagsRender()
+    {
+        string both = StripFlags.Join(StripFlags.SectionUnvalidated, StripFlags.LowConfidence)!;
+        Equal(true, both.Contains('|'), "the stored flag is a joined list: " + both);
+        AnalysisRun run = RunWith(strip => strip with
+        {
+            CdNcrit2 = strip.CdNcrit2 with { Value = 0.01, UnavailableReason = null, FlagCode = both },
+            CdNcrit4 = strip.CdNcrit4 with { Value = 0.012, UnavailableReason = null, FlagCode = both }
+        });
+        AnalysisViewModel view = ProjectionTests.View(run);
+        foreach (ResultRow row in new[] { ProjectionTests.Cell(view, "Wing result", Labels.WingDragLabel), ProjectionTests.Cell(view, "Wing result", "Wing-only CL/CD"),
+            ProjectionTests.Cell(view, "Loads", "Profile drag"), ProjectionTests.Cell(view, "Loads", "Wing-only CL/CD") })
+        {
+            Equal(true, row.Note!.Contains(Copy364Tail), row.Label + " carries COPY-364");
+            Equal(true, row.Note!.Contains(Labels.LowConfidenceStrips(run.Strips.Count)), row.Label + " carries the low-confidence note");
+        }
+        string stripNote = view.StripDetails[0].Rows.Single(r => r.Label == "cd (profile)").Note!;
+        Equal(true, stripNote.Contains(Copy364Tail) && stripNote.Contains(Labels.LowConfidence(null)), "the strip cd carries both notes");
+    }
+
+    /// <summary>Rows stored before Ruling 117 hold the family refusal as an UnavailableReason; they still read back as that refusal text. Ring: fast.</summary>
+    private static void Pre117RefusalReadsBack()
+    {
+        AnalysisRun run = RunWith(strip => strip with
+        {
+            CdNcrit2 = new StripValue(null, "ANA-POLAR-SECTION-UNVALIDATED"),
+            CdNcrit4 = new StripValue(null, "ANA-POLAR-SECTION-UNVALIDATED")
+        });
+        AnalysisViewModel view = ProjectionTests.View(run);
+        string expected = Labels.ReasonTexts["ANA-POLAR-SECTION-UNVALIDATED"];
+        Equal(true, ProjectionTests.Cell(view, "Wing result", Labels.WingDragLabel).Value.StartsWith("Unavailable", StringComparison.Ordinal), "the wing drag row reads Unavailable, not a number");
+        Equal(expected, view.StripDetails[0].Rows.Single(r => r.Label == "cd (profile)").Value, "the strip cd reads the stored refusal");
+        Equal(false, Code.IsMatch(Text(view)), "no raw code");
     }
 
     // ---- fixture: the default foil at four stations, one tier, one run with the polar installed ----

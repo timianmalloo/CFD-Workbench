@@ -143,8 +143,9 @@ public static class SectionDisplay
             if (beside is { Length: > 0 }) polar.AddRange(beside);
             polar.Add(R("Polar Re range", Re(station.Reynolds)));
             polar.Add(R("Tripped", Labels.PolarNotComputed));
-            if (tier.PolarConsistency?.Strips.FirstOrDefault(s => Math.Abs(s.Eta - station.Eta) < 1e-9) is { ClDelta: { } delta })
-                polar.Add(R(Labels.DeltaVsLattice, N(delta, "0.###"), note: Labels.DeltaVsLatticeNote));
+            if (tier.PolarConsistency?.Strips.FirstOrDefault(s => Math.Abs(s.Eta - station.Eta) < 1e-9) is { ClDelta: { } delta } consistency)
+                polar.Add(R(Labels.DeltaVsLattice, N(delta, "0.###"), note: consistency.SectionUnvalidated
+                    ? Labels.DeltaVsLatticeNote + " · " + Labels.BracketOutsideFamily(Labels.UnvalidatedFamily) : Labels.DeltaVsLatticeNote));
             groups.Add(new("Polar", polar));
         }
 
@@ -231,10 +232,10 @@ public static class SectionDisplay
             // (validated or not); the sweep is the bracket's α range, so nothing is extrapolated beyond it, and a section the fit
             // cannot represent draws nothing.
             CstFitResult fit = CstFit.Fit(section);
-            bool validated = fit.MaxResidual <= NeuralFoilPolarSource.MaxCstResidual &&
+            bool computable = fit.MaxResidual <= NeuralFoilPolarSource.MaxCstResidual &&
                 station.Reynolds is >= NeuralFoilPolarSource.TrainingReynoldsMin and <= NeuralFoilPolarSource.TrainingReynoldsMax;
             NeuralFoilNetwork network = NeuralFoilNetwork.FromEmbedded();
-            if (validated)
+            if (computable)
                 for (double a = NeuralFoilPolarSource.AlphaMinDeg; a <= NeuralFoilPolarSource.AlphaMaxDeg + 1e-9; a += 1)
                     foreach (int ncrit in new[] { 2, 4 })
                         rows[ncrit].Add((a, network.Predict(fit.Parameters, a, station.Reynolds, ncrit)));
