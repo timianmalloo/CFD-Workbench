@@ -579,6 +579,113 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-247 | This tip is already under the minimum. It can't go lower. — approved — Ruling 96 (legacy file; COPY-E) |
 | COPY-248 | <value> mm · minimum — approved — Ruling 96 (held tip chord in the Wing block; COPY-F) |
 | COPY-249 | Use <value> — approved — Ruling 96 (action on a refused typed chord, never applied by itself; the Ruling's "Use <min>") |
+| COPY-250 | Unavailable — <reason> — approved — Ruling 101 (the COPY-70 form wherever a value cell read a bare "Unavailable": AnalysisProjection.cs VerdictUnavailable and Val, the Wing loading cell, the failed-run Result row; the reason is the code's own) |
+| COPY-251 | ; <n> strips: Unavailable — <reason> — approved — Ruling 101 (run-sentence suffix for strips with no verdict (AnalysisProjection.cs RunVerdict)) |
+| COPY-252 | ; <n> Not judged — tip strip — approved — Ruling 101 (run-sentence suffix for the provisional tip strips (COPY-220 text)) |
+| COPY-253 | Unavailable — this run's geometry revision is not held by this session; verdicts, stations and normals omitted — approved — Ruling 101 (unheld-revision note (Labels.FeedRevisionNotHeld)) |
+| COPY-254 | Inside the method envelope at this strip (<parts>) — approved — Ruling 101 (per-strip verdict; <parts> reads as in the next row; extends COPY-221) |
+| COPY-255 | Outside the method envelope at this strip — exceeded: <names> (<parts>) — approved — Ruling 101 (per-strip verdict; extends COPY-222) |
+| COPY-256 | <name> <value><unit> ≤ <bound><unit> — approved — Ruling 101 (one part of a verdict; reads > when that quantity is the one exceeded; names are |α_eff − α_L0|, Cl_local, sweep) |
+| COPY-257 | Inside the method envelope (\|α_eff − α_L0\| ≤ <a>°, Cl_local ≤ <c>, quarter-chord sweep ≤ <s>°) at all <n> strips — approved — Ruling 101 (run sentence, all strips inside) |
+| COPY-258 | Outside the method envelope (\|α_eff − α_L0\| ≤ <a>°, Cl_local ≤ <c>, quarter-chord sweep ≤ <s>°) — <k> of <n> strips; exceeded: <names> — approved — Ruling 101 (run sentence, some strips outside) |
+| COPY-259 | Unavailable — no attachment point named (DR-ANA-5) — approved — Ruling 101 (Moment about attachment point (Loads.AttachmentReason)) |
+| COPY-260 | Analysis: no result — approved — Ruling 101 (status-strip item (AnalysisProjection.cs StatusText)) |
+| COPY-261 | Analysis: Unavailable — approved — Ruling 101 (status-strip item (AnalysisProjection.cs StatusText)) |
+| COPY-262 | Analysis: Failed — approved — Ruling 101 (status-strip item (AnalysisProjection.cs StatusText)) |
+| COPY-263 | Analysis: Current — approved — Ruling 101 (status-strip item (AnalysisProjection.cs StatusText)) |
+| COPY-264 | Analysis: Historical — approved — Ruling 101 (status-strip item (AnalysisProjection.cs StatusText)) |
+| COPY-265 | Unavailable — surface piercing — approved — Ruling 101 (Tip depth cell when the tip is at or above the surface (COPY-45 covers "depth not set" only)) |
+| COPY-266 | Undefined — speed ≤ 0 — approved — Ruling 101 (derived condition cells (Conditions group and the band) when the speed is not above zero) |
+| COPY-267 | tip depth <value> m — approved — Ruling 101 (3D and side-view depth annotation) |
+| COPY-268 | free surface and tip depth, values in the conditions table — approved — Ruling 101 (alt-text clause after "; " when the depth layer is visible (View3d.LoadLayer.cs)) |
+| COPY-269 | dashed outline: <n> strip outside the method envelope — approved — Ruling 101 (plan-view legend, <n> = 1 (singular)) |
+| COPY-270 | dashed outline: <n> strips outside the method envelope — approved — Ruling 101 (plan-view legend, <n> other than 1) |
+| COPY-271 | Historical — previous result — approved — Ruling 101 (banner while a failed run shows the previous result (an instance of COPY-64)) |
+| COPY-272 | Preview hidden — Apply or Cancel in CAD — approved — Ruling 101 (model-area notice while a CAD preview is pending) |
+| COPY-273 | Outside strips have dashed outlines and a text count. — approved — Ruling 101 (note on the Γ-per-strip layer) |
+| COPY-274 | The stored run no longer matches its content hash. It is kept in the file and not shown. Evaluate to compute a new run. — approved — Ruling 101 (tampered-run note under COPY-211, mockup screen 8) |
+| COPY-275 | η (root → tip) — approved — Ruling 101 (Spanwise loading chart, x-axis title) |
+| COPY-276 | Cl·c/c̄ (–) — approved — Ruling 101 (Spanwise loading chart, y-axis title) |
+| COPY-277 | dashed: elliptic, same CL — approved — Ruling 101 (Spanwise loading chart, legend) |
+| COPY-278 | VLM + strip — approved — Ruling 101 (Spanwise loading chart, series label (its own row; also a fragment of COPY-213)) |
+| COPY-279 | Historical · VLM + strip — approved — Ruling 101 (tier chip while the run is Historical or Failed) |
+| COPY-280 | 10 kn · salt 15 °C · as the band — approved — Ruling 101 (Conditions group summary line (mockup values; the units follow the Units setting)) |
+| COPY-281 | Moving <n> <curve> points. — approved — Ruling 107 (DR-GM-7, COPY-G1) (docs/design/group-move-node-m.md section 5, row COPY-G1) |
+| COPY-282 | Moved <n> <curve> points. Tip chord <value> mm. — approved — Ruling 107 (DR-GM-7, COPY-G2) (docs/design/group-move-node-m.md section 5, row COPY-G2; the tip clause shows only when an end vertex moved) |
+| COPY-283 | <Point name> is locked. Deselect it to move the others. — approved — Ruling 107 (DR-GM-7, COPY-G3) (docs/design/group-move-node-m.md section 5, row COPY-G3) |
+| COPY-284 | The <point> can't move along the span, so the selection moves aft only. — approved — Ruling 107 (DR-GM-7, COPY-G4) (docs/design/group-move-node-m.md section 5, row COPY-G4) |
+| COPY-285 | Handles move on their own, or with their anchor. Deselect the handle or select its anchor. — approved — Ruling 107 (DR-GM-7, COPY-G5) (docs/design/group-move-node-m.md section 5, row COPY-G5) |
+| COPY-286 | The selection is held by point <n>. Points can't close up on a neighbour. — approved — Ruling 107 (DR-GM-7, COPY-G6) (docs/design/group-move-node-m.md section 5, row COPY-G6) |
+| COPY-287 | Select points on one curve to move them together. — approved — Ruling 107 (DR-GM-7, COPY-G7) (docs/design/group-move-node-m.md section 5, row COPY-G7) |
+| COPY-288 | Moving these points by <typed> would take the tip chord below <min>. The most they can move that way is <amount>. — approved — Ruling 107 (DR-GM-7, COPY-G8) (docs/design/group-move-node-m.md section 5, row COPY-G8) |
+| COPY-289 | Points can't share a position along the span. Move them by an amount instead. — approved — Ruling 107 (DR-GM-7, COPY-G9) (docs/design/group-move-node-m.md section 5, row COPY-G9) |
+| COPY-290 | Moving these points by <typed> would pass point <n>. The most they can move that way is <amount>. — approved — Ruling 107 (DR-GM-7, COPY-G10) (docs/design/group-move-node-m.md section 5, row COPY-G10) |
+| COPY-291 | Set <row> of <n> points to <value>. — approved — Ruling 107 (DR-GM-7, COPY-G11) (docs/design/group-move-node-m.md section 5, row COPY-G11) |
+| COPY-292 | Moved <n> points by <signed value>. — approved — Ruling 107 (DR-GM-7, COPY-G12) (docs/design/group-move-node-m.md section 5, row COPY-G12) |
+| COPY-293 | inviscid + turbulent-friction bound; deep water; steady · inviscid; no boundary layer — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 3: Cp and estimator fixed label; depth unset: "free surface not modelled" replaces "deep water") |
+| COPY-294 | Cp · vik pinned at 0 · −a to +b — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 5: Section view legend) |
+| COPY-295 | cl (panel) — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 6: Section result row label) |
+| COPY-296 | Cm c/4 — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 6: Section result row label) |
+| COPY-297 | α_L0 (panel) — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 6: Section result row label) |
+| COPY-298 | Fully turbulent friction bound (ITTC-1957) at this Re; a bound, not a polar value — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 7: estimator cd note; also the estimator-sourced profile drag, row 47) |
+| COPY-299 | at x/c <x> on the <side> surface · 200 stations · three trailing-edge panels per side excluded — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 8: −Cp_min note) |
+| COPY-300 | 15 % margin — practitioner assumption, not sourced — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 13: cavitation margin label) |
+| COPY-301 | Clear — σ is above −Cp_min plus the margin — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 14: margin state) |
+| COPY-302 | Inside the margin — σ is above −Cp_min but within the margin — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 15: margin state) |
+| COPY-303 | Possible — σ is at or below −Cp_min; speed is above V_crit — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 16: margin state) |
+| COPY-304 | Governing station: η <η> · depth <h> m · smallest σ / (−Cp_min) of <n> stations — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 17: governing station line) |
+| COPY-305 | Unavailable — vapour pressure missing — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 19: cavitation; reason code ANA-CAV-PV-MISSING) |
+| COPY-306 | Unavailable — local station is surface piercing — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 20: cavitation; reason code ANA-CAV-SURFACE-PIERCING) |
+| COPY-307 | Unavailable — water is invalid — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 21: cavitation; reason code ANA-CAV-WATER-INVALID) |
+| COPY-308 | Unavailable — local depth is invalid — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 21: cavitation; reason code ANA-CAV-DEPTH-INVALID) |
+| COPY-309 | Undefined — −Cp_min ≤ 0 — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 22: cavitation; COPY-69 with this cause; reason code ANA-CAV-NO-SUCTION) |
+| COPY-310 | Undefined — static pressure does not exceed vapour pressure — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 23: cavitation; reason code ANA-CAV-PRESSURE-NONPOSITIVE) |
+| COPY-311 | Cp_min under-read, 200 vs 400 panels — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 24: per-run measured under-read) |
+| COPY-312 | Provisional — Cp_min under-read at this station is above 10 % (200 vs 400 panels) — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 25: provisional row (DR-DXM-7)) |
+| COPY-313 | surrogate, relative to XFOIL, validated at NACA 0012 pre-stall only — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 29: surrogate label beside COPY-66 (DR-DXM-3)) |
+| COPY-314 | NeuralFoil-0.3.2/xxxlarge/94638c04 — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 30: Provenance Method value) |
+| COPY-315 | analysis_confidence 0.97 · advisory, not an error bar — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 31: example value 0.97 is a fixture) |
+| COPY-316 | Low confidence — analysis_confidence 0.31 is below 0.5. Computed and flagged, never refused; not an error bar. — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 33: advisory; example value 0.31 is a fixture; reason code ANA-POLAR-LOW-CONFIDENCE) |
+| COPY-317 | CST fit residual: max 1.09 × 10⁻⁴ c · RMS 2.93 × 10⁻⁵ c (shape residual, not an aerodynamic error) — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 34: example values are fixtures) |
+| COPY-318 | Inside the validated bracket (α −6° to 6°, Re 2 × 10⁵ to 10⁶, Ncrit 2, 4, 9, NACA 0012 family) — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 35: bracket flag) |
+| COPY-319 | Outside the validated bracket — α 7.50° is beyond ±6°. Computed, not validated. — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 36: bracket flag; one row per axis (α, Re, Ncrit, section family), only the α sentence is drafted) |
+| COPY-320 | Unavailable — α 31.00° is outside the surrogate’s training range (−27.9° to 28.6°) — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 37: non-computable; example values are fixtures; reason code ANA-POLAR-ALPHA-OUTSIDE) |
+| COPY-321 | Unavailable — section fit residual 4.2 × 10⁻⁴ c exceeds the limit 3.6 × 10⁻⁴ c — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 37: non-computable; example values are fixtures; reason code ANA-POLAR-NONCOMPUTABLE) |
+| COPY-322 | Re_local <Re> inside <Re_min> to <Re_max> — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 38: strip row) |
+| COPY-323 | Re_local <Re> outside the polar’s Re range <Re_min> to <Re_max> — cd not extrapolated — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 39: strip row) |
+| COPY-324 | Δ vs lattice Cl_local — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 41: strip row label) |
+| COPY-325 | polar cl at α_eff against the lattice, a per-strip consistency check — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 41: note of the Δ vs lattice Cl_local row) |
+| COPY-326 | Polar bracket: — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 42: strip row label (DR-DXM-2)) |
+| COPY-327 | Overlay a section ▾ — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 44: transition overlay control) |
+| COPY-328 | Profile drag from the polar at α_eff, both Ncrit; band, not a prediction — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 46: polar-sourced profile drag note) |
+| COPY-329 | Unavailable — cd missing at <n> strips; the estimator bound is not substituted — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 48: profile drag with strips missing cd; reason code ANA-PROFILE-DRAG-MISSING-CD) |
+| COPY-330 | Wing only: induced (VLM + strip) plus profile (polar). Not a total. — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 49: wing drag note (DR-DXM-5)) |
+| COPY-331 | Unavailable — missing: junction, mast, wave, spray — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 50: craft Total drag when the profile part is present; reason code ANA-TOTAL-DRAG-MISSING-JUNCTION-MAST-WAVE-SPRAY) |
+| COPY-332 | α <a>° meets CL <t> within 1 % — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 53: Find α, a found α) |
+| COPY-333 | Find α found no α — <reason>. Nothing was extrapolated. — approved — Ruling 108 (DR-DXM-1) (dx-screen-states row 54: Find α with no root; the five <reason> sentences are not drafted) |
+| COPY-334 | Unavailable — drag could not be computed. Evaluate again. — proposed — awaiting operator (reason code ANA-DRAG-UNAVAILABLE; shows at AnalysisProjection.cs:232 (drag row value, fallback)) |
+| COPY-335 | Unavailable — wing drag is missing or zero, so CL/CD can't be formed. — proposed — awaiting operator (reason code ANA-WING-RATIO-UNAVAILABLE; shows at AnalysisProjection.cs:245 (Wing-only CL/CD value)) |
+| COPY-336 | Wing only: lift over wing drag. Not a craft CL/CD. — proposed — awaiting operator (reason code ANA-WING-ONLY-RATIO; shows at AnalysisProjection.cs:248 (Wing-only CL/CD note)) |
+| COPY-337 | Cd (turbulent bound) — proposed — awaiting operator (reason code ANA-SECTION-ITTC1957-BOUND; shows at AnalysisProjection.cs:192 (Section row label; the DX row 7 sentence is its note)) |
+| COPY-338 | Unavailable — induced drag is missing. — proposed — awaiting operator (reason code ANA-TOTAL-DRAG-MISSING-INDUCED; shows at Loads.cs:51 via AnalysisProjection.cs:232 (Total drag value)) |
+| COPY-339 | Unavailable — missing: profile, junction, mast, wave, spray — proposed — awaiting operator (reason code ANA-TOTAL-DRAG-MISSING-PROFILE; shows at Loads.cs:53 via AnalysisProjection.cs:232 (Total drag value when a polar is installed but the profile part is missing)) |
+| COPY-340 | Unavailable — the run has no strips. — proposed — awaiting operator (reason codes ANA-PROFILE-DRAG-MISSING-STRIPS, ANA-INDUCED-DRAG-MISSING-STRIPS; shows at Loads.cs:68, :88 via AnalysisProjection.cs:232 (Profile and Induced drag value)) |
+| COPY-341 | Unavailable — a strip width is not recorded. — proposed — awaiting operator (reason codes ANA-PROFILE-DRAG-MISSING-WIDTH, ANA-INDUCED-DRAG-MISSING-WIDTH; shows at Loads.cs:77, :93 via AnalysisProjection.cs:232) |
+| COPY-342 | Unavailable — a drag sum is not a finite number. Evaluate again. — proposed — awaiting operator (reason codes ANA-PROFILE-DRAG-NONFINITE, ANA-INDUCED-DRAG-NONFINITE; shows at Loads.cs:83, :97 via AnalysisProjection.cs:232) |
+| COPY-343 | Unavailable — no section profile for this strip. — proposed — awaiting operator (reason code ANA-POLAR-PROFILE-MISSING; shows at StripCoupler.cs:33 and NeuralFoilPolarSource.cs:100 via AnalysisProjection.cs:232 and :213 (PolarText)) |
+| COPY-344 | Unavailable — the polar gave no result for this strip. — proposed — awaiting operator (reason code ANA-POLAR-UNAVAILABLE; shows at StripCoupler.cs:67 via AnalysisProjection.cs:232) |
+| COPY-345 | Unavailable — the polar gave no drag value at this strip. — proposed — awaiting operator (reason code ANA-POLAR-CD-UNAVAILABLE; shows at StripCoupler.cs:72 via AnalysisProjection.cs:232) |
+| COPY-346 | Unavailable — the stored polar was made with another method or profile. Evaluate to compute a new run. — proposed — awaiting operator (reason code ANA-POLAR-METHOD-MISMATCH; shows at SectionTier.cs:42 and NeuralFoilPolarSource.cs:126 via AnalysisProjection.cs:213 (Ncrit rows)) |
+| COPY-347 | Unavailable — the section revision for this polar is not held by this session. — proposed — awaiting operator (reason codes ANA-POLAR-REVISION-MISSING, ANA-POLAR-REVISION-MISMATCH, ANA-POLAR-PROFILE-HASH; shows at RunPolarResolver.cs:15, :19 and NeuralFoilPolarSource.cs:102 via StripCoupler.cs:74 / SectionTier.cs:59) |
+| COPY-348 | Unavailable — Re <Re> is outside the surrogate’s training range (<min> to <max>) — proposed — awaiting operator (reason code ANA-POLAR-RE-OUTSIDE; shows at IPolarSource.cs:28 via SectionTier.cs:57 (Ncrit rows); the α sentence is DX row 37) |
+| COPY-349 | Unavailable — Ncrit <n> is outside the surrogate’s training range (<min> to <max>) — proposed — awaiting operator (reason code ANA-POLAR-NCRIT-OUTSIDE; shows at IPolarSource.cs:31 via SectionTier.cs:57) |
+| COPY-350 | Unavailable — this section family is not covered by the surrogate. — proposed — awaiting operator (reason code ANA-POLAR-SECTION-UNVALIDATED; shows at IPolarSource.cs:29 via SectionTier.cs:57) |
+| COPY-351 | Unavailable — the polar did not converge at this strip. — proposed — awaiting operator (reason code ANA-POLAR-NOT-CONVERGED; shows at IPolarSource.cs:32 via SectionTier.cs:57) |
+| COPY-352 | Unavailable — the polar could not be computed for this section. This is a program fault; the run is kept. — proposed — awaiting operator (reason codes ANA-POLAR-NONFINITE, ANA-POLAR-INPUT, ANA-POLAR-CST-INPUT, ANA-POLAR-CST-FIT, ANA-POLAR-WEIGHTS-MISSING, ANA-POLAR-WEIGHTS-HASH, ANA-POLAR-WEIGHTS-FORMAT; shows at NeuralFoilNetwork.cs, CstFit.cs, Naca0012Reference.cs via StripCoupler.cs:74 / SectionTier.cs:59 (any ANA-POLAR- code becomes the reason)) |
+| COPY-353 | Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray — approved — Ruling 101 (one string for Total drag and the craft CL/CD (Loads.TotalDragReason replaces "Unavailable — total drag missing"); the craft Total drag and craft CL/CD stay Unavailable (hydrodynamicist condition)) |
+| COPY-354 | Drag (Wing only) — proposed — awaiting operator (HYD conditions on Ruling 108 DXM-5) (row label; one row replaces the "Wing-only drag" row (AnalysisProjection.cs:81 and :134); Ruling 108 text was "Total drag" marked "Wing only") |
+| COPY-355 | <min>–<max> N — proposed — awaiting operator (HYD conditions on Ruling 108 DXM-5) (value: the Ncrit 2–4 band; keeps the surrogate label and the low-confidence flag; <min> and <max> read in lbf under Imperial units (the operator confirms)) |
+| COPY-356 | Not included: junction, mast, wave, spray — proposed — awaiting operator (HYD conditions on Ruling 108 DXM-5) (new reason line under the Drag (Wing only) row; tip-vortex cavitation stays under Not modelled) |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

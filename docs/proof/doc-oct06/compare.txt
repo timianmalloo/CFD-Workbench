@@ -1,0 +1,108 @@
+EQUAL COPY-250 Unavailable — <reason> :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 2/2
+EQUAL COPY-251 ; <n> strips: Unavailable — <reason> :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-252 ; <n> Not judged — tip strip :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-253 Unavailable — this run's geometry revision is not held by this session; verdicts, stations and normals omitted :: src/CfdWorkbench.Analysis/Labels.cs :: fragments found: 1/1
+EQUAL COPY-254 Inside the method envelope at this strip (<parts>) :: src/CfdWorkbench.Analysis/MethodRecord.cs :: fragments found: 1/1
+EQUAL COPY-255 Outside the method envelope at this strip — exceeded: <names> (<parts>) :: src/CfdWorkbench.Analysis/MethodRecord.cs :: fragments found: 1/1
+EQUAL COPY-256 <name> <value><unit> ≤ <bound><unit> :: src/CfdWorkbench.Analysis/MethodRecord.cs :: fragments found: 2/2
+EQUAL COPY-257 Inside the method envelope (|α_eff − α_L0| ≤ <a>°, Cl_local ≤ <c>, quarter-chord sweep ≤ <s>°) at all <n> strips :: src/CfdWorkbench.Analysis/MethodRecord.cs :: fragments found: 5/5
+EQUAL COPY-258 Outside the method envelope (|α_eff − α_L0| ≤ <a>°, Cl_local ≤ <c>, quarter-chord sweep ≤ <s>°) — <k> of <n> strips; exceeded: <names> :: src/CfdWorkbench.Analysis/MethodRecord.cs :: fragments found: 2/2
+EQUAL COPY-259 Unavailable — no attachment point named (DR-ANA-5) :: src/CfdWorkbench.Analysis/Loads.cs :: fragments found: 1/1
+EQUAL COPY-260 Analysis: no result :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-261 Analysis: Unavailable :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-262 Analysis: Failed :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-263 Analysis: Current :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-264 Analysis: Historical :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-265 Unavailable — surface piercing :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-266 Undefined — speed ≤ 0 :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-267 tip depth <value> m :: src/CfdWorkbench.Desktop/Analysis/View3dLoadLayer.cs :: fragments found: 2/2
+EQUAL COPY-268 free surface and tip depth, values in the conditions table :: src/CfdWorkbench.Desktop/Analysis/View3d.LoadLayer.cs :: fragments found: 1/1
+EQUAL COPY-269 dashed outline: <n> strip outside the method envelope :: src/CfdWorkbench.Desktop/Analysis/PlanLoadLayer.cs :: fragments found: 1/1
+EQUAL COPY-270 dashed outline: <n> strips outside the method envelope :: src/CfdWorkbench.Desktop/Analysis/PlanLoadLayer.cs :: fragments found: 2/2
+EQUAL COPY-271 Historical — previous result :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-272 Preview hidden — Apply or Cancel in CAD :: src/CfdWorkbench.Desktop/ModelArea.axaml :: fragments found: 1/1
+EQUAL COPY-273 Outside strips have dashed outlines and a text count. :: src/CfdWorkbench.Analysis/AnalysisProjection.cs :: fragments found: 1/1
+EQUAL COPY-274 The stored run no longer matches its content hash. It is kept in the file and not shown. Evaluate to compute a new run. :: docs/mockups/area3-analysis.html :: found
+EQUAL COPY-275 η (root → tip) :: docs/mockups/area3-analysis.html :: found
+EQUAL COPY-276 Cl·c/c̄ (–) :: docs/mockups/area3-analysis.html :: found
+EQUAL COPY-277 dashed: elliptic, same CL :: docs/mockups/area3-analysis.html :: found
+EQUAL COPY-278 VLM + strip :: docs/mockups/area3-analysis.html :: found
+EQUAL COPY-279 Historical · VLM + strip :: docs/mockups/area3-analysis.html :: found
+EQUAL COPY-280 10 kn · salt 15 °C · as the band :: docs/mockups/area3-analysis.html :: found
+EQUAL COPY-281 (COPY-G1) Moving <n> <curve> points. :: docs/design/group-move-node-m.md
+EQUAL COPY-282 (COPY-G2) Moved <n> <curve> points. Tip chord <value> mm. :: docs/design/group-move-node-m.md
+EQUAL COPY-283 (COPY-G3) <Point name> is locked. Deselect it to move the others. :: docs/design/group-move-node-m.md
+EQUAL COPY-284 (COPY-G4) The <point> can't move along the span, so the selection moves aft only. :: docs/design/group-move-node-m.md
+EQUAL COPY-285 (COPY-G5) Handles move on their own, or with their anchor. Deselect the handle or select its anchor. :: docs/design/group-move-node-m.md
+EQUAL COPY-286 (COPY-G6) The selection is held by point <n>. Points can't close up on a neighbour. :: docs/design/group-move-node-m.md
+EQUAL COPY-287 (COPY-G7) Select points on one curve to move them together. :: docs/design/group-move-node-m.md
+EQUAL COPY-288 (COPY-G8) Moving these points by <typed> would take the tip chord below <min>. The most they can move that way is <amount>. :: docs/design/group-move-node-m.md
+EQUAL COPY-289 (COPY-G9) Points can't share a position along the span. Move them by an amount instead. :: docs/design/group-move-node-m.md
+EQUAL COPY-290 (COPY-G10) Moving these points by <typed> would pass point <n>. The most they can move that way is <amount>. :: docs/design/group-move-node-m.md
+EQUAL COPY-291 (COPY-G11) Set <row> of <n> points to <value>. :: docs/design/group-move-node-m.md
+EQUAL COPY-292 (COPY-G12) Moved <n> points by <signed value>. :: docs/design/group-move-node-m.md
+EQUAL COPY-293 inviscid + turbulent-friction bound; deep water; steady · inviscid; no boundary layer :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-294 Cp · vik pinned at 0 · −a to +b :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-295 cl (panel) :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-296 Cm c/4 :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-297 α_L0 (panel) :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-298 Fully turbulent friction bound (ITTC-1957) at this Re; a bound, not a polar value :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-299 at x/c <x> on the <side> surface · 200 stations · three trailing-edge panels per side excluded :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-300 15 % margin — practitioner assumption, not sourced :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-301 Clear — σ is above −Cp_min plus the margin :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-302 Inside the margin — σ is above −Cp_min but within the margin :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-303 Possible — σ is at or below −Cp_min; speed is above V_crit :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-304 Governing station: η <η> · depth <h> m · smallest σ / (−Cp_min) of <n> stations :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-305 Unavailable — vapour pressure missing :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-306 Unavailable — local station is surface piercing :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-307 Unavailable — water is invalid :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-308 Unavailable — local depth is invalid :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-309 Undefined — −Cp_min ≤ 0 :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-310 Undefined — static pressure does not exceed vapour pressure :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-311 Cp_min under-read, 200 vs 400 panels :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-312 Provisional — Cp_min under-read at this station is above 10 % (200 vs 400 panels) :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-313 surrogate, relative to XFOIL, validated at NACA 0012 pre-stall only :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-314 NeuralFoil-0.3.2/xxxlarge/94638c04 :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-315 analysis_confidence 0.97 · advisory, not an error bar :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-316 Low confidence — analysis_confidence 0.31 is below 0.5. Computed and flagged, never refused; not an error bar. :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-317 CST fit residual: max 1.09 × 10⁻⁴ c · RMS 2.93 × 10⁻⁵ c (shape residual, not an aerodynamic error) :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-318 Inside the validated bracket (α −6° to 6°, Re 2 × 10⁵ to 10⁶, Ncrit 2, 4, 9, NACA 0012 family) :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-319 Outside the validated bracket — α 7.50° is beyond ±6°. Computed, not validated. :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-320 Unavailable — α 31.00° is outside the surrogate’s training range (−27.9° to 28.6°) :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-321 Unavailable — section fit residual 4.2 × 10⁻⁴ c exceeds the limit 3.6 × 10⁻⁴ c :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-322 Re_local <Re> inside <Re_min> to <Re_max> :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-323 Re_local <Re> outside the polar’s Re range <Re_min> to <Re_max> — cd not extrapolated :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-324 Δ vs lattice Cl_local :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-325 polar cl at α_eff against the lattice, a per-strip consistency check :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-326 Polar bracket: :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-327 Overlay a section ▾ :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-328 Profile drag from the polar at α_eff, both Ncrit; band, not a prediction :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-329 Unavailable — cd missing at <n> strips; the estimator bound is not substituted :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-330 Wing only: induced (VLM + strip) plus profile (polar). Not a total. :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-331 Unavailable — missing: junction, mast, wave, spray :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-332 α <a>° meets CL <t> within 1 % :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+EQUAL COPY-333 Find α found no α — <reason>. Nothing was extrapolated. :: docs/design/dx-screen-states.md :: the backticked proposed string is in the table
+DRAFT COPY-334 Unavailable — drag could not be computed. Evaluate again. :: no source text; drafted by DOC for operator review; codes ANA-DRAG-UNAVAILABLE exist in src/CfdWorkbench.Analysis
+DRAFT COPY-335 Unavailable — wing drag is missing or zero, so CL/CD can't be formed. :: no source text; drafted by DOC for operator review; codes ANA-WING-RATIO-UNAVAILABLE exist in src/CfdWorkbench.Analysis
+DRAFT COPY-336 Wing only: lift over wing drag. Not a craft CL/CD. :: no source text; drafted by DOC for operator review; codes ANA-WING-ONLY-RATIO exist in src/CfdWorkbench.Analysis
+DRAFT COPY-337 Cd (turbulent bound) :: no source text; drafted by DOC for operator review; codes ANA-SECTION-ITTC1957-BOUND exist in src/CfdWorkbench.Analysis
+DRAFT COPY-338 Unavailable — induced drag is missing. :: no source text; drafted by DOC for operator review; codes ANA-TOTAL-DRAG-MISSING-INDUCED exist in src/CfdWorkbench.Analysis
+DRAFT COPY-339 Unavailable — missing: profile, junction, mast, wave, spray :: no source text; drafted by DOC for operator review; codes ANA-TOTAL-DRAG-MISSING-PROFILE exist in src/CfdWorkbench.Analysis
+DRAFT COPY-340 Unavailable — the run has no strips. :: no source text; drafted by DOC for operator review; codes ANA-PROFILE-DRAG-MISSING-STRIPS, ANA-INDUCED-DRAG-MISSING-STRIPS exist in src/CfdWorkbench.Analysis
+DRAFT COPY-341 Unavailable — a strip width is not recorded. :: no source text; drafted by DOC for operator review; codes ANA-PROFILE-DRAG-MISSING-WIDTH, ANA-INDUCED-DRAG-MISSING-WIDTH exist in src/CfdWorkbench.Analysis
+DRAFT COPY-342 Unavailable — a drag sum is not a finite number. Evaluate again. :: no source text; drafted by DOC for operator review; codes ANA-PROFILE-DRAG-NONFINITE, ANA-INDUCED-DRAG-NONFINITE exist in src/CfdWorkbench.Analysis
+DRAFT COPY-343 Unavailable — no section profile for this strip. :: no source text; drafted by DOC for operator review; codes ANA-POLAR-PROFILE-MISSING exist in src/CfdWorkbench.Analysis
+DRAFT COPY-344 Unavailable — the polar gave no result for this strip. :: no source text; drafted by DOC for operator review; codes ANA-POLAR-UNAVAILABLE exist in src/CfdWorkbench.Analysis
+DRAFT COPY-345 Unavailable — the polar gave no drag value at this strip. :: no source text; drafted by DOC for operator review; codes ANA-POLAR-CD-UNAVAILABLE exist in src/CfdWorkbench.Analysis
+DRAFT COPY-346 Unavailable — the stored polar was made with another method or profile. Evaluate to compute a new run. :: no source text; drafted by DOC for operator review; codes ANA-POLAR-METHOD-MISMATCH exist in src/CfdWorkbench.Analysis
+DRAFT COPY-347 Unavailable — the section revision for this polar is not held by this session. :: no source text; drafted by DOC for operator review; codes ANA-POLAR-REVISION-MISSING, ANA-POLAR-REVISION-MISMATCH, ANA-POLAR-PROFILE-HASH exist in src/CfdWorkbench.Analysis
+DRAFT COPY-348 Unavailable — Re <Re> is outside the surrogate’s training range (<min> to <max>) :: no source text; drafted by DOC for operator review; codes ANA-POLAR-RE-OUTSIDE exist in src/CfdWorkbench.Analysis
+DRAFT COPY-349 Unavailable — Ncrit <n> is outside the surrogate’s training range (<min> to <max>) :: no source text; drafted by DOC for operator review; codes ANA-POLAR-NCRIT-OUTSIDE exist in src/CfdWorkbench.Analysis
+DRAFT COPY-350 Unavailable — this section family is not covered by the surrogate. :: no source text; drafted by DOC for operator review; codes ANA-POLAR-SECTION-UNVALIDATED exist in src/CfdWorkbench.Analysis
+DRAFT COPY-351 Unavailable — the polar did not converge at this strip. :: no source text; drafted by DOC for operator review; codes ANA-POLAR-NOT-CONVERGED exist in src/CfdWorkbench.Analysis
+DRAFT COPY-352 Unavailable — the polar could not be computed for this section. This is a program fault; the run is kept. :: no source text; drafted by DOC for operator review; codes ANA-POLAR-NONFINITE, ANA-POLAR-INPUT, ANA-POLAR-CST-INPUT, ANA-POLAR-CST-FIT, ANA-POLAR-WEIGHTS-MISSING, ANA-POLAR-WEIGHTS-HASH, ANA-POLAR-WEIGHTS-FORMAT exist in src/CfdWorkbench.Analysis
+EQUAL COPY-353 Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray :: src/CfdWorkbench.Analysis/Loads.cs :: fragments found: 1/1
+HYD   COPY-354 Drag (Wing only) :: hydrodynamicist verdict relayed by the Coordinator (a message; no file to compare)
+HYD   COPY-355 <min>–<max> N :: hydrodynamicist verdict relayed by the Coordinator (a message; no file to compare)
+HYD   COPY-356 Not included: junction, mast, wave, spray :: hydrodynamicist verdict relayed by the Coordinator (a message; no file to compare)
+rows 107, mismatches 0
