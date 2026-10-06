@@ -1,0 +1,38 @@
+EQUAL COPY-357 Unavailable — no accepted section profile at this station :: docs/notes/rulings.md :: found
+EQUAL COPY-358 Unavailable — the panel solve failed at this station. Evaluate again. :: docs/notes/rulings.md :: found
+EQUAL COPY-359 σ (cavitation number) :: docs/notes/rulings.md :: found
+EQUAL COPY-360 −Cp_min :: docs/notes/rulings.md :: found
+EQUAL COPY-361 V_crit (inception speed) :: docs/notes/rulings.md :: found
+EQUAL COPY-362 Outside the validated bracket — Re <Re> is beyond <min> to <max>. Computed, not validated. :: docs/notes/rulings.md :: found
+EQUAL COPY-363 Outside the validated bracket — Ncrit <n> is beyond <min> to <max>. Computed, not validated. :: docs/notes/rulings.md :: found
+EQUAL COPY-364 Outside the validated bracket — <family> sections were not validated (NACA 0012 only). Computed, not validated. :: docs/notes/rulings.md :: found
+EQUAL COPY-365 Transition x_tr/c, upper and lower · Ncrit 2 and 4 · r<rev> · Re <Re> :: docs/notes/rulings.md :: found
+EQUAL COPY-366 σ required and V_crit against Cl · dot: this operating point :: docs/notes/rulings.md :: found
+EQUAL COPY-367 Target CL :: docs/notes/rulings.md :: found
+EQUAL COPY-368 Bracket :: docs/notes/rulings.md :: found
+EQUAL COPY-369 Iterations :: docs/notes/rulings.md :: found
+EQUAL COPY-370 Stopped because :: docs/notes/rulings.md :: found
+EQUAL COPY-371 Basis :: docs/notes/rulings.md :: found
+EQUAL COPY-372 Polar limit :: docs/notes/rulings.md :: found
+EQUAL COPY-373 CL never reaches the target in the bracket :: docs/notes/rulings.md :: found
+EQUAL COPY-374 the polar did not converge :: docs/notes/rulings.md :: found
+EQUAL COPY-375 polar confidence is below the floor :: docs/notes/rulings.md :: found
+EQUAL COPY-376 Re is outside the polar's range :: docs/notes/rulings.md :: found
+EQUAL COPY-377 the foil is too shallow (h/c below <floor>) :: docs/notes/rulings.md :: found
+EQUAL COPY-378 Unavailable — e is undefined when CL or induced drag is zero. :: docs/notes/rulings.md :: found
+EQUAL COPY-379 Unavailable — no centre of lift when total lift is zero. :: docs/notes/rulings.md :: found
+EQUAL COPY-380 Unavailable — reference area is zero or missing. :: docs/notes/rulings.md :: found
+EQUAL COPY-381 Unavailable — a force is not a finite number. Evaluate again. :: docs/notes/rulings.md :: found
+EQUAL COPY-382 Unavailable — the polar gave no value for this row. :: docs/notes/rulings.md :: found
+EQUAL COPY-383 Unavailable — no verdict was stored for this run. Evaluate again. :: docs/notes/rulings.md :: found
+EQUAL COPY-384 Cp_min under-read not measured at this station (200 panels only) :: docs/notes/rulings.md :: found
+EQUAL COPY-385 Moved <n> <curve> points. <end-chord> <value> mm. :: docs/design/group-move-node-m.md :: found
+EQUAL COPY-386 Root chord <value> mm :: docs/notes/rulings.md :: found
+EQUAL COPY-387 The <point> can't move along the span, so the selection moves in <axis> only. :: docs/design/group-move-node-m.md :: found
+EQUAL COPY-388 The <point> can't change, so the selection holds. :: docs/design/group-move-node-m.md :: found
+EQUAL COPY-389 Moving these points by <typed> <unit> would take the tip chord below <min>. The most they can move that way is <amount> <unit>. :: docs/design/group-move-node-m.md :: found
+EQUAL COPY-390 Moving these points by <typed> <unit> would pass point <n>. The most they can move that way is <amount> <unit>. :: docs/design/group-move-node-m.md :: found
+EQUAL COPY-391 Set <axis> of <n> points to <value> <unit>. :: docs/design/group-move-node-m.md :: found
+EQUAL COPY-392 Moved <n> points by <signed value> <unit> in <axis>. :: docs/notes/rulings.md :: found
+EQUAL COPY-393 A range shows 2 decimals like a value; a shared value is equal at the displayed precision; thickness % is the percentage of each point's local chord. :: docs/notes/rulings.md :: found
+rows 37, mismatches 0

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T17:29:12Z",
+  "generated": "2026-10-06T17:37:23Z",
   "audit": [
     {
       "actor": null,
@@ -27693,6 +27693,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T17:28:17Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M494N8C9KCSEZAG4HY9R94K7",
+      "shortname": "trk-doc copy batch r116",
+      "datetime": "2026-10-06T17:37:23Z",
+      "session": "trk-doc",
+      "prompt": "trk-doc copy batch Ruling 116",
+      "summary": "COPY-334..352 approved; COPY-357..393 added; six G rows marked superseded",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Ruling 116 copy batch in DESIGN.md section 7",
+      "done_when": "compare 0 mismatches, Copy test green, check-docs 0",
+      "started_at": "2026-10-06T17:35:38Z",
+      "duration_seconds": 105.0
     }
   ],
   "changes": [
@@ -29388,6 +29408,42 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4928HWKHMRQPZYMSFDET50R",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M494CE2JEWNVSJPQ1E4CW47G",
+      "ts": "2026-10-06T17:32:34Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M494CE2EHX4V2Q9NF8A2RN5B",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M494CE5KEA815XNY7BY8P96P",
+      "ts": "2026-10-06T17:32:34Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M494CE2EHX4V2Q9NF8A2RN5B",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M494HKN5APP9E79CR25SWAFA",
+      "ts": "2026-10-06T17:35:23Z",
+      "from": "14e5e8d5",
+      "to": "operator-timianmalloo",
+      "kind": "decision-request",
+      "ref": "req-01M494HKN1339H32CN1X2BKKKF",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M494HKR200ZQA97M18DSBWTP",
+      "ts": "2026-10-06T17:35:23Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M494HKN1339H32CN1X2BKKKF",
+      "session": "operator-timianmalloo"
     }
   ]
 };
