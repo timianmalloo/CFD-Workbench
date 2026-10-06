@@ -981,3 +981,9 @@ Operator (2026-10-05, AskUserQuestion, after viewing docs/mockups/cad-limits-in-
 Operator (2026-10-05, AskUserQuestion). (1) After S4 (all four coupon variants fail the tip region of DR-F3-1 A; V1, the Ruling 93 tip of record, fails worst at its 90-degree convex edge with Gmsh built-in boundary-layer extrusion): change the boundary-layer route so the flat tip of record can mesh - a new pre-registered spike (S6) on a route that handles the convex tip edge (e.g. K2 normals or a structured/swept generator), measured on the same coupon; this lifts Ruling 80's mesh hold for that spike only. (2) Rail controls leaves the default left dock (Properties, Browser, Layers, as the approved Area 3 mockup); it stays reachable by its command. (3) Approved copy for Cmd-J outside Analysis: The bottom panel shows the analysis results. Switch with the CAD | Analysis toggle.
 
 - request: req-01M475FN998NNDF4Y3VN01JRQ0 · ruled by: operator-timianmalloo · at: 2026-10-05T23:13:19Z
+
+### Ruling 98 — Tip mesh: run the W2c snappyHexMesh coupon at finer surface refinement (DR-S6)
+
+Operator (2026-10-05, AskUserQuestion): "Yes, run W2c (Recommended)". One more pre-registered snappyHexMesh coupon set (W2c) on the S4/S6 coupon at finer surface and feature refinement, testing whether surface cells coarse relative to the 1.49 mm layer stack cause the layer collapse seen in W2b; no other tuning. If the tip region passes DR-F3-1 A with no negative cells, S5 becomes one AR 8 snappyHexMesh run on the tip of record (new pre-registration). Lifts Ruling 80s mesh hold for this spike only.
+
+- request: req-01M47AAQS4JEEMN13ZVVA22SEP · ruled by: operator-timianmalloo · at: 2026-10-06T00:38:01Z
