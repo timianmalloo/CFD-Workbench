@@ -50,8 +50,20 @@ public static class Labels
         _ => throw new ArgumentOutOfRangeException(nameof(tier))
     };
 
-    public static string FixedVlm(bool depthSet) => depthSet ? FixedVlmDeep : FixedVlmNoDepth;
-    public static string NotModelled(bool depthSet) => depthSet ? NotModelledSet : NotModelledUnset;
+    public const string WingDragLabel = "Drag (Wing only)"; // COPY-354, Ruling 109
+    public const string WingDragNote = "Wing only: induced (VLM + strip) plus profile (polar). Not a total."; // COPY-330
+    public const string WingDragNotIncluded = "Not included: junction, mast, wave, spray"; // COPY-356
+
+    /// <summary>The h/c below which the free surface is not modelled (the Depth basis row, COPY-224/226 under Ruling 101 3a).</summary>
+    public const double DeepWaterHc = 5;
+
+    /// <summary>The COPY-70 form, "Unavailable — <reason>" (COPY-250).</summary>
+    public static string UnavailableBecause(string reason) => "Unavailable — " + reason;
+
+    /// <summary>COPY-223 only when depth is set and no station is shallower than h/c 5; otherwise COPY-224.</summary>
+    public static string FixedVlm(bool deepWater) => deepWater ? FixedVlmDeep : FixedVlmNoDepth;
+    /// <summary>COPY-225 only when depth is set and no station is shallower than h/c 5; otherwise COPY-226.</summary>
+    public static string NotModelled(bool deepWater) => deepWater ? NotModelledSet : NotModelledUnset;
 
     public static bool DefaultLattice(RunSettings settings) => settings.NSpanPerHalf == 64 && settings.NChord == 4
         && settings.SpanSpacing == "cosine" && settings.ChordSpacing == "cosine";

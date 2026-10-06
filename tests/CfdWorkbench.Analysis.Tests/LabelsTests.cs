@@ -39,6 +39,83 @@ internal static class LabelsTests
             Equal(true, Labels.FixedVlm(false).EndsWith("free surface not modelled"));
             Equal(true, Labels.NotModelled(false).Contains("free surface"));
         });
+        Check("Depth_ShallowAtAnyStation_FreeSurfaceNotModelled", () => {
+            // R101 3a: root h/c is 5.0 (not below 5); the tip station sits 0.3 m up, so its h/c is 2.0.
+            var run = ProjectionTests.Data().Run;
+            StationFrame[] shallowTip = [new(0, 0, 0, 0.1, 0.0, 0, 0.12), new(1, 0.4, 0, 0.1, 0.3, 0, 0.12)];
+            var v = ProjectionTests.View(run, new ProjectionContext(Stations: shallowTip));
+            Equal("attached flow; no stall; no ventilation; free surface not modelled", ProjectionTests.Cell(v, "Labels", "Basis").Value, "COPY-224");
+            Equal(true, ProjectionTests.Cell(v, "Labels", "Not modelled").Value.StartsWith("Not modelled: free surface,", StringComparison.Ordinal), "COPY-226");
+            Equal(true, ProjectionTests.Cell(v, "Labels", "Depth basis").Value.Contains("h/c = 2.00"), "Depth basis at the shallowest station");
+            StationFrame[] deepTip = [new(0, 0, 0, 0.1, 0.0, 0, 0.12), new(1, 0.4, 0, 0.1, 0.0, 0, 0.12)];
+            var deep = ProjectionTests.View(run, new ProjectionContext(Stations: deepTip));
+            Equal("attached flow; no stall; no ventilation; deep water", ProjectionTests.Cell(deep, "Labels", "Basis").Value, "COPY-223 when every station is at least h/c 5");
+            Equal(false, deep.Groups.Single(g => g.Title == "Labels").Rows.Any(r => r.Label == "Depth basis"), "no Depth basis row");
+        });
+        Check("Projection_NoBareUnavailable_EveryStateCarriesItsReason", () => {
+            var (run, _) = ProjectionTests.Data();
+            var failed = ProjectionTests.Rehash(run with { Outcome = new RunOutcome.Failed("ANA-SOLVE-RESIDUAL", "residual exceeded"), Strips = [] });
+            var states = new List<(string Name, AnalysisViewModel View)>
+            {
+                ("default", ProjectionTests.View()),
+                ("no verdicts, feed reason", ProjectionTests.View(run, new ProjectionContext(FeedUnavailable: Labels.FeedRevisionNotHeld))),
+                ("one verdict short", ProjectionTests.View(run, new ProjectionContext(Verdicts: [MethodRecord.JudgeStrip(2, 0, 0.4, 0)]))),
+                ("missing span edge", ProjectionTests.View(s => s.J == 0 ? s with { YLow = -0.4 } : s)),
+                ("no reference area", ProjectionTests.View(ProjectionTests.Rehash(run with { Reference = run.Reference with { SRef = 0 } }))),
+                ("failed", ProjectionTests.View(failed)),
+                ("tampered", ProjectionTests.View(run, new ProjectionContext(Integrity: RunIntegrity.PayloadFailedCheck)))
+            };
+            foreach (var (name, view) in states)
+            {
+                var cells = view.Groups.SelectMany(g => g.Rows).Concat(view.StripDetails.SelectMany(d => d.Rows))
+                    .SelectMany(r => new[] { r.Value, r.Note ?? "" });
+                foreach (string cell in cells)
+                    Equal(false, cell == "Unavailable" || cell.EndsWith(": Unavailable", StringComparison.Ordinal) ||
+                        cell.Contains("; Unavailable", StringComparison.Ordinal), name + ": " + cell);
+            }
+            string envelope = ProjectionTests.Cell(states[1].View, "Wing result", "Envelope").Value;
+            Equal(true, envelope.Contains(Labels.FeedRevisionNotHeld), "the feed's reason reaches the run sentence");
+            Equal(true, ProjectionTests.Cell(states[0].View, "Wing result", "Envelope").Value.StartsWith("Unavailable — ", StringComparison.Ordinal), "no feed reason");
+        });
+        Check("Projection_TotalDrag_OneReasonString", () => {
+            var v = ProjectionTests.View();
+            Equal("Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray", Labels.UnavailableBecause("missing: profile (no polar method installed), junction, mast, wave, spray"), "COPY-353 in the COPY-70 form");
+            Equal("Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray", Loads.TotalDragReason, "COPY-353");
+            Equal(Loads.TotalDragReason, ProjectionTests.Cell(v, "Wing result", "CL/CD").Value, "craft CL/CD");
+            var values = v.Groups.SelectMany(g => g.Rows).SelectMany(r => new[] { r.Value, r.Note ?? "" }).ToArray();
+            Equal(false, values.Any(x => x.Contains("total drag missing", StringComparison.OrdinalIgnoreCase)), "the retired string");
+            Equal(false, values.Any(x => x.StartsWith("ANA-TOTAL-DRAG-MISSING", StringComparison.Ordinal)), "no reason code as a value");
+        });
+        Check("Projection_DragWingOnly_OneRow_ImperialLbf", () => {
+            var run = ProjectionTests.Data(s => s with { CdNcrit2 = new StripValue(0.02, null), CdNcrit4 = new StripValue(0.03, null) }).Run;
+            var metric = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric);
+            var imperial = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Imperial);
+            foreach (string group in new[] { "Wing result", "Loads" })
+            {
+                var rows = metric.Groups.Single(g => g.Title == group).Rows;
+                Equal(1, rows.Count(r => r.Label == "Drag (Wing only)"), group + " one row");
+                Equal(false, rows.Any(r => r.Label is "Wing-only drag" or "Total drag"), group + " old labels gone");
+            }
+            ResultRow n = ProjectionTests.Cell(metric, "Loads", "Drag (Wing only)"), lbf = ProjectionTests.Cell(imperial, "Loads", "Drag (Wing only)");
+            Equal("N", n.Unit); Equal("lbf", lbf.Unit);
+            double[] newtons = n.Value.Split('–').Select(double.Parse).ToArray(), pounds = lbf.Value.Split('–').Select(double.Parse).ToArray();
+            Equal(true, Math.Abs(newtons[0] / 4.4482216152605 - pounds[0]) < 0.001 && Math.Abs(newtons[1] / 4.4482216152605 - pounds[1]) < 0.001, "lbf = N / 4.4482");
+            Equal(true, n.Note!.StartsWith("Wing only: induced (VLM + strip) plus profile (polar). Not a total.", StringComparison.Ordinal), "note");
+            Equal(true, n.Note.Contains("XFOIL-class surrogate"), "surrogate label");
+            Equal(true, n.Note.EndsWith("\nNot included: junction, mast, wave, spray", StringComparison.Ordinal), "reason line");
+            Equal(Loads.TotalDragReason, ProjectionTests.Cell(metric, "Wing result", "CL/CD").Value, "craft CL/CD stays Unavailable");
+            Equal(false, ProjectionTests.Cell(metric, "Wing result", "Wing-only CL/CD").Value.StartsWith("Unavailable", StringComparison.Ordinal), "Wing-only CL/CD shows a number");
+        });
+        Check("Labels_Ruling109And101_ConstantsMatchTheirRows", () => {
+            string design = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
+            Equal(true, design.Contains("| COPY-354 | " + Labels.WingDragLabel + " — approved — Ruling 109"), "COPY-354");
+            Equal(true, design.Contains("| COPY-356 | " + Labels.WingDragNotIncluded + " — approved — Ruling 109"), "COPY-356");
+            Equal(true, design.Contains("| COPY-330 | " + Labels.WingDragNote + " — approved — Ruling 108"), "COPY-330");
+            Equal(true, design.Contains("| COPY-353 | " + Loads.TotalDragReason + " — approved — Ruling 101"), "COPY-353");
+            Equal(true, design.Contains("| COPY-250 | Unavailable — <reason> — approved — Ruling 101"), "COPY-250 form");
+            Equal("Unavailable — x", Labels.UnavailableBecause("x"), "COPY-250 builder");
+            Equal(true, design.Contains("| COPY-253 | " + Labels.FeedRevisionNotHeld + " — approved — Ruling 101"), "COPY-253");
+        });
         Check("Envelope_RunVerdict_BesideCL_FullBound", () => {
             var run = ProjectionTests.Data().Run; var verdicts = Enumerable.Range(0, 4).Select(_ => MethodRecord.JudgeStrip(12, 0, 0.4, 0)).ToArray();
             var v = ProjectionTests.View(run, new ProjectionContext(Verdicts: verdicts));

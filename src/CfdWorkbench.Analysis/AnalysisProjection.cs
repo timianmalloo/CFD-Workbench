@@ -16,8 +16,8 @@ public sealed record ProjectionContext(IReadOnlyList<StripVerdict>? Verdicts = n
 public static class AnalysisProjection
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
-    // simplify: the generic "Unavailable" of COPY-210..229 stands in until a copy ruling names a no-verdict string.
-    private const string VerdictUnavailable = "Unavailable";
+    // COPY-250/251 (Ruling 101): a value cell that cannot be computed reads "Unavailable — <reason>", the reason being the code's own.
+    private const string NoVerdictReason = "ANA-VERDICT-MISSING";
     private const string SurrogateLabel = "XFOIL-class surrogate; accuracy relative to XFOIL, not experiment";
     private enum VerdictState { Inside, Outside, Provisional, Indeterminate }
 
@@ -42,7 +42,7 @@ public static class AnalysisProjection
                     Banner = "Historical — previous result" };
             }
             return new(RunState.Failed, "Analysis: Failed", null, error,
-                [new ResultGroup("Wing result", [Row("Result", "Unavailable", note: error)])], [], run.RunKey);
+                [new ResultGroup("Wing result", [Row("Result", Labels.UnavailableBecause(failed.Reason), note: error)])], [], run.RunKey);
         }
 
         bool isCurrent = RunRecord.RecomputedKey(run) == Freshness.CurrentKey(current);
@@ -51,10 +51,11 @@ public static class AnalysisProjection
         double a = VortexLattice.ToRadians(run.Op.AlphaDeg);
         double lift = run.Strips.Sum(s => -s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a));
         double? cl = q > 0 && run.Reference.SRef > 0 ? lift / (q * run.Reference.SRef) : null;
-        double? drag = Loads.InducedDrag(run).Value;
+        StripValue induced = Loads.InducedDrag(run);
+        double? drag = induced.Value;
+        string inducedReason = induced.UnavailableReason ?? "ANA-INDUCED-DRAG-MISSING-AREA";
         StripValue profile2 = Loads.ProfileDrag(run, 2), profile4 = Loads.ProfileDrag(run, 4);
         StripValue wing2 = Loads.WingDrag(run, 2), wing4 = Loads.WingDrag(run, 4);
-        StripValue total2 = Loads.TotalDrag(run, 2), total4 = Loads.TotalDrag(run, 4);
         double? cdi = drag.HasValue && q > 0 && run.Reference.SRef > 0 ? drag / (q * run.Reference.SRef) : null;
         double? trefftzLift = run.Strips.Count > 0 && run.Strips.All(s => Width(run, s) > 0)
             ? run.Water.Rho * run.Op.Speed * run.Strips.Sum(s => s.Gamma * Width(run, s)) : null;
@@ -70,20 +71,19 @@ public static class AnalysisProjection
             catch (ContractError) { }
         }
         bool depth = run.Op.HRef.HasValue;
+        double? shallowHc = ShallowDepthOverChord(run, context.Stations);
+        bool shallow = shallowHc.HasValue;
         var groups = new List<ResultGroup>();
         groups.Add(new("Wing result", [
             Row("Tier", Labels.VlmChip),
-            Row("CL", Val(cl, "0.000"), note: "Wing only · S_ref " + Num(run.Reference.SRef, "0.####") + " m²"),
-            Row("Envelope", RunVerdict(context.Verdicts, run.Strips)),
-            Row("CDi (Trefftz)", Val(cdi, "0.00000")),
-            Row("e (computed)", Val(e, "0.000"), note: EAdvisory(e, run.Settings)),
-            Force("Lift L", lift, units), Force("Induced drag", drag, units),
-            DragBandRow("Wing-only drag", wing2, wing4, units, null, "ANA-WING-ONLY-DRAG · " + SurrogateLabel),
-            DragBandRow("Total drag", total2, total4, units, run.Settings.Polar is null ? Loads.TotalDragReason : null),
+            Row("CL", Val(cl, "0.000", q > 0 ? "ANA-REFERENCE-AREA-MISSING" : "ANA-SPEED-NOT-POSITIVE"), note: "Wing only · S_ref " + Num(run.Reference.SRef, "0.####") + " m²"),
+            Row("Envelope", RunVerdict(context, run.Strips)),
+            Row("CDi (Trefftz)", Val(cdi, "0.00000", inducedReason)),
+            Row("e (computed)", Val(e, "0.000", "ANA-OSWALD-UNDEFINED"), note: EAdvisory(e, run.Settings)),
+            Force("Lift L", lift, units), Force("Induced drag", drag, units, reason: inducedReason),
+            WingDragRow(wing2, wing4, units, run.Settings.Polar is null),
             WingRatioRow(lift, wing2, wing4),
-            Row("CL/CD", total2.Value is > 0 && total4.Value is > 0 ?
-                Num(lift / total4.Value.Value, "0.###") + "–" + Num(lift / total2.Value.Value, "0.###") :
-                "Unavailable — total drag missing"),
+            Row("CL/CD", Loads.TotalDragReason),
             Row("Basis", "b " + Num(run.Reference.BRef, "0.###") + " m · moment datum: " + run.Reference.MomentDatum + " · " + Labels.BodyAxes)
         ]));
         groups.Add(new("Conditions", [
@@ -105,12 +105,12 @@ public static class AnalysisProjection
             Row("Method", run.Method.Id + " " + run.Method.Version),
             Row("Lattice", run.Settings.NSpanPerHalf + " × " + run.Settings.NChord + " " + run.Settings.SpanSpacing + "/" + run.Settings.ChordSpacing,
                 note: Labels.DefaultLattice(run.Settings) ? Labels.VerifiedLattice : Labels.NearFieldFlag),
-            Row("Basis", Labels.FixedVlm(depth)), Row("Not modelled", Labels.NotModelled(depth))
+            Row("Basis", Labels.FixedVlm(depth && !shallow)), Row("Not modelled", Labels.NotModelled(depth && !shallow))
         };
         if (depth)
         {
-            double h = run.Op.HRef!.Value, hc = h / run.Reference.CRef;
-            if (hc < 5) basis.Add(Row("Depth basis", $"Deep-water result; free surface not modelled (h/c = {Num(hc, "0.00")}, Fr_h = {Derived(derived.FroudeDepth, "0.00")}; effects measured below h/c 5)"));
+            double h = run.Op.HRef!.Value;
+            if (shallowHc is { } hc) basis.Add(Row("Depth basis", $"Deep-water result; free surface not modelled (h/c = {Num(hc, "0.00")}, Fr_h = {Derived(derived.FroudeDepth, "0.00")}; effects measured below h/c 5)"));
             basis.Add(Row("Ventilation", "Static geometry; steady analysis cannot predict ventilation onset; onset is dynamic and hysteretic"));
             if (context.Stations is { Count: > 0 })
             {
@@ -125,14 +125,13 @@ public static class AnalysisProjection
         groups.Add(new("Loads", [
             Row("Safety", "Loads are hydrodynamic estimates. Not a structural assessment. Strength, stiffness and fatigue are not evaluated."),
             Force("Lift (Wing only)", lift, units, "near field, Σ strips"),
-            Row("Centre of lift, half span", Val(centre, "0.###"), "m", "from the root plane"),
-            Row("Root bending moment", Val(rootMoment, "0.###"), "N·m", Labels.RootMoment),
-            Row("Wing loading L/S_ref", run.Reference.SRef > 0 ? Num(lift / run.Reference.SRef / 1000, "0.###") : "Unavailable", "kPa"),
+            Row("Centre of lift, half span", Val(centre, "0.###", "ANA-CENTRE-OF-LIFT-UNDEFINED"), "m", "from the root plane"),
+            Row("Root bending moment", Val(rootMoment, "0.###", "ANA-ROOT-MOMENT-MISSING-WIDTH"), "N·m", Labels.RootMoment),
+            Row("Wing loading L/S_ref", run.Reference.SRef > 0 ? Num(lift / run.Reference.SRef / 1000, "0.###") : Labels.UnavailableBecause("ANA-REFERENCE-AREA-MISSING"), "kPa"),
             Row("Moment about attachment point", Loads.AttachmentReason),
             DragBandRow("Profile drag", profile2, profile4, units, run.Settings.Polar is null ? Labels.NoPolar : null,
                 SurrogateLabel),
-            DragBandRow("Wing-only drag", wing2, wing4, units, null, "ANA-WING-ONLY-DRAG · " + SurrogateLabel),
-            DragBandRow("Total drag", total2, total4, units, run.Settings.Polar is null ? Loads.TotalDragReason : null),
+            WingDragRow(wing2, wing4, units, run.Settings.Polar is null),
             WingRatioRow(lift, wing2, wing4),
             Row("Structural", "Structural: Not assessed", note: Labels.StructuralList),
             Row("t/c (root)", context.RootThicknessRatio.HasValue ? Num(context.RootThicknessRatio.Value * 100, "0.#") : Labels.ThicknessMissing,
@@ -141,7 +140,7 @@ public static class AnalysisProjection
         ]));
         groups.Add(new("Strips", run.Strips.Select(s => Row("Strip " + s.J + " · η " + Num(s.Eta, "0.###"),
             "Cl_local " + Num(s.ClLocal, "0.###") + " · α_eff " + Num(s.AlphaEff, "0.##") + "° · Re_local " + Num(s.ReLocal, "0.###E+0"),
-            note: VerdictText(s, context.Verdicts))).ToArray()));
+            note: VerdictText(s, context))).ToArray()));
         groups.Add(new("Section (2D)", SectionRows(section)));
         var provenance = new List<ResultRow>
         {
@@ -226,7 +225,7 @@ public static class AnalysisProjection
     }
 
     private static ResultRow DragBandRow(string label, StripValue n2, StripValue n4, Units units,
-        string? legacyReason, string? tierNote = null)
+        string? legacyReason, string? tierNote = null, string? reasonLine = null)
     {
         if (n2.Value is not { } low || n4.Value is not { } high)
             return Row(label, legacyReason ?? n2.UnavailableReason ?? n4.UnavailableReason ?? "ANA-DRAG-UNAVAILABLE");
@@ -234,15 +233,32 @@ public static class AnalysisProjection
         string? note = n2.FlagCode == "ANA-POLAR-LOW-CONFIDENCE" || n4.FlagCode == "ANA-POLAR-LOW-CONFIDENCE"
             ? string.Join(" · ", new[] { tierNote, "ANA-POLAR-LOW-CONFIDENCE" }.Where(part => part is not null))
             : tierNote;
+        if (reasonLine is not null) note = note is null ? reasonLine : note + "\n" + reasonLine;
         return Row(label, Num(Math.Min(low, high) / factor, "0.###") + "–" +
             Num(Math.Max(low, high) / factor, "0.###"),
             units == Units.Imperial ? "lbf" : "N", note);
     }
 
+    /// <summary>Ruling 109: the one Drag (Wing only) row (COPY-354..356). The craft total is never shown; CL/CD for the craft is Unavailable.</summary>
+    private static ResultRow WingDragRow(StripValue n2, StripValue n4, Units units, bool noPolar) =>
+        DragBandRow(Labels.WingDragLabel, n2, n4, units, noPolar ? Loads.TotalDragReason : null,
+            Labels.WingDragNote + " · " + SurrogateLabel, Labels.WingDragNotIncluded);
+
+    /// <summary>Shallowest h/c over the root reference chord and every station; null when depth is unset or every h/c is at least 5 (Ruling 101 3a).</summary>
+    private static double? ShallowDepthOverChord(AnalysisRun run, IReadOnlyList<StationFrame>? stations)
+    {
+        if (run.Op.HRef is not { } h) return null;
+        double least = run.Reference.CRef > 0 ? h / run.Reference.CRef : double.PositiveInfinity;
+        if (stations is not null)
+            foreach (StationFrame station in stations)
+                if (station.ChordMeters > 0) least = Math.Min(least, (h - station.ElevationMeters) / station.ChordMeters);
+        return least < Labels.DeepWaterHc ? least : null;
+    }
+
     private static ResultRow WingRatioRow(double lift, StripValue n2, StripValue n4)
     {
         if (n2.Value is not > 0 || n4.Value is not > 0)
-            return Row("Wing-only CL/CD", "ANA-WING-RATIO-UNAVAILABLE");
+            return Row("Wing-only CL/CD", Labels.UnavailableBecause("ANA-WING-RATIO-UNAVAILABLE"));
         double a = lift / n2.Value.Value, b = lift / n4.Value.Value;
         return Row("Wing-only CL/CD", Num(Math.Min(a, b), "0.###") + "–" + Num(Math.Max(a, b), "0.###"),
             note: "ANA-WING-ONLY-RATIO · " + SurrogateLabel +
@@ -268,7 +284,7 @@ public static class AnalysisProjection
                 Row("Cl_local", Num(s.ClLocal, "0.###")), Row("α_eff", Num(s.AlphaEff, "0.##"), "°"),
                 Row("Re_local", Num(s.ReLocal, "0.###E+0")),
                 Row("Lift / span", width > 0 ? Num(localLift / width, "0.###") : Labels.StripWidthMissing, width > 0 ? "N/m" : null),
-                Row("Envelope (this strip)", VerdictText(s, context.Verdicts),
+                Row("Envelope (this strip)", VerdictText(s, context),
                     note: s.ProvisionalReason == StripLoad.PanelUnderreadReason ? StripLoad.PanelUnderreadReason : null),
                 Row("Polar Re range", s.ProvisionalReason == StripLoad.TipProvisionalReason ? Labels.TipNotJudged :
                     s.CdNcrit2.UnavailableReason ?? (s.CdNcrit2.Value.HasValue
@@ -295,19 +311,23 @@ public static class AnalysisProjection
     private static StripVerdict? At(IReadOnlyList<StripVerdict>? verdicts, StripLoad strip) =>
         verdicts is { } v && strip.J >= 0 && strip.J < v.Count ? v[strip.J] : null;
 
-    private static string VerdictText(StripLoad strip, IReadOnlyList<StripVerdict>? verdicts)
+    private static string NoVerdict(ProjectionContext context) => context.FeedUnavailable ?? Labels.UnavailableBecause(NoVerdictReason);
+
+    private static string VerdictText(StripLoad strip, ProjectionContext context)
     {
+        IReadOnlyList<StripVerdict>? verdicts = context.Verdicts;
         StripVerdict? verdict = At(verdicts, strip);
         return State(strip, verdict) switch
         {
             VerdictState.Provisional => Labels.TipNotJudged,
-            VerdictState.Indeterminate => verdict?.Text ?? VerdictUnavailable,
+            VerdictState.Indeterminate => verdict?.Text ?? NoVerdict(context),
             _ => verdict!.Text
         };
     }
 
-    private static string RunVerdict(IReadOnlyList<StripVerdict>? verdicts, IReadOnlyList<StripLoad> strips)
+    private static string RunVerdict(ProjectionContext context, IReadOnlyList<StripLoad> strips)
     {
+        IReadOnlyList<StripVerdict>? verdicts = context.Verdicts;
         // Only the outermost strip of each half reads "Not judged — tip strip" (Ruling 78); a missing verdict is Unavailable.
         if (verdicts is not null && verdicts.Count != strips.Count) verdicts = null;
         var judged = new List<StripVerdict>(strips.Count);
@@ -330,9 +350,9 @@ public static class AnalysisProjection
             }
         }
         int decided = judged.Count(v => !v.Provisional);
-        string sentence = decided > 0 ? MethodRecord.JudgeRun(judged) : indeterminate > 0 ? VerdictUnavailable : Labels.TipNotJudged;
+        string sentence = decided > 0 ? MethodRecord.JudgeRun(judged) : indeterminate > 0 ? NoVerdict(context) : Labels.TipNotJudged;
         if (provisional > 0 && (decided > 0 || indeterminate > 0)) sentence += $"; {provisional} {Labels.TipNotJudged}";
-        if (indeterminate > 0 && decided > 0) sentence += $"; {indeterminate} strips: {VerdictUnavailable}";
+        if (indeterminate > 0 && decided > 0) sentence += $"; {indeterminate} strips: {NoVerdict(context)}";
         return sentence;
     }
 
@@ -366,7 +386,7 @@ public static class AnalysisProjection
             {
                 Samples = run.Strips.Select(s => new LayerSample(s.Eta, s.Y, s.Gamma, null,
                     State(s, At(context.Verdicts, s)) == VerdictState.Outside, s.Provisional)
-                    { Verdict = VerdictText(s, context.Verdicts), YLow = s.YLow, YHigh = s.YHigh }).ToArray(),
+                    { Verdict = VerdictText(s, context), YLow = s.YLow, YHigh = s.YHigh }).ToArray(),
                 Note = "Outside strips have dashed outlines and a text count."
             },
             new LayerData("strip-lift", "Lift per strip", Shown("strip-lift"), "Lift per strip · N/m · " + Labels.BodyAxes + " · " + Labels.VlmChip, "loads-table")
@@ -397,9 +417,10 @@ public static class AnalysisProjection
         : e > 1.02 || (e > 1 && !Labels.DefaultLattice(settings)) ? Labels.EAboveLatticeCheck : null;
     private static string Derived(DerivedValue value, string format) => value.Value.HasValue ? Num(value.Value.Value, format)
         : value.Reason == DerivedReason.DepthNotSet ? "Unavailable — depth not set" : "Undefined — speed ≤ 0";
-    private static string Val(double? value, string format) => value.HasValue && double.IsFinite(value.Value) ? Num(value.Value, format) : "Unavailable";
+    private static string Val(double? value, string format, string reason = "ANA-POLAR-VALUE-MISSING") =>
+        value.HasValue && double.IsFinite(value.Value) ? Num(value.Value, format) : Labels.UnavailableBecause(reason);
     private static string Num(double value, string format) => value.ToString(format, Inv);
     private static ResultRow Row(string label, string value, string? unit = null, string? note = null) => new(label, value, unit, note);
-    private static ResultRow Force(string label, double? value, Units units, string? note = null) =>
-        Row(label, Val(value / (units == Units.Imperial ? 4.4482216152605 : 1), "0.###"), units == Units.Imperial ? "lbf" : "N", note);
+    private static ResultRow Force(string label, double? value, Units units, string? note = null, string? reason = null) =>
+        Row(label, Val(value / (units == Units.Imperial ? 4.4482216152605 : 1), "0.###", reason ?? "ANA-FORCE-NOT-FINITE"), units == Units.Imperial ? "lbf" : "N", note);
 }

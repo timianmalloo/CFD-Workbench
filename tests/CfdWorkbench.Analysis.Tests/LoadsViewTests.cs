@@ -7,8 +7,9 @@ internal static class LoadsViewTests
 {
     internal static void Run()
     {
-        Check("Loads_PolarUnavailable_TotalDragNamesProfile", () => {
-            var v = ProjectionTests.View(); Equal(true, ProjectionTests.Cell(v, "Loads", "Total drag").Value.Contains("profile"));
+        Check("Loads_PolarUnavailable_WingDragNamesProfile", () => {
+            var v = ProjectionTests.View(); Equal(Loads.TotalDragReason, ProjectionTests.Cell(v, "Loads", "Drag (Wing only)").Value);
+            Equal(true, Loads.TotalDragReason.Contains("profile"));
         });
         Check("Loads_RendersSafetyVerbatim", () => {
             Equal("Loads are hydrodynamic estimates. Not a structural assessment. Strength, stiffness and fatigue are not evaluated.",
@@ -22,7 +23,7 @@ internal static class LoadsViewTests
         });
         Check("Loads_MissingTerm_UnavailableNeverZero", () => {
             var v = ProjectionTests.View();
-            foreach (string label in new[] { "Profile drag", "Total drag", "Moment about attachment point" })
+            foreach (string label in new[] { "Profile drag", "Drag (Wing only)", "Moment about attachment point" })
             {
                 string value = ProjectionTests.Cell(v, "Loads", label).Value;
                 Equal(true, value.StartsWith("Unavailable — ", StringComparison.Ordinal), label + ": " + value);

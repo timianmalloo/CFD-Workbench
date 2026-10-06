@@ -76,16 +76,16 @@ internal static class PolarNumericsTests
             RunKey = RunRecord.Key(complete.Inputs, complete.Water, complete.Op, complete.Method, sourcedSettingsHash)
         });
         var projected = AnalysisProjection.Build(sourced, ProjectionTests.Current(sourced), Units.Metric);
-        if (projected.WingDragNcrit2?.Value is not > 0 ||
-            projected.Groups.Single(group => group.Title == "Loads").Rows.Single(row => row.Label == "Total drag").Value !=
-            "ANA-TOTAL-DRAG-MISSING-JUNCTION-MAST-WAVE-SPRAY")
-            throw new InvalidOperationException("wing subtotal or craft missing-component code did not reach projection");
         var loadRows = projected.Groups.Single(group => group.Title == "Loads").Rows;
-        int wingIndex = Array.FindIndex(loadRows.ToArray(), row => row.Label == "Wing-only drag");
+        if (projected.WingDragNcrit2?.Value is not > 0 || loadRows.Any(row => row.Label is "Total drag" or "Wing-only drag"))
+            throw new InvalidOperationException("Ruling 109: one Drag (Wing only) row, no separate Total drag row");
+        int wingIndex = Array.FindIndex(loadRows.ToArray(), row => row.Label == "Drag (Wing only)");
         if (wingIndex < 0 || loadRows[wingIndex].Value.StartsWith("Unavailable", StringComparison.Ordinal) ||
-            loadRows[wingIndex].Note?.Contains("ANA-WING-ONLY-DRAG", StringComparison.Ordinal) != true ||
-            loadRows[wingIndex + 1].Label != "Total drag")
-            throw new InvalidOperationException("wing-only subtotal is not adjacent to unavailable craft total");
+            loadRows[wingIndex].Note?.Contains("Wing only: induced (VLM + strip) plus profile (polar). Not a total.", StringComparison.Ordinal) != true ||
+            loadRows[wingIndex].Note?.EndsWith("\nNot included: junction, mast, wave, spray", StringComparison.Ordinal) != true)
+            throw new InvalidOperationException("Drag (Wing only) lacks its COPY-330 note or COPY-356 reason line");
+        AnalysisChecks.Equal(Loads.TotalDragReason, projected.Groups.Single(group => group.Title == "Wing result").Rows
+            .Single(row => row.Label == "CL/CD").Value, "craft CL/CD stays Unavailable");
         AnalysisRun missing = ProjectionTests.Data().Run;
         if (Loads.TotalDrag(missing, 2).UnavailableReason?.Contains("PROFILE", StringComparison.Ordinal) != true)
             throw new InvalidOperationException("missing profile component was not named");
@@ -160,7 +160,7 @@ internal static class PolarNumericsTests
             .Single(r => r.Label == "Profile drag").Value, "profile drag band ordered by value");
         foreach (string group in new[] { "Loads", "Wing result" })
         {
-            ResultRow row = view.Groups.Single(g => g.Title == group).Rows.Single(r => r.Label == "Wing-only drag");
+            ResultRow row = view.Groups.Single(g => g.Title == group).Rows.Single(r => r.Label == "Drag (Wing only)");
             AnalysisChecks.Equal("20.4–30.4", row.Value, group + " band ordered by drag value");
             ResultRow ratio = view.Groups.Single(g => g.Title == group).Rows.Single(r => r.Label == "Wing-only CL/CD");
             double[] values = ratio.Value.Split('–').Select(double.Parse).ToArray();
