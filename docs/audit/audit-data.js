@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T21:49:33Z",
+  "generated": "2026-10-06T22:10:13Z",
   "audit": [
     {
       "actor": null,
@@ -27974,6 +27974,26 @@ window.AUDIT_DATA = {
       "done_when": "Profile committed; split shipped only if it saves >= 2 s net",
       "started_at": "2026-10-06T21:41:11Z",
       "duration_seconds": 502.0
+    },
+    {
+      "id": "al-01M49M8T524W1XPMJ8JQ5Q8ZWB",
+      "shortname": "trk-spl",
+      "datetime": "2026-10-06T22:10:12Z",
+      "session": "trk-spl",
+      "prompt": "trk-spl follow-on round-oct06 (Ruling 123)",
+      "summary": "Moved 11 checks (8 Desktop, 3 Core) to RunReadiness; ring net 49.3-50.5 -> 47.2-47.6 s; readiness 173.7 s GREEN; union diff empty.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Move the costliest fast-ring checks to readiness so net is about 47.5 s",
+      "done_when": "PASS union diff empty; 3 ring runs net <= ~47.5 s; readiness green under 240 s",
+      "started_at": "2026-10-06T21:50:28Z",
+      "duration_seconds": 1184.0
     }
   ],
   "changes": [
@@ -29758,6 +29778,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49J7X5XMNSSEEPHCG8NGH3S",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49K4JC58RP76K990YPD47SF",
+      "ts": "2026-10-06T21:50:25Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49K4J94VH8HF1TTJEFRCM9M",
       "session": "operator-timianmalloo"
     }
   ]

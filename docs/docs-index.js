@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "77ec4e3b9d048cdbc95e052e47e47a964f473c526447ddc4d3eb60be297a2f7e"
+      "sourceSha256": "59fbd8d58b02ed6a085ac88b4d79a2bd2cd8ae5e83e7f9bc56a74d9e7f9017ce"
     },
     {
       "id": "kb-hw-glossary",
@@ -12258,6 +12258,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "95f212dc46d2f49e65072aab721162cf59d63518f214b2325143fa40777cd95f"
     },
     {
+      "id": "proof-ring-split-moved",
+      "path": "docs/proof/ring-split/moved.md",
+      "title": "Ring split: checks moved from the fast ring to readiness",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-spl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Eleven costly fast-ring checks moved into their suite's RunReadiness (Ruling 123): list with cost, ring and readiness proof, PASS union diff empty.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-split-profile",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e31c4ca8131efffd6735fc7ed07f4cc16862f6aacf7a518ce0bb48330c949372"
+    },
+    {
       "id": "proof-ring-split-profile",
       "path": "docs/proof/ring-split/profile.md",
       "title": "Ring split profile: a Desktop 1/2 + 2/2 split cannot pay",
@@ -14979,5 +15004,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "b1dacf8d545edd3be23dde58a34de27ea781092d77859a198042f1d27479edd8"
+  "graphSha256": "5a2c16392587f510af10a0efd7b4dcae4f074fc0d81cfb50e5b2f49d19fd7805"
 };
