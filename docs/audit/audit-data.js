@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T21:10:49Z",
+  "generated": "2026-10-06T21:12:20Z",
   "audit": [
     {
       "actor": null,
@@ -27907,6 +27907,33 @@ window.AUDIT_DATA = {
       "done_when": "Red-first per finding, captures opened, run-tests green, check-docs 0",
       "started_at": "2026-10-06T21:04:39Z",
       "duration_seconds": 369.0
+    },
+    {
+      "id": "al-01M49GYV8PZMSF60GM9JD8T8VH",
+      "shortname": "join-grp-desk",
+      "datetime": "2026-10-06T21:12:20Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of feature/group-move-desktop into main",
+      "summary": "group drag/nudge/typed Set to|Move by in Plan and elevations; applied delta and binding point in strip and inspector; domain holds named; compact inline switch; units and U+2212 consistent; marine-CAD cleared with conditions after two repair cycles; COPY-400 renumbered from 394 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join feature/group-move-desktop into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T21:11:20Z",
+      "duration_seconds": 60.0
     }
   ],
   "changes": [
