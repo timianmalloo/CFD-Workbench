@@ -1113,3 +1113,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. Approve
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. (1) The Drag (Wing only) band with its flag, the not-measured cell, and the Section tab naming the selected strip or the governing fallback are approved as captured, with two fixes: the band shows one precision (e.g. 13.10–14.61 N) and the Find α button shows its full label. (2) COPY-364 becomes "Outside the validated bracket — the surrogate is validated on NACA 0012 only. Computed, not validated." (3) The Analysis Properties Labels header one short scroll below the first screen at 1500x870 is accepted (as Ruling 101 Q4). (4) The group-move typed range refusal reads "Point <n> would leave its allowed range (<min> to <max> <unit>)."
 
 - request: req-01M49E7XKY1XJFSETDW993XRFV · ruled by: operator-timianmalloo · at: 2026-10-06T20:24:52Z
+
+### Ruling 120 — Unit format in the group range refusal follows the app rule (amends Ruling 119 (4))
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. COPY-400 reads "Point <n> would leave its allowed range (<min> to <max>)", each bound carrying its unit through the app rule (Quantity.WithUnit): "(−57.30° to 57.30°)" for angles, "(0.00 mm to 450.00 mm)" and "(4.00 % to 20.00 %)" otherwise.
+
+- request: req-01M49GGMBR0XZSY7KQTC6JTX5X · ruled by: operator-timianmalloo · at: 2026-10-06T21:04:34Z
