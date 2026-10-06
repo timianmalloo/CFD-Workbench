@@ -101,7 +101,7 @@ trace line was added in cycle 2 (`AnalysisEvent.PanelCandidates`).
   ratio, behind three thicker stations at 1.03x, 1.05x, 1.07x (they fill the lowest-ratio slots). On the 2x-width code
   (fixture precondition 1.10-1.15x passed): `FAIL ... the thin station was solved at 400 expected 400; actual 200`.
   On the Ruling 114 code: PASS, `OBSERVED thin station at 1.120x best 200 ratio solved; under-read 16.51%; governing eta 1`.
-- Existing near-tie, not-measured, cap and 6 %-thick checks stayed green with **no fixture change**: the not-measured
+- The new check costs 582 ms (C-5 limit 500 ms), so it is registered in `RunReadiness` (readiness ring), not the fast ring; run alone with `--readiness` it passes. Existing near-tie, not-measured, cap and 6 %-thick checks stayed green with **no fixture change**: the not-measured
   thin station sits at alpha 0.5, far outside 25 % of the best ratio; the uniform wing still ties at every station and
   fills 4.
 - **Residual, recorded and not covered:** a 1 %-thick station (about 40 % under-read) can still fall outside the width.

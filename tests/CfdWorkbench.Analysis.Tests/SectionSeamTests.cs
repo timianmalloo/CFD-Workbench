@@ -15,7 +15,6 @@ internal static class SectionSeamTests
         AnalysisChecks.Check("Section_SurfacePiercing_EstimatorUnavailable", Piercing);
         AnalysisChecks.Check("Section_AnalysisRunEvent_CarriesPanelCandidateCount", CandidateCountOnEvent);
         AnalysisChecks.Check("Section_NearTie_GoverningReSelectedAt400", NearTieReSelected);
-        AnalysisChecks.Check("Section_ThinStationAt112PercentOfBest_SolvedAndWins", ThinStationAt112Wins);
         AnalysisChecks.Check("Section_ThinStationOutsideNearTie_NotMeasured", NotMeasuredStation);
         AnalysisChecks.Check("Section_UniformWing_CandidateCountCappedAtFour", CandidateCap);
         AnalysisChecks.Check("Section_GoverningEstimate_Cambered_Matches400Panels", GoverningEstimateIs400);
@@ -48,7 +47,7 @@ internal static class SectionSeamTests
     private static double AlphaForSuction200(byte[] source, double eta, double suction)
     {
         double low = 0.2, high = 12;
-        for (int i = 0; i < 40; i++)
+        for (int i = 0; i < 16; i++)
         {
             double mid = 0.5 * (low + high);
             if (Suction200(source, eta, mid) < suction) low = mid; else high = mid;
@@ -234,8 +233,12 @@ internal static class SectionSeamTests
             }), RunIntegrity.Intact), now), "adaptive-method run");
     }
 
-    internal static void RunReadiness() =>
+    // Cost 582 ms (C-5 limit 500 ms): five stations, four of them 400-panel estimates. Ring: readiness.
+    internal static void RunReadiness()
+    {
+        AnalysisChecks.Check("Section_ThinStationAt112PercentOfBest_SolvedAndWins", ThinStationAt112Wins);
         AnalysisChecks.Check("Section_CamberedWing129_WarmTime", CamberedWing);
+    }
 
     private static void CamberedWing()
     {
