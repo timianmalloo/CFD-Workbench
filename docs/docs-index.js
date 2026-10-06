@@ -2605,6 +2605,54 @@ window.DOCS_INDEX = {
       "sourceSha256": "aa9802f6d721e3a4278285e29a3a349904eff21506879a94b7dac47756329798"
     },
     {
+      "id": "design-dx-screen-states",
+      "path": "docs/design/dx-screen-states.md",
+      "title": "DX step 1: A3b and A3c screen states checked against the approved Area 3 mockup",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Every visible A3b and A3c screen state (54), set against the operator-approved Area 3 mockup (rev 3, Ruling 63). 4 are covered by the approved mockup, 3 are covered in part, 47 are not covered; the 50 not or only partly covered are rendered in dx-section-polar-states.html for the operator's approval. Each state names its copy: an approved row, a spec string, or NEW with a proposed string (42 rows need operator copy). Nine decision requests are listed.",
+      "tags": [
+        "analysis",
+        "a3b",
+        "a3c",
+        "screen-states",
+        "mockup",
+        "copy",
+        "polar",
+        "cavitation",
+        "find-alpha",
+        "dx"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-dx-section-polar-states",
+          "rel": "documents"
+        },
+        {
+          "to": "proof-spike-ana-1",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3c-polar-source",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e58b693773f0ca4d53316cdcf86fa6c1d3176f6dcd2e041e4bb8af6efa021682"
+    },
+    {
       "id": "design-foildsl-authoring",
       "path": "docs/design/foildsl-authoring-direction.md",
       "title": "FoilDSL authoring direction and transaction contract",
@@ -3647,6 +3695,51 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "915aa2d27250f12d3f378ade1408e336842365b6e5576a2ce9404b2dc1135d14"
+    },
+    {
+      "id": "mockup-dx-section-polar-states",
+      "path": "docs/mockups/dx-section-polar-states.md",
+      "title": "Area 3 section and polar states (A3b, A3c) in the approved shell",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Six screens of the approved 1280 x 800 shell and a state sheet for the A3b and A3c states the approved Area 3 mockup does not draw: the Section view with Cp on the profile, the Section tab (Cp, Polar, Transition, Bucket), the cavitation screen with its governing station and margin states, the polar tier chip and flags, the drag sources, Total drag, and Find alpha. Nine decision requests for the operator.",
+      "tags": [
+        "mockup",
+        "area-3",
+        "analysis",
+        "a3b",
+        "a3c",
+        "cp",
+        "cavitation",
+        "polar",
+        "find-alpha",
+        "hard-states",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-dx-screen-states",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "design-area3-analysis",
+          "rel": "documents"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2956a764fccea08c3ae365c6be502a168f0e4f109130375cec006eaf65193ed0"
     },
     {
       "id": "mockup-group-move-node-m",
@@ -13685,6 +13778,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-area3-analysis"
     },
     {
+      "id": "surface-mockups-dx-section-polar-states",
+      "path": "docs/mockups/dx-section-polar-states.html",
+      "title": "Area 3 section and polar states",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-dx-section-polar-states"
+    },
+    {
       "id": "surface-mockups-cad-limits-in-gesture",
       "path": "docs/mockups/cad-limits-in-gesture.html",
       "title": "CAD limits in the gesture",
@@ -13916,5 +14017,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "e97d22aa1465a3f05adf494caa9f9dfc4dbdba23af689aab5202b02dc5c5aa8c"
+  "graphSha256": "16e0f24c9eb407ccc65905e8dbd66233736a1858d5749fe84c8733dda60788df"
 };

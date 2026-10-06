@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Area 3 section and polar states</title>
+<!--
+  Track DXM review mockup (docs/design/dx-screen-states.md). It renders ONLY the A3b and A3c screen states that the
+  approved Area 3 mockup (area3-analysis.html, rev 3, Ruling 63) does not cover: the Section view with Cp on the profile,
+  the Section tab (Cp, Polar, Transition, Bucket), the cavitation screen with its governing station, the polar tier chip
+  and flags, the drag breakdown, Find alpha, and a state sheet. Visual language, tokens and shell are the approved page's.
+  What is COMPUTED here: the reference vortex lattice (as the approved page), a Karman-Trefftz section Cp by analytic
+  conformal map (the A3b oracle family; a stand-in for the product panel tier), the cavitation arithmetic, the drag sums.
+  STAND-INS, not computed by this page: polar values are the SPIKE-ANA-1 XFOIL 6.99 NACA 0012 oracle (Re 2e5 and 1e6,
+  Ncrit 2 and 4) interpolated in ln Re; analysis_confidence, the panel under-read and the low-confidence value are
+  illustrative; the CST residual is the spike's measured NACA 0012 value. Display only; nothing is built from this page.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --on-accent:#ffffff; --sel:#d8eeea; --warn:#895900; --danger:#a92e37; --ok:#24653f; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --on-accent:#172326; --sel:#274c47; --warn:#efc576; --danger:#ffaeb5; --ok:#92d1a5; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --vp-grid:#344b50; --foil:#85c9c4; --foil-edge:#c4e7df; --station:#66ddc8; --lit:#3f6a6c; --warn-vp:#efc576; --danger-vp:#ffaeb5; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button, input, select{ font:inherit; color:inherit; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
+.harness{ margin-left:auto; display:flex; gap:8px; align-items:center; }
+.harness button{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.audit{ flex-basis:100%; font-size:12px; color:var(--mute); }
+.audit b.pass{ color:var(--ok); } .audit b.fail{ color:var(--danger); }
+main{ padding:16px 20px 40px; }
+section.screen{ margin:0 0 28px; }
+.screen h2{ margin:0 0 4px; font-size:14px; }
+.screen .what{ margin:0 0 8px; max-width:1280px; font-size:12px; color:var(--mute); }
+.screen .what b{ color:var(--ink); font-weight:600; }
+.choices{ max-width:1280px; font-size:12px; } .choices h2{ font-size:14px; margin:0 0 6px; } .choices li{ margin:0 0 6px; }
+.choices code, .what code{ font-size:12px; }
+
+/* ---------- the shell (as area3-analysis.html) ---------- */
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); font-size:11px; line-height:14px; position:relative; }
+body.small .shell{ width:1024px; height:700px; }
+.title{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.title i{ width:11px; height:11px; border-radius:50%; background:var(--line); display:inline-block; }
+.title b{ margin:0 auto; color:var(--ink); font-weight:600; }
+.work{ flex:1; min-height:0; display:flex; }
+.dock{ flex:0 0 260px; display:flex; flex-direction:column; background:var(--surface); border-right:1px solid var(--line); min-height:0; }
+.tabs{ flex:0 0 28px; display:flex; border-bottom:1px solid var(--line); background:var(--surface); }
+.tabs span{ display:flex; align-items:center; padding:0 10px; font-weight:600; color:var(--mute); border-bottom:2px solid transparent; }
+.tabs span.on{ color:var(--ink); border-bottom-color:var(--accent); }
+.main{ flex:1; min-width:0; display:flex; flex-direction:column; min-height:0; }
+.area{ flex:1; min-height:0; position:relative; background:var(--canvas); }
+.views{ position:absolute; inset:0; display:grid; gap:4px; }
+.views.half{ grid-template-columns:1fr 1fr; }
+.view{ position:relative; min-width:0; min-height:0; background:var(--vp); border:1px solid var(--line); overflow:hidden; }
+.view canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.plate{ position:absolute; background:var(--vp-soft); color:var(--vp-ink); border-radius:3px; padding:5px 8px; white-space:nowrap; }
+.vlabel{ left:6px; top:6px; min-height:24px; padding:0 8px; border:0; display:flex; align-items:center; font-weight:600; }
+.legend{ right:6px; bottom:48px; white-space:normal; max-width:58%; }
+.legend .ramp{ display:block; height:8px; margin:4px 0 2px; border-radius:2px; }
+.legend .ends{ display:flex; justify-content:space-between; color:var(--vp-mute); }
+.vcap{ left:6px; bottom:48px; white-space:normal; max-width:46%; color:var(--vp-ink); }
+.vtop{ right:6px; top:6px; white-space:normal; max-width:60%; }
+.navbar{ position:absolute; left:50%; bottom:10px; transform:translateX(-50%); display:flex; gap:2px; padding:3px; background:var(--surface); border:1px solid var(--line); border-radius:6px; z-index:2; }
+.navbar button{ min-height:24px; padding:0 8px; border:0; border-radius:4px; background:none; white-space:nowrap; cursor:pointer; }
+.navbar .sep{ width:1px; background:var(--line); margin:3px 2px; }
+.seg{ display:flex; border:1px solid var(--control); border-radius:4px; overflow:hidden; }
+.seg button{ border:0; border-radius:0; min-width:56px; min-height:24px; background:var(--surface); cursor:pointer; padding:0 8px; }
+.seg button[aria-pressed="true"]{ background:var(--accent); color:var(--on-accent); font-weight:600; }
+.cond{ flex:0 0 40px; display:flex; align-items:center; gap:8px; padding:0 10px; background:var(--surface); border-bottom:1px solid var(--line); white-space:nowrap; overflow:hidden; }
+.cond label{ display:flex; align-items:center; gap:4px; color:var(--mute); }
+.cond input, .cond select{ width:54px; min-height:24px; padding:0 4px; border:1px solid var(--control); border-radius:4px; background:var(--surface); color:var(--ink); text-align:right; font-variant-numeric:tabular-nums; }
+.cond select{ width:auto; text-align:left; }
+.cond .unit{ color:var(--mute); }
+.cond .go{ min-height:24px; padding:0 12px; border:1px solid var(--accent); border-radius:4px; background:var(--accent); color:var(--on-accent); font-weight:600; cursor:pointer; }
+.cond .alt{ min-height:24px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.cond .alt[aria-expanded="true"]{ border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); }
+.cond .der{ display:flex; gap:8px; margin-left:4px; padding-left:10px; border-left:1px solid var(--line); color:var(--mute); font-variant-numeric:tabular-nums; }
+.cond .der b{ color:var(--ink); font-weight:500; }
+.cond .more{ display:none; min-height:24px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+body.small .cond .der .x, body.small .cond label .x{ display:none; } body.small .cond .more{ display:inline-block; }
+body.small .cond{ gap:6px; } body.small .cond input{ width:52px; }
+.banner{ flex:0 0 auto; display:flex; align-items:center; gap:8px; padding:4px 10px; background:var(--surface); border-bottom:1px solid var(--line); border-left:3px solid var(--warn); }
+.banner b{ color:var(--warn); }
+.bottom{ flex:0 0 232px; display:flex; flex-direction:column; border-top:1px solid var(--line); background:var(--surface); min-height:0; }
+.bottom .body{ flex:1; min-height:0; display:flex; gap:12px; padding:8px 10px; overflow:hidden; }
+.bottom canvas{ flex:1; min-width:0; height:100%; }
+.bottom .side{ flex:0 0 330px; overflow-y:auto; }
+.bottom table{ border-collapse:collapse; font-variant-numeric:tabular-nums; }
+.bottom td, .bottom th{ padding:1px 6px; text-align:right; border-bottom:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.bottom th{ color:var(--mute); font-weight:600; }
+.twin{ min-height:24px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.sel{ flex:1; min-height:0; overflow-y:auto; }
+.ident{ display:flex; align-items:center; gap:6px; padding:6px 8px; font-size:13px; line-height:18px; font-weight:600; border-bottom:1px solid var(--line); }
+.chip{ display:inline-flex; align-items:center; min-height:18px; padding:0 6px; border:1px solid var(--accent); border-radius:9999px; color:var(--accent); font-size:11px; font-weight:600; margin:4px 8px; }
+.gh{ display:flex; align-items:center; gap:6px; min-height:24px; padding:0 8px; font-weight:600; }
+.gh .tw{ color:var(--mute); width:10px; } .gh .sum{ margin-left:auto; font-weight:400; color:var(--mute); }
+.grp{ border-bottom:1px solid var(--line); }
+.row{ display:flex; align-items:center; gap:3px; min-height:20px; padding:0 8px 0 19px; }
+.row + .row{ border-top:1px solid color-mix(in srgb, var(--line) 50%, transparent); }
+.row .k{ flex:1; color:var(--mute); }
+.row .v{ min-width:62px; padding-right:5px; text-align:right; font-variant-numeric:tabular-nums; }
+.row .u{ width:30px; color:var(--mute); }
+.row.na .v{ min-width:0; text-align:left; white-space:normal; color:var(--ink); }
+.row.wide{ flex-wrap:wrap; }
+.row.wide .v{ flex-basis:100%; text-align:left; padding:0 0 2px; white-space:normal; }
+.note{ padding:2px 8px 4px 19px; color:var(--mute); white-space:normal; }
+.note.lab{ color:var(--ink); }
+.flag{ margin:3px 8px 4px 19px; padding:3px 8px; border-left:3px solid var(--warn); background:var(--soft); white-space:normal; }
+.flag b{ color:var(--warn); }
+.flag.crit{ border-left-color:var(--danger); } .flag.crit b{ color:var(--danger); }
+.flag.plain{ border-left-color:var(--control); } .flag.plain b{ color:var(--ink); }
+.sb{ flex:0 0 24px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); }
+.sb .msg{ flex:1; min-width:0; display:flex; align-items:center; gap:6px; padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sb .item{ display:flex; align-items:center; padding:0 8px; border-left:1px solid var(--line); color:var(--mute); white-space:nowrap; }
+/* Find alpha popover */
+.pop{ position:absolute; left:10px; top:10px; width:392px; z-index:3; background:var(--surface); color:var(--ink); border:1px solid var(--control); border-radius:6px; padding:8px 0 8px; font-size:11px; }
+.pop .ph{ display:flex; align-items:center; padding:0 10px 4px; font-weight:600; font-size:13px; }
+.pop .ph button{ margin-left:auto; min-width:24px; min-height:24px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.pop .fields{ display:flex; flex-wrap:wrap; gap:6px 12px; padding:2px 10px 6px; }
+.pop label{ display:flex; align-items:center; gap:4px; color:var(--mute); }
+.pop input, .pop select{ width:68px; min-height:24px; padding:0 4px; border:1px solid var(--control); border-radius:4px; background:var(--surface); color:var(--ink); text-align:right; font-variant-numeric:tabular-nums; }
+.pop .acts{ display:flex; gap:8px; padding:6px 10px 0; }
+.pop .acts button{ min-height:24px; padding:0 12px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.pop .acts button.p{ border-color:var(--accent); background:var(--accent); color:var(--on-accent); font-weight:600; }
+.pop .res{ border-top:1px solid var(--line); margin-top:4px; padding-top:4px; }
+/* state sheet */
+.sheet{ max-width:1280px; }
+.sheet h3{ margin:14px 0 4px; font-size:13px; }
+.sheet table{ width:100%; border-collapse:collapse; font-size:12px; }
+.sheet th, .sheet td{ text-align:left; vertical-align:top; padding:4px 8px; border-bottom:1px solid var(--line); }
+.sheet th{ color:var(--mute); font-weight:600; }
+.sheet .cell{ width:300px; background:var(--surface); border:1px solid var(--line); border-radius:4px; font-size:11px; line-height:14px; padding:2px 0; }
+.sheet .cell .row .k{ min-width:90px; }
+.tag{ display:inline-block; padding:0 6px; border:1px solid var(--control); border-radius:9999px; font-size:11px; white-space:nowrap; }
+.tag.new{ border-color:var(--warn); color:var(--warn); font-weight:600; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Area 3 — section and polar states (A3b, A3c), in the approved shell</h1>
+  <p>Example foil · 900 mm span · 120 mm chord · −2° tip twist · 10 kn · seawater 15 °C · h_ref 0.5 m · α 3° · lattice and Karman-Trefftz Cp computed in this page · polar values are the spike's XFOIL oracle, not the surrogate · run keys illustrative</p>
+  <div class="harness"><button type="button" id="theme" aria-pressed="false">Dark theme</button><button type="button" id="size" aria-pressed="false">1024 × 700</button></div>
+  <div class="audit" id="audit" role="status">Checking…</div>
+</header>
+<main id="screens"></main>
+<script>
+'use strict';
+const XF = {"200000":{"n2":[[-6.0,-0.6592,0.01562,0.9779,0.0669],[-5.0,-0.5424,0.01417,0.9449,0.106],[-4.0,-0.4251,0.01285,0.8981,0.176],[-3.0,-0.3132,0.01176,0.8297,0.2718],[-2.0,-0.208,0.01108,0.7437,0.3717],[-1.0,-0.1042,0.01074,0.6517,0.4668],[0.0,0.0,0.01064,0.5593,0.5593],[1.0,0.1042,0.01074,0.4668,0.6517],[2.0,0.208,0.01108,0.3717,0.7437],[3.0,0.3132,0.01176,0.2718,0.8297],[4.0,0.4251,0.01285,0.176,0.8981],[5.0,0.5424,0.01417,0.106,0.9449],[6.0,0.6592,0.01562,0.0669,0.9779]],"n4":[[-6.0,-0.6942,0.01536,1.0,0.0977],[-5.0,-0.5957,0.01383,0.9946,0.1595],[-4.0,-0.4629,0.01233,0.9725,0.2719],[-3.0,-0.3359,0.01112,0.9398,0.3989],[-2.0,-0.2161,0.01021,0.8915,0.519],[-1.0,-0.105,0.00959,0.821,0.6283],[0.0,0.0,0.00937,0.7299,0.7299],[1.0,0.105,0.00959,0.6283,0.821],[2.0,0.2161,0.01021,0.519,0.8915],[3.0,0.3359,0.01112,0.3989,0.9398],[4.0,0.4629,0.01233,0.2718,0.9725],[5.0,0.5958,0.01383,0.1594,0.9946],[6.0,0.6941,0.01536,0.0977,1.0]]},"1000000":{"n2":[[-6.0,-0.6511,0.01039,0.8322,0.0349],[-5.0,-0.5454,0.00985,0.7443,0.05],[-4.0,-0.4378,0.00939,0.6575,0.0754],[-3.0,-0.3292,0.00897,0.5748,0.1196],[-2.0,-0.22,0.0086,0.4965,0.1851],[-1.0,-0.1102,0.00834,0.4201,0.2636],[0.0,0.0,0.00825,0.3427,0.3427],[1.0,0.1102,0.00834,0.2636,0.4201],[2.0,0.22,0.0086,0.1851,0.4965],[3.0,0.3292,0.00897,0.1196,0.5748],[4.0,0.4378,0.00939,0.0754,0.6575],[5.0,0.5455,0.00985,0.05,0.7442],[6.0,0.6511,0.01039,0.0349,0.8321]],"n4":[[-6.0,-0.6456,0.00985,0.9558,0.0527],[-5.0,-0.5381,0.009,0.9072,0.0806],[-4.0,-0.433,0.00833,0.8362,0.128],[-3.0,-0.3266,0.0078,0.7501,0.2004],[-2.0,-0.2188,0.00739,0.6589,0.2909],[-1.0,-0.1098,0.00715,0.5684,0.3857],[0.0,0.0,0.00707,0.4776,0.4776],[1.0,0.1098,0.00715,0.3857,0.5684],[2.0,0.2188,0.00739,0.2909,0.6589],[3.0,0.3266,0.0078,0.2004,0.7501],[4.0,0.433,0.00833,0.128,0.8362],[5.0,0.5381,0.009,0.0806,0.9072],[6.0,0.6456,0.00985,0.0527,0.9558]]}};
+// ------------------------------------------------------------ inputs (as area3-analysis.html: example.foil + data-and-constants.md:146)
+const HALF = 0.45, CHORD = 0.12, TC = 0.12, KN = 0.514444, V = 10 * KN, ALPHA = 3, RHO = 1026.02, NU = 1.1892e-6, PV = 1670.9, PATM = 101325, G = 9.80665, HREF = 0.5;
+const TWIST_CV = [[0, 0], [0.1, 0], [0.3, -0.25], [0.5, -0.5], [0.7, -1], [0.9, -1.5], [1, -2]];
+const K3 = [0, 0, 0, 0, 0.25, 0.5, 0.75, 1, 1, 1, 1];
+function deBoor(p, U, P, u){
+  const n = P.length - 1; u = Math.min(Math.max(u, U[p]), U[n + 1] - 1e-12);
+  let k = p; while (k < n && u >= U[k + 1]) k++;
+  const d = []; for (let j = 0; j <= p; j++) d.push(P[k - p + j].slice());
+  for (let r = 1; r <= p; r++) for (let j = p; j >= r; j--){ const i = k - p + j, den = U[i + p - r + 1] - U[i], a = den ? (u - U[i]) / den : 0;
+    d[j] = [(1 - a) * d[j - 1][0] + a * d[j][0], (1 - a) * d[j - 1][1] + a * d[j][1]]; }
+  return d[p];
+}
+const TW = []; for (let i = 0; i <= 1000; i++) TW.push(deBoor(3, K3, TWIST_CV, i / 1000));
+function twistAt(eta){ for (let i = 1; i < TW.length; i++) if (TW[i][0] >= eta){ const a = TW[i - 1], b = TW[i], w = b[0] === a[0] ? 0 : (eta - a[0]) / (b[0] - a[0]); return a[1] + w * (b[1] - a[1]); } return TW[TW.length - 1][1]; }
+
+// ------------------------------------------------------------ reference horseshoe lattice (as the approved page), planar
+const NS = 64, NC = 4, RAD = Math.PI / 180;
+function solveVLM(alpha){
+  const yEdge = []; for (let i = 0; i <= 2 * NS; i++) yEdge.push(-HALF * Math.cos(Math.PI * i / (2 * NS)));
+  const xEdge = []; for (let k = 0; k <= NC; k++) xEdge.push(CHORD * (1 - Math.cos(Math.PI * k / NC)) / 2);
+  const P = [];
+  for (let s = 0; s < 2 * NS; s++) for (let c = 0; c < NC; c++){
+    const ya = yEdge[s], yb = yEdge[s + 1], dx = xEdge[c + 1] - xEdge[c], ym = (ya + yb) / 2;
+    P.push({ s, c, ya, yb, ym, xb: xEdge[c] + dx / 4, xc: xEdge[c] + 3 * dx / 4, th: twistAt(Math.abs(ym) / HALF) });
+  }
+  const far = 20 * 2 * HALF;
+  function seg(px, py, ax, ay, bx, by){
+    const r1x = px - ax, r1y = py - ay, r2x = px - bx, r2y = py - by, cz = r1x * r2y - r1y * r2x, c2 = cz * cz;
+    if (c2 < 1e-20) return 0;
+    const r1 = Math.hypot(r1x, r1y), r2 = Math.hypot(r2x, r2y), r0x = bx - ax, r0y = by - ay;
+    const dot = r0x * (r1x / r1 - r2x / r2) + r0y * (r1y / r1 - r2y / r2);
+    return cz / c2 * dot / (4 * Math.PI);
+  }
+  function hs(px, py, q){ return seg(px, py, far, q.ya, q.xb, q.ya) + seg(px, py, q.xb, q.ya, q.xb, q.yb) + seg(px, py, q.xb, q.yb, far, q.yb); }
+  const n = P.length, A = P.map(pi => P.map(pj => hs(pi.xc, pi.ym, pj))), b = P.map(pi => -V * Math.sin((alpha + pi.th) * RAD));
+  for (let i = 0; i < n; i++){
+    let m = i; for (let r = i + 1; r < n; r++) if (Math.abs(A[r][i]) > Math.abs(A[m][i])) m = r;
+    [A[i], A[m]] = [A[m], A[i]]; [b[i], b[m]] = [b[m], b[i]];
+    for (let r = i + 1; r < n; r++){ const f = A[r][i] / A[i][i]; if (!f) continue; for (let c = i; c < n; c++) A[r][c] -= f * A[i][c]; b[r] -= f * b[i]; }
+  }
+  const gam = new Array(n); for (let i = n - 1; i >= 0; i--){ let s = b[i]; for (let c = i + 1; c < n; c++) s -= A[i][c] * gam[c]; gam[i] = s / A[i][i]; }
+  const strips = [];
+  for (let s = 0; s < 2 * NS; s++){
+    const ya = yEdge[s], yb = yEdge[s + 1], dy = yb - ya, Gs = P.filter(p => p.s === s).reduce((a, p) => a + gam[P.indexOf(p)], 0);
+    strips.push({ s, ya, yb, y: (ya + yb) / 2, dy, G: Gs, L: RHO * V * Gs * dy, th: twistAt(Math.abs((ya + yb) / 2) / HALF) });
+  }
+  for (const t of strips){
+    let w = 0; for (const q of strips) w += q.G / (2 * Math.PI) * (1 / (t.y - q.ya) - 1 / (t.y - q.yb)) * -1;
+    t.wT = w; t.Di = -0.5 * RHO * t.G * w * t.dy; t.cl = 2 * t.G / (V * CHORD); t.aEff = alpha + t.th + Math.atan2(w / 2, V) / RAD;
+  }
+  const q = 0.5 * RHO * V * V, S = 2 * HALF * CHORD, b2 = (2 * HALF) ** 2, AR = b2 / S;
+  const L = strips.reduce((a, t) => a + t.L, 0), Di = strips.reduce((a, t) => a + t.Di, 0);
+  const CL = L / (q * S), CDi = Di / (q * S), e = CL * CL / (Math.PI * AR * CDi);
+  return { alpha, strips, L, Di, CL, CDi, e, q, S, AR, panels: n };
+}
+const R = solveVLM(ALPHA);
+const f = (v, d) => { const t = Math.abs(v).toFixed(d); return (v < 0 && +t !== 0 ? '−' : '') + t; };
+const fe = v => { const p = Math.floor(Math.log10(Math.abs(v))), m = v / 10 ** p; return `${m.toFixed(2)} × 10${String(p).split('').map(c => '⁰¹²³⁴⁵⁶⁷⁸⁹'[+c] || '⁻').join('')}`; };
+const ReRef = V * CHORD / NU, hc = HREF / CHORD, FrH = V / Math.sqrt(G * HREF);
+
+// ------------------------------------------------------------ Karman-Trefftz section Cp (analytic; the A3b oracle family)
+const Cx = { add:(a, b) => [a[0] + b[0], a[1] + b[1]], sub:(a, b) => [a[0] - b[0], a[1] - b[1]], mul:(a, b) => [a[0] * b[0] - a[1] * b[1], a[0] * b[1] + a[1] * b[0]],
+  div:(a, b) => { const d = b[0] * b[0] + b[1] * b[1]; return [(a[0] * b[0] + a[1] * b[1]) / d, (a[1] * b[0] - a[0] * b[1]) / d]; },
+  abs:a => Math.hypot(a[0], a[1]), pow:(a, n) => { const l = [Math.log(Math.hypot(a[0], a[1])), Math.atan2(a[1], a[0])], e = Math.exp(n * l[0]); return [e * Math.cos(n * l[1]), e * Math.sin(n * l[1])]; } };
+function kt(eps, n, alphaDeg, M){
+  const b = 1, z0 = [-eps, 0], Rc = b + eps, al = alphaDeg * RAD, eIn = [Math.cos(-al), Math.sin(-al)], eOut = [Math.cos(al), Math.sin(al)];
+  const dW = zeta => { const d = Cx.sub(zeta, z0); return Cx.sub(eIn, Cx.div(Cx.mul([Rc * Rc, 0], eOut), Cx.mul(d, d))); };
+  const d0 = Cx.sub([b, 0], z0), Gam = Cx.mul([-2 * Math.PI, 0], Cx.mul(d0, dW([b, 0])))[1];   // Kutta at the cusp; i*Gam = -2 pi d dW
+  const pts = [];
+  for (let k = 0; k < M; k++){
+    const th = 2 * Math.PI * (k + 0.5) / M, zeta = Cx.add(z0, [Rc * Math.cos(th), Rc * Math.sin(th)]), d = Cx.sub(zeta, z0), w = Cx.add(dW(zeta), Cx.div([0, Gam / (2 * Math.PI)], d));
+    const T0 = Cx.div(Cx.sub(zeta, [b, 0]), Cx.add(zeta, [b, 0])), T = Cx.pow(T0, n), z = Cx.mul([n * b, 0], Cx.div(Cx.add([1, 0], T), Cx.sub([1, 0], T)));
+    const zp = Cx.add(zeta, [b, 0]), dT = Cx.mul(Cx.mul([n, 0], Cx.pow(T0, n - 1)), Cx.div([2 * b, 0], Cx.mul(zp, zp))), omT = Cx.sub([1, 0], T);
+    const dz = Cx.mul([2 * n * b, 0], Cx.div(dT, Cx.mul(omT, omT))), Vv = Cx.abs(w) / Cx.abs(dz);
+    pts.push({ x:z[0], y:z[1], cp:1 - Vv * Vv });
+  }
+  const xs = pts.map(p => p.x), x0 = Math.min(...xs), c = Math.max(...xs) - x0, ys = pts.map(p => p.y);
+  return { c, tc:(Math.max(...ys) - Math.min(...ys)) / c, Gam, pts:pts.map(p => ({ x:(p.x - x0) / c, y:p.y / c, cp:p.cp })) };
+}
+function integ(P, alphaDeg){ const al = alphaDeg * RAD, n = P.length; let Fx = 0, Fy = 0, M = 0;
+  for (let i = 0; i < n; i++){ const a = P[i], b = P[(i + 1) % n], dx = b.x - a.x, dy = b.y - a.y, ds = Math.hypot(dx, dy), nx = dy / ds, ny = -dx / ds, cp = (a.cp + b.cp) / 2, mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2, fx = -cp * nx * ds, fy = -cp * ny * ds; Fx += fx; Fy += fy; M += (mx - 0.25) * fy - my * fx; }
+  return { cl:-Fx * Math.sin(al) + Fy * Math.cos(al), cm:-M }; }
+const NPAN = 200, TE_SKIP = 3;
+function SEC(alpha){
+  const r = kt(0.074, 1.95, alpha, NPAN), P = r.pts, up = P.slice(0, NPAN / 2), lo = P.slice(NPAN / 2), q = integ(P, alpha);
+  const cand = [...up.slice(TE_SKIP).map(p => ({ p, side:'upper' })), ...lo.slice(0, lo.length - TE_SKIP).map(p => ({ p, side:'lower' }))];
+  const m = cand.reduce((a, c) => c.p.cp < a.p.cp ? c : a);
+  return { pts:P, up, lo, cpmin:m.p.cp, xCp:m.p.x, yCp:m.p.y, side:m.side, cl:q.cl, cm:q.cm, tc:r.tc, gam:r.Gam / r.c, cpmax:Math.max(...P.map(p => p.cp)) };
+}
+const alphaL0Of = () => { const a = SEC(0), b = SEC(1); return 0 - a.cl * (1 - 0) / (b.cl - a.cl); };
+const AL0 = alphaL0Of();
+const cdBound = (Re, tc) => { const cf = 0.075 / Math.pow(Math.log10(Re) - 2, 2); return 2 * cf * (1 + 2 * tc + 60 * Math.pow(tc, 4)); };
+const NPOINTS = 200;   // COPY-48 "Cp_min resolution: N stations": the 200-panel tier of Ruling 90
+
+// ------------------------------------------------------------ cavitation screen (Cavitation.cs logic, Ruling 86 governing station)
+function cav(cpmin, speed, depth, pv, margin){
+  margin = margin == null ? 0.15 : margin;
+  const base = { margin, sup:-cpmin, depth };
+  if (pv == null || depth == null) return { ...base, state:'unavailable', reason: pv == null ? 'Unavailable — vapour pressure missing' : 'Unavailable — depth not set' };
+  if (!(depth > 0)) return { ...base, state:'unavailable', reason:'Unavailable — local station is surface piercing' };
+  if (!(-cpmin > 0)) return { ...base, state:'undefined', reason:'Undefined — −Cp_min ≤ 0' };
+  const p = PATM + RHO * G * depth - pv; if (!(p > 0)) return { ...base, state:'undefined', reason:'Undefined — static pressure does not exceed vapour pressure' };
+  const sigma = p / (0.5 * RHO * speed * speed), vcrit = Math.sqrt(2 * p / (RHO * -cpmin)), sup = -cpmin;
+  return { ...base, sigma, vcrit, state: sigma <= sup ? 'possible' : sigma <= sup * (1 + margin) ? 'inside' : 'clear' };
+}
+const HALFSTR = R.strips.filter(s => s.y > 0), SECS = HALFSTR.map(s => ({ s, sec:SEC(s.aEff) }));
+const ratioOf = (x, speed) => cav(x.sec.cpmin, speed, HREF, PV).sigma / -x.sec.cpmin;
+const GOV = SECS.reduce((a, x) => ratioOf(x, V) < ratioOf(a, V) ? x : a);
+const GOVETA = GOV.s.y / HALF;
+const CAV10 = cav(GOV.sec.cpmin, V, HREF, PV);
+const V_DEMO = CAV10.vcrit / Math.sqrt(1.07);       // a speed at which sigma = 1.07 * (-Cp_min): inside the 15 % margin
+const V_OVER = CAV10.vcrit * 1.05;
+const COPY48 = `Cavitation screening (sheet, by −Cp_min): inception is possible above V_crit; not a prediction of inception, extent, tip-vortex or cloud cavitation; Cp_min resolution: ${NPOINTS} stations`;
+
+// ------------------------------------------------------------ polar stand-in (SPIKE-ANA-1 XFOIL oracle, NACA 0012, interpolated in ln Re)
+const RE_LO = 2e5, RE_HI = 1e6, ALPHA_BRACKET = 6;
+function polRow(re, n, a){ const T = XF[String(re)][n]; if (a < T[0][0] || a > T[T.length - 1][0]) return null; for (let i = 1; i < T.length; i++) if (T[i][0] >= a){ const p = T[i - 1], q = T[i], w = (a - p[0]) / (q[0] - p[0]); return [1, 2, 3, 4].map(k => p[k] + w * (q[k] - p[k])); } return null; }
+function pol(n, a, Re){ if (Re < RE_LO || Re > RE_HI) return null; const lo = polRow(RE_LO, n, a), hi = polRow(RE_HI, n, a); if (!lo || !hi) return null;
+  const w = (Math.log(Re) - Math.log(RE_LO)) / (Math.log(RE_HI) - Math.log(RE_LO)); const m = lo.map((v, i) => v + w * (hi[i] - v)); return { cl:m[0], cd:m[1], xt:m[2], xb:m[3] }; }
+const ReStrip = V * CHORD / NU;   // rectangular wing: every strip has Re_local = Re_ref
+
+// ------------------------------------------------------------ drag breakdown from strips (profile drag at both Ncrit, polar stand-in)
+const DP = ['n4', 'n2'].map(n => R.strips.reduce((a, s) => { const p = pol(n, s.aEff, ReStrip); return a + (p ? R.q * CHORD * p.cd * s.dy : NaN); }, 0));
+const NSTRIPS_IN = R.strips.filter(s => pol('n4', s.aEff, ReStrip) && pol('n2', s.aEff, ReStrip)).length;
+const DWING = [R.Di + DP[0], R.Di + DP[1]];
+
+// ------------------------------------------------------------ Find alpha (secant on the lattice CL(alpha), cached)
+const CLCACHE = new Map(); const clAt = a => { const k = a.toFixed(6); if (!CLCACHE.has(k)) CLCACHE.set(k, solveVLM(a).CL); return CLCACHE.get(k); };
+function findAlpha(target, lo, hi, tol){
+  let solves = 0; const cl0 = clAt(lo), cl1 = clAt(hi); solves += 2;
+  if ((cl0 - target) * (cl1 - target) > 0) return { found:false, solves, lo, hi, cl0, cl1, reason:'no sign change' };
+  let a0 = lo, a1 = hi, c0 = cl0, c1 = cl1, a = a1, c = c1;
+  for (let i = 0; i < 12; i++){ a = a1 - (c1 - target) * (a1 - a0) / (c1 - c0); c = clAt(a); solves++; if (Math.abs(c - target) <= tol * Math.abs(target)) return { found:true, a, cl:c, solves, lo, hi, cl0, cl1 };
+    [a0, c0, a1, c1] = [a1, c1, a, c]; }
+  return { found:false, solves, lo, hi, cl0, cl1, reason:'iteration limit' };
+}
+const FA_TARGET = 0.4, FA = findAlpha(FA_TARGET, -2, 8, 0.01), FA_NO = findAlpha(1.6, -2, 8, 0.01);
+
+// ------------------------------------------------------------ copy: APPROVED rows are cited; NEW rows are proposals for the operator
+const COPY = {
+  c45:'Unavailable — depth not set', c46:`Deep-water result; free surface not modelled (h/c = ${f(hc, 2)}, Fr_h = ${f(FrH, 2)}; effects measured below h/c 5)`,
+  c63:'Computed estimate · Model uncertainty not quantified', c66:'XFOIL-class surrogate; accuracy relative to XFOIL, not experiment',
+  c44:'practitioner range; no measured water N-factor; Day 2019 used 4', c210:'Unavailable — no polar method installed',
+  c214:'Estimator · local calculation', c215:'Polar · local calculation', c213:'VLM + strip · local calculation', c230:'Undefined — CD ≤ 0', c234:'Unavailable — needs −Cp_min',
+  notModelled: depthSet => `Not modelled: ${depthSet ? '' : 'free surface, '}ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”.`,
+  vlmLabelOf: depthSet => `attached flow; no stall; no ventilation; ${depthSet ? 'deep water' : 'free surface not modelled'}`,
+  // ---- NEW (proposed) ----
+  estLabel: depthSet => `inviscid + turbulent-friction bound; ${depthSet ? 'deep water' : 'free surface not modelled'}; steady · inviscid; no boundary layer`,
+  cdBound:'Fully turbulent friction bound (ITTC-1957) at this Re; a bound, not a polar value',
+  cavClear:'Clear — σ is above −Cp_min plus the margin', cavInside:'Inside the margin — σ is above −Cp_min but within the margin', cavPossible:'Possible — σ is at or below −Cp_min; speed is above V_crit',
+  marginLabel:'15 % margin — practitioner assumption, not sourced',
+  provisional: 'Provisional — Cp_min under-read at this station is above 10 % (200 vs 400 panels)',
+  surrogate:'surrogate, relative to XFOIL, validated at NACA 0012 pre-stall only', method:'NeuralFoil-0.3.2/xxxlarge/94638c04',
+  conf: v => `analysis_confidence ${f(v, 2)} · advisory, not an error bar`, confNone:'analysis_confidence: not recorded',
+  confLow: v => `Low confidence — analysis_confidence ${f(v, 2)} is below 0.5. Computed and flagged, never refused; not an error bar.`,
+  cstRes:'CST fit residual: max 1.09 × 10⁻⁴ c · RMS 2.93 × 10⁻⁵ c (shape residual, not an aerodynamic error)',
+  inBracket:'Inside the validated bracket (α −6° to 6°, Re 2 × 10⁵ to 10⁶, Ncrit 2, 4, 9, NACA 0012 family)',
+  outAlpha: a => `Outside the validated bracket — α ${f(a, 2)}° is beyond ±6°. Computed, not validated.`,
+  outRe: re => `Outside the validated bracket — Re ${fe(re)} is outside 2 × 10⁵ to 10⁶. Computed, not validated.`,
+  outNcrit:'Outside the validated bracket — Ncrit 3 is between the validated values 2, 4 and 9. Computed, not validated.',
+  outFamily:'Outside the validated bracket — section is not in the NACA 0012 family (match 3.87 × 10⁻³ c, limit 1.5 × 10⁻³ c). Computed, not validated.',
+  ncAlpha:'Unavailable — α 31.00° is outside the surrogate’s training range (−27.9° to 28.6°)', ncRe:'Unavailable — Re 8.0 × 10¹ is outside the surrogate’s training range (1 × 10² to 1 × 10¹⁰)',
+  ncCst:'Unavailable — section fit residual 4.2 × 10⁻⁴ c exceeds the limit 3.6 × 10⁻⁴ c', tripped:'Unavailable — not computed',
+  reIn: (re) => `Re_local ${fe(re)} inside 2 × 10⁵ to 10⁶`, reOut: (re) => `Re_local ${fe(re)} outside the polar’s Re range 2 × 10⁵ to 10⁶ — cd not extrapolated`,
+  profBand: 'Profile drag from the polar at α_eff, both Ncrit; band, not a prediction',
+  wingDragNote:'Wing only: induced (VLM + strip) plus profile (polar). Not a total.',
+  totalMissing:'Unavailable — missing: junction, mast, wave, spray', totalMissingAll:'Unavailable — missing: profile (no polar method installed), junction, mast, wave, spray',
+  cdUnavail: n => `Unavailable — cd missing at ${n} strips; the estimator bound is not substituted`,
+  falSuccess: (a, t) => `α ${f(a, 2)}° meets CL ${f(t, 3)} within 1 %`,
+  faNone: why => `Find α found no α — ${why}. Nothing was extrapolated.`,
+  faReasons:{ 'no sign change':'no sign change: CL does not reach the target inside the bracket', 'polar not converged':'polar not converged at the bracket ends', 'confidence below floor':'confidence below the floor at the bracket ends', 'out of Re envelope':'Re_local is outside the polar’s Re envelope', 'h/c below floor':'h/c is below the correction layer’s floor' },
+  clmax:'attached-flow polar limit, not measured stall; pumping not modelled'
+};
+const BOUND = '|α_eff − α_L0| ≤ 10°, Cl_local ≤ 1.0, quarter-chord sweep ≤ 30°', SWEEP = 0;
+const partsOf = s => [Math.abs(s.aEff - AL0) > 10 ? '|α_eff − α_L0|' : '', Math.abs(s.cl) > 1.0 ? 'Cl_local' : '', SWEEP > 30 ? 'sweep' : ''].filter(Boolean);
+const cmp = over => over ? '>' : '≤';
+const stripEnvOf = s => { const parts = partsOf(s), a = Math.abs(s.aEff - AL0), vals = `|α_eff − α_L0| ${f(a, 2)}° ${cmp(a > 10)} 10° · Cl_local ${f(s.cl, 3)} ${cmp(Math.abs(s.cl) > 1.0)} 1.0 · sweep ${f(SWEEP, 0)}° ${cmp(SWEEP > 30)} 30°`;
+  return parts.length ? `Outside the method envelope at this strip — exceeded: ${parts.join(', ')} (${vals})` : `Inside the method envelope at this strip (${vals})`; };
+const envRowOf = run => { const n = run.strips.filter(s => partsOf(s).length).length, m = run.strips.length; return n ? `Outside the method envelope (${BOUND}) — ${n} of ${m} strips` : `Inside the method envelope (${BOUND}) at all ${m} strips`; };
+
+// ------------------------------------------------------------ drawing (canvas)
+const C = { vp:'#17272c', soft:'#243a40', ink:'#edf4f2', mute:'#afc6c7', grid:'#344b50', foil:'#85c9c4', edge:'#c4e7df', station:'#66ddc8', lit:'#3f6a6c', warn:'#efc576' };
+const BATLOW = ['#011959', '#215f61', '#818232', '#f19d6b', '#faccfa'], VIK = ['#001261', '#2f7fa6', '#ece8e5', '#c47b50', '#590008'];
+function ramp(stops, t){ t = Math.min(1, Math.max(0, t)) * (stops.length - 1); const i = Math.min(stops.length - 2, Math.floor(t)), w = t - i, p = h => [1, 3, 5].map(k => parseInt(h.substr(k, 2), 16)), a = p(stops[i]), b = p(stops[i + 1]); return `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * w)).join(',')})`; }
+const batlow = t => ramp(BATLOW, t), vik = t => ramp(VIK, t);
+function line(g, pts, color, w, dash){ g.save(); g.strokeStyle = color; g.lineWidth = w; g.setLineDash(dash || []); g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); g.restore(); }
+function text(g, s, x, y, color, align){ g.save(); g.font = '600 11px system-ui, sans-serif'; const w = g.measureText(s).width, x0 = align === 'right' ? x - w : x; g.fillStyle = C.soft; g.fillRect(x0 - 4, y - 12, w + 8, 16); g.fillStyle = color || C.ink; g.textAlign = align || 'left'; g.fillText(s, x, y); g.restore(); }
+const loadMax = Math.max(...R.strips.map(t => t.G));
+function drawPlan(g, w, h){
+  const s = Math.min((w - 80) / (2 * HALF), (h - 150) / CHORD), cx = w / 2, y0 = (h - CHORD * s) / 2 - 16, P = (y, x) => [cx + y * s, y0 + x * s];
+  for (let y = -0.5; y <= 0.5001; y += 0.1) line(g, [P(y, -0.06), P(y, 0.18)], C.grid, 1);
+  line(g, [P(0, -0.04), P(0, 0.16)], C.mute, 1);
+  R.strips.forEach(t => { const a = P(t.ya, 0), b = P(t.yb, CHORD); g.fillStyle = batlow(t.G / loadMax); g.fillRect(a[0], a[1], b[0] - a[0], b[1] - a[1]); });
+  const base = y0 - 10, k = 60 / loadMax; line(g, R.strips.map(t => [cx + t.y * s, base - t.G * k]), C.edge, 2); text(g, 'Γ(y) · loading', cx + 0.3 * s, base - 64, C.ink);
+  line(g, [P(-HALF, 0), P(HALF, 0)], C.foil, 1.5); line(g, [P(-HALF, CHORD), P(HALF, CHORD)], C.foil, 1.5); line(g, [P(-HALF, 0), P(-HALF, CHORD)], C.edge, 1); line(g, [P(HALF, 0), P(HALF, CHORD)], C.edge, 1);
+  [-1, 1].forEach(sg => line(g, [P(sg * GOV.s.y, -0.006), P(sg * GOV.s.y, CHORD + 0.006)], C.station, 3));
+  text(g, `η ${f(GOVETA, 3)} · governing station`, P(GOV.s.y, 0)[0] - 40, P(0, CHORD + 0.026)[1], C.ink);
+  [0, 0.1, 0.3, 0.5, 0.7, 0.9, 1].forEach(e => { [0, CHORD].forEach(x => { const p = P(e * HALF, x); g.beginPath(); g.arc(p[0], p[1], 4, 0, 7); g.fillStyle = 'rgba(133,201,196,0.45)'; g.fill(); }); });
+}
+function cpRange(sec){ return Math.max(-Math.min(...sec.pts.map(p => p.cp)), sec.cpmax); }
+function drawSection(g, w, h, o){
+  const sec = o.sec, s = w - 110, ox = 55, oy = h / 2 - 6, P = (x, y) => [ox + x * s, oy - y * s], cabs = cpRange(sec);
+  line(g, [P(-0.02, 0), P(1.02, 0)], C.grid, 1, [4, 4]);
+  g.beginPath(); sec.pts.forEach((p, i) => { const q = P(p.x, p.y); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.closePath(); g.fillStyle = C.lit; g.fill();
+  for (let i = 0; i < sec.pts.length; i++){ const a = sec.pts[i], b = sec.pts[(i + 1) % sec.pts.length]; line(g, [P(a.x, a.y), P(b.x, b.y)], vik(0.5 + (a.cp + b.cp) / 4 / cabs), 5); }
+  const m = P(sec.xCp, sec.yCp); g.save(); g.strokeStyle = C.ink; g.lineWidth = 2; g.beginPath(); g.arc(m[0], m[1], 7, 0, 7); g.stroke(); g.restore();
+  text(g, `Cp_min ${f(sec.cpmin, 2)} · x/c ${f(sec.xCp, 3)} · ${sec.side}`, m[0] + 12, o.xtr ? m[1] + 44 : m[1] - 18, C.ink);
+  if (o.xtr){ [['upper', o.xtr.top, 1], ['lower', o.xtr.bot, -1]].forEach(([nm, x, sg]) => { const near = sec.pts.reduce((a, p) => (sg * p.y >= 0 && Math.abs(p.x - x) < Math.abs(a.x - x)) ? p : a, { x:9, y:0 }), q = P(x, near.y);
+    line(g, [[q[0], q[1] - 9], [q[0], q[1] + 9]], C.station, 3); text(g, `x_tr/c ${f(x, 2)} ${nm}`, q[0] - 30, sg > 0 ? q[1] - 16 : q[1] + 28, C.station); }); }
+  text(g, 'x/c 0 → 1', ox, oy + 90, C.mute);
+}
+// generic light/dark chart for the bottom panel
+function chart(cv, s){
+  const w = cv.clientWidth, h = cv.clientHeight, dpr = devicePixelRatio || 1; cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const css = getComputedStyle(document.documentElement), col = n => css.getPropertyValue('--' + n).trim(), ink = col('ink'), mute = col('mute'), lineC = col('line');
+  g.clearRect(0, 0, w, h); const l = 58, r = 12, t = 12, b = 32, X = v => l + (v - s.x[0]) / (s.x[1] - s.x[0]) * (w - l - r), Y = v => t + (1 - (v - s.y[0]) / (s.y[1] - s.y[0])) * (h - t - b);
+  const L = (pts, c, wd, dash) => { g.save(); g.strokeStyle = c; g.lineWidth = wd; g.setLineDash(dash || []); g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); g.restore(); };
+  g.font = '11px system-ui, sans-serif';
+  (s.bands || []).forEach(bd => { g.save(); g.fillStyle = col('soft'); g.fillRect(X(bd.x[0]), t, X(bd.x[1]) - X(bd.x[0]), h - t - b); g.strokeStyle = lineC; g.setLineDash([2, 3]); g.strokeRect(X(bd.x[0]), t, X(bd.x[1]) - X(bd.x[0]), h - t - b); g.fillStyle = mute; g.fillText(bd.label, X(bd.x[0]) + 3, t + 24); g.restore(); });
+  s.xt.forEach(v => { L([[X(v), t], [X(v), h - b]], lineC, 1); g.fillStyle = mute; g.fillText(String(s.xf ? s.xf(v) : v), X(v) - 8, h - b + 14); });
+  s.yt.forEach(v => { L([[l, Y(v)], [w - r, Y(v)]], lineC, 1); g.fillStyle = mute; g.textAlign = 'right'; g.fillText(String(s.yf ? s.yf(v) : v), l - 5, Y(v) + 4); g.textAlign = 'left'; });
+  g.fillStyle = mute; g.fillText(s.xl, l + (w - l - r) / 2 - g.measureText(s.xl).width / 2, h - 3); g.save(); g.translate(11, h - b - 4); g.rotate(-Math.PI / 2); g.textAlign = 'left'; g.fillText(s.yl, 0, 0); g.restore();
+  if (s.fill){ g.save(); g.fillStyle = col('sel'); g.beginPath(); s.fill[0].forEach((p, i) => i ? g.lineTo(X(p[0]), Y(p[1])) : g.moveTo(X(p[0]), Y(p[1]))); s.fill[1].slice().reverse().forEach(p => g.lineTo(X(p[0]), Y(p[1]))); g.closePath(); g.fill(); g.restore(); }
+  (s.series || []).forEach(se => { const pts = se.pts.map(p => [X(p[0]), Y(p[1])]); L(pts, col(se.c), 2, se.dash); se.marker && pts.forEach((p, i) => { if (i % (se.every || 1)) return; g.save(); g.fillStyle = col(se.c); g.strokeStyle = col(se.c); if (se.marker === 'o'){ g.beginPath(); g.arc(p[0], p[1], 3, 0, 7); g.fill(); } else g.fillRect(p[0] - 3, p[1] - 3, 6, 6); g.restore(); }); });
+  (s.v || []).forEach(v => { L([[X(v.x), t], [X(v.x), h - b]], col(v.c || 'ink'), 1.5, v.dash); g.fillStyle = col(v.c || 'ink'); g.fillText(v.label, Math.min(X(v.x) + 4, w - r - g.measureText(v.label).width), t + 10 + (v.dy || 0)); });
+  (s.hz || []).forEach(v => { L([[l, Y(v.y)], [w - r, Y(v.y)]], col(v.c || 'ink'), 1.5, v.dash); g.fillStyle = col(v.c || 'ink'); g.fillText(v.label, l + 4, Y(v.y) - 4); });
+  (s.pts || []).forEach(p => { g.save(); g.strokeStyle = col('ink'); g.lineWidth = 2; g.beginPath(); g.arc(X(p.x), Y(p.y), 5, 0, 7); g.stroke(); g.fillStyle = col('ink'); g.fillText(p.label, Math.min(X(p.x) + 8, w - r - g.measureText(p.label).width), Y(p.y) + (p.dy || -8)); g.restore(); });
+}
+
+// ------------------------------------------------------------ charts' data
+const SGOV = GOV.sec, AEG = GOV.s.aEff;
+const CHARTS = {
+  cp: () => [{ id:'cp', s:{ x:[0, 1], y:[-1, Math.ceil(-SGOV.cpmin * 10) / 10 + 0.2], xt:[0, 0.25, 0.5, 0.75, 1], yt:[-1, 0, 1], yf: v => f(-v, 1), xl:'x/c (–)', yl:'Cp (–), suction up',
+    series:[{ pts:SGOV.up.map(p => [p.x, -p.cp]), c:'accent', marker:'o', every:12 }, { pts:SGOV.lo.map(p => [p.x, -p.cp]), c:'ink', dash:[5, 4], marker:'s', every:12 }],
+    pts:[{ x:SGOV.xCp, y:-SGOV.cpmin, label:`Cp_min ${f(SGOV.cpmin, 2)} · ${NPOINTS} stations`, dy:-8 }], hz:[{ y:0, c:'mute', dash:[2, 3], label:'Cp = 0' }] } }],
+  polar: () => { const cls = [], cd4 = [], cd2 = [], cl4 = [], cl2 = []; for (let a = -6; a <= 6.001; a += 0.5){ const p4 = pol('n4', a, ReStrip), p2 = pol('n2', a, ReStrip); cl4.push([a, p4.cl]); cl2.push([a, p2.cl]); cd4.push([p4.cl, p4.cd]); cd2.push([p2.cl, p2.cd]); }
+    const op4 = pol('n4', AEG, ReStrip), op2 = pol('n2', AEG, ReStrip);
+    return [{ id:'polar-cl', s:{ x:[-8, 8], y:[-0.8, 0.8], xt:[-8, -4, 0, 4, 8], yt:[-0.8, -0.4, 0, 0.4, 0.8], xl:'α (°)', yl:'cl (–)', bands:[{ x:[-8, -6], label:'outside' }, { x:[6, 8], label:'outside' }],
+      series:[{ pts:cl4, c:'accent', marker:'o', every:2 }, { pts:cl2, c:'ink', dash:[5, 4], marker:'s', every:2 }], v:[{ x:AEG, c:'ink', dash:[2, 3], label:`α_eff ${f(AEG, 2)}°` }] } },
+      { id:'polar-cd', s:{ x:[-0.8, 0.8], y:[0.006, 0.013], xt:[-0.8, -0.4, 0, 0.4, 0.8], yt:[0.006, 0.008, 0.010, 0.012], yf: v => v.toFixed(3), xl:'cl (–)', yl:'cd (–)', fill:[cd2, cd4],
+      series:[{ pts:cd4, c:'accent', marker:'o', every:2 }, { pts:cd2, c:'ink', dash:[5, 4], marker:'s', every:2 }], pts:[{ x:op4.cl, y:op4.cd, label:`band ${op4.cd.toFixed(4)} – ${op2.cd.toFixed(4)}`, dy:24 }] } }]; },
+  trans: () => { const mk = (n, k) => { const o = []; for (let a = -6; a <= 6.001; a += 0.5){ const p = pol(n, a, ReStrip); o.push([a, k === 't' ? p.xt : p.xb]); } return o; };
+    return [{ id:'trans', s:{ x:[-8, 8], y:[0, 1], xt:[-8, -4, 0, 4, 8], yt:[0, 0.25, 0.5, 0.75, 1], xl:'α (°)', yl:'x_tr/c (–)', bands:[{ x:[-8, -6], label:'outside' }, { x:[6, 8], label:'outside' }],
+      series:[{ pts:mk('n4', 't'), c:'accent', marker:'o', every:2 }, { pts:mk('n2', 't'), c:'accent', dash:[5, 4], marker:'o', every:2 }, { pts:mk('n4', 'b'), c:'ink', marker:'s', every:2 }, { pts:mk('n2', 'b'), c:'ink', dash:[5, 4], marker:'s', every:2 }], v:[{ x:AEG, c:'mute', dash:[2, 3], label:`α_eff ${f(AEG, 2)}°` }] } }]; },
+  bucket: () => { const A = [], S = [], VC = []; for (let a = -8; a <= 8.001; a += 0.5){ const sc = SEC(a), c = cav(sc.cpmin, V_DEMO, HREF, PV); S.push([sc.cl, -sc.cpmin]); VC.push([sc.cl, c.vcrit / KN]); }
+    const dem = cav(SGOV.cpmin, V_DEMO, HREF, PV);
+    return [{ id:'bucket-s', s:{ x:[-1, 1], y:[0, 2.2], xt:[-1, -0.5, 0, 0.5, 1], yt:[0, 0.5, 1, 1.5, 2], yf: v => v.toFixed(1), xl:'Cl (–)', yl:'σ required (–)', series:[{ pts:S, c:'accent', marker:'o', every:4 }, { pts:S.map(p => [p[0], p[1] * 1.15]), c:'warn', dash:[2, 3] }],
+      hz:[{ y:dem.sigma, c:'ink', dash:[5, 4], label:`σ operating ${f(dem.sigma, 2)} at ${f(V_DEMO / KN, 1)} kn` }], pts:[{ x:SGOV.cl, y:-SGOV.cpmin, label:`η ${f(GOVETA, 3)}`, dy:16 }] } },
+      { id:'bucket-v', s:{ x:[-1, 1], y:[10, 40], xt:[-1, -0.5, 0, 0.5, 1], yt:[10, 20, 30, 40], xl:'Cl (–)', yl:'V_crit (kn)', series:[{ pts:VC, c:'accent', marker:'o', every:4 }], hz:[{ y:V_DEMO / KN, c:'ink', dash:[5, 4], label:`operating ${f(V_DEMO / KN, 1)} kn` }], pts:[{ x:SGOV.cl, y:dem.vcrit / KN, label:`V_crit ${f(dem.vcrit / KN, 1)} kn`, dy:16 }] } }]; }
+};
+// text twins of the charts (table twin for every chart)
+function twinOf(chartId){
+  if (chartId === 'cp'){ const rows = []; for (let i = 0; i < SGOV.up.length; i += 10){ const u = SGOV.up[SGOV.up.length - 1 - i]; const l = SGOV.lo.reduce((a, p) => Math.abs(p.x - u.x) < Math.abs(a.x - u.x) ? p : a); rows.push(`<tr><td>${f(u.x, 3)}</td><td>${f(u.cp, 3)}</td><td>${f(l.cp, 3)}</td></tr>`); }
+    return `<table aria-label="Cp table"><tr><th>x/c</th><th>Cp upper</th><th>Cp lower</th></tr>${rows.join('')}</table>`; }
+  if (chartId === 'polar' || chartId === 'trans'){ const rows = []; for (let a = -6; a <= 6.001; a += 2){ const p4 = pol('n4', a, ReStrip), p2 = pol('n2', a, ReStrip);
+    rows.push(chartId === 'polar' ? `<tr><td>${f(a, 0)}</td><td>${f(p4.cl, 3)}</td><td>${p4.cd.toFixed(4)}</td><td>${p2.cd.toFixed(4)}</td></tr>` : `<tr><td>${f(a, 0)}</td><td>${f(p4.xt, 2)}</td><td>${f(p4.xb, 2)}</td><td>${f(p2.xt, 2)}</td><td>${f(p2.xb, 2)}</td></tr>`); }
+    return chartId === 'polar' ? `<table aria-label="Polar table"><tr><th>α °</th><th>cl</th><th>cd N4</th><th>cd N2</th></tr>${rows.join('')}</table>` : `<table aria-label="Transition table"><tr><th>α °</th><th>top N4</th><th>bot N4</th><th>top N2</th><th>bot N2</th></tr>${rows.join('')}</table>`; }
+  const rows = []; for (let a = -6; a <= 6.001; a += 2){ const sc = SEC(a), c = cav(sc.cpmin, V_DEMO, HREF, PV); rows.push(`<tr><td>${f(a, 0)}</td><td>${f(sc.cl, 3)}</td><td>${f(-sc.cpmin, 3)}</td><td>${f(c.vcrit / KN, 1)}</td></tr>`); }
+  return `<table aria-label="Cavitation bucket table"><tr><th>α °</th><th>Cl</th><th>σ req.</th><th>V_crit kn</th></tr>${rows.join('')}</table>`;
+}
+
+// ------------------------------------------------------------ shell pieces
+const r = (k, v, u) => `<div class="row"><span class="k">${k}</span><span class="v">${v}</span><span class="u">${u || ''}</span></div>`;
+const na = (k, v) => `<div class="row na"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+const wide = (k, v) => `<div class="row wide"><span class="k">${k}</span><span class="v">${v}</span></div>`;
+const grp = (name, sum, body, closed) => `<div class="grp"><div class="gh"><span class="tw">${closed ? '›' : '⌄'}</span>${name}<span class="sum">${sum || ''}</span></div>${closed ? '' : body}</div>`;
+const flag = (kind, head, body) => `<div class="flag ${kind || ''}"><b>${head}</b> ${body || ''}</div>`;
+const chipOf = s => `<span class="chip">${s}</span>`;
+function condBand(sc){
+  const kn = sc.kn || 10, Vx = kn * KN, q = 0.5 * RHO * Vx * Vx, sg = (PATM + RHO * G * HREF - PV) / q;
+  return `<div class="cond" role="group" aria-label="Operating point"><label>Speed <input aria-label="Speed, knots" value="${f(kn, 2)}"><span class="unit">kn</span></label>
+    <label>Water <select aria-label="Water"><option>Salt · 15 °C</option></select></label>
+    <label>Depth<span class="x"> h_ref</span> <input aria-label="Depth h_ref, metres" value="${f(HREF, 2)}"><span class="unit">m</span></label>
+    <label>α <input aria-label="Incidence alpha, degrees" value="${f(sc.alphaBand == null ? ALPHA : sc.alphaBand, 2)}"><span class="unit">°</span></label><button type="button" class="go">Evaluate</button><button type="button" class="alt" aria-expanded="${!!sc.find}" aria-haspopup="dialog">Find α</button>
+    <span class="der"><span class="x">q <b>${f(q, 0)}</b> Pa</span><span class="x">Re_ref <b>${fe(Vx * CHORD / NU)}</b></span><span class="x">h/c <b>${f(hc, 2)}</b></span><span class="x">Fr_h <b>${f(Vx / Math.sqrt(G * HREF), 2)}</b></span><span>σ <b>${f(sg, 2)}</b></span><button type="button" class="more">More ▾</button></span></div>`;
+}
+const stripGroup = (t, withPolar, closed) => {
+  const p4 = withPolar ? pol('n4', t.aEff, ReStrip) : null, p2 = withPolar ? pol('n2', t.aEff, ReStrip) : null;
+  return grp('Strip result', 'per span', r('Cl_local', f(t.cl, 3), '–') + r('α_eff', f(t.aEff, 2), '°') + r('Re_local', fe(ReStrip), '–') + r('Lift / span', f(t.L / t.dy, 1), 'N/m') +
+    (withPolar ? wide('cd (profile)', `${p4.cd.toFixed(4)} – ${p2.cd.toFixed(4)} · Ncrit 4 – 2`) + `<div class="note">${COPY.c44}</div>` : na('cd (profile)', COPY.c210)), closed);
+};
+const verdictGroup = (t, withPolar, closed) => grp('Strip verdict', 'envelope · Re · omissions', `<div class="note lab">${stripEnvOf(t)}</div>` + (withPolar ? wide('Polar Re range', COPY.reIn(ReStrip)) + flag('plain', 'Polar bracket:', COPY.inBracket) : na('Polar Re range', COPY.c210)) + `<div class="note lab">${COPY.notModelled(true)}</div>`, closed);
+function estGroup(sec, closed){
+  const cd = cdBound(ReStrip, TC);
+  return grp('Section (2D) · estimator', 'per span', chipOf(COPY.c214) + r('cl (panel)', f(sec.cl, 3), '–') + r('Cm c/4', f(sec.cm, 4), '–') + r('α_L0 (panel)', f(AL0, 2), '°') + r('cd (bound)', f(cd, 5), '–') + `<div class="note">${COPY.cdBound}</div>` +
+    r('−Cp_min', f(-sec.cpmin, 3), '–') + `<div class="note">at x/c ${f(sec.xCp, 3)} on the ${sec.side} surface · ${NPOINTS} stations · three trailing-edge panels per side excluded</div><div class="note lab">${COPY.estLabel(true)}</div>`, closed);
+}
+function cavFlag(c){
+  if (c.state === 'unavailable' || c.state === 'undefined') return flag('plain', c.state === 'undefined' ? 'Undefined' : 'Unavailable', c.reason.replace(/^(Undefined|Unavailable) — /, '— '));
+  return c.state === 'clear' ? flag('plain', COPY.cavClear.split(' — ')[0], '— ' + COPY.cavClear.split(' — ')[1]) : c.state === 'inside' ? flag('', COPY.cavInside.split(' — ')[0], '— ' + COPY.cavInside.split(' — ')[1]) : flag('crit', COPY.cavPossible.split(' — ')[0], '— ' + COPY.cavPossible.split(' — ')[1]);
+}
+function cavGroup(c, closed){
+  const body = cavFlag(c) + (c.sigma ? r('σ at the station', f(c.sigma, 2), '–') + r('−Cp_min', f(c.sup, 3), '–') + r('V_crit', f(c.vcrit / KN, 1), 'kn') : na('σ, V_crit', c.reason)) + na('Margin', COPY.marginLabel) +
+    wide('Governing station', `η ${f(GOVETA, 3)} · depth ${f(HREF, 2)} m · smallest σ / (−Cp_min) of ${HALFSTR.length} stations`) + `<div class="note lab">${COPY48}</div>`;
+  return grp('Cavitation screen', 'wing level · sheet', body, closed);
+}
+const labelsGroup = (extra) => grp('Labels', 'tier · basis · omissions', `<div class="note lab">${COPY.c63}</div><div class="note">${COPY.vlmLabelOf(true)}</div><div class="note">${COPY.c46}</div>` + (extra || ''), false);
+function polarGroup(){
+  const p4 = pol('n4', AEG, ReStrip);
+  return grp('Section (2D) · polar', 'Ncrit 4 and 2', chipOf(COPY.c215) + `<div class="note lab">${COPY.c66}</div><div class="note lab">${COPY.surrogate}</div>` + r('cl (polar)', f(p4.cl, 3), '–') + wide('cd band', `${p4.cd.toFixed(4)} – ${pol('n2', AEG, ReStrip).cd.toFixed(4)} · Ncrit 4 – 2`) +
+    r('Δ vs lattice Cl_local', f(p4.cl - GOV.s.cl, 3), '–') + `<div class="note">polar cl at α_eff against the lattice, a per-strip consistency check</div>` +
+    r('x_tr/c upper', f(p4.xt, 2), '–') + r('x_tr/c lower', f(p4.xb, 2), '–') + wide('Surface state', `Clean · tripped band ${COPY.tripped}`) + na('Confidence', COPY.conf(0.97)) + na('Method', COPY.method) + wide('Section fit', COPY.cstRes) + flag('plain', 'Polar bracket:', COPY.inBracket));
+}
+function props(sc){
+  const head = `<div class="tabs"><span class="on">Properties</span><span>Browser</span><span>Layers</span></div>`, t = GOV.s;
+  const strip = `<div class="ident">Strip of wing run (α_eff) · η ${f(GOVETA, 3)}</div>${chipOf(COPY.c213)}`;
+  if (sc.props === 'cp') return `<div class="dock">${head}<div class="sel">${strip}${stripGroup(t, false, true)}${verdictGroup(t, false, true)}${estGroup(SGOV)}${cavGroup(sc.cav || CAV10)}${labelsGroup()}</div></div>`;
+  if (sc.props === 'polar') return `<div class="dock">${head}<div class="sel">${strip}${stripGroup(t, true)}${verdictGroup(t, true)}${polarGroup()}${estGroup(SGOV, true)}${cavGroup(CAV10, true)}${labelsGroup()}</div></div>`;
+  if (sc.props === 'bucket') return `<div class="dock">${head}<div class="sel">${strip}${stripGroup(t, true)}${estGroup(SGOV, true)}${cavGroup(cav(SGOV.cpmin, V_DEMO, HREF, PV))}${labelsGroup()}</div></div>`;
+  const wingBody = r('CL', f(R.CL, 3), '–') + `<div class="note lab">${envRowOf(R)}</div>` + r('CDi (Trefftz)', f(R.CDi, 5), '–') + r('e (computed)', f(R.e, 3), '–') + (R.e > 1 && R.e <= 1.02 ? `<div class="note">1 < e ≤ 1.02 at 64 × 4 — small lattice bias (~+0.01); result remains available</div>` : '') + r('Lift L', f(R.L, 1), 'N') + r('Induced drag', f(R.Di, 2), 'N') + chipOf(COPY.c215) +
+    wide('Profile drag', `${f(DP[0], 2)} – ${f(DP[1], 2)} N · Ncrit 4 – 2`) + `<div class="note">${COPY.profBand}. ${NSTRIPS_IN} of ${R.strips.length} strips inside the polar bracket.</div>` + wide('Wing drag', `${f(DWING[0], 2)} – ${f(DWING[1], 2)} N`) + `<div class="note">${COPY.wingDragNote}</div>` + na('Total drag', COPY.totalMissing) +
+    `<div class="note">b ${f(2 * HALF * 1000, 0)} mm · moment datum: frame origin (root LE) · force axes: body, +x aft, +y starboard, +z up; L and D in wind axes</div>`;
+  return `<div class="dock">${head}<div class="sel"><div class="ident">Basic foil · wing result</div>${chipOf(COPY.c213)}${grp('Wing result', 'Wing only · S_ref ' + f(R.S * 1e4, 0) + ' cm²', wingBody)}
+    ${grp('Labels', 'tier · basis · omissions', `<div class="note lab">${COPY.c63}</div><div class="note">${COPY.vlmLabelOf(true)}</div><div class="note">${COPY.c66}</div><div class="note">${COPY.surrogate}</div><div class="note">${COPY.c46}</div><div class="note">${COPY.notModelled(true)}</div>`)}</div></div>`;
+}
+const sw = (c, dash, m) => `<svg width="34" height="12" aria-hidden="true" focusable="false"><line x1="1" y1="6" x2="33" y2="6" stroke="${c}" stroke-width="2"${dash ? ' stroke-dasharray="5 4"' : ''}/>${m === 'o' ? `<circle cx="17" cy="6" r="3" fill="${c}"/>` : `<rect x="14" y="3" width="6" height="6" fill="${c}"/>`}</svg>`;
+function sideOf(sc){
+  const charts = ['cp', 'polar', 'trans', 'bucket'], names = { cp:'Cp', polar:'Polar', trans:'Transition', bucket:'Bucket' }, on = sc.chart;
+  const seg = `<div class="seg" role="group" aria-label="Section chart">${charts.map(c => `<button type="button" data-chart="${c}" aria-pressed="${c === on}">${names[c]}</button>`).join('')}</div>`;
+  const acc = 'var(--accent)', ink = 'var(--ink)';
+  const notes = { cp:`<div class="note">Upper: solid, round markers. Lower: dashed, square markers. Suction plots up; axis Cp. Cp_min ${f(SGOV.cpmin, 2)} at x/c ${f(SGOV.xCp, 3)} (${SGOV.side}); α_eff ${f(AEG, 2)}° at η ${f(GOVETA, 3)}.</div><div class="note lab">${COPY.c214} · ${COPY.estLabel(true)}</div>`,
+    polar:`<div class="note">${sw(acc, false, 'o')} Ncrit 4 · ${sw(ink, true, 's')} Ncrit 2 · shaded: the band. Outside ±6°: no data drawn. Re ${fe(ReStrip)} · clean.</div><div class="note lab">${COPY.c215} · ${COPY.c66}</div><div class="note">${COPY.surrogate}</div>`,
+    trans:`<div class="note">${sw(acc, false, 'o')} upper N4 · ${sw(acc, true, 'o')} upper N2 · ${sw(ink, false, 's')} lower N4 · ${sw(ink, true, 's')} lower N2</div><div class="note lab">section-a · profile revision 41d8… · Re ${fe(ReStrip)} · Ncrit 2 and 4 · clean · α −6° to 6° · ${COPY.c215}</div><button type="button" class="twin" style="margin-left:0">Overlay a section ▾</button>`,
+    bucket:`<div class="note">σ required = −Cp_min (inviscid; sheet) against Cl; dashed: operating σ at ${f(V_DEMO / KN, 1)} kn; dotted: −Cp_min × 1.15, the margin edge; V_crit against Cl with the operating speed. ${COPY.c214}</div><div class="note lab">${COPY48}</div>` }[on];
+  const twin = sc.twin ? `<button type="button" class="twin" aria-expanded="true" data-twin>Show chart notes</button>${twinOf(on)}` : `${notes}<button type="button" class="twin" aria-expanded="false" data-twin>Show table</button>`;
+  return `<div class="side">${seg}${twin}</div>`;
+}
+function bottom(sc){
+  const tabs = ['Spanwise loading', 'Section', 'Loads', 'Provenance', 'Checks'], head = `<div class="tabs">${tabs.map(t => `<span class="${t === 'Section' ? 'on' : ''}">${t}</span>`).join('')}</div>`, cs = CHARTS[sc.chart]();
+  const alt = { cp:'Cp against x over c, upper and lower surface, suction plotted up, with the Cp_min marker', polar:'cl against alpha and cd against cl for Ncrit 4 and 2, with the validated bracket', trans:'Transition location x_tr over c against alpha, upper and lower, Ncrit 4 and 2', bucket:'Required sigma against Cl and critical speed against Cl with the operating line' }[sc.chart];
+  return `<div class="bottom">${head}<div class="body">${cs.map((c, i) => `<canvas class="cv" data-chart="${sc.chart}" data-i="${i}" role="img" aria-label="${alt}${cs.length > 1 ? ', panel ' + (i + 1) + ' of ' + cs.length : ''}; table available"></canvas>`).join('')}${sideOf(sc)}</div></div>`;
+}
+const VIKRAMP = `linear-gradient(90deg, ${VIK.join(',')})`;
+function popover(){
+  const ok = FA;
+  return `<div class="pop" role="dialog" aria-label="Find operating alpha"><div class="ph">Find operating α<button type="button" aria-label="Close Find alpha">×</button></div>
+    <div class="fields"><label>Target <select aria-label="Target kind"><option>CL</option></select><input aria-label="Target CL" value="${f(FA_TARGET, 3)}"></label><label>Speed <input aria-label="Speed, knots" value="10.00" readonly><span>kn</span></label>
+      <label>Bracket α <input aria-label="Bracket low, degrees" value="${f(ok.lo, 2)}"> … <input aria-label="Bracket high, degrees" value="${f(ok.hi, 2)}"><span>°</span></label></div>
+    <div class="note lab" style="padding-left:10px">Basis: deep water, uncorrected. ${COPY.c46}</div>
+    <div class="acts"><button type="button" class="p">Find α</button></div>
+    <div class="res"><div class="flag plain"><b>Found</b> ${COPY.falSuccess(ok.a, FA_TARGET)} (CL ${f(ok.cl, 4)})</div>
+      ${r('Bracket tested', `${f(ok.lo, 2)} … ${f(ok.hi, 2)}`, '°')}${r('CL at the ends', `${f(ok.cl0, 3)} … ${f(ok.cl1, 3)}`, '–')}${r('Lattice solves', String(ok.solves), '–')}${na('Terminated', 'within the 1 % root-finding tolerance')}
+      ${wide('Polar limit', `converged bracket α −6° to 6° at Ncrit 4 and 2 · section cl at the bracket edge ${f(pol('n4', 6, ReStrip).cl, 3)} (Ncrit 4) · ${COPY.conf(0.97)}`)}<div class="note lab">CL_max: ${COPY.clmax}</div></div>
+    <div class="acts"><button type="button" class="p">Apply α ${f(ok.a, 2)}° to the band</button><button type="button">Close</button></div></div>`;
+}
+function shell(sc){
+  const status = sc.status || 'Analysis: Current';
+  return `<div class="shell"><div class="title"><i></i><i></i><i></i><b>CFD Workbench — example.foil</b></div>
+    <div class="work">${props(sc)}<div class="main"><div class="tabs"><span class="on">Model</span><span>Foil source</span></div>${condBand(sc)}
+      <div class="area"><div class="views half"><div class="view" data-v="plan"><canvas role="img" aria-label="Plan view with spanwise loading strips and the governing station"></canvas><span class="plate vlabel">Plan</span>
+          <div class="plate legend">Γ per strip · batlow · 0 – ${f(loadMax, 3)} m²/s · run k-7c1e…<span class="ramp" style="background:linear-gradient(90deg,${BATLOW.join(',')})"></span><span class="ends"><span>0</span><span>${f(loadMax, 3)}</span></span></div></div>
+        <div class="view" data-v="sec"><canvas role="img" aria-label="Section view at the governing station, pressure coefficient drawn on the profile"></canvas><span class="plate vlabel">Section · η ${f(GOVETA, 3)}</span>
+          <div class="plate vtop">${COPY.c214} · inviscid; no boundary layer</div>
+          <div class="plate vcap">${sc.secCap}</div>
+          <div class="plate legend">Cp · vik pinned at 0 · ${f(-cpRange(SGOV), 2)} to ${f(cpRange(SGOV), 2)}<span class="ramp" style="background:${VIKRAMP}"></span><span class="ends"><span>${f(-cpRange(SGOV), 2)}</span><span>0</span><span>${f(cpRange(SGOV), 2)}</span></span></div></div></div>
+        <div class="navbar"><div class="seg" role="group" aria-label="Area"><button type="button" aria-pressed="false">CAD</button><button type="button" aria-pressed="true">Analysis</button></div><span class="sep"></span><button type="button">Views ▾ Plan + Section</button><button type="button">Display ▾ Shaded</button><span class="sep"></span><button type="button">Fit</button></div>${sc.find ? popover() : ''}</div>
+      ${bottom(sc)}</div></div>
+    <div class="sb" role="status"><span class="msg">${sc.report}</span><span class="item">${status}</span><span class="item">Station η ${f(GOVETA, 3)}</span><span class="item">N · m</span></div></div>`;
+}
+
+// ------------------------------------------------------------ the screens
+const capCav = c => `σ ${f(c.sigma, 2)} · −Cp_min ${f(c.sup, 2)} · ${c.state === 'clear' ? 'clear of' : c.state === 'inside' ? 'inside' : 'at or past'} the 15 % margin · V_crit ${f(c.vcrit / KN, 1)} kn`;
+const SCREENS = [
+  { id:'cp', h:'D1 · Section tab, Cp on the profile (A3b) — estimator tier, governing station, cavitation screen', props:'cp', chart:'cp', secCap:capCav(CAV10), report:`Analysis. Cavitation screen governed by η ${f(GOVETA, 3)} at depth ${f(HREF, 2)} m.`,
+    what:`<b>Shows</b> what A3b produces and the approved mockup never drew: the Section view (right) with Cp on the profile, vik pinned at 0, the Cp_min marker and the inviscid label; the Section tab with the Cp plot (suction up, upper solid and lower dashed, Cp_min named, 200 stations, table twin); Properties for the station with the <b>estimator</b> chip, cl, Cm, α_L0, the turbulent bound and −Cp_min; and the <b>cavitation screen</b> group: the state sentence, σ, −Cp_min, V_crit, the 15 % margin with its label, the governing station and its depth, and the fixed string with N. The strip's cd still reads “${COPY.c210}” because A3b ships before A3c. Cp here is a Karman-Trefftz analytic section at the strip's α_eff ${f(AEG, 2)}° (t/c ${f(SGOV.tc, 3)}), a stand-in for the product panel tier. <b>Implements</b> ANA-01, ANA-02, ANA-21; Rulings 86, 90.` },
+  { id:'polar', h:'D2 · Section tab, polar band (A3c) — Polar tier chip, surrogate label, confidence, CST residual, bracket flag', props:'polar', chart:'polar', secCap:`Transition ticks from the polar at Ncrit 4`, report:'Analysis. Polar · local calculation at both Ncrit.',
+    what:`<b>Shows</b> the polar tier on the same strip: cl and cd against α for Ncrit 4 (solid) and 2 (dashed) with the cd band shaded, the α_eff marker, the validated bracket (±6°; outside it nothing is drawn, never extrapolated), the “${COPY.c215}” chip, COPY-66, the surrogate label, the method id, <code>analysis_confidence</code> (advisory), the CST fit residual, the polar-versus-lattice consistency row, the transition points on the Section view and “Polar bracket: inside” beside the unchanged attached-flow envelope verdict. <b>Stand-ins:</b> values are the SPIKE-ANA-1 XFOIL NACA 0012 oracle at Re 2 × 10⁵ and 10⁶ interpolated in ln Re to ${fe(ReStrip)}; confidence 0.97 is illustrative. <b>Implements</b> ANA-01, ANA-10; spike Conditions for A3c 1–3; D14 (Ruling 88).`, xtr:true },
+  { id:'trans', h:'D3 · Transition overlay (A3c) — x_tr/c per surface at both Ncrit, with its legend', props:'polar', chart:'trans', secCap:`Transition ticks from the polar at Ncrit 4`, report:'Analysis. Transition location, upper and lower, Ncrit 4 and 2.',
+    what:`<b>Shows</b> ANA-10's first chart: x_tr/c per surface against α at both Ncrit, four lines told apart by dash and marker as well as colour, and the legend line that names the profile revision, Re, Ncrit, surface state and α range, with “Overlay a section ▾” as the one action toward a second section. <b>Implements</b> ANA-10, ANA-21.`, xtr:true },
+  { id:'bucket', h:'D4 · Cavitation bucket (A3c) — σ required and V_crit against Cl, operating line, inside the margin', props:'bucket', chart:'bucket', kn:V_DEMO / KN, secCap:capCav(cav(SGOV.cpmin, V_DEMO, HREF, PV)), report:`Analysis. At ${f(V_DEMO / KN, 1)} kn the governing station is inside the 15 % margin.`,
+    what:`<b>Shows</b> ANA-10's cavitation charts: σ required (−Cp_min) against Cl with the operating σ line, and V_crit against Cl with the operating speed, at a speed chosen so σ is 7 % above −Cp_min at the governing station (the conditions band reads ${f(V_DEMO / KN, 1)} kn): the cavitation group reads “Inside the margin”, not “Possible”. The chart is the inviscid sheet screen, labelled so. <b>Implements</b> ANA-10; A5.4.` },
+  { id:'drag', h:'D5 · Wing result with profile drag (A3c) — polar-sourced band, wing drag, Total drag still Unavailable', props:'drag', chart:'polar', secCap:capCav(CAV10), report:'Analysis complete — VLM + strip with polar profile drag.',
+    what:`<b>Shows</b> the wing result after A3c: induced drag (VLM + strip) and profile drag (polar, both Ncrit, at α_eff per strip, ${NSTRIPS_IN} of ${R.strips.length} strips) as a band in N, a <b>Wing drag</b> row (induced + profile, Wing only), and <b>Total drag</b> still Unavailable naming what is still missing (junction, mast, wave, spray) — the approved mockup's string without “profile”. Source is on every drag row; no value is filled from the estimator bound. Decision DR-DXM-5 asks whether this is the meaning of “Total drag”. <b>Implements</b> ANA-03, ANA-11; A5.6; FM-9.` },
+  { id:'find', h:'D6 · Find operating α (A3c) — the dialog, a found α, its bracket, iterations, basis and polar limit', props:'drag', chart:'cp', find:true, secCap:capCav(CAV10), alphaBand:ALPHA, report:`Find α: α ${f(FA.a, 2)}° meets CL ${f(FA_TARGET, 3)} — not applied. Evaluate is still explicit.`, status:'Analysis: Current',
+    what:`<b>Shows</b> “Find α…” beside Evaluate in the conditions band (a new control — DR-DXM-6) and its dialog: target CL, speed from the band, bracket, the basis (deep water, uncorrected, with the A5.1 string at h/c < 5), the result sentence, bracket tested, CL at both ends, lattice solves, the termination reason, the polar's converged bracket and confidence, and the CL_max string. <b>Apply</b> writes α into the band; nothing recomputes until Evaluate (DR-ANA-6). The root is found here by a secant on this page's lattice (${FA.solves} solves). The no-root reasons are on the state sheet. <b>Implements</b> ANA-05.` }
+];
+document.addEventListener('click', e => {
+  const sc0 = e.target.closest('section.screen'); if (!sc0) return; const sc = SCREENS.find(s => s.id === sc0.dataset.id); if (!sc) return;
+  const seg = e.target.closest('.seg button[data-chart]'), tw = e.target.closest('[data-twin]'); if (!seg && !tw) return;
+  if (seg) sc.chart = seg.dataset.chart; if (tw) sc.twin = !sc.twin;
+  render(); const q = seg ? `section.screen[data-id="${sc.id}"] .seg button[data-chart="${sc.chart}"]` : `section.screen[data-id="${sc.id}"] [data-twin]`; const el = document.querySelector(q); if (el) el.focus();
+});
+
+// ------------------------------------------------------------ the state sheet (cells in the shell's own row components)
+const cell = body => `<div class="cell">${body}</div>`;
+const tag = (n, t) => `<span class="tag${n ? ' new' : ''}">${t}</span>`;
+function stateSheet(){
+  const cv = (x, speed) => cav(x.sec.cpmin, speed, HREF, PV), c1 = cv(GOV, V), c2 = cv(GOV, V_DEMO), c3 = cv(GOV, V_OVER);
+  const flat = SEC(0), pos = { ...c1, state:'undefined', reason:'Undefined — −Cp_min ≤ 0', sup:0.1 };
+  const rows = [];
+  const R_ = (a, b, c, d) => `<tr><td>${a}</td><td>${b}</td><td>${c}</td><td>${d}</td></tr>`;
+  const cavBody = c => cavFlag(c) + (c.sigma ? r('σ', f(c.sigma, 2), '–') + r('−Cp_min', f(c.sup, 2), '–') + r('V_crit', f(c.vcrit / KN, 1), 'kn') : '');
+  const unav = reason => cell(flag('plain', 'Unavailable', reason) + na('σ, V_crit', 'Unavailable'));
+  const cavT = `<table aria-label="Cavitation screen states"><tr><th>State</th><th>Rendering</th><th>Copy</th><th>Note</th></tr>
+    ${R_('Clear (10 kn)', cell(cavBody(c1)), tag(1, 'NEW') + ' ' + COPY.cavClear, `σ above −Cp_min × 1.15`)}
+    ${R_('Inside the margin', cell(cavBody(c2)), tag(1, 'NEW') + ' ' + COPY.cavInside, `${f(V_DEMO / KN, 1)} kn: σ = 1.07 × −Cp_min`)}
+    ${R_('Possible above V_crit', cell(cavBody(c3)), tag(1, 'NEW') + ' ' + COPY.cavPossible, `${f(V_OVER / KN, 1)} kn: σ below −Cp_min; not a prediction of inception (COPY-48)`)}
+    ${R_('Depth not set', cell(flag('plain', 'Unavailable', '— depth not set') + na('σ, V_crit', COPY.c45)), tag(0, 'COPY-45') + ' ' + COPY.c45, 'Cp still plots: Cp does not need depth')}
+    ${R_('Vapour pressure missing', unav('— vapour pressure missing'), tag(1, 'NEW') + ' Unavailable — vapour pressure missing', 'in code today, not an approved row')}
+    ${R_('Station surface piercing', unav('— local station is surface piercing'), tag(1, 'NEW') + ' Unavailable — local station is surface piercing', 'h(y) ≤ 0; the estimator is Unavailable at that station (ANA-19)')}
+    ${R_('Water or depth not finite', unav('— water is invalid'), tag(1, 'NEW') + ' Unavailable — water is invalid · Unavailable — local depth is invalid', 'defensive; should not reach a user')}
+    ${R_('−Cp_min ≤ 0', cell(flag('plain', 'Undefined', '— −Cp_min ≤ 0') + r('−Cp_min', f(0.1, 2), '–') + na('σ, V_crit', 'Undefined')), tag(0, 'COPY-69') + ' Undefined — &lt;cause&gt;; cause ' + tag(1, 'NEW') + ' “−Cp_min ≤ 0”', 'a station with this does not govern (Ruling 86)')}
+    ${R_('Static pressure ≤ vapour', cell(flag('plain', 'Undefined', '— static pressure does not exceed vapour pressure') + na('σ, V_crit', 'Undefined')), tag(1, 'NEW') + ' Undefined — static pressure does not exceed vapour pressure', 'code reads “pressure above vapour pressure ≤ 0”; this wording is proposed')}
+    ${R_('Panel under-read above 10 %', cell(flag('', 'Provisional', '— Cp_min under-read at this station is above 10 % (200 vs 400 panels)') + r('−Cp_min', f(c1.sup, 2), '–') + na('Under-read', '12.4 % (illustrative)')), tag(1, 'NEW') + ' ' + COPY.provisional, 'Ruling 90 says “no new UI copy”, yet no rendering of “provisional” remains after Ruling 92 retired COPY-218: DR-DXM-7')}
+    ${R_('Under-read measured, below 10 %', cell(r('Cp_min under-read', '3.71 %', '') + `<div class="note">200 vs 400 panels at the governing station (illustrative: Ruling 90's worst measured case)</div>`), tag(1, 'NEW') + ' “Cp_min under-read, 200 vs 400 panels”', 'replaces the 1.61 % constant (Ruling 90)')}</table>`;
+  const flags = [['Inside the bracket', COPY.inBracket, 0], ['α beyond ±6°', COPY.outAlpha(7.5), 1], ['Re outside 2 × 10⁵–10⁶', COPY.outRe(1.7e5), 1], ['Ncrit between validated values', COPY.outNcrit, 1], ['Section off the NACA 0012 family', COPY.outFamily, 1]];
+  const polT = `<table aria-label="Polar states"><tr><th>State</th><th>Rendering</th><th>Copy</th><th>Note</th></tr>
+    ${flags.map(([n, s, nw]) => R_(n, cell(flag('plain', 'Polar bracket:', s.replace(/^Inside the validated bracket/, 'Inside the validated bracket'))), tag(1, 'NEW') + ' ' + s, nw ? 'computed and flagged; per-axis reason; D14 / DR-DXM-2' : 'the default state')).join('')}
+    ${R_('Confidence present', cell(na('Confidence', COPY.conf(0.97))), tag(1, 'NEW') + ' analysis_confidence 0.97 · advisory, not an error bar', 'spike condition 1; value illustrative')}
+    ${R_('Confidence not recorded', cell(na('Confidence', COPY.confNone)), tag(0, 'spec A5.3') + ' analysis_confidence: not recorded', 'spec: “confidence or ‘not recorded’”')}
+    ${R_('Low-confidence advisory', cell(flag('', 'Low confidence', '— analysis_confidence 0.31 is below 0.5. Computed and flagged, never refused; not an error bar.')), tag(1, 'NEW') + ' ' + COPY.confLow(0.31), 'the 0.5 floor is an assumption (proof pack)')}
+    ${R_('CST residual shown', cell(wide('Section fit', COPY.cstRes)), tag(1, 'NEW') + ' CST fit residual: max … c · RMS … c', 'spike condition 2: shown for every edited section; NACA 0012 values from the spike')}
+    ${R_('α outside the training range', cell(flag('plain', 'Unavailable', '— α 31.00° is outside the surrogate’s training range (−27.9° to 28.6°)')), tag(1, 'NEW') + ' ' + COPY.ncAlpha, 'non-computable; no number shown')}
+    ${R_('Re outside the training range', cell(flag('plain', 'Unavailable', '— Re 8.0 × 10¹ is outside the surrogate’s training range (1 × 10² to 1 × 10¹⁰)')), tag(1, 'NEW') + ' ' + COPY.ncRe, '')}
+    ${R_('Section fit too coarse', cell(flag('plain', 'Unavailable', '— section fit residual 4.2 × 10⁻⁴ c exceeds the limit 3.6 × 10⁻⁴ c')), tag(1, 'NEW') + ' ' + COPY.ncCst, 'limit 3.6 × 10⁻⁴ c from the proof pack')}
+    ${R_('Strip Re inside the polar range', cell(wide('Polar Re range', COPY.reIn(ReStrip))), tag(1, 'NEW') + ' Re_local … inside … to …', 'design §5.4 row, not yet in DESIGN.md')}
+    ${R_('Strip Re outside (40 mm tip)', cell(wide('Polar Re range', COPY.reOut(V * 0.04 / NU)) + na('cd (profile)', 'Unavailable — Re_local outside the polar range')), tag(1, 'NEW') + ' Re_local … outside the polar’s Re range … — cd not extrapolated', 'design §12.6 row; tapered example: 40 mm tip at 10 kn')}
+    ${R_('Tripped surface band', cell(wide('Tripped', COPY.tripped)), tag(0, 'spec table') + ' Unavailable — not computed', 'A5.3; the spike measured natural transition only')}</table>`;
+  const dragT = `<table aria-label="Drag states"><tr><th>State</th><th>Rendering</th><th>Copy</th><th>Note</th></tr>
+    ${R_('Estimator-sourced profile drag', cell(chipOf(COPY.c214) + r('cd (bound)', f(cdBound(ReStrip, TC), 5), '–') + `<div class="note">${COPY.cdBound}</div>`), tag(1, 'NEW') + ' ' + COPY.cdBound, 'a bound; separate run and chip from the polar')}
+    ${R_('Polar-sourced profile drag', cell(chipOf(COPY.c215) + wide('Profile drag', `${f(DP[0], 2)} – ${f(DP[1], 2)} N · Ncrit 4 – 2`) + `<div class="note">${COPY.profBand}</div>`), tag(1, 'NEW') + ' ' + COPY.profBand, 'never summed with the bound (A2 non-goal: averaging across tiers)')}
+    ${R_('Strips without cd', cell(na('Profile drag', COPY.cdUnavail(12))), tag(1, 'NEW') + ' Unavailable — cd missing at &lt;n&gt; strips; the estimator bound is not substituted', 'one gap makes the wing profile drag Unavailable, naming the count (FM-9)')}
+    ${R_('Total drag, no polar', cell(na('Total drag', COPY.totalMissingAll)), tag(0, 'approved mockup') + ' ' + COPY.totalMissingAll, 'approved mockup screen 3')}
+    ${R_('Total drag, with profile', cell(na('Total drag', COPY.totalMissing)), tag(1, 'NEW') + ' ' + COPY.totalMissing, 'derived from the approved string; DR-DXM-5')}
+    ${R_('Undefined CD ≤ 0', cell(na('CL / CD', COPY.c230)), tag(0, 'COPY-230') + ' ' + COPY.c230, 'approved text; never rendered in the approved mockup')}</table>`;
+  const faT = `<table aria-label="Find alpha states"><tr><th>State</th><th>Rendering</th><th>Copy</th><th>Note</th></tr>
+    ${R_('Found', cell(flag('plain', 'Found', COPY.falSuccess(FA.a, FA_TARGET))), tag(1, 'NEW') + ' ' + COPY.falSuccess(FA.a, FA_TARGET), 'screen D6')}
+    ${Object.keys(COPY.faReasons).map(k => R_(`No root: ${k}`, cell(flag('plain', 'Not found', COPY.faNone(COPY.faReasons[k]).replace(/^Find α found no α — /, '— '))), tag(1, 'NEW') + ' ' + COPY.faNone(COPY.faReasons[k]), k === 'no sign change' ? `computed here: CL ${f(FA_NO.cl0, 3)} … ${f(FA_NO.cl1, 3)} over −2° … 8° does not reach 1.600` : 'reason enum from spec ANA-05')).join('')}</table>`;
+  return `<section class="screen sheet" data-id="sheet" aria-labelledby="h-sheet"><h2 id="h-sheet">D7 · State sheet — the states that need a screen cell, in the shell's row components</h2><p class="what"><b>Shows</b> every remaining A3b and A3c state as a cell, with the copy it would use. “NEW” means the string is not an approved DESIGN.md row (Rulings 82, 92, 94) and needs the operator. Numbers marked illustrative are not computed by this page.</p>
+    <h3>Cavitation screen (A3b)</h3>${cavT}<h3>Polar tier (A3c)</h3>${polT}<h3>Drag sources (A3c)</h3>${dragT}<h3>Find α (A3c)</h3>${faT}</section>`;
+}
+function decisions(){
+  return `<section class="choices"><h2>Decision requests for the operator</h2><ul>
+    <li><b>DR-DXM-1 · Copy batch.</b> Approve, edit or reject every row marked NEW on the screens and the state sheet (listed in <code>docs/design/dx-screen-states.md</code>). Recommended: approve as proposed; “Possible — σ is at or below −Cp_min; speed is above V_crit” keeps COPY-48's “not a prediction” beside it.</li>
+    <li><b>DR-DXM-2 · What “envelope” means after A3c (D14).</b> Ruling 88 D14(b) keeps 10° / Cl 1.0 as the attached-flow verdict. This page shows it unchanged and puts “Polar bracket: inside / outside” on its own row. Open: does outside the bracket show a computed value with a flag (as the proof pack built it) or no value? Recommended: computed and flagged inside the training range; Unavailable only outside the training range or the CST limit.</li>
+    <li><b>DR-DXM-3 · Tier chip and surrogate label.</b> (a) Keep the approved chip “Polar · local calculation” and carry the surrogate fact in two label lines: COPY-66, and “surrogate, relative to XFOIL, validated at NACA 0012 pre-stall only”. (b) Change the chip to “Polar (surrogate) · local calculation”. Recommended (a): it keeps approved copy; (b) would re-open COPY-215.</li>
+    <li><b>DR-DXM-4 · Where the Section charts live.</b> This page puts Cp, Polar, Transition and Bucket behind one selector inside the approved Section tab and adds a Section view beside Plan. Alternative: one bottom tab per chart. Recommended: the selector (the approved tab list stays five tabs).</li>
+    <li><b>DR-DXM-5 · What Total drag means with a profile part.</b> (a) Total drag stays Unavailable naming junction, mast, wave and spray, and “Wing drag (induced + profile)” carries the claim. (b) Total drag shows Wing drag labelled “Wing only”. Recommended (a): it is what A5.6 says.</li>
+    <li><b>DR-DXM-6 · Find α entry.</b> A secondary “Find α…” button in the conditions band opening a dialog, Apply writes α into the band, Evaluate stays explicit. Alternative: a menu item only. Recommended: the button.</li>
+    <li><b>DR-DXM-7 · The provisional state.</b> Ruling 90 sets a provisional status when the 200-vs-400 under-read exceeds 10 % but allows no new copy, and Ruling 92 retired the only provisional string. Recommended: approve the one row on the state sheet.</li>
+    <li><b>DR-DXM-8 · The polar's Re range.</b> “Re_local inside the polar's Re range” can mean the validated bracket (2 × 10⁵ to 10⁶, the spike), the catalogue envelope (2 × 10⁵ to 2 × 10⁶, A5.3) or the training range (10² to 10¹⁰). Recommended: the validated bracket for the flag and the training range for Unavailable, as built.</li>
+    <li><b>DR-DXM-9 · Which station the Section tab shows.</b> The selected strip; with none selected, the governing cavitation station, named in the view label. Recommended as drawn.</li></ul></section>`;
+}
+function render(){
+  document.getElementById('screens').innerHTML = SCREENS.map(sc => `<section class="screen" data-id="${sc.id}" aria-labelledby="h-${sc.id}"><h2 id="h-${sc.id}">${sc.h}</h2><p class="what">${sc.what}</p>${shell(sc)}</section>`).join('') + stateSheet() + decisions();
+  paint(); audit();
+}
+function paint(){
+  document.querySelectorAll('section.screen').forEach(secEl => {
+    const sc = SCREENS.find(s => s.id === secEl.dataset.id); if (!sc) return;
+    secEl.querySelectorAll('.view').forEach(view => {
+      const cv = view.querySelector('canvas'), w = view.clientWidth, h = view.clientHeight, dpr = devicePixelRatio || 1;
+      cv.width = w * dpr; cv.height = h * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.fillStyle = C.vp; g.fillRect(0, 0, w, h);
+      if (view.dataset.v === 'plan') drawPlan(g, w, h); else drawSection(g, w, h, { sec:SGOV, xtr: sc.xtr ? { top:pol('n4', AEG, ReStrip).xt, bot:pol('n4', AEG, ReStrip).xb } : null });
+    });
+    const cs = CHARTS[sc.chart](); secEl.querySelectorAll('canvas.cv').forEach(cv => chart(cv, cs[+cv.dataset.i].s));
+  });
+}
+// ------------------------------------------------------------ in-artifact checks (review chrome; never ships)
+function lum(c){ const m = c.match(/\d+(\.\d+)?/g).map(Number).slice(0, 3).map(v => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2]; }
+function ratio(a, b){ const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); }
+function bg(el){ while (el){ const c = getComputedStyle(el).backgroundColor; if (c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) return c; el = el.parentElement; } return 'rgb(255,255,255)'; }
+function audit(){
+  const out = [], frame = document.querySelector('.shell').getBoundingClientRect();
+  if (!frame.width || !frame.height){ document.getElementById('audit').innerHTML = '<b class="fail">page not rendered</b>'; return; }
+  let worst = 99, worstWhat = '';
+  document.querySelectorAll('.shell *, .sheet *').forEach(el => { if (!el.childNodes.length || ![...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) return; const rr = ratio(getComputedStyle(el).color, bg(el)); if (rr < worst){ worst = rr; worstWhat = el.textContent.trim().slice(0, 32); } });
+  out.push(worst >= 4.5 ? `<b class="pass">text contrast ≥ 4.5:1</b> (lowest ${worst.toFixed(2)})` : `<b class="fail">text contrast ${worst.toFixed(2)}:1</b> at “${worstWhat}”`);
+  const small = [...document.querySelectorAll('.shell button, .shell input, .shell select')].filter(el => el.offsetParent !== null).filter(el => { const b = el.getBoundingClientRect(); return b.height < 23.5 || b.width < 23.5; });
+  out.push(small.length ? `<b class="fail">${small.length} targets under 24 px</b>` : '<b class="pass">targets ≥ 24 px</b>');
+  const txt = document.getElementById('screens').innerText, bad = ['NaN', 'undefined', 'Infinity', '<reason>', '<what changed>'].filter(s => txt.includes(s));
+  out.push(bad.length ? `<b class="fail">placeholder or non-number: ${bad.join(', ')}</b>` : '<b class="pass">no NaN / placeholder</b>');
+  const minFont = Math.min(...[...document.querySelectorAll('.shell *, .sheet *')].filter(el => el.innerText && el.innerText.trim()).map(el => parseFloat(getComputedStyle(el).fontSize)));
+  out.push(minFont >= 11 ? '<b class="pass">text ≥ 11 px</b>' : `<b class="fail">text ${minFont}px</b>`);
+  const clipped = [...document.querySelectorAll('.shell .row, .shell .note, .shell .flag, .shell .plate, .shell .cond, .shell .pop')].filter(el => el.offsetParent !== null && (el.scrollWidth > el.clientWidth + 1 && getComputedStyle(el).overflowX !== 'visible' || el.scrollHeight > el.clientHeight + 1 && getComputedStyle(el).overflowY === 'hidden'));
+  out.push(clipped.length ? `<b class="fail">${clipped.length} clipped: ${clipped[0].className} “${clipped[0].textContent.trim().slice(0, 28)}”</b>` : '<b class="pass">nothing clipped</b>');
+  const q = SEC(0), q3 = SEC(3), sym = Math.max(...q.pts.map((p, i) => Math.abs(p.cp - q.pts[(q.pts.length - 1 - i)].cp))), govOk = SECS.every(x => ratioOf(GOV, V) <= ratioOf(x, V) + 1e-12);
+  const states = SECS.length && [CAV10, cav(GOV.sec.cpmin, V_DEMO, HREF, PV), cav(GOV.sec.cpmin, V_OVER, HREF, PV)].map(c => c.state).join(',') === 'clear,inside,possible';
+  const ok = Math.abs(q3.cl - 2 * Math.PI * 3 * RAD * (1 + 0.77 * q3.tc)) < 0.02 && Math.abs(q.tc - 0.12) < 0.002 && sym < 1e-9 && govOk && states && DP[1] > DP[0] && NSTRIPS_IN === R.strips.length && FA.found && !FA_NO.found && Math.abs(FA.cl - FA_TARGET) <= 0.01 * FA_TARGET && Math.abs(R.e) < 1.05;
+  out.push(ok ? `<b class="pass">reference checks</b> (KT t/c ${q.tc.toFixed(3)}, Cl ${q3.cl.toFixed(3)} at 3°, symmetric at 0°, governing η ${GOVETA.toFixed(3)}, states clear/inside/possible, Find α ${FA.a.toFixed(2)}°)` : `<b class="fail">reference checks</b> t/c ${q.tc} sym ${sym} gov ${govOk} states ${states}`);
+  document.getElementById('audit').innerHTML = out.join(' · ');
+}
+document.getElementById('theme').addEventListener('click', e => { const d = document.documentElement.dataset.theme === 'light'; document.documentElement.dataset.theme = d ? 'dark' : 'light'; e.currentTarget.setAttribute('aria-pressed', String(d)); e.currentTarget.textContent = d ? 'Light theme' : 'Dark theme'; paint(); audit(); });
+document.getElementById('size').addEventListener('click', e => { const s = document.body.classList.toggle('small'); e.currentTarget.setAttribute('aria-pressed', String(s)); e.currentTarget.textContent = s ? '1280 × 800' : '1024 × 700'; paint(); audit(); });
+render();
+</script>
+</body>
+</html>
