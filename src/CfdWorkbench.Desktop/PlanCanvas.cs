@@ -74,13 +74,17 @@ public sealed class PlanCanvas : Control
     {
         source.Changed += UpdatePlan;
         source.CameraChanged += OnCameraChanged;
+        source.LayersChanged += OnLayersChanged;
     }
 
     private void Unsubscribe(WorkbenchController source)
     {
         source.Changed -= UpdatePlan;
         source.CameraChanged -= OnCameraChanged;
+        source.LayersChanged -= OnLayersChanged;
     }
+
+    private void OnLayersChanged() { _ = Controller?.AnalysisView; InvalidateVisual(); }
 
     private void OnCameraChanged(SingleView view)
     {
@@ -921,6 +925,8 @@ public sealed class PlanCanvas : Control
             }
             using (context.PushOpacity(.25)) context.DrawGeometry(foil, null, fill);
         }
+        if (Controller?.IsAnalysis == true && Controller.LayerSet.FirstOrDefault(l => l.Id == "plan-gamma") is { } gamma)
+            PlanLoadLayer.Draw(context, map, plan, gamma, Bounds.Size, foil, SoftBrush ?? Brushes.Black, WarningBrush ?? foil);
         foreach (var rail in new[] { plan.Leading, plan.Trailing })
         {
             foreach (double side in new[] { -1d, 1d })

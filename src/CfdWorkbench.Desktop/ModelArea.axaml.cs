@@ -315,6 +315,7 @@ public partial class ModelArea : UserControl
         {
             controller.Changed -= OnControllerChanged;
             controller.SectionChanged -= OnControllerChanged;
+            controller.LayersChanged -= RefreshLayerNames;
             controller.SurfaceWanted = false;
         }
         controller = next;
@@ -323,6 +324,7 @@ public partial class ModelArea : UserControl
         {
             controller.Changed += OnControllerChanged;
             controller.SectionChanged += OnControllerChanged;
+            controller.LayersChanged += RefreshLayerNames;
         }
         SideElevation.Controller = controller;
         FrontElevation.Controller = controller;
@@ -383,6 +385,7 @@ public partial class ModelArea : UserControl
         AnalysisConditionsBand.ShowRunState(controller.AnalysisState);
         AnalysisConditionsBand.RefreshDerived();
         var analysis = controller.AnalysisView;
+        RefreshLayerNames();
         HistoricalBannerText.Text = analysis.Banner;
         HistoricalBanner.IsVisible = foilOpen && analysis.Banner is not null;
         PreviewHiddenBanner.IsVisible = foilOpen && controller.IsAnalysis && controller.Draft is not null;
@@ -448,6 +451,17 @@ public partial class ModelArea : UserControl
         FitLabels();
         RefreshNavbar(controller);
         FitCaption();
+    }
+
+    private void RefreshLayerNames()
+    {
+        var layers = controller?.IsAnalysis == true ? controller.AnalysisView.Layers.Where(l => l.Visible).Select(l => l.Id).ToHashSet() : [];
+        Avalonia.Automation.AutomationProperties.SetName(PlanCanvas,
+            layers.Contains("plan-gamma") ? "Plan view with Γ loading strips; strip values in the strips table" : "Plan view");
+        Avalonia.Automation.AutomationProperties.SetName(SideElevation,
+            layers.Contains("depth-band") ? "Side view with free surface and tip depth; values in the conditions table" : "Side view");
+        Avalonia.Automation.AutomationProperties.SetName(FrontElevation,
+            layers.Contains("depth-band") ? "Front view with free surface and tip depth; values in the conditions table" : "Front view");
     }
 
     // The 3D caption sits right of the axis triad at the view's bottom; the navbar floats over the views at the bottom

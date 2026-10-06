@@ -51,6 +51,11 @@ public sealed record LayerSample(double Eta, double Y, double? Value, Loads.Vec?
     public string? Verdict { get; init; }
     /// <summary>The strip's unit normal in the lattice's frame, derived from the run's own revision; null when it cannot be derived.</summary>
     public Loads.Vec? Normal { get; init; }
+    /// <summary>The run's actual strip edges, when present in its lattice record.</summary>
+    public double? YLow { get; init; }
+    public double? YHigh { get; init; }
+    /// <summary>The selected run's placed station height for a depth margin.</summary>
+    public double? Elevation { get; init; }
 }
 
 /// <summary>The chart and table consume the same spanwise loading values.</summary>
