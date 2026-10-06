@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T16:58:21Z",
+  "generated": "2026-10-06T17:06:32Z",
   "audit": [
     {
       "actor": null,
@@ -27572,6 +27572,33 @@ window.AUDIT_DATA = {
       "done_when": "planted 2%-thick at 1.12x solved and wins, red on 2x code, tests green, timing under 1 s",
       "started_at": "2026-10-06T16:55:43Z",
       "duration_seconds": 158.0
+    },
+    {
+      "id": "al-01M492WSBRGSWM52ZXZNA7H0Y7",
+      "shortname": "join-pnl",
+      "datetime": "2026-10-06T17:06:32Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of feature/adaptive-panels into main",
+      "summary": "200 panels everywhere; near-tie candidates within max(2u,25%) of the best ratio (cap 4, thinnest-station slot) re-solved at 400; governing re-selected at 400; not-measured state; UnderreadAt overload for DX; analysis.run panelCandidates; method 1.3.0 (old runs Historical); warm Release 0.50-0.55 s; CFD-V&V cleared with conditions, conditions 1-3 and 5 done; 1%-thick residual recorded recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join feature/adaptive-panels into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-06T17:05:35Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
