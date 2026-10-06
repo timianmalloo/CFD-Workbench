@@ -1131,3 +1131,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. (1) The
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), against the recommendation (C now, B next round): split the Desktop test harness further now (option B), as a measured track: profile first, split only where the measurement shows a saving, no check dropped (identical PASS name sets before and after), no threshold loosened. If the split buys under 2 s, report it and return to options A and C rather than shipping a split that does not pay (the earlier B-series Desktop split bought no margin).
 
 - request: req-01M49J7X5XMNSSEEPHCG8NGH3S · ruled by: operator-timianmalloo · at: 2026-10-06T21:34:45Z
+
+### Ruling 123 — Ring headroom: move the costliest fast checks to readiness now; rebalance Core part 3 next round (Ruling 122 split does not pay)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. Now: move the most expensive fast-ring checks (about six, each at or above 0.6 s by measured COST) to the readiness ring, which runs before every push of main; target about 47 s net on a quiet machine; the union of ring and readiness PASS names stays identical; no limit is raised. Next round: rebalance Core part 3. The Desktop split of Ruling 122 is not shipped; its profile is the record.
+
+- request: req-01M49K4J94VH8HF1TTJEFRCM9M · ruled by: operator-timianmalloo · at: 2026-10-06T21:50:25Z
