@@ -59,6 +59,12 @@ whose geometry changed, the numbers, verdicts, normals and depth margins are fro
 anchor can lie on the current geometry. The Historical banner remains visible. Showing the exact earlier mesh would
 need a historical display surface in the controller contract; LAY has not fabricated one.
 
+**Repair cycle 1 residual (accepted):** after a geometry edit, a selected Historical run retains its own values,
+strip spans, and local normals, while glyph anchors use the current accepted geometry. The required behavior in
+`area3-analysis.md` §12.3 and ANA-22 is the Historical banner over the accepted revision; those clauses do not
+require replay of the prior mesh. Historical geometry replay is a possible later improvement with its own
+controller/display-surface contract.
+
 The dedicated layers-on four-view full-step measurement crossed 8 ms in some focused runs even though the event
 path remained below 0.11 ms and no pane refreshed. The official readiness test passes in its CAD fixture; it does
 not turn layers on. The new Desktop integration check emits the full-step number and gates the event path plus zero
