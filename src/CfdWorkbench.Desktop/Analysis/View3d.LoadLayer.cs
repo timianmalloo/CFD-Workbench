@@ -6,6 +6,8 @@ public sealed partial class View3d
 {
     private AnalysisViewModel? layerView;
     private IReadOnlyList<LayerData>? seenLayers;
+    private IReadOnlyList<LayerData>? seenSceneLayers;
+    private View3dLoadLayer.Scene? layerScene;
 
     private AnalysisViewModel LayerView()
     {
@@ -27,5 +29,17 @@ public sealed partial class View3d
         if (visible.Contains("root-moment")) suffix += "; root moment, values in the Loads table";
         if (visible.Contains("depth-band")) suffix += "; free surface and tip depth, values in the conditions table";
         return suffix;
+    }
+
+    private View3dLoadLayer.Scene LayerScene()
+    {
+        var view = LayerView();
+        if (controller is null) throw new InvalidOperationException("No controller for the 3D load layer.");
+        if (layerScene is null || !ReferenceEquals(seenSceneLayers, controller.LayerSet))
+        {
+            layerScene = View3dLoadLayer.BuildScene(view);
+            seenSceneLayers = controller.LayerSet;
+        }
+        return layerScene;
     }
 }

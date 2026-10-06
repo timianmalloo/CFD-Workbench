@@ -157,6 +157,8 @@ public sealed partial class View3d : Panel
             controller = value;
             layerView = null;
             seenLayers = null;
+            layerScene = null;
+            seenSceneLayers = null;
             if (attached && controller is not null) { controller.CameraChanged += OnCameraChanged; controller.LayersChanged += OnLayersChanged; }
             Refresh();
         }
@@ -191,7 +193,7 @@ public sealed partial class View3d : Panel
         LiveCameraChanged?.Invoke();
     }
 
-    private void OnLayersChanged() { layerView = controller?.AnalysisView; seenLayers = controller?.LayerSet; UpdateName(); overlay.InvalidateVisual(); }
+    private void OnLayersChanged() { layerView = controller?.AnalysisView; seenLayers = controller?.LayerSet; layerScene = null; UpdateName(); overlay.InvalidateVisual(); }
 
     /// <summary>The renderer under this view; its frames feed <c>view.navigate.end</c>.</summary>
     public SurfaceRenderer? Renderer
@@ -418,7 +420,7 @@ public sealed partial class View3d : Panel
         ChipBounds = null;
         if (Camera is not { } camera) return;
         if (controller?.IsAnalysis == true && Surface is { } surface)
-            View3dLoadLayer.Draw(context, camera, surface, Bounds.Size, LayerView(),
+            View3dLoadLayer.Draw(context, camera, surface, Bounds.Size, LayerView(), LayerScene(),
                 InkBrush ?? Brushes.White, MuteBrush ?? Brushes.White, StationBrush ?? Brushes.White, SoftBrush ?? Brushes.Black);
         DrawChip(context, camera);
         DrawTriad(context, camera);

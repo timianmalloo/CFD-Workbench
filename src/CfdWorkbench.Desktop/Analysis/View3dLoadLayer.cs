@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Media;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
+using static CfdWorkbench.Desktop.LoadLayerText;
 
 namespace CfdWorkbench.Desktop;
 
@@ -10,6 +11,16 @@ namespace CfdWorkbench.Desktop;
 public static class View3dLoadLayer
 {
     public sealed record Arrow(double Y, double Magnitude, Loads.Vec Direction);
+    public sealed record Scene(LayerData? Lift, IReadOnlyList<Arrow> Arrows, LayerData? Moment,
+        IReadOnlyList<ElevationDepthLayer.DepthMark> Depth);
+
+    public static Scene BuildScene(AnalysisViewModel view)
+    {
+        var lift = view.Layers.FirstOrDefault(layer => layer.Id == "strip-lift");
+        return new Scene(lift, Build(lift),
+            view.Layers.FirstOrDefault(layer => layer.Id == "root-moment" && layer.Visible && layer.Samples.Any(sample => sample.Value.HasValue)),
+            ElevationDepthLayer.Build(view.Layers.FirstOrDefault(layer => layer.Id == "depth-band")));
+    }
 
     public static IReadOnlyList<Arrow> Build(LayerData? layer)
     {
@@ -26,10 +37,10 @@ public static class View3dLoadLayer
     }
 
     public static void Draw(DrawingContext context, ViewCamera camera, SurfaceView surface, Size viewport,
-        AnalysisViewModel view, IBrush ink, IBrush mute, IBrush station, IBrush soft)
+        AnalysisViewModel view, Scene scene, IBrush ink, IBrush mute, IBrush station, IBrush soft)
     {
-        var lift = view.Layers.FirstOrDefault(l => l.Id == "strip-lift");
-        var arrows = Build(lift);
+        var lift = scene.Lift;
+        var arrows = scene.Arrows;
         if (arrows.Count > 0)
         {
             double peak = arrows.Max(a => Math.Abs(a.Magnitude));
@@ -58,7 +69,7 @@ public static class View3dLoadLayer
             }
             Text(context, lift!.Legend, new Point(8, Math.Max(28, viewport.Height - 56)), ink, soft);
         }
-        var moment = view.Layers.FirstOrDefault(l => l.Id == "root-moment" && l.Visible && l.Samples.Any(s => s.Value.HasValue));
+        var moment = scene.Moment;
         if (moment is not null && surface.Sections.Count > 0)
         {
             var origin = camera.Project(surface.Sections.MinBy(s => Math.Abs(s.Eta))!.Upper[0], viewport);
@@ -67,7 +78,7 @@ public static class View3dLoadLayer
             context.DrawGeometry(null, new Pen(ink, 1.5), new PolylineGeometry(arc, false));
             Text(context, moment.Legend, origin + new Vector(24, 26), ink, soft);
         }
-        var depth = ElevationDepthLayer.Build(view.Layers.FirstOrDefault(l => l.Id == "depth-band"));
+        var depth = scene.Depth;
         if (depth.Count > 0 && depth[0].Elevation.HasValue)
         {
             double z = depth[0].Elevation!.Value + depth[0].Margin;
@@ -124,11 +135,4 @@ public static class View3dLoadLayer
         context.DrawGeometry(brush, null, head);
     }
 
-    private static void Text(DrawingContext context, string value, Point position, IBrush ink, IBrush soft)
-    {
-        var text = new FormattedText(value, CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-            new Typeface(FontFamily.Default, FontStyle.Normal, FontWeight.SemiBold), 11, ink);
-        context.DrawRectangle(soft, null, new Rect(position.X - 4, position.Y - 2, text.Width + 8, text.Height + 4));
-        context.DrawText(text, position);
-    }
 }

@@ -127,6 +127,9 @@ public static class AnalysisLayerTests
                 bitmap.Render(window);
                 var plan = host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!;
                 var threeD = host.ModelView.FindControl<View3d>("ThreeDView")!;
+                var sceneField = typeof(View3d).GetField("layerScene",
+                    System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    ?? throw new Exception("3D scene cache was not found.");
                 if (plan.RenderBanner is not null) throw new Exception("Plan layer render failed: " + plan.RenderBanner);
                 if (!AutomationProperties.GetName(plan)!.Contains("Γ loading strips", StringComparison.Ordinal) ||
                     !AutomationProperties.GetName(threeD)!.Contains("strip lift arrows", StringComparison.Ordinal))
@@ -138,6 +141,8 @@ public static class AnalysisLayerTests
                     throw new Exception("Hidden plan layer remains on the canvas or in its peer.");
                 bitmap.Render(window);
                 controller.SetLayerVisible("plan-gamma", true);
+                bitmap.Render(window);
+                var firstScene = sceneField.GetValue(threeD) ?? throw new Exception("3D scene was not built on render.");
                 double? loadBefore = DesktopChecks.LoadAverage1();
                 long paneRefreshes = host.PaneRefreshes;
                 var camera = controller.Camera3d ?? throw new Exception("No 3D camera");
@@ -158,6 +163,9 @@ public static class AnalysisLayerTests
                     window.UpdateLayout();
                     steps.Add(System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
                 }
+                bitmap.Render(window);
+                if (!ReferenceEquals(firstScene, sceneField.GetValue(threeD)))
+                    throw new Exception("Camera redraw rebuilt the 3D layer scene without a LayerSet change.");
                 double p95 = steps.Order().ElementAt((int)Math.Ceiling(steps.Count * .95) - 1);
                 double eventP95 = events.Order().ElementAt((int)Math.Ceiling(events.Count * .95) - 1);
                 Console.WriteLine(FormattableString.Invariant($"MEASURE AnalysisLayers_CameraStep_WithLayers full_step_p95_ms={p95:F3} event_p95_ms={eventP95:F3} pane_refreshes={host.PaneRefreshes - paneRefreshes} samples={steps.Count}"));
