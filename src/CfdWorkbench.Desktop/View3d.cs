@@ -9,7 +9,6 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.VisualTree;
 using CfdWorkbench.Core;
-using CfdWorkbench.Analysis;
 using CfdWorkbench.Desktop.Shell;
 using CfdWorkbench.Persistence;
 
@@ -30,7 +29,7 @@ public sealed record CubeFace(NamedCamera Camera, string Letter, IReadOnlyList<P
 /// they take focus in Tab order and carry Button peers. Geometry comes only from the controller's mesh; this control
 /// projects it through the camera and never evaluates a curve.
 /// </summary>
-public sealed class View3d : Panel
+public sealed partial class View3d : Panel
 {
     public static readonly StyledProperty<IBrush?> SoftBrushProperty = AvaloniaProperty.Register<View3d, IBrush?>(nameof(SoftBrush));
     public static readonly StyledProperty<IBrush?> InkBrushProperty = AvaloniaProperty.Register<View3d, IBrush?>(nameof(InkBrush));
@@ -103,8 +102,6 @@ public sealed class View3d : Panel
     private bool pointerOverCube;
     private CubeFace? hoveredFace;
     private readonly Overlay overlay;
-    private AnalysisViewModel? layerView;
-    private IReadOnlyList<LayerData>? seenLayers;
 
     public View3d()
     {
@@ -426,17 +423,6 @@ public sealed class View3d : Panel
         DrawChip(context, camera);
         DrawTriad(context, camera);
         if (CubeVisible) DrawCube(context, camera);
-    }
-
-    private AnalysisViewModel LayerView()
-    {
-        if (controller is null) throw new InvalidOperationException("No controller for the 3D load layer.");
-        if (layerView is null || !ReferenceEquals(seenLayers, controller.LayerSet))
-        {
-            layerView = controller.AnalysisView;
-            seenLayers = controller.LayerSet;
-        }
-        return layerView;
     }
 
     private void DrawChip(DrawingContext context, ViewCamera camera)
@@ -766,13 +752,7 @@ public sealed class View3d : Panel
             { } free => $"3D view, camera Free, azimuth {Degrees(free.AzimuthDegrees)}°, elevation {Degrees(free.ElevationDegrees)}°",
             _ => "3D view"
         };
-        if (controller?.IsAnalysis == true)
-        {
-            var visible = controller.LayerSet.Where(l => l.Visible).Select(l => l.Id).ToHashSet();
-            if (visible.Contains("strip-lift")) name += "; strip lift arrows, values in the Loads table";
-            if (visible.Contains("root-moment")) name += "; root moment, values in the Loads table";
-            if (visible.Contains("depth-band")) name += "; free surface and tip depth, values in the conditions table";
-        }
+        name += LayerNameSuffix();
         if (AutomationProperties.GetName(this) != name) AutomationProperties.SetName(this, name);
     }
 
