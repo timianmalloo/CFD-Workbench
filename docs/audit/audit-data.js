@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T21:25:53Z",
+  "generated": "2026-10-06T21:38:58Z",
   "audit": [
     {
       "actor": null,
@@ -27954,6 +27954,26 @@ window.AUDIT_DATA = {
       "done_when": "menu items, status item, keyboard, conversion proven; persistence per preference",
       "started_at": "2026-10-06T21:15:46Z",
       "duration_seconds": 607.0
+    },
+    {
+      "id": "al-01M49JFKCT5N4XG82Q6SDSDRQX",
+      "shortname": "trk-uni",
+      "datetime": "2026-10-06T21:38:58Z",
+      "session": "trk-uni",
+      "prompt": "trk-uni repair cycle 1 round-oct06 (Ruling 121)",
+      "summary": "Optional units key in cfdw-display v1, LoadUnitsAsync/SaveUnitsAsync, ShellHost load and save, 3 readiness checks. Full ring green except C-3 net 50.85 s vs 50 s at load 11-16.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Persist the Units choice per user",
+      "done_when": "choice survives a shell restart; old file loads Metric; unknown value falls back to Metric",
+      "started_at": "2026-10-06T21:33:53Z",
+      "duration_seconds": 305.0
     }
   ],
   "changes": [
@@ -29720,6 +29740,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49GGMBR0XZSY7KQTC6JTX5X",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49J66NA3GK00PY4VJKS8NK7",
+      "ts": "2026-10-06T21:33:50Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49J66JA8D0VXZH1R9YZ98QT",
       "session": "operator-timianmalloo"
     }
   ]
