@@ -8780,6 +8780,71 @@ window.DOCS_INDEX = {
       "sourceSha256": "1d98cea1eca8e2d053636527a92f25027d84da2119500f19c380263af7a19c54"
     },
     {
+      "id": "proof-a3a-lay-pack",
+      "path": "docs/proof/a3a-lay/proof-pack.md",
+      "title": "A3a LAY canvas layer proof pack",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-lay",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Evidence for the A3a Plan Γ, 3D load, and Side/Front depth layers on the existing desktop views. The pack ties selected-run projection samples to their visible glyphs, accessible names, table twins, and camera-step cost.",
+      "tags": [
+        "a3a",
+        "lay",
+        "analysis",
+        "canvas",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-lay-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7c7700915e076a544f70ecaeacc0afa703d32b8916ffbcbc40ad7485fe8f4b44"
+    },
+    {
+      "id": "proof-a3a-lay-red-first",
+      "path": "docs/proof/a3a-lay/red-first.md",
+      "title": "A3a LAY red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-lay",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "The LAY Desktop ring was committed red before its three canvas-layer classes existed. A planted removal of both the dashed outside outline and its text count later made the named Plan test fail on the implemented code.",
+      "tags": [
+        "a3a",
+        "lay",
+        "analysis",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-a3a-lay-pack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "664f24159907fb5fa3911ca328e7cdab3ba133a629eb613fdbd1f2c745622deb"
+    },
+    {
       "id": "proof-a3a-old-build",
       "path": "docs/proof/a3a-old-build/README.md",
       "title": "A3a old-build receipt: a cfdw-project-2 file opened by the build at the A3a base",
@@ -14140,5 +14205,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "fe985580627ec247e726d382a55265f6b57a72ca799fb2c01d0f67f69d12d2cf"
+  "graphSha256": "a5f602ad700ded808ffd082225179ece5ad8601e221e035b4eb9dcaec9f41edd"
 };
