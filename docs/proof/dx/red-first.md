@@ -91,3 +91,23 @@ Red: `Section_CpUnavailable_PanelSolveFailed_ShowsCopy358InApp` (Desktop readine
 | `Polar_NonNaca0012InsideTrainingRange_ComputedAndFlagged_Ruling117` | `AvailabilityCode` returns the family code again (refuse again) | `a strip cd is computed, not refused expected True; actual False` |
 
 Tool: scratchpad `dx2/mutate.py` (applies one exact replacement, builds, runs one check, restores the file). `git status` was clean after every run.
+
+### Item 6: captures (app render, after all changes, example foil, V 5.14 m/s, alpha 3, h 0.6 m)
+
+Folder `docs/proof/dx/captures/`. App renders are `01`..`11`; `mockup-*.png` are the approved mockup screens (`docs/mockups/dx-section-polar-states.html`, rendered by playwright). The example foil is not NACA 0012; since Ruling 117 it computes.
+
+| Required state | App capture | Mockup state |
+|---|---|---|
+| Drag (Wing only) row, value band 13.1 to 14.613 N, COPY-364 flag in its note; Wing-only CL/CD 19.18 to 21.394, same flag | `11-wing-result-drag-band-flagged.png` (Properties, Wing result) and `06-loads-drag-wing-only.png` (strip cd row carries the flag) | `mockup-drag.png` (D5; the mockup predates Ruling 109 and 117: its band has no family flag) |
+| not-measured cell beside a measured station (eta 0.049 reads 1.38 %, eta 0.061 reads "not measured at this station (200 panels only)") | `07-` and `08-section-tab-all-tables-*.png`, Stations table | the D7 state sheet row (`mockup-sheet.png`) |
+| Section tab naming the selected strip ("Selected strip · eta 1") | `08-section-tab-all-tables-selected.png`, `02-section-cp-selected-strip.png` | `mockup-cp.png` (D1) |
+| governing fallback ("Governing cavitation station · eta 0.012 (no strip selected)") | `07-section-tab-all-tables-governing.png`, `01-section-cp-governing-fallback.png` | `mockup-cp.png` (D1) |
+| polar, transition, bucket charts | `03`, `04`, `05` | `mockup-polar.png`, `mockup-trans.png`, `mockup-bucket.png` |
+| Find alpha found and no root | `09`, `10` | `mockup-find.png` (D6, drawn as a popover; built as a dialog, DXM-6) |
+| Polar bracket row flagged for the section family (COPY-364) in the Section tab | bottom of `07`, `08` ("Polar bracket") | D7 sheet (row 36) |
+
+Findings from the captures (not fixed, outside the brief): the Section tab Stations table lists every one of the 126 lattice stations, so the tab is about 3000 px tall and the Polar group sits at its bottom; the mockup shows four stations. The Stations table should list the section etas (the four stations of the run), not each strip.
+
+### Numerical change for the CFD reviewer (Ruling 117)
+
+Example foil (docs/examples/foildsl/foil-basic.foil, not NACA 0012), V 5.14 m/s, alpha 3 deg, h_ref 0.6 m, 64x4 lattice: before, every strip cd was Unavailable (ANA-POLAR-SECTION-UNVALIDATED) and the wing drag, CL/CD bands read Unavailable. After: strip cd 0.00799 (Ncrit 2, tip strip), Drag (Wing only) 13.1 to 14.613 N, Wing-only CL/CD 19.18 to 21.394, all flagged COPY-364. The values are the NeuralFoil outputs unchanged; only the refusal was removed. Residual risk: these are surrogate outputs for a section the surrogate was not validated on (the flag says so). Re, alpha and Ncrit bracket refusals (D14) are unchanged.
