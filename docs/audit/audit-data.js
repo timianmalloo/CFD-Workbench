@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T18:21:53Z",
+  "generated": "2026-10-06T20:54:19Z",
   "audit": [
     {
       "actor": null,
@@ -27760,6 +27760,26 @@ window.AUDIT_DATA = {
       "done_when": "Desktop checks of design group-move §9 print PASS, mutants red then green, captures against the mockup, keyboard-only run, full ring green with C-3 under 50 s net, check-docs exit 0",
       "started_at": "2026-10-06T17:33:35Z",
       "duration_seconds": 2898.0
+    },
+    {
+      "id": "al-01M49FXVTRS0QV4NFJ5B7EPD2M",
+      "shortname": "trk-grp-fix",
+      "datetime": "2026-10-06T20:54:19Z",
+      "session": "trk-grp-fix",
+      "prompt": "trk-grp-fix round-oct06",
+      "summary": "Plan delta from the press and span term; typed amounts with unit and 2 decimals, point n; domain hold names the point; compact inline Set to/Move by switch; applied-first readouts without frame lag; COPY-394 range refusal via GroupCopy G13 and stale refusal cleared; evidence files. C-3 net 50.2-50.5 s at load 17-20 (marginal).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Repair the marine-CAD BLOCK on the group-move build (fixes 1-9)",
+      "done_when": "Red-first per fix, captures opened, design names PASS, one full run-tests, check-docs exit 0",
+      "started_at": "2026-10-06T20:20:42Z",
+      "duration_seconds": 2017.0
     }
   ],
   "changes": [
@@ -29490,6 +29510,33 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M494HKN1339H32CN1X2BKKKF",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M499RKJK99R9QC983M46KY0Q",
+      "ts": "2026-10-06T19:06:35Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M499RKFM4N380SJETTMTQ4FV",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M499RKYC8RH9ATQ75DT33ETJ",
+      "ts": "2026-10-06T19:06:36Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M499RKVE8C7HYM5S0F8PEZBQ",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49E7XPZNYT615G3PNWD8GPK",
+      "ts": "2026-10-06T20:24:52Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49E7XKY1XJFSETDW993XRFV",
       "session": "operator-timianmalloo"
     }
   ]

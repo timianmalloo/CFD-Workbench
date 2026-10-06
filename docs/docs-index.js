@@ -2752,7 +2752,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6cc7ede240c60ce518c5e07895243a619d492234c59b021011c0031c0e5c3dc2"
+      "sourceSha256": "183feb9f61e592386a959bc559f60094935411ec620967acb08a77479891b746"
     },
     {
       "id": "design-guided-solver-setup",
@@ -6747,7 +6747,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cba83f2facce2d7ac3a5992a20f0d5b0196e77a78c969020fc3d78bd230e0b99"
+      "sourceSha256": "2c89f6b9c1dbdb02565488b7a112cc7678a6538a5f1d97e7fb97459edd939ba3"
     },
     {
       "id": "kb-hw-glossary",
@@ -11130,7 +11130,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "31b540f38b8b81476bd63c3b473c98088a149657c8f49ed1e194591b34a0c6f2"
+      "sourceSha256": "5d12c51079603188198df153b85a38721f742b485ef0a7d5f01d8bf41110d4a1"
     },
     {
       "id": "proof-grp-red-first",
@@ -14863,5 +14863,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "1b45c9bdf3da5f9681270b74c51388d013a899d04e171b9185c1662fe4db8d72"
+  "graphSha256": "ffcbd1c09295085541ec9cf200f8f4dad31c42ec46c876f92c5f222acdc4de5d"
 };
