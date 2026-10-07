@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T23:15:37Z",
+  "generated": "2026-10-07T23:27:43Z",
   "audit": [
     {
       "actor": null,
@@ -29530,6 +29530,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T23:14:42Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M4CB3EVB0QC3F20K1DR95VM1",
+      "shortname": "trk-rgt",
+      "datetime": "2026-10-07T23:27:43Z",
+      "session": "trk-rgt",
+      "prompt": "trk-rgt round-oct06",
+      "summary": "C-5 joins the load gate; proc-gitbash hosts advisory until docs/proof/ring-<host>/baseline.csv; PropertiesCellsTests uses junction or NOT ASSESSED",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Implement Ruling 139: C-5 load gate, uncalibrated-host advisory, last symlink site",
+      "done_when": "self-test 41/41, verify gates, run-tests, check-docs green",
+      "started_at": "2026-10-07T23:21:16Z",
+      "duration_seconds": 387.0
     }
   ],
   "changes": [
@@ -31486,6 +31506,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4CAB54GHK4CTE04VV7JWRAG",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4CAQEM7007KCJM5G0FVRYST",
+      "ts": "2026-10-07T23:21:10Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4CAQEM3Z3DEGSSZ4VMZ43CH",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M4CAQEQ43PEWB7Q70WR9Z4AD",
+      "ts": "2026-10-07T23:21:10Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4CAQEM3Z3DEGSSZ4VMZ43CH",
+      "session": "fable-owner"
     }
   ]
 };

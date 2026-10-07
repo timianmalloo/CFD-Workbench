@@ -7113,7 +7113,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8637fdc391dff4c7b3adfdca41fc693aa41821326827a0275aeb7c15642474dc"
+      "sourceSha256": "d31332647744fdad540ba8c12ff0b0e2b9bded837d04453f0f786b2f3eea6d70"
     },
     {
       "id": "kb-hw-glossary",
@@ -12640,6 +12640,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "535bf69270259d3c7d8e7b9b0e10deae5b78da9b7dd98df1ebad355d92d99bb5"
     },
     {
+      "id": "proof-rgt-red-first",
+      "path": "docs/proof/rgt/red-first.md",
+      "title": "RGT red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rgt",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Ruling 139: the HEAD checker fails C-5 at load 30 and rejects the host flags; the new checker prints COST-MISS and exits 0, while C-5 at a quiet load stays red. The self-test grew from 26 to 41 cases and exits 0.",
+      "tags": [
+        "rgt",
+        "ruling-139",
+        "test-ring",
+        "cost-gate",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "12c0d9b3e00a0fa068f5492b640c4fc27eb53c80e1e7042dc632bf2df8f59559"
+    },
+    {
       "id": "proof-ring-b1-red-first",
       "path": "docs/proof/ring-b1/red-first.md",
       "title": "Ring B1 red-first receipt",
@@ -16158,5 +16185,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ed0bca554f17a97e1da9cd42fd8f7d0007b2abacf29c9796e0bd871161ee7bb3"
+  "graphSha256": "e3fe2d1dfcc63ab9007d65a6988d9cd7613b462b99b3f193128dce43c14c296a"
 };
