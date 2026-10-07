@@ -360,6 +360,26 @@ public static class VortexLattice
         return normals;
     }
 
+    /// <summary>
+    /// The leading edge (x, z) of each strip at its y-midpoint, from the same section lookup (<c>At</c>) and plane (<c>OnPlane</c>) the
+    /// solve places its bound segments on. The strip moments are stored about the frame origin (<see cref="StripForce"/>); this is the
+    /// point a reader moves them to (SFV, docs/proof/sfv/model.md). A getter only: no solve changes.
+    /// </summary>
+    internal static (double X, double Z)[] StripLeadingEdges(IReadOnlyList<SectionSample> wing, IReadOnlyList<(double Low, double High)> edges)
+    {
+        SectionSample[] samples = wing.ToArray();
+        Array.Sort(samples, (a, b) => SectionY(a).CompareTo(SectionY(b)));
+        double span = SectionY(samples[^1]) - SectionY(samples[0]);
+        var leading = new (double X, double Z)[edges.Count];
+        for (int i = 0; i < leading.Length; i++)
+        {
+            double ym = 0.5 * (edges[i].Low + edges[i].High);
+            Point3 at = OnPlane(At(samples, ym, span), 0, ym);
+            leading[i] = (at.X, at.Z);
+        }
+        return leading;
+    }
+
     // The bound segment retains the elevated local plane; the chord tangent reads the camber derivative at this panel's
     // control point, rotated by the section twist. Unnormalised: the caller orients and normalises.
     private static Vector3 SlopeNormal(SectionSample mid, double controlFraction, Point3 a, Point3 b)

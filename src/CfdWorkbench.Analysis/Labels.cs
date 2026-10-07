@@ -257,4 +257,58 @@ public static class Labels
     }
 
     public static string Number(double value, string format = "0.###") => value.ToString(format, CultureInfo.InvariantCulture);
+
+    // ---- SFV: Lift and Drag vectors on the Section profile (Rulings 127, 128, 130; the 16 approved labels, COPY-SF1..SF16) ----
+    public const double LbfPerNewton = 1 / 4.4482216152605, FeetPerMeter = 0.3048;
+    /// <summary>The Units switch for a force per span: N/m to lbf/ft.</summary>
+    public static double ForcePerSpan(double newtonsPerMeter, Units units) => units == Units.Imperial ? newtonsPerMeter * LbfPerNewton * FeetPerMeter : newtonsPerMeter;
+    /// <summary>N·m/m to lbf·ft/ft. A moment per span has the dimension of a force, so 1 N·m/m = 0.224809 lbf·ft/ft (not 0.737562).</summary>
+    public static double MomentPerSpan(double newtonMetersPerMeter, Units units) => units == Units.Imperial ? newtonMetersPerMeter * LbfPerNewton : newtonMetersPerMeter;
+    public static string ForcePerSpanUnit(Units units) => units == Units.Imperial ? "lbf/ft" : "N/m";
+    public static string MomentPerSpanUnit(Units units) => units == Units.Imperial ? "lbf·ft/ft" : "N·m/m";
+
+    /// <summary>Three significant figures, trailing zeros kept so the precision reads (479, 0.230, 1230); a minus sign is U+2212.</summary>
+    public static string Sig3(double value)
+    {
+        if (value == 0) return "0.00";
+        double a = Math.Abs(value);
+        for (int pass = 0; pass < 2; pass++)
+        {
+            int magnitude = (int)Math.Floor(Math.Log10(a));
+            double step = Math.Pow(10, magnitude - 2), rounded = Math.Round(a / step, MidpointRounding.AwayFromZero) * step;
+            if ((int)Math.Floor(Math.Log10(rounded)) != magnitude) { a = rounded; continue; }
+            string text = magnitude >= 2 ? rounded.ToString("0", CultureInfo.InvariantCulture)
+                : rounded.ToString("0." + new string('0', 2 - magnitude), CultureInfo.InvariantCulture);
+            return (value < 0 ? "−" : "") + text;
+        }
+        return Number(value, "G3");
+    }
+    private static string Signed(double value, string format) => Number(value, format).Replace('-', '−');
+
+    public static string LiftLabel(double value, Units units) => "L′ " + Sig3(ForcePerSpan(value, units)) + " " + ForcePerSpanUnit(units) + " (lattice)"; // COPY-SF1
+    public static string LiftScale(double shown, Units units) => "1 c = " + Number(shown, "0.###") + " " + ForcePerSpanUnit(units) + ", fixed per run"; // COPY-SF1
+    public static string FreeStream(double alphaGeoDeg) => "V∞ at α_geo " + Signed(alphaGeoDeg, "0.00") + "°"; // COPY-SF2
+    public static string LocalInflow(double alphaEffDeg) => "local inflow α_eff " + Signed(alphaEffDeg, "0.00") + "°"; // COPY-SF3
+    public const string LocalInflowWhy = "tilts the flow by α_i"; // COPY-SF3
+    public static string AnchorCp(double xOverC) => "CP (lattice) · x/c " + Signed(xOverC, "0.00"); // COPY-SF4
+    public const string AnchorQuarter = "c/4 · arrows start here · x_cp Undefined"; // COPY-SF5
+    public static string CoupleLabel(double value, Units units) => "M′ c/4 (lattice) " + Sig3(MomentPerSpan(value, units)) + " " + MomentPerSpanUnit(units); // COPY-SF6
+    public static string ProfileDragLabel(double low, double high, Units units, int multiple, bool lowConfidence) => // COPY-SF7, SF10
+        "D′ profile (polar, Ncrit 2–4) " + DragBand(low, high, units) + " " + ForcePerSpanUnit(units) + " · ×" + multiple + (lowConfidence ? " " + LowConfidenceSuffix : "");
+    public static string InducedDragLabel(double value, Units units, int multiple) => // COPY-SF8
+        "D′ induced, lifting-line share (lattice) " + Sig3(ForcePerSpan(value, units)) + " " + ForcePerSpanUnit(units) + " · ×" + multiple;
+    public static string TotalDragLabel(double value, Units units, int multiple) => // COPY-SF9
+        "D′ profile + induced, free-stream axes " + Sig3(ForcePerSpan(value, units)) + " " + ForcePerSpanUnit(units) + " · ×" + multiple;
+    public static string DragBand(double low, double high, Units units) => Sig3(ForcePerSpan(low, units)) + "–" + Sig3(ForcePerSpan(high, units));
+    public const string LowConfidenceSuffix = "· low confidence"; // COPY-SF10 (first words of COPY-316)
+    public const string FlaggedSuffix = "· flagged"; // COPY-SF10 (the table suffix)
+    public const string StripTableHeading = "Wing strip, per span; not the wing total"; // COPY-SF11
+    public const string ClLatticeRow = "Cl_local (lattice)", ClPanelRow = "cl (panel, 2D inviscid at α_eff)", CmPanelRow = "Cm c/4 (panel)", // COPY-SF12
+        AlphaGeoRow = "α_geo", AlphaEffRow = "α_eff (lattice)", AlphaIRow = "α_i (lattice)", XcpRow = "x_cp/c (lattice)", LiftRow = "L′ (lattice)",
+        CoupleRow = "M′ c/4 (lattice)", ProfileDragRow = "D′ profile (polar, Ncrit 2–4)", InducedDragRow = "D′ induced (lattice)",
+        TotalDragRow = "D′ profile + induced, free-stream axes";
+    public const string XcpNearZeroLift = "Undefined · near zero lift: |cl| is below 0.05"; // COPY-SF13
+    public const string XcpOffSection = "Undefined · the centre of pressure is off the section"; // COPY-SF14
+    public const string CouplePlaceNote = "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn."; // COPY-SF15
+    public static readonly string[] VectorKey = ["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16
 }
