@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T16:34:35Z",
+  "generated": "2026-10-07T16:59:40Z",
   "audit": [
     {
       "actor": null,
@@ -28912,6 +28912,42 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T16:34:30Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M4BMWXX2HYR4HPS6QZ33PEJP",
+      "shortname": "Complete Windows W-1 smoke",
+      "datetime": "2026-10-07T16:59:40Z",
+      "session": "win-smoke-20261007",
+      "prompt": "Execute W-1 Windows smoke and record failures without repair.",
+      "summary": "Built with .NET 10.0.203; recorded the Git Bash python3 pre-harness failure and native Windows drag, Undo, Analysis, Evaluate and Save observations with source-bound screenshots.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "gpt-6.1-sol",
+      "artifacts": [
+        "docs/proof/win-smoke/receipt.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Execute the first Windows application smoke and preserve every observed result.",
+      "done_when": "Build, ring, docs and native interaction rows have evidence and no defect is repaired in W-1.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-07T16:47:54Z",
+      "duration_seconds": 706.0,
+      "git": {
+        "sha": "0103694c9872dd8e249dabda5b477bb3bab32146",
+        "short": "0103694c9",
+        "branch": "win/smoke",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -30777,6 +30813,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M4BHCHT5N6X27C7FP1ESAHHV",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4BKQA5SFJD72WSSP987S14B",
+      "ts": "2026-10-07T16:39:08Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4BKQA2T9HAC89QRYSW68B8Z",
       "session": "operator-timianmalloo"
     }
   ]
