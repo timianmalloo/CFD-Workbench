@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T16:50:59Z",
+  "generated": "2026-10-07T18:25:13Z",
   "audit": [
     {
       "actor": null,
@@ -28975,6 +28975,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T16:50:55Z",
       "duration_seconds": 4.0
+    },
+    {
+      "id": "al-01M4BSSHSQKZC826ZM5XQM743A",
+      "shortname": "windows-store-b1-candidate",
+      "datetime": "2026-10-07T18:25:13Z",
+      "session": "win-local-coordinator-20261007",
+      "prompt": "Continue the approved Windows W-0 through W-5 execution; prepare W-2 B1 Windows native store design under Mac leadership.",
+      "summary": "Prepared and Astra-reviewed a proof-only B1 decision package. Canonical design path, durability ruling, shared leases, and independent Data/Security/Test approvals remain pending; no implementation started.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "win-local-coordinator",
+      "artifacts": [
+        "docs/proof/win-store-design/candidate.md",
+        "docs/proof/win-store-design/receipt.md"
+      ],
+      "tags": [
+        "windows",
+        "persistence",
+        "coordination"
+      ],
+      "outcome": "partial",
+      "goal": "Produce a reviewable Windows native store design and obtain Mac/Fable/Data/Security/Test authorization before B2.",
+      "done_when": "Canonical design PR is approved with durability semantics and exact B2 seams frozen.",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "git": {
+        "sha": "ad6e606f41bb422b00d82b0c5da484bb44363dc1",
+        "short": "ad6e606f4",
+        "branch": "win/windows-store-design",
+        "pushed": false
+      }
     }
   ],
   "changes": [

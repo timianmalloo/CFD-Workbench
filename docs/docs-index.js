@@ -13627,6 +13627,91 @@ window.DOCS_INDEX = {
       "sourceSha256": "4a064c6b3d5006f397fd8e6ea769d1455b9e18215529cb76991546ea26ae5ecf"
     },
     {
+      "id": "proof-win-store-design",
+      "path": "docs/proof/win-store-design/receipt.md",
+      "title": "B1 Windows store design author checkpoint",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@win-store-design-20261007",
+      "phase": "windows-w-2-design",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "B1 author handback for the complete Windows store design candidate. The final design path is held pending affirmative Mac handoff; native qualification and independent Data, Security and Test approval are not asserted.",
+      "tags": [
+        "windows",
+        "persistence",
+        "design",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-win-store-design-candidate",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "implements"
+        },
+        {
+          "to": "design-windows-runtime",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1a5d450743f860c252dbd9da17e183793c0be95372fb3d17a0ab0216f367a10a"
+    },
+    {
+      "id": "proof-win-store-design-candidate",
+      "path": "docs/proof/win-store-design/candidate.md",
+      "title": "B1 Windows native project-store design candidate",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@win-store-design-20261007",
+      "phase": "windows-w-2-design",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Reviewable B1 blueprint for a separate Windows native store helper, handle-relative publication, identity and security controls. Native qualification, final-directory durability and independent Mac/Fable, Data, Security and Test approval remain open.",
+      "tags": [
+        "windows",
+        "persistence",
+        "design",
+        "security",
+        "durability"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-runtime",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "96366baa582f07a4cf0cd6acbd5f9e6faa38139ffeb7c6d967d928434712fabd"
+    },
+    {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
       "title": "Windows W0 preparation and failed W1 hosted qualification",
@@ -15559,5 +15644,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9eadb90e9d03ec1a001ebad02a669fc98d64b3c3d559fca03ee8229976bb1d70"
+  "graphSha256": "6dd374864a7e5359ec7f981f066afed9003499d1ce11aab24f05755f3a5b15e3"
 };
