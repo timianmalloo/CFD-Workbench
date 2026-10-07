@@ -35,7 +35,6 @@ internal static class DxSectionTests
             ChartPlot bucket = imperial.Charts.Single(c => c.Id == "bucket").Plots.Last();
             Equal("V_crit (kn)", bucket.YTitle, "the bucket's speed axis follows");
         });
-        Check("Sigma_SameStateOnBandPlateAndTable", SigmaAcrossSurfaces);
         Check("Cavitation_Screen_ValueStateAndFixedString", ScreenValues);
         Check("Cavitation_PanelUnderread_MeasuredNotConstant", UnderreadMeasured);
         Check("Section_StationsTable_ListsSolvedGoverningAndShownOnly", StationsTable);
@@ -71,6 +70,7 @@ internal static class DxSectionTests
         Check("Polar_CstResidual_ShownAndLimit", CstResidual);
         Check("Strips_PolarRe_InsideOutsideNotExtrapolated", StripRe);
         Check("Projection_NoRawAnaCodeInAnyCell", NoRawCode);
+        Check("Sigma_SameStateOnBandPlateAndTable", SigmaAcrossSurfaces);   // UXB: one tier solve, 0.3-0.5 s; kept off the 5 s fast part
         // moved from the fast ring (trk-dx2, C-2 over 5 s per part): the four costliest DX checks by their COST lines (0.26, 0.16, 0.13, 0.13 s)
         Check("SectionProjection_CpPlot_SeriesAndMarker", CpPlot);
         Check("Cavitation_GoverningStation_NamedWithDepth", GoverningLine);
@@ -267,7 +267,7 @@ internal static class DxSectionTests
 
     /// <summary>
     /// UXB: σ reads one way on the conditions band (OperatingPoints.Derive), the Section plate and the cavitation table. Depth unset: the
-    /// approved COPY-45 text on every surface and no σ number. Depth set: the same two-decimal σ on all three. Ring: fast, one tier solve (~0.5 s).
+    /// approved COPY-45 text on every surface and no σ number. Depth set: the same two-decimal σ on all three. Ring: readiness, one tier solve (~0.5 s).
     /// </summary>
     private static void SigmaAcrossSurfaces()
     {

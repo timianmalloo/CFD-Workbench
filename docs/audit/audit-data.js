@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T19:58:19Z",
+  "generated": "2026-10-07T22:30:14Z",
   "audit": [
     {
       "actor": null,
@@ -29253,6 +29253,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T19:58:14Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M4C7T6EB3PEM6JPHTHKTT9Q8",
+      "shortname": "trk-uxb",
+      "datetime": "2026-10-07T22:30:14Z",
+      "session": "trk-uxb",
+      "prompt": "trk-uxb round-oct06",
+      "summary": "Strip Lift / span and lift layer legend follow Units (LoadingChart table twin not fixed, not owned); sigma trace: band and Section agree, review capture was a harness mismatch; plate now shows COPY-45 when depth unset; Analysis and Desktop checks, captures in docs/proof/uxb",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Analysis strip lift follows Units; Section sigma plate shows the band's state",
+      "done_when": "red-first receipts, captures opened, full ring, check-docs 0",
+      "started_at": "2026-10-07T21:56:27Z",
+      "duration_seconds": 2027.0
     }
   ],
   "changes": [

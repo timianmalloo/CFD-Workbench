@@ -6,6 +6,8 @@ status: draft
 owner: "@timianmalloo"
 phase: implement
 tags: [uxb, units, sigma, analysis]
+links:
+  - { to: proof-sfv-captures, rel: refines }
 review-by: 2026-12-31
 summary: >-
   Red then green for the Imperial strip lift row and the Section sigma plate, the file:line sweep of every per-span row, and the
@@ -60,7 +62,7 @@ What was wrong and is fixed: with depth unset the plate drew no sigma line at al
 
 | Check | Old code | New code |
 |---|---|---|
-| `Sigma_SameStateOnBandPlateAndTable` (Analysis, fast ring, 0.3-0.5 s) | `FAIL ... the plate carries the same COPY-45 state, no number expected σ Unavailable — depth not set; actual ` (empty) | `PASS` |
+| `Sigma_SameStateOnBandPlateAndTable` (Analysis, readiness ring, 0.3-0.5 s) | `FAIL ... the plate carries the same COPY-45 state, no number expected σ Unavailable — depth not set; actual ` (empty) | `PASS` |
 | `SectionProfile_DepthNotSet_PlateReadsCopy45` (Desktop `--readiness`) | n/a (new draw check; the plate text is fed from the model) | `PASS`; capture `sigma-depth-not-set.png` |
 
 The same Analysis check pins depth set: the band's sigma (`Derive`), the table cell and the plate agree at two decimals for the default foil at 0.5 m.

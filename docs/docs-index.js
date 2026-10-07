@@ -13606,6 +13606,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "67463d35644d830647566adfa6aee9419ab495e8ce1b2e97b276ed84b56eed04"
     },
     {
+      "id": "proof-uxb-red-first",
+      "path": "docs/proof/uxb/red-first.md",
+      "title": "UXB red-first receipts and the sweep of per-span rows",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Red then green for the Imperial strip lift row and the Section sigma plate, the file:line sweep of every per-span row, and the sigma trace showing the band and the Section agree and why the review capture showed otherwise.",
+      "tags": [
+        "uxb",
+        "units",
+        "sigma",
+        "analysis"
+      ],
+      "links": [
+        {
+          "to": "proof-sfv-captures",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b51e4778efb9757d2bc6fa930ece2bab3f46b2690c9bbe68b75a42280e7c0ab4"
+    },
+    {
       "id": "proof-visible-presentation",
       "path": "docs/proof/visible-presentation.md",
       "title": "Visible presentation feasibility proof packet",
@@ -15919,5 +15945,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c20a11e26ff4388e4d4301b1e0453012f7b28253ce2384d84f1390a4f94f23a9"
+  "graphSha256": "8475e837f3f39ae9e693d554ad2e6a38552430ea24f316841c03a5205f0767d1"
 };
