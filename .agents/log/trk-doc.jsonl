@@ -1,2 +1,5 @@
 {"agent": "trk-doc", "at": 1791303071.782911, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-doc", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-docs-round-oct06-copy-spec"}
 {"agent": "14e5e8d5", "at": 1791308124.2778912, "kind": "session-start", "path": "-", "seq": 2, "session": "trk-doc", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-docs-copy-batch-r116"}
+{"agent": "trk-doc", "at": 1791325463.097126, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-doc", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-doc", "at": 1791325474.944125, "kind": "session-end", "path": "-", "seq": 4, "session": "trk-doc", "wi": "WI-0", "worktree": "CFD-Workbench-docs-copy-batch-r116"}
+{"agent": "trk-doc", "at": 1791325475.4349241, "kind": "session-end", "path": "-", "seq": 5, "session": "trk-doc", "wi": "WI-0", "worktree": "CFD-Workbench-docs-round-oct06-copy-spec"}

@@ -1,1 +1,3 @@
 {"agent": "trk-grp-core", "at": 1791305021.471204, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-grp-core", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feature-group-move"}
+{"agent": "trk-grp-core", "at": 1791325464.072845, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-grp-core", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-grp-core", "at": 1791325476.172408, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-grp-core", "wi": "WI-0", "worktree": "CFD-Workbench-feature-group-move"}

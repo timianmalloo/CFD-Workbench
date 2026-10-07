@@ -2,3 +2,5 @@
 {"action": "add", "agent": "trk-lay", "at": 1791226784.30272, "deadline_at": 1791227684.30272, "id": "req-01M46PZAHFDZ566P6TJ33HC6F4", "kind": "request", "path": "-", "seq": 2, "session": "trk-lay", "to": "4e90c621", "type": "request", "wi": "WI-0"}
 {"action": "add", "agent": "trk-lay", "at": 1791227077.500371, "deadline_at": 1791227977.500371, "id": "req-01M46Q88VXTRNJ0RYYM97KFXMS", "kind": "request", "path": "-", "seq": 3, "session": "trk-lay", "to": "4e90c621", "type": "request", "wi": "WI-0"}
 {"agent": "trk-lay", "at": 1791303072.797753, "kind": "session-start", "path": "-", "seq": 4, "session": "trk-lay", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-design-layout-1280"}
+{"agent": "trk-lay", "at": 1791325463.5831208, "kind": "session-end", "path": "-", "seq": 5, "session": "trk-lay", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-lay", "at": 1791325474.694869, "kind": "session-end", "path": "-", "seq": 6, "session": "trk-lay", "wi": "WI-0", "worktree": "CFD-Workbench-design-layout-1280"}

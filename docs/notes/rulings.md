@@ -1137,3 +1137,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), against the recommendat
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. Now: move the most expensive fast-ring checks (about six, each at or above 0.6 s by measured COST) to the readiness ring, which runs before every push of main; target about 47 s net on a quiet machine; the union of ring and readiness PASS names stays identical; no limit is raised. Next round: rebalance Core part 3. The Desktop split of Ruling 122 is not shipped; its profile is the record.
 
 - request: req-01M49K4J94VH8HF1TTJEFRCM9M · ruled by: operator-timianmalloo · at: 2026-10-06T21:50:25Z
+
+### Ruling 124 — Plan station chips move to a margin strip; Section sample tab retired; Section opens in the main area
+
+Operator 2026-10-06 (AskUserQuestion after reviewing the packaged app). (1) Plan station chips (the section name at each station) move to a margin strip under the planform, aligned to each station, never over the geometry; click selects the station and double-click opens the section editor, as today. (2) The Section sample document tab is retired (Ruling 55 kept it only until a newer surface replaced it; the Analysis Section view does). (3) The Section view opens in the main area as a Section document tab beside Plan and Foil source, full size (chart selector, profile with Cp, stations, polar, cavitation); the bottom-panel Section tab keeps a compact summary with an Open in main area action. A mockup is shown to the operator before the build.
+
+- request: req-01M49TW5PGY1K564HYNQ6SHSP6 · ruled by: operator-timianmalloo · at: 2026-10-07T00:05:38Z
