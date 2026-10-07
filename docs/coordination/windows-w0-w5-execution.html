@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Windows W-0 through W-5 execution plan</title>
+  <style>
+    :root { color-scheme: light dark; font-family: system-ui, sans-serif; line-height: 1.45; }
+    body { max-width: 1100px; margin: 2rem auto; padding: 0 1.25rem 3rem; }
+    h1, h2 { line-height: 1.15; } table { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+    th, td { border: 1px solid #8888; padding: .55rem; text-align: left; vertical-align: top; }
+    code { background: #8882; padding: .1rem .25rem; } .state { font-weight: 700; }
+    .graph { display: grid; grid-template-columns: repeat(auto-fit,minmax(170px,1fr)); gap: .75rem; }
+    .node { border: 1px solid #8888; border-radius: .5rem; padding: .75rem; }
+  </style>
+</head>
+<body>
+  <h1>Windows W-0 through W-5 execution plan</h1>
+  <p><span class="state">Status:</span> in progress. The Mac is repository leader. The Windows session coordinates
+  local work. A read-only Astra Owner reviews decisions and evidence.</p>
+  <h2>Execution graph</h2>
+  <div class="graph">
+    <div class="node"><strong>Track A0</strong><br>W-0 setup → PR</div>
+    <div class="node"><strong>Track A1</strong><br>W-1 smoke → PR</div>
+    <div class="node"><strong>Track B</strong><br>W-2 design → review → red-first build</div>
+    <div class="node"><strong>Track C</strong><br>W-3 routes → W-4 runs → W-5 cfMesh</div>
+  </div>
+  <p>After W-1, Tracks B and C run independently. W-4 L3 owns compute priority; W-5 overlaps only when measured
+  resource use permits it.</p>
+  <h2>Assignments</h2>
+  <table>
+    <thead><tr><th>Seat</th><th>Role</th><th>Model</th><th>Boundary</th></tr></thead>
+    <tbody>
+      <tr><td>Local coordinator</td><td>Plans, leases, dispatch, PRs and xmsg</td><td>current Codex</td><td>No product authorship; never moves main</td></tr>
+      <tr><td>Owner</td><td>Plan, contract, seam and final evidence review</td><td>gpt-6-astra/high</td><td>Read-only; Mac retains final authority</td></tr>
+      <tr><td>A0/A1</td><td>W-0 then W-1 in separate worktrees</td><td>Grok 4.7</td><td>Setup and smoke proof only; W-1 records defects without repairs</td></tr>
+      <tr><td>B</td><td>W-2</td><td>GPT-6.1 Sol/high</td><td>Design first; exact implementation lease after review</td></tr>
+      <tr><td>C</td><td>W-3/W-4/W-5</td><td>Sol plus Grok for frozen commands</td><td>Solver evidence; unchanged numerics</td></tr>
+    </tbody>
+  </table>
+  <h2>Completion</h2>
+  <p>Each completed track returns a clean commit, a pushed <code>win/*</code> branch, a GitHub PR, observed proof and
+  a committed and pushed xmsg <code>pr-ready</code> message. The aggregate compute cap is 12 physical cores. A local
+  worktree commit is not delivery. The Mac performs review and join.</p>
+  <p>The full contracts, owned paths, budgets, GPU qualification and join rule are in
+  <a href="windows-w0-w5-execution.md">windows-w0-w5-execution.md</a>.</p>
+</body>
+</html>
