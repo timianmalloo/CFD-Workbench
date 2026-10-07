@@ -65,8 +65,8 @@ The fresh `powershell.exe -NoProfile -Command 'dotnet --version'` used the inher
 | Default foil | Verified: Untitled, 1000.00 mm span, 127.04 mm root chord, 12.70 mm tip chord, two NACA 0012 stations, approximately 1000 cm² area | `02-new-settled` |
 | Spanwise drag | Verified: leading-edge root handle at (1319,550) dragged to (1369,550); length 166.67 → 226.40 mm, area approximately 1000 → 1005 cm² | `03-drag` |
 | Same-node name/event | Verified: runtime id `[42,1182498,4,574506]` changed from 166.67 to 226.40 mm. Four NameProperty events carry intermediate 190.56, 208.48, 220.43 and final 226.40 mm names | `point-name-event.json` |
-| Undo, Ctrl+Z once | Verified: one drag is undone, root handle 166.67 mm and area approximately 1000 cm²; the document remains open. One-step restoration excludes a second undo removing the new document. The settled strip reports the accepted slice, rather than an undo message; the requested undo-status text is not observed | `04-undo` |
-| Redo, Ctrl+Shift+Z once | Verified: root handle 226.40 mm and area approximately 1005 cm² restored | `05-redo` |
+| Undo, Ctrl+Z input | Verified: the edited state is restored to root handle 166.67 mm and area approximately 1000 cm²; the document remains open. The settled strip reports the accepted slice, rather than an undo message; the requested undo-status text and exact invocation count are not observed | `04-undo` |
+| Redo, Ctrl+Shift+Z input | Verified: root handle 226.40 mm and area approximately 1005 cm² are restored. Exact invocation count is Not assessed | `05-redo` |
 | Edit menu | Verified: Undo enabled, Redo disabled after redo; displayed gestures Ctrl+Z and Ctrl+Shift+Z | `06-edit-menu` |
 | Analysis/Evaluate | Verified: Ctrl+Shift+A after ZoomIt dismissal shows conditions/results. Evaluate completes in displayed 5.389 s, CL 0.177, CDi 0.00099, lift 240.38 N and induced drag 1.354 N | `28-ctrl-shift-a-clean`, `29-evaluate`, `30-evaluate-settled` |
 | Ctrl+S | Verified: native picker titled Save native CFD Workbench project opens | `31-save-picker` |
@@ -87,7 +87,7 @@ Analysis unavailable/missing contributions remain visible scope limits, not nume
 | F10 | Verified finding: no menu focus/highlight; focus remains Evaluate. F10 expectation fails | `43-f10-clean` |
 | Alt+F | Verified finding: no File menu opens; access-key expectation not established | `12-alt-f` |
 | Tab / F6 fallback | Not assessed: a Tab press records an empty focused name; the subsequent F6 press records the external Address and search bar. These inputs did not establish menu focus or the app F6 ring; no further capture repair was attempted at the two-cycle cap | `60-menu-tab`, `61-menu-f6` |
-| Ctrl+Z / Ctrl+Shift+Z | Verified single visible undo/redo restoration as above | `04-undo`, `05-redo` |
+| Ctrl+Z / Ctrl+Shift+Z | Verified visible undo/redo state restoration as above. Exact invocation count is Not assessed because another invocation at the history boundary can leave the same visible state | `04-undo`, `05-redo` |
 | Ctrl+B | Verified: left sidebar disappears once, and a separate restore press shows it again | `13-ctrl-b`, `14-ctrl-b-restore` |
 | Ctrl+J | In CAD it reports that the panel belongs to Analysis. In Analysis, one press hides the result panel and a separate press restores it | `15-ctrl-j`, `49-analysis-bottom-fold`, `50-analysis-bottom-restore` |
 | Ctrl+K | Verified: one palette input opens. Internal execution count is Not assessed; opening an already-open palette is idempotent, so screenshots alone cannot exclude duplicate invocation | `17-ctrl-k` |
@@ -96,7 +96,7 @@ Analysis unavailable/missing contributions remain visible scope limits, not nume
 | Ctrl+Shift+A | Verified: one clean press changes CAD to Analysis. The earlier press while ZoomIt had focus establishes no app outcome | `25-ctrl-shift-a`, `28-ctrl-shift-a-clean` |
 
 No Mac command/modifier symbols were seen in the expanded File, Edit, View (including Pan), Section and Window menus. Shown Ctrl gestures are screenshot evidence; unopened nested menus are **Not assessed**. The sidecar encoding replaces some non-ASCII text characters, so screenshots are the oracle for glyph claims.
-There is no emitted command-invocation counter in this evidence method. Visible reversible transitions prove the listed single-step effects; idempotent commands and workspace shortcuts do not receive an exact internal count claim.
+There is no emitted command-invocation counter in this evidence method. Visible reversible transitions prove the listed state changes; exact internal invocation counts are Not assessed where an additional invocation can leave the same visible state.
 
 ## Full application ring
 

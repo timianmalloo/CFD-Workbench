@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T19:58:19Z",
+  "generated": "2026-10-07T22:20:05Z",
   "audit": [
     {
       "actor": null,
@@ -29253,6 +29253,46 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T19:58:14Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M4C77M1N2WEZ0YHF4MCXM2X4",
+      "shortname": "windows-w1b-reverification",
+      "datetime": "2026-10-07T22:20:05Z",
+      "session": "win-local-coordinator",
+      "prompt": "Re-verify the Mac Windows-shell fixes on this Windows laptop and preserve the full application-ring result for Mac review.",
+      "summary": "W-1b produced source-bound native UI evidence at tested SHA defbe0a9. Live point-name events, Undo/Redo, Analysis and both Save refusals were verified. Keyboard menu and host-shortcut limitations remain explicit. The single full ring failed with 39 named tests, one Desktop crash without a frame, and 10 cost failures; no product repair or rerun occurred.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "gpt-6-astra Owner + gpt-6.1-sol worker + local coordinator",
+      "artifacts": [
+        "docs/proof/win-smoke-reverify/receipt.md"
+      ],
+      "tags": [
+        "windows",
+        "wfx",
+        "verification"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Deliver the completed W-1b Windows re-verification evidence for Mac review.",
+      "done_when": "Every WFX row and one full ring have an observed disposition, raw evidence is preserved, documentation checks pass, and the branch is ready for a failure-evidence checkpoint PR.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-10-07T22:19:39Z",
+      "duration_seconds": 26.0,
+      "git": {
+        "sha": "2f8607b54e23b60a42d954fa94379d5dbcfa6a58",
+        "short": "2f8607b54",
+        "branch": "win/smoke-reverify",
+        "pushed": false
+      }
     }
   ],
   "changes": [
