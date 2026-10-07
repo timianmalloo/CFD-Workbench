@@ -15,6 +15,7 @@ internal static class CatalogTests
     {
         Check("Catalog_GenEntries_RegenerateToRecordedHash", GenEntriesRegenerate);
         Check("Catalog_HashMismatch_CatUnavailable", HashMismatch);
+        Check("Catalog_Refusal_NamesItsCheck", RefusalNamesItsCheck);
         Check("Catalog_VendAndLink_NoCoordinates", VendAndLink);
         Check("Catalog_Fairings_NeverListed", FairingsNeverListed);
         Check("CatalogGenerator_Naca0012_MatchesClosedFormAt81Stations", Naca0012ClosedForm);
@@ -53,6 +54,37 @@ internal static class CatalogTests
             "0000000000000000000000000000000000000000000000000000000000000000\t0\t0\t1\n";
         ExpectUnavailable(() => Catalog.Read(row, _ => CatalogGenerator.Naca4("0012")));
         ExpectUnavailable(() => Catalog.Read(row, _ => null));
+    }
+
+    // WFX2 item 4: the Windows ring saw "a catalog file failed its check" with no way to tell which check. The thrown error names the
+    // check and the first differing entry in Data (the Reason stays the approved COPY-135 text). The equality policy is unchanged.
+    private static void RefusalNamesItsCheck()
+    {
+        byte[] good = CatalogGenerator.Naca4("0012");
+        byte[] bent = (byte[])good.Clone();
+        bent[bent.Length / 2] ^= 1;
+        string Row(string hash, string le = "0") => $"naca-0012\tNaca\tNACA 0012\tGen\t\tnaca4-closed/1\t{hash}\t{le}\t0\t1\n";
+        string zero = new('0', 64), goodHash = Identity.Sha256(good), bentHash = Identity.Sha256(bent);
+
+        var hash = Planted(Row(zero), _ => good);
+        Equal("coordinate-hash", (string)hash.Data["check"]!);
+        Equal(true, ((string)hash.Data["detail"]!).Contains("naca-0012") && ((string)hash.Data["detail"]!).Contains(zero) &&
+            ((string)hash.Data["detail"]!).Contains(goodHash));
+        Equal("coordinates-missing", (string)Planted(Row(zero), _ => null).Data["check"]!);
+        var bytes = Planted(Row(bentHash), _ => bent);
+        Equal("generated-bytes", (string)bytes.Data["check"]!);
+        Equal(true, ((string)bytes.Data["detail"]!).Contains($"first differing byte {bent.Length / 2}"));
+        var frame = Planted(Row(goodHash, le: "0.5"), _ => good);
+        Equal("frame-le-shift", (string)frame.Data["check"]!);
+        Equal(true, ((string)frame.Data["detail"]!).Contains("0.5"));
+        Equal("field-count", (string)Planted("naca-0012\tNaca\n", _ => good).Data["check"]!);
+    }
+
+    private static ContractError Planted(string table, Func<string, byte[]?> coordinates)
+    {
+        try { Catalog.Read(table, coordinates); }
+        catch (ContractError error) { Equal("CAT-UNAVAILABLE", error.Code); return error; }
+        throw new InvalidOperationException("expected CAT-UNAVAILABLE");
     }
 
     private static void VendAndLink()

@@ -45,3 +45,10 @@ Check: Core `PrefStore_DirectoryLink_WindowsBranchUsesJunction` forces the Windo
 
 - Red: the helper `TryDirectoryLink` did not exist; the old sites called `Directory.CreateSymbolicLink` directly (Windows ring: `IOException: A required privilege is not held by the client`). The check was written with the helper, so its red is the missing member (compile error), not a run.
 - Green: `PASS PrefStore_DirectoryLink_WindowsBranchUsesJunction`; `PASS PrefStore_SymlinkedDirectory_SessionOnly` and `PASS PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites` unchanged on macOS.
+
+## Item 4 - catalog refusal names its check
+
+Check: Core `Catalog_Refusal_NamesItsCheck` plants five mismatches (hash, missing resource, one flipped byte with a matching hash, recorded LE shift, short row) and reads `Data["check"]` / `Data["detail"]` of the CAT-UNAVAILABLE error. The user copy (COPY-135, `Reason`) is unchanged. The Core harness FAIL line now appends `Data` as `[check=...; detail=...]`.
+
+- Red: `FAIL Catalog_Refusal_NamesItsCheck InvalidOperationException: Expected coordinate-hash; actual ` (no Data on the old error).
+- Green: `PASS Catalog_Refusal_NamesItsCheck`; the five existing `Catalog_*` checks still PASS (equality policy unchanged).

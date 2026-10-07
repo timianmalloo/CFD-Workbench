@@ -45,10 +45,26 @@ public static class Catalog
         if (table is null) throw new ContractError("CAT-UNAVAILABLE", "a catalog file is missing from this installation");
         try { return Read(Encoding.UTF8.GetString(table), id => Resource(ResourcePrefix + id + ".dat")); }
         catch (ContractError error) when (error.Code == "CAT-UNAVAILABLE")
-        { throw new ContractError(error.Code, error.Reason ?? "a catalog file failed its check"); }
+        {
+            var refusal = new ContractError(error.Code, error.Reason ?? "a catalog file failed its check");
+            foreach (System.Collections.DictionaryEntry item in error.Data) refusal.Data[item.Key] = item.Value;
+            throw refusal;
+        }
         catch (Exception error) when (error is FormatException or ArgumentException or OverflowException)
-        { throw new ContractError("CAT-UNAVAILABLE", "a catalog file failed its check"); }
+        { throw Refusal("parse", $"{error.GetType().Name}: {error.Message}", "a catalog file failed its check"); }
     }
+
+    // The Reason is the approved user copy (COPY-135); which check failed, and the first differing entry, ride in Data
+    // ("check", "detail") so a log can name them without putting hashes in the dialog.
+    private static ContractError Refusal(string check, string detail, string? reason = null)
+    {
+        var error = reason is null ? new ContractError("CAT-UNAVAILABLE") : new ContractError("CAT-UNAVAILABLE", reason);
+        error.Data["check"] = check;
+        error.Data["detail"] = detail;
+        return error;
+    }
+
+    private static string Differs(string name, object expected, object actual) => $"{name}: expected {expected}, actual {actual}";
 
     internal static IReadOnlyList<CatalogEntry> Read(string table, Func<string, byte[]?> coordinates)
     {
@@ -58,7 +74,8 @@ public static class Catalog
             string line = raw.TrimEnd('\r');
             if (line.Length == 0 || line[0] == '#') continue;
             string[] field = line.Split('\t');
-            if (field.Length != 10) throw new ContractError("CAT-UNAVAILABLE");
+            if (field.Length != 10)
+                throw Refusal("field-count", $"row '{line[..Math.Min(line.Length, 40)]}': expected 10 fields, actual {field.Length}");
             string id = field[0];
             string? reason = field[4].Length == 0 ? null : field[4];
             string hash = field[6];
@@ -69,12 +86,21 @@ public static class Catalog
             if (reason is null)
             {
                 bytes = coordinates(id);
-                if (bytes is null || Identity.Sha256(bytes) != hash) throw new ContractError("CAT-UNAVAILABLE");
-                if (field[5] != CatalogGenerator.Id || !id.StartsWith("naca-", StringComparison.Ordinal))
-                    throw new ContractError("CAT-UNAVAILABLE");
+                if (bytes is null) throw Refusal("coordinates-missing", $"entry {id}: no coordinate resource");
+                string actualHash = Identity.Sha256(bytes);
+                if (actualHash != hash) throw Refusal("coordinate-hash", $"entry {id}: {Differs("sha256", hash, actualHash)} ({bytes.Length} bytes)");
+                if (field[5] != CatalogGenerator.Id) throw Refusal("generator-id", $"entry {id}: {Differs("generator", CatalogGenerator.Id, field[5])}");
+                if (!id.StartsWith("naca-", StringComparison.Ordinal)) throw Refusal("generator-id", $"entry {id}: generated entry id is not naca-*");
                 CatalogGenerator.NacaShape shape = CatalogGenerator.Shape(id["naca-".Length..]);
-                if (!bytes.AsSpan().SequenceEqual(shape.Bytes) || shape.LeShift != le || shape.RotationDegrees != rotation || shape.Scale != scale)
-                    throw new ContractError("CAT-UNAVAILABLE");
+                if (!bytes.AsSpan().SequenceEqual(shape.Bytes))
+                {
+                    int at = bytes.AsSpan().CommonPrefixLength(shape.Bytes);
+                    throw Refusal("generated-bytes", $"entry {id}: lengths {bytes.Length} vs generated {shape.Bytes.Length}, first differing byte {at}");
+                }
+                string r(double value) => value.ToString("R", CultureInfo.InvariantCulture);
+                if (shape.LeShift != le) throw Refusal("frame-le-shift", $"entry {id}: {Differs("LE shift", r(shape.LeShift), r(le))} (generated vs recorded)");
+                if (shape.RotationDegrees != rotation) throw Refusal("frame-rotation", $"entry {id}: {Differs("rotation", r(shape.RotationDegrees), r(rotation))} (generated vs recorded)");
+                if (shape.Scale != scale) throw Refusal("frame-scale", $"entry {id}: {Differs("scale", r(shape.Scale), r(scale))} (generated vs recorded)");
             }
             entries.Add(new CatalogEntry(
                 id,
