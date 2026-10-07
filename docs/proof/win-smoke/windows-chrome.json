@@ -1,0 +1,8 @@
+{
+  "pid": 996,
+  "startUtc": "2026-10-07T16:49:24.7538751Z",
+  "sourceHead": "aa642fc6a1a3da2b8f7bb1f5578139e7ff601859",
+  "screenshot": "windows-chrome.png",
+  "sha256": "09EA168BB6E217DA97B5C85D74EA6E4E7618B114C26E1C81F27214D62E785CF6",
+  "description": "Lossless crop (87,80,1920,1242) of the full visible desktop captured immediately before Analysis, retaining native title bar and app. Same live PID; no relaunch."
+}
