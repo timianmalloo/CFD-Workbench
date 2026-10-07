@@ -3542,6 +3542,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "4fd5d57828dd597508e8e5ded565d454e9146f6dd74e33bd6543ecf040669cec"
     },
     {
+      "id": "design-windows-native-store",
+      "path": "docs/design/windows-native-store.md",
+      "title": "Windows native project-store design",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@win-store-design-20261007",
+      "phase": "windows-w-2-design",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Reviewable B1 blueprint for a separate Windows native store helper, handle-relative publication, identity and security controls. Native qualification, final-directory durability and independent Mac/Fable, Data, Security and Test approval remain open.",
+      "tags": [
+        "windows",
+        "persistence",
+        "design",
+        "security",
+        "durability"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-runtime",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-store-design",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c5add4d75839531711015bc428115ac1cfb3483c25e5d53d380c09f2f7203340"
+    },
+    {
       "id": "design-windows-runtime",
       "path": "docs/design/windows-runtime.md",
       "title": "Windows x64 native qualification contract",
@@ -6190,6 +6245,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5b853296d6d2ee2a5765d58a34f925bea5f4310c8cda485b7c7071446c41d49a"
+    },
+    {
+      "id": "review-pr-3",
+      "path": "docs/reviews/pr-3.md",
+      "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS. The W-1 receipt meets its done-when as a record and fixes nothing. Four Windows defects: python3 in the test ring; key gestures exist only on the macOS NativeMenu (Ctrl+Z, Ctrl+S reach nothing); the unsupported-persistence error goes to stderr only; a stale point automation name. The Mac fixes the shared code.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-1",
+        "smoke"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-2",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c2019b986b6f99c70669ab09f0f6b6e6a2044669e2aba9158b06b801c8855139"
     },
     {
       "id": "review-property-grid-native",
@@ -13627,16 +13714,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "4a064c6b3d5006f397fd8e6ea769d1455b9e18215529cb76991546ea26ae5ecf"
     },
     {
+      "id": "proof-win-smoke",
+      "path": "docs/proof/win-smoke/receipt.md",
+      "title": "W-1 Windows smoke receipt — SDK 10.0.203",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@win-smoke",
+      "phase": "",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Solution build and docs check passed on Windows. The one Git Bash test-ring execution stopped at the python3 Store alias before any harness ran. Native default-foil creation, point drag and Analysis evaluation were observed. Ctrl+Z and Ctrl+S had no observed effect; persistence error remains Not assessed.",
+      "tags": [
+        "windows",
+        "smoke-test",
+        "native",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d850adcc95afd5a80d8f7948bade61fc7ec1d6dedf8af50e46fdef8985fbd496"
+    },
+    {
       "id": "proof-win-store-design",
       "path": "docs/proof/win-store-design/receipt.md",
-      "title": "B1 Windows store design author checkpoint",
+      "title": "B1 Windows native store design validation receipt",
       "type": "proof-pack",
       "status": "in-review",
       "owner": "@win-store-design-20261007",
       "phase": "windows-w-2-design",
       "reviewBy": "2026-11-07",
       "reviewSuggested": [],
-      "summary": "B1 author handback for the complete Windows store design candidate. The final design path is held pending affirmative Mac handoff; native qualification and independent Data, Security and Test approval are not asserted.",
+      "summary": "Records the canonical B1 content commit, one tested SHA and separate stdout/stderr from its docs validation. Mac path handoff and W-1 merge are confirmed; native qualification and independent Data, Security and Test approval remain open.",
       "tags": [
         "windows",
         "persistence",
@@ -13644,6 +13757,14 @@ window.DOCS_INDEX = {
         "proof"
       ],
       "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "documents"
+        },
+        {
+          "to": "review-pr-3",
+          "rel": "depends-on"
+        },
         {
           "to": "proof-win-store-design-candidate",
           "rel": "documents"
@@ -13658,7 +13779,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1a5d450743f860c252dbd9da17e183793c0be95372fb3d17a0ab0216f367a10a"
+      "sourceSha256": "39560ecb929dd45b175622d95a02c588eaf1fe8ff0ae9221f04b9e1f8fbbbfb4"
     },
     {
       "id": "proof-win-store-design-candidate",
@@ -13709,7 +13830,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "96366baa582f07a4cf0cd6acbd5f9e6faa38139ffeb7c6d967d928434712fabd"
+      "sourceSha256": "bacc282776edd12565365d6c2a336fa2f553a8ea67a20d8d5d3723c97980154f"
     },
     {
       "id": "proof-windows-runtime",
@@ -15644,5 +15765,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6dd374864a7e5359ec7f981f066afed9003499d1ce11aab24f05755f3a5b15e3"
+  "graphSha256": "47f79e73b2613cbc3248e59725f4a499909653800fb6cbd30444c725ea86bc87"
 };
