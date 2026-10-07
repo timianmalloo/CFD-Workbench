@@ -119,6 +119,36 @@ public static class SectionMainAreaTests
                 window.Height = 870;
                 Settle(window);
             });
+            // Ruling 125 (mockup B, C): the one conditions band is above the Section document; Evaluate runs from there.
+            DesktopChecks.Check("SectionMainArea_ConditionsBand_OneInstance_EvaluateFromSectionTab", () =>
+            {
+                var (controller, host, window) = shared.Value;
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
+                Settle(window);
+                var bands = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(window).OfType<ConditionsBand>().ToArray();
+                Equal(1, bands.Length, "one band instance in the window");
+                var band = bands[0];
+                Equal(true, band.IsEffectivelyVisible, "the band is visible with the Section document open");
+                Equal(true, Avalonia.VisualTree.VisualExtensions.GetVisualAncestors(band).OfType<Control>().Any(a => a.Name == "SectionDocumentBody"),
+                    "the band sits in the Section document");
+                string? before = controller.AnalysisView.RunKey;
+                band.FindControl<TextBox>("AlphaInput")!.Text = "4.00";
+                Settle(window);
+                band.FindControl<Button>("EvaluateButton")!.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                while ((controller.AnalysisView.RunKey == before || controller.AnalysisState == RunState.Running) && sw.Elapsed.TotalSeconds < 60)
+                {
+                    Dispatcher.UIThread.RunJobs();
+                    Thread.Sleep(10);
+                }
+                host.RefreshPanes();
+                Settle(window);
+                Equal(true, controller.AnalysisView.RunKey != before, "Evaluate from the Section tab recorded a new run");
+                Equal(controller.AnalysisView.RunKey, host.AnalysisPanel.BoundRunKey, "the document is bound to the new run");
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.ModelDocument;
+                Settle(window);
+                Equal(true, band.IsEffectivelyVisible && !ReferenceEquals(band.Parent, host.ModelView.FindControl<ContentControl>("SectionBandHost")), "the band returns above the Plan");
+            });
         }
         finally
         {

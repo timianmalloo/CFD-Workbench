@@ -255,10 +255,13 @@
       <!-- These bodies move to Dock documents before the shell is shown. The Section document's content (the Section view)
            is the Analysis panel's SectionView, set by the shell. -->
       <Grid x:Name="DetachedDocumentBodies" IsVisible="False">
-          <ScrollViewer x:Name="SectionDocumentBody" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
-                        AutomationProperties.Name="Section">
-            <ContentControl x:Name="SectionDocumentHost" />
-          </ScrollViewer>
+          <!-- Row 0 holds the one conditions band while the Section document is open (ModelArea.PlaceBand). -->
+          <Grid x:Name="SectionDocumentBody" RowDefinitions="Auto,*" AutomationProperties.Name="Section">
+            <ContentControl x:Name="SectionBandHost" Grid.Row="0" />
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+              <ContentControl x:Name="SectionDocumentHost" />
+            </ScrollViewer>
+          </Grid>
 
           <Grid x:Name="FoilSourceBody" RowDefinitions="Auto,*" Margin="{StaticResource Space4}">
             <TextBlock Grid.Row="0" x:Name="SourceLabel" Text="Accepted source bytes" />

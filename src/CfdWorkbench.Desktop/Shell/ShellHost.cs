@@ -199,7 +199,10 @@ public sealed class ShellHost : Grid
         AnalysisPanel.OpenSectionRequested += OpenSectionDocument;
         LayoutFactory.ActiveDockableChanged += (_, change) =>
         {
-            if (ReferenceEquals(change.Dockable, LayoutFactory.SectionDocument)) BindAnalysisPanel();
+            if (change.Dockable is not Dock.Model.Controls.IDocument) return;
+            bool section = ReferenceEquals(change.Dockable, LayoutFactory.SectionDocument);
+            ModelView.PlaceBand(section);
+            if (section) BindAnalysisPanel();
         };
         ModelView.DetachedDocumentBodies.Children.Remove(sectionDocument);
         ModelView.DetachedDocumentBodies.Children.Remove(foilSource);
