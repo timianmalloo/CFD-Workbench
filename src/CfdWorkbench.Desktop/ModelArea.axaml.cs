@@ -31,6 +31,31 @@ public partial class ModelArea : UserControl
 
     public ModelAreaMode Mode { get; private set; } = ModelAreaMode.Views;
 
+    private Panel? bandHome;
+    private int bandIndex;
+
+    /// <summary>
+    /// The one conditions band sits above the Plan, and above the Section document while that is open (Ruling 125, mockup B and C).
+    /// It is moved, never copied, so Evaluate and Find α act on the same state from either document.
+    /// </summary>
+    public void PlaceBand(bool inSectionDocument)
+    {
+        var band = AnalysisConditionsBand;
+        if (inSectionDocument)
+        {
+            if (band.Parent is not Panel home) return;
+            bandHome = home;
+            bandIndex = home.Children.IndexOf(band);
+            home.Children.Remove(band);
+            SectionBandHost.Content = band;
+        }
+        else if (bandHome is not null && ReferenceEquals(band.Parent, SectionBandHost))
+        {
+            SectionBandHost.Content = null;
+            bandHome.Children.Insert(Math.Min(bandIndex, bandHome.Children.Count), band);
+        }
+    }
+
     public ModelArea()
     {
         InitializeComponent();

@@ -118,7 +118,9 @@ public static class Labels
     public static string StationName(double eta, bool governing) => governing // COPY-394, COPY-395 (Ruling 118)
         ? $"Governing cavitation station · η {Number(eta, "0.###")} (no strip selected)"
         : $"Selected strip · η {Number(eta, "0.###")}";
-    public const string FindNeedsInput = "Enter a target CL and an ordered α bracket."; // COPY-396 (Ruling 118)
+    public const string SectionDocumentTitle = "Section"; // COPY-404 (Ruling 125)
+    public const string OpenInMainArea = "Open in main area"; // COPY-405 (Ruling 125)
+    public const string FindNeedsInput ="Enter a target CL and an ordered α bracket."; // COPY-396 (Ruling 118)
     public const string FindRunning = "Finding…"; // COPY-397 (Ruling 118)
     public static string LowConfidenceStrips(int strips) => $"Low confidence — analysis_confidence below 0.5 at {strips} strips"; // COPY-399 (Ruling 118)
 

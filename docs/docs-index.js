@@ -4080,6 +4080,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "071422f30794621b0cc4b4ae8ce037b57f183169e84cae49547f139e0649741d"
     },
     {
+      "id": "mockup-section-main-area",
+      "path": "docs/mockups/section-main-area.md",
+      "title": "Section in the main area (Ruling 124) - chip strip, Section document tab, compact bottom summary",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Four 1500 x 870 states of the shell after Ruling 124: the CAD Plan with station chips in a margin strip, the Analysis Section document tab for a selected strip and for the governing fallback, and the Plan tab with the compact bottom-panel Section summary and its Open in main area action. Two strings are proposed copy.",
+      "tags": [
+        "mockup",
+        "ruling-124",
+        "plan",
+        "section",
+        "analysis",
+        "station-chips",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "mockup-dx-section-polar-states",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d93e18bbd6acf0b1792f34079f19f14fac7e26fc2301f592e2aecc8a8e0991d1"
+    },
+    {
       "id": "mockup-solver-setup",
       "path": "docs/mockups/solver-setup.md",
       "title": "Solver setup — the guided install on Windows and macOS, in today's shell (for the operator's approval)",
@@ -6747,7 +6784,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "59fbd8d58b02ed6a085ac88b4d79a2bd2cd8ae5e83e7f9bc56a74d9e7f9017ce"
+      "sourceSha256": "5061eb28b48418ffd19db7e878fdc8938a2dfbaf5e5f5c60e535315a4d3b3e89"
     },
     {
       "id": "kb-hw-glossary",
@@ -12396,6 +12433,85 @@ window.DOCS_INDEX = {
       "sourceSha256": "b4ae8bc942c4c5e7bcab75f8109c116b394928fc18a0b5f62b5ea63860cc0b74"
     },
     {
+      "id": "proof-sma-captures",
+      "path": "docs/proof/sma/captures.md",
+      "title": "SMA captures A-D against the approved mockup (Ruling 125)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Four 1500 x 870 captures of the built app (light theme) for states A to D of the section-in-main-area mockup, each opened and compared, with the differences named.",
+      "tags": [
+        "sma",
+        "captures",
+        "ruling-125"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-main-area",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-sma-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c9be4d446d6cf4ba21f3fbc1972c70dc5894cb85a32cb12a7d5a1790c219dc0e"
+    },
+    {
+      "id": "proof-sma-red-first",
+      "path": "docs/proof/sma/red-first.md",
+      "title": "SMA red-first receipts (Rulings 124, 125)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "For each SMA behaviour, the check that failed on the old code and the run that passed after the change.",
+      "tags": [
+        "sma",
+        "red-first",
+        "ruling-124"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-main-area",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "aea7db6890a57acd2444fac790f7cffecce2b7defb74a53116d85b480f2acbc6"
+    },
+    {
+      "id": "proof-sma-retired",
+      "path": "docs/proof/sma/retired.md",
+      "title": "SMA retired checks (Ruling 124, Section sample removed)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Each check that pinned the retired Section sample document, and what covers the behaviour now.",
+      "tags": [
+        "sma",
+        "retired",
+        "ruling-124"
+      ],
+      "links": [
+        {
+          "to": "proof-sma-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "552ea5d549d18c1595a52b879ea5069d16cc43f4579fc99e05f038885461ab2d"
+    },
+    {
       "id": "proof-spike-03",
       "path": "docs/proof/spike-03/verdict.md",
       "title": "SPIKE-03 verdict — unattended meshing across AR 5 / 8 / 12 on OpenFOAM v2512",
@@ -15038,6 +15154,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-property-grid-cells"
     },
     {
+      "id": "surface-mockups-section-main-area",
+      "path": "docs/mockups/section-main-area.html",
+      "title": "Section in the main area",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-section-main-area"
+    },
+    {
       "id": "surface-mockups-solver-setup",
       "path": "docs/mockups/solver-setup.html",
       "title": "Solver setup",
@@ -15054,5 +15178,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "d1cdbe52a22eaee32d520662dab8353ec204750321dc814cfd3826601df8d5bf"
+  "graphSha256": "5187645eb75d36f0849fee791d2c37b402529b9fe46b6cb600c4f0d09b0b0485"
 };

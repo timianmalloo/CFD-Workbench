@@ -23,7 +23,13 @@ public sealed record ChartModel(string Id, string Title, IReadOnlyList<ChartPlot
 
 /// <summary>The Section tab content for one shown station (DXM-9): tables and the four charts of one chart selector (DXM-4).</summary>
 public sealed record SectionView(double Eta, bool IsGoverning, string StationName, IReadOnlyList<ResultGroup> Groups,
-    IReadOnlyList<ChartModel> Charts, int UnderreadSolves);
+    IReadOnlyList<ChartModel> Charts, int UnderreadSolves, IReadOnlyList<StationTableRow>? StationTable = null);
+
+/// <summary>
+/// One row of the Section document's compact Stations table (Ruling 125, mockup B and C): the same stations as the "Stations"
+/// group (solved, governing and shown), as columns. <paramref name="NotMeasured"/> carries COPY-384 for a station not solved at 400 panels.
+/// </summary>
+public sealed record StationTableRow(double Eta, string Station, string AlphaEff, string CpMin, string Cavitation, bool IsShown, string? NotMeasured);
 
 /// <summary>
 /// The A3b and A3c Section tab for one station, as pure data. The shown station is the selected strip, else the governing
@@ -150,7 +156,25 @@ public static class SectionDisplay
         }
 
         var charts = Charts(run, tier, station, section, source, revision, cancellation);
-        return new(station.Eta, isGoverning, name, groups, charts, solves);
+        var table = tier.Stations.Where(s => s.PanelUnderread is not null || s.Eta == station.Eta || s.Eta == governing.Eta)
+            .OrderBy(s => s.Eta).Select(s => new StationTableRow(s.Eta, "η " + N(s.Eta, "0.###"), N(s.AlphaEffDeg, "0.00"),
+                N(-s.Estimate.Panel.CpMin, "0.###"), CavitationWord(s.Cavitation.State), s.Eta == station.Eta,
+                s.PanelUnderread is null ? Labels.UnderreadNotMeasured : null)).ToArray();
+        return new(station.Eta, isGoverning, name, groups, charts, solves, table);
+    }
+
+    // The leading word of the approved cavitation sentences (COPY-301 to COPY-303): "Clear", "Inside the margin", "Possible".
+    private static string CavitationWord(CavitationState state)
+    {
+        string sentence = state switch
+        {
+            CavitationState.Clear => Labels.CavClear,
+            CavitationState.InsideMargin => Labels.CavInside,
+            CavitationState.PossibleAboveCritical => Labels.CavPossible,
+            _ => "Unavailable"
+        };
+        int dash = sentence.IndexOf(" — ", StringComparison.Ordinal);
+        return dash < 0 ? sentence : sentence[..dash];
     }
 
     private static string Re(double re) =>

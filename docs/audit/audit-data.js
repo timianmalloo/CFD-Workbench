@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T22:21:09Z",
+  "generated": "2026-10-07T00:48:23Z",
   "audit": [
     {
       "actor": null,
@@ -28288,6 +28288,86 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T22:21:04Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M49V8V15X7C3646YW5B183T0",
+      "shortname": "trk-sma",
+      "datetime": "2026-10-07T00:12:33Z",
+      "session": "trk-sma",
+      "prompt": "Ruling 124 mockup",
+      "summary": "docs/mockups/section-main-area.html and .md with eight PNGs; two proposed strings; craft gate clean",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Reviewable mockup of Ruling 124: plan chip strip, Section document tab, compact bottom summary",
+      "done_when": "Four states rendered and read, copy marked, gates green, committed",
+      "started_at": "2026-10-07T00:06:03Z",
+      "duration_seconds": 390.0
+    },
+    {
+      "id": "al-01M49WATCZVPN2580PQS7T80CW",
+      "shortname": "trk-sma-build",
+      "datetime": "2026-10-07T00:31:07Z",
+      "session": "trk-sma-build",
+      "prompt": "trk-sma-build round-oct06",
+      "summary": "Chips in one strip; Section sample, its controls and tokens removed; Section document hosts the full Section view; bottom tab summary with Open in main area (COPY-404/405); suite SectionMainAreaTests; ring 716 Desktop PASS in 46 s; open: tools/verify-application-adapters.py rows, conditions band over the Section document, Viewport.cs now unused",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Rulings 124/125: chip strip under planform, Section sample retired, Section document in the main area, bottom Section tab one-line summary",
+      "done_when": "red-first receipts, DX/Section checks green, captures A-D, token lint 0, check-docs 0, ring green",
+      "started_at": "2026-10-07T00:16:31Z",
+      "duration_seconds": 876.0
+    },
+    {
+      "id": "al-01M49WWQYD7MEGMVSTPHAAH3YC",
+      "shortname": "trk-sma-build",
+      "datetime": "2026-10-07T00:40:54Z",
+      "session": "trk-sma-build",
+      "prompt": "trk-sma-build repair cycle 1",
+      "summary": "One ConditionsBand moves above the Section document; Stations table (4 columns, shown row highlighted); verify-application-adapters keys fixed; Viewport.cs deleted (ViewportSemantic record kept); ring 715 Desktop PASS 45 s; readiness GREEN",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close mockup gaps: conditions band over Section document, compact Stations table, theme-row keys, Viewport.cs retired, copy ids",
+      "done_when": "ring green, readiness GREEN, token lint 0, check-docs 0, copy ids 0",
+      "started_at": "2026-10-07T00:31:48Z",
+      "duration_seconds": 546.0
+    },
+    {
+      "id": "al-01M49XAEETMRBGNQFZHRWY2YFG",
+      "shortname": "trk-sma-build",
+      "datetime": "2026-10-07T00:48:23Z",
+      "session": "trk-sma-build",
+      "prompt": "trk-sma-build repair cycle 2",
+      "summary": "Stale-measure fix in ConditionsBand; selector uses prop-seg; coloured profile not built (DX view has no Cp colour renderer); ring 715 Desktop PASS 45 s",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Band readouts, segmented chart selector, Cp-coloured profile",
+      "done_when": "readouts clear, selector in prop-seg style, ring green",
+      "started_at": "2026-10-07T00:41:42Z",
+      "duration_seconds": 401.0
     }
   ],
   "changes": [
@@ -30081,6 +30161,24 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49K4J94VH8HF1TTJEFRCM9M",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49TW5SD7TJ33MR7JMDPN9PV",
+      "ts": "2026-10-07T00:05:38Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49TW5PGY1K564HYNQ6SHSP6",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49VF7NNT3QKX6KYD9Y0H2G1",
+      "ts": "2026-10-07T00:16:03Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49VF7JRZ8JVNWDSMTR91QVP",
       "session": "operator-timianmalloo"
     }
   ]

@@ -157,7 +157,7 @@ def contrast_checks(test_step: dict) -> dict[str, object]:
 # `THEME-ROW <theme>/<row> fg=#AARRGGBB bg=#AARRGGBB ratio=<F4> floor=<n>`; this gate re-derives each ratio.
 SHELL_THEME_ROWS = {
     "focus.tab": 3, "focus.tab.vs-fill": 3,
-    "tab.Plan.unselected.rest": 4.5, "tab.Section sample.selected.rest": 4.5, "select.tab.Section sample": 3,
+    "tab.Plan.unselected.rest": 4.5, "tab.Section.selected.rest": 4.5, "select.tab.Section": 3,
     "tab.Foil source.unselected.rest": 4.5,
     "tab.Foil source.unselected.hover": 4.5,  # the Section tab retired with OD-2 A (spec 1.7 AM-31..36); tab.Plan covers it
     "focus.tab.selected-while-focused": 3, "focus.tab.selected-while-focused.vs-fill": 3,

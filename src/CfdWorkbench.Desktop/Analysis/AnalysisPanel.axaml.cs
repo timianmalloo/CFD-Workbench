@@ -14,13 +14,15 @@ namespace CfdWorkbench.Desktop.Analysis;
 public partial class AnalysisPanel : UserControl
 {
     private readonly LoadingChart loading = new();
-    private readonly SectionTabView section = new();
 
     public AnalysisPanel()
     {
         InitializeComponent();
         LoadingHost.Content = loading;
-        SectionBody.Children.Add(section);
+        OpenInMainAreaButton.Content = Labels.OpenInMainArea;
+        AutomationProperties.SetName(OpenInMainAreaButton, Labels.OpenInMainArea);
+        OpenInMainAreaButton.Click += (_, _) => OpenSectionRequested?.Invoke();
+        PanelTabs.SelectionChanged += (_, _) => UpdateHeight();
         // The slot height is the Bottom region's preset size (LayoutCodec Chrome: 190), 150 in a short window (HeightFor);
         // the skeleton bars are static placeholders.
         Height = FullHeight;
@@ -40,6 +42,23 @@ public partial class AnalysisPanel : UserControl
     public static double HeightFor(double windowClientHeight) =>
         windowClientHeight > 0 && windowClientHeight < ShortWindowClientHeight ? ShortHeight : FullHeight;
 
+    /// <summary>The panel's height while the Section tab (one summary line) is the shown tab and nothing sits above the tabs (Ruling 125, state D).</summary>
+    public const double CompactHeight = 68;
+
+    /// <summary>The Section view, hosted by the model area's Section document (Ruling 124). The bottom tab shows only its summary.</summary>
+    public SectionTabView SectionView { get; } = new();
+
+    /// <summary>Raised by the summary's "Open in main area" action; the shell opens and focuses the Section document.</summary>
+    public event Action? OpenSectionRequested;
+
+    private double windowHeight;
+
+    private void UpdateHeight()
+    {
+        bool compact = PanelTabs.SelectedItem == SectionTab && !PanelBanner.IsVisible && !PanelErrorCard.IsVisible && !PanelSkeleton.IsVisible;
+        Height = compact ? CompactHeight : HeightFor(windowHeight);
+    }
+
     private Visual? sizedBy;
 
     protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
@@ -48,7 +67,8 @@ public partial class AnalysisPanel : UserControl
         sizedBy = e.Root as Visual;
         if (sizedBy is null) return;
         sizedBy.PropertyChanged += OnRootBounds;
-        Height = HeightFor(sizedBy.Bounds.Height);
+        windowHeight = sizedBy.Bounds.Height;
+        UpdateHeight();
     }
 
     protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
@@ -60,7 +80,9 @@ public partial class AnalysisPanel : UserControl
 
     private void OnRootBounds(object? sender, AvaloniaPropertyChangedEventArgs change)
     {
-        if (change.Property == BoundsProperty && sender is Visual root) Height = HeightFor(root.Bounds.Height);
+        if (change.Property != BoundsProperty || sender is not Visual root) return;
+        windowHeight = root.Bounds.Height;
+        UpdateHeight();
     }
 
     public LoadingChart LoadingView => loading;
@@ -86,9 +108,21 @@ public partial class AnalysisPanel : UserControl
         LoadingEmpty.Text = LoadingEmpty.IsVisible ? EmptyText(view) : "";
         loading.IsVisible = !LoadingEmpty.IsVisible;
         loading.Update(unavailable ? [] : view.Loading);
-        section.Bind(view, controller);
+        SectionView.Bind(view, controller);
+        ShowSummary();
+        UpdateHeight();
         Fill(LoadsBody, view, ("Loads", "loads-table"), ("Strips", "strips-table"));
         Fill(ProvenanceBody, view, ("Conditions", "conditions-table"), ("Labels", "labels-table"), ("Provenance", "provenance-table"));
+    }
+
+    // One line: the shown station, cl (panel) and -Cp_min of the Section document's content, then the action that opens it.
+    private void ShowSummary()
+    {
+        var summary = SectionView.Summary;
+        SectionSummaryStation.Text = summary?.Station ?? Labels.NoResult;
+        SectionSummaryCl.Text = summary is null ? "" : Labels.ClPanel + " " + summary.Cl;
+        SectionSummaryCp.Text = summary is null ? "" : Labels.CpMinLabel + " " + summary.CpMin;
+        OpenInMainAreaButton.IsEnabled = summary is not null;
     }
 
     // The tampered view (COPY-211) names its note (COPY-274) beside the verdict.
