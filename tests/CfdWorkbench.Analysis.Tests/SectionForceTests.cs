@@ -28,7 +28,8 @@ internal static class SectionForceTests
 
     internal static void RunReadiness()
     {
-        Check("SectionForce_LatticeRun_InducedSharesSumToWingDi_AndAnchorFromStrip", LatticeRun);
+        Check("SectionForce_LatticeRun_InducedSharesConsistentWithWingDi_AndAnchorFromStrip", LatticeRun);
+        Check("SectionForce_EllipticWing_InducedShareFollowsSqrtOneMinusEtaSquared", EllipticDistribution);
         Check("SectionForce_TipStrip_NotJudged_NoAnchorNoJudgedValues_Ruling131", TipStrip);
     }
 
@@ -234,10 +235,51 @@ internal static class SectionForceTests
         Equal(true, SectionDisplay.Build(run, tier, source, 0.5, "r1", null, null, default, Units.Metric).Profile!.Forces is not null, "interior strip keeps its vectors");
     }
 
+
+    /// <summary>
+    /// The distribution check (Ruling 131). The sum check of <see cref="LatticeRun"/> only shows the strips share the wing's D_i; it would
+    /// pass for any weights that add up. On the exact elliptic planform (zero twist, uniform alpha) the lifting-line theory says the induced
+    /// share d'(y) = 1/2 rho Gamma (-w_T) is proportional to sqrt(1 - eta^2), because Gamma is and w_T is uniform. The lattice is a lifting
+    /// surface of finite aspect ratio (8), so w_T is not uniform: it falls off toward the tip (F-15: alpha_i / (CL/(pi AR)) is 1.016 at the
+    /// centre, 1.001 at eta 0.5, 0.937 at 0.8, 0.837 at 0.9). The tolerances below are stated from that measured profile, not widened to pass.
+    /// </summary>
+    private static void EllipticDistribution()
+    {
+        LatticeSolution wing = LatticeFixtureTests.Elliptic(32, LatticePlant.None, "cosine");
+        AnalysisRun shell = ProjectionTests.Data().Run;
+        StripLoad[] loads = wing.Strips.Select((s, j) => new StripLoad(s.J, s.Y, s.Eta, s.Chord, s.Gamma, s.InducedAngleDeg, 5 - s.InducedAngleDeg, 1e6, s.ClLocal,
+            new StripValue(null, "no polar"), new StripValue(null, "no polar"), wing.Forces[j].Fx, wing.Forces[j].Fy, wing.Forces[j].Fz,
+            wing.Forces[j].Mx, wing.Forces[j].My, wing.Forces[j].Mz, wing.DownwashTrefftz[j], YLow: s.YInboard, YHigh: s.YOutboard)).ToArray();
+        AnalysisRun run = ProjectionTests.Rehash(shell with { Strips = loads });
+        double[] share = loads.Select(l => SectionForceModel.Compute(run, l, 0, 0, Units.Metric)!.InducedPerSpan).ToArray();
+        // normalise at the centre pair, then compare the shape with sqrt(1 - eta^2)
+        int centre = loads.Select((l, j) => (Eta: Math.Abs(l.Eta), j)).MinBy(t => t.Eta).j;
+        double reference = share[centre] / Math.Sqrt(1 - loads[centre].Eta * loads[centre].Eta);
+        double worstInner = 0, worstOuter = 0;
+        for (int j = 0; j < loads.Length; j++)
+        {
+            double eta = Math.Abs(loads[j].Eta), deviation = Math.Abs(share[j] / (reference * Math.Sqrt(1 - eta * eta)) - 1);
+            if (eta <= InnerEta) worstInner = Math.Max(worstInner, deviation);
+            else if (eta <= OuterEta) worstOuter = Math.Max(worstOuter, deviation);
+        }
+        Console.WriteLine($"MEASURE SFV elliptic AR 8, 32 per half: worst |d'/(c sqrt(1-eta^2)) - 1| {worstInner:F4} for eta <= {InnerEta}, {worstOuter:F4} for {InnerEta} < eta <= {OuterEta}");
+        Equal(true, worstInner <= InnerTolerance, $"d'(y) follows sqrt(1 - eta^2) within {InnerTolerance:P0} for eta <= {InnerEta}: {worstInner:P2}");
+        Equal(true, worstOuter <= OuterTolerance, $"d'(y) follows sqrt(1 - eta^2) within {OuterTolerance:P0} for {InnerEta} < eta <= {OuterEta}: {worstOuter:P2}");
+        // and the shares still add up to the wing's lifting-line D_i, here independently from the Trefftz plane
+        double sum = 0;
+        for (int j = 0; j < loads.Length; j++) sum += share[j] * Loads.StripWidth(run, loads[j]);
+        double trefftz = 0;
+        for (int j = 0; j < loads.Length; j++) trefftz += 0.5 * run.Water.Rho * wing.Gamma[j] * -wing.DownwashTrefftz[j] * (loads[j].YHigh!.Value - loads[j].YLow!.Value);
+        Near(trefftz, sum, "the strip shares sum to the Trefftz-plane induced drag of the elliptic wing", 1e-9 * Math.Abs(trefftz));
+    }
+
+    private const double InnerEta = 0.5, OuterEta = 0.8, InnerTolerance = 0.03, OuterTolerance = 0.10;
+
     private static void LatticeRun()
     {
         (AnalysisRun run, byte[] source) = CamberedRun();
-        // (1) the strips' induced shares sum to the wing D_i (Loads.InducedDrag), the lifting-line total; not near-field Fx.
+        // (1) a consistency check, not verification: the strips' induced shares sum to the wing D_i (Loads.InducedDrag), both read from
+        // the same Gamma and w_T, so it holds for any weights that add up. The distribution is checked in EllipticDistribution.
         double sum = 0;
         foreach (StripLoad strip in run.Strips)
             sum += SectionForceModel.Compute(run, strip, 0, 0, Units.Metric)!.InducedPerSpan * Loads.StripWidth(run, strip);
