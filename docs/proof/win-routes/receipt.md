@@ -150,7 +150,31 @@ and YAML → fresh run → logs/history → proof receipt. Product model/UI/laun
   CRLF, so the default whitespace check flags it. Courtesy verification with `core.whitespace=-blank-at-eol,cr-at-eol`
   preserves evidence bytes while checking other whitespace classes; its result is returned with the commit.
 - Full Windows application ring: not run in the stopped solver track; shell cannot resolve repo SDK 10.0.203.
-  Coordinator must perform the applicable join ring (cases path is not docs-only) with its qualified SDK environment.
+  The coordinator subsequently ran the applicable ring with its qualified SDK environment; its report follows.
+
+## Coordinator-reported application ring
+
+**Coordinator-reported, not worker-verified.** The coordinator reports one `tools/run-tests.sh` run with
+`DOTNET_ROOT=C:\Users\malla\.dotnet` and a temporary external `python3` → `py -3` shim. Overall exit 1;
+wall time 50 seconds, within the 60-second budget. No rerun was requested or performed by this worker.
+The worker did not observe the underlying ring output or independently establish these results.
+
+| Component | Coordinator-reported result |
+|---|---|
+| Release build | Passed; 0 errors, 2 known Avalonia warnings |
+| Core partition 1 | 13 failures; first line `FAIL Catalog_VendAndLink_NoCoordinates ContractError: a catalog file failed its check` |
+| Core partition 2 | 13 failures; first line `FAIL Catalog_GenEntries_RegenerateToRecordedHash ContractError: a catalog file failed its check` |
+| Core partition 3 | 11 failures; first line `FAIL Library_DuplicateIgnoringCaseNfc_Refused ContractError: DOC-UNSUPPORTED-PERSISTENCE` |
+| Desktop | Six SelfLaunch cases passed; then exit 70, `APP-UNHANDLED APP-CRASH System.Exception` |
+| Analysis partition 1 | One catalog failure |
+| Analysis partition 2 | Green |
+| CLI | Exit 127 on `DOC-UNSUPPORTED-PERSISTENCE` |
+| Cost checks | 8 failures |
+
+This report supplies the required single-ring outcome; it does not turn W-3 or the application ring green.
+The evidence-only update changes this receipt alone. The original `manifest.json` remains the original checkpoint's
+hash inventory; its receipt hash predates this coordinator-reported section. No raw evidence, index, audit, xmsg,
+case file or WSL/solver state was modified by this update.
 
 ## Exact operator re-entry sequence (unexecuted)
 
