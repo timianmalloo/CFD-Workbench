@@ -31,7 +31,13 @@ public static class StaleConditionsTests
                 band.FindControl<TextBox>("SpeedInput")!.Text = "6";
                 Settle(host, window);
                 Same(host, controller, "Historical", "Analysis: Historical", true);
-                Equal(true, controller.AnalysisView.Banner!.StartsWith("Historical — ", StringComparison.Ordinal), "the existing Historical wording");
+                Equal("Historical — operating point changed (speed)", controller.AnalysisView.Banner, "the operating-point wording names the input");
+                if (Environment.GetEnvironmentVariable("CFD_STL_CAPTURE") is { Length: > 0 } capture)
+                {
+                    using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new Avalonia.PixelSize(1500, 870));
+                    bitmap.Render(window);
+                    bitmap.Save(capture);
+                }
                 Equal(solves, method.Solves, "an edit runs no solve");
                 band.FindControl<TextBox>("SpeedInput")!.Text = "5.14";
                 Settle(host, window);
@@ -73,7 +79,8 @@ public static class StaleConditionsTests
                 Settle(host, window);
                 Equal(RunState.Historical, controller.AnalysisView.State, "a depth change reads Historical");
                 int solves = method.Solves;
-                var evaluated = Task.Run(() => controller.EvaluateAnalysisAsync(band.BuildOperatingPoint(), band.BuildWater()))
+                var (op, water) = (band.BuildOperatingPoint(), band.BuildWater());
+                var evaluated = Task.Run(() => controller.EvaluateAnalysisAsync(op, water))
                     .WaitAsync(TimeSpan.FromSeconds(60)).GetAwaiter().GetResult() ?? throw new Exception("Evaluate returned no run.");
                 Settle(host, window);
                 Same(host, controller, "Current", "Analysis: Current", false);

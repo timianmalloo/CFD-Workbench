@@ -18,10 +18,10 @@ public partial class ConditionsBand : UserControl
         InitializeComponent();
         EvaluateButton.Click += (_, _) => Activate();
         FindAlphaButton.Click += (_, _) => OpenFindAlpha();
-        SpeedInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) RefreshDerived(); };
-        DepthInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) RefreshDerived(); };
-        AlphaInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) RefreshDerived(); };
-        WaterInput.SelectionChanged += (_, _) => RefreshDerived();
+        SpeedInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) Edited(); };
+        DepthInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) Edited(); };
+        AlphaInput.PropertyChanged += (_, args) => { if (args.Property == TextBox.TextProperty) Edited(); };
+        WaterInput.SelectionChanged += (_, _) => Edited();
         SizeChanged += (_, args) => { if (args.WidthChanged) SetAvailableWidth(Bounds.Width); };
     }
 
@@ -134,6 +134,19 @@ public partial class ConditionsBand : UserControl
         BandRow.Measure(Size.Infinity);
         double room = width - (BandRow.Parent is Border border ? border.Padding.Left + border.Padding.Right : 0);
         return BandRow.DesiredSize.Width <= room;
+    }
+
+    /// <summary>An input changed: hand the live point to the controller (Ruling 140), then refresh the derived cells.</summary>
+    private void Edited()
+    {
+        if (this.FindAncestorOfType<Shell.ShellHost>()?.Controller is { } controller)
+        {
+            OperatingPoint? op = null;
+            try { op = BuildOperatingPoint(); }
+            catch (ContractError) { }   // blank, malformed or refused: the controller reads it as changed
+            controller.SetPendingConditions(op, BuildWater());
+        }
+        RefreshDerived();
     }
 
     public void RefreshDerived()
