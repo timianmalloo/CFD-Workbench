@@ -6192,6 +6192,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "5b853296d6d2ee2a5765d58a34f925bea5f4310c8cda485b7c7071446c41d49a"
     },
     {
+      "id": "review-pr-3",
+      "path": "docs/reviews/pr-3.md",
+      "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS. The W-1 receipt meets its done-when as a record and fixes nothing. Four Windows defects: python3 in the test ring; key gestures exist only on the macOS NativeMenu (Ctrl+Z, Ctrl+S reach nothing); the unsupported-persistence error goes to stderr only; a stale point automation name. The Mac fixes the shared code.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-1",
+        "smoke"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-2",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c2019b986b6f99c70669ab09f0f6b6e6a2044669e2aba9158b06b801c8855139"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -15585,5 +15617,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "77cb5703b42fe633266469dfdebee11da245345485de9579a5fe57d276683f47"
+  "graphSha256": "d336c686e8f31f679178f09e2f2cadec3be0572a7b3a2a6729df0b2783b33dd8"
 };
