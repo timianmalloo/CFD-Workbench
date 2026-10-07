@@ -1185,3 +1185,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). The mockup (A mid-span 
 Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended. The x_cp and pitching-moment labels say "lattice, 4 chordwise panels; biased forward at low lift" (approved wording), and a chordwise-convergence check measures the bias (nc 2, 4, 8, 16 on a cambered section); more chordwise panels are decided next round from that measurement. The reviews' conditions bind the join: a provisional (tip) strip shows Not judged - tip strip and no CP anchor; the drag total says band centre; Cm c/4 (panel, 2D inviscid); the induced-drag sum is called a consistency check and an elliptic-wing fixture checks the distribution; the model notes are corrected.
 
 - request: req-01M4BHCHT5N6X27C7FP1ESAHHV · ruled by: operator-timianmalloo · at: 2026-10-07T15:58:18Z
+
+### Ruling 132 — Model routing: gpt-6-astra is allowed as a reviewer/owner seat; gpt-6-sol stays the default for coding
+
+Operator 2026-10-07 (session 14e5e8d5): "yes astra as reviewer is ok". gpt-6-astra may hold a reviewer or Owner seat (it reads and rules, it does not write the bulk of the code); gpt-6-sol remains the default model for Codex coding tracks on price (the operator choice of 2026-10-03, recorded here for the first time). Applies to both machines. The PC may dispatch its Astra Owner now (PR #1 condition 2 is met).
+
+- request: req-01M4BKQA2T9HAC89QRYSW68B8Z · ruled by: operator-timianmalloo · at: 2026-10-07T16:39:08Z
