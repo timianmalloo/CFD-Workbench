@@ -30,6 +30,7 @@ internal static class SectionForceTests
     {
         Check("SectionForce_LatticeRun_InducedSharesConsistentWithWingDi_AndAnchorFromStrip", LatticeRun);
         Check("SectionForce_EllipticWing_InducedShareFollowsSqrtOneMinusEtaSquared", EllipticDistribution);
+        Check("SectionForce_ChordwiseConvergence_MeasuredNotGated_Ruling131", ChordwiseConvergence);
         Check("SectionForce_TipStrip_NotJudged_NoAnchorNoJudgedValues_Ruling131", TipStrip);
     }
 
@@ -274,6 +275,44 @@ internal static class SectionForceTests
     }
 
     private const double InnerEta = 0.5, OuterEta = 0.8, InnerTolerance = 0.03, OuterTolerance = 0.10;
+
+
+    /// <summary>
+    /// Ruling 131: the chordwise panel count nc decides x_cp, so its bias is measured, not argued. The cambered section (NACA 2412 shape)
+    /// at nc 2, 4, 8, 16 and three angles of attack (low to moderate lift), strip at eta 0.5, 32 strips per half (at 8 or 16 the nc study is not yet in its asymptotic range: Cl_local itself drifts with nc). Records Cm c/4 and x_cp per
+    /// nc and the observed order. A measurement for the next ruling, not a gate: the only assertions are that every value is finite and
+    /// x_cp is defined. The table is in docs/proof/sfv/nc-convergence.md. Ring: readiness; cost about 7 s wall (12 lattice runs).
+    /// </summary>
+    private const int Span = 32;
+
+    private static void ChordwiseConvergence()
+    {
+        byte[] source = CamberedSource();
+        SectionTierResult tier = SectionTier.Evaluate(source, [0.25, 0.5, 0.75, 1.0], [], Fixture.Op(1), Fixture.Salt);
+        int[] panels = [2, 4, 8, 16];
+        foreach (double alpha in new[] { -1.0, 1.0, 4.0 })
+        {
+            var cm = new double[panels.Length];
+            var xcp = new double[panels.Length];
+            for (int i = 0; i < panels.Length; i++)
+            {
+                using var session = new AuthoringSession();
+                session.Open(source, Fixture.Id(), true);
+                RunSettings settings = Settings.Default with { NSpanPerHalf = Span, NChord = panels[i],
+                    SectionEtas = [0d, 0.5, 1d], SectionXs = Settings.ChordXs(panels[i], "cosine") };
+                AnalysisRun run = Fixture.Evaluate(new AnalysisService(session, new ProductWingMethod(settings)), Fixture.Op(alpha));
+                SectionForces f = SectionDisplay.Build(run, tier, source, 0.5, "r1", null, null, default, Units.Metric).Profile!.Forces!;
+                double q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
+                cm[i] = f.CouplePerSpan / (q * f.ChordMeters * f.ChordMeters);
+                xcp[i] = f.XcpOverC ?? double.NaN;
+                Equal(true, double.IsFinite(cm[i]) && double.IsFinite(xcp[i]), $"nc {panels[i]}, alpha {alpha}: Cm c/4 and x_cp are finite");
+                Console.WriteLine($"MEASURE SFV nc {panels[i],2} alpha {alpha,4}: Cl_local {f.ClLattice:F4} Cm c/4 {cm[i]:F5} x_cp/c {xcp[i]:F4}");
+            }
+            // observed order from three successive doublings, p = log2(|C(nc/2) - C(nc/4)| / |C(nc) - C(nc/2)|)
+            double Order(double[] v, int k) => Math.Log2(Math.Abs(v[k - 1] - v[k - 2]) / Math.Abs(v[k] - v[k - 1]));
+            Console.WriteLine($"MEASURE SFV alpha {alpha,4}: observed order Cm c/4 {Order(cm, 2):F2} (2,4,8) {Order(cm, 3):F2} (4,8,16); x_cp {Order(xcp, 2):F2} (2,4,8) {Order(xcp, 3):F2} (4,8,16)");
+        }
+    }
 
     private static void LatticeRun()
     {
