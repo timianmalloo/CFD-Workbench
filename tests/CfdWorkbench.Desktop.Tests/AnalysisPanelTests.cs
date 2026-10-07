@@ -517,6 +517,25 @@ public static class AnalysisPanelTests
             Equal(true, View3dLoadLayer.LegendLeft >= View3d.CaptionMargin.Left, "the legend plate starts in the caption's column, right of the triad plate");
         });
 
+        // UXB: under Imperial the Properties strip rows read lbf/ft, never N/m (Ruling 115, ANA-18). Ring: fast, model level (the capture docs/proof/uxb/imperial-lift-per-span.png came from a real ShellHost at this selection).
+        DesktopChecks.Check("PropertiesPane_Analysis_Imperial_StripLiftReadsLbfPerFt", () =>
+        {
+            var controller = shared.Value;
+            if (!controller.IsAnalysis) controller.ToggleAnalysis();
+            var projection = controller.CurrentProjection ?? throw new Exception("no projection");
+            controller.AnalysisUnits = Units.Imperial;
+            try
+            {
+                var context = new PropertiesContext(controller.Planform, Analysis: controller.AnalysisView);
+                var model = PropertiesView.Build(new Selection.Station(1, projection.Assignments[1].Eta), projection, controller.Estimates, ShellMode.Analysis, context);
+                var rows = model.Groups.Single(item => item.Id == "ana-strip").Rows;
+                var lift = rows.Single(row => row.Label == "Lift / span");
+                Equal("lbf/ft", lift.Unit, "the strip lift row reads lbf/ft");
+                Equal(false, model.Groups.SelectMany(item => item.Rows).Any(row => row.Unit is "N/m" or "N·m/m"), "no N/m or N·m/m row under Imperial");
+            }
+            finally { controller.AnalysisUnits = Units.Metric; }
+        });
+
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
         if (shared.IsValueCreated) shared.Value.Dispose();
     }

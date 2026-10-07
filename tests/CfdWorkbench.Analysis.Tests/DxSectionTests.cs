@@ -70,6 +70,7 @@ internal static class DxSectionTests
         Check("Polar_CstResidual_ShownAndLimit", CstResidual);
         Check("Strips_PolarRe_InsideOutsideNotExtrapolated", StripRe);
         Check("Projection_NoRawAnaCodeInAnyCell", NoRawCode);
+        Check("Sigma_SameStateOnBandPlateAndTable", SigmaAcrossSurfaces);   // UXB: one tier solve, 0.3-0.5 s; kept off the 5 s fast part
         // moved from the fast ring (trk-dx2, C-2 over 5 s per part): the four costliest DX checks by their COST lines (0.26, 0.16, 0.13, 0.13 s)
         Check("SectionProjection_CpPlot_SeriesAndMarker", CpPlot);
         Check("Cavitation_GoverningStation_NamedWithDepth", GoverningLine);
@@ -262,6 +263,29 @@ internal static class DxSectionTests
         Equal(true, profile.Side is "upper" or "lower", "the side is named");
         Equal("Section · η " + F.Gov.Eta.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture), profile.Caption, "the caption chip");
         Equal(Labels.EstimatorChip + " · inviscid; no boundary layer", profile.Tier, "the estimator tier chip");
+    }
+
+    /// <summary>
+    /// UXB: σ reads one way on the conditions band (OperatingPoints.Derive), the Section plate and the cavitation table. Depth unset: the
+    /// approved COPY-45 text on every surface and no σ number. Depth set: the same two-decimal σ on all three. Ring: readiness, one tier solve (~0.5 s).
+    /// </summary>
+    private static void SigmaAcrossSurfaces()
+    {
+        double cRef = F.Run.Reference.CRef;
+        var inv = System.Globalization.CultureInfo.InvariantCulture;
+        // Depth unset: the band cell, the table cell and the plate.
+        OperatingPoint noDepth = F.Run.Op with { HRef = null };
+        DerivedConditions bandOff = OperatingPoints.Derive(noDepth, F.Run.Water, cRef);
+        Equal(DerivedReason.DepthNotSet, bandOff.Sigma.Reason, "the band: σ Unavailable, depth not set");
+        SectionTierResult tierOff = SectionTier.Evaluate(F.Source, [0.25, 0.5, 0.75, 1.0], [], noDepth, Fixture.Salt);
+        SectionView off = Build(tierOff, run: ProjectionTests.Rehash(F.Run with { Op = noDepth }));
+        Equal(Labels.DepthNotSet, Cell(off, "Cavitation", Labels.SigmaLabel).Value, "the table cell carries COPY-45, no number");
+        Equal("σ " + Labels.DepthNotSet, off.Profile!.Cavitation, "the plate carries the same COPY-45 state, no number");
+        Equal(false, Regex.IsMatch(off.Profile.Cavitation!, @"[0-9]"), "no digit on the plate");
+        // Depth set: one σ, three surfaces.
+        string band = OperatingPoints.Derive(F.Run.Op, F.Run.Water, cRef).Sigma.Value!.Value.ToString("0.00", inv);
+        Equal(band, Cell(Build(), "Cavitation", Labels.SigmaLabel).Value, "the table σ equals the band σ");
+        Equal(true, Build().Profile!.Cavitation!.StartsWith("σ " + band + " ·", StringComparison.Ordinal), "the plate σ equals the band σ: " + Build().Profile!.Cavitation);
     }
 
     private static void ScreenValues()

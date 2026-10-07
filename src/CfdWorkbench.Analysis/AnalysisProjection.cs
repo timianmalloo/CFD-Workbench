@@ -168,9 +168,9 @@ public static class AnalysisProjection
         if (banner is not null) provenance.Add(Row("Changed since", banner));
         groups.Add(new("Provenance", provenance));
         return new(isCurrent ? RunState.Current : RunState.Historical, isCurrent ? "Analysis: Current" : "Analysis: Historical",
-            banner, null, groups, Layers(run, context, rootMoment), run.RunKey)
+            banner, null, groups, Layers(run, context, rootMoment, units), run.RunKey)
         {
-            Loading = Loading(run, cl, a), StripDetails = StripDetails(run, context, a),
+            Loading = Loading(run, cl, a), StripDetails = StripDetails(run, context, a, units),
             SectionTier = section, Run = run,
             PolarConsistency = section?.PolarConsistency,
             WingDragNcrit2 = wing2, WingDragNcrit4 = wing4,
@@ -325,7 +325,7 @@ public static class AnalysisProjection
         return new(Labels.StripHeader + " " + Num(nearest.Eta, "0.###"), nearest.Rows);
     }
 
-    private static IReadOnlyList<StripDetail> StripDetails(AnalysisRun run, ProjectionContext context, double alpha)
+    private static IReadOnlyList<StripDetail> StripDetails(AnalysisRun run, ProjectionContext context, double alpha, Units units)
     {
         var details = new List<StripDetail>();
         foreach (var s in run.Strips)
@@ -335,7 +335,8 @@ public static class AnalysisProjection
             details.Add(new(s.Eta, [
                 Row("Cl_local", Num(s.ClLocal, "0.###")), Row("α_eff", Num(s.AlphaEff, "0.##"), "°"),
                 Row("Re_local", Num(s.ReLocal, "0.###E+0")),
-                Row("Lift / span", width > 0 ? Num(localLift / width, "0.###") : Labels.StripWidthMissing, width > 0 ? "N/m" : null),
+                Row("Lift / span", width > 0 ? Num(Labels.ForcePerSpan(localLift / width, units), "0.###") : Labels.StripWidthMissing,
+                    width > 0 ? Labels.ForcePerSpanUnit(units) : null),
                 Row("Envelope (this strip)", VerdictText(s, context),
                     note: s.ProvisionalReason == StripLoad.PanelUnderreadReason ? Labels.Provisional : null),
                 Row("Polar Re range", s.ProvisionalReason == StripLoad.TipProvisionalReason ? Labels.TipNotJudged :
@@ -429,7 +430,7 @@ public static class AnalysisProjection
             run.Reference.CRef > 0 ? s.ClLocal * s.Chord / run.Reference.CRef : null,
             cl * 4 / Math.PI * Math.Sqrt(Math.Max(0, 1 - s.Eta * s.Eta)), s.AlphaEff,
             Width(run, s) > 0 ? (-s.Fx * Math.Sin(a) + s.Fz * Math.Cos(a)) / Width(run, s) : null)).ToArray();
-    private static IReadOnlyList<LayerData> Layers(AnalysisRun run, ProjectionContext context, double? rootMoment)
+    private static IReadOnlyList<LayerData> Layers(AnalysisRun run, ProjectionContext context, double? rootMoment, Units units)
     {
         bool Shown(string id) => context.HiddenLayers?.Contains(id) != true;
         double max = run.Strips.Count == 0 ? 0 : run.Strips.Max(s => Math.Abs(s.Gamma));
@@ -443,7 +444,7 @@ public static class AnalysisProjection
                     { Verdict = VerdictText(s, context), YLow = s.YLow, YHigh = s.YHigh }).ToArray(),
                 Note = "Outside strips have dashed outlines and a text count."
             },
-            new LayerData("strip-lift", "Lift per strip", Shown("strip-lift"), "Lift per strip · N/m · " + Labels.BodyAxes + " · " + Labels.VlmChip, "loads-table")
+            new LayerData("strip-lift", "Lift per strip", Shown("strip-lift"), "Lift per strip · " + Labels.ForcePerSpanUnit(units) + " · " + Labels.BodyAxes + " · " + Labels.VlmChip, "loads-table")
             {
                 Samples = run.Strips.Select(s => new LayerSample(s.Eta, s.Y,
                     Width(run, s) > 0 ? s.Fz / Width(run, s) : null,

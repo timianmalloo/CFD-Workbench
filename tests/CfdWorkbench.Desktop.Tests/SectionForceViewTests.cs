@@ -102,6 +102,29 @@ public static class SectionForceViewTests
             }
             finally { window.Close(); }
         });
+
+        // UXB: depth not set, the plate carries the band's COPY-45 state and is drawn (a plate that is not drawn is a plate that is missing). With
+        // CFDW_UXB_CAPTURE_DIR set the profile is saved as the track's evidence. Ring: readiness, one window, about 0.2 s.
+        DesktopChecks.Check("SectionProfile_DepthNotSet_PlateReadsCopy45", () =>
+        {
+            var view = new SectionProfileView();
+            var window = new Window { Content = view, Width = 974, Height = 480 };
+            window.Show();
+            try
+            {
+                view.Model = Profile(Forces(xcp: 0.30, cl: 0.40, anchor: ForceAnchor.CentreOfPressure)) with { Cavitation = "σ " + Labels.DepthNotSet };
+                Settle(window);
+                Render(view);
+                Equal(true, view.Plates.Any(plate => plate.Name == "σ " + Labels.DepthNotSet), "the σ plate is drawn: " + string.Join(" | ", view.Plates.Select(plate => plate.Name)));
+                if (Environment.GetEnvironmentVariable("CFDW_UXB_CAPTURE_DIR") is { Length: > 0 } dir)
+                {
+                    using var bitmap = new RenderTargetBitmap(new PixelSize((int)view.Bounds.Width, (int)view.Bounds.Height), new Vector(96, 96));
+                    bitmap.Render(view);
+                    bitmap.Save(System.IO.Path.Combine(dir, "sigma-depth-not-set.png"));
+                }
+            }
+            finally { window.Close(); }
+        });
     }
 
     private static SectionForces Forces(double xcp, double cl, ForceAnchor anchor) =>

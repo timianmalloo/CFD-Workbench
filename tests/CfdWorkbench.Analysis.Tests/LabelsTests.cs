@@ -232,6 +232,23 @@ internal static class LabelsTests
         Check("Station_StripReadout_NotModelledList", () => {
             var v = ProjectionTests.View(); Equal(Labels.NotModelled(true), AnalysisProjection.StripAt(v, 0.25).Rows.Single(r => r.Label == "Not modelled").Value);
         });
+        Check("Units_Imperial_NoAnalysisRowKeepsNewtonsPerMetre", () => {
+            // Ruling 115, ANA-18: under Imperial no strip row or layer legend names N/m or N·m/m, and the value converts.
+            var run = ProjectionTests.Data().Run;
+            var metric = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric);
+            var imperial = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Imperial);
+            foreach (var detail in imperial.StripDetails)
+                foreach (var row in detail.Rows)
+                    Equal(true, row.Unit is not ("N/m" or "N·m/m"), "strip row " + row.Label + " keeps " + row.Unit);
+            foreach (var layer in imperial.Layers)
+                Equal(false, layer.Legend.Contains("N/m", StringComparison.Ordinal), "layer legend " + layer.Legend);
+            var lift = AnalysisProjection.StripAt(imperial, 0.25).Rows.Single(r => r.Label == "Lift / span");
+            var lift0 = AnalysisProjection.StripAt(metric, 0.25).Rows.Single(r => r.Label == "Lift / span");
+            Equal("lbf/ft", lift.Unit, "Lift / span unit");
+            Equal(true, Math.Abs(double.Parse(lift.Value, System.Globalization.CultureInfo.InvariantCulture) -
+                Labels.ForcePerSpan(double.Parse(lift0.Value, System.Globalization.CultureInfo.InvariantCulture), Units.Imperial)) < 2e-3, "Lift / span value " + lift.Value + " vs " + lift0.Value);
+            Equal("N/m", lift0.Unit, "metric unchanged");
+        });
         Check("Copy_AnalysisStrings_MatchDesignMd", CopyRows);
         Check("Lab01_EveryProjectionString_Lints", () => {
             var v = ProjectionTests.View(); Equal(true, v.Groups.All(g => g.Rows.All(r => !string.IsNullOrWhiteSpace(r.Label) && !string.IsNullOrWhiteSpace(r.Value))));

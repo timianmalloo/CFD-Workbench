@@ -281,6 +281,7 @@ public static class SectionDisplay
                 CavitationState.InsideMargin => "inside",
                 _ => "at or past"
             }, 100 * cav.MarginFraction, vcrit, units)
+            : cav.Reason == Cavitation.DepthNotSet ? "σ " + Labels.DepthNotSet // the band's own state, COPY-45; no number without a depth
             : null;
         return new(outline, at, side, outline.Min(p => p.Cp), outline.Max(p => p.Cp), Labels.SectionCaption(station.Eta),
             Labels.EstimatorChip + " · inviscid; no boundary layer", line, forces);
