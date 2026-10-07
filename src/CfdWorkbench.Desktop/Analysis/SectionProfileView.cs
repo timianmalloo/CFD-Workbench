@@ -106,7 +106,9 @@ public sealed class SectionProfileView : Control
         Segments = segments;
 
         // The plates that stand in fixed places are laid out first and the force labels then find free room among them
-        // (Ruling 131 repair: no two plates, and no plate and the Cp_min ring, may overlap).
+        // (Ruling 131 repair: no two plates, and no plate and the Cp_min ring, may overlap). They are drawn last, over the arrows,
+        // as before: only the layout moves forward.
+        deferred = [];
         Point marker = P(profile.CpMinPanel.X, profile.CpMinPanel.Z);
         placed.Add(("Cp_min ring", new Rect(marker.X - 8, marker.Y - 8, 16, 16)));
         string markerText = Labels.CpMinMarker(profile.CpMinPanel.Cp, profile.CpMinPanel.X, profile.Side);
@@ -126,8 +128,27 @@ public sealed class SectionProfileView : Control
         // Legend plate, bottom right: title, the ramp bar (extent ±range, 0 at the centre), its ends.
         string title = "Cp · vik pinned at 0 · " + Num(profile.CpLow) + " to +" + Num(profile.CpHigh);
         double barWidth = Math.Max(150, Text(title, ink).Width), left = w - 8 - barWidth - 8;
-        context.DrawRectangle(soft, null, new Rect(left - 4, h - 56, barWidth + 16, 50), 3);
         placed.Add(("legend", new Rect(left - 4, h - 56, barWidth + 16, 50)));
+        deferred.Add(() => DrawLegend(context, title, barWidth, left, h, range, ink, mute, soft));
+
+        if (profile.Cavitation is { } line)
+        {
+            double lineWidth = Text(line, ink).Width + 8;
+            Plate(context, line, new Point(8, left - 4 < 8 + lineWidth ? h - 78 : h - 30), ink, soft);
+        }
+        List<Action> fixedPlates = deferred;
+        deferred = null;
+        if (profile.Forces is { } forces) DrawForces(context, forces, P, s, ox, oy, w, h, viewport, ink, mute, soft, profile.Side);
+        context.DrawEllipse(null, new Pen(ink, 2), marker, 7, 7);
+        foreach (Action draw in fixedPlates) draw();
+        Plates = placed.ToArray();
+    }
+
+    private List<Action>? deferred;
+
+    private void DrawLegend(DrawingContext context, string title, double barWidth, double left, double h, double range, IBrush ink, IBrush mute, IBrush soft)
+    {
+        context.DrawRectangle(soft, null, new Rect(left - 4, h - 56, barWidth + 16, 50), 3);
         context.DrawText(Text(title, ink), new Point(left + 4, h - 54));
         var bar = new LinearGradientBrush { StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative), EndPoint = new RelativePoint(1, 0, RelativeUnit.Relative) };
         for (int i = 0; i < stops.Length; i++) bar.GradientStops.Add(new GradientStop(stops[i], i / (double)(stops.Length - 1)));
@@ -136,15 +157,6 @@ public sealed class SectionProfileView : Control
         context.DrawText(lowEnd, new Point(left + 4, h - 24));
         context.DrawText(zero, new Point(left + 4 + (barWidth - zero.Width) / 2, h - 24));
         context.DrawText(highEnd, new Point(left + 4 + barWidth - highEnd.Width, h - 24));
-
-        if (profile.Cavitation is { } line)
-        {
-            double lineWidth = Text(line, ink).Width + 8;
-            Plate(context, line, new Point(8, left - 4 < 8 + lineWidth ? h - 78 : h - 30), ink, soft);
-        }
-        if (profile.Forces is { } forces) DrawForces(context, forces, P, s, ox, oy, w, h, viewport, ink, mute, soft, profile.Side);
-        context.DrawEllipse(null, new Pen(ink, 2), marker, 7, 7);
-        Plates = placed.ToArray();
     }
 
     private static readonly double[] Shifts = [0, 8, -8, 16, -16, 24, -24, 32, -32, 48, -48, 64, -64, 80, -80, 96, -96, 120, -120];
@@ -379,8 +391,12 @@ public sealed class SectionProfileView : Control
         FormattedText t = Text(text, ink);
         var rect = new Rect(at.X, at.Y - 12, t.Width + 8, 16);
         placed.Add((text, rect));
-        context.DrawRectangle(soft, null, rect, 2);
-        context.DrawText(t, new Point(at.X + 4, at.Y - 11));
+        void Draw()
+        {
+            context.DrawRectangle(soft, null, rect, 2);
+            context.DrawText(t, new Point(at.X + 4, at.Y - 11));
+        }
+        if (deferred is { } later) later.Add(Draw); else Draw();
         return rect;
     }
 
