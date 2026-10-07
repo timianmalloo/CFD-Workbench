@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T16:59:40Z",
+  "generated": "2026-10-07T18:19:18Z",
   "audit": [
     {
       "actor": null,
@@ -28887,12 +28887,138 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4BKEZWK2AK0M6MA6TYVEXR6",
-      "shortname": "join-pr1",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-07T16:34:35Z",
-      "session": "14e5e8d5",
+      "done_when": "join gates green",
+      "duration_seconds": 5.0,
+      "fan_out": 0,
+      "goal": "join PC PR #1",
+      "id": "al-01M4BKEZWK2AK0M6MA6TYVEXR6",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of origin/win/coord-w0-w5 into main",
+      "session": "14e5e8d5",
+      "shortname": "join-pr1",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T16:34:30Z",
       "summary": "PC plan for W-0..W-5 merged; conditions in docs/reviews/pr-1.md bind the PC briefs (cfd_store.c out of B2, model routing to the operator, GPU measurement-only, Ruling 79/102 steps, units handoff, PR fields) recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "gpt-6.1-sol",
+      "artifacts": [
+        "docs/proof/win-smoke/receipt.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-07T16:59:40Z",
+      "done_when": "Build, ring, docs and native interaction rows have evidence and no defect is repaired in W-1.",
+      "duration_seconds": 706.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/smoke",
+        "pushed": null,
+        "sha": "0103694c9872dd8e249dabda5b477bb3bab32146",
+        "short": "0103694c9"
+      },
+      "goal": "Execute the first Windows application smoke and preserve every observed result.",
+      "id": "al-01M4BMWXX2HYR4HPS6QZ33PEJP",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Execute W-1 Windows smoke and record failures without repair.",
+      "session": "win-smoke-20261007",
+      "shortname": "Complete Windows W-1 smoke",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T16:47:54Z",
+      "summary": "Built with .NET 10.0.203; recorded the Git Bash python3 pre-harness failure and native Windows drag, Undo, Analysis, Evaluate and Save observations with source-bound screenshots.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": "gpt-6.1-sol worker + local coordinator",
+      "artifacts": [
+        "docs/proof/win-setup/receipt.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-07T16:46:01Z",
+      "done_when": "The full host survey and tool readiness are recorded, the docs gate passes, and the branch is ready for PR delivery.",
+      "duration_seconds": 373.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/setup",
+        "pushed": null,
+        "sha": "ac14a4b32017f5518b0287188c537e3cde4a0b37",
+        "short": "ac14a4b32"
+      },
+      "goal": "Complete W-0 with observed Windows setup evidence.",
+      "id": "al-01M4BM3XCDT0TYX6YQ861PA7YN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Complete W-0 Windows setup and host survey evidence.",
+      "session": "win-setup-20261007",
+      "shortname": "Complete Windows W-0 setup",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T16:39:48Z",
+      "summary": "Verified Windows host, exact .NET SDK, Git/Python/GitHub, WSL 2.7.14, GPU and coordination drivers; accepted receipt and green docs gate.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T16:50:59Z",
+      "done_when": "join gates green",
+      "duration_seconds": 4.0,
+      "fan_out": 0,
+      "goal": "join PC PR #2",
+      "id": "al-01M4BMD0W805G0NGX9EXPXT4ZM",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of origin/win/setup into main",
+      "session": "14e5e8d5",
+      "shortname": "join-pr2",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T16:50:55Z",
+      "summary": "W-0 receipt (Windows 11 Pro 26300, i9-12900H, 34 GB, SDK 10.0.203, drivers effective, WSL ready without distro); conditions in docs/reviews/pr-2.md recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4BSEQETNKADVT827F0WBV75",
+      "shortname": "join-pr3",
+      "datetime": "2026-10-07T18:19:18Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of origin/win/windows-smoke into main",
+      "summary": "W-1 receipt: build PASS; ring blocked by python3 Store alias; Ctrl+Z/Ctrl+S reach nothing (gestures only on the macOS NativeMenu); save error stderr-only; stale point automation name; conditions in docs/reviews/pr-3.md recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -28901,7 +29027,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join PC PR #1",
+      "goal": "join PC PR #3",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -28910,44 +29036,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-07T16:34:30Z",
+      "started_at": "2026-10-07T18:19:13Z",
       "duration_seconds": 5.0
-    },
-    {
-      "id": "al-01M4BMWXX2HYR4HPS6QZ33PEJP",
-      "shortname": "Complete Windows W-1 smoke",
-      "datetime": "2026-10-07T16:59:40Z",
-      "session": "win-smoke-20261007",
-      "prompt": "Execute W-1 Windows smoke and record failures without repair.",
-      "summary": "Built with .NET 10.0.203; recorded the Git Bash python3 pre-harness failure and native Windows drag, Undo, Analysis, Evaluate and Save observations with source-bound screenshots.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": "gpt-6.1-sol",
-      "artifacts": [
-        "docs/proof/win-smoke/receipt.md"
-      ],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "Execute the first Windows application smoke and preserve every observed result.",
-      "done_when": "Build, ring, docs and native interaction rows have evidence and no defect is repaired in W-1.",
-      "tier": "T2",
-      "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true,
-        "regression": false
-      },
-      "started_at": "2026-10-07T16:47:54Z",
-      "duration_seconds": 706.0,
-      "git": {
-        "sha": "0103694c9872dd8e249dabda5b477bb3bab32146",
-        "short": "0103694c9",
-        "branch": "win/smoke",
-        "pushed": null
-      }
     }
   ],
   "changes": [
