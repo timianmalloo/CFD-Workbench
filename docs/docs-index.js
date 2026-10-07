@@ -6157,6 +6157,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "15bbf7360f65f4b127fb66a5a3328502ed96ecbb5039d4e9211b1413cdcd5dcd"
     },
     {
+      "id": "review-pr-2",
+      "path": "docs/reviews/pr-2.md",
+      "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS. The W-0 receipt meets the done-when line by line with observed commands; four conditions bind later receipts (Reported vs Verified, one tested SHA, a Done-when line, dotnet in a fresh shell).",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-0"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5b853296d6d2ee2a5765d58a34f925bea5f4310c8cda485b7c7071446c41d49a"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -6857,7 +6892,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d0378b596ee4e02dbacc895f157e00e82db93a331fff7f512fe127a0b90c62f6"
+      "sourceSha256": "311cb54b482a2a07d6db66727d2069300f81957f7dc81471c8e6ca8253a2e02f"
     },
     {
       "id": "kb-hw-glossary",
@@ -15524,5 +15559,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b4d041ea142182e50b06bc369116a29ce5b9112ef557513dc93ecfc556675ea3"
+  "graphSha256": "9eadb90e9d03ec1a001ebad02a669fc98d64b3c3d559fca03ee8229976bb1d70"
 };
