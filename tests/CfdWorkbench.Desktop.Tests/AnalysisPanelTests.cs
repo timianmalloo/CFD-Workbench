@@ -99,33 +99,6 @@ public static class AnalysisPanelTests
                 Equal(true, failed.Groups[0].Notes.Single().Text.StartsWith("Analysis failed", StringComparison.Ordinal), "error card text");
             });
 
-            // UXB: under Imperial the Properties strip rows read lbf/ft, never N/m (Ruling 115, ANA-18). With CFDW_UXB_CAPTURE_DIR set the window is saved as the track's evidence.
-            DesktopChecks.Check("PropertiesPane_Analysis_Imperial_StripLiftReadsLbfPerFt", () =>
-            {
-                var controller = shared.Value;
-                if (!controller.IsAnalysis) controller.ToggleAnalysis();
-                controller.AnalysisUnits = Units.Imperial;
-                var host = new ShellHost(controller);
-                var window = new Window { Content = host, Width = 1280, Height = 800 };
-                try
-                {
-                    window.Show();
-                    controller.Select(new Selection.Station(1, controller.CurrentProjection!.Assignments[1].Eta));
-                    host.RefreshPanes();
-                    Settle(window);
-                    var texts = Texts(host.Properties);
-                    Equal(true, texts.Contains("Lift / span") && texts.Contains("lbf/ft"), "the strip lift row reads lbf/ft: " + string.Join("|", texts.Take(40)));
-                    Equal(false, texts.Any(text => text.Contains("N/m", StringComparison.Ordinal)), "no N/m anywhere in the Properties pane under Imperial");
-                    if (Environment.GetEnvironmentVariable("CFDW_UXB_CAPTURE_DIR") is { Length: > 0 } dir)
-                    {
-                        using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(1280, 800));
-                        bitmap.Render(window);
-                        bitmap.Save(System.IO.Path.Combine(dir, "imperial-lift-per-span.png"));
-                    }
-                }
-                finally { window.Close(); controller.AnalysisUnits = Units.Metric; }
-            });
-
             DesktopChecks.Check("PropertiesPane_Analysis_BuildsWithAnalysisModeAndContext", () =>
             {
                 var controller = shared.Value;
@@ -542,6 +515,25 @@ public static class AnalysisPanelTests
             var (kept, keptWidth) = LoadLayerText.Within(100, 620);
             Equal(true, kept == 100 && keptWidth == 620 - 100 - 8, "a label with room is not moved");
             Equal(true, View3dLoadLayer.LegendLeft >= View3d.CaptionMargin.Left, "the legend plate starts in the caption's column, right of the triad plate");
+        });
+
+        // UXB: under Imperial the Properties strip rows read lbf/ft, never N/m (Ruling 115, ANA-18). Ring: fast, model level (the capture docs/proof/uxb/imperial-lift-per-span.png came from a real ShellHost at this selection).
+        DesktopChecks.Check("PropertiesPane_Analysis_Imperial_StripLiftReadsLbfPerFt", () =>
+        {
+            var controller = shared.Value;
+            if (!controller.IsAnalysis) controller.ToggleAnalysis();
+            var projection = controller.CurrentProjection ?? throw new Exception("no projection");
+            controller.AnalysisUnits = Units.Imperial;
+            try
+            {
+                var context = new PropertiesContext(controller.Planform, Analysis: controller.AnalysisView);
+                var model = PropertiesView.Build(new Selection.Station(1, projection.Assignments[1].Eta), projection, controller.Estimates, ShellMode.Analysis, context);
+                var rows = model.Groups.Single(item => item.Id == "ana-strip").Rows;
+                var lift = rows.Single(row => row.Label == "Lift / span");
+                Equal("lbf/ft", lift.Unit, "the strip lift row reads lbf/ft");
+                Equal(false, model.Groups.SelectMany(item => item.Rows).Any(row => row.Unit is "N/m" or "N·m/m"), "no N/m or N·m/m row under Imperial");
+            }
+            finally { controller.AnalysisUnits = Units.Metric; }
         });
 
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
