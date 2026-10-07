@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T01:44:51Z",
+  "generated": "2026-10-07T15:43:40Z",
   "audit": [
     {
       "actor": null,
@@ -28584,6 +28584,177 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T01:43:56Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M4BGAHY6CMZDMJKZ7MJ0AY7N",
+      "shortname": "get latest for this repo then ground yourself in the repo specifically t…",
+      "datetime": "2026-10-07T15:39:44Z",
+      "session": "prompt-compile",
+      "prompt": "get latest for this repo then ground yourself in the repo specifically there was work we deferred to run on a windows laptop (here) give me the summary of the work to be done on the windows laptop vs. the mac laptop",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4BGBZY5PTKMJ0ZXJ505X5CZ",
+      "shortname": "compile-get latest for this repo then ground yourself in the repo specifically t…",
+      "datetime": "2026-10-07T15:40:31Z",
+      "session": "codex-win-ground-20261007",
+      "prompt": "Save the brief between the markers as <brief-file>, then run (one line, the brief read from the file):\ncodex exec --json -o <last-message-file> --output-schema <schema-file> --worktree -C <dir> \"$(cat <brief-file>)\"\n--- brief ---\npython3 docs/ai-forward-pack/scripts/audit-log.py start --session codex-win-ground-20261007 --skill <skill>\nGoal state\nGoal: Update CFD-Workbench, ground in its current evidence, and summarize the Windows-laptop and Mac-laptop work split.\nDone when: The repository is updated to its latest upstream state.; The repository and the deferred Windows-laptop work are grounded from current repository evidence.; The response summarizes the work assigned to the Windows laptop versus the Mac laptop.\nNot in scope: Executing the deferred laptop work.\nTier: T1\nFan-out cap: 0\nContext ceiling: 40000\nMain-line budget: One bounded evidence pass plus one refinement pass if sources disagree.\nTrace\n| clause | trace |\n|---|---|\n| done_when: The repository is updated to its latest upstream state. | phrase: get latest for this repo |\n| done_when: The repository and the deferred Windows-laptop work are grounded from current repository evidence. | phrase: ground yourself in the repo specifically there was work we deferred to run on a windows laptop (here) |\n| done_when: The response summarizes the work assigned to the Windows laptop versus the Mac laptop. | phrase: give me the summary of the work to be done on the windows laptop vs. the mac laptop |\n| not_in_scope: Executing the deferred laptop work. | phrase: give me the summary of the work to be done |\nReferences\n- none\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: 0\ntransient_retry: Retry a transient read or network failure once; otherwise report it.\nper_branch_exit: No branches; the single evidence path exits when current Git state and both machine briefs are read.\njoin_rule: All source checks must agree on current ownership and completion state.\ncontainment: A failed evidence check is reported without changing product code.\ntermination: Stop after the update is verified and the Windows/Mac ownership split is evidenced.\ndeadline: This turn.\nfallback: Report any unresolved status as Flagged with the missing evidence named.\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M4BGAHY6CMZDMJKZ7MJ0AY7N\nraw sha256: b131e3f1049f85d85ac01c3ae45a037f788eede95d5ee0459d36b327378dad68\ncompiler model: gpt-6\nengine seconds: 0.008\ntokens: not recorded\ngate: pass\ndispatchable: true\n--- end brief ---\n",
+      "summary": "compiled al-01M4BGAHY6CMZDMJKZ7MJ0AY7N for codex v1: 4 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "The repository is updated to its latest upstream state.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "get latest for this repo"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "The repository and the deferred Windows-laptop work are grounded from current repository evidence.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "ground yourself in the repo specifically there was work we deferred to run on a windows laptop (here)"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "The response summarizes the work assigned to the Windows laptop versus the Mac laptop.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "give me the summary of the work to be done on the windows laptop vs. the mac laptop"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Executing the deferred laptop work.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "give me the summary of the work to be done"
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": "A failed evidence check is reported without changing product code.",
+          "deadline": "This turn.",
+          "fallback": "Report any unresolved status as Flagged with the missing evidence named.",
+          "join_rule": "All source checks must agree on current ownership and completion state.",
+          "per_branch_exit": "No branches; the single evidence path exits when current Git state and both machine briefs are read.",
+          "termination": "Stop after the update is verified and the Windows/Mac ownership split is evidenced.",
+          "transient_retry": "Retry a transient read or network failure once; otherwise report it.",
+          "width_cap": 0
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 40000,
+          "done_when": [
+            "The repository is updated to its latest upstream state.",
+            "The repository and the deferred Windows-laptop work are grounded from current repository evidence.",
+            "The response summarizes the work assigned to the Windows laptop versus the Mac laptop."
+          ],
+          "fan_out_cap": 0,
+          "goal": "Update CFD-Workbench, ground in its current evidence, and summarize the Windows-laptop and Mac-laptop work split.",
+          "main_line_budget": "One bounded evidence pass plus one refinement pass if sources disagree.",
+          "not_in_scope": [
+            "Executing the deferred laptop work."
+          ],
+          "tier": "T1"
+        },
+        "graph_neighbours": [],
+        "harness": "codex",
+        "mode": "compiled",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "gpt-6",
+          "engine_seconds": 0.008,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M4BGAHY6CMZDMJKZ7MJ0AY7N",
+        "raw_sha256": "b131e3f1049f85d85ac01c3ae45a037f788eede95d5ee0459d36b327378dad68",
+        "raw_text_normalised": false,
+        "references": [],
+        "schema": "compiled-prompt/1",
+        "template": "codex",
+        "template_version": 1
+      },
+      "mode": "compiled",
+      "dispatchable": true
+    },
+    {
+      "id": "al-01M4BGG8B8JSG1FMTFW94NX51Q",
+      "shortname": "compile-windows-mac-laptop-grounding",
+      "datetime": "2026-10-07T15:42:51Z",
+      "session": "codex-win-ground-20261007",
+      "prompt": "get latest for this repo then ground yourself in the repo specifically there was work we deferred to run on a windows laptop (here) give me the summary of the work to be done on the windows laptop vs. the mac laptop",
+      "summary": "raw al-01M4BGAHY6CMZDMJKZ7MJ0AY7N, compiled al-01M4BGBZY5PTKMJ0ZXJ505X5CZ, codex, 4 clauses, 0 assumptions, 0 decision requests, dispatchable",
+      "kind": "skill",
+      "skill": "compile",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Compile the repository update and Windows/Mac work-summary request without adding scope.",
+      "done_when": "The compiled prompt passes its gate and is dispatchable.",
+      "tier": "T0",
+      "fan_out": 0,
+      "started_at": "2026-10-07T15:39:43Z",
+      "duration_seconds": 188.0
+    },
+    {
+      "id": "al-01M4BGHRCAPF18BN9NS56NW3RP",
+      "shortname": "optimize-graph-windows-mac-laptop-grounding",
+      "datetime": "2026-10-07T15:43:40Z",
+      "session": "codex-win-ground-20261007",
+      "prompt": "get latest for this repo then ground yourself in the repo specifically there was work we deferred to run on a windows laptop (here) give me the summary of the work to be done on the windows laptop vs. the mac laptop",
+      "summary": "naive 7 nodes/span 7/width 1; optimized 7 nodes/modeled span 5/read-only tool width 6; all evidence floors present; one bounded WSL check stopped after REGDB_E_CLASSNOTREG; no agent fan-out",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/plans/windows-mac-laptop-grounding.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled_from": "al-01M4BGBZY5PTKMJ0ZXJ505X5CZ",
+      "edit_distance": 0.0,
+      "goal": "Update CFD-Workbench, ground in its current evidence, and summarize the Windows-laptop and Mac-laptop work split.",
+      "done_when": "HEAD equals origin/main; current evidence establishes completion state; the response separates Windows and Mac work.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-07T15:39:43Z",
+      "duration_seconds": 237.0,
+      "git": {
+        "sha": "7102e90fd04d70ea818acd551ad295e0b62bf93c",
+        "short": "7102e90fd",
+        "branch": "docs/windows-grounding-summary",
+        "pushed": null
+      }
     }
   ],
   "changes": [

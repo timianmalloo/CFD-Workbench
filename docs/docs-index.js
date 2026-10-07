@@ -5821,6 +5821,47 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "plan-windows-mac-laptop-grounding",
+      "path": "docs/plans/windows-mac-laptop-grounding.md",
+      "title": "Windows and Mac laptop work grounding",
+      "type": "doc",
+      "status": "complete",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Grounds the accepted two-machine split at main 7102e90f: Windows owns W-0 through W-5 and has not started; the completed Mac round retains shared/macOS ownership, integration, readiness, packaging, backend, export, and signing work.",
+      "tags": [
+        "plan",
+        "windows",
+        "macos",
+        "coordination",
+        "grounding"
+      ],
+      "links": [
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-round-oct06",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph",
+          "mermaid": "flowchart TD\n  U --> G\n  U --> S\n  G --> H\n  G --> C\n  S --> C\n  H --> C\n  C --> V\n  V --> A"
+        }
+      ],
+      "sourceSha256": "27a443c4b1b77fa650765f020726dfdca47dca503ebb6671faaf89588ea968e6"
+    },
+    {
       "id": "review-a3a-native",
       "path": "docs/reviews/a3a-native.md",
       "title": "A3a native build against the approved Area 3 mockup (AUX)",
@@ -15304,5 +15345,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "88a1ce885a5daf79e69ebf9815c7e42aa83f25d5836a6f0d909def492c1281c1"
+  "graphSha256": "b87cf5f7291c24d0c999e7a045a8540f5fcc6296fdbf18d7e7283428f214db4e"
 };
