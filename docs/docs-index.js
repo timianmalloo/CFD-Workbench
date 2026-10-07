@@ -6784,7 +6784,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1138ecbc113ef504e27a3292146f9aac81a6fa83dd7c58295388411d81a92e05"
+      "sourceSha256": "5061eb28b48418ffd19db7e878fdc8938a2dfbaf5e5f5c60e535315a4d3b3e89"
     },
     {
       "id": "kb-hw-glossary",
@@ -12433,6 +12433,85 @@ window.DOCS_INDEX = {
       "sourceSha256": "b4ae8bc942c4c5e7bcab75f8109c116b394928fc18a0b5f62b5ea63860cc0b74"
     },
     {
+      "id": "proof-sma-captures",
+      "path": "docs/proof/sma/captures.md",
+      "title": "SMA captures A-D against the approved mockup (Ruling 125)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Four 1500 x 870 captures of the built app (light theme) for states A to D of the section-in-main-area mockup, each opened and compared, with the differences named.",
+      "tags": [
+        "sma",
+        "captures",
+        "ruling-125"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-main-area",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-sma-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "003b9cb77f40b3fb87060338aa180179448317e50b98eec6b8654e5fa0e177cb"
+    },
+    {
+      "id": "proof-sma-red-first",
+      "path": "docs/proof/sma/red-first.md",
+      "title": "SMA red-first receipts (Rulings 124, 125)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "For each SMA behaviour, the check that failed on the old code and the run that passed after the change.",
+      "tags": [
+        "sma",
+        "red-first",
+        "ruling-124"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-main-area",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "88e5a352bbeff29dfcc41235de8ad67443da3bf315183b8ec8b421de6f80465d"
+    },
+    {
+      "id": "proof-sma-retired",
+      "path": "docs/proof/sma/retired.md",
+      "title": "SMA retired checks (Ruling 124, Section sample removed)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Each check that pinned the retired Section sample document, and what covers the behaviour now.",
+      "tags": [
+        "sma",
+        "retired",
+        "ruling-124"
+      ],
+      "links": [
+        {
+          "to": "proof-sma-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "87d659354261d731d9e6f096d96d274626af325c9ec52112f46e5df505ebb076"
+    },
+    {
       "id": "proof-spike-03",
       "path": "docs/proof/spike-03/verdict.md",
       "title": "SPIKE-03 verdict — unattended meshing across AR 5 / 8 / 12 on OpenFOAM v2512",
@@ -15099,5 +15178,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "93bc490eec4a489f1f04e35c936d7eec870ee900504cc7861629454a066b7b13"
+  "graphSha256": "8d4a218860942e55e8792c62db521215debbef1bff994345b44cc7f5fa7b214d"
 };

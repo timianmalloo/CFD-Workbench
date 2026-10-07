@@ -35,11 +35,13 @@
         </TabItem>
         <TabItem x:Name="SectionTab" Header="Section" AutomationProperties.Name="Section">
           <!-- Ruling 124: the full Section view is the model area's Section document; this tab is its one-line summary. -->
-          <Grid x:Name="SectionSummary" ColumnDefinitions="Auto,Auto,Auto,*,Auto" Margin="{StaticResource Space1}" VerticalAlignment="Center">
-            <TextBlock x:Name="SectionSummaryStation" Grid.Column="0" Classes="pnl-head" VerticalAlignment="Center" Margin="0,0,16,0" />
-            <TextBlock x:Name="SectionSummaryCl" Grid.Column="1" Classes="pnl-cell" VerticalAlignment="Center" Margin="0,0,16,0" />
-            <TextBlock x:Name="SectionSummaryCp" Grid.Column="2" Classes="pnl-cell" VerticalAlignment="Center" />
-            <Button x:Name="OpenInMainAreaButton" Grid.Column="4" Classes="modebar outline" />
+          <Grid x:Name="SectionSummary" ColumnDefinitions="*,Auto" Margin="{StaticResource Space1}" VerticalAlignment="Center">
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="{StaticResource StackGap2}" VerticalAlignment="Center">
+              <TextBlock x:Name="SectionSummaryStation" Classes="pnl-head" VerticalAlignment="Center" />
+              <TextBlock x:Name="SectionSummaryCl" Classes="pnl-cell" VerticalAlignment="Center" />
+              <TextBlock x:Name="SectionSummaryCp" Classes="pnl-cell" VerticalAlignment="Center" />
+            </StackPanel>
+            <Button x:Name="OpenInMainAreaButton" Grid.Column="1" Classes="modebar outline" />
           </Grid>
         </TabItem>
         <TabItem x:Name="LoadsTab" Header="Loads" AutomationProperties.Name="Loads">

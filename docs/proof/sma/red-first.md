@@ -1,7 +1,7 @@
 ---
 id: proof-sma-red-first
 title: SMA red-first receipts (Rulings 124, 125)
-type: proof
+type: proof-pack
 status: draft
 owner: "@timianmalloo"
 phase: implement

@@ -1,7 +1,7 @@
 ---
 id: proof-sma-retired
 title: SMA retired checks (Ruling 124, Section sample removed)
-type: proof
+type: proof-pack
 status: draft
 owner: "@timianmalloo"
 phase: implement
