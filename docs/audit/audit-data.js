@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T23:27:43Z",
+  "generated": "2026-10-07T23:30:33Z",
   "audit": [
     {
       "actor": null,
@@ -29550,6 +29550,33 @@ window.AUDIT_DATA = {
       "done_when": "self-test 41/41, verify gates, run-tests, check-docs green",
       "started_at": "2026-10-07T23:21:16Z",
       "duration_seconds": 387.0
+    },
+    {
+      "id": "al-01M4CB8MW3T7GFBXPMPGJDV332",
+      "shortname": "join-rgt",
+      "datetime": "2026-10-07T23:30:33Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of fix/ring-gate-c5 into main",
+      "summary": "C-5 gated at load 24 like C-2..C-4; proc-gitbash hosts advisory (COST-MISS host) until docs/proof/ring-<host>/baseline.csv has 3 quiet runs; PropertiesCellsTests junction on Windows; self-test 41 cases recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join fix/ring-gate-c5",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-07T23:29:38Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
@@ -31524,6 +31551,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4CAQEM3Z3DEGSSZ4VMZ43CH",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4CB6XSA79BEV9SKFMB99VNM",
+      "ts": "2026-10-07T23:29:37Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4CB6XP5CG8TGMAE20EDW8KJ",
+      "session": "operator-timianmalloo"
     }
   ]
 };
