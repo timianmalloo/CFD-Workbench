@@ -38,3 +38,10 @@ Check: Core `Json_IndentedWriters_PinLfNewLine` (`tests/CfdWorkbench.Core.Tests/
 
 - Red: `FAIL Json_IndentedWriters_PinLfNewLine InvalidOperationException: indented JSON without NewLine = "\n": CfdWorkbench.Persistence/PreferenceStore.cs, .../LayoutCodec.cs, .../RecentList.cs, CfdWorkbench.Core/AuthoringSession.cs, CfdWorkbench.Cli/Program.cs`
 - Green (after pinning the five sites and `RunStoreTests.NoRunByteIdentical`): `PASS Json_IndentedWriters_PinLfNewLine`.
+
+## Item 3 - symlink privilege in tests
+
+Check: Core `PrefStore_DirectoryLink_WindowsBranchUsesJunction` forces the Windows branch with a fake runner and asserts the command is `cmd.exe /c mklink /J <link> <target>` and that the macOS branch never shells out and creates a real link.
+
+- Red: the helper `TryDirectoryLink` did not exist; the old sites called `Directory.CreateSymbolicLink` directly (Windows ring: `IOException: A required privilege is not held by the client`). The check was written with the helper, so its red is the missing member (compile error), not a run.
+- Green: `PASS PrefStore_DirectoryLink_WindowsBranchUsesJunction`; `PASS PrefStore_SymlinkedDirectory_SessionOnly` and `PASS PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites` unchanged on macOS.
