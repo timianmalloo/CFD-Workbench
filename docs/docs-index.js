@@ -6348,6 +6348,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "9dd33fe66f919b252a1fa7fd8a811d90aa8f0047fa8c9c70349c7b6c70bd0887"
     },
     {
+      "id": "review-pr-6",
+      "path": "docs/reviews/pr-6.md",
+      "title": "PR #6 (Windows PC) - W-1b WFX re-verification evidence, Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS as a failure-evidence checkpoint. The W-1 fixes are verified on Windows; F10, Escape focus and the undo status text still fail. The first Windows ring's 39 failures are grouped by cause. Rulings 136 (managed P/Invoke Windows store) and 137 (B2 shared-file handoff) were issued with this review.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-1b",
+        "ring"
+      ],
+      "links": [
+        {
+          "to": "review-pr-3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-5",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c120e1927dd447a808cd7ae155a435e8692e3a83cd235eab25c307397ec69e30"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -16034,5 +16066,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2c6fa83561f149a0f7b1fce4355ad2fd99bc96889f0e5d51122c6caa777e562e"
+  "graphSha256": "fab08b58bea24c6f4c3e8710f430c5c4553ab5074cc3e3c395c90e9081face8d"
 };
