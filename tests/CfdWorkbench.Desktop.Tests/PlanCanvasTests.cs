@@ -918,6 +918,37 @@ public static class PlanCanvasTests
                 throw new Exception("Clicking the rendered station chip did not select its station");
         });
 
+        // Ruling 124 (SMA item 1): chips sit in one strip under the planform, each on its station line, clear of the planform,
+        // the scale bar and the window edge. A taper (tip trailing edge forward of the root's) makes the old per-station rows differ.
+        DesktopChecks.Check("PlanCanvas_ChipStrip_OneRowBelowPlanform_AlignedAndClear", () =>
+        {
+            string source = File.ReadAllText("docs/examples/foildsl/foil-basic.foil");
+            string line = source.Split('\n').Single(item => item.TrimStart().StartsWith("trailing cv {", StringComparison.Ordinal));
+            string tapered = line.Replace("(0.3, 120), (0.5, 120), (0.7, 120), (0.9, 120), (1, 120)",
+                "(0.3, 110), (0.5, 100), (0.7, 90), (0.9, 80), (1, 70)", StringComparison.Ordinal);
+            if (tapered == line) throw new Exception("Fixture edit did not apply");
+            byte[] bytes = FoilSource.MaterializeIds(FoilSource.Parse(
+                System.Text.Encoding.UTF8.GetBytes(source.Replace(line, tapered, StringComparison.Ordinal))));
+            using var fixture = new PlanFixture(source: bytes);
+            var canvas = fixture.Canvas;
+            var chips = canvas.VisibleStationChips;
+            var planform = canvas.PlanformBounds;
+            if (chips.Count < 2) throw new Exception($"Expected a chip per station, got {chips.Count}");
+            if (chips.Select(chip => Math.Round(chip.Bounds.Top, 3)).Distinct().Count() != 1)
+                throw new Exception("Chips are not one strip: tops " + string.Join(", ", chips.Select(chip => chip.Bounds.Top.ToString("F1"))));
+            foreach (var chip in chips)
+            {
+                if (chip.Bounds.Intersects(planform) || chip.Bounds.Top < planform.Bottom + 8)
+                    throw new Exception($"Chip {chip.Index} {chip.Bounds} is not clear of the planform {planform}");
+                if (chip.Bounds.Intersects(canvas.ScaleBarBounds))
+                    throw new Exception($"Chip {chip.Index} {chip.Bounds} collides with the scale bar {canvas.ScaleBarBounds}");
+                if (Math.Abs(chip.Bounds.Center.X - canvas.StationLineX(chip.Index)) > .5)
+                    throw new Exception($"Chip {chip.Index} is not aligned to its station line");
+                if (chip.Bounds.Left < 0 || chip.Bounds.Right > canvas.Bounds.Width || chip.Bounds.Bottom > canvas.Bounds.Height)
+                    throw new Exception($"Chip {chip.Index} {chip.Bounds} leaves the canvas");
+            }
+        });
+
         DesktopChecks.Check("PlanCanvas_CollidingChips_AlternateHiddenStillInBrowser", () =>
         {
             using var fixture = new PlanFixture(tenPoint: true);

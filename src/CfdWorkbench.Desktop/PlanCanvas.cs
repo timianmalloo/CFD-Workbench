@@ -102,6 +102,25 @@ public sealed class PlanCanvas : Control
     public event Action? RenderRecovered;
     public PointRef? FocusedTarget => focusedPoint;
     public sealed record StationChip(int Index, Rect Bounds);
+
+    /// <summary>The planform's screen rectangle, both halves and every point (the chip strip sits below it).</summary>
+    public Rect PlanformBounds => Controller?.Planform is { } plan && Bounds.Width > 0 && Bounds.Height > 0
+        ? PlanformRect(Layer(plan), plan) : default;
+
+    /// <summary>The scale bar and its label (bottom-left), a neighbour the chip strip must clear (m12b-points.md 11.3).</summary>
+    public Rect ScaleBarBounds => new(16, Bounds.Height - 48, 140, 32);
+
+    /// <summary>The screen x of a station's line (its span position).</summary>
+    public double StationLineX(int index) => Layer(Controller!.Planform!).ToScreen(Controller.Planform!.Stations[index].SpanMeters, 0).X;
+
+    private static Rect PlanformRect(CurvePointLayer map, PlanformView plan)
+    {
+        var points = plan.Leading.Points.Concat(plan.Trailing.Points).ToArray();
+        double minAft = Math.Min(plan.Leading.Samples.Min(item => item.Ordinate), points.Min(item => item.Ordinate));
+        double maxAft = Math.Max(plan.Trailing.Samples.Max(item => item.Ordinate), points.Max(item => item.Ordinate));
+        double halfWidth = Math.Max(plan.HalfSpanMeters, points.Max(item => Math.Abs(item.SpanMeters)));
+        return new Rect(map.ToScreen(-halfWidth, minAft), map.ToScreen(halfWidth, maxAft));
+    }
     public IReadOnlyList<StationChip> VisibleStationChips
     {
         get
@@ -109,12 +128,11 @@ public sealed class PlanCanvas : Control
             var plan = Controller?.Planform;
             if (plan is null || Bounds.Width <= 0 || Bounds.Height <= 0) return [];
             var map = Layer(plan);
+            double top = PlanformRect(map, plan).Bottom + ChipGap;
             var result = new List<StationChip>();
             foreach (var (station, index) in plan.Stations.Select((station, index) => (station, index)))
             {
-                var probe = CfdWorkbench.Core.Planform.Probe(plan, station.Eta);
-                var at = map.ToScreen(station.SpanMeters, probe.TrailingAftMeters);
-                var rect = new Rect(at.X - 48, Math.Min(Bounds.Height - 28, at.Y + 12), 96, 22);
+                var rect = new Rect(map.ToScreen(station.SpanMeters, 0).X - ChipHalfWidth, top, 2 * ChipHalfWidth, ChipHeight);
                 if (result.Any(chip => chip.Bounds.Intersects(rect))) continue;
                 result.Add(new StationChip(index, rect));
             }
@@ -825,14 +843,23 @@ public sealed class PlanCanvas : Control
         }
         var stationPen = new Pen(SelectionBrush ?? Brushes.White, 1,
             new DashStyle([3, 3], 0));
-        foreach (var chip in VisibleStationChips)
+        var strip = PlanformRect(map, plan);
+        var chips = VisibleStationChips;
+        if (chips.Count > 0)
+            using (context.PushOpacity(.5))
+                context.DrawRectangle(SoftBrush ?? BackgroundBrush, null,
+                    new Rect(strip.Left, strip.Bottom + ChipGap / 2, strip.Width, ChipGap / 2 + ChipHeight + ChipGap / 2));
+        foreach (var chip in chips)
         {
             var station = plan.Stations[chip.Index];
             var stationReading = CfdWorkbench.Core.Planform.Probe(plan, station.Eta);
-            context.DrawLine(stationPen, map.ToScreen(station.SpanMeters, stationReading.LeadingAftMeters),
-                map.ToScreen(station.SpanMeters, stationReading.TrailingAftMeters));
-            context.DrawRectangle(SoftBrush ?? BackgroundBrush, new Pen(MuteBrush ?? Brushes.White, 1), chip.Bounds);
-            DrawLabel(context, station.ProfileName, chip.Bounds.Position + new Vector(5, 3));
+            bool selected = Controller.Selection is Selection.Station chosen && chosen.Index == chip.Index;
+            // The leader runs from the leading edge through the planform to the chip, so line and chip read as one station.
+            context.DrawLine(selected ? new Pen(SelectionBrush ?? Brushes.White, 2) : stationPen,
+                map.ToScreen(station.SpanMeters, stationReading.LeadingAftMeters), new Point(chip.Bounds.Center.X, chip.Bounds.Top));
+            context.DrawRectangle(SoftBrush ?? BackgroundBrush,
+                selected ? new Pen(SelectionBrush ?? Brushes.White, 2) : new Pen(MuteBrush ?? Brushes.White, 1), chip.Bounds, 4, 4);
+            DrawLabel(context, station.ProfileName, chip.Bounds.Position + new Vector(8, 5));
         }
         if (changePlate is var (plate, reading))
         {
@@ -969,7 +996,9 @@ public sealed class PlanCanvas : Control
     // Tracing probe box (top band, 8 + 48 px) and the scale bar (bottom band, 50 px), with a margin.
     private const double GlyphMargin = 8;
     private const double ChipHalfWidth = 48;
-    private const double ChipDrop = 34;
+    private const double ChipGap = 20;
+    private const double ChipHeight = 24;
+    private const double ChipDrop = ChipGap + ChipHeight;
     private const double ScaleBarBand = 50;
     private const double FitTop = 8 + 48 + 12 + GlyphMargin;
 
