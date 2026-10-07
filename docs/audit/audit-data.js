@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-06T22:21:09Z",
+  "generated": "2026-10-07T00:12:33Z",
   "audit": [
     {
       "actor": null,
@@ -28288,6 +28288,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-06T22:21:04Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M49V8V15X7C3646YW5B183T0",
+      "shortname": "trk-sma",
+      "datetime": "2026-10-07T00:12:33Z",
+      "session": "trk-sma",
+      "prompt": "Ruling 124 mockup",
+      "summary": "docs/mockups/section-main-area.html and .md with eight PNGs; two proposed strings; craft gate clean",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Reviewable mockup of Ruling 124: plan chip strip, Section document tab, compact bottom summary",
+      "done_when": "Four states rendered and read, copy marked, gates green, committed",
+      "started_at": "2026-10-07T00:06:03Z",
+      "duration_seconds": 390.0
     }
   ],
   "changes": [
@@ -30081,6 +30101,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49K4J94VH8HF1TTJEFRCM9M",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49TW5SD7TJ33MR7JMDPN9PV",
+      "ts": "2026-10-07T00:05:38Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49TW5PGY1K564HYNQ6SHSP6",
       "session": "operator-timianmalloo"
     }
   ]

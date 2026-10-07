@@ -4080,6 +4080,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "071422f30794621b0cc4b4ae8ce037b57f183169e84cae49547f139e0649741d"
     },
     {
+      "id": "mockup-section-main-area",
+      "path": "docs/mockups/section-main-area.md",
+      "title": "Section in the main area (Ruling 124) - chip strip, Section document tab, compact bottom summary",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Four 1500 x 870 states of the shell after Ruling 124: the CAD Plan with station chips in a margin strip, the Analysis Section document tab for a selected strip and for the governing fallback, and the Plan tab with the compact bottom-panel Section summary and its Open in main area action. Two strings are proposed copy.",
+      "tags": [
+        "mockup",
+        "ruling-124",
+        "plan",
+        "section",
+        "analysis",
+        "station-chips",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "mockup-dx-section-polar-states",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-area3-analysis",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d93e18bbd6acf0b1792f34079f19f14fac7e26fc2301f592e2aecc8a8e0991d1"
+    },
+    {
       "id": "mockup-solver-setup",
       "path": "docs/mockups/solver-setup.md",
       "title": "Solver setup — the guided install on Windows and macOS, in today's shell (for the operator's approval)",
@@ -6747,7 +6784,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "59fbd8d58b02ed6a085ac88b4d79a2bd2cd8ae5e83e7f9bc56a74d9e7f9017ce"
+      "sourceSha256": "1138ecbc113ef504e27a3292146f9aac81a6fa83dd7c58295388411d81a92e05"
     },
     {
       "id": "kb-hw-glossary",
@@ -15038,6 +15075,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-property-grid-cells"
     },
     {
+      "id": "surface-mockups-section-main-area",
+      "path": "docs/mockups/section-main-area.html",
+      "title": "Section in the main area",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-section-main-area"
+    },
+    {
       "id": "surface-mockups-solver-setup",
       "path": "docs/mockups/solver-setup.html",
       "title": "Solver setup",
@@ -15054,5 +15099,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "d1cdbe52a22eaee32d520662dab8353ec204750321dc814cfd3826601df8d5bf"
+  "graphSha256": "93bc490eec4a489f1f04e35c936d7eec870ee900504cc7861629454a066b7b13"
 };
