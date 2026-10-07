@@ -1143,3 +1143,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. Now: mo
 Operator 2026-10-06 (AskUserQuestion after reviewing the packaged app). (1) Plan station chips (the section name at each station) move to a margin strip under the planform, aligned to each station, never over the geometry; click selects the station and double-click opens the section editor, as today. (2) The Section sample document tab is retired (Ruling 55 kept it only until a newer surface replaced it; the Analysis Section view does). (3) The Section view opens in the main area as a Section document tab beside Plan and Foil source, full size (chart selector, profile with Cp, stations, polar, cavitation); the bottom-panel Section tab keeps a compact summary with an Open in main area action. A mockup is shown to the operator before the build.
 
 - request: req-01M49TW5PGY1K564HYNQ6SHSP6 · ruled by: operator-timianmalloo · at: 2026-10-07T00:05:38Z
+
+### Ruling 125 — Section main-area mockup approved; labels Section and Open in main area approved
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5): the mockup is approved for build as drawn - station chips in a strip under the planform, the Section sample tab retired, a Section document tab in the main area (Plan · Section · Foil source) with chart selector, profile with Cp, Stations, polar and cavitation groups, and the bottom-panel Section tab as a one-line summary. New labels approved: the main-area tab title "Section" and the bottom action "Open in main area".
+
+- request: req-01M49VF7JRZ8JVNWDSMTR91QVP · ruled by: operator-timianmalloo · at: 2026-10-07T00:16:03Z
