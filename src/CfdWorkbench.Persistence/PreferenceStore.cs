@@ -72,7 +72,7 @@ public static class DisplayPreferences
         ArgumentOutOfRangeException.ThrowIfNotEqual(units is Metric or Imperial, true, nameof(units));
         ArgumentOutOfRangeException.ThrowIfNotEqual(TextSizes.Contains(textSize), true, nameof(textSize));
         var buffer = new ArrayBufferWriter<byte>();
-        using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = true }))
+        using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = true, NewLine = "\n" }))
         {
             writer.WriteStartObject();
             writer.WriteString("format", FormatName);

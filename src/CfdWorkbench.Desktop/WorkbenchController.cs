@@ -2880,9 +2880,9 @@ public sealed class WorkbenchController : IDisposable
         UpdateEstimates();
         Frame = acceptedFrame = null;
         Provenance = "accepted";
-        Status = "Undo selected the preceding accepted source revision. Sampling…";
+        Status = "Undo selected the preceding accepted source revision.";
         Notify();
-        _ = RefreshAcceptedAsync();
+        _ = RefreshAcceptedAsync(preserveStatus: true);
     }
 
     public void Redo()
@@ -2896,9 +2896,9 @@ public sealed class WorkbenchController : IDisposable
         UpdateEstimates();
         Frame = acceptedFrame = null;
         Provenance = "accepted";
-        Status = "Redo selected the next accepted source revision. Sampling…";
+        Status = "Redo selected the next accepted source revision.";
         Notify();
-        _ = RefreshAcceptedAsync();
+        _ = RefreshAcceptedAsync(preserveStatus: true);
     }
 
     public async Task<SaveResult> SaveAsync(string path, CancellationToken cancellation = default)

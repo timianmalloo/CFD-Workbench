@@ -158,7 +158,13 @@ internal static class IdentityTests
         ran++;
         // Test-runner boundary: report unexpected exceptions as failures and continue.
         try { assertion(); Console.WriteLine("PASS " + name); }
-        catch (Exception failure) { failures++; Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message); }
+        catch (Exception failure)
+        {
+            failures++;
+            // Exception.Data carries a refusal's diagnostic (Catalog: check and detail) that the user-facing message omits.
+            string data = failure.Data.Count == 0 ? "" : " [" + string.Join("; ", failure.Data.Cast<System.Collections.DictionaryEntry>().Select(item => item.Key + "=" + item.Value)) + "]";
+            Console.WriteLine("FAIL " + name + " " + failure.GetType().Name + ": " + failure.Message + data);
+        }
     }
 
     internal static void Equal<T>(T expected, T actual)

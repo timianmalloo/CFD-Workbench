@@ -56,16 +56,19 @@ public sealed class LoadingChart : UserControl
     /// <summary>The table twin's rows, one per point, in the order drawn (read by the tests).</summary>
     public int TwinRowCount => table.Children.Count - 1;
 
+    /// <summary>Every cell of the twin, header first, row by row (read by the tests).</summary>
+    public IReadOnlyList<string> TwinCells => [.. table.Children.OfType<Grid>().SelectMany(row => row.Children.OfType<TextBlock>()).Select(cell => cell.Text ?? "")];
+
     /// <summary>Redraws the chart and refills the twin from the same points; the toggle and its focus are untouched.</summary>
-    public void Update(IReadOnlyList<LoadingPoint> loading)
+    public void Update(IReadOnlyList<LoadingPoint> loading, Units units = Units.Metric)
     {
         points = loading ?? throw new ArgumentNullException(nameof(loading));
         plot.Points = points;
         table.Children.Clear();
-        table.Children.Add(Row(true, "η", "Cl·c/c̄", "Elliptic", "α_eff °", "L/span N/m"));
+        table.Children.Add(Row(true, "η", "Cl·c/c̄", "Elliptic", "α_eff °", "L/span " + Labels.ForcePerSpanUnit(units)));
         foreach (var point in points)
             table.Children.Add(Row(false, Num(point.Eta), Num(point.ClChordOverMeanChord), Num(point.EllipticReference),
-                point.AlphaEffDeg.ToString("0.##", Inv), Num(point.LiftPerSpan)));
+                point.AlphaEffDeg.ToString("0.##", Inv), Num(point.LiftPerSpan is { } lift ? Labels.ForcePerSpan(lift, units) : null)));
     }
 
     private void ShowBody()

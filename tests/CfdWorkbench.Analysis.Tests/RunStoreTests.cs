@@ -112,7 +112,7 @@ internal static class RunStoreTests
         var envelope = session.Envelope();
         var today = new TodayEnvelope("cfdw-project-1", envelope.ProjectId, envelope.Sources, envelope.Designs, envelope.Accepted,
             envelope.Cursors, null);
-        byte[] expected = JsonSerializer.SerializeToUtf8Bytes(today, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true });
+        byte[] expected = JsonSerializer.SerializeToUtf8Bytes(today, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, NewLine = "\n" });
         Equal("cfdw-project-1", NativeProject.FormatOf(image), "format");
         Equal(false, Encoding.UTF8.GetString(image).Contains("\"analysis\"", StringComparison.Ordinal), "analysis member written;");
         Equal(true, image.AsSpan().SequenceEqual(expected), "bytes equal today's writer;");

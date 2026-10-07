@@ -27,9 +27,20 @@ public static class StartupFailure
     public const string Code = "APP-UNHANDLED";
     public const string FailureCode = "APP-CRASH";
 
-    public static void Install() => AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
+    /// <summary>
+    /// The first line is always <c>code type</c>. With <paramref name="detail"/> the message and stack follow, for the test harness
+    /// (a crash with no frame cannot be diagnosed). The product handler passes false: exception text can carry paths
+    /// (docs/security/threat-model.md "Crash output").
+    /// </summary>
+    public static string Describe(object? exceptionObject, bool detail)
     {
-        Console.Error.WriteLine($"{Code} {FailureCode} {eventArgs.ExceptionObject?.GetType().FullName ?? "UnknownException"}");
+        string head = $"{Code} {FailureCode} {exceptionObject?.GetType().FullName ?? "UnknownException"}";
+        return detail && exceptionObject is Exception exception ? head + Environment.NewLine + exception : head;
+    }
+
+    public static void Install(bool detail = false) => AppDomain.CurrentDomain.UnhandledException += (_, eventArgs) =>
+    {
+        Console.Error.WriteLine(Describe(eventArgs.ExceptionObject, detail));
         Console.Error.Flush();
         Environment.Exit(ExitCode);
     };

@@ -390,6 +390,7 @@ public static class LayoutCodec
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     WriteIndented = true,
+    NewLine = "\n",
     UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
     GenerationMode = JsonSourceGenerationMode.Default)]
 [JsonSerializable(typeof(LayoutDocument))]

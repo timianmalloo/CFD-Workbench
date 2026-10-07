@@ -8,7 +8,7 @@ namespace CfdWorkbench.Cli;
 
 public static class Cli
 {
-    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true };
+    private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web) { WriteIndented = true, NewLine = "\n" };
 
     public static byte[] ExampleBytes()
     {

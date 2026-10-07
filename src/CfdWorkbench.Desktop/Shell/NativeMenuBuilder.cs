@@ -1,10 +1,63 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
+using Avalonia.Threading;
 using Avalonia.Input;
 using Avalonia.VisualTree;
 using CfdWorkbench.Persistence;
 using CfdWorkbench.Core;
 
 namespace CfdWorkbench.Desktop.Shell;
+
+/// <summary>
+/// The in-window menu bar's keyboard contract off macOS (PR #6, Windows): F10 enters the menu bar, and Escape (or F10 again)
+/// from the menu leaves it and returns focus to the control that had it before. On Windows Alt already reached the bar, but
+/// F10 did nothing and Escape closed the drop-down while focus stayed on the menu item. The menu is found on each key, because
+/// the bar's template builds it after the window is constructed.
+/// </summary>
+public sealed class MenuBarKeys
+{
+    private readonly Window window;
+    private readonly Func<Menu?> find;
+    private IInputElement? origin;
+
+    public MenuBarKeys(Window window, Func<Menu?> find)
+    {
+        this.window = window;
+        this.find = find;
+        window.AddHandler(InputElement.GotFocusEvent, OnGotFocus, RoutingStrategies.Bubble, handledEventsToo: true);
+        window.AddHandler(InputElement.KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
+    }
+
+    private static bool InMenu(Menu menu, object? element) =>
+        element is StyledElement styled && styled.GetSelfAndLogicalAncestors().Contains(menu);
+
+    private void OnGotFocus(object? sender, GotFocusEventArgs e)
+    {
+        if (find() is { } menu && !InMenu(menu, e.Source)) origin = e.Source as IInputElement;
+    }
+
+    private void OnKeyDown(object? sender, KeyEventArgs e)
+    {
+        if (e.KeyModifiers != KeyModifiers.None || find() is not { } menu) return;
+        bool inMenu = menu.IsOpen || InMenu(menu, window.FocusManager?.GetFocusedElement());
+        if (e.Key == Key.F10)
+        {
+            e.Handled = true;
+            if (inMenu) Leave(menu); else menu.Open();
+        }
+        else if (e.Key == Key.Escape && inMenu)
+            // After the menu's own Escape handling has closed its drop-down.
+            Dispatcher.UIThread.Post(() => Leave(menu), DispatcherPriority.Input);
+    }
+
+    private void Leave(Menu menu)
+    {
+        menu.Close();
+        (origin as InputElement)?.Focus();
+    }
+}
 
 public static class NativeMenuBuilder
 {
@@ -112,7 +165,8 @@ public static class NativeMenuBuilder
     /// </summary>
     public static void ShowInWindow(Window window, ShellHost host, NativeMenu menu)
     {
-        host.ShowMenuBar();
+        var bar = host.ShowMenuBar();
+        host.MenuKeys = new MenuBarKeys(window, () => bar.GetVisualDescendants().OfType<Menu>().FirstOrDefault());
         foreach (var item in Flatten(menu).Where(item => item.Gesture is not null && item.Command is not null))
             window.KeyBindings.Add(new KeyBinding { Gesture = item.Gesture!, Command = item.Command! });
     }

@@ -2159,7 +2159,7 @@ public static class NativeProject
     public const int MaxBytes = 8_000_000;
     // RespectRequiredConstructorParameters: a run row missing a member is refused, never read as a zero (ADR-0011 §3).
     // Every pre-A3a member it now requires was already required by the Exact schema checks in Read.
-    static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow, RespectRequiredConstructorParameters = true, Converters = { new RecoveryRowConverter() } };
+    static readonly JsonSerializerOptions Options = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true, NewLine = "\n", UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow, RespectRequiredConstructorParameters = true, Converters = { new RecoveryRowConverter() } };
     /// <summary>The <c>format</c> string of a native image, or null when the image is not a readable JSON object with
     /// one. Lets the store decide on the <c>.v1.bak</c> without parsing the rest (ADR-0011 §6).</summary>
     public static string? FormatOf(byte[] image)

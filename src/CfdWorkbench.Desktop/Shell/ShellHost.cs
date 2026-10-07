@@ -107,6 +107,9 @@ public sealed class ShellHost : Grid
     /// <summary>The in-window menu bar (ADR-0009 S1): null on macOS, where the system menu bar shows the same table.</summary>
     public NativeMenuBar? MenuBar { get; private set; }
 
+    /// <summary>The bar's F10 / Escape handler (WFX2): set with the bar, null on macOS.</summary>
+    public MenuBarKeys? MenuKeys { get; internal set; }
+
     /// <summary>
     /// Adds the menu bar above the dock: a new first row, so the dock, bottom panel and status strip move down one.
     /// The bar renders the window's <see cref="NativeMenu"/>, so there is no second menu definition. Idempotent.

@@ -1971,3 +1971,15 @@ physics-bearing mockups are the ones with drawn flow or force quantities; none o
 that this track could check, so the sweep is not done (OPEN). No lint: a table's presence is checkable, its correctness is not,
 and the correctness check is the build's re-derivation. Persona: the hydrodynamicist reviews the table's numbers, not only the
 picture.
+
+**JSON-NEWLINE-PLATFORM · An indented JSON writer takes `Environment.NewLine`, so its bytes differ on Windows.**
+System.Text.Json with `WriteIndented = true` (or `Utf8JsonWriter` with `Indented = true`) separates lines with `Environment.NewLine`, which is `\r\n` on Windows. The
+layout, recent-list, display-preference and native-project images are hashed, compared and saved, so a Windows build wrote different bytes from the committed fixtures
+(PR #6 review, `docs/reviews/pr-6.md`; the Core layout and recent-list failures in `docs/proof/win-smoke-reverify/receipt.md`). Sibling of WINDOWS-TEXT-MODE-HASH.
+
+**Class → sweep → derive → prevent:** signature: a JSON writer that indents and whose bytes leave the process. Derive: pin `NewLine = "\n"` on every such
+options instance. Sweep (`grep -rn "Indented = true" src`): `LayoutCodec.cs`, `RecentList.cs` (source-generation attributes), `PreferenceStore.cs` (`Utf8JsonWriter`),
+`AuthoringSession.cs` (`NativeProject.Options`), `Cli/Program.cs`: all five pinned; the one test copy that rebuilds a writer (`RunStoreTests.NoRunByteIdentical`) pinned too.
+Control: `LayoutCodec_IndentedJson_PinsLfNewLine` (Core tests, `LayoutFileTests.cs`, ring cost under 0.1 s) fails any `src/**/*.cs` file that indents JSON without a
+`NewLine = "\n"` in it, and asserts the pinned context options and the serialized images hold no `\r`. `Environment.NewLine` cannot be forced on macOS, so the
+scan is the part that fails on the old code. Residual: a file with two options instances, one pinned, passes the scan.
