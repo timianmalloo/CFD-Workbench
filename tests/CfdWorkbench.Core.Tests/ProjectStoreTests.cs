@@ -114,6 +114,22 @@ internal static class ProjectStoreTests
             var store = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.BeforeDirectoryFlush) { observed = true; Equal(1, Directory.GetFiles(root).Length); } } });
             Equal("OK", Save(store, path, new([1], Identity.Sha256([7]), Id())).Code); Equal(true, observed);
         });
+        Check("Store_EquivalentCaseAlias_CannotAcquireSecondWriterClaim", () =>
+        {
+            string root = Root(), path = Path.Combine(root, "project"), alias = Path.Combine(root, "PROJECT"); File.WriteAllBytes(path, [7]);
+            Equal(true, File.Exists(alias));
+            using var claimed = new ManualResetEventSlim(); using var release = new ManualResetEventSlim(); bool secondClaim = false;
+            var first = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.ClaimCreated) { claimed.Set(); Equal(true, release.Wait(TimeSpan.FromSeconds(5))); } } });
+            Task<SaveResult> pending = first.SaveAsync(path, new([1], Identity.Sha256([7]), Id()));
+            try
+            {
+                Equal(true, claimed.Wait(TimeSpan.FromSeconds(5)));
+                var second = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.ClaimCreated) secondClaim = true; } });
+                var result = Save(second, alias, new([2], Identity.Sha256([7]), Id()));
+                Equal(false, secondClaim); Equal("DOC-CONFLICT", result.Code);
+            }
+            finally { release.Set(); _ = pending.GetAwaiter().GetResult(); }
+        });
         Check("Store_RealCompetingCreators_ExactlyOneCompleteImage", () =>
         {
             string path = Path.Combine(Root(), "project"); using var barrier = new Barrier(2);
@@ -239,6 +255,16 @@ internal static class ProjectStoreTests
         {
             using var session = new AuthoringSession(); session.Open(FoilSourceTests.Example, Id(), true); var store = new ProjectStore(session);
             store.Dispose(); Equal(true, session.Snapshot().Source.Length > 0); Equal(true, session.ReadLocalEvents().Count > 0);
+        });
+        Check("Store_InFlightDispose_KeepsTruthfulPublication_NoOwnedEvents", () =>
+        {
+            string path = Path.Combine(Root(), "project"); using var reached = new ManualResetEventSlim(); using var release = new ManualResetEventSlim();
+            var store = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.Published) { reached.Set(); Equal(true, release.Wait(TimeSpan.FromSeconds(5))); } } });
+            var pending = store.SaveAsync(path, new([1, 2], null, Id()));
+            try { Equal(true, reached.Wait(TimeSpan.FromSeconds(5))); store.Dispose(); }
+            finally { release.Set(); }
+            var result = pending.GetAwaiter().GetResult(); Equal("OK", result.Code); Equal(true, result.PublicationKnown); Equal(true, result.DurabilityConfirmed);
+            Equal(0, store.ReadLocalEvents().Count); Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(new byte[] { 1, 2 }));
         });
         Check("Store_IoEvents_CorrelateAndRetainFailureFacts", () =>
         {
@@ -388,32 +414,6 @@ internal static class ProjectStoreTests
             if (!OperatingSystem.IsMacOS()) return;
             string path = Path.Combine(Root(), "huge.cfdw"); File.WriteAllBytes(path, image);
             using var store = new ProjectStore(); Refuses("DOC-SIZE", () => store.ReadAsync(path).GetAwaiter().GetResult());
-        });
-        Check("Store_InFlightDispose_KeepsTruthfulPublication_NoOwnedEvents", () =>
-        {
-            string path = Path.Combine(Root(), "project"); using var reached = new ManualResetEventSlim(); using var release = new ManualResetEventSlim();
-            var store = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.Published) { reached.Set(); Equal(true, release.Wait(TimeSpan.FromSeconds(5))); } } });
-            var pending = store.SaveAsync(path, new([1, 2], null, Id()));
-            try { Equal(true, reached.Wait(TimeSpan.FromSeconds(5))); store.Dispose(); }
-            finally { release.Set(); }
-            var result = pending.GetAwaiter().GetResult(); Equal("OK", result.Code); Equal(true, result.PublicationKnown); Equal(true, result.DurabilityConfirmed);
-            Equal(0, store.ReadLocalEvents().Count); Equal(true, File.ReadAllBytes(path).AsSpan().SequenceEqual(new byte[] { 1, 2 }));
-        });
-        Check("Store_EquivalentCaseAlias_CannotAcquireSecondWriterClaim", () =>
-        {
-            string root = Root(), path = Path.Combine(root, "project"), alias = Path.Combine(root, "PROJECT"); File.WriteAllBytes(path, [7]);
-            Equal(true, File.Exists(alias));
-            using var claimed = new ManualResetEventSlim(); using var release = new ManualResetEventSlim(); bool secondClaim = false;
-            var first = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.ClaimCreated) { claimed.Set(); Equal(true, release.Wait(TimeSpan.FromSeconds(5))); } } });
-            Task<SaveResult> pending = first.SaveAsync(path, new([1], Identity.Sha256([7]), Id()));
-            try
-            {
-                Equal(true, claimed.Wait(TimeSpan.FromSeconds(5)));
-                var second = new ProjectStore(new StoreHooks { OnStage = stage => { if (stage == StoreStage.ClaimCreated) secondClaim = true; } });
-                var result = Save(second, alias, new([2], Identity.Sha256([7]), Id()));
-                Equal(false, secondClaim); Equal("DOC-CONFLICT", result.Code);
-            }
-            finally { release.Set(); _ = pending.GetAwaiter().GetResult(); }
         });
     }
 

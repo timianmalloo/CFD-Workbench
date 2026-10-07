@@ -87,7 +87,7 @@ internal static class IdentityTests
         ProjectStoreTests.Run();
         SectionLibraryTests.Run();
         SectionEditTests.Run();
-        SectionEditTests.RunMultiProfile();
+        ReopenSectionDraftTests.Run();
         FitTests.Run();
         ConstructionTests.Run();
         FairSessionTests.Run();
@@ -113,7 +113,7 @@ internal static class IdentityTests
         SectionPointTests.Run();
         SectionEditsTests.Run();
         SectionDraftTests.Run();
-        ReopenSectionDraftTests.Run();
+        SectionEditTests.RunMultiProfile();
         OverlayTests.Run();
         bool emptyPart = part is not null && only is null && ran == 0;
         if (part is { } p)
