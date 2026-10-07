@@ -12522,6 +12522,87 @@ window.DOCS_INDEX = {
       "sourceSha256": "cb3be0188a83c3d0e5ff019def49ab42f83f3654ff52f752164328a81e45e695"
     },
     {
+      "id": "proof-sfv-captures",
+      "path": "docs/proof/sfv/captures.md",
+      "title": "SFV captures of the Section force vectors against the approved mockup states A to E",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Five app captures (A to E) of the Section document with the Lift and Drag vectors, one per approved mockup state, each opened and compared with the mockup capture, with the differences named. Numbers are read from real lattice runs, not from the mockup.",
+      "tags": [
+        "sfv",
+        "captures",
+        "section",
+        "mockup-state-unbuilt"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-force-vectors",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-sfv-model",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "146a29de711ec836606941e4e48ef8dfaa342ff6bba9f9f1e897ee8b249693c5"
+    },
+    {
+      "id": "proof-sfv-model",
+      "path": "docs/proof/sfv/model.md",
+      "title": "SFV lattice model verification - chordwise panel count and moment reference point",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Written check, before the build, that the lattice defines the strip centre of pressure (chordwise panels nc greater than 1) and how the strip moment, stored about the frame origin, is moved to the strip leading edge. Both hold; the single caveat is nc = 1.",
+      "tags": [
+        "sfv",
+        "lattice",
+        "centre-of-pressure",
+        "ruling-128"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-force-vectors",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d6fcd0e191ca06ec1f3e84cc0981942441f490ff86621e4a893fdfb3c4197d51"
+    },
+    {
+      "id": "proof-sfv-red-first",
+      "path": "docs/proof/sfv/red-first.md",
+      "title": "SFV red-first record for the Lift and Drag vector checks",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "For each behaviour of the Section force vectors (free-stream axes, anchor rule, units, scale rule, labels): the check fails when the behaviour is broken (a planted mutant), and passes on the build. The old code has no model at all, so its red is a compile failure.",
+      "tags": [
+        "sfv",
+        "red-first",
+        "tests"
+      ],
+      "links": [
+        {
+          "to": "proof-sfv-model",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1ef6ed114faf0c3357a7c17280f98c6667a7ffdbf491854fb2f6d077a065a433"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -15304,5 +15385,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "88a1ce885a5daf79e69ebf9815c7e42aa83f25d5836a6f0d909def492c1281c1"
+  "graphSha256": "7224a4c973303683e5f6ae0462e1155c22227a528c760855fe42cee111b7ced5"
 };
