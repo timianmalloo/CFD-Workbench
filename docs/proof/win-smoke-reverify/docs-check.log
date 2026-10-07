@@ -1,0 +1,210 @@
+join rings ok: tests every code join (docs-only joins skip, Ruling 89), slow gates and recounts at readiness
+store subset ok: umask partition holds statically
+Managed Claude hooks: 11 unique event/matcher/target entries
+Rollup links: default and nested destinations resolve to the real source.
+process matching ok: no pgrep/pkill -f under tools/ or cases/tools/
+test paths ok: no relative repository reads in the Core tests
+debug parity ok: no Debug-only code or per-configuration compile property in src/ or tests/ (9 project files)
+SPIRAL: 12 commits, 0 product, 100% bookkeeping since 61a4237 — stop the track and report to the operator (docs/lessons/defect-classes.md COORD-SPIRAL)
+spiral check: ok (12 commits, 1 product)
+spiral check: ok (12 commits, 0 product)
+spiral check: ok (11 commits, 0 product)
+self-test OK
+spiral check: ok (73 commits, 13 product)
+check-artifact-bindings self-test OK
+artifact bindings ok: 9 derived/register patterns all bound in .gitattributes
+check-foildsl-spec-sync self-test OK
+foildsl spec sync ok: src/CfdWorkbench.Core/FoilSource.cs unchanged on this branch
+trace-brief self-test OK
+xmsg self-test: ok (routing, seen-marking, no loss)
+no-heredoc hook self-test OK
+check-copy-ids self-test OK
+copy ids ok: 410 rows, every id unique
+check-wallclock-asserts self-test OK
+wall-clock assertions ok: 3 ungated, all allowlisted as tracked debt
+dispatch-gate self-test OK
+warning: 131 suggestion(s) - 131 review-suggested (V16), 0 stale (V13). Not failing the gate; run with --gate fail to treat them as errors.
+validate: 1 defect(s) - 0 problem(s), 0 orphan(s), 1 index-drift item(s).
+{
+  "root": "docs",
+  "today": "2026-10-07",
+  "artifacts": 354,
+  "problems": [],
+  "stale": [],
+  "flagged": [
+    "adr-0001-master-curve-degree",
+    "adr-foildsl-authority",
+    "adr-application-stack",
+    "adr-application-project-contract",
+    "adr-0005-point-types",
+    "adr-0006-driving-dimensions",
+    "adr-0007-edit-transactions",
+    "adr-0008-section-library",
+    "adr-0009-cad-first-shell",
+    "adr-0012-openfoam-backend-macos",
+    "architecture-application",
+    "coordination-app-shell-build",
+    "coordination-application-build",
+    "coordination-application-cancel-drill",
+    "coordination-application-core-launch",
+    "coordination-contract-b-core",
+    "coordination-contract-b0",
+    "coordination-contract-c-native",
+    "coordination-r17-companions",
+    "coordination-m12b-build",
+    "coordination-architecture-qualification",
+    "coordination-windows-runtime-route",
+    "design-app-shell",
+    "design-application-contracts",
+    "design-application-foundation",
+    "design-area3-analysis",
+    "design-authoring-decisions",
+    "design-language",
+    "design-foildsl-authoring",
+    "design-guided-solver-setup",
+    "design-m12b-points",
+    "design-m12b2-3d-elevations",
+    "design-m12c-section-editor",
+    "design-planform-point-verbs",
+    "design-section-editor",
+    "design-visible-presentation",
+    "design-windows-runtime",
+    "workbench-direction",
+    "examples-foildsl",
+    "investigation-review-window-attach",
+    "kb-cfd-workbench-grounding",
+    "kb-hw-glossary",
+    "kb-visible-presentation-references",
+    "defect-classes",
+    "mockup-area3-analysis",
+    "mockup-solver-setup",
+    "mockup-workbench-v1",
+    "mockup-workbench-v10",
+    "mockup-workbench-v2",
+    "mockup-workbench-v3",
+    "mockup-workbench-v4",
+    "mockup-workbench-v5",
+    "mockup-workbench-v6",
+    "mockup-workbench-v7",
+    "mockup-workbench-v8",
+    "mockup-workbench-v9",
+    "mockup-workbench",
+    "note-area3-analysis-reading-contract",
+    "cad-editing-views",
+    "decision-catalog-admission-classes",
+    "control-vertex-workspace",
+    "decision-design-iteration",
+    "decision-foildsl-reconciliation",
+    "decision-freshness-by-run-key",
+    "kernel-spike-occt-loft",
+    "decision-loft-rule-a",
+    "note-m1-scope-decision",
+    "decision-ncrit-pair",
+    "decision-parametric-authority",
+    "property-grid-rulings",
+    "decision-seven-areas",
+    "note-solver-security-right-size",
+    "note-sweep-replay-semantics",
+    "thick-client-shell",
+    "plan-application-build",
+    "plan-authoring-decisions",
+    "plan-fluids-round2",
+    "plan-fluids-round3",
+    "plan-foil-editing-flow-results",
+    "plan-foildsl-authoring",
+    "plan-independent-edges",
+    "plan-specification-and-ui",
+    "proof-app-shell-test-inventory",
+    "proof-application-contracts",
+    "proof-application-spikes",
+    "proof-authoring-decisions",
+    "proof-foildsl-authoring",
+    "proof-m12b-b1a-red-runs",
+    "proof-native-ui-workbench",
+    "proof-newfoil-red-runs",
+    "proof-spike-03-round2",
+    "proof-spike-03",
+    "proof-spike-04-round2",
+    "proof-spike-04",
+    "proof-visible-presentation",
+    "proof-windows-runtime",
+    "review-app-shell-native",
+    "review-application-architecture",
+    "review-application-contracts",
+    "review-application-core",
+    "review-area3-analysis-personas",
+    "review-authoring-v7-gaps",
+    "review-authoring-v7-independent",
+    "review-foil-editing-flow-results",
+    "review-foildsl-independent",
+    "review-independent-edges",
+    "review-proposal-gap-reconciliation",
+    "review-spec-v02-critique",
+    "review-specification-gate",
+    "review-ui-application-native",
+    "review-ui-property-grid",
+    "review-ui-workbench-v1",
+    "review-ui-workbench-v10",
+    "review-ui-workbench-v2",
+    "review-ui-workbench-v3",
+    "review-ui-workbench-v4",
+    "review-ui-workbench-v5",
+    "review-ui-workbench-v8",
+    "review-ui-workbench-v9",
+    "review-ui-workbench",
+    "review-visible-presentation",
+    "review-windows-runtime",
+    "privacy-review",
+    "threat-model",
+    "spec-amendment-guided-solver-setup",
+    "spec-amendments-1-7-1",
+    "spec-amendments-1-7-2",
+    "spec-amendments-1-7",
+    "spec-cfd-workbench-v1",
+    "spec-cfd-workbench",
+    "spec-foildsl"
+  ],
+  "orphans": [],
+  "index_drift": [
+    "file not in index: proof-win-smoke-reverify"
+  ],
+  "defects": 1,
+  "suggestions": 131,
+  "by_type": {
+    "adr": 12,
+    "architecture": 1,
+    "doc": 43,
+    "plan": 15,
+    "proof-pack": 172,
+    "design": 46,
+    "design-language": 1,
+    "investigation": 1,
+    "knowledge": 28,
+    "glossary": 2,
+    "decision-note": 23,
+    "privacy-review": 1,
+    "threat-model": 1,
+    "spec": 8
+  }
+}
+Traceback (most recent call last):
+  File "C:\Projects\CFD-Workbench-win-smoke-reverify\tools\check-docs.py", line 216, in <module>
+    main()
+    ~~~~^^
+  File "C:\Projects\CFD-Workbench-win-smoke-reverify\tools\check-docs.py", line 180, in main
+    run(graph, "validate")
+    ~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Projects\CFD-Workbench-win-smoke-reverify\tools\check-docs.py", line 28, in run
+    return subprocess.run(
+           ~~~~~~~~~~~~~~^
+        [sys.executable, str(script), *arguments],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        timeout=120,
+        ^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\malla\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 577, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['C:\\Users\\malla\\AppData\\Local\\Programs\\Python\\Python313\\python.exe', 'C:\\Projects\\CFD-Workbench-win-smoke-reverify\\docs\\ai-forward-pack\\scripts\\docs-graph.py', 'validate']' returned non-zero exit status 1.

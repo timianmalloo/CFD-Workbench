@@ -1,0 +1,5 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=ClassicDesktopStyleApplicationLifetime
+NATIVE-STARTUP main-window-assigned=True
+NATIVE-STARTUP window-opened
+WINDOW-ACTION-REFUSED DOC-TYPE: Action refused; accepted source retained.

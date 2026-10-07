@@ -1,0 +1,1118 @@
+{
+    "pid":  21424,
+    "startUtc":  "2026-10-07T22:06:06.2763382Z",
+    "head":  "defbe0a931e703068a4c06278a413c0cf6d7b6bc",
+    "binarySha256":  "866144C3A3D37284B496FC867518897647D2D1401E48C4462FF38B3C64D33676",
+    "dllSha256":  "6D5E8AACF85A9275CABF94F25FC966F9F9C1D95832CC81C9E712804CC5A06EC0",
+    "capturedUtc":  "2026-10-07T22:11:34.6631468Z",
+    "title":  "CFD Workbench — Offline Foil",
+    "dpi":  144,
+    "action":  "click",
+    "x":  310,
+    "y":  411,
+    "endX":  0,
+    "endY":  0,
+    "keys":  "",
+    "screenshot":  "39-file-menu.png",
+    "focusedName":  "File",
+    "focusedRuntimeId":  [
+                             42,
+                             1182498,
+                             4,
+                             49770100
+                         ],
+    "nodes":  [
+                  {
+                      "name":  "Dock host",
+                      "type":  "ControlType.Pane",
+                      "id":  "Root",
+                      "enabled":  true,
+                      "rect":  "277,509,1920,741"
+                  },
+                  {
+                      "name":  "Root dock",
+                      "type":  "ControlType.Pane",
+                      "id":  "Root",
+                      "enabled":  true,
+                      "rect":  "277,509,1920,741"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.List",
+                      "id":  "PART_ItemsControl",
+                      "enabled":  true,
+                      "rect":  "277,509,1920,741"
+                  },
+                  {
+                      "name":  "Properties",
+                      "type":  "ControlType.Pane",
+                      "id":  "LeftDock",
+                      "enabled":  true,
+                      "rect":  "277,559,324,691"
+                  },
+                  {
+                      "name":  "Left side bar",
+                      "type":  "ControlType.Tab",
+                      "id":  "LeftDock",
+                      "enabled":  true,
+                      "rect":  "277,559,324,41"
+                  },
+                  {
+                      "name":  "Properties",
+                      "type":  "ControlType.TabItem",
+                      "id":  "properties",
+                      "enabled":  true,
+                      "rect":  "277,559,109,41"
+                  },
+                  {
+                      "name":  "Properties",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "288,565,87,30"
+                  },
+                  {
+                      "name":  "Browser",
+                      "type":  "ControlType.TabItem",
+                      "id":  "browser",
+                      "enabled":  true,
+                      "rect":  "386,559,89,41"
+                  },
+                  {
+                      "name":  "Browser",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "395,564,71,33"
+                  },
+                  {
+                      "name":  "Layers",
+                      "type":  "ControlType.TabItem",
+                      "id":  "layers",
+                      "enabled":  true,
+                      "rect":  "475,559,75,41"
+                  },
+                  {
+                      "name":  "Layers",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "484,564,57,33"
+                  },
+                  {
+                      "name":  "Properties",
+                      "type":  "ControlType.Custom",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "279,600,320,650"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.Pane",
+                      "id":  "SelectionScroll",
+                      "enabled":  true,
+                      "rect":  "279,600,320,650"
+                  },
+                  {
+                      "name":  "Untitled",
+                      "type":  "ControlType.Text",
+                      "id":  "IdentityTitle",
+                      "enabled":  true,
+                      "rect":  "318,609,245,27"
+                  },
+                  {
+                      "name":  "Foil · nothing selected",
+                      "type":  "ControlType.Text",
+                      "id":  "IdentityCrumb",
+                      "enabled":  true,
+                      "rect":  "318,636,245,23"
+                  },
+                  {
+                      "name":  "VLM + strip · local calculation",
+                      "type":  "ControlType.Text",
+                      "id":  "AnalysisChipText",
+                      "enabled":  true,
+                      "rect":  "305,681,215,23"
+                  },
+                  {
+                      "name":  "Wing result",
+                      "type":  "ControlType.Group",
+                      "id":  "Group_ana_wing_result",
+                      "enabled":  true,
+                      "rect":  "279,715,296,760"
+                  },
+                  {
+                      "name":  "Wing result",
+                      "type":  "ControlType.Button",
+                      "id":  "ExpanderHeader",
+                      "enabled":  true,
+                      "rect":  "279,715,296,36"
+                  },
+                  {
+                      "name":  "CL, 0.177",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_CL",
+                      "enabled":  true,
+                      "rect":  "279,751,296,56"
+                  },
+                  {
+                      "name":  "Envelope, Inside the method envelope (|a_eff minus  a_L0| = 10°, Cl_local = 1, quarter-chord sweep = 30°) at all 126 strips; 2 Not judged — tip strip",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_Envelope",
+                      "enabled":  true,
+                      "rect":  "279,809,296,126"
+                  },
+                  {
+                      "name":  "CDi (Trefftz), 0.00099",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_CDi (Trefftz)",
+                      "enabled":  true,
+                      "rect":  "279,937,296,30"
+                  },
+                  {
+                      "name":  "e (computed), 1.003",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_e (computed)",
+                      "enabled":  true,
+                      "rect":  "279,969,296,97"
+                  },
+                  {
+                      "name":  "Lift L, 240.38 N",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_Lift L",
+                      "enabled":  true,
+                      "rect":  "279,1069,296,29"
+                  },
+                  {
+                      "name":  "Induced drag, 1.354 N",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_Induced drag",
+                      "enabled":  true,
+                      "rect":  "279,1101,296,30"
+                  },
+                  {
+                      "name":  "Drag (Wing only), Unavailable — cd missing at 38 strips; the estimator bound is not substituted",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_Drag (Wing only)",
+                      "enabled":  true,
+                      "rect":  "279,1133,296,84"
+                  },
+                  {
+                      "name":  "Wing-only CL/CD, Unavailable — wing drag is missing or zero, so CL/CD can\u0027t be formed.",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_Wing_only CL/CD",
+                      "enabled":  true,
+                      "rect":  "279,1218,296,84"
+                  },
+                  {
+                      "name":  "CL/CD, Unavailable — missing: junction, mast, wave, spray",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_CL/CD",
+                      "enabled":  true,
+                      "rect":  "279,1305,296,63"
+                  },
+                  {
+                      "name":  "Basis, b 1 m · moment datum: frame origin · Body axes: +x aft, +y starboard, +z up; lift and drag in wind axes",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Wing result_Basis",
+                      "enabled":  true,
+                      "rect":  "279,1370,296,105"
+                  },
+                  {
+                      "name":  "Conditions",
+                      "type":  "ControlType.Group",
+                      "id":  "Group_ana_conditions",
+                      "enabled":  true,
+                      "rect":  "279,1477,296,36"
+                  },
+                  {
+                      "name":  "Conditions",
+                      "type":  "ControlType.Button",
+                      "id":  "ExpanderHeader",
+                      "enabled":  true,
+                      "rect":  "279,1477,296,36"
+                  },
+                  {
+                      "name":  "Labels",
+                      "type":  "ControlType.Group",
+                      "id":  "Group_ana_labels",
+                      "enabled":  true,
+                      "rect":  "279,1515,296,658"
+                  },
+                  {
+                      "name":  "Labels",
+                      "type":  "ControlType.Button",
+                      "id":  "ExpanderHeader",
+                      "enabled":  true,
+                      "rect":  "279,1515,296,36"
+                  },
+                  {
+                      "name":  "Confidence, Computed estimate · Model uncertainty not quantified",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Labels_Confidence",
+                      "enabled":  true,
+                      "rect":  "279,1551,296,63"
+                  },
+                  {
+                      "name":  "Method, cfdw.vlm-strip 1.4.0/panel200-gov400-te3",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Labels_Method",
+                      "enabled":  true,
+                      "rect":  "279,1616,296,63"
+                  },
+                  {
+                      "name":  "Lattice, 64 × 4 cosine/cosine",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Labels_Lattice",
+                      "enabled":  true,
+                      "rect":  "279,1681,296,278"
+                  },
+                  {
+                      "name":  "Basis, attached flow; no stall; no ventilation; free surface not modelled",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Labels_Basis",
+                      "enabled":  true,
+                      "rect":  "279,1961,296,84"
+                  },
+                  {
+                      "name":  "Not modelled, Not modelled: free surface, ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”.",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Labels_Not modelled",
+                      "enabled":  true,
+                      "rect":  "279,2047,296,126"
+                  },
+                  {
+                      "name":  "Section (2D)",
+                      "type":  "ControlType.Group",
+                      "id":  "Group_ana_section_(2d)",
+                      "enabled":  true,
+                      "rect":  "279,2174,296,1252"
+                  },
+                  {
+                      "name":  "Section (2D)",
+                      "type":  "ControlType.Button",
+                      "id":  "ExpanderHeader",
+                      "enabled":  true,
+                      "rect":  "279,2174,296,36"
+                  },
+                  {
+                      "name":  "Cl, 0.236",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_Cl",
+                      "enabled":  true,
+                      "rect":  "279,2210,296,56"
+                  },
+                  {
+                      "name":  "Cm_c/4, -0.003",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_Cm_c/4",
+                      "enabled":  true,
+                      "rect":  "279,2269,296,55"
+                  },
+                  {
+                      "name":  "a_L0, 0 degrees",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_a_L0",
+                      "enabled":  true,
+                      "rect":  "279,2327,296,56"
+                  },
+                  {
+                      "name":  "Cd (turbulent bound), 0.02139",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_Cd (turbulent bound)",
+                      "enabled":  true,
+                      "rect":  "279,2385,296,110"
+                  },
+                  {
+                      "name":  "Cp_min, -0.776",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_Cp_min",
+                      "enabled":  true,
+                      "rect":  "279,2497,296,77"
+                  },
+                  {
+                      "name":  "N, 400",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_N",
+                      "enabled":  true,
+                      "rect":  "279,2576,296,56"
+                  },
+                  {
+                      "name":  "?, 0.976",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_?",
+                      "enabled":  true,
+                      "rect":  "279,2634,296,56"
+                  },
+                  {
+                      "name":  "Cavitation, Unavailable — depth not set",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_Cavitation",
+                      "enabled":  true,
+                      "rect":  "279,2692,296,203"
+                  },
+                  {
+                      "name":  "Ncrit 2, Unavailable — Re is outside the surrogate’s training range (1 × 10² to 1 × 10¹°)",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_Ncrit 2",
+                      "enabled":  true,
+                      "rect":  "279,2897,296,131"
+                  },
+                  {
+                      "name":  "Ncrit 4, Unavailable — Re is outside the surrogate’s training range (1 × 10² to 1 × 10¹°)",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_Ncrit 4",
+                      "enabled":  true,
+                      "rect":  "279,3030,296,131"
+                  },
+                  {
+                      "name":  "CST residual, CST fit residual: max 1.07 × 10?4 c · RMS 2.86 × 10?5 c (shape residual, not an aerodynamic error)",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_CST residual",
+                      "enabled":  true,
+                      "rect":  "279,3163,296,152"
+                  },
+                  {
+                      "name":  "analysis_confidence, analysis_confidence 0.99 · advisory, not an error bar",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_a_Section (2D)_analysis_confidence",
+                      "enabled":  true,
+                      "rect":  "279,3317,296,110"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.Pane",
+                      "id":  "WingScroll",
+                      "enabled":  true,
+                      "rect":  "279,3431,296,363"
+                  },
+                  {
+                      "name":  "Wing",
+                      "type":  "ControlType.Text",
+                      "id":  "WingHeading",
+                      "enabled":  true,
+                      "rect":  "291,3438,272,21"
+                  },
+                  {
+                      "name":  "Span, 1000.00 millimetres, locked",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_w_span",
+                      "enabled":  true,
+                      "rect":  "279,3467,296,30"
+                  },
+                  {
+                      "name":  "Root chord, 127.04 millimetres, locked",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_w_root",
+                      "enabled":  true,
+                      "rect":  "279,3498,296,30"
+                  },
+                  {
+                      "name":  "Tip chord, 12.70 millimetres, locked",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_w_tip",
+                      "enabled":  true,
+                      "rect":  "279,3531,296,30"
+                  },
+                  {
+                      "name":  "Avalonia.Controls.StackPanel",
+                      "type":  "ControlType.Button",
+                      "id":  "HowMeasuredButton",
+                      "enabled":  true,
+                      "rect":  "279,3572,296,36"
+                  },
+                  {
+                      "name":  "Estimates · definitions",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "326,3579,159,21"
+                  },
+                  {
+                      "name":  "Mean chord, approximately 100.5 millimetres",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_e_mean",
+                      "enabled":  true,
+                      "rect":  "279,3608,296,30"
+                  },
+                  {
+                      "name":  "MAC, approximately 110.8 millimetres",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_e_mac",
+                      "enabled":  true,
+                      "rect":  "279,3640,296,30"
+                  },
+                  {
+                      "name":  "Max t over c, approximately 12.0 percent",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_e_maxtc",
+                      "enabled":  true,
+                      "rect":  "279,3672,296,30"
+                  },
+                  {
+                      "name":  "AR, aspect ratio, approximately 9.95 b squared over S",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_e_ar",
+                      "enabled":  true,
+                      "rect":  "279,3704,296,30"
+                  },
+                  {
+                      "name":  "Area, approximately 1005 square centimetres",
+                      "type":  "ControlType.Text",
+                      "id":  "Row_e_area",
+                      "enabled":  true,
+                      "rect":  "279,3736,296,30"
+                  },
+                  {
+                      "name":  "Set these in the workspace.",
+                      "type":  "ControlType.Text",
+                      "id":  "Note_wing_0",
+                      "enabled":  true,
+                      "rect":  "279,3766,296,26"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.ScrollBar",
+                      "id":  "PART_VerticalScrollBar",
+                      "enabled":  true,
+                      "rect":  "575,600,24,650"
+                  },
+                  {
+                      "name":  "Line up",
+                      "type":  "ControlType.Button",
+                      "id":  "PART_LineUpButton",
+                      "enabled":  true,
+                      "rect":  "575,600,24,24"
+                  },
+                  {
+                      "name":  "Page up",
+                      "type":  "ControlType.Button",
+                      "id":  "PART_PageUpButton",
+                      "enabled":  true,
+                      "rect":  "Empty"
+                  },
+                  {
+                      "name":  "Page down",
+                      "type":  "ControlType.Button",
+                      "id":  "PART_PageDownButton",
+                      "enabled":  true,
+                      "rect":  "575,746,24,481"
+                  },
+                  {
+                      "name":  "Position",
+                      "type":  "ControlType.Thumb",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "575,624,24,122"
+                  },
+                  {
+                      "name":  "Line down",
+                      "type":  "ControlType.Button",
+                      "id":  "PART_LineDownButton",
+                      "enabled":  true,
+                      "rect":  "575,1226,24,24"
+                  },
+                  {
+                      "name":  "Pane menu",
+                      "type":  "ControlType.Button",
+                      "id":  "PART_MenuButton",
+                      "enabled":  true,
+                      "rect":  "530,511,27,48"
+                  },
+                  {
+                      "name":  "Close left side bar",
+                      "type":  "ControlType.Button",
+                      "id":  "PART_CloseButton",
+                      "enabled":  true,
+                      "rect":  "560,511,27,48"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.Thumb",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "601,509,6,741"
+                  },
+                  {
+                      "name":  "Plan",
+                      "type":  "ControlType.Pane",
+                      "id":  "Docs",
+                      "enabled":  true,
+                      "rect":  "607,509,1590,741"
+                  },
+                  {
+                      "name":  "Model area",
+                      "type":  "ControlType.Tab",
+                      "id":  "Docs",
+                      "enabled":  true,
+                      "rect":  "607,509,1590,69"
+                  },
+                  {
+                      "name":  "Toggle left sidebar",
+                      "type":  "ControlType.Button",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "2137,509,60,69"
+                  },
+                  {
+                      "name":  "Plan",
+                      "type":  "ControlType.TabItem",
+                      "id":  "model",
+                      "enabled":  true,
+                      "rect":  "607,509,96,69"
+                  },
+                  {
+                      "name":  "Plan",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "616,528,41,30"
+                  },
+                  {
+                      "name":  "Section",
+                      "type":  "ControlType.TabItem",
+                      "id":  "section",
+                      "enabled":  true,
+                      "rect":  "703,509,96,69"
+                  },
+                  {
+                      "name":  "Section",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "712,528,65,30"
+                  },
+                  {
+                      "name":  "Foil source",
+                      "type":  "ControlType.TabItem",
+                      "id":  "foil-source",
+                      "enabled":  true,
+                      "rect":  "799,509,119,69"
+                  },
+                  {
+                      "name":  "Foil source",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "808,528,92,30"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.Custom",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "609,583,1585,665"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.Custom",
+                      "id":  "AnalysisConditionsBand",
+                      "enabled":  true,
+                      "rect":  "609,583,1585,64"
+                  },
+                  {
+                      "name":  "Speed",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "615,600,59,29"
+                  },
+                  {
+                      "name":  "Speed in metres per second",
+                      "type":  "ControlType.Edit",
+                      "id":  "SpeedInput",
+                      "enabled":  true,
+                      "rect":  "677,589,96,50"
+                  },
+                  {
+                      "name":  "m/s",
+                      "type":  "ControlType.Text",
+                      "id":  "SpeedUnit",
+                      "enabled":  true,
+                      "rect":  "775,600,37,29"
+                  },
+                  {
+                      "name":  "Water record",
+                      "type":  "ControlType.ComboBox",
+                      "id":  "WaterInput",
+                      "enabled":  true,
+                      "rect":  "815,589,167,48"
+                  },
+                  {
+                      "name":  "Salt · 15 °C",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "833,598,101,29"
+                  },
+                  {
+                      "name":  "Depth h_ref",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "985,600,110,29"
+                  },
+                  {
+                      "name":  "Reference depth in metres, not set when empty",
+                      "type":  "ControlType.Edit",
+                      "id":  "DepthInput",
+                      "enabled":  true,
+                      "rect":  "1097,589,96,50"
+                  },
+                  {
+                      "name":  "m",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "1196,600,21,29"
+                  },
+                  {
+                      "name":  "a",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "1220,600,14,29"
+                  },
+                  {
+                      "name":  "Incidence alpha in degrees",
+                      "type":  "ControlType.Edit",
+                      "id":  "AlphaInput",
+                      "enabled":  true,
+                      "rect":  "1237,589,96,50"
+                  },
+                  {
+                      "name":  "°",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "1336,600,9,29"
+                  },
+                  {
+                      "name":  "Evaluate",
+                      "type":  "ControlType.Button",
+                      "id":  "EvaluateButton",
+                      "enabled":  true,
+                      "rect":  "1348,596,91,36"
+                  },
+                  {
+                      "name":  "Find operating alpha",
+                      "type":  "ControlType.Button",
+                      "id":  "FindAlphaButton",
+                      "enabled":  true,
+                      "rect":  "1442,596,87,36"
+                  },
+                  {
+                      "name":  "q 13553.532 Pa",
+                      "type":  "ControlType.Text",
+                      "id":  "DerivedQ",
+                      "enabled":  true,
+                      "rect":  "1561,600,141,29"
+                  },
+                  {
+                      "name":  "s Unavailable — depth not set",
+                      "type":  "ControlType.Text",
+                      "id":  "DerivedSigma",
+                      "enabled":  true,
+                      "rect":  "1705,600,282,29"
+                  },
+                  {
+                      "name":  "More derived conditions",
+                      "type":  "ControlType.Button",
+                      "id":  "MoreButton",
+                      "enabled":  true,
+                      "rect":  "1990,596,102,36"
+                  },
+                  {
+                      "name":  "Plan view label. Double-click or Return shows this view alone.",
+                      "type":  "ControlType.Button",
+                      "id":  "PlanLabel",
+                      "enabled":  true,
+                      "rect":  "620,658,56,36"
+                  },
+                  {
+                      "name":  "Plan view with G loading strips; strip values in the strips table",
+                      "type":  "ControlType.Group",
+                      "id":  "PlanCanvas",
+                      "enabled":  true,
+                      "rect":  "611,649,1049,597"
+                  },
+                  {
+                      "name":  "Leading edge, point 1 of 4, rootend, from root 0.00 mm, aft 0.00 mm",
+                      "type":  "ControlType.Button",
+                      "id":  "PlanCanvas",
+                      "enabled":  true,
+                      "rect":  "1114,743,42,42"
+                  },
+                  {
+                      "name":  "Leading edge, point 2 of 4, out handle, angle 0.00°, length 226.40 mm, from root 226.40 mm, aft 0.00 mm",
+                      "type":  "ControlType.Button",
+                      "id":  "PlanCanvas",
+                      "enabled":  true,
+                      "rect":  "1313,743,42,42"
+                  },
+                  {
+                      "name":  "Leading edge, point 3 of 4, in handle, angle -169.75°, length 169.37 mm, from root 333.33 mm, aft -1.54 mm",
+                      "type":  "ControlType.Button",
+                      "id":  "PlanCanvas",
+                      "enabled":  true,
+                      "rect":  "1408,742,42,42"
+                  },
+                  {
+                      "name":  "Leading edge, point 4 of 4, tipend, from root 500.00 mm, aft 28.58 mm",
+                      "type":  "ControlType.Button",
+                      "id":  "PlanCanvas",
+                      "enabled":  true,
+                      "rect":  "1555,768,42,42"
+                  },
+                  {
+                      "name":  "Trailing edge, point 1 of 4, rootend, from root 0.00 mm, aft 127.04 mm",
+                      "type":  "ControlType.Button",
+                      "id":  "PlanCanvas",
+                      "enabled":  true,
+                      "rect":  "1114,855,42,42"
+                  },
+                  {
+                      "name":  "Trailing edge, point 2 of 4, out handle, angle 0.00°, length 166.67 mm, from root 166.67 mm, aft 127.04 mm",
+                      "type":  "ControlType.Button",
+                      "id":  "PlanCanvas",
+                      "enabled":  true,
+                      "rect":  "1261,855,42,42"
+                  },
+                  {
+                      "name":  "Trailing edge, point 3 of 4, in handle, angle 151.53°, length 189.60 mm, from root 333.33 mm, aft 131.67 mm",
+                      "type":  "ControlType.Button",
+                      "id":  "PlanCanvas",
+                      "enabled":  true,
+                      "rect":  "1408,859,42,42"
+                  },
+                  {
+                      "name":  "Trailing edge, point 4 of 4, tipend, from root 500.00 mm, aft 41.29 mm",
+                      "type":  "ControlType.Button",
+                      "id":  "PlanCanvas",
+                      "enabled":  true,
+                      "rect":  "1555,779,42,42"
+                  },
+                  {
+                      "name":  "3D · Iso view label. Double-click or Return shows this view alone.",
+                      "type":  "ControlType.Button",
+                      "id":  "ThreeDLabel",
+                      "enabled":  true,
+                      "rect":  "1679,658,81,36"
+                  },
+                  {
+                      "name":  "3D view, camera Iso; strip lift arrows, values in the Loads table; root moment, values in the Loads table",
+                      "type":  "ControlType.Group",
+                      "id":  "ThreeDView",
+                      "enabled":  true,
+                      "rect":  "1670,649,523,597"
+                  },
+                  {
+                      "name":  "Front view",
+                      "type":  "ControlType.Button",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "2130,698,36,48"
+                  },
+                  {
+                      "name":  "Side view",
+                      "type":  "ControlType.Button",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "2094,698,36,48"
+                  },
+                  {
+                      "name":  "Home (Iso)",
+                      "type":  "ControlType.Button",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "2036,689,36,48"
+                  },
+                  {
+                      "name":  "Orbit left 90°",
+                      "type":  "ControlType.Button",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "2028,763,36,48"
+                  },
+                  {
+                      "name":  "Orbit up 90°",
+                      "type":  "ControlType.Button",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "2067,763,36,48"
+                  },
+                  {
+                      "name":  "Orbit down 90°",
+                      "type":  "ControlType.Button",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "2106,763,36,48"
+                  },
+                  {
+                      "name":  "Orbit right 90°",
+                      "type":  "ControlType.Button",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "2145,763,36,48"
+                  },
+                  {
+                      "name":  "Display · x aft, y starboard, z up · twist about the leading edge",
+                      "type":  "ControlType.Text",
+                      "id":  "ThreeDCaption",
+                      "enabled":  true,
+                      "rect":  "1787,1155,378,81"
+                  },
+                  {
+                      "name":  "CAD area",
+                      "type":  "ControlType.Button",
+                      "id":  "NavCadButton",
+                      "enabled":  true,
+                      "rect":  "1063,1191,66,36"
+                  },
+                  {
+                      "name":  "Analysis area",
+                      "type":  "ControlType.Button",
+                      "id":  "NavAnalysisButton",
+                      "enabled":  true,
+                      "rect":  "1132,1191,102,36"
+                  },
+                  {
+                      "name":  "Views: Plan + 3D",
+                      "type":  "ControlType.Button",
+                      "id":  "NavViewsButton",
+                      "enabled":  true,
+                      "rect":  "1247,1191,163,36"
+                  },
+                  {
+                      "name":  "Display: Shaded",
+                      "type":  "ControlType.Button",
+                      "id":  "NavDisplayButton",
+                      "enabled":  true,
+                      "rect":  "1413,1191,155,36"
+                  },
+                  {
+                      "name":  "Fit",
+                      "type":  "ControlType.Button",
+                      "id":  "NavFitButton",
+                      "enabled":  true,
+                      "rect":  "1582,1191,42,36"
+                  },
+                  {
+                      "name":  "Fit Selection",
+                      "type":  "ControlType.Button",
+                      "id":  "NavFitSelectionButton",
+                      "enabled":  true,
+                      "rect":  "1627,1191,113,36"
+                  },
+                  {
+                      "name":  "Pinned dock host",
+                      "type":  "ControlType.Pane",
+                      "id":  "Root",
+                      "enabled":  true,
+                      "rect":  "277,509,1920,741"
+                  },
+                  {
+                      "name":  "Analysis results",
+                      "type":  "ControlType.Custom",
+                      "id":  "AnalysisPanel",
+                      "enabled":  true,
+                      "rect":  "277,1250,1920,225"
+                  },
+                  {
+                      "name":  "Analysis result tabs",
+                      "type":  "ControlType.Tab",
+                      "id":  "PanelTabs",
+                      "enabled":  true,
+                      "rect":  "277,1264,1920,211"
+                  },
+                  {
+                      "name":  "Spanwise loading",
+                      "type":  "ControlType.TabItem",
+                      "id":  "LoadingTab",
+                      "enabled":  true,
+                      "rect":  "277,1264,147,36"
+                  },
+                  {
+                      "name":  "Section",
+                      "type":  "ControlType.TabItem",
+                      "id":  "SectionTab",
+                      "enabled":  true,
+                      "rect":  "424,1264,77,36"
+                  },
+                  {
+                      "name":  "Loads",
+                      "type":  "ControlType.TabItem",
+                      "id":  "LoadsTab",
+                      "enabled":  true,
+                      "rect":  "501,1264,66,36"
+                  },
+                  {
+                      "name":  "Provenance",
+                      "type":  "ControlType.TabItem",
+                      "id":  "ProvenanceTab",
+                      "enabled":  true,
+                      "rect":  "567,1264,107,36"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.Custom",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "301,1309,1872,160"
+                  },
+                  {
+                      "name":  "Spanwise loading Cl·c/c¯ vs ?; dashed elliptic reference at the same CL",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "301,1309,1740,36"
+                  },
+                  {
+                      "name":  "Spanwise loading table twin",
+                      "type":  "ControlType.Button",
+                      "id":  "LoadingTwinToggle",
+                      "enabled":  true,
+                      "rect":  "2041,1309,132,36"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.Custom",
+                      "id":  "StatusStrip",
+                      "enabled":  true,
+                      "rect":  "277,1475,1920,36"
+                  },
+                  {
+                      "name":  "DOC-TYPE: Save was not acknowledged. Resolve the refusal before retry.",
+                      "type":  "ControlType.Text",
+                      "id":  "StatusText",
+                      "enabled":  true,
+                      "rect":  "324,1483,528,21"
+                  },
+                  {
+                      "name":  "Analysis: Current",
+                      "type":  "ControlType.Text",
+                      "id":  "AnalysisItemText",
+                      "enabled":  true,
+                      "rect":  "1735,1483,122,21"
+                  },
+                  {
+                      "name":  "Metric",
+                      "type":  "ControlType.Button",
+                      "id":  "UnitsButton",
+                      "enabled":  true,
+                      "rect":  "1891,1475,75,36"
+                  },
+                  {
+                      "name":  "˜ estimates",
+                      "type":  "ControlType.Text",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "1993,1483,86,21"
+                  },
+                  {
+                      "name":  "Text 100 %",
+                      "type":  "ControlType.Text",
+                      "id":  "TextSizeItemText",
+                      "enabled":  true,
+                      "rect":  "2104,1483,80,21"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.Edit",
+                      "id":  "PART_TextBox",
+                      "enabled":  true,
+                      "rect":  "967,433,540,50"
+                  },
+                  {
+                      "name":  "",
+                      "type":  "ControlType.Menu",
+                      "id":  "PART_NativeMenuPresenter",
+                      "enabled":  true,
+                      "rect":  "277,386,1920,48"
+                  },
+                  {
+                      "name":  "File",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "277,386,68,48"
+                  },
+                  {
+                      "name":  "New foil",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "279,442,394,45"
+                  },
+                  {
+                      "name":  "New from example",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "279,487,394,45"
+                  },
+                  {
+                      "name":  "Open…",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "279,532,394,45"
+                  },
+                  {
+                      "name":  "Open Recent",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "279,577,394,45"
+                  },
+                  {
+                      "name":  "Save",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "279,622,394,44"
+                  },
+                  {
+                      "name":  "Save As…",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "279,667,394,45"
+                  },
+                  {
+                      "name":  "Close",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "279,712,394,45"
+                  },
+                  {
+                      "name":  "Edit",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "345,386,72,48"
+                  },
+                  {
+                      "name":  "View",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "417,386,80,48"
+                  },
+                  {
+                      "name":  "Section",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "498,386,105,48"
+                  },
+                  {
+                      "name":  "Window",
+                      "type":  "ControlType.MenuItem",
+                      "id":  "",
+                      "enabled":  true,
+                      "rect":  "603,386,113,48"
+                  }
+              ]
+}
