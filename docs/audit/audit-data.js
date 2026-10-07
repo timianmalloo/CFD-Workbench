@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T19:58:19Z",
+  "generated": "2026-10-07T22:24:44Z",
   "audit": [
     {
       "actor": null,
@@ -29253,6 +29253,48 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T19:58:14Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M4C7G44NSHEHC5JMVSHRN7C3",
+      "shortname": "windows-w3-r133-reentry",
+      "datetime": "2026-10-07T22:24:44Z",
+      "session": "win-local-coordinator",
+      "prompt": "Complete the Mac-authorized Ruling 133 Windows solver-route re-entry, then run the required application ring once and preserve every result.",
+      "summary": "W-3 re-entry verified OpenFOAM v2512 cavity execution through t=0.5 with final Courant mean 0.222158 and native SU2 v8.5.0 from LF blob-equal inputs with CD 2.885552317. One activation repair was used. The single application ring at evidence SHA 614f9cce failed with 39 named tests, a Desktop exit 70 without frame, 10 cost failures, and wall 60.992 s; no rerun or product repair occurred.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "gpt-6-astra Owner + gpt-6.1-sol worker + local coordinator",
+      "artifacts": [
+        "docs/proof/win-routes/receipt.md",
+        "cases/win-smoke-cavity.yaml",
+        "cases/win-su2-smoke.yaml"
+      ],
+      "tags": [
+        "windows",
+        "openfoam",
+        "su2"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Complete the Ruling 133 W-3 numerical route re-entry and deliver its required application-ring evidence for Mac review.",
+      "done_when": "Cavity and SU2 meet their source-bound oracles, the required ring has one recorded disposition with raw logs, documentation checks pass, and the branch is ready for Mac review.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-10-07T22:24:44Z",
+      "duration_seconds": 0.0,
+      "git": {
+        "sha": "3711375f58325cbf4a4eb5de577724258444dbe7",
+        "short": "3711375f5",
+        "branch": "win/solver-routes-r133",
+        "pushed": false
+      }
     }
   ],
   "changes": [

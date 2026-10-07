@@ -159,7 +159,7 @@ CPU/RAM **Not recorded**. The failure path returned 1 before the final budget gu
 Release build passed, **0 errors**, **2 AVLN3001 warnings** (CatalogDialog.axaml and SaveSectionDialog.axaml).
 
 The first action after the process returned copied all **24** scratch log/clock files from `.tmp-tests` into
-`r133/raw-ring/`. `run.json` records their byte counts and 614f9cce009b0bc7cfaee55faec1bcc679e8782c-256. Raw stdout, SDK identity and clocks are retained;
+`r133/raw-ring/`. `run.json` records their byte counts and SHA-256 hashes. Raw stdout, SDK identity and clocks are retained;
 `failure-summary.json` is derived from those files, without rewriting them.
 
 | Suite / partition | Exit | Wall ms | Named failures | PASS lines |
