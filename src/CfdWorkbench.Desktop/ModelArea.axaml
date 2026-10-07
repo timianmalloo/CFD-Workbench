@@ -252,21 +252,13 @@
 
       <local:SectionEditorView x:Name="SectionModeEditor" IsVisible="False" />
 
-      <!-- These three bodies move to Dock documents before the shell is shown. -->
+      <!-- These bodies move to Dock documents before the shell is shown. The Section document's content (the Section view)
+           is the Analysis panel's SectionView, set by the shell. -->
       <Grid x:Name="DetachedDocumentBodies" IsVisible="False">
-          <StackPanel x:Name="SectionSampleBody" Margin="{StaticResource Space4}" Spacing="8">
-            <TextBlock x:Name="SectionPosition" Classes="heading" Text="Physical X/Z section · η 0.5" />
-            <local:Viewport x:Name="SectionViewport" Height="{StaticResource SectionViewportHeight}"
-                            BackgroundBrush="{DynamicResource ViewportBrush}"
-                            AnnotationWidth="{StaticResource ViewportAnnotationWidth}" AnnotationHeight="{StaticResource SectionAnnotationHeight}"
-                            GridBrush="{DynamicResource ViewportGridBrush}" FoilBrush="{DynamicResource FoilBrush}"
-                            StationBrush="{DynamicResource StationBrush}"
-                            AutomationProperties.Name="Five certified physical x and z section samples at the labelled interior eta, upper and lower trailing edges separate" />
-            <TextBlock x:Name="SectionReadout" Text="Open a certified foil to inspect normalized z/c." TextWrapping="Wrap"
-                       AutomationProperties.Name="Normalized section upper and lower enclosure" />
-            <TextBlock Classes="caption" Text="Physical points (m) and normalized z/c at x/c 0.5; sampled segment error Not assessed." />
-            <TextBlock Classes="caption" Text="Analysis Unavailable — no method implemented." />
-          </StackPanel>
+          <ScrollViewer x:Name="SectionDocumentBody" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                        AutomationProperties.Name="Section">
+            <ContentControl x:Name="SectionDocumentHost" />
+          </ScrollViewer>
 
           <Grid x:Name="FoilSourceBody" RowDefinitions="Auto,*" Margin="{StaticResource Space4}">
             <TextBlock Grid.Row="0" x:Name="SourceLabel" Text="Accepted source bytes" />

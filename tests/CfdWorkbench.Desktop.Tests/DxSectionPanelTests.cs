@@ -32,10 +32,10 @@ public static class DxSectionPanelTests
                 .WaitAsync(TimeSpan.FromSeconds(60)).GetAwaiter().GetResult();
             host.RefreshPanes();
             Settle(window);
-            var tabs = host.AnalysisPanel.FindControl<TabControl>("PanelTabs")!;
-            tabs.SelectedItem = tabs.Items.OfType<TabItem>().First(t => (string?)t.Header == "Section");
+            // Ruling 124: the Section view is the model area's Section document.
+            host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
             Settle(window);
-            return (controller, host, window, host.AnalysisPanel.FindControl<StackPanel>("SectionBody")!.Children.OfType<SectionTabView>().Single());
+            return (controller, host, window, host.AnalysisPanel.SectionView);
         });
         try
         {

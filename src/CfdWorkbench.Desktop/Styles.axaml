@@ -229,14 +229,10 @@
     <x:Double x:Key="GlyphStroke">1.5</x:Double>
     <x:Double x:Key="StationListHeight">120</x:Double>
     <x:Double x:Key="NavigatorListHeight">180</x:Double>
-    <x:Double x:Key="SectionViewportHeight">96</x:Double>
     <x:Double x:Key="SectionThumbnailWidth">200</x:Double>
     <x:Double x:Key="SectionThumbnailHeight">80</x:Double>
     <x:Double x:Key="SectionEditorMinHeight">160</x:Double>
     <GridLength x:Key="SectionPanelHeight">300</GridLength>
-    <x:Double x:Key="ViewportAnnotationWidth">178</x:Double>
-    <x:Double x:Key="ViewportAnnotationHeight">160</x:Double>
-    <x:Double x:Key="SectionAnnotationHeight">72</x:Double>
     <x:Double x:Key="WindowWidth">1280</x:Double>
     <x:Double x:Key="WindowHeight">800</x:Double>
     <x:Double x:Key="WindowMinWidth">1024</x:Double>
@@ -348,6 +344,10 @@
   <Style Selector="ListBoxItem:selected:pressed /template/ ContentPresenter#PART_ContentPresenter"><Setter Property="Foreground" Value="{DynamicResource CanvasBrush}" /><Setter Property="Background" Value="{DynamicResource InkBrush}" /></Style>
   <Style Selector="Button:focus-visible, TabItem:focus-visible, TextBox:focus-visible, ListBoxItem:focus-visible"><Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" /></Style>
   <Style Selector="TextBlock.heading"><Setter Property="FontSize" Value="{StaticResource HeadingSize}" /><Setter Property="FontWeight" Value="SemiBold" /></Style>
+  <!-- The result-table text of the Analysis panel and of the Section document (moved here when the Section view left the panel, Ruling 124). -->
+  <Style Selector="TextBlock.pnl-head"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
+  <Style Selector="TextBlock.pnl-note"><Setter Property="FontSize" Value="{DynamicResource PropNoteSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
+  <Style Selector="TextBlock.pnl-cell"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
   <Style Selector="TextBlock.caption"><Setter Property="FontSize" Value="{StaticResource CaptionSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /></Style>
   <!-- Property sheet, structure B (DR-CELL-1; docs/reviews/ui-property-grid-cells.md §5.2). Every brush is a theme resource
        defined in Light, Dark and High contrast, so each state below resolves in all three variants (PG-11). Every size

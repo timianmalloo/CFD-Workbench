@@ -7,9 +7,6 @@
        Historical beside the error card. Checks has no data source (no DRC exists, OD-4 a), so it is omitted. -->
   <UserControl.Styles>
     <Style Selector="TabControl#PanelTabs TabItem"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="MinHeight" Value="{StaticResource CompactTargetSize}" /><Setter Property="Padding" Value="{StaticResource NavbarButtonPadding}" /></Style>
-    <Style Selector="TextBlock.pnl-head"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="FontWeight" Value="SemiBold" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /></Style>
-    <Style Selector="TextBlock.pnl-note"><Setter Property="FontSize" Value="{DynamicResource PropNoteSize}" /><Setter Property="Foreground" Value="{DynamicResource MutedBrush}" /><Setter Property="TextWrapping" Value="Wrap" /></Style>
-    <Style Selector="TextBlock.pnl-cell"><Setter Property="FontSize" Value="{DynamicResource PropFontSize}" /><Setter Property="Foreground" Value="{DynamicResource InkBrush}" /><Setter Property="TextWrapping" Value="Wrap" /><Setter Property="FontFeatures" Value="+tnum,+lnum" /></Style>
     <Style Selector="Border.pnl-bar"><Setter Property="Background" Value="{DynamicResource SurfaceSoftBrush}" /><Setter Property="Height" Value="10" /><Setter Property="CornerRadius" Value="2" /></Style>
     <Style Selector="Border.pnl-error"><Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}" /><Setter Property="BorderThickness" Value="1" /><Setter Property="Padding" Value="{StaticResource Space1}" /></Style>
   </UserControl.Styles>
@@ -37,7 +34,13 @@
           </Grid>
         </TabItem>
         <TabItem x:Name="SectionTab" Header="Section" AutomationProperties.Name="Section">
-          <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="SectionBody" Margin="{StaticResource Space1}" /></ScrollViewer>
+          <!-- Ruling 124: the full Section view is the model area's Section document; this tab is its one-line summary. -->
+          <Grid x:Name="SectionSummary" ColumnDefinitions="Auto,Auto,Auto,*,Auto" Margin="{StaticResource Space1}" VerticalAlignment="Center">
+            <TextBlock x:Name="SectionSummaryStation" Grid.Column="0" Classes="pnl-head" VerticalAlignment="Center" Margin="0,0,16,0" />
+            <TextBlock x:Name="SectionSummaryCl" Grid.Column="1" Classes="pnl-cell" VerticalAlignment="Center" Margin="0,0,16,0" />
+            <TextBlock x:Name="SectionSummaryCp" Grid.Column="2" Classes="pnl-cell" VerticalAlignment="Center" />
+            <Button x:Name="OpenInMainAreaButton" Grid.Column="4" Classes="modebar outline" />
+          </Grid>
         </TabItem>
         <TabItem x:Name="LoadsTab" Header="Loads" AutomationProperties.Name="Loads">
           <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel x:Name="LoadsBody" Margin="{StaticResource Space1}" /></ScrollViewer>

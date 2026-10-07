@@ -191,13 +191,20 @@ public sealed class ShellHost : Grid
         LayoutFactory.LayersTool.Context = Layers;
 
         // A view has one logical parent. Dock owns the only document tab strip.
-        var sectionSample = ModelView.SectionSampleBody;
+        var sectionDocument = ModelView.SectionDocumentBody;
         var foilSource = ModelView.FoilSourceBody;
-        // M1.2c: the Section tab is gone; the section editor is the model area's Section mode (ModelArea.Mode, EDT).
-        ModelView.DetachedDocumentBodies.Children.Remove(sectionSample);
+        // Ruling 124: the Section document hosts the Analysis panel's Section view at full size; the bottom tab keeps one line
+        // and its action opens this document. (The section editor is the model area's Section mode, ModelArea.Mode, EDT.)
+        ModelView.SectionDocumentHost.Content = AnalysisPanel.SectionView;
+        AnalysisPanel.OpenSectionRequested += OpenSectionDocument;
+        LayoutFactory.ActiveDockableChanged += (_, change) =>
+        {
+            if (ReferenceEquals(change.Dockable, LayoutFactory.SectionDocument)) BindAnalysisPanel();
+        };
+        ModelView.DetachedDocumentBodies.Children.Remove(sectionDocument);
         ModelView.DetachedDocumentBodies.Children.Remove(foilSource);
         LayoutFactory.ModelDocument.Context = ModelView;
-        LayoutFactory.SectionSampleDocument.Context = sectionSample;
+        LayoutFactory.SectionDocument.Context = sectionDocument;
         LayoutFactory.FoilSourceDocument.Context = foilSource;
 
         DockHost = new DockControl
@@ -631,12 +638,24 @@ public sealed class ShellHost : Grid
 
     private void RefreshChangedPanes() => RefreshPanes(full: false);
 
-    /// <summary>The bottom panel binds the selected run only while it is on screen; Analysis shows it, ⌘J folds it.</summary>
+    /// <summary>
+    /// The bottom panel binds the selected run only while it is on screen (Analysis shows it, ⌘J folds it) or while the Section
+    /// document, which shows the panel's Section view, is the open document.
+    /// </summary>
     private void BindAnalysisPanel()
     {
         bool shown = Controller.IsAnalysis && !bottomFolded;
         if (AnalysisPanel.IsVisible != shown) AnalysisPanel.IsVisible = shown;
-        if (shown) AnalysisPanel.Bind(Controller);
+        if (shown || ReferenceEquals(LayoutFactory.MainDocumentDock.ActiveDockable, LayoutFactory.SectionDocument))
+            AnalysisPanel.Bind(Controller);
+    }
+
+    /// <summary>"Open in main area" (Ruling 124): the Section document becomes the open document and takes focus.</summary>
+    private void OpenSectionDocument()
+    {
+        LayoutFactory.MainDocumentDock.ActiveDockable = LayoutFactory.SectionDocument;
+        BindAnalysisPanel();
+        Avalonia.Threading.Dispatcher.UIThread.Post(() => AnalysisPanel.SectionView.FocusSelector());
     }
 
     /// <summary>
@@ -691,7 +710,6 @@ public sealed class ShellHost : Grid
         ModelView.ShowFoilOpen(foilOpen);
         if (foilOpen)
         {
-            ModelView.SectionViewport.Frame = Controller.Frame;
             // The accepted source changes only with the acceptance (Inspection), one of the inputs above.
             if (!propertiesCurrent) ModelView.SourceText.Text = Controller.AcceptedSource;
         }
@@ -925,7 +943,7 @@ public sealed class ShellHost : Grid
     /// their points — except the frame's view label: by place in the tree, not by a list of view types.
     /// </summary>
     private bool ModelViewFocused() =>
-        TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is Viewport or SectionCanvas || FocusedModelView() is not null;
+        TopLevel.GetTopLevel(this)?.FocusManager?.GetFocusedElement() is SectionCanvas || FocusedModelView() is not null;
 
     /// <summary>The model-area view that holds keyboard focus, or null.</summary>
     private SingleView? FocusedModelView()

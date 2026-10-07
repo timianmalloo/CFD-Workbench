@@ -733,6 +733,8 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-401 | Units — approved — Ruling 115 (View submenu; the status-bar item is the same switch) |
 | COPY-402 | Metric — approved — Ruling 115 (View ▸ Units item and the status-bar item's text in Metric) |
 | COPY-403 | Imperial — approved — Ruling 115 (View ▸ Units item and the status-bar item's text in Imperial) |
+| COPY-404 | Section — approved — Ruling 125 (the title of the Section document tab in the model area, beside Plan and Foil source) |
+| COPY-405 | Open in main area — approved — Ruling 125 (the action on the bottom panel's Section summary line; opens or focuses the Section document) |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

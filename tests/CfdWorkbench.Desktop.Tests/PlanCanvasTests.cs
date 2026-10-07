@@ -705,23 +705,6 @@ public static class PlanCanvasTests
                 throw new Exception($"Plan minimum bounds are {fixture.Canvas.Bounds}");
         });
 
-        DesktopChecks.Check("ModelArea_SectionSampleTab_PlotDrawnAtMinimumWidth", () =>
-        {
-            using var fixture = new PlanFixture();
-            if (!ReferenceEquals(fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable,
-                    fixture.Host.LayoutFactory.ModelDocument))
-                throw new Exception("Plan is not the initial document");
-            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.SectionSampleDocument;
-            var viewport = fixture.Host.ModelView.FindControl<Viewport>("SectionViewport")!;
-            for (int i = 0; i < 5 && (!viewport.IsEffectivelyVisible || viewport.Bounds.Width < 320 ||
-                                      !ReferenceEquals(viewport.LastRecordedFrame, fixture.Controller.Frame)); i++)
-                fixture.Settle();
-            if (!viewport.IsEffectivelyVisible || !ReferenceEquals(viewport.LastRecordedFrame,
-                    fixture.Controller.Frame) || viewport.Bounds.Width < 320)
-                throw new Exception($"Section sample document lost its plot: visible={viewport.IsEffectivelyVisible}, " +
-                    $"bounds={viewport.Bounds}, frame={ReferenceEquals(viewport.LastRecordedFrame, fixture.Controller.Frame)}");
-        });
-
         DesktopChecks.Check("PlanCanvas_FocusRing_RenderedPixelsAtLeastThreeToOne", () =>
         {
             using var fixture = new PlanFixture();
@@ -748,7 +731,7 @@ public static class PlanCanvasTests
             using var fixture = new PlanFixture();
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             var before = fixture.RgbAtPoint(point);
-            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.SectionSampleDocument;
+            fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.SectionDocument;
             fixture.Settle();
             fixture.Host.LayoutFactory.MainDocumentDock.ActiveDockable = fixture.Host.LayoutFactory.ModelDocument;
             fixture.Settle();

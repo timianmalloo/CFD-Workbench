@@ -95,56 +95,6 @@ public static class ShellWindowTests
 
     public static void Run()
     {
-        DesktopChecks.Check("Shell_F7_ModelTabReentry_RendersAcceptedFoil", () =>
-        {
-            using var controller = new WorkbenchController();
-            var host = new ShellHost(controller);
-            var window = new Window { Content = host, Width = 1280, Height = 800 };
-            try
-            {
-                window.Show();
-                Settle(window);
-                var open = host.OpenNewFoilAsync();
-                using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
-                while (!open.IsCompleted && !timeout.IsCancellationRequested)
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                open.GetAwaiter().GetResult();
-                Settle(window);
-                var viewport = host.ModelView.FindControl<Viewport>("SectionViewport")!;
-                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionSampleDocument;
-                Settle(window);
-                void AssertDrawn(string step)
-                {
-                    if (!ReferenceEquals(viewport.GetVisualRoot(), window) || !viewport.IsEffectivelyVisible ||
-                        viewport.Bounds.Width <= 0 || viewport.Bounds.Height <= 0 ||
-                        !ReferenceEquals(viewport.Frame, controller.Frame) ||
-                        !ReferenceEquals(viewport.LastRecordedFrame, controller.Frame) ||
-                        viewport.LastRecordedRevision != viewport.FrameRevision || viewport.RenderSerial == 0 ||
-                        viewport.FoilBrush is null || viewport.StationBrush is null)
-                        throw new InvalidOperationException($"{step}: model viewport was not attached and drawn; " +
-                            $"root={viewport.GetVisualRoot()?.GetType().Name ?? "none"}, visible={viewport.IsEffectivelyVisible}, " +
-                            $"bounds={viewport.Bounds}, render={viewport.RenderSerial}, revision={viewport.LastRecordedRevision}/{viewport.FrameRevision}");
-                }
-                AssertDrawn("initial");
-                var tabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
-                var sourceTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.FoilSourceDocument));
-                var modelTab = tabs.Single(tab => ReferenceEquals(tab.DataContext, host.LayoutFactory.SectionSampleDocument));
-                sourceTab.IsSelected = true;
-                Settle(window);
-                if (!sourceTab.IsSelected)
-                    throw new InvalidOperationException("Foil source tab did not select");
-                modelTab.IsSelected = true;
-                Settle(window);
-                long beforeRedraw = viewport.RenderSerial;
-                viewport.InvalidateFrameForMetric();
-                Settle(window);
-                AssertDrawn("re-entry");
-                if (viewport.RenderSerial <= beforeRedraw)
-                    throw new InvalidOperationException("Re-entered viewport did not draw its accepted foil");
-            }
-            finally { window.Close(); }
-        });
-
         DesktopChecks.Check("Shell_AllModelTabs_ReentryRealizesContent", () =>
         {
             using var controller = new WorkbenchController();
@@ -161,11 +111,11 @@ public static class ShellWindowTests
                 {
                     (host.LayoutFactory.ModelDocument, host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!,
                         () => controller.Planform is not null),
-                    (host.LayoutFactory.SectionSampleDocument, host.ModelView.FindControl<Viewport>("SectionViewport")!,
-                        () => ReferenceEquals(host.ModelView.FindControl<Viewport>("SectionViewport")!.LastRecordedFrame, controller.Frame)),
+                    (host.LayoutFactory.SectionDocument, host.AnalysisPanel.SectionView,
+                        () => host.AnalysisPanel.SectionView.Bounds.Width > 0),
                     (host.LayoutFactory.FoilSourceDocument, host.ModelView.FindControl<TextBox>("SourceText")!,
                         () => !string.IsNullOrWhiteSpace(host.ModelView.FindControl<TextBox>("SourceText")!.Text))
-                    // M1.2c: the Section tab is retired; the section editor is the model area's Section mode (EDT).
+                    // Ruling 124: the Section document replaced the Section sample; the section editor is the model area's Section mode (EDT).
                 };
                 foreach (var (document, surface, ready) in documents)
                 {
@@ -707,7 +657,7 @@ public static class ShellWindowTests
                 var host = window.Content as ShellHost
                     ?? throw new InvalidOperationException("Shell host did not load");
                 var tab = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>()
-                    .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.SectionSampleDocument))
+                    .FirstOrDefault(item => ReferenceEquals(item.DataContext, host.LayoutFactory.SectionDocument))
                     ?? throw new InvalidOperationException("Model Dock tab did not render");
                 var visual = ElementComposition.GetElementVisual(tab)
                     ?? throw new InvalidOperationException("Dock tab lacks composition visual");
@@ -729,9 +679,6 @@ public static class ShellWindowTests
                     .Prepend(adorner as Border).Where(border => border?.BorderBrush is not null).ToArray();
                 if (rings.Length < 2)
                     throw new InvalidOperationException("Dock tab lacks the two focus rings");
-                var viewport = host.ModelView.FindControl<Viewport>("SectionViewport")!;
-                if (viewport.Frame is null || !ReferenceEquals(viewport.Frame, controller.Frame))
-                    throw new InvalidOperationException("Accepted frame not bound before Dock focus barrier");
                 var fresh = visual.Compositor.RequestCompositionBatchCommitAsync();
                 if (ReferenceEquals(early, fresh))
                     throw new InvalidOperationException("Stale batch reused for Dock focus barrier");
@@ -790,7 +737,7 @@ public static class ShellWindowTests
             try { host = new ShellHost(controller); }
             catch (Exception error) { throw new InvalidOperationException(error.ToString(), error); }
             var ids = host.LayoutFactory.MainDocumentDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
-            if (!ids.SequenceEqual(["model", "section-sample", "foil-source"]))
+            if (!ids.SequenceEqual(["model", "section", "foil-source"]))
                 throw new InvalidOperationException("Model area document tabs are absent");
             var paneIds = host.LayoutFactory.LeftToolDock.VisibleDockables?.Select(item => item.Id).ToArray() ?? [];
             if (!paneIds.Contains("properties") || !paneIds.Contains("browser") || !paneIds.Contains("layers"))
@@ -806,7 +753,7 @@ public static class ShellWindowTests
                     throw new InvalidOperationException("Dock host did not render in the window");
                 foreach (var document in new[]
                 {
-                    host.LayoutFactory.SectionSampleDocument,
+                    host.LayoutFactory.SectionDocument,
                     host.LayoutFactory.FoilSourceDocument,
                     host.LayoutFactory.ModelDocument
                 })
@@ -832,7 +779,7 @@ public static class ShellWindowTests
             // usage (attribute, bool property, viewport read), because M1.2c reuses the name SectionMode for the editor mode.
             string root = RepoRootFromSource();
             var retired = new System.Text.RegularExpressions.Regex(
-                @"SamplesDocument|Plan3DContent|FoilViewport|ViewportProvenance|3d-samples|3D samples|SectionMode=""|bool SectionMode\b|viewport\.SectionMode\b|FromInspection");
+                @"SamplesDocument|Plan3DContent|FoilViewport|ViewportProvenance|3d-samples|3D samples|SectionMode=""|bool SectionMode\b|viewport\.SectionMode\b|FromInspection|SectionSampleDocument|SectionSampleBody|SectionViewport|SectionReadout|section-sample");
             var hits = Directory.EnumerateFiles(Path.Combine(root, "src", "CfdWorkbench.Desktop"), "*.*", SearchOption.AllDirectories)
                 .Where(file => file.EndsWith(".cs", StringComparison.Ordinal) || file.EndsWith(".axaml", StringComparison.Ordinal))
                 .Where(file => !file.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar))
@@ -889,30 +836,6 @@ public static class ShellWindowTests
             if (controller.Draft is not null || span is not { IsEnabled: false })
                 throw new InvalidOperationException("Locked root enabled a span draft");
             window.Close();
-        });
-
-        DesktopChecks.Check("ModelArea_MinimumWindow_PlotWidthAtLeast250", () =>
-        {
-            using var controller = new WorkbenchController();
-            Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
-            var host = new ShellHost(controller);
-            var window = new Window { Content = host, Width = 1024, Height = 700 };
-            try
-            {
-                window.Show();
-                for (int attempt = 0; attempt < 10; attempt++)
-                {
-                    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                    window.UpdateLayout();
-                }
-                var viewport = host.ModelView.FindControl<Viewport>("SectionViewport")!;
-                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionSampleDocument;
-                Settle(window);
-                double width = Viewport.PlotWidth(viewport.Bounds.Width, 178);
-                if (width < 250 || viewport.AnnotationScroller.VerticalScrollBarVisibility != ScrollBarVisibility.Auto)
-                    throw new InvalidOperationException($"Minimum-window plot is too narrow: {width}");
-            }
-            finally { window.Close(); }
         });
 
         DesktopChecks.Check("F6_RegionEntry_FocusesSelectedTabOrRow", () =>
@@ -2195,7 +2118,7 @@ public static class ShellWindowTests
 
                     var docTabs = host.DockHost.GetVisualDescendants().OfType<DocumentTabStripItem>().ToArray();
                     string[] titles = docTabs.Select(tab => (tab.DataContext as Dock.Model.Core.IDockable)?.Title ?? "").ToArray();
-                    if (!titles.SequenceEqual(["Plan", "Section sample", "Foil source"]))
+                    if (!titles.SequenceEqual(["Plan", "Section", "Foil source"]))
                         throw new InvalidOperationException("Model-area Dock tabs are " + string.Join(", ", titles));
                     var modelTab = docTabs[1];
                     var sourceTab = docTabs[2];
@@ -2205,10 +2128,6 @@ public static class ShellWindowTests
                     // Theme barrier: a fresh composition batch renders the focused tab after the Example is bound.
                     var composition = ElementComposition.GetElementVisual(modelTab)
                         ?? throw new InvalidOperationException("Barrier tab lacks a compositor");
-                    var viewport = host.ModelView.FindControl<Viewport>("SectionViewport")
-                        ?? throw new InvalidOperationException("Barrier did not find SectionViewport");
-                    if (viewport.Frame is null || !ReferenceEquals(viewport.Frame, controller.Frame))
-                        throw new InvalidOperationException("Opened Example not bound before the theme barrier");
                     if (!modelTab.Focus(NavigationMethod.Tab))
                         throw new InvalidOperationException("Barrier tab refused keyboard focus");
                     var fresh = composition.Compositor.RequestCompositionBatchCommitAsync();
@@ -2351,10 +2270,11 @@ public static class ShellWindowTests
                     if (!sidebar.Focus(NavigationMethod.Tab)) throw new InvalidOperationException("Focus could not leave the point Span field");
                     // Annotations and the unsaved-changes modal: rows the retired pre-shell matrix measured on surfaces
                     // the shell still ships.
-                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionSampleDocument;
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
                     Settle(window);
                     Probe(theme, "section.annotation", () => TextRow(theme, "section.annotation",
-                        host.ModelView.FindControl<TextBlock>("SectionReadout") ?? throw new InvalidOperationException("Section annotation absent")));
+                        host.AnalysisPanel.SectionView.GetVisualDescendants().OfType<TextBlock>().FirstOrDefault()
+                            ?? throw new InvalidOperationException("Section annotation absent")));
                     host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.FoilSourceDocument;
                     Settle(window);
                     var pending = (Task<string>)(typeof(MainWindow).GetMethod("UnsavedDialogAsync", reflection)?.Invoke(window, null)

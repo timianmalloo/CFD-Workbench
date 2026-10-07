@@ -14,7 +14,8 @@ public sealed class ShellLayoutFactory : Factory
     /// <summary>The Layers pane (A3a G-T6): a left-dock tab after Browser; its home is a LayoutCodec Homes row.</summary>
     public ITool LayersTool { get; private set; } = null!;
     public IDocument ModelDocument { get; private set; } = null!;
-    public IDocument SectionSampleDocument { get; private set; } = null!;
+    /// <summary>The Section document (Ruling 124): the full Section view, beside Plan and Foil source. It replaced the Section sample.</summary>
+    public IDocument SectionDocument { get; private set; } = null!;
     public IDocument FoilSourceDocument { get; private set; } = null!;
     /// <summary>The Points pane (§11.4). Its home is the right side bar (OD-3 B), shown by the Precision workspace.</summary>
     public ITool PointsTool { get; private set; } = null!;
@@ -72,10 +73,10 @@ public sealed class ShellLayoutFactory : Factory
             CanFloat = false
         };
 
-        SectionSampleDocument = new Document
+        SectionDocument = new Document
         {
-            Id = "section-sample",
-            Title = "Section sample",
+            Id = "section",
+            Title = CfdWorkbench.Analysis.Labels.SectionDocumentTitle,
             CanClose = false,
             CanFloat = false
         };
@@ -112,7 +113,7 @@ public sealed class ShellLayoutFactory : Factory
             Id = "Docs",
             Title = "Model area",
             ActiveDockable = ModelDocument,
-            VisibleDockables = CreateList<IDockable>(ModelDocument, SectionSampleDocument, FoilSourceDocument),
+            VisibleDockables = CreateList<IDockable>(ModelDocument, SectionDocument, FoilSourceDocument),
             CanCreateDocument = false
         };
 
@@ -154,7 +155,7 @@ public sealed class ShellLayoutFactory : Factory
         "rail-controls" => RailControlsTool,
         "layers" => LayersTool,
         "model" => ModelDocument,
-        "section-sample" => SectionSampleDocument,
+        "section" => SectionDocument,
         "foil-source" => FoilSourceDocument,
         "points" => PointsTool,
         _ => FindDockable(RootLayout, id)

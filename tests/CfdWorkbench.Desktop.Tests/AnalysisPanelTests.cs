@@ -124,10 +124,10 @@ public static class AnalysisPanelTests
                 var panel = new AnalysisPanel();
                 panel.Bind(controller);
                 // DX: with a section tier the tab shows the station's Estimator table; without one it shows the Section (2D) group.
-                var shownTab = panel.GetLogicalDescendants().OfType<SectionTabView>().Single().Shown;
+                var shownTab = panel.SectionView.Shown;
                 var sectionRows = shownTab is null ? controller.AnalysisView.Groups.Single(group => group.Title == "Section (2D)").Rows
                     : shownTab.Groups.Single(group => group.Title == "Estimator").Rows;
-                var sectionTable = panel.GetLogicalDescendants().OfType<StackPanel>()
+                var sectionTable = panel.SectionView.GetLogicalDescendants().OfType<StackPanel>()
                     .Single(table => table.Name == (shownTab is null ? "section-table" : "section-estimator-table"));
                 var renderedRows = sectionTable.Children.OfType<Grid>().ToArray();
                 Equal(sectionRows.Count, renderedRows.Length, "all section rows rendered");
