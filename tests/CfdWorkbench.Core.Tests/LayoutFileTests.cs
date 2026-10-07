@@ -19,6 +19,37 @@ internal static class LayoutFileTests
         Check("LayoutParse_OutOfRange_Clamped", OutOfRange);
         Check("RecentParse_RelativePath_Dropped", RelativeRecent);
         Check("LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9", Deepest);
+        Check("Json_IndentedWriters_PinLfNewLine", () => IndentedWritersPinLf());
+    }
+
+    // Class JSON-NEWLINE-PLATFORM (docs/lessons/defect-classes.md): an indented JSON writer takes Environment.NewLine, which is
+    // "\r\n" on Windows, so its bytes (hashed, compared, saved) differ from macOS. Environment.NewLine cannot be forced here, so
+    // the control is structural: every source file that indents JSON must pin NewLine to "\n", and the pinned options say so.
+    private static void IndentedWritersPinLf([System.Runtime.CompilerServices.CallerFilePath] string here = "")
+    {
+        string src = Path.Combine(PlacementTests.RepoRoot(here), "src");
+        var offenders = Directory.EnumerateFiles(src, "*.cs", SearchOption.AllDirectories)
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .Where(file =>
+            {
+                string text = File.ReadAllText(file);
+                bool indents = text.Contains("WriteIndented = true", StringComparison.Ordinal) ||
+                               text.Contains("Indented = true", StringComparison.Ordinal);
+                return indents && !System.Text.RegularExpressions.Regex.IsMatch(text, @"NewLine\s*=\s*""\\n""");
+            })
+            .Select(file => Path.GetRelativePath(src, file)).ToList();
+        if (offenders.Count > 0) throw new InvalidOperationException("indented JSON without NewLine = \"\\n\": " + string.Join(", ", offenders));
+
+        Equal("\n", LayoutJsonContext.Default.Options.NewLine);
+        Equal("\n", RecentJsonContext.Default.Options.NewLine);
+        byte[][] images =
+        [
+            LayoutCodec.Serialize(LayoutCodec.Presets(WorkspaceId.Planform, Panes())),
+            RecentList.Serialize([new RecentEntry("/abs/a.foil"), new RecentEntry("/abs/b.foil")]),
+            DisplayPreferences.Serialize(100, DisplayPreferences.Imperial)
+        ];
+        foreach (var image in images)
+            if (Array.IndexOf(image, (byte)'\r') >= 0) throw new InvalidOperationException("an indented JSON image holds a carriage return");
     }
 
     // M1.2c (OD-2 A, OD-3 B): no Messages pane; Points lives in the right side bar (LayoutCodec.Homes). A3a: Layers is a left tab.

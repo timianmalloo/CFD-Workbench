@@ -30,3 +30,11 @@ Finding: the Windows ring's `APP-UNHANDLED APP-CRASH System.Exception` is reprod
 (the `workbench.SaveAsync(conflictPath)` check). On Windows the cause is the store refusing every path
 (`ProjectStore.Supported()`): the PC's W-2 B2 (Rulings 136, 137), not fixed here.
 The harness now also prints `STAGE <name>` before each main-flow stage, so the last STAGE or SUITE line names the crashing stage.
+
+## Item 2 - JSON line endings
+
+Check: Core `Json_IndentedWriters_PinLfNewLine` (`tests/CfdWorkbench.Core.Tests/LayoutFileTests.cs`). `Environment.NewLine` cannot be forced to
+`\r\n` on macOS, so the failing part on old code is the structural scan (every `src` file that indents JSON must pin `NewLine = "\n"`).
+
+- Red: `FAIL Json_IndentedWriters_PinLfNewLine InvalidOperationException: indented JSON without NewLine = "\n": CfdWorkbench.Persistence/PreferenceStore.cs, .../LayoutCodec.cs, .../RecentList.cs, CfdWorkbench.Core/AuthoringSession.cs, CfdWorkbench.Cli/Program.cs`
+- Green (after pinning the five sites and `RunStoreTests.NoRunByteIdentical`): `PASS Json_IndentedWriters_PinLfNewLine`.
