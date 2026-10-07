@@ -27,6 +27,12 @@ VLM + strip run at 5.14 m/s, depth 0.6 m, alpha 3. Mockup states are in `docs/mo
 | C | `03-analysis-section-governing.png` | `03-analysis-section-governing.png` | Header "Governing cavitation station · η 0.012 (no strip selected)"; same layout; the governing row is highlighted; summary line follows the header. | As B. |
 | D | `04-analysis-plan-compact-summary.png` | `04-analysis-plan-compact-summary.png` | Plan with the chip strip under the loading view; bottom panel is the one summary line (station, cl (panel), -Cp_min, "Open in main area"). | The built Plan shows the app's four views (Plan, 3D, Side, Front); the mockup draws Plan plus 3D only, by its own note. |
 
+## Repair cycle 2
+
+- Band readouts (B, C, D): the clip was a stale measure. `WideContentFits` measures the row directly with an unbounded width, and the cells kept stale widths (q drawn 98.9 px in 85, Re 106 in 92). `SetAvailableWidth` now invalidates the cells and the row. After: every cell is as wide as its drawn text and the readouts are separate in B, C and D. The new check passes in the test process both before and after (the stale measure showed only in the capture harness), so it pins the result but is not a red receipt.
+- Chart selector: the four chart buttons and "Show table" use the group value row's `prop-seg` / `prop-seg-box` style (row height, thin outline, the active side lightly filled); the table toggle is its own outlined box beside the selector.
+- NOT done, by design: the mockup's profile on a dark viewport coloured by Cp. DX's Section view (the one hosted here, and in `docs/proof/dx/captures/01-02`) draws the profile as a z/c line chart with the Cp comb as two offset series; it has no dark viewport, no Cp colour ramp ("vik") and no chips. It is reused as it is. The coloured profile needs a new renderer (a Cp colour map, the viewport, the caption and estimator chips) in `SectionChartView` and `SectionDisplay`; that is a build step, not a hosting step.
+
 ## Groups
 
 - Dropped from the document: the "Station" name row (the header says it) and the text "Stations" group (the table replaces it; the data stays in `SectionView.Groups` for the Analysis checks).

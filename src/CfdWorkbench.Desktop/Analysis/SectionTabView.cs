@@ -32,7 +32,7 @@ public sealed class SectionTabView : UserControl
 
     public SectionTabView()
     {
-        TwinToggle = new ToggleButton { Name = "SectionTwinToggle", Content = "Show table", MinHeight = 24, Padding = new Thickness(8, 0), VerticalContentAlignment = VerticalAlignment.Center };
+        TwinToggle = new ToggleButton { Name = "SectionTwinToggle", Content = "Show table", Classes = { "prop-seg" } };
         AutomationProperties.SetName(TwinToggle, "Section chart table twin");
         TwinToggle.IsCheckedChanged += (_, _) => ShowTwin();
         Content = root;
@@ -117,18 +117,21 @@ public sealed class SectionTabView : UserControl
         layout.Children.Add(right);
         root.Children.Add(layout);
         left.Children.Add(new TextBlock { Name = "SectionHeader", Text = Shown.StationName, Classes = { "heading" } });
-        var bar = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 4 };
+        // The chart selector and the table toggle use the group value row's Set to | Move by switch style (Styles.axaml prop-seg).
+        var bar = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        var segments = new StackPanel { Orientation = Orientation.Horizontal };
         foreach (string id in Selector)
         {
-            var button = new ToggleButton { Name = "SectionChart-" + id, Content = Shown.Charts.First(c => c.Id == id).Title, MinHeight = 24, Padding = new Thickness(8, 0),
-                VerticalContentAlignment = VerticalAlignment.Center, IsChecked = id == chosen };
+            var button = new ToggleButton { Name = "SectionChart-" + id, Content = Shown.Charts.First(c => c.Id == id).Title,
+                Classes = { "prop-seg" }, IsChecked = id == chosen };
             AutomationProperties.SetName(button, "Chart: " + button.Content);
             string captured = id;
             button.Click += (_, _) => Choose(captured);
             buttons[id] = button;
-            bar.Children.Add(button);
+            segments.Children.Add(button);
         }
-        bar.Children.Add(TwinToggle);
+        bar.Children.Add(new Border { Classes = { "prop-seg-box" }, Child = segments });
+        bar.Children.Add(new Border { Classes = { "prop-seg-box" }, Child = new StackPanel { Orientation = Orientation.Horizontal, Children = { TwinToggle } } });
         left.Children.Add(bar);
         left.Children.Add(profile);
         left.Children.Add(chart);

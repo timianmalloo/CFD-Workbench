@@ -12459,7 +12459,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "78fe55a94b88aca01bfee32c272d6c51a2eacd7ad8dff27c3a204a3ab7c9e9e8"
+      "sourceSha256": "c9be4d446d6cf4ba21f3fbc1972c70dc5894cb85a32cb12a7d5a1790c219dc0e"
     },
     {
       "id": "proof-sma-red-first",
@@ -15178,5 +15178,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "dcbe99eada665698fbc194d1fd5f815559b72da842e3534bd473efb1564ea023"
+  "graphSha256": "5187645eb75d36f0849fee791d2c37b402529b9fe46b6cb600c4f0d09b0b0485"
 };

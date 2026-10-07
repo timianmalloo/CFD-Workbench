@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Threading;
 using CfdWorkbench.Analysis;
@@ -62,6 +63,10 @@ public static class SectionMainAreaTests
                 Equal(true, view.Bounds.Width >= 900, "the view takes the main area's width, not a 260 px tab: " + view.Bounds.Width);
                 Equal(true, view.Chart.Bounds.Height >= 250 && view.ProfileView.Bounds.Height >= 150,
                     $"charts at document size: chart {view.Chart.Bounds.Height}, profile {view.ProfileView.Bounds.Height}");
+                var selector = Descendants(view).OfType<ToggleButton>().Where(t => t.Name?.StartsWith("SectionChart-") == true || t.Name == "SectionTwinToggle").ToArray();
+                Equal(5, selector.Length, "four chart buttons and the table toggle");
+                Equal(true, selector.All(t => t.Classes.Contains("prop-seg") && t.Bounds.Height <= 26),
+                    "the selector is the Set to | Move by segmented style at row height: " + string.Join(",", selector.Select(t => t.Bounds.Height)));
                 Equal(true, Descendants(view).OfType<StackPanel>().Any(p => p.Name == "section-stations-table"), "the Stations table is in the document");
                 Equal(true, Descendants(view).OfType<StackPanel>().Any(p => p.Name == "section-cavitation-table"), "the cavitation group is in the document");
             });
@@ -118,6 +123,32 @@ public static class SectionMainAreaTests
                 window.Width = 1500;
                 window.Height = 870;
                 Settle(window);
+            });
+            // The band's derived readouts neither overlap nor clip, in the Plan host and in the Section host.
+            DesktopChecks.Check("SectionMainArea_ConditionsBand_DerivedReadouts_NoOverlapNoClip_BothHosts", () =>
+            {
+                var (_, host, window) = shared.Value;
+                foreach (var (name, document) in new[] { ("Plan", host.LayoutFactory.ModelDocument), ("Section", host.LayoutFactory.SectionDocument) })
+                {
+                    host.LayoutFactory.MainDocumentDock.ActiveDockable = document;
+                    Settle(window);
+                    var band = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(window).OfType<ConditionsBand>().Single();
+                    var cells = Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(band).OfType<TextBlock>()
+                        .Where(t => t.Classes.Contains("cond-derived") && t.IsEffectivelyVisible).ToArray();
+                    Equal(true, cells.Length >= 2, name + ": derived readouts are shown");
+                    var rects = cells.Select(c => (Cell: c, Rect: new Rect(c.TranslatePoint(default, band) ?? default, c.Bounds.Size))).ToArray();
+                    foreach (var (cell, rect) in rects)
+                    {
+                        // The text at the font size it is drawn with must fit the width layout gave it (a stale measure clips it).
+                        double drawn = new Avalonia.Media.FormattedText(cell.Text ?? "", System.Globalization.CultureInfo.InvariantCulture,
+                            Avalonia.Media.FlowDirection.LeftToRight, new Avalonia.Media.Typeface(cell.FontFamily), cell.FontSize, Avalonia.Media.Brushes.Black).Width;
+                        Equal(true, drawn <= cell.Bounds.Width + 1, $"{name}: '{cell.Text}' is clipped (drawn {drawn:F1} px in {cell.Bounds.Width:F1})");
+                        Equal(true, rect.Right <= band.Bounds.Width + 0.5 && rect.Left >= 0, $"{name}: '{cell.Text}' is outside the band {band.Bounds.Width}");
+                    }
+                    for (int i = 0; i < rects.Length; i++)
+                        for (int j = i + 1; j < rects.Length; j++)
+                            Equal(false, rects[i].Rect.Intersects(rects[j].Rect), $"{name}: '{rects[i].Cell.Text}' overlaps '{rects[j].Cell.Text}'");
+                }
             });
             // Ruling 125 (mockup B, C): the compact Stations table, four columns, the shown station highlighted, COPY-384 where not measured.
             DesktopChecks.Check("SectionMainArea_StationsTable_FourColumns_ShownRowHighlighted", () =>

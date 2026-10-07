@@ -120,6 +120,8 @@ public partial class ConditionsBand : UserControl
         WideDerived.IsVisible = !compact;
         MoreButton.IsVisible = compact;
         DerivedRe.IsVisible = DerivedDepth.IsVisible = DerivedFroude.IsVisible = !compact;
+        // WideContentFits measured the row directly with an unbounded width; layout must measure it again at its real width.
+        foreach (Control cell in new Control[] { DerivedQ, DerivedRe, DerivedDepth, DerivedFroude, DerivedSigma, WideDerived, BandRow }) cell.InvalidateMeasure();
     }
 
     private double availableWidth;

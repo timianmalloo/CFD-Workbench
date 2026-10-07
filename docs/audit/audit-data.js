@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T00:40:54Z",
+  "generated": "2026-10-07T00:48:23Z",
   "audit": [
     {
       "actor": null,
@@ -28348,6 +28348,26 @@ window.AUDIT_DATA = {
       "done_when": "ring green, readiness GREEN, token lint 0, check-docs 0, copy ids 0",
       "started_at": "2026-10-07T00:31:48Z",
       "duration_seconds": 546.0
+    },
+    {
+      "id": "al-01M49XAEETMRBGNQFZHRWY2YFG",
+      "shortname": "trk-sma-build",
+      "datetime": "2026-10-07T00:48:23Z",
+      "session": "trk-sma-build",
+      "prompt": "trk-sma-build repair cycle 2",
+      "summary": "Stale-measure fix in ConditionsBand; selector uses prop-seg; coloured profile not built (DX view has no Cp colour renderer); ring 715 Desktop PASS 45 s",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Band readouts, segmented chart selector, Cp-coloured profile",
+      "done_when": "readouts clear, selector in prop-seg style, ring green",
+      "started_at": "2026-10-07T00:41:42Z",
+      "duration_seconds": 401.0
     }
   ],
   "changes": [
