@@ -36,3 +36,25 @@ PASS WindowsShell_SaveFailureText_IsRuling134Wording
 Also green: `Labels_SaveRefusal_Ruling134Wording` (Analysis.Tests, new; written after the code, so it is a pin, not a red-first); `python3 tools/check-copy-ids.py` exit 0 (411 rows).
 
 The returned-result path (store returns DOC-UNSUPPORTED-PERSISTENCE) is the second assertion of WindowsShell_SaveRefused_ShowsMessageInStatusStrip: on the Mac a relative path makes the real store return the code, and the strip shows the Windows sentence in warning kind.
+
+## Item 2 - the case file that breaks the schema
+
+Red (old schema, old case): `uv run --with jsonschema --with pyyaml python3 cases/tools/validate-cases.py` exit 1:
+
+```
+FAIL spike03-s6-w4.yaml: 'none: Gmsh 3-D meshing failed (PLC error), no msh written' does not match '^[0-9a-f]{64}$'
+39 case(s), 1 error(s)
+```
+
+Green: same command after the schema and case change: `39 case(s), 0 error(s)`, exit 0. The 7-shape self-test (`--self-test`) is red on each planted shape and green on the clean and valid no-mesh shapes.
+
+## Item 3 - the gate
+
+Mutant (planted after commit a7d77839, reverted with git checkout of a file with no other edits): line 19 of cases/spike03-ar5.yaml set to `sha256: "none: planted"`. `python3 tools/check-docs.py` exit 1:
+
+```
+FAIL spike03-ar5.yaml: 'none: planted' does not match '^[0-9a-f]{64}$'
+../cases/tools/validate-cases.py  failed.
+```
+
+Clean tree: `python3 tools/check-docs.py` exit 0 (`39 case(s), 0 error(s)`, then `Documentation checks passed.`).
