@@ -6224,6 +6224,43 @@ window.DOCS_INDEX = {
       "sourceSha256": "c2019b986b6f99c70669ab09f0f6b6e6a2044669e2aba9158b06b801c8855139"
     },
     {
+      "id": "review-pr-4",
+      "path": "docs/reviews/pr-4.md",
+      "title": "PR #4 (Windows PC) - blocked W-3 solver-route checkpoint, Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS as a blocked W-3 checkpoint, not W-3 acceptance. Ubuntu, OpenFOAM v2512 and SU2 v8.5.0 installed and hash-verified; SU2 smoke passed; the cavity was blocked by a missing parent directory. Re-entry is Ruling 133; evidence conditions on the re-entry PR.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-3",
+        "openfoam",
+        "su2"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-3",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9a12c1aa1e37a349a479c05dc58739b88058fee8d0c73a38c8a4694ebfc60249"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -6924,7 +6961,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "311cb54b482a2a07d6db66727d2069300f81957f7dc81471c8e6ca8253a2e02f"
+      "sourceSha256": "28426c5b64416e9e6fd7c024b1c38e1f9796fe5305144addf517d96ddf612935"
     },
     {
       "id": "kb-hw-glossary",
@@ -15652,5 +15689,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1b339aebb5e1b4e9a699da7cf8cd3128a7d12d58a17b3e1986df86ccfabafd52"
+  "graphSha256": "494b08a1228e2f93d3e24a7475d1f25eaba3f078ecc03206d903ba4bda335957"
 };
