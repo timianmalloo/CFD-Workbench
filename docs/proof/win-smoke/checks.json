@@ -1,0 +1,26 @@
+[
+  {
+    "name": "build",
+    "command": "dotnet build CFDWorkbench.slnx",
+    "exitCode": 0,
+    "startUtc": "2026-10-07T16:48:22.4166372Z",
+    "durationSeconds": 29.5483177,
+    "log": "C:\\Projects\\CFD-Workbench-win-smoke\\docs\\proof\\win-smoke\\build.log"
+  },
+  {
+    "name": "test-ring",
+    "command": "C:\\Program Files\\Git\\bin\\bash.exe --noprofile --norc tools/run-tests.sh",
+    "exitCode": 49,
+    "startUtc": "2026-10-07T16:48:51.9727799Z",
+    "durationSeconds": 1.9129285,
+    "log": "C:\\Projects\\CFD-Workbench-win-smoke\\docs\\proof\\win-smoke\\test-ring.log"
+  },
+  {
+    "name": "docs-check",
+    "command": "py -3 tools/check-docs.py",
+    "exitCode": 0,
+    "startUtc": "2026-10-07T16:48:53.8958723Z",
+    "durationSeconds": 17.6177474,
+    "log": "C:\\Projects\\CFD-Workbench-win-smoke\\docs\\proof\\win-smoke\\docs-check.log"
+  }
+]

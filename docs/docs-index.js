@@ -6192,6 +6192,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "5b853296d6d2ee2a5765d58a34f925bea5f4310c8cda485b7c7071446c41d49a"
     },
     {
+      "id": "review-pr-3",
+      "path": "docs/reviews/pr-3.md",
+      "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS. The W-1 receipt meets its done-when as a record and fixes nothing. Four Windows defects: python3 in the test ring; key gestures exist only on the macOS NativeMenu (Ctrl+Z, Ctrl+S reach nothing); the unsupported-persistence error goes to stderr only; a stale point automation name. The Mac fixes the shared code.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-1",
+        "smoke"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-2",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c2019b986b6f99c70669ab09f0f6b6e6a2044669e2aba9158b06b801c8855139"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -13627,6 +13659,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "4a064c6b3d5006f397fd8e6ea769d1455b9e18215529cb76991546ea26ae5ecf"
     },
     {
+      "id": "proof-win-smoke",
+      "path": "docs/proof/win-smoke/receipt.md",
+      "title": "W-1 Windows smoke receipt — SDK 10.0.203",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@win-smoke",
+      "phase": "",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Solution build and docs check passed on Windows. The one Git Bash test-ring execution stopped at the python3 Store alias before any harness ran. Native default-foil creation, point drag and Analysis evaluation were observed. Ctrl+Z and Ctrl+S had no observed effect; persistence error remains Not assessed.",
+      "tags": [
+        "windows",
+        "smoke-test",
+        "native",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d850adcc95afd5a80d8f7948bade61fc7ec1d6dedf8af50e46fdef8985fbd496"
+    },
+    {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
       "title": "Windows W0 preparation and failed W1 hosted qualification",
@@ -15559,5 +15617,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9eadb90e9d03ec1a001ebad02a669fc98d64b3c3d559fca03ee8229976bb1d70"
+  "graphSha256": "d336c686e8f31f679178f09e2f2cadec3be0572a7b3a2a6729df0b2783b33dd8"
 };
