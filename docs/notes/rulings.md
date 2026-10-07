@@ -1233,3 +1233,9 @@ Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended. (1) Aft
 Ruled by the Fable owner under the operator's delegation (2026-10-07). (a) C-5 measures a wall clock of one check under CPU contention, so it takes the same gate: at end load <= 24 a check over 500 ms (1,500 ms exempt) fails; above 24, or load not recorded, the checker prints COST-MISS C-5 <check> <ms> load <value> and does not fail. Limits unchanged. C-6 stays ungated. Self-test keeps the quiet C-5 red and adds a COST-MISS C-5 case at load 30. (b) The ms limits and the 24 threshold are Mac-calibrated (sysctl vm.loadavg). On a host whose load source is /proc/loadavg under Git Bash, every cost rule and TEST-BUDGET prints COST-MISS ... host <name> and exits 0 until a 3-run quiet baseline for that host is recorded under docs/proof/ring-<host>/ and sets that host's gate threshold; the ms limits are not re-based per host, and a quiet over-limit reading there is a finding for the operator. (c) No threshold moves.
 
 - request: req-01M4CAQEM3Z3DEGSSZ4VMZ43CH · ruled by: fable-owner · at: 2026-10-07T23:21:10Z
+
+### Ruling 140 — Edited conditions make the shown result Historical until Evaluate
+
+Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended. As soon as any conditions-band input differs from the shown run's operating point, the shown result reads Historical with the existing approved wording ("Historical — operating point changed (...)", as produced after an Evaluate with changed inputs); pressing Evaluate makes it Current again; returning the inputs to the run's values makes it Current without a new run. No new copy. Evaluate and Find alpha stay explicit.
+
+- request: req-01M4CB6XP5CG8TGMAE20EDW8KJ · ruled by: operator-timianmalloo · at: 2026-10-07T23:29:37Z
