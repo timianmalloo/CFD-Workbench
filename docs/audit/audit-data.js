@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T22:20:05Z",
+  "generated": "2026-10-07T22:28:41Z",
   "audit": [
     {
       "actor": null,
@@ -29228,71 +29228,118 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4BZ41P8A7H61ST2DNSR4TE7",
-      "shortname": "join-pr5",
-      "datetime": "2026-10-07T19:58:19Z",
-      "session": "14e5e8d5",
-      "prompt": "the join of origin/win/windows-store-design into main",
-      "summary": "W-2 B1 design merged; B2 bound by docs/reviews/pr-5.md (POSIX rename, durability per Ruling 135, OneDrive refused with message, NFC/NFD, crash recovery, leases) recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join PC PR #5",
+      "datetime": "2026-10-07T19:58:19Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 5.0,
       "fan_out": 0,
+      "goal": "join PC PR #5",
+      "id": "al-01M4BZ41P8A7H61ST2DNSR4TE7",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of origin/win/windows-store-design into main",
+      "session": "14e5e8d5",
+      "shortname": "join-pr5",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-07T19:58:14Z",
-      "duration_seconds": 5.0
+      "summary": "W-2 B1 design merged; B2 bound by docs/reviews/pr-5.md (POSIX rename, durability per Ruling 135, OneDrive refused with message, NFC/NFD, crash recovery, leases) recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4C77M1N2WEZ0YHF4MCXM2X4",
-      "shortname": "windows-w1b-reverification",
-      "datetime": "2026-10-07T22:20:05Z",
-      "session": "win-local-coordinator",
-      "prompt": "Re-verify the Mac Windows-shell fixes on this Windows laptop and preserve the full application-ring result for Mac review.",
-      "summary": "W-1b produced source-bound native UI evidence at tested SHA defbe0a9. Live point-name events, Undo/Redo, Analysis and both Save refusals were verified. Keyboard menu and host-shortcut limitations remain explicit. The single full ring failed with 39 named tests, one Desktop crash without a frame, and 10 cost failures; no product repair or rerun occurred.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": "gpt-6-astra Owner + gpt-6.1-sol worker + local coordinator",
       "artifacts": [
         "docs/proof/win-smoke-reverify/receipt.md"
       ],
+      "compiled": false,
+      "datetime": "2026-10-07T22:20:05Z",
+      "done_when": "Every WFX row and one full ring have an observed disposition, raw evidence is preserved, documentation checks pass, and the branch is ready for a failure-evidence checkpoint PR.",
+      "duration_seconds": 26.0,
+      "fan_out": 2,
+      "git": {
+        "branch": "win/smoke-reverify",
+        "pushed": false,
+        "sha": "2f8607b54e23b60a42d954fa94379d5dbcfa6a58",
+        "short": "2f8607b54"
+      },
+      "goal": "Deliver the completed W-1b Windows re-verification evidence for Mac review.",
+      "id": "al-01M4C77M1N2WEZ0YHF4MCXM2X4",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Re-verify the Mac Windows-shell fixes on this Windows laptop and preserve the full application-ring result for Mac review.",
+      "session": "win-local-coordinator",
+      "shortname": "windows-w1b-reverification",
+      "signals": {
+        "acceptance_met": false,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T22:19:39Z",
+      "summary": "W-1b produced source-bound native UI evidence at tested SHA defbe0a9. Live point-name events, Undo/Redo, Analysis and both Save refusals were verified. Keyboard menu and host-shortcut limitations remain explicit. The single full ring failed with 39 named tests, one Desktop crash without a frame, and 10 cost failures; no product repair or rerun occurred.",
       "tags": [
         "windows",
         "wfx",
         "verification"
       ],
-      "outcome": "partial",
-      "compiled": false,
-      "goal": "Deliver the completed W-1b Windows re-verification evidence for Mac review.",
-      "done_when": "Every WFX row and one full ring have an observed disposition, raw evidence is preserved, documentation checks pass, and the branch is ready for a failure-evidence checkpoint PR.",
       "tier": "T1",
-      "fan_out": 2,
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T22:14:50Z",
+      "done_when": "items 1-5 committed, check-docs green with case validation, run-verify-gates 0, full ring run",
+      "duration_seconds": 1134.0,
+      "goal": "Mac hygiene after the PC reviews: Ruling 134 wording, case schema + gate, Ruling 133 design amendment, defect classes",
+      "id": "al-01M4C6XZZYP6X76574VFT8PBW5",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "trk-mhy round-oct06",
+      "session": "trk-mhy",
+      "shortname": "trk-mhy",
+      "skill": "implement",
+      "started_at": "2026-10-07T21:55:56Z",
+      "summary": "Ruling 134 save wording (Labels.SaveRefusal, COPY-31/31W, warning/error kind); schema geometry.source.outcome no-mesh + w4 case; validate-cases.py in check-docs (self-test, uv or named FAIL, ~0.7 s); guided-setup owned-parent rule; 6 defect classes + flake recurrence; tools/verify-push.sh. Full ring: 0 failing suites, C-3 net wall 50.8-51.0 s over 50 s at load 20-21 (two runs; cap reached, not repaired).",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T22:18:23Z",
+      "done_when": "join gates green",
+      "duration_seconds": 58.0,
+      "fan_out": 0,
+      "goal": "join chore/mac-hygiene",
+      "id": "al-01M4C74GKRK22575Q8908QVFTE",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of chore/mac-hygiene into main",
+      "session": "14e5e8d5",
+      "shortname": "join-mhy",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": false,
-        "regression": false
+        "verification_path": true
       },
-      "started_at": "2026-10-07T22:19:39Z",
-      "duration_seconds": 26.0,
-      "git": {
-        "sha": "2f8607b54e23b60a42d954fa94379d5dbcfa6a58",
-        "short": "2f8607b54",
-        "branch": "win/smoke-reverify",
-        "pushed": false
-      }
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T22:17:25Z",
+      "summary": "Labels.SaveFailed/SaveUnavailable/SaveRefusal (COPY-31 approved, COPY-31W); geometry.source.outcome produced|not-produced (data-persistence CLEAR WITH CONDITIONS, met); validate-cases --self-test in check-docs with uv fallback; guided-setup owned-parent rule; classes ROUTE-PARENT-MISSING, PUSH-SUCCESS-BY-TEXT, STDIN-HANG, MUTANT-RESTORE-CHECKOUT, WINDOWS-TEXT-MODE-HASH, MOCKUP-PHYSICS-UNCHECKED; tools/verify-push.sh recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     }
   ],
   "changes": [

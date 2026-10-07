@@ -2845,7 +2845,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ed49b7be5af24cdd4191ce71b6881fe57ec4dbcdfb5f65fb28702f46007bbeb7"
+      "sourceSha256": "418a07d3221011a045edcd3cbd9db8e19d3bafa74c80a4d8fae12caa97b55d15"
     },
     {
       "id": "design-m12b-points",
@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1391b5df9d69bf6f204a57267cc96f880d73433b3203081c0c8b4e8333a2d3f9"
+      "sourceSha256": "1223424ca3291628e15edcc70fa11f7b131065f80df40ad9ce6a3ea2d1527ce4"
     },
     {
       "id": "domain-experts",
@@ -12142,6 +12142,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "1ea31f885299d0cb449f3d45f253820b41e5fe40d9336490f71c8bcf94554bab"
     },
     {
+      "id": "proof-mhy-case-schema",
+      "path": "docs/proof/mhy/case-schema.md",
+      "title": "MHY: how a case records that no mesh was produced, and the case gate",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-mhy",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "cases/spike03-s6-w4.yaml put prose in geometry.source.sha256 and broke schemas/cfd-case.schema.json. The schema now has an optional outcome (produced | not-produced) with a required reason, the case uses it, and validate-cases.py runs inside tools/check-docs.py.",
+      "tags": [
+        "mhy",
+        "cases",
+        "schema",
+        "gate",
+        "data-model"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "65943cfe542581528e2b2ce0a854cd12da36e68a6e929d82c29dce50be7ff232"
+    },
+    {
+      "id": "proof-mhy-red-first",
+      "path": "docs/proof/mhy/red-first.md",
+      "title": "MHY red-first receipts",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-mhy",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Red then green runs for the MHY track items.",
+      "tags": [
+        "mhy",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-mhy-case-schema",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b35812ccf7b111bca4b6365733cf15a158104f06d75ac3862cdcf8445a7436dc"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -15953,5 +16008,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4aa9e203154f745f47ffdccca439b69fc6a013c5f8d6d5873aaaf323dffe05af"
+  "graphSha256": "3af79537c801d00e548277e5e08b8ba4ab82265832a783b81352d2b759f7c201"
 };
