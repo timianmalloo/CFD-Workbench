@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T00:50:48Z",
+  "generated": "2026-10-07T01:07:11Z",
   "audit": [
     {
       "actor": null,
@@ -28395,6 +28395,46 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T00:49:52Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M49Y24XN9V5H3NYMKHHGY2HD",
+      "shortname": "trk-cpv",
+      "datetime": "2026-10-07T01:01:20Z",
+      "session": "trk-cpv",
+      "prompt": "trk-cpv round-oct06",
+      "summary": "SectionProfile record on SectionView, SectionProfileView (vik ramp, Cp_min marker, plates, legend), vik tokens in Styles.axaml, comb chart retired, two checks, captures; run-tests net 48.0 s",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Section document profile coloured by Cp on the vik ramp (approved DX state 5)",
+      "done_when": "red-first checks, light and dark captures, run-tests green with C-3 under 50 s, gates exit 0",
+      "started_at": "2026-10-07T00:54:31Z",
+      "duration_seconds": 409.0
+    },
+    {
+      "id": "al-01M49YCW2PD96E33M9EJ8G4B6P",
+      "shortname": "trk-cpv",
+      "datetime": "2026-10-07T01:07:11Z",
+      "session": "trk-cpv",
+      "prompt": "trk-cpv repair cycle 1 (Ruling 126)",
+      "summary": "Labels plates, Units threaded into SectionDisplay.Build from SectionTabView, defect class added, Imperial capture; run-tests net 47.6 s",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "COPY-406..409 via Labels; Section-view speeds follow Units; MOCKUP-STATE-UNBUILT class",
+      "done_when": "red-first, Imperial capture, gates exit 0, run-tests green C-3 under 50 s",
+      "started_at": "2026-10-07T01:02:37Z",
+      "duration_seconds": 274.0
     }
   ],
   "changes": [
@@ -30206,6 +30246,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49VF7JRZ8JVNWDSMTR91QVP",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49Y4C01WA0RF8SMRZMMH48J",
+      "ts": "2026-10-07T01:02:32Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49Y4BWY2337HPNWHMSNF2M5",
       "session": "operator-timianmalloo"
     }
   ]

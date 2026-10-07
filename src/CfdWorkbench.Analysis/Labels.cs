@@ -81,6 +81,16 @@ public static class Labels
     public const string EstimatorLabelDeep = "inviscid + turbulent-friction bound; deep water; steady · inviscid; no boundary layer"; // COPY-293
     public const string EstimatorLabelNoDepth = "inviscid + turbulent-friction bound; free surface not modelled; steady · inviscid; no boundary layer"; // COPY-293 variant, DX row 3
     public const string CpLegend = "Cp · vik pinned at 0"; // COPY-294 (the −a to +b range is appended)
+    public static string SectionCaption(double eta) => "Section · η " + Number(eta); // COPY-406
+    public static string CpMinMarker(double cp, double x, string side) => // COPY-407
+        "Cp_min " + Number(cp, "0.00").Replace('-', '−') + " · x/c " + Number(x, "0.000") + " · " + side;
+    public const string AxisPlate = "x/c 0 → 1"; // COPY-409
+    /// <summary>COPY-408: <paramref name="margin"/> is "clear of", "inside" or "at or past"; the speed is shown in the unit of <paramref name="units"/>.</summary>
+    public static string ProfileCavitation(double sigma, double cpMin, string margin, double marginPercent, double vcritMetersPerSecond, Units units) =>
+        "σ " + Number(sigma, "0.00") + " · −Cp_min " + Number(-cpMin, "0.00") + " · " + margin + " the " + Number(marginPercent, "0") +
+        " % margin · V_crit " + Number(Speed(vcritMetersPerSecond, units), "0.0") + " " + SpeedUnit(units);
+    public static double Speed(double metersPerSecond, Units units) => units == Units.Imperial ? metersPerSecond * KnotsPerMeterSecond : metersPerSecond;
+    public static string SpeedUnit(Units units) => units == Units.Imperial ? "kn" : "m/s";
     public const string ClPanel = "cl (panel)"; // COPY-295
     public const string CmQuarter = "Cm c/4"; // COPY-296
     public const string AlphaL0Panel = "α_L0 (panel)"; // COPY-297

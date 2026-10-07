@@ -12,6 +12,16 @@
     <SolidColorBrush x:Key="Batlow2Brush" Color="{StaticResource Batlow2Color}" />
     <SolidColorBrush x:Key="Batlow3Brush" Color="{StaticResource Batlow3Color}" />
     <SolidColorBrush x:Key="Batlow4Brush" Color="{StaticResource Batlow4Color}" />
+    <Color x:Key="VikNeg2Color">#001261</Color>
+    <Color x:Key="VikNeg1Color">#2d7ba5</Color>
+    <Color x:Key="VikZeroColor">#ebe6e2</Color>
+    <Color x:Key="VikPos1Color">#c37243</Color>
+    <Color x:Key="VikPos2Color">#590008</Color>
+    <SolidColorBrush x:Key="VikNeg2Brush" Color="{StaticResource VikNeg2Color}" />
+    <SolidColorBrush x:Key="VikNeg1Brush" Color="{StaticResource VikNeg1Color}" />
+    <SolidColorBrush x:Key="VikZeroBrush" Color="{StaticResource VikZeroColor}" />
+    <SolidColorBrush x:Key="VikPos1Brush" Color="{StaticResource VikPos1Color}" />
+    <SolidColorBrush x:Key="VikPos2Brush" Color="{StaticResource VikPos2Color}" />
     <Color x:Key="DarkCanvasColor">#172326</Color>
     <Color x:Key="DarkSurfaceColor">#1e2d31</Color>
     <Color x:Key="DarkSoftColor">#2a3d40</Color>

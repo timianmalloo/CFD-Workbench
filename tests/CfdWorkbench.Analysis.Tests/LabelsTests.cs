@@ -7,6 +7,13 @@ internal static class LabelsTests
 {
     internal static void Run()
     {
+        Check("Labels_ProfilePlates_Copy406To409", () => {
+            Equal("Section · η 0.5", Labels.SectionCaption(0.5));
+            Equal("Cp_min −0.47 · x/c 0.120 · upper", Labels.CpMinMarker(-0.4712, 0.12, "upper"));
+            Equal("x/c 0 → 1", Labels.AxisPlate);
+            Equal("σ 7.71 · −Cp_min 0.47 · clear of the 15 % margin · V_crit 20.0 m/s", Labels.ProfileCavitation(7.71, -0.47, "clear of", 15, 20.0, Units.Metric));
+            Equal("σ 7.71 · −Cp_min 0.47 · inside the 15 % margin · V_crit 38.9 kn", Labels.ProfileCavitation(7.71, -0.47, "inside", 15, 20.0, Units.Imperial));
+        });
         Check("Depth_Unset_NoDeepWaterLabel", () => {
             var run = ProjectionTests.Data().Run; run = ProjectionTests.Rehash(run with { Op = run.Op with { HRef = null } });
             var v = ProjectionTests.View(run); Equal(Labels.FixedVlmNoDepth, ProjectionTests.Cell(v, "Labels", "Basis").Value);
