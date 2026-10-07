@@ -12142,6 +12142,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "1ea31f885299d0cb449f3d45f253820b41e5fe40d9336490f71c8bcf94554bab"
     },
     {
+      "id": "proof-mhy-case-schema",
+      "path": "docs/proof/mhy/case-schema.md",
+      "title": "MHY: how a case records that no mesh was produced, and the case gate",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-mhy",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "cases/spike03-s6-w4.yaml put prose in geometry.source.sha256 and broke schemas/cfd-case.schema.json. The schema now has an optional outcome (meshed | no-mesh) with a required reason, the case uses it, and validate-cases.py runs inside tools/check-docs.py.",
+      "tags": [
+        "mhy",
+        "cases",
+        "schema",
+        "gate",
+        "data-model"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e36ff8b90f19af24115a6fc75697b55a8d1164f30a4461e20ca3db0671208107"
+    },
+    {
+      "id": "proof-mhy-red-first",
+      "path": "docs/proof/mhy/red-first.md",
+      "title": "MHY red-first receipts",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-mhy",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Red then green runs for the MHY track items.",
+      "tags": [
+        "mhy",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-mhy-case-schema",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1b2f871d135baf0a7f820ad4835d7738a356cfa17bf9d66f3d25d69fcebea10e"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -15919,5 +15974,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c20a11e26ff4388e4d4301b1e0453012f7b28253ce2384d84f1390a4f94f23a9"
+  "graphSha256": "b6220a690a70ffbee9743600fce05f10d6013a8929f24d67c067e0bc52481b0f"
 };

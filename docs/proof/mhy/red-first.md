@@ -1,3 +1,18 @@
+---
+id: proof-mhy-red-first
+title: "MHY red-first receipts"
+type: proof-pack
+status: active
+owner: "@track-mhy"
+phase: implementation
+tags: [mhy, red-first]
+links:
+  - { to: proof-mhy-case-schema, rel: relates-to }
+review-by: "2026-11-07"
+summary: >-
+  Red then green runs for the MHY track items.
+---
+
 # MHY red-first receipts
 
 ## Item 1 - save-failure wording (Ruling 134)
