@@ -32,7 +32,39 @@ public sealed record SectionView(double Eta, bool IsGoverning, string StationNam
 /// range (<paramref name="CpLow"/>, <paramref name="CpHigh"/>) the legend names; and the caption plates. Never re-solved.
 /// </summary>
 public sealed record SectionProfile(IReadOnlyList<PanelCp> Outline, PanelCp CpMinPanel, string Side, double CpLow, double CpHigh,
-    string Caption, string Tier, string? Cavitation);
+    string Caption, string Tier, string? Cavitation, SectionForces? Forces = null,
+    string? ForcesNotJudged = null);
+
+/// <summary>Where the Lift and Drag arrows start: the lattice centre of pressure, or the quarter chord with the couple drawn (Ruling 128 (3)).</summary>
+public enum ForceAnchor { CentreOfPressure, QuarterChord }
+
+/// <summary>
+/// The lattice strip's force record for the shown station (Rulings 127, 128, 130), per span, SI; the display unit is applied by
+/// <see cref="Labels"/>. Lift is perpendicular and drag parallel to V∞, which lies at <see cref="AlphaGeoDeg"/> to the chord line.
+/// <see cref="LiftScale"/> is N/m for one chord of arrow, fixed per run; arrow lengths in chords are the <c>*Chords</c> members
+/// (drag already carries <see cref="DragMultiple"/>). <see cref="XcpOverC"/> is the lattice centre of pressure whether or not it is
+/// used; <see cref="Anchor"/> and <see cref="XcpText"/> say what is shown.
+/// </summary>
+public sealed record SectionForces(double Eta, double ChordMeters, double AlphaGeoDeg, double AlphaEffDeg, double AlphaIDeg, double ClLattice,
+    double LiftPerSpan, double CouplePerSpan, double? XcpOverC, ForceAnchor Anchor, string XcpText,
+    double? ProfileLow, double? ProfileHigh, string? ProfileFlags, string? ProfileUnavailable, double InducedPerSpan,
+    double LiftScale, int DragMultiple, Units Units, int NChord = 4)
+{
+    /// <summary>Centre of the Ncrit 2-4 band.</summary>
+    public double? ProfileMid => ProfileLow is { } low && ProfileHigh is { } high ? 0.5 * (low + high) : null;
+    public double TotalPerSpan => (ProfileMid ?? 0) + InducedPerSpan;
+    public bool LowConfidence => StripFlags.Has(ProfileFlags, StripFlags.LowConfidence);
+    /// <summary>The anchor on the chord, as a fraction of the chord from the leading edge.</summary>
+    public double AnchorX => Anchor == ForceAnchor.CentreOfPressure ? XcpOverC!.Value : 0.25;
+    /// <summary>Unit vectors in section axes (x aft along the chord, z up): V∞ and drag at α_geo, lift perpendicular and leaning forward.</summary>
+    public (double X, double Z) FreeStream => (Math.Cos(VortexLattice.ToRadians(AlphaGeoDeg)), Math.Sin(VortexLattice.ToRadians(AlphaGeoDeg)));
+    public (double X, double Z) LiftDirection => (-FreeStream.Z, FreeStream.X);
+    public double LiftChords => LiftPerSpan / LiftScale;
+    public double? ProfileLowChords => ProfileLow is { } v ? v * DragMultiple / LiftScale : null;
+    public double? ProfileHighChords => ProfileHigh is { } v ? v * DragMultiple / LiftScale : null;
+    public double ProfileChords => (ProfileMid ?? 0) * DragMultiple / LiftScale;
+    public double InducedChords => InducedPerSpan * DragMultiple / LiftScale;
+}
 
 /// <summary>
 /// One row of the Section document's compact Stations table (Ruling 125, mockup B and C): the same stations as the "Stations"
@@ -84,6 +116,8 @@ public static class SectionDisplay
         if (station.EstimatorAvailabilityCode is { } code)
             estimator = [R("Tier", Labels.EstimatorChip, note: Labels.UnavailableBecause(code)), R(Labels.CpMinLabel, Labels.UnavailableBecause(code))];
         groups.Add(new("Estimator", estimator));
+        SectionForces? forces = ForcesAt(run, station.Eta, source, units, cancellation, out bool tipNotJudged);
+        groups.Add(tipNotJudged ? new(Labels.StripTableHeading, [R("Result", Labels.TipNotJudged)]) : ForceGroup(forces, station, depthSet, units));
 
         // ---- cavitation screen ----
         CavitationResult cav = tier.Cavitation;
@@ -169,7 +203,7 @@ public static class SectionDisplay
             .OrderBy(s => s.Eta).Select(s => new StationTableRow(s.Eta, "η " + N(s.Eta, "0.###"), N(s.AlphaEffDeg, "0.00"),
                 N(-s.Estimate.Panel.CpMin, "0.###"), CavitationWord(s.Cavitation.State), s.Eta == station.Eta,
                 s.PanelUnderread is null ? Labels.UnderreadNotMeasured : null)).ToArray();
-        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units));
+        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units, forces) with { ForcesNotJudged = tipNotJudged ? Labels.TipNotJudged : null });
     }
 
     // The leading word of the approved cavitation sentences (COPY-301 to COPY-303): "Clear", "Inside the margin", "Possible".
@@ -233,7 +267,7 @@ public static class SectionDisplay
         return (best, side);
     }
 
-    private static SectionProfile Profile(SectionStationResult station, Units units)
+    private static SectionProfile Profile(SectionStationResult station, Units units, SectionForces? forces)
     {
         PanelResult panel = station.Estimate.Panel;
         PanelCp[] outline = panel.Upper.Concat(panel.Lower).ToArray();
@@ -249,7 +283,7 @@ public static class SectionDisplay
             }, 100 * cav.MarginFraction, vcrit, units)
             : null;
         return new(outline, at, side, outline.Min(p => p.Cp), outline.Max(p => p.Cp), Labels.SectionCaption(station.Eta),
-            Labels.EstimatorChip + " · inviscid; no boundary layer", line);
+            Labels.EstimatorChip + " · inviscid; no boundary layer", line, forces);
     }
 
     private static IReadOnlyList<ChartModel> Charts(AnalysisRun run, SectionTierResult tier, SectionStationResult station,
@@ -335,4 +369,144 @@ public static class SectionDisplay
 
     private static ResultRow R(string label, string value, string? unit = null, string? note = null) => new(label, value, unit, note);
     private static string N(double value, string format) => value.ToString(format, Inv);
+
+    /// <summary>
+    /// The strip force record of the shown station, derived on read from the stored strip and the source the run was solved on (DM7:
+    /// nothing is stored). Null when the source is not held, a span edge is missing, or the strip has no width; the table then says why.
+    /// </summary>
+    private static SectionForces? ForcesAt(AnalysisRun run, double eta, byte[]? source, Units units, CancellationToken cancellation, out bool tipNotJudged)
+    {
+        tipNotJudged = false;
+        if (source is null || run.Outcome is not RunOutcome.Completed || run.Strips.Count == 0
+            || run.Settings.SectionEtas is not { Count: > 0 } etas || run.Settings.SectionXs is not { Count: > 0 } xs) return null;
+        StripLoad strip = run.Strips.MinBy(s => Math.Abs(Math.Abs(s.Eta) - eta))!;
+        // Ruling 131: the provisional tip strip is Not judged, the rule the rest of the Section view follows (AnalysisProjection.State).
+        if (strip.Provisional && strip.ProvisionalReason == StripLoad.TipProvisionalReason) { tipNotJudged = true; return null; }
+        if (strip.YLow is not { } low || strip.YHigh is not { } high) return null;
+        try
+        {
+            var wing = ProductWingMethod.Mirror(Placement.Sections(source, etas, xs, cancellation));
+            (double x, double z) = VortexLattice.StripLeadingEdges(wing, [(low, high)])[0];
+            return SectionForceModel.Compute(run, strip, x, z, units);
+        }
+        catch (ContractError) { return null; }
+    }
+
+    private const string NoForcesReason = "the section source is not held by this session";
+
+    // The table of the strip's values, one model named on every row (Ruling 128 (2)); "Not modelled" last, as on Properties.
+    private static ResultGroup ForceGroup(SectionForces? f, SectionStationResult station, bool depthSet, Units units)
+    {
+        if (f is null)
+            return new(Labels.StripTableHeading, [R("Result", Labels.UnavailableBecause(NoForcesReason))]);
+        string fu = Labels.ForcePerSpanUnit(units), mu = Labels.MomentPerSpanUnit(units);
+        string profile = f.ProfileLow is { } low && f.ProfileHigh is { } high
+            ? Labels.DragBand(low, high, units) : Labels.UnavailableBecause(f.ProfileUnavailable ?? Labels.NoPolar);
+        bool flagged = f.ProfileFlags is not null;
+        // COPY-328 always, then COPY-364 and COPY-316 verbatim when the polar flags them (mockup state C)
+        string profileNote = string.Join(" · ", new[] { f.ProfileLow is null ? null : Labels.ProfileDragNote,
+            StripFlags.Has(f.ProfileFlags, StripFlags.SectionUnvalidated) ? Labels.BracketOutsideFamily : null,
+            f.LowConfidence ? Labels.LowConfidence(null) : null }.Where(part => part is not null));
+        string total = f.ProfileLow is null ? Labels.UnavailableBecause(f.ProfileUnavailable ?? Labels.NoPolar) : Labels.Sig3(Labels.ForcePerSpan(f.TotalPerSpan, units));
+        return new(Labels.StripTableHeading,
+        [
+            R(Labels.ClPanelRow, N(station.Estimate.Cl, "0.000")), R(Labels.CmPanelRow, N(station.Estimate.CmQuarter, "0.000")),
+            R(Labels.ClLatticeRow, N(f.ClLattice, "0.000")),
+            R(Labels.AlphaGeoRow, N(f.AlphaGeoDeg, "0.00"), "°"), R(Labels.AlphaEffRow, N(f.AlphaEffDeg, "0.00"), "°"),
+            R(Labels.AlphaIRow, N(f.AlphaIDeg, "0.00"), "°"),
+            R(Labels.XcpRowLabel(f.NChord), f.Anchor == ForceAnchor.CentreOfPressure ? N(f.XcpOverC!.Value, "0.00") : f.XcpText,
+                note: f.Anchor == ForceAnchor.QuarterChord ? Labels.CouplePlaceNote : null),
+            R(Labels.LiftRow, Labels.Sig3(Labels.ForcePerSpan(f.LiftPerSpan, units)), fu),
+            R(Labels.CoupleRowLabel(f.NChord), Labels.Sig3(Labels.MomentPerSpan(f.CouplePerSpan, units)), mu),
+            R(Labels.ProfileDragRow, flagged && f.ProfileLow is not null ? profile + " " + fu + " " + Labels.FlaggedSuffix : profile,
+                f.ProfileLow is null || flagged ? null : fu, profileNote.Length > 0 ? profileNote : null),
+            R(Labels.InducedDragRow, Labels.Sig3(Labels.ForcePerSpan(f.InducedPerSpan, units)), fu),
+            R(Labels.TotalDragRow, total, f.ProfileLow is null ? null : fu),
+            R("Not modelled", Labels.NotModelled(depthSet))
+        ]);
+    }
+}
+
+/// <summary>
+/// The lattice strip's Lift and Drag on free-stream axes (Rulings 127, 128, 130). One model throughout: L′ is the strip lift of
+/// <c>AnalysisProjection.StripDetails</c>, x_cp comes from the strip's own moment and normal force once the moment is moved from the
+/// frame origin to the strip leading edge (docs/proof/sfv/model.md), the induced share is the lifting-line d′ = ½ρΓ(−w_T) whose strips
+/// sum to the wing's induced drag, and the profile drag is the polar band. Pure; no lattice or polar numerics are touched.
+/// </summary>
+public static class SectionForceModel
+{
+    /// <summary>|Cl_local (lattice)| below this puts the arrows at c/4 and x_cp Undefined (Ruling 130).</summary>
+    public const double AnchorClMin = 0.05;
+    /// <summary>The largest strip lift draws this many chords long; the scale rounds up in the 1-2-5 series.</summary>
+    public const double LiftArrowChords = 0.3;
+    /// <summary>Rule for the drag multiple: the largest of 10, 5, 2, 1 at which no strip's total drag arrow is longer than this many chords.</summary>
+    public const double DragArrowMaxChords = 0.15;
+    private static readonly int[] Multiples = [10, 5, 2, 1];
+
+    public static double RoundUp125(double value)
+    {
+        double exponent = Math.Pow(10, Math.Floor(Math.Log10(value))), m = value / exponent;
+        return exponent * (m <= 1 + 1e-9 ? 1 : m <= 2 + 1e-9 ? 2 : m <= 5 + 1e-9 ? 5 : 10);
+    }
+
+    private static bool Parts(AnalysisRun run, StripLoad strip, out double lift, out double induced, out double? low, out double? high)
+    {
+        double width = Loads.StripWidth(run, strip);
+        lift = induced = 0;
+        low = high = null;
+        if (!(width > 0)) return false;
+        double a = VortexLattice.ToRadians(run.Op.AlphaDeg), q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
+        lift = (-strip.Fx * Math.Sin(a) + strip.Fz * Math.Cos(a)) / width;
+        induced = 0.5 * run.Water.Rho * strip.Gamma * -strip.DownwashTrefftz;
+        if (strip.CdNcrit2.Value is { } cd2 && strip.CdNcrit4.Value is { } cd4)
+        {
+            low = q * strip.Chord * Math.Min(cd2, cd4);
+            high = q * strip.Chord * Math.Max(cd2, cd4);
+        }
+        return true;
+    }
+
+    /// <summary>
+    /// The lift scale (N/m for one chord of arrow) and the drag multiple, fixed per run. The scale is the largest strip |L′| over
+    /// <see cref="LiftArrowChords"/>, rounded up in the 1-2-5 series in the unit shown, so the label's number is the rounded one.
+    /// </summary>
+    public static (double LiftScale, int DragMultiple) RunScale(AnalysisRun run, Units units)
+    {
+        double maxLift = 0;
+        var totals = new List<double>();
+        foreach (StripLoad strip in run.Strips)
+        {
+            if (!Parts(run, strip, out double lift, out double induced, out double? low, out double? high)) continue;
+            maxLift = Math.Max(maxLift, Math.Abs(lift));
+            totals.Add(Math.Abs(((low + high) / 2 ?? 0) + induced));
+        }
+        double shown = Labels.ForcePerSpan(maxLift, units);
+        double scale = shown > 0 ? RoundUp125(shown / LiftArrowChords) / Labels.ForcePerSpan(1, units) : 1;
+        int multiple = Multiples.Cast<int?>().FirstOrDefault(m => totals.All(t => t * m / scale <= DragArrowMaxChords)) ?? 1;
+        return (scale, multiple);
+    }
+
+    /// <summary>
+    /// The force record of <paramref name="strip"/>. (<paramref name="leadingX"/>, <paramref name="leadingZ"/>) is its leading edge in the
+    /// frame the strip moments are about (the frame origin). Null when the strip has no width.
+    /// </summary>
+    public static SectionForces? Compute(AnalysisRun run, StripLoad strip, double leadingX, double leadingZ, Units units)
+    {
+        if (!Parts(run, strip, out double lift, out double induced, out double? low, out double? high)) return null;
+        double width = Loads.StripWidth(run, strip), chord = strip.Chord;
+        // M_LE = M_origin - r_LE x F (y component), per span. Fz is the body-axes z force, used unrotated (docs/proof/sfv/model.md 2): the
+        // transfer gives -(x_cp - x_LE) Fz, the Fz-weighted chordwise position, exactly only when every bound segment of the strip lies at
+        // z = z_LE (a planar, untwisted strip). With twist the bound segments sit at different z and the result is approximate.
+        double momentLe = (strip.My - (leadingZ * strip.Fx - leadingX * strip.Fz)) / width, normal = strip.Fz / width;
+        double couple = momentLe + 0.25 * chord * normal;
+        double? xcp = run.Settings.NChord >= 2 && normal != 0 && double.IsFinite(momentLe / normal) ? -momentLe / (normal * chord) : null;
+        bool nearZero = Math.Abs(strip.ClLocal) < AnchorClMin;
+        bool onCp = xcp is { } x && x >= 0 && x <= 1 && !nearZero;
+        string text = onCp ? Labels.Number(xcp!.Value, "0.00") : nearZero ? Labels.XcpNearZeroLift : xcp is null ? "Undefined" : Labels.XcpOffSection;
+        string? unavailable = low is null ? (strip.CdNcrit2.Value is null ? strip.CdNcrit2.UnavailableReason : strip.CdNcrit4.UnavailableReason) : null;
+        string? flags = StripFlags.Join(strip.CdNcrit2.FlagCode, strip.CdNcrit4.FlagCode);
+        (double scale, int multiple) = RunScale(run, units);
+        return new SectionForces(strip.Eta, chord, strip.AlphaEff + strip.AlphaI, strip.AlphaEff, strip.AlphaI, strip.ClLocal, lift, couple, xcp,
+            onCp ? ForceAnchor.CentreOfPressure : ForceAnchor.QuarterChord, text, low, high, flags, unavailable, induced, scale, multiple, units, run.Settings.NChord);
+    }
 }

@@ -739,6 +739,23 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-407 | Cp_min <v> · x/c <x> · <side> — approved — Ruling 126 (the Cp_min marker plate on the profile) |
 | COPY-408 | σ <v> · −Cp_min <v> · clear of the 15 % margin · V_crit <v> — approved — Ruling 126 (the cavitation line on the profile; "clear of" reads "inside" or "at or past" by state; V_crit in kn under Imperial and m/s under Metric) |
 | COPY-409 | x/c 0 → 1 — approved — Ruling 126 (the axis plate under the profile) |
+| COPY-SF1 | L′ <v> <unit> (lattice) ⏎ 1 c = <s> <unit>, fixed per run — approved — Ruling 130 (the lift label and its scale line on the Section profile; ⏎ is the line break; <unit> reads N/m or lbf/ft by the Units switch; <v> has three significant figures) |
+| COPY-SF2 | V∞ at α_geo <a>° — approved — Ruling 130 (the free-stream label; <a> in degrees, two decimals) |
+| COPY-SF3 | local inflow α_eff <a>° ⏎ tilts the flow by α_i — approved — Ruling 130 (the faint local-inflow line label) |
+| COPY-SF4 | CP (lattice) · x/c <x> — approved — Ruling 130 (the anchor label when the centre of pressure is on the section and \|Cl_local (lattice)\| is at least 0.05) |
+| COPY-SF5 | c/4 · arrows start here · x_cp Undefined — approved — Ruling 130 (the anchor label otherwise) |
+| COPY-SF6 | M′ c/4 (lattice) <v> <unit> — approved — Ruling 130 (the couple label; <unit> reads N·m/m or lbf·ft/ft) |
+| COPY-SF7 | D′ profile (polar, Ncrit 2–4) <min>–<max> <unit> · ×<k> — approved — Ruling 130 (the profile-drag label; the cap on the arrow is the band; <k> is the run's drag multiple) |
+| COPY-SF8 | D′ induced, lifting-line share (lattice) <v> <unit> · ×<k> — approved — Ruling 130 (the induced-drag label) |
+| COPY-SF9 | D′ profile + induced (band centre), free-stream axes <v> <unit> · ×<k> — approved — Ruling 131 (the total-drag label, reworded from Ruling 130 by adding only "(band centre)": the number is the centre of the Ncrit 2–4 profile band plus the induced share) |
+| COPY-SF10 | <SF7 text> · low confidence (profile label suffix) ⏎ <min>–<max> · flagged (table suffix) — approved — Ruling 130 (state C; COPY-316 and COPY-364 stay verbatim under the table) |
+| COPY-SF11 | Wing strip, per span; not the wing total — approved — Ruling 130 (the strip table heading) |
+| COPY-SF12 | cl (panel, 2D inviscid at α_eff) · Cm c/4 (panel, 2D inviscid) · Cl_local (lattice) · α_geo · α_eff (lattice) · α_i (lattice) · x_cp/c (lattice, <n> chordwise panels; biased forward at low lift) · L′ (lattice) · M′ c/4 (lattice, <n> chordwise panels; biased forward at low lift) · D′ profile (polar, Ncrit 2–4) · D′ induced (lattice) · D′ profile + induced (band centre), free-stream axes — approved — Ruling 131 (the strip table row labels, in table order; <n> is the run's chordwise panel count; Ruling 130 wording with "(panel, 2D inviscid)", "(band centre)" and the SF17 bias added) |
+| COPY-SF13 | Undefined · near zero lift: \|cl\| is below 0.05 — approved — Ruling 130 (the x_cp/c value when \|Cl_local (lattice)\| is below 0.05) |
+| COPY-SF14 | Undefined · the centre of pressure is off the section — approved — Ruling 130 (the x_cp/c value when x_cp is outside 0 to 1) |
+| COPY-SF15 | The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn. — approved — Ruling 130 (the note under the table in the c/4 case) |
+| COPY-SF16 | V∞ · Local inflow · Lift · Drag, profile (cap: Ncrit 2–4 band) · Drag, induced · Pitching-moment couple — approved — Ruling 130 (the vector key, in key order) |
+| COPY-SF17 | lattice, <n> chordwise panels; biased forward at low lift — approved — Ruling 131 (the x_cp and M′ c/4 labels: in the strip table the row labels read x_cp/c (SF17) and M′ c/4 (SF17); on the profile it is the second line of the CP or anchor plate and of the couple plate; <n> is the run's chordwise panel count, 4 at the default lattice) |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

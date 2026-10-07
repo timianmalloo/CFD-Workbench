@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T01:44:51Z",
+  "generated": "2026-10-07T16:19:54Z",
   "audit": [
     {
       "actor": null,
@@ -28584,6 +28584,46 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T01:43:56Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M4A2FDNNPWSTRA8A3A0AMHW4",
+      "shortname": "trk-sfv-build",
+      "datetime": "2026-10-07T02:18:29Z",
+      "session": "trk-sfv-build",
+      "prompt": "trk-sfv-build round-oct06",
+      "summary": "Verified nc 4 and the moment datum (frame origin), moved to the strip leading edge by a read-only lattice getter; SectionForceModel (free-stream axes, x_cp from strip My/Fz, CP or c/4 anchor, lifting-line induced share summing to wing D_i, polar band, per-run 1-2-5 lift scale and drag multiple); vectors, couple, key and 16 labels (COPY-SF1..SF16) on SectionProfileView; strip table; red-first mutants; captures A-E; mockup deviations recorded (mirrored V-inf, N.m/m factor)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Lift and Drag vectors on the Section view from the lattice strip (Rulings 127, 128, 130)",
+      "done_when": "model verified in writing; the five approved states built and captured; C1-C3 exit checks green; 16 labels in DESIGN.md; one full run-tests green",
+      "started_at": "2026-10-07T01:48:29Z",
+      "duration_seconds": 1800.0
+    },
+    {
+      "id": "al-01M4BJM3665VH50W9YFT84Z566",
+      "shortname": "trk-sfv-fix",
+      "datetime": "2026-10-07T16:19:54Z",
+      "session": "trk-sfv-fix",
+      "prompt": "trk-sfv-fix round-oct06",
+      "summary": "tip strip Not judged; 4-panel bias, band centre and 2D inviscid labels (COPY-SF17, SF9, SF12); elliptic-wing distribution check and consistency rename; nc 2-16 measurement; model notes corrected; state-E plate overlap fixed with a no-overlap check; A-E and tip re-captured",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "SFV repair cycle 1: the six Ruling 131 review conditions on the Section force vectors",
+      "done_when": "red-first receipts for items 1, 2, 4, 6; nc table; A-E and tip captures opened; run-tests green with C-3 under 50 s; dispatch-gate, xaml-token-lint, check-copy-ids, check-docs exit 0",
+      "started_at": "2026-10-07T15:58:26Z",
+      "duration_seconds": 1288.0
     }
   ],
   "changes": [
@@ -30440,6 +30480,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49Z8HSZ96HXRDX40HS10CN3",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4BHCHX5WNYZ5XKBVJF239QR",
+      "ts": "2026-10-07T15:58:18Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4BHCHT5N6X27C7FP1ESAHHV",
       "session": "operator-timianmalloo"
     }
   ]

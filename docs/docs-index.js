@@ -6823,7 +6823,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b4629398fba3fa75156500588cb88025235c5d2bc83a1b6a5c3ceb2ce2ffb3a7"
+      "sourceSha256": "d0378b596ee4e02dbacc895f157e00e82db93a331fff7f512fe127a0b90c62f6"
     },
     {
       "id": "kb-hw-glossary",
@@ -12522,6 +12522,114 @@ window.DOCS_INDEX = {
       "sourceSha256": "cb3be0188a83c3d0e5ff019def49ab42f83f3654ff52f752164328a81e45e695"
     },
     {
+      "id": "proof-sfv-captures",
+      "path": "docs/proof/sfv/captures.md",
+      "title": "SFV captures of the Section force vectors against the approved mockup states A to E",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Five app captures (A to E) of the Section document with the Lift and Drag vectors, one per approved mockup state, each opened and compared with the mockup capture, with the differences named. Numbers are read from real lattice runs, not from the mockup.",
+      "tags": [
+        "sfv",
+        "captures",
+        "section",
+        "mockup-state-unbuilt"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-force-vectors",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-sfv-model",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8368c08e039fa589d580bc610cd641f5f9bae61e8a9d7f4fca1e7b96538f6618"
+    },
+    {
+      "id": "proof-sfv-model",
+      "path": "docs/proof/sfv/model.md",
+      "title": "SFV lattice model verification - chordwise panel count and moment reference point",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Written check, before the build, that the lattice defines the strip centre of pressure (chordwise panels nc greater than 1) and how the strip moment, stored about the frame origin, is moved to the strip leading edge. Both hold; the single caveat is nc = 1.",
+      "tags": [
+        "sfv",
+        "lattice",
+        "centre-of-pressure",
+        "ruling-128"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-force-vectors",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "eeff8671e405736715697c95ba9d82413a07323db7ec35ce09c833ce7db0604a"
+    },
+    {
+      "id": "proof-sfv-nc-convergence",
+      "path": "docs/proof/sfv/nc-convergence.md",
+      "title": "SFV chordwise-convergence measurement of the strip Cm c/4 and x_cp (nc 2, 4, 8, 16)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Measured bias of the 4-chordwise-panel lattice strip pitching moment and centre of pressure on a cambered section: at nc = 4, x_cp is 0.02 to 0.04 of a chord forward of its converged value and the Cm c/4 magnitude is 13 to 21 percent low; observed order near 1. A measurement for the next ruling on nc, not a gate.",
+      "tags": [
+        "sfv",
+        "lattice",
+        "centre-of-pressure",
+        "ruling-131",
+        "convergence"
+      ],
+      "links": [
+        {
+          "to": "proof-sfv-model",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cc1f27b2fa5cafb6de0ab698e5765d7814be8ddfe4c1adafbcf18b02306c8dba"
+    },
+    {
+      "id": "proof-sfv-red-first",
+      "path": "docs/proof/sfv/red-first.md",
+      "title": "SFV red-first record for the Lift and Drag vector checks",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "For each behaviour of the Section force vectors (free-stream axes, anchor rule, units, scale rule, labels): the check fails when the behaviour is broken (a planted mutant), and passes on the build. The old code has no model at all, so its red is a compile failure.",
+      "tags": [
+        "sfv",
+        "red-first",
+        "tests"
+      ],
+      "links": [
+        {
+          "to": "proof-sfv-model",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9aa45a48582cab305792006314cb6fc768f3aa5105b7fc8af1ededf55a1a2536"
+    },
+    {
       "id": "proof-shellfix-red-runs",
       "path": "docs/proof/shellfix-red-runs.md",
       "title": "Shell visual defect red runs",
@@ -15304,5 +15412,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "88a1ce885a5daf79e69ebf9815c7e42aa83f25d5836a6f0d909def492c1281c1"
+  "graphSha256": "ef2417497391849c7c452205d49d9ca95811fa90fb1d165b228c40d5064539af"
 };

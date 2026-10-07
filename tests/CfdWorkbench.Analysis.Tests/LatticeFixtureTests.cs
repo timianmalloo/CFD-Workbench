@@ -593,7 +593,7 @@ internal static class LatticeFixtureTests
 
     private static Trio Shared() => shared ?? throw new InvalidOperationException("F-6 did not build the shared solves");
 
-    private static LatticeSolution Elliptic(int nPerHalf, LatticePlant plant, string chordSpacing = "uniform")
+    internal static LatticeSolution Elliptic(int nPerHalf, LatticePlant plant, string chordSpacing = "uniform")
     {
         double[] nodes = Nodes(-EllipticHalf, EllipticHalf, nPerHalf, "cosine");
         var sections = new List<SectionSample>(nodes.Length);

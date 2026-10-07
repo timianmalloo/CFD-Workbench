@@ -133,6 +133,7 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
     CfdWorkbench.Desktop.Tests.AnalysisFeedTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.AnalysisPanelTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.DxSectionPanelTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.SectionForceViewTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.SectionMainAreaTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.PointsPaneTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.ElevationTests.RunReadiness();
