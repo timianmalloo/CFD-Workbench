@@ -1,0 +1,13 @@
+{
+  "branch": "win/smoke",
+  "head": "aa642fc6a1a3da2b8f7bb1f5578139e7ff601859",
+  "buildCommand": "dotnet build CFDWorkbench.slnx",
+  "binary": "C:\\Projects\\CFD-Workbench-win-smoke\\src\\CfdWorkbench.Desktop\\bin\\Debug\\net10.0\\CfdWorkbench.Desktop.exe",
+  "binarySha256": "71AEE07293AA173A6788382A2FE09A379431F1E5AD23B6E3DC08E5308EBA9B2B",
+  "dll": "C:\\Projects\\CFD-Workbench-win-smoke\\src\\CfdWorkbench.Desktop\\bin\\Debug\\net10.0\\CfdWorkbench.Desktop.dll",
+  "dllSha256": "4D85822E78F4237582A0ABE5FD37F37A2183A97D6777E150B15A5B3C115A4439",
+  "pid": 996,
+  "startUtc": "2026-10-07T16:49:24.7538751Z",
+  "launchUtc": "2026-10-07T16:49:24.8299001Z",
+  "dotnetRoot": "C:\\Users\\malla\\.dotnet"
+}
