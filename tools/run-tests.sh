@@ -56,6 +56,16 @@ load() {
   elif sysctl -n vm.loadavg >/dev/null 2>&1; then sysctl -n vm.loadavg | tr -d '{}' | awk '{print $1}'
   else echo "not-recorded"; fi
 }
+# The load source, passed to tools/check-test-costs.py (Ruling 139): /proc/loadavg under Git Bash or Cygwin is "proc-gitbash",
+# an uncalibrated host (its cost rules and TEST-BUDGET are advisory until docs/proof/ring-<host>/baseline.csv exists).
+load_source() {
+  if [ -r /proc/loadavg ]; then
+    case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) echo "proc-gitbash" ;; *) echo "proc" ;; esac
+  elif sysctl -n vm.loadavg >/dev/null 2>&1; then echo "sysctl"
+  else echo "none"; fi
+}
+ring_load_source=$(load_source)
+ring_host=$(hostname | cut -d. -f1)
 load_start=$(load)
 started=$SECONDS
 started_ms=$(now_ms)
@@ -140,11 +150,11 @@ cost_jobs=""
 for name in "${names[@]}"; do cost_jobs="$cost_jobs${cost_jobs:+,}$name"; done
 # The end load is read first: C-3 and C-4 fail only at a quiet end load (Ruling 84).
 load_end=$(load)
-if ! py "$root/tools/check-test-costs.py" --dir "$scratch" --jobs "$cost_jobs" --load "$load_end"; then failed=1; fi
+if ! py "$root/tools/check-test-costs.py" --dir "$scratch" --jobs "$cost_jobs" --load "$load_end" --load-source "$ring_load_source" --host "$ring_host"; then failed=1; fi
 echo "wall $wall s ($(cat "$scratch/wall.ms") ms, net $(( $(cat "$scratch/wall.ms") - $(cat "$scratch/build.ms") )) ms) (budget $budget s) cpu $cpu s load $load_start -> $load_end"
 if [ "$failed" -ne 0 ]; then exit 1; fi
 # TEST-BUDGET (Ruling 87): exit 3 only at an end load <= 24; above it a MISS line is printed and the run exits 0.
 budget_status=0
-py "$root/tools/check-test-costs.py" --budget "$wall" "$budget" "$load_end" || budget_status=$?
+py "$root/tools/check-test-costs.py" --budget "$wall" "$budget" "$load_end" --load-source "$ring_load_source" --host "$ring_host" || budget_status=$?
 if [ "$budget_status" -ne 0 ]; then exit "$budget_status"; fi
 echo "all test harnesses passed"

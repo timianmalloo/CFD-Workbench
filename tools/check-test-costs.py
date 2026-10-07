@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Enforce the test-ring cost rules C-2..C-6 (docs/design/area3-analysis.md section 13.4) from tools/run-tests.sh output.
 
-  python3 tools/check-test-costs.py [--dir .tmp-tests] [--jobs Core.part1of3,Core.part2of3,Core.part3of3,Desktop,Analysis.part1of2,Analysis.part2of2,Cli] [--load <1-minute load>]
-  python3 tools/check-test-costs.py --budget <wall s> <budget s> <load>    (TEST-BUDGET, Ruling 87: exit 3 or 0)
+  python3 tools/check-test-costs.py [--dir .tmp-tests] [--jobs Core.part1of3,Core.part2of3,Core.part3of3,Desktop,Analysis.part1of2,Analysis.part2of2,Cli] [--load <1-minute load>] [--load-source proc-gitbash|...] [--host <name>]
+  python3 tools/check-test-costs.py --budget <wall s> <budget s> <load>    [--load-source S --host H]    (TEST-BUDGET, Ruling 87: exit 3 or 0)
   python3 tools/check-test-costs.py --self-test
 
 Reads <name>.ms and wall.ms (C-1, millisecond clocks written by run-tests.sh) and the COST lines of every Analysis log (Analysis.log, or Analysis.part<k>of<n>.log).
@@ -38,9 +38,16 @@ ANALYSIS_LIMIT_MS = 5000      # C-2, per Analysis part (B4: the harness is split
 WALL_LIMIT_MS = 50000   # C-3
 DESKTOP_BASE_MAX_MS = 47369  # the slowest of the three recorded quiet runs
 DESKTOP_LIMIT_MS = DESKTOP_BASE_MAX_MS + 2000  # C-4, 49,369 ms
-# C-2, C-3 and C-4 fail only when the 1-minute load at ring end is at or below this; above it, or not recorded, they print
-# COST-MISS (Ruling 84; C-2 joined by Ruling 87, which also gates the TEST-BUDGET check the same way). C-5 and C-6 are never gated.
+# C-2, C-3, C-4 and C-5 fail only when the 1-minute load at ring end is at or below this; above it, or not recorded, they print
+# COST-MISS (Ruling 84; C-2 joined by Ruling 87, which also gates the TEST-BUDGET check the same way; C-5 joined by Ruling 139).
+# C-6 is never gated. The limits and this threshold are Mac-calibrated (sysctl vm.loadavg).
 LOAD_GATE = 24.0
+# Ruling 139 (b): a host whose load source is /proc/loadavg under Git Bash or Cygwin ("proc-gitbash", named by run-tests.sh) is
+# uncalibrated: every cost rule and TEST-BUDGET prints COST-MISS ... host <name> and exits 0, until the 3-run quiet baseline
+# docs/proof/ring-<host>/baseline.csv exists. Its form: a first line `gate=<n>` (that host's load threshold, set from the runs),
+# then one row per quiet run `<run>,<end load>,<wall ms>`; three rows or more calibrate. The ms limits are not re-based per host.
+UNCALIBRATED_SOURCE = "proc-gitbash"
+BASELINE_MIN_RUNS = 3
 CHECK_LIMIT_MS = 500.0        # C-5
 EXEMPT_LIMIT_MS = 1500.0      # C-5, the two named A8.4 exemptions
 EXEMPT_CHECKS = ("F1_FlatPlate_RichardsonClAlphaTo2Pi", "F6_ObservedOrder")
@@ -58,26 +65,58 @@ def read_ms(directory: Path, name: str) -> int | None:
         return None
 
 
-def load_gated(load: str) -> bool:
-    """True when the end load is recorded and at or below LOAD_GATE; "not recorded" never fails a load-gated rule."""
+def host_baseline_gate(host: str, proof: Path | None = None) -> float | None:
+    """The host's recorded load threshold, or None while its 3-run quiet baseline is missing or unreadable."""
+    path = (proof or ROOT / "docs" / "proof") / f"ring-{host}" / "baseline.csv"
     try:
-        return float(load) <= LOAD_GATE
+        lines = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        gate = float(lines[0].removeprefix("gate=")) if lines and lines[0].startswith("gate=") else None
+        rows = [line for line in lines[1:] if len(line.split(",")) == 3 and float(line.split(",")[1]) >= 0]
+    except (OSError, ValueError):
+        return None
+    return gate if gate is not None and len(rows) >= BASELINE_MIN_RUNS else None
+
+
+def host_gate(source: str, host: str, proof: Path | None = None) -> tuple[float, bool]:
+    """(load threshold, uncalibrated). Only the proc-gitbash source is ever uncalibrated; a baseline sets its threshold."""
+    if source != UNCALIBRATED_SOURCE:
+        return LOAD_GATE, False
+    gate = host_baseline_gate(host, proof)
+    return (LOAD_GATE, True) if gate is None else (gate, False)
+
+
+def load_gated(load: str, gate: float = LOAD_GATE) -> bool:
+    """True when the end load is recorded and at or below the gate; "not recorded" never fails a load-gated rule."""
+    try:
+        return float(load) <= gate
     except ValueError:
         return False
 
 
-def budget_verdict(wall: int, budget: int, load: str) -> tuple[int, str | None]:
+def budget_verdict(wall: int, budget: int, load: str, source: str = "", host: str = "", proof: Path | None = None) -> tuple[int, str | None]:
     """TEST-BUDGET (Ruling 87): wall over budget exits 3 at an end load <= LOAD_GATE; above it, or not recorded, it prints
     TEST-BUDGET-MISS and exits 0. The budget figure is unchanged and is raised only from a measured cost."""
     if wall <= budget:
         return 0, None
-    if load_gated(load):
+    gate, uncalibrated = host_gate(source, host, proof)
+    if uncalibrated:
+        return 0, f"COST-MISS TEST-BUDGET {wall} s host {host}"
+    if load_gated(load, gate):
         return 3, (f"TEST-BUDGET: green, but {wall} s is over the {budget} s budget. "
                    "Find the new cost before raising it (docs/reviews/test-ci-waste.md).")
     return 0, f"TEST-BUDGET-MISS {wall} s load {load}"
 
 
-def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded") -> tuple[list[str], list[str]]:
+def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded", source: str = "", host: str = "",
+          proof: Path | None = None) -> tuple[list[str], list[str]]:
+    gate, uncalibrated = host_gate(source, host, proof)
+    errors, misses = check_rules(directory, jobs, load, gate)
+    if uncalibrated:  # Ruling 139 (b): every rule is advisory on an uncalibrated host
+        return [], [f"COST-MISS {error} host {host}" for error in errors] + misses
+    return errors, misses
+
+
+def check_rules(directory: Path, jobs: tuple[str, ...], load: str, gate_limit: float) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     misses: list[str] = []
     readings: dict[str, int] = {}
@@ -87,7 +126,7 @@ def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded") ->
             errors.append(f"C-6 {name}.ms is missing or unreadable: not recorded (run tools/run-tests.sh)")
         else:
             readings[name] = value
-    gated = load_gated(load)
+    gated = load_gated(load, gate_limit)
 
     def timing(rule: str, ms: int, limit: int, message: str) -> None:
         if ms <= limit:
@@ -129,8 +168,48 @@ def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded") ->
         for name, ms in costs.items():
             limit = EXEMPT_LIMIT_MS if name in EXEMPT_CHECKS else CHECK_LIMIT_MS
             if ms > limit:
-                errors.append(f"C-5 {name} took {ms} ms, over {limit:.0f} ms (move it to readiness with its cost, or make it cheaper)")
+                if gated:
+                    errors.append(f"C-5 {name} took {ms} ms, over {limit:.0f} ms (move it to readiness with its cost, or make it cheaper)")
+                else:
+                    misses.append(f"COST-MISS C-5 {name} {ms:g} load {load}")
     return errors, misses
+
+
+def self_test_hosts(good: dict[str, str], passes: str) -> tuple[int, int]:
+    """Ruling 139 (b): an uncalibrated host is advisory on every rule and TEST-BUDGET; a recorded 3-run baseline calibrates it."""
+    failures = total = 0
+
+    def report(ok: bool, label: str, detail: str) -> None:
+        nonlocal failures, total
+        total += 1
+        failures += not ok
+        print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else f": {detail}"))
+
+    with tempfile.TemporaryDirectory() as proof_scratch, tempfile.TemporaryDirectory() as scratch:
+        proof = Path(proof_scratch)
+        for host, rows in (("win1", "1,6.0,52000\n2,7.5,51000\n3,5.0,53000\n"), ("win2", "1,6.0,52000\n2,7.5,51000\n")):
+            (proof / f"ring-{host}").mkdir()
+            (proof / f"ring-{host}" / "baseline.csv").write_text("gate=30\n" + rows, encoding="utf-8", newline="\n")
+        budget_cases = [
+            ("uncalibrated host: TEST-BUDGET over budget at quiet load is a host COST-MISS", "proc-gitbash", "winx", "5", 0, "COST-MISS TEST-BUDGET 70 s host winx"),
+            ("host with two baseline runs is still uncalibrated", "proc-gitbash", "win2", "5", 0, "host win2"),
+            ("calibrated host: TEST-BUDGET over budget at load 5 exits 3", "proc-gitbash", "win1", "5", 3, "TEST-BUDGET:"),
+            ("calibrated host: its recorded gate (30) applies", "proc-gitbash", "win1", "28", 3, "TEST-BUDGET:"),
+            ("sysctl host is never uncalibrated", "sysctl", "mac", "5", 3, "TEST-BUDGET:"),
+        ]
+        for label, source, host, load, code, fragment in budget_cases:
+            got_code, line = budget_verdict(70, 60, load, source, host, proof)
+            report(got_code == code and line is not None and fragment in line, label, f"expected exit {code} {fragment}, got {got_code} {line}")
+        case = Path(scratch)
+        slow = {"Desktop.ms": "49400", "Analysis.part1of2.log": passes.replace("Units_Lbf_KeyUnchanged 12.500", "Units_Lbf_KeyUnchanged 512.3")}
+        for name, text in {**good, **slow}.items():
+            (case / name).write_text(text, encoding="utf-8", newline="\n")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "winx", proof)
+        report(not errors and any("COST-MISS C-4" in m and "host winx" in m for m in misses) and any("COST-MISS C-5" in m and "host winx" in m for m in misses),
+               "uncalibrated host: C-4 and C-5 over limit at quiet load are host COST-MISS, exit 0", f"got {errors} and {misses}")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "win1", proof)
+        report(any("C-4" in e for e in errors) and any("C-5" in e for e in errors), "calibrated host: the same readings fail", f"got {errors} and {misses}")
+    return failures, total
 
 
 def self_test() -> int:
@@ -164,7 +243,12 @@ def self_test() -> int:
         ("C-5 COST Units_Lbf_KeyUnchanged 512.3", {"Analysis.part1of2.log": passes.replace("Units_Lbf_KeyUnchanged 12.500", "Units_Lbf_KeyUnchanged 512.3")},
          quiet, "Units_Lbf_KeyUnchanged", ()),
         ("C-5 COST F6_ObservedOrder 1612.0", {"Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1612.0\n"}, quiet, "F6_ObservedOrder", ()),
-        ("C-5 stays strict at high load", {"Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1612.0\n"}, "40.0", "F6_ObservedOrder", ()),
+        ("C-5 at load 30 is a COST-MISS, not a failure (Ruling 139)", {"Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1612.0\n"}, "30.0", None,
+         ("COST-MISS C-5 F6_ObservedOrder 1612 load 30.0",)),
+        ("C-5 load not recorded is a COST-MISS", {"Analysis.part1of2.log": passes.replace("Units_Lbf_KeyUnchanged 12.500", "Units_Lbf_KeyUnchanged 512.3")},
+         "not-recorded", None, ("COST-MISS C-5 Units_Lbf_KeyUnchanged 512.3 load not-recorded",)),
+        ("C-5 load 24.0 is still gated", {"Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1612.0\n"}, "24.0", "F6_ObservedOrder", ()),
+        ("C-6 stays ungated at load 40: a missing reading still fails", {"wall.ms": None}, "40.0", "wall.ms", ()),
         ("C-5 F6_ObservedOrder 1499.0 is inside its exemption", {"Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1499.0\n"}, quiet, None, ()),
         ("C-2 is per part: part 2 at 5900 fails alone", {"Analysis.part2of2.ms": "5900"}, quiet, "Analysis.part2of2", ()),
         ("C-2 is per part: two parts of 4900 are green though they sum over 5000", {"Analysis.part1of2.ms": "4900", "Analysis.part2of2.ms": "4900"}, quiet, None, ()),
@@ -184,6 +268,8 @@ def self_test() -> int:
         ("TEST-BUDGET load 24.0 is still gated", 70, 60, "24.0", 3, "TEST-BUDGET:"),
         ("TEST-BUDGET load not recorded is a MISS, never a pass", 70, 60, "not-recorded", 0, "TEST-BUDGET-MISS 70 s load not-recorded"),
     ]
+    host_failures, host_total = self_test_hosts(good, passes)
+    failures += host_failures
     for label, wall, budget, load, code, fragment in budget_cases:
         got_code, line = budget_verdict(wall, budget, load)
         ok = got_code == code and (fragment is None and line is None or fragment is not None and line is not None and fragment in line)
@@ -202,7 +288,7 @@ def self_test() -> int:
             print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else
                   f": expected {expected or 'no error'} and {miss_fragments or 'no miss'}, got {errors or 'no error'} and {misses or 'no miss'}"))
             failures += not ok
-    total = len(cases) + len(budget_cases)
+    total = len(cases) + len(budget_cases) + host_total
     print(f"SELFTEST {total - failures}/{total} cases")
     return 1 if failures else 0
 
@@ -211,26 +297,33 @@ def main(argv: list[str]) -> int:
     args = list(argv[1:])
     if args == ["--self-test"]:
         return self_test()
-    directory, jobs, load = DEFAULT_DIR, DEFAULT_JOBS, "not-recorded"
+    directory, jobs, load, source, host, budget = DEFAULT_DIR, DEFAULT_JOBS, "not-recorded", "", "", None
     while args:
         flag = args.pop(0)
         if flag == "--budget" and len(args) >= 3:  # --budget <wall s> <budget s> <load>: prints the line, exits per Ruling 87
-            code, line = budget_verdict(int(args[0]), int(args[1]), args[2])
-            if line:
-                print(line)
-            return code
-        if flag in ("--dir", "--jobs", "--load") and args:
+            budget = (int(args[0]), int(args[1]), args[2])
+            del args[:3]
+        elif flag in ("--dir", "--jobs", "--load", "--load-source", "--host") and args:
             value = args.pop(0)
             if flag == "--dir":
                 directory = Path(value)
             elif flag == "--load":
                 load = value
+            elif flag == "--load-source":
+                source = value
+            elif flag == "--host":
+                host = value
             else:
                 jobs = tuple(part for part in value.split(",") if part)
         else:
             print(__doc__.strip().splitlines()[2], file=sys.stderr)
             return 2
-    errors, misses = check(directory, jobs, load)
+    if budget is not None:
+        code, line = budget_verdict(*budget, source, host)
+        if line:
+            print(line)
+        return code
+    errors, misses = check(directory, jobs, load, source, host)
     for miss in misses:
         print(miss)
     for error in errors:
