@@ -6380,6 +6380,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "c120e1927dd447a808cd7ae155a435e8692e3a83cd235eab25c307397ec69e30"
     },
     {
+      "id": "review-pr-7",
+      "path": "docs/reviews/pr-7.md",
+      "title": "PR #7 (Windows PC) - W-3 complete (Ruling 133), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE. W-3 is complete as manual Windows solver-route qualification and W-4 may start: the OpenFOAM cavity matches the Mac's Courant mean exactly, SU2 reproduces its drag from LF inputs, and all 160 manifest hashes equal the committed bytes.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-3",
+        "openfoam",
+        "su2"
+      ],
+      "links": [
+        {
+          "to": "review-pr-4",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "dcf27e05d2afe7d1136210727c7019e5448533d8ac86294848d77df27add9458"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -7080,7 +7113,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "12d5681dd3535fc90cb9755251e402a3e8cf68a3a112d3b6ac522da6c2fe6af4"
+      "sourceSha256": "8637fdc391dff4c7b3adfdca41fc693aa41821326827a0275aeb7c15642474dc"
     },
     {
       "id": "kb-hw-glossary",
@@ -16071,5 +16104,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1c62475b3441fa7e46fefc48d0aac60117d8ebde57eeace6bca235d186eff4dc"
+  "graphSha256": "ac0ec7d6e8c953d4ae34ad413905870056f41062489ab82bd028e4d147666e94"
 };

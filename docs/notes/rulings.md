@@ -1221,3 +1221,9 @@ Ruled by the Fable owner under the operator's delegation (2026-10-07), with the 
 Ruled by the Fable owner under the operator's delegation (2026-10-07), with the PR #6 review. ProjectStoreTests.cs: the PC may edit only the two platform gates (:12 NOT ASSESSED early return, :414) to dispatch to Windows; every existing case body, name and expectation stays byte-unchanged; NOT ASSESSED stays for other platforms; Windows cases live in a new PC-owned tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs. tools/verify-application-core.py: no PC edit; the PC writes a new tools/verify-windows-store.py (lease granted) and the Mac folds it into readiness. docs/proof/application-core.md: no PC edit; the PC writes docs/proof/win-store-implementation/receipt.md (plus native-spike.md, red-green.md) and the Mac writes the Windows admission paragraph after reviewing executable evidence. Persistence leases: WindowsProjectStore.cs and a managed interop file (e.g. WindowsNative.cs) new; ProjectStore.cs platform branch only, Darwin bodies and P/Invoke block untouched; csproj at most AllowUnsafeBlocks; cfd_store.c out of the lease.
 
 - request: req-01M4C84PZ4X320Y39Y0KBQGAVG · ruled by: fable-owner · at: 2026-10-07T22:35:58Z
+
+### Ruling 138 — Undo/Redo status stays visible on both platforms; crash detail in the test harness only
+
+Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended. (1) After Undo and Redo the status strip keeps the existing undo or redo sentence instead of the Sampling/Accepted refresh messages, on macOS and Windows (refresh with preserveStatus). (2) Full exception detail (message and stack) is printed by the test harness only; the shipped app keeps the type-only crash line, preserving the threat-model Crash output mitigation.
+
+- request: req-01M4CAB54GHK4CTE04VV7JWRAG · ruled by: operator-timianmalloo · at: 2026-10-07T23:14:27Z
