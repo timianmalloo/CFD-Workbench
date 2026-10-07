@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T00:12:33Z",
+  "generated": "2026-10-07T00:31:07Z",
   "audit": [
     {
       "actor": null,
@@ -28308,6 +28308,26 @@ window.AUDIT_DATA = {
       "done_when": "Four states rendered and read, copy marked, gates green, committed",
       "started_at": "2026-10-07T00:06:03Z",
       "duration_seconds": 390.0
+    },
+    {
+      "id": "al-01M49WATCZVPN2580PQS7T80CW",
+      "shortname": "trk-sma-build",
+      "datetime": "2026-10-07T00:31:07Z",
+      "session": "trk-sma-build",
+      "prompt": "trk-sma-build round-oct06",
+      "summary": "Chips in one strip; Section sample, its controls and tokens removed; Section document hosts the full Section view; bottom tab summary with Open in main area (COPY-404/405); suite SectionMainAreaTests; ring 716 Desktop PASS in 46 s; open: tools/verify-application-adapters.py rows, conditions band over the Section document, Viewport.cs now unused",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Rulings 124/125: chip strip under planform, Section sample retired, Section document in the main area, bottom Section tab one-line summary",
+      "done_when": "red-first receipts, DX/Section checks green, captures A-D, token lint 0, check-docs 0, ring green",
+      "started_at": "2026-10-07T00:16:31Z",
+      "duration_seconds": 876.0
     }
   ],
   "changes": [
@@ -30110,6 +30130,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49TW5PGY1K564HYNQ6SHSP6",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49VF7NNT3QKX6KYD9Y0H2G1",
+      "ts": "2026-10-07T00:16:03Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49VF7JRZ8JVNWDSMTR91QVP",
       "session": "operator-timianmalloo"
     }
   ]
