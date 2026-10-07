@@ -56,7 +56,7 @@ public sealed record SectionForces(double Eta, double ChordMeters, double AlphaG
     /// <summary>The anchor on the chord, as a fraction of the chord from the leading edge.</summary>
     public double AnchorX => Anchor == ForceAnchor.CentreOfPressure ? XcpOverC!.Value : 0.25;
     /// <summary>Unit vectors in section axes (x aft along the chord, z up): V∞ and drag at α_geo, lift perpendicular and leaning forward.</summary>
-    public (double X, double Z) FreeStream => (Math.Cos(AlphaGeoDeg * Math.PI / 180), Math.Sin(AlphaGeoDeg * Math.PI / 180));
+    public (double X, double Z) FreeStream => (Math.Cos(VortexLattice.ToRadians(AlphaGeoDeg)), Math.Sin(VortexLattice.ToRadians(AlphaGeoDeg)));
     public (double X, double Z) LiftDirection => (-FreeStream.Z, FreeStream.X);
     public double LiftChords => LiftPerSpan / LiftScale;
     public double? ProfileLowChords => ProfileLow is { } v ? v * DragMultiple / LiftScale : null;
@@ -451,7 +451,7 @@ public static class SectionForceModel
         lift = induced = 0;
         low = high = null;
         if (!(width > 0)) return false;
-        double a = run.Op.AlphaDeg * Math.PI / 180, q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
+        double a = VortexLattice.ToRadians(run.Op.AlphaDeg), q = 0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed;
         lift = (-strip.Fx * Math.Sin(a) + strip.Fz * Math.Cos(a)) / width;
         induced = 0.5 * run.Water.Rho * strip.Gamma * -strip.DownwashTrefftz;
         if (strip.CdNcrit2.Value is { } cd2 && strip.CdNcrit4.Value is { } cd4)

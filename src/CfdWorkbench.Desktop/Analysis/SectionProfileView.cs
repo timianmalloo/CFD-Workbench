@@ -180,7 +180,7 @@ public sealed class SectionProfileView : Control
 
         // V∞ at α_geo (solid) and the local inflow at α_eff (faint, dashed): they differ by α_i, drawn without exaggeration.
         const double inflowLength = 120;
-        double ae = f.AlphaEffDeg * Math.PI / 180;
+        double ae = f.AlphaEffDeg / 360 * Math.Tau;
         Point vEnd = new(ox - 36, oy - 100), iEnd = new(ox - 24, oy);
         Point vStart = vEnd - drag * inflowLength, iStart = iEnd - new Vector(Math.Cos(ae), -Math.Sin(ae)) * inflowLength;
         Arrow(context, iStart, iEnd, mute, 1.5, [5, 4], 10);
@@ -276,8 +276,8 @@ public sealed class SectionProfileView : Control
     // as the mockup draws it; a nose-up one is its mirror image.
     private static void Couple(DrawingContext context, Point centre, double moment, IBrush brush, double width, double head, double radius = 34)
     {
-        const double span = 200 * Math.PI / 180;
-        double sign = moment < 0 ? -1 : 1, start = moment < 0 ? -60 * Math.PI / 180 : 240 * Math.PI / 180;
+        const double span = 200.0 / 360 * Math.Tau;
+        double sign = moment < 0 ? -1 : 1, start = moment < 0 ? -60.0 / 360 * Math.Tau : 240.0 / 360 * Math.Tau;
         Point At(double t) => new(centre.X + radius * Math.Cos(t), centre.Y + radius * Math.Sin(t));
         var arc = new StreamGeometry();
         using (StreamGeometryContext c = arc.Open())
