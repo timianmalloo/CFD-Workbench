@@ -1,7 +1,7 @@
 ---
-id: proof-win-store-design-candidate
-title: "B1 Windows native project-store design candidate"
-type: proof-pack
+id: design-windows-native-store
+title: "Windows native project-store design"
+type: design
 status: in-review
 owner: "@win-store-design-20261007"
 phase: windows-w-2-design
@@ -14,6 +14,7 @@ links:
   - { to: adr-application-project-contract, rel: depends-on }
   - { to: adr-0011-analysis-run-storage, rel: depends-on }
   - { to: rulings, rel: depends-on }
+  - { to: proof-win-store-design, rel: tested-by }
 review-by: 2026-11-07
 summary: >-
   Reviewable B1 blueprint for a separate Windows native store helper, handle-relative
@@ -21,16 +22,16 @@ summary: >-
   durability and independent Mac/Fable, Data, Security and Test approval remain open.
 ---
 
-# B1 Windows native project-store design candidate
+# Windows native project-store design
 
-This is the complete proposed content for `docs/design/windows-native-store.md`.
-It is retained in the PC-owned proof subtree pending affirmative Mac authorization
-for that design path. It does not authorize B2 or alter an accepted contract.
+Mac handoff `20261007T181920-mac-914614500` authorizes this B1 design-only document.
+Its status is in-review. It does not authorize B2 or alter an accepted contract.
 
 **Goal:** make Windows Save/Open implementable without weakening native-project
 integrity, macOS behavior or truthful save outcomes. **Done when for this B1 author
-checkpoint:** source-cited design, exact prospective paths and falsifiable approval
-request are committed; independent approval and production proof are separate.
+checkpoint:** this source-cited design, exact prospective paths, falsifiable approval
+request and validation receipt are committed; independent approval and production
+proof are separate.
 **Not in scope:** implementation, new project format, UI redesign, general filesystem
 support, privilege changes, push, PR, audit/register/derived-file writes. **Tier:** T1.
 **Fan-out cap:** one author; independent reviewers are assigned by the coordinator.
@@ -55,7 +56,7 @@ Verified at `70c9ba534ebc858cad48ba260bb30e2901affbd2`:
   supplies Apple's variadic open ABI; it is not a cross-platform native bridge.
 - The macOS path uses retained parents, no-follow relative opens, a fixed directory
   claim, no-replace create publication, overwrite hash/identity checks, owned cleanup
-  and final-directory flush. [ADR 0004](../../adr/0004-application-project-contract.md)
+  and final-directory flush. [ADR 0004](../adr/0004-application-project-contract.md)
   explicitly accepts cooperative writers and distinguishes that from hostile CAS.
 - `WorkbenchController.cs:2928` acknowledges only `OK`, known publication, confirmed
   durability and matching hash. Its uncertain-save resolution at `:2954` requires a
@@ -64,11 +65,11 @@ Verified at `70c9ba534ebc858cad48ba260bb30e2901affbd2`:
   `PublishUnderClaim`. These are part of the Windows routing surface, not just the
   `SaveAsync` entry point.
 
-Dependency: the coordinator reports W-1 delivered in
-[PR #3](https://github.com/timianmalloo/CFD-Workbench/pull/3), head `cb34dcee`, tested
-evidence SHA `75335f8d`; leader disposition remains pending. This author did not
-inspect or execute that receipt and makes no W-1 runtime claim. B2 waits for that
-Mac disposition and the B1 gates below.
+Dependency: W-1 [PR #3](https://github.com/timianmalloo/CFD-Workbench/pull/3) is merged,
+as recorded by Mac xmsg `20261007T181919-mac-712811458` and
+[the Fable review](../reviews/pr-3.md). Its smoke findings and shared defects remain
+the review's evidence, not native persistence qualification by this author. B2 still
+waits for Fable/Data approval and the independent native/security/test gates below.
 
 Graph grounding follows `coordination-pc-kickoff` → `coordination-two-machine` and
 `coordination-windows-runtime-route` → `design-windows-runtime` →
@@ -113,7 +114,7 @@ and `NativeProject.Read/Replay`, session reopen and Analysis readers remain the
 producers/consumers; Windows transports their bytes unchanged. Read-size admission
 uses `NativeProject.MaxBytes` (observed 8,000,000), not a duplicated native constant.
 
-[Ruling 121](../../notes/rulings.md#ruling-121--units-remembered-by-a-shared-preference-key-added-on-the-mac-analysis-only-one-status-item)
+[Ruling 121](../notes/rulings.md#ruling-121--units-remembered-by-a-shared-preference-key-added-on-the-mac-analysis-only-one-status-item)
 and the Mac xmsg handoff of 2026-10-06 require using the existing optional `units`
 key. `DisplayPreferences.Parse`, `LoadUnitsAsync` and `SaveUnitsAsync` already exist:
 missing key means Metric; Imperial affects Analysis display only. A text-size save
@@ -471,10 +472,11 @@ which operation → existing trace. Derive aggregates from these events, not a s
 counter store. Missing measurement stays not recorded; telemetry failure cannot alter
 known I/O outcomes. Preserve the current redaction and lifecycle tests.
 
-The existing TraceId is operation-scoped; the event ring is session-owned.
-`ProjectStore.SaveAsync` and `ReadAsync` create a new ID per operation and propagate
-it to that operation's stage events (`ProjectStore.cs:58`, `:67`). It is not evidence
-of a complete OpenTelemetry span pipeline. No new exporter or shared Core telemetry schema is in
+The existing TraceId is operation-scoped: `ProjectStore.SaveAsync` and `ReadAsync`
+create a new ID for each operation and propagate it to that operation's stage events
+(`ProjectStore.cs:58`, `:67`). The ring is session-owned; the trace ID is not a
+session identity or evidence of a complete OpenTelemetry span pipeline.
+No new exporter or shared Core telemetry schema is in
 B2. OTel severity/span expansion would require a separate measured shared seam.
 There is no HTTP boundary; RFC 9457 is N/A. UI layout/tokens are unchanged; the existing
 uncertain/unsupported states are traced and must be captured, not redesigned here.
@@ -519,7 +521,7 @@ not repaired by editing derived/shared files. No unrun test is recorded as passe
 
 | Seat | Required decision / veto-clearing evidence | Current state |
 |---|---|---|
-| Mac leader | Affirmative handoff for final design path and every B2 path outside PC allowance; W-1 disposition | Pending |
+| Mac leader | Final B1 path handoff and W-1 disposition; affirmative handoffs for every B2 path outside PC allowance | B1 path authorized; PR #3 merged; B2 handoffs pending |
 | Fable Owner | Candidate scope, supported subset, helper path and D-B1-DUR ruling; prevent product success under weaker semantics | Pending |
 | Independent Data & Persistence Architect | Preserve aggregate/bytes/history/units; valid backup+rollback and exact durability/result semantics; no violated data-integrity invariant | Pending, author cannot clear |
 | Independent Security & Identity Architect | Creation-time effective rights, imported-ACL policy, retained-directory/reparse mutation and target-race boundary; no unqualified containment/CAS | Pending, author cannot clear |
@@ -536,12 +538,12 @@ the runtime qualifications; a native test PASS alone does not rule product seman
 
 **Exact approval request for Mac/Fable:**
 
-> Review this B1 candidate. Authorize writing `docs/design/windows-native-store.md`
-> from it and freeze the separate helper `src/CfdWorkbench.Persistence/native/cfd_store_windows.c`
+> Review this canonical B1 design and freeze the separate helper
+> `src/CfdWorkbench.Persistence/native/cfd_store_windows.c`
 > with `WindowsProjectStore.cs`; exclude `native/cfd_store.c`. Rule D-B1-DUR: approve
 > isolated Windows qualification with production writes fail-closed until equivalent
 > final namespace durability is established, or commission the separate shared
-> acknowledgement/durability contract design. Confirm W-1 PR #3 disposition. Approve
+> acknowledgement/durability contract design. Approve
 > or narrow the exact B2 paths in section 6, with affirmative Mac handoffs for
 > `ProjectStoreTests.cs`, `tools/verify-application-core.py` and `docs/proof/application-core.md`.
 > Obtain independent Data, Security and Test verdicts against section 11. B2 production
@@ -551,11 +553,11 @@ the runtime qualifications; a native test PASS alone does not rule product seman
 Open decisions are finite: final namespace durability/acknowledgement contract;
 retained-directory reparse mutation and native relative-root ABI qualification;
 exact compiler/SDK availability/build route; private imported-ACL/metadata policy
-approval; prospective shared-path handoffs and W-1 Mac disposition. Expanding platform/
+approval; prospective B2 shared-path handoffs. W-1 PR #3 is merged. Expanding platform/
 filesystem support or rescuing stale claims is a later design, not this repair loop.
 
 | Status | Result |
 |---|---|
-| Completed | Source-cited B1 candidate, DDD/representation, native contract, exact helper/path list and approval package |
-| Remaining | Final design-path handoff, coordinator audit/derivation, independent approvals and B2 native/product evidence |
+| Completed | Canonical source-cited B1 design, DDD/representation, native contract, exact helper/path list and approval package |
+| Remaining | Coordinator audit/derivation, independent approvals and B2 native/product evidence |
 | Best next action | Mac/Fable rule the concrete approval request; do not dispatch production B2 on unresolved durability/namespace gates |
