@@ -1,0 +1,77 @@
+name: win-smoke-cavity
+description: Ruling 133 serial Windows/WSL2 OpenFOAM v2512 installation smoke; frozen
+  LF publisher cavity inputs under M1.
+purpose:
+  spike: smoke
+  stage: 0
+  question: Does the bundled OpenFOAM v2512 activate in a non-interactive shell and
+    run a tutorial case to its final time?
+geometry:
+  airfoil: none (lid-driven cavity, 0.1 m square)
+  source:
+    kind: tutorial
+    path: docs/proof/win-routes/r133/cavity-inputs/system/blockMeshDict
+    sha256: 1585d47710325fb71091330c2d6539250958651248cea9fcd1b7c7b105c16f42
+    reference: $FOAM_TUTORIALS/incompressible/icoFoam/cavity/cavity
+conditions:
+  reynolds: 10
+  mach: 0.0
+  alpha: 0.0
+solver: openfoam
+backend:
+  name: OpenFOAM (OpenCFD) Ubuntu noble runtime under WSL2
+  version: v2512
+  build: _bd2b6720-20260127
+  distribution: openfoam2512=2512.0-2; Ubuntu 24.04.5 WSL2 cfdw-openfoam2512
+  distribution_sha256: c59e65ffd99c9143fd7c2594dc9776e9d7190124965efdb667e28677d93f3fed
+  binary_sha256:
+    icoFoam: 789678a0003411bd835b9a6458d50d70180033b791e1b82648ae50bf5f08fec9
+  activation: env -i PATH=/usr/bin:/bin HOME=<fresh product-home> USER=root LOGNAME=root
+    LANG=C bash --noprofile --norc docs/proof/win-routes/r133/openfoam-command.sh
+    <fresh-run> <app>
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: blockMesh
+  settings:
+    cells:
+    - 20
+    - 20
+    - 1
+  target_y_plus: null
+  first_cell_height_m: null
+physics:
+  application: icoFoam
+  flow: incompressible-transient
+  turbulence_model: laminar
+  fluid:
+    nu_m2_s: 0.01
+boundary_conditions:
+  movingWall: fixedValue U (1 0 0)
+  fixedWalls: noSlip
+  frontAndBack: empty
+numerics:
+  max_iterations: 100
+  residual_criterion: tutorial defaults (endTime 0.5 s, deltaT 0.005 s)
+  frozen_input_sha256:
+    0/p: 0c7040dc8b6010695d2e902f9d483becfb669a27325f3c640231bc0fac478230
+    0/U: a6580fe68dc8ce243701b8910c43aed2d37b7c8a5e513226343a20d44f3b63c5
+    constant/transportProperties: 92578ede17bc7d8df6426a2e9a80b85b52ad6a8ce0514f43970fb165765074ad
+    system/blockMeshDict: 1585d47710325fb71091330c2d6539250958651248cea9fcd1b7c7b105c16f42
+    system/controlDict: 8aa09e55bfc8f43dfe6763b89c5b8d51e1024f544f8265aba4c45a799a5eb194
+    system/decomposeParDict: a0c4876fbd0a80cc42135ead135c17aca2f0ef0c249d7589d39cc463f57e659d
+    system/fvSchemes: 98ec9c773a5681cbc6b8636a340786e098b73e14ff6fed37e1689ddf657aacbc
+    system/fvSolution: d82fca884724449cb9ef9756e8b377485ceb310f445aa3e38221722dad0b3e70
+    system/PDRblockMeshDict: e09b4c404bd108c398e45efe341463c1e849fe9bfdfc9ec0cb9d98422dcb3e9e
+  product_controlDict_sha256: f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a6ef854
+decomposition:
+  method: none
+  n_subdomains: 1
+  nice: 10
+  max_load_1min: 10
+outputs_expected:
+- log.blockMesh
+- log.icoFoam
+- time directories 0.1 .. 0.5
+run_dir: runs/20261007T220227Z-win-smoke-cavity
+runtime_run_dir: /root/CFDWorkbench/runs/20261007T220227Z-win-smoke-cavity

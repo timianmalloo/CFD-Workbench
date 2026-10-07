@@ -1,0 +1,17 @@
+{
+    "os_caption":  "Microsoft Windows 11 Pro",
+    "os_version":  "10.0.26300",
+    "build":  "26300",
+    "ubr":  9457,
+    "cpu":  "12th Gen Intel(R) Core(TM) i9-12900H",
+    "physical_cores":  14,
+    "logical_processors":  20,
+    "ram_bytes":  34009374720,
+    "free_c_bytes":  1852276015104,
+    "virtualization_firmware_enabled":  false,
+    "hypervisor_present":  true,
+    "architecture":  "AMD64",
+    "manufacturer":  "LENOVO",
+    "reboot_cbs_key":  false,
+    "reboot_update_key":  false
+}
