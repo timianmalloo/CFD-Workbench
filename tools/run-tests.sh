@@ -25,6 +25,8 @@ mkdir -p "$scratch"
 export TMPDIR="$scratch/" TMP="$scratch" TEMP="$scratch"
 cd "$root"
 # Ruling 87 (3): cap concurrent rings at 2. The wait is before `started`, so it is never counted as ring wall time.
+# shellcheck source=tools/py-resolve.sh
+. "$root/tools/py-resolve.sh"   # py: a working python3, else py -3, else python (the Windows Store alias is not Python)
 # shellcheck source=tools/ring-lock.sh
 . "$root/tools/ring-lock.sh"
 ring_lock_acquire "$$"
@@ -46,7 +48,7 @@ jobs=("Core 1/3" "Core 2/3" "Core 3/3" "Desktop" "Analysis 1/2" "Analysis 2/2" "
 rm -f "$scratch"/*.log "$scratch"/*.seconds "$scratch"/*.ms
 # C-1 (docs/design/area3-analysis.md 13.4): a millisecond wall clock, one clock for every process. Bash 3.2 on macOS has
 # no EPOCHREALTIME and SECONDS counts whole seconds (a 5 s limit read from it lets 5.9 s pass).
-now_ms() { python3 -c 'import time; print(time.time_ns() // 1000000)'; }
+now_ms() { py -c 'import time; print(time.time_ns() // 1000000)'; }
 # The 1-minute load average, so a TEST-BUDGET red can be told from contention (test-cost F-3); "not recorded"
 # where neither source exists, never a guess.
 load() {
@@ -138,11 +140,11 @@ cost_jobs=""
 for name in "${names[@]}"; do cost_jobs="$cost_jobs${cost_jobs:+,}$name"; done
 # The end load is read first: C-3 and C-4 fail only at a quiet end load (Ruling 84).
 load_end=$(load)
-if ! python3 "$root/tools/check-test-costs.py" --dir "$scratch" --jobs "$cost_jobs" --load "$load_end"; then failed=1; fi
+if ! py "$root/tools/check-test-costs.py" --dir "$scratch" --jobs "$cost_jobs" --load "$load_end"; then failed=1; fi
 echo "wall $wall s ($(cat "$scratch/wall.ms") ms, net $(( $(cat "$scratch/wall.ms") - $(cat "$scratch/build.ms") )) ms) (budget $budget s) cpu $cpu s load $load_start -> $load_end"
 if [ "$failed" -ne 0 ]; then exit 1; fi
 # TEST-BUDGET (Ruling 87): exit 3 only at an end load <= 24; above it a MISS line is printed and the run exits 0.
 budget_status=0
-python3 "$root/tools/check-test-costs.py" --budget "$wall" "$budget" "$load_end" || budget_status=$?
+py "$root/tools/check-test-costs.py" --budget "$wall" "$budget" "$load_end" || budget_status=$?
 if [ "$budget_status" -ne 0 ]; then exit "$budget_status"; fi
 echo "all test harnesses passed"
