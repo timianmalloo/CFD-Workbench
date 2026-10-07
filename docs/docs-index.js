@@ -5119,7 +5119,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "32f9def50c01b9f1f064a2f81ec585a94541ea2cf626dee55ef0481124b87ed7"
+      "sourceSha256": "1391b5df9d69bf6f204a57267cc96f880d73433b3203081c0c8b4e8333a2d3f9"
     },
     {
       "id": "domain-experts",
@@ -6822,7 +6822,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2c3c659a685be4dfd79f094658896e723363f3af634661130c059e6401af366a"
+      "sourceSha256": "9546ee34e519ef80dbe8172a1fd40af3b219cd66209be74c37870c38d40b7a9d"
     },
     {
       "id": "kb-hw-glossary",
@@ -10800,6 +10800,60 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "711ca0f0fa03ea865db7996d59c384f1f354a215477182310bee76d044d9f0cf"
+    },
+    {
+      "id": "proof-cpv-captures",
+      "path": "docs/proof/cpv/captures.md",
+      "title": "CPV captures of the Cp-coloured Section profile against the approved mockups",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Light and dark captures of the Section document with a strip selected, opened and compared with mockup state B (and DX state row 5), with the differences and the mockup strings that have no approved COPY row named.",
+      "tags": [
+        "cpv",
+        "captures",
+        "section"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-main-area",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-cpv-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9dbc1a626f2b4dd6682e319bc6196b10345fffee503b3bf481eabbcf649bc549"
+    },
+    {
+      "id": "proof-cpv-red-first",
+      "path": "docs/proof/cpv/red-first.md",
+      "title": "CPV red-first receipts",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The checks that failed on the old code (compile red: the members did not exist) and the runs that passed after the change.",
+      "tags": [
+        "cpv",
+        "red-first",
+        "section"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-main-area",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3a0fa1034f060523bff03b34d78d292a474456955bed496d19971bf3f5aef59d"
     },
     {
       "id": "proof-cpy-red-first",
@@ -15224,5 +15278,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "8bdc02985bd1f61e622e01bc5d9df93e283879d49a68f8bdc6870c41d8f0427a"
+  "graphSha256": "219ceb224e5eabdce8bb29d67daa3628d91e538dd4d460173881aebf729f7b0a"
 };

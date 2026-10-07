@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Section force vectors</title>
 <!--
-  Track SFV review mockup for Ruling 127: Lift and Drag vectors on the Cp-coloured section profile.
+  Track SFV review mockup for Ruling 127, amended by Ruling 128: Lift and Drag vectors on the Cp-coloured section profile,
+  on free-stream axes, one model (the lattice), CP when on the section and |cl| >= 0.05, else c/4 with the pitching-moment couple.
   Base: the built profile view (docs/proof/cpv captures) and state B of section-main-area.html. Tokens are that page's.
-  The profile and its Cp are a stand-in (NACA 0012 thickness, hand-shaped Cp with Cp_min -0.46 at x/c 0.091); the numbers
-  are the capture's example station. Strings not in DESIGN.md are marked "proposed copy". Display only; nothing is built from this page.
+  The profile and its Cp are a stand-in. Every number on this page is illustrative: none is read from the app.
+  Strings not in DESIGN.md are marked "proposed copy". Display only; nothing is built from this page.
 -->
 <style>
 :root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
@@ -24,7 +25,7 @@ button, input{ font:inherit; color:inherit; }
 .harness button{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
 .harness label{ font-size:12px; color:var(--mute); display:flex; gap:6px; align-items:center; }
 main{ padding:16px 20px 40px; }
-[role="tablist"]{ display:flex; gap:4px; margin:0 0 12px; }
+[role="tablist"]{ display:flex; flex-wrap:wrap; gap:4px; margin:0 0 12px; }
 [role="tab"]{ min-height:30px; padding:0 14px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
 [role="tab"][aria-selected="true"]{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); }
 :focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
@@ -35,7 +36,7 @@ main{ padding:16px 20px 40px; }
 .dh b{ font-size:16px; }
 .seg{ display:inline-flex; border:1px solid var(--control); border-radius:4px; overflow:hidden; }
 .seg span{ padding:3px 10px; font-size:12px; } .seg span.on{ background:var(--sel); font-weight:600; }
-.prof{ position:relative; width:974px; height:380px; background:var(--vp); border-radius:4px; overflow:hidden; }
+.prof{ position:relative; width:974px; height:420px; background:var(--vp); border-radius:4px; overflow:hidden; }
 .prof svg{ position:absolute; left:0; top:0; }
 .plate{ position:absolute; background:var(--vp-soft); color:var(--vp-ink); border-radius:3px; padding:3px 8px; white-space:nowrap; font-size:11px; line-height:15px; }
 .plate small{ display:block; color:var(--vp-mute); font-size:11px; }
@@ -43,12 +44,10 @@ main{ padding:16px 20px 40px; }
 .plate .flag{ color:var(--warn-vp); font-weight:600; }
 .legend{ right:12px; bottom:10px; } .ramp{ display:block; height:8px; margin:4px 0 2px; width:190px; }
 .ends{ display:flex; justify-content:space-between; }
-.marks .pc, body.marks .pc{ outline:1px dashed var(--warn-vp); outline-offset:1px; }
-body:not(.marks) .pc{ outline:none; }
-.below{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; margin-top:12px; }
-.below h2{ font-size:15px; margin:0 0 4px; }
+body.marks .pc{ outline:1px dashed var(--warn-vp); outline-offset:1px; }
+.below{ display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:16px; margin-top:12px; }
 table{ border-collapse:collapse; width:100%; font-size:12px; }
-th, td{ text-align:left; padding:3px 6px; border-bottom:1px solid var(--line); } td.v{ font-variant-numeric:tabular-nums; }
+th, td{ text-align:left; padding:3px 6px; border-bottom:1px solid var(--line); vertical-align:top; } td.v{ font-variant-numeric:tabular-nums; }
 th{ color:var(--mute); font-weight:600; }
 .note{ margin:6px 0 0; font-size:12px; color:var(--mute); } .note.warn{ color:var(--warn); }
 .key{ display:flex; flex-wrap:wrap; gap:4px 16px; margin:8px 0 0; font-size:12px; color:var(--mute); }
@@ -59,7 +58,7 @@ th{ color:var(--mute); font-weight:600; }
 <body class="marks">
 <header class="top">
   <h1>Section force vectors</h1>
-  <p>Ruling 127 review mockup. Nothing is built from this page.</p>
+  <p>Rulings 127 and 128 review mockup. Every number is illustrative. Nothing is built from this page.</p>
   <div class="harness">
     <label><input type="checkbox" id="marks" checked> Mark proposed copy</label>
     <button type="button" id="theme" aria-pressed="false">Dark</button>
@@ -67,10 +66,11 @@ th{ color:var(--mute); font-weight:600; }
 </header>
 <main>
   <div role="tablist" aria-label="States">
-    <button role="tab" id="tab-A" aria-selected="true" aria-controls="stage" data-s="A">A · Normal strip</button>
+    <button role="tab" id="tab-A" aria-selected="true" aria-controls="stage" data-s="A">A · Mid-span strip</button>
     <button role="tab" id="tab-B" aria-selected="false" aria-controls="stage" data-s="B" tabindex="-1">B · Near zero lift</button>
     <button role="tab" id="tab-C" aria-selected="false" aria-controls="stage" data-s="C" tabindex="-1">C · Flagged drag</button>
     <button role="tab" id="tab-D" aria-selected="false" aria-controls="stage" data-s="D" tabindex="-1">D · Imperial</button>
+    <button role="tab" id="tab-E" aria-selected="false" aria-controls="stage" data-s="E" tabindex="-1">E · Cambered, cruise</button>
   </div>
   <p class="what" id="what"></p>
   <div class="wrap"><div id="stage" role="tabpanel" aria-labelledby="tab-A"></div></div>
@@ -78,139 +78,160 @@ th{ color:var(--mute); font-weight:600; }
 </main>
 <script>
 const $ = s => document.querySelector(s);
-const f = (x, n) => x.toFixed(n).replace('-', '−');
-const RAD = Math.PI / 180, NPF = 0.0685218;
-const Q = 13553, CH = 0.12, VCRIT = 21.2, KN = 1.94384;
-const BASE = { eta: 1, cl: 0.115, cm: -0.002, aeff: 0.96, ageo: 2.00, lift: 134.44, cd: 0.00803, imp: false, flag: false, tag: 'A' };
+const MINUS = '−';
+const f = (x, n) => x.toFixed(n).replace('-', MINUS);
+const sf = x => (x < 0 ? MINUS : '') + Math.abs(x).toPrecision(3);   // 3 significant figures
+const RAD = Math.PI / 180, NPF = 0.0685218, NMF = 0.737562;           // N/m to lbf/ft; N.m/m to lbf.ft/ft
+const Q = 13553, VCRIT = 17.2, KN = 1.94384;
+// all numbers illustrative; none is read from the app
+const A = { eta: 0.545, c: 0.16, aeff: 1.97, ageo: 3.00, clL: 0.221, clP: 0.236, cmL: -0.0044, band: [0.0079, 0.0083], ind: 8.40, lmax: 520, dmult: 10, imp: false, flag: false };
 const STATES = {
-  A: Object.assign({}, BASE),
-  B: Object.assign({}, BASE, { cl: 0.0015, aeff: 0.01, ageo: 0.50, lift: Q * CH * 0.0015, cd: 0.00790, tag: 'B' }),
-  C: Object.assign({}, BASE, { flag: true, tag: 'C' }),
-  D: Object.assign({}, BASE, { imp: true, tag: 'D' })
+  A: A,
+  B: Object.assign({}, A, { aeff: 0.10, ageo: 0.60, clL: 0.012, clP: 0.013, cmL: -0.002, ind: 0.23, lmax: 40, dmult: 1 }),
+  C: Object.assign({}, A, { flag: true }),
+  D: Object.assign({}, A, { imp: true }),
+  E: Object.assign({}, A, { aeff: -0.50, ageo: 0.40, clL: 0.10, clP: 0.105, cmL: -0.08, band: [0.0083, 0.0087], ind: 3.40, lmax: 300, dmult: 5 })
 };
 const WHAT = {
-  A: '<b>A. A normal strip.</b> The centre of pressure (CP) sits at x/c 0.267, on the section. Lift stands on it, drag runs along the faint inflow. Drag is drawn at ten times the lift scale, in two segments: profile, then induced.',
-  B: '<b>B. Near zero lift.</b> x_cp = 0.25 − Cm c/4 / cl leaves the section as cl goes to zero. The arrows start at the quarter chord and a note says so. The lift arrow is true to scale, so it is a hair.',
-  C: '<b>C. Drag carries a flag.</b> The profile drag is outside the validated bracket and the polar confidence is low. The flag rides on the drag label, and the two approved sentences sit under the table. The induced part comes from the lattice and is not flagged.',
-  D: '<b>D. Imperial.</b> Values in lbf/ft, the lift scale in lbf/ft, V_crit in kn (Ruling 126). The geometry is the same as A: the scales are chosen so the arrows keep their size.'
+  A: '<b>A. A mid-span strip.</b> Lift stands on the lattice centre of pressure (CP) and is perpendicular to V∞, which is drawn at α_geo. Drag runs along V∞ in two segments: the profile part (polar band, drawn as a cap) then the induced part (lattice). The local inflow stays as a faint line; it is tilted from V∞ by α_i.',
+  B: '<b>B. Near zero lift.</b> The strip lift is below |cl| 0.05, so x_cp is Undefined, though the quotient gives a number on the chord. The arrows start at c/4 and the pitching-moment couple is drawn. Arrows keep the run’s scale.',
+  C: '<b>C. Drag carries a flag.</b> The profile drag is outside the validated bracket and the polar confidence is low. The flag rides on the profile label; the two approved sentences sit under the table. The induced part is the lattice’s and is not flagged.',
+  D: '<b>D. Imperial.</b> Values in lbf/ft and lbf·ft/ft, the scale in lbf/ft, V_crit in kn (Ruling 126). The lift scale is fixed per run from the largest strip in the unit shown, so the arrows differ from A in length.',
+  E: '<b>E. A cambered section at cruise.</b> Cm c/4 is about −0.08 and cl 0.10. The brief said cl 0.15, but x_cp = 0.25 + 0.08/0.15 = 0.78 is still on the chord there; CP leaves the section below cl 0.107, so this state uses cl 0.10 (x_cp would be 1.05). Arrows start at c/4 with the couple: the common case for a cambered section.'
 };
 const PC = [
-  'L′ <v> <unit> (lift label), second line "1 c = <v> <unit>" (lift scale)',
-  'D′ profile <v> <unit> · ×10 (profile drag label)',
-  'D′ induced <v> <unit> · ×10 · illustrative (induced drag label)',
-  'CP · x/c <x> (anchor label)',
-  'inflow α_eff <a>° (inflow label)',
-  'c/4 · arrows start here (anchor label, state B)',
-  'CP x/c <x> · off the section (marker at the trailing edge, state B)',
-  'Centre of pressure is outside the section at this lift. The arrows start at the quarter chord. (note, state B)',
-  '· low confidence (suffix on the profile drag label, state C; the first words of COPY-316) and · flagged (suffix on the table value)',
-  'Force on this strip, per span (table heading)',
-  'Table row labels: Lift L′ · Profile drag D′ profile · Induced drag D′ induced · Drag D′ · Centre of pressure x_cp/c · α_i',
-  'Induced drag here is L′ · sin(α_i), with α_i = α_geo − α_eff. Illustrative. (table note)',
-  'Vector key: Inflow · Lift · Drag, profile · Drag, induced (the key under the plate)'
+  'L′ <v> <unit> (lattice) · second line "1 c = <v> <unit>, fixed per run" (lift label and scale)',
+  'V∞ at α_geo <a>° (free-stream label)',
+  'local inflow α_eff <a>° · second line "tilts the flow by α_i" (faint line label)',
+  'CP (lattice) · x/c <x> (anchor label, CP on the section)',
+  'c/4 · arrows start here · x_cp Undefined (anchor label, otherwise)',
+  'M′ c/4 (lattice) <v> <unit> (couple label)',
+  'D′ profile (polar, Ncrit 2–4) <min>–<max> <unit> · ×<k> (profile label; the cap is the band)',
+  'D′ induced, lifting-line share (lattice) <v> <unit> · ×<k> (induced label)',
+  'D′ profile + induced, free-stream axes <v> <unit> · ×<k> (total label)',
+  '· low confidence (suffix on the profile label; first words of COPY-316)',
+  'Wing strip, per span; not the wing total (table heading)',
+  'Table row labels: cl (panel, 2D inviscid at α_eff) · Cm c/4 (panel) · Cl_local (lattice) · α_geo · α_eff (lattice) · α_i (lattice) · x_cp/c (lattice) · L′ (lattice) · M′ c/4 (lattice) · D′ profile (polar, Ncrit 2–4) · D′ induced (lattice) · D′ profile + induced, free-stream axes',
+  'Undefined · near zero lift: |cl| is below 0.05 (x_cp/c value, state B)',
+  'Undefined · the centre of pressure is off the section (x_cp/c value, state E)',
+  'Note, c/4 case: The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn.',
+  'Vector key: V∞ · Local inflow · Lift · Drag, profile (cap: Ncrit 2–4 band) · Drag, induced · Pitching-moment couple'
 ];
 $('#pcl').innerHTML = PC.map(s => '<li>' + s.replace(/</g, '&lt;') + '</li>').join('');
 
-// ---- stand-in section: NACA 0012 thickness, hand-shaped Cp (Cp_min -0.46 at x/c 0.091 upper)
+// ---- stand-in section: NACA 0012 thickness, hand-shaped Cp
 const ytn = x => 0.6 * (0.2969 * Math.sqrt(x) - 0.126 * x - 0.3516 * x * x + 0.2843 * x ** 3 - 0.1036 * x ** 4);
 function cp(x, up){
   const stag = 0.99 * Math.exp(-x / 0.014);
-  if (up){ const b = x < 0.091 ? -0.46 * Math.sqrt(x / 0.091) : -0.46 * Math.pow(1 - (x - 0.091) / 0.909, 1.2) + 0.22 * Math.pow((x - 0.091) / 0.909, 5); return b + stag; }
-  const b = x < 0.3 ? -0.25 * Math.sqrt(x / 0.3) : -0.25 * Math.pow(1 - (x - 0.3) / 0.7, 1.1) + 0.2 * Math.pow((x - 0.3) / 0.7, 5);
+  if (up){ const b = x < 0.08 ? -0.69 * Math.sqrt(x / 0.08) : -0.69 * Math.pow(1 - (x - 0.08) / 0.92, 1.2) + 0.3 * Math.pow((x - 0.08) / 0.92, 5); return b + stag; }
+  const b = x < 0.3 ? -0.35 * Math.sqrt(x / 0.3) : -0.35 * Math.pow(1 - (x - 0.3) / 0.7, 1.1) + 0.25 * Math.pow((x - 0.3) / 0.7, 5);
   return b + stag;
 }
 const VIK = ['#001261', '#2f7fa6', '#ece8e5', '#c47b50', '#590008'];
 function vik(t){ t = Math.min(1, Math.max(0, t)) * 4; const i = Math.min(3, Math.floor(t)), w = t - i, p = h => [1, 3, 5].map(k => parseInt(h.substr(k, 2), 16)), a = p(VIK[i]), b = p(VIK[i + 1]); return 'rgb(' + a.map((v, k) => Math.round(v + (b[k] - v) * w)).join(',') + ')'; }
 
-const W = 974, H = 380, OX = 150, S = 700, OY = 190;
+const W = 974, H = 420, OX = 150, S = 700, OY = 215;
 const P = (x, y) => [OX + x * S, OY - y * S];
-function arrow(x0, y0, dx, dy, color, width, dash, head){
-  const L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, h = head === false ? 0 : 10, x1 = x0 + dx, y1 = y0 + dy;
-  const bx = x1 - ux * h, by = y1 - uy * h, nx = -uy * 5, ny = ux * 5;
-  const ln = (c, w) => '<line x1="' + x0.toFixed(1) + '" y1="' + y0.toFixed(1) + '" x2="' + (head === false ? x1 : bx).toFixed(1) + '" y2="' + (head === false ? y1 : by).toFixed(1) + '" stroke="' + c + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + ' stroke-linecap="butt"/>';
-  const hd = c => h ? '<polygon points="' + x1.toFixed(1) + ',' + y1.toFixed(1) + ' ' + (bx + nx).toFixed(1) + ',' + (by + ny).toFixed(1) + ' ' + (bx - nx).toFixed(1) + ',' + (by - ny).toFixed(1) + '" fill="' + c + '" stroke="' + (c === 'var(--vp)' ? 'var(--vp)' : 'var(--vp)') + '" stroke-width="' + (c === 'var(--vp)' ? 3 : 0) + '"/>' : '';
-  return { halo: ln('var(--vp)', width + 4) + hd('var(--vp)'), main: ln(color, width) + hd(color) };
+const n1 = v => v.toFixed(1);
+function head(x1, y1, ux, uy, color, size){
+  const bx = x1 - ux * size, by = y1 - uy * size, nx = -uy * size / 2, ny = ux * size / 2;
+  return '<polygon points="' + n1(x1) + ',' + n1(y1) + ' ' + n1(bx + nx) + ',' + n1(by + ny) + ' ' + n1(bx - nx) + ',' + n1(by - ny) + '" fill="' + color + '" stroke="' + color + '" stroke-width="1"/>';
 }
-const plate = (x, y, html, cls, right) => '<div class="plate ' + (cls || '') + (right ? ' r' : '') + '" style="left:' + x + 'px;top:' + y + 'px">' + html + '</div>';
+function arrow(x0, y0, dx, dy, color, width, dash, noHead){
+  const L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L, h = noHead ? 0 : 10, x1 = x0 + dx, y1 = y0 + dy;
+  const ln = c => '<line x1="' + n1(x0) + '" y1="' + n1(y0) + '" x2="' + n1(noHead ? x1 : x1 - ux * h) + '" y2="' + n1(noHead ? y1 : y1 - uy * h) + '" stroke="' + c + '" stroke-width="' + (c === 'var(--vp)' ? width + 4 : width) + '"' + (dash && c !== 'var(--vp)' ? ' stroke-dasharray="' + dash + '"' : '') + '/>';
+  return { halo: ln('var(--vp)') + (h ? head(x1, y1, ux, uy, 'var(--vp)', 13) : ''), main: ln(color) + (h ? head(x1, y1, ux, uy, color, 10) : '') };
+}
+const plate = (x, y, html, cls, right) => '<div class="plate ' + (cls || '') + (right ? ' r' : '') + '" style="left:' + Math.round(x) + 'px;top:' + Math.round(y) + 'px">' + html + '</div>';
+const roundUp125 = v => { const e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e; return e * (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10); };
+
+function couple(cx, cy, color){
+  const r = 34, t1 = -60 * RAD, t2 = 100 * RAD;
+  const x1 = cx + r * Math.cos(t1), y1 = cy + r * Math.sin(t1), x2 = cx + r * Math.cos(t2), y2 = cy + r * Math.sin(t2);
+  const d = 'M' + n1(x1) + ',' + n1(y1) + ' A' + r + ',' + r + ' 0 1 0 ' + n1(x2) + ',' + n1(y2);
+  const ux = Math.sin(t2), uy = -Math.cos(t2);
+  return '<path d="' + d + '" fill="none" stroke="var(--vp)" stroke-width="7"/><path d="' + d + '" fill="none" stroke="' + color + '" stroke-width="3"/>' + head(x2 + ux * 2, y2 + uy * 2, ux, uy, color, 11);
+}
 
 function render(k){
-  const s = STATES[k], imp = s.imp, u = imp ? 'lbf/ft' : 'N/m', cv = imp ? NPF : 1;
+  const s = STATES[k], imp = s.imp, u = imp ? 'lbf/ft' : 'N/m', mu = imp ? 'lbf·ft/ft' : 'N·m/m', cv = imp ? NPF : 1, mv = imp ? NMF : 1;
   const nat = v => v * cv;
-  const xcp = 0.25 - (s.cm / s.cl), off = xcp < 0 || xcp > 1, xa = off ? 0.25 : xcp;
-  const aI = s.ageo - s.aeff, prof = s.cd * Q * CH, ind = s.lift * Math.sin(aI * RAD), tot = prof + ind;
-  const LSC = imp ? 70 : 1000;              // 1 chord of lift arrow = this many u
-  const lpx = nat(s.lift) / LSC * S, dscale = 10, ppx = nat(prof) * dscale / LSC * S, ipx = nat(ind) * dscale / LSC * S;
-  const a = s.aeff * RAD, d = [Math.cos(a), Math.sin(a)], n = [Math.sin(a), -Math.cos(a)];
-  const [cx, cy] = P(xa, 0);
-  let up = [], lo = [], seg = '';
-  const N = 90; for (let i = 0; i <= N; i++){ const x = 0.5 * (1 - Math.cos(Math.PI * i / N)); up.push([x, ytn(x), cp(x, true)]); lo.push([x, -ytn(x), cp(x, false)]); }
-  const pts = up.concat(lo.slice().reverse());
-  const body = pts.map(p => P(p[0], p[1]).map(v => v.toFixed(1)).join(',')).join(' ');
-  const cabs = 0.99;
-  const stroke = (arr) => arr.slice(1).map((p, i) => { const a0 = P(arr[i][0], arr[i][1]), b0 = P(p[0], p[1]); return '<line x1="' + a0[0].toFixed(1) + '" y1="' + a0[1].toFixed(1) + '" x2="' + b0[0].toFixed(1) + '" y2="' + b0[1].toFixed(1) + '" stroke="' + vik(0.5 + (arr[i][2] + p[2]) / 4 / cabs) + '" stroke-width="5" stroke-linecap="round"/>'; }).join('');
-  const m = P(0.091, ytn(0.091));
-  // vectors
-  const lift = arrow(cx, cy, n[0] * lpx, n[1] * lpx, 'var(--lift-vp)', 3);
-  const dp = arrow(cx, cy, d[0] * ppx, d[1] * ppx, 'var(--warn-vp)', 4, null, false);
+  const lift = s.clL * Q * s.c, prof = s.band.map(cd => cd * Q * s.c), profMid = (prof[0] + prof[1]) / 2, ind = s.ind, tot = profMid + ind;
+  const mom = s.cmL * Q * s.c * s.c;                                    // N.m/m about c/4
+  const xcpRaw = 0.25 - s.cmL / s.clL, onSec = xcpRaw >= 0 && xcpRaw <= 1, useCP = onSec && Math.abs(s.clL) >= 0.05;
+  const aI = s.ageo - s.aeff;
+  const LSC = roundUp125(nat(s.lmax) / 0.3);                             // 1 chord of arrow = LSC (fixed per run, 1-2-5)
+  const dm = s.dmult, lpx = nat(lift) / LSC * S, ppx = nat(profMid) * dm / LSC * S, ipx = nat(ind) * dm / LSC * S;
+  const pcap = [nat(prof[0]) * dm / LSC * S, nat(prof[1]) * dm / LSC * S];
+  const ag = s.ageo * RAD, ae = s.aeff * RAD, d = [Math.cos(ag), Math.sin(ag)], n = [Math.sin(ag), -Math.cos(ag)];
+  const [cx, cy] = P(useCP ? xcpRaw : 0.25, 0);
+  const up = [], lo = [], N = 90; for (let i = 0; i <= N; i++){ const x = 0.5 * (1 - Math.cos(Math.PI * i / N)); up.push([x, ytn(x), cp(x, true)]); lo.push([x, -ytn(x), cp(x, false)]); }
+  const body = up.concat(lo.slice().reverse()).map(p => P(p[0], p[1]).map(n1).join(',')).join(' ');
+  const stroke = arr => arr.slice(1).map((p, i) => { const a0 = P(arr[i][0], arr[i][1]), b0 = P(p[0], p[1]); return '<line x1="' + n1(a0[0]) + '" y1="' + n1(a0[1]) + '" x2="' + n1(b0[0]) + '" y2="' + n1(b0[1]) + '" stroke="' + vik(0.5 + (arr[i][2] + p[2]) / 4 / 0.99) + '" stroke-width="5" stroke-linecap="round"/>'; }).join('');
+  const m = P(0.08, ytn(0.08));
+  const lf = arrow(cx, cy, n[0] * lpx, n[1] * lpx, 'var(--lift-vp)', 3);
+  const dp = arrow(cx, cy, d[0] * ppx, d[1] * ppx, 'var(--warn-vp)', 4, null, true);
   const ex = cx + d[0] * ppx, ey = cy + d[1] * ppx;
   const di = arrow(ex, ey, d[0] * ipx, d[1] * ipx, 'var(--ind-vp)', 4, '4 2');
-  const tick = '<line x1="' + (ex - n[0] * 7).toFixed(1) + '" y1="' + (ey - n[1] * 7).toFixed(1) + '" x2="' + (ex + n[0] * 7).toFixed(1) + '" y2="' + (ey + n[1] * 7).toFixed(1) + '" stroke="var(--vp)" stroke-width="2"/>';
-  // inflow, faint
-  const ix1 = OX - 24, iy1 = OY - 0, ilen = 120;
-  const infl = arrow(ix1 - d[0] * ilen, iy1 - d[1] * ilen, d[0] * ilen, d[1] * ilen, 'var(--vp-mute)', 1.5, '5 4');
-  // anchor
-  let anchor = '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="5" fill="var(--vp-ink)" stroke="var(--vp)" stroke-width="2"/>';
-  if (off) anchor = '<circle cx="' + cx.toFixed(1) + '" cy="' + cy.toFixed(1) + '" r="5.5" fill="var(--vp)" stroke="var(--vp-ink)" stroke-width="2"/>';
-  const cpOff = off ? '<polygon points="' + (OX + S + 40) + ',' + (OY - 7) + ' ' + (OX + S + 47) + ',' + OY + ' ' + (OX + S + 40) + ',' + (OY + 7) + ' ' + (OX + S + 33) + ',' + OY + '" fill="var(--vp)" stroke="var(--vp-ink)" stroke-width="2"/><line x1="' + (OX + S + 47) + '" y1="' + OY + '" x2="' + (OX + S + 70) + '" y2="' + OY + '" stroke="var(--vp-ink)" stroke-width="2"/>' : '';
-  // leaders for drag labels
-  const pmx = cx + d[0] * ppx * 0.5, imx = cx + d[0] * (ppx + ipx / 2), yI = OY + 64, yP = OY + 92;
-  const leaders = '<line x1="' + pmx.toFixed(1) + '" y1="' + (cy + 6) + '" x2="' + pmx.toFixed(1) + '" y2="' + yP + '" stroke="var(--vp-mute)" stroke-width="1"/>' +
-    '<line x1="' + imx.toFixed(1) + '" y1="' + (cy + 4) + '" x2="' + imx.toFixed(1) + '" y2="' + yI + '" stroke="var(--vp-mute)" stroke-width="1"/>' +
-    (lpx < 40 ? '<line x1="' + cx.toFixed(1) + '" y1="' + (cy - 8) + '" x2="' + cx.toFixed(1) + '" y2="' + (cy - 26) + '" stroke="var(--vp-mute)" stroke-width="1"/>' : '');
-  const svg = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Section profile with pressure coefficient, and the lift and drag vectors at the centre of pressure">' +
+  const tick = '<line x1="' + n1(ex - n[0] * 7) + '" y1="' + n1(ey - n[1] * 7) + '" x2="' + n1(ex + n[0] * 7) + '" y2="' + n1(ey + n[1] * 7) + '" stroke="var(--vp)" stroke-width="2"/>';
+  // the Ncrit 2-4 band as a cap on the profile segment
+  const bx0 = cx + d[0] * pcap[0], by0 = cy + d[1] * pcap[0], bx1 = cx + d[0] * pcap[1], by1 = cy + d[1] * pcap[1], bw = Math.max(5, Math.hypot(bx1 - bx0, by1 - by0));
+  const capEl = '<g transform="translate(' + n1((bx0 + bx1) / 2) + ',' + n1((by0 + by1) / 2) + ') rotate(' + n1(s.ageo) + ')"><rect x="' + n1(-bw / 2) + '" y="-9" width="' + n1(bw) + '" height="18" fill="none" stroke="var(--vp)" stroke-width="5"/><rect x="' + n1(-bw / 2) + '" y="-9" width="' + n1(bw) + '" height="18" fill="none" stroke="var(--warn-vp)" stroke-width="2"/></g>';
+  // V-inf (at alpha_geo) and the faint local inflow (at alpha_eff)
+  const vx = OX - 36, vy = OY - 100, vlen = 120;
+  const vinf = arrow(vx - Math.cos(ag) * vlen, vy - Math.sin(ag) * vlen, Math.cos(ag) * vlen, Math.sin(ag) * vlen, 'var(--vp-ink)', 2);
+  const lx = OX - 24, ly = OY;
+  const infl = arrow(lx - Math.cos(ae) * vlen, ly - Math.sin(ae) * vlen, Math.cos(ae) * vlen, Math.sin(ae) * vlen, 'var(--vp-mute)', 1.5, '5 4');
+  const anchor = useCP
+    ? '<circle cx="' + n1(cx) + '" cy="' + n1(cy) + '" r="5" fill="var(--vp-ink)" stroke="var(--vp)" stroke-width="2"/>'
+    : '<circle cx="' + n1(cx) + '" cy="' + n1(cy) + '" r="5.5" fill="var(--vp)" stroke="var(--vp-ink)" stroke-width="2"/>';
+  const cpl = useCP ? '' : couple(cx, cy, 'var(--vp-ink)');
+  const pmx = cx + d[0] * ppx * 0.5, imx = cx + d[0] * (ppx + ipx / 2), yI = OY + 66, yP = OY + 94, yT = OY + 122;
+  const leaders = '<line x1="' + n1(pmx) + '" y1="' + (cy + 8) + '" x2="' + n1(pmx) + '" y2="' + yP + '" stroke="var(--vp-mute)" stroke-width="1"/>' +
+    '<line x1="' + n1(imx) + '" y1="' + (cy + 5) + '" x2="' + n1(imx) + '" y2="' + yI + '" stroke="var(--vp-mute)" stroke-width="1"/>' +
+    (lpx < 40 ? '<line x1="' + n1(cx) + '" y1="' + (cy - 8) + '" x2="' + n1(cx) + '" y2="' + (cy - 62) + '" stroke="var(--vp-mute)" stroke-width="1"/>' : '');
+  const svg = '<svg width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Section profile with pressure coefficient, and the lift and drag vectors on free-stream axes">' +
     '<line x1="' + P(-0.02, 0)[0] + '" y1="' + OY + '" x2="' + P(1.02, 0)[0] + '" y2="' + OY + '" stroke="var(--vp-grid)" stroke-width="1" stroke-dasharray="4 4"/>' +
     '<polygon points="' + body + '" fill="var(--lit)"/>' + stroke(up) + stroke(lo) +
-    '<circle cx="' + m[0].toFixed(1) + '" cy="' + m[1].toFixed(1) + '" r="7" fill="none" stroke="var(--vp-ink)" stroke-width="2"/>' +
-    infl.main + leaders + lift.halo + dp.halo + di.halo + lift.main + dp.main + di.main + tick + anchor + cpOff + '</svg>';
-  // labels
-  const fv = (v, n) => f(nat(v), n);
-  const ls = imp ? '70 lbf/ft' : '1000 N/m';
-  let h = '';
-  h += plate(12, 10, 'Section · η 1');
-  h += plate(W - 12, 10, 'Estimator · local calculation · inviscid; no boundary layer', '', true).replace('left:' + (W - 12), 'left:' + (W - 12));
-  h += plate(OX - 134, OY + 18, 'inflow α_eff ' + f(s.aeff, 2) + '°', 'pc');
-  h += plate(m[0] - 12, m[1] - 40, 'Cp_min −0.46 · x/c 0.091 · upper', '', true);
-  const tipX = cx + n[0] * lpx, tipY = cy + n[1] * lpx;
-  const short = lpx < 40, ltop = short ? cy - 64 : tipY - 14;
-  h += plate(Math.round(short ? cx - 6 : tipX + 14), Math.round(ltop), 'L′ ' + fv(s.lift, 2) + ' ' + u + '<small>1 c = ' + ls + '</small>', 'pc');
-  h += plate(Math.round(cx - 10), OY + 62, off ? 'c/4 · arrows start here' : 'CP · x/c ' + f(xcp, 3), 'pc', true);
+    '<circle cx="' + n1(m[0]) + '" cy="' + n1(m[1]) + '" r="7" fill="none" stroke="var(--vp-ink)" stroke-width="2"/>' +
+    infl.main + vinf.main + leaders + lf.halo + dp.halo + di.halo + cpl + lf.main + dp.main + capEl + di.main + tick + anchor + '</svg>';
+  const fv = (v, nn) => sf(nat(v));
+  let h = plate(12, 10, 'Section · η ' + s.eta);
+  h += plate(W - 12, 10, 'Estimator · local calculation · inviscid; no boundary layer', '', true);
+  h += plate(OX - 134, vy - 38, 'V∞ at α_geo ' + f(s.ageo, 2) + '°', 'pc');
+  h += plate(8, OY + 16, 'local inflow α_eff ' + f(s.aeff, 2) + '°<small>tilts the flow by α_i</small>', 'pc');
+  h += plate(m[0] - 12, m[1] - 40, 'Cp_min ' + MINUS + '0.69 · x/c 0.080 · upper', '', true);
+  const tipX = cx + n[0] * lpx, tipY = cy + n[1] * lpx, short = lpx < 40;
+  h += plate(short ? cx - 6 : tipX + 14, short ? cy - 100 : tipY - 14, 'L′ ' + fv(lift) + ' ' + u + ' (lattice)<small>1 c = ' + LSC + ' ' + u + ', fixed per run</small>', 'pc');
+  h += plate(cx - 10, OY + 66 + (useCP ? 0 : 20), useCP ? 'CP (lattice) · x/c ' + f(xcpRaw, 2) : 'c/4 · arrows start here · x_cp Undefined', 'pc', true);
+  if (!useCP) h += plate(cx + 42, cy - 50, 'M′ c/4 (lattice) ' + sf(mom * mv) + ' ' + mu, 'pc');
   const flagTxt = s.flag ? ' <span class="flag">· low confidence</span>' : '';
-  h += plate(Math.round(imx - 14), yI, 'D′ induced ' + fv(ind, 2) + ' ' + u + ' · ×10 · illustrative', 'pc');
-  h += plate(Math.round(pmx - 26), yP, 'D′ profile ' + fv(prof, 2) + ' ' + u + ' · ×10' + flagTxt, 'pc');
-  if (off) h += plate(W - 12, OY + 14, 'CP x/c ' + f(xcp, 2) + ' · off the section', 'pc', true);
+  const band = sf(nat(prof[0])) + '–' + sf(nat(prof[1]));
+  h += plate(imx - 14, yI, 'D′ induced, lifting-line share (lattice) ' + fv(ind) + ' ' + u + ' · ×' + dm, 'pc');
+  h += plate(pmx - 26, yP, 'D′ profile (polar, Ncrit 2–4) ' + band + ' ' + u + ' · ×' + dm + flagTxt, 'pc');
+  h += plate(pmx - 26, yT, 'D′ profile + induced, free-stream axes ' + fv(tot) + ' ' + u + ' · ×' + dm, 'pc');
   h += plate(12, H - 56, 'x/c 0 → 1');
-  h += plate(12, H - 30, 'σ 7.80 · −Cp_min 0.46 · clear of the 15 % margin · V_crit ' + (imp ? f(VCRIT * KN, 1) + ' kn' : f(VCRIT, 1) + ' m/s'));
-  h += '<div class="plate legend">Cp · vik pinned at 0 · −0.99 to 0.99<span class="ramp" style="background:linear-gradient(90deg,' + VIK.join(",") + ')"></span><span class="ends"><span>−0.99</span><span>0</span><span>0.99</span></span></div>';
-  const key = '<div class="key" aria-label="Key">' +
-    '<span><svg width="30" height="10" aria-hidden="true"><line x1="1" y1="5" x2="29" y2="5" stroke="var(--mute)" stroke-width="1.5" stroke-dasharray="5 4"/></svg><span class="pc">Inflow</span></span>' +
-    '<span><svg width="30" height="10" aria-hidden="true"><line x1="1" y1="5" x2="29" y2="5" stroke="var(--ink)" stroke-width="3"/></svg><span class="pc">Lift</span></span>' +
-    '<span><svg width="30" height="10" aria-hidden="true"><line x1="1" y1="5" x2="29" y2="5" stroke="var(--warn)" stroke-width="4"/></svg><span class="pc">Drag, profile</span></span>' +
-    '<span><svg width="30" height="10" aria-hidden="true"><line x1="1" y1="5" x2="29" y2="5" stroke="var(--warn)" stroke-width="4" stroke-dasharray="4 2"/></svg><span class="pc">Drag, induced</span></span></div>';
+  h += plate(12, H - 30, 'σ 7.80 · ' + MINUS + 'Cp_min 0.69 · clear of the 15 % margin · V_crit ' + (imp ? f(VCRIT * KN, 1) + ' kn' : f(VCRIT, 1) + ' m/s'));
+  h += '<div class="plate legend">Cp · vik pinned at 0 · ' + MINUS + '0.99 to 0.99<span class="ramp" style="background:linear-gradient(90deg,' + VIK.join(',') + ')"></span><span class="ends"><span>' + MINUS + '0.99</span><span>0</span><span>0.99</span></span></div>';
+  const sw = (c, w, dash) => '<svg width="30" height="10" aria-hidden="true"><line x1="1" y1="5" x2="29" y2="5" stroke="' + c + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>';
+  const key = '<div class="key" aria-label="Key"><span>' + sw('var(--ink)', 2) + '<span class="pc">V∞</span></span><span>' + sw('var(--mute)', 1.5, '5 4') + '<span class="pc">Local inflow</span></span>' +
+    '<span>' + sw('var(--ink)', 3) + '<span class="pc">Lift</span></span><span>' + sw('var(--warn)', 4) + '<span class="pc">Drag, profile (cap: Ncrit 2–4 band)</span></span>' +
+    '<span>' + sw('var(--warn)', 4, '4 2') + '<span class="pc">Drag, induced</span></span><span><svg width="18" height="16" aria-hidden="true"><path d="M13 3 A6 6 0 1 0 9 14" fill="none" stroke="var(--ink)" stroke-width="2"/></svg><span class="pc">Pitching-moment couple</span></span></div>';
   const row = (a, b, c) => '<tr><th scope="row" class="' + (c || '') + '">' + a + '</th><td class="v">' + b + '</td></tr>';
-  const tbl = '<table><caption style="text-align:left;font-weight:600;padding:0 0 4px" class="pc">Force on this strip, per span</caption>' +
-    row('cl (panel)', f(s.cl, s.cl < 0.01 ? 4 : 3)) + row('Cm c/4', f(s.cm, 3)) + row('α_eff', f(s.aeff, 2) + ' °') +
-    row('α_i', f(aI, 2) + ' ° · illustrative', 'pc') +
-    row('Centre of pressure x_cp/c', off ? f(xcp, 2) + ' · off the section' : f(xcp, 3), 'pc') +
-    row('Lift L′', fv(s.lift, 2) + ' ' + u, 'pc') +
-    row('Profile drag D′ profile', fv(prof, 2) + ' ' + u + (s.flag ? ' · flagged' : ''), 'pc') +
-    row('Induced drag D′ induced', fv(ind, 2) + ' ' + u + ' · illustrative', 'pc') +
-    row('Drag D′', fv(tot, 2) + ' ' + u, 'pc') + '</table>';
-  let notes = '<p class="note">Profile drag from the polar at α_eff, both Ncrit; band, not a prediction</p>' +
-    '<p class="note pc">Induced drag here is L′ · sin(α_i), with α_i = α_geo − α_eff. Illustrative.</p>';
-  if (off) notes += '<p class="note warn pc">Centre of pressure is outside the section at this lift. The arrows start at the quarter chord.</p>';
+  const undef = Math.abs(s.clL) < 0.05 ? 'Undefined · near zero lift: |cl| is below 0.05' : 'Undefined · the centre of pressure is off the section';
+  const tbl = '<table><caption style="text-align:left;font-weight:600;padding:0 0 4px" class="pc">Wing strip, per span; not the wing total</caption>' +
+    row('cl (panel, 2D inviscid at α_eff)', f(s.clP, 3), 'pc') + row('Cm c/4 (panel)', f(s.cmL, 3), 'pc') + row('Cl_local (lattice)', f(s.clL, 3), 'pc') +
+    row('α_geo', f(s.ageo, 2) + ' °', 'pc') + row('α_eff (lattice)', f(s.aeff, 2) + ' °', 'pc') + row('α_i (lattice)', f(aI, 2) + ' °', 'pc') +
+    row('x_cp/c (lattice)', useCP ? f(xcpRaw, 2) : undef, 'pc') +
+    row('L′ (lattice)', fv(lift) + ' ' + u, 'pc') + row('M′ c/4 (lattice)', sf(mom * mv) + ' ' + mu, 'pc') +
+    row('D′ profile (polar, Ncrit 2–4)', band + ' ' + u + (s.flag ? ' · flagged' : ''), 'pc') +
+    row('D′ induced (lattice)', fv(ind) + ' ' + u, 'pc') + row('D′ profile + induced, free-stream axes', fv(tot) + ' ' + u, 'pc') +
+    row('Not modelled', 'ventilation, junctions, unsteady, tip-vortex cavitation, surface state; separation only as “Section-based inference”') + '</table>';
+  let notes = '<p class="note">Profile drag from the polar at α_eff, both Ncrit; band, not a prediction</p>';
+  if (!useCP) notes += '<p class="note warn pc">The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn.</p>';
   if (s.flag) notes += '<p class="note warn">Low confidence — analysis_confidence 0.31 is below 0.5. Computed and flagged, never refused; not an error bar.</p>' +
     '<p class="note warn">Outside the validated bracket — the surrogate is validated on NACA 0012 only. Computed, not validated.</p>';
-  return '<div class="doc"><div class="dh"><b>Selected strip · η 1</b><span class="seg" aria-label="Chart"><span class="on">Cp</span><span>Polar</span><span>Transition</span><span>Bucket</span></span></div>' +
+  return '<div class="doc"><div class="dh"><b>Selected strip · η ' + s.eta + '</b><span class="seg" aria-label="Chart"><span class="on">Cp</span><span>Polar</span><span>Transition</span><span>Bucket</span></span></div>' +
     '<div class="prof">' + svg + h + '</div>' + key + '<div class="below"><div>' + tbl + '</div><div>' + notes + '</div></div></div>';
 }
 let cur = 'A';
@@ -221,7 +242,7 @@ function show(k){
 }
 document.querySelectorAll('[role="tab"]').forEach(t => {
   t.addEventListener('click', () => show(t.dataset.s));
-  t.addEventListener('keydown', e => { const ks = ['A', 'B', 'C', 'D'], i = ks.indexOf(cur), j = e.key === 'ArrowRight' ? (i + 1) % 4 : e.key === 'ArrowLeft' ? (i + 3) % 4 : -1; if (j >= 0){ show(ks[j]); $('#tab-' + ks[j]).focus(); } });
+  t.addEventListener('keydown', e => { const ks = ['A', 'B', 'C', 'D', 'E'], i = ks.indexOf(cur), j = e.key === 'ArrowRight' ? (i + 1) % 5 : e.key === 'ArrowLeft' ? (i + 4) % 5 : -1; if (j >= 0){ show(ks[j]); $('#tab-' + ks[j]).focus(); } });
 });
 $('#theme').addEventListener('click', e => { const dk = document.documentElement.dataset.theme !== 'dark'; document.documentElement.dataset.theme = dk ? 'dark' : 'light'; e.target.textContent = dk ? 'Light' : 'Dark'; e.target.setAttribute('aria-pressed', dk); });
 $('#marks').addEventListener('change', e => document.body.classList.toggle('marks', e.target.checked));
