@@ -163,6 +163,21 @@ public static class AnalysisPanelTests
         }
         finally { Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
 
+        // WFX2 item 6 (PR #6): the table twin's header and values stayed in N/m under Imperial. Ring: fast, model level.
+        DesktopChecks.Check("LoadingChart_TableTwin_Imperial_ReadsLbfPerFt", () =>
+        {
+            var chart = new LoadingChart();
+            chart.Update(Points(5));
+            Equal("L/span N/m", chart.TwinCells[4], "metric header");
+            Equal("12.5", chart.TwinCells[^1], "metric value");
+            chart.Update(Points(5), Units.Imperial);
+            Equal("L/span lbf/ft", chart.TwinCells[4], "imperial header");
+            Equal("0.857", chart.TwinCells[^1], "12.5 N/m in lbf/ft");
+            Equal(false, chart.TwinCells.Any(cell => cell.Contains("N/m", StringComparison.Ordinal)), "no N/m under Imperial");
+            chart.Update(Points(5), Units.Metric);
+            Equal("L/span N/m", chart.TwinCells[4], "metric again");
+        });
+
         DesktopChecks.Check("LoadingChart_TableTwin_TogglesAndKeepsFocus", () =>
         {
             var chart = new LoadingChart();
@@ -408,9 +423,12 @@ public static class AnalysisPanelTests
                 var texts = Texts(host.Properties);
                 Equal(true, texts.Contains("9.99 kn · salt 15 °C · as the band"), "COPY-280 summary on the collapsed Conditions group");
                 Equal(true, controller.AnalysisView.Groups.Single(g => g.Title == "Conditions").Rows.Single(r => r.Label == "Speed").Unit == "kn", "results are kn too");
+                var panel = host.AnalysisPanel;
+                Equal(true, panel.LoadingView.TwinCells.Count >= 5 && panel.LoadingView.TwinCells[4] == "L/span lbf/ft", "the loading twin header is lbf/ft under Imperial");
                 controller.AnalysisUnits = Units.Metric;
                 host.RefreshPanes();
                 Settle(window);
+                Equal("L/span N/m", panel.LoadingView.TwinCells[4], "the loading twin header is N/m under Metric");
                 Equal("m/s", band.FindControl<TextBlock>("SpeedUnit")!.Text, "Metric band unit");
                 Equal(true, Texts(host.Properties).Contains("5.14 m/s · salt 15 °C · as the band"), "Metric summary");
                 // The conditions change after the run: the result is Historical and the chip says so (COPY-279).

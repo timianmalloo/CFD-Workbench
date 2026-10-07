@@ -107,7 +107,7 @@ public partial class AnalysisPanel : UserControl
         LoadingEmpty.IsVisible = !hasResult || view.Loading.Count == 0;
         LoadingEmpty.Text = LoadingEmpty.IsVisible ? EmptyText(view) : "";
         loading.IsVisible = !LoadingEmpty.IsVisible;
-        loading.Update(unavailable ? [] : view.Loading);
+        loading.Update(unavailable ? [] : view.Loading, controller.AnalysisUnits);
         SectionView.Bind(view, controller);
         ShowSummary();
         UpdateHeight();

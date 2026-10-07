@@ -64,3 +64,10 @@ Checks (Desktop `--shell-window`, `tests/CfdWorkbench.Desktop.Tests/WindowsShell
 - Premise check (measured, not assumed): the brief says macOS shows an undo text. On this build macOS (and the forced non-macOS branch) shows `Sampling accepted geometry at η 0.5…` immediately after Undo and `Accepted η 0.5 slice; ...` once settled; the undo text is overwritten in the same call by `RefreshAcceptedAsync`. No platform ever showed it. The fix keeps the existing sentence (minus its stale `Sampling…` tail) by refreshing with `preserveStatus: true`; it applies to macOS too. Operator: this is a visible copy change.
 - Wiring-check oracle changed: a plain Avalonia window with a Button returns `Handled=True` for F10 (measured), so `Handled` cannot tell Windows from macOS; the check asserts `ShellHost.MenuKeys` is set off macOS and null on macOS.
 - Green: all three PASS; the other seven `WindowsShell_*` checks PASS.
+
+## Item 6 - Imperial spanwise table
+
+Checks (Desktop `--analysis`, `AnalysisPanelTests.cs`): `LoadingChart_TableTwin_Imperial_ReadsLbfPerFt` (header `L/span lbf/ft`, 12.5 N/m reads `0.857`, no `N/m` cell), and the wiring assertions added to `Analysis_Units_BandSpeedFollowsResults_ConditionsSummaryAndHistoricalChip` (panel header follows the controller units).
+
+- Red: `LoadingChart.TwinCells` and `Update(points, Units)` did not exist (compile error CS1061 / CS1501); the old header was the literal `"L/span N/m"` and the value unconverted.
+- Green: `PASS LoadingChart_TableTwin_Imperial_ReadsLbfPerFt`, `PASS Analysis_Units_BandSpeedFollowsResults_ConditionsSummaryAndHistoricalChip`. The conversion is `Labels.ForcePerSpan` (one definition), applied in the chart; the projection stays in N/m.
