@@ -1173,3 +1173,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended, after t
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended, after the hydrodynamicist review (CLEAR WITH CONDITIONS C1-C3). Move the next six or so costliest fast-ring checks to readiness (it runs before every push of main) and rebalance Core part 1 against parts 2 and 3; the union of PASS names stays identical; no limit is raised.
 
 - request: req-01M49YX31YKJ598EWW8A3YKHBX · ruled by: operator-timianmalloo · at: 2026-10-07T01:16:03Z
+
+### Ruling 130 — Section force-vector mockup approved; its 16 labels approved; the c/4 test reads the lattice Cl_local
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). The mockup (A mid-span strip, B near zero lift, C flagged drag, D Imperial, E cambered cruise) is approved for build. All 16 proposed labels in docs/mockups/section-force-vectors.md are approved exactly as drawn. The |cl| >= 0.05 anchor test reads the lattice Cl_local (one model, Ruling 128). State E uses cl 0.10 at Cm -0.08 (x_cp 1.05), because at cl 0.15 the centre of pressure is still on the chord (0.78); the build fixture follows that.
+
+- request: req-01M49Z8HSZ96HXRDX40HS10CN3 · ruled by: operator-timianmalloo · at: 2026-10-07T01:22:18Z
