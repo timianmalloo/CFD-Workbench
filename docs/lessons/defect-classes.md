@@ -1838,3 +1838,27 @@ the Coordinator runs `trace-brief.py` on any brief whose track reads data it doe
 **RING-AT-BUDGET (capacity, not a defect).** The fast ring's net time (C-3, limit 50.0 s) rose from about 47 s to about
 49.5 s in one round across 5 joins, and 11 checks moved to readiness to fit. Measured series, options and costs:
 `docs/proof/round-oct06-lessons/ring-at-budget.md`. The operator decides.
+
+**MOCKUP-STATE-UNBUILT · An operator-approved mockup state was never built, and the build passed its named checks and the capture review.**
+Instance: DX state 5 (`docs/design/dx-screen-states.md` row 5, "Section view with Cp on the profile, vik pinned at 0, Cp_min marker")
+was approved at Ruling 108 and shipped as a plain z/c line chart with a Cp comb; the Section document later moved to the main
+area (SMA) with the same chart. The DX proof (`docs/proof/dx/red-first.md`, item 6) listed seven required states and captured
+each, but the profile was not one of the seven. SMA's `captures.md` did say "the profile has no colour ramp", as a difference
+and not as a missing state, and the review read it as acceptable. Built as track CPV (Ruling 126). Cause: the proof's state
+table is written from the brief, not from the approved mockup, so a state the brief did not list cannot fail it.
+
+**Class → sweep → derive → prevent:** signature: a proof table whose rows come from the brief's list and not from the mockup's
+states. Sweep (done, bounded): `dx-screen-states.md` has 54 rows. Rows 1 to 25 (the Section tab, Cp, estimator and cavitation
+screen) were checked against `src/`: every approved string in COPY-293 to COPY-312 is in code (COPY-298 and COPY-299 by their
+text in `Labels.cs`, not by id), and row 5 is the only state found drawn wrongly, now built. The seven states in the DX proof
+table all have captures (`01` to `11`). Rows 26 to 54 (polar, transition, bucket, drag, Find alpha) were not swept state by
+state; captures `03`, `04`, `05`, `09`, `10` cover the polar, transition, bucket and Find alpha screens, the drag rows only by
+`06` and `11`. So "any other state claimed but not built" is: none found in rows 1 to 25; rows 26 to 54 not verified
+(Inferred as built; OPEN). Derive: the check that would have failed is "every approved mockup state maps to an app capture or
+to `not built` with a ruling". Control: before a UI join the track's `captures.md` carries a state-by-state table, one row per
+approved mockup state (taken from the mockup, not the brief), each row an app capture or "not built, Ruling n". Could
+`tools/` check that the table exists? Only half: a `check-docs.py` lint could require that any `docs/proof/<track>/captures.md`
+which cites a mockup also contains a table with a `not built` or `.png` cell per row, but it cannot know the mockup's state
+list, because the mockups hold their states as code (`STATES` objects in the HTML), not as a manifest. A real check needs a
+`docs/mockups/<name>.states.json` manifest per approved mockup plus the lint that every id appears in the proof table; that is
+more than a check-docs lint, so it is proposed, not built. Until then the Coordinator asks for the table at join review.

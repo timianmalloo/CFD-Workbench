@@ -735,6 +735,10 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-403 | Imperial — approved — Ruling 115 (View ▸ Units item and the status-bar item's text in Imperial) |
 | COPY-404 | Section — approved — Ruling 125 (the title of the Section document tab in the model area, beside Plan and Foil source) |
 | COPY-405 | Open in main area — approved — Ruling 125 (the action on the bottom panel's Section summary line; opens or focuses the Section document) |
+| COPY-406 | Section · η <η> — approved — Ruling 126 (caption plate of the Section view's profile) |
+| COPY-407 | Cp_min <v> · x/c <x> · <side> — approved — Ruling 126 (the Cp_min marker plate on the profile) |
+| COPY-408 | σ <v> · −Cp_min <v> · clear of the 15 % margin · V_crit <v> — approved — Ruling 126 (the cavitation line on the profile; "clear of" reads "inside" or "at or past" by state; V_crit in kn under Imperial and m/s under Metric) |
+| COPY-409 | x/c 0 → 1 — approved — Ruling 126 (the axis plate under the profile) |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

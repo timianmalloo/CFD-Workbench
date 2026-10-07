@@ -52,14 +52,33 @@ public static class DxSectionPanelTests
             DesktopChecks.Check("SectionView_OneView_SelectorDrivesChart", () =>
             {
                 var (_, _, window, tab) = shared.Value;
-                Equal(true, tab.ProfileView.Model?.Id == "profile", "one Section view");
+                Equal(true, tab.ProfileView.Model is not null, "one Section view");
                 foreach (string id in new[] { "polar", "transition", "bucket", "cp" })
                 {
                     tab.Choose(id);
                     Settle(window);
                     Equal(id, tab.Chart.Model?.Id, "the selector drives the chart");
-                    Equal("profile", tab.ProfileView.Model?.Id, "the Section view stays one view");
+                    Equal(true, ReferenceEquals(tab.Shown!.Profile, tab.ProfileView.Model), "the Section view stays one view");
                 }
+            });
+            // Ring: readiness; cost: one render of one control in the shared window (under 0.05 s).
+            DesktopChecks.Check("SectionProfileView_Renders_CpOnVikPinnedAtZero", () =>
+            {
+                var (_, _, window, tab) = shared.Value;
+                SectionProfileView view = tab.ProfileView;
+                SectionProfile profile = view.Model ?? throw new Exception("the profile view has no model");
+                Render(view);
+                Equal(profile.Outline.Count, view.Segments.Count, "one coloured segment per outline panel, a closed outline");
+                var low = view.Segments.MinBy(s => s.Cp);
+                var high = view.Segments.MaxBy(s => s.Cp);
+                Equal(true, low.Cp < 0 && high.Cp > 0, "segments of both Cp signs");
+                Equal(true, SectionProfileView.RampPosition(low.Cp, view.Range) < 0.5 && SectionProfileView.RampPosition(high.Cp, view.Range) > 0.5,
+                    "opposite Cp signs fall on opposite sides of the ramp's centre");
+                Equal(true, low.Colour.B > low.Colour.R && high.Colour.R > high.Colour.B, "suction reads blue, pressure reads red (vik)");
+                Equal(Avalonia.Media.Color.Parse("#ebe6e2"), view.Vik(SectionProfileView.RampPosition(0, view.Range)), "Cp 0 is the ramp's centre colour");
+                Equal(Math.Max(-profile.CpLow, profile.CpHigh), view.Range, "the ramp's extent is the data's");
+                Equal(true, profile.Outline.Contains(profile.CpMinPanel), "the Cp_min marker is on the outline");
+                Settle(window);
             });
             DesktopChecks.Check("SectionTab_Desktop_RendersAllChartsWithoutThrowing", () =>
             {
