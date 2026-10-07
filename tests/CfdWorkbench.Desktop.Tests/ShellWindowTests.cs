@@ -91,10 +91,6 @@ public static class ShellWindowTests
             }
             finally { window.Close(); }
         });
-    }
-
-    public static void Run()
-    {
         DesktopChecks.Check("Shell_AllModelTabs_ReentryRealizesContent", () =>
         {
             using var controller = new WorkbenchController();
@@ -132,6 +128,10 @@ public static class ShellWindowTests
             }
             finally { window.Close(); }
         });
+    }
+
+    public static void Run()
+    {
 
         DesktopChecks.Check("Shell_F6_ModelArea_OnlyDockDocumentTabs", () =>
         {

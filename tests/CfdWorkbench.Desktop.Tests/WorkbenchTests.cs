@@ -139,6 +139,10 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
     CfdWorkbench.Desktop.Tests.PropertiesCellsTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.ShellWindowTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.GestureLimitTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.AnalysisLayerTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.ControllerSectionTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.PropertiesViewTests.RunReadiness();
+    CfdWorkbench.Desktop.Tests.StatusStripTests.RunReadiness();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 

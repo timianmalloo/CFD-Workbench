@@ -155,9 +155,14 @@ public static class ControllerSectionTests
         typeof(WorkbenchController).GetField("sectionBeforeChecking", BindingFlags.Instance | BindingFlags.NonPublic)!
             .GetValue(controller);
 
-    public static void Run()
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
     {
         DesktopChecks.Check("SectionStep_Refused_RestoresCertificate", SectionStep_Refused_RestoresCertificate);
+    }
+
+    public static void Run()
+    {
         DesktopChecks.Check("SectionStep_LandedOrExit_ClearsPriorCertificate", SectionStep_LandedOrExit_ClearsPriorCertificate);
         DesktopChecks.Check("SectionMode_Crossing_FinishDisabledWithReason", () =>
         {

@@ -80,7 +80,7 @@ internal static class IdentityTests
         FoilSourceTests.Run();
         GeometryTests.Run();
         ProofBudgetTests.Run();
-        PlacementTests.Run();
+        GroupGestureTests.Run();
         PlacementTraceTests.Run();
         BlendTests.Run();
         AuthoringSessionTests.Run();
@@ -104,7 +104,7 @@ internal static class IdentityTests
         PointModelTests.Run();
         LengthExpressionTests.Run();
         PointGestureTests.Run();
-        GroupGestureTests.Run();
+        PlacementTests.Run();
         PointCommandTests.Run();
         ReopenPointEditTests.Run();
         ChannelEditTests.Run();

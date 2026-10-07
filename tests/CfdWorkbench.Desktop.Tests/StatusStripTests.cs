@@ -21,6 +21,31 @@ public static class StatusStripTests
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        Pane("Toast_Hold_ClosesAfterHold_PausedWhileHovered", (controller, host, window) =>
+        {
+            var hold = TimeSpan.FromMilliseconds(150);
+            SetHold(host, hold);
+            // The hold starts when the toast opens. A pump after that can outlast 150 ms under load and
+            // queue the tick before the pointer arrives, so this commit returns before the dispatcher runs again.
+            CommitChord(controller, host, 10.1);
+            var toast = NeedToast(host);
+            if (!toast.IsVisible) throw new InvalidOperationException("no toast after the warning");
+            WaitUntilHidden(toast, hold, "the toast outlived its hold");
+            CommitChord(controller, host, 0.95);
+            if (!toast.IsVisible) throw new InvalidOperationException("no toast after the second warning");
+            Hover(toast, entered: true);
+            if (!HoldElapsedWhileOpen(hold, toast))
+                throw new InvalidOperationException(toast.IsVisible
+                    ? "the hold interval never elapsed"
+                    : "the hold ran while the pointer was over the toast");
+            Hover(toast, entered: false);
+            WaitUntilHidden(toast, hold, "the hold did not restart when the pointer left");
+        });
+    }
+
     public static void Run()
     {
         Pane("StatusStrip_SitsAtWindowBottom_FullWidth_24px", (controller, host, window) =>
@@ -75,27 +100,6 @@ public static class StatusStripTests
             if (AutomationProperties.GetHelpText(Need<TextBox>(host.Properties, "RootChordInput"))?.Contains(text, StringComparison.Ordinal) != true)
                 failures.Add("the field's help text lacks the report");
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
-        });
-
-        Pane("Toast_Hold_ClosesAfterHold_PausedWhileHovered", (controller, host, window) =>
-        {
-            var hold = TimeSpan.FromMilliseconds(150);
-            SetHold(host, hold);
-            // The hold starts when the toast opens. A pump after that can outlast 150 ms under load and
-            // queue the tick before the pointer arrives, so this commit returns before the dispatcher runs again.
-            CommitChord(controller, host, 10.1);
-            var toast = NeedToast(host);
-            if (!toast.IsVisible) throw new InvalidOperationException("no toast after the warning");
-            WaitUntilHidden(toast, hold, "the toast outlived its hold");
-            CommitChord(controller, host, 0.95);
-            if (!toast.IsVisible) throw new InvalidOperationException("no toast after the second warning");
-            Hover(toast, entered: true);
-            if (!HoldElapsedWhileOpen(hold, toast))
-                throw new InvalidOperationException(toast.IsVisible
-                    ? "the hold interval never elapsed"
-                    : "the hold ran while the pointer was over the toast");
-            Hover(toast, entered: false);
-            WaitUntilHidden(toast, hold, "the hold did not restart when the pointer left");
         });
 
         Pane("Toast_EscInside_ClosesAndReturnsFocus", (controller, host, window) =>

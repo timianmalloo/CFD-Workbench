@@ -20,35 +20,6 @@ public static class PlanCanvasTests
 {
     public static void Run()
     {
-        DesktopChecks.Check("RebuildPopover_StepperReadoutsFromCore", () =>
-        {
-            using var fixture = new PlanFixture(tenPoint: true);
-            var area = fixture.Host.ModelView;
-            area.BeginRebuild("trailing", fixture.Canvas);
-            var popover = area.RebuildPanel;
-            var core = fixture.Controller.PreviewRebuilds("trailing").Single(item => item.Count == 4);
-            if (popover.Count != 4 || popover.Preview?.MaxChange != core.MaxChange ||
-                !popover.ReadoutText.Contains("Area", StringComparison.Ordinal) ||
-                !popover.ReadoutText.Contains((core.AreaAfterSquareMeters * 10000).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal))
-                throw new Exception("Rebuild readouts did not come from Core preview, including area");
-            var readouts = popover.FindControl<Grid>("ReadoutGrid");
-            if (readouts is null || readouts.ColumnDefinitions.Count != 2 ||
-                readouts.Children.OfType<TextBlock>().Count() != 14)
-                throw new Exception("Rebuild readouts are not seven two-column description rows");
-        });
-        DesktopChecks.Check("Properties_RebuildLink_OpensCurvePopover", () =>
-        {
-            using var fixture = new PlanFixture(tenPoint: true);
-            var point = fixture.Controller.Planform!.Trailing.Points[5];
-            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
-            fixture.Settle();
-            var link = fixture.Host.Properties.GetLogicalDescendants().OfType<HyperlinkButton>()
-                .FirstOrDefault(item => item.Name == "Link_r_rebuild");
-            if (link is null) throw new Exception("Curve group has no Rebuild link");
-            link.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
-            if (!fixture.Host.ModelView.RebuildPanel.IsVisible)
-                throw new Exception("Properties Rebuild link did not open the curve popover");
-        });
         DesktopChecks.Check("Properties_BackspaceInTextField_EditsTextNotPoint", () =>
         {
             using var fixture = new PlanFixture(tenPoint: true);
@@ -206,23 +177,6 @@ public static class PlanCanvasTests
             ten.Canvas.ContextMenu?.Close();
             if (!ten.Host.CanRun("point.add") || !outline)
                 throw new Exception($"Add point disabled on a 10-point rail: Edit {ten.Host.CanRun("point.add")}, outline {outline}");
-        });
-
-        DesktopChecks.Check("PlanCanvas_BackspaceOrDelete_RemovesSelectedControlSelectsNearest", () =>
-        {
-            foreach (var key in new[] { Key.Back, Key.Delete })
-            {
-                using var fixture = new PlanFixture(tenPoint: true);
-                var point = fixture.Controller.Planform!.Trailing.Points.First(item => item.Role == PointRole.Control);
-                fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
-                fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
-                if (!fixture.KeyDown(key)) throw new Exception($"{key} was not handled by Plan");
-                fixture.WaitGesture();
-                if (fixture.Controller.Planform!.Trailing.Points.Count != 9 ||
-                    fixture.Controller.Selection is not Selection.Points { Items.Count: 1 } selected ||
-                    selected.Items[0].VertexId == point.Id)
-                    throw new Exception($"{key} did not remove the selected control and select its survivor");
-            }
         });
 
         DesktopChecks.Check("PlanCanvas_BackspaceAtFloor_WarningCopyNothingChanged", () =>
@@ -1342,6 +1296,51 @@ public static class PlanCanvasTests
             fixture.Settle();
             if (Marker()) throw new Exception("the marker stayed after Escape");
             fixture.ReleaseDrag(point, 0, cross);
+        });
+        DesktopChecks.Check("RebuildPopover_StepperReadoutsFromCore", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var area = fixture.Host.ModelView;
+            area.BeginRebuild("trailing", fixture.Canvas);
+            var popover = area.RebuildPanel;
+            var core = fixture.Controller.PreviewRebuilds("trailing").Single(item => item.Count == 4);
+            if (popover.Count != 4 || popover.Preview?.MaxChange != core.MaxChange ||
+                !popover.ReadoutText.Contains("Area", StringComparison.Ordinal) ||
+                !popover.ReadoutText.Contains((core.AreaAfterSquareMeters * 10000).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture), StringComparison.Ordinal))
+                throw new Exception("Rebuild readouts did not come from Core preview, including area");
+            var readouts = popover.FindControl<Grid>("ReadoutGrid");
+            if (readouts is null || readouts.ColumnDefinitions.Count != 2 ||
+                readouts.Children.OfType<TextBlock>().Count() != 14)
+                throw new Exception("Rebuild readouts are not seven two-column description rows");
+        });
+        DesktopChecks.Check("Properties_RebuildLink_OpensCurvePopover", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[5];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.Settle();
+            var link = fixture.Host.Properties.GetLogicalDescendants().OfType<HyperlinkButton>()
+                .FirstOrDefault(item => item.Name == "Link_r_rebuild");
+            if (link is null) throw new Exception("Curve group has no Rebuild link");
+            link.RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(Button.ClickEvent));
+            if (!fixture.Host.ModelView.RebuildPanel.IsVisible)
+                throw new Exception("Properties Rebuild link did not open the curve popover");
+        });
+        DesktopChecks.Check("PlanCanvas_BackspaceOrDelete_RemovesSelectedControlSelectsNearest", () =>
+        {
+            foreach (var key in new[] { Key.Back, Key.Delete })
+            {
+                using var fixture = new PlanFixture(tenPoint: true);
+                var point = fixture.Controller.Planform!.Trailing.Points.First(item => item.Role == PointRole.Control);
+                fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+                fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+                if (!fixture.KeyDown(key)) throw new Exception($"{key} was not handled by Plan");
+                fixture.WaitGesture();
+                if (fixture.Controller.Planform!.Trailing.Points.Count != 9 ||
+                    fixture.Controller.Selection is not Selection.Points { Items.Count: 1 } selected ||
+                    selected.Items[0].VertexId == point.Id)
+                    throw new Exception($"{key} did not remove the selected control and select its survivor");
+            }
         });
     }
 

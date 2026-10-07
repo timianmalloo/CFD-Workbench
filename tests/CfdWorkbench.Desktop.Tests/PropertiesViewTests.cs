@@ -26,6 +26,73 @@ public static class PropertiesViewTests
 {
     private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
 
+    // Readiness only: checks moved out of the fast ring (round-oct06 SPL, Ruling 123); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        Pane("PropertiesPane_StateBrushes_InAllThreeThemes", (controller, host, window) =>
+        {
+            // PG-29 (C3), in B: the twirl chevron, the band-less group header, the enum boxes and their popup resolve to
+            // DESIGN.md tokens in each state and in Light, Dark and High contrast (which would otherwise inherit Fluent Light).
+            Select(controller, window, MakeAnchor(controller));
+            var themes = new (Avalonia.Styling.ThemeVariant Variant, string Ink, string Muted, string Surface, string Selection, string OnSelection, string Focus)[]
+            {
+                (Avalonia.Styling.ThemeVariant.Light, "#1b2929", "#526362", "#fbfcfb", "#d8eeea", "#1b2929", "#006c67"),
+                (Avalonia.Styling.ThemeVariant.Dark, "#ebf3f0", "#b2c4bf", "#1e2d31", "#274c47", "#ebf3f0", "#88d8c6"),
+                (NativeReviewThemes.HighContrast, "#ffffff", "#ffffff", "#000000", "#ffee58", "#000000", "#ffee58")
+            };
+            var failures = new List<string>();
+            foreach (var theme in themes)
+            {
+                window.RequestedThemeVariant = theme.Variant;
+                Settle(window);
+                void Expect(string what, IBrush? brush, string want)
+                {
+                    if (brush is not ISolidColorBrush solid || solid.Color != Color.Parse(want))
+                        failures.Add($"{theme.Variant.Key}/{what} {(brush as ISolidColorBrush)?.Color.ToString() ?? "none"}≠{want}");
+                }
+                void Clear(string what, IBrush? brush)
+                {
+                    if (brush is not null && brush is not ISolidColorBrush { Color.A: 0 })
+                        failures.Add($"{theme.Variant.Key}/{what} is not transparent");
+                }
+                var group = Need<Expander>(host.Properties, "Group_pos");
+                var header = group.GetVisualDescendants().OfType<ToggleButton>().First();
+                Expect("chevron", Need<Avalonia.Controls.Shapes.Path>(host.Properties, "GroupChevron_pos").Stroke, theme.Muted);
+                foreach (var state in new[] { ":checked", ":pressed", ":pointerover" })
+                {
+                    Pseudo(header, state, true);
+                    Settle(window);
+                    Clear("header" + state, Part<Border>(header, "ToggleButtonBackground").Background);
+                    Pseudo(header, state, false);
+                }
+                foreach (var name in new[] { "TypeControl", "KindControl" })
+                {
+                    var box = Need<ComboBox>(host.Properties, name);
+                    Pseudo(box, ":pressed", true);
+                    Settle(window);
+                    Clear(name + ":pressed", Part<Border>(box, "Background").Background);
+                    Pseudo(box, ":pressed", false);
+                    Expect(name + " glyph", Part<PathIcon>(box, "DropDownGlyph").Foreground, theme.Muted);
+                }
+                var type = Need<ComboBox>(host.Properties, "TypeControl");
+                type.IsDropDownOpen = true;
+                Settle(window);
+                Expect("type:dropdownopen border", Part<Border>(type, "Background").BorderBrush, theme.Focus);
+                var popup = type.GetVisualDescendants().OfType<Popup>().First().Child as Border;
+                Expect("popup", popup?.Background, theme.Surface);
+                foreach (var item in popup?.GetVisualDescendants().OfType<ComboBoxItem>() ?? [])
+                {
+                    var presenter = Part<ContentPresenter>(item, "PART_ContentPresenter");
+                    Expect($"item{(item.IsSelected ? ":selected" : "")} text", presenter.Foreground, item.IsSelected ? theme.OnSelection : theme.Ink);
+                    if (item.IsSelected) Expect("item:selected fill", presenter.Background, theme.Selection);
+                }
+                type.IsDropDownOpen = false;
+                Settle(window);
+            }
+            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+        });
+    }
+
     public static void Run()
     {
         // Track PNL: the section mode's rows on the realized window (PointsPaneTests holds them beside the Points pane).
@@ -532,69 +599,6 @@ public static class PropertiesViewTests
             WaitIdle(controller, window);
             if (!seen.Any(text => text.StartsWith($"Trailing edge point {anchor.Index + 1} is now Symmetric.", StringComparison.Ordinal)))
                 throw new InvalidOperationException("kind report: " + string.Join(" | ", seen));
-        });
-
-        Pane("PropertiesPane_StateBrushes_InAllThreeThemes", (controller, host, window) =>
-        {
-            // PG-29 (C3), in B: the twirl chevron, the band-less group header, the enum boxes and their popup resolve to
-            // DESIGN.md tokens in each state and in Light, Dark and High contrast (which would otherwise inherit Fluent Light).
-            Select(controller, window, MakeAnchor(controller));
-            var themes = new (Avalonia.Styling.ThemeVariant Variant, string Ink, string Muted, string Surface, string Selection, string OnSelection, string Focus)[]
-            {
-                (Avalonia.Styling.ThemeVariant.Light, "#1b2929", "#526362", "#fbfcfb", "#d8eeea", "#1b2929", "#006c67"),
-                (Avalonia.Styling.ThemeVariant.Dark, "#ebf3f0", "#b2c4bf", "#1e2d31", "#274c47", "#ebf3f0", "#88d8c6"),
-                (NativeReviewThemes.HighContrast, "#ffffff", "#ffffff", "#000000", "#ffee58", "#000000", "#ffee58")
-            };
-            var failures = new List<string>();
-            foreach (var theme in themes)
-            {
-                window.RequestedThemeVariant = theme.Variant;
-                Settle(window);
-                void Expect(string what, IBrush? brush, string want)
-                {
-                    if (brush is not ISolidColorBrush solid || solid.Color != Color.Parse(want))
-                        failures.Add($"{theme.Variant.Key}/{what} {(brush as ISolidColorBrush)?.Color.ToString() ?? "none"}≠{want}");
-                }
-                void Clear(string what, IBrush? brush)
-                {
-                    if (brush is not null && brush is not ISolidColorBrush { Color.A: 0 })
-                        failures.Add($"{theme.Variant.Key}/{what} is not transparent");
-                }
-                var group = Need<Expander>(host.Properties, "Group_pos");
-                var header = group.GetVisualDescendants().OfType<ToggleButton>().First();
-                Expect("chevron", Need<Avalonia.Controls.Shapes.Path>(host.Properties, "GroupChevron_pos").Stroke, theme.Muted);
-                foreach (var state in new[] { ":checked", ":pressed", ":pointerover" })
-                {
-                    Pseudo(header, state, true);
-                    Settle(window);
-                    Clear("header" + state, Part<Border>(header, "ToggleButtonBackground").Background);
-                    Pseudo(header, state, false);
-                }
-                foreach (var name in new[] { "TypeControl", "KindControl" })
-                {
-                    var box = Need<ComboBox>(host.Properties, name);
-                    Pseudo(box, ":pressed", true);
-                    Settle(window);
-                    Clear(name + ":pressed", Part<Border>(box, "Background").Background);
-                    Pseudo(box, ":pressed", false);
-                    Expect(name + " glyph", Part<PathIcon>(box, "DropDownGlyph").Foreground, theme.Muted);
-                }
-                var type = Need<ComboBox>(host.Properties, "TypeControl");
-                type.IsDropDownOpen = true;
-                Settle(window);
-                Expect("type:dropdownopen border", Part<Border>(type, "Background").BorderBrush, theme.Focus);
-                var popup = type.GetVisualDescendants().OfType<Popup>().First().Child as Border;
-                Expect("popup", popup?.Background, theme.Surface);
-                foreach (var item in popup?.GetVisualDescendants().OfType<ComboBoxItem>() ?? [])
-                {
-                    var presenter = Part<ContentPresenter>(item, "PART_ContentPresenter");
-                    Expect($"item{(item.IsSelected ? ":selected" : "")} text", presenter.Foreground, item.IsSelected ? theme.OnSelection : theme.Ink);
-                    if (item.IsSelected) Expect("item:selected fill", presenter.Background, theme.Selection);
-                }
-                type.IsDropDownOpen = false;
-                Settle(window);
-            }
-            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
 
         Pane("TypeCombo_PendingThenLeave_DoesNotCommit", (controller, host, window) =>

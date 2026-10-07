@@ -15,7 +15,6 @@ internal static class DisplayProfileTests
 
     internal static void Run()
     {
-        Check("ProfileEvaluator_BoundToCertificate_Within1e9Chord", BoundToCertificate);
         Check("ProfileEvaluator_DisplayMaximum_WithinCertifiedMaximum", DisplayMaximum);
         Check("ProfileEvaluator_SingleSite_NoOtherProfileInversionInSource", SingleSite);
         Check("ProfileView_Samples_CosineSpacedAtNose", CosineSpaced);
@@ -26,6 +25,7 @@ internal static class DisplayProfileTests
     internal static void RunReadiness()
     {
         Check("Readiness_ProfileViewRebuilt_Under5Ms", RebuiltUnder5Ms);
+        Check("ProfileEvaluator_BoundToCertificate_Within1e9Chord", BoundToCertificate);
     }
 
     private static void BoundToCertificate()
