@@ -118,6 +118,9 @@ public sealed class SectionProfileView : Control
         bool beside = w - 8 - tierWidth > caption.Right + 8;
         Plate(context, profile.Tier, new Point(beside ? w - 8 - tierWidth + 4 : 8, beside ? 22 : 46), ink, soft);
 
+        // Ruling 131: a tip strip has no force vectors and no CP anchor; the plate says why
+        if (profile.ForcesNotJudged is { } notJudged) Plate(context, notJudged, new Point(8, beside ? 46 : 70), ink, soft);
+
         // Legend plate, bottom right: title, the ramp bar (extent ±range, 0 at the centre), its ends.
         string title = "Cp · vik pinned at 0 · " + Num(profile.CpLow) + " to +" + Num(profile.CpHigh);
         double barWidth = Math.Max(150, Text(title, ink).Width), left = w - 8 - barWidth - 8;

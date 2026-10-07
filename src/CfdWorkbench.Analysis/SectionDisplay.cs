@@ -32,7 +32,8 @@ public sealed record SectionView(double Eta, bool IsGoverning, string StationNam
 /// range (<paramref name="CpLow"/>, <paramref name="CpHigh"/>) the legend names; and the caption plates. Never re-solved.
 /// </summary>
 public sealed record SectionProfile(IReadOnlyList<PanelCp> Outline, PanelCp CpMinPanel, string Side, double CpLow, double CpHigh,
-    string Caption, string Tier, string? Cavitation, SectionForces? Forces = null);
+    string Caption, string Tier, string? Cavitation, SectionForces? Forces = null,
+    string? ForcesNotJudged = null);
 
 /// <summary>Where the Lift and Drag arrows start: the lattice centre of pressure, or the quarter chord with the couple drawn (Ruling 128 (3)).</summary>
 public enum ForceAnchor { CentreOfPressure, QuarterChord }
@@ -115,8 +116,8 @@ public static class SectionDisplay
         if (station.EstimatorAvailabilityCode is { } code)
             estimator = [R("Tier", Labels.EstimatorChip, note: Labels.UnavailableBecause(code)), R(Labels.CpMinLabel, Labels.UnavailableBecause(code))];
         groups.Add(new("Estimator", estimator));
-        SectionForces? forces = ForcesAt(run, station.Eta, source, units, cancellation);
-        groups.Add(ForceGroup(forces, station, depthSet, units));
+        SectionForces? forces = ForcesAt(run, station.Eta, source, units, cancellation, out bool tipNotJudged);
+        groups.Add(tipNotJudged ? new(Labels.StripTableHeading, [R("Result", Labels.TipNotJudged)]) : ForceGroup(forces, station, depthSet, units));
 
         // ---- cavitation screen ----
         CavitationResult cav = tier.Cavitation;
@@ -202,7 +203,7 @@ public static class SectionDisplay
             .OrderBy(s => s.Eta).Select(s => new StationTableRow(s.Eta, "η " + N(s.Eta, "0.###"), N(s.AlphaEffDeg, "0.00"),
                 N(-s.Estimate.Panel.CpMin, "0.###"), CavitationWord(s.Cavitation.State), s.Eta == station.Eta,
                 s.PanelUnderread is null ? Labels.UnderreadNotMeasured : null)).ToArray();
-        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units, forces));
+        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units, forces) with { ForcesNotJudged = tipNotJudged ? Labels.TipNotJudged : null });
     }
 
     // The leading word of the approved cavitation sentences (COPY-301 to COPY-303): "Clear", "Inside the margin", "Possible".
@@ -373,11 +374,14 @@ public static class SectionDisplay
     /// The strip force record of the shown station, derived on read from the stored strip and the source the run was solved on (DM7:
     /// nothing is stored). Null when the source is not held, a span edge is missing, or the strip has no width; the table then says why.
     /// </summary>
-    private static SectionForces? ForcesAt(AnalysisRun run, double eta, byte[]? source, Units units, CancellationToken cancellation)
+    private static SectionForces? ForcesAt(AnalysisRun run, double eta, byte[]? source, Units units, CancellationToken cancellation, out bool tipNotJudged)
     {
+        tipNotJudged = false;
         if (source is null || run.Outcome is not RunOutcome.Completed || run.Strips.Count == 0
             || run.Settings.SectionEtas is not { Count: > 0 } etas || run.Settings.SectionXs is not { Count: > 0 } xs) return null;
         StripLoad strip = run.Strips.MinBy(s => Math.Abs(Math.Abs(s.Eta) - eta))!;
+        // Ruling 131: the provisional tip strip is Not judged, the rule the rest of the Section view follows (AnalysisProjection.State).
+        if (strip.Provisional && strip.ProvisionalReason == StripLoad.TipProvisionalReason) { tipNotJudged = true; return null; }
         if (strip.YLow is not { } low || strip.YHigh is not { } high) return null;
         try
         {

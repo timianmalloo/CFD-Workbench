@@ -29,6 +29,7 @@ internal static class SectionForceTests
     internal static void RunReadiness()
     {
         Check("SectionForce_LatticeRun_InducedSharesSumToWingDi_AndAnchorFromStrip", LatticeRun);
+        Check("SectionForce_TipStrip_NotJudged_NoAnchorNoJudgedValues_Ruling131", TipStrip);
     }
 
     // ---- synthetic strips -------------------------------------------------------------------------------------------------
@@ -197,15 +198,43 @@ internal static class SectionForceTests
 
     // ---- readiness: one real lattice run on a cambered catalogue section ---------------------------------------------------
 
-    private static void LatticeRun()
+    /// <summary>One real lattice run on the cambered section, shared by the readiness checks of this class (about 1 s once).</summary>
+    private static (AnalysisRun Run, byte[] Source) CamberedRun()
     {
+        if (camberedRun is { } held) return held;
         using var session = new AuthoringSession();
         byte[] source = CamberedSource();
         session.Open(source, Fixture.Id(), true);
         RunSettings settings = Settings.Default with { NSpanPerHalf = 8, NChord = 4,
             SectionEtas = [0d, 0.5, 1d], SectionXs = Settings.ChordXs(4, "cosine") };
         var service = new AnalysisService(session, new ProductWingMethod(settings));
-        AnalysisRun run = Fixture.Evaluate(service, Fixture.Op(1));
+        return (camberedRun = (Fixture.Evaluate(service, Fixture.Op(1)), source)).Value;
+    }
+    private static (AnalysisRun Run, byte[] Source)? camberedRun;
+
+    /// <summary>Ruling 131: a provisional (tip) strip reads Not judged - tip strip; no CP anchor, no L' or x_cp presented as judged values.</summary>
+    private static void TipStrip()
+    {
+        (AnalysisRun run, byte[] source) = CamberedRun();
+        StripLoad tip = run.Strips.MaxBy(s => Math.Abs(s.Eta))!;
+        Equal(StripLoad.TipProvisionalReason, tip.ProvisionalReason, "the outermost strip is the provisional tip strip");
+        SectionTierResult tier = SectionTier.Evaluate(source, [0.25, 0.5, 0.75, 1.0], [], Fixture.Op(1), Fixture.Salt);
+        // eta 1 and the outermost strip's own eta both select the tip station
+        foreach (double eta in new[] { 1.0, Math.Abs(tip.Eta) })
+        {
+            SectionView view = SectionDisplay.Build(run, tier, source, eta, "r1", null, null, default, Units.Metric);
+            Equal(null, view.Profile!.Forces, "tip strip, eta " + eta + ": no force vectors, so no CP anchor is drawn");
+            Equal(Labels.TipNotJudged, view.Profile.ForcesNotJudged, "tip strip, eta " + eta + ": the profile reads Not judged - tip strip");
+            ResultGroup table = view.Groups.Single(g => g.Title == Labels.StripTableHeading);
+            Equal(Labels.TipNotJudged, table.Rows.Single(r => r.Label == "Result").Value, "tip strip, eta " + eta + ": the table reads Not judged - tip strip");
+            Equal(false, table.Rows.Any(r => r.Label is Labels.LiftRow or Labels.XcpRow or Labels.CoupleRow), "tip strip: no L', x_cp or M' row");
+        }
+        Equal(true, SectionDisplay.Build(run, tier, source, 0.5, "r1", null, null, default, Units.Metric).Profile!.Forces is not null, "interior strip keeps its vectors");
+    }
+
+    private static void LatticeRun()
+    {
+        (AnalysisRun run, byte[] source) = CamberedRun();
         // (1) the strips' induced shares sum to the wing D_i (Loads.InducedDrag), the lifting-line total; not near-field Fx.
         double sum = 0;
         foreach (StripLoad strip in run.Strips)
