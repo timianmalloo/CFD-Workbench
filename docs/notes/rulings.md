@@ -1161,3 +1161,15 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. (1) The
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). The Section view draws Lift and Drag vectors on the Cp-coloured profile. (1) Anchor: the operator chose centre of lift; recorded as the section centre of pressure, x_cp/c = 0.25 - Cm_c/4 / cl (assume: the operator means the centre of pressure; confirmed by the mockup approval; near zero lift, where x_cp leaves the section, the arrows start at the quarter chord with a note). Lift perpendicular and drag parallel to the strip local inflow at alpha_eff, the inflow drawn faintly. (2) Separate scales, each arrow labelled with its value and unit (per span, units follow the Units switch) and the drag magnification stated. (3) Drag = profile drag (the polar band, flagged as elsewhere) plus the strip local induced drag from its induced angle, drawn as two segments of one arrow. A mockup is shown to the operator and the hydrodynamicist reviews it before the build.
 
 - request: req-01M49Y69SKKZSGYW68ZKNZGSZY · ruled by: operator-timianmalloo · at: 2026-10-07T01:03:36Z
+
+### Ruling 128 — Section force vectors: free-stream axes, lattice model throughout, CP when on-section else c/4 (amends Ruling 127)
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended, after the hydrodynamicist review (CLEAR WITH CONDITIONS C1-C3). (1) Lift and drag are drawn on free-stream axes: V-inf at alpha_geo, lift perpendicular and drag parallel to it; the local inflow stays as a faint line. Drag has two parts: profile (the polar Ncrit 2-4 band, drawn as a cap on its segment) and induced (the strip lifting-line share from the lattice, d_i = 0.5 rho Gamma (-w_T), summing to the wing D_i). (2) One model: the arrow (L-prime, AnalysisProjection.cs:338) and its anchor come from the lattice strip (x_cp from the strip My/Fz); the panel cl is shown beside it, labelled cl (panel, 2D inviscid at alpha_eff). (3) Anchor: the centre of pressure when it is on the section and |cl| >= 0.05; otherwise the quarter chord with the pitching-moment couple drawn and x_cp shown as Undefined. (4) Lift scale fixed per run from the largest strip |L-prime| (1-2-5 rounded); drag at a stated multiple. (5) The main example is a mid-span strip; the tip strip keeps its Not judged label; the build fixture includes a cambered catalogue section. Label fixes per the review (3 significant figures, model named on every value, Wing strip per span; not the wing total).
+
+- request: req-01M49YX2P52WB9WNZRSR2Z4DDG · ruled by: operator-timianmalloo · at: 2026-10-07T01:16:02Z
+
+### Ruling 129 — Fast ring headroom again: move the next costliest checks to readiness and rebalance Core part 1
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended, after the hydrodynamicist review (CLEAR WITH CONDITIONS C1-C3). Move the next six or so costliest fast-ring checks to readiness (it runs before every push of main) and rebalance Core part 1 against parts 2 and 3; the union of PASS names stays identical; no limit is raised.
+
+- request: req-01M49YX31YKJ598EWW8A3YKHBX · ruled by: operator-timianmalloo · at: 2026-10-07T01:16:03Z
