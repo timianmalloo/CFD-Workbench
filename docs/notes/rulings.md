@@ -1179,3 +1179,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended, after t
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). The mockup (A mid-span strip, B near zero lift, C flagged drag, D Imperial, E cambered cruise) is approved for build. All 16 proposed labels in docs/mockups/section-force-vectors.md are approved exactly as drawn. The |cl| >= 0.05 anchor test reads the lattice Cl_local (one model, Ruling 128). State E uses cl 0.10 at Cm -0.08 (x_cp 1.05), because at cl 0.15 the centre of pressure is still on the chord (0.78); the build fixture follows that.
 
 - request: req-01M49Z8HSZ96HXRDX40HS10CN3 · ruled by: operator-timianmalloo · at: 2026-10-07T01:22:18Z
+
+### Ruling 131 — Section force vectors: label the 4-panel CP bias and measure it; tip strip Not judged (review conditions)
+
+Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended. The x_cp and pitching-moment labels say "lattice, 4 chordwise panels; biased forward at low lift" (approved wording), and a chordwise-convergence check measures the bias (nc 2, 4, 8, 16 on a cambered section); more chordwise panels are decided next round from that measurement. The reviews' conditions bind the join: a provisional (tip) strip shows Not judged - tip strip and no CP anchor; the drag total says band centre; Cm c/4 (panel, 2D inviscid); the induced-drag sum is called a consistency check and an elliptic-wing fixture checks the distribution; the model notes are corrected.
+
+- request: req-01M4BHCHT5N6X27C7FP1ESAHHV · ruled by: operator-timianmalloo · at: 2026-10-07T15:58:18Z
