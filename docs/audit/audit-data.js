@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T18:31:11Z",
+  "generated": "2026-10-07T18:45:27Z",
   "audit": [
     {
       "actor": null,
@@ -29076,6 +29076,33 @@ window.AUDIT_DATA = {
         "branch": "win/solver-routes",
         "pushed": false
       }
+    },
+    {
+      "id": "al-01M4BTYKDWQ4B7G62JB7V32TH4",
+      "shortname": "join-pr4",
+      "datetime": "2026-10-07T18:45:27Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of origin/win/solver-routes into main",
+      "summary": "Ubuntu 24.04.5 WSL, OpenFOAM v2512, SU2 v8.5.0 installed and hash-verified; SU2 smoke passed; cavity blocked (missing parent dir); re-entry Ruling 133; evidence conditions (LF input hashes, observed tutorial sha256, Windows ring names) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join PC PR #4",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-07T18:44:32Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
@@ -30951,6 +30978,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4BKQA2T9HAC89QRYSW68B8Z",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4BTWWBZJY24QXJW8X0GT43R",
+      "ts": "2026-10-07T18:44:30Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4BTWWBTTZRMQ3Y90V3GDJHW",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M4BTWWES4JYDCYT719S38YQE",
+      "ts": "2026-10-07T18:44:30Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4BTWWBTTZRMQ3Y90V3GDJHW",
+      "session": "fable-owner"
     }
   ]
 };
