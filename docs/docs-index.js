@@ -13567,6 +13567,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
+      "id": "proof-win-setup",
+      "path": "docs/proof/win-setup/receipt.md",
+      "title": "W-0 Windows setup host survey",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "W-0 host survey for the Windows PC. Rows are filled only from command output observed in this session. Disposition is Verified, Failed, or Not recorded.",
+      "tags": [
+        "windows",
+        "w-0",
+        "host-survey"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4a064c6b3d5006f397fd8e6ea769d1455b9e18215529cb76991546ea26ae5ecf"
+    },
+    {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
       "title": "Windows W0 preparation and failed W1 hosted qualification",
@@ -15499,5 +15524,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5b9bcf4cd6122ce5ddfe6af3819536e093727c32e28101e4f03306f6339e40cc"
+  "graphSha256": "b4d041ea142182e50b06bc369116a29ce5b9112ef557513dc93ecfc556675ea3"
 };
