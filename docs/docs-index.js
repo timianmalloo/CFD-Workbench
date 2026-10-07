@@ -5081,7 +5081,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "32f9def50c01b9f1f064a2f81ec585a94541ea2cf626dee55ef0481124b87ed7"
+      "sourceSha256": "1391b5df9d69bf6f204a57267cc96f880d73433b3203081c0c8b4e8333a2d3f9"
     },
     {
       "id": "domain-experts",
@@ -6784,7 +6784,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5061eb28b48418ffd19db7e878fdc8938a2dfbaf5e5f5c60e535315a4d3b3e89"
+      "sourceSha256": "e0b891ed71b857a096baa6d6bb068e92e2b077e3f117e15f7317923ffe2cd735"
     },
     {
       "id": "kb-hw-glossary",
@@ -10790,7 +10790,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "709f29cfd48e3ed0cf861bf7a447116b01f76d793a94b112dc2d9311d6b65483"
+      "sourceSha256": "9dbc1a626f2b4dd6682e319bc6196b10345fffee503b3bf481eabbcf649bc549"
     },
     {
       "id": "proof-cpv-red-first",
@@ -15232,5 +15232,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "4af35ea4296b1a1f2c5f9c4146a176197f7b4940115ee14494bcee4578d63f03"
+  "graphSha256": "4bd1136ce4ca7f97d359ad34fc1dcc16885219bcc174f6bd26cd1d82cffd5c04"
 };

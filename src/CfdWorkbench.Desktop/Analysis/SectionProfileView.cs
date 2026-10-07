@@ -97,10 +97,10 @@ public sealed class SectionProfileView : Control
 
         Point marker = P(profile.CpMinPanel.X, profile.CpMinPanel.Z);
         context.DrawEllipse(null, new Pen(ink, 2), marker, 7, 7);
-        string markerText = "Cp_min " + Num(profile.CpMinPanel.Cp) + " · x/c " + profile.CpMinPanel.X.ToString("0.000", Inv) + " · " + profile.Side;
+        string markerText = Labels.CpMinMarker(profile.CpMinPanel.Cp, profile.CpMinPanel.X, profile.Side);
         double markerWidth = Text(markerText, ink).Width + 8;
         Plate(context, markerText, new Point(Math.Clamp(marker.X + 12, 4, Math.Max(4, w - markerWidth - 4)), marker.Y + (profile.Side == "lower" ? 30 : -18)), ink, soft);
-        Plate(context, "x/c 0 → 1", new Point(ox, oy + 0.1 * s + 20 > h - 40 ? h - 40 : oy + 0.1 * s + 20), mute, soft);
+        Plate(context, Labels.AxisPlate, new Point(ox, oy + 0.1 * s + 20 > h - 40 ? h - 40 : oy + 0.1 * s + 20), mute, soft);
 
         Rect caption = Plate(context, profile.Caption, new Point(8, 22), ink, soft);
         double tierWidth = Text(profile.Tier, ink).Width + 8;

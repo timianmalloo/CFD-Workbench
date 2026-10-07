@@ -55,7 +55,7 @@ public static class SectionDisplay
 
     public static SectionView Build(AnalysisRun run, SectionTierResult tier, byte[]? source, double? selectedEta,
         string? revision = null, UnderreadSeam? underread = null, IReadOnlyList<ResultRow>? strip = null,
-        CancellationToken cancellation = default)
+        CancellationToken cancellation = default, Units units = Units.Metric)
     {
         ArgumentNullException.ThrowIfNull(run);
         ArgumentNullException.ThrowIfNull(tier);
@@ -98,7 +98,7 @@ public static class SectionDisplay
         string none = cav.Reason is { } why ? Labels.UnavailableBecause(why) : "";
         screen.Add(R(Labels.SigmaLabel, cav.Sigma is { } sigma ? N(sigma, "0.00") : none));
         screen.Add(R(Labels.CpMinLabel, cav.CpMin is { } cp && cp < 0 ? N(-cp, "0.00") : N(cav.CpMin is { } c ? -c : double.NaN, "0.00")));
-        screen.Add(R(Labels.VcritLabel, cav.CriticalSpeed is { } vc ? N(vc, "0.##") : none, cav.CriticalSpeed is null ? null : "m/s"));
+        screen.Add(R(Labels.VcritLabel, cav.CriticalSpeed is { } vc ? N(Labels.Speed(vc, units), "0.##") : none, cav.CriticalSpeed is null ? null : Labels.SpeedUnit(units)));
         screen.Add(R("Margin", N(100 * cav.MarginFraction, "0.#"), "%", Labels.MarginLabel));
         if (cav.GoverningDepth is { } depth && tier.Stations.Count > 0)
             screen.Add(R("Governing station", Labels.StationCavitationLine(tier.GoverningEta, depth, tier.Stations.Count)));
@@ -164,12 +164,12 @@ public static class SectionDisplay
             groups.Add(new("Polar", polar));
         }
 
-        var charts = Charts(run, tier, station, section, source, revision, cancellation);
+        var charts = Charts(run, tier, station, section, source, revision, cancellation, units);
         var table = tier.Stations.Where(s => s.PanelUnderread is not null || s.Eta == station.Eta || s.Eta == governing.Eta)
             .OrderBy(s => s.Eta).Select(s => new StationTableRow(s.Eta, "η " + N(s.Eta, "0.###"), N(s.AlphaEffDeg, "0.00"),
                 N(-s.Estimate.Panel.CpMin, "0.###"), CavitationWord(s.Cavitation.State), s.Eta == station.Eta,
                 s.PanelUnderread is null ? Labels.UnderreadNotMeasured : null)).ToArray();
-        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station));
+        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units));
     }
 
     // The leading word of the approved cavitation sentences (COPY-301 to COPY-303): "Clear", "Inside the margin", "Possible".
@@ -233,7 +233,7 @@ public static class SectionDisplay
         return (best, side);
     }
 
-    private static SectionProfile Profile(SectionStationResult station)
+    private static SectionProfile Profile(SectionStationResult station, Units units)
     {
         PanelResult panel = station.Estimate.Panel;
         PanelCp[] outline = panel.Upper.Concat(panel.Lower).ToArray();
@@ -241,19 +241,19 @@ public static class SectionDisplay
         CavitationResult cav = station.Cavitation;
         string? line = cav is { Sigma: { } sigma, CpMin: { } cpMin, CriticalSpeed: { } vcrit } &&
             cav.State is CavitationState.Clear or CavitationState.InsideMargin or CavitationState.PossibleAboveCritical
-            ? "σ " + N(sigma, "0.00") + " · −Cp_min " + N(-cpMin, "0.00") + " · " + (cav.State switch
+            ? Labels.ProfileCavitation(sigma, cpMin, cav.State switch
             {
                 CavitationState.Clear => "clear of",
                 CavitationState.InsideMargin => "inside",
                 _ => "at or past"
-            }) + " the " + N(100 * cav.MarginFraction, "0") + " % margin · V_crit " + N(vcrit, "0.0") + " m/s"
+            }, 100 * cav.MarginFraction, vcrit, units)
             : null;
-        return new(outline, at, side, outline.Min(p => p.Cp), outline.Max(p => p.Cp), "Section · η " + N(station.Eta, "0.###"),
+        return new(outline, at, side, outline.Min(p => p.Cp), outline.Max(p => p.Cp), Labels.SectionCaption(station.Eta),
             Labels.EstimatorChip + " · inviscid; no boundary layer", line);
     }
 
     private static IReadOnlyList<ChartModel> Charts(AnalysisRun run, SectionTierResult tier, SectionStationResult station,
-        NeuralFoilSection? section, byte[]? source, string? revision, CancellationToken cancellation)
+        NeuralFoilSection? section, byte[]? source, string? revision, CancellationToken cancellation, Units units)
     {
         PanelResult panel = station.Estimate.Panel;
         (double cpX, _) = CpMinLocation(panel);
@@ -302,12 +302,12 @@ public static class SectionDisplay
                 " · " + Labels.OverlayMenu, Labels.PolarSurrogate));
         }
 
-        charts.Add(Bucket(run, tier, station, source, cancellation));
+        charts.Add(Bucket(run, tier, station, source, cancellation, units));
         return charts;
     }
 
     private static ChartModel Bucket(AnalysisRun run, SectionTierResult tier, SectionStationResult station, byte[]? source,
-        CancellationToken cancellation)
+        CancellationToken cancellation, Units units)
     {
         string label = Labels.EstimatorLabelNoDepth;
         if (source is null || station.Depth is not { } depth || depth <= 0)
@@ -323,13 +323,13 @@ public static class SectionDisplay
             PanelResult r = prepared.Solve(a, cancellation);
             if (-r.CpMin <= 0 || !(numerator > 0)) continue;
             sigmaRequired.Add(new ChartPoint(r.Cl, -r.CpMin));
-            vCrit.Add(new ChartPoint(r.Cl, Math.Sqrt(2 * numerator / (run.Water.Rho * -r.CpMin))));
+            vCrit.Add(new ChartPoint(r.Cl, Labels.Speed(Math.Sqrt(2 * numerator / (run.Water.Rho * -r.CpMin)), units)));
         }
         double sigma = numerator / (0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed);
         var s1 = new ChartPlot("σ required", "Cl", "σ required (−Cp_min)", false, [new("σ required", sigmaRequired, false, "dot", 0)],
             [new("operating σ", station.Estimate.Cl, sigma)]);
-        var s2 = new ChartPlot("V_crit", "Cl", "V_crit (m/s)", false, [new("V_crit", vCrit, false, "dot", 0)],
-            [new("operating speed", station.Estimate.Cl, run.Op.Speed)]);
+        var s2 = new ChartPlot("V_crit", "Cl", "V_crit (" + Labels.SpeedUnit(units) + ")", false, [new("V_crit", vCrit, false, "dot", 0)],
+            [new("operating speed", station.Estimate.Cl, Labels.Speed(run.Op.Speed, units))]);
         return new("bucket", "Bucket", [s1, s2], Labels.BucketLegend + " · " + tier.Cavitation.ScreenText, label);
     }
 

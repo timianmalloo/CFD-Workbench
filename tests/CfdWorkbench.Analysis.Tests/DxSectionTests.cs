@@ -21,6 +21,20 @@ internal static class DxSectionTests
         Check("SectionProjection_EstimatorChip_Copy214", EstimatorChip);
         Check("SectionProjection_Values_ClCmAlphaL0PerSpan", Values);
         Check("SectionView_CpOnProfile_DrawsAndPinsVik", ProfileView);
+        Check("SectionView_Speeds_FollowUnitsSwitch", () =>
+        {
+            double vcrit = F.Tier.Cavitation.CriticalSpeed!.Value;
+            ResultRow metric = Cell(Build(), "Cavitation", Labels.VcritLabel);
+            Equal("m/s", metric.Unit, "Metric: V_crit reads m/s in the table");
+            SectionView imperial = SectionDisplay.Build(F.Run, F.Tier, F.Source, null, "r1", null, null, default, Units.Imperial);
+            ResultRow row = Cell(imperial, "Cavitation", Labels.VcritLabel);
+            Equal("kn", row.Unit, "Imperial: V_crit reads kn in the table");
+            Equal((vcrit * Labels.KnotsPerMeterSecond).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture), row.Value, "the table value is converted");
+            Equal(true, imperial.Profile!.Cavitation!.EndsWith(" kn"), "Imperial: V_crit reads kn on the profile plate: " + imperial.Profile.Cavitation);
+            Equal(true, Build().Profile!.Cavitation!.EndsWith(" m/s"), "Metric: the plate reads m/s");
+            ChartPlot bucket = imperial.Charts.Single(c => c.Id == "bucket").Plots.Last();
+            Equal("V_crit (kn)", bucket.YTitle, "the bucket's speed axis follows");
+        });
         Check("Cavitation_Screen_ValueStateAndFixedString", ScreenValues);
         Check("Cavitation_PanelUnderread_MeasuredNotConstant", UnderreadMeasured);
         Check("Section_StationsTable_ListsSolvedGoverningAndShownOnly", StationsTable);

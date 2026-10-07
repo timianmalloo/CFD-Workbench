@@ -39,16 +39,17 @@ strip selected, Section document open. The harness check was removed after the c
 
 ## Differences, named
 
-1. **V_crit unit.** The mockup shows knots; the built Section document's cavitation table already shows V_crit in m/s, so the plate
-   follows the table. Operator: say if the plate should follow the units switch (COPY-401 to 403) instead.
+1. **V_crit unit (resolved, Ruling 126).** V_crit on the plate, in the cavitation table and the Bucket chart's speed axis follow the Units
+   switch: kn under Imperial, m/s under Metric. `03-section-selected-light-imperial.png` (light, Imperial) reads "V_crit 41.2 kn" on the plate and
+   "30.62 kn" in the table (the plate is the shown station's, the table the wing-level screen's; two different quantities, as before).
 2. **Legend range versus bar ends.** The brief asks for the legend's min and max to equal the data's. The title does. The bar ends read
    the ramp's symmetric extent, because 0 must sit at the centre; for this foil that is -0.99 to 0.99 while the data is -0.46 to 0.99.
 3. **The comb is gone.** The old profile was a z/c line chart with a Cp comb; `ChartModel` id "profile" no longer exists.
 
-## Mockup strings with no approved COPY row (listed, not invented; DESIGN.md not changed)
+## Mockup strings (approved at Ruling 126 as COPY-406 to COPY-409; routed through `Labels`)
 
-Checked COPY-293 to COPY-405 and the DX rows: COPY-293, COPY-294 and the estimator chip (COPY-214) are approved and reused. These
-mockup strings have no row and are drawn as the mockup draws them; the operator should approve or amend them:
+COPY-293, COPY-294 and the estimator chip (COPY-214) were already approved and are reused. The four plate strings below were listed
+here first and then approved:
 
 - `Section · η <η>` (profile caption plate)
 - `Cp_min <v> · x/c <x> · <side>` (marker plate)

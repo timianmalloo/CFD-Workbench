@@ -92,7 +92,7 @@ public sealed class SectionTabView : UserControl
         string revision = Regex.Match(view.Groups.FirstOrDefault(g => g.Title == "Provenance")?.Rows.FirstOrDefault(r => r.Label == "Inputs")?.Value ?? "", @"revision (r\d+)") is { Success: true } m
             ? m.Groups[1].Value : "r?";
         IReadOnlyList<ResultRow>? strip = eta is { } e ? AnalysisProjection.StripAt(view, e).Rows : null;
-        Shown = SectionDisplay.Build(run, tier, source, eta, revision, (bytes, e, a, re) => SectionTier.UnderreadAt(bytes, e, a, re), strip);
+        Shown = SectionDisplay.Build(run, tier, source, eta, revision, (bytes, e, a, re) => SectionTier.UnderreadAt(bytes, e, a, re), strip, units: controller.AnalysisUnits);
         Tables = Shown.Groups;
         Rebuild();
     }
