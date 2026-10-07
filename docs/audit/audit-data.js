@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T19:58:19Z",
+  "generated": "2026-10-07T22:14:50Z",
   "audit": [
     {
       "actor": null,
@@ -29253,6 +29253,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T19:58:14Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M4C6XZZYP6X76574VFT8PBW5",
+      "shortname": "trk-mhy",
+      "datetime": "2026-10-07T22:14:50Z",
+      "session": "trk-mhy",
+      "prompt": "trk-mhy round-oct06",
+      "summary": "Ruling 134 save wording (Labels.SaveRefusal, COPY-31/31W, warning/error kind); schema geometry.source.outcome no-mesh + w4 case; validate-cases.py in check-docs (self-test, uv or named FAIL, ~0.7 s); guided-setup owned-parent rule; 6 defect classes + flake recurrence; tools/verify-push.sh. Full ring: 0 failing suites, C-3 net wall 50.8-51.0 s over 50 s at load 20-21 (two runs; cap reached, not repaired).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Mac hygiene after the PC reviews: Ruling 134 wording, case schema + gate, Ruling 133 design amendment, defect classes",
+      "done_when": "items 1-5 committed, check-docs green with case validation, run-verify-gates 0, full ring run",
+      "started_at": "2026-10-07T21:55:56Z",
+      "duration_seconds": 1134.0
     }
   ],
   "changes": [
