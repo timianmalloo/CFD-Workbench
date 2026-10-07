@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T16:46:01Z",
+  "generated": "2026-10-07T17:01:12Z",
   "audit": [
     {
       "actor": null,
@@ -28947,6 +28947,42 @@ window.AUDIT_DATA = {
         "short": "ac14a4b32",
         "branch": "win/setup",
         "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4BMZQ4A13KG1AYHXCTQ6K9H",
+      "shortname": "Execute Windows W-0-W-5 checkpoint",
+      "datetime": "2026-10-07T17:01:12Z",
+      "session": "win-w0-w5-20261007",
+      "prompt": "Execute the approved Windows W-0 through W-5 coordination prompt.",
+      "summary": "W-0 delivered in PR #2; W-1 completed locally with accepted proof but GitHub rejected two new-branch pushes with server-side 500, so the repair cap stopped delivery and held W-2 through W-5.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/coordination/windows-w0-w5-execution.md",
+        "docs/proof/win-setup/receipt.md",
+        "docs/proof/win-smoke/receipt.md"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Complete and deliver W-0 through W-5 under Mac repository leadership.",
+      "done_when": "Each W item has observed evidence and a delivered PR, or a precise external blocker with a resume path.",
+      "tier": "T2",
+      "fan_out": 3,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "git": {
+        "sha": "218f3e57abd4d22f9142c49ab75cf0211a89de0e",
+        "short": "218f3e57a",
+        "branch": "win/setup",
+        "pushed": true
       }
     }
   ],
