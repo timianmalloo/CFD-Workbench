@@ -152,11 +152,20 @@ dependencies; Inferred, measured by telemetry).
 | 1 | `wsl.enable` | Turns on Windows' built-in Linux (WSL) | `wsl.exe --status` exits 0 and reports WSL 2; launched as `wsl.exe --install --no-distribution` through the OS's own administrator prompt (spec A5.10: the tool never runs elevated) | **yes** (Windows prompt) | usually | yes, by the user (Windows Features); setup gives the click path, it does not automate it |
 | 2 | `os.restart` | Asks you to restart so Windows can finish | after relaunch: survey shows no reboot pending and `wsl.exe --status` OK | no | **yes** | n/a |
 | 3 | `wsl.base.download` | Downloads Ubuntu 24.04 for WSL (389 MB) from Canonical | sha256 `bb415d82…` and size | no | no | yes: delete |
-| 4 | `wsl.base.import` | Creates a private Linux just for CFD Workbench, named `cfdw-openfoam2512`, in the app's folder — it does not touch any Linux you already have | `wsl.exe -l -v` lists it as version 2; argv `wsl.exe --import cfdw-openfoam2512 <app-data>\wsl\cfdw-openfoam2512 <file> --version 2` (`--import` of a `.wsl` file is **Flagged**; fallback `wsl.exe --install --from-file`) | no | no | yes: `wsl.unregister` (`wsl.exe --unregister cfdw-openfoam2512`) |
+| 4 | `wsl.base.import` | Creates a private Linux just for CFD Workbench, named `cfdw-openfoam2512`, in the app's folder — it does not touch any Linux you already have | **Ruling 133:** before the command the app creates `<app-data>\wsl\` (the parent of the import destination) and verifies it exists and is writable; `wsl.exe --import` does not create a missing parent. Then `wsl.exe -l -v` lists it as version 2; argv `wsl.exe --import cfdw-openfoam2512 <app-data>\wsl\cfdw-openfoam2512 <file> --version 2` (`--import` of a `.wsl` file is **Flagged**; fallback `wsl.exe --install --from-file`) | no | no | yes: `wsl.unregister` (`wsl.exe --unregister cfdw-openfoam2512`) |
 | 5 | `of.repo` | Adds OpenFOAM's official package source to that private Linux | the app writes the source line and the pinned key file (fingerprint `DC93C096…208F`) through `\\wsl.localhost\cfdw-openfoam2512\etc\apt\` (Inferred: an imported distribution's default user is root); `apt-get update` exits 0 | no | no | yes (removed with the distribution) |
 | 6 | `of.install` | Installs OpenFOAM v2512 (68 MB download) — runtime only, no compilers | argv `wsl.exe -d cfdw-openfoam2512 -u root -e /usr/bin/env DEBIAN_FRONTEND=noninteractive /usr/bin/apt-get install -y --no-install-recommends openfoam2512=2512.0-2 openfoam2512-common=2512.0-2`; then the cached `.deb` sha256 = `c59e65ff…` | no | no | yes (removed with the distribution) |
 | 7 | `of.identify` | Starts OpenFOAM once to read its version | banner build id (Linux build id **Not recorded** — recorded on the first run and then pinned) | no | no | n/a |
 | 8 | `smoke.openfoam` | Runs the 4-second test case | §6; run directory inside the distribution (Inferred faster than `/mnt/c`) | no | no | n/a |
+
+**Owned-parent rule (Ruling 133, defect class ROUTE-PARENT-MISSING).** Before every external command, the route creates
+and verifies every destination parent directory it owns (`mkdir -p` or the platform equivalent, then a check that the
+directory exists and is writable), and a failed check stops the step with a cause code before the command runs. This
+covers the import destination (step 4), the files step 5 writes through `\\wsl.localhost\...`, and the run directory in
+§6. The step that creates the run directory is the route itself, never the solver command. Each such step has a
+negative-path test: with its parent absent, the step either creates the parent and succeeds, or refuses cleanly with a
+next step the user can take; it never reaches the external command and fails there. The PC-observed rows of this
+section are untouched by this amendment; the PC updates its Inferred rows in its W-3 re-entry PR.
 
 Runtime-only install: `openfoam2512-default` depends on `-dev`, which pulls `g++` and `gfortran`. The product needs
 neither. Without a compiler in the distribution, `#codeStream` cannot compile even if M1 failed — a free second wall
@@ -224,6 +233,11 @@ recorded", never guessed.
 |---|---|---|---|---|
 | OpenFOAM (both OSes) | bundled `cavity` (blockMesh + icoFoam to t = 0.5), emitted by the app into a fresh run directory (M4, M5) under the app's controlDict (M1) | exit 0; time directories 0.1 … 0.5 with `U` and `p`; master banner `Disallowing` (M2); build id = the route's pin; final-time Courant mean within tolerance | 0.222158 (macOS arm64, v2512) | Verified value; the tolerance is **Inferred** (proposed 1 × 10⁻³ relative until the Windows run measures the cross-OS difference) |
 | SU2 | a bundled small 2D incompressible case (≤ 5 k cells) | exit 0; `history.csv` with the recorded columns; final Cl within tolerance | **Not recorded** | Inferred; the reference is recorded on the first Windows run |
+
+Run directory (Ruling 133): the route, not `blockMesh` or `icoFoam`, creates the fresh run directory and its parents
+(in the Windows distribution, under the app's own `/root/CFDWorkbench/` tree), verifies that each exists and is writable,
+and only then launches the first command. The smoke test carries the negative-path test of the owned-parent rule in §3.2:
+with the run directory's parent absent, the route creates it, or refuses cleanly with a next step.
 
 Budget: 60 s hard timeout → cause `smoke.timeout`. Measured on macOS: ≈ 4 s wall (receipt).
 

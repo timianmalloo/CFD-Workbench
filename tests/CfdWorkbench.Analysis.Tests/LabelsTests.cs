@@ -14,6 +14,10 @@ internal static class LabelsTests
             Equal("σ 7.71 · −Cp_min 0.47 · clear of the 15 % margin · V_crit 20.0 m/s", Labels.ProfileCavitation(7.71, -0.47, "clear of", 15, 20.0, Units.Metric));
             Equal("σ 7.71 · −Cp_min 0.47 · inside the 15 % margin · V_crit 38.9 kn", Labels.ProfileCavitation(7.71, -0.47, "inside", 15, 20.0, Units.Imperial));
         });
+        Check("Labels_SaveRefusal_Ruling134Wording", () => {
+            Equal("Save failed: DOC-IO — the previous file is intact and your changes are kept. Retry or Save As.", Labels.SaveRefusal("DOC-IO"));
+            Equal("Saving isn't available on this system yet — your changes are kept in this session.", Labels.SaveRefusal("DOC-UNSUPPORTED-PERSISTENCE"));
+        });
         Check("Depth_Unset_NoDeepWaterLabel", () => {
             var run = ProjectionTests.Data().Run; run = ProjectionTests.Rehash(run with { Op = run.Op with { HRef = null } });
             var v = ProjectionTests.View(run); Equal(Labels.FixedVlmNoDepth, ProjectionTests.Cell(v, "Labels", "Basis").Value);

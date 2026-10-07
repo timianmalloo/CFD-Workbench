@@ -24,11 +24,10 @@ geometry:
   source:
     kind: built-planform
     path: wing.msh
-    sha256: "none: Gmsh 3-D meshing failed (PLC error), no msh written"
+    outcome: not-produced
+    reason: Gmsh 3-D meshing failed (PLC error), no msh written
     generator: cases/tools/mesh-gate-tipbl.sh CASE 6 (make-tip-bl-gmsh.py, Gmsh 4.15.2 Homebrew, /opt/homebrew/Cellar/gmsh/4.15.2)
-    deviation: >-
-      A 25 mm half-span coupon (not the AR 8 wing); the msh sha256 above was filled in after the run (the case was
-      written before any mesh existed).
+    deviation: A 25 mm half-span coupon (not the AR 8 wing).
 conditions:
   reynolds: 600000
   mach: 0.0

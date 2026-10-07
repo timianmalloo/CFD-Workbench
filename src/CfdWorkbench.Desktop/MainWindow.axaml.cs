@@ -1,3 +1,4 @@
+using CfdWorkbench.Analysis;
 using Avalonia;
 using Avalonia.Animation;
 using Avalonia.Automation;
@@ -180,18 +181,16 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception error) when (error is ContractError or IOException or UnauthorizedAccessException)
         {
-            shellHost.Report(new StatusReport(SaveFailureText(error), ReportKind.Error));
+            shellHost.Report(new StatusReport(SaveFailureText(error), (error as ContractError)?.Code == "DOC-UNSUPPORTED-PERSISTENCE" ? ReportKind.Warning : ReportKind.Error));
             throw;
         }
     }
 
     /// <summary>
-    /// The strip sentence for a save that threw, in the shape the controller already writes for a refused save result
-    /// (<c>{code}: Save was not acknowledged. Resolve the refusal before retry.</c>). No approved copy row names a foil-save
-    /// failure: COPY-200..203 are My sections only and COPY-31 is unapproved, so no new sentence is invented here.
+    /// The strip sentence for a save that threw: the Ruling 134 wording (COPY-31, and the Windows sentence), the one place
+    /// a thrown save is worded. The controller words a returned refusal through the same <see cref="Labels.SaveRefusal"/>.
     /// </summary>
-    public static string SaveFailureText(Exception error) =>
-        $"{(error as ContractError)?.Code ?? "DOC-IO"}: Save was not acknowledged. Resolve the refusal before retry.";
+    public static string SaveFailureText(Exception error) => Labels.SaveRefusal((error as ContractError)?.Code ?? "DOC-IO");
 
     private async Task<bool> MayReplaceAsync()
     {
