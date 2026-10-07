@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T16:34:35Z",
+  "generated": "2026-10-07T16:46:01Z",
   "audit": [
     {
       "actor": null,
@@ -28912,6 +28912,42 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T16:34:30Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M4BM3XCDT0TYX6YQ861PA7YN",
+      "shortname": "Complete Windows W-0 setup",
+      "datetime": "2026-10-07T16:46:01Z",
+      "session": "win-setup-20261007",
+      "prompt": "Complete W-0 Windows setup and host survey evidence.",
+      "summary": "Verified Windows host, exact .NET SDK, Git/Python/GitHub, WSL 2.7.14, GPU and coordination drivers; accepted receipt and green docs gate.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "gpt-6.1-sol worker + local coordinator",
+      "artifacts": [
+        "docs/proof/win-setup/receipt.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete W-0 with observed Windows setup evidence.",
+      "done_when": "The full host survey and tool readiness are recorded, the docs gate passes, and the branch is ready for PR delivery.",
+      "tier": "T2",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-07T16:39:48Z",
+      "duration_seconds": 373.0,
+      "git": {
+        "sha": "ac14a4b32017f5518b0287188c537e3cde4a0b37",
+        "short": "ac14a4b32",
+        "branch": "win/setup",
+        "pushed": null
+      }
     }
   ],
   "changes": [
