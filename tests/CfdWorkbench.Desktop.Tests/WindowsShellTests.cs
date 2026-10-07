@@ -158,25 +158,25 @@ public static class WindowsShellTests
                 var thrown = Save(window, "foil.txt");
                 Settle(window);
                 string shown = StatusStripTests.Text(host).Text ?? "";
-                if (thrown?.Code != "DOC-TYPE" || !shown.StartsWith("DOC-TYPE:", StringComparison.Ordinal) || StatusStripTests.Kind(host) != "error")
+                if (thrown?.Code != "DOC-TYPE" || shown != "Save failed: DOC-TYPE — the previous file is intact and your changes are kept. Retry or Save As." || StatusStripTests.Kind(host) != "error")
                     throw new InvalidOperationException($"A thrown save showed '{shown}' (kind {StatusStripTests.Kind(host)}); threw {thrown?.Code}");
                 // A relative path is what Windows hands the POSIX-only store (a drive path does not start with '/'; Supported()
                 // also needs macOS): the store returns DOC-UNSUPPORTED-PERSISTENCE and the controller's own status reaches the strip.
                 var returned = Save(window, "foil.cfdw.json");
                 Settle(window);
                 shown = StatusStripTests.Text(host).Text ?? "";
-                if (returned is not null || !shown.StartsWith("DOC-UNSUPPORTED-PERSISTENCE:", StringComparison.Ordinal))
-                    throw new InvalidOperationException($"An unsupported-persistence save showed '{shown}'; threw {returned?.Code}");
+                if (returned is not null || shown != "Saving isn't available on this system yet — your changes are kept in this session." || StatusStripTests.Kind(host) == "info")
+                    throw new InvalidOperationException($"An unsupported-persistence save showed '{shown}' (kind {StatusStripTests.Kind(host)}); threw {returned?.Code}");
             }
             finally { window.Close(); }
         });
 
-        DesktopChecks.Check("WindowsShell_SaveFailureText_NamesTheCodeAndTheRecovery", () =>
+        DesktopChecks.Check("WindowsShell_SaveFailureText_IsRuling134Wording", () =>
         {
             string unsupported = MainWindow.SaveFailureText(new ContractError("DOC-UNSUPPORTED-PERSISTENCE"));
             string io = MainWindow.SaveFailureText(new IOException("disk"));
-            if (!unsupported.StartsWith("DOC-UNSUPPORTED-PERSISTENCE:", StringComparison.Ordinal) || !io.StartsWith("DOC-IO:", StringComparison.Ordinal) ||
-                !unsupported.Contains("Resolve the refusal before retry", StringComparison.Ordinal))
+            if (unsupported != "Saving isn't available on this system yet — your changes are kept in this session." ||
+                io != "Save failed: DOC-IO — the previous file is intact and your changes are kept. Retry or Save As.")
                 throw new InvalidOperationException($"'{unsupported}' / '{io}'");
         });
 

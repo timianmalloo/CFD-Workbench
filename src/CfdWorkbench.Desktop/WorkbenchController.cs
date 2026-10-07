@@ -2943,7 +2943,9 @@ public sealed class WorkbenchController : IDisposable
                     uncertainDraftGeneration = capturedView.Draft?.Generation ?? 0;
                     uncertainAcceptedId = capturedView.AcceptedId;
                 }
-                Status = $"{result.Code}: Save was not acknowledged. {(uncertainImage is null ? "Resolve the refusal before retry." : "The attempted path and image are retained for a durable retry.")}";
+                SetStatus(uncertainImage is null ? Labels.SaveRefusal(result.Code)
+                    : $"{result.Code}: Save was not acknowledged. The attempted path and image are retained for a durable retry.",
+                    result.Code == "DOC-UNSUPPORTED-PERSISTENCE" ? ReportKind.Warning : ReportKind.Error);
             }
             Notify();
             return result;

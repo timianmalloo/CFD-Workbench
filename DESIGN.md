@@ -376,7 +376,8 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-28 | Example · race light — Illustrative, not computed for this design |
 | COPY-29 | Example fixture missing or corrupt: <file> — nothing was overwritten · New · Open — superseded by COPY-143 in the M1 start card (1.6) |
 | COPY-30 | This file was saved by a newer version (<n>) — not opened; your active document is unchanged · <path> |
-| COPY-31 | Save failed: <cause> — the previous file is intact and your changes are kept · Retry · Save as |
+| COPY-31 | Save failed: <cause> — the previous file is intact and your changes are kept. Retry or Save As. — approved — Ruling 134 (the status-strip sentence for a foil save that failed; the text differs from the unapproved draft "· Retry · Save as", so this row replaces it; <cause> is the error code until a per-cause wording is ruled; a save with an unconfirmed outcome keeps its own retained-image sentence) |
+| COPY-31W | Saving isn't available on this system yet — your changes are kept in this session. — approved — Ruling 134 (the strip sentence, warning kind, when the store returns or throws DOC-UNSUPPORTED-PERSISTENCE, i.e. Windows before the Windows store ships) |
 | COPY-32 | A recovery revision from <time> exists beside the saved one · Compare · Keep saved · Use recovery |
 | COPY-33 | Influence control (weight w) |
 | COPY-34 | Evaluated station value |

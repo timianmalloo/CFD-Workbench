@@ -69,7 +69,8 @@ def run_lesson_controls():
     """Controls from docs/lessons/defect-classes.md, fast ring (each self-test is red on its planted shape):
     DERIVED-UNBOUND, BRIEF-FIXTURE-AGAINST-SPEC, the OWNERSHIP-MISSES-DATA-SOURCE aid's own test, and the
     two-machine message register (Ruling 106), the AGENT-HEREDOC hook (Ruling 104), and round-oct06:
-    COPY-ID-COLLISION, WALLCLOCK-ASSERT-UNGATED and the PARALLEL-BUILD-LOAD dispatch gate."""
+    COPY-ID-COLLISION, WALLCLOCK-ASSERT-UNGATED and the PARALLEL-BUILD-LOAD dispatch gate; and CASE-SCHEMA-UNGATED
+    (cases/tools/validate-cases.py, which needs uv or fails by name when it is missing)."""
     for script, arguments in (
         ("check-artifact-bindings.py", ("--self-test",)),
         ("check-artifact-bindings.py", ()),
@@ -83,6 +84,8 @@ def run_lesson_controls():
         ("check-wallclock-asserts.py", ("--self-test",)),
         ("check-wallclock-asserts.py", ()),
         ("dispatch-gate.py", ("--self-test",)),
+        ("../cases/tools/validate-cases.py", ("--self-test",)),
+        ("../cases/tools/validate-cases.py", ()),
     ):
         result = subprocess.run(
             [sys.executable, str(ROOT / "tools" / script), *arguments],

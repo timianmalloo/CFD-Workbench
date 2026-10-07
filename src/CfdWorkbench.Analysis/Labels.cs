@@ -313,5 +313,9 @@ public static class Labels
     public const string XcpNearZeroLift = "Undefined · near zero lift: |cl| is below 0.05"; // COPY-SF13
     public const string XcpOffSection = "Undefined · the centre of pressure is off the section"; // COPY-SF14
     public const string CouplePlaceNote = "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn."; // COPY-SF15
+    public static string SaveFailed(string cause) => $"Save failed: {cause} — the previous file is intact and your changes are kept. Retry or Save As."; // COPY-31 (Ruling 134)
+    public const string SaveUnavailable = "Saving isn't available on this system yet — your changes are kept in this session."; // COPY-31W (Ruling 134)
+    /// <summary>The strip sentence for a refused or failed foil save; the code is the cause until a per-cause wording is ruled.</summary>
+    public static string SaveRefusal(string code) => code == "DOC-UNSUPPORTED-PERSISTENCE" ? SaveUnavailable : SaveFailed(code);
     public static readonly string[] VectorKey = ["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16
 }
