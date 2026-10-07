@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T16:50:59Z",
+  "generated": "2026-10-07T16:59:40Z",
   "audit": [
     {
       "actor": null,
@@ -28914,24 +28914,24 @@ window.AUDIT_DATA = {
       "duration_seconds": 5.0
     },
     {
-      "id": "al-01M4BM3XCDT0TYX6YQ861PA7YN",
-      "shortname": "Complete Windows W-0 setup",
-      "datetime": "2026-10-07T16:46:01Z",
-      "session": "win-setup-20261007",
-      "prompt": "Complete W-0 Windows setup and host survey evidence.",
-      "summary": "Verified Windows host, exact .NET SDK, Git/Python/GitHub, WSL 2.7.14, GPU and coordination drivers; accepted receipt and green docs gate.",
+      "id": "al-01M4BMWXX2HYR4HPS6QZ33PEJP",
+      "shortname": "Complete Windows W-1 smoke",
+      "datetime": "2026-10-07T16:59:40Z",
+      "session": "win-smoke-20261007",
+      "prompt": "Execute W-1 Windows smoke and record failures without repair.",
+      "summary": "Built with .NET 10.0.203; recorded the Git Bash python3 pre-harness failure and native Windows drag, Undo, Analysis, Evaluate and Save observations with source-bound screenshots.",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
-      "actor": "gpt-6.1-sol worker + local coordinator",
+      "actor": "gpt-6.1-sol",
       "artifacts": [
-        "docs/proof/win-setup/receipt.md"
+        "docs/proof/win-smoke/receipt.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Complete W-0 with observed Windows setup evidence.",
-      "done_when": "The full host survey and tool readiness are recorded, the docs gate passes, and the branch is ready for PR delivery.",
+      "goal": "Execute the first Windows application smoke and preserve every observed result.",
+      "done_when": "Build, ring, docs and native interaction rows have evidence and no defect is repaired in W-1.",
       "tier": "T2",
       "fan_out": 0,
       "signals": {
@@ -28940,41 +28940,14 @@ window.AUDIT_DATA = {
         "acceptance_met": true,
         "regression": false
       },
-      "started_at": "2026-10-07T16:39:48Z",
-      "duration_seconds": 373.0,
+      "started_at": "2026-10-07T16:47:54Z",
+      "duration_seconds": 706.0,
       "git": {
-        "sha": "ac14a4b32017f5518b0287188c537e3cde4a0b37",
-        "short": "ac14a4b32",
-        "branch": "win/setup",
+        "sha": "0103694c9872dd8e249dabda5b477bb3bab32146",
+        "short": "0103694c9",
+        "branch": "win/smoke",
         "pushed": null
       }
-    },
-    {
-      "id": "al-01M4BMD0W805G0NGX9EXPXT4ZM",
-      "shortname": "join-pr2",
-      "datetime": "2026-10-07T16:50:59Z",
-      "session": "14e5e8d5",
-      "prompt": "the join of origin/win/setup into main",
-      "summary": "W-0 receipt (Windows 11 Pro 26300, i9-12900H, 34 GB, SDK 10.0.203, drivers effective, WSL ready without distro); conditions in docs/reviews/pr-2.md recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "join PC PR #2",
-      "done_when": "join gates green",
-      "tier": "T1",
-      "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-07T16:50:55Z",
-      "duration_seconds": 4.0
     }
   ],
   "changes": [

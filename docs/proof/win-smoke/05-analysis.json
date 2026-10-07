@@ -1,0 +1,730 @@
+{
+  "pid": 996,
+  "startUtc": "2026-10-07T16:49:24.7538751Z",
+  "capturedUtc": "2026-10-07T16:54:03.5918925Z",
+  "title": "CFD Workbench — Offline Foil",
+  "dpi": 144,
+  "action": "click",
+  "x": 1028,
+  "y": 1244,
+  "endX": 0,
+  "endY": 0,
+  "keys": "",
+  "screenshot": "05-analysis.png",
+  "nodes": [
+    {
+      "name": "Dock host",
+      "type": "ControlType.Pane",
+      "id": "Root",
+      "enabled": true,
+      "rect": "87,121,1920,939"
+    },
+    {
+      "name": "Root dock",
+      "type": "ControlType.Pane",
+      "id": "Root",
+      "enabled": true,
+      "rect": "87,121,1920,939"
+    },
+    {
+      "name": "",
+      "type": "ControlType.List",
+      "id": "PART_ItemsControl",
+      "enabled": true,
+      "rect": "87,121,1920,939"
+    },
+    {
+      "name": "Properties",
+      "type": "ControlType.Pane",
+      "id": "LeftDock",
+      "enabled": true,
+      "rect": "87,171,390,889"
+    },
+    {
+      "name": "Left side bar",
+      "type": "ControlType.Tab",
+      "id": "LeftDock",
+      "enabled": true,
+      "rect": "87,171,390,41"
+    },
+    {
+      "name": "Properties",
+      "type": "ControlType.TabItem",
+      "id": "properties",
+      "enabled": true,
+      "rect": "87,171,109,41"
+    },
+    {
+      "name": "Properties",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "98,177,87,30"
+    },
+    {
+      "name": "Browser",
+      "type": "ControlType.TabItem",
+      "id": "browser",
+      "enabled": true,
+      "rect": "196,171,89,41"
+    },
+    {
+      "name": "Browser",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "205,176,71,33"
+    },
+    {
+      "name": "Layers",
+      "type": "ControlType.TabItem",
+      "id": "layers",
+      "enabled": true,
+      "rect": "285,171,75,41"
+    },
+    {
+      "name": "Layers",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "294,176,57,33"
+    },
+    {
+      "name": "Properties",
+      "type": "ControlType.Custom",
+      "id": "",
+      "enabled": true,
+      "rect": "89,212,385,848"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Pane",
+      "id": "SelectionScroll",
+      "enabled": true,
+      "rect": "89,212,385,848"
+    },
+    {
+      "name": "Untitled",
+      "type": "ControlType.Text",
+      "id": "IdentityTitle",
+      "enabled": true,
+      "rect": "128,220,335,27"
+    },
+    {
+      "name": "Foil",
+      "type": "ControlType.Text",
+      "id": "IdentityCrumb",
+      "enabled": true,
+      "rect": "128,247,335,23"
+    },
+    {
+      "name": "Wing result",
+      "type": "ControlType.Group",
+      "id": "Group_ana_wing_result",
+      "enabled": true,
+      "rect": "89,282,385,99"
+    },
+    {
+      "name": "Wing result",
+      "type": "ControlType.Button",
+      "id": "ExpanderHeader",
+      "enabled": true,
+      "rect": "89,282,385,36"
+    },
+    {
+      "name": "Result, No analysis yet. Set the conditions, then Evaluate.",
+      "type": "ControlType.Text",
+      "id": "Row_a_Wing result_Result",
+      "enabled": true,
+      "rect": "89,317,385,64"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Pane",
+      "id": "WingScroll",
+      "enabled": true,
+      "rect": "89,385,385,363"
+    },
+    {
+      "name": "Wing",
+      "type": "ControlType.Text",
+      "id": "WingHeading",
+      "enabled": true,
+      "rect": "101,393,362,21"
+    },
+    {
+      "name": "Span, 1000.00 millimetres, locked",
+      "type": "ControlType.Text",
+      "id": "Row_w_span",
+      "enabled": true,
+      "rect": "89,421,385,30"
+    },
+    {
+      "name": "Root chord, 127.04 millimetres, locked",
+      "type": "ControlType.Text",
+      "id": "Row_w_root",
+      "enabled": true,
+      "rect": "89,453,385,30"
+    },
+    {
+      "name": "Tip chord, 12.70 millimetres, locked",
+      "type": "ControlType.Text",
+      "id": "Row_w_tip",
+      "enabled": true,
+      "rect": "89,485,385,30"
+    },
+    {
+      "name": "Avalonia.Controls.StackPanel",
+      "type": "ControlType.Button",
+      "id": "HowMeasuredButton",
+      "enabled": true,
+      "rect": "89,526,385,36"
+    },
+    {
+      "name": "Estimates · definitions",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "136,534,159,21"
+    },
+    {
+      "name": "Mean chord, approximately 100.5 millimetres",
+      "type": "ControlType.Text",
+      "id": "Row_e_mean",
+      "enabled": true,
+      "rect": "89,561,385,30"
+    },
+    {
+      "name": "MAC, approximately 110.8 millimetres",
+      "type": "ControlType.Text",
+      "id": "Row_e_mac",
+      "enabled": true,
+      "rect": "89,594,385,30"
+    },
+    {
+      "name": "Max t over c, approximately 12.0 percent",
+      "type": "ControlType.Text",
+      "id": "Row_e_maxtc",
+      "enabled": true,
+      "rect": "89,625,385,31"
+    },
+    {
+      "name": "AR, aspect ratio, approximately 9.95 b squared over S",
+      "type": "ControlType.Text",
+      "id": "Row_e_ar",
+      "enabled": true,
+      "rect": "89,658,385,30"
+    },
+    {
+      "name": "Area, approximately 1005 square centimetres",
+      "type": "ControlType.Text",
+      "id": "Row_e_area",
+      "enabled": true,
+      "rect": "89,689,385,30"
+    },
+    {
+      "name": "Set these in the workspace.",
+      "type": "ControlType.Text",
+      "id": "Note_wing_0",
+      "enabled": true,
+      "rect": "89,720,385,26"
+    },
+    {
+      "name": "Pane menu",
+      "type": "ControlType.Button",
+      "id": "PART_MenuButton",
+      "enabled": true,
+      "rect": "406,123,27,48"
+    },
+    {
+      "name": "Close left side bar",
+      "type": "ControlType.Button",
+      "id": "PART_CloseButton",
+      "enabled": true,
+      "rect": "436,123,27,48"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Thumb",
+      "id": "",
+      "enabled": true,
+      "rect": "477,121,6,939"
+    },
+    {
+      "name": "Plan",
+      "type": "ControlType.Pane",
+      "id": "Docs",
+      "enabled": true,
+      "rect": "483,121,1524,939"
+    },
+    {
+      "name": "Model area",
+      "type": "ControlType.Tab",
+      "id": "Docs",
+      "enabled": true,
+      "rect": "483,121,1524,69"
+    },
+    {
+      "name": "Toggle left sidebar",
+      "type": "ControlType.Button",
+      "id": "",
+      "enabled": true,
+      "rect": "1947,121,60,69"
+    },
+    {
+      "name": "Plan",
+      "type": "ControlType.TabItem",
+      "id": "model",
+      "enabled": true,
+      "rect": "483,121,96,69"
+    },
+    {
+      "name": "Plan",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "492,140,41,30"
+    },
+    {
+      "name": "Section",
+      "type": "ControlType.TabItem",
+      "id": "section",
+      "enabled": true,
+      "rect": "579,121,96,69"
+    },
+    {
+      "name": "Section",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "588,140,65,30"
+    },
+    {
+      "name": "Foil source",
+      "type": "ControlType.TabItem",
+      "id": "foil-source",
+      "enabled": true,
+      "rect": "675,121,119,69"
+    },
+    {
+      "name": "Foil source",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "684,140,92,30"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Custom",
+      "id": "",
+      "enabled": true,
+      "rect": "485,195,1520,863"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Custom",
+      "id": "AnalysisConditionsBand",
+      "enabled": true,
+      "rect": "485,195,1520,64"
+    },
+    {
+      "name": "Speed",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "491,212,58,29"
+    },
+    {
+      "name": "Speed in metres per second",
+      "type": "ControlType.Edit",
+      "id": "SpeedInput",
+      "enabled": true,
+      "rect": "553,201,96,50"
+    },
+    {
+      "name": "m/s",
+      "type": "ControlType.Text",
+      "id": "SpeedUnit",
+      "enabled": true,
+      "rect": "652,212,36,29"
+    },
+    {
+      "name": "Water record",
+      "type": "ControlType.ComboBox",
+      "id": "WaterInput",
+      "enabled": true,
+      "rect": "691,201,167,48"
+    },
+    {
+      "name": "Salt · 15 °C",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "709,210,101,29"
+    },
+    {
+      "name": "Depth h_ref",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "861,212,110,29"
+    },
+    {
+      "name": "Reference depth in metres, not set when empty",
+      "type": "ControlType.Edit",
+      "id": "DepthInput",
+      "enabled": true,
+      "rect": "973,201,96,50"
+    },
+    {
+      "name": "m",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "1072,212,21,29"
+    },
+    {
+      "name": "α",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "1096,212,14,29"
+    },
+    {
+      "name": "Incidence alpha in degrees",
+      "type": "ControlType.Edit",
+      "id": "AlphaInput",
+      "enabled": true,
+      "rect": "1113,201,96,50"
+    },
+    {
+      "name": "°",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "1212,212,9,29"
+    },
+    {
+      "name": "Evaluate",
+      "type": "ControlType.Button",
+      "id": "EvaluateButton",
+      "enabled": true,
+      "rect": "1224,208,91,36"
+    },
+    {
+      "name": "Find operating alpha",
+      "type": "ControlType.Button",
+      "id": "FindAlphaButton",
+      "enabled": true,
+      "rect": "1318,208,87,36"
+    },
+    {
+      "name": "q 13553.532 Pa",
+      "type": "ControlType.Text",
+      "id": "DerivedQ",
+      "enabled": true,
+      "rect": "1437,212,141,29"
+    },
+    {
+      "name": "σ Unavailable — depth not set",
+      "type": "ControlType.Text",
+      "id": "DerivedSigma",
+      "enabled": true,
+      "rect": "1581,212,282,29"
+    },
+    {
+      "name": "More derived conditions",
+      "type": "ControlType.Button",
+      "id": "MoreButton",
+      "enabled": true,
+      "rect": "1866,208,102,36"
+    },
+    {
+      "name": "Plan view label. Double-click or Return shows this view alone.",
+      "type": "ControlType.Button",
+      "id": "PlanLabel",
+      "enabled": true,
+      "rect": "496,270,57,36"
+    },
+    {
+      "name": "Plan view",
+      "type": "ControlType.Group",
+      "id": "PlanCanvas",
+      "enabled": true,
+      "rect": "487,261,1005,795"
+    },
+    {
+      "name": "Leading edge, point 1 of 4, rootend, from root 0.00 mm, aft 0.00 mm",
+      "type": "ControlType.Button",
+      "id": "PlanCanvas",
+      "enabled": true,
+      "rect": "968,355,42,42"
+    },
+    {
+      "name": "Leading edge, point 2 of 4, out handle, angle 0.00°, length 166.67 mm, from root 166.67 mm, aft 0.00 mm",
+      "type": "ControlType.Button",
+      "id": "PlanCanvas",
+      "enabled": true,
+      "rect": "1108,355,42,42"
+    },
+    {
+      "name": "Leading edge, point 3 of 4, in handle, angle -169.75°, length 169.37 mm, from root 333.33 mm, aft -1.54 mm",
+      "type": "ControlType.Button",
+      "id": "PlanCanvas",
+      "enabled": true,
+      "rect": "1247,354,42,42"
+    },
+    {
+      "name": "Leading edge, point 4 of 4, tipend, from root 500.00 mm, aft 28.58 mm",
+      "type": "ControlType.Button",
+      "id": "PlanCanvas",
+      "enabled": true,
+      "rect": "1387,379,42,42"
+    },
+    {
+      "name": "Trailing edge, point 1 of 4, rootend, from root 0.00 mm, aft 127.04 mm",
+      "type": "ControlType.Button",
+      "id": "PlanCanvas",
+      "enabled": true,
+      "rect": "968,461,42,42"
+    },
+    {
+      "name": "Trailing edge, point 2 of 4, out handle, angle 0.00°, length 166.67 mm, from root 166.67 mm, aft 127.04 mm",
+      "type": "ControlType.Button",
+      "id": "PlanCanvas",
+      "enabled": true,
+      "rect": "1108,461,42,42"
+    },
+    {
+      "name": "Trailing edge, point 3 of 4, in handle, angle 151.53°, length 189.60 mm, from root 333.33 mm, aft 131.67 mm",
+      "type": "ControlType.Button",
+      "id": "PlanCanvas",
+      "enabled": true,
+      "rect": "1247,465,42,42"
+    },
+    {
+      "name": "Trailing edge, point 4 of 4, tipend, from root 500.00 mm, aft 41.29 mm",
+      "type": "ControlType.Button",
+      "id": "PlanCanvas",
+      "enabled": true,
+      "rect": "1387,389,42,42"
+    },
+    {
+      "name": "3D · Iso view label. Double-click or Return shows this view alone.",
+      "type": "ControlType.Button",
+      "id": "ThreeDLabel",
+      "enabled": true,
+      "rect": "1511,270,81,36"
+    },
+    {
+      "name": "3D view, camera Iso",
+      "type": "ControlType.Group",
+      "id": "ThreeDView",
+      "enabled": true,
+      "rect": "1502,261,501,795"
+    },
+    {
+      "name": "Front view",
+      "type": "ControlType.Button",
+      "id": "",
+      "enabled": true,
+      "rect": "1941,309,36,49"
+    },
+    {
+      "name": "Side view",
+      "type": "ControlType.Button",
+      "id": "",
+      "enabled": true,
+      "rect": "1905,309,36,49"
+    },
+    {
+      "name": "Home (Iso)",
+      "type": "ControlType.Button",
+      "id": "",
+      "enabled": true,
+      "rect": "1847,300,36,49"
+    },
+    {
+      "name": "Orbit left 90°",
+      "type": "ControlType.Button",
+      "id": "",
+      "enabled": true,
+      "rect": "1838,374,36,49"
+    },
+    {
+      "name": "Orbit up 90°",
+      "type": "ControlType.Button",
+      "id": "",
+      "enabled": true,
+      "rect": "1877,374,36,49"
+    },
+    {
+      "name": "Orbit down 90°",
+      "type": "ControlType.Button",
+      "id": "",
+      "enabled": true,
+      "rect": "1916,374,36,49"
+    },
+    {
+      "name": "Orbit right 90°",
+      "type": "ControlType.Button",
+      "id": "",
+      "enabled": true,
+      "rect": "1955,374,36,49"
+    },
+    {
+      "name": "Display · x aft, y starboard, z up · twist about the leading edge",
+      "type": "ControlType.Text",
+      "id": "ThreeDCaption",
+      "enabled": true,
+      "rect": "1619,966,372,81"
+    },
+    {
+      "name": "CAD area",
+      "type": "ControlType.Button",
+      "id": "NavCadButton",
+      "enabled": true,
+      "rect": "907,1001,66,36"
+    },
+    {
+      "name": "Analysis area",
+      "type": "ControlType.Button",
+      "id": "NavAnalysisButton",
+      "enabled": true,
+      "rect": "976,1001,102,36"
+    },
+    {
+      "name": "Views: Plan + 3D",
+      "type": "ControlType.Button",
+      "id": "NavViewsButton",
+      "enabled": true,
+      "rect": "1092,1001,162,36"
+    },
+    {
+      "name": "Display: Shaded",
+      "type": "ControlType.Button",
+      "id": "NavDisplayButton",
+      "enabled": true,
+      "rect": "1257,1001,155,36"
+    },
+    {
+      "name": "Fit",
+      "type": "ControlType.Button",
+      "id": "NavFitButton",
+      "enabled": true,
+      "rect": "1426,1001,42,36"
+    },
+    {
+      "name": "Fit Selection",
+      "type": "ControlType.Button",
+      "id": "NavFitSelectionButton",
+      "enabled": true,
+      "rect": "1471,1001,113,36"
+    },
+    {
+      "name": "Pinned dock host",
+      "type": "ControlType.Pane",
+      "id": "Root",
+      "enabled": true,
+      "rect": "87,121,1920,939"
+    },
+    {
+      "name": "Analysis results",
+      "type": "ControlType.Custom",
+      "id": "AnalysisPanel",
+      "enabled": true,
+      "rect": "87,1060,1920,225"
+    },
+    {
+      "name": "Analysis result tabs",
+      "type": "ControlType.Tab",
+      "id": "PanelTabs",
+      "enabled": true,
+      "rect": "87,1074,1920,211"
+    },
+    {
+      "name": "Spanwise loading",
+      "type": "ControlType.TabItem",
+      "id": "LoadingTab",
+      "enabled": true,
+      "rect": "87,1074,147,36"
+    },
+    {
+      "name": "Section",
+      "type": "ControlType.TabItem",
+      "id": "SectionTab",
+      "enabled": true,
+      "rect": "234,1074,77,36"
+    },
+    {
+      "name": "Loads",
+      "type": "ControlType.TabItem",
+      "id": "LoadsTab",
+      "enabled": true,
+      "rect": "311,1074,66,36"
+    },
+    {
+      "name": "Provenance",
+      "type": "ControlType.TabItem",
+      "id": "ProvenanceTab",
+      "enabled": true,
+      "rect": "377,1074,107,36"
+    },
+    {
+      "name": "No analysis yet. Set the conditions, then Evaluate.",
+      "type": "ControlType.Text",
+      "id": "LoadingEmpty",
+      "enabled": true,
+      "rect": "117,1125,1860,148"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Custom",
+      "id": "StatusStrip",
+      "enabled": true,
+      "rect": "87,1285,1920,36"
+    },
+    {
+      "name": "Moved leading edge point 2 along the span by 59.74 mm. MAC 110.81 mm.",
+      "type": "ControlType.Text",
+      "id": "StatusText",
+      "enabled": true,
+      "rect": "134,1293,552,21"
+    },
+    {
+      "name": "Analysis: no result",
+      "type": "ControlType.Text",
+      "id": "AnalysisItemText",
+      "enabled": true,
+      "rect": "1418,1293,131,21"
+    },
+    {
+      "name": "LE · pt 2 of 4",
+      "type": "ControlType.Text",
+      "id": "SelectionItemText",
+      "enabled": true,
+      "rect": "1575,1293,92,21"
+    },
+    {
+      "name": "Metric",
+      "type": "ControlType.Button",
+      "id": "UnitsButton",
+      "enabled": true,
+      "rect": "1702,1285,75,36"
+    },
+    {
+      "name": "≈ estimates",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "1803,1293,86,21"
+    },
+    {
+      "name": "Text 100 %",
+      "type": "ControlType.Text",
+      "id": "TextSizeItemText",
+      "enabled": true,
+      "rect": "1914,1293,80,21"
+    }
+  ]
+}

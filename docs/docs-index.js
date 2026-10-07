@@ -13627,6 +13627,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "4a064c6b3d5006f397fd8e6ea769d1455b9e18215529cb76991546ea26ae5ecf"
     },
     {
+      "id": "proof-win-smoke",
+      "path": "docs/proof/win-smoke/receipt.md",
+      "title": "W-1 Windows smoke receipt — SDK 10.0.203",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@win-smoke",
+      "phase": "",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "Solution build and docs check passed on Windows. The one Git Bash test-ring execution stopped at the python3 Store alias before any harness ran. Native default-foil creation, point drag and Analysis evaluation were observed. Ctrl+Z and Ctrl+S had no observed effect; persistence error remains Not assessed.",
+      "tags": [
+        "windows",
+        "smoke-test",
+        "native",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d850adcc95afd5a80d8f7948bade61fc7ec1d6dedf8af50e46fdef8985fbd496"
+    },
+    {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
       "title": "Windows W0 preparation and failed W1 hosted qualification",
@@ -15559,5 +15585,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9eadb90e9d03ec1a001ebad02a669fc98d64b3c3d559fca03ee8229976bb1d70"
+  "graphSha256": "77cb5703b42fe633266469dfdebee11da245345485de9579a5fe57d276683f47"
 };
