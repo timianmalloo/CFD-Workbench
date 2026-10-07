@@ -56,6 +56,7 @@ if (args.Contains("--shell-window", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
     CfdWorkbench.Desktop.Tests.ShellWindowTests.Run();
+    CfdWorkbench.Desktop.Tests.WindowsShellTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 

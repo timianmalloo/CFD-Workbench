@@ -104,6 +104,24 @@ public sealed class ShellHost : Grid
     public Func<Task<string?>>? ShowSaveDialog { get; set; }
     private string? failedPath;
 
+    /// <summary>The in-window menu bar (ADR-0009 S1): null on macOS, where the system menu bar shows the same table.</summary>
+    public NativeMenuBar? MenuBar { get; private set; }
+
+    /// <summary>
+    /// Adds the menu bar above the dock: a new first row, so the dock, bottom panel and status strip move down one.
+    /// The bar renders the window's <see cref="NativeMenu"/>, so there is no second menu definition. Idempotent.
+    /// </summary>
+    public NativeMenuBar ShowMenuBar()
+    {
+        if (MenuBar is not null) return MenuBar;
+        RowDefinitions.Insert(0, new RowDefinition(GridLength.Auto));
+        foreach (Control child in new Control[] { DockHost, AnalysisPanel, StatusStrip }) SetRow(child, GetRow(child) + 1);
+        MenuBar = new NativeMenuBar { [AutomationProperties.NameProperty] = "Menu bar" };
+        SetRow(MenuBar, 0);
+        Children.Add(MenuBar);
+        return MenuBar;
+    }
+
     public static void BindF6(Window window, ShellHost host)
     {
         window.KeyBindings.Add(new KeyBinding

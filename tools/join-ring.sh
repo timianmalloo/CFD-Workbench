@@ -35,7 +35,8 @@ join_ring_main() {
   esac
   cd "$root"
   "${JOIN_RING_TESTS:-tools/run-tests.sh}" || return $?
-  python3 tools/check-test-costs.py
+  . tools/py-resolve.sh
+  py tools/check-test-costs.py
 }
 
 join_ring_self_test() {

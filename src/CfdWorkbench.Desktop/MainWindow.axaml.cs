@@ -28,8 +28,13 @@ public sealed partial class MainWindow : Window
     {
     }
 
-    public MainWindow(PreferenceStore? preferences)
+    /// <summary>
+    /// <paramref name="macOS"/> null reads the running system. A test passes false to build the Windows and Linux shell on a Mac:
+    /// ADR-0009 S1 renders the one menu table in the window there, and the table's gestures bind with Ctrl for ⌘.
+    /// </summary>
+    public MainWindow(PreferenceStore? preferences, bool? macOS = null)
     {
+        bool mac = macOS ?? OperatingSystem.IsMacOS();
         AvaloniaXamlLoader.Load(this);
         if (review is not null)
         {
@@ -48,12 +53,14 @@ public sealed partial class MainWindow : Window
         Content = shellHost;
         ShellHost.BindF6(this, shellHost);
         shellHost.PaletteCommand += id => _ = RunShellActionAsync(id);
-        NativeMenuBuilder.BuildMenu(this,
+        var menu = NativeMenuBuilder.BuildMenu(this,
             onAction: id => _ = RunShellActionAsync(id),
             onOpenRecent: path => _ = shellHost.OpenFileAsync(path),
             onClearRecent: () => _ = shellHost.ClearRecentAsync(),
             onSelectPane: shellHost.ShowPane,
-            canExecute: CanExecuteShellEdit);
+            canExecute: CanExecuteShellEdit,
+            macOS: mac);
+        if (!mac) NativeMenuBuilder.ShowInWindow(this, shellHost, menu);
         AddHandler(InputElement.GotFocusEvent, (_, _) => RefreshShellEditMenu(), RoutingStrategies.Bubble);
         RefreshShellEditMenu();
         shellHost.RecentLoaded += entries => NativeMenuBuilder.RefreshRecentMenu(this, entries,
@@ -155,10 +162,36 @@ public sealed partial class MainWindow : Window
             if (file is null) return;
             using (file) destination = file.Path.LocalPath;
         }
-        if (!destination.EndsWith(".cfdw.json", StringComparison.OrdinalIgnoreCase))
-            throw new ContractError("DOC-TYPE");
-        await workbench.SaveAsync(destination);
+        await SaveToAsync(destination);
     }
+
+    /// <summary>
+    /// Saves to <paramref name="destination"/>. A refusal or I/O failure is shown in the status strip and then rethrown, so
+    /// <see cref="Guarded"/> still writes it to stderr: the strip alone left a user who saw nothing happen (W-1, Windows, where
+    /// the store refuses a drive path with DOC-UNSUPPORTED-PERSISTENCE).
+    /// </summary>
+    public async Task SaveToAsync(string destination)
+    {
+        try
+        {
+            if (!destination.EndsWith(".cfdw.json", StringComparison.OrdinalIgnoreCase))
+                throw new ContractError("DOC-TYPE");
+            await workbench.SaveAsync(destination);
+        }
+        catch (Exception error) when (error is ContractError or IOException or UnauthorizedAccessException)
+        {
+            shellHost.Report(new StatusReport(SaveFailureText(error), ReportKind.Error));
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// The strip sentence for a save that threw, in the shape the controller already writes for a refused save result
+    /// (<c>{code}: Save was not acknowledged. Resolve the refusal before retry.</c>). No approved copy row names a foil-save
+    /// failure: COPY-200..203 are My sections only and COPY-31 is unapproved, so no new sentence is invented here.
+    /// </summary>
+    public static string SaveFailureText(Exception error) =>
+        $"{(error as ContractError)?.Code ?? "DOC-IO"}: Save was not acknowledged. Resolve the refusal before retry.";
 
     private async Task<bool> MayReplaceAsync()
     {

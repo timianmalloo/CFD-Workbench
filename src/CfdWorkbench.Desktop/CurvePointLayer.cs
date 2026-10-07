@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Automation;
 using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
 using Avalonia.Controls;
@@ -166,14 +167,29 @@ public sealed class CurvePointLayer(Func<double, double, Point> project, Func<Po
     /// A point's automation peer (M1.2b D-1): a Button with a 28 px box around its glyph, its name, and Invoke for its
     /// value request. The name and centre are read when asked, so a peer never reports a stale position.
     /// </summary>
-    public static AutomationPeer Peer(Control owner, Func<string> name, Func<Point> centre, Action invoke) =>
+    public static PointPeer Peer(Control owner, Func<string> name, Func<Point> centre, Action invoke) =>
         new PointPeer(owner, name, centre, invoke);
 
-    private sealed class PointPeer(Control target, Func<string> name, Func<Point> centre, Action invoke)
+    public sealed class PointPeer(Control target, Func<string> name, Func<Point> centre, Action invoke)
         : ControlAutomationPeer(target), IInvokeProvider
     {
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Button;
-        protected override string GetNameCore() => name();
+        private string? announced;
+        protected override string GetNameCore() => announced = name();
+
+        /// <summary>
+        /// Raises a name-changed event when the live name differs from the one last read. A client that holds this peer
+        /// is told after a drag; one that never read the name has nothing stale to correct.
+        /// </summary>
+        public void RefreshName()
+        {
+            if (announced is null) return;
+            string now = name();
+            if (now == announced) return;
+            string before = announced;
+            announced = now;
+            RaisePropertyChangedEvent(AutomationElementIdentifiers.NameProperty, before, now);
+        }
         protected override Rect GetBoundingRectangleCore()
         {
             if (Owner.GetVisualRoot() is not Visual root) return default;
