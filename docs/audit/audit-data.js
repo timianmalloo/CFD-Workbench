@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T01:23:03Z",
+  "generated": "2026-10-07T01:44:51Z",
   "audit": [
     {
       "actor": null,
@@ -28488,36 +28488,83 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M49Z49NGPZ0TYEXZCNSK9XAB",
-      "shortname": "trk-sfv",
-      "datetime": "2026-10-07T01:19:59Z",
-      "session": "trk-sfv",
-      "prompt": "SFV revision for Ruling 128: free-stream axes, lattice model, anchor rule, state E, scale per run",
-      "summary": "Mockup revised: V-inf at alpha_geo, lattice L' and CP, CP vs c/4 + couple rule, mid-span example, state E cambered cruise (cl 0.10 not 0.15: x_cp 0.78 stays on chord at 0.15), 16 proposed-copy items, ten captures, craft gate clean.",
-      "kind": "skill",
-      "skill": "ui-design",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/mockups/section-force-vectors.html",
         "docs/mockups/section-force-vectors.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Revise SFV mockup per Ruling 128",
+      "datetime": "2026-10-07T01:19:59Z",
       "done_when": "html, md, captures, gate, check-docs green, committed",
-      "tier": "T1",
+      "duration_seconds": 232.0,
+      "goal": "Revise SFV mockup per Ruling 128",
+      "id": "al-01M49Z49NGPZ0TYEXZCNSK9XAB",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "SFV revision for Ruling 128: free-stream axes, lattice model, anchor rule, state E, scale per run",
+      "session": "trk-sfv",
+      "shortname": "trk-sfv",
+      "skill": "ui-design",
       "started_at": "2026-10-07T01:16:07Z",
-      "duration_seconds": 232.0
+      "summary": "Mockup revised: V-inf at alpha_geo, lattice L' and CP, CP vs c/4 + couple rule, mid-span example, state E cambered cruise (cl 0.10 not 0.15: x_cp 0.78 stays on chord at 0.15), 16 proposed-copy items, ten captures, craft gate clean.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M49Z9XMJA4PBHWQ59F8DYPYC",
-      "shortname": "join-sfv-mockup",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-07T01:23:03Z",
-      "session": "14e5e8d5",
+      "done_when": "join gates green",
+      "duration_seconds": 7.0,
+      "fan_out": 0,
+      "goal": "join design/section-force-vectors",
+      "id": "al-01M49Z9XMJA4PBHWQ59F8DYPYC",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of design/section-force-vectors into main",
+      "session": "14e5e8d5",
+      "shortname": "join-sfv-mockup",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T01:22:56Z",
       "summary": "approved mockup states A-E with the hydrodynamicist's conditions folded; 16 labels approved recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T01:43:26Z",
+      "done_when": "union diff empty; ring runs near 46.5 s; readiness green under 240 s",
+      "duration_seconds": 1625.0,
+      "goal": "Cut the fast ring net below ~46.5 s by moving costly checks and rebalancing Core",
+      "id": "al-01M4A0F868X5N73DN38XKPAKBQ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-rh2 ring headroom 2 (Ruling 129)",
+      "session": "trk-rh2",
+      "shortname": "trk-rh2",
+      "skill": "implement",
+      "started_at": "2026-10-07T01:16:21Z",
+      "summary": "Moved 14 checks to readiness, 2 Core group swaps; ring net 44.6-46.9 s on gate-clean runs; readiness 188.9 s green; union diff empty.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4A0HTZZXN4Q509WGQJTQ0WP",
+      "shortname": "join-rh2",
+      "datetime": "2026-10-07T01:44:51Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of perf/ring-headroom-2 into main",
+      "summary": "13 Desktop + 1 Core check to readiness; 2 Store moves reverted (STORE-SUBSET); Core parts within 1.4 s; ring 44.6-46.9 s net; PASS union 1770 unchanged; readiness 188.9 s of 240 recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -28526,7 +28573,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join design/section-force-vectors",
+      "goal": "join perf/ring-headroom-2",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -28535,8 +28582,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-07T01:22:56Z",
-      "duration_seconds": 7.0
+      "started_at": "2026-10-07T01:43:56Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [

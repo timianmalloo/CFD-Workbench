@@ -12413,6 +12413,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "e31c4ca8131efffd6735fc7ed07f4cc16862f6aacf7a518ce0bb48330c949372"
     },
     {
+      "id": "proof-ring-split-moved-2",
+      "path": "docs/proof/ring-split/moved-2.md",
+      "title": "Ring headroom 2: checks moved to readiness, Core parts rebalanced",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rh2",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Ruling 129: 13 Desktop checks and one Core check moved into RunReadiness, two Core group swaps; ring net 49.97 s to 44.6-47.5 s, PASS union diff empty, readiness green.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-split-moved",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ebfee233bc28e1174b0821d7204d2ad4b62542a414b77a27b9d89c32065bd0f8"
+    },
+    {
       "id": "proof-ring-split-profile",
       "path": "docs/proof/ring-split/profile.md",
       "title": "Ring split profile: a Desktop 1/2 + 2/2 split cannot pay",
@@ -15279,5 +15304,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "43bba50fed6f060284fbc44d5e9ed7065da634faf1f9e85190970134f6efbcd6"
+  "graphSha256": "88a1ce885a5daf79e69ebf9815c7e42aa83f25d5836a6f0d909def492c1281c1"
 };
