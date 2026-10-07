@@ -1,0 +1,214 @@
+{
+  "tested_sha": "614f9cce009b0bc7cfaee55faec1bcc679e8782c",
+  "failures": [
+    {
+      "source": "Analysis.part1of2.log",
+      "test": "NeuralFoil_Family_CatalogNaca0012_DerivedNotLabelled",
+      "first_error": "ContractError: a catalog file failed its check"
+    },
+    {
+      "source": "Cli.log",
+      "test": "Cli_AnalyseRunKey_EqualsServiceOnCustomOp",
+      "first_error": "Unhandled exception. System.InvalidOperationException: inspect --runs returned 3: {"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "Catalog_VendAndLink_NoCoordinates",
+      "first_error": "ContractError: a catalog file failed its check"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "CatalogGenerator_ClosedTe4412_ChordFrameLeAtMinimumX",
+      "first_error": "ContractError: a catalog file failed its check"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "Library_Save_PublishesHashNamedFile",
+      "first_error": "ContractError: DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "Library_WriteFails_NothingPublished",
+      "first_error": "InvalidOperationException: Expected LIB-IO; actual DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9",
+      "first_error": "InvalidOperationException: Expected -1; actual 1"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "Rollback_V2UnknownWorkspaceMember_BytesUnchanged",
+      "first_error": "InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "LayoutSave_ClaimBusyHashSame_RetriesOnce",
+      "first_error": "InvalidOperationException: Expected True; actual False"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "LayoutSave_StaleClaim_SessionOnlyNamesClaim",
+      "first_error": "InvalidOperationException: Expected claim-held; actual failed"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "Recent_Clear_NoFileContainsMarkerPath",
+      "first_error": "InvalidOperationException: Expected saved; actual failed"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "StoreContract_CancelBeforePublish_DocCancelled",
+      "first_error": "InvalidOperationException: Expected False; actual True"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged",
+      "first_error": "InvalidOperationException: {\"format\":\"cfdw-display\",\"version\":1,\"textSize\":175}: missing DISPLAY-SCHEMA [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]"
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites",
+      "first_error": "IOException: A required privilege is not held by the client. : 'C:\\Projects\\CFD-Workbench-win-solver-routes-r133\\.tmp-tests\\p1-03fc5923bf3b450ca28b0807f59ef398\\prefs'."
+    },
+    {
+      "source": "Core.part1of3.log",
+      "test": "Placement_ProfileEvaluatorFold_SurfaceBitsUnchanged",
+      "first_error": "InvalidOperationException: Expected blended-dihedral.foil 943866A4A779DE0CD263065574A79453E7C64D8E64664A2B8C355B2C265DAEDE"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Catalog_GenEntries_RegenerateToRecordedHash",
+      "first_error": "ContractError: a catalog file failed its check"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Catalog_Fairings_NeverListed",
+      "first_error": "ContractError: a catalog file failed its check"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Catalog_GenNeverThroughDatParse",
+      "first_error": "ContractError: a catalog file failed its check"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Library_EntryBytes_ParseAsStandaloneSection",
+      "first_error": "ContractError: DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Library_ScanNameCollision_BothReported",
+      "first_error": "ContractError: DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Replace_Preview_EmitsCatalogPreviewOutcome",
+      "first_error": "InvalidOperationException: Expected ReplaceEvent { Scope = draft, Stations = 2, ResidualChord = 8.122861410878169E-05, Spacing = current, Family = Naca, Class = Gen }; actual ReplaceEvent { Scope = draft, Stations = 2, ResidualChord = 8.122861410878169E-05, Spacing = current, Family = , Class = Gen }"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "LayoutLoad_Absent_ReturnsPresets",
+      "first_error": "InvalidOperationException: Expected saved; actual failed"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Rollback_V2Oversized_BytesUnchanged",
+      "first_error": "InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "PrefStore_SymlinkedDirectory_SessionOnly",
+      "first_error": "IOException: A required privilege is not held by the client. : 'C:\\Projects\\CFD-Workbench-win-solver-routes-r133\\.tmp-tests\\p1-91c182df639240dd84fb135b1aa87889\\prefs'."
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "LayoutSave_Conflict_MergesChangedWorkspaceOnly",
+      "first_error": "InvalidOperationException: Expected True; actual False"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Recent_Conflict_ReappliesAdd",
+      "first_error": "InvalidOperationException: Expected True; actual False"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Recent_Remove_KeepsEveryOtherEntry",
+      "first_error": "InvalidOperationException: Expected saved; actual failed"
+    },
+    {
+      "source": "Core.part2of3.log",
+      "test": "Rollback_TextSizeV2_BytesUnchanged",
+      "first_error": "InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "Library_DuplicateIgnoringCaseNfc_Refused",
+      "first_error": "ContractError: DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "Library_StaleClaim_ReportedNotDeleted",
+      "first_error": "InvalidOperationException: Expected LIB-CLAIM-HELD; actual DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "Library_SecondInstanceSameRoot_EntryListed",
+      "first_error": "ContractError: DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "Rollback_V2UnknownTopLevel_BytesUnchanged",
+      "first_error": "InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "PrefsSave_LayoutAndRecentConcurrent_BothKept",
+      "first_error": "InvalidOperationException: Expected saved; actual failed"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces",
+      "first_error": "InvalidOperationException: Expected saved; actual failed"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "Recent_ClearFails_ReportedNotCleared",
+      "first_error": "InvalidOperationException: Expected LAYOUT-VERSION; actual DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "Recent_RemoveWriteFails_ListUnchanged",
+      "first_error": "FileNotFoundException: Could not find file 'C:\\Projects\\CFD-Workbench-win-solver-routes-r133\\.tmp-tests\\p1-a2bfd8097b4d48458fed43b8cbf03a3d\\recent\\recent.json'."
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "PrefStore_TextSize_RoundTrip",
+      "first_error": "InvalidOperationException: Expected saved; actual session-only"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched",
+      "first_error": "InvalidOperationException: Expected saved; actual failed"
+    },
+    {
+      "source": "Core.part3of3.log",
+      "test": "PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash",
+      "first_error": "InvalidOperationException: Expected saved; actual session-only"
+    }
+  ],
+  "cost_failures": [
+    "FAILED: C-2 Analysis.part1of2 took 13555 ms, over 5000 ms",
+    "FAILED: C-2 Analysis.part2of2 took 11917 ms, over 5000 ms",
+    "FAILED: C-5 Section_EditedProfileNoPolar_Unavailable took 622.748 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)",
+    "FAILED: C-5 Polar_ProductRun_ReachesStripsAndSectionProjection took 591.643 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)",
+    "FAILED: C-5 SectionProjection_EstimatorLabel_DepthAware took 631.51 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)",
+    "FAILED: C-5 SectionView_Speeds_FollowUnitsSwitch took 636.551 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)",
+    "FAILED: C-5 DeriveVerdicts_TaperedPlanform_SweepIsTheLatticeSweepAndAlphaL0IsTheStripSection took 1069.317 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)",
+    "FAILED: C-5 DeriveVerdicts_AlphaBound_9p9InsideAnd10p1Outside took 710.845 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)",
+    "FAILED: C-5 DeriveVerdicts_OnlyTheTipReasonGetsTheTipRule took 701.608 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)",
+    "FAILED: C-5 Section_WingRun_PanelValuesAtEveryStation took 793.905 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)"
+  ],
+  "desktop_output": "SelfLaunchTests: all 6 cases passed.\nAPP-UNHANDLED APP-CRASH System.Exception",
+  "desktop_frame_availability": "Not recorded"
+}

@@ -510,6 +510,210 @@
     "staged_blob_equal": true
   },
   {
+    "path": "docs/proof/win-routes/r133/raw-ring/.gitattributes",
+    "bytes": 24,
+    "sha256": "3bb7db1046ae7a50fe64b5eede3934e8c995b5b441fbfad67095e0c4dfe73a25",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part1of2.log",
+    "bytes": 12584,
+    "sha256": "847ff8d24bbda96ba3a8006556503c772039dbc7922351d7345e54a5365e382e",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part1of2.ms",
+    "bytes": 6,
+    "sha256": "96ac97ededf43edee98f45d4cfbb2cce2b434f0821636d808ee806a5fe1c6f77",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part1of2.seconds",
+    "bytes": 3,
+    "sha256": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part2of2.log",
+    "bytes": 14765,
+    "sha256": "b1a3484c7cc510643d2f45a978759766ec96fe11cb5600e80bc497a34486e192",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part2of2.ms",
+    "bytes": 6,
+    "sha256": "34114f1f15e85071207f18cea931ee4c0d70c8d5f7e6d3086225cfbf02c7ba0b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part2of2.seconds",
+    "bytes": 3,
+    "sha256": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Cli.log",
+    "bytes": 636,
+    "sha256": "54e6970791b2499ca2d4ed33e18237f9c669e06d525fa736a95f52311835477d",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Cli.ms",
+    "bytes": 5,
+    "sha256": "b98e0c376ff1d456162550fbc4ebb994e0eb0f51e7f68d96ed5f6f5593b6a4be",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Cli.seconds",
+    "bytes": 2,
+    "sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part1of3.log",
+    "bytes": 14952,
+    "sha256": "bb0dd15d9e205484e874db30ef12a0bc487fdf0af5716005de5208933224bd0e",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part1of3.ms",
+    "bytes": 6,
+    "sha256": "4806790c57bcb11fd5dc1f2d101373f6f2d4636a1cba8fadd2069b5d2d5def91",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part1of3.seconds",
+    "bytes": 3,
+    "sha256": "040316eca5e77dbb2212c1efe8b81cb23bc67ce0ac8cb5c9d902d98bd45ddfa1",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part2of3.log",
+    "bytes": 13692,
+    "sha256": "f35de38688c84f1ae49a2502193c808c0d6b9d394c51c8fb9d7147fc83c3af46",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part2of3.ms",
+    "bytes": 6,
+    "sha256": "b76b8a7344d419bfa5a2bc5d1693206174c48cf0bd8b2591958fadd3a464066f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part2of3.seconds",
+    "bytes": 3,
+    "sha256": "a5331f18877e9e1543361e44b4cb0a1f5f0ed5f8297d850bf1fcc68bd7a3ab5f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part3of3.log",
+    "bytes": 16184,
+    "sha256": "378e498e4f2559f26d0bf3b1afed27290290fdeac433b22903df4676bbf84d17",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part3of3.ms",
+    "bytes": 6,
+    "sha256": "ac9aa41b0c6ce3b3f2540f0a6e4463dc7faf5b6a5e79cdbcf9e1e85bd124f486",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part3of3.seconds",
+    "bytes": 3,
+    "sha256": "673650f936cb3b0a2f93ce09d81be10748b1b203c19e8176b4eefc1964a0cf3a",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Desktop.log",
+    "bytes": 80,
+    "sha256": "c12e089fe6ce10b91595b245d429e45d873ce4830e98445c2102007a58172e17",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Desktop.ms",
+    "bytes": 5,
+    "sha256": "469a9155c6939d74ef608bb81d05657d53b63497dddece0e79061e933214b914",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Desktop.seconds",
+    "bytes": 2,
+    "sha256": "10159baf262b43a92d95db59dae1f72c645127301661e0a3ce4e38b295a97c58",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/build.ms",
+    "bytes": 6,
+    "sha256": "1da8b98739ef615632d0dac3d1c8d6f2d5bb020d9f4214b38794e1c8e97984f8",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/failure-summary.json",
+    "bytes": 9909,
+    "sha256": "a3c87ab8a3a627ea17c3318dd5a3ce13ebeae804030adc7bc1154639e24758c4",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/ring.stdout.txt",
+    "bytes": 13497,
+    "sha256": "4fea972dc1c479f187b40dca9d96ff405e8df22125a87a37eeccd59d6c5faad2",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/run.json",
+    "bytes": 3990,
+    "sha256": "abda2b9ceec7168cb1dec1bd0ed08e56d20b2bc62f7ce456e860a48eed091fc4",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/sdk.txt",
+    "bytes": 10,
+    "sha256": "4a69479932b361301fed174229f848221f64f60c1c63d5acaefa8fd80a5b9606",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/times.txt",
+    "bytes": 36,
+    "sha256": "6a4358ba7bb4343c033212a7028699a38320dd40f58799abcbe8ac10f7bcd32a",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/wall.ms",
+    "bytes": 6,
+    "sha256": "c0fbc098087fe82a03a33fe60e3e64ee7ad85ade0b3d72c55353273b094ffa7b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/ring-case-validation.txt",
+    "bytes": 1205,
+    "sha256": "0cb3f6a29ef3403560257dc43ace65a86754ae5cb8ec35864367a2c384ebfeaf",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/ring-docs-check.txt",
+    "bytes": 7519,
+    "sha256": "a641a2ee9e3b27c351f2e4d4b6a8dffdf8c6c1078b0068d9ec1215b7ffc8fe2a",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/ring-lf-control.txt",
+    "bytes": 93,
+    "sha256": "cb4db56686a2734a510a8524465d4f2c4fd18991cd2d04c243e323df0cf3f866",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/ring-summary.txt",
+    "bytes": 106,
+    "sha256": "a1c3ae720e79e996c678d398a5c972c415c34d433366132ad5bd1b39b222675b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/run-application-ring.py",
+    "bytes": 2276,
+    "sha256": "cfc68c2d80d64e67fb15ba171a9fdcb69812309fd74a3085c36e19e666db6336",
+    "staged_blob_equal": true
+  },
+  {
     "path": "docs/proof/win-routes/r133/run-paths.json",
     "bytes": 184,
     "sha256": "3a7ea6b64754a5db13d31728271944526a69a3788751af117a9a2e2d7044d75b",
@@ -523,8 +727,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/steps.jsonl",
-    "bytes": 14810,
-    "sha256": "40b026b437e87f5fff5da59d0d3532aed2a915cbfbd4249b88170808d8717dd8",
+    "bytes": 15720,
+    "sha256": "c3f999ae1e189aabe226189f696b2b48eedfd45b998d563b8585127a89276e77",
     "staged_blob_equal": true
   },
   {
@@ -543,6 +747,12 @@
     "path": "docs/proof/win-routes/r133/su2-smoke-LF.txt",
     "bytes": 17101,
     "sha256": "862eb83eb0b95e2dee5d699b5661976beb1ae3765650e3df99747d0682c5749f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/summarize-ring.py",
+    "bytes": 6790,
+    "sha256": "50e9234818bdab2d88ff58c3640395a2b2fc744690ff05111a3aa64f74db4202",
     "staged_blob_equal": true
   },
   {
@@ -565,8 +775,8 @@
   },
   {
     "path": "docs/proof/win-routes/receipt.md",
-    "bytes": 10780,
-    "sha256": "ad123b4ca8b93a84bfcf55e429001f21417288c6026c36ce9576c53f43d646cb",
+    "bytes": 21390,
+    "sha256": "cc788bdcdae94c64f10f80a840e3733acb0f4d1886c81fc97b282d3d0aa563f0",
     "staged_blob_equal": true
   },
   {

@@ -14,7 +14,7 @@ review-by: "2026-11-07"
 summary: >-
   Ruling 133 manual CPU qualification: pinned Ubuntu/OpenFOAM identity verified, cavity reaches t=0.5 under M1,
   Courant mean equals the Mac's printed value; fresh native SU2 LF smoke preserves CD/CL. Inputs match staged blobs.
-  Product integration, unobserved OS prompts/error paths and the current application ring remain open.
+  Product integration and unobserved OS prompts/error paths remain open; the single released application ring failed.
 ---
 
 # W-3 — Ruling 133 manual route qualification
@@ -26,10 +26,11 @@ unobserved enable/restart/consent/error paths, audit/index/xmsg, publishing. **T
 Budget: 60 minutes, new two-repair cap. Implementation worker/author seat; independent review is coordinator-owned.
 
 **Verified:** cavity and native SU2 smoke pass. This is manual installation qualification, not physical validation
-or product integration qualification. The heavy application ring is pending explicit coordinator release.
+or product integration qualification. The single coordinator-released application ring failed; its worker-observed evidence is below.
 W-4 remains held until completed W-3 review. No GPU trial ran; the single W-4a GPU attempt remains untouched.
 
-One tested source SHA: `defbe0a931e703068a4c06278a413c0cf6d7b6bc` (`r133/tested-sha.txt`, final lightweight gate).
+Solver preparation source SHA: `defbe0a931e703068a4c06278a413c0cf6d7b6bc` (`r133/tested-sha.txt`, historical lightweight gate).
+Application ring tested SHA: `614f9cce009b0bc7cfaee55faec1bcc679e8782c` (`r133/raw-ring/run.json`).
 Worktree `C:\Projects\CFD-Workbench-win-solver-routes-r133`, branch `win/solver-routes-r133`.
 Fetch succeeded, merge reported Already up to date, xmsg unread messages were read/marked. Only owned case/proof files
 and observed §0/§6 design rows changed; the design's route-step definitions are unchanged.
@@ -127,18 +128,122 @@ Publisher activation/errexit repair is evidence-local too. Register/audit/index 
 Serial DAG: extraction → LF freeze → cavity → SU2 → readback → lightweight validation. One activation repair;
 no second solver repair. Each numerical process used one thread, below aggregate 12-core capacity. Host aggregate
 utilization, tokens and total agent time **Not recorded**; command UTC/exit/wall and process resources are measured.
-Commands/outputs are immutable in `r133/steps.jsonl`; logs normalize LF/trailing whitespace for review.
+Solver commands/outputs are preserved in `r133/steps.jsonl`; solver logs normalize LF/trailing whitespace for review.
+Application ring logs retain their raw bytes under `r133/raw-ring/`, protected by evidence-local Git attributes.
 
 Lightweight outputs: `r133/case-validation.txt`, `r133/docs-check.txt`, `r133/lf-control*.txt` and final blob check.
 Both Windows cases pass; whole-repo case validation exit 1 (0.369 s) is the known shared spike03-s6-w4.yaml non-hash.
 Docs check exit 1 (22.281 s): zero metadata problems/orphans; only two coordinator-owned index drifts, proof-win-routes
-status and summary. Heavy `tools/run-tests.sh` explicitly held for W-1b capacity; not run.
+status and summary. The numerical checkpoint initially held the application ring for W-1b capacity;
+the coordinator subsequently released its single execution, recorded below.
 
 Previous coordinator ring remains **Reported, not worker-verified**, not this re-entry's ring: build passed (0 errors,
 2 Avalonia warnings); Core 13/13/11 failures; Desktop six SelfLaunch passes then exit 70 APP-UNHANDLED APP-CRASH
 System.Exception; Analysis part 1 one catalog failure/part 2 green; CLI exit 127 DOC-UNSUPPORTED-PERSISTENCE;
-8 cost failures; overall exit 1, 50 s. Current coordinator ring must name every failing test/first error, crash frame,
-cost checks, tested SHA and DOTNET_ROOT per PR #4.
+8 cost failures; overall exit 1, 50 s. That earlier reported run is separate from the worker-observed ring below.
 
-**Remaining:** coordinator/Owner review, official index/audit derivation, explicit ring release and single execution,
+**Remaining:** coordinator/Owner review of the red application ring, official index/audit derivation,
 then delivery/review. W-4/W-5 held. Numerical route needs no operator repair; reruns require new timestamp directories.
+
+## Released application ring: worker-observed, failed
+
+**Verified:** executed exactly once at `614f9cce009b0bc7cfaee55faec1bcc679e8782c` after coordinator capacity release. No solver rerun, product repair,
+SDK installation, persistent host change or second ring. Exact entry command: `py -3 docs/proof/win-routes/r133/run-application-ring.py`;
+the wrapper invoked `C:/Program Files/Git/bin/bash.exe --noprofile --norc tools/run-tests.sh` using the repository's
+`tools/py-resolve.sh`. Process-only environment: `DOTNET_ROOT=C:\Users\malla\.dotnet`, that directory prepended to
+PATH, `CFD_TEST_BUDGET_SECONDS=60`; observed SDK **10.0.203**. UTC start `2026-10-07T22:19:05.448715+00:00`.
+
+Overall exit **1**. Wrapper wall **62.473272 s**; ring wall **60,992 ms** (printed 61 s), exceeding the 60 s budget by
+992 ms; build clock **11,438 ms**, net **49,554 ms**. Bash reports CPU 2 s and load 5.61 → 7.49; native aggregate
+CPU/RAM **Not recorded**. The failure path returned 1 before the final budget guard; no budget-pass claim.
+Release build passed, **0 errors**, **2 AVLN3001 warnings** (CatalogDialog.axaml and SaveSectionDialog.axaml).
+
+The first action after the process returned copied all **24** scratch log/clock files from `.tmp-tests` into
+`r133/raw-ring/`. `run.json` records their byte counts and 614f9cce009b0bc7cfaee55faec1bcc679e8782c-256. Raw stdout, SDK identity and clocks are retained;
+`failure-summary.json` is derived from those files, without rewriting them.
+
+| Suite / partition | Exit | Wall ms | Named failures | PASS lines |
+|---|---:|---:|---:|---:|
+| Core 1/3 | 1 | 40,048 | 13 | 215 |
+| Core 2/3 | 1 | 45,294 | 13 | 215 |
+| Core 3/3 | 1 | 39,692 | 11 | 216 |
+| Desktop | 70 | 6,430 | Not recorded | 0 |
+| Analysis 1/2 | 1 | 13,555 | 1 | 111 |
+| Analysis 2/2 | 0 | 11,917 | 0 | 120 |
+| CLI | 127 | 4,017 | 1 | 3 |
+
+Desktop raw output is exactly:
+
+```text
+SelfLaunchTests: all 6 cases passed.
+APP-UNHANDLED APP-CRASH System.Exception
+```
+
+Desktop stack frames and failing test name: **Not recorded**; neither Desktop.log nor ring stdout includes them.
+CLI captures `Unhandled exception. System.InvalidOperationException: inspect --runs returned 3` followed by
+`DOC-UNSUPPORTED-PERSISTENCE`, then a frame in `tests/CfdWorkbench.Cli.Tests/CliTests.cs:line 179` and
+`Program.<Main>(String[] args)`. This does not establish the Desktop crash location.
+
+All **39** named failures and first errors follow; log names identify their archived source.
+
+| Raw log | Failing test | First error |
+|---|---|---|
+| `Analysis.part1of2.log` | `NeuralFoil_Family_CatalogNaca0012_DerivedNotLabelled` | `ContractError: a catalog file failed its check` |
+| `Cli.log` | `Cli_AnalyseRunKey_EqualsServiceOnCustomOp` | `Unhandled exception. System.InvalidOperationException: inspect --runs returned 3: {` |
+| `Core.part1of3.log` | `Catalog_VendAndLink_NoCoordinates` | `ContractError: a catalog file failed its check` |
+| `Core.part1of3.log` | `CatalogGenerator_ClosedTe4412_ChordFrameLeAtMinimumX` | `ContractError: a catalog file failed its check` |
+| `Core.part1of3.log` | `Library_Save_PublishesHashNamedFile` | `ContractError: DOC-UNSUPPORTED-PERSISTENCE` |
+| `Core.part1of3.log` | `Library_WriteFails_NothingPublished` | `InvalidOperationException: Expected LIB-IO; actual DOC-UNSUPPORTED-PERSISTENCE` |
+| `Core.part1of3.log` | `LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9` | `InvalidOperationException: Expected -1; actual 1` |
+| `Core.part1of3.log` | `Rollback_V2UnknownWorkspaceMember_BytesUnchanged` | `InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]` |
+| `Core.part1of3.log` | `LayoutSave_ClaimBusyHashSame_RetriesOnce` | `InvalidOperationException: Expected True; actual False` |
+| `Core.part1of3.log` | `LayoutSave_StaleClaim_SessionOnlyNamesClaim` | `InvalidOperationException: Expected claim-held; actual failed` |
+| `Core.part1of3.log` | `Recent_Clear_NoFileContainsMarkerPath` | `InvalidOperationException: Expected saved; actual failed` |
+| `Core.part1of3.log` | `StoreContract_CancelBeforePublish_DocCancelled` | `InvalidOperationException: Expected False; actual True` |
+| `Core.part1of3.log` | `PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged` | `InvalidOperationException: {"format":"cfdw-display","version":1,"textSize":175}: missing DISPLAY-SCHEMA [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]` |
+| `Core.part1of3.log` | `PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites` | `IOException: A required privilege is not held by the client. : 'C:\Projects\CFD-Workbench-win-solver-routes-r133\.tmp-tests\p1-03fc5923bf3b450ca28b0807f59ef398\prefs'.` |
+| `Core.part1of3.log` | `Placement_ProfileEvaluatorFold_SurfaceBitsUnchanged` | `InvalidOperationException: Expected blended-dihedral.foil 943866A4A779DE0CD263065574A79453E7C64D8E64664A2B8C355B2C265DAEDE` |
+| `Core.part2of3.log` | `Catalog_GenEntries_RegenerateToRecordedHash` | `ContractError: a catalog file failed its check` |
+| `Core.part2of3.log` | `Catalog_Fairings_NeverListed` | `ContractError: a catalog file failed its check` |
+| `Core.part2of3.log` | `Catalog_GenNeverThroughDatParse` | `ContractError: a catalog file failed its check` |
+| `Core.part2of3.log` | `Library_EntryBytes_ParseAsStandaloneSection` | `ContractError: DOC-UNSUPPORTED-PERSISTENCE` |
+| `Core.part2of3.log` | `Library_ScanNameCollision_BothReported` | `ContractError: DOC-UNSUPPORTED-PERSISTENCE` |
+| `Core.part2of3.log` | `Replace_Preview_EmitsCatalogPreviewOutcome` | `InvalidOperationException: Expected ReplaceEvent { Scope = draft, Stations = 2, ResidualChord = 8.122861410878169E-05, Spacing = current, Family = Naca, Class = Gen }; actual ReplaceEvent { Scope = draft, Stations = 2, ResidualChord = 8.122861410878169E-05, Spacing = current, Family = , Class = Gen }` |
+| `Core.part2of3.log` | `LayoutLoad_Absent_ReturnsPresets` | `InvalidOperationException: Expected saved; actual failed` |
+| `Core.part2of3.log` | `Rollback_V2Oversized_BytesUnchanged` | `InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]` |
+| `Core.part2of3.log` | `PrefStore_SymlinkedDirectory_SessionOnly` | `IOException: A required privilege is not held by the client. : 'C:\Projects\CFD-Workbench-win-solver-routes-r133\.tmp-tests\p1-91c182df639240dd84fb135b1aa87889\prefs'.` |
+| `Core.part2of3.log` | `LayoutSave_Conflict_MergesChangedWorkspaceOnly` | `InvalidOperationException: Expected True; actual False` |
+| `Core.part2of3.log` | `Recent_Conflict_ReappliesAdd` | `InvalidOperationException: Expected True; actual False` |
+| `Core.part2of3.log` | `Recent_Remove_KeepsEveryOtherEntry` | `InvalidOperationException: Expected saved; actual failed` |
+| `Core.part2of3.log` | `Rollback_TextSizeV2_BytesUnchanged` | `InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]` |
+| `Core.part3of3.log` | `Library_DuplicateIgnoringCaseNfc_Refused` | `ContractError: DOC-UNSUPPORTED-PERSISTENCE` |
+| `Core.part3of3.log` | `Library_StaleClaim_ReportedNotDeleted` | `InvalidOperationException: Expected LIB-CLAIM-HELD; actual DOC-UNSUPPORTED-PERSISTENCE` |
+| `Core.part3of3.log` | `Library_SecondInstanceSameRoot_EntryListed` | `ContractError: DOC-UNSUPPORTED-PERSISTENCE` |
+| `Core.part3of3.log` | `Rollback_V2UnknownTopLevel_BytesUnchanged` | `InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]` |
+| `Core.part3of3.log` | `PrefsSave_LayoutAndRecentConcurrent_BothKept` | `InvalidOperationException: Expected saved; actual failed` |
+| `Core.part3of3.log` | `LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces` | `InvalidOperationException: Expected saved; actual failed` |
+| `Core.part3of3.log` | `Recent_ClearFails_ReportedNotCleared` | `InvalidOperationException: Expected LAYOUT-VERSION; actual DOC-UNSUPPORTED-PERSISTENCE` |
+| `Core.part3of3.log` | `Recent_RemoveWriteFails_ListUnchanged` | `FileNotFoundException: Could not find file 'C:\Projects\CFD-Workbench-win-solver-routes-r133\.tmp-tests\p1-a2bfd8097b4d48458fed43b8cbf03a3d\recent\recent.json'.` |
+| `Core.part3of3.log` | `PrefStore_TextSize_RoundTrip` | `InvalidOperationException: Expected saved; actual session-only` |
+| `Core.part3of3.log` | `PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched` | `InvalidOperationException: Expected saved; actual failed` |
+| `Core.part3of3.log` | `PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash` | `InvalidOperationException: Expected saved; actual session-only` |
+
+All **10** cost failures, verbatim from ring stdout (0 COST-MISS):
+
+```text
+FAILED: C-2 Analysis.part1of2 took 13555 ms, over 5000 ms
+FAILED: C-2 Analysis.part2of2 took 11917 ms, over 5000 ms
+FAILED: C-5 Section_EditedProfileNoPolar_Unavailable took 622.748 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 Polar_ProductRun_ReachesStripsAndSectionProjection took 591.643 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 SectionProjection_EstimatorLabel_DepthAware took 631.51 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 SectionView_Speeds_FollowUnitsSwitch took 636.551 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 DeriveVerdicts_TaperedPlanform_SweepIsTheLatticeSweepAndAlphaL0IsTheStripSection took 1069.317 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 DeriveVerdicts_AlphaBound_9p9InsideAnd10p1Outside took 710.845 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 DeriveVerdicts_OnlyTheTipReasonGetsTheTipRule took 701.608 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 Section_WingRun_PanelValuesAtEveryStation took 793.905 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+```
+
+Post-ring lightweight checks: both Windows cases pass; full case validation exit 1 in 0.381 s only for the
+existing shared `spike03-s6-w4.yaml` non-hash. LF frozen-input check exit 0 in 0.466 s. Docs check exit 1 in
+13.392 s; zero metadata errors/orphans, two coordinator-owned index drifts (proof-win-routes status/summary).
+Exact commands, exits and times are in `r133/steps.jsonl`, with `ring-*.txt` outputs.

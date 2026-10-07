@@ -38,3 +38,7 @@
 {"tag": "case-validation", "argv": ["py", "-3", "cases/tools/validate-cases.py"], "started_utc": "2026-10-07T22:07:38.680756+00:00", "duration_seconds": 0.3688650999974925, "exit_code": 1, "output": "case-validation.txt"}
 {"tag": "docs-check", "argv": ["py", "-3", "tools/check-docs.py"], "started_utc": "2026-10-07T22:07:39.147966+00:00", "duration_seconds": 22.28104450000683, "exit_code": 1, "output": "docs-check.txt"}
 {"tag": "tested-sha", "argv": ["git", "rev-parse", "HEAD"], "started_utc": "2026-10-07T22:08:01.540847+00:00", "duration_seconds": 0.029448100001900457, "exit_code": 0, "output": "tested-sha.txt"}
+{"tag": "ring-case-validation", "argv": ["py", "-3", "cases/tools/validate-cases.py"], "started_utc": "2026-10-07T22:23:01.276677+00:00", "duration_seconds": 0.3809643000131473, "exit_code": 1, "output": "ring-case-validation.txt"}
+{"tag": "ring-lf-control", "argv": ["py", "-3", "docs/proof/win-routes/verify-lf-inputs.py"], "started_utc": "2026-10-07T22:23:01.764793+00:00", "duration_seconds": 0.46577419999812264, "exit_code": 0, "output": "ring-lf-control.txt"}
+{"tag": "ring-docs-check", "argv": ["py", "-3", "tools/check-docs.py"], "started_utc": "2026-10-07T22:23:06.201211+00:00", "duration_seconds": 13.39232909999555, "exit_code": 1, "output": "ring-docs-check.txt"}
+{"tag": "ring-summary", "argv": ["py", "-3", "docs/proof/win-routes/r133/summarize-ring.py"], "started_utc": "2026-10-07T22:23:46.071226+00:00", "duration_seconds": 0.10578140000870917, "exit_code": 0, "output": "ring-summary.txt"}
