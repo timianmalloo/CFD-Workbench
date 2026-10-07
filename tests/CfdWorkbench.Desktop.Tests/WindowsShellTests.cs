@@ -217,6 +217,35 @@ public static class WindowsShellTests
             }
             finally { window.Close(); }
         });
+
+        DesktopChecks.Check("ElevationView_PointName_ReadsTheLivePointNotTheSnapshot", () =>
+        {
+            using var controller = new WorkbenchController();
+            Await(controller.OpenExampleAsync());
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1400, Height = 1000 };
+            try
+            {
+                window.Show();
+                host.RefreshPanes();
+                controller.Layout = ViewLayout.Four;
+                Settle(window);
+                var view = host.ModelView.FindControl<ElevationView>("SideElevation")!;
+                var snapshot = view.Targets.FirstOrDefault(point => point.Freedom != PointFreedom.Fixed && point.Role == PointRole.Anchor)
+                    ?? view.Targets.First(point => point.Freedom != PointFreedom.Fixed);
+                string before = view.PointName(snapshot);
+                if (!controller.BeginGesture(new PointRef(snapshot.Curve, snapshot.Id), GestureInput.Pointer))
+                    throw new InvalidOperationException("Could not begin a drag on " + snapshot.Curve);
+                controller.UpdateGesture(snapshot.SpanMeters, snapshot.Ordinate + (snapshot.Curve == "twist" ? 0.02 : 0.004));
+                controller.FlushGestureFrame();
+                Await(controller.EndGestureAsync(GestureEnd.Release));
+                Settle(window);
+                string after = view.PointName(snapshot);
+                if (after == before)
+                    throw new InvalidOperationException($"The {snapshot.Curve} point name did not follow the drag: '{before}'");
+            }
+            finally { window.Close(); }
+        });
     }
 
     /// <summary>Runs a save to completion on the UI thread's dispatcher; returns the refusal it threw, or null.</summary>
