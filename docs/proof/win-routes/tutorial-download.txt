@@ -1,0 +1,2 @@
+Get:1 https://sourceforge.net/projects/openfoam/files/repos/deb noble/main amd64 openfoam2512-tutorials all 2512.0-2 [34.7 MB]
+Fetched 34.7 MB in 5s (7615 kB/s)

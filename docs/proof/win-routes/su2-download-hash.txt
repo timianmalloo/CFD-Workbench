@@ -1,0 +1,2 @@
+SU2-v8.5.0-win64-omp.zip bytes=28043921 sha256=4466fe21aedb5e0bad57afd45f829acbdec6ec79fe8c3f8954ddea06a4b4bc11
+expected=4466fe21aedb5e0bad57afd45f829acbdec6ec79fe8c3f8954ddea06a4b4bc11

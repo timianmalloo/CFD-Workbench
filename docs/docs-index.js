@@ -13634,6 +13634,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
+      "id": "proof-win-routes",
+      "path": "docs/proof/win-routes/receipt.md",
+      "title": "W-3 Windows solver routes: blocked cavity qualification",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@win-solver-routes",
+      "phase": "",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Ubuntu 24.04.5 and pinned OpenFOAM v2512 runtime installed; native SU2 v8.5.0 cylinder smoke passed. Cavity was not run: tutorial extraction failed at the two-repair cap. GPU inspection only, no trial.",
+      "tags": [
+        "windows",
+        "wsl",
+        "openfoam",
+        "su2",
+        "smoke"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "implements"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f423e372b42e9d7222048748a03fd18857f1afc2db4caa600179130444815ba4"
+    },
+    {
       "id": "proof-win-setup",
       "path": "docs/proof/win-setup/receipt.md",
       "title": "W-0 Windows setup host survey",
@@ -15617,5 +15652,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d336c686e8f31f679178f09e2f2cadec3be0572a7b3a2a6729df0b2783b33dd8"
+  "graphSha256": "1b339aebb5e1b4e9a699da7cf8cd3128a7d12d58a17b3e1986df86ccfabafd52"
 };

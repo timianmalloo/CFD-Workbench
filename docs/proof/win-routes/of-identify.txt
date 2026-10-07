@@ -1,0 +1,19 @@
+
+Usage: icoFoam [OPTIONS]
+Options:
+  -case <dir>       Case directory (instead of current directory)
+  -decomposeParDict <file>
+                    Alternative decomposePar dictionary file
+  -dry-run          Check case set-up only using a single time step
+  -dry-run-write    Check case set-up and write only using a single time step
+  -parallel         Run in parallel
+  -postProcess      Execute functionObjects only
+  -doc              Display documentation in browser
+  -help             Display short help and exit
+  -help-full        Display full help and exit
+
+Transient solver for incompressible, laminar flow of Newtonian fluids.
+
+Using: OpenFOAM-2512 (2512) - visit www.openfoam.com
+Build: _bd2b6720-20260127
+Arch:  LSB;label=32;scalar=64

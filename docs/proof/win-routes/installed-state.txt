@@ -1,0 +1,2 @@
+openfoam2512:amd64	2512.0-2
+openfoam2512-common	2512.0-2

@@ -1,0 +1,1 @@
+deb [signed-by=/etc/apt/trusted.gpg.d/openfoam-binary.gpg] https://dl.openfoam.com/repos/deb noble main

@@ -1,0 +1,4 @@
+# Preserve measured fixture/config/history bytes; their hashes cover the actual run input.
+*.su2 -text
+*.cfg -text
+*.csv -text
