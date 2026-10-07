@@ -209,7 +209,7 @@ internal static class SectionForceTests
         // (1) the strips' induced shares sum to the wing D_i (Loads.InducedDrag), the lifting-line total; not near-field Fx.
         double sum = 0;
         foreach (StripLoad strip in run.Strips)
-            sum += 0.5 * run.Water.Rho * strip.Gamma * -strip.DownwashTrefftz * Loads.StripWidth(run, strip);
+            sum += SectionForceModel.Compute(run, strip, 0, 0, Units.Metric)!.InducedPerSpan * Loads.StripWidth(run, strip);
         double wing = Loads.InducedDrag(run).Value!.Value;
         Near(wing, sum, "sum of strip d' x width equals the wing D_i", 1e-9 * Math.Abs(wing));
         // (2) the shown strip from the real lattice: the centre of pressure is the Fz-weighted chordwise position about the strip's own
