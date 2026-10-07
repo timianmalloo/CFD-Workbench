@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T18:19:18Z",
+  "generated": "2026-10-07T18:54:14Z",
   "audit": [
     {
       "actor": null,
@@ -29038,6 +29038,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T18:19:13Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M4BVEPN31YKBFAE9BYTX4B07",
+      "shortname": "trk-wfx",
+      "datetime": "2026-10-07T18:54:14Z",
+      "session": "trk-wfx",
+      "prompt": "trk-wfx round-oct06",
+      "summary": "py-resolve.sh resolver; in-window NativeMenuBar and window key bindings off macOS; thrown save refusals shown in the strip; point peers read the live point and raise name-changed; 9 checks in WindowsShellTests, 8 mutants red; Windows-only facts (bar drawing, Alt/F10, bar-side double fire) left to the PC walk",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fix the four Windows defects W-1 found (python resolver, menu and key gestures, save error shown, stale point peer name) with tests that force the non-macOS branch",
+      "done_when": "Red-first receipts, full ring green under 50 s, verify gates, check-docs and xaml-token-lint exit 0, pc-reverify walk written",
+      "started_at": "2026-10-07T18:23:39Z",
+      "duration_seconds": 1835.0
     }
   ],
   "changes": [

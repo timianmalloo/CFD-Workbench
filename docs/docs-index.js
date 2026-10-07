@@ -13634,6 +13634,56 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
+      "id": "proof-wfx-pc-reverify",
+      "path": "docs/proof/wfx/pc-reverify.md",
+      "title": "WFX - the Windows walk the PC re-runs",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wfx",
+      "phase": "implementation",
+      "reviewBy": "2027-01-07",
+      "reviewSuggested": [],
+      "summary": "The exact Windows walk the PC re-runs after the W-1 defect fixes, with what each step should now show.",
+      "tags": [
+        "windows",
+        "w-1",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-win-smoke",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f2ec04369637b63f1b580b4a1b47aa240f1e2a671e968c106c22c0cfaac1b838"
+    },
+    {
+      "id": "proof-wfx-red-first",
+      "path": "docs/proof/wfx/red-first.md",
+      "title": "WFX red-first receipts (W-1 Windows defects)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wfx",
+      "phase": "implementation",
+      "reviewBy": "2027-01-07",
+      "reviewSuggested": [],
+      "summary": "Red-first receipts for the four W-1 Windows defect fixes, run on macOS with the non-macOS branch forced.",
+      "tags": [
+        "windows",
+        "w-1",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-win-smoke",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "06756417f42e2c086383418679627e41bdace559f8a4c2e4b8a5443d0e3aaab1"
+    },
+    {
       "id": "proof-win-setup",
       "path": "docs/proof/win-setup/receipt.md",
       "title": "W-0 Windows setup host survey",
@@ -15617,5 +15667,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d336c686e8f31f679178f09e2f2cadec3be0572a7b3a2a6729df0b2783b33dd8"
+  "graphSha256": "74d90b252a9c013a7b810966f0852527e68191bf163885b4e1e4acc686d9baa2"
 };
