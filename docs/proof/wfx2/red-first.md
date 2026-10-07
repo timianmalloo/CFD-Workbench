@@ -33,11 +33,11 @@ The harness now also prints `STAGE <name>` before each main-flow stage, so the l
 
 ## Item 2 - JSON line endings
 
-Check: Core `Json_IndentedWriters_PinLfNewLine` (`tests/CfdWorkbench.Core.Tests/LayoutFileTests.cs`). `Environment.NewLine` cannot be forced to
+Check: Core `LayoutCodec_IndentedJson_PinsLfNewLine` (`tests/CfdWorkbench.Core.Tests/LayoutFileTests.cs`). `Environment.NewLine` cannot be forced to
 `\r\n` on macOS, so the failing part on old code is the structural scan (every `src` file that indents JSON must pin `NewLine = "\n"`).
 
-- Red: `FAIL Json_IndentedWriters_PinLfNewLine InvalidOperationException: indented JSON without NewLine = "\n": CfdWorkbench.Persistence/PreferenceStore.cs, .../LayoutCodec.cs, .../RecentList.cs, CfdWorkbench.Core/AuthoringSession.cs, CfdWorkbench.Cli/Program.cs`
-- Green (after pinning the five sites and `RunStoreTests.NoRunByteIdentical`): `PASS Json_IndentedWriters_PinLfNewLine`.
+- Red: `FAIL LayoutCodec_IndentedJson_PinsLfNewLine InvalidOperationException: indented JSON without NewLine = "\n": CfdWorkbench.Persistence/PreferenceStore.cs, .../LayoutCodec.cs, .../RecentList.cs, CfdWorkbench.Core/AuthoringSession.cs, CfdWorkbench.Cli/Program.cs`
+- Green (after pinning the five sites and `RunStoreTests.NoRunByteIdentical`): `PASS LayoutCodec_IndentedJson_PinsLfNewLine`.
 
 ## Item 3 - symlink privilege in tests
 

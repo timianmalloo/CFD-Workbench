@@ -19,7 +19,7 @@ internal static class LayoutFileTests
         Check("LayoutParse_OutOfRange_Clamped", OutOfRange);
         Check("RecentParse_RelativePath_Dropped", RelativeRecent);
         Check("LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9", Deepest);
-        Check("Json_IndentedWriters_PinLfNewLine", () => IndentedWritersPinLf());
+        Check("LayoutCodec_IndentedJson_PinsLfNewLine", () => IndentedWritersPinLf());
     }
 
     // Class JSON-NEWLINE-PLATFORM (docs/lessons/defect-classes.md): an indented JSON writer takes Environment.NewLine, which is

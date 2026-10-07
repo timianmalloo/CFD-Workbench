@@ -1980,6 +1980,6 @@ layout, recent-list, display-preference and native-project images are hashed, co
 **Class → sweep → derive → prevent:** signature: a JSON writer that indents and whose bytes leave the process. Derive: pin `NewLine = "\n"` on every such
 options instance. Sweep (`grep -rn "Indented = true" src`): `LayoutCodec.cs`, `RecentList.cs` (source-generation attributes), `PreferenceStore.cs` (`Utf8JsonWriter`),
 `AuthoringSession.cs` (`NativeProject.Options`), `Cli/Program.cs`: all five pinned; the one test copy that rebuilds a writer (`RunStoreTests.NoRunByteIdentical`) pinned too.
-Control: `Json_IndentedWriters_PinLfNewLine` (Core tests, `LayoutFileTests.cs`, ring cost under 0.1 s) fails any `src/**/*.cs` file that indents JSON without a
+Control: `LayoutCodec_IndentedJson_PinsLfNewLine` (Core tests, `LayoutFileTests.cs`, ring cost under 0.1 s) fails any `src/**/*.cs` file that indents JSON without a
 `NewLine = "\n"` in it, and asserts the pinned context options and the serialized images hold no `\r`. `Environment.NewLine` cannot be forced on macOS, so the
 scan is the part that fails on the old code. Residual: a file with two options instances, one pinned, passes the scan.
