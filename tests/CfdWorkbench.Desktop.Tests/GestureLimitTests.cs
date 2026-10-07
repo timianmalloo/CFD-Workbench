@@ -60,6 +60,49 @@ public static class GestureLimitTests
             Settle(window);
             Require(Math.Abs(controller.Estimates!.RootChordMeters - 0.3) < 1e-6, "Use did not apply the root maximum");
         });
+        Pane("PropertiesPane_TypedTipBelowMinimum_KeepsTextRefusesAndOffersUseOnlyOnClick", (controller, host, window) =>
+        {
+            var tip = Need<TextBox>(host.Properties, "TipChordInput");
+            string before = controller.AcceptedSource;
+            tip.Text = "3";
+            Key(tip, Avalonia.Input.Key.Enter);
+            Settle(window);
+            string minimum = Min(controller);
+            Require(tip.Text == "3", "the typed text was rewritten: " + tip.Text);
+            Require(Text(host.Properties, "Message_w_tip") == TipChord.TypedRefusalReason(controller.Estimates!.RootChordMeters),
+                "refusal: " + Text(host.Properties, "Message_w_tip"));
+            Require(Text(host.Properties, "Message_w_tip").EndsWith($"Enter {minimum} or more.", StringComparison.Ordinal), "no way out in the message");
+            var use = Need<HyperlinkButton>(host.Properties, "UseLimit_w_tip");
+            Require(use.IsVisible && use.Content?.ToString() == $"Use {minimum}", "no Use action: " + use.Content);
+            Require(controller.AcceptedSource == before, "the refusal changed the source before any click");
+            use.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            Settle(window);
+            Require(controller.AcceptedSource != before && Math.Abs(controller.Estimates!.TipChordMeters - 0.005) < 1e-6, "Use did not apply the minimum");
+            Require(!Need<HyperlinkButton>(host.Properties, "UseLimit_w_tip").IsVisible, "Use stayed after it was applied");
+        });
+        Pane("PropertiesPane_HeldTipDrag_WingRowStripAndPointNameSpeakTheSameWords_MarkerRenders", (controller, host, window) =>
+        {
+            var tipView = controller.Planform!.Trailing.Points[^1];
+            var tip = new PointRef("trailing", tipView.Id);
+            Require(controller.BeginGesture(tip, GestureInput.Pointer), "begin refused");
+            DragTo(controller, tipView.SpanMeters, controller.Planform!.Leading.Points[^1].Ordinate + 0.001);
+            Settle(window);
+            var description = Need<TextBlock>(host.Properties, "Description_w_tip");
+            Require(description.IsVisible && description.Text == $"{Quantity.TypedLength(controller.Estimates!.TipChordMeters)} mm · minimum",
+                "tip row: " + description.Text);
+            Require(controller.Status == "Tip chord is at its minimum, 5 mm.", "strip: " + controller.Status);
+            var canvas = host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!;
+            var peer = ControlAutomationPeer.CreatePeerForElement(canvas)!;
+            var named = peer.GetChildren()!.Where(child => child.GetName().Contains("Tip chord is at its minimum, 5 mm.", StringComparison.Ordinal)).ToArray();
+            Require(named.Length == 1 && named[0].GetName().Contains("Trailing edge, point", StringComparison.Ordinal),
+                $"{named.Length} points carry the hold sentence; it belongs on the held point only");
+            using (PropertiesCellsTests.Render(canvas, 1))
+                Require(canvas.RenderBanner is null, "the plan could not render with a held limit: " + canvas.RenderBanner);
+            controller.EndGestureAsync(GestureEnd.Escape).GetAwaiter().GetResult();
+            Settle(window);
+            Require(!Need<TextBlock>(host.Properties, "Description_w_tip").IsVisible, "the minimum note outlived the gesture");
+            Require(!peer.GetChildren()!.Any(child => child.GetName().Contains("minimum", StringComparison.Ordinal)), "the hold sentence outlived the gesture");
+        });
     }
 
     public static void RunController()
@@ -160,48 +203,5 @@ public static class GestureLimitTests
 
     public static void RunPane()
     {
-        Pane("PropertiesPane_TypedTipBelowMinimum_KeepsTextRefusesAndOffersUseOnlyOnClick", (controller, host, window) =>
-        {
-            var tip = Need<TextBox>(host.Properties, "TipChordInput");
-            string before = controller.AcceptedSource;
-            tip.Text = "3";
-            Key(tip, Avalonia.Input.Key.Enter);
-            Settle(window);
-            string minimum = Min(controller);
-            Require(tip.Text == "3", "the typed text was rewritten: " + tip.Text);
-            Require(Text(host.Properties, "Message_w_tip") == TipChord.TypedRefusalReason(controller.Estimates!.RootChordMeters),
-                "refusal: " + Text(host.Properties, "Message_w_tip"));
-            Require(Text(host.Properties, "Message_w_tip").EndsWith($"Enter {minimum} or more.", StringComparison.Ordinal), "no way out in the message");
-            var use = Need<HyperlinkButton>(host.Properties, "UseLimit_w_tip");
-            Require(use.IsVisible && use.Content?.ToString() == $"Use {minimum}", "no Use action: " + use.Content);
-            Require(controller.AcceptedSource == before, "the refusal changed the source before any click");
-            use.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            Settle(window);
-            Require(controller.AcceptedSource != before && Math.Abs(controller.Estimates!.TipChordMeters - 0.005) < 1e-6, "Use did not apply the minimum");
-            Require(!Need<HyperlinkButton>(host.Properties, "UseLimit_w_tip").IsVisible, "Use stayed after it was applied");
-        });
-        Pane("PropertiesPane_HeldTipDrag_WingRowStripAndPointNameSpeakTheSameWords_MarkerRenders", (controller, host, window) =>
-        {
-            var tipView = controller.Planform!.Trailing.Points[^1];
-            var tip = new PointRef("trailing", tipView.Id);
-            Require(controller.BeginGesture(tip, GestureInput.Pointer), "begin refused");
-            DragTo(controller, tipView.SpanMeters, controller.Planform!.Leading.Points[^1].Ordinate + 0.001);
-            Settle(window);
-            var description = Need<TextBlock>(host.Properties, "Description_w_tip");
-            Require(description.IsVisible && description.Text == $"{Quantity.TypedLength(controller.Estimates!.TipChordMeters)} mm · minimum",
-                "tip row: " + description.Text);
-            Require(controller.Status == "Tip chord is at its minimum, 5 mm.", "strip: " + controller.Status);
-            var canvas = host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!;
-            var peer = ControlAutomationPeer.CreatePeerForElement(canvas)!;
-            var named = peer.GetChildren()!.Where(child => child.GetName().Contains("Tip chord is at its minimum, 5 mm.", StringComparison.Ordinal)).ToArray();
-            Require(named.Length == 1 && named[0].GetName().Contains("Trailing edge, point", StringComparison.Ordinal),
-                $"{named.Length} points carry the hold sentence; it belongs on the held point only");
-            using (PropertiesCellsTests.Render(canvas, 1))
-                Require(canvas.RenderBanner is null, "the plan could not render with a held limit: " + canvas.RenderBanner);
-            controller.EndGestureAsync(GestureEnd.Escape).GetAwaiter().GetResult();
-            Settle(window);
-            Require(!Need<TextBlock>(host.Properties, "Description_w_tip").IsVisible, "the minimum note outlived the gesture");
-            Require(!peer.GetChildren()!.Any(child => child.GetName().Contains("minimum", StringComparison.Ordinal)), "the hold sentence outlived the gesture");
-        });
     }
 }

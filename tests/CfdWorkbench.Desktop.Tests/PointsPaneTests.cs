@@ -68,6 +68,63 @@ public static class PointsPaneTests
                 failures.Add($"section.cancel: '{host.StatusStrip.Text}'");
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
+        Section("Properties_SectionPointTypedX_OneStepExact", (controller, host, window) =>
+        {
+            SelectUpper(controller, "cv-5");
+            Settle(window);
+            int steps = controller.Section!.Draft.StepCount;
+            var (typed, expected) = Between(controller, "cv-5");
+            var box = Need<TextBox>(host.Properties, "PointSpanInput");
+            box.Focus();
+            box.Text = typed;
+            Key(box, Avalonia.Input.Key.Enter);
+            Settle(window);
+            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-5");
+            if (controller.Section!.Draft.StepCount != steps + 1 || point.SpanMeters != expected)
+                throw new InvalidOperationException($"steps {steps} → {controller.Section.Draft.StepCount}; x {point.SpanMeters:R}");
+        });
+        Section("Properties_SectionPointTypedMmX_ConvertedAtStationChord", (controller, host, window) =>
+        {
+            SelectUpper(controller, "cv-5");
+            Settle(window);
+            double chord = Sections.Facts(controller.Section!.Draft.Bytes, controller.Section.Draft.Assignment).StationChordMeters;
+            var (typed, _) = Between(controller, "cv-5");
+            double millimetres = double.Parse(typed, System.Globalization.CultureInfo.InvariantCulture) / 100 * chord * 1000;
+            string mm = millimetres.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+            var box = Need<TextBox>(host.Properties, "PointSpanInput");
+            box.Focus();
+            box.Text = mm + " mm";
+            Key(box, Avalonia.Input.Key.Enter);
+            Settle(window);
+            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-5");
+            double expected = double.Parse(mm, System.Globalization.CultureInfo.InvariantCulture) / 1000 / chord;
+            string strip = host.StatusStrip.Text;
+            if (point.SpanMeters != expected || !strip.Contains($"= {Quantity.Typed(expected * 100)} % chord", StringComparison.Ordinal))
+                throw new InvalidOperationException($"x {point.SpanMeters:R} (expected {expected:R} at chord {chord}); strip '{strip}'");
+        });
+        Section("StatusStrip_CrossingCleared_Copy124RenderedOnce", (controller, host, window) =>
+        {
+            int cleared = 0;
+            var text = StatusStripTests.Text(host);
+            text.PropertyChanged += (_, change) =>
+            {
+                if (change.Property == TextBlock.TextProperty && change.NewValue as string == Copy124) cleared++;
+            };
+            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
+            // A step with no crossing before it never says COPY-124.
+            Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, point.Ordinate + 0.005)));
+            WaitAssessed(controller, window);
+            if (cleared != 0) throw new InvalidOperationException("COPY-124 shown without a crossing");
+            Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, -0.3)));
+            WaitAssessed(controller, window);
+            Pump(controller.UndoSectionStepAsync());
+            WaitAssessed(controller, window);
+            if (cleared != 1 || host.StatusStrip.Text != Copy124)
+                throw new InvalidOperationException($"COPY-124 rendered {cleared} times; strip '{host.StatusStrip.Text}'");
+            Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, point.Ordinate + 0.006)));
+            WaitAssessed(controller, window);
+            if (cleared != 1) throw new InvalidOperationException($"COPY-124 rendered {cleared} times after a later step");
+        });
     }
 
     public static void Run()
@@ -214,30 +271,6 @@ public static class PointsPaneTests
                 throw new InvalidOperationException($"Show selected {controller.Selection}; frame request {shown}");
         });
 
-        Section("StatusStrip_CrossingCleared_Copy124RenderedOnce", (controller, host, window) =>
-        {
-            int cleared = 0;
-            var text = StatusStripTests.Text(host);
-            text.PropertyChanged += (_, change) =>
-            {
-                if (change.Property == TextBlock.TextProperty && change.NewValue as string == Copy124) cleared++;
-            };
-            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-3");
-            // A step with no crossing before it never says COPY-124.
-            Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, point.Ordinate + 0.005)));
-            WaitAssessed(controller, window);
-            if (cleared != 0) throw new InvalidOperationException("COPY-124 shown without a crossing");
-            Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, -0.3)));
-            WaitAssessed(controller, window);
-            Pump(controller.UndoSectionStepAsync());
-            WaitAssessed(controller, window);
-            if (cleared != 1 || host.StatusStrip.Text != Copy124)
-                throw new InvalidOperationException($"COPY-124 rendered {cleared} times; strip '{host.StatusStrip.Text}'");
-            Pump(host.ApplySectionStepAsync(new SectionStep.Move(SurfaceSide.Upper, "cv-3", point.SpanMeters, point.Ordinate + 0.006)));
-            WaitAssessed(controller, window);
-            if (cleared != 1) throw new InvalidOperationException($"COPY-124 rendered {cleared} times after a later step");
-        });
-
         Section("StatusStrip_SectionInsertReport_CountAndDeviation", (controller, host, window) =>
         {
             SelectUpper(controller, "cv-3");
@@ -331,42 +364,6 @@ public static class PointsPaneTests
             if (!labels.Contains("x · both surfaces") || !labels.Contains("Type · both surfaces") || !labels.Contains("% c") ||
                 !labels.Contains(PropertiesView.PairLine("lower", point.Index + 1)))
                 throw new InvalidOperationException("section rows not rendered: " + string.Join(" | ", labels.Take(20)));
-        });
-
-        Section("Properties_SectionPointTypedX_OneStepExact", (controller, host, window) =>
-        {
-            SelectUpper(controller, "cv-5");
-            Settle(window);
-            int steps = controller.Section!.Draft.StepCount;
-            var (typed, expected) = Between(controller, "cv-5");
-            var box = Need<TextBox>(host.Properties, "PointSpanInput");
-            box.Focus();
-            box.Text = typed;
-            Key(box, Avalonia.Input.Key.Enter);
-            Settle(window);
-            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-5");
-            if (controller.Section!.Draft.StepCount != steps + 1 || point.SpanMeters != expected)
-                throw new InvalidOperationException($"steps {steps} → {controller.Section.Draft.StepCount}; x {point.SpanMeters:R}");
-        });
-
-        Section("Properties_SectionPointTypedMmX_ConvertedAtStationChord", (controller, host, window) =>
-        {
-            SelectUpper(controller, "cv-5");
-            Settle(window);
-            double chord = Sections.Facts(controller.Section!.Draft.Bytes, controller.Section.Draft.Assignment).StationChordMeters;
-            var (typed, _) = Between(controller, "cv-5");
-            double millimetres = double.Parse(typed, System.Globalization.CultureInfo.InvariantCulture) / 100 * chord * 1000;
-            string mm = millimetres.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
-            var box = Need<TextBox>(host.Properties, "PointSpanInput");
-            box.Focus();
-            box.Text = mm + " mm";
-            Key(box, Avalonia.Input.Key.Enter);
-            Settle(window);
-            var point = controller.SectionCurve(SurfaceSide.Upper)!.Points.Single(item => item.Id == "cv-5");
-            double expected = double.Parse(mm, System.Globalization.CultureInfo.InvariantCulture) / 1000 / chord;
-            string strip = host.StatusStrip.Text;
-            if (point.SpanMeters != expected || !strip.Contains($"= {Quantity.Typed(expected * 100)} % chord", StringComparison.Ordinal))
-                throw new InvalidOperationException($"x {point.SpanMeters:R} (expected {expected:R} at chord {chord}); strip '{strip}'");
         });
 
         Pane("Properties_StationGroup_EndsWithEditSectionLink", (controller, host, window) =>

@@ -80,14 +80,14 @@ internal static class IdentityTests
         FoilSourceTests.Run();
         GeometryTests.Run();
         ProofBudgetTests.Run();
-        PlacementTests.Run();
+        GroupGestureTests.Run();
         PlacementTraceTests.Run();
         BlendTests.Run();
         AuthoringSessionTests.Run();
         ProjectStoreTests.Run();
         SectionLibraryTests.Run();
         SectionEditTests.Run();
-        SectionEditTests.RunMultiProfile();
+        ReopenSectionDraftTests.Run();
         FitTests.Run();
         ConstructionTests.Run();
         FairSessionTests.Run();
@@ -104,7 +104,7 @@ internal static class IdentityTests
         PointModelTests.Run();
         LengthExpressionTests.Run();
         PointGestureTests.Run();
-        GroupGestureTests.Run();
+        PlacementTests.Run();
         PointCommandTests.Run();
         ReopenPointEditTests.Run();
         ChannelEditTests.Run();
@@ -113,7 +113,7 @@ internal static class IdentityTests
         SectionPointTests.Run();
         SectionEditsTests.Run();
         SectionDraftTests.Run();
-        ReopenSectionDraftTests.Run();
+        SectionEditTests.RunMultiProfile();
         OverlayTests.Run();
         bool emptyPart = part is not null && only is null && ran == 0;
         if (part is { } p)
