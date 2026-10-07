@@ -1,23 +1,123 @@
 ---
 id: proof-win-store-design
-title: "B1 Windows store design author checkpoint"
+title: "B1 Windows native store design validation receipt"
 type: proof-pack
 status: in-review
 owner: "@win-store-design-20261007"
 phase: windows-w-2-design
 tags: [windows, persistence, design, proof]
 links:
+  - { to: design-windows-native-store, rel: documents }
+  - { to: review-pr-3, rel: depends-on }
   - { to: proof-win-store-design-candidate, rel: documents }
   - { to: coordination-windows-w0-w5-execution, rel: implements }
   - { to: design-windows-runtime, rel: relates-to }
 review-by: 2026-11-07
 summary: >-
-  B1 author handback for the complete Windows store design candidate. The final
-  design path is held pending affirmative Mac handoff; native qualification and
-  independent Data, Security and Test approval are not asserted.
+  Records the canonical B1 content commit, one tested SHA and separate stdout/stderr
+  from its docs validation. Mac path handoff and W-1 merge are confirmed; native
+  qualification and independent Data, Security and Test approval remain open.
 ---
 
-# B1 author checkpoint
+# B1 canonical design validation receipt
+
+Goal: publish the canonical B1 Windows native project-store design for Mac/Fable
+review. Done when: canonical content is committed, one docs validation captures
+both streams, and this receipt identifies its tested SHA. Not in scope: B2,
+source/tests/tools/cases, shared audit/register/index/xmsg writes, push or PR.
+Tier T1; fan-out cap 1; no subagents. The worktree and author seat remain those of
+the earlier checkpoint below.
+
+**Canonical content commit / single tested SHA:**
+`94c0b164793a6682b82c33c301c61a9ae8ae69e9`.
+
+The PR body must use exactly that tested SHA, equal to this receipt's, under
+PR #3 condition 1. Later evidence commits add only receipt/output evidence and
+do not change the tested canonical design or corrected candidate. Final delivery
+HEAD is returned separately and must not replace this tested SHA.
+
+## Current authority and dependency
+
+Verified in the committed xmsg log: Mac message `20261007T181920-mac-914614500`,
+at 2026-10-07T18:19:20Z, authorizes the new canonical design path for B1, requiring
+Ruling 121, a new Windows helper and exclusion of `cfd_store.c`. It states:
+"Fable/Data review on the Mac before B2 starts."
+
+Mac message `20261007T181919-mac-712811458` confirms PR #3 merged, APPROVE WITH
+CONDITIONS. [The Fable review](../../reviews/pr-3.md) requires one tested SHA equal
+to the receipt's and W-2 stderr capture. Its W-1 runtime findings remain that
+review's evidence; this author did not repeat the smoke walk. The coordinator had
+already merged `origin/main` before continuation. `xmsg.py unread --mark` exited 0,
+with no unread messages; the exact committed messages were then read directly.
+
+The canonical document has design frontmatter and `status: in-review`; its
+proof-only/pending-path wrapper is removed. This current record supersedes the
+earlier HOLD and pending-W-1 status preserved in the historical checkpoint below.
+
+## TraceId correction: class, sweep, derive, prevent
+
+Class: identifier grain inferred from the owning telemetry container rather than
+its generator. The candidate originally described a session correlation ID.
+`ProjectStore.cs:58` and `:67` generate a new TraceId per operation and propagate
+it to that operation's stages. The ring is session-owned; TraceId is operation-scoped.
+Sweep: both candidate and canonical content are corrected. Existing
+`Store_IoEvents_CorrelateAndRetainFailureFacts` checks one trace within an operation
+and a different trace for a later operation. The documentation now cites the actual
+generator. No new test or control is claimed; shared register/audit treatment
+belongs to the coordinator under this exact-path lease.
+
+## Single canonical validation and both streams
+
+Run once after the canonical content commit:
+
+```powershell
+py -3 tools/check-docs.py 1> docs/proof/win-store-design/check-docs.stdout.txt 2> docs/proof/win-store-design/check-docs.stderr.txt
+```
+
+Exit **1**. [stdout](check-docs.stdout.txt) and [stderr](check-docs.stderr.txt) are
+retained separately, satisfying PR #3 condition 3. Result:
+`validate: 3 defect(s) - 0 problem(s), 0 orphan(s), 3 index-drift item(s)`.
+The missing entries are `design-windows-native-store`, `proof-win-smoke` and
+`review-pr-3`; the last two arrived with W-1. There are 131 existing non-failing
+review suggestions. Actual spiral check passes: `(50 commits, 11 product)`.
+Completed static/hook/lesson checks pass before graph validation stops the command.
+Stderr retains the graph failure and traceback. A full green docs gate or readiness
+is not claimed. Official index derivation remains coordinator-owned.
+
+No source/tests/build/native work or ring was run in this docs-only continuation.
+`git diff --check` and the content commit's staged check pass. SDK/compiler and
+native execution remain Not assessed. The historical host rows below are not a
+new capability measurement.
+
+## Current execution and handback
+
+Optimize-graph used the assigned delegation as compiled scope. Four serial nodes:
+verify handoff/source → canonical content commit → one validation → receipt/evidence
+commit. Width one; no speed/token saving claimed. Separate evidence commits avoid
+a self-referential tested-SHA receipt. No completed gate was rerun. Index drift is
+reported rather than repaired outside ownership.
+
+Frozen helpers remain `native/cfd_store_windows.c` and `WindowsProjectStore.cs`
+under Persistence; `native/cfd_store.c` stays excluded. Ruling 121, D-B1-DUR and
+independent Data/Security/Test veto criteria remain unchanged. B2 is not authorized.
+
+Remaining approvals: Fable/Data scope and durability ruling; independent Data,
+Security and Test verdicts; native relative-root/reparse/security qualification;
+compiler/SDK route; imported ACL/metadata policy; affirmative B2 shared-path handoffs.
+Mac B1 path handoff and W-1 merge are resolved. Coordinator derivation, audit/change
+entries, rollups and delivery validation remain separate work.
+
+| Status | Result |
+|---|---|
+| Completed | Canonical B1 content committed and validated once with both streams retained |
+| Remaining | Coordinator derivation/delivery checks, independent approvals and B2/native/product proof |
+| Best next action | Mac/Fable review canonical design section 11; production B2 stays gated |
+
+## Earlier author checkpoint (historical)
+
+The following original receipt covers the pre-handoff candidate phase only. Its
+HOLD/dependency status and earlier validation are superseded by the current record
+above; [check-docs.txt](check-docs.txt) is retained as that earlier run's raw output.
 
 Goal: prepare the source-cited Windows native project-store design for Mac/Fable review.
 Done when: a complete candidate and exact approval request are committed under the
