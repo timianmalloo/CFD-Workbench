@@ -10764,6 +10764,60 @@ window.DOCS_INDEX = {
       "sourceSha256": "711ca0f0fa03ea865db7996d59c384f1f354a215477182310bee76d044d9f0cf"
     },
     {
+      "id": "proof-cpv-captures",
+      "path": "docs/proof/cpv/captures.md",
+      "title": "CPV captures of the Cp-coloured Section profile against the approved mockups",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Light and dark captures of the Section document with a strip selected, opened and compared with mockup state B (and DX state row 5), with the differences and the mockup strings that have no approved COPY row named.",
+      "tags": [
+        "cpv",
+        "captures",
+        "section"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-main-area",
+          "rel": "refines"
+        },
+        {
+          "to": "proof-cpv-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "709f29cfd48e3ed0cf861bf7a447116b01f76d793a94b112dc2d9311d6b65483"
+    },
+    {
+      "id": "proof-cpv-red-first",
+      "path": "docs/proof/cpv/red-first.md",
+      "title": "CPV red-first receipts",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The checks that failed on the old code (compile red: the members did not exist) and the runs that passed after the change.",
+      "tags": [
+        "cpv",
+        "red-first",
+        "section"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-main-area",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "56ff4bf18e95074018694184bd621fdd2146cc624e013d34c27528ec685591f7"
+    },
+    {
       "id": "proof-cpy-red-first",
       "path": "docs/proof/cpy/red-first.md",
       "title": "Track CPY, round-oct06 — red-first receipts and captures",
@@ -15178,5 +15232,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "5187645eb75d36f0849fee791d2c37b402529b9fe46b6cb600c4f0d09b0b0485"
+  "graphSha256": "4af35ea4296b1a1f2c5f9c4146a176197f7b4940115ee14494bcee4578d63f03"
 };

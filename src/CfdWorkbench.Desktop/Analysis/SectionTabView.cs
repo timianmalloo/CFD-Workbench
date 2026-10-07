@@ -20,9 +20,9 @@ namespace CfdWorkbench.Desktop.Analysis;
 public sealed class SectionTabView : UserControl
 {
     private static readonly string[] Selector = ["cp", "polar", "transition", "bucket"];
-    private const double ProfileHeight = 200, ChartHeight = 300;
+    private const double ProfileHeight = 240, ChartHeight = 300;
     private readonly StackPanel root = new() { Name = "SectionTab" };
-    private readonly SectionChartView profile = new() { Height = ProfileHeight, Name = "SectionProfileView" };
+    private readonly SectionProfileView profile = new() { Height = ProfileHeight, Name = "SectionProfileView" };
     private readonly SectionChartView chart = new() { Height = ChartHeight, MinWidth = 260, Name = "SectionChart" };
     private readonly StackPanel twin = new() { Name = "section-twin", IsVisible = false };
     private readonly Dictionary<string, ToggleButton> buttons = new();
@@ -63,7 +63,7 @@ public sealed class SectionTabView : UserControl
 
     public SectionChartView Chart => chart;
 
-    public SectionChartView ProfileView => profile;
+    public SectionProfileView ProfileView => profile;
 
     public IReadOnlyList<ResultGroup> Tables { get; private set; } = [];
 
@@ -183,7 +183,7 @@ public sealed class SectionTabView : UserControl
     private void Refresh()
     {
         if (Shown is null) return;
-        profile.Model = Shown.Charts.First(c => c.Id == "profile");
+        profile.Model = Shown.Profile;
         ChartModel model = Shown.Charts.First(c => c.Id == chosen);
         chart.Model = model;
         if (legend is not null)

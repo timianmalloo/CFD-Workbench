@@ -234,14 +234,20 @@ internal static class DxSectionTests
 
     private static void ProfileView()
     {
-        ChartPlot plot = Build().Charts.Single(c => c.Id == "profile").Plots.Single();
-        ChartSeries upper = plot.Series.Single(s => s.Name == "upper"), comb = plot.Series.Single(s => s.Name == "Cp upper");
-        Equal(upper.Points.Count, comb.Points.Count, "a comb point per contour point");
-        ChartPoint last = upper.Points[^1], combLast = comb.Points[^1];
-        Equal(true, Math.Abs(last.X - combLast.X) < 1e-12, "comb shares the contour's x");
-        Equal(true, plot.Markers.Any(m => m.Name == "Cp_min"), "Cp_min marker");
-        Equal(true, upper.Points.Zip(comb.Points).Any(p => Math.Abs(p.First.Y - p.Second.Y) > 1e-4), "Cp offsets the comb from the contour");
-        Equal(false, plot.InvertY, "the profile is drawn upright");
+        SectionView view = Build();
+        Equal(false, view.Charts.Any(c => c.Id == "profile"), "the profile is its own record now, not a line chart");
+        SectionProfile profile = view.Profile ?? throw new Exception("no profile on the Section view");
+        PanelResult panel = F.Gov.Estimate.Panel;
+        Equal(panel.Upper.Count + panel.Lower.Count, profile.Outline.Count, "one outline point per panel point, upper then lower");
+        Equal(true, profile.Outline.SequenceEqual(panel.Upper.Concat(panel.Lower)), "the outline carries the panel solve's own X, Z and Cp");
+        Equal(true, profile.CpLow < 0 && profile.CpHigh > 0, "Cp of both signs on the outline");
+        Equal(panel.Upper.Concat(panel.Lower).Min(p => p.Cp), profile.CpLow, "the legend's low end is the data's minimum");
+        Equal(panel.Upper.Concat(panel.Lower).Max(p => p.Cp), profile.CpHigh, "the legend's high end is the data's maximum");
+        Equal(panel.CpMin, profile.CpMinPanel.Cp, "the marker sits at the panel that sets Cp_min");
+        Equal(true, profile.Outline.Contains(profile.CpMinPanel), "the marker panel is on the outline");
+        Equal(true, profile.Side is "upper" or "lower", "the side is named");
+        Equal("Section · η " + F.Gov.Eta.ToString("0.###", System.Globalization.CultureInfo.InvariantCulture), profile.Caption, "the caption chip");
+        Equal(Labels.EstimatorChip + " · inviscid; no boundary layer", profile.Tier, "the estimator tier chip");
     }
 
     private static void ScreenValues()
