@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T18:19:18Z",
+  "generated": "2026-10-07T18:31:11Z",
   "audit": [
     {
       "actor": null,
@@ -29038,6 +29038,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T18:19:13Z",
       "duration_seconds": 5.0
+    },
+    {
+      "id": "al-01M4BT4G4TB01QWRM6RERJYGWW",
+      "shortname": "windows-solver-routes-blocked",
+      "datetime": "2026-10-07T18:31:11Z",
+      "session": "win-local-coordinator-20261007",
+      "prompt": "Continue W-3 solver-route qualification on Windows with pinned Ubuntu, OpenFOAM v2512, native SU2 v8.5.0, a cavity smoke, and measurement-only GPU inspection.",
+      "summary": "Verified Ubuntu/OpenFOAM and native SU2; SU2 smoke passed. Stopped before OpenFOAM cavity after the third destination-parent failure need fired the two-repair cap. W-4 and W-5 remain blocked.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "win-local-coordinator",
+      "artifacts": [
+        "docs/proof/win-routes/receipt.md",
+        "cases/win-su2-smoke.yaml"
+      ],
+      "tags": [
+        "windows",
+        "openfoam",
+        "su2"
+      ],
+      "outcome": "blocked",
+      "goal": "Verify both Windows solver routes and complete the OpenFOAM cavity through t=0.5.",
+      "done_when": "Every guided route step is observed and both OpenFOAM cavity and native SU2 smoke meet their recorded oracles.",
+      "tier": "T2",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "git": {
+        "sha": "2824ab3e36b93150eb4bf5b372732c8f2e52a3c1",
+        "short": "2824ab3e3",
+        "branch": "win/solver-routes",
+        "pushed": false
+      }
     }
   ],
   "changes": [
