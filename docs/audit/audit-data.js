@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T18:45:27Z",
+  "generated": "2026-10-07T18:57:34Z",
   "audit": [
     {
       "actor": null,
@@ -29013,77 +29013,124 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4BSEQETNKADVT827F0WBV75",
-      "shortname": "join-pr3",
-      "datetime": "2026-10-07T18:19:18Z",
-      "session": "14e5e8d5",
-      "prompt": "the join of origin/win/windows-smoke into main",
-      "summary": "W-1 receipt: build PASS; ring blocked by python3 Store alias; Ctrl+Z/Ctrl+S reach nothing (gestures only on the macOS NativeMenu); save error stderr-only; stale point automation name; conditions in docs/reviews/pr-3.md recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join PC PR #3",
+      "datetime": "2026-10-07T18:19:18Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 5.0,
       "fan_out": 0,
+      "goal": "join PC PR #3",
+      "id": "al-01M4BSEQETNKADVT827F0WBV75",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of origin/win/windows-smoke into main",
+      "session": "14e5e8d5",
+      "shortname": "join-pr3",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-07T18:19:13Z",
-      "duration_seconds": 5.0
+      "summary": "W-1 receipt: build PASS; ring blocked by python3 Store alias; Ctrl+Z/Ctrl+S reach nothing (gestures only on the macOS NativeMenu); save error stderr-only; stale point automation name; conditions in docs/reviews/pr-3.md recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4BT4G4TB01QWRM6RERJYGWW",
-      "shortname": "windows-solver-routes-blocked",
-      "datetime": "2026-10-07T18:31:11Z",
-      "session": "win-local-coordinator-20261007",
-      "prompt": "Continue W-3 solver-route qualification on Windows with pinned Ubuntu, OpenFOAM v2512, native SU2 v8.5.0, a cavity smoke, and measurement-only GPU inspection.",
-      "summary": "Verified Ubuntu/OpenFOAM and native SU2; SU2 smoke passed. Stopped before OpenFOAM cavity after the third destination-parent failure need fired the two-repair cap. W-4 and W-5 remain blocked.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
       "actor": "win-local-coordinator",
       "artifacts": [
         "docs/proof/win-routes/receipt.md",
         "cases/win-su2-smoke.yaml"
       ],
+      "datetime": "2026-10-07T18:31:11Z",
+      "done_when": "Every guided route step is observed and both OpenFOAM cavity and native SU2 smoke meet their recorded oracles.",
+      "fan_out": 2,
+      "git": {
+        "branch": "win/solver-routes",
+        "pushed": false,
+        "sha": "2824ab3e36b93150eb4bf5b372732c8f2e52a3c1",
+        "short": "2824ab3e3"
+      },
+      "goal": "Verify both Windows solver routes and complete the OpenFOAM cavity through t=0.5.",
+      "id": "al-01M4BT4G4TB01QWRM6RERJYGWW",
+      "kind": "manual",
+      "outcome": "blocked",
+      "prompt": "Continue W-3 solver-route qualification on Windows with pinned Ubuntu, OpenFOAM v2512, native SU2 v8.5.0, a cavity smoke, and measurement-only GPU inspection.",
+      "session": "win-local-coordinator-20261007",
+      "shortname": "windows-solver-routes-blocked",
+      "signals": {
+        "acceptance_met": false,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": null,
+      "summary": "Verified Ubuntu/OpenFOAM and native SU2; SU2 smoke passed. Stopped before OpenFOAM cavity after the third destination-parent failure need fired the two-repair cap. W-4 and W-5 remain blocked.",
       "tags": [
         "windows",
         "openfoam",
         "su2"
       ],
-      "outcome": "blocked",
-      "goal": "Verify both Windows solver routes and complete the OpenFOAM cavity through t=0.5.",
-      "done_when": "Every guided route step is observed and both OpenFOAM cavity and native SU2 smoke meet their recorded oracles.",
       "tier": "T2",
-      "fan_out": 2,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": false,
-        "regression": false
-      },
-      "git": {
-        "sha": "2824ab3e36b93150eb4bf5b372732c8f2e52a3c1",
-        "short": "2824ab3e3",
-        "branch": "win/solver-routes",
-        "pushed": false
-      }
+      "tool": null
     },
     {
-      "id": "al-01M4BTYKDWQ4B7G62JB7V32TH4",
-      "shortname": "join-pr4",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-07T18:45:27Z",
-      "session": "14e5e8d5",
+      "done_when": "join gates green",
+      "duration_seconds": 55.0,
+      "fan_out": 0,
+      "goal": "join PC PR #4",
+      "id": "al-01M4BTYKDWQ4B7G62JB7V32TH4",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of origin/win/solver-routes into main",
+      "session": "14e5e8d5",
+      "shortname": "join-pr4",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T18:44:32Z",
       "summary": "Ubuntu 24.04.5 WSL, OpenFOAM v2512, SU2 v8.5.0 installed and hash-verified; SU2 smoke passed; cavity blocked (missing parent dir); re-entry Ruling 133; evidence conditions (LF input hashes, observed tutorial sha256, Windows ring names) recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T18:54:14Z",
+      "done_when": "Red-first receipts, full ring green under 50 s, verify gates, check-docs and xaml-token-lint exit 0, pc-reverify walk written",
+      "duration_seconds": 1835.0,
+      "goal": "Fix the four Windows defects W-1 found (python resolver, menu and key gestures, save error shown, stale point peer name) with tests that force the non-macOS branch",
+      "id": "al-01M4BVEPN31YKBFAE9BYTX4B07",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-wfx round-oct06",
+      "session": "trk-wfx",
+      "shortname": "trk-wfx",
+      "skill": "implement",
+      "started_at": "2026-10-07T18:23:39Z",
+      "summary": "py-resolve.sh resolver; in-window NativeMenuBar and window key bindings off macOS; thrown save refusals shown in the strip; point peers read the live point and raise name-changed; 9 checks in WindowsShellTests, 8 mutants red; Windows-only facts (bar drawing, Alt/F10, bar-side double fire) left to the PC walk",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4BVMT7E5Q8N2VRQZNB4F597",
+      "shortname": "join-wfx",
+      "datetime": "2026-10-07T18:57:34Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of fix/windows-w1-defects into main",
+      "summary": "tools/py-resolve.sh (skips the Store alias), NativeMenuBar + KeyBindings off macOS (ADR-0009), thrown save failures to the status strip, live point automation names with name-changed events; 8 mutants red; Windows itself not run - PC re-verifies with docs/proof/wfx/pc-reverify.md recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -29092,7 +29139,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join PC PR #4",
+      "goal": "join fix/windows-w1-defects",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -29101,8 +29148,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-07T18:44:32Z",
-      "duration_seconds": 55.0
+      "started_at": "2026-10-07T18:56:41Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [

@@ -13671,6 +13671,56 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
+      "id": "proof-wfx-pc-reverify",
+      "path": "docs/proof/wfx/pc-reverify.md",
+      "title": "WFX - the Windows walk the PC re-runs",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wfx",
+      "phase": "implementation",
+      "reviewBy": "2027-01-07",
+      "reviewSuggested": [],
+      "summary": "The exact Windows walk the PC re-runs after the W-1 defect fixes, with what each step should now show.",
+      "tags": [
+        "windows",
+        "w-1",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-win-smoke",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f2ec04369637b63f1b580b4a1b47aa240f1e2a671e968c106c22c0cfaac1b838"
+    },
+    {
+      "id": "proof-wfx-red-first",
+      "path": "docs/proof/wfx/red-first.md",
+      "title": "WFX red-first receipts (W-1 Windows defects)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wfx",
+      "phase": "implementation",
+      "reviewBy": "2027-01-07",
+      "reviewSuggested": [],
+      "summary": "Red-first receipts for the four W-1 Windows defect fixes, run on macOS with the non-macOS branch forced.",
+      "tags": [
+        "windows",
+        "w-1",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-win-smoke",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "06756417f42e2c086383418679627e41bdace559f8a4c2e4b8a5443d0e3aaab1"
+    },
+    {
       "id": "proof-win-routes",
       "path": "docs/proof/win-routes/receipt.md",
       "title": "W-3 Windows solver routes: blocked cavity qualification",
@@ -15689,5 +15739,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "494b08a1228e2f93d3e24a7475d1f25eaba3f078ecc03206d903ba4bda335957"
+  "graphSha256": "ae998746da9f8c6ac12e9494e8f6e8964d177140d4031c1ee73ee65757ef3dc9"
 };
