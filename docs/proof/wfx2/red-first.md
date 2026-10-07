@@ -52,3 +52,15 @@ Check: Core `Catalog_Refusal_NamesItsCheck` plants five mismatches (hash, missin
 
 - Red: `FAIL Catalog_Refusal_NamesItsCheck InvalidOperationException: Expected coordinate-hash; actual ` (no Data on the old error).
 - Green: `PASS Catalog_Refusal_NamesItsCheck`; the five existing `Catalog_*` checks still PASS (equality policy unchanged).
+
+## Item 5 - F10, Escape focus, undo status text
+
+Checks (Desktop `--shell-window`, `tests/CfdWorkbench.Desktop.Tests/WindowsShellTests.cs`): `WindowsShell_F10_FocusesMenu_EscapeReturnsFocusToOrigin` (a visible `Menu` in a plain window, `MenuBarKeys` installed), `WindowsShell_MenuBarKeys_WiredOffMacOnly`, `WindowsShell_Undo_StripKeepsTheUndoText_AfterSampling` (a MainWindow built with `macOS: false`).
+
+- Red, with `MenuBarKeys` an empty stub and the controller unchanged:
+  - `FAIL WindowsShell_F10_FocusesMenu_EscapeReturnsFocusToOrigin InvalidOperationException: F10 handled False; focus Button is not in the menu` (the PC observation: F10 leaves focus on Evaluate)
+  - `FAIL WindowsShell_F10_IsWiredOffMacOnly InvalidOperationException: F10 is not handled by the Windows shell` (first form of the wiring check; replaced, see below)
+  - `FAIL WindowsShell_Undo_StripKeepsTheUndoText_AfterSampling InvalidOperationException: After Undo and sampling the strip reads 'Accepted η 0.5 slice; 15 measured display points in 153 ms. Segment interpolation error is Not assessed.' (provenance accepted)`
+- Premise check (measured, not assumed): the brief says macOS shows an undo text. On this build macOS (and the forced non-macOS branch) shows `Sampling accepted geometry at η 0.5…` immediately after Undo and `Accepted η 0.5 slice; ...` once settled; the undo text is overwritten in the same call by `RefreshAcceptedAsync`. No platform ever showed it. The fix keeps the existing sentence (minus its stale `Sampling…` tail) by refreshing with `preserveStatus: true`; it applies to macOS too. Operator: this is a visible copy change.
+- Wiring-check oracle changed: a plain Avalonia window with a Button returns `Handled=True` for F10 (measured), so `Handled` cannot tell Windows from macOS; the check asserts `ShellHost.MenuKeys` is set off macOS and null on macOS.
+- Green: all three PASS; the other seven `WindowsShell_*` checks PASS.

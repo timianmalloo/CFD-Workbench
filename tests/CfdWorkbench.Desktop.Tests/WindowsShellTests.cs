@@ -84,6 +84,91 @@ public static class WindowsShellTests
             finally { window.Close(); }
         });
 
+        // WFX2 item 5 (PR #6): on Windows F10 left focus where it was, and Escape from a menu left focus on the menu item. The menu of
+        // a Mac window is hidden (the system bar draws it), so the keys are proved on a visible Menu in a plain window, plus
+        // the wiring on a MainWindow built for the other platform.
+        DesktopChecks.Check("WindowsShell_F10_FocusesMenu_EscapeReturnsFocusToOrigin", () =>
+        {
+            var before = new Button { Content = "Evaluate" };
+            var after = new Button { Content = "Other" };
+            var edit = new MenuItem { Header = "Edit", Items = { new MenuItem { Header = "Undo" }, new MenuItem { Header = "Redo" } } };
+            var menu = new Menu { Items = { new MenuItem { Header = "File", Items = { new MenuItem { Header = "New" } } }, edit } };
+            var window = new Window { Width = 400, Height = 300, Content = new StackPanel { Children = { menu, before, after } } };
+            new MenuBarKeys(window, () => menu);
+            try
+            {
+                window.Show();
+                Settle(window);
+                before.Focus();
+                Settle(window);
+                var f10 = RaiseKey(window, Key.F10);
+                Settle(window);
+                var focused = window.FocusManager!.GetFocusedElement();
+                if (!f10.Handled || !InMenu(menu, focused))
+                    throw new InvalidOperationException($"F10 handled {f10.Handled}; focus {focused?.GetType().Name} is not in the menu");
+                // Down into the Edit menu (as the PC did: Right, Down), then Escape.
+                RaiseKey(window, Key.Right); Settle(window); RaiseKey(window, Key.Down); Settle(window);
+                RaiseKey(window, Key.Escape);
+                Settle(window);
+                focused = window.FocusManager!.GetFocusedElement();
+                if (!ReferenceEquals(focused, before) || menu.IsOpen)
+                    throw new InvalidOperationException($"After Escape focus is {(focused as Control)?.GetType().Name} ({(focused as ContentControl)?.Content}); expected the Evaluate button; menu open {menu.IsOpen}");
+                // A second F10 from the origin enters the menu again, and F10 inside the menu leaves it.
+                RaiseKey(window, Key.F10); Settle(window);
+                RaiseKey(window, Key.F10); Settle(window);
+                if (!ReferenceEquals(window.FocusManager!.GetFocusedElement(), before))
+                    throw new InvalidOperationException("F10 inside the menu did not return focus to its origin");
+            }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("WindowsShell_MenuBarKeys_WiredOffMacOnly", () =>
+        {
+            var windows = new MainWindow(null, macOS: false);
+            var mac = new MainWindow(null, macOS: true);
+            try
+            {
+                windows.Show(); mac.Show();
+                Settle(windows); Settle(mac);
+                // Avalonia itself handles F10 in a window with no main Menu (a Mac window, a bare window), so Handled cannot tell the
+                // two apart; the wiring is the oracle.
+                if (((ShellHost)windows.Content!).MenuKeys is null) throw new InvalidOperationException("The Windows shell has no menu-bar key handler");
+                if (((ShellHost)mac.Content!).MenuKeys is not null) throw new InvalidOperationException("macOS has a menu-bar key handler beside the system menu");
+            }
+            finally { windows.Close(); mac.Close(); }
+        });
+
+        DesktopChecks.Check("WindowsShell_Undo_StripKeepsTheUndoText_AfterSampling", () =>
+        {
+            var window = new MainWindow(null, macOS: false);
+            try
+            {
+                window.Show();
+                Settle(window);
+                var host = (ShellHost)window.Content!;
+                var controller = host.Controller;
+                Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
+                controller.ApplySpan("900");
+                controller.ApplySpan("950");
+                host.RefreshPanes();
+                host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!.Focus();
+                Settle(window);
+                Press(window, Key.Z, KeyModifiers.Control);
+                for (int i = 0; i < 40 && controller.Provenance != "accepted"; i++) { Settle(window); Thread.Sleep(50); }
+                Settle(window);
+                string undone = StatusStripTests.Text(host).Text ?? "";
+                if (controller.Provenance != "accepted" || !undone.StartsWith("Undo", StringComparison.Ordinal))
+                    throw new InvalidOperationException($"After Undo and sampling the strip reads '{undone}' (provenance {controller.Provenance})");
+                Press(window, Key.Z, KeyModifiers.Control | KeyModifiers.Shift);
+                for (int i = 0; i < 40 && controller.Provenance != "accepted"; i++) { Settle(window); Thread.Sleep(50); }
+                Settle(window);
+                string redone = StatusStripTests.Text(host).Text ?? "";
+                if (!redone.StartsWith("Redo", StringComparison.Ordinal))
+                    throw new InvalidOperationException($"After Redo and sampling the strip reads '{redone}'");
+            }
+            finally { window.Close(); }
+        });
+
         DesktopChecks.Check("WindowsShell_EveryTableGesture_FiresItsCommandOnce", () =>
         {
             using var controller = new WorkbenchController();
@@ -288,6 +373,18 @@ public static class WindowsShellTests
                 }
         if (!down.Handled) (focused as Interactive)?.RaiseEvent(down);
     }
+
+    /// <summary>Raises KeyDown from the focused element through tunnel and bubble, as the platform would, and returns the event.</summary>
+    private static KeyEventArgs RaiseKey(Window window, Key key)
+    {
+        var focused = window.FocusManager?.GetFocusedElement() as Interactive ?? window;
+        var down = new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Key = key, Source = focused };
+        focused.RaiseEvent(down);
+        return down;
+    }
+
+    private static bool InMenu(Menu menu, object? element) =>
+        element is Avalonia.StyledElement styled && Avalonia.LogicalTree.LogicalExtensions.GetSelfAndLogicalAncestors(styled).Contains(menu);
 
     private static void Settle(Window window)
     {
