@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T16:46:01Z",
+  "generated": "2026-10-07T16:50:59Z",
   "audit": [
     {
       "actor": null,
@@ -28948,6 +28948,33 @@ window.AUDIT_DATA = {
         "branch": "win/setup",
         "pushed": null
       }
+    },
+    {
+      "id": "al-01M4BMD0W805G0NGX9EXPXT4ZM",
+      "shortname": "join-pr2",
+      "datetime": "2026-10-07T16:50:59Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of origin/win/setup into main",
+      "summary": "W-0 receipt (Windows 11 Pro 26300, i9-12900H, 34 GB, SDK 10.0.203, drivers effective, WSL ready without distro); conditions in docs/reviews/pr-2.md recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join PC PR #2",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-07T16:50:55Z",
+      "duration_seconds": 4.0
     }
   ],
   "changes": [
@@ -30813,6 +30840,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M4BHCHT5N6X27C7FP1ESAHHV",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4BKQA5SFJD72WSSP987S14B",
+      "ts": "2026-10-07T16:39:08Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4BKQA2T9HAC89QRYSW68B8Z",
       "session": "operator-timianmalloo"
     }
   ]
