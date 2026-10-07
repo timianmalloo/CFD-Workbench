@@ -1155,3 +1155,9 @@ Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5): the mockup is approved 
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. (1) The Cp-coloured section profile is approved as captured. (2) Plate labels approved as rows: "Section · η <η>", "Cp_min <v> · x/c <x> · <side>", "σ <v> · −Cp_min <v> · clear of the 15 % margin · V_crit <v>", "x/c 0 → 1". (3) Every speed in the Section view (V_crit on the profile and in the cavitation table) follows the Units switch, kn under Imperial and m/s under Metric, as the rest of Analysis does (Ruling 115). The operator also approved the joined Section main-area layout and chip strip on review ("looks good").
 
 - request: req-01M49Y4BWY2337HPNWHMSNF2M5 · ruled by: operator-timianmalloo · at: 2026-10-07T01:02:32Z
+
+### Ruling 127 — Section view shows Lift and Drag vectors with Cp: at the centre of pressure, separate labelled scales, profile plus local induced drag
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5). The Section view draws Lift and Drag vectors on the Cp-coloured profile. (1) Anchor: the operator chose centre of lift; recorded as the section centre of pressure, x_cp/c = 0.25 - Cm_c/4 / cl (assume: the operator means the centre of pressure; confirmed by the mockup approval; near zero lift, where x_cp leaves the section, the arrows start at the quarter chord with a note). Lift perpendicular and drag parallel to the strip local inflow at alpha_eff, the inflow drawn faintly. (2) Separate scales, each arrow labelled with its value and unit (per span, units follow the Units switch) and the drag magnification stated. (3) Drag = profile drag (the polar band, flagged as elsewhere) plus the strip local induced drag from its induced angle, drawn as two segments of one arrow. A mockup is shown to the operator and the hydrodynamicist reviews it before the build.
+
+- request: req-01M49Y69SKKZSGYW68ZKNZGSZY · ruled by: operator-timianmalloo · at: 2026-10-07T01:03:36Z
