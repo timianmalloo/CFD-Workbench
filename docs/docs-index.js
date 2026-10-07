@@ -6157,6 +6157,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "15bbf7360f65f4b127fb66a5a3328502ed96ecbb5039d4e9211b1413cdcd5dcd"
     },
     {
+      "id": "review-pr-2",
+      "path": "docs/reviews/pr-2.md",
+      "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS. The W-0 receipt meets the done-when line by line with observed commands; four conditions bind later receipts (Reported vs Verified, one tested SHA, a Done-when line, dotnet in a fresh shell).",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-0"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5b853296d6d2ee2a5765d58a34f925bea5f4310c8cda485b7c7071446c41d49a"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -13567,6 +13602,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
+      "id": "proof-win-setup",
+      "path": "docs/proof/win-setup/receipt.md",
+      "title": "W-0 Windows setup host survey",
+      "type": "proof-pack",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2026-11-06",
+      "reviewSuggested": [],
+      "summary": "W-0 host survey for the Windows PC. Rows are filled only from command output observed in this session. Disposition is Verified, Failed, or Not recorded.",
+      "tags": [
+        "windows",
+        "w-0",
+        "host-survey"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4a064c6b3d5006f397fd8e6ea769d1455b9e18215529cb76991546ea26ae5ecf"
+    },
+    {
       "id": "proof-win-smoke",
       "path": "docs/proof/win-smoke/receipt.md",
       "title": "W-1 Windows smoke receipt — SDK 10.0.203",
@@ -15525,5 +15585,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "78f5d4a3e9dc0a2777182d0922abe083bd28904008bcd5d099ec0bd5c53a6051"
+  "graphSha256": "77cb5703b42fe633266469dfdebee11da245345485de9579a5fe57d276683f47"
 };
