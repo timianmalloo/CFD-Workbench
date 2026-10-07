@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T16:19:54Z",
+  "generated": "2026-10-07T16:21:53Z",
   "audit": [
     {
       "actor": null,
@@ -28624,6 +28624,33 @@ window.AUDIT_DATA = {
       "done_when": "red-first receipts for items 1, 2, 4, 6; nc table; A-E and tip captures opened; run-tests green with C-3 under 50 s; dispatch-gate, xaml-token-lint, check-copy-ids, check-docs exit 0",
       "started_at": "2026-10-07T15:58:26Z",
       "duration_seconds": 1288.0
+    },
+    {
+      "id": "al-01M4BJQQBTSY9DYEVYR78SSH2F",
+      "shortname": "join-sfv",
+      "datetime": "2026-10-07T16:21:53Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of feature/section-force-vectors into main",
+      "summary": "free-stream axes, lattice L-prime and x_cp (moment moved to strip LE), induced share 0.5 rho Gamma (-w_T) consistent with wing D_i, profile band cap, CP-or-c/4 rule with couple, tip strip Not judged, 4-panel bias labelled and measured (0.02-0.04 c forward), elliptic fixture, no plate overlap A-E; hydrodynamicist and CFD-V&V cleared recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join feature/section-force-vectors into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-07T16:21:00Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
