@@ -2,7 +2,7 @@
 id: proof-win-setup
 title: "W-0 Windows setup host survey"
 type: proof-pack
-status: in-review
+status: accepted
 owner: "@timianmalloo"
 tags: [windows, w-0, host-survey]
 links:
@@ -24,7 +24,8 @@ the coordinator fast-forwarded this branch to the surveyed HEAD before resumptio
 Goal: complete the W-0 host survey and record tool/coordination readiness.
 Done when every required row has an observed disposition and the owned receipt is committed.
 Application builds, tests, Linux installation and W-1 onward remain outside this evidence task.
-All Verified rows below come from command output read during this resumed run.
+Host-survey Verified rows below come from command output read during this resumed run.
+The final documentation gate is explicitly attributed to the coordinator's report.
 
 ## Disposition
 
@@ -51,7 +52,7 @@ All Verified rows below come from command output read during this resumed run.
 | Coordination install state | Verified | Local merge.coord-regen.driver and merge.coord-register.driver registered to Python313 and the primary checkout's coord-core.py. `.gitattributes` contains 9 coordination patterns. No install was needed or rerun during resumption. |
 | Coordination doctor | Verified | Registry ok: 9 patterns. coord-regen and coord-register declared, registered and effective. No leader designated; heartbeat and requests not recorded; no live lease overlap. Harness capability section explicitly describes historical spikes, not measurements here. |
 | Repository state | Verified | Branch win/setup; HEAD d0fc7fde4a71afe0cb049f93330ca4b6977a5c83. Initial status: only untracked docs/proof/win-setup/. Origin fetch/push: https://github.com/timianmalloo/CFD-Workbench.git. |
-| Documentation check | Failed | `py -3 tools/check-docs.py` exits 1 on the initial run and its one repeat after completing this receipt. Graph validation reports 1 defect: `file not in index: proof-win-setup`; 0 problems, 0 orphans; 131 review-suggested warnings. This task excludes docs-index regeneration. |
+| Documentation check | Verified | Initial worker run and one repeat failed with exit 1: `file not in index: proof-win-setup`; 0 problems, 0 orphans; 131 review-suggested warnings. The coordinator then regenerated docs/docs-index.js, committed it as 24c3e571, and reports `py -3 tools/check-docs.py` passed. This worker did not rerun that final gate. |
 
 ## Commands and results
 
@@ -72,6 +73,7 @@ above record returned values or explicit errors rather than assigning a native e
 | `nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader` | 0 | GPU, 16384 MiB, driver 596.47 |
 | `py -3 docs/ai-forward-pack/scripts/coord-core.py doctor` | 0 | Registry ok, 9 patterns; both merge drivers effective; historical harness caveats preserved above |
 | `py -3 tools/check-docs.py` | 1 | Graph index drift for this new receipt; CalledProcessError identifies docs-graph.py validate exit 1 |
+| `py -3 tools/check-docs.py` after coordinator index regeneration | Not recorded by worker | Coordinator reports the final docs gate passed; index commit 24c3e571. |
 
 The explicit SDK command was
 `& 'C:\Users\malla\.dotnet\dotnet.exe' --version`, which printed 10.0.203.
@@ -95,9 +97,14 @@ both absences. No repair, install or restart was attempted.
 ## Remaining gate
 
 The check's `SPIRAL` message occurred inside its self-test output; the same output
-continues through `self-test OK`. The observed blocking result is graph index drift.
+continues through `self-test OK`. The initial blocking result was graph index drift.
 
-The coordinator must regenerate the excluded Docs Explorer index before a green docs
-gate can be claimed. Direct firmware virtualization state remains Not recorded with
-the contradictory query results preserved. These are the residual limits of this receipt;
-it does not claim a successful Windows application build, test run or Linux solver route.
+The coordinator resolved the index drift by regenerating docs/docs-index.js in commit
+24c3e571 and reports the final documentation gate passed on that revision. The initial
+failure was resolved on that revision. This receipt update records that report; the worker
+made no further measurements. The accepted status follows the existing proof-pack
+convention used by docs/proof/cpy/red-first.md and docs/proof/doc-oct06/README.md.
+
+Direct firmware virtualization state remains Not recorded with the contradictory query
+results preserved. This receipt does not claim a successful Windows application build,
+test run or Linux solver route.
