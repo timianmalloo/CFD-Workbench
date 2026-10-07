@@ -7048,7 +7048,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bae0448b811a9b8abdfcfaabb1c7d98432cad09c90b074de76017bbca5e0de1b"
+      "sourceSha256": "12d5681dd3535fc90cb9755251e402a3e8cf68a3a112d3b6ac522da6c2fe6af4"
     },
     {
       "id": "kb-hw-glossary",
@@ -13975,6 +13975,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "d850adcc95afd5a80d8f7948bade61fc7ec1d6dedf8af50e46fdef8985fbd496"
     },
     {
+      "id": "proof-win-smoke-reverify",
+      "path": "docs/proof/win-smoke-reverify/receipt.md",
+      "title": "W-1b Windows WFX re-verification receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@win-smoke-reverify",
+      "phase": "",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Native WFX re-verification after the Mac fixes. Live point names, undo/redo and save refusal are observed; keyboard menu and host shortcut limitations remain.",
+      "tags": [
+        "windows",
+        "smoke-test",
+        "wfx",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-wfx-pc-reverify",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-win-smoke",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-3",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fbb02efccd5fc3d4b42160e9f4b242e1a2f77400e341a7f716823b049e863a34"
+    },
+    {
       "id": "proof-win-store-design",
       "path": "docs/proof/win-store-design/receipt.md",
       "title": "B1 Windows native store design validation receipt",
@@ -16000,5 +16034,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d2e2ffa64cd5f263cdb55a39b29dbc952ea2f480ba1b7ab23e099401c28495c8"
+  "graphSha256": "2c6fa83561f149a0f7b1fce4355ad2fd99bc96889f0e5d51122c6caa777e562e"
 };

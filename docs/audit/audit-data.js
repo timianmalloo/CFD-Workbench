@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T22:31:45Z",
+  "generated": "2026-10-07T22:36:31Z",
   "audit": [
     {
       "actor": null,
@@ -29322,12 +29322,79 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4C7WZRW6367ZEGWZVKAK412",
-      "shortname": "join-uxb",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-07T22:31:45Z",
-      "session": "14e5e8d5",
+      "done_when": "join gates green",
+      "duration_seconds": 55.0,
+      "fan_out": 0,
+      "goal": "join fix/analysis-display",
+      "id": "al-01M4C7WZRW6367ZEGWZVKAK412",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/analysis-display into main",
+      "session": "14e5e8d5",
+      "shortname": "join-uxb",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T22:30:50Z",
       "summary": "Lift / span and the lift-per-strip legend follow Units; sigma plate shows Unavailable - depth not set; band was right (the capture came from a run at 0.6 m with the box cleared); left: LoadingChart table twin N/m under Imperial, stale-input status after editing conditions recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "gpt-6-astra Owner + gpt-6.1-sol worker + local coordinator",
+      "artifacts": [
+        "docs/proof/win-smoke-reverify/receipt.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-07T22:20:05Z",
+      "done_when": "Every WFX row and one full ring have an observed disposition, raw evidence is preserved, documentation checks pass, and the branch is ready for a failure-evidence checkpoint PR.",
+      "duration_seconds": 26.0,
+      "fan_out": 2,
+      "git": {
+        "branch": "win/smoke-reverify",
+        "pushed": false,
+        "sha": "2f8607b54e23b60a42d954fa94379d5dbcfa6a58",
+        "short": "2f8607b54"
+      },
+      "goal": "Deliver the completed W-1b Windows re-verification evidence for Mac review.",
+      "id": "al-01M4C77M1N2WEZ0YHF4MCXM2X4",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Re-verify the Mac Windows-shell fixes on this Windows laptop and preserve the full application-ring result for Mac review.",
+      "session": "win-local-coordinator",
+      "shortname": "windows-w1b-reverification",
+      "signals": {
+        "acceptance_met": false,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T22:19:39Z",
+      "summary": "W-1b produced source-bound native UI evidence at tested SHA defbe0a9. Live point-name events, Undo/Redo, Analysis and both Save refusals were verified. Keyboard menu and host-shortcut limitations remain explicit. The single full ring failed with 39 named tests, one Desktop crash without a frame, and 10 cost failures; no product repair or rerun occurred.",
+      "tags": [
+        "windows",
+        "wfx",
+        "verification"
+      ],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4C85PWR99RAJJ03K6HBC9V8",
+      "shortname": "join-pr6",
+      "datetime": "2026-10-07T22:36:31Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of origin/win/smoke-reverify into main",
+      "summary": "W-1 fixes verified on Windows (live names, undo/redo, save refusals, Alt menu); still failing F10, Escape focus, undo status text; first Windows ring: 28 store (W-2), 8 numeric determinism, 1 JSON CRLF, 2 symlink privilege, Desktop crash frame unprinted, 10 cost; Ruling 136 managed P/Invoke, 137 B2 handoff recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -29336,7 +29403,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join fix/analysis-display",
+      "goal": "join PC PR #6",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -29345,8 +29412,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-07T22:30:50Z",
-      "duration_seconds": 55.0
+      "started_at": "2026-10-07T22:36:25Z",
+      "duration_seconds": 6.0
     }
   ],
   "changes": [
@@ -31258,6 +31325,42 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4BZ33ZGZ6SGWR9DZJBDJKK9",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4C84PJ2AJQ79SH363NT1DHK",
+      "ts": "2026-10-07T22:35:58Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4C84PHYKD6QH6AZN240WD57",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M4C84PN6SVDMAWKFGMGCHDWY",
+      "ts": "2026-10-07T22:35:58Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4C84PHYKD6QH6AZN240WD57",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4C84PZ91DGZP4Z3GACEBT6H",
+      "ts": "2026-10-07T22:35:58Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4C84PZ4X320Y39Y0KBQGAVG",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M4C84Q2BFG06PQKGHFP9XQ4M",
+      "ts": "2026-10-07T22:35:58Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4C84PZ4X320Y39Y0KBQGAVG",
+      "session": "fable-owner"
     }
   ]
 };
