@@ -1,0 +1,172 @@
+RING-LOCK waited 0 s
+C:\Projects\CFD-Workbench-win-solver-routes-r133\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-solver-routes-r133\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-solver-routes-r133\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-solver-routes-r133\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+
+Build succeeded.
+
+C:\Projects\CFD-Workbench-win-solver-routes-r133\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-solver-routes-r133\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-solver-routes-r133\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-solver-routes-r133\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:10.90
+build 12 s (Release)
+== CfdWorkbench.Core.Tests 1/3 41 s (40048 ms), 215 PASS
+FAIL Catalog_VendAndLink_NoCoordinates ContractError: a catalog file failed its check
+FAIL CatalogGenerator_ClosedTe4412_ChordFrameLeAtMinimumX ContractError: a catalog file failed its check
+FAIL Library_Save_PublishesHashNamedFile ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Library_WriteFails_NothingPublished InvalidOperationException: Expected LIB-IO; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9 InvalidOperationException: Expected -1; actual 1
+FAIL Rollback_V2UnknownWorkspaceMember_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL LayoutSave_ClaimBusyHashSame_RetriesOnce InvalidOperationException: Expected True; actual False
+FAIL LayoutSave_StaleClaim_SessionOnlyNamesClaim InvalidOperationException: Expected claim-held; actual failed
+FAIL Recent_Clear_NoFileContainsMarkerPath InvalidOperationException: Expected saved; actual failed
+FAIL StoreContract_CancelBeforePublish_DocCancelled InvalidOperationException: Expected False; actual True
+FAIL PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged InvalidOperationException: {"format":"cfdw-display","version":1,"textSize":175}: missing DISPLAY-SCHEMA [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites IOException: A required privilege is not held by the client. : 'C:\Projects\CFD-Workbench-win-solver-routes-r133\.tmp-tests\p1-03fc5923bf3b450ca28b0807f59ef398\prefs'.
+FAIL Placement_ProfileEvaluatorFold_SurfaceBitsUnchanged InvalidOperationException: Expected blended-dihedral.foil 943866A4A779DE0CD263065574A79453E7C64D8E64664A2B8C355B2C265DAEDE
+PASS SectionComb_AfterMakeAnchor_BreakMarkerAtAnchor
+PASS Assess_ProfileHorizontalRowUnlevel_InvalidDslLock
+PASS SectionEdits_HorizontalKind_HandlesLevelExactly
+PASS SectionEdits_InsertAnchorKeepShape_ShapeExactCornerAnchor
+PASS SectionEdits_FairWithAnchorRows_AnchorsKeptRowsHold
+PASS SectionEdits_TypeAndTangentSteps_ReportCountsAndMeasuredMaxChange
+PASS SectionEdits_PairedAnchorToControl_RefitLocalWithin10Um
+PASS SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold
+PASS SectionEdits_PairedToAnchorWithKind_PartnerRowWritten
+PASS SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged
+PASS SectionEdits_UniqueImportOverLimit_RefusedNothingChanged
+PASS SectionDraft_StepAfterUndo_DropsRedoTail
+PASS SectionDraft_RefusedStep_DraftBytesUnchanged
+PASS SectionDraft_FinishSixSteps_OneAcceptedRow
+PASS SectionDraft_FinishThenUndo_SourceAndAssignmentsRestored
+PASS SectionDraft_UseSourceThickness_ReportsTargetsAndAffectedEta
+PASS SectionDraft_FairStep_ReportsAchievedDeviation
+PASS Profile_IndependentEdit_ApplyUndoRedoKeepsOtherProfiles
+PARTITION 1/3 of 683 checks
+RESULT failures=13
+FAILED: CfdWorkbench.Core.Tests 1/3 (exit 1)
+== CfdWorkbench.Core.Tests 2/3 46 s (45294 ms), 215 PASS
+FAIL Catalog_GenEntries_RegenerateToRecordedHash ContractError: a catalog file failed its check
+FAIL Catalog_Fairings_NeverListed ContractError: a catalog file failed its check
+FAIL Catalog_GenNeverThroughDatParse ContractError: a catalog file failed its check
+FAIL Library_EntryBytes_ParseAsStandaloneSection ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Library_ScanNameCollision_BothReported ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Replace_Preview_EmitsCatalogPreviewOutcome InvalidOperationException: Expected ReplaceEvent { Scope = draft, Stations = 2, ResidualChord = 8.122861410878169E-05, Spacing = current, Family = Naca, Class = Gen }; actual ReplaceEvent { Scope = draft, Stations = 2, ResidualChord = 8.122861410878169E-05, Spacing = current, Family = , Class = Gen }
+FAIL LayoutLoad_Absent_ReturnsPresets InvalidOperationException: Expected saved; actual failed
+FAIL Rollback_V2Oversized_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL PrefStore_SymlinkedDirectory_SessionOnly IOException: A required privilege is not held by the client. : 'C:\Projects\CFD-Workbench-win-solver-routes-r133\.tmp-tests\p1-91c182df639240dd84fb135b1aa87889\prefs'.
+FAIL LayoutSave_Conflict_MergesChangedWorkspaceOnly InvalidOperationException: Expected True; actual False
+FAIL Recent_Conflict_ReappliesAdd InvalidOperationException: Expected True; actual False
+FAIL Recent_Remove_KeepsEveryOtherEntry InvalidOperationException: Expected saved; actual failed
+FAIL Rollback_TextSizeV2_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+PASS Assess_ProfileVerticalRowOffByOneUlp_Invalid
+PASS Assess_ProfileRowsJustOutsideTau_InvalidDslLock
+PASS SectionEdits_SymmetricKind_EqualHandleLengths
+PASS SectionEdits_ControlToAnchorBetweenTwoAnchors_OutsideUnchanged
+PASS SectionEdits_FirstRow_HeaderBecomes41
+PASS SectionEdits_PairedAnchor_BothSurfacesSameKnotsExact
+PASS SectionEdits_PairedRefitSharedProfile_LargestChordSetsLimit
+PASS SectionEdits_PairedSetTangent_BothSurfacesSameKind
+PASS SectionEdits_PairedToControl_PartnerRowRemoved
+PASS SectionEdits_UniqueProfile_YOnlyMoveAllowed
+PASS SectionDraft_Begin_CursorZeroBytesEqualBase
+PASS SectionDraft_CursorEnds_UndoRedoNoChange
+PASS SectionDraft_FinishUncertified_Refused
+PASS SectionDraft_Cancel_UndoDepthAndBytesUnchanged
+PASS SectionDraft_SharedFinish_BothAssignmentsReadNewProfile
+PASS SectionDraft_UseSourceInfeasible_FinishBlocked
+PASS SectionTelemetry_FinishEvent_CarriesStepsAndDuration
+PASS Profile_IndependentAbscissaEdit_NamesNeighbour
+PARTITION 2/3 of 683 checks
+RESULT failures=13
+FAILED: CfdWorkbench.Core.Tests 2/3 (exit 1)
+== CfdWorkbench.Core.Tests 3/3 40 s (39692 ms), 216 PASS
+FAIL Library_DuplicateIgnoringCaseNfc_Refused ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Library_StaleClaim_ReportedNotDeleted InvalidOperationException: Expected LIB-CLAIM-HELD; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Library_SecondInstanceSameRoot_EntryListed ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Rollback_V2UnknownTopLevel_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL PrefsSave_LayoutAndRecentConcurrent_BothKept InvalidOperationException: Expected saved; actual failed
+FAIL LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces InvalidOperationException: Expected saved; actual failed
+FAIL Recent_ClearFails_ReportedNotCleared InvalidOperationException: Expected LAYOUT-VERSION; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Recent_RemoveWriteFails_ListUnchanged FileNotFoundException: Could not find file 'C:\Projects\CFD-Workbench-win-solver-routes-r133\.tmp-tests\p1-a2bfd8097b4d48458fed43b8cbf03a3d\recent\recent.json'.
+FAIL PrefStore_TextSize_RoundTrip InvalidOperationException: Expected saved; actual session-only
+FAIL PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched InvalidOperationException: Expected saved; actual failed
+FAIL PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash InvalidOperationException: Expected saved; actual session-only
+PASS Sections_Facts_MemoInvalidatedByNewBytes
+PASS Assess_ProfileSmoothRowNearVertical_Certified
+PASS Assess_ProfileVerticalRowHandlesSameSide_InvalidDslLock
+PASS SectionEdits_AngleKind_HandlesOnRaysWithinTau
+PASS SectionEdits_DeleteBelowSevenPoints_Refused
+PASS SectionEdits_AnchorPast32Points_RefusedNamingCeiling
+PASS SectionEdits_PairedXMove_BothSurfacesSameAbscissa
+PASS SectionEdits_PairedAnchorToControlRefitOverLimit_Refused
+PASS SectionEdits_PairedAngle_HandlesKeepPairedX_Certifies
+PASS SectionEdits_TwoProfiles_ControlToAnchor_Observed
+PASS SectionEdits_SharedImport0012_LandsAsSharedReplaceCertified
+PASS SectionDraft_StepThenUndoThenRedo_BytesRestoredExactly
+PASS SectionDraft_SecondDraftWhileOpen_DslDraftOwned
+PASS SectionDraft_FinishBytesEqualBase_NoRow
+PASS SectionDraft_MakeUniqueThenCancel_NoCopyLeft
+PASS SectionDraft_MakeUnique_RootGetsCopyTipKeepsSource
+PASS SectionDraft_ImportStep_ReportsResidualAndProvenance
+PASS SectionTelemetry_Events_NoNamesIdsOrPositions
+PARTITION 3/3 of 683 checks
+RESULT failures=11
+FAILED: CfdWorkbench.Core.Tests 3/3 (exit 1)
+== CfdWorkbench.Desktop.Tests 7 s (6430 ms), 0 PASS
+SelfLaunchTests: all 6 cases passed.
+APP-UNHANDLED APP-CRASH System.Exception
+FAILED: CfdWorkbench.Desktop.Tests (exit 70)
+== CfdWorkbench.Analysis.Tests 1/2 14 s (13555 ms), 111 PASS
+FAIL NeuralFoil_Family_CatalogNaca0012_DerivedNotLabelled ContractError: a catalog file failed its check
+PASS FindAlpha_NoRoot_FiveReasons
+COST FindAlpha_NoRoot_FiveReasons 1.640
+PASS Labels_Dx_EveryRowResolvesOnce
+COST Labels_Dx_EveryRowResolvesOnce 2.418
+PASS Labels_ReasonCodes_AllApprovedTextNoRawCode
+COST Labels_ReasonCodes_AllApprovedTextNoRawCode 3.989
+GROUP DxSection 3392
+PASS SectionForce_FreeStreamAxes_LiftPerpendicularDragParallel
+COST SectionForce_FreeStreamAxes_LiftPerpendicularDragParallel 6.547
+PASS SectionForce_Anchor_CpNearZeroAndOffSection_Ruling128And130
+COST SectionForce_Anchor_CpNearZeroAndOffSection_Ruling128And130 4.364
+PASS SectionForce_Imperial_ForceAndMomentPerSpan
+COST SectionForce_Imperial_ForceAndMomentPerSpan 1.937
+PASS SectionForce_RunScale_LiftFixedByLargestStripDragByRule
+COST SectionForce_RunScale_LiftFixedByLargestStripDragByRule 3.012
+PASS SectionForce_Labels_EqualTheirDesignRows_Ruling130
+COST SectionForce_Labels_EqualTheirDesignRows_Ruling130 2.976
+GROUP SectionForce 19
+PARTITION 1/2 of 21 groups
+RESULT failures=1
+FAILED: CfdWorkbench.Analysis.Tests 1/2 (exit 1)
+== CfdWorkbench.Analysis.Tests 2/2 13 s (11917 ms), 120 PASS
+RESULT failures=0
+== CfdWorkbench.Cli.Tests 5 s (4017 ms), 3 PASS
+FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp
+CLI Example identity, assessment, bounded projection and extension refusal passed.
+PASS Cli_InspectJson_PointsRolesAndKinds
+PASS Cli_InspectJson_ChannelPointsRolesAndKinds
+PASS Cli_Inspect_ListsSectionPointTypesAndKinds
+FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp
+COST Cli_AnalyseRunKey_EqualsServiceOnCustomOp 164.024
+Unhandled exception. System.InvalidOperationException: inspect --runs returned 3: {
+  "code": "DOC-UNSUPPORTED-PERSISTENCE"
+}
+
+   at Program.<Main>$(String[] args) in C:\Projects\CFD-Workbench-win-solver-routes-r133\tests\CfdWorkbench.Cli.Tests\CliTests.cs:line 179
+   at Program.<Main>(String[] args)
+FAILED: CfdWorkbench.Cli.Tests (exit 127)
+FAILED: C-2 Analysis.part1of2 took 13555 ms, over 5000 ms
+FAILED: C-2 Analysis.part2of2 took 11917 ms, over 5000 ms
+FAILED: C-5 Section_EditedProfileNoPolar_Unavailable took 622.748 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 Polar_ProductRun_ReachesStripsAndSectionProjection took 591.643 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 SectionProjection_EstimatorLabel_DepthAware took 631.51 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 SectionView_Speeds_FollowUnitsSwitch took 636.551 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 DeriveVerdicts_TaperedPlanform_SweepIsTheLatticeSweepAndAlphaL0IsTheStripSection took 1069.317 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 DeriveVerdicts_AlphaBound_9p9InsideAnd10p1Outside took 710.845 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 DeriveVerdicts_OnlyTheTipReasonGetsTheTipRule took 701.608 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+FAILED: C-5 Section_WingRun_PanelValuesAtEveryStation took 793.905 ms, over 500 ms (move it to readiness with its cost, or make it cheaper)
+test costs: 10 failures, 0 COST-MISS (load 7.49)
+wall 61 s (60992 ms, net 49554 ms) (budget 60 s) cpu 2 s load 5.61 -> 7.49

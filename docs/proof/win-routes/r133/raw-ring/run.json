@@ -1,0 +1,137 @@
+{
+  "tested_sha": "614f9cce009b0bc7cfaee55faec1bcc679e8782c",
+  "started_utc": "2026-10-07T22:19:05.448715+00:00",
+  "argv": [
+    "C:\\Program Files\\Git\\bin\\bash.exe",
+    "--noprofile",
+    "--norc",
+    "tools/run-tests.sh"
+  ],
+  "dotnet_root": "C:\\Users\\malla\\.dotnet",
+  "sdk": "10.0.203",
+  "budget_seconds": 60,
+  "exit_code": 1,
+  "wrapper_wall_seconds": 62.47327240000595,
+  "archived_raw_files": [
+    {
+      "name": "Analysis.part1of2.log",
+      "bytes": 12584,
+      "sha256": "847ff8d24bbda96ba3a8006556503c772039dbc7922351d7345e54a5365e382e"
+    },
+    {
+      "name": "Analysis.part2of2.log",
+      "bytes": 14765,
+      "sha256": "b1a3484c7cc510643d2f45a978759766ec96fe11cb5600e80bc497a34486e192"
+    },
+    {
+      "name": "Cli.log",
+      "bytes": 636,
+      "sha256": "54e6970791b2499ca2d4ed33e18237f9c669e06d525fa736a95f52311835477d"
+    },
+    {
+      "name": "Core.part1of3.log",
+      "bytes": 14952,
+      "sha256": "bb0dd15d9e205484e874db30ef12a0bc487fdf0af5716005de5208933224bd0e"
+    },
+    {
+      "name": "Core.part2of3.log",
+      "bytes": 13692,
+      "sha256": "f35de38688c84f1ae49a2502193c808c0d6b9d394c51c8fb9d7147fc83c3af46"
+    },
+    {
+      "name": "Core.part3of3.log",
+      "bytes": 16184,
+      "sha256": "378e498e4f2559f26d0bf3b1afed27290290fdeac433b22903df4676bbf84d17"
+    },
+    {
+      "name": "Desktop.log",
+      "bytes": 80,
+      "sha256": "c12e089fe6ce10b91595b245d429e45d873ce4830e98445c2102007a58172e17"
+    },
+    {
+      "name": "Analysis.part1of2.seconds",
+      "bytes": 3,
+      "sha256": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25"
+    },
+    {
+      "name": "Analysis.part2of2.seconds",
+      "bytes": 3,
+      "sha256": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17"
+    },
+    {
+      "name": "Cli.seconds",
+      "bytes": 2,
+      "sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06"
+    },
+    {
+      "name": "Core.part1of3.seconds",
+      "bytes": 3,
+      "sha256": "040316eca5e77dbb2212c1efe8b81cb23bc67ce0ac8cb5c9d902d98bd45ddfa1"
+    },
+    {
+      "name": "Core.part2of3.seconds",
+      "bytes": 3,
+      "sha256": "a5331f18877e9e1543361e44b4cb0a1f5f0ed5f8297d850bf1fcc68bd7a3ab5f"
+    },
+    {
+      "name": "Core.part3of3.seconds",
+      "bytes": 3,
+      "sha256": "673650f936cb3b0a2f93ce09d81be10748b1b203c19e8176b4eefc1964a0cf3a"
+    },
+    {
+      "name": "Desktop.seconds",
+      "bytes": 2,
+      "sha256": "10159baf262b43a92d95db59dae1f72c645127301661e0a3ce4e38b295a97c58"
+    },
+    {
+      "name": "Analysis.part1of2.ms",
+      "bytes": 6,
+      "sha256": "96ac97ededf43edee98f45d4cfbb2cce2b434f0821636d808ee806a5fe1c6f77"
+    },
+    {
+      "name": "Analysis.part2of2.ms",
+      "bytes": 6,
+      "sha256": "34114f1f15e85071207f18cea931ee4c0d70c8d5f7e6d3086225cfbf02c7ba0b"
+    },
+    {
+      "name": "build.ms",
+      "bytes": 6,
+      "sha256": "1da8b98739ef615632d0dac3d1c8d6f2d5bb020d9f4214b38794e1c8e97984f8"
+    },
+    {
+      "name": "Cli.ms",
+      "bytes": 5,
+      "sha256": "b98e0c376ff1d456162550fbc4ebb994e0eb0f51e7f68d96ed5f6f5593b6a4be"
+    },
+    {
+      "name": "Core.part1of3.ms",
+      "bytes": 6,
+      "sha256": "4806790c57bcb11fd5dc1f2d101373f6f2d4636a1cba8fadd2069b5d2d5def91"
+    },
+    {
+      "name": "Core.part2of3.ms",
+      "bytes": 6,
+      "sha256": "b76b8a7344d419bfa5a2bc5d1693206174c48cf0bd8b2591958fadd3a464066f"
+    },
+    {
+      "name": "Core.part3of3.ms",
+      "bytes": 6,
+      "sha256": "ac9aa41b0c6ce3b3f2540f0a6e4463dc7faf5b6a5e79cdbcf9e1e85bd124f486"
+    },
+    {
+      "name": "Desktop.ms",
+      "bytes": 5,
+      "sha256": "469a9155c6939d74ef608bb81d05657d53b63497dddece0e79061e933214b914"
+    },
+    {
+      "name": "wall.ms",
+      "bytes": 6,
+      "sha256": "c0fbc098087fe82a03a33fe60e3e64ee7ad85ade0b3d72c55353273b094ffa7b"
+    },
+    {
+      "name": "times.txt",
+      "bytes": 36,
+      "sha256": "6a4358ba7bb4343c033212a7028699a38320dd40f58799abcbe8ac10f7bcd32a"
+    }
+  ]
+}

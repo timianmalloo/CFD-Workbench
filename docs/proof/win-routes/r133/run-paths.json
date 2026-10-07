@@ -1,0 +1,5 @@
+{
+  "cavity": "runs/20261007T220227Z-win-smoke-cavity",
+  "cavity_linux": "/root/CFDWorkbench/runs/20261007T220227Z-win-smoke-cavity",
+  "su2": "runs/20261007T220227Z-win-su2-smoke"
+}

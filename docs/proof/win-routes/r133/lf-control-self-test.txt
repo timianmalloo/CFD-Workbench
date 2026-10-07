@@ -1,0 +1,1 @@
+PASS: LF accepted; planted CRLF and changed hash rejected

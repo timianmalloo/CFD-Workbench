@@ -1,0 +1,19 @@
+{
+  "tag": "su2-smoke-LF",
+  "argv": [
+    "C:\\Users\\malla\\AppData\\Local\\CFDWorkbench\\qualification\\su2-8.5.0\\bin\\bin\\SU2_CFD.exe",
+    "-t",
+    "1",
+    "su2-smoke.cfg"
+  ],
+  "working_directory": "C:\\Projects\\CFD-Workbench-win-solver-routes-r133\\runs\\20261007T220227Z-win-su2-smoke",
+  "started_utc": "2026-10-07T22:03:34.722167+00:00",
+  "duration_seconds": 0.49038869999640156,
+  "exit_code": 0,
+  "output": "su2-smoke-LF.txt",
+  "cpu_seconds": 0.4375,
+  "sampled_peak_working_set_bytes": 17334272,
+  "memory_samples": 45,
+  "observed_priority_class": 16384,
+  "creation_flags": "BELOW_NORMAL_PRIORITY_CLASS"
+}

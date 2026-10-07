@@ -1,0 +1,5 @@
+PASS: both parent histories preserved semantically: docs/audit/audit-log.jsonl
+PASS: both parent histories preserved semantically: docs/audit/change-log.jsonl
+PASS: both parent histories preserved semantically: docs/coordination/xmsg.jsonl
+PASS: product source/tests/tools/schema are byte-identical to origin/main
+PASS: guided setup differs only in the three observed Windows rows

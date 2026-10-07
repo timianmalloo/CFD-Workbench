@@ -1,282 +1,962 @@
 [
   {
+    "path": "cases/win-smoke-cavity.yaml",
+    "bytes": 2932,
+    "sha256": "39117e631979557f201590fb5341a92ee6011106f8d86b6b4fdf35a46b44f0f0",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "cases/win-su2-smoke.yaml",
+    "bytes": 2456,
+    "sha256": "a57b17e2db76114d98d3193e09d47f6d95cdbfe23ce71c2236fa64d8a4bcbc0f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/design/guided-solver-setup.md",
+    "bytes": 41041,
+    "sha256": "7e3ba2a1af818a1729021030b78476acdc7158a0561abc323621321681c9b17e",
+    "staged_blob_equal": true
+  },
+  {
     "path": "docs/proof/win-routes/.gitattributes",
     "bytes": 127,
-    "sha256": "eeae0049f33e61fd929cbf9baa49fc000bc74884a620a074cd0821c5508db8b2"
+    "sha256": "eeae0049f33e61fd929cbf9baa49fc000bc74884a620a074cd0821c5508db8b2",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/apt-package-index.txt",
     "bytes": 2846,
-    "sha256": "4e321a183fddd301fab08726285bea989e06651c20caaf1caed46244b6ef3c8c"
+    "sha256": "4e321a183fddd301fab08726285bea989e06651c20caaf1caed46244b6ef3c8c",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/apt-pin-inspect.txt",
     "bytes": 1,
-    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/apt-update-repair.txt",
     "bytes": 716,
-    "sha256": "04bdafdee71191313bef7eb4a22ccde2dcf67bf1069b213fa8f38bf031670604"
+    "sha256": "04bdafdee71191313bef7eb4a22ccde2dcf67bf1069b213fa8f38bf031670604",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/apt-update.txt",
     "bytes": 5204,
-    "sha256": "5f16b95f30fe3d3f877ff9e13de7695eb3256fb798603654c31554d0e506172f"
+    "sha256": "5f16b95f30fe3d3f877ff9e13de7695eb3256fb798603654c31554d0e506172f",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/branch-case-validation.txt",
     "bytes": 1217,
-    "sha256": "3bc75d1d2ab37ce1b9026cf06d2f9478c2fc896c2d71984cb292eaaf7501df90"
+    "sha256": "3bc75d1d2ab37ce1b9026cf06d2f9478c2fc896c2d71984cb292eaaf7501df90",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/branch-docs-check.txt",
     "bytes": 12124,
-    "sha256": "f5c8047a116f26a363347d6d8cbd4f393cd7862367a94110d4f0c3c5a89fc1de"
+    "sha256": "f5c8047a116f26a363347d6d8cbd4f393cd7862367a94110d4f0c3c5a89fc1de",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/build-su2-smoke.py",
-    "bytes": 1141,
-    "sha256": "b4307407dd267bf142406bd4a5bac6ac453c71b92140517b640cc5989968fe77"
+    "bytes": 1234,
+    "sha256": "2755af1b2e9000ee2cf8f50fc9682f8331ef12aa4c77cdde53df86aa30a8b672",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/delivery-docs-check.txt",
     "bytes": 7629,
-    "sha256": "7546045ff876398076926b74f968ed4b9940f90927bf2612ce869b012e6cf9a3"
+    "sha256": "7546045ff876398076926b74f968ed4b9940f90927bf2612ce869b012e6cf9a3",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/distro-survey.txt",
     "bytes": 400,
-    "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763"
+    "sha256": "87458b3b1f1ca0e5c693ade771de7007c3783bdc692fa6b39eb6414bf2af2763",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/dotnet-version.txt",
     "bytes": 683,
-    "sha256": "6f9724170bff79746f854942a426f9a66fce5a4da25f9eabeb39caa369e6a9fc"
+    "sha256": "6f9724170bff79746f854942a426f9a66fce5a4da25f9eabeb39caa369e6a9fc",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/final-diff-check.txt",
     "bytes": 1,
-    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/final-docs-check.txt",
     "bytes": 7691,
-    "sha256": "8a7d07daa7016ea7d52dd41fb9bf06c2fb1cc3bffde559f034c0481caa35f30f"
+    "sha256": "8a7d07daa7016ea7d52dd41fb9bf06c2fb1cc3bffde559f034c0481caa35f30f",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/fixture-download.txt",
     "bytes": 287,
-    "sha256": "a82b901d7a10771a5967e906690eb5346a9e7fb6c3aac5fb6c195875a3dc4732"
+    "sha256": "a82b901d7a10771a5967e906690eb5346a9e7fb6c3aac5fb6c195875a3dc4732",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/fixture-extract.txt",
     "bytes": 138,
-    "sha256": "2a24d7f626dfadb13a93e0ec6088f913e4b99500e335130ddd09afd180249df4"
+    "sha256": "2a24d7f626dfadb13a93e0ec6088f913e4b99500e335130ddd09afd180249df4",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/hash-manifest.py",
+    "bytes": 1514,
+    "sha256": "eb3fe44102389bf54422602b8f6748175e7b34b986c36f72e5156d0adc41f839",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/installed-state.txt",
     "bytes": 57,
-    "sha256": "253d1260b6a265942e2d0fdfc02ee04876621ba619698da6baea79e227ca9318"
+    "sha256": "253d1260b6a265942e2d0fdfc02ee04876621ba619698da6baea79e227ca9318",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/key-dearmor.txt",
     "bytes": 1,
-    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/nvidia-host.txt",
     "bytes": 99,
-    "sha256": "61ed20365e9e7924e14bb3ed1f8f51bb9681bd71294412d87ee36ccccb1fe487"
+    "sha256": "61ed20365e9e7924e14bb3ed1f8f51bb9681bd71294412d87ee36ccccb1fe487",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-activated-linkage.txt",
     "bytes": 98,
-    "sha256": "a1ff3be940ce2cebed2d5c0bf72865dacdbb6bca85fd144dd0786f62b2746880"
+    "sha256": "a1ff3be940ce2cebed2d5c0bf72865dacdbb6bca85fd144dd0786f62b2746880",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-binary-hash.txt",
     "bytes": 140,
-    "sha256": "656485fb3aeb223713ed5b9da7c5462deb95c788762308508d5945f8827af754"
+    "sha256": "656485fb3aeb223713ed5b9da7c5462deb95c788762308508d5945f8827af754",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-build-capabilities.txt",
     "bytes": 142,
-    "sha256": "2af8b3716f270f722cd07b351335c22dcccd6b439b6f29acfe90a0be2fcb9861"
+    "sha256": "2af8b3716f270f722cd07b351335c22dcccd6b439b6f29acfe90a0be2fcb9861",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-build-linkage.txt",
     "bytes": 466,
-    "sha256": "1de4316c073d73965738c7ad281022cdff666d1ee279b085687a4765b0b99a18"
+    "sha256": "1de4316c073d73965738c7ad281022cdff666d1ee279b085687a4765b0b99a18",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-full-help.txt",
     "bytes": 2820,
-    "sha256": "e467107f68fbcc56d66e76c8d9f780626c2475dacc7d0ceeaba625513b9aa7d4"
+    "sha256": "e467107f68fbcc56d66e76c8d9f780626c2475dacc7d0ceeaba625513b9aa7d4",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-identify.txt",
     "bytes": 750,
-    "sha256": "05c0b76853cbfe8a558eabdaf7de439b459d4d6c310438db25873f8a694c4c49"
+    "sha256": "05c0b76853cbfe8a558eabdaf7de439b459d4d6c310438db25873f8a694c4c49",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-install-repair.txt",
     "bytes": 16090,
-    "sha256": "8c4b17ecd67b1b7cfda4f45c69d0699422c6f5851c6ac51b4c58e799dad5a787"
+    "sha256": "8c4b17ecd67b1b7cfda4f45c69d0699422c6f5851c6ac51b4c58e799dad5a787",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-install.txt",
     "bytes": 171,
-    "sha256": "a7e49b2b58f64a907f3a0222104da29beb1ae56556bef8001e19442eab6c107f"
+    "sha256": "a7e49b2b58f64a907f3a0222104da29beb1ae56556bef8001e19442eab6c107f",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-package-hashes.txt",
     "bytes": 249,
-    "sha256": "64afb105a5676fbc2ffdf4ed41a4b298fa9ae69dc50bf6f22449218f72a05390"
+    "sha256": "64afb105a5676fbc2ffdf4ed41a4b298fa9ae69dc50bf6f22449218f72a05390",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/of-umpire-config.txt",
     "bytes": 1179,
-    "sha256": "61f92822984785bdb7590bae074f8597e6176025bda312faf581356a75592a2b"
+    "sha256": "61f92822984785bdb7590bae074f8597e6176025bda312faf581356a75592a2b",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/openfoam.list",
     "bytes": 104,
-    "sha256": "c1eb6011d605f724174b1816ae1c72fd092a171530fdb9e992a4eea64778dc7b"
+    "sha256": "c1eb6011d605f724174b1816ae1c72fd092a171530fdb9e992a4eea64778dc7b",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/qualify.py",
     "bytes": 3341,
-    "sha256": "8f5339e41a7199aa013f102fc2482eb85167dcb802b070379f4b57af06434064"
+    "sha256": "8f5339e41a7199aa013f102fc2482eb85167dcb802b070379f4b57af06434064",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133.py",
+    "bytes": 11451,
+    "sha256": "e80693d0f871834836585b1224838617f0ee9efee220cab7489bd2dfa21197d0",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/case-validation.txt",
+    "bytes": 1205,
+    "sha256": "0cb3f6a29ef3403560257dc43ace65a86754ae5cb8ec35864367a2c384ebfeaf",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-blockMesh-2.txt",
+    "bytes": 2577,
+    "sha256": "19ea64ead3692f53d55e4f6779ec9a3a344ab9dd41002e1cf501c74c5a9658c3",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-blockMesh.txt",
+    "bytes": 126,
+    "sha256": "77393ea3522c351f00b378d66ccb2621ae55ada1e6610efe019b0234757b87d1",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-checkMesh.txt",
+    "bytes": 3523,
+    "sha256": "01245aa9ed649e171f7ab408fd32ef5ab9ad825039182f1f2dff7912688aa318",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-icoFoam.txt",
+    "bytes": 74055,
+    "sha256": "c30921fb49e7eae8ce205d7e2cb8a4434da66f6a887d156d560cd7fbee180d0f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-input-copy.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-inputs/0/U",
+    "bytes": 1143,
+    "sha256": "a6580fe68dc8ce243701b8910c43aed2d37b7c8a5e513226343a20d44f3b63c5",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-inputs/0/p",
+    "bytes": 1104,
+    "sha256": "0c7040dc8b6010695d2e902f9d483becfb669a27325f3c640231bc0fac478230",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-inputs/constant/transportProperties",
+    "bytes": 867,
+    "sha256": "92578ede17bc7d8df6426a2e9a80b85b52ad6a8ce0514f43970fb165765074ad",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-inputs/system/PDRblockMeshDict",
+    "bytes": 1262,
+    "sha256": "e09b4c404bd108c398e45efe341463c1e849fe9bfdfc9ec0cb9d98422dcb3e9e",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-inputs/system/blockMeshDict",
+    "bytes": 1447,
+    "sha256": "1585d47710325fb71091330c2d6539250958651248cea9fcd1b7c7b105c16f42",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-inputs/system/controlDict",
+    "bytes": 1188,
+    "sha256": "8aa09e55bfc8f43dfe6763b89c5b8d51e1024f544f8265aba4c45a799a5eb194",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-inputs/system/decomposeParDict",
+    "bytes": 917,
+    "sha256": "a0c4876fbd0a80cc42135ead135c17aca2f0ef0c249d7589d39cc463f57e659d",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-inputs/system/fvSchemes",
+    "bytes": 1210,
+    "sha256": "98ec9c773a5681cbc6b8636a340786e098b73e14ff6fed37e1689ddf657aacbc",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-inputs/system/fvSolution",
+    "bytes": 1314,
+    "sha256": "d82fca884724449cb9ef9756e8b377485ceb310f445aa3e38221722dad0b3e70",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.1-U.txt",
+    "bytes": 130,
+    "sha256": "17b39fa99f4e8ac0ef9cb293c8af83e78c77822d9d0c0816c1532b2098e10783",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.1-p.txt",
+    "bytes": 130,
+    "sha256": "1be7b11fccd5ad182ec293cda6cd4064dffe4c76a8b836dedcf554088df0a0c0",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.2-U.txt",
+    "bytes": 130,
+    "sha256": "07b9528b8024c734ec18f1f1b6df2236b623fa8cdb0c5c150cfd1f5c781f0563",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.2-p.txt",
+    "bytes": 130,
+    "sha256": "3761e0a0d1f68710db5313c4ff718f406fd1884f03ea8679a20c78d4288e62c0",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.3-U.txt",
+    "bytes": 130,
+    "sha256": "62c30b23bb38b107e7cca533c58c68aefad5529d1146fdf873fc5dcf0911bbed",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.3-p.txt",
+    "bytes": 130,
+    "sha256": "85c62bd7789ce352aed755f69da4a5394d96f004743d9c5cf399fc31727fd708",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.4-U.txt",
+    "bytes": 130,
+    "sha256": "2938f4648cf3cbf7fe70b30aca61b5aac19f52bc20ef0c505f54485c9075f491",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.4-p.txt",
+    "bytes": 130,
+    "sha256": "3969e747766d0e183feb64043b5aeb169a93d9ff52f85022a6034071df6a542d",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.5-U.txt",
+    "bytes": 130,
+    "sha256": "e8c30b326a6f8b7e9875911059983b6b7bf619ce459334e73c71a058b498f48b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-output-0.5-p.txt",
+    "bytes": 130,
+    "sha256": "1f4e90788e42f3b0e5af4223f5fe09868e6b821a137b59ac16b6fd86bec43672",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-resource-blockMesh.txt",
+    "bytes": 917,
+    "sha256": "13b3d65548c6172324c453587edb4904c8659a4dbb3f90c8af591d0a1a603d70",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-resource-checkMesh.txt",
+    "bytes": 912,
+    "sha256": "67cc48d28a93af7b7350b4d0c07ae3117871acd41b0cfb6b8d5c0fac882c709c",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-resource-icoFoam.txt",
+    "bytes": 912,
+    "sha256": "4c10c968af0d4ac0656f032ed5200fc5eb7287dcb9351af146ce7b0f083d1416",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-run-parent-2.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-run-parent.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-stage-M1-2.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-stage-M1.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-stage-inputs-2.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/cavity-stage-inputs.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/docs-check.txt",
+    "bytes": 7519,
+    "sha256": "239389f11c1e285ba99b4ab1674fd67bc9a5777d03d9db484de24400e31dc0e9",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/fixture-extract.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/fixture-locate.txt",
+    "bytes": 131,
+    "sha256": "daa512ff1f5650679258867b6afe891b9ea5506f55111ec90f7eba7215c481f1",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/fixture-observed-sha256.txt",
+    "bytes": 166,
+    "sha256": "7503148da5686297059dc5bd40edc461551fa7be87e53a4699ad26de2fa49156",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/fixture-parent.txt",
+    "bytes": 1,
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/frozen-before-first-activation.json",
+    "bytes": 3997,
+    "sha256": "2576de91ef4906475336a83efc0e74d90842b977c35c734d8c2c0e2902373b2f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/frozen-before-launch.json",
+    "bytes": 3997,
+    "sha256": "c007f2894b35ec0aea3c73dd296432733f17c89d86e77b2511faddc70995b19f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/host-survey.ps1",
+    "bytes": 1117,
+    "sha256": "c6a67925a3ffdebb91a7816f972a4b68bccd7a9d6feeed1b7d1125f978ef27ab",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/host-survey.txt",
+    "bytes": 505,
+    "sha256": "1c9f2799ad09270dd2912c656973814dfb976bb25cfa8e7c5ce8c210bb445e29",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/installed-package-hashes.txt",
+    "bytes": 249,
+    "sha256": "64afb105a5676fbc2ffdf4ed41a4b298fa9ae69dc50bf6f22449218f72a05390",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/installed-packages.txt",
+    "bytes": 57,
+    "sha256": "253d1260b6a265942e2d0fdfc02ee04876621ba619698da6baea79e227ca9318",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/integration-case-validation.txt",
+    "bytes": 1112,
+    "sha256": "7a86f457d8fe7a486b9d76ad042a0d2d4e9510f890a67707c6de7a2ccd18c526",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/integration-docs-check.txt",
+    "bytes": 13254,
+    "sha256": "c815cbba9454bc207413973069c1918db111a8f68abb6ff0d8e0ec98da2bca60",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/integration-preservation.txt",
+    "bytes": 381,
+    "sha256": "412819cc68fae24c6ee20be6da2dc90ed8181d8f8cf7e9d5f79fd19593b1d74d",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/lf-control-self-test.txt",
+    "bytes": 58,
+    "sha256": "d7d543a922495884142d6fe0261cb68fc0cf12cd1dac12148db065e848286852",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/lf-control.txt",
+    "bytes": 93,
+    "sha256": "cb4db56686a2734a510a8524465d4f2c4fd18991cd2d04c243e323df0cf3f866",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/openfoam-command.sh",
+    "bytes": 592,
+    "sha256": "b4488d20a017927654f04b350a23accb4ff134727f8089e26ae8f7e50393af18",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/openfoam-identity.txt",
+    "bytes": 750,
+    "sha256": "05c0b76853cbfe8a558eabdaf7de439b459d4d6c310438db25873f8a694c4c49",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/product-controlDict",
+    "bytes": 37375,
+    "sha256": "f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a6ef854",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/.gitattributes",
+    "bytes": 24,
+    "sha256": "3bb7db1046ae7a50fe64b5eede3934e8c995b5b441fbfad67095e0c4dfe73a25",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part1of2.log",
+    "bytes": 12584,
+    "sha256": "847ff8d24bbda96ba3a8006556503c772039dbc7922351d7345e54a5365e382e",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part1of2.ms",
+    "bytes": 6,
+    "sha256": "96ac97ededf43edee98f45d4cfbb2cce2b434f0821636d808ee806a5fe1c6f77",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part1of2.seconds",
+    "bytes": 3,
+    "sha256": "9a92adbc0cee38ef658c71ce1b1bf8c65668f166bfb213644c895ccb1ad07a25",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part2of2.log",
+    "bytes": 14765,
+    "sha256": "b1a3484c7cc510643d2f45a978759766ec96fe11cb5600e80bc497a34486e192",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part2of2.ms",
+    "bytes": 6,
+    "sha256": "34114f1f15e85071207f18cea931ee4c0d70c8d5f7e6d3086225cfbf02c7ba0b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Analysis.part2of2.seconds",
+    "bytes": 3,
+    "sha256": "1a252402972f6057fa53cc172b52b9ffca698e18311facd0f3b06ecaaef79e17",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Cli.log",
+    "bytes": 636,
+    "sha256": "54e6970791b2499ca2d4ed33e18237f9c669e06d525fa736a95f52311835477d",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Cli.ms",
+    "bytes": 5,
+    "sha256": "b98e0c376ff1d456162550fbc4ebb994e0eb0f51e7f68d96ed5f6f5593b6a4be",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Cli.seconds",
+    "bytes": 2,
+    "sha256": "f0b5c2c2211c8d67ed15e75e656c7862d086e9245420892a7de62cd9ec582a06",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part1of3.log",
+    "bytes": 14952,
+    "sha256": "bb0dd15d9e205484e874db30ef12a0bc487fdf0af5716005de5208933224bd0e",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part1of3.ms",
+    "bytes": 6,
+    "sha256": "4806790c57bcb11fd5dc1f2d101373f6f2d4636a1cba8fadd2069b5d2d5def91",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part1of3.seconds",
+    "bytes": 3,
+    "sha256": "040316eca5e77dbb2212c1efe8b81cb23bc67ce0ac8cb5c9d902d98bd45ddfa1",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part2of3.log",
+    "bytes": 13692,
+    "sha256": "f35de38688c84f1ae49a2502193c808c0d6b9d394c51c8fb9d7147fc83c3af46",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part2of3.ms",
+    "bytes": 6,
+    "sha256": "b76b8a7344d419bfa5a2bc5d1693206174c48cf0bd8b2591958fadd3a464066f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part2of3.seconds",
+    "bytes": 3,
+    "sha256": "a5331f18877e9e1543361e44b4cb0a1f5f0ed5f8297d850bf1fcc68bd7a3ab5f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part3of3.log",
+    "bytes": 16184,
+    "sha256": "378e498e4f2559f26d0bf3b1afed27290290fdeac433b22903df4676bbf84d17",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part3of3.ms",
+    "bytes": 6,
+    "sha256": "ac9aa41b0c6ce3b3f2540f0a6e4463dc7faf5b6a5e79cdbcf9e1e85bd124f486",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Core.part3of3.seconds",
+    "bytes": 3,
+    "sha256": "673650f936cb3b0a2f93ce09d81be10748b1b203c19e8176b4eefc1964a0cf3a",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Desktop.log",
+    "bytes": 80,
+    "sha256": "c12e089fe6ce10b91595b245d429e45d873ce4830e98445c2102007a58172e17",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Desktop.ms",
+    "bytes": 5,
+    "sha256": "469a9155c6939d74ef608bb81d05657d53b63497dddece0e79061e933214b914",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/Desktop.seconds",
+    "bytes": 2,
+    "sha256": "10159baf262b43a92d95db59dae1f72c645127301661e0a3ce4e38b295a97c58",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/build.ms",
+    "bytes": 6,
+    "sha256": "1da8b98739ef615632d0dac3d1c8d6f2d5bb020d9f4214b38794e1c8e97984f8",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/failure-summary.json",
+    "bytes": 9909,
+    "sha256": "a3c87ab8a3a627ea17c3318dd5a3ce13ebeae804030adc7bc1154639e24758c4",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/ring.stdout.txt",
+    "bytes": 13497,
+    "sha256": "4fea972dc1c479f187b40dca9d96ff405e8df22125a87a37eeccd59d6c5faad2",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/run.json",
+    "bytes": 3990,
+    "sha256": "abda2b9ceec7168cb1dec1bd0ed08e56d20b2bc62f7ce456e860a48eed091fc4",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/sdk.txt",
+    "bytes": 10,
+    "sha256": "4a69479932b361301fed174229f848221f64f60c1c63d5acaefa8fd80a5b9606",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/times.txt",
+    "bytes": 36,
+    "sha256": "6a4358ba7bb4343c033212a7028699a38320dd40f58799abcbe8ac10f7bcd32a",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/raw-ring/wall.ms",
+    "bytes": 6,
+    "sha256": "c0fbc098087fe82a03a33fe60e3e64ee7ad85ade0b3d72c55353273b094ffa7b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/ring-case-validation.txt",
+    "bytes": 1205,
+    "sha256": "0cb3f6a29ef3403560257dc43ace65a86754ae5cb8ec35864367a2c384ebfeaf",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/ring-docs-check.txt",
+    "bytes": 7519,
+    "sha256": "a641a2ee9e3b27c351f2e4d4b6a8dffdf8c6c1078b0068d9ec1215b7ffc8fe2a",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/ring-lf-control.txt",
+    "bytes": 93,
+    "sha256": "cb4db56686a2734a510a8524465d4f2c4fd18991cd2d04c243e323df0cf3f866",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/ring-summary.txt",
+    "bytes": 106,
+    "sha256": "a1c3ae720e79e996c678d398a5c972c415c34d433366132ad5bd1b39b222675b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/run-application-ring.py",
+    "bytes": 2276,
+    "sha256": "cfc68c2d80d64e67fb15ba171a9fdcb69812309fd74a3085c36e19e666db6336",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/run-paths.json",
+    "bytes": 184,
+    "sha256": "3a7ea6b64754a5db13d31728271944526a69a3788751af117a9a2e2d7044d75b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/sdk-fresh.txt",
+    "bytes": 677,
+    "sha256": "cfbd0d0645d281400fbe60546c0b95ac2047214f5133cf6e8b60146ad2b847d3",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/steps.jsonl",
+    "bytes": 16453,
+    "sha256": "8b488a303adf2d424e68ad17c1af3eede82f5303ed82d8f865041edf897a3386",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/su2-history.csv",
+    "bytes": 19152,
+    "sha256": "0d4b7977dfc454fb8bbd670bde83aa4d740e6cfa22c4cb17c2fe7745849f4b6a",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/su2-resources.json",
+    "bytes": 630,
+    "sha256": "2022a1079c67efb90954bec3f319d9cbea39eccd9e7d49f57d5e7d8480ed96bb",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/su2-smoke-LF.txt",
+    "bytes": 17101,
+    "sha256": "862eb83eb0b95e2dee5d699b5661976beb1ae3765650e3df99747d0682c5749f",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/summarize-ring.py",
+    "bytes": 6790,
+    "sha256": "50e9234818bdab2d88ff58c3640395a2b2fc744690ff05111a3aa64f74db4202",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/tested-sha.txt",
+    "bytes": 41,
+    "sha256": "85e32a6fbb5aa4fd92e02fe1f79961cbab3f02dad7f54b5d3d21bf617841f73d",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/verify-reconciliation.py",
+    "bytes": 1576,
+    "sha256": "0d5d19ea09568309318c0f54e0db7058c3369a488d87479655fa72302c2e7ef1",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/wsl-version.txt",
+    "bytes": 217,
+    "sha256": "50a52dc4509e0c859618fe87aaf7c3c5dbfb690730fe230a4d458a6dc44e66ac",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/receipt-docs-check.txt",
     "bytes": 7748,
-    "sha256": "9f283ad1293c38645d0e16bbfd411a1f25083221abdabf30816eb632b4b2608f"
+    "sha256": "9f283ad1293c38645d0e16bbfd411a1f25083221abdabf30816eb632b4b2608f",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/receipt.md",
-    "bytes": 14225,
-    "sha256": "036f824c525e6aec3a689803aae52fe121afc0d70fc253c1085049d7347d26c3"
+    "bytes": 23062,
+    "sha256": "68bc4f4649b40b5ad397aad97d5b001d430d69ec9e2986822b29f04d68a19596",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/repo-key-fingerprint.txt",
     "bytes": 360,
-    "sha256": "e0cc4186a0658b0d9f8f5f5135a2b085508a90aaea303d015f4778eb6d92cd98"
+    "sha256": "e0cc4186a0658b0d9f8f5f5135a2b085508a90aaea303d015f4778eb6d92cd98",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/repo-key.txt",
     "bytes": 1,
-    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/repo-source-repair.txt",
     "bytes": 1,
-    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/repo-source.txt",
     "bytes": 1,
-    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/steps.jsonl",
+    "bytes": 14818,
+    "sha256": "fa2ab67774e922bb7ee7ea48f2f3b53622e55f50496fe538f980f88ad8c9c01b",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/su2-cylinder.su2",
-    "bytes": 134847,
-    "sha256": "b9a423d61c478bd1c267c0dbf872cf56af25a507334985a717d63942a5da413c"
+    "bytes": 130551,
+    "sha256": "9e025604c4c847e610d5fc22cabaea83b741ebd78c7b047fcee4ee1cb8f49166",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/su2-download-hash.txt",
     "bytes": 186,
-    "sha256": "e72577f9f02d382c994a9df9b71d2faa8da0a8cee76c058614f2cc125d47c80c"
+    "sha256": "e72577f9f02d382c994a9df9b71d2faa8da0a8cee76c058614f2cc125d47c80c",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/su2-download.txt",
     "bytes": 707,
-    "sha256": "8f18ce44f10f777c13332ad465d5bbba180668b57aede8cbae2631f4a9cf2b99"
+    "sha256": "8f18ce44f10f777c13332ad465d5bbba180668b57aede8cbae2631f4a9cf2b99",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/su2-history.csv",
-    "bytes": 19215,
-    "sha256": "dea6e3afabd37d83c2bad49028eaf98f4fdc3d0f4f6a7ec9ea2ca86d80e3a9cd"
+    "bytes": 19152,
+    "sha256": "0d4b7977dfc454fb8bbd670bde83aa4d740e6cfa22c4cb17c2fe7745849f4b6a",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/su2-identify.txt",
     "bytes": 587,
-    "sha256": "4656a4d6e0a9aa0e8be6405e6d43a62b706fcb3c13b3145105b7cecbcd7471ba"
+    "sha256": "4656a4d6e0a9aa0e8be6405e6d43a62b706fcb3c13b3145105b7cecbcd7471ba",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/su2-run-dir.txt",
-    "bytes": 80,
-    "sha256": "3067ce9be50ce81918371339b93d271aa56fd2c216aae839d59ad3fedae31302"
+    "bytes": 85,
+    "sha256": "a621e0e7517d9a414c53a6313ec3a49cb301bc0a02e6ccf1d8de5826ba130622",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/su2-smoke.cfg",
-    "bytes": 3122,
-    "sha256": "1ef7b3ca7a8f4ce88938327aa117dd8735df977868fe8316cff934d489a93eae"
+    "bytes": 3029,
+    "sha256": "ee99de0a9e0d074577ced63d1707809d7323951a767cdec83ed3960c1e01a224",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/su2-smoke.txt",
     "bytes": 17406,
-    "sha256": "17871f6f3229adc748d7a8487b1c04850f9f3220b422f9bba8c0ada2f492f863"
+    "sha256": "17871f6f3229adc748d7a8487b1c04850f9f3220b422f9bba8c0ada2f492f863",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/tested-sha.txt",
     "bytes": 41,
-    "sha256": "73c412dddc8431370f610bd95849d1b2797c45aafba2e7d36c3ee274361a5fef"
+    "sha256": "73c412dddc8431370f610bd95849d1b2797c45aafba2e7d36c3ee274361a5fef",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/time-available.txt",
     "bytes": 56,
-    "sha256": "bc75f5d5404b8cf8a6f08f6e79dae7803bd9d19669928a2693942e6972e0546c"
+    "sha256": "bc75f5d5404b8cf8a6f08f6e79dae7803bd9d19669928a2693942e6972e0546c",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/tutorial-download.txt",
     "bytes": 161,
-    "sha256": "3e8ae0ade71a63cb2ccc4d6f100eba62aa290c80ba2a0836c9934051b0e5ecf7"
+    "sha256": "3e8ae0ade71a63cb2ccc4d6f100eba62aa290c80ba2a0836c9934051b0e5ecf7",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/tutorial-package-index.txt",
     "bytes": 1094,
-    "sha256": "4cfb1e5e1131feb8163050fdedb976f3b67c3e3d776333e80e5a5c80bfb1ec16"
+    "sha256": "4cfb1e5e1131feb8163050fdedb976f3b67c3e3d776333e80e5a5c80bfb1ec16",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/ubuntu-download-hash.txt",
     "bytes": 191,
-    "sha256": "edadc5a6b78dd188bb3363e001928464413823825f27a9bda9d903db9acf28a9"
+    "sha256": "edadc5a6b78dd188bb3363e001928464413823825f27a9bda9d903db9acf28a9",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/ubuntu-download.txt",
     "bytes": 939,
-    "sha256": "2582fdcd3340a636d9a6cddb347b67f1d4d97218712cd0e23d023a9a3750f8bb"
+    "sha256": "2582fdcd3340a636d9a6cddb347b67f1d4d97218712cd0e23d023a9a3750f8bb",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/ubuntu-import-repair.txt",
     "bytes": 38,
-    "sha256": "373f4b6f296ccb007b7e9459d562233c0e796d58804721d1938a9389b11a26ea"
+    "sha256": "373f4b6f296ccb007b7e9459d562233c0e796d58804721d1938a9389b11a26ea",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/ubuntu-import.txt",
     "bytes": 81,
-    "sha256": "025de6440191a8053ab9f91211f0b46b70a2b61ae3c74a77c704a89fc345757a"
+    "sha256": "025de6440191a8053ab9f91211f0b46b70a2b61ae3c74a77c704a89fc345757a",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/verify-lf-inputs.py",
+    "bytes": 1388,
+    "sha256": "4bd381067b2f0dca2ee5d18465e4b13a76e051983ed12e205cd1a0774a2947e9",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/write-su2-case.py",
     "bytes": 2708,
-    "sha256": "798609ea3706ac9aae0eecb5e2e01e8b663430466a7c6272514d6de6b90867c9"
+    "sha256": "798609ea3706ac9aae0eecb5e2e01e8b663430466a7c6272514d6de6b90867c9",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/wsl-gpu.txt",
     "bytes": 98,
-    "sha256": "8566b427a07eb861091b68ceaee100a0068e026e2e39d2c35dd1c0cf03085d7c"
+    "sha256": "8566b427a07eb861091b68ceaee100a0068e026e2e39d2c35dd1c0cf03085d7c",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/wsl-list.txt",
     "bytes": 89,
-    "sha256": "0f5ad669a967c20617542c043bbf2bb2a98ab768b0ef4784d4537553b748fa3a"
+    "sha256": "0f5ad669a967c20617542c043bbf2bb2a98ab768b0ef4784d4537553b748fa3a",
+    "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/wsl-version.txt",
     "bytes": 223,
-    "sha256": "16d838af23b579eae96d050fef30e1779f0d1d32a342444a740c0e8e741c5e01"
+    "sha256": "16d838af23b579eae96d050fef30e1779f0d1d32a342444a740c0e8e741c5e01",
+    "staged_blob_equal": true
   }
 ]

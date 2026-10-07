@@ -63,7 +63,7 @@ The UX and the AI boundaries are in the amendment proposal
 | OpenCFD apt packages for Ubuntu 24.04 (noble) amd64 | `openfoam2512` 2512.0-2: 68,264,976 bytes, sha256 `c59e65ffd99c9143fd7c2594dc9776e9d7190124965efdb667e28677d93f3fed`, installed 333,725 kB; `openfoam2512-common` 2512.0-2 sha256 `f438ecbf…9026f`; `-default` pulls `-dev` (compilers) | **Verified** (repo index) | `dl.openfoam.com/repos/deb/dists/noble/main/binary-amd64/Packages` |
 | OpenCFD repo signing key | fingerprint `DC93C096174122E256DA24063386DD74948D208F` (rsa4096, 2020-04-21) | **Verified** | `gpg --show-keys` on `dl.openfoam.com/pubkey.gpg` |
 | Docker alternative | `opencfd/openfoam-default:2512` index digest `sha256:33fb575a…622f319`; amd64 image 477,919,718 bytes compressed | **Verified** | Docker Hub tags API |
-| Anything that happens on Windows | WSL enable, restart, import, apt, SU2 run, UAC, SmartScreen, survey sources | **Inferred** | no Windows host (DR-F2-7); the operator's Windows smoke test is a few days out |
+| Observed Windows route behavior | Ubuntu 24.04.5 private WSL2 import and signed OpenCFD runtime/common 2512.0-2 hashes; Linux build `_bd2b6720-20260127`; manual M1 cavity to t = 0.5, Courant mean 0.222158; native SU2 v8.5.0, 2,048-cell incompressible smoke, CL −2.157833374e−16 and CD 2.885552317; surveyed Windows 11 Pro build 26300.9457 | **Verified** on this x64 PC; enable/restart, UAC, SmartScreen, managed-device/error paths and product launcher behavior remain **Inferred/Flagged** | `docs/proof/win-routes/receipt.md` and `r133/` command ledger, Ruling 133; manual route evidence only |
 
 ## 1. Surface list (E7)
 
@@ -231,8 +231,8 @@ recorded", never guessed.
 
 | Backend | Fixture | Pass = all of | Reference | Label |
 |---|---|---|---|---|
-| OpenFOAM (both OSes) | bundled `cavity` (blockMesh + icoFoam to t = 0.5), emitted by the app into a fresh run directory (M4, M5) under the app's controlDict (M1) | exit 0; time directories 0.1 … 0.5 with `U` and `p`; master banner `Disallowing` (M2); build id = the route's pin; final-time Courant mean within tolerance | 0.222158 (macOS arm64, v2512) | Verified value; the tolerance is **Inferred** (proposed 1 × 10⁻³ relative until the Windows run measures the cross-OS difference) |
-| SU2 | a bundled small 2D incompressible case (≤ 5 k cells) | exit 0; `history.csv` with the recorded columns; final Cl within tolerance | **Not recorded** | Inferred; the reference is recorded on the first Windows run |
+| OpenFOAM (both OSes) | bundled `cavity` (blockMesh + icoFoam to t = 0.5), emitted by the app into a fresh run directory (M4, M5) under the app's controlDict (M1) | exit 0; time directories 0.1 … 0.5 with `U` and `p`; master banner `Disallowing` (M2); build id = the route's pin; final-time Courant mean within tolerance | 0.222158 (macOS arm64 and manual Windows WSL2 v2512 run; difference 0 at printed precision) | **Verified** manual Windows M1 result (`docs/proof/win-routes/receipt.md`, Ruling 133); app emission remains Inferred. Proposed 1 × 10⁻³ relative tolerance remains **Inferred**, not calibrated by one equal observation |
+| SU2 | a bundled small 2D incompressible case (≤ 5 k cells) | exit 0; `history.csv` with the recorded columns; final Cl within tolerance | Manual Windows native v8.5.0 2,048-cell cylinder smoke: CL −2.157833374e−16, CD 2.885552317 at iteration 61 | **Verified** observation (`docs/proof/win-routes/receipt.md`, Ruling 133); CL is near zero by symmetry, CD is the discriminating measured scalar. Independent physical reference, numerical tolerance and product smoke integration are **Not recorded/Inferred** |
 
 Run directory (Ruling 133): the route, not `blockMesh` or `icoFoam`, creates the fresh run directory and its parents
 (in the Windows distribution, under the app's own `/root/CFDWorkbench/` tree), verifies that each exists and is writable,

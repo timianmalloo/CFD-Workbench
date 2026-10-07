@@ -11,7 +11,7 @@ geometry:
   source:
     kind: tutorial
     path: docs/proof/win-routes/su2-cylinder.su2
-    sha256: b9a423d61c478bd1c267c0dbf872cf56af25a507334985a717d63942a5da413c
+    sha256: 9e025604c4c847e610d5fc22cabaea83b741ebd78c7b047fcee4ee1cb8f49166
     generator: py -3 docs/proof/win-routes/build-su2-smoke.py
     reference: https://github.com/su2code/SU2/blob/v8.5.0/TestCases/incomp_navierstokes/cylinder/incomp_cylinder.cfg
     deviation: Generated 2048-quad annular mesh replaces the oversized publisher mesh;
@@ -58,16 +58,17 @@ numerics:
   max_iterations: 100
   residual_criterion: CONV_RESIDUAL_MINVAL=-10; publisher v8.5.0 configuration with
     MGLEVEL=0
-  config_sha256: 1ef7b3ca7a8f4ce88938327aa117dd8735df977868fe8316cff934d489a93eae
+  config_sha256: ee99de0a9e0d074577ced63d1707809d7323951a767cdec83ed3960c1e01a224
 decomposition:
   method: OpenMP
   n_subdomains: 1
   nice: 10
-  nice_observed: Not recorded; POSIX nice is inapplicable to native Windows. 10 is
-    the schema-required policy value, not a measured process priority.
-  windows_process_priority: Not recorded
+  nice_observed: POSIX nice is inapplicable; Windows below-normal priority is used
+    for this run.
+  windows_process_priority: BELOW_NORMAL_PRIORITY_CLASS (observed requested creation
+    flag 0x4000)
   max_load_1min: 10
 outputs_expected:
 - history.csv
 - restart_flow.dat
-run_dir: runs/20261007T181811Z-win-su2-smoke
+run_dir: runs/20261007T220227Z-win-su2-smoke

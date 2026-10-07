@@ -1,0 +1,1 @@
+PASS: receipt derived from 39 named failures, 10 cost failures, exact Desktop output; raw files unchanged
