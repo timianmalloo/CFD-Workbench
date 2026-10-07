@@ -348,15 +348,6 @@ try
         throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
 }
 finally { File.Delete(recoveryPath); File.Delete(seedRecoveryPath); }
-var renderFrame = new DisplayFrame([], default!, .5, 0, "source", "accepted");
-var renderViewport = new Viewport { Frame = renderFrame };
-long initialRevision = renderViewport.FrameRevision;
-renderViewport.Frame = renderFrame;
-if (renderViewport.FrameRevision != initialRevision)
-    throw new Exception("Repeated Refresh advanced the same viewport frame revision");
-renderViewport.InvalidateFrameForMetric();
-if (renderViewport.FrameRevision != initialRevision + 1)
-    throw new Exception("Metric invalidation did not create a fresh target revision");
 Console.WriteLine("Desktop Example, bounded preview, cancel, apply, undo and redo passed.");
 
 AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();

@@ -136,7 +136,45 @@ public sealed class SectionTabView : UserControl
         legend = new TextBlock { Name = "SectionChartLegend", Classes = { "pnl-note" } };
         left.Children.Add(legend);
         Refresh();
-        foreach (ResultGroup group in Shown.Groups) right.Children.Add(AnalysisPanel.Table("section-" + group.Title.ToLowerInvariant().Replace(' ', '-').Replace("-", "") + "-table", group));
+        // The mockup's compact Stations table replaces the "Station" name row (the header carries it) and the text "Stations" group.
+        if (Shown.StationTable is { } stations) right.Children.Add(StationsTable(stations));
+        foreach (ResultGroup group in Shown.Groups.Where(g => Shown.StationTable is null || g.Title is not ("Station" or "Stations"))) right.Children.Add(AnalysisPanel.Table("section-" + group.Title.ToLowerInvariant().Replace(' ', '-').Replace("-", "") + "-table", group));
+    }
+
+    // Station (η) · α_eff ° · −Cp_min · Cavitation; the shown station is highlighted and named "shown" for assistive technology.
+    private static StackPanel StationsTable(IReadOnlyList<StationTableRow> rows)
+    {
+        var table = new StackPanel { Name = "section-stations-table", Margin = new Thickness(0, 0, 0, 6) };
+        AutomationProperties.SetName(table, "Stations");
+        table.Children.Add(new TextBlock { Text = "Stations", Classes = { "pnl-head" } });
+        Grid Row(params string[] cells)
+        {
+            var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*,*,2*") };
+            for (int i = 0; i < cells.Length; i++)
+            {
+                var cell = new TextBlock { Text = cells[i], Classes = { "pnl-cell" }, Margin = new Thickness(4, 1) };
+                Grid.SetColumn(cell, i);
+                grid.Children.Add(cell);
+            }
+            return grid;
+        }
+        var head = Row("Station", "α_eff °", Labels.CpMinLabel, "Cavitation");
+        foreach (TextBlock cell in head.Children.OfType<TextBlock>()) cell.FontWeight = Avalonia.Media.FontWeight.SemiBold;
+        table.Children.Add(head);
+        foreach (StationTableRow row in rows)
+        {
+            var holder = new StackPanel { Name = "section-station-row" };
+            holder.Children.Add(Row(row.Station, row.AlphaEff, row.CpMin, row.Cavitation));
+            if (row.NotMeasured is { } note) holder.Children.Add(new TextBlock { Text = note, Classes = { "pnl-note" }, Margin = new Thickness(4, 0) });
+            var item = new Border { Child = holder };
+            if (row.IsShown)
+            {
+                item.Bind(Border.BackgroundProperty, item.GetResourceObservable("SurfaceSoftBrush"));
+                AutomationProperties.SetName(item, row.Station + ", shown");
+            }
+            table.Children.Add(item);
+        }
+        return table;
     }
 
     private void Refresh()

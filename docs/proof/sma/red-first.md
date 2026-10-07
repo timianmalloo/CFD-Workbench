@@ -35,3 +35,8 @@ Control: the retired-name scan in `ModelArea_SamplesTabRetired_NoReferencesRemai
 
 Suite `SectionMainAreaTests` (readiness): five checks. They reference `ShellLayoutFactory.SectionDocument`, `AnalysisPanel.SectionView`, `SectionTabView.Summary`, `AnalysisPanel.CompactHeight` and `Labels.OpenInMainArea`, none of which exist at 42e2526c, so on the old code the suite does not compile (red by absence, not by assertion). After the change: `PASS` for
 `SectionMainArea_Tabs_PlanSectionFoilSource_SampleGone`, `SectionMainArea_Document_FullSize_HeaderNamesSelectedStrip`, `SectionMainArea_Document_NoStrip_HeaderNamesGoverningStation`, `SectionMainArea_BottomTab_OneLineSummary_OpensDocument`, `SectionMainArea_Document_MinimumWindow_ChartsDrawn`; the DX checks `Section_TabBody_BuildsChartSelector`, `SectionView_OneView_SelectorDrivesChart`, `SectionTab_Desktop_RendersAllChartsWithoutThrowing`, `FindAlpha_ButtonBesideEvaluate_ApplyWritesAlphaOnly_Dxm6`, `Section_CpUnavailable_PanelSolveFailed_ShowsCopy358InApp` (readiness) and `AnalysisPanel_Tabs_BoundToSelectedRun` (`--analysis`) still PASS, moved to the Section document.
+
+## Repair cycle 1
+
+- Conditions band over the Section document: `SectionMainArea_ConditionsBand_OneInstance_EvaluateFromSectionTab`. Old code (band stays in the Plan document): `FAIL ... one band instance in the window: expected 1, got 0`. New code: PASS (one `ConditionsBand`, in `SectionDocumentBody`; Evaluate with alpha 4 from the Section tab records a new run and the document is bound to it; the band returns above the Plan).
+- Compact Stations table: `SectionMainArea_StationsTable_FourColumns_ShownRowHighlighted`. On the old code it does not compile (`SectionView.StationTable` does not exist); new code PASS.

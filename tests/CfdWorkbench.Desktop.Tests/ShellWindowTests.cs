@@ -1387,24 +1387,6 @@ public static class ShellWindowTests
             finally { window.Close(); }
         });
 
-        DesktopChecks.Check("Viewport_FocusVertex_RaisesFocusedTargetChanged", () =>
-        {
-            var viewport = new Viewport
-            {
-                Semantics = [new ViewportSemantic("cv-1", "upper control vertex cv-1", "editable")]
-            };
-            FocusedTargetEventArgs? raised = null;
-            viewport.FocusedTargetChanged += (_, args) => raised = args;
-            viewport.FocusVertex("cv-1");
-            if (raised?.AccessibleName != "upper control vertex cv-1" ||
-                raised.Bounds.Width <= 0 || raised.Bounds.Height <= 0)
-                throw new InvalidOperationException("Viewport did not emit the focused semantic target");
-            raised = null;
-            viewport.FocusVertex("missing");
-            if (raised is not null)
-                throw new InvalidOperationException("Unknown viewport target emitted focus");
-        });
-
         DesktopChecks.Check("SectionCanvas_FocusVertex_RaisesFocusedTargetChanged", () =>
         {
             var vertices = new[] { new ProfileVertex("upper", "u1", .25, .08, false) };

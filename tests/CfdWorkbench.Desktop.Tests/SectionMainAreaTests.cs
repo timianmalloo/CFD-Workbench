@@ -119,6 +119,27 @@ public static class SectionMainAreaTests
                 window.Height = 870;
                 Settle(window);
             });
+            // Ruling 125 (mockup B, C): the compact Stations table, four columns, the shown station highlighted, COPY-384 where not measured.
+            DesktopChecks.Check("SectionMainArea_StationsTable_FourColumns_ShownRowHighlighted", () =>
+            {
+                var (controller, host, window) = shared.Value;
+                controller.Select(new Selection.Foil());
+                host.RefreshPanes();
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
+                Settle(window);
+                var view = host.AnalysisPanel.SectionView;
+                var rows = view.Shown!.StationTable ?? throw new Exception("no station table in the view");
+                var table = Descendants(view).OfType<StackPanel>().Single(p => p.Name == "section-stations-table");
+                var headers = ((Grid)table.Children[1]).Children.OfType<TextBlock>().Select(t => t.Text).ToArray();
+                Equal("Station|α_eff °|" + Labels.CpMinLabel + "|Cavitation", string.Join("|", headers), "the four headers");
+                Equal(rows.Count, table.Children.OfType<Border>().Count(), "one rendered row per solved, governing or shown station");
+                Equal(1, rows.Count(r => r.IsShown), "exactly one shown row");
+                Equal(true, rows.Single(r => r.IsShown).Eta == view.Shown.Eta, "the shown row is the shown station");
+                Equal(1, table.Children.OfType<Border>().Count(b => b.Background is not null), "one highlighted row");
+                Equal(true, rows.All(r => r.Cavitation is "Clear" or "Inside the margin" or "Possible" or "Unavailable"), "cavitation words come from COPY-301 to COPY-303");
+                Equal(true, rows.Where(r => r.NotMeasured is not null).All(r => r.NotMeasured == Labels.UnderreadNotMeasured), "COPY-384 on a station not measured");
+                Equal(0, Descendants(view).OfType<StackPanel>().Count(p => p.Name == "section-station-table"), "the Station name group is gone (the header names it)");
+            });
             // Ruling 125 (mockup B, C): the one conditions band is above the Section document; Evaluate runs from there.
             DesktopChecks.Check("SectionMainArea_ConditionsBand_OneInstance_EvaluateFromSectionTab", () =>
             {
