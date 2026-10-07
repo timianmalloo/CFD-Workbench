@@ -4080,6 +4080,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "071422f30794621b0cc4b4ae8ce037b57f183169e84cae49547f139e0649741d"
     },
     {
+      "id": "mockup-section-force-vectors",
+      "path": "docs/mockups/section-force-vectors.md",
+      "title": "Section force vectors (Ruling 127) - Lift and Drag on the Cp-coloured profile",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Four states of the Section view's profile after Ruling 127: Lift and Drag vectors anchored at the centre of pressure, a faint inflow, lift perpendicular and drag parallel to it, drag in two segments (profile, induced) at its own labelled scale. A normal strip, near zero lift (anchor falls back to the quarter chord), a flagged drag, and Imperial. Thirteen strings are proposed copy.",
+      "tags": [
+        "mockup",
+        "ruling-127",
+        "section",
+        "analysis",
+        "lift",
+        "drag",
+        "centre-of-pressure",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "mockup-section-main-area",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-dx-section-polar-states",
+          "rel": "refines"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "94e715f88b6c0d230eea4800aee11191160003acaccb3fc1e1a66dccbe552688"
+    },
+    {
       "id": "mockup-section-main-area",
       "path": "docs/mockups/section-main-area.md",
       "title": "Section in the main area (Ruling 124) - chip strip, Section document tab, compact bottom summary",
@@ -6784,7 +6822,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5061eb28b48418ffd19db7e878fdc8938a2dfbaf5e5f5c60e535315a4d3b3e89"
+      "sourceSha256": "2c3c659a685be4dfd79f094658896e723363f3af634661130c059e6401af366a"
     },
     {
       "id": "kb-hw-glossary",
@@ -15154,6 +15192,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-property-grid-cells"
     },
     {
+      "id": "surface-mockups-section-force-vectors",
+      "path": "docs/mockups/section-force-vectors.html",
+      "title": "Section force vectors",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-section-force-vectors"
+    },
+    {
       "id": "surface-mockups-section-main-area",
       "path": "docs/mockups/section-main-area.html",
       "title": "Section in the main area",
@@ -15178,5 +15224,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "5187645eb75d36f0849fee791d2c37b402529b9fe46b6cb600c4f0d09b0b0485"
+  "graphSha256": "8bdc02985bd1f61e622e01bc5d9df93e283879d49a68f8bdc6870c41d8f0427a"
 };

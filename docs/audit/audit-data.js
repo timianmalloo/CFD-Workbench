@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T00:50:48Z",
+  "generated": "2026-10-07T01:09:28Z",
   "audit": [
     {
       "actor": null,
@@ -28395,6 +28395,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T00:49:52Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M49YH1TQEFSVFQ10VSVWBPWV",
+      "shortname": "trk-sfv",
+      "datetime": "2026-10-07T01:09:28Z",
+      "session": "trk-sfv",
+      "prompt": "SFV-mockup: Ruling 127 Lift and Drag vectors on the Cp section profile",
+      "summary": "Mockup section-force-vectors.html and .md: states A-D (normal, near zero lift, flagged drag, Imperial), 13 proposed-copy items, physics notes and 8 open questions for the hydrodynamicist; craft gate clean; 8 captures.",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/section-force-vectors.html",
+        "docs/mockups/section-force-vectors.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Reviewable mockup of Ruling 127 for operator approval before build",
+      "done_when": "html, md, captures, gate, derive and check-docs green, committed",
+      "tier": "T1",
+      "started_at": "2026-10-07T01:03:58Z",
+      "duration_seconds": 330.0
     }
   ],
   "changes": [
@@ -30206,6 +30230,24 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49VF7JRZ8JVNWDSMTR91QVP",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49Y4C01WA0RF8SMRZMMH48J",
+      "ts": "2026-10-07T01:02:32Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49Y4BWY2337HPNWHMSNF2M5",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49Y69WVJ30TQBB7933TKTC0",
+      "ts": "2026-10-07T01:03:36Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49Y69SKKZSGYW68ZKNZGSZY",
       "session": "operator-timianmalloo"
     }
   ]
