@@ -938,7 +938,7 @@ public static class PropertiesCellsTests
             // and told to the user once, politely, with the reason.
             string real = TempRoot();
             string link = Path.Combine(TempRoot(), "prefs");
-            Directory.CreateSymbolicLink(link, real);
+            if (!TryDirectoryLink(link, real)) return;
             ShellEvents.Clear();
             using var controller = new WorkbenchController();
             var host = new ShellHost(controller, new PreferenceStore(link, () => new ProjectStore()));
@@ -968,6 +968,21 @@ public static class PropertiesCellsTests
     }
 
     // ---------------- helpers ----------------
+
+    // WFX2 pattern (PreferenceStoreTests.TryDirectoryLink in the Core harness): Directory.CreateSymbolicLink needs a privilege
+    // on Windows. A directory junction is a reparse point too and needs none; when it cannot be made the case is NOT ASSESSED.
+    private static bool TryDirectoryLink(string link, string target)
+    {
+        if (!OperatingSystem.IsWindows()) { Directory.CreateSymbolicLink(link, target); return true; }
+        var info = new System.Diagnostics.ProcessStartInfo("cmd.exe") { UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true };
+        foreach (string argument in new[] { "/c", "mklink", "/J", link, target }) info.ArgumentList.Add(argument);
+        using var child = System.Diagnostics.Process.Start(info)!;
+        child.StandardOutput.ReadToEnd();
+        child.WaitForExit();
+        if (child.ExitCode == 0 && Directory.Exists(link)) return true;
+        Console.WriteLine("NOT ASSESSED directory-link: mklink /J could not create a junction; the linked-preference-root case did not run");
+        return false;
+    }
 
     /// <summary>A fresh preference root under the run TMPDIR, with the macOS /tmp link resolved (the store refuses links).</summary>
     private static string TempRoot()
