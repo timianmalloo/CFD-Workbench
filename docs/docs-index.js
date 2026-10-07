@@ -12459,7 +12459,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "003b9cb77f40b3fb87060338aa180179448317e50b98eec6b8654e5fa0e177cb"
+      "sourceSha256": "78fe55a94b88aca01bfee32c272d6c51a2eacd7ad8dff27c3a204a3ab7c9e9e8"
     },
     {
       "id": "proof-sma-red-first",
@@ -12484,7 +12484,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "88e5a352bbeff29dfcc41235de8ad67443da3bf315183b8ec8b421de6f80465d"
+      "sourceSha256": "aea7db6890a57acd2444fac790f7cffecce2b7defb74a53116d85b480f2acbc6"
     },
     {
       "id": "proof-sma-retired",
@@ -12509,7 +12509,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "87d659354261d731d9e6f096d96d274626af325c9ec52112f46e5df505ebb076"
+      "sourceSha256": "552ea5d549d18c1595a52b879ea5069d16cc43f4579fc99e05f038885461ab2d"
     },
     {
       "id": "proof-spike-03",
@@ -15178,5 +15178,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "8d4a218860942e55e8792c62db521215debbef1bff994345b44cc7f5fa7b214d"
+  "graphSha256": "dcbe99eada665698fbc194d1fd5f815559b72da842e3534bd473efb1564ea023"
 };

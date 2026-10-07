@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T00:31:07Z",
+  "generated": "2026-10-07T00:40:54Z",
   "audit": [
     {
       "actor": null,
@@ -28328,6 +28328,26 @@ window.AUDIT_DATA = {
       "done_when": "red-first receipts, DX/Section checks green, captures A-D, token lint 0, check-docs 0, ring green",
       "started_at": "2026-10-07T00:16:31Z",
       "duration_seconds": 876.0
+    },
+    {
+      "id": "al-01M49WWQYD7MEGMVSTPHAAH3YC",
+      "shortname": "trk-sma-build",
+      "datetime": "2026-10-07T00:40:54Z",
+      "session": "trk-sma-build",
+      "prompt": "trk-sma-build repair cycle 1",
+      "summary": "One ConditionsBand moves above the Section document; Stations table (4 columns, shown row highlighted); verify-application-adapters keys fixed; Viewport.cs deleted (ViewportSemantic record kept); ring 715 Desktop PASS 45 s; readiness GREEN",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Close mockup gaps: conditions band over Section document, compact Stations table, theme-row keys, Viewport.cs retired, copy ids",
+      "done_when": "ring green, readiness GREEN, token lint 0, check-docs 0, copy ids 0",
+      "started_at": "2026-10-07T00:31:48Z",
+      "duration_seconds": 546.0
     }
   ],
   "changes": [
