@@ -3542,6 +3542,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "4fd5d57828dd597508e8e5ded565d454e9146f6dd74e33bd6543ecf040669cec"
     },
     {
+      "id": "design-windows-native-store",
+      "path": "docs/design/windows-native-store.md",
+      "title": "Windows native project-store design",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@win-store-design-20261007",
+      "phase": "windows-w-2-design",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Reviewable B1 blueprint for a separate Windows native store helper, handle-relative publication, identity and security controls. Native qualification, final-directory durability and independent Mac/Fable, Data, Security and Test approval remain open.",
+      "tags": [
+        "windows",
+        "persistence",
+        "design",
+        "security",
+        "durability"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-runtime",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-store-design",
+          "rel": "tested-by"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c5add4d75839531711015bc428115ac1cfb3483c25e5d53d380c09f2f7203340"
+    },
+    {
       "id": "design-windows-runtime",
       "path": "docs/design/windows-runtime.md",
       "title": "Windows x64 native qualification contract",
@@ -6961,7 +7016,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "28426c5b64416e9e6fd7c024b1c38e1f9796fe5305144addf517d96ddf612935"
+      "sourceSha256": "bae0448b811a9b8abdfcfaabb1c7d98432cad09c90b074de76017bbca5e0de1b"
     },
     {
       "id": "kb-hw-glossary",
@@ -13807,6 +13862,99 @@ window.DOCS_INDEX = {
       "sourceSha256": "d850adcc95afd5a80d8f7948bade61fc7ec1d6dedf8af50e46fdef8985fbd496"
     },
     {
+      "id": "proof-win-store-design",
+      "path": "docs/proof/win-store-design/receipt.md",
+      "title": "B1 Windows native store design validation receipt",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@win-store-design-20261007",
+      "phase": "windows-w-2-design",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Records the canonical B1 content commit, one tested SHA and separate stdout/stderr from its docs validation. Mac path handoff and W-1 merge are confirmed; native qualification and independent Data, Security and Test approval remain open.",
+      "tags": [
+        "windows",
+        "persistence",
+        "design",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "documents"
+        },
+        {
+          "to": "review-pr-3",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-win-store-design-candidate",
+          "rel": "documents"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "implements"
+        },
+        {
+          "to": "design-windows-runtime",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "39560ecb929dd45b175622d95a02c588eaf1fe8ff0ae9221f04b9e1f8fbbbfb4"
+    },
+    {
+      "id": "proof-win-store-design-candidate",
+      "path": "docs/proof/win-store-design/candidate.md",
+      "title": "B1 Windows native project-store design candidate",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@win-store-design-20261007",
+      "phase": "windows-w-2-design",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Reviewable B1 blueprint for a separate Windows native store helper, handle-relative publication, identity and security controls. Native qualification, final-directory durability and independent Mac/Fable, Data, Security and Test approval remain open.",
+      "tags": [
+        "windows",
+        "persistence",
+        "design",
+        "security",
+        "durability"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-runtime",
+          "rel": "refines"
+        },
+        {
+          "to": "adr-application-project-contract",
+          "rel": "depends-on"
+        },
+        {
+          "to": "adr-0011-analysis-run-storage",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bacc282776edd12565365d6c2a336fa2f553a8ea67a20d8d5d3723c97980154f"
+    },
+    {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
       "title": "Windows W0 preparation and failed W1 hosted qualification",
@@ -15739,5 +15887,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ae998746da9f8c6ac12e9494e8f6e8964d177140d4031c1ee73ee65757ef3dc9"
+  "graphSha256": "f700213b0b82f3d4e85936cd5561b2dc7a183cebb4cd5f45c285bbbbe1fee428"
 };
