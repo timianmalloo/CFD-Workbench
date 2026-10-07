@@ -8662,6 +8662,51 @@ window.DOCS_INDEX = {
       "sourceSha256": "29e9139be1d7c2f42645cb1905d23a44d2e00e74f79329be1e320b20d70024a0"
     },
     {
+      "id": "coordination-windows-w0-w5-execution",
+      "path": "docs/coordination/windows-w0-w5-execution.md",
+      "title": "Windows W-0 through W-5 execution plan",
+      "type": "plan",
+      "status": "in-progress",
+      "owner": "@win-local-coordinator-20261007",
+      "phase": "",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Three-track Windows execution plan for W-0 through W-5. The Mac remains repository leader; the Windows session coordinates local work, an Astra Owner reviews decisions, and delivery occurs through win branches and GitHub PRs.",
+      "tags": [
+        "coordination",
+        "windows",
+        "openfoam",
+        "su2",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-two-machine",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-runtime",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-guided-solver-setup",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Optimized graph",
+          "mermaid": "flowchart LR\n  P[preflight + plan] --> O[Astra Owner plan gate]\n  O --> A0[W-0 setup evidence + PR]\n  A0 --> A1[W-1 smoke evidence + PR]\n  A1 --> B1[W-2 design PR + Fable/Data gate]\n  B1 --> B2[W-2 red-first implementation]\n  A1 --> C[W-3 solver routes + PR]\n  C --> D[W-4a OpenFOAM L6]\n  C --> E[W-4b SU2 TMR]\n  D --> FS[W-4c L3 started + durable monitor]\n  E --> FS\n  FS -. measured spare capacity .-> G[W-5 cfMesh + PR]\n  FS --> FC[W-4c L3 complete + A4/GCI + PR]\n  B2 --> JB[Windows persistence review]\n  G --> JC[Solver review]\n  FC --> JC"
+        }
+      ],
+      "sourceSha256": "7973a3b7b480f5dfd8028da46f3defbf342ce629c0a6384bcc236b4958eaf947"
+    },
+    {
       "id": "plan-seam-repair-1",
       "path": "docs/plans/seam-repair-1.md",
       "title": "SEAM repair cycle 1 execution graph",
@@ -15410,7 +15455,15 @@ window.DOCS_INDEX = {
       "kind": "knowledge-tool",
       "description": "Open an interactive knowledge artifact.",
       "artifactId": "mockup-status-bar"
+    },
+    {
+      "id": "surface-coordination-windows-w0-w5-execution",
+      "path": "docs/coordination/windows-w0-w5-execution.html",
+      "title": "Windows W-0 through W-5 execution plan",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ef2417497391849c7c452205d49d9ca95811fa90fb1d165b228c40d5064539af"
+  "graphSha256": "0ba8ee762f4bf5d0b5d01499a86fc4bbb24aee9b9e554e6bdcb83d5c0e67dcfe"
 };

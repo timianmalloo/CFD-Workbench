@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T16:21:53Z",
+  "generated": "2026-10-07T16:34:35Z",
   "audit": [
     {
       "actor": null,
@@ -28559,79 +28559,340 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4A0HTZZXN4Q509WGQJTQ0WP",
-      "shortname": "join-rh2",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-07T01:44:51Z",
-      "session": "14e5e8d5",
-      "prompt": "the join of perf/ring-headroom-2 into main",
-      "summary": "13 Desktop + 1 Core check to readiness; 2 Store moves reverted (STORE-SUBSET); Core parts within 1.4 s; ring 44.6-46.9 s net; PASS union 1770 unchanged; readiness 188.9 s of 240 recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
+      "done_when": "join gates green",
+      "duration_seconds": 55.0,
+      "fan_out": 0,
       "goal": "join perf/ring-headroom-2",
-      "done_when": "join gates green",
-      "tier": "T1",
-      "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-07T01:43:56Z",
-      "duration_seconds": 55.0
-    },
-    {
-      "id": "al-01M4A2FDNNPWSTRA8A3A0AMHW4",
-      "shortname": "trk-sfv-build",
-      "datetime": "2026-10-07T02:18:29Z",
-      "session": "trk-sfv-build",
-      "prompt": "trk-sfv-build round-oct06",
-      "summary": "Verified nc 4 and the moment datum (frame origin), moved to the strip leading edge by a read-only lattice getter; SectionForceModel (free-stream axes, x_cp from strip My/Fz, CP or c/4 anchor, lifting-line induced share summing to wing D_i, polar band, per-run 1-2-5 lift scale and drag multiple); vectors, couple, key and 16 labels (COPY-SF1..SF16) on SectionProfileView; strip table; red-first mutants; captures A-E; mockup deviations recorded (mirrored V-inf, N.m/m factor)",
+      "id": "al-01M4A0HTZZXN4Q509WGQJTQ0WP",
       "kind": "skill",
-      "skill": "implement",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
       "outcome": "success",
-      "compiled": false,
-      "goal": "Lift and Drag vectors on the Section view from the lattice strip (Rulings 127, 128, 130)",
-      "done_when": "model verified in writing; the five approved states built and captured; C1-C3 exit checks green; 16 labels in DESIGN.md; one full run-tests green",
-      "started_at": "2026-10-07T01:48:29Z",
-      "duration_seconds": 1800.0
-    },
-    {
-      "id": "al-01M4BJM3665VH50W9YFT84Z566",
-      "shortname": "trk-sfv-fix",
-      "datetime": "2026-10-07T16:19:54Z",
-      "session": "trk-sfv-fix",
-      "prompt": "trk-sfv-fix round-oct06",
-      "summary": "tip strip Not judged; 4-panel bias, band centre and 2D inviscid labels (COPY-SF17, SF9, SF12); elliptic-wing distribution check and consistency rename; nc 2-16 measurement; model notes corrected; state-E plate overlap fixed with a no-overlap check; A-E and tip re-captured",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "SFV repair cycle 1: the six Ruling 131 review conditions on the Section force vectors",
-      "done_when": "red-first receipts for items 1, 2, 4, 6; nc table; A-E and tip captures opened; run-tests green with C-3 under 50 s; dispatch-gate, xaml-token-lint, check-copy-ids, check-docs exit 0",
-      "started_at": "2026-10-07T15:58:26Z",
-      "duration_seconds": 1288.0
-    },
-    {
-      "id": "al-01M4BJQQBTSY9DYEVYR78SSH2F",
-      "shortname": "join-sfv",
-      "datetime": "2026-10-07T16:21:53Z",
+      "prompt": "the join of perf/ring-headroom-2 into main",
       "session": "14e5e8d5",
+      "shortname": "join-rh2",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T01:43:56Z",
+      "summary": "13 Desktop + 1 Core check to readiness; 2 Store moves reverted (STORE-SUBSET); Core parts within 1.4 s; ring 44.6-46.9 s net; PASS union 1770 unchanged; readiness 188.9 s of 240 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T02:18:29Z",
+      "done_when": "model verified in writing; the five approved states built and captured; C1-C3 exit checks green; 16 labels in DESIGN.md; one full run-tests green",
+      "duration_seconds": 1800.0,
+      "goal": "Lift and Drag vectors on the Section view from the lattice strip (Rulings 127, 128, 130)",
+      "id": "al-01M4A2FDNNPWSTRA8A3A0AMHW4",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-sfv-build round-oct06",
+      "session": "trk-sfv-build",
+      "shortname": "trk-sfv-build",
+      "skill": "implement",
+      "started_at": "2026-10-07T01:48:29Z",
+      "summary": "Verified nc 4 and the moment datum (frame origin), moved to the strip leading edge by a read-only lattice getter; SectionForceModel (free-stream axes, x_cp from strip My/Fz, CP or c/4 anchor, lifting-line induced share summing to wing D_i, polar band, per-run 1-2-5 lift scale and drag multiple); vectors, couple, key and 16 labels (COPY-SF1..SF16) on SectionProfileView; strip table; red-first mutants; captures A-E; mockup deviations recorded (mirrored V-inf, N.m/m factor)",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T16:19:54Z",
+      "done_when": "red-first receipts for items 1, 2, 4, 6; nc table; A-E and tip captures opened; run-tests green with C-3 under 50 s; dispatch-gate, xaml-token-lint, check-copy-ids, check-docs exit 0",
+      "duration_seconds": 1288.0,
+      "goal": "SFV repair cycle 1: the six Ruling 131 review conditions on the Section force vectors",
+      "id": "al-01M4BJM3665VH50W9YFT84Z566",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-sfv-fix round-oct06",
+      "session": "trk-sfv-fix",
+      "shortname": "trk-sfv-fix",
+      "skill": "implement",
+      "started_at": "2026-10-07T15:58:26Z",
+      "summary": "tip strip Not judged; 4-panel bias, band centre and 2D inviscid labels (COPY-SF17, SF9, SF12); elliptic-wing distribution check and consistency rename; nc 2-16 measurement; model notes corrected; state-E plate overlap fixed with a no-overlap check; A-E and tip re-captured",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T16:21:53Z",
+      "done_when": "join gates green",
+      "duration_seconds": 53.0,
+      "fan_out": 0,
+      "goal": "join feature/section-force-vectors into main",
+      "id": "al-01M4BJQQBTSY9DYEVYR78SSH2F",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of feature/section-force-vectors into main",
+      "session": "14e5e8d5",
+      "shortname": "join-sfv",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T16:21:00Z",
       "summary": "free-stream axes, lattice L-prime and x_cp (moment moved to strip LE), induced share 0.5 rho Gamma (-w_T) consistent with wing D_i, profile band cap, CP-or-c/4 rule with couple, tip strip Not judged, 4-panel bias labelled and measured (0.02-0.04 c forward), elliptic fixture, no plate overlap A-E; hydrodynamicist and CFD-V&V cleared recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-07T16:23:21Z",
+      "id": "al-01M4BJTE0WA4XVCW8B3AKQVSWT",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "great execute the prompt now",
+      "session": "win-w0-w5-20261007",
+      "shortname": "Execute Windows W-0 through W-5 launch prompt",
+      "skill": null,
+      "summary": "Operator approved execution of the reviewed Windows W-0 through W-5 coordination prompt.",
+      "tags": [
+        "windows",
+        "coordination"
+      ],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-07T16:23:22Z",
+      "id": "al-01M4BJTEN5EPMGDDB4ZM2VFM4E",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Execute the reviewed Windows W-0 through W-5 launch prompt from the preceding turn exactly within repository authority. The Windows session is local coordinator, an Astra sub-agent is Owner, the Mac remains repository leader, and delivery occurs through win/* GitHub pull requests and xmsg.",
+      "session": "prompt-compile",
+      "shortname": "Execute the reviewed Windows W-0 through W-5 launch prompt from the prec…",
+      "skill": null,
+      "summary": "raw prompt logged for compilation",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-07T16:24:00Z",
+      "id": "al-01M4BJVKEAMJ5NCC1PR70WJ7ZE",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Goal: Complete and deliver Windows work W-0 through W-5 under Mac repository leadership.\nDone when: Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path; no completed work remains only in a worktree.\nNot in scope: Moving main from Windows; issuing global rulings; changing accepted solver numerics; unrelated fixes or pack maintenance.\nTier: T2\nFan-out cap: 3\nContext ceiling: 120000\nMain-line budget: 120\n\nExecute the reviewed launch contract. The Windows root session is local coordinator. A gpt-6-astra owner reviews decisions and acceptance. The Mac remains global leader. Use prepare-for-coordination and execute-with-coordination, isolated worktrees, GitHub pull requests, and tools/xmsg.py. Route bounded routine work to authenticated Grok 4.7, load-bearing implementation to GPT-6.1 Sol, and deterministic work to scripts. Keep ceremony bounded, never stop on an announcement, and measure any OpenFOAM GPU path before using it.",
+      "session": "prompt-compile",
+      "shortname": "Goal: Complete and deliver Windows work W-0 through W-5 under Mac reposi…",
+      "skill": null,
+      "summary": "raw prompt logged for compilation",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "no completed work remains only in a worktree.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "no completed work remains only in a worktree."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Moving main from Windows",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Moving main from Windows"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "issuing global rulings",
+            "trace": {
+              "kind": "phrase",
+              "ref": "issuing global rulings"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "changing accepted solver numerics",
+            "trace": {
+              "kind": "phrase",
+              "ref": "changing accepted solver numerics"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "unrelated fixes or pack maintenance.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "unrelated fixes or pack maintenance."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 120000,
+          "done_when": [
+            "Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path",
+            "no completed work remains only in a worktree."
+          ],
+          "fan_out_cap": 3,
+          "goal": "Complete and deliver Windows work W-0 through W-5 under Mac repository leadership.",
+          "main_line_budget": "120\nExecute the reviewed launch contract. The Windows root session is local coordinator. A gpt-6-astra owner reviews decisions and acceptance. The Mac remains global leader. Use prepare-for-coordination and execute-with-coordination, isolated worktrees, GitHub pull requests, and tools/xmsg.py. Route bounded routine work to authenticated Grok 4.7, load-bearing implementation to GPT-6.1 Sol, and deterministic work to scripts. Keep ceremony bounded, never stop on an announcement, and measure any OpenFOAM GPU path before using it.",
+          "not_in_scope": [
+            "Moving main from Windows",
+            "issuing global rulings",
+            "changing accepted solver numerics",
+            "unrelated fixes or pack maintenance."
+          ],
+          "tier": "T2"
+        },
+        "graph_neighbours": [],
+        "harness": "codex",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "gpt-6.1-sol",
+          "engine_seconds": 0.035,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M4BJVKEAMJ5NCC1PR70WJ7ZE",
+        "raw_sha256": "74c8d3332e93bcad1e9005ab2a6e16b67bbd66a399b1bce128ab054f29859a87",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": "tools/xmsg.py",
+            "reason": null,
+            "sha256": "64f219ee32d1181aed68f5df929058c2f3562d2a3b3ee955cc5f68ae1517cc98",
+            "status": "resolved",
+            "token": "tools/xmsg.py"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "codex",
+        "template_version": 1
+      },
+      "datetime": "2026-10-07T16:24:03Z",
+      "dispatchable": true,
+      "id": "al-01M4BJVPTGS6YJWBWJF5QEB5ZM",
+      "kind": "compilation",
+      "mode": "pass-through",
+      "outcome": "success",
+      "prompt": "Save the brief between the markers as <brief-file>, then run (one line, the brief read from the file):\ncodex exec --json -o <last-message-file> --output-schema <schema-file> --worktree -C <dir> \"$(cat <brief-file>)\"\n--- brief ---\npython3 docs/ai-forward-pack/scripts/audit-log.py start --session win-w0-w5-20261007 --skill compile\nGoal state\nGoal: Complete and deliver Windows work W-0 through W-5 under Mac repository leadership.\nDone when: Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path; no completed work remains only in a worktree.\nNot in scope: Moving main from Windows; issuing global rulings; changing accepted solver numerics; unrelated fixes or pack maintenance.\nTier: T2\nFan-out cap: 3\nContext ceiling: 120000\nMain-line budget: 120\nExecute the reviewed launch contract. The Windows root session is local coordinator. A gpt-6-astra owner reviews decisions and acceptance. The Mac remains global leader. Use prepare-for-coordination and execute-with-coordination, isolated worktrees, GitHub pull requests, and tools/xmsg.py. Route bounded routine work to authenticated Grok 4.7, load-bearing implementation to GPT-6.1 Sol, and deterministic work to scripts. Keep ceremony bounded, never stop on an announcement, and measure any OpenFOAM GPU path before using it.\nTrace\n| clause | trace |\n|---|---|\n| done_when: Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path | phrase: Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path |\n| done_when: no completed work remains only in a worktree. | phrase: no completed work remains only in a worktree. |\n| not_in_scope: Moving main from Windows | phrase: Moving main from Windows |\n| not_in_scope: issuing global rulings | phrase: issuing global rulings |\n| not_in_scope: changing accepted solver numerics | phrase: changing accepted solver numerics |\n| not_in_scope: unrelated fixes or pack maintenance. | phrase: unrelated fixes or pack maintenance. |\nReferences\n- tools/xmsg.py: tools/xmsg.py sha256 64f219ee32d1181aed68f5df929058c2f3562d2a3b3ee955cc5f68ae1517cc98\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M4BJVKEAMJ5NCC1PR70WJ7ZE\nraw sha256: 74c8d3332e93bcad1e9005ab2a6e16b67bbd66a399b1bce128ab054f29859a87\ncompiler model: gpt-6.1-sol\nengine seconds: 0.035\ntokens: not recorded\ngate: pass\ndispatchable: true\n--- end brief ---\n",
+      "session": "win-w0-w5-20261007",
+      "shortname": "compile-Goal: Complete and deliver Windows work W-0 through W-5 under Mac reposi…",
+      "skill": null,
+      "summary": "compiled al-01M4BJVKEAMJ5NCC1PR70WJ7ZE for codex v1: 6 clauses, 0 assumptions, 0 decision requests",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": "codex",
+      "artifacts": [
+        "docs/coordination/windows-w0-w5-execution.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-07T16:25:29Z",
+      "done_when": "Each W item has evidence and a delivered PR or an exact external blocker.",
+      "duration_seconds": 1.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "win/coord-w0-w5",
+        "pushed": null,
+        "sha": "7102e90fd04d70ea818acd551ad295e0b62bf93c",
+        "short": "7102e90fd"
+      },
+      "goal": "Complete and deliver W-0 through W-5 under Mac leadership.",
+      "id": "al-01M4BJYA8323Y3VCD8X5KMSCFG",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Optimize the accepted W-0 through W-5 execution graph once.",
+      "session": "win-w0-w5-20261007",
+      "shortname": "Optimize Windows W-0-W-5 graph",
+      "skill": "optimize-graph",
+      "started_at": "2026-10-07T16:25:28Z",
+      "summary": "Critical path and bounded three-track graph recorded in docs/coordination/windows-w0-w5-execution.md.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "actor": "codex",
+      "artifacts": [
+        "docs/coordination/windows-w0-w5-execution.md",
+        "docs/coordination/windows-w0-w5-execution.html"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-07T16:25:29Z",
+      "done_when": "The plan names exact tracks, authority, ownership, budgets, evidence, containment, fallback and termination.",
+      "duration_seconds": 0.0,
+      "fan_out": 3,
+      "git": {
+        "branch": "win/coord-w0-w5",
+        "pushed": null,
+        "sha": "7102e90fd04d70ea818acd551ad295e0b62bf93c",
+        "short": "7102e90fd"
+      },
+      "goal": "Prepare a dispatchable coordination plan for W-0 through W-5.",
+      "id": "al-01M4BJYAK7T65H8QM5FEV8K1RD",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Prepare the Windows W-0 through W-5 work for coordinated execution.",
+      "session": "win-w0-w5-20261007",
+      "shortname": "Prepare Windows W-0-W-5 coordination",
+      "skill": "prepare-for-coordination",
+      "started_at": "2026-10-07T16:25:29Z",
+      "summary": "Created the Markdown and HTML coordination plan with ownership, dependencies, budgets, exit evidence, routing, GPU qualification and Mac join rules.",
+      "tags": [],
+      "tier": "T2",
+      "tool": null
+    },
+    {
+      "id": "al-01M4BKEZWK2AK0M6MA6TYVEXR6",
+      "shortname": "join-pr1",
+      "datetime": "2026-10-07T16:34:35Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of origin/win/coord-w0-w5 into main",
+      "summary": "PC plan for W-0..W-5 merged; conditions in docs/reviews/pr-1.md bind the PC briefs (cfd_store.c out of B2, model routing to the operator, GPU measurement-only, Ruling 79/102 steps, units handoff, PR fields) recount_seconds=0 (docs_only=True).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -28640,7 +28901,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join feature/section-force-vectors into main",
+      "goal": "join PC PR #1",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -28649,8 +28910,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-07T16:21:00Z",
-      "duration_seconds": 53.0
+      "started_at": "2026-10-07T16:34:30Z",
+      "duration_seconds": 5.0
     }
   ],
   "changes": [
