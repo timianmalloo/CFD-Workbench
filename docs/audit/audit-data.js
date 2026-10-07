@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T00:50:48Z",
+  "generated": "2026-10-07T01:01:20Z",
   "audit": [
     {
       "actor": null,
@@ -28395,6 +28395,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T00:49:52Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M49Y24XN9V5H3NYMKHHGY2HD",
+      "shortname": "trk-cpv",
+      "datetime": "2026-10-07T01:01:20Z",
+      "session": "trk-cpv",
+      "prompt": "trk-cpv round-oct06",
+      "summary": "SectionProfile record on SectionView, SectionProfileView (vik ramp, Cp_min marker, plates, legend), vik tokens in Styles.axaml, comb chart retired, two checks, captures; run-tests net 48.0 s",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Section document profile coloured by Cp on the vik ramp (approved DX state 5)",
+      "done_when": "red-first checks, light and dark captures, run-tests green with C-3 under 50 s, gates exit 0",
+      "started_at": "2026-10-07T00:54:31Z",
+      "duration_seconds": 409.0
     }
   ],
   "changes": [
