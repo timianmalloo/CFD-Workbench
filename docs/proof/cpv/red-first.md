@@ -27,6 +27,15 @@ Build FAILED. 2 Error(s)
 
 A compile red is the honest shape here: the old profile was a line chart with no Cp colour, no marker panel and no legend range to assert on.
 
+## Repair cycle 1 (Ruling 126): copy rows and Units
+
+Red: with `SectionView_Speeds_FollowUnitsSwitch` and `Labels_ProfilePlates_Copy406To409` written and the code not yet changed, the Analysis
+tests failed to build: `DxSectionTests.cs(29,51): error CS1501: No overload for method 'Build' takes 9 arguments` and
+`LabelsTests.cs: 'Labels' does not contain a definition for 'SectionCaption' / 'CpMinMarker' / 'AxisPlate' / 'ProfileCavitation'`.
+Green: both `PASS` after the change (`SectionDisplay.Build` takes `Units units = Units.Metric`, passed from `SectionTabView.Bind`
+as `controller.AnalysisUnits`; `Labels.Speed` and `Labels.SpeedUnit` convert with the existing `KnotsPerMeterSecond`). The check
+asserts Imperial gives kn on the table row (value converted), the profile plate and the Bucket speed axis, and Metric gives m/s.
+
 ## Green
 
 Command shape: `CFD_TEST_ONLY=<check> tools/run-suite.sh dotnet <test dll> [--readiness]`.

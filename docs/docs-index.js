@@ -10815,7 +10815,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "56ff4bf18e95074018694184bd621fdd2146cc624e013d34c27528ec685591f7"
+      "sourceSha256": "3a0fa1034f060523bff03b34d78d292a474456955bed496d19971bf3f5aef59d"
     },
     {
       "id": "proof-cpy-red-first",
@@ -15232,5 +15232,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "4bd1136ce4ca7f97d359ad34fc1dcc16885219bcc174f6bd26cd1d82cffd5c04"
+  "graphSha256": "b0c7f1538df2dce50ee24a387137969c8fda2dd7072dcb4b2ac45160128778c4"
 };
