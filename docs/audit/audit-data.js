@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T01:07:11Z",
+  "generated": "2026-10-07T01:08:37Z",
   "audit": [
     {
       "actor": null,
@@ -28435,6 +28435,33 @@ window.AUDIT_DATA = {
       "done_when": "red-first, Imperial capture, gates exit 0, run-tests green C-3 under 50 s",
       "started_at": "2026-10-07T01:02:37Z",
       "duration_seconds": 274.0
+    },
+    {
+      "id": "al-01M49YFFXNEWGRESBJXAY6NT2C",
+      "shortname": "join-cpv",
+      "datetime": "2026-10-07T01:08:37Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of feature/cp-profile-view into main",
+      "summary": "profile on the dark view coloured by Cp (vik pinned at 0), Cp_min marker, caption and estimator plates, sigma/V_crit line; COPY-406..409; V_crit follows Units in table, plate, bucket; defect class MOCKUP-STATE-UNBUILT (DX states 26-54 still OPEN) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join feature/cp-profile-view into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-07T01:07:38Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
@@ -30255,6 +30282,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49Y4BWY2337HPNWHMSNF2M5",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49Y69WVJ30TQBB7933TKTC0",
+      "ts": "2026-10-07T01:03:36Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49Y69SKKZSGYW68ZKNZGSZY",
       "session": "operator-timianmalloo"
     }
   ]
