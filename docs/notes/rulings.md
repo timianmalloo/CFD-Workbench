@@ -1149,3 +1149,9 @@ Operator 2026-10-06 (AskUserQuestion after reviewing the packaged app). (1) Plan
 Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5): the mockup is approved for build as drawn - station chips in a strip under the planform, the Section sample tab retired, a Section document tab in the main area (Plan · Section · Foil source) with chart selector, profile with Cp, Stations, polar and cavitation groups, and the bottom-panel Section tab as a one-line summary. New labels approved: the main-area tab title "Section" and the bottom action "Open in main area".
 
 - request: req-01M49VF7JRZ8JVNWDSMTR91QVP · ruled by: operator-timianmalloo · at: 2026-10-07T00:16:03Z
+
+### Ruling 126 — Cp-coloured section profile approved; its plate labels approved; Section-view speeds follow Units
+
+Operator 2026-10-06 (AskUserQuestion, session 14e5e8d5), as recommended. (1) The Cp-coloured section profile is approved as captured. (2) Plate labels approved as rows: "Section · η <η>", "Cp_min <v> · x/c <x> · <side>", "σ <v> · −Cp_min <v> · clear of the 15 % margin · V_crit <v>", "x/c 0 → 1". (3) Every speed in the Section view (V_crit on the profile and in the cavitation table) follows the Units switch, kn under Imperial and m/s under Metric, as the rest of Analysis does (Ruling 115). The operator also approved the joined Section main-area layout and chip strip on review ("looks good").
+
+- request: req-01M49Y4BWY2337HPNWHMSNF2M5 · ruled by: operator-timianmalloo · at: 2026-10-07T01:02:32Z
