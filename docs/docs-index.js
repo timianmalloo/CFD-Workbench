@@ -6823,7 +6823,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b4629398fba3fa75156500588cb88025235c5d2bc83a1b6a5c3ceb2ce2ffb3a7"
+      "sourceSha256": "d0378b596ee4e02dbacc895f157e00e82db93a331fff7f512fe127a0b90c62f6"
     },
     {
       "id": "kb-hw-glossary",
@@ -12549,7 +12549,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "146a29de711ec836606941e4e48ef8dfaa342ff6bba9f9f1e897ee8b249693c5"
+      "sourceSha256": "8368c08e039fa589d580bc610cd641f5f9bae61e8a9d7f4fca1e7b96538f6618"
     },
     {
       "id": "proof-sfv-model",
@@ -12575,7 +12575,34 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d6fcd0e191ca06ec1f3e84cc0981942441f490ff86621e4a893fdfb3c4197d51"
+      "sourceSha256": "eeff8671e405736715697c95ba9d82413a07323db7ec35ce09c833ce7db0604a"
+    },
+    {
+      "id": "proof-sfv-nc-convergence",
+      "path": "docs/proof/sfv/nc-convergence.md",
+      "title": "SFV chordwise-convergence measurement of the strip Cm c/4 and x_cp (nc 2, 4, 8, 16)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Measured bias of the 4-chordwise-panel lattice strip pitching moment and centre of pressure on a cambered section: at nc = 4, x_cp is 0.02 to 0.04 of a chord forward of its converged value and the Cm c/4 magnitude is 13 to 21 percent low; observed order near 1. A measurement for the next ruling on nc, not a gate.",
+      "tags": [
+        "sfv",
+        "lattice",
+        "centre-of-pressure",
+        "ruling-131",
+        "convergence"
+      ],
+      "links": [
+        {
+          "to": "proof-sfv-model",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "cc1f27b2fa5cafb6de0ab698e5765d7814be8ddfe4c1adafbcf18b02306c8dba"
     },
     {
       "id": "proof-sfv-red-first",
@@ -12600,7 +12627,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1ef6ed114faf0c3357a7c17280f98c6667a7ffdbf491854fb2f6d077a065a433"
+      "sourceSha256": "9aa45a48582cab305792006314cb6fc768f3aa5105b7fc8af1ededf55a1a2536"
     },
     {
       "id": "proof-shellfix-red-runs",
@@ -15385,5 +15412,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "7224a4c973303683e5f6ae0462e1155c22227a528c760855fe42cee111b7ced5"
+  "graphSha256": "ef2417497391849c7c452205d49d9ca95811fa90fb1d165b228c40d5064539af"
 };
