@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T00:48:23Z",
+  "generated": "2026-10-07T00:50:48Z",
   "audit": [
     {
       "actor": null,
@@ -28368,6 +28368,33 @@ window.AUDIT_DATA = {
       "done_when": "readouts clear, selector in prop-seg style, ring green",
       "started_at": "2026-10-07T00:41:42Z",
       "duration_seconds": 401.0
+    },
+    {
+      "id": "al-01M49XEW53S4GG5E6EHCDGERZD",
+      "shortname": "join-sma",
+      "datetime": "2026-10-07T00:50:48Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of design/section-main-area into main",
+      "summary": "approved mockup; chips in a strip under the planform; Section sample tab and Viewport.cs removed; Section document tab with the one conditions band, compact stations table, segmented chart selector; bottom one-line summary with Open in main area (COPY-404/405); open: the Cp-coloured section profile (DX mockup state 5, never built) is a follow-up track by operator choice recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join design/section-main-area into main",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-07T00:49:52Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
