@@ -21,15 +21,20 @@
         "twist_deg": { "type": "array", "items": { "type": "number" }, "description": "Root and tip twist, degrees." },
         "source": {
           "type": "object",
-          "required": ["kind", "path", "sha256"],
+          "required": ["kind", "path"],
           "properties": {
             "kind": { "enum": ["cli-export", "built-planform", "tmr-grid", "tutorial"] },
-            "path": { "type": "string" },
+            "path": { "type": "string", "description": "The file the case used; for outcome not-produced, the file that was not written." },
+            "outcome": { "enum": ["produced", "not-produced"], "description": "Absent = produced. not-produced records that the generator produced no file: sha256 is then absent and reason is required (docs/proof/mhy/case-schema.md)." },
+            "reason": { "type": "string", "minLength": 1, "description": "Why no file was produced; only with outcome not-produced." },
             "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
             "generator": { "type": "string", "description": "Script and arguments that produced the file." },
             "deviation": { "type": "string", "description": "How this geometry differs from the design of record, if it does." },
             "reference": { "type": "string", "description": "URL or citation for an external geometry." }
-          }
+          },
+          "if": { "required": ["outcome"], "properties": { "outcome": { "const": "not-produced" } } },
+          "then": { "required": ["reason"], "not": { "required": ["sha256"] } },
+          "else": { "required": ["sha256"], "not": { "required": ["reason"] } }
         }
       }
     },

@@ -247,3 +247,23 @@ Post-ring lightweight checks: both Windows cases pass; full case validation exit
 existing shared `spike03-s6-w4.yaml` non-hash. LF frozen-input check exit 0 in 0.466 s. Docs check exit 1 in
 13.392 s; zero metadata errors/orphans, two coordinator-owned index drifts (proof-win-routes status/summary).
 Exact commands, exits and times are in `r133/steps.jsonl`, with `ring-*.txt` outputs.
+
+## PR #7 reconciliation with Mac main
+
+**Verified:** merged `origin/main` at `181600fa4b3275ffaaf80a746f5c8022840593a3` into branch parent
+`4dc1036fde42276310b14ca1dc1b9775159a9075`. Git reported no textual conflicts. Main's Ruling 133 owned-parent
+route rule, defect controls, case schema and validator were retained. Product source/tests/tools/schema are
+byte-identical to main; the guided-setup diff contains only the three observed Windows rows. Semantic parent-union
+checks preserve audit-log, change-log and xmsg JSONL histories, including main's entries and this branch's evidence.
+Audit and docs views were regenerated using official `audit-log.py render` and `docs-graph.py derive` commands.
+
+`integration-case-validation.txt`: **40 cases, 0 errors**, exit 0, 0.423 s, including both Windows YAML files.
+`integration-docs-check.txt`: **passed**, exit 0, 15.709 s; 735 audit/34 change entries, no unreadable lines.
+The existing 131 review-suggested freshness findings are advisory. `integration-preservation.txt`: exit 0, 0.435 s.
+Exact validation commands/exits/durations are recorded in `r133/steps.jsonl`. The earlier failed case/docs results
+above remain historical observations; this reconciliation resolves their schema/index residuals.
+
+Serial plan: merge → preservation checks → official derivation → case/docs validation → blob manifest → commit.
+Actual: all nodes completed, no conflict repair cycles, no solver or application-ring reruns; total agent duration
+and tokens **Not recorded**. The application ring at SHA `614f9cce` remains red and was not repeated against main.
+Independent review, physical-reference/tolerance and unobserved product/OS behavior remain open.

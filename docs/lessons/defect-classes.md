@@ -1734,6 +1734,14 @@ gate that check's functional assertions the Ruling 81 way (READINESS-MISS above 
 captured at load, shows a timing cause; capture the message first, because a gate over an unknown cause hides a real
 regression. Class stays open on that point.
 
+*Recurrence (MHY, 2026-10-07).* The same check, `SectionEditor_DragMove_DrawsWithinOneFrame`, failed again in the two
+ring-headroom passes (2026-10-06 and 2026-10-07, per the track brief): `docs/proof/ring-split/moved-2.md:57` records one
+failure in the ring run of ring headroom 2 (load 8 to 17.6, passes alone) and "it failed once in the earlier pass too".
+That is 2 more instances, 6 or more in all. The instance's cause is still Inferred, and the failure text was still not
+kept in the records above (the `STACK` line from `c9a06fad` prints one for a failed Desktop check; `moved-2.md` does not quote it). The class
+stays open. Next step unchanged and now cheaper to justify: on the next failure save the check's failure line and the load,
+and decide on the READINESS-MISS gate from that text, not from the count.
+
 **JOIN-CHECK-BEFORE-REGEN · The join checks the tree before it pays the regeneration the merge driver deferred.**
 After `coord install` bound `docs/docs-index.js` to `merge=coord-regen` (commit `90cf9f94`), the POL and CI joins
 both stopped at step 4 with `validate: 1 index-drift item(s)` (CI: `file not in index:
@@ -1862,3 +1870,104 @@ which cites a mockup also contains a table with a `not built` or `.png` cell per
 list, because the mockups hold their states as code (`STATES` objects in the HTML), not as a manifest. A real check needs a
 `docs/mockups/<name>.states.json` manifest per approved mockup plus the lint that every id appears in the proof table; that is
 more than a check-docs lint, so it is proposed, not built. Until then the Coordinator asks for the table at join review.
+
+## 2026-10-07 round — Mac hygiene after the PC reviews (MHY)
+
+**ROUTE-PARENT-MISSING · An external command is invoked before the destination parent the route owns exists.**
+The PC's W-3 stopped at the two-repair cap: `wsl.exe --import` was given a destination under `<app-data>\wsl\`, and the
+run directory and fixture cache sat under paths nothing had created. Ruling 133 classed it: the design (§3.2 step 4) named an
+import destination with no step that creates its parent, and §6 named no creator for the run directory. The extraction slip
+was the same class in execution.
+
+**Class → sweep → derive → prevent:** signature: a route step whose argv names a path, and no earlier step or sentence that
+creates and checks that path's parent. Sweep (design only; the PC runs the route): `docs/design/guided-solver-setup.md`
+§3.2 steps 4, 5 (files written through `\\wsl.localhost\...\etc\apt\`) and 8, and the §6 run directory. The macOS routes
+(§3.1) install an app bundle and have no owned destination that a command must find. Derive: before every external
+command the route creates and verifies each destination parent it owns, names who creates the run directory (the route),
+and tests the negative path. Control (added, design): the owned-parent rule in §3.2 and the §6 run-directory paragraph,
+amended in this track and marked Ruling 133. Residual: the control is design text until the route is built; the build track
+must turn it into a negative-path test (missing parent: created, or a clean refusal with a next step), and the PC's W-3
+re-entry is the first observation. Class stays open until that test exists.
+
+**PUSH-SUCCESS-BY-TEXT · A push is declared done because its output contains a ref line.**
+The Coordinator's retry loop grepped `main -> main`. That text also appears in `! [remote rejected] main -> main (Internal
+Server Error)`, so a rejected push read as success and the loop stopped.
+
+**Class → sweep → derive → prevent:** signature: success judged by matching text in a command's output. Derive: the remote
+is the authority; a push is done only when `git ls-remote origin refs/heads/main` equals the local SHA. Sweep: the
+`pre-push` hook (`tools/hooks/pre-push`) runs before the push and checks only the readiness receipt for the pushed SHA,
+so it cannot see the outcome and is not changed. A grep of `tools/` and `docs/coordination/` for `main -> main` found no
+other consumer. Control (added): `tools/verify-push.sh [branch] [remote] [sha]` prints `PUSH-OK <sha>` (exit 0) only on
+equality, `PUSH-NOT-DONE` (exit 1) otherwise, `PUSH-UNKNOWN` (exit 2) when the remote cannot be read. Its `--self-test` plants
+a rejected-push output that contains `main -> main`, and requires red on an unpushed commit, green once pushed, red on a
+stale remote, and exit 2 on an unreadable remote (observed OK). Rule: the Coordinator runs it after every push to main
+and treats nothing else as proof. Residual: it is a tool the Coordinator runs, not a refusal at a seam, and its self-test
+is not in `tools/check-docs.py` because that gate also runs on Windows where bash may be absent; run
+`tools/verify-push.sh --self-test` when the script changes. Not covered: a push that succeeds and is then force-overwritten.
+
+**STDIN-HANG · A bare `python3 -` in a chained command waits on stdin until the timeout.**
+A Coordinator command chain held a stray `python3 -` (no heredoc, no pipe, no redirect). The interpreter read standard
+input, nothing wrote to it, and the call ran to its 600 s timeout, so no later step ran.
+
+**Class → sweep → derive → prevent:** signature: an interpreter or filter (`python3 -`, `python -`, `node -`, `cat -`,
+`bash -s`, `sh -s`) whose stdin is the terminal. A heredoc-adjacent shape: the same author intent as `python3 - <<EOF`
+(a program in the command) with the program left out. Could the existing hook catch it? Checked
+(`tools/hooks/no-heredoc.py`): no. Its `START` pattern needs `<<` plus a delimiter line, so a bare `python3 -` passes
+(fail-open by design). Derive: refuse the command when one of those words ends a pipeline stage that has no `|` before it and
+no `<`/`<<`/`<<<` after it. A pipe into it is legitimate (`curl ... | python3 -`), so the rule must read the stage, not
+the substring. Proposal (not installed; the hook belongs to the operator's decision, as Ruling 104 did for heredocs): add
+`has_bare_stdin_reader(command)` to `no-heredoc.py` with the same fail-open contract, a self-test row for each of
+`ls; python3 -`, `cat -`, `x && python3 - arg` (all refused) and `echo 1 | python3 -`, `python3 - < f.py`, `python3 -c "print(1)"`
+(allowed), and the same reason text, "a program is a file, then a run". Until installed, the rule is the existing CT27 no-heredoc
+rule read for this shape: never start an interpreter with `-` unless its stdin is named on that stage. Class stays open.
+
+**MUTANT-RESTORE-CHECKOUT · Restoring a planted mutant with `git checkout -- <file>` discards uncommitted work in that file.**
+In the SFV build a mutant was planted in a source file that also held uncommitted work, and `git checkout -- <file>` restored
+the mutant's file to HEAD, dropping that work.
+
+**Class → sweep → derive → prevent:** signature: a mutation step whose undo is a checkout of the whole file, run on a tree that is
+not committed. Sweep: the proof files that record mutants (`docs/proof/*/red-first.md`) use planted-then-restored edits; the
+safe ones undo with an inverse edit or run on a committed file. No other instance is known (not swept file by file).
+Derive: the undo for a mutant is a pure function of the committed state only if the file was committed first. Rule (added):
+commit before planting a mutant; restore with `git checkout -- <file>` only after that commit, and never on a file with
+other uncommitted edits. This track followed it (the gate mutant in `docs/proof/mhy/red-first.md` was planted after commit
+`a7d77839`). No tool control: a check would have to know which edits are mutants, and the rule costs one commit. It is a
+rule stated here, for the Coordinator to put in the next round's common brief (the round-oct06 `common.md` does not carry it); repeat on a second instance and add a `tools/` helper that
+refuses to plant on a dirty file.
+
+**WINDOWS-TEXT-MODE-HASH · A file is written in text mode and hashed from its on-disk bytes.**
+The PC hashed CRLF bytes from its checkout, while the committed blobs are LF (PR #4, `docs/reviews/pr-4.md`): the recorded hash
+matched no committed input. On Windows, `write_text` and `open(..., "w")` translate `\n` to `\r\n` unless `newline="\n"` is
+given.
+
+**Class → sweep → derive → prevent:** signature: text-mode write, then `read_bytes()` or `rb` hashing of the same file, with the hash
+recorded or compared against a committed one. Derive: a hash of a committed input is of the committed bytes, so write with
+`newline="\n"` (or write bytes). Sweep (`tools/`, `cases/tools/`; grep of every file that imports `hashlib` or calls `sha256sum`
+for writes without `newline=`): clean: `tools/verify-application-adapters.py`, `tools/qualify-windows-runtime.py` (every
+`write_text` has `newline="\n"`; the others write bytes). Affected, Mac-run generators that write OpenFOAM dictionaries with
+`write_text` and then record `sha256((run / r).read_bytes())` in `cfdw-manifest.json`: `cases/tools/make-tip-bl-gmsh.py`
+(329 then 427), `make-tip-coupon-gmsh.py` (286, 384), `make-wing-gmsh.py` (209, 307), `make-wing-r2.py` (37, 371),
+`make-tip-bl-snappy.py` (37, 364), `make-tmr-case.py` (133-151, 312), and `cases/tools/test-foam-dict-lint.py` (54-55, `open(p, "w")`
+then `rb` hash). `make-wing-case.py:33` writes dictionaries with `write_text` too but records only the STL hash (bytes). All are
+run on the Mac today, where `\n` is unchanged, so the recorded hashes are the committed ones; the defect appears only when one
+runs on Windows. Not fixed: those files are outside this track's owned paths. Control: none built; the sweep list above is the
+tracked debt. Proposal: a lint in the style of `tools/check-wallclock-asserts.py` (fail on a `write_text(` or `open(..., "w")`
+without `newline=` in a file that also reads bytes for `hashlib`, with an allowlist that only shrinks), plus the one-word fix
+(`newline="\n"`) in the seven generators, as a later track before any generator runs on the PC.
+
+**MOCKUP-PHYSICS-UNCHECKED · An approved mockup carries a physics error, and the review of the mockup does not find it.**
+The force-vector mockup (approved at Ruling 130) drew V∞ mirrored (falling to the right at a positive angle, lift leaning aft)
+and converted the Imperial moment per span with the force-per-length factor (0.737562 instead of 0.224809). The hydrodynamicist's
+review of the mockup did not catch either; the build did (`docs/proof/sfv/captures.md:63-64`, `docs/proof/sfv/red-first.md`
+mutants for both).
+
+**Class → sweep → derive → prevent:** signature: a mockup whose drawing or number encodes a sign or a unit factor that nobody
+re-derived, because the review reads the picture. Derive: such a mockup states its conventions as checkable numbers (V∞ angle and
+the screen direction it implies, each unit factor with its source quantity), and the build re-derives each from the model, not
+from the mockup's script. Control (rule, with a proof trail): a physics-bearing mockup carries a "conventions" table: quantity,
+sign or direction, unit factor, expected value for one worked example; the build's red-first file contains one row per entry,
+each a test that fails on the mirrored or mis-scaled variant (the SFV mutants are the pattern). Sweep (bounded): the other
+physics-bearing mockups are the ones with drawn flow or force quantities; none other has a hydrodynamicist review on record
+that this track could check, so the sweep is not done (OPEN). No lint: a table's presence is checkable, its correctness is not,
+and the correctness check is the build's re-derivation. Persona: the hydrodynamicist reviews the table's numbers, not only the
+picture.

@@ -13,8 +13,8 @@
   },
   {
     "path": "docs/design/guided-solver-setup.md",
-    "bytes": 39454,
-    "sha256": "2d1c5099b970f9c7db9c083e338e2090bfbf0eefad1aa61cd3e96dd38d717144",
+    "bytes": 41041,
+    "sha256": "7e3ba2a1af818a1729021030b78476acdc7158a0561abc323621321681c9b17e",
     "staged_blob_equal": true
   },
   {
@@ -480,6 +480,24 @@
     "staged_blob_equal": true
   },
   {
+    "path": "docs/proof/win-routes/r133/integration-case-validation.txt",
+    "bytes": 1112,
+    "sha256": "7a86f457d8fe7a486b9d76ad042a0d2d4e9510f890a67707c6de7a2ccd18c526",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/integration-docs-check.txt",
+    "bytes": 13254,
+    "sha256": "c815cbba9454bc207413973069c1918db111a8f68abb6ff0d8e0ec98da2bca60",
+    "staged_blob_equal": true
+  },
+  {
+    "path": "docs/proof/win-routes/r133/integration-preservation.txt",
+    "bytes": 381,
+    "sha256": "412819cc68fae24c6ee20be6da2dc90ed8181d8f8cf7e9d5f79fd19593b1d74d",
+    "staged_blob_equal": true
+  },
+  {
     "path": "docs/proof/win-routes/r133/lf-control-self-test.txt",
     "bytes": 58,
     "sha256": "d7d543a922495884142d6fe0261cb68fc0cf12cd1dac12148db065e848286852",
@@ -727,8 +745,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/steps.jsonl",
-    "bytes": 15720,
-    "sha256": "c3f999ae1e189aabe226189f696b2b48eedfd45b998d563b8585127a89276e77",
+    "bytes": 16453,
+    "sha256": "8b488a303adf2d424e68ad17c1af3eede82f5303ed82d8f865041edf897a3386",
     "staged_blob_equal": true
   },
   {
@@ -762,6 +780,12 @@
     "staged_blob_equal": true
   },
   {
+    "path": "docs/proof/win-routes/r133/verify-reconciliation.py",
+    "bytes": 1576,
+    "sha256": "0d5d19ea09568309318c0f54e0db7058c3369a488d87479655fa72302c2e7ef1",
+    "staged_blob_equal": true
+  },
+  {
     "path": "docs/proof/win-routes/r133/wsl-version.txt",
     "bytes": 217,
     "sha256": "50a52dc4509e0c859618fe87aaf7c3c5dbfb690730fe230a4d458a6dc44e66ac",
@@ -775,8 +799,8 @@
   },
   {
     "path": "docs/proof/win-routes/receipt.md",
-    "bytes": 21390,
-    "sha256": "cc788bdcdae94c64f10f80a840e3733acb0f4d1886c81fc97b282d3d0aa563f0",
+    "bytes": 23062,
+    "sha256": "68bc4f4649b40b5ad397aad97d5b001d430d69ec9e2986822b29f04d68a19596",
     "staged_blob_equal": true
   },
   {

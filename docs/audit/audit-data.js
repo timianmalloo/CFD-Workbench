@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T22:24:44Z",
+  "generated": "2026-10-07T22:28:42Z",
   "audit": [
     {
       "actor": null,
@@ -29228,73 +29228,120 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4BZ41P8A7H61ST2DNSR4TE7",
-      "shortname": "join-pr5",
-      "datetime": "2026-10-07T19:58:19Z",
-      "session": "14e5e8d5",
-      "prompt": "the join of origin/win/windows-store-design into main",
-      "summary": "W-2 B1 design merged; B2 bound by docs/reviews/pr-5.md (POSIX rename, durability per Ruling 135, OneDrive refused with message, NFC/NFD, crash recovery, leases) recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join PC PR #5",
+      "datetime": "2026-10-07T19:58:19Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 5.0,
       "fan_out": 0,
+      "goal": "join PC PR #5",
+      "id": "al-01M4BZ41P8A7H61ST2DNSR4TE7",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of origin/win/windows-store-design into main",
+      "session": "14e5e8d5",
+      "shortname": "join-pr5",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-07T19:58:14Z",
-      "duration_seconds": 5.0
+      "summary": "W-2 B1 design merged; B2 bound by docs/reviews/pr-5.md (POSIX rename, durability per Ruling 135, OneDrive refused with message, NFC/NFD, crash recovery, leases) recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4C7G44NSHEHC5JMVSHRN7C3",
-      "shortname": "windows-w3-r133-reentry",
-      "datetime": "2026-10-07T22:24:44Z",
-      "session": "win-local-coordinator",
-      "prompt": "Complete the Mac-authorized Ruling 133 Windows solver-route re-entry, then run the required application ring once and preserve every result.",
-      "summary": "W-3 re-entry verified OpenFOAM v2512 cavity execution through t=0.5 with final Courant mean 0.222158 and native SU2 v8.5.0 from LF blob-equal inputs with CD 2.885552317. One activation repair was used. The single application ring at evidence SHA 614f9cce failed with 39 named tests, a Desktop exit 70 without frame, 10 cost failures, and wall 60.992 s; no rerun or product repair occurred.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": "gpt-6-astra Owner + gpt-6.1-sol worker + local coordinator",
       "artifacts": [
         "docs/proof/win-routes/receipt.md",
         "cases/win-smoke-cavity.yaml",
         "cases/win-su2-smoke.yaml"
       ],
+      "compiled": false,
+      "datetime": "2026-10-07T22:24:44Z",
+      "done_when": "Cavity and SU2 meet their source-bound oracles, the required ring has one recorded disposition with raw logs, documentation checks pass, and the branch is ready for Mac review.",
+      "duration_seconds": 0.0,
+      "fan_out": 2,
+      "git": {
+        "branch": "win/solver-routes-r133",
+        "pushed": false,
+        "sha": "3711375f58325cbf4a4eb5de577724258444dbe7",
+        "short": "3711375f5"
+      },
+      "goal": "Complete the Ruling 133 W-3 numerical route re-entry and deliver its required application-ring evidence for Mac review.",
+      "id": "al-01M4C7G44NSHEHC5JMVSHRN7C3",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Complete the Mac-authorized Ruling 133 Windows solver-route re-entry, then run the required application ring once and preserve every result.",
+      "session": "win-local-coordinator",
+      "shortname": "windows-w3-r133-reentry",
+      "signals": {
+        "acceptance_met": false,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T22:24:44Z",
+      "summary": "W-3 re-entry verified OpenFOAM v2512 cavity execution through t=0.5 with final Courant mean 0.222158 and native SU2 v8.5.0 from LF blob-equal inputs with CD 2.885552317. One activation repair was used. The single application ring at evidence SHA 614f9cce failed with 39 named tests, a Desktop exit 70 without frame, 10 cost failures, and wall 60.992 s; no rerun or product repair occurred.",
       "tags": [
         "windows",
         "openfoam",
         "su2"
       ],
-      "outcome": "partial",
-      "compiled": false,
-      "goal": "Complete the Ruling 133 W-3 numerical route re-entry and deliver its required application-ring evidence for Mac review.",
-      "done_when": "Cavity and SU2 meet their source-bound oracles, the required ring has one recorded disposition with raw logs, documentation checks pass, and the branch is ready for Mac review.",
       "tier": "T1",
-      "fan_out": 2,
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T22:14:50Z",
+      "done_when": "items 1-5 committed, check-docs green with case validation, run-verify-gates 0, full ring run",
+      "duration_seconds": 1134.0,
+      "goal": "Mac hygiene after the PC reviews: Ruling 134 wording, case schema + gate, Ruling 133 design amendment, defect classes",
+      "id": "al-01M4C6XZZYP6X76574VFT8PBW5",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "trk-mhy round-oct06",
+      "session": "trk-mhy",
+      "shortname": "trk-mhy",
+      "skill": "implement",
+      "started_at": "2026-10-07T21:55:56Z",
+      "summary": "Ruling 134 save wording (Labels.SaveRefusal, COPY-31/31W, warning/error kind); schema geometry.source.outcome no-mesh + w4 case; validate-cases.py in check-docs (self-test, uv or named FAIL, ~0.7 s); guided-setup owned-parent rule; 6 defect classes + flake recurrence; tools/verify-push.sh. Full ring: 0 failing suites, C-3 net wall 50.8-51.0 s over 50 s at load 20-21 (two runs; cap reached, not repaired).",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T22:18:23Z",
+      "done_when": "join gates green",
+      "duration_seconds": 58.0,
+      "fan_out": 0,
+      "goal": "join chore/mac-hygiene",
+      "id": "al-01M4C74GKRK22575Q8908QVFTE",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of chore/mac-hygiene into main",
+      "session": "14e5e8d5",
+      "shortname": "join-mhy",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": false,
-        "regression": false
+        "verification_path": true
       },
-      "started_at": "2026-10-07T22:24:44Z",
-      "duration_seconds": 0.0,
-      "git": {
-        "sha": "3711375f58325cbf4a4eb5de577724258444dbe7",
-        "short": "3711375f5",
-        "branch": "win/solver-routes-r133",
-        "pushed": false
-      }
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T22:17:25Z",
+      "summary": "Labels.SaveFailed/SaveUnavailable/SaveRefusal (COPY-31 approved, COPY-31W); geometry.source.outcome produced|not-produced (data-persistence CLEAR WITH CONDITIONS, met); validate-cases --self-test in check-docs with uv fallback; guided-setup owned-parent rule; classes ROUTE-PARENT-MISSING, PUSH-SUCCESS-BY-TEXT, STDIN-HANG, MUTANT-RESTORE-CHECKOUT, WINDOWS-TEXT-MODE-HASH, MOCKUP-PHYSICS-UNCHECKED; tools/verify-push.sh recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     }
   ],
   "changes": [
