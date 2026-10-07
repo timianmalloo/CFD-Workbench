@@ -13571,7 +13571,7 @@ window.DOCS_INDEX = {
       "path": "docs/proof/win-setup/receipt.md",
       "title": "W-0 Windows setup host survey",
       "type": "proof-pack",
-      "status": "in-review",
+      "status": "accepted",
       "owner": "@timianmalloo",
       "phase": "",
       "reviewBy": "2026-11-06",
@@ -13589,7 +13589,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "56aee1ec1b6f03dae7d80cc2743433bf6b60341d862d6c8de5101807675160cb"
+      "sourceSha256": "4a064c6b3d5006f397fd8e6ea769d1455b9e18215529cb76991546ea26ae5ecf"
     },
     {
       "id": "proof-windows-runtime",
@@ -15524,5 +15524,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6ba75e21fc87cf1bbba98a059e118002ad3ef7e86182a5514dbde44493d9b5c4"
+  "graphSha256": "b4d041ea142182e50b06bc369116a29ce5b9112ef557513dc93ecfc556675ea3"
 };
