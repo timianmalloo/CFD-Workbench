@@ -6123,6 +6123,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "09bc219f3ec625d9029e88ced4f4253d3a6930b26739c8ef436214a076d3e6e2"
     },
     {
+      "id": "review-pr-1",
+      "path": "docs/reviews/pr-1.md",
+      "title": "PR #1 (Windows PC) - W-0..W-5 execution plan, Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS. The PC's docs-only W-0..W-5 plan follows two-machine.md and pc-kickoff.md; six conditions bind its later briefs (macOS native helper out of the store lease, model routing to the operator, GPU measurement-only, Rulings 79/102 steps, the units handoff, PR fields). Merged by the Mac leader through conductor-join.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine"
+      ],
+      "links": [
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-two-machine",
+          "rel": "depends-on"
+        },
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "15bbf7360f65f4b127fb66a5a3328502ed96ecbb5039d4e9211b1413cdcd5dcd"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -15465,5 +15499,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "0ba8ee762f4bf5d0b5d01499a86fc4bbb24aee9b9e554e6bdcb83d5c0e67dcfe"
+  "graphSha256": "5b9bcf4cd6122ce5ddfe6af3819536e093727c32e28101e4f03306f6339e40cc"
 };
