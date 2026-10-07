@@ -1009,6 +1009,7 @@ public sealed class ElevationView : Control
             Dispatcher.UIThread.Post(Update);
             return;
         }
+        foreach (var peer in peers) peer.RefreshName();
         // A hidden elevation (Plan + 3D) does no channel work per change; it rebuilds when next drawn or read.
         targetsStale = true;
         if (IsEffectivelyVisible) _ = CurrentTargets;
@@ -1277,8 +1278,9 @@ public sealed class ElevationView : Control
     }
 
     /// <summary>"Twist, point 4 of 7, control point, from root 180.00 mm, twist −0.84°" (§11.4; "from root" as the Plan and the mockup).</summary>
-    public string PointName(PointView point)
+    public string PointName(PointView captured)
     {
+        var point = Live(captured);
         var curve = controller?.CurveFor(point.Curve);
         string channel = ChannelName(point.Curve);
         if (point.AnchorId is { } anchorId && curve?.Points.FirstOrDefault(item => item.Id == anchorId) is { } anchor)
@@ -1306,10 +1308,20 @@ public sealed class ElevationView : Control
     {
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Group;
         protected override string GetNameCore() => view.GroupName;
-        protected override List<AutomationPeer>? GetChildrenCore() =>
-            view.CurrentTargets.Select(point => CurvePointLayer.Peer(view, () => view.PointName(point), () => view.ScreenPoint(point),
-                () => view.LastValueRequest = $"{point.Curve}:{point.Id}")).ToList();
+        protected override List<AutomationPeer>? GetChildrenCore()
+        {
+            view.peers = view.CurrentTargets.Select(point => CurvePointLayer.Peer(view, () => view.PointName(point),
+                () => view.ScreenPoint(view.Live(point)), () => view.LastValueRequest = $"{point.Curve}:{point.Id}")).ToList();
+            return view.peers.Cast<AutomationPeer>().ToList();
+        }
     }
+
+    /// <summary>Peers handed out by the last child query; each is told when the model moves under its name.</summary>
+    private List<CurvePointLayer.PointPeer> peers = [];
+
+    /// <summary>The point as the model holds it now, by curve and id: a retained peer must not report a pre-drag value (W-1 d).</summary>
+    private PointView Live(PointView point) =>
+        controller?.CurveFor(point.Curve)?.Points.FirstOrDefault(item => item.Id == point.Id) ?? point;
 
     /// <summary>Draws over the band: lanes, points, chips, plates and rings. Pointer and keys go to the view.</summary>
     private sealed class Overlay(ElevationView owner) : Control

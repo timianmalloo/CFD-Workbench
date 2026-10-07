@@ -37,7 +37,7 @@ public static class NativeMenuBuilder
             (item.Command as DelegateCommand)?.RaiseCanExecuteChanged();
         }
     }
-    public static KeyGesture? ParseGesture(string? gestureString)
+    public static KeyGesture? ParseGesture(string? gestureString, bool? macOS = null)
     {
         if (string.IsNullOrWhiteSpace(gestureString)) return null;
 
@@ -49,7 +49,7 @@ public static class NativeMenuBuilder
         if (s.Contains('⌃')) { modifiers |= KeyModifiers.Control; s = s.Replace("⌃", ""); }
         if (s.Contains('⌘'))
         {
-            modifiers |= OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
+            modifiers |= macOS ?? OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control;
             s = s.Replace("⌘", "");
         }
 
@@ -104,6 +104,22 @@ public static class NativeMenuBuilder
 
     public static NativeMenu BuildForWindow(Window window) => BuildMenu(window);
 
+    /// <summary>
+    /// Off macOS: the menu built from the table shows in the window (ADR-0009 S1). The bar is a <see cref="Menu"/>, so Alt and
+    /// F10 reach it. Its gestures are also bound on the window, each to the menu item's own command object, so a key and a
+    /// click run one command. Without this a gesture lives only on the macOS system menu (W-1 defects b and c: Ctrl+Z and
+    /// Ctrl+S did nothing on Windows). A key handled by a text box (its own undo, copy, paste) never reaches the window.
+    /// </summary>
+    public static void ShowInWindow(Window window, ShellHost host, NativeMenu menu)
+    {
+        host.ShowMenuBar();
+        foreach (var item in Flatten(menu).Where(item => item.Gesture is not null && item.Command is not null))
+            window.KeyBindings.Add(new KeyBinding { Gesture = item.Gesture!, Command = item.Command! });
+    }
+
+    private static IEnumerable<NativeMenuItem> Flatten(NativeMenu? level) =>
+        level?.Items.OfType<NativeMenuItem>().SelectMany(item => Flatten(item.Menu).Prepend(item)) ?? [];
+
     public static NativeMenu BuildMenu(
         Window window,
         Action<string>? onAction = null,
@@ -111,7 +127,8 @@ public static class NativeMenuBuilder
         Action<string>? onOpenRecent = null,
         Action? onClearRecent = null,
         Action<string>? onSelectPane = null,
-        Func<string, bool>? canExecute = null)
+        Func<string, bool>? canExecute = null,
+        bool? macOS = null)
     {
         var rootMenu = new NativeMenu();
 
@@ -229,7 +246,7 @@ public static class NativeMenuBuilder
             var item = new NativeMenuItem(row.Title);
             if (row.Gesture is not null)
             {
-                item.Gesture = ParseGesture(row.Gesture);
+                item.Gesture = ParseGesture(row.Gesture, macOS);
             }
             if (CommandTable.TextSizeOf(row.Id) is not null || row.Menu is ViewCommands.ViewsMenu or ViewCommands.DisplayMenu or CommandTable.UnitsMenu)
                 item.ToggleType = NativeMenuItemToggleType.Radio;

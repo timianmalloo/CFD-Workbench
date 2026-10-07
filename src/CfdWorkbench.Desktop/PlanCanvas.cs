@@ -695,6 +695,7 @@ public sealed class PlanCanvas : Control
             Dispatcher.UIThread.Post(UpdatePlan);
             return;
         }
+        foreach (var peer in peers) peer.RefreshName();
         var plan = Controller?.Planform;
         if (plan is null || Bounds.Width <= 0 || Bounds.Height <= 0)
         {
@@ -965,15 +966,33 @@ public sealed class PlanCanvas : Control
     private sealed class PlanCanvasPeer(PlanCanvas owner) : ControlAutomationPeer(owner)
     {
         protected override AutomationControlType GetAutomationControlTypeCore() => AutomationControlType.Group;
-        protected override List<AutomationPeer>? GetChildrenCore() =>
-            owner.Controller?.Planform is not null
+        protected override List<AutomationPeer>? GetChildrenCore()
+        {
+            owner.peers = owner.Controller?.Planform is not null
                 ? owner.targets.Select(point => CurvePointLayer.Peer(owner, () => owner.PointName(point),
-                    () => owner.ScreenPoint(point), () => owner.RequestValue(point))).ToList()
+                    () => owner.ScreenPoint(owner.Live(point)), () => owner.RequestValue(point))).ToList()
                 : [];
+            return owner.peers.Cast<AutomationPeer>().ToList();
+        }
     }
 
-    private string PointName(PointView point)
+    /// <summary>Peers handed out by the last child query; each is told when the model moves under its name.</summary>
+    private List<CurvePointLayer.PointPeer> peers = [];
+
+    /// <summary>
+    /// The point as the model holds it now. A peer is created from a snapshot taken at the last layout and a client may keep
+    /// the peer across a drag, so the name and centre are read from the live point, found by curve and id (W-1 defect d).
+    /// </summary>
+    private PointView Live(PointView point)
     {
+        var plan = Controller?.Planform;
+        var curve = point.Curve == "leading" ? plan?.Leading : plan?.Trailing;
+        return curve?.Points.FirstOrDefault(item => item.Id == point.Id) ?? point;
+    }
+
+    private string PointName(PointView captured)
+    {
+        var point = Live(captured);
         var plan = Controller?.Planform;
         var curve = point.Curve == "leading" ? plan?.Leading : plan?.Trailing;
         string role = point.Role.ToString().ToLowerInvariant();
