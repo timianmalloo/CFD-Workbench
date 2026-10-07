@@ -13571,7 +13571,7 @@ window.DOCS_INDEX = {
       "path": "docs/proof/win-smoke/receipt.md",
       "title": "W-1 Windows smoke receipt — SDK 10.0.203",
       "type": "proof-pack",
-      "status": "in-review",
+      "status": "accepted",
       "owner": "@win-smoke",
       "phase": "",
       "reviewBy": "2026-11-06",
@@ -13590,7 +13590,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c0710ff127b42b1a5e612afc5f50d84440d55f5121540cf26bd43ea94c3ab035"
+      "sourceSha256": "d850adcc95afd5a80d8f7948bade61fc7ec1d6dedf8af50e46fdef8985fbd496"
     },
     {
       "id": "proof-windows-runtime",
@@ -15525,5 +15525,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "95ca9c4ab23d83765785945e8f6bed43a2c124994ede13faf0fb518eb6ba829a"
+  "graphSha256": "78f5d4a3e9dc0a2777182d0922abe083bd28904008bcd5d099ec0bd5c53a6051"
 };
