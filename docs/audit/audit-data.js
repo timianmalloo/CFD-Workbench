@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T01:44:51Z",
+  "generated": "2026-10-07T16:25:29Z",
   "audit": [
     {
       "actor": null,
@@ -28584,6 +28584,240 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T01:43:56Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M4BJTE0WA4XVCW8B3AKQVSWT",
+      "shortname": "Execute Windows W-0 through W-5 launch prompt",
+      "datetime": "2026-10-07T16:23:21Z",
+      "session": "win-w0-w5-20261007",
+      "prompt": "great execute the prompt now",
+      "summary": "Operator approved execution of the reviewed Windows W-0 through W-5 coordination prompt.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "windows",
+        "coordination"
+      ],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4BJTEN5EPMGDDB4ZM2VFM4E",
+      "shortname": "Execute the reviewed Windows W-0 through W-5 launch prompt from the prec…",
+      "datetime": "2026-10-07T16:23:22Z",
+      "session": "prompt-compile",
+      "prompt": "Execute the reviewed Windows W-0 through W-5 launch prompt from the preceding turn exactly within repository authority. The Windows session is local coordinator, an Astra sub-agent is Owner, the Mac remains repository leader, and delivery occurs through win/* GitHub pull requests and xmsg.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4BJVKEAMJ5NCC1PR70WJ7ZE",
+      "shortname": "Goal: Complete and deliver Windows work W-0 through W-5 under Mac reposi…",
+      "datetime": "2026-10-07T16:24:00Z",
+      "session": "prompt-compile",
+      "prompt": "Goal: Complete and deliver Windows work W-0 through W-5 under Mac repository leadership.\nDone when: Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path; no completed work remains only in a worktree.\nNot in scope: Moving main from Windows; issuing global rulings; changing accepted solver numerics; unrelated fixes or pack maintenance.\nTier: T2\nFan-out cap: 3\nContext ceiling: 120000\nMain-line budget: 120\n\nExecute the reviewed launch contract. The Windows root session is local coordinator. A gpt-6-astra owner reviews decisions and acceptance. The Mac remains global leader. Use prepare-for-coordination and execute-with-coordination, isolated worktrees, GitHub pull requests, and tools/xmsg.py. Route bounded routine work to authenticated Grok 4.7, load-bearing implementation to GPT-6.1 Sol, and deterministic work to scripts. Keep ceremony bounded, never stop on an announcement, and measure any OpenFOAM GPU path before using it.",
+      "summary": "raw prompt logged for compilation",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4BJVPTGS6YJWBWJF5QEB5ZM",
+      "shortname": "compile-Goal: Complete and deliver Windows work W-0 through W-5 under Mac reposi…",
+      "datetime": "2026-10-07T16:24:03Z",
+      "session": "win-w0-w5-20261007",
+      "prompt": "Save the brief between the markers as <brief-file>, then run (one line, the brief read from the file):\ncodex exec --json -o <last-message-file> --output-schema <schema-file> --worktree -C <dir> \"$(cat <brief-file>)\"\n--- brief ---\npython3 docs/ai-forward-pack/scripts/audit-log.py start --session win-w0-w5-20261007 --skill compile\nGoal state\nGoal: Complete and deliver Windows work W-0 through W-5 under Mac repository leadership.\nDone when: Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path; no completed work remains only in a worktree.\nNot in scope: Moving main from Windows; issuing global rulings; changing accepted solver numerics; unrelated fixes or pack maintenance.\nTier: T2\nFan-out cap: 3\nContext ceiling: 120000\nMain-line budget: 120\nExecute the reviewed launch contract. The Windows root session is local coordinator. A gpt-6-astra owner reviews decisions and acceptance. The Mac remains global leader. Use prepare-for-coordination and execute-with-coordination, isolated worktrees, GitHub pull requests, and tools/xmsg.py. Route bounded routine work to authenticated Grok 4.7, load-bearing implementation to GPT-6.1 Sol, and deterministic work to scripts. Keep ceremony bounded, never stop on an announcement, and measure any OpenFOAM GPU path before using it.\nTrace\n| clause | trace |\n|---|---|\n| done_when: Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path | phrase: Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path |\n| done_when: no completed work remains only in a worktree. | phrase: no completed work remains only in a worktree. |\n| not_in_scope: Moving main from Windows | phrase: Moving main from Windows |\n| not_in_scope: issuing global rulings | phrase: issuing global rulings |\n| not_in_scope: changing accepted solver numerics | phrase: changing accepted solver numerics |\n| not_in_scope: unrelated fixes or pack maintenance. | phrase: unrelated fixes or pack maintenance. |\nReferences\n- tools/xmsg.py: tools/xmsg.py sha256 64f219ee32d1181aed68f5df929058c2f3562d2a3b3ee955cc5f68ae1517cc98\nAssumptions\n- none\nDecision requests\n- none\nContract slot\nwidth_cap: unset\ntransient_retry: unset\nper_branch_exit: unset\njoin_rule: unset\ncontainment: unset\ntermination: unset\ndeadline: unset\nfallback: unset\nRules: absolute paths only; a multi-line program is a file, then a run; a gate's exit status is never behind a pipe.\nProvenance\nraw id: al-01M4BJVKEAMJ5NCC1PR70WJ7ZE\nraw sha256: 74c8d3332e93bcad1e9005ab2a6e16b67bbd66a399b1bce128ab054f29859a87\ncompiler model: gpt-6.1-sol\nengine seconds: 0.035\ntokens: not recorded\ngate: pass\ndispatchable: true\n--- end brief ---\n",
+      "summary": "compiled al-01M4BJVKEAMJ5NCC1PR70WJ7ZE for codex v1: 6 clauses, 0 assumptions, 0 decision requests",
+      "kind": "compilation",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": {
+        "assumptions": [],
+        "clauses": [
+          {
+            "section": "done_when",
+            "text": "Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path"
+            }
+          },
+          {
+            "section": "done_when",
+            "text": "no completed work remains only in a worktree.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "no completed work remains only in a worktree."
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "Moving main from Windows",
+            "trace": {
+              "kind": "phrase",
+              "ref": "Moving main from Windows"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "issuing global rulings",
+            "trace": {
+              "kind": "phrase",
+              "ref": "issuing global rulings"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "changing accepted solver numerics",
+            "trace": {
+              "kind": "phrase",
+              "ref": "changing accepted solver numerics"
+            }
+          },
+          {
+            "section": "not_in_scope",
+            "text": "unrelated fixes or pack maintenance.",
+            "trace": {
+              "kind": "phrase",
+              "ref": "unrelated fixes or pack maintenance."
+            }
+          }
+        ],
+        "contract_slot": {
+          "containment": null,
+          "deadline": null,
+          "fallback": null,
+          "join_rule": null,
+          "per_branch_exit": null,
+          "termination": null,
+          "transient_retry": null,
+          "width_cap": null
+        },
+        "decision_requests": [],
+        "dispatchable": true,
+        "goal_state": {
+          "context_ceiling": 120000,
+          "done_when": [
+            "Every W item has observed evidence and a pushed win branch pull request, or a precise external blocker with a resume path",
+            "no completed work remains only in a worktree."
+          ],
+          "fan_out_cap": 3,
+          "goal": "Complete and deliver Windows work W-0 through W-5 under Mac repository leadership.",
+          "main_line_budget": "120\nExecute the reviewed launch contract. The Windows root session is local coordinator. A gpt-6-astra owner reviews decisions and acceptance. The Mac remains global leader. Use prepare-for-coordination and execute-with-coordination, isolated worktrees, GitHub pull requests, and tools/xmsg.py. Route bounded routine work to authenticated Grok 4.7, load-bearing implementation to GPT-6.1 Sol, and deterministic work to scripts. Keep ceremony bounded, never stop on an announcement, and measure any OpenFOAM GPU path before using it.",
+          "not_in_scope": [
+            "Moving main from Windows",
+            "issuing global rulings",
+            "changing accepted solver numerics",
+            "unrelated fixes or pack maintenance."
+          ],
+          "tier": "T2"
+        },
+        "graph_neighbours": [],
+        "harness": "codex",
+        "mode": "pass-through",
+        "provenance": {
+          "compile_tokens": null,
+          "compiler_model": "gpt-6.1-sol",
+          "engine_seconds": 0.035,
+          "refusals": [],
+          "retries": 0
+        },
+        "raw_id": "al-01M4BJVKEAMJ5NCC1PR70WJ7ZE",
+        "raw_sha256": "74c8d3332e93bcad1e9005ab2a6e16b67bbd66a399b1bce128ab054f29859a87",
+        "raw_text_normalised": false,
+        "references": [
+          {
+            "nearest": null,
+            "path": "tools/xmsg.py",
+            "reason": null,
+            "sha256": "64f219ee32d1181aed68f5df929058c2f3562d2a3b3ee955cc5f68ae1517cc98",
+            "status": "resolved",
+            "token": "tools/xmsg.py"
+          }
+        ],
+        "schema": "compiled-prompt/1",
+        "template": "codex",
+        "template_version": 1
+      },
+      "mode": "pass-through",
+      "dispatchable": true
+    },
+    {
+      "id": "al-01M4BJYA8323Y3VCD8X5KMSCFG",
+      "shortname": "Optimize Windows W-0-W-5 graph",
+      "datetime": "2026-10-07T16:25:29Z",
+      "session": "win-w0-w5-20261007",
+      "prompt": "Optimize the accepted W-0 through W-5 execution graph once.",
+      "summary": "Critical path and bounded three-track graph recorded in docs/coordination/windows-w0-w5-execution.md.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/coordination/windows-w0-w5-execution.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Complete and deliver W-0 through W-5 under Mac leadership.",
+      "done_when": "Each W item has evidence and a delivered PR or an exact external blocker.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-10-07T16:25:28Z",
+      "duration_seconds": 1.0,
+      "git": {
+        "sha": "7102e90fd04d70ea818acd551ad295e0b62bf93c",
+        "short": "7102e90fd",
+        "branch": "win/coord-w0-w5",
+        "pushed": null
+      }
+    },
+    {
+      "id": "al-01M4BJYAK7T65H8QM5FEV8K1RD",
+      "shortname": "Prepare Windows W-0-W-5 coordination",
+      "datetime": "2026-10-07T16:25:29Z",
+      "session": "win-w0-w5-20261007",
+      "prompt": "Prepare the Windows W-0 through W-5 work for coordinated execution.",
+      "summary": "Created the Markdown and HTML coordination plan with ownership, dependencies, budgets, exit evidence, routing, GPU qualification and Mac join rules.",
+      "kind": "skill",
+      "skill": "prepare-for-coordination",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/coordination/windows-w0-w5-execution.md",
+        "docs/coordination/windows-w0-w5-execution.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Prepare a dispatchable coordination plan for W-0 through W-5.",
+      "done_when": "The plan names exact tracks, authority, ownership, budgets, evidence, containment, fallback and termination.",
+      "tier": "T2",
+      "fan_out": 3,
+      "started_at": "2026-10-07T16:25:29Z",
+      "duration_seconds": 0.0,
+      "git": {
+        "sha": "7102e90fd04d70ea818acd551ad295e0b62bf93c",
+        "short": "7102e90fd",
+        "branch": "win/coord-w0-w5",
+        "pushed": null
+      }
     }
   ],
   "changes": [
