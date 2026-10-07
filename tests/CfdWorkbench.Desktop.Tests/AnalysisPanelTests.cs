@@ -99,6 +99,33 @@ public static class AnalysisPanelTests
                 Equal(true, failed.Groups[0].Notes.Single().Text.StartsWith("Analysis failed", StringComparison.Ordinal), "error card text");
             });
 
+            // UXB: under Imperial the Properties strip rows read lbf/ft, never N/m (Ruling 115, ANA-18). With CFDW_UXB_CAPTURE_DIR set the window is saved as the track's evidence.
+            DesktopChecks.Check("PropertiesPane_Analysis_Imperial_StripLiftReadsLbfPerFt", () =>
+            {
+                var controller = shared.Value;
+                if (!controller.IsAnalysis) controller.ToggleAnalysis();
+                controller.AnalysisUnits = Units.Imperial;
+                var host = new ShellHost(controller);
+                var window = new Window { Content = host, Width = 1280, Height = 800 };
+                try
+                {
+                    window.Show();
+                    controller.Select(new Selection.Station(1, controller.CurrentProjection!.Assignments[1].Eta));
+                    host.RefreshPanes();
+                    Settle(window);
+                    var texts = Texts(host.Properties);
+                    Equal(true, texts.Contains("Lift / span") && texts.Contains("lbf/ft"), "the strip lift row reads lbf/ft: " + string.Join("|", texts.Take(40)));
+                    Equal(false, texts.Any(text => text.Contains("N/m", StringComparison.Ordinal)), "no N/m anywhere in the Properties pane under Imperial");
+                    if (Environment.GetEnvironmentVariable("CFDW_UXB_CAPTURE_DIR") is { Length: > 0 } dir)
+                    {
+                        using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize(1280, 800));
+                        bitmap.Render(window);
+                        bitmap.Save(System.IO.Path.Combine(dir, "imperial-lift-per-span.png"));
+                    }
+                }
+                finally { window.Close(); controller.AnalysisUnits = Units.Metric; }
+            });
+
             DesktopChecks.Check("PropertiesPane_Analysis_BuildsWithAnalysisModeAndContext", () =>
             {
                 var controller = shared.Value;
