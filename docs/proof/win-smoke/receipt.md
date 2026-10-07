@@ -2,7 +2,7 @@
 id: proof-win-smoke
 title: "W-1 Windows smoke receipt — SDK 10.0.203"
 type: proof-pack
-status: in-review
+status: accepted
 owner: "@win-smoke"
 tags: [windows, smoke-test, native, evidence]
 links:
@@ -45,6 +45,7 @@ Actual: same sequence, with one capture-mechanics repair cycle before native int
 | `"C:\Program Files\Git\bin\bash.exe" --noprofile --norc tools/run-tests.sh` | Verified: `RING-LOCK waited 0 s`; stopped at first `python3` use, before build or harnesses | 49 | 1.913 | `test-ring.log`, `checks.json` |
 | `py -3 tools/check-docs.py` | Verified: `Documentation checks passed.` | 0 | 17.618 | `docs-check.log`, `checks.json` |
 | `py -3 tools/check-docs.py` after receipt creation | Verified failure: `validate: 1 defect(s) - 0 problem(s), 0 orphan(s), 1 index-drift item(s).`; first defect `file not in index: proof-win-smoke` | 1 | Not recorded | `docs-check-final.log` |
+| Coordinator: `py -3 tools/check-docs.py` after shared-index regeneration | Coordinator-reported final green docs gate at index commit `da6e324d530a27902e3e7e25e09199f45ab10a63`; not rerun by this worker | 0 | Not recorded | Coordinator handoff; index-only commit `da6e324d` |
 
 Every failing check observed in the single ring execution: **ring startup / Python clock prerequisite**.
 First error line: `Python was not found; run without arguments to install from the Microsoft Store, or disable this shortcut from Settings > Apps > Advanced app settings > App execution aliases.`
@@ -104,8 +105,12 @@ The initial `WindowStyle Hidden` launch and foreground attempt were occluded by 
 did not clear occlusion. The coordinator-authorized `Shell.Application.MinimizeAll()` followed by existing-PID
 activation and `ShowWindow(9)` cleared it. No operator action or product change was used.
 
-Residual blockers: the final docs check fails because the new proof is absent from the shared docs index, an excluded path;
-the ring did not reach harnesses; Undo did not restore the edit; Save did not visibly invoke persistence,
+The worker's final docs check failed on the excluded shared index; its failure output is retained above.
+The coordinator regenerated `docs/docs-index.js` in `da6e324d530a27902e3e7e25e09199f45ab10a63` and reported a green
+`py -3 tools/check-docs.py` result before this receipt-only follow-up. This closes the index blocker, not the native findings.
+Accepted status records the completed bounded evidence disposition; it does not grant Windows platform acceptance.
+
+Residual blockers: the ring did not reach harnesses; Undo did not restore the edit; Save did not visibly invoke persistence,
 so the requested unsupported-persistence code is Not assessed. No failures were fixed. The live app remains at the
 final analysis view with its unsaved edited foil, available for operator review.
-The required authored paths are the only commit scope. The coordinator owns audit/index reconciliation after handoff.
+The required authored paths are the only worker commit scope. The coordinator owns audit/index reconciliation after handoff.
