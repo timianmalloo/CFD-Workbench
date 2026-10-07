@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T22:14:50Z",
+  "generated": "2026-10-07T22:18:23Z",
   "audit": [
     {
       "actor": null,
@@ -29273,6 +29273,33 @@ window.AUDIT_DATA = {
       "done_when": "items 1-5 committed, check-docs green with case validation, run-verify-gates 0, full ring run",
       "started_at": "2026-10-07T21:55:56Z",
       "duration_seconds": 1134.0
+    },
+    {
+      "id": "al-01M4C74GKRK22575Q8908QVFTE",
+      "shortname": "join-mhy",
+      "datetime": "2026-10-07T22:18:23Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of chore/mac-hygiene into main",
+      "summary": "Labels.SaveFailed/SaveUnavailable/SaveRefusal (COPY-31 approved, COPY-31W); geometry.source.outcome produced|not-produced (data-persistence CLEAR WITH CONDITIONS, met); validate-cases --self-test in check-docs with uv fallback; guided-setup owned-parent rule; classes ROUTE-PARENT-MISSING, PUSH-SUCCESS-BY-TEXT, STDIN-HANG, MUTANT-RESTORE-CHECKOUT, WINDOWS-TEXT-MODE-HASH, MOCKUP-PHYSICS-UNCHECKED; tools/verify-push.sh recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join chore/mac-hygiene",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-07T22:17:25Z",
+      "duration_seconds": 58.0
     }
   ],
   "changes": [
