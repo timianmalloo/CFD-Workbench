@@ -1,0 +1,6 @@
+gpg: directory '/root/.gnupg' created
+gpg: keybox '/root/.gnupg/pubring.kbx' created
+gpg: /root/.gnupg/trustdb.gpg: trustdb created
+pub:-:4096:1:3386DD74948D208F:1587479748:::-:::scSC::::::23::0:
+fpr:::::::::DC93C096174122E256DA24063386DD74948D208F:
+uid:-::::1587490839::78FEE72DF5AF419438043C4668E4596A3E7EE90E::openfoam-com <admin@opencfd.co.uk>::::::::::0:

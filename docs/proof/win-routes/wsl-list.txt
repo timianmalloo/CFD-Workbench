@@ -1,0 +1,3 @@
+  NAME                 STATE           VERSION
+
+* cfdw-openfoam2512    Running         2

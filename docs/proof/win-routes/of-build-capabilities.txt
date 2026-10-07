@@ -1,0 +1,2 @@
+/usr/lib/openfoam/openfoam2512/etc/config.sh/umpire
+/usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfusedFiniteVolume.so

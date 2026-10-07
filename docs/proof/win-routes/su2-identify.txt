@@ -1,0 +1,23 @@
+SU2 v8.5.0 "Harrier", The Open-Source CFD Code
+
+Usage: C:\Users\malla\AppData\Local\CFDWorkbench\qualification\su2-8.5.0\bin\bin\SU2_CFD.exe [OPTIONS] [configfile]
+
+
+
+Positionals:
+
+  configfile TEXT:FILE        A config file.
+
+
+
+Options:
+
+  -h,--help                   Print this help message and exit
+
+  -d,--dryrun                 Enable dry run mode.
+
+                              Only execute preprocessing steps using a dummy geometry.
+
+  -t,--threads INT            Number of OpenMP threads per MPI rank.
+
+  --thread_multiple           Request MPI_THREAD_MULTIPLE thread support.

@@ -1,0 +1,27 @@
+Package: openfoam2512-tutorials
+Source: openfoam
+Version: 2512.0-2
+Architecture: all
+Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
+Installed-Size: 76119
+Depends: openfoam2512-common (= 2512.0-2)
+Provides: com.openfoam-tutorials (= 2512)
+Filename: dists/noble/main/pool/2512_0/binary-all/openfoam2512-tutorials_2512.0-2_all.deb
+Size: 34667466
+MD5sum: bbb34e1c90f494e6ee928a3f9dfca73f
+SHA1: 2b771e54281f108bebdf6c0b5788e77b40b940b9
+SHA256: 4c87494c17a1381853af8a828e8df3a741d9cde5e06bb0212f3fc6940d889473
+Section: science
+Priority: optional
+Multi-Arch: foreign
+Homepage: https://openfoam.com
+Description: OpenFOAM v2512 opencfd release - tutorial examples
+ OpenFOAM is a free, open source computational fluid dynamics (CFD)
+ software package produced by OpenCFD Ltd with twice yearly releases.
+ .
+ Release notes:  https://www.openfoam.com/news/main-news/openfoam-v2512
+ Documentation:  https://www.openfoam.com/documentation/
+ Issue Tracker:  https://gitlab.com/openfoam/core/openfoam/issues/
+ .
+ Package contains tutorial examples.
+Description-md5:
