@@ -4082,17 +4082,18 @@ window.DOCS_INDEX = {
     {
       "id": "mockup-section-force-vectors",
       "path": "docs/mockups/section-force-vectors.md",
-      "title": "Section force vectors (Ruling 127) - Lift and Drag on the Cp-coloured profile",
+      "title": "Section force vectors (Rulings 127, 128) - Lift and Drag on the Cp-coloured profile, free-stream axes",
       "type": "design",
       "status": "in-review",
       "owner": "@timianmalloo",
       "phase": "ui-design",
       "reviewBy": "2026-12-31",
       "reviewSuggested": [],
-      "summary": "Four states of the Section view's profile after Ruling 127: Lift and Drag vectors anchored at the centre of pressure, a faint inflow, lift perpendicular and drag parallel to it, drag in two segments (profile, induced) at its own labelled scale. A normal strip, near zero lift (anchor falls back to the quarter chord), a flagged drag, and Imperial. Thirteen strings are proposed copy.",
+      "summary": "Five states of the Section view's profile after Ruling 128: Lift and Drag on free-stream axes (V-inf at alpha_geo), one model (the lattice), the centre of pressure as anchor only when it is on the section and |cl| >= 0.05, otherwise c/4 with the pitching-moment couple and x_cp Undefined. A mid-span strip, near zero lift, a flagged drag, Imperial, and a cambered section at cruise. Every number is illustrative.",
       "tags": [
         "mockup",
         "ruling-127",
+        "ruling-128",
         "section",
         "analysis",
         "lift",
@@ -4115,7 +4116,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "94e715f88b6c0d230eea4800aee11191160003acaccb3fc1e1a66dccbe552688"
+      "sourceSha256": "79f1886bff7442610b043faa656afbd53d9560b6df0d67d8ec5a11280c6968b6"
     },
     {
       "id": "mockup-section-main-area",
@@ -15278,5 +15279,5 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     }
   ],
-  "graphSha256": "219ceb224e5eabdce8bb29d67daa3628d91e538dd4d460173881aebf729f7b0a"
+  "graphSha256": "ae802a89adb8ae906d0aa5af943741f431ba4dd2366bfd5b90d17666813c9fcd"
 };
