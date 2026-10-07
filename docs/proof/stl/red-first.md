@@ -25,7 +25,7 @@ Command: `CFD_TEST_ONLY=StaleConditions tools/run-suite.sh dotnet tests/CfdWorkb
 | `StaleConditions_MalformedOrBlankInput_NoCrash_ReadsAsChanged_DepthBlankStaysCopy45` | `speed '' reads as changed: expected Historical, got Current` | PASS |
 | `StaleConditions_Edits_LeaveTheStoredRunAndItsKeyUntouched` | `edited: expected Historical, got Current` | PASS |
 
-Notes: the "no new run" claim is counted by a solver wrapper (`Solves` unchanged across an edit and its revert); the run key
+Notes: after the red run the five checks were merged into two (one band edit sequence; one water, depth and Evaluate sequence) with every assertion kept, to save Desktop ring time (about 3 s); the merged checks pass. The "no new run" claim is counted by a solver wrapper (`Solves` unchanged across an edit and its revert); the run key
 and `RunRecord.RecomputedKey` are compared before and after. Check 2 pins the controller's existing α wording exactly; check 1
 pins the speed wording `Historical — operating point changed (speed)`, the one new use of the approved prefix (see Return).
 Capture after a speed edit: `after-speed-edit.png` (strip "Analysis: Historical", Properties chip "Historical · VLM + strip").

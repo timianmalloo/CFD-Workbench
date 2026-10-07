@@ -7113,7 +7113,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d31332647744fdad540ba8c12ff0b0e2b9bded837d04453f0f786b2f3eea6d70"
+      "sourceSha256": "f85bff29db99152b30ac607c65d297b0db88ddcf2fd8ae2cfd2ca43f887fa241"
     },
     {
       "id": "kb-hw-glossary",
@@ -13669,6 +13669,58 @@ window.DOCS_INDEX = {
       "sourceSha256": "9eadaee45e837755d74b4a2b2444a7f426ab118b7d2c53526e615c858a17f992"
     },
     {
+      "id": "proof-stl-red-first",
+      "path": "docs/proof/stl/red-first.md",
+      "title": "STL red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-stl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "All five Ruling 140 checks failed on the code before the fix (commit 1ad61f16, raw output in red-run.txt) and pass after it.",
+      "tags": [
+        "stl",
+        "ruling-140",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-stl-trace",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b432884b760393fb6337b74e49a3ab7803b07867284dd467e2862bca817b6666"
+    },
+    {
+      "id": "proof-stl-trace",
+      "path": "docs/proof/stl/trace.md",
+      "title": "STL trace — how an edited conditions band reaches Current/Historical",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-stl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Trace for Ruling 140: before the fix the band's live inputs reached the controller only at Evaluate, so an edit left the result Current; one projection (AnalysisView) feeds every surface, so one controller input fixes all of them.",
+      "tags": [
+        "stl",
+        "ruling-140",
+        "analysis",
+        "freshness",
+        "conditions-band"
+      ],
+      "links": [
+        {
+          "to": "design-area3-analysis",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "289c24ada6a054684276296258c253e11c378cd8848dba9201819e38a1713af3"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -16185,5 +16237,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e3fe2d1dfcc63ab9007d65a6988d9cd7613b462b99b3f193128dce43c14c296a"
+  "graphSha256": "3b01aa0bbbdd850cfc2eef8faf3104118de4c2643d8a8f389a690f304939471c"
 };

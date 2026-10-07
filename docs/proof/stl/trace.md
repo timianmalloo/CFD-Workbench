@@ -64,6 +64,6 @@ No Section or Properties view was edited.
    `SetAnalysisConditions` clears the flag.
 3. `HistoricalBanner`: edited op-or-water inputs read "Historical — operating point changed (...)": α keeps its approved arrow
    form; speed, depth, water are named; an unreadable input reads "Historical — operating point changed".
-4. Tests: `StaleConditionsTests.cs` (five checks), registered in `--analysis`.
+4. Tests: `StaleConditionsTests.cs` (two checks), registered in `--analysis`.
 
 Evaluate and Find α stay explicit: neither is triggered by an edit; no run is recorded by an edit.

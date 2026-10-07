@@ -16,7 +16,7 @@ public static class StaleConditionsTests
 {
     public static void Run()
     {
-        DesktopChecks.Check("StaleConditions_SpeedEdit_EverySurfaceReadsHistorical_ThenRevertsToCurrentWithNoNewRun", () =>
+        DesktopChecks.Check("StaleConditions_BandEdits_EverySurfaceReadsHistorical_RevertIsCurrent_NoRun_BadInputReadsChanged", () =>
         {
             var method = new CountingMethod(new ProductWingMethod(Small()));
             using var controller = Open(method);
@@ -44,19 +44,33 @@ public static class StaleConditionsTests
                 Same(host, controller, "Current", "Analysis: Current", false);
                 Equal(solves, method.Solves, "returning the input runs no solve");
                 Equal(key, controller.AnalysisView.RunKey, "the shown run is untouched by the edits");
-            }
-            finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
-        });
-        DesktopChecks.Check("StaleConditions_AlphaEdit_UsesTheApprovedOperatingPointWording", () =>
-        {
-            using var controller = Open(new ProductWingMethod(Small()));
-            _ = Evaluate(controller, 2);
-            var (host, window) = Show(controller);
-            try
-            {
-                Band(host).FindControl<TextBox>("AlphaInput")!.Text = "3.00";
+                Equal(RunRecord.RecomputedKey(run), run.RunKey, "the stored run's key is untouched");
+                // α keeps the controller's approved wording.
+                band.FindControl<TextBox>("AlphaInput")!.Text = "3.00";
                 Settle(host, window);
-                Equal("Historical — operating point changed (α 2.00° → 3.00°)", controller.AnalysisView.Banner, "the controller's wording");
+                Equal("Historical — operating point changed (α 2.00° → 3.00°)", controller.AnalysisView.Banner, "the controller's α wording");
+                band.FindControl<TextBox>("AlphaInput")!.Text = "2.00";
+                Settle(host, window);
+                Equal(RunState.Current, controller.AnalysisView.State, "α back is Current");
+                // A blank or malformed input does not crash and reads as changed.
+                foreach (string bad in new[] { "", "abc", "NaN", "-3" })
+                {
+                    band.FindControl<TextBox>("SpeedInput")!.Text = bad;
+                    Settle(host, window);
+                    Equal(RunState.Historical, controller.AnalysisView.State, $"speed '{bad}' reads as changed");
+                    Equal(true, controller.AnalysisView.Banner!.StartsWith("Historical — ", StringComparison.Ordinal), $"speed '{bad}' banner");
+                }
+                band.FindControl<TextBox>("SpeedInput")!.Text = "5.14";
+                band.FindControl<TextBox>("AlphaInput")!.Text = "x";
+                Settle(host, window);
+                Equal(RunState.Historical, controller.AnalysisView.State, "malformed α reads as changed");
+                band.FindControl<TextBox>("AlphaInput")!.Text = "2.00";
+                Settle(host, window);
+                Same(host, controller, "Current", "Analysis: Current", false);
+                Equal(true, band.FindControl<TextBlock>("DerivedDepth")!.Text!.Contains("Unavailable — depth not set", StringComparison.Ordinal),
+                    "a blank depth shows COPY-45 as before");
+                Equal(key, controller.AnalysisView.RunKey, "no edit changed the shown run");
+                Equal(solves, method.Solves, "no edit ran a solve");
             }
             finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
         });
@@ -86,53 +100,6 @@ public static class StaleConditionsTests
                 Same(host, controller, "Current", "Analysis: Current", false);
                 Equal(evaluated.RunKey, controller.AnalysisView.RunKey, "the new run is the shown run");
                 Equal(true, method.Solves > solves, "Evaluate solved");
-            }
-            finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
-        });
-        DesktopChecks.Check("StaleConditions_MalformedOrBlankInput_NoCrash_ReadsAsChanged_DepthBlankStaysCopy45", () =>
-        {
-            using var controller = Open(new ProductWingMethod(Small()));
-            _ = Evaluate(controller, 2);
-            var (host, window) = Show(controller);
-            try
-            {
-                var band = Band(host);
-                foreach (string bad in new[] { "", "abc", "NaN", "-3" })
-                {
-                    band.FindControl<TextBox>("SpeedInput")!.Text = bad;
-                    Settle(host, window);
-                    Equal(RunState.Historical, controller.AnalysisView.State, $"speed '{bad}' reads as changed");
-                    Equal(true, controller.AnalysisView.Banner!.StartsWith("Historical — ", StringComparison.Ordinal), $"speed '{bad}' banner");
-                }
-                band.FindControl<TextBox>("SpeedInput")!.Text = "5.14";
-                Settle(host, window);
-                Equal(RunState.Current, controller.AnalysisView.State, "a valid value again is Current");
-                band.FindControl<TextBox>("AlphaInput")!.Text = "x";
-                Settle(host, window);
-                Equal(RunState.Historical, controller.AnalysisView.State, "malformed alpha reads as changed");
-                band.FindControl<TextBox>("AlphaInput")!.Text = "2.00";
-                Settle(host, window);
-                Equal(RunState.Current, controller.AnalysisView.State, "alpha back is Current");
-                Equal(true, band.FindControl<TextBlock>("DerivedDepth")!.Text!.Contains("Unavailable — depth not set", StringComparison.Ordinal),
-                    "a blank depth shows COPY-45 as before");
-            }
-            finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
-        });
-        DesktopChecks.Check("StaleConditions_Edits_LeaveTheStoredRunAndItsKeyUntouched", () =>
-        {
-            using var controller = Open(new ProductWingMethod(Small()));
-            var run = Evaluate(controller, 2);
-            string recomputed = RunRecord.RecomputedKey(run);
-            var (host, window) = Show(controller);
-            try
-            {
-                var band = Band(host);
-                band.FindControl<TextBox>("SpeedInput")!.Text = "7";
-                band.FindControl<TextBox>("AlphaInput")!.Text = "4";
-                Settle(host, window);
-                Equal(RunState.Historical, controller.AnalysisView.State, "edited");
-                Equal(recomputed, RunRecord.RecomputedKey(run), "the run's recomputed key");
-                Equal(run.RunKey, controller.AnalysisView.RunKey, "the stored run is the shown run");
             }
             finally { window.Close(); Avalonia.Threading.Dispatcher.UIThread.RunJobs(); }
         });
