@@ -2845,7 +2845,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ed49b7be5af24cdd4191ce71b6881fe57ec4dbcdfb5f65fb28702f46007bbeb7"
+      "sourceSha256": "418a07d3221011a045edcd3cbd9db8e19d3bafa74c80a4d8fae12caa97b55d15"
     },
     {
       "id": "design-m12b-points",
@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1391b5df9d69bf6f204a57267cc96f880d73433b3203081c0c8b4e8333a2d3f9"
+      "sourceSha256": "1223424ca3291628e15edcc70fa11f7b131065f80df40ad9ce6a3ea2d1527ce4"
     },
     {
       "id": "domain-experts",
@@ -12194,7 +12194,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1b2f871d135baf0a7f820ad4835d7738a356cfa17bf9d66f3d25d69fcebea10e"
+      "sourceSha256": "b35812ccf7b111bca4b6365733cf15a158104f06d75ac3862cdcf8445a7436dc"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -15974,5 +15974,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b6220a690a70ffbee9743600fce05f10d6013a8929f24d67c067e0bc52481b0f"
+  "graphSha256": "1db68e2b169719e91165d1f3a3f6500c703c72179782663c248bfc54e7525750"
 };
