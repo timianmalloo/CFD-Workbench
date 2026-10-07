@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T01:19:59Z",
+  "generated": "2026-10-07T01:23:03Z",
   "audit": [
     {
       "actor": null,
@@ -28510,6 +28510,33 @@ window.AUDIT_DATA = {
       "tier": "T1",
       "started_at": "2026-10-07T01:16:07Z",
       "duration_seconds": 232.0
+    },
+    {
+      "id": "al-01M49Z9XMJA4PBHWQ59F8DYPYC",
+      "shortname": "join-sfv-mockup",
+      "datetime": "2026-10-07T01:23:03Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of design/section-force-vectors into main",
+      "summary": "approved mockup states A-E with the hydrodynamicist's conditions folded; 16 labels approved recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join design/section-force-vectors",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-07T01:22:56Z",
+      "duration_seconds": 7.0
     }
   ],
   "changes": [
@@ -30357,6 +30384,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49YX31YKJ598EWW8A3YKHBX",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49Z8HX0RG8YZSW5VDKV21TA",
+      "ts": "2026-10-07T01:22:18Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49Z8HSZ96HXRDX40HS10CN3",
       "session": "operator-timianmalloo"
     }
   ]
