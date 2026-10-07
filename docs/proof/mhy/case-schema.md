@@ -12,7 +12,7 @@ links:
 review-by: "2026-11-07"
 summary: >-
   cases/spike03-s6-w4.yaml put prose in geometry.source.sha256 and broke schemas/cfd-case.schema.json. The schema now
-  has an optional outcome (meshed | no-mesh) with a required reason, the case uses it, and validate-cases.py runs inside
+  has an optional outcome (produced | not-produced) with a required reason, the case uses it, and validate-cases.py runs inside
   tools/check-docs.py.
 ---
 
@@ -33,16 +33,16 @@ own field.
 
 ## Decision
 
-Add `geometry.source.outcome`, an optional enum `meshed | no-mesh`. Absent means `meshed`.
+Add `geometry.source.outcome`, an optional enum `produced | not-produced`. Absent means `produced`.
 
-- `outcome` absent or `meshed`: `sha256` is required and `reason` is forbidden. This is exactly the old rule, so every
+- `outcome` absent or `produced`: `sha256` is required and `reason` is forbidden. This is exactly the old rule, so every
   existing case stays valid (expand only).
-- `outcome: no-mesh`: `reason` (non-empty string) is required and `sha256` is forbidden. `path` stays required and names the
+- `outcome: not-produced`: `reason` (non-empty string) is required and `sha256` is forbidden. `path` stays required and names the
   file that was not written.
 
 Implemented with a draft-07 `if/then/else` on the `source` object. The validator self-test plants the invalid shapes
-(prose in `sha256`, `no-mesh` without `reason`, `no-mesh` with a `sha256`, `meshed` without `sha256`) and the valid
-`no-mesh` shape.
+(prose in `sha256`, `not-produced` without `reason`, `not-produced` with a `sha256`, `produced` without `sha256`) and the valid
+`not-produced` shape.
 
 ## Alternatives
 
@@ -53,7 +53,7 @@ Implemented with a draft-07 `if/then/else` on the `source` object. The validator
 | Drop `source` from a failed case | Loses the audit trail: the case file records which generator was tried and how it failed. |
 | A separate `run_outcome` block for all failures | Larger change than the defect needs. Solver failures and gate failures are recorded elsewhere (`runs/`). Add it when a second failure kind needs a case-level record. |
 
-The chosen option names the state, keeps the strict hash pattern for every meshed case, and needs one optional enum, one
+The chosen option names the state, keeps the strict hash pattern for every produced case, and needs one optional enum, one
 optional string and three schema lines.
 
 ## Case gate

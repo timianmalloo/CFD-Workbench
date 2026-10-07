@@ -12151,7 +12151,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-07",
       "reviewSuggested": [],
-      "summary": "cases/spike03-s6-w4.yaml put prose in geometry.source.sha256 and broke schemas/cfd-case.schema.json. The schema now has an optional outcome (meshed | no-mesh) with a required reason, the case uses it, and validate-cases.py runs inside tools/check-docs.py.",
+      "summary": "cases/spike03-s6-w4.yaml put prose in geometry.source.sha256 and broke schemas/cfd-case.schema.json. The schema now has an optional outcome (produced | not-produced) with a required reason, the case uses it, and validate-cases.py runs inside tools/check-docs.py.",
       "tags": [
         "mhy",
         "cases",
@@ -12170,7 +12170,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e36ff8b90f19af24115a6fc75697b55a8d1164f30a4461e20ca3db0671208107"
+      "sourceSha256": "65943cfe542581528e2b2ce0a854cd12da36e68a6e929d82c29dce50be7ff232"
     },
     {
       "id": "proof-mhy-red-first",
@@ -15974,5 +15974,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1db68e2b169719e91165d1f3a3f6500c703c72179782663c248bfc54e7525750"
+  "graphSha256": "72a1c81cc934d637ffdf083efba6b03f3579716a225f0ee2c0296464705fb645"
 };
