@@ -30,14 +30,34 @@ public static class SelfLaunchTests
     {
         var failures = new List<string>();
         Check(failures, "unhandled child exception exits with a named code", UnhandledChildExitsNamed);
+        Check(failures, "crash detail names the message and a frame; product shape stays type-only", CrashDetailNamesMessageAndFrame);
         Check(failures, "muxer launch passes the entry assembly", MuxerLaunchPassesEntryAssembly);
         Check(failures, "apphost launch passes the mode only", AppHostLaunchPassesModeOnly);
         Check(failures, "no raw Environment.ProcessPath relaunch", () => NoRawProcessPathRelaunch());
         Check(failures, "no test resolves the repo root at runtime", () => NoRuntimeRepoRootWalk());
         Check(failures, "no cwd-relative tests/ or src/ fixture path", () => NoCwdRelativeFixturePath());
         if (failures.Count > 0) throw new Exception("SelfLaunchTests failed:\n  " + string.Join("\n  ", failures));
-        Console.WriteLine("SelfLaunchTests: all 6 cases passed.");
+        Console.WriteLine("SelfLaunchTests: all 7 cases passed.");
     }
+
+    // WFX2 item 1: the Windows ring died with "APP-CRASH System.Exception" and no frame. The harness handler adds the message and stack;
+    // the product handler stays type-only (threat model "Crash output").
+    private static void CrashDetailNamesMessageAndFrame()
+    {
+        Exception thrown;
+        try { ThrowForFrame("probe-message-7"); thrown = null!; } catch (Exception caught) { thrown = caught; }
+        string detailed = StartupFailure.Describe(thrown, detail: true), product = StartupFailure.Describe(thrown, detail: false);
+        string[] lines = detailed.Split('\n');
+        if (lines[0].TrimEnd('\r') != "APP-UNHANDLED APP-CRASH System.InvalidOperationException")
+            throw new Exception("first line changed: " + lines[0]);
+        if (!detailed.Contains("probe-message-7") || !detailed.Contains(nameof(ThrowForFrame)))
+            throw new Exception("detail lacks the message or a frame: " + detailed);
+        if (product.Contains("probe-message-7") || product.Contains('\n'))
+            throw new Exception("product shape leaked detail: " + product);
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    private static void ThrowForFrame(string message) => throw new InvalidOperationException(message);
 
     private static void Check(List<string> failures, string name, Action test)
     {

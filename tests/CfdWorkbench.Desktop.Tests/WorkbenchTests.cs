@@ -16,13 +16,16 @@ using SolidColorBrush = Avalonia.Media.SolidColorBrush;
 using System.Text;
 using System.Text.Json.Nodes;
 
-StartupFailure.Install();
-if (args.FirstOrDefault(arg => arg.StartsWith(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe, StringComparison.Ordinal)) is { } failureProbe)
-    throw new InvalidOperationException(failureProbe);
+var failureProbe = args.FirstOrDefault(arg => arg.StartsWith(CfdWorkbench.Desktop.Tests.SelfLaunchTests.FailureProbe, StringComparison.Ordinal));
+// The harness prints a crash's message and frame (the Windows ring died with the type only); the failure probe keeps the product shape.
+StartupFailure.Install(detail: failureProbe is null);
+// A stage name before it runs: the last STAGE or SUITE line in a crashed log names where it died.
+static void Stage(string name) { Console.WriteLine("STAGE " + name); Console.Out.Flush(); }
+if (failureProbe is not null) throw new InvalidOperationException(failureProbe);
 // `--theme-evidence` (tools/verify-application-adapters.py, Debug): the same in-process prefix as a full run, then only the
 // suite that prints the THEME-ROW matrix. The fast ring runs every mode in Release (docs/plans/test-cost.md L2).
 bool themeEvidence = args is ["--theme-evidence"];
-if (args.Length == 0 || themeEvidence) CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run();
+if (args.Length == 0 || themeEvidence) { Stage("SelfLaunchTests"); CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run(); }
 
 if (args.Contains("--section-canvas", StringComparer.Ordinal))
 {
@@ -148,6 +151,7 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+Stage("native-review-options");
 var reviewValues = new Dictionary<string, string>
 {
     ["CFDW_REVIEW_MODE"] = "1", ["CFDW_REVIEW_PERSONA"] = "keyboard",
@@ -265,7 +269,7 @@ try
 {
     await File.WriteAllBytesAsync(conflictPath, foreignImage);
     var conflict = await workbench.SaveAsync(conflictPath);
-    if (conflict.Code != "DOC-CONFLICT") throw new Exception("Expected definite create-only save conflict");
+    if (conflict.Code != "DOC-CONFLICT") throw new Exception("Expected definite create-only save conflict; actual " + conflict.Code);
     if (workbench.SaveUncertain) throw new Exception("Definite prepublication conflict entered uncertain-save state");
     if (!(await File.ReadAllBytesAsync(conflictPath)).SequenceEqual(foreignImage))
         throw new Exception("Save conflict changed existing disk bytes");
@@ -415,7 +419,9 @@ if (!shadowMutationRefused) throw new Exception("Root-key shadow mutation escape
 Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
 AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
+Stage("SectionCanvasTests");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
+Stage("spawn");
 // Longest first by measured SUITE-TIME, so the slots never wait on a long part started last (docs/plans/test-cost.md
 // L5/L6, B2 9.5). 2026-10-05, load 16-20, seconds: plan-canvas 33.6/28.6, properties-view 26.1/23.0, shell-window
 // 24.4/21.5, views 20.2/16.8, section-editor 18.9/17.3, controller-shell 15.3, properties-cells 12.8/11.5,
