@@ -82,3 +82,9 @@ FAIL SectionForce_LatticeRun_InducedSharesSumToWingDi_AndAnchorFromStrip Invalid
 RESULT failures=1
 ```
 The unmutated run: `PASS SectionForce_LatticeRun_InducedSharesSumToWingDi_AndAnchorFromStrip`, `RESULT failures=0`; stated tolerance 1e-9 relative (observed equal to rounding).
+
+### Mutant (Desktop readiness, drawn geometry): V-inf and drag drawn mirrored (falling), as the mockup draws them
+```
+FAIL SectionForceVectors_Drawn_LiftPerpendicularDragParallelToFreeStream_AnchorByRule Exception: V∞ is drawn at α_geo to the chord: expected 3.5, got -3.5000000000000004
+```
+Unmutated: `PASS SectionForceVectors_Drawn_LiftPerpendicularDragParallelToFreeStream_AnchorByRule` (`--readiness`, `CFD_TEST_ONLY=SectionForceVectors_`).

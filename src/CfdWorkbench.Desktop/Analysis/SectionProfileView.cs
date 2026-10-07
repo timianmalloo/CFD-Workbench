@@ -103,14 +103,15 @@ public sealed class SectionProfileView : Control
         }
         Segments = segments;
 
-        if (profile.Forces is { } forces) DrawForces(context, forces, P, s, ox, oy, w, h, viewport, ink, mute, soft);
+        if (profile.Forces is { } forces) DrawForces(context, forces, P, s, ox, oy, w, h, viewport, ink, mute, soft, profile.Side);
 
         Point marker = P(profile.CpMinPanel.X, profile.CpMinPanel.Z);
         context.DrawEllipse(null, new Pen(ink, 2), marker, 7, 7);
         string markerText = Labels.CpMinMarker(profile.CpMinPanel.Cp, profile.CpMinPanel.X, profile.Side);
         double markerWidth = Text(markerText, ink).Width + 8;
         Plate(context, markerText, new Point(Math.Clamp(marker.X + 12, 4, Math.Max(4, w - markerWidth - 4)), marker.Y + (profile.Side == "lower" ? 30 : -18)), ink, soft);
-        Plate(context, Labels.AxisPlate, new Point(ox, oy + 0.1 * s + 20 > h - 40 ? h - 40 : oy + 0.1 * s + 20), mute, soft);
+        // with vectors the axis plate stands bottom left above the cavitation line (mockup), clear of the labels under the chord
+        Plate(context, Labels.AxisPlate, profile.Forces is not null ? new Point(8, h - 56) : new Point(ox, oy + 0.1 * s + 20 > h - 40 ? h - 40 : oy + 0.1 * s + 20), mute, soft);
 
         Rect caption = Plate(context, profile.Caption, new Point(8, 22), ink, soft);
         double tierWidth = Text(profile.Tier, ink).Width + 8;
@@ -159,7 +160,7 @@ public sealed class SectionProfileView : Control
     // V∞ rises at alpha_geo to the chord (the flow meets a nose-up section from below), so the drag arrows climb to the right and the lift
     // arrow leans forward of the chord normal. The mockup draws both mirrored (V∞ falling); the build follows the physics (docs/proof/sfv/captures.md).
     private void DrawForces(DrawingContext context, SectionForces f, Func<double, double, Point> P, double s, double ox, double oy, double w, double h,
-        IBrush viewport, IBrush ink, IBrush mute, IBrush soft)
+        IBrush viewport, IBrush ink, IBrush mute, IBrush soft, string cpSide)
     {
         IBrush warn = Resource("PlanWarningBrush", Brushes.Goldenrod);
         IBrush induced = new SolidColorBrush(Mix(((ISolidColorBrush)warn).Color, ((ISolidColorBrush)ink).Color, 0.45));
@@ -237,7 +238,8 @@ public sealed class SectionProfileView : Control
         Plate2(context, liftText, scaleText, new Point(Clamp(shortLift ? anchor.X - 6 : liftEnd.X + 14, Math.Max(Text(liftText, ink).Width, Text(scaleText, mute).Width) + 8),
             shortLift ? anchor.Y - 100 : liftEnd.Y - 14), ink, mute, soft);
         Place(cp ? Labels.AnchorCp(f.XcpOverC!.Value) : Labels.AnchorQuarter, anchor.X - 10, oy + yI + (cp ? 0 : 20), right: true);
-        if (!cp) Place(Labels.CoupleLabel(f.CouplePerSpan, u), anchor.X + 42, anchor.Y - 50);
+        // the couple label goes on the side of the chord away from the Cp_min plate
+        if (!cp) Place(Labels.CoupleLabel(f.CouplePerSpan, u), anchor.X + 44, cpSide == "lower" ? anchor.Y - 50 : anchor.Y + 38);
         Place(Labels.InducedDragLabel(f.InducedPerSpan, u, f.DragMultiple), imx - 14, oy + yI);
         if (f.ProfileLow is { } low && f.ProfileHigh is { } high)
         {

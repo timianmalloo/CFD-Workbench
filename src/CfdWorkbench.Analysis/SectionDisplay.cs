@@ -399,10 +399,10 @@ public static class SectionDisplay
         string profile = f.ProfileLow is { } low && f.ProfileHigh is { } high
             ? Labels.DragBand(low, high, units) : Labels.UnavailableBecause(f.ProfileUnavailable ?? Labels.NoPolar);
         bool flagged = f.ProfileFlags is not null;
-        string? profileNote = flagged
-            ? string.Join(" · ", new[] { StripFlags.Has(f.ProfileFlags, StripFlags.SectionUnvalidated) ? Labels.BracketOutsideFamily : null,
-                f.LowConfidence ? Labels.LowConfidence(null) : null }.Where(part => part is not null))
-            : null;
+        // COPY-328 always, then COPY-364 and COPY-316 verbatim when the polar flags them (mockup state C)
+        string profileNote = string.Join(" · ", new[] { f.ProfileLow is null ? null : Labels.ProfileDragNote,
+            StripFlags.Has(f.ProfileFlags, StripFlags.SectionUnvalidated) ? Labels.BracketOutsideFamily : null,
+            f.LowConfidence ? Labels.LowConfidence(null) : null }.Where(part => part is not null));
         string total = f.ProfileLow is null ? Labels.UnavailableBecause(f.ProfileUnavailable ?? Labels.NoPolar) : Labels.Sig3(Labels.ForcePerSpan(f.TotalPerSpan, units));
         return new(Labels.StripTableHeading,
         [
@@ -410,10 +410,12 @@ public static class SectionDisplay
             R(Labels.ClLatticeRow, N(f.ClLattice, "0.000")),
             R(Labels.AlphaGeoRow, N(f.AlphaGeoDeg, "0.00"), "°"), R(Labels.AlphaEffRow, N(f.AlphaEffDeg, "0.00"), "°"),
             R(Labels.AlphaIRow, N(f.AlphaIDeg, "0.00"), "°"),
-            R(Labels.XcpRow, f.Anchor == ForceAnchor.CentreOfPressure ? N(f.XcpOverC!.Value, "0.00") : f.XcpText),
+            R(Labels.XcpRow, f.Anchor == ForceAnchor.CentreOfPressure ? N(f.XcpOverC!.Value, "0.00") : f.XcpText,
+                note: f.Anchor == ForceAnchor.QuarterChord ? Labels.CouplePlaceNote : null),
             R(Labels.LiftRow, Labels.Sig3(Labels.ForcePerSpan(f.LiftPerSpan, units)), fu),
             R(Labels.CoupleRow, Labels.Sig3(Labels.MomentPerSpan(f.CouplePerSpan, units)), mu),
-            R(Labels.ProfileDragRow, profile + (flagged ? " " + Labels.FlaggedSuffix : ""), f.ProfileLow is null ? null : fu, profileNote is { Length: > 0 } ? profileNote : null),
+            R(Labels.ProfileDragRow, flagged && f.ProfileLow is not null ? profile + " " + fu + " " + Labels.FlaggedSuffix : profile,
+                f.ProfileLow is null || flagged ? null : fu, profileNote.Length > 0 ? profileNote : null),
             R(Labels.InducedDragRow, Labels.Sig3(Labels.ForcePerSpan(f.InducedPerSpan, units)), fu),
             R(Labels.TotalDragRow, total, f.ProfileLow is null ? null : fu),
             R("Not modelled", Labels.NotModelled(depthSet))

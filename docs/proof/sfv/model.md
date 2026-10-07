@@ -32,7 +32,8 @@ All claims below were read in the source at this commit (Verified by reading, no
 - `StripForce` / `StripLoad` `Mx, My, Mz` are "about the frame origin, body axes, additive across strips of one run"
   (`VortexLattice.cs:5`, `RunRecord.cs:85`). In the solve: `my[s] += pz*Fx - px*Fz`, where (px, py, pz) is the midpoint of the panel's
   bound segment (`VortexLattice.cs:230-262`). Forces are near-field, rho (V + v) x Gamma l, with V at alpha_op (body axes).
-- The reference is the wing frame origin (x = 0, z = 0 of the section frame), not the strip leading edge.
+- The reference is the wing frame origin (x = 0, z = 0 of the section frame), not the strip leading edge. The run records the same fact:
+  `ReferenceQuantities.MomentDatum = "frame origin"` (`ReferenceQuantities.cs:8`), shown on Properties as "moment datum: frame origin".
 - **Move to the strip leading edge:** M_LE,y = My - (rz * Fx - rx * Fz), with r = (x_LE, z_LE) the strip's leading edge at its y-midpoint.
   The y-component of r x F does not involve the strip y, so only x_LE and z_LE are needed.
 - x_LE and z_LE are not stored on `StripLoad`. They are the lattice's own mid-strip section frame
