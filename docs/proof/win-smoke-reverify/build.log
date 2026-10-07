@@ -1,0 +1,30 @@
+  Determining projects to restore...
+  Restored C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Persistence\CfdWorkbench.Persistence.csproj (in 526 ms).
+  Restored C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Core\CfdWorkbench.Core.csproj (in 526 ms).
+  Restored C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Analysis\CfdWorkbench.Analysis.csproj (in 526 ms).
+  Restored C:\Projects\CFD-Workbench-win-smoke-reverify\tests\CfdWorkbench.Cli.Tests\CfdWorkbench.Cli.Tests.csproj (in 526 ms).
+  Restored C:\Projects\CFD-Workbench-win-smoke-reverify\tests\CfdWorkbench.Core.Tests\CfdWorkbench.Core.Tests.csproj (in 526 ms).
+  Restored C:\Projects\CFD-Workbench-win-smoke-reverify\tests\CfdWorkbench.Analysis.Tests\CfdWorkbench.Analysis.Tests.csproj (in 526 ms).
+  Restored C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Cli\CfdWorkbench.Cli.csproj (in 526 ms).
+  Restored C:\Projects\CFD-Workbench-win-smoke-reverify\tests\CfdWorkbench.Desktop.Tests\CfdWorkbench.Desktop.Tests.csproj (in 533 ms).
+  Restored C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj (in 551 ms).
+  CfdWorkbench.Core -> C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Core\bin\Debug\net10.0\CfdWorkbench.Core.dll
+  CfdWorkbench.Analysis -> C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Analysis\bin\Debug\net10.0\CfdWorkbench.Analysis.dll
+  CfdWorkbench.Persistence -> C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Persistence\bin\Debug\net10.0\CfdWorkbench.Persistence.dll
+  CfdWorkbench.Cli -> C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Cli\bin\Debug\net10.0\CfdWorkbench.Cli.dll
+  CfdWorkbench.Analysis.Tests -> C:\Projects\CFD-Workbench-win-smoke-reverify\tests\CfdWorkbench.Analysis.Tests\bin\Debug\net10.0\CfdWorkbench.Analysis.Tests.dll
+  CfdWorkbench.Core.Tests -> C:\Projects\CFD-Workbench-win-smoke-reverify\tests\CfdWorkbench.Core.Tests\bin\Debug\net10.0\CfdWorkbench.Core.Tests.dll
+  CfdWorkbench.Cli.Tests -> C:\Projects\CFD-Workbench-win-smoke-reverify\tests\CfdWorkbench.Cli.Tests\bin\Debug\net10.0\CfdWorkbench.Cli.Tests.dll
+C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+  CfdWorkbench.Desktop -> C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\bin\Debug\net10.0\CfdWorkbench.Desktop.dll
+  CfdWorkbench.Desktop.Tests -> C:\Projects\CFD-Workbench-win-smoke-reverify\tests\CfdWorkbench.Desktop.Tests\bin\Debug\net10.0\CfdWorkbench.Desktop.Tests.dll
+
+Build succeeded.
+
+C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-smoke-reverify\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:16.75

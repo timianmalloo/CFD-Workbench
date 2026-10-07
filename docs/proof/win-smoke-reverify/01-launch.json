@@ -1,0 +1,383 @@
+{
+  "pid": 21424,
+  "startUtc": "2026-10-07T22:06:06.2763382Z",
+  "head": "defbe0a931e703068a4c06278a413c0cf6d7b6bc",
+  "binarySha256": "866144C3A3D37284B496FC867518897647D2D1401E48C4462FF38B3C64D33676",
+  "dllSha256": "6D5E8AACF85A9275CABF94F25FC966F9F9C1D95832CC81C9E712804CC5A06EC0",
+  "capturedUtc": "2026-10-07T22:06:18.2669220Z",
+  "title": "CFD Workbench — Offline Foil",
+  "dpi": 144,
+  "action": "capture",
+  "x": 0,
+  "y": 0,
+  "endX": 0,
+  "endY": 0,
+  "keys": "",
+  "screenshot": "01-launch.png",
+  "nodes": [
+    {
+      "name": "Dock host",
+      "type": "ControlType.Pane",
+      "id": "Root",
+      "enabled": true,
+      "rect": "277,359,1920,1116"
+    },
+    {
+      "name": "Root dock",
+      "type": "ControlType.Pane",
+      "id": "Root",
+      "enabled": true,
+      "rect": "277,359,1920,1116"
+    },
+    {
+      "name": "",
+      "type": "ControlType.List",
+      "id": "PART_ItemsControl",
+      "enabled": true,
+      "rect": "277,359,1920,1116"
+    },
+    {
+      "name": "Properties",
+      "type": "ControlType.Pane",
+      "id": "LeftDock",
+      "enabled": true,
+      "rect": "277,409,390,1066"
+    },
+    {
+      "name": "Left side bar",
+      "type": "ControlType.Tab",
+      "id": "LeftDock",
+      "enabled": true,
+      "rect": "277,409,390,41"
+    },
+    {
+      "name": "Properties",
+      "type": "ControlType.TabItem",
+      "id": "properties",
+      "enabled": true,
+      "rect": "277,409,109,41"
+    },
+    {
+      "name": "Properties",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "288,415,87,30"
+    },
+    {
+      "name": "Browser",
+      "type": "ControlType.TabItem",
+      "id": "browser",
+      "enabled": true,
+      "rect": "386,409,89,41"
+    },
+    {
+      "name": "Browser",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "395,414,71,33"
+    },
+    {
+      "name": "Layers",
+      "type": "ControlType.TabItem",
+      "id": "layers",
+      "enabled": true,
+      "rect": "475,409,75,41"
+    },
+    {
+      "name": "Layers",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "484,414,57,33"
+    },
+    {
+      "name": "Properties",
+      "type": "ControlType.Custom",
+      "id": "",
+      "enabled": true,
+      "rect": "279,450,385,1025"
+    },
+    {
+      "name": "No foil open",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "303,474,338,36"
+    },
+    {
+      "name": "Open or start a foil. Whatever you select in it shows its properties here.",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "303,522,338,48"
+    },
+    {
+      "name": "Pane menu",
+      "type": "ControlType.Button",
+      "id": "PART_MenuButton",
+      "enabled": true,
+      "rect": "596,361,27,48"
+    },
+    {
+      "name": "Close left side bar",
+      "type": "ControlType.Button",
+      "id": "PART_CloseButton",
+      "enabled": true,
+      "rect": "626,361,27,48"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Thumb",
+      "id": "",
+      "enabled": true,
+      "rect": "667,359,6,1116"
+    },
+    {
+      "name": "Plan",
+      "type": "ControlType.Pane",
+      "id": "Docs",
+      "enabled": true,
+      "rect": "673,359,1524,1116"
+    },
+    {
+      "name": "Model area",
+      "type": "ControlType.Tab",
+      "id": "Docs",
+      "enabled": true,
+      "rect": "673,359,1524,69"
+    },
+    {
+      "name": "Toggle left sidebar",
+      "type": "ControlType.Button",
+      "id": "",
+      "enabled": true,
+      "rect": "2137,359,60,69"
+    },
+    {
+      "name": "Plan",
+      "type": "ControlType.TabItem",
+      "id": "model",
+      "enabled": true,
+      "rect": "673,359,96,69"
+    },
+    {
+      "name": "Plan",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "682,378,41,29"
+    },
+    {
+      "name": "Section",
+      "type": "ControlType.TabItem",
+      "id": "section",
+      "enabled": true,
+      "rect": "769,359,96,69"
+    },
+    {
+      "name": "Section",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "778,378,65,29"
+    },
+    {
+      "name": "Foil source",
+      "type": "ControlType.TabItem",
+      "id": "foil-source",
+      "enabled": true,
+      "rect": "865,359,119,69"
+    },
+    {
+      "name": "Foil source",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "874,378,92,29"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Custom",
+      "id": "",
+      "enabled": true,
+      "rect": "675,433,1520,1040"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Custom",
+      "id": "StartCardView",
+      "enabled": true,
+      "rect": "675,433,1520,1040"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Pane",
+      "id": "",
+      "enabled": true,
+      "rect": "675,433,1520,1040"
+    },
+    {
+      "name": "Start a foil",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "711,469,1448,35"
+    },
+    {
+      "name": "Start with a foil, then make it yours.",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "711,511,1448,24"
+    },
+    {
+      "name": "New foil",
+      "type": "ControlType.Button",
+      "id": "StartNewButton",
+      "enabled": true,
+      "rect": "723,571,458,123"
+    },
+    {
+      "name": "New foil",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "755,603,233,29"
+    },
+    {
+      "name": "A near-elliptic wing to shape.",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "755,638,233,24"
+    },
+    {
+      "name": "New from example",
+      "type": "ControlType.Button",
+      "id": "StartExampleButton",
+      "enabled": true,
+      "rect": "1205,571,459,123"
+    },
+    {
+      "name": "New from example",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "1237,603,218,29"
+    },
+    {
+      "name": "An 850 mm kite front wing.",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "1237,638,218,24"
+    },
+    {
+      "name": "Open…",
+      "type": "ControlType.Button",
+      "id": "StartOpenButton",
+      "enabled": true,
+      "rect": "1688,571,459,123"
+    },
+    {
+      "name": "Open…",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "1720,603,219,29"
+    },
+    {
+      "name": "A .foil file on this computer.",
+      "type": "ControlType.Text",
+      "id": "",
+      "enabled": true,
+      "rect": "1720,638,219,24"
+    },
+    {
+      "name": "Pinned dock host",
+      "type": "ControlType.Pane",
+      "id": "Root",
+      "enabled": true,
+      "rect": "277,359,1920,1116"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Custom",
+      "id": "StatusStrip",
+      "enabled": true,
+      "rect": "277,1475,1920,36"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Text",
+      "id": "StatusText",
+      "enabled": true,
+      "rect": "Empty"
+    },
+    {
+      "name": "Analysis: no result",
+      "type": "ControlType.Text",
+      "id": "AnalysisItemText",
+      "enabled": true,
+      "rect": "1837,1483,131,21"
+    },
+    {
+      "name": "Metric",
+      "type": "ControlType.Button",
+      "id": "UnitsButton",
+      "enabled": true,
+      "rect": "2004,1475,75,36"
+    },
+    {
+      "name": "Text 100 %",
+      "type": "ControlType.Text",
+      "id": "TextSizeItemText",
+      "enabled": true,
+      "rect": "2104,1483,80,21"
+    },
+    {
+      "name": "",
+      "type": "ControlType.Menu",
+      "id": "PART_NativeMenuPresenter",
+      "enabled": true,
+      "rect": "277,311,1920,48"
+    },
+    {
+      "name": "File",
+      "type": "ControlType.MenuItem",
+      "id": "",
+      "enabled": true,
+      "rect": "277,311,68,48"
+    },
+    {
+      "name": "Edit",
+      "type": "ControlType.MenuItem",
+      "id": "",
+      "enabled": true,
+      "rect": "345,311,72,48"
+    },
+    {
+      "name": "View",
+      "type": "ControlType.MenuItem",
+      "id": "",
+      "enabled": true,
+      "rect": "417,311,80,48"
+    },
+    {
+      "name": "Section",
+      "type": "ControlType.MenuItem",
+      "id": "",
+      "enabled": true,
+      "rect": "498,311,105,48"
+    },
+    {
+      "name": "Window",
+      "type": "ControlType.MenuItem",
+      "id": "",
+      "enabled": true,
+      "rect": "603,311,113,48"
+    }
+  ]
+}

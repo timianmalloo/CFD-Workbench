@@ -1,0 +1,12 @@
+Observed 2026-10-07 before the native/ring concurrency release.
+Command: C:/Program Files/Git/bin/bash.exe --noprofile --norc tools/py-resolve.sh --self-test
+SELFTEST PASS Store-alias python3 is skipped, py -3 chosen
+SELFTEST PASS alias py is skipped too, python chosen
+SELFTEST PASS working python3 wins first
+SELFTEST PASS run-tests.sh and join-ring.sh call no bare python3
+SELFTEST 4/4 cases
+Exit: 0
+
+Command: bash --noprofile --norc -c '. tools/py-resolve.sh; py_resolve; echo "$PY_RESOLVED"'
+py -3
+Exit: 0
