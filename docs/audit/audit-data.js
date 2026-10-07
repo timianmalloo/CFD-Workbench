@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T23:12:40Z",
+  "generated": "2026-10-07T23:15:37Z",
   "audit": [
     {
       "actor": null,
@@ -29458,12 +29458,59 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4CA7WZG2VKWESEJP4RHJGY6",
-      "shortname": "join-pr7",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-07T23:12:40Z",
-      "session": "14e5e8d5",
+      "done_when": "join gates green",
+      "duration_seconds": 52.0,
+      "fan_out": 0,
+      "goal": "join PC PR #7",
+      "id": "al-01M4CA7WZG2VKWESEJP4RHJGY6",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of the resolved merge into main",
+      "session": "14e5e8d5",
+      "shortname": "join-pr7",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T23:11:48Z",
       "summary": "OpenFOAM cavity to t=0.5 in WSL (Courant 0.222158 = Mac); SU2 CD 2.885552317 from LF inputs; 160/160 hashes equal committed blobs; W-4 GO; first ring attempt stopped at load 24.3 beside a Mac build recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-07T23:11:13Z",
+      "done_when": "six items committed red-first, one full ring green, gates exit 0, pc-reverify.md written",
+      "duration_seconds": 1794.0,
+      "goal": "Fix the Mac-owned Windows defects from PR #6 in shared code, each with a test that forces the Windows behaviour",
+      "id": "al-01M4CA57X03ND4Z3T9HJWVGM4Y",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-wfx2 round-oct06",
+      "session": "trk-wfx2",
+      "shortname": "trk-wfx2",
+      "skill": "implement",
+      "started_at": "2026-10-07T22:41:19Z",
+      "summary": "Crash frame in harness, LF-pinned JSON writers with a lint test, junction for symlink tests, catalog refusal names its check, F10/Escape menu keys and persistent Undo text, Imperial loading table",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4CAD9MW9GSV1JQXKP6V4VCJ",
+      "shortname": "join-wfx2",
+      "datetime": "2026-10-07T23:15:37Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of fix/windows-shared-2 into main",
+      "summary": "harness prints crash message+stack and STAGE lines (product handler type-only); JSON NewLine pinned at 5 sites with a scan control (JSON-NEWLINE-PLATFORM); junction-based symlink tests on Windows; CAT-UNAVAILABLE carries the failing check in Exception.Data; MenuBarKeys F10/Escape focus off macOS; Undo/Redo status preserved (Ruling 138); Imperial spanwise table recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -29472,7 +29519,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join PC PR #7",
+      "goal": "join fix/windows-shared-2",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -29481,8 +29528,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-07T23:11:48Z",
-      "duration_seconds": 52.0
+      "started_at": "2026-10-07T23:14:42Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
@@ -31430,6 +31477,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4C84PZ4X320Y39Y0KBQGAVG",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4CAB57HN2DXYF3Z4Q0Y12F8",
+      "ts": "2026-10-07T23:14:27Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4CAB54GHK4CTE04VV7JWRAG",
+      "session": "operator-timianmalloo"
     }
   ]
 };

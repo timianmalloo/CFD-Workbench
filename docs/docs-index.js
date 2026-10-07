@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1223424ca3291628e15edcc70fa11f7b131065f80df40ad9ce6a3ea2d1527ce4"
+      "sourceSha256": "aa62758129c9106df76f98017e83f85852cf87f951740764f159b676c9f8ca76"
     },
     {
       "id": "domain-experts",
@@ -13954,6 +13954,60 @@ window.DOCS_INDEX = {
       "sourceSha256": "06756417f42e2c086383418679627e41bdace559f8a4c2e4b8a5443d0e3aaab1"
     },
     {
+      "id": "proof-wfx2-pc-reverify",
+      "path": "docs/proof/wfx2/pc-reverify.md",
+      "title": "WFX2 - what the PC observes after the shared-code fixes",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wfx2",
+      "phase": "implementation",
+      "reviewBy": "2027-01-07",
+      "reviewSuggested": [],
+      "summary": "Per fix: the Windows behaviour the Mac test simulates, and the one thing the PC should observe to confirm it.",
+      "tags": [
+        "windows",
+        "wfx",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-wfx2-red-first",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-smoke-reverify",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7746809414206f0beeeec372f5b03ed33d4955d6d408623db7a3fcfea87090d5"
+    },
+    {
+      "id": "proof-wfx2-red-first",
+      "path": "docs/proof/wfx2/red-first.md",
+      "title": "WFX2 red-first receipts",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wfx2",
+      "phase": "",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "For each WFX2 item: the check that failed on the old code and passed on the new.",
+      "tags": [
+        "windows",
+        "wfx",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-win-smoke-reverify",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5f462ccfa9b71fd6cac7942f87294acca093b212d585082fff7c5ef8339bd7aa"
+    },
+    {
       "id": "proof-win-routes",
       "path": "docs/proof/win-routes/receipt.md",
       "title": "W-3 Windows solver routes: Ruling 133 completed manual smoke evidence",
@@ -16104,5 +16158,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ac0ec7d6e8c953d4ae34ad413905870056f41062489ab82bd028e4d147666e94"
+  "graphSha256": "ed0bca554f17a97e1da9cd42fd8f7d0007b2abacf29c9796e0bd871161ee7bb3"
 };
