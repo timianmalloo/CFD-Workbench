@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T22:36:31Z",
+  "generated": "2026-10-07T23:12:40Z",
   "audit": [
     {
       "actor": null,
@@ -29389,12 +29389,81 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4C85PWR99RAJJ03K6HBC9V8",
-      "shortname": "join-pr6",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-07T22:36:31Z",
-      "session": "14e5e8d5",
+      "done_when": "join gates green",
+      "duration_seconds": 6.0,
+      "fan_out": 0,
+      "goal": "join PC PR #6",
+      "id": "al-01M4C85PWR99RAJJ03K6HBC9V8",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of origin/win/smoke-reverify into main",
+      "session": "14e5e8d5",
+      "shortname": "join-pr6",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T22:36:25Z",
       "summary": "W-1 fixes verified on Windows (live names, undo/redo, save refusals, Alt menu); still failing F10, Escape focus, undo status text; first Windows ring: 28 store (W-2), 8 numeric determinism, 1 JSON CRLF, 2 symlink privilege, Desktop crash frame unprinted, 10 cost; Ruling 136 managed P/Invoke, 137 B2 handoff recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "gpt-6-astra Owner + gpt-6.1-sol worker + local coordinator",
+      "artifacts": [
+        "docs/proof/win-routes/receipt.md",
+        "cases/win-smoke-cavity.yaml",
+        "cases/win-su2-smoke.yaml"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-07T22:24:44Z",
+      "done_when": "Cavity and SU2 meet their source-bound oracles, the required ring has one recorded disposition with raw logs, documentation checks pass, and the branch is ready for Mac review.",
+      "duration_seconds": 0.0,
+      "fan_out": 2,
+      "git": {
+        "branch": "win/solver-routes-r133",
+        "pushed": false,
+        "sha": "3711375f58325cbf4a4eb5de577724258444dbe7",
+        "short": "3711375f5"
+      },
+      "goal": "Complete the Ruling 133 W-3 numerical route re-entry and deliver its required application-ring evidence for Mac review.",
+      "id": "al-01M4C7G44NSHEHC5JMVSHRN7C3",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Complete the Mac-authorized Ruling 133 Windows solver-route re-entry, then run the required application ring once and preserve every result.",
+      "session": "win-local-coordinator",
+      "shortname": "windows-w3-r133-reentry",
+      "signals": {
+        "acceptance_met": false,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-07T22:24:44Z",
+      "summary": "W-3 re-entry verified OpenFOAM v2512 cavity execution through t=0.5 with final Courant mean 0.222158 and native SU2 v8.5.0 from LF blob-equal inputs with CD 2.885552317. One activation repair was used. The single application ring at evidence SHA 614f9cce failed with 39 named tests, a Desktop exit 70 without frame, 10 cost failures, and wall 60.992 s; no rerun or product repair occurred.",
+      "tags": [
+        "windows",
+        "openfoam",
+        "su2"
+      ],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4CA7WZG2VKWESEJP4RHJGY6",
+      "shortname": "join-pr7",
+      "datetime": "2026-10-07T23:12:40Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "OpenFOAM cavity to t=0.5 in WSL (Courant 0.222158 = Mac); SU2 CD 2.885552317 from LF inputs; 160/160 hashes equal committed blobs; W-4 GO; first ring attempt stopped at load 24.3 beside a Mac build recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -29403,7 +29472,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join PC PR #6",
+      "goal": "join PC PR #7",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -29412,8 +29481,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-07T22:36:25Z",
-      "duration_seconds": 6.0
+      "started_at": "2026-10-07T23:11:48Z",
+      "duration_seconds": 52.0
     }
   ],
   "changes": [

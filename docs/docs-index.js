@@ -2845,7 +2845,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "418a07d3221011a045edcd3cbd9db8e19d3bafa74c80a4d8fae12caa97b55d15"
+      "sourceSha256": "7e3ba2a1af818a1729021030b78476acdc7158a0561abc323621321681c9b17e"
     },
     {
       "id": "design-m12b-points",
@@ -13923,20 +13923,21 @@ window.DOCS_INDEX = {
     {
       "id": "proof-win-routes",
       "path": "docs/proof/win-routes/receipt.md",
-      "title": "W-3 Windows solver routes: blocked cavity qualification",
+      "title": "W-3 Windows solver routes: Ruling 133 completed manual smoke evidence",
       "type": "proof-pack",
-      "status": "blocked",
+      "status": "done",
       "owner": "@win-solver-routes",
       "phase": "",
       "reviewBy": "2026-11-07",
       "reviewSuggested": [],
-      "summary": "Ubuntu 24.04.5 and pinned OpenFOAM v2512 runtime installed; native SU2 v8.5.0 cylinder smoke passed. Cavity was not run: tutorial extraction failed at the two-repair cap. GPU inspection only, no trial.",
+      "summary": "Ruling 133 manual CPU qualification: pinned Ubuntu/OpenFOAM identity verified, cavity reaches t=0.5 under M1, Courant mean equals the Mac's printed value; fresh native SU2 LF smoke preserves CD/CL. Inputs match staged blobs. Product integration and unobserved OS prompts/error paths remain open; the single released application ring failed.",
       "tags": [
         "windows",
         "wsl",
         "openfoam",
         "su2",
-        "smoke"
+        "smoke",
+        "ruling-133"
       ],
       "links": [
         {
@@ -13950,10 +13951,14 @@ window.DOCS_INDEX = {
         {
           "to": "design-guided-solver-setup",
           "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-4",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f423e372b42e9d7222048748a03fd18857f1afc2db4caa600179130444815ba4"
+      "sourceSha256": "68bc4f4649b40b5ad397aad97d5b001d430d69ec9e2986822b29f04d68a19596"
     },
     {
       "id": "proof-win-setup",
@@ -16066,5 +16071,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "fab08b58bea24c6f4c3e8710f430c5c4553ab5074cc3e3c395c90e9081face8d"
+  "graphSha256": "1c62475b3441fa7e46fefc48d0aac60117d8ebde57eeace6bca235d186eff4dc"
 };
