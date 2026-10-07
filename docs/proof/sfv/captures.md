@@ -55,5 +55,7 @@ No mockup state is "not built".
 
 - A: L' 327 N/m = q c Cl_local = 13553 Pa x 0.12 m x 0.2014 (the Properties row "Lift / span 327.433 N/m" is the same number): one model.
 - E: the lattice strip's own M' c/4 = -18.08 N.m/m gives Cm c/4 = -18.08 / (13553 x 0.12^2) = -0.0926, against the panel method's -0.105 for the
-  same section (the 2D panel solve is at alpha_eff and inviscid; the lattice is a 3D 4-panel strip). x_cp = 0.25 + 0.0926 / 0.0993 = 1.18,
+  same section. The gap (the lattice is 12 % low in magnitude) is **chordwise discretisation of the 4-panel strip**, not 3D effects and not
+  thickness: `nc-convergence.md` measured the 4-panel strip 13.5 % low in Cm c/4 at Cl 0.10 on a cambered section (a NACA 2412, not this 4412, so
+  the match in size is Inferred, not a proof for this section), with the order near 1 in nc. x_cp = 0.25 + 0.0926 / 0.0993 = 1.18,
   the table's 1.184: the moment transfer from the frame origin to the strip leading edge is consistent with a separately derived Cm c/4.

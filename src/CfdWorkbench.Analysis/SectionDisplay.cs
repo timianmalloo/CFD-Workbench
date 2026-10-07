@@ -494,8 +494,9 @@ public static class SectionForceModel
     {
         if (!Parts(run, strip, out double lift, out double induced, out double? low, out double? high)) return null;
         double width = Loads.StripWidth(run, strip), chord = strip.Chord;
-        // M_LE = M_origin - r_LE x F (y component), per span; the lattice puts every bound segment on the strip's plane, so this is
-        // -(x_cp - x_LE) Fz exactly, and the centre of pressure is the Fz-weighted chordwise position.
+        // M_LE = M_origin - r_LE x F (y component), per span. Fz is the body-axes z force, used unrotated (docs/proof/sfv/model.md 2): the
+        // transfer gives -(x_cp - x_LE) Fz, the Fz-weighted chordwise position, exactly only when every bound segment of the strip lies at
+        // z = z_LE (a planar, untwisted strip). With twist the bound segments sit at different z and the result is approximate.
         double momentLe = (strip.My - (leadingZ * strip.Fx - leadingX * strip.Fz)) / width, normal = strip.Fz / width;
         double couple = momentLe + 0.25 * chord * normal;
         double? xcp = run.Settings.NChord >= 2 && normal != 0 && double.IsFinite(momentLe / normal) ? -momentLe / (normal * chord) : null;

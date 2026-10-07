@@ -41,8 +41,13 @@ All claims below were read in the source at this commit (Verified by reading, no
   recoverable on read from the same source and the stored span edges, exactly as `MethodRecord.DeriveNormals` does for the strip normals
   (`MethodRecord.cs:100-120`). The build adds one internal getter beside `StripNormals`, `VortexLattice.StripLeadingEdges`, that
   returns those two numbers per strip. No numeric path changes.
-- x_cp: with the strip force in section axes (body axes rotated by the strip twist), normal force N and the moment about the leading edge,
-  x_cp = -M_LE,y / N, as a fraction of the strip chord. It is Undefined when nc < 2, |Cl_local (lattice)| < 0.05, or x_cp/c is outside [0, 1].
+- x_cp: with the strip normal force N = Fz taken in **body axes and used unrotated** (it is not rotated by the strip twist), and the moment about
+  the leading edge, x_cp = -M_LE,y / N, as a fraction of the strip chord. This is **exact for the planar lattice**: when every bound segment of the
+  strip lies at z = z_LE (an untwisted, flat strip), the moment transfer is M_LE,y = -(x_cp - x_LE) Fz with the z Fx term cancelled, and x_cp is the
+  Fz-weighted chordwise position. For a twisted strip (theta) the bound segments sit at different z and the result is approximate: the neglected
+  terms are of order (Fx / Fz) theta in x_cp/c and (1 - cos theta) in the normal force. Inferred, not measured: with Fx / Fz near 0.05 and the
+  Example's 2 degree washout (theta = 0.035 rad) that is about 0.002 of a chord, against the 0.02 to 0.04 chordwise-discretisation bias measured in
+  `nc-convergence.md`. No code uses a rotated force; the comment in `SectionForceModel.Compute` says the same. It is Undefined when nc < 2, |Cl_local (lattice)| < 0.05, or x_cp/c is outside [0, 1].
 
 ## Result
 
