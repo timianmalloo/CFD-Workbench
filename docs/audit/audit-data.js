@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T22:36:31Z",
+  "generated": "2026-10-07T23:11:13Z",
   "audit": [
     {
       "actor": null,
@@ -29414,6 +29414,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T22:36:25Z",
       "duration_seconds": 6.0
+    },
+    {
+      "id": "al-01M4CA57X03ND4Z3T9HJWVGM4Y",
+      "shortname": "trk-wfx2",
+      "datetime": "2026-10-07T23:11:13Z",
+      "session": "trk-wfx2",
+      "prompt": "trk-wfx2 round-oct06",
+      "summary": "Crash frame in harness, LF-pinned JSON writers with a lint test, junction for symlink tests, catalog refusal names its check, F10/Escape menu keys and persistent Undo text, Imperial loading table",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fix the Mac-owned Windows defects from PR #6 in shared code, each with a test that forces the Windows behaviour",
+      "done_when": "six items committed red-first, one full ring green, gates exit 0, pc-reverify.md written",
+      "started_at": "2026-10-07T22:41:19Z",
+      "duration_seconds": 1794.0
     }
   ],
   "changes": [

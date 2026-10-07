@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "68051b711afd77722fb190d6f46f4db786040cac0a66a1c8a59161d3fa89b2fb"
+      "sourceSha256": "aa62758129c9106df76f98017e83f85852cf87f951740764f159b676c9f8ca76"
     },
     {
       "id": "domain-experts",
@@ -13947,7 +13947,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "df4067725f82999c63f4f02507bb083604ac935b579ac9f1321be549a5d25d0d"
+      "sourceSha256": "7746809414206f0beeeec372f5b03ed33d4955d6d408623db7a3fcfea87090d5"
     },
     {
       "id": "proof-wfx2-red-first",
@@ -13972,7 +13972,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a96a47cf9c6f983a3d4aa33d3b18b48c87fefacd9b6e616807d0e3a341903057"
+      "sourceSha256": "5f462ccfa9b71fd6cac7942f87294acca093b212d585082fff7c5ef8339bd7aa"
     },
     {
       "id": "proof-win-routes",
@@ -16120,5 +16120,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9c80afe15591a8eba660b9bec85935fc0f1b169cb8210180a0e3cb48a6fe119f"
+  "graphSha256": "be748d0b4081987f04b0ded671b240fb83fbc6c2ed8a7ebdc4f0005159ef0a3b"
 };
