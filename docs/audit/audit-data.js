@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T01:08:37Z",
+  "generated": "2026-10-07T01:43:26Z",
   "audit": [
     {
       "actor": null,
@@ -28462,6 +28462,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T01:07:38Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M4A0F868X5N73DN38XKPAKBQ",
+      "shortname": "trk-rh2",
+      "datetime": "2026-10-07T01:43:26Z",
+      "session": "trk-rh2",
+      "prompt": "trk-rh2 ring headroom 2 (Ruling 129)",
+      "summary": "Moved 14 checks to readiness, 2 Core group swaps; ring net 44.6-46.9 s on gate-clean runs; readiness 188.9 s green; union diff empty.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Cut the fast ring net below ~46.5 s by moving costly checks and rebalancing Core",
+      "done_when": "union diff empty; ring runs near 46.5 s; readiness green under 240 s",
+      "started_at": "2026-10-07T01:16:21Z",
+      "duration_seconds": 1625.0
     }
   ],
   "changes": [
@@ -30291,6 +30311,24 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M49Y69SKKZSGYW68ZKNZGSZY",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49YX2S3QPYK3YQN65A792T1",
+      "ts": "2026-10-07T01:16:02Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49YX2P52WB9WNZRSR2Z4DDG",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M49YX34VRV0Y69D0NPPHWXDY",
+      "ts": "2026-10-07T01:16:03Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M49YX31YKJ598EWW8A3YKHBX",
       "session": "operator-timianmalloo"
     }
   ]
