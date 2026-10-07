@@ -62,12 +62,66 @@ public static class SectionForceViewTests
             }
             finally { window.Close(); }
         });
+
+        DesktopChecks.Check("SectionForceVectors_Plates_DoNotOverlap_StatesAToE", () =>
+        {
+            // The five mockup states with the numbers of the real runs (docs/proof/sfv/captures.md), each at the narrowest profile the
+            // captures used (710 px) and the wide one, with the Cp_min marker at the leading edge on either surface (state E: lower, x/c 0.010).
+            // Ruling 131 repair: the local inflow label collided with the LE Cp_min ring and its plate in state E.
+            const double perN = 1 / 4.4482216152605 * 0.3048;
+            (string State, SectionForces Forces)[] states =
+            [
+                ("A", Forces(0.245, 0.201, ForceAnchor.CentreOfPressure, 2.37, 1.93, 0.44, 327, -3.0, 12.8, 15.0, 2.52, 2000, 10, Units.Metric)),
+                ("B", Forces(0.247, 0.012, ForceAnchor.QuarterChord, 0.77, 0.30, 0.47, 20, 0.00704, 12.8, 15.0, 2.52, 500, 5, Units.Metric)),
+                ("C", Forces(0.245, 0.201, ForceAnchor.CentreOfPressure, 2.37, 1.93, 0.44, 327, -3.0, 12.8, 15.0, 2.52, 2000, 10, Units.Metric, StripFlags.LowConfidence)),
+                ("D", Forces(0.245, 0.201, ForceAnchor.CentreOfPressure, 2.37, 1.93, 0.44, 327, -3.0, 12.8, 15.0, 2.52, 100 / perN, 10, Units.Imperial)),
+                ("E", Forces(1.184, 0.099, ForceAnchor.QuarterChord, -3.17, -3.35, 0.18, 162, -18.1, 15.7, 16.9, 0.526, 1000, 5, Units.Metric)),
+            ];
+            var view = new SectionProfileView();
+            var window = new Window { Content = view, Width = 974, Height = 480 };
+            window.Show();
+            try
+            {
+                foreach (double width in new[] { 710.0, 974.0 })
+                {
+                    window.Width = width;
+                    foreach ((string state, SectionForces forces) in states)
+                        foreach (string side in new[] { "lower", "upper" })
+                        {
+                            view.Model = Profile(forces, side);
+                            Settle(window);
+                            Render(view);
+                            var plates = view.Plates;
+                            Equal(true, plates.Count >= 8, $"{state} {side} {width}: the plates were recorded");
+                            for (int i = 0; i < plates.Count; i++)
+                                for (int j = i + 1; j < plates.Count; j++)
+                                    if (plates[i].Bounds.Intersects(plates[j].Bounds))
+                                        throw new Exception($"state {state}, Cp_min {side}, width {width}: \"{plates[i].Name}\" {plates[i].Bounds} overlaps \"{plates[j].Name}\" {plates[j].Bounds}");
+                        }
+                }
+            }
+            finally { window.Close(); }
+        });
     }
 
     private static SectionForces Forces(double xcp, double cl, ForceAnchor anchor) =>
         new(Eta: 0.5, ChordMeters: 0.16, AlphaGeoDeg: 3.5, AlphaEffDeg: 2.5, AlphaIDeg: 1, ClLattice: cl, LiftPerSpan: 479, CouplePerSpan: -27.8,
             XcpOverC: xcp, Anchor: anchor, XcpText: "x", ProfileLow: 17.1, ProfileHigh: 18.0, ProfileFlags: null, ProfileUnavailable: null,
             InducedPerSpan: 8.4, LiftScale: 2000, DragMultiple: 10, Units: Units.Metric);
+
+    private static SectionForces Forces(double xcp, double cl, ForceAnchor anchor, double alphaGeo, double alphaEff, double alphaI, double lift, double couple,
+        double low, double high, double induced, double scale, int multiple, Units units, string? flags = null) =>
+        new(Eta: 0.545, ChordMeters: 0.12, AlphaGeoDeg: alphaGeo, AlphaEffDeg: alphaEff, AlphaIDeg: alphaI, ClLattice: cl, LiftPerSpan: lift, CouplePerSpan: couple,
+            XcpOverC: xcp, Anchor: anchor, XcpText: "x", ProfileLow: low, ProfileHigh: high, ProfileFlags: flags, ProfileUnavailable: null,
+            InducedPerSpan: induced, LiftScale: scale, DragMultiple: multiple, Units: units);
+
+    // the Cp_min marker at the leading edge, on the lower or the upper surface (state E: lower, x/c 0.010)
+    private static SectionProfile Profile(SectionForces forces, string side)
+    {
+        double z = side == "lower" ? -0.012 : 0.012;
+        var outline = new[] { new PanelCp(1, 0, 0.1), new PanelCp(0.5, 0.06, -0.5), new PanelCp(0, 0, 0.99), new PanelCp(0.01, z, -1.54), new PanelCp(0.5, -0.06, -0.3), new PanelCp(1, 0, 0.1) };
+        return new SectionProfile(outline, outline[3], side, -1.54, 1.0, "Section · η 0.545", "Estimator · local calculation · inviscid; no boundary layer", null, forces);
+    }
 
     private static SectionProfile Profile(SectionForces? forces)
     {

@@ -48,7 +48,7 @@ public enum ForceAnchor { CentreOfPressure, QuarterChord }
 public sealed record SectionForces(double Eta, double ChordMeters, double AlphaGeoDeg, double AlphaEffDeg, double AlphaIDeg, double ClLattice,
     double LiftPerSpan, double CouplePerSpan, double? XcpOverC, ForceAnchor Anchor, string XcpText,
     double? ProfileLow, double? ProfileHigh, string? ProfileFlags, string? ProfileUnavailable, double InducedPerSpan,
-    double LiftScale, int DragMultiple, Units Units)
+    double LiftScale, int DragMultiple, Units Units, int NChord = 4)
 {
     /// <summary>Centre of the Ncrit 2-4 band.</summary>
     public double? ProfileMid => ProfileLow is { } low && ProfileHigh is { } high ? 0.5 * (low + high) : null;
@@ -414,10 +414,10 @@ public static class SectionDisplay
             R(Labels.ClLatticeRow, N(f.ClLattice, "0.000")),
             R(Labels.AlphaGeoRow, N(f.AlphaGeoDeg, "0.00"), "°"), R(Labels.AlphaEffRow, N(f.AlphaEffDeg, "0.00"), "°"),
             R(Labels.AlphaIRow, N(f.AlphaIDeg, "0.00"), "°"),
-            R(Labels.XcpRow, f.Anchor == ForceAnchor.CentreOfPressure ? N(f.XcpOverC!.Value, "0.00") : f.XcpText,
+            R(Labels.XcpRowLabel(f.NChord), f.Anchor == ForceAnchor.CentreOfPressure ? N(f.XcpOverC!.Value, "0.00") : f.XcpText,
                 note: f.Anchor == ForceAnchor.QuarterChord ? Labels.CouplePlaceNote : null),
             R(Labels.LiftRow, Labels.Sig3(Labels.ForcePerSpan(f.LiftPerSpan, units)), fu),
-            R(Labels.CoupleRow, Labels.Sig3(Labels.MomentPerSpan(f.CouplePerSpan, units)), mu),
+            R(Labels.CoupleRowLabel(f.NChord), Labels.Sig3(Labels.MomentPerSpan(f.CouplePerSpan, units)), mu),
             R(Labels.ProfileDragRow, flagged && f.ProfileLow is not null ? profile + " " + fu + " " + Labels.FlaggedSuffix : profile,
                 f.ProfileLow is null || flagged ? null : fu, profileNote.Length > 0 ? profileNote : null),
             R(Labels.InducedDragRow, Labels.Sig3(Labels.ForcePerSpan(f.InducedPerSpan, units)), fu),
@@ -506,6 +506,6 @@ public static class SectionForceModel
         string? flags = StripFlags.Join(strip.CdNcrit2.FlagCode, strip.CdNcrit4.FlagCode);
         (double scale, int multiple) = RunScale(run, units);
         return new SectionForces(strip.Eta, chord, strip.AlphaEff + strip.AlphaI, strip.AlphaEff, strip.AlphaI, strip.ClLocal, lift, couple, xcp,
-            onCp ? ForceAnchor.CentreOfPressure : ForceAnchor.QuarterChord, text, low, high, flags, unavailable, induced, scale, multiple, units);
+            onCp ? ForceAnchor.CentreOfPressure : ForceAnchor.QuarterChord, text, low, high, flags, unavailable, induced, scale, multiple, units, run.Settings.NChord);
     }
 }

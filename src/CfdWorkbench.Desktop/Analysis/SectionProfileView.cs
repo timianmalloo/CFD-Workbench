@@ -66,6 +66,8 @@ public sealed class SectionProfileView : Control
         base.Render(context);
         Segments = [];
         Vectors = [];
+        Plates = [];
+        placed.Clear();
         CoupleDrawn = false;
         if (model is not { } profile || Bounds.Width < 120 || Bounds.Height < 100) return;
         stops = StopKeys.Select((key, i) => this.TryFindResource(key, ActualThemeVariant, out object? v) && v is Color c ? c : StopFallback[i]).ToArray();
@@ -103,10 +105,10 @@ public sealed class SectionProfileView : Control
         }
         Segments = segments;
 
-        if (profile.Forces is { } forces) DrawForces(context, forces, P, s, ox, oy, w, h, viewport, ink, mute, soft, profile.Side);
-
+        // The plates that stand in fixed places are laid out first and the force labels then find free room among them
+        // (Ruling 131 repair: no two plates, and no plate and the Cp_min ring, may overlap).
         Point marker = P(profile.CpMinPanel.X, profile.CpMinPanel.Z);
-        context.DrawEllipse(null, new Pen(ink, 2), marker, 7, 7);
+        placed.Add(("Cp_min ring", new Rect(marker.X - 8, marker.Y - 8, 16, 16)));
         string markerText = Labels.CpMinMarker(profile.CpMinPanel.Cp, profile.CpMinPanel.X, profile.Side);
         double markerWidth = Text(markerText, ink).Width + 8;
         Plate(context, markerText, new Point(Math.Clamp(marker.X + 12, 4, Math.Max(4, w - markerWidth - 4)), marker.Y + (profile.Side == "lower" ? 30 : -18)), ink, soft);
@@ -125,6 +127,7 @@ public sealed class SectionProfileView : Control
         string title = "Cp · vik pinned at 0 · " + Num(profile.CpLow) + " to +" + Num(profile.CpHigh);
         double barWidth = Math.Max(150, Text(title, ink).Width), left = w - 8 - barWidth - 8;
         context.DrawRectangle(soft, null, new Rect(left - 4, h - 56, barWidth + 16, 50), 3);
+        placed.Add(("legend", new Rect(left - 4, h - 56, barWidth + 16, 50)));
         context.DrawText(Text(title, ink), new Point(left + 4, h - 54));
         var bar = new LinearGradientBrush { StartPoint = new RelativePoint(0, 0, RelativeUnit.Relative), EndPoint = new RelativePoint(1, 0, RelativeUnit.Relative) };
         for (int i = 0; i < stops.Length; i++) bar.GradientStops.Add(new GradientStop(stops[i], i / (double)(stops.Length - 1)));
@@ -139,6 +142,22 @@ public sealed class SectionProfileView : Control
             double lineWidth = Text(line, ink).Width + 8;
             Plate(context, line, new Point(8, left - 4 < 8 + lineWidth ? h - 78 : h - 30), ink, soft);
         }
+        if (profile.Forces is { } forces) DrawForces(context, forces, P, s, ox, oy, w, h, viewport, ink, mute, soft, profile.Side);
+        context.DrawEllipse(null, new Pen(ink, 2), marker, 7, 7);
+        Plates = placed.ToArray();
+    }
+
+    private static readonly double[] Shifts = [0, 8, -8, 16, -16, 24, -24, 32, -32, 48, -48, 64, -64, 80, -80, 96, -96, 120, -120];
+
+    // The preferred top-left of a plate of this size, else the nearest position above or below it that meets no plate already placed.
+    private Point Free(Point at, double width, double height)
+    {
+        foreach (double dy in Shifts)
+        {
+            var rect = new Rect(at.X, at.Y + dy - 12, width, height);
+            if (!placed.Any(p => p.Bounds.Intersects(rect))) return new Point(at.X, at.Y + dy);
+        }
+        return at;
     }
 
     /// <summary>One vector drawn on the last render: its name (V∞, inflow, lift, drag-profile, drag-induced) and its start and end in view pixels.</summary>
@@ -146,6 +165,10 @@ public sealed class SectionProfileView : Control
 
     /// <summary>The vectors of the last render, for the checks (angles asserted on the drawn geometry, not on the model).</summary>
     public IReadOnlyList<DrawnVector> Vectors { get; private set; } = [];
+
+    /// <summary>Every plate (and the Cp_min ring and the legend) of the last render with its rectangle in view pixels, for the no-overlap check.</summary>
+    public IReadOnlyList<(string Name, Rect Bounds)> Plates { get; private set; } = [];
+    private readonly List<(string Name, Rect Bounds)> placed = [];
 
     /// <summary>True when the last render drew the pitching-moment couple (the c/4 case).</summary>
     public bool CoupleDrawn { get; private set; }
@@ -178,7 +201,12 @@ public sealed class SectionProfileView : Control
         Rect Place(string text, double x, double y, bool right = false)
         {
             double width = Text(text, ink).Width + 8;
-            return Plate(context, text, new Point(Clamp(right ? x - width : x, width), y), ink, soft);
+            return Plate(context, text, Free(new Point(Clamp(right ? x - width : x, width), y), width, 16), ink, soft);
+        }
+        Rect Place2(string first, string second, double x, double y, bool right = false)
+        {
+            double width = Math.Max(Text(first, ink).Width, Text(second, mute).Width) + 8;
+            return Plate2(context, first, second, Free(new Point(Clamp(right ? x - width : x, width), y), width, 32), ink, mute, soft);
         }
 
         // V∞ at α_geo (solid) and the local inflow at α_eff (faint, dashed): they differ by α_i, drawn without exaggeration.
@@ -235,14 +263,15 @@ public sealed class SectionProfileView : Control
 
         Units u = f.Units;
         Place(Labels.FreeStream(f.AlphaGeoDeg), ox - 134, vEnd.Y - 38);
-        Plate2(context, Labels.LocalInflow(f.AlphaEffDeg), Labels.LocalInflowWhy, new Point(8, oy + 16), ink, mute, soft);
+        Place2(Labels.LocalInflow(f.AlphaEffDeg), Labels.LocalInflowWhy, 8, oy + 16);
         string liftText = Labels.LiftLabel(f.LiftPerSpan, u), scaleText = Labels.LiftScale(Labels.ForcePerSpan(f.LiftScale, u), u);
         bool shortLift = lpx < 40;
-        Plate2(context, liftText, scaleText, new Point(Clamp(shortLift ? anchor.X - 6 : liftEnd.X + 14, Math.Max(Text(liftText, ink).Width, Text(scaleText, mute).Width) + 8),
-            shortLift ? anchor.Y - 100 : liftEnd.Y - 14), ink, mute, soft);
-        Place(cp ? Labels.AnchorCp(f.XcpOverC!.Value) : Labels.AnchorQuarter, anchor.X - 10, oy + yI + (cp ? 0 : 20), right: true);
+        Place2(liftText, scaleText, shortLift ? anchor.X - 6 : liftEnd.X + 14, shortLift ? anchor.Y - 100 : liftEnd.Y - 14);
+        // Ruling 131: the CP and the couple labels carry the approved bias wording (COPY-SF17) on a second line
+        if (cp) Place2(Labels.AnchorCp(f.XcpOverC!.Value), Labels.LatticeBias(f.NChord), anchor.X - 10, oy + yI, right: true);
+        else Place(Labels.AnchorQuarter, anchor.X - 10, oy + yI + 20, right: true);
         // the couple label goes on the side of the chord away from the Cp_min plate
-        if (!cp) Place(Labels.CoupleLabel(f.CouplePerSpan, u), anchor.X + 44, cpSide == "lower" ? anchor.Y - 50 : anchor.Y + 38);
+        if (!cp) Place2(Labels.CoupleLabel(f.CouplePerSpan, u), Labels.LatticeBias(f.NChord), anchor.X + 44, cpSide == "lower" ? anchor.Y - 62 : anchor.Y + 38);
         Place(Labels.InducedDragLabel(f.InducedPerSpan, u, f.DragMultiple), imx - 14, oy + yI);
         if (f.ProfileLow is { } low && f.ProfileHigh is { } high)
         {
@@ -307,10 +336,11 @@ public sealed class SectionProfileView : Control
     }
 
     // A two-line plate: the label in ink, its second line in the muted ink.
-    private static Rect Plate2(DrawingContext context, string first, string second, Point at, IBrush ink, IBrush mute, IBrush soft)
+    private Rect Plate2(DrawingContext context, string first, string second, Point at, IBrush ink, IBrush mute, IBrush soft)
     {
         FormattedText a = Text(first, ink), b = Text(second, mute);
         var rect = new Rect(at.X, at.Y - 12, Math.Max(a.Width, b.Width) + 8, 32);
+        placed.Add((first, rect));
         context.DrawRectangle(soft, null, rect, 2);
         context.DrawText(a, new Point(at.X + 4, at.Y - 11));
         context.DrawText(b, new Point(at.X + 4, at.Y + 4));
@@ -344,10 +374,11 @@ public sealed class SectionProfileView : Control
     }
 
     // A text plate with its top-left at (x, y - 12), the mockup's .plate; returns its rectangle.
-    private static Rect Plate(DrawingContext context, string text, Point at, IBrush ink, IBrush soft)
+    private Rect Plate(DrawingContext context, string text, Point at, IBrush ink, IBrush soft)
     {
         FormattedText t = Text(text, ink);
         var rect = new Rect(at.X, at.Y - 12, t.Width + 8, 16);
+        placed.Add((text, rect));
         context.DrawRectangle(soft, null, rect, 2);
         context.DrawText(t, new Point(at.X + 4, at.Y - 11));
         return rect;

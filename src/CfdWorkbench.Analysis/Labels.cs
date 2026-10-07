@@ -298,15 +298,18 @@ public static class Labels
     public static string InducedDragLabel(double value, Units units, int multiple) => // COPY-SF8
         "D′ induced, lifting-line share (lattice) " + Sig3(ForcePerSpan(value, units)) + " " + ForcePerSpanUnit(units) + " · ×" + multiple;
     public static string TotalDragLabel(double value, Units units, int multiple) => // COPY-SF9
-        "D′ profile + induced, free-stream axes " + Sig3(ForcePerSpan(value, units)) + " " + ForcePerSpanUnit(units) + " · ×" + multiple;
+        "D′ profile + induced (band centre), free-stream axes " + Sig3(ForcePerSpan(value, units)) + " " + ForcePerSpanUnit(units) + " · ×" + multiple;
     public static string DragBand(double low, double high, Units units) => Sig3(ForcePerSpan(low, units)) + "–" + Sig3(ForcePerSpan(high, units));
     public const string LowConfidenceSuffix = "· low confidence"; // COPY-SF10 (first words of COPY-316)
     public const string FlaggedSuffix = "· flagged"; // COPY-SF10 (the table suffix)
     public const string StripTableHeading = "Wing strip, per span; not the wing total"; // COPY-SF11
-    public const string ClLatticeRow = "Cl_local (lattice)", ClPanelRow = "cl (panel, 2D inviscid at α_eff)", CmPanelRow = "Cm c/4 (panel)", // COPY-SF12
+    public const string ClLatticeRow = "Cl_local (lattice)", ClPanelRow = "cl (panel, 2D inviscid at α_eff)", CmPanelRow = "Cm c/4 (panel, 2D inviscid)", // COPY-SF12
         AlphaGeoRow = "α_geo", AlphaEffRow = "α_eff (lattice)", AlphaIRow = "α_i (lattice)", XcpRow = "x_cp/c (lattice)", LiftRow = "L′ (lattice)",
         CoupleRow = "M′ c/4 (lattice)", ProfileDragRow = "D′ profile (polar, Ncrit 2–4)", InducedDragRow = "D′ induced (lattice)",
-        TotalDragRow = "D′ profile + induced, free-stream axes";
+        TotalDragRow = "D′ profile + induced (band centre), free-stream axes";
+    public static string LatticeBias(int nChord) => $"lattice, {nChord} chordwise panels; biased forward at low lift"; // COPY-SF17 (Ruling 131)
+    public static string XcpRowLabel(int nChord) => "x_cp/c (" + LatticeBias(nChord) + ")";
+    public static string CoupleRowLabel(int nChord) => "M′ c/4 (" + LatticeBias(nChord) + ")";
     public const string XcpNearZeroLift = "Undefined · near zero lift: |cl| is below 0.05"; // COPY-SF13
     public const string XcpOffSection = "Undefined · the centre of pressure is off the section"; // COPY-SF14
     public const string CouplePlaceNote = "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn."; // COPY-SF15

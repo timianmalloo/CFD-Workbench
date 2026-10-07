@@ -167,26 +167,28 @@ internal static class SectionForceTests
             ("COPY-SF6", "M′ c/4 (lattice) <v> <unit>", "M′ c/4 (lattice) −27.8 N·m/m", Labels.CoupleLabel(-27.84, Units.Metric)),
             ("COPY-SF7", "D′ profile (polar, Ncrit 2–4) <min>–<max> <unit> · ×<k>", "D′ profile (polar, Ncrit 2–4) 17.1–18.0 N/m · ×10", Labels.ProfileDragLabel(17.1, 18.0, Units.Metric, 10, false)),
             ("COPY-SF8", "D′ induced, lifting-line share (lattice) <v> <unit> · ×<k>", "D′ induced, lifting-line share (lattice) 8.40 N/m · ×10", Labels.InducedDragLabel(8.4, Units.Metric, 10)),
-            ("COPY-SF9", "D′ profile + induced, free-stream axes <v> <unit> · ×<k>", "D′ profile + induced, free-stream axes 25.9 N/m · ×10", Labels.TotalDragLabel(25.9, Units.Metric, 10)),
+            ("COPY-SF9", "D′ profile + induced (band centre), free-stream axes <v> <unit> · ×<k>", "D′ profile + induced (band centre), free-stream axes 25.9 N/m · ×10", Labels.TotalDragLabel(25.9, Units.Metric, 10)),
             ("COPY-SF10", "<SF7 text> · low confidence (profile label suffix) ⏎ <min>–<max> · flagged (table suffix)",
                 "<SF7 text> · low confidence (profile label suffix) ⏎ 17.1–18.0 · flagged (table suffix)",
                 Labels.ProfileDragLabel(17.1, 18.0, Units.Metric, 10, true).Replace("D′ profile (polar, Ncrit 2–4) 17.1–18.0 N/m · ×10", "<SF7 text>") + " (profile label suffix) ⏎ " +
                 Labels.DragBand(17.1, 18.0, Units.Metric) + " " + Labels.FlaggedSuffix + " (table suffix)"),
             ("COPY-SF11", "Wing strip, per span; not the wing total", "Wing strip, per span; not the wing total", Labels.StripTableHeading),
-            ("COPY-SF12", "cl (panel, 2D inviscid at α_eff) · Cm c/4 (panel) · Cl_local (lattice) · α_geo · α_eff (lattice) · α_i (lattice) · x_cp/c (lattice) · L′ (lattice) · M′ c/4 (lattice) · D′ profile (polar, Ncrit 2–4) · D′ induced (lattice) · D′ profile + induced, free-stream axes",
-                "cl (panel, 2D inviscid at α_eff) · Cm c/4 (panel) · Cl_local (lattice) · α_geo · α_eff (lattice) · α_i (lattice) · x_cp/c (lattice) · L′ (lattice) · M′ c/4 (lattice) · D′ profile (polar, Ncrit 2–4) · D′ induced (lattice) · D′ profile + induced, free-stream axes",
-                string.Join(" · ", Labels.ClPanelRow, Labels.CmPanelRow, Labels.ClLatticeRow, Labels.AlphaGeoRow, Labels.AlphaEffRow, Labels.AlphaIRow, Labels.XcpRow,
-                    Labels.LiftRow, Labels.CoupleRow, Labels.ProfileDragRow, Labels.InducedDragRow, Labels.TotalDragRow)),
+            ("COPY-SF12", "cl (panel, 2D inviscid at α_eff) · Cm c/4 (panel, 2D inviscid) · Cl_local (lattice) · α_geo · α_eff (lattice) · α_i (lattice) · x_cp/c (lattice, <n> chordwise panels; biased forward at low lift) · L′ (lattice) · M′ c/4 (lattice, <n> chordwise panels; biased forward at low lift) · D′ profile (polar, Ncrit 2–4) · D′ induced (lattice) · D′ profile + induced (band centre), free-stream axes",
+                "cl (panel, 2D inviscid at α_eff) · Cm c/4 (panel, 2D inviscid) · Cl_local (lattice) · α_geo · α_eff (lattice) · α_i (lattice) · x_cp/c (lattice, 4 chordwise panels; biased forward at low lift) · L′ (lattice) · M′ c/4 (lattice, 4 chordwise panels; biased forward at low lift) · D′ profile (polar, Ncrit 2–4) · D′ induced (lattice) · D′ profile + induced (band centre), free-stream axes",
+                string.Join(" · ", Labels.ClPanelRow, Labels.CmPanelRow, Labels.ClLatticeRow, Labels.AlphaGeoRow, Labels.AlphaEffRow, Labels.AlphaIRow, Labels.XcpRowLabel(4),
+                    Labels.LiftRow, Labels.CoupleRowLabel(4), Labels.ProfileDragRow, Labels.InducedDragRow, Labels.TotalDragRow)),
             ("COPY-SF13", "Undefined · near zero lift: |cl| is below 0.05", "Undefined · near zero lift: |cl| is below 0.05", Labels.XcpNearZeroLift),
             ("COPY-SF14", "Undefined · the centre of pressure is off the section", "Undefined · the centre of pressure is off the section", Labels.XcpOffSection),
             ("COPY-SF15", "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn.",
                 "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn.", Labels.CouplePlaceNote),
+            ("COPY-SF17", "lattice, <n> chordwise panels; biased forward at low lift", "lattice, 4 chordwise panels; biased forward at low lift", Labels.LatticeBias(4)),
             ("COPY-SF16", "V∞ · Local inflow · Lift · Drag, profile (cap: Ncrit 2–4 band) · Drag, induced · Pitching-moment couple",
                 "V∞ · Local inflow · Lift · Drag, profile (cap: Ncrit 2–4 band) · Drag, induced · Pitching-moment couple", string.Join(" · ", Labels.VectorKey))
         ];
         foreach ((string row, string template, string expected, string actual) in rows)
         {
-            Equal(true, design.Contains("| " + row + " | " + template + Tail), row + " row in DESIGN.md");
+            string tail = row is "COPY-SF9" or "COPY-SF12" or "COPY-SF17" ? " — approved — Ruling 131" : Tail;
+            Equal(true, design.Contains("| " + row + " | " + template + tail), row + " row in DESIGN.md");
             Equal(expected, actual, row + " text");
         }
         Equal("479", Labels.Sig3(479.4), "three significant figures");
@@ -249,7 +251,9 @@ internal static class SectionForceTests
         SectionForces f = view.Profile!.Forces!;
         Console.WriteLine($"MEASURE SFV cambered 2412 eta {f.Eta:F3}: cl_lattice {f.ClLattice:F4} x_cp {f.XcpOverC:F4} anchor {f.Anchor} L' {f.LiftPerSpan:F3} N/m couple {f.CouplePerSpan:F4} N.m/m d'_i {f.InducedPerSpan:F4} N/m");
         Equal(true, f.XcpOverC is > 0.1 and < 0.6, "the lattice x_cp of a thin cambered strip lies on the front half of the chord: " + f.XcpOverC);
-        Equal(true, view.Groups.Any(g => g.Title == Labels.StripTableHeading), "the strip table is in the view");
+        ResultGroup table = view.Groups.Single(g => g.Title == Labels.StripTableHeading);
+        Equal(true, table.Rows.Any(r => r.Label == Labels.XcpRowLabel(run.Settings.NChord)), "Ruling 131: the x_cp row names the lattice, its panels and the forward bias");
+        Equal(true, table.Rows.Any(r => r.Label == Labels.CoupleRowLabel(run.Settings.NChord)), "Ruling 131: the M' c/4 row names the lattice, its panels and the forward bias");
     }
 
     private static byte[] CamberedSource()
