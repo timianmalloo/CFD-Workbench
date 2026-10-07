@@ -6316,6 +6316,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "9a12c1aa1e37a349a479c05dc58739b88058fee8d0c73a38c8a4694ebfc60249"
     },
     {
+      "id": "review-pr-5",
+      "path": "docs/reviews/pr-5.md",
+      "title": "PR #5 (Windows PC) - Windows native project store design, Fable owner and data-persistence review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "design",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Fable owner) and CLEAR WITH CONDITIONS (data-persistence architect, veto cleared for the design only). Rulings 135 (durability, OneDrive) and 134 (save-failure wording) settle the operator items; B2 is bound by the conditions below.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-2",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-4",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9dd33fe66f919b252a1fa7fd8a811d90aa8f0047fa8c9c70349c7b6c70bd0887"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -15887,5 +15919,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f700213b0b82f3d4e85936cd5561b2dc7a183cebb4cd5f45c285bbbbe1fee428"
+  "graphSha256": "c20a11e26ff4388e4d4301b1e0453012f7b28253ce2384d84f1390a4f94f23a9"
 };
