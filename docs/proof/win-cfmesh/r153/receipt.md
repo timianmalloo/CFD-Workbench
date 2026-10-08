@@ -22,6 +22,18 @@ banner. The banner identifies **OpenFOAM-2512 (2512)** and **Build: `_bd2b6720-2
 and request a separate release for a frozen S4/S6 coupon under the Ruling 98 W2c criteria, with a new preregistration
 and L3 priority. This ruling does not authorize the coupon.
 
+## Track and repair ledger
+
+The earlier W-5 track is closed and exhausted at **2/2 cycles**. Its first cycle reached a malformed `source`
+invocation after a PowerShell capture-script parse correction; its second cycle ran in an unactivated shell and exited
+127. Those results did not establish installation availability and are preserved in the earlier [probe record](../probe.md).
+
+Ruling 153 opened a separate fresh track with a 10-minute ceiling and a new two-cycle repair budget. It made **one
+probe attempt**, recorded below, which found the tool and exited 0. The fresh track used **2/2 repair cycles**: cycle 1
+corrected the capture script before the probe ran; cycle 2 records the Owner-return correction to disable the old
+PowerShell entry point and clarify this ledger. The probe was not rerun during cycle 2. The historical
+`probe.ps1` now fails immediately before any file or process operation; its previous contents remain in Git history.
+
 ## Invocation and measured evidence
 
 The committed LF script is [probe-r153.sh](../probe-r153.sh). The Windows host invoked it as:

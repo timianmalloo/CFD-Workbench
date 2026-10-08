@@ -6014,7 +6014,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d4597a10028cbd83cd25e5633d6bc65265586139b7046c6f9f111539f488415f"
+      "sourceSha256": "a7b5b1e66e83eac66cdd83c310637eb36adb52c322c168d5fada4f6cb02811dc"
     },
     {
       "id": "proof-windows-store-implementation",
@@ -17209,5 +17209,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "870e75ed7887a2546112eed0bc275ed7706ce6cc4ee26236f4223ce5e2e76010"
+  "graphSha256": "fb9879bd3907a7839b15eaf2f08d04f7ce93b5d27ae1b9494ad90bbad0603797"
 };
