@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T19:20:13Z",
+  "generated": "2026-10-08T19:31:58Z",
   "audit": [
     {
       "actor": null,
@@ -30523,6 +30523,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T19:19:20Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M4EG0FXVV1T939X3W7JH95FV",
+      "shortname": "reg-merge-driver",
+      "datetime": "2026-10-08T19:31:58Z",
+      "session": "trk-reg",
+      "prompt": "REG",
+      "summary": "tools/merge-defect-register.py driver, install-merge-drivers.sh, gitattributes line, check-docs self-test wiring; WTH replay byte-identical",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "defect-classes.md stops conflicting at joins for pure adds and strict extensions",
+      "done_when": "driver self-test, WTH replay identical, scratch fallback, check-docs and gates green"
     }
   ],
   "changes": [

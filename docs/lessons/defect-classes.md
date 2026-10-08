@@ -1564,10 +1564,14 @@ duplicate id fails (exit 1), a file with a bad line fails (exit 1).
 *2026-10-08 (Mac leader 3122f106).* The markdown sibling: this register itself conflicted at 4 of 9 code joins (HRN,
 WRT, NUM, WTH), because every track appends its entry at the end and `coord-register` only unions JSONL. Three were pure
 tail appends. WTH also extended an existing entry in place, so a plain `merge=union` would silently keep both the old and
-the new text of an edited claim; it is rejected. Control (queued as a Mac tools/ track, not built): a register-aware merge
-driver for this file, used only by the Mac's joins (the PC never merges main). It auto-resolves only when each side's
-changes are new whole entries or a strict extension of an existing entry, and leaves every other conflict to the leader.
-The scratch resolver used at the WTH join is its seed.
+the new text of an edited claim; it is rejected. Control (built, track REG): `tools/merge-defect-register.py`, a register-aware
+merge driver for this file (`.gitattributes` line `merge=defect-register`; registered per clone by
+`tools/install-merge-drivers.sh`, used only by the Mac's joins since the PC never merges main). It auto-resolves only when
+each side's changes are new whole entries or a strict extension of an existing entry, keeps every input line, and exits
+non-zero (normal conflict markers) for any other case. Self-test (`--self-test`, in `tools/check-docs.py`, fast ring,
+~0.05 s): both append, extend plus append, identical new entry resolve; two different edits, a deletion, a reorder and a
+preamble edit on both sides conflict. Replay of the WTH join reproduces the leader's committed file byte for byte
+(`docs/proof/reg/replay-wth.txt`). A clone without the registration falls back to git's normal merge.
 
 **CFD-CLAIM-SCOPE · A label names a stronger quantity or cause than its data supports.** PRJ displayed `CL/CD` using
 `CDi`, and attributed every e below 0.85 to a lattice effect even though physical washout can lower e at low CL.

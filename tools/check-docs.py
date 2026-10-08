@@ -90,6 +90,7 @@ def run_lesson_controls():
         ("check-reader-sharing.py", ("--self-test",)),
         ("check-reader-sharing.py", ()),
         ("check-expected-failures.py", ("--self-test",)),
+        ("merge-defect-register.py", ("--self-test",)),  # JOIN-LOG-CONFLICT; fast ring, ~0.05 s
         ("dispatch-gate.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ()),
