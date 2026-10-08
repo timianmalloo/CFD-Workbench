@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T17:53:28Z",
+  "generated": "2026-10-08T18:03:34Z",
   "audit": [
     {
       "actor": null,
@@ -30208,6 +30208,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T17:52:36Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4EAYMV3B1K5GT7VGW6CHHRA",
+      "shortname": "cpy-cause-rows",
+      "datetime": "2026-10-08T18:03:34Z",
+      "session": "trk-cpy",
+      "prompt": "CPY cause rows",
+      "summary": "docs/proof/cpy/cause-rows.md: 67-code inventory, proposed COPY-412..431 awaiting operator",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Draft plain-cause rows for DOC-/DSL- codes (Ruling 148)",
+      "done_when": "inventory and proposed rows written, check-docs exit 0"
     }
   ],
   "changes": [
