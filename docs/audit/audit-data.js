@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T20:27:55Z",
+  "generated": "2026-10-08T21:03:30Z",
   "audit": [
     {
       "actor": null,
@@ -30658,6 +30658,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T20:27:49Z",
       "duration_seconds": 6.0
+    },
+    {
+      "id": "al-01M4EMPE1FTRKRMZ37Z5M95PY1",
+      "shortname": "stl-status-copy",
+      "datetime": "2026-10-08T20:53:51Z",
+      "session": "trk-stl",
+      "prompt": "trk-stl",
+      "summary": "COPY-432 to 438 in Labels and DESIGN.md; five WorkbenchController sites wired; raw-code-leading control added; ring green",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Wire the Ruling 158 status-line copy",
+      "done_when": "seven texts in Labels, five sites wired, tests red-first, control extended"
+    },
+    {
+      "id": "al-01M4EN830PJG8G9SCY32TFXGH0",
+      "shortname": "stl-ruling159",
+      "datetime": "2026-10-08T21:03:29Z",
+      "session": "trk-stl",
+      "prompt": "trk-stl Ruling 159",
+      "summary": "COPY-439 added; DESIGN rows 436-438 marked 158,159",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Wire COPY-439, retire the allow-list",
+      "done_when": "line 3114 uses Labels.DrawFailed, control has no exceptions, ring green",
+      "started_at": "2026-10-08T21:01:24Z",
+      "duration_seconds": 125.0
     }
   ],
   "changes": [
@@ -32839,6 +32877,33 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4EF6N4WYAFF925S9C4A6WQN",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EKE0HMSZSMV4RVY52ME5Y9",
+      "ts": "2026-10-08T20:31:46Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EKE0HFH2VGZWFNN6CH9DYJ",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EKE0MPJ53HEW0180ARWQCZ",
+      "ts": "2026-10-08T20:31:46Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EKE0HFH2VGZWFNN6CH9DYJ",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EM7MJT3T7KCMF3FA4T6SDH",
+      "ts": "2026-10-08T20:45:46Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EM7MFCGQ2DM2W3H0R14JVE",
+      "session": "operator-timianmalloo"
     }
   ]
 };

@@ -7,6 +7,7 @@ using Avalonia.Threading;
 using CfdWorkbench.Core;
 using CfdWorkbench.Desktop;
 using CfdWorkbench.Desktop.Shell;
+using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop.Tests;
 
@@ -161,8 +162,57 @@ public static class ControllerSectionTests
         DesktopChecks.Check("SectionStep_Refused_RestoresCertificate", SectionStep_Refused_RestoresCertificate);
     }
 
+    /// <summary>A store whose first save is uncertain and whose read-back and retry answer as set (the seam of the existing UncertainStore, Ruling 158).</summary>
+    private sealed class RetryStore(string readMode, SaveResult retry) : IProjectStore
+    {
+        private byte[]? image;
+        private int saves;
+        public Task<SaveResult> SaveAsync(string path, SaveRequest request, CancellationToken cancellation = default)
+        {
+            image = request.Image;
+            return Task.FromResult(++saves == 1 ? new SaveResult("DOC-SAVE-UNCERTAIN", Identity.Sha256(image), true, false) : retry with { PublishedSha256 = retry.PublishedSha256 ?? Identity.Sha256(image) });
+        }
+        public Task<ReadResult> ReadAsync(string path, CancellationToken cancellation = default) => readMode switch
+        {
+            "fail" => throw new ContractError("DOC-IO"),
+            "changed" => Task.FromResult(new ReadResult(Encoding.UTF8.GetBytes("other"), Identity.Sha256(Encoding.UTF8.GetBytes("other")))),
+            _ => Task.FromResult(new ReadResult(image!, Identity.Sha256(image!)))
+        };
+        public void Dispose() { }
+    }
+
+    private static string RetryStatus(string readMode, SaveResult retry)
+    {
+        using var controller = new WorkbenchController(_ => new RetryStore(readMode, retry));
+        Wait(controller.OpenExampleAsync());
+        Wait(controller.SaveAsync(TestTemp.Combine($"retry-{Guid.NewGuid():N}.cfdw.json")));
+        var resolved = controller.ResolveUncertainSaveAsync();
+        Wait(resolved);
+        if (resolved.Result || !controller.IsDirty) throw new Exception("The unconfirmed retry acknowledged the save");
+        return controller.Status;
+    }
+
+    private const string KeptUnsaved = " Your changes are kept and still marked unsaved. ";
+
+    /// <summary>Ruling 158 texts (1) to (4) as the status strip renders them, through the uncertain-save store seam. Ring: Desktop section part, 4 saves, about 1 s.</summary>
+    private static void SaveRetry_StatusLines_Ruling158()
+    {
+        Equal("Couldn't check the saved file (DOC-IO)." + KeptUnsaved + "Retry, or use Save As.", RetryStatus("fail", new SaveResult("OK", null, true, true)));
+        Equal("The file on disk changed after this save was attempted." + KeptUnsaved + "Use Save As to keep them without overwriting the other version.", RetryStatus("changed", new SaveResult("OK", null, true, true)));
+        Equal("Save still not confirmed (DOC-CONFLICT)." + KeptUnsaved + "Retry, or use Save As.", RetryStatus("same", new SaveResult("DOC-CONFLICT", null, false, false)));
+        string ok = RetryStatus("same", new SaveResult("OK", null, true, false));
+        Equal("Save still not confirmed: the disk didn't confirm the file was stored." + KeptUnsaved + "Retry, or use Save As.", ok);
+        if (ok.Contains("OK", StringComparison.Ordinal)) throw new Exception("The OK code was printed: " + ok);
+    }
+
+    private static void Equal(string expected, string actual)
+    {
+        if (expected != actual) throw new Exception($"expected '{expected}', got '{actual}'");
+    }
+
     public static void Run()
     {
+        DesktopChecks.Check("SaveRetry_StatusLines_Ruling158", SaveRetry_StatusLines_Ruling158);
         DesktopChecks.Check("SectionStep_LandedOrExit_ClearsPriorCertificate", SectionStep_LandedOrExit_ClearsPriorCertificate);
         DesktopChecks.Check("SectionMode_Crossing_FinishDisabledWithReason", () =>
         {

@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ff4c3ba06ebf9727c2c86d8cde8f504713435f6dda82fd0610d5db450df66130"
+      "sourceSha256": "b75264e958026b280f176686bc28b86c9c02a54d2d79a536b15622a7e931201c"
     },
     {
       "id": "domain-experts",
@@ -7446,7 +7446,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7946c9c0b89da507b44b790e2687b7295801426915fcb6986abc3e50cd07193b"
+      "sourceSha256": "db998d98bb173bd796fd2dfff6acb2279264e1a86b1d7aff633b941ecec0be86"
     },
     {
       "id": "kb-hw-glossary",
@@ -14353,7 +14353,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b432884b760393fb6337b74e49a3ab7803b07867284dd467e2862bca817b6666"
+      "sourceSha256": "f5a89fa7245508e110eee5ebf0efa3249b791a7696e528d32552d83093b20279"
     },
     {
       "id": "proof-stl-trace",
@@ -17138,5 +17138,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "aeb5c12b77b962dbc0315c092a941a7189c6c22dd4323503086de52ebf091ed0"
+  "graphSha256": "e9c4410f79de34a8a9b3213621844c2cf5c8690b9e0c180c967b3e35c0797a03"
 };

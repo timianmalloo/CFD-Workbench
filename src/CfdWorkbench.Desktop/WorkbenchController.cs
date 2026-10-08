@@ -2840,7 +2840,7 @@ public sealed class WorkbenchController : IDisposable
             {
                 Frame = acceptedFrame;
                 Provenance = "draft — unavailable geometry";
-                Status = $"{SectionDraftPrefix()}{assessment.Code}: {assessment.Status}. {string.Join(" ", assessment.Diagnostics.Select(d => d.Reason))}";
+                Status = DraftUnavailableStatus(assessment);
                 Notify();
                 return;
             }
@@ -2999,14 +2999,14 @@ public sealed class WorkbenchController : IDisposable
         catch (ContractError error)
         {
             if (!ReferenceEquals(session, capturedSession)) return false;
-            Status = $"{error.Code}: Uncertain save remains dirty; disk image could not be compared.";
+            Status = Labels.ReadBackFailed(error.Code);
             Notify();
             return false;
         }
         if (!ReferenceEquals(session, capturedSession)) return false;
         if (read.DiskSha256 != Identity.Sha256(capturedImage))
         {
-            Status = "Disk differs from the captured save image. Keep this draft dirty; reopen or save to a new path after review.";
+            Status = Labels.DiskChangedAfterSave;
             Notify();
             return false;
         }
@@ -3016,7 +3016,7 @@ public sealed class WorkbenchController : IDisposable
         if (retry.Code != "OK" || !retry.PublicationKnown || !retry.DurabilityConfirmed ||
             retry.PublishedSha256 != read.DiskSha256)
         {
-            Status = $"{retry.Code}: Matching readback did not confirm durability; save remains dirty.";
+            Status = Labels.RetryNotConfirmed(retry.Code);
             Notify();
             return false;
         }
@@ -3111,7 +3111,7 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (OperationCanceledException) { }
         catch (ContractError error) when (error.Code == "GEOMETRY-CANCELLED") { }
-        catch (ContractError error) { Status = $"{SectionDraftPrefix()}{error.Code}: Geometry display unavailable; accepted source retained."; Notify(); }
+        catch (ContractError error) { Status = Labels.DrawFailed(DraftStationName(), error.Code); Notify(); }
         finally { if (ReferenceEquals(activeSampling, linked)) activeSampling = null; }
     }
 
@@ -3235,7 +3235,7 @@ public sealed class WorkbenchController : IDisposable
         {
             Frame = acceptedFrame;
             Provenance = "draft — unavailable geometry";
-            Status = $"{SectionDraftPrefix()}{assessment.Code}: {assessment.Status}. {string.Join(" ", assessment.Diagnostics.Select(item => item.Reason))}";
+            Status = DraftUnavailableStatus(assessment);
             Notify();
             return;
         }
@@ -3252,6 +3252,16 @@ public sealed class WorkbenchController : IDisposable
         currentAssessment = assessment;
         SectionReport = CfdWorkbench.Desktop.SectionReport.Create(assessment);
     }
+
+    /// <summary>COPY-436 to 438 (Ruling 158): the plain status for a draft that is not certified, named by the station's display name when the draft is a section.</summary>
+    private string DraftUnavailableStatus(SessionAssessment assessment) =>
+        Labels.DraftUnavailable(assessment.Status, DraftStationName(), assessment.Code, string.Join(" ", assessment.Diagnostics.Select(item => item.Reason)));
+
+    /// <summary>The display name of the section draft's station, or null when the draft is not a section (Ruling 159).</summary>
+    private string? DraftStationName() =>
+        draft is { Profile: not null, Assignment: >= 0 } section && Inspection is { } inspection && section.Assignment < inspection.Authored.Assignments.Count
+            ? ElevationView.StationName(section.Assignment, inspection.Authored.Assignments[section.Assignment].Eta)
+            : null;
 
     private string SectionDraftPrefix() =>
         draft is { Profile: not null, Assignment: >= 0 } section ? $"Draft {section.Id} owns station {section.Assignment}. " : "";
