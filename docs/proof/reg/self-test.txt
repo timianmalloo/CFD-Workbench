@@ -1,0 +1,7 @@
+ok  : both append different entries
+ok  : one extends X, other appends Y
+ok  : both edit X differently
+ok  : one deletes X
+ok  : identical new entry on both
+ok  : preamble edited on both
+ok  : reordered entries

@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "100b3aa0fcb8ab81f7bd49c65d2b56f228a4f64029cb460bb80d72a8b20f003b"
+      "sourceSha256": "aa439d9dd4fb6d89ce2bc5e3443a7cc0a1ac1a0a897de1ea90dcc41db25f9ceb"
     },
     {
       "id": "domain-experts",
@@ -17060,5 +17060,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "31032d59ecd1ce02ab3a45074fd9b0d72664d6950dbc73e78aef0de505d9a383"
+  "graphSha256": "230821f34914ac8a3513d535c973f55729d66e2d2ee5dae2a00a63567b73b03d"
 };

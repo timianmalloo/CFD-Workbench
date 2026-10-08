@@ -1,0 +1,7 @@
+FAIL: both append different entries
+FAIL: one extends X, other appends Y
+ok  : both edit X differently
+ok  : one deletes X
+FAIL: identical new entry on both
+ok  : preamble edited on both
+ok  : reordered entries
