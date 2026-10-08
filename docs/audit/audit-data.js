@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T17:43:42Z",
+  "generated": "2026-10-08T17:43:53Z",
   "audit": [
     {
       "actor": null,
@@ -30064,6 +30064,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T17:14:53Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4E9TK1S64EJ3MRG1EJPX37Z",
+      "shortname": "reader-share-delete",
+      "datetime": "2026-10-08T17:43:53Z",
+      "session": "trk-wsf",
+      "prompt": "trk-wsf",
+      "summary": "UserFile.OpenRead in Persistence; check-reader-sharing.py wired in check-docs; READER-SHARE-DELETE class",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Every product reader of a user file opens with FileShare.Read|Delete; a gate keeps it",
+      "done_when": "gate red then green, helper used at 3 sites, behaviour test, defect class, run-tests green"
     }
   ],
   "changes": [
