@@ -6477,6 +6477,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "dcf27e05d2afe7d1136210727c7019e5448533d8ac86294848d77df27add9458"
     },
     {
+      "id": "review-pr-8",
+      "path": "docs/reviews/pr-8.md",
+      "title": "PR #8 (Windows PC) - W-2 B2 preserved qualification failure checkpoint, Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 145). The B2 track stopped at its repair cap on a ShareRead-only held-reader probe, which is expected Windows sharing semantics; a fresh bounded track is approved, NtSetInformationFile class 65 is affirmed, ProjectStore stays fail-closed, and the machine SID was redacted before merge.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-2",
+        "persistence",
+        "privacy"
+      ],
+      "links": [
+        {
+          "to": "review-pr-6",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d2d3925aa351e851c4c554a8e9c139631cda2d5d6399d65d367804107bee85c2"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -16503,5 +16536,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9e605ab36a95c026085468b22401f873b0a10d079af3547e5c1c7312b3c3c645"
+  "graphSha256": "d57de6f9ea110a4dfda1a3e3c476cbc5a7ee72fd1390fcbef90112ee363e5b28"
 };
