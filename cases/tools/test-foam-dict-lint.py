@@ -51,9 +51,9 @@ def lint(body, head=HEAD):
     with tempfile.TemporaryDirectory() as d:
         os.makedirs(os.path.join(d, "system"))
         p = os.path.join(d, "system", "controlDict")
-        open(p, "w").write(head + body)
+        open(p, "w", newline="\n").write(head + body)
         json.dump({"system/controlDict": hashlib.sha256(open(p, "rb").read()).hexdigest()},
-                  open(os.path.join(d, "cfdw-manifest.json"), "w"))
+                  open(os.path.join(d, "cfdw-manifest.json"), "w", newline="\n"))
         r = subprocess.run([sys.executable, os.path.join(HERE, "foam-dict-lint.py"), d], capture_output=True, text=True)
         return r.returncode, r.stdout
 

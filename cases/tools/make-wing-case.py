@@ -30,7 +30,7 @@ def header(cls, obj):
 def write(rel, cls, obj, body):
     path = run / rel
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(header(cls, obj) + body)
+    path.write_text(header(cls, obj) + body, newline="\n")
 
 
 def vec(v):

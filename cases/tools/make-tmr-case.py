@@ -131,14 +131,14 @@ def header(cls, obj, note=""):
 
 note = f"nPoints:{len(points)} nCells:{nci * ncj} nFaces:{len(faces)} nInternalFaces:{len(internal)}"
 (poly / "points").write_text(header("vectorField", "points") + f"{len(points)}\n(\n" +
-                             "".join("(%.17g %.17g %.17g)\n" % tuple(p) for p in points) + ")\n")
+                             "".join("(%.17g %.17g %.17g)\n" % tuple(p) for p in points) + ")\n", newline="\n")
 (poly / "faces").write_text(header("faceList", "faces") + f"{len(faces)}\n(\n" +
-                            "".join("4(%d %d %d %d)\n" % tuple(f) for f in faces) + ")\n")
-(poly / "owner").write_text(header("labelList", "owner", note) + f"{len(owner)}\n(\n" + "\n".join(map(str, owner)) + "\n)\n")
-(poly / "neighbour").write_text(header("labelList", "neighbour", note) + f"{len(neighbour)}\n(\n" + "\n".join(map(str, neighbour)) + "\n)\n")
+                            "".join("4(%d %d %d %d)\n" % tuple(f) for f in faces) + ")\n", newline="\n")
+(poly / "owner").write_text(header("labelList", "owner", note) + f"{len(owner)}\n(\n" + "\n".join(map(str, owner)) + "\n)\n", newline="\n")
+(poly / "neighbour").write_text(header("labelList", "neighbour", note) + f"{len(neighbour)}\n(\n" + "\n".join(map(str, neighbour)) + "\n)\n", newline="\n")
 types = {"airfoil": "wall", "farfield": "patch", "frontAndBack": "empty"}
 (poly / "boundary").write_text(header("polyBoundaryMesh", "boundary") + f"{len(bounds)}\n(\n" + "".join(
-    f"    {n}\n    {{\n        type {types[n]};\n        nFaces {k};\n        startFace {s};\n    }}\n" for n, k, s in bounds) + ")\n")
+    f"    {n}\n    {{\n        type {types[n]};\n        nFaces {k};\n        startFace {s};\n    }}\n" for n, k, s in bounds) + ")\n", newline="\n")
 
 
 # ---- case dictionaries (round 2: no regex keywords, no '#' directives; every file listed in cfdw-manifest.json) ----
@@ -148,7 +148,7 @@ written = []
 def write(rel, cls, obj, body):
     path = run / rel
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(f"FoamFile\n{{\n    version 2.0;\n    format ascii;\n    class {cls};\n    object {obj};\n}}\n\n" + body)
+    path.write_text(f"FoamFile\n{{\n    version 2.0;\n    format ascii;\n    class {cls};\n    object {obj};\n}}\n\n" + body, newline="\n")
     written.append(rel)
 
 
@@ -309,7 +309,7 @@ SIMPLE
 relaxationFactors {{ equations {{ {eq_relax} }} fields {{ {field_relax} }} }}
 """)
 write("system/decomposeParDict", "dictionary", "decomposeParDict", f"numberOfSubdomains {d['n_subdomains']};\nmethod {d['method']};\n")
-(run / "cfdw-manifest.json").write_text(json.dumps({r: hashlib.sha256((run / r).read_bytes()).hexdigest() for r in written + ["constant/polyMesh/boundary"]}, indent=1) + "\n")
+(run / "cfdw-manifest.json").write_text(json.dumps({r: hashlib.sha256((run / r).read_bytes()).hexdigest() for r in written + ["constant/polyMesh/boundary"]}, indent=1) + "\n", newline="\n")
 print(f"grid={grid.name} sha256={digest} dims={ni}x{nj} te_lower_i={ite} te_upper_i={iteu} airfoil_points={iteu - ite + 1}")
 print(f"points={len(points)} cells={nci * ncj} faces={len(faces)} internal={len(internal)} airfoil_faces={bounds[0][1]} farfield_faces={bounds[1][1]}")
 print(f"first_wall_spacing_min={np.min(np.hypot(X[ite:iteu + 1, 1] - X[ite:iteu + 1, 0], Y[ite:iteu + 1, 1] - Y[ite:iteu + 1, 0])):.3e}")

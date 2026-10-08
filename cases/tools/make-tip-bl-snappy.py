@@ -34,7 +34,7 @@ written = []
 def write(rel, cls, obj, body):
     path = run / rel
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("FoamFile\n{\n    version 2.0;\n    format ascii;\n    class %s;\n    object %s;\n}\n\n" % (cls, obj) + body)
+    path.write_text("FoamFile\n{\n    version 2.0;\n    format ascii;\n    class %s;\n    object %s;\n}\n\n" % (cls, obj) + body, newline="\n")
     written.append(rel)
 
 
@@ -361,7 +361,7 @@ write("system/fvSolution", "dictionary", "fvSolution", """solvers
 SIMPLE { nNonOrthogonalCorrectors 1; consistent yes; }
 relaxationFactors { equations { U 0.7; nuTilda 0.7; } fields { p 0.3; } }
 """)
-(run / "cfdw-manifest.json").write_text(json.dumps({r: hashlib.sha256((run / r).read_bytes()).hexdigest() for r in written}, indent=1) + "\n")
+(run / "cfdw-manifest.json").write_text(json.dumps({r: hashlib.sha256((run / r).read_bytes()).hexdigest() for r in written}, indent=1) + "\n", newline="\n")
 print(f"stl_sha256={hashlib.sha256(stl).hexdigest()} triangles={len(tris)} enclosed_volume_m3={vol:.6e} expected={expected:.6e}")
 print(f"te_thickness_m={t_te} analysis_tip_extension_m={chord * max(yt(x) for x in xs):.5f} S_ref_half_m2={half * chord:.6f}")
 print(f"background={nx}x{ny}x{nz}={nx * ny * nz} cells, base={h} m, y_max={y1:.4f} m")
