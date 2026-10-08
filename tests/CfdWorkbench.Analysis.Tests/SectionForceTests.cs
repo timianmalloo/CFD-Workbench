@@ -24,10 +24,68 @@ internal static class SectionForceTests
         Check("SectionForce_Imperial_ForceAndMomentPerSpan", Imperial);
         Check("SectionForce_RunScale_LiftFixedByLargestStripDragByRule", RunScale);
         Check("SectionForce_Labels_EqualTheirDesignRows_Ruling130", LabelRows);
+        Check("SectionForce_LatticeBias_SingularForOnePanel_PluralOtherwise_TrackNum", LatticeBiasPlural);
+        Check("SectionForce_OneChordwisePanel_CoupleIsRoundOff_ShownAsZero_TableAndProfile_TrackNum", OnePanelCoupleIsZero);
+        Check("SectionForce_FourChordwisePanels_CoupleUnchanged_TrackNum", FourPanelCoupleUnchanged);
+    }
+
+    // ---- track NUM: plural agreement and the round-off floor --------------------------------------------------------------
+
+    private static void LatticeBiasPlural()
+    {
+        Equal("lattice, 1 chordwise panel; biased forward at low lift", Labels.LatticeBias(1), "one panel reads singular");
+        Equal("lattice, 4 chordwise panels; biased forward at low lift", Labels.LatticeBias(4), "four panels read plural");
+        Equal("M′ c/4 (lattice, 1 chordwise panel; biased forward at low lift)", Labels.CoupleRowLabel(1), "the table row label follows");
+    }
+
+    /// <summary>The Example foil at one chordwise panel: the lattice vortex sits at c/4, so the c/4 couple is zero by construction.</summary>
+    private static (SectionForces Forces, ResultGroup Table) ExampleRun(int nChord)
+    {
+        using var session = new AuthoringSession();
+        byte[] source = FoilSource.NewDefault();
+        session.Open(source, Fixture.Id(), true);
+        RunSettings settings = Settings.Default with { NSpanPerHalf = 2, NChord = nChord,
+            SectionEtas = [0d, 0.5, 1d], SectionXs = Settings.ChordXs(nChord, "cosine") };
+        var service = new AnalysisService(session, new ProductWingMethod(settings));
+        AnalysisRun run = Fixture.Evaluate(service, Fixture.Op(3));
+        SectionTierResult tier = SectionTier.Evaluate(source, [0.25, 0.5, 0.75, 1.0], [], Fixture.Op(3), Fixture.Salt);
+        SectionView view = SectionDisplay.Build(run, tier, source, 0.5, "r1", null, null, default, Units.Metric);
+        return (view.Profile!.Forces!, view.Groups.Single(g => g.Title == Labels.StripTableHeading));
+    }
+
+    private static void OnePanelCoupleIsZero()
+    {
+        (SectionForces f, ResultGroup table) = ExampleRun(1);
+        Console.WriteLine($"MEASURE NUM nc=1 Example foil: couple {f.CouplePerSpan:E3} N.m/m, q c^2 {f.CoupleScale:E3} N, ratio {Math.Abs(f.CouplePerSpan) / f.CoupleScale:E3}");
+        Equal("0.00", table.Rows.Single(r => r.Label == Labels.CoupleRowLabel(1)).Value, "the table row shows the round-off couple as zero");
+        Equal("M′ c/4 (lattice) 0.00 N·m/m", Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, Units.Metric), "the profile label shows it as zero");
+    }
+
+    /// <summary>Fast ring: a synthetic nc = 4 strip, couple far above the floor, prints its three significant figures as before.</summary>
+    private static void FourPanelCoupleUnchanged()
+    {
+        SectionForces f = Forces(Strip(0.3, 0.4), nChord: 4);
+        Equal(true, f.CoupleScale > 0 && Math.Abs(f.CouplePerSpan) > 1e-6 * f.CoupleScale, "the couple is a real value, far above the floor");
+        string expected = Labels.Sig3(Labels.MomentPerSpan(f.CouplePerSpan, Units.Metric));
+        Equal(expected, Labels.CoupleValue(f.CouplePerSpan, f.CoupleScale, Units.Metric), "the value keeps its three significant figures");
+        Equal("M′ c/4 (lattice) " + expected + " N·m/m", Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, Units.Metric), "the profile label keeps them too");
+        Equal("M′ c/4 (lattice) −27.8 N·m/m", Labels.CoupleLabel(-27.84, 1000, Units.Metric), "a nonzero couple well above the floor");
+    }
+
+    /// <summary>Readiness: the same pin on the real nc = 4 lattice (the product default), table row and profile label.</summary>
+    private static void FourPanelCoupleUnchangedLattice()
+    {
+        (SectionForces f, ResultGroup table) = ExampleRun(4);
+        Console.WriteLine($"MEASURE NUM nc=4 Example foil: couple {f.CouplePerSpan:E3} N.m/m, ratio to q c^2 {Math.Abs(f.CouplePerSpan) / f.CoupleScale:E3}");
+        Equal(true, Math.Abs(f.CouplePerSpan) > 1e-6 * f.CoupleScale, "the nc = 4 couple is a real value, far above the floor");
+        string expected = Labels.Sig3(Labels.MomentPerSpan(f.CouplePerSpan, Units.Metric));
+        Equal(expected, table.Rows.Single(r => r.Label == Labels.CoupleRowLabel(4)).Value, "the table row keeps its three significant figures");
+        Equal("M′ c/4 (lattice) " + expected + " N·m/m", Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, Units.Metric), "the profile label keeps them too");
     }
 
     internal static void RunReadiness()
     {
+        Check("SectionForce_FourChordwisePanels_LatticeCoupleUnchanged_TrackNum", FourPanelCoupleUnchangedLattice);
         Check("SectionForce_LatticeRun_InducedSharesConsistentWithWingDi_AndAnchorFromStrip", LatticeRun);
         Check("SectionForce_EllipticWing_InducedShareFollowsSqrtOneMinusEtaSquared", EllipticDistribution);
         Check("SectionForce_ChordwiseConvergence_MeasuredNotGated_Ruling131", ChordwiseConvergence);
@@ -127,7 +185,7 @@ internal static class SectionForceTests
         double shownScale = imperial.LiftScale * Labels.ForcePerSpan(1, Units.Imperial);
         Near(SectionForceModel.RoundUp125(shownScale), shownScale, "the scale in lbf/ft is a 1-2-5 number", 1e-6 * shownScale);
         Equal(Labels.Sig3(metric.LiftPerSpan * 0.0685218), Labels.LiftLabel(imperial.LiftPerSpan, Units.Imperial).Split(' ')[1], "L' reads in lbf/ft");
-        Equal(true, Labels.CoupleLabel(imperial.CouplePerSpan, Units.Imperial).EndsWith(" lbf·ft/ft"), "the couple label unit");
+        Equal(true, Labels.CoupleLabel(imperial.CouplePerSpan, imperial.CoupleScale, Units.Imperial).EndsWith(" lbf·ft/ft"), "the couple label unit");
     }
 
     /// <summary>Ruling 128 (4): one lift scale per run from the largest strip |L'| (1-2-5 rounded); one drag multiple per run by a stated rule.</summary>
@@ -166,7 +224,7 @@ internal static class SectionForceTests
             ("COPY-SF3", "local inflow α_eff <a>° ⏎ tilts the flow by α_i", "local inflow α_eff 1.97° ⏎ tilts the flow by α_i", Labels.LocalInflow(1.97) + " ⏎ " + Labels.LocalInflowWhy),
             ("COPY-SF4", "CP (lattice) · x/c <x>", "CP (lattice) · x/c 0.27", Labels.AnchorCp(0.27)),
             ("COPY-SF5", "c/4 · arrows start here · x_cp Undefined", "c/4 · arrows start here · x_cp Undefined", Labels.AnchorQuarter),
-            ("COPY-SF6", "M′ c/4 (lattice) <v> <unit>", "M′ c/4 (lattice) −27.8 N·m/m", Labels.CoupleLabel(-27.84, Units.Metric)),
+            ("COPY-SF6", "M′ c/4 (lattice) <v> <unit>", "M′ c/4 (lattice) −27.8 N·m/m", Labels.CoupleLabel(-27.84, 1000, Units.Metric)),
             ("COPY-SF7", "D′ profile (polar, Ncrit 2–4) <min>–<max> <unit> · ×<k>", "D′ profile (polar, Ncrit 2–4) 17.1–18.0 N/m · ×10", Labels.ProfileDragLabel(17.1, 18.0, Units.Metric, 10, false)),
             ("COPY-SF8", "D′ induced, lifting-line share (lattice) <v> <unit> · ×<k>", "D′ induced, lifting-line share (lattice) 8.40 N/m · ×10", Labels.InducedDragLabel(8.4, Units.Metric, 10)),
             ("COPY-SF9", "D′ profile + induced (band centre), free-stream axes <v> <unit> · ×<k>", "D′ profile + induced (band centre), free-stream axes 25.9 N/m · ×10", Labels.TotalDragLabel(25.9, Units.Metric, 10)),
@@ -183,7 +241,7 @@ internal static class SectionForceTests
             ("COPY-SF14", "Undefined · the centre of pressure is off the section", "Undefined · the centre of pressure is off the section", Labels.XcpOffSection),
             ("COPY-SF15", "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn.",
                 "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn.", Labels.CouplePlaceNote),
-            ("COPY-SF17", "lattice, <n> chordwise panels; biased forward at low lift", "lattice, 4 chordwise panels; biased forward at low lift", Labels.LatticeBias(4)),
+            ("COPY-SF17", "lattice, <n> chordwise panels; biased forward at low lift — singular for 1","lattice, 4 chordwise panels; biased forward at low lift", Labels.LatticeBias(4)),
             ("COPY-SF16", "V∞ · Local inflow · Lift · Drag, profile (cap: Ncrit 2–4 band) · Drag, induced · Pitching-moment couple",
                 "V∞ · Local inflow · Lift · Drag, profile (cap: Ncrit 2–4 band) · Drag, induced · Pitching-moment couple", string.Join(" · ", Labels.VectorKey))
         ];

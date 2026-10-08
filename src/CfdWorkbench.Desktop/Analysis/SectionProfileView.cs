@@ -289,7 +289,7 @@ public sealed class SectionProfileView : Control
         if (cp) Place2(Labels.AnchorCp(f.XcpOverC!.Value), Labels.LatticeBias(f.NChord), anchor.X - 10, oy + yI, right: true);
         else Place(Labels.AnchorQuarter, anchor.X - 10, oy + yI + 20, right: true);
         // the couple label goes on the side of the chord away from the Cp_min plate
-        if (!cp) Place2(Labels.CoupleLabel(f.CouplePerSpan, u), Labels.LatticeBias(f.NChord), anchor.X + 44, cpSide == "lower" ? anchor.Y - 62 : anchor.Y + 38);
+        if (!cp) Place2(Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, u), Labels.LatticeBias(f.NChord), anchor.X + 44, cpSide == "lower" ? anchor.Y - 62 : anchor.Y + 38);
         Place(Labels.InducedDragLabel(f.InducedPerSpan, u, f.DragMultiple), imx - 14, oy + yI);
         if (f.ProfileLow is { } low && f.ProfileHigh is { } high)
         {
