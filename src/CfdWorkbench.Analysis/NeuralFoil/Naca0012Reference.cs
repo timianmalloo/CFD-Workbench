@@ -16,7 +16,11 @@ public static class Naca0012Reference
     public const double MatchTolerance = 1.5e-3;
 
     private static readonly Lazy<CstParameters> Parameters = new(() =>
-        CstFit.Fit(FromSelig(new string('0', 64), "naca0012", CatalogGenerator.Naca4("0012"))).Parameters);
+        CstFit.Fit(FromSelig(new string('0', 64), "naca0012", ShippedBytes())).Parameters);
+
+    // GEO-A (Ruling 156): the bytes of record are the shipped catalog bytes, not a second evaluation of the generator.
+    private static byte[] ShippedBytes() =>
+        Catalog.Load().Single(entry => entry.Id == "naca-0012").Coordinates ?? throw new ContractError("CAT-UNAVAILABLE");
 
     /// <summary>Largest ordinate difference, in chord lengths, between a fitted section and the catalog NACA 0012.</summary>
     public static double MaxOrdinateDifference(CstParameters fitted)
