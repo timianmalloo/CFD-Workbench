@@ -5211,7 +5211,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b75264e958026b280f176686bc28b86c9c02a54d2d79a536b15622a7e931201c"
+      "sourceSha256": "034b40104b7f3cc9bc97939e78ba7487d338d0ceba217c77a64583893740cfd8"
     },
     {
       "id": "domain-experts",
@@ -7482,7 +7482,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e6eb2dafd0fc0bd04de903960411d9258c374857fd50f8e3414ce6e08af38062"
+      "sourceSha256": "e7a7a390c003eaab0c6ef53c49f87e8eeeb05549a237f7f63c89871bc4c29bbe"
     },
     {
       "id": "kb-hw-glossary",
@@ -12823,6 +12823,30 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "proof-ncr-red-first",
+      "path": "docs/proof/ncr/red-first.md",
+      "title": "NCR red-first receipts (Not resolved at 1 chordwise panel)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 161: the checks that fail on the old nc = 1 texts and glyph, the passing runs, and the rendered texts.",
+      "tags": [
+        "ncr",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-num-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "88e9b5fd179b109a2c843afc716de4c14b9a1cf23d021e5108885842c840e1a8"
+    },
+    {
       "id": "proof-newfoil-red-runs",
       "path": "docs/proof/newfoil-red-runs.md",
       "title": "NEWFOIL red-first run",
@@ -17182,5 +17206,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c19c15e87521cdb81ac20cb1f5c0d49e5f84c5a6b4d8766f4a732339be7f8de8"
+  "graphSha256": "4153f74599210eeee5ba4e00ac5237174c2ef6b99e0c8555d8c1829229fffe7a"
 };

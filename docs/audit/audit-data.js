@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T22:50:33Z",
+  "generated": "2026-10-08T23:08:17Z",
   "audit": [
     {
       "actor": null,
@@ -30770,6 +30770,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T22:49:40Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M4EWCJG86C6HPHFG6C22K8F9",
+      "shortname": "ncr-not-resolved",
+      "datetime": "2026-10-08T23:08:16Z",
+      "session": "trk-ncr",
+      "prompt": "track NCR",
+      "summary": "SectionForces.IsMomentResolved; COPY-SF18..SF21; table, profile label and glyph; 2 new check files; two superseded NUM checks updated in a separate commit",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "At nc<2 x_cp/c and M' c/4 read Not resolved, no couple glyph, bias suffix dropped (Ruling 161)",
+      "done_when": "red-first.md, run-tests green, check-docs exit 0"
     }
   ],
   "changes": [
@@ -32995,6 +33013,15 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EV472KSJQK7B9MATYP9WH5",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4EVZK22FS84RVD4YBCC042F",
+      "ts": "2026-10-08T23:01:11Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EVZJZ38WS68KCVJTQBZ1RD",
       "session": "operator-timianmalloo"
     }
   ]

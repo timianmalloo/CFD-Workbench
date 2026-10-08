@@ -1,3 +1,18 @@
+---
+id: proof-ncr-red-first
+title: NCR red-first receipts (Not resolved at 1 chordwise panel)
+type: proof-pack
+status: draft
+owner: "@timianmalloo"
+phase: implement
+tags: [ncr, red-first]
+links:
+  - { to: proof-num-red-first, rel: refines }
+review-by: 2026-12-31
+summary: >-
+  Ruling 161: the checks that fail on the old nc = 1 texts and glyph, the passing runs, and the rendered texts.
+---
+
 # Track NCR (Ruling 161): red first
 
 Date 2026-10-08, Release build, macOS. Case: the Example foil, 2 spans per half, chordwise panels nc = 1, 2 and 4.
