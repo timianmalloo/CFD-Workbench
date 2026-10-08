@@ -1,0 +1,62 @@
+{"argv": ["%USERPROFILE%\\AppData\\Local\\CFDWorkbench\\qualification\\su2-8.5.0\\bin\\bin\\SU2_CFD.exe", "-t", "1", "tmr-sa.cfg"], "run": "runs/20261008T144728Z-win-su2-tmr-naca0012", "started_utc": "2026-10-08T14:48:09.675770+00:00", "elapsed_seconds": 1767.3720404999913, "exit_code": 0, "timeout": false, "timeout_seconds": 6900, "cpu_seconds": 1692.125, "sampled_peak_working_set_bytes": 82292736, "memory_samples": 17596, "priority_class": 16384, "binary_sha256": "3cb60646b31c08e468441be9f3497601960d4bb31349e6329982bcdeed599248"}
+      0|  -15.653990|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19988|  -14.325418|  -17.735808|    1.067115|    0.019056|          19|  -10.355960|           0|  -15.653989|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19989|  -14.324207|  -17.735808|    1.067115|    0.019056|          19|  -10.406290|           0|  -15.653988|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19990|  -14.306197|  -17.735807|    1.067115|    0.019056|          19|  -10.451050|           0|  -15.653988|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19991|  -14.320488|  -17.735806|    1.067115|    0.019056|          19|  -10.310713|           0|  -15.653987|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19992|  -14.303772|  -17.735805|    1.067115|    0.019056|          19|  -10.368000|           0|  -15.653986|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19993|  -14.320222|  -17.735804|    1.067115|    0.019056|          18|  -10.018398|           0|  -15.653985|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19994|  -14.315018|  -17.735804|    1.067115|    0.019056|          18|  -10.044492|           0|  -15.653984|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19995|  -14.314410|  -17.735803|    1.067115|    0.019056|          18|  -10.013654|           0|  -15.653984|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19996|  -14.324402|  -17.735802|    1.067115|    0.019056|          18|  -10.022151|           0|  -15.653983|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19997|  -14.323218|  -17.735801|    1.067115|    0.019056|          18|  -10.071649|           0|  -15.653982|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19998|  -14.352299|  -17.735800|    1.067115|    0.019056|          18|  -10.053509|           0|  -15.653981|  0.0000e+00|
+CSysSolve::FGMRES(): system solved by initial guess.
+|       19999|  -14.313436|  -17.735800|    1.067115|    0.019056|          19|  -10.355240|           0|  -15.653980|  0.0000e+00|
+
+----------------------------- Solver Exit -------------------------------
+
+Maximum number of iterations reached (ITER = 20000) before convergence.
++-----------------------------------------------------------------------+
+|      Convergence Field     |     Value    |   Criterion  |  Converged |
++-----------------------------------------------------------------------+
+|                    rms[Rho]|      -14.3134|         < -12|         Yes|
++-----------------------------------------------------------------------+
+-------------------------------------------------------------------------
++-----------------------------------------------------------------------+
+|        File Writing Summary       |              Filename             |
++-----------------------------------------------------------------------+
+|SU2 binary restart                 |restart_flow.dat                   |
+|Paraview                           |flow.vtu                           |
+|Paraview surface                   |surface_flow.vtu                   |
++-----------------------------------------------------------------------+
+
+--------------------------- Finalizing Solver ---------------------------
+Deleted CNumerics container.
+Deleted CIntegration container.
+Deleted CSolver container.
+Deleted CIteration container.
+Deleted CInterface container.
+Deleted CGeometry container.
+Deleted CFreeFormDefBox class.
+Deleted CSurfaceMovement class.
+Deleted CVolumetricMovement class.
+Deleted CConfig container.
+Deleted nInst container.
+Deleted COutput class.
+-------------------------------------------------------------------------
+
+------------------------- Exit Success (SU2_CFD) ------------------------
+
+

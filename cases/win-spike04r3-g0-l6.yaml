@@ -1,0 +1,122 @@
+name: win-spike04r3-g0-l6
+description: Windows/WSL exact R3-G0 L6 cross-platform comparison; G0 is diagnostic,
+  not a grid-family validation.
+purpose:
+  spike: SPIKE-04
+  stage: 1
+  round: 3
+  run_id: R3-G0
+  question: Does removing the limited laplacian/snGrad correction (the only scheme
+    term that acts on L6 alone) move L6's Cl toward the L5/L4 level (H1)?
+geometry:
+  airfoil: naca0012 (TMR sharp-trailing-edge definition, 2DN00)
+  chord: 1.0
+  source:
+    kind: tmr-grid
+    path: n0012familyII.6.p2dfmt.gz
+    sha256: 5664336523cb02c8410c4f9dc67eccdfa79b34ea9549b712c0d9fd988aff3244
+    generator: python3 cases/tools/fetch-tmr-grid.py <dir> n0012familyII.6.p2dfmt.gz;
+      cases/tools/run-tmr-case.sh cases/spike04r3-g0-l6.yaml <dir>
+    reference: https://tmbwg.github.io/turbmodels/naca0012numerics_grids.html (grid
+      page; zip https://www.nasa.gov/wp-content/uploads/2026/02/naca0012numerics-grids.zip,
+      member u/piyer/nasa_tmr/gitlab/turbmodels/NACA0012numerics_grids/n0012familyII.6.p2dfmt.gz)
+    deviation: Incompressible simpleFoam (the hydrofoil solver) instead of the TMR
+      compressible M 0.15 run; the compressibility delta is measured by run C-4 (rhoSimpleFoam
+      on level 5), not modelled. Standard (non-point-vortex) far field. SA-noft2 (ESI
+      SpalartAllmaras, S-hat limiter Cs 0.3), not SA-neg.
+conditions:
+  reynolds: 6000000
+  mach: 0.0
+  alpha: 10.0
+  speed_m_s: 1.0
+  reference_length_m: 1.0
+solver: openfoam
+backend:
+  name: OpenCFD Ubuntu runtime under WSL2
+  version: v2512
+  build: _bd2b6720-20260127
+  distribution: openfoam2512=2512.0-2; Ubuntu 24.04.5; cfdw-openfoam2512
+  distribution_sha256: c59e65ffd99c9143fd7c2594dc9776e9d7190124965efdb667e28677d93f3fed
+  binary_sha256:
+    simpleFoam: b7bb6321cac3586878a6c51c07f3139dba651ff1f3dbdb0dd406536b27846ba0
+  activation: evidence-local Linux adapter; env -i, publisher activation, isolated
+    HOME, M1, lint/tree/preflight checks
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: plot3d-direct
+  target_y_plus: null
+  first_cell_height_m: null
+  settings:
+    family: II
+    level: 6
+    dims:
+    - 225
+    - 65
+    span_m: 1.0
+    wake_cut: merged into internal faces by the converter
+  gate:
+    max_non_orthogonality_deg: 70
+    max_skewness: 4
+    min_cell_determinant: 0.001
+physics:
+  application: simpleFoam
+  flow: incompressible-steady
+  turbulence_model: SpalartAllmaras
+  wall_treatment: wall-resolved (nuTilda = 0 and nut = 0 at the wall)
+  transition: none (fully turbulent)
+  fluid:
+    name: non-dimensional
+    nu_m2_s: 1.6666666666666668e-07
+  freestream:
+    U_m_s: 1.0
+    nuTilda_over_nu: 3.0
+boundary_conditions:
+  farfield: freestreamVelocity (cos 10, sin 10, 0) / freestreamPressure 0; nuTilda
+    inletOutlet 3 nu; about 500 c
+  airfoil: noSlip; nuTilda 0; nut 0; p zeroGradient
+  frontAndBack: empty
+numerics:
+  schemes:
+    grad: Gauss linear
+    div_U: bounded Gauss linearUpwind grad(U)
+    div_nuTilda: bounded Gauss upwind
+    laplacian: Gauss linear corrected
+    snGrad: corrected
+  consistent: 'yes'
+  relaxation:
+    U: 0.7
+    nuTilda: 0.7
+    p: 1
+  max_iterations: 40000
+  a4:
+    residual_drop_orders: 3
+    window_iterations: 2000
+    cl_half_band_cap: 1.0e-05
+    cd_half_band_cap: 1.0e-06
+    clean_window: true
+    poll_every_iterations: 1000
+    gci_admission_ratio: 0.01
+    stop_mechanism: a4-monitor.py sends SIGUSR1; bundled controlDict stopAtWriteNowSignal
+      30
+  residual_criterion: 'A4 (DR-F2-1, Ruling 65), stated before the run: (1) every equation''s
+    initial residual, max over the last 2 iterations, <= 1e-3 x its iteration-1 value
+    (ITTC 7.5-03-02-03 three orders); (2) over the last W = 2,000 iterations, U_I
+    = (max - min)/2 <= 1e-5 for Cl and <= 1e-6 for Cd; (3) zero "bounding nuTilda"
+    lines inside W; (4) cases/tools/a4-monitor.py checks every 1,000 iterations and
+    stops the run when 1-3 hold. Reaching max_iterations without A4 is "Completed
+    - residual criterion not met (ran to limit)", a gap and not a number. (5) Admission
+    into GCI: U_I <= 0.01 x |epsilon| of the neighbouring grid pair, for Cl and Cd.
+    Reported value = window mean.'
+decomposition:
+  method: scotch
+  n_subdomains: 2
+  nice: 10
+  max_load_1min: 10
+outputs_expected:
+- log.lint (only on a refusal), log.checkMesh (pre-flight banner), log.simpleFoam
+- a4-monitor.log, a4-stop.txt, convergence.txt (A4 report)
+- postProcessing/forceCoeffs1, postProcessing/solverInfo1, postProcessing/yPlus1,
+  postProcessing/wallP
+- time.<log> (peak RSS from /usr/bin/time -l)
+run_dir: runs/20261008T144237Z-win-spike04r3-g0-l6

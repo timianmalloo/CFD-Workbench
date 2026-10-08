@@ -1,0 +1,1 @@
+n0012familyII.6.p2dfmt.gz bytes=192979 sha256=5664336523cb02c8410c4f9dc67eccdfa79b34ea9549b712c0d9fd988aff3244 zip_path=u/piyer/nasa_tmr/gitlab/turbmodels/NACA0012numerics_grids/n0012familyII.6.p2dfmt.gz

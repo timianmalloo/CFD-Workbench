@@ -1,0 +1,8 @@
+start=2026-10-08T14:43:54Z app=checkMesh load=0.23 0.05 0.02 1/365 572
+end=2026-10-08T14:43:55Z app=checkMesh exit=0 load=0.23 0.05 0.02 1/365 577
+start=2026-10-08T14:43:55Z app=decomposePar load=0.23 0.05 0.02 1/365 781
+end=2026-10-08T14:43:55Z app=decomposePar exit=0 load=0.23 0.05 0.02 1/365 787
+start=2026-10-08T14:43:56Z app=simpleFoam load=0.23 0.05 0.02 1/367 992
+end=2026-10-08T14:44:56Z app=simpleFoam exit=0 load=1.44 0.44 0.15 1/329 1038
+start=2026-10-08T14:44:56Z app=reconstructPar load=1.44 0.44 0.15 1/330 1242
+end=2026-10-08T14:44:56Z app=reconstructPar exit=0 load=1.44 0.44 0.15 1/330 1247

@@ -1,0 +1,6 @@
+grid=n0012familyII.6.p2dfmt.gz sha256=5664336523cb02c8410c4f9dc67eccdfa79b34ea9549b712c0d9fd988aff3244 dims=225x65 te_lower_i=48 te_upper_i=176 airfoil_points=129
+points=29152 cells=14336 faces=57584 internal=28432 airfoil_faces=128 farfield_faces=352
+first_wall_spacing_min=3.706e-06
+freestream U=(0.984807753012 0.173648177667 0) nu=1.66667e-07 nuTilda=5e-07 nut=3.5073e-08
+PASS: all 11 generator-written dictionary hashes equal exact Mac G0 manifest
+{"started_utc": "2026-10-08T14:42:40.606915+00:00", "tested_source_sha": "fd96651e6dd3ad9c01e4fbaa07c62a11fa553c09", "mac_case": "cases/spike04r3-g0-l6.yaml", "absent_shared_case": "cases/spike04r3-g2-l6.yaml", "run": "runs/20261008T144237Z-win-spike04r3-g0-l6", "linux_run": "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6"}
