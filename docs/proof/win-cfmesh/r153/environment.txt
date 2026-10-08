@@ -1,0 +1,3 @@
+WM_PROJECT_VERSION=v2512
+WM_PROJECT_DIR=/usr/lib/openfoam/openfoam2512
+FOAM_APPBIN=/usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin

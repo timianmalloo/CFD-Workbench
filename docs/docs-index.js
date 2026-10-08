@@ -5211,7 +5211,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b75264e958026b280f176686bc28b86c9c02a54d2d79a536b15622a7e931201c"
+      "sourceSha256": "1f88c33c030d9e87e10b2f54b64eaf4d9f13c25e2e52d2603b188f11401b38b6"
     },
     {
       "id": "domain-experts",
@@ -5988,6 +5988,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "562cf3a0159aa8c62c77604b45665e23e7df8b28b68373827ef91b70c101ab7a"
+    },
+    {
+      "id": "proof-win-cfmesh-r153",
+      "path": "docs/proof/win-cfmesh/r153/receipt.md",
+      "title": "W-5 Ruling 153 cartesianMesh availability probe",
+      "type": "doc",
+      "status": "observed",
+      "owner": "@win-w5-cfmesh",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The activated OpenFOAM v2512 environment resolved cartesianMesh; its help exited 0 and confirmed the installed build.",
+      "tags": [
+        "windows",
+        "openfoam",
+        "cfmesh",
+        "probe",
+        "ruling-153"
+      ],
+      "links": [
+        {
+          "to": "proof-win-cfmesh",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d4597a10028cbd83cd25e5633d6bc65265586139b7046c6f9f111539f488415f"
     },
     {
       "id": "proof-windows-store-implementation",
@@ -7482,7 +7509,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e6eb2dafd0fc0bd04de903960411d9258c374857fd50f8e3414ce6e08af38062"
+      "sourceSha256": "7a06fb5319d18e27d9e30690bede4ebe54568818b84780a20239a7d86edd79f0"
     },
     {
       "id": "kb-hw-glossary",
@@ -17182,5 +17209,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c19c15e87521cdb81ac20cb1f5c0d49e5f84c5a6b4d8766f4a732339be7f8de8"
+  "graphSha256": "870e75ed7887a2546112eed0bc275ed7706ce6cc4ee26236f4223ce5e2e76010"
 };

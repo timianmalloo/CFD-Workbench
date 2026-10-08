@@ -1,0 +1,18 @@
+
+Usage: cartesianMesh [OPTIONS]
+Options:
+  -case <dir>       Case directory (instead of current directory)
+  -decomposeParDict <file>
+                    Alternative decomposePar dictionary file
+  -parallel         Run in parallel
+  -doc              Display documentation in browser
+  -help             Display short help and exit
+  -help-full        Display full help and exit
+
+(cfmesh)
+Takes a triangulated surface and generates a cartesian mesh
+
+Using: OpenFOAM-2512 (2512) - visit www.openfoam.com
+Build: _bd2b6720-20260127
+Arch:  LSB;label=32;scalar=64
+

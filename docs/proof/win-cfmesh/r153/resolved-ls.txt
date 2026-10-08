@@ -1,0 +1,1 @@
+-rwxr-xr-x 1 root root 18544 Jan 27  2026 /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/cartesianMesh
