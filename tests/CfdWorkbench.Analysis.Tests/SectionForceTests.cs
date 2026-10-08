@@ -35,7 +35,7 @@ internal static class SectionForceTests
     {
         Equal("lattice, 1 chordwise panel; biased forward at low lift", Labels.LatticeBias(1), "one panel reads singular");
         Equal("lattice, 4 chordwise panels; biased forward at low lift", Labels.LatticeBias(4), "four panels read plural");
-        Equal("M′ c/4 (lattice, 1 chordwise panel; biased forward at low lift)", Labels.CoupleRowLabel(1), "the table row label follows");
+        Equal("M′ c/4 (lattice, 1 chordwise panel)", Labels.CoupleRowLabel(1), "the table row label drops the bias at one panel (Ruling 161)");
     }
 
     /// <summary>The Example foil at one chordwise panel: the lattice vortex sits at c/4, so the c/4 couple is zero by construction.</summary>
@@ -57,7 +57,7 @@ internal static class SectionForceTests
     {
         (SectionForces f, ResultGroup table) = ExampleRun(1);
         Console.WriteLine($"MEASURE NUM nc=1 Example foil: couple {f.CouplePerSpan:E3} N.m/m, q c^2 {f.CoupleScale:E3} N, ratio {Math.Abs(f.CouplePerSpan) / f.CoupleScale:E3}");
-        Equal("0.00", table.Rows.Single(r => r.Label == Labels.CoupleRowLabel(1)).Value, "the table row shows the round-off couple as zero");
+        Equal(Labels.MomentNotResolved, table.Rows.Single(r => r.Label == Labels.CoupleRowLabel(1)).Value, "the table row reads Not resolved at one panel (Ruling 161)");
         Equal("M′ c/4 (lattice) 0.00 N·m/m", Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, Units.Metric), "the profile label shows it as zero");
     }
 
