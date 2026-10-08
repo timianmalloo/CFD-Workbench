@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T19:09:41Z",
+  "generated": "2026-10-08T19:41:16Z",
   "audit": [
     {
       "actor": null,
@@ -30478,6 +30478,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T19:09:30Z",
       "duration_seconds": 11.0
+    },
+    {
+      "id": "al-01M4EGHH2E5B0JQX1B8V9ASKFZ",
+      "shortname": "caf-catalog-determinism",
+      "datetime": "2026-10-08T19:41:16Z",
+      "session": "trk-caf",
+      "prompt": "trk-caf: catalog generator naca4-closed/2 (Ruling 156)",
+      "summary": "Commit 50499dcc catalog /2 re-record plus gate, spacing golden, defect class CRT-GOLDEN, GEO-A; commit 06223cb8 Placement managed trig plus placement-surface-bits re-record. run-tests all pass; cross-OS determinism Inferred until the Windows ring.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Implement Ruling 156 option A: sqrt-only/CosPi catalog generator naca4-closed/2 with one re-record, Placement CosPi/SinCosPi with one re-record, controls (b)-(f), GEO-A",
+      "done_when": "Catalog and Placement commits green; red-first, residual, surfaces proofs; gate wired; run-tests, check-docs, verify gates pass"
     }
   ],
   "changes": [
@@ -32641,6 +32659,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4ECEZ7YHDAWWZYWMMSRHE7V",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4EF6N50H1CX0G6YGDQ41HZ9",
+      "ts": "2026-10-08T19:17:51Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EF6N4WYAFF925S9C4A6WQN",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EF6N82PPSXFGVSY0H9YP47",
+      "ts": "2026-10-08T19:17:51Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EF6N4WYAFF925S9C4A6WQN",
+      "session": "fable-owner"
     }
   ]
 };
