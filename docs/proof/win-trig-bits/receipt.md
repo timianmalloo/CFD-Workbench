@@ -6,7 +6,7 @@ status: draft
 owner: "@pc"
 tags: [windows, determinism, trigonometry, evidence]
 links:
-  - {to: investigation-cat-determinism, rel: tests}
+  - {to: investigation-cat-determinism, rel: relates-to}
 review-by: 2027-10-08
 summary: One Windows x64 Release run records the requested .NET 10 trigonometric bit patterns and host/runtime details. It is a single-host measurement, not cross-platform proof.
 ---

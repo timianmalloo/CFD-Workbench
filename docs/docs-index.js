@@ -15406,6 +15406,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "bacc282776edd12565365d6c2a336fa2f553a8ea67a20d8d5d3723c97980154f"
     },
     {
+      "id": "proof-win-trig-bits-20261008",
+      "path": "docs/proof/win-trig-bits/receipt.md",
+      "title": "Windows .NET 10 trigonometric bit dump",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@pc",
+      "phase": "",
+      "reviewBy": "2027-10-08",
+      "reviewSuggested": [],
+      "summary": "One Windows x64 Release run records the requested .NET 10 trigonometric bit patterns and host/runtime details. It is a single-host measurement, not cross-platform proof.",
+      "tags": [
+        "windows",
+        "determinism",
+        "trigonometry",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "investigation-cat-determinism",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fec655458e7ff3f60486eb4045bc346ac8b71b89fbfbc2e942292031cd33108c"
+    },
+    {
       "id": "proof-windows-runtime",
       "path": "docs/proof/windows-runtime.md",
       "title": "Windows W0 preparation and failed W1 hosted qualification",
@@ -17430,5 +17456,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e193553308c91ab1057f4c1bea1c10cd9cb41a93d4ac481acb81490e70365124"
+  "graphSha256": "53a9decc83dc1a0ae764719ea87ffcfa5b1ba3c2234c32ded7b5e3dbdb7127ce"
 };
