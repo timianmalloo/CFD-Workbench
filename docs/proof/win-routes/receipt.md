@@ -150,7 +150,7 @@ then delivery/review. W-4/W-5 held. Numerical route needs no operator repair; re
 **Verified:** executed exactly once at `614f9cce009b0bc7cfaee55faec1bcc679e8782c` after coordinator capacity release. No solver rerun, product repair,
 SDK installation, persistent host change or second ring. Exact entry command: `py -3 docs/proof/win-routes/r133/run-application-ring.py`;
 the wrapper invoked `C:/Program Files/Git/bin/bash.exe --noprofile --norc tools/run-tests.sh` using the repository's
-`tools/py-resolve.sh`. Process-only environment: `DOTNET_ROOT=C:\Users\malla\.dotnet`, that directory prepended to
+`tools/py-resolve.sh`. Process-only environment: `DOTNET_ROOT=%USERPROFILE%\.dotnet`, that directory prepended to
 PATH, `CFD_TEST_BUDGET_SECONDS=60`; observed SDK **10.0.203**. UTC start `2026-10-07T22:19:05.448715+00:00`.
 
 Overall exit **1**. Wrapper wall **62.473272 s**; ring wall **60,992 ms** (printed 61 s), exceeding the 60 s budget by

@@ -80,7 +80,11 @@ public partial class StartView : UserControl
         OpeningPanel.IsVisible = false;
     }
 
-    public static string FailureMessage(OpenFailure failure, string fileName) => failure switch
+    /// <summary>The approved open sentence (COPY-103, 125 to 130) and, on a second line, the code that fired (COPY-424, Ruling 155).</summary>
+    public static string FailureMessage(OpenFailure failure, string fileName) =>
+        Sentence(failure, fileName) + "\n" + CfdWorkbench.Analysis.Labels.OpenCodeLine(failure.Code);
+
+    private static string Sentence(OpenFailure failure, string fileName) => failure switch
     {
         OpenFailure.Missing => "It isn't where it was — it may have been moved, renamed or deleted. The file hasn't been changed.",
         OpenFailure.AccessDenied => "CFD Workbench isn't allowed to read it. The file hasn't been changed. Check its permissions in Finder, or open another file.",

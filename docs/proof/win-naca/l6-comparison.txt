@@ -1,0 +1,41 @@
+{
+  "Cl": {
+    "window_means": {
+      "mac": 1.051600898,
+      "windows": 1.051599294
+    },
+    "half_bands": {
+      "mac": 7.925e-06,
+      "windows": 1.942e-06
+    },
+    "windows_minus_mac": -1.6039999999328813e-06,
+    "absolute_difference": 1.6039999999328813e-06,
+    "relative_difference": -1.5252934863249626e-06,
+    "sum_iterative_half_bands": 9.866999999999999e-06
+  },
+  "Cd": {
+    "window_means": {
+      "mac": 0.014812212,
+      "windows": 0.014812115
+    },
+    "half_bands": {
+      "mac": 3.314e-07,
+      "windows": 8.962e-07
+    },
+    "windows_minus_mac": -9.699999999925046e-08,
+    "absolute_difference": 9.699999999925046e-08,
+    "relative_difference": -6.548650532361437e-06,
+    "sum_iterative_half_bands": 1.2276e-06
+  },
+  "Courant": {
+    "mac": "Not recorded",
+    "windows": "Not recorded",
+    "difference": "Not recorded",
+    "reason": "Exact steady simpleFoam case and archived reference do not emit Courant; no derived substitute"
+  },
+  "classification": "Measured cross-OS differences at printed precision on this one G0 diagnostic; no global tolerance, GCI, physical validation or future-build admission envelope",
+  "report_sha256": {
+    "mac": "3efbbabda91f47a8e2226d2adbeff5b6c6f00dc6d9e5eb32b634d7a2a751d801",
+    "windows": "e79a1b3d1e72d93cc8200d6e0312ff5af265e284ee6ec15ffda84e93e6e5c242"
+  }
+}

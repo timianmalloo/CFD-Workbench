@@ -55,6 +55,8 @@ public sealed record ReplaceEvent(string Scope, int Stations, double ResidualCho
     /// <summary>catalog.preview only: the catalog family (null for a .dat file) and the rights class of the source.</summary>
     public string? Family { get; init; }
     public string? Class { get; init; }
+    /// <summary>catalog.preview only: set when the family was needed and the catalog was unavailable (code, check, detail); null otherwise.</summary>
+    public string? FamilyRefusal { get; init; }
 }
 public sealed record DimensionCommand(string Name, string Text);
 /// <summary>SetTo gives every point the value; MoveBy moves every point by it. Span is the position along the span (MoveBy only: points can't share one).</summary>
@@ -400,9 +402,9 @@ public sealed class AuthoringSession : IDisposable
             pendingFitUm = preview.FitResidual * preview.AcceptanceChord * 1e6;
             pendingFitAboveLimit = preview.RefusalCode is not null;
             pendingPointsAfter = preview.PointsPerSurface;
-            var (family, rights) = SectionReplace.Describe(source);
+            var (family, rights, refusal) = SectionReplace.Describe(source);
             pendingReplace = new(scope == ReplaceScope.BlendChain ? "chain" : "draft", preview.Stations.Count, preview.FitResidual, preview.Spacing)
-            { Family = family, Class = rights };
+            { Family = family, Class = rights, FamilyRefusal = refusal };
         }
         Record("catalog.preview", preview.RefusalCode?.ToLowerInvariant() ?? "ok", timer.Elapsed.TotalMilliseconds, bytes.Length, null, generation,
             "cfdw-cv/2", editKind: "section", stepKind: preview.Spacing);

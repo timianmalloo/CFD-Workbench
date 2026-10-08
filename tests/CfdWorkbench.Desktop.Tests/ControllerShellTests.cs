@@ -306,7 +306,7 @@ public static class ControllerShellTests
             using var controller = new WorkbenchController();
             var parsed = FoilSource.Parse(File.ReadAllBytes("docs/examples/foildsl/invalid-geometry.foil"));
             var candidateWithIds = FoilSource.MaterializeIds(parsed);
-            string tempPath = Path.Combine(Path.GetTempPath(), $"uncertified-{Guid.NewGuid():N}.foil");
+            string tempPath = TestTemp.Combine($"uncertified-{Guid.NewGuid():N}.foil");
             File.WriteAllBytes(tempPath, candidateWithIds);
             try
             {
@@ -642,7 +642,7 @@ public static class ControllerShellTests
         {
             var (controller, pointRef, point) = OpenPoint(); using (controller)
             {
-                string path = Path.Combine(Path.GetTempPath(), $"u1a-{Guid.NewGuid():N}.cfdw.json");
+                string path = TestTemp.Combine($"u1a-{Guid.NewGuid():N}.cfdw.json");
                 try
                 {
                     Begin(controller, pointRef); Move(controller, point, 0, 0.004);

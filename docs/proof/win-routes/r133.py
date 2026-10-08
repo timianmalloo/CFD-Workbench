@@ -132,7 +132,7 @@ def freeze():
     print(json.dumps(state),flush=True)
 if __name__=='__main__':
     if sys.argv[1]=='extract':
-        package='/mnt/c/Users/malla/AppData/Local/CFDWorkbench/qualification/openfoam2512-tutorials_2512.0-2_all.deb'
+        package='/mnt/c'+pathlib.PureWindowsPath(os.environ['USERPROFILE']).as_posix()[2:]+'/AppData/Local/CFDWorkbench/qualification/openfoam2512-tutorials_2512.0-2_all.deb'
         run('fixture-parent',WSL+['mkdir','-p','/root/CFDWorkbench/fixture-cache'])
         output=run('fixture-observed-sha256',WSL+['sha256sum',package])
         if output.split()[0]!='4c87494c17a1381853af8a828e8df3a741d9cde5e06bb0212f3fc6940d889473': raise SystemExit('package hash mismatch')

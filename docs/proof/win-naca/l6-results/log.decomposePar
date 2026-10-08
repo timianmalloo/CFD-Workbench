@@ -1,0 +1,79 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2512                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+Build  : _bd2b6720-20260127 OPENFOAM=2512 version=2512
+Arch   : "LSB;label=32;scalar=64"
+Exec   : /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/decomposePar -case /root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6 -force
+Date   : Oct 08 2026
+Time   : 07:43:55
+Host   : extreme1
+PID    : 784
+I/O    : uncollated
+Case   : /root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6
+nProcs : 1
+trapFpe: Floating point exception trapping enabled (FOAM_SIGFPE).
+memory pool : not available
+fileModificationChecking : Monitoring run-time modified files using timeStampMaster (fileModificationSkew 5, maxFileModificationPolls 20)
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+
+Decomposing mesh
+
+Create mesh
+
+Calculating distribution of cells
+Decomposition method scotch [2] (region region0)
+
+Finished decomposition in 0.01 s
+
+Calculating original mesh data
+
+Distributing cells to processors
+
+Distributing faces to processors
+
+Distributing points to processors
+
+Constructing processor meshes
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+Processor 0
+    Number of cells = 7232
+    Number of points = 14820
+    Number of faces shared with processor 1 = 112
+    Number of processor patches = 1
+    Number of processor faces = 112
+    Number of boundary faces = 14706
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+Processor 1
+    Number of cells = 7104
+    Number of points = 14560
+    Number of faces shared with processor 0 = 112
+    Number of processor patches = 1
+    Number of processor faces = 112
+    Number of boundary faces = 14446
+
+Number of processor faces = 112
+Max number of cells = 7232 (0.892857142857% above average 7168)
+Max number of processor patches = 1 (0% above average 1)
+Max number of faces between processors = 112 (0% above average 112)
+
+Time = 0
+
+Processor 0: field transfer
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+Processor 1: field transfer
+sigStopAtWriteNow : Enabling writing and stopping upon signal 30
+
+End
+

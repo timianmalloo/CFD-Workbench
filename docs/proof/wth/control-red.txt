@@ -1,0 +1,8 @@
+STAGE SelfLaunchTests
+APP-UNHANDLED APP-CRASH System.Exception
+System.Exception: SelfLaunchTests failed:
+  no Desktop, Core or Cli test builds a scratch path from the raw temp directory: use TestTemp.Root / TestTemp.NewDirectory instead of the raw temp path in CfdWorkbench.Core.Tests/LayoutFileTests.cs, CfdWorkbench.Core.Tests/SectionLibraryTests.cs, CfdWorkbench.Core.Tests/ProjectStoreTests.cs, CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs, CfdWorkbench.Cli.Tests/CliTests.cs
+  no test passes a literal windows: true|false to a platform branch without a host guard: guard the call with OperatingSystem.IsWindows() / !IsWindows() in CfdWorkbench.Core.Tests/PreferenceStoreTests.cs:71, CfdWorkbench.Core.Tests/PreferenceStoreTests.cs:77
+   at CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run() in /Users/mallalieut/projects/CFD-Workbench-fix-wth-test-hygiene/tests/CfdWorkbench.Desktop.Tests/SelfLaunch.cs:line 41
+   at Program.<Main>$(String[] args) in /Users/mallalieut/projects/CFD-Workbench-fix-wth-test-hygiene/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs:line 28
+   at Program.<Main>(String[] args)

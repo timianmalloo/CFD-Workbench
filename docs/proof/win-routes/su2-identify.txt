@@ -1,6 +1,6 @@
 SU2 v8.5.0 "Harrier", The Open-Source CFD Code
 
-Usage: C:\Users\malla\AppData\Local\CFDWorkbench\qualification\su2-8.5.0\bin\bin\SU2_CFD.exe [OPTIONS] [configfile]
+Usage: %USERPROFILE%\AppData\Local\CFDWorkbench\qualification\su2-8.5.0\bin\bin\SU2_CFD.exe [OPTIONS] [configfile]
 
 
 

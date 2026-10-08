@@ -1,0 +1,8 @@
+iterations=7577 A4=MET
+clauses 1_residual_drop=pass 2_stationarity=pass 3_clean_window=pass
+residual_ratio_last2_over_first Ux=4.717e-10 Uy=1.377e-08 nuTilda=3.250e-09 p=1.842e-08
+window iterations 5578..7577 (W=2000)
+Cl_window_mean=1.051599294 Cl_U_I=1.942e-06 cap=1.0e-05 Cl_last=1.051599536
+Cd_window_mean=0.014812115 Cd_U_I=8.962e-07 cap=1.0e-06 Cd_last=0.014811238
+bounding_nuTilda_iterations_in_window=0
+stopped_by_A4=A4 met at iteration 7571; SIGUSR1 sent to pids 998 999 at 2026-10-08T07:44:56-0700

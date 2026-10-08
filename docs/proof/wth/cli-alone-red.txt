@@ -1,0 +1,8 @@
+CLI Example identity, assessment, bounded projection and extension refusal passed.
+FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp
+Unhandled exception. System.InvalidOperationException: inspect --runs returned 3: {
+  "code": "DOC-UNSUPPORTED-PERSISTENCE"
+}
+
+   at Program.<Main>$(String[] args) in /Users/mallalieut/projects/CFD-Workbench-fix-wth-test-hygiene/tests/CfdWorkbench.Cli.Tests/CliTests.cs:line 179
+   at Program.<Main>(String[] args)

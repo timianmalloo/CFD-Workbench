@@ -1,0 +1,60 @@
+STAGE SelfLaunchTests
+SelfLaunchTests: all 9 cases passed.
+STAGE native-review-options
+FAIL Save_ExistingFile_DefiniteCreateOnlyConflict Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted ContractError: DOC-UNSUPPORTED-PERSISTENCE
+Desktop Example, bounded preview, cancel, apply, undo and redo passed.
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+STAGE SectionCanvasTests
+SectionCanvas: all 7 test cases passed.
+STAGE spawn
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+FAIL Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Commands_SectionMenu_ReplaceSaveImportRowsRun InvalidOperationException: Save to My sections did not write the named section
+FAIL Controller_QuotedNameAndBraceProvenance_SaveReload ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_CatalogTelemetry_OmitsInapplicableFields ContractError: DOC-UNSUPPORTED-PERSISTENCE
+PARTITION 1/2 of 109 checks
+FAIL --section-editor --part=1/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+PARTITION 1/2 of 67 checks
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+NATIVE-STARTUP window-opened
+FAIL Recent_OpenedOutcome_AppendsPath InvalidOperationException: D2 Opened did not add the file to P1 recent rows
+NATIVE-STARTUP window-opened
+FAIL Telemetry_MarkerInjection_AbsentEverywhere InvalidOperationException: Marker probe did not open and record the file
+FAIL OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath InvalidOperationException: Remove from Recent did not retain only the other path
+FAIL RailEditorPane_Removed_NoReferencesRemain ContractError: DOC-UNSUPPORTED-PERSISTENCE
+NATIVE-STARTUP window-opened
+NATIVE-STARTUP window-opened
+NATIVE-STARTUP window-opened
+NATIVE-STARTUP window-opened
+PARTITION 2/2 of 116 checks
+FAIL --shell-window --part=2/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+MEASURE catalog.preview naca-4412 47 ms off-ui (design 140-240 under load, readiness target 50)
+FAIL Controller_SaveMine_DraftDocumentUndoUnchanged ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveMine_ListedAfterOpeningAnotherFoil ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_CatalogTelemetry_NamedSessionRing ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveOffUiThread_HonorsCancellation ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL SaveDialog_EmptyOrDuplicate_ErrorFocusStays ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL SaveDialog_Save_LiveRegionFocusToSectionMenu Exception: Save did not publish and announce the exact name
+PARTITION 2/2 of 109 checks
+FAIL --section-editor --part=2/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+PARTITION 2/2 of 67 checks
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+NATIVE-STARTUP window-opened
+FAIL Recent_StoredRows_StartAndFileMenu InvalidOperationException: Recent fixture was not stored: failed/DOC-UNSUPPORTED-PERSISTENCE/absent root=/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/cfdw-d3a-recent-a97d30dfae9b4b59ae69a32b60881f
+NATIVE-STARTUP window-opened
+FAIL Copy_RecentNotCleared_StatusAndTryAgain InvalidOperationException: COPY-147: expected 'The recent-files list wasn't cleared: it was saved by a newer version of CFD Workbench. The list is unchanged. · Try again', built 'The recent-files
+FAIL Recovery_RailDraftResumed_PlanShowsDraftApplyCommits InvalidOperationException: opened project has no recovery: Open Example or a .foil / .cfdw.json file.
+NATIVE-STARTUP window-opened
+NATIVE-STARTUP window-opened
+NATIVE-STARTUP window-opened

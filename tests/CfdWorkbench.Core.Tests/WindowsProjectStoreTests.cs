@@ -13,7 +13,7 @@ internal static class WindowsProjectStoreTests
     {
         Check("WindowsStore_Unqualified_ProductionAdmissionRemainsClosed", () =>
         {
-            string root = Path.Combine(Path.GetTempPath(), "cfd-win-native-" + Guid.NewGuid().ToString("N"));
+            string root = TestTemp.Combine("cfd-win-native-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(root);
             try
             {
@@ -30,7 +30,7 @@ internal static class WindowsProjectStoreTests
         Check("WindowsNative_Environment_RealNtfsX64", () =>
         {
             Equal(Architecture.X64, RuntimeInformation.ProcessArchitecture);
-            Equal("NTFS", new DriveInfo(Path.GetPathRoot(Path.GetTempPath())!).DriveFormat);
+            Equal("NTFS", new DriveInfo(Path.GetPathRoot(TestTemp.Root)!).DriveFormat);
             Equal(true, OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393));
             Console.WriteLine($"NATIVE-ENV os={Environment.OSVersion.Version} arch={RuntimeInformation.ProcessArchitecture} filesystem=NTFS");
         });
@@ -259,7 +259,7 @@ internal static class WindowsProjectStoreTests
 
     private static void Fixture(Action<string, SafeFileHandle> check)
     {
-        string root = Path.Combine(Path.GetTempPath(), "cfd-win-native-" + Guid.NewGuid().ToString("N"));
+        string root = TestTemp.Combine("cfd-win-native-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         try { using var parent = WindowsNative.OpenFixtureDirectory(root); check(root, parent); }
         finally { Directory.Delete(root, true); }

@@ -33,7 +33,7 @@ and post `pr-ready` through `tools/xmsg.py`.
 | item | observed state |
 |---|---|
 | Git | primary and coordinator worktrees clean at `origin/main` `7102e90fd04d`; `core.autocrlf=false` |
-| .NET | SDK `10.0.203` selected from `C:\Users\malla\.dotnet` |
+| .NET | SDK `10.0.203` selected from `%USERPROFILE%\.dotnet` |
 | coordination | nine artifact patterns; `coord-regen` and `coord-register` effective |
 | GitHub | `gh` authenticated as `timianmalloo` with repository access |
 | host | Windows x64; i9-12900H, 14 cores / 20 logical processors; 31.7 GiB RAM |

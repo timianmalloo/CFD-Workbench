@@ -1,0 +1,7 @@
+	linux-vdso.so.1 (0x00007b0f2ae12000)
+	libfiniteVolume.so => not found
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007b0f2a800000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007b0f2ab72000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x00007b0f2ab44000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007b0f2a400000)
+	/lib64/ld-linux-x86-64.so.2 (0x00007b0f2ae14000)

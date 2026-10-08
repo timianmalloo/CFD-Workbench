@@ -1,0 +1,23 @@
+	Command being timed: "/usr/bin/timeout --signal=TERM 3000s /usr/bin/nice -n 10 mpirun --allow-run-as-root -np 2 /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/simpleFoam -parallel -case /root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6"
+	User time (seconds): 115.01
+	System time (seconds): 5.30
+	Percent of CPU this job got: 200%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:00.00
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 101412
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 187
+	Minor (reclaiming a frame) page faults: 2374671
+	Voluntary context switches: 50002
+	Involuntary context switches: 309
+	Swaps: 0
+	File system inputs: 190928
+	File system outputs: 19064
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

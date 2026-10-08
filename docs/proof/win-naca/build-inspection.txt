@@ -1,0 +1,87 @@
+Build: v2512
+Appbin: /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin
+Libbin: /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib
+b7bb6321cac3586878a6c51c07f3139dba651ff1f3dbdb0dd406536b27846ba0  /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/simpleFoam
+a40a540436bd8214958cf67b6f266696f29fc6de343460df849c195639dab75b  /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/checkMesh
+7192f1800a7058738274d71e6d82434023541e40b3c0be84c1ccd955b9551814  /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/decomposePar
+09d7641138ab75ca442b96a6e3cc6ac57fdac8348da20a1d633f6eec7c495594  /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/reconstructPar
+
+Usage: simpleFoam [OPTIONS]
+Options:
+  -case <dir>       Case directory (instead of current directory)
+  -decomposeParDict <file>
+                    Alternative decomposePar dictionary file
+  -dry-run          Check case set-up only using a single time step
+  -dry-run-write    Check case set-up and write only using a single time step
+  -parallel         Run in parallel
+  -postProcess      Execute functionObjects only
+  -doc              Display documentation in browser
+  -help             Display short help and exit
+  -help-full        Display full help and exit
+
+Steady-state solver for incompressible, turbulent flows.
+
+Using: OpenFOAM-2512 (2512) - visit www.openfoam.com
+Build: _bd2b6720-20260127
+Arch:  LSB;label=32;scalar=64
+
+openfoam2512:amd64	2512.0-2
+openfoam2512-common	2512.0-2
+/usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfusedFiniteVolume.so
+	linux-vdso.so.1 (0x000071306c733000)
+	libfiniteVolume.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfiniteVolume.so (0x000071306b400000)
+	libfvOptions.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfvOptions.so (0x000071306b000000)
+	libmeshTools.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libmeshTools.so (0x000071306aa00000)
+	libsampling.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libsampling.so (0x000071306a600000)
+	libdynamicMesh.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libdynamicMesh.so (0x000071306a200000)
+	libdynamicFvMesh.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libdynamicFvMesh.so (0x000071306c5dc000)
+	libturbulenceModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libturbulenceModels.so (0x000071306b271000)
+	libincompressibleTurbulenceModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libincompressibleTurbulenceModels.so (0x0000713069e00000)
+	libincompressibleTransportModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libincompressibleTransportModels.so (0x000071306a975000)
+	libatmosphericModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libatmosphericModels.so (0x000071306a07a000)
+	libOpenFOAM.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libOpenFOAM.so (0x0000713069400000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x0000713069000000)
+	libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x0000713069d17000)
+	libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1 (0x000071306b23d000)
+	libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x0000713068c00000)
+	libfileFormats.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfileFormats.so (0x000071306930a000)
+	libsurfMesh.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libsurfMesh.so (0x0000713068e27000)
+	libPstream.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/sys-openmpi/libPstream.so (0x000071306a94d000)
+	libfluidThermophysicalModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libfluidThermophysicalModels.so (0x0000713068400000)
+	libsolidThermo.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libsolidThermo.so (0x0000713068ad9000)
+	libcompressibleTurbulenceModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libcompressibleTurbulenceModels.so (0x000071306821f000)
+	libreactionThermophysicalModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libreactionThermophysicalModels.so (0x0000713067800000)
+	liboverset.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/liboverset.so (0x0000713067654000)
+	liblagrangian.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/liblagrangian.so (0x000071306a03f000)
+	libextrudeModel.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libextrudeModel.so (0x000071306a01b000)
+	libtwoPhaseMixture.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libtwoPhaseMixture.so (0x0000713069cf1000)
+	libz.so.1 => /lib/x86_64-linux-gnu/libz.so.1 (0x00007130692ee000)
+	/lib64/ld-linux-x86-64.so.2 (0x000071306c735000)
+	libmpi.so.40 => /lib/x86_64-linux-gnu/libmpi.so.40 (0x00007130680ed000)
+	libcompressibleTransportModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libcompressibleTransportModels.so (0x000071306b235000)
+	libspecie.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libspecie.so (0x0000713067200000)
+	libthermophysicalProperties.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libthermophysicalProperties.so (0x0000713068a53000)
+	libsolidSpecie.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libsolidSpecie.so (0x00007130692c3000)
+	libradiationModels.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libradiationModels.so (0x0000713067525000)
+	libblockMesh.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libblockMesh.so (0x0000713067179000)
+	libdecompositionMethods.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libdecompositionMethods.so (0x00007130670f0000)
+	libopen-rte.so.40 => /lib/x86_64-linux-gnu/libopen-rte.so.40 (0x0000713067034000)
+	libopen-pal.so.40 => /lib/x86_64-linux-gnu/libopen-pal.so.40 (0x0000713066f80000)
+	libhwloc.so.15 => /lib/x86_64-linux-gnu/libhwloc.so.15 (0x000071306808c000)
+	libSLGThermo.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libSLGThermo.so (0x000071306aff5000)
+	libdistributed.so => /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/lib/libdistributed.so (0x0000713066ee2000)
+	libevent_core-2.1.so.7 => /lib/x86_64-linux-gnu/libevent_core-2.1.so.7 (0x000071306928e000)
+	libevent_pthreads-2.1.so.7 => /lib/x86_64-linux-gnu/libevent_pthreads-2.1.so.7 (0x000071306a948000)
+	libudev.so.1 => /lib/x86_64-linux-gnu/libudev.so.1 (0x00007130674f2000)
+	libcap.so.2 => /lib/x86_64-linux-gnu/libcap.so.2 (0x000071306a00e000)
+Installed runtime has no src tree; source-level supported offload contract Not recorded.
+/usr/lib/openfoam/openfoam2512/etc/config.sh/kahip:18:#     Setup for KAHIP include/libraries (usually ThirdParty installation).
+/usr/lib/openfoam/openfoam2512/etc/config.sh/kahip:20:#     To disable its use:               KAHIP_VERSION=kahip-none
+/usr/lib/openfoam/openfoam2512/etc/config.sh/kahip:21:#     For system-wide installations:    KAHIP_VERSION=kahip-system
+/usr/lib/openfoam/openfoam2512/etc/config.sh/kahip:25:#       2. and provide full path for KAHIP_ARCH_PATH
+/usr/lib/openfoam/openfoam2512/etc/config.sh/kahip:28:#     KaHIP is 32-bit precision only.
+/usr/lib/openfoam/openfoam2512/etc/config.sh/kahip:39:KAHIP_VERSION=kahip-none
+/usr/lib/openfoam/openfoam2512/etc/config.sh/kahip:40:export KAHIP_ARCH_PATH=$WM_THIRD_PARTY_DIR/platforms/$WM_ARCH$WM_COMPILER/$KAHIP_VERSION
+/usr/lib/openfoam/openfoam2512/etc/config.sh/unset:154:unset KAHIP_ARCH_PATH
+name, driver_version, memory.total [MiB]
+NVIDIA GeForce RTX 3080 Ti Laptop GPU, 596.47, 16384 MiB

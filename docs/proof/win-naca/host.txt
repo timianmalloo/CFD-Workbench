@@ -1,0 +1,5 @@
+{"Caption":"Microsoft Windows 11 Pro","Version":"10.0.26300","BuildNumber":"26300","TotalVisibleMemorySize":33212280}
+{"Name":"12th Gen Intel(R) Core(TM) i9-12900H","NumberOfCores":14,"NumberOfLogicalProcessors":20}
+{"TotalPhysicalMemory":34009374720}
+Python 3.13.14
+fd96651e6dd3ad9c01e4fbaa07c62a11fa553c09

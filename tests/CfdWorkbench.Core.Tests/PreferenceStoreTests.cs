@@ -66,16 +66,25 @@ internal static class PreferenceStoreTests
 
     private static void DirectoryLinkWindowsBranch()
     {
-        System.Diagnostics.ProcessStartInfo? seen = null;
-        string link = Path.Combine(LayoutFileTests.Root(), "prefs");
-        Equal(false, TryDirectoryLink(link, "/real", windows: true, info => { seen = info; return 1; }));
-        Equal(false, seen is null);
-        Equal("cmd.exe", seen!.FileName);
-        Equal("/c|mklink|/J|" + link + "|/real", string.Join('|', seen.ArgumentList));
-        Equal(false, Directory.Exists(link));
-        string real = LayoutFileTests.Root(), made = Path.Combine(LayoutFileTests.Root(), "alias");
-        Equal(true, TryDirectoryLink(made, real, windows: false, _ => throw new InvalidOperationException("macOS must not shell out")));
-        Equal(true, new DirectoryInfo(made).LinkTarget is not null);
+        // Each half runs only on the host whose branch it exercises (TEST-FOREIGN-OS-BRANCH); the other half is not assessed here.
+        if (OperatingSystem.IsWindows())
+        {
+            System.Diagnostics.ProcessStartInfo? seen = null;
+            string link = Path.Combine(LayoutFileTests.Root(), "prefs");
+            Equal(false, TryDirectoryLink(link, "/real", windows: true, info => { seen = info; return 1; }));
+            Equal(false, seen is null);
+            Equal("cmd.exe", seen!.FileName);
+            Equal("/c|mklink|/J|" + link + "|/real", string.Join('|', seen.ArgumentList));
+            Equal(false, Directory.Exists(link));
+        }
+        else Console.WriteLine("NOT ASSESSED directory-link: the junction command is checked on a Windows host only");
+        if (!OperatingSystem.IsWindows())
+        {
+            string real = LayoutFileTests.Root(), made = Path.Combine(LayoutFileTests.Root(), "alias");
+            Equal(true, TryDirectoryLink(made, real, windows: false, _ => throw new InvalidOperationException("macOS must not shell out")));
+            Equal(true, new DirectoryInfo(made).LinkTarget is not null);
+        }
+        else Console.WriteLine("NOT ASSESSED directory-link: the symbolic-link branch is checked on a non-Windows host only");
     }
 
     private static void Absent()

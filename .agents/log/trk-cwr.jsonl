@@ -1,0 +1,2 @@
+{"agent": "trk-cwr", "at": 1791484555.840592, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-cwr", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feature-cwr-cause-copy"}
+{"agent": "trk-cwr", "at": 1791485926.211256, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-cwr", "wi": "WI-0", "worktree": "CFD-Workbench-feature-cwr-cause-copy"}

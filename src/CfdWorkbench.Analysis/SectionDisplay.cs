@@ -34,7 +34,7 @@ public sealed record ChartModel(string Id, string Title, IReadOnlyList<ChartPlot
 /// <summary>The Section tab content for one shown station (DXM-9): tables and the four charts of one chart selector (DXM-4).</summary>
 public sealed record SectionView(double Eta, bool IsGoverning, string StationName, IReadOnlyList<ResultGroup> Groups,
     IReadOnlyList<ChartModel> Charts, int UnderreadSolves, IReadOnlyList<StationTableRow>? StationTable = null,
-    SectionProfile? Profile = null);
+    SectionProfile? Profile = null, string? StationsCaption = null);
 
 /// <summary>
 /// The Section view's profile (approved mockup, DX state 5): the closed outline as panel points in order (upper TE to LE, then
@@ -58,7 +58,7 @@ public enum ForceAnchor { CentreOfPressure, QuarterChord }
 public sealed record SectionForces(double Eta, double ChordMeters, double AlphaGeoDeg, double AlphaEffDeg, double AlphaIDeg, double ClLattice,
     double LiftPerSpan, double CouplePerSpan, double? XcpOverC, ForceAnchor Anchor, string XcpText,
     double? ProfileLow, double? ProfileHigh, string? ProfileFlags, string? ProfileUnavailable, double InducedPerSpan,
-    double LiftScale, int DragMultiple, Units Units, int NChord = 4)
+    double LiftScale, int DragMultiple, Units Units, int NChord = 4, double CoupleScale = 0)
 {
     /// <summary>Centre of the Ncrit 2-4 band.</summary>
     public double? ProfileMid => ProfileLow is { } low && ProfileHigh is { } high ? 0.5 * (low + high) : null;
@@ -146,7 +146,7 @@ public static class SectionDisplay
         screen.Add(R(Labels.VcritLabel, cav.CriticalSpeed is { } vc ? N(Labels.Speed(vc, units), "0.##") : none, cav.CriticalSpeed is null ? null : Labels.SpeedUnit(units)));
         screen.Add(R("Margin", N(100 * cav.MarginFraction, "0.#"), "%", Labels.MarginLabel));
         if (cav.GoverningDepth is { } depth && tier.Stations.Count > 0)
-            screen.Add(R("Governing station", Labels.StationCavitationLine(tier.GoverningEta, depth, tier.Stations.Count - tier.TipNotJudgedCount)));
+            screen.Add(R("Governing station", Labels.StationCavitationLine(tier.GoverningEta, depth, tier.JudgedCount)));
         screen.Add(R("Screen", cav.ScreenText));
         groups.Add(new("Cavitation", screen));
 
@@ -215,7 +215,8 @@ public static class SectionDisplay
                 s.TipNotJudged ? Labels.TipNotJudged : N(-s.Estimate.Panel.CpMin, "0.###"),
                 s.TipNotJudged ? Labels.TipNotJudged : CavitationWord(s.Cavitation.State), s.Eta == station.Eta,
                 s.PanelUnderread is null ? Labels.UnderreadNotMeasured : null)).ToArray();
-        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units, forces) with { ForcesNotJudged = tipNotJudged ? Labels.TipNotJudged : null });
+        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units, forces) with { ForcesNotJudged = tipNotJudged ? Labels.TipNotJudged : null },
+            Labels.StationsShown(table.Length, tier.JudgedCount)); // Ruling 147
     }
 
     // The leading word of the approved cavitation sentences (COPY-301 to COPY-303): "Clear", "Inside the margin", "Possible".
@@ -432,7 +433,7 @@ public static class SectionDisplay
             R(Labels.XcpRowLabel(f.NChord), f.Anchor == ForceAnchor.CentreOfPressure ? N(f.XcpOverC!.Value, "0.00") : f.XcpText,
                 note: f.Anchor == ForceAnchor.QuarterChord ? Labels.CouplePlaceNote : null),
             R(Labels.LiftRow, Labels.Sig3(Labels.ForcePerSpan(f.LiftPerSpan, units)), fu),
-            R(Labels.CoupleRowLabel(f.NChord), Labels.Sig3(Labels.MomentPerSpan(f.CouplePerSpan, units)), mu),
+            R(Labels.CoupleRowLabel(f.NChord), Labels.CoupleValue(f.CouplePerSpan, f.CoupleScale, units), mu),
             R(Labels.ProfileDragRow, flagged && f.ProfileLow is not null ? profile + " " + fu + " " + Labels.FlaggedSuffix : profile,
                 f.ProfileLow is null || flagged ? null : fu, profileNote.Length > 0 ? profileNote : null),
             R(Labels.InducedDragRow, Labels.Sig3(Labels.ForcePerSpan(f.InducedPerSpan, units)), fu),
@@ -522,6 +523,7 @@ public static class SectionForceModel
         string? flags = StripFlags.Join(strip.CdNcrit2.FlagCode, strip.CdNcrit4.FlagCode);
         (double scale, int multiple) = RunScale(run, units);
         return new SectionForces(strip.Eta, chord, strip.AlphaEff + strip.AlphaI, strip.AlphaEff, strip.AlphaI, strip.ClLocal, lift, couple, xcp,
-            onCp ? ForceAnchor.CentreOfPressure : ForceAnchor.QuarterChord, text, low, high, flags, unavailable, induced, scale, multiple, units, run.Settings.NChord);
+            onCp ? ForceAnchor.CentreOfPressure : ForceAnchor.QuarterChord, text, low, high, flags, unavailable, induced, scale, multiple, units, run.Settings.NChord,
+            0.5 * run.Water.Rho * run.Op.Speed * run.Op.Speed * chord * chord);
     }
 }

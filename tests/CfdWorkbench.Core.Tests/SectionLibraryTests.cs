@@ -104,16 +104,28 @@ internal static class SectionLibraryTests
             var scan = new SectionLibrary(root).Scan();
             Equal(1, scan.Entries.Count); Equal("Available", scan.Entries[0].Name);
         });
+        Check("Library_UserFileHeldReader_SurvivesReplaceByRename", () =>
+        {
+            // POSIX ignores share modes, so this passes on macOS even with FileShare.Read; on Windows the replace
+            // fails (Win32 32) unless the reader shares Delete (Ruling 145 (1)).
+            string root = NewRoot(), path = Path.Combine(root, "held.foil"), next = Path.Combine(root, "next.tmp");
+            File.WriteAllBytes(path, [1, 2, 3]);
+            File.WriteAllBytes(next, [9, 8]);
+            using (var held = UserFile.OpenRead(path))
+            {
+                File.Move(next, path, overwrite: true);
+                var old = new byte[3];
+                Equal(3, held.Read(old, 0, 3));
+                Equal((byte)1, old[0]); Equal((byte)3, old[2]);
+            }
+            using var fresh = UserFile.OpenRead(path);
+            Equal(2L, fresh.Length); Equal((byte)9, (byte)fresh.ReadByte());
+        });
     }
 
     private static string NewRoot()
     {
-        string temp = Path.GetTempPath();
-        if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
-        if (temp.StartsWith("/var/", StringComparison.Ordinal)) temp = "/private" + temp;
-        string root = Path.Combine(temp, "library-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(root);
-        return root;
+        return TestTemp.NewDirectory("library-");
     }
     private static byte[] Block()
     {

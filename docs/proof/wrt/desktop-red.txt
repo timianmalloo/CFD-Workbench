@@ -1,0 +1,8 @@
+RING-LOCK waited 0 s
+STAGE SelfLaunchTests
+SelfLaunchTests: all 8 cases passed.
+STAGE native-review-options
+APP-UNHANDLED APP-CRASH System.Exception
+System.Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE
+   at Program.<Main>$(String[] args) in %REPO%/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs:line 281
+   at Program.<Main>(String[] args)

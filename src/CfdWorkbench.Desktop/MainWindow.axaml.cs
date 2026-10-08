@@ -129,10 +129,10 @@ public sealed partial class MainWindow : Window
     {
         string? refusal = null;
         try { await action(); }
-        catch (ContractError error) { refusal = $"{error.Code}: Action refused; accepted source retained."; }
+        catch (ContractError error) { refusal = Labels.Refusal(error.Code); }
         catch (OperationCanceledException) { refusal = "Operation cancelled. Accepted source retained."; }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
-        { refusal = "DOC-IO: File operation failed. Accepted source retained."; }
+        { refusal = Labels.Refusal("DOC-IO"); }
         catch (Exception error) when (review is not null && (error is ArgumentException or InvalidOperationException))
         { refusal = $"REVIEW-REFUSED: {error.Message}"; }
         if (refusal is not null) Console.Error.WriteLine("WINDOW-ACTION-REFUSED " + refusal);
@@ -250,6 +250,6 @@ public sealed partial class MainWindow : Window
             closeApproved = true;
             Close();
         }
-        catch (ContractError error) { Console.Error.WriteLine($"WINDOW-ACTION-REFUSED {error.Code}: Save failed; window remains open."); }
+        catch (ContractError error) { Console.Error.WriteLine("WINDOW-ACTION-REFUSED " + Labels.SaveRefusal(error.Code)); }
     }
 }

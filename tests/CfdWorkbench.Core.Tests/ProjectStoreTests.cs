@@ -448,8 +448,7 @@ internal static class ProjectStoreTests
     private static string Id() => Guid.NewGuid().ToString("D");
     private static string Root()
     {
-        string temp = Path.GetTempPath(); if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
-        string root = Path.Combine(temp, "store-" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(root); return root;
+        return TestTemp.NewDirectory("store-");
     }
     private static SaveResult Save(ProjectStore store, string path, SaveRequest request) => store.SaveAsync(path, request).GetAwaiter().GetResult();
 
@@ -540,10 +539,7 @@ internal static class ProjectStoreTests
 
     private static void Probe()
     {
-        string temp = Path.GetTempPath();
-        if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
-        string root = Path.Combine(temp, "native-primitives-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(root);
+        string root = TestTemp.NewDirectory("native-primitives-");
         File.WriteAllBytes(Path.Combine(root, "original"), [1, 2, 3]);
         File.WriteAllBytes(Path.Combine(root, "replacement"), [4, 5, 6]);
         int parent = MacProbe.Open(root, MacProbe.DirectoryFlags, 0);
