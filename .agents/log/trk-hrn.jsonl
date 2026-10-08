@@ -1,1 +1,2 @@
 {"agent": "trk-hrn", "at": 1791480827.2039769, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-hrn", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-hrn-desktop-harness"}
+{"agent": "trk-hrn", "at": 1791482194.9164312, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-hrn", "wi": "WI-0", "worktree": "CFD-Workbench-fix-hrn-desktop-harness"}

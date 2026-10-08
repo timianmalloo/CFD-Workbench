@@ -6367,6 +6367,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "669aba9f0d4fb5fa6d9f86cb1ea431bd3f6902bd394c56b6c5c89aa1feb8b926"
     },
     {
+      "id": "review-pr-12",
+      "path": "docs/reviews/pr-12.md",
+      "title": "PR #12 (Windows PC) - WFX2 Windows ring evidence (Ruling 154), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 154). PR #12 records one failed Windows ring (exit 1, 39 named failures plus a Desktop crash) and binds every WFX2 row to an observed line or an explicit unassessed state, with no PASS claimed. 28 failures and the crash are the fail-closed Windows store, 6 are one catalog generated-bytes datum, 1 is the Ruling 152 probe, and 4 are new test-side classes. Docs only; 0 PII hits.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "wfx2",
+        "test-ring"
+      ],
+      "links": [
+        {
+          "to": "review-pr-10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wfx2-pc-reverify",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e6fee510f69233d63e5551225be3f8904c807707edc0f5fd04195a3df5c490c6"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7335,7 +7367,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "64ace900cac4282b696fef790713560100be1f35bf9d667bbfc88a55b413cf95"
+      "sourceSha256": "0a1cfd3aeb67f0abef53e6530b9c023e5635befddd13f7e848da6ca5603d643a"
     },
     {
       "id": "kb-hw-glossary",
@@ -16822,5 +16854,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2681a468c2f490ce81550ced3355cdd164715515df380c53d01e389aeccec0f1"
+  "graphSha256": "6e815005a39f71fc628b26e586f7df1e738d5be6af6b0eff13102f6cca0d66ba"
 };
