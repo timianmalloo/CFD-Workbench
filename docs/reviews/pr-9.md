@@ -85,3 +85,5 @@ reviewed by the Fable owner on the Mac on 2026-10-08 under Ruling 106. Verdict: 
 - **C4, follow-up:** the win L3 YAML's `generator` text cites the win case, not `cases/spike04r3-g2-l3.yaml`.
 
 Nothing goes to the operator. The L3 re-entry was already operator-authorised ("keep going", xmsg 17:01Z).
+
+PR comment: https://github.com/timianmalloo/CFD-Workbench/pull/9#issuecomment-6065628679
