@@ -76,7 +76,35 @@ RESULT failures=0
 `python3 tools/check-crt-transcendentals.py` then prints `check-crt-transcendentals: 1 file(s) clean` (exit 0). The one allowed line is the `Math.Atan2` that fills the recorded
 rotation column: no byte reads it, and `Catalog.Read` compares it within 1e-12 relative.
 
+## 4. Placement commit (Ruling 156 P3)
+
+Gate, with `Placement.cs` added to the file list and the code unchanged (exit 1):
+
+```
+Placement.cs:117: Math.SinCos
+Placement.cs:209: Math.Cos
+Placement.cs:697: Math.Cos
+```
+
+After the three sites move to `double.SinCosPi(degrees / 180)` and `double.CosPi(index / step)`, the gate prints `check-crt-transcendentals: 2 file(s) clean`. The Core harness (exit 1)
+then shows the golden red, plus two test-side replicas of the same spacing:
+
+```
+FAIL Sections_PlaceEqualsSurfaceMidline_Bitwise InvalidOperationException: example.foil s0 i7 X bits 3fa0c5fe51a180f6 -> 3fa0c5fe51a180f5
+FAIL ProfileView_Samples_CosineSpacedAtNose InvalidOperationException: Expected 4587018754652591008; actual 4587018754652591016
+FAIL Placement_ProfileEvaluatorFold_SurfaceBitsUnchanged InvalidOperationException: Expected blended-dihedral.foil 943866A4...  (5 hashes differ)
+RESULT failures=3
+```
+
+The two replicas (`SectionsTests.Cosine`, `DisplayProfileTests.Cosine`) were moved to `double.CosPi`; the harness then showed `RESULT failures=1` (the golden only). Then
+`placement-surface-bits.txt` was re-recorded once from the 5 `actual` hashes of that run, and `CFD_TEST_ONLY=Placement_ProfileEvaluatorFold` is green. The Analysis harness (`failures=0`)
+and the Cli and Desktop default runs stayed green without edits. The surface list is `docs/proof/caf/surfaces.md`.
+
 ## Decisions recorded here
+
+- **P3, station angle.** `ReadStation` calls `Binary64.SinCosDegrees` (`double.SinCosPi(degrees / 180)`, the form the ruling names), not the interface `SinCos(Radians(degrees))`.
+  The interface member `Binary64.SinCos(radians)` stays because `IPlacementScalar` requires it (`Geometry.cs`'s `RationalInterval` is the other implementer and is not in
+  this track's paths); it now uses `SinCosPi(radians / Math.PI)`.
 
 - **P2, rotation column.** Chosen: keep degrees in the `rotation` column and compare within 1e-12 relative (`|a - b| <= 1e-12 * max(|a|, |b|)`), not direction cosines.
   Why: the column, `CatalogEntry.FrameRotationDegrees` and the `G4` assertion in `CatalogTests` keep their meaning, with no schema change; the Atan2 feeds no byte (the frame

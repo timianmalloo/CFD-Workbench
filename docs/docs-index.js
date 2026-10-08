@@ -5899,7 +5899,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "46d0a3b80bdef0f0ceab48532bfcda1c986a06b47c7bab079192882da7f81b0e"
+      "sourceSha256": "e2dd0d2ee50c377c76554e4802244760264f730a8c1c90070021a4b8b829a52e"
     },
     {
       "id": "proof-caf-residual",
@@ -5926,6 +5926,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "71d9a36165e90e74fe5695a4dd3bfdaaac084f32a78a604ebd4a01435a3b3164"
+    },
+    {
+      "id": "proof-caf-surfaces",
+      "path": "docs/proof/caf/surfaces.md",
+      "title": "Track CAF - E7 surface list for the Placement change (Ruling 156 P3)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-caf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Every committed hash or golden that Placement output reaches, found by search. One bit golden moves (placement-surface-bits.txt); no persisted non-test artifact carries Placement output, so no decision request is raised.",
+      "tags": [
+        "placement",
+        "determinism",
+        "ruling-156",
+        "surface-list"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "302c7018d17ee015975bf38c47b82cd8eddb22f8c0d5730b7996fe33f46512bd"
     },
     {
       "id": "proof-cpy-cause-rows",
@@ -17086,5 +17112,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ef013846c387aabb1bf164f553bbfc042e845710d082715a2e5d678c51a63f77"
+  "graphSha256": "11378bafc17421a865bc50f30ee3d6b37eddad7ba352d36ff245d5c3a1c7f79e"
 };

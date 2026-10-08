@@ -276,7 +276,7 @@ internal static class DisplayProfileTests
     {
         if (index == 0) return 0;
         if (index == count - 1) return 1;
-        return (1 - Math.Cos(Math.PI * index / (count - 1))) / 2;
+        return (1 - double.CosPi(index / (double)(count - 1))) / 2;
     }
 
     private static bool ShortDyadic(double knot)

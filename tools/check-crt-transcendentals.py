@@ -26,9 +26,10 @@ for _stream in (sys.stdout, sys.stderr):
 
 ROOT = Path(__file__).resolve().parents[1]
 
-# Explicit list. Catalog.cs: the generator behind the shipped NACA bytes. Placement.cs is added by the Placement commit.
+# Explicit list. Catalog.cs: the generator behind the shipped NACA bytes. Placement.cs: the display spacing and the twist angle behind placement-surface-bits.
 FILES = (
     "src/CfdWorkbench.Core/Catalog.cs",
+    "src/CfdWorkbench.Core/Placement.cs",
 )
 
 BANNED = re.compile(
