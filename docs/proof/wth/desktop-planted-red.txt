@@ -1,0 +1,11 @@
+STAGE SelfLaunchTests
+SelfLaunchTests: all 9 cases passed.
+STAGE native-review-options
+FAIL Save_ExistingFile_DefiniteCreateOnlyConflict Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE
+STACK Save_ExistingFile_DefiniteCreateOnlyConflict System.Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE |    at Program.<>c__DisplayClass0_0.<<Main>$>b__7() in /Users/mallalieut/projects/CFD-Workbench-fix-wth-test-hygiene/tests/CfdWorkbench.Desktop.Tests/
+COST Save_ExistingFile_DefiniteCreateOnlyConflict 3.0
+APP-UNHANDLED APP-CRASH CfdWorkbench.Core.ContractError
+CfdWorkbench.Core.ContractError: DOC-UNSUPPORTED-PERSISTENCE
+   at CfdWorkbench.Desktop.WorkbenchController.OpenPathAsync(String path, CancellationToken cancellation) in /Users/mallalieut/projects/CFD-Workbench-fix-wth-test-hygiene/src/CfdWorkbench.Desktop/WorkbenchController.cs:line 2729
+   at Program.<Main>$(String[] args) in /Users/mallalieut/projects/CFD-Workbench-fix-wth-test-hygiene/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs:line 329
+   at Program.<Main>(String[] args)
