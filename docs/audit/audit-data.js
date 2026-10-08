@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:14:01Z",
+  "generated": "2026-10-08T23:19:57Z",
   "audit": [
     {
       "actor": null,
@@ -30824,6 +30824,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T23:13:09Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4EX1Z44F0ARAX2474Q1H8KH",
+      "shortname": "join-pr12-sync",
+      "datetime": "2026-10-08T23:19:57Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/wfx2-b2-ring into main",
+      "summary": "PR #12 sync merge joined; no new content (main keeps the Ruling 154 C2 receipt line) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "close PR #12 by joining the PC's sync merge",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T23:19:38Z",
+      "duration_seconds": 19.0
     }
   ],
   "changes": [
@@ -33058,6 +33085,15 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EVZJZ38WS68KCVJTQBZ1RD",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4EWWJCPKTTPVPXCJ344EWGF",
+      "ts": "2026-10-08T23:17:00Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EWWJ9E2848D5WZHQ9SZ8FF",
       "session": "operator-timianmalloo"
     }
   ]
