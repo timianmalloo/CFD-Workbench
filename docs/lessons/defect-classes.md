@@ -1561,6 +1561,13 @@ the case where only `docs/docs-index.js` and the two audit logs conflict. Contro
 `tools/coordination/check-jsonl.py` fails a log that has a non-JSON line or a duplicate id after the conflict markers are
 removed; `join-when-quiet.sh` runs it before it continues. Self-test fixture run: a good file passes (exit 0), a file with a
 duplicate id fails (exit 1), a file with a bad line fails (exit 1).
+*2026-10-08 (Mac leader 3122f106).* The markdown sibling: this register itself conflicted at 4 of 9 code joins (HRN,
+WRT, NUM, WTH), because every track appends its entry at the end and `coord-register` only unions JSONL. Three were pure
+tail appends. WTH also extended an existing entry in place, so a plain `merge=union` would silently keep both the old and
+the new text of an edited claim; it is rejected. Control (queued as a Mac tools/ track, not built): a register-aware merge
+driver for this file, used only by the Mac's joins (the PC never merges main). It auto-resolves only when each side's
+changes are new whole entries or a strict extension of an existing entry, and leaves every other conflict to the leader.
+The scratch resolver used at the WTH join is its seed.
 
 **CFD-CLAIM-SCOPE · A label names a stronger quantity or cause than its data supports.** PRJ displayed `CL/CD` using
 `CDi`, and attributed every e below 0.85 to a lattice effect even though physical washout can lower e at low CL.
