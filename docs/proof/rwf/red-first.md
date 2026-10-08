@@ -86,6 +86,39 @@ Probe sites found by bisection in a scratch copy: `SectionDisplay.cs:464` (the `
 
 `SectionForceTests.cs:194-196` now `Near(expected, actual, what, 1e-9 * expected)`; `PolarNumericsTests.cs:72` is a relative 1e-9 check inline (that file has no `Near`). `RoundUp125` is unchanged.
 
+## Pre-join addendum (computational-geometry and Test Architect reviews)
+
+**G1 correction.** Earlier text here and in residual.md treated `Math.Pow(x, 2)` as exact in practice (RWS: "Inferred exact"). That is false: a .NET 10 probe on this Mac found `Math.Pow(x,2) != x*x` in 2,647 of 2,000,000 cases, each 1 ulp, pow always the worse result. `DatImport.cs:460`, `SectionEdits.cs:402-403` and `PointModel.cs:193` now use `d*d` (matching `SectionEdits.cs:398`). The four family checks were re-run: drift unchanged (0 for dat rotation, lambda fit, tangent angle and handle-polar section; 6.1e-18 for the handle target). The +1 ulp drift table above, taken before G1, listed `:460` as a perturbed Pow site: that site is now managed; the 1.29e-15 figure stands as the dat-rotation measurement with `:524` and the old `:460`.
+
+**T5.** The drift label is `max_abs` (absolute, in the units of the compared doubles: chord for profile rows, metres for planform rows and `HandleTarget`), not `max_chord`. Earlier tables in this file say `max_chord`; read them as `max_abs`.
+
+**T3. A behaviour red for each of the five DRIFT lines (Verified, scratch copy, probe sites scaled; the committed code is not changed).** Each row is a perturbation that makes that check FAIL.
+
+| DRIFT line | Perturbation | Result |
+|---|---|---|
+| dat-rotation | `DatImport.cs:524` angle, cos and sin x1.001 | FAIL: `Replace` returns no bytes (the frame fit is refused), `Expected True; actual False` |
+| lambda-fit | `ConstrainedFit.cs:281` midpoint x1.1 | `DRIFT lambda-fit max_abs=7.03e-05`, FAIL (x10: 2.2e-03, FAIL). x1.001 gives 8.3e-7 and passes, which is the check's resolution |
+| tangent-angle | `ConstrainedFit.cs:281` x1.1 | `max_abs=1.18e-04`, FAIL; also `SinCosDegrees` Sin x1.001: `3.69e-06`, FAIL |
+| handle-polar-section | `SinCosDegrees` Sin only x1.001 | `max_abs=1.95e-05`, FAIL (scaling Sin and Cos together cancels in the slope and does not move it) |
+| handle-polar-target | `SinCosDegrees` Sin and Cos x1.001 | `max_abs=4.83e-05`, FAIL |
+
+**T4.** `WithinTolerance` asserts `Equal(7, rows)` and that every expected row has at least 8 values, so a row with no values cannot pass.
+
+**T2.** `SectionForceTests` also checks `RoundUp125(100)` within 1e-9 relative.
+
+**T7. Ring and cost of each new check** (Core harness, fast ring, run in `tools/run-tests.sh`; process wall measured alone, which includes about 0.25 s of runtime start-up that the ring pays once per part):
+
+| Check | Ring | Process wall alone |
+|---|---|---|
+| `NewDefault_ControlPointDoubles_BitGolden` | fast | 0.29 s |
+| `RecordPath_DatRotation_*` | fast | 0.36 s |
+| `RecordPath_LambdaFit_*` | fast | 0.59 s |
+| `RecordPath_TangentAngle_*` | fast | 0.58 s |
+| `RecordPath_HandlePolar_*` | fast | 0.47 s |
+| `RoundUp125(100)` (inside `SectionForce_RunScale_*`) | fast (Analysis) | negligible |
+
+Each names what it protects: the family checks protect the 1e-6 identity tolerance of project bytes the user saves; the golden protects the New-project default.
+
 ## Gates
 
 `python3 tools/check-crt-transcendentals.py --self-test`: 3 SELFTEST PASS. Plain run: `4 file(s) clean`.

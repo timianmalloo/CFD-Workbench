@@ -34,6 +34,10 @@ Search: `grep -rlE "NewDefault|SectionLibrary|FitNaca|ReplaceSource|SectionRepla
 | `SectionReplace.Cosine` (:327) and the worst-change scan (:215) | Replace of a record/catalog source | none; the provenance hash in `ReplaceSource.Coordinates` is of the input dat, not the output | green |
 | `SectionLibrary` user store | file name is `Identity.Sha256(bytes)` of the user's own bytes at run time | not committed | n/a |
 
+**E7 gap (computational-geometry review G2).** `NewDefault()` also runs an area loop at `FoilSource.cs:563`: `WingEstimates.From(...).AreaSquareMeters`. That calls `WingEstimates.Quadrature` and `GaussLegendre` (`WingEstimates.cs:212-218`), which seeds its Newton iteration for the nodes with `Math.Cos(Math.PI * (i + 0.75) / (order + 0.5))` (`WingEstimates.cs:224`). The area reaches the scale and the rail control points of the New-project default. `WingEstimates.cs` is not in the gate's FILES and the call is unchanged here (no code change was ruled). Newton converges to the node to full precision, so a last-bit difference in the seed should not move the node; that is Inferred, not measured. The detector is `NewDefault_ControlPointDoubles_BitGolden`, which on the PC ring compares the whole default with the Mac bits: a seed that changed a node would show there.
+
+**G1 note.** `Math.Pow(x, 2)` is not exact (2,647 of 2,000,000 differ by 1 ulp), so an earlier reading of it as exact is withdrawn. The squared-distance sites on the record path (`DatImport.cs:460`, `SectionEdits.cs:402-403`, `PointModel.cs:193`) now use `d*d`. `Geometry.cs:495,537,538` and `ChannelEdits.cs:514` still call `Math.Pow`; they are validation or display sites (class c, classified by reading `Geometry.cs:494-495` as a `<= tau` boolean; `:537-538` and `ChannelEdits.cs:514` not read in detail) and off the gate.
+
 New-project bytes change once: the profile ordinates (8 of 36 values per side moved on this Mac). Saved projects are not rewritten; only a New project opened after this change differs.
 
 ## Desktop spelling of the same helper (not owned, not edited)
