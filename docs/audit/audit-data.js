@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T21:04:51Z",
+  "generated": "2026-10-08T21:55:04Z",
   "audit": [
     {
       "actor": null,
@@ -30723,6 +30723,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T21:03:56Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M4ER6H279VAM712MTKZDJT10",
+      "shortname": "ui-design-w2-save-picker",
+      "datetime": "2026-10-08T21:55:04Z",
+      "session": "trk-svp",
+      "prompt": "trk-svp: W-2 save-picker, OneDrive refusal and crash-recovery mockup",
+      "summary": "docs/mockups/w2-save-picker.html and .md, tools/check-mockup-svp.mjs (9/9 groups), 13 screenshots, proposed COPY-440..457, 7 open questions",
+      "kind": "skill",
+      "skill": "ui-design",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/mockups/w2-save-picker.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Show the operator the Windows save flow (S1-S5, variants A/B) before any build",
+      "done_when": "Mockup, oracle green, craft gate run, screenshots read, check-docs 0"
     }
   ],
   "changes": [
