@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T22:50:33Z",
+  "generated": "2026-10-08T23:12:32Z",
   "audit": [
     {
       "actor": null,
@@ -30770,6 +30770,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T22:49:40Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M4EWMC93HZHZ45W1C1EYJVNQ",
+      "shortname": "join-pr10",
+      "datetime": "2026-10-08T23:12:32Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/store-b2-r145 into main",
+      "summary": "PR #10 joined: class 65 sole rename primitive, Win32 32 -> DOC-CONFLICT, ProjectStore fail-closed; red-first disposition recorded (Ruling 152 C1) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join PR #10 under Ruling 152",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T23:11:40Z",
+      "duration_seconds": 52.0
     }
   ],
   "changes": [
@@ -32995,6 +33022,15 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EV472KSJQK7B9MATYP9WH5",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4EVZK22FS84RVD4YBCC042F",
+      "ts": "2026-10-08T23:01:11Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EVZJZ38WS68KCVJTQBZ1RD",
       "session": "operator-timianmalloo"
     }
   ]
