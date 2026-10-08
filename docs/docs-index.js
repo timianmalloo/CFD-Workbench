@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "75483852e74c9bf08a5c27bca438e9a43722a7c7ba4a12b074c1490aabefed08"
+      "sourceSha256": "12ca1ab3f5064c65f2684cdfee9b11bff4bccdda3e5db88f4446ef631ecbdfce"
     },
     {
       "id": "domain-experts",
@@ -15054,6 +15054,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "0f467f7bc88b89226d506fdabc484f3a6d98665a998389f94655141760e5df79"
     },
     {
+      "id": "proof-wth-red-first",
+      "path": "docs/proof/wth/red-first.md",
+      "title": "WTH red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wth",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for Windows test hygiene (Ruling 154 conditions): a foreign-OS branch guard, one canonical temp root per test project, and the two remaining harness aborts converted to FAIL lines.",
+      "tags": [
+        "windows",
+        "test-hygiene",
+        "proof",
+        "ruling-154"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "96e7d2910a3b2cf031c1e3f96c735673a5789412a7cca716ce4dd339a426068f"
+    },
+    {
       "id": "review-app-shell-native",
       "path": "docs/reviews/app-shell-native.md",
       "title": "Native review — CAD-first app shell, M1.2a rows",
@@ -16957,5 +16983,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "55b768597e31e58f3fc7e7506fcfa00e1335d769b7a87d4477c43f5d2e053963"
+  "graphSha256": "cd90b6f8546a9d4c579b50deb039fe83aa6879385091520ab76b816d1e536804"
 };

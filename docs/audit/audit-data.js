@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T18:55:16Z",
+  "generated": "2026-10-08T19:17:36Z",
   "audit": [
     {
       "actor": null,
@@ -30388,6 +30388,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T18:54:01Z",
       "duration_seconds": 75.0
+    },
+    {
+      "id": "al-01M4EF664THS5FXDQFVRVT6B5C",
+      "shortname": "wth-test-hygiene",
+      "datetime": "2026-10-08T19:17:36Z",
+      "session": "trk-wth",
+      "prompt": "WTH",
+      "summary": "Host guard + TEST-FOREIGN-OS-BRANCH control, per-project TestTemp (Core in LayoutFileTests.cs for STORE-SUBSET), NoRawTempPath scans Core and Cli, Recovery block and CLI catches report FAIL and continue, 2 manifest entries, aborts_harness removed; ring green 45 s",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Windows test hygiene: no foreign-OS branch, no harness abort, no raw temp alias",
+      "done_when": "DirectoryLink guarded with control; 10 temp sites moved with control extended; two aborts converted; manifest updated; lessons recorded"
     }
   ],
   "changes": [
