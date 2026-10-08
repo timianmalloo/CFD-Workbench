@@ -3594,7 +3594,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8ef5fe6e6219e67b55759b10a54614eecb2d4467dde5182bb7a072705dc953df"
+      "sourceSha256": "e4177a55d03c4c9c2f933fbd69b3b271a82ebcffa8e957d8745a44a7393c7155"
     },
     {
       "id": "design-windows-runtime",
@@ -6024,6 +6024,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6b61276da42fe8eefb806f46d224e9994df851034ee993f8b628f6cdc601c37"
     },
     {
+      "id": "proof-windows-store-r145-qualification",
+      "path": "docs/proof/win-store-implementation/r145-qualification.md",
+      "title": "Ruling 145 Windows native sharing and rename attribution qualification",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@windows-worker",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The approved sharing behavior is characterized on real NTFS, the missing stable sharing-conflict code is observed red then corrected, and independent Win32 probes attribute error 87 to the tested rooted forms. Production admission and full qualification remain blocked; the required docs gate fails outside the lease.",
+      "tags": [
+        "windows",
+        "persistence",
+        "proof",
+        "blocked"
+      ],
+      "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-windows-store-implementation",
+          "rel": "refines"
+        },
+        {
+          "to": "receipt-windows-store-implementation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "25c57ecfb0fd70abd61108d0bdb5299e1e017f81e2429d822c2fc6d2f25fdf36"
+    },
+    {
       "id": "receipt-windows-store-implementation",
       "path": "docs/proof/win-store-implementation/receipt.md",
       "title": "Frozen B2 native qualification failure receipt",
@@ -7482,7 +7516,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e6eb2dafd0fc0bd04de903960411d9258c374857fd50f8e3414ce6e08af38062"
+      "sourceSha256": "e7a7a390c003eaab0c6ef53c49f87e8eeeb05549a237f7f63c89871bc4c29bbe"
     },
     {
       "id": "kb-hw-glossary",
@@ -17182,5 +17216,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c19c15e87521cdb81ac20cb1f5c0d49e5f84c5a6b4d8766f4a732339be7f8de8"
+  "graphSha256": "8ff99915e0fbe51683f49ba5abda2c71c6a9abb6c36f6ac786b90bc6dec6c7eb"
 };
