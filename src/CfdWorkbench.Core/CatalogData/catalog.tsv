@@ -1,7 +1,7 @@
 # id family designation class reason generator sha256 le rotation scale
-naca-0009	Naca	NACA 0009	Gen		naca4-closed/1	d01975170d771992779b64fe641eebc05f65cd69e5f0f90de0fc4735ed97a8ea	0	0	1
-naca-0012	Naca	NACA 0012	Gen		naca4-closed/1	d7ed230985fe4ec4577239fe0b1db82f244edb49bf0b68e9c5fe7965bb8974c9	0	0	1
-naca-4412	Naca	NACA 4412	Gen		naca4-closed/1	fab12bf318540b45dee89c3a091cb12d24692078d8db2465d0f8099a2e95cf45	-0.00030024789938986609	-0.17398455663928378	1.0003048597813819
+naca-0009	Naca	NACA 0009	Gen		naca4-closed/2	dd2dcade3892cde15f24d017dd0e1f8ed7e3e25b66de4d848fae3935cccb3b1c	0	0	1
+naca-0012	Naca	NACA 0012	Gen		naca4-closed/2	9ef9fe41168f3407928962d21d337317be2e2b40daaae4d645f847bfbb297c9b	0	0	1
+naca-4412	Naca	NACA 4412	Gen		naca4-closed/2	bf9e75bfd12cbe534107be3811d65fb447b34d7113929ce2d5ec509ff7cdf16d	-0.00030024789938986609	-0.17398455570619686	1.0003048597813324
 naca-16-012	Naca	NACA 16-012	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
 naca-63-209	Naca	NACA 63-209	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
 naca-63-412	Naca	NACA 63-412	Gen	Not generated in this build. GEN sections above can be used.			0	0	1
