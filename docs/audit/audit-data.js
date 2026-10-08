@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T17:15:45Z",
+  "generated": "2026-10-08T17:46:28Z",
   "audit": [
     {
       "actor": null,
@@ -30064,6 +30064,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T17:14:53Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4E9ZAJ6TPEDMYEWGH16SQ9E",
+      "shortname": "hrn-desktop-harness",
+      "datetime": "2026-10-08T17:46:28Z",
+      "session": "trk-hrn",
+      "prompt": "trk-hrn",
+      "summary": "TestTemp canonical root replaces 20 raw GetTempPath sites; SelfLaunchTests.NoRawTempPath control; defect class TEST-TMP-ALIAS; SaveDialog part-alone failure was the same cause, not a second defect",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Desktop harness gives the same result alone and in run-tests.sh",
+      "done_when": "default-TMPDIR alone runs green, control red then green, ring green"
     }
   ],
   "changes": [
@@ -32101,6 +32119,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4E14DPYAGQ8HB1141RGK278",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4E95YJZ6R5W8F42WDQ5S6PG",
+      "ts": "2026-10-08T17:32:36Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4E95YFZGPDZQWX2R3HCYM98",
+      "session": "operator-timianmalloo"
     }
   ]
 };
