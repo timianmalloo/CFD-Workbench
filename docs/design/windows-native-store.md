@@ -183,7 +183,12 @@ completion status, never treat a warning/pending result as completed I/O.
 `SetFileInformationByHandle(FileRenameInfoEx=22)` with a retained non-null root and
 relative component returned Win32 87 on fresh fixtures. An independent fresh fixture
 using `NtSetInformationFile(FileRenameInformationEx=65)` succeeded with NTSTATUS/IO
-status zero. This is a measured API selection, not an error-triggered fallback.
+status zero. The direct NT service is a measured proposal **pending Mac review**,
+not an approved production API selection or an error-triggered fallback. The §5
+operation steps remain the base design; the proposed NT/durability corrections
+are confined to this authorized §4 erratum until Mac dispositions them. Under
+Ruling 135 the proposal performs no final-directory flush and acknowledges only
+file-content flush, established publication and owned cleanup, without power-loss proof.
 The NT structure has x64 flags offset 0, root 8, name-byte-count 16, WCHAR data 20,
 size 24; allocate at least size plus UTF-16 name bytes. Ex replacement flags are
 `FILE_RENAME_REPLACE_IF_EXISTS=1 | FILE_RENAME_POSIX_SEMANTICS=2`.
@@ -306,20 +311,16 @@ metadata rather than borrowing a path-only check.
 4. Check cancellation, parent chain, owned claim/temp and target entry identity.
    Re-read target immediately before overwrite and require the same expected hash.
    Keep the expected target handle alive; do not call this sequence CAS.
-5. Rename the **temp handle** with the selected managed
-   `NtSetInformationFile(FileRenameInformationEx=65)`; `RootDirectory` is the held
-   destination parent and `FileName` exactly one component. Flags zero implement
-   create-only/backup/library no-replace; flags `REPLACE_IF_EXISTS | POSIX_SEMANTICS`
-   implement cooperative overwrite under the approved sharing policy. No copy,
-   cross-volume fallback, destination
+5. Rename the **temp handle** with `SetFileInformationByHandle(FileRenameInfo)`;
+   `FILE_RENAME_INFO.RootDirectory` is the held destination parent and `FileName`
+   exactly one component. `ReplaceIfExists=FALSE` for create-only/backup/library;
+   `TRUE` for cooperative overwrite. No copy, cross-volume fallback, destination
    unlink, absent-check/replace fallback or path-only retry is allowed.
 6. On native success verify destination entry identity equals retained temp identity
    and parent chain remains selected. The renamed temp handle now denotes the
    published object; **do not disposition it during cleanup**. Close its write handle
    and independently reopen/read/hash the destination. Remove only owned transient
-   claim/unused temp objects. Ruling 135 requires no final-directory flush. Before
-   acknowledging Windows approved durability, require successful file-content flush,
-   established publication and successful owned cleanup; do not claim power-loss proof.
+   claim/unused temp objects. Perform the approved final namespace flush after cleanup.
 7. Return truthful publication/durability facts; cancellation after publication cannot
    return an unsaved cancellation. An uncertain save requires reopen/compare before
    any explicitly requested retry; never automatically overwrite on an ambiguous error.
