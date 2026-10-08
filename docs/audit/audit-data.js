@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T18:46:49Z",
+  "generated": "2026-10-08T18:53:33Z",
   "audit": [
     {
       "actor": null,
@@ -30316,6 +30316,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Wire the approved plain-cause copy (Ruling 155) through the one Labels lookup",
       "done_when": "COPY-412..431 in Labels, DESIGN.md and tests; raw-code control red then green; ring green; check-docs exit 0"
+    },
+    {
+      "id": "al-01M4EDT5D1RZR76NE8X8011910",
+      "shortname": "join-cwr",
+      "datetime": "2026-10-08T18:53:33Z",
+      "session": "3122f106",
+      "prompt": "the join of feature/cwr-cause-copy into main",
+      "summary": "CWR joined: save, open and refusal surfaces read COPY-412..431 via Labels; raw-code control; CLI untouched recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the Ruling 155 copy wiring",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T18:52:37Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
