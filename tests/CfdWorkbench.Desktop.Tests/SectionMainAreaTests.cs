@@ -161,7 +161,7 @@ public static class SectionMainAreaTests
                 var view = host.AnalysisPanel.SectionView;
                 var rows = view.Shown!.StationTable ?? throw new Exception("no station table in the view");
                 var table = Descendants(view).OfType<StackPanel>().Single(p => p.Name == "section-stations-table");
-                var headers = ((Grid)table.Children[1]).Children.OfType<TextBlock>().Select(t => t.Text).ToArray();
+                var headers = table.Children.OfType<Grid>().First().Children.OfType<TextBlock>().Select(t => t.Text).ToArray();
                 Equal("Station|α_eff °|" + Labels.CpMinLabel + "|Cavitation", string.Join("|", headers), "the four headers");
                 Equal(rows.Count, table.Children.OfType<Border>().Count(), "one rendered row per solved, governing or shown station");
                 Equal(1, rows.Count(r => r.IsShown), "exactly one shown row");
@@ -170,6 +170,41 @@ public static class SectionMainAreaTests
                 Equal(true, rows.All(r => r.Cavitation is "Clear" or "Inside the margin" or "Possible" or "Unavailable"), "cavitation words come from COPY-301 to COPY-303");
                 Equal(true, rows.Where(r => r.NotMeasured is not null).All(r => r.NotMeasured == Labels.UnderreadNotMeasured), "COPY-384 on a station not measured");
                 Equal(0, Descendants(view).OfType<StackPanel>().Count(p => p.Name == "section-station-table"), "the Station name group is gone (the header names it)");
+            });
+            // Ruling 147: the caption above the Stations table, read by assistive technology as the table's description.
+            DesktopChecks.Check("SectionMainArea_StationsCaption_AboveTable_DescribesTable_Ruling147", () =>
+            {
+                var (controller, host, window) = shared.Value;
+                controller.Select(new Selection.Foil());
+                host.RefreshPanes();
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
+                Settle(window);
+                var view = host.AnalysisPanel.SectionView;
+                var table = Descendants(view).OfType<StackPanel>().Single(p => p.Name == "section-stations-table");
+                var caption = table.Children.OfType<TextBlock>().Single(t => t.Name == "section-stations-caption");
+                int rowCount = view.Shown!.StationTable!.Count;
+                Equal(true, caption.Text!.StartsWith($"{rowCount} of ", StringComparison.Ordinal), "caption counts the rows: " + caption.Text);
+                Equal(view.Shown.StationsCaption, caption.Text, "caption is the projection's text");
+                Equal(true, table.Children.IndexOf(caption) < table.Children.IndexOf(table.Children.OfType<Grid>().First()), "above the header row");
+                Equal(caption.Text, Avalonia.Automation.AutomationProperties.GetHelpText(table), "the table is described by the caption");
+            });
+            // Operator capture (Ruling 147): registered only when STC_CAPTURE_DIR is set, never in the ring.
+            if (Environment.GetEnvironmentVariable("STC_CAPTURE_DIR") is { Length: > 0 } captureDir) DesktopChecks.Check("SectionMainArea_StationsCaption_Captures", () =>
+            {
+                var (controller, host, window) = shared.Value;
+                controller.Select(new Selection.Foil());
+                host.RefreshPanes();
+                host.LayoutFactory.MainDocumentDock.ActiveDockable = host.LayoutFactory.SectionDocument;
+                Directory.CreateDirectory(captureDir);
+                foreach (var (theme, name) in new[] { (Avalonia.Styling.ThemeVariant.Light, "light"), (Avalonia.Styling.ThemeVariant.Dark, "dark") })
+                {
+                    window.RequestedThemeVariant = theme;
+                    Settle(window);
+                    using var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(new PixelSize((int)window.Bounds.Width, (int)window.Bounds.Height), new Vector(96, 96));
+                    bitmap.Render(window);
+                    bitmap.Save(Path.Combine(captureDir, $"01-section-stations-caption-{name}.png"));
+                }
+                window.RequestedThemeVariant = Avalonia.Styling.ThemeVariant.Default;
             });
             // Ruling 125 (mockup B, C): the one conditions band is above the Section document; Evaluate runs from there.
             DesktopChecks.Check("SectionMainArea_ConditionsBand_OneInstance_EvaluateFromSectionTab", () =>

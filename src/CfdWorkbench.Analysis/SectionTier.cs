@@ -35,6 +35,8 @@ public sealed record SectionTierResult(IReadOnlyList<SectionStationResult> Stati
     public int PanelCandidateCount { get; init; }
     /// <summary>Ruling 142: stations left out of the wing cavitation verdict because they read the tip-provisional strip.</summary>
     public int TipNotJudgedCount { get; init; }
+    /// <summary>The stations the wing cavitation verdict judged: the one count the wing line (COPY-304) and the Stations table caption (COPY-411) print.</summary>
+    public int JudgedCount => Stations.Count - TipNotJudgedCount;
     public PolarResult? PolarNcrit2 { get; init; }
     public PolarResult? PolarNcrit4 { get; init; }
     public string? PolarReason2 { get; init; }

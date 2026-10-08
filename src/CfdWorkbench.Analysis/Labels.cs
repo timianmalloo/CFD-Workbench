@@ -144,6 +144,7 @@ public static class Labels
     public static string TipNotJudgedSuffix(int count) => count > 0 ? $"; {count} {(count == 1 ? "station" : "stations")} {TipNotJudged}" : "";
     public static string StationCavitationLine(double eta, double depth, int count) => // COPY-304
         $"Governing station: η {Number(eta, "0.###")} · depth {Number(depth, "0.###")} m · smallest σ / (−Cp_min) of {count} stations";
+    public static string StationsShown(int shown, int judged) => $"{shown} of {judged} stations shown — solved, governing and selected"; // COPY-411 (Ruling 147)
     public static string CpMinWhere(double x, string side, int stations) => // DX row 8
         $"at x/c {Number(x, "0.###")} on the {side} surface · {stations} stations · three trailing-edge panels per side excluded";
     public static string ReInside(double re, double min, double max) => $"Re_local {Sci(re)} inside {Sci(min)} to {Sci(max)}"; // COPY-322
