@@ -6276,6 +6276,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "15bbf7360f65f4b127fb66a5a3328502ed96ecbb5039d4e9211b1413cdcd5dcd"
     },
     {
+      "id": "review-pr-10",
+      "path": "docs/reviews/pr-10.md",
+      "title": "PR #10 (Windows PC) - W-2 B2 Ruling 145 native sharing qualification (Ruling 152), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 152). Class 65 stays the only production rename route with no fallback, Win32 32 maps to DOC-CONFLICT in code and design section 4, ProjectStore stays fail-closed, and the two new sharing cases plus the class-22/class-3 attribution probe run green on Windows with raw output and 0 PII hits. The red-first departure (case (i) green on first run) is accepted; the receipt must state that disposition before merge.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-2",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "review-pr-8",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "347cfbb22c18e03b0e74888b58d708be98fbf478e792b7aac53ff90e4ddb59e7"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -6541,7 +6573,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "21002e14d8f974cb0756d9c4d7b87220de6968bad9e16302dc9d270f1e27bd25"
+      "sourceSha256": "ade4e315ff67d11c91d890a48df61381897ea5790b1ba5b9c45e4d38327cf2ff"
     },
     {
       "id": "review-property-grid-native",
@@ -7244,7 +7276,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d1b0886907d712b43cc5754940072d9f6c6c7a176acbd2263dbe04d6b642839f"
+      "sourceSha256": "64a4763f4f74e5d998edc164c313faa6df62cc96deceb69644caae8e45f7ae70"
     },
     {
       "id": "kb-hw-glossary",
@@ -16595,5 +16627,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f7594ec4566b7a0a6af9fc339d643d1f7dd31daec529d717605b116b65d6a2bb"
+  "graphSha256": "72eb08e1a9594a266681f4599f1935a8b44ca7a5d374288dd14741db83368eb3"
 };

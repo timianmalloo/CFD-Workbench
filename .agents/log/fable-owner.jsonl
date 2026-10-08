@@ -26,3 +26,5 @@
 {"at": 1791472318.273599, "from": "fable-owner", "kind": "ruling", "mail_id": "mail-01M4E14DT1FD7PT83SQ4ZCGSH5", "ref": "req-01M4E14DPYAGQ8HB1141RGK278", "session": "fable-owner", "to": "14e5e8d5", "type": "mail"}
 {"action": "resolve", "agent": "fable-owner", "at": 1791481166.789423, "id": "req-01M4E9JEV03GHN10JEDKK663X7", "kind": "request", "outcome": "resolution", "path": "-", "seq": 27, "session": "fable-owner", "type": "request", "wi": "WI-0"}
 {"at": 1791481166.795156, "from": "fable-owner", "kind": "ruling", "mail_id": "mail-01M4E9JEYBQE08WMZTASPRWW8S", "ref": "req-01M4E9JEV03GHN10JEDKK663X7", "session": "fable-owner", "to": "3122f106", "type": "mail"}
+{"action": "resolve", "agent": "fable-owner", "at": 1791481506.48304, "id": "req-01M4E9WTG47SKAZGB5YK09593X", "kind": "request", "outcome": "resolution", "path": "-", "seq": 29, "session": "fable-owner", "type": "request", "wi": "WI-0"}
+{"at": 1791481506.491795, "from": "fable-owner", "kind": "ruling", "mail_id": "mail-01M4E9WTNVSW66ECFNF16M8RWV", "ref": "req-01M4E9WTG47SKAZGB5YK09593X", "session": "fable-owner", "to": "3122f106", "type": "mail"}
