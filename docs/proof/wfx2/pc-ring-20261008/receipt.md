@@ -21,7 +21,7 @@ This receipt records one completed Windows ring from the retained files under `.
 
 | Item | Evidence and confidence |
 | --- | --- |
-| Delivery head | `e2e47765955d23b38e17c2300311330c271cd0b7` (assigned by coordinator; verified as this worktree's `HEAD`). |
+| Delivery head | Pre-receipt delivery commit: `e2e47765955d23b38e17c2300311330c271cd0b7`, verified as an ancestor of this evidence packet. The evidence commit is reported separately in the handoff. |
 | Tested source | `9eef04892566623d0ff9e7cca65b8f82a9934647` (assigned by coordinator; verified as an ancestor of the delivery head). The retained logs themselves do not identify a source SHA. |
 | Runner shape | The seven retained log names match the seven jobs configured by `tools/run-tests.sh` at the tested source SHA. The actual invocation command was not retained. The script declares `Release` as its default and accepts `CFD_TEST_CONFIGURATION`; the selected configuration and environment were not retained. |
 | Build metadata | SDK `10.0.203`, two Avalonia warnings, zero build errors (coordinator-observed; not present in the retained `.tmp-tests` files). |
