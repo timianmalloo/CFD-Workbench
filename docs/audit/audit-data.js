@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:25:32Z",
+  "generated": "2026-10-08T23:26:38Z",
   "audit": [
     {
       "actor": null,
@@ -30916,12 +30916,77 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4EXC5VYQ3TASY0AFGX9H70Y",
-      "shortname": "join-rwf",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T23:25:32Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 55.0,
+      "fan_out": 0,
+      "goal": "join the record-write-path follow-up under Ruling 157",
+      "id": "al-01M4EXC5VYQ3TASY0AFGX9H70Y",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/rwf-record-path into main",
+      "session": "3122f106",
+      "shortname": "join-rwf",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T23:24:37Z",
       "summary": "RWF joined: NewDefault bit golden, CosPi/SinCosPi on the record path, one SinCosDegrees, four DRIFT family checks at 1e-6, exact asserts to 1e-9 relative; geometry and Test Architect reviews CLEAR recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-08T23:08:16Z",
+      "done_when": "red-first.md, run-tests green, check-docs exit 0",
+      "goal": "At nc<2 x_cp/c and M' c/4 read Not resolved, no couple glyph, bias suffix dropped (Ruling 161)",
+      "id": "al-01M4EWCJG86C6HPHFG6C22K8F9",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "track NCR",
+      "session": "trk-ncr",
+      "shortname": "ncr-not-resolved",
+      "skill": "implement",
+      "summary": "SectionForces.IsMomentResolved; COPY-SF18..SF21; table, profile label and glyph; 2 new check files; two superseded NUM checks updated in a separate commit",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-08T23:20:39Z",
+      "done_when": "run-tests exit 0, check-docs exit 0",
+      "duration_seconds": 202.0,
+      "goal": "SF22 at nc=1, doc comment, value reds, next-step note",
+      "id": "al-01M4EX37Z5HPP08FEAS9V6WE6F",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "track NCR resume (Ruling 162)",
+      "session": "trk-ncr",
+      "shortname": "ncr-ruling162",
+      "skill": "implement",
+      "started_at": "2026-10-08T23:17:17Z",
+      "summary": "COPY-SF22 on plate and accessible name via AnchorQuarterFor; IsMomentResolved doc fixed; value asserts shown red alone; group cost trimmed",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4EXE60216D3WMYN022VMW0M",
+      "shortname": "join-ncr",
+      "datetime": "2026-10-08T23:26:38Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/ncr-not-resolved into main",
+      "summary": "NCR joined: one IsMomentResolved predicate; at nc=1 x_cp/M' read Not resolved, no couple glyph, SF22 plate; nc>=2 unchanged; cfd-numerical review CLEAR recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -30930,7 +30995,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join the record-write-path follow-up under Ruling 157",
+      "goal": "join the 1-chordwise-panel not-resolved rule",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -30939,7 +31004,7 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-08T23:24:37Z",
+      "started_at": "2026-10-08T23:25:43Z",
       "duration_seconds": 55.0
     }
   ],
