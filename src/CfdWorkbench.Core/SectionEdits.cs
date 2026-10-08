@@ -411,8 +411,7 @@ internal static class SectionEdits
         if (step.Kind == TangentKind.Angle)
         {
             // F-XPA-1 (Ruling 73 DR-XPA-6 a): y only, so each handle keeps its paired x on both surfaces.
-            double radians = (step.AngleDegrees ?? 0) * PlacementRule.RadiansPerDegree;
-            double cos = Math.Cos(radians), sin = Math.Sin(radians);
+            var (sin, cos) = PlacementRule.SinCosDegrees(step.AngleDegrees ?? 0);
             if (Math.Abs(cos) < 1e-9)
                 throw new ContractError("DSL-LOCK", "An angle this steep cannot be set without moving the handles sideways.");
             double slope = sin / cos;
