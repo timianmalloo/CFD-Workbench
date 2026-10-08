@@ -424,8 +424,8 @@
     },
     {
       "path": "docs/proof/win-naca/receipt.md",
-      "bytes": 23241,
-      "sha256": "4d5d5e02f8524d98b1f79e4960ade0938b2b69451fdbe7b87d6667f993b47af3"
+      "bytes": 23271,
+      "sha256": "ee1b2a964676b93b77e852f0376f83f46ba2b9bb48168830958b4b2aac19e5df"
     },
     {
       "path": "docs/proof/win-naca/repair-su2-semantics.py",

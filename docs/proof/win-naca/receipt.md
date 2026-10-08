@@ -262,8 +262,7 @@ it omits unsupported `MARKER_DESIGNING`.
 
 The proof copy of `su2-results/log.SU2_CFD` was copied byte-for-byte from the retained run file. Its
 3,045,192 bytes, 27,120 CRLF pairs and SHA-256 `aab8d165671b30d0ed1224fbd11bff4e6d4bb9a151a221dce52d74549c823543`
-are unchanged. Evidence-scoped `.gitattributes` entries disable text conversion only for
-`l6-results/log.*` and `su2-results/log.*`; whitespace exceptions are limited to those raw output paths.
+are unchanged. Added `-text` coverage for `l6-results/log.*` and `su2-results/log.*`; inherited evidence patterns remain unchanged. No whitespace-check exceptions were added. Raw-output whitespace findings remain disclosed.
 Captured Windows user paths in committed W-4 proof text are represented as `%USERPROFILE%` to preserve
 the executable location shape without committing the account name. The binary SHA-256 remains the identity
 check; this redaction changes no solver input or raw output.
@@ -274,4 +273,4 @@ the tested source base; the final evidence commit is a descendant and is reporte
 This does not replace the historical launch freezes or `hash-manifest.json` precompletion snapshot.
 The corrected metadata passed the case schema; the one SU2 run and the original iterative oracle remain
 unchanged, with the oracle **NOT MET**. CFL3D comparison remains not admitted; no momentum residual is
-reinterpreted, no solver rerun occurred, and L3 remains unlaunched. This correction used 1 of 2 cycles.
+reinterpreted, no solver rerun occurred, and L3 remains unlaunched. This correction used 2 of 2 cycles.
