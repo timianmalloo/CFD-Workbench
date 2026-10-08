@@ -399,8 +399,8 @@ internal static class SectionEdits
             if (norm == 0) { dx = 1; norm = 1; }
             dx /= norm;
             dy /= norm;
-            double left = Math.Sqrt(Math.Pow(ax - points[index - 1][0], 2) + Math.Pow(ay - points[index - 1][1], 2));
-            double right = Math.Sqrt(Math.Pow(points[index + 1][0] - ax, 2) + Math.Pow(points[index + 1][1] - ay, 2));
+            double left = Math.Sqrt((ax - points[index - 1][0]) * (ax - points[index - 1][0]) + (ay - points[index - 1][1]) * (ay - points[index - 1][1]));
+            double right = Math.Sqrt((points[index + 1][0] - ax) * (points[index + 1][0] - ax) + (points[index + 1][1] - ay) * (points[index + 1][1] - ay));
             double length = Math.Min(left, right);
             points[index - 1][0] = ax - dx * length;
             points[index - 1][1] = ay - dy * length;
@@ -411,8 +411,7 @@ internal static class SectionEdits
         if (step.Kind == TangentKind.Angle)
         {
             // F-XPA-1 (Ruling 73 DR-XPA-6 a): y only, so each handle keeps its paired x on both surfaces.
-            double radians = (step.AngleDegrees ?? 0) * PlacementRule.RadiansPerDegree;
-            double cos = Math.Cos(radians), sin = Math.Sin(radians);
+            var (sin, cos) = PlacementRule.SinCosDegrees(step.AngleDegrees ?? 0);
             if (Math.Abs(cos) < 1e-9)
                 throw new ContractError("DSL-LOCK", "An angle this steep cannot be set without moving the handles sideways.");
             double slope = sin / cos;

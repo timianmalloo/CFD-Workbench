@@ -48,6 +48,11 @@ internal interface IPlacementScalar<TSelf> :
 internal static class PlacementRule
 {
     internal const double RadiansPerDegree = 0.017453292519943295;
+
+    // The one definition of sin and cos of an angle in degrees: pi * (degrees / 180) through the managed SinCosPi, never the C runtime.
+    // Exact at 0, 90 and 180 degrees. Placement (Binary64.SinCosDegrees), the fit's angle rows, the section angle tangent and the
+    // rail handle target all call it (Ruling 156 P3, Ruling 157).
+    internal static (double Sin, double Cos) SinCosDegrees(double degrees) => double.SinCosPi(degrees / 180);
     internal const int TaylorTerms = 16;
     internal const int AngleGridBits = 64;
     internal const int MaximumGrid = 401;
@@ -112,9 +117,19 @@ internal readonly record struct Binary64(double Value) : IPlacementScalar<Binary
     public static Binary64 Point(double value) => new(value);
     public static Binary64 BlendWeight(double eta, double left, double right) => new((eta - left) / (right - left));
     public static Binary64 Radians(Binary64 degrees) => new(degrees.Value * PlacementRule.RadiansPerDegree);
-    public static (Binary64 Sin, Binary64 Cos) SinCos(Binary64 radians)
+    // The interface form takes radians; it divides by pi and uses the managed SinCosPi, never the C runtime (Ruling 156 P3).
+    public static (Binary64 Sin, Binary64 Cos) SinCos(Binary64 radians) => SinCosPi(radians.Value / Math.PI);
+
+    // The station angle: sin and cos of pi * (degrees / 180), exact at 0, 90, 180 degrees, managed code only (Ruling 156 P3).
+    public static (Binary64 Sin, Binary64 Cos) SinCosDegrees(Binary64 degrees)
     {
-        var (sin, cos) = Math.SinCos(radians.Value);
+        var (sin, cos) = PlacementRule.SinCosDegrees(degrees.Value);
+        return (new(sin), new(cos));
+    }
+
+    private static (Binary64 Sin, Binary64 Cos) SinCosPi(double turnsOfPi)
+    {
+        var (sin, cos) = double.SinCosPi(turnsOfPi);
         return (new(sin), new(cos));
     }
 }
@@ -206,7 +221,7 @@ internal static class ProfileEvaluator
         double step = count - 1;
         for (int index = 0; index < count; index++)
         {
-            double x = (1 - Math.Cos(Math.PI * index / step)) / 2;
+            double x = (1 - double.CosPi(index / step)) / 2;
             if (index == 0) x = 0;
             else if (index == count - 1) x = 1;
             samples[index] = new ProfilePoint(x, OrdinateAt(curve, x));
@@ -377,7 +392,7 @@ public static class Placement
     private static StationGeometry ReadStation(Definition definition, PreparedProfile[] prepared, double[] stationEtas, int[] stationProfiles, double eta)
     {
         var frame = ReadFrame(definition, eta);
-        var angle = Binary64.SinCos(Binary64.Radians(Binary64.Point(frame.TwistDegrees)));
+        var angle = Binary64.SinCosDegrees(Binary64.Point(frame.TwistDegrees));
         var (left, right) = PlacementRule.Select(stationEtas, stationProfiles, eta, (a, b) => SameRecord(definition.Profiles[a], definition.Profiles[b]));
         int? assignment = null;
         for (int index = 0; index < stationEtas.Length; index++)
@@ -694,7 +709,7 @@ public static class Placement
         var xs = new double[count];
         double step = count - 1;
         for (int index = 0; index < count; index++)
-            xs[index] = (1 - Math.Cos(Math.PI * index / step)) / 2;
+            xs[index] = (1 - double.CosPi(index / step)) / 2;
         xs[0] = 0;
         xs[^1] = 1;
         return xs;

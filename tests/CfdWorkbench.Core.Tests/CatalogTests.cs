@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Numerics;
 using System.Text;
 using CfdWorkbench.Core;
 using static CfdWorkbench.Core.Tests.IdentityTests;
@@ -21,6 +22,7 @@ internal static class CatalogTests
         Check("CatalogGenerator_Naca0012_MatchesClosedFormAt81Stations", Naca0012ClosedForm);
         Check("CatalogGenerator_ClosedTe4412_ChordFrameLeAtMinimumX", ClosedTe4412Frame);
         Check("Catalog_GenNeverThroughDatParse", GenNeverThroughDatParse);
+        Check("CatalogGenerator_Spacing_CosPiBitGoldenAndAccuracy", SpacingGoldenAndAccuracy);
     }
 
     private static void GenEntriesRegenerate()
@@ -36,7 +38,7 @@ internal static class CatalogTests
             byte[] generated = CatalogGenerator.Naca4(id["naca-".Length..]);
             Equal(true, generated.AsSpan().SequenceEqual(entry.Coordinates));
             Equal(Identity.Sha256(generated), entry.CoordinateHash);
-            Equal(CatalogGenerator.Id, "naca4-closed/1");
+            Equal(CatalogGenerator.Id, "naca4-closed/2");
         }
         foreach (string id in new[] { "naca-16-012", "naca-63-209", "naca-63-412", "naca-64a410", "naca-66-012", "naca-66-209", "naca-66-018" })
         {
@@ -50,7 +52,7 @@ internal static class CatalogTests
 
     private static void HashMismatch()
     {
-        const string row = "naca-0012\tNaca\tNACA 0012\tGen\t\tnaca4-closed/1\t" +
+        const string row = "naca-0012\tNaca\tNACA 0012\tGen\t\tnaca4-closed/2\t" +
             "0000000000000000000000000000000000000000000000000000000000000000\t0\t0\t1\n";
         ExpectUnavailable(() => Catalog.Read(row, _ => CatalogGenerator.Naca4("0012")));
         ExpectUnavailable(() => Catalog.Read(row, _ => null));
@@ -63,7 +65,7 @@ internal static class CatalogTests
         byte[] good = CatalogGenerator.Naca4("0012");
         byte[] bent = (byte[])good.Clone();
         bent[bent.Length / 2] ^= 1;
-        string Row(string hash, string le = "0") => $"naca-0012\tNaca\tNACA 0012\tGen\t\tnaca4-closed/1\t{hash}\t{le}\t0\t1\n";
+        string Row(string hash, string le = "0") => $"naca-0012\tNaca\tNACA 0012\tGen\t\tnaca4-closed/2\t{hash}\t{le}\t0\t1\n";
         string zero = new('0', 64), goodHash = Identity.Sha256(good), bentHash = Identity.Sha256(bent);
 
         var hash = Planted(Row(zero), _ => good);
@@ -172,6 +174,48 @@ internal static class CatalogTests
         for (int index = 0; index < parsed.Upper.Count && index < framed.Length; index++)
             gap = Math.Max(gap, Math.Abs(parsed.Upper[index].Y - framed[index].Y));
         Equal(true, gap > 1e-4);
+    }
+
+    // Ruling 156 controls (b)+(d), one fixture, one check. The fixture pins the bits of double.CosPi(i/80.0) (a runtime pin: a runtime
+    // upgrade that moves a bit fails here before it moves a catalog byte) and holds the exact abscissa to 40 digits. The generator's
+    // spacing must be 0.5*(1-CosPi) bit for bit, within 2^-52 of exact, exactly 0, 0.5 and 1 at the ends and the middle, and strictly rising.
+    private static void SpacingGoldenAndAccuracy()
+    {
+        string path = Path.Combine(PlacementTests.RepoRoot(), "tests", "CfdWorkbench.Core.Tests", "Fixtures", "catalog", "spacing-cospi-80.tsv");
+        string[] rows = File.ReadAllText(path).Split('\n').Select(line => line.TrimEnd('\r'))
+            .Where(line => line.Length > 0 && line[0] != '#').ToArray();
+        Equal(81, rows.Length);
+        BigInteger scale = BigInteger.Pow(10, 40);
+        BigInteger tolerance = scale >> 52;
+        double previous = double.NegativeInfinity;
+        for (int index = 0; index <= 80; index++)
+        {
+            string[] field = rows[index].Split('\t');
+            Equal(index, int.Parse(field[0], CultureInfo.InvariantCulture));
+            long goldenBits = long.Parse(field[1], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            Equal(goldenBits, BitConverter.DoubleToInt64Bits(double.CosPi(index / 80.0)));
+            double s = CatalogGenerator.Spacing(index);
+            Equal(BitConverter.DoubleToInt64Bits(0.5 * (1 - BitConverter.Int64BitsToDouble(goldenBits))), BitConverter.DoubleToInt64Bits(s));
+            BigInteger exact = BigInteger.Parse(field[2].Replace(".", "", StringComparison.Ordinal), CultureInfo.InvariantCulture);
+            Equal(true, BigInteger.Abs(Scaled(s, scale) - exact) <= tolerance);
+            Equal(true, s > previous);
+            previous = s;
+        }
+        Equal(0d, CatalogGenerator.Spacing(0));
+        Equal(0.5, CatalogGenerator.Spacing(40));
+        Equal(1d, CatalogGenerator.Spacing(80));
+    }
+
+    // value * scale as an integer, from the double's exact binary expansion (truncation error 1 unit of 1e-40).
+    private static BigInteger Scaled(double value, BigInteger scale)
+    {
+        long bits = BitConverter.DoubleToInt64Bits(value);
+        int exponent = (int)((bits >> 52) & 0x7FF);
+        BigInteger mantissa = bits & 0xFFFFFFFFFFFFFL;
+        if (exponent == 0) exponent++; else mantissa |= BigInteger.One << 52;
+        exponent -= 1075;
+        BigInteger scaled = mantissa * scale;
+        return exponent >= 0 ? scaled << exponent : scaled >> -exponent;
     }
 
     private static void ExpectUnavailable(Action action)

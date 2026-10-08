@@ -3282,7 +3282,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a72cac34fd2d1f165afd734f2418c3d146964ac0d9b171441eba678cadbfdaf7"
+      "sourceSha256": "aaaf5fa821a2578a395ba502edc357ab2c5d4b88de6d05906fe20a8e6796f071"
     },
     {
       "id": "design-next-cad-increment",
@@ -5211,7 +5211,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b75264e958026b280f176686bc28b86c9c02a54d2d79a536b15622a7e931201c"
+      "sourceSha256": "694c7df7fffd7ddf154c05a29f4acf551f1438aefbae4f963b4a5396d36e359c"
     },
     {
       "id": "domain-experts",
@@ -5912,6 +5912,84 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "proof-caf-red-first",
+      "path": "docs/proof/caf/red-first.md",
+      "title": "Track CAF - red-first record for catalog generator naca4-closed/2",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-caf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the spacing bit golden and accuracy check, the generator id, and the CRT-transcendental gate (commit 1, catalog).",
+      "tags": [
+        "catalog",
+        "determinism",
+        "ruling-156",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "272a21ca635b690e899bf59f8bc54c1fcdc475f341ce5eb46c5501c237fbcd1b"
+    },
+    {
+      "id": "proof-caf-residual",
+      "path": "docs/proof/caf/residual.md",
+      "title": "Track CAF - residual of naca4-closed/2 against /1 (P4)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-caf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Measured change of the three shipped NACA entries between generator naca4-closed/1 and /2: points changed, max ordinate change, and the 4412 frame deltas. All sit far under the 1e-6 identity tolerance, so no catalog id changes.",
+      "tags": [
+        "catalog",
+        "determinism",
+        "ruling-156",
+        "residual"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "71d9a36165e90e74fe5695a4dd3bfdaaac084f32a78a604ebd4a01435a3b3164"
+    },
+    {
+      "id": "proof-caf-surfaces",
+      "path": "docs/proof/caf/surfaces.md",
+      "title": "Track CAF - E7 surface list for the Placement change (Ruling 156 P3)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-caf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Every committed hash or golden that Placement output reaches, found by search. One bit golden moves (placement-surface-bits.txt); no persisted non-test artifact carries Placement output, so no decision request is raised.",
+      "tags": [
+        "placement",
+        "determinism",
+        "ruling-156",
+        "surface-list"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f58734f8401336f0cbb4aa191937e398938b3d63b9303809816005521e867356"
+    },
+    {
       "id": "proof-cpy-cause-rows",
       "path": "docs/proof/cpy/cause-rows.md",
       "title": "Track CPY, Ruling 148 - proposed plain-cause rows for DOC-/DSL- codes",
@@ -5962,6 +6040,60 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
+    },
+    {
+      "id": "proof-rwf-red-first",
+      "path": "docs/proof/rwf/red-first.md",
+      "title": "Track RWF - red-first record for the record-write path (Ruling 157)",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-rwf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Red and green runs, measured drift per fitted-project family, and the item 3 exact-assert fixes for the record-write path (items 1 to 3 of Ruling 157).",
+      "tags": [
+        "determinism",
+        "record-path",
+        "ruling-157",
+        "red-first",
+        "crt-golden"
+      ],
+      "links": [
+        {
+          "to": "proof-caf-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1e0f0bd0b382d5328c3d1450f0f3acd0b6e2121150ad6e819ba220664a5354f9"
+    },
+    {
+      "id": "proof-rwf-residual",
+      "path": "docs/proof/rwf/residual.md",
+      "title": "Track RWF - residual risk, surface list and spec check (Ruling 157)",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-rwf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The DatImport.cs:386 residual risk, the surfaces the two new gate entries reach, and the spec search for a cross-OS byte-identity claim on project files.",
+      "tags": [
+        "determinism",
+        "record-path",
+        "ruling-157",
+        "residual",
+        "surfaces"
+      ],
+      "links": [
+        {
+          "to": "proof-rwf-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "af6001f81fa629006e9f385fba932780807323610781806fe3e9cc28d41b0c01"
     },
     {
       "id": "proof-win-cfmesh-probe",
@@ -7516,7 +7648,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e7a7a390c003eaab0c6ef53c49f87e8eeeb05549a237f7f63c89871bc4c29bbe"
+      "sourceSha256": "1fec0799516ed22cde03e562da7a8ec0f1ff852a7d052b802ad015ccffd4bf9e"
     },
     {
       "id": "kb-hw-glossary",
@@ -12857,6 +12989,30 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "proof-ncr-red-first",
+      "path": "docs/proof/ncr/red-first.md",
+      "title": "NCR red-first receipts (Not resolved at 1 chordwise panel)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 161: the checks that fail on the old nc = 1 texts and glyph, the passing runs, and the rendered texts.",
+      "tags": [
+        "ncr",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-num-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b774159797d8d57ec3ab82efc5e0f8d5a9f2fae5d691ca0d18b0bd0cab095904"
+    },
+    {
       "id": "proof-newfoil-red-runs",
       "path": "docs/proof/newfoil-red-runs.md",
       "title": "NEWFOIL red-first run",
@@ -17246,5 +17402,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "885042c0d0e5b05f064c254606711328ea0aee1960e032874860c4c0f24a6a88"
+  "graphSha256": "d50176b4f3fae013ca5ba7bf52a91254ff88e1d0475e7ed4afe7dbad19d3b2b0"
 };

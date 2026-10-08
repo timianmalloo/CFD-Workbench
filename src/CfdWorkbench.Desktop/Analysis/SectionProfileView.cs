@@ -29,7 +29,7 @@ public sealed class SectionProfileView : Control
             AutomationProperties.SetName(this, value is null ? "Section profile" :
                 value.Caption + ", pressure coefficient on the profile; " + (value.TipNotJudged ? "Cp_min " + Labels.TipNotJudged :
                 "Cp_min " + Num(value.CpMinPanel.Cp) + " at x/c " + value.CpMinPanel.X.ToString("0.000", Inv) + " on the " + value.Side + " surface") +
-                (value.Forces is { } f ? ". " + Labels.LiftLabel(f.LiftPerSpan, f.Units) + ", " + (f.Anchor == ForceAnchor.CentreOfPressure ? Labels.AnchorCp(f.XcpOverC!.Value) : Labels.AnchorQuarter) +
+                (value.Forces is { } f ? ". " + Labels.LiftLabel(f.LiftPerSpan, f.Units) + ", " + (f.Anchor == ForceAnchor.CentreOfPressure ? Labels.AnchorCp(f.XcpOverC!.Value) : Labels.AnchorQuarterFor(f.MomentResolved)) +
                     ", " + Labels.FreeStream(f.AlphaGeoDeg) : ""));
             // the plate and the key under it need the room the mockup gives them; the Cp-only view keeps its height
             Height = value?.Forces is null ? 240 : ViewportHeightWithVectors + KeyHeight;
@@ -250,7 +250,7 @@ public sealed class SectionProfileView : Control
         Arrow(context, anchor, liftEnd, viewport, 7, null, 13);
         if (f.ProfileLow is not null) Arrow(context, anchor, profileEnd, viewport, 8, null, 0);
         Arrow(context, profileEnd, inducedEnd, viewport, 8, null, 13);
-        if (f.Anchor == ForceAnchor.QuarterChord)
+        if (f.Anchor == ForceAnchor.QuarterChord && f.MomentResolved)
         {
             Couple(context, anchor, f.CouplePerSpan, viewport, 7, 0);
             Couple(context, anchor, f.CouplePerSpan, ink, 3, 11);
@@ -287,9 +287,10 @@ public sealed class SectionProfileView : Control
         Place2(liftText, scaleText, shortLift ? anchor.X - 6 : liftEnd.X + 14, shortLift ? anchor.Y - 100 : liftEnd.Y - 14);
         // Ruling 131: the CP and the couple labels carry the approved bias wording (COPY-SF17) on a second line
         if (cp) Place2(Labels.AnchorCp(f.XcpOverC!.Value), Labels.LatticeBias(f.NChord), anchor.X - 10, oy + yI, right: true);
-        else Place(Labels.AnchorQuarter, anchor.X - 10, oy + yI + 20, right: true);
+        else Place(Labels.AnchorQuarterFor(f.MomentResolved), anchor.X - 10, oy + yI + 20, right: true);
         // the couple label goes on the side of the chord away from the Cp_min plate
-        if (!cp) Place2(Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, u), Labels.LatticeBias(f.NChord), anchor.X + 44, cpSide == "lower" ? anchor.Y - 62 : anchor.Y + 38);
+        if (!cp && f.MomentResolved) Place2(Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, u), Labels.LatticeBias(f.NChord), anchor.X + 44, cpSide == "lower" ? anchor.Y - 62 : anchor.Y + 38);
+        else if (!cp) Place(Labels.CoupleLabelNotResolved, anchor.X + 44, cpSide == "lower" ? anchor.Y - 46 : anchor.Y + 38);
         Place(Labels.InducedDragLabel(f.InducedPerSpan, u, f.DragMultiple), imx - 14, oy + yI);
         if (f.ProfileLow is { } low && f.ProfileHigh is { } high)
         {
