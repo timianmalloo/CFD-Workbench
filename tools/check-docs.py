@@ -87,6 +87,8 @@ def run_lesson_controls():
         ("check-text-mode-hash.py", ()),
         ("check-proof-pii.py", ("--self-test",)),
         ("check-proof-pii.py", ()),
+        ("check-reader-sharing.py", ("--self-test",)),
+        ("check-reader-sharing.py", ()),
         ("dispatch-gate.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ()),

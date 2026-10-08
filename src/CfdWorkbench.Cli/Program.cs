@@ -23,8 +23,7 @@ public static class Cli
     {
         // The core's 1 MiB source ceiling is checked before allocating beyond one sentinel byte.
         const int maxBytes = 1_048_576;
-        await using var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read,
-            bufferSize: 8192, options: FileOptions.Asynchronous | FileOptions.SequentialScan);
+        await using var stream = UserFile.OpenRead(path, FileOptions.Asynchronous | FileOptions.SequentialScan, bufferSize: 8192);
         if (stream.Length > maxBytes) throw new ContractError("DSL-LIMIT");
         var buffer = new byte[maxBytes + 1];
         int used = 0;
