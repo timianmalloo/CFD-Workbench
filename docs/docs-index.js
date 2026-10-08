@@ -6510,6 +6510,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "d2d3925aa351e851c4c554a8e9c139631cda2d5d6399d65d367804107bee85c2"
     },
     {
+      "id": "review-pr-9",
+      "path": "docs/reviews/pr-9.md",
+      "title": "PR #9 (Windows PC) - W-4 NACA 0012 evidence and L3 preparation (Ruling 151), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 151). The Windows G0 L6 OpenFOAM run reproduces the Mac G0 case from byte-identical LF inputs and meets A4; the window means differ from the Mac by Cl -1.604e-6 and Cd -9.7e-8, below the sum of the two runs' iterative half-bands. The one native SU2 run is kept as oracle NOT MET with no CFL3D number admitted; the GPU inspection ran zero trials; L3 is prepared per Ruling 79 and the 119-entry closing manifest equals the committed blobs.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-4",
+        "openfoam",
+        "su2",
+        "naca0012"
+      ],
+      "links": [
+        {
+          "to": "review-pr-7",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-naca",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "21002e14d8f974cb0756d9c4d7b87220de6968bad9e16302dc9d270f1e27bd25"
+    },
+    {
       "id": "review-property-grid-native",
       "path": "docs/reviews/property-grid-native.md",
       "title": "Property grid — the operator's native checklist (B2, B4, B7, B8)",
@@ -7210,7 +7244,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18fd70d59bddfa1556ea25507846f3367ab9c572fa6d9ea3d0d132c67b31d16d"
+      "sourceSha256": "d1b0886907d712b43cc5754940072d9f6c6c7a176acbd2263dbe04d6b642839f"
     },
     {
       "id": "kb-hw-glossary",
@@ -16561,5 +16595,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "58cebb2a65bd4cc8057d6d0f67a0a2a69eeca0e26a71094533b27076f088fdbf"
+  "graphSha256": "f7594ec4566b7a0a6af9fc339d643d1f7dd31daec529d717605b116b65d6a2bb"
 };

@@ -1275,3 +1275,33 @@ Fable owner 2026-10-08 under Ruling 106, on PR #8 (APPROVE WITH CONDITIONS). (1)
 Operator 2026-10-08 (AskUserQuestion, session 3122f106), as recommended. (1) OneDrive refusal copy: "This folder is synced by OneDrive. CFD Workbench saves only to local folders, so a sync can't damage a save. Choose a folder outside OneDrive." (2) Crash-recovery copy, shown when a crash-left unfinished save blocks an overwrite: "An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged. 1. Close any other CFD Workbench window using this project. 2. Check the project shows your last saved work. 3. Use Save As to keep your current work, or choose Clear unfinished save, then Save." The Clear unfinished save action never runs silently and never announces a successful recovery; it follows the checkpoint's no-live-writer rule. (3) The Windows default save folder is %USERPROFILE%\CFD Workbench (display name "CFD Workbench"), not under Documents. Copy IDs and placement stay Mac-owned under Ruling 145 (6).
 
 - request: req-01M4E95YFZGPDZQWX2R3HCYM98 · ruled by: operator-timianmalloo · at: 2026-10-08T17:32:36Z
+
+### Ruling 147 — Stations table caption: "N of M stations shown - solved, governing and selected"
+
+Operator 2026-10-08 (AskUserQuestion, session 3122f106), as recommended. The wing cavitation line (COPY-304) is unchanged. The Stations table gets a caption above it: "{shown} of {judged} stations shown — solved, governing and selected", where {judged} is the same count the line prints, from one source. This builds the mockup's count that was never built. No other table change.
+
+- request: req-01M4E9JD28VY4KGP09VHJMJA4Z · ruled by: operator-timianmalloo · at: 2026-10-08T17:39:24Z
+
+### Ruling 148 — Raw DOC-/DSL- codes: a plain cause per code family, code kept at the end
+
+Operator 2026-10-08 (AskUserQuestion, session 3122f106), as recommended. Each DOC-/DSL- code family gets one plain-language cause, and the code stays in parentheses after it for diagnosis, e.g. "Save failed: the disk couldn't be written (DOC-IO) — the previous file is intact and your changes are kept. Retry or Save As." An unknown code reads with a generic plain cause plus the code, never the code alone. The Mac drafts the cause rows as proposed copy; the operator signs them off before they ship (spec owner).
+
+- request: req-01M4E9JDGRV7DMKZ6CPSFKZE4V · ruled by: operator-timianmalloo · at: 2026-10-08T17:39:25Z
+
+### Ruling 149 — Chordwise panel count stays nc = 4 with the approved bias label
+
+Operator 2026-10-08 (AskUserQuestion, session 3122f106), against the recommendation (nc = 8 behind a wall-time measurement). The lattice keeps nc = 4 chordwise panels. The approved label "lattice, 4 chordwise panels; biased forward at low lift" stays, and the measured bias in docs/proof/sfv/nc-convergence.md is its evidence. This closes Ruling 131's open nc decision. Revisiting it needs a new ruling.
+
+- request: req-01M4E9JDZC4BBVK08H73A2VV9G · ruled by: operator-timianmalloo · at: 2026-10-08T17:39:25Z
+
+### Ruling 150 — No NotifyProbe/Changed-counter drain guard; the held-surface test is the control
+
+Operator 2026-10-08 (AskUserQuestion, session 3122f106), as recommended. The proposed regex guard is not built. The sweep found only the two NotifyProbe sites, both drained, and SectionEditor_DragMove_HeldSurfaceDrainedBeforeThePress fails if a drain is missing; that test is the class's control. A new counting check on a shared fixture drains background work first (the class rule).
+
+- request: req-01M4E9JEDBN5SCW950CH77KT59 · ruled by: operator-timianmalloo · at: 2026-10-08T17:39:26Z
+
+### Ruling 151 — W-4 closed: zero GPU trials stands, W-4b oracle NOT MET, measured cross-OS difference is the W-4a result
+
+Fable owner 2026-10-08 under Ruling 106, on PR #9 (APPROVE WITH CONDITIONS, reviewed head 9b65d242). (a) W-4 condition 1 is met by the measurement-only GPU inspection; zero GPU trials stands, and any GPU route stays a Mac decision request. (b) W-4b is disposed as oracle NOT MET: no SU2-CFL3D number may be cited anywhere. A rerun under a re-declared oracle (absolute RMS floors, since momentum residuals start near 1e-14 from freestream initialisation) needs a new decision request and a cfd-numerical-verification-expert review of the re-declaration. (c) The measured cross-OS difference (Cl -1.604e-6, Cd -9.7e-8, each below the sum of the two runs' iterative half-bands) is the W-4a result. Any future build-equivalence tolerance is set at the Mac, must exceed this measured difference, and is stated relative to both runs' iterative half-bands. Follow-up conditions for the W-4c done receipt, before any L3 triplet enters gci.py: C2 bind the actual launch (systemd unit, keepalive, nice 19 readback, six ranks, partial-run preservation) and reconcile cases/win-spike04r3-g2-l3.yaml decomposition.nice with what ran; C3 record four defect classes with controls in docs/lessons/defect-classes.md (platform signal integer, WSL unit dying with the launching wsl.exe, .gitattributes *.log vs log.* nearly normalising raw bytes, schema validation after launch); C4 the win L3 YAML generator text cites the win case.
+
+- request: req-01M4E9JEV03GHN10JEDKK663X7 · ruled by: fable-owner · at: 2026-10-08T17:39:26Z
