@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T02:33:05Z",
+  "generated": "2026-10-08T02:37:23Z",
   "audit": [
     {
       "actor": null,
@@ -29825,6 +29825,26 @@ window.AUDIT_DATA = {
       "done_when": "Red-first Analysis and Desktop checks, capture retaken and opened, ring and gates green",
       "started_at": "2026-10-08T02:28:07Z",
       "duration_seconds": 297.0
+    },
+    {
+      "id": "al-01M4CNYR5KBVY4PXF07KSXYAZQ",
+      "shortname": "trk-tcv",
+      "datetime": "2026-10-08T02:37:23Z",
+      "session": "trk-tcv",
+      "prompt": "trk-tcv capture questions before join",
+      "summary": "Harness called EvaluateAnalysisAsync directly with Op.HRef 0.6 and alpha 3, bypassing the band boxes; recaptured through the band, band and run agree. COPY-304 counts tier stations minus tip (9-3=6); the table lists only measured/shown/governing stations by design.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Explain the band/run disagreement and the 6-vs-5 station count in the tip capture",
+      "done_when": "Both explained from code; capture retaken through the band",
+      "started_at": "2026-10-08T02:35:46Z",
+      "duration_seconds": 97.0
     }
   ],
   "changes": [
