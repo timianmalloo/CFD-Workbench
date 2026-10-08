@@ -101,10 +101,12 @@ public static class AnalysisProjection
             Row("σ", Derived(derived.Sigma, "0.00")),
             Row("V_crit", section?.Cavitation.CriticalSpeed is { } vcrit
                 ? Num(units == Units.Imperial ? vcrit * 1.9438444924406 : vcrit, "0.###")
+                : section?.Cavitation.Reason == StripLoad.TipProvisionalReason ? Labels.TipNotJudged // Ruling 142: every station is a tip strip
                 : depth ? Labels.NoVcrit : "Unavailable — depth not set",
                 section?.Cavitation.CriticalSpeed is null ? null : units == Units.Imperial ? "kn" : "m/s",
                 section?.Cavitation.CriticalSpeed is null ? null : PanelMethod.ModelLabel +
-                    (section.GoverningProvisional ? " · " + Labels.Provisional : ""))
+                    (section.GoverningProvisional ? " · " + Labels.Provisional : "") +
+                    Labels.TipNotJudgedSuffix(section.TipNotJudgedCount))
         ]));
         var basis = new List<ResultRow>
         {
@@ -203,8 +205,9 @@ public static class AnalysisProjection
             Row("Cm_c/4", Num(station.Estimate.CmQuarter, "0.###"), note: PanelMethod.ModelLabel),
             Row("α_L0", Num(station.Estimate.AlphaL0Deg, "0.###"), "°", PanelMethod.ModelLabel),
             Row(Labels.CdBoundLabel, Num(station.Estimate.CdTurbulentBound, "0.#####"), note: Labels.CdBoundNote),
-            Row("Cp_min", Num(station.Estimate.Panel.CpMin, "0.###"),
-                note: PanelMethod.ModelLabel + " · " + stationLabel + provisional),
+            station.TipNotJudged ? Row("Cp_min", Labels.TipNotJudged) // Ruling 142: only reachable when every station is a tip strip
+                : Row("Cp_min", Num(station.Estimate.Panel.CpMin, "0.###"),
+                    note: PanelMethod.ModelLabel + " · " + stationLabel + provisional),
             Row("N", station.Estimate.Panel.StationCount.ToString(Inv), note: PanelMethod.ModelLabel),
             Row("η", Num(station.Eta, "0.###"), note: PanelMethod.ModelLabel),
             Row("Cavitation", section.Cavitation.Reason is { } why ? Labels.UnavailableBecause(why) : section.Cavitation.State switch
@@ -212,7 +215,7 @@ public static class AnalysisProjection
                     CavitationState.Clear => Labels.CavClear,
                     CavitationState.InsideMargin => Labels.CavInside,
                     _ => Labels.CavPossible
-                },
+                } + Labels.TipNotJudgedSuffix(section.TipNotJudgedCount), // Ruling 142 (2), as the run sentence below
                 note: PanelMethod.ModelLabel + " · " + section.Cavitation.ScreenText + " · " + stationLabel + provisional)
         };
         if (section.PolarNcrit2 is not null || section.PolarNcrit4 is not null ||

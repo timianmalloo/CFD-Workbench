@@ -111,7 +111,8 @@ public static class SectionDisplay
             R(Labels.CmQuarter, N(station.Estimate.CmQuarter, "0.###")),
             R(Labels.AlphaL0Panel, N(station.Estimate.AlphaL0Deg, "0.###"), "°"),
             R(Labels.CdBoundLabel, N(station.Estimate.CdTurbulentBound, "0.#####"), note: Labels.CdBoundNote),
-            R(Labels.CpMinLabel, N(-panel.CpMin, "0.###"), note: Labels.CpMinWhere(cpX, side, panel.StationCount))
+            station.TipNotJudged ? R(Labels.CpMinLabel, Labels.TipNotJudged) // Ruling 142 (3): no -Cp_min number on a tip station
+                : R(Labels.CpMinLabel, N(-panel.CpMin, "0.###"), note: Labels.CpMinWhere(cpX, side, panel.StationCount))
         };
         if (station.EstimatorAvailabilityCode is { } code)
             estimator = [R("Tier", Labels.EstimatorChip, note: Labels.UnavailableBecause(code)), R(Labels.CpMinLabel, Labels.UnavailableBecause(code))];
@@ -128,14 +129,14 @@ public static class SectionDisplay
             CavitationState.InsideMargin => Labels.CavInside,
             CavitationState.PossibleAboveCritical => Labels.CavPossible,
             _ => Labels.UnavailableBecause(cav.Reason ?? "")
-        }));
+        } + Labels.TipNotJudgedSuffix(tier.TipNotJudgedCount))); // Ruling 142 (2)
         string none = cav.Reason is { } why ? Labels.UnavailableBecause(why) : "";
         screen.Add(R(Labels.SigmaLabel, cav.Sigma is { } sigma ? N(sigma, "0.00") : none));
-        screen.Add(R(Labels.CpMinLabel, cav.CpMin is { } cp && cp < 0 ? N(-cp, "0.00") : N(cav.CpMin is { } c ? -c : double.NaN, "0.00")));
+        screen.Add(R(Labels.CpMinLabel, cav.CpMin is { } cp ? N(-cp, "0.00") : none));
         screen.Add(R(Labels.VcritLabel, cav.CriticalSpeed is { } vc ? N(Labels.Speed(vc, units), "0.##") : none, cav.CriticalSpeed is null ? null : Labels.SpeedUnit(units)));
         screen.Add(R("Margin", N(100 * cav.MarginFraction, "0.#"), "%", Labels.MarginLabel));
         if (cav.GoverningDepth is { } depth && tier.Stations.Count > 0)
-            screen.Add(R("Governing station", Labels.StationCavitationLine(tier.GoverningEta, depth, tier.Stations.Count)));
+            screen.Add(R("Governing station", Labels.StationCavitationLine(tier.GoverningEta, depth, tier.Stations.Count - tier.TipNotJudgedCount)));
         screen.Add(R("Screen", cav.ScreenText));
         groups.Add(new("Cavitation", screen));
 
@@ -157,7 +158,7 @@ public static class SectionDisplay
         groups.Add(new("Under-read", gap));
         // The tier samples every span eta (126 on the example); the table lists the stations that carry a measurement or are on screen.
         groups.Add(new("Stations", tier.Stations.Where(s => s.PanelUnderread is not null || s.Eta == station.Eta || s.Eta == governing.Eta)
-            .OrderBy(s => s.Eta).Select(s => R("η " + N(s.Eta, "0.###"), N(-s.Estimate.Panel.CpMin, "0.###"),
+            .OrderBy(s => s.Eta).Select(s => R("η " + N(s.Eta, "0.###"), s.TipNotJudged ? Labels.TipNotJudged : N(-s.Estimate.Panel.CpMin, "0.###"),
             note: s.PanelUnderread is { } u ? Labels.UnderreadMeasured + " " + N(100 * u, "0.00") + " %" +
                 (u > 0.10 ? " · " + Labels.Provisional : "") : Labels.UnderreadNotMeasured)).ToArray()));
 
@@ -201,7 +202,8 @@ public static class SectionDisplay
         var charts = Charts(run, tier, station, section, source, revision, cancellation, units);
         var table = tier.Stations.Where(s => s.PanelUnderread is not null || s.Eta == station.Eta || s.Eta == governing.Eta)
             .OrderBy(s => s.Eta).Select(s => new StationTableRow(s.Eta, "η " + N(s.Eta, "0.###"), N(s.AlphaEffDeg, "0.00"),
-                N(-s.Estimate.Panel.CpMin, "0.###"), CavitationWord(s.Cavitation.State), s.Eta == station.Eta,
+                s.TipNotJudged ? Labels.TipNotJudged : N(-s.Estimate.Panel.CpMin, "0.###"),
+                s.TipNotJudged ? Labels.TipNotJudged : CavitationWord(s.Cavitation.State), s.Eta == station.Eta,
                 s.PanelUnderread is null ? Labels.UnderreadNotMeasured : null)).ToArray();
         return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units, forces) with { ForcesNotJudged = tipNotJudged ? Labels.TipNotJudged : null });
     }
@@ -273,7 +275,8 @@ public static class SectionDisplay
         PanelCp[] outline = panel.Upper.Concat(panel.Lower).ToArray();
         (PanelCp at, string side) = CpMinPanel(panel);
         CavitationResult cav = station.Cavitation;
-        string? line = cav is { Sigma: { } sigma, CpMin: { } cpMin, CriticalSpeed: { } vcrit } &&
+        string? line = station.TipNotJudged ? Labels.TipNotJudged // Ruling 142 (3)
+            : cav is { Sigma: { } sigma, CpMin: { } cpMin, CriticalSpeed: { } vcrit } &&
             cav.State is CavitationState.Clear or CavitationState.InsideMargin or CavitationState.PossibleAboveCritical
             ? Labels.ProfileCavitation(sigma, cpMin, cav.State switch
             {

@@ -98,7 +98,9 @@ public static class SectionTier
         {
             cancellation.ThrowIfCancellationRequested();
             SectionSample section = sections[i];
-            double alphaEff = strips.Count == 0 ? op.AlphaDeg : strips.MinBy(s => Math.Abs(Math.Abs(s.Eta) - section.Frame.Eta))!.AlphaEff;
+            StripLoad? nearest = strips.Count == 0 ? null : strips.MinBy(s => Math.Abs(Math.Abs(s.Eta) - section.Frame.Eta));
+            double alphaEff = nearest?.AlphaEff ?? op.AlphaDeg;
+            bool tipNotJudged = nearest is { Provisional: true, ProvisionalReason: StripLoad.TipProvisionalReason };
             double chord = section.Frame.TrailingMeters - section.Frame.LeadingMeters;
             double reynolds = op.Speed * chord / water.Nu;
             SectionEstimate estimate = SectionEstimator.Estimate(section, alphaEff, reynolds, cancellation);
@@ -114,17 +116,28 @@ public static class SectionTier
                 op.Speed, water.Rho, op.PAtm, water.Pv, name);
             stations[i] = new(section.Frame.Eta, alphaEff, reynolds, depth, estimate, screen)
             {
-                LiftPerSpan = 0.5 * water.Rho * op.Speed * op.Speed * chord * estimate.Cl
+                LiftPerSpan = 0.5 * water.Rho * op.Speed * op.Speed * chord * estimate.Cl,
+                TipNotJudged = tipNotJudged
             };
-            if (screen.Sigma is { } sigma && estimate.Panel.CpMin < 0)
+        }
+        // Ruling 142: only judged stations decide the verdict. With every station tip-provisional there is no verdict, but the
+        // Section view still needs a station to show, so the selection below runs over all of them and the wing screen is replaced.
+        bool noneJudged = stations.All(station => station.TipNotJudged);
+        bool Judged(int index) => noneJudged || !stations[index].TipNotJudged;
+        for (int i = 0; i < stations.Length; i++)
+        {
+            SectionStationResult candidate = stations[i];
+            if (!Judged(i)) continue;
+            if (candidate.Cavitation.Sigma is { } sigma && candidate.Estimate.Panel.CpMin < 0)
             {
-                double ratio = sigma / -estimate.Panel.CpMin;
+                double ratio = sigma / -candidate.Estimate.Panel.CpMin;
                 if (ratio < bestRatio) { bestRatio = ratio; governing = i; }
             }
         }
         // With depth absent no sigma ratio exists. Keep a measurable Cp governing station; cavitation remains Unavailable.
         if (governing < 0)
-            governing = Array.FindIndex(stations, station => station.Estimate.Panel.CpMin == stations.Min(s => s.Estimate.Panel.CpMin));
+            governing = Enumerable.Range(0, stations.Length).Where(Judged)
+                .MinBy(i => stations[i].Estimate.Panel.CpMin);
         // Ruling 103/110. The 200-pass winner is re-solved at 400; its measured under-read u sets the near-tie width.
         // Candidates inside the Ruling 114 width are re-solved at 400, at most MaxPanelCandidates in all.
         // The governing station is then re-selected among the 400-solved stations by 400 ratio.
@@ -139,7 +152,7 @@ public static class SectionTier
             // width, and the thinnest station inside it (a thin station under-reads most, so it swaps most often).
             double width = Math.Max(2 * stations[winner200].PanelUnderread!.Value, MinNearTieWidth);
             int[] inside = Enumerable.Range(0, stations.Length)
-                .Where(i => i != winner200 && Ratio(stations[i]) is double r && r <= bestRatio * (1 + width))
+                .Where(i => i != winner200 && Judged(i) && Ratio(stations[i]) is double r && r <= bestRatio * (1 + width))
                 .OrderBy(i => Ratio(stations[i])).ToArray();
             int[] others = inside.Take(MaxPanelCandidates - 2)
                 .Concat(inside.Skip(MaxPanelCandidates - 2).OrderBy(i => sections[i].Frame.ThicknessRatio).Take(1)).ToArray();
@@ -150,11 +163,20 @@ public static class SectionTier
         }
         SectionStationResult selected = stations[governing];
         CavitationResult[] screens = stations.Select(station => station.Cavitation).ToArray();
+        CavitationResult[] judgedScreens = Enumerable.Range(0, stations.Length).Where(Judged).Select(i => screens[i]).ToArray();
         // An Unavailable station (for example surface-piercing) is reported whichever grid it was solved on.
-        CavitationResult wingScreen = screens.Any(screen => screen.State == CavitationState.Unavailable)
-            ? Cavitation.SelectWing(screens)
+        CavitationResult wingScreen = judgedScreens.Any(screen => screen.State == CavitationState.Unavailable)
+            ? Cavitation.SelectWing(judgedScreens)
             : Cavitation.SelectWing(solved.Select(i => screens[i]).ToArray());
-        return new(stations, wingScreen, selected.Eta, selected.PanelUnderread!.Value) { PanelCandidateCount = solved.Count };
+        // Ruling 142 (2): with no judged station the wing line reads Not judged - tip strip, with no sigma and no V_crit.
+        if (noneJudged)
+            wingScreen = wingScreen with { State = CavitationState.Unavailable, Sigma = null, CriticalSpeed = null, CpMin = null,
+                GoverningStation = null, GoverningDepth = null, Reason = StripLoad.TipProvisionalReason };
+        return new(stations, wingScreen, selected.Eta, selected.PanelUnderread!.Value)
+        {
+            PanelCandidateCount = solved.Count,
+            TipNotJudgedCount = noneJudged ? 0 : stations.Count(station => station.TipNotJudged)
+        };
 
         static double? Ratio(SectionStationResult station) =>
             station.Cavitation.Sigma is { } sigma && station.Estimate.Panel.CpMin < 0 ? sigma / -station.Estimate.Panel.CpMin : null;
