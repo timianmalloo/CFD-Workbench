@@ -35,6 +35,20 @@ Commands ran from the repository root. `DOTNET_ROOT` was set to `%USERPROFILE%\.
 
 The Release build capped MSBuild concurrency at two nodes. The run emitted 85 lines (81 indexed rows and four scalar rows) and 13,584 bytes. `bits.stdout.txt` contains the unmodified stdout.
 
+## Raw-byte preservation and repair accounting
+
+- **Verified:** `bits.stdout.txt` is 13,584 bytes with SHA-256 `7851d86309671f9c4cf17876c9b99e81aaf6b80ea751709c41c5c04c7209192d`.
+- `.gitattributes` applies the exact-path rule `bits.stdout.txt -text` so Git preserves the captured CRLF bytes without text normalization.
+- **Repair cycle 1:** corrected the direct `dotnet build Program.cs` command shape after its recorded `MSB4025` failure; the successful Release build and run are above.
+- **Repair cycle 2:** corrected Git text normalization of the captured stdout by adding the exact-path attribute and restaging the retained working-tree bytes. No measurement was rerun.
+
+## Repair validation
+
+- **Verified:** the retained working file and staged stdout blob are each 13,584 bytes with SHA-256 `7851d86309671f9c4cf17876c9b99e81aaf6b80ea751709c41c5c04c7209192d`; the staged bytes have 85 CRLF terminators, no bare LF, and no trailing spaces or tabs. Their 85 line payloads match the prior committed output, so the numeric rows are unchanged.
+- `py -3 tools/check-proof-pii.py`: pass, 0 user-path or machine-SID hits.
+- `git diff --cached --check -- . ':(exclude)docs/proof/win-trig-bits/bits.stdout.txt'`: pass, exit 0.
+- Unscoped `git diff --cached --check -- docs/proof/win-trig-bits/bits.stdout.txt`: exit 2 with 85 trailing-whitespace findings, one for each CRLF line. The byte-aware check above confirms these are line terminators retained for raw-output fidelity, not spaces or tabs.
+
 The initial attempt to invoke `dotnet build` directly on `Program.cs` exited 1 in 410 ms with `MSB4025` because MSBuild parsed the source as a project file. The successful build used the small `TrigBits.csproj` wrapper and the one-source-file console program.
 
 ## Observed comparison
