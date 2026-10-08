@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""CRT-TRANSCENDENTAL control (Ruling 156 (3)(c)): a file whose output is a committed byte or hash must not call a C-runtime transcendental.
+"""CRT-TRANSCENDENTAL control (Ruling 156 (3)(c), Ruling 157): a file whose output is a committed golden or the New-project default must not call a C-runtime transcendental.
 
 .NET forwards Math.Sin/Cos/Tan/Atan/Atan2/Pow/Exp/Log and the other transcendentals to the platform C runtime (Apple libm,
 UCRT, glibc), which need not agree in the last bit; double.AtanPi/Atan2Pi/PowPi do the same. A byte golden or a recorded hash
 taken from such a value is keyed to one platform (docs/lessons/defect-classes.md, CRT-GOLDEN). This lint scans an EXPLICIT
 file list (FILES below) for a banned call outside comments and string literals. A line may carry
 `crt-allowed: Ruling <n> — <reason>` (a reason is required) when the value never reaches a recorded byte and is compared with a tolerance.
-Adding a file to FILES is the review act: list a file when its output reaches a committed hash, never by directory.
+Adding a file to FILES is the review act: list a file when its output reaches a committed golden or the New-project default
+(the bytes of every new project), never by directory. Display and validation sites stay off the list.
 
-Ring: fast (runs inside tools/check-docs.py, every join). Cost: under 0.1 s (reads two source files).
+Ring: fast (runs inside tools/check-docs.py, every join). Cost: under 0.1 s (reads four source files).
 `--self-test` plants a banned call, an allowed line, a comment and a string, and checks each verdict.
 """
 
@@ -27,15 +28,20 @@ for _stream in (sys.stdout, sys.stderr):
 ROOT = Path(__file__).resolve().parents[1]
 
 # Explicit list. Catalog.cs: the generator behind the shipped NACA bytes. Placement.cs: the display spacing and the twist angle behind placement-surface-bits.
+# FoilSource.cs and SectionReplace.cs: the New-project default (NewDefault_ControlPointDoubles_BitGolden) and the Replace sampling (Ruling 157).
 FILES = (
     "src/CfdWorkbench.Core/Catalog.cs",
     "src/CfdWorkbench.Core/Placement.cs",
+    "src/CfdWorkbench.Core/FoilSource.cs",
+    "src/CfdWorkbench.Core/SectionReplace.cs",
 )
 
 # Allowed markers per file. A new escape is a change to this gate, which is reviewed as one.
 ALLOWED_COUNT = {
     "src/CfdWorkbench.Core/Catalog.cs": 1,
     "src/CfdWorkbench.Core/Placement.cs": 0,
+    "src/CfdWorkbench.Core/FoilSource.cs": 0,
+    "src/CfdWorkbench.Core/SectionReplace.cs": 0,
 }
 
 NAMES = (

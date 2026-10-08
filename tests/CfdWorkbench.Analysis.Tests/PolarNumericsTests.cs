@@ -69,7 +69,10 @@ internal static class PolarNumericsTests
         StripValue wing = Loads.WingDrag(complete, 2);
         if (wing.Value is not { } drag || Math.Abs(drag - 20.4) > 1e-9)
             throw new InvalidOperationException("wing-only drag must sum Trefftz induced and Ncrit 2 profile drag: " + wing);
-        AnalysisChecks.Equal(30.4, Loads.WingDrag(complete, 4).Value!.Value, "Ncrit 4 wing drag");
+        // Relative 1e-9: the cosine span edges (Loads.cs:109) call Math.Cos, whose last bit may differ per OS (Ruling 157).
+        double ncrit4Drag = Loads.WingDrag(complete, 4).Value!.Value;
+        if (Math.Abs(ncrit4Drag - 30.4) > 1e-9 * 30.4)
+            throw new InvalidOperationException("Ncrit 4 wing drag expected 30.4; actual " + ncrit4Drag.ToString("R", System.Globalization.CultureInfo.InvariantCulture));
         StripValue total = Loads.TotalDrag(complete, 2);
         if (total.Value is not null || total.UnavailableReason != "ANA-TOTAL-DRAG-MISSING-JUNCTION-MAST-WAVE-SPRAY")
             throw new InvalidOperationException("craft Total drag claimed the wing-only subtotal: " + total);

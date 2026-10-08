@@ -191,9 +191,11 @@ internal static class SectionForceTests
     /// <summary>Ruling 128 (4): one lift scale per run from the largest strip |L'| (1-2-5 rounded); one drag multiple per run by a stated rule.</summary>
     private static void RunScale()
     {
-        Equal(2000.0, SectionForceModel.RoundUp125(1733), "1-2-5 up");
-        Equal(0.5, SectionForceModel.RoundUp125(0.31), "1-2-5 up, below one");
-        Equal(200.0, SectionForceModel.RoundUp125(200), "an exact member stays");
+        // Relative 1e-9: RoundUp125 divides by Math.Pow(10, floor(log10 v)), a C-runtime call whose last bit may differ per OS (Ruling 157).
+        Near(2000.0, SectionForceModel.RoundUp125(1733), "1-2-5 up", 1e-9 * 2000.0);
+        Near(0.5, SectionForceModel.RoundUp125(0.31), "1-2-5 up, below one", 1e-9 * 0.5);
+        Near(200.0, SectionForceModel.RoundUp125(200), "an exact member stays", 1e-9 * 200.0);
+        Near(100.0, SectionForceModel.RoundUp125(100), "an exact power of ten stays (floor(log10) must not flip)", 1e-9 * 100.0);
         AnalysisRun run = ProjectionTests.Data(s => s with { Fz = 10 * (1 + s.J) }).Run;   // strips 0..3 carry 10, 20, 30, 40 N
         (double scale, int multiple) = SectionForceModel.RunScale(run, Units.Metric);
         double top = run.Strips.Max(s => (-s.Fx * Math.Sin(3 * Math.PI / 180) + s.Fz * Math.Cos(3 * Math.PI / 180)) / Loads.StripWidth(run, s));

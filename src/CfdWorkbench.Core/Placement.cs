@@ -48,6 +48,11 @@ internal interface IPlacementScalar<TSelf> :
 internal static class PlacementRule
 {
     internal const double RadiansPerDegree = 0.017453292519943295;
+
+    // The one definition of sin and cos of an angle in degrees: pi * (degrees / 180) through the managed SinCosPi, never the C runtime.
+    // Exact at 0, 90 and 180 degrees. Placement (Binary64.SinCosDegrees), the fit's angle rows, the section angle tangent and the
+    // rail handle target all call it (Ruling 156 P3, Ruling 157).
+    internal static (double Sin, double Cos) SinCosDegrees(double degrees) => double.SinCosPi(degrees / 180);
     internal const int TaylorTerms = 16;
     internal const int AngleGridBits = 64;
     internal const int MaximumGrid = 401;
@@ -116,7 +121,11 @@ internal readonly record struct Binary64(double Value) : IPlacementScalar<Binary
     public static (Binary64 Sin, Binary64 Cos) SinCos(Binary64 radians) => SinCosPi(radians.Value / Math.PI);
 
     // The station angle: sin and cos of pi * (degrees / 180), exact at 0, 90, 180 degrees, managed code only (Ruling 156 P3).
-    public static (Binary64 Sin, Binary64 Cos) SinCosDegrees(Binary64 degrees) => SinCosPi(degrees.Value / 180);
+    public static (Binary64 Sin, Binary64 Cos) SinCosDegrees(Binary64 degrees)
+    {
+        var (sin, cos) = PlacementRule.SinCosDegrees(degrees.Value);
+        return (new(sin), new(cos));
+    }
 
     private static (Binary64 Sin, Binary64 Cos) SinCosPi(double turnsOfPi)
     {
