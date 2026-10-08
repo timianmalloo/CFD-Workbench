@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T20:27:11Z",
+  "generated": "2026-10-08T20:27:55Z",
   "audit": [
     {
       "actor": null,
@@ -30631,6 +30631,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Measure which Ruling 156 (3) record-write sites feed a committed hash; sweep src/ for C-runtime transcendentals",
       "done_when": "investigation.md answers 1-4 with perturbation results; check-docs exit 0"
+    },
+    {
+      "id": "al-01M4EK6Z1N6P82BVK06MWQN93X",
+      "shortname": "join-rws",
+      "datetime": "2026-10-08T20:27:55Z",
+      "session": "3122f106",
+      "prompt": "the join of inv/rws-record-path into main",
+      "summary": "RWS joined (docs only): 111 transcendental lines; (a) 9 feed goldens (all fixed on the CAF branch), (b) 13 feed project bytes, (c) 89 display; none of the six ruled sites reaches a golden (ulp perturbation, full ring green) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the record-write-path CRT investigation",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T20:27:49Z",
+      "duration_seconds": 6.0
     }
   ],
   "changes": [
