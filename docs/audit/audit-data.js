@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T14:11:29Z",
+  "generated": "2026-10-08T14:17:27Z",
   "audit": [
     {
       "actor": null,
@@ -29892,6 +29892,33 @@ window.AUDIT_DATA = {
       "done_when": "Red-first piercing test, COPY-410, rounding tests, ring and gates green",
       "started_at": "2026-10-08T14:06:42Z",
       "duration_seconds": 287.0
+    },
+    {
+      "id": "al-01M4DY0M4N97CZHA2SSS32WWEA",
+      "shortname": "join-tcv2",
+      "datetime": "2026-10-08T14:17:27Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of fix/tip-cavitation into main",
+      "summary": "surface-piercing or depth-not-set at any station makes the wing line Unavailable (red-first); suffix ; N station(s) Not judged - tip strip (COPY-410); tip colour bar and Cp axis round outward to 0.5; AnalysisChecks nit recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join fix/tip-cavitation (Ruling 144)",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T14:16:29Z",
+      "duration_seconds": 58.0
     }
   ],
   "changes": [
