@@ -1,0 +1,6 @@
+SHARE-READ-DELETE NTSTATUS=0x00000000 IO_STATUS=0x00000000 Win32=0 old=FileIdentity { Volume = 3611534147413010381, Low = 2814749767876444, High = 0 } new=FileIdentity { Volume = 3611534147413010381, Low = 2814749767876445, High = 0 } held_bytes=0101 fresh_bytes=020202 temp_exists=false
+PASS WindowsNative_Replace_ShareReadDeleteReaderKeepsOldImage
+SHARE-READ-ONLY NTSTATUS=0xc0000043; IO_STATUS=0x00000000; Win32=32: The process cannot access the file because it is being used by another process. incumbent=FileIdentity { Volume = 3611534147413010381, Low = 3096224744587100, High = 0 } temp=FileIdentity { Volume = 3611534147413010381, Low = 3096224744587101, High = 0 } held_bytes=0101 fresh_bytes=0101 temp_bytes=020202 temp_exists=true
+FAIL WindowsNative_Replace_ShareReadOnlyReaderRefused InvalidOperationException: Expected DOC-CONFLICT; actual 
+RESULT failures=1
+SUBSET CFD_TEST_ONLY=WindowsNative_Replace_ShareReadDeleteReaderKeepsOldImage,WindowsNative_Replace_ShareReadOnlyReaderRefused ran=2 skipped=695
