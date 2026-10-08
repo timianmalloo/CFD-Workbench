@@ -59,7 +59,7 @@ Each statement below is limited to the named output in [the redacted extracts](e
 
 ## All named failures
 
-The seven logs contain 39 named failing tests: 2 Analysis, 1 CLI, and 36 Core. The Desktop log has an unhandled process crash but does not emit a named `FAIL` test line. The exact failure lines and each log's reported `RESULT failures=` line are in the extracts. They are reproduced without root-cause interpretation.
+The seven logs contain 39 named failing tests: 2 Analysis, 1 CLI, and 36 Core. The Desktop log has an unhandled process crash but does not emit a named `FAIL` test line. The crash stopped the Desktop harness at stage `native-review-options`, so every Desktop check after that point is unassessed in this ring, not passed (added by the Mac at the join, Ruling 154 condition 2; the crash is now a reported FAIL that lets the harness continue, track WRT). The exact failure lines and each log's reported `RESULT failures=` line are in the extracts. They are reproduced without root-cause interpretation.
 
 ## Evidence limits and redaction
 

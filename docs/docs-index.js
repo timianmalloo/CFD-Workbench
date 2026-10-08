@@ -14870,6 +14870,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "7746809414206f0beeeec372f5b03ed33d4955d6d408623db7a3fcfea87090d5"
     },
     {
+      "id": "proof-wfx2-pc-ring-20261008",
+      "path": "docs/proof/wfx2/pc-ring-20261008/receipt.md",
+      "title": "WFX2 - Windows ring evidence, 2026-10-08",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wfx2",
+      "phase": "implementation",
+      "reviewBy": "2027-11-08",
+      "reviewSuggested": [],
+      "summary": "Evidence-only receipt for one completed Windows test ring; records outcomes, redacted log extracts, and the UI checks the ring cannot assess.",
+      "tags": [
+        "windows",
+        "wfx",
+        "proof",
+        "ring"
+      ],
+      "links": [
+        {
+          "to": "proof-wfx2-pc-reverify",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wfx2-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ce31a84bf665e80507832bcf3beb0dcf118a3eb44ab01430700737a3639773f2"
+    },
+    {
       "id": "proof-wfx2-red-first",
       "path": "docs/proof/wfx2/red-first.md",
       "title": "WFX2 red-first receipts",
@@ -17216,5 +17246,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "8ff99915e0fbe51683f49ba5abda2c71c6a9abb6c36f6ac786b90bc6dec6c7eb"
+  "graphSha256": "885042c0d0e5b05f064c254606711328ea0aee1960e032874860c4c0f24a6a88"
 };
