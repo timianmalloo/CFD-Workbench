@@ -7,7 +7,7 @@
     "--norc",
     "tools/run-tests.sh"
   ],
-  "dotnet_root": "C:\\Users\\malla\\.dotnet",
+  "dotnet_root": "%USERPROFILE%\\.dotnet",
   "sdk": "10.0.203",
   "budget_seconds": 60,
   "exit_code": 1,

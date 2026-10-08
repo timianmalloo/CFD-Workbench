@@ -205,7 +205,7 @@ Traceback (most recent call last):
         ^^^^^^^^^^^^
     )
     ^
-  File "C:\Users\malla\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 577, in run
+  File "%USERPROFILE%\AppData\Local\Programs\Python\Python313\Lib\subprocess.py", line 577, in run
     raise CalledProcessError(retcode, process.args,
                              output=stdout, stderr=stderr)
-subprocess.CalledProcessError: Command '['C:\\Users\\malla\\AppData\\Local\\Programs\\Python\\Python313\\python.exe', 'C:\\Projects\\CFD-Workbench-win-store-design\\docs\\ai-forward-pack\\scripts\\docs-graph.py', 'validate']' returned non-zero exit status 1.
+subprocess.CalledProcessError: Command '['%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python313\\python.exe', 'C:\\Projects\\CFD-Workbench-win-store-design\\docs\\ai-forward-pack\\scripts\\docs-graph.py', 'validate']' returned non-zero exit status 1.

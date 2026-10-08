@@ -44,10 +44,10 @@ The final documentation gate is explicitly attributed to the coordinator's repor
 | WSL distributions | Verified | `wsl --list --verbose`: Windows Subsystem for Linux has no installed distributions. Exit -1. Repeated once with the same result. No distro was installed by this worker. |
 | WSL registration repair history | Not recorded | Coordinator reports it repaired WSL registration to package 2.7.14.0 before this resumed run. Current registration/version is independently Verified above; the repair action itself was not rerun or directly observed by this worker. |
 | GPU/VRAM/driver | Verified | `nvidia-smi`: NVIDIA GeForce RTX 3080 Ti Laptop GPU, 16384 MiB, driver 596.47. CIM Windows driver version: 32.0.15.9647. Also present: Intel(R) Iris(R) Xe Graphics, driver 32.0.101.7085. |
-| Git | Verified | git version 2.54.0.windows.1. `core.autocrlf=false`, source C:/Users/malla/.gitconfig. |
+| Git | Verified | git version 2.54.0.windows.1. `core.autocrlf=false`, source %USERPROFILE%/.gitconfig. |
 | Python | Verified | `py -3 --version`: Python 3.13.14. |
 | .NET SDK | Verified | Exact user-local executable and refreshed plain `dotnet --version` both return 10.0.203. `global.json`: version 10.0.203, rollForward disable. |
-| Persisted .NET environment | Verified | User DOTNET_ROOT=C:\Users\malla\.dotnet; persisted User PATH begins C:\Users\malla\.dotnet. Inherited process initially resolved C:\Program Files\dotnet\dotnet.exe; after refresh it resolves C:\Users\malla\.dotnet\dotnet.exe. |
+| Persisted .NET environment | Verified | User DOTNET_ROOT=%USERPROFILE%\.dotnet; persisted User PATH begins %USERPROFILE%\.dotnet. Inherited process initially resolved C:\Program Files\dotnet\dotnet.exe; after refresh it resolves %USERPROFILE%\.dotnet\dotnet.exe. |
 | GitHub CLI/auth | Verified | gh 2.94.0 (2026-06-10); github.com account timianmalloo, keyring, active=true, Git protocol https; scopes gist/read:org/repo/workflow. No token value is recorded. |
 | Coordination install state | Verified | Local merge.coord-regen.driver and merge.coord-register.driver registered to Python313 and the primary checkout's coord-core.py. `.gitattributes` contains 9 coordination patterns. No install was needed or rerun during resumption. |
 | Coordination doctor | Verified | Registry ok: 9 patterns. coord-regen and coord-register declared, registered and effective. No leader designated; heartbeat and requests not recorded; no live lease overlap. Harness capability section explicitly describes historical spikes, not measurements here. |
@@ -76,7 +76,7 @@ above record returned values or explicit errors rather than assigning a native e
 | `py -3 tools/check-docs.py` after coordinator index regeneration | Not recorded by worker | Coordinator reports the final docs gate passed; index commit 24c3e571. |
 
 The explicit SDK command was
-`& 'C:\Users\malla\.dotnet\dotnet.exe' --version`, which printed 10.0.203.
+`& '%USERPROFILE%\.dotnet\dotnet.exe' --version`, which printed 10.0.203.
 Before the plain command, this process environment was refreshed from persisted values:
 
 ```powershell

@@ -40,7 +40,7 @@ Shared audit/index reconciliation belongs to the coordinator. The graph-engineer
 - PID: **21424**; start: **2026-10-07T22:06:06.2763382Z**.
 - Apphost SHA-256: `866144C3A3D37284B496FC867518897647D2D1401E48C4462FF38B3C64D33676`.
 - Desktop DLL SHA-256: `6D5E8AACF85A9275CABF94F25FC966F9F9C1D95832CC81C9E712804CC5A06EC0`.
-- Build/launch/ring environment explicitly loads persisted User PATH then Machine PATH and persisted User `DOTNET_ROOT=C:\Users\malla\.dotnet`.
+- Build/launch/ring environment explicitly loads persisted User PATH then Machine PATH and persisted User `DOTNET_ROOT=%USERPROFILE%\.dotnet`.
 - Every numbered PNG has a JSON sidecar with PID/start, source HEAD, both hashes, capture time, inputs, native title, DPI and UI Automation descendants. The start-time guard checks UTC ticks before each capture.
 - DPI: **144 (150% of 96)**. Screenshot and automation sampling are consecutive rather than atomic. Captures `22`–`26` are occluded by ZoomIt and establish no rendered app outcome.
 
@@ -49,7 +49,7 @@ Scratch helpers remained outside the repository in the user's local Temp directo
 
 ## Environment and checks
 
-The fresh `powershell.exe -NoProfile -Command 'dotnet --version'` used the inherited PATH with **no PATH refresh**. It failed to resolve pinned SDK `10.0.203` and reported installed SDKs `9.0.315` and `10.0.301` under `C:\Program Files\dotnet\sdk` (`dotnet-fresh-shell.log`). Its exit value was not separately recorded. The inherited executable was `C:\Program Files\dotnet\dotnet.exe`; the persisted user SDK directory `C:\Users\malla\.dotnet\sdk\10.0.203` exists. The explicit build environment resolved `C:\Users\malla\.dotnet\dotnet.exe`.
+The fresh `powershell.exe -NoProfile -Command 'dotnet --version'` used the inherited PATH with **no PATH refresh**. It failed to resolve pinned SDK `10.0.203` and reported installed SDKs `9.0.315` and `10.0.301` under `C:\Program Files\dotnet\sdk` (`dotnet-fresh-shell.log`). Its exit value was not separately recorded. The inherited executable was `C:\Program Files\dotnet\dotnet.exe`; the persisted user SDK directory `%USERPROFILE%\.dotnet\sdk\10.0.203` exists. The explicit build environment resolved `%USERPROFILE%\.dotnet\dotnet.exe`.
 
 | Check | Observed disposition | Evidence |
 | --- | --- | --- |
@@ -70,8 +70,8 @@ The fresh `powershell.exe -NoProfile -Command 'dotnet --version'` used the inher
 | Edit menu | Verified: Undo enabled, Redo disabled after redo; displayed gestures Ctrl+Z and Ctrl+Shift+Z | `06-edit-menu` |
 | Analysis/Evaluate | Verified: Ctrl+Shift+A after ZoomIt dismissal shows conditions/results. Evaluate completes in displayed 5.389 s, CL 0.177, CDi 0.00099, lift 240.38 N and induced drag 1.354 N | `28-ctrl-shift-a-clean`, `29-evaluate`, `30-evaluate-settled` |
 | Ctrl+S | Verified: native picker titled Save native CFD Workbench project opens | `31-save-picker` |
-| Valid save path | Verified: selecting `C:\Users\malla\AppData\Local\Temp\w1b-valid.cfdw.json` produces `DOC-UNSUPPORTED-PERSISTENCE: Save was not acknowledged. Resolve the refusal before retry.`. A pending picker remains over the first result; the status is visible below it and sampled in UIA | `36-save-valid-click-focus` |
-| Invalid extension | Verified: selecting `C:\Users\malla\AppData\Local\Temp\w1b-invalid.txt` produces `DOC-TYPE: Save was not acknowledged. Resolve the refusal before retry.` with red strip/icon | `37-save-invalid-click-focus`, `38-save-status-settled` |
+| Valid save path | Verified: selecting `%USERPROFILE%\AppData\Local\Temp\w1b-valid.cfdw.json` produces `DOC-UNSUPPORTED-PERSISTENCE: Save was not acknowledged. Resolve the refusal before retry.`. A pending picker remains over the first result; the status is visible below it and sampled in UIA | `36-save-valid-click-focus` |
+| Invalid extension | Verified: selecting `%USERPROFILE%\AppData\Local\Temp\w1b-invalid.txt` produces `DOC-TYPE: Save was not acknowledged. Resolve the refusal before retry.` with red strip/icon | `37-save-invalid-click-focus`, `38-save-status-settled` |
 | File > Save | Verified: same picker and unsupported-persistence status after `.cfdw.json` choice | `39-file-menu`, `40-file-save-picker`, `41-file-save-result`, `42-file-save-settled` |
 | Click File > New foil | Verified: one click from the visibly open menu yields one observed default-foil state and New foil status, clears analysis, restores approximately 1000 cm² area. Internal execution count is Not assessed | `57-file-new-menu-open`, `58-click-new-foil`, `59-click-new-result` |
 
@@ -100,7 +100,7 @@ There is no emitted command-invocation counter in this evidence method. Visible 
 
 ## Full application ring
 
-Verified: `bash --noprofile --norc tools/run-tests.sh` ran exactly once with the persisted user SDK environment. It progressed past the resolver, built Release with 0 errors and the two known AVLN3001 warnings, then reached every harness. Exit **1**. `ring.json` records tested HEAD `defbe0a931e703068a4c06278a413c0cf6d7b6bc`, `DOTNET_ROOT=C:\Users\malla\.dotnet`, executable and measured outer duration **61.491 s**. The ring reports wall **60184 ms**, build **11155 ms**, net **49029 ms**, load **14.49 → 9.10**. Its printed `cpu 2 s` is retained as emitted and is not interpreted as total Windows harness CPU work.
+Verified: `bash --noprofile --norc tools/run-tests.sh` ran exactly once with the persisted user SDK environment. It progressed past the resolver, built Release with 0 errors and the two known AVLN3001 warnings, then reached every harness. Exit **1**. `ring.json` records tested HEAD `defbe0a931e703068a4c06278a413c0cf6d7b6bc`, `DOTNET_ROOT=%USERPROFILE%\.dotnet`, executable and measured outer duration **61.491 s**. The ring reports wall **60184 ms**, build **11155 ms**, net **49029 ms**, load **14.49 → 9.10**. Its printed `cpu 2 s` is retained as emitted and is not interpreted as total Windows harness CPU work.
 
 Raw `.tmp-tests` log/timing files were copied immediately on completion to `raw-ring/`, before any other ring could delete them. `test-ring.log` preserves the complete ring output. No retry occurred.
 

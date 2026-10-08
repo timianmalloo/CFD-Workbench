@@ -1,0 +1,31 @@
+# Pre-scrub run of tools/check-proof-pii.py (user name redacted to <name> in this receipt).
+PROOF-PII: docs/ai-forward-pack/scripts/verify-no-machine-paths.py: 1 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/coordination/windows-w0-w5-execution.md: 1 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-routes/delivery-docs-check.txt: 2 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-routes/final-docs-check.txt: 2 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-routes/r133.py: 1 hit(s), first: windows-user-path:/mnt/c/Users/<name>
+PROOF-PII: docs/proof/win-routes/r133/docs-check.txt: 2 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-routes/r133/fixture-observed-sha256.txt: 1 hit(s), first: windows-user-path:/mnt/c/Users/<name>
+PROOF-PII: docs/proof/win-routes/r133/raw-ring/run.json: 1 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-routes/r133/ring-docs-check.txt: 2 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-routes/r133/run-application-ring.py: 1 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-routes/r133/steps.jsonl: 3 hit(s), first: windows-user-path:/mnt/c/Users/<name>
+PROOF-PII: docs/proof/win-routes/r133/su2-resources.json: 1 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-routes/r133/summarize-ring.py: 1 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-routes/receipt-docs-check.txt: 2 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-routes/receipt.md: 1 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-routes/steps.jsonl: 8 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-routes/su2-identify.txt: 1 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-setup/receipt.md: 5 hit(s), first: windows-user-path:C:/Users/<name>
+PROOF-PII: docs/proof/win-smoke-reverify/build.json: 2 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-smoke-reverify/docs-check.log: 2 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-smoke-reverify/launch.json: 1 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-smoke-reverify/receipt.md: 6 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-smoke-reverify/ring.json: 2 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-smoke/docs-check-final.log: 2 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-smoke/environment.json: 2 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-smoke/launch.json: 1 hit(s), first: windows-user-path:C:\\Users\\<name>
+PROOF-PII: docs/proof/win-smoke/receipt.md: 3 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-store-design/check-docs.stderr.txt: 2 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII: docs/proof/win-store-design/check-docs.txt: 2 hit(s), first: windows-user-path:C:\Users\<name>
+PROOF-PII FAIL: write %USERPROFILE% / $HOME / <name> and S-1-5-21-<machine>-<RID>

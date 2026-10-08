@@ -1,7 +1,7 @@
 {
   "tag": "su2-smoke-LF",
   "argv": [
-    "C:\\Users\\malla\\AppData\\Local\\CFDWorkbench\\qualification\\su2-8.5.0\\bin\\bin\\SU2_CFD.exe",
+    "%USERPROFILE%\\AppData\\Local\\CFDWorkbench\\qualification\\su2-8.5.0\\bin\\bin\\SU2_CFD.exe",
     "-t",
     "1",
     "su2-smoke.cfg"
