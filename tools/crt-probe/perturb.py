@@ -8,6 +8,13 @@ import re
 import sys
 from pathlib import Path
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 NAMES = "Sin|Cos|Tan|Atan2|Atan|Acos|Exp|Log10|Log|Pow"
 PATTERN = re.compile(r"Math\.(?:%s)\(" % NAMES)
 
@@ -45,7 +52,7 @@ def main(argv):
         full = root / path
         lines = full.read_text(encoding="utf-8").split("\n")
         lines[int(line) - 1], count = wrap(lines[int(line) - 1], path, int(line))
-        with open(full, "w", encoding="utf-8", newline="") as handle:
+        with open(full, "w", encoding="utf-8", newline="\n") as handle:
             handle.write("\n".join(lines))
         print(spec, count, "calls wrapped:", lines[int(line) - 1].strip()[:150])
     return 0
