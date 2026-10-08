@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The join's test-ring step (docs/coordination/join.json checks). Ruling 89 (DR-JOIN-1): a join whose merge changes no path
-# under src/, tests/, tools/, cases/ and no *.csproj, *.slnx, global.json or Directory.*.props skips tools/run-tests.sh and
+# under src/, tests/, tools/, cases/ and no *.csproj, *.slnx, global.json or Directory.*.props skips tools/run-tests.sh
 # (which runs tools/check-test-costs.py itself) and prints `RING-SKIPPED docs-only: <changed paths, truncated>`. check-docs, the other join
 # checks and the verify gates still run (they are their own join.json entries). The rule is derived from the merge diff
 # (HEAD^1..HEAD, HEAD being the merge commit in conductor-join's checks step), never from a flag. Fail safe: a HEAD that
