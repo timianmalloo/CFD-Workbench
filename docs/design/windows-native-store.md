@@ -128,26 +128,35 @@ flush alone does not satisfy the backup promise. No migration is introduced.
 
 ## 3. Simplest correct shape and frozen helper path
 
-Selected candidate: reuse `IProjectStore`, `SaveRequest`, results, Core codecs,
-telemetry and directory claim. Add one Windows implementation and one native C
-bridge; route the existing public `ProjectStore` facade by platform. This is the
-Adapter pattern plus handle ownership through `SafeHandle`. No new package, generic
-filesystem framework, broker, background recovery scanner or parallel writer is needed.
+**Ruling 136 erratum, superseding the C-helper proposal throughout this document:**
+reuse `IProjectStore`, `SaveRequest`, results, Core codecs, telemetry and directory
+claim. Add the managed Windows adapter and source-generated native declarations.
+Use `LibraryImport` and `SafeHandle` to OS `kernel32`, `ntdll` and `advapi32` with
+System32-only resolution. There is no C helper, private DLL, C toolchain or Windows
+native build target. The existing Darwin helper and all its bodies/PInvokes stay unchanged.
 
-**Frozen NEW native helper source:**
-`src/CfdWorkbench.Persistence/native/cfd_store_windows.c`.
-**Frozen managed implementation:**
-`src/CfdWorkbench.Persistence/WindowsProjectStore.cs`.
-**Native artifact:** `cfd_store_windows.dll`, application-directory load only.
+**Frozen NEW native declaration path:** `src/CfdWorkbench.Persistence/WindowsNative.cs`.
+**Frozen managed adapter path:** `src/CfdWorkbench.Persistence/WindowsProjectStore.cs`.
 `native/cfd_store.c` is excluded from B2, including conditional-compilation edits.
+This is the Adapter pattern plus handle ownership through `SafeHandle`. No new
+package, filesystem framework, broker, recovery scanner or parallel writer is needed.
 
 Ladder: the Windows need is real; reuse the existing aggregate/codec and facade;
 `System.IO` alone lacks directory-relative creation and the required identity/security
-contract; native APIs supply the necessary primitives. A small C bridge lets the
-SDK compiler own NT/Win32 structure layouts instead of duplicating their ABI in C#.
-Use SDK symbolic constants and compiler `sizeof`/`offsetof`; record the actual SDK
-and compiler before implementation. No guessed numeric flags, managed Darwin errno
-translation, copied `Stat` layout or unqualified WDK declaration is allowed.
+contract; native APIs supply the necessary primitives. Ruling 136 selects managed
+ABI declarations: cite each constant and layout to Microsoft Learn and verify
+`Marshal.SizeOf`/`OffsetOf` against SDK declarations, then qualify real native calls.
+Record the pinned .NET SDK and host. No guessed flags, Darwin errno translation,
+copied `Stat` layout or unqualified NT declaration is allowed.
+[Microsoft source-generated P/Invoke](https://learn.microsoft.com/en-us/dotnet/standard/native-interop/pinvoke-source-generation).
+
+**Ruling 135 erratum, superseding the obsolete D-B1-DUR HOLD in §5 and later text:**
+D-B1-DUR is CLOSED by the operator. Windows Save's approved level is a successful
+temp-file `FlushFileBuffers` followed by atomic handle-relative POSIX replacement
+and owned cleanup. No directory flush is performed or claimed. Immediate power loss
+may lose one save; this is not Darwin directory-fsync or hardware durability equivalence.
+The local default must be outside OneDrive, and OneDrive/cloud locations are refused.
+These product decisions do not clear native, Data, Security or Test admission.
 
 `File.Move`/path-only `MoveFileExW` are rejected as namespace/security fallbacks.
 `ReplaceFileW` preserves several original attributes/streams, but is path-based;
@@ -163,12 +172,37 @@ omitting the cooperative claim.
 
 ## 4. Native API, handles, paths and sharing contract
 
-The bridge exposes only owned handles, fixed-width identity/status records and
-bounded byte operations. Managed code owns hashes, cancellation boundaries and
-product result mapping. Native code owns SDK layouts, relative open/rename,
-creation-time descriptors and exact raw errors. Neither serializes project data.
+The managed native boundary exposes owned handles, fixed-width identities/statuses
+and bounded byte operations. The adapter owns hashes, cancellation boundaries and
+product result mapping; `WindowsNative.cs` owns SDK layouts, relative open/rename,
+creation-time descriptors and raw errors. Neither serializes project data.
 Capture NTSTATUS separately from Win32 last error before another API call; check
 completion status, never treat a warning/pending result as completed I/O.
+
+**Frozen qualification checkpoint:** on Windows x64 build 10.0.26300 / NTFS,
+`SetFileInformationByHandle(FileRenameInfoEx=22)` with a retained non-null root and
+relative component returned Win32 87 on fresh fixtures. An independent fresh fixture
+using `NtSetInformationFile(FileRenameInformationEx=65)` succeeded with NTSTATUS/IO
+status zero. The direct NT service is a measured proposal **pending Mac review**,
+not an approved production API selection or an error-triggered fallback. The §5
+operation steps remain the base design; the proposed NT/durability corrections
+are confined to this authorized §4 erratum until Mac dispositions them. Under
+Ruling 135 the proposal performs no final-directory flush and acknowledges only
+file-content flush, established publication and owned cleanup, without power-loss proof.
+The NT structure has x64 flags offset 0, root 8, name-byte-count 16, WCHAR data 20,
+size 24; allocate at least size plus UTF-16 name bytes. Ex replacement flags are
+`FILE_RENAME_REPLACE_IF_EXISTS=1 | FILE_RENAME_POSIX_SEMANTICS=2`.
+[Microsoft NT rename layout/flags](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/ns-ntifs-_file_rename_information),
+[NT class 65](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ne-wdm-_file_information_class),
+[user-mode NtSetInformationFile contract](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-zwsetinformationfile).
+
+The approved store reader contract is `FILE_SHARE_READ | FILE_SHARE_DELETE`.
+Replacement under that contract remains **Not assessed**. A stronger probe with a
+reader omitting DELETE sharing returned NTSTATUS `0xc0000043`, IO status zero,
+Win32 32 even with POSIX flags. Its failing oracle is preserved. The Owner blocked
+further repair/admission at the two-cycle cap and requires a fresh bounded track
+for approved-share overwrite plus explicit incompatible-reader refusal. Do not
+weaken this probe or claim a held-reader PASS from successful create-only rename.
 
 ### Supported candidate subset
 
@@ -176,13 +210,20 @@ First qualification target: Windows x64 on a fixed local NTFS volume with persis
 ACL support. Arm64, ReFS, SMB/UNC, removable media, device paths supplied by the user,
 cloud placeholders and case-sensitive directories remain unsupported until separate
 qualification. Accept normal absolute drive-letter paths with well-formed UTF-16;
-bound input at 32,768 UTF-16 code units and at 256 directory components. Reject NUL,
+bound input at 32,767 UTF-16 code units excluding NUL and at 256 directory components. Reject NUL,
 empty or dot components, drive-relative paths, `/`, ADS colon inside a component,
 reserved device basenames/extensions, trailing dot/space and the `.cfd-` namespace
 case-insensitively. Bound components by the handle-observed volume limit. Do not
 normalize Unicode bytes/names or infer alias equivalence; qualify composed/decomposed
 spellings and 8.3 aliases with actual handle identities. These bounds are proposal
 admission rules, not a claim that every accepted spelling already works.
+
+The length and 256-component bounds are admission choices; the extended-path limit
+can vary with prefix expansion and does not prove every admitted path works. Test
+the actual >260-character retained-handle path before admission. The Ex flags are
+guarded by the Windows 10 RS1 SDK condition (build 14393); the first checkpoint
+measured build 26300 only, not the minimum-build implementation.
+[Microsoft maximum path limitation](https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation).
 
 Bind a drive root once to an OS-returned volume GUID, open that root directory and
 check the handle's NTFS/volume identity. Subsequent components are relative to held
@@ -377,6 +418,10 @@ and preferences would remain dirty/unacknowledged. The backup gate is equally bi
 
 ## 6. End-to-end surfaces and exact prospective B2 paths
 
+**Rulings 136–137 erratum:** this is the exact prospective lease set, replacing the
+C-helper/build proposal. The first frozen checkpoint contains native qualification
+only; the adapter, tool and admission cases below remain unimplemented/unqualified.
+
 The chain to verify is store/native → result/domain → public facade/service → typed
 result/telemetry → desktop client/controller → existing Save/Open/uncertain UI → Core
 reopen/Analysis reader. Project JSON is the existing wire representation. There is
@@ -384,24 +429,34 @@ no HTTP surface, new API DTO or changed geometry computation.
 
 | Exact prospective path | Intended B2 change | PC allowance / handoff |
 |---|---|---|
-| `src/CfdWorkbench.Persistence/native/cfd_store_windows.c` | New Windows-only native primitive bridge; frozen helper source | Within Persistence Windows path; exact coordinator lease required |
-| `src/CfdWorkbench.Persistence/WindowsProjectStore.cs` | New Windows adapter, status/security/identity and lifecycle | Within allowance; exact lease required |
-| `src/CfdWorkbench.Persistence/ProjectStore.cs` | Windows branch at Save/Read/PublishUnderClaim facade; preserve all macOS bodies | Within allowance, shared-file intent explicitly reviewed by Mac before B2 |
-| `src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj` | Windows-only helper build/copy; leave existing macOS target intact | Within allowance; exact lease plus compiler/SDK decision required |
-| `tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs` | Retain Mac cases/expectations, add Windows path selection and native cases | Outside PC allowance: affirmative **Mac handoff required** |
-| `tools/verify-application-core.py` | Declare Windows native proof coverage while preserving Darwin masks/helper faults | Outside PC allowance: affirmative **Mac handoff required** |
-| `docs/proof/application-core.md` | Shared proof status/Windows admission after executable evidence | Outside PC allowance: affirmative **Mac handoff required** |
-| `docs/proof/win-store-implementation/receipt.md` | Exact tested SHA, host/SDK/compiler and command evidence | Within allowance |
-| `docs/proof/win-store-implementation/native-spike.md` | Native request shapes, raw errors, descriptors/identities and refusal cases | Within allowance |
-| `docs/proof/win-store-implementation/red-green.md` | Observed RED then GREEN, immutable case outputs and negative controls | Within allowance |
+| `src/CfdWorkbench.Persistence/WindowsNative.cs` | LibraryImport/SafeHandle declarations and qualified native primitives | Ruling 136 lease; native slice only at first checkpoint |
+| `src/CfdWorkbench.Persistence/WindowsProjectStore.cs` | Windows adapter, status/security/identity and lifecycle | Ruling 136 lease; not yet authored |
+| `src/CfdWorkbench.Persistence/ProjectStore.cs` | Windows dispatch only; preserve all Darwin bodies and P/Invokes | Ruling 137 lease; unchanged at checkpoint |
+| `src/CfdWorkbench.Persistence/CfdWorkbench.Persistence.csproj` | At most AllowUnsafeBlocks; existing Mac target unchanged | Ruling 136 lease |
+| `tests/CfdWorkbench.Core.Tests/ProjectStoreTests.cs` | Only the two authorized platform gates; existing cases byte-unchanged | Affirmative Mac handoff in Ruling 137; first gate changed only |
+| `tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs` | New Windows-only qualification cases | Ruling 137 lease |
+| `tools/verify-windows-store.py` | New bounded Windows qualification tool | Ruling 137 lease; not yet authored |
+| `docs/proof/win-store-implementation/**` | Checkpoint, native spikes, raw stdout/stderr and approval gaps | Owned proof paths |
+| `docs/design/windows-native-store.md` | Erratum in §§3, 4, 6 only | Ruling 136 lease |
 
 `src/CfdWorkbench.Persistence/native/cfd_store.c` is **not** a prospective B2 path.
 `PreferenceStore.cs` and `SectionLibrary.cs` are read-only consumers for the current
 candidate: route their existing store calls, not parallel writes or new units logic.
-If D-B1-DUR selects semantic changes, the above lease is invalid: Mac must first
-design and authorize exact shared edits to `WorkbenchController.cs`, `PreferenceStore.cs`,
-`SectionLibrary.cs`, their tests, accepted ADR/specs and result contract documentation.
-Those edits are a separate handoff, not hidden inside this implementation plan.
+`tools/verify-application-core.py`, `docs/proof/application-core.md`, all C helper
+paths, unrelated code/tests, audit/index/xmsg and shared UI are outside this lease.
+Mac must select and authorize shared local-default-folder, OneDrive-copy and visible
+recovery changes; the PC worker does not infer those paths or expand its lease.
+
+POSIX claim disposition requires setting `DELETE | POSIX_SEMANTICS`, then closing
+the owned deleting handle before checking namespace removal. An independent held
+observer remains readable. This ordering passed on the measured NTFS fixture; it
+does not establish ownership/provenance checks for adapter cleanup.
+[Microsoft POSIX deletion timing](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/ns-ntddk-_file_disposition_information_ex).
+
+The Owner authorizes this failure checkpoint only. All implementation vetoes and
+production admission remain open/false. Request a fresh bounded Mac-approved track
+for approved-share replacement, incompatible-reader refusal and review of the rooted
+Win32-87 versus NT-Ex65 choice. No further executable repair occurs in this track.
 
 Mac compatibility: keep Darwin helper exports, .dylib name, `Stat`, P/Invokes, errno
 mapping, open/flush/backup algorithms and MSBuild condition unchanged. Windows handles

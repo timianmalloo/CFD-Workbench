@@ -1,0 +1,3 @@
+FAIL WindowsStore_Create_UnqualifiedAdmission InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+RESULT failures=1
+SUBSET CFD_TEST_ONLY=WindowsStore_ ran=1 skipped=686

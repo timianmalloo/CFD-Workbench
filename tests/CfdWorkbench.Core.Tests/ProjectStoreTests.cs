@@ -9,6 +9,7 @@ internal static class ProjectStoreTests
 {
     internal static void Run()
     {
+        if (OperatingSystem.IsWindows()) { WindowsProjectStoreTests.Run(); return; }
         if (!OperatingSystem.IsMacOS()) { Console.WriteLine("NOT ASSESSED native persistence primitives on this platform"); return; }
         if (Environment.GetEnvironmentVariable("CFD_OWNER_STRIPPING_MASK") is not null)
         {
