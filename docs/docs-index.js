@@ -3594,7 +3594,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8ef5fe6e6219e67b55759b10a54614eecb2d4467dde5182bb7a072705dc953df"
+      "sourceSha256": "e4177a55d03c4c9c2f933fbd69b3b271a82ebcffa8e957d8745a44a7393c7155"
     },
     {
       "id": "design-windows-runtime",
@@ -6024,6 +6024,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6b61276da42fe8eefb806f46d224e9994df851034ee993f8b628f6cdc601c37"
     },
     {
+      "id": "proof-windows-store-r145-qualification",
+      "path": "docs/proof/win-store-implementation/r145-qualification.md",
+      "title": "Ruling 145 Windows native sharing and rename attribution qualification",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@windows-worker",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The approved sharing behavior is characterized on real NTFS, the missing stable sharing-conflict code is observed red then corrected, and independent Win32 probes attribute error 87 to the tested rooted forms. Production admission and full qualification remain blocked; the required docs gate fails outside the lease.",
+      "tags": [
+        "windows",
+        "persistence",
+        "proof",
+        "blocked"
+      ],
+      "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-windows-store-implementation",
+          "rel": "refines"
+        },
+        {
+          "to": "receipt-windows-store-implementation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "25c57ecfb0fd70abd61108d0bdb5299e1e017f81e2429d822c2fc6d2f25fdf36"
+    },
+    {
       "id": "receipt-windows-store-implementation",
       "path": "docs/proof/win-store-implementation/receipt.md",
       "title": "Frozen B2 native qualification failure receipt",
@@ -7482,7 +7516,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e6eb2dafd0fc0bd04de903960411d9258c374857fd50f8e3414ce6e08af38062"
+      "sourceSha256": "e7a7a390c003eaab0c6ef53c49f87e8eeeb05549a237f7f63c89871bc4c29bbe"
     },
     {
       "id": "kb-hw-glossary",
@@ -14836,6 +14870,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "7746809414206f0beeeec372f5b03ed33d4955d6d408623db7a3fcfea87090d5"
     },
     {
+      "id": "proof-wfx2-pc-ring-20261008",
+      "path": "docs/proof/wfx2/pc-ring-20261008/receipt.md",
+      "title": "WFX2 - Windows ring evidence, 2026-10-08",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wfx2",
+      "phase": "implementation",
+      "reviewBy": "2027-11-08",
+      "reviewSuggested": [],
+      "summary": "Evidence-only receipt for one completed Windows test ring; records outcomes, redacted log extracts, and the UI checks the ring cannot assess.",
+      "tags": [
+        "windows",
+        "wfx",
+        "proof",
+        "ring"
+      ],
+      "links": [
+        {
+          "to": "proof-wfx2-pc-reverify",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wfx2-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ce31a84bf665e80507832bcf3beb0dcf118a3eb44ab01430700737a3639773f2"
+    },
+    {
       "id": "proof-wfx2-red-first",
       "path": "docs/proof/wfx2/red-first.md",
       "title": "WFX2 red-first receipts",
@@ -17182,5 +17246,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c19c15e87521cdb81ac20cb1f5c0d49e5f84c5a6b4d8766f4a732339be7f8de8"
+  "graphSha256": "885042c0d0e5b05f064c254606711328ea0aee1960e032874860c4c0f24a6a88"
 };

@@ -1,1 +1,2 @@
 {"agent": "trk-svp", "at": 1791495932.1069372, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-svp", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-design-svp-save-picker"}
+{"agent": "trk-svp", "at": 1791499991.5067708, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-svp", "wi": "WI-0", "worktree": "CFD-Workbench-design-svp-save-picker"}

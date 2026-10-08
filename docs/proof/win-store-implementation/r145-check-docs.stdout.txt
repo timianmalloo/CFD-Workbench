@@ -1,0 +1,1 @@
+join rings ok: tests every code join (docs-only joins skip, Ruling 89), slow gates and recounts at readiness

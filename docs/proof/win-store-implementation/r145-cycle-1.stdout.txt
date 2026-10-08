@@ -1,0 +1,30 @@
+PASS WindowsStore_Unqualified_ProductionAdmissionRemainsClosed
+NATIVE-ENV os=10.0.26300.0 arch=X64 filesystem=NTFS
+PASS WindowsNative_Environment_RealNtfsX64
+LAYOUT UnicodeString size=16 Length=0 MaximumLength=2 Buffer=8
+LAYOUT ObjectAttributes size=48 Length=0 RootDirectory=8 ObjectName=16 Attributes=24 SecurityDescriptor=32 SecurityQualityOfService=40
+LAYOUT IoStatusBlock size=16 Status=0 Information=8
+LAYOUT FileId128 size=16 Low=0 High=8
+LAYOUT FileId size=24 VolumeSerialNumber=0 Id=8
+LAYOUT RenameHeader size=24 Flags=0 RootDirectory=8 FileNameLength=16 FirstCharacter=20
+LAYOUT Disposition size=4 Flags=0
+PASS WindowsNative_Layouts_SdkX64
+PASS WindowsNative_RelativeCreate_PrivateAclBeforeAnyBytes
+SHARE-READ-DELETE NTSTATUS=0x00000000 IO_STATUS=0x00000000 Win32=0 old=FileIdentity { Volume = 3611534147413010381, Low = 6755399441825623, High = 0 } new=FileIdentity { Volume = 3611534147413010381, Low = 8162774325378919, High = 0 } held_bytes=0101 fresh_bytes=020202 temp_exists=false
+PASS WindowsNative_Replace_ShareReadDeleteReaderKeepsOldImage
+SHARE-READ-ONLY NTSTATUS=0xc0000043; IO_STATUS=0x00000000; Win32=32: The process cannot access the file because it is being used by another process. incumbent=FileIdentity { Volume = 3611534147413010381, Low = 7036874418536279, High = 0 } temp=FileIdentity { Volume = 3611534147413010381, Low = 8444249302089575, High = 0 } held_bytes=0101 fresh_bytes=0101 temp_bytes=020202 temp_exists=true
+PASS WindowsNative_Replace_ShareReadOnlyReaderRefused
+PASS WindowsNative_ClaimDispose_HeldObserverNamespaceRemoved
+FRESH-WIN32 NTSTATUS=not recorded; IO_STATUS=not recorded; Win32=87: The parameter is incorrect.
+FRESH-NT NTSTATUS=0x00000000 IO_STATUS=0x00000000 Win32=0
+PASS WindowsNative_Rename_FreshWin32VersusNtFixtures
+WIN32-EX22-NULL-ROOT-ABSOLUTE NTSTATUS=not recorded IO_STATUS=not recorded Win32=0
+WIN32-EX22-NULL-ROOT-ABSOLUTE identity=FileIdentity { Volume = 3611534147413010381, Low = 8162774325378903, High = 0 } bytes=0405 source_exists=False destination_exists=True
+WIN32-CLASS3-ROOTED NTSTATUS=not recorded; IO_STATUS=not recorded; Win32=87: The parameter is incorrect.
+WIN32-CLASS3-ROOTED identity=FileIdentity { Volume = 3611534147413010381, Low = 8444249302089559, High = 0 } bytes=0405 source_exists=True destination_exists=False
+PASS WindowsNative_Rename_AttributionNullRootExAndRootedLegacy
+COLLISION-RAW NTSTATUS=0xc0000035; IO_STATUS=0x00000000; Win32=183: Cannot create a file when that file already exists.
+PASS WindowsNative_CreateOnly_CollisionPreservesBothObjects
+PASS WindowsNative_RelativeName_TraversalRefusedBeforeCreate
+RESULT failures=0
+SUBSET CFD_TEST_ONLY=WindowsStore_,WindowsNative_Environment_,WindowsNative_Layouts_,WindowsNative_RelativeCreate_,WindowsNative_Replace_ShareRead,WindowsNative_ClaimDispose_,WindowsNative_Rename_,WindowsNative_CreateOnly_,WindowsNative_RelativeName_ ran=11 skipped=687
