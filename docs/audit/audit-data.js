@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:47:45Z",
+  "generated": "2026-10-08T23:52:16Z",
   "audit": [
     {
       "actor": null,
@@ -30981,87 +30981,78 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4EXE60216D3WMYN022VMW0M",
-      "shortname": "join-ncr",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T23:26:38Z",
-      "session": "3122f106",
-      "prompt": "the join of fix/ncr-not-resolved into main",
-      "summary": "NCR joined: one IsMomentResolved predicate; at nc=1 x_cp/M' read Not resolved, no couple glyph, SF22 plate; nc>=2 unchanged; cfd-numerical review CLEAR recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
+      "done_when": "join gates green",
+      "duration_seconds": 55.0,
+      "fan_out": 0,
       "goal": "join the 1-chordwise-panel not-resolved rule",
-      "done_when": "join gates green",
-      "tier": "T1",
-      "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-08T23:25:43Z",
-      "duration_seconds": 55.0
-    },
-    {
-      "id": "al-01M4EY164ZR4SSP02W6RHRZBS0",
-      "shortname": "join-pr13",
-      "datetime": "2026-10-08T23:37:00Z",
-      "session": "3122f106",
-      "prompt": "the join of origin/win/trig-bits into main",
-      "summary": "PR #13 joined: Windows CosPi bits equal the Mac golden at 81/81; CosPi/SinPi bit-identical across hosts, Math.Cos differs at 5 recount_seconds=0 (docs_only=False).",
+      "id": "al-01M4EXE60216D3WMYN022VMW0M",
       "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
       "outcome": "success",
-      "compiled": false,
-      "goal": "join PR #13 under Ruling 163",
-      "done_when": "join gates green",
-      "tier": "T1",
-      "fan_out": 0,
+      "prompt": "the join of fix/ncr-not-resolved into main",
+      "session": "3122f106",
+      "shortname": "join-ncr",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
-      "started_at": "2026-10-08T23:36:10Z",
-      "duration_seconds": 50.0
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T23:25:43Z",
+      "summary": "NCR joined: one IsMomentResolved predicate; at nc=1 x_cp/M' read Not resolved, no couple glyph, SF22 plate; nc>=2 unchanged; cfd-numerical review CLEAR recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4EYMHCVKTQWD9GT5N2SDYA8",
-      "shortname": "Ruling 163 P5 Windows ring",
-      "datetime": "2026-10-08T23:47:34Z",
-      "session": "win-r163-ring-20261008",
-      "prompt": "Ruling 163 P5: on current main 77e53062 run the Windows test ring once with six logical processors and a 60-second ceiling; preserve partial logs and report catalog class-(d) plus RWF DRIFT evidence. Record the Ruling 163 C3 raw-capture normalization incident with a committed-blob SHA-256 and byte-count control.",
-      "summary": "One bounded Windows ring and Ruling 163 C3 evidence/control.",
-      "kind": "prompt",
-      "skill": null,
-      "tool": null,
       "actor": null,
       "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-08T23:37:00Z",
+      "done_when": "join gates green",
+      "duration_seconds": 50.0,
+      "fan_out": 0,
+      "goal": "join PR #13 under Ruling 163",
+      "id": "al-01M4EY164ZR4SSP02W6RHRZBS0",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of origin/win/trig-bits into main",
+      "session": "3122f106",
+      "shortname": "join-pr13",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T23:36:10Z",
+      "summary": "PR #13 joined: Windows CosPi bits equal the Mac golden at 81/81; CosPi/SinPi bit-identical across hosts, Math.Cos differs at 5 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-08T23:47:34Z",
+      "id": "al-01M4EYMHCVKTQWD9GT5N2SDYA8",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Ruling 163 P5: on current main 77e53062 run the Windows test ring once with six logical processors and a 60-second ceiling; preserve partial logs and report catalog class-(d) plus RWF DRIFT evidence. Record the Ruling 163 C3 raw-capture normalization incident with a committed-blob SHA-256 and byte-count control.",
+      "session": "win-r163-ring-20261008",
+      "shortname": "Ruling 163 P5 Windows ring",
+      "skill": null,
+      "summary": "One bounded Windows ring and Ruling 163 C3 evidence/control.",
       "tags": [
         "windows",
         "ruling-163"
       ],
-      "outcome": "success"
+      "tool": null
     },
     {
-      "id": "al-01M4EYMRXCKKRKQW7VS22N7R6X",
-      "shortname": "r163-windows-ring",
-      "datetime": "2026-10-08T23:47:42Z",
-      "session": "win-r163-ring-20261008",
-      "prompt": "Run one six-logical-processor Windows ring on current main 77e53062, capped at 60 seconds. Report catalog class-(d) and exact RWF DRIFT output, preserving incomplete logs. Add only proof and required Ruling 163 C3 audit/index/defect artifacts.",
-      "summary": "One ring on 77e53062 stopped at 60.422 s, exit 124: Release build passed with 0 errors and two AVLN3001 warnings; harness ring incomplete, P5 unverified. Partial logs show Catalog_GenEntries_RegenerateToRecordedHash PASS and all nine Catalog tests PASS. Four RWF check methods emitted five DRIFT lines: lambda-fit 0; tangent-angle 0; dat-rotation 0; handle-polar-section 0; handle-polar-target 6.1232339957367663E-18 (limit 1e-06). Raw captures are bound by receipt SHA-256/byte count and verify-captures.py.",
-      "kind": "manual",
-      "skill": null,
-      "tool": "run-tests.sh",
       "actor": "codex",
       "artifacts": [
         "docs/proof/r163-windows-ring/receipt.md",
@@ -31070,18 +31061,54 @@ window.AUDIT_DATA = {
         "docs/lessons/defect-classes.md",
         "docs/reviews/pr-13.md"
       ],
-      "tags": [],
-      "outcome": "partial",
-      "goal": "Measure Ruling 163 P5 on current Windows main and add the Ruling 163 C3 raw-capture integrity control.",
+      "datetime": "2026-10-08T23:47:42Z",
       "done_when": "One constrained ring is preserved with exact status, catalog class-(d) and RWF drift observations are reported, and committed raw captures verify against the receipt manifest.",
-      "tier": "T1",
       "fan_out": 0,
       "git": {
-        "sha": "77e53062df26ded482df6d35c27e83f3efabbb3a",
-        "short": "77e53062d",
         "branch": "win/r163-ring",
-        "pushed": null
-      }
+        "pushed": null,
+        "sha": "77e53062df26ded482df6d35c27e83f3efabbb3a",
+        "short": "77e53062d"
+      },
+      "goal": "Measure Ruling 163 P5 on current Windows main and add the Ruling 163 C3 raw-capture integrity control.",
+      "id": "al-01M4EYMRXCKKRKQW7VS22N7R6X",
+      "kind": "manual",
+      "outcome": "partial",
+      "prompt": "Run one six-logical-processor Windows ring on current main 77e53062, capped at 60 seconds. Report catalog class-(d) and exact RWF DRIFT output, preserving incomplete logs. Add only proof and required Ruling 163 C3 audit/index/defect artifacts.",
+      "session": "win-r163-ring-20261008",
+      "shortname": "r163-windows-ring",
+      "skill": null,
+      "summary": "One ring on 77e53062 stopped at 60.422 s, exit 124: Release build passed with 0 errors and two AVLN3001 warnings; harness ring incomplete, P5 unverified. Partial logs show Catalog_GenEntries_RegenerateToRecordedHash PASS and all nine Catalog tests PASS. Four RWF check methods emitted five DRIFT lines: lambda-fit 0; tangent-angle 0; dat-rotation 0; handle-polar-section 0; handle-polar-target 6.1232339957367663E-18 (limit 1e-06). Raw captures are bound by receipt SHA-256/byte count and verify-captures.py.",
+      "tags": [],
+      "tier": "T1",
+      "tool": "run-tests.sh"
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-08T23:46:10Z",
+      "done_when": "join gates green",
+      "duration_seconds": 7.0,
+      "fan_out": 0,
+      "goal": "join PR #14 under Ruling 164",
+      "id": "al-01M4EYHZ2X73SMKDAKX2QKJ1DN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of origin/win/w5-cfmesh-probe into main",
+      "session": "3122f106",
+      "shortname": "join-pr14",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T23:46:03Z",
+      "summary": "PR #14 joined: cfMesh PRESENT in activated openfoam2512 (build _bd2b6720-20260127); coupon not released recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     }
   ],
   "changes": [
@@ -33343,6 +33370,42 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EXYTS5WVAFE3GR4TDYSPHN",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EYH12WA4K1ZV9XC4GXTA4K",
+      "ts": "2026-10-08T23:45:39Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EYH12R82MJD7AQVXESX7J6",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EYH15QSY80C59WEFS7RVXX",
+      "ts": "2026-10-08T23:45:40Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EYH12R82MJD7AQVXESX7J6",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EYH1ETQK6Q7NQ90TYM2QWZ",
+      "ts": "2026-10-08T23:45:40Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EYH1EPM3S562X6WTAXK5DZ",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EYH1HNPBDBJ0AAY1M3NQMG",
+      "ts": "2026-10-08T23:45:40Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EYH1EPM3S562X6WTAXK5DZ",
       "session": "fable-owner"
     }
   ]

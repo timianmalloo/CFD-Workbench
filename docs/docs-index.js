@@ -5219,7 +5219,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d7a7e9a07dc603bd95ff4e89d693fb85b750968ae58222a7f42ca5d4b5396e45"
+      "sourceSha256": "d40cd788e134e2191e153172087396b81ec2330ccd1457b0fc36ebea50b770e6"
     },
     {
       "id": "domain-experts",
@@ -6130,6 +6130,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "562cf3a0159aa8c62c77604b45665e23e7df8b28b68373827ef91b70c101ab7a"
     },
     {
+      "id": "proof-win-cfmesh-r153",
+      "path": "docs/proof/win-cfmesh/r153/receipt.md",
+      "title": "W-5 Ruling 153 cartesianMesh availability probe",
+      "type": "doc",
+      "status": "observed",
+      "owner": "@win-w5-cfmesh",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The activated OpenFOAM v2512 environment resolved cartesianMesh; its help exited 0 and confirmed the installed build.",
+      "tags": [
+        "windows",
+        "openfoam",
+        "cfmesh",
+        "probe",
+        "ruling-153"
+      ],
+      "links": [
+        {
+          "to": "proof-win-cfmesh",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "a7b5b1e66e83eac66cdd83c310637eb36adb52c322c168d5fada4f6cb02811dc"
+    },
+    {
       "id": "proof-windows-store-implementation",
       "path": "docs/proof/win-store-implementation/checkpoint.md",
       "title": "Windows managed native store first qualification checkpoint",
@@ -6714,6 +6741,39 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "4745ac3038ff75be834f7e51c628e476fcc7cfd50d33ed92b652239fa69f4d28"
+    },
+    {
+      "id": "review-pr-14",
+      "path": "docs/reviews/pr-14.md",
+      "title": "PR #14 (Windows PC) - W-5 activated cfMesh availability probe, PRESENT (Ruling 164), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 164). Ruling 102 step 1 is answered: the activated OpenFOAM v2512 environment resolves cartesianMesh, -help exits 0 with the usage banner (build _bd2b6720-20260127), and dpkg reports openfoam2512 2512.0-2. The committed LF script meets every Ruling 153 requirement. Outcome (c) PRESENT is accepted; the S4/S6 coupon is not released.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-5",
+        "cfmesh",
+        "openfoam"
+      ],
+      "links": [
+        {
+          "to": "review-pr-11",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-cfmesh",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "dd3f93e71ac75ab9f2904672c2c835fef59a8fb76d13a8c9d3143ac93a3bfa72"
     },
     {
       "id": "review-pr-2",
@@ -7684,7 +7744,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "35a6c39cbe383882051ba90c80a8ebf49e6c7da0c4e0eb1a4f62e72387296974"
+      "sourceSha256": "8d08d0b0caa32c259ed2c5ae2f79e402004d08e9276814b8c74447b07d491f00"
     },
     {
       "id": "kb-hw-glossary",
@@ -17499,5 +17559,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6dcde3472f2d8b8d737aaf3fa0cd745eb1c370ebd114114a3db2b3d603c68f6b"
+  "graphSha256": "04603578ba75e07f02c7891c902fe0f91663e0341b2c20447f69fbd39d531819"
 };
