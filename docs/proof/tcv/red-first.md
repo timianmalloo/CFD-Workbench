@@ -21,11 +21,12 @@ counts judged stations only. [...] (2) When tip-provisional stations are exclude
 station is tip-provisional, the wing line reads Not judged — tip strip. (3) For a selected tip-provisional station, the station-table cavitation word, the profile
 cavitation line and the estimator -Cp_min row show Not judged — tip strip, with no sigma number and no -Cp_min number on that station."
 
-Ring: the two synthetic tier checks run every push (Analysis harness group `TipCavitation`, about 0.15 s). The three checks that need the shared lattice run
-and the example-wing check run in the readiness ring (about 3.3 s together); the full ring's C-2 gate (5 s per Analysis part) rejected them in the fast ring
-(parts 5.2 s and 6.6 s, load 9.2), so they moved. Command (add `--readiness` for the readiness checks):
-`CFD_TEST_ONLY=TipCavitation_ tools/run-suite.sh dotnet tests/CfdWorkbench.Analysis.Tests/bin/Release/net10.0/CfdWorkbench.Analysis.Tests.dll`
-(In `red-run-1.txt` and the mutant logs all checks ran in the one fast group, before the move.)
+Ring: readiness (about 3.5 s for all five checks). They are not in the every-push ring. Measured 2026-10-08 under load 9 to 12: the baseline
+Analysis parts (main at 357155e8, `tools/run-tests.sh`) take 4914 ms and 4849 ms against the 5000 ms C-2 limit; this group in the fast ring (first as five checks,
+then as two) pushed the parts to 5.2/6.6 s and then 5.1/5.2 s, so C-2 failed. The baseline also fails C-3 (50733 ms) at that load, so the ring has
+no headroom now. Command (add `--readiness`):
+`CFD_TEST_ONLY=TipCavitation_ tools/run-suite.sh dotnet tests/CfdWorkbench.Analysis.Tests/bin/Release/net10.0/CfdWorkbench.Analysis.Tests.dll --readiness`
+(`red-run-1.txt` and the mutant logs ran in a fast-ring group, before the move; the checks are the same.)
 
 ## Red, on the old selection code (`red-run-1.txt`)
 

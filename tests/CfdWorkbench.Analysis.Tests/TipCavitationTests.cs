@@ -4,20 +4,17 @@ namespace CfdWorkbench.Analysis.Tests;
 
 /// <summary>
 /// Ruling 142: a tip-provisional strip never decides the wing cavitation verdict, and a tip station's screen reads Not judged.
-/// Ring: every push for the two synthetic tier checks (Run, about 0.15 s). Readiness for the checks that need the shared lattice run
-/// (SectionForceTests.CamberedRun, about 1 s) and for the example wing (about 3 s), as SectionForceTests does with the same fixture.
+/// Ring: readiness, about 3.5 s in all (the example wing 2.5 s, the shared lattice run SectionForceTests.CamberedRun about 0.5 s, the tier
+/// checks 0.3 s). Not the every-push ring: the Analysis parts there sit at 4.85 to 4.91 s against the 5 s C-2 limit on the baseline,
+/// and this group added 0.2 to 0.3 s and tipped both parts over (measured 2026-10-08, trk-tcv).
 /// </summary>
 internal static class TipCavitationTests
 {
-    internal static void Run()
+    /// <summary>The example-wing check prints the before/after record of docs/proof/tcv.</summary>
+    internal static void RunReadiness()
     {
         AnalysisChecks.Check("TipCavitation_PlantedTipStation_NeverGovernsTheWing", PlantedTipNeverGoverns);
         AnalysisChecks.Check("TipCavitation_EveryStationTip_WingLineIsNotJudged", AllTip);
-    }
-
-    /// <summary>Readiness ring. The example-wing check prints the before/after record of docs/proof/tcv.</summary>
-    internal static void RunReadiness()
-    {
         AnalysisChecks.Check("TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations", WingLineSuffix);
         AnalysisChecks.Check("TipCavitation_ProjectionRowsAndBand_FollowTheRule", ProjectionRowsFollowTheRule);
         AnalysisChecks.Check("TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber", TipStationDisplay);
