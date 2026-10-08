@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T21:55:04Z",
+  "generated": "2026-10-08T22:50:33Z",
   "audit": [
     {
       "actor": null,
@@ -30743,6 +30743,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Show the operator the Windows save flow (S1-S5, variants A/B) before any build",
       "done_when": "Mockup, oracle green, craft gate run, screenshots read, check-docs 0"
+    },
+    {
+      "id": "al-01M4EVC448M1Q8J3RPFYVJHZMV",
+      "shortname": "join-svp",
+      "datetime": "2026-10-08T22:50:33Z",
+      "session": "3122f106",
+      "prompt": "the join of design/svp-save-picker into main",
+      "summary": "SVP joined: docs/mockups/w2-save-picker.html + md + 13 screenshots + tools/check-mockup-svp.mjs (9/9 groups); operator chose A dialogs, folder at first Save, in-place clear confirm (Ruling 160) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the approved W-2 save-picker mockup",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T22:49:40Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
@@ -32959,6 +32986,15 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EN351ZGREF3KFKPKX3F7SD",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4EV475H0RGAZBFFHVDCR6B1",
+      "ts": "2026-10-08T22:46:14Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EV472KSJQK7B9MATYP9WH5",
       "session": "operator-timianmalloo"
     }
   ]
