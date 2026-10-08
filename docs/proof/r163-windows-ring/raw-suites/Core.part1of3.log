@@ -1,0 +1,107 @@
+PASS Canonical_Rfc8785_0000000000000000
+PASS Canonical_Rfc8785_8000000000000001
+PASS Canonical_Rfc8785_4340000000000000
+PASS Canonical_Rfc8785_44b52d02c7e14af5
+PASS Canonical_Rfc8785_444b1ae4d6e2ef4e
+PASS Canonical_Rfc8785_3eb0c6f7a0b5ed8c
+PASS Canonical_Rfc8785_41b3de4355555554
+PASS Canonical_Rfc8785_41b3de4355555557
+PASS Decimal_UnitEquivalent_ExactlyOneRounding
+PASS Decimal_Subnormal_RoundsCorrectly
+PASS Decimal_UnsupportedScale_RefusesBeforeScaling
+PASS Decimal_MinimumIntegerScale_RefusesBeforeAllocation
+PASS Blake3_OfficialEmptyVector_Matches
+PASS Catalog_Refusal_NamesItsCheck
+PASS CatalogGenerator_Naca0012_MatchesClosedFormAt81Stations
+PASS CatalogGenerator_Spacing_CosPiBitGoldenAndAccuracy
+PASS Provenance_Unknown_NotRecordedNeverGuessed
+PASS Provenance_SurvivesEveryRewriter
+DRIFT lambda-fit max_abs=0 limit=1e-06
+PASS RecordPath_LambdaFit_FairBytesWithinIdentityTolerance
+PASS Ruling17_DegreeIdentity_DoesNotCollapseDistinctInputs
+PASS Ruling15_MissingUnit_PreventsOverflowBinding
+PASS Ruling15_KnownOverflow_PrecedesBadDegree
+PASS Ruling15_MalformedToken_PrecedesBlockingSyntax
+PASS Parse_StandaloneSection_RecognizesWholeGrammar
+PASS Parse_InvalidUnits_ReportsUnits
+PASS Parse_LegacyChord_ReportsExplicitConversion
+PASS Parse_InvalidUtf8_ReportsLexical
+PASS Parse_OversizedSource_RefusesBeforeDecoding
+PASS Source_DiagnosticsMutation_Refused
+PASS Parse_SectionSpoofedEof_RejectsTail
+PASS Parse_UnpairedEscapedSurrogate_ReportsLexical
+PASS Source_MissingIds_MaterializationPreservesMeaning
+PASS NewDefault_NoExampleDependency
+PASS Parse_Foil41WithTangents_RowsParsed
+PASS Parse_AngleKindOnChannel_DslLock
+PASS Parse_SeventeenChannelPointsUnder41_DslCurve
+PASS Identity_TangentsRows_DefinitionHashUnchanged
+PASS EnsureHeader41_Already41_Unchanged
+PASS Ruling18_ConstantTwist_-1e-300_QueriesComplete
+QUERY FEASIBILITY RECEIPT {"Algorithm":"common-denominator-dyadic-128/taylor-grid-64/v1","RationalBitLimit":32768,"MaximumIntermediateBits":20502,"RationalOperationsUpper":321472,"InverseDepth":128,"AngleGridBits":64,"Spans":[{"Curve":"leading","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"leading","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"leading","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"leading","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"trailing","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"trailing","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"trailing","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"trailing","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"dihedral","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"dihedral","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"dihedral","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"dihedral","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"twist","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"twist","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"twist","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"twist","Span":3,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":443,"RefinedDenominatorBits":442},{"Curve":"thickness","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"thickness","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"thickness","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"thickness","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"profile:0:upper","Span":0,"Degree":5,"CommonDenominatorBits":6,"RefinedNumeratorBits":646,"RefinedDenominatorBits":646},{"Curve":"profile:0:lower","Span":0,"Degree":5,"CommonDenominatorBits":6,"RefinedNumeratorBits":646,"RefinedDenominatorBits":646}],"MaximumBitPath":"placed-X/round-shift-divrem"}
+PASS Ruling18_Certificate_CarriesActualAllQueryArithmeticWitness
+PASS Ruling18_ExpensiveExactSpan_PreAdmissionRefusal
+PASS Geometry_TipPoint_UnsupportedAndNeverAdmitted
+PASS Geometry_PlacedRootPoint_EnclosesIndependentZeroTwistCoordinates
+PASS Geometry_NormalizedSection_RejectsOutOfDomain
+PASS Geometry_ThicknessImmediatelyBelowOne_Admitted
+PASS Geometry_ViolatedRootLock_HasStableLockCode
+PASS Geometry_CrossingChord_BlocksCertificate
+PASS Geometry_IndependentProfileBasis_Unsupported
+PASS Geometry_OpaqueCertificate_NoPublicConstructor
+PASS Assess_SymmetricRowNotMidpoint_Invalid
+PASS Geometry_ThicknessDomain_OpenIntervalOnQuantumGrid
+PASS Assess_ThicknessAtUpperDomainLimit_Certified
+PASS Assess_SymmetricRowOnThicknessNotMidpoint_Invalid
+PASS ProofBudget_ProofPathTypes_HaveNoTypeInitializer
+PASS GroupGesture_OneMember_EqualsSinglePointGesture
+PASS GroupGesture_IncludesRootEnd_HoldsWholeGroupAtRootMax
+PASS GroupGesture_ChannelDomain_HoldsGroupNotMember
+PASS GroupGesture_RootSeeded_WhenPointOneSelected
+PASS GroupGesture_HandleNeverSeededTwice
+PASS ApplyGroupValue_SetTo_AllEqual
+PASS ApplyGroupValue_TwistSpanMoveBy_NamesTheUnitAndThePointNumber_UseAmountIsAdmitted
+PASS PlacementRule_OperationTree_TraceGolden
+PASS Blend_IdenticalProfileBytes_MatchSingleProfileExample
+PASS Blend_IndependentAbscissa_RefusesUnenclosedMaximum
+PASS Blend_MakeUniqueThreeDiffering_DraftCertifies
+PASS Ruling16_PublicConsumer_CustomIdsAssignmentsAndOwnedInspection
+PASS Ruling16_OldAcceptedProjection_RemainsBoundAfterApply
+PASS Session_CancelledValidation_TelemetryIsNotSuccess
+PASS Session_CancelledDraftId_CannotReuseOldAuthority
+PASS Session_UncapturedSaveAcknowledgement_Refuses
+PASS Session_EnvelopeOutwardMutation_LeavesOwnedFacts
+PASS Session_LateSaveAcknowledgement_RemainsDirty
+PASS Native_UnknownField_RefusesWritableAdoption
+PASS Session_Cancel_LeavesAcceptedBytesAndHistory
+PASS Session_ApplyRetryAfterUndoAndReopen_DoesNotMoveCursor
+PASS Session_InvalidGeometry_LeavesAcceptedState
+LAYOUT UnicodeString size=16 Length=0 MaximumLength=2 Buffer=8
+LAYOUT ObjectAttributes size=48 Length=0 RootDirectory=8 ObjectName=16 Attributes=24 SecurityDescriptor=32 SecurityQualityOfService=40
+LAYOUT IoStatusBlock size=16 Status=0 Information=8
+LAYOUT FileId128 size=16 Low=0 High=8
+LAYOUT FileId size=24 VolumeSerialNumber=0 Id=8
+LAYOUT RenameHeader size=24 Flags=0 RootDirectory=8 FileNameLength=16 FirstCharacter=20
+LAYOUT Disposition size=4 Flags=0
+PASS WindowsNative_Layouts_SdkX64
+SHARE-READ-ONLY NTSTATUS=0xc0000043; IO_STATUS=0x00000000; Win32=32: The process cannot access the file because it is being used by another process. incumbent=FileIdentity { Volume = 3611534147413010381, Low = 8444249302131762, High = 0 } temp=FileIdentity { Volume = 3611534147413010381, Low = 4503599628182579, High = 0 } held_bytes=0101 fresh_bytes=0101 temp_bytes=020202 temp_exists=true
+PASS WindowsNative_Replace_ShareReadOnlyReaderRefused
+FRESH-WIN32 NTSTATUS=not recorded; IO_STATUS=not recorded; Win32=87: The parameter is incorrect.
+FRESH-NT NTSTATUS=0x00000000 IO_STATUS=0x00000000 Win32=0
+PASS WindowsNative_Rename_FreshWin32VersusNtFixtures
+PASS WindowsNative_RelativeName_TraversalRefusedBeforeCreate
+FAIL Library_DuplicateIgnoringCaseNfc_Refused ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Library_StaleClaim_ReportedNotDeleted InvalidOperationException: Expected LIB-CLAIM-HELD; actual DOC-UNSUPPORTED-PERSISTENCE
+PASS Library_OversizedFile_SkippedAsProblem
+FAIL Library_SecondInstanceSameRoot_EntryListed ContractError: DOC-UNSUPPORTED-PERSISTENCE
+PASS Profile_PatchUpper_LeavesLowerCurveBytes
+PASS Profile_FixedVertex_RefusesLock
+PASS Profile_SharedEdit_ScopeApplyUndoRedo
+PASS Profile_LocalSupport_OutsideSpansUnchanged
+PASS MakeIndependent_CollidingIds_TangentNotCascaded
+PASS Session_RecoveryEnvelope_WithoutProfileFields_StillResumesRailDraft
+PASS ReopenSectionDraft_MakeUniqueThenCrash_OpensAndResumes
+PASS Receipt_SectionRailWithCurveOrRule_DocReference
+PASS FinishSection_SameOperationIdAfterReopen_Idempotent
+PASS Solve_EqualityConstraints_HoldAndSingularRefuses
+PASS Rebuild_TenVertices_SharesKnotsAbscissaAndPins
