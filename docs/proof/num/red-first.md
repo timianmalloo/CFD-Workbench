@@ -21,7 +21,7 @@ part balance stays true. Final `tools/run-tests.sh`: exit 0, "all test harnesses
 COST-MISS C-3 (load 39).
 
 The red table below is from the first draft, where the nc = 4 pin was the real lattice run (it passed in red, as it must: the default is unchanged); the
-second MEASURE pair (q c^2 190.9 N, ratio 9.3e-18 at nc = 1; nc = 4 ratio 8.1e-3) is the final configuration at 2 spans per half.
+second MEASURE pair (q c^2 190.9 N, ratio 9.3e-18 at nc = 1; nc = 4 ratio 8.1e-3) is the final configuration at 2 spans per half. The q c^2 of 152.2 N comes from the first draft (4 spans per half, nc = 1 Example foil, eta 0.5); 190.9 N comes from the final run (2 spans per half, nc = 1 Example foil, eta 0.5), so the two differ by strip geometry, not by error.
 
 The red run used the new signatures (`CoupleLabel(value, scale, units)`, `CoupleValue`, `SectionForces.CoupleScale`) with the old behaviour
 (`CoupleValue` = plain `Sig3`, `LatticeBias` always "panels"), so the checks compile and fail on the behaviour only.
@@ -59,4 +59,4 @@ so the default is unchanged (check 3c). The `assume:` is in `Labels.RoundOffFloo
 - `Labels.InducedDragLabel` and the D′ induced strip row: Gamma near zero gives round-off induced drag (a zero-lift case).
 - `Labels.TotalDragLabel`, total row and `DragBand`: carry the polar profile drag, which is positive; not zero by construction.
 
-Only the couple is proven zero by construction (nc = 1), so only it is changed.
+Only the couple is zero by construction, and only under three conditions at nc = 1: (i) the c/4 line is straight across the strip, (ii) elevation is linear, (iii) the placed-camber endpoints sit on the chord, so `ChordOf` equals `Frame.ChordMeters` (VortexLattice.cs:126-131, 272-274, 357-362, 761; SectionDisplay.cs:516-517). It was measured on the Example foil only, which meets all three (FoilSource.cs:537-538, 551-552). A curved or swept c/4 line leaves a geometric residue, Inferred at about 1e-6 to 1e-4 of q c^2 and not measured; the floor does not hide it. Also, at nc = 1 the lattice gives Cm c/4 = 0 for any camber, so "0.00" there is a model artifact, not a physical zero. Follow-up, not done here: a structural "not resolved at 1 chordwise panel" rule for the couple, like x_cp at SectionDisplay.cs:518. Only the couple is changed.
