@@ -192,7 +192,7 @@ public static class CatalogGenerator
         double length = Math.Sqrt(mx * mx + my * my);
         // The frame rotation (cos, sin of -angle) comes from (mx, -my) / length, so no byte depends on a C-runtime atan2.
         double frameCos = mx / length, frameSin = -my / length;
-        double angle = Math.Atan2(my, mx); // crt-allowed: the recorded rotation column only; compared within 1e-12 relative, no byte reads it
+        double angle = Math.Atan2(my, mx); // crt-allowed: Ruling 156 — the recorded rotation column only; compared within 1e-12 relative, no byte reads it
         (double X, double Y) Frame((double X, double Y) point)
         {
             double dx = point.X - le.X, dy = point.Y - le.Y;

@@ -100,6 +100,29 @@ The two replicas (`SectionsTests.Cosine`, `DisplayProfileTests.Cosine`) were mov
 `placement-surface-bits.txt` was re-recorded once from the 5 `actual` hashes of that run, and `CFD_TEST_ONLY=Placement_ProfileEvaluatorFold` is green. The Analysis harness (`failures=0`)
 and the Cli and Desktop default runs stayed green without edits. The surface list is `docs/proof/caf/surfaces.md`.
 
+## 5. Gate bypasses (geometry re-check, condition C1)
+
+Red: the eight bypass shapes run through the gate's `offences()` as committed in 06223cb8 (probe in scratch; exit 1, `flagged 0 of 8`):
+
+```
+MISSED double a = double.Cos(x);
+MISSED double a = double.Atan2(y, x);
+MISSED double a = double.Exp(x);
+MISSED double a = double.AcosPi(x);
+MISSED using static System.Math;
+MISSED double a = Cos(x);
+MISSED float a = MathF.Sin(x);
+MISSED double a = Math.Cos(x) + "crt-allowed: Ruling 156 - x".Length;
+```
+
+Fix: `BANNED` is `Math|MathF|double` followed by the 30 names in the re-check list (CosPi, SinPi, SinCosPi, Sqrt stay legal); `using static System.Math|MathF|Double`
+is flagged (a bare `Cos(x)` needs that line; a bare-name rule was tried and dropped, because it flagged the interface method `SinCos(...)` declared in Placement.cs);
+the allow marker is read from the `//` comment only (string literals are blanked first) and must read `crt-allowed: Ruling <n> — <reason>`; `ALLOWED_COUNT` pins
+Catalog.cs = 1 and Placement.cs = 0, so a new escape is a change to the gate. The Catalog.cs marker now cites Ruling 156 (comment only, no code change).
+
+Green: `python3 tools/check-crt-transcendentals.py --self-test` prints three `SELFTEST PASS` lines (fifteen planted shapes: 11 flagged incl. all the bypasses above,
+1 allowed, and comment, string and CosPi/SinCosPi/Sqrt clean; a missing file; a marker beyond the pinned count). The plain run prints `check-crt-transcendentals: 2 file(s) clean`.
+
 ## Decisions recorded here
 
 - **P3, station angle.** `ReadStation` calls `Binary64.SinCosDegrees` (`double.SinCosPi(degrees / 180)`, the form the ruling names), not the interface `SinCos(Radians(degrees))`.

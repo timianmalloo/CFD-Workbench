@@ -41,6 +41,12 @@ The interface form `Binary64.SinCos(radians)` (not called on the double path tod
 | `tests/CfdWorkbench.Analysis.Tests/Fixtures/neuralfoil/cases.tsv` | Not reached by Placement (NeuralFoil reads the catalog bytes; see the catalog commit). | None. Green. |
 | `docs/proof/a3a-old-build/one-run.cfdw.json` (a persisted run record from an old build) | Not reached. Decoded: the strips are synthetic (`gamma` 0.31 on every strip, `tableHash` `aaaa...`), written by `RecordRun` in a test program; `surfaceHash` is a hash of the surface definition, not of Placement output. Its only use is the old-reader refusal check. | None. |
 
+## Run freshness (geometry re-check, condition C2)
+
+The run key carries `Placement.PlacementRuleVersion` (`src/CfdWorkbench.Analysis/Freshness.cs:27`, compared at `:67`), and this change leaves it unchanged. Runs stored
+before the change therefore still show as fresh, although a re-run differs by about 1e-16 relative. Accepted: the version names the rule, not the bits, and
+Mac and Windows runs already differed by this much. Verified by reading `Freshness.cs`; the 1e-16 figure is **Inferred** from the angle and spacing arithmetic, not measured on a run record.
+
 ## Persisted non-test artifacts: none found
 
 No shipped file, stored project fixture or recorded receipt carries Placement output that a test or the product compares with live Placement output.
