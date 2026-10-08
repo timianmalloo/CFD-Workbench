@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T02:02:37Z",
+  "generated": "2026-10-08T02:04:39Z",
   "audit": [
     {
       "actor": null,
@@ -29758,6 +29758,33 @@ window.AUDIT_DATA = {
       "done_when": "guard red-first then green, 3+3 readiness runs measured, decision committed, run-tests green, check-docs 0",
       "started_at": "2026-10-08T01:30:02Z",
       "duration_seconds": 1955.0
+    },
+    {
+      "id": "al-01M4CM2TBH4MRG36QX6FJ826WE",
+      "shortname": "join-rdh",
+      "datetime": "2026-10-08T02:04:39Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of perf/readiness-headroom into main",
+      "summary": "readiness mean 201.9 s to 139.9 s over 3+3 quiet runs, equal PASS counts, no new failure; variant B (python with suites) rejected on SectionReleaseFreeze READINESS-MISS; join-ring drops the second check-test-costs call; Ruling 89 guard now checks run-tests.sh runs the cost script recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join perf/readiness-headroom",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T02:03:42Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
@@ -31749,6 +31776,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M4CEJER9EDKJ5AT9WMJRJTFK",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4CJC5V4XD8VNB4MVXWYR1NY",
+      "ts": "2026-10-08T01:34:49Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4CJC5QSTXJ2J2SKXYT48ZHP",
       "session": "operator-timianmalloo"
     }
   ]
