@@ -83,6 +83,8 @@ def run_lesson_controls():
         ("check-copy-ids.py", ()),
         ("check-wallclock-asserts.py", ("--self-test",)),
         ("check-wallclock-asserts.py", ()),
+        ("check-crt-transcendentals.py", ("--self-test",)),
+        ("check-crt-transcendentals.py", ()),
         ("check-text-mode-hash.py", ("--self-test",)),
         ("check-text-mode-hash.py", ()),
         ("check-proof-pii.py", ("--self-test",)),

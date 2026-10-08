@@ -3282,7 +3282,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a72cac34fd2d1f165afd734f2418c3d146964ac0d9b171441eba678cadbfdaf7"
+      "sourceSha256": "aaaf5fa821a2578a395ba502edc357ab2c5d4b88de6d05906fe20a8e6796f071"
     },
     {
       "id": "design-next-cad-increment",
@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fd2c0a86f7608437c70747963dfa5281c038216bfd75261e02fd92d258612ffc"
+      "sourceSha256": "46218734c130cb54ad1a94a4111afc75e47d960d3df0aa7fddc48ba8cea43fa9"
     },
     {
       "id": "domain-experts",
@@ -5874,6 +5874,58 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
+    },
+    {
+      "id": "proof-caf-red-first",
+      "path": "docs/proof/caf/red-first.md",
+      "title": "Track CAF - red-first record for catalog generator naca4-closed/2",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-caf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the spacing bit golden and accuracy check, the generator id, and the CRT-transcendental gate (commit 1, catalog).",
+      "tags": [
+        "catalog",
+        "determinism",
+        "ruling-156",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "46d0a3b80bdef0f0ceab48532bfcda1c986a06b47c7bab079192882da7f81b0e"
+    },
+    {
+      "id": "proof-caf-residual",
+      "path": "docs/proof/caf/residual.md",
+      "title": "Track CAF - residual of naca4-closed/2 against /1 (P4)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-caf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Measured change of the three shipped NACA entries between generator naca4-closed/1 and /2: points changed, max ordinate change, and the 4412 frame deltas. All sit far under the 1e-6 identity tolerance, so no catalog id changes.",
+      "tags": [
+        "catalog",
+        "determinism",
+        "ruling-156",
+        "residual"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "71d9a36165e90e74fe5695a4dd3bfdaaac084f32a78a604ebd4a01435a3b3164"
     },
     {
       "id": "proof-cpy-cause-rows",
@@ -7446,7 +7498,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8ef4a874f136c4c3f1b9a9ec22daf88e37c647188419828bea7d762e27b3e13d"
+      "sourceSha256": "7946c9c0b89da507b44b790e2687b7295801426915fcb6986abc3e50cd07193b"
     },
     {
       "id": "kb-hw-glossary",
@@ -17034,5 +17086,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9bf9a47cdb43c6f75a2cf683b8a1d91a02b9dd66b64968861da6810f5c1ea9bf"
+  "graphSha256": "ef013846c387aabb1bf164f553bbfc042e845710d082715a2e5d678c51a63f77"
 };

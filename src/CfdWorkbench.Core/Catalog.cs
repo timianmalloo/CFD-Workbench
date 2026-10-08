@@ -38,6 +38,7 @@ public sealed record CatalogEntry(
 public static class Catalog
 {
     private const string ResourcePrefix = "CfdWorkbench.Core.CatalogData.";
+    private const double RotationRelativeTolerance = 1e-12;
 
     public static IReadOnlyList<CatalogEntry> Load()
     {
@@ -99,7 +100,9 @@ public static class Catalog
                 }
                 string r(double value) => value.ToString("R", CultureInfo.InvariantCulture);
                 if (shape.LeShift != le) throw Refusal("frame-le-shift", $"entry {id}: {Differs("LE shift", r(shape.LeShift), r(le))} (generated vs recorded)");
-                if (shape.RotationDegrees != rotation) throw Refusal("frame-rotation", $"entry {id}: {Differs("rotation", r(shape.RotationDegrees), r(rotation))} (generated vs recorded)");
+                // The rotation is a C-runtime atan2 value (display degrees, no byte depends on it): compare within 1e-12 relative,
+                // never with != (Ruling 156 P2). LeShift and Scale use only + - * / sqrt, so their exact compare stays valid.
+                if (Math.Abs(shape.RotationDegrees - rotation) > RotationRelativeTolerance * Math.Max(Math.Abs(shape.RotationDegrees), Math.Abs(rotation))) throw Refusal("frame-rotation", $"entry {id}: {Differs("rotation", r(shape.RotationDegrees), r(rotation))} (generated vs recorded)");
                 if (shape.Scale != scale) throw Refusal("frame-scale", $"entry {id}: {Differs("scale", r(shape.Scale), r(scale))} (generated vs recorded)");
             }
             entries.Add(new CatalogEntry(
@@ -131,11 +134,15 @@ public static class Catalog
 
 public static class CatalogGenerator
 {
-    public const string Id = "naca4-closed/1";
+    public const string Id = "naca4-closed/2";
 
     internal readonly record struct NacaShape(byte[] Bytes, double LeShift, double RotationDegrees, double Scale);
 
     public static byte[] Naca4(string digits) => Shape(digits).Bytes;
+
+    // Control (b)+(d): 0.5*(1-CosPi(i/80)) is within 2^-52 of exact and exactly 0, 0.5, 1 at i = 0, 40, 80. double.CosPi is managed code
+    // (+ - * only); its bits are pinned by tests/CfdWorkbench.Core.Tests/Fixtures/catalog/spacing-cospi-80.tsv. Inferred until the Windows ring.
+    internal static double Spacing(int index) => 0.5 * (1 - double.CosPi(index / 80.0));
 
     internal static NacaShape Shape(string digits)
     {
@@ -162,8 +169,9 @@ public static class CatalogGenerator
                     slope = 2 * m / (q * q) * (p - x);
                 }
             }
-            double theta = Math.Atan(slope);
-            return (x - sign * yt * Math.Sin(theta), yc + sign * yt * Math.Cos(theta));
+            // sin and cos of atan(slope) without a C-runtime call: slope/sqrt(1+slope^2) and 1/sqrt(1+slope^2) (Ruling 156 P2).
+            double root = Math.Sqrt(1 + slope * slope);
+            return (x - sign * yt * (slope / root), yc + sign * yt * (1 / root));
         }
 
         double left = 0, right = 0.05;
@@ -182,19 +190,21 @@ public static class CatalogGenerator
         double mx = (teUpper.X + teLower.X) / 2 - le.X;
         double my = (teUpper.Y + teLower.Y) / 2 - le.Y;
         double length = Math.Sqrt(mx * mx + my * my);
-        double angle = Math.Atan2(my, mx);
+        // The frame rotation (cos, sin of -angle) comes from (mx, -my) / length, so no byte depends on a C-runtime atan2.
+        double frameCos = mx / length, frameSin = -my / length;
+        double angle = Math.Atan2(my, mx); // crt-allowed: the recorded rotation column only; compared within 1e-12 relative, no byte reads it
         (double X, double Y) Frame((double X, double Y) point)
         {
             double dx = point.X - le.X, dy = point.Y - le.Y;
-            return ((dx * Math.Cos(-angle) - dy * Math.Sin(-angle)) / length,
-                (dx * Math.Sin(-angle) + dy * Math.Cos(-angle)) / length);
+            return ((dx * frameCos - dy * frameSin) / length,
+                (dx * frameSin + dy * frameCos) / length);
         }
 
         var upper = new (double X, double Y)[81];
         var lower = new (double X, double Y)[81];
         for (int index = 0; index <= 80; index++)
         {
-            double s = 0.5 * (1 - Math.Cos(Math.PI * index / 80.0));
+            double s = Spacing(index);
             upper[index] = Frame(Surface(xs + (1 - xs) * s, 1));
             double distance = s * (xs + 1);
             lower[index] = Frame(distance <= xs ? Surface(xs - distance, 1) : Surface(distance - xs, -1));
