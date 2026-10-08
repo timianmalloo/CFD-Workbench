@@ -117,10 +117,12 @@ public static class SectionForceViewTests
                 Settle(window);
                 Render(view);
                 Equal(true, view.Plates.Any(plate => plate.Name.StartsWith("Cp_min", StringComparison.Ordinal)), "control: an interior station draws the Cp_min ring and plate");
+                Equal(0.99, view.Range, "an interior station's colour bar ends are the data's");
                 view.Model = Profile((SectionForces?)null) with { TipNotJudged = true };
                 Settle(window);
                 Render(view);
                 Equal(false, view.Plates.Any(plate => plate.Name.StartsWith("Cp_min", StringComparison.Ordinal)), "a tip station draws no Cp_min ring or plate: " + string.Join(" | ", view.Plates.Select(plate => plate.Name)));
+                Equal(1.0, view.Range, "a tip station's colour bar ends are rounded outward to 0.5 (Ruling 144), so they never print Cp_min");
                 string name = Avalonia.Automation.AutomationProperties.GetName(view) ?? "";
                 Equal(true, name.Contains(Labels.TipNotJudged, StringComparison.Ordinal), "the aria text names Not judged: " + name);
                 Equal(false, name.Contains("x/c", StringComparison.Ordinal), "the aria text carries no Cp_min number or location: " + name);

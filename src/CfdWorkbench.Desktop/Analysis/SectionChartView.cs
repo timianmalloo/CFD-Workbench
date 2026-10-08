@@ -57,7 +57,8 @@ public sealed class SectionChartView : Control
         foreach (ChartMarker m in plot.Markers.Where(m => m.Y is null)) { x0 = Math.Min(x0, m.X); x1 = Math.Max(x1, m.X); }
         if (x1 - x0 < 1e-12) x1 = x0 + 1;
         if (y1 - y0 < 1e-12) { y0 -= 0.5; y1 += 0.5; }
-        double pad = 0.06 * (y1 - y0); y0 -= pad; y1 += pad;
+        if (plot.ExtentStep is { } step) { y0 = ChartPlot.RoundOut(y0, step, low: true); y1 = ChartPlot.RoundOut(y1, step, low: false); } // Ruling 144: no Cp_min printed
+        else { double pad = 0.06 * (y1 - y0); y0 -= pad; y1 += pad; }
         Point At(ChartPoint p) => new(area.Left + (p.X - x0) / (x1 - x0) * area.Width,
             plot.InvertY ? area.Top + (p.Y - y0) / (y1 - y0) * area.Height : area.Bottom - (p.Y - y0) / (y1 - y0) * area.Height);
         context.DrawText(Text(x0.ToString("0.##", Inv), mute), new Point(area.Left, area.Bottom + 2));

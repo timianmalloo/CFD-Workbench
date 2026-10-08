@@ -18,7 +18,27 @@ internal static class TipCavitationTests
         AnalysisChecks.Check("TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations", WingLineSuffix);
         AnalysisChecks.Check("TipCavitation_ProjectionRowsAndBand_FollowTheRule", ProjectionRowsFollowTheRule);
         AnalysisChecks.Check("TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber", TipStationDisplay);
+        AnalysisChecks.Check("TipCavitation_PiercingTipStation_WingLineIsUnavailable_Ruling144", PiercingTipMakesWingUnavailable);
         AnalysisChecks.Check("TipCavitation_ExampleWing_GoverningStationIsJudged_BeforeAfterObserved", ExampleWing);
+    }
+
+    // Ruling 144 (1): a surface-piercing tip station makes the wing line Unavailable; only the tip's alpha_eff verdict is excluded.
+    private static void PiercingTipMakesWingUnavailable()
+    {
+        byte[] source = SectionSeamTests.ThicknessSource(_ => 0.10);
+        StripLoad[] strips = [SectionSeamTests.Strip(0.5, 2), Tip(1.0, 2)];
+        // probe at a deep reference depth: rise_i = 100 - depth_i
+        SectionTierResult probe = SectionTier.Evaluate(source, [0.5, 1.0], strips, OperatingPoints.Custom(5.14444, -3, 100), Fixture.Salt);
+        double riseInner = 100 - probe.Stations[0].Depth!.Value, riseTip = 100 - probe.Stations[1].Depth!.Value;
+        Console.WriteLine($"OBSERVED probe rise: eta 0.5 {riseInner:F5} m, eta 1 {riseTip:F5} m");
+        AnalysisChecks.Equal(true, riseTip > riseInner + 1e-4, "fixture: the tip rises above the inner station, so a depth between them pierces only the tip");
+        double h = 0.5 * (riseInner + riseTip);
+        SectionTierResult tier = SectionTier.Evaluate(source, [0.5, 1.0], strips, OperatingPoints.Custom(5.14444, -3, h), Fixture.Salt);
+        AnalysisChecks.Equal(Cavitation.SurfacePiercing, tier.Stations[1].EstimatorAvailabilityCode, "fixture: only the tip is surface piercing");
+        AnalysisChecks.Equal(CavitationState.Clear, tier.Stations[0].Cavitation.State, "fixture: the judged station is Clear");
+        AnalysisChecks.Equal(CavitationState.Unavailable, tier.Cavitation.State, "geometric unavailability at the tip makes the wing line Unavailable");
+        AnalysisChecks.Equal(Cavitation.SurfacePiercing, tier.Cavitation.Reason, "with the surface-piercing reason");
+        AnalysisChecks.Equal(1, tier.TipNotJudgedCount, "the tip is still counted as left out of the alpha_eff verdict");
     }
 
     private static void ExampleWing()
@@ -84,10 +104,13 @@ internal static class TipCavitationTests
     {
         (AnalysisRun run, byte[] source, SectionTierResult tier) = Cambered();
         AnalysisChecks.Equal(1, tier.TipNotJudgedCount, "eta 1 reads the tip strip");
+        AnalysisChecks.Equal("; 1 station Not judged — tip strip", Labels.TipNotJudgedSuffix(1), "COPY-410 singular");
+        AnalysisChecks.Equal("; 3 stations Not judged — tip strip", Labels.TipNotJudgedSuffix(3), "COPY-410 plural");
+        AnalysisChecks.Equal("", Labels.TipNotJudgedSuffix(0), "no tip stations, no suffix");
         SectionView view = SectionDisplay.Build(run, tier, source, null, "r1", null, null, default, Units.Metric);
         ResultGroup cavitation = view.Groups.Single(g => g.Title == "Cavitation");
         string screen = cavitation.Rows.Single(r => r.Label == "Cavitation screen").Value;
-        AnalysisChecks.Equal(true, screen.EndsWith("; 1 " + Labels.TipNotJudged, StringComparison.Ordinal), "the wing line states the count: " + screen);
+        AnalysisChecks.Equal(true, screen.EndsWith("; 1 station " + Labels.TipNotJudged, StringComparison.Ordinal), "the wing line states the count: " + screen);
         string governing = cavitation.Rows.Single(r => r.Label == "Governing station").Value;
         AnalysisChecks.Equal(true, governing.EndsWith("of 3 stations", StringComparison.Ordinal), "the count is judged stations only: " + governing);
         AnalysisChecks.Equal(true, tier.GoverningEta < 1.0, "the tip station is not governing");
@@ -101,8 +124,8 @@ internal static class TipCavitationTests
             new ProjectionContext(SectionTier: tier));
         ResultRow[] rows = view.Groups.SelectMany(g => g.Rows).ToArray();
         string cavitation = rows.First(r => r.Label == "Cavitation").Value;
-        AnalysisChecks.Equal(true, cavitation.EndsWith("; 1 " + Labels.TipNotJudged, StringComparison.Ordinal), "Cavitation row: " + cavitation);
-        AnalysisChecks.Equal(true, rows.First(r => r.Label == "V_crit").Note!.EndsWith("; 1 " + Labels.TipNotJudged, StringComparison.Ordinal), "V_crit note");
+        AnalysisChecks.Equal(true, cavitation.EndsWith("; 1 station " + Labels.TipNotJudged, StringComparison.Ordinal), "Cavitation row: " + cavitation);
+        AnalysisChecks.Equal(true, rows.First(r => r.Label == "V_crit").Note!.EndsWith("; 1 station " + Labels.TipNotJudged, StringComparison.Ordinal), "V_crit note");
         SectionTierResult allTip = SectionTier.Evaluate(SectionSeamTests.ThicknessSource(_ => 0.10), [0.5, 1.0], [Tip(0.5, 2), Tip(1.0, 8)],
             Fixture.Op(3), Fixture.Salt);
         ResultRow[] none = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric, new ProjectionContext(SectionTier: allTip))
@@ -129,6 +152,14 @@ internal static class TipCavitationTests
         AnalysisChecks.Equal(Labels.CpLegend, tip.Charts.Single(c => c.Id == "cp").Legend, "the Cp chart legend carries no range: its low end is Cp_min");
         SectionView interior =SectionDisplay.Build(run, tier, source, 0.5, "r1", null, null, default, Units.Metric);
         AnalysisChecks.Equal(false, interior.Profile!.TipNotJudged, "an interior station is not flagged");
+        AnalysisChecks.Equal(null, interior.Charts.Single(c => c.Id == "cp").Plots.Single().ExtentStep, "an interior station's chart extent is unchanged");
+        ChartPlot tipCp = tip.Charts.Single(c => c.Id == "cp").Plots.Single();
+        AnalysisChecks.Equal(ChartPlot.TipExtentStep, tipCp.ExtentStep, "the tip Cp chart rounds its Y extent outward to a fixed step (Ruling 144)");
+        double lowest = tipCp.Series.SelectMany(s => s.Points).Min(p => p.Y);
+        double roundedLow = ChartPlot.RoundOut(lowest, ChartPlot.TipExtentStep, low: true);
+        AnalysisChecks.Equal(true, roundedLow <= lowest && Math.Abs(roundedLow / ChartPlot.TipExtentStep % 1) < 1e-9, "the rounded low end is a multiple of 0.5 at or below the data");
+        AnalysisChecks.Equal(-0.5, ChartPlot.RoundOut(-0.46, 0.5, low: true), "-0.46 rounds out to -0.5");
+        AnalysisChecks.Equal(1.0, ChartPlot.RoundOut(0.99, 0.5, low: false), "0.99 rounds out to 1.0");
         AnalysisChecks.Equal(true, interior.Charts.SelectMany(c => c.Plots).SelectMany(p => p.Markers).Any(m => m.Name == "Cp_min"), "an interior station keeps its Cp_min point");
         StationTableRow row = tip.StationTable!.Single(r => r.Eta == 1.0);
         AnalysisChecks.Equal(Labels.TipNotJudged, row.Cavitation, "station-table cavitation word");
