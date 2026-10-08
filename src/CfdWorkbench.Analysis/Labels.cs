@@ -296,7 +296,16 @@ public static class Labels
     public const string LocalInflowWhy = "tilts the flow by α_i"; // COPY-SF3
     public static string AnchorCp(double xOverC) => "CP (lattice) · x/c " + Signed(xOverC, "0.00"); // COPY-SF4
     public const string AnchorQuarter = "c/4 · arrows start here · x_cp Undefined"; // COPY-SF5
-    public static string CoupleLabel(double value, Units units) => "M′ c/4 (lattice) " + Sig3(MomentPerSpan(value, units)) + " " + MomentPerSpanUnit(units); // COPY-SF6
+    /// <summary>
+    /// The couple's number, one definition for the profile label and the strip-table row. A couple below <see cref="RoundOffFloor"/> of its
+    /// scale <paramref name="scale"/> (q c², N) is floating-point residue, not a physical value, and prints as zero does ("0.00").
+    /// </summary>
+    public static string CoupleValue(double couple, double scale, Units units) =>
+        Sig3(Math.Abs(couple) < RoundOffFloor * scale ? 0 : MomentPerSpan(couple, units));
+    // assume: double round-off in the lattice solve is many orders below 1e-9 of q c²; confirmed by the measured residue at nc = 1
+    // (couple/q c² = 1.2e-17, docs/proof/num/red-first.md); if false, a real small couple would show as 0.00.
+    private const double RoundOffFloor = 1e-9;
+    public static string CoupleLabel(double value, double scale, Units units) => "M′ c/4 (lattice) " + CoupleValue(value, scale, units) + " " + MomentPerSpanUnit(units); // COPY-SF6
     public static string ProfileDragLabel(double low, double high, Units units, int multiple, bool lowConfidence) => // COPY-SF7, SF10
         "D′ profile (polar, Ncrit 2–4) " + DragBand(low, high, units) + " " + ForcePerSpanUnit(units) + " · ×" + multiple + (lowConfidence ? " " + LowConfidenceSuffix : "");
     public static string InducedDragLabel(double value, Units units, int multiple) => // COPY-SF8
@@ -311,7 +320,7 @@ public static class Labels
         AlphaGeoRow = "α_geo", AlphaEffRow = "α_eff (lattice)", AlphaIRow = "α_i (lattice)", XcpRow = "x_cp/c (lattice)", LiftRow = "L′ (lattice)",
         CoupleRow = "M′ c/4 (lattice)", ProfileDragRow = "D′ profile (polar, Ncrit 2–4)", InducedDragRow = "D′ induced (lattice)",
         TotalDragRow = "D′ profile + induced (band centre), free-stream axes";
-    public static string LatticeBias(int nChord) => $"lattice, {nChord} chordwise panels; biased forward at low lift"; // COPY-SF17 (Ruling 131)
+    public static string LatticeBias(int nChord) => $"lattice, {nChord} chordwise {(nChord == 1 ? "panel" : "panels")}; biased forward at low lift"; // COPY-SF17 (Ruling 131)
     public static string XcpRowLabel(int nChord) => "x_cp/c (" + LatticeBias(nChord) + ")";
     public static string CoupleRowLabel(int nChord) => "M′ c/4 (" + LatticeBias(nChord) + ")";
     public const string XcpNearZeroLift = "Undefined · near zero lift: |cl| is below 0.05"; // COPY-SF13

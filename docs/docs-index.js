@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f98d06c98a8ed7aada1ed72ddd4fbd9618748e0c64dbbf5d7bf22d8a347d0906"
+      "sourceSha256": "8720da784902ee22d49e98a9099a4d284d562c0cd2a05c770cff2ee0272638b1"
     },
     {
       "id": "domain-experts",
@@ -12722,6 +12722,30 @@ window.DOCS_INDEX = {
       "sourceSha256": "ea91f4960495f21b428612c898dd80b200b72d581580eb40aa349c099972fb6e"
     },
     {
+      "id": "proof-num-red-first",
+      "path": "docs/proof/num/red-first.md",
+      "title": "NUM red-first receipts (plural agreement, round-off couple)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Singular \"1 chordwise panel\" and the round-off floor on the c/4 couple: the checks that fail on the old behaviour, the passing runs, the measured residue.",
+      "tags": [
+        "num",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-stc-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c9cd2256e1671b3e8095c5bab636377297d34ac3e7b8b3800810b186709bfa04"
+    },
+    {
       "id": "proof-openfix-red-runs",
       "path": "docs/proof/openfix-red-runs.md",
       "title": "OPENFIX red runs and verification — M1.2a Open outcomes and Span input",
@@ -16906,5 +16930,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d87ceabb100b67b90007f98eb3c6369c129e22c62c027828344840f90866feed"
+  "graphSha256": "fdf81f2c049b81743b41910a72f9e4c4954cbbc07ffa0a12c375b30135b1389d"
 };
