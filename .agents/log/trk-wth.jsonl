@@ -1,0 +1,2 @@
+{"agent": "trk-wth", "at": 1791486010.4861472, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-wth", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-wth-test-hygiene"}
+{"agent": "trk-wth", "at": 1791487400.154925, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-wth", "wi": "WI-0", "worktree": "CFD-Workbench-fix-wth-test-hygiene"}

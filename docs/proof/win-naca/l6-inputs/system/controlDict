@@ -1,0 +1,40 @@
+FoamFile
+{
+    version 2.0;
+    format ascii;
+    class dictionary;
+    object controlDict;
+}
+
+application simpleFoam;
+startFrom startTime;
+startTime 0;
+stopAt endTime;
+endTime 40000;
+deltaT 1;
+writeControl timeStep;
+writeInterval 40000;
+purgeWrite 0;
+writeFormat binary;
+writePrecision 12;
+writeCompression off;
+timeFormat general;
+timePrecision 8;
+runTimeModifiable false;
+functions
+{
+    forceCoeffs1
+    {
+        type forceCoeffs; libs (forces); writeControl timeStep; writeInterval 1; log no;
+        patches (airfoil); rho rhoInf; rhoInf 1;
+        liftDir (-0.173648177667 0.984807753012 0); dragDir (0.984807753012 0.173648177667 0); CofR (0.25 0 0); pitchAxis (0 0 -1);
+        magUInf 1; lRef 1; Aref 1.0;
+    }
+    solverInfo1 { type solverInfo; libs (utilityFunctionObjects); fields (U p nuTilda); writeResidualFields no; }
+    yPlus1 { type yPlus; libs (fieldFunctionObjects); writeControl writeTime; }
+    wallP
+    {
+        type surfaces; libs (sampling); writeControl writeTime; surfaceFormat raw; fields (p);
+        surfaces { airfoil { type patch; patches (airfoil); interpolate false; } }
+    }
+}

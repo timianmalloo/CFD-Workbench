@@ -29,7 +29,7 @@ Actual: same sequence, with one capture-mechanics repair cycle before native int
 - Branch: `win/smoke`; tested HEAD: `aa642fc6a1a3da2b8f7bb1f5578139e7ff601859`.
 - The W-0 prerequisite is the coordinator-delivered PR #2 evidence at `ddc6f44d40f4b502f65d001a224145ff66b94225`; it was not copied or changed.
 - Persisted User PATH followed by Machine PATH, and persisted User DOTNET_ROOT, were loaded into each build/launch process.
-- Plain `dotnet --version`: **10.0.203**. Executable: `C:\Users\malla\.dotnet\dotnet.exe`; DOTNET_ROOT: `C:\Users\malla\.dotnet`.
+- Plain `dotnet --version`: **10.0.203**. Executable: `%USERPROFILE%\.dotnet\dotnet.exe`; DOTNET_ROOT: `%USERPROFILE%\.dotnet`.
 - Built apphost: `C:\Projects\CFD-Workbench-win-smoke\src\CfdWorkbench.Desktop\bin\Debug\net10.0\CfdWorkbench.Desktop.exe`.
 - Apphost SHA-256: `71AEE07293AA173A6788382A2FE09A379431F1E5AD23B6E3DC08E5308EBA9B2B`.
 - Adjacent Desktop DLL SHA-256: `4D85822E78F4237582A0ABE5FD37F37A2183A97D6777E150B15A5B3C115A4439`.
@@ -64,7 +64,7 @@ Build warning first lines:
 Screenshots were captured from the visible Windows screen, not generated from source or a managed test.
 Each numbered PNG has a matching JSON recording PID/start time, capture time, mouse or keyboard inputs, window title,
 DPI and the native UI Automation descendant snapshot. PID start time was checked before every numbered capture.
-Scratch automation stayed in `C:\Users\malla\AppData\Local\Temp\w1-ui.ps1` outside the repository.
+Scratch automation stayed in `%USERPROFILE%\AppData\Local\Temp\w1-ui.ps1` outside the repository.
 It uses Win32 `ShowWindow`, `SetForegroundWindow`, `SetCursorPos`/`mouse_event`, Windows Forms `SendKeys.SendWait`,
 `Graphics.CopyFromScreen`, and Windows UI Automation. Mouse coordinates below are screen coordinates.
 Only the screenshots can establish rendered state; some point automation names remained stale after the drag.

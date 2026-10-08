@@ -215,7 +215,7 @@ try
 }
 catch (ArgumentException) { falseNotAssessedRefused = true; }
 if (!falseNotAssessedRefused) throw new Exception("Review harness falsely labelled certified source Not assessed");
-string geometryPath = Path.Combine(Path.GetTempPath(), $"geometry-{Guid.NewGuid():N}.foil");
+string geometryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"geometry-{Guid.NewGuid():N}.foil");
 try
 {
     var validBytes = await File.ReadAllTextAsync("src/CfdWorkbench.Desktop/Assets/example.foil");
@@ -239,7 +239,7 @@ string acceptedHash = workbench.Inspection.Authored.Binding.SourceHash;
 await workbench.OpenFoilAsync(Encoding.UTF8.GetBytes("not FoilDSL"), "invalid.foil");
 if (workbench.AcceptedSource != source || workbench.Inspection?.Authored.Binding.SourceHash != acceptedHash)
     throw new Exception("Rejected FoilDSL replaced the active accepted document");
-string invalidNativePath = Path.Combine(Path.GetTempPath(), $"invalid-{Guid.NewGuid():N}.cfdw.json");
+string invalidNativePath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-{Guid.NewGuid():N}.cfdw.json");
 try
 {
     await File.WriteAllTextAsync(invalidNativePath, "not a native project");
@@ -272,23 +272,28 @@ workbench.Undo();
 if (workbench.AcceptedSource != source) throw new Exception("Undo did not restore source");
 workbench.Redo();
 if (workbench.AcceptedSource == source) throw new Exception("Redo did not restore edit");
-string conflictPath = Path.Combine(Path.GetTempPath(), $"existing-{Guid.NewGuid():N}.cfdw.json");
+string conflictPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"existing-{Guid.NewGuid():N}.cfdw.json");
 byte[] foreignImage = Encoding.UTF8.GetBytes("foreign project bytes");
-try
+// A named check, not a throw: on Windows the store answers DOC-UNSUPPORTED-PERSISTENCE until W-2 B2, and a throw here aborted
+// the whole harness and hid every later check (WRT-HARNESS-ABORT). The assertion is unchanged; the failure is one FAIL line.
+CfdWorkbench.Desktop.Tests.DesktopChecks.Check("Save_ExistingFile_DefiniteCreateOnlyConflict", () =>
 {
-    await File.WriteAllBytesAsync(conflictPath, foreignImage);
-    var conflict = await workbench.SaveAsync(conflictPath);
-    if (conflict.Code != "DOC-CONFLICT") throw new Exception("Expected definite create-only save conflict; actual " + conflict.Code);
-    if (workbench.SaveUncertain) throw new Exception("Definite prepublication conflict entered uncertain-save state");
-    if (!(await File.ReadAllBytesAsync(conflictPath)).SequenceEqual(foreignImage))
-        throw new Exception("Save conflict changed existing disk bytes");
-}
-finally { File.Delete(conflictPath); }
+    try
+    {
+        File.WriteAllBytes(conflictPath, foreignImage);
+        var conflict = workbench.SaveAsync(conflictPath).GetAwaiter().GetResult();
+        if (conflict.Code != "DOC-CONFLICT") throw new Exception("Expected definite create-only save conflict; actual " + conflict.Code);
+        if (workbench.SaveUncertain) throw new Exception("Definite prepublication conflict entered uncertain-save state");
+        if (!File.ReadAllBytes(conflictPath).SequenceEqual(foreignImage))
+            throw new Exception("Save conflict changed existing disk bytes");
+    }
+    finally { File.Delete(conflictPath); }
+});
 var uncertainStore = new UncertainStore();
 using (var uncertainWorkbench = new WorkbenchController(_ => uncertainStore))
 {
     await uncertainWorkbench.OpenExampleAsync();
-    string attemptedPath = Path.Combine(Path.GetTempPath(), $"uncertain-{Guid.NewGuid():N}.cfdw.json");
+    string attemptedPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"uncertain-{Guid.NewGuid():N}.cfdw.json");
     var first = await uncertainWorkbench.SaveAsync(attemptedPath);
     if (first.Code != "DOC-SAVE-UNCERTAIN" || !uncertainWorkbench.SaveUncertain ||
         uncertainWorkbench.UncertainPath != attemptedPath || !uncertainWorkbench.IsDirty)
@@ -303,7 +308,7 @@ var delayedStore = new DelayedStore();
 using (var replacingWorkbench = new WorkbenchController(_ => delayedStore))
 {
     await replacingWorkbench.OpenExampleAsync();
-    string attemptedPath = Path.Combine(Path.GetTempPath(), $"held-{Guid.NewGuid():N}.cfdw.json");
+    string attemptedPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"held-{Guid.NewGuid():N}.cfdw.json");
     var heldSave = replacingWorkbench.SaveAsync(attemptedPath);
     await delayedStore.Started.Task;
     await replacingWorkbench.OpenExampleAsync();
@@ -314,59 +319,72 @@ using (var replacingWorkbench = new WorkbenchController(_ => delayedStore))
         replacingWorkbench.NativePath is not null || !replacingWorkbench.IsDirty)
         throw new Exception("Late save acknowledged or attached its path to a replacement session");
 }
-string recoveryPath = Path.Combine(Path.GetTempPath(), $"recovery-{Guid.NewGuid():N}.cfdw.json");
-string seedRecoveryPath = Path.Combine(Path.GetTempPath(), $"seed-recovery-{Guid.NewGuid():N}.cfdw.json");
-try
+// A named check, not top-level throws: every step opens or saves through the real store, which answers DOC-UNSUPPORTED-PERSISTENCE on
+// Windows until W-2 B2, and a throw here aborted the harness and hid every later check (WRT-HARNESS-ABORT).
+CfdWorkbench.Desktop.Tests.DesktopChecks.Check("Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted",
+    () => RecoverySaveReopenResumeAsync().GetAwaiter().GetResult());
+async Task RecoverySaveReopenResumeAsync()
 {
-    // The rail draft left after the per-control draft API retired is a resumed M1.2a recovery (golden bytes).
-    File.Copy("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/m12a-rail-recovery.cfdw", seedRecoveryPath);
-    using var savingDraft = new WorkbenchController();
-    await savingDraft.OpenPathAsync(seedRecoveryPath);
-    string acceptedBeforeDraft = savingDraft.Inspection!.Authored.Binding.SourceHash;
-    savingDraft.ResumeRecovery();
-    byte[] retainedDraftBytes = savingDraft.Draft!.Bytes;
-    var savedRecovery = await savingDraft.SaveAsync(recoveryPath);
-    if (savedRecovery.Code != "OK" || savingDraft.IsDirty)
-        throw new Exception("Durable recovery save did not settle the unchanged visible draft");
-    using var reopenedDraft = new WorkbenchController();
-    await reopenedDraft.OpenPathAsync(recoveryPath);
-    if (!reopenedDraft.HasRecovery || reopenedDraft.Draft is not null ||
-        reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Native reopen did not offer a separate draft beside the original accepted source");
-    if (reopenedDraft.RecoverySource != Encoding.UTF8.GetString(retainedDraftBytes))
-        throw new Exception("Native recovery offer does not expose exact retained draft bytes");
-    using var recoveryReview = new WorkbenchController();
-    await new NativeReviewOptions("screen-reader", 1024, 700, "recovery", "high-contrast", true, recoveryPath)
-        .ApplyStateAsync(recoveryReview);
-    if (!recoveryReview.HasRecovery || recoveryReview.Draft is not null ||
-        recoveryReview.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Recovery review state bypassed the saved-project offer");
-    recoveryReview.ResumeRecovery();
-    if (recoveryReview.Draft is null || !recoveryReview.Draft.Bytes.SequenceEqual(retainedDraftBytes))
-        throw new Exception("Resumed recovery did not bind its current draft bytes");
-    reopenedDraft.ResumeRecovery();
-    if (reopenedDraft.Draft is null || !reopenedDraft.Draft.Bytes.SequenceEqual(retainedDraftBytes) ||
-        reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Resume did not keep recovery separate from accepted identity");
-    var invalidImage = JsonNode.Parse(await File.ReadAllTextAsync(recoveryPath))!;
-    invalidImage["recovery"]!["utf8Base64Chunks"] = new JsonArray(Convert.ToBase64String(Encoding.UTF8.GetBytes("not FoilDSL")));
-    string invalidRecoveryPath = Path.Combine(Path.GetTempPath(), $"invalid-recovery-{Guid.NewGuid():N}.cfdw.json");
-    await File.WriteAllTextAsync(invalidRecoveryPath, invalidImage.ToJsonString());
-    using var invalidRecovery = new WorkbenchController();
-    try { await invalidRecovery.OpenPathAsync(invalidRecoveryPath); }
-    finally { File.Delete(invalidRecoveryPath); }
-    invalidRecovery.ResumeRecovery();
-    if (invalidRecovery.Draft is null ||
-        invalidRecovery.RecoverySource != "not FoilDSL" ||
-        invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Unprojectable recovery draft did not retain raw bytes and accepted source separately");
-    if (!invalidRecovery.DraftInputValid) throw new Exception("Unprojectable recovery was marked as invalid numeric input");
-    await invalidRecovery.PreviewAsync();
-    if (invalidRecovery.Provenance != "draft — unavailable geometry" ||
-        !invalidRecovery.DraftInputValid || invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
+    string recoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"recovery-{Guid.NewGuid():N}.cfdw.json");
+    string seedRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"seed-recovery-{Guid.NewGuid():N}.cfdw.json");
+    try
+    {
+        // The rail draft left after the per-control draft API retired is a resumed M1.2a recovery (golden bytes).
+        File.Copy("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/m12a-rail-recovery.cfdw", seedRecoveryPath);
+        using var savingDraft = new WorkbenchController();
+        await savingDraft.OpenPathAsync(seedRecoveryPath);
+        string acceptedBeforeDraft = savingDraft.Inspection!.Authored.Binding.SourceHash;
+        savingDraft.ResumeRecovery();
+        byte[] retainedDraftBytes = savingDraft.Draft!.Bytes;
+        var savedRecovery = await savingDraft.SaveAsync(recoveryPath);
+        if (savedRecovery.Code != "OK" || savingDraft.IsDirty)
+            throw new Exception("Durable recovery save did not settle the unchanged visible draft; save answered " + savedRecovery.Code);
+        using var reopenedDraft = new WorkbenchController();
+        await reopenedDraft.OpenPathAsync(recoveryPath);
+        if (!reopenedDraft.HasRecovery || reopenedDraft.Draft is not null ||
+            reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Native reopen did not offer a separate draft beside the original accepted source");
+        if (reopenedDraft.RecoverySource != Encoding.UTF8.GetString(retainedDraftBytes))
+            throw new Exception("Native recovery offer does not expose exact retained draft bytes");
+        using var recoveryReview = new WorkbenchController();
+        await new NativeReviewOptions("screen-reader", 1024, 700, "recovery", "high-contrast", true, recoveryPath)
+            .ApplyStateAsync(recoveryReview);
+        if (!recoveryReview.HasRecovery || recoveryReview.Draft is not null ||
+            recoveryReview.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Recovery review state bypassed the saved-project offer");
+        recoveryReview.ResumeRecovery();
+        if (recoveryReview.Draft is null || !recoveryReview.Draft.Bytes.SequenceEqual(retainedDraftBytes))
+            throw new Exception("Resumed recovery did not bind its current draft bytes");
+        reopenedDraft.ResumeRecovery();
+        if (reopenedDraft.Draft is null || !reopenedDraft.Draft.Bytes.SequenceEqual(retainedDraftBytes) ||
+            reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Resume did not keep recovery separate from accepted identity");
+        var invalidImage = JsonNode.Parse(await File.ReadAllTextAsync(recoveryPath))!;
+        invalidImage["recovery"]!["utf8Base64Chunks"] = new JsonArray(Convert.ToBase64String(Encoding.UTF8.GetBytes("not FoilDSL")));
+        string invalidRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-recovery-{Guid.NewGuid():N}.cfdw.json");
+        await File.WriteAllTextAsync(invalidRecoveryPath, invalidImage.ToJsonString());
+        using var invalidRecovery = new WorkbenchController();
+        try { await invalidRecovery.OpenPathAsync(invalidRecoveryPath); }
+        finally { File.Delete(invalidRecoveryPath); }
+        invalidRecovery.ResumeRecovery();
+        if (invalidRecovery.Draft is null ||
+            invalidRecovery.RecoverySource != "not FoilDSL" ||
+            invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Unprojectable recovery draft did not retain raw bytes and accepted source separately");
+        if (!invalidRecovery.DraftInputValid) throw new Exception("Unprojectable recovery was marked as invalid numeric input");
+        await invalidRecovery.PreviewAsync();
+        if (invalidRecovery.Provenance != "draft — unavailable geometry" ||
+            !invalidRecovery.DraftInputValid || invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
+        // Ruling 158 (5)-(7): a draft that is not a section has no station; the status is plain and ends with the code, never leads with it.
+        if (!invalidRecovery.Status.StartsWith("This shape ", StringComparison.Ordinal) ||
+            !invalidRecovery.Status.Contains(" (", StringComparison.Ordinal) ||
+            !invalidRecovery.Status.Contains("The last valid shape is still shown", StringComparison.Ordinal) ||
+            invalidRecovery.Status.Contains("Draft ", StringComparison.Ordinal))
+            throw new Exception("Unavailable draft status is not the Ruling 158 sentence: " + invalidRecovery.Status);
+    }
+    finally { File.Delete(recoveryPath); File.Delete(seedRecoveryPath); }
 }
-finally { File.Delete(recoveryPath); File.Delete(seedRecoveryPath); }
 Console.WriteLine("Desktop Example, bounded preview, cancel, apply, undo and redo passed.");
 
 AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
@@ -440,13 +458,15 @@ Stage("spawn");
 // controller-shell 21.0, views 18.1/16.7, analysis 16.7, properties-cells 9.6/9.5, status-strip 8.5/6.2/6.0. `--analysis`
 // had been last and started at about 25 s, so it set the Desktop wall; on 10 slots it now starts with the second wave.
 if (themeEvidence) Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--theme-matrix"));
-Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
+int spawnedExit = CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
     "--section-editor --part=1/2", "--properties-view --part=1/2", "--shell-window --part=2/2",
     "--section-editor --part=2/2", "--properties-view --part=2/2", "--shell-window --part=1/2",
     "--plan-canvas --part=2/2", "--plan-canvas --part=1/2", "--controller-shell",
     "--views --part=1/2", "--analysis", "--views --part=2/2",
     "--properties-cells --part=2/2", "--properties-cells --part=1/2", "--status-strip --part=1/3",
-    "--status-strip --part=2/3", "--status-strip --part=3/3", "--shell-model"));
+    "--status-strip --part=2/3", "--status-strip --part=3/3", "--shell-model");
+// The in-process checks above fail the run too, not only the child suites.
+Environment.Exit(spawnedExit != 0 ? spawnedExit : CfdWorkbench.Desktop.Tests.DesktopChecks.FailureCount > 0 ? 1 : 0);
 
 sealed class UncertainStore : IProjectStore
 {
@@ -497,6 +517,9 @@ namespace CfdWorkbench.Desktop.Tests
     public static class DesktopChecks
     {
         private static int failures;
+
+        /// <summary>Checks that printed FAIL in this process; the default run folds it into its exit code.</summary>
+        public static int FailureCount => failures;
 
         /// <summary>
         /// Ruling 81 (DR-RDY-1): a frame-time readiness budget fails only when the machine is quiet. Above the gate, or where the

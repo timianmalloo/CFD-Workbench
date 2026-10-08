@@ -85,6 +85,12 @@ def run_lesson_controls():
         ("check-wallclock-asserts.py", ()),
         ("check-text-mode-hash.py", ("--self-test",)),
         ("check-text-mode-hash.py", ()),
+        ("check-proof-pii.py", ("--self-test",)),
+        ("check-proof-pii.py", ()),
+        ("check-reader-sharing.py", ("--self-test",)),
+        ("check-reader-sharing.py", ()),
+        ("check-expected-failures.py", ("--self-test",)),
+        ("merge-defect-register.py", ("--self-test",)),  # JOIN-LOG-CONFLICT; fast ring, ~0.05 s
         ("dispatch-gate.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ()),

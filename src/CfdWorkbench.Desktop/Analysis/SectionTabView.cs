@@ -140,16 +140,21 @@ public sealed class SectionTabView : UserControl
         left.Children.Add(legend);
         Refresh();
         // The mockup's compact Stations table replaces the "Station" name row (the header carries it) and the text "Stations" group.
-        if (Shown.StationTable is { } stations) right.Children.Add(StationsTable(stations));
+        if (Shown.StationTable is { } stations) right.Children.Add(StationsTable(stations, Shown.StationsCaption));
         foreach (ResultGroup group in Shown.Groups.Where(g => Shown.StationTable is null || g.Title is not ("Station" or "Stations"))) right.Children.Add(AnalysisPanel.Table("section-" + group.Title.ToLowerInvariant().Replace(' ', '-').Replace("-", "") + "-table", group));
     }
 
     // Station (η) · α_eff ° · −Cp_min · Cavitation; the shown station is highlighted and named "shown" for assistive technology.
-    private static StackPanel StationsTable(IReadOnlyList<StationTableRow> rows)
+    private static StackPanel StationsTable(IReadOnlyList<StationTableRow> rows, string? caption)
     {
         var table = new StackPanel { Name = "section-stations-table", Margin = new Thickness(0, 0, 0, 6) };
         AutomationProperties.SetName(table, "Stations");
         table.Children.Add(new TextBlock { Text = "Stations", Classes = { "pnl-head" } });
+        if (caption is not null) // Ruling 147, COPY-411: the count above the table; assistive technology reads it as the table's description
+        {
+            table.Children.Add(new TextBlock { Name = "section-stations-caption", Text = caption, Classes = { "pnl-note" }, Margin = new Thickness(4, 0, 4, 2) });
+            AutomationProperties.SetHelpText(table, caption);
+        }
         Grid Row(params string[] cells)
         {
             var grid = new Grid { ColumnDefinitions = new ColumnDefinitions("*,*,*,2*") };

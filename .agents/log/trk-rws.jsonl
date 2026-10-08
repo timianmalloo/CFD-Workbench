@@ -1,0 +1,2 @@
+{"agent": "trk-rws", "at": 1791489505.781492, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-rws", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-inv-rws-record-path"}
+{"agent": "trk-rws", "at": 1791491445.447954, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-rws", "wi": "WI-0", "worktree": "CFD-Workbench-inv-rws-record-path"}

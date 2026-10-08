@@ -1,0 +1,1 @@
+/mnt/c/Projects/CFD-Workbench-win-w4-validation/docs/proof/win-naca/start-l3.sh: line 4: CFDW_START_NOTE_REF: Coordinator must supply the durable Ruling 79 start-note reference

@@ -1,0 +1,38 @@
+{"tag": "l6-stage-parent", "argv": ["wsl", "-d", "cfdw-openfoam2512", "-u", "root", "--", "mkdir", "-p", "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6"], "started_utc": "2026-10-08T14:43:50.805955+00:00", "elapsed_seconds": 1.8976723999949172, "exit_code": 0, "raw_output": "docs/proof/win-naca/l6-stage-parent.txt"}
+
+{"tag": "l6-stage-inputs", "argv": ["wsl", "-d", "cfdw-openfoam2512", "-u", "root", "--", "cp", "-a", "/mnt/c/Projects/CFD-Workbench-win-w4-validation/docs/proof/win-naca/l6-inputs/.", "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6/"], "started_utc": "2026-10-08T14:43:52.781333+00:00", "elapsed_seconds": 0.32134779999614693, "exit_code": 0, "raw_output": "docs/proof/win-naca/l6-stage-inputs.txt"}
+
+{"tag": "l6-tree-init", "argv": ["wsl", "-d", "cfdw-openfoam2512", "-u", "root", "--", "python3", "/mnt/c/Projects/CFD-Workbench-win-w4-validation/cases/tools/launcher-record.py", "init", "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6"], "started_utc": "2026-10-08T14:43:53.186083+00:00", "elapsed_seconds": 0.1534154000109993, "exit_code": 0, "raw_output": "docs/proof/win-naca/l6-tree-init.txt"}
+launcher-record: init files=16 manifest=0aacab97b929 record=runs/.launcher/283e89c07eac94807929
+
+{"tag": "l6-checkMesh", "argv": ["wsl", "-d", "cfdw-openfoam2512", "-u", "root", "--", "env", "-i", "PATH=/usr/bin:/bin", "HOME=/root", "USER=root", "LOGNAME=root", "LANG=C", "bash", "--noprofile", "--norc", "/mnt/c/Projects/CFD-Workbench-win-w4-validation/docs/proof/win-naca/of-command.sh", "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6", "checkMesh", "checkMesh"], "started_utc": "2026-10-08T14:43:53.431864+00:00", "elapsed_seconds": 0.606189699989045, "exit_code": 0, "raw_output": "docs/proof/win-naca/l6-checkMesh.txt"}
+launcher-record: verified files=16
+lint: clean files_listed=11 findings=0
+launcher-record: updated files=18
+
+{"tag": "l6-decomposePar", "argv": ["wsl", "-d", "cfdw-openfoam2512", "-u", "root", "--", "env", "-i", "PATH=/usr/bin:/bin", "HOME=/root", "USER=root", "LOGNAME=root", "LANG=C", "bash", "--noprofile", "--norc", "/mnt/c/Projects/CFD-Workbench-win-w4-validation/docs/proof/win-naca/of-command.sh", "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6", "decomposePar", "decomposePar", "-force"], "started_utc": "2026-10-08T14:43:54.132282+00:00", "elapsed_seconds": 0.5453289000142831, "exit_code": 0, "raw_output": "docs/proof/win-naca/l6-decomposePar.txt"}
+launcher-record: verified files=18
+lint: clean files_listed=11 findings=0
+launcher-record: updated files=48
+
+{"tag": "l6-simpleFoam", "argv": ["wsl", "-d", "cfdw-openfoam2512", "-u", "root", "--", "env", "-i", "PATH=/usr/bin:/bin", "HOME=/root", "USER=root", "LOGNAME=root", "LANG=C", "bash", "--noprofile", "--norc", "/mnt/c/Projects/CFD-Workbench-win-w4-validation/docs/proof/win-naca/of-command.sh", "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6", "simpleFoam", "simpleFoam"], "started_utc": "2026-10-08T14:43:54.777804+00:00", "elapsed_seconds": 60.447841899993364, "exit_code": 0, "raw_output": "docs/proof/win-naca/l6-simpleFoam.txt"}
+launcher-record: verified files=48
+lint: clean files_listed=11 findings=0
+launcher-record: updated files=70
+
+{"tag": "l6-reconstructPar", "argv": ["wsl", "-d", "cfdw-openfoam2512", "-u", "root", "--", "env", "-i", "PATH=/usr/bin:/bin", "HOME=/root", "USER=root", "LOGNAME=root", "LANG=C", "bash", "--noprofile", "--norc", "/mnt/c/Projects/CFD-Workbench-win-w4-validation/docs/proof/win-naca/of-command.sh", "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6", "reconstructPar", "reconstructPar", "-latestTime"], "started_utc": "2026-10-08T14:44:55.319059+00:00", "elapsed_seconds": 0.5545414999942295, "exit_code": 0, "raw_output": "docs/proof/win-naca/l6-reconstructPar.txt"}
+launcher-record: verified files=70
+lint: clean files_listed=11 findings=0
+launcher-record: updated files=79
+
+{"tag": "l6-convergence", "argv": ["wsl", "-d", "cfdw-openfoam2512", "-u", "root", "--", "python3", "/mnt/c/Projects/CFD-Workbench-win-w4-validation/docs/proof/win-naca/a4-monitor-linux.py", "report", "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6", "simpleFoam", "/mnt/c/Projects/CFD-Workbench-win-w4-validation/cases/win-spike04r3-g0-l6.yaml"], "started_utc": "2026-10-08T14:44:55.962978+00:00", "elapsed_seconds": 0.19798549998085946, "exit_code": 0, "raw_output": "docs/proof/win-naca/l6-convergence.txt"}
+iterations=7577 A4=MET
+clauses 1_residual_drop=pass 2_stationarity=pass 3_clean_window=pass
+residual_ratio_last2_over_first Ux=4.717e-10 Uy=1.377e-08 nuTilda=3.250e-09 p=1.842e-08
+window iterations 5578..7577 (W=2000)
+Cl_window_mean=1.051599294 Cl_U_I=1.942e-06 cap=1.0e-05 Cl_last=1.051599536
+Cd_window_mean=0.014812115 Cd_U_I=8.962e-07 cap=1.0e-06 Cd_last=0.014811238
+bounding_nuTilda_iterations_in_window=0
+stopped_by_A4=A4 met at iteration 7571; SIGUSR1 sent to pids 998 999 at 2026-10-08T07:44:56-0700
+
+L6 raw evidence archived: C:\Projects\CFD-Workbench-win-w4-validation\docs\proof\win-naca\l6-results

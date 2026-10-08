@@ -144,6 +144,7 @@ public static class Labels
     public static string TipNotJudgedSuffix(int count) => count > 0 ? $"; {count} {(count == 1 ? "station" : "stations")} {TipNotJudged}" : "";
     public static string StationCavitationLine(double eta, double depth, int count) => // COPY-304
         $"Governing station: η {Number(eta, "0.###")} · depth {Number(depth, "0.###")} m · smallest σ / (−Cp_min) of {count} stations";
+    public static string StationsShown(int shown, int judged) => $"{shown} of {judged} stations shown — solved, governing and selected"; // COPY-411 (Ruling 147)
     public static string CpMinWhere(double x, string side, int stations) => // DX row 8
         $"at x/c {Number(x, "0.###")} on the {side} surface · {stations} stations · three trailing-edge panels per side excluded";
     public static string ReInside(double re, double min, double max) => $"Re_local {Sci(re)} inside {Sci(min)} to {Sci(max)}"; // COPY-322
@@ -295,7 +296,16 @@ public static class Labels
     public const string LocalInflowWhy = "tilts the flow by α_i"; // COPY-SF3
     public static string AnchorCp(double xOverC) => "CP (lattice) · x/c " + Signed(xOverC, "0.00"); // COPY-SF4
     public const string AnchorQuarter = "c/4 · arrows start here · x_cp Undefined"; // COPY-SF5
-    public static string CoupleLabel(double value, Units units) => "M′ c/4 (lattice) " + Sig3(MomentPerSpan(value, units)) + " " + MomentPerSpanUnit(units); // COPY-SF6
+    /// <summary>
+    /// The couple's number, one definition for the profile label and the strip-table row. A couple below <see cref="RoundOffFloor"/> of its
+    /// scale <paramref name="scale"/> (q c², N) is floating-point residue, not a physical value, and prints as zero does ("0.00").
+    /// </summary>
+    public static string CoupleValue(double couple, double scale, Units units) =>
+        Sig3(Math.Abs(couple) < RoundOffFloor * scale ? 0 : MomentPerSpan(couple, units));
+    // assume: double round-off in the lattice solve is many orders below 1e-9 of q c²; confirmed by the measured residue at nc = 1
+    // (couple/q c² = 1.2e-17, docs/proof/num/red-first.md); if false, a real small couple would show as 0.00.
+    private const double RoundOffFloor = 1e-9;
+    public static string CoupleLabel(double value, double scale, Units units) => "M′ c/4 (lattice) " + CoupleValue(value, scale, units) + " " + MomentPerSpanUnit(units); // COPY-SF6
     public static string ProfileDragLabel(double low, double high, Units units, int multiple, bool lowConfidence) => // COPY-SF7, SF10
         "D′ profile (polar, Ncrit 2–4) " + DragBand(low, high, units) + " " + ForcePerSpanUnit(units) + " · ×" + multiple + (lowConfidence ? " " + LowConfidenceSuffix : "");
     public static string InducedDragLabel(double value, Units units, int multiple) => // COPY-SF8
@@ -310,15 +320,84 @@ public static class Labels
         AlphaGeoRow = "α_geo", AlphaEffRow = "α_eff (lattice)", AlphaIRow = "α_i (lattice)", XcpRow = "x_cp/c (lattice)", LiftRow = "L′ (lattice)",
         CoupleRow = "M′ c/4 (lattice)", ProfileDragRow = "D′ profile (polar, Ncrit 2–4)", InducedDragRow = "D′ induced (lattice)",
         TotalDragRow = "D′ profile + induced (band centre), free-stream axes";
-    public static string LatticeBias(int nChord) => $"lattice, {nChord} chordwise panels; biased forward at low lift"; // COPY-SF17 (Ruling 131)
+    public static string LatticeBias(int nChord) => $"lattice, {nChord} chordwise {(nChord == 1 ? "panel" : "panels")}; biased forward at low lift"; // COPY-SF17 (Ruling 131)
     public static string XcpRowLabel(int nChord) => "x_cp/c (" + LatticeBias(nChord) + ")";
     public static string CoupleRowLabel(int nChord) => "M′ c/4 (" + LatticeBias(nChord) + ")";
     public const string XcpNearZeroLift = "Undefined · near zero lift: |cl| is below 0.05"; // COPY-SF13
     public const string XcpOffSection = "Undefined · the centre of pressure is off the section"; // COPY-SF14
     public const string CouplePlaceNote = "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn."; // COPY-SF15
-    public static string SaveFailed(string cause) => $"Save failed: {cause} — the previous file is intact and your changes are kept. Retry or Save As."; // COPY-31 (Ruling 134)
+    private static string SaveFailed(string cause, string code, string tail) => $"Save failed: {cause} ({code}) — the previous file is intact and your changes are kept. {tail}"; // COPY-31 (Ruling 134), cause per COPY-412 to 422 (Ruling 155)
     public const string SaveUnavailable = "Saving isn't available on this system yet — your changes are kept in this session."; // COPY-31W (Ruling 134)
-    /// <summary>The strip sentence for a refused or failed foil save; the code is the cause until a per-cause wording is ruled.</summary>
-    public static string SaveRefusal(string code) => code == "DOC-UNSUPPORTED-PERSISTENCE" ? SaveUnavailable : SaveFailed(code);
+    public const string SaveUncertain = "Save not confirmed: CFD Workbench couldn't tell whether the file was fully written (DOC-SAVE-UNCERTAIN). Your changes are kept and still marked unsaved. Retry to check the file, or Save As."; // COPY-421 (Ruling 155)
+
+    /// <summary>The strip sentence for a refused or failed foil save: one cause row per code family (COPY-412 to 423, Ruling 155). An unknown code gets the generic row, which still carries the code.</summary>
+    public static string SaveRefusal(string code) => code switch
+    {
+        "DOC-UNSUPPORTED-PERSISTENCE" => SaveUnavailable,
+        "DOC-SAVE-UNCERTAIN" => SaveUncertain,
+        "DOC-IO" => SaveFailed("the disk couldn't be written", code, "Retry or Save As."), // COPY-412
+        "DOC-DISK-FULL" => SaveFailed("the disk is full", code, "Free some space, then Retry or Save As."), // COPY-413
+        "DOC-CONFLICT" => SaveFailed("the file is in use by another program, or it changed since you opened it", code, "Close the other program and Retry, or Save As."), // COPY-414
+        "DOC-CANCELLED" => SaveFailed("the save was cancelled", code, "Retry or Save As."), // COPY-415
+        "DOC-SAVE-PENDING" => SaveFailed("another save is still running", code, "Wait for it to finish, then Retry."), // COPY-416
+        "DOC-CLOSED" => SaveFailed("this project was closed", code, "Open the project again."), // COPY-417
+        "DOC-SIZE" => SaveFailed("the project is larger than CFD Workbench can save", code, "Save As won't help; remove content first."), // COPY-418
+        "DOC-TYPE" => SaveFailed("the file name must end in .cfdw.json", code, "Choose another name."), // COPY-419
+        "DSL-DRAFT-OWNED" or "DSL-INVALID-NUMERIC" => SaveFailed("a change is still in progress", code, "Finish or cancel the change, then Save."), // COPY-420
+        "DOC-HASH" or "DOC-OPERATION" or "DOC-SAVE-CAPTURE" or "DOC-INTEGRITY" or "DOC-ID" or "DOC-EMPTY" =>
+            SaveFailed("CFD Workbench's own check of the project data failed", code, "Retry; if it happens again, Save As and report it."), // COPY-422
+        _ => $"Save failed: something unexpected stopped the save ({code}). Your changes are kept in this session. Check the file before relying on it, then Retry or Save As." // COPY-423
+    };
+
+    /// <summary>The fallback sentence for a refused edit or source (COPY-425 to 431, Ruling 155), used only when the code has no specific approved text.
+    /// <paramref name="reason"/> is the detail of a DSL-IMPORT report (COPY-430); no other row takes it.</summary>
+    public static string Refusal(string code, string? reason = null) => code switch
+    {
+        "DSL-LOCK" or "DSL-CURVE" or "DSL-GROUP-HANDLE" or "DSL-GROUP-NEIGHBOUR" or "DSL-GROUP-RANGE" or "DSL-GROUP-SPAN-SET" or "DSL-PROFILE-ORDER"
+            or "DSL-PROFILE-CROSS" or "DSL-EDGES-CROSS" or "DSL-UNIT" or "DSL-GEOMETRY" or "DSL-TOLERANCE" or "DSL-TIP-CHORD-MIN" =>
+            $"This change wasn't applied: the shape can't take it as entered ({code}). Nothing changed. Adjust it and try again.", // COPY-425
+        "DSL-TARGET" or "DSL-PROFILE-TARGET" or "DSL-ID" or "DSL-CONFLICT" or "DSL-STALE" or "DSL-VALIDATION-BUSY" or "DSL-DRAFT-REUSED"
+            or "DSL-CANCELLED" or "DOC-OPERATION-CONFLICT" =>
+            $"This change wasn't applied: what it pointed at has changed or is busy ({code}). Nothing changed. Try again.", // COPY-426
+        "DSL-SYNTAX" or "DSL-LEX" or "DSL-LEGACY" or "DSL-REFERENCE" or "DSL-INVALID" or "DSL-UNSUPPORTED" =>
+            $"This source can't be accepted: it isn't valid foil source ({code}). The original is kept, read-only, and nothing was changed.", // COPY-427
+        "DSL-VERSION" => $"This source can't be accepted: it was written for a version of the foil format this build doesn't read ({code}). The original is kept, read-only, and nothing was changed.", // COPY-428
+        "DSL-LIMIT" => $"This source can't be accepted: it is larger than CFD Workbench can read ({code}). The original is kept, read-only, and nothing was changed.", // COPY-429
+        "DSL-IMPORT" => $"This file can't be imported as a section ({code}){(string.IsNullOrWhiteSpace(reason) ? "" : " — " + reason)}. Nothing was changed.", // COPY-430
+        _ => $"Something unexpected stopped this ({code}). Nothing changed." // COPY-431
+    };
+
+    private const string KeptUnsaved = " Your changes are kept and still marked unsaved. ";
+
+    /// <summary>The status after an uncertain save whose file could not be read back (COPY-432, Ruling 158).</summary>
+    public static string ReadBackFailed(string code) => $"Couldn't check the saved file ({code}).{KeptUnsaved}Retry, or use Save As."; // COPY-432
+    /// <summary>The status when the retried save is not confirmed (COPY-433 with a code, COPY-434 for OK, which is never shown, Ruling 158).</summary>
+    public static string RetryNotConfirmed(string code) => code == "OK"
+        ? $"Save still not confirmed: the disk didn't confirm the file was stored.{KeptUnsaved}Retry, or use Save As." // COPY-434
+        : $"Save still not confirmed ({code}).{KeptUnsaved}Retry, or use Save As."; // COPY-433
+    public const string DiskChangedAfterSave = "The file on disk changed after this save was attempted. Your changes are kept and still marked unsaved. Use Save As to keep them without overwriting the other version."; // COPY-435 (Ruling 158)
+
+    /// <summary>The status for a draft that cannot be certified (COPY-436 to 438, Ruling 158). <paramref name="station"/> is the station's display name;
+    /// a draft that is not a section has none, and the sentence then starts "This shape". Certified never reaches here. With no reasons the " — reasons" clause is left out.</summary>
+    public static string DraftUnavailable(GeometryStatus status, string? station, string code, string reasons)
+    {
+        string lead = station is null ? "This shape" : station + ": this shape";
+        string because = string.IsNullOrWhiteSpace(reasons) ? "" : " — " + reasons;
+        const string shown = " The last valid shape is still shown";
+        return status switch
+        {
+            GeometryStatus.Invalid => $"{lead} isn't valid yet{because} ({code}).{shown}.", // COPY-436
+            GeometryStatus.Unsupported => $"{lead} uses something CFD Workbench can't check yet{because} ({code}).{shown}.", // COPY-437
+            _ => $"{lead} couldn't be checked in time ({code}).{shown}; keep editing or try again." // COPY-438 (NotAssessed)
+        };
+    }
+
+    /// <summary>The status when drawing the accepted slice failed (COPY-439, Ruling 159). <paramref name="station"/> is the display name; none gives the sentence without it.</summary>
+    public static string DrawFailed(string? station, string code) => station is null
+        ? $"Couldn't draw this shape ({code}). The shape itself is unchanged." // COPY-439
+        : $"{station}: couldn't draw this shape ({code}). The shape itself is unchanged."; // COPY-439
+
+    /// <summary>The second line under an open failure's approved sentence (COPY-424, Ruling 155).</summary>
+    public static string OpenCodeLine(string code) => "Code: " + code; // COPY-424
     public static readonly string[] VectorKey = ["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16
 }

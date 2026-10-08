@@ -1,0 +1,14 @@
+Cycle 1 attempt output, as observed in the terminal; the capture script itself had been repaired, but its nested
+PowerShell argument quoting did not pass a source filename to Bash.
+
+Probe exit: 127
+Resolved binary observed by the separate metadata subcommand: /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/cartesianMesh
+Version helper result: bash: line 1: foamVersion: command not found
+Probe stderr:
+/usr/lib/openfoam/openfoam2512/etc/bashrc: line 1: source: filename argument required
+source: usage: source filename [arguments]
+/bin/bash: line 1: cartesianMesh: command not found
+
+The displayed resolved path came from a separate subcommand with a different shell setup and is not evidence that
+the malformed help invocation reached the binary. This is a reconstructed console receipt from the observed tool
+output; a separate raw stream file was not retained for cycle 1.

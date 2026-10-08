@@ -67,8 +67,8 @@
   },
   {
     "path": "docs/proof/win-routes/delivery-docs-check.txt",
-    "bytes": 7629,
-    "sha256": "7546045ff876398076926b74f968ed4b9940f90927bf2612ce869b012e6cf9a3",
+    "bytes": 7625,
+    "sha256": "aa46ba74d626a851121c7a1ea7e5fcc800ab472adc720d56d51f777c7671a60b",
     "staged_blob_equal": true
   },
   {
@@ -91,8 +91,8 @@
   },
   {
     "path": "docs/proof/win-routes/final-docs-check.txt",
-    "bytes": 7691,
-    "sha256": "8a7d07daa7016ea7d52dd41fb9bf06c2fb1cc3bffde559f034c0481caa35f30f",
+    "bytes": 7687,
+    "sha256": "f5d6227e64fbd65dd0826fffb50c01a2fe697748daa4084f5491e104556864cf",
     "staged_blob_equal": true
   },
   {
@@ -205,8 +205,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133.py",
-    "bytes": 11451,
-    "sha256": "e80693d0f871834836585b1224838617f0ee9efee220cab7489bd2dfa21197d0",
+    "bytes": 11508,
+    "sha256": "1f6116b169a0dda32a5baf624edb5761ec2371342a1988aadc2f98fb7f819977",
     "staged_blob_equal": true
   },
   {
@@ -415,8 +415,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/docs-check.txt",
-    "bytes": 7519,
-    "sha256": "239389f11c1e285ba99b4ab1674fd67bc9a5777d03d9db484de24400e31dc0e9",
+    "bytes": 7515,
+    "sha256": "657491d4b783b38bc6b2ec2f27df13491a653174f281c6f7af77797650cc6ef3",
     "staged_blob_equal": true
   },
   {
@@ -433,8 +433,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/fixture-observed-sha256.txt",
-    "bytes": 166,
-    "sha256": "7503148da5686297059dc5bd40edc461551fa7be87e53a4699ad26de2fa49156",
+    "bytes": 153,
+    "sha256": "c695f077f2ad5f24919c773470985cb8b93c955dc2ea72ecce09ff2d2f861daf",
     "staged_blob_equal": true
   },
   {
@@ -679,8 +679,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/raw-ring/run.json",
-    "bytes": 3990,
-    "sha256": "abda2b9ceec7168cb1dec1bd0ed08e56d20b2bc62f7ce456e860a48eed091fc4",
+    "bytes": 3987,
+    "sha256": "84fc9b114f61c28403250fe289a9a086a34b55fd2dd8668c37198f9726faf85d",
     "staged_blob_equal": true
   },
   {
@@ -709,8 +709,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/ring-docs-check.txt",
-    "bytes": 7519,
-    "sha256": "a641a2ee9e3b27c351f2e4d4b6a8dffdf8c6c1078b0068d9ec1215b7ffc8fe2a",
+    "bytes": 7515,
+    "sha256": "ec1500a50c841a1df3242238df5f300d97501f3097075be8f14bdb3bcba06bb5",
     "staged_blob_equal": true
   },
   {
@@ -727,8 +727,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/run-application-ring.py",
-    "bytes": 2276,
-    "sha256": "cfc68c2d80d64e67fb15ba171a9fdcb69812309fd74a3085c36e19e666db6336",
+    "bytes": 2286,
+    "sha256": "5913748eeafae85f68f3dd8c325395f60deba8d697d42e8d41819308592cab08",
     "staged_blob_equal": true
   },
   {
@@ -745,8 +745,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/steps.jsonl",
-    "bytes": 16453,
-    "sha256": "8b488a303adf2d424e68ad17c1af3eede82f5303ed82d8f865041edf897a3386",
+    "bytes": 16424,
+    "sha256": "dbf8ee495c9053c378ccf3d0508466628762f50456cf86e3472a89307fd97480",
     "staged_blob_equal": true
   },
   {
@@ -757,8 +757,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/su2-resources.json",
-    "bytes": 630,
-    "sha256": "2022a1079c67efb90954bec3f319d9cbea39eccd9e7d49f57d5e7d8480ed96bb",
+    "bytes": 627,
+    "sha256": "e31c23efe00ccbe3ed4451937285dcf0587955f6fb00d5a07fc9d221d096c509",
     "staged_blob_equal": true
   },
   {
@@ -769,8 +769,8 @@
   },
   {
     "path": "docs/proof/win-routes/r133/summarize-ring.py",
-    "bytes": 6790,
-    "sha256": "50e9234818bdab2d88ff58c3640395a2b2fc744690ff05111a3aa64f74db4202",
+    "bytes": 6787,
+    "sha256": "1719ec285fe2f28867957b85ca8f95382f9115a57d7095bf6127fb0414b8b8ae",
     "staged_blob_equal": true
   },
   {
@@ -793,14 +793,14 @@
   },
   {
     "path": "docs/proof/win-routes/receipt-docs-check.txt",
-    "bytes": 7748,
-    "sha256": "9f283ad1293c38645d0e16bbfd411a1f25083221abdabf30816eb632b4b2608f",
+    "bytes": 7744,
+    "sha256": "fc7a19673dea0787407389a507f6d5a1b7d7789c3c5b3f4d73db57d9564b3509",
     "staged_blob_equal": true
   },
   {
     "path": "docs/proof/win-routes/receipt.md",
-    "bytes": 23062,
-    "sha256": "68bc4f4649b40b5ad397aad97d5b001d430d69ec9e2986822b29f04d68a19596",
+    "bytes": 23061,
+    "sha256": "cd327ec8eaa6c8e9527313f839485de2a6b4c1e11eb9b0999e28dce518a42419",
     "staged_blob_equal": true
   },
   {
@@ -829,8 +829,8 @@
   },
   {
     "path": "docs/proof/win-routes/steps.jsonl",
-    "bytes": 14818,
-    "sha256": "fa2ab67774e922bb7ee7ea48f2f3b53622e55f50496fe538f980f88ad8c9c01b",
+    "bytes": 14794,
+    "sha256": "3548e5c05e342f7139ec1a5083c74772fd91c772cee2b7aff566e61ff0136fb9",
     "staged_blob_equal": true
   },
   {
@@ -859,8 +859,8 @@
   },
   {
     "path": "docs/proof/win-routes/su2-identify.txt",
-    "bytes": 587,
-    "sha256": "4656a4d6e0a9aa0e8be6405e6d43a62b706fcb3c13b3145105b7cecbcd7471ba",
+    "bytes": 586,
+    "sha256": "d7a5f126dcc71db4862c25db63218367b192999b6262331ed03e2eab95997c24",
     "staged_blob_equal": true
   },
   {

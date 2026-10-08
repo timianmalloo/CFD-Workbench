@@ -36,8 +36,10 @@ public static class SelfLaunchTests
         Check(failures, "no raw Environment.ProcessPath relaunch", () => NoRawProcessPathRelaunch());
         Check(failures, "no test resolves the repo root at runtime", () => NoRuntimeRepoRootWalk());
         Check(failures, "no cwd-relative tests/ or src/ fixture path", () => NoCwdRelativeFixturePath());
+        Check(failures, "no Desktop, Core or Cli test builds a scratch path from the raw temp directory", () => NoRawTempPath());
+        Check(failures, "no test passes a literal windows: true|false to a platform branch without a host guard", () => NoForeignOsBranchWithoutHostGuard());
         if (failures.Count > 0) throw new Exception("SelfLaunchTests failed:\n  " + string.Join("\n  ", failures));
-        Console.WriteLine("SelfLaunchTests: all 7 cases passed.");
+        Console.WriteLine("SelfLaunchTests: all 9 cases passed.");
     }
 
     // WFX2 item 1: the Windows ring died with "APP-CRASH System.Exception" and no frame. The harness handler adds the message and stack;
@@ -128,6 +130,54 @@ public static class SelfLaunchTests
                            File.ReadAllText(file).Contains("Environment.ProcessPath", StringComparison.Ordinal))
             .Select(file => Path.GetRelativePath(root, file)).ToList();
         if (offenders.Count > 0) throw new Exception("use SelfLaunch.StartInfo in " + string.Join(", ", offenders));
+    }
+
+    // Defect class TEST-TMP-ALIAS (docs/lessons/defect-classes.md): the store refuses a symlinked path and macOS's default TMPDIR is
+    // under the /var link, so a test that takes the raw system temp directory or temp-file name fails outside
+    // tools/run-tests.sh's exported TMPDIR. The file that defines a project's `static class TestTemp` is the one place that may call them (Core keeps it in LayoutFileTests.cs, a store test file: tools/store_subset.py). Scans the Desktop, Core
+    // and Cli test projects (Analysis tests have no raw temp site). Ring: fast (every join), ~15 ms.
+    private static void NoRawTempPath([CallerFilePath] string self = "")
+    {
+        var tests = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, ".."));
+        var offenders = new[] { "CfdWorkbench.Desktop.Tests", "CfdWorkbench.Core.Tests", "CfdWorkbench.Cli.Tests" }
+            .SelectMany(project => Directory.EnumerateFiles(Path.Combine(tests, project), "*.cs", SearchOption.AllDirectories))
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                           !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                           Path.GetFileName(file) is not "SelfLaunch.cs")
+            .Where(file =>
+            {
+                string text = File.ReadAllText(file);
+                return !text.Contains("static class TestTemp", StringComparison.Ordinal) &&
+                       (text.Contains("GetTempPath", StringComparison.Ordinal) || text.Contains("GetTempFileName", StringComparison.Ordinal));
+            })
+            .Select(file => Path.GetRelativePath(tests, file)).ToList();
+        if (offenders.Count > 0) throw new Exception("use TestTemp.Root / TestTemp.NewDirectory instead of the raw temp path in " + string.Join(", ", offenders));
+    }
+
+    // Defect class TEST-FOREIGN-OS-BRANCH (docs/lessons/defect-classes.md): a test that passes a literal `windows: true|false` to a
+    // platform branch runs the other OS's code on the host unless an OperatingSystem.Is* line sits in the same method before the call.
+    // Ring: fast (every join), ~15 ms.
+    private static void NoForeignOsBranchWithoutHostGuard([CallerFilePath] string self = "")
+    {
+        var tests = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(self)!, ".."));
+        var literal = new Regex(@"\bwindows:\s*(true|false)\b");
+        var declaration = new Regex(@"^\s*(?:(?:private|internal|public)\s+)?static\s");
+        var offenders = new List<string>();
+        foreach (string file in Directory.EnumerateFiles(tests, "*.cs", SearchOption.AllDirectories))
+        {
+            if (file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal) ||
+                file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal) ||
+                string.Equals(file, self, StringComparison.Ordinal)) continue;
+            string[] lines = File.ReadAllLines(file);
+            int declared = -1, guarded = -1;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (declaration.IsMatch(lines[i])) { declared = i; guarded = -1; }
+                if (lines[i].Contains("OperatingSystem.Is", StringComparison.Ordinal)) guarded = i;
+                if (literal.IsMatch(lines[i]) && guarded <= declared) offenders.Add($"{Path.GetRelativePath(tests, file)}:{i + 1}");
+            }
+        }
+        if (offenders.Count > 0) throw new Exception("guard the call with OperatingSystem.IsWindows() / !IsWindows() in " + string.Join(", ", offenders));
     }
 
     // Track TEST-REPO-LAYOUT (docs/lessons/defect-classes.md): a test that walks AppContext.BaseDirectory

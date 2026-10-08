@@ -1,0 +1,12 @@
+== without the driver registered (fresh clone fallback)
+merge exit: 1 (non-zero = normal conflict)
+1
+== with tools/install-merge-drivers.sh run in the scratch repo
+merge exit: 0
+# Register
+
+**A · T.** a.
+
+**C · T.** c.
+
+**B · T.** b.

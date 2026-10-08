@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "host": "windows",
+  "about": "Known-expected failures of the Windows ring, each keyed to its ruling. A FAIL counts as expected only when its name and its fragment both match. A listed test that passes is UNEXPECTED-PASS (stale entry): delete it when W-2 B2 lands. No effect on macOS. Checker: tools/check-expected-failures.py.",
+  "entries": [
+    {
+      "name": "WindowsNative_Replace_HeldReaderKeepsOldImage",
+      "ruling": "145",
+      "class": "historical-probe",
+      "until": "W-2 B2 lands",
+      "fragment": "Win32=32"
+    },
+    {
+      "name": "Library_DuplicateIgnoringCaseNfc_Refused",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Library_StaleClaim_ReportedNotDeleted",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Library_SecondInstanceSameRoot_EntryListed",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Library_Save_PublishesHashNamedFile",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Library_WriteFails_NothingPublished",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Library_EntryBytes_ParseAsStandaloneSection",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Library_ScanNameCollision_BothReported",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Rollback_V2Oversized_BytesUnchanged",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Rollback_TextSizeV2_BytesUnchanged",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Rollback_V2UnknownTopLevel_BytesUnchanged",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Rollback_V2UnknownWorkspaceMember_BytesUnchanged",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Recent_ClearFails_ReportedNotCleared",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Cli_AnalyseRunKey_EqualsServiceOnCustomOp",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Cli_InspectRuns_RevisionIsSessionLabel",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE",
+      "evidence": "Inferred until the next PC ring"
+    },
+    {
+      "name": "Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE",
+      "evidence": "Inferred until the next PC ring"
+    },
+    {
+      "name": "LayoutLoad_Absent_ReturnsPresets",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected saved; actual failed",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "LayoutSave_Conflict_MergesChangedWorkspaceOnly",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected True; actual False",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "Recent_Conflict_ReappliesAdd",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected True; actual False",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "Recent_Remove_KeepsEveryOtherEntry",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected saved; actual failed",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "PrefsSave_LayoutAndRecentConcurrent_BothKept",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected saved; actual failed",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected saved; actual failed",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "Recent_RemoveWriteFails_ListUnchanged",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Could not find file",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "PrefStore_TextSize_RoundTrip",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected saved; actual session-only",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected saved; actual failed",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected saved; actual session-only",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "LayoutSave_ClaimBusyHashSame_RetriesOnce",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected True; actual False",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "LayoutSave_StaleClaim_SessionOnlyNamesClaim",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected claim-held; actual failed",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "Recent_Clear_NoFileContainsMarkerPath",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected saved; actual failed",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "StoreContract_CancelBeforePublish_DocCancelled",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Expected False; actual True",
+      "cause": "inferred: PreferenceStore over a real ProjectStore (pr-12.md finding 4)"
+    },
+    {
+      "name": "Save_ExistingFile_DefiniteCreateOnlyConflict",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "actual DOC-UNSUPPORTED-PERSISTENCE"
+    }
+  ]
+}

@@ -9,5 +9,5 @@
   "pid": 996,
   "startUtc": "2026-10-07T16:49:24.7538751Z",
   "launchUtc": "2026-10-07T16:49:24.8299001Z",
-  "dotnetRoot": "C:\\Users\\malla\\.dotnet"
+  "dotnetRoot": "%USERPROFILE%\\.dotnet"
 }

@@ -1,0 +1,111 @@
+name: win-su2-tmr-naca0012
+description: Native SU2 v8.5.0 serial code-to-code comparison with CFL3D SA-noft2
+  first-order turbulence, exact NASA Family II L6, fully turbulent.
+purpose:
+  spike: SPIKE-04
+  stage: 1
+  round: 3
+  run_id: W-4b-SU2-TMR-L6
+  question: How do native SU2 v8.5.0 compressible RANS SA-noft2 Cl/Cd on NASA Family
+    II L6 compare with the CFL3D SA-noft2 first-order-turbulence reference without
+    point-vortex correction?
+geometry:
+  airfoil: naca0012 (TMR sharp-trailing-edge definition, 2DN00)
+  chord: 1.0
+  source:
+    kind: tmr-grid
+    path: docs/proof/win-naca/su2-inputs/tmr-familyII-L6.su2
+    sha256: a4709ce352e5aff94395e28f62b1c91fdad957d2330fd8166cf23b0d655ba827
+    generator: docs/proof/win-naca/freeze-su2.py from pinned NASA Family II PLOT3D;
+      shared fixtures unchanged
+    reference: https://tmbwg.github.io/turbmodels/naca0012numerics_grids.html (grid
+      page; zip https://www.nasa.gov/wp-content/uploads/2026/02/naca0012numerics-grids.zip,
+      member u/piyer/nasa_tmr/gitlab/turbmodels/NACA0012numerics_grids/n0012familyII.6.p2dfmt.gz)
+    deviation: SU2 node-centred finite volume vs CFL3D cell-centred; different spatial
+      implementation and SA S-hat handling; no GCI or physical-validation claim
+conditions:
+  reynolds: 6000000
+  mach: 0.15
+  alpha: 10.0
+  speed_m_s: 52.0836
+  reference_length_m: 1.0
+  temperature_K: 300.0
+solver: su2
+backend:
+  name: SU2 native Windows win64-omp
+  version: 8.5.0 Harrier
+  build: v8.5.0 publisher release
+  distribution: SU2-v8.5.0-win64-omp.zip
+  distribution_sha256: 4466fe21aedb5e0bad57afd45f829acbdec6ec79fe8c3f8954ddea06a4b4bc11
+  binary_sha256:
+    SU2_CFD.exe: 3cb60646b31c08e468441be9f3497601960d4bb31349e6329982bcdeed599248
+  activation: native SU2_CFD.exe -t 1 tmr-sa.cfg; BELOW_NORMAL_PRIORITY_CLASS
+  docker_used: false
+  image_digest: null
+mesh:
+  generator: plot3d-direct
+  target_y_plus: null
+  first_cell_height_m: null
+  settings:
+    family: II
+    level: 6
+    dims:
+    - 225
+    - 65
+    wake_cut: Coincident wake nodes merged into internal connectivity by the SU2 converter
+    dimensions: 2
+    cells: 14336
+    points: 14576
+physics:
+  application: SU2_CFD
+  flow: compressible-steady
+  turbulence_model: SpalartAllmaras
+  sa_variant: 'SA-noft2: SA_OPTIONS=NONE; no WITHFT2'
+  wall_treatment: No-slip adiabatic airfoil; SA working variable zero at the wall
+  transition: none; fully turbulent
+  fluid:
+    name: STANDARD_AIR; reference nu is U*L/Re, not a constant-viscosity model for the full compressible solution
+    nu_m2_s: 8.6806e-6
+    temperature_K: 300.0
+    viscosity_model: SUTHERLAND
+    conductivity_model: CONSTANT_PRANDTL
+  freestream:
+    mach: 0.15
+    reynolds: 6000000
+    alpha_deg: 10.0
+    reynolds_length_m: 1.0
+    nuTilda_over_nu: 3.0
+    specification: Reynolds-based dimensional freestream; nu_m2_s is the reference U*L/Re value; the full compressible solution uses Sutherland viscosity
+boundary_conditions:
+  farfield: 'MARKER_FAR=(farfield): SU2 compressible farfield; no point-vortex correction'
+  airfoil: 'MARKER_HEATFLUX=(airfoil,0.0): no-slip adiabatic wall; MARKER_MONITORING and MARKER_PLOTTING=(airfoil)'
+  dimensionality: NDIME=2; two-dimensional SU2 mesh, no OpenFOAM empty patches
+numerics:
+  config: docs/proof/win-naca/su2-inputs/tmr-sa.cfg
+  config_sha256: 0f450bd096c8809871c5bc7ff8b9529acd47bcb8f0ebb62060aeede9cb1d1dee
+  max_iterations: 20000
+  convergence: Report residual drop and final 2000-row Cl/Cd half-bands; caps Cl1e-5/Cd1e-6,
+    minimum 3-order RMS residual drop; final result inadmissible if these fail; no
+    tuning after failure
+  residual_criterion: Report residual drop and final 2000-row Cl/Cd half-bands; caps
+    Cl1e-5/Cd1e-6, minimum 3-order RMS residual drop; final result inadmissible if
+    these fail; no tuning after failure
+  flow_scheme: ROE, MUSCL_FLOW=YES, MUSCL_KAPPA_FLOW=0.5
+  turbulence_scheme: SCALAR_UPWIND, MUSCL_TURB=NO (first order)
+  cfl: 50 fixed, CFL_ADAPT=NO
+  time_discretization: EULER_IMPLICIT
+  linear_solver: FGMRES, ILU, 20 iterations
+  restart: RESTART_SOL=NO
+  convergence_start_iteration: 20000
+decomposition:
+  method: serial
+  n_subdomains: 1
+  nice: 10
+  omp_threads: 1
+  nice_platform_note: POSIX nice inapplicable; Windows BELOW_NORMAL_PRIORITY_CLASS
+    requested
+outputs_expected:
+- history.csv
+- log.SU2_CFD
+- docs/proof/win-naca/su2-results/resources.json (wrapper measurements)
+run_dir: runs/20261008T144728Z-win-su2-tmr-naca0012

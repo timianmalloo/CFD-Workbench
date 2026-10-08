@@ -20,6 +20,32 @@ internal static class TipCavitationTests
         AnalysisChecks.Check("TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber", TipStationDisplay);
         AnalysisChecks.Check("TipCavitation_PiercingTipStation_WingLineIsUnavailable_Ruling144", PiercingTipMakesWingUnavailable);
         AnalysisChecks.Check("TipCavitation_ExampleWing_GoverningStationIsJudged_BeforeAfterObserved", ExampleWing);
+        AnalysisChecks.Check("StationsCaption_TextCountsTheTableRows_AndMatchesTheLineCount_Ruling147", StationsCaptionMatchesTableAndLine);
+        AnalysisChecks.Check("StationsCaption_JudgedCount_IsOneValue_MovesWithTipNotJudgedCount_Ruling147", StationsCaptionJudgedFromOneSource);
+    }
+
+    // Ruling 147: the Stations table caption reads "{shown} of {judged} stations shown — solved, governing and selected"; {judged} is the wing line's count.
+    private static void StationsCaptionMatchesTableAndLine()
+    {
+        (AnalysisRun run, byte[] source, SectionTierResult tier) = Cambered();
+        SectionView view = SectionDisplay.Build(run, tier, source, 0.5, "r1", null, null, default, Units.Metric);
+        string line = view.Groups.Single(g => g.Title == "Cavitation").Rows.Single(r => r.Label == "Governing station").Value;
+        int judged = tier.Stations.Count - tier.TipNotJudgedCount;
+        AnalysisChecks.Equal($"{view.StationTable!.Count} of {judged} stations shown — solved, governing and selected", view.StationsCaption, "caption text");
+        AnalysisChecks.Equal(true, line.EndsWith($"of {judged} stations", StringComparison.Ordinal), "the line prints the same count: " + line);
+        AnalysisChecks.Equal("2 of 3 stations shown — solved, governing and selected", Labels.StationsShown(2, 3), "COPY-411 exact text with U+2014");
+    }
+
+    // Ruling 147 (one source): bumping the tip-not-judged count moves the line and the caption together.
+    private static void StationsCaptionJudgedFromOneSource()
+    {
+        (AnalysisRun run, byte[] source, SectionTierResult tier) = Cambered();
+        SectionTierResult moved = tier with { TipNotJudgedCount = tier.TipNotJudgedCount + 1 };
+        SectionView view = SectionDisplay.Build(run, moved, source, 0.5, "r1", null, null, default, Units.Metric);
+        string line = view.Groups.Single(g => g.Title == "Cavitation").Rows.Single(r => r.Label == "Governing station").Value;
+        AnalysisChecks.Equal(moved.Stations.Count - moved.TipNotJudgedCount, moved.JudgedCount, "the tier owns the judged count");
+        AnalysisChecks.Equal(true, line.EndsWith($"of {moved.JudgedCount} stations", StringComparison.Ordinal), "line follows the count: " + line);
+        AnalysisChecks.Equal(true, view.StationsCaption!.Contains($" of {moved.JudgedCount} stations shown", StringComparison.Ordinal), "caption follows the count: " + view.StationsCaption);
     }
 
     // Ruling 144 (1): a surface-piercing tip station makes the wing line Unavailable; only the tip's alpha_eff verdict is excluded.

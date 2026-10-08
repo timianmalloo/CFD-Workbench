@@ -223,7 +223,7 @@ public static class CatalogDialogTests
 
     private static void CheckDamagedRow()
     {
-        string root = Path.Combine(Path.GetTempPath(), "dlg-damaged-" + Guid.NewGuid().ToString("N"));
+        string root = TestTemp.Combine("dlg-damaged-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         try
         {
@@ -293,7 +293,7 @@ public static class CatalogDialogTests
 
     private static void CheckSave(string name)
     {
-        string root = Path.Combine(Path.GetTempPath(), "dlg-save-" + Guid.NewGuid().ToString("N"));
+        string root = TestTemp.Combine("dlg-save-" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(root);
         try
         {

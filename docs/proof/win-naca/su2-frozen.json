@@ -1,0 +1,36 @@
+{
+  "run": "runs/20261008T144728Z-win-su2-tmr-naca0012",
+  "frozen_utc": "2026-10-08T14:47:28.305716+00:00",
+  "changes_from_publisher": {
+    "SA_OPTIONS": "NONE",
+    "RESTART_SOL": "NO",
+    "CFL_NUMBER": "50.0",
+    "MUSCL_TURB": "NO",
+    "ITER": "20000",
+    "CONV_STARTITER": "20000",
+    "MESH_FILENAME": "tmr-familyII-L6.su2"
+  },
+  "files": [
+    {
+      "path": "docs/proof/win-naca/su2-inputs/tmr-familyII-L6.su2",
+      "sha256": "a4709ce352e5aff94395e28f62b1c91fdad957d2330fd8166cf23b0d655ba827",
+      "bytes": 1063271
+    },
+    {
+      "path": "docs/proof/win-naca/su2-inputs/tmr-sa.cfg",
+      "sha256": "0f450bd096c8809871c5bc7ff8b9529acd47bcb8f0ebb62060aeede9cb1d1dee",
+      "bytes": 3663
+    },
+    {
+      "path": "cases/win-su2-tmr-naca0012.yaml",
+      "sha256": "31041c99f2f9645c459bcaa891f2df2107b8f6b388b2bf0f5b949dbec305c24d",
+      "bytes": 3305
+    }
+  ],
+  "counts": {
+    "cells": 14336,
+    "points": 14576,
+    "airfoil_edges": 128,
+    "farfield_edges": 352
+  }
+}

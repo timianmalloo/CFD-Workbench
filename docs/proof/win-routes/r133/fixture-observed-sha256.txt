@@ -1,1 +1,1 @@
-4c87494c17a1381853af8a828e8df3a741d9cde5e06bb0212f3fc6940d889473  /mnt/c/Users/malla/AppData/Local/CFDWorkbench/qualification/openfoam2512-tutorials_2512.0-2_all.deb
+4c87494c17a1381853af8a828e8df3a741d9cde5e06bb0212f3fc6940d889473  $HOME/AppData/Local/CFDWorkbench/qualification/openfoam2512-tutorials_2512.0-2_all.deb

@@ -1,0 +1,81 @@
+join rings ok: tests every code join (docs-only joins skip, Ruling 89), slow gates and recounts at readiness
+store subset ok: umask partition holds statically
+Managed Claude hooks: 11 unique event/matcher/target entries
+Rollup links: default and nested destinations resolve to the real source.
+process matching ok: no pgrep/pkill -f under tools/ or cases/tools/
+test paths ok: no relative repository reads in the Core tests
+debug parity ok: no Debug-only code or per-configuration compile property in src/ or tests/ (9 project files)
+SPIRAL: 12 commits, 0 product, 100% bookkeeping since c1dc51b — stop the track and report to the operator (docs/lessons/defect-classes.md COORD-SPIRAL)
+spiral check: ok (12 commits, 1 product)
+spiral check: ok (12 commits, 0 product)
+spiral check: ok (11 commits, 0 product)
+self-test OK
+spiral check: not checked (HEAD == base)
+check-artifact-bindings self-test OK
+artifact bindings ok: 9 derived/register patterns all bound in .gitattributes
+check-foildsl-spec-sync self-test OK
+foildsl spec sync ok: src/CfdWorkbench.Core/FoilSource.cs unchanged on this branch
+trace-brief self-test OK
+xmsg self-test: ok (routing, seen-marking, no loss)
+no-heredoc hook self-test OK
+check-copy-ids self-test OK
+copy ids ok: 412 rows, every id unique
+check-wallclock-asserts self-test OK
+wall-clock assertions ok: 3 ungated, all allowlisted as tracked debt
+check-text-mode-hash self-test OK
+text-mode hash ok: 1 file(s) allowlisted with a reason, none unfixed
+dispatch-gate self-test OK
+ok    self-test clean case: green
+ok    self-test valid not-produced: green
+ok    self-test prose in sha256: red
+ok    self-test not-produced without reason: red
+ok    self-test not-produced with a sha256: red
+ok    self-test produced without sha256: red
+ok    self-test name differs from stem: red
+validate-cases self-test: 7 shape(s), 0 wrong
+ok   smoke-cavity.yaml
+ok   spike03-ar12.yaml
+ok   spike03-ar5.yaml
+ok   spike03-ar8-final.yaml
+ok   spike03-ar8-r2.yaml
+ok   spike03-ar8.yaml
+ok   spike03-s4-tipcoupon-v0.yaml
+ok   spike03-s4-tipcoupon-v1.yaml
+ok   spike03-s4-tipcoupon-v2.yaml
+ok   spike03-s4-tipcoupon-v3.yaml
+ok   spike03-s6-w1.yaml
+ok   spike03-s6-w2a.yaml
+ok   spike03-s6-w2b.yaml
+ok   spike03-s6-w2c1.yaml
+ok   spike03-s6-w2c2.yaml
+ok   spike03-s6-w4.yaml
+ok   spike03r2-m1a-ar8.yaml
+ok   spike03r2-m1b-ar8.yaml
+ok   spike03r2-m1b1-ar8.yaml
+ok   spike03r2-m2a-ar8.yaml
+ok   spike03r2-m2b-ar8.yaml
+ok   spike03r2-m2c-ar8.yaml
+ok   spike03r3-m0-ar8.yaml
+ok   spike03r3-m1a-ar8.yaml
+ok   spike03r3-m1b-ar8.yaml
+ok   spike04-tmr-l5-tvd.yaml
+ok   spike04-tmr-l6-diag.yaml
+ok   spike04-tmr-l6-tvd.yaml
+ok   spike04-tmr-l6.yaml
+ok   spike04r2-c1-l6.yaml
+ok   spike04r2-c1r1-l6.yaml
+ok   spike04r2-c1r2-l6.yaml
+ok   spike04r2-c2-l5.yaml
+ok   spike04r2-c3-l4.yaml
+ok   spike04r2-c4-l5-comp.yaml
+ok   spike04r3-g0-l6.yaml
+ok   spike04r3-g1b-l6.yaml
+ok   spike04r3-g2-l3.yaml
+ok   win-smoke-cavity.yaml
+ok   win-spike04r3-g0-l6.yaml
+ok   win-spike04r3-g2-l3.yaml
+ok   win-su2-smoke.yaml
+FAIL win-su2-tmr-naca0012.yaml: 'compressible-steady-RANS' is not one of ['incompressible-steady', 'incompressible-transient', 'compressible-steady']
+FAIL win-su2-tmr-naca0012.yaml: 'nu_m2_s' is a required property
+43 case(s), 2 error(s)
+../cases/tools/validate-cases.py  failed.

@@ -8,3 +8,4 @@ docs/notes/rulings.md merge=coord-register
 .agents/log/*.jsonl merge=coord-register
 .agents/requests.jsonl merge=coord-register
 docs/coordination/xmsg.jsonl merge=coord-register
+docs/lessons/defect-classes.md merge=defect-register

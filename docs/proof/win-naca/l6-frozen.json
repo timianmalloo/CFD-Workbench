@@ -1,0 +1,142 @@
+{
+  "started_utc": "2026-10-08T14:42:40.606915+00:00",
+  "tested_source_sha": "fd96651e6dd3ad9c01e4fbaa07c62a11fa553c09",
+  "mac_case": "cases/spike04r3-g0-l6.yaml",
+  "absent_shared_case": "cases/spike04r3-g2-l6.yaml",
+  "run": "runs/20261008T144237Z-win-spike04r3-g0-l6",
+  "linux_run": "/root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6",
+  "frozen_files": [
+    {
+      "path": "docs/proof/win-naca/l6-inputs/0/nut",
+      "sha256": "69318c2dfead784d1158a59a540bb06b7300b89269eab017d201b4749a8dbc96",
+      "blob_sha256": "69318c2dfead784d1158a59a540bb06b7300b89269eab017d201b4749a8dbc96",
+      "bytes": 329
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/0/nuTilda",
+      "sha256": "4306a52f55553e3e7f474f254c09fba39f70cf3d335008551ac2c91da12dc531",
+      "blob_sha256": "4306a52f55553e3e7f474f254c09fba39f70cf3d335008551ac2c91da12dc531",
+      "bytes": 336
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/0/p",
+      "sha256": "68c973d1a7323c0cf89507eeef95ff1983552b01f99f38be60d269272d1cfe48",
+      "blob_sha256": "68c973d1a7323c0cf89507eeef95ff1983552b01f99f38be60d269272d1cfe48",
+      "bytes": 315
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/0/U",
+      "sha256": "6b4e1371a1f050f090b9c1883d461d825dfd4fe7521ff4d08bc1487e073bcfda",
+      "blob_sha256": "6b4e1371a1f050f090b9c1883d461d825dfd4fe7521ff4d08bc1487e073bcfda",
+      "bytes": 405
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/cfdw-manifest.json",
+      "sha256": "0aacab97b92972e4f1d10a8fded1df043cabb93d54715f4832c71e85e40c23e4",
+      "blob_sha256": "0aacab97b92972e4f1d10a8fded1df043cabb93d54715f4832c71e85e40c23e4",
+      "bytes": 983
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/boundary",
+      "sha256": "2b1f4c4d888f71c9eb1148695b1ebbbb9a1495980183471fe61a7f4bc436251c",
+      "blob_sha256": "2b1f4c4d888f71c9eb1148695b1ebbbb9a1495980183471fe61a7f4bc436251c",
+      "bytes": 412
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/faces",
+      "sha256": "33bbb418a46677404ff2cd94184f7cd6405d4ac8640fa0e49afa039ee66b3b79",
+      "blob_sha256": "33bbb418a46677404ff2cd94184f7cd6405d4ac8640fa0e49afa039ee66b3b79",
+      "bytes": 1467225
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/neighbour",
+      "sha256": "f28e6ea677e4b66e1979cbb03fd998a89af8ef2b2c73603ff90842b379c5709f",
+      "blob_sha256": "f28e6ea677e4b66e1979cbb03fd998a89af8ef2b2c73603ff90842b379c5709f",
+      "bytes": 149095
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/owner",
+      "sha256": "604c4bcb1fa24bc02bc6b7bf1cfa94220be875745d330c09d267ba06244514f7",
+      "blob_sha256": "604c4bcb1fa24bc02bc6b7bf1cfa94220be875745d330c09d267ba06244514f7",
+      "bytes": 300755
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/points",
+      "sha256": "0b72ca5e41a218a5287e99d7e01fe880d7bf094c92e83f22a3380b2a036f4965",
+      "blob_sha256": "0b72ca5e41a218a5287e99d7e01fe880d7bf094c92e83f22a3380b2a036f4965",
+      "bytes": 1270519
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/transportProperties",
+      "sha256": "2dec2e99ca834ea83302c459e12b0909452379a562a34030dd9cfc5169678d15",
+      "blob_sha256": "2dec2e99ca834ea83302c459e12b0909452379a562a34030dd9cfc5169678d15",
+      "bytes": 151
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/turbulenceProperties",
+      "sha256": "02e4998d37cfb8ac1db64ae3ddfb1ec4aa456ded6074b6128b152e6e45443f12",
+      "blob_sha256": "02e4998d37cfb8ac1db64ae3ddfb1ec4aa456ded6074b6128b152e6e45443f12",
+      "bytes": 189
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/system/controlDict",
+      "sha256": "b6840d4a61e635ed921ad6e744b7c421418af862135d333ec4876d6b85e41569",
+      "blob_sha256": "b6840d4a61e635ed921ad6e744b7c421418af862135d333ec4876d6b85e41569",
+      "bytes": 1119
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/system/decomposeParDict",
+      "sha256": "a97d2b44157e82b5f88a9515f22b51f738ab6507db28a936ff81dd0b751edf4f",
+      "blob_sha256": "a97d2b44157e82b5f88a9515f22b51f738ab6507db28a936ff81dd0b751edf4f",
+      "bytes": 137
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/system/fvSchemes",
+      "sha256": "188a0dc55ed1a95177115fc3822953e318fb87bf3a2d18563f1b666fe47b23c2",
+      "blob_sha256": "188a0dc55ed1a95177115fc3822953e318fb87bf3a2d18563f1b666fe47b23c2",
+      "bytes": 522
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/system/fvSolution",
+      "sha256": "8d8eb5db4b3cf7ad9b93bc4634cdacf3093f6666f591ec9c6f31a030ce4a8f76",
+      "blob_sha256": "8d8eb5db4b3cf7ad9b93bc4634cdacf3093f6666f591ec9c6f31a030ce4a8f76",
+      "bytes": 514
+    },
+    {
+      "path": "cases/win-spike04r3-g0-l6.yaml",
+      "sha256": "598085680d4d73baeb568ab85e99cf6ce188a5c8ee6a5794cc9c1a1315f2af80",
+      "blob_sha256": "598085680d4d73baeb568ab85e99cf6ce188a5c8ee6a5794cc9c1a1315f2af80",
+      "bytes": 4595
+    },
+    {
+      "path": "cases/spike04r3-g0-l6.yaml",
+      "sha256": "e9e0b251a6c8d64c6b4531e4f7c3c3669ef6568f07e5e3b2a1312ea263c49e2d",
+      "blob_sha256": "e9e0b251a6c8d64c6b4531e4f7c3c3669ef6568f07e5e3b2a1312ea263c49e2d",
+      "bytes": 5496
+    },
+    {
+      "path": "cases/tools/make-tmr-case.py",
+      "sha256": "7f8d873154d657be39a236c6f888ec8949237db17ff609a1d0d119c9fc82dc87",
+      "blob_sha256": "7f8d873154d657be39a236c6f888ec8949237db17ff609a1d0d119c9fc82dc87",
+      "bytes": 14597
+    },
+    {
+      "path": "docs/proof/spike-04/receipts/20261004T175236Z-spike04r3-g0-l6/cfdw-manifest.json",
+      "sha256": "0aacab97b92972e4f1d10a8fded1df043cabb93d54715f4832c71e85e40c23e4",
+      "blob_sha256": "0aacab97b92972e4f1d10a8fded1df043cabb93d54715f4832c71e85e40c23e4",
+      "bytes": 983
+    },
+    {
+      "path": "docs/proof/spike-04/receipts/20261004T175236Z-spike04r3-g0-l6/convergence.txt",
+      "sha256": "3efbbabda91f47a8e2226d2adbeff5b6c6f00dc6d9e5eb32b634d7a2a751d801",
+      "blob_sha256": "3efbbabda91f47a8e2226d2adbeff5b6c6f00dc6d9e5eb32b634d7a2a751d801",
+      "bytes": 511
+    },
+    {
+      "path": "cases/tools/foam-bundle/controlDict",
+      "sha256": "f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a6ef854",
+      "blob_sha256": "f3debe8b5541fb400b0719976f591781a2faa21f96ea7ae0dccca97e4a6ef854",
+      "bytes": 37375
+    }
+  ]
+}

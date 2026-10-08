@@ -1,7 +1,7 @@
 {
   "sdk": "10.0.203",
-  "dotnet": "C:\\Users\\malla\\.dotnet\\dotnet.exe",
-  "dotnetRoot": "C:\\Users\\malla\\.dotnet",
+  "dotnet": "%USERPROFILE%\\.dotnet\\dotnet.exe",
+  "dotnetRoot": "%USERPROFILE%\\.dotnet",
   "head": "aa642fc6a1a3da2b8f7bb1f5578139e7ff601859",
   "branch": "win/smoke",
   "os": "Microsoft Windows NT 10.0.26300.0"

@@ -4312,6 +4312,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "afcbb83a0896f242f7c7f978ad866db1068c97aae1f74f60d38d6c5868797eb8"
     },
     {
+      "id": "mockup-w2-save-picker",
+      "path": "docs/mockups/w2-save-picker.md",
+      "title": "W-2 save picker — OneDrive refusal and unfinished-save recovery",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Three surfaces around the native Windows save dialog, shown before any build: the first Save of a new project (what CFD Workbench controls in the native dialog), the refusal when the user picks a OneDrive folder, and the block left by a crashed save with its Clear unfinished save step. Each of S2 and S3 has two variants, a modal dialog (approved) and the alert band (rejected). Ruling 146 copy is verbatim; the new rows COPY-440 to COPY-457 are approved by Ruling 160, which also picked variant A for S2 and S3. This page is now the approved reference; variant B stays in the harness, labelled rejected.",
+      "tags": [
+        "mockup",
+        "w2",
+        "save-picker",
+        "onedrive",
+        "crash-recovery",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-m12d-catalog",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b9817164a8acc51c1a60b2292c5466a509ebe7f660034eac0c0ac239c2bc0fb"
+    },
+    {
       "id": "mockup-workbench",
       "path": "docs/mockups/workbench.md",
       "title": "CFD-Workbench interactive design prototype",
@@ -5175,7 +5211,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "719d3b5fcb4bc98af1a7ba3a1e95eaafdb98b5b37e7ad6e1a0db6e9be68c09bb"
+      "sourceSha256": "b75264e958026b280f176686bc28b86c9c02a54d2d79a536b15622a7e931201c"
     },
     {
       "id": "domain-experts",
@@ -5876,6 +5912,84 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "proof-cpy-cause-rows",
+      "path": "docs/proof/cpy/cause-rows.md",
+      "title": "Track CPY, Ruling 148 - proposed plain-cause rows for DOC-/DSL- codes",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-cpy",
+      "phase": "design",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Measured inventory of every DOC-/DSL- code src/ can throw or return, with the surface and today's text, and proposed cause rows COPY-412 to COPY-430 for the operator to sign off (Ruling 148). Approved as Ruling 155 and wired in Labels.cs (track CWR).",
+      "tags": [
+        "copy",
+        "ruling-148",
+        "save",
+        "open",
+        "error-copy"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9e1cd981fd5a95d0216a7cfc399ce2c67117a4cfa59486551e89eb8fba3633fd"
+    },
+    {
+      "id": "proof-cwr-red-first",
+      "path": "docs/proof/cwr/red-first.md",
+      "title": "Track CWR - red-first record for the Ruling 155 plain-cause copy",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-cwr",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the Labels cause rows COPY-412 to COPY-431, the open \"Code:\" line (COPY-424) and the raw-code control.",
+      "tags": [
+        "copy",
+        "ruling-155",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-cpy-cause-rows",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
+    },
+    {
+      "id": "proof-win-cfmesh-probe",
+      "path": "docs/proof/win-cfmesh/probe.md",
+      "title": "W-5 cartesianMesh probe execution record",
+      "type": "doc",
+      "status": "observed",
+      "owner": "@win-w5-cfmesh",
+      "phase": "",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Two bounded probe attempts exited 127 before reaching cartesianMesh; the installed runtime environment remains unresolved.",
+      "tags": [
+        "windows",
+        "openfoam",
+        "cfmesh",
+        "probe"
+      ],
+      "links": [
+        {
+          "to": "proof-win-cfmesh",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "562cf3a0159aa8c62c77604b45665e23e7df8b28b68373827ef91b70c101ab7a"
+    },
+    {
       "id": "proof-windows-store-implementation",
       "path": "docs/proof/win-store-implementation/checkpoint.md",
       "title": "Windows managed native store first qualification checkpoint",
@@ -6138,6 +6252,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "cda5910b12c1444c1d1448485de6a49156906ac8dacae775efba846007a4782f"
     },
     {
+      "id": "review-cat-geometry",
+      "path": "docs/reviews/cat-geometry.md",
+      "title": "Catalog cross-OS determinism - computational-geometry review of the CAT options",
+      "type": "doc",
+      "status": "done",
+      "owner": "@computational-geometry-expert",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "PASS-WITH-CONDITIONS for option A (naca4-closed/2: only + - * / sqrt on the generator and placement paths, one deliberate re-record, byte equality kept). Reject B and C; D weakens the m12d bit-for-bit invariant and is operator-only. The re-record breaks no stored project (provenance only; all changes far below the 1e-6 identity tolerance). Cross-OS determinism stays Inferred until the Windows ring is green on the A build.",
+      "tags": [
+        "review",
+        "catalog",
+        "geometry",
+        "determinism",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "review-pr-12",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ed884bede885fb9d464673cfcf215e6e34855e0337d24b1ee98d3aa1a02aab22"
+    },
+    {
       "id": "review-foildsl-independent",
       "path": "docs/reviews/foildsl-independent.md",
       "title": "FoilDSL authoring — independent review",
@@ -6274,6 +6415,103 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "15bbf7360f65f4b127fb66a5a3328502ed96ecbb5039d4e9211b1413cdcd5dcd"
+    },
+    {
+      "id": "review-pr-10",
+      "path": "docs/reviews/pr-10.md",
+      "title": "PR #10 (Windows PC) - W-2 B2 Ruling 145 native sharing qualification (Ruling 152), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 152). Class 65 stays the only production rename route with no fallback, Win32 32 maps to DOC-CONFLICT in code and design section 4, ProjectStore stays fail-closed, and the two new sharing cases plus the class-22/class-3 attribution probe run green on Windows with raw output and 0 PII hits. The red-first departure (case (i) green on first run) is accepted; the receipt must state that disposition before merge.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-2",
+        "persistence"
+      ],
+      "links": [
+        {
+          "to": "review-pr-8",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "347cfbb22c18e03b0e74888b58d708be98fbf478e792b7aac53ff90e4ddb59e7"
+    },
+    {
+      "id": "review-pr-11",
+      "path": "docs/reviews/pr-11.md",
+      "title": "PR #11 (Windows PC) - W-5 blocked cfMesh availability probe (Ruling 153), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 153). W-5 stopped before Ruling 102 step 1 was answered: both probes ran cartesianMesh -help in a WSL shell with no OpenFOAM activation, so exit 127 proves only that the shell's PATH lacked the tool, and the receipt never claims absence. One availability-only probe that reuses W-3's committed activation route is authorized.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-5",
+        "cfmesh",
+        "openfoam"
+      ],
+      "links": [
+        {
+          "to": "review-pr-9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-cfmesh",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "669aba9f0d4fb5fa6d9f86cb1ea431bd3f6902bd394c56b6c5c89aa1feb8b926"
+    },
+    {
+      "id": "review-pr-12",
+      "path": "docs/reviews/pr-12.md",
+      "title": "PR #12 (Windows PC) - WFX2 Windows ring evidence (Ruling 154), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 154). PR #12 records one failed Windows ring (exit 1, 39 named failures plus a Desktop crash) and binds every WFX2 row to an observed line or an explicit unassessed state, with no PASS claimed. 28 failures and the crash are the fail-closed Windows store, 6 are one catalog generated-bytes datum, 1 is the Ruling 152 probe, and 4 are new test-side classes. Docs only; 0 PII hits.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "wfx2",
+        "test-ring"
+      ],
+      "links": [
+        {
+          "to": "review-pr-10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wfx2-pc-reverify",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e6fee510f69233d63e5551225be3f8904c807707edc0f5fd04195a3df5c490c6"
     },
     {
       "id": "review-pr-2",
@@ -6508,6 +6746,40 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "d2d3925aa351e851c4c554a8e9c139631cda2d5d6399d65d367804107bee85c2"
+    },
+    {
+      "id": "review-pr-9",
+      "path": "docs/reviews/pr-9.md",
+      "title": "PR #9 (Windows PC) - W-4 NACA 0012 evidence and L3 preparation (Ruling 151), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 151). The Windows G0 L6 OpenFOAM run reproduces the Mac G0 case from byte-identical LF inputs and meets A4; the window means differ from the Mac by Cl -1.604e-6 and Cd -9.7e-8, below the sum of the two runs' iterative half-bands. The one native SU2 run is kept as oracle NOT MET with no CFL3D number admitted; the GPU inspection ran zero trials; L3 is prepared per Ruling 79 and the 119-entry closing manifest equals the committed blobs.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-4",
+        "openfoam",
+        "su2",
+        "naca0012"
+      ],
+      "links": [
+        {
+          "to": "review-pr-7",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-naca",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ade4e315ff67d11c91d890a48df61381897ea5790b1ba5b9c45e4d38327cf2ff"
     },
     {
       "id": "review-property-grid-native",
@@ -7210,7 +7482,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18fd70d59bddfa1556ea25507846f3367ab9c572fa6d9ea3d0d132c67b31d16d"
+      "sourceSha256": "e6eb2dafd0fc0bd04de903960411d9258c374857fd50f8e3414ce6e08af38062"
     },
     {
       "id": "kb-hw-glossary",
@@ -7272,6 +7544,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "5c055ea5c81c886b0dec09537d4a016214010fbe30e377ff7eb5f781b88760d7"
     },
     {
+      "id": "investigation-cat-determinism",
+      "path": "docs/proof/cat/investigation.md",
+      "title": "Cross-OS catalog generated-bytes mismatch (naca-0009 byte 727)",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-cat",
+      "phase": "",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Byte 727 of generated naca-0009 is the X ordinate of upper-surface sample index 63. The only transcendental on the naca-0009 path is Math.Cos in the cosine spacing, which .NET forwards to the platform C runtime. A 1-ulp change of that one cosine reproduces the Windows datum exactly (first differing byte 727, same length). Options and their hash consequences are listed; a computational-geometry ruling comes before any fix.",
+      "tags": [
+        "catalog",
+        "determinism",
+        "cross-platform",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "adr-application-stack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bb7a76a43874f5de8954a1969d7552808a657ae73c7437f5141e1eec4952a448"
+    },
+    {
       "id": "investigation-review-window-attach",
       "path": "docs/investigations/review-window-attach.md",
       "title": "Review window attachment and stalled human waits",
@@ -7309,6 +7607,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "49075dfa346e1458edc2a94d4a26bd4852e575a0a1c40545bca947d6dd4273e9"
+    },
+    {
+      "id": "investigation-rws-record-path",
+      "path": "docs/proof/rws/investigation.md",
+      "title": "C-runtime math on the record-write path (Ruling 156 (3))",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-rws",
+      "phase": "",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Of the six record-write sites, none reaches a committed hash or golden (each is green under a +1 ulp perturbation, five of six verified to execute under the ring; ConstrainedFit.cs:400 never runs). Five of the six write bytes into the user's project, so the same input can write different project bytes per OS. The only committed goldens hit by C-runtime math in src/ are the Catalog generator and Placement display spacing, which fix/caf-catalog-determinism already addresses. Options per role are listed as recommendations for review.",
+      "tags": [
+        "determinism",
+        "cross-platform",
+        "crt-golden",
+        "record-path",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "adr-application-stack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6deaa30ff109a2d8ef08e7d742fc1be6bbf9265ac6863f3c19bb62a68afbcf1d"
     },
     {
       "id": "kb-cfd-workbench-grounding",
@@ -9091,7 +9416,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  P[preflight + plan] --> O[Astra Owner plan gate]\n  O --> A0[W-0 setup evidence + PR]\n  A0 --> A1[W-1 smoke evidence + PR]\n  A1 --> B1[W-2 design PR + Fable/Data gate]\n  B1 --> B2[W-2 red-first implementation]\n  A1 --> C[W-3 solver routes + PR]\n  C --> D[W-4a OpenFOAM L6]\n  C --> E[W-4b SU2 TMR]\n  D --> FS[W-4c L3 started + durable monitor]\n  E --> FS\n  FS -. measured spare capacity .-> G[W-5 cfMesh + PR]\n  FS --> FC[W-4c L3 complete + A4/GCI + PR]\n  B2 --> JB[Windows persistence review]\n  G --> JC[Solver review]\n  FC --> JC"
         }
       ],
-      "sourceSha256": "7973a3b7b480f5dfd8028da46f3defbf342ce629c0a6384bcc236b4958eaf947"
+      "sourceSha256": "18657a1f106c1cd1da94c3c65d82e6bdb8091ef07e261d254d3b6a26e23028f4"
     },
     {
       "id": "plan-seam-repair-1",
@@ -11854,6 +12179,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "d2528f7faa8bc98faab5bb1c2ece5b347d1fe8cd163e08eb15e90a4a08ed78c9"
     },
     {
+      "id": "proof-hrn-red-first",
+      "path": "docs/proof/hrn/red-first.md",
+      "title": "HRN red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hrn",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first and after receipt for the Desktop harness giving one result alone and in the ring (TEST-TMP-ALIAS).",
+      "tags": [
+        "desktop-harness",
+        "tmpdir",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1257bc0ede1aaf57db308757267eff5a7ed6c1aa4a7ad7551a9da4d43e89aef2"
+    },
+    {
       "id": "proof-legacy-gate-retarget",
       "path": "docs/proof/legacy-gate-retarget.md",
       "title": "Legacy gate retarget — the adapters gate's applied-contrast step moves from the pre-shell window to the shell matrix",
@@ -12513,6 +12863,30 @@ window.DOCS_INDEX = {
       "sourceSha256": "ea91f4960495f21b428612c898dd80b200b72d581580eb40aa349c099972fb6e"
     },
     {
+      "id": "proof-num-red-first",
+      "path": "docs/proof/num/red-first.md",
+      "title": "NUM red-first receipts (plural agreement, round-off couple)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Singular \"1 chordwise panel\" and the round-off floor on the c/4 couple: the checks that fail on the old behaviour, the passing runs, the measured residue.",
+      "tags": [
+        "num",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-stc-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "629fc0166d52a76b4330efdc64fed47d55f0a44e299a9e6e8e43d5973632a519"
+    },
+    {
       "id": "proof-openfix-red-runs",
       "path": "docs/proof/openfix-red-runs.md",
       "title": "OPENFIX red runs and verification — M1.2a Open outcomes and Span input",
@@ -12565,6 +12939,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
+    },
+    {
+      "id": "proof-pii-red-first",
+      "path": "docs/proof/pii/red-first.md",
+      "title": "PROOF-PII red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-pii",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first, self-test, cost and hash-safety receipt for the PROOF-PII guard and the Windows user-name scrub (Ruling 145 (5)).",
+      "tags": [
+        "pii",
+        "proof",
+        "ruling-145"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "06dd2cb8845ddac26a318ae50259734eeab665b9c23879338a51437327409ce3"
     },
     {
       "id": "proof-planform-verbs-fairness",
@@ -12835,6 +13234,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "535bf69270259d3c7d8e7b9b0e10deae5b78da9b7dd98df1ebad355d92d99bb5"
+    },
+    {
+      "id": "proof-reg-red-first",
+      "path": "docs/proof/reg/red-first.md",
+      "title": "REG red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-reg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for the register-aware merge driver: red against an always-conflict stub, green self-test, WTH join replay byte-identical, scratch-clone fallback.",
+      "tags": [
+        "merge-driver",
+        "proof",
+        "join-log-conflict"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "445f07869e032013582d358118fd5d6aa40189b13ecea3771e8207d74e445ff1"
     },
     {
       "id": "proof-rgt-red-first",
@@ -13892,6 +14316,57 @@ window.DOCS_INDEX = {
       "sourceSha256": "9eadaee45e837755d74b4a2b2444a7f426ab118b7d2c53526e615c858a17f992"
     },
     {
+      "id": "proof-srs-red-first",
+      "path": "docs/proof/srs/red-first.md",
+      "title": "SRS red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-srs",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for Ruling 156 (3): the catalog.preview replace event records the CAT-UNAVAILABLE refusal (code, check, detail) instead of an empty family; the failure stays cached.",
+      "tags": [
+        "catalog",
+        "instrumentation",
+        "proof",
+        "ruling-156"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "04b56401dd97fa794fe900e38ab7b092150136b0e8a78b9fda007ceb4847a5a8"
+    },
+    {
+      "id": "proof-stc-red-first",
+      "path": "docs/proof/stc/red-first.md",
+      "title": "STC red-first receipts (Ruling 147)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The Stations table caption (COPY-411): the checks that failed to build on the old code, the runs that pass after the change, and the captures.",
+      "tags": [
+        "stc",
+        "red-first",
+        "ruling-147"
+      ],
+      "links": [
+        {
+          "to": "proof-sma-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0cfb7259acd6f591846e019f74c2ffdcfe8efe13af8ba1b37545c7bd07a72715"
+    },
+    {
       "id": "proof-stl-red-first",
       "path": "docs/proof/stl/red-first.md",
       "title": "STL red-first receipt",
@@ -13914,7 +14389,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b432884b760393fb6337b74e49a3ab7803b07867284dd467e2862bca817b6666"
+      "sourceSha256": "f5a89fa7245508e110eee5ebf0efa3249b791a7696e528d32552d83093b20279"
     },
     {
       "id": "proof-stl-trace",
@@ -14386,6 +14861,85 @@ window.DOCS_INDEX = {
       "sourceSha256": "5f462ccfa9b71fd6cac7942f87294acca093b212d585082fff7c5ef8339bd7aa"
     },
     {
+      "id": "proof-win-cfmesh",
+      "path": "docs/proof/win-cfmesh/receipt.md",
+      "title": "W-5 cfMesh availability probe",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@win-w5-cfmesh",
+      "phase": "",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "W-5 stopped at its first availability gate. The noninteractive WSL probe could not resolve cartesianMesh; this does not establish that the installed OpenFOAM package lacks cfMesh.",
+      "tags": [
+        "windows",
+        "openfoam",
+        "cfmesh",
+        "tip-mesh"
+      ],
+      "links": [
+        {
+          "to": "proof-win-routes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-spike-03-tip-bl-route",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d467406caf7dd1aeabd8541e2f61202bae464bd4e19c78cff19d6f30af207868"
+    },
+    {
+      "id": "proof-win-naca",
+      "path": "docs/proof/win-naca/receipt.md",
+      "title": "Windows W-4a/b NACA 0012 evidence and unlaunched L3 preparation",
+      "type": "proof-pack",
+      "status": "in-progress",
+      "owner": "@win-w4-validation",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Exact G0 L6 CPU comparison from Mac-equal LF dictionaries meets A4 on Windows; native SU2 completed but its declared iterative oracle failed; W-4b metadata and byte-preservation defects were corrected in a separately authorized evidence-only track. L3 remains prepared, not launched.",
+      "tags": [
+        "windows",
+        "wsl",
+        "openfoam",
+        "su2",
+        "tmr",
+        "naca0012",
+        "ruling-79"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-spike-04-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-7",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ee1b2a964676b93b77e852f0376f83f46ba2b9bb48168830958b4b2aac19e5df"
+    },
+    {
       "id": "proof-win-routes",
       "path": "docs/proof/win-routes/receipt.md",
       "title": "W-3 Windows solver routes: Ruling 133 completed manual smoke evidence",
@@ -14423,7 +14977,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "68bc4f4649b40b5ad397aad97d5b001d430d69ec9e2986822b29f04d68a19596"
+      "sourceSha256": "cd327ec8eaa6c8e9527313f839485de2a6b4c1e11eb9b0999e28dce518a42419"
     },
     {
       "id": "proof-win-setup",
@@ -14448,7 +15002,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4a064c6b3d5006f397fd8e6ea769d1455b9e18215529cb76991546ea26ae5ecf"
+      "sourceSha256": "b8d5e483d72a576aab9a9532eac28325f65e1e86a24615060d9b54b68e3920b7"
     },
     {
       "id": "proof-win-smoke",
@@ -14474,7 +15028,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d850adcc95afd5a80d8f7948bade61fc7ec1d6dedf8af50e46fdef8985fbd496"
+      "sourceSha256": "66d88ccea85e8afe2375150ecedfe771fc5c64cca603fd5fa10a7cff5e3158d0"
     },
     {
       "id": "proof-win-smoke-reverify",
@@ -14508,7 +15062,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fbb02efccd5fc3d4b42160e9f4b242e1a2f77400e341a7f716823b049e863a34"
+      "sourceSha256": "ae0432abaa88592ae860ba678ab671f9ad09ed36cf8dd2d942b61b3909658f99"
     },
     {
       "id": "proof-win-store-design",
@@ -14638,6 +15192,83 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "fbd2221b43f9cc84427285d30106e6c0863c2b680354bd63e82266ca009f6797"
+    },
+    {
+      "id": "proof-wrt-red-first",
+      "path": "docs/proof/wrt/red-first.md",
+      "title": "WRT red-first receipt: Windows known-expected-failure manifest",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-wrt",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for the Windows ring's known-expected-failure manifest (Rulings 152 (2), 154 (3)): the checker's self-test cases and the Desktop harness crash, red then green.",
+      "tags": [
+        "windows",
+        "proof",
+        "ruling-152",
+        "ruling-154"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b3f7db76829feaefea78295f33487264771db77d6e528f0c1ccff29c40d6303b"
+    },
+    {
+      "id": "proof-wsf-red-first",
+      "path": "docs/proof/wsf/red-first.md",
+      "title": "READER-SHARE red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-wsf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first and behaviour-test receipt for the reader-share gate and the shared UserFile opener (Ruling 145 (1), (6)).",
+      "tags": [
+        "windows",
+        "proof",
+        "ruling-145"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0f467f7bc88b89226d506fdabc484f3a6d98665a998389f94655141760e5df79"
+    },
+    {
+      "id": "proof-wth-red-first",
+      "path": "docs/proof/wth/red-first.md",
+      "title": "WTH red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wth",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for Windows test hygiene (Ruling 154 conditions): a foreign-OS branch guard, one canonical temp root per test project, and the two remaining harness aborts converted to FAIL lines.",
+      "tags": [
+        "windows",
+        "test-hygiene",
+        "proof",
+        "ruling-154"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "96e7d2910a3b2cf031c1e3f96c735673a5789412a7cca716ce4dd339a426068f"
     },
     {
       "id": "review-app-shell-native",
@@ -16257,6 +16888,13 @@ window.DOCS_INDEX = {
       "artifactId": "audit-log"
     },
     {
+      "id": "surface-proof-win-naca-sources-tmr-sa-withoutpv",
+      "path": "docs/proof/win-naca/sources/tmr-sa-withoutpv.html",
+      "title": "2D NACA 0012 Airfoil Validation for Turbulence Model Numerical Analysis - SA Model Results without Point Vortex BC",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact."
+    },
+    {
       "id": "surface-mockups-area3-analysis",
       "path": "docs/mockups/area3-analysis.html",
       "title": "Area 3 analysis",
@@ -16528,6 +17166,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     },
     {
+      "id": "surface-mockups-w2-save-picker",
+      "path": "docs/mockups/w2-save-picker.html",
+      "title": "W-2 Save Picker",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-w2-save-picker"
+    },
+    {
       "id": "surface-coordination-windows-w0-w5-execution",
       "path": "docs/coordination/windows-w0-w5-execution.html",
       "title": "Windows W-0 through W-5 execution plan",
@@ -16536,5 +17182,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d57de6f9ea110a4dfda1a3e3c476cbc5a7ee72fd1390fcbef90112ee363e5b28"
+  "graphSha256": "c19c15e87521cdb81ac20cb1f5c0d49e5f84c5a6b4d8766f4a732339be7f8de8"
 };
