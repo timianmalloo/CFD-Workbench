@@ -128,7 +128,7 @@ internal static class SectionsTests
         var xs = new double[count];
         double step = count - 1;
         for (int index = 0; index < count; index++)
-            xs[index] = (1 - Math.Cos(Math.PI * index / step)) / 2;
+            xs[index] = (1 - double.CosPi(index / step)) / 2;
         xs[0] = 0;
         xs[^1] = 1;
         return xs;

@@ -457,7 +457,7 @@ public static class DatImport
             if (point.X != points[^1].X || point.Y != points[^1].Y) points.Add(point);
         int nose = points.FindIndex(point => point.X == profile.Upper[0].X && point.Y == profile.Upper[0].Y);
         var t = new double[points.Count];
-        for (int i = 1; i < points.Count; i++) t[i] = t[i - 1] + Math.Sqrt(Math.Pow(points[i].X - points[i - 1].X, 2) + Math.Pow(points[i].Y - points[i - 1].Y, 2));
+        for (int i = 1; i < points.Count; i++) t[i] = t[i - 1] + Math.Sqrt((points[i].X - points[i - 1].X) * (points[i].X - points[i - 1].X) + (points[i].Y - points[i - 1].Y) * (points[i].Y - points[i - 1].Y));
         double[] px = points.Select(point => point.X).ToArray(), py = points.Select(point => point.Y).ToArray();
         double[] mx = NaturalSecondDerivatives(t, px), my = NaturalSecondDerivatives(t, py);
         var dense = new List<(double X, double Y)>();

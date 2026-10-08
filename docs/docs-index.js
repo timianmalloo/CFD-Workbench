@@ -3282,7 +3282,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a72cac34fd2d1f165afd734f2418c3d146964ac0d9b171441eba678cadbfdaf7"
+      "sourceSha256": "aaaf5fa821a2578a395ba502edc357ab2c5d4b88de6d05906fe20a8e6796f071"
     },
     {
       "id": "design-next-cad-increment",
@@ -3594,7 +3594,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8ef5fe6e6219e67b55759b10a54614eecb2d4467dde5182bb7a072705dc953df"
+      "sourceSha256": "e4177a55d03c4c9c2f933fbd69b3b271a82ebcffa8e957d8745a44a7393c7155"
     },
     {
       "id": "design-windows-runtime",
@@ -5211,7 +5211,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1f88c33c030d9e87e10b2f54b64eaf4d9f13c25e2e52d2603b188f11401b38b6"
+      "sourceSha256": "dd5518ea92ebe43ef1dc63de07fe5d33b055135def618b655442f4cdddddfa0a"
     },
     {
       "id": "domain-experts",
@@ -5912,6 +5912,84 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "proof-caf-red-first",
+      "path": "docs/proof/caf/red-first.md",
+      "title": "Track CAF - red-first record for catalog generator naca4-closed/2",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-caf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the spacing bit golden and accuracy check, the generator id, and the CRT-transcendental gate (commit 1, catalog).",
+      "tags": [
+        "catalog",
+        "determinism",
+        "ruling-156",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "272a21ca635b690e899bf59f8bc54c1fcdc475f341ce5eb46c5501c237fbcd1b"
+    },
+    {
+      "id": "proof-caf-residual",
+      "path": "docs/proof/caf/residual.md",
+      "title": "Track CAF - residual of naca4-closed/2 against /1 (P4)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-caf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Measured change of the three shipped NACA entries between generator naca4-closed/1 and /2: points changed, max ordinate change, and the 4412 frame deltas. All sit far under the 1e-6 identity tolerance, so no catalog id changes.",
+      "tags": [
+        "catalog",
+        "determinism",
+        "ruling-156",
+        "residual"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "71d9a36165e90e74fe5695a4dd3bfdaaac084f32a78a604ebd4a01435a3b3164"
+    },
+    {
+      "id": "proof-caf-surfaces",
+      "path": "docs/proof/caf/surfaces.md",
+      "title": "Track CAF - E7 surface list for the Placement change (Ruling 156 P3)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-caf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Every committed hash or golden that Placement output reaches, found by search. One bit golden moves (placement-surface-bits.txt); no persisted non-test artifact carries Placement output, so no decision request is raised.",
+      "tags": [
+        "placement",
+        "determinism",
+        "ruling-156",
+        "surface-list"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f58734f8401336f0cbb4aa191937e398938b3d63b9303809816005521e867356"
+    },
+    {
       "id": "proof-cpy-cause-rows",
       "path": "docs/proof/cpy/cause-rows.md",
       "title": "Track CPY, Ruling 148 - proposed plain-cause rows for DOC-/DSL- codes",
@@ -5962,6 +6040,60 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
+    },
+    {
+      "id": "proof-rwf-red-first",
+      "path": "docs/proof/rwf/red-first.md",
+      "title": "Track RWF - red-first record for the record-write path (Ruling 157)",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-rwf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Red and green runs, measured drift per fitted-project family, and the item 3 exact-assert fixes for the record-write path (items 1 to 3 of Ruling 157).",
+      "tags": [
+        "determinism",
+        "record-path",
+        "ruling-157",
+        "red-first",
+        "crt-golden"
+      ],
+      "links": [
+        {
+          "to": "proof-caf-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1e0f0bd0b382d5328c3d1450f0f3acd0b6e2121150ad6e819ba220664a5354f9"
+    },
+    {
+      "id": "proof-rwf-residual",
+      "path": "docs/proof/rwf/residual.md",
+      "title": "Track RWF - residual risk, surface list and spec check (Ruling 157)",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-rwf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The DatImport.cs:386 residual risk, the surfaces the two new gate entries reach, and the spec search for a cross-OS byte-identity claim on project files.",
+      "tags": [
+        "determinism",
+        "record-path",
+        "ruling-157",
+        "residual",
+        "surfaces"
+      ],
+      "links": [
+        {
+          "to": "proof-rwf-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "af6001f81fa629006e9f385fba932780807323610781806fe3e9cc28d41b0c01"
     },
     {
       "id": "proof-win-cfmesh-probe",
@@ -6049,6 +6181,40 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e6b61276da42fe8eefb806f46d224e9994df851034ee993f8b628f6cdc601c37"
+    },
+    {
+      "id": "proof-windows-store-r145-qualification",
+      "path": "docs/proof/win-store-implementation/r145-qualification.md",
+      "title": "Ruling 145 Windows native sharing and rename attribution qualification",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@windows-worker",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The approved sharing behavior is characterized on real NTFS, the missing stable sharing-conflict code is observed red then corrected, and independent Win32 probes attribute error 87 to the tested rooted forms. Production admission and full qualification remain blocked; the required docs gate fails outside the lease.",
+      "tags": [
+        "windows",
+        "persistence",
+        "proof",
+        "blocked"
+      ],
+      "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-windows-store-implementation",
+          "rel": "refines"
+        },
+        {
+          "to": "receipt-windows-store-implementation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "25c57ecfb0fd70abd61108d0bdb5299e1e017f81e2429d822c2fc6d2f25fdf36"
     },
     {
       "id": "receipt-windows-store-implementation",
@@ -7509,7 +7675,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7a06fb5319d18e27d9e30690bede4ebe54568818b84780a20239a7d86edd79f0"
+      "sourceSha256": "1fec0799516ed22cde03e562da7a8ec0f1ff852a7d052b802ad015ccffd4bf9e"
     },
     {
       "id": "kb-hw-glossary",
@@ -12850,6 +13016,30 @@ window.DOCS_INDEX = {
       "sourceSha256": "6064910d7c0a08c235953046f974b5f29b130e7fe0551ecfcfc4199f527fc34b"
     },
     {
+      "id": "proof-ncr-red-first",
+      "path": "docs/proof/ncr/red-first.md",
+      "title": "NCR red-first receipts (Not resolved at 1 chordwise panel)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Ruling 161: the checks that fail on the old nc = 1 texts and glyph, the passing runs, and the rendered texts.",
+      "tags": [
+        "ncr",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-num-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b774159797d8d57ec3ab82efc5e0f8d5a9f2fae5d691ca0d18b0bd0cab095904"
+    },
+    {
       "id": "proof-newfoil-red-runs",
       "path": "docs/proof/newfoil-red-runs.md",
       "title": "NEWFOIL red-first run",
@@ -14861,6 +15051,36 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "7746809414206f0beeeec372f5b03ed33d4955d6d408623db7a3fcfea87090d5"
+    },
+    {
+      "id": "proof-wfx2-pc-ring-20261008",
+      "path": "docs/proof/wfx2/pc-ring-20261008/receipt.md",
+      "title": "WFX2 - Windows ring evidence, 2026-10-08",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wfx2",
+      "phase": "implementation",
+      "reviewBy": "2027-11-08",
+      "reviewSuggested": [],
+      "summary": "Evidence-only receipt for one completed Windows test ring; records outcomes, redacted log extracts, and the UI checks the ring cannot assess.",
+      "tags": [
+        "windows",
+        "wfx",
+        "proof",
+        "ring"
+      ],
+      "links": [
+        {
+          "to": "proof-wfx2-pc-reverify",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wfx2-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ce31a84bf665e80507832bcf3beb0dcf118a3eb44ab01430700737a3639773f2"
     },
     {
       "id": "proof-wfx2-red-first",
@@ -17209,5 +17429,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "fb9879bd3907a7839b15eaf2f08d04f7ce93b5d27ae1b9494ad90bbad0603797"
+  "graphSha256": "bbb68c058a3abd6ceefcff4c3e8d8677220283bf4dd38c397510e6fef4b60c5d"
 };

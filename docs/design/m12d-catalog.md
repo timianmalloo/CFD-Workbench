@@ -419,7 +419,7 @@ public enum CatalogFamily { Naca, Eppler, Speer, MySections }
 public sealed record CatalogEntry(string Id, CatalogFamily Family, string Designation, AdmissionClass Class,
     string? DisabledReason /* COPY-109/110/190; null = choosable */, byte[]? Coordinates /* GEN only */);
 public static class Catalog { public static IReadOnlyList<CatalogEntry> Load(); }          // throws CAT-UNAVAILABLE
-public static class CatalogGenerator { public static byte[] Naca4(string digits); public const string Id = "naca4-closed/1"; }
+public static class CatalogGenerator { public static byte[] Naca4(string digits); public const string Id = "naca4-closed/2"; }
 
 public sealed record Provenance(string? Origin, bool Modified)
 {
