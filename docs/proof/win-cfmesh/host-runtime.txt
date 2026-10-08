@@ -1,0 +1,6 @@
+Host OS: Windows 11 Pro, build 26300.9457 (prior verified W-3 survey)
+Host architecture: AMD64
+Logical processors: 20
+Computer name: <redacted-host>
+User: <redacted-user>
+WSL distribution: cfdw-openfoam2512 (WSL2; prior verified W-3 route)
