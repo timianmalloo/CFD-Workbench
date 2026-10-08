@@ -182,11 +182,13 @@ completion status, never treat a warning/pending result as completed I/O.
 **Ruling 145 stable sharing-error mapping:** Win32
 `ERROR_SHARING_VIOLATION` (32), including NTSTATUS `STATUS_SHARING_VIOLATION`
 (`0xc0000043`) from class 65 replacement, maps to `DOC-CONFLICT`, never `DOC-IO`.
-`WindowsNative.NativeFailure.ProductCode` exposes this mapping at the qualification
-boundary; a future adapter must preserve it. This is a refused prepublication
-operation: the incumbent bytes/identity and owned temp remain unchanged. There is
-no automatic retry or alternative rename primitive. This mapping does not enable
-Windows production admission.
+`WindowsNative.NativeFailure.ProductCode` exposes only this qualified mapping at
+the qualification boundary: it is `DOC-CONFLICT` for Win32 32 and null for every
+other value. This is not a general Win32-to-product-code table; a future adapter
+must preserve the null. This is a refused prepublication operation: the incumbent
+bytes/identity and owned temp remain unchanged. There is no automatic retry or
+alternative rename primitive. This mapping does not enable Windows production
+admission.
 
 **Frozen qualification checkpoint:** on Windows x64 build 10.0.26300 / NTFS,
 `SetFileInformationByHandle(FileRenameInfoEx=22)` with a retained non-null root and
