@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using CfdWorkbench.Core;
 using static CfdWorkbench.Analysis.Tests.AnalysisChecks;
 
 namespace CfdWorkbench.Analysis.Tests;
@@ -14,6 +15,53 @@ internal static class CauseCopyTests
         Check("Labels_UnknownCode_GenericRowWithCode_Ruling155", UnknownCodeGeneric);
         Check("Labels_UncertainSave_NamesNeitherSavedNorNotSaved_Copy421", UncertainWording);
         Check("Labels_NoRawDocDslCodeAloneOnAProductSurface", NoRawCodeAlone);
+        Check("Labels_NoStatusLineLeadsWithACode_Ruling158", NoStatusLeadsWithCode);
+        Check("Labels_SaveRetryRows_Ruling158_ExactText", SaveRetryExact);
+        Check("Labels_SaveRetryNotConfirmed_OkCode_NeverPrintsOk_Ruling158", RetryOkNeverPrinted);
+        Check("Labels_DraftUnavailable_Ruling158_ExactText", DraftUnavailableExact);
+    }
+
+    private const string KeptUnsaved = " Your changes are kept and still marked unsaved. ";
+
+    /// <summary>COPY-432 to 435, typed here independently of Labels.</summary>
+    private static void SaveRetryExact()
+    {
+        Equal("Couldn't check the saved file (DOC-IO)." + KeptUnsaved + "Retry, or use Save As.", Labels.ReadBackFailed("DOC-IO"));
+        Equal("Save still not confirmed (DOC-CONFLICT)." + KeptUnsaved + "Retry, or use Save As.", Labels.RetryNotConfirmed("DOC-CONFLICT"));
+        Equal("Save still not confirmed: the disk didn't confirm the file was stored." + KeptUnsaved + "Retry, or use Save As.", Labels.RetryNotConfirmed("OK"));
+        Equal("The file on disk changed after this save was attempted." + KeptUnsaved + "Use Save As to keep them without overwriting the other version.", Labels.DiskChangedAfterSave);
+    }
+
+    private static void RetryOkNeverPrinted()
+    {
+        string text = Labels.RetryNotConfirmed("OK");
+        Equal(false, text.Contains("(OK)", StringComparison.Ordinal) || text.Contains("OK", StringComparison.Ordinal), text);
+    }
+
+    /// <summary>COPY-436 to 438: each status, with and without reasons, with and without a station; the draft id never appears.</summary>
+    private static void DraftUnavailableExact()
+    {
+        const string shown = " The last valid shape is still shown.";
+        Equal("Station 2: this shape isn't valid yet — chord is too short (DSL-GEOMETRY)." + shown, Labels.DraftUnavailable(GeometryStatus.Invalid, "Station 2", "DSL-GEOMETRY", "chord is too short"));
+        Equal("Station 2: this shape isn't valid yet (DSL-GEOMETRY)." + shown, Labels.DraftUnavailable(GeometryStatus.Invalid, "Station 2", "DSL-GEOMETRY", ""));
+        Equal("Tip: this shape uses something CFD Workbench can't check yet — open trailing edge only (DSL-UNSUPPORTED)." + shown, Labels.DraftUnavailable(GeometryStatus.Unsupported, "Tip", "DSL-UNSUPPORTED", "open trailing edge only"));
+        Equal("Root: this shape uses something CFD Workbench can't check yet (DSL-UNSUPPORTED)." + shown, Labels.DraftUnavailable(GeometryStatus.Unsupported, "Root", "DSL-UNSUPPORTED", ""));
+        Equal("Station 3: this shape couldn't be checked in time (ANA-BUDGET). The last valid shape is still shown; keep editing or try again.", Labels.DraftUnavailable(GeometryStatus.NotAssessed, "Station 3", "ANA-BUDGET", "ignored"));
+        Equal("This shape isn't valid yet — r (C)." + shown, Labels.DraftUnavailable(GeometryStatus.Invalid, null, "C", "r"));
+    }
+
+    /// <summary>Control (Ruling 158): no interpolated status in src/ leads with a code, <c>$"{x.Code}: ..."</c>, even after a draft prefix. The code belongs
+    /// inside "(code)" after a plain cause (Labels). One known site is listed: "Geometry display unavailable" has no ruled copy yet (reported, not fixed).
+    /// Ring: Analysis fast, one scan of src/.</summary>
+    private static void NoStatusLeadsWithCode()
+    {
+        var leading = new Regex(@"\$""(\{[A-Za-z_.]*Prefix\(\)\})?\{[A-Za-z_.]*Code\}:");
+        var found = new List<string>();
+        foreach (string file in Directory.EnumerateFiles(Path.Combine(StripFixtureTests.RepoRoot(), "src"), "*.cs", SearchOption.AllDirectories))
+            foreach (string line in File.ReadAllLines(file))
+                if (leading.IsMatch(line) && !line.Contains("Geometry display unavailable", StringComparison.Ordinal))
+                    found.Add(Path.GetFileName(file) + ": " + line.Trim());
+        if (found.Count > 0) throw new InvalidOperationException(found.Count + " status lines lead with a code, first: " + found[0]);
     }
 
     /// <summary>Each family's code gives the approved text, typed here independently of Labels.</summary>

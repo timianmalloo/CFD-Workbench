@@ -367,6 +367,31 @@ public static class Labels
         _ => $"Something unexpected stopped this ({code}). Nothing changed." // COPY-431
     };
 
+    private const string KeptUnsaved = " Your changes are kept and still marked unsaved. ";
+
+    /// <summary>The status after an uncertain save whose file could not be read back (COPY-432, Ruling 158).</summary>
+    public static string ReadBackFailed(string code) => $"Couldn't check the saved file ({code}).{KeptUnsaved}Retry, or use Save As."; // COPY-432
+    /// <summary>The status when the retried save is not confirmed (COPY-433 with a code, COPY-434 for OK, which is never shown, Ruling 158).</summary>
+    public static string RetryNotConfirmed(string code) => code == "OK"
+        ? $"Save still not confirmed: the disk didn't confirm the file was stored.{KeptUnsaved}Retry, or use Save As." // COPY-434
+        : $"Save still not confirmed ({code}).{KeptUnsaved}Retry, or use Save As."; // COPY-433
+    public const string DiskChangedAfterSave = "The file on disk changed after this save was attempted. Your changes are kept and still marked unsaved. Use Save As to keep them without overwriting the other version."; // COPY-435 (Ruling 158)
+
+    /// <summary>The status for a draft that cannot be certified (COPY-436 to 438, Ruling 158). <paramref name="station"/> is the station's display name;
+    /// a draft that is not a section has none, and the sentence then starts "This shape". Certified never reaches here. With no reasons the " — reasons" clause is left out.</summary>
+    public static string DraftUnavailable(GeometryStatus status, string? station, string code, string reasons)
+    {
+        string lead = station is null ? "This shape" : station + ": this shape";
+        string because = string.IsNullOrWhiteSpace(reasons) ? "" : " — " + reasons;
+        const string shown = " The last valid shape is still shown";
+        return status switch
+        {
+            GeometryStatus.Invalid => $"{lead} isn't valid yet{because} ({code}).{shown}.", // COPY-436
+            GeometryStatus.Unsupported => $"{lead} uses something CFD Workbench can't check yet{because} ({code}).{shown}.", // COPY-437
+            _ => $"{lead} couldn't be checked in time ({code}).{shown}; keep editing or try again." // COPY-438 (NotAssessed)
+        };
+    }
+
     /// <summary>The second line under an open failure's approved sentence (COPY-424, Ruling 155).</summary>
     public static string OpenCodeLine(string code) => "Code: " + code; // COPY-424
     public static readonly string[] VectorKey = ["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16

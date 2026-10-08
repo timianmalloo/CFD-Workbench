@@ -376,6 +376,12 @@ async Task RecoverySaveReopenResumeAsync()
         if (invalidRecovery.Provenance != "draft — unavailable geometry" ||
             !invalidRecovery.DraftInputValid || invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
             throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
+        // Ruling 158 (5)-(7): a draft that is not a section has no station; the status is plain and ends with the code, never leads with it.
+        if (!invalidRecovery.Status.StartsWith("This shape ", StringComparison.Ordinal) ||
+            !invalidRecovery.Status.Contains(" (", StringComparison.Ordinal) ||
+            !invalidRecovery.Status.Contains("The last valid shape is still shown", StringComparison.Ordinal) ||
+            invalidRecovery.Status.Contains("Draft ", StringComparison.Ordinal))
+            throw new Exception("Unavailable draft status is not the Ruling 158 sentence: " + invalidRecovery.Status);
     }
     finally { File.Delete(recoveryPath); File.Delete(seedRecoveryPath); }
 }
