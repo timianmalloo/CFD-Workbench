@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T17:51:04Z",
+  "generated": "2026-10-08T17:53:28Z",
   "audit": [
     {
       "actor": null,
@@ -30181,6 +30181,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T17:50:11Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M4EAC57HE0T5JGR6N467C0B3",
+      "shortname": "join-w5",
+      "datetime": "2026-10-08T17:53:28Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/w5-cfmesh into main",
+      "summary": "PR #11 joined as a preserved blocked checkpoint; fresh activated probe authorized by Ruling 153 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join PR #11 W-5 blocked checkpoint under Ruling 153",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T17:52:36Z",
+      "duration_seconds": 52.0
     }
   ],
   "changes": [
@@ -32298,6 +32325,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4E9WTG47SKAZGB5YK09593X",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EA8YK051MEMYXE7QA6JPY1",
+      "ts": "2026-10-08T17:51:43Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EA8YJWZ8K0HGKVZ40C3BJ5",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EA8YP1H1NG70E4SXNDVAM7",
+      "ts": "2026-10-08T17:51:43Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EA8YJWZ8K0HGKVZ40C3BJ5",
       "session": "fable-owner"
     }
   ]
