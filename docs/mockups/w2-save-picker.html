@@ -192,7 +192,7 @@ function confirmDialog(result){
   return dialog('confirm', 'COPY-446', body, btn('COPY-445', 'cancel2', '', true) + act, 'confirm');
 }
 function nativeFrame(opts){
-  const folder = opts.missing ? 'C:\\Users\\&lt;you&gt;' : 'C:\\Users\\&lt;you&gt;\\CFD Workbench';
+  const folder = esc(opts.missing ? 'C:\\Users\\<you>' : 'C:\\Users\\<you>\\CFD Workbench');
   return `<div class="native" tabindex="-1" role="group" aria-label="Windows save dialog — native, drawn by Windows" id="native" data-fk="native">
     <div class="cap" data-chrome>Windows save dialog — native, drawn by Windows <span>Stand-in frame; CFD Workbench does not draw it</span></div>
     ${opts.hint ? `<div class="hint" data-chrome>${opts.hint}</div>` : ''}
