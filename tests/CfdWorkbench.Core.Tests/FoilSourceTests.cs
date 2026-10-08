@@ -12,6 +12,7 @@ internal static class FoilSourceTests
     {
         CatalogTests.Run();
         ProvenanceTests.Run();
+        RecordPathTests.Run();
         Check("Ruling17_DegreeIdentity_DoesNotCollapseDistinctInputs", () =>
         {
             var a = Parse(Text.Replace("(0.3, -0.25)", "(0.3, 1.791)"));

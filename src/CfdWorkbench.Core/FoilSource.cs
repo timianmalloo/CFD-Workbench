@@ -532,7 +532,7 @@ public static class FoilSource
         const int profileCount = 10;
         const int railCount = 4;
         const int channelCount = 10;
-        const double tipPower = 3;
+        const int tipPower = 3;
         var (profileKnots, profileX) = SqrtProfileBasis(profileCount);
         double[] upper = FitNaca(profileKnots, profileCount);
         double[] lower = upper.Select(value => -value).ToArray();
@@ -578,7 +578,7 @@ public static class FoilSource
         var target = new double[samples];
         for (int index = 0; index < samples; index++)
         {
-            double x = 0.5 * (1 - Math.Cos(Math.PI * index / (samples - 1)));
+            double x = 0.5 * (1 - double.CosPi(index / (double)(samples - 1)));
             parameter[index] = Math.Sqrt(Math.Max(0, x));
             target[index] = Naca0012(x);
         }
@@ -642,7 +642,9 @@ public static class FoilSource
         return (knots, controlX);
     }
 
-    private static (double[] Knots, double[] X) TipClusteredChannel(int count, double power)
+    // power is an integer (the only callers pass tipPower = 3): repeated multiplication is correctly rounded at every step on every OS,
+    // where Math.Pow forwards to the platform C runtime (Ruling 157).
+    private static (double[] Knots, double[] X) TipClusteredChannel(int count, int power)
     {
         const int degree = 3;
         int interior = count - degree - 1;
@@ -651,7 +653,9 @@ public static class FoilSource
         for (int index = 1; index <= interior; index++)
         {
             double fraction = (double)index / (interior + 1);
-            knots[degree + index] = 1 - Math.Pow(1 - fraction, power);
+            double remaining = 1;
+            for (int factor = 0; factor < power; factor++) remaining *= 1 - fraction;
+            knots[degree + index] = 1 - remaining;
         }
         for (int index = knots.Length - degree - 1; index < knots.Length; index++) knots[index] = 1;
         var controlX = new double[count];
@@ -1007,7 +1011,7 @@ public static class FoilSource
         const int samples = 201;
         for (int index = 0; index < samples; index++)
         {
-            double x = 0.5 * (1 - Math.Cos(Math.PI * index / (samples - 1)));
+            double x = 0.5 * (1 - double.CosPi(index / (double)(samples - 1)));
             if (GapAt(before, after, x) > 1e-6) return true;
         }
         foreach (double t in before.Knots.Concat(after.Knots))

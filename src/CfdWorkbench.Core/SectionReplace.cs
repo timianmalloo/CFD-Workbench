@@ -212,7 +212,7 @@ public static class SectionReplace
             var oldLower = Dense(old.Lower);
             for (int i = 0; i <= 2000; i++)
             {
-                double x = 0.5 * (1 - Math.Cos(Math.PI * i / 2000));
+                double x = 0.5 * (1 - double.CosPi(i / 2000.0));
                 double change = Math.Max(Math.Abs(YAt(oldUpper, x) - YAt(newUpper, x)), Math.Abs(YAt(oldLower, x) - YAt(newLower, x)));
                 if (change > worst) { worst = change; at = x; }
             }
@@ -324,7 +324,7 @@ public static class SectionReplace
         private static List<ProfilePoint> Cosine((double X, double Y)[] curve) =>
             Enumerable.Range(0, SourceSamples).Select(i =>
             {
-                double x = 0.5 * (1 - Math.Cos(Math.PI * i / (SourceSamples - 1)));
+                double x = 0.5 * (1 - double.CosPi(i / (double)(SourceSamples - 1)));
                 return new ProfilePoint(x, YAt(curve, x));
             }).ToList();
 
