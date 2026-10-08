@@ -34,7 +34,7 @@ public sealed class SectionLibrary(string root)
             {
                 if (!FileName.IsMatch(file) || (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
                     throw new InvalidDataException();
-                using var input = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read);
+                using var input = UserFile.OpenRead(path);
                 if (input.Length > MaxBytes) throw new InvalidDataException();
                 using var buffer = new MemoryStream();
                 byte[] chunk = new byte[8192];

@@ -1399,7 +1399,7 @@ public sealed class ShellHost : Grid
             return;
         }
         byte[] dat;
-        try { dat = await File.ReadAllBytesAsync(path); }
+        try { dat = await UserFile.ReadAllBytesAsync(path); }
         catch (Exception error) when (error is IOException or UnauthorizedAccessException)
         {
             Report(new StatusReport($"The .dat file couldn't be read. Nothing changed.", ReportKind.Error));

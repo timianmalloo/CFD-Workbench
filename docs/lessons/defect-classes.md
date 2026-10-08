@@ -2020,3 +2020,14 @@ append-only registers); `docs/proof/win-routes/manifest.json` was refreshed for 
 `tools/check-proof-pii.py` (`--self-test` plants every form, a SID, and a macOS home path that must not fire), run by `tools/check-docs.py`
 (fast ring, about 1 s); a shrink-only allowlist carries a reason per entry (one: the pack's own fixture with a dummy name). Residual: the
 guard sees a name only in a path or SID shape, and history is unchanged.
+
+**READER-SHARE-DELETE · A reader opened without delete sharing blocks a POSIX replace on Windows.**
+A product reader that opens a user file with `FileShare.Read` (or through `File.ReadAllBytes*`, `File.OpenRead`, which share Read only) holds a handle
+the Windows save cannot replace under: the handle-relative rename fails with NativeFailure Win32 32, NTSTATUS 0xC0000043. A `FILE_SHARE_READ |
+FILE_SHARE_DELETE` reader keeps its old bytes while the replace succeeds (Ruling 145 (1)). macOS ignores share modes, so no Mac test sees it.
+
+**Class → sweep → derive → prevent:** signature: a `src/**/*.cs` line with `FileShare.Read` not followed by `| FileShare.Delete`, or a `File.ReadAll*`/`OpenRead`/`OpenText`
+call. Sweep: three sites (`ShellHost.ImportDatAsync`, `Cli.ReadFoilBoundedAsync`, `SectionLibrary.ScanCore`), now all on `UserFile.OpenRead`; `PaneDiagnostics` is an append
+writer and out of scope. Derive: one opener, `CfdWorkbench.Persistence.UserFile`, owns the flags. Control: `tools/check-reader-sharing.py` (`--self-test` plants nine
+offenders and eight clean forms incl. writers), run by `tools/check-docs.py` (fast ring, 0.3 s); behaviour test `Library_UserFileHeldReader_SurvivesReplaceByRename` (red on Windows
+with the old flags only). Residual: a reader built from `StreamReader(path)` or a new API outside the pattern list passes the scan.
