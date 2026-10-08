@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T02:27:28Z",
+  "generated": "2026-10-08T02:33:05Z",
   "audit": [
     {
       "actor": null,
@@ -29805,6 +29805,26 @@ window.AUDIT_DATA = {
       "done_when": "Exclusion, wing-line suffix and tip-station display tested red-first; item 4 sweep and item 5 observation recorded; ring, docs and verify gates green",
       "started_at": "2026-10-08T02:07:40Z",
       "duration_seconds": 1188.0
+    },
+    {
+      "id": "al-01M4CNPVF1AE9KMAQ2WH0T0QE0",
+      "shortname": "trk-tcv",
+      "datetime": "2026-10-08T02:33:04Z",
+      "session": "trk-tcv",
+      "prompt": "trk-tcv extension: Cp_min marker on tip stations",
+      "summary": "SectionProfile.TipNotJudged drops the Cp_min ring, plate, legend range and aria number; the Cp chart loses its Cp_min point and range. All-tip wing line, Analysis row and V_crit read exactly Labels.TipNotJudged (verified, no wrapping). Checks in the readiness ring.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "A tip station shows no Cp_min number anywhere in the Section view; all-tip wing line reads exactly Not judged — tip strip",
+      "done_when": "Red-first Analysis and Desktop checks, capture retaken and opened, ring and gates green",
+      "started_at": "2026-10-08T02:28:07Z",
+      "duration_seconds": 297.0
     }
   ],
   "changes": [
