@@ -6,12 +6,17 @@ namespace CfdWorkbench.Analysis.Tests;
 
 internal static class PolarSeamTests
 {
+    // Readiness only: checks moved out of the fast ring (round-oct08 RGM, Ruling 143); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        AnalysisChecks.Check("Section_EditedProfileNoPolar_Unavailable", EditedRevision);
+    }
+
     internal static void Run()
     {
         AnalysisChecks.Check("PolarSample_DerivedFlags_EqualEvaluateAtWriteTime", DerivedFlags);
         AnalysisChecks.Check("PolarSample_ReOutside_DerivedEqualsWriteTime", ReOutside);
         AnalysisChecks.Check("PolarSample_LowConfidence_DerivedEqualsWriteTime", LowConfidence);
-        AnalysisChecks.Check("Section_EditedProfileNoPolar_Unavailable", EditedRevision);
     }
 
     private static void DerivedFlags()
