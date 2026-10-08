@@ -1,1 +1,2 @@
 {"agent": "trk-stc", "at": 1791482272.795069, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-stc", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feature-stc-stations-caption"}
+{"agent": "trk-stc", "at": 1791484493.507879, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-stc", "wi": "WI-0", "worktree": "CFD-Workbench-feature-stc-stations-caption"}

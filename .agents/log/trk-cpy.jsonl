@@ -2,3 +2,4 @@
 {"agent": "trk-cpy", "at": 1791325463.828466, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-cpy", "wi": "WI-0", "worktree": "CFD-Workbench"}
 {"agent": "trk-cpy", "at": 1791325476.920894, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-cpy", "wi": "WI-0", "worktree": "CFD-Workbench-fix-a3a-copy-display"}
 {"agent": "trk-cpy", "at": 1791482273.51132, "kind": "session-start", "path": "-", "seq": 4, "session": "trk-cpy", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-docs-cpy-cause-rows"}
+{"agent": "trk-cpy", "at": 1791484493.753651, "kind": "session-end", "path": "-", "seq": 5, "session": "trk-cpy", "wi": "WI-0", "worktree": "CFD-Workbench-docs-cpy-cause-rows"}
