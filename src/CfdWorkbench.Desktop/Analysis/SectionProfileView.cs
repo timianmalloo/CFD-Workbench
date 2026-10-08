@@ -250,7 +250,7 @@ public sealed class SectionProfileView : Control
         Arrow(context, anchor, liftEnd, viewport, 7, null, 13);
         if (f.ProfileLow is not null) Arrow(context, anchor, profileEnd, viewport, 8, null, 0);
         Arrow(context, profileEnd, inducedEnd, viewport, 8, null, 13);
-        if (f.Anchor == ForceAnchor.QuarterChord)
+        if (f.Anchor == ForceAnchor.QuarterChord && f.MomentResolved)
         {
             Couple(context, anchor, f.CouplePerSpan, viewport, 7, 0);
             Couple(context, anchor, f.CouplePerSpan, ink, 3, 11);
@@ -289,7 +289,8 @@ public sealed class SectionProfileView : Control
         if (cp) Place2(Labels.AnchorCp(f.XcpOverC!.Value), Labels.LatticeBias(f.NChord), anchor.X - 10, oy + yI, right: true);
         else Place(Labels.AnchorQuarter, anchor.X - 10, oy + yI + 20, right: true);
         // the couple label goes on the side of the chord away from the Cp_min plate
-        if (!cp) Place2(Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, u), Labels.LatticeBias(f.NChord), anchor.X + 44, cpSide == "lower" ? anchor.Y - 62 : anchor.Y + 38);
+        if (!cp && f.MomentResolved) Place2(Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, u), Labels.LatticeBias(f.NChord), anchor.X + 44, cpSide == "lower" ? anchor.Y - 62 : anchor.Y + 38);
+        else if (!cp) Place(Labels.CoupleLabelNotResolved, anchor.X + 44, cpSide == "lower" ? anchor.Y - 46 : anchor.Y + 38);
         Place(Labels.InducedDragLabel(f.InducedPerSpan, u, f.DragMultiple), imx - 14, oy + yI);
         if (f.ProfileLow is { } low && f.ProfileHigh is { } high)
         {

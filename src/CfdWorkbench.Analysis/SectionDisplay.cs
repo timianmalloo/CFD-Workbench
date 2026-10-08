@@ -61,6 +61,9 @@ public sealed record SectionForces(double Eta, double ChordMeters, double AlphaG
     double LiftScale, int DragMultiple, Units Units, int NChord = 4, double CoupleScale = 0)
 {
     /// <summary>Centre of the Ncrit 2-4 band.</summary>
+    /// <summary>Ruling 161: the lattice resolves the centre of pressure and the pitching moment from two chordwise panels up. The one definition; every surface reads it.</summary>
+    public static bool IsMomentResolved(int nChord) => nChord >= 2;
+    public bool MomentResolved => IsMomentResolved(NChord);
     public double? ProfileMid => ProfileLow is { } low && ProfileHigh is { } high ? 0.5 * (low + high) : null;
     public double TotalPerSpan => (ProfileMid ?? 0) + InducedPerSpan;
     public bool LowConfidence => StripFlags.Has(ProfileFlags, StripFlags.LowConfidence);
@@ -431,9 +434,10 @@ public static class SectionDisplay
             R(Labels.AlphaGeoRow, N(f.AlphaGeoDeg, "0.00"), "°"), R(Labels.AlphaEffRow, N(f.AlphaEffDeg, "0.00"), "°"),
             R(Labels.AlphaIRow, N(f.AlphaIDeg, "0.00"), "°"),
             R(Labels.XcpRowLabel(f.NChord), f.Anchor == ForceAnchor.CentreOfPressure ? N(f.XcpOverC!.Value, "0.00") : f.XcpText,
-                note: f.Anchor == ForceAnchor.QuarterChord ? Labels.CouplePlaceNote : null),
+                note: f.Anchor == ForceAnchor.QuarterChord ? (f.MomentResolved ? Labels.CouplePlaceNote : Labels.NotResolvedPlaceNote) : null),
             R(Labels.LiftRow, Labels.Sig3(Labels.ForcePerSpan(f.LiftPerSpan, units)), fu),
-            R(Labels.CoupleRowLabel(f.NChord), Labels.CoupleValue(f.CouplePerSpan, f.CoupleScale, units), mu),
+            f.MomentResolved ? R(Labels.CoupleRowLabel(f.NChord), Labels.CoupleValue(f.CouplePerSpan, f.CoupleScale, units), mu)
+                : R(Labels.CoupleRowLabel(f.NChord), Labels.MomentNotResolved),
             R(Labels.ProfileDragRow, flagged && f.ProfileLow is not null ? profile + " " + fu + " " + Labels.FlaggedSuffix : profile,
                 f.ProfileLow is null || flagged ? null : fu, profileNote.Length > 0 ? profileNote : null),
             R(Labels.InducedDragRow, Labels.Sig3(Labels.ForcePerSpan(f.InducedPerSpan, units)), fu),
@@ -515,10 +519,10 @@ public static class SectionForceModel
         // z = z_LE (a planar, untwisted strip). With twist the bound segments sit at different z and the result is approximate.
         double momentLe = (strip.My - (leadingZ * strip.Fx - leadingX * strip.Fz)) / width, normal = strip.Fz / width;
         double couple = momentLe + 0.25 * chord * normal;
-        double? xcp = run.Settings.NChord >= 2 && normal != 0 && double.IsFinite(momentLe / normal) ? -momentLe / (normal * chord) : null;
+        double? xcp = SectionForces.IsMomentResolved(run.Settings.NChord) && normal != 0 && double.IsFinite(momentLe / normal) ? -momentLe / (normal * chord) : null;
         bool nearZero = Math.Abs(strip.ClLocal) < AnchorClMin;
         bool onCp = xcp is { } x && x >= 0 && x <= 1 && !nearZero;
-        string text = onCp ? Labels.Number(xcp!.Value, "0.00") : nearZero ? Labels.XcpNearZeroLift : xcp is null ? "Undefined" : Labels.XcpOffSection;
+        string text = !SectionForces.IsMomentResolved(run.Settings.NChord) ? Labels.MomentNotResolved : onCp ? Labels.Number(xcp!.Value, "0.00") : nearZero ? Labels.XcpNearZeroLift : xcp is null ? "Undefined" : Labels.XcpOffSection;
         string? unavailable = low is null ? (strip.CdNcrit2.Value is null ? strip.CdNcrit2.UnavailableReason : strip.CdNcrit4.UnavailableReason) : null;
         string? flags = StripFlags.Join(strip.CdNcrit2.FlagCode, strip.CdNcrit4.FlagCode);
         (double scale, int multiple) = RunScale(run, units);

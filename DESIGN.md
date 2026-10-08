@@ -787,6 +787,10 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-SF15 | The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn. — approved — Ruling 130 (the note under the table in the c/4 case) |
 | COPY-SF16 | V∞ · Local inflow · Lift · Drag, profile (cap: Ncrit 2–4 band) · Drag, induced · Pitching-moment couple — approved — Ruling 130 (the vector key, in key order) |
 | COPY-SF17 | lattice, <n> chordwise panels; biased forward at low lift — singular for 1 — approved — Ruling 131 (the x_cp and M′ c/4 labels: in the strip table the row labels read x_cp/c (SF17) and M′ c/4 (SF17); on the profile it is the second line of the CP or anchor plate and of the couple plate; <n> is the run's chordwise panel count, 4 at the default lattice) |
+| COPY-SF18 | Not resolved · 1 chordwise panel — approved — Ruling 161 (the x_cp/c and M′ c/4 values in the strip table when the run has fewer than 2 chordwise panels; replaces the bare "Undefined" and "0.00"; carries no unit) |
+| COPY-SF19 | M′ c/4 (lattice) Not resolved · 1 chordwise panel — approved — Ruling 161 (the profile couple label at 1 chordwise panel; one line, no SF17 second line, and no couple glyph is drawn) |
+| COPY-SF20 | With one chordwise panel the lattice can't resolve the centre of pressure or the pitching moment, so the arrows start at the quarter chord and no couple is drawn. — approved — Ruling 161 (the note under the table at 1 chordwise panel, in place of SF15) |
+| COPY-SF21 | x_cp/c (lattice, 1 chordwise panel) · M′ c/4 (lattice, 1 chordwise panel) — approved — Ruling 161 (the two row labels at 1 chordwise panel: SF17's bias suffix is dropped; at 2 or more panels SF12 and SF17 are unchanged) |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

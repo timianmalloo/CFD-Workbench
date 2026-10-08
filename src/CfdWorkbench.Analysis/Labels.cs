@@ -321,8 +321,13 @@ public static class Labels
         CoupleRow = "M′ c/4 (lattice)", ProfileDragRow = "D′ profile (polar, Ncrit 2–4)", InducedDragRow = "D′ induced (lattice)",
         TotalDragRow = "D′ profile + induced (band centre), free-stream axes";
     public static string LatticeBias(int nChord) => $"lattice, {nChord} chordwise {(nChord == 1 ? "panel" : "panels")}; biased forward at low lift"; // COPY-SF17 (Ruling 131)
-    public static string XcpRowLabel(int nChord) => "x_cp/c (" + LatticeBias(nChord) + ")";
-    public static string CoupleRowLabel(int nChord) => "M′ c/4 (" + LatticeBias(nChord) + ")";
+    public static string XcpRowLabel(int nChord) => "x_cp/c (" + RowBasis(nChord) + ")";
+    public static string CoupleRowLabel(int nChord) => "M′ c/4 (" + RowBasis(nChord) + ")";
+    // Ruling 161 (COPY-SF21): at 1 chordwise panel the row labels drop the bias suffix, since the value is no number at all
+    private static string RowBasis(int nChord) => SectionForces.IsMomentResolved(nChord) ? LatticeBias(nChord) : "lattice, 1 chordwise panel";
+    public const string MomentNotResolved = "Not resolved · 1 chordwise panel"; // COPY-SF18 (Ruling 161): x_cp/c and M′ c/4 values at 1 chordwise panel
+    public const string CoupleLabelNotResolved = "M′ c/4 (lattice) " + MomentNotResolved; // COPY-SF19 (Ruling 161): the profile couple label at 1 chordwise panel
+    public const string NotResolvedPlaceNote = "With one chordwise panel the lattice can't resolve the centre of pressure or the pitching moment, so the arrows start at the quarter chord and no couple is drawn."; // COPY-SF20 (Ruling 161)
     public const string XcpNearZeroLift = "Undefined · near zero lift: |cl| is below 0.05"; // COPY-SF13
     public const string XcpOffSection = "Undefined · the centre of pressure is off the section"; // COPY-SF14
     public const string CouplePlaceNote = "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn."; // COPY-SF15
