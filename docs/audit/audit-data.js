@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T17:48:36Z",
+  "generated": "2026-10-08T17:49:41Z",
   "audit": [
     {
       "actor": null,
@@ -30039,39 +30039,84 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4E873ARMQXZ12XC0RGTREA9",
-      "shortname": "join-pii",
-      "datetime": "2026-10-08T17:15:45Z",
-      "session": "14e5e8d5",
-      "prompt": "the join of chore/proof-pii into main",
-      "summary": "29 proof files scrubbed (history not rewritten, operator decision); 15 manifest rows refreshed; tools/check-proof-pii.py in check-docs; class PROOF-PII recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join chore/proof-pii",
+      "datetime": "2026-10-08T17:15:45Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 52.0,
       "fan_out": 0,
+      "goal": "join chore/proof-pii",
+      "id": "al-01M4E873ARMQXZ12XC0RGTREA9",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of chore/proof-pii into main",
+      "session": "14e5e8d5",
+      "shortname": "join-pii",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-08T17:14:53Z",
-      "duration_seconds": 52.0
+      "summary": "29 proof files scrubbed (history not rewritten, operator decision); 15 manifest rows refreshed; tools/check-proof-pii.py in check-docs; class PROOF-PII recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4EA37E6ENKBF9CFV7HVG00Q",
-      "shortname": "join-w4",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T17:48:36Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 55.0,
+      "fan_out": 0,
+      "goal": "join PR #9 W-4 evidence under Ruling 151",
+      "id": "al-01M4EA37E6ENKBF9CFV7HVG00Q",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of origin/win/w4-evidence-fix into main",
+      "session": "3122f106",
+      "shortname": "join-w4",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T17:47:41Z",
       "summary": "PR #9 joined: W-4a A4 met, cross-OS Cl -1.604e-6 Cd -9.7e-8; W-4b oracle NOT MET; L3 prepared; Fable owner Ruling 151 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-08T17:43:53Z",
+      "done_when": "gate red then green, helper used at 3 sites, behaviour test, defect class, run-tests green",
+      "goal": "Every product reader of a user file opens with FileShare.Read|Delete; a gate keeps it",
+      "id": "al-01M4E9TK1S64EJ3MRG1EJPX37Z",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-wsf",
+      "session": "trk-wsf",
+      "shortname": "reader-share-delete",
+      "skill": "implement",
+      "summary": "UserFile.OpenRead in Persistence; check-reader-sharing.py wired in check-docs; READER-SHARE-DELETE class",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4EA579XKZ0THW2QSVTXN7QN",
+      "shortname": "join-wsf",
+      "datetime": "2026-10-08T17:49:41Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/wsf-reader-share into main",
+      "summary": "WSF joined: UserFile opener with FileShare.Read|Delete at ShellHost, CLI, SectionLibrary; check-reader-sharing gate in check-docs recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -30080,7 +30125,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join PR #9 W-4 evidence under Ruling 151",
+      "goal": "join WSF reader share flags under Ruling 145 (6)",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -30089,8 +30134,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-08T17:47:41Z",
-      "duration_seconds": 55.0
+      "started_at": "2026-10-08T17:48:45Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
