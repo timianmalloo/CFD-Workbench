@@ -1,1 +1,2 @@
 {"agent": "trk-wrt", "at": 1791484556.661174, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-wrt", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feature-wrt-expected-failures"}
+{"agent": "trk-wrt", "at": 1791485926.466978, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-wrt", "wi": "WI-0", "worktree": "CFD-Workbench-feature-wrt-expected-failures"}
