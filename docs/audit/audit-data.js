@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T15:08:21Z",
+  "generated": "2026-10-08T17:14:44Z",
   "audit": [
     {
       "actor": null,
@@ -29986,6 +29986,30 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T15:07:30Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M4E8570XXE2YBD2YSMR9EDQ2",
+      "shortname": "trk-pii",
+      "datetime": "2026-10-08T17:14:44Z",
+      "session": "trk-pii",
+      "prompt": "Scrub the Windows user name from committed proof and add a check-docs guard (operator decision 2026-10-08; Ruling 145 (5))",
+      "summary": "29 files scrubbed to %USERPROFILE%/$HOME, 15 manifest rows refreshed (hash-manifest --check 160 rows), tools/check-proof-pii.py in check-docs (~1.0 s, self-test 7 offenders / 6 clean, shrink-only allowlist of 1), class PROOF-PII; history not rewritten; finished by the coordinator after the track hit a usage limit",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/pii/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "no Windows user name or machine SID in committed proof",
+      "done_when": "guard green in check-docs; scrub hash-safe",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-08T17:02:33Z",
+      "duration_seconds": 731.0
     }
   ],
   "changes": [
@@ -32005,6 +32029,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4DXC8SDWYSVQBP98MEM3XJS",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4E14DQ263G08DDMYXDQ3ZXG",
+      "ts": "2026-10-08T15:11:58Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4E14DPYAGQ8HB1141RGK278",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M4E14DT1FD7PT83SQ4ZCGSH5",
+      "ts": "2026-10-08T15:11:58Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4E14DPYAGQ8HB1141RGK278",
+      "session": "fable-owner"
     }
   ]
 };

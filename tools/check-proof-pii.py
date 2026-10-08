@@ -2,8 +2,9 @@
 """PROOF-PII guard: no Windows user name or machine SID in a committed text file.
 
 Fails any tracked text file that carries
-  * a Windows home path (C:\\Users\\<name>, the JSON-escaped C:\\\\Users\\\\<name>, C:/Users/<name>,
-    /mnt/c/Users/<name>) whose <name> is not a placeholder (%USERPROFILE%, $HOME, <name>, <user>, ...), or
+  * a Windows home path (a drive letter, a Users directory and an account name, in backslash,
+    JSON-escaped, forward-slash or /mnt/<drive> form) whose account is not a placeholder
+    (%USERPROFILE%, $HOME, <name>, <user>, ...), or
   * a machine SID (S-1-5-21-<n>-<n>-<n>, optional RID) -- write S-1-5-21-<machine>-<RID> instead.
 The macOS home (/Users/<name> with no drive prefix) is out of scope and never fires.
 
@@ -26,6 +27,13 @@ WIN_USER = re.compile(
     re.IGNORECASE,
 )
 SID = re.compile(r"S-1-5-21-\d+-\d+-\d+(?:-\d+)?")
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 SAFE_NAMES = {"public", "default", "all users", "default user"}
 
 # Shrink-only: path -> reason. Remove an entry when its file is scrubbed; never add one
@@ -88,7 +96,7 @@ def self_test() -> int:
     clean = {
         "mac home": f"/{u}/mallalieut/projects/CFD-Workbench",
         "userprofile": f"%USERPROFILE%{bs}AppData{bs}Local",
-        "home": "$HOME/AppData/Local",
+        "home": "$HOME/AppData/Local",  # machine-path-ok: clean-text fixture, a placeholder
         "name placeholder": f"C:{bs}{u}{bs}<name>{bs}x and C:{jbs}{u}{jbs}<user>{jbs}y",
         "sid placeholder": "S-1-5-21-<machine>-1001",
         "public": f"C:{bs}{u}{bs}Public{bs}Documents",
