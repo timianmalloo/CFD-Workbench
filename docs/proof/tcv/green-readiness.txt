@@ -1,0 +1,17 @@
+MEASURE F6 CL=0.42061592925327917/0.41906892443595917/0.4183318986301362 e=1.0188185139225332/1.008614926943703/1.0035578493401365 pCL=1.0696906502356247 pE=1.0127005850954285
+PASS TipCavitation_PlantedTipStation_NeverGovernsTheWing
+COST TipCavitation_PlantedTipStation_NeverGovernsTheWing 116.720
+PASS TipCavitation_EveryStationTip_WingLineIsNotJudged
+COST TipCavitation_EveryStationTip_WingLineIsNotJudged 44.003
+PASS TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations
+COST TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations 487.827
+OBSERVED all-tip wing line: [Not judged — tip strip]; Analysis panel Cavitation row: [Not judged — tip strip]; band V_crit: [Not judged — tip strip]
+PASS TipCavitation_ProjectionRowsAndBand_FollowTheRule
+COST TipCavitation_ProjectionRowsAndBand_FollowTheRule 134.499
+PASS TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber
+COST TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber 290.598
+OBSERVED example wing BEFORE (tip flag ignored): governing eta 0.9757, state Clear, sigma 7.7090, -Cp_min 1.0796, stations 129, tip stations left out 0 (eta ; governing ratio 7.140), 400-panel candidates 4
+OBSERVED example wing AFTER  (Ruling 142):      governing eta 0.9757, state Clear, sigma 7.7090, -Cp_min 1.0796, stations 129, tip stations left out 3 (eta 0.9997 ratio 7.810, 0.9998 ratio 7.810, 1.0000 ratio 7.810; governing ratio 7.140), 400-panel candidates 4
+PASS TipCavitation_ExampleWing_GoverningStationIsJudged_BeforeAfterObserved
+COST TipCavitation_ExampleWing_GoverningStationIsJudged_BeforeAfterObserved 2316.581
+RESULT failures=0

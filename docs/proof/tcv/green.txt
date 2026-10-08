@@ -1,0 +1,33 @@
+GROUP Architecture 0
+GROUP RunStore 0
+GROUP Lattice 0
+GROUP Strip 0
+GROUP Service 0
+GROUP Freshness 0
+GROUP Projection 0
+GROUP Labels 0
+GROUP LoadsView 0
+GROUP PanelCp 0
+GROUP SectionEstimator 0
+GROUP Cavitation 0
+GROUP NeuralFoil 0
+GROUP PolarSeam 0
+GROUP SectionSeam 0
+PASS TipCavitation_PlantedTipStation_NeverGovernsTheWing
+COST TipCavitation_PlantedTipStation_NeverGovernsTheWing 111.922
+PASS TipCavitation_EveryStationTip_WingLineIsNotJudged
+COST TipCavitation_EveryStationTip_WingLineIsNotJudged 40.598
+PASS TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations
+COST TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations 457.185
+PASS TipCavitation_ProjectionRowsAndBand_FollowTheRule
+COST TipCavitation_ProjectionRowsAndBand_FollowTheRule 127.291
+PASS TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber
+COST TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber 208.268
+GROUP TipCavitation 945
+GROUP ProvenanceSeam 0
+GROUP PolarNumerics 0
+GROUP OperatingSearch 0
+GROUP TipPolar 0
+GROUP DxSection 0
+GROUP SectionForce 0
+RESULT failures=0

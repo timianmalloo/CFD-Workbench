@@ -1,0 +1,31 @@
+GROUP Architecture 1
+GROUP RunStore 0
+GROUP Lattice 0
+GROUP Strip 0
+GROUP Service 0
+GROUP Freshness 0
+GROUP Projection 0
+GROUP Labels 0
+GROUP LoadsView 0
+GROUP PanelCp 0
+GROUP SectionEstimator 0
+GROUP Cavitation 0
+GROUP NeuralFoil 0
+GROUP PolarSeam 0
+GROUP SectionSeam 0
+FAIL TipCavitation_PlantedTipStation_NeverGovernsTheWing InvalidOperationException: the tip-provisional station is not the governing station expected 0.5; actual 1
+COST TipCavitation_PlantedTipStation_NeverGovernsTheWing 115.032
+FAIL TipCavitation_EveryStationTip_WingLineIsNotJudged InvalidOperationException: no judged station, no verdict expected Unavailable; actual Clear
+COST TipCavitation_EveryStationTip_WingLineIsNotJudged 41.029
+FAIL TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations InvalidOperationException: eta 1 reads the tip strip expected 1; actual 0
+COST TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations 518.521
+FAIL TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber InvalidOperationException: estimator -Cp_min row expected Not judged — tip strip; actual 5.61
+COST TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber 108.498
+GROUP TipCavitation 783
+GROUP ProvenanceSeam 0
+GROUP PolarNumerics 0
+GROUP OperatingSearch 0
+GROUP TipPolar 0
+GROUP DxSection 0
+GROUP SectionForce 0
+RESULT failures=4

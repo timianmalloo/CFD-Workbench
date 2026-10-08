@@ -140,6 +140,8 @@ public static class Labels
     public static string Confidence(double value) => $"analysis_confidence {Number(value, "0.00")} · advisory, not an error bar"; // COPY-315
     public static string CstResidual(double max, double rms) => // COPY-317
         $"CST fit residual: max {Sci(max)} c · RMS {Sci(rms)} c (shape residual, not an aerodynamic error)";
+    /// <summary>COPY-252 form, Ruling 142: the wing cavitation line's suffix when <paramref name="count"/> tip stations were left out; empty for none.</summary>
+    public static string TipNotJudgedSuffix(int count) => count > 0 ? $"; {count} {TipNotJudged}" : "";
     public static string StationCavitationLine(double eta, double depth, int count) => // COPY-304
         $"Governing station: η {Number(eta, "0.###")} · depth {Number(depth, "0.###")} m · smallest σ / (−Cp_min) of {count} stations";
     public static string CpMinWhere(double x, string side, int stations) => // DX row 8
@@ -192,6 +194,7 @@ public static class Labels
     public static IReadOnlyDictionary<string, string> ReasonTexts { get; } = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         ["ANA-SPEED-NOT-POSITIVE"] = "Undefined — speed ≤ 0", // COPY-266
+        [Core.StripLoad.TipProvisionalReason] = TipNotJudged, // COPY-220, Ruling 142: every station reads the tip strip
         ["ANA-CAV-PV-MISSING"] = "Unavailable — vapour pressure missing", // COPY-305
         ["ANA-CAV-DEPTH-NOT-SET"] = DepthNotSet, // COPY-45
         ["ANA-CAV-SURFACE-PIERCING"] = "Unavailable — local station is surface piercing", // COPY-306

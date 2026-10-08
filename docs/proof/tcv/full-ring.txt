@@ -1,0 +1,25 @@
+RING-LOCK waited 0 s
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.73
+build 3 s (Release)
+== CfdWorkbench.Core.Tests 1/3 28 s (26919 ms), 241 PASS
+RESULT failures=0
+== CfdWorkbench.Core.Tests 2/3 31 s (30263 ms), 240 PASS
+RESULT failures=0
+== CfdWorkbench.Core.Tests 3/3 30 s (29658 ms), 240 PASS
+RESULT failures=0
+== CfdWorkbench.Desktop.Tests 46 s (45777 ms), 718 PASS
+SUITE-TIME --analysis 17.0 s
+== CfdWorkbench.Analysis.Tests 1/2 6 s (4983 ms), 112 PASS
+RESULT failures=0
+== CfdWorkbench.Analysis.Tests 2/2 6 s (4917 ms), 122 PASS
+RESULT failures=0
+== CfdWorkbench.Cli.Tests 3 s (1966 ms), 6 PASS
+COST Cli_InspectRuns_RevisionIsSessionLabel 87.748
+test costs: 0 failures, 0 COST-MISS (load 10.90)
+wall 52 s (51421 ms, net 49170 ms) (budget 60 s) cpu 493 s load 5.70 -> 10.90
+all test harnesses passed

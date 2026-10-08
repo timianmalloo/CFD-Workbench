@@ -7113,7 +7113,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f5b5d0f113e6c65a6d50b8bdc4532ab0c50f09d36078d90aa99faa4ea9f4caf1"
+      "sourceSha256": "dfba099aa4e3aa826aec39a2c48d15047855b5d68c34be26ce1f166f58cba0f1"
     },
     {
       "id": "kb-hw-glossary",
@@ -13796,6 +13796,57 @@ window.DOCS_INDEX = {
       "sourceSha256": "289c24ada6a054684276296258c253e11c378cd8848dba9201819e38a1713af3"
     },
     {
+      "id": "proof-tcv-governing",
+      "path": "docs/proof/tcv/governing.md",
+      "title": "TCV governing station on the example wing, before and after Ruling 142, and the wing-verdict surface list",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Observed on the example wing: the governing station is eta 0.9757 before and after; three tip stations are now left out of the verdict. The list of every place that reads the tier's wing verdict, with file:line and whether it follows Ruling 142.",
+      "tags": [
+        "tcv",
+        "cavitation",
+        "tip-strip",
+        "ruling-142"
+      ],
+      "links": [
+        {
+          "to": "proof-tcv-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fb4a43eb9b10cc8105e2af0d0827e14f7900159bdef7615cb93a875c65da4273"
+    },
+    {
+      "id": "proof-tcv-red-first",
+      "path": "docs/proof/tcv/red-first.md",
+      "title": "TCV red-first receipts for Ruling 142",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Each Ruling 142 behaviour has a check that failed on the old code and passes on the new, and two mutants that make the checks fail again.",
+      "tags": [
+        "tcv",
+        "red-first",
+        "ruling-142"
+      ],
+      "links": [
+        {
+          "to": "proof-tcv-governing",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "199a119fb8fe501bf72d7d428dcb3195cd29fb6a5e33d355433bbe325c71dae7"
+    },
+    {
       "id": "proof-tmh-red-first",
       "path": "docs/proof/tmh/red-first.md",
       "title": "TMH red-first receipt for the text-mode-write gate",
@@ -16337,5 +16388,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4655a621f018aa84824a7f1c2d606bfc877be20898b73517079b95cc426b15ed"
+  "graphSha256": "68372c6536bf8f34b4efac27df1ff358412c90be8437180d2748e04e3e61c8f7"
 };
