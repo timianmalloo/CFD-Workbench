@@ -1365,3 +1365,9 @@ Operator 2026-10-08 (AskUserQuestion, session 3122f106), as recommended, after v
 Operator 2026-10-08 (AskUserQuestion, session 3122f106), as recommended. When a run has fewer than 2 chordwise panels (nc = 1): (1) the strip-table values of x_cp/c and M' c/4 read "Not resolved · 1 chordwise panel" (replacing the bare "Undefined" and the "0.00"); the profile couple label reads "M′ c/4 (lattice) Not resolved · 1 chordwise panel". (2) The profile draws no pitching-moment couple glyph; the arrows still start at the quarter chord; the note under the table reads "With one chordwise panel the lattice can't resolve the centre of pressure or the pitching moment, so the arrows start at the quarter chord and no couple is drawn." (3) The row labels drop the COPY-SF17 bias suffix at 1 panel, reading "x_cp/c (lattice, 1 chordwise panel)" and "M′ c/4 (lattice, 1 chordwise panel)"; at 2 or more panels SF17 is unchanged. The rule is structural (nc < 2), not a magnitude floor, and sits beside the existing x_cp rule at SectionDisplay.cs:518. The product default lattice (nc = 4, Ruling 149) is unchanged; nc = 1 is reachable only through an opened run record that carries it.
 
 - request: req-01M4EVZJZ38WS68KCVJTQBZ1RD · ruled by: operator-timianmalloo · at: 2026-10-08T23:01:11Z
+
+### Ruling 162 — At 1 chordwise panel the c/4 plate reads 'x_cp not resolved'; single-line couple label and no unit accepted
+
+Operator 2026-10-08 (AskUserQuestion, session 3122f106), as recommended. (1) At 1 chordwise panel the quarter-chord plate reads "c/4 · arrows start here · x_cp not resolved" (and the profile's accessible name with it); at 2 or more panels COPY-SF5 is unchanged. (2) At 1 chordwise panel the profile couple label is one line, with no COPY-SF17 bias line, and the not-resolved M′ c/4 table value carries no unit.
+
+- request: req-01M4EWWJ9E2848D5WZHQ9SZ8FF · ruled by: operator-timianmalloo · at: 2026-10-08T23:17:00Z
