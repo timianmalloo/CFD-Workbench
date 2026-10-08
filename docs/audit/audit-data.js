@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T15:05:06Z",
+  "generated": "2026-10-08T15:08:21Z",
   "audit": [
     {
       "actor": null,
@@ -29959,6 +29959,33 @@ window.AUDIT_DATA = {
       "done_when": "Origin cited, red-first receipt, drain in both probe checks, lesson updated, full ring green",
       "started_at": "2026-10-08T14:49:05Z",
       "duration_seconds": 961.0
+    },
+    {
+      "id": "al-01M4E0XT3FPD1MKPRXCSK6MSA6",
+      "shortname": "join-rgm-fss",
+      "datetime": "2026-10-08T15:08:21Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of fix/section-editor-surface-settle into main",
+      "summary": "24 checks to readiness, Desktop spawn order longest-first, PASS union 1811=1811; SECTION-EDITOR-LOAD-FLAKE root cause: Fixture.Reset queues a surface job whose CompleteSurface Notify lands inside the drag window; SettleSurface drain before Press and before the nudge run; deterministic held-surface check red-first with the field stack recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join chore/ring-headroom-3 and fix/section-editor-surface-settle",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T15:07:30Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
