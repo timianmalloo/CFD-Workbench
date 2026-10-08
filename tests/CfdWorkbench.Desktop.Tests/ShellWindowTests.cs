@@ -2033,13 +2033,35 @@ public static class ShellWindowTests
                 var actions = ((Panel)StartControl<Button>(start, "AlertLocateButton").Parent!)
                     .Children.OfType<Button>().Where(button => button.IsVisible && button.Name != "AlertDismissButton")
                     .Select(button => button.Content?.ToString()).ToArray();
+                // COPY-424 (Ruling 155): the approved sentence is unchanged and a second line names the code that fired.
+                string message = StartControl<TextBlock>(start, "AlertMessage").Text ?? "";
+                string codeLine = "\nCode: " + item.Failure.Code;
+                if (!message.EndsWith(codeLine, StringComparison.Ordinal))
+                    throw new InvalidOperationException($"{item.Row}: the alert has no second line '{codeLine.Trim()}': '{message}'");
                 string actual = StartControl<TextBlock>(start, "AlertTitle").Text + " " +
-                    StartControl<TextBlock>(start, "AlertMessage").Text +
+                    message[..^codeLine.Length] +
                     (item.Row == "COPY-103" || actions.Length == 0 ? "" : " · " + string.Join(" · ", actions));
                 string expected = rows[item.Row].Replace("<file>", "sample.foil", StringComparison.Ordinal)
                     .Replace("<limit>", "1 MiB", StringComparison.Ordinal);
                 if (actual != expected)
                     throw new InvalidOperationException($"{item.Row}: expected '{expected}', built '{actual}'");
+            }
+        });
+
+        // Control (Ruling 155, with Labels_NoRawDocDslCodeAloneOnAProductSurface): every DOC-/DSL- code quoted in src/ opens to a plain
+        // sentence with the code on its own second line, never the code alone. Ring: Desktop fast part, one scan of src/ (about 0.1 s).
+        DesktopChecks.Check("Copy_OpenFailure_EveryCodeInSrc_PlainSentenceThenCodeLine_Ruling155", () =>
+        {
+            var codes = new SortedSet<string>(StringComparer.Ordinal);
+            var literal = new System.Text.RegularExpressions.Regex("\"((?:DOC|DSL)-[A-Z0-9-]+)\"");
+            foreach (string file in Directory.EnumerateFiles(Path.Combine(RepoRootFromSource(), "src"), "*.cs", SearchOption.AllDirectories))
+                foreach (System.Text.RegularExpressions.Match match in literal.Matches(File.ReadAllText(file))) codes.Add(match.Groups[1].Value);
+            foreach (string code in codes)
+            {
+                string message = StartView.FailureMessage(OpenFailure.ClassifyCode(code, "sample.foil"), "sample.foil");
+                string[] lines = message.Split('\n');
+                if (lines.Length != 2 || lines[1] != "Code: " + code || lines[0].Length < 40 || lines[0].Contains(code, StringComparison.Ordinal))
+                    throw new InvalidOperationException($"{code}: '{message}'");
             }
         });
 

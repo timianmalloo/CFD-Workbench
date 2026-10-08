@@ -317,9 +317,48 @@ public static class Labels
     public const string XcpNearZeroLift = "Undefined · near zero lift: |cl| is below 0.05"; // COPY-SF13
     public const string XcpOffSection = "Undefined · the centre of pressure is off the section"; // COPY-SF14
     public const string CouplePlaceNote = "The centre of pressure is undefined here, so the arrows start at the quarter chord and the pitching-moment couple is drawn."; // COPY-SF15
-    public static string SaveFailed(string cause) => $"Save failed: {cause} — the previous file is intact and your changes are kept. Retry or Save As."; // COPY-31 (Ruling 134)
+    private static string SaveFailed(string cause, string code, string tail) => $"Save failed: {cause} ({code}) — the previous file is intact and your changes are kept. {tail}"; // COPY-31 (Ruling 134), cause per COPY-412 to 422 (Ruling 155)
     public const string SaveUnavailable = "Saving isn't available on this system yet — your changes are kept in this session."; // COPY-31W (Ruling 134)
-    /// <summary>The strip sentence for a refused or failed foil save; the code is the cause until a per-cause wording is ruled.</summary>
-    public static string SaveRefusal(string code) => code == "DOC-UNSUPPORTED-PERSISTENCE" ? SaveUnavailable : SaveFailed(code);
+    public const string SaveUncertain = "Save not confirmed: CFD Workbench couldn't tell whether the file was fully written (DOC-SAVE-UNCERTAIN). Your changes are kept and still marked unsaved. Retry to check the file, or Save As."; // COPY-421 (Ruling 155)
+
+    /// <summary>The strip sentence for a refused or failed foil save: one cause row per code family (COPY-412 to 423, Ruling 155). An unknown code gets the generic row, which still carries the code.</summary>
+    public static string SaveRefusal(string code) => code switch
+    {
+        "DOC-UNSUPPORTED-PERSISTENCE" => SaveUnavailable,
+        "DOC-SAVE-UNCERTAIN" => SaveUncertain,
+        "DOC-IO" => SaveFailed("the disk couldn't be written", code, "Retry or Save As."), // COPY-412
+        "DOC-DISK-FULL" => SaveFailed("the disk is full", code, "Free some space, then Retry or Save As."), // COPY-413
+        "DOC-CONFLICT" => SaveFailed("the file is in use by another program, or it changed since you opened it", code, "Close the other program and Retry, or Save As."), // COPY-414
+        "DOC-CANCELLED" => SaveFailed("the save was cancelled", code, "Retry or Save As."), // COPY-415
+        "DOC-SAVE-PENDING" => SaveFailed("another save is still running", code, "Wait for it to finish, then Retry."), // COPY-416
+        "DOC-CLOSED" => SaveFailed("this project was closed", code, "Open the project again."), // COPY-417
+        "DOC-SIZE" => SaveFailed("the project is larger than CFD Workbench can save", code, "Save As won't help; remove content first."), // COPY-418
+        "DOC-TYPE" => SaveFailed("the file name must end in .cfdw.json", code, "Choose another name."), // COPY-419
+        "DSL-DRAFT-OWNED" or "DSL-INVALID-NUMERIC" => SaveFailed("a change is still in progress", code, "Finish or cancel the change, then Save."), // COPY-420
+        "DOC-HASH" or "DOC-OPERATION" or "DOC-SAVE-CAPTURE" or "DOC-INTEGRITY" or "DOC-ID" or "DOC-EMPTY" =>
+            SaveFailed("CFD Workbench's own check of the project data failed", code, "Retry; if it happens again, Save As and report it."), // COPY-422
+        _ => $"Save failed: something unexpected stopped the save ({code}). Your changes are kept in this session. Check the file before relying on it, then Retry or Save As." // COPY-423
+    };
+
+    /// <summary>The fallback sentence for a refused edit or source (COPY-425 to 431, Ruling 155), used only when the code has no specific approved text.
+    /// <paramref name="reason"/> is the detail of a DSL-IMPORT report (COPY-430); no other row takes it.</summary>
+    public static string Refusal(string code, string? reason = null) => code switch
+    {
+        "DSL-LOCK" or "DSL-CURVE" or "DSL-GROUP-HANDLE" or "DSL-GROUP-NEIGHBOUR" or "DSL-GROUP-RANGE" or "DSL-GROUP-SPAN-SET" or "DSL-PROFILE-ORDER"
+            or "DSL-PROFILE-CROSS" or "DSL-EDGES-CROSS" or "DSL-UNIT" or "DSL-GEOMETRY" or "DSL-TOLERANCE" or "DSL-TIP-CHORD-MIN" =>
+            $"This change wasn't applied: the shape can't take it as entered ({code}). Nothing changed. Adjust it and try again.", // COPY-425
+        "DSL-TARGET" or "DSL-PROFILE-TARGET" or "DSL-ID" or "DSL-CONFLICT" or "DSL-STALE" or "DSL-VALIDATION-BUSY" or "DSL-DRAFT-REUSED"
+            or "DSL-CANCELLED" or "DOC-OPERATION-CONFLICT" =>
+            $"This change wasn't applied: what it pointed at has changed or is busy ({code}). Nothing changed. Try again.", // COPY-426
+        "DSL-SYNTAX" or "DSL-LEX" or "DSL-LEGACY" or "DSL-REFERENCE" or "DSL-INVALID" or "DSL-UNSUPPORTED" =>
+            $"This source can't be accepted: it isn't valid foil source ({code}). The original is kept, read-only, and nothing was changed.", // COPY-427
+        "DSL-VERSION" => $"This source can't be accepted: it was written for a version of the foil format this build doesn't read ({code}). The original is kept, read-only, and nothing was changed.", // COPY-428
+        "DSL-LIMIT" => $"This source can't be accepted: it is larger than CFD Workbench can read ({code}). The original is kept, read-only, and nothing was changed.", // COPY-429
+        "DSL-IMPORT" => $"This file can't be imported as a section ({code}){(string.IsNullOrWhiteSpace(reason) ? "" : " — " + reason)}. Nothing was changed.", // COPY-430
+        _ => $"Something unexpected stopped this ({code}). Nothing changed." // COPY-431
+    };
+
+    /// <summary>The second line under an open failure's approved sentence (COPY-424, Ruling 155).</summary>
+    public static string OpenCodeLine(string code) => "Code: " + code; // COPY-424
     public static readonly string[] VectorKey = ["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16
 }
