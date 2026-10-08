@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T14:17:27Z",
+  "generated": "2026-10-08T14:44:02Z",
   "audit": [
     {
       "actor": null,
@@ -29919,6 +29919,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T14:16:29Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M4DZH8TYDX6BH2SKH0RMRKAA",
+      "shortname": "trk-rgm",
+      "datetime": "2026-10-08T14:44:02Z",
+      "session": "trk-rgm",
+      "prompt": "trk-rgm round-oct06",
+      "summary": "Moved 24 checks (19 Desktop, 5 Analysis) to readiness, re-ordered the Desktop spawn list longest-first, ThemeMatrix got a --theme-matrix mode for the adapters gate. Net 50.6 to 43.2-43.9 s, Analysis 3.8-4.2 s, union 1811 = 1811, readiness 141.6 s. Proof docs/proof/ring-oct08/; RING-AT-BUDGET third instance.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fast ring headroom a third time (Ruling 143): net <= 45 s, Analysis parts <= 4.2 s, no check lost",
+      "done_when": "ring green at net <= 45 s and Analysis <= 4.2 s; PASS union identical; readiness < 240 s; check-docs and verify gates exit 0",
+      "started_at": "2026-10-08T14:20:20Z",
+      "duration_seconds": 1422.0
     }
   ],
   "changes": [

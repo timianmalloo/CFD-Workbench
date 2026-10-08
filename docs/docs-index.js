@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b9993b6913f4dab247ccac12d1c8a24a6606849141fa002a78e76d3f92930279"
+      "sourceSha256": "8e984dcbe50b3b872e158cedeeaac96cea2343ea56633f9073126d28af90d852"
     },
     {
       "id": "domain-experts",
@@ -12880,6 +12880,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "95f212dc46d2f49e65072aab721162cf59d63518f214b2325143fa40777cd95f"
     },
     {
+      "id": "proof-ring-oct08-moves",
+      "path": "docs/proof/ring-oct08/moves.md",
+      "title": "Ring headroom, third move: 24 checks to readiness, Desktop spawn re-ordered (Ruling 143)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rgm",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Net fast-ring time 50.6 s to 43.2-43.9 s and both Analysis parts to 3.8-4.2 s; PASS-name union of fast ring plus readiness identical (1811 names); readiness total 137.7 s to 141.6 s.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "c-2",
+        "c-3"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b3f74113f3fc800966736724a35960e19cafd7e873f5947f333d6a132b495735"
+    },
+    {
       "id": "proof-ring-split-moved",
       "path": "docs/proof/ring-split/moved.md",
       "title": "Ring split: checks moved from the fast ring to readiness",
@@ -16388,5 +16414,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9c081e2e53756568b9517183d28dddf1a2721c9aa57d7d2a99a60845619e2e92"
+  "graphSha256": "b412b5ff4594d5cedac08b21a68424cb9e92404cf091267ba4db77c33d640a23"
 };

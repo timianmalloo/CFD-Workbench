@@ -1849,6 +1849,19 @@ the Coordinator runs `trace-brief.py` on any brief whose track reads data it doe
 49.5 s in one round across 5 joins, and 11 checks moved to readiness to fit. Measured series, options and costs:
 `docs/proof/round-oct06-lessons/ring-at-budget.md`. The operator decides.
 
+Third instance (2026-10-08, Ruling 143, `docs/proof/ring-oct08/moves.md`): after the TCV join the net was 47.5 s on a quiet
+machine and 50.6 s under load (C-3 red), Analysis parts 4.9 s against C-2's 5 s. 24 checks moved to readiness (19 Desktop, 5
+Analysis); net 43.2-43.9 s, Analysis 3.8-4.2 s, PASS union unchanged (1811), readiness 137.7 s to 141.6 s. Two findings. First,
+moving 22 Desktop checks (about 35 s of COST) cut the Desktop wall by only 2-3 s; re-ordering the spawn list (`--analysis`, 17 s,
+was last and set the wall) cut about 4 s more. A check's COST is not its share of the wall, so the first move is the spawn order,
+and only then the check. Second, a check can be a gate's evidence (ThemeMatrix feeds `verify-application-adapters.py`): moving
+it needed its own mode, not a silent removal.
+What would stop a fourth (proposal only, no control built): (1) a join-time headroom gate that fails when the net is within
+2 s of C-3 or an Analysis part within 0.4 s of C-2 at end load <= 24, so the move happens one join early and not at the cap;
+(2) `check-test-costs.py` flags a spawn list whose last-started suite is longer than the median suite (the order rule, now prose
+in `WorkbenchTests.cs`, becomes a check); (3) AGENTS.md already says a new check states its ring and cost, but nothing reads that
+statement, so a lint that a new `Check(` in a fast-ring `Run` carries a ring comment would only add ceremony; do not build it.
+
 **MOCKUP-STATE-UNBUILT · An operator-approved mockup state was never built, and the build passed its named checks and the capture review.**
 Instance: DX state 5 (`docs/design/dx-screen-states.md` row 5, "Section view with Cp on the profile, vik pinned at 0, Cp_min marker")
 was approved at Ruling 108 and shipped as a plain z/c line chart with a Cp comb; the Section document later moved to the main
