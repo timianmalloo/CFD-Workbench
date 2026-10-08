@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fd2c0a86f7608437c70747963dfa5281c038216bfd75261e02fd92d258612ffc"
+      "sourceSha256": "100b3aa0fcb8ab81f7bd49c65d2b56f228a4f64029cb460bb80d72a8b20f003b"
     },
     {
       "id": "domain-experts",
@@ -7446,7 +7446,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8ef4a874f136c4c3f1b9a9ec22daf88e37c647188419828bea7d762e27b3e13d"
+      "sourceSha256": "7946c9c0b89da507b44b790e2687b7295801426915fcb6986abc3e50cd07193b"
     },
     {
       "id": "kb-hw-glossary",
@@ -15131,6 +15131,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "0f467f7bc88b89226d506fdabc484f3a6d98665a998389f94655141760e5df79"
     },
     {
+      "id": "proof-wth-red-first",
+      "path": "docs/proof/wth/red-first.md",
+      "title": "WTH red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wth",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for Windows test hygiene (Ruling 154 conditions): a foreign-OS branch guard, one canonical temp root per test project, and the two remaining harness aborts converted to FAIL lines.",
+      "tags": [
+        "windows",
+        "test-hygiene",
+        "proof",
+        "ruling-154"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "96e7d2910a3b2cf031c1e3f96c735673a5789412a7cca716ce4dd339a426068f"
+    },
+    {
       "id": "review-app-shell-native",
       "path": "docs/reviews/app-shell-native.md",
       "title": "Native review — CAD-first app shell, M1.2a rows",
@@ -17034,5 +17060,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9bf9a47cdb43c6f75a2cf683b8a1d91a02b9dd66b64968861da6810f5c1ea9bf"
+  "graphSha256": "31032d59ecd1ce02ab3a45074fd9b0d72664d6950dbc73e78aef0de505d9a383"
 };

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T19:09:41Z",
+  "generated": "2026-10-08T19:20:13Z",
   "audit": [
     {
       "actor": null,
@@ -30453,12 +30453,57 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4EEQQ3XF3T3CR22K9G22S8X",
-      "shortname": "join-cat",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T19:09:41Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 11.0,
+      "fan_out": 0,
+      "goal": "join the catalog determinism investigation",
+      "id": "al-01M4EEQQ3XF3T3CR22K9G22S8X",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of inv/cat-determinism into main",
+      "session": "3122f106",
+      "shortname": "join-cat",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T19:09:30Z",
       "summary": "CAT joined (docs only): byte 727 is a 1-ulp Math.Cos difference at Catalog.cs:197 (platform CRT); reproduced by 1-ulp perturbation; options A-D; geometry review and PC trig-bits job pending recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-08T19:17:36Z",
+      "done_when": "DirectoryLink guarded with control; 10 temp sites moved with control extended; two aborts converted; manifest updated; lessons recorded",
+      "goal": "Windows test hygiene: no foreign-OS branch, no harness abort, no raw temp alias",
+      "id": "al-01M4EF664THS5FXDQFVRVT6B5C",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "WTH",
+      "session": "trk-wth",
+      "shortname": "wth-test-hygiene",
+      "skill": "implement",
+      "summary": "Host guard + TEST-FOREIGN-OS-BRANCH control, per-project TestTemp (Core in LayoutFileTests.cs for STORE-SUBSET), NoRawTempPath scans Core and Cli, Recovery block and CLI catches report FAIL and continue, 2 manifest entries, aborts_harness removed; ring green 45 s",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4EFB04PMA2FYGH2KERQ939B",
+      "shortname": "join-wth",
+      "datetime": "2026-10-08T19:20:13Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/wth-test-hygiene into main",
+      "summary": "WTH joined: DirectoryLink runs only its host's branch (NoForeignOsBranchWithoutHostGuard control); 10 Core/Cli temp sites on TestTemp; Desktop recovery and CLI checks report FAIL and continue; manifest 32 entries recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -30467,7 +30512,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join the catalog determinism investigation",
+      "goal": "join Windows test hygiene under Ruling 154",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -30476,8 +30521,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-08T19:09:30Z",
-      "duration_seconds": 11.0
+      "started_at": "2026-10-08T19:19:20Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
@@ -32641,6 +32686,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4ECEZ7YHDAWWZYWMMSRHE7V",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4EF6N50H1CX0G6YGDQ41HZ9",
+      "ts": "2026-10-08T19:17:51Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EF6N4WYAFF925S9C4A6WQN",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EF6N82PPSXFGVSY0H9YP47",
+      "ts": "2026-10-08T19:17:51Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EF6N4WYAFF925S9C4A6WQN",
+      "session": "fable-owner"
     }
   ]
 };
