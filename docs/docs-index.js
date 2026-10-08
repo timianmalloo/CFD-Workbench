@@ -4312,6 +4312,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "afcbb83a0896f242f7c7f978ad866db1068c97aae1f74f60d38d6c5868797eb8"
     },
     {
+      "id": "mockup-w2-save-picker",
+      "path": "docs/mockups/w2-save-picker.md",
+      "title": "W-2 save picker — OneDrive refusal and unfinished-save recovery",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Three surfaces around the native Windows save dialog, shown before any build: the first Save of a new project (what CFD Workbench controls in the native dialog), the refusal when the user picks a OneDrive folder, and the block left by a crashed save with its Clear unfinished save step. Each of S2 and S3 has two variants, a modal dialog (approved) and the alert band (rejected). Ruling 146 copy is verbatim; the new rows COPY-440 to COPY-457 are approved by Ruling 160, which also picked variant A for S2 and S3. This page is now the approved reference; variant B stays in the harness, labelled rejected.",
+      "tags": [
+        "mockup",
+        "w2",
+        "save-picker",
+        "onedrive",
+        "crash-recovery",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-m12d-catalog",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b9817164a8acc51c1a60b2292c5466a509ebe7f660034eac0c0ac239c2bc0fb"
+    },
+    {
       "id": "mockup-workbench",
       "path": "docs/mockups/workbench.md",
       "title": "CFD-Workbench interactive design prototype",
@@ -7446,7 +7482,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db998d98bb173bd796fd2dfff6acb2279264e1a86b1d7aff633b941ecec0be86"
+      "sourceSha256": "e6eb2dafd0fc0bd04de903960411d9258c374857fd50f8e3414ce6e08af38062"
     },
     {
       "id": "kb-hw-glossary",
@@ -17130,6 +17166,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-status-bar"
     },
     {
+      "id": "surface-mockups-w2-save-picker",
+      "path": "docs/mockups/w2-save-picker.html",
+      "title": "W-2 Save Picker",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-w2-save-picker"
+    },
+    {
       "id": "surface-coordination-windows-w0-w5-execution",
       "path": "docs/coordination/windows-w0-w5-execution.html",
       "title": "Windows W-0 through W-5 execution plan",
@@ -17138,5 +17182,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e9c4410f79de34a8a9b3213621844c2cf5c8690b9e0c180c967b3e35c0797a03"
+  "graphSha256": "c19c15e87521cdb81ac20cb1f5c0d49e5f84c5a6b4d8766f4a732339be7f8de8"
 };
