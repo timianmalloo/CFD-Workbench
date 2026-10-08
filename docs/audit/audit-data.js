@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T14:44:02Z",
+  "generated": "2026-10-08T15:05:06Z",
   "audit": [
     {
       "actor": null,
@@ -29939,6 +29939,26 @@ window.AUDIT_DATA = {
       "done_when": "ring green at net <= 45 s and Analysis <= 4.2 s; PASS union identical; readiness < 240 s; check-docs and verify gates exit 0",
       "started_at": "2026-10-08T14:20:20Z",
       "duration_seconds": 1422.0
+    },
+    {
+      "id": "al-01M4E0QVKCXDTR4KJ4SVQWE6F7",
+      "shortname": "trk-fss",
+      "datetime": "2026-10-08T15:05:06Z",
+      "session": "trk-fss",
+      "prompt": "trk-fss round-oct06",
+      "summary": "Reset queues a mesh job that completes during the drag; SettleSurface drain added to the two NotifyProbe checks plus a held-surface deterministic check; lesson updated; 0/12 before and after in the frequency run",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Name and fix the SectionEditor DragMove flake cause",
+      "done_when": "Origin cited, red-first receipt, drain in both probe checks, lesson updated, full ring green",
+      "started_at": "2026-10-08T14:49:05Z",
+      "duration_seconds": 961.0
     }
   ],
   "changes": [
