@@ -163,13 +163,13 @@ public static class SectionTier
         }
         SectionStationResult selected = stations[governing];
         CavitationResult[] screens = stations.Select(station => station.Cavitation).ToArray();
-        CavitationResult[] judgedScreens = Enumerable.Range(0, stations.Length).Where(Judged).Select(i => screens[i]).ToArray();
-        // An Unavailable station (for example surface-piercing) is reported whichever grid it was solved on.
-        CavitationResult wingScreen = judgedScreens.Any(screen => screen.State == CavitationState.Unavailable)
-            ? Cavitation.SelectWing(judgedScreens)
+        // An Unavailable station (for example surface-piercing) is reported whichever grid it was solved on. Ruling 144 (1): that holds
+        // for every station, tip included, because Unavailable is geometric or a missing condition; only the tip's alpha_eff verdict is excluded.
+        CavitationResult wingScreen = screens.Any(screen => screen.State == CavitationState.Unavailable)
+            ? Cavitation.SelectWing(screens)
             : Cavitation.SelectWing(solved.Select(i => screens[i]).ToArray());
         // Ruling 142 (2): with no judged station the wing line reads Not judged - tip strip, with no sigma and no V_crit.
-        if (noneJudged)
+        if (noneJudged && wingScreen.State != CavitationState.Unavailable)
             wingScreen = wingScreen with { State = CavitationState.Unavailable, Sigma = null, CriticalSpeed = null, CpMin = null,
                 GoverningStation = null, GoverningDepth = null, Reason = StripLoad.TipProvisionalReason };
         return new(stations, wingScreen, selected.Eta, selected.PanelUnderread!.Value)

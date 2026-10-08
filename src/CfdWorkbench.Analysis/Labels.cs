@@ -140,8 +140,8 @@ public static class Labels
     public static string Confidence(double value) => $"analysis_confidence {Number(value, "0.00")} · advisory, not an error bar"; // COPY-315
     public static string CstResidual(double max, double rms) => // COPY-317
         $"CST fit residual: max {Sci(max)} c · RMS {Sci(rms)} c (shape residual, not an aerodynamic error)";
-    /// <summary>COPY-252 form, Ruling 142: the wing cavitation line's suffix when <paramref name="count"/> tip stations were left out; empty for none.</summary>
-    public static string TipNotJudgedSuffix(int count) => count > 0 ? $"; {count} {TipNotJudged}" : "";
+    /// <summary>COPY-410, Ruling 144 (the run sentence keeps COPY-252 and its strip count): the wing cavitation line's suffix when <paramref name="count"/> tip stations were left out; empty for none.</summary>
+    public static string TipNotJudgedSuffix(int count) => count > 0 ? $"; {count} stations {TipNotJudged}" : "";
     public static string StationCavitationLine(double eta, double depth, int count) => // COPY-304
         $"Governing station: η {Number(eta, "0.###")} · depth {Number(depth, "0.###")} m · smallest σ / (−Cp_min) of {count} stations";
     public static string CpMinWhere(double x, string side, int stations) => // DX row 8

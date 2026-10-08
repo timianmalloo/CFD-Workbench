@@ -15,7 +15,17 @@ public sealed record ChartMarker(string Name, double X, double? Y);
 
 /// <summary>One plot with its own axes. The band lies between two series of equal X.</summary>
 public sealed record ChartPlot(string Title, string XTitle, string YTitle, bool InvertY, IReadOnlyList<ChartSeries> Series,
-    IReadOnlyList<ChartMarker> Markers, (string Low, string High)? Band = null);
+    IReadOnlyList<ChartMarker> Markers, (string Low, string High)? Band = null, double? ExtentStep = null)
+{
+    /// <summary>
+    /// Ruling 144 (Ruling 142 (3)): on a tip station the colour bar ends and the Cp chart's Y extent are rounded outward to this fixed step,
+    /// so neither prints the station's Cp_min (its low end). 0.5 is the step the operator set.
+    /// </summary>
+    public const double TipExtentStep = 0.5;
+
+    /// <summary>The value rounded outward (away from zero on the side of <paramref name="low"/>) to a multiple of <paramref name="step"/>.</summary>
+    public static double RoundOut(double value, double step, bool low) => (low ? Math.Floor(value / step) : Math.Ceiling(value / step)) * step;
+}
 
 /// <summary>A chart of the Section tab: its plots, its legend line and the fixed label that travels with it.</summary>
 public sealed record ChartModel(string Id, string Title, IReadOnlyList<ChartPlot> Plots, string Legend, string Label,
@@ -299,7 +309,8 @@ public static class SectionDisplay
         var cpPlot = new ChartPlot("Cp", "x/c", "Cp (suction up)", true,
             [new("upper", panel.Upper.Select(p => new ChartPoint(p.X, p.Cp)).OrderBy(p => p.X).ToArray(), false, "none", 0),
              new("lower", panel.Lower.Select(p => new ChartPoint(p.X, p.Cp)).OrderBy(p => p.X).ToArray(), true, "none", 0)],
-            station.TipNotJudged ? [] : [new("Cp_min", cpX, panel.CpMin)]); // Ruling 142 (3): no Cp_min number on a tip station
+            station.TipNotJudged ? [] : [new("Cp_min", cpX, panel.CpMin)], // Ruling 142 (3): no Cp_min number on a tip station
+            ExtentStep: station.TipNotJudged ? ChartPlot.TipExtentStep : null); // Ruling 144: nor in the axis extent
         string cpLegend = station.TipNotJudged ? Labels.CpLegend : Labels.CpLegend + " · " + N(lo, "0.##") + " to +" + N(hi, "0.##"); // the low end is Cp_min (Ruling 142)
         string label = run.Op.HRef.HasValue ? Labels.EstimatorLabelDeep : Labels.EstimatorLabelNoDepth;
         var charts = new List<ChartModel> { new("cp", "Cp", [cpPlot], cpLegend, label) };

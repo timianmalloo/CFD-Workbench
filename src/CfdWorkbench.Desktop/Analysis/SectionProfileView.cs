@@ -79,6 +79,8 @@ public sealed class SectionProfileView : Control
         if (profile.Forces is not null) DrawKey(context, h + 4, w);
 
         double range = Math.Max(Math.Max(-profile.CpLow, profile.CpHigh), 1e-9);
+        // Ruling 144: on a tip station the bar's ends are rounded outward to a fixed step, so they never print Cp_min
+        if (profile.TipNotJudged) range = ChartPlot.RoundOut(range, ChartPlot.TipExtentStep, low: false);
         Range = range;
         // With the force vectors the chord stands to the right of the free-stream labels (mockup: 150 of 974 px left, chord 700 px).
         double s = profile.Forces is null ? Math.Max(40, w - 110) : Math.Max(40, 0.72 * w), ox = profile.Forces is null ? (w - s) / 2 : 0.154 * w, oy = h / 2 - 6;

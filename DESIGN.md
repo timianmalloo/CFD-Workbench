@@ -740,6 +740,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-407 | Cp_min <v> · x/c <x> · <side> — approved — Ruling 126 (the Cp_min marker plate on the profile) |
 | COPY-408 | σ <v> · −Cp_min <v> · clear of the 15 % margin · V_crit <v> — approved — Ruling 126 (the cavitation line on the profile; "clear of" reads "inside" or "at or past" by state; V_crit in kn under Imperial and m/s under Metric) |
 | COPY-409 | x/c 0 → 1 — approved — Ruling 126 (the axis plate under the profile) |
+| COPY-410 | ; <n> stations Not judged — tip strip — approved — Ruling 144 (the wing cavitation line suffix when tip stations are left out of the verdict; <n> counts stations; the run verdict line keeps COPY-252 with its strip count) |
 | COPY-SF1 | L′ <v> <unit> (lattice) ⏎ 1 c = <s> <unit>, fixed per run — approved — Ruling 130 (the lift label and its scale line on the Section profile; ⏎ is the line break; <unit> reads N/m or lbf/ft by the Units switch; <v> has three significant figures) |
 | COPY-SF2 | V∞ at α_geo <a>° — approved — Ruling 130 (the free-stream label; <a> in degrees, two decimals) |
 | COPY-SF3 | local inflow α_eff <a>° ⏎ tilts the flow by α_i — approved — Ruling 130 (the faint local-inflow line label) |
