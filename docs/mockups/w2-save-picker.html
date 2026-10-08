@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>W-2 Save Picker</title>
+<!--
+  Stop-and-show page for the Windows save flow (W-2 B2; Rulings 135, 145 (6), 146). Display only; nothing is built from it.
+  The product ships this UI only when W-2 B2 lands: ProjectStore stays fail-closed on Windows (Ruling 145 (4)) until then.
+  The native Windows save dialog is a labelled stand-in frame: Windows draws it, CFD Workbench controls only its title,
+  start folder and suggested file name. Every product sentence below comes from COPY (the JSON block): the Ruling 146
+  texts verbatim, and the proposed rows COPY-440 to COPY-457 listed in w2-save-picker.md. tools/check-mockup-svp.mjs
+  compares the rendered text with the ruling and with that table.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --warn:#895900; --danger:#a92e37; --on-accent:#ffffff; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --warn:#efc576; --danger:#ffaeb5; --on-accent:#10201f; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --foil:#85c9c4; --foil-edge:#c4e7df; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button, select, input{ font:inherit; color:inherit; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; }
+.top p{ margin:0; color:var(--mute); font-size:12px; flex-basis:100%; max-width:1280px; }
+.top .ctl{ display:flex; align-items:center; gap:6px; color:var(--mute); font-size:12px; }
+.top select{ min-height:28px; padding:0 6px; border:1px solid var(--control); border-radius:4px; background:var(--surface); color:var(--ink); }
+.top select:disabled{ color:var(--mute); background:var(--soft); }
+.top button, .top .chk{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; display:inline-flex; align-items:center; gap:6px; }
+.top .chk input{ width:16px; height:16px; margin:0; }
+main{ padding:16px 20px 40px; min-width:1560px; }
+
+/* ---------- the shell: today's window, reduced to what this flow touches ---------- */
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); position:relative; font-size:13px; line-height:18px; }
+.shell[data-vp="1500"]{ width:1500px; height:870px; }
+.chrome{ flex:1; min-height:0; display:flex; flex-direction:column; }
+.title{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.title b{ color:var(--ink); font-weight:600; }
+.title .dirty{ margin-left:8px; padding:0 8px; border:1px solid var(--line); border-radius:10px; color:var(--mute); }
+.toolbar{ flex:0 0 36px; display:flex; align-items:center; gap:6px; padding:0 8px; background:var(--surface); border-bottom:1px solid var(--line); }
+.toolbar button{ min-height:28px; padding:0 12px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.band{ flex:none; display:flex; flex-direction:column; gap:6px; padding:8px; background:var(--soft); border-bottom:1px solid var(--line); border-left:3px solid var(--warn); max-width:100%; }
+.band[hidden]{ display:none; }
+.band p{ margin:0; max-width:900px; }
+.band ol{ margin:0; padding-left:22px; max-width:900px; }
+.band .acts{ display:flex; gap:6px; flex-wrap:wrap; }
+.band button{ min-height:28px; padding:0 12px; border:1px solid var(--mute); border-radius:4px; background:var(--surface); }
+.area{ flex:1; min-height:0; background:var(--vp); position:relative; }
+.area svg{ position:absolute; inset:0; width:100%; height:100%; }
+.area .cap{ position:absolute; left:8px; top:8px; padding:2px 8px; border-radius:3px; background:var(--vp-soft); color:var(--vp-ink); font-size:12px; }
+.sb{ flex:0 0 24px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); }
+.sb .msg{ flex:1; min-width:0; display:flex; align-items:center; padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px; }
+.sb .msg.warn{ color:var(--warn); font-weight:600; }
+.sb .item{ display:flex; align-items:center; padding:0 8px; border-left:1px solid var(--line); color:var(--mute); font-size:12px; }
+.layer{ position:absolute; inset:0; pointer-events:none; }
+.layer > *{ pointer-events:auto; }
+
+/* ---------- product dialogs (SaveSectionDialog / CatalogDialog idiom) ---------- */
+.dlg{ position:absolute; left:50%; top:110px; width:460px; transform:translateX(-50%); background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:flex; flex-direction:column; gap:8px; padding:14px; font-size:13px; line-height:18px; z-index:5; }
+.dlg.under{ z-index:4; }
+.dlg.confirm{ top:190px; z-index:6; }
+.dlg .dh{ font-weight:600; font-size:14px; margin:0; }
+.dlg p{ margin:0; }
+.dlg ol{ margin:0; padding-left:22px; display:flex; flex-direction:column; gap:4px; }
+.dlg .err{ padding:6px 8px; border:1px solid var(--line); border-left:3px solid var(--danger); border-radius:3px; color:var(--ink); }
+.dbtns{ display:flex; gap:6px; align-items:center; justify-content:flex-end; flex-wrap:wrap; margin-top:4px; }
+.dlg button{ min-height:28px; padding:0 12px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.dlg .primary, .band .primary{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
+.dlg [data-default="true"]:not(.primary){ outline:2px solid var(--accent); outline-offset:1px; }
+
+/* ---------- the native picker stand-in: drawn by Windows, not by us ---------- */
+.native{ position:absolute; left:50%; top:70px; width:700px; transform:translateX(-50%); border:2px dashed var(--control); border-radius:6px; background:var(--surface); z-index:5; }
+.native .cap{ padding:6px 10px; background:var(--soft); border-bottom:1px solid var(--line); font-size:12px; font-weight:600; display:flex; justify-content:space-between; gap:8px; }
+.native .cap span{ color:var(--mute); font-weight:400; }
+.native .row{ display:flex; align-items:center; gap:8px; min-height:34px; padding:0 10px; border-bottom:1px solid var(--line); }
+.native .row .lbl{ width:90px; color:var(--mute); font-size:12px; flex:none; }
+.native .row .val{ flex:1; padding:3px 8px; border:1px solid var(--line); border-radius:3px; background:var(--canvas); font-variant-numeric:tabular-nums; }
+.native .ttl{ font-weight:600; }
+.native .body{ height:150px; background:var(--soft); display:flex; align-items:center; justify-content:center; color:var(--mute); font-size:12px; }
+.native .body span{ background:var(--surface); padding:2px 8px; border-radius:3px; }
+.native .foot{ display:flex; justify-content:flex-end; gap:8px; padding:8px 10px; }
+.native .foot div{ min-width:84px; min-height:28px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line); border-radius:3px; color:var(--mute); }
+.native .badge{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:10px; background:var(--accent); color:var(--on-accent); font-size:12px; font-weight:600; flex:none; }
+.native .hint{ padding:6px 10px; font-size:12px; color:var(--mute); border-bottom:1px solid var(--line); }
+
+/* ---------- harness annotations (not product) ---------- */
+.notes{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; max-width:1500px; margin-top:16px; }
+.notes section{ border:1px solid var(--line); border-radius:6px; background:var(--surface); padding:12px 14px; }
+.notes h2{ margin:0 0 6px; font-size:13px; }
+.notes p, .notes li{ margin:0 0 4px; font-size:12px; color:var(--ink); max-width:640px; }
+.notes ul{ margin:0; padding-left:18px; }
+.notes .mute{ color:var(--mute); }
+.tag{ display:inline-block; padding:0 6px; border-radius:3px; background:var(--accent); color:var(--on-accent); font-size:12px; font-weight:600; margin-right:6px; }
+.tag.open{ background:var(--warn); color:var(--surface); }
+.flow{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 8px; padding:0; list-style:none; }
+.flow li{ padding:2px 8px; border:1px solid var(--line); border-radius:12px; color:var(--mute); margin:0; font-size:12px; }
+.flow li.on{ border-color:var(--accent); color:var(--ink); font-weight:600; }
+.flow li.no{ border-color:var(--danger); color:var(--ink); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>W-2 save picker — OneDrive refusal and unfinished-save recovery</h1>
+  <label class="ctl" for="state">State <select id="state">
+    <option value="s1">S1 First Save of a new project</option>
+    <option value="s2">S2 Folder inside OneDrive picked</option>
+    <option value="s3">S3 Save blocked by an unfinished save</option>
+    <option value="s4">S4 Clear unfinished save</option>
+    <option value="s5">S5 Waiting, saving and error floor</option>
+  </select></label>
+  <label class="ctl" for="detail">Detail <select id="detail"></select></label>
+  <label class="ctl" for="variant">Variant <select id="variant"><option value="A">A modal dialog</option><option value="B">B alert band</option></select></label>
+  <label class="ctl" for="theme">Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+  <label class="ctl" for="vp">Viewport <select id="vp"><option value="1280">1280 × 800</option><option value="1500">1500 × 870</option></select></label>
+  <label class="chk"><input type="checkbox" id="reduce"> Reduced motion</label>
+  <label class="chk"><input type="checkbox" id="holder"> Another window holds this project</label>
+  <button type="button" id="rerun">Re-run state</button>
+  <p>Display only. This UI ships only when W-2 B2 lands; until then the Windows store stays fail-closed (Ruling 145 (4)). The dashed frame is a stand-in for the native Windows dialog.</p>
+</header>
+<main>
+  <div class="shell" id="shell" data-vp="1280">
+    <div class="chrome" id="chrome">
+      <div class="title" data-chrome><b>foil.cfdw.json — CFD Workbench</b><span class="dirty" id="dirty">Unsaved changes</span></div>
+      <div class="toolbar" data-chrome><button type="button" id="saveBtn">Save</button></div>
+      <div class="band" id="alertBand" aria-live="assertive" aria-atomic="true" hidden></div>
+      <div class="area" data-chrome><svg viewBox="0 0 400 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="M30 100 C 120 60, 280 70, 370 100 C 280 130, 120 140, 30 100 Z" fill="#243a40" stroke="#85c9c4" stroke-width="1.5"/></svg><span class="cap">Plan view</span></div>
+      <div class="sb" id="statusStrip"><div class="msg" id="statusMsg"></div><div class="item" data-chrome>Metric</div></div>
+    </div>
+    <div class="layer" id="layer"></div>
+  </div>
+  <div class="notes" id="notes"></div>
+</main>
+<script type="application/json" id="copy">
+{
+"R1":  {"src":"Ruling 146 (1)", "text":"This folder is synced by OneDrive. CFD Workbench saves only to local folders, so a sync can't damage a save. Choose a folder outside OneDrive."},
+"R2":  {"src":"Ruling 146 (2)", "text":"An earlier save of this project didn't finish (the app may have closed unexpectedly). Your saved file is unchanged. 1. Close any other CFD Workbench window using this project. 2. Check the project shows your last saved work. 3. Use Save As to keep your current work, or choose Clear unfinished save, then Save."},
+"R3":  {"src":"Ruling 146 (3)", "text":"%USERPROFILE%\\CFD Workbench"},
+"COPY-440": {"src":"proposed", "text":"Can't save to OneDrive"},
+"COPY-441": {"src":"proposed", "text":"Save is blocked"},
+"COPY-442": {"src":"proposed", "text":"Choose another folder…"},
+"COPY-443": {"src":"proposed", "text":"Save As…"},
+"COPY-444": {"src":"proposed", "text":"Clear unfinished save…"},
+"COPY-445": {"src":"proposed", "text":"Cancel"},
+"COPY-446": {"src":"proposed", "text":"Clear the unfinished save?"},
+"COPY-447": {"src":"proposed", "text":"This removes the leftover files from the save that didn't finish. Your saved file and your current work are not touched. It works only if no other CFD Workbench window is using this project."},
+"COPY-448": {"src":"proposed", "text":"Clear unfinished save"},
+"COPY-449": {"src":"proposed", "text":"Can't clear it yet: another CFD Workbench window is still using this project. Close that window, then try again. Your saved file and your current work are unchanged."},
+"COPY-450": {"src":"proposed", "text":"Try again"},
+"COPY-451": {"src":"proposed", "text":"Choose where to save in the Windows dialog."},
+"COPY-452": {"src":"proposed", "text":"Saving…"},
+"COPY-453": {"src":"proposed", "text":"Couldn't open the Windows save dialog (<code>). Nothing was saved. Your changes are kept and still marked unsaved. Try again."},
+"COPY-454": {"src":"proposed", "text":"Couldn't check whether this folder is synced by OneDrive (<code>). Nothing was saved. Choose another folder."},
+"COPY-455": {"src":"proposed", "text":"Couldn't clear the unfinished save (<code>). Your saved file and your current work are unchanged."},
+"COPY-456": {"src":"proposed", "text":"Dismiss"},
+"COPY-457": {"src":"proposed", "text":"Can't check this folder"}
+}
+</script>
+<script>
+'use strict';
+const COPY = JSON.parse(document.getElementById('copy').textContent);
+const CODE = 'DOC-IO';            // assume: the real code names are a build decision (PC / Mac); the mockup shows one existing code
+const $ = id => document.getElementById(id);
+const S = { state:'s1', detail:'', variant:'A', theme:'light', vp:'1280', reduce:false, holder:false, closed:false, opener:null, trap:null, events:[] };
+const DETAILS = { s1:[['present','Folder exists']], s2:[['pick','After the pick']], s3:[['blocked','Blocked']],
+  s4:[['confirm','Confirm step'],['cleared','Outcome a: cleared, Save proceeds'],['refused','Outcome b: refused, another window holds it']],
+  s5:[['waiting','Picker open, app waiting'],['saving','Save in progress'],['picker-failed','Picker failed to open'],['check-failed','OneDrive check failed'],['clear-failed','Clear failed'],['folder-missing','Default folder missing']] };
+const VARIANT_STATES = ['s2','s3','s4'];
+
+const text = id => COPY[id].text.replace('<code>', CODE);
+const esc = s => s.replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const el = (id, tag, attrs, inner) => `<${tag} data-copy="${id}"${attrs || ''}>${inner === undefined ? esc(text(id)) : inner}</${tag}>`;
+const btn = (id, key, cls, def) => `<button type="button" data-copy="${id}" data-fk="${key}" data-act="${key}"${cls ? ` class="${cls}"` : ''}${def ? ' data-default="true"' : ''}>${esc(text(id))}</button>`;
+
+// Ruling 146 (2) is one sentence-run with numbered steps; the page shows the lead as a paragraph and the steps as an ordered list
+function crashParts(){ const parts = COPY.R2.text.split(/\s(?=[123]\. )/); return { lead:parts[0], steps:parts.slice(1).map(p => p.replace(/^\d\. /, '')) }; }
+const crashBlock = (tag) => { const c = crashParts();
+  return `<${tag} data-copy="R2-lead">${esc(c.lead)}</${tag}><ol data-copy="R2-steps">${c.steps.map((s, i) => `<li data-copy="R2-step${i + 1}">${esc(s)}</li>`).join('')}</ol>`; };
+
+// ---------------------------------------------------------------- surfaces
+function dialog(kind, titleId, body, buttons, cls){
+  return `<div class="dlg${cls ? ' ' + cls : ''}" role="dialog" aria-modal="true" aria-labelledby="dT" aria-describedby="dB" data-kind="${kind}">
+    ${el(titleId, 'h2', ' id="dT" class="dh"')}<div id="dB">${body}</div><div class="dbtns">${buttons}</div></div>`;
+}
+const oneDriveDialog = () => dialog('onedrive', 'COPY-440', el('R1', 'p'), btn('COPY-442', 'choose', 'primary', true) + btn('COPY-445', 'cancel'));
+const crashButtons = () => btn('COPY-443', 'saveas', 'primary', true) + btn('COPY-444', 'clear') + btn('COPY-445', 'cancel');
+const crashDialog = (cls) => dialog('crash', 'COPY-441', crashBlock('p'), crashButtons(), cls);
+function confirmDialog(result){
+  const body = result === 'refused' ? `<p class="err" data-copy="COPY-449">${esc(text('COPY-449'))}</p>`
+             : result === 'failed' ? `<p class="err" data-copy="COPY-455">${esc(text('COPY-455'))}</p>` : el('COPY-447', 'p');
+  const act = result ? btn('COPY-450', 'again') : btn('COPY-448', 'doclear');
+  return dialog('confirm', 'COPY-446', body, btn('COPY-445', 'cancel2', '', true) + act, 'confirm');
+}
+function nativeFrame(opts){
+  const folder = opts.missing ? 'C:\\Users\\&lt;you&gt;' : 'C:\\Users\\&lt;you&gt;\\CFD Workbench';
+  return `<div class="native" tabindex="-1" role="group" aria-label="Windows save dialog — native, drawn by Windows" id="native" data-fk="native">
+    <div class="cap" data-chrome>Windows save dialog — native, drawn by Windows <span>Stand-in frame; CFD Workbench does not draw it</span></div>
+    ${opts.hint ? `<div class="hint" data-chrome>${opts.hint}</div>` : ''}
+    <div class="row" data-chrome><span class="badge" aria-hidden="true">1</span><span class="ttl">Save native CFD Workbench project</span></div>
+    <div class="row" data-chrome><span class="badge" aria-hidden="true">2</span><span class="lbl">Save in</span><span class="val">${folder}</span></div>
+    <div class="body" data-chrome><span>Folder contents are drawn by Windows</span></div>
+    <div class="row" data-chrome><span class="badge" aria-hidden="true">3</span><span class="lbl">File name</span><span class="val">foil.cfdw.json</span></div>
+    <div class="foot" data-chrome><div>Save</div><div>Cancel</div></div></div>`;
+}
+function bandHtml(kind){
+  if (kind === 'onedrive') return `${el('R1', 'p')}<div class="acts">${btn('COPY-456', 'dismiss')}</div>`;
+  if (kind === 'crash') return `${crashBlock('p')}<div class="acts">${btn('COPY-443', 'saveas', 'primary')}${btn('COPY-444', 'clear')}${btn('COPY-445', 'cancel')}</div>`;
+  if (kind === 'check') return `${el('COPY-454', 'p')}<div class="acts">${btn('COPY-456', 'dismiss')}</div>`;
+  return '';
+}
+
+// ---------------------------------------------------------------- render
+function view(){
+  const { state, detail, variant } = S, v = { layer:'', band:'', status:'', warn:false, modal:false, defaultFocus:null, kind:null };
+  if (state === 's1') { v.layer = nativeFrame({}); v.modal = 'native'; }
+  if (state === 's2') {
+    if (variant === 'A') { v.layer = oneDriveDialog(); v.modal = 'dialog'; v.kind = 'onedrive'; }
+    else { v.band = bandHtml('onedrive'); v.layer = nativeFrame({ hint:'Reopened by CFD Workbench at the default folder. Nothing was written to OneDrive.' }); v.modal = 'native'; }
+  }
+  if (state === 's3') {
+    if (variant === 'A') { v.layer = crashDialog(); v.modal = 'dialog'; v.kind = 'crash'; }
+    else { v.band = bandHtml('crash'); }
+  }
+  if (state === 's4') {
+    if (variant === 'B') v.band = bandHtml('crash'); else v.layer = crashDialog('under');
+    if (detail === 'cleared') { v.layer = ''; v.band = ''; v.status = 'COPY-452'; }
+    else { v.layer += confirmDialog(detail === 'refused' ? 'refused' : ''); v.modal = 'dialog'; v.kind = 'confirm'; }
+  }
+  if (state === 's5') {
+    if (detail === 'waiting') { v.layer = nativeFrame({}); v.modal = 'native'; v.status = 'COPY-451'; }
+    if (detail === 'saving') v.status = 'COPY-452';
+    if (detail === 'picker-failed') { v.status = 'COPY-453'; v.warn = true; }
+    if (detail === 'check-failed') { if (variant === 'A') { v.layer = dialog('check', 'COPY-457', `<p class="err" data-copy="COPY-454">${esc(text('COPY-454'))}</p>`, btn('COPY-442', 'choose', 'primary', true) + btn('COPY-445', 'cancel')); v.modal = 'dialog'; v.kind = 'check'; } else v.band = bandHtml('check'); }
+    if (detail === 'clear-failed') { v.layer = crashDialog('under') + confirmDialog('failed'); v.modal = 'dialog'; v.kind = 'confirm'; }
+    if (detail === 'folder-missing') { v.layer = nativeFrame({ missing:true, hint:'If the app does not create the folder, Windows opens at the nearest folder that exists.' }); v.modal = 'native'; }
+  }
+  return v;
+}
+
+function withFocus(fn){
+  const a = document.activeElement, key = a && a.dataset && a.dataset.fk;
+  fn();
+  if (key) { const n = document.querySelector(`[data-fk="${key}"]`); if (n) n.focus(); }
+}
+
+function render(opts){
+  opts = opts || {};
+  const v = view();
+  withFocus(() => {
+    $('layer').innerHTML = v.layer;
+    const band = $('alertBand');
+    band.hidden = !v.band;
+    band.innerHTML = v.band;
+    const m = $('statusMsg');
+    m.className = 'msg' + (v.warn ? ' warn' : '');
+    m.innerHTML = v.status ? `<span data-copy="${v.status}">${esc(text(v.status))}</span>` : '';
+  });
+  $('chrome').inert = !!v.modal;
+  document.documentElement.dataset.theme = S.theme;
+  document.documentElement.dataset.reduce = S.reduce ? 'true' : 'false';
+  $('shell').dataset.vp = S.vp;
+  $('state').value = S.state;
+  const dsel = $('detail'), opts2 = DETAILS[S.state];
+  dsel.innerHTML = opts2.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('');
+  S.detail = S.detail && opts2.some(o => o[0] === S.detail) ? S.detail : opts2[0][0];
+  dsel.value = S.detail; dsel.disabled = opts2.length < 2;
+  const vsel = $('variant'); vsel.value = S.variant;
+  vsel.disabled = !(VARIANT_STATES.includes(S.state) || (S.state === 's5' && S.detail === 'check-failed'));
+  $('reduce').checked = S.reduce; $('holder').checked = S.holder;
+  renderNotes();
+  if (opts.focus !== false && !S.closed) {
+    const first = document.querySelector('.dlg:last-child [data-default="true"]') || document.querySelector('.dlg [data-default="true"]');
+    if (v.modal === 'dialog') (document.querySelector('.dlg.confirm [data-default="true"]') || first).focus();
+    else if (v.modal === 'native') $('native').focus();
+  }
+}
+
+// ---------------------------------------------------------------- the flow (events are logged so the oracle can check order)
+function log(e){ S.events.push(e); }
+function setState(patch, reopen){
+  Object.assign(S, patch);
+  if (reopen) { S.closed = false; S.events = []; S.opener = $('saveBtn'); }
+  if (reopen && S.state === 's2') { log('pick:onedrive'); log('check:onedrive'); log('refuse'); }
+  if (reopen && S.state === 's3') { log('save-attempt'); log('found:unfinished-save'); log('blocked'); }
+  render();
+}
+function closeDialogs(returnTo){ S.closed = true; $('layer').innerHTML = ''; $('chrome').inert = false; (returnTo || S.opener || $('saveBtn')).focus(); }
+function act(key){
+  if (key === 'choose') { log('reopen-picker:default-folder'); S.state = 's1'; S.closed = false; render(); return; }
+  if (key === 'saveas') { log('picker:save-as'); S.state = 's1'; S.closed = false; render(); return; }
+  if (key === 'cancel') { log('cancel'); S.closed = true; $('alertBand').hidden = true; $('alertBand').innerHTML = ''; closeDialogs(); return; }
+  if (key === 'dismiss') { $('alertBand').hidden = true; $('alertBand').innerHTML = ''; $('saveBtn').focus(); return; }
+  if (key === 'clear') { S.state = 's4'; S.detail = 'confirm'; S.closed = false; S.opener = document.activeElement; log('open:confirm'); render(); return; }
+  if (key === 'cancel2') { log('cancel:confirm'); S.state = 's3'; S.detail = 'blocked'; S.closed = false; render({ focus:false }); const c = document.querySelector('[data-act="clear"]'); if (c) c.focus(); else $('saveBtn').focus(); return; }
+  if (key === 'doclear') { if (S.holder) { log('clear:refused'); S.detail = 'refused'; render(); return; } log('clear'); log('save'); S.detail = 'cleared'; render(); $('saveBtn').focus(); return; }
+  if (key === 'again') { if (S.holder) { log('clear:refused'); S.detail = 'refused'; render(); return; } log('clear'); log('save'); S.detail = 'cleared'; render(); $('saveBtn').focus(); }
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) act(b.dataset.act); });
+$('saveBtn').addEventListener('click', () => { S.opener = $('saveBtn'); S.closed = false; render(); });
+
+// keyboard: Escape closes (Cancel), Enter activates the default, Tab and Shift+Tab stay inside the dialog
+document.addEventListener('keydown', e => {
+  const dlg = document.querySelector('.dlg:last-child') && !S.closed ? document.querySelector('.dlg.confirm') || document.querySelector('.dlg') : null;
+  if (!dlg || !dlg.contains(document.activeElement)) return;
+  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); act(dlg.dataset.kind === 'confirm' ? 'cancel2' : 'cancel'); return; }
+  if (e.key === 'Enter' && document.activeElement.tagName !== 'BUTTON') { e.preventDefault(); const d = dlg.querySelector('[data-default="true"]'); if (d) d.click(); return; }
+  if (e.key === 'Tab') {
+    const f = [...dlg.querySelectorAll('button')], first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
+// ---------------------------------------------------------------- annotations (harness text, not product copy)
+const NOTES = {
+  s1:{ title:'S1 — first Save of a new project',
+    shows:['The dashed frame is the native Windows dialog. Windows draws it; CFD Workbench controls three things, numbered on the frame: (1) the dialog title, (2) the start folder, (3) the suggested file name.',
+           'The start folder is %USERPROFILE%\\CFD Workbench, shown as "CFD Workbench", not under Documents (Ruling 146 (3)). No product text is drawn in this state.'],
+    open:['Open question for the operator, not decided here: when %USERPROFILE%\\CFD Workbench does not exist, does the app create it, and when? (a) at first launch; (b) at the first Save, just before the picker opens; (c) never — Windows opens at the nearest existing folder and the user makes the folder. Detail "Default folder missing" in S5 shows (c).'],
+    mac:'macOS: the native macOS save panel, no OneDrive rule.', flow:[['New project',1],['Save',1],['Native picker at the default folder',2]] },
+  s2:{ title:'S2 — the user picked a folder inside OneDrive',
+    shows:['Detection runs after the pick and before any write. Nothing is written into OneDrive.',
+           'Variant A: a modal dialog with the Ruling 146 (1) text; Choose another folder… reopens the picker at the default folder. Variant B: the alert band carries the text and the picker reopens by itself, on top of the band.'],
+    open:['Choose A or B for S2. Recommendation: A, medium confidence. In B the reopened native picker covers the band, so the reason is read only after the user leaves the picker; the band is announced but not seen.'],
+    flow:[['Pick a folder',0],['Check for OneDrive (before any write)',2],['Refuse: nothing written',3],['Picker at default folder',0]] },
+  s3:{ title:'S3 — Save is blocked by a crash-left unfinished save',
+    shows:['The Ruling 146 (2) text, with its three steps as an ordered list. The document stays dirty in both variants: the title chip still reads Unsaved changes.',
+           'Variant A: a modal dialog with Save As… (primary), Clear unfinished save… and Cancel. Variant B: the alert band with the same text and actions; the band does not take focus, so the Save button keeps it.'],
+    open:['Choose A or B for S3. Recommendation: A, medium-high confidence. The band becomes a tall block, announces a 60-word list assertively, and leaves the Save button live beside a blocked save.'],
+    flow:[['Save',0],['Unfinished save found',2],['Blocked, document stays dirty',3]] },
+  s4:{ title:'S4 — Clear unfinished save, the confirm step',
+    shows:['Clear unfinished save… opens this confirm step. It names what is removed and that no other window may use the project. The action never runs without this click and never announces a successful recovery.',
+           'Outcome a (cleared): both surfaces close, the ordinary Save proceeds and shows its own Saving… status. Outcome b (refused): the dialog explains the refusal and offers Try again. Use the harness box "Another window holds this project" to choose the outcome when you click.'],
+    open:['Proposed: the Enter key and first focus go to Cancel, not to Clear unfinished save. A held Enter from the button that opened this step must not clear anything.'],
+    flow:[['Clear unfinished save…',0],['Confirm',2],['No-live-writer check',2],['Cleared → Save, or refused',3]] },
+  s5:{ title:'S5 — the waiting, saving and error floor',
+    shows:['Picker open, app waiting: the window is inert behind the native dialog and the strip says where to act. Save in progress: the strip carries the ordinary status. Picker failed: the strip warns and the document stays dirty.',
+           'OneDrive check failed follows the S2 variant. Clear failed shows inside the confirm step. Default folder missing is the empty state of S1.'],
+    open:['Proposed: if the OneDrive check itself fails, the save is refused (fail closed, Ruling 135). Confirm.'],
+    flow:[['Waiting',0],['Saving',0],['Failed',3]] }
+};
+const CLAIMS = [['focus-in','Focus moves into a dialog when it opens, onto its default button.'],['esc','Escape closes the dialog (Cancel) and returns focus to what opened it.'],['enter','Enter activates the default button.'],['tab','Tab and Shift+Tab stay inside the dialog.']];
+function renderNotes(){
+  const n = NOTES[S.state];
+  const flow = n.flow.map(f => `<li class="${f[1] === 2 ? 'on' : f[1] === 3 ? 'no' : ''}">${esc(f[0])}</li>`).join('');
+  $('notes').innerHTML = `<section data-annot><h2>${esc(n.title)}</h2><ol class="flow" aria-label="Flow">${flow}</ol>${n.shows.map(s => `<p>${esc(s)}</p>`).join('')}${n.mac ? `<p class="mute">${esc(n.mac)}</p>` : ''}</section>
+  <section data-annot><h2>Decision and keyboard</h2>${n.open.map(s => `<p><span class="tag open">Open</span>${esc(s)}</p>`).join('')}<ul>${CLAIMS.map(c => `<li data-claim="${c[0]}">${esc(c[1])}</li>`).join('')}</ul><p class="mute">The native dialog keeps Windows's own keys.</p></section>`;
+}
+
+// ---------------------------------------------------------------- harness
+$('state').addEventListener('change', e => setState({ state:e.target.value, detail:'' }, true));
+$('detail').addEventListener('change', e => setState({ detail:e.target.value }, true));
+$('variant').addEventListener('change', e => setState({ variant:e.target.value }, true));
+$('theme').addEventListener('change', e => { S.theme = e.target.value; render({ focus:false }); });
+$('vp').addEventListener('change', e => { S.vp = e.target.value; render({ focus:false }); });
+$('reduce').addEventListener('change', e => { S.reduce = e.target.checked; render({ focus:false }); });
+$('holder').addEventListener('change', e => { S.holder = e.target.checked; });
+$('rerun').addEventListener('click', () => setState({}, true));
+window.__svp = { S, COPY, CODE, text, crashParts, claims:CLAIMS.map(c => c[0]), setState };
+S.opener = $('saveBtn');
+render({ focus:false });
+</script>
+</body>
+</html>
