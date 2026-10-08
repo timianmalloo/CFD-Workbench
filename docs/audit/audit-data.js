@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T18:55:41Z",
+  "generated": "2026-10-08T18:55:53Z",
   "audit": [
     {
       "actor": null,
@@ -30298,6 +30298,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T18:31:54Z",
       "duration_seconds": 7.0
+    },
+    {
+      "id": "al-01M4EDYDSV0EFV4FDYB7379BBQ",
+      "shortname": "NUM display fix",
+      "datetime": "2026-10-08T18:55:53Z",
+      "session": "trk-num",
+      "prompt": "NUM",
+      "summary": "LatticeBias singular for 1; Labels.CoupleValue floors |couple| < 1e-9 q c^2 to 0.00 for label and table row; SectionForces.CoupleScale; COPY-SF17 row amended; NUM-RESIDUE class; Sig3 sweep reported",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Singular/plural agreement and a round-off floor for the c/4 couple display",
+      "done_when": "red-first checks pass, run-tests green, check-docs exit 0"
     }
   ],
   "changes": [
