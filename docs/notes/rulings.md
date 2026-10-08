@@ -1239,3 +1239,9 @@ Ruled by the Fable owner under the operator's delegation (2026-10-07). (a) C-5 m
 Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended. As soon as any conditions-band input differs from the shown run's operating point, the shown result reads Historical with the existing approved wording ("Historical — operating point changed (...)", as produced after an Evaluate with changed inputs); pressing Evaluate makes it Current again; returning the inputs to the run's values makes it Current without a new run. No new copy. Evaluate and Find alpha stay explicit.
 
 - request: req-01M4CB6XP5CG8TGMAE20EDW8KJ · ruled by: operator-timianmalloo · at: 2026-10-07T23:29:37Z
+
+### Ruling 141 — Historical banner names the changed input in plain words
+
+Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended. The banner reads "Historical — operating point changed (speed)", "(depth)" or "(water)" for those edits, and "Historical — operating point changed" when an input is blank or invalid; the alpha wording is unchanged. Raw key names never reach the banner.
+
+- request: req-01M4CEJER9EDKJ5AT9WMJRJTFK · ruled by: operator-timianmalloo · at: 2026-10-08T00:28:20Z
