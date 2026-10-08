@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "719d3b5fcb4bc98af1a7ba3a1e95eaafdb98b5b37e7ad6e1a0db6e9be68c09bb"
+      "sourceSha256": "3278c3dfaba4243a389f6c188710e6c1d32d0e4ce48c5371287a4df001d117ef"
     },
     {
       "id": "domain-experts",
@@ -9091,7 +9091,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart LR\n  P[preflight + plan] --> O[Astra Owner plan gate]\n  O --> A0[W-0 setup evidence + PR]\n  A0 --> A1[W-1 smoke evidence + PR]\n  A1 --> B1[W-2 design PR + Fable/Data gate]\n  B1 --> B2[W-2 red-first implementation]\n  A1 --> C[W-3 solver routes + PR]\n  C --> D[W-4a OpenFOAM L6]\n  C --> E[W-4b SU2 TMR]\n  D --> FS[W-4c L3 started + durable monitor]\n  E --> FS\n  FS -. measured spare capacity .-> G[W-5 cfMesh + PR]\n  FS --> FC[W-4c L3 complete + A4/GCI + PR]\n  B2 --> JB[Windows persistence review]\n  G --> JC[Solver review]\n  FC --> JC"
         }
       ],
-      "sourceSha256": "7973a3b7b480f5dfd8028da46f3defbf342ce629c0a6384bcc236b4958eaf947"
+      "sourceSha256": "18657a1f106c1cd1da94c3c65d82e6bdb8091ef07e261d254d3b6a26e23028f4"
     },
     {
       "id": "plan-seam-repair-1",
@@ -12567,6 +12567,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
+      "id": "proof-pii-red-first",
+      "path": "docs/proof/pii/red-first.md",
+      "title": "PROOF-PII red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-pii",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first, self-test, cost and hash-safety receipt for the PROOF-PII guard and the Windows user-name scrub (Ruling 145 (5)).",
+      "tags": [
+        "pii",
+        "proof",
+        "ruling-145"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "06dd2cb8845ddac26a318ae50259734eeab665b9c23879338a51437327409ce3"
+    },
+    {
       "id": "proof-planform-verbs-fairness",
       "path": "docs/proof/planform-verbs-fairness/README.md",
       "title": "SPK — fairness and Rebuild evidence for 4- and 5-vertex channels (planform point verbs)",
@@ -14423,7 +14448,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "68bc4f4649b40b5ad397aad97d5b001d430d69ec9e2986822b29f04d68a19596"
+      "sourceSha256": "cd327ec8eaa6c8e9527313f839485de2a6b4c1e11eb9b0999e28dce518a42419"
     },
     {
       "id": "proof-win-setup",
@@ -14448,7 +14473,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4a064c6b3d5006f397fd8e6ea769d1455b9e18215529cb76991546ea26ae5ecf"
+      "sourceSha256": "b8d5e483d72a576aab9a9532eac28325f65e1e86a24615060d9b54b68e3920b7"
     },
     {
       "id": "proof-win-smoke",
@@ -14474,7 +14499,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d850adcc95afd5a80d8f7948bade61fc7ec1d6dedf8af50e46fdef8985fbd496"
+      "sourceSha256": "66d88ccea85e8afe2375150ecedfe771fc5c64cca603fd5fa10a7cff5e3158d0"
     },
     {
       "id": "proof-win-smoke-reverify",
@@ -14508,7 +14533,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fbb02efccd5fc3d4b42160e9f4b242e1a2f77400e341a7f716823b049e863a34"
+      "sourceSha256": "ae0432abaa88592ae860ba678ab671f9ad09ed36cf8dd2d942b61b3909658f99"
     },
     {
       "id": "proof-win-store-design",
@@ -16536,5 +16561,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d57de6f9ea110a4dfda1a3e3c476cbc5a7ee72fd1390fcbef90112ee363e5b28"
+  "graphSha256": "58cebb2a65bd4cc8057d6d0f67a0a2a69eeca0e26a71094533b27076f088fdbf"
 };
