@@ -104,10 +104,13 @@ internal static class TipCavitationTests
     {
         (AnalysisRun run, byte[] source, SectionTierResult tier) = Cambered();
         AnalysisChecks.Equal(1, tier.TipNotJudgedCount, "eta 1 reads the tip strip");
+        AnalysisChecks.Equal("; 1 station Not judged — tip strip", Labels.TipNotJudgedSuffix(1), "COPY-410 singular");
+        AnalysisChecks.Equal("; 3 stations Not judged — tip strip", Labels.TipNotJudgedSuffix(3), "COPY-410 plural");
+        AnalysisChecks.Equal("", Labels.TipNotJudgedSuffix(0), "no tip stations, no suffix");
         SectionView view = SectionDisplay.Build(run, tier, source, null, "r1", null, null, default, Units.Metric);
         ResultGroup cavitation = view.Groups.Single(g => g.Title == "Cavitation");
         string screen = cavitation.Rows.Single(r => r.Label == "Cavitation screen").Value;
-        AnalysisChecks.Equal(true, screen.EndsWith("; 1 stations " + Labels.TipNotJudged, StringComparison.Ordinal), "the wing line states the count: " + screen);
+        AnalysisChecks.Equal(true, screen.EndsWith("; 1 station " + Labels.TipNotJudged, StringComparison.Ordinal), "the wing line states the count: " + screen);
         string governing = cavitation.Rows.Single(r => r.Label == "Governing station").Value;
         AnalysisChecks.Equal(true, governing.EndsWith("of 3 stations", StringComparison.Ordinal), "the count is judged stations only: " + governing);
         AnalysisChecks.Equal(true, tier.GoverningEta < 1.0, "the tip station is not governing");
@@ -121,8 +124,8 @@ internal static class TipCavitationTests
             new ProjectionContext(SectionTier: tier));
         ResultRow[] rows = view.Groups.SelectMany(g => g.Rows).ToArray();
         string cavitation = rows.First(r => r.Label == "Cavitation").Value;
-        AnalysisChecks.Equal(true, cavitation.EndsWith("; 1 stations " + Labels.TipNotJudged, StringComparison.Ordinal), "Cavitation row: " + cavitation);
-        AnalysisChecks.Equal(true, rows.First(r => r.Label == "V_crit").Note!.EndsWith("; 1 stations " + Labels.TipNotJudged, StringComparison.Ordinal), "V_crit note");
+        AnalysisChecks.Equal(true, cavitation.EndsWith("; 1 station " + Labels.TipNotJudged, StringComparison.Ordinal), "Cavitation row: " + cavitation);
+        AnalysisChecks.Equal(true, rows.First(r => r.Label == "V_crit").Note!.EndsWith("; 1 station " + Labels.TipNotJudged, StringComparison.Ordinal), "V_crit note");
         SectionTierResult allTip = SectionTier.Evaluate(SectionSeamTests.ThicknessSource(_ => 0.10), [0.5, 1.0], [Tip(0.5, 2), Tip(1.0, 8)],
             Fixture.Op(3), Fixture.Salt);
         ResultRow[] none = AnalysisProjection.Build(run, ProjectionTests.Current(run), Units.Metric, new ProjectionContext(SectionTier: allTip))
