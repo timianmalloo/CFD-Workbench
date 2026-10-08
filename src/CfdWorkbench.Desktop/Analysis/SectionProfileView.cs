@@ -29,7 +29,7 @@ public sealed class SectionProfileView : Control
             AutomationProperties.SetName(this, value is null ? "Section profile" :
                 value.Caption + ", pressure coefficient on the profile; " + (value.TipNotJudged ? "Cp_min " + Labels.TipNotJudged :
                 "Cp_min " + Num(value.CpMinPanel.Cp) + " at x/c " + value.CpMinPanel.X.ToString("0.000", Inv) + " on the " + value.Side + " surface") +
-                (value.Forces is { } f ? ". " + Labels.LiftLabel(f.LiftPerSpan, f.Units) + ", " + (f.Anchor == ForceAnchor.CentreOfPressure ? Labels.AnchorCp(f.XcpOverC!.Value) : Labels.AnchorQuarter) +
+                (value.Forces is { } f ? ". " + Labels.LiftLabel(f.LiftPerSpan, f.Units) + ", " + (f.Anchor == ForceAnchor.CentreOfPressure ? Labels.AnchorCp(f.XcpOverC!.Value) : Labels.AnchorQuarterFor(f.MomentResolved)) +
                     ", " + Labels.FreeStream(f.AlphaGeoDeg) : ""));
             // the plate and the key under it need the room the mockup gives them; the Cp-only view keeps its height
             Height = value?.Forces is null ? 240 : ViewportHeightWithVectors + KeyHeight;
@@ -287,7 +287,7 @@ public sealed class SectionProfileView : Control
         Place2(liftText, scaleText, shortLift ? anchor.X - 6 : liftEnd.X + 14, shortLift ? anchor.Y - 100 : liftEnd.Y - 14);
         // Ruling 131: the CP and the couple labels carry the approved bias wording (COPY-SF17) on a second line
         if (cp) Place2(Labels.AnchorCp(f.XcpOverC!.Value), Labels.LatticeBias(f.NChord), anchor.X - 10, oy + yI, right: true);
-        else Place(Labels.AnchorQuarter, anchor.X - 10, oy + yI + 20, right: true);
+        else Place(Labels.AnchorQuarterFor(f.MomentResolved), anchor.X - 10, oy + yI + 20, right: true);
         // the couple label goes on the side of the chord away from the Cp_min plate
         if (!cp && f.MomentResolved) Place2(Labels.CoupleLabel(f.CouplePerSpan, f.CoupleScale, u), Labels.LatticeBias(f.NChord), anchor.X + 44, cpSide == "lower" ? anchor.Y - 62 : anchor.Y + 38);
         else if (!cp) Place(Labels.CoupleLabelNotResolved, anchor.X + 44, cpSide == "lower" ? anchor.Y - 46 : anchor.Y + 38);

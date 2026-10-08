@@ -60,10 +60,11 @@ public sealed record SectionForces(double Eta, double ChordMeters, double AlphaG
     double? ProfileLow, double? ProfileHigh, string? ProfileFlags, string? ProfileUnavailable, double InducedPerSpan,
     double LiftScale, int DragMultiple, Units Units, int NChord = 4, double CoupleScale = 0)
 {
-    /// <summary>Centre of the Ncrit 2-4 band.</summary>
     /// <summary>Ruling 161: the lattice resolves the centre of pressure and the pitching moment from two chordwise panels up. The one definition; every surface reads it.</summary>
     public static bool IsMomentResolved(int nChord) => nChord >= 2;
+    /// <summary><see cref="IsMomentResolved"/> for this run's chordwise panel count.</summary>
     public bool MomentResolved => IsMomentResolved(NChord);
+    /// <summary>Centre of the Ncrit 2-4 band.</summary>
     public double? ProfileMid => ProfileLow is { } low && ProfileHigh is { } high ? 0.5 * (low + high) : null;
     public double TotalPerSpan => (ProfileMid ?? 0) + InducedPerSpan;
     public bool LowConfidence => StripFlags.Has(ProfileFlags, StripFlags.LowConfidence);

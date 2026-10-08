@@ -6,7 +6,7 @@ namespace CfdWorkbench.Analysis.Tests;
 /// <summary>
 /// Track NCR (Ruling 161): at one chordwise panel the lattice cannot resolve x_cp or the pitching moment, so the strip table says
 /// "Not resolved · 1 chordwise panel" and drops the bias suffix; at two or more panels nothing changes. Ring: fast (every join); two
-/// real lattice runs on the Example foil at 2 spans, about 0.1 s each.
+/// real lattice runs on the Example foil at 2 spans, about 0.3 s each, built once per panel count.
 /// </summary>
 internal static class NotResolvedTests
 {
@@ -20,7 +20,13 @@ internal static class NotResolvedTests
         Check("NotResolved_TwoChordwisePanels_StillResolved_StructuralRuleNotMagnitude", TwoPanelsResolved);
     }
 
-    private static (SectionForces Forces, ResultGroup Table) ExampleRun(int nChord)
+    private static readonly Dictionary<int, (SectionForces, ResultGroup)> Runs = [];
+
+    // one real lattice run per panel count (about 0.3 s each), shared by the checks of this group
+    private static (SectionForces Forces, ResultGroup Table) ExampleRun(int nChord) =>
+        Runs.TryGetValue(nChord, out var held) ? held : Runs[nChord] = Build(nChord);
+
+    private static (SectionForces Forces, ResultGroup Table) Build(int nChord)
     {
         using var session = new AuthoringSession();
         byte[] source = FoilSource.NewDefault();

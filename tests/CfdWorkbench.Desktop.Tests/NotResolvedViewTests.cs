@@ -16,6 +16,7 @@ public static class NotResolvedViewTests
 {
     public static void Run()
     {
+        RunAnchor();
         DesktopChecks.Check("SectionProfile_OneChordwisePanel_NoCoupleGlyph_LabelReadsNotResolved_FourPanelsDrawsIt_Ruling161", () =>
         {
             var view = new SectionProfileView();
@@ -36,6 +37,33 @@ public static class NotResolvedViewTests
                 Render(view);
                 Equal(true, view.CoupleDrawn, "nc = 4: the couple glyph is drawn");
                 Equal(true, view.Plates.Any(p => p.Name.StartsWith("M′ c/4 (lattice) −27.8 N·m/m")), "nc = 4: the couple label keeps its number");
+            }
+            finally { window.Close(); }
+        });
+    }
+
+    public static void RunAnchor()
+    {
+        DesktopChecks.Check("SectionProfile_QuarterChordPlateAndAccessibleName_ReadSf22AtOnePanel_Sf5AtFour_Ruling162", () =>
+        {
+            var view = new SectionProfileView();
+            var window = new Window { Content = view, Width = 974, Height = 480 };
+            window.Show();
+            try
+            {
+                view.Model = Profile(Forces(nChord: 1));
+                Settle(window);
+                Render(view);
+                Equal(true, view.Plates.Any(p => p.Name == "c/4 · arrows start here · x_cp not resolved"), "nc = 1: the plate reads SF22: " + string.Join(" | ", view.Plates.Select(p => p.Name)));
+                Equal(false, view.Plates.Any(p => p.Name.Contains("x_cp Undefined")), "nc = 1: no Undefined plate");
+                string name1 = Avalonia.Automation.AutomationProperties.GetName(view) ?? "";
+                Equal(true, name1.Contains("c/4 · arrows start here · x_cp not resolved") && !name1.Contains("Undefined"), "nc = 1: the accessible name reads SF22: " + name1);
+
+                view.Model = Profile(Forces(nChord: 4));
+                Settle(window);
+                Render(view);
+                Equal(true, view.Plates.Any(p => p.Name == "c/4 · arrows start here · x_cp Undefined"), "nc = 4: the plate keeps SF5");
+                Equal(true, (Avalonia.Automation.AutomationProperties.GetName(view) ?? "").Contains("c/4 · arrows start here · x_cp Undefined"), "nc = 4: the accessible name keeps SF5");
             }
             finally { window.Close(); }
         });

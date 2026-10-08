@@ -791,6 +791,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-SF19 | M′ c/4 (lattice) Not resolved · 1 chordwise panel — approved — Ruling 161 (the profile couple label at 1 chordwise panel; one line, no SF17 second line, and no couple glyph is drawn) |
 | COPY-SF20 | With one chordwise panel the lattice can't resolve the centre of pressure or the pitching moment, so the arrows start at the quarter chord and no couple is drawn. — approved — Ruling 161 (the note under the table at 1 chordwise panel, in place of SF15) |
 | COPY-SF21 | x_cp/c (lattice, 1 chordwise panel) · M′ c/4 (lattice, 1 chordwise panel) — approved — Ruling 161 (the two row labels at 1 chordwise panel: SF17's bias suffix is dropped; at 2 or more panels SF12 and SF17 are unchanged) |
+| COPY-SF22 | c/4 · arrows start here · x_cp not resolved — approved — Ruling 162 (the quarter-chord plate on the profile, and the profile's accessible name, at 1 chordwise panel, in place of SF5; at 2 or more panels SF5 is unchanged) |
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

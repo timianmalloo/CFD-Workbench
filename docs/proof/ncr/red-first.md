@@ -46,4 +46,19 @@ Rendered texts, read from the table rows and the drawn plates:
 
 Two NUM checks in `SectionForceTests.cs` asserted the old nc = 1 texts and went red on the new code
 (`SectionForce_LatticeBias_SingularForOnePanel_PluralOtherwise_TrackNum`, `SectionForce_OneChordwisePanel_CoupleIsRoundOff_ShownAsZero_TableAndProfile_TrackNum`).
-That file is not this track's. The two-line update is its own commit, so the leader can drop or re-apply it against the held branch.
+That file is not this track's. The two-line update is its own commit, so the leader can drop or re-apply it against the held branch. The coordinator accepted it (commit 388fb6a0 stays).
+
+## Ruling 162 follow-up (2026-10-08)
+
+COPY-SF22 "c/4 · arrows start here · x_cp not resolved" replaces SF5 on the quarter-chord plate and in the profile's accessible name at 1 chordwise panel.
+
+Red, Desktop `--analysis`, `SectionProfile_QuarterChordPlateAndAccessibleName_ReadSf22AtOnePanel_Sf5AtFour_Ruling162`: FAIL "nc = 1: the plate reads SF22", the plates listed "c/4 · arrows start here · x_cp Undefined". Green after the change; the same check pins SF5 on the plate and the accessible name at nc = 4.
+
+The two Analysis reds above fail on the row-label `Single` first. Each value assert was then seen red on its own, by reverting only that value code in `SectionDisplay.cs` (labels kept) and restoring it after:
+
+- x_cp text reverted: FAIL "x_cp/c reads Not resolved, not the bare Undefined expected Not resolved · 1 chordwise panel; actual Undefined".
+- Unit put back on the not-resolved couple row: FAIL "a value that is not a number carries no unit expected ; actual N·m/m".
+
+## Next step (recorded, not done)
+
+A readiness-tier measurement on a cambered section at nc = 2, 4 and 8, to size the SF17 "biased forward at low lift" wording. The CFD reviewer's 2D re-run captured 66% of Cm c/4 at nc = 2 and 87% at nc = 4, and found the bias is in magnitude at every lift. Every NCR fixture is the symmetric NACA 0012, so none of these checks can see it.

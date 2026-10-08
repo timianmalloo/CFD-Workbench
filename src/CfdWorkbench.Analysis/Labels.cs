@@ -296,6 +296,8 @@ public static class Labels
     public const string LocalInflowWhy = "tilts the flow by α_i"; // COPY-SF3
     public static string AnchorCp(double xOverC) => "CP (lattice) · x/c " + Signed(xOverC, "0.00"); // COPY-SF4
     public const string AnchorQuarter = "c/4 · arrows start here · x_cp Undefined"; // COPY-SF5
+    public const string AnchorQuarterNotResolved = "c/4 · arrows start here · x_cp not resolved"; // COPY-SF22 (Ruling 162): SF5 at 1 chordwise panel
+    public static string AnchorQuarterFor(bool momentResolved) => momentResolved ? AnchorQuarter : AnchorQuarterNotResolved;
     /// <summary>
     /// The couple's number, one definition for the profile label and the strip-table row. A couple below <see cref="RoundOffFloor"/> of its
     /// scale <paramref name="scale"/> (q c², N) is floating-point residue, not a physical value, and prints as zero does ("0.00").

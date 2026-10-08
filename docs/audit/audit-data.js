@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:08:17Z",
+  "generated": "2026-10-08T23:20:39Z",
   "audit": [
     {
       "actor": null,
@@ -30788,6 +30788,26 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "At nc<2 x_cp/c and M' c/4 read Not resolved, no couple glyph, bias suffix dropped (Ruling 161)",
       "done_when": "red-first.md, run-tests green, check-docs exit 0"
+    },
+    {
+      "id": "al-01M4EX37Z5HPP08FEAS9V6WE6F",
+      "shortname": "ncr-ruling162",
+      "datetime": "2026-10-08T23:20:39Z",
+      "session": "trk-ncr",
+      "prompt": "track NCR resume (Ruling 162)",
+      "summary": "COPY-SF22 on plate and accessible name via AnchorQuarterFor; IsMomentResolved doc fixed; value asserts shown red alone; group cost trimmed",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "SF22 at nc=1, doc comment, value reds, next-step note",
+      "done_when": "run-tests exit 0, check-docs exit 0",
+      "started_at": "2026-10-08T23:17:17Z",
+      "duration_seconds": 202.0
     }
   ],
   "changes": [
