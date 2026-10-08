@@ -1,1 +1,2 @@
 {"agent": "trk-num", "at": 1791485312.061644, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-num", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-num-display"}
+{"agent": "trk-num", "at": 1791486504.968215, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-num", "wi": "WI-0", "worktree": "CFD-Workbench-fix-num-display"}
