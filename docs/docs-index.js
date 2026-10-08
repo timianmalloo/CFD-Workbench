@@ -5876,6 +5876,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "proof-cpy-cause-rows",
+      "path": "docs/proof/cpy/cause-rows.md",
+      "title": "Track CPY, Ruling 148 - proposed plain-cause rows for DOC-/DSL- codes",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-cpy",
+      "phase": "design",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Measured inventory of every DOC-/DSL- code src/ can throw or return, with the surface and today's text, and proposed cause rows COPY-412 to COPY-430 for the operator to sign off (Ruling 148). Nothing here has shipped.",
+      "tags": [
+        "copy",
+        "ruling-148",
+        "save",
+        "open",
+        "error-copy"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e66e4aef8358bd08728ea64fc0b19bd7a11dd0983c077b1ef1b9ea63a99599bc"
+    },
+    {
       "id": "proof-win-cfmesh-probe",
       "path": "docs/proof/win-cfmesh/probe.md",
       "title": "W-5 cartesianMesh probe execution record",
@@ -16822,5 +16849,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2681a468c2f490ce81550ced3355cdd164715515df380c53d01e389aeccec0f1"
+  "graphSha256": "88729f6b1543650f077fb81fb9e93fc4a6a4494b1feb71aae1887c6f72d446e2"
 };
