@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T01:00:40Z",
+  "generated": "2026-10-08T01:02:24Z",
   "audit": [
     {
       "actor": null,
@@ -29664,6 +29664,33 @@ window.AUDIT_DATA = {
       "done_when": "probe in both checks, red-first planted, gates green",
       "started_at": "2026-10-08T00:57:13Z",
       "duration_seconds": 207.0
+    },
+    {
+      "id": "al-01M4CGGTZYQHCTVWKVAAG5RGVW",
+      "shortname": "join-flk",
+      "datetime": "2026-10-08T01:02:24Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of investigate/section-editor-flake into main",
+      "summary": "flake investigation (no reproduction in ~90 runs, root cause unknown); NotifyProbe puts event, generation, CheckAccess and stack into the drag and nudge FAIL lines; red-first with a planted Select post; no product code recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join investigate/section-editor-flake",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T01:01:27Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
