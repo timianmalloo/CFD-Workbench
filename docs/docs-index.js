@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3278c3dfaba4243a389f6c188710e6c1d32d0e4ce48c5371287a4df001d117ef"
+      "sourceSha256": "d86cb3937cc50cdfd09ad2a21306f1e476f4cc1e7997262e29906aa2fd86043b"
     },
     {
       "id": "domain-experts",
@@ -7210,7 +7210,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18fd70d59bddfa1556ea25507846f3367ab9c572fa6d9ea3d0d132c67b31d16d"
+      "sourceSha256": "ba840966a977ab0a19921631c02efbe9b74dd4c1ae000df63a88e826cc79adf5"
     },
     {
       "id": "kb-hw-glossary",
@@ -14665,6 +14665,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "fbd2221b43f9cc84427285d30106e6c0863c2b680354bd63e82266ca009f6797"
     },
     {
+      "id": "proof-wsf-red-first",
+      "path": "docs/proof/wsf/red-first.md",
+      "title": "READER-SHARE red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-wsf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first and behaviour-test receipt for the reader-share gate and the shared UserFile opener (Ruling 145 (1), (6)).",
+      "tags": [
+        "windows",
+        "proof",
+        "ruling-145"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0f467f7bc88b89226d506fdabc484f3a6d98665a998389f94655141760e5df79"
+    },
+    {
       "id": "review-app-shell-native",
       "path": "docs/reviews/app-shell-native.md",
       "title": "Native review — CAD-first app shell, M1.2a rows",
@@ -16561,5 +16586,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "58cebb2a65bd4cc8057d6d0f67a0a2a69eeca0e26a71094533b27076f088fdbf"
+  "graphSha256": "0cf5216db5900c60f171344456c1b763c5965ecb69a5872de058b89faa249b24"
 };

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T17:15:45Z",
+  "generated": "2026-10-08T17:43:42Z",
   "audit": [
     {
       "actor": null,
@@ -32101,6 +32101,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4E14DPYAGQ8HB1141RGK278",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4E95YJZ6R5W8F42WDQ5S6PG",
+      "ts": "2026-10-08T17:32:36Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4E95YFZGPDZQWX2R3HCYM98",
+      "session": "operator-timianmalloo"
     }
   ]
 };
