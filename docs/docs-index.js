@@ -3594,7 +3594,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e4177a55d03c4c9c2f933fbd69b3b271a82ebcffa8e957d8745a44a7393c7155"
+      "sourceSha256": "119e8cee21810429ef43a77205a653225a1efe1e2fab6cc8660ec9e853f8321e"
     },
     {
       "id": "design-windows-runtime",
@@ -5219,7 +5219,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d40cd788e134e2191e153172087396b81ec2330ccd1457b0fc36ebea50b770e6"
+      "sourceSha256": "4549946529b4cd0addc042d7ffb9c94f3e8b463233a7f328e111dc1f5eb78a85"
     },
     {
       "id": "domain-experts",
@@ -6776,6 +6776,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "dd3f93e71ac75ab9f2904672c2c835fef59a8fb76d13a8c9d3143ac93a3bfa72"
     },
     {
+      "id": "review-pr-15",
+      "path": "docs/reviews/pr-15.md",
+      "title": "PR #15 (Windows PC) - W-2 ProductCode limited to the qualified set (Ruling 166), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 166). PR #15 closes Ruling 152 (4): NativeFailure.ProductCode is DOC-CONFLICT for Win32 32 and null otherwise, design section 4 says so, and a Windows red-first test asserts Win32 183 is unmapped. The failed 168.6 s Windows ring ran on a base that predates the CAF/RWF merges, and nothing in it names this PR.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-2",
+        "persistence",
+        "test-ring"
+      ],
+      "links": [
+        {
+          "to": "review-pr-10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4d3fb1aac968e663dd5d54b64c79f9900bebdf0d5a76a5f44e94f6fa40999526"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7744,7 +7777,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8d08d0b0caa32c259ed2c5ae2f79e402004d08e9276814b8c74447b07d491f00"
+      "sourceSha256": "f7b2cac3c3ef9fb5f03abba4336d4fead934d2e5469f2bb5131990676e3dfa6b"
     },
     {
       "id": "kb-hw-glossary",
@@ -15291,6 +15324,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "ee1b2a964676b93b77e852f0376f83f46ba2b9bb48168830958b4b2aac19e5df"
     },
     {
+      "id": "proof-win-product-code",
+      "path": "docs/proof/win-product-code/red-first.md",
+      "title": "Ruling 152 C4 ProductCode red-first evidence",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-win-product-code",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first evidence that Win32 183 must remain unmapped by NativeFailure.ProductCode.",
+      "tags": [
+        "windows",
+        "persistence",
+        "proof",
+        "ruling-152"
+      ],
+      "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0d896319f15411bea9d1a47a21050d41aaa69fc1585297a204aa5cf458030579"
+    },
+    {
       "id": "proof-win-routes",
       "path": "docs/proof/win-routes/receipt.md",
       "title": "W-3 Windows solver routes: Ruling 133 completed manual smoke evidence",
@@ -17559,5 +17622,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "04603578ba75e07f02c7891c902fe0f91663e0341b2c20447f69fbd39d531819"
+  "graphSha256": "ed83c562775b613debd019b5c3743d8f42e7babac7eb336a36522a7fa650e8bf"
 };

@@ -11,6 +11,11 @@ internal static class WindowsProjectStoreTests
 {
     internal static void Run()
     {
+        Check("WindowsNative_ProductCode_UnqualifiedWin32Error_IsUnmapped", () =>
+        {
+            var failure = new WindowsNative.NativeFailure(null, 183);
+            Equal<string?>(null, failure.ProductCode);
+        });
         Check("WindowsStore_Unqualified_ProductionAdmissionRemainsClosed", () =>
         {
             string root = TestTemp.Combine("cfd-win-native-" + Guid.NewGuid().ToString("N"));
