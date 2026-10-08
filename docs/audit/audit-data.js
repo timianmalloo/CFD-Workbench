@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T20:53:51Z",
+  "generated": "2026-10-08T21:03:30Z",
   "audit": [
     {
       "actor": null,
@@ -30676,6 +30676,26 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Wire the Ruling 158 status-line copy",
       "done_when": "seven texts in Labels, five sites wired, tests red-first, control extended"
+    },
+    {
+      "id": "al-01M4EN830PJG8G9SCY32TFXGH0",
+      "shortname": "stl-ruling159",
+      "datetime": "2026-10-08T21:03:29Z",
+      "session": "trk-stl",
+      "prompt": "trk-stl Ruling 159",
+      "summary": "COPY-439 added; DESIGN rows 436-438 marked 158,159",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Wire COPY-439, retire the allow-list",
+      "done_when": "line 3114 uses Labels.DrawFailed, control has no exceptions, ring green",
+      "started_at": "2026-10-08T21:01:24Z",
+      "duration_seconds": 125.0
     }
   ],
   "changes": [
