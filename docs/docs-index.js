@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5a1f95212c6047dd53e5ffa2c8f92ba9dab3e7814839a944d19e8704da0e56d7"
+      "sourceSha256": "b9993b6913f4dab247ccac12d1c8a24a6606849141fa002a78e76d3f92930279"
     },
     {
       "id": "domain-experts",
@@ -13770,6 +13770,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "289c24ada6a054684276296258c253e11c378cd8848dba9201819e38a1713af3"
     },
     {
+      "id": "proof-tmh-red-first",
+      "path": "docs/proof/tmh/red-first.md",
+      "title": "TMH red-first receipt for the text-mode-write gate",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The check-text-mode-hash gate names eight files on the pre-fix tree and passes after newline=\"\\n\" is added; the self-test and the no-drift comparison on the Mac are recorded.",
+      "tags": [
+        "tmh",
+        "red-first",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "baf9074e6aab64870531f60ee269859f9b16e2a6b06cc29b8846930ef3bac2a2"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -16286,5 +16311,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "03032ab0277c86ec8a7280e35af909c73fa7992265b5562c0049bdfd6fa17ea8"
+  "graphSha256": "c4fc2745f8a1e42636dcec6626373702cb616025ff1f08619eae4656c08c7d9d"
 };

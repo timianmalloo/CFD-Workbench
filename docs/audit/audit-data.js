@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T01:02:24Z",
+  "generated": "2026-10-08T01:12:25Z",
   "audit": [
     {
       "actor": null,
@@ -29691,6 +29691,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T01:01:27Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M4CH352KPDEZPQMQCC8EZFPY",
+      "shortname": "trk-tmh",
+      "datetime": "2026-10-08T01:12:24Z",
+      "session": "trk-tmh",
+      "prompt": "trk-tmh round-oct06",
+      "summary": "Added tools/check-text-mode-hash.py (AST, allowlist with reasons, self-test), wired in check-docs; newline LF on 8 generator files; make-tmr-case old vs new identical; lesson updated",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Gate and fix text-mode writes in files that hash bytes",
+      "done_when": "gate red on old tree, green after fix, wired in check-docs, no Mac hash drift, lesson updated",
+      "started_at": "2026-10-08T01:06:56Z",
+      "duration_seconds": 328.0
     }
   ],
   "changes": [

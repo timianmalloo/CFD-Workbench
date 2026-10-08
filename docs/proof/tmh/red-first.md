@@ -1,3 +1,19 @@
+---
+id: proof-tmh-red-first
+title: TMH red-first receipt for the text-mode-write gate
+type: proof-pack
+status: draft
+owner: "@timianmalloo"
+phase: implement
+tags: [tmh, red-first, windows]
+links:
+  - { to: defect-classes, rel: refines }
+review-by: 2026-12-31
+summary: >-
+  The check-text-mode-hash gate names eight files on the pre-fix tree and passes after newline="\n" is added; the self-test and the
+  no-drift comparison on the Mac are recorded.
+---
+
 # TMH red-first receipt (WINDOWS-TEXT-MODE-HASH)
 
 Gate: `python3 tools/check-text-mode-hash.py` (stdlib; fast ring; 0.25 s wall for the scan).
