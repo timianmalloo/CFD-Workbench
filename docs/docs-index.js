@@ -6680,6 +6680,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6fee510f69233d63e5551225be3f8904c807707edc0f5fd04195a3df5c490c6"
     },
     {
+      "id": "review-pr-13",
+      "path": "docs/reviews/pr-13.md",
+      "title": "PR #13 (Windows PC) - Windows trigonometric bit patterns (Ruling 163), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 163). The Windows x64 .NET 10 Release bit dump meets the Ruling 156 (2) join gate: double.CosPi equals the Mac golden at all 81 indices, and an identical Mac run shows CosPi and SinPi bit-identical across hosts while Math.Cos differs at 5 and Math.Sin at 8 indices. The CAF join stands; the cross-OS determinism claim (P5) still waits for a green Windows ring.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "catalog",
+        "determinism"
+      ],
+      "links": [
+        {
+          "to": "review-cat-geometry",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4745ac3038ff75be834f7e51c628e476fcc7cfd50d33ed92b652239fa69f4d28"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7648,7 +7676,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1fec0799516ed22cde03e562da7a8ec0f1ff852a7d052b802ad015ccffd4bf9e"
+      "sourceSha256": "35a6c39cbe383882051ba90c80a8ebf49e6c7da0c4e0eb1a4f62e72387296974"
     },
     {
       "id": "kb-hw-glossary",
@@ -17402,5 +17430,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d50176b4f3fae013ca5ba7bf52a91254ff88e1d0475e7ed4afe7dbad19d3b2b0"
+  "graphSha256": "e193553308c91ab1057f4c1bea1c10cd9cb41a93d4ac481acb81490e70365124"
 };

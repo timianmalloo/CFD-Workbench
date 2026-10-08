@@ -1,1 +1,2 @@
 {"agent": "trk-caf", "at": 1791487098.869771, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-caf", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-caf-catalog-determinism"}
+{"agent": "trk-caf", "at": 1791502157.350142, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-caf", "wi": "WI-0", "worktree": "CFD-Workbench-fix-caf-catalog-determinism"}

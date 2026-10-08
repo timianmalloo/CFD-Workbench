@@ -1371,3 +1371,9 @@ Operator 2026-10-08 (AskUserQuestion, session 3122f106), as recommended. When a 
 Operator 2026-10-08 (AskUserQuestion, session 3122f106), as recommended. (1) At 1 chordwise panel the quarter-chord plate reads "c/4 · arrows start here · x_cp not resolved" (and the profile's accessible name with it); at 2 or more panels COPY-SF5 is unchanged. (2) At 1 chordwise panel the profile couple label is one line, with no COPY-SF17 bias line, and the not-resolved M′ c/4 table value carries no unit.
 
 - request: req-01M4EWWJ9E2848D5WZHQ9SZ8FF · ruled by: operator-timianmalloo · at: 2026-10-08T23:17:00Z
+
+### Ruling 163 — PR #13 Windows trig bits: Ruling 156 P1 join gate met; CosPi/SinPi bit-identical across hosts, Math.Cos/Sin are not
+
+Fable owner 2026-10-08 under Ruling 106, on PR #13 (APPROVE WITH CONDITIONS, reviewed head 24313e2b). The Ruling 156 (2) P1 join gate is met: double.CosPi bits equal the Mac golden at all 81 indices, and an identical Mac run shows CosPi and SinPi bit-identical across both hosts while Math.Cos differs at 5 and Math.Sin at 8 indices (on Windows itself Math.Cos differs from CosPi at 42 indices, including i = 63, ...17b1 vs ...17b0). The CAF naca4-closed/2 join stands. P5 (the cross-OS determinism claim) still waits for a green Windows ring on the A build. Pre-merge: the receipt's 'rel: tests' becomes 'relates-to' and the index is synced at the join (Mac). Follow-up: commit 1f2cc9f8 normalised the raw capture before b5c6b52e restored it; it is recorded as a Ruling 151 C3 instance, with a control that a receipt-declared raw-capture SHA-256 and byte count equal the committed blob. Ruling 157 is unchanged; the four scalar samples (Atan, Atan2, Sin/Cos(0.1)) matching is not determinism evidence, and the Atan families keep the 1e-6 identity tolerance with a PC ring measurement.
+
+- request: req-01M4EXYTS5WVAFE3GR4TDYSPHN · ruled by: fable-owner · at: 2026-10-08T23:35:43Z
