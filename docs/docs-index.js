@@ -3594,7 +3594,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c5add4d75839531711015bc428115ac1cfb3483c25e5d53d380c09f2f7203340"
+      "sourceSha256": "8ef5fe6e6219e67b55759b10a54614eecb2d4467dde5182bb7a072705dc953df"
     },
     {
       "id": "design-windows-runtime",
@@ -5876,6 +5876,70 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "proof-windows-store-implementation",
+      "path": "docs/proof/win-store-implementation/checkpoint.md",
+      "title": "Windows managed native store first qualification checkpoint",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@windows-worker",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Native qualification slice only. Production admission is false. This checkpoint qualifies managed ABI declarations and selected real-NTFS primitives; it does not qualify the Windows ProjectStore adapter or the user save/recovery flow.",
+      "tags": [
+        "windows",
+        "persistence",
+        "proof",
+        "w-2"
+      ],
+      "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-5",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-6",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e6b61276da42fe8eefb806f46d224e9994df851034ee993f8b628f6cdc601c37"
+    },
+    {
+      "id": "receipt-windows-store-implementation",
+      "path": "docs/proof/win-store-implementation/receipt.md",
+      "title": "Frozen B2 native qualification failure receipt",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@windows-worker",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Native qualification failure checkpoint. Two repairs exhausted; one held-reader probe still fails. Production admission is false; no full ring or later gate ran.",
+      "tags": [
+        "windows",
+        "persistence",
+        "proof",
+        "blocked"
+      ],
+      "links": [
+        {
+          "to": "proof-windows-store-implementation",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "84d6e0b496c8cdf92b8359476ba891097297e574c4302017a56ffb84d1410d8b"
+    },
+    {
       "id": "review-a3a-native",
       "path": "docs/reviews/a3a-native.md",
       "title": "A3a native build against the approved Area 3 mockup (AUX)",
@@ -7113,7 +7177,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e8f901000f2af81e6b8f7ce2b52899ccfba206c7df7357b9f5d86e14456c4c8a"
+      "sourceSha256": "18fd70d59bddfa1556ea25507846f3367ab9c572fa6d9ea3d0d132c67b31d16d"
     },
     {
       "id": "kb-hw-glossary",
@@ -16439,5 +16503,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "02a15624cd8caf57a3d7cc6706be5db8f5fde95e477bfb85aecdb0735b1c17e5"
+  "graphSha256": "9e605ab36a95c026085468b22401f873b0a10d079af3547e5c1c7312b3c3c645"
 };

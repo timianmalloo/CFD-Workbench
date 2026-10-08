@@ -25,7 +25,9 @@ STORE_PREFIXES = ("Store_", "NativePrimitive_",
 SENSITIVE = re.compile(r"\bFile\.(?!ReadAll(?:Bytes|Text)\b)|\bDirectory\.(?!(?:EnumerateFiles|GetFiles)\b)|\bFileStream\b|\bFileInfo\b|GetTempPath"
                        r"|GetEnvironmentVariable|DllImport|LibraryImport|\bProjectStore\b"
                        r'|(?<!InternalsVisibleTo\(")CfdWorkbench\.Persistence')
-PARTITION_EXEMPT = {path.name for path in STORE_TEST_FILES} | {"IdentityTests.cs"}
+# WindowsProjectStoreTests.cs runs only on Windows (ProjectStoreTests.cs:12), never under the macOS umask runs
+# (Rulings 137, 145); its checks are the PC's Windows store qualification.
+PARTITION_EXEMPT = {path.name for path in STORE_TEST_FILES} | {"IdentityTests.cs", "WindowsProjectStoreTests.cs"}
 
 
 def partition_names() -> list[str]:
