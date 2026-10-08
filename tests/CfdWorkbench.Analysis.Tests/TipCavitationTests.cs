@@ -4,7 +4,8 @@ namespace CfdWorkbench.Analysis.Tests;
 
 /// <summary>
 /// Ruling 142: a tip-provisional strip never decides the wing cavitation verdict, and a tip station's screen reads Not judged.
-/// Ring: every push (Analysis harness, group TipCavitation). Cost: about 1.5 s, one shared lattice run (SectionForceTests.CamberedRun).
+/// Ring: every push for the two synthetic tier checks (Run, about 0.15 s). Readiness for the checks that need the shared lattice run
+/// (SectionForceTests.CamberedRun, about 1 s) and for the example wing (about 3 s), as SectionForceTests does with the same fixture.
 /// </summary>
 internal static class TipCavitationTests
 {
@@ -12,9 +13,36 @@ internal static class TipCavitationTests
     {
         AnalysisChecks.Check("TipCavitation_PlantedTipStation_NeverGovernsTheWing", PlantedTipNeverGoverns);
         AnalysisChecks.Check("TipCavitation_EveryStationTip_WingLineIsNotJudged", AllTip);
+    }
+
+    /// <summary>Readiness ring. The example-wing check prints the before/after record of docs/proof/tcv.</summary>
+    internal static void RunReadiness()
+    {
         AnalysisChecks.Check("TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations", WingLineSuffix);
         AnalysisChecks.Check("TipCavitation_ProjectionRowsAndBand_FollowTheRule", ProjectionRowsFollowTheRule);
         AnalysisChecks.Check("TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber", TipStationDisplay);
+        AnalysisChecks.Check("TipCavitation_ExampleWing_GoverningStationIsJudged_BeforeAfterObserved", ExampleWing);
+    }
+
+    private static void ExampleWing()
+    {
+        using var session = new AuthoringSession();
+        byte[] source = FoilSource.NewDefault();
+        session.Open(source, Fixture.Id(), true);
+        var service = new AnalysisService(session, new ProductWingMethod(Settings.Default));
+        AnalysisRun run = Fixture.Evaluate(service, Fixture.Op(3));
+        // Before: the same strips with the tip flag cleared, which is what the tier saw before Ruling 142.
+        StripLoad[] unflagged = run.Strips.Select(s => s with { Provisional = false, ProvisionalReason = null }).ToArray();
+        SectionTierResult before = SectionTier.Evaluate(source, run.Settings.SectionEtas!, unflagged, run.Op, run.Water);
+        SectionTierResult after = SectionTier.Derive(run, source);
+        string Describe(SectionTierResult t) => $"governing eta {t.GoverningEta:F4}, state {t.Cavitation.State}, sigma {t.Cavitation.Sigma:F4}, " +
+            $"-Cp_min {-t.Cavitation.CpMin:F4}, stations {t.Stations.Count}, tip stations left out {t.TipNotJudgedCount} (eta {string.Join(", ", t.Stations.Where(s => s.TipNotJudged).Select(s => s.Eta.ToString("F4") + " ratio " + (s.Cavitation.Sigma / -s.Estimate.Panel.CpMin)?.ToString("F3")))}; governing ratio " +
+            (t.Stations.Single(s => s.Eta == t.GoverningEta).Cavitation.Sigma / -t.Stations.Single(s => s.Eta == t.GoverningEta).Estimate.Panel.CpMin)?.ToString("F3") + $"), 400-panel candidates {t.PanelCandidateCount}";
+        Console.WriteLine("OBSERVED example wing BEFORE (tip flag ignored): " + Describe(before));
+        Console.WriteLine("OBSERVED example wing AFTER  (Ruling 142):      " + Describe(after));
+        SectionStationResult governing = after.Stations.Single(s => s.Eta == after.GoverningEta);
+        AnalysisChecks.Equal(false, governing.TipNotJudged, "the governing station is judged");
+        AnalysisChecks.Equal(true, after.TipNotJudgedCount >= 1, "the example wing has a tip station left out");
     }
 
     private static StripLoad Tip(double eta, double alphaEff) =>

@@ -28,6 +28,7 @@ internal static class AnalysisChecks
             PanelCpTests.RunReadiness();
             StripFixtureTests.RunReadiness();
             SectionSeamTests.RunReadiness();
+            TipCavitationTests.RunReadiness();
             DxSectionTests.RunReadiness();
             SectionForceTests.RunReadiness();
             return Finish();
@@ -48,7 +49,7 @@ internal static class AnalysisChecks
             ("Cavitation", 10, CavitationTests.Run), ("NeuralFoil", 100, NeuralFoilTests.Run),
             ("PolarSeam", 353, PolarSeamTests.Run),
             ("SectionSeam", 1040, SectionSeamTests.Run),
-            ("TipCavitation", 1500, TipCavitationTests.Run),
+            ("TipCavitation", 150, TipCavitationTests.Run),
             ("ProvenanceSeam", 70, ProvenanceSeamTests.Run),
             ("PolarNumerics", 304, PolarNumericsTests.Run),
             ("OperatingSearch", 45, OperatingSearchTests.Run),
