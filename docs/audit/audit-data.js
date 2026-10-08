@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T19:41:16Z",
+  "generated": "2026-10-08T20:59:15Z",
   "audit": [
     {
       "actor": null,
@@ -30496,6 +30496,24 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Implement Ruling 156 option A: sqrt-only/CosPi catalog generator naca4-closed/2 with one re-record, Placement CosPi/SinCosPi with one re-record, controls (b)-(f), GEO-A",
       "done_when": "Catalog and Placement commits green; red-first, residual, surfaces proofs; gate wired; run-tests, check-docs, verify gates pass"
+    },
+    {
+      "id": "al-01M4EN0AWRXC3DN2ZF51NW0Z2F",
+      "shortname": "rwf-record-path",
+      "datetime": "2026-10-08T20:59:15Z",
+      "session": "trk-rwf",
+      "prompt": "trk-rwf record-write path determinism and tolerance controls (Ruling 157)",
+      "summary": "Items 1-5 landed in 4 code/test commits plus docs; ring green on the second run (one load-related Desktop flake on the first); check-docs exit 0; verify gates: only Ruling 157 citation fails until main is joined",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Deterministic New-project default; fitted-project bytes within the 1e-6 identity tolerance with measured drift; exact asserts relative; class entry amended",
+      "done_when": "Gate lists FoilSource and SectionReplace; NewDefault bit golden; four family checks with DRIFT lines; SinCosDegrees helper; crt-probe committed; four asserts relative; CRT-GOLDEN dated line; ring green"
     }
   ],
   "changes": [
