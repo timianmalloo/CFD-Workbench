@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f98d06c98a8ed7aada1ed72ddd4fbd9618748e0c64dbbf5d7bf22d8a347d0906"
+      "sourceSha256": "9483d36fd0134b92ffa6a6ca50668ffcfbe91f9855835d0f03f02217f0584b7d"
     },
     {
       "id": "domain-experts",
@@ -14978,6 +14978,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "fbd2221b43f9cc84427285d30106e6c0863c2b680354bd63e82266ca009f6797"
     },
     {
+      "id": "proof-wrt-red-first",
+      "path": "docs/proof/wrt/red-first.md",
+      "title": "WRT red-first receipt: Windows known-expected-failure manifest",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-wrt",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for the Windows ring's known-expected-failure manifest (Rulings 152 (2), 154 (3)): the checker's self-test cases and the Desktop harness crash, red then green.",
+      "tags": [
+        "windows",
+        "proof",
+        "ruling-152",
+        "ruling-154"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b3f7db76829feaefea78295f33487264771db77d6e528f0c1ccff29c40d6303b"
+    },
+    {
       "id": "proof-wsf-red-first",
       "path": "docs/proof/wsf/red-first.md",
       "title": "READER-SHARE red-first receipt",
@@ -16906,5 +16932,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d87ceabb100b67b90007f98eb3c6369c129e22c62c027828344840f90866feed"
+  "graphSha256": "434918c1c305e05e67c6ed214a1148f7532a9a9bacee9dedc1862fe5a6875e1f"
 };

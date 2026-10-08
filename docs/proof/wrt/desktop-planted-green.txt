@@ -1,0 +1,93 @@
+RING-LOCK waited 0 s
+STAGE SelfLaunchTests
+SelfLaunchTests: all 8 cases passed.
+STAGE native-review-options
+FAIL Save_ExistingFile_DefiniteCreateOnlyConflict Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE
+STACK Save_ExistingFile_DefiniteCreateOnlyConflict System.Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE |    at Program.<>c__DisplayClass0_0.<<Main>$>b__8() in %REPO%
+Desktop Example, bounded preview, cancel, apply, undo and redo passed.
+STAGE SectionCanvasTests
+SectionCanvas: all 7 test cases passed.
+STAGE spawn
+PARTITION 1/2 of 109 checks
+SUITE --section-editor --part=1/2 exit 0
+SUITE-TIME --section-editor --part=1/2 24.3 s
+PARTITION 1/2 of 67 checks
+SUITE --properties-view --part=1/2 exit 0
+SUITE-TIME --properties-view --part=1/2 26.0 s
+PARTITION 2/2 of 115 checks
+SUITE --shell-window --part=2/2 exit 0
+SUITE-TIME --shell-window --part=2/2 26.3 s
+MEASURE catalog.preview naca-4412 45 ms off-ui (design 140-240 under load, readiness target 50)
+PARTITION 2/2 of 109 checks
+SUITE --section-editor --part=2/2 exit 0
+SUITE-TIME --section-editor --part=2/2 22.1 s
+PARTITION 2/2 of 67 checks
+SUITE --properties-view --part=2/2 exit 0
+SUITE-TIME --properties-view --part=2/2 24.7 s
+PARTITION 1/2 of 115 checks
+SUITE --shell-window --part=1/2 exit 0
+SUITE-TIME --shell-window --part=1/2 23.2 s
+PARTITION 2/2 of 56 checks
+SUITE --plan-canvas --part=2/2 exit 0
+SUITE-TIME --plan-canvas --part=2/2 21.4 s
+PARTITION 1/2 of 56 checks
+SUITE --plan-canvas --part=1/2 exit 0
+SUITE-TIME --plan-canvas --part=1/2 22.2 s
+SUITE --controller-shell exit 0
+SUITE-TIME --controller-shell 22.0 s
+PARTITION 1/2 of 104 checks
+SUITE --views --part=1/2 exit 0
+SUITE-TIME --views --part=1/2 19.8 s
+SUITE --analysis exit 0
+SUITE-TIME --analysis 20.1 s
+MEASURE view_surface_41x101_fast_ring_ms=18.6
+  view-plates: 4 plates at (6, 6), the views fill their slots; Plan 40, 24, Side 127, 24
+PARTITION 2/2 of 104 checks
+SUITE --views --part=2/2 exit 0
+SUITE-TIME --views --part=2/2 16.7 s
+MEASURE header pos 24 px
+MEASURE header rail 24 px
+MEASURE CL-5 kind row 159..322 in a 322 px viewport, offset 361
+MEASURE DC-1 200 '#root_chord × 0.35': text 107 in 107, label 47
+MEASURE DC-1 200 '(#span − 2 cm) / 2': text 107 in 107, label 47
+MEASURE DC-1 260 '#root_chord × 0.35': text 167 in 167, label 47
+MEASURE DC-1 260 '(#span − 2 cm) / 2': text 167 in 167, label 47
+MEASURE DC-1 300 '#root_chord × 0.35': text 207 in 207, label 47
+MEASURE DC-1 300 '(#span − 2 cm) / 2': text 207 in 207, label 47
+MEASURE DC-1 200 subhead '#tip_chord × 0.1': text 109 in 109, label 35
+MEASURE DC-3 input digits end 218, fact digits end 218
+MEASURE Wing at 200 %: tip 172..277 in 277 (extent 737)
+PARTITION 2/2 of 25 checks
+SUITE --properties-cells --part=2/2 exit 0
+SUITE-TIME --properties-cells --part=2/2 12.9 s
+MEASURE identity block 31 px, Wing block 235 px
+MEASURE row Row_p_eta 20 px
+MEASURE row Row_p_from 24 px
+MEASURE row Row_p_aft 24 px
+MEASURE row Row_p_type 24 px
+MEASURE row Row_e_mac 20 px
+MEASURE row Row_w_span 24 px
+MEASURE baselines input 142.06 unit 142.06 label 142.06; fact 119.06 label 119.06
+MEASURE DC-2 '−1234.56' 47 of 52 px
+MEASURE DC-2 '12000.00' 46 of 52 px
+MEASURE DC-2 '−89.99' 35 of 52 px
+MEASURE DC-2 area '≈ 38125' 46×14
+MEASURE stacked 1: label bottom 19, value top 0, row 24
+MEASURE stacked 1.5: label bottom 21, value top 22, row 57
+MEASURE stacked 2: label bottom 28, value top 30, row 76
+PARTITION 1/2 of 25 checks
+SUITE --properties-cells --part=1/2 exit 0
+SUITE-TIME --properties-cells --part=1/2 11.4 s
+MEASURE strip y 776 h 24 w 1280 in 1280x800
+PARTITION 1/3 of 19 checks
+SUITE --status-strip --part=1/3 exit 0
+SUITE-TIME --status-strip --part=1/3 11.1 s
+MEASURE long report 713 px in 430 px, strip h 24
+PARTITION 2/3 of 19 checks
+SUITE --status-strip --part=2/3 exit 0
+SUITE-TIME --status-strip --part=2/3 8.0 s
+PARTITION 3/3 of 19 checks
+SUITE --status-strip --part=3/3 exit 0
+SUITE-TIME --status-strip --part=3/3 8.3 s
+SUITE --shell-model exit 0
+SUITE-TIME --shell-model 0.6 s
