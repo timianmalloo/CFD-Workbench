@@ -40,8 +40,12 @@ alpha_eff is the largest on the wing; the planted tests (`red-first.md`) pin tha
 It shows: the station table row "eta 1" with "Not judged — tip strip" in both the -Cp_min and Cavitation columns; the profile plate "Not judged — tip strip"
 (its cavitation line); the estimator group "-Cp_min: Not judged — tip strip"; the wing-level Cavitation group unchanged
 ("Clear — ...; 3 Not judged — tip strip", sigma 7.80, -Cp_min 0.83, "of 6 stations" = judged only, governing eta 0.191).
-**What the capture still shows at a tip station: a Cp_min number** on the profile marker plate ("Cp_min -0.46 · x/c 0.091 · upper"), on the Cp chart's
-Cp_min point and in the profile's aria text. See item 4, rows 13 and 14.
+**Retaken after the Ruling 142 (3) extension** (the first capture still showed "Cp_min -0.46 · x/c 0.091 · upper", the ring, the chart's Cp_min point and the legend
+"-0.46 to +0.99", whose low end is Cp_min). The current capture was opened: the Cp_min ring and plate are gone, the legend reads "Cp · vik pinned at 0", the aria text reads
+"...; Cp_min Not judged — tip strip" (`capture-run.txt`), and the Cp chart has no Cp_min point. Remaining numbers on the picture are the Cp distribution (colour bar ends
+-0.99 / 0.99, set by the pressure side here) and the wing-level group, which stays the wing result.
+**All-tip wing line, observed** (`TipCavitation_Exclusion...` readiness check prints it): Section view wing line `[Not judged — tip strip]`, Analysis panel Cavitation row
+`[Not judged — tip strip]`, band V_crit `[Not judged — tip strip]`. `UnavailableBecause` does not wrap it: the reason maps whole through `ReasonTexts`. Each is asserted equal to `Labels.TipNotJudged`.
 
 ## Item 4. Every reader of the wing verdict, and whether it follows the rule
 
@@ -59,10 +63,11 @@ Cp_min point and in the profile's aria text. See item 4, rows 13 and 14.
 | 10 | `Desktop/Analysis/SectionTabView.cs:46-48` (bottom-panel Section summary) | shown station's cl and -Cp_min from the estimator group | yes, it reads the display group, so a tip station shows Not judged |
 | 11 | `Desktop/Analysis/SectionTabView.cs:81` (render key) | `GoverningEta` | yes, no value shown |
 | 12 | `Desktop/Analysis/SectionTabView.cs:143-170` (Stations table) | table rows | yes, reads `StationTableRow` |
-| 13 | `Desktop/Analysis/SectionProfileView.cs:30,112-114` (Cp_min marker plate and aria text from `profile.CpMinPanel`) | a -Cp_min number at the shown station | **no.** On a tip station it still draws "Cp_min -0.46 ...". Not owned by this track (Desktop view); the profile record carries no tip flag to read. Needs a decision, below |
-| 14 | `SectionDisplay.cs` `Charts` (Cp chart "Cp_min" marker) | a Cp_min point at the shown station | **no.** Outside the "cavitation and -Cp_min rows only" ownership |
+| 13 | `Desktop/Analysis/SectionProfileView.cs:30,112-114` (Cp_min marker plate and aria text from `profile.CpMinPanel`) | a -Cp_min number at the shown station | yes, after the extension: `SectionProfile.TipNotJudged` drops the ring, the plate and the legend range, and the aria text reads Not judged |
+| 14 | `SectionDisplay.cs` `Charts` (Cp chart "Cp_min" marker, legend range) | a Cp_min point at the shown station | yes, after the extension: no marker, legend without range |
 | 15 | `AnalysisService.cs:169-171` (trace only) | counts | not a verdict surface |
 | 16 | Properties, Browser, status strip | none read `SectionTier` or `Cavitation` (grep of `src/CfdWorkbench.Desktop`, `Core`) | n/a |
 
-Rows 13 and 14 are the remaining way a -Cp_min number reaches a tip station. The fix is small (a `TipNotJudged` flag on `SectionProfile`, then the plate and
-the chart marker are dropped for it) and sits in `SectionProfileView.cs` and `SectionDisplay.Charts`, neither owned by this track.
+Red-first for rows 13 and 14: `red-run-2-analysis.txt` (profile flag false, chart marker present) and `red-run-2-desktop.txt` (plates "Cp_min ring | Cp_min −0.50 · x/c 0.500 · upper" drawn on a
+tip profile); both pass after the fix (`green-readiness.txt`, readiness ring: `TipCavitation_TipStationDisplay...` and Desktop `SectionProfile_TipStation_NoCpMinRingPlateOrAriaNumber_Ruling142`).
+The ring itself is drawn directly (not a plate), so it is pinned by the capture and the code guard, not by a check.

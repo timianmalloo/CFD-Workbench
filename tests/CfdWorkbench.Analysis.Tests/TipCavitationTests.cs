@@ -110,6 +110,11 @@ internal static class TipCavitationTests
         AnalysisChecks.Equal(Labels.TipNotJudged, none.First(r => r.Label == "Cavitation").Value, "Cavitation row, every station tip");
         AnalysisChecks.Equal(Labels.TipNotJudged, none.First(r => r.Label == "V_crit").Value, "V_crit, every station tip");
         AnalysisChecks.Equal(Labels.TipNotJudged, none.First(r => r.Label == "Cp_min").Value, "Cp_min, every station tip");
+        // The Section view's wing line with every station a tip strip: exactly the approved text, not wrapped.
+        SectionView allTipView = SectionDisplay.Build(run, allTip, null, null);
+        string wing = allTipView.Groups.Single(g => g.Title == "Cavitation").Rows.Single(r => r.Label == "Cavitation screen").Value;
+        AnalysisChecks.Equal(Labels.TipNotJudged, wing, "Section view wing line, every station tip");
+        Console.WriteLine($"OBSERVED all-tip wing line: [{wing}]; Analysis panel Cavitation row: [{none.First(r => r.Label == "Cavitation").Value}]; band V_crit: [{none.First(r => r.Label == "V_crit").Value}]");
     }
 
     private static void TipStationDisplay()
@@ -119,6 +124,12 @@ internal static class TipCavitationTests
         ResultGroup estimator = tip.Groups.Single(g => g.Title == "Estimator");
         AnalysisChecks.Equal(Labels.TipNotJudged, estimator.Rows.Single(r => r.Label == Labels.CpMinLabel).Value, "estimator -Cp_min row");
         AnalysisChecks.Equal(Labels.TipNotJudged, tip.Profile!.Cavitation, "profile cavitation line");
+        AnalysisChecks.Equal(true, tip.Profile.TipNotJudged, "the profile carries the tip flag (the Cp_min ring and plate are not drawn)");
+        AnalysisChecks.Equal(0, tip.Charts.SelectMany(c => c.Plots).SelectMany(p => p.Markers).Count(m => m.Name == "Cp_min"), "no Cp_min point on a tip station's charts");
+        AnalysisChecks.Equal(Labels.CpLegend, tip.Charts.Single(c => c.Id == "cp").Legend, "the Cp chart legend carries no range: its low end is Cp_min");
+        SectionView interior =SectionDisplay.Build(run, tier, source, 0.5, "r1", null, null, default, Units.Metric);
+        AnalysisChecks.Equal(false, interior.Profile!.TipNotJudged, "an interior station is not flagged");
+        AnalysisChecks.Equal(true, interior.Charts.SelectMany(c => c.Plots).SelectMany(p => p.Markers).Any(m => m.Name == "Cp_min"), "an interior station keeps its Cp_min point");
         StationTableRow row = tip.StationTable!.Single(r => r.Eta == 1.0);
         AnalysisChecks.Equal(Labels.TipNotJudged, row.Cavitation, "station-table cavitation word");
         AnalysisChecks.Equal(Labels.TipNotJudged, row.CpMin, "station-table -Cp_min cell: no number on a tip station");

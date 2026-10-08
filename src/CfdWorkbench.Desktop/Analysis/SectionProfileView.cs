@@ -27,8 +27,8 @@ public sealed class SectionProfileView : Control
         {
             model = value;
             AutomationProperties.SetName(this, value is null ? "Section profile" :
-                value.Caption + ", pressure coefficient on the profile; Cp_min " + Num(value.CpMinPanel.Cp) + " at x/c " +
-                value.CpMinPanel.X.ToString("0.000", Inv) + " on the " + value.Side + " surface" +
+                value.Caption + ", pressure coefficient on the profile; " + (value.TipNotJudged ? "Cp_min " + Labels.TipNotJudged :
+                "Cp_min " + Num(value.CpMinPanel.Cp) + " at x/c " + value.CpMinPanel.X.ToString("0.000", Inv) + " on the " + value.Side + " surface") +
                 (value.Forces is { } f ? ". " + Labels.LiftLabel(f.LiftPerSpan, f.Units) + ", " + (f.Anchor == ForceAnchor.CentreOfPressure ? Labels.AnchorCp(f.XcpOverC!.Value) : Labels.AnchorQuarter) +
                     ", " + Labels.FreeStream(f.AlphaGeoDeg) : ""));
             // the plate and the key under it need the room the mockup gives them; the Cp-only view keeps its height
@@ -110,10 +110,13 @@ public sealed class SectionProfileView : Control
         // as before: only the layout moves forward.
         deferred = [];
         Point marker = P(profile.CpMinPanel.X, profile.CpMinPanel.Z);
-        placed.Add(("Cp_min ring", new Rect(marker.X - 8, marker.Y - 8, 16, 16)));
-        string markerText = Labels.CpMinMarker(profile.CpMinPanel.Cp, profile.CpMinPanel.X, profile.Side);
-        double markerWidth = Text(markerText, ink).Width + 8;
-        Plate(context, markerText, new Point(Math.Clamp(marker.X + 12, 4, Math.Max(4, w - markerWidth - 4)), marker.Y + (profile.Side == "lower" ? 30 : -18)), ink, soft);
+        if (!profile.TipNotJudged) // Ruling 142 (3): a tip station shows no Cp_min ring and no Cp_min plate
+        {
+            placed.Add(("Cp_min ring", new Rect(marker.X - 8, marker.Y - 8, 16, 16)));
+            string markerText = Labels.CpMinMarker(profile.CpMinPanel.Cp, profile.CpMinPanel.X, profile.Side);
+            double markerWidth = Text(markerText, ink).Width + 8;
+            Plate(context, markerText, new Point(Math.Clamp(marker.X + 12, 4, Math.Max(4, w - markerWidth - 4)), marker.Y + (profile.Side == "lower" ? 30 : -18)), ink, soft);
+        }
         // with vectors the axis plate stands bottom left above the cavitation line (mockup), clear of the labels under the chord
         Plate(context, Labels.AxisPlate, profile.Forces is not null ? new Point(8, h - 56) : new Point(ox, oy + 0.1 * s + 20 > h - 40 ? h - 40 : oy + 0.1 * s + 20), mute, soft);
 
@@ -126,7 +129,8 @@ public sealed class SectionProfileView : Control
         if (profile.ForcesNotJudged is { } notJudged) Plate(context, notJudged, new Point(8, beside ? 46 : 70), ink, soft);
 
         // Legend plate, bottom right: title, the ramp bar (extent ±range, 0 at the centre), its ends.
-        string title = "Cp · vik pinned at 0 · " + Num(profile.CpLow) + " to +" + Num(profile.CpHigh);
+        // Ruling 142 (3): the low end of the Cp range is the station's Cp_min, so a tip station's legend carries no range
+        string title = profile.TipNotJudged ? Labels.CpLegend : "Cp · vik pinned at 0 · " + Num(profile.CpLow) + " to +" + Num(profile.CpHigh);
         double barWidth = Math.Max(150, Text(title, ink).Width), left = w - 8 - barWidth - 8;
         placed.Add(("legend", new Rect(left - 4, h - 56, barWidth + 16, 50)));
         deferred.Add(() => DrawLegend(context, title, barWidth, left, h, range, ink, mute, soft));
@@ -139,7 +143,7 @@ public sealed class SectionProfileView : Control
         List<Action> fixedPlates = deferred;
         deferred = null;
         if (profile.Forces is { } forces) DrawForces(context, forces, P, s, ox, oy, w, h, viewport, ink, mute, soft, profile.Side);
-        context.DrawEllipse(null, new Pen(ink, 2), marker, 7, 7);
+        if (!profile.TipNotJudged) context.DrawEllipse(null, new Pen(ink, 2), marker, 7, 7);
         foreach (Action draw in fixedPlates) draw();
         Plates = placed.ToArray();
     }

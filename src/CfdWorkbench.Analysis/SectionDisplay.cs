@@ -33,7 +33,7 @@ public sealed record SectionView(double Eta, bool IsGoverning, string StationNam
 /// </summary>
 public sealed record SectionProfile(IReadOnlyList<PanelCp> Outline, PanelCp CpMinPanel, string Side, double CpLow, double CpHigh,
     string Caption, string Tier, string? Cavitation, SectionForces? Forces = null,
-    string? ForcesNotJudged = null);
+    string? ForcesNotJudged = null, bool TipNotJudged = false);
 
 /// <summary>Where the Lift and Drag arrows start: the lattice centre of pressure, or the quarter chord with the couple drawn (Ruling 128 (3)).</summary>
 public enum ForceAnchor { CentreOfPressure, QuarterChord }
@@ -287,7 +287,7 @@ public static class SectionDisplay
             : cav.Reason == Cavitation.DepthNotSet ? "σ " + Labels.DepthNotSet // the band's own state, COPY-45; no number without a depth
             : null;
         return new(outline, at, side, outline.Min(p => p.Cp), outline.Max(p => p.Cp), Labels.SectionCaption(station.Eta),
-            Labels.EstimatorChip + " · inviscid; no boundary layer", line, forces);
+            Labels.EstimatorChip + " · inviscid; no boundary layer", line, forces) { TipNotJudged = station.TipNotJudged };
     }
 
     private static IReadOnlyList<ChartModel> Charts(AnalysisRun run, SectionTierResult tier, SectionStationResult station,
@@ -299,8 +299,8 @@ public static class SectionDisplay
         var cpPlot = new ChartPlot("Cp", "x/c", "Cp (suction up)", true,
             [new("upper", panel.Upper.Select(p => new ChartPoint(p.X, p.Cp)).OrderBy(p => p.X).ToArray(), false, "none", 0),
              new("lower", panel.Lower.Select(p => new ChartPoint(p.X, p.Cp)).OrderBy(p => p.X).ToArray(), true, "none", 0)],
-            [new("Cp_min", cpX, panel.CpMin)]);
-        string cpLegend = Labels.CpLegend + " · " + N(lo, "0.##") + " to +" + N(hi, "0.##");
+            station.TipNotJudged ? [] : [new("Cp_min", cpX, panel.CpMin)]); // Ruling 142 (3): no Cp_min number on a tip station
+        string cpLegend = station.TipNotJudged ? Labels.CpLegend : Labels.CpLegend + " · " + N(lo, "0.##") + " to +" + N(hi, "0.##"); // the low end is Cp_min (Ruling 142)
         string label = run.Op.HRef.HasValue ? Labels.EstimatorLabelDeep : Labels.EstimatorLabelNoDepth;
         var charts = new List<ChartModel> { new("cp", "Cp", [cpPlot], cpLegend, label) };
 

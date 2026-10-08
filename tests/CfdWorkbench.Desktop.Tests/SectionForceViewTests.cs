@@ -105,6 +105,28 @@ public static class SectionForceViewTests
 
         // UXB: depth not set, the plate carries the band's COPY-45 state and is drawn (a plate that is not drawn is a plate that is missing). With
         // CFDW_UXB_CAPTURE_DIR set the profile is saved as the track's evidence. Ring: readiness, one window, about 0.2 s.
+        // Ruling 142 (3). Ring: readiness, one window, under 0.2 s.
+        DesktopChecks.Check("SectionProfile_TipStation_NoCpMinRingPlateOrAriaNumber_Ruling142", () =>
+        {
+            var view = new SectionProfileView();
+            var window = new Window { Content = view, Width = 974, Height = 480 };
+            window.Show();
+            try
+            {
+                view.Model = Profile((SectionForces?)null);
+                Settle(window);
+                Render(view);
+                Equal(true, view.Plates.Any(plate => plate.Name.StartsWith("Cp_min", StringComparison.Ordinal)), "control: an interior station draws the Cp_min ring and plate");
+                view.Model = Profile((SectionForces?)null) with { TipNotJudged = true };
+                Settle(window);
+                Render(view);
+                Equal(false, view.Plates.Any(plate => plate.Name.StartsWith("Cp_min", StringComparison.Ordinal)), "a tip station draws no Cp_min ring or plate: " + string.Join(" | ", view.Plates.Select(plate => plate.Name)));
+                string name = Avalonia.Automation.AutomationProperties.GetName(view) ?? "";
+                Equal(true, name.Contains(Labels.TipNotJudged, StringComparison.Ordinal), "the aria text names Not judged: " + name);
+                Equal(false, name.Contains("x/c", StringComparison.Ordinal), "the aria text carries no Cp_min number or location: " + name);
+            }
+            finally { window.Close(); }
+        });
         DesktopChecks.Check("SectionProfile_DepthNotSet_PlateReadsCopy45", () =>
         {
             var view = new SectionProfileView();
