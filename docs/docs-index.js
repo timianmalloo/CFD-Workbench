@@ -6768,6 +6768,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "dd3f93e71ac75ab9f2904672c2c835fef59a8fb76d13a8c9d3143ac93a3bfa72"
     },
     {
+      "id": "review-pr-15",
+      "path": "docs/reviews/pr-15.md",
+      "title": "PR #15 (Windows PC) - W-2 ProductCode limited to the qualified set (Ruling 166), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 166). PR #15 closes Ruling 152 (4): NativeFailure.ProductCode is DOC-CONFLICT for Win32 32 and null otherwise, design section 4 says so, and a Windows red-first test asserts Win32 183 is unmapped. The failed 168.6 s Windows ring ran on a base that predates the CAF/RWF merges, and nothing in it names this PR.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-2",
+        "persistence",
+        "test-ring"
+      ],
+      "links": [
+        {
+          "to": "review-pr-10",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4d3fb1aac968e663dd5d54b64c79f9900bebdf0d5a76a5f44e94f6fa40999526"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7736,7 +7769,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8d08d0b0caa32c259ed2c5ae2f79e402004d08e9276814b8c74447b07d491f00"
+      "sourceSha256": "f7b2cac3c3ef9fb5f03abba4336d4fead934d2e5469f2bb5131990676e3dfa6b"
     },
     {
       "id": "kb-hw-glossary",
@@ -17516,5 +17549,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1db9b7a0d7dc8afb57a142432a0bab7b6163d4ce8c6201ee6c4740961a5ea69b"
+  "graphSha256": "7dcd1690d7433c1e50033c8dcb25a95e533c0dab85d541fb4bc90c22c7a8242e"
 };
