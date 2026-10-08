@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T15:08:21Z",
+  "generated": "2026-10-08T17:06:30Z",
   "audit": [
     {
       "actor": null,
@@ -29986,6 +29986,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T15:07:30Z",
       "duration_seconds": 51.0
+    },
+    {
+      "id": "al-01M4E7P5EG6B7WZZ54ECTEGHS1",
+      "shortname": "join-pr8",
+      "datetime": "2026-10-08T17:06:30Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "B2 failure checkpoint preserved (WindowsNative.cs unreferenced, WindowsProjectStoreTests.cs Windows-only); SID redacted before merge; STORE-SUBSET exempts the Windows-only tests; ProjectStore stays fail-closed recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "merge PR #8 win/store-b2",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T17:05:39Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
@@ -32005,6 +32032,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4DXC8SDWYSVQBP98MEM3XJS",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4E14DQ263G08DDMYXDQ3ZXG",
+      "ts": "2026-10-08T15:11:58Z",
+      "from": "14e5e8d5",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4E14DPYAGQ8HB1141RGK278",
+      "session": "14e5e8d5"
+    },
+    {
+      "id": "mail-01M4E14DT1FD7PT83SQ4ZCGSH5",
+      "ts": "2026-10-08T15:11:58Z",
+      "from": "fable-owner",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4E14DPYAGQ8HB1141RGK278",
+      "session": "fable-owner"
     }
   ]
 };
