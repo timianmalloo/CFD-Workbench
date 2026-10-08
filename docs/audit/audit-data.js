@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T18:04:06Z",
+  "generated": "2026-10-08T18:04:18Z",
   "audit": [
     {
       "actor": null,
@@ -30208,6 +30208,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T17:52:36Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4EAZZ5FHN5NSX6GS4E32ZC8",
+      "shortname": "stc-stations-caption",
+      "datetime": "2026-10-08T18:04:17Z",
+      "session": "trk-stc",
+      "prompt": "STC Stations table caption",
+      "summary": "SectionTierResult.JudgedCount feeds COPY-304 and new COPY-411 caption via SectionView.StationsCaption; 3 checks green; light/dark captures; full suite 0 failures",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Stations table caption {shown} of {judged} stations shown, judged from one source (Ruling 147)",
+      "done_when": "red-first receipts, captures, run-tests green, check-docs 0"
     }
   ],
   "changes": [
