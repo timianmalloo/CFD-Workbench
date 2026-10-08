@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T19:52:36Z",
+  "generated": "2026-10-08T19:55:29Z",
   "audit": [
     {
       "actor": null,
@@ -30586,6 +30586,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "catalog.preview event records CAT-UNAVAILABLE cause instead of empty family",
       "done_when": "red-first check green, run-tests green, check-docs 0"
+    },
+    {
+      "id": "al-01M4EHBHZB1KRGVFKA8GY0YT2K",
+      "shortname": "join-srs",
+      "datetime": "2026-10-08T19:55:29Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/srs-catalog-refusal into main",
+      "summary": "SRS joined: ReplaceEvent.FamilyRefusal carries CAT-UNAVAILABLE check/detail when the catalog load fails; Family stays null; SWALLOWED-CAUSE class recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the SectionReplace catalog refusal instrumentation",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T19:54:36Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
