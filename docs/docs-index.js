@@ -5211,7 +5211,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "24a3a282865ced0e25a6253e99abf60aab84b4cbe6e9b5add234f71d4487d7a5"
+      "sourceSha256": "19283541a10bbebaa4e97a5801bb4f03582f0687865c585206956962c68c7f65"
     },
     {
       "id": "domain-experts",
@@ -6040,6 +6040,60 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
+    },
+    {
+      "id": "proof-rwf-red-first",
+      "path": "docs/proof/rwf/red-first.md",
+      "title": "Track RWF - red-first record for the record-write path (Ruling 157)",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-rwf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Red and green runs, measured drift per fitted-project family, and the item 3 exact-assert fixes for the record-write path (items 1 to 3 of Ruling 157).",
+      "tags": [
+        "determinism",
+        "record-path",
+        "ruling-157",
+        "red-first",
+        "crt-golden"
+      ],
+      "links": [
+        {
+          "to": "proof-caf-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1e0f0bd0b382d5328c3d1450f0f3acd0b6e2121150ad6e819ba220664a5354f9"
+    },
+    {
+      "id": "proof-rwf-residual",
+      "path": "docs/proof/rwf/residual.md",
+      "title": "Track RWF - residual risk, surface list and spec check (Ruling 157)",
+      "type": "doc",
+      "status": "draft",
+      "owner": "@trk-rwf",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The DatImport.cs:386 residual risk, the surfaces the two new gate entries reach, and the spec search for a cross-OS byte-identity claim on project files.",
+      "tags": [
+        "determinism",
+        "record-path",
+        "ruling-157",
+        "residual",
+        "surfaces"
+      ],
+      "links": [
+        {
+          "to": "proof-rwf-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "af6001f81fa629006e9f385fba932780807323610781806fe3e9cc28d41b0c01"
     },
     {
       "id": "proof-win-cfmesh-probe",
@@ -17324,5 +17378,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "33cb976ae521d9dec6d5276e50018f53e657ec459389fca88a9d419edbbefe3e"
+  "graphSha256": "e43aa1637f3135bc527bf37fc63e89bfc7377919a20ae795f182a41633232c76"
 };

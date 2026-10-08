@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:24:28Z",
+  "generated": "2026-10-08T23:25:32Z",
   "audit": [
     {
       "actor": null,
@@ -30871,12 +30871,57 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4EXA76EGM64YS67XCW6Z01K",
-      "shortname": "join-caf",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T23:24:28Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 54.0,
+      "fan_out": 0,
+      "goal": "join the deterministic catalog generator under Ruling 156",
+      "id": "al-01M4EXA76EGM64YS67XCW6Z01K",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/caf-catalog-determinism into main",
+      "session": "3122f106",
+      "shortname": "join-caf",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T23:23:34Z",
       "summary": "CAF joined: naca4-closed/2 (+ - * / sqrt + CosPi), one re-record, Placement on SinCosPi, CRT gate; join gate met: PR #13 Windows CosPi(i/80) bits equal the Mac golden at all 81 i recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-08T20:59:15Z",
+      "done_when": "Gate lists FoilSource and SectionReplace; NewDefault bit golden; four family checks with DRIFT lines; SinCosDegrees helper; crt-probe committed; four asserts relative; CRT-GOLDEN dated line; ring green",
+      "goal": "Deterministic New-project default; fitted-project bytes within the 1e-6 identity tolerance with measured drift; exact asserts relative; class entry amended",
+      "id": "al-01M4EN0AWRXC3DN2ZF51NW0Z2F",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-rwf record-write path determinism and tolerance controls (Ruling 157)",
+      "session": "trk-rwf",
+      "shortname": "rwf-record-path",
+      "skill": "implement",
+      "summary": "Items 1-5 landed in 4 code/test commits plus docs; ring green on the second run (one load-related Desktop flake on the first); check-docs exit 0; verify gates: only Ruling 157 citation fails until main is joined",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4EXC5VYQ3TASY0AFGX9H70Y",
+      "shortname": "join-rwf",
+      "datetime": "2026-10-08T23:25:32Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/rwf-record-path into main",
+      "summary": "RWF joined: NewDefault bit golden, CosPi/SinCosPi on the record path, one SinCosDegrees, four DRIFT family checks at 1e-6, exact asserts to 1e-9 relative; geometry and Test Architect reviews CLEAR recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -30885,7 +30930,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join the deterministic catalog generator under Ruling 156",
+      "goal": "join the record-write-path follow-up under Ruling 157",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -30894,8 +30939,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-08T23:23:34Z",
-      "duration_seconds": 54.0
+      "started_at": "2026-10-08T23:24:37Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
