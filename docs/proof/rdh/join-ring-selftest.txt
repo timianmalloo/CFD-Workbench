@@ -1,0 +1,12 @@
+SELFTEST PASS docs-only merge skips
+SELFTEST PASS merge touching src/ runs
+SELFTEST PASS merge touching tools/ runs
+SELFTEST PASS merge touching tests/ runs
+SELFTEST PASS merge touching cases/ runs
+SELFTEST PASS a .csproj anywhere runs
+SELFTEST PASS global.json runs
+SELFTEST PASS Directory.*.props runs
+SELFTEST PASS a .slnx runs
+SELFTEST PASS docs/tools/ is not tools/ (skips)
+SELFTEST PASS a non-merge HEAD runs (fail safe)
+SELFTEST 11/11 cases

@@ -1,0 +1,3 @@
+clean copy problems: []
+planted copy problems: ['tools/run-tests.sh does not run tools/check-test-costs.py']
+exit 0
