@@ -10,7 +10,7 @@ namespace CfdWorkbench.Core.Tests;
 // The fitted-project families are tolerance checks: each regenerates committed Mac-written project bytes from a committed
 // input and asserts every knot and control-point coordinate is within the 1e-6 chord identity tolerance (profile coordinates
 // are chord-normalised), and prints the measured max drift, so the PC ring reports a real cross-OS number
-// (docs/proof/rwf/red-first.md). A drift line reads `DRIFT <family> max_chord=<value> limit=1e-06`.
+// (docs/proof/rwf/red-first.md). A drift line reads `DRIFT <family> max_abs=<value> limit=1e-06`.
 internal static class RecordPathTests
 {
     private const double IdentityTolerance = 1e-6;
@@ -67,6 +67,7 @@ internal static class RecordPathTests
         var actual = Curves(regenerated);
         // A parser that finds no curve would pass vacuously: the planform has 5 channel curves and the profile 2.
         Equal(7, expected.Count);
+        Equal(true, expected.All(row => row.Values.Length >= 8));   // a row with no values would compare nothing
         Equal(expected.Count, actual.Count);
         double drift = 0;
         for (int row = 0; row < expected.Count; row++)
@@ -76,7 +77,7 @@ internal static class RecordPathTests
             for (int index = 0; index < expected[row].Values.Length; index++)
                 drift = Math.Max(drift, Math.Abs(expected[row].Values[index] - actual[row].Values[index]));
         }
-        Console.WriteLine("DRIFT " + family + " max_chord=" + drift.ToString("G17", CultureInfo.InvariantCulture) + " limit=1e-06");
+        Console.WriteLine("DRIFT " + family + " max_abs=" + drift.ToString("G17", CultureInfo.InvariantCulture) + " limit=1e-06");
         Equal(true, drift <= IdentityTolerance);
     }
 
@@ -131,7 +132,7 @@ internal static class RecordPathTests
             drift = Math.Max(drift, Math.Abs(rows[row].Span - double.Parse(fields[1], CultureInfo.InvariantCulture)));
             drift = Math.Max(drift, Math.Abs(rows[row].Aft - double.Parse(fields[2], CultureInfo.InvariantCulture)));
         }
-        Console.WriteLine("DRIFT handle-polar-target max_chord=" + drift.ToString("G17", CultureInfo.InvariantCulture) + " limit=1e-06");
+        Console.WriteLine("DRIFT handle-polar-target max_abs=" + drift.ToString("G17", CultureInfo.InvariantCulture) + " limit=1e-06");
         Equal(true, drift <= IdentityTolerance);
     }
 
