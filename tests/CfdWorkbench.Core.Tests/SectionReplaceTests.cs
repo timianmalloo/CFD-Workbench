@@ -291,6 +291,25 @@ internal static class SectionReplaceTests
             Equal("replace", step.StepKind);
             Equal(new ReplaceEvent("chain", 2, view.Last!.Import!.MaxResidual, "own-15"), step.Replace);
         });
+        Check("Replace_Preview_CatalogUnavailable_EventRecordsRefusal", () =>
+        {
+            var planted = new ContractError("CAT-UNAVAILABLE", "a catalog file failed its check");
+            planted.Data["check"] = "coordinate-hash";
+            planted.Data["detail"] = "naca-0012: expected a, actual b";
+            var saved = SectionReplace.CatalogFamilies;
+            SectionReplace.CatalogFamilies = new(() => SectionReplace.LoadFamilies(() => throw planted));
+            try
+            {
+                using var session = SectionDraftTests.Opened();
+                string id = SectionDraftTests.Id();
+                var view = session.BeginSectionDraft(id, 0);
+                session.PreviewReplace(id, view.Generation, Gen("0012"), ReplaceScope.Draft);
+                var replace = session.ReadLocalEvents().Last(item => item.Operation == "catalog.preview").Replace!;
+                Equal(null, replace.Family);
+                Equal("CAT-UNAVAILABLE check=coordinate-hash detail=naca-0012: expected a, actual b", replace.FamilyRefusal);
+            }
+            finally { SectionReplace.CatalogFamilies = saved; }
+        });
         Check("SectionEdits_ReplaceStep_NeverApplied", () =>
             Refuses("DSL-PATCH", () => SectionEdits.Apply(Example(), 0, new SectionStep.Replace(Gen("0012"), ReplaceScope.Draft))));
         Check("Guard_FivePiecesDiffering_Certifies", () =>

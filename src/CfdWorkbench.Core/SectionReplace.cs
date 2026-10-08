@@ -239,22 +239,36 @@ public static class SectionReplace
     }
 
     // catalog.preview's family and class (m12d §10): a My sections entry, or the catalog row its origin names; a .dat file
-    // has no family. Class is the rights its provenance derives.
-    internal static (string? Family, string Class) Describe(ReplaceSource source)
+    // has no family. Class is the rights its provenance derives. Refusal is set only when a family was needed and the catalog
+    // was unavailable: the event then says why, instead of recording an empty family with no cause (instrumentation: "not
+    // recorded" with its reason, never a plausible wrong family).
+    internal static (string? Family, string Class, string? Refusal) Describe(ReplaceSource source)
     {
         var rights = source.Provenance.Rights;
-        string? family = source is ReplaceSource.Record ? nameof(CatalogFamily.MySections)
-            : rights is RightsClass.Gen or RightsClass.Vend ? CatalogFamilies.Value?.GetValueOrDefault(source.Provenance.Origin![(source.Provenance.Origin!.IndexOf(':') + 1)..])
-            : null;
-        return (family, rights.ToString());
+        if (source is ReplaceSource.Record) return (nameof(CatalogFamily.MySections), rights.ToString(), null);
+        if (rights is not (RightsClass.Gen or RightsClass.Vend)) return (null, rights.ToString(), null);
+        var (families, refusal) = CatalogFamilies.Value;
+        string? family = families?.GetValueOrDefault(source.Provenance.Origin![(source.Provenance.Origin!.IndexOf(':') + 1)..]);
+        return (family, rights.ToString(), refusal);
     }
 
-    // The catalog's families by row id, read once; null when the catalog is unavailable (the event then records no family).
-    private static readonly Lazy<Dictionary<string, string>?> CatalogFamilies = new(() =>
+    // The catalog's families by row id, read once; Families is null when the catalog is unavailable and Refusal then names the
+    // code and the failed check. The failure stays cached for the process: the catalog is an embedded resource, so a retry
+    // re-reads the same bytes and fails the same way, and every replace preview would pay the load again.
+    // internal and non-readonly only so a test can plant a load failure.
+    internal static Lazy<(Dictionary<string, string>? Families, string? Refusal)> CatalogFamilies = new(() => LoadFamilies(Catalog.Load));
+
+    internal static (Dictionary<string, string>? Families, string? Refusal) LoadFamilies(Func<IReadOnlyList<CatalogEntry>> load)
     {
-        try { return Catalog.Load().ToDictionary(entry => entry.Id, entry => entry.Family.ToString(), StringComparer.Ordinal); }
-        catch (ContractError) { return null; }
-    });
+        try { return (load().ToDictionary(entry => entry.Id, entry => entry.Family.ToString(), StringComparer.Ordinal), null); }
+        catch (ContractError error)
+        {
+            string text = error.Code;
+            if (error.Data["check"] is string check) text += " check=" + check;
+            if (error.Data["detail"] is string detail) text += " detail=" + (detail.Length > 120 ? detail[..120] : detail);
+            return (null, text);
+        }
+    }
 
     // COPY-191 (m12d design §11.2).
     private static string SpacingReason(Definition definition, int[] stations, int[] outside, string source, double residual, double chord, int points)
