@@ -1,0 +1,30 @@
+stage.evidence_dir_create_exit=0
+started_utc=2026-10-08T23:11:52Z
+stage.start_time_exit=0
+stage.script_sha256_exit=0
+0e1bd050daf2f950457b653e63cd41601886d0e08d55f0719250b23b11aaa757  /mnt/c/Projects/CFD-Workbench-win-w5-cfmesh-probe/docs/proof/win-cfmesh/probe-r153.sh
+stage.loadavg_before_exit=0
+stage.bashrc_source_exit=0
+stage.environment_version_exit=0
+stage.environment_project_dir_exit=0
+stage.environment_appbin_exit=0
+WM_PROJECT_VERSION=v2512
+WM_PROJECT_DIR=/usr/lib/openfoam/openfoam2512
+FOAM_APPBIN=/usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin
+stage.dpkg_query_exit=0
+openfoam2512 2512.0-2 install ok installed
+stage.command_v_exit=0
+/usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/cartesianMesh
+stage.resolved_ls_exit=0
+-rwxr-xr-x 1 root root 18544 Jan 27  2026 /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/cartesianMesh
+stage.resolved_sha256_exit=0
+0c54ed3163357e78775f28ba1e38860dac44f0052adadd58f4e3f0795ca08861  /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/cartesianMesh
+stage.cartesianMesh_help_exit=0
+stage.foam_appbin_binary_check_exit=0
+FOAM_APPBIN_cartesianMesh_exists=0
+stage.loadavg_after_exit=0
+6.05 6.03 6.00 7/329 9826
+6.05 6.03 6.00 7/329 10495
+ended_utc=2026-10-08T23:11:53Z
+stage.end_time_exit=0
+outcome=present
