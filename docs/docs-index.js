@@ -6216,6 +6216,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "cda5910b12c1444c1d1448485de6a49156906ac8dacae775efba846007a4782f"
     },
     {
+      "id": "review-cat-geometry",
+      "path": "docs/reviews/cat-geometry.md",
+      "title": "Catalog cross-OS determinism - computational-geometry review of the CAT options",
+      "type": "doc",
+      "status": "done",
+      "owner": "@computational-geometry-expert",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "PASS-WITH-CONDITIONS for option A (naca4-closed/2: only + - * / sqrt on the generator and placement paths, one deliberate re-record, byte equality kept). Reject B and C; D weakens the m12d bit-for-bit invariant and is operator-only. The re-record breaks no stored project (provenance only; all changes far below the 1e-6 identity tolerance). Cross-OS determinism stays Inferred until the Windows ring is green on the A build.",
+      "tags": [
+        "review",
+        "catalog",
+        "geometry",
+        "determinism",
+        "windows"
+      ],
+      "links": [
+        {
+          "to": "review-pr-12",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ed884bede885fb9d464673cfcf215e6e34855e0337d24b1ee98d3aa1a02aab22"
+    },
+    {
       "id": "review-foildsl-independent",
       "path": "docs/reviews/foildsl-independent.md",
       "title": "FoilDSL authoring — independent review",
@@ -17007,5 +17034,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4ba8613652ada3eb921ae9c899480d2462e9c6d417e89b1ecea289833cbd50f4"
+  "graphSha256": "9bf9a47cdb43c6f75a2cf683b8a1d91a02b9dd66b64968861da6810f5c1ea9bf"
 };
