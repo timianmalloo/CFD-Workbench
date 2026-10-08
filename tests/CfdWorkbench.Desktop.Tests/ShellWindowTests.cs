@@ -3376,10 +3376,7 @@ public static class ShellWindowTests
     /// same way <c>tools/run-tests.sh</c> and <c>LayoutFileTests.Root()</c> do.</summary>
     private static string ScratchPath(string name)
     {
-        string temp = Path.GetTempPath();
-        if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
-        if (temp.StartsWith("/var/", StringComparison.Ordinal)) temp = "/private" + temp;
-        return Path.Combine(temp, name);
+        return TestTemp.Combine(name);
     }
 
     /// <summary>The Desktop example fixture, linked into the test output by the .csproj Content

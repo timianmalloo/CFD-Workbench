@@ -450,7 +450,7 @@ public static class AnalysisPanelTests
         DesktopChecks.Check("Tampered_RunView_UnavailableNoLayersRowKept", () =>
         {
             // A stored run whose payload no longer matches its hash: edited on disk, reopened through the controller (no seam needed).
-            string path = Path.Combine(Path.GetTempPath(), "pol-tamper-" + Guid.NewGuid().ToString("N") + ".cfdw.json");
+            string path = TestTemp.Combine("pol-tamper-" + Guid.NewGuid().ToString("N") + ".cfdw.json");
             string resaved = path + ".again.cfdw.json";
             try
             {

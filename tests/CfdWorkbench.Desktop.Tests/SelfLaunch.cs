@@ -36,8 +36,9 @@ public static class SelfLaunchTests
         Check(failures, "no raw Environment.ProcessPath relaunch", () => NoRawProcessPathRelaunch());
         Check(failures, "no test resolves the repo root at runtime", () => NoRuntimeRepoRootWalk());
         Check(failures, "no cwd-relative tests/ or src/ fixture path", () => NoCwdRelativeFixturePath());
+        Check(failures, "no Desktop test builds a scratch path from the raw temp directory", () => NoRawTempPath());
         if (failures.Count > 0) throw new Exception("SelfLaunchTests failed:\n  " + string.Join("\n  ", failures));
-        Console.WriteLine("SelfLaunchTests: all 7 cases passed.");
+        Console.WriteLine("SelfLaunchTests: all 8 cases passed.");
     }
 
     // WFX2 item 1: the Windows ring died with "APP-CRASH System.Exception" and no frame. The harness handler adds the message and stack;
@@ -128,6 +129,25 @@ public static class SelfLaunchTests
                            File.ReadAllText(file).Contains("Environment.ProcessPath", StringComparison.Ordinal))
             .Select(file => Path.GetRelativePath(root, file)).ToList();
         if (offenders.Count > 0) throw new Exception("use SelfLaunch.StartInfo in " + string.Join(", ", offenders));
+    }
+
+    // Defect class TEST-TMP-ALIAS (docs/lessons/defect-classes.md): the store refuses a symlinked path and macOS's default TMPDIR is
+    // under the /var link, so a Desktop test that takes the raw system temp directory or temp-file name fails outside
+    // tools/run-tests.sh's exported TMPDIR. TestTemp.cs is the one place that may call them. Ring: fast (every join), ~10 ms.
+    private static void NoRawTempPath([CallerFilePath] string self = "")
+    {
+        var dir = Path.GetDirectoryName(self)!;
+        var offenders = Directory.EnumerateFiles(dir, "*.cs", SearchOption.AllDirectories)
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                           !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal) &&
+                           Path.GetFileName(file) is not ("TestTemp.cs" or "SelfLaunch.cs"))
+            .Where(file =>
+            {
+                string text = File.ReadAllText(file);
+                return text.Contains("GetTempPath", StringComparison.Ordinal) || text.Contains("GetTempFileName", StringComparison.Ordinal);
+            })
+            .Select(file => Path.GetFileName(file)).ToList();
+        if (offenders.Count > 0) throw new Exception("use TestTemp.Root / TestTemp.NewDirectory instead of the raw temp path in " + string.Join(", ", offenders));
     }
 
     // Track TEST-REPO-LAYOUT (docs/lessons/defect-classes.md): a test that walks AppContext.BaseDirectory

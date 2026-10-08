@@ -380,8 +380,6 @@ public static class StatusStripTests
 
     private static string Scratch(string name)
     {
-        string temp = Path.GetTempPath();
-        if (temp.StartsWith("/tmp/", StringComparison.Ordinal) || temp.StartsWith("/var/", StringComparison.Ordinal)) temp = "/private" + temp;
-        return Path.Combine(temp, name);
+        return TestTemp.Combine(name);
     }
 }

@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3278c3dfaba4243a389f6c188710e6c1d32d0e4ce48c5371287a4df001d117ef"
+      "sourceSha256": "1ae1f67a4a8f02f39df658003d50a0d6e0a04ed38f8303de981df82bcc74d78c"
     },
     {
       "id": "domain-experts",
@@ -7210,7 +7210,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "18fd70d59bddfa1556ea25507846f3367ab9c572fa6d9ea3d0d132c67b31d16d"
+      "sourceSha256": "ba840966a977ab0a19921631c02efbe9b74dd4c1ae000df63a88e826cc79adf5"
     },
     {
       "id": "kb-hw-glossary",
@@ -11852,6 +11852,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "d2528f7faa8bc98faab5bb1c2ece5b347d1fe8cd163e08eb15e90a4a08ed78c9"
+    },
+    {
+      "id": "proof-hrn-red-first",
+      "path": "docs/proof/hrn/red-first.md",
+      "title": "HRN red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hrn",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first and after receipt for the Desktop harness giving one result alone and in the ring (TEST-TMP-ALIAS).",
+      "tags": [
+        "desktop-harness",
+        "tmpdir",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1257bc0ede1aaf57db308757267eff5a7ed6c1aa4a7ad7551a9da4d43e89aef2"
     },
     {
       "id": "proof-legacy-gate-retarget",
@@ -16561,5 +16586,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "58cebb2a65bd4cc8057d6d0f67a0a2a69eeca0e26a71094533b27076f088fdbf"
+  "graphSha256": "72bed81d4c033977f8ee94324dad0e3a5d6df2a54882d36875ecc148b4d83e17"
 };

@@ -988,11 +988,7 @@ public static class PropertiesCellsTests
     /// <summary>A fresh preference root under the run TMPDIR, with the macOS /tmp link resolved (the store refuses links).</summary>
     private static string TempRoot()
     {
-        string temp = Path.GetTempPath();
-        if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
-        string root = Path.Combine(temp, "tsp-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(root);
-        return root;
+        return TestTemp.NewDirectory("tsp-");
     }
 
     /// <summary>A theme brush's colour as the window resolves it now.</summary>

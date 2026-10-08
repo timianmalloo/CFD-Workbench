@@ -410,7 +410,7 @@ public static class ControllerSectionTests
         {
             using var controller = Open();
             Wait(controller.EnterSectionAsync(0, EntryOrigin.Properties));
-            string path = Path.Combine(Path.GetTempPath(), $"section-{Guid.NewGuid():N}.cfdw.json");
+            string path = TestTemp.Combine($"section-{Guid.NewGuid():N}.cfdw.json");
             try
             {
                 try { Wait(controller.SaveAsync(path)); throw new Exception("Save accepted an open section draft"); }
@@ -1265,11 +1265,7 @@ public static class ControllerSectionTests
 
     private static string BindRoot()
     {
-        string temp = Path.GetTempPath();
-        if (temp.StartsWith("/tmp/", StringComparison.Ordinal) || temp.StartsWith("/var/", StringComparison.Ordinal))
-            temp = "/private" + temp;
-        string root = Path.Combine(temp, "cfdw-ctl-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(root);
+        string root = TestTemp.NewDirectory("cfdw-ctl-");
         App.BindPreferenceRoot(root);
         return root;
     }

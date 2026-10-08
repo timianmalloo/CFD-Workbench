@@ -215,7 +215,7 @@ try
 }
 catch (ArgumentException) { falseNotAssessedRefused = true; }
 if (!falseNotAssessedRefused) throw new Exception("Review harness falsely labelled certified source Not assessed");
-string geometryPath = Path.Combine(Path.GetTempPath(), $"geometry-{Guid.NewGuid():N}.foil");
+string geometryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"geometry-{Guid.NewGuid():N}.foil");
 try
 {
     var validBytes = await File.ReadAllTextAsync("src/CfdWorkbench.Desktop/Assets/example.foil");
@@ -239,7 +239,7 @@ string acceptedHash = workbench.Inspection.Authored.Binding.SourceHash;
 await workbench.OpenFoilAsync(Encoding.UTF8.GetBytes("not FoilDSL"), "invalid.foil");
 if (workbench.AcceptedSource != source || workbench.Inspection?.Authored.Binding.SourceHash != acceptedHash)
     throw new Exception("Rejected FoilDSL replaced the active accepted document");
-string invalidNativePath = Path.Combine(Path.GetTempPath(), $"invalid-{Guid.NewGuid():N}.cfdw.json");
+string invalidNativePath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-{Guid.NewGuid():N}.cfdw.json");
 try
 {
     await File.WriteAllTextAsync(invalidNativePath, "not a native project");
@@ -272,7 +272,7 @@ workbench.Undo();
 if (workbench.AcceptedSource != source) throw new Exception("Undo did not restore source");
 workbench.Redo();
 if (workbench.AcceptedSource == source) throw new Exception("Redo did not restore edit");
-string conflictPath = Path.Combine(Path.GetTempPath(), $"existing-{Guid.NewGuid():N}.cfdw.json");
+string conflictPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"existing-{Guid.NewGuid():N}.cfdw.json");
 byte[] foreignImage = Encoding.UTF8.GetBytes("foreign project bytes");
 try
 {
@@ -288,7 +288,7 @@ var uncertainStore = new UncertainStore();
 using (var uncertainWorkbench = new WorkbenchController(_ => uncertainStore))
 {
     await uncertainWorkbench.OpenExampleAsync();
-    string attemptedPath = Path.Combine(Path.GetTempPath(), $"uncertain-{Guid.NewGuid():N}.cfdw.json");
+    string attemptedPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"uncertain-{Guid.NewGuid():N}.cfdw.json");
     var first = await uncertainWorkbench.SaveAsync(attemptedPath);
     if (first.Code != "DOC-SAVE-UNCERTAIN" || !uncertainWorkbench.SaveUncertain ||
         uncertainWorkbench.UncertainPath != attemptedPath || !uncertainWorkbench.IsDirty)
@@ -303,7 +303,7 @@ var delayedStore = new DelayedStore();
 using (var replacingWorkbench = new WorkbenchController(_ => delayedStore))
 {
     await replacingWorkbench.OpenExampleAsync();
-    string attemptedPath = Path.Combine(Path.GetTempPath(), $"held-{Guid.NewGuid():N}.cfdw.json");
+    string attemptedPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"held-{Guid.NewGuid():N}.cfdw.json");
     var heldSave = replacingWorkbench.SaveAsync(attemptedPath);
     await delayedStore.Started.Task;
     await replacingWorkbench.OpenExampleAsync();
@@ -314,8 +314,8 @@ using (var replacingWorkbench = new WorkbenchController(_ => delayedStore))
         replacingWorkbench.NativePath is not null || !replacingWorkbench.IsDirty)
         throw new Exception("Late save acknowledged or attached its path to a replacement session");
 }
-string recoveryPath = Path.Combine(Path.GetTempPath(), $"recovery-{Guid.NewGuid():N}.cfdw.json");
-string seedRecoveryPath = Path.Combine(Path.GetTempPath(), $"seed-recovery-{Guid.NewGuid():N}.cfdw.json");
+string recoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"recovery-{Guid.NewGuid():N}.cfdw.json");
+string seedRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"seed-recovery-{Guid.NewGuid():N}.cfdw.json");
 try
 {
     // The rail draft left after the per-control draft API retired is a resumed M1.2a recovery (golden bytes).
@@ -350,7 +350,7 @@ try
         throw new Exception("Resume did not keep recovery separate from accepted identity");
     var invalidImage = JsonNode.Parse(await File.ReadAllTextAsync(recoveryPath))!;
     invalidImage["recovery"]!["utf8Base64Chunks"] = new JsonArray(Convert.ToBase64String(Encoding.UTF8.GetBytes("not FoilDSL")));
-    string invalidRecoveryPath = Path.Combine(Path.GetTempPath(), $"invalid-recovery-{Guid.NewGuid():N}.cfdw.json");
+    string invalidRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-recovery-{Guid.NewGuid():N}.cfdw.json");
     await File.WriteAllTextAsync(invalidRecoveryPath, invalidImage.ToJsonString());
     using var invalidRecovery = new WorkbenchController();
     try { await invalidRecovery.OpenPathAsync(invalidRecoveryPath); }
