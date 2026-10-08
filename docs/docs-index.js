@@ -13173,6 +13173,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "535bf69270259d3c7d8e7b9b0e10deae5b78da9b7dd98df1ebad355d92d99bb5"
     },
     {
+      "id": "proof-reg-red-first",
+      "path": "docs/proof/reg/red-first.md",
+      "title": "REG red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-reg",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for the register-aware merge driver: red against an always-conflict stub, green self-test, WTH join replay byte-identical, scratch-clone fallback.",
+      "tags": [
+        "merge-driver",
+        "proof",
+        "join-log-conflict"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "445f07869e032013582d358118fd5d6aa40189b13ecea3771e8207d74e445ff1"
+    },
+    {
       "id": "proof-rgt-red-first",
       "path": "docs/proof/rgt/red-first.md",
       "title": "RGT red-first receipt",
@@ -17060,5 +17085,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "230821f34914ac8a3513d535c973f55729d66e2d2ee5dae2a00a63567b73b03d"
+  "graphSha256": "3826a0e1e7ffa50ac340b86cbc35de3443d3ea0c6cb950dbc2264f24bbbcfab3"
 };

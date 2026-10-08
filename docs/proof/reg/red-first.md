@@ -1,3 +1,17 @@
+---
+id: proof-reg-red-first
+title: "REG red-first receipt"
+type: proof-pack
+status: active
+owner: "@trk-reg"
+phase: implementation
+tags: [merge-driver, proof, join-log-conflict]
+links:
+  - { to: defect-classes, rel: relates-to }
+review-by: "2026-11-08"
+summary: >-
+  Receipt for the register-aware merge driver: red against an always-conflict stub, green self-test, WTH join replay byte-identical, scratch-clone fallback.
+---
 # REG red-first receipt (merge driver for the defect-classes register)
 
 Red: the same file with `merge()` replaced by `return None` (a stub that always conflicts, `stub-red.txt`), exit 1:
