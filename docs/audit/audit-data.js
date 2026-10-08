@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T00:27:59Z",
+  "generated": "2026-10-08T01:00:40Z",
   "audit": [
     {
       "actor": null,
@@ -29624,6 +29624,46 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T00:27:01Z",
       "duration_seconds": 58.0
+    },
+    {
+      "id": "al-01M4CG6FVH8QBHY9G4VWQCY29Z",
+      "shortname": "trk-flk",
+      "datetime": "2026-10-08T00:56:45Z",
+      "session": "trk-flk",
+      "prompt": "section-editor flake investigation round-oct06",
+      "summary": "No failure reproduced in about 90 runs under load; stale-step hypothesis refuted; root cause unverified; capture-first plan in docs/proof/flk/investigation.md",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Find the verified root cause of SectionEditor_DragMove_DrawsWithinOneFrame flake",
+      "done_when": "root cause verified or honestly reported unverified, findings doc committed",
+      "started_at": "2026-10-08T00:32:17Z",
+      "duration_seconds": 1468.0
+    },
+    {
+      "id": "al-01M4CGDN0YCW8Y79P5W1TJPKDH",
+      "shortname": "trk-flk",
+      "datetime": "2026-10-08T01:00:40Z",
+      "session": "trk-flk",
+      "prompt": "flake step 1: notify probe round-oct06",
+      "summary": "NotifyProbe in DragMove and NudgeRun checks; planted Select post fails with stack naming it; cost unchanged; lesson updated; run-tests green",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make the next SectionEditor drag flake name its notifier",
+      "done_when": "probe in both checks, red-first planted, gates green",
+      "started_at": "2026-10-08T00:57:13Z",
+      "duration_seconds": 207.0
     }
   ],
   "changes": [
@@ -31606,6 +31646,15 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M4CB6XP5CG8TGMAE20EDW8KJ",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4CEJEVE4GVT1V4P4GMK0RBS",
+      "ts": "2026-10-08T00:28:20Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4CEJER9EDKJ5AT9WMJRJTFK",
       "session": "operator-timianmalloo"
     }
   ]

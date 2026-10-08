@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "aa62758129c9106df76f98017e83f85852cf87f951740764f159b676c9f8ca76"
+      "sourceSha256": "5a1f95212c6047dd53e5ffa2c8f92ba9dab3e7814839a944d19e8704da0e56d7"
     },
     {
       "id": "domain-experts",
@@ -7113,7 +7113,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f85bff29db99152b30ac607c65d297b0db88ddcf2fd8ae2cfd2ca43f887fa241"
+      "sourceSha256": "f5b5d0f113e6c65a6d50b8bdc4532ab0c50f09d36078d90aa99faa4ea9f4caf1"
     },
     {
       "id": "kb-hw-glossary",
@@ -11544,6 +11544,55 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9cbbe5c0a750558d520e47c982e1b944d873a49d45152427f3e41ccfeada4a93"
+    },
+    {
+      "id": "proof-flk-investigation",
+      "path": "docs/proof/flk/investigation.md",
+      "title": "SectionEditor DragMove flake investigation",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-flk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "No failure reproduced in about 90 runs; stale-step hypothesis refuted; root cause unverified; capture-first plan.",
+      "tags": [
+        "flake",
+        "section-editor",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-split-moved-2",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3c776841c2b2331fc89db06571bdd2a308884a5408b5bdcd55e3be6590e234e4"
+    },
+    {
+      "id": "proof-flk-red-first",
+      "path": "docs/proof/flk/red-first.md",
+      "title": "Notify probe red-first",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-flk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Planted Select post fails the drag check and the FAIL line names the planted call.",
+      "tags": [
+        "flake",
+        "section-editor"
+      ],
+      "links": [
+        {
+          "to": "proof-flk-investigation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c38014b9b5fd7fd5f06f492740d2ac2e08d866feda805a682d77523fc0dff950"
     },
     {
       "id": "proof-foildsl-authoring",
@@ -16237,5 +16286,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3b01aa0bbbdd850cfc2eef8faf3104118de4c2643d8a8f389a690f304939471c"
+  "graphSha256": "03032ab0277c86ec8a7280e35af909c73fa7992265b5562c0049bdfd6fa17ea8"
 };
