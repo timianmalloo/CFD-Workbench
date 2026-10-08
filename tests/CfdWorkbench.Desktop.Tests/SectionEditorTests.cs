@@ -148,6 +148,7 @@ public static class SectionEditorTests
             int cursor = fixture.Controller.Section!.Draft.Cursor;
             fixture.Key(Key.Up);
             Dispatcher.UIThread.RunJobs();
+            fixture.SettleSurface();
             string? notified = null;
             using (var probe = new NotifyProbe(fixture.Controller))
             {
@@ -275,6 +276,7 @@ public static class SectionEditorTests
             var size = new PixelSize((int)canvas.Bounds.Width, (int)canvas.Bounds.Height);
             using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
             var rest = canvas.DrawnCurves[0];
+            fixture.SettleSurface();
             var pointer = fixture.Press(from);
             long generation = fixture.Controller.Section!.Draft.Generation;
             bool dragMeasured = false;
@@ -309,6 +311,30 @@ public static class SectionEditorTests
             int cursor = fixture.Controller.Section!.Draft.Cursor;
             fixture.Release(pointer, from + new Vector(24, -36));
             WaitUntil(() => fixture.Controller.Section!.Draft.Cursor == cursor + 1);
+        });
+        // SECTION-EDITOR-LOAD-FLAKE, deterministic: Reset's section entry leaves a mesh job in flight (held here), and its
+        // completion notifies the shell. The drain settles it before the window opens, so no drag move can see it.
+        DesktopChecks.Check("SectionEditor_DragMove_HeldSurfaceDrainedBeforeThePress", () =>
+        {
+            using var held = new Fixture(holdSurfaces: true);
+            held.Reset();
+            if (held.Held!.Pending == 0 || !held.Controller.SurfaceUpdating)
+                throw new Exception("Reset left no mesh job in flight; the origin of the drag-time notification is not the section entry");
+            var point = held.Controller.SectionCurve(SurfaceSide.Upper)!.Points[3];
+            var from = held.Local(point);
+            held.SettleSurface();
+            var pointer = held.Press(from);
+            using var probe = new NotifyProbe(held.Controller);
+            try
+            {
+                for (int i = 1; i <= 2; i++)
+                {
+                    if (i == 2) held.Held!.ReleaseAll();   // the job's pool thread finishes between the moves; a no-op once drained
+                    held.Move(pointer, from + new Vector(i * 4, -i * 6));
+                    if (probe.Count != 0) throw new Exception($"Move {i} notified the shell {probe.Count} times: {probe.Describe()}");
+                }
+            }
+            finally { held.Release(pointer, from); }
         });
         // The certificate gates only Finish: with the assessment held open, the step still lands on release, Finish waits
         // on "Checking…", and the next drag's point and curve still follow the pointer.
@@ -1071,6 +1097,32 @@ public static class SectionEditorTests
         }
     }
 
+    /// <summary>A mesh seam that holds each job until <see cref="ReleaseAll"/>, then computes the real mesh.</summary>
+    private sealed class HeldSurfaces
+    {
+        private readonly List<(byte[] Bytes, string Basis, long Generation, TaskCompletionSource<SurfaceView> Gate)> calls = [];
+        private int released;
+
+        internal int Pending { get { lock (calls) return calls.Count - released; } }
+
+        internal Task<SurfaceView> Compute(byte[] source, string basis, long generation, CancellationToken cancellation)
+        {
+            var gate = new TaskCompletionSource<SurfaceView>(TaskCreationOptions.RunContinuationsAsynchronously);
+            lock (calls) calls.Add((source, basis, generation, gate));
+            return gate.Task;
+        }
+
+        internal void ReleaseAll()
+        {
+            lock (calls)
+                while (released < calls.Count)
+                {
+                    var (bytes, basis, generation, gate) = calls[released++];
+                    gate.SetResult(Placement.Surface(bytes, basis, generation, CancellationToken.None));
+                }
+        }
+    }
+
     private sealed class Fixture : IDisposable
     {
         internal WorkbenchController Controller { get; }
@@ -1083,9 +1135,15 @@ public static class SectionEditorTests
 
         /// <param name="assessmentGate">The controller's CTL seam: it delays the real <c>AssessSection</c>, never replaces it.</param>
         /// <param name="stepGate">The controller's CTL seam: it runs where a step applies, before Core's patch, never replacing it.</param>
-        internal Fixture(Func<long, Task>? assessmentGate = null, Action<long>? stepGate = null)
+        /// <summary>Set by <c>holdSurfaces</c>: the mesh jobs the controller asked for, each finishing only when released.</summary>
+        internal HeldSurfaces? Held { get; }
+
+        /// <param name="holdSurfaces">The controller's mesh seam: no surface job completes until the test releases it.</param>
+        internal Fixture(Func<long, Task>? assessmentGate = null, Action<long>? stepGate = null, bool holdSurfaces = false)
         {
-            Controller = new WorkbenchController(sectionAssessmentGate: assessmentGate, sectionStepGate: stepGate);
+            if (holdSurfaces) Held = new HeldSurfaces();
+            Controller = new WorkbenchController(surfaceCompute: Held is null ? null : Held.Compute,
+                sectionAssessmentGate: assessmentGate, sectionStepGate: stepGate);
             Wait(Controller.OpenExampleAsync());
             Area.PlanCanvas.Controller = Controller;
             Window = new Window { Content = Area, Width = 1280, Height = 800 };
@@ -1102,6 +1160,16 @@ public static class SectionEditorTests
             Wait(Controller.EnterSectionAsync(0, EntryOrigin.Side));
             Dispatcher.UIThread.RunJobs();
         }
+
+        /// <summary>
+        /// SECTION-EDITOR-LOAD-FLAKE control: Reset's section entry queues a mesh job that finishes on a pool thread and
+        /// notifies the shell when its continuation next runs. A check that counts notifications over a window drains it first.
+        /// </summary>
+        internal void SettleSurface() => WaitUntil(() =>
+        {
+            Held?.ReleaseAll();
+            return Controller.WhenSurfaceSettledAsync().IsCompleted;
+        });
 
         internal void Select(PointView point)
         {

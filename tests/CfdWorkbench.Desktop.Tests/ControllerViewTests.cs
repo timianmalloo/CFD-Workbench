@@ -970,81 +970,6 @@ public static class ControllerViewTests
             }
         });
 
-        DesktopChecks.Check("ModelArea_Navbar_ViewsDisplayFitFitSelection_SameActionsAsMenus", () =>
-        {
-            using var fixture = new AreaFixture(width: 1400, height: 1000);
-            var (area, controller, host) = (fixture.Area, fixture.Controller, fixture.Host);
-            // .navbar: centred at the bottom of the model area, 10 px above its bottom edge, over the views.
-            var navbar = area.Navbar;
-            var at = navbar.TranslatePoint(new Point(0, 0), area.PlanContent) ?? throw new Exception("No navbar point");
-            Near(area.PlanContent.Bounds.Width / 2, at.X + navbar.Bounds.Width / 2, 0.5, "navbar centre");
-            Near(area.PlanContent.Bounds.Height - 10, at.Y + navbar.Bounds.Height, 0.5, "navbar bottom");
-            Equal("Views ▾ Plan + 3D", area.NavViewsButton.Content as string, "Views ▾ names the layout");
-            Equal("Display ▾ Shaded", area.NavDisplayButton.Content as string, "Display ▾ names the target view's display");
-            Equal("Fit", area.NavFitButton.Content as string, "Fit");
-            Equal("Fit Selection", area.NavFitSelectionButton.Content as string, "Fit Selection");
-            foreach (var button in new[] { area.NavViewsButton, area.NavDisplayButton, area.NavFitButton, area.NavFitSelectionButton })
-                if (button.Bounds.Height < 24 || button.Bounds.Width < 24) throw new Exception($"{button.Content} is under 24 × 24");
-            // The radio items are the menu rows (CommandTable, Views and Display), checked as the menu checks them.
-            foreach (var (button, menu) in new[] { (area.NavViewsButton, ViewCommands.ViewsMenu), (area.NavDisplayButton, ViewCommands.DisplayMenu) })
-            {
-                var rows = CommandTable.Rows.Where(row => row.Menu == menu).Select(row => row.Title).ToArray();
-                var items = NavItems(button);
-                if (!items.Select(item => item.Header as string).SequenceEqual(rows))
-                    throw new Exception($"{menu} ▾ items {string.Join(", ", items.Select(item => item.Header))}, not the menu's {string.Join(", ", rows)}");
-                foreach (var item in items)
-                {
-                    var id = CommandTable.Rows.Single(row => row.Menu == menu && row.Title == (string)item.Header!).Id;
-                    Equal(ViewCommands.IsChecked(id, controller), item.IsChecked, $"{item.Header} checked as the menu");
-                }
-            }
-
-            var plan = controller.Planform!;
-            int tip = Enumerable.Range(0, plan.Stations.Count).Single(i => plan.Stations[i].Eta == 1);
-            controller.Select(new Selection.Station(tip, 1));
-            fixture.Settle();
-            var home = controller.Camera3d ?? throw new Exception("No 3D camera");
-            var size = area.ThreeDRenderer.Bounds.Size;
-            Action Item(Button button, string header) => () =>
-                NavItems(button).Single(item => (string)item.Header! == header).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
-            Action Press(Button button) => () => button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
-            foreach (var (id, act) in new (string, Action)[]
-            {
-                ("view.layout-four", Item(area.NavViewsButton, "Four views")), ("view.layout-one", Item(area.NavViewsButton, "One view")),
-                ("view.layout-plan3d", Item(area.NavViewsButton, "Plan + 3D")), ("view.display-wireframe", Item(area.NavDisplayButton, "Wireframe")),
-                ("view.display-shaded", Item(area.NavDisplayButton, "Shaded")), ("view.fit", Press(area.NavFitButton)),
-                ("view.fit-selection", Press(area.NavFitSelectionButton))
-            })
-            {
-                var start = Start(id);
-                act();
-                fixture.Settle();
-                var viaNavbar = State();
-                Start(id);
-                Await(host.RunCommand(id));
-                fixture.Settle();
-                var viaMenu = State();
-                if (viaNavbar != viaMenu) throw new Exception($"{id}: the navbar gave {viaNavbar}, the menu row {viaMenu}");
-                if (viaNavbar == start || viaNavbar.Strip == "·") throw new Exception($"{id}: the navbar changed nothing ({viaNavbar})");
-                Console.WriteLine($"  navbar {id}: same as the menu row — {viaNavbar.Strip}");
-            }
-
-            (ViewLayout Layout, DisplayMode Display, ViewCamera? Camera, string Strip) Start(string id)
-            {
-                controller.Layout = id == "view.layout-four" ? ViewLayout.Plan3d : ViewLayout.Four;
-                controller.TargetView = SingleView.ThreeD;
-                controller.SetDisplay(SingleView.ThreeD, id == "view.display-shaded" ? DisplayMode.Wireframe : DisplayMode.Shaded);
-                fixture.Settle();
-                controller.Camera3d = home.ZoomAbout(new Point(size.Width / 3, size.Height / 3), 2, size);
-                host.Report(new StatusReport("·"));
-                fixture.Settle();
-                return State();
-            }
-
-            (ViewLayout Layout, DisplayMode Display, ViewCamera? Camera, string Strip) State() =>
-                (controller.Layout, controller.DisplayFor(SingleView.ThreeD), controller.Camera3d, host.StatusStrip.Text);
-        });
-
         DesktopChecks.Check("ModelArea_Navbar_NotApplicable_DisabledWithReason", () =>
         {
             var gate = new GatedSurfaces();
@@ -1094,9 +1019,6 @@ public static class ControllerViewTests
             if (area.NavViewsButton.Flyout is not { IsOpen: true } flyout) throw new Exception("Space on Views ▾ does not open its menu");
             flyout.Hide();
         });
-
-        static MenuItem[] NavItems(Button button) =>
-            (button.Flyout as MenuFlyout ?? throw new Exception($"{button.Content} has no menu")).Items.OfType<MenuItem>().ToArray();
     }
 
     internal static void RunReadiness()
@@ -1239,6 +1161,84 @@ public static class ControllerViewTests
                     Console.WriteLine($"  view-gutter {where}: scale {scale}, column gutter {columns} px" + (rows > 0 ? $", row gutter {rows} px" : "") + $", 1 px frame on every edge of {rects.Length} views");
                 }
         });
+
+        DesktopChecks.Check("ModelArea_Navbar_ViewsDisplayFitFitSelection_SameActionsAsMenus", () =>
+        {
+            using var fixture = new AreaFixture(width: 1400, height: 1000);
+            var (area, controller, host) = (fixture.Area, fixture.Controller, fixture.Host);
+            // .navbar: centred at the bottom of the model area, 10 px above its bottom edge, over the views.
+            var navbar = area.Navbar;
+            var at = navbar.TranslatePoint(new Point(0, 0), area.PlanContent) ?? throw new Exception("No navbar point");
+            Near(area.PlanContent.Bounds.Width / 2, at.X + navbar.Bounds.Width / 2, 0.5, "navbar centre");
+            Near(area.PlanContent.Bounds.Height - 10, at.Y + navbar.Bounds.Height, 0.5, "navbar bottom");
+            Equal("Views ▾ Plan + 3D", area.NavViewsButton.Content as string, "Views ▾ names the layout");
+            Equal("Display ▾ Shaded", area.NavDisplayButton.Content as string, "Display ▾ names the target view's display");
+            Equal("Fit", area.NavFitButton.Content as string, "Fit");
+            Equal("Fit Selection", area.NavFitSelectionButton.Content as string, "Fit Selection");
+            foreach (var button in new[] { area.NavViewsButton, area.NavDisplayButton, area.NavFitButton, area.NavFitSelectionButton })
+                if (button.Bounds.Height < 24 || button.Bounds.Width < 24) throw new Exception($"{button.Content} is under 24 × 24");
+            // The radio items are the menu rows (CommandTable, Views and Display), checked as the menu checks them.
+            foreach (var (button, menu) in new[] { (area.NavViewsButton, ViewCommands.ViewsMenu), (area.NavDisplayButton, ViewCommands.DisplayMenu) })
+            {
+                var rows = CommandTable.Rows.Where(row => row.Menu == menu).Select(row => row.Title).ToArray();
+                var items = NavItems(button);
+                if (!items.Select(item => item.Header as string).SequenceEqual(rows))
+                    throw new Exception($"{menu} ▾ items {string.Join(", ", items.Select(item => item.Header))}, not the menu's {string.Join(", ", rows)}");
+                foreach (var item in items)
+                {
+                    var id = CommandTable.Rows.Single(row => row.Menu == menu && row.Title == (string)item.Header!).Id;
+                    Equal(ViewCommands.IsChecked(id, controller), item.IsChecked, $"{item.Header} checked as the menu");
+                }
+            }
+
+            var plan = controller.Planform!;
+            int tip = Enumerable.Range(0, plan.Stations.Count).Single(i => plan.Stations[i].Eta == 1);
+            controller.Select(new Selection.Station(tip, 1));
+            fixture.Settle();
+            var home = controller.Camera3d ?? throw new Exception("No 3D camera");
+            var size = area.ThreeDRenderer.Bounds.Size;
+            Action Item(Button button, string header) => () =>
+                NavItems(button).Single(item => (string)item.Header! == header).RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+            Action Press(Button button) => () => button.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+            foreach (var (id, act) in new (string, Action)[]
+            {
+                ("view.layout-four", Item(area.NavViewsButton, "Four views")), ("view.layout-one", Item(area.NavViewsButton, "One view")),
+                ("view.layout-plan3d", Item(area.NavViewsButton, "Plan + 3D")), ("view.display-wireframe", Item(area.NavDisplayButton, "Wireframe")),
+                ("view.display-shaded", Item(area.NavDisplayButton, "Shaded")), ("view.fit", Press(area.NavFitButton)),
+                ("view.fit-selection", Press(area.NavFitSelectionButton))
+            })
+            {
+                var start = Start(id);
+                act();
+                fixture.Settle();
+                var viaNavbar = State();
+                Start(id);
+                Await(host.RunCommand(id));
+                fixture.Settle();
+                var viaMenu = State();
+                if (viaNavbar != viaMenu) throw new Exception($"{id}: the navbar gave {viaNavbar}, the menu row {viaMenu}");
+                if (viaNavbar == start || viaNavbar.Strip == "·") throw new Exception($"{id}: the navbar changed nothing ({viaNavbar})");
+                Console.WriteLine($"  navbar {id}: same as the menu row — {viaNavbar.Strip}");
+            }
+
+            (ViewLayout Layout, DisplayMode Display, ViewCamera? Camera, string Strip) Start(string id)
+            {
+                controller.Layout = id == "view.layout-four" ? ViewLayout.Plan3d : ViewLayout.Four;
+                controller.TargetView = SingleView.ThreeD;
+                controller.SetDisplay(SingleView.ThreeD, id == "view.display-shaded" ? DisplayMode.Wireframe : DisplayMode.Shaded);
+                fixture.Settle();
+                controller.Camera3d = home.ZoomAbout(new Point(size.Width / 3, size.Height / 3), 2, size);
+                host.Report(new StatusReport("·"));
+                fixture.Settle();
+                return State();
+            }
+
+            (ViewLayout Layout, DisplayMode Display, ViewCamera? Camera, string Strip) State() =>
+                (controller.Layout, controller.DisplayFor(SingleView.ThreeD), controller.Camera3d, host.StatusStrip.Text);
+        });
+
+        static MenuItem[] NavItems(Button button) =>
+            (button.Flyout as MenuFlyout ?? throw new Exception($"{button.Content} has no menu")).Items.OfType<MenuItem>().ToArray();
     }
 
     // ---- fixtures -------------------------------------------------------------------------------------------------

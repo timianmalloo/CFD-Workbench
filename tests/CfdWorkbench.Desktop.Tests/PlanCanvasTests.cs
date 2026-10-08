@@ -20,78 +20,6 @@ public static class PlanCanvasTests
 {
     public static void Run()
     {
-        DesktopChecks.Check("Properties_BackspaceInTextField_EditsTextNotPoint", () =>
-        {
-            using var fixture = new PlanFixture(tenPoint: true);
-            var point = fixture.Controller.Planform!.Trailing.Points[5];
-            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
-            fixture.Settle();
-            var field = PropertiesViewTests.Need<TextBox>(fixture.Host.Properties, "PointSpanInput");
-            field.Text = "250";
-            field.CaretIndex = 3;
-            field.Focus();
-            var key = new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = field, Key = Key.Back };
-            field.RaiseEvent(key);
-            fixture.Settle();
-            if (fixture.Controller.CurveFor("trailing")?.Points.Count != 10 || field.Text != "25")
-                throw new Exception("Backspace did not edit the focused field while preserving the point");
-        });
-        DesktopChecks.Check("RebuildPopover_CancelAndEscape_NoRowBytesAndFreshnessUnchanged", () =>
-        {
-            using var fixture = new PlanFixture(tenPoint: true);
-            string before = fixture.Controller.AcceptedSource;
-            bool undo = fixture.Controller.CanUndo;
-            var panel = fixture.Host.ModelView.RebuildPanel;
-            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
-            panel.Close(false);
-            if (panel.IsVisible || fixture.Canvas.RebuildPreview is not null || fixture.Controller.AcceptedSource != before ||
-                fixture.Controller.CanUndo != undo) throw new Exception("Cancel wrote a row or retained the preview");
-            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
-            var count = panel.FindControl<TextBox>("CountInput")!;
-            count.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = count, Key = Key.Escape });
-            if (panel.IsVisible || fixture.Controller.AcceptedSource != before)
-                throw new Exception("Escape changed the source or left the popover open");
-        });
-        DesktopChecks.Check("RebuildPopover_ReturnApplies_OneUndoRowPointSelectionCleared", () =>
-        {
-            using var fixture = new PlanFixture(tenPoint: true);
-            var point = fixture.Controller.Planform!.Trailing.Points[5];
-            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
-            string before = fixture.Controller.AcceptedSource;
-            var panel = fixture.Host.ModelView.RebuildPanel;
-            fixture.Host.RunCommand("point.rebuild").GetAwaiter().GetResult();
-            if (!panel.IsVisible) throw new Exception("Edit Rebuild did not open");
-            Task applied = panel.ApplyAsync();
-            for (int i = 0; i < 400 && !applied.IsCompleted; i++)
-            { Avalonia.Threading.Dispatcher.UIThread.RunJobs(); Thread.Sleep(5); }
-            applied.GetAwaiter().GetResult();
-            fixture.Settle();
-            if (panel.IsVisible || fixture.Controller.Planform!.Trailing.Points.Count != 4 ||
-                fixture.Controller.Selection is Selection.Points || fixture.Controller.AcceptedSource == before ||
-                !fixture.Controller.CanUndo)
-                throw new Exception("Rebuild did not apply and clear selection as one edit");
-            fixture.Controller.Undo();
-            if (fixture.Controller.AcceptedSource != before) throw new Exception("One Undo did not restore Rebuild source");
-        });
-        DesktopChecks.Check("RebuildPopover_FocusReturnsToPlanOnClose", () =>
-        {
-            using var fixture = new PlanFixture(tenPoint: true);
-            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
-            fixture.Host.ModelView.RebuildPanel.Close(false);
-            fixture.Settle();
-            if (!fixture.Canvas.IsFocused) throw new Exception("Plan did not regain focus after popover close");
-        });
-        DesktopChecks.Check("RebuildPopover_TypedCountOutOfRange_FieldErrorNothingChanged", () =>
-        {
-            using var fixture = new PlanFixture(tenPoint: true);
-            string before = fixture.Controller.AcceptedSource;
-            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
-            var panel = fixture.Host.ModelView.RebuildPanel;
-            panel.SetCount(11);
-            if (panel.FieldError != "Enter a whole number from 4 to 10." ||
-                fixture.Controller.AcceptedSource != before)
-                throw new Exception("Out-of-range count was not refused in the field");
-        });
         DesktopChecks.Check("RebuildPopover_CrossingDisablesRebuildWithReason", () =>
         {
             string source = File.ReadAllText("docs/examples/foildsl/foil-basic.foil");
@@ -474,53 +402,6 @@ public static class PlanCanvasTests
             if (fixture.Controller.Selection is not Selection.Points toggled || toggled.Items.Count != 1 ||
                 toggled.Items[0].VertexId != points[4].Id)
                 throw new Exception("Command selection did not toggle");
-        });
-
-        DesktopChecks.Check("PlanCanvas_SecondaryClickPoint_SelectsAndOpensPointMenu", () =>
-        {
-            // D-3 (docs/reviews/m12b-native.md §3.1, design §11.3 Point type row): Control-click is a secondary click on
-            // macOS; it and right-click select the point and open its menu. Shift+F10 and the menu key do the same.
-            using var fixture = new PlanFixture();
-            var controls = fixture.Controller.Planform!.Trailing.Points.Where(p => p.Role == PointRole.Control).ToArray();
-            var point = controls[0];
-            var other = controls[^1];
-            ContextMenu Open(string how)
-            {
-                if (fixture.Controller.Selection is not Selection.Points selected || selected.Items.Count != 1 ||
-                    selected.Items[0].VertexId != point.Id)
-                    throw new Exception(how + " did not select the point alone");
-                if (fixture.Canvas.ContextMenu is not { IsOpen: true } menu) throw new Exception(how + " opened no point menu");
-                var items = menu.Items.OfType<MenuItem>().ToArray();
-                string rows = string.Join(" | ", items.Select(item => $"{item.Header}:{item.IsEnabled}"));
-                if (rows != "Make Anchor Point:True | Make Control Point:False | Tangent:False | Remove Point:True | Rebuild Trailing Edge…:True | Fit:True")
-                    throw new Exception(how + " menu rows: " + rows);
-                string tangents = string.Join(" | ", items[2].Items.OfType<MenuItem>().Select(item => item.Header));
-                if (tangents != "Smooth | Symmetric | Corner") throw new Exception(how + " tangent rows: " + tangents);
-                return menu;
-            }
-            void Close(ContextMenu menu) { menu.Close(); fixture.Settle(); }
-            fixture.Press(other);
-            fixture.Press(point, KeyModifiers.Control);
-            if (OperatingSystem.IsMacOS()) Close(Open("Control-click"));
-            else if (fixture.Controller.Selection is not Selection.Points { Items.Count: 2 })
-                throw new Exception("Ctrl-click no longer toggles on Windows");
-            fixture.Press(other);
-            fixture.DragAt(fixture.Canvas.ScreenPoint(point), default, MouseButton.Right, KeyModifiers.None);
-            Close(Open("Right-click"));
-            fixture.Press(other);
-            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
-            fixture.KeyDown(Key.F10, KeyModifiers.Shift);
-            Close(Open("Shift+F10"));
-            fixture.KeyDown(Key.Apps);
-            var bound = Open("Context-menu key");
-            bound.Items.OfType<MenuItem>().First().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
-            for (int i = 0; i < 400 && fixture.Controller.Planform!.Trailing.Points.Single(p => p.Id == point.Id).Role != PointRole.Anchor; i++)
-            {
-                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-                Thread.Sleep(5);
-            }
-            if (fixture.Controller.Planform!.Trailing.Points.Single(p => p.Id == point.Id).Role != PointRole.Anchor)
-                throw new Exception("Make Anchor Point did not run point.make-anchor");
         });
 
         DesktopChecks.Check("PlanCanvas_SpaceAndShiftSpace_SelectAndToggle", () =>
@@ -964,27 +845,6 @@ public static class PlanCanvasTests
                 throw new Exception("Escape on a handle did not return focus to its anchor");
         });
 
-        DesktopChecks.Check("PlanCanvas_ArrowOnHandle_MovesHandleWithCoMotion", () =>
-        {
-            using var fixture = new PlanFixture(tenPoint: true);
-            var point = fixture.Controller.Planform!.Trailing.Points[4];
-            Task.Run(() => fixture.Controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)))
-                .GetAwaiter().GetResult();
-            fixture.Settle();
-            var handles = fixture.Controller.Planform!.Trailing.Points.Where(item => item.AnchorId == point.Id).ToArray();
-            var handle = handles[0];
-            fixture.Canvas.FocusPoint(new PointRef(handle.Curve, handle.Id));
-            fixture.KeyDown(Key.Down);
-            fixture.KeyUp(Key.Down);
-            fixture.WaitGesture();
-            var after = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handle.Id);
-            if (after.Ordinate == handle.Ordinate)
-                throw new Exception("Arrow did not move the focused handle");
-            var partner = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handles[1].Id);
-            if (partner.Ordinate == handles[1].Ordinate)
-                throw new Exception("Smooth opposite handle did not co-move");
-        });
-
         DesktopChecks.Check("PlanCanvas_ReleaseEdgesCross_PointRenderedAtOriginal", () =>
         {
             using var fixture = new PlanFixture(tenPoint: true);
@@ -1341,6 +1201,151 @@ public static class PlanCanvasTests
                     selected.Items[0].VertexId == point.Id)
                     throw new Exception($"{key} did not remove the selected control and select its survivor");
             }
+        });
+
+        DesktopChecks.Check("Properties_BackspaceInTextField_EditsTextNotPoint", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[5];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            fixture.Settle();
+            var field = PropertiesViewTests.Need<TextBox>(fixture.Host.Properties, "PointSpanInput");
+            field.Text = "250";
+            field.CaretIndex = 3;
+            field.Focus();
+            var key = new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = field, Key = Key.Back };
+            field.RaiseEvent(key);
+            fixture.Settle();
+            if (fixture.Controller.CurveFor("trailing")?.Points.Count != 10 || field.Text != "25")
+                throw new Exception("Backspace did not edit the focused field while preserving the point");
+        });
+
+        DesktopChecks.Check("RebuildPopover_CancelAndEscape_NoRowBytesAndFreshnessUnchanged", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            string before = fixture.Controller.AcceptedSource;
+            bool undo = fixture.Controller.CanUndo;
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            panel.Close(false);
+            if (panel.IsVisible || fixture.Canvas.RebuildPreview is not null || fixture.Controller.AcceptedSource != before ||
+                fixture.Controller.CanUndo != undo) throw new Exception("Cancel wrote a row or retained the preview");
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            var count = panel.FindControl<TextBox>("CountInput")!;
+            count.RaiseEvent(new KeyEventArgs { RoutedEvent = InputElement.KeyDownEvent, Source = count, Key = Key.Escape });
+            if (panel.IsVisible || fixture.Controller.AcceptedSource != before)
+                throw new Exception("Escape changed the source or left the popover open");
+        });
+
+        DesktopChecks.Check("RebuildPopover_ReturnApplies_OneUndoRowPointSelectionCleared", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[5];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            string before = fixture.Controller.AcceptedSource;
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            fixture.Host.RunCommand("point.rebuild").GetAwaiter().GetResult();
+            if (!panel.IsVisible) throw new Exception("Edit Rebuild did not open");
+            Task applied = panel.ApplyAsync();
+            for (int i = 0; i < 400 && !applied.IsCompleted; i++)
+            { Avalonia.Threading.Dispatcher.UIThread.RunJobs(); Thread.Sleep(5); }
+            applied.GetAwaiter().GetResult();
+            fixture.Settle();
+            if (panel.IsVisible || fixture.Controller.Planform!.Trailing.Points.Count != 4 ||
+                fixture.Controller.Selection is Selection.Points || fixture.Controller.AcceptedSource == before ||
+                !fixture.Controller.CanUndo)
+                throw new Exception("Rebuild did not apply and clear selection as one edit");
+            fixture.Controller.Undo();
+            if (fixture.Controller.AcceptedSource != before) throw new Exception("One Undo did not restore Rebuild source");
+        });
+
+        DesktopChecks.Check("RebuildPopover_FocusReturnsToPlanOnClose", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            fixture.Host.ModelView.RebuildPanel.Close(false);
+            fixture.Settle();
+            if (!fixture.Canvas.IsFocused) throw new Exception("Plan did not regain focus after popover close");
+        });
+
+        DesktopChecks.Check("RebuildPopover_TypedCountOutOfRange_FieldErrorNothingChanged", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            string before = fixture.Controller.AcceptedSource;
+            fixture.Host.ModelView.BeginRebuild("trailing", fixture.Canvas);
+            var panel = fixture.Host.ModelView.RebuildPanel;
+            panel.SetCount(11);
+            if (panel.FieldError != "Enter a whole number from 4 to 10." ||
+                fixture.Controller.AcceptedSource != before)
+                throw new Exception("Out-of-range count was not refused in the field");
+        });
+
+        DesktopChecks.Check("PlanCanvas_ArrowOnHandle_MovesHandleWithCoMotion", () =>
+        {
+            using var fixture = new PlanFixture(tenPoint: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            Task.Run(() => fixture.Controller.ApplyPointCommandAsync(new PointCommand.MakeAnchor(point.Curve, point.Id)))
+                .GetAwaiter().GetResult();
+            fixture.Settle();
+            var handles = fixture.Controller.Planform!.Trailing.Points.Where(item => item.AnchorId == point.Id).ToArray();
+            var handle = handles[0];
+            fixture.Canvas.FocusPoint(new PointRef(handle.Curve, handle.Id));
+            fixture.KeyDown(Key.Down);
+            fixture.KeyUp(Key.Down);
+            fixture.WaitGesture();
+            var after = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handle.Id);
+            if (after.Ordinate == handle.Ordinate)
+                throw new Exception("Arrow did not move the focused handle");
+            var partner = fixture.Controller.Planform!.Trailing.Points.Single(item => item.Id == handles[1].Id);
+            if (partner.Ordinate == handles[1].Ordinate)
+                throw new Exception("Smooth opposite handle did not co-move");
+        });
+
+        DesktopChecks.Check("PlanCanvas_SecondaryClickPoint_SelectsAndOpensPointMenu", () =>
+        {
+            // D-3 (docs/reviews/m12b-native.md §3.1, design §11.3 Point type row): Control-click is a secondary click on
+            // macOS; it and right-click select the point and open its menu. Shift+F10 and the menu key do the same.
+            using var fixture = new PlanFixture();
+            var controls = fixture.Controller.Planform!.Trailing.Points.Where(p => p.Role == PointRole.Control).ToArray();
+            var point = controls[0];
+            var other = controls[^1];
+            ContextMenu Open(string how)
+            {
+                if (fixture.Controller.Selection is not Selection.Points selected || selected.Items.Count != 1 ||
+                    selected.Items[0].VertexId != point.Id)
+                    throw new Exception(how + " did not select the point alone");
+                if (fixture.Canvas.ContextMenu is not { IsOpen: true } menu) throw new Exception(how + " opened no point menu");
+                var items = menu.Items.OfType<MenuItem>().ToArray();
+                string rows = string.Join(" | ", items.Select(item => $"{item.Header}:{item.IsEnabled}"));
+                if (rows != "Make Anchor Point:True | Make Control Point:False | Tangent:False | Remove Point:True | Rebuild Trailing Edge…:True | Fit:True")
+                    throw new Exception(how + " menu rows: " + rows);
+                string tangents = string.Join(" | ", items[2].Items.OfType<MenuItem>().Select(item => item.Header));
+                if (tangents != "Smooth | Symmetric | Corner") throw new Exception(how + " tangent rows: " + tangents);
+                return menu;
+            }
+            void Close(ContextMenu menu) { menu.Close(); fixture.Settle(); }
+            fixture.Press(other);
+            fixture.Press(point, KeyModifiers.Control);
+            if (OperatingSystem.IsMacOS()) Close(Open("Control-click"));
+            else if (fixture.Controller.Selection is not Selection.Points { Items.Count: 2 })
+                throw new Exception("Ctrl-click no longer toggles on Windows");
+            fixture.Press(other);
+            fixture.DragAt(fixture.Canvas.ScreenPoint(point), default, MouseButton.Right, KeyModifiers.None);
+            Close(Open("Right-click"));
+            fixture.Press(other);
+            fixture.Canvas.FocusPoint(new PointRef(point.Curve, point.Id));
+            fixture.KeyDown(Key.F10, KeyModifiers.Shift);
+            Close(Open("Shift+F10"));
+            fixture.KeyDown(Key.Apps);
+            var bound = Open("Context-menu key");
+            bound.Items.OfType<MenuItem>().First().RaiseEvent(new Avalonia.Interactivity.RoutedEventArgs(MenuItem.ClickEvent));
+            for (int i = 0; i < 400 && fixture.Controller.Planform!.Trailing.Points.Single(p => p.Id == point.Id).Role != PointRole.Anchor; i++)
+            {
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                Thread.Sleep(5);
+            }
+            if (fixture.Controller.Planform!.Trailing.Points.Single(p => p.Id == point.Id).Role != PointRole.Anchor)
+                throw new Exception("Make Anchor Point did not run point.make-anchor");
         });
     }
 

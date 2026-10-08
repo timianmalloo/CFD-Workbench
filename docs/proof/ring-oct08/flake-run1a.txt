@@ -1,0 +1,6 @@
+# Run 1a of trk-rgm, 2026-10-08 07:27, tools/run-tests.sh, Release. Tree: base fd96651e plus uncommitted step-1 moves (ThemeMatrix, 5 Analysis checks); the harness had no NotifyProbe change from this track.
+# Load 1-min: 4.60 at start, 14.38 at end (run-tests.sh: load 4.60 -> 14.38). Desktop suite: 716 PASS, failed part --section-editor --part=1/2. The next 7 ring runs passed.
+# Verbatim FAIL line (line 16 of the saved run output):
+FAIL SectionEditor_DragMove_DrawsWithinOneFrame Exception: Move 2 notified the shell 1 times: [Changed generation=0 ui=True stack=WorkbenchController.Notify WorkbenchController.cs:3304 <- WorkbenchController.CompleteSurface WorkbenchController.cs:888 <- <>c__DisplayClass280_0.<RunSurfaceAsync>b__0 WorkbenchController.cs:861 <- WorkbenchController.OnUiThread WorkbenchController.cs:897 <- WorkbenchController.RunSurfaceAsync WorkbenchController.cs:861 <- Fixture.Move SectionEditorTests.cs:1156 <- <>c__DisplayClass1_0.<Run>b__15 SectionEditorTests.cs:289 <- DesktopChecks.Check WorkbenchTests.cs:623 <- SectionEditorTests.Run SectionEditorTests.cs:269]
+FAIL --section-editor --part=1/2 exited 1
+PASS Analysis_Running_HidesPreviousFailureCard

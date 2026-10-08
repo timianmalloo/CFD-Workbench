@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b9993b6913f4dab247ccac12d1c8a24a6606849141fa002a78e76d3f92930279"
+      "sourceSha256": "719d3b5fcb4bc98af1a7ba3a1e95eaafdb98b5b37e7ad6e1a0db6e9be68c09bb"
     },
     {
       "id": "domain-experts",
@@ -11653,6 +11653,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "e69dd7c13a60ed21e352a98b34f038ce4ffbc3b49950b6d7fd97a0ee0c244583"
     },
     {
+      "id": "proof-fss-red-first",
+      "path": "docs/proof/fss/red-first.md",
+      "title": "Section Editor surface-settle: origin, red-first receipt, frequency",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-fss",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "The drag-time notification is a mesh job queued by Reset; a held-surface check fails without the drain and passes with it.",
+      "tags": [
+        "flake",
+        "section-editor",
+        "surface"
+      ],
+      "links": [
+        {
+          "to": "proof-flk-investigation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4c06a9a18f6c48fc4ef035b4393ae650b80979b4ff13c1ff877cfadfd77f80b0"
+    },
+    {
       "id": "proof-g0-red-runs",
       "path": "docs/proof/g0-red-runs.md",
       "title": "G0 glue red-first runs",
@@ -12878,6 +12903,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "95f212dc46d2f49e65072aab721162cf59d63518f214b2325143fa40777cd95f"
+    },
+    {
+      "id": "proof-ring-oct08-moves",
+      "path": "docs/proof/ring-oct08/moves.md",
+      "title": "Ring headroom, third move: 24 checks to readiness, Desktop spawn re-ordered (Ruling 143)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rgm",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Net fast-ring time 50.6 s to 43.2-43.9 s and both Analysis parts to 3.8-4.2 s; PASS-name union of fast ring plus readiness identical (1811 names); readiness total 137.7 s to 141.6 s.",
+      "tags": [
+        "ring",
+        "test-cost",
+        "c-2",
+        "c-3"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b3f74113f3fc800966736724a35960e19cafd7e873f5947f333d6a132b495735"
     },
     {
       "id": "proof-ring-split-moved",
@@ -16388,5 +16439,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9c081e2e53756568b9517183d28dddf1a2721c9aa57d7d2a99a60845619e2e92"
+  "graphSha256": "02a15624cd8caf57a3d7cc6706be5db8f5fde95e477bfb85aecdb0735b1c17e5"
 };

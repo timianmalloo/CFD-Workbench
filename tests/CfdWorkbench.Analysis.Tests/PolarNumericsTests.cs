@@ -5,12 +5,17 @@ namespace CfdWorkbench.Analysis.Tests;
 
 internal static class PolarNumericsTests
 {
+    // Readiness only: checks moved out of the fast ring (round-oct08 RGM, Ruling 143); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+        AnalysisChecks.Check("Polar_ProductRun_ReachesStripsAndSectionProjection", ProductRun);
+    }
+
     internal static void Run()
     {
         AnalysisChecks.Check("F13b_WaterWithPolar_RetrievesAtBothNewRe", WaterRetrieval);
         AnalysisChecks.Check("RunKey_PolarWeightsHashAndSize_ChangeKey", WeightsKey);
         AnalysisChecks.Check("Loads_TotalDrag_InducedPlusProfileOrNamesMissing", TotalDrag);
-        AnalysisChecks.Check("Polar_ProductRun_ReachesStripsAndSectionProjection", ProductRun);
         AnalysisChecks.Check("Polar_LowConfidence_AdvisoryReachesDragSums", LowConfidenceDrag);
         AnalysisChecks.Check("DragBand_NcritValueOrderAndWingRatio", DragBandOrder);
         AnalysisChecks.Check("PolarReRange_ShowsValidatedBounds", PolarReRange);
