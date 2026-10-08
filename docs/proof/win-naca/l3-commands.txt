@@ -1,0 +1,14 @@
+# Prepared commands only. Coordinator must post Ruling 79 start note and release the heavy slot first.
+# 1. Generate the unlaunched mesh with the already installed Windows Python dependencies.
+py -3 cases/tools/make-tmr-case.py cases/win-spike04r3-g2-l3.yaml runs/20261008T145043Z-win-spike04r3-g2-l3 docs/proof/win-naca/sources/n0012familyII.3.p2dfmt.gz
+# 2. Freeze generated cfdw-manifest.json and full tree hash, compare all source pins to l3-prepared.json.
+#    If run timestamp is changed, re-freeze the Windows YAML before launch. Never overwrite an existing run.
+# 3. Stage to private Linux filesystem; no launch occurs in these two commands.
+wsl -d cfdw-openfoam2512 -u root -- mkdir -p /root/CFDWorkbench/runs/20261008T145043Z-win-spike04r3-g2-l3
+wsl -d cfdw-openfoam2512 -u root -- cp -a /mnt/c/Projects/CFD-Workbench-win-w4-validation/runs/20261008T145043Z-win-spike04r3-g2-l3/. /root/CFDWorkbench/runs/20261008T145043Z-win-spike04r3-g2-l3/
+# 4. Only after start-note gate, launch supervisor detached from terminal. Substitute actual durable note reference.
+wsl -d cfdw-openfoam2512 -u root -- env CFDW_START_NOTE_REF=<coordinator-note-reference> /bin/bash /mnt/c/Projects/CFD-Workbench-win-w4-validation/docs/proof/win-naca/start-l3.sh /root/CFDWorkbench/runs/20261008T145043Z-win-spike04r3-g2-l3
+# 5. Durable monitor/readback; do not launch another solver from this command.
+wsl -d cfdw-openfoam2512 -u root -- tail -n 10 /root/CFDWorkbench/runs/20261008T145043Z-win-spike04r3-g2-l3/a4-monitor.log
+wsl -d cfdw-openfoam2512 -u root -- tail -n 10 /root/CFDWorkbench/runs/20261008T145043Z-win-spike04r3-g2-l3/run-ledger.txt
+# At supervisor exit: coordinator posts done/blocked after final A4 readback. Then admit triplet and run gci.py.

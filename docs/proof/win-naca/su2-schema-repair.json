@@ -1,0 +1,14 @@
+{
+  "repair": 1,
+  "scope": "YAML schema metadata only; no solver/mesh/config/run change or rerun",
+  "observed_utc": "2026-10-08T14:55:52.445418+00:00",
+  "prelaunch_yaml_archive": "docs/proof/win-naca/su2-prelaunch-case.yaml",
+  "prelaunch_yaml_sha256": "31041c99f2f9645c459bcaa891f2df2107b8f6b388b2bf0f5b949dbec305c24d",
+  "final_yaml": "cases/win-su2-tmr-naca0012.yaml",
+  "final_yaml_sha256": "e2feb2d7aaabcf0fb020ba0d89c3e5e68848de9a1b5ef35d8840f8bd4e04e179",
+  "fields_changed": [
+    "numerics.residual_criterion (same predeclared convergence text)",
+    "decomposition.nice (schema integer)",
+    "decomposition.nice_platform_note"
+  ]
+}

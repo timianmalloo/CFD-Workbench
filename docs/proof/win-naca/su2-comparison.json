@@ -1,0 +1,46 @@
+{
+  "rows": 20000,
+  "final_inner_iteration": 19999.0,
+  "window_first_iteration": 18000.0,
+  "window_last_iteration": 19999.0,
+  "residual_drop_log10_orders": {
+    "rms[Rho]": 10.192652928000001,
+    "rms[RhoU]": -0.38271233999999943,
+    "rms[RhoV]": -0.3490265200000007,
+    "rms[RhoE]": 10.175428914,
+    "rms[nu]": 7.291541799999999
+  },
+  "qois": {
+    "CL": {
+      "window_mean": 1.0671148292090002,
+      "half_band": 4.99999930347883e-10,
+      "last": 1.06711483,
+      "cap": 1e-05
+    },
+    "CD": {
+      "window_mean": 0.019056381390059995,
+      "half_band": 5.000000413701855e-12,
+      "last": 0.01905638139,
+      "cap": 1e-06
+    }
+  },
+  "declared_iterative_oracle": "NOT MET",
+  "comparison": {
+    "CL": {
+      "su2_mean": "Not admitted",
+      "cfl3d": 1.0829061464,
+      "difference": "Not admitted",
+      "relative_difference": "Not admitted"
+    },
+    "CD": {
+      "su2_mean": "Not admitted",
+      "cfl3d": 0.014992422606,
+      "difference": "Not admitted",
+      "relative_difference": "Not admitted"
+    }
+  },
+  "exit_code": 0,
+  "history_sha256": "9d585b39fca3ce3be1f5f50a8d5f586f83cd8cd54b388fb55c8dd3bf82c71f97",
+  "reference_sha256": "9cef249a0365454d7292cbed4c909d13242c5dc094582727db23acdd2e6f03e7",
+  "scope": "Code-to-code at Family II L6; numerical/reference uncertainty Not recorded, no quantified acceptance tolerance, no physical validation or GCI; positivity/clipping field history Not recorded"
+}

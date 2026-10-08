@@ -1,0 +1,45 @@
+ok   smoke-cavity.yaml
+ok   spike03-ar12.yaml
+ok   spike03-ar5.yaml
+ok   spike03-ar8-final.yaml
+ok   spike03-ar8-r2.yaml
+ok   spike03-ar8.yaml
+ok   spike03-s4-tipcoupon-v0.yaml
+ok   spike03-s4-tipcoupon-v1.yaml
+ok   spike03-s4-tipcoupon-v2.yaml
+ok   spike03-s4-tipcoupon-v3.yaml
+ok   spike03-s6-w1.yaml
+ok   spike03-s6-w2a.yaml
+ok   spike03-s6-w2b.yaml
+ok   spike03-s6-w2c1.yaml
+ok   spike03-s6-w2c2.yaml
+ok   spike03-s6-w4.yaml
+ok   spike03r2-m1a-ar8.yaml
+ok   spike03r2-m1b-ar8.yaml
+ok   spike03r2-m1b1-ar8.yaml
+ok   spike03r2-m2a-ar8.yaml
+ok   spike03r2-m2b-ar8.yaml
+ok   spike03r2-m2c-ar8.yaml
+ok   spike03r3-m0-ar8.yaml
+ok   spike03r3-m1a-ar8.yaml
+ok   spike03r3-m1b-ar8.yaml
+ok   spike04-tmr-l5-tvd.yaml
+ok   spike04-tmr-l6-diag.yaml
+ok   spike04-tmr-l6-tvd.yaml
+ok   spike04-tmr-l6.yaml
+ok   spike04r2-c1-l6.yaml
+ok   spike04r2-c1r1-l6.yaml
+ok   spike04r2-c1r2-l6.yaml
+ok   spike04r2-c2-l5.yaml
+ok   spike04r2-c3-l4.yaml
+ok   spike04r2-c4-l5-comp.yaml
+ok   spike04r3-g0-l6.yaml
+ok   spike04r3-g1b-l6.yaml
+ok   spike04r3-g2-l3.yaml
+ok   win-smoke-cavity.yaml
+ok   win-spike04r3-g0-l6.yaml
+ok   win-spike04r3-g2-l3.yaml
+ok   win-su2-smoke.yaml
+FAIL win-su2-tmr-naca0012.yaml: 'residual_criterion' is a required property
+FAIL win-su2-tmr-naca0012.yaml: 'Windows BELOW_NORMAL_PRIORITY_CLASS' is not of type 'integer'
+43 case(s), 2 error(s)

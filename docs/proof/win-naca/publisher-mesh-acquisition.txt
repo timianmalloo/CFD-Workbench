@@ -1,0 +1,1 @@
+{"url": "https://raw.githubusercontent.com/su2code/TestCases/790c80ec5b543487b5f8ecf8bb0f0e4d2cc67f3f/rans/naca0012/n0012_225-65.su2", "bytes": 1253807, "sha256": "20dfc96875b1d1a8377c2e64248b6ee42a1ecf525c50d822fb5f539d06d68d15", "tree_sha": "790c80ec5b543487b5f8ecf8bb0f0e4d2cc67f3f"}

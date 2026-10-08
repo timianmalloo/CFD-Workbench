@@ -1,0 +1,5 @@
+*.txt -text
+*.log -text
+*.cfg -text
+*.su2 -text
+*.csv -text

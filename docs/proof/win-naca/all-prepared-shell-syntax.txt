@@ -1,0 +1,4 @@
+PASS bash -n of-command.sh
+PASS bash -n of-command-l3.sh
+PASS bash -n start-l3.sh
+PASS bash -n l3-supervisor.sh
