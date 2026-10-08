@@ -115,14 +115,20 @@ def join_ring_problems(contract):
     checks, gates, readiness = lines("checks"), lines("gates"), lines("readiness")
     problems = []
     # Ruling 89: the join runs the ring through tools/join-ring.sh, which skips it for a docs-only merge and
-    # otherwise runs tools/run-tests.sh and tools/check-test-costs.py. A literal run-tests.sh entry is also accepted.
+    # otherwise runs tools/run-tests.sh, which runs tools/check-test-costs.py with the load it measured. A literal
+    # run-tests.sh entry is also accepted; either way run-tests.sh must run the cost check (in a non-comment line).
     wrapper = ROOT / "tools" / "join-ring.sh"
     if any("tools/join-ring.sh" in line for line in checks):
         text = wrapper.read_text(encoding="utf-8") if wrapper.exists() else ""
-        if "tools/run-tests.sh" not in text or "tools/check-test-costs.py" not in text:
-            problems.append("tools/join-ring.sh does not run tools/run-tests.sh and tools/check-test-costs.py")
+        if "tools/run-tests.sh" not in text:
+            problems.append("tools/join-ring.sh does not run tools/run-tests.sh")
     elif not any("tools/run-tests.sh" in line for line in checks):
         problems.append("join checks do not run tools/run-tests.sh (directly or through tools/join-ring.sh)")
+    tests = ROOT / "tools" / "run-tests.sh"
+    code = [line for line in (tests.read_text(encoding="utf-8").splitlines() if tests.exists() else [])
+            if not line.lstrip().startswith("#")]
+    if not any("tools/check-test-costs.py" in line for line in code):
+        problems.append("tools/run-tests.sh does not run tools/check-test-costs.py")
     if not any("xaml-token-lint.py" in line for line in checks):
         problems.append("join checks do not run xaml-token-lint.py")
     # JOIN-CHECK-BEFORE-REGEN: the merge driver keeps main's copy of a derived view and records the regeneration as owed;

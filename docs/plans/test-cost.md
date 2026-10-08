@@ -301,8 +301,12 @@ were green, including every Core proof-budget and Desktop frame-budget check.
 | **L3** published full Core run as 3 concurrent `--part=k/3` | 73.8 s step sum; full step 45.5 s | gate wall 41 s; parts 16.2 / 17.1 / 17.2 s | Commit `19164fe`. The 3 parts pass the same 586 checks as the old full run (hash `4eb85f786d3c99b1`). PARTITION check shown red once with a duplicated part (586 PASS lines, 391 distinct) |
 | **L4** gates + recounts in one concurrent group; `--readiness` runs serial and alone | 348.6 s | 101.6–124.2 s | Commits `4d91906`, `25c5666`. Green 3 of 3 runs at load 16–75. TEST-RING accepts a `--skip` only when each skipped gate is its own readiness step; red when the core gate step is dropped |
 
-L4 keeps the two `--readiness` steps out of the group on purpose: they hold wall-time frame budgets, and
-`dotnet run` builds into `src/`/`tests/` `bin`, which the adapters gate proves it did not change.
+L4 first kept the `--readiness` steps out of the group: they hold wall-time frame budgets, and `dotnet run` builds
+into `src/`/`tests/` `bin`, which the adapters gate proves it did not change. Update 2026-10-07 (track RDH,
+`docs/proof/rdh/readiness.md`): one `dotnet build` step, then the three suites as one group with `--no-build`, cut
+readiness from 201-203 s to 137-143 s with equal PASS counts and no new advisory miss. The python gates stay in their
+own earlier group: merged with the suites (variant B, 79 s) the Desktop `SectionReleaseFreeze` check printed a
+READINESS-MISS in 3 of 3 runs.
 
 ### 8.2 Fast ring (L5, L6)
 

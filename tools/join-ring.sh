@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The join's test-ring step (docs/coordination/join.json checks). Ruling 89 (DR-JOIN-1): a join whose merge changes no path
 # under src/, tests/, tools/, cases/ and no *.csproj, *.slnx, global.json or Directory.*.props skips tools/run-tests.sh and
-# tools/check-test-costs.py and prints `RING-SKIPPED docs-only: <changed paths, truncated>`. check-docs, the other join
+# (which runs tools/check-test-costs.py itself) and prints `RING-SKIPPED docs-only: <changed paths, truncated>`. check-docs, the other join
 # checks and the verify gates still run (they are their own join.json entries). The rule is derived from the merge diff
 # (HEAD^1..HEAD, HEAD being the merge commit in conductor-join's checks step), never from a flag. Fail safe: a HEAD that
 # is not a merge, or a diff that cannot be read, runs the ring. The readiness ring before main is unchanged.
@@ -34,9 +34,9 @@ join_ring_main() {
     skip*) echo "RING-SKIPPED docs-only: ${verdict#skip }"; return 0;;
   esac
   cd "$root"
-  "${JOIN_RING_TESTS:-tools/run-tests.sh}" || return $?
-  . tools/py-resolve.sh
-  py tools/check-test-costs.py
+  # tools/run-tests.sh runs tools/check-test-costs.py with the load it measured; a second call here had no load, so it
+  # printed every rule as a COST-MISS and added nothing (docs/proof/rdh/readiness.md).
+  "${JOIN_RING_TESTS:-tools/run-tests.sh}"
 }
 
 join_ring_self_test() {

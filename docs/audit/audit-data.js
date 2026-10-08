@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T01:13:56Z",
+  "generated": "2026-10-08T02:02:37Z",
   "audit": [
     {
       "actor": null,
@@ -29738,6 +29738,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T01:12:57Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M4CKZ38MPH0SVZWYH9X90YFX",
+      "shortname": "trk-rdh",
+      "datetime": "2026-10-08T02:02:37Z",
+      "session": "trk-rdh",
+      "prompt": "trk-rdh round-oct06",
+      "summary": "join-ring.sh duplicate check-test-costs call removed, guard now requires it in run-tests.sh; readiness build+concurrent --no-build suites 201.9 s to 139.9 s, equal PASS counts; python gates kept separate (variant B 79 s trips SectionReleaseFreeze miss 3/3)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Remove the join's duplicate cost check and cut readiness time without changing coverage",
+      "done_when": "guard red-first then green, 3+3 readiness runs measured, decision committed, run-tests green, check-docs 0",
+      "started_at": "2026-10-08T01:30:02Z",
+      "duration_seconds": 1955.0
     }
   ],
   "changes": [

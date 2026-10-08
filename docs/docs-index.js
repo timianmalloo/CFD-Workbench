@@ -5825,7 +5825,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4d23dbbd381bb76faf2ae6e042584c6588cf4bd53c4b85655bbd8d00c0e910c2"
+      "sourceSha256": "3c31f9d46833bc326222b7c30a0a37600255b6926761c438b239b8c762f7037e"
     },
     {
       "id": "plan-tip-handling",
@@ -12658,6 +12658,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "e86a4c9b8b64650cf467324af8b9e0695383b7adfb662f3c4dbaec35f7535c38"
     },
     {
+      "id": "proof-rdh-readiness",
+      "path": "docs/proof/rdh/readiness.md",
+      "title": "RDH: readiness headroom and the join's duplicate cost check",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rdh",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Item 1: join-ring.sh's second check-test-costs call was a weaker duplicate and is removed; the Ruling 89 guard now requires run-tests.sh to run it. Item 2: one Release build then the three --readiness suites as one concurrent group takes readiness from 201-203 s to 137-143 s with equal PASS counts; merging the python gates in as well (79 s) trips an advisory Desktop freeze miss and was not shipped.",
+      "tags": [
+        "readiness",
+        "test-cost",
+        "ring",
+        "concurrency"
+      ],
+      "links": [
+        {
+          "to": "plan-test-cost",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fdffef30f42adec678cc737705869d8064d0b3e7fb56b42f7984ce105fdf4426"
+    },
+    {
       "id": "proof-readyfix2",
       "path": "docs/proof/readyfix2.md",
       "title": "READYFIX2 — Core fixture cwd-relative paths and the Plan-canvas theme key set",
@@ -16311,5 +16337,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c4fc2745f8a1e42636dcec6626373702cb616025ff1f08619eae4656c08c7d9d"
+  "graphSha256": "4655a621f018aa84824a7f1c2d606bfc877be20898b73517079b95cc426b15ed"
 };
