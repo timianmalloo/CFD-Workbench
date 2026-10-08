@@ -91,11 +91,7 @@ public static class PropertiesCellsTests
             }
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
-    }
 
-    public static void Run()
-    {
-        GestureLimitTests.RunPane();
         Pane("PropertiesPane_B_EditableValueHasDottedUnderline", (controller, host, window) =>
         {
             // CL-3, SC 1.4.1: an editable value carries a dotted underline under its text, measured on pixels at 1× and 2×
@@ -142,6 +138,36 @@ public static class PropertiesCellsTests
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
 
+        Pane("PropertiesPane_B_KindIsEnum_CommitRulesMatchType", (controller, host, window) =>
+        {
+            // DR-CELL-2: Tangent kind is a ▾ enum with Type's rules — arrows stage, Esc keeps, Return applies, a pick applies.
+            var anchor = MakeAnchor(controller);
+            Select(controller, window, anchor);
+            var kind = Need<ComboBox>(host.Properties, "KindControl");
+            if (!kind.Classes.Contains("prop-b") || host.Properties.GetVisualDescendants().OfType<RadioButton>().Any())
+                throw new InvalidOperationException("Tangent kind is not the B enum");
+            string source = controller.AcceptedSource;
+            kind.Focus();
+            Key(kind, Avalonia.Input.Key.Down);
+            Key(kind, Avalonia.Input.Key.Escape);
+            Settle(window);
+            if (controller.AcceptedSource != source || Selected(kind) != anchor.Kind.ToString() || Need<TextBlock>(host.Properties, "Message_t_kind").IsEffectivelyVisible)
+                throw new InvalidOperationException($"Esc did not keep {anchor.Kind}: shows {Selected(kind)}");
+            Key(kind, Avalonia.Input.Key.Down);
+            Key(kind, Avalonia.Input.Key.Enter);
+            WaitIdle(controller, window);
+            var afterReturn = Reload(controller, anchor).Kind;
+            if (afterReturn == anchor.Kind) throw new InvalidOperationException("Return did not apply the staged kind");
+            kind.IsDropDownOpen = true;
+            kind.SelectedIndex = 2;
+            kind.IsDropDownOpen = false;
+            WaitIdle(controller, window);
+            if (Reload(controller, anchor).Kind != TangentKind.Corner) throw new InvalidOperationException("a pick did not apply Corner");
+            controller.Undo();
+            Settle(window);
+            if (Reload(controller, anchor).Kind != afterReturn) throw new InvalidOperationException("the pick was not one undo row");
+        });
+
         Pane("PropertiesPane_B_EditCueContrastAtLeast3InThreeThemes", (controller, host, window) =>
         {
             // SC 1.4.11 / 1.4.3: the underline (accent) and the ▾ (muted) are ≥ 3:1 on the surface, the enum text ≥ 4.5:1,
@@ -170,69 +196,6 @@ public static class PropertiesCellsTests
             }
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
-
-        Pane("PropertiesPane_B_FocusedValueShowsBox", (controller, host, window) =>
-        {
-            // SC 2.4.7: at rest no box; focused by Tab or by pointer, a 20 px box with a 1 px accent boundary, the text in
-            // ink and no underline. The enum shows the same box.
-            Select(controller, window, PropertiesViewTests.Control(controller, "trailing"));
-            var aft = Need<TextBox>(host.Properties, "PointAftInput");
-            var box = Part<Border>(aft, "PART_BorderElement");
-            var cue = aft.GetVisualDescendants().OfType<PropertiesPane.EditCue>().Single();
-            var primary = Resolved(window, "PrimaryBrush");
-            var ink = Resolved(window, "InkBrush");
-            var failures = new List<string>();
-            if (Paint(box.BorderBrush).A != 0 || !cue.IsVisible || Paint(Presenter(aft).Foreground) != primary)
-                failures.Add("at rest: a box is drawn, or no underline, or the text is not the accent");
-            foreach (var method in new[] { NavigationMethod.Tab, NavigationMethod.Pointer })
-            {
-                Need<TextBox>(host.Properties, "PointSpanInput").Focus();
-                aft.Focus(method);
-                Settle(window);
-                Console.WriteLine(FormattableString.Invariant($"MEASURE focus box ({method}) {box.Bounds.Width:0.#} × {box.Bounds.Height:0.#}, band {aft.Bounds.Height:0.#}"));
-                if (Paint(box.BorderBrush) != primary || box.BorderThickness != new Thickness(1) || Math.Abs(box.Bounds.Height - 20) > 0.5 ||
-                    cue.IsVisible || Paint(Presenter(aft).Foreground) != ink)
-                    failures.Add($"{method}: box {Paint(box.BorderBrush)} {box.BorderThickness} h {box.Bounds.Height}, underline {cue.IsVisible}");
-            }
-            var type = Need<ComboBox>(host.Properties, "TypeControl");
-            var typeBox = Part<Border>(type, "Background");
-            if (Paint(typeBox.BorderBrush).A != 0) failures.Add("the Type box is drawn at rest");
-            type.Focus(NavigationMethod.Tab);
-            Settle(window);
-            if (Paint(typeBox.BorderBrush) != primary || Math.Abs(typeBox.Bounds.Height - 20) > 0.5)
-                failures.Add($"Type focused: {Paint(typeBox.BorderBrush)} h {typeBox.Bounds.Height}");
-            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
-        });
-
-        DesktopChecks.Check("Plan_TabFromSelectedPoint_GoesToPropertiesFirstValue", () =>
-            ClickedPoint((window, host, canvas, clicked) =>
-            {
-                // DR-NAV-1: after a pointer click on a point, one Tab leaves the Plan and lands on the first Properties value
-                // (Type), with nothing in between: no later Plan target, no dock tab. The selection is unchanged.
-                var failures = new List<string>();
-                if (!canvas.IsFocused) failures.Add("the click did not focus the Plan");
-                PressTab(window);
-                var focused = window.FocusManager!.GetFocusedElement();
-                if (focused is not Control { Name: "TypeControl" } type || !host.Properties.IsVisualAncestorOf(type))
-                    failures.Add($"first Tab went to {(focused as Control)?.Name ?? focused?.GetType().Name ?? "none"}, not the Properties Type value");
-                if (host.Controller.Selection is not Selection.Points { Items: [var kept] } || kept.VertexId != clicked.Id)
-                    failures.Add("Tab changed the selection");
-                if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
-            }));
-
-        DesktopChecks.Check("Properties_ShiftTabFromFirstValue_ReturnsToSelectedPoint", () =>
-            ClickedPoint((window, host, canvas, clicked) =>
-            {
-                // DR-NAV-1: Shift+Tab from the pane's first value is the way back: the Plan, focused on the selected point.
-                PressTab(window);
-                if (window.FocusManager!.GetFocusedElement() is not Control { Name: "TypeControl" })
-                    throw new InvalidOperationException("setup: Tab did not reach the Type value");
-                PressTab(window, shift: true);
-                var failures = new List<string>();
-                if (!canvas.IsFocused) failures.Add("Shift+Tab did not return to the Plan: " + window.FocusManager!.GetFocusedElement()?.GetType().Name);
-                if (canvas.FocusedTarget?.VertexId != clicked.Id) failures.Add($"returned to {canvas.FocusedTarget?.VertexId ?? "no point"}, not the selected point");
-                if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
-            }));
 
         DesktopChecks.Check("PropertiesPane_B_TabFromClickedPoint_ReachesValuesInOrder", () =>
             ClickedPoint((window, host, canvas, clicked) =>
@@ -300,6 +263,53 @@ public static class PropertiesCellsTests
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
 
+        Pane("PropertiesPane_B_FocusedValueShowsBox", (controller, host, window) =>
+        {
+            // SC 2.4.7: at rest no box; focused by Tab or by pointer, a 20 px box with a 1 px accent boundary, the text in
+            // ink and no underline. The enum shows the same box.
+            Select(controller, window, PropertiesViewTests.Control(controller, "trailing"));
+            var aft = Need<TextBox>(host.Properties, "PointAftInput");
+            var box = Part<Border>(aft, "PART_BorderElement");
+            var cue = aft.GetVisualDescendants().OfType<PropertiesPane.EditCue>().Single();
+            var primary = Resolved(window, "PrimaryBrush");
+            var ink = Resolved(window, "InkBrush");
+            var failures = new List<string>();
+            if (Paint(box.BorderBrush).A != 0 || !cue.IsVisible || Paint(Presenter(aft).Foreground) != primary)
+                failures.Add("at rest: a box is drawn, or no underline, or the text is not the accent");
+            foreach (var method in new[] { NavigationMethod.Tab, NavigationMethod.Pointer })
+            {
+                Need<TextBox>(host.Properties, "PointSpanInput").Focus();
+                aft.Focus(method);
+                Settle(window);
+                Console.WriteLine(FormattableString.Invariant($"MEASURE focus box ({method}) {box.Bounds.Width:0.#} × {box.Bounds.Height:0.#}, band {aft.Bounds.Height:0.#}"));
+                if (Paint(box.BorderBrush) != primary || box.BorderThickness != new Thickness(1) || Math.Abs(box.Bounds.Height - 20) > 0.5 ||
+                    cue.IsVisible || Paint(Presenter(aft).Foreground) != ink)
+                    failures.Add($"{method}: box {Paint(box.BorderBrush)} {box.BorderThickness} h {box.Bounds.Height}, underline {cue.IsVisible}");
+            }
+            var type = Need<ComboBox>(host.Properties, "TypeControl");
+            var typeBox = Part<Border>(type, "Background");
+            if (Paint(typeBox.BorderBrush).A != 0) failures.Add("the Type box is drawn at rest");
+            type.Focus(NavigationMethod.Tab);
+            Settle(window);
+            if (Paint(typeBox.BorderBrush) != primary || Math.Abs(typeBox.Bounds.Height - 20) > 0.5)
+                failures.Add($"Type focused: {Paint(typeBox.BorderBrush)} h {typeBox.Bounds.Height}");
+            if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+        });
+
+        DesktopChecks.Check("Properties_ShiftTabFromFirstValue_ReturnsToSelectedPoint", () =>
+            ClickedPoint((window, host, canvas, clicked) =>
+            {
+                // DR-NAV-1: Shift+Tab from the pane's first value is the way back: the Plan, focused on the selected point.
+                PressTab(window);
+                if (window.FocusManager!.GetFocusedElement() is not Control { Name: "TypeControl" })
+                    throw new InvalidOperationException("setup: Tab did not reach the Type value");
+                PressTab(window, shift: true);
+                var failures = new List<string>();
+                if (!canvas.IsFocused) failures.Add("Shift+Tab did not return to the Plan: " + window.FocusManager!.GetFocusedElement()?.GetType().Name);
+                if (canvas.FocusedTarget?.VertexId != clicked.Id) failures.Add($"returned to {canvas.FocusedTarget?.VertexId ?? "no point"}, not the selected point");
+                if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+            }));
+
         Pane("PropertiesPane_B_HelpShowsWhileFocused_AndIsDescription", (controller, host, window) =>
         {
             // B: help shows under a row while it has focus, and is always the editor's accessible description; the angle
@@ -324,6 +334,22 @@ public static class PropertiesCellsTests
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
 
+        DesktopChecks.Check("Plan_TabFromSelectedPoint_GoesToPropertiesFirstValue", () =>
+            ClickedPoint((window, host, canvas, clicked) =>
+            {
+                // DR-NAV-1: after a pointer click on a point, one Tab leaves the Plan and lands on the first Properties value
+                // (Type), with nothing in between: no later Plan target, no dock tab. The selection is unchanged.
+                var failures = new List<string>();
+                if (!canvas.IsFocused) failures.Add("the click did not focus the Plan");
+                PressTab(window);
+                var focused = window.FocusManager!.GetFocusedElement();
+                if (focused is not Control { Name: "TypeControl" } type || !host.Properties.IsVisualAncestorOf(type))
+                    failures.Add($"first Tab went to {(focused as Control)?.Name ?? focused?.GetType().Name ?? "none"}, not the Properties Type value");
+                if (host.Controller.Selection is not Selection.Points { Items: [var kept] } || kept.VertexId != clicked.Id)
+                    failures.Add("Tab changed the selection");
+                if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
+            }));
+
         Pane("PropertiesPane_B_PointGroupHoldsPositionAndTangent", (controller, host, window) =>
         {
             // DR-CELL-1: one "Point" twirl holds Type, From root, η, Aft and the tangent rows; there is no Tangent header.
@@ -341,35 +367,29 @@ public static class PropertiesCellsTests
             if (Need<ComboBox>(host.Properties, "KindControl").IsEffectivelyVisible) throw new InvalidOperationException("collapsing Point left the tangent rows");
         });
 
-        Pane("PropertiesPane_B_KindIsEnum_CommitRulesMatchType", (controller, host, window) =>
+        Pane("KindBox_DropDownOpen_ArrowsThenClose_OneUndoRow", (controller, host, window) =>
         {
-            // DR-CELL-2: Tangent kind is a ▾ enum with Type's rules — arrows stage, Esc keeps, Return applies, a pick applies.
+            // CB-3: in the open list, arrows then Return close it on the new kind as exactly one undo row.
             var anchor = MakeAnchor(controller);
             Select(controller, window, anchor);
-            var kind = Need<ComboBox>(host.Properties, "KindControl");
-            if (!kind.Classes.Contains("prop-b") || host.Properties.GetVisualDescendants().OfType<RadioButton>().Any())
-                throw new InvalidOperationException("Tangent kind is not the B enum");
             string source = controller.AcceptedSource;
-            kind.Focus();
-            Key(kind, Avalonia.Input.Key.Down);
-            Key(kind, Avalonia.Input.Key.Escape);
-            Settle(window);
-            if (controller.AcceptedSource != source || Selected(kind) != anchor.Kind.ToString() || Need<TextBlock>(host.Properties, "Message_t_kind").IsEffectivelyVisible)
-                throw new InvalidOperationException($"Esc did not keep {anchor.Kind}: shows {Selected(kind)}");
-            Key(kind, Avalonia.Input.Key.Down);
-            Key(kind, Avalonia.Input.Key.Enter);
+            var kind = OpenKind(host, window);
+            string target = ArrowInList(kind, window);
+            var item = kind.GetVisualDescendants().OfType<Popup>().First().Child!.GetVisualDescendants().OfType<ComboBoxItem>().First(entry => entry.IsFocused);
+            Key(item, Avalonia.Input.Key.Enter);   // Return on the focused item in the open list
             WaitIdle(controller, window);
-            var afterReturn = Reload(controller, anchor).Kind;
-            if (afterReturn == anchor.Kind) throw new InvalidOperationException("Return did not apply the staged kind");
-            kind.IsDropDownOpen = true;
-            kind.SelectedIndex = 2;
-            kind.IsDropDownOpen = false;
-            WaitIdle(controller, window);
-            if (Reload(controller, anchor).Kind != TangentKind.Corner) throw new InvalidOperationException("a pick did not apply Corner");
+            if (kind.IsDropDownOpen || Reload(controller, anchor).Kind.ToString() != target)
+                throw new InvalidOperationException($"after closing: open {kind.IsDropDownOpen}, kind {Reload(controller, anchor).Kind}, wanted {target}");
             controller.Undo();
             Settle(window);
-            if (Reload(controller, anchor).Kind != afterReturn) throw new InvalidOperationException("the pick was not one undo row");
+            if (controller.AcceptedSource != source || Reload(controller, anchor).Kind != anchor.Kind)
+                throw new InvalidOperationException("closing on a new kind was not exactly one undo row");
         });
+    }
+
+    public static void Run()
+    {
+        GestureLimitTests.RunPane();
 
         Pane("PropertiesPane_B_RowPitch20_24", (controller, host, window) =>
         {
@@ -446,25 +466,6 @@ public static class PropertiesCellsTests
             WaitIdle(controller, window);
             if (kind.IsDropDownOpen || controller.AcceptedSource != source || Reload(controller, anchor).Kind != anchor.Kind || Selected(kind) != anchor.Kind.ToString())
                 throw new InvalidOperationException($"after Esc: open {kind.IsDropDownOpen}, kind {Reload(controller, anchor).Kind}, shows {Selected(kind)}");
-        });
-
-        Pane("KindBox_DropDownOpen_ArrowsThenClose_OneUndoRow", (controller, host, window) =>
-        {
-            // CB-3: in the open list, arrows then Return close it on the new kind as exactly one undo row.
-            var anchor = MakeAnchor(controller);
-            Select(controller, window, anchor);
-            string source = controller.AcceptedSource;
-            var kind = OpenKind(host, window);
-            string target = ArrowInList(kind, window);
-            var item = kind.GetVisualDescendants().OfType<Popup>().First().Child!.GetVisualDescendants().OfType<ComboBoxItem>().First(entry => entry.IsFocused);
-            Key(item, Avalonia.Input.Key.Enter);   // Return on the focused item in the open list
-            WaitIdle(controller, window);
-            if (kind.IsDropDownOpen || Reload(controller, anchor).Kind.ToString() != target)
-                throw new InvalidOperationException($"after closing: open {kind.IsDropDownOpen}, kind {Reload(controller, anchor).Kind}, wanted {target}");
-            controller.Undo();
-            Settle(window);
-            if (controller.AcceptedSource != source || Reload(controller, anchor).Kind != anchor.Kind)
-                throw new InvalidOperationException("closing on a new kind was not exactly one undo row");
         });
 
         Pane("PropertiesPane_B_PendingDropIsAnnounced_PendingHelpTextNamesKeys", (controller, host, window) =>

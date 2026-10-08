@@ -1,0 +1,2 @@
+{"agent": "trk-fss", "at": 1791470917.633098, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-fss", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-section-editor-surface-settle"}
+{"agent": "trk-fss", "at": 1791472271.262024, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-fss", "wi": "WI-0", "worktree": "CFD-Workbench-fix-section-editor-surface-settle"}

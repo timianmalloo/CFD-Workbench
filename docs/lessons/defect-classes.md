@@ -1744,6 +1744,8 @@ and decide on the READINESS-MISS gate from that text, not from the count.
 
 *Investigation (trk-flk, 2026-10-08), `docs/proof/flk/investigation.md`.* No failure in about 90 runs up to load 157 (alone at 64 hogs, part 2/2 at 100 hogs, 8 concurrent suites); CPU starvation is not supported by the data (the field failures were at load 8 to 17.6). The stale-step hypothesis was refuted with a forced late step; the surface-projection one is untested because the fixture probably never asks for a surface. The cause is unknown. Control (added, test-side): both counting checks (`SectionEditor_DragMove_DrawsWithinOneFrame`, `SectionEditor_NudgeRun_NoShellRefreshPerKey`) use `NotifyProbe`, which puts the event, draft generation, `CheckAccess()` and the notifier's stack into the FAIL line; "notified" and "applied a step" are separate messages. Red first (`docs/proof/flk/red-first.md`): a planted `Select` post between moves fails the check and the stack names `PlantedSelectPost`. The next real failure in any ring names its notifier; decide the fix (product guard, fixture drain, or oracle) from that line. Class stays open.
 
+*Root cause (trk-fss, 2026-10-08), `docs/proof/fss/red-first.md`.* Two field failures (run 1a at load 14; the RGM join ring at start load 2.3) named the notifier: `WorkbenchController.CompleteSurface` (`:888`) called `Notify` from `RunSurfaceAsync`'s continuation while `Fixture.Move` pumped the dispatcher. The mesh job was queued by `Fixture.Reset` (section entry), before `Press`: a test-isolation defect, not a product one. **"Load" was only the amplifier**; the cause is an in-flight background completion inside a measured window. Control (added, test-side): `Fixture.SettleSurface()` before the window in both `NotifyProbe` checks, plus `SectionEditor_DragMove_HeldSurfaceDrainedBeforeThePress`, which holds the mesh seam so the completion lands between two moves. Red first: without the drain it fails with the field stack (`CompleteSurface` <- `RunSurfaceAsync` <- `Fixture.Move`, Move 2); with it, it passes, no load needed. Frequency: 0 of 12 before, 0 of 12 after at load 2 to 4, so the rate is below 1 in 12 and the deterministic check is the proof. Class generalised: **a check that counts notifications (or applied steps) over a window drains background work first.** Sweep: only the two `NotifyProbe` sites assert a zero count on a shared fixture; the `ControllerViewTests` counters have no wanted surface or gate their own. Proposed, not done: a guard in `tools/check-docs.py` that fails a test file with a `NotifyProbe` or a `Changed +=` counter and no `Settle`/drain call in the same check; cost is a regex pass, false positives are likely (handlers that wait on an event), so propose it to the operator before building. Class closed on the cause; the `READINESS-MISS` gate question is withdrawn (no timing oracle was involved).
+
 **JOIN-CHECK-BEFORE-REGEN · The join checks the tree before it pays the regeneration the merge driver deferred.**
 After `coord install` bound `docs/docs-index.js` to `merge=coord-regen` (commit `90cf9f94`), the POL and CI joins
 both stopped at step 4 with `validate: 1 index-drift item(s)` (CI: `file not in index:
@@ -1848,6 +1850,19 @@ the Coordinator runs `trace-brief.py` on any brief whose track reads data it doe
 **RING-AT-BUDGET (capacity, not a defect).** The fast ring's net time (C-3, limit 50.0 s) rose from about 47 s to about
 49.5 s in one round across 5 joins, and 11 checks moved to readiness to fit. Measured series, options and costs:
 `docs/proof/round-oct06-lessons/ring-at-budget.md`. The operator decides.
+
+Third instance (2026-10-08, Ruling 143, `docs/proof/ring-oct08/moves.md`): after the TCV join the net was 47.5 s on a quiet
+machine and 50.6 s under load (C-3 red), Analysis parts 4.9 s against C-2's 5 s. 24 checks moved to readiness (19 Desktop, 5
+Analysis); net 43.2-43.9 s, Analysis 3.8-4.2 s, PASS union unchanged (1811), readiness 137.7 s to 141.6 s. Two findings. First,
+moving 22 Desktop checks (about 35 s of COST) cut the Desktop wall by only 2-3 s; re-ordering the spawn list (`--analysis`, 17 s,
+was last and set the wall) cut about 4 s more. A check's COST is not its share of the wall, so the first move is the spawn order,
+and only then the check. Second, a check can be a gate's evidence (ThemeMatrix feeds `verify-application-adapters.py`): moving
+it needed its own mode, not a silent removal.
+What would stop a fourth (proposal only, no control built): (1) a join-time headroom gate that fails when the net is within
+2 s of C-3 or an Analysis part within 0.4 s of C-2 at end load <= 24, so the move happens one join early and not at the cap;
+(2) `check-test-costs.py` flags a spawn list whose last-started suite is longer than the median suite (the order rule, now prose
+in `WorkbenchTests.cs`, becomes a check); (3) AGENTS.md already says a new check states its ring and cost, but nothing reads that
+statement, so a lint that a new `Check(` in a fast-ring `Run` carries a ring comment would only add ceremony; do not build it.
 
 **MOCKUP-STATE-UNBUILT · An operator-approved mockup state was never built, and the build passed its named checks and the capture review.**
 Instance: DX state 5 (`docs/design/dx-screen-states.md` row 5, "Section view with Cp on the profile, vik pinned at 0, Cp_min marker")
