@@ -14067,6 +14067,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "9eadaee45e837755d74b4a2b2444a7f426ab118b7d2c53526e615c858a17f992"
     },
     {
+      "id": "proof-stc-red-first",
+      "path": "docs/proof/stc/red-first.md",
+      "title": "STC red-first receipts (Ruling 147)",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@timianmalloo",
+      "phase": "implement",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "The Stations table caption (COPY-411): the checks that failed to build on the old code, the runs that pass after the change, and the captures.",
+      "tags": [
+        "stc",
+        "red-first",
+        "ruling-147"
+      ],
+      "links": [
+        {
+          "to": "proof-sma-red-first",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0cfb7259acd6f591846e019f74c2ffdcfe8efe13af8ba1b37545c7bd07a72715"
+    },
+    {
       "id": "proof-stl-red-first",
       "path": "docs/proof/stl/red-first.md",
       "title": "STL red-first receipt",
@@ -16822,5 +16847,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "2681a468c2f490ce81550ced3355cdd164715515df380c53d01e389aeccec0f1"
+  "graphSha256": "9cc6f238803f3cbdb4891b6e500def6f75026736cc7bc35a1ae22be2fa8dac8f"
 };

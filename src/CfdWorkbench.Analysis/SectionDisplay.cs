@@ -34,7 +34,7 @@ public sealed record ChartModel(string Id, string Title, IReadOnlyList<ChartPlot
 /// <summary>The Section tab content for one shown station (DXM-9): tables and the four charts of one chart selector (DXM-4).</summary>
 public sealed record SectionView(double Eta, bool IsGoverning, string StationName, IReadOnlyList<ResultGroup> Groups,
     IReadOnlyList<ChartModel> Charts, int UnderreadSolves, IReadOnlyList<StationTableRow>? StationTable = null,
-    SectionProfile? Profile = null);
+    SectionProfile? Profile = null, string? StationsCaption = null);
 
 /// <summary>
 /// The Section view's profile (approved mockup, DX state 5): the closed outline as panel points in order (upper TE to LE, then
@@ -146,7 +146,7 @@ public static class SectionDisplay
         screen.Add(R(Labels.VcritLabel, cav.CriticalSpeed is { } vc ? N(Labels.Speed(vc, units), "0.##") : none, cav.CriticalSpeed is null ? null : Labels.SpeedUnit(units)));
         screen.Add(R("Margin", N(100 * cav.MarginFraction, "0.#"), "%", Labels.MarginLabel));
         if (cav.GoverningDepth is { } depth && tier.Stations.Count > 0)
-            screen.Add(R("Governing station", Labels.StationCavitationLine(tier.GoverningEta, depth, tier.Stations.Count - tier.TipNotJudgedCount)));
+            screen.Add(R("Governing station", Labels.StationCavitationLine(tier.GoverningEta, depth, tier.JudgedCount)));
         screen.Add(R("Screen", cav.ScreenText));
         groups.Add(new("Cavitation", screen));
 
@@ -215,7 +215,8 @@ public static class SectionDisplay
                 s.TipNotJudged ? Labels.TipNotJudged : N(-s.Estimate.Panel.CpMin, "0.###"),
                 s.TipNotJudged ? Labels.TipNotJudged : CavitationWord(s.Cavitation.State), s.Eta == station.Eta,
                 s.PanelUnderread is null ? Labels.UnderreadNotMeasured : null)).ToArray();
-        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units, forces) with { ForcesNotJudged = tipNotJudged ? Labels.TipNotJudged : null });
+        return new(station.Eta, isGoverning, name, groups, charts, solves, table, Profile(station, units, forces) with { ForcesNotJudged = tipNotJudged ? Labels.TipNotJudged : null },
+            Labels.StationsShown(table.Length, tier.JudgedCount)); // Ruling 147
     }
 
     // The leading word of the approved cavitation sentences (COPY-301 to COPY-303): "Clear", "Inside the margin", "Possible".
