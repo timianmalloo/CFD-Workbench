@@ -1,0 +1,17 @@
+NATIVE-ENV os=10.0.26300.0 arch=X64 filesystem=NTFS
+PASS WindowsNative_Environment_RealNtfsX64
+LAYOUT UnicodeString size=16 Length=0 MaximumLength=2 Buffer=8
+LAYOUT ObjectAttributes size=48 Length=0 RootDirectory=8 ObjectName=16 Attributes=24 SecurityDescriptor=32 SecurityQualityOfService=40
+LAYOUT IoStatusBlock size=16 Status=0 Information=8
+LAYOUT FileId128 size=16 Low=0 High=8
+LAYOUT FileId size=24 VolumeSerialNumber=0 Id=8
+LAYOUT RenameHeader size=24 Flags=0 RootDirectory=8 FileNameLength=16 FirstCharacter=20
+LAYOUT Disposition size=4 Flags=0
+PASS WindowsNative_Layouts_SdkX64
+FAIL WindowsNative_RelativeCreate_PrivateAclBeforeAnyBytes InvalidOperationException: Expected O:S-1-5-21-<machine>-<RID>D:P(A;;FA;;;S-1-5-21-<machine>-<RID>); actual O:S-1-5-21-<machine>-<RID>D:AI(A;ID;0x1200a9;;;S-1-5-21-<machine>-<RID>)(A;ID;FA;;;SY)(A;ID;FA;;;BA)(A;ID;FA;;;S-1-5-21-<machine>-<RID>)
+FAIL WindowsNative_Replace_HeldReaderKeepsOldImage NativeFailure: NTSTATUS=not recorded; Win32=87: The parameter is incorrect.
+FAIL WindowsNative_ClaimDispose_HeldObserverNamespaceRemoved InvalidOperationException: Expected False; actual True
+FAIL WindowsNative_CreateOnly_CollisionPreservesBothObjects InvalidOperationException: Expected True; actual False
+PASS WindowsNative_RelativeName_TraversalRefusedBeforeCreate
+RESULT failures=4
+SUBSET CFD_TEST_ONLY=WindowsNative_ ran=7 skipped=687
