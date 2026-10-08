@@ -6708,6 +6708,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "4745ac3038ff75be834f7e51c628e476fcc7cfd50d33ed92b652239fa69f4d28"
     },
     {
+      "id": "review-pr-14",
+      "path": "docs/reviews/pr-14.md",
+      "title": "PR #14 (Windows PC) - W-5 activated cfMesh availability probe, PRESENT (Ruling 164), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 164). Ruling 102 step 1 is answered: the activated OpenFOAM v2512 environment resolves cartesianMesh, -help exits 0 with the usage banner (build _bd2b6720-20260127), and dpkg reports openfoam2512 2512.0-2. The committed LF script meets every Ruling 153 requirement. Outcome (c) PRESENT is accepted; the S4/S6 coupon is not released.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-5",
+        "cfmesh",
+        "openfoam"
+      ],
+      "links": [
+        {
+          "to": "review-pr-11",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-cfmesh",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "dd3f93e71ac75ab9f2904672c2c835fef59a8fb76d13a8c9d3143ac93a3bfa72"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7676,7 +7709,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "35a6c39cbe383882051ba90c80a8ebf49e6c7da0c4e0eb1a4f62e72387296974"
+      "sourceSha256": "8d08d0b0caa32c259ed2c5ae2f79e402004d08e9276814b8c74447b07d491f00"
     },
     {
       "id": "kb-hw-glossary",
@@ -17456,5 +17489,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "53a9decc83dc1a0ae764719ea87ffcfa5b1ba3c2234c32ded7b5e3dbdb7127ce"
+  "graphSha256": "c196eacb95f4fe379bc4e6b01ec957ffd7f4f6beddf3cd88b8f03805b3ab6685"
 };
