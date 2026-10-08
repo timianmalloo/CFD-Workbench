@@ -2157,7 +2157,7 @@ public sealed class WorkbenchController : IDisposable
             {
                 string copy = assessment.Status == GeometryStatus.NotAssessed
                     ? "This change couldn't be checked, so it wasn't applied. Nothing changed."
-                    : $"{assessment.Code}: This change wasn't applied. Nothing changed.";
+                    : Labels.Refusal(assessment.Code);
                 outcome = new GestureOutcome.Refused(assessment.Code, copy);
             }
             else
@@ -2173,7 +2173,7 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (ContractError error)
         {
-            outcome = new GestureOutcome.Refused(error.Code, $"{error.Code}: This change wasn't applied. Nothing changed.");
+            outcome = new GestureOutcome.Refused(error.Code, Labels.Refusal(error.Code));
         }
         finally
         {
@@ -2413,7 +2413,7 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (ContractError error)
         {
-            string reason = error.Reason ?? $"{error.Code}: This change wasn't applied. Nothing changed.";
+            string reason = error.Reason ?? Labels.Refusal(error.Code);
             SetStatus(reason, warningOnRefusal ? ReportKind.Warning : ReportKind.Error);
             Notify();
             return new CommitOutcome.Refused(error.Code, reason);
@@ -2653,7 +2653,7 @@ public sealed class WorkbenchController : IDisposable
                 ClearPendingImport();
                 PendingOriginal = bytes.ToArray();
                 PendingProjection = parsed.Authored();
-                SetStatus($"{code}: Refused. Original source retained read-only.", ReportKind.Error);
+                SetStatus(Labels.Refusal(code), ReportKind.Error);
                 Provenance = Inspection is null ? "unavailable geometry" : "accepted — import refused";
                 Notify();
                 return new OpenOutcome.Refused(code, bytes);
@@ -2680,7 +2680,7 @@ public sealed class WorkbenchController : IDisposable
                 ClearPendingImport();
                 PendingOriginal = bytes.ToArray();
                 PendingProjection = parsed.Authored();
-                SetStatus($"{assessment.Code}: Refused. Original source retained read-only.", ReportKind.Error);
+                SetStatus(Labels.Refusal(assessment.Code), ReportKind.Error);
                 Provenance = Inspection is null ? "unavailable geometry" : "accepted — import refused";
                 Notify();
                 return new OpenOutcome.Refused(assessment.Code, bytes);
@@ -2738,7 +2738,7 @@ public sealed class WorkbenchController : IDisposable
             PendingOriginal = bytes.ToArray();
             PendingProjection = parsed.Authored();
             Status = parsed.Diagnostics.FirstOrDefault() is { } diagnostic
-                ? $"{diagnostic.Code}: {diagnostic.Reason} {diagnostic.Recovery}"
+                ? $"{Labels.Refusal(diagnostic.Code)} {diagnostic.Reason} {diagnostic.Recovery}"
                 : "Source rejected. Accepted geometry is unavailable.";
             Provenance = Inspection is null ? "invalid source" : "accepted — import refused";
             Notify();
@@ -2975,7 +2975,7 @@ public sealed class WorkbenchController : IDisposable
                     uncertainAcceptedId = capturedView.AcceptedId;
                 }
                 SetStatus(uncertainImage is null ? Labels.SaveRefusal(result.Code)
-                    : $"{result.Code}: Save was not acknowledged. The attempted path and image are retained for a durable retry.",
+                    : Labels.SaveUncertain, // COPY-421
                     result.Code == "DOC-UNSUPPORTED-PERSISTENCE" ? ReportKind.Warning : ReportKind.Error);
             }
             Notify();

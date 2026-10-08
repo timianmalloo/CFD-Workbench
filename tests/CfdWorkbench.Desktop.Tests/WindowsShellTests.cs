@@ -243,7 +243,7 @@ public static class WindowsShellTests
                 var thrown = Save(window, "foil.txt");
                 Settle(window);
                 string shown = StatusStripTests.Text(host).Text ?? "";
-                if (thrown?.Code != "DOC-TYPE" || shown != "Save failed: DOC-TYPE — the previous file is intact and your changes are kept. Retry or Save As." || StatusStripTests.Kind(host) != "error")
+                if (thrown?.Code != "DOC-TYPE" || shown != "Save failed: the file name must end in .cfdw.json (DOC-TYPE) — the previous file is intact and your changes are kept. Choose another name." || StatusStripTests.Kind(host) != "error")
                     throw new InvalidOperationException($"A thrown save showed '{shown}' (kind {StatusStripTests.Kind(host)}); threw {thrown?.Code}");
                 // A relative path is what Windows hands the POSIX-only store (a drive path does not start with '/'; Supported()
                 // also needs macOS): the store returns DOC-UNSUPPORTED-PERSISTENCE and the controller's own status reaches the strip.
@@ -261,7 +261,7 @@ public static class WindowsShellTests
             string unsupported = MainWindow.SaveFailureText(new ContractError("DOC-UNSUPPORTED-PERSISTENCE"));
             string io = MainWindow.SaveFailureText(new IOException("disk"));
             if (unsupported != "Saving isn't available on this system yet — your changes are kept in this session." ||
-                io != "Save failed: DOC-IO — the previous file is intact and your changes are kept. Retry or Save As.")
+                io != "Save failed: the disk couldn't be written (DOC-IO) — the previous file is intact and your changes are kept. Retry or Save As.")
                 throw new InvalidOperationException($"'{unsupported}' / '{io}'");
         });
 

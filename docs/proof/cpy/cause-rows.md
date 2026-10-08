@@ -2,7 +2,7 @@
 id: proof-cpy-cause-rows
 title: "Track CPY, Ruling 148 - proposed plain-cause rows for DOC-/DSL- codes"
 type: doc
-status: draft
+status: done
 owner: "@trk-cpy"
 phase: design
 tags: [copy, ruling-148, save, open, error-copy]
@@ -11,10 +11,10 @@ links:
 review-by: 2027-04-01
 summary: >-
   Measured inventory of every DOC-/DSL- code src/ can throw or return, with the surface and today's text, and
-  proposed cause rows COPY-412 to COPY-430 for the operator to sign off (Ruling 148). Nothing here has shipped.
+  proposed cause rows COPY-412 to COPY-430 for the operator to sign off (Ruling 148). Approved as Ruling 155 and wired in Labels.cs (track CWR).
 ---
 
-# Ruling 148: proposed cause rows (all rows "proposed - awaiting operator (Ruling 148)")
+# Ruling 148: cause rows (all rows "approved - Ruling 155"; wired by track CWR)
 
 Branch `docs/cpy-cause-rows`, base main 08f9b5f1. Docs only. DESIGN.md, Labels.cs and OpenOutcome.cs are untouched.
 
@@ -84,7 +84,7 @@ Why the COPY-31 tail is true for the save-strip codes: in `ProjectStore.SaveAsyn
 DOC-SAVE-UNCERTAIN (`code = published ? "DOC-SAVE-UNCERTAIN" : error.Code`, ProjectStore:159-167, 212-218), so every other code means
 the target was not replaced. The unknown-code row (COPY-423) cannot lean on that and does not claim it.
 
-All rows: **proposed - awaiting operator (Ruling 148)**.
+All rows: **approved - Ruling 155** (operator).
 
 ### Save failures
 

@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f98d06c98a8ed7aada1ed72ddd4fbd9618748e0c64dbbf5d7bf22d8a347d0906"
+      "sourceSha256": "99151c3155a3de172281f53af8cd893c1690c4e2d996232c5674ad509d1df836"
     },
     {
       "id": "domain-experts",
@@ -5880,12 +5880,12 @@ window.DOCS_INDEX = {
       "path": "docs/proof/cpy/cause-rows.md",
       "title": "Track CPY, Ruling 148 - proposed plain-cause rows for DOC-/DSL- codes",
       "type": "doc",
-      "status": "draft",
+      "status": "done",
       "owner": "@trk-cpy",
       "phase": "design",
       "reviewBy": "2027-04-01",
       "reviewSuggested": [],
-      "summary": "Measured inventory of every DOC-/DSL- code src/ can throw or return, with the surface and today's text, and proposed cause rows COPY-412 to COPY-430 for the operator to sign off (Ruling 148). Nothing here has shipped.",
+      "summary": "Measured inventory of every DOC-/DSL- code src/ can throw or return, with the surface and today's text, and proposed cause rows COPY-412 to COPY-430 for the operator to sign off (Ruling 148). Approved as Ruling 155 and wired in Labels.cs (track CWR).",
       "tags": [
         "copy",
         "ruling-148",
@@ -5900,7 +5900,32 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e66e4aef8358bd08728ea64fc0b19bd7a11dd0983c077b1ef1b9ea63a99599bc"
+      "sourceSha256": "9e1cd981fd5a95d0216a7cfc399ce2c67117a4cfa59486551e89eb8fba3633fd"
+    },
+    {
+      "id": "proof-cwr-red-first",
+      "path": "docs/proof/cwr/red-first.md",
+      "title": "Track CWR - red-first record for the Ruling 155 plain-cause copy",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-cwr",
+      "phase": "build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the Labels cause rows COPY-412 to COPY-431, the open \"Code:\" line (COPY-424) and the raw-code control.",
+      "tags": [
+        "copy",
+        "ruling-155",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-cpy-cause-rows",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
     },
     {
       "id": "proof-win-cfmesh-probe",
@@ -16906,5 +16931,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d87ceabb100b67b90007f98eb3c6369c129e22c62c027828344840f90866feed"
+  "graphSha256": "be4c3ebb9d215a24be5cb3f92b558ed709903d6e340d60227be8f2f62fd70cdd"
 };
