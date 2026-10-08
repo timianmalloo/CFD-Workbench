@@ -392,6 +392,11 @@ public static class Labels
         };
     }
 
+    /// <summary>The status when drawing the accepted slice failed (COPY-439, Ruling 159). <paramref name="station"/> is the display name; none gives the sentence without it.</summary>
+    public static string DrawFailed(string? station, string code) => station is null
+        ? $"Couldn't draw this shape ({code}). The shape itself is unchanged." // COPY-439
+        : $"{station}: couldn't draw this shape ({code}). The shape itself is unchanged."; // COPY-439
+
     /// <summary>The second line under an open failure's approved sentence (COPY-424, Ruling 155).</summary>
     public static string OpenCodeLine(string code) => "Code: " + code; // COPY-424
     public static readonly string[] VectorKey = ["V∞", "Local inflow", "Lift", "Drag, profile (cap: Ncrit 2–4 band)", "Drag, induced", "Pitching-moment couple"]; // COPY-SF16

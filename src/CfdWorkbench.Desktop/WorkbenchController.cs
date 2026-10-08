@@ -3111,7 +3111,7 @@ public sealed class WorkbenchController : IDisposable
         }
         catch (OperationCanceledException) { }
         catch (ContractError error) when (error.Code == "GEOMETRY-CANCELLED") { }
-        catch (ContractError error) { Status = $"{SectionDraftPrefix()}{error.Code}: Geometry display unavailable; accepted source retained."; Notify(); }
+        catch (ContractError error) { Status = Labels.DrawFailed(DraftStationName(), error.Code); Notify(); }
         finally { if (ReferenceEquals(activeSampling, linked)) activeSampling = null; }
     }
 
@@ -3254,13 +3254,14 @@ public sealed class WorkbenchController : IDisposable
     }
 
     /// <summary>COPY-436 to 438 (Ruling 158): the plain status for a draft that is not certified, named by the station's display name when the draft is a section.</summary>
-    private string DraftUnavailableStatus(SessionAssessment assessment)
-    {
-        string? station = draft is { Profile: not null, Assignment: >= 0 } section && Inspection is { } inspection && section.Assignment < inspection.Authored.Assignments.Count
+    private string DraftUnavailableStatus(SessionAssessment assessment) =>
+        Labels.DraftUnavailable(assessment.Status, DraftStationName(), assessment.Code, string.Join(" ", assessment.Diagnostics.Select(item => item.Reason)));
+
+    /// <summary>The display name of the section draft's station, or null when the draft is not a section (Ruling 159).</summary>
+    private string? DraftStationName() =>
+        draft is { Profile: not null, Assignment: >= 0 } section && Inspection is { } inspection && section.Assignment < inspection.Authored.Assignments.Count
             ? ElevationView.StationName(section.Assignment, inspection.Authored.Assignments[section.Assignment].Eta)
             : null;
-        return Labels.DraftUnavailable(assessment.Status, station, assessment.Code, string.Join(" ", assessment.Diagnostics.Select(item => item.Reason)));
-    }
 
     private string SectionDraftPrefix() =>
         draft is { Profile: not null, Assignment: >= 0 } section ? $"Draft {section.Id} owns station {section.Assignment}. " : "";

@@ -45,3 +45,7 @@ Each check failed on main's `src/` (or without the new `Labels` API) and passes 
 
 Seam for the save-retry paths: the existing `WorkbenchController(Func<..., IProjectStore>)` store seam, with a `RetryStore` beside the older `UncertainStore` pattern. The OK case is a retry answering `OK` with `DurabilityConfirmed = false`.
 Not driven end to end: a section draft with a station name for each status (no existing seam produces an Invalid, Unsupported or NotAssessed section draft cheaply); that wording is proved at the `Labels` level.
+
+## Ruling 159 follow-up (COPY-439)
+
+Red: with the allow-list removed, the control regex matches `WorkbenchController.cs:3114` (`$"{SectionDraftPrefix()}{error.Code}: Geometry display unavailable; ...`), the only hit on the old code; `Labels_DrawFailed_Copy439_Ruling159_BothForms` failed to compile (CS0117, `Labels` has no `DrawFailed`). Green: both pass in the full ring (`all test harnesses passed`, 48 s).

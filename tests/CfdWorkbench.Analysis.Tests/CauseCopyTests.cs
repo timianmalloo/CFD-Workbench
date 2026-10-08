@@ -19,6 +19,14 @@ internal static class CauseCopyTests
         Check("Labels_SaveRetryRows_Ruling158_ExactText", SaveRetryExact);
         Check("Labels_SaveRetryNotConfirmed_OkCode_NeverPrintsOk_Ruling158", RetryOkNeverPrinted);
         Check("Labels_DraftUnavailable_Ruling158_ExactText", DraftUnavailableExact);
+        Check("Labels_DrawFailed_Copy439_Ruling159_BothForms", DrawFailedExact);
+    }
+
+    private static void DrawFailedExact()
+    {
+        Equal("Station 2: couldn't draw this shape (DSL-GEOMETRY). The shape itself is unchanged.", Labels.DrawFailed("Station 2", "DSL-GEOMETRY"));
+        Equal("Root: couldn't draw this shape (GEOMETRY-X). The shape itself is unchanged.", Labels.DrawFailed("Root", "GEOMETRY-X"));
+        Equal("Couldn't draw this shape (GEOMETRY-X). The shape itself is unchanged.", Labels.DrawFailed(null, "GEOMETRY-X"));
     }
 
     private const string KeptUnsaved = " Your changes are kept and still marked unsaved. ";
@@ -51,7 +59,7 @@ internal static class CauseCopyTests
     }
 
     /// <summary>Control (Ruling 158): no interpolated status in src/ leads with a code, <c>$"{x.Code}: ..."</c>, even after a draft prefix. The code belongs
-    /// inside "(code)" after a plain cause (Labels). One known site is listed: "Geometry display unavailable" has no ruled copy yet (reported, not fixed).
+    /// inside "(code)" after a plain cause (Labels). No exceptions (Ruling 159 retired the one listed site).
     /// Ring: Analysis fast, one scan of src/.</summary>
     private static void NoStatusLeadsWithCode()
     {
@@ -59,7 +67,7 @@ internal static class CauseCopyTests
         var found = new List<string>();
         foreach (string file in Directory.EnumerateFiles(Path.Combine(StripFixtureTests.RepoRoot(), "src"), "*.cs", SearchOption.AllDirectories))
             foreach (string line in File.ReadAllLines(file))
-                if (leading.IsMatch(line) && !line.Contains("Geometry display unavailable", StringComparison.Ordinal))
+                if (leading.IsMatch(line))
                     found.Add(Path.GetFileName(file) + ": " + line.Trim());
         if (found.Count > 0) throw new InvalidOperationException(found.Count + " status lines lead with a code, first: " + found[0]);
     }
