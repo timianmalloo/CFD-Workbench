@@ -148,26 +148,17 @@ public static class SectionEditorTests
             int cursor = fixture.Controller.Section!.Draft.Cursor;
             fixture.Key(Key.Up);
             Dispatcher.UIThread.RunJobs();
-            int changes = 0;
-            void Count() => changes++;
-            fixture.Controller.Changed += Count;
-            fixture.Controller.SectionChanged += Count;
-            fixture.Controller.SelectionChanged += Count;
-            try
+            string? notified = null;
+            using (var probe = new NotifyProbe(fixture.Controller))
             {
                 for (int i = 0; i < 4; i++)
                 {
                     fixture.Key(Key.Up);
                     Dispatcher.UIThread.RunJobs();
                 }
+                if (probe.Count != 0) notified = $"Four nudge keys raised {probe.Count} controller changes; the shell refreshed per key: {probe.Describe()}";
             }
-            finally
-            {
-                fixture.Controller.Changed -= Count;
-                fixture.Controller.SectionChanged -= Count;
-                fixture.Controller.SelectionChanged -= Count;
-            }
-            if (changes != 0) throw new Exception($"Four nudge keys raised {changes} controller changes; the shell refreshed per key");
+            if (notified is not null) throw new Exception(notified);
             if (fixture.Controller.Section!.Draft.Cursor != cursor) throw new Exception("The nudge run committed before KeyUp");
             fixture.KeyUp(Key.Up);
             WaitUntil(() => fixture.Controller.Section!.Draft.Cursor == cursor + 1 && fixture.Controller.Section.Assessment is not null);
@@ -286,11 +277,9 @@ public static class SectionEditorTests
             var rest = canvas.DrawnCurves[0];
             var pointer = fixture.Press(from);
             long generation = fixture.Controller.Section!.Draft.Generation;
-            int changes = 0;
             bool dragMeasured = false;
-            void Count() => changes++;
-            fixture.Controller.Changed += Count;
-            fixture.Controller.SectionChanged += Count;
+            // SECTION-EDITOR-LOAD-FLAKE control: a notification names its event, generation, thread and stack in the FAIL line.
+            using var probe = new NotifyProbe(fixture.Controller);
             try
             {
                 var previous = rest;
@@ -300,8 +289,10 @@ public static class SectionEditorTests
                     fixture.Move(pointer, to);
                     using (var bitmap = new Avalonia.Media.Imaging.RenderTargetBitmap(size)) bitmap.Render(canvas);
                     var drawn = canvas.DrawnCurves[0];
-                    if (changes != 0 || fixture.Controller.Section!.Draft.Generation != generation)
-                        throw new Exception($"Move {i} notified the shell {changes} times or applied a step (generation {fixture.Controller.Section!.Draft.Generation} vs {generation})");
+                    if (probe.Count != 0)
+                        throw new Exception($"Move {i} notified the shell {probe.Count} times: {probe.Describe()}");
+                    if (fixture.Controller.Section!.Draft.Generation != generation)
+                        throw new Exception($"Move {i} applied a step (generation {fixture.Controller.Section!.Draft.Generation} vs {generation})");
                     if (MaxOffset(drawn, previous) < .5)
                         throw new Exception($"Move {i}: the drawn upper curve did not follow the point (largest offset {MaxOffset(drawn, previous):F2} px)");
                     previous = drawn;
@@ -311,8 +302,6 @@ public static class SectionEditorTests
             }
             finally
             {
-                fixture.Controller.Changed -= Count;
-                fixture.Controller.SectionChanged -= Count;
                 // SECTION-EDITOR-LOAD-FLAKE: a failed drag must not leave the gesture pressed and the draft owned,
                 // or every later check on this shared fixture fails DSL-DRAFT-OWNED.
                 if (!dragMeasured) fixture.Release(pointer, from);
@@ -1030,6 +1019,46 @@ public static class SectionEditorTests
             Thread.Yield();
         }
         return false;
+    }
+
+    /// <summary>
+    /// SECTION-EDITOR-LOAD-FLAKE control: counts Changed, SectionChanged and SelectionChanged and keeps, for each, the event,
+    /// the draft generation, CheckAccess() and the handler's stack, so a failure line names its notifier.
+    /// </summary>
+    private sealed class NotifyProbe : IDisposable
+    {
+        private readonly WorkbenchController controller;
+        private readonly List<string> seen = [];
+        private readonly Action changed, sectionChanged, selectionChanged;
+        internal int Count => seen.Count;
+
+        internal NotifyProbe(WorkbenchController controller)
+        {
+            this.controller = controller;
+            changed = () => Record("Changed");
+            sectionChanged = () => Record("SectionChanged");
+            selectionChanged = () => Record("SelectionChanged");
+            controller.Changed += changed;
+            controller.SectionChanged += sectionChanged;
+            controller.SelectionChanged += selectionChanged;
+        }
+
+        private void Record(string name) => seen.Add(
+            $"[{name} generation={controller.Section?.Draft.Generation} ui={Dispatcher.UIThread.CheckAccess()} stack={Compact(Environment.StackTrace)}]");
+
+        private static string Compact(string stack) => string.Join(" <- ", stack.Split('\n')
+            .Select(line => line.Trim()).Where(line => line.StartsWith("at CfdWorkbench", StringComparison.Ordinal))
+            .Select(line => line[3..]).Take(8));
+
+        /// <summary>The first notifications with their data, on one line (a FAIL line is one line).</summary>
+        internal string Describe() => string.Join(" ", seen.Take(3));
+
+        public void Dispose()
+        {
+            controller.Changed -= changed;
+            controller.SectionChanged -= sectionChanged;
+            controller.SelectionChanged -= selectionChanged;
+        }
     }
 
     private sealed class Fixture : IDisposable
