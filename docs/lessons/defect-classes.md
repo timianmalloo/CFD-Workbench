@@ -1952,10 +1952,16 @@ for writes without `newline=`): clean: `tools/verify-application-adapters.py`, `
 `make-tip-bl-snappy.py` (37, 364), `make-tmr-case.py` (133-151, 312), and `cases/tools/test-foam-dict-lint.py` (54-55, `open(p, "w")`
 then `rb` hash). `make-wing-case.py:33` writes dictionaries with `write_text` too but records only the STL hash (bytes). All are
 run on the Mac today, where `\n` is unchanged, so the recorded hashes are the committed ones; the defect appears only when one
-runs on Windows. Not fixed: those files are outside this track's owned paths. Control: none built; the sweep list above is the
-tracked debt. Proposal: a lint in the style of `tools/check-wallclock-asserts.py` (fail on a `write_text(` or `open(..., "w")`
-without `newline=` in a file that also reads bytes for `hashlib`, with an allowlist that only shrinks), plus the one-word fix
-(`newline="\n"`) in the seven generators, as a later track before any generator runs on the PC.
+runs on Windows. **Fixed (track trk-tmh, round-oct06):** `newline="\n"` is on every text-mode write in the seven generators,
+`make-wing-case.py` and `test-foam-dict-lint.py`. `tools/check-neuralfoil-weights.py`, `check-notices.py`,
+`coord-stream-summary.py` and `recount-application-contracts.py` write no file (stdout, or bytes), so they need no fix.
+**Control built:** `tools/check-text-mode-hash.py` (AST scan of `tools/**/*.py` and `cases/tools/**/*.py`: a file that uses
+`hashlib` or `sha256sum` and calls `write_text(` or a text-mode `open` without `newline=` fails; the allowlist carries a reason
+per entry and a stale entry also fails, so it only shrinks). It runs in `tools/check-docs.py` (`run_lesson_controls`, self-test
+then scan), fast ring, measured 0.25 s wall for the scan. Red first: on the pre-fix tree it named all eight files
+(`docs/proof/tmh/red-first.md`). One entry stays: `cases/tools/launcher-record.py`, which writes only its own record files and
+reads them back as text (reason in the allowlist). No hash drift on the Mac: `make-tmr-case.py` before and after produced
+byte-identical trees and manifests.
 
 **MOCKUP-PHYSICS-UNCHECKED · An approved mockup carries a physics error, and the review of the mockup does not find it.**
 The force-vector mockup (approved at Ruling 130) drew V∞ mirrored (falling to the right at a positive angle, lift leaning aft)

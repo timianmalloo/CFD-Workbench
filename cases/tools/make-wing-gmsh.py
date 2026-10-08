@@ -206,7 +206,7 @@ written = []
 def write(rel, cls, obj, body):
     path = run / rel
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text("FoamFile\n{\n    version 2.0;\n    format ascii;\n    class %s;\n    object %s;\n}\n\n" % (cls, obj) + body)
+    path.write_text("FoamFile\n{\n    version 2.0;\n    format ascii;\n    class %s;\n    object %s;\n}\n\n" % (cls, obj) + body, newline="\n")
     written.append(rel)
 
 
@@ -304,5 +304,5 @@ write("system/topoSetDict.det", "dictionary", "topoSetDict", """actions
     { name detBelow03; type cellSet; action new; source fieldToCell; field cellDeterminant; min -1e30; max 0.3; }
 );
 """)
-(run / "cfdw-manifest.json").write_text(json.dumps({r: hashlib.sha256((run / r).read_bytes()).hexdigest() for r in written}, indent=1) + "\n")
+(run / "cfdw-manifest.json").write_text(json.dumps({r: hashlib.sha256((run / r).read_bytes()).hexdigest() for r in written}, indent=1) + "\n", newline="\n")
 print(f"msh_sha256={hashlib.sha256((run / 'wing.msh').read_bytes()).hexdigest()} msh_bytes={os.path.getsize(run / 'wing.msh')}")

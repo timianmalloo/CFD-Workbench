@@ -83,6 +83,8 @@ def run_lesson_controls():
         ("check-copy-ids.py", ()),
         ("check-wallclock-asserts.py", ("--self-test",)),
         ("check-wallclock-asserts.py", ()),
+        ("check-text-mode-hash.py", ("--self-test",)),
+        ("check-text-mode-hash.py", ()),
         ("dispatch-gate.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ()),
