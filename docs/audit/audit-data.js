@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T01:12:25Z",
+  "generated": "2026-10-08T01:13:56Z",
   "audit": [
     {
       "actor": null,
@@ -29711,6 +29711,33 @@ window.AUDIT_DATA = {
       "done_when": "gate red on old tree, green after fix, wired in check-docs, no Mac hash drift, lesson updated",
       "started_at": "2026-10-08T01:06:56Z",
       "duration_seconds": 328.0
+    },
+    {
+      "id": "al-01M4CH5Y1S16GXEGTJ885EAGQV",
+      "shortname": "join-tmh",
+      "datetime": "2026-10-08T01:13:56Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of fix/text-mode-hash into main",
+      "summary": "check-text-mode-hash.py gate (self-test, shrink-only allowlist, 0.25 s) in check-docs; newline LF on the text-mode writes in 8 cases/tools scripts; TMR manifest byte-identical before and after on the Mac recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join fix/text-mode-hash",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T01:12:57Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
