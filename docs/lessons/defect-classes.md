@@ -1742,6 +1742,8 @@ kept in the records above (the `STACK` line from `c9a06fad` prints one for a fai
 stays open. Next step unchanged and now cheaper to justify: on the next failure save the check's failure line and the load,
 and decide on the READINESS-MISS gate from that text, not from the count.
 
+*Investigation (trk-flk, 2026-10-08), `docs/proof/flk/investigation.md`.* No failure in about 90 runs up to load 157 (alone at 64 hogs, part 2/2 at 100 hogs, 8 concurrent suites); CPU starvation is not supported by the data (the field failures were at load 8 to 17.6). The stale-step hypothesis was refuted with a forced late step; the surface-projection one is untested because the fixture probably never asks for a surface. The cause is unknown. Control (added, test-side): both counting checks (`SectionEditor_DragMove_DrawsWithinOneFrame`, `SectionEditor_NudgeRun_NoShellRefreshPerKey`) use `NotifyProbe`, which puts the event, draft generation, `CheckAccess()` and the notifier's stack into the FAIL line; "notified" and "applied a step" are separate messages. Red first (`docs/proof/flk/red-first.md`): a planted `Select` post between moves fails the check and the stack names `PlantedSelectPost`. The next real failure in any ring names its notifier; decide the fix (product guard, fixture drain, or oracle) from that line. Class stays open.
+
 **JOIN-CHECK-BEFORE-REGEN · The join checks the tree before it pays the regeneration the merge driver deferred.**
 After `coord install` bound `docs/docs-index.js` to `merge=coord-regen` (commit `90cf9f94`), the POL and CI joins
 both stopped at step 4 with `validate: 1 index-drift item(s)` (CI: `file not in index:

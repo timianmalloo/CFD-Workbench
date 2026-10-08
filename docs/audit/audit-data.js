@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T00:56:45Z",
+  "generated": "2026-10-08T01:00:40Z",
   "audit": [
     {
       "actor": null,
@@ -29644,6 +29644,26 @@ window.AUDIT_DATA = {
       "done_when": "root cause verified or honestly reported unverified, findings doc committed",
       "started_at": "2026-10-08T00:32:17Z",
       "duration_seconds": 1468.0
+    },
+    {
+      "id": "al-01M4CGDN0YCW8Y79P5W1TJPKDH",
+      "shortname": "trk-flk",
+      "datetime": "2026-10-08T01:00:40Z",
+      "session": "trk-flk",
+      "prompt": "flake step 1: notify probe round-oct06",
+      "summary": "NotifyProbe in DragMove and NudgeRun checks; planted Select post fails with stack naming it; cost unchanged; lesson updated; run-tests green",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make the next SectionEditor drag flake name its notifier",
+      "done_when": "probe in both checks, red-first planted, gates green",
+      "started_at": "2026-10-08T00:57:13Z",
+      "duration_seconds": 207.0
     }
   ],
   "changes": [

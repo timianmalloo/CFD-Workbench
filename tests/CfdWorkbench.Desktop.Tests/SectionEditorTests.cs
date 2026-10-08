@@ -1048,7 +1048,17 @@ public static class SectionEditorTests
 
         private static string Compact(string stack) => string.Join(" <- ", stack.Split('\n')
             .Select(line => line.Trim()).Where(line => line.StartsWith("at CfdWorkbench", StringComparison.Ordinal))
-            .Select(line => line[3..]).Take(8));
+            .Where(line => !line.Contains("NotifyProbe", StringComparison.Ordinal))
+            .Select(line => line[3..]).Select(ShortFrame).Take(10));
+
+        // "Ns.Type.Method(args) in /long/path/File.cs:line 12" becomes "Type.Method File.cs:12".
+        private static string ShortFrame(string frame)
+        {
+            int open = frame.IndexOf('(');
+            string method = string.Join('.', (open < 0 ? frame : frame[..open]).Split('.').TakeLast(2));
+            int at = frame.LastIndexOf(" in ", StringComparison.Ordinal);
+            return at < 0 ? method : method + " " + Path.GetFileName(frame[(at + 4)..].Split(":line ")[0]) + ":" + frame[(frame.LastIndexOf(":line ", StringComparison.Ordinal) + 6)..];
+        }
 
         /// <summary>The first notifications with their data, on one line (a FAIL line is one line).</summary>
         internal string Describe() => string.Join(" ", seen.Take(3));

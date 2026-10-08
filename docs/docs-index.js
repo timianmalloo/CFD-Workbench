@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "aa62758129c9106df76f98017e83f85852cf87f951740764f159b676c9f8ca76"
+      "sourceSha256": "5a1f95212c6047dd53e5ffa2c8f92ba9dab3e7814839a944d19e8704da0e56d7"
     },
     {
       "id": "domain-experts",
@@ -11571,6 +11571,30 @@ window.DOCS_INDEX = {
       "sourceSha256": "3c776841c2b2331fc89db06571bdd2a308884a5408b5bdcd55e3be6590e234e4"
     },
     {
+      "id": "proof-flk-red-first",
+      "path": "docs/proof/flk/red-first.md",
+      "title": "Notify probe red-first",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-flk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Planted Select post fails the drag check and the FAIL line names the planted call.",
+      "tags": [
+        "flake",
+        "section-editor"
+      ],
+      "links": [
+        {
+          "to": "proof-flk-investigation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c38014b9b5fd7fd5f06f492740d2ac2e08d866feda805a682d77523fc0dff950"
+    },
+    {
       "id": "proof-foildsl-authoring",
       "path": "docs/proof/foildsl-authoring.md",
       "title": "FoilDSL authoring specification and mockup proof",
@@ -16262,5 +16286,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "411cd9ea1ddfbe51c42b717a352f163f27c259d8f050d1dc662fc453504144f6"
+  "graphSha256": "03032ab0277c86ec8a7280e35af909c73fa7992265b5562c0049bdfd6fa17ea8"
 };
