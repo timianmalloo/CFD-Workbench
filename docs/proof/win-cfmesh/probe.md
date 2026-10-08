@@ -5,6 +5,8 @@ type: doc
 status: observed
 owner: "@win-w5-cfmesh"
 tags: [windows, openfoam, cfmesh, probe]
+links:
+  - { to: proof-win-cfmesh, rel: refines }
 review-by: "2026-11-07"
 summary: >-
   Two bounded probe attempts exited 127 before reaching cartesianMesh; the installed runtime environment remains unresolved.

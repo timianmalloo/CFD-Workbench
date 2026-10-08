@@ -5876,6 +5876,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "proof-win-cfmesh-probe",
+      "path": "docs/proof/win-cfmesh/probe.md",
+      "title": "W-5 cartesianMesh probe execution record",
+      "type": "doc",
+      "status": "observed",
+      "owner": "@win-w5-cfmesh",
+      "phase": "",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "Two bounded probe attempts exited 127 before reaching cartesianMesh; the installed runtime environment remains unresolved.",
+      "tags": [
+        "windows",
+        "openfoam",
+        "cfmesh",
+        "probe"
+      ],
+      "links": [
+        {
+          "to": "proof-win-cfmesh",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "562cf3a0159aa8c62c77604b45665e23e7df8b28b68373827ef91b70c101ab7a"
+    },
+    {
       "id": "proof-windows-store-implementation",
       "path": "docs/proof/win-store-implementation/checkpoint.md",
       "title": "Windows managed native store first qualification checkpoint",
@@ -6306,6 +6332,39 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "347cfbb22c18e03b0e74888b58d708be98fbf478e792b7aac53ff90e4ddb59e7"
+    },
+    {
+      "id": "review-pr-11",
+      "path": "docs/reviews/pr-11.md",
+      "title": "PR #11 (Windows PC) - W-5 blocked cfMesh availability probe (Ruling 153), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 153). W-5 stopped before Ruling 102 step 1 was answered: both probes ran cartesianMesh -help in a WSL shell with no OpenFOAM activation, so exit 127 proves only that the shell's PATH lacked the tool, and the receipt never claims absence. One availability-only probe that reuses W-3's committed activation route is authorized.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-5",
+        "cfmesh",
+        "openfoam"
+      ],
+      "links": [
+        {
+          "to": "review-pr-9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-cfmesh",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fba2fa299aaf9b416528caa0ab1c764ebf3245d61d9ad211bdc91806a4b5e566"
     },
     {
       "id": "review-pr-2",
@@ -7276,7 +7335,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "64a4763f4f74e5d998edc164c313faa6df62cc96deceb69644caae8e45f7ae70"
+      "sourceSha256": "64ace900cac4282b696fef790713560100be1f35bf9d667bbfc88a55b413cf95"
     },
     {
       "id": "kb-hw-glossary",
@@ -14502,6 +14561,40 @@ window.DOCS_INDEX = {
       "sourceSha256": "5f462ccfa9b71fd6cac7942f87294acca093b212d585082fff7c5ef8339bd7aa"
     },
     {
+      "id": "proof-win-cfmesh",
+      "path": "docs/proof/win-cfmesh/receipt.md",
+      "title": "W-5 cfMesh availability probe",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@win-w5-cfmesh",
+      "phase": "",
+      "reviewBy": "2026-11-07",
+      "reviewSuggested": [],
+      "summary": "W-5 stopped at its first availability gate. The noninteractive WSL probe could not resolve cartesianMesh; this does not establish that the installed OpenFOAM package lacks cfMesh.",
+      "tags": [
+        "windows",
+        "openfoam",
+        "cfmesh",
+        "tip-mesh"
+      ],
+      "links": [
+        {
+          "to": "proof-win-routes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-spike-03-tip-bl-route",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d467406caf7dd1aeabd8541e2f61202bae464bd4e19c78cff19d6f30af207868"
+    },
+    {
       "id": "proof-win-naca",
       "path": "docs/proof/win-naca/receipt.md",
       "title": "Windows W-4a/b NACA 0012 evidence and unlaunched L3 preparation",
@@ -16729,5 +16822,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "39d4d39e29caec089deee6933d80ce7449f5e57f87111a0d58d6700194b686ca"
+  "graphSha256": "e3cf0e918cf6586bd6551395ce9de3a9539831d65805ee03fe3eac0c47fd914d"
 };
