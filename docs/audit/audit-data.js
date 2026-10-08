@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T21:03:30Z",
+  "generated": "2026-10-08T21:04:51Z",
   "audit": [
     {
       "actor": null,
@@ -30696,6 +30696,33 @@ window.AUDIT_DATA = {
       "done_when": "line 3114 uses Labels.DrawFailed, control has no exceptions, ring green",
       "started_at": "2026-10-08T21:01:24Z",
       "duration_seconds": 125.0
+    },
+    {
+      "id": "al-01M4ENAJTWJSHT36DYAPYCG8JV",
+      "shortname": "join-stl",
+      "datetime": "2026-10-08T21:04:51Z",
+      "session": "3122f106",
+      "prompt": "the join of feature/stl-status-copy into main",
+      "summary": "STL joined: save-retry and section-draft status lines read COPY-432..439 via Labels; no status line leads with a code (control has no exceptions) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the Ruling 158/159 status-line copy",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T21:03:56Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
@@ -32903,6 +32930,15 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EM7MFCGQ2DM2W3H0R14JVE",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4EN35548SF9WKS0AXZHC2B0",
+      "ts": "2026-10-08T21:00:48Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EN351ZGREF3KFKPKX3F7SD",
       "session": "operator-timianmalloo"
     }
   ]
