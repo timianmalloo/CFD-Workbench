@@ -3594,7 +3594,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e4177a55d03c4c9c2f933fbd69b3b271a82ebcffa8e957d8745a44a7393c7155"
+      "sourceSha256": "119e8cee21810429ef43a77205a653225a1efe1e2fab6cc8660ec9e853f8321e"
     },
     {
       "id": "design-windows-runtime",
@@ -5211,7 +5211,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b75264e958026b280f176686bc28b86c9c02a54d2d79a536b15622a7e931201c"
+      "sourceSha256": "49bbbc5e68f17b8f5d11396b4ac973e421ba68258df4f2da9f9f2d1a4aec0427"
     },
     {
       "id": "domain-experts",
@@ -15004,6 +15004,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "ee1b2a964676b93b77e852f0376f83f46ba2b9bb48168830958b4b2aac19e5df"
     },
     {
+      "id": "proof-win-product-code",
+      "path": "docs/proof/win-product-code/red-first.md",
+      "title": "Ruling 152 C4 ProductCode red-first evidence",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@track-win-product-code",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first evidence that Win32 183 must remain unmapped by NativeFailure.ProductCode.",
+      "tags": [
+        "windows",
+        "persistence",
+        "proof",
+        "ruling-152"
+      ],
+      "links": [
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e2ff4946cc70fa79fbee6314e0ddc3a0bf15f56bdcf6f1b3436b16aa0ec3438b"
+    },
+    {
       "id": "proof-win-routes",
       "path": "docs/proof/win-routes/receipt.md",
       "title": "W-3 Windows solver routes: Ruling 133 completed manual smoke evidence",
@@ -17246,5 +17276,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "885042c0d0e5b05f064c254606711328ea0aee1960e032874860c4c0f24a6a88"
+  "graphSha256": "003e5aeeca9af8da60321cb1f17667c7b59f337839cb72d21724426b98ead42c"
 };

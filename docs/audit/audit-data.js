@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:14:01Z",
+  "generated": "2026-10-08T23:32:22Z",
   "audit": [
     {
       "actor": null,
@@ -30824,6 +30824,59 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T23:13:09Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4EX3QRK35CT63YYWWBAFW97",
+      "shortname": "win-product-code",
+      "datetime": "2026-10-08T23:20:55Z",
+      "session": "win-store-product-code-20261008",
+      "prompt": "Implement only Ruling 152 C4 before adapters read ProductCode: Win32 32 maps to DOC-CONFLICT, every other value is null; §4 states the limit; add a red-first Windows test for unmapped Win32 183. Run scoped ring and fast gates, commit, do not push.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4EXRPCWJ2GD85D3QV6ANY33",
+      "shortname": "win-product-code",
+      "datetime": "2026-10-08T23:32:22Z",
+      "session": "win-store-product-code-20261008",
+      "prompt": "Implement only Ruling 152 C4 in C:\\Projects\\CFD-Workbench-win-store-product-code on win/store-product-code: before any adapter reads ProductCode, map Win32 32 to DOC-CONFLICT and every other value to null; document the limit in design section 4; add a genuine red-first Windows test for Win32 183 and retain evidence. No adapter, dispatch, broad error table, verifier, or other production admission. Tier T1, fan-out 0, repair cap 2. Start by fetching origin, fast-forward merging origin/main, and marking messages; read AGENTS.md, Codex grounding, relevant standards, Ruling 152, design, source, tests, and defect register. Run the focused selector, tools/run-tests.sh within the 60-second budget, and fast gates; do not repeat a full ring without a code change. Commit scoped changes, leave clean, do not push or open a PR. Report commit, measured results, repairs, and blockers.",
+      "summary": "C4 property, design limit, regression test, defect control, and red-first evidence recorded; focused selector and fast gates passed; full ring exceeded budget and failed.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": "Codex",
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Persistence/WindowsNative.cs",
+        "tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs",
+        "docs/design/windows-native-store.md",
+        "docs/proof/win-product-code/red-first.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "windows",
+        "persistence",
+        "ruling-152"
+      ],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Implement only the Ruling 152 C4 ProductCode qualification before any adapter reads it.",
+      "done_when": "Win32 32 maps to DOC-CONFLICT, every other value is null, design section 4 states the limit, and a red-first Win32 183 test is retained with scoped changes committed.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "duration_source": "session-start-hook",
+      "started_at": "2026-10-08T23:20:55Z",
+      "duration_seconds": 687.0
     }
   ],
   "changes": [

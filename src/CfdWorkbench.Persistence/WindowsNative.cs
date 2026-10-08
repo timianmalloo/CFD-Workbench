@@ -256,8 +256,8 @@ internal static unsafe partial class WindowsNative
         internal int? NtStatus { get; } = ntStatus;
         internal int Win32Error { get; } = win32Error;
         internal int? IoStatus { get; } = ioStatus;
-        // Ruling 145: an incompatible open is a conflict, never generic I/O failure.
-        internal string ProductCode => Win32Error == 32 ? "DOC-CONFLICT" : "DOC-IO";
+        // Rulings 145 and 152: only the qualified sharing violation has a product code.
+        internal string? ProductCode => Win32Error == 32 ? "DOC-CONFLICT" : null;
     }
 
     // LocalFree owns descriptors/strings returned by advapi32. No descriptor buffer escapes its lifetime.
