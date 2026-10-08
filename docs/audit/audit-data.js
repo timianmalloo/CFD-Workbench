@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T19:35:30Z",
+  "generated": "2026-10-08T19:52:36Z",
   "audit": [
     {
       "actor": null,
@@ -30568,6 +30568,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T19:34:37Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M4EH69CND9RA5Z4DE2HSYD4S",
+      "shortname": "srs-catalog-refusal",
+      "datetime": "2026-10-08T19:52:36Z",
+      "session": "trk-srs",
+      "prompt": "trk-srs: SectionReplace records the catalog refusal",
+      "summary": "Added ReplaceEvent.FamilyRefusal (code, check, detail); failure stays cached; test seam; SWALLOWED-CAUSE class",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "catalog.preview event records CAT-UNAVAILABLE cause instead of empty family",
+      "done_when": "red-first check green, run-tests green, check-docs 0"
     }
   ],
   "changes": [
