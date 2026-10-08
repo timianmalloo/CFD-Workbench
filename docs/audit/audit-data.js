@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:46:10Z",
+  "generated": "2026-10-08T23:52:34Z",
   "audit": [
     {
       "actor": null,
@@ -30981,66 +30981,146 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4EXE60216D3WMYN022VMW0M",
-      "shortname": "join-ncr",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T23:26:38Z",
-      "session": "3122f106",
-      "prompt": "the join of fix/ncr-not-resolved into main",
-      "summary": "NCR joined: one IsMomentResolved predicate; at nc=1 x_cp/M' read Not resolved, no couple glyph, SF22 plate; nc>=2 unchanged; cfd-numerical review CLEAR recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
+      "done_when": "join gates green",
+      "duration_seconds": 55.0,
+      "fan_out": 0,
       "goal": "join the 1-chordwise-panel not-resolved rule",
-      "done_when": "join gates green",
-      "tier": "T1",
-      "fan_out": 0,
+      "id": "al-01M4EXE60216D3WMYN022VMW0M",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/ncr-not-resolved into main",
+      "session": "3122f106",
+      "shortname": "join-ncr",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-08T23:25:43Z",
-      "duration_seconds": 55.0
+      "summary": "NCR joined: one IsMomentResolved predicate; at nc=1 x_cp/M' read Not resolved, no couple glyph, SF22 plate; nc>=2 unchanged; cfd-numerical review CLEAR recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4EY164ZR4SSP02W6RHRZBS0",
-      "shortname": "join-pr13",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T23:37:00Z",
-      "session": "3122f106",
-      "prompt": "the join of origin/win/trig-bits into main",
-      "summary": "PR #13 joined: Windows CosPi bits equal the Mac golden at 81/81; CosPi/SinPi bit-identical across hosts, Math.Cos differs at 5 recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
-      "actor": null,
-      "artifacts": [],
-      "tags": [],
-      "outcome": "success",
-      "compiled": false,
-      "goal": "join PR #13 under Ruling 163",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 50.0,
       "fan_out": 0,
+      "goal": "join PR #13 under Ruling 163",
+      "id": "al-01M4EY164ZR4SSP02W6RHRZBS0",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of origin/win/trig-bits into main",
+      "session": "3122f106",
+      "shortname": "join-pr13",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-08T23:36:10Z",
-      "duration_seconds": 50.0
+      "summary": "PR #13 joined: Windows CosPi bits equal the Mac golden at 81/81; CosPi/SinPi bit-identical across hosts, Math.Cos differs at 5 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4EYHZ2X73SMKDAKX2QKJ1DN",
-      "shortname": "join-pr14",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T23:46:10Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 7.0,
+      "fan_out": 0,
+      "goal": "join PR #14 under Ruling 164",
+      "id": "al-01M4EYHZ2X73SMKDAKX2QKJ1DN",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of origin/win/w5-cfmesh-probe into main",
+      "session": "3122f106",
+      "shortname": "join-pr14",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T23:46:03Z",
       "summary": "PR #14 joined: cfMesh PRESENT in activated openfoam2512 (build _bd2b6720-20260127); coupon not released recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-08T23:20:55Z",
+      "id": "al-01M4EX3QRK35CT63YYWWBAFW97",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Implement only Ruling 152 C4 before adapters read ProductCode: Win32 32 maps to DOC-CONFLICT, every other value is null; §4 states the limit; add a red-first Windows test for unmapped Win32 183. Run scoped ring and fast gates, commit, do not push.",
+      "session": "win-store-product-code-20261008",
+      "shortname": "win-product-code",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "src/CfdWorkbench.Persistence/WindowsNative.cs",
+        "tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs",
+        "docs/design/windows-native-store.md",
+        "docs/proof/win-product-code/red-first.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-08T23:32:22Z",
+      "done_when": "Win32 32 maps to DOC-CONFLICT, every other value is null, design section 4 states the limit, and a red-first Win32 183 test is retained with scoped changes committed.",
+      "duration_seconds": 687.0,
+      "duration_source": "session-start-hook",
+      "fan_out": 0,
+      "goal": "Implement only the Ruling 152 C4 ProductCode qualification before any adapter reads it.",
+      "id": "al-01M4EXRPCWJ2GD85D3QV6ANY33",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Implement only Ruling 152 C4 in C:\\Projects\\CFD-Workbench-win-store-product-code on win/store-product-code: before any adapter reads ProductCode, map Win32 32 to DOC-CONFLICT and every other value to null; document the limit in design section 4; add a genuine red-first Windows test for Win32 183 and retain evidence. No adapter, dispatch, broad error table, verifier, or other production admission. Tier T1, fan-out 0, repair cap 2. Start by fetching origin, fast-forward merging origin/main, and marking messages; read AGENTS.md, Codex grounding, relevant standards, Ruling 152, design, source, tests, and defect register. Run the focused selector, tools/run-tests.sh within the 60-second budget, and fast gates; do not repeat a full ring without a code change. Commit scoped changes, leave clean, do not push or open a PR. Report commit, measured results, repairs, and blockers.",
+      "session": "win-store-product-code-20261008",
+      "shortname": "win-product-code",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "implement",
+      "started_at": "2026-10-08T23:20:55Z",
+      "summary": "C4 property, design limit, regression test, defect control, and red-first evidence recorded; focused selector and fast gates passed; full ring exceeded budget and failed.",
+      "tags": [
+        "windows",
+        "persistence",
+        "ruling-152"
+      ],
+      "tier": "T1",
+      "tool": "Codex"
+    },
+    {
+      "id": "al-01M4EYXNRE6DDZFF8J37C0GRTF",
+      "shortname": "join-pr15",
+      "datetime": "2026-10-08T23:52:34Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/store-product-code into main",
+      "summary": "PR #15 joined: ProductCode DOC-CONFLICT for Win32 32, null otherwise; 183-unmapped control; Ruling 152 (4) closed recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -31049,7 +31129,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join PR #14 under Ruling 164",
+      "goal": "join PR #15 under Ruling 166",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -31058,8 +31138,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-08T23:46:03Z",
-      "duration_seconds": 7.0
+      "started_at": "2026-10-08T23:51:43Z",
+      "duration_seconds": 51.0
     }
   ],
   "changes": [
@@ -33357,6 +33437,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EYH1EPM3S562X6WTAXK5DZ",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EYVSNXHWEMEMRQQJKXKNCX",
+      "ts": "2026-10-08T23:51:32Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EYVSNSK2QQYCAR5W9XD09A",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EYVSRTSH9P30QJNR1W4DED",
+      "ts": "2026-10-08T23:51:32Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EYVSNSK2QQYCAR5W9XD09A",
       "session": "fable-owner"
     }
   ]
