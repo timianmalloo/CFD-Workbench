@@ -7573,6 +7573,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "49075dfa346e1458edc2a94d4a26bd4852e575a0a1c40545bca947d6dd4273e9"
     },
     {
+      "id": "investigation-rws-record-path",
+      "path": "docs/proof/rws/investigation.md",
+      "title": "C-runtime math on the record-write path (Ruling 156 (3))",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-rws",
+      "phase": "",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Of the six record-write sites, none reaches a committed hash or golden (each is green under a +1 ulp perturbation, five of six verified to execute under the ring; ConstrainedFit.cs:400 never runs). Five of the six write bytes into the user's project, so the same input can write different project bytes per OS. The only committed goldens hit by C-runtime math in src/ are the Catalog generator and Placement display spacing, which fix/caf-catalog-determinism already addresses. Options per role are listed as recommendations for review.",
+      "tags": [
+        "determinism",
+        "cross-platform",
+        "crt-golden",
+        "record-path",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "adr-application-stack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6deaa30ff109a2d8ef08e7d742fc1be6bbf9265ac6863f3c19bb62a68afbcf1d"
+    },
+    {
       "id": "kb-cfd-workbench-grounding",
       "path": "docs/knowledge/cfd-workbench-grounding.md",
       "title": "CFD-Bench and proposal grounding",
@@ -17111,5 +17138,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "32f9e3c557449669e7951e7075a68a16f3196f9f1f22b759138f4f185e4e167b"
+  "graphSha256": "aeb5c12b77b962dbc0315c092a941a7189c6c22dd4323503086de52ebf091ed0"
 };
