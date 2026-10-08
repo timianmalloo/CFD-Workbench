@@ -31,6 +31,9 @@ internal static class AnalysisChecks
             TipCavitationTests.RunReadiness();
             DxSectionTests.RunReadiness();
             SectionForceTests.RunReadiness();
+            ProjectionTests.RunReadiness();
+            PolarSeamTests.RunReadiness();
+            PolarNumericsTests.RunReadiness();
             return Finish();
         }
         (int Index, int Count)? part;

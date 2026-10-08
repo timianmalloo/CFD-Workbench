@@ -91,6 +91,26 @@ public static class PropertiesViewTests
             }
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
         });
+
+        Pane("Properties_TwistHandle_SpanAndValueTyped", (controller, host, window) =>
+        {
+            // §3.6 / §11.4: a Twist handle has no angle (an angle in mm × ° means nothing); it is typed by From root and value.
+            var anchor = AnchorOn(controller, "twist", 3, TangentKind.Corner);
+            var tip = Handles(controller, anchor).Tip;
+            string keys = string.Join(",", Build(controller, new Selection.Points([Ref(tip)])).Groups.SelectMany(group => group.Rows)
+                .Where(row => row.Kind == RowKind.Input).Select(row => row.Key + ":" + row.Unit));
+            if (keys != "p:from:mm,p:aft:°") throw new InvalidOperationException("handle fields " + keys);
+            Select(controller, window, tip);
+            Type(controller, window, Need<TextBox>(host.Properties, "PointAftInput"), "-0.75");
+            var valued = Reload(controller, tip);
+            if (Math.Abs(valued.Ordinate + 0.75) > 1e-5 || Math.Abs(valued.SpanMeters - tip.SpanMeters) > 1e-9)
+                throw new InvalidOperationException($"value commit: {valued.SpanMeters} m, {valued.Ordinate}°");
+            Type(controller, window, Need<TextBox>(host.Properties, "PointSpanInput"),
+                Quantity.ForField(Quantity.TypedLength(valued.SpanMeters + 0.005)));
+            var spanned = Reload(controller, tip);
+            if (Math.Abs(spanned.SpanMeters - valued.SpanMeters - 0.005) > 1e-5 || Math.Abs(spanned.Ordinate - valued.Ordinate) > 1e-5)
+                throw new InvalidOperationException($"span commit: {spanned.SpanMeters} m, {spanned.Ordinate}°");
+        });
     }
 
     public static void Run()
@@ -1056,26 +1076,6 @@ public static class PropertiesViewTests
                 .FirstOrDefault(row => row.Key == "h:angle");
             if (anchorAngle?.Value != Quantity.PlacedAngle(expected)) failures.Add($"anchor angle '{anchorAngle?.Value}'");
             if (failures.Count > 0) throw new InvalidOperationException(string.Join("; ", failures));
-        });
-
-        Pane("Properties_TwistHandle_SpanAndValueTyped", (controller, host, window) =>
-        {
-            // §3.6 / §11.4: a Twist handle has no angle (an angle in mm × ° means nothing); it is typed by From root and value.
-            var anchor = AnchorOn(controller, "twist", 3, TangentKind.Corner);
-            var tip = Handles(controller, anchor).Tip;
-            string keys = string.Join(",", Build(controller, new Selection.Points([Ref(tip)])).Groups.SelectMany(group => group.Rows)
-                .Where(row => row.Kind == RowKind.Input).Select(row => row.Key + ":" + row.Unit));
-            if (keys != "p:from:mm,p:aft:°") throw new InvalidOperationException("handle fields " + keys);
-            Select(controller, window, tip);
-            Type(controller, window, Need<TextBox>(host.Properties, "PointAftInput"), "-0.75");
-            var valued = Reload(controller, tip);
-            if (Math.Abs(valued.Ordinate + 0.75) > 1e-5 || Math.Abs(valued.SpanMeters - tip.SpanMeters) > 1e-9)
-                throw new InvalidOperationException($"value commit: {valued.SpanMeters} m, {valued.Ordinate}°");
-            Type(controller, window, Need<TextBox>(host.Properties, "PointSpanInput"),
-                Quantity.ForField(Quantity.TypedLength(valued.SpanMeters + 0.005)));
-            var spanned = Reload(controller, tip);
-            if (Math.Abs(spanned.SpanMeters - valued.SpanMeters - 0.005) > 1e-5 || Math.Abs(spanned.Ordinate - valued.Ordinate) > 1e-5)
-                throw new InvalidOperationException($"span commit: {spanned.SpanMeters} m, {spanned.Ordinate}°");
         });
 
         Pane("Properties_TypedTwistExpression_DegreesEchoed", (controller, host, window) =>

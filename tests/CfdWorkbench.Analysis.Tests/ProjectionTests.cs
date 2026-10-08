@@ -5,6 +5,67 @@ namespace CfdWorkbench.Analysis.Tests;
 
 internal static class ProjectionTests
 {
+    // Readiness only: checks moved out of the fast ring (round-oct08 RGM, Ruling 143); never run by tools/run-tests.sh.
+    internal static void RunReadiness()
+    {
+
+        Check("DeriveVerdicts_TaperedPlanform_SweepIsTheLatticeSweepAndAlphaL0IsTheStripSection", () => {
+            using var session = Fixture.OpenedWithTip("40");
+            var settings = Settings.WithStations(Settings.Default with { NSpanPerHalf = 6, NChord = 1, SectionEtas = null, SectionXs = null });
+            var method = new ProductWingMethod(settings);
+            var run = Fixture.Evaluate(new AnalysisService(session, method), Fixture.Op(3));
+            byte[] source = session.Snapshot().Source;
+            var verdicts = MethodRecord.DeriveVerdicts(run, source)!;
+            Equal(run.Strips.Count, verdicts.Count, "one verdict per strip");
+            var sections = Placement.Sections(source, settings.SectionEtas!, settings.SectionXs!, CancellationToken.None);
+            var solution = method.Solve(sections, run.Op, run.Water, CancellationToken.None);
+            var edges = run.Strips.Select(x => (x.YLow!.Value, x.YHigh!.Value)).ToArray();
+            double[] sweeps = VortexLattice.StripSweeps(ProductWingMethod.Mirror(sections), edges);
+            double maxSweep = 0;
+            for (int i = 0; i < sweeps.Length; i++)
+            {
+                Equal(true, Math.Abs(sweeps[i] - solution.Strips[i].SweepDeg) < 1e-9, "sweep of strip " + i);
+                maxSweep = Math.Max(maxSweep, Math.Abs(sweeps[i]));
+                StripLoad strip = run.Strips[i];
+                double l0 = SectionEstimator.Estimate(source, Math.Abs(strip.Eta), 0, 1e6, 200).AlphaL0Deg;
+                var expected = MethodRecord.JudgeStrip(strip.AlphaEff, l0, strip.ClLocal, sweeps[i],
+                    strip.Provisional && strip.ProvisionalReason == StripLoad.TipProvisionalReason);
+                Equal(expected.Text, verdicts[i].Text, "verdict text of strip " + i);
+            }
+            Equal(true, maxSweep > 0.5, "the fixture is swept: max |sweep| " + maxSweep);
+        });
+
+        Check("DeriveVerdicts_AlphaBound_9p9InsideAnd10p1Outside", () => {
+            using var session = Fixture.Opened();
+            var settings = Settings.WithStations(Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null });
+            var run = Fixture.Evaluate(new AnalysisService(session, new ProductWingMethod(settings)), Fixture.Op(3));
+            byte[] source = session.Snapshot().Source;
+            StripLoad probe = run.Strips[1];
+            double l0 = SectionEstimator.Estimate(source, Math.Abs(probe.Eta), 0, 1e6, 200).AlphaL0Deg;
+            foreach (var (delta, inside) in new[] { (9.9, true), (10.1, false), (-9.9, true), (-10.1, false) })
+            {
+                var moved = run with { Strips = run.Strips.Select(x => x.J == 1 ? x with { AlphaEff = l0 + delta, ClLocal = 0.4 } : x).ToArray() };
+                var verdict = MethodRecord.DeriveVerdicts(moved, source)![1];
+                Equal(inside, verdict.Inside, "alpha offset " + delta);
+                Equal(inside, verdict.Exceeded.Count == 0, "exceeded parts at " + delta);
+            }
+        });
+
+        Check("DeriveVerdicts_OnlyTheTipReasonGetsTheTipRule", () => {
+            using var session = Fixture.Opened();
+            var settings = Settings.WithStations(Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null });
+            var run = Fixture.Evaluate(new AnalysisService(session, new ProductWingMethod(settings)), Fixture.Op(3));
+            byte[] source = session.Snapshot().Source;
+            var tips = run.Strips.Where(x => x.Provisional).Select(x => x.J).ToArray();
+            Equal(2, tips.Length, "two tip strips");
+            Equal(true, MethodRecord.DeriveVerdicts(run, source)!.Where((_, i) => tips.Contains(i)).All(v => v.Provisional), "tip reason is provisional");
+            var other = run with { Strips = run.Strips.Select(x => x.Provisional ? x with { ProvisionalReason = "OTHER" } : x).ToArray() };
+            Equal(true, MethodRecord.DeriveVerdicts(other, source)!.All(v => !v.Provisional), "another reason is judged normally");
+            var view = View(Rehash(other), new ProjectionContext(Verdicts: MethodRecord.DeriveVerdicts(other, source)));
+            Equal(false, view.Groups.Single(g => g.Title == "Strips").Rows.Any(r => r.Note == Labels.TipNotJudged), "no strip reads tip-not-judged");
+        });
+    }
+
     internal static void Run()
     {
         Check("Projection_SectionVsWingUnits", () => {
@@ -66,65 +127,12 @@ internal static class ProjectionTests
             Equal(true, samples[1].Verdict!.StartsWith("Outside", StringComparison.Ordinal), "outside strip");
             Equal(1, samples.Count(x => x.Verdict == Labels.TipNotJudged), "exactly the tip");
         });
-        Check("DeriveVerdicts_TaperedPlanform_SweepIsTheLatticeSweepAndAlphaL0IsTheStripSection", () => {
-            using var session = Fixture.OpenedWithTip("40");
-            var settings = Settings.WithStations(Settings.Default with { NSpanPerHalf = 6, NChord = 1, SectionEtas = null, SectionXs = null });
-            var method = new ProductWingMethod(settings);
-            var run = Fixture.Evaluate(new AnalysisService(session, method), Fixture.Op(3));
-            byte[] source = session.Snapshot().Source;
-            var verdicts = MethodRecord.DeriveVerdicts(run, source)!;
-            Equal(run.Strips.Count, verdicts.Count, "one verdict per strip");
-            var sections = Placement.Sections(source, settings.SectionEtas!, settings.SectionXs!, CancellationToken.None);
-            var solution = method.Solve(sections, run.Op, run.Water, CancellationToken.None);
-            var edges = run.Strips.Select(x => (x.YLow!.Value, x.YHigh!.Value)).ToArray();
-            double[] sweeps = VortexLattice.StripSweeps(ProductWingMethod.Mirror(sections), edges);
-            double maxSweep = 0;
-            for (int i = 0; i < sweeps.Length; i++)
-            {
-                Equal(true, Math.Abs(sweeps[i] - solution.Strips[i].SweepDeg) < 1e-9, "sweep of strip " + i);
-                maxSweep = Math.Max(maxSweep, Math.Abs(sweeps[i]));
-                StripLoad strip = run.Strips[i];
-                double l0 = SectionEstimator.Estimate(source, Math.Abs(strip.Eta), 0, 1e6, 200).AlphaL0Deg;
-                var expected = MethodRecord.JudgeStrip(strip.AlphaEff, l0, strip.ClLocal, sweeps[i],
-                    strip.Provisional && strip.ProvisionalReason == StripLoad.TipProvisionalReason);
-                Equal(expected.Text, verdicts[i].Text, "verdict text of strip " + i);
-            }
-            Equal(true, maxSweep > 0.5, "the fixture is swept: max |sweep| " + maxSweep);
-        });
-        Check("DeriveVerdicts_AlphaBound_9p9InsideAnd10p1Outside", () => {
-            using var session = Fixture.Opened();
-            var settings = Settings.WithStations(Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null });
-            var run = Fixture.Evaluate(new AnalysisService(session, new ProductWingMethod(settings)), Fixture.Op(3));
-            byte[] source = session.Snapshot().Source;
-            StripLoad probe = run.Strips[1];
-            double l0 = SectionEstimator.Estimate(source, Math.Abs(probe.Eta), 0, 1e6, 200).AlphaL0Deg;
-            foreach (var (delta, inside) in new[] { (9.9, true), (10.1, false), (-9.9, true), (-10.1, false) })
-            {
-                var moved = run with { Strips = run.Strips.Select(x => x.J == 1 ? x with { AlphaEff = l0 + delta, ClLocal = 0.4 } : x).ToArray() };
-                var verdict = MethodRecord.DeriveVerdicts(moved, source)![1];
-                Equal(inside, verdict.Inside, "alpha offset " + delta);
-                Equal(inside, verdict.Exceeded.Count == 0, "exceeded parts at " + delta);
-            }
-        });
         Check("JudgeStrip_SweepBound_29p9InsideAnd30p1Outside", () => {
             Equal(true, MethodRecord.JudgeStrip(0, 0, 0.4, 29.9).Inside, "29.9");
             var over = MethodRecord.JudgeStrip(0, 0, 0.4, 30.1);
             Equal(false, over.Inside, "30.1");
             Equal("sweep", over.Exceeded.Single(), "sweep named");
             Equal(false, MethodRecord.JudgeStrip(0, 0, 0.4, -30.1).Inside, "-30.1");
-        });
-        Check("DeriveVerdicts_OnlyTheTipReasonGetsTheTipRule", () => {
-            using var session = Fixture.Opened();
-            var settings = Settings.WithStations(Settings.Default with { NSpanPerHalf = 4, NChord = 1, SectionEtas = null, SectionXs = null });
-            var run = Fixture.Evaluate(new AnalysisService(session, new ProductWingMethod(settings)), Fixture.Op(3));
-            byte[] source = session.Snapshot().Source;
-            var tips = run.Strips.Where(x => x.Provisional).Select(x => x.J).ToArray();
-            Equal(2, tips.Length, "two tip strips");
-            Equal(true, MethodRecord.DeriveVerdicts(run, source)!.Where((_, i) => tips.Contains(i)).All(v => v.Provisional), "tip reason is provisional");
-            var other = run with { Strips = run.Strips.Select(x => x.Provisional ? x with { ProvisionalReason = "OTHER" } : x).ToArray() };
-            Equal(true, MethodRecord.DeriveVerdicts(other, source)!.All(v => !v.Provisional), "another reason is judged normally");
-            var view = View(Rehash(other), new ProjectionContext(Verdicts: MethodRecord.DeriveVerdicts(other, source)));
-            Equal(false, view.Groups.Single(g => g.Title == "Strips").Rows.Any(r => r.Note == Labels.TipNotJudged), "no strip reads tip-not-judged");
         });
         Check("Projection_ProvisionalVerdict_EmptyExceededNeverOutside", () => {
             var (run, _) = Data();

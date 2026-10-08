@@ -55,6 +55,14 @@ if (args.Contains("--controller-shell", StringComparer.Ordinal))
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 
+// The THEME-ROW matrix alone: the verify-application-adapters gate's evidence, and a readiness check (Ruling 143).
+if (args.Contains("--theme-matrix", StringComparer.Ordinal))
+{
+    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.ShellWindowTests.RunThemeMatrix();
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+}
+
 if (args.Contains("--shell-window", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
@@ -427,15 +435,18 @@ Stage("spawn");
 // L5/L6, B2 9.5). 2026-10-05, load 16-20, seconds: plan-canvas 33.6/28.6, properties-view 26.1/23.0, shell-window
 // 24.4/21.5, views 20.2/16.8, section-editor 18.9/17.3, controller-shell 15.3, properties-cells 12.8/11.5,
 // status-strip 12.0/10.3/7.0. Greedy on 8 slots in this order ends at 40.6 s; the earlier order ended at 44.7 s.
-// SUITE-TIME shows when to re-order.
-if (themeEvidence) Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--shell-window --part=1/2", "--shell-window --part=2/2"));
+// SUITE-TIME shows when to re-order. Re-ordered 2026-10-08 (Ruling 143) after moving 22 checks to readiness; load 9-17,
+// seconds: section-editor 27.2/24.1, properties-view 27.1/23.6, shell-window 25.3/22.7, plan-canvas 21.4/21.2,
+// controller-shell 21.0, views 18.1/16.7, analysis 16.7, properties-cells 9.6/9.5, status-strip 8.5/6.2/6.0. `--analysis`
+// had been last and started at about 25 s, so it set the Desktop wall; on 10 slots it now starts with the second wave.
+if (themeEvidence) Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--theme-matrix"));
 Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
-    "--plan-canvas --part=1/2", "--plan-canvas --part=2/2", "--properties-view --part=1/2",
-    "--shell-window --part=2/2", "--properties-view --part=2/2", "--shell-window --part=1/2",
-    "--views --part=2/2", "--section-editor --part=2/2", "--section-editor --part=1/2",
-    "--views --part=1/2", "--controller-shell", "--properties-cells --part=1/2",
-    "--status-strip --part=1/3", "--properties-cells --part=2/2", "--status-strip --part=2/3",
-    "--status-strip --part=3/3", "--shell-model", "--analysis"));
+    "--section-editor --part=1/2", "--properties-view --part=1/2", "--shell-window --part=2/2",
+    "--section-editor --part=2/2", "--properties-view --part=2/2", "--shell-window --part=1/2",
+    "--plan-canvas --part=2/2", "--plan-canvas --part=1/2", "--controller-shell",
+    "--views --part=1/2", "--analysis", "--views --part=2/2",
+    "--properties-cells --part=2/2", "--properties-cells --part=1/2", "--status-strip --part=1/3",
+    "--status-strip --part=2/3", "--status-strip --part=3/3", "--shell-model"));
 
 sealed class UncertainStore : IProjectStore
 {
