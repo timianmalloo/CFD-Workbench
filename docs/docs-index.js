@@ -14477,6 +14477,51 @@ window.DOCS_INDEX = {
       "sourceSha256": "5f462ccfa9b71fd6cac7942f87294acca093b212d585082fff7c5ef8339bd7aa"
     },
     {
+      "id": "proof-win-naca",
+      "path": "docs/proof/win-naca/receipt.md",
+      "title": "Windows W-4a/b NACA 0012 evidence and unlaunched L3 preparation",
+      "type": "proof-pack",
+      "status": "in-progress",
+      "owner": "@win-w4-validation",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Exact G0 L6 CPU comparison from Mac-equal LF dictionaries meets A4 on Windows; native SU2 completed but its declared iterative oracle failed; W-4b metadata and byte-preservation defects were corrected in a separately authorized evidence-only track. L3 remains prepared, not launched.",
+      "tags": [
+        "windows",
+        "wsl",
+        "openfoam",
+        "su2",
+        "tmr",
+        "naca0012",
+        "ruling-79"
+      ],
+      "links": [
+        {
+          "to": "coordination-pc-kickoff",
+          "rel": "implements"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-spike-04-round3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-7",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ee1b2a964676b93b77e852f0376f83f46ba2b9bb48168830958b4b2aac19e5df"
+    },
+    {
       "id": "proof-win-routes",
       "path": "docs/proof/win-routes/receipt.md",
       "title": "W-3 Windows solver routes: Ruling 133 completed manual smoke evidence",
@@ -16348,6 +16393,13 @@ window.DOCS_INDEX = {
       "artifactId": "audit-log"
     },
     {
+      "id": "surface-proof-win-naca-sources-tmr-sa-withoutpv",
+      "path": "docs/proof/win-naca/sources/tmr-sa-withoutpv.html",
+      "title": "2D NACA 0012 Airfoil Validation for Turbulence Model Numerical Analysis - SA Model Results without Point Vortex BC",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact."
+    },
+    {
       "id": "surface-mockups-area3-analysis",
       "path": "docs/mockups/area3-analysis.html",
       "title": "Area 3 analysis",
@@ -16627,5 +16679,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "72eb08e1a9594a266681f4599f1935a8b44ca7a5d374288dd14741db83368eb3"
+  "graphSha256": "7f28d8a5c452cbfad6e651c00e9c76cc265d9f9b70bdf530d51d009f6eb8eb78"
 };
