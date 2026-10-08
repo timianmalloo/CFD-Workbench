@@ -1,0 +1,601 @@
+{
+  "source_base_sha": "fd96651e6dd3ad9c01e4fbaa07c62a11fa553c09",
+  "scope": "Closing W-4 proof bytes and three Windows case YAMLs equal the staged or committed Git blobs; historical launch freezes are retained.",
+  "files": [
+    {
+      "path": "cases/win-spike04r3-g0-l6.yaml",
+      "bytes": 4595,
+      "sha256": "598085680d4d73baeb568ab85e99cf6ce188a5c8ee6a5794cc9c1a1315f2af80"
+    },
+    {
+      "path": "cases/win-spike04r3-g2-l3.yaml",
+      "bytes": 4826,
+      "sha256": "877b5a85f77f8afc0cee16dfcfcef59d06dbecf0f5d5a58618e077a245f4c069"
+    },
+    {
+      "path": "cases/win-su2-tmr-naca0012.yaml",
+      "bytes": 4464,
+      "sha256": "0aa101dd9e6aaf46db87d52828ce4d1cedbe1720823f870c60fa7fc639c59a88"
+    },
+    {
+      "path": "docs/proof/win-naca/.gitattributes",
+      "bytes": 107,
+      "sha256": "1e3d58cdb7ae8d88dfa9c27dd65aca66587cf8e45441831fe626d159f906a21c"
+    },
+    {
+      "path": "docs/proof/win-naca/a4-monitor-linux.py",
+      "bytes": 8769,
+      "sha256": "e65f58997fa16b1c83fa35a5bd5ad1ba3c843e7ea65abb0c65815d244b5c0f22"
+    },
+    {
+      "path": "docs/proof/win-naca/acquire-source-contracts.py",
+      "bytes": 699,
+      "sha256": "87f545323c36501c1493262bf6c27c1e36c2dae54f22ca05bad9b0a30d9f1fc0"
+    },
+    {
+      "path": "docs/proof/win-naca/acquire-su2-mesh.py",
+      "bytes": 626,
+      "sha256": "2c045ff9646ebd28cc43e0be4e1a295e7875f97c62cd4ee0b5196395f2ffd69a"
+    },
+    {
+      "path": "docs/proof/win-naca/acquire-su2-sources.py",
+      "bytes": 1222,
+      "sha256": "e473b5b0f10883b3452e4126952d9a4160134db762658413391f17e15a9fd077"
+    },
+    {
+      "path": "docs/proof/win-naca/all-case-validation-after-repair.txt",
+      "bytes": 1247,
+      "sha256": "c2f09ddac3065fdcaa10a94697c8389f19187c8e09ca20e1cfae7811261a02bc"
+    },
+    {
+      "path": "docs/proof/win-naca/all-case-validation-at-cap.txt",
+      "bytes": 1432,
+      "sha256": "6829daebb083be870d7fec92e0a35fd3db7f613c92306e3bf0ca9650f4d484eb"
+    },
+    {
+      "path": "docs/proof/win-naca/all-case-validation.txt",
+      "bytes": 1388,
+      "sha256": "fdad3a9e0bbc1da54d0d40554bc3711f1c7670642ef72ed850a50fc4f5b7e406"
+    },
+    {
+      "path": "docs/proof/win-naca/all-prepared-shell-syntax.txt",
+      "bytes": 112,
+      "sha256": "21670c06c09bc0c845fad113ee1afbfc16c43742bf2559e7553568a9ea6f61fe"
+    },
+    {
+      "path": "docs/proof/win-naca/analyze-l6.py",
+      "bytes": 1599,
+      "sha256": "3b2e790b7732ae3bd82514cfb6265dd414dcff1bd0d53c168627e15d67f2ad9d"
+    },
+    {
+      "path": "docs/proof/win-naca/analyze-su2.py",
+      "bytes": 2513,
+      "sha256": "65df04189854253b58f692b04130079f479406528a544e86bc6ac4ad252cf8d8"
+    },
+    {
+      "path": "docs/proof/win-naca/build-inspection.txt",
+      "bytes": 7953,
+      "sha256": "1422709572fc8e3709773ed72b92df630f923c99a54f60a539d1529e1f311dc4"
+    },
+    {
+      "path": "docs/proof/win-naca/closing-manifest.py",
+      "bytes": 1887,
+      "sha256": "ee0e0288f2201f4597e081f74383997969d3c4e664dcb3d97f51100849d06f61"
+    },
+    {
+      "path": "docs/proof/win-naca/commands.jsonl",
+      "bytes": 11630,
+      "sha256": "ec886ad73a072ff55b5d2ef7b671c3d0a44b2c7901220d769b2280a1371292f3"
+    },
+    {
+      "path": "docs/proof/win-naca/docs-validation-at-cap.txt",
+      "bytes": 3364,
+      "sha256": "5f9da7d4e7f5855fb4a4c084c8c771888d39aa291d1800a85c28b740ae57913b"
+    },
+    {
+      "path": "docs/proof/win-naca/docs-validation.txt",
+      "bytes": 9328,
+      "sha256": "e0f834c7428bc0e9f5efc44cc84a558623fecf8eb3d11d392a8ad1b8aa2b4414"
+    },
+    {
+      "path": "docs/proof/win-naca/freeze-l6.py",
+      "bytes": 3216,
+      "sha256": "380dc420f83c933b0dfecba4f1b7290b9914b20ed8e92f3ba93ef30ce43d7c09"
+    },
+    {
+      "path": "docs/proof/win-naca/freeze-su2.py",
+      "bytes": 6232,
+      "sha256": "8c638629bba52064e8df5a5cd9bf90776a3e1865b93aec8f2c93e665fbdcbf83"
+    },
+    {
+      "path": "docs/proof/win-naca/fused-link-inspection.txt",
+      "bytes": 407,
+      "sha256": "38dd008daa0001db91f638ee8b8a546215a8ce2b9d80d272c8cd7538c3021aca"
+    },
+    {
+      "path": "docs/proof/win-naca/hash-manifest.json",
+      "bytes": 19931,
+      "sha256": "826dec451626d6689f4397ee4d1528dc2c64cc3ff52d9e5237b501467dc0c745"
+    },
+    {
+      "path": "docs/proof/win-naca/hash-manifest.py",
+      "bytes": 1375,
+      "sha256": "cc68ce768b55cb1dbb00bf66710243ce9e75bec052d2e1d3d55314ba8822a40b"
+    },
+    {
+      "path": "docs/proof/win-naca/host.ps1",
+      "bytes": 419,
+      "sha256": "33189dc58591a77b318a58a2e57f4230d1102808a0629a1340b28e9094f7a286"
+    },
+    {
+      "path": "docs/proof/win-naca/host.txt",
+      "bytes": 312,
+      "sha256": "e362a37075fc6eb54ec7c2972fbc7adc525ba6a90094481c5c6898d5a74ea9e9"
+    },
+    {
+      "path": "docs/proof/win-naca/inspect-build.sh",
+      "bytes": 916,
+      "sha256": "9df2d4de1d43d8a32145342379857766f29dd5dc853e7fa6a4f664528496d9df"
+    },
+    {
+      "path": "docs/proof/win-naca/l3-commands.txt",
+      "bytes": 1747,
+      "sha256": "46a76435b9b7b8f5814b3a8e2a0a353b54b7acd4e39fc9d80d3370de28a517d9"
+    },
+    {
+      "path": "docs/proof/win-naca/l3-grid-fetch.txt",
+      "bytes": 207,
+      "sha256": "93d39c012dec148d94fe0de714b39bd0c34108baa9e8749a3842482d59054fd5"
+    },
+    {
+      "path": "docs/proof/win-naca/l3-missing-note-refusal.txt",
+      "bytes": 177,
+      "sha256": "798a8caf892b255ce844f731cd5ae7af437514cde8938a98d0830173c59f39f0"
+    },
+    {
+      "path": "docs/proof/win-naca/l3-preparation.txt",
+      "bytes": 850,
+      "sha256": "4cf125fcaea7230e5922fe901eb984f66849d8828c052436b6e8a01165c1a892"
+    },
+    {
+      "path": "docs/proof/win-naca/l3-prepared.json",
+      "bytes": 1135,
+      "sha256": "d04ab0bdd96dd8963be3077fc85c0411d27df0ef53adc7780bf50034e8eecbdd"
+    },
+    {
+      "path": "docs/proof/win-naca/l3-supervisor.sh",
+      "bytes": 1557,
+      "sha256": "6718a96a18be0e8a473d4f794dbd345f1e11c805a1b5b110c1e697b38970777d"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-checkMesh.txt",
+      "bytes": 108,
+      "sha256": "8cf1299a7b0b89fc717eec3917a9550d262ab5a096c0ed74709c3a9bbd5ea313"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-comparison.json",
+      "bytes": 1349,
+      "sha256": "1d0592ac86c8fc0441b887e3b90b33b0975be0fd6d5e6ecb3c70dca356dc12ae"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-comparison.txt",
+      "bytes": 1390,
+      "sha256": "53bbb24f6c4ca49bf825c9428b514b0523e764662c77b0c4e8dd611570f9abf7"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-convergence.txt",
+      "bytes": 507,
+      "sha256": "e79a1b3d1e72d93cc8200d6e0312ff5af265e284ee6ec15ffda84e93e6e5c242"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-decomposePar.txt",
+      "bytes": 108,
+      "sha256": "eb5eaa853cd6b20c279826f27c905655859f9fc27f81a624a44a525b50140b9d"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-freeze.txt",
+      "bytes": 799,
+      "sha256": "5ae6706f8b6a108a500c1563fff6fc37966c407a59f9f97d8f852ebef84cd906"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-frozen.json",
+      "bytes": 6353,
+      "sha256": "076c87f1b41499c28e17ce2e95bcce5073824f5980ab72cb22ab901dcf00b220"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/0/nut",
+      "bytes": 329,
+      "sha256": "69318c2dfead784d1158a59a540bb06b7300b89269eab017d201b4749a8dbc96"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/0/nuTilda",
+      "bytes": 336,
+      "sha256": "4306a52f55553e3e7f474f254c09fba39f70cf3d335008551ac2c91da12dc531"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/0/p",
+      "bytes": 315,
+      "sha256": "68c973d1a7323c0cf89507eeef95ff1983552b01f99f38be60d269272d1cfe48"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/0/U",
+      "bytes": 405,
+      "sha256": "6b4e1371a1f050f090b9c1883d461d825dfd4fe7521ff4d08bc1487e073bcfda"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/cfdw-manifest.json",
+      "bytes": 983,
+      "sha256": "0aacab97b92972e4f1d10a8fded1df043cabb93d54715f4832c71e85e40c23e4"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/boundary",
+      "bytes": 412,
+      "sha256": "2b1f4c4d888f71c9eb1148695b1ebbbb9a1495980183471fe61a7f4bc436251c"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/faces",
+      "bytes": 1467225,
+      "sha256": "33bbb418a46677404ff2cd94184f7cd6405d4ac8640fa0e49afa039ee66b3b79"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/neighbour",
+      "bytes": 149095,
+      "sha256": "f28e6ea677e4b66e1979cbb03fd998a89af8ef2b2c73603ff90842b379c5709f"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/owner",
+      "bytes": 300755,
+      "sha256": "604c4bcb1fa24bc02bc6b7bf1cfa94220be875745d330c09d267ba06244514f7"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/polyMesh/points",
+      "bytes": 1270519,
+      "sha256": "0b72ca5e41a218a5287e99d7e01fe880d7bf094c92e83f22a3380b2a036f4965"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/transportProperties",
+      "bytes": 151,
+      "sha256": "2dec2e99ca834ea83302c459e12b0909452379a562a34030dd9cfc5169678d15"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/constant/turbulenceProperties",
+      "bytes": 189,
+      "sha256": "02e4998d37cfb8ac1db64ae3ddfb1ec4aa456ded6074b6128b152e6e45443f12"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/system/controlDict",
+      "bytes": 1119,
+      "sha256": "b6840d4a61e635ed921ad6e744b7c421418af862135d333ec4876d6b85e41569"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/system/decomposeParDict",
+      "bytes": 137,
+      "sha256": "a97d2b44157e82b5f88a9515f22b51f738ab6507db28a936ff81dd0b751edf4f"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/system/fvSchemes",
+      "bytes": 522,
+      "sha256": "188a0dc55ed1a95177115fc3822953e318fb87bf3a2d18563f1b666fe47b23c2"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-inputs/system/fvSolution",
+      "bytes": 514,
+      "sha256": "8d8eb5db4b3cf7ad9b93bc4634cdacf3093f6666f591ec9c6f31a030ce4a8f76"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-monitor-stdout.txt",
+      "bytes": 2889,
+      "sha256": "389245402f7432815c198d6b2cf2c61dcf2b6e3c9551def02af95534396dc589"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-pipeline.txt",
+      "bytes": 5104,
+      "sha256": "d1a5195edf3d5bd754efc0018e034b7ecbb8a13d76dfc3ec9e278e5f2b64583f"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-reconstructPar.txt",
+      "bytes": 108,
+      "sha256": "b943f0ef551acc94797a9dbc4b19a5e455035e8e458733b4ce5c81c8adf639a6"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/a4-stop.txt",
+      "bytes": 83,
+      "sha256": "140eadb144d61f0ac61f8b4c18380e59b7a77cec0af672d19a315327acd2b77f"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/log.checkMesh",
+      "bytes": 3899,
+      "sha256": "f9c42954009876ccc2c716c0988865bc34989942e5df73a4501b8c16d4a9d06f"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/log.decomposePar",
+      "bytes": 2773,
+      "sha256": "9c478f1738486d072ba26d5e67cbadb587eca82a9b2c71151a72d096e592571a"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/log.reconstructPar",
+      "bytes": 1949,
+      "sha256": "22c58765d1144599b6f4ad3e971260c52ff1b275f277fa3c7846974607341bbe"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/log.simpleFoam",
+      "bytes": 4971229,
+      "sha256": "c14468a3a43497ff347d927f963d70aabcd8ddbcb5429fa463efb7d92d0ab63b"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/postProcessing/forceCoeffs1/0/coefficient.dat",
+      "bytes": 1918009,
+      "sha256": "f8770ec7b8e97b90774d215023d6cb0b0427be98d0a6e12833c919251fa72b23"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/postProcessing/solverInfo1/0/solverInfo.dat",
+      "bytes": 1728070,
+      "sha256": "5398aaf41ce0c0393e4cd73765ce32b6a44a6666ed50287a6debfabfcc890cda"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/postProcessing/wallP/7577/p_airfoil.raw",
+      "bytes": 6709,
+      "sha256": "a464852bef48446485ac22f270d438b63d2610f339b465798dfa388aef5a4c8b"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/postProcessing/yPlus1/0/yPlus.dat",
+      "bytes": 212,
+      "sha256": "1bc197f6d33060f682a1b3991e311e97388026b67cc203f1e288bfe132c91bc6"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/run-ledger.txt",
+      "bytes": 609,
+      "sha256": "020f117685f9ff08d67c58f03d6ae060232fe8e0c7467beb2d9f2d1f78ae5630"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/time.checkMesh",
+      "bytes": 922,
+      "sha256": "1ca2d83d7fb7e8e3ff487e8ee1aa84d709e87f46c541804b8559f8e55d5b7d3c"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/time.decomposePar",
+      "bytes": 934,
+      "sha256": "ead57ab81810a7686a1b8b3e99b4fe1fd19b04c03ac18bd47b2a2e481fe04dd3"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/time.reconstructPar",
+      "bytes": 938,
+      "sha256": "04056a678cc4ca5e5c44ea7b39f7eded6b0b48dcabf5218ba8fada73f81e22f5"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-results/time.simpleFoam",
+      "bytes": 982,
+      "sha256": "9d63299720ac107ac217cc58d88bb9fcf7b0df710e99d6174218a3bf386a4468"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-simpleFoam.txt",
+      "bytes": 108,
+      "sha256": "3301d6a678a10853c790616cae5c947f26b7c6d492b94c6207b75fc02f9ec0ce"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-stage-inputs.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-stage-parent.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-naca/l6-tree-init.txt",
+      "bytes": 96,
+      "sha256": "1305bd6fb8bcdffdac9932d415a7a0774cac675655c98b803014554a27629006"
+    },
+    {
+      "path": "docs/proof/win-naca/measure.py",
+      "bytes": 902,
+      "sha256": "d210b75bc0d87c0d8fd2e63c95e5460735332d36b37af1c26f3616f5feeea3b7"
+    },
+    {
+      "path": "docs/proof/win-naca/of-command-l3.sh",
+      "bytes": 1988,
+      "sha256": "68b1fa1674b05ffe1c39345228b04e2eaf074ca262e6e1d1a37a00c5abc54fc5"
+    },
+    {
+      "path": "docs/proof/win-naca/of-command.sh",
+      "bytes": 2025,
+      "sha256": "eaab36fadfe427cdcb09a1b5f650ed3af01d939f225a0f76bddd23c5170e6d58"
+    },
+    {
+      "path": "docs/proof/win-naca/prepare-l3.py",
+      "bytes": 4080,
+      "sha256": "88f9c269af6febc90d36d810cfa89fc5ac3cf2a937bd75579b900a7bc0cb7625"
+    },
+    {
+      "path": "docs/proof/win-naca/prepared-shell-syntax.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-naca/publisher-config-acquisition.txt",
+      "bytes": 6636,
+      "sha256": "8188f97d7593b311773c2aad389cd69d4593ee1e29c8c3267a8149902833fd5e"
+    },
+    {
+      "path": "docs/proof/win-naca/publisher-mesh-acquisition.txt",
+      "bytes": 288,
+      "sha256": "17f6ec896d7ec63c8060e3f138eb7cc4cacdd3be612129f5a91af2c262b4f91b"
+    },
+    {
+      "path": "docs/proof/win-naca/receipt.md",
+      "bytes": 23241,
+      "sha256": "4d5d5e02f8524d98b1f79e4960ade0938b2b69451fdbe7b87d6667f993b47af3"
+    },
+    {
+      "path": "docs/proof/win-naca/repair-su2-semantics.py",
+      "bytes": 4449,
+      "sha256": "03547f7a27f5960aa3b6db2786698515149ad7524cc7b3d5ccb3831a71d5ce45"
+    },
+    {
+      "path": "docs/proof/win-naca/repair-su2-yaml.py",
+      "bytes": 1935,
+      "sha256": "68339931e7b825529c655e78149fc0e6db2df7900253ba4c7be99a7a7f045b74"
+    },
+    {
+      "path": "docs/proof/win-naca/run-l6.py",
+      "bytes": 2823,
+      "sha256": "3fa148a738f97e39c3e2c4287bfb5f6a7ecb2f9391bc76f780c415d60c3a01ad"
+    },
+    {
+      "path": "docs/proof/win-naca/run-su2.py",
+      "bytes": 3337,
+      "sha256": "638d6d5d63c24351336e24ce2cb7c6d9df1ff847694318343b13c67c74c177a3"
+    },
+    {
+      "path": "docs/proof/win-naca/source-contracts-acquisition.txt",
+      "bytes": 446,
+      "sha256": "e180d1641d72c241e678337c9e826fab29d47577f0ac856b869cfbab6d019072"
+    },
+    {
+      "path": "docs/proof/win-naca/sources/CConfig-v8.5.0.cpp",
+      "bytes": 510080,
+      "sha256": "d6a00ab96d177ab29274f090292a3806d62452fd1883f54f599756b5eec15c9f"
+    },
+    {
+      "path": "docs/proof/win-naca/sources/CTurbSASolver-v8.5.0.cpp",
+      "bytes": 77501,
+      "sha256": "0cb025ddbe75fbdb87b7ac89f4b33d7c9dfe9b8280db73ed13455b504899fc0e"
+    },
+    {
+      "path": "docs/proof/win-naca/sources/n0012familyII.3.p2dfmt.gz",
+      "bytes": 13026423,
+      "sha256": "23db6ddbf6de258a0921f5870482d56e70e604ed2dc795902c038b7b3fd606e1"
+    },
+    {
+      "path": "docs/proof/win-naca/sources/n0012familyII.6.p2dfmt.gz",
+      "bytes": 192979,
+      "sha256": "5664336523cb02c8410c4f9dc67eccdfa79b34ea9549b712c0d9fd988aff3244"
+    },
+    {
+      "path": "docs/proof/win-naca/sources/publisher-n0012_225-65.su2",
+      "bytes": 1253807,
+      "sha256": "20dfc96875b1d1a8377c2e64248b6ee42a1ecf525c50d822fb5f539d06d68d15"
+    },
+    {
+      "path": "docs/proof/win-naca/sources/su2-config-template-v8.5.0.cfg",
+      "bytes": 104205,
+      "sha256": "3e04a99021cdae4286b54c4e009d2c072c433bead708c0041fad8116ebb62b7d"
+    },
+    {
+      "path": "docs/proof/win-naca/sources/su2-naca0012-v8.5.0.cfg",
+      "bytes": 3583,
+      "sha256": "fc88ad7b78dff208ef2a9323791eebc1182600f8526233a6e02d5febb80a8042"
+    },
+    {
+      "path": "docs/proof/win-naca/sources/su2-testcases-tree.json",
+      "bytes": 201927,
+      "sha256": "b0c0b6fd2b94e35391d3e6c017b0d51707d1c00bab41485c124945f941a5217a"
+    },
+    {
+      "path": "docs/proof/win-naca/sources/tmr-sa-withoutpv.html",
+      "bytes": 38507,
+      "sha256": "13946ac167d04654c49589acb16f1c2a4190fcb443bc631e65d4fc1d4f534f63"
+    },
+    {
+      "path": "docs/proof/win-naca/start-l3.sh",
+      "bytes": 593,
+      "sha256": "e3e311b56685212c4c2428bf88df82d35c1e190f0392600f852fdebcb22df79a"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-after-schema-case.yaml",
+      "bytes": 3577,
+      "sha256": "e2feb2d7aaabcf0fb020ba0d89c3e5e68848de9a1b5ef35d8840f8bd4e04e179"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-after-semantic-failure-case.yaml",
+      "bytes": 4287,
+      "sha256": "fc2b2ca0b9c25933cbeddeeb14e04556a360d318a40e80aa919ad34800c0a036"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-comparison.json",
+      "bytes": 1449,
+      "sha256": "f33801cd296f7ebba6b72374428b65f495ba34b08a0af5ee9531f7957e07588e"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-final-comparison.txt",
+      "bytes": 1495,
+      "sha256": "85362ce956d3f498b15620748e1143a2a964fcbfa1adbadc22400054e5d6aa0a"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-freeze.txt",
+      "bytes": 849,
+      "sha256": "d7a9b06af7e093a10e1240c290cac59da374d1b06680d3f438433c20eb575031"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-frozen.json",
+      "bytes": 1000,
+      "sha256": "acaa8349d6c9b3192a05dda042ee90ddd652378753e5ca299781b3fbb3eaa5d5"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-inputs/tmr-familyII-L6.su2",
+      "bytes": 1063271,
+      "sha256": "a4709ce352e5aff94395e28f62b1c91fdad957d2330fd8166cf23b0d655ba827"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-inputs/tmr-sa.cfg",
+      "bytes": 3663,
+      "sha256": "0f450bd096c8809871c5bc7ff8b9529acd47bcb8f0ebb62060aeede9cb1d1dee"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-pipeline.txt",
+      "bytes": 4601,
+      "sha256": "2a6e1d5acb11e57e4184b91ad164f17855cc143c5c67352cc99aa35ecd6ab560"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-prelaunch-case.yaml",
+      "bytes": 3305,
+      "sha256": "31041c99f2f9645c459bcaa891f2df2107b8f6b388b2bf0f5b949dbec305c24d"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-results/history.csv",
+      "bytes": 7240362,
+      "sha256": "9d585b39fca3ce3be1f5f50a8d5f586f83cd8cd54b388fb55c8dd3bf82c71f97"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-results/log.SU2_CFD",
+      "bytes": 3045192,
+      "sha256": "aab8d165671b30d0ed1224fbd11bff4e6d4bb9a151a221dce52d74549c823543"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-results/resources.json",
+      "bytes": 584,
+      "sha256": "762c621b41a36c580d94cb5b901dddf95d173e4aa21192d5a0005db2f376c2cb"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-schema-repair.json",
+      "bytes": 647,
+      "sha256": "5489a1956ac2b30f9f85aeb3b8cb07c46fc65c200aba2cbe15f5441acd8dc197"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-yaml-schema-repair.txt",
+      "bytes": 614,
+      "sha256": "22fd826df590050f9f36e624e084903a3c5f55116d424041cf24eab4275d1d2a"
+    },
+    {
+      "path": "docs/proof/win-naca/su2-yaml-semantic-repair.txt",
+      "bytes": 385,
+      "sha256": "bbfe6e5cb8f4bba1954caef8e5d51959a1b5d1b90ed2c894c12b3c1e6a4bcbba"
+    },
+    {
+      "path": "docs/proof/win-naca/syntax-check.sh",
+      "bytes": 245,
+      "sha256": "9bb651531daf26d0345ca0cff4a79620a26a3fc7d1959ad2a16bb130caf8d242"
+    },
+    {
+      "path": "docs/proof/win-naca/tmr-grid-fetch.txt",
+      "bytes": 205,
+      "sha256": "2ca1d884a5799896911f2685daf8bdba2568912190f3a7b10ea461e8ed5c0080"
+    },
+    {
+      "path": "docs/proof/win-naca/windows-python-dependencies.txt",
+      "bytes": 25,
+      "sha256": "784870964b0ba1530a727a5b27cfa3833c08c41877916a364b4dea154c26e999"
+    }
+  ]
+}

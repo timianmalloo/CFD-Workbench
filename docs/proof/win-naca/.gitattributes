@@ -1,3 +1,5 @@
+l6-results/log.* -text
+su2-results/log.* -text
 *.txt -text
 *.log -text
 *.cfg -text

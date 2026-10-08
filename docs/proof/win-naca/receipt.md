@@ -14,8 +14,8 @@ links:
 review-by: "2026-11-08"
 summary: >-
   Exact G0 L6 CPU comparison from Mac-equal LF dictionaries meets A4 on Windows;
-  native SU2 completed but its declared iterative oracle failed and metadata reached the two-repair cap.
-  L3 inputs and detached monitor commands are prepared, not launched; delivery is blocked for coordinator disposition.
+  native SU2 completed but its declared iterative oracle failed; W-4b metadata and byte-preservation defects
+  were corrected in a separately authorized evidence-only track. L3 remains prepared, not launched.
 ---
 
 # W-4a/b Windows NACA 0012
@@ -247,3 +247,31 @@ no further gate and no L3 launch. The next permitted action is coordinator dispo
 must be retained until a separately authorized serialization correction has bound it without normalization.
 No application ring, publishing or source change. Total agent time, tokens, aggregate host utilisation **Not recorded**.
 Command UTC/argv/exit/wall and solver resource emitting sources are recorded; missing measures stay Not recorded.
+
+## W-4b evidence-only correction (2026-10-08)
+
+The coordinator authorized a new evidence-only track after the prior two-cycle semantic-repair track stopped.
+The earlier failed YAML versions remain byte-preserved as `su2-prelaunch-case.yaml`,
+`su2-after-schema-case.yaml`, and `su2-after-semantic-failure-case.yaml`; the last is the exact failed
+`fc2b2ca0...` version. The corrected `cases/win-su2-tmr-naca0012.yaml` uses the schema enum
+`compressible-steady`, with RANS/Spalart-Allmaras details in their separate fields. It records
+`nu_m2_s: 8.6806e-6`, derived as 52.0836 m/s × 1 m / 6,000,000, and labels this as reference
+kinematic viscosity only; the full compressible solution uses Sutherland viscosity. The annotation now
+matches the frozen config and SU2 runtime banner: farfield, adiabatic wall, monitoring and plotting markers;
+it omits unsupported `MARKER_DESIGNING`.
+
+The proof copy of `su2-results/log.SU2_CFD` was copied byte-for-byte from the retained run file. Its
+3,045,192 bytes, 27,120 CRLF pairs and SHA-256 `aab8d165671b30d0ed1224fbd11bff4e6d4bb9a151a221dce52d74549c823543`
+are unchanged. Evidence-scoped `.gitattributes` entries disable text conversion only for
+`l6-results/log.*` and `su2-results/log.*`; whitespace exceptions are limited to those raw output paths.
+Captured Windows user paths in committed W-4 proof text are represented as `%USERPROFILE%` to preserve
+the executable location shape without committing the account name. The binary SHA-256 remains the identity
+check; this redaction changes no solver input or raw output.
+
+`closing-manifest.json` binds every W-4 proof file except itself, plus the three Windows case YAMLs, to
+the staged and committed Git blobs. Its `source_base_sha` is `fd96651e6dd3ad9c01e4fbaa07c62a11fa553c09`,
+the tested source base; the final evidence commit is a descendant and is reported separately at handoff.
+This does not replace the historical launch freezes or `hash-manifest.json` precompletion snapshot.
+The corrected metadata passed the case schema; the one SU2 run and the original iterative oracle remain
+unchanged, with the oracle **NOT MET**. CFL3D comparison remains not admitted; no momentum residual is
+reinterpreted, no solver rerun occurred, and L3 remains unlaunched. This correction used 1 of 2 cycles.

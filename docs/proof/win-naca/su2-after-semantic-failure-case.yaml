@@ -27,7 +27,6 @@ conditions:
   reynolds: 6000000
   mach: 0.15
   alpha: 10.0
-  speed_m_s: 52.0836
   reference_length_m: 1.0
   temperature_K: 300.0
 solver: su2
@@ -58,14 +57,13 @@ mesh:
     points: 14576
 physics:
   application: SU2_CFD
-  flow: compressible-steady
+  flow: compressible-steady-RANS
   turbulence_model: SpalartAllmaras
   sa_variant: 'SA-noft2: SA_OPTIONS=NONE; no WITHFT2'
   wall_treatment: No-slip adiabatic airfoil; SA working variable zero at the wall
   transition: none; fully turbulent
   fluid:
-    name: STANDARD_AIR; reference nu is U*L/Re, not a constant-viscosity model for the full compressible solution
-    nu_m2_s: 8.6806e-6
+    name: STANDARD_AIR
     temperature_K: 300.0
     viscosity_model: SUTHERLAND
     conductivity_model: CONSTANT_PRANDTL
@@ -75,10 +73,11 @@ physics:
     alpha_deg: 10.0
     reynolds_length_m: 1.0
     nuTilda_over_nu: 3.0
-    specification: Reynolds-based dimensional freestream; nu_m2_s is the reference U*L/Re value; the full compressible solution uses Sutherland viscosity
+    specification: Reynolds-based dimensional freestream; SU2 computes density/pressure
+      and viscosity
 boundary_conditions:
   farfield: 'MARKER_FAR=(farfield): SU2 compressible farfield; no point-vortex correction'
-  airfoil: 'MARKER_HEATFLUX=(airfoil,0.0): no-slip adiabatic wall; MARKER_MONITORING and MARKER_PLOTTING=(airfoil)'
+  airfoil: 'MARKER_HEATFLUX=(airfoil,0.0): no-slip adiabatic wall; MARKER_MONITORING/PLOTTING/DESIGNING=(airfoil)'
   dimensionality: NDIME=2; two-dimensional SU2 mesh, no OpenFOAM empty patches
 numerics:
   config: docs/proof/win-naca/su2-inputs/tmr-sa.cfg
