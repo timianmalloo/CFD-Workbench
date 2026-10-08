@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T18:51:09Z",
+  "generated": "2026-10-08T18:51:21Z",
   "audit": [
     {
       "actor": null,
@@ -30298,6 +30298,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T18:31:54Z",
       "duration_seconds": 7.0
+    },
+    {
+      "id": "al-01M4EDP4HPFMKQKWRGCRSG7Q9Z",
+      "shortname": "WRT expected-failure manifest",
+      "datetime": "2026-10-08T18:51:21Z",
+      "session": "trk-wrt",
+      "prompt": "WRT",
+      "summary": "tests/expected-failures.windows.json (30 entries), tools/check-expected-failures.py (--self-test in check-docs), Windows-only wiring in run-tests.sh, Desktop save-conflict check no longer aborts the harness, WRT-HARNESS-ABORT lesson. macOS ring green 698 Desktop PASS.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "On a Windows host the ring's exit reflects only unexpected failures (Rulings 152 (2), 154 (3))",
+      "done_when": "manifest + checker with self-test, run-tests wiring, Desktop crash as a FAIL line, red-first, lesson"
     }
   ],
   "changes": [
