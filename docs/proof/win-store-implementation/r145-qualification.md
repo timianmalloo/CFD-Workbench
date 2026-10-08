@@ -146,8 +146,9 @@ py -3 tools/check-docs.py
 
 These commands produced `r145-head` and `r145-check-docs` stdout/stderr pairs.
 For every command, stdout and stderr were redirected separately; `$LASTEXITCODE`
-was captured immediately, outside a pipeline. Native stderr is empty. The docs
-failure is in stdout; its stderr is empty. Test costs belong to Windows native
+was captured immediately, outside a pipeline. Native stderr is empty. Docs stdout
+contains the join-ring policy message; docs stderr contains the STORE-SUBSET failure.
+The docs command exited 1 before subsequent gates. Test costs belong to Windows native
 qualification/readiness; these cases are not promoted to a fast-ring budget here.
 
 ## Proof pack
