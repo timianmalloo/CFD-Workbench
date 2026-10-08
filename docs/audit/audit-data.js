@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T02:37:23Z",
+  "generated": "2026-10-08T02:38:45Z",
   "audit": [
     {
       "actor": null,
@@ -29845,6 +29845,33 @@ window.AUDIT_DATA = {
       "done_when": "Both explained from code; capture retaken through the band",
       "started_at": "2026-10-08T02:35:46Z",
       "duration_seconds": 97.0
+    },
+    {
+      "id": "al-01M4CP18AAD5ASSCW0YRY1G5MG",
+      "shortname": "join-tcv",
+      "datetime": "2026-10-08T02:38:45Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of fix/tip-cavitation into main",
+      "summary": "governing selection (200, 400, SelectWing) uses judged stations; wing line appends ; N Not judged - tip strip; all-tip reads Not judged - tip strip; tip station shows no sigma or -Cp_min number (rows, table, profile plate, ring, chart point, legend); example wing governing eta 0.9757 unchanged; tests in readiness (C-2 has no headroom) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join fix/tip-cavitation",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T02:37:48Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [

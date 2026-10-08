@@ -1,1 +1,2 @@
 {"agent": "trk-rdh", "at": 1791422974.938134, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-rdh", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-perf-readiness-headroom"}
+{"agent": "trk-rdh", "at": 1791425248.621644, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-rdh", "wi": "WI-0", "worktree": "CFD-Workbench-perf-readiness-headroom"}
