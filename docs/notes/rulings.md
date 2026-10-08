@@ -1245,3 +1245,9 @@ Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended. As soon
 Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended. The banner reads "Historical — operating point changed (speed)", "(depth)" or "(water)" for those edits, and "Historical — operating point changed" when an input is blank or invalid; the alpha wording is unchanged. Raw key names never reach the banner.
 
 - request: req-01M4CEJER9EDKJ5AT9WMJRJTFK · ruled by: operator-timianmalloo · at: 2026-10-08T00:28:20Z
+
+### Ruling 142 — Tip strips never decide the wing cavitation verdict; a tip station's screen reads Not judged — tip strip
+
+Operator 2026-10-07 (AskUserQuestion, session 14e5e8d5), as recommended, after the hydrofoil-hydrodynamicist review (BLOCK). (1) A tip-provisional strip (StripLoad.TipProvisionalReason) never decides the wing cavitation verdict: governing-station selection (the 200-panel pass, the 400-panel candidate set and Cavitation.SelectWing) uses judged stations only, and the station count in COPY-304 counts judged stations only. A red-first test plants a tip-provisional station with the smallest sigma/(-Cp_min) and shows it is not selected. (2) When tip-provisional stations are excluded, the wing cavitation line appends "; N Not judged — tip strip", mirroring the run verdict at AnalysisProjection.cs:409 (TipNotJudged is approved copy, COPY-220). If every station is tip-provisional, the wing line reads Not judged — tip strip. (3) For a selected tip-provisional station, the station-table cavitation word, the profile cavitation line and the estimator -Cp_min row show Not judged — tip strip, with no sigma number and no -Cp_min number on that station. The wing-level Cavitation group stays the wing result. Tip-vortex cavitation stays under Not modelled.
+
+- request: req-01M4CJC5QSTXJ2J2SKXYT48ZHP · ruled by: operator-timianmalloo · at: 2026-10-08T01:34:49Z
