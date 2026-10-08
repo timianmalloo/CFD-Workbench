@@ -1,0 +1,46 @@
+.NET SDK:
+ Version:           10.0.203
+ Commit:            c23858a6d8
+ Workload version:  10.0.200-manifests.ef86bccd
+ MSBuild version:   18.3.3+c23858a6d
+
+Runtime Environment:
+ OS Name:     Windows
+ OS Version:  10.0.26300
+ OS Platform: Windows
+ RID:         win-x64
+ Base Path:   %USERPROFILE%\.dotnet\sdk\10.0.203\
+
+.NET workloads installed:
+There are no installed workloads to display.
+Configured to use workload sets when installing new manifests.
+No workload sets are installed. Run "dotnet workload restore" to install a workload set.
+
+Host:
+  Version:      10.0.7
+  Architecture: x64
+  Commit:       b16286c228
+
+.NET SDKs installed:
+  10.0.203 [%USERPROFILE%\.dotnet\sdk]
+
+.NET runtimes installed:
+  Microsoft.AspNetCore.App 10.0.7 [%USERPROFILE%\.dotnet\shared\Microsoft.AspNetCore.App]
+  Microsoft.NETCore.App 10.0.7 [%USERPROFILE%\.dotnet\shared\Microsoft.NETCore.App]
+  Microsoft.WindowsDesktop.App 10.0.7 [%USERPROFILE%\.dotnet\shared\Microsoft.WindowsDesktop.App]
+
+Other architectures found:
+  x86   [C:\Program Files (x86)\dotnet]
+    registered at [HKLM\SOFTWARE\dotnet\Setup\InstalledVersions\x86\InstallLocation]
+
+Environment variables:
+  DOTNET_ROOT                              [%USERPROFILE%\.dotnet]
+
+global.json file:
+  C:\Projects\CFD-Workbench-win-trig-bits\global.json
+
+Learn more:
+  https://aka.ms/dotnet/info
+
+Download .NET:
+  https://aka.ms/dotnet/download
