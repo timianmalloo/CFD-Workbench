@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T17:49:41Z",
+  "generated": "2026-10-08T17:51:04Z",
   "audit": [
     {
       "actor": null,
@@ -30111,12 +30111,57 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4EA579XKZ0THW2QSVTXN7QN",
-      "shortname": "join-wsf",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T17:49:41Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 56.0,
+      "fan_out": 0,
+      "goal": "join WSF reader share flags under Ruling 145 (6)",
+      "id": "al-01M4EA579XKZ0THW2QSVTXN7QN",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/wsf-reader-share into main",
+      "session": "3122f106",
+      "shortname": "join-wsf",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T17:48:45Z",
       "summary": "WSF joined: UserFile opener with FileShare.Read|Delete at ShellHost, CLI, SectionLibrary; check-reader-sharing gate in check-docs recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-08T17:46:28Z",
+      "done_when": "default-TMPDIR alone runs green, control red then green, ring green",
+      "goal": "Desktop harness gives the same result alone and in run-tests.sh",
+      "id": "al-01M4E9ZAJ6TPEDMYEWGH16SQ9E",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-hrn",
+      "session": "trk-hrn",
+      "shortname": "hrn-desktop-harness",
+      "skill": "implement",
+      "summary": "TestTemp canonical root replaces 20 raw GetTempPath sites; SelfLaunchTests.NoRawTempPath control; defect class TEST-TMP-ALIAS; SaveDialog part-alone failure was the same cause, not a second defect",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4EA7RAEYJENGSD7N8B5A4W0",
+      "shortname": "join-hrn",
+      "datetime": "2026-10-08T17:51:04Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/hrn-desktop-harness into main",
+      "summary": "HRN joined: TestTemp canonical root at 20 Desktop sites; SelfLaunchTests.NoRawTempPath control; TEST-TMP-ALIAS class recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -30125,7 +30170,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join WSF reader share flags under Ruling 145 (6)",
+      "goal": "join HRN Desktop harness temp-root fix",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -30134,8 +30179,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-08T17:48:45Z",
-      "duration_seconds": 56.0
+      "started_at": "2026-10-08T17:50:11Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [

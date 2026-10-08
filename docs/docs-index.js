@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d86cb3937cc50cdfd09ad2a21306f1e476f4cc1e7997262e29906aa2fd86043b"
+      "sourceSha256": "f98d06c98a8ed7aada1ed72ddd4fbd9618748e0c64dbbf5d7bf22d8a347d0906"
     },
     {
       "id": "domain-experts",
@@ -11920,6 +11920,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "d2528f7faa8bc98faab5bb1c2ece5b347d1fe8cd163e08eb15e90a4a08ed78c9"
     },
     {
+      "id": "proof-hrn-red-first",
+      "path": "docs/proof/hrn/red-first.md",
+      "title": "HRN red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-hrn",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first and after receipt for the Desktop harness giving one result alone and in the ring (TEST-TMP-ALIAS).",
+      "tags": [
+        "desktop-harness",
+        "tmpdir",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1257bc0ede1aaf57db308757267eff5a7ed6c1aa4a7ad7551a9da4d43e89aef2"
+    },
+    {
       "id": "proof-legacy-gate-retarget",
       "path": "docs/proof/legacy-gate-retarget.md",
       "title": "Legacy gate retarget — the adapters gate's applied-contrast step moves from the pre-shell window to the shell matrix",
@@ -16704,5 +16729,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ab664e61226d0d6b60aa5d62787003c7a089458525f4ba5dc39d834ee0277563"
+  "graphSha256": "39d4d39e29caec089deee6933d80ce7449f5e57f87111a0d58d6700194b686ca"
 };
