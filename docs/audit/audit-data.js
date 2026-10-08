@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T18:32:01Z",
+  "generated": "2026-10-08T18:46:49Z",
   "audit": [
     {
       "actor": null,
@@ -30298,6 +30298,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T18:31:54Z",
       "duration_seconds": 7.0
+    },
+    {
+      "id": "al-01M4EDDTVVFYK6P1PAFK9JR5X5",
+      "shortname": "cwr-cause-copy",
+      "datetime": "2026-10-08T18:46:49Z",
+      "session": "trk-cwr",
+      "prompt": "CWR",
+      "summary": "Labels.SaveRefusal/Refusal/OpenCodeLine carry COPY-412..431; save strip, open alert second line, edit/source fallbacks wired; DESIGN.md rows; control scans src/ for DOC-/DSL- literals; defect class RAW-ERROR-CODE-AS-CAUSE",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Wire the approved plain-cause copy (Ruling 155) through the one Labels lookup",
+      "done_when": "COPY-412..431 in Labels, DESIGN.md and tests; raw-code control red then green; ring green; check-docs exit 0"
     }
   ],
   "changes": [
