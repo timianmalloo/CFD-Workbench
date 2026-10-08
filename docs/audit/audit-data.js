@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:46:10Z",
+  "generated": "2026-10-08T23:54:25Z",
   "audit": [
     {
       "actor": null,
@@ -31060,6 +31060,38 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T23:46:03Z",
       "duration_seconds": 7.0
+    },
+    {
+      "id": "al-01M4EZ11QQEDA67C0988JHGNQZ",
+      "shortname": "r165-w4-c3-c4-correction",
+      "datetime": "2026-10-08T23:54:24Z",
+      "session": "win-w4-r151-followups-r165-20261008",
+      "prompt": "Ruling 165: redo the scoped Ruling 151 C3/C4 docs/evidence correction after confirming local commit 9e2bdfc2 was never pushed; redact the audit entry at append time, inventory retained pre-cutoff RESULT lines, and preserve the Windows ring as INCOMPLETE without rerunning it.",
+      "summary": "Fresh correction from origin/main d007d309. Reapplied Ruling 151 C3/C4 docs; audit records the SDK path as %USERPROFILE%\\\\.dotnet\\\\dotnet.exe. Retained Analysis results before the 2026-10-08T23:31:35.202Z cutoff: Analysis.part1of2.log:234 RESULT failures=0 and Analysis.part2of2.log:307 RESULT failures=2. The Windows expected-failure classifier marked both logged FAILs unexpected; the ring remains INCOMPLETE after the prior 60.454 s timeout. No ring rerun. Ruling 165 correction cycle 1/2.",
+      "kind": "manual",
+      "skill": null,
+      "tool": "audit-log.py",
+      "actor": "codex",
+      "artifacts": [
+        "docs/proof/win-naca/receipt.md",
+        "docs/lessons/defect-classes.md",
+        "cases/win-spike04r3-g2-l3.yaml",
+        "docs/proof/win-naca/prepare-l3.py"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Correct Ruling 151 C3/C4 evidence and record the incomplete Windows ring truthfully.",
+      "done_when": "C3 classes/controls, C4 generator citations and hashes, redacted audit, raw RESULT inventory, lightweight gates, and clean commit are complete; no ring rerun.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-08T23:52:44Z",
+      "duration_seconds": 100.0,
+      "git": {
+        "sha": "d007d309174d71318484469d139bb9f7405e783b",
+        "short": "d007d3091",
+        "branch": "win/w4-r151-followups",
+        "pushed": null
+      }
     }
   ],
   "changes": [
