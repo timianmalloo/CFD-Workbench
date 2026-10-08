@@ -1,0 +1,2 @@
+resolved_binary=WM_PROJECT_VERSION=
+
