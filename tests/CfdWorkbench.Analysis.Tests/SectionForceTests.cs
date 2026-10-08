@@ -203,7 +203,7 @@ internal static class SectionForceTests
     // ---- readiness: one real lattice run on a cambered catalogue section ---------------------------------------------------
 
     /// <summary>One real lattice run on the cambered section, shared by the readiness checks of this class (about 1 s once).</summary>
-    private static (AnalysisRun Run, byte[] Source) CamberedRun()
+    internal static (AnalysisRun Run, byte[] Source) CamberedRun()
     {
         if (camberedRun is { } held) return held;
         using var session = new AuthoringSession();

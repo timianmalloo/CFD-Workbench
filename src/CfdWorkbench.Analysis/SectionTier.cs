@@ -15,6 +15,11 @@ public sealed record SectionStationResult(double Eta, double AlphaEffDeg, double
     /// </summary>
     public double? PanelUnderread { get; init; }
     public bool PanelUnderreadMeasured => PanelUnderread.HasValue;
+    /// <summary>
+    /// Ruling 142: the strip this station reads α_eff from is the tip-provisional strip (<see cref="StripLoad.TipProvisionalReason"/>).
+    /// Such a station never decides the wing cavitation verdict. Distinct from <see cref="Provisional"/>, the panel under-read state.
+    /// </summary>
+    public bool TipNotJudged { get; init; }
     /// <summary>The DR-DXM-7 provisional state: measured and above 10 %. A not-measured station is not provisional.</summary>
     public bool Provisional => PanelUnderread > 0.10;
     public string? EstimatorAvailabilityCode => Depth is <= 0 ? global::CfdWorkbench.Analysis.Cavitation.SurfacePiercing : null;
@@ -28,6 +33,8 @@ public sealed record SectionTierResult(IReadOnlyList<SectionStationResult> Stati
     public bool GoverningProvisional => PanelUnderreadFraction > 0.10;
     /// <summary>How many stations were solved at 400 panels (the governing station and its near-tie candidates, at most 4).</summary>
     public int PanelCandidateCount { get; init; }
+    /// <summary>Ruling 142: stations left out of the wing cavitation verdict because they read the tip-provisional strip.</summary>
+    public int TipNotJudgedCount { get; init; }
     public PolarResult? PolarNcrit2 { get; init; }
     public PolarResult? PolarNcrit4 { get; init; }
     public string? PolarReason2 { get; init; }
