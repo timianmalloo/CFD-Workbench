@@ -65,6 +65,11 @@ load_source() {
   else echo "none"; fi
 }
 ring_load_source=$(load_source)
+# Rulings 152 (2) and 154 (3): on a Windows host only, a harness whose failures are all listed in
+# tests/expected-failures.windows.json counts as passed, and a listed test that passes fails the ring (tools/check-expected-failures.py).
+# On macOS nothing here runs and a listed test failing is a real failure.
+ring_windows=0
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) ring_windows=1 ;; esac
 ring_host=$(hostname | cut -d. -f1)
 load_start=$(load)
 started=$SECONDS
@@ -106,6 +111,18 @@ for index in "${!jobs[@]}"; do
   if [ "$name" != "$project" ]; then label="$label ${jobs[$index]#* }"; fi
   status=0
   wait "${pids[$index]}" || status=$?
+  expected_n=0
+  if [ "$ring_windows" -eq 1 ]; then
+    verdict=0
+    classified=$(py "$root/tools/check-expected-failures.py" --log "$scratch/$name.log" --status "$status" --host windows) || verdict=$?
+    if [ "$verdict" -eq 0 ]; then
+      expected_n=$(printf '%s\n' "$classified" | sed -n 's/^EXPECTED-FAIL \([0-9]*\) (manifest)$/\1/p')
+      status=0   # every failure is listed; the exit of this harness is explained
+    else
+      printf '%s\n' "$classified" | grep '^UNEXPECTED' || true
+      if [ "$status" -eq 0 ]; then echo "FAILED: $label (a listed test passed: stale manifest entry)"; failed=1; fi
+    fi
+  fi
   passes=$(grep -c '^PASS ' "$scratch/$name.log" || true)
   echo "== $label $(cat "$scratch/$name.seconds") s ($(cat "$scratch/$name.ms") ms), $passes PASS"
   if [ "$status" -eq 0 ] && [ "$passes" -eq 0 ] && [[ "$named" == *" $project "* ]]; then
@@ -118,6 +135,7 @@ for index in "${!jobs[@]}"; do
     failed=1
   else
     tail -1 "$scratch/$name.log"
+    if [ "$expected_n" -gt 0 ]; then echo "EXPECTED-FAIL $expected_n (manifest)"; fi
   fi
 done
 # The parts run each check once only if the jobs hold parts 1..n of one n and every part enumerated the same registrations

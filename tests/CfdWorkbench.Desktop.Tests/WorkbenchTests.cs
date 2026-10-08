@@ -274,16 +274,21 @@ workbench.Redo();
 if (workbench.AcceptedSource == source) throw new Exception("Redo did not restore edit");
 string conflictPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"existing-{Guid.NewGuid():N}.cfdw.json");
 byte[] foreignImage = Encoding.UTF8.GetBytes("foreign project bytes");
-try
+// A named check, not a throw: on Windows the store answers DOC-UNSUPPORTED-PERSISTENCE until W-2 B2, and a throw here aborted
+// the whole harness and hid every later check (WRT-HARNESS-ABORT). The assertion is unchanged; the failure is one FAIL line.
+CfdWorkbench.Desktop.Tests.DesktopChecks.Check("Save_ExistingFile_DefiniteCreateOnlyConflict", () =>
 {
-    await File.WriteAllBytesAsync(conflictPath, foreignImage);
-    var conflict = await workbench.SaveAsync(conflictPath);
-    if (conflict.Code != "DOC-CONFLICT") throw new Exception("Expected definite create-only save conflict; actual " + conflict.Code);
-    if (workbench.SaveUncertain) throw new Exception("Definite prepublication conflict entered uncertain-save state");
-    if (!(await File.ReadAllBytesAsync(conflictPath)).SequenceEqual(foreignImage))
-        throw new Exception("Save conflict changed existing disk bytes");
-}
-finally { File.Delete(conflictPath); }
+    try
+    {
+        File.WriteAllBytes(conflictPath, foreignImage);
+        var conflict = workbench.SaveAsync(conflictPath).GetAwaiter().GetResult();
+        if (conflict.Code != "DOC-CONFLICT") throw new Exception("Expected definite create-only save conflict; actual " + conflict.Code);
+        if (workbench.SaveUncertain) throw new Exception("Definite prepublication conflict entered uncertain-save state");
+        if (!File.ReadAllBytes(conflictPath).SequenceEqual(foreignImage))
+            throw new Exception("Save conflict changed existing disk bytes");
+    }
+    finally { File.Delete(conflictPath); }
+});
 var uncertainStore = new UncertainStore();
 using (var uncertainWorkbench = new WorkbenchController(_ => uncertainStore))
 {
@@ -440,13 +445,15 @@ Stage("spawn");
 // controller-shell 21.0, views 18.1/16.7, analysis 16.7, properties-cells 9.6/9.5, status-strip 8.5/6.2/6.0. `--analysis`
 // had been last and started at about 25 s, so it set the Desktop wall; on 10 slots it now starts with the second wave.
 if (themeEvidence) Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn("--theme-matrix"));
-Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
+int spawnedExit = CfdWorkbench.Desktop.Tests.DesktopChecks.Spawn(
     "--section-editor --part=1/2", "--properties-view --part=1/2", "--shell-window --part=2/2",
     "--section-editor --part=2/2", "--properties-view --part=2/2", "--shell-window --part=1/2",
     "--plan-canvas --part=2/2", "--plan-canvas --part=1/2", "--controller-shell",
     "--views --part=1/2", "--analysis", "--views --part=2/2",
     "--properties-cells --part=2/2", "--properties-cells --part=1/2", "--status-strip --part=1/3",
-    "--status-strip --part=2/3", "--status-strip --part=3/3", "--shell-model"));
+    "--status-strip --part=2/3", "--status-strip --part=3/3", "--shell-model");
+// The in-process checks above fail the run too, not only the child suites.
+Environment.Exit(spawnedExit != 0 ? spawnedExit : CfdWorkbench.Desktop.Tests.DesktopChecks.FailureCount > 0 ? 1 : 0);
 
 sealed class UncertainStore : IProjectStore
 {
@@ -497,6 +504,9 @@ namespace CfdWorkbench.Desktop.Tests
     public static class DesktopChecks
     {
         private static int failures;
+
+        /// <summary>Checks that printed FAIL in this process; the default run folds it into its exit code.</summary>
+        public static int FailureCount => failures;
 
         /// <summary>
         /// Ruling 81 (DR-RDY-1): a frame-time readiness budget fails only when the machine is quiet. Above the gate, or where the
