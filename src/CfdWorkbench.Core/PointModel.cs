@@ -190,7 +190,7 @@ public static class Planform
             parameter[step] = start + step / (double)dense * (end - start);
             places[step] = Evaluate(curve, parameter[step], halfSpan);
             if (step > 0)
-                arc[step] = arc[step - 1] + Math.Sqrt(Math.Pow(places[step].Span - places[step - 1].Span, 2) + Math.Pow(places[step].Aft - places[step - 1].Aft, 2));
+                arc[step] = arc[step - 1] + Math.Sqrt((places[step].Span - places[step - 1].Span) * (places[step].Span - places[step - 1].Span) + (places[step].Aft - places[step - 1].Aft) * (places[step].Aft - places[step - 1].Aft));
         }
         for (int tooth = 0; tooth < 8; tooth++)
         {
