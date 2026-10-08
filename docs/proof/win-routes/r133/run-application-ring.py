@@ -6,7 +6,7 @@ out.mkdir(exist_ok=False)
 out.joinpath('.gitattributes').write_bytes(b'*.log -text\n*.txt -text\n')
 bash=pathlib.Path('C:/Program Files/Git/bin/bash.exe')
 assert bash.is_file(),bash
-sdk='C:\\Users\\malla\\.dotnet'
+sdk=os.environ['USERPROFILE']+'\\.dotnet'
 env=os.environ.copy()
 env['DOTNET_ROOT']=sdk
 env['PATH']=sdk+os.pathsep+env['PATH']

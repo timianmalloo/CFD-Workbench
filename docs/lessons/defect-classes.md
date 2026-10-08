@@ -2006,3 +2006,17 @@ options instance. Sweep (`grep -rn "Indented = true" src`): `LayoutCodec.cs`, `R
 Control: `LayoutCodec_IndentedJson_PinsLfNewLine` (Core tests, `LayoutFileTests.cs`, ring cost under 0.1 s) fails any `src/**/*.cs` file that indents JSON without a
 `NewLine = "\n"` in it, and asserts the pinned context options and the serialized images hold no `\r`. `Environment.NewLine` cannot be forced on macOS, so the
 scan is the part that fails on the old code. Residual: a file with two options instances, one pinned, passes the scan.
+
+**PROOF-PII · A proof file records the Windows account name or a machine SID.**
+Receipts, logs and JSON outputs copied from a Windows run carried `C:\Users\<name>` home paths (and, on PR #8, a machine SID in
+`red-native.stdout.txt`) into the committed tree: 29 tracked files before the scrub (`docs/proof/pii/red-run.txt`). A proof is written to be
+read by others, so a tool's raw output is not fit to commit as it came. Operator decision 2026-10-08 (Ruling 145 (5)): scrub the current tree
+and fail new offenders. Git history is **not** rewritten and nothing is force-pushed, so old commits still hold the name.
+
+**Class → sweep → derive → prevent:** signature: a tracked text file with a Windows home path (backslash, JSON-escaped, `C:/Users/<name>`,
+`/mnt/c/Users/<name>`) or a SID `S-1-5-21-<n>-<n>-<n>`. Sweep: `python3 tools/check-proof-pii.py` over `git ls-files` (29 files, 0 in the
+append-only registers); `docs/proof/win-routes/manifest.json` was refreshed for the 15 rows whose bytes changed. Derive: write `%USERPROFILE%`
+(Windows), `$HOME` (WSL), `<name>`, and `S-1-5-21-<machine>-<RID>`; a script derives its path at run time from `USERPROFILE`. Control:
+`tools/check-proof-pii.py` (`--self-test` plants every form, a SID, and a macOS home path that must not fire), run by `tools/check-docs.py`
+(fast ring, about 1 s); a shrink-only allowlist carries a reason per entry (one: the pack's own fixture with a dummy name). Residual: the
+guard sees a name only in a path or SID shape, and history is unchanged.
