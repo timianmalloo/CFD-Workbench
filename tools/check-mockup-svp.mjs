@@ -24,7 +24,7 @@ const SRC = {
   R3: quote(/\(3\) The Windows default save folder is (%USERPROFILE%\\CFD Workbench)/)
 };
 const md = await fs.readFile(path.join(repo, 'docs/mockups/w2-save-picker.md'), 'utf8');
-for (const m of md.matchAll(/^\| (COPY-4\d\d) \| (.+?) \| proposed — awaiting operator \|/gm)) SRC[m[1]] = norm(m[2]);
+for (const m of md.matchAll(/^\| (COPY-4\d\d) \| (.+?) \| (?:proposed — awaiting operator|approved — Ruling 160) \|/gm)) SRC[m[1]] = norm(m[2]);
 
 const browser = await chromium.launch({ headless: true, channel: 'chrome' });
 const page = await browser.newPage({ viewport: { width: 1700, height: 1200 } });
@@ -136,13 +136,23 @@ await group('focus, Escape, Enter and Tab', async () => {
   assert.ok(await page.evaluate(() => document.activeElement.id === 'native'), 'focus must move to the reopened native picker');
   // S3 Clear opens the confirm over the crash dialog; Escape on it returns to the Clear button; the safe default is Cancel
   await show({ state:'s3', detail:'blocked', variant:'A' });
+  const rel = async () => { const [d, sh] = [await page.locator('.dlg').boundingBox(), await page.locator('#shell').boundingBox()]; return { x:d.x - sh.x, y:d.y - sh.y }; };
+  const box0 = await rel();
   await page.locator('[data-act="clear"]').click();
   let a = await active();
   assert.ok(a.inDlg && a.act === 'cancel2' && a.def, `confirm: focus must land on Cancel (the safe default), got ${JSON.stringify(a)}`);
+  // Ruling 160 (4): an in-place swap, not a stacked modal: one dialog, same position, content replaced
+  assert.equal(await page.locator('.dlg').count(), 1, 'confirm: the swap must leave exactly one dialog (no stacked modal)');
+  assert.equal(await page.locator('.dlg').getAttribute('data-kind'), 'confirm');
+  const box1 = await rel();
+  assert.ok(Math.abs(box1.x - box0.x) < 1 && Math.abs(box1.y - box0.y) < 1, 'confirm: the swapped dialog must sit where the S3 dialog sat');
+  assert.equal(await page.locator('.dlg [data-copy="R2-lead"]').count(), 0, 'confirm: the S3 content must be gone while the confirm shows');
   await page.keyboard.press('Escape');
   a = await active();
-  assert.equal(a.act, 'clear', 'confirm: Escape must return focus to Clear unfinished save…');
+  assert.equal(a.act, 'clear', 'confirm: Escape must return focus to Clear unfinished save…, not the document');
   assert.equal(await page.locator('.dlg').count(), 1, 'confirm: the crash dialog must be back');
+  assert.equal(await page.locator('.dlg').getAttribute('data-kind'), 'crash', 'confirm: Escape returns to the S3 content');
+  assert.equal(await page.locator('.dlg [data-copy="R2-lead"]').count(), 1, 'confirm: the S3 text must be back');
   // Enter on the confirm's default is Cancel and clears nothing
   await page.locator('[data-act="clear"]').click();
   await page.keyboard.press('Enter');
@@ -162,6 +172,15 @@ await group('flow order and honest outcomes', async () => {
   let ev = await page.evaluate(() => window.__svp.S.events);
   assert.deepEqual(ev, ['pick:onedrive', 'check:onedrive', 'refuse'], 'S2: the check must follow the pick and precede any write');
   assert.ok(!ev.some(e => /write|save/.test(e)), 'S2: nothing may be written');
+  // Ruling 160 (3): the default folder is created at the first Save, before the picker opens, silently
+  await show({ state:'s5', detail:'folder-missing', variant:'A' });
+  ev = await page.evaluate(() => window.__svp.S.events);
+  assert.deepEqual(ev, ['save-attempt', 'create-folder:default', 'open-picker:default-folder'], 'S5 folder-missing: create, then open the picker');
+  assert.ok((await page.locator('#native').innerText()).includes('C:\\Users\\<you>\\CFD Workbench'), 'the picker opens in the created default folder');
+  assert.equal(await page.locator('#statusMsg').innerText(), '', 'folder creation is silent');
+  await page.reload();
+  assert.equal(await page.locator('#variant').inputValue(), 'A', 'A is the default variant on a fresh load');
+  assert.ok((await page.locator('#variant option[value="B"]').innerText()).includes('rejected — Ruling 160'), 'variant B is labelled rejected');
   await show({ state:'s3', detail:'blocked', variant:'A' });
   ev = await page.evaluate(() => window.__svp.S.events);
   assert.ok(!ev.includes('clear'), 'S3: opening the block must not clear anything');

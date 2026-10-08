@@ -4321,7 +4321,7 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2026-12-31",
       "reviewSuggested": [],
-      "summary": "Three surfaces around the native Windows save dialog, shown before any build: the first Save of a new project (what CFD Workbench controls in the native dialog), the refusal when the user picks a OneDrive folder, and the block left by a crashed save with its Clear unfinished save step. Each of S2 and S3 has two variants, a modal dialog and the alert band. Ruling 146 copy is verbatim; the new sentences are proposed rows COPY-440 to COPY-457 awaiting the operator.",
+      "summary": "Three surfaces around the native Windows save dialog, shown before any build: the first Save of a new project (what CFD Workbench controls in the native dialog), the refusal when the user picks a OneDrive folder, and the block left by a crashed save with its Clear unfinished save step. Each of S2 and S3 has two variants, a modal dialog (approved) and the alert band (rejected). Ruling 146 copy is verbatim; the new rows COPY-440 to COPY-457 are approved by Ruling 160, which also picked variant A for S2 and S3. This page is now the approved reference; variant B stays in the harness, labelled rejected.",
       "tags": [
         "mockup",
         "w2",
@@ -4345,7 +4345,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5c36e56748e7b4cc7df43f9ad65d8052584d4b89cc3fafab304478386fdffd8e"
+      "sourceSha256": "3b9817164a8acc51c1a60b2292c5466a509ebe7f660034eac0c0ac239c2bc0fb"
     },
     {
       "id": "mockup-workbench",
@@ -17182,5 +17182,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "556a3879bbabdcfc775a48006c14c1949a6222bfd3c5783fec8fe6af3f397186"
+  "graphSha256": "c19c15e87521cdb81ac20cb1f5c0d49e5f84c5a6b4d8766f4a732339be7f8de8"
 };

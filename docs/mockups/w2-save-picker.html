@@ -58,8 +58,6 @@ main{ padding:16px 20px 40px; min-width:1560px; }
 
 /* ---------- product dialogs (SaveSectionDialog / CatalogDialog idiom) ---------- */
 .dlg{ position:absolute; left:50%; top:110px; width:460px; transform:translateX(-50%); background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:flex; flex-direction:column; gap:8px; padding:14px; font-size:13px; line-height:18px; z-index:5; }
-.dlg.under{ z-index:4; }
-.dlg.confirm{ top:190px; z-index:6; }
 .dlg .dh{ font-weight:600; font-size:14px; margin:0; }
 .dlg p{ margin:0; }
 .dlg ol{ margin:0; padding-left:22px; display:flex; flex-direction:column; gap:4px; }
@@ -110,7 +108,7 @@ main{ padding:16px 20px 40px; min-width:1560px; }
     <option value="s5">S5 Waiting, saving and error floor</option>
   </select></label>
   <label class="ctl" for="detail">Detail <select id="detail"></select></label>
-  <label class="ctl" for="variant">Variant <select id="variant"><option value="A">A modal dialog</option><option value="B">B alert band</option></select></label>
+  <label class="ctl" for="variant">Variant <select id="variant"><option value="A">A modal dialog (approved)</option><option value="B">B alert band (rejected — Ruling 160)</option></select></label>
   <label class="ctl" for="theme">Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option></select></label>
   <label class="ctl" for="vp">Viewport <select id="vp"><option value="1280">1280 × 800</option><option value="1500">1500 × 870</option></select></label>
   <label class="chk"><input type="checkbox" id="reduce"> Reduced motion</label>
@@ -192,7 +190,7 @@ function confirmDialog(result){
   return dialog('confirm', 'COPY-446', body, btn('COPY-445', 'cancel2', '', true) + act, 'confirm');
 }
 function nativeFrame(opts){
-  const folder = esc(opts.missing ? 'C:\\Users\\<you>' : 'C:\\Users\\<you>\\CFD Workbench');
+  const folder = esc('C:\\Users\\<you>\\CFD Workbench');
   return `<div class="native" tabindex="-1" role="group" aria-label="Windows save dialog — native, drawn by Windows" id="native" data-fk="native">
     <div class="cap" data-chrome>Windows save dialog — native, drawn by Windows <span>Stand-in frame; CFD Workbench does not draw it</span></div>
     ${opts.hint ? `<div class="hint" data-chrome>${opts.hint}</div>` : ''}
@@ -222,7 +220,7 @@ function view(){
     else { v.band = bandHtml('crash'); }
   }
   if (state === 's4') {
-    if (variant === 'B') v.band = bandHtml('crash'); else v.layer = crashDialog('under');
+    if (variant === 'B') v.band = bandHtml('crash');
     if (detail === 'cleared') { v.layer = ''; v.band = ''; v.status = 'COPY-452'; }
     else { v.layer += confirmDialog(detail === 'refused' ? 'refused' : ''); v.modal = 'dialog'; v.kind = 'confirm'; }
   }
@@ -231,8 +229,8 @@ function view(){
     if (detail === 'saving') v.status = 'COPY-452';
     if (detail === 'picker-failed') { v.status = 'COPY-453'; v.warn = true; }
     if (detail === 'check-failed') { if (variant === 'A') { v.layer = dialog('check', 'COPY-457', `<p class="err" data-copy="COPY-454">${esc(text('COPY-454'))}</p>`, btn('COPY-442', 'choose', 'primary', true) + btn('COPY-445', 'cancel')); v.modal = 'dialog'; v.kind = 'check'; } else v.band = bandHtml('check'); }
-    if (detail === 'clear-failed') { v.layer = crashDialog('under') + confirmDialog('failed'); v.modal = 'dialog'; v.kind = 'confirm'; }
-    if (detail === 'folder-missing') { v.layer = nativeFrame({ missing:true, hint:'If the app does not create the folder, Windows opens at the nearest folder that exists.' }); v.modal = 'native'; }
+    if (detail === 'clear-failed') { v.layer = confirmDialog('failed'); v.modal = 'dialog'; v.kind = 'confirm'; }
+    if (detail === 'folder-missing') { v.layer = nativeFrame({ hint:'The folder was missing. CFD Workbench created it silently at this first Save, just before opening this dialog.' }); v.modal = 'native'; }
   }
   return v;
 }
@@ -281,6 +279,7 @@ function setState(patch, reopen){
   Object.assign(S, patch);
   if (reopen) { S.closed = false; S.events = []; S.opener = $('saveBtn'); }
   if (reopen && S.state === 's2') { log('pick:onedrive'); log('check:onedrive'); log('refuse'); }
+  if (reopen && S.state === 's5' && S.detail === 'folder-missing') { log('save-attempt'); log('create-folder:default'); log('open-picker:default-folder'); }
   if (reopen && S.state === 's3') { log('save-attempt'); log('found:unfinished-save'); log('blocked'); }
   render();
 }
@@ -316,27 +315,27 @@ const NOTES = {
   s1:{ title:'S1 — first Save of a new project',
     shows:['The dashed frame is the native Windows dialog. Windows draws it; CFD Workbench controls three things, numbered on the frame: (1) the dialog title, (2) the start folder, (3) the suggested file name.',
            'The start folder is %USERPROFILE%\\CFD Workbench, shown as "CFD Workbench", not under Documents (Ruling 146 (3)). No product text is drawn in this state.'],
-    open:['Open question for the operator, not decided here: when %USERPROFILE%\\CFD Workbench does not exist, does the app create it, and when? (a) at first launch; (b) at the first Save, just before the picker opens; (c) never — Windows opens at the nearest existing folder and the user makes the folder. Detail "Default folder missing" in S5 shows (c).'],
+    open:['Decided: the default folder is created at the first Save, just before the picker opens, and only when missing. Nothing is shown for the creation.'],
     mac:'macOS: the native macOS save panel, no OneDrive rule.', flow:[['New project',1],['Save',1],['Native picker at the default folder',2]] },
   s2:{ title:'S2 — the user picked a folder inside OneDrive',
     shows:['Detection runs after the pick and before any write. Nothing is written into OneDrive.',
            'Variant A: a modal dialog with the Ruling 146 (1) text; Choose another folder… reopens the picker at the default folder. Variant B: the alert band carries the text and the picker reopens by itself, on top of the band.'],
-    open:['Choose A or B for S2. Recommendation: A, medium confidence. In B the reopened native picker covers the band, so the reason is read only after the user leaves the picker; the band is announced but not seen.'],
+    open:['Approved: variant A, the modal dialog. Variant B (band) is kept in the harness only, rejected: the reopened native picker covers the band.'],
     flow:[['Pick a folder',0],['Check for OneDrive (before any write)',2],['Refuse: nothing written',3],['Picker at default folder',0]] },
   s3:{ title:'S3 — Save is blocked by a crash-left unfinished save',
     shows:['The Ruling 146 (2) text, with its three steps as an ordered list. The document stays dirty in both variants: the title chip still reads Unsaved changes.',
            'Variant A: a modal dialog with Save As… (primary), Clear unfinished save… and Cancel. Variant B: the alert band with the same text and actions; the band does not take focus, so the Save button keeps it.'],
-    open:['Choose A or B for S3. Recommendation: A, medium-high confidence. The band becomes a tall block, announces a 60-word list assertively, and leaves the Save button live beside a blocked save.'],
+    open:['Approved: variant A, the modal dialog. Variant B (band) is kept in the harness only, rejected: a tall assertive block beside a live Save button.'],
     flow:[['Save',0],['Unfinished save found',2],['Blocked, document stays dirty',3]] },
   s4:{ title:'S4 — Clear unfinished save, the confirm step',
-    shows:['Clear unfinished save… opens this confirm step. It names what is removed and that no other window may use the project. The action never runs without this click and never announces a successful recovery.',
+    shows:['Clear unfinished save… swaps this dialog to the confirm step in place. It names what is removed and that no other window may use the project. The action never runs without this click and never announces a successful recovery.',
            'Outcome a (cleared): both surfaces close, the ordinary Save proceeds and shows its own Saving… status. Outcome b (refused): the dialog explains the refusal and offers Try again. Use the harness box "Another window holds this project" to choose the outcome when you click.'],
-    open:['Proposed: the Enter key and first focus go to Cancel, not to Clear unfinished save. A held Enter from the button that opened this step must not clear anything.'],
+    open:['Approved: Clear unfinished save… swaps the dialog content in place (one dialog, no stack). First focus and Enter go to Cancel; Escape and Cancel return to the blocked-save content.'],
     flow:[['Clear unfinished save…',0],['Confirm',2],['No-live-writer check',2],['Cleared → Save, or refused',3]] },
   s5:{ title:'S5 — the waiting, saving and error floor',
     shows:['Picker open, app waiting: the window is inert behind the native dialog and the strip says where to act. Save in progress: the strip carries the ordinary status. Picker failed: the strip warns and the document stays dirty.',
-           'OneDrive check failed follows the S2 variant. Clear failed shows inside the confirm step. Default folder missing is the empty state of S1.'],
-    open:['Proposed: if the OneDrive check itself fails, the save is refused (fail closed, Ruling 135). Confirm.'],
+           'OneDrive check failed follows the S2 variant. Clear failed shows inside the confirm step. Default folder missing shows the silent folder creation at the first Save, then the picker opening there.'],
+    open:['Approved: if the OneDrive check itself fails, the save is refused (fail closed, Ruling 135).'],
     flow:[['Waiting',0],['Saving',0],['Failed',3]] }
 };
 const CLAIMS = [['focus-in','Focus moves into a dialog when it opens, onto its default button.'],['esc','Escape closes the dialog (Cancel) and returns focus to what opened it.'],['enter','Enter activates the default button.'],['tab','Tab and Shift+Tab stay inside the dialog.']];
@@ -344,7 +343,7 @@ function renderNotes(){
   const n = NOTES[S.state];
   const flow = n.flow.map(f => `<li class="${f[1] === 2 ? 'on' : f[1] === 3 ? 'no' : ''}">${esc(f[0])}</li>`).join('');
   $('notes').innerHTML = `<section data-annot><h2>${esc(n.title)}</h2><ol class="flow" aria-label="Flow">${flow}</ol>${n.shows.map(s => `<p>${esc(s)}</p>`).join('')}${n.mac ? `<p class="mute">${esc(n.mac)}</p>` : ''}</section>
-  <section data-annot><h2>Decision and keyboard</h2>${n.open.map(s => `<p><span class="tag open">Open</span>${esc(s)}</p>`).join('')}<ul>${CLAIMS.map(c => `<li data-claim="${c[0]}">${esc(c[1])}</li>`).join('')}</ul><p class="mute">The native dialog keeps Windows's own keys.</p></section>`;
+  <section data-annot><h2>Decision and keyboard</h2>${n.open.map(s => `<p><span class="tag">Ruling 160</span>${esc(s)}</p>`).join('')}<ul>${CLAIMS.map(c => `<li data-claim="${c[0]}">${esc(c[1])}</li>`).join('')}</ul><p class="mute">The native dialog keeps Windows's own keys.</p></section>`;
 }
 
 // ---------------------------------------------------------------- harness

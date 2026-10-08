@@ -14,15 +14,15 @@ review-by: 2026-12-31
 summary: >-
   Three surfaces around the native Windows save dialog, shown before any build: the first Save of a new project (what
   CFD Workbench controls in the native dialog), the refusal when the user picks a OneDrive folder, and the block left by
-  a crashed save with its Clear unfinished save step. Each of S2 and S3 has two variants, a modal dialog and the alert
-  band. Ruling 146 copy is verbatim; the new sentences are proposed rows COPY-440 to COPY-457 awaiting the operator.
+  a crashed save with its Clear unfinished save step. Each of S2 and S3 has two variants, a modal dialog (approved) and the alert
+  band (rejected). Ruling 146 copy is verbatim; the new rows COPY-440 to COPY-457 are approved by Ruling 160, which also picked variant A for S2 and S3. This page is now the approved reference; variant B stays in the harness, labelled rejected.
 review-suggested: []
 ---
 
 # W-2 save picker — the mockup
 
 Open [`w2-save-picker.html`](w2-save-picker.html) over `file://`. The header switches the state (S1 to S5), its detail,
-the variant (A modal dialog, B alert band), the theme, the viewport (1280 × 800, 1500 × 870) and reduced motion. The box
+the variant (A modal dialog, approved and the default; B alert band, rejected by Ruling 160), the theme, the viewport (1280 × 800, 1500 × 870) and reduced motion. The box
 "Another window holds this project" chooses the outcome of Clear unfinished save. Captures are in
 [`w2-save-picker/`](w2-save-picker/). Oracle: `node tools/check-mockup-svp.mjs <node_modules dir> [<shot dir>]`.
 
@@ -59,13 +59,13 @@ WCAG 2.2 AA, keyboard).
 | State | What it shows | Variants |
 |---|---|---|
 | S1 | The native dialog stand-in; the three things the app controls (title, start folder `%USERPROFILE%\CFD Workbench`, suggested name `foil.cfdw.json`). | none |
-| S2 | Detection after the pick and before any write. Nothing is written into OneDrive. | A dialog; B band + picker reopens |
-| S3 | A crash-left unfinished save blocks Save. The document stays dirty. | A dialog; B band |
-| S4 | The confirm step of Clear unfinished save; outcome a (cleared, ordinary Save proceeds, no recovery announcement); outcome b (refused, another window holds it). | base under the confirm follows the variant |
-| S5 | Floor: picker open and app waiting; Save in progress; picker failed to open; OneDrive check failed (follows the S2 variant); Clear failed; default folder missing (S1's empty state). | check-failed follows the variant |
+| S2 | Detection after the pick and before any write. Nothing is written into OneDrive. | **A dialog (approved)**; B band + picker reopens (rejected) |
+| S3 | A crash-left unfinished save blocks Save. The document stays dirty. | **A dialog (approved)**; B band (rejected) |
+| S4 | The confirm step of Clear unfinished save, swapped in place into the S3 dialog (one dialog, no stack); outcome a (cleared, ordinary Save proceeds, no recovery announcement); outcome b (refused, another window holds it). | none approved; B kept for reference |
+| S5 | Floor: picker open and app waiting; Save in progress; picker failed to open; OneDrive check failed (follows the S2 variant); Clear failed; default folder missing (the folder is created silently at the first Save, then the picker opens there). | check-failed follows the variant |
 
 **Flows.** S2: Pick, then Check (before any write), then Refuse. S3-A: Save As… reopens the picker; Clear unfinished
-save… opens S4; Cancel closes and returns focus to Save. S4: Cancel returns to S3 with focus on Clear unfinished save…;
+save… swaps the dialog in place to the S4 confirm; Cancel closes and returns focus to Save. S4: Cancel and Escape swap back to the S3 content with focus on Clear unfinished save…;
 Clear unfinished save runs the no-live-writer check, then clears and the ordinary Save runs, or refuses.
 
 **Keyboard** (each has a handler and an oracle assertion): focus lands on the default button of a dialog; Escape closes it
@@ -85,41 +85,46 @@ place of `<code>`; the real code names are a build decision.
 
 | ID | Text | Status | Where |
 |---|---|---|---|
-| COPY-440 | Can't save to OneDrive | proposed — awaiting operator | S2-A dialog title |
-| COPY-441 | Save is blocked | proposed — awaiting operator | S3-A dialog title |
-| COPY-442 | Choose another folder… | proposed — awaiting operator | S2-A primary button; S5 OneDrive-check dialog |
-| COPY-443 | Save As… | proposed — awaiting operator | S3 primary button (dialog and band) |
-| COPY-444 | Clear unfinished save… | proposed — awaiting operator | S3 action that opens the confirm step |
-| COPY-445 | Cancel | proposed — awaiting operator | every dialog and the S3 band; reuse the existing Cancel label if the Labels lookup has one |
-| COPY-446 | Clear the unfinished save? | proposed — awaiting operator | S4 confirm title |
-| COPY-447 | This removes the leftover files from the save that didn't finish. Your saved file and your current work are not touched. It works only if no other CFD Workbench window is using this project. | proposed — awaiting operator | S4 confirm body |
-| COPY-448 | Clear unfinished save | proposed — awaiting operator | S4 confirm action (the Ruling 146 action name, no ellipsis because it acts) |
-| COPY-449 | Can't clear it yet: another CFD Workbench window is still using this project. Close that window, then try again. Your saved file and your current work are unchanged. | proposed — awaiting operator | S4 outcome b, inside the confirm dialog |
-| COPY-450 | Try again | proposed — awaiting operator | S4 outcome b and Clear failed; reuse the band's existing label |
-| COPY-451 | Choose where to save in the Windows dialog. | proposed — awaiting operator | S5 status strip while the picker is open |
-| COPY-452 | Saving… | proposed — awaiting operator | S4 outcome a and S5 status strip during a Save |
-| COPY-453 | Couldn't open the Windows save dialog (<code>). Nothing was saved. Your changes are kept and still marked unsaved. Try again. | proposed — awaiting operator | S5 status strip, warning kind |
-| COPY-454 | Couldn't check whether this folder is synced by OneDrive (<code>). Nothing was saved. Choose another folder. | proposed — awaiting operator | S5 OneDrive check failed (dialog or band) |
-| COPY-455 | Couldn't clear the unfinished save (<code>). Your saved file and your current work are unchanged. | proposed — awaiting operator | S5 Clear failed, inside the confirm dialog |
-| COPY-456 | Dismiss | proposed — awaiting operator | S2-B and check-failed band; the band's existing Dismiss |
-| COPY-457 | Can't check this folder | proposed — awaiting operator | S5 OneDrive-check dialog title |
+| COPY-440 | Can't save to OneDrive | approved — Ruling 160 | S2-A dialog title |
+| COPY-441 | Save is blocked | approved — Ruling 160 | S3-A dialog title |
+| COPY-442 | Choose another folder… | approved — Ruling 160 | S2-A primary button; S5 OneDrive-check dialog |
+| COPY-443 | Save As… | approved — Ruling 160 | S3 primary button (dialog and band) |
+| COPY-444 | Clear unfinished save… | approved — Ruling 160 | S3 action that opens the confirm step |
+| COPY-445 | Cancel | approved — Ruling 160 | every dialog and the S3 band; reuse the existing Cancel label if the Labels lookup has one |
+| COPY-446 | Clear the unfinished save? | approved — Ruling 160 | S4 confirm title |
+| COPY-447 | This removes the leftover files from the save that didn't finish. Your saved file and your current work are not touched. It works only if no other CFD Workbench window is using this project. | approved — Ruling 160 | S4 confirm body |
+| COPY-448 | Clear unfinished save | approved — Ruling 160 | S4 confirm action (the Ruling 146 action name, no ellipsis because it acts) |
+| COPY-449 | Can't clear it yet: another CFD Workbench window is still using this project. Close that window, then try again. Your saved file and your current work are unchanged. | approved — Ruling 160 | S4 outcome b, inside the confirm dialog |
+| COPY-450 | Try again | approved — Ruling 160 | S4 outcome b and Clear failed; reuse the band's existing label |
+| COPY-451 | Choose where to save in the Windows dialog. | approved — Ruling 160 | S5 status strip while the picker is open |
+| COPY-452 | Saving… | approved — Ruling 160 | S4 outcome a and S5 status strip during a Save |
+| COPY-453 | Couldn't open the Windows save dialog (<code>). Nothing was saved. Your changes are kept and still marked unsaved. Try again. | approved — Ruling 160 | S5 status strip, warning kind |
+| COPY-454 | Couldn't check whether this folder is synced by OneDrive (<code>). Nothing was saved. Choose another folder. | approved — Ruling 160 | S5 OneDrive check failed (dialog or band) |
+| COPY-455 | Couldn't clear the unfinished save (<code>). Your saved file and your current work are unchanged. | approved — Ruling 160 | S5 Clear failed, inside the confirm dialog |
+| COPY-456 | Dismiss | approved — Ruling 160 | S2-B and check-failed band; the band's existing Dismiss |
+| COPY-457 | Can't check this folder | approved — Ruling 160 | S5 OneDrive-check dialog title |
 
 S4's sentences are COPY-446, 447, 448, 449 (and 450, 455). No row announces a recovery: after Clear, the user sees only
 the ordinary Save status (COPY-452), per Ruling 146.
 
-## Open questions for the operator
+## Decisions (Ruling 160) and build notes
 
-1. **Folder creation (S1).** When `%USERPROFILE%\CFD Workbench` does not exist, does the app create it, and when? (a) at
-   first launch; (b) at the first Save, just before the picker opens; (c) never — Windows opens at the nearest existing
-   folder and the user makes the folder. Not decided here. S5 "Default folder missing" renders (c).
-2. **S2: dialog (A) or band (B).** Recommendation A.
-3. **S3: dialog (A) or band (B).** Recommendation A.
-4. **S4 default button.** Proposed: first focus and Enter go to Cancel, not Clear unfinished save, so a held Enter from the
-   opening button clears nothing.
-5. **If the OneDrive check itself fails (COPY-454).** Proposed: refuse (fail closed, Ruling 135) rather than save.
-6. **What "the leftover files" are (COPY-447).** The sentence names them generically. The PC side must confirm what the
-   unfinished save leaves, so the sentence can say it exactly.
-7. **Real code names** for the three `(<code>)` rows.
+The operator viewed the screenshots and decided everything as Ruling 160 (2026-10-08).
+
+1. **Folder creation (S1): decided.** `%USERPROFILE%\CFD Workbench` is created at the first Save, just before the picker
+   opens, and only when missing. The creation is silent (no copy). S5 "Default folder missing" shows it.
+2. **S2: decided, variant A** (modal dialog, COPY-440, Ruling 146 (1) text). B is rejected and kept in the harness only.
+3. **S3: decided, variant A** (modal dialog, COPY-441, Ruling 146 (2) text). B is rejected and kept in the harness only.
+4. **S4: decided.** Clear unfinished save… swaps the S3 dialog's content in place to the confirm (no stacked modal);
+   first focus and Enter go to Cancel; Escape and Cancel return to the S3 content.
+5. **OneDrive check failure: decided, refuse** (fail closed, Ruling 135), COPY-457 title, COPY-454 body.
+6. **Build note, open (waits on the PC):** what "the leftover files" are (COPY-447). The phrase stays until the PC states
+   what an unfinished save leaves on disk.
+7. **Build note, open (decided at build):** the real code names for the three `(<code>)` rows. The page shows `DOC-IO`.
+
+All rows COPY-440 to COPY-457 are approved as drafted. Reuse the existing Cancel, Try again and Dismiss labels (COPY-445,
+450, 456) and an existing Saving status line if one exists (COPY-452). The build ships only when W-2 B2 lands (Ruling 145
+(4)). The band-button token finding (`control-line` on `surface-soft`, 2.98:1) is a separate token fix.
 
 ## Captures
 
@@ -145,7 +150,7 @@ In `w2-save-picker/` (light unless named): `S1-first-save`, `S2-A-dialog`, `S2-B
 
 ## Critique
 
-Structure before surface. Severity: Major = change before build; Minor = fix in the build; Note = awareness.
+Written before Ruling 160; the S2-B, S3-B and S4-stack findings are resolved by it (A chosen, S4 swapped in place). Structure before surface. Severity: Major = change before build; Minor = fix in the build; Note = awareness.
 
 | Location | Dimension | Severity | Evidence | Fix | Confidence |
 |---|---|---|---|---|---|
