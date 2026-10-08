@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T23:46:28Z",
+  "generated": "2026-10-08T00:27:59Z",
   "audit": [
     {
       "actor": null,
@@ -29597,6 +29597,33 @@ window.AUDIT_DATA = {
       "done_when": "five behaviours red-first then green, one capture, dispatch gate, full run-tests, check-docs 0",
       "started_at": "2026-10-07T23:31:23Z",
       "duration_seconds": 905.0
+    },
+    {
+      "id": "al-01M4CEHSXZYGEE4E5YK6BMCE3N",
+      "shortname": "join-stl",
+      "datetime": "2026-10-08T00:27:59Z",
+      "session": "14e5e8d5",
+      "prompt": "the join of fix/stale-conditions into main",
+      "summary": "band edits reach the controller as a pending point; any difference from the run op reads Historical on every surface; back to run values reads Current with no new run; malformed input reads Historical; run key untouched recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join fix/stale-conditions",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T00:27:01Z",
+      "duration_seconds": 58.0
     }
   ],
   "changes": [
