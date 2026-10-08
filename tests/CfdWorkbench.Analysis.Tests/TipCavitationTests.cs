@@ -18,7 +18,27 @@ internal static class TipCavitationTests
         AnalysisChecks.Check("TipCavitation_Exclusion_WingLineStatesCountAndJudgedStations", WingLineSuffix);
         AnalysisChecks.Check("TipCavitation_ProjectionRowsAndBand_FollowTheRule", ProjectionRowsFollowTheRule);
         AnalysisChecks.Check("TipCavitation_TipStationDisplay_NoSigmaAndNoCpMinNumber", TipStationDisplay);
+        AnalysisChecks.Check("TipCavitation_PiercingTipStation_WingLineIsUnavailable_Ruling144", PiercingTipMakesWingUnavailable);
         AnalysisChecks.Check("TipCavitation_ExampleWing_GoverningStationIsJudged_BeforeAfterObserved", ExampleWing);
+    }
+
+    // Ruling 144 (1): a surface-piercing tip station makes the wing line Unavailable; only the tip's alpha_eff verdict is excluded.
+    private static void PiercingTipMakesWingUnavailable()
+    {
+        byte[] source = SectionSeamTests.ThicknessSource(_ => 0.10);
+        StripLoad[] strips = [SectionSeamTests.Strip(0.5, 2), Tip(1.0, 2)];
+        // probe at a deep reference depth: rise_i = 100 - depth_i
+        SectionTierResult probe = SectionTier.Evaluate(source, [0.5, 1.0], strips, OperatingPoints.Custom(5.14444, -3, 100), Fixture.Salt);
+        double riseInner = 100 - probe.Stations[0].Depth!.Value, riseTip = 100 - probe.Stations[1].Depth!.Value;
+        Console.WriteLine($"OBSERVED probe rise: eta 0.5 {riseInner:F5} m, eta 1 {riseTip:F5} m");
+        AnalysisChecks.Equal(true, riseTip > riseInner + 1e-4, "fixture: the tip rises above the inner station, so a depth between them pierces only the tip");
+        double h = 0.5 * (riseInner + riseTip);
+        SectionTierResult tier = SectionTier.Evaluate(source, [0.5, 1.0], strips, OperatingPoints.Custom(5.14444, -3, h), Fixture.Salt);
+        AnalysisChecks.Equal(Cavitation.SurfacePiercing, tier.Stations[1].EstimatorAvailabilityCode, "fixture: only the tip is surface piercing");
+        AnalysisChecks.Equal(CavitationState.Clear, tier.Stations[0].Cavitation.State, "fixture: the judged station is Clear");
+        AnalysisChecks.Equal(CavitationState.Unavailable, tier.Cavitation.State, "geometric unavailability at the tip makes the wing line Unavailable");
+        AnalysisChecks.Equal(Cavitation.SurfacePiercing, tier.Cavitation.Reason, "with the surface-piercing reason");
+        AnalysisChecks.Equal(1, tier.TipNotJudgedCount, "the tip is still counted as left out of the alpha_eff verdict");
     }
 
     private static void ExampleWing()
