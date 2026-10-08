@@ -94,10 +94,10 @@ under Ruling 139 is evidence, never PASS.
 
 The inherited shell resolved `C:\Program Files\dotnet\dotnet.exe` and could not
 load the pinned SDK. `global.json` remains `10.0.203`, `rollForward: disable`.
-The already-installed user executable `C:\Users\malla\.dotnet\dotnet.exe`
+The already-installed user executable `%USERPROFILE%\.dotnet\dotnet.exe`
 reports 10.0.203; its SDK list includes 10.0.203. System x64 SDKs are 9.0.315 and
 10.0.301; an x86 executable also exists but was not used. The bounded command sets
-`DOTNET_ROOT=C:\Users\malla\.dotnet`, selects check prefixes with `CFD_TEST_ONLY`,
+`DOTNET_ROOT=%USERPROFILE%\.dotnet`, selects check prefixes with `CFD_TEST_ONLY`,
 and runs the user executable:
 
 ```text
@@ -118,8 +118,9 @@ they are not per-test latency or calibrated cost budgets.
 | `cycle-2` | WindowsNative_,WindowsStore_ | 1 | 9 selected; eight PASS, held-reader failure remains |
 
 Each stem has `.stdout.txt` and `.stderr.txt`. The resolver's stderr contains the
-SDK mismatch. Behavioral-run stderr is empty. Raw outputs are preserved verbatim;
-the ACL RED contains local principal SIDs because it compares actual descriptors.
+SDK mismatch. Behavioral-run stderr is empty. Native errors and assertion results
+are preserved; the ACL RED retains the descriptor structure.
+Ruling 145 proof redactions: machine SIDs use `S-1-5-21-<machine>-<RID>` and user paths use `%USERPROFILE%`.
 No new production telemetry field contains a SID, path, hash or project bytes.
 
 **Native observations, confidence Verified on the measured fixture only:** .NET

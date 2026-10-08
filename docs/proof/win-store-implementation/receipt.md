@@ -35,8 +35,9 @@ ShareRead-only handle, receives NTSTATUS `0xc0000043`, IO status0, Win32 `32`.
 The approved ShareRead|ShareDelete overwrite is **Not assessed**, not failed or passed.
 
 Earlier raw outputs are `sdk-resolution`, `red-store`, `red-native`, `cycle-1`, each
-with separate `.stdout.txt` and `.stderr.txt`. Original ACL failure output includes
-the actual local security descriptors; no output was rewritten or sanitized.
+with separate `.stdout.txt` and `.stderr.txt`. The ACL failure retains its descriptor
+structure, native errors and assertion result.
+Ruling 145 proof redactions: machine SIDs use `S-1-5-21-<machine>-<RID>` and user paths use `%USERPROFILE%`.
 
 Executable repair count **2/2**, track **STOPPED/BLOCKED** by Owner disposition.
 The failure checkpoint/design erratum alone is authorized to commit. No further
