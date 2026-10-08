@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T18:55:16Z",
+  "generated": "2026-10-08T19:05:56Z",
   "audit": [
     {
       "actor": null,
@@ -30388,6 +30388,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T18:54:01Z",
       "duration_seconds": 75.0
+    },
+    {
+      "id": "al-01M4EEGTWPXKBWHJZE36T3NRZE",
+      "shortname": "cat-determinism",
+      "datetime": "2026-10-08T19:05:56Z",
+      "session": "trk-cat",
+      "prompt": "trk-cat",
+      "summary": "Byte 727 = X of upper index 63; Math.Cos CRT 1-ulp reproduces datum; options A-D",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Root cause of cross-OS naca-0009 generated-bytes mismatch",
+      "done_when": "investigation.md answers 1-6 with measurements"
     }
   ],
   "changes": [
