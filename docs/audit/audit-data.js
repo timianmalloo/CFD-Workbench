@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T02:04:39Z",
+  "generated": "2026-10-08T02:27:28Z",
   "audit": [
     {
       "actor": null,
@@ -29785,6 +29785,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T02:03:42Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M4CNCK56B90PWG7XJDA0EKJN",
+      "shortname": "trk-tcv",
+      "datetime": "2026-10-08T02:27:28Z",
+      "session": "trk-tcv",
+      "prompt": "trk-tcv round-oct06",
+      "summary": "SectionTier carries TipNotJudged per station and excludes tip stations from selection and the wing screen; wing lines state the count; tip station reads Not judged in table, profile line and estimator row. Example wing: governing eta 0.9757 before and after, 3 tip stations left out. Checks live in the readiness ring (fast ring has no C-2 headroom). Residual: Cp_min marker plate and Cp chart point still show a number on a tip station (Desktop SectionProfileView, not owned).",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Tip-provisional stations never decide the wing cavitation verdict (Ruling 142)",
+      "done_when": "Exclusion, wing-line suffix and tip-station display tested red-first; item 4 sweep and item 5 observation recorded; ring, docs and verify gates green",
+      "started_at": "2026-10-08T02:07:40Z",
+      "duration_seconds": 1188.0
     }
   ],
   "changes": [
