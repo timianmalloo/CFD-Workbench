@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T17:15:45Z",
+  "generated": "2026-10-08T17:48:36Z",
   "audit": [
     {
       "actor": null,
@@ -30064,6 +30064,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T17:14:53Z",
       "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4EA37E6ENKBF9CFV7HVG00Q",
+      "shortname": "join-w4",
+      "datetime": "2026-10-08T17:48:36Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/w4-evidence-fix into main",
+      "summary": "PR #9 joined: W-4a A4 met, cross-OS Cl -1.604e-6 Cd -9.7e-8; W-4b oracle NOT MET; L3 prepared; Fable owner Ruling 151 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join PR #9 W-4 evidence under Ruling 151",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T17:47:41Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
@@ -32100,6 +32127,87 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M4E14DPYAGQ8HB1141RGK278",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4E95YJZ6R5W8F42WDQ5S6PG",
+      "ts": "2026-10-08T17:32:36Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4E95YFZGPDZQWX2R3HCYM98",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4E9JD5RXXM8THWPKEFM8S9R",
+      "ts": "2026-10-08T17:39:24Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4E9JD28VY4KGP09VHJMJA4Z",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4E9JDM8PP79B190TANK5056",
+      "ts": "2026-10-08T17:39:25Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4E9JDGRV7DMKZ6CPSFKZE4V",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4E9JE2W4ECMXTK5CKSH2GFA",
+      "ts": "2026-10-08T17:39:25Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4E9JDZC4BBVK08H73A2VV9G",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4E9JEGPSW527H5PEEFGK0FK",
+      "ts": "2026-10-08T17:39:26Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4E9JEDBN5SCW950CH77KT59",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4E9JEV4RN29T5TM8ZQY7FH5",
+      "ts": "2026-10-08T17:39:26Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4E9JEV03GHN10JEDKK663X7",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4E9JEYBQE08WMZTASPRWW8S",
+      "ts": "2026-10-08T17:39:26Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4E9JEV03GHN10JEDKK663X7",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4E9WTG9NNSWADX3NZ39F2V2",
+      "ts": "2026-10-08T17:45:06Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4E9WTG47SKAZGB5YK09593X",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4E9WTNVSW66ECFNF16M8RWV",
+      "ts": "2026-10-08T17:45:06Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4E9WTG47SKAZGB5YK09593X",
       "session": "fable-owner"
     }
   ]
