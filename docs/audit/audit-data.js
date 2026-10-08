@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T02:38:45Z",
+  "generated": "2026-10-08T14:11:29Z",
   "audit": [
     {
       "actor": null,
@@ -29872,6 +29872,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T02:37:48Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M4DXNP0M36EF2VCFYS3KM365",
+      "shortname": "trk-tcv",
+      "datetime": "2026-10-08T14:11:29Z",
+      "session": "trk-tcv",
+      "prompt": "trk-tcv Ruling 144 follow-up",
+      "summary": "SectionTier checks all screens for Unavailable (tip override only when not already Unavailable); suffix reads ; N stations Not judged — tip strip (COPY-410); colour bar and Cp chart extent rounded outward to 0.5 on a tip station; tuple nit split. New checks in readiness.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Geometric unavailability at a tip station still makes the wing line Unavailable; suffix names stations; tip scales rounded",
+      "done_when": "Red-first piercing test, COPY-410, rounding tests, ring and gates green",
+      "started_at": "2026-10-08T14:06:42Z",
+      "duration_seconds": 287.0
     }
   ],
   "changes": [
@@ -31872,6 +31892,24 @@ window.AUDIT_DATA = {
       "to": "14e5e8d5",
       "kind": "ruling",
       "ref": "req-01M4CJC5QSTXJ2J2SKXYT48ZHP",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4DWMBVFSXJTBD8KZF4WVAF2",
+      "ts": "2026-10-08T13:53:17Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4DWMBRH5BJXG1CSR601P5EP",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4DXC8WAMSQJZMAHXQBX23NQ",
+      "ts": "2026-10-08T14:06:21Z",
+      "from": "operator-timianmalloo",
+      "to": "14e5e8d5",
+      "kind": "ruling",
+      "ref": "req-01M4DXC8SDWYSVQBP98MEM3XJS",
       "session": "operator-timianmalloo"
     }
   ]

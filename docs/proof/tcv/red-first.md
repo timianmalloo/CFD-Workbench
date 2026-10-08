@@ -50,3 +50,17 @@ band row of item 4).
 |---|---|
 | `Judged(int)` always true in `SectionTier.Evaluate` | 2 checks fail (planted station governs; the count and the governing eta) |
 | the `Cavitation` row in `AnalysisProjection.SectionRows` loses its suffix | 1 check fails ("Cavitation row: Clear — ... expected True") |
+
+## Ruling 144 follow-up
+
+Ruling 144 (quoted): "(1) Geometric unavailability at any station, tip included (ANA-CAV-SURFACE-PIERCING, ANA-CAV-DEPTH-NOT-SET), makes the wing cavitation line Unavailable, as under Ruling 86 before the Ruling 142 fix. Ruling 142 excludes only the verdict that rests on a tip strip's alpha_eff, never a geometric unavailability. A test pins it: a surface-piercing tip station makes the wing line Unavailable. (2) The wing cavitation suffix names its noun: "; N stations Not judged — tip strip" (new DESIGN.md row citing this ruling). The run verdict line (AnalysisProjection.cs:409) keeps its strip count. Also, under Ruling 142 (3): on a tip station the colour bar ends and the Cp chart axis extent are rounded outward to a fixed step, so neither prints Cp_min."
+
+| Item | Evidence |
+|---|---|
+| (1) red, committed before the fix (f130e95e) | `red-run-3-piercing.txt`: `TipCavitation_PiercingTipStation_WingLineIsUnavailable_Ruling144` fails with "geometric unavailability at the tip makes the wing line Unavailable expected Unavailable; actual Clear". The fixture asserts first: the tip rises 1.34 mm above the inner station (alpha -3), a depth between them pierces only the tip, and the judged station reads Clear. Cause: `SectionTier.cs` checked only judged screens for Unavailable. |
+| (1) green | The same check passes: wing line Unavailable with reason ANA-CAV-SURFACE-PIERCING, `TipNotJudgedCount` still 1. The all-tip override now applies only when the wing screen is not already Unavailable. |
+| (2) | DESIGN.md row COPY-410 (`check-copy-ids`: 412 rows). `Labels.TipNotJudgedSuffix` reads "; N stations Not judged — tip strip". The Section line, the Analysis panel Cavitation row and the V_crit note use it; the run sentence (COPY-252) is untouched. Three test assertions updated to "; 1 stations ...". |
+| (3) | `ChartPlot.ExtentStep` (0.5 on a tip station) and `ChartPlot.RoundOut`; `SectionChartView` rounds the Y extent outward with no pad; `SectionProfileView` rounds the colour-bar range outward. Checks: Analysis `TipCavitation_TipStationDisplay...` (step set on tip, null on interior, -0.46 to -0.5, 0.99 to 1.0) and Desktop `SectionProfile_TipStation...` (tip bar 1.0, interior 0.99). No new capture was taken for this step. |
+| (4) | `AnalysisChecks.cs` tuple pair split onto two lines. |
+
+All new checks are in the readiness ring.
