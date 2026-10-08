@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:12:32Z",
+  "generated": "2026-10-08T23:14:01Z",
   "audit": [
     {
       "actor": null,
@@ -30796,6 +30796,33 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-08T23:11:40Z",
+      "duration_seconds": 52.0
+    },
+    {
+      "id": "al-01M4EWQ3ERPKP8WG3DKFSQE87G",
+      "shortname": "join-pr12",
+      "datetime": "2026-10-08T23:14:01Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/wfx2-b2-ring into main",
+      "summary": "PR #12 joined: WFX2 failed-ring receipt (39 named failures classified a-f), never a PASS; index regenerated; Desktop-crash unassessed line added (Ruling 154 C1, C2) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join PR #12 under Ruling 154",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T23:13:09Z",
       "duration_seconds": 52.0
     }
   ],
