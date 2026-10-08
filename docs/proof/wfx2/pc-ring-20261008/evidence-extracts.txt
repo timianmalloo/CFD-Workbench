@@ -1,0 +1,80 @@
+Extracted verbatim from the seven retained ring logs. Line numbers refer to source logs. Absolute repository paths are redacted as %REPO%.
+
+===== Analysis.part1of2.log =====
+131: FAIL NeuralFoil_Family_CatalogNaca0012_DerivedNotLabelled ContractError: a catalog file failed its check
+234: PASS SectionForce_Imperial_ForceAndMomentPerSpan
+235: COST SectionForce_Imperial_ForceAndMomentPerSpan 3.899
+242: RESULT failures=1
+
+===== Analysis.part2of2.log =====
+168: PASS Projection_DragWingOnly_OneRow_ImperialLbf
+169: COST Projection_DragWingOnly_OneRow_ImperialLbf 11.574
+194: PASS Units_Imperial_NoAnalysisRowKeepsNewtonsPerMetre
+195: COST Units_Imperial_NoAnalysisRowKeepsNewtonsPerMetre 11.606
+238: FAIL Section_WingRun_PanelValuesAtEveryStation InvalidOperationException: warm 200-panel whole-wing section tier exceeded 1 s
+274: RESULT failures=1
+
+===== Cli.log =====
+5: FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp
+7: Unhandled exception. System.InvalidOperationException: inspect --runs returned 3: {
+8:   "code": "DOC-UNSUPPORTED-PERSISTENCE"
+9: }
+11:    at Program.<Main>$(String[] args) in %REPO%\tests\CfdWorkbench.Cli.Tests\CliTests.cs:line 179
+12:    at Program.<Main>(String[] args)
+
+===== Core.part1of3.log =====
+90: FAIL Library_DuplicateIgnoringCaseNfc_Refused ContractError: DOC-UNSUPPORTED-PERSISTENCE
+91: FAIL Library_StaleClaim_ReportedNotDeleted InvalidOperationException: Expected LIB-CLAIM-HELD; actual DOC-UNSUPPORTED-PERSISTENCE
+93: FAIL Library_SecondInstanceSameRoot_EntryListed ContractError: DOC-UNSUPPORTED-PERSISTENCE
+157: FAIL LayoutLoad_Absent_ReturnsPresets InvalidOperationException: Expected saved; actual failed
+158: FAIL Rollback_V2Oversized_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+159: PASS PrefStore_SymlinkedDirectory_SessionOnly
+160: FAIL LayoutSave_Conflict_MergesChangedWorkspaceOnly InvalidOperationException: Expected True; actual False
+161: FAIL Recent_Conflict_ReappliesAdd InvalidOperationException: Expected True; actual False
+162: FAIL Recent_Remove_KeepsEveryOtherEntry InvalidOperationException: Expected saved; actual failed
+164: FAIL Rollback_TextSizeV2_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+166: FAIL PrefStore_DirectoryLink_WindowsBranchUsesJunction IOException: A required privilege is not held by the client. : '%REPO%\.tmp-tests\p1-934e1de118404cfabe3a6f44d3a54edc\alias'.
+236: FAIL Placement_ProfileEvaluatorFold_SurfaceBitsUnchanged InvalidOperationException: Expected blended-dihedral.foil 943866A4A779DE0CD263065574A79453E7C64D8E64664A2B8C355B2C265DAEDE
+268: RESULT failures=11
+
+===== Core.part2of3.log =====
+13: FAIL Catalog_GenEntries_RegenerateToRecordedHash ContractError: a catalog file failed its check [check=generated-bytes; detail=entry naca-0009: lengths 6686 vs generated 6686, first differing byte 727]
+14: FAIL Catalog_VendAndLink_NoCoordinates ContractError: a catalog file failed its check [check=generated-bytes; detail=entry naca-0009: lengths 6686 vs generated 6686, first differing byte 727]
+15: FAIL CatalogGenerator_ClosedTe4412_ChordFrameLeAtMinimumX ContractError: a catalog file failed its check [check=generated-bytes; detail=entry naca-0009: lengths 6686 vs generated 6686, first differing byte 727]
+78: FAIL WindowsNative_Replace_HeldReaderKeepsOldImage NativeFailure: NTSTATUS=0xc0000043; IO_STATUS=0x00000000; Win32=32: The process cannot access the file because it is being used by another process.
+84: FAIL Library_Save_PublishesHashNamedFile ContractError: DOC-UNSUPPORTED-PERSISTENCE
+87: FAIL Library_WriteFails_NothingPublished InvalidOperationException: Expected LIB-IO; actual DOC-UNSUPPORTED-PERSISTENCE
+152: PASS LayoutCodec_DeepestValid_SerializesAndReaderRejectsDepth9
+153: FAIL Rollback_V2UnknownTopLevel_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+155: FAIL PrefsSave_LayoutAndRecentConcurrent_BothKept InvalidOperationException: Expected saved; actual failed
+156: FAIL LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces InvalidOperationException: Expected saved; actual failed
+157: FAIL Recent_ClearFails_ReportedNotCleared InvalidOperationException: Expected LAYOUT-VERSION; actual DOC-UNSUPPORTED-PERSISTENCE
+158: FAIL Recent_RemoveWriteFails_ListUnchanged FileNotFoundException: Could not find file '%REPO%\.tmp-tests\p1-96a063a1630d4601bd2eec387013d787\recent\recent.json'.
+159: FAIL PrefStore_TextSize_RoundTrip InvalidOperationException: Expected saved; actual session-only
+160: FAIL PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched InvalidOperationException: Expected saved; actual failed
+161: FAIL PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash InvalidOperationException: Expected saved; actual session-only
+246: RESULT failures=14
+
+===== Core.part3of3.log =====
+14: FAIL Catalog_Fairings_NeverListed ContractError: a catalog file failed its check [check=generated-bytes; detail=entry naca-0009: lengths 6686 vs generated 6686, first differing byte 727]
+15: FAIL Catalog_GenNeverThroughDatParse ContractError: a catalog file failed its check [check=generated-bytes; detail=entry naca-0009: lengths 6686 vs generated 6686, first differing byte 727]
+84: FAIL Library_EntryBytes_ParseAsStandaloneSection ContractError: DOC-UNSUPPORTED-PERSISTENCE
+86: FAIL Library_ScanNameCollision_BothReported ContractError: DOC-UNSUPPORTED-PERSISTENCE
+115: FAIL Replace_Preview_EmitsCatalogPreviewOutcome InvalidOperationException: Expected ReplaceEvent { Scope = draft, Stations = 2, ResidualChord = 8.122861410878169E-05, Spacing = current, Family = Naca, Class = Gen }; actual ReplaceEvent { Scope = draft, Stations = 2, ResidualChord = 8.122861410878169E-05, Spacing = current, Family = , Class = Gen }
+153: PASS LayoutCodec_IndentedJson_PinsLfNewLine
+154: FAIL Rollback_V2UnknownWorkspaceMember_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+156: FAIL LayoutSave_ClaimBusyHashSame_RetriesOnce InvalidOperationException: Expected True; actual False
+157: FAIL LayoutSave_StaleClaim_SessionOnlyNamesClaim InvalidOperationException: Expected claim-held; actual failed
+158: FAIL Recent_Clear_NoFileContainsMarkerPath InvalidOperationException: Expected saved; actual failed
+159: FAIL StoreContract_CancelBeforePublish_DocCancelled InvalidOperationException: Expected False; actual True
+160: FAIL PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged InvalidOperationException: {"format":"cfdw-display","version":1,"textSize":175}: missing DISPLAY-SCHEMA [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+161: PASS PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites
+248: RESULT failures=11
+
+===== Desktop.log =====
+1: STAGE SelfLaunchTests
+3: STAGE native-review-options
+4: APP-UNHANDLED APP-CRASH System.Exception
+5: System.Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE
+6:    at Program.<Main>$(String[] args) in %REPO%\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 281
+7:    at Program.<Main>(String[] args)

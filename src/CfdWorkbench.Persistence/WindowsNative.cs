@@ -32,7 +32,7 @@ internal static unsafe partial class WindowsNative
 
     // minwinbase.h FILE_INFO_BY_HANDLE_CLASS ordinal values (SDK declaration and Learn).
     // https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ne-minwinbase-file_info_by_handle_class
-    private const int FileIdInfo = 18, FileDispositionInfoEx = 21, FileRenameInfoEx = 22;
+    private const int FileRenameInfo = 3, FileIdInfo = 18, FileDispositionInfoEx = 21, FileRenameInfoEx = 22;
     // wdm.h FILE_INFORMATION_CLASS; different enumeration from Win32 FILE_INFO_BY_HANDLE_CLASS.
     // https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/ne-wdm-_file_information_class
     private const int FileRenameInformationEx = 65;
@@ -161,7 +161,7 @@ internal static unsafe partial class WindowsNative
     internal static void Flush(SafeFileHandle handle) => Check(FlushFileBuffers(handle));
 
     internal readonly record struct RenameCompletion(int NtStatus, int IoStatus, int Win32Error);
-    private enum RenameApi { NtRelative, Win32Qualification }
+    private enum RenameApi { NtRelative, Win32Qualification, Win32AbsoluteQualification, Win32LegacyQualification }
 
     internal static RenameCompletion Rename(SafeFileHandle source, SafeFileHandle parent, string destination, bool replace) =>
         RenameCore(source, parent, destination, replace, RenameApi.NtRelative);
@@ -170,10 +170,22 @@ internal static unsafe partial class WindowsNative
     internal static RenameCompletion ProbeWin32Rename(SafeFileHandle source, SafeFileHandle parent, string destination, bool replace) =>
         RenameCore(source, parent, destination, replace, RenameApi.Win32Qualification);
 
+    // Ruling 145 attribution only, on an independent trusted fixture. Never a store mutation route.
+    internal static RenameCompletion ProbeWin32AbsoluteRename(SafeFileHandle source, SafeFileHandle parent, string absoluteDestination) =>
+        RenameCore(source, parent, absoluteDestination, false, RenameApi.Win32AbsoluteQualification);
+
+    internal static RenameCompletion ProbeWin32LegacyRename(SafeFileHandle source, SafeFileHandle parent, string destination) =>
+        RenameCore(source, parent, destination, false, RenameApi.Win32LegacyQualification);
+
     private static RenameCompletion RenameCore(SafeFileHandle source, SafeFileHandle parent, string destination,
         bool replace, RenameApi api)
     {
-        RequireChild(destination);
+        if (api == RenameApi.Win32AbsoluteQualification)
+        {
+            if (!Path.IsPathFullyQualified(destination) || destination.Length < 3 || destination[1] != ':')
+                throw new ArgumentException("An absolute DOS fixture path is required.", nameof(destination));
+        }
+        else RequireChild(destination);
         int byteCount = checked(destination.Length * sizeof(char));
         int length = checked(sizeof(RenameHeader) + byteCount);
         byte[] buffer = new byte[length];
@@ -185,12 +197,13 @@ internal static unsafe partial class WindowsNative
             {
                 var header = (RenameHeader*)data;
                 header->Flags = replace ? RenameReplace | RenamePosix : 0;
-                header->RootDirectory = parent.DangerousGetHandle();
+                header->RootDirectory = api == RenameApi.Win32AbsoluteQualification ? 0 : parent.DangerousGetHandle();
                 header->FileNameLength = (uint)byteCount;
                 destination.AsSpan().CopyTo(new Span<char>(&header->FirstCharacter, destination.Length));
-                if (api == RenameApi.Win32Qualification)
+                if (api != RenameApi.NtRelative)
                 {
-                    Check(SetFileInformationByHandle(source, FileRenameInfoEx, data, (uint)length));
+                    int informationClass = api == RenameApi.Win32LegacyQualification ? FileRenameInfo : FileRenameInfoEx;
+                    Check(SetFileInformationByHandle(source, informationClass, data, (uint)length));
                     return new(0, 0, 0);
                 }
                 int status = NtSetInformationFile(source, out IoStatusBlock io, data, (uint)length, FileRenameInformationEx);
@@ -243,6 +256,8 @@ internal static unsafe partial class WindowsNative
         internal int? NtStatus { get; } = ntStatus;
         internal int Win32Error { get; } = win32Error;
         internal int? IoStatus { get; } = ioStatus;
+        // Ruling 145: an incompatible open is a conflict, never generic I/O failure.
+        internal string ProductCode => Win32Error == 32 ? "DOC-CONFLICT" : "DOC-IO";
     }
 
     // LocalFree owns descriptors/strings returned by advapi32. No descriptor buffer escapes its lifetime.
