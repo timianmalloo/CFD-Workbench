@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T19:55:29Z",
+  "generated": "2026-10-08T20:27:11Z",
   "audit": [
     {
       "actor": null,
@@ -30613,6 +30613,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T19:54:36Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M4EK5KJPS94JZ7QB63E6601V",
+      "shortname": "rws-record-path",
+      "datetime": "2026-10-08T20:27:11Z",
+      "session": "trk-rws",
+      "prompt": "trk-rws",
+      "summary": "None of the six sites reaches a committed golden (1-ulp perturbation, ring green; ConstrainedFit:400 never runs). 111 call lines classed: 9 (a), 13 (b), 89 (c). Options per role listed.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Measure which Ruling 156 (3) record-write sites feed a committed hash; sweep src/ for C-runtime transcendentals",
+      "done_when": "investigation.md answers 1-4 with perturbation results; check-docs exit 0"
     }
   ],
   "changes": [
