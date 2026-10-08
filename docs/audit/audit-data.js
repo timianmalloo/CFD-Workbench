@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:26:38Z",
+  "generated": "2026-10-08T23:37:00Z",
   "audit": [
     {
       "actor": null,
@@ -31006,6 +31006,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-08T23:25:43Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M4EY164ZR4SSP02W6RHRZBS0",
+      "shortname": "join-pr13",
+      "datetime": "2026-10-08T23:37:00Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/trig-bits into main",
+      "summary": "PR #13 joined: Windows CosPi bits equal the Mac golden at 81/81; CosPi/SinPi bit-identical across hosts, Math.Cos differs at 5 recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join PR #13 under Ruling 163",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T23:36:10Z",
+      "duration_seconds": 50.0
     }
   ],
   "changes": [
@@ -33250,6 +33277,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4EWWJ9E2848D5WZHQ9SZ8FF",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4EXYTS8R3PGCTYJST016CQN",
+      "ts": "2026-10-08T23:35:43Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EXYTS5WVAFE3GR4TDYSPHN",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EXYTW4064WFM7K2BSYZ6EM",
+      "ts": "2026-10-08T23:35:43Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EXYTS5WVAFE3GR4TDYSPHN",
+      "session": "fable-owner"
     }
   ]
 };
