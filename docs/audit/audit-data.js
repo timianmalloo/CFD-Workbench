@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T18:04:18Z",
+  "generated": "2026-10-08T18:31:45Z",
   "audit": [
     {
       "actor": null,
@@ -30226,6 +30226,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Stations table caption {shown} of {judged} stations shown, judged from one source (Ruling 147)",
       "done_when": "red-first receipts, captures, run-tests green, check-docs 0"
+    },
+    {
+      "id": "al-01M4ECJ8GKXM360C6VZ321ABMS",
+      "shortname": "join-stc",
+      "datetime": "2026-10-08T18:31:45Z",
+      "session": "3122f106",
+      "prompt": "the join of feature/stc-stations-caption into main",
+      "summary": "STC joined: COPY-411 caption above the Stations table, one JudgedCount for the line and caption; operator approved the captures recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the Stations caption under Ruling 147",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-08T18:30:52Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
@@ -32362,6 +32389,33 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4EA8YJWZ8K0HGKVZ40C3BJ5",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EAY7HVYNY9P61F4W4CW5EQ",
+      "ts": "2026-10-08T18:03:21Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EAY7HMGD2DK5SAVNR39926",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EAY7R7D13N1CBYP6QC0B3Q",
+      "ts": "2026-10-08T18:03:21Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EAY7HMGD2DK5SAVNR39926",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4ECEZAV1JYX22A4ZYFYRCXD",
+      "ts": "2026-10-08T18:29:58Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4ECEZ7YHDAWWZYWMMSRHE7V",
+      "session": "operator-timianmalloo"
     }
   ]
 };
