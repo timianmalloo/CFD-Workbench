@@ -1,1 +1,2 @@
 {"agent": "trk-srs", "at": 1791488914.3837361, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-srs", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-srs-catalog-refusal"}
+{"agent": "trk-srs", "at": 1791489486.3153338, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-srs", "wi": "WI-0", "worktree": "CFD-Workbench-fix-srs-catalog-refusal"}
