@@ -420,6 +420,13 @@ public static class AnalysisPanelTests
                 Equal(5.14, band.BuildOperatingPoint().Speed, "an untouched box keeps the exact m/s");
                 band.FindControl<TextBox>("SpeedInput")!.Text = "10";
                 Equal(true, Math.Abs(band.BuildOperatingPoint().Speed - 10 / 1.9438444924406) < 1e-9, "a typed value is kn");
+                // Ruling 140: the summary follows the live band, so the typed 10 kn shows at once; the original text restores 9.99 kn.
+                host.RefreshPanes();
+                Settle(window);
+                Equal(true, Texts(host.Properties).Contains("10 kn · salt 15 °C · as the band"), "the summary follows a typed speed");
+                band.FindControl<TextBox>("SpeedInput")!.Text = "9.99";
+                host.RefreshPanes();
+                Settle(window);
                 var texts = Texts(host.Properties);
                 Equal(true, texts.Contains("9.99 kn · salt 15 °C · as the band"), "COPY-280 summary on the collapsed Conditions group");
                 Equal(true, controller.AnalysisView.Groups.Single(g => g.Title == "Conditions").Rows.Single(r => r.Label == "Speed").Unit == "kn", "results are kn too");

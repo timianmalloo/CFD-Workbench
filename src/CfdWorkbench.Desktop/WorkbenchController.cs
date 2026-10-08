@@ -246,6 +246,8 @@ public sealed class WorkbenchController : IDisposable
     private AnalysisService analysisService;
     private CancellationTokenSource? analysisCancellation;
     private OperatingPoint analysisOp = OperatingPoints.Custom(5.14, 2, null);
+    private bool pendingUnreadable;   // a band input is blank, malformed or refused: the pending point cannot match any run
+    private const string UnreadableDatum = "band input unreadable";   // never a run's datum, so the key differs
     private WaterRecord analysisWater = WaterTable.At(OperatingPoints.DefaultTemperatureC, OperatingPoints.SaltSalinityGPerKg);
     private AnalysisViewModel? analysisView;
     private string? analysisProjectionKey;
@@ -292,6 +294,8 @@ public sealed class WorkbenchController : IDisposable
     public event Action? UnitsChanged;
 
     public OperatingPoint AnalysisOperatingPoint => analysisOp;
+    /// <summary>The point freshness compares: the pending point, or one no run can hold while a band input is unreadable.</summary>
+    private OperatingPoint ComparedOp => pendingUnreadable ? analysisOp with { Datum = UnreadableDatum } : analysisOp;
     public WaterRecord AnalysisWater => analysisWater;
     public bool AnalysisRunning => analysisCancellation is not null;
     public RunState AnalysisState => AnalysisRunning ? RunState.Running : AnalysisView.State;
@@ -305,7 +309,7 @@ public sealed class WorkbenchController : IDisposable
                 return new AnalysisViewModel(RunState.NoResult, "Analysis: no result", null, null, [], [], null);
             long started = time.GetTimestamp();
             var snapshot = session.Snapshot();
-            var current = Freshness.Current(snapshot, analysisWater, analysisOp, analysisMethod.Method, analysisMethod.Settings);
+            var current = Freshness.Current(snapshot, analysisWater, ComparedOp, analysisMethod.Method, analysisMethod.Settings);
             var selected = session.ReadRuns().Runs.LastOrDefault();
             string key = Freshness.CurrentKey(current) + ":" + selected?.Run.RunId + ":" + selected?.Integrity + ":" + AnalysisRunning + ":" + analysisUnits;
             if (analysisProjectionKey == key && analysisView is not null) return analysisView;
@@ -379,15 +383,26 @@ public sealed class WorkbenchController : IDisposable
     private string HistoricalBanner(AnalysisRun run, CurrentInputs current)
     {
         var changed = Freshness.WhatChanged(run, current);
+        if (pendingUnreadable && !changed.Contains("surface")) return "Historical — operating point changed";
         if (changed.Contains("surface"))
         {
             var was = session.RevisionOf(run.Inputs.AcceptedId);
             var now = session.RevisionOf(current.Inputs.AcceptedId);
             return $"Historical — geometry changed (r{was.Ordinal} → r{now.Ordinal})";
         }
-        if (changed.Contains("op.alphaDeg"))
-            return string.Create(CultureInfo.InvariantCulture,
-                $"Historical — operating point changed (α {run.Op.AlphaDeg:0.00}° → {analysisOp.AlphaDeg:0.00}°)");
+        if (changed.All(field => field == "water" || field.StartsWith("op.", StringComparison.Ordinal)))
+        {
+            // α keeps its approved arrow form; any other edited band input is named, never shown as a key field.
+            var parts = changed.Select(field => field switch
+            {
+                "op.alphaDeg" => string.Create(CultureInfo.InvariantCulture, $"α {run.Op.AlphaDeg:0.00}° → {analysisOp.AlphaDeg:0.00}°"),
+                "op.speed" => "speed",
+                "op.hRef" => "depth",
+                "water" => "water",
+                _ => field["op.".Length..]
+            });
+            return $"Historical — operating point changed ({string.Join(", ", parts)})";
+        }
         return "Historical — " + string.Join(", ", changed);
     }
 
@@ -398,6 +413,22 @@ public sealed class WorkbenchController : IDisposable
         OperatingPoints.Validate(water);
         analysisOp = op;
         analysisWater = water;
+        pendingUnreadable = false;
+        analysisProjectionKey = null;
+        Notify();
+    }
+
+    /// <summary>
+    /// A live edit of the conditions band (Ruling 140): the pending point moves with the boxes, so the shown result reads
+    /// Historical as soon as it differs from the run's point and Current again when it matches. It records no run;
+    /// <paramref name="op"/> null means a band input is blank, malformed or refused, which reads as changed.
+    /// </summary>
+    public void SetPendingConditions(OperatingPoint? op, WaterRecord water)
+    {
+        if (op is { } point) { SetAnalysisConditions(point, water); return; }
+        OperatingPoints.Validate(water);
+        analysisWater = water;
+        pendingUnreadable = true;
         analysisProjectionKey = null;
         Notify();
     }

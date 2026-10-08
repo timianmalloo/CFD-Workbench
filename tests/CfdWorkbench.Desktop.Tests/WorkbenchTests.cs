@@ -120,6 +120,7 @@ if (args.Contains("--analysis", StringComparer.Ordinal))
     CfdWorkbench.Desktop.Tests.AnalysisHistoricalFeedTests.Run();
     CfdWorkbench.Desktop.Tests.AnalysisLayerTests.Run();
     CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Run();
+    CfdWorkbench.Desktop.Tests.StaleConditionsTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 

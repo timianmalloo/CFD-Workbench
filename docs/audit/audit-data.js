@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-07T23:30:33Z",
+  "generated": "2026-10-07T23:46:28Z",
   "audit": [
     {
       "actor": null,
@@ -29577,6 +29577,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-07T23:29:38Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M4CC5S3NNYFKVKP9FMAZENHW",
+      "shortname": "trk-stl",
+      "datetime": "2026-10-07T23:46:28Z",
+      "session": "trk-stl",
+      "prompt": "STL round-oct06",
+      "summary": "Band edits now reach the controller live (SetPendingConditions); every surface reads Historical via the one AnalysisView; revert is Current with no run; unreadable input reads changed; banner names speed/depth/water. Tests merged to two checks; Properties summary check updated to follow live band. Full run-tests: all PASS, only the C-3 wall gate over 50 s at load 12.9",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Ruling 140: an edited conditions-band input makes the shown result Historical until Evaluate",
+      "done_when": "five behaviours red-first then green, one capture, dispatch gate, full run-tests, check-docs 0",
+      "started_at": "2026-10-07T23:31:23Z",
+      "duration_seconds": 905.0
     }
   ],
   "changes": [
