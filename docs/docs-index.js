@@ -7481,6 +7481,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "5c055ea5c81c886b0dec09537d4a016214010fbe30e377ff7eb5f781b88760d7"
     },
     {
+      "id": "investigation-cat-determinism",
+      "path": "docs/proof/cat/investigation.md",
+      "title": "Cross-OS catalog generated-bytes mismatch (naca-0009 byte 727)",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-cat",
+      "phase": "",
+      "reviewBy": "2026-10-25",
+      "reviewSuggested": [],
+      "summary": "Byte 727 of generated naca-0009 is the X ordinate of upper-surface sample index 63. The only transcendental on the naca-0009 path is Math.Cos in the cosine spacing, which .NET forwards to the platform C runtime. A 1-ulp change of that one cosine reproduces the Windows datum exactly (first differing byte 727, same length). Options and their hash consequences are listed; a computational-geometry ruling comes before any fix.",
+      "tags": [
+        "catalog",
+        "determinism",
+        "cross-platform",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "adr-application-stack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bb7a76a43874f5de8954a1969d7552808a657ae73c7437f5141e1eec4952a448"
+    },
+    {
       "id": "investigation-review-window-attach",
       "path": "docs/investigations/review-window-attach.md",
       "title": "Review window attachment and stalled human waits",
@@ -16981,5 +17007,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f87951782c554d97535fa230d93fd72dbdd2fb7c5bb66e00a6c4d3919b7f0191"
+  "graphSha256": "4ba8613652ada3eb921ae9c899480d2462e9c6d417e89b1ecea289833cbd50f4"
 };
