@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T18:55:16Z",
+  "generated": "2026-10-08T19:05:25Z",
   "audit": [
     {
       "actor": null,
@@ -30363,12 +30363,57 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4EDXA5JSB6535P2ZE35FWTY",
-      "shortname": "join-wrt",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-08T18:55:16Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 75.0,
+      "fan_out": 0,
+      "goal": "join the Windows expected-failure manifest under Rulings 152 and 154",
+      "id": "al-01M4EDXA5JSB6535P2ZE35FWTY",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of feature/wrt-expected-failures into main",
+      "session": "3122f106",
+      "shortname": "join-wrt",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-08T18:54:01Z",
       "summary": "WRT joined: tests/expected-failures.windows.json (30 entries), check-expected-failures.py with UNEXPECTED-PASS drift rule, Windows-only run-tests classification; Desktop store check reports FAIL and continues recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-08T18:55:53Z",
+      "done_when": "red-first checks pass, run-tests green, check-docs exit 0",
+      "goal": "Singular/plural agreement and a round-off floor for the c/4 couple display",
+      "id": "al-01M4EDYDSV0EFV4FDYB7379BBQ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "NUM",
+      "session": "trk-num",
+      "shortname": "NUM display fix",
+      "skill": "implement",
+      "summary": "LatticeBias singular for 1; Labels.CoupleValue floors |couple| < 1e-9 q c^2 to 0.00 for label and table row; SectionForces.CoupleScale; COPY-SF17 row amended; NUM-RESIDUE class; Sig3 sweep reported",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4EEFWBNNQPRFZ4MER70C2ET",
+      "shortname": "join-num",
+      "datetime": "2026-10-08T19:05:25Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/num-display into main",
+      "summary": "NUM joined: COPY-SF17 singular for 1; CoupleValue floor 1e-9 q c^2 (measured residue 1e-17); cfd-numerical-verification CLEAR with the zero-by-construction claim narrowed to three conditions recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -30377,7 +30422,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join the Windows expected-failure manifest under Rulings 152 and 154",
+      "goal": "join the plural and round-off display fix",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -30386,8 +30431,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-08T18:54:01Z",
-      "duration_seconds": 75.0
+      "started_at": "2026-10-08T19:04:31Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [
