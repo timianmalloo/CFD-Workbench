@@ -125,12 +125,7 @@ internal static class SectionLibraryTests
 
     private static string NewRoot()
     {
-        string temp = Path.GetTempPath();
-        if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
-        if (temp.StartsWith("/var/", StringComparison.Ordinal)) temp = "/private" + temp;
-        string root = Path.Combine(temp, "library-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(root);
-        return root;
+        return TestTemp.NewDirectory("library-");
     }
     private static byte[] Block()
     {

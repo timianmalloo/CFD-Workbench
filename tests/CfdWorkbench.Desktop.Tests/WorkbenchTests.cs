@@ -319,59 +319,66 @@ using (var replacingWorkbench = new WorkbenchController(_ => delayedStore))
         replacingWorkbench.NativePath is not null || !replacingWorkbench.IsDirty)
         throw new Exception("Late save acknowledged or attached its path to a replacement session");
 }
-string recoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"recovery-{Guid.NewGuid():N}.cfdw.json");
-string seedRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"seed-recovery-{Guid.NewGuid():N}.cfdw.json");
-try
+// A named check, not top-level throws: every step opens or saves through the real store, which answers DOC-UNSUPPORTED-PERSISTENCE on
+// Windows until W-2 B2, and a throw here aborted the harness and hid every later check (WRT-HARNESS-ABORT).
+CfdWorkbench.Desktop.Tests.DesktopChecks.Check("Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted",
+    () => RecoverySaveReopenResumeAsync().GetAwaiter().GetResult());
+async Task RecoverySaveReopenResumeAsync()
 {
-    // The rail draft left after the per-control draft API retired is a resumed M1.2a recovery (golden bytes).
-    File.Copy("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/m12a-rail-recovery.cfdw", seedRecoveryPath);
-    using var savingDraft = new WorkbenchController();
-    await savingDraft.OpenPathAsync(seedRecoveryPath);
-    string acceptedBeforeDraft = savingDraft.Inspection!.Authored.Binding.SourceHash;
-    savingDraft.ResumeRecovery();
-    byte[] retainedDraftBytes = savingDraft.Draft!.Bytes;
-    var savedRecovery = await savingDraft.SaveAsync(recoveryPath);
-    if (savedRecovery.Code != "OK" || savingDraft.IsDirty)
-        throw new Exception("Durable recovery save did not settle the unchanged visible draft");
-    using var reopenedDraft = new WorkbenchController();
-    await reopenedDraft.OpenPathAsync(recoveryPath);
-    if (!reopenedDraft.HasRecovery || reopenedDraft.Draft is not null ||
-        reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Native reopen did not offer a separate draft beside the original accepted source");
-    if (reopenedDraft.RecoverySource != Encoding.UTF8.GetString(retainedDraftBytes))
-        throw new Exception("Native recovery offer does not expose exact retained draft bytes");
-    using var recoveryReview = new WorkbenchController();
-    await new NativeReviewOptions("screen-reader", 1024, 700, "recovery", "high-contrast", true, recoveryPath)
-        .ApplyStateAsync(recoveryReview);
-    if (!recoveryReview.HasRecovery || recoveryReview.Draft is not null ||
-        recoveryReview.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Recovery review state bypassed the saved-project offer");
-    recoveryReview.ResumeRecovery();
-    if (recoveryReview.Draft is null || !recoveryReview.Draft.Bytes.SequenceEqual(retainedDraftBytes))
-        throw new Exception("Resumed recovery did not bind its current draft bytes");
-    reopenedDraft.ResumeRecovery();
-    if (reopenedDraft.Draft is null || !reopenedDraft.Draft.Bytes.SequenceEqual(retainedDraftBytes) ||
-        reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Resume did not keep recovery separate from accepted identity");
-    var invalidImage = JsonNode.Parse(await File.ReadAllTextAsync(recoveryPath))!;
-    invalidImage["recovery"]!["utf8Base64Chunks"] = new JsonArray(Convert.ToBase64String(Encoding.UTF8.GetBytes("not FoilDSL")));
-    string invalidRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-recovery-{Guid.NewGuid():N}.cfdw.json");
-    await File.WriteAllTextAsync(invalidRecoveryPath, invalidImage.ToJsonString());
-    using var invalidRecovery = new WorkbenchController();
-    try { await invalidRecovery.OpenPathAsync(invalidRecoveryPath); }
-    finally { File.Delete(invalidRecoveryPath); }
-    invalidRecovery.ResumeRecovery();
-    if (invalidRecovery.Draft is null ||
-        invalidRecovery.RecoverySource != "not FoilDSL" ||
-        invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Unprojectable recovery draft did not retain raw bytes and accepted source separately");
-    if (!invalidRecovery.DraftInputValid) throw new Exception("Unprojectable recovery was marked as invalid numeric input");
-    await invalidRecovery.PreviewAsync();
-    if (invalidRecovery.Provenance != "draft — unavailable geometry" ||
-        !invalidRecovery.DraftInputValid || invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
-        throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
+    string recoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"recovery-{Guid.NewGuid():N}.cfdw.json");
+    string seedRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"seed-recovery-{Guid.NewGuid():N}.cfdw.json");
+    try
+    {
+        // The rail draft left after the per-control draft API retired is a resumed M1.2a recovery (golden bytes).
+        File.Copy("tests/CfdWorkbench.Core.Tests/Fixtures/m12b/m12a-rail-recovery.cfdw", seedRecoveryPath);
+        using var savingDraft = new WorkbenchController();
+        await savingDraft.OpenPathAsync(seedRecoveryPath);
+        string acceptedBeforeDraft = savingDraft.Inspection!.Authored.Binding.SourceHash;
+        savingDraft.ResumeRecovery();
+        byte[] retainedDraftBytes = savingDraft.Draft!.Bytes;
+        var savedRecovery = await savingDraft.SaveAsync(recoveryPath);
+        if (savedRecovery.Code != "OK" || savingDraft.IsDirty)
+            throw new Exception("Durable recovery save did not settle the unchanged visible draft; save answered " + savedRecovery.Code);
+        using var reopenedDraft = new WorkbenchController();
+        await reopenedDraft.OpenPathAsync(recoveryPath);
+        if (!reopenedDraft.HasRecovery || reopenedDraft.Draft is not null ||
+            reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Native reopen did not offer a separate draft beside the original accepted source");
+        if (reopenedDraft.RecoverySource != Encoding.UTF8.GetString(retainedDraftBytes))
+            throw new Exception("Native recovery offer does not expose exact retained draft bytes");
+        using var recoveryReview = new WorkbenchController();
+        await new NativeReviewOptions("screen-reader", 1024, 700, "recovery", "high-contrast", true, recoveryPath)
+            .ApplyStateAsync(recoveryReview);
+        if (!recoveryReview.HasRecovery || recoveryReview.Draft is not null ||
+            recoveryReview.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Recovery review state bypassed the saved-project offer");
+        recoveryReview.ResumeRecovery();
+        if (recoveryReview.Draft is null || !recoveryReview.Draft.Bytes.SequenceEqual(retainedDraftBytes))
+            throw new Exception("Resumed recovery did not bind its current draft bytes");
+        reopenedDraft.ResumeRecovery();
+        if (reopenedDraft.Draft is null || !reopenedDraft.Draft.Bytes.SequenceEqual(retainedDraftBytes) ||
+            reopenedDraft.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Resume did not keep recovery separate from accepted identity");
+        var invalidImage = JsonNode.Parse(await File.ReadAllTextAsync(recoveryPath))!;
+        invalidImage["recovery"]!["utf8Base64Chunks"] = new JsonArray(Convert.ToBase64String(Encoding.UTF8.GetBytes("not FoilDSL")));
+        string invalidRecoveryPath = CfdWorkbench.Desktop.Tests.TestTemp.Combine($"invalid-recovery-{Guid.NewGuid():N}.cfdw.json");
+        await File.WriteAllTextAsync(invalidRecoveryPath, invalidImage.ToJsonString());
+        using var invalidRecovery = new WorkbenchController();
+        try { await invalidRecovery.OpenPathAsync(invalidRecoveryPath); }
+        finally { File.Delete(invalidRecoveryPath); }
+        invalidRecovery.ResumeRecovery();
+        if (invalidRecovery.Draft is null ||
+            invalidRecovery.RecoverySource != "not FoilDSL" ||
+            invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Unprojectable recovery draft did not retain raw bytes and accepted source separately");
+        if (!invalidRecovery.DraftInputValid) throw new Exception("Unprojectable recovery was marked as invalid numeric input");
+        await invalidRecovery.PreviewAsync();
+        if (invalidRecovery.Provenance != "draft — unavailable geometry" ||
+            !invalidRecovery.DraftInputValid || invalidRecovery.Inspection?.Authored.Binding.SourceHash != acceptedBeforeDraft)
+            throw new Exception("Unprojectable recovery could not report Preview diagnostics without changing accepted source");
+    }
+    finally { File.Delete(recoveryPath); File.Delete(seedRecoveryPath); }
 }
-finally { File.Delete(recoveryPath); File.Delete(seedRecoveryPath); }
 Console.WriteLine("Desktop Example, bounded preview, cancel, apply, undo and redo passed.");
 
 AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();

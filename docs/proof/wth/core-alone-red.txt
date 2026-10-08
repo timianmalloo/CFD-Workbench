@@ -1,0 +1,89 @@
+NACA0012 residual root 1.9396237357396274E-07 m tip 1.9396237357396278E-08 m vertices 10 normalised 1.5267551620110065E-06
+planform deviation 0.011972960968201975 m analytic MAC 0.10787865603554626 m fitted MAC 0.11038811028541452
+chord oracle deviation 0.011972960968201975 m tip error 3.4694469519536142E-18 m
+QUERY FEASIBILITY RECEIPT {"Algorithm":"common-denominator-dyadic-128/taylor-grid-64/v1","RationalBitLimit":32768,"MaximumIntermediateBits":20502,"RationalOperationsUpper":321472,"InverseDepth":128,"AngleGridBits":64,"Spans":[{"Curve":"lead
+MEASURE twist_domain_degrees=57.295779513082323
+Blend heap differential: 320 cases, 81 both refused, worst comparisons/bound 0.844, 19.9 ms
+FAIL Store_CreationPermissions_BeforeWriteAndAfterPublication InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+NATIVE PRIMITIVE RECEIPT {"root":"/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/native-primitives-390dd809d212497ab9457e625ecd3215","Device":16777229,"Inode":61307548,"originalInode":61307549,"newInode":61307550,"noReplaceCollision":true
+PERMISSION RECEIPT {"stage":"primitive-before-write","path":"/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/store-226d12c4da6a4f249e9c2f6c3f25e1ad/temp","stat":"600:0:61307564","pid":4182,"start":"2026-10-08T19:04:24.0843400Z","exit":0,"u
+FAIL Store_CreateReadAndDefensiveImage InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_CreateCollision_PreservesCompetingBytes InvalidOperationException: Expected DOC-CONFLICT; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_Overwrite_ExactTokenAndHeldReader InvalidOperationException: Expected DOC-CONFLICT; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_FlushOccursAfterOwnedEntryCleanup InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_EquivalentCaseAlias_CannotAcquireSecondWriterClaim InvalidOperationException: Expected True; actual False
+FAIL Store_RealCompetingCreators_ExactlyOneCompleteImage InvalidOperationException: Expected 1; actual 0
+FAIL Store_AncestorReplacement_PreservesBothTrees InvalidOperationException: Expected DOC-CONFLICT; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_CollidedTempAndClaim_AreNeverDeleted InvalidOperationException: Expected DOC-CONFLICT; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_ReplacedOwnedTemp_IsPreservedAndRefused InvalidOperationException: Expected DOC-CONFLICT; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_PartialWriteAndInjectedDiskFull_KeepOriginal InvalidOperationException: Expected DOC-DISK-FULL; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_PrepublicationFaultStages_OldImageAndOwnedCleanup InvalidOperationException: Expected DOC-IO; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_PostpublicationFault_IsExplicitCompleteNewUncertainty InvalidOperationException: Expected DOC-SAVE-UNCERTAIN; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_CancellationAtPublication_ResolvesCompleteNew InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_SaveReopenSession_UsesExactDiskToken InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_ActualIoTelemetry_IsSessionBoundAndRedacted InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_DirectoryClaim_ContendsAcrossNamesAndParentAliases InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_InFlightDispose_KeepsTruthfulPublication_NoOwnedEvents InvalidOperationException: Expected True; actual False
+FAIL Store_IoEvents_CorrelateAndRetainFailureFacts InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_PublicationIoFailure_IsUncertainNotFalselyUnsaved InvalidOperationException: Expected DOC-SAVE-UNCERTAIN; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Store_ReadCapAndRelativePaths_RefuseWithoutMutation InvalidOperationException: Expected DOC-SIZE; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Backup_V1Bak_TodayReaderByteEqual InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+STORE-SIZE 2048 strips 1870097 bytes of 8000000
+FAIL Store_SizeAtStripCap_UnderDocLimit InvalidOperationException: Expected OK; actual DOC-UNSUPPORTED-PERSISTENCE
+OLD-BUILD-FIXTURE a3a-old-build/one-run.cfdw.json OPEN cfdw-project-2
+OLD-BUILD-FIXTURE m12b-old-build/span-drag-nudge-only.cfdw.json OPEN cfdw-project-1
+OLD-BUILD-FIXTURE m12c-old-build/fixtures/c1-section-receipt.cfdw.json OPEN cfdw-project-1
+OLD-BUILD-FIXTURE m12c-old-build/fixtures/c2-section-receipt-row.cfdw.json OPEN cfdw-project-1
+OLD-BUILD-FIXTURE m12c-old-build/fixtures/d0-section-recovery-no-row.cfdw.json OPEN cfdw-project-1
+OLD-BUILD-FIXTURE m12c-old-build/fixtures/d1-section-recovery.cfdw.json OPEN cfdw-project-1
+OLD-BUILD-FIXTURE m12c-old-build/fixtures/d2-section-recovery-row.cfdw.json OPEN cfdw-project-1
+OLD-BUILD-FIXTURE m12c-old-build/fixtures/e1-open-per-surface.cfdw.json DSL-NOT-ASSESSED
+OLD-BUILD-FIXTURE m12c-old-build/fixtures/e2-open-per-surface-row.cfdw.json DSL-NOT-ASSESSED
+NACA 2412 residual: 2.4592308072300673E-05, accepted: False
+IMPORT-BASIS: current 8.117252259262465E-05
+IMPORT-BASIS: own 7.416653450773264E-05
+IMPORT-BASIS: refused No point spacing from 8 to 16 points holds a .dat file within 10 µm: the closest is 15351.50 µm (12.7929 % chord; limit 10 µm at 120 mm). Nothing changed.
+RPL preview 4412 shared (scan 8..15) first 62.0 ms, again 91.9 ms
+RPL 4412 own-15 residual 5.59 um; largest change 4.91 mm at x 0.396
+RPL 0012 current residual 9.75 um (design P-CF-0012: 9.75 um one-way)
+RPL first-differing step 218.8 ms
+RPL slid 0012 euclidean 12.01 um; vertical 212.86 um
+RPL bulge both-ways 5.500E-004; sparse one-way 2.262E-005; dense one-way 5.495E-004
+RPL rotated 0.5 deg: records 0.00 um apart; reported turn 0.5000 deg; fit 5.59 um
+RPL rotated 3 deg: records 0.00 um apart; reported turn 3.0000 deg; fit 5.59 um
+RPL rotated 5 deg: records 0.00 um apart; reported turn 5.0000 deg; fit 5.59 um
+RPL pinned 0012 9.747 um; 4412 own-15 5.589 um both ways (5.383 um one way) on the generator's 81 stations; 5.540 um both ways on the 201-sample closed form
+  conv=True outcome=ok mac=0.11322214154620441 ar=9.80713255360844 iterations=10 ms=19.15
+FAIL LayoutLoad_Absent_ReturnsPresets InvalidOperationException: Expected saved; actual failed
+FAIL Rollback_V2UnknownTopLevel_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL Rollback_V2UnknownWorkspaceMember_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL Rollback_V2Oversized_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL PrefsSave_LayoutAndRecentConcurrent_BothKept InvalidOperationException: Expected saved; actual failed
+FAIL LayoutSave_ClaimBusyHashSame_RetriesOnce InvalidOperationException: Expected True; actual False
+FAIL LayoutSave_Conflict_MergesChangedWorkspaceOnly InvalidOperationException: Expected True; actual False
+FAIL LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces InvalidOperationException: Expected saved; actual failed
+FAIL LayoutSave_StaleClaim_SessionOnlyNamesClaim InvalidOperationException: Expected claim-held; actual failed
+FAIL Recent_Conflict_ReappliesAdd InvalidOperationException: Expected True; actual False
+FAIL Recent_ClearFails_ReportedNotCleared InvalidOperationException: Expected LAYOUT-VERSION; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Recent_Clear_NoFileContainsMarkerPath InvalidOperationException: Expected saved; actual failed
+FAIL Recent_Remove_KeepsEveryOtherEntry InvalidOperationException: Expected saved; actual failed
+FAIL Recent_RemoveWriteFails_ListUnchanged FileNotFoundException: Could not find file '/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/p1-5cf5a6e827084e328d33d51adf2a6483/recent/recent.json'.
+FAIL StoreContract_CancelBeforePublish_DocCancelled InvalidOperationException: Expected False; actual True
+FAIL PrefStore_TextSize_RoundTrip InvalidOperationException: Expected saved; actual session-only
+FAIL PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged InvalidOperationException: {"format":"cfdw-display","version":1,"textSize":175}: missing DISPLAY-SCHEMA [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL Rollback_TextSizeV2_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched InvalidOperationException: Expected saved; actual failed
+FAIL PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash InvalidOperationException: Expected saved; actual session-only
+MEASURE fixture=random-0 max_outside_m=5.5511151231257827E-17
+MEASURE fixture=example max_thickness_outside=0
+MEASURE fixture=blended-dihedral max_thickness_outside=0
+MEASURE fixture=blended-peaks max_thickness_outside=0
+MEASURE fixture=chord-2m max_thickness_outside=0
+MEASURE fixture=c0-peak max_thickness_outside=0
+MEASURE fixture=two-hump-2m max_thickness_outside=0
+MEASURE fixture=two-hump-blend-2m max_thickness_outside=0
+MEASURE channel_evals=205 profile_evals=7798 per_point=496920
+MEASURE concurrent_sections channel=400 profile=116160 expected_channel=400 expected_profile=116160
+inflection leading 1 at 23.25 mm
+inflection trailing 1 at 23.25 mm
+RESULT failures=43

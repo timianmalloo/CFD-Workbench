@@ -4,6 +4,7 @@ using CfdWorkbench.Core;
 using System.Text.Json;
 
 var output = new StringWriter();
+int cliFailures = 0;
 int exit = await Cli.RunAsync(["inspect", "example", "--json"], output);
 if (exit != 0) throw new Exception($"Example inspect returned {exit}: {output}");
 using var json = JsonDocument.Parse(output.ToString());
@@ -32,7 +33,7 @@ using (var cancelled = new CancellationTokenSource())
 if (Cli.ExitForCode("GEOMETRY-BUDGET") != 4 || Cli.ExitForCode("GEOMETRY-CANCELLED") != 130 ||
     Cli.ExitForCode("DOC-CONFLICT") != 5 || Cli.ExitForCode("DOC-VERSION") != 3)
     throw new Exception("Stable refusal exit mapping is wrong");
-string large = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".foil");
+string large = TestTemp.Combine(Guid.NewGuid().ToString("N") + ".foil");
 try
 {
     await File.WriteAllBytesAsync(large, new byte[1_048_577]);
@@ -72,8 +73,8 @@ try
 }
 catch (Exception error)
 {
-    Console.WriteLine("FAIL Cli_InspectJson_PointsRolesAndKinds");
-    throw new InvalidOperationException(error.Message);
+    Console.WriteLine("FAIL Cli_InspectJson_PointsRolesAndKinds " + error.GetType().Name + ": " + error.Message);
+    cliFailures++;
 }
 try
 {
@@ -93,8 +94,8 @@ try
 }
 catch (Exception error)
 {
-    Console.WriteLine("FAIL Cli_InspectJson_ChannelPointsRolesAndKinds");
-    throw new InvalidOperationException(error.Message);
+    Console.WriteLine("FAIL Cli_InspectJson_ChannelPointsRolesAndKinds " + error.GetType().Name + ": " + error.Message);
+    cliFailures++;
 }
 // Moved from the Core suite (SPT): the Core harness runs from a published copy where the CLI binary is not built, so the
 // check now calls the CLI in-process like its neighbours. Same name and assertions.
@@ -119,8 +120,8 @@ try
 }
 catch (Exception error)
 {
-    Console.WriteLine("FAIL Cli_Inspect_ListsSectionPointTypesAndKinds");
-    throw new InvalidOperationException(error.Message);
+    Console.WriteLine("FAIL Cli_Inspect_ListsSectionPointTypesAndKinds " + error.GetType().Name + ": " + error.Message);
+    cliFailures++;
 }
 // CLI-01 (design area3-analysis.md §13.3, track SVC): `analyse --op <json>` and the service on OperatingPoints.Custom (the
 // one builder the conditions band also calls) give one run key for one operating point and the default water; and
@@ -146,7 +147,7 @@ try
     var band = await new AnalysisService(session, host.Method).EvaluateAsync(new OperatingPoint(5.14444, 101325, 0.5, "root LE", 3, null),
         host.Water(15, 35.16504), Tier.VlmStrip, new Scope.Wing(), CancellationToken.None);
     if (cliKey != band.RunKey) throw new Exception($"CLI key {cliKey} differs from the key of the Custom point written out {band.RunKey}");
-    string file = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".cfdw.json");
+    string file = TestTemp.Combine(Guid.NewGuid().ToString("N") + ".cfdw.json");
     try
     {
         await File.WriteAllBytesAsync(file, session.SaveImage());
@@ -175,8 +176,8 @@ try
 }
 catch (Exception error)
 {
-    Console.WriteLine("FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp");
-    throw new InvalidOperationException(error.Message);
+    Console.WriteLine("FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp " + error.GetType().Name + ": " + error.Message);
+    cliFailures++;
 }
 finally
 {
@@ -200,8 +201,8 @@ try
 }
 catch (Exception error)
 {
-    Console.WriteLine("FAIL Cli_AnalyseFailedRun_PrintsNoDiagnostics");
-    throw new InvalidOperationException(error.Message);
+    Console.WriteLine("FAIL Cli_AnalyseFailedRun_PrintsNoDiagnostics " + error.GetType().Name + ": " + error.Message);
+    cliFailures++;
 }
 finally
 {
@@ -239,7 +240,7 @@ try
     await EvaluateHere(3);
     if (expected[0].Label.Ordinal != 1 || expected[1].Label.Ordinal != 3 || expected[1].Label.Rail != "twist")
         throw new Exception($"the fixture's own labels are wrong: {string.Join(", ", expected.Select(item => item.Label))}");
-    string revisionFile = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".cfdw.json");
+    string revisionFile = TestTemp.Combine(Guid.NewGuid().ToString("N") + ".cfdw.json");
     try
     {
         await File.WriteAllBytesAsync(revisionFile, revisionSession.SaveImage());
@@ -264,14 +265,17 @@ try
 }
 catch (Exception error)
 {
-    Console.WriteLine("FAIL Cli_InspectRuns_RevisionIsSessionLabel");
-    throw new InvalidOperationException(error.Message);
+    Console.WriteLine("FAIL Cli_InspectRuns_RevisionIsSessionLabel " + error.GetType().Name + ": " + error.Message);
+    cliFailures++;
 }
 finally
 {
     Console.WriteLine("COST Cli_InspectRuns_RevisionIsSessionLabel " +
         System.Diagnostics.Stopwatch.GetElapsedTime(revisionStarted).TotalMilliseconds.ToString("F3", System.Globalization.CultureInfo.InvariantCulture));
 }
+
+// A check that fails reports its own FAIL line and the harness goes on (WRT-HARNESS-ABORT); the exit says whether any failed.
+return cliFailures == 0 ? 0 : 1;
 
 /// <summary>A fixed wing method for the CLI checks: the key depends on inputs and settings, never on these numbers.</summary>
 internal sealed class CliFakeWing : IWingMethod

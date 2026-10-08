@@ -106,8 +106,23 @@
       "ruling": "154",
       "class": "fail-closed-store",
       "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Cli_InspectRuns_RevisionIsSessionLabel",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
       "fragment": "DOC-UNSUPPORTED-PERSISTENCE",
-      "aborts_harness": true
+      "evidence": "Inferred until the next PC ring"
+    },
+    {
+      "name": "Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted",
+      "ruling": "154",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE",
+      "evidence": "Inferred until the next PC ring"
     },
     {
       "name": "LayoutLoad_Absent_ReturnsPresets",

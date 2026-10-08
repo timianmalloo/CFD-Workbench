@@ -69,11 +69,7 @@ internal static class LayoutFileTests
 
     internal static string Root()
     {
-        string temp = Path.GetTempPath();
-        if (temp.StartsWith("/tmp/", StringComparison.Ordinal)) temp = "/private" + temp;
-        string root = Path.Combine(temp, "p1-" + Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(root);
-        return root;
+        return TestTemp.NewDirectory("p1-");
     }
 
     internal static void AssertPresets(LayoutDocument document)
