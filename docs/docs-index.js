@@ -5175,7 +5175,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "aa439d9dd4fb6d89ce2bc5e3443a7cc0a1ac1a0a897de1ea90dcc41db25f9ceb"
+      "sourceSha256": "ff4c3ba06ebf9727c2c86d8cde8f504713435f6dda82fd0610d5db450df66130"
     },
     {
       "id": "domain-experts",
@@ -14253,6 +14253,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "9eadaee45e837755d74b4a2b2444a7f426ab118b7d2c53526e615c858a17f992"
     },
     {
+      "id": "proof-srs-red-first",
+      "path": "docs/proof/srs/red-first.md",
+      "title": "SRS red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-srs",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for Ruling 156 (3): the catalog.preview replace event records the CAT-UNAVAILABLE refusal (code, check, detail) instead of an empty family; the failure stays cached.",
+      "tags": [
+        "catalog",
+        "instrumentation",
+        "proof",
+        "ruling-156"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "04b56401dd97fa794fe900e38ab7b092150136b0e8a78b9fda007ceb4847a5a8"
+    },
+    {
       "id": "proof-stc-red-first",
       "path": "docs/proof/stc/red-first.md",
       "title": "STC red-first receipts (Ruling 147)",
@@ -17085,5 +17111,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3826a0e1e7ffa50ac340b86cbc35de3443d3ea0c6cb950dbc2264f24bbbcfab3"
+  "graphSha256": "32f9e3c557449669e7951e7075a68a16f3196f9f1f22b759138f4f185e4e167b"
 };
