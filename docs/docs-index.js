@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8447b86c07ef969b7a00e0b9725a705653559d644b24ed65b38b9d938c21f240"
+      "sourceSha256": "e4669b0026b32dfea50f06dacff31c876ca6451a5640713995317bfe28caaeb8"
     },
     {
       "id": "domain-experts",
@@ -7121,6 +7121,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "2615516c48d7058eac069500190b1daa466f9924e130ca43f3fb72bb50e9044c"
     },
     {
+      "id": "review-pr-22",
+      "path": "docs/reviews/pr-22.md",
+      "title": "PR #22 (Windows PC) - Ruling 175 final verifier rerun receipt (Ruling 181), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 181). A blocked, fail-closed receipt. The verifier printed a 13-check qualification PASS, but the scratch watchdog kept no exit code, so Windows PASS stays out of readiness. The null exit is a launcher capture defect; the build-server residuals are SDK behaviour. The verifier is unchanged.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "store",
+        "verifier"
+      ],
+      "links": [
+        {
+          "to": "review-pr-21",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "45544510c2e6032d61e9e63a5de119f77c5e741a8f07ef9b1437ab4eb6fa6dc0"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8054,7 +8082,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ed0dfa15aa2f38c1ea6d8e52f280b468d495ca0f423b18ed4d6398105bbd9a71"
+      "sourceSha256": "1d223eb723557514e4bce3f279f9f148d212c196a1e800837afd3ce6ff491392"
     },
     {
       "id": "kb-hw-glossary",
@@ -18658,5 +18686,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9874b9bad370b0985ccd54cbc17a60e95792d26ea8f038a36881aab5c4847688"
+  "graphSha256": "455837beaf104c869813da86dfe2d4ec69aa0ccc532b8e700f8a8244201cc8f9"
 };
