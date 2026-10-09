@@ -7009,6 +7009,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "5b853296d6d2ee2a5765d58a34f925bea5f4310c8cda485b7c7071446c41d49a"
     },
     {
+      "id": "review-pr-20",
+      "path": "docs/reviews/pr-20.md",
+      "title": "PR #20 (Windows PC) - WRI scale probe P1-P5 (Ruling 178), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 178). P1-P5 are committed raw output at 150 %, on pre-WDF 842e575d, and confirm the WRI arithmetic: in-process 1.5/1.5, TextBox 23.333 DIP = 35 px, chip borders painted on a 2/3-DIP seam. The host scale is now Verified. P6 ran before Ruling 177 with an AppliedDPI gate and stays NOT ASSESSED and owed.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "dpi",
+        "accessibility",
+        "ui"
+      ],
+      "links": [
+        {
+          "to": "review-pr-18",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "979b87ef1f7b52c029c5302a3e204113c6c444c754c42abad4fda926cdafd04a"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -7942,7 +7971,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "464244974dfac033141befc746120838746b1cced0e0daf91deb730bfdc7323c"
+      "sourceSha256": "e356cad0b55f0dcf4629fadb288bde3b2a51b1e52f3755ddb78e1113c526ef88"
     },
     {
       "id": "kb-hw-glossary",
@@ -18336,5 +18365,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "0c03dfde1488f9048bbf06fab1a91f3c75760224dbe5727e6176ef24a195757f"
+  "graphSha256": "e4498615acfa5e5fd23555037441849b12fd7f88c20c9019375c230c90efd05f"
 };
