@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T16:06:47Z",
+  "generated": "2026-10-09T16:08:18Z",
   "audit": [
     {
       "actor": null,
@@ -32651,23 +32651,72 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4GPNGHWRH97G0R8HG786E2Z",
-      "shortname": "join-pr23",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-23.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-09T16:06:47Z",
-      "session": "3122f106",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 60.0,
+      "fan_out": 0,
+      "goal": "PR #23 on main under Ruling 182",
+      "id": "al-01M4GPNGHWRH97G0R8HG786E2Z",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-pr23",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T16:05:47Z",
       "summary": "Joined PR #23 as a blocked receipt under Ruling 182; THROWAWAY-RUNNER class added; fresh budget waits on Mac prints and a committed PC runner recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T16:04:38Z",
+      "done_when": "self-test 15/15, ECR and V3D replays byte-identical, check-docs and gates exit 0",
+      "duration_seconds": 290.0,
+      "goal": "Register merge driver unions two dated lines appended at one place",
+      "id": "al-01M4GPHK46STVCR759HWKA4YWN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-rg4",
+      "session": "trk-rg4",
+      "shortname": "rg4-append-union",
+      "skill": "implement",
+      "started_at": "2026-10-09T15:59:48Z",
+      "summary": "union_appends in merge-defect-register.py; 6 fixtures; both replays identical; RG4 proof section; register line",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4GPRA29812ZQS4NDEHFB7T3",
+      "shortname": "join-rg4",
+      "datetime": "2026-10-09T16:08:18Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/rg4-append-union into main",
+      "summary": "Joined RG4: merge-defect-register unions pure dated-paragraph insertions at one anchor; ECR and V3D joins replay byte-identical recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/reviews/pr-23.md"
+        "docs/proof/reg/red-first.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "PR #23 on main under Ruling 182",
+      "goal": "parallel register appends merge without hand resolution",
       "done_when": "join gates green, readiness green, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
@@ -32676,8 +32725,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T16:05:47Z",
-      "duration_seconds": 60.0
+      "started_at": "2026-10-09T16:07:15Z",
+      "duration_seconds": 63.0
     }
   ],
   "changes": [
