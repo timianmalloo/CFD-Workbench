@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T16:40:49Z",
+  "generated": "2026-10-09T18:22:56Z",
   "audit": [
     {
       "actor": null,
@@ -32941,6 +32941,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T16:39:50Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M4GYESZWRHVZTRXEPMNRBEPQ",
+      "shortname": "cbs-timeout-paths",
+      "datetime": "2026-10-09T18:22:55Z",
+      "session": "trk-cbs",
+      "prompt": "trk-cbs: Mac timeout paths never block",
+      "summary": "Audited 7 paths: fixed run-readiness finish, run-windows-store-gate run_gate, Desktop RunBuffered; real-child self-tests print cleanup time; class entry closed for the Mac",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Audit the Mac timeout paths for CLEANUP-BLOCKS-CEILING and fix exposed ones",
+      "done_when": "audit table, red-first for fixes, gates green",
+      "started_at": "2026-10-09T18:15:19Z",
+      "duration_seconds": 456.0
     }
   ],
   "changes": [
@@ -35517,6 +35537,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4GPJX8KC91MWE9GN89T058F",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4GW7CS29VSNBADZH1AWFWRW",
+      "ts": "2026-10-09T17:43:55Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4GW7CRY34NC5F4EVSRZQDYK",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4GW7CVX98XJ05CAQ56DQRED",
+      "ts": "2026-10-09T17:43:56Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4GW7CRY34NC5F4EVSRZQDYK",
       "session": "fable-owner"
     }
   ]

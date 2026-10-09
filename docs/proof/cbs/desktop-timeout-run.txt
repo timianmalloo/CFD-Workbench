@@ -1,0 +1,284 @@
+STAGE SelfLaunchTests elapsed_ms=30
+SelfLaunchTests: all 9 cases passed.
+STAGE native-review-options elapsed_ms=229
+PASS Save_ExistingFile_DefiniteCreateOnlyConflict
+COST Save_ExistingFile_DefiniteCreateOnlyConflict 4.5
+PASS Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted
+COST Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted 183.8
+Desktop Example, bounded preview, cancel, apply, undo and redo passed.
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+THEME-RESOURCE Light/CanvasBrush=#FFF0F2F1
+THEME-RESOURCE Dark/CanvasBrush=#FF172326
+THEME-RESOURCE HighContrast/CanvasBrush=#FF000000
+THEME-RESOURCE Light/SurfaceBrush=#FFFBFCFB
+THEME-RESOURCE Dark/SurfaceBrush=#FF1E2D31
+THEME-RESOURCE HighContrast/SurfaceBrush=#FF000000
+THEME-RESOURCE Light/SurfaceSoftBrush=#FFE8EDEB
+THEME-RESOURCE Dark/SurfaceSoftBrush=#FF2A3D40
+THEME-RESOURCE HighContrast/SurfaceSoftBrush=#FF000000
+THEME-RESOURCE Light/InkBrush=#FF1B2929
+THEME-RESOURCE Dark/InkBrush=#FFEBF3F0
+THEME-RESOURCE HighContrast/InkBrush=#FFFFFFFF
+THEME-RESOURCE Light/MutedBrush=#FF526362
+THEME-RESOURCE Dark/MutedBrush=#FFB2C4BF
+THEME-RESOURCE HighContrast/MutedBrush=#FFFFFFFF
+THEME-RESOURCE Light/LineBrush=#FFC9D3CF
+THEME-RESOURCE Dark/LineBrush=#FF49605B
+THEME-RESOURCE HighContrast/LineBrush=#FFFFFFFF
+THEME-RESOURCE Light/PrimaryBrush=#FF006C67
+THEME-RESOURCE Dark/PrimaryBrush=#FF88D8C6
+THEME-RESOURCE HighContrast/PrimaryBrush=#FFFFEE58
+THEME-RESOURCE Light/OnPrimaryBrush=#FFFFFFFF
+THEME-RESOURCE Dark/OnPrimaryBrush=#FF172326
+THEME-RESOURCE HighContrast/OnPrimaryBrush=#FF000000
+THEME-RESOURCE Light/DangerBrush=#FFA92E37
+THEME-RESOURCE Dark/DangerBrush=#FFFFAEB5
+THEME-RESOURCE HighContrast/DangerBrush=#FFFFEE58
+THEME-RESOURCE Light/ViewportBrush=#FF17272C
+THEME-RESOURCE Dark/ViewportBrush=#FF17272C
+THEME-RESOURCE HighContrast/ViewportBrush=#FF000000
+THEME-RESOURCE Light/ViewportGridBrush=#FF344B50
+THEME-RESOURCE Dark/ViewportGridBrush=#FF344B50
+THEME-RESOURCE HighContrast/ViewportGridBrush=#FFFFFFFF
+THEME-RESOURCE Light/ViewportInkBrush=#FFEDF4F2
+THEME-RESOURCE Dark/ViewportInkBrush=#FFEDF4F2
+THEME-RESOURCE HighContrast/ViewportInkBrush=#FFFFFFFF
+THEME-RESOURCE Light/FoilBrush=#FF85C9C4
+THEME-RESOURCE Dark/FoilBrush=#FF85C9C4
+THEME-RESOURCE HighContrast/FoilBrush=#FFFFEE58
+THEME-RESOURCE Light/StationBrush=#FF66DDC8
+THEME-RESOURCE Dark/StationBrush=#FF66DDC8
+THEME-RESOURCE HighContrast/StationBrush=#FF00FFFF
+THEME-FOCUS-RESOURCE Light/SystemControlFocusVisualPrimaryBrush=#FF006C67
+THEME-FOCUS-RESOURCE Dark/SystemControlFocusVisualPrimaryBrush=#FF88D8C6
+THEME-FOCUS-RESOURCE HighContrast/SystemControlFocusVisualPrimaryBrush=#FFFFEE58
+THEME-FOCUS-RESOURCE Light/SystemControlFocusVisualSecondaryBrush=#FF1B2929
+THEME-FOCUS-RESOURCE Dark/SystemControlFocusVisualSecondaryBrush=#FFEBF3F0
+THEME-FOCUS-RESOURCE HighContrast/SystemControlFocusVisualSecondaryBrush=#FFFFFFFF
+THEME-SHADOW-MUTATION refused Dark/SurfaceBrush
+THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42
+PASS StageLine_CarriesElapsedMs_KeepsPrefixAndName
+COST StageLine_CarriesElapsedMs_KeepsPrefixAndName 0.1
+PASS Spawn_PrintsOneSpawnStartPerMode_InStartOrder
+COST Spawn_PrintsOneSpawnStartPerMode_InStartOrder 1.8
+PASS Spawn_WindowModeWithoutScaleContext_Fails
+COST Spawn_WindowModeWithoutScaleContext_Fails 1.3
+STAGE SectionCanvasTests elapsed_ms=3230
+SectionCanvas: all 7 test cases passed.
+STAGE spawn elapsed_ms=3250
+SPAWN-START --section-editor --part=1/2 elapsed_ms=3250
+SPAWN-START --properties-view --part=1/2 elapsed_ms=3250
+SPAWN-START --shell-window --part=2/2 elapsed_ms=3250
+SPAWN-START --section-editor --part=2/2 elapsed_ms=3250
+SPAWN-START --properties-view --part=2/2 elapsed_ms=3250
+SPAWN-START --shell-window --part=1/2 elapsed_ms=3250
+SPAWN-START --plan-canvas --part=2/2 elapsed_ms=3250
+SPAWN-START --plan-canvas --part=1/2 elapsed_ms=3250
+SPAWN-START --controller-shell elapsed_ms=3250
+SPAWN-START --views --part=1/2 elapsed_ms=3250
+SPAWN-START --analysis elapsed_ms=4406
+SPAWN-START --views --part=2/2 elapsed_ms=4409
+SPAWN-START --properties-cells --part=2/2 elapsed_ms=4409
+SPAWN-START --properties-cells --part=1/2 elapsed_ms=4409
+SPAWN-START --status-strip --part=1/3 elapsed_ms=4409
+SPAWN-START --status-strip --part=2/3 elapsed_ms=4409
+SPAWN-START --status-strip --part=3/3 elapsed_ms=4440
+SPAWN-START --shell-model elapsed_ms=4565
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=section-editor RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+FAIL TIMEOUT --section-editor --part=1/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --section-editor --part=1/2 exit 124
+SUITE-TIME --section-editor --part=1/2 1.3 s
+FAIL --section-editor --part=1/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=properties-view RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+FAIL TIMEOUT --properties-view --part=1/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --properties-view --part=1/2 exit 124
+SUITE-TIME --properties-view --part=1/2 1.2 s
+FAIL --properties-view --part=1/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=shell-window RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+PASS Shell_F1_NoSidebarHeaderBand
+COST Shell_F1_NoSidebarHeaderBand 456.5
+FAIL TIMEOUT --shell-window --part=2/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --shell-window --part=2/2 exit 124
+SUITE-TIME --shell-window --part=2/2 1.2 s
+FAIL --shell-window --part=2/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=section-editor RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+FAIL TIMEOUT --section-editor --part=2/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --section-editor --part=2/2 exit 124
+SUITE-TIME --section-editor --part=2/2 1.2 s
+FAIL --section-editor --part=2/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=properties-view RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+FAIL TIMEOUT --properties-view --part=2/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --properties-view --part=2/2 exit 124
+SUITE-TIME --properties-view --part=2/2 1.2 s
+FAIL --properties-view --part=2/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=shell-window RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+FAIL TIMEOUT --shell-window --part=1/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --shell-window --part=1/2 exit 124
+SUITE-TIME --shell-window --part=1/2 1.2 s
+FAIL --shell-window --part=1/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=plan-canvas RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+FAIL TIMEOUT --plan-canvas --part=2/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --plan-canvas --part=2/2 exit 124
+SUITE-TIME --plan-canvas --part=2/2 1.2 s
+FAIL --plan-canvas --part=2/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=plan-canvas RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+FAIL TIMEOUT --plan-canvas --part=1/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --plan-canvas --part=1/2 exit 124
+SUITE-TIME --plan-canvas --part=1/2 1.3 s
+FAIL --plan-canvas --part=1/2 exited 124
+PASS GestureLimit_TipDragPastMinimum_HoldsAndSpeaksOnce_ReleaseCommitsHeldValueAsOneUndoStep
+COST GestureLimit_TipDragPastMinimum_HoldsAndSpeaksOnce_ReleaseCommitsHeldValueAsOneUndoStep 584.6
+PASS GestureLimit_Escape_AfterHold_ChangesNothing
+COST GestureLimit_Escape_AfterHold_ChangesNothing 175.3
+FAIL TIMEOUT --controller-shell after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --controller-shell exit 124
+SUITE-TIME --controller-shell 1.3 s
+FAIL --controller-shell exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=views RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+PASS ViewCamera_Presets_TopFrontSideIsoBottomBackPort
+COST ViewCamera_Presets_TopFrontSideIsoBottomBackPort 2.5
+PASS ViewCamera_Side_NoseRightTrailingEdgeLeft
+COST ViewCamera_Side_NoseRightTrailingEdgeLeft 0.2
+PASS ViewCamera_AxisPresetsOrthographic_OrbitPerspective
+COST ViewCamera_AxisPresetsOrthographic_OrbitPerspective 0.4
+PASS ViewCamera_OrbitPivot_IsTarget
+COST ViewCamera_OrbitPivot_IsTarget 0.2
+PASS ViewCamera_Zoom_ClampedAtLimits
+COST ViewCamera_Zoom_ClampedAtLimits 0.6
+PASS ViewCamera_FitSelection_StationBoundsFill
+COST ViewCamera_FitSelection_StationBoundsFill 46.3
+PASS ViewCamera_Title_NamedOrAzimuthElevation
+COST ViewCamera_Title_NamedOrAzimuthElevation 0.2
+PASS Controller_SurfaceAsync_StaleTicketDropped
+COST Controller_SurfaceAsync_StaleTicketDropped 333.4
+FAIL TIMEOUT --views --part=1/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --views --part=1/2 exit 124
+SUITE-TIME --views --part=1/2 1.2 s
+FAIL --views --part=1/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=analysis RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x898 UseLayoutRounding=True
+PASS Toggle_RoundTrip_CameraSelectionStationViewportEqual
+COST Toggle_RoundTrip_CameraSelectionStationViewportEqual 358.9
+FAIL TIMEOUT --analysis after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --analysis exit 124
+SUITE-TIME --analysis 1.0 s
+FAIL --analysis exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=views RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x898 UseLayoutRounding=True
+PASS ViewCamera_Front_StarboardOnViewerLeft
+COST ViewCamera_Front_StarboardOnViewerLeft 1.2
+PASS ViewCamera_Top_MatchesPlanOrientation
+COST ViewCamera_Top_MatchesPlanOrientation 0.2
+PASS ViewCamera_OrbitElevation_ClampedAtPolesNoFlip
+COST ViewCamera_OrbitElevation_ClampedAtPolesNoFlip 0.3
+PASS ViewCamera_ZoomAboutPointer_PointUnderCursorFixed
+COST ViewCamera_ZoomAboutPointer_PointUnderCursorFixed 1.3
+PASS ViewCamera_Fit_BoundsInsideViewportMargin
+COST ViewCamera_Fit_BoundsInsideViewportMargin 0.7
+PASS ViewCamera_RandomVerbs_FitRecentres
+COST ViewCamera_RandomVerbs_FitRecentres 5.5
+PASS Controller_CameraOnlyChange_RaisesCameraChangedNotChanged
+COST Controller_CameraOnlyChange_RaisesCameraChangedNotChanged 352.3
+FAIL TIMEOUT --views --part=2/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --views --part=2/2 exit 124
+SUITE-TIME --views --part=2/2 1.2 s
+FAIL --views --part=2/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=properties-cells RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x898 UseLayoutRounding=True
+FAIL TIMEOUT --properties-cells --part=2/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --properties-cells --part=2/2 exit 124
+SUITE-TIME --properties-cells --part=2/2 1.1 s
+FAIL --properties-cells --part=2/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=properties-cells RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x898 UseLayoutRounding=True
+FAIL TIMEOUT --properties-cells --part=1/2 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --properties-cells --part=1/2 exit 124
+SUITE-TIME --properties-cells --part=1/2 1.1 s
+FAIL --properties-cells --part=1/2 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=status-strip RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x898 UseLayoutRounding=True
+FAIL TIMEOUT --status-strip --part=1/3 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --status-strip --part=1/3 exit 124
+SUITE-TIME --status-strip --part=1/3 1.2 s
+FAIL --status-strip --part=1/3 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=status-strip RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x898 UseLayoutRounding=True
+FAIL TIMEOUT --status-strip --part=2/3 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --status-strip --part=2/3 exit 124
+SUITE-TIME --status-strip --part=2/3 1.2 s
+FAIL --status-strip --part=2/3 exited 124
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=status-strip RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x898 UseLayoutRounding=True
+FAIL TIMEOUT --status-strip --part=3/3 after 1 s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed
+SUITE --status-strip --part=3/3 exit 124
+SUITE-TIME --status-strip --part=3/3 1.1 s
+FAIL --status-strip --part=3/3 exited 124
+PASS ReadinessGate_PlantedSlowFrame_FailsQuietMissesLoaded
+COST ReadinessGate_PlantedSlowFrame_FailsQuietMissesLoaded 5.7
+PASS CommandTable_PointRemove_GesturesPerOs
+COST CommandTable_PointRemove_GesturesPerOs 3.8
+PASS Preset_EveryPaneSubset_ExactlyOnePlacement
+COST Preset_EveryPaneSubset_ExactlyOnePlacement 7.9
+PASS Presets_DesktopEqualsCodec_EveryWorkspace
+COST Presets_DesktopEqualsCodec_EveryWorkspace 24.2
+PASS Layout_SavedMessagesPane_DroppedWithCode
+COST Layout_SavedMessagesPane_DroppedWithCode 12.0
+PASS ProportionFor_Bounds
+COST ProportionFor_Bounds 0.2
+PASS FloatFrame_Scaling1_15_2_Exact
+COST FloatFrame_Scaling1_15_2_Exact 0.2
+PASS FloatRestoreSnapshot_NoDrift
+COST FloatRestoreSnapshot_NoDrift 0.2
+PASS Clamp_ScreenGone_FullyInsidePrimary
+COST Clamp_ScreenGone_FullyInsidePrimary 0.7
+PASS Clear_NearestClearCorner_Chosen
+COST Clear_NearestClearCorner_Chosen 1.6
+PASS Clear_TieBreak_FixedOrder
+COST Clear_TieBreak_FixedOrder 0.1
+PASS Clear_TwoFloats_NoOverlap
+COST Clear_TwoFloats_NoOverlap 0.2
+PASS Clear_NeverOverlapsTarget_Property
+COST Clear_NeverOverlapsTarget_Property 0.2
+PASS Clear_FloatLargerThanModelArea_DocksBack
+COST Clear_FloatLargerThanModelArea_DocksBack 0.1
+PASS FocusRing_HiddenRegionsAndFloats_Order
+COST FocusRing_HiddenRegionsAndFloats_Order 0.4
+PASS CommandTable_Parity_EveryRowInMenuPaletteKey
+COST CommandTable_Parity_EveryRowInMenuPaletteKey 1.1
+PASS CommandTable_ViewRows_ExecuteOrDisabled
+COST CommandTable_ViewRows_ExecuteOrDisabled 376.0
+SUITE --shell-model exit 0
+SUITE-TIME --shell-model 0.5 s
+FAIL PARTITION --section-editor parts are incomplete or enumerated different checks: [--part=1/2  | --part=2/2 ]
+FAIL PARTITION --properties-view parts are incomplete or enumerated different checks: [--part=1/2  | --part=2/2 ]
+FAIL PARTITION --shell-window parts are incomplete or enumerated different checks: [--part=2/2  | --part=1/2 ]
+FAIL PARTITION --plan-canvas parts are incomplete or enumerated different checks: [--part=2/2  | --part=1/2 ]
+FAIL PARTITION --views parts are incomplete or enumerated different checks: [--part=1/2  | --part=2/2 ]
+FAIL PARTITION --properties-cells parts are incomplete or enumerated different checks: [--part=2/2  | --part=1/2 ]
+FAIL PARTITION --status-strip parts are incomplete or enumerated different checks: [--part=1/3  | --part=2/3  | --part=3/3 ]

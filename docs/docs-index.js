@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a979693023ca2fa72d3164fab7d27b59d3b7f341f1b62771299bb93f4595307d"
+      "sourceSha256": "5860d91e0db67074f639feac98ddf122a1a42a461793ca790e5690aba51dee63"
     },
     {
       "id": "domain-experts",
@@ -8179,7 +8179,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "83f1b5c9a2ffcb05415bd439e7e2329698c73ad81e4946401ec873f3430a2461"
+      "sourceSha256": "cfe1884634c4b8496d407d21c8a74b35d7975c0e90d570951d431ae6ab17edc9"
     },
     {
       "id": "kb-hw-glossary",
@@ -12387,6 +12387,57 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "ab864d55b246591c750659f161015cd841fd147f8866e6ef9b15f3305dd1f6fd"
+    },
+    {
+      "id": "proof-cbs-audit",
+      "path": "docs/proof/cbs/audit.md",
+      "title": "CBS audit of the Mac timeout paths",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbs",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Every Mac-side timeout path audited for an unbounded wait after the deadline: three exposed and fixed, the rest safe, two pack-managed findings left for /updatepack.",
+      "tags": [
+        "cbs",
+        "timeout",
+        "cleanup-blocks-ceiling",
+        "audit"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "29527ecff6c4111cde05c7ae90d1978c84920f52a676b0111b3238f1ce493082"
+    },
+    {
+      "id": "proof-cbs-red-first",
+      "path": "docs/proof/cbs/red-first.md",
+      "title": "CBS red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbs",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Real-child self-tests for the readiness and Windows-store timeout paths failed on the old code and pass on the fix, with measured cleanup times; the Desktop harness fix has no red-first test.",
+      "tags": [
+        "cbs",
+        "timeout",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-cbs-audit",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "275906401b6f491fd4d3ee7e4f24e3e633aff893087a32f948b8d8a27169ee15"
     },
     {
       "id": "proof-copyfix-red-runs",
@@ -18850,5 +18901,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "907d5bc4382ac1a431619ac06696fa9e7e8e729f90c8dfee874d3ab092799576"
+  "graphSha256": "eacc9a279b787b33b4bab6b15a68bd4adbdce101e3f07d39d17a5da2b8b87605"
 };
