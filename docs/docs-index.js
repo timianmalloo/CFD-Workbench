@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ed22596af4ead9fc512c8e9e332df32c2cbc7059422ab8b9a0877a4294b9da32"
+      "sourceSha256": "481bd907362eb51f7f7b7886e5cc94c9012e524fdc081eba6cb894c83a173921"
     },
     {
       "id": "domain-experts",
@@ -7356,6 +7356,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "8227bca46b367e9faf3b541a2296ad976a9ea616897b23b52edbba20d0a6a9ee"
     },
     {
+      "id": "review-pr-27",
+      "path": "docs/reviews/pr-27.md",
+      "title": "PR #27 (Windows PC) - COPY-447 reachability, blocked partial (Ruling 190), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 190). This is a blocked partial, not evidence. Windows SaveAsync refuses before any filesystem stage, so crash leftovers stay NOT ASSESSED and COPY-447 is held until W-2 B2. The capture lost its numeric exits by deferring them to a final write (a WINDOWS-CAPTURE-LIFECYCLE sibling).",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "store",
+        "copy"
+      ],
+      "links": [
+        {
+          "to": "review-pr-26",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3edcc32659bca6c8b11f3f2a3cc5410b928f6600371f13ec806b55f496d56582"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8289,7 +8317,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "74d71f47f8971750529cd1e8cbb0e7f29c6d6235e7c3d02c6f7855d00dfe38b7"
+      "sourceSha256": "084993ba5ddd94d39e36517750e607d23ee06a5a49fd58901c87098c46c932c9"
     },
     {
       "id": "kb-hw-glossary",
@@ -12631,6 +12659,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "7fee575971400a5c57282d2740357239b227452408469b1d9778003b299d4165"
+    },
+    {
+      "id": "proof-copy447-reachability",
+      "path": "docs/proof/copy447-reachability/receipt.md",
+      "title": "COPY-447 public ProjectStore reachability measurement",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@windows-worker",
+      "phase": "verification",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Partial public-API reachability capture for two Windows save requests. Both were refused with unchanged observed inventories; crash-left artifacts remain NOT ASSESSED.",
+      "tags": [
+        "windows",
+        "persistence",
+        "copy-447",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "mockup-w2-save-picker",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "babfa6064fabe908a8bc7a068845f086356691d4343d273ae177dc2f6c0e448e"
     },
     {
       "id": "proof-copyfix-red-runs",
@@ -19347,5 +19401,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b4070b0775acb00429cf092114bc41b8c9fff75779f1f17215eb6d83b6158eb4"
+  "graphSha256": "43f76a8b7363a6281896dab6f57774a51b26bd1c6273da9dcd6aa4caea898360"
 };
