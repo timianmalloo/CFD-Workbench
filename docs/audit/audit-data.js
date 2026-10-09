@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T23:28:49Z",
+  "generated": "2026-10-09T23:52:44Z",
   "audit": [
     {
       "actor": null,
@@ -33879,6 +33879,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T23:28:33Z",
       "duration_seconds": 16.0
+    },
+    {
+      "id": "al-01M4HHANXK842KJN44CBJ2YGRS",
+      "shortname": "exr-export-revision",
+      "datetime": "2026-10-09T23:52:43Z",
+      "session": "trk-exr",
+      "prompt": "trk-exr: Export design revision",
+      "summary": "Export design rev 2: always-on TE row, app default no source label, deviation term, starboard half with real counts, seven-rung probe regenerated from committed source for four wings (whole and half), build conditions B1-B10, geometry hand-off recorded, final copy and amendments A1-A14 in one table",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Revise the Export design note, mockup, captures and receipts for Rulings 194 and 195 and the manufacturing-CAM review conditions",
+      "done_when": "note, mockup, captures, committed probe receipts, final copy and amendment table, craft gate and capture run recorded; check-docs exit 0",
+      "started_at": "2026-10-09T23:40:57Z",
+      "duration_seconds": 706.0
     }
   ],
   "changes": [
@@ -36639,6 +36659,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4HEQAGAYX1NEX3RTPWQ1HT2",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4HG94T1N9BFG1S3CPE14H21",
+      "ts": "2026-10-09T23:34:24Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4HG94PXGEG2YCXYJ7222133",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4HGMKZQ5MXSSWQ6VH5AWG8S",
+      "ts": "2026-10-09T23:40:40Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4HGMKWMZGA5DDSESW6PG19C",
       "session": "operator-timianmalloo"
     }
   ]
