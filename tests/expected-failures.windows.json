@@ -242,6 +242,146 @@
       "class": "fail-closed-store",
       "until": "W-2 B2 lands",
       "fragment": "actual DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Controller_SaveMine_DraftDocumentUndoUnchanged",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Controller_SaveMine_ListedAfterOpeningAnotherFoil",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Controller_CatalogTelemetry_NamedSessionRing",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Controller_SaveOffUiThread_HonorsCancellation",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "SaveDialog_EmptyOrDuplicate_ErrorFocusStays",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "RailEditorPane_Removed_NoReferencesRemain",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Controller_ResumeSectionRecovery_EntersSectionMode",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Controller_QuotedNameAndBraceProvenance_SaveReload",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Controller_CatalogTelemetry_OmitsInapplicableFields",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Controller_SaveDuringDrag_CommitsThenSaves",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "Tampered_RunView_UnavailableNoLayersRowKept",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "DOC-UNSUPPORTED-PERSISTENCE"
+    },
+    {
+      "name": "SaveDialog_Save_LiveRegionFocusToSectionMenu",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Save did not publish and announce the exact name"
+    },
+    {
+      "name": "Recent_OpenedOutcome_AppendsPath",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "D2 Opened did not add the file to P1 recent rows"
+    },
+    {
+      "name": "OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Remove from Recent did not retain only the other path"
+    },
+    {
+      "name": "Commands_SectionMenu_ReplaceSaveImportRowsRun",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Save to My sections did not write the named section"
+    },
+    {
+      "name": "Recent_StoredRows_StartAndFileMenu",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "Recent fixture was not stored"
+    },
+    {
+      "name": "Copy_RecentNotCleared_StatusAndTryAgain",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "it couldn't be saved"
+    },
+    {
+      "name": "Recovery_RailDraftResumed_PlanShowsDraftApplyCommits",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "opened project has no recovery"
+    },
+    {
+      "name": "TextSize_PersistsPerUser",
+      "ruling": "173",
+      "class": "fail-closed-store",
+      "until": "W-2 B2 lands",
+      "fragment": "after restart 1, PropFontSize at 1x"
     }
   ]
 }
