@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T21:09:12Z",
+  "generated": "2026-10-09T21:12:16Z",
   "audit": [
     {
       "actor": null,
@@ -33496,6 +33496,35 @@ window.AUDIT_DATA = {
       "done_when": "red check, fix, green, full ring, register entry",
       "started_at": "2026-10-09T21:04:12Z",
       "duration_seconds": 300.0
+    },
+    {
+      "id": "al-01M4H84WBH70KD30TV8KRV4EYE",
+      "shortname": "join-pef",
+      "datetime": "2026-10-09T21:12:16Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/pef-escape-dismissal into main",
+      "summary": "Joined PEF: PlanCanvas records the Escape dismissal until a genuine pointer move; refresh path ReadHover keeps it null; probe unchanged; red-first held-seam check recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/pef/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "the plan-view tooltip stays dismissed across refreshes",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T21:11:13Z",
+      "duration_seconds": 63.0
     }
   ],
   "changes": [
