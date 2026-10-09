@@ -14143,6 +14143,82 @@ window.DOCS_INDEX = {
       "sourceSha256": "0cd3742b5916ceb9d4627e353ce9806ab6050fbdd33665073413997f317a265b"
     },
     {
+      "id": "proof-ring-windows-r170-run-3",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/receipt.md",
+      "title": "Ruling 170 Windows calibration run 3 (complete)",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The third Ruling 170 ring completed within the 900 s total capture envelope on tested HEAD c8e254f7. It used CFD_RING_HOST=pc-win, six-CPU affinity and the reported six-rank L3 workload. It exited 1 after classified Windows test failures and qualifies as calibration row 3, completing the three-run measurement series.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-r170-run-2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-calibration-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "be4183f2ccd709aaf8fc55aa331902d7ba0741bb0393c0afa8ee1d124031dd68"
+    },
+    {
+      "id": "proof-ring-windows-r170-series",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/series-receipt.md",
+      "title": "Ruling 170 Windows three-ring calibration evidence",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Three serial Windows rings completed under Ruling 170 with host key pc-win, six-CPU affinity and the reported six-rank L3 workload. Their measurements are preserved in calibration-rows.csv and individual receipt/capture directories. This is evidence for the Mac-owned baseline file and gate decision; it does not create either.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "calibration",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-r170-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-r170-run-2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-r170-run-3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-calibration-attempt-1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2ebbbd33dd8f6bdc7cced375419e8f26fa8e775d7617b9f824f5ecd961191adc"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -17906,5 +17982,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "244b6a1658ca56580d84bd5710c3e7d4dd70dd6cb2b0fb785272358edd52248c"
+  "graphSha256": "f9d437b0ee3d7058b1969810c5f17695c7b5c2dec9dda97b1fa92f4406491a5a"
 };

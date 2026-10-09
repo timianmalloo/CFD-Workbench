@@ -31,8 +31,9 @@ The ring completed in **335,008 ms** (`run-tests.sh` reported 328 s; wall value 
 900,000 ms total ceiling. This is a complete ring measurement and qualifies as calibration row 2. The baseline CSV remains
 unwritten until all three serial rings are complete.
 
-The capture started at `2026-10-09T01:04:53.5872336Z` and ended at `2026-10-09T01:10:28.5819698Z`. Ring load was
-**10.02 → 11.25**; the final cost checker sampled **10.08**. Windows total-CPU samples were 33.8%, 33.6%, 33.5% before
+The capture started at `2026-10-09T01:04:53.5872336Z` and ended at `2026-10-09T01:10:28.5819698Z`. The terminal
+`run-tests.sh` load was **7.65 → 10.08**; **10.08** is the baseline end-load value. The separate capture-wrapper samples
+were **10.02 → 11.25**. Windows total-CPU samples were 33.8%, 33.6%, 33.5% before
 and 35.4%, 39.4%, 39.8% after. Capture process and Git Bash launcher affinity were `0x3F`; `process-affinity.txt` retains
 the process rows. .NET SDK **10.0.203** came from `%USERPROFILE%\.dotnet`, and `CFD_RING_HOST=pc-win` was set. The
 coordinator reported L3 active at six ranks; continuous residency was not independently sampled.
@@ -60,8 +61,10 @@ Desktop's 39 unexpected failures and their full details remain in `classificatio
 The harness failures are recorded as evidence; no test or product repair was made.
 
 Desktop measured **303,354 ms** (`Desktop.ms`). All 18 `SUITE-TIME` lines are retained in `suite-time-lines.txt`. The
-separate `catalog-pass-lines.txt` contains 17 passing catalog checks. The final test-cost report was **0 failures, 25
-COST-MISS** at end load 10.08; these advisory host costs are retained in `console.stdout.txt`.
+`catalog-pass-lines.txt` contains 17 passing Desktop CatalogDialog/copy checks. Separately,
+`core-catalog-pass-lines.txt` records the nine Core `CatalogTests.cs` PASS lines requested by Ruling 167/170. The final
+test-cost report was **0 failures, 25 COST-MISS** at end load 10.08; these advisory host costs are retained in
+`console.stdout.txt`.
 
 All five observed drift lines are in `drift-lines.txt` and their Core logs:
 
@@ -70,7 +73,7 @@ DRIFT lambda-fit max_abs=0 limit=1e-06
 DRIFT tangent-angle max_abs=0 limit=1e-06
 DRIFT dat-rotation max_abs=0 limit=1e-06
 DRIFT handle-polar-section max_abs=0 limit=1e-06
-DRIFT handle-polar-target max_abs=6.1232339957367663E-18 limit=1e-06
+DRIFT handle-polar-target max_abs=0 limit=1e-06
 ```
 
 The complete raw logs, captured `.tmp-tests`, classifications, measurements and derived summaries are hash-bound by the

@@ -4,6 +4,12 @@
   "algorithm": "SHA-256",
   "files": [
     {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/calibration-rows.csv",
+      "bytes": 693,
+      "sha256": "8070dfd36f10953661e954333d9111daf6cfe26dd5537dc5245ae0c4d5ca9615",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
       "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/catalog-pass-lines.txt",
       "bytes": 884,
       "sha256": "ea858045bed490506322d08ffe4aed20cc735c36772a4dbcc3a9344a981e69c1",
@@ -64,6 +70,12 @@
       "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
     },
     {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/core-catalog-pass-lines.txt",
+      "bytes": 554,
+      "sha256": "86f459153f65053dd99be4889188545bfcfb68126aeef89fad28cebcb9fe7b89",
+      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
+    },
+    {
       "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/Desktop.ms",
       "bytes": 7,
       "sha256": "b20b6687857ec9671c962fa3cca03b9a60c6348121f2b734933d124db10af397",
@@ -95,8 +107,8 @@
     },
     {
       "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/receipt.md",
-      "bytes": 4251,
-      "sha256": "ea990353ba79c907af09350bb2b86dbafdac036b0cdb4fe3ef66f539b7630ac3",
+      "bytes": 4448,
+      "sha256": "407b1ad107b4d9a3ac61a7fcf509b5b5b5b7fe28a54c8ab70a88812cadf46f76",
       "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
     },
     {
@@ -742,6 +754,12 @@
       "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
     },
     {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/core-catalog-pass-lines.txt",
+      "bytes": 554,
+      "sha256": "86f459153f65053dd99be4889188545bfcfb68126aeef89fad28cebcb9fe7b89",
+      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
+    },
+    {
       "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/Desktop.ms",
       "bytes": 7,
       "sha256": "8753e4671c67612e985ab2a917255911b2d957053b87b812b5d0961f6a8d79af",
@@ -773,8 +791,8 @@
     },
     {
       "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/receipt.md",
-      "bytes": 4128,
-      "sha256": "0cd3742b5916ceb9d4627e353ce9806ab6050fbdd33665073413997f317a265b",
+      "bytes": 4324,
+      "sha256": "aa8ab9f8a4c4d854e73bc852d99fd7c6f99b66483b9bf230f1390f2122dd2243",
       "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
     },
     {
@@ -1472,6 +1490,924 @@
       "bytes": 7,
       "sha256": "303a04fa166384d183527a5548d05875aca4413fb8aba546c8b7b743d78711b8",
       "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/catalog-pass-lines.txt",
+      "bytes": 884,
+      "sha256": "ea858045bed490506322d08ffe4aed20cc735c36772a4dbcc3a9344a981e69c1",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/classifications/Analysis.part1of2.txt",
+      "bytes": 117,
+      "sha256": "5971c8e8ca7d64979fd05b04cc0faf63548ce5d5ab4049ca281c047a8cad16da",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/classifications/Analysis.part2of2.txt",
+      "bytes": 42,
+      "sha256": "91b485e9070690713160cb73e4e6e4909c73d2c6575362289cb1a6e20dfcfd63",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/classifications/Cli.txt",
+      "bytes": 247,
+      "sha256": "9186ce6a248228b40196c69e17c70931102878e896654610db2a60d2bd7b07e3",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/classifications/Core.part1of3.txt",
+      "bytes": 836,
+      "sha256": "c5117a8b5d672963eee9ffcd2cbde93750cbd460a1a4a345421e37b1295e552e",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/classifications/Core.part2of3.txt",
+      "bytes": 1196,
+      "sha256": "15b20b159ddb735afeceaffa5add7d54d0066f4a5f4124bbe7a27115bd5f7c64",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/classifications/Core.part3of3.txt",
+      "bytes": 992,
+      "sha256": "f1e526bd011b66b7bbcf3da346656f59fad5cc8ce80b2c12a1998063bb333d22",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/classifications/Desktop.txt",
+      "bytes": 3045,
+      "sha256": "73ba44a73b9571c9e9b0d09f6aa142a412e078ce0b2136170d7c348b51af4346",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/console.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/console.stdout.txt",
+      "bytes": 16174,
+      "sha256": "8855d1674135307789dcb05acf2b8c796a52525eaa3e4e83642547b04e06e095",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/core-catalog-pass-lines.txt",
+      "bytes": 554,
+      "sha256": "86f459153f65053dd99be4889188545bfcfb68126aeef89fad28cebcb9fe7b89",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/Desktop.ms",
+      "bytes": 7,
+      "sha256": "17aaae146923a5e229aabe314ee2c0eda8de841bd596902a0ed86b10b443d1ae",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/drift-lines.txt",
+      "bytes": 319,
+      "sha256": "c5b2041379f96ae3b160f9223459508a0d23e723355fe1cf2a0667f3bd7b5361",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/held-reader-pass.txt",
+      "bytes": 76,
+      "sha256": "8132fa7c70b7be266e17d43a0a74870e24f749d516885ade46858c7843126e8a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/measurement.txt",
+      "bytes": 652,
+      "sha256": "649525164516198ec19eb617946e54c0830bb78cfe6ad76c218bf5d969185cf6",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/process-affinity.txt",
+      "bytes": 146,
+      "sha256": "a8891d2b87cb6a45b05af44b4abea4b698fc45ee676d715c58e4d5293be18701",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/receipt.md",
+      "bytes": 4246,
+      "sha256": "221ec2580d6ec090e5d62a05e04713b1bdfdd083c91af3f6c7fc6a32e1e33500",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/suite-time-lines.txt",
+      "bytes": 777,
+      "sha256": "c46e60b04aef0617ab70f29d7c57ef368c89b2534eff99f7dda917cdfea390bc",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Analysis.part1of2.log",
+      "bytes": 14682,
+      "sha256": "2729fb00b0a0439d5eda12f507c434694eaeec9ba7100154dab38f9a701db82a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Analysis.part1of2.ms",
+      "bytes": 6,
+      "sha256": "0f196b68d0cd372c675f96d2d92496ecc2f85eabe47dce6f33af6f9fdf1f56c3",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Analysis.part1of2.seconds",
+      "bytes": 3,
+      "sha256": "f14b4987904bcb5814e4459a057ed4d20f58a633152288a761214dcd28780b56",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Analysis.part2of2.log",
+      "bytes": 14394,
+      "sha256": "cb6a846e0dfcd0cbba86dbae6ec63e0b1623d27040c20ddf8f46116e912cf981",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Analysis.part2of2.ms",
+      "bytes": 6,
+      "sha256": "5edfea48db78c2b9cab618979747918e7ce31b29fa4b71d3203f46d3773fcf5a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Analysis.part2of2.seconds",
+      "bytes": 3,
+      "sha256": "64aeb9975f234becd55bb4635e6e2f2da7a6b7bf0a896f0c07763bdfbfb31420",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/build.ms",
+      "bytes": 6,
+      "sha256": "66cbf91f0329799d5896744eaddaee0671f85e7054e9d3bd10d3e1010c2e318b",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/capability-rail-recovery.cfdw.json",
+      "bytes": 6564,
+      "sha256": "b14cd8d67208bd30e5480e4fc6ec321680c0f8b0ee222963bfec67071b4707a7",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Cli.log",
+      "bytes": 696,
+      "sha256": "1823906ecb91bcded6650be45061afe9810dee791c23901eaf02a2c77d3021c1",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Cli.ms",
+      "bytes": 5,
+      "sha256": "2470df9c63dbc2b1e38aa137fd8b266f38405b94470f2d7c9e83d8e7ff20153b",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Cli.seconds",
+      "bytes": 2,
+      "sha256": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Core.part1of3.log",
+      "bytes": 17550,
+      "sha256": "e50967a306711de1c50d35c5cc25f95d913df6f1f828fbd01fb839065c6138e8",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Core.part1of3.ms",
+      "bytes": 7,
+      "sha256": "9f8ad0fb29b60e3ec9f27f2b0af20fb93038796648c4990361e432a3270fd07f",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Core.part1of3.seconds",
+      "bytes": 4,
+      "sha256": "bcea5d7d8b256f1bda5f90a3ede41899e94b89fccb4e4d2786073b5bfaa0002a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Core.part2of3.log",
+      "bytes": 14635,
+      "sha256": "d10cd1b620180793eabc5473f6ac404ce9da7afba78d931a60b1405d1aef1d0a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Core.part2of3.ms",
+      "bytes": 6,
+      "sha256": "4a142cd88e79f0e9c1ea727a5ddda2d502cecba6760aa5d22838f5e8ffbd0dd0",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Core.part2of3.seconds",
+      "bytes": 3,
+      "sha256": "89e56b272669de11431602f3c77e560ecf6c61512fa8db5ac0006606e88d5282",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Core.part3of3.log",
+      "bytes": 14526,
+      "sha256": "7c9d02ab94b514d17ae3887021dbd813e28705c2b0efcfd14f53ffb0d01c011d",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Core.part3of3.ms",
+      "bytes": 6,
+      "sha256": "df1e0da1443135b60ad1a530e90e3e15fab1e1ba77764ad01bd2d9ec7c7adac8",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Core.part3of3.seconds",
+      "bytes": 3,
+      "sha256": "b03c70ff0d641a363f1a021413a098dce02e4c68b75f3a47aa10044f42ee1784",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Desktop.log",
+      "bytes": 117606,
+      "sha256": "6823e0253772e7f57c3ef8430927f4d8d9777cf4049bc12115dda5e5eb4a88f0",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Desktop.ms",
+      "bytes": 7,
+      "sha256": "17aaae146923a5e229aabe314ee2c0eda8de841bd596902a0ed86b10b443d1ae",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/Desktop.seconds",
+      "bytes": 4,
+      "sha256": "38c62c0e8256ed8bcb1b23a308d84d8271d6d77121b6e739a993139ee42fa950",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-015bf13390124dfdb9c935aeb85578b2/held.foil",
+      "bytes": 2,
+      "sha256": "4674d5929bf80d90d5d455d37bd530ca60bdf6a870c7014d92b529a89c4c4e95",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-11a08d9eb8774979a69172b43765234b/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "ca358758f6d27e6cf45272937977a748fd88391db679ceda7dc7bf1f005ee879",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-1202f3524898453c8436cb1128cf1e97/held.foil",
+      "bytes": 2,
+      "sha256": "4674d5929bf80d90d5d455d37bd530ca60bdf6a870c7014d92b529a89c4c4e95",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-1a91f6d9d59c4eceb2e9dc898c7fce4a/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 508,
+      "sha256": "1c915b1e9fc714074bd2d1a5dc7989fdbf6e25cfbd113055f2ee73a67f4a5c58",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-32d7cbbcbd0a44979df0802bd3a87fdc/held.foil",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-32d7cbbcbd0a44979df0802bd3a87fdc/next.tmp",
+      "bytes": 2,
+      "sha256": "4674d5929bf80d90d5d455d37bd530ca60bdf6a870c7014d92b529a89c4c4e95",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-35905cb4a9d6490a9d1512186ee69f03/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 508,
+      "sha256": "1c915b1e9fc714074bd2d1a5dc7989fdbf6e25cfbd113055f2ee73a67f4a5c58",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-3e193ca764124affb0d655ddd40666a5/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "ca358758f6d27e6cf45272937977a748fd88391db679ceda7dc7bf1f005ee879",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-63f3cc2096954750be5940cfc403a001/held.foil",
+      "bytes": 2,
+      "sha256": "4674d5929bf80d90d5d455d37bd530ca60bdf6a870c7014d92b529a89c4c4e95",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-6e0157d8d0c346f79c93acc2250a59d7/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 508,
+      "sha256": "1c915b1e9fc714074bd2d1a5dc7989fdbf6e25cfbd113055f2ee73a67f4a5c58",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-95c560a17c8b43a4bf2c0e516f73852a/held.foil",
+      "bytes": 2,
+      "sha256": "4674d5929bf80d90d5d455d37bd530ca60bdf6a870c7014d92b529a89c4c4e95",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-9815a35df9724bd797a4ad2c044046fb/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 1048577,
+      "sha256": "2cb74edba754a81d121c9db6833704a8e7d417e5b13d1a19f4a52f007d644264",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-9be65040ad39422b861d94a6b9abcbc6/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 1048577,
+      "sha256": "2cb74edba754a81d121c9db6833704a8e7d417e5b13d1a19f4a52f007d644264",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-9efbee84afa74be882a198a3170b0233/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 1048577,
+      "sha256": "2cb74edba754a81d121c9db6833704a8e7d417e5b13d1a19f4a52f007d644264",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-a5b65e51b77343f9ad7a3fe572562609/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "ca358758f6d27e6cf45272937977a748fd88391db679ceda7dc7bf1f005ee879",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-b42f63f05c98407f927281624d217d2f/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 1048577,
+      "sha256": "2cb74edba754a81d121c9db6833704a8e7d417e5b13d1a19f4a52f007d644264",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-b5279569a944422c980ae1b01dd6acf1/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "ca358758f6d27e6cf45272937977a748fd88391db679ceda7dc7bf1f005ee879",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-be191d722fd34925b4c0fc07edcb1fd7/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "ca358758f6d27e6cf45272937977a748fd88391db679ceda7dc7bf1f005ee879",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-c0c12e11c0b842a0b2bbce02a6d2b249/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 508,
+      "sha256": "1c915b1e9fc714074bd2d1a5dc7989fdbf6e25cfbd113055f2ee73a67f4a5c58",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-c2b1bfed760b4ab3bcbb027b2c1fb585/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 1048577,
+      "sha256": "2cb74edba754a81d121c9db6833704a8e7d417e5b13d1a19f4a52f007d644264",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/library-f630a346c9b04992873939d07de65f0d/0000000000000000000000000000000000000000000000000000000000000000.foil",
+      "bytes": 508,
+      "sha256": "1c915b1e9fc714074bd2d1a5dc7989fdbf6e25cfbd113055f2ee73a67f4a5c58",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-007de283b162406cb977b26aefd07cb3/display/display.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-008e9c0ac6044967bfef034d56ca50fb/display/display.json",
+      "bytes": 67,
+      "sha256": "8943311e67e17df5cb4bd299790ca82512fc291322536b17375ebddf32853c97",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-0407a0c3c7ab467d9fb9577cf90e0357/layout/layout.json",
+      "bytes": 87,
+      "sha256": "57a88ba71b1e78cb6905a0c249a264b012fd985b140498c44d36a2b1262f752b",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-07a0b83e17a146c2bd375d30af2aea23/layout/layout.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-106f2ca188c348238745065fba0484cd/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-12b09daae01946b5b160f60f15af03b9/layout/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-170b12eb9d3c4a8292dccdaf7debb3af/display/display.json",
+      "bytes": 52,
+      "sha256": "d0e5d97e726341c7cb18c3bfb0536c7b5ee3897dedfb3ecf0c40df69cfbae691",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-181eae90213e4039879d19ae330c8a3d/display/display.json",
+      "bytes": 52,
+      "sha256": "d0e5d97e726341c7cb18c3bfb0536c7b5ee3897dedfb3ecf0c40df69cfbae691",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-216ae93d64cd4713835578395d17f018/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-256c13a0e3094ab19c16dfa737e86156/display/display.json",
+      "bytes": 52,
+      "sha256": "38916235b5c52c5e9958fd4240e1963d69e2444a977f3328db5170377e4cee2d",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-25d803ab055a418a9f4b3376cecdc433/layout/layout.json",
+      "bytes": 70081,
+      "sha256": "88df73745156ba6f46cd4737b553d7c29b4060d9ab7ff8fda18eff770a238e73",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-25e11eab5cc646c89994a20ef9bbee19/display/display.json",
+      "bytes": 52,
+      "sha256": "38916235b5c52c5e9958fd4240e1963d69e2444a977f3328db5170377e4cee2d",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-2895f02df4b74d3a8e1fbc94e82554dc/layout/layout.json",
+      "bytes": 857,
+      "sha256": "63a9290ff004340f4b34d7be82e12ad22c042fc0e18bb87914df548948d8d6a9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-2e821c11567c4ecda9768beca117edcb/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-2e86b5967f164b0aa6bfdf15ae82157a/layout/layout.json",
+      "bytes": 87,
+      "sha256": "57a88ba71b1e78cb6905a0c249a264b012fd985b140498c44d36a2b1262f752b",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-2ec66b68b588419ab5b40c9c1e3e7324/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-30700243a3fc4049b1f58a0919697db3/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-343b3e6e561f4fde8c4021e0dbe026eb/recent/recent.json",
+      "bytes": 89,
+      "sha256": "1d462a964f4210262be9293ac8046c5246969226bdbc0ef3f9fc4f71a73fc3ef",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-3796674bd3c045929b65e5d8a2f61223/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-384f81a4935744ab8fe06eafe44724f5/display/display.json",
+      "bytes": 52,
+      "sha256": "d0e5d97e726341c7cb18c3bfb0536c7b5ee3897dedfb3ecf0c40df69cfbae691",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-3c66d962de464d139c8d3780ae75dff4/display/display.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-3c8cdac93cf64ed19eadfd7499ea00d5/layout/layout.json",
+      "bytes": 11,
+      "sha256": "122610d881b411e8520cfeca2e111aed683969b7a6b4bd4274cf4b985b78677f",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-3dba80080b3949c9a588b62f72fbb75b/display/display.json",
+      "bytes": 52,
+      "sha256": "d0e5d97e726341c7cb18c3bfb0536c7b5ee3897dedfb3ecf0c40df69cfbae691",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-405c1ebf53304f2fb1440e3ca7ae87a3/layout/layout.json",
+      "bytes": 188,
+      "sha256": "7bcead8452689b79aef67c2135f34e787908bb9c3a27273d4f4e78ce88ed5848",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-433ba9465e2b4fab8eac1ff81c4ea11a/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-514c828328a447dda8f611a28115f7fb/display/display.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-53463057e6cb410ea3f5068a11a43cfd/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-5909788d86e545d894e599b503689613/layout/layout.json",
+      "bytes": 70081,
+      "sha256": "88df73745156ba6f46cd4737b553d7c29b4060d9ab7ff8fda18eff770a238e73",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-5bac87bb27644d47a26f458e9d87810a/display/display.json",
+      "bytes": 67,
+      "sha256": "8943311e67e17df5cb4bd299790ca82512fc291322536b17375ebddf32853c97",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-5c19851a780046a29f9274b68d38fe7b/layout/layout.json",
+      "bytes": 857,
+      "sha256": "63a9290ff004340f4b34d7be82e12ad22c042fc0e18bb87914df548948d8d6a9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-5c9b243c96d149f1adea3ce19037a09c/display/display.json",
+      "bytes": 52,
+      "sha256": "38916235b5c52c5e9958fd4240e1963d69e2444a977f3328db5170377e4cee2d",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-5fb0cd0b227f49d596636beefe40ae80/layout/layout.json",
+      "bytes": 11,
+      "sha256": "122610d881b411e8520cfeca2e111aed683969b7a6b4bd4274cf4b985b78677f",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-628ff7ec9eb4485598dcb1772f9ca608/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-65be9a3f425d4973bcc75bd3b7d804b2/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-6b39c8afc4b24e688c246fd18403b41d/layout/layout.json",
+      "bytes": 87,
+      "sha256": "57a88ba71b1e78cb6905a0c249a264b012fd985b140498c44d36a2b1262f752b",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-6d0b0c496dd647a98c5084bda630d6bb/layout/layout.json",
+      "bytes": 70081,
+      "sha256": "88df73745156ba6f46cd4737b553d7c29b4060d9ab7ff8fda18eff770a238e73",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-6de54b6b4f14428bb9dd0aa03e0b363c/layout/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-70cce83417154ae9829fd3e43904d790/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-715e31037e044c11805335fb4d8223b0/layout/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-72768953dade41df9bbfc91abb03261b/recent/recent.json",
+      "bytes": 89,
+      "sha256": "1d462a964f4210262be9293ac8046c5246969226bdbc0ef3f9fc4f71a73fc3ef",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-822e54160b4e46658635bb6a4dc8b5e6/layout/layout.json",
+      "bytes": 857,
+      "sha256": "63a9290ff004340f4b34d7be82e12ad22c042fc0e18bb87914df548948d8d6a9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-841a60c5b77d46209a4b97466cbbef8d/layout/layout.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-8a65f7a912564df68eedd6ab44bb601b/layout/layout.json",
+      "bytes": 87,
+      "sha256": "57a88ba71b1e78cb6905a0c249a264b012fd985b140498c44d36a2b1262f752b",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-8aedd05c29cb425c913ea78bd33fa1aa/recent/recent.json",
+      "bytes": 89,
+      "sha256": "1d462a964f4210262be9293ac8046c5246969226bdbc0ef3f9fc4f71a73fc3ef",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-8b8fae35ecd340999a2151a20da6c545/layout/layout.json",
+      "bytes": 87,
+      "sha256": "57a88ba71b1e78cb6905a0c249a264b012fd985b140498c44d36a2b1262f752b",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-8cb28d6fa3a44fb5803c0f6ea98c6d07/recent/recent.json",
+      "bytes": 89,
+      "sha256": "1d462a964f4210262be9293ac8046c5246969226bdbc0ef3f9fc4f71a73fc3ef",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-8d1a5bf9e05d4e1eb31dc67b62c9cc7f/layout/layout.json",
+      "bytes": 11,
+      "sha256": "122610d881b411e8520cfeca2e111aed683969b7a6b4bd4274cf4b985b78677f",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-92cef432a80249fbb9870b040ac541fe/display/display.json",
+      "bytes": 67,
+      "sha256": "8943311e67e17df5cb4bd299790ca82512fc291322536b17375ebddf32853c97",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-95568d0959764f4bae4d9fd325acfedb/layout/layout.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-958c4a34d44e4a34b409f369738bcff0/display/display.json",
+      "bytes": 52,
+      "sha256": "38916235b5c52c5e9958fd4240e1963d69e2444a977f3328db5170377e4cee2d",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-9683b007507740c2a49277756c1e3010/layout/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-974665cc6b8645a3bb2a6915692445a2/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-a2d1aa1f12f0457a9409fa9bee5b3227/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-a302e0fa64874627aff78a62200a5e4a/layout/layout.json",
+      "bytes": 70081,
+      "sha256": "88df73745156ba6f46cd4737b553d7c29b4060d9ab7ff8fda18eff770a238e73",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-ad92d3bf10e4447892d4ee49e261b662/layout/layout.json",
+      "bytes": 188,
+      "sha256": "7bcead8452689b79aef67c2135f34e787908bb9c3a27273d4f4e78ce88ed5848",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-afddd8bb0ebb48768882fccfde950d22/layout/layout.json",
+      "bytes": 11,
+      "sha256": "122610d881b411e8520cfeca2e111aed683969b7a6b4bd4274cf4b985b78677f",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-b8d0f32692c44521ae34facfae4307ad/layout/layout.json",
+      "bytes": 188,
+      "sha256": "7bcead8452689b79aef67c2135f34e787908bb9c3a27273d4f4e78ce88ed5848",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-bc7360f2d21548cba86dfc698f03120c/layout/layout.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-bcdffac58688484bb05be80c0e6ae36d/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-bf6dd53806b44cc8bfeeb5215d5f9215/layout/layout.json",
+      "bytes": 188,
+      "sha256": "7bcead8452689b79aef67c2135f34e787908bb9c3a27273d4f4e78ce88ed5848",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-c214195b189a4d659daba29b1d5a072f/layout/layout.json",
+      "bytes": 11,
+      "sha256": "122610d881b411e8520cfeca2e111aed683969b7a6b4bd4274cf4b985b78677f",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-c71af0608364413e8bab375c787a6732/display/display.json",
+      "bytes": 52,
+      "sha256": "d0e5d97e726341c7cb18c3bfb0536c7b5ee3897dedfb3ecf0c40df69cfbae691",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-d0e6f760ed6148f5b23199e1912dbbc3/display/display.json",
+      "bytes": 52,
+      "sha256": "38916235b5c52c5e9958fd4240e1963d69e2444a977f3328db5170377e4cee2d",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-d2c748d0761144f59d49e97544e3e2b4/layout/layout.json",
+      "bytes": 70081,
+      "sha256": "88df73745156ba6f46cd4737b553d7c29b4060d9ab7ff8fda18eff770a238e73",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-d5c050b2f52e42f2a1e5b43e8b70a63d/layout/layout.json",
+      "bytes": 857,
+      "sha256": "63a9290ff004340f4b34d7be82e12ad22c042fc0e18bb87914df548948d8d6a9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-dcb09cfe094247d6866926badd01ece3/display/display.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-dd7e3a8a68f449b882bfa41aab02729c/layout/layout.json",
+      "bytes": 3,
+      "sha256": "039058c6f2c0cb492c533b0a4d14ef77cc0f78abccced5287d84a1a2011cfb81",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-e4441cc2ee1a416babe20872fc245c02/layout/layout.json",
+      "bytes": 188,
+      "sha256": "7bcead8452689b79aef67c2135f34e787908bb9c3a27273d4f4e78ce88ed5848",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-e520c02bc321475ca96afc034e80d1b7/display/display.json",
+      "bytes": 67,
+      "sha256": "8943311e67e17df5cb4bd299790ca82512fc291322536b17375ebddf32853c97",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-ecfb1ee935d145b5b9cd89855b17085a/recent/recent.json",
+      "bytes": 89,
+      "sha256": "1d462a964f4210262be9293ac8046c5246969226bdbc0ef3f9fc4f71a73fc3ef",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-ef62683f01a54d03a5a2ac3065bbe3c9/display/display.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-f4506e888c414685b6b62af0ee812eda/layout/layout.json",
+      "bytes": 857,
+      "sha256": "63a9290ff004340f4b34d7be82e12ad22c042fc0e18bb87914df548948d8d6a9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-f620876767584e189ec01a4089397c0c/layout/.cfd-writer.claim",
+      "bytes": 1,
+      "sha256": "4bf5122f344554c53bde2ebb8cd2b7e3d1600ad631c385a5d7cce23c7785459a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-f7d79535a9ca44009623cfb698443bfb/layout/layout.json",
+      "bytes": 1,
+      "sha256": "2b4c342f5433ebe591a1da77e013d1b72475562d48578dca8b84bac6651c3cb9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/p1-fc2753a27cf845b5a8de8122afa39966/display/display.json",
+      "bytes": 67,
+      "sha256": "8943311e67e17df5cb4bd299790ca82512fc291322536b17375ebddf32853c97",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/times.txt",
+      "bytes": 36,
+      "sha256": "e1f87cd970c287c57d567eddc4a1b492efe360dbefcf549bf1c65aac0846f859",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/u2-rail-recovery.cfdw.json",
+      "bytes": 6564,
+      "sha256": "b14cd8d67208bd30e5480e4fc6ec321680c0f8b0ee222963bfec67071b4707a7",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/1/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll",
+      "bytes": 207160,
+      "sha256": "0bdbb63f408755b02eddb70b21c7339e62dcc5545083c07f4a131979449da70d",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/1/Microsoft.CodeAnalysis.NetAnalyzers.dll",
+      "bytes": 5404936,
+      "sha256": "5596f25b17dd226760205a90fed68d15aa2c9aa33b8803842267ef16f76cb18a",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.ComInterfaceGenerator.dll",
+      "bytes": 328504,
+      "sha256": "113ae49f48a35133f37662f9490380c36a442944988d1cd287b0200ced9971e9",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.JavaScript.JSImportGenerator.dll",
+      "bytes": 136968,
+      "sha256": "56b090f39863ef6162b58f4923a5215df770986b0fff708af03800a919707ee4",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.LibraryImportGenerator.dll",
+      "bytes": 262416,
+      "sha256": "0b7dbde439331223de4be82fdb61a37022a2c2d1d411071db8805f3663cc8f78",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.SourceGeneration.dll",
+      "bytes": 463112,
+      "sha256": "6f105d99531e8b74897bb12f2bb4832d433b1932458440c78b227a603df12218",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/System.Text.Json.SourceGeneration.dll",
+      "bytes": 203568,
+      "sha256": "7318505f8d3964e9b1bd3899e982f64434ccf6d53a955f8db83a567bec3ff2c7",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/System.Text.RegularExpressions.Generator.dll",
+      "bytes": 371976,
+      "sha256": "b821a8647f281d4d01c66a3213f2046560e902c9b62e299a597bb88ed51c729c",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/3/Avalonia.Analyzers.dll",
+      "bytes": 89088,
+      "sha256": "4abf77121e68354dff4cb2fa39479eb0671292f258a679ece8e25ec306eae362",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/3/Avalonia.Generators.dll",
+      "bytes": 333312,
+      "sha256": "3c20f3ecd83c94fb5fe936528f92279e3a6651be7f45f79ac6c1bfcea9e27ee3",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/4/CommunityToolkit.Mvvm.CodeFixers.dll",
+      "bytes": 61728,
+      "sha256": "3e44756f2b31c0b5ed73d62470392375a4b6b6b24364ab20e5afc217440eff3c",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/4/CommunityToolkit.Mvvm.SourceGenerators.dll",
+      "bytes": 411432,
+      "sha256": "d9d6ef45b0e26e8aa47ed728177516c6dd94ca61b946383283a27e728437db43",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/wall.ms",
+      "bytes": 7,
+      "sha256": "9c11b3cb8deabde60258eece2f9867032efb3195dfab1414f881986ea850d1b8",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
+    },
+    {
+      "path": "docs/proof/ring-windows/calibration-ruling-170/series-receipt.md",
+      "bytes": 4112,
+      "sha256": "7ed0c4c426af6d5597874d6ef4c6ae4b3dbf6d4557f0c83762e4d79d0eb13e59",
+      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
     },
     {
       "path": "docs/proof/ring-windows/calibration/run-1/classifications/Analysis.part1of2.txt",
