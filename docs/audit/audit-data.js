@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T01:50:19Z",
+  "generated": "2026-10-09T01:51:11Z",
   "audit": [
     {
       "actor": null,
@@ -31583,6 +31583,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Investigate eight Windows-only rendering failures",
       "done_when": "investigation.md with answers 1-5"
+    },
+    {
+      "id": "al-01M4F5PWFK6Y8WKVBXFMP841DP",
+      "shortname": "join-wri",
+      "datetime": "2026-10-09T01:51:11Z",
+      "session": "3122f106",
+      "prompt": "the join of inv/wri-windows-render into main",
+      "summary": "WRI joined (docs only): 150% scale (Inferred) and Avalonia half-to-even pixel rounding explain items 2,6,7,8; 23.3 px targets are a real product defect (TextBox.prop-b has no MinHeight); item 1 a Mac-only test constant; items 3-5 await the PC probe recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the Windows rendering investigation",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T01:51:03Z",
+      "duration_seconds": 8.0
     }
   ],
   "changes": [
