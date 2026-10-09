@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Export Dialog</title>
+<!--
+  Stop-and-show page for the first Export slice (Ruling 193; EXP-02, EXP-03): the section .dat, the wing STL and the 3MF.
+  Display only; nothing is built from it until the operator approves. Every product sentence comes from COPY (the JSON
+  block): COPY-EXnn rows are proposed in docs/design/export.md section 8, the rows marked spec are quoted from the
+  specification. Every number comes from the probe receipts in docs/proof/exd/ (the FOILS table below is those outputs);
+  the summary, the file name, the size and the findings are computed from that table and the chosen options at render time.
+  The macOS save panel is a labelled stand-in: macOS draws it, CFD Workbench controls its title and suggested name.
+-->
+<style>
+:root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+:root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --warn:#895900; --danger:#a92e37; --on-accent:#ffffff; }
+:root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --warn:#efc576; --danger:#ffaeb5; --on-accent:#10201f; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --foil:#85c9c4; --foil-edge:#c4e7df; }
+*{ box-sizing:border-box; }
+html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
+button, select, input{ font:inherit; color:inherit; }
+:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 16px; padding:10px 20px; border-bottom:1px solid var(--line); }
+.top h1{ margin:0; font-size:15px; }
+.top p{ margin:0; color:var(--mute); font-size:12px; flex-basis:100%; max-width:1280px; }
+.top .ctl{ display:flex; align-items:center; gap:6px; color:var(--mute); font-size:12px; }
+.top select{ min-height:28px; padding:0 6px; border:1px solid var(--control); border-radius:4px; background:var(--surface); color:var(--ink); }
+.top select:disabled{ color:var(--mute); background:var(--soft); }
+.top .chk{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); display:inline-flex; align-items:center; gap:6px; }
+.top .chk input{ width:16px; height:16px; margin:0; }
+main{ padding:16px 20px 40px; min-width:1320px; }
+
+/* the shell: today's window, reduced to what this flow touches */
+.shell{ width:1280px; height:800px; display:flex; flex-direction:column; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--canvas); position:relative; font-size:13px; line-height:18px; padding:8px; }
+.chrome{ flex:1; min-height:0; display:flex; flex-direction:column; }
+.title{ flex:0 0 28px; display:flex; align-items:center; gap:8px; padding:0 12px; background:var(--surface); border-bottom:1px solid var(--line); color:var(--mute); font-size:12px; }
+.title b{ color:var(--ink); font-weight:600; }
+.menubar{ flex:0 0 32px; display:flex; align-items:center; gap:2px; padding:0 8px; background:var(--surface); border-bottom:1px solid var(--line); position:relative; z-index:3; }
+.menubar button{ min-height:26px; padding:0 10px; border:1px solid transparent; border-radius:4px; background:transparent; }
+.menubar button[aria-expanded="true"]{ background:var(--soft); border-color:var(--line); }
+.menu{ position:absolute; top:31px; min-width:300px; background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.28); padding:4px; display:flex; flex-direction:column; z-index:4; }
+.menu .mi{ display:flex; justify-content:space-between; gap:24px; min-height:28px; align-items:center; padding:0 10px; border:1px solid transparent; border-radius:4px; background:transparent; text-align:left; width:100%; }
+.menu .mi .key{ color:var(--mute); font-size:12px; }
+.menu .mi:disabled{ color:var(--mute); }
+.menu .mi.new{ border-color:var(--accent); }
+.menu hr{ border:0; border-top:1px solid var(--line); margin:4px 0; width:100%; }
+.menu .why{ padding:2px 10px 6px; color:var(--mute); font-size:12px; }
+.area{ flex:1; min-height:0; background:var(--vp); position:relative; }
+.area svg{ position:absolute; inset:0; width:100%; height:100%; }
+.area .cap{ position:absolute; left:8px; top:8px; padding:2px 8px; border-radius:3px; background:var(--vp-soft); color:var(--vp-ink); font-size:12px; }
+.sb{ flex:0 0 32px; padding:4px 8px; display:flex; align-items:stretch; background:var(--surface); border-top:1px solid var(--line); }
+.sb .msg{ flex:1; min-width:0; display:flex; align-items:center; gap:12px; padding:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:12px; }
+.sb .msg button{ min-height:20px; padding:0 8px; border:1px solid var(--control); border-radius:3px; background:var(--surface); font-size:12px; }
+.sb .item{ display:flex; align-items:center; padding:0 8px; border-left:1px solid var(--line); color:var(--mute); font-size:12px; }
+.layer{ position:absolute; inset:0; pointer-events:none; z-index:6; }
+.layer > *{ pointer-events:auto; }
+.scrim{ position:absolute; inset:0; background:var(--vp); opacity:.45; pointer-events:auto; }
+
+/* the export dialog (SaveSectionDialog / CatalogDialog idiom, wider) */
+.dlg{ position:absolute; left:50%; top:12px; width:800px; max-height:776px; transform:translateX(-50%); background:var(--surface); border:1px solid var(--control); border-radius:6px; box-shadow:0 8px 24px rgba(0,0,0,.28); display:flex; flex-direction:column; gap:8px; padding:12px 16px; }
+.dlg .dh{ font-weight:600; font-size:14px; margin:0; }
+.dlg p{ margin:0; }
+.cols{ display:grid; grid-template-columns:200px minmax(0,1fr); gap:16px; }
+.fmts{ display:flex; flex-direction:column; gap:4px; }
+.fmt{ min-height:32px; display:flex; align-items:center; padding:0 10px; border:1px solid var(--line); border-radius:4px; background:var(--surface); text-align:left; width:100%; }
+.fmt[aria-checked="true"]{ border-color:var(--accent); background:var(--soft); font-weight:600; }
+.fmt:disabled{ color:var(--mute); }
+.fmts .why{ color:var(--mute); font-size:12px; padding:2px 4px; }
+.opts{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px 20px; min-width:0; align-content:start; }
+.opts .wide{ grid-column:1 / -1; }
+.grp{ border:0; margin:0; padding:0; display:flex; flex-direction:column; gap:4px; min-width:0; }
+.grp legend{ padding:0; font-weight:600; margin-bottom:2px; }
+.grp .row{ display:flex; flex-wrap:wrap; gap:4px 16px; align-items:center; }
+.grp label{ display:inline-flex; align-items:center; gap:6px; min-height:28px; }
+.grp input[type=radio]{ width:16px; height:16px; margin:0; accent-color:var(--accent); }
+.grp select{ min-height:28px; padding:0 6px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.help{ color:var(--mute); font-size:12px; max-width:500px; }
+.locked{ display:flex; gap:8px; align-items:center; min-height:28px; }
+.locked .v{ padding:2px 8px; border:1px solid var(--line); border-radius:3px; background:var(--soft); color:var(--mute); }
+.sum{ border:1px solid var(--line); border-radius:4px; background:var(--canvas); padding:8px 10px; display:flex; flex-direction:column; gap:4px; }
+.sum h3{ margin:0; font-size:13px; }
+.sum dl{ display:grid; grid-template-columns:150px minmax(0,1fr); gap:2px 12px; margin:0; }
+.sum dt{ color:var(--mute); }
+.sum dd{ margin:0; font-variant-numeric:tabular-nums; }
+.sum .skel dd, .sum .skel dt{ background:var(--soft); color:transparent; border-radius:3px; user-select:none; }
+.sum .lim{ color:var(--mute); font-size:12px; }
+.sum pre{ margin:4px 0 0; padding:6px 8px; border:1px solid var(--line); border-radius:3px; background:var(--surface); font:12px/1.4 var(--mono); overflow:hidden; }
+.find{ padding:6px 8px; border:1px solid var(--line); border-left:3px solid var(--warn); border-radius:3px; display:flex; gap:12px; align-items:center; justify-content:space-between; }
+.find.err{ border-left-color:var(--danger); }
+.find button{ min-height:24px; padding:0 8px; border:1px solid var(--control); border-radius:3px; background:var(--surface); flex:none; }
+.safety{ color:var(--mute); font-size:12px; }
+.dbtns{ display:flex; gap:6px; align-items:center; justify-content:flex-end; flex-wrap:wrap; margin-top:2px; }
+.dlg .dbtns button{ min-height:28px; padding:0 12px; border:1px solid var(--control); border-radius:4px; background:var(--surface); }
+.dlg .dbtns .primary{ background:var(--accent); color:var(--on-accent); border-color:var(--accent); font-weight:600; }
+.dlg .dbtns button:disabled{ background:var(--soft); color:var(--mute); border-color:var(--line); font-weight:400; }
+.bar{ height:6px; border-radius:3px; background:var(--soft); overflow:hidden; border:1px solid var(--line); }
+.bar i{ display:block; height:100%; width:30%; background:var(--accent); animation:slide 1.4s linear infinite; }
+:root[data-reduce="true"] .bar i{ animation:none; width:100%; }
+@keyframes slide{ from{ margin-left:-30%; } to{ margin-left:100%; } }
+
+/* the native save panel stand-in: drawn by macOS, not by us */
+.native{ position:absolute; left:50%; top:90px; width:640px; transform:translateX(-50%); border:2px dashed var(--control); border-radius:6px; background:var(--surface); z-index:5; }
+.native .cap{ padding:6px 10px; background:var(--soft); border-bottom:1px solid var(--line); font-size:12px; font-weight:600; display:flex; justify-content:space-between; gap:8px; }
+.native .cap span{ color:var(--mute); font-weight:400; }
+.native .row{ display:flex; align-items:center; gap:8px; min-height:34px; padding:0 10px; border-bottom:1px solid var(--line); }
+.native .row .lbl{ width:90px; color:var(--mute); font-size:12px; flex:none; }
+.native .row .val{ flex:1; padding:3px 8px; border:1px solid var(--line); border-radius:3px; background:var(--canvas); font-variant-numeric:tabular-nums; }
+.native .badge{ display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:10px; background:var(--accent); color:var(--on-accent); font-size:12px; font-weight:600; flex:none; }
+.native .body{ height:110px; background:var(--soft); display:flex; align-items:center; justify-content:center; color:var(--mute); font-size:12px; }
+.native .foot{ display:flex; justify-content:flex-end; gap:8px; padding:8px 10px; }
+.native .foot div{ min-width:84px; min-height:28px; display:flex; align-items:center; justify-content:center; border:1px solid var(--line); border-radius:3px; color:var(--mute); }
+
+/* harness annotations (not product) */
+.notes{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; max-width:1280px; margin-top:16px; }
+.notes section{ border:1px solid var(--line); border-radius:6px; background:var(--surface); padding:12px 14px; }
+.notes h2{ margin:0 0 6px; font-size:13px; }
+.notes p, .notes li{ margin:0 0 4px; font-size:12px; max-width:600px; }
+.notes ul{ margin:0; padding-left:18px; }
+.notes .mute{ color:var(--mute); }
+.tag{ display:inline-block; padding:0 6px; border-radius:3px; background:var(--accent); color:var(--on-accent); font-size:12px; font-weight:600; margin-right:6px; }
+.flow{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 8px; padding:0; list-style:none; }
+.flow li{ padding:2px 8px; border:1px solid var(--line); border-radius:12px; color:var(--mute); margin:0; font-size:12px; }
+.flow li.on{ border-color:var(--accent); color:var(--ink); font-weight:600; }
+.flow li.no{ border-color:var(--danger); color:var(--ink); }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Export: section .dat, wing STL, 3MF</h1>
+  <label class="ctl" for="state">State <select id="state">
+    <option value="menu">1 Where Export lives (menus)</option>
+    <option value="dat">2 Section .dat</option>
+    <option value="stl">3 Wing STL</option>
+    <option value="3mf">4 Wing 3MF</option>
+    <option value="blocked">5 Geometry not accepted</option>
+    <option value="native">6 Save panel (native)</option>
+    <option value="writing">7 Writing</option>
+    <option value="done">8 Exported</option>
+    <option value="failed">9 Write failed</option>
+    <option value="cancelled">10 Cancelled</option>
+  </select></label>
+  <label class="ctl" for="detail">Detail <select id="detail"></select></label>
+  <label class="ctl" for="foil">Sample foil <select id="foil"></select></label>
+  <label class="ctl" for="theme">Theme <select id="theme"><option value="light">Light</option><option value="dark">Dark</option></select></label>
+  <label class="chk"><input type="checkbox" id="reduce"> Reduced motion</label>
+  <p>Display only. Proposed for the operator; nothing is built until you approve it. Numbers are the probe receipts in docs/proof/exd/ for the sample foils; the dashed frame stands in for the native save panel. Revision r12 is illustrative.</p>
+</header>
+<main>
+  <div class="shell" id="shell">
+    <div class="chrome" id="chrome">
+      <div class="title" data-chrome><b id="winTitle"></b></div>
+      <div class="menubar" id="menubar" role="group" aria-label="Menus" data-chrome></div>
+      <div class="area" data-chrome><svg id="plan" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Plan view of the wing, schematic"></svg><span class="cap" id="cap"></span></div>
+      <div class="sb" id="statusStrip"><div class="msg" id="statusMsg"></div><div class="item" data-chrome>Metric</div></div>
+    </div>
+    <div class="layer" id="layer"></div>
+  </div>
+  <div class="notes" id="notes"></div>
+</main>
+<script type="application/json" id="copy">
+{
+"EX01": "Export…",
+"EX02": "Export .dat…",
+"EX03": "Export needs an open foil.",
+"EX04": "Export",
+"EX05": "Section (.dat)",
+"EX06": "Wing (STL)",
+"EX07": "Wing (3MF)",
+"EX08": "STEP export unavailable until the open-and-measure fixture exists",
+"EX09": "Section shape",
+"EX09a": "At station",
+"EX09b": "Own",
+"EX10": "At station: the section as the wing builds it here, at t/c <tc> %. Own: the profile as authored, before the station's thickness.",
+"EX10a": "Station",
+"EX11": "File order",
+"EX11a": "Selig",
+"EX11b": "Lednicer",
+"EX12": "Points per surface",
+"EX13": "Scope",
+"EX13a": "Whole wing",
+"EX13b": "Starboard half",
+"EX14": "Tolerance",
+"EX14a": "Draft 0.05 mm",
+"EX14b": "Print 0.02 mm",
+"EX14c": "Fine 0.005 mm",
+"EX15": "Unit",
+"EX15a": "Millimetres, unscaled. Fixed for print.",
+"EX16": "What will be written",
+"EX17": "Revision r12, accepted.",
+"EX17a": "Exporting revision r12. Your open draft is not included.",
+"EX18": "Analysis layers and results are not exported.",
+"EX19": "Preparing the mesh…",
+"EX20": "Exported <file> · <tris> triangles · <size> MB · mm · largest measured gap <gap> mm",
+"EX21": "Exported <file> · <pts> points · x/c, y/c · chord <chord> mm · largest gap <gap> mm",
+"EX22": "Trailing edge <t> mm below the floor <f> mm (practitioner value, unverified)",
+"EX23": "Show at <where>",
+"EX24": "This geometry has not been checked for strength, manufacturability or ride safety. No standard for hydrofoil-wing strength applies (RCD 2013/53/EU excludes hydrofoils and surfboards; ISO 25649 excludes rigid surf-sport devices). Test before use.",
+"EX25": "Largest gap to the computed surface: <gap> mm, sampled at cell midpoints. Not a bound.",
+"EX25a": "Largest gap between the curve and the lines joining the points: <gap> mm at this chord, sampled at segment midpoints.",
+"EX26": "Closed: every edge joins two triangles (checked).",
+"EX27": "Coordinates are rounded to 0.00003 mm.",
+"EX28": "Computed by this app. No other CAD program has opened this file.",
+"EX29": "This mesh has <tris> triangles (<size> MB). Some slicers and CAD programs open it slowly. Choose Print for <tris2> triangles, or write it anyway.",
+"EX30": "Export anyway…",
+"EX32": "Can't export yet",
+"EX33": "The shape is drawn, but its geometry check has not passed, so there is no accepted geometry to export. Open the Checks drawer, fix the finding, then export.",
+"EX34": "Can't write the file. <cause> Nothing was changed. The earlier file is still there.",
+"EX35a": "The disk is full.",
+"EX35b": "You don't have permission to write to that folder.",
+"EX35c": "The folder no longer exists.",
+"EX36a": "Choose another place…",
+"EX36b": "Try again",
+"EX37": "The mesh did not close, so nothing was written.",
+"EX38": "Export cancelled. Nothing was written.",
+"EX39": "Show in Finder",
+"EX40": "Cancel",
+"EX41": "Writing <tris> triangles (<size> MB)…",
+"EX42": "Writing…",
+"EX43": "Technical details: the edge check found edges that are not shared by exactly two triangles."
+}
+</script>
+<script>
+'use strict';
+const COPY = JSON.parse(document.getElementById('copy').textContent);
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const t = (id, vars) => COPY[id].replace(/<(\w+)>/g, (m, k) => vars && k in vars ? vars[k] : m);
+const FLOOR_MM = 0.3;          // Settings.cs:28, TeFloorMm
+const LARGE_TRIS = 500000;     // proposed large-mesh line (design section 7, H5)
+const REV = 12;                // illustrative
+
+// ---- receipts: docs/proof/exd/probe-*.txt. rung = [stations, chord points, triangles, largest measured gap in mm]
+const FOILS = {
+  A: { name:'Basic foil', label:'Example foil, open TE 0.26 mm', slug:'basic-foil', teMin:0.2556, teAt:'tip', halfSpan:450, bbox:[120.0, 900.0, 15.9], tc:12.0,
+       stations:[{ id:'root', name:'Root', chord:120.0, te:0.2557, dev:{ 61:0.0204, 101:0.0074, 201:0.0019 } }, { id:'tip', name:'Tip', chord:120.0, te:0.2557, dev:{ 61:0.0204, 101:0.0074, 201:0.0019 } }],
+       rungs:[[11,26,2138,0.1281],[21,51,8278,0.0325],[31,76,18418,0.0145],[41,101,32558,0.0082],[81,201,129118,0.0020],[161,401,514238,0.0005],[321,801,2052478,0.0001]], src:'probe-open.txt, probe2-open-root.txt' },
+  B: { name:'Basic foil', label:'Example foil, open TE 0.36 mm', slug:'basic-foil', teMin:0.3578, teAt:'tip', halfSpan:450, bbox:[120.0, 900.0, 15.9], tc:12.0,
+       stations:[{ id:'root', name:'Root', chord:120.0, te:0.3580, dev:{ 61:0.0204, 101:0.0074, 201:0.0019 } }, { id:'tip', name:'Tip', chord:120.0, te:0.3580, dev:{ 61:0.0204, 101:0.0074, 201:0.0019 } }],
+       rungs:[[11,26,2138,0.1279],[21,51,8278,0.0324],[31,76,18418,0.0145],[41,101,32558,0.0082],[81,201,129118,0.0020],[161,401,514238,0.0005]], src:'probe-open14.txt, probe2-open14-root.txt' },
+  C: { name:'Untitled wing', label:'Untitled NACA 0012 wing, closed TE', slug:'untitled-wing', teMin:0, teAt:'every station', halfSpan:500, bbox:[127.1, 1000.0, 15.3], tc:12.0,
+       stations:[{ id:'root', name:'Root', chord:127.0, te:0, dev:{ 61:0.0218, 101:0.0079, 201:0.0020 } }, { id:'tip', name:'Tip', chord:12.7, te:0, dev:{ 61:0.0022, 101:0.0008, 201:0.0002 } }],
+       rungs:[[11,26,2096,0.7028],[21,51,8196,0.1787],[31,76,18296,0.0798],[41,101,32396,0.0450],[81,201,128796,0.0113],[161,401,513596,0.0028]], src:'probe-default-wing.txt, probe2-default-root.txt' }
+};
+const TOL = { draft:0.05, print:0.02, fine:0.005 };
+const DETAILS = {
+  menu:[['file','File menu'],['section','Section menu'],['nofoil','No foil open']],
+  dat:[['ready','Ready'],['draft','A draft is open'],['analysis','Analysis mode']],
+  stl:[['ready','Ready'],['preparing','Preparing the mesh'],['large','Large mesh (Untitled wing, Fine)'],['draft','A draft is open'],['analysis','Analysis mode']],
+  '3mf':[['ready','Ready']],
+  blocked:[['unchecked','Geometry check has not passed']],
+  native:[['stl','STL'],['dat','.dat'],['3mf','3MF']],
+  writing:[['large','Large mesh']],
+  done:[['stl','STL'],['dat','.dat'],['3mf','3MF']],
+  failed:[['disk','Disk full'],['perm','No permission'],['gone','Folder gone'],['open','Mesh did not close']],
+  cancelled:[['panel','Closed the save panel']]
+};
+const S = { state:'menu', detail:'file', foil:'A', theme:'light', reduce:false, fmt:'dat', station:'root', shape:'at', order:'selig', pts:101, scope:'whole', tol:'print', open:true, mode:'cad', draft:false };
+
+// ---- derived values (all from FOILS + options)
+const foil = () => FOILS[S.foil];
+const station = () => foil().stations.find(s => s.id === S.station) || foil().stations[0];
+function rungFor(tol){ const f = foil(), hit = f.rungs.find(r => r[3] <= tol); return hit ? { rung:hit, met:true } : { rung:f.rungs[f.rungs.length - 1], met:false }; }
+const fmtInt = n => n.toLocaleString('en-US');
+const mb = tris => ((84 + 50 * tris) / 1e6).toFixed(2);
+const mm4 = v => v.toFixed(4);
+const mm2 = v => v.toFixed(2);
+function fileName(){
+  const f = foil(), fmt = S.state === 'native' || S.state === 'done' ? detailFmt() : S.fmt;
+  if (fmt === 'dat') return `${f.slug}-${station().id}-r${REV}.dat`;
+  if (fmt === 'stl') return `${f.slug}-r${REV}-mm.stl`;
+  return `${f.slug}-r${REV}.3mf`;
+}
+const detailFmt = () => (S.state === 'native' || S.state === 'done') ? S.detail : S.fmt;
+function mesh(){ const r = rungFor(TOL[S.tol]); const [s, c, tris, gap] = r.rung;
+  return { tris, gap, size:mb(tris), met:r.met, grid:`${s} × ${c}`, large:tris > LARGE_TRIS, print:rungFor(TOL.print).rung[2] }; }
+function datRows(){
+  const st = station(), n = S.pts;
+  // real rows only for the probed section (Example foil, open TE 0.26 mm, Root, 101 per surface, Selig); the others show the structure
+  if (S.foil === 'A' && S.station === 'root' && n === 101 && S.shape === 'at' && S.order === 'selig')
+    return ['Basic foil | Root | r12','1 0.0010655364151166689','0.9997532801828658 0.0010892048507038603','...','0 0','0.0002467198171342 -0.0024037402789592885'];
+  return null;
+}
+function finding(){
+  const f = foil(); const fmt = S.fmt;
+  const te = fmt === 'dat' ? station().te : f.teMin;
+  if (te >= FLOOR_MM) return null;
+  const where = fmt === 'dat' ? station().name : (f.teAt === 'tip' ? 'tip' : 'root');
+  return { text:t('EX22', { t:mm2(te), f:mm2(FLOOR_MM) }), where };
+}
+
+// ---- surfaces
+function summaryHtml(){
+  const f = foil(), fmt = S.fmt;
+  if (S.state === 'stl' && S.detail === 'preparing') {
+    return `<section class="sum" aria-label="${esc(t('EX16'))}"><h3>${esc(t('EX16'))}</h3><p class="lim" role="status">${esc(t('EX19'))}</p><dl class="skel" aria-hidden="true"><dt>Revision</dt><dd>r12, accepted.</dd><dt>Triangles</dt><dd>000,000</dd><dt>File size</dt><dd>0.00 MB</dd><dt>Size of the part</dt><dd>000.0 × 000.0 × 00.0 mm</dd></dl></section>`;
+  }
+  if (fmt === 'dat') {
+    const st = station(), rows = datRows(), dev = st.dev[S.pts];
+    const total = S.pts * 2 - 1;
+    return `<section class="sum" aria-label="${esc(t('EX16'))}"><h3>${esc(t('EX16'))}</h3><dl>
+      <dt>Revision</dt><dd>${esc(S.draft ? t('EX17a') : t('EX17'))}</dd>
+      <dt>Units</dt><dd>Fractions of chord (x/c, y/c). Twist not applied.</dd>
+      <dt>Chord at ${esc(st.name)}</dt><dd>${mm2(st.chord)} mm</dd>
+      <dt>Points</dt><dd>${total} in the file (${S.pts} per surface), ${esc(S.order === 'selig' ? 'Selig' : 'Lednicer')} order</dd>
+      <dt>Trailing edge</dt><dd>${st.te === 0 ? 'Closed, 0.00 mm' : 'Open, ' + mm2(st.te) + ' mm at this chord'}</dd>
+      <dt>Fidelity</dt><dd>${esc(t('EX25a', { gap:mm4(dev) }))}</dd></dl>
+      <p class="lim">${esc(t('EX28'))}</p>
+      ${rows ? `<pre aria-label="First lines of the file, real values">${rows.map(esc).join('\n')}</pre>` : ''}</section>`;
+  }
+  const m = mesh(), what = fmt === '3mf' ? '3MF' : 'STL';
+  const b = f.bbox; const dims = S.scope === 'half' ? [b[0], b[1] / 2, b[2]] : b;
+  return `<section class="sum" aria-label="${esc(t('EX16'))}"><h3>${esc(t('EX16'))}</h3><dl>
+    <dt>Revision</dt><dd>${esc(S.draft ? t('EX17a') : t('EX17'))}${S.mode === 'analysis' ? ' ' + esc(t('EX18')) : ''}</dd>
+    <dt>Unit</dt><dd>${fmt === '3mf' ? 'millimeter (unit attribute), unscaled' : 'mm, unscaled (in the file name)'}</dd>
+    <dt>Mesh</dt><dd>${fmtInt(m.tris)} triangles (${m.grid} grid)${S.scope === 'half' ? ', half wing: not computed in this mockup' : ''}</dd>
+    <dt>File size</dt><dd>${m.size} MB</dd>
+    <dt>Size of the part</dt><dd>${dims[0].toFixed(1)} × ${dims[1].toFixed(1)} × ${dims[2].toFixed(1)} mm</dd>
+    <dt>Fidelity</dt><dd>${esc(t('EX25', { gap:mm4(m.gap) }))}</dd></dl>
+    <p class="lim">${esc(t('EX26'))} ${what === 'STL' ? esc(t('EX27')) : ''} ${esc(t('EX28'))}</p></section>`;
+}
+function optionsHtml(){
+  const f = foil(), st = station();
+  const radio = (name, items, cur) => `<div class="row" role="radiogroup" aria-labelledby="lg-${name}">${items.map(([v, label]) => `<label><input type="radio" name="${name}" value="${v}" data-opt="${name}" ${String(cur) === String(v) ? 'checked' : ''}>${esc(label)}</label>`).join('')}</div>`;
+  if (S.fmt === 'dat') return `
+    <fieldset class="grp"><legend id="lg-shape">${esc(t('EX09'))}</legend>${radio('shape', [['at', t('EX09a')], ['own', t('EX09b')]], S.shape)}</fieldset>
+    <div class="grp"><label for="stationSel" style="font-weight:600">${esc(t('EX10a'))}</label><select id="stationSel" data-opt="station">${f.stations.map(s => `<option value="${s.id}" ${s.id === S.station ? 'selected' : ''}>${esc(s.name)} (chord ${mm2(s.chord)} mm)</option>`).join('')}</select></div>
+    <p class="help wide">${esc(t('EX10', { tc:f.tc.toFixed(1) }))}</p>
+    <fieldset class="grp"><legend id="lg-order">${esc(t('EX11'))}</legend>${radio('order', [['selig', t('EX11a')], ['lednicer', t('EX11b')]], S.order)}</fieldset>
+    <fieldset class="grp"><legend id="lg-pts">${esc(t('EX12'))}</legend>${radio('pts', [[61, '61'], [101, '101'], [201, '201']], S.pts)}</fieldset>`;
+  return `
+    <fieldset class="grp"><legend id="lg-scope">${esc(t('EX13'))}</legend>${radio('scope', [['whole', t('EX13a')], ['half', t('EX13b')]], S.scope)}</fieldset>
+    <div class="grp"><span style="font-weight:600">${esc(t('EX15'))}</span><div class="locked"><span class="v">mm</span><span class="help">${esc(t('EX15a'))}</span></div></div>
+    <fieldset class="grp wide"><legend id="lg-tol">${esc(t('EX14'))}</legend>${radio('tol', [['draft', t('EX14a')], ['print', t('EX14b') + ' (default)'], ['fine', t('EX14c')]], S.tol)}</fieldset>`;
+}
+function exportDialog(o){
+  o = o || {};
+  const blocked = S.state === 'blocked', prep = S.state === 'stl' && S.detail === 'preparing';
+  const f = foil(), fi = (!blocked && !prep) ? finding() : null;
+  const m = S.fmt !== 'dat' ? mesh() : null;
+  const large = m && m.large;
+  let finds = '';
+  if (blocked) finds = `<div class="find err" role="alert"><span>${esc(t('EX33'))}</span></div>`;
+  else {
+    if (fi) finds += `<div class="find"><span data-copy="EX22">${esc(fi.text)}</span><button type="button" data-act="jump">${esc(t('EX23', { where:fi.where }))}</button></div>`;
+    if (large) finds += `<div class="find"><span>${esc(t('EX29', { tris:fmtInt(m.tris), size:m.size, tris2:fmtInt(f.rungs.find(r => r[3] <= TOL.print)[2]) }))}</span></div>`;
+    if (S.draft && !prep) finds += '';
+  }
+  const fmts = [['dat', t('EX05')], ['stl', t('EX06')], ['3mf', t('EX07')]];
+  const action = blocked ? 'EX04' : large ? 'EX30' : 'EX01';
+  const mainDisabled = blocked || prep;
+  return `<div class="scrim"></div><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dT" data-kind="export">
+    <h2 id="dT" class="dh">${esc(blocked ? t('EX32') : t('EX04'))}</h2>
+    <div class="cols">
+      <div class="fmts" role="radiogroup" aria-label="Format">${fmts.map(([v, label]) => `<button type="button" class="fmt" role="radio" aria-checked="${S.fmt === v}" tabindex="${S.fmt === v ? 0 : -1}" data-fmt="${v}" data-fk="fmt-${v}">${esc(label)}</button>`).join('')}
+        <button type="button" class="fmt" disabled aria-describedby="stepWhy">STEP</button><p class="why" id="stepWhy">${esc(t('EX08'))}</p></div>
+      <div class="opts">${blocked ? `<p class="help">Nothing to choose until the geometry check passes.</p>` : optionsHtml()}</div>
+    </div>
+    ${blocked ? '' : summaryHtml()}
+    ${finds}${o.body || ''}
+    <p class="safety" data-copy="EX24">${esc(t('EX24'))}</p>
+    <div class="dbtns">${o.btns || `<button type="button" data-act="cancel" data-fk="cancel">${esc(t('EX40'))}</button><button type="button" class="primary" data-act="export" data-fk="export" data-default="true" ${mainDisabled ? 'disabled' : ''}>${esc(prep ? t('EX19') : t(action))}</button>`}</div>
+  </div>`;
+}
+function nativePanel(){
+  return `<div class="scrim"></div><div class="native" tabindex="-1" role="group" aria-label="macOS save panel, native, drawn by macOS" id="native" data-fk="native">
+    <div class="cap" data-chrome>macOS save panel, native, drawn by macOS <span>Stand-in frame; CFD Workbench does not draw it</span></div>
+    <div class="row" data-chrome><span class="badge" aria-hidden="true">1</span><span class="lbl">Save As</span><span class="val">${esc(fileName())}</span></div>
+    <div class="row" data-chrome><span class="badge" aria-hidden="true">2</span><span class="lbl">Where</span><span class="val">CFD Workbench</span></div>
+    <div class="body" data-chrome><span>Folder contents and the replace prompt are drawn by macOS</span></div>
+    <div class="foot" data-chrome><div>Cancel</div><div>Save</div></div></div>`;
+}
+function writingDialog(){
+  const m = mesh();
+  return `<div class="scrim"></div><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dT" data-kind="writing"><h2 id="dT" class="dh">${esc(t('EX42'))}</h2>
+    <p role="status">${esc(t('EX41', { tris:fmtInt(m.tris), size:m.size }))}</p><div class="bar" aria-hidden="true"><i></i></div>
+    <div class="dbtns"><button type="button" data-act="cancel" data-fk="cancel" data-default="true">${esc(t('EX40'))}</button></div></div>`;
+}
+function failedDialog(){
+  const d = S.detail, cause = d === 'disk' ? t('EX35a') : d === 'perm' ? t('EX35b') : t('EX35c');
+  const body = d === 'open'
+    ? `<div class="find err" role="alert"><span>${esc(t('EX37'))}</span></div><p class="help">${esc(t('EX43'))}</p>`
+    : `<div class="find err" role="alert"><span>${esc(t('EX34', { cause }))}</span></div>`;
+  const btns = d === 'open' ? `<button type="button" data-act="cancel" data-fk="cancel" data-default="true" class="primary">${esc(t('EX40'))}</button>`
+    : `<button type="button" data-act="cancel" data-fk="cancel">${esc(t('EX40'))}</button><button type="button" data-act="another" data-fk="another">${esc(t('EX36a'))}</button><button type="button" class="primary" data-act="again" data-fk="again" data-default="true">${esc(t('EX36b'))}</button>`;
+  return exportDialog({ body, btns });
+}
+
+// ---- the window
+function menusHtml(){
+  const open = S.state === 'menu' ? S.detail : null;
+  const names = [['file', 'File'], ['edit', 'Edit'], ['view', 'View'], ['section', 'Section'], ['window', 'Window']];
+  return names.map(([id, label]) => `<button type="button" data-menu="${id}" aria-expanded="${open === id || (open === 'nofoil' && id === 'file')}" aria-haspopup="true">${label}</button>`).join('');
+}
+function menuPopup(){
+  if (S.state !== 'menu') return '';
+  const row = (label, key, o) => `<button type="button" class="mi${o && o.neu ? ' new' : ''}" ${o && o.off ? 'disabled' : ''} ${o && o.act ? `data-act="${o.act}"` : ''}><span>${esc(label)}</span><span class="key">${esc(key || '')}</span></button>`;
+  if (S.detail === 'section') return `<div class="menu" style="left:200px" role="group" aria-label="Section menu">
+    ${row('Edit section…', '↩')}${row('Finish section', '⌘↩')}${row('Cancel section')}<hr>${row('Insert point')}${row('Insert anchor (keep shape)')}${row('Delete point', '⌫')}${row('Smooth')}<hr>${row('Replace from catalog…')}${row('Save to My sections…')}${row('Import .dat…')}${row(t('EX02'), '', { neu:true, act:'open-dat' })}<hr>${row('Make unique to this station')}</div>`;
+  const off = S.detail === 'nofoil';
+  return `<div class="menu" style="left:8px" role="group" aria-label="File menu">
+    ${row('New foil', '⌘N')}${row('New from example', '⇧⌘N')}${row('Open…', '⌘O')}<hr>${row('Save', '⌘S')}${row('Save As…', '⇧⌘S')}${row('Close', '⌘W')}<hr>${row(t('EX01'), '⇧⌘E', { neu:true, off, act:'open-export' })}${off ? `<p class="why">${esc(t('EX03'))}</p>` : ''}</div>`;
+}
+function planSvg(){
+  const f = foil(), half = f.halfSpan;
+  const W = 900, scale = W / (2 * half), cy = 150;
+  let pts;
+  if (S.foil === 'C') {
+    const left = [], right = [];
+    for (let i = 0; i <= 40; i++) { const eta = i / 40, c = Math.sqrt(1 - 0.99 * eta * eta) * 127.0, le = (127.0 - c) / 4; left.push([eta, le, le + c]); }
+    const mk = side => left.map(([eta, le, te]) => [500 + side * eta * half * scale, 40 + le * scale * 1.6, 40 + te * scale * 1.6]);
+    const r = mk(1), l = mk(-1);
+    pts = [...l.slice().reverse().map(p => [p[0], p[1]]), ...r.map(p => [p[0], p[1]]), ...r.slice().reverse().map(p => [p[0], p[2]]), ...l.map(p => [p[0], p[2]])];
+  } else {
+    const c = 120 * scale * 1.6; pts = [[50, cy - c / 2], [950, cy - c / 2], [950, cy + c / 2], [50, cy + c / 2]];
+  }
+  return `<path d="M${pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' L')} Z" fill="#243a40" stroke="#85c9c4" stroke-width="2"/><line x1="500" y1="10" x2="500" y2="290" stroke="#afc6c7" stroke-dasharray="4 4" stroke-width="1"/>`;
+}
+function statusFor(){
+  if (S.state === 'done') {
+    const f = foil(), fmt = S.detail, n = fileName();
+    if (fmt === 'dat') { const st = station(); return t('EX21', { file:n, pts:S.pts * 2 - 1, chord:mm2(st.chord), gap:mm4(st.dev[S.pts]) }); }
+    const m = mesh(); return t('EX20', { file:n, tris:fmtInt(m.tris), size:m.size, gap:mm4(m.gap) });
+  }
+  if (S.state === 'cancelled') return t('EX38');
+  if (S.state === 'writing') return t('EX42');
+  return '';
+}
+
+// ---- render
+function layerFor(){
+  const st = S.state;
+  if (st === 'dat' || st === 'stl' || st === '3mf' || st === 'blocked') return exportDialog();
+  if (st === 'native') return nativePanel();
+  if (st === 'writing') return writingDialog();
+  if (st === 'failed') return failedDialog();
+  return '';
+}
+function withFocus(fn){ const a = document.activeElement, key = a && a.dataset && a.dataset.fk; fn(); if (key) { const n = document.querySelector(`[data-fk="${key}"]`); if (n) n.focus(); } }
+function sync(){
+  // state to option context
+  if (S.state === 'dat') S.fmt = 'dat'; else if (S.state === 'stl') S.fmt = 'stl'; else if (S.state === '3mf') S.fmt = '3mf';
+  S.draft = (S.state === 'dat' || S.state === 'stl') && S.detail === 'draft';
+  S.mode = (S.state === 'dat' || S.state === 'stl') && S.detail === 'analysis' ? 'analysis' : 'cad';
+}
+function render(opts){
+  opts = opts || {};
+  sync();
+  const layer = layerFor();
+  withFocus(() => {
+    $('layer').innerHTML = (S.state === 'menu' ? '' : layer);
+    $('menubar').innerHTML = menusHtml();
+    const mp = menuPopup(); const ex = $('menubar').querySelector('.menu'); if (ex) ex.remove();
+    if (mp) $('menubar').insertAdjacentHTML('beforeend', mp);
+    $('plan').innerHTML = planSvg();
+    $('winTitle').textContent = `${S.state === 'menu' && S.detail === 'nofoil' ? 'No foil' : foil().name} · CFD Workbench`;
+    $('cap').textContent = S.state === 'menu' && S.detail === 'nofoil' ? 'Nothing open' : `Plan view, schematic · ${foil().label}`;
+    $('statusMsg').innerHTML = statusFor() ? `<span>${esc(statusFor())}</span>${S.state === 'done' ? `<button type="button" data-act="reveal">${esc(t('EX39'))}</button>` : ''}` : '';
+  });
+  const modal = ['dat', 'stl', '3mf', 'blocked', 'native', 'writing', 'failed'].includes(S.state);
+  $('chrome').inert = modal;
+  document.documentElement.dataset.theme = S.theme;
+  document.documentElement.dataset.reduce = S.reduce ? 'true' : 'false';
+  $('state').value = S.state;
+  const dsel = $('detail'), list = DETAILS[S.state];
+  dsel.innerHTML = list.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('');
+  if (!list.some(o => o[0] === S.detail)) S.detail = list[0][0];
+  dsel.value = S.detail; dsel.disabled = list.length < 2;
+  $('foil').innerHTML = Object.keys(FOILS).map(k => `<option value="${k}">${FOILS[k].label}</option>`).join('');
+  $('foil').value = S.foil;
+  $('reduce').checked = S.reduce;
+  renderNotes();
+  if (opts.focus !== false && modal) {
+    const d = document.querySelector('.dlg [data-default="true"]:not([disabled])') || document.querySelector('.dlg [data-fk="cancel"]') || $('native');
+    if (d) d.focus();
+  }
+}
+
+// ---- interaction
+function setState(patch){
+  Object.assign(S, patch);
+  if ((S.state === 'stl' && S.detail === 'large') || (S.state === 'writing')) { S.foil = 'C'; S.tol = 'fine'; S.scope = 'whole'; }
+  if (S.state === 'failed' && S.fmt === 'dat') S.fmt = 'stl';
+  render();
+}
+document.addEventListener('click', e => {
+  const m = e.target.closest('[data-menu]'); if (m) { S.state = 'menu'; S.detail = m.dataset.menu === 'section' ? 'section' : 'file'; render({ focus:false }); return; }
+  const fm = e.target.closest('[data-fmt]'); if (fm) { S.fmt = fm.dataset.fmt; S.state = fm.dataset.fmt; if (S.detail === 'large' && S.fmt !== 'stl') S.detail = 'ready'; render({ focus:false }); return; }
+  const a = e.target.closest('[data-act]'); if (!a) return;
+  const k = a.dataset.act;
+  if (k === 'open-export') setState({ state:S.fmt, detail:'ready' });
+  else if (k === 'open-dat') setState({ state:'dat', detail:'ready', fmt:'dat' });
+  else if (k === 'cancel') setState({ state:'cancelled', detail:'panel' });
+  else if (k === 'export') setState({ state:'native', detail:S.fmt });
+  else if (k === 'again') setState({ state:'native', detail:S.fmt });
+  else if (k === 'another') setState({ state:'native', detail:S.fmt });
+});
+document.addEventListener('change', e => {
+  const o = e.target.closest('[data-opt]'); if (!o) return;
+  const n = o.dataset.opt, v = o.value;
+  S[n] = (n === 'pts') ? Number(v) : v;
+  render({ focus:false });
+});
+// the format list is one radiogroup: arrows move the choice (roving tabindex)
+document.addEventListener('keydown', e => {
+  const dlg = document.querySelector('.dlg');
+  if (!dlg || !dlg.contains(document.activeElement)) return;
+  const fm = document.activeElement.closest && document.activeElement.closest('[data-fmt]');
+  if (fm && ['ArrowDown', 'ArrowUp', 'ArrowRight', 'ArrowLeft'].includes(e.key)) {
+    e.preventDefault(); const order = ['dat', 'stl', '3mf'], i = order.indexOf(fm.dataset.fmt), step = (e.key === 'ArrowDown' || e.key === 'ArrowRight') ? 1 : -1;
+    const next = order[(i + step + order.length) % order.length]; S.fmt = next; S.state = next; render({ focus:false });
+    const n = document.querySelector(`[data-fmt="${next}"]`); if (n) n.focus(); return;
+  }
+  if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setState({ state:'cancelled', detail:'panel' }); return; }
+  if (e.key === 'Enter' && document.activeElement.tagName !== 'BUTTON' && document.activeElement.tagName !== 'SELECT') { const d = dlg.querySelector('[data-default="true"]:not([disabled])'); if (d) { e.preventDefault(); d.click(); } return; }
+  if (e.key === 'Tab') {
+    const f = [...dlg.querySelectorAll('button:not([disabled]):not([tabindex="-1"]), input:not([disabled]), select')].filter(n => n.offsetParent !== null);
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
+// ---- annotations (harness text, not product copy)
+const NOTES = {
+  menu:{ title:'Where Export lives', flow:[['File > Export… (⇧⌘E)', 2], ['Section > Export .dat…', 2], ['Command palette: both rows', 0]],
+    shows:['File > Export… opens the dialog on the last format. Section > Export .dat… opens it on the .dat format at the selected station. The new rows are outlined. With no foil open the File row is disabled and says why in the menu.',
+           'Both rows are ordinary CommandTable rows, so the command palette lists them with no extra work. A "cfdw export" CLI verb is proposed for the build (operator question 4).'] },
+  dat:{ title:'Section .dat', flow:[['Choose format', 0], ['Options', 2], ['Export… opens the save panel', 0]],
+    shows:['The summary and the first lines of the file are computed from the options. Real rows are shown for the probed section only (Example foil, open TE, Root, 101 per surface, Selig, At station). Other combinations show the summary without file lines rather than invented ones.',
+           'The trailing-edge finding is the spec string. It uses the gap at this station and this chord (0.26 mm at the Root, 120.0 mm chord).'] },
+  stl:{ title:'Wing STL', flow:[['Choose format', 0], ['Tolerance picks the mesh', 2], ['Findings', 3], ['Export… opens the save panel', 0]],
+    shows:['Tolerance selects the first rung of the mesh ladder whose measured gap is at or under it. Triangles, size and gap are the probe rows; size is 84 + 50 x triangles bytes. The half-wing size is not probed, so the mockup says so.',
+           'Large mesh: 500,000 triangles is the proposed line. The Untitled wing at Fine is 513,596 triangles and 25.68 MB (real), so the button reads Export anyway… and the coarser preset is named with its real triangle count.'] },
+  '3mf':{ title:'Wing 3MF', flow:[['Same mesh and options as STL', 2], ['Unit is an attribute', 0]],
+    shows:['Second increment of the slice (Ruling 193 order). The dialog lists it now so the choice list does not change later. The unit row reads millimeter (unit attribute); the file name carries no -mm.'] },
+  blocked:{ title:'Geometry not accepted', flow:[['Open Export', 0], ['Check has not passed', 3], ['Fix in Checks, then export', 0]],
+    shows:['The shape can be drawn while its geometry check has not passed (the evaluator needs only a parsed source). Export uses the same gate as analysis (AnalysisService.cs:94-95), so it opens, explains, and keeps Export disabled.'] },
+  native:{ title:'Save panel (native)', flow:[['Export…', 0], ['Panel: name and folder', 2], ['Save writes', 0]],
+    shows:['macOS draws the panel and its replace prompt; CFD Workbench controls the title and the suggested name only, which carries the unit for STL (-mm). The start folder is the project file\'s folder, else CFD Workbench.',
+           'Windows uses the same flow with the Windows dialog. A OneDrive folder is allowed for exports (design section 6.4, to confirm).'] },
+  writing:{ title:'Writing', flow:[['Build bytes in memory', 0], ['Closure check', 0], ['Temp file, then rename', 2]],
+    shows:['Only a mesh over 100,000 triangles shows this progress; below that the write is under a frame. Cancel deletes the temp file. The bar is indeterminate on purpose: no progress number is invented.'] },
+  done:{ title:'Exported', flow:[['Write', 0], ['Dialog closes', 0], ['Status strip carries the result', 2]],
+    shows:['The result is a status-strip sentence with the file name, the counts, the unit and the measured gap, plus Show in Finder. The dialog is gone; the foil is unchanged.'] },
+  failed:{ title:'Write failed', flow:[['Write', 0], ['Failure', 3], ['Choose another place or try again', 0]],
+    shows:['Plain cause, then what is safe: nothing changed and the earlier file is still there (temp file, then rename). Choose another place… reopens the save panel; Try again repeats the write.',
+           'Mesh did not close: a defensive fail-closed state that should not occur; nothing is written. The technical line is a fixed example, not a measurement.'] },
+  cancelled:{ title:'Cancelled', flow:[['Export…', 0], ['Panel or dialog closed', 2], ['Nothing written', 0]],
+    shows:['Escape or Cancel anywhere ends the flow with one strip sentence and writes nothing. Focus returns to the menu item that opened the dialog.'] }
+};
+const CLAIMS = ['Focus moves into a dialog when it opens, onto its default button.', 'Escape closes the dialog (Cancel).', 'Enter activates the default button; Enter in a field does not.', 'Tab and Shift+Tab stay inside the dialog.', 'The format list is one radiogroup: Tab enters it once, arrow keys move the choice.'];
+function renderNotes(){
+  const n = NOTES[S.state];
+  const flow = n.flow.map(f => `<li class="${f[1] === 2 ? 'on' : f[1] === 3 ? 'no' : ''}">${esc(f[0])}</li>`).join('');
+  $('notes').innerHTML = `<section data-annot><h2>${esc(n.title)}</h2><ol class="flow" aria-label="Flow">${flow}</ol>${n.shows.map(s => `<p>${esc(s)}</p>`).join('')}<p class="mute">Receipts: ${esc(foil().src)}.</p></section>
+  <section data-annot><h2>Keyboard</h2><ul>${CLAIMS.map(c => `<li>${esc(c)}</li>`).join('')}</ul><p class="mute">The native save panel keeps the platform's keys. Copy rows EX01 to EX43 are proposed in docs/design/export.md section 8.</p></section>`;
+}
+
+$('state').addEventListener('change', e => { S.state = e.target.value; S.detail = DETAILS[S.state][0][0]; setState({}); });
+$('detail').addEventListener('change', e => setState({ detail:e.target.value }));
+$('foil').addEventListener('change', e => { S.foil = e.target.value; S.station = 'root'; render({ focus:false }); });
+$('theme').addEventListener('change', e => { S.theme = e.target.value; render({ focus:false }); });
+$('reduce').addEventListener('change', e => { S.reduce = e.target.checked; render({ focus:false }); });
+window.__exd = { S, FOILS, COPY, t, mesh, finding, fileName, rungFor };
+render({ focus:false });
+</script>
+</body>
+</html>

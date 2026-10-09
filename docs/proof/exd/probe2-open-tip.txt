@@ -1,0 +1,4 @@
+eta=1 chord_mm=120.000 tc=0.12 twist=-2
+N=61 perSurface points=121 Selig; max perpendicular deviation = 1.703E-004 c = 20.43 um at this chord; TE gap = 0.002131 c = 0.2557 mm; tmax = 0.12000 c
+N=101 perSurface points=201 Selig; max perpendicular deviation = 6.166E-005 c = 7.40 um at this chord; TE gap = 0.002131 c = 0.2557 mm; tmax = 0.12000 c
+N=201 perSurface points=401 Selig; max perpendicular deviation = 1.544E-005 c = 1.85 um at this chord; TE gap = 0.002131 c = 0.2557 mm; tmax = 0.12000 c

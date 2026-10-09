@@ -1,0 +1,17 @@
+parsed=True
+status=Certified code=GEOMETRY-CERTIFIED reason=Continuous conservative subset certified. work=7069164
+  edges=6288 noMate=0 dupDirected=0
+S=11 C=26 secs=11 surfMs=7 tris=2096 verts=1050 manifold=True euler=2 volume_cm3=895.447 degenDropped=44 dev_chord_mm=0.1265 dev_span_mm=0.6716 dev_diag_mm=0.7028 bytesBin=104884
+  edges=24588 noMate=0 dupDirected=0
+S=21 C=51 secs=21 surfMs=5 tris=8196 verts=4100 manifold=True euler=2 volume_cm3=900.222 degenDropped=84 dev_chord_mm=0.0317 dev_span_mm=0.1732 dev_diag_mm=0.1787 bytesBin=409884
+  edges=54888 noMate=0 dupDirected=0
+S=31 C=76 secs=31 surfMs=8 tris=18296 verts=9150 manifold=True euler=2 volume_cm3=901.107 degenDropped=124 dev_chord_mm=0.0141 dev_span_mm=0.0777 dev_diag_mm=0.0798 bytesBin=914884
+  edges=97188 noMate=0 dupDirected=0
+S=41 C=101 secs=41 surfMs=9 tris=32396 verts=16200 manifold=True euler=2 volume_cm3=901.418 degenDropped=164 dev_chord_mm=0.0079 dev_span_mm=0.0439 dev_diag_mm=0.0450 bytesBin=1619884
+  edges=386388 noMate=0 dupDirected=0
+S=81 C=201 secs=81 surfMs=20 tris=128796 verts=64400 manifold=True euler=2 volume_cm3=901.717 degenDropped=324 dev_chord_mm=0.0020 dev_span_mm=0.0111 dev_diag_mm=0.0113 bytesBin=6439884
+  edges=1540788 noMate=0 dupDirected=0
+S=161 C=401 secs=161 surfMs=49 tris=513596 verts=256800 manifold=True euler=2 volume_cm3=901.791 degenDropped=644 dev_chord_mm=0.0005 dev_span_mm=0.0028 dev_diag_mm=0.0028 bytesBin=25679884
+root TE gap mm=0.0000 chord mm=127.042 tip TE gap mm=0.0000 tipchord mm=12.704
+bounds mm X[-0.01,127.08] Y[0.00,500.00] Z[-7.63,7.63]  LEexact=True rootY=0
+tipPlanar=True stationEtas=0,1

@@ -1,0 +1,49 @@
+using System.Text;
+using CfdWorkbench.Core;
+
+string text = args[0] == "default" ? Encoding.UTF8.GetString(FoilSource.NewDefault()) : File.ReadAllText(args[0]);
+double teHalf = double.Parse(args[1]);
+if (teHalf > 0)
+{
+    text = text.Replace("(0.9, 0.01), (1, 0)] ids", $"(0.9, 0.01), (1, {teHalf})] ids");
+    text = text.Replace("(0.9, -0.01), (1, 0)] ids", $"(0.9, -0.01), (1, {-teHalf})] ids");
+    text = text.Replace("\"cv-6\", \"cv-7\"] }\n    }", "\"cv-6\", \"cv-7\"] }\n      closure open\n    }");
+}
+byte[] src = Encoding.UTF8.GetBytes(text);
+double eta = double.Parse(args[2]);
+var frame = Placement.Frame(src, eta);
+Console.WriteLine($"eta={eta} chord_mm={frame.ChordMeters * 1e3:F3} tc={frame.ThicknessRatio} twist={frame.TwistDegrees}");
+foreach (int n in new[] { 61, 101, 201 })
+{
+    int m = 2 * n - 1;
+    var xs = new double[m];
+    for (int i = 0; i < m; i++) xs[i] = i == 0 ? 0 : i == m - 1 ? 1 : (1 - double.CosPi(i / (double)(m - 1))) / 2;
+    var s = Placement.Sections(src, new[] { eta }, xs, CancellationToken.None)[0];
+    double[] zu = new double[m], zl = new double[m];
+    for (int i = 0; i < m; i++) { zu[i] = s.Camber[i] + s.Thickness[i] / 2; zl[i] = s.Camber[i] - s.Thickness[i] / 2; }
+    // coarse points are even indices; midpoints are odd indices
+    double dev = 0;
+    for (int i = 1; i < m; i += 2)
+    {
+        foreach (var z in new[] { zu, zl })
+        {
+            double ax = xs[i - 1], ay = z[i - 1], bx = xs[i + 1], by = z[i + 1], px = xs[i], py = z[i];
+            double dx = bx - ax, dy = by - ay, len = Math.Sqrt(dx * dx + dy * dy);
+            double d = Math.Abs(dy * (px - ax) - dx * (py - ay)) / len;
+            dev = Math.Max(dev, d);
+        }
+    }
+    double gap = zu[m - 1] - zl[m - 1];
+    if (n == 101)
+    {
+        var ci = System.Globalization.CultureInfo.InvariantCulture;
+        var xr = new double[n];
+        for (int i = 0; i < n; i++) xr[i] = xs[2 * i];
+        var rows = new List<string>();
+        for (int i = n - 1; i >= 0; i--) rows.Add(xr[i].ToString("R", ci) + " " + zu[2 * i].ToString("R", ci));
+        for (int i = 1; i < n; i++) rows.Add(xr[i].ToString("R", ci) + " " + zl[2 * i].ToString("R", ci));
+        Console.WriteLine("ROWS " + rows.Count);
+        foreach (int k in new[] { 0, 1, 2, 98, 99, 100, 101, 102, 198, 199 }) Console.WriteLine($"row {k + 1}: {rows[k]}");
+    }
+    Console.WriteLine($"N={n} perSurface points={2 * n - 1} Selig; max perpendicular deviation = {dev:E3} c = {dev * frame.ChordMeters * 1e6:F2} um at this chord; TE gap = {gap:F6} c = {gap * frame.ChordMeters * 1e3:F4} mm; tmax = {s.Thickness.Max():F5} c");
+}
