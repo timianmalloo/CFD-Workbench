@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:26:28Z",
+  "generated": "2026-10-09T02:27:55Z",
   "audit": [
     {
       "actor": null,
@@ -31923,6 +31923,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Make Telemetry_MarkerInjection_AbsentEverywhere portable to Windows",
       "done_when": "Red-first helper check, full ring green, check-docs exit 0"
+    },
+    {
+      "id": "al-01M4F7T4C6KFMC9QR38PQSATV1",
+      "shortname": "join-tmi",
+      "datetime": "2026-10-09T02:27:55Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/tmi-marker-path into main",
+      "summary": "TMI joined: CopyMarkerFiles uses a real win folder where backslash is a separator; backslash-in-name kept on macOS; red-first helper check recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the marker-path portability fix",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T02:26:56Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
