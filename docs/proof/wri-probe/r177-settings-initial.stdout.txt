@@ -1,0 +1,5 @@
+utc_start=2026-10-09T02:53:07.7902765Z
+utc_end=2026-10-09T02:53:09.8647438Z
+wall_seconds=2.073857
+Settings=System > Display; primary=\\.\DISPLAY1; Display1Selected=True; Display2Selected=False; MainMonitor=On
+ScaleSelected=150% (Recommended)

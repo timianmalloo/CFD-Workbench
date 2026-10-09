@@ -1,0 +1,7 @@
+Could not reacquire exact main-monitor checkbox and scale combo within 55 seconds.
+At C:\Projects\CFD-Workbench-win-wri-p6-r177\tools\r178-settings.ps1:24 char:45
++ ... eq $main) { throw "Could not reacquire exact main-monitor checkbox an ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Could not reacq...hin 55 seconds.:String) [], RuntimeException
+    + FullyQualifiedErrorId : Could not reacquire exact main-monitor checkbox and scale combo within 55 seconds.
+ 

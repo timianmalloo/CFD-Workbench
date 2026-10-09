@@ -1,0 +1,1 @@
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/r178-settings.ps1 -Action Verify *> docs/proof/wri-probe/r178-settings-initial.stdout.txt; Write-Output "SETTINGS_EXIT=$LASTEXITCODE"; Get-Content docs/proof/wri-probe/r178-settings-initial.stdout.txt

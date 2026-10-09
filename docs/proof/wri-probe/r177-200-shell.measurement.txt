@@ -1,0 +1,11 @@
+﻿start_utc=2026-10-09T02:57:37.6460293Z
+end_utc=2026-10-09T02:57:40.6215543Z
+wall_seconds=2.966600
+pid=28904
+exit=
+affinity=0x3F
+sdk=10.0.203
+head=4383089735b27586efed93657606fce37317fc07
+settings_selected_context=200%
+selector=KeyBindings_MenuGesture_NotBound
+mode=--shell-window

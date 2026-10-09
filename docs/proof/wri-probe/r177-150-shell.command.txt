@@ -1,0 +1,6 @@
+DOTNET_ROOT=%USERPROFILE%\.dotnet
+PATH=%USERPROFILE%\.dotnet;%PATH%
+CFD_SETTINGS_SELECTED_SCALE_CONTEXT=150% (Recommended)
+CFD_TEST_ONLY=KeyBindings_MenuGesture_NotBound
+%USERPROFILE%\.dotnet\dotnet.exe exec <repo>\tests\CfdWorkbench.Desktop.Tests\bin\Release\net10.0\CfdWorkbench.Desktop.Tests.dll --shell-window
+Affinity=0x3F

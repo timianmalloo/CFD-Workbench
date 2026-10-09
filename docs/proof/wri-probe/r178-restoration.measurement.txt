@@ -1,0 +1,3 @@
+restoration_action=NOT_REQUIRED; the Ruling 178 attempt made no display-scale selection
+last_direct_Ruling177_restoration=SettingsSelected=150% (Recommended), RenderScaling=1.5, PrimaryScaling=1.5 (historical capture)
+current_scale_after_Ruling178_attempt=NOT_RECORDED; UIA could not reacquire the exact display and scale controls
