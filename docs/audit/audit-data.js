@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:12:04Z",
+  "generated": "2026-10-09T03:13:06Z",
   "audit": [
     {
       "actor": null,
@@ -32172,6 +32172,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "readiness runs check-docs",
       "done_when": "mismatched manifest turns readiness RED; readiness GREEN at HEAD"
+    },
+    {
+      "id": "al-01M4FACW16SM7AYH4QH49QJ2A7",
+      "shortname": "join-rcd",
+      "datetime": "2026-10-09T03:13:06Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/rcd-readiness-docs into main",
+      "summary": "RCD joined: check-docs is the first readiness step; a mismatched capture manifest now turns readiness RED recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the readiness check-docs step",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T03:12:53Z",
+      "duration_seconds": 13.0
     }
   ],
   "changes": [
