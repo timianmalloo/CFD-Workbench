@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T20:16:34Z",
+  "generated": "2026-10-09T20:17:35Z",
   "audit": [
     {
       "actor": null,
@@ -33356,6 +33356,35 @@ window.AUDIT_DATA = {
       "done_when": "docs/proof/pce/investigation.md committed, check-docs exit 0",
       "started_at": "2026-10-09T20:04:04Z",
       "duration_seconds": 750.0
+    },
+    {
+      "id": "al-01M4H50R7RA6M0W8NW9RPTBR89",
+      "shortname": "join-pce",
+      "datetime": "2026-10-09T20:17:35Z",
+      "session": "3122f106",
+      "prompt": "the join of inv/pce-escape-flake into main",
+      "summary": "Joined PCE investigation: Escape clears TooltipText but a refresh re-derives it from lastHover; held-seam repro; product repair proposed recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/pce/investigation.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "the flake's root cause is on main for review",
+      "done_when": "join gates green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T20:17:19Z",
+      "duration_seconds": 16.0
     }
   ],
   "changes": [
