@@ -2163,6 +2163,10 @@ reviewer vetoed it at the 2/2 repair cap.
   `run-readiness.py` `run_entry`); the PR #19 join stopped at step 8 on the Mac. Control: `tools/run-windows-store-gate.py
   --self-test` (each exit and the timeout, stub child) and `tools/run-readiness.py --self-test` (`ENTRY_RULES` exit map and
   per-entry timeout). Sweep: a new `tools/verify-*.py` with a non-pass/fail exit needs a join wrapper and an `ENTRY_RULES` row.
+- *2026-10-09 sibling (rule lookup by any argument):* `rule_for` matched `ENTRY_RULES` against every argument, so the
+  `run-verify-gates.py --skip ... verify-windows-store.py` line took the verifier's rule (60 s, exit 4 excluded, evidence label).
+  Control: a rule applies to the executed script only; `tools/run-readiness.py --self-test` runs a script that exits 4 with the
+  ruled name in `--skip` and requires red (`docs/proof/rrf/red-first.md`).
 
 **FIXTURE-RESET-WITHOUT-DRAIN · A shared-fixture reset returns before the previous check's background job lands, and the next check captures a baseline that depends on that job.**
 `Elevation_ZoomPanFit_KeyboardAndPointerSameCamera` failed once in `--views --part=1/2` as "⌘0 fits" (load 1.9 to 16).
@@ -2206,6 +2210,10 @@ is not a store failure: it is a ninth Windows-platform name for the class-(a) in
 The PC ring failed eight Desktop checks at an Inferred 150 % scale (Ruling 173/174; `docs/proof/wri/investigation.md`). Avalonia rounds
 border, padding and margin per edge with `Math.Round(v * s) / s` (half to even), so 1 DIP renders as 1.333 and 3 DIP as 2.667 at 1.5.
 A content-sized `TextBox.prop-b` came to 35 px = 23.33 DIP, under the 24 DIP target floor (WCAG 2.2 SC 2.5.8): a real product miss.
+*2026-10-09 (Ruling 178).* The scale is now **Verified 150 % (P2, 93240b06; tested head 842e575d)**: in-process RenderScaling
+1.5, Screens.Primary.Scaling 1.5, UseLayoutRounding true (`docs/proof/wri-probe/instrumented.stdout.txt:1`). P4 measured the
+pre-WDF TextBox at 23.333 DIP = 35 px. Items 3, 4 and 5 are scale effects (rounded view-frame borders; a 2/3-DIP sampling
+seam), item 6 is open, and WDF's green at 1.5 waits on the Ruling 177 P6.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
@@ -2230,3 +2238,21 @@ On 2026-10-09 the VWR join (PR #19's verifier plus its wiring) added `verify-win
   leader treats a step-8 stop on a newly skipped gate as that case, not as a defect.
 - *Prevent:* the pack file is pack-managed (not edited here). The control is this entry plus the continuation prompt's
   join steps. Status: pending a pack-side reload, noted for `/updatepack`.
+
+**POST-JOIN-EDIT-UNGATED · A commit made after a join completes skips the join's gates, and readiness does not run them.**
+On 2026-10-09 the Mac leader met PR #20's two join conditions with a commit made **after** `conductor-join.py` had
+finished. One edit went into `docs/proof/wri-probe/receipt.md`, which the PC's `capture-manifest.json` pins byte for
+byte. `tools/run-readiness.py` was GREEN, because readiness does not run check-docs or the capture check, so main was
+pushed at 87436728 with `check-capture-manifests.py` failing (8342 bytes declared, 8718 committed). The leader caught it
+on a re-check, restored the pinned bytes, and moved the note to `mac-join-note.md`.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* any change committed between a completed join and the push, outside a `--continue`.
+- *Sweep:* the earlier post-join edits this session (the PR #12 receipt line, the PR #17 index refresh) went through a
+  `--continue`, or touched no pinned file.
+- *Derive:* a join condition is applied before the join completes: fix on top of the merge, then `--continue`, never
+  as a later commit. A file listed in any capture or closing manifest is never edited; an annotation goes in a sibling
+  file.
+- *Prevent:* the leader runs `python3 tools/check-docs.py` before every push that follows a non-join commit (session
+  rule). Status: pending a mechanical control. Proposal: readiness gains a `check-docs` step, or the pre-push hook runs
+  it.
