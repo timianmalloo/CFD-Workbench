@@ -1,0 +1,12 @@
+utc_start=NOT_RECORDED
+utc_end=NOT_RECORDED
+wall_seconds=NOT_RECORDED
+uia_wait_limit_seconds=55
+exit=NOT_RECORDED
+tested_head=d3be9974c893c2f98fb79d99a326535f9f1535bb
+result=BLOCKED: exact SystemSettings_Display_MainMonitor_CheckBox and SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox not reacquired within the bounded UIA wait
+scale_change=none
+named_checks_launched=none
+restoration=not_required; this attempt made no scale change
+current_settings_selection=NOT_RECORDED
+temporary_instrumentation=removed before capture finalization

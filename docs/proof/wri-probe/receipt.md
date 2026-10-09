@@ -10,10 +10,10 @@ links:
   - { to: proof-wri-investigation, rel: relates-to }
 review-by: "2027-04-09"
 summary: >-
-  Ruling 177 P6: all eight named checks ran at Settings-selected 150% and 200%. All
-  passed at 200%; at 150%, checks 1, 7, and 8 passed (3 PASS) while checks 2-6 failed (5 FAIL). Settings
-  was restored to 150%, and a fresh process reported Avalonia 1.5/1.5. The receipt is
-  partial because the 150% results include failures and check 2 is unexpected.
+  Ruling 177 P6: eight named checks ran at Settings-selected 150% and 200%. All eight
+  passed at 200%; at 150%, three passed and five failed. Ruling 178's ninth check and
+  supplemental item-6 bounds were not assessed because exact Settings UIA targets were
+  not reacquired within 55 seconds; no scale change or check run followed.
 ---
 
 # WRI Windows scale probe
@@ -77,11 +77,14 @@ The three test-process invocations per scale used selector partitions: `--shell-
 | 6 | `PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs` | FAIL: input digits end 218.33, fact digits end 217.33 | PASS: both end at 218 |
 | 7 | `PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused` | PASS | PASS |
 | 8 | `PropertiesPane_Density_EveryTargetAtLeast24` | PASS | PASS |
+| 9 | `PropertiesPane_Density_EveryInputDeclaresMinHeightOf24` | NOT ASSESSED: UIA target reacquisition failed before tests | NOT ASSESSED: no scale change or tests after UIA failure |
 
 Ruling 177 predicts checks 1, 2, 7, and 8 should pass at 150% as well as 200%; check 2's 150% failure is therefore unexpected. It is recorded without diagnosis. The observed 150% total is 3 PASS / 5 FAIL; the 200% total is 8 PASS. Checks 3–6 failed at 150% and passed at 200%. Check 6 measured digit-end delta 1.00 DIP at 150% and 0 DIP at 200%; its interpretation remains held under Ruling 177 pending the P4 explanation. P3 diagnostics in the same check-3 process include layout, visibility, ThreeD and PlanContent widths, Window.Bounds, and ClientSize at both scales.
 
+Ruling 178 requested a ninth named check and PointAftInput/Value_p_eta bounds during check 6 at both scales. The supplemental attempt did not reacquire the exact `SystemSettings_Display_MainMonitor_CheckBox` and scale combo within its 55-second UIA wait. The captured failure is in `r178-settings-initial.stdout.txt`; the command and timing limitation are recorded in the adjacent `r178-*` files. No scale selection was changed, and no check was launched. Thus the ninth check is NOT ASSESSED at either scale, and the supplemental item-6 bounds are NOT RECORDED. This attempt did not establish the current Settings selection; the prior Ruling 177 restoration measurement remains historical evidence only.
+
 The process start marker for the 20-minute task cap was not captured. Per coordinator instruction, 03:08 UTC was the conservative action deadline. The last scale action was restoration, completed at 02:58:25 UTC; the fresh restoration diagnostic completed at 02:59:08 UTC. Temporary instrumentation was then reverted. The harness source hashes and built DLL hash are in `r177-temporary-hashes.txt`; raw scale, test, build, and restore evidence is in the adjacent `r177-*` files.
 
-The earlier P2/P3/P5 command selected four checks and invoked `--views --properties-cells`; its selector mismatch is retained in the prior raw capture. P4 was run separately. Those earlier measurements remain separate from the Ruling 177 scale comparison. One repair cycle of the two-cycle cap was used for NuGet assets restore followed by a successful build; no scale or named-check rerun was used as a repair. The final diff contains no source or test changes.
+The earlier P2/P3/P5 command selected four checks and invoked `--views --properties-cells`; its selector mismatch is retained in the prior raw capture. P4 was run separately. Those earlier measurements remain separate from the Ruling 177 scale comparison. One Ruling 177 repair cycle of the two-cycle cap was used for NuGet assets restore followed by a successful build. The Ruling 178 final repair cycle stopped at the bounded UIA target-reacquisition failure; no scale change, named-check rerun, or source change was made. The final diff contains no source or test changes.
 
 `capture-manifest.json` records the byte count and SHA-256 for each other file in this proof folder. It is verified against committed Git blobs by `tools/check-capture-manifests.py`.

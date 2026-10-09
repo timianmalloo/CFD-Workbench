@@ -16436,7 +16436,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2027-04-09",
       "reviewSuggested": [],
-      "summary": "Ruling 177 P6: all eight named checks ran at Settings-selected 150% and 200%. All passed at 200%; at 150%, checks 1, 7, and 8 passed (3 PASS) while checks 2-6 failed (5 FAIL). Settings was restored to 150%, and a fresh process reported Avalonia 1.5/1.5. The receipt is partial because the 150% results include failures and check 2 is unexpected.",
+      "summary": "Ruling 177 P6: eight named checks ran at Settings-selected 150% and 200%. All eight passed at 200%; at 150%, three passed and five failed. Ruling 178's ninth check and supplemental item-6 bounds were not assessed because exact Settings UIA targets were not reacquired within 55 seconds; no scale change or check run followed.",
       "tags": [
         "windows",
         "dpi",
@@ -16450,7 +16450,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "fe282ffccc518b6f79d68e0e5c1c4e29d600c40a0926b08886688c377cdb2240"
+      "sourceSha256": "e8b469bc5811d78ffc46e0452ad36a8d950f417ab62ce604983ce721d343c4d5"
     },
     {
       "id": "proof-wrt-red-first",
@@ -18441,5 +18441,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "601a5e2c0b5b073e68891aba756b6533964ae5a7bc0afe6697a0f0868b2b0f6b"
+  "graphSha256": "f4d441233c129fd8da14b460595bf9578756a7400eac503144dba14c125e9a5f"
 };

@@ -13,3 +13,4 @@ docs/lessons/defect-classes.md merge=defect-register
 docs/proof/win-store-implementation/*.stdout.txt -text
 docs/proof/win-store-implementation/*.stderr.txt -text
 docs/proof/wri-probe/r177-* -text whitespace=cr-at-eol
+docs/proof/wri-probe/r178-* -text whitespace=cr-at-eol
