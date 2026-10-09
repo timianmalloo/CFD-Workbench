@@ -1,0 +1,59 @@
+{
+  "files": [
+    {
+      "path": "docs/proof/copy447-reachability/capture/build.stderr.txt",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/build.stdout.txt",
+      "bytes": 84,
+      "sha256": "ca70235801f32a60e84c328a77cf274960d90c38063b20ce8d85e719d1703b2d"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/create-only.stderr.txt",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/create-only.stdout.txt",
+      "bytes": 1593,
+      "sha256": "cc228a0d5a88306bdff7a095ab2ab43035dbb2870fef84a272011a29df8f61a3"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/overwrite.stderr.txt",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/overwrite.stdout.txt",
+      "bytes": 2035,
+      "sha256": "fe9aa8b4fc451f4cf7c2aee15eade50da70b86d75d0879d6295b3cf03ec2c601"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/pii-metadata.json",
+      "bytes": 1017,
+      "sha256": "6df98f45e82f53a8224ed704efe70f442d501ad594c33fe5647ac0c89be2a77d"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/pii.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/pii.stdout.txt",
+      "bytes": 68,
+      "sha256": "f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/self-test.stderr.txt",
+      "bytes": 2,
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6"
+    },
+    {
+      "path": "docs/proof/copy447-reachability/capture/self-test.stdout.txt",
+      "bytes": 78,
+      "sha256": "a53eeddeb2699f008e0d36dab1b7f2f74d613b0fe3cc13f4f227daebe99ab36e"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "copy447-packaging-pii/v1",
+  "purpose": "privacy check for retained partial evidence only; no probe or SaveAsync execution",
+  "command": [
+    "py",
+    "-3",
+    "tools/check-proof-pii.py"
+  ],
+  "hostnameEnvironment": "%COMPUTERNAME%",
+  "numericExit": 0,
+  "timedOut": false,
+  "wallMilliseconds": 9160.1928,
+  "childWallMilliseconds": 7364,
+  "phnStatus": "PASS",
+  "rootExitDescendants": 0,
+  "retainedHandle": true,
+  "cleanup": "none-active-verified",
+  "residualStatus": "job-active-zero-verified",
+  "rawStdoutSha256": "f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747",
+  "rawStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "runnerEvents": [
+    "target-root-exit:0",
+    "target-job-query",
+    "target-job-close"
+  ],
+  "outputSha256": {
+    "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout": "f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747"
+  }
+}

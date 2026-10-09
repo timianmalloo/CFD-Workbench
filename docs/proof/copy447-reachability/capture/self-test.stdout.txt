@@ -1,0 +1,2 @@
+SELFTEST PASS inventory hashes known bytes and records absent/file entries
+
