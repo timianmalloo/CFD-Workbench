@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:52:34Z",
+  "generated": "2026-10-08T23:59:21Z",
   "audit": [
     {
       "actor": null,
@@ -31037,6 +31037,55 @@ window.AUDIT_DATA = {
     {
       "actor": null,
       "artifacts": [],
+      "datetime": "2026-10-08T23:47:34Z",
+      "id": "al-01M4EYMHCVKTQWD9GT5N2SDYA8",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Ruling 163 P5: on current main 77e53062 run the Windows test ring once with six logical processors and a 60-second ceiling; preserve partial logs and report catalog class-(d) plus RWF DRIFT evidence. Record the Ruling 163 C3 raw-capture normalization incident with a committed-blob SHA-256 and byte-count control.",
+      "session": "win-r163-ring-20261008",
+      "shortname": "Ruling 163 P5 Windows ring",
+      "skill": null,
+      "summary": "One bounded Windows ring and Ruling 163 C3 evidence/control.",
+      "tags": [
+        "windows",
+        "ruling-163"
+      ],
+      "tool": null
+    },
+    {
+      "actor": "codex",
+      "artifacts": [
+        "docs/proof/r163-windows-ring/receipt.md",
+        "docs/proof/r163-windows-ring/run.json",
+        "docs/proof/r163-windows-ring/capture-manifest.json",
+        "docs/lessons/defect-classes.md",
+        "docs/reviews/pr-13.md"
+      ],
+      "datetime": "2026-10-08T23:47:42Z",
+      "done_when": "One constrained ring is preserved with exact status, catalog class-(d) and RWF drift observations are reported, and committed raw captures verify against the receipt manifest.",
+      "fan_out": 0,
+      "git": {
+        "branch": "win/r163-ring",
+        "pushed": null,
+        "sha": "77e53062df26ded482df6d35c27e83f3efabbb3a",
+        "short": "77e53062d"
+      },
+      "goal": "Measure Ruling 163 P5 on current Windows main and add the Ruling 163 C3 raw-capture integrity control.",
+      "id": "al-01M4EYMRXCKKRKQW7VS22N7R6X",
+      "kind": "manual",
+      "outcome": "partial",
+      "prompt": "Run one six-logical-processor Windows ring on current main 77e53062, capped at 60 seconds. Report catalog class-(d) and exact RWF DRIFT output, preserving incomplete logs. Add only proof and required Ruling 163 C3 audit/index/defect artifacts.",
+      "session": "win-r163-ring-20261008",
+      "shortname": "r163-windows-ring",
+      "skill": null,
+      "summary": "One ring on 77e53062 stopped at 60.422 s, exit 124: Release build passed with 0 errors and two AVLN3001 warnings; harness ring incomplete, P5 unverified. Partial logs show Catalog_GenEntries_RegenerateToRecordedHash PASS and all nine Catalog tests PASS. Four RWF check methods emitted five DRIFT lines: lambda-fit 0; tangent-angle 0; dat-rotation 0; handle-polar-section 0; handle-polar-target 6.1232339957367663E-18 (limit 1e-06). Raw captures are bound by receipt SHA-256/byte count and verify-captures.py.",
+      "tags": [],
+      "tier": "T1",
+      "tool": "run-tests.sh"
+    },
+    {
+      "actor": null,
+      "artifacts": [],
       "compiled": false,
       "datetime": "2026-10-08T23:46:10Z",
       "done_when": "join gates green",
@@ -31115,31 +31164,31 @@ window.AUDIT_DATA = {
       "tool": "Codex"
     },
     {
-      "id": "al-01M4EYXNRE6DDZFF8J37C0GRTF",
-      "shortname": "join-pr15",
-      "datetime": "2026-10-08T23:52:34Z",
-      "session": "3122f106",
-      "prompt": "the join of origin/win/store-product-code into main",
-      "summary": "PR #15 joined: ProductCode DOC-CONFLICT for Win32 32, null otherwise; 183-unmapped control; Ruling 152 (4) closed recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join PR #15 under Ruling 166",
+      "datetime": "2026-10-08T23:52:34Z",
       "done_when": "join gates green",
-      "tier": "T1",
+      "duration_seconds": 51.0,
       "fan_out": 0,
+      "goal": "join PR #15 under Ruling 166",
+      "id": "al-01M4EYXNRE6DDZFF8J37C0GRTF",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of origin/win/store-product-code into main",
+      "session": "3122f106",
+      "shortname": "join-pr15",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-08T23:51:43Z",
-      "duration_seconds": 51.0
+      "summary": "PR #15 joined: ProductCode DOC-CONFLICT for Win32 32, null otherwise; 183-unmapped control; Ruling 152 (4) closed recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     }
   ],
   "changes": [

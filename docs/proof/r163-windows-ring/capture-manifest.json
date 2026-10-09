@@ -1,0 +1,87 @@
+{
+  "tested_head": "77e53062df26ded482df6d35c27e83f3efabbb3a",
+  "created_utc": "2026-10-08T23:46:32.681111+00:00",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "docs/proof/r163-windows-ring/run.stdout.txt",
+      "bytes": 1542,
+      "sha256": "868692a50130facf30119df471d7e4f387b9f5efd0ebec1f65d5bd0d2a8198b4"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/run.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Analysis.part1of2.log",
+      "bytes": 12447,
+      "sha256": "3d7b4e5bdf2e18b0d72345a3d72f46a906c5ef2b14eeffac33745a381fb35c18"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Analysis.part1of2.ms",
+      "bytes": 6,
+      "sha256": "fc50e86a37cf4704953144849829a8e900c06bf1e0b89172d2f76c49f86d94b0"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Analysis.part1of2.seconds",
+      "bytes": 3,
+      "sha256": "f14b4987904bcb5814e4459a057ed4d20f58a633152288a761214dcd28780b56"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Analysis.part2of2.log",
+      "bytes": 16618,
+      "sha256": "dc4674c743b852fff18b3cbf4753d32761bac52804be002f26273a61fb819337"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Analysis.part2of2.ms",
+      "bytes": 6,
+      "sha256": "5ae0f21ffb49ea409198e0e39ab2e186f1eef1a6cd1622dbd61175821ad294bf"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Analysis.part2of2.seconds",
+      "bytes": 3,
+      "sha256": "7ee29791fc17e986b97128845622b077fb45e349fdb80523fac9dba879b4ad60"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/build.ms",
+      "bytes": 6,
+      "sha256": "2db8cc1d920fdb7dec9ff8b00efedb35a8f83d9648c38271f4c48a7842f7f587"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Cli.log",
+      "bytes": 696,
+      "sha256": "8d63f6994f52ec1e154e87b4e9f575b73be75cfa8b373fe7c8a2ba7e5b696628"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Cli.ms",
+      "bytes": 5,
+      "sha256": "9ac3c77d757e63887b11ff952431e3a55051634c7783dbf153ec592f36703168"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Cli.seconds",
+      "bytes": 2,
+      "sha256": "2e6d31a5983a91251bfae5aefa1c0a19d8ba3cf601d0e8a706b4cfa9661a6b8a"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Core.part1of3.log",
+      "bytes": 9050,
+      "sha256": "d00cfee7b3c9041d2e844841eb7ed179dda209a5271f67eeb82b4d16421239dd"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Core.part2of3.log",
+      "bytes": 7263,
+      "sha256": "c6a4258a1f3fe792d5f770b68656c64aca09af4b2ca0162465f1d133b213c1b9"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Core.part3of3.log",
+      "bytes": 6769,
+      "sha256": "5c6f701adcfe2540ca7ec9fd9050d987df264e091ce90479854467d3e7640496"
+    },
+    {
+      "path": "docs/proof/r163-windows-ring/raw-suites/Desktop.log",
+      "bytes": 4559,
+      "sha256": "323cb26ab72ac09ac1524abd09148d2eac443969ef15996f1696f1b440cf5ea3"
+    }
+  ]
+}

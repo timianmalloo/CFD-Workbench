@@ -1,0 +1,4 @@
+*.txt -text whitespace=cr-at-eol
+*.log -text whitespace=cr-at-eol
+*.ms -text whitespace=cr-at-eol
+*.seconds -text whitespace=cr-at-eol
