@@ -2214,6 +2214,9 @@ A content-sized `TextBox.prop-b` came to 35 px = 23.33 DIP, under the 24 DIP tar
 1.5, Screens.Primary.Scaling 1.5, UseLayoutRounding true (`docs/proof/wri-probe/instrumented.stdout.txt:1`). P4 measured the
 pre-WDF TextBox at 23.333 DIP = 35 px. Items 3, 4 and 5 are scale effects (rounded view-frame borders; a 2/3-DIP sampling
 seam), item 6 is open, and WDF's green at 1.5 waits on the Ruling 177 P6.
+*2026-10-09 (track DPR).* Item 3 repaired (`DevicePixel.Rounded`; `docs/proof/dpr/red-first.md`). Items 4 and 5 are not: the Elevation
+chip is absent from a device-resolution render (also on the Mac at scale 2), so its fix is not a sampler; the View3d chip sampler
+(`DevicePixel.NearestAtDevice`) waits on an owner of `View3dTests.cs`. Item 6 open; the PC P6 is the Windows proof.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
