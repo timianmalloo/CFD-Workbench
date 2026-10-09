@@ -1655,6 +1655,9 @@ went red twice; use the whole-harness median. Proposed control, not built (the s
 separate process): `tools/check-test-costs.py` prints PARTITION-SKEW when |part 1 - part 2| > 15 % of the C-2 limit (750 ms),
 from the `.ms` files `tools/run-tests.sh` already writes; it costs no run time. Still open: at ring load the two parts hold about
 9.3 s, so 4.5 s per part needs n=3, which needs a ruling.
+2026-10-09 (OBS): the skew control is built. `tools/check-test-costs.py` prints `PARTITION-SKEW <harness> parts=<ms list> skew_ms=<n> (hints stale?)` for
+Core and Analysis when the slowest part minus the fastest exceeds 15 % of the per-part limit; it is advisory and never fails the ring. Its
+self-test plants a balanced and a skewed set. Cost: five `.ms` reads, under 1 ms. The Core limit is a 30,000 ms reference (Core parts read 31.6 / 31.7 / 24.2 s: a real 7.5 s skew, not tuned here), not a ruled limit.
 
 **DESKTOP-HARNESS-GROWTH · A CPU-bound harness whose parts run concurrently cannot be partitioned into margin.** C-4 (Desktop <= 43 s)
 read 42.5 / 43.5 / 42.8 s at quiet load (one red in three), then 45,636 ms at load 21.8 on the PNA join, after every UI track had added
@@ -2131,3 +2134,6 @@ in Desktop's spawn stage, and the PC filed a second decision request. Ruling 170
   - (b) The leader's PC watch now emits `XMSG-FROM-PC <id> <kind>` for every new PC message on `origin/main` and
     `origin/win/*`. This is session tooling, not repo tooling. The repo-level control remains `python3 tools/xmsg.py
     unread`, run at each join (continuation prompt).
+2026-10-09 (OBS): a killed log could not tell slow from hung, because Spawn buffers each child's output and STAGE lines had no time.
+Every Desktop `STAGE <name>` line now carries `elapsed_ms=<since harness start>`, and Spawn prints `SPAWN-START <mode> elapsed_ms=<n>` at
+each child start, unbuffered. A killed log now shows which children had started and how long ago. Checks: `StageTimingTests`.

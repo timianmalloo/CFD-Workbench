@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:40:43Z",
+  "generated": "2026-10-09T00:53:11Z",
   "audit": [
     {
       "actor": null,
@@ -31410,6 +31410,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T00:39:49Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M4F2A93YY4HEVTA3G6SJEXT3",
+      "shortname": "obs-ring-observability",
+      "datetime": "2026-10-09T00:51:53Z",
+      "session": "trk-obs",
+      "prompt": "trk-obs",
+      "summary": "Desktop STAGE lines carry elapsed_ms; Spawn prints SPAWN-START per child unbuffered; check-test-costs prints advisory PARTITION-SKEW for Core and Analysis; two dated lessons",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make the ring log readable when killed: STAGE elapsed, SPAWN-START, PARTITION-SKEW advisory",
+      "done_when": "red-first recorded, ring green, self-test and check-docs pass"
+    },
+    {
+      "id": "al-01M4F2CNN402M71AV2CK0JEERW",
+      "shortname": "join-obs",
+      "datetime": "2026-10-09T00:53:11Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/obs-ring-observability into main",
+      "summary": "OBS joined: STAGE lines carry elapsed_ms, Spawn prints SPAWN-START at child start, check-test-costs prints PARTITION-SKEW; first run found Core part 3 ~7.5 s light recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join ring observability",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T00:52:16Z",
+      "duration_seconds": 55.0
     }
   ],
   "changes": [
