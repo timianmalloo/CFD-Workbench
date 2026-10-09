@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "63e14d07163c93520e029d3f2e1fb325cd3ae39ac67af50761fb1bc9b4cba672"
+      "sourceSha256": "89c52d8221eacb33de26a94aa67f36c974de562c02d5359108e4aaad4142b4ab"
     },
     {
       "id": "domain-experts",
@@ -12552,6 +12552,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "2c327ae792fd61658e4e6c3d11829f42cbe68ff861652200638b19b3c3722084"
     },
     {
+      "id": "proof-dpr-red-first",
+      "path": "docs/proof/dpr/red-first.md",
+      "title": "Track DPR red-first record (DPI-A items 3-5)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-dpr",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Item 3 repaired with red and green runs; item 4 falsified (chip absent at device resolution); item 5 needs View3dTests.cs.",
+      "tags": [
+        "dpi-a",
+        "dpr",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-probe-windows-scale",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-20",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f8994d501f7569260514df1ac2b25fa96101fce7e46c5728be3a8a559a09f523"
+    },
+    {
       "id": "proof-dx-red-first",
       "path": "docs/proof/dx/red-first.md",
       "title": "DX step 2: red-first record, exit evidence and gaps",
@@ -18441,5 +18470,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "259bb31cca7e6f9faff018ae50e061a3e085561d83220c51f7f25270a9e971bc"
+  "graphSha256": "04bc7cbcc2b2b5aa586010d47e3ae562a5f2cf8ccbb6261cda53da7542600a2f"
 };

@@ -572,7 +572,7 @@ public static class ControllerViewTests
             area.ThreeDLabel.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
             fixture.Settle();
             if (fixture.Controller.Layout != ViewLayout.One(SingleView.ThreeD) || area.PlanSlot.IsEffectivelyVisible ||
-                !area.ThreeDSlot.IsEffectivelyVisible || area.ThreeDSlot.Bounds.Width < area.PlanContent.Bounds.Width - 2)
+                !area.ThreeDSlot.IsEffectivelyVisible || area.ThreeDSlot.Bounds.Width < area.PlanContent.Bounds.Width - 2 * DevicePixel.Rounded(area.ThreeDSlot, 1 /* ModelArea.FrameThickness (private) */))
                 throw new Exception("Double-click on the 3D label did not show 3D alone");
             area.ThreeDLabel.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
             fixture.Settle();
@@ -597,6 +597,28 @@ public static class ControllerViewTests
             if (fixture.Controller.Layout != ViewLayout.Four) throw new Exception("Back to Four views did not return to Four views");
             area.FrontLabel.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
             Equal(SingleView.Front, fixture.Controller.TargetView, "a click makes the view the command target");
+        });
+
+        DesktopChecks.Check("DevicePixel_RoundedAndDeviceSampler_MatchTheLoggedWindowsRun", () =>
+        {
+            // DPI-A, Ruling 178: pure arithmetic on the numbers logged at 150 % (docs/proof/wri-probe/instrumented.stdout.txt:4, :13-14).
+            Near(1.3333333333333333, DevicePixel.Rounded(1, 1.5), 1e-12, "1 DIP at 1.5");
+            Near(2.6666666666666665, DevicePixel.Rounded(3, 1.5), 1e-12, "3 DIP at 1.5");
+            Near(1, DevicePixel.Rounded(1, 1), 0, "1 DIP at 1");
+            Near(2, DevicePixel.Rounded(1, 2) * 2, 0, "2 border edges at 2");
+            Near(1130.6666666666667, 1133.3333333333333 - 2 * DevicePixel.Rounded(1, 1.5), 1e-9, "the expected ThreeDSlot width at 1.5 is the logged actual");
+            var station = (R: (byte)0x66, G: (byte)0xdd, B: (byte)0xc8);
+            // The View3d chip top border, 5 x 5 around device pixel (1404, 646) at 1.5: row 646 is exactly StationColor.
+            var device = new (byte R, byte G, byte B)[][]
+            {
+                [(23, 39, 44)], [(23, 39, 44)], [(102, 221, 200)], [(69, 140, 132)], [(36, 58, 64)],
+            };
+            var found = DevicePixel.NearestAtDevice((x, y) => device[y - 644][0], new Point(936, 430.6666666666667), 1.5, station, 2);
+            Equal(station, found, "the device-resolution sampler finds StationColor");
+            // The scale-1 shot of the same border: the 1 DIP line is a blend over a 2/3-DIP seam, 123 from StationColor.
+            var seam = new (byte R, byte G, byte B)[][] { [(23, 39, 44)], [(52, 105, 100)], [(80, 166, 154)], [(36, 58, 64)], [(36, 58, 64)] };
+            var blend = DevicePixel.NearestAtDevice((x, y) => seam[y - 429][0], new Point(936, 430.6666666666667), 1, station, 0);
+            Equal(123, Distance(blend, station), "the scale-1 sampler's blend is far from StationColor");
         });
 
         DesktopChecks.Check("ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView", () =>
