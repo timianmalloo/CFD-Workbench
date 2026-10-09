@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:18:14Z",
+  "generated": "2026-10-09T02:19:50Z",
   "audit": [
     {
       "actor": null,
@@ -31878,6 +31878,33 @@ window.AUDIT_DATA = {
       "done_when": "self-test, run-tests, check-docs, verify gates green; replay 0 failures",
       "started_at": "2026-10-09T02:10:59Z",
       "duration_seconds": 435.0
+    },
+    {
+      "id": "al-01M4F7BAXQ0W02N0EBWBYNJYEG",
+      "shortname": "join-phl",
+      "datetime": "2026-10-09T02:19:50Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/phl-host-limits into main",
+      "summary": "PHL joined: baseline.csv limit lines (part/desktop/wall additive, per-check x1.5, budget 341); docs/proof/ring-pc-win/baseline.csv; 20 fail-closed Desktop names + child-exit rule; WingRun 1 s target to readiness recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the per-host limits and Windows manifest under Rulings 173 and 176",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T02:18:51Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
