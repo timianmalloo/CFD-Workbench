@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T16:20:28Z",
+  "generated": "2026-10-09T16:30:05Z",
   "audit": [
     {
       "actor": null,
@@ -32767,24 +32767,73 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4GQEJQDYJ516XAB6Q0SGH85",
-      "shortname": "join-phn",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/pii/red-first.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-09T16:20:28Z",
-      "session": "3122f106",
+      "done_when": "join gates green, readiness green, PUSH-OK, 0 literal hits on main",
+      "duration_seconds": 106.0,
+      "fan_out": 0,
+      "goal": "Ruling 174 class controlled; no hostname in the tree",
+      "id": "al-01M4GQEJQDYJ516XAB6Q0SGH85",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-phn",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T16:18:42Z",
       "summary": "Joined PHN: hostname guard plus scrub of 10 files; join repaired a register-driver whole-file conflict in rulings.md and a union-revived xmsg line recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T16:25:10Z",
+      "done_when": "prints in real Mac run, subset measured, control red-first, run-tests and check-docs green",
+      "duration_seconds": 754.0,
+      "goal": "Desktop harness prints SCALE_CONTEXT per window mode, ITEM6 bounds and P3 clause, with a control",
+      "id": "al-01M4GQQ60SG7SP7MAW0WS7H4SR",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-msp: committed measurement prints for the Windows scale run",
+      "session": "trk-msp",
+      "shortname": "msp-scale-prints",
+      "skill": "implement",
+      "started_at": "2026-10-09T16:12:36Z",
+      "summary": "SCALE_CONTEXT per mode, ITEM6, P3 prints; Spawn control; readiness subset runs exactly 2 checks in 8.9 s",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4GR06546BBEQJ0EWB600RSZ",
+      "shortname": "join-msp",
+      "datetime": "2026-10-09T16:30:05Z",
+      "session": "3122f106",
+      "prompt": "the join of feat/msp-scale-prints into main",
+      "summary": "Joined MSP: every window mode prints SCALE_CONTEXT; item-6 and item-3 prints; Spawn control fails a mode without the line; subset route runs exactly checks 10 and 11 recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/pii/red-first.md"
+        "docs/proof/msp/receipt.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "Ruling 174 class controlled; no hostname in the tree",
-      "done_when": "join gates green, readiness green, PUSH-OK, 0 literal hits on main",
+      "goal": "the PC runner needs no instrumentation",
+      "done_when": "join gates green, readiness green, PUSH-OK, PC told",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -32792,8 +32841,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T16:18:42Z",
-      "duration_seconds": 106.0
+      "started_at": "2026-10-09T16:29:04Z",
+      "duration_seconds": 61.0
     }
   ],
   "changes": [

@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5953020118f33d580fa1e8f688090823237fe30986c4d195e8172325f90e5577"
+      "sourceSha256": "eb8d02dfd09abdee558882ec8efacf14515f59a03b2e00e953384dce886b4abf"
     },
     {
       "id": "domain-experts",
@@ -13769,6 +13769,48 @@ window.DOCS_INDEX = {
       "sourceSha256": "b35812ccf7b111bca4b6365733cf15a158104f06d75ac3862cdcf8445a7436dc"
     },
     {
+      "id": "proof-msp-receipt",
+      "path": "docs/proof/msp/receipt.md",
+      "title": "MSP committed scale prints",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@trk-msp",
+      "phase": "",
+      "reviewBy": "2026-12-01",
+      "reviewSuggested": [],
+      "summary": "Committed SCALE_CONTEXT, ITEM6 and P3 prints for the Windows scale run, the subset route measurement, and the control.",
+      "tags": [],
+      "links": [
+        {
+          "to": "proof-wri-probe-windows-scale",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bc9540b738d032703fc8c86b2591922f90934c96561e8c153523cd7f5aa80a11"
+    },
+    {
+      "id": "proof-msp-red-first",
+      "path": "docs/proof/msp/red-first.md",
+      "title": "MSP red-first runs",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@trk-msp",
+      "phase": "",
+      "reviewBy": "2026-12-01",
+      "reviewSuggested": [],
+      "summary": "Red-first runs for the SCALE_CONTEXT control.",
+      "tags": [],
+      "links": [
+        {
+          "to": "proof-msp-receipt",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fcf3bc50154c2154d87383faf42a1efe18b1ca6ed52409dc2ff62319a3def1d0"
+    },
+    {
       "id": "proof-native-ui-workbench",
       "path": "docs/proof/native-ui-workbench.md",
       "title": "CFD-Workbench native UI proof obligations",
@@ -18783,5 +18825,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "07c09027f5bd20caf3569b897aee9c3972eecdc90fe600a192e19fca3c567aea"
+  "graphSha256": "d973a4cad26027ede1fda2ab461c43d882eb7798d4379dfd648de749521bdad5"
 };
