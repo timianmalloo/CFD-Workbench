@@ -4,6 +4,7 @@ root=pathlib.Path(__file__).resolve().parents[3]; proof=pathlib.Path(__file__).r
 case=yaml.safe_load((root/'cases/spike04r3-g2-l3.yaml').read_text(encoding='utf-8'))
 case['name']='win-spike04r3-g2-l3'
 case['description']='Ruling 79 Windows L3 D4 freestream-start case prepared but NOT LAUNCHED; no 10-hour wall cap. A4 plus unchanged clause-5 extension; GCI follows admitted L5/L4/L3 only.'
+case['geometry']['source']['generator']='python3 cases/tools/fetch-tmr-grid.py <dir> n0012familyII.3.p2dfmt.gz; cases/tools/run-tmr-case.sh cases/win-spike04r3-g2-l3.yaml <dir>'
 case['purpose']['question']='Does the Ruling 79 uncapped Windows L3 D4 run meet A4 and clause-5 extension, admitting a later L5/L4/L3 triplet?'
 case['backend']=yaml.safe_load((root/'cases/win-spike04r3-g0-l6.yaml').read_text(encoding='utf-8'))['backend']
 case['numerics']['a4'].pop('wall_cap_s')

@@ -9,8 +9,8 @@
     },
     {
       "path": "cases/win-spike04r3-g2-l3.yaml",
-      "bytes": 4826,
-      "sha256": "877b5a85f77f8afc0cee16dfcfcef59d06dbecf0f5d5a58618e077a245f4c069"
+      "bytes": 4830,
+      "sha256": "9484b424e44289e63c75df41728f2f7848b72ee742365c82120340f16eba93ec"
     },
     {
       "path": "cases/win-su2-tmr-naca0012.yaml",
@@ -160,7 +160,7 @@
     {
       "path": "docs/proof/win-naca/l3-prepared.json",
       "bytes": 1135,
-      "sha256": "d04ab0bdd96dd8963be3077fc85c0411d27df0ef53adc7780bf50034e8eecbdd"
+      "sha256": "d599ad5bdefa2fd5b3862b59192f3a5f6430133531b006bdd52cbffacb1321c9"
     },
     {
       "path": "docs/proof/win-naca/l3-supervisor.sh",
@@ -404,8 +404,8 @@
     },
     {
       "path": "docs/proof/win-naca/prepare-l3.py",
-      "bytes": 4080,
-      "sha256": "88f9c269af6febc90d36d810cfa89fc5ac3cf2a937bd75579b900a7bc0cb7625"
+      "bytes": 4258,
+      "sha256": "3e5b0f6627fc38d4c1329ded0713fcad1335f450687f3e487c296aae68a93b1b"
     },
     {
       "path": "docs/proof/win-naca/prepared-shell-syntax.txt",
@@ -424,8 +424,8 @@
     },
     {
       "path": "docs/proof/win-naca/receipt.md",
-      "bytes": 23271,
-      "sha256": "ee1b2a964676b93b77e852f0376f83f46ba2b9bb48168830958b4b2aac19e5df"
+      "bytes": 26397,
+      "sha256": "506103bae281b1707756bbcd3b9a68f592d5cac156c3aa2e1098f84745be6a54"
     },
     {
       "path": "docs/proof/win-naca/repair-su2-semantics.py",

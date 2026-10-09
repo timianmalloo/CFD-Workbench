@@ -248,6 +248,49 @@ must be retained until a separately authorized serialization correction has boun
 No application ring, publishing or source change. Total agent time, tokens, aggregate host utilisation **Not recorded**.
 Command UTC/argv/exit/wall and solver resource emitting sources are recorded; missing measures stay Not recorded.
 
+## Ruling 165 correction track (2026-10-08)
+
+This is a fresh, docs/evidence-only correction track with a new two-cycle budget. It does not reopen the
+earlier exhausted W-4 semantic-repair track. The earlier Windows ring has three launch attempts, all now
+closed: attempt 1 (23:29:34Z, 2.189 s, exit 155) selected the Program Files SDK without 10.0.203;
+attempt 2 (23:30:01Z, 1.851 s, exit 155) set `DOTNET_ROOT` but left Program Files first on `PATH`;
+attempt 3 (23:30:34.748Z, 60.454 s, external timeout exit 124) selected
+`%USERPROFILE%\.dotnet\dotnet.exe` with affinity `0x3F`. Its Release build succeeded in 28 s with zero
+errors and two AVLN3001 warnings. No test or solver ring is rerun under Ruling 165.
+
+The third attempt's outer cutoff was 2026-10-08T23:31:35.202Z (start 23:30:34.748Z plus the measured
+60.454 s). The ignored `.tmp-tests` evidence was retained byte-unchanged. Searching every retained
+`.tmp-tests/*.log` for `^RESULT` found exactly these lines before that cutoff; timestamps below are the
+observed UTC last-write timestamps of the containing log files, because the result lines themselves carry
+no timestamp:
+
+| UTC log timestamp | Log line | Suite / partition | Result |
+|---|---|---|---|
+| 2026-10-08T23:31:23.3092068Z | `.tmp-tests/Analysis.part1of2.log:234` | Analysis, partition 1/2 of 21 groups | `RESULT failures=0` |
+| 2026-10-08T23:31:21.4473018Z | `.tmp-tests/Analysis.part2of2.log:307` | Analysis, partition 2/2 of 21 groups | `RESULT failures=2` |
+
+Read-only classification command: `py -3 tools/check-expected-failures.py --log .tmp-tests\Analysis.part2of2.log --host windows`.
+It reported `UNEXPECTED NeuralFoil_Family_CatalogNaca0012_DerivedNotLabelled: not in the manifest`
+at `.tmp-tests/Analysis.part2of2.log:234` and
+`UNEXPECTED Section_WingRun_PanelValuesAtEveryStation: not in the manifest` at
+`.tmp-tests/Analysis.part2of2.log:249`, followed by
+`EXPECTED-FAIL 0 (manifest)` and `UNEXPECTED 2`. These are two observed Analysis test failures, not an
+aggregate ring verdict. The Core logs contain partial groups without `RESULT` lines; Desktop and CLI
+logs do not establish aggregate completion. The wrapper timed out before `all test harnesses passed`,
+so the overall Windows ring remains **INCOMPLETE**.
+
+The two Analysis log hashes at correction start were respectively
+`60c6aeaca4d3cc1ab582f17e0ae6971d4db72c8397de7bf4424ef1ee48844419` and
+`cba1e4a9e557600a56926979485d6f9e273788758b94a3bf147c88d95e69cf70`. No raw log was edited or
+regenerated. The previous audit entry containing a concrete Windows account path belonged only to the
+unpushed local commit `9e2bdfc2`; `git ls-remote --heads origin win/w4-r151-followups` returned no
+remote branch before the branch was reset to `origin/main` `d007d309`. The replacement audit entry uses
+`%USERPROFILE%` in its text at append time and contains no concrete account path. The PII defect instance
+is added to `PROOF-PII`; the unsupported absence statement is captured as `ABSENCE-CLAIM-UNSUPPORTED`.
+
+Ruling 165 correction cycle count: **1 of 2**. No test or solver ring, no new raw logs, and no live L3
+artifacts were changed.
+
 ## W-4b evidence-only correction (2026-10-08)
 
 The coordinator authorized a new evidence-only track after the prior two-cycle semantic-repair track stopped.
