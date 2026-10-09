@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:53:41Z",
+  "generated": "2026-10-09T02:55:08Z",
   "audit": [
     {
       "actor": null,
@@ -32040,6 +32040,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "readiness rule matches the executed script only",
       "done_when": "self-test red then green, real readiness line ok, check-docs 0"
+    },
+    {
+      "id": "al-01M4F9BYSEGYVGYWVP26X16AGM",
+      "shortname": "join-rrf",
+      "datetime": "2026-10-09T02:55:08Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/rrf-rule-match into main",
+      "summary": "RRF joined: rule_for keys on the executed script (first non-flag argument after the interpreter); run-verify-gates line back to ok recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the readiness rule-match fix",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T02:54:10Z",
+      "duration_seconds": 58.0
     }
   ],
   "changes": [
