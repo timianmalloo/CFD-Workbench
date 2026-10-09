@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9cac98d297751068aee46b1c10f2157417d8337a645eb632b15ab2085335bc01"
+      "sourceSha256": "74c055b48df799d9f0d5b8b949089692e2d864ebb32a5660d870926afb1f8458"
     },
     {
       "id": "domain-experts",
@@ -11594,7 +11594,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c95d68f2db8579a8a4fdd29e957bc513df7ed3ec543011c572b90f244fb110b4"
+      "sourceSha256": "514f698a1beed85a888b8828247b68876aa253982da5a81c6038a70572ab4498"
     },
     {
       "id": "proof-application-spikes",
@@ -11650,6 +11650,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "113fbe36ed36611cb9ef6b51eefd0f4f5a3799a81c73c3ba3d256af6a1fd03d1"
+    },
+    {
+      "id": "proof-asc-red-first",
+      "path": "docs/proof/asc/red-first.md",
+      "title": "ASC red-first - Windows store admission staleness line",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-asc",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The staleness self-test fails against a stub that always reports current and passes on the real check.",
+      "tags": [
+        "asc",
+        "windows-store",
+        "ruling-189"
+      ],
+      "links": [
+        {
+          "to": "proof-application-core",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c2afb9a479b020fa4e7aa80c9b26ae3a4ffefa38282159ff0a4f74b604c5aa11"
     },
     {
       "id": "proof-authoring-decisions",
@@ -19313,5 +19338,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "fecd97c845ee5970079d28447ce188349fe1ab5d22305a2dae9bf938cc546373"
+  "graphSha256": "a8509e11286cf1b5561f8f394090243dd41553567c1e546f23e04dc71882d9fa"
 };
