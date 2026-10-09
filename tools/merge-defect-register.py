@@ -5,7 +5,8 @@ Usage as a driver: merge-defect-register.py %O %A %B %P  (writes the result to %
 Self-test:         merge-defect-register.py --self-test
 
 Resolves whole-entry additions and strict extensions of an existing entry. Every other case defers to `git merge-file -p`:
-a clean merge (two dated lines added inside one entry) is written and exits 0; conflict hunks are written with markers
+a clean merge (two dated lines added inside one entry) is written and exits 0; a hunk where both sides only insert a dated
+paragraph at one place keeps both, ours first (RG4); any other conflict hunk are written with markers
 and exit 1; if git cannot run, the output is a whole-file ours/theirs conflict and exit 1. Git does NOT write markers itself: after a non-zero driver exit
 it keeps whatever %A holds (ours) and marks the path conflicted, so an untouched %A looks resolved and drops theirs. An entry starts at a line beginning `**<CLASS-ID> · ` and runs to the next such line.
 """
@@ -129,10 +130,58 @@ def three_way(base_path, ours_path, theirs_path, base, ours, theirs):
         if proc.returncode == 0 and kept_every_line(text, base, ours, theirs):
             return text, 0
         if 0 < proc.returncode < 128 and "<<<<<<<" in text:
-            return text, 1
+            return union_appends(ours_path, base_path, theirs_path, base, ours, theirs) or (text, 1)
     except (OSError, UnicodeDecodeError):
         pass
     return "<<<<<<< ours\n%s\n=======\n%s\n>>>>>>> theirs\n" % (ours.rstrip("\n"), theirs.rstrip("\n")), 1
+
+
+DATED = re.compile(r"^\*\d{4}-\d{2}-\d{2} \(")
+
+
+def appendable(side, other):
+    """One side of a hunk is a dated paragraph: first line dated, no blank line, no entry header, nothing in common with the other side."""
+    return (bool(side) and DATED.match(side[0]) is not None and not set(side) & set(other)
+            and all(line.strip() and not HEADER.match(line) for line in side))
+
+
+def union_appends(ours_path, base_path, theirs_path, base, ours, theirs):
+    """RG4: two dated paragraphs inserted at one place (base side empty, pure insertions) are both kept, ours first.
+    Any other hunk keeps its markers (exit 1). Returns (text, exit code), or None when git cannot show the base side or conservation fails."""
+    try:
+        proc = subprocess.run(
+            ["git", "merge-file", "-p", "--diff3", "-L", "ours", "-L", "base", "-L", "theirs", ours_path, base_path, theirs_path],
+            capture_output=True, check=False)
+        text = proc.stdout.decode("utf-8")
+    except (OSError, UnicodeDecodeError):
+        return None
+    if not 0 < proc.returncode < 128:
+        return None
+    out, hunk, part, open_hunks = [], None, None, 0
+    for line in text.split("\n"):
+        if hunk is None:
+            if line.startswith("<<<<<<< "):
+                hunk, part = {"ours": [], "base": [], "theirs": []}, "ours"
+            else:
+                out.append(line)
+        elif line.startswith("||||||| "):
+            part = "base"
+        elif line == "=======":
+            part = "theirs"
+        elif line.startswith(">>>>>>> "):
+            o, b, t = hunk["ours"], hunk["base"], hunk["theirs"]
+            if not b and appendable(o, t) and appendable(t, o):
+                out.extend(o + t)
+            else:
+                open_hunks += 1
+                out.extend(["<<<<<<< ours"] + o + ["======="] + t + [">>>>>>> theirs"])
+            hunk = None
+        else:
+            hunk[part].append(line)
+    result = "\n".join(out)
+    if hunk is not None or not kept_every_line(result, base, ours, theirs):
+        return None
+    return result, 1 if open_hunks else 0
 
 
 def entry(name, text):
@@ -165,7 +214,21 @@ def self_test():
     fm_ours = doc(a, x, preamble=fm_pre.replace("relates-to }\n", "relates-to }\n  - { to: ours-b, rel: relates-to }\n"))
     fm_theirs = doc(a, x, y, preamble=fm_pre.replace("relates-to }\n", "relates-to }\n  - { to: theirs-c, rel: relates-to }\n"))
     cases.append(("both add different frontmatter links (PR #17 shape)", fm_base, fm_ours, fm_theirs, None))
+    d1, d2 = "*2026-10-09 (track ECR).* One.", "*2026-10-09 (track V3D).* Two."
+    p1, p2 = d1 + "\nsecond line of one.", d2 + "\nsecond line of two.\nthird line of two."
+    union_cases = [
+        ("both append a different dated line at the end of X (ECR shape)", base, doc(a, x + "\n" + d1), doc(a, x + "\n" + d2), doc(a, x + "\n" + d1 + "\n" + d2), 0),
+        ("both append a different dated paragraph at the end of X", base, doc(a, x + "\n" + p1), doc(a, x + "\n" + p2), doc(a, x + "\n" + p1 + "\n" + p2), 0),
+        ("both append at the end of X with Y after it", doc(a, x, y), doc(a, x + "\n" + d1, y), doc(a, x + "\n" + d2, y), doc(a, x + "\n" + d1 + "\n" + d2, y), 0),
+        ("both edit the same existing line of X", base, doc(a, "x one."), doc(a, "x two."), None, 1),
+        ("one side appends a non-dated line at the same place", base, doc(a, x + "\n" + d1), doc(a, x + "\nplain words."), None, 1),
+        ("one side appends a dated line, the other edits the line before it", base, doc(a, x + "\n" + d1), doc(a, x + " two."), None, 1),
+    ]
     failures = 0
+    for name, b, o, t, want, code in union_cases:
+        ok = union_driver(b, o, t, want, code)
+        failures += not ok
+        print("%s: %s" % ("ok  " if ok else "FAIL", name))
     for name, b, o, t, want in cases:
         ok = merge(b, o, t) == (None if want == "git" else want)
         if want == "git":
@@ -186,6 +249,22 @@ def git_resolves(b, o, t):
         code = run_driver(*[str(p) for p in paths])
         left = paths[1].read_text(encoding="utf-8")
     return code == 0 and "<<<<<<<" not in left and kept_every_line(left, b, o, t)
+
+
+def union_driver(b, o, t, want, want_code):
+    """Run the driver on files. want is the exact output, or None for markers plus every line theirs changed or added."""
+    with tempfile.TemporaryDirectory() as tmp:
+        paths = [Path(tmp) / n for n in ("base", "ours", "theirs")]
+        for path, text in zip(paths, (b, o, t)):
+            path.write_text(text, encoding="utf-8", newline="\n")
+        code = run_driver(*[str(p) for p in paths])
+        left = paths[1].read_text(encoding="utf-8")
+    if code != want_code:
+        return False
+    if want is not None:
+        return left == want
+    wanted = [line for line in t.split("\n") if line.strip() and line not in b.split("\n")]
+    return "<<<<<<<" in left and ">>>>>>>" in left and all(line in left for line in wanted)
 
 
 def conflict_leaves_markers(b, o, t):
