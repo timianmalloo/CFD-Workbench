@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:47:03Z",
+  "generated": "2026-10-09T01:33:40Z",
   "audit": [
     {
       "actor": null,
@@ -31354,47 +31354,38 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4F1E6YNYDGYMQSAR2PH9QF0",
-      "shortname": "windows-ring-calibration-1",
-      "datetime": "2026-10-09T00:36:33Z",
-      "session": "win-r166-ring-baseline",
-      "prompt": "Run the first Ruling 168 Windows calibration ring under CFD_RING_HOST=pc-win, preserve evidence, and stop on the required partition mismatch.",
-      "summary": "Calibration run 1 timed out at the outer ceiling with 302154 ms recorded; the requested held-reader PASS was in Core.part3of3 rather than part2of3. Preserved the partial output, classifier snapshots, DRIFT lines and termination evidence; added the deadline defect control and self-test. No retry or baseline row.",
-      "kind": "manual",
-      "skill": "windows-ring-calibration",
-      "tool": "run-tests.sh",
       "actor": null,
       "artifacts": [
         "docs/proof/ring-windows/calibration/run-1/receipt.md",
         "docs/lessons/defect-classes.md"
       ],
+      "datetime": "2026-10-09T00:36:33Z",
+      "done_when": "The partial ring is fully captured, PII-clean, hash-bound, indexed, audited, and committed; no baseline row or retry is created.",
+      "duration_seconds": 214.0,
+      "fan_out": 0,
+      "goal": "Preserve the incomplete Windows calibration ring and make the 300-second capture control fail on any future deadline overshoot.",
+      "id": "al-01M4F1E6YNYDGYMQSAR2PH9QF0",
+      "kind": "manual",
+      "outcome": "partial",
+      "prompt": "Run the first Ruling 168 Windows calibration ring under CFD_RING_HOST=pc-win, preserve evidence, and stop on the required partition mismatch.",
+      "session": "win-r166-ring-baseline",
+      "shortname": "windows-ring-calibration-1",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "windows-ring-calibration",
+      "started_at": "2026-10-09T00:32:59Z",
+      "summary": "Calibration run 1 timed out at the outer ceiling with 302154 ms recorded; the requested held-reader PASS was in Core.part3of3 rather than part2of3. Preserved the partial output, classifier snapshots, DRIFT lines and termination evidence; added the deadline defect control and self-test. No retry or baseline row.",
       "tags": [
         "windows",
         "ruling-168"
       ],
-      "outcome": "partial",
-      "goal": "Preserve the incomplete Windows calibration ring and make the 300-second capture control fail on any future deadline overshoot.",
-      "done_when": "The partial ring is fully captured, PII-clean, hash-bound, indexed, audited, and committed; no baseline row or retry is created.",
       "tier": "T1",
-      "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": false
-      },
-      "started_at": "2026-10-09T00:32:59Z",
-      "duration_seconds": 214.0
+      "tool": "run-tests.sh"
     },
     {
-      "id": "al-01M4F218ZW0C388M3C6SVNZF8R",
-      "shortname": "calibration-evidence-review-repair",
-      "datetime": "2026-10-09T00:46:58Z",
-      "session": "win-r166-ring-baseline",
-      "prompt": "Repair the two Astra proof findings and the deadline-control mutation finding on the incomplete Ruling 168 Windows calibration capture; preserve raw data and do not rerun.",
-      "summary": "Corrected affinity evidence to the retained PID sample and marked later worker observations Reported, not Verified. Recorded UTC capture envelope 305960.528 ms (+5960.528) and separate stopwatch wall 302154 ms (+2154) with exact grain; cited decision request d9fb43ba on win/coord-w0-w5 only. The shared wait wrapper, tree termination and total-envelope failure check now have deterministic tests; both wait and envelope mutations were rejected. Capture manifest 156/156, PII 0, check-docs exit 0. Raw ring evidence unchanged; no ring rerun or baseline row.",
-      "kind": "manual",
-      "skill": "calibration-evidence-repair",
-      "tool": "verify-capture-deadline.ps1",
       "actor": null,
       "artifacts": [
         "docs/proof/ring-windows/calibration/run-1/receipt.md",
@@ -31402,22 +31393,211 @@ window.AUDIT_DATA = {
         "docs/proof/ring-windows/capture-calibration.ps1",
         "docs/lessons/defect-classes.md"
       ],
+      "datetime": "2026-10-09T00:46:58Z",
+      "done_when": "Affinity and clock claims are accurately scoped, the coordination request is cited with branch provenance, mutation tests and all required evidence gates pass, and the evidence checkpoint is amended.",
+      "duration_seconds": 6.0,
+      "fan_out": 0,
+      "goal": "Correct the receipt to match retained evidence and make the deadline control fail on wait bypasses and over-ceiling total envelopes.",
+      "id": "al-01M4F218ZW0C388M3C6SVNZF8R",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "Repair the two Astra proof findings and the deadline-control mutation finding on the incomplete Ruling 168 Windows calibration capture; preserve raw data and do not rerun.",
+      "session": "win-r166-ring-baseline",
+      "shortname": "calibration-evidence-review-repair",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "calibration-evidence-repair",
+      "started_at": "2026-10-09T00:46:52Z",
+      "summary": "Corrected affinity evidence to the retained PID sample and marked later worker observations Reported, not Verified. Recorded UTC capture envelope 305960.528 ms (+5960.528) and separate stopwatch wall 302154 ms (+2154) with exact grain; cited decision request d9fb43ba on win/coord-w0-w5 only. The shared wait wrapper, tree termination and total-envelope failure check now have deterministic tests; both wait and envelope mutations were rejected. Capture manifest 156/156, PII 0, check-docs exit 0. Raw ring evidence unchanged; no ring rerun or baseline row.",
       "tags": [
         "windows",
         "ruling-168"
       ],
-      "outcome": "success",
-      "goal": "Correct the receipt to match retained evidence and make the deadline control fail on wait bypasses and over-ceiling total envelopes.",
-      "done_when": "Affinity and clock claims are accurately scoped, the coordination request is cited with branch provenance, mutation tests and all required evidence gates pass, and the evidence checkpoint is amended.",
       "tier": "T1",
+      "tool": "verify-capture-deadline.ps1"
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T00:22:07Z",
+      "done_when": "self-test asserts markers and theirs' lines; PR #17 replay shows markers",
+      "goal": "Register merge driver writes conflict markers on its conflict path",
+      "id": "al-01M4F0KS09Q5HEGZS6EPHS7DYN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "RG2",
+      "session": "trk-rg2",
+      "shortname": "rg2-driver-markers",
+      "skill": "implement",
+      "summary": "Driver writes git merge-file markers into %A before exit 1; self-test content assertions plus PR17 frontmatter fixture; replay, live scratch merge, class line",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T00:24:10Z",
+      "done_when": "join gates green",
+      "duration_seconds": 54.0,
       "fan_out": 0,
+      "goal": "join the merge-driver conflict-path fix",
+      "id": "al-01M4F0QHN5MX591Q41PSH0R386",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/rg2-driver-markers into main",
+      "session": "3122f106",
+      "shortname": "join-rg2",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
-      "started_at": "2026-10-09T00:46:52Z",
-      "duration_seconds": 6.0
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T00:23:16Z",
+      "summary": "RG2 joined: merge-defect-register writes git merge-file markers into %A before exit 1; self-test asserts content, not only exit; PR #17 replay shows both link pairs recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T00:38:46Z",
+      "done_when": "hints re-measured; three rings green; check-docs 0",
+      "goal": "Rebalance Analysis harness parts so each is under C-2 with margin",
+      "id": "al-01M4F1J8ST40GE0JZADFZYXBHJ",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "trk-abl",
+      "session": "trk-abl",
+      "shortname": "abl-analysis-balance",
+      "skill": "implement",
+      "summary": "Hints set to whole-harness medians (Service, DxSection ring-measured); skew 93-255 ms, parts 4550-4971 ms in ring; 4500 target needs n=3 (ruling)",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T00:40:43Z",
+      "done_when": "join gates green",
+      "duration_seconds": 54.0,
+      "fan_out": 0,
+      "goal": "join the Analysis partition rebalance",
+      "id": "al-01M4F1NV4V8Q0MTJJH99BX4E58",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/abl-analysis-balance into main",
+      "session": "3122f106",
+      "shortname": "join-abl",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T00:39:49Z",
+      "summary": "ABL joined: Analysis cost hints from measured medians; part skew 93-255 ms (was ~1 s); larger part 94-99% of 5000 ms under ring load; n=3 needs a ruling recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T00:51:53Z",
+      "done_when": "red-first recorded, ring green, self-test and check-docs pass",
+      "goal": "Make the ring log readable when killed: STAGE elapsed, SPAWN-START, PARTITION-SKEW advisory",
+      "id": "al-01M4F2A93YY4HEVTA3G6SJEXT3",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-obs",
+      "session": "trk-obs",
+      "shortname": "obs-ring-observability",
+      "skill": "implement",
+      "summary": "Desktop STAGE lines carry elapsed_ms; Spawn prints SPAWN-START per child unbuffered; check-test-costs prints advisory PARTITION-SKEW for Core and Analysis; two dated lessons",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T00:53:11Z",
+      "done_when": "join gates green",
+      "duration_seconds": 55.0,
+      "fan_out": 0,
+      "goal": "join ring observability",
+      "id": "al-01M4F2CNN402M71AV2CK0JEERW",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/obs-ring-observability into main",
+      "session": "3122f106",
+      "shortname": "join-obs",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T00:52:16Z",
+      "summary": "OBS joined: STAGE lines carry elapsed_ms, Spawn prints SPAWN-START at child start, check-test-costs prints PARTITION-SKEW; first run found Core part 3 ~7.5 s light recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T01:11:55Z",
+      "done_when": "Core parts within 15 percent, no PARTITION-SKEW, largest below 31.6 s",
+      "goal": "Rebalance the three Core ring parts with a cost table",
+      "id": "al-01M4F3EZCW309GKHK18F7KHF5M",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "CBL",
+      "session": "trk-cbl",
+      "shortname": "cbl-core-balance",
+      "skill": "implement",
+      "summary": "core-costs.tsv + longest-first CorePartition; parts 29.0/29.4/29.9 s, no skew; 731 checks exactly once",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T01:13:26Z",
+      "done_when": "join gates green",
+      "duration_seconds": 56.0,
+      "fan_out": 0,
+      "goal": "join the Core partition rebalance",
+      "id": "al-01M4F3HQS0B1YM7CGVCV59HZ4Y",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/cbl-core-balance into main",
+      "session": "3122f106",
+      "shortname": "join-cbl",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T01:12:30Z",
+      "summary": "CBL joined: CorePartition assigns by core-costs.tsv longest-first, unlisted checks fall back to i%n; Core parts ~29-30 s each, no PARTITION-SKEW recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     }
   ],
   "changes": [
@@ -33787,6 +33967,42 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EZZXR2FMV85QJMZR2SAHFD",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F1J6G33BPERSZRAGH0SJ4Q",
+      "ts": "2026-10-09T00:38:43Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F1J6FZCJABXTRJGF99N05F",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F1J6KAPHAJQ36C7C0HWBZ3",
+      "ts": "2026-10-09T00:38:44Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F1J6FZCJABXTRJGF99N05F",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F39J7AMJZQKN3HYEJCADP6",
+      "ts": "2026-10-09T01:08:58Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F39J6YJ9G2AWKH4B6K80YW",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F39JCHS87WA655HG24NC9Y",
+      "ts": "2026-10-09T01:08:58Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F39J6YJ9G2AWKH4B6K80YW",
       "session": "fable-owner"
     }
   ]

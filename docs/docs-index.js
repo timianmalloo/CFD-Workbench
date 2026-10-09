@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "51e1aa354733c8811beba8e82a041408a0502902831e7992b9435744e0dc82d1"
+      "sourceSha256": "1858bd552d41fe384dd62b11840df1cdced6f8207e8740fb0c4cc45bf9b4d312"
     },
     {
       "id": "domain-experts",
@@ -7850,7 +7850,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ed8ee7c089b8cb175a7568b024c46190152023015ab6da26bac726033aeb5c12"
+      "sourceSha256": "c1441f6d74c6ca9aeb8a0cef6bb47c845b002e894a107bcbe8d8a12ee5064976"
     },
     {
       "id": "kb-hw-glossary",
@@ -11953,6 +11953,58 @@ window.DOCS_INDEX = {
       "sourceSha256": "5d4ca477769a2466f3ae9863ae2a1c1a632002b7a8f6d0ed801c1f26ca8aeda1"
     },
     {
+      "id": "proof-cbl-measure",
+      "path": "docs/proof/cbl/measure.md",
+      "title": "CBL Core part balance: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Per-check cost of the Core harness (two runs), the top 20, and three ring runs with the Core part ms and load.",
+      "tags": [
+        "cbl",
+        "core",
+        "partition",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-cbl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9154463abb7de9d2eb8bc5a4a412e4df07f7efe7de269f83c640c71e75f8eed9"
+    },
+    {
+      "id": "proof-cbl-red-first",
+      "path": "docs/proof/cbl/red-first.md",
+      "title": "CBL red first: the cost-table partition check",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The partition check red on the old round-robin rule (19106/18149/12491 ms), then green on longest-first.",
+      "tags": [
+        "cbl",
+        "core",
+        "partition",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-cbl-measure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ab864d55b246591c750659f161015cd841fd147f8866e6ef9b15f3305dd1f6fd"
+    },
+    {
       "id": "proof-copyfix-red-runs",
       "path": "docs/proof/copyfix-red-runs.md",
       "title": "COPYFIX red-first runs — M1.2a copy decisions, two missing states, atomic Remove from Recent",
@@ -13332,6 +13384,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "629fc0166d52a76b4330efdc64fed47d55f0a44e299a9e6e8e43d5973632a519"
     },
     {
+      "id": "proof-obs-red-first",
+      "path": "docs/proof/obs/red-first.md",
+      "title": "OBS ring observability: red-first record",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-obs",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for STAGE elapsed_ms, SPAWN-START, and the PARTITION-SKEW advisory.",
+      "tags": [
+        "obs",
+        "stage",
+        "spawn",
+        "partition-skew",
+        "ring"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "da5f92bf56395839723fedd00dc35d85a765251c3fd13e749843a621b0f8f435"
+    },
+    {
       "id": "proof-openfix-red-runs",
       "path": "docs/proof/openfix-red-runs.md",
       "title": "OPENFIX red runs and verification — M1.2a Open outcomes and Span input",
@@ -14104,7 +14183,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ea990353ba79c907af09350bb2b86dbafdac036b0cdb4fe3ef66f539b7630ac3"
+      "sourceSha256": "407b1ad107b4d9a3ac61a7fcf509b5b5b5b7fe28a54c8ab70a88812cadf46f76"
     },
     {
       "id": "proof-ring-windows-r170-run-2",
@@ -14140,7 +14219,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0cd3742b5916ceb9d4627e353ce9806ab6050fbdd33665073413997f317a265b"
+      "sourceSha256": "aa8ab9f8a4c4d854e73bc852d99fd7c6f99b66483b9bf230f1390f2122dd2243"
     },
     {
       "id": "proof-ring-windows-r170-run-3",
@@ -14176,7 +14255,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "be4183f2ccd709aaf8fc55aa331902d7ba0741bb0393c0afa8ee1d124031dd68"
+      "sourceSha256": "221ec2580d6ec090e5d62a05e04713b1bdfdd083c91af3f6c7fc6a32e1e33500"
     },
     {
       "id": "proof-ring-windows-r170-series",
@@ -14216,7 +14295,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2ebbbd33dd8f6bdc7cced375419e8f26fa8e775d7617b9f824f5ecd961191adc"
+      "sourceSha256": "7ed0c4c426af6d5597874d6ef4c6ae4b3dbf6d4557f0c83762e4d79d0eb13e59"
     },
     {
       "id": "proof-round-oct05-heredoc-hook-proposal",
@@ -17982,5 +18061,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f9d437b0ee3d7058b1969810c5f17695c7b5c2dec9dda97b1fa92f4406491a5a"
+  "graphSha256": "23bdb2197793af4294acdb555afe2534d6f120d4335bedb34da1b11ea7104d59"
 };

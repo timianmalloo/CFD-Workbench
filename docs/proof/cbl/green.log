@@ -1,0 +1,4 @@
+PASS CorePartition_CostTable_PlacesEveryCheckOnceWithinFifteenPercent
+PASS CorePartition_UnlistedCheck_FallsBackToRegistrationIndex_OnePartOwnsIt
+RESULT failures=0
+SUBSET CFD_TEST_ONLY=CorePartition_ ran=2 skipped=729
