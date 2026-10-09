@@ -49,7 +49,12 @@ LOAD_GATE = 24.0
 # Ruling 139 (b): a host whose load source is /proc/loadavg under Git Bash or Cygwin ("proc-gitbash", named by run-tests.sh) is
 # uncalibrated: every cost rule and TEST-BUDGET prints COST-MISS ... host <name> and exits 0, until the 3-run quiet baseline
 # docs/proof/ring-<host>/baseline.csv exists. Its form: a first line `gate=<n>` (that host's load threshold, set from the runs),
-# then one row per quiet run `<run>,<end load>,<wall ms>`; three rows or more calibrate. The ms limits are not re-based per host.
+# then optional `limit.<name>=<ms>` lines (Ruling 173 (2)), then one row per quiet run `<run>,<end load>,<wall ms>`; three rows or more
+# calibrate. A limit line replaces the Mac constant for that host: limit.analysis_part (C-2), limit.wall (C-3, net of the build),
+# limit.desktop (C-4), limit.check and limit.check_exempt (C-5, the per-check limit and the two A8.4 exemptions); a name without a
+# line keeps the Mac constant. C-2 covers Analysis only, so there is no limit.core_part. A malformed limit line exits 2 with REFUSED.
+# C-6 is never re-based. limit.check and limit.check_exempt are beyond Ruling 173's three recommended limits: its run-1 simulation
+# showed 24 of the 28 cost failures were C-5 (docs/proof/phl/notes.md).
 UNCALIBRATED_SOURCE = "proc-gitbash"
 BASELINE_MIN_RUNS = 3
 CHECK_LIMIT_MS = 500.0        # C-5
@@ -114,24 +119,46 @@ def resolve_host(override: str | None, hostname: str) -> str:
     return override
 
 
-def host_baseline_gate(host: str, proof: Path | None = None) -> float | None:
-    """The host's recorded load threshold, or None while its 3-run quiet baseline is missing or unreadable."""
+HOST_LIMIT_NAMES = ("analysis_part", "desktop", "wall", "check", "check_exempt")
+
+
+class BaselineError(ValueError):
+    """A baseline.csv limit line that cannot be read: refused loudly, never read as 'no limit'."""
+
+
+def read_baseline(host: str, proof: Path | None = None) -> tuple[float, dict[str, int]] | None:
+    """(load threshold, per-host ms limits), or None while the 3-run quiet baseline is missing or unreadable.
+    A malformed `limit.` line raises BaselineError (it names the file, the line number and the line)."""
     path = (proof or ROOT / "docs" / "proof") / f"ring-{host}" / "baseline.csv"
     try:
         lines = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
         gate = float(lines[0].removeprefix("gate=")) if lines and lines[0].startswith("gate=") else None
-        rows = [line for line in lines[1:] if len(line.split(",")) == 3 and float(line.split(",")[1]) >= 0]
     except (OSError, ValueError):
         return None
-    return gate if gate is not None and len(rows) >= BASELINE_MIN_RUNS else None
+    limits: dict[str, int] = {}
+    rows = 0
+    for number, line in enumerate(lines[1:], start=2):
+        if line.startswith("limit."):
+            match = re.fullmatch(r"limit\.([a-z_]+)=(\d+)", line)
+            if match is None or match[1] not in HOST_LIMIT_NAMES or int(match[2]) <= 0 or match[1] in limits:
+                raise BaselineError(f"{path}: line {number} {line!r} is not a limit line: use limit.<name>=<ms> once per name, "
+                                    f"name one of {', '.join(HOST_LIMIT_NAMES)}, ms a positive integer")
+            limits[match[1]] = int(match[2])
+            continue
+        try:
+            rows += len(line.split(",")) == 3 and float(line.split(",")[1]) >= 0
+        except ValueError:
+            return None  # an unreadable row leaves the baseline unreadable, as before
+    return (gate, limits) if gate is not None and rows >= BASELINE_MIN_RUNS else None
 
 
-def host_gate(source: str, host: str, proof: Path | None = None) -> tuple[float, bool]:
-    """(load threshold, uncalibrated). Only the proc-gitbash source is ever uncalibrated; a baseline sets its threshold."""
+def host_gate(source: str, host: str, proof: Path | None = None) -> tuple[float, bool, dict[str, int]]:
+    """(load threshold, uncalibrated, ms limits). Only the proc-gitbash source is ever uncalibrated; a baseline sets its threshold
+    and its limits. Every other source, and a baseline with no limit line, keeps the Mac constants (an empty dict)."""
     if source != UNCALIBRATED_SOURCE:
-        return LOAD_GATE, False
-    gate = host_baseline_gate(host, proof)
-    return (LOAD_GATE, True) if gate is None else (gate, False)
+        return LOAD_GATE, False, {}
+    baseline = read_baseline(host, proof)
+    return (LOAD_GATE, True, {}) if baseline is None else (baseline[0], False, baseline[1])
 
 
 def load_gated(load: str, gate: float = LOAD_GATE) -> bool:
@@ -147,7 +174,7 @@ def budget_verdict(wall: int, budget: int, load: str, source: str = "", host: st
     TEST-BUDGET-MISS and exits 0. The budget figure is unchanged and is raised only from a measured cost."""
     if wall <= budget:
         return 0, None
-    gate, uncalibrated = host_gate(source, host, proof)
+    gate, uncalibrated, _ = host_gate(source, host, proof)
     if uncalibrated:
         return 0, f"COST-MISS TEST-BUDGET {wall} s host {host}"
     if load_gated(load, gate):
@@ -158,16 +185,23 @@ def budget_verdict(wall: int, budget: int, load: str, source: str = "", host: st
 
 def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded", source: str = "", host: str = "",
           proof: Path | None = None) -> tuple[list[str], list[str]]:
-    gate, uncalibrated = host_gate(source, host, proof)
-    errors, misses = check_rules(directory, jobs, load, gate)
+    gate, uncalibrated, limits = host_gate(source, host, proof)
+    errors, misses = check_rules(directory, jobs, load, gate, limits)
     if uncalibrated:  # Ruling 139 (b): every rule is advisory on an uncalibrated host
         return [], [f"COST-MISS {error} host {host}" for error in errors] + misses
     return errors, misses
 
 
-def check_rules(directory: Path, jobs: tuple[str, ...], load: str, gate_limit: float) -> tuple[list[str], list[str]]:
+def check_rules(directory: Path, jobs: tuple[str, ...], load: str, gate_limit: float,
+                limits: dict[str, int] | None = None) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     misses: list[str] = []
+    limits = limits or {}
+    analysis_limit = limits.get("analysis_part", ANALYSIS_LIMIT_MS)
+    wall_limit = limits.get("wall", WALL_LIMIT_MS)
+    desktop_limit = limits.get("desktop", DESKTOP_LIMIT_MS)
+    check_limit = limits.get("check", CHECK_LIMIT_MS)
+    exempt_limit = limits.get("check_exempt", EXEMPT_LIMIT_MS)
     readings: dict[str, int] = {}
     for name in (*jobs, "wall", "build"):  # C-6: a reading that is missing is a failure, never a pass
         value = read_ms(directory, name)
@@ -190,14 +224,14 @@ def check_rules(directory: Path, jobs: tuple[str, ...], load: str, gate_limit: f
     analysis = [name for name in jobs if is_analysis(name)]
     for name in analysis:
         if name in readings:
-            timing("C-2", readings[name], ANALYSIS_LIMIT_MS,
-                   f"C-2 {name} took {readings[name]} ms, over {ANALYSIS_LIMIT_MS} ms")
+            timing("C-2", readings[name], analysis_limit,
+                   f"C-2 {name} took {readings[name]} ms, over {analysis_limit} ms")
     if analysis and "wall" in readings and "build" in readings:
         net = readings["wall"] - readings["build"]
-        timing("C-3", net, WALL_LIMIT_MS, f"C-3 run-tests net wall {net} ms (wall - build), over {WALL_LIMIT_MS} ms")
+        timing("C-3", net, wall_limit, f"C-3 run-tests net wall {net} ms (wall - build), over {wall_limit} ms")
     if "Desktop" in readings:
-        timing("C-4", readings["Desktop"], DESKTOP_LIMIT_MS, f"C-4 Desktop took {readings['Desktop']} ms, over "
-               f"{DESKTOP_LIMIT_MS} ms: DR-ANA-10 applies (spread or split the Desktop job)")
+        timing("C-4", readings["Desktop"], desktop_limit, f"C-4 Desktop took {readings['Desktop']} ms, over "
+               f"{desktop_limit} ms: DR-ANA-10 applies (spread or split the Desktop job)")
     if analysis:
         lines: list[str] = []
         for name in analysis:
@@ -215,7 +249,7 @@ def check_rules(directory: Path, jobs: tuple[str, ...], load: str, gate_limit: f
             if name not in costs:
                 errors.append(f"C-6 {name} printed PASS but no COST line: not recorded")
         for name, ms in costs.items():
-            limit = EXEMPT_LIMIT_MS if name in EXEMPT_CHECKS else CHECK_LIMIT_MS
+            limit = exempt_limit if name in EXEMPT_CHECKS else check_limit
             if ms > limit:
                 if gated:
                     errors.append(f"C-5 {name} took {ms} ms, over {limit:.0f} ms (move it to readiness with its cost, or make it cheaper)")
@@ -258,6 +292,63 @@ def self_test_hosts(good: dict[str, str], passes: str) -> tuple[int, int]:
                "uncalibrated host: C-4 and C-5 over limit at quiet load are host COST-MISS, exit 0", f"got {errors} and {misses}")
         errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "win1", proof)
         report(any("C-4" in e for e in errors) and any("C-5" in e for e in errors), "calibrated host: the same readings fail", f"got {errors} and {misses}")
+    return failures, total
+
+
+def self_test_host_limits() -> tuple[int, int]:
+    """Ruling 173 (2): a baseline's limit.<name>=<ms> lines replace the Mac ms limits for that host only. The readings are the
+    pc-win run 1 of PR #18 (docs/proof/ring-pc-win/baseline.csv, ruling 173 limits): they pass with the limits, fail without."""
+    run1 = {"Core.part1of3.ms": "106344", "Core.part2of3.ms": "67610", "Core.part3of3.ms": "77895", "Desktop.ms": "304344",
+            "Analysis.part1of2.ms": "21936", "Analysis.part2of2.ms": "24278", "Cli.ms": "8290", "wall.ms": "336392", "build.ms": "25003",
+            "Analysis.part1of2.log": "PASS A_Check\nCOST A_Check 1707.929\nPASS F6_ObservedOrder\nCOST F6_ObservedOrder 1889.286\n", "Analysis.part2of2.log": "PASS B_Check\nCOST B_Check 3.000\n"}
+    rows = "1,12.18,336392\n2,10.08,327707\n3,11.80,325651\n"
+    limits = "limit.analysis_part=26391\nlimit.desktop=306344\nlimit.wall=313389\nlimit.check=3708\nlimit.check_exempt=3890\n"
+    baselines = {"pcl": "gate=13\n" + limits + rows, "pcn": "gate=13\n" + rows, "pcd": "gate=13\nlimit.desktop=306344\n" + rows,
+                 "pcc": "gate=13\nlimit.check=3708\n" + rows,
+                 "bad1": "gate=13\nlimit.desktop=fast\n" + rows, "bad2": "gate=13\nlimit.core_part=30000\n" + rows,
+                 "bad3": "gate=13\nlimit.wall=0\n" + rows, "bad4": "gate=13\nlimit.wall=1\nlimit.wall=2\n" + rows}
+    failures = 0
+    total = 0
+
+    def report(ok: bool, label: str, detail: str) -> None:
+        nonlocal failures, total
+        total += 1
+        failures += not ok
+        print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else f": {detail}"))
+
+    with tempfile.TemporaryDirectory() as proof_scratch, tempfile.TemporaryDirectory() as scratch:
+        proof = Path(proof_scratch)
+        for host, text in baselines.items():
+            (proof / f"ring-{host}").mkdir()
+            (proof / f"ring-{host}" / "baseline.csv").write_text(text, encoding="utf-8", newline="\n")
+        case = Path(scratch)
+        for name, text in run1.items():
+            (case / name).write_text(text, encoding="utf-8", newline="\n")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "pcl", proof)
+        report(not errors and not misses, "limits: pc-win run 1 passes with the baseline limits", f"got {errors} and {misses}")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "pcn", proof)
+        report(all(any(rule in e for e in errors) for rule in ("C-2", "C-3", "C-4", "C-5 A_Check", "C-5 F6_ObservedOrder")),
+               "limits: the same run fails C-2, C-3, C-4 and C-5 without them", f"got {errors}")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "pcd", proof)
+        report(any("C-2" in e for e in errors) and any("C-3" in e for e in errors) and not any("C-4" in e for e in errors),
+               "limits: one limit line replaces only its own rule", f"got {errors}")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "pcc", proof)
+        report(any("C-5 F6_ObservedOrder" in e for e in errors) and not any("C-5 A_Check" in e for e in errors),
+               "limits: limit.check re-bases the 500 ms rule and leaves the named exemptions on their own limit", f"got {errors}")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0", "sysctl", "pcl", proof)
+        report(all(any(rule in e for e in errors) for rule in ("C-2", "C-3", "C-4")), "limits: a sysctl (Mac) host ignores a baseline and keeps the Mac constants", f"got {errors}")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0")
+        report(any("C-4" in e and "49369" in e for e in errors), "limits: no host keeps the Mac C-4 limit 49,369", f"got {errors}")
+        (case / "Desktop.ms").write_text("306345", encoding="utf-8", newline="\n")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "pcl", proof)
+        report(any("C-4" in e and "306344" in e for e in errors), "limits: one ms over the host limit fails, naming the host limit", f"got {errors}")
+        for host, fragment in (("bad1", "limit.desktop=fast"), ("bad2", "limit.core_part=30000"), ("bad3", "limit.wall=0"), ("bad4", "limit.wall=2")):
+            try:
+                check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", host, proof)
+                got = "no refusal"
+            except ValueError as exc:
+                got = str(exc)
+            report(fragment in got and "line" in got, f"limits: malformed {fragment} is refused with its line", f"got {got}")
     return failures, total
 
 
@@ -373,8 +464,9 @@ def self_test() -> int:
     host_failures, host_total = self_test_hosts(good, passes)
     key_failures, key_total = self_test_ring_host()
     skew_failures, skew_total = self_test_skew()
-    failures += host_failures + key_failures + skew_failures
-    host_total += key_total + skew_total
+    limit_failures, limit_total = self_test_host_limits()
+    failures += host_failures + key_failures + skew_failures + limit_failures
+    host_total += key_total + skew_total + limit_total
     for label, wall, budget, load, code, fragment in budget_cases:
         got_code, line = budget_verdict(wall, budget, load)
         ok = got_code == code and (fragment is None and line is None or fragment is not None and line is not None and fragment in line)
@@ -430,12 +522,16 @@ def main(argv: list[str]) -> int:
         else:
             print(__doc__.strip().splitlines()[2], file=sys.stderr)
             return 2
-    if budget is not None:
-        code, line = budget_verdict(*budget, source, host)
-        if line:
-            print(line)
-        return code
-    errors, misses = check(directory, jobs, load, source, host)
+    try:
+        if budget is not None:
+            code, line = budget_verdict(*budget, source, host)
+            if line:
+                print(line)
+            return code
+        errors, misses = check(directory, jobs, load, source, host)
+    except BaselineError as exc:
+        print(f"REFUSED: {exc}", file=sys.stderr)
+        return 2
     for miss in misses:
         print(miss)
     for skew in partition_skew(directory, jobs):

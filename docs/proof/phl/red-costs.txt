@@ -1,0 +1,67 @@
+SELFTEST PASS uncalibrated host: TEST-BUDGET over budget at quiet load is a host COST-MISS
+SELFTEST PASS host with two baseline runs is still uncalibrated
+SELFTEST PASS calibrated host: TEST-BUDGET over budget at load 5 exits 3
+SELFTEST PASS calibrated host: its recorded gate (30) applies
+SELFTEST PASS sysctl host is never uncalibrated
+SELFTEST PASS uncalibrated host: C-4 and C-5 over limit at quiet load are host COST-MISS, exit 0
+SELFTEST PASS calibrated host: the same readings fail
+SELFTEST PASS CFD_RING_HOST=pc-win resolves to ring-pc-win
+SELFTEST PASS unset: the machine hostname is used as before
+SELFTEST PASS override wins over the hostname
+SELFTEST PASS a 32-character key is accepted
+SELFTEST PASS a 33-character key is refused
+SELFTEST PASS an uppercase key is refused
+SELFTEST PASS a dotted (FQDN-like) key is refused
+SELFTEST PASS a path-like key is refused
+SELFTEST PASS an empty key is refused
+SELFTEST PASS skew: balanced parts print nothing
+SELFTEST PASS skew: Analysis 4500 vs 2500 prints the line
+SELFTEST PASS skew: Analysis exactly 15% (750 ms) prints nothing
+SELFTEST PASS skew: Analysis 751 ms prints the line
+SELFTEST PASS skew: Core 24000 vs 30000 prints the Core line
+SELFTEST PASS skew: a missing part reading prints nothing
+SELFTEST FAIL limits: pc-win run 1 passes with the baseline limits: got ['C-2 Analysis.part1of2 took 21936 ms, over 5000 ms', 'C-2 Analysis.part2of2 took 24278 ms, over 5000 ms', 'C-3 run-tests net wall 311389 ms (wall - build), over 50000 ms', 'C-4 Desktop took 304344 ms, over 49369 ms: DR-ANA-10 applies (spread or split the Desktop job)'] and []
+SELFTEST PASS limits: the same run fails C-2, C-3 and C-4 without them
+SELFTEST FAIL limits: one limit line replaces only its own rule: got ['C-2 Analysis.part1of2 took 21936 ms, over 5000 ms', 'C-2 Analysis.part2of2 took 24278 ms, over 5000 ms', 'C-3 run-tests net wall 311389 ms (wall - build), over 50000 ms', 'C-4 Desktop took 304344 ms, over 49369 ms: DR-ANA-10 applies (spread or split the Desktop job)']
+SELFTEST PASS limits: a sysctl (Mac) host ignores a baseline and keeps the Mac constants
+SELFTEST PASS limits: no host keeps the Mac C-4 limit 49,369
+SELFTEST FAIL limits: one ms over the host limit fails, naming the host limit: got ['C-2 Analysis.part1of2 took 21936 ms, over 5000 ms', 'C-2 Analysis.part2of2 took 24278 ms, over 5000 ms', 'C-3 run-tests net wall 311389 ms (wall - build), over 50000 ms', 'C-4 Desktop took 306345 ms, over 49369 ms: DR-ANA-10 applies (spread or split the Desktop job)']
+SELFTEST FAIL limits: malformed limit.desktop=fast is refused with its line: got no refusal
+SELFTEST FAIL limits: malformed limit.core_part=30000 is refused with its line: got no refusal
+SELFTEST FAIL limits: malformed limit.wall=0 is refused with its line: got no refusal
+SELFTEST FAIL limits: malformed limit.wall=2 is refused with its line: got no refusal
+SELFTEST PASS TEST-BUDGET at budget is green
+SELFTEST PASS TEST-BUDGET over budget at load 30 prints TEST-BUDGET-MISS and exits 0
+SELFTEST PASS TEST-BUDGET over budget at load 5 exits 3
+SELFTEST PASS TEST-BUDGET load 24.0 is still gated
+SELFTEST PASS TEST-BUDGET load not recorded is a MISS, never a pass
+SELFTEST PASS baseline is green
+SELFTEST PASS C-2 Analysis.ms 5900
+SELFTEST PASS C-2 Analysis.ms 5900 at load 40 is a COST-MISS, not a failure (Ruling 87)
+SELFTEST PASS C-2 load 24.0 is still gated
+SELFTEST PASS C-2 load not recorded is a COST-MISS
+SELFTEST PASS C-3 net 51000 (wall 52000 - build 1000) at quiet load
+SELFTEST PASS C-3 net 49900 is inside the limit
+SELFTEST PASS C-3 reads net: wall 50500 - build 1000 = 49500 is green
+SELFTEST PASS C-4 Desktop.ms 49369 (the limit) is green at quiet load
+SELFTEST PASS C-4 Desktop.ms 49400 at quiet load names DR-ANA-10
+SELFTEST PASS C-3 and C-4 at load 30.2 print COST-MISS and do not fail
+SELFTEST PASS load 24.0 is still gated: C-4 fails
+SELFTEST PASS load 24.1 is not gated: C-4 is a COST-MISS
+SELFTEST PASS load not recorded: C-4 is a COST-MISS, never a pass
+SELFTEST PASS C-5 COST Units_Lbf_KeyUnchanged 512.3
+SELFTEST PASS C-5 COST F6_ObservedOrder 1612.0
+SELFTEST PASS C-5 at load 30 is a COST-MISS, not a failure (Ruling 139)
+SELFTEST PASS C-5 load not recorded is a COST-MISS
+SELFTEST PASS C-5 load 24.0 is still gated
+SELFTEST PASS C-6 stays ungated at load 40: a missing reading still fails
+SELFTEST PASS C-5 F6_ObservedOrder 1499.0 is inside its exemption
+SELFTEST PASS C-2 is per part: part 2 at 5900 fails alone
+SELFTEST PASS C-2 is per part: two parts of 4900 are green though they sum over 5000
+SELFTEST PASS C-5 reads part 2's log too
+SELFTEST PASS C-6 Analysis part 2 log missing
+SELFTEST PASS C-6 Analysis.part1of2.ms deleted
+SELFTEST PASS C-6 wall.ms deleted
+SELFTEST PASS C-6 build.ms deleted
+SELFTEST PASS C-6 Analysis PASS without COST
+SELFTEST 59/66 cases
