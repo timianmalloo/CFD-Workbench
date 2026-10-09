@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dea985ad058a93cb56e4a3f2ba5fc4bf076c537dabcbd5fb83ac51879f291b46"
+      "sourceSha256": "9cac98d297751068aee46b1c10f2157417d8337a645eb632b15ab2085335bc01"
     },
     {
       "id": "domain-experts",
@@ -8261,7 +8261,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a20affffb68d63d17a5ee1961b333d05d44b741a4e4944031070292339fd846f"
+      "sourceSha256": "dfbfa4a7c3ca822fcea0f37c84b0f33f114c5624508f097a3bacf894f5f0fad2"
     },
     {
       "id": "kb-hw-glossary",
@@ -14261,6 +14261,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "adee8b3bb2ae1cab0c26acad09efd64af6075d81ba0032a44dd092f05e94faaf"
     },
     {
+      "id": "proof-pef-red-first",
+      "path": "docs/proof/pef/red-first.md",
+      "title": "PEF red-first - Escape tooltip dismissal survives a refresh",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-pef",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red-first record for PlanCanvas_Escape_TooltipStaysDismissedAcrossRefresh: it fails on main 0ae3f254 product code and passes with the tooltipDismissed fix. Probe readout unchanged.",
+      "tags": [
+        "pef",
+        "plan-canvas",
+        "tooltip",
+        "ruling-188"
+      ],
+      "links": [
+        {
+          "to": "investigation-pce-escape-flake",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3c945d28f0c56ec83a08baf90545abbba905ed05493ae69c83a8f5cb7fe9f466"
+    },
+    {
       "id": "proof-pii-red-first",
       "path": "docs/proof/pii/red-first.md",
       "title": "PROOF-PII red-first receipt",
@@ -19195,5 +19221,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "110dabd17d06bd7494d1d07882108fce2fa8d56dc44b2d7ede9626c8648ef0cb"
+  "graphSha256": "5eaad69b8ad52b0612cf69668aaa19f0423200bab70a134357607f1ffe5bdc1d"
 };

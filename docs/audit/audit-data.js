@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T20:23:19Z",
+  "generated": "2026-10-09T21:09:12Z",
   "audit": [
     {
       "actor": null,
@@ -33476,6 +33476,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T20:22:17Z",
       "duration_seconds": 62.0
+    },
+    {
+      "id": "al-01M4H7Z8A6V21CKWS01SV3VZH5",
+      "shortname": "pef-escape-dismissal",
+      "datetime": "2026-10-09T21:09:12Z",
+      "session": "trk-pef",
+      "prompt": "trk-pef",
+      "summary": "Held-seam check red then green; tooltipDismissed in PlanCanvas; TRANSIENT-STATE-REDERIVED registered; run-tests 0 failures",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Escape tooltip dismissal survives a refresh (Ruling 188)",
+      "done_when": "red check, fix, green, full ring, register entry",
+      "started_at": "2026-10-09T21:04:12Z",
+      "duration_seconds": 300.0
     }
   ],
   "changes": [
@@ -36156,6 +36176,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4H56YATETJ0PK8KWN8YV7C4",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4H7NKQ81K77XR34YMZZJRZX",
+      "ts": "2026-10-09T21:03:56Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4H7NKM9WPNDEXK36E5AVHDD",
+      "session": "operator-timianmalloo"
     }
   ]
 };
