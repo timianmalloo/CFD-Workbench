@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "671270e1c5ec154a71c5f57f7f2fdbb52286b453bb7b6a5156e7ce7ddfb3f3da"
+      "sourceSha256": "dea985ad058a93cb56e4a3f2ba5fc4bf076c537dabcbd5fb83ac51879f291b46"
     },
     {
       "id": "domain-experts",
@@ -17168,6 +17168,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "23d15e29b26dbc31d41b581a335e8e1efa07f74c6954adbc1d191cee6c074a97"
     },
     {
+      "id": "proof-wri-r184-blocked-result",
+      "path": "docs/proof/wri-r184-result/receipt.md",
+      "title": "Ruling 184 Windows execution: two blocked cycles",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@win-wri-r182-runner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Both authorized execution cycles stopped at the initial preflight. Cycle 1 passed callback text as the script path; the reviewed repair fixed that binding. Cycle 2 rejected an absent Settings frame. No scale mutation, build, product check, restore, or fresh scale readback ran. The two-cycle cap fired and readiness remains closed.",
+      "tags": [
+        "windows",
+        "runner",
+        "ruling-184",
+        "blocked",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-24",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wri-r182-runner-ready",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-sdg",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4bbc42ef52bbd8a63e9dc944093ba8370d411f7c64f0c2ad60493eae56f8af9e"
+    },
+    {
       "id": "proof-wrt-red-first",
       "path": "docs/proof/wrt/red-first.md",
       "title": "WRT red-first receipt: Windows known-expected-failure manifest",
@@ -19156,5 +19195,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ea026797516ec4f94b4641c6bb5032c2821c012ef1ef0dcce30f20c5e8967ae2"
+  "graphSha256": "110dabd17d06bd7494d1d07882108fce2fa8d56dc44b2d7ede9626c8648ef0cb"
 };

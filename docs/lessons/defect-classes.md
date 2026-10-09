@@ -2472,8 +2472,11 @@ folder, with only those four paths rebound and the bytes and SHAs unchanged.
 **Class → sweep → derive → prevent:**
 - *Signature:* a closing or capture manifest entry whose path lies outside `docs/proof/` and names a file a later track
   may edit (`tools/`, `src/`, `tests/`).
-- *Sweep:* pending. List every closing-manifest entry outside `docs/proof/` (win-naca binds `cases/*.yaml` by design;
-  those are case files, not tools).
+- *Sweep (2026-10-09, Ruling 187):* done. Across all closing manifests, two kinds of entry lay outside `docs/proof/`:
+  win-naca's `cases/*.yaml`, which is by design, and the PR #25 manifest's own `.gitattributes`. That second entry is
+  the class recurring in the PR that recorded it: every proof track appends to `.gitattributes`. The leader rebound it at
+  the PR #25 join to `docs/proof/wri-r184-result/source-snapshots/cfd947c3/gitattributes.txt`, with the same bytes and
+  SHA and a `-text` attribute.
 - *Derive:* a manifest freezes evidence by copying it into the proof folder; it never binds a path that a later track
   may change.
 - *Prevent:* pending. `check-capture-manifests.py` flags a closing-manifest path under `tools/`, `src/` or `tests/`,

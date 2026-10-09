@@ -33,4 +33,3 @@ docs/proof/wri-r182-runner/source-snapshots/e9714ce5/*.py -text
 docs/proof/wri-r184-result/source-snapshots/1477951f/*.ps1 -text
 docs/proof/wri-r184-result/source-snapshots/1477951f/*.py -text
 docs/proof/wri-r184-result/source-snapshots/36ccfa49/*.ps1 -text
-docs/proof/wri-r184-result/source-snapshots/cfd947c3/* -text
