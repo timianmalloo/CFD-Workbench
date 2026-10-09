@@ -955,16 +955,23 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("KeyBindings_MenuGesture_NotBound", () =>
         {
+            // macOS: the system menu owns the gesture, so a window binding would fire twice. Elsewhere (W-1) the in-window menu's
+            // gestures are bound on the window, each once (WindowsShell_EveryTableGesture_FiresItsCommandOnce presses them).
             var window = new MainWindow();
+            try { AssertMenuGestureBinding(window, OperatingSystem.IsMacOS()); }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("KeyBindings_MenuGesture_BoundOnceWhenBuiltTheWindowsWay", () =>
+        {
+            // The off-macOS branch of the check above, run here on any host: a window wired as MainWindow wires it off macOS.
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
             try
             {
-                var exported = CommandTable.Rows.Select(row => NativeMenuBuilder.ParseGesture(row.Gesture))
-                    .Where(gesture => gesture is not null).ToArray();
-                if (exported.Length == 0)
-                    throw new InvalidOperationException("Command table exported no menu gestures");
-                if (window.KeyBindings.Any(binding => binding.Gesture is { } bound &&
-                    exported.Any(menu => menu!.Key == bound.Key && menu.KeyModifiers == bound.KeyModifiers)))
-                    throw new InvalidOperationException("A native menu gesture was also bound on the window");
+                NativeMenuBuilder.ShowInWindow(window, host, NativeMenuBuilder.BuildMenu(window, onAction: _ => { }, macOS: false));
+                AssertMenuGestureBinding(window, macOS: false);
             }
             finally { window.Close(); }
         });
@@ -3368,6 +3375,21 @@ public static class ShellWindowTests
     {
         if (Math.Abs(actual - expected) > 5e-5)
             throw new InvalidOperationException(label + " " + actual.ToString("G6") + " vs " + expected.ToString("G6"));
+    }
+
+    private static void AssertMenuGestureBinding(Window window, bool macOS)
+    {
+        var exported = CommandTable.Rows.Select(row => NativeMenuBuilder.ParseGesture(row.Gesture, macOS))
+            .Where(gesture => gesture is not null).Select(gesture => gesture!).DistinctBy(gesture => (gesture.Key, gesture.KeyModifiers)).ToArray();
+        if (exported.Length == 0)
+            throw new InvalidOperationException("Command table exported no menu gestures");
+        var counts = exported.ToDictionary(gesture => gesture, gesture => window.KeyBindings.Count(binding =>
+            binding.Gesture is { } bound && bound.Key == gesture.Key && bound.KeyModifiers == gesture.KeyModifiers));
+        if (macOS && counts.Any(pair => pair.Value > 0))
+            throw new InvalidOperationException("A native menu gesture was also bound on the window");
+        var wrong = counts.Where(pair => !macOS && pair.Value != 1).Select(pair => $"{pair.Key} x{pair.Value}").ToArray();
+        if (wrong.Length > 0)
+            throw new InvalidOperationException("Menu gestures not bound exactly once on the window: " + string.Join(", ", wrong));
     }
 
     private static double U2CurveGap(PlanformView plan, PointView point)
