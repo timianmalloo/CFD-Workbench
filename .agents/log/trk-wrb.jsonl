@@ -1,1 +1,2 @@
 {"agent": "trk-wrb", "at": 1791504311.013534, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-wrb", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-wrb-windows-ring"}
+{"agent": "trk-wrb", "at": 1791505354.54609, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-wrb", "wi": "WI-0", "worktree": "CFD-Workbench-fix-wrb-windows-ring"}

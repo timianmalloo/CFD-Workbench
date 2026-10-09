@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:19:04Z",
+  "generated": "2026-10-09T00:24:10Z",
   "audit": [
     {
       "actor": null,
@@ -31295,12 +31295,57 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4F0E6RKD7WMVQQBV45AWMH9",
-      "shortname": "join-wrb",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-09T00:19:04Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 59.0,
+      "fan_out": 0,
+      "goal": "join the Windows ring follow-ups",
+      "id": "al-01M4F0E6RKD7WMVQQBV45AWMH9",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/wrb-windows-ring into main",
+      "session": "3122f106",
+      "shortname": "join-wrb",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T00:18:05Z",
       "summary": "WRB joined: CFD_RING_HOST key; check-capture-manifests over capture and closing manifests; handle-target fixture to 0; WSF held-reader test replaces via WindowsNative.Rename on Windows recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T00:22:07Z",
+      "done_when": "self-test asserts markers and theirs' lines; PR #17 replay shows markers",
+      "goal": "Register merge driver writes conflict markers on its conflict path",
+      "id": "al-01M4F0KS09Q5HEGZS6EPHS7DYN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "RG2",
+      "session": "trk-rg2",
+      "shortname": "rg2-driver-markers",
+      "skill": "implement",
+      "summary": "Driver writes git merge-file markers into %A before exit 1; self-test content assertions plus PR17 frontmatter fixture; replay, live scratch merge, class line",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4F0QHN5MX591Q41PSH0R386",
+      "shortname": "join-rg2",
+      "datetime": "2026-10-09T00:24:10Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/rg2-driver-markers into main",
+      "summary": "RG2 joined: merge-defect-register writes git merge-file markers into %A before exit 1; self-test asserts content, not only exit; PR #17 replay shows both link pairs recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -31309,7 +31354,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join the Windows ring follow-ups",
+      "goal": "join the merge-driver conflict-path fix",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -31318,8 +31363,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T00:18:05Z",
-      "duration_seconds": 59.0
+      "started_at": "2026-10-09T00:23:16Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [

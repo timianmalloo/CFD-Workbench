@@ -1,0 +1,8 @@
+ok  : both append different entries
+ok  : one extends X, other appends Y
+FAIL: both edit X differently
+FAIL: one deletes X
+ok  : identical new entry on both
+FAIL: preamble edited on both
+FAIL: reordered entries
+FAIL: both add different frontmatter links (PR #17 shape)
