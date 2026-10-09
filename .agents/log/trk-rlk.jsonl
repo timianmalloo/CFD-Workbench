@@ -1,1 +1,2 @@
 {"agent": "trk-rlk", "at": 1791570963.441501, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-rlk", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rlk-readiness-lock"}
+{"agent": "trk-rlk", "at": 1791571933.465534, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-rlk", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rlk-readiness-lock"}
