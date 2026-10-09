@@ -79,3 +79,12 @@ Class: process output and completion observed without preserving the OS exit. Sw
 ## Validation
 
 Validation outcomes and the final evidence commit are reported at handoff. The existing capture manifest is extended to bind these new captures and metadata; raw stdout/stderr retain their captured line endings. No pre-existing capture is rewritten. The checkpoint links this blocked receipt without relabelling earlier historical results.
+
+Observed validation before final handoff: the PII scan passed with 0 unallowlisted
+home paths or machine SIDs; graph validation passed (131 review suggestions are
+warnings). The first manifest/docs checks correctly rejected the captured
+`process.json` after Git converted its 8133 captured bytes to an 8006-byte LF blob.
+One packaging repair adds a local `-text` rule and explicitly restages the original
+bytes. No metadata value or verifier output is rewritten. A CR-aware diff check
+passes while preserving raw CRLF evidence; the committed-blob manifest is the
+oracle for byte integrity.
