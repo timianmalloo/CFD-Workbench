@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:17:32Z",
+  "generated": "2026-10-09T03:25:17Z",
   "audit": [
     {
       "actor": null,
@@ -32244,6 +32244,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T03:16:36Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M4FB35ETZMXREQW8Q8G10C2X",
+      "shortname": "rg3-driver-fallback",
+      "datetime": "2026-10-09T03:25:17Z",
+      "session": "trk-rg3",
+      "prompt": "RG3",
+      "summary": "three_way() in merge-defect-register.py: clean git merge written exit 0, hunks exit 1, git failure whole-file; DPR replay byte-identical",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "register driver defers to a clean three-way merge",
+      "done_when": "DPR shape fixture resolves exit 0; DPR replay equals committed file; gates green"
     }
   ],
   "changes": [
