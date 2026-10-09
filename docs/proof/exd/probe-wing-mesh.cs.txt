@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Text;
 using CfdWorkbench.Core;
 
+// Export wing-mesh probe (track exd, revised by exr). Usage: probe <foil path | default> <TE half-thickness, 0 = as authored/closed>
+// Ladder = the seven rungs of docs/design/export.md section 4.2. For each rung: whole-wing and starboard-half closed meshes.
 string foilPath = args[0];
 string text = foilPath == "default" ? Encoding.UTF8.GetString(FoilSource.NewDefault()) : File.ReadAllText(foilPath);
 double teHalf = double.Parse(args[1]); // 0 = closed
@@ -17,7 +19,7 @@ Console.WriteLine($"parsed={parsed.IsParsed}");
 var assess = Geometry.Assess(parsed);
 Console.WriteLine($"status={assess.Status} code={assess.Code} reason={assess.Reason} work={assess.ProofWork}");
 
-foreach (var (s, c) in new[] { (11, 26), (21, 51), (31, 76), (41, 101), (81, 201), (161, 401) })
+foreach (var (s, c) in new[] { (11, 26), (21, 51), (31, 76), (41, 101), (81, 201), (161, 401), (321, 801) })
 {
     var sw = Stopwatch.StartNew();
     var sv = Placement.Surface(src, "accepted", 0, CancellationToken.None, s, c);
@@ -45,13 +47,20 @@ foreach (var (s, c) in new[] { (11, 26), (21, 51), (31, 76), (41, 101), (81, 201
             }
         }
     }
-    var (tris, welded, edgeOk, euler, vol, degen) = Build(sv);
-    Console.WriteLine($"S={s} C={c} secs={sv.Sections.Count} surfMs={tSurf} tris={tris} verts={welded} manifold={edgeOk} euler={euler} volume_cm3={vol * 1e6:F3} degenDropped={degen} dev_chord_mm={maxChord * 1e3:F4} dev_span_mm={maxSpan * 1e3:F4} dev_diag_mm={maxDiag * 1e3:F4} bytesBin={tris * 50L + 84}");
+    double devMax = Math.Max(maxChord, Math.Max(maxSpan, maxDiag));
+    var whole = Build(sv, false);
+    var half = Build(sv, true);
+    Console.WriteLine($"S={s} C={c} secs={sv.Sections.Count} surfMs={tSurf} dev_chord_mm={maxChord * 1e3:F4} dev_span_mm={maxSpan * 1e3:F4} dev_diag_mm={maxDiag * 1e3:F4} dev_max_mm={devMax * 1e3:F4}");
+    Console.WriteLine($"  whole tris={whole.tris} verts={whole.verts} manifold={whole.manifold} euler={whole.euler} volume_cm3={whole.vol * 1e6:F3} degenDropped={whole.degen} bytesBin={whole.tris * 50L + 84}");
+    Console.WriteLine($"  half  tris={half.tris} verts={half.verts} manifold={half.manifold} euler={half.euler} volume_cm3={half.vol * 1e6:F3} degenDropped={half.degen} bytesBin={half.tris * 50L + 84} rootCapPlanarAtY0={half.rootPlanar}");
 }
 {
     var sv = Placement.Surface(src, "accepted", 0, CancellationToken.None, 41, 101);
     var r = sv.Sections[0]; var t = sv.Sections[^1];
-    Console.WriteLine($"root TE gap mm={(r.Upper[^1].Z - r.Lower[^1].Z) * 1e3:F4} chord mm={(r.Upper[^1].X - r.Upper[0].X) * 1e3:F3} tip TE gap mm={(t.Upper[^1].Z - t.Lower[^1].Z) * 1e3:F4} tipchord mm={(t.Upper[^1].X - t.Upper[0].X) * 1e3:F3}");
+    Console.WriteLine($"root TE gap mm={Dist(r.Upper[^1], r.Lower[^1]) * 1e3:F4} chord mm={(r.Upper[^1].X - r.Upper[0].X) * 1e3:F3} tip TE gap mm={Dist(t.Upper[^1], t.Lower[^1]) * 1e3:F4} tipchord mm={(t.Upper[^1].X - t.Upper[0].X) * 1e3:F3}");
+    var gaps = sv.Sections.Select(x => (gap: Dist(x.Upper[^1], x.Lower[^1]) * 1e3, eta: x.Eta, y: x.Upper[^1].Y * 1e3)).ToList();
+    var least = gaps.MinBy(g => g.gap); var most = gaps.MaxBy(g => g.gap);
+    Console.WriteLine($"TE least gap mm={least.gap:F4} at eta={least.eta:F4} y={least.y:F2} mm; greatest gap mm={most.gap:F4} at eta={most.eta:F4}; sections={gaps.Count}");
     Console.WriteLine($"bounds mm X[{sv.MinimumX * 1e3:F2},{sv.MaximumX * 1e3:F2}] Y[{sv.MinimumY * 1e3:F2},{sv.MaximumY * 1e3:F2}] Z[{sv.MinimumZ * 1e3:F2},{sv.MaximumZ * 1e3:F2}]  LEexact={r.Upper[0] == r.Lower[0]} rootY={r.Upper[0].Y}");
     bool planar = t.Upper.Concat(t.Lower).All(p => p.Y == t.Upper[0].Y);
     Console.WriteLine($"tipPlanar={planar} stationEtas={string.Join(",", sv.Sections.Where(x => x.Assignment != null).Select(x => x.Eta))}");
@@ -60,7 +69,8 @@ foreach (var (s, c) in new[] { (11, 26), (21, 51), (31, 76), (41, 101), (81, 201
 static Point3 Mid(Point3 a, Point3 b) => new((a.X + b.X) / 2, (a.Y + b.Y) / 2, (a.Z + b.Z) / 2);
 static double Dist(Point3 a, Point3 b) => Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y) + (a.Z - b.Z) * (a.Z - b.Z));
 
-static (int tris, int verts, bool manifold, int euler, double vol, int degen) Build(SurfaceView sv)
+// half = starboard skin + tip cap + root cap in the plane y = 0; whole = starboard + port skin, welded at the root
+static (int tris, int verts, bool manifold, int euler, double vol, int degen, bool rootPlanar) Build(SurfaceView sv, bool half)
 {
     var index = new Dictionary<(double, double, double), int>();
     var pts = new List<Point3>();
@@ -68,7 +78,7 @@ static (int tris, int verts, bool manifold, int euler, double vol, int degen) Bu
     var tris = new List<(int, int, int)>(); int degen = 0;
     void T(int a, int b, int c) { if (a == b || b == c || a == c) { degen++; return; } tris.Add((a, b, c)); }
     var sec = sv.Sections; int n = sec[0].Upper.Count;
-    foreach (bool port in new[] { false, true })
+    foreach (bool port in half ? new[] { false } : new[] { false, true })
     {
         Point3 P(Point3 p) => port ? p.Port() : p;
         for (int i = 0; i < sec.Count - 1; i++)
@@ -90,13 +100,21 @@ static (int tris, int verts, bool manifold, int euler, double vol, int degen) Bu
             if (port) { T(a, d, c); T(a, c, b); } else { T(a, c, d); T(a, b, c); }
         }
     }
+    if (half)
+    {
+        var root = sec[0];
+        for (int j = 0; j < n - 1; j++)
+        {
+            int a = V(root.Upper[j]), b = V(root.Upper[j + 1]), c = V(root.Lower[j + 1]), d = V(root.Lower[j]);
+            T(a, d, c); T(a, c, b);
+        }
+    }
+    bool rootPlanar = sec[0].Upper.Concat(sec[0].Lower).All(p => p.Y == 0);
     var edges = new Dictionary<(int, int), int>();
     foreach (var (a, b, c) in tris) foreach (var e in new[] { (a, b), (b, c), (c, a) }) edges[e] = edges.GetValueOrDefault(e) + 1;
     bool manifold = edges.All(kv => kv.Value == 1 && edges.ContainsKey((kv.Key.Item2, kv.Key.Item1)));
-    int noMate = edges.Count(kv => !edges.ContainsKey((kv.Key.Item2, kv.Key.Item1))), dup = edges.Count(kv => kv.Value > 1);
-    Console.WriteLine($"  edges={edges.Count} noMate={noMate} dupDirected={dup}");
     int E = edges.Count / 2; int euler = pts.Count - E + tris.Count;
     double vol = 0;
     foreach (var (a, b, c) in tris) { var p = pts[a]; var q = pts[b]; var r = pts[c]; vol += (p.X * (q.Y * r.Z - q.Z * r.Y) - p.Y * (q.X * r.Z - q.Z * r.X) + p.Z * (q.X * r.Y - q.Y * r.X)) / 6; }
-    return (tris.Count, pts.Count, manifold, euler, vol, degen);
+    return (tris.Count, pts.Count, manifold, euler, vol, degen, rootPlanar);
 }

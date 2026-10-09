@@ -17,16 +17,19 @@ const plan = [
   ['stl', 'ready', 'A'], ['stl', 'ready', 'B'], ['stl', 'preparing', 'A'], ['stl', 'large', 'C'], ['stl', 'draft', 'A'],
   ['blocked', 'unchecked', 'A'], ['native', 'stl', 'A'], ['native', 'dat', 'A'],
   ['writing', 'large', 'C'], ['done', 'stl', 'A'], ['done', 'dat', 'A'], ['done', '3mf', 'A'],
-  ['failed', 'disk', 'A'], ['failed', 'perm', 'A'], ['failed', 'gone', 'A'], ['failed', 'open', 'A'], ['cancelled', 'panel', 'A'], ['3mf', 'ready', 'A'],
+  ['failed', 'disk', 'A'], ['failed', 'perm', 'A'], ['failed', 'gone', 'A'], ['failed', 'open', 'A'], ['cancelled', 'panel', 'A'], ['3mf', 'ready', 'A'], ['stl', 'ready', 'C'], ['dat', 'ready', 'B'], ['stl', 'half', 'A'], ['stl', 'half', 'C'],
 ];
 const findings = [];
 for (const theme of ['light', 'dark']) {
   await page.selectOption('#theme', theme);
-  for (const [state, detail, foil] of plan) {
+  for (const [state0, detail0, foil] of plan) {
+    const half = detail0 === 'half'; const state = state0; const detail = half ? 'ready' : detail0;
+    if (!half) await page.evaluate(() => { window.__exd.S.scope = 'whole'; });
     await page.selectOption('#state', state);
     if (await page.isEnabled('#detail')) await page.selectOption('#detail', detail);
     await page.selectOption('#foil', foil);
-    const tag = `${state}-${detail}-${foil}-${theme}`;
+    if (half) await page.check('input[name=scope][value=half]');
+    const tag = `${state}-${half ? "half" : detail}-${foil}-${theme}`;
     const audit = await page.evaluate(() => {
       const out = { text: [], small: [], tiny: [] };
       const txt = document.getElementById('shell').innerText;

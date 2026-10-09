@@ -7,7 +7,7 @@
 <!--
   Stop-and-show page for the first Export slice (Ruling 193; EXP-02, EXP-03): the section .dat, the wing STL and the 3MF.
   Display only; nothing is built from it until the operator approves. Every product sentence comes from COPY (the JSON
-  block): COPY-EXnn rows are proposed in docs/design/export.md section 8, the rows marked spec are quoted from the
+  block): COPY-EXnn rows are proposed in docs/design/export.md section 14, the rows marked spec are quoted from the
   specification. Every number comes from the probe receipts in docs/proof/exd/ (the FOILS table below is those outputs);
   the summary, the file name, the size and the findings are computed from that table and the chosen options at render time.
   The macOS save panel is a labelled stand-in: macOS draws it, CFD Workbench controls its title and suggested name.
@@ -171,7 +171,7 @@ main{ padding:16px 20px 40px; min-width:1320px; }
 "EX09": "Section shape",
 "EX09a": "At station",
 "EX09b": "Own",
-"EX10": "At station: the section as the wing builds it here, at t/c <tc> %. Own: the profile as authored, before the station's thickness.",
+"EX10": "At station: the section as the wing builds it here; its peak thickness is the station t/c, <tc> %. Own: the profile as authored, unscaled. Both are in chord units, with no twist.",
 "EX10a": "Station",
 "EX11": "File order",
 "EX11a": "Selig",
@@ -180,6 +180,7 @@ main{ padding:16px 20px 40px; min-width:1320px; }
 "EX13": "Scope",
 "EX13a": "Whole wing",
 "EX13b": "Starboard half",
+"EX13c": "Starboard half: one half wing with a flat root face, for bonding and as a datum. Cut it further, and add connectors, in your slicer.",
 "EX14": "Tolerance",
 "EX14a": "Draft 0.05 mm",
 "EX14b": "Print 0.02 mm",
@@ -191,13 +192,14 @@ main{ padding:16px 20px 40px; min-width:1320px; }
 "EX17a": "Exporting revision r12. Your open draft is not included.",
 "EX18": "Analysis layers and results are not exported.",
 "EX19": "Preparing the mesh…",
-"EX20": "Exported <file> · <tris> triangles · <size> MB · mm · largest measured gap <gap> mm",
-"EX21": "Exported <file> · <pts> points · x/c, y/c · chord <chord> mm · largest gap <gap> mm",
-"EX22": "Trailing edge <t> mm below the floor <f> mm (practitioner value, unverified)",
+"EX20": "Exported <file> · <tris> triangles · <size> MB · mm · largest measured deviation <dev> mm",
+"EX21": "Exported <file> · <pts> points · x/c, y/c · chord <chord> mm · largest deviation <dev> mm",
+"EX22": "Trailing edge <t> mm, below the floor of <f> mm (app default, no source)",
 "EX23": "Show at <where>",
+"EX23a": "Show the trailing-edge gap",
 "EX24": "This geometry has not been checked for strength, manufacturability or ride safety. No standard for hydrofoil-wing strength applies (RCD 2013/53/EU excludes hydrofoils and surfboards; ISO 25649 excludes rigid surf-sport devices). Test before use.",
-"EX25": "Largest gap to the computed surface: <gap> mm, sampled at cell midpoints. Not a bound.",
-"EX25a": "Largest gap between the curve and the lines joining the points: <gap> mm at this chord, sampled at segment midpoints.",
+"EX25": "Largest deviation from the computed surface: <dev> mm, sampled at cell midpoints. Not a bound.",
+"EX25a": "Largest deviation between the curve and the lines joining the points: <dev> mm at this chord, sampled at segment midpoints.",
 "EX26": "Closed: every edge joins two triangles (checked).",
 "EX27": "Coordinates are rounded to 0.00003 mm.",
 "EX28": "Computed by this app. No other CAD program has opened this file.",
@@ -217,7 +219,11 @@ main{ padding:16px 20px 40px; min-width:1320px; }
 "EX40": "Cancel",
 "EX41": "Writing <tris> triangles (<size> MB)…",
 "EX42": "Writing…",
-"EX43": "Technical details: the edge check found edges that are not shared by exactly two triangles."
+"EX43": "Technical details: the edge check found edges that are not shared by exactly two triangles.",
+"EX44": "Trailing edge",
+"EX45": "Least thickness <t> mm at <where>. Floor <f> mm (app default, no source).",
+"EX45a": "<t> mm along the whole span. Floor <f> mm (app default, no source).",
+"EX46": "Manufacturing: not assessed (no process chosen)"
 }
 </script>
 <script>
@@ -226,21 +232,23 @@ const COPY = JSON.parse(document.getElementById('copy').textContent);
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
 const t = (id, vars) => COPY[id].replace(/<(\w+)>/g, (m, k) => vars && k in vars ? vars[k] : m);
-const FLOOR_MM = 0.3;          // Settings.cs:28, TeFloorMm
+const FLOOR_MM = 0.3;          // Settings.cs:29, TeFloorMm; an app default with no source (Ruling 195)
 const LARGE_TRIS = 500000;     // proposed large-mesh line (design section 7, H5)
 const REV = 12;                // illustrative
 
-// ---- receipts: docs/proof/exd/probe-*.txt. rung = [stations, chord points, triangles, largest measured gap in mm]
+// ---- receipts: docs/proof/exd/probe-*.txt, regenerated from the committed probe source (probe-wing-mesh.cs.txt, see probe-commands.txt).
+// rung = [stations, chord points, whole-wing triangles, largest measured deviation in mm, starboard-half triangles]
+// te = least trailing-edge thickness in mm from the probe line "TE least gap"; teWhere is where (tip, root, or a y position); teWhole = the same value along the whole span
 const FOILS = {
-  A: { name:'Basic foil', label:'Example foil, open TE 0.26 mm', slug:'basic-foil', teMin:0.2556, teAt:'tip', halfSpan:450, bbox:[120.0, 900.0, 15.9], tc:12.0,
+  A: { name:'Basic foil', label:'Example foil, open TE 0.26 mm', slug:'basic-foil', te:0.2557, teWhere:'the tip', teWhole:false, halfSpan:450, bbox:[120.0, 900.0, 15.9], tc:12.0,
        stations:[{ id:'root', name:'Root', chord:120.0, te:0.2557, dev:{ 61:0.0204, 101:0.0074, 201:0.0019 } }, { id:'tip', name:'Tip', chord:120.0, te:0.2557, dev:{ 61:0.0204, 101:0.0074, 201:0.0019 } }],
-       rungs:[[11,26,2138,0.1281],[21,51,8278,0.0325],[31,76,18418,0.0145],[41,101,32558,0.0082],[81,201,129118,0.0020],[161,401,514238,0.0005],[321,801,2052478,0.0001]], src:'probe-open.txt, probe2-open-root.txt' },
-  B: { name:'Basic foil', label:'Example foil, open TE 0.36 mm', slug:'basic-foil', teMin:0.3578, teAt:'tip', halfSpan:450, bbox:[120.0, 900.0, 15.9], tc:12.0,
+       rungs:[[11,26,2138,0.1281,1118],[21,51,8278,0.0325,4238],[31,76,18418,0.0145,9358],[41,101,32558,0.0082,16478],[81,201,129118,0.0020,64958],[161,401,514238,0.0005,257918],[321,801,2052478,0.0001,1027838]], src:'probe-open.txt, probe2-open-root.txt, probe2-open-tip.txt' },
+  B: { name:'Basic foil', label:'Example foil, open TE 0.36 mm', slug:'basic-foil', te:0.3580, teWhere:'y = 439 mm', teWhole:false, halfSpan:450, bbox:[120.0, 900.0, 15.9], tc:12.0,
        stations:[{ id:'root', name:'Root', chord:120.0, te:0.3580, dev:{ 61:0.0204, 101:0.0074, 201:0.0019 } }, { id:'tip', name:'Tip', chord:120.0, te:0.3580, dev:{ 61:0.0204, 101:0.0074, 201:0.0019 } }],
-       rungs:[[11,26,2138,0.1279],[21,51,8278,0.0324],[31,76,18418,0.0145],[41,101,32558,0.0082],[81,201,129118,0.0020],[161,401,514238,0.0005]], src:'probe-open14.txt, probe2-open14-root.txt' },
-  C: { name:'Untitled wing', label:'Untitled NACA 0012 wing, closed TE', slug:'untitled-wing', teMin:0, teAt:'every station', halfSpan:500, bbox:[127.1, 1000.0, 15.3], tc:12.0,
+       rungs:[[11,26,2138,0.1279,1118],[21,51,8278,0.0324,4238],[31,76,18418,0.0145,9358],[41,101,32558,0.0082,16478],[81,201,129118,0.0020,64958],[161,401,514238,0.0005,257918],[321,801,2052478,0.0001,1027838]], src:'probe-open14.txt, probe2-open14-root.txt' },
+  C: { name:'Untitled wing', label:'Untitled NACA 0012 wing, closed TE', slug:'untitled-wing', te:0, teWhere:'', teWhole:true, halfSpan:500, bbox:[127.1, 1000.0, 15.3], tc:12.0,
        stations:[{ id:'root', name:'Root', chord:127.0, te:0, dev:{ 61:0.0218, 101:0.0079, 201:0.0020 } }, { id:'tip', name:'Tip', chord:12.7, te:0, dev:{ 61:0.0022, 101:0.0008, 201:0.0002 } }],
-       rungs:[[11,26,2096,0.7028],[21,51,8196,0.1787],[31,76,18296,0.0798],[41,101,32396,0.0450],[81,201,128796,0.0113],[161,401,513596,0.0028]], src:'probe-default-wing.txt, probe2-default-root.txt' }
+       rungs:[[11,26,2096,0.7028,1096],[21,51,8196,0.1787,4196],[31,76,18296,0.0798,9296],[41,101,32396,0.0450,16396],[81,201,128796,0.0113,64796],[161,401,513596,0.0028,257596],[321,801,2051196,0.0007,1027196]], src:'probe-default-wing.txt, probe2-default-root.txt, probe2-default-tip.txt' }
 };
 const TOL = { draft:0.05, print:0.02, fine:0.005 };
 const DETAILS = {
@@ -268,12 +276,14 @@ const mm2 = v => v.toFixed(2);
 function fileName(){
   const f = foil(), fmt = S.state === 'native' || S.state === 'done' ? detailFmt() : S.fmt;
   if (fmt === 'dat') return `${f.slug}-${station().id}-r${REV}.dat`;
-  if (fmt === 'stl') return `${f.slug}-r${REV}-mm.stl`;
-  return `${f.slug}-r${REV}.3mf`;
+  const half = S.scope === 'half' ? '-half' : '';
+  if (fmt === 'stl') return `${f.slug}-r${REV}${half}-mm.stl`;
+  return `${f.slug}-r${REV}${half}.3mf`;
 }
+const rungTris = r => S.scope === 'half' ? r[4] : r[2];
 const detailFmt = () => (S.state === 'native' || S.state === 'done') ? S.detail : S.fmt;
-function mesh(){ const r = rungFor(TOL[S.tol]); const [s, c, tris, gap] = r.rung;
-  return { tris, gap, size:mb(tris), met:r.met, grid:`${s} × ${c}`, large:tris > LARGE_TRIS, print:rungFor(TOL.print).rung[2] }; }
+function mesh(){ const r = rungFor(TOL[S.tol]); const [s, c, , dev] = r.rung; const tris = rungTris(r.rung);
+  return { tris, dev, size:mb(tris), met:r.met, grid:`${s} × ${c}`, large:tris > LARGE_TRIS, print:rungTris(rungFor(TOL.print).rung) }; }
 function datRows(){
   const st = station(), n = S.pts;
   // real rows only for the probed section (Example foil, open TE 0.26 mm, Root, 101 per surface, Selig); the others show the structure
@@ -283,17 +293,28 @@ function datRows(){
 }
 function finding(){
   const f = foil(); const fmt = S.fmt;
-  const te = fmt === 'dat' ? station().te : f.teMin;
+  const te = fmt === 'dat' ? station().te : f.te;
   if (te >= FLOOR_MM) return null;
-  const where = fmt === 'dat' ? station().name : (f.teAt === 'tip' ? 'tip' : 'root');
-  return { text:t('EX22', { t:mm2(te), f:mm2(FLOOR_MM) }), where };
+  const whole = fmt !== 'dat' && f.teWhole;
+  const where = fmt === 'dat' ? station().name : f.teWhere.replace(/^the /, '');
+  // the jump lands on the trailing-edge gap control (B8): at a station for a located value, on the control itself for a whole-span value
+  return { text:t('EX22', { t:mm2(te), f:mm2(FLOOR_MM) }), jump:whole ? t('EX23a') : t('EX23', { where }) };
+}
+// the always-on trailing-edge row (Ruling 195): least thickness, where, the floor with its honest label, and the manufacturing state
+function teRow(){
+  const f = foil(), vars = { f:mm2(FLOOR_MM) };
+  let line;
+  if (S.fmt === 'dat') line = t('EX45', { ...vars, t:mm2(station().te), where:station().name });
+  else if (f.teWhole) line = t('EX45a', { ...vars, t:mm2(f.te) });
+  else line = t('EX45', { ...vars, t:mm2(f.te), where:f.teWhere });
+  return `<dt>${esc(t('EX44'))}</dt><dd>${esc(line)}<br>${esc(t('EX46'))}</dd>`;
 }
 
 // ---- surfaces
 function summaryHtml(){
   const f = foil(), fmt = S.fmt;
   if (S.state === 'stl' && S.detail === 'preparing') {
-    return `<section class="sum" aria-label="${esc(t('EX16'))}"><h3>${esc(t('EX16'))}</h3><p class="lim" role="status">${esc(t('EX19'))}</p><dl class="skel" aria-hidden="true"><dt>Revision</dt><dd>r12, accepted.</dd><dt>Triangles</dt><dd>000,000</dd><dt>File size</dt><dd>0.00 MB</dd><dt>Size of the part</dt><dd>000.0 × 000.0 × 00.0 mm</dd></dl></section>`;
+    return `<section class="sum" aria-label="${esc(t('EX16'))}"><h3>${esc(t('EX16'))}</h3><p class="lim" role="status">${esc(t('EX19'))}</p><dl class="skel" aria-hidden="true"><dt>Revision</dt><dd>r12, accepted.</dd><dt>Triangles</dt><dd>000,000</dd><dt>File size</dt><dd>0.00 MB</dd><dt>Size of the part</dt><dd>000.0 × 000.0 × 00.0 mm</dd><dt>Trailing edge</dt><dd>Least thickness 0.00 mm at the tip. Floor 0.00 mm (app default, no source).<br>Manufacturing: not assessed (no process chosen)</dd></dl></section>`;
   }
   if (fmt === 'dat') {
     const st = station(), rows = datRows(), dev = st.dev[S.pts];
@@ -303,8 +324,8 @@ function summaryHtml(){
       <dt>Units</dt><dd>Fractions of chord (x/c, y/c). Twist not applied.</dd>
       <dt>Chord at ${esc(st.name)}</dt><dd>${mm2(st.chord)} mm</dd>
       <dt>Points</dt><dd>${total} in the file (${S.pts} per surface), ${esc(S.order === 'selig' ? 'Selig' : 'Lednicer')} order</dd>
-      <dt>Trailing edge</dt><dd>${st.te === 0 ? 'Closed, 0.00 mm' : 'Open, ' + mm2(st.te) + ' mm at this chord'}</dd>
-      <dt>Fidelity</dt><dd>${esc(t('EX25a', { gap:mm4(dev) }))}</dd></dl>
+      ${teRow()}
+      <dt>Fidelity</dt><dd>${esc(t('EX25a', { dev:mm4(dev) }))}</dd></dl>
       <p class="lim">${esc(t('EX28'))}</p>
       ${rows ? `<pre aria-label="First lines of the file, real values">${rows.map(esc).join('\n')}</pre>` : ''}</section>`;
   }
@@ -313,10 +334,11 @@ function summaryHtml(){
   return `<section class="sum" aria-label="${esc(t('EX16'))}"><h3>${esc(t('EX16'))}</h3><dl>
     <dt>Revision</dt><dd>${esc(S.draft ? t('EX17a') : t('EX17'))}${S.mode === 'analysis' ? ' ' + esc(t('EX18')) : ''}</dd>
     <dt>Unit</dt><dd>${fmt === '3mf' ? 'millimeter (unit attribute), unscaled' : 'mm, unscaled (in the file name)'}</dd>
-    <dt>Mesh</dt><dd>${fmtInt(m.tris)} triangles (${m.grid} grid)${S.scope === 'half' ? ', half wing: not computed in this mockup' : ''}</dd>
+    <dt>Mesh</dt><dd>${fmtInt(m.tris)} triangles (${m.grid} grid)${S.scope === 'half' ? ', with a flat root face' : ''}</dd>
     <dt>File size</dt><dd>${m.size} MB</dd>
     <dt>Size of the part</dt><dd>${dims[0].toFixed(1)} × ${dims[1].toFixed(1)} × ${dims[2].toFixed(1)} mm</dd>
-    <dt>Fidelity</dt><dd>${esc(t('EX25', { gap:mm4(m.gap) }))}</dd></dl>
+    ${teRow()}
+    <dt>Fidelity</dt><dd>${esc(t('EX25', { dev:mm4(m.dev) }))}</dd></dl>
     <p class="lim">${esc(t('EX26'))} ${what === 'STL' ? esc(t('EX27')) : ''} ${esc(t('EX28'))}</p></section>`;
 }
 function optionsHtml(){
@@ -331,7 +353,8 @@ function optionsHtml(){
   return `
     <fieldset class="grp"><legend id="lg-scope">${esc(t('EX13'))}</legend>${radio('scope', [['whole', t('EX13a')], ['half', t('EX13b')]], S.scope)}</fieldset>
     <div class="grp"><span style="font-weight:600">${esc(t('EX15'))}</span><div class="locked"><span class="v">mm</span><span class="help">${esc(t('EX15a'))}</span></div></div>
-    <fieldset class="grp wide"><legend id="lg-tol">${esc(t('EX14'))}</legend>${radio('tol', [['draft', t('EX14a')], ['print', t('EX14b') + ' (default)'], ['fine', t('EX14c')]], S.tol)}</fieldset>`;
+    <fieldset class="grp wide"><legend id="lg-tol">${esc(t('EX14'))}</legend>${radio('tol', [['draft', t('EX14a')], ['print', t('EX14b') + ' (default)'], ['fine', t('EX14c')]], S.tol)}</fieldset>
+    ${S.scope === 'half' ? `<p class="help wide">${esc(t('EX13c'))}</p>` : ''}`;
 }
 function exportDialog(o){
   o = o || {};
@@ -342,8 +365,8 @@ function exportDialog(o){
   let finds = '';
   if (blocked) finds = `<div class="find err" role="alert"><span>${esc(t('EX33'))}</span></div>`;
   else {
-    if (fi) finds += `<div class="find"><span data-copy="EX22">${esc(fi.text)}</span><button type="button" data-act="jump">${esc(t('EX23', { where:fi.where }))}</button></div>`;
-    if (large) finds += `<div class="find"><span>${esc(t('EX29', { tris:fmtInt(m.tris), size:m.size, tris2:fmtInt(f.rungs.find(r => r[3] <= TOL.print)[2]) }))}</span></div>`;
+    if (fi) finds += `<div class="find"><span data-copy="EX22">${esc(fi.text)}</span><button type="button" data-act="jump">${esc(fi.jump)}</button></div>`;
+    if (large) finds += `<div class="find"><span>${esc(t('EX29', { tris:fmtInt(m.tris), size:m.size, tris2:fmtInt(m.print) }))}</span></div>`;
     if (S.draft && !prep) finds += '';
   }
   const fmts = [['dat', t('EX05')], ['stl', t('EX06')], ['3mf', t('EX07')]];
@@ -419,8 +442,8 @@ function planSvg(){
 function statusFor(){
   if (S.state === 'done') {
     const f = foil(), fmt = S.detail, n = fileName();
-    if (fmt === 'dat') { const st = station(); return t('EX21', { file:n, pts:S.pts * 2 - 1, chord:mm2(st.chord), gap:mm4(st.dev[S.pts]) }); }
-    const m = mesh(); return t('EX20', { file:n, tris:fmtInt(m.tris), size:m.size, gap:mm4(m.gap) });
+    if (fmt === 'dat') { const st = station(); return t('EX21', { file:n, pts:S.pts * 2 - 1, chord:mm2(st.chord), dev:mm4(st.dev[S.pts]) }); }
+    const m = mesh(); return t('EX20', { file:n, tris:fmtInt(m.tris), size:m.size, dev:mm4(m.dev) });
   }
   if (S.state === 'cancelled') return t('EX38');
   if (S.state === 'writing') return t('EX42');
@@ -528,10 +551,10 @@ const NOTES = {
            'Both rows are ordinary CommandTable rows, so the command palette lists them with no extra work. A "cfdw export" CLI verb is proposed for the build (operator question 4).'] },
   dat:{ title:'Section .dat', flow:[['Choose format', 0], ['Options', 2], ['Export… opens the save panel', 0]],
     shows:['The summary and the first lines of the file are computed from the options. Real rows are shown for the probed section only (Example foil, open TE, Root, 101 per surface, Selig, At station). Other combinations show the summary without file lines rather than invented ones.',
-           'The trailing-edge finding is the spec string. It uses the gap at this station and this chord (0.26 mm at the Root, 120.0 mm chord).'] },
+           'The trailing-edge finding is the spec string. The Trailing edge row is always shown (Ruling 195): the least thickness, where it is, the floor labelled "app default, no source", and "Manufacturing: not assessed (no process chosen)". The band below it appears only when the thickness is under the floor.'] },
   stl:{ title:'Wing STL', flow:[['Choose format', 0], ['Tolerance picks the mesh', 2], ['Findings', 3], ['Export… opens the save panel', 0]],
-    shows:['Tolerance selects the first rung of the mesh ladder whose measured gap is at or under it. Triangles, size and gap are the probe rows; size is 84 + 50 x triangles bytes. The half-wing size is not probed, so the mockup says so.',
-           'Large mesh: 500,000 triangles is the proposed line. The Untitled wing at Fine is 513,596 triangles and 25.68 MB (real), so the button reads Export anyway… and the coarser preset is named with its real triangle count.'] },
+    shows:['Tolerance selects the first rung of the mesh ladder whose measured deviation is at or under it. Triangles, size and deviation are the probe rows (whole wing and starboard half); size is 84 + 50 x triangles bytes. The starboard half is the skin plus a flat root face at y = 0; it is a bonding and datum aid, and further cuts and connectors are done in the slicer.',
+           'Large mesh: 500,000 triangles is the line (Ruling 194 (2); kept, reviewed with the slicer measurements). The Untitled wing at Fine is 513,596 triangles and 25.68 MB (real), so the button reads Export anyway… and the coarser preset is named with its real triangle count.'] },
   '3mf':{ title:'Wing 3MF', flow:[['Same mesh and options as STL', 2], ['Unit is an attribute', 0]],
     shows:['Second increment of the slice (Ruling 193 order). The dialog lists it now so the choice list does not change later. The unit row reads millimeter (unit attribute); the file name carries no -mm.'] },
   blocked:{ title:'Geometry not accepted', flow:[['Open Export', 0], ['Check has not passed', 3], ['Fix in Checks, then export', 0]],
@@ -542,7 +565,7 @@ const NOTES = {
   writing:{ title:'Writing', flow:[['Build bytes in memory', 0], ['Closure check', 0], ['Temp file, then rename', 2]],
     shows:['Only a mesh over 100,000 triangles shows this progress; below that the write is under a frame. Cancel deletes the temp file. The bar is indeterminate on purpose: no progress number is invented.'] },
   done:{ title:'Exported', flow:[['Write', 0], ['Dialog closes', 0], ['Status strip carries the result', 2]],
-    shows:['The result is a status-strip sentence with the file name, the counts, the unit and the measured gap, plus Show in Finder. The dialog is gone; the foil is unchanged.'] },
+    shows:['The result is a status-strip sentence with the file name, the counts, the unit and the largest measured deviation, plus Show in Finder. The dialog is gone; the foil is unchanged.'] },
   failed:{ title:'Write failed', flow:[['Write', 0], ['Failure', 3], ['Choose another place or try again', 0]],
     shows:['Plain cause, then what is safe: nothing changed and the earlier file is still there (temp file, then rename). Choose another place… reopens the save panel; Try again repeats the write.',
            'Mesh did not close: a defensive fail-closed state that should not occur; nothing is written. The technical line is a fixed example, not a measurement.'] },
@@ -554,7 +577,7 @@ function renderNotes(){
   const n = NOTES[S.state];
   const flow = n.flow.map(f => `<li class="${f[1] === 2 ? 'on' : f[1] === 3 ? 'no' : ''}">${esc(f[0])}</li>`).join('');
   $('notes').innerHTML = `<section data-annot><h2>${esc(n.title)}</h2><ol class="flow" aria-label="Flow">${flow}</ol>${n.shows.map(s => `<p>${esc(s)}</p>`).join('')}<p class="mute">Receipts: ${esc(foil().src)}.</p></section>
-  <section data-annot><h2>Keyboard</h2><ul>${CLAIMS.map(c => `<li>${esc(c)}</li>`).join('')}</ul><p class="mute">The native save panel keeps the platform's keys. Copy rows EX01 to EX43 are proposed in docs/design/export.md section 8.</p></section>`;
+  <section data-annot><h2>Keyboard</h2><ul>${CLAIMS.map(c => `<li>${esc(c)}</li>`).join('')}</ul><p class="mute">The native save panel keeps the platform's keys. Copy rows EX01 to EX46 are proposed in docs/design/export.md section 14.</p></section>`;
 }
 
 $('state').addEventListener('change', e => { S.state = e.target.value; S.detail = DETAILS[S.state][0][0]; setState({}); });

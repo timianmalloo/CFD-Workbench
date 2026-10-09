@@ -2659,10 +2659,10 @@ window.DOCS_INDEX = {
       "type": "design",
       "status": "proposed",
       "owner": "@timianmalloo",
-      "phase": "design - Export slice A (Ruling 193)",
+      "phase": "design - Export slice A (Ruling 193), revised for Rulings 194 and 195",
       "reviewBy": "2027-04-01",
       "reviewSuggested": [],
-      "summary": "Detailed design of the first Export slice: the section .dat (Selig or Lednicer), the wing STL, then the 3MF, all in millimetres and unscaled where a unit exists, each with a stated fidelity and the TE-floor finding repeated. The accepted wing can be written as a closed (watertight) solid with no CAD kernel: a probe on two wings gave a manifold mesh with Euler characteristic 2 from the existing display evaluator plus a topology-only closing step. Copy rows and spec amendments are proposed for the operator; nothing is built until the operator approves the mockup.",
+      "summary": "Detailed design of the first Export slice: the section .dat (Selig or Lednicer), the wing STL (whole wing or a starboard half with a root cap), then the 3MF, all in millimetres and unscaled where a unit exists. Every geometric export shows an always-on trailing-edge row (least thickness, where, the floor labelled \"app default, no source\", manufacturing not assessed). Revision 2 folds in Rulings 194 and 195 and the manufacturing review: seven committed probe rungs for each of four wings, whole and half, all closed (Euler 2); the \"deviation\" term for mesh and .dat fidelity; build conditions B1-B9, each with a red-first test. Final copy and spec amendments are one table for the operator; nothing is built until approved.",
       "tags": [
         "export",
         "dat",
@@ -2675,7 +2675,8 @@ window.DOCS_INDEX = {
         "millimetres",
         "watertight",
         "area-7",
-        "trk-exd"
+        "trk-exd",
+        "trk-exr"
       ],
       "links": [
         {
@@ -2700,7 +2701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bc8c58c8a9744a4b595a4c7371fbe880f316650fc141b76d98648bc50ae46e56"
+      "sourceSha256": "db1e00833838483e7e7c109277081b1328b2d800144aeed62c381e0b338f20e0"
     },
     {
       "id": "design-foildsl-authoring",
@@ -3914,7 +3915,7 @@ window.DOCS_INDEX = {
       "phase": "ui-design",
       "reviewBy": "2026-12-31",
       "reviewSuggested": [],
-      "summary": "Stop-and-show page for the first Export slice (Ruling 193). One modal dialog with a format list, per-format options, a computed \"What will be written\" block with the fidelity lines, the trailing-edge floor finding, the fixed safety string and the hard states: draft open, geometry check not passed, Analysis mode, large mesh, preparing, writing, write failure, closure failure, cancelled, no foil open. Numbers are the probe receipts in docs/proof/exd/ for three sample foils. Proposed for the operator; nothing is built until the operator approves it.",
+      "summary": "Stop-and-show page for the first Export slice (Ruling 193), approved visually (Ruling 194) and revised for Ruling 195. One modal dialog with a format list, per-format options, a computed \"What will be written\" block with the fidelity lines and an always-on trailing-edge row (least thickness, where, the floor labelled \"app default, no source\", manufacturing not assessed), the below-floor finding band, the fixed safety string and the hard states: draft open, geometry check not passed, Analysis mode, large mesh, preparing, writing, write failure, closure failure, cancelled, no foil open. Whole wing and starboard half. Numbers are the committed probe receipts in docs/proof/exd/ for three sample foils.",
       "tags": [
         "mockup",
         "export",
@@ -3924,7 +3925,8 @@ window.DOCS_INDEX = {
         "te-floor",
         "fidelity",
         "operator-show",
-        "trk-exd"
+        "trk-exd",
+        "trk-exr"
       ],
       "links": [
         {
@@ -3945,7 +3947,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3ded3bff82f5f97aa97e0bdbbcfcd02599a8f5dc7a5f58994119bf84f02dd813"
+      "sourceSha256": "5022f4c2dc7a3d8c5b4ba765132bda79e50545d7a5a05d7660fd6ca4da7be71c"
     },
     {
       "id": "mockup-group-move-node-m",
@@ -8572,7 +8574,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d5ff39fc2dbd12f95a02d78b707fef3df81552b7cddab2b5fdb5a06bb23bbf7c"
+      "sourceSha256": "cedbcd5ba1984854e21b5678d70c9c1ea86fdbad7e29f25272f82d6996dc2d32"
     },
     {
       "id": "kb-hw-glossary",
@@ -19672,5 +19674,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5327cbbb2970bb7a21f51ed710ecafafdcb11177c7e3796a37b6a1b7821dc0a9"
+  "graphSha256": "55520cd759354c617e0145dacc09854954445b10aa08e22f685406f1418d3d4d"
 };

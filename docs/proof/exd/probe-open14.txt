@@ -1,17 +1,27 @@
 parsed=True
 status=Certified code=GEOMETRY-CERTIFIED reason=Continuous conservative subset certified. work=3472502
-  edges=6414 noMate=0 dupDirected=0
-S=11 C=26 secs=11 surfMs=8 tris=2138 verts=1071 manifold=True euler=2 volume_cm3=1032.627 degenDropped=2 dev_chord_mm=0.1187 dev_span_mm=0.0358 dev_diag_mm=0.1279 bytesBin=106984
-  edges=24834 noMate=0 dupDirected=0
-S=21 C=51 secs=21 surfMs=5 tris=8278 verts=4141 manifold=True euler=2 volume_cm3=1034.632 degenDropped=2 dev_chord_mm=0.0297 dev_span_mm=0.0099 dev_diag_mm=0.0324 bytesBin=413984
-  edges=55254 noMate=0 dupDirected=0
-S=31 C=76 secs=31 surfMs=7 tris=18418 verts=9211 manifold=True euler=2 volume_cm3=1035.004 degenDropped=2 dev_chord_mm=0.0132 dev_span_mm=0.0045 dev_diag_mm=0.0145 bytesBin=920984
-  edges=97674 noMate=0 dupDirected=0
-S=41 C=101 secs=41 surfMs=9 tris=32558 verts=16281 manifold=True euler=2 volume_cm3=1035.134 degenDropped=2 dev_chord_mm=0.0074 dev_span_mm=0.0026 dev_diag_mm=0.0082 bytesBin=1627984
-  edges=387354 noMate=0 dupDirected=0
-S=81 C=201 secs=81 surfMs=19 tris=129118 verts=64561 manifold=True euler=2 volume_cm3=1035.259 degenDropped=2 dev_chord_mm=0.0019 dev_span_mm=0.0007 dev_diag_mm=0.0020 bytesBin=6455984
-  edges=1542714 noMate=0 dupDirected=0
-S=161 C=401 secs=161 surfMs=47 tris=514238 verts=257121 manifold=True euler=2 volume_cm3=1035.290 degenDropped=2 dev_chord_mm=0.0005 dev_span_mm=0.0002 dev_diag_mm=0.0005 bytesBin=25711984
-root TE gap mm=0.3580 chord mm=120.000 tip TE gap mm=0.3578 tipchord mm=119.921
+S=11 C=26 secs=11 surfMs=9 dev_chord_mm=0.1187 dev_span_mm=0.0358 dev_diag_mm=0.1279 dev_max_mm=0.1279
+  whole tris=2138 verts=1071 manifold=True euler=2 volume_cm3=1032.627 degenDropped=2 bytesBin=106984
+  half  tris=1118 verts=561 manifold=True euler=2 volume_cm3=516.313 degenDropped=2 bytesBin=55984 rootCapPlanarAtY0=True
+S=21 C=51 secs=21 surfMs=6 dev_chord_mm=0.0297 dev_span_mm=0.0099 dev_diag_mm=0.0324 dev_max_mm=0.0324
+  whole tris=8278 verts=4141 manifold=True euler=2 volume_cm3=1034.632 degenDropped=2 bytesBin=413984
+  half  tris=4238 verts=2121 manifold=True euler=2 volume_cm3=517.316 degenDropped=2 bytesBin=211984 rootCapPlanarAtY0=True
+S=31 C=76 secs=31 surfMs=7 dev_chord_mm=0.0132 dev_span_mm=0.0045 dev_diag_mm=0.0145 dev_max_mm=0.0145
+  whole tris=18418 verts=9211 manifold=True euler=2 volume_cm3=1035.004 degenDropped=2 bytesBin=920984
+  half  tris=9358 verts=4681 manifold=True euler=2 volume_cm3=517.502 degenDropped=2 bytesBin=467984 rootCapPlanarAtY0=True
+S=41 C=101 secs=41 surfMs=9 dev_chord_mm=0.0074 dev_span_mm=0.0026 dev_diag_mm=0.0082 dev_max_mm=0.0082
+  whole tris=32558 verts=16281 manifold=True euler=2 volume_cm3=1035.134 degenDropped=2 bytesBin=1627984
+  half  tris=16478 verts=8241 manifold=True euler=2 volume_cm3=517.567 degenDropped=2 bytesBin=823984 rootCapPlanarAtY0=True
+S=81 C=201 secs=81 surfMs=20 dev_chord_mm=0.0019 dev_span_mm=0.0007 dev_diag_mm=0.0020 dev_max_mm=0.0020
+  whole tris=129118 verts=64561 manifold=True euler=2 volume_cm3=1035.259 degenDropped=2 bytesBin=6455984
+  half  tris=64958 verts=32481 manifold=True euler=2 volume_cm3=517.630 degenDropped=2 bytesBin=3247984 rootCapPlanarAtY0=True
+S=161 C=401 secs=161 surfMs=49 dev_chord_mm=0.0005 dev_span_mm=0.0002 dev_diag_mm=0.0005 dev_max_mm=0.0005
+  whole tris=514238 verts=257121 manifold=True euler=2 volume_cm3=1035.290 degenDropped=2 bytesBin=25711984
+  half  tris=257918 verts=128961 manifold=True euler=2 volume_cm3=517.645 degenDropped=2 bytesBin=12895984 rootCapPlanarAtY0=True
+S=321 C=801 secs=321 surfMs=22 dev_chord_mm=0.0001 dev_span_mm=0.0000 dev_diag_mm=0.0001 dev_max_mm=0.0001
+  whole tris=2052478 verts=1026241 manifold=True euler=2 volume_cm3=1035.298 degenDropped=2 bytesBin=102623984
+  half  tris=1027838 verts=513921 manifold=True euler=2 volume_cm3=517.649 degenDropped=2 bytesBin=51391984 rootCapPlanarAtY0=True
+root TE gap mm=0.3580 chord mm=120.000 tip TE gap mm=0.3580 tipchord mm=119.921
+TE least gap mm=0.3580 at eta=0.9750 y=438.75 mm; greatest gap mm=0.3580 at eta=0.8250; sections=41
 bounds mm X[0.00,120.00] Y[0.00,450.00] Z[-7.20,8.74]  LEexact=True rootY=0
 tipPlanar=True stationEtas=0,1
