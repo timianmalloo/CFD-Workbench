@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d9bf82e800c004640a29ca3a78b6bba14a7fb592711410f846ffb288ae791bbf"
+      "sourceSha256": "614f1c9a076326b1fd21269ea79c0d25b990ace9a4405e69321b34f90072a09e"
     },
     {
       "id": "domain-experts",
@@ -13991,6 +13991,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "90e81da15f0b93fa70f8070c6d4c603c883b73099aac48119b038f0c64763cb5"
     },
     {
+      "id": "proof-ring-windows-calibration-run-1",
+      "path": "docs/proof/ring-windows/calibration/run-1/receipt.md",
+      "title": "Ruling 168 Windows calibration run 1 (incomplete)",
+      "type": "proof-pack",
+      "status": "incomplete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The first host-keyed Windows calibration attempt was terminated at the 300 s deadline while Desktop remained at STAGE spawn. It is incomplete evidence only. The requested held-reader PASS appeared in Core.part3of3 rather than Core.part2of3, and Core.part3of3 also recorded NativeFailure Win32 32 for WindowsNative_Replace_HeldReaderKeepsOldImage.",
+      "tags": [
+        "windows",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-calibration-attempt-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "51c0b1da8124b454fda7299822b91a3affb5c1745d625bfb991e7e31c5bc7701"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -17754,5 +17785,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "af4720ece7e51ddfbd09b63b373dfd359234ebbfd4ae0f95cab843dcc205c340"
+  "graphSha256": "bb0960277297bd9e6b0b0cc0021aacd30e3255897df39a0998744dff4bef66cc"
 };

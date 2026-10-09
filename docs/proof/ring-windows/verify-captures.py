@@ -43,6 +43,9 @@ def main():
     tested_head = manifest["tested_head"]
     subprocess.run(["git", "merge-base", "--is-ancestor", tested_head, "HEAD"], cwd=ROOT, check=True)
     records = manifest["files"]
+    tested_heads = {record.get("tested_head", tested_head) for record in records}
+    for run_head in tested_heads:
+        subprocess.run(["git", "merge-base", "--is-ancestor", run_head, "HEAD"], cwd=ROOT, check=True)
     problems = mismatches(records)
     if problems:
         print("capture integrity FAIL")

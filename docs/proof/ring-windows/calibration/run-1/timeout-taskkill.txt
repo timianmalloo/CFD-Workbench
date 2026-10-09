@@ -1,0 +1,10 @@
+SUCCESS: The process with PID 35256 (child process of PID 13348) has been terminated.
+SUCCESS: The process with PID 29776 (child process of PID 13348) has been terminated.
+SUCCESS: The process with PID 3304 (child process of PID 13348) has been terminated.
+SUCCESS: The process with PID 13348 (child process of PID 25888) has been terminated.
+SUCCESS: The process with PID 25888 (child process of PID 11176) has been terminated.
+SUCCESS: The process with PID 11176 (child process of PID 26828) has been terminated.
+SUCCESS: The process with PID 26828 (child process of PID 19364) has been terminated.
+SUCCESS: The process with PID 28100 (child process of PID 20296) has been terminated.
+SUCCESS: The process with PID 19364 (child process of PID 20296) has been terminated.
+SUCCESS: The process with PID 20296 (child process of PID 10972) has been terminated.

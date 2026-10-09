@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:19:04Z",
+  "generated": "2026-10-09T00:47:03Z",
   "audit": [
     {
       "actor": null,
@@ -31295,22 +31295,120 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4F0E6RKD7WMVQQBV45AWMH9",
-      "shortname": "join-wrb",
-      "datetime": "2026-10-09T00:19:04Z",
-      "session": "3122f106",
-      "prompt": "the join of fix/wrb-windows-ring into main",
-      "summary": "WRB joined: CFD_RING_HOST key; check-capture-manifests over capture and closing manifests; handle-target fixture to 0; WSF held-reader test replaces via WindowsNative.Rename on Windows recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "join the Windows ring follow-ups",
+      "datetime": "2026-10-09T00:19:04Z",
       "done_when": "join gates green",
+      "duration_seconds": 59.0,
+      "fan_out": 0,
+      "goal": "join the Windows ring follow-ups",
+      "id": "al-01M4F0E6RKD7WMVQQBV45AWMH9",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/wrb-windows-ring into main",
+      "session": "3122f106",
+      "shortname": "join-wrb",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T00:18:05Z",
+      "summary": "WRB joined: CFD_RING_HOST key; check-capture-manifests over capture and closing manifests; handle-target fixture to 0; WSF held-reader test replaces via WindowsNative.Rename on Windows recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/ring-windows/receipt.md"
+      ],
+      "datetime": "2026-10-09T00:22:18Z",
+      "done_when": "Captured outputs are committed and hash-verifiable, PII and documentation checks pass, baseline.csv remains absent, and no next ring starts before the host override.",
+      "duration_seconds": 453.0,
+      "fan_out": 0,
+      "goal": "Preserve run 1 as evidence without admitting it to the Ruling 168 baseline.",
+      "id": "al-01M4F0M4EJXGMARRWJ4TPG5ZH1",
+      "kind": "manual",
+      "outcome": "partial",
+      "prompt": "Preserve the first Ruling 166/168 Windows ring as evidence only; wait for the Mac CFD_RING_HOST override before further calibration.",
+      "session": "win-r166-ring-baseline",
+      "shortname": "windows-ring-attempt-1",
+      "signals": {
+        "acceptance_met": false,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": null,
+      "started_at": "2026-10-09T00:14:45Z",
+      "summary": "Run 1 is complete but excluded: tested before the host override and took 345588 ms, beyond 300 s. Rebased the single evidence commit onto current origin/main; 69 capture hashes, PROOF-PII, and check-docs pass. No baseline row; ring remains paused for the override.",
+      "tags": [
+        "windows",
+        "ruling-168"
+      ],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4F1E6YNYDGYMQSAR2PH9QF0",
+      "shortname": "windows-ring-calibration-1",
+      "datetime": "2026-10-09T00:36:33Z",
+      "session": "win-r166-ring-baseline",
+      "prompt": "Run the first Ruling 168 Windows calibration ring under CFD_RING_HOST=pc-win, preserve evidence, and stop on the required partition mismatch.",
+      "summary": "Calibration run 1 timed out at the outer ceiling with 302154 ms recorded; the requested held-reader PASS was in Core.part3of3 rather than part2of3. Preserved the partial output, classifier snapshots, DRIFT lines and termination evidence; added the deadline defect control and self-test. No retry or baseline row.",
+      "kind": "manual",
+      "skill": "windows-ring-calibration",
+      "tool": "run-tests.sh",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/ring-windows/calibration/run-1/receipt.md",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "windows",
+        "ruling-168"
+      ],
+      "outcome": "partial",
+      "goal": "Preserve the incomplete Windows calibration ring and make the 300-second capture control fail on any future deadline overshoot.",
+      "done_when": "The partial ring is fully captured, PII-clean, hash-bound, indexed, audited, and committed; no baseline row or retry is created.",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-09T00:32:59Z",
+      "duration_seconds": 214.0
+    },
+    {
+      "id": "al-01M4F218ZW0C388M3C6SVNZF8R",
+      "shortname": "calibration-evidence-review-repair",
+      "datetime": "2026-10-09T00:46:58Z",
+      "session": "win-r166-ring-baseline",
+      "prompt": "Repair the two Astra proof findings and the deadline-control mutation finding on the incomplete Ruling 168 Windows calibration capture; preserve raw data and do not rerun.",
+      "summary": "Corrected affinity evidence to the retained PID sample and marked later worker observations Reported, not Verified. Recorded UTC capture envelope 305960.528 ms (+5960.528) and separate stopwatch wall 302154 ms (+2154) with exact grain; cited decision request d9fb43ba on win/coord-w0-w5 only. The shared wait wrapper, tree termination and total-envelope failure check now have deterministic tests; both wait and envelope mutations were rejected. Capture manifest 156/156, PII 0, check-docs exit 0. Raw ring evidence unchanged; no ring rerun or baseline row.",
+      "kind": "manual",
+      "skill": "calibration-evidence-repair",
+      "tool": "verify-capture-deadline.ps1",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/ring-windows/calibration/run-1/receipt.md",
+        "docs/proof/ring-windows/verify-capture-deadline.ps1",
+        "docs/proof/ring-windows/capture-calibration.ps1",
+        "docs/lessons/defect-classes.md"
+      ],
+      "tags": [
+        "windows",
+        "ruling-168"
+      ],
+      "outcome": "success",
+      "goal": "Correct the receipt to match retained evidence and make the deadline control fail on wait bypasses and over-ceiling total envelopes.",
+      "done_when": "Affinity and clock claims are accurately scoped, the coordination request is cited with branch provenance, mutation tests and all required evidence gates pass, and the evidence checkpoint is amended.",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -31318,8 +31416,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T00:18:05Z",
-      "duration_seconds": 59.0
+      "started_at": "2026-10-09T00:46:52Z",
+      "duration_seconds": 6.0
     }
   ],
   "changes": [
