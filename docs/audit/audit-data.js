@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T23:21:20Z",
+  "generated": "2026-10-09T23:22:24Z",
   "audit": [
     {
       "actor": null,
@@ -33799,6 +33799,36 @@ window.AUDIT_DATA = {
       "done_when": "note, adversary record, mockup, craft gate clean, check-docs exit 0",
       "started_at": "2026-10-09T23:07:33Z",
       "duration_seconds": 827.0
+    },
+    {
+      "id": "al-01M4HFK5A53ER5Y8G690082RAX",
+      "shortname": "join-cmb",
+      "datetime": "2026-10-09T23:22:24Z",
+      "session": "3122f106",
+      "prompt": "the join of design/cmb-rail-comb into main",
+      "summary": "Joined CMB design: rail-comb note, marine-cad-ux adversary PASS-WITH-CONDITIONS, mockup; build waits on the operator's visual yes, a11y re-review and geometry confirmation recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/rail-comb.md",
+        "docs/mockups/rail-comb.html"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "the rail comb design is reviewable on main",
+      "done_when": "join gates green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T23:22:08Z",
+      "duration_seconds": 16.0
     }
   ],
   "changes": [
