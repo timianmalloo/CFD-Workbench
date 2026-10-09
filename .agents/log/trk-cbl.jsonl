@@ -1,1 +1,2 @@
 {"agent": "trk-cbl", "at": 1791507632.85055, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-cbl", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-cbl-core-balance"}
+{"agent": "trk-cbl", "at": 1791508559.9809222, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-cbl", "wi": "WI-0", "worktree": "CFD-Workbench-fix-cbl-core-balance"}
