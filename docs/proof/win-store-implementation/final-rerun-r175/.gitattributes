@@ -1,2 +1,3 @@
 verifier.stdout.txt -text
 verifier.stderr.txt -text
+process.json -text

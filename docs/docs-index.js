@@ -6222,7 +6222,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "31e4654cccb7678b38603167f94d15f5f340c27e18ca0be277bcb937ad9fafd8"
+      "sourceSha256": "0484fa395e151a2640461dc2769109b1239d077ae62ab6e3fb4a2d44e6ca8bfa"
     },
     {
       "id": "proof-windows-store-r145-qualification",
@@ -16367,6 +16367,36 @@ window.DOCS_INDEX = {
       "sourceSha256": "bacc282776edd12565365d6c2a336fa2f553a8ea67a20d8d5d3723c97980154f"
     },
     {
+      "id": "proof-win-store-final-rerun-r175",
+      "path": "docs/proof/win-store-implementation/final-rerun-r175/receipt.md",
+      "title": "Ruling 175 final joined verifier direct Windows run — incomplete exit capture",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@win-store-final-rerun-r175",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "One direct final-script Windows run emitted qualification PASS, but the outer capture did not retain its process exit. Windows PASS may not enter readiness from this incomplete receipt.",
+      "tags": [
+        "windows",
+        "persistence",
+        "ruling-175",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "review-pr-19",
+          "rel": "implements"
+        },
+        {
+          "to": "proof-windows-store-implementation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8d4ab7000a9a52c4590471badc1d4d0d66a368e48dd5f2ee65242b0d3521ddcf"
+    },
+    {
       "id": "proof-win-trig-bits-20261008",
       "path": "docs/proof/win-trig-bits/receipt.md",
       "title": "Windows .NET 10 trigonometric bit dump",
@@ -18470,5 +18500,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "04bc7cbcc2b2b5aa586010d47e3ae562a5f2cf8ccbb6261cda53da7542600a2f"
+  "graphSha256": "79d49b825b5b2f7d9d97cb31093ee647f6ce4fb401742386e9028bab21cf7108"
 };
