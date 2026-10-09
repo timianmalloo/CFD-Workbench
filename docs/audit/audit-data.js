@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:58:50Z",
+  "generated": "2026-10-09T03:14:09Z",
   "audit": [
     {
       "actor": null,
@@ -32154,6 +32154,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T02:58:37Z",
       "duration_seconds": 13.0
+    },
+    {
+      "id": "al-01M4FAESHNNF144ED5BSRSMFQ5",
+      "shortname": "dpr-scale-tests",
+      "datetime": "2026-10-09T03:14:09Z",
+      "session": "trk-dpr",
+      "prompt": "track DPR",
+      "summary": "Item 3 repaired (DevicePixel.Rounded, pure check red/green). Item 4 premise falsified: Elevation chip absent at device resolution (also Mac scale 2); ElevationTests reverted. Item 5 is View3dTests.cs, unowned; DevicePixel.NearestAtDevice ready.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Repair DPI-A items 3-5 (Windows 150% test expectations)",
+      "done_when": "Items 3-5 repaired with red-first proof"
     }
   ],
   "changes": [
