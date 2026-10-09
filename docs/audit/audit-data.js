@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:24:10Z",
+  "generated": "2026-10-09T00:38:46Z",
   "audit": [
     {
       "actor": null,
@@ -31365,6 +31365,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T00:23:16Z",
       "duration_seconds": 54.0
+    },
+    {
+      "id": "al-01M4F1J8ST40GE0JZADFZYXBHJ",
+      "shortname": "abl-analysis-balance",
+      "datetime": "2026-10-09T00:38:46Z",
+      "session": "trk-abl",
+      "prompt": "trk-abl",
+      "summary": "Hints set to whole-harness medians (Service, DxSection ring-measured); skew 93-255 ms, parts 4550-4971 ms in ring; 4500 target needs n=3 (ruling)",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Rebalance Analysis harness parts so each is under C-2 with margin",
+      "done_when": "hints re-measured; three rings green; check-docs 0"
     }
   ],
   "changes": [
