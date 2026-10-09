@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:47:08Z",
+  "generated": "2026-10-09T03:48:51Z",
   "audit": [
     {
       "actor": null,
@@ -32413,6 +32413,35 @@ window.AUDIT_DATA = {
       "done_when": "pure red/green, repair, sweep, DPI-A line, run-tests green, check-docs 0",
       "started_at": "2026-10-09T03:43:15Z",
       "duration_seconds": 233.0
+    },
+    {
+      "id": "al-01M4FCEAQ1G653E0443NH3MJ3Q",
+      "shortname": "join-fvt",
+      "datetime": "2026-10-09T03:48:51Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/fvt-fourviews-tolerance into main",
+      "summary": "Joined FVT: item-2 width and height assertions use DevicePixel.Tolerance; sweep found 2 more exposed sites recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/fvt/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "item 2 repaired on main",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T03:47:51Z",
+      "duration_seconds": 60.0
     }
   ],
   "changes": [
