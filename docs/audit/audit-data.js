@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:48:51Z",
+  "generated": "2026-10-09T03:57:34Z",
   "audit": [
     {
       "actor": null,
@@ -32365,73 +32365,123 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4FBNC4QR8WGXJG22MA00S6B",
-      "shortname": "join-pr21",
-      "datetime": "2026-10-09T03:35:13Z",
-      "session": "3122f106",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "Joined PR #21 (Ruling 177 P6 at 150/200 %, Ruling 178 UIA blocker) under Ruling 179 with the join note and DPI-A line recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/pr-21.md",
         "docs/proof/wri-probe/mac-join-note-pr21.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "PR #21 on main with Ruling 179 conditions met",
+      "datetime": "2026-10-09T03:35:13Z",
       "done_when": "join gates green, readiness green, PUSH-OK",
-      "tier": "T1",
+      "duration_seconds": 56.0,
       "fan_out": 0,
+      "goal": "PR #21 on main with Ruling 179 conditions met",
+      "id": "al-01M4FBNC4QR8WGXJG22MA00S6B",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-pr21",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-09T03:34:17Z",
-      "duration_seconds": 56.0
+      "summary": "Joined PR #21 (Ruling 177 P6 at 150/200 %, Ruling 178 UIA blocker) under Ruling 179 with the join note and DPI-A line recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4FCB5MAEQ244M0CQYVDQW4H",
-      "shortname": "fvt-fourviews-tolerance",
-      "datetime": "2026-10-09T03:47:08Z",
-      "session": "trk-fvt",
-      "prompt": "trk-fvt",
-      "summary": "ControllerViewTests arrangement width/height use DevicePixel.Tolerance; Rounded cannot state both axes; sweep of 23 sites, 2 more exposed left as findings; proof docs/proof/fvt/red-first.md",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Repair the zero-tolerance arrangement assertions of the four-views check at fractional scale (Ruling 179 item 2)",
+      "datetime": "2026-10-09T03:47:08Z",
       "done_when": "pure red/green, repair, sweep, DPI-A line, run-tests green, check-docs 0",
+      "duration_seconds": 233.0,
+      "goal": "Repair the zero-tolerance arrangement assertions of the four-views check at fractional scale (Ruling 179 item 2)",
+      "id": "al-01M4FCB5MAEQ244M0CQYVDQW4H",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-fvt",
+      "session": "trk-fvt",
+      "shortname": "fvt-fourviews-tolerance",
+      "skill": "implement",
       "started_at": "2026-10-09T03:43:15Z",
-      "duration_seconds": 233.0
+      "summary": "ControllerViewTests arrangement width/height use DevicePixel.Tolerance; Rounded cannot state both axes; sweep of 23 sites, 2 more exposed left as findings; proof docs/proof/fvt/red-first.md",
+      "tags": [],
+      "tool": null
     },
     {
-      "id": "al-01M4FCEAQ1G653E0443NH3MJ3Q",
-      "shortname": "join-fvt",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/fvt/red-first.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-09T03:48:51Z",
-      "session": "3122f106",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 60.0,
+      "fan_out": 0,
+      "goal": "item 2 repaired on main",
+      "id": "al-01M4FCEAQ1G653E0443NH3MJ3Q",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/fvt-fourviews-tolerance into main",
+      "session": "3122f106",
+      "shortname": "join-fvt",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T03:47:51Z",
       "summary": "Joined FVT: item-2 width and height assertions use DevicePixel.Tolerance; sweep found 2 more exposed sites recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T03:53:57Z",
+      "done_when": "spike.md, red-first, run-tests green, check-docs 0",
+      "duration_seconds": 641.0,
+      "goal": "Rule capture vs product for the Elevation overlay absent at device resolution; repair item 4 if capture",
+      "id": "al-01M4FCQNA91N6C5NJPNYK10WJD",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-ecr",
+      "session": "trk-ecr",
+      "shortname": "ecr-elevation-capture",
+      "skill": "implement",
+      "started_at": "2026-10-09T03:43:16Z",
+      "summary": "Capture defect (Inferred): RenderTargetBitmap at scale 1.5/2 drops the Overlay child, not opacity or clip; chip check now accepts a split line at 96 dpi (DevicePixel.HoldsHalfOf), red-first",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4FCY99XZYC1ZPHX7DJ74WDK",
+      "shortname": "join-ecr",
+      "datetime": "2026-10-09T03:57:34Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined ECR: overlay absent from device-res RenderTargetBitmap is a capture defect (Inferred; opacity/clip falsified); chip check uses HoldsHalfOf recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/fvt/red-first.md"
+        "docs/proof/ecr/spike.md",
+        "docs/proof/ecr/red-first.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "item 2 repaired on main",
+      "goal": "item 4 dispositioned and repaired in the test",
       "done_when": "join gates green, readiness green, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
@@ -32440,8 +32490,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T03:47:51Z",
-      "duration_seconds": 60.0
+      "started_at": "2026-10-09T03:56:37Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
