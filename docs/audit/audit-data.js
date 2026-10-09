@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:25:17Z",
+  "generated": "2026-10-09T03:26:48Z",
   "audit": [
     {
       "actor": null,
@@ -32262,6 +32262,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "register driver defers to a clean three-way merge",
       "done_when": "DPR shape fixture resolves exit 0; DPR replay equals committed file; gates green"
+    },
+    {
+      "id": "al-01M4FB5YF08KPKXXNZYR6DEJPM",
+      "shortname": "join-rg3",
+      "datetime": "2026-10-09T03:26:48Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/rg3-driver-fallback into main",
+      "summary": "RG3 joined: entry-level conflicts fall through to git merge-file; a clean merge that conserves every added or changed line is accepted; DPR join replays byte-identical recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the register driver fallback fix",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T03:25:51Z",
+      "duration_seconds": 57.0
     }
   ],
   "changes": [
