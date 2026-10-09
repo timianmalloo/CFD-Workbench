@@ -1,0 +1,9 @@
+Goal: execute and commit the Mac-authorized Ruling 179 Windows two-scale proof.
+Done when: the exact 14 checks have run at Settings-selected 150% then 200%, numeric OS Process.ExitCode exists for every child, item-6 PointAftInput and fact Value_p_eta bounds in DIP/device pixels are captured, temporary instrumentation is restored byte-for-byte, evidence is committed, and Settings is restored to 150% with a fresh in-process 1.5/1.5 reading.
+Not in scope: product/test repair, registry mutation, display-resolution change, readiness admission, rerunning failed product checks to obtain green.
+Tier T1. Fan-out 0. Repair cap 2 cycles. Twenty-minute ceiling including restore.
+Worker: win-wri-r179. Local coordinator: Windows root session. Designated leader: Mac.
+Authorization: Ruling 179 and local coordinator's execution contract on head 13cb9a14c8315c1b01f30e33b672c936b5b36726.
+Surface list: Windows Settings UIA -> process runner -> temporary test measurements -> built test DLL -> rendered Avalonia window -> raw capture -> proof receipt/manifest -> Docs Explorer/audit.
+Four harness modes, with exact CFD_TEST_ONLY comma-separated names; temporary exact-name gated readiness registration for items 10 and 11 only. No unselected checks run.
+Exit policy: every exit path restores exact Settings 150% and runs fresh scale diagnostic. Cap firing stops execution and commits honest blocked evidence.

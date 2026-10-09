@@ -1,0 +1,5 @@
+cwd=C:\Projects\CFD-Workbench-win-wri-r179
+exe=powershell
+arguments="-NoProfile" "-ExecutionPolicy" "Bypass" "-File" "docs/proof/wri-r179/deadline-observation.ps1"
+CFD_TEST_ONLY=
+affinity_requested=False

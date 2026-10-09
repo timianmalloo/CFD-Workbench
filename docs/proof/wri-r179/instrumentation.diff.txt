@@ -1,0 +1,111 @@
+diff --git a/tests/CfdWorkbench.Desktop.Tests/ControllerViewTests.cs b/tests/CfdWorkbench.Desktop.Tests/ControllerViewTests.cs
+index a1cba760..d02d5a17 100644
+--- a/tests/CfdWorkbench.Desktop.Tests/ControllerViewTests.cs
++++ b/tests/CfdWorkbench.Desktop.Tests/ControllerViewTests.cs
+@@ -569,8 +569,10 @@ public static class ControllerViewTests
+         {
+             using var fixture = new AreaFixture(width: 1400, height: 1000);
+             var area = fixture.Area;
++            Console.WriteLine(FormattableString.Invariant($"R179_P3 window={fixture.Window.Bounds} area={area.Bounds} RenderScaling={fixture.Window.RenderScaling:R}"));
+             area.ThreeDLabel.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
+             fixture.Settle();
++            Console.WriteLine(FormattableString.Invariant($"R179_P3 layout={fixture.Controller.Layout} PlanVisible={area.PlanSlot.IsEffectivelyVisible} ThreeDVisible={area.ThreeDSlot.IsEffectivelyVisible} ThreeDWidth={area.ThreeDSlot.Bounds.Width:R} PlanContentWidth={area.PlanContent.Bounds.Width:R} RoundedFrame={DevicePixel.Rounded(area.ThreeDSlot, 1):R}"));
+             if (fixture.Controller.Layout != ViewLayout.One(SingleView.ThreeD) || area.PlanSlot.IsEffectivelyVisible ||
+                 !area.ThreeDSlot.IsEffectivelyVisible || area.ThreeDSlot.Bounds.Width < area.PlanContent.Bounds.Width - 2 * DevicePixel.Rounded(area.ThreeDSlot, 1 /* ModelArea.FrameThickness (private) */))
+                 throw new Exception("Double-click on the 3D label did not show 3D alone");
+@@ -595,6 +597,7 @@ public static class ControllerViewTests
+             back.RaiseEvent(new RoutedEventArgs(MenuItem.ClickEvent));
+             fixture.Settle();
+             if (fixture.Controller.Layout != ViewLayout.Four) throw new Exception("Back to Four views did not return to Four views");
++            Console.WriteLine($"R179_P3 clauses second-double-click, Return-to-Side, picker-Back-to-Four completed; final-layout={fixture.Controller.Layout}");
+             area.FrontLabel.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+             Equal(SingleView.Front, fixture.Controller.TargetView, "a click makes the view the command target");
+         });
+diff --git a/tests/CfdWorkbench.Desktop.Tests/PropertiesCellsTests.cs b/tests/CfdWorkbench.Desktop.Tests/PropertiesCellsTests.cs
+index 6ecef5dc..a60a353a 100644
+--- a/tests/CfdWorkbench.Desktop.Tests/PropertiesCellsTests.cs
++++ b/tests/CfdWorkbench.Desktop.Tests/PropertiesCellsTests.cs
+@@ -706,6 +706,12 @@ public static class PropertiesCellsTests
+             var fact = Need<TextBlock>(host.Properties, "Value_p_eta");
+             double Right(Visual visual, Avalonia.Media.TextFormatting.TextLayout layout, double left, string text) =>
+                 visual.TranslatePoint(new Point(left + layout.HitTestTextRange(0, text.Length).Max(rect => rect.Right), 0), host.Properties)!.Value.X;
++            foreach (var control in new Control[] { Need<TextBox>(host.Properties, "PointAftInput"), fact, presenter })
++            {
++                var origin = control.TranslatePoint(new Point(0, 0), host.Properties)!.Value;
++                double scale = window.RenderScaling;
++                Console.WriteLine(FormattableString.Invariant($"R179_ITEM6 name={control.Name ?? control.GetType().Name} BoundsDIP={control.Bounds} PropertiesOriginDIP={origin} WidthDIP={control.Bounds.Width:R} HeightDIP={control.Bounds.Height:R} PropertiesXDevice={origin.X * scale:R} PropertiesYDevice={origin.Y * scale:R} WidthDevice={control.Bounds.Width * scale:R} HeightDevice={control.Bounds.Height * scale:R} RenderScaling={scale:R}"));
++            }
+             double input = Right(presenter, presenter.TextLayout, 0, presenter.Text ?? "");
+             double facts = Right(fact, fact.TextLayout, fact.Padding.Left, fact.Text ?? "");
+             // assume: DPI-A item 6 - at 150 % the rounding skew is predicted at 0.667 DIP (one device pixel) but 1.0 was measured, so
+diff --git a/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs b/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs
+index 268159b5..41e398cf 100644
+--- a/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs
++++ b/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs
+@@ -24,6 +24,23 @@ static void Stage(string name) => CfdWorkbench.Desktop.Tests.DesktopChecks.Stage
+ if (failureProbe is not null) throw new InvalidOperationException(failureProbe);
+ // `--theme-evidence` (tools/verify-application-adapters.py, Debug): the same in-process prefix as a full run, then only the
+ // suite that prints the THEME-ROW matrix. The fast ring runs every mode in Release (docs/plans/test-cost.md L2).
++
++static void R179Scale()
++{
++    var probe = new Window { Width = 300, Height = 200 };
++    probe.Show();
++    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
++    Console.WriteLine(FormattableString.Invariant($"R179_SCALE_CONTEXT RenderScaling={probe.RenderScaling:R} PrimaryScaling={probe.Screens.Primary!.Scaling:R} WorkingArea={probe.Screens.Primary.WorkingArea} UseLayoutRounding={probe.UseLayoutRounding}"));
++    probe.Close();
++    Avalonia.Threading.Dispatcher.UIThread.RunJobs();
++}
++if (args.Contains("--r179-diagnostic", StringComparer.Ordinal))
++{
++    AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
++    R179Scale();
++    Environment.Exit(0);
++}
++
+ bool themeEvidence = args is ["--theme-evidence"];
+ if (args.Length == 0 || themeEvidence) { Stage("SelfLaunchTests"); CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run(); }
+ 
+@@ -66,6 +83,7 @@ if (args.Contains("--theme-matrix", StringComparer.Ordinal))
+ if (args.Contains("--shell-window", StringComparer.Ordinal))
+ {
+     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
++    R179Scale();
+     CfdWorkbench.Desktop.Tests.ShellWindowTests.Run();
+     CfdWorkbench.Desktop.Tests.WindowsShellTests.Run();
+     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+@@ -81,8 +99,11 @@ if (args.Contains("--plan-canvas", StringComparer.Ordinal))
+ if (args.Contains("--views", StringComparer.Ordinal))
+ {
+     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
++    R179Scale();
+     CfdWorkbench.Desktop.Tests.ViewCameraTests.Run();
+     CfdWorkbench.Desktop.Tests.ControllerViewTests.Run();
++    if ((Environment.GetEnvironmentVariable("CFD_TEST_ONLY") ?? "").Split(',').Contains("ModelArea_Views_SeparatedByGutterAndFramed", StringComparer.Ordinal))
++        CfdWorkbench.Desktop.Tests.ControllerViewTests.RunReadiness();
+     CfdWorkbench.Desktop.Tests.ElevationTests.Run();
+     CfdWorkbench.Desktop.Tests.View3dTests.Run();
+     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+@@ -98,6 +119,7 @@ if (args.Contains("--properties-view", StringComparer.Ordinal))
+ if (args.Contains("--properties-cells", StringComparer.Ordinal))
+ {
+     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
++    R179Scale();
+     CfdWorkbench.Desktop.Tests.PropertiesCellsTests.Run();
+     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
+ }
+@@ -123,11 +145,14 @@ if (args.Contains("--status-strip", StringComparer.Ordinal))
+ if (args.Contains("--analysis", StringComparer.Ordinal))
+ {
+     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
++    R179Scale();
+     CfdWorkbench.Desktop.Tests.AnalysisToggleTests.Run();
+     CfdWorkbench.Desktop.Tests.AnalysisFeedTests.Run();
+     CfdWorkbench.Desktop.Tests.AnalysisHistoricalFeedTests.Run();
+     CfdWorkbench.Desktop.Tests.AnalysisLayerTests.Run();
+     CfdWorkbench.Desktop.Tests.AnalysisPanelTests.Run();
++    if (Environment.GetEnvironmentVariable("CFD_TEST_ONLY") == "Analysis_FourViews_At1280x800_AndGeometryUnchangedAt1500x870")
++        CfdWorkbench.Desktop.Tests.AnalysisPanelTests.RunReadiness();
+     CfdWorkbench.Desktop.Tests.StaleConditionsTests.Run();
+     CfdWorkbench.Desktop.Tests.NotResolvedViewTests.Run();
+     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);

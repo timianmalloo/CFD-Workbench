@@ -1,0 +1,2 @@
+SOURCE_RESTORATION byte-for-byte=PASS src/tests/tools-diff-exit=0
+RAW stdout/stderr untouched; command metadata home prefix sanitized: 3
