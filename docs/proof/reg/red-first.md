@@ -85,3 +85,16 @@ entry; and three that must keep markers and exit 1 (both edit the same line, one
 
 Replay (`replay-rg4.sh`, `replay-rg4.txt`): ECR join f16ea452 (ours edc7ee59, theirs 775dc93c, base 9c75e7b6) and V3D join 6ca8caa6 (ours 29a8d76f,
 theirs 058fcb28, base 61352f50). New driver: exit 0, 0 markers, IDENTICAL to the committed file at both. Old driver (`replay-rg4-old.txt`): exit 1, 1 marker at both.
+
+## RG5: an entry added by one side keeps its place (track RG5)
+
+Defect: at the MSP join (`1d52616a`) main had added REGISTER-CLASS-MISMATCH before CFD-CLAIM-SCOPE (line 1592); the merged file kept it but at the end (line 2354). Content was conserved, order was not. At the CRD join the moved copy and CRD's in-place edit conflicted and the leader deleted the stale copy by hand.
+
+Cause: `merge()` in `tools/merge-defect-register.py` ended with `out.extend(v for k, v in eo if k not in mb)` and `out.append(value)` for theirs: every new entry was appended after all base entries, whatever its position on its own side.
+
+Rule: each new entry is inserted after the entry that preceded it on its own side (first entry: before the first entry). At a shared anchor ours goes first, then theirs. A predecessor is always a base entry or a new entry already placed, so the end-of-file fallback is never needed.
+
+Red (`rg5-red.txt`, five new fixtures against the old driver), exit 1: all five FAIL (ours adds between; theirs adds between; each side adds at a different place; both add after one anchor; both add the same new entry in the middle).
+Green (`rg5-green.txt`), exit 0, 20 of 20 ok; the RG2-RG4 fixtures are unchanged and ok.
+
+Replay (`replay-rg5.txt`): MSP join, new driver exit 0; REGISTER-CLASS-MISMATCH at line 1592, before CFD-CLAIM-SCOPE at 1614. The sorted lines equal the committed file's (same content, one 22-line entry in a different place), so the only difference is the move. CRD join with the order kept (ours = the MSP replay output; the register is identical between `1d52616a` and `4f30ab97`): exit 0, 0 markers, byte-identical to the leader's hand-resolved `9053c2da` file. Run on the old (moved) history, the CRD merge still conflicts (exit 1), as expected: the damage was done at the MSP join.
