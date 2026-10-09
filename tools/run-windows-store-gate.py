@@ -16,6 +16,7 @@ A Windows PASS here is evidence only; it enters readiness through a reviewed rec
 from __future__ import annotations
 
 import contextlib
+import importlib.util
 import io
 import os
 import signal
@@ -123,10 +124,21 @@ def self_test() -> int:
         print("cleanup after {0}: {1:.2f} s (bound {2:.0f} s)".format(label, cleanup, CLEANUP_SECONDS))
         if observed != 1 or "FAIL - no result within" not in buffer.getvalue() or cleanup > CLEANUP_SECONDS + 1:
             problems.append("{0}: gave {1!r}, cleanup {2:.2f} s".format(label, observed, cleanup))
+    line = admission_line()
+    if not line.startswith("WINDOWS-STORE-EVIDENCE ") or ("admitted" not in line and "STALE" not in line):
+        problems.append("admission line missing or unrecognised: {0!r}".format(line))
     for problem in problems:
         print("self-test FAIL: " + problem)
     print("self-test OK" if not problems else "self-test FAILED")
     return 1 if problems else 0
+
+
+def admission_line() -> str:
+    """The WINDOWS-STORE-EVIDENCE line from tools/check-windows-admission.py (Ruling 189 (4))."""
+    spec = importlib.util.spec_from_file_location("check_windows_admission", ROOT / "tools" / "check-windows-admission.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.evidence_line()
 
 
 def main(argv: list[str]) -> int:
@@ -135,7 +147,9 @@ def main(argv: list[str]) -> int:
     if argv:
         print(__doc__)
         return 2
-    return run_gate([sys.executable, str(VERIFIER)])
+    code = run_gate([sys.executable, str(VERIFIER)])
+    print(admission_line())  # visible currency of the Ruling 189 admission; never changes the exit code
+    return code
 
 
 if __name__ == "__main__":
