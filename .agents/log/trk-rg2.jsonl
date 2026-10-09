@@ -1,0 +1,2 @@
+{"agent": "trk-rg2", "at": 1791504976.089591, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-rg2", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rg2-driver-markers"}
+{"agent": "trk-rg2", "at": 1791505606.895293, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-rg2", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rg2-driver-markers"}

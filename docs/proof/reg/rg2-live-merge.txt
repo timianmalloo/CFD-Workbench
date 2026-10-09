@@ -1,0 +1,13 @@
+Auto-merging docs/r.md
+CONFLICT (content): Merge conflict in docs/r.md
+Recorded preimage for 'docs/r.md'
+Automatic merge failed; fix conflicts and then commit the result.
+merge exit: 1
+UU docs/r.md
+# R
+
+    <<<<<<< ours
+**A · T.** a two.
+    =======
+**A · T.** a one.
+    >>>>>>> theirs

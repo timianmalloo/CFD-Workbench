@@ -11,6 +11,8 @@ links:
   - {to: mockup-workbench-v1, rel: relates-to}
   - {to: review-pr-13, rel: relates-to}
   - {to: proof-r163-windows-ring, rel: relates-to}
+  - {to: review-pr-9, rel: relates-to}
+  - {to: proof-win-naca, rel: relates-to}
 review-by: 2027-03-19
 summary: Design-time failure classes and their mandatory checks, loaded at session grounding under AGENTS.md. Product-runtime controls remain explicitly pending until the corresponding implementation exists.
 review-suggested:
@@ -27,6 +29,12 @@ This register is an always-loaded grounding control under AGENTS.md. Each row ma
 |---|---|---|
 | RAW-CAPTURE-BLOB-MISMATCH · Raw evidence bytes change before delivery | A capture was normalized to LF in commit `1f2cc9f8` (13,584 to 13,499 bytes) and restored in `b5c6b52e`. Swept the Ruling 163 captures and their committed blobs. Derive identity from the committed blob, not a pre-commit working file. | `docs/proof/r163-windows-ring/verify-captures.py` compares every receipt-declared SHA-256 and byte count with `git show HEAD:<path>`; run it after commit and before delivery. The capture directory's `.gitattributes` preserves raw files with `-text`. |
 | WSL-INLINE-ARGV · Nested PowerShell → `wsl.exe` → `bash -lc` inline strings lose or expand arguments. | Shell-boundary quoting can erase or expand Bash arguments, causing a source or metadata command to differ from the intended argv. PR #11's two probes did not consistently run the requested activation or retain raw output. | WSL commands run from committed script files, never inline `-lc` strings (CT27). Ruling 153 uses `docs/proof/win-cfmesh/probe-r153.sh`. Controlled. |
+| WIN-SIGNAL-NUMBER · A signal integer is treated as portable across operating systems. | Swept stop configuration, monitor behavior, and receipt labels together. Derive the symbolic signal name from the target OS before dispatch; signal 30 is Linux SIGPWR and macOS SIGUSR1, while Linux SIGUSR1 is 10. | Always-loaded rule: verify and record the target OS's symbolic signal name before sending a numeric signal. Linux signal-30 stop evidence is in `docs/proof/win-naca/receipt.md`; shared monitor change remains out of scope. |
+| WSL-CALLER-LIFETIME · A detached WSL unit inherits the lifetime of its launching `wsl.exe`. | Swept launch, caller exit, and unit state together. Derive a named keepalive independent of the caller. | Always-loaded rule: do not accept a detached WSL launch until the named keepalive is active after `wsl.exe` exits. Ruling 151 C2 readback remains open for the later done receipt. |
+| RAW-LOG-PATTERN · A `*.log` rule misses files named `log.*`. | Swept native log basenames and compared worktree bytes with staged Git blobs. Derive attributes from the actual basename. | `.gitattributes` covers `l6-results/log.* -text` and `su2-results/log.* -text`; the closing manifest compares proof files with Git blobs. No raw log bytes are changed by this correction. |
+| CASE-SCHEMA-AFTER-LAUNCH · Case schema validation runs only after a launch. | Swept launch preparation for a pre-launch validator. Derive the existing case validator as the authority. | `docs/proof/win-naca/freeze-su2.py` validates before writing launch freeze inputs, and `tools/check-docs.py` runs the same validator. Red/repaired evidence is retained in `all-case-validation-at-cap.txt` and `all-case-validation-after-repair.txt`. |
+| ABSENCE-CLAIM-UNSUPPORTED · A summary asserts absence while retained raw evidence contradicts it. | Swept each absence statement against a search over the retained evidence. Derive that an absence claim is valid only with its exact grep and empty result. | Always-loaded rule: every absence claim cites the command/search and its empty result; if the search returns evidence, list it and withdraw the absence claim. Ruling 165 inventories the retained `RESULT` lines. |
+| PY-TRUNCATE-BEFORE-VALIDATE · A file writer truncates its destination before validating write options. | A `Path.write_text` call opened and truncated `l3-prepared.json` before rejecting an invalid newline option. Swept this update path. Derive: validate and serialize before opening the destination, and use a temporary file plus replace when preserving existing evidence matters. | Always-loaded rule: prepare output bytes before mutating an existing file; for generated evidence, write a temporary sibling and replace only after serialization succeeds. This file was restored from HEAD and hash-updated; the retained raw ring logs were not involved. |
 | GEO-A · Competing shape authority | Catalog assignment, thickness interpolation and a t/c channel can each appear to own thickness. Swept A4, GEO-07, profile conversion and result invalidation. Derive effective coordinates from one t/c owner after normalized shape blending. | Standing review rule: blend profiles with different thickness-peak locations, renormalize before t/c; test retained override versus source thickness. A4/GEO-07 specify it; runtime fixture pending. |
 | UX-A · Optional path becomes mandatory in flow | A flowchart linked export only from accepted AI output despite global export prose. Swept F1–F5 and IA for optional-dependency bottlenecks. Derive independent entry for global actions and a failure return path. | Standing flow review rule: trace no-key New→edit→save→export without AI nodes. F5 corrected; future keyboard E2E trace is required. |
 | SPEC-A · Scope named but not falsifiable | Broad “analysis” requirements omitted transition/load/critical-speed outputs named in proposals. Swept all six source stages against story IDs. Derive explicit supported and unavailable paths. | Source-to-story coverage matrix plus ANA-10–14/AI-05; independent Product/Test review confirmed closure. |
@@ -1576,6 +1584,7 @@ non-zero (normal conflict markers) for any other case. Self-test (`--self-test`,
 ~0.05 s): both append, extend plus append, identical new entry resolve; two different edits, a deletion, a reorder and a
 preamble edit on both sides conflict. Replay of the WTH join reproduces the leader's committed file byte for byte
 (`docs/proof/reg/replay-wth.txt`). A clone without the registration falls back to git's normal merge.
+*2026-10-08 (Ruling 169 join, track RG2).* The REG driver itself had this defect class: its conflict path exited 1 and left `%A` untouched, assuming git then writes markers. It does not; git keeps ours and marks the path conflicted, so `defect-classes.md` was UU with no markers and a routine `git add` would have dropped theirs. Signature: a tool's failure path assumed a caller behaviour without testing it. Control: the driver now writes `git merge-file -p` output (markers) into `%A` before exiting 1, and `--self-test` asserts on every conflict fixture both exit 1 and markers plus theirs' changed lines in `%A`, with a fixture for the PR #17 shape (both sides add different frontmatter links). Sweep: the pack drivers (`coord-core.py` `merge-derived`, `merge-register`) always exit 0 and write markers via `_write_conflict`, whose docstring records this hazard as S12b; no sibling found. Proof: `docs/proof/reg/` (RG2 section).
 
 **CFD-CLAIM-SCOPE · A label names a stronger quantity or cause than its data supports.** PRJ displayed `CL/CD` using
 `CDi`, and attributed every e below 0.85 to a lattice effect even though physical washout can lower e at low CL.
@@ -1638,6 +1647,18 @@ the parts disagree on the group count; `tools/check-test-costs.py` applies C-2 t
 a part over 5 s (red) and two parts of 4.9 s that sum over 5 s (green). Adding a test class means one line in the `groups`
 array with its measured cost hint; a stale hint costs balance, never coverage. When a part nears 4 s, raise n (one number in
 `jobs=`), do not re-base C-2.
+2026-10-08 (ABL): the hints drifted within two days. Part 1 ran 4900 and 4936 ms against part 2 at 4065 and 3947 ms, and three
+tracks failed C-2 on part 1; Projection was hinted 1180 ms and costs 29, SectionForce 780 and costs 297, SectionSeam 1040 and costs
+1528. Re-hinted from three whole-harness runs (`docs/proof/abl/measure.md`): skew fell to 93-255 ms, parts 4550-4971 ms in the ring.
+A group costs more cold than after the groups that warm it, so hints taken from a partition's own GROUP lines moved the layout and
+went red twice; use the whole-harness median. Proposed control, not built (the skew needs both parts' times, and each part is a
+separate process): `tools/check-test-costs.py` prints PARTITION-SKEW when |part 1 - part 2| > 15 % of the C-2 limit (750 ms),
+from the `.ms` files `tools/run-tests.sh` already writes; it costs no run time. Still open: at ring load the two parts hold about
+9.3 s, so 4.5 s per part needs n=3, which needs a ruling.
+2026-10-09 (OBS): the skew control is built. `tools/check-test-costs.py` prints `PARTITION-SKEW <harness> parts=<ms list> skew_ms=<n> (hints stale?)` for
+Core and Analysis when the slowest part minus the fastest exceeds 15 % of the per-part limit; it is advisory and never fails the ring. Its
+self-test plants a balanced and a skewed set. Cost: five `.ms` reads, under 1 ms. The Core limit is a 30,000 ms reference (Core parts read 31.6 / 31.7 / 24.2 s: a real 7.5 s skew, not tuned here), not a ruled limit.
+2026-10-09 (CBL): Core parts are now cost-placed, not round-robin: `tests/CfdWorkbench.Core.Tests/Fixtures/core-costs.tsv` (longest first onto the lightest part; an unlisted check keeps `i % n`). Parts read 29.3 / 29.7 / 30.3 s with no PARTITION-SKEW (was 31.6 / 31.6 / 21.9 s). The table goes stale as checks are added; the PARTITION-SKEW line is the detector, and regenerate is `python3 tests/CfdWorkbench.Core.Tests/Fixtures/core-costs.py <logs of CFD_CORE_COST=1 runs>` (`docs/proof/cbl/measure.md`).
 
 **DESKTOP-HARNESS-GROWTH · A CPU-bound harness whose parts run concurrently cannot be partitioned into margin.** C-4 (Desktop <= 43 s)
 read 42.5 / 43.5 / 42.8 s at quiet load (one red in three), then 45,636 ms at load 21.8 on the PNA join, after every UI track had added
@@ -2036,6 +2057,8 @@ append-only registers); `docs/proof/win-routes/manifest.json` was refreshed for 
 (fast ring, about 1 s); a shrink-only allowlist carries a reason per entry (one: the pack's own fixture with a dummy name). Residual: the
 guard sees a name only in a path or SID shape, and history is unchanged.
 
+Ruling 165 instance (2026-10-08): an unpushed local audit entry included a concrete Windows account path. The correction reset that entry before any push and re-appended it with `%USERPROFILE%` at write time. The new audit line contains no account path; prior shared history was not rewritten.
+
 **READER-SHARE-DELETE · A reader opened without delete sharing blocks a POSIX replace on Windows.**
 A product reader that opens a user file with `FileShare.Read` (or through `File.ReadAllBytes*`, `File.OpenRead`, which share Read only) holds a handle
 the Windows save cannot replace under: the handle-relative rename fails with NativeFailure Win32 32, NTSTATUS 0xC0000043. A `FILE_SHARE_READ |
@@ -2045,7 +2068,7 @@ FILE_SHARE_DELETE` reader keeps its old bytes while the replace succeeds (Ruling
 call. Sweep: three sites (`ShellHost.ImportDatAsync`, `Cli.ReadFoilBoundedAsync`, `SectionLibrary.ScanCore`), now all on `UserFile.OpenRead`; `PaneDiagnostics` is an append
 writer and out of scope. Derive: one opener, `CfdWorkbench.Persistence.UserFile`, owns the flags. Control: `tools/check-reader-sharing.py` (`--self-test` plants nine
 offenders and eight clean forms incl. writers), run by `tools/check-docs.py` (fast ring, 0.3 s); behaviour test `Library_UserFileHeldReader_SurvivesReplaceByRename` (red on Windows
-with the old flags only). Residual: a reader built from `StreamReader(path)` or a new API outside the pattern list passes the scan.
+with the old flags only). Residual: a reader built from `StreamReader(path)` or a new API outside the pattern list passes the scan. **2026-10-09 (WRB, Ruling 167 (a)):** on the PC the behaviour test threw `UnauthorizedAccessException` because it replaced the file with `File.Move(..., overwrite: true)`, which is `MoveFileEx` on Windows, not the product's replace. The test now replaces through the product primitive on Windows (`WindowsNative.Rename(source, parent, name, replace: true)`, handle-relative POSIX-semantics rename; `File.Move` stays on macOS). Not provable red on a Mac; the next PC ring must show `Library_UserFileHeldReader_SurvivesReplaceByRename` PASS (`docs/proof/wrb/red-first.md`).
 
 **TEST-TMP-ALIAS · A Desktop test builds its scratch path from the raw system temp directory, and the store refuses it.** The production store refuses a path with a symlinked component (`DOC-UNSUPPORTED-PERSISTENCE`). macOS's default TMPDIR is `/var/folders/...`, under the `/var` link. `tools/run-tests.sh` exports a non-symlinked TMPDIR, so the ring was green while the same harness run alone through `tools/run-suite.sh` failed `SaveDialog_EmptyOrDuplicate_ErrorFocusStays` (DOC-UNSUPPORTED-PERSISTENCE) and `SaveDialog_Save_LiveRegionFocusToSectionMenu`; `--section-editor --part=2/2` alone showed both, part 1/2 passed. Four helpers had each patched the alias by hand with a different prefix list (`/tmp/`, `/var/`), and 20 sites took `Path.GetTempPath()` raw. **The handoff's second defect, "SaveDialog checks fail when one part runs alone", was not a second defect:** with a non-symlinked TMPDIR every SaveDialog check passes in part 2/2 alone, in part 1/2 alone and one by one (`CFD_TEST_ONLY`); the checks set up their own library root and read nothing from a sibling part. They sit in part 2 only because of the registration-index partition. **Class → sweep → derive → prevent:** signature: a Desktop test that takes `Path.GetTempPath()` or `Path.GetTempFileName()` directly. Sweep: 20 sites in 8 files fixed (`WorkbenchTests`, `ControllerSection`, `ControllerShell`, `ShellWindow`, `StatusStrip`, `PropertiesCells`, `CatalogDialog`, `AnalysisPanel`); the same shape in Core, Analysis and Cli tests is reported, not fixed (their harnesses were not run alone here). Derive: `TestTemp` (`tests/CfdWorkbench.Desktop.Tests/TestTemp.cs`) resolves every link in the root, so one definition replaces the six hand-patched ones; production still refuses links. Control: `SelfLaunchTests.NoRawTempPath` (fast ring, ~10 ms) fails on any Desktop test file but `TestTemp.cs` that names the raw call; it was red on 8 files before the change (`docs/proof/hrn/red-first.md`). Residual: the scan sees the call by name, not a path built another way; for the part-alone claim there is no structural rule, only the alone-run evidence. **2026-10-08 (WTH):** the sweep HRN reported is done. Run alone with the default macOS TMPDIR, the Core harness gave 43 FAIL (DOC-UNSUPPORTED-PERSISTENCE) and the Cli harness aborted; 10 raw sites (7 Core, 3 Cli) now go through a per-project `TestTemp` class, and both harnesses pass alone (Core 722 PASS, Cli 6 PASS). `NoRawTempPath` scans the Desktop, Core and Cli test projects; it was red on 5 Core/Cli files (`docs/proof/wth/red-first.md`).
 
@@ -2073,7 +2096,7 @@ A quantity that is zero by construction comes out of floating-point arithmetic a
 
 **SWALLOWED-CAUSE · A catch returns null and the event that depends on the value records nothing about why.** `SectionReplace.CatalogFamilies` caught `ContractError` from `Catalog.Load()` and returned null, so the `catalog.preview` event carried an empty family with no reason; on the Windows ring `Replace_Preview_EmitsCatalogPreviewOutcome` read "expected Naca, got empty" and the CAT-UNAVAILABLE cause stayed hidden (`docs/proof/cat/investigation.md` section 5; Ruling 156 (3)). **Class → sweep → derive → prevent:** signature: `catch (ContractError) { return null; }` (or a bare default) on a value an event or log later reads. Sweep: the catch sites in `src/CfdWorkbench.Core` that feed a recorded field are listed in `docs/proof/srs/red-first.md` as not swept (the record-write-path sweep is a separate item). Derive: the event gets an optional `FamilyRefusal` (code, check, detail) beside `Family`; the failure stays cached because the embedded catalog cannot change in a process. Control: `Replace_Preview_CatalogUnavailable_EventRecordsRefusal` plants a failing loader and asserts the field (red on main: `docs/proof/srs/red-first.md`). Residual: other swallow sites are not yet scanned. (2026-10-08)
 
-**RAW-CAPTURE-BLOB-MISMATCH · A raw evidence capture is normalized or otherwise changed between capture and delivery.** PR #13 records commit `1f2cc9f8` normalizing `bits.stdout.txt` from 13,584 bytes to 13,499 before `b5c6b52e` restored the CRLF capture; payload lines stayed identical, but the committed file no longer represented the captured bytes (`docs/reviews/pr-13.md`, Ruling 163). **Class → sweep → derive → prevent:** signature: the receipt's file hash or byte count differs from the committed Git blob. Sweep: every captured stream and suite log in `docs/proof/r163-windows-ring/` is listed in `capture-manifest.json`. Derive: file identity is SHA-256 and byte count of `git show HEAD:<path>`, not the working-tree copy. Control: `verify-captures.py` fails when either committed-blob value differs from the receipt-declared manifest; the proof directory's `.gitattributes` uses `-text` for raw captures. Delivery requires this check after commit.
+**RAW-CAPTURE-BLOB-MISMATCH · A raw evidence capture is normalized or otherwise changed between capture and delivery.** PR #13 records commit `1f2cc9f8` normalizing `bits.stdout.txt` from 13,584 bytes to 13,499 before `b5c6b52e` restored the CRLF capture; payload lines stayed identical, but the committed file no longer represented the captured bytes (`docs/reviews/pr-13.md`, Ruling 163). **Class → sweep → derive → prevent:** signature: the receipt's file hash or byte count differs from the committed Git blob. Sweep: every captured stream and suite log in `docs/proof/r163-windows-ring/` is listed in `capture-manifest.json`. Derive: file identity is SHA-256 and byte count of `git show HEAD:<path>`, not the working-tree copy. Control: `verify-captures.py` fails when either committed-blob value differs from the receipt-declared manifest; the proof directory's `.gitattributes` uses `-text` for raw captures. Delivery requires this check after commit. **2026-10-09 (WRB, Ruling 167):** the class control is now general: `tools/check-capture-manifests.py` checks every `docs/proof/*/capture-manifest.json` in HEAD (SHA-256 and byte count of `git show HEAD:<path>`; a path outside the manifest's folder or an uncommitted capture also fails), run by `tools/check-docs.py` (fast ring; `--self-test` about 1.3 s, real run 1.1 s, 14 planted cases incl. a byte count off by one and a working-tree edit after commit; it also reads `docs/proof/*/closing-manifest.json`, e.g. `win-naca` with 119 entries, leader note on the PR #17 review). Residual: a manifest not yet in HEAD is checked only after it is committed.
 
 **CRT-GOLDEN · A bit golden on a C-runtime transcendental is a platform-keyed authority.**
 .NET forwards `Math.Sin/Cos/Atan/Atan2/Pow/Exp/Log` to the platform C runtime (Apple libm, UCRT, glibc), which need not agree in the last bit, so a SHA-256, a committed `.dat`, or a bit golden taken from such a value is true on the machine that recorded it and false on another. The Windows ring found it as `entry naca-0009: first differing byte 727`: one ulp of `Math.Cos(Math.PI*i/80.0)` at i = 63 (docs/proof/cat/investigation.md, Ruling 154 class d, Ruling 156).
@@ -2087,3 +2110,71 @@ A quantity that is zero by construction comes out of floating-point arithmetic a
 `NativeFailure.ProductCode` returned `DOC-IO` for every Win32 error other than the qualified sharing violation. That fallback would let a future adapter turn an unqualified native failure into a product outcome.
 
 **Class → sweep → derive → prevent:** signature: a native-error-to-product-code property with a generic fallback. Sweep: `rg ProductCode src tests` found the property, its Win32 32 assertion, and no adapter reads. Derive: map only Win32 32 to `DOC-CONFLICT`; preserve every other error as null until qualified. Control: `WindowsNative_ProductCode_UnqualifiedWin32Error_IsUnmapped` in `WindowsProjectStoreTests.cs`, with the red run retained in `docs/proof/win-product-code/red-first.md`. Status: controlled.
+
+**CEILING-STALE-REGIME · A time ceiling is derived from a regime that no longer exists, and the leader misses the report that says so.**
+Ruling 168 (1) set a 300 s Windows evidence-ring ceiling from rings of 140 s and 168.6 s. In both, the Desktop harness had
+crashed early on the fail-closed store and never spawned its suites. Tracks WRT and WTH then let Desktop run in full on
+Windows. At 00:11Z the PC reported a complete ring on 1146ec8e at 345,588 ms (xmsg 20261009T001155) and asked whether a
+concurrent-L3 run qualifies. The Mac leader did not read it: its watch covered branch heads, PR heads and PR comments,
+but not PC xmsg lines on `origin/win/*`. At 00:19Z it restated the 300 s ceiling. Calibration run 1 was killed at 302 s
+in Desktop's spawn stage, and the PC filed a second decision request. Ruling 170 raised the ceiling to 900 s.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a numeric limit whose basis (the runs it was measured from) predates a change that alters what the runs
+  execute. The change here: harness aborts fixed, so more coverage runs. A second signature: a coordinator watch that
+  omits one of the peer's channels.
+- *Sweep:* the other Windows limits, C-2 and C-3 per part, are advisory on the uncalibrated host
+  (`check-test-costs.py:45-49`). No other ceiling is stated in a ruling.
+- *Derive:*
+  - a ceiling is never below the latest measured complete wall for that host;
+  - a change that removes a harness abort or a skip re-opens every limit derived from runs that had it;
+  - the leader reads every peer channel at each poll.
+- *Prevent:*
+  - (a) Ruling 170 states the first rule. The Windows baseline (`docs/proof/ring-pc-win/baseline.csv`, Ruling 168 (2)) will
+    replace the prose ceiling with measured rows. Until then this is prose, Status: pending a mechanical control.
+  - (b) The leader's PC watch now emits `XMSG-FROM-PC <id> <kind>` for every new PC message on `origin/main` and
+    `origin/win/*`. This is session tooling, not repo tooling. The repo-level control remains `python3 tools/xmsg.py
+    unread`, run at each join (continuation prompt).
+2026-10-09 (OBS): a killed log could not tell slow from hung, because Spawn buffers each child's output and STAGE lines had no time.
+Every Desktop `STAGE <name>` line now carries `elapsed_ms=<since harness start>`, and Spawn prints `SPAWN-START <mode> elapsed_ms=<n>` at
+each child start, unbuffered. A killed log now shows which children had started and how long ago. Checks: `StageTimingTests`.
+
+**CLEANUP-BLOCKS-CEILING · A cleanup path that can block defeats the ceiling it serves.**
+The PC's W-2 `verify-windows-store.py` (unpushed 1d89f6c8, xmsg 20261009T010555) enforced a 60 s hard ceiling. Its timeout
+path, `_terminate_tree`, called a blocking `stream.close()` on the ceiling thread. With an already-expired deadline and
+an injected `taskkill` failure, a real Windows pipe child blocked cleanup for 1.49 s. The self-test used a fake BytesIO
+stream, which cannot reproduce reader-thread pipe locking, so the ceiling was asserted and not proved. The PC's owner
+reviewer vetoed it at the 2/2 repair cap.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a timeout or ceiling whose enforcement path itself performs an unbounded wait (close, join, kill, flush),
+  proved only against an in-memory fake.
+- *Sweep:* the Mac's own timeout paths (`tools/run-readiness.py` STEP_TIMEOUT and `run_entry` timeout, and the Desktop
+  harness's 120 s child kill at `WorkbenchTests.cs:735-740`). They are not yet audited for a blocking close: an open
+  follow-up.
+- *Derive:* the timeout path never blocks on the ceiling thread; reader threads are daemon, closed on a helper thread
+  or abandoned with a bounded join; the ceiling clock starts at process start.
+- *Prevent:* Ruling 171 (1): every timeout self-test uses a real child process (not an in-memory stream). It covers an
+  already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status: control
+  pending the PC repair track; the Mac sweep above is open.
+
+**FIXTURE-RESET-WITHOUT-DRAIN · A shared-fixture reset returns before the previous check's background job lands, and the next check captures a baseline that depends on that job.**
+`Elevation_ZoomPanFit_KeyboardAndPointerSameCamera` failed once in `--views --part=1/2` as "⌘0 fits" (load 1.9 to 16).
+Cause (Verified, `docs/proof/ezf/investigation.md`): `Fixture.Reset` fitted the camera while the accepted mesh issued by the
+previous check's Escape was in flight; the mesh landed mid-check and the later fit used a different bounding box (Target Z
+0.0469 vs 0.0008, Distance equal). Sibling of SECTION-EDITOR-LOAD-FLAKE: the same root (a background surface job
+completing between dispatcher pumps), where load only stretches the window.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a Desktop check that fails only inside a part, at higher load, never alone, with a difference in a derived
+  value (a fit target) and no product defect; its fixture reset does not wait for `SurfaceUpdating`.
+- *Why it survives:* alone and unloaded the mesh lands inside `Reset`'s own pumps; "back to its first state" was prose;
+  "CPU starvation" was accepted without a captured failure text.
+- *Sweep:* only the ZoomPanFit check stores a fit and later re-fits; the other Elevation camera readers project through the
+  current camera. OPEN, exposure Inferred (not reproduced): `SectionEditorTests.Reset` (`:1155`) and the pixel-sampling
+  checks after a mutating predecessor (`Elevation_FrontBand_RenderedFromSurfaceView`, `Elevation_LockedDihedralRoot_*`).
+- *Derive:* a reset that promises a first state drains the work the previous check left running.
+- *Prevent (Ruling 172):* `Fixture.Reset` pumps until `!Controller.SurfaceUpdating` before the first `Fit()`; the ZoomPanFit
+  check asserts the surface is settled at its baseline. Red first with a planted mesh delay (`docs/proof/ezf/red-first.md`):
+  camera compare red at 60 and 150 ms on the old Reset, assertion red at 150 ms, green at 0, 60, 150, 200, 800 ms after the
+  drain. Not done: a lint for a fixture `Reset` that fits without a drain (investigation P3).

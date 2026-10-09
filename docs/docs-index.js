@@ -5216,10 +5216,18 @@ window.DOCS_INDEX = {
         {
           "to": "proof-r163-windows-ring",
           "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-naca",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4549946529b4cd0addc042d7ffb9c94f3e8b463233a7f328e111dc1f5eb78a85"
+      "sourceSha256": "419f0d39739f4a4fa637c8b6389b7c9ecb7463aa07786789865b3ad9712a8a02"
     },
     {
       "id": "domain-experts",
@@ -6842,6 +6850,71 @@ window.DOCS_INDEX = {
       "sourceSha256": "30f1fb9fd749c3b3063e53aae0ccc60303f5aa813f76c80cf36cd2eec3ad91db"
     },
     {
+      "id": "review-pr-17",
+      "path": "docs/reviews/pr-17.md",
+      "title": "PR #17 (Windows PC) - Ruling 151 C3/C4 follow-ups and the Ruling 165 correction (Ruling 169), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 169). PR #17 closes Ruling 151 C3/C4 and replaces the Ruling 165 audit entry: 0 PROOF-PII hits over every added line, the rejected 9e2bdfc2 is on no remote, the win L3 case and generator cite the win case, and all 119 closing-manifest and 7 prepared hashes equal the committed blobs. Two C3 controls are prose only, and one control statement misdescribes freeze-su2.py's order.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-4",
+        "privacy"
+      ],
+      "links": [
+        {
+          "to": "review-pr-9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-16",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d0508b3bedf45d97263741f251c5752c1fc52b3bb26108a5b81ec95bf7084d80"
+    },
+    {
+      "id": "review-pr-18",
+      "path": "docs/reviews/pr-18.md",
+      "title": "PR #18 (Windows PC) - pc-win calibration rings; Ruling 156 P5 met (Rulings 173, 174), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 173). Three complete pc-win rings (336.4 / 327.7 / 325.7 s, L3 running) with the catalog, held-reader and five DRIFT=0 lines green in each. All three exit 1 on the same 40 unexpected failures, none on the determinism path, so Ruling 156 P5 is met. The baseline rows are accepted; the file waits for per-host ms limits.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "test-ring",
+        "determinism",
+        "catalog"
+      ],
+      "links": [
+        {
+          "to": "review-pr-16",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-cat-geometry",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5bcdda1e5d500211739d20046234c7104ae931da93385581ae56e3761b7cbb13"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7810,7 +7883,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c56b3623ecbd52b7d05ae80ad5756627a9093966342ec1785eba4c4e268d4eca"
+      "sourceSha256": "0fd3e647d3a19e01d2ef53c8c6675ee50ee7ab3471394c914a1c63b7efcdea0a"
     },
     {
       "id": "kb-hw-glossary",
@@ -7896,6 +7969,34 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "bb7a76a43874f5de8954a1969d7552808a657ae73c7437f5141e1eec4952a448"
+    },
+    {
+      "id": "investigation-ezf-zoompanfit",
+      "path": "docs/proof/ezf/investigation.md",
+      "title": "Investigation EZF - the flaky Elevation_ZoomPanFit check is a stale fit baseline, not CPU starvation",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-ezf",
+      "phase": "investigation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Elevation_ZoomPanFit_KeyboardAndPointerSameCamera fails when the previous check leaves an accepted-revision mesh in flight and that mesh lands after Fixture.Reset has fitted the camera. The fit baseline came from the draft mesh, the later fit from the accepted mesh. Verified necessary and sufficient with a planted mesh delay. Repair is test-side: Reset drains the mesh first.",
+      "tags": [
+        "ezf",
+        "flake",
+        "desktop-tests",
+        "surface",
+        "camera",
+        "fixture"
+      ],
+      "links": [
+        {
+          "to": "proof-a3a-pack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b23951897c1b6626e32c6748ba5c819e61d81afc9336648012ec6b01fd0581b"
     },
     {
       "id": "investigation-review-window-attach",
@@ -10818,6 +10919,59 @@ window.DOCS_INDEX = {
       "sourceSha256": "b0673fdb6f2871565c8fc0f5b1be74a6148438f314dab6e8a27e7c4ac00effe4"
     },
     {
+      "id": "proof-abl-measure",
+      "path": "docs/proof/abl/measure.md",
+      "title": "ABL Analysis part balance: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-abl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Per-group cost of the Analysis harness (three runs, median), the hint change, and three ring runs per part with load.",
+      "tags": [
+        "abl",
+        "analysis",
+        "partition",
+        "c-2",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "32c464165d41197b77662a64c03c2277e5f675c2b16b1f43b5163680a4930372"
+    },
+    {
+      "id": "proof-abl-red-first",
+      "path": "docs/proof/abl/red-first.md",
+      "title": "ABL red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-abl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The ring failed C-2 on the stale hints and on two intermediate hint sets; the kept hint set passed three rings.",
+      "tags": [
+        "abl",
+        "analysis",
+        "partition",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-measure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "be62c92d1e79c12675dbcfee5dff1495b50e66dee36b69e451fee95cbf04af60"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -11860,6 +12014,58 @@ window.DOCS_INDEX = {
       "sourceSha256": "5d4ca477769a2466f3ae9863ae2a1c1a632002b7a8f6d0ed801c1f26ca8aeda1"
     },
     {
+      "id": "proof-cbl-measure",
+      "path": "docs/proof/cbl/measure.md",
+      "title": "CBL Core part balance: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Per-check cost of the Core harness (two runs), the top 20, and three ring runs with the Core part ms and load.",
+      "tags": [
+        "cbl",
+        "core",
+        "partition",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-cbl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9154463abb7de9d2eb8bc5a4a412e4df07f7efe7de269f83c640c71e75f8eed9"
+    },
+    {
+      "id": "proof-cbl-red-first",
+      "path": "docs/proof/cbl/red-first.md",
+      "title": "CBL red first: the cost-table partition check",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The partition check red on the old round-robin rule (19106/18149/12491 ms), then green on longest-first.",
+      "tags": [
+        "cbl",
+        "core",
+        "partition",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-cbl-measure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ab864d55b246591c750659f161015cd841fd147f8866e6ef9b15f3305dd1f6fd"
+    },
+    {
       "id": "proof-copyfix-red-runs",
       "path": "docs/proof/copyfix-red-runs.md",
       "title": "COPYFIX red-first runs — M1.2a copy decisions, two missing states, atomic Remove from Recent",
@@ -12294,6 +12500,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9cbbe5c0a750558d520e47c982e1b944d873a49d45152427f3e41ccfeada4a93"
+    },
+    {
+      "id": "proof-ezf-red-first",
+      "path": "docs/proof/ezf/red-first.md",
+      "title": "EZF red-first record - Fixture.Reset drain and the folded settled-surface assertion",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-ezf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Planted-delay record for Ruling 172. The camera compare fails on the old Reset at 60 and 150 ms; the folded assertion fails at 150 ms; with the Reset drain every delay from 0 to 800 ms passes.",
+      "tags": [
+        "ezf",
+        "red-first",
+        "desktop-tests"
+      ],
+      "links": [
+        {
+          "to": "investigation-ezf-zoompanfit",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b65e52933f8f5ddacfca1640816a445b12a016b2246af3aef3ccff783b374a47"
     },
     {
       "id": "proof-flk-investigation",
@@ -13239,6 +13470,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "629fc0166d52a76b4330efdc64fed47d55f0a44e299a9e6e8e43d5973632a519"
     },
     {
+      "id": "proof-obs-red-first",
+      "path": "docs/proof/obs/red-first.md",
+      "title": "OBS ring observability: red-first record",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-obs",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for STAGE elapsed_ms, SPAWN-START, and the PARTITION-SKEW advisory.",
+      "tags": [
+        "obs",
+        "stage",
+        "spawn",
+        "partition-skew",
+        "ring"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "da5f92bf56395839723fedd00dc35d85a765251c3fd13e749843a621b0f8f435"
+    },
+    {
       "id": "proof-openfix-red-runs",
       "path": "docs/proof/openfix-red-runs.md",
       "title": "OPENFIX red runs and verification — M1.2a Open outcomes and Span input",
@@ -13645,7 +13903,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "445f07869e032013582d358118fd5d6aa40189b13ecea3771e8207d74e445ff1"
+      "sourceSha256": "3f396d5dd4c7c919421c3cf6b599758b8121137951dd79e1209aaf88e464395c"
     },
     {
       "id": "proof-rgt-red-first",
@@ -15354,7 +15612,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ee1b2a964676b93b77e852f0376f83f46ba2b9bb48168830958b4b2aac19e5df"
+      "sourceSha256": "506103bae281b1707756bbcd3b9a68f592d5cac156c3aa2e1098f84745be6a54"
     },
     {
       "id": "proof-win-product-code",
@@ -15665,6 +15923,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "fbd2221b43f9cc84427285d30106e6c0863c2b680354bd63e82266ca009f6797"
+    },
+    {
+      "id": "proof-wrb-red-first",
+      "path": "docs/proof/wrb/red-first.md",
+      "title": "WRB red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wrb",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for the Windows ring follow-ups: the CFD_RING_HOST override, the capture and closing manifest guard, the handle-target fixture re-record, and the held-reader test on Windows.",
+      "tags": [
+        "windows",
+        "ring",
+        "proof",
+        "ruling-167",
+        "ruling-168"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "41fa73ad9d7d1f90dff8fb4a0ec789b394f3177a269fc65f83d25609b3b10bd2"
     },
     {
       "id": "proof-wrt-red-first",
@@ -17655,5 +17940,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5f53d0ee3ee2bbda99e7280f671fd4de5244c167565499de78a0e7ed78405bbe"
+  "graphSha256": "fe42128f198424feb722ac570048aaca6548805c3aa6ae12bcf180111d8c52d9"
 };
