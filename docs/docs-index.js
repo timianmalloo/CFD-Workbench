@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "77fceead4e6cb55e482a88eac5e66b237623742a45fc9e67829e2c34b64aea20"
+      "sourceSha256": "25a39f303e2148ca1ef1d3fbd1aa42d6f045603969fd5f9118b2b391295afcb8"
     },
     {
       "id": "domain-experts",
@@ -7850,7 +7850,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ed8ee7c089b8cb175a7568b024c46190152023015ab6da26bac726033aeb5c12"
+      "sourceSha256": "c1441f6d74c6ca9aeb8a0cef6bb47c845b002e894a107bcbe8d8a12ee5064976"
     },
     {
       "id": "kb-hw-glossary",
@@ -7936,6 +7936,34 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "bb7a76a43874f5de8954a1969d7552808a657ae73c7437f5141e1eec4952a448"
+    },
+    {
+      "id": "investigation-ezf-zoompanfit",
+      "path": "docs/proof/ezf/investigation.md",
+      "title": "Investigation EZF - the flaky Elevation_ZoomPanFit check is a stale fit baseline, not CPU starvation",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-ezf",
+      "phase": "investigation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Elevation_ZoomPanFit_KeyboardAndPointerSameCamera fails when the previous check leaves an accepted-revision mesh in flight and that mesh lands after Fixture.Reset has fitted the camera. The fit baseline came from the draft mesh, the later fit from the accepted mesh. Verified necessary and sufficient with a planted mesh delay. Repair is test-side: Reset drains the mesh first.",
+      "tags": [
+        "ezf",
+        "flake",
+        "desktop-tests",
+        "surface",
+        "camera",
+        "fixture"
+      ],
+      "links": [
+        {
+          "to": "proof-a3a-pack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b23951897c1b6626e32c6748ba5c819e61d81afc9336648012ec6b01fd0581b"
     },
     {
       "id": "investigation-review-window-attach",
@@ -17854,5 +17882,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "72725de434310d1849613e08c99da10e11ece653031ef3fa0ab2f105e77093f3"
+  "graphSha256": "f1d5e0b36e5851f3aa1a9b3ef3cb013529124ddd2e8961a75ae1c5d4dda1fc5f"
 };

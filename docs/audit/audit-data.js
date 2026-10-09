@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T01:13:26Z",
+  "generated": "2026-10-09T01:31:40Z",
   "audit": [
     {
       "actor": null,
@@ -31500,6 +31500,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T01:12:30Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M4F4K4T11WDSZS6ASSHJKC10",
+      "shortname": "investigate-ezf-zoompanfit",
+      "datetime": "2026-10-09T01:31:40Z",
+      "session": "trk-ezf",
+      "prompt": "trk-ezf: investigate flaky Elevation_ZoomPanFit",
+      "summary": "Stale fit baseline: Fixture.Reset fits before the previous check's accepted mesh lands; verified by planted delay (fails 40-200 ms) and a Reset drain (passes). Repair is test-side.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/ezf/investigation.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Verified root cause, class, sweep and repair plan for the flaky Elevation_ZoomPanFit check",
+      "done_when": "investigation.md with reproduction numbers, check-docs exit 0"
     }
   ],
   "changes": [
