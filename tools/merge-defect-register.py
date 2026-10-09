@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """Git merge driver for docs/lessons/defect-classes.md (defect class JOIN-LOG-CONFLICT).
 
-Usage as a driver: merge-defect-register.py %O %A %B %P  (writes the result to %A, exit 0; exit 1 = conflict, %A untouched)
+Usage as a driver: merge-defect-register.py %O %A %B %P  (writes the result to %A, exit 0; exit 1 = conflict, %A holds a three-way merge with markers)
 Self-test:         merge-defect-register.py --self-test
 
-Resolves only whole-entry additions and strict extensions of an existing entry; every other case exits 1 so git writes
-normal conflict markers. An entry starts at a line beginning `**<CLASS-ID> · ` and runs to the next such line.
+Resolves only whole-entry additions and strict extensions of an existing entry; every other case writes a standard
+three-way merge with conflict markers into %A and exits 1. Git does NOT write markers itself: after a non-zero driver exit
+it keeps whatever %A holds (ours) and marks the path conflicted, so an untouched %A looks resolved and drops theirs. An entry starts at a line beginning `**<CLASS-ID> · ` and runs to the next such line.
 """
 import re
+import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 for _stream in (sys.stdout, sys.stderr):
@@ -98,11 +101,27 @@ def run_driver(base_path, ours_path, theirs_path):
     def read(path):
         return Path(path).read_text(encoding="utf-8")
 
-    result = merge(read(base_path), read(ours_path), read(theirs_path))
+    base, ours, theirs = read(base_path), read(ours_path), read(theirs_path)
+    result = merge(base, ours, theirs)
     if result is None:
+        Path(ours_path).write_text(conflict_text(base_path, ours_path, theirs_path, ours, theirs), encoding="utf-8", newline="\n")
         return 1
     Path(ours_path).write_text(result, encoding="utf-8", newline="\n")
     return 0
+
+
+def conflict_text(base_path, ours_path, theirs_path, ours, theirs):
+    """git merge-file -p output (real hunks); a whole-file conflict when git reports none or cannot run."""
+    try:
+        proc = subprocess.run(
+            ["git", "merge-file", "-p", "-L", "ours", "-L", "base", "-L", "theirs", ours_path, base_path, theirs_path],
+            capture_output=True, check=False)
+        text = proc.stdout.decode("utf-8")
+        if proc.returncode > 0 and "<<<<<<<" in text:
+            return text
+    except (OSError, UnicodeDecodeError):
+        pass
+    return "<<<<<<< ours\n%s\n=======\n%s\n>>>>>>> theirs\n" % (ours.rstrip("\n"), theirs.rstrip("\n"))
 
 
 def entry(name, text):
@@ -127,12 +146,31 @@ def self_test():
         ("preamble edited on both", base, doc(a, x, preamble=pre + " One."), doc(a, x, preamble=pre + " Two."), None),
         ("reordered entries", base, doc(x, a), doc(a, x, y), None),
     ]
+    fm_pre = "---\nid: r\nlinks:\n  - { to: base-a, rel: relates-to }\n---\n# Register"
+    fm_base = doc(a, x, preamble=fm_pre)
+    fm_ours = doc(a, x, preamble=fm_pre.replace("relates-to }\n", "relates-to }\n  - { to: ours-b, rel: relates-to }\n"))
+    fm_theirs = doc(a, x, y, preamble=fm_pre.replace("relates-to }\n", "relates-to }\n  - { to: theirs-c, rel: relates-to }\n"))
+    cases.append(("both add different frontmatter links (PR #17 shape)", fm_base, fm_ours, fm_theirs, None))
     failures = 0
     for name, b, o, t, want in cases:
         ok = merge(b, o, t) == want
+        if want is None:
+            ok = ok and conflict_leaves_markers(b, o, t)
         failures += not ok
         print("%s: %s" % ("ok  " if ok else "FAIL", name))
     return 1 if failures else 0
+
+
+def conflict_leaves_markers(b, o, t):
+    """Run the driver on files: exit must be 1 and %A must hold markers plus every line theirs changed or added."""
+    with tempfile.TemporaryDirectory() as tmp:
+        paths = [Path(tmp) / n for n in ("base", "ours", "theirs")]
+        for path, text in zip(paths, (b, o, t)):
+            path.write_text(text, encoding="utf-8", newline="\n")
+        code = run_driver(*[str(p) for p in paths])
+        left = paths[1].read_text(encoding="utf-8")
+    wanted = [line for line in t.split("\n") if line.strip() and line not in b.split("\n")]
+    return code == 1 and "<<<<<<<" in left and ">>>>>>>" in left and all(line in left for line in wanted)
 
 
 def main(argv):

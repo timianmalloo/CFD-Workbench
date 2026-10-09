@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "614f1c9a076326b1fd21269ea79c0d25b990ace9a4405e69321b34f90072a09e"
+      "sourceSha256": "4469d4b351a88fbf09e74bb1db95eb363ef79a53bf53a38155c4e5b98340115f"
     },
     {
       "id": "domain-experts",
@@ -7850,7 +7850,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7f6f8036a129b5390cfbcbef7a7d00557fffc439eb3bc674e82935241f6edae5"
+      "sourceSha256": "ed8ee7c089b8cb175a7568b024c46190152023015ab6da26bac726033aeb5c12"
     },
     {
       "id": "kb-hw-glossary",
@@ -10858,6 +10858,59 @@ window.DOCS_INDEX = {
       "sourceSha256": "b0673fdb6f2871565c8fc0f5b1be74a6148438f314dab6e8a27e7c4ac00effe4"
     },
     {
+      "id": "proof-abl-measure",
+      "path": "docs/proof/abl/measure.md",
+      "title": "ABL Analysis part balance: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-abl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Per-group cost of the Analysis harness (three runs, median), the hint change, and three ring runs per part with load.",
+      "tags": [
+        "abl",
+        "analysis",
+        "partition",
+        "c-2",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "32c464165d41197b77662a64c03c2277e5f675c2b16b1f43b5163680a4930372"
+    },
+    {
+      "id": "proof-abl-red-first",
+      "path": "docs/proof/abl/red-first.md",
+      "title": "ABL red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-abl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The ring failed C-2 on the stale hints and on two intermediate hint sets; the kept hint set passed three rings.",
+      "tags": [
+        "abl",
+        "analysis",
+        "partition",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-measure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "be62c92d1e79c12675dbcfee5dff1495b50e66dee36b69e451fee95cbf04af60"
+    },
+    {
       "id": "proof-app-shell-test-inventory",
       "path": "docs/proof/app-shell-test-inventory.md",
       "title": "App-shell test inventory — WorkbenchTests.cs assertions bound to controls the shell removes or changes",
@@ -13685,7 +13738,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "445f07869e032013582d358118fd5d6aa40189b13ecea3771e8207d74e445ff1"
+      "sourceSha256": "3f396d5dd4c7c919421c3cf6b599758b8121137951dd79e1209aaf88e464395c"
     },
     {
       "id": "proof-rgt-red-first",
@@ -17785,5 +17838,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "bb0960277297bd9e6b0b0cc0021aacd30e3255897df39a0998744dff4bef66cc"
+  "graphSha256": "73909895bdb89201dcbb6ea5b4088db1e7875ca5616086c394b69a85f04c4622"
 };
