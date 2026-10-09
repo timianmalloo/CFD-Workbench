@@ -1,3 +1,18 @@
+---
+id: proof-tmi-red-first
+title: "TMI red-first receipt"
+type: proof-pack
+status: active
+owner: "@trk-tmi"
+phase: implementation
+tags: [windows, test-hygiene, proof, ruling-176]
+links:
+  - { to: defect-classes, rel: relates-to }
+review-by: "2026-11-08"
+summary: >-
+  Receipt for making Telemetry_MarkerInjection_AbsentEverywhere portable to Windows: the backslash path case becomes a created subfolder on Windows, proven on the Mac through a pure helper.
+---
+
 # TMI red-first (Ruling 176 item 3)
 
 Intent of `Telemetry_MarkerInjection_AbsentEverywhere`: a marker in a file name, and in a second path shape that carries a backslash,

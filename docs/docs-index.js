@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "9eb00e33a5ebaca8d16bfd6701702d3e09fff122abba40523c3bf794dbe7c2bc"
+      "sourceSha256": "e3a25956bc76821fa728f211c41a3b4d98027e244ce155906cdff177766cb810"
     },
     {
       "id": "domain-experts",
@@ -15433,6 +15433,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "baf9074e6aab64870531f60ee269859f9b16e2a6b06cc29b8846930ef3bac2a2"
     },
     {
+      "id": "proof-tmi-red-first",
+      "path": "docs/proof/tmi/red-first.md",
+      "title": "TMI red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmi",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for making Telemetry_MarkerInjection_AbsentEverywhere portable to Windows: the backslash path case becomes a created subfolder on Windows, proven on the Mac through a pure helper.",
+      "tags": [
+        "windows",
+        "test-hygiene",
+        "proof",
+        "ruling-176"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "aacdc60502f70d90223248f1fc0f19005ce3bb20930bb257ff9a6e4ee59b2156"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -18260,5 +18286,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f8fef1ae42d650bac399ec6942ee66969a28d8e8943642f73675f80550dba050"
+  "graphSha256": "d7e3d011cae6e69cf362fcd8aa4d5f42f831ddb00d4e8fbd612e6dd4416758f8"
 };

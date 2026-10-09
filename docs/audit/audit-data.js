@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:19:50Z",
+  "generated": "2026-10-09T02:26:28Z",
   "audit": [
     {
       "actor": null,
@@ -31905,6 +31905,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T02:18:51Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M4F7QEY73QJJV1V4AEPDQ77B",
+      "shortname": "tmi-marker-path",
+      "datetime": "2026-10-09T02:26:27Z",
+      "session": "trk-tmi",
+      "prompt": "TMI",
+      "summary": "CopyMarkerFiles helper: separator shape creates win folder; new Mac-provable check; defect-class line added",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make Telemetry_MarkerInjection_AbsentEverywhere portable to Windows",
+      "done_when": "Red-first helper check, full ring green, check-docs exit 0"
     }
   ],
   "changes": [
