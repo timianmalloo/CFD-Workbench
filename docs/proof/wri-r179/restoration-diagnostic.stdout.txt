@@ -1,0 +1,1 @@
+R179_SCALE_CONTEXT RenderScaling=1.5 PrimaryScaling=1.5 WorkingArea=0, 0, 2560, 1528 UseLayoutRounding=True

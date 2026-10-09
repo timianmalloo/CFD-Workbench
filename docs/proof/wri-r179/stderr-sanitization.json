@@ -1,0 +1,8 @@
+[
+  {
+    "path": "docs/proof/wri-r179/source-restoration.stderr.txt",
+    "raw_sha256": "2df91668dedd491eb29877788ebfb81061723950641e7015ad07c536d9c27fa5",
+    "committed_sha256": "cbd24e83113342498ec241727a4144fb3f427ed24c06e16527d6be40c55720e4",
+    "rule": "exact user-home prefix -> %USERPROFILE%; derivative, not raw output"
+  }
+]

@@ -1,0 +1,5 @@
+cwd=C:\Projects\CFD-Workbench-win-wri-r179
+exe=%USERPROFILE%\.dotnet\dotnet.exe
+arguments="exec" "tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Desktop.Tests.dll" "--r179-diagnostic"
+CFD_TEST_ONLY=
+affinity_requested=True

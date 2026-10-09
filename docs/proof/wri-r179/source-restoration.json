@@ -1,0 +1,20 @@
+[
+  {
+    "path": "tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs",
+    "original_sha256": "27d83647936dfcc603a252e460513c6cd08eade0d7d0bdb29bafe3a76d9b653b",
+    "instrumented_sha256": "1e14678343afe6e8cf0ff68cbe068ff8ffcccd62231d3905a29440a8b8bf7092",
+    "restored_sha256": "27d83647936dfcc603a252e460513c6cd08eade0d7d0bdb29bafe3a76d9b653b"
+  },
+  {
+    "path": "tests/CfdWorkbench.Desktop.Tests/PropertiesCellsTests.cs",
+    "original_sha256": "85a647e9856075579a929b33dd7cdfb187d2086a27e93d6b9dcc25f0b0a25c15",
+    "instrumented_sha256": "9f6e30487915c888c2ea3bc55522bb008452d54e13d1515464e7d20789464fe6",
+    "restored_sha256": "85a647e9856075579a929b33dd7cdfb187d2086a27e93d6b9dcc25f0b0a25c15"
+  },
+  {
+    "path": "tests/CfdWorkbench.Desktop.Tests/ControllerViewTests.cs",
+    "original_sha256": "ec05ae8212efe91e0e12917e7d2525dd8e9466184a5ee9a8cac20c90d3b99794",
+    "instrumented_sha256": "7f7f34793c83202b030e98ea2e604b58f8d939f46d0d42772b313a7539d06175",
+    "restored_sha256": "ec05ae8212efe91e0e12917e7d2525dd8e9466184a5ee9a8cac20c90d3b99794"
+  }
+]

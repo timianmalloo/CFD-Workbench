@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8447b86c07ef969b7a00e0b9725a705653559d644b24ed65b38b9d938c21f240"
+      "sourceSha256": "c9f843b397d0fd8064df53cc443fe23f065bd5ca460b3f49c2099a97c4b7c58a"
     },
     {
       "id": "domain-experts",
@@ -5928,6 +5928,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "plan-wri-r179",
+      "path": "docs/plans/wri-r179.md",
+      "title": "Ruling 179 bounded Windows execution graph and blocked delivery ledger",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@win-wri-r179",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Serial display-dependent execution was bounded by two runner repair cycles and twenty minutes. Preflight and build completed; the runner stopped before the first check. Restoration and source rollback succeeded; product verification remains unassessed.",
+      "tags": [
+        "windows",
+        "execution-graph",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-21",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Ruling 179 execution graph",
+          "mermaid": "flowchart LR\n  A --> B --> C --> D --> E --> F --> G\n  C -. every exit .-> F\n  D -. every exit .-> F"
+        }
+      ],
+      "sourceSha256": "cf211c4d078619f0caad56c987c5c573032801f166e5631882bb962397248fbb"
+    },
+    {
       "id": "proof-caf-red-first",
       "path": "docs/proof/caf/red-first.md",
       "title": "Track CAF - red-first record for catalog generator naca4-closed/2",
@@ -6311,6 +6342,40 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e8da9a02a2c29bec5a700e1279ea0ccc4db311e4db06a6ef1558a58a3c069a26"
+    },
+    {
+      "id": "proof-wri-r179",
+      "path": "docs/proof/wri-r179/receipt.md",
+      "title": "Ruling 179 Windows proof: blocked before product checks, restoration verified",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@win-wri-r179",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Two preparation/runner repair cycles were exhausted before any of the 14 product checks ran. Settings was restored to exact 150% (Recommended); a fresh process measured RenderScaling 1.5 and PrimaryScaling 1.5 with OS Process.ExitCode 0. All checks and item-6 bounds remain unassessed.",
+      "tags": [
+        "windows",
+        "dpi",
+        "proof",
+        "blocked"
+      ],
+      "links": [
+        {
+          "to": "review-pr-21",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wri-probe-mac-join-note-pr21",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-wri-r179",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "286b6ea631ec4a6549d9c78757c34390a484f8e079f11e5c3c6e95f3cf3a939c"
     },
     {
       "id": "receipt-windows-store-implementation",
@@ -18628,5 +18693,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "cb8ca5bfd3832bee535ce24c4af13d5e99004dcb0fb2f16ad85c2fcce53b2a6d"
+  "graphSha256": "1f25739d7850eb522b6120bf85dd2eafd3ce8f14f5465e42ab561a7327acf415"
 };

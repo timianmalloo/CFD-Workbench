@@ -2273,3 +2273,24 @@ on a re-check, restored the pinned bytes, and moved the note to `mac-join-note.m
 - *Prevent:* the leader runs `python3 tools/check-docs.py` before every push that follows a non-join commit (session
   rule). Status: controlled. `docs/coordination/join.json` readiness now opens with `python3 tools/check-docs.py`
   (about 10 s); a mismatched capture manifest turns `run-readiness.py` RED (`docs/proof/rcd/red-first.md`).
+
+**RUNNER-MIXED-TIME-BASIS · A deadline parsed to local DateTime is compared directly with a UTC clock.**
+2026-10-09, Ruling 179 Windows execution. The comparison at `docs/proof/wri-r179/execute.ps1:19`
+stopped before any product check. `deadline-observation.stdout.txt` verifies that parsing
+`2026-10-09T04:20:00Z` gives Local-kind `2026-10-08T21:20:00-07:00`; at 04:12:17Z, the direct
+comparison says expired while the UTC-normalized comparison says not expired. Cap 2/2 stopped
+the execution track; Settings and a fresh process verified restoration to 150% and 1.5/1.5.
+
+**Class -> sweep -> derive -> prevent:**
+- *Signature:* `UtcNow` ordered against a `DateTime.Parse` result whose Kind was not established.
+- *Sweep:* proof-local PowerShell scripts have one such comparison, execute.ps1:19. Settings and
+  process scripts record UTC timestamps without parsed-deadline comparisons.
+- *Derive:* deadlines compare absolute instants in the same basis, never local clock fields against UTC.
+- *Prevent (proposed, not implemented):* next authorized runner must use DateTimeOffset with explicit
+  AssumeUniversal/AdjustToUniversal or equivalent and a planted timezone self-test covering UTC and
+  America/Los_Angeles offsets, future and expired instants. The current runner remains unchanged after
+  the cap. This entry is a mandatory grounding warning, not a claim that a failing gate exists.
+- *Companion preparation findings:* inspect actual newline bytes before patch anchors; verify explicit
+  pinned SDK/Python executable identities before ProcessStartInfo launch. In this run the source anchor
+  guessed CRLF over LF, system dotnet lacked 10.0.203, and PATH-resolved `py` rejected `-3` during cleanup.
+  The next-run deterministic preflight controls are proposed, not implemented.

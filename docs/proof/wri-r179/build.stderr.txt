@@ -1,0 +1,15 @@
+The command could not be loaded, possibly because:
+  * You intended to execute a .NET application:
+      The application 'build' does not exist or is not a managed .dll or .exe.
+  * You intended to execute a .NET SDK command:
+      A compatible .NET SDK was not found.
+
+Requested SDK version: 10.0.203
+global.json file: C:\Projects\CFD-Workbench-win-wri-r179\global.json
+
+Installed SDKs:
+
+Install the [10.0.203] .NET SDK or update [C:\Projects\CFD-Workbench-win-wri-r179\global.json] to match an installed SDK.
+
+Learn about SDK resolution:
+https://aka.ms/dotnet/sdk-not-found

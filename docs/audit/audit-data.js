@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:59:00Z",
+  "generated": "2026-10-09T04:13:00Z",
   "audit": [
     {
       "actor": null,
@@ -32541,6 +32541,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T03:58:03Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M4FDTGQ0BTPGXPNR5YT5KBJX",
+      "shortname": "wri-r179-two-scale",
+      "datetime": "2026-10-09T04:12:59Z",
+      "session": "win-wri-r179",
+      "prompt": "Goal: execute and commit the Mac-authorized Ruling 179 Windows two-scale proof.\nDone when: the exact 14 checks have run at Settings-selected 150% then 200%, numeric OS Process.ExitCode exists for every child, item-6 PointAftInput and fact Value_p_eta bounds in DIP/device pixels are captured, temporary instrumentation is restored byte-for-byte, evidence is committed, and Settings is restored to 150% with a fresh in-process 1.5/1.5 reading.\nNot in scope: product/test repair, registry mutation, display-resolution change, readiness admission, rerunning failed product checks to obtain green.\nTier T1. Fan-out 0. Repair cap 2 cycles. Twenty-minute ceiling including restore.\nWorker: win-wri-r179. Local coordinator: Windows root session. Designated leader: Mac.\nAuthorization: Ruling 179 and local coordinator's execution contract on head 13cb9a14c8315c1b01f30e33b672c936b5b36726.\nSurface list: Windows Settings UIA -> process runner -> temporary test measurements -> built test DLL -> rendered Avalonia window -> raw capture -> proof receipt/manifest -> Docs Explorer/audit.\nFour harness modes, with exact CFD_TEST_ONLY comma-separated names; temporary exact-name gated readiness registration for items 10 and 11 only. No unselected checks run.\nExit policy: every exit path restores exact Settings 150% and runs fresh scale diagnostic. Cap firing stops execution and commits honest blocked evidence.",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
+    },
+    {
+      "id": "al-01M4FDTJ0RT412Z7GDFTAEEFC2",
+      "shortname": "optimize-graph-wri-r179-blocked",
+      "datetime": "2026-10-09T04:13:00Z",
+      "session": "win-wri-r179",
+      "prompt": "Goal: execute and commit the Mac-authorized Ruling 179 Windows two-scale proof.\nDone when: the exact 14 checks have run at Settings-selected 150% then 200%, numeric OS Process.ExitCode exists for every child, item-6 PointAftInput and fact Value_p_eta bounds in DIP/device pixels are captured, temporary instrumentation is restored byte-for-byte, evidence is committed, and Settings is restored to 150% with a fresh in-process 1.5/1.5 reading.\nNot in scope: product/test repair, registry mutation, display-resolution change, readiness admission, rerunning failed product checks to obtain green.\nTier T1. Fan-out 0. Repair cap 2 cycles. Twenty-minute ceiling including restore.\nWorker: win-wri-r179. Local coordinator: Windows root session. Designated leader: Mac.\nAuthorization: Ruling 179 and local coordinator's execution contract on head 13cb9a14c8315c1b01f30e33b672c936b5b36726.\nSurface list: Windows Settings UIA -> process runner -> temporary test measurements -> built test DLL -> rendered Avalonia window -> raw capture -> proof receipt/manifest -> Docs Explorer/audit.\nFour harness modes, with exact CFD_TEST_ONLY comma-separated names; temporary exact-name gated readiness registration for items 10 and 11 only. No unselected checks run.\nExit policy: every exit path restores exact Settings 150% and runs fresh scale diagnostic. Cap firing stops execution and commits honest blocked evidence.",
+      "summary": "R179 Windows blocked before any product check at runner repair cap 2/2. UIA preflight and pinned SDK build completed; source restored byte-for-byte; Settings exact 150 and fresh RenderScaling/PrimaryScaling 1.5/1.5 with numeric exit 0. All 28 requested result cells NOT ASSESSED.",
+      "kind": "skill",
+      "skill": "optimize-graph",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/wri-r179/receipt.md",
+        "docs/plans/wri-r179.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Execute R179 two-scale proof on repaired head",
+      "done_when": "14 checks at 150 and 200, numeric child exits, item6 bounds, original source restored, committed evidence, 150 restoration with fresh 1.5/1.5",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-09T04:03:41Z",
+      "duration_seconds": 559.0
     }
   ],
   "changes": [

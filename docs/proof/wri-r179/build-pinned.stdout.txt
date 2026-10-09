@@ -1,0 +1,24 @@
+  Determining projects to restore...
+  Restored C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Core\CfdWorkbench.Core.csproj (in 804 ms).
+  Restored C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Cli\CfdWorkbench.Cli.csproj (in 804 ms).
+  Restored C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Analysis\CfdWorkbench.Analysis.csproj (in 804 ms).
+  Restored C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Persistence\CfdWorkbench.Persistence.csproj (in 804 ms).
+  Restored C:\Projects\CFD-Workbench-win-wri-r179\tests\CfdWorkbench.Desktop.Tests\CfdWorkbench.Desktop.Tests.csproj (in 1.23 sec).
+  Restored C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj (in 1.26 sec).
+  CfdWorkbench.Core -> C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Core\bin\Release\net10.0\CfdWorkbench.Core.dll
+  CfdWorkbench.Analysis -> C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Analysis\bin\Release\net10.0\CfdWorkbench.Analysis.dll
+  CfdWorkbench.Persistence -> C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Persistence\bin\Release\net10.0\CfdWorkbench.Persistence.dll
+  CfdWorkbench.Cli -> C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Cli\bin\Release\net10.0\CfdWorkbench.Cli.dll
+C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+  CfdWorkbench.Desktop -> C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\bin\Release\net10.0\CfdWorkbench.Desktop.dll
+  CfdWorkbench.Desktop.Tests -> C:\Projects\CFD-Workbench-win-wri-r179\tests\CfdWorkbench.Desktop.Tests\bin\Release\net10.0\CfdWorkbench.Desktop.Tests.dll
+
+Build succeeded.
+
+C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-wri-r179\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:35.23
