@@ -1,0 +1,97 @@
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: FAIL    0.2 s  python3 -c raise SystemExit(1)
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.4 s (budget 240 s) load 6.75 -> 6.28; waited 0.0 s for the ring lock
+run-readiness: RED for 3b48f8cd2 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: the receipt is red for 3b48f8cd2, not green for HEAD 3b48f8cd2
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+run-readiness: FAIL    0.2 s  || python3 -c raise SystemExit(1)
+run-readiness: last lines of /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness/00-1.log
+
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.8 s (budget 240 s) load 6.28 -> 6.28; waited 0.0 s for the ring lock
+run-readiness: RED for 5b92679d4 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: the receipt is red for 5b92679d4, not green for HEAD 5b92679d4
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.8 s (budget 240 s) load 6.28 -> 6.28; waited 0.0 s for the ring lock
+run-readiness: GREEN for 74468b25b (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: green receipt for HEAD 74468b25b
+run-readiness: the receipt is green for 74468b25b, not green for HEAD 82269f194
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.8 s (budget -1 s) load 6.28 -> 6.28; waited 0.0 s for the ring lock
+run-readiness: GREEN for 82269f194 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+READINESS-BUDGET: green, but 0.8 s is over the -1 s budget. Read the load on the line above and the step seconds before raising it (docs/plans/test-cost.md).
+run-readiness: the receipt for HEAD 82269f194 is green but over budget (0.8 s > -1 s); READINESS-BUDGET
+run-readiness: FAIL    1.1 s  python3 -c import time; time.sleep(30)  (TIMEOUT after 1 s; process group killed)
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 1.3 s (budget 240 s) load 6.28 -> 6.28; waited 0.0 s for the ring lock
+run-readiness: RED for bc91f35c8 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: N/A     0.2 s  python3 tools/verify-windows-store.py  (NOT ASSESSED, excluded from the ring result)
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.8 s (budget 240 s) load 6.28 -> 6.26; waited 0.0 s for the ring lock
+run-readiness: GREEN for 9839c9f85 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: green receipt for HEAD 9839c9f85
+run-readiness: EVID    0.2 s  python3 tools/verify-windows-store.py  (evidence, not a gate: a Windows PASS counts only through a reviewed receipt)
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.8 s (budget 240 s) load 6.26 -> 6.26; waited 0.0 s for the ring lock
+run-readiness: GREEN for 469983d94 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: green receipt for HEAD 469983d94
+run-readiness: FAIL    0.2 s  python3 tools/verify-windows-store.py
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.8 s (budget 240 s) load 6.26 -> 6.26; waited 0.0 s for the ring lock
+run-readiness: RED for 0c3a618eb (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: the receipt is red for 0c3a618eb, not green for HEAD 0c3a618eb
+run-readiness: FAIL    0.2 s  python3 tools/verify-windows-store.py
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.8 s (budget 240 s) load 6.26 -> 6.26; waited 0.0 s for the ring lock
+run-readiness: RED for da4193b6a (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: the receipt is red for da4193b6a, not green for HEAD da4193b6a
+run-readiness: FAIL    0.2 s  python3 -c raise SystemExit(4)
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.4 s (budget 240 s) load 6.26 -> 6.26; waited 0.0 s for the ring lock
+run-readiness: RED for 8dcd23cb1 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: FAIL    0.2 s  python3 tools/other.py --skip verify-windows-store.py
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 0.4 s (budget 240 s) load 6.26 -> 6.26; waited 0.0 s for the ring lock
+run-readiness: RED for 87d9b4fdf (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+run-readiness: FAIL    1.0 s  python3 tools/verify-windows-store.py  (TIMEOUT after 1 s; process group killed)
+RING-LOCK-EXCLUSIVE waiting 0 s for these holders:
+  slot-1 pid=62413 sleep 60
+RING-LOCK-EXCLUSIVE waited 2 s
+run-readiness: total 1.2 s (budget 240 s) load 6.26 -> 6.56; waited 0.0 s for the ring lock
+run-readiness: RED for 10e81d760 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmp1abd51by/ring/.tmp/readiness.json)
+cleanup after expired deadline: 0.21 s (bound 2 s)
+cleanup after timeout: 0.24 s (bound 2 s)
+cleanup after failed kill: 0.23 s (bound 2 s)
+run-readiness: ok      3.1 s  python3 -c import sys, time; open(sys.argv[1], 'w').write(repr(time.time())); time.sleep(3) /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmptbczth89/repo/step-started
+RING-LOCK-EXCLUSIVE waited 0 s
+run-readiness: total 3.3 s (budget 240 s) load 7.96 -> 7.96; waited 2.0 s for the ring lock
+run-readiness: GREEN for 90c08a6ca (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmptbczth89/repo/.tmp/readiness.json)
+ring lock: readiness waited 2.1 s for a fake ring held 2.0 s
+run-readiness: ok      3.1 s  python3 -c import sys, time; open(sys.argv[1], 'w').write(repr(time.time())); time.sleep(3) /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmptbczth89/repo/step-started
+RING-LOCK-EXCLUSIVE waiting 0 s for these holders:
+  slot-1 pid=62669 sleep 60
+RING-LOCK-EXCLUSIVE-TIMEOUT waited 2 s (holders:)
+  slot-1 pid=62669 sleep 60
+run-readiness: total 3.3 s (budget 240 s) load 7.96 -> 7.96; waited 0.0 s for the ring lock
+run-readiness: GREEN for 90c08a6ca (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmptbczth89/repo/.tmp/readiness.json)
+run-readiness: BLOCKED (ring busy): no timed step was run and no receipt was written; wait for the holders above to finish, then re-run (CFD_READINESS_LOCK_WAIT_SECONDS bounds the wait, default 600 s)
+self-test OK

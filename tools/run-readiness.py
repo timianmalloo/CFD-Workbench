@@ -16,16 +16,23 @@ belong in one group (docs/plans/test-cost.md L4). Every step has a time limit (S
 its process group is killed and the step is red.
 
 Exit 0 green · 1 a command failed, or --check found no green in-budget receipt for HEAD · 2 usage ·
-3 green, but the ring took longer than its budget (READINESS-BUDGET; CFD_READINESS_BUDGET_SECONDS).
+3 green, but the ring took longer than its budget (READINESS-BUDGET; CFD_READINESS_BUDGET_SECONDS) ·
+4 BLOCKED (ring busy): track rings held the ring lock past CFD_READINESS_LOCK_WAIT_SECONDS (default 600); nothing ran, no receipt.
+
+READINESS-UNLOCKED: the ring measures frame budgets, so it first takes every slot of tools/ring-lock.sh (waiting, bounded,
+for track rings to finish, and printing who holds them) and keeps them until it ends; track rings wait meanwhile. The wait is
+outside the budget and is recorded in the receipt (ringWaitSeconds). Off Windows only: the lock is a bash script.
 """
 from __future__ import annotations
 
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from pathlib import Path
 
@@ -37,6 +44,7 @@ for _stream in (sys.stdout, sys.stderr):
             pass
 
 ROOT = Path(__file__).resolve().parents[1]
+RING_LOCK = ROOT / "tools" / "ring-lock.sh"
 # The ring's wall budget. Measured 2026-10-04 after L1-L4: see docs/plans/test-cost.md §8.
 BUDGET_SECONDS = 240
 # One step's limit: the gates' own child limits are 180 s (core) and 600/900 s (adapters); a hung step must not
@@ -171,16 +179,32 @@ def run_ring(root: Path, join: Path, receipt: Path, budget: float = BUDGET_SECON
         return 2
     logs = receipt.parent / "readiness"
     logs.mkdir(parents=True, exist_ok=True)
+    waited, locked = time.monotonic(), os.name != "nt"
+    if locked and subprocess.run(["bash", str(RING_LOCK), "--acquire-all", str(os.getpid())], cwd=root).returncode != 0:
+        print("run-readiness: BLOCKED (ring busy): no timed step was run and no receipt was written; wait for the holders "
+              "above to finish, then re-run (CFD_READINESS_LOCK_WAIT_SECONDS bounds the wait, default 600 s)")
+        return 4
+    try:
+        return run_locked(root, ring, logs, receipt, round(time.monotonic() - waited, 1), budget, timeout, rules)
+    finally:
+        if locked:
+            subprocess.run(["bash", str(RING_LOCK), "--release-all", str(os.getpid())], cwd=root, check=False)
+
+
+def run_locked(root: Path, ring: list, logs: Path, receipt: Path, ring_wait: float, budget: float,
+               timeout: float, rules: dict) -> int:
+    """The ring itself, with every ring slot held (READINESS-UNLOCKED): the budget and the frame gates measure this run alone."""
     head, results, load_start, started = git(root, "rev-parse", "HEAD"), [], load(), time.monotonic()
     for index, entry in enumerate(ring):
         results += run_entry(entry, root, logs, index, timeout, rules)
     total, load_end = round(time.monotonic() - started, 1), load()
     green = all(item["status"] != "fail" for item in results)
     over = green and total > budget
-    receipt.write_text(json.dumps({"head": head, "green": green, "seconds": total, "budgetSeconds": budget,
+    receipt.write_text(json.dumps({"head": head, "green": green, "seconds": total, "budgetSeconds": budget, "ringWaitSeconds": ring_wait,
                                    "overBudget": over, "load": [load_start, load_end], "results": results},
                                   indent=2) + "\n", encoding="utf-8", newline="\n")
-    print("run-readiness: total {0:.1f} s (budget {1:.0f} s) load {2} -> {3}".format(total, budget, load_start, load_end))
+    print("run-readiness: total {0:.1f} s (budget {1:.0f} s) load {2} -> {3}; waited {4:.1f} s for the ring lock".format(
+        total, budget, load_start, load_end, ring_wait))
     print("run-readiness: {0} for {1} (receipt {2})".format("GREEN" if green else "RED", head[:9], receipt))
     if over:
         print("READINESS-BUDGET: green, but {0:.1f} s is over the {1:.0f} s budget. Read the load on the line above and the "
@@ -212,8 +236,11 @@ def self_test() -> int:
     """A red command or a red group member makes the ring red, a green ring passes --check, a new commit makes
     the old receipt stale, an over-budget green ring exits 3 and fails --check, and a hung step is killed."""
     problems = []
+    saved = {name: os.environ.get(name) for name in ("CFD_RING_SLOTS_DIR", "CFD_RING_MAX", "CFD_RING_POLL_SECONDS")}
     with tempfile.TemporaryDirectory() as directory:
-        repo = Path(directory)
+        os.environ["CFD_RING_SLOTS_DIR"] = str(Path(directory) / "isolated-slots")  # the earlier cases never contend with a real track
+        repo = Path(directory) / "ring"
+        repo.mkdir()
         for command in (["init", "-q"], ["config", "user.email", "t@example.com"], ["config", "user.name", "T"]):
             git(repo, *command)
         join, receipt = repo / "join.json", repo / ".tmp" / "readiness.json"
@@ -303,10 +330,97 @@ def self_test() -> int:
                 except OSError:
                     pass
                 child.wait()
+    if os.name != "nt":
+        ring_lock_cases(problems)
+    for name, value in saved.items():
+        if value is None:
+            os.environ.pop(name, None)
+        else:
+            os.environ[name] = value
     for problem in problems:
         print("self-test FAIL: " + problem)
     print("self-test OK" if not problems else "self-test FAILED")
     return 1 if problems else 0
+
+
+def ring_lock_cases(problems: list[str]) -> None:
+    """READINESS-UNLOCKED, with real processes and a stub step: a fake ring (a sleeping process holding a slot) makes
+    readiness wait until it ends, a track ring started meanwhile waits, and past the bound readiness is BLOCKED (exit 4)."""
+    with tempfile.TemporaryDirectory() as directory:
+        base = Path(directory)
+        slots = base / "slots"
+        os.environ.update({"CFD_RING_SLOTS_DIR": str(slots), "CFD_RING_MAX": "2", "CFD_RING_POLL_SECONDS": "1"})
+        repo = base / "repo"
+        repo.mkdir()
+        for command in (["init", "-q"], ["config", "user.email", "t@example.com"], ["config", "user.name", "T"]):
+            git(repo, *command)
+        join, receipt, mark = repo / "join.json", repo / ".tmp" / "readiness.json", repo / "step-started"
+        (repo / ".gitignore").write_text(".tmp/\nstep-started\n", encoding="utf-8", newline="\n")
+        stamp = "import sys, time; open(sys.argv[1], 'w').write(repr(time.time())); time.sleep(3)"
+        join.write_text(json.dumps({"readiness": [["python3", "-c", stamp, str(mark)]]}), encoding="utf-8", newline="\n")
+        git(repo, "add", "-A")
+        git(repo, "commit", "-q", "-m", "stub ring")
+
+        def hold_slot() -> subprocess.Popen:
+            holder = subprocess.Popen(["sleep", "60"])
+            shutil.rmtree(slots, ignore_errors=True)  # a slot the unlocked code left behind is not this case's holder
+            (slots / "slot-1").mkdir(parents=True)
+            (slots / "slot-1" / "pid").write_text(str(holder.pid), encoding="utf-8", newline="\n")
+            return holder
+
+        def drop(holder: subprocess.Popen) -> None:
+            holder.kill()
+            holder.wait()
+            shutil.rmtree(slots / "slot-1", ignore_errors=True)
+
+        # 1. a holder that ends after 2 s: the timed step must start only after that
+        holder, outcome = hold_slot(), {}
+        began = time.time()
+        runner = threading.Thread(target=lambda: outcome.update(code=run_ring(repo, join, receipt)))
+        runner.start()
+        time.sleep(2)
+        drop(holder)
+        released = time.time()
+        runner.join(30)
+        started_at = float(mark.read_text(encoding="utf-8")) if mark.exists() else 0.0
+        if outcome.get("code") != 0 or started_at < released - 0.1:
+            problems.append("readiness started its timed step {0:.1f} s before the fake ring released its slot (exit {1})".format(
+                released - started_at, outcome.get("code")))
+        recorded = json.loads(receipt.read_text(encoding="utf-8")) if receipt.exists() else {}
+        if not recorded.get("ringWaitSeconds", 0) >= 1:
+            problems.append("the receipt does not record the measured ring wait: {0!r}".format(recorded.get("ringWaitSeconds")))
+        print("ring lock: readiness waited {0:.1f} s for a fake ring held {1:.1f} s".format(started_at - began, released - began))
+
+        # 2. while readiness holds the lock, a track ring (the real ring-lock.sh) waits and times out
+        mark.unlink(missing_ok=True)
+        outcome = {}
+        runner = threading.Thread(target=lambda: outcome.update(code=run_ring(repo, join, receipt)))
+        runner.start()
+        for _ in range(50):
+            if mark.exists():
+                break
+            time.sleep(0.1)
+        track = subprocess.run(["bash", "-c", '. "{0}"; ring_lock_acquire $$; echo "slot=[$RING_LOCK_SLOT]"'.format(RING_LOCK)],
+                               capture_output=True, text=True, encoding="utf-8", errors="replace", env={**os.environ, "CFD_RING_LOCK_WAIT_SECONDS": "1"}).stdout
+        runner.join(30)
+        if "RING-LOCK-TIMEOUT waited" not in track:
+            problems.append("a track ring started while readiness ran was not made to wait: {0!r}".format(track))
+        if not mark.exists() or (slots / "exclusive-wanted").exists() or any(slots.glob("slot-*")):
+            problems.append("readiness left the ring lock held after it finished")
+
+        # 3. a holder that never ends: readiness is BLOCKED (exit 4) after the bound, runs no step, writes no receipt
+        mark.unlink(missing_ok=True)
+        receipt.unlink(missing_ok=True)
+        holder = hold_slot()
+        os.environ["CFD_READINESS_LOCK_WAIT_SECONDS"] = "2"
+        try:
+            blocked = run_ring(repo, join, receipt)
+        finally:
+            del os.environ["CFD_READINESS_LOCK_WAIT_SECONDS"]
+            drop(holder)
+        if blocked != 4 or mark.exists() or receipt.exists():
+            problems.append("a ring held past the bound gave exit {0} (want 4), step ran {1}, receipt {2}".format(
+                blocked, mark.exists(), receipt.exists()))
 
 
 def main(argv: list[str]) -> int:
