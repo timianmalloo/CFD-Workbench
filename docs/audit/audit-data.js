@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T18:26:03Z",
+  "generated": "2026-10-09T18:28:44Z",
   "audit": [
     {
       "actor": null,
@@ -33110,6 +33110,36 @@ window.AUDIT_DATA = {
       "summary": "Audited 7 paths: fixed run-readiness finish, run-windows-store-gate run_gate, Desktop RunBuffered; real-child self-tests print cleanup time; class entry closed for the Mac",
       "tags": [],
       "tool": null
+    },
+    {
+      "id": "al-01M4GYSESBBKJ68E6ZV1RC35AN",
+      "shortname": "join-wig-cbs",
+      "datetime": "2026-10-09T18:28:44Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined WIG (WSL inline gate) and CBS (Mac timeout paths bounded); join repaired a PII-tripping fixture (GATE-BEFORE-ADD); READINESS-UNLOCKED recorded recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/wig/red-first.md",
+        "docs/proof/cbs/audit.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "WSL-INLINE-ARGV and CLEANUP-BLOCKS-CEILING (Mac) controlled",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T18:27:44Z",
+      "duration_seconds": 60.0
     }
   ],
   "changes": [
