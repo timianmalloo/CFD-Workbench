@@ -1,0 +1,8 @@
+{
+  "head": "1477951f6cff53f7f9f6eee111425738dcc24b96",
+  "source_count": 315,
+  "source_sha256": "1edf8197872ec541eb81cec168ddd1ce24c2728463728f8869e31457aa26ce2e",
+  "postcycle_diff_exit": 0,
+  "source_between_cycle_heads_diff_exit": 0,
+  "execution": "not-run; packaging only"
+}

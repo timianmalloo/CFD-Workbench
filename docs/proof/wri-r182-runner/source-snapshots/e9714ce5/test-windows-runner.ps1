@@ -16,10 +16,6 @@ try {
     Reject 'd wrong Python path' { Assert-WriToolchain -Repo $scratch -PythonPath (Join-Path $scratch 'wrong-python.exe') } 'WRI-TOOLCHAIN'
     Reject 'b Settings closed' { Assert-WriSettingsState ([pscustomobject]@{Frame=$false}) } 'WRI-PREFLIGHT'
     Reject 'b Settings collapsed' { Assert-WriSettingsState ([pscustomobject]@{Frame=$true;Selected=$true;Expanded=$false;Main=$true;Visible=$true;Scale='150% (Recommended)'}) } 'WRI-PREFLIGHT'
-    $state200=[pscustomobject]@{Frame=$true;Selected=$true;Expanded=$true;Main=$true;Visible=$true;Scale='200%'}
-    Reject 'b unexpected 200 scale' { Assert-WriSettingsState $state200 } 'WRI-PREFLIGHT'
-    Assert-WriSettingsState $state200 -ExpectedScale '200%'
-    'GREEN b explicit expected 200 scale accepted; default150 rejected200'
     Reject 'e lost exit' { Assert-WriNumericExit $null } 'WRI-EXIT'
     Reject 'e nonnumeric exit' { Assert-WriNumericExit 'not-recorded' } 'WRI-EXIT'
     $probe = [pscustomobject]@{WaitArgument=-1}
@@ -32,25 +28,12 @@ try {
     [void][IO.Directory]::CreateDirectory((Join-Path $repo 'src'))
     $fixture = Join-Path $repo 'src/fixture.txt'
     [IO.File]::WriteAllText($fixture, 'baseline')
-    $rootGlobalPin=[IO.File]::ReadAllBytes((Join-Path $PSScriptRoot '../global.json'))
-    foreach ($identity in @('global.json','CFDWorkbench.slnx')) {
-        if ($identity -eq 'global.json') { [IO.File]::WriteAllBytes((Join-Path $repo $identity),$rootGlobalPin) }
-        else { [IO.File]::WriteAllText((Join-Path $repo $identity),'identity') }
-    }
     & git -C $repo init -q
     & git -C $repo add -A
     & git -C $repo -c user.name=fixture -c user.email=fixture@example.invalid commit -q -m fixture
     if ($LASTEXITCODE -ne 0) { throw 'fixture git initialization failed' }
     Assert-WriSourceClean $repo
     $before = Get-WriSourceFingerprint $repo
-    foreach ($identity in @('global.json','CFDWorkbench.slnx')) {
-        $identityPath=Join-Path $repo $identity
-        [IO.File]::AppendAllText($identityPath,'x')
-        Reject "f tracked build identity $identity" { Assert-WriSourceClean $repo } 'WRI-SOURCE'
-        Reject "f build identity fingerprint $identity" { Assert-WriSourceUnchanged $repo $before } 'WRI-SOURCE'
-        if ($identity -eq 'global.json') { [IO.File]::WriteAllBytes($identityPath,$rootGlobalPin) }
-        else { [IO.File]::WriteAllText($identityPath,'identity') }
-    }
     [IO.File]::AppendAllText($fixture, 'x')
     Reject 'f one-byte tracked edit' { Assert-WriSourceClean $repo } 'WRI-SOURCE'
     Reject 'f after-child mutation' { Assert-WriSourceUnchanged $repo $before } 'WRI-SOURCE'
@@ -144,7 +127,6 @@ exit 0
     'GREEN R181 shutdown_failure=3 query=withheld job_close_fallback=observed_dead completion_claim=withheld'
     Assert-WriSettingsState ([pscustomobject]@{Frame=$true;Selected=$true;Expanded=$true;Main=$true;Visible=$true;Scale='150% (Recommended)'})
     'GREEN b read-only state fixture accepted'
-    if ([Convert]::ToHexString([IO.File]::ReadAllBytes((Join-Path $repo 'global.json'))) -cne [Convert]::ToHexString([IO.File]::ReadAllBytes((Join-Path $PSScriptRoot '../global.json')))) { throw 'WRI-FIXTURE: fixture global.json bytes differ from repository SDK pin' }
     $toolchain = Assert-WriToolchain -Repo $repo -PythonPath $PythonPath
     "GREEN d sdk=$($toolchain.Sdk) sdk_path=%USERPROFILE%\.dotnet\dotnet.exe python=$($toolchain.PythonVersion)"
     $shutdown = Stop-WriBuildServers -Repo $repo -Toolchain $toolchain -Clock ([Diagnostics.Stopwatch]::StartNew()) -CeilingMs 60000

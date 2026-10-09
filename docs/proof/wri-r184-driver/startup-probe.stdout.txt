@@ -1,0 +1,4 @@
+STARTUP-PROBE iteration=1 caught=WRI-DEADLINE: child timed out; cleanup=terminated-complete; no exit fabricated elapsed_ms=1015
+STARTUP-PROBE iteration=2 caught=WRI-ENVELOPE: total startup/child/cleanup/source envelope expired elapsed_ms=910
+STARTUP-PROBE iteration=3 caught=WRI-ENVELOPE: total startup/child/cleanup/source envelope expired elapsed_ms=907
+STARTUP-PROBE iteration=4 caught=WRI-ENVELOPE: total startup/child/cleanup/source envelope expired elapsed_ms=908

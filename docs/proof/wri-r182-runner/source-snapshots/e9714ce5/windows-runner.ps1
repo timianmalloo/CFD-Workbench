@@ -100,7 +100,7 @@ function Invoke-WriGit([string]$Repo, [string[]]$Arguments, [Diagnostics.Stopwat
     return Invoke-WriProcess -Repo $Repo -Exe $gitPath -Arguments (@('-C',$Repo) + $Arguments) -Clock $Clock -CeilingMs $DeadlineMs
 }
 function Get-WriSourceFingerprint([string]$Repo, [Diagnostics.Stopwatch]$Clock=[Diagnostics.Stopwatch]::StartNew(), [long]$DeadlineMs=60000) {
-    $listing = Invoke-WriGit $Repo @('ls-files','--','src','tests','tools','global.json','CFDWorkbench.slnx') $Clock $DeadlineMs
+    $listing = Invoke-WriGit $Repo @('ls-files','--','src','tests','tools') $Clock $DeadlineMs
     if ($listing.ExitCode -ne 0) { throw 'WRI-SOURCE: git listing failed' }
     $files = @($listing.Stdout.Trim() -split '\r?\n' | Where-Object { $_ })
     $rows = foreach ($file in $files) {
@@ -112,9 +112,9 @@ function Get-WriSourceFingerprint([string]$Repo, [Diagnostics.Stopwatch]$Clock=[
     return ($rows -join "`n")
 }
 function Assert-WriSourceClean([string]$Repo, [Diagnostics.Stopwatch]$Clock=[Diagnostics.Stopwatch]::StartNew(), [long]$DeadlineMs=60000) {
-    $diff = Invoke-WriGit $Repo @('diff','--quiet','HEAD','--','src','tests','tools','global.json','CFDWorkbench.slnx') $Clock $DeadlineMs
+    $diff = Invoke-WriGit $Repo @('diff','--quiet','HEAD','--','src','tests','tools') $Clock $DeadlineMs
     if ($diff.ExitCode -ne 0) { throw 'WRI-SOURCE: tracked source differs from HEAD' }
-    $untracked = Invoke-WriGit $Repo @('ls-files','--others','--exclude-standard','--','src','tests','tools','global.json','CFDWorkbench.slnx') $Clock $DeadlineMs
+    $untracked = Invoke-WriGit $Repo @('ls-files','--others','--exclude-standard','--','src','tests','tools') $Clock $DeadlineMs
     if ($untracked.ExitCode -ne 0 -or $untracked.Stdout.Trim()) { throw 'WRI-SOURCE: untracked source or unreadable status' }
 }
 function Assert-WriSourceUnchanged([string]$Repo, [string]$Before, [Diagnostics.Stopwatch]$Clock=[Diagnostics.Stopwatch]::StartNew(), [long]$DeadlineMs=60000) {
@@ -184,9 +184,7 @@ function Invoke-WriProcess {
     $shutdownExit = $null
     try {
         if ($InjectStartupDelayMs) {
-            $startupRemaining = Get-WriRemainingMilliseconds $rootDeadline $Clock.ElapsedMilliseconds
-            if ($InjectStartupDelayMs -ge $startupRemaining) { throw 'WRI-ENVELOPE: requested startup delay exhausts root allowance; child not launched' }
-            [Threading.Thread]::Sleep($InjectStartupDelayMs)
+            [Threading.Thread]::Sleep([int][math]::Min($InjectStartupDelayMs,(Get-WriRemainingMilliseconds $rootDeadline $Clock.ElapsedMilliseconds)))
         }
         Assert-WriEnvelope $Clock $rootDeadline
         try {
@@ -314,10 +312,10 @@ function Assert-WriToolchain {
     $env:CFD_WRI_PYTHON=$PythonPath
     return [pscustomobject]@{Dotnet=$expectedDotnet;Sdk=$sdkVersion;Python=$PythonPath;PythonVersion=$pythonVersion[0];SdkExit=$sdkExit;PythonExit=$pythonExit}
 }
-function Assert-WriSettingsState($State, [ValidateSet('150% (Recommended)','200%')][string]$ExpectedScale='150% (Recommended)') {
+function Assert-WriSettingsState($State) {
     if (-not $State.Frame -or -not $State.Selected -or -not $State.Expanded -or
-        -not $State.Main -or -not $State.Visible -or $State.Scale -ne $ExpectedScale) {
-        throw 'WRI-PREFLIGHT: Settings must already expose selected Display1, main monitor, and exact expected visible scale'
+        -not $State.Main -or -not $State.Visible -or $State.Scale -ne '150% (Recommended)') {
+        throw 'WRI-PREFLIGHT: Settings must already expose selected Display1, main monitor, and visible 150% scale'
     }
 }
 function Stop-WriBuildServers([string]$Repo, $Toolchain, [Diagnostics.Stopwatch]$Clock, [long]$CeilingMs) {

@@ -1,0 +1,239 @@
+{
+  "files": [
+    {
+      "path": ".gitattributes",
+      "bytes": 2388,
+      "sha256": "3f5ee20c5069f717c11a39b79be26320d3c450cf6148f0e50001e3fbd98ab662"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/source-snapshots/e9714ce5/check-windows-runner.py",
+      "bytes": 20175,
+      "sha256": "8f044473b919558dbedd5a6e2a3ccd520025f81c6c48f31afb83d1501a48aa49"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/source-snapshots/e9714ce5/test-windows-runner.ps1",
+      "bytes": 12483,
+      "sha256": "a6e2b9747a91b7284e29410aa026683262eb7b02e31e4adca3e12cab8d09d4a1"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/source-snapshots/e9714ce5/windows-runner.ps1",
+      "bytes": 24043,
+      "sha256": "db8a8872e503575b8c084d0f30d4c15e635defc0c7043e6a126c472d391c3961"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/source-snapshots/e9714ce5/windows-settings-preflight.ps1",
+      "bytes": 2881,
+      "sha256": "da54b92d6830ae51e545d86b92afa2bce1f57a2a4e12f601333bdd259e5e89a0"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/callback-repair-green/policy.json",
+      "bytes": 1706,
+      "sha256": "bf1ebb474faf0752028153cfd9a2a49343003fb38ba34e82c908af034a792099"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/callback-repair-green/policy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/callback-repair-green/policy.stdout.txt",
+      "bytes": 120,
+      "sha256": "2fe76bae03e85d8a152d4b5bd3e980749f623ba87029567495381f2f7f2b6be7"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/callback-repair-green/restore-green.json",
+      "bytes": 1732,
+      "sha256": "5afd135e6bb7a9ca76f94425c768d8fbed0085a5fef9f00be9d1837f8f828b51"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/callback-repair-green/restore-green.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/callback-repair-green/restore-green.stdout.txt",
+      "bytes": 462,
+      "sha256": "71561224e2f1a6cc6354f7a424405f3de05ad485795aa0b3ab8d8d858c6aed70"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/callback-repair-red/restore-green.json",
+      "bytes": 1731,
+      "sha256": "e404e808fecb52e09b2eeca3765f86cf43ebe58b8d6f3c2df38ed45431a1ac3b"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/callback-repair-red/restore-green.stderr.txt",
+      "bytes": 366,
+      "sha256": "fcaa9106a9a12bff0365635d71212a71dc600184d968330dcd54ede3e0135544"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/callback-repair-red/restore-green.stdout.txt",
+      "bytes": 298,
+      "sha256": "27b85da21691d4fde3f9dc4ce96eef6bbdaca62aa948a26bd8e1bde350828dbd"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/r185/qualification.json",
+      "bytes": 1725,
+      "sha256": "c36f75cdeeeec373456d4369910c133d1dee4cd4c98967a19e8fe64c09b7b7ca"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/r185/qualification.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-driver/r185/qualification.stdout.txt",
+      "bytes": 5861,
+      "sha256": "608ab154473229b4cf83d5f4f9fa5f480848008b75b3d146aad8edcac14a4cc5"
+    },
+    {
+      "path": "docs/proof/wri-r184-result-cycle2/publication.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-result-cycle2/run.json",
+      "bytes": 47725,
+      "sha256": "6caa99f1786a1737e775f234e4180c3cba9dca714ea8d0753e9e24e14c4e1754"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair1.json",
+      "bytes": 1714,
+      "sha256": "50e8347dd462a04cdb03d02bcab4b636c412828c44193e021d0ca44ca3f2790c"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair1.stdout.txt",
+      "bytes": 8178,
+      "sha256": "26158bba05b2feb6f979fd3b378cc910fe656360e206db8f8541291d70ac57cb"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair2.json",
+      "bytes": 1698,
+      "sha256": "f0acae2ce90b8d36e192702aee7d87b7ba7242d1ea67b5acf18450b19b81f26e"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair2.stderr.txt",
+      "bytes": 141,
+      "sha256": "c779c63594d173c05733342b56d6de8858b48ad38fd96420d7980e09abf7a584"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair2.stdout.txt",
+      "bytes": 19977,
+      "sha256": "2f00c3ac921f9f3dc0a55fa24af10e2236a3b72f3ec174ce2e0ea66151117cee"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs.json",
+      "bytes": 1698,
+      "sha256": "03b4bf9e1472d180700040d9f43e251b88099c5f73ce421ca883581cc03252d3"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs.stderr.txt",
+      "bytes": 37,
+      "sha256": "55cbc3c519a4ea4aa5e821ffe708d6c13eaacc0c2088c18aa9865c9a16cbc24c"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs.stdout.txt",
+      "bytes": 4303,
+      "sha256": "5f1b03e0d2fdb98e67105380876ab4b104302dd9f2043977d355c0918b92f579"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/handoff-prompt.txt",
+      "bytes": 1462,
+      "sha256": "0ce8789ccebe037a09544588b75d14e9cb47f687a8cf110c81f733cfecaedd95"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/package-blocked.py",
+      "bytes": 6614,
+      "sha256": "2c9d1d7fc1cb001a4f449de04ca6ce794b8ec704d418a8dd98df92a48b716cdf"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/packaging-prompt.txt",
+      "bytes": 943,
+      "sha256": "4ba3a9514cce3168c0b5f518ba1f3d259f7348c8c20917cdd5ffa538c31009d6"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/pii.json",
+      "bytes": 1700,
+      "sha256": "9dd28bb0ac2155599f6464c61599d3db40d358d5cadb29ef97a209b397e18b0b"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/pii.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/pii.stdout.txt",
+      "bytes": 68,
+      "sha256": "f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/publication.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/receipt.md",
+      "bytes": 16422,
+      "sha256": "4bbc42ef52bbd8a63e9dc944093ba8370d411f7c64f0c2ad60493eae56f8af9e"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/run.json",
+      "bytes": 49171,
+      "sha256": "29794889cda07730b216468ad9d46659d811efc65b46d37912aa27d7b4bf5876"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-bindings.json",
+      "bytes": 4967,
+      "sha256": "27ae829fbc68b5ccf604b66d02ba9cdebd8d07664aec87fa73a4b258436004d8"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/check-windows-runner.py",
+      "bytes": 24961,
+      "sha256": "7bdae949718480bb9984ef30e75632d0d17cf04ba0161d478e35d2220af580ed"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/test-windows-runner.ps1",
+      "bytes": 13993,
+      "sha256": "4907aa2c94276b27115230080020e764c3f2a375079847b9d4520247bc7b1f3d"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/test-windows-scale-run.ps1",
+      "bytes": 4435,
+      "sha256": "4742af74ad76a5547005948424cd0ccf3a905793a4fd1d8b60706b95d37f6163"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/windows-runner.ps1",
+      "bytes": 24403,
+      "sha256": "cc201aca4cd2e9e434bec1b9630487a2184622d2ece08617c373d037d528848d"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/windows-scale-run.ps1",
+      "bytes": 14673,
+      "sha256": "d153d413ea618e8d4cc5346236f0d7c9ec57e38f04312ae0dfaa5d8044a63ff4"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/windows-settings-preflight.ps1",
+      "bytes": 3004,
+      "sha256": "ee80b2676ab74c1b58da6918a1ad4e0ab0223a78c99b8775fccd2eab10f2c17b"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/36ccfa49/test-windows-scale-run.ps1",
+      "bytes": 2290,
+      "sha256": "39f89e36e429adeb8472554006098f4fb6dc03942ab9cf3b3b3d9502691dcf04"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/36ccfa49/windows-scale-run.ps1",
+      "bytes": 14661,
+      "sha256": "fae58d4c71ecb110467f90842774c20c814cdec7c15dbb081469b2c846b8e834"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-state.json",
+      "bytes": 282,
+      "sha256": "bdefae3b61d5dca3a5435b55af20cc80abef08f6bdefff51babbfb03663eb5aa"
+    }
+  ]
+}

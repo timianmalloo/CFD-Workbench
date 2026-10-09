@@ -1,0 +1,5 @@
+Exception: C:\Projects\CFD-Workbench-win-wri-r184-scale-run\tools\test-windows-scale-run.ps1:58
+Line |
+  58 |  … ctedPath) { throw 'WRI-BOUNDARY: actual preflight -File must receive  …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | WRI-BOUNDARY: actual preflight -File must receive the script path, not callback text

@@ -1,0 +1,58 @@
+diff --git a/tools/windows-runner.ps1 b/tools/windows-runner.ps1
+index e7f1ae9f..9e2c8043 100644
+--- a/tools/windows-runner.ps1
++++ b/tools/windows-runner.ps1
+@@ -100,7 +100,7 @@ function Invoke-WriGit([string]$Repo, [string[]]$Arguments, [Diagnostics.Stopwat
+     return Invoke-WriProcess -Repo $Repo -Exe $gitPath -Arguments (@('-C',$Repo) + $Arguments) -Clock $Clock -CeilingMs $DeadlineMs
+ }
+ function Get-WriSourceFingerprint([string]$Repo, [Diagnostics.Stopwatch]$Clock=[Diagnostics.Stopwatch]::StartNew(), [long]$DeadlineMs=60000) {
+-    $listing = Invoke-WriGit $Repo @('ls-files','--','src','tests','tools') $Clock $DeadlineMs
++    $listing = Invoke-WriGit $Repo @('ls-files','--','src','tests','tools','global.json','CFDWorkbench.slnx') $Clock $DeadlineMs
+     if ($listing.ExitCode -ne 0) { throw 'WRI-SOURCE: git listing failed' }
+     $files = @($listing.Stdout.Trim() -split '\r?\n' | Where-Object { $_ })
+     $rows = foreach ($file in $files) {
+@@ -112,9 +112,9 @@ function Get-WriSourceFingerprint([string]$Repo, [Diagnostics.Stopwatch]$Clock=[
+     return ($rows -join "`n")
+ }
+ function Assert-WriSourceClean([string]$Repo, [Diagnostics.Stopwatch]$Clock=[Diagnostics.Stopwatch]::StartNew(), [long]$DeadlineMs=60000) {
+-    $diff = Invoke-WriGit $Repo @('diff','--quiet','HEAD','--','src','tests','tools') $Clock $DeadlineMs
++    $diff = Invoke-WriGit $Repo @('diff','--quiet','HEAD','--','src','tests','tools','global.json','CFDWorkbench.slnx') $Clock $DeadlineMs
+     if ($diff.ExitCode -ne 0) { throw 'WRI-SOURCE: tracked source differs from HEAD' }
+-    $untracked = Invoke-WriGit $Repo @('ls-files','--others','--exclude-standard','--','src','tests','tools') $Clock $DeadlineMs
++    $untracked = Invoke-WriGit $Repo @('ls-files','--others','--exclude-standard','--','src','tests','tools','global.json','CFDWorkbench.slnx') $Clock $DeadlineMs
+     if ($untracked.ExitCode -ne 0 -or $untracked.Stdout.Trim()) { throw 'WRI-SOURCE: untracked source or unreadable status' }
+ }
+ function Assert-WriSourceUnchanged([string]$Repo, [string]$Before, [Diagnostics.Stopwatch]$Clock=[Diagnostics.Stopwatch]::StartNew(), [long]$DeadlineMs=60000) {
+@@ -312,10 +312,10 @@ function Assert-WriToolchain {
+     $env:CFD_WRI_PYTHON=$PythonPath
+     return [pscustomobject]@{Dotnet=$expectedDotnet;Sdk=$sdkVersion;Python=$PythonPath;PythonVersion=$pythonVersion[0];SdkExit=$sdkExit;PythonExit=$pythonExit}
+ }
+-function Assert-WriSettingsState($State) {
++function Assert-WriSettingsState($State, [ValidateSet('150% (Recommended)','200%')][string]$ExpectedScale='150% (Recommended)') {
+     if (-not $State.Frame -or -not $State.Selected -or -not $State.Expanded -or
+-        -not $State.Main -or -not $State.Visible -or $State.Scale -ne '150% (Recommended)') {
+-        throw 'WRI-PREFLIGHT: Settings must already expose selected Display1, main monitor, and visible 150% scale'
++        -not $State.Main -or -not $State.Visible -or $State.Scale -ne $ExpectedScale) {
++        throw 'WRI-PREFLIGHT: Settings must already expose selected Display1, main monitor, and exact expected visible scale'
+     }
+ }
+ function Stop-WriBuildServers([string]$Repo, $Toolchain, [Diagnostics.Stopwatch]$Clock, [long]$CeilingMs) {
+diff --git a/tools/windows-settings-preflight.ps1 b/tools/windows-settings-preflight.ps1
+index 0d4942e7..68bf7409 100644
+--- a/tools/windows-settings-preflight.ps1
++++ b/tools/windows-settings-preflight.ps1
+@@ -1,5 +1,6 @@
+ # Ring: Windows runner preparation. Read-only UIA. Ceiling: runner's 60 s child limit.
+-param([ValidateSet('Preflight')][string]$Action='Preflight', [switch]$SelfTestAbsentFrame)
++param([ValidateSet('Preflight')][string]$Action='Preflight', [switch]$SelfTestAbsentFrame,
++      [ValidateSet('150% (Recommended)','200%')][string]$ExpectedScale='150% (Recommended)')
+ $ErrorActionPreference='Stop'
+ . (Join-Path $PSScriptRoot 'windows-runner.ps1')
+ Add-Type -AssemblyName UIAutomationClient
+@@ -33,5 +34,5 @@ $isMain=$main.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Patte
+ $combo=Find-Required 'SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox'
+ $selection=$combo.GetCurrentPattern([System.Windows.Automation.SelectionPattern]::Pattern).Current.GetSelection()
+ $scale=[string]::Join(',',@($selection | ForEach-Object { $_.Current.Name }))
+-Assert-WriSettingsState ([pscustomobject]@{Frame=$true;Selected=$selected;Expanded=$expanded;Main=$isMain;Visible=($combo.Current.IsEnabled -and -not $combo.Current.IsOffscreen);Scale=$scale})
++Assert-WriSettingsState ([pscustomobject]@{Frame=$true;Selected=$selected;Expanded=$expanded;Main=$isMain;Visible=($combo.Current.IsEnabled -and -not $combo.Current.IsOffscreen);Scale=$scale}) -ExpectedScale $ExpectedScale
+ "SETTINGS_SUCCESS action=$Action selected=$scale read_only=true"

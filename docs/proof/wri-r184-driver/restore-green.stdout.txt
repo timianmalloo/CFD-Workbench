@@ -1,0 +1,4 @@
+GREEN restore-on-throw events=preflight:150% (Recommended)>build>select:150>checks:150>select:200>checks:200>restore:150:exit0>readback:1.5/1.5:exit0 primary_failure_preserved=true
+GREEN readback-after-restore-throw attempted=true failure_preserved=true
+GREEN preflight-rejected scale_actions=0
+SELFTEST PASS driver callbacks; no scale/product/verifier execution

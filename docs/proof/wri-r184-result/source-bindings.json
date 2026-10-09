@@ -1,0 +1,101 @@
+{
+  "legacy_entry_count": 39,
+  "bindings": [
+    {
+      "original_path": "tools/windows-runner.ps1",
+      "source_commit": "e9714ce525681ade39aac19e0d86e80ab240907a",
+      "source_blob": "e7f1ae9f4c5c21514aa66eb4d443dcf8d405b7f3",
+      "snapshot_path": "docs/proof/wri-r182-runner/source-snapshots/e9714ce5/windows-runner.ps1",
+      "bytes": 24043,
+      "sha256": "db8a8872e503575b8c084d0f30d4c15e635defc0c7043e6a126c472d391c3961"
+    },
+    {
+      "original_path": "tools/windows-settings-preflight.ps1",
+      "source_commit": "e9714ce525681ade39aac19e0d86e80ab240907a",
+      "source_blob": "0d4942e7e9fcaa18204ca81b5f80b838ba378d03",
+      "snapshot_path": "docs/proof/wri-r182-runner/source-snapshots/e9714ce5/windows-settings-preflight.ps1",
+      "bytes": 2881,
+      "sha256": "da54b92d6830ae51e545d86b92afa2bce1f57a2a4e12f601333bdd259e5e89a0"
+    },
+    {
+      "original_path": "tools/test-windows-runner.ps1",
+      "source_commit": "e9714ce525681ade39aac19e0d86e80ab240907a",
+      "source_blob": "90f45d80ea1537d9468767f5ec675ea4a711ca40",
+      "snapshot_path": "docs/proof/wri-r182-runner/source-snapshots/e9714ce5/test-windows-runner.ps1",
+      "bytes": 12483,
+      "sha256": "a6e2b9747a91b7284e29410aa026683262eb7b02e31e4adca3e12cab8d09d4a1"
+    },
+    {
+      "original_path": "tools/check-windows-runner.py",
+      "source_commit": "e9714ce525681ade39aac19e0d86e80ab240907a",
+      "source_blob": "1cc0ab16f5d90c6f57870f8de5db73d42f4df47f",
+      "snapshot_path": "docs/proof/wri-r182-runner/source-snapshots/e9714ce5/check-windows-runner.py",
+      "bytes": 20175,
+      "sha256": "8f044473b919558dbedd5a6e2a3ccd520025f81c6c48f31afb83d1501a48aa49"
+    },
+    {
+      "original_path": "tools/windows-runner.ps1",
+      "source_commit": "1477951f6cff53f7f9f6eee111425738dcc24b96",
+      "source_blob": "2f6c3a3ec2e7d8fe325f6536e46a68864a7d71dd",
+      "snapshot_path": "docs/proof/wri-r184-result/source-snapshots/1477951f/windows-runner.ps1",
+      "bytes": 24403,
+      "sha256": "cc201aca4cd2e9e434bec1b9630487a2184622d2ece08617c373d037d528848d"
+    },
+    {
+      "original_path": "tools/windows-settings-preflight.ps1",
+      "source_commit": "1477951f6cff53f7f9f6eee111425738dcc24b96",
+      "source_blob": "68bf7409f4d20f70c80929ea52b14cfae4dbf331",
+      "snapshot_path": "docs/proof/wri-r184-result/source-snapshots/1477951f/windows-settings-preflight.ps1",
+      "bytes": 3004,
+      "sha256": "ee80b2676ab74c1b58da6918a1ad4e0ab0223a78c99b8775fccd2eab10f2c17b"
+    },
+    {
+      "original_path": "tools/test-windows-runner.ps1",
+      "source_commit": "1477951f6cff53f7f9f6eee111425738dcc24b96",
+      "source_blob": "4f8ef77faf38ee3811d129bd27b8ace0e671f39c",
+      "snapshot_path": "docs/proof/wri-r184-result/source-snapshots/1477951f/test-windows-runner.ps1",
+      "bytes": 13993,
+      "sha256": "4907aa2c94276b27115230080020e764c3f2a375079847b9d4520247bc7b1f3d"
+    },
+    {
+      "original_path": "tools/check-windows-runner.py",
+      "source_commit": "1477951f6cff53f7f9f6eee111425738dcc24b96",
+      "source_blob": "d2c63a27003d89fb23c45a622cd4758aa7d8595d",
+      "snapshot_path": "docs/proof/wri-r184-result/source-snapshots/1477951f/check-windows-runner.py",
+      "bytes": 24961,
+      "sha256": "7bdae949718480bb9984ef30e75632d0d17cf04ba0161d478e35d2220af580ed"
+    },
+    {
+      "original_path": "tools/windows-scale-run.ps1",
+      "source_commit": "1477951f6cff53f7f9f6eee111425738dcc24b96",
+      "source_blob": "0711d209b62676c8596cedef5d38e6b5aca69944",
+      "snapshot_path": "docs/proof/wri-r184-result/source-snapshots/1477951f/windows-scale-run.ps1",
+      "bytes": 14673,
+      "sha256": "d153d413ea618e8d4cc5346236f0d7c9ec57e38f04312ae0dfaa5d8044a63ff4"
+    },
+    {
+      "original_path": "tools/test-windows-scale-run.ps1",
+      "source_commit": "1477951f6cff53f7f9f6eee111425738dcc24b96",
+      "source_blob": "240abb7a7a7e2353c1a121fde60e25b86a6995dd",
+      "snapshot_path": "docs/proof/wri-r184-result/source-snapshots/1477951f/test-windows-scale-run.ps1",
+      "bytes": 4435,
+      "sha256": "4742af74ad76a5547005948424cd0ccf3a905793a4fd1d8b60706b95d37f6163"
+    },
+    {
+      "original_path": "tools/windows-scale-run.ps1",
+      "source_commit": "36ccfa49bc8c57f48697b991ce6373a8f6806907",
+      "source_blob": "08d6bfbf8eab59c274120d364b1325bd9aca4b24",
+      "snapshot_path": "docs/proof/wri-r184-result/source-snapshots/36ccfa49/windows-scale-run.ps1",
+      "bytes": 14661,
+      "sha256": "fae58d4c71ecb110467f90842774c20c814cdec7c15dbb081469b2c846b8e834"
+    },
+    {
+      "original_path": "tools/test-windows-scale-run.ps1",
+      "source_commit": "36ccfa49bc8c57f48697b991ce6373a8f6806907",
+      "source_blob": "d0a898fb0a3a7dec17913c47fc5770205a08dc11",
+      "snapshot_path": "docs/proof/wri-r184-result/source-snapshots/36ccfa49/test-windows-scale-run.ps1",
+      "bytes": 2290,
+      "sha256": "39f89e36e429adeb8472554006098f4fb6dc03942ab9cf3b3b3d9502691dcf04"
+    }
+  ]
+}
