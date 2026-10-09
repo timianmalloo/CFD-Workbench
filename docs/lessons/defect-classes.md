@@ -2229,6 +2229,7 @@ without them, is present. A spike decides capture versus product (track ECR). It
 rounds up, height to even). The sweep of 23 `Near(…, 0, …)` sites found 2 more exposed or possibly exposed (`ControllerViewTests.cs:1171-1172`,
 `AnalysisPanelTests.cs:590`), left as findings. Proof: `docs/proof/fvt/red-first.md`. The PC must see item 2 PASS at 150 %.
 *2026-10-09 (track ECR).* Item 4 is a **capture defect, Inferred** (`docs/proof/ecr/spike.md`): at scale 1.5 and 2 a `RenderTargetBitmap` drops what the Elevation `Overlay` child draws, with or without `PushOpacity` and the chip `PushClip` (a rectangle drawn first, outside both, is absent too; Verified on the Mac). No live-window screenshot was possible, so the product side is not Verified. The chip check now samples a 96-dpi capture and accepts a line split over two pixels (`DevicePixel.HoldsHalfOf`; `Elevation_ChipBorderSampler_HoldsHalfOfASplitLine`, red-first in `docs/proof/ecr/red-first.md`). The Windows 1.5 proof is the PC ring.
+*2026-10-09 (track V3D).* Item 5 repaired: the View3d fixture takes a second, device-resolution `Shot` and the chip top border is sampled with `DevicePixel.NearestAtDevice` (radius 2). Proof: `docs/proof/v3d/red-first.md`. The PC must see item 5 PASS at 150 %.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
