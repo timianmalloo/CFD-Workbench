@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4469d4b351a88fbf09e74bb1db95eb363ef79a53bf53a38155c4e5b98340115f"
+      "sourceSha256": "51e1aa354733c8811beba8e82a041408a0502902831e7992b9435744e0dc82d1"
     },
     {
       "id": "domain-experts",
@@ -14075,6 +14075,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "51c0b1da8124b454fda7299822b91a3affb5c1745d625bfb991e7e31c5bc7701"
     },
     {
+      "id": "proof-ring-windows-r170-run-1",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/receipt.md",
+      "title": "Ruling 170 Windows calibration run 1 (complete)",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The first Ruling 170 ring completed within the 900 s total capture envelope on the current merged main head. It used CFD_RING_HOST=pc-win, six-CPU affinity and the reported six-rank L3 workload. The ring exited 1 on classified Windows test failures; the completed measurement qualifies as calibration row 1, pending the three-run series.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-calibration-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ea990353ba79c907af09350bb2b86dbafdac036b0cdb4fe3ef66f539b7630ac3"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -17838,5 +17870,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "73909895bdb89201dcbb6ea5b4088db1e7875ca5616086c394b69a85f04c4622"
+  "graphSha256": "79c78e610dfb679d8923ca0dcd13ace20df6046cf89fb6324f32417508986f90"
 };
