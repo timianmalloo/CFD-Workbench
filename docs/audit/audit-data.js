@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:43:18Z",
+  "generated": "2026-10-09T02:44:35Z",
   "audit": [
     {
       "actor": null,
@@ -31994,6 +31994,33 @@ window.AUDIT_DATA = {
         "acceptance_met": true
       },
       "started_at": "2026-10-09T02:42:21Z",
+      "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M4F8RNC7SCE3G60K1AQ4EP5M",
+      "shortname": "join-vwr",
+      "datetime": "2026-10-09T02:44:35Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/vwr-verifier-wiring into main",
+      "summary": "VWR joined: PR #19 verifier (8132e777) + run-windows-store-gate.py (exit 4 = NOT ASSESSED, 60 s timeout), join.json skip + wrapper step, run-readiness ENTRY_RULES (timeout 60, exit 4 not-assessed, exit 0 evidence) recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the Windows store verifier and its wiring",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T02:43:38Z",
       "duration_seconds": 57.0
     }
   ],
