@@ -571,6 +571,8 @@ public static class ControllerViewTests
             var area = fixture.Area;
             area.ThreeDLabel.RaiseEvent(new TappedEventArgs(InputElement.DoubleTappedEvent, null!));
             fixture.Settle();
+            // Ruling 182 (instrumentation over inference): the P3 clause's inputs, printed on pass as well as fail.
+            Console.WriteLine(FormattableString.Invariant($"P3 layout={fixture.Controller.Layout} PlanVisible={area.PlanSlot.IsEffectivelyVisible} ThreeDVisible={area.ThreeDSlot.IsEffectivelyVisible} ThreeDWidth={area.ThreeDSlot.Bounds.Width:R} PlanContentWidth={area.PlanContent.Bounds.Width:R} RoundedFrame={DevicePixel.Rounded(area.ThreeDSlot, 1):R} WindowBounds={fixture.Window.Bounds} ClientSize={fixture.Window.ClientSize} RenderScaling={fixture.Window.RenderScaling:R}"));
             if (fixture.Controller.Layout != ViewLayout.One(SingleView.ThreeD) || area.PlanSlot.IsEffectivelyVisible ||
                 !area.ThreeDSlot.IsEffectivelyVisible || area.ThreeDSlot.Bounds.Width < area.PlanContent.Bounds.Width - 2 * DevicePixel.Rounded(area.ThreeDSlot, 1 /* ModelArea.FrameThickness (private) */))
                 throw new Exception("Double-click on the 3D label did not show 3D alone");
