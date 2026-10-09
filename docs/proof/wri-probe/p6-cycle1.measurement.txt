@@ -1,0 +1,23 @@
+capture_note=Transcribed from the first runner measurement captured before the repair-2 run overwrote its output file; caller stdout/stderr were empty.
+host_start_utc=2026-10-09T02:19:25.0697189Z
+host_end_utc=2026-10-09T02:19:29.5125217Z
+host_wall_seconds=4.442803
+head=93240b06df197f68b9ba3b971c3c8192895a7445
+os_version=10.0.26300.0
+sdk=10.0.203
+dll_sha256=ba4abd963e9d5eec9325442dfe59d48995f65357f4e5f52059bf0b9243ca9dbc
+host_affinity=0x3F
+scale200_verified=False
+restored_150_verified=False
+restoration_render_scaling_1_5_verified=False
+tests=No named P6 check was invoked.
+events:
+2026-10-09T02:19:28.6523561Z restoration_attempt=1 target=150%
+2026-10-09T02:19:28.9222406Z restoration_attempt=2 target=150%
+errors:
+P6 execution: Settings UI Automation control absent: SystemSettings_Display_MainMonitor_CheckBox
+Restoration attempt 1 failed: Settings UI Automation control absent: SystemSettings_Display_MainMonitor_CheckBox
+Restoration attempt 2 failed: Settings UI Automation control absent: SystemSettings_Display_MainMonitor_CheckBox
+MANDATORY RESTORATION FAILED: AppliedDPI=144 and selected 150% were not verified
+Final Settings verification failed: Settings UI Automation control absent: SystemSettings_Display_MainMonitor_CheckBox
+independent_live_query_after_attempt=AppliedDPI 144; DISPLAY1 primary; no scale change had occurred

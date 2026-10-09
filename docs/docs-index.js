@@ -16190,12 +16190,12 @@ window.DOCS_INDEX = {
       "path": "docs/proof/wri-probe/receipt.md",
       "title": "WRI Windows scale probe receipt",
       "type": "proof-pack",
-      "status": "complete",
+      "status": "partial",
       "owner": "@trk-wri",
       "phase": "implementation",
       "reviewBy": "2027-04-09",
       "reviewSuggested": [],
-      "summary": "Captures Windows display/DPI, Avalonia scaling, the AreaFixture double-click clauses, PointAftInput layout, and selected chip pixels at the observed 150% scale. No product files were changed. Confirmation at 100% or 200% was not assessed.",
+      "summary": "Captures P1-P5 at 150% and records the authorized P6 attempt. Settings selected 200% and Avalonia reported 2.0, satisfying the committed P6 scale condition. A coordinator follow-up added an AppliedDPI==192 guard, which skipped the eight named checks; P6 remains NOT ASSESSED. Scale was restored and verified at 150%.",
       "tags": [
         "windows",
         "dpi",
@@ -16209,7 +16209,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b919f129769bb33e643efddcde0244bf666d667ed2ee79f5788b1c64ea88c287"
+      "sourceSha256": "5b063380647e44bedae09fc8d72a5c4f91078a5d5ab616bde5f7f49d1b08bd88"
     },
     {
       "id": "proof-wrt-red-first",
@@ -18200,5 +18200,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3dccfc14bbab4f0a0986255dba411e75e56f81d3f9a70fe5367f5840b4e0de60"
+  "graphSha256": "c3df7c0608da0a2eada966c33fc890a6c72fd4cdd1052c20e0a59d5b72f5ec78"
 };

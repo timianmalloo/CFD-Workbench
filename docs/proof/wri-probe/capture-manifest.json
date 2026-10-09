@@ -1,8 +1,13 @@
 {
-  "created_utc": "2026-10-09T02:12:32Z",
-  "tested_head": "842e575d8408d27c6f01f53df9d0da00e434ea38",
+  "created_utc": "2026-10-09T02:32:34Z",
+  "tested_head": "93240b06df197f68b9ba3b971c3c8192895a7445",
   "algorithm": "SHA-256",
   "files": [
+    {
+      "path": "docs/proof/wri-probe/.gitattributes",
+      "bytes": 11,
+      "sha256": "8f6dec47ea099720f02df12c857da24f6ce6b14bf33a104a886a751f0b3f94ab"
+    },
     {
       "path": "docs/proof/wri-probe/instrumented-command.txt",
       "bytes": 414,
@@ -84,9 +89,139 @@
       "sha256": "b5519f5be5a2fb19a9500ca97c37891fc45f31cbb332b68522067df55612ae60"
     },
     {
+      "path": "docs/proof/wri-probe/p6-cycle1.command.txt",
+      "bytes": 239,
+      "sha256": "588094f05ad25f50018a4a6e5a6bb880fc5900f71ed057f61cf3b71ab8fcd878"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-cycle1.measurement.txt",
+      "bytes": 1343,
+      "sha256": "bfc6935ac226fe7d2deb66a3c81feeb13dfca8a6e1694835d48dfeb2290075d0"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-cycle1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-cycle1.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-cycle2-test-results.txt",
+      "bytes": 32,
+      "sha256": "27dae527d26f9b1effd18530c70a7f98ceb5c56ab5695d333d3269df1160de46"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-cycle2-transaction.measurement.txt",
+      "bytes": 1347,
+      "sha256": "dc3b3f89648595f91e470ad3993caa03ead9b659db9bbb94f2a3935bb5cc6e36"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-cycle2.command.txt",
+      "bytes": 277,
+      "sha256": "7f031a5e132d1943ec821faca7090bddde8ad79dc7026fff0c7c629dc296f952"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-cycle2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-cycle2.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-live-200-diagnostic.command.txt",
+      "bytes": 296,
+      "sha256": "1581a5f4c9d53dcadf26328ba7f456bec4df5b89a49a2541d5968cda5def573b"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-live-200-diagnostic.measurement.txt",
+      "bytes": 458,
+      "sha256": "1b88c8beaa99092950eddf91bc6e947bfcef0fc676e7c0458db46ce75019c6fa"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-live-200-diagnostic.stderr.txt",
+      "bytes": 61,
+      "sha256": "d75e542ff1dc57f26a87a3122fc045a8136191a725d457b5bf9c9c8ef66ff14e"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-live-200-diagnostic.stdout.txt",
+      "bytes": 54,
+      "sha256": "d57748f9ea70e2d43a0000b88db2756bd385eb4f927d29777fe31d45baa8b7e5"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-restoration-render.command.txt",
+      "bytes": 423,
+      "sha256": "6b6ba1f4853cd893ab5da325c4ab511acd689277ac4e269880b1bc22ce94781e"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-restoration-render.measurement.txt",
+      "bytes": 580,
+      "sha256": "9c368a34faf0fbef82ef6d85a4dfcdb2d922d391d951e33d5dd6c9eb84c38408"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-restoration-render.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-restoration-render.stdout.txt",
+      "bytes": 169,
+      "sha256": "2d42ffefc5712e13460c8084954bea789ebc331acc96964e80ccca1fc9aa3741"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-restoration-ui.command.txt",
+      "bytes": 587,
+      "sha256": "9a104120c1d5812997737e8a2721c4b748f8129713094aca57b81916e6f25bf1"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-restoration-ui.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-restoration-ui.stdout.txt",
+      "bytes": 332,
+      "sha256": "b1658a9adf4beb384c1398bc899538484dda344530ea24eaecced5e911fd85ea"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-settings-before.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-settings-before.stdout.txt",
+      "bytes": 437,
+      "sha256": "d64982d1fdab67fd7ceaf5ee1dc46279a9a972ce1378ca54d221c822be84bf4a"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-settings-selected-150-before-change.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-settings-selected-150-before-change.stdout.txt",
+      "bytes": 242,
+      "sha256": "f79040c7758e8b07bed7866f6a590ae9d32c73c18f5f198bb43d92f9e6fbc943"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-task-prompt.txt",
+      "bytes": 2893,
+      "sha256": "acc41b28f0f41e152a4f8d0a0a9c34e2ab80f7647557a78bc5a1bb9ccdce59d0"
+    },
+    {
+      "path": "docs/proof/wri-probe/p6-temporary-hashes.txt",
+      "bytes": 739,
+      "sha256": "3524b8f510e99350fab3be544c14f7f01237af93743e9bbfef6bb52bcd2c2b01"
+    },
+    {
       "path": "docs/proof/wri-probe/receipt.md",
-      "bytes": 6201,
-      "sha256": "b919f129769bb33e643efddcde0244bf666d667ed2ee79f5788b1c64ea88c287"
+      "bytes": 8342,
+      "sha256": "5b063380647e44bedae09fc8d72a5c4f91078a5d5ab616bde5f7f49d1b08bd88"
     }
   ]
 }

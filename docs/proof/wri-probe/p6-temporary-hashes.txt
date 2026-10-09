@@ -1,0 +1,10 @@
+Temporary instrumentation and runner were removed before finalization.
+SHA-256 of temporary test source at P6 build time:
+ControllerViewTests.cs 5d6deb604c16badd7ad33e013241d202d73e673c65fa5f0008e3093e3249595e
+WorkbenchTests.cs b257c2aa835cea6b547a901bb7c0440691dead53fc4c5c6895cb2e65b14e26c2
+SHA-256 of temporary Settings/test runner before removal:
+p6-run.ps1 6664196b06c177c79991a41d69f378d8cd10daa176592a9f5bbda7d0eff6e72a
+Original committed Git blob IDs:
+ControllerViewTests.cs f9fcd5deb05b4de2668dd7e7d5a2531195a48c1b
+WorkbenchTests.cs 268159b560de5c8673a3743cbd9618a99369f251
+Restoration control: `git restore` returned both source files to their committed blobs; `git diff` is empty for `tests/`. The temporary runner was deleted.

@@ -1,0 +1,9 @@
+utc=2026-10-09T02:22:32.2972852Z
+
+primary=\\.\DISPLAY1 bounds={X=0,Y=0,Width=2560,Height=1600}
+
+display1_selected=True display2_selected=False
+
+main_display_toggle=On main_display_enabled=False
+
+scale=150% (Recommended) AppliedDPI=144

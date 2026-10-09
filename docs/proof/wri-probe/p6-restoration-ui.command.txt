@@ -1,0 +1,3 @@
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File %TEMP%\wri-restoration-ui-check.ps1
+Read-only final UIA query; it did not change scale. It read Display1/Display2 SelectionItemPattern.IsSelected, SystemSettings_Display_MainMonitor_CheckBox TogglePattern.ToggleState, the selected Scale list item via SelectionItemPattern.IsSelected, AppliedDPI, and System.Windows.Forms.Screen primary identity.
+The actual transition selected `150% (Recommended)` through SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox ExpandCollapsePattern and the option's SelectionItemPattern.Select.

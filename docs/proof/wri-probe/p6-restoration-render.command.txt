@@ -1,0 +1,5 @@
+DOTNET_ROOT=%USERPROFILE%\.dotnet
+PATH=%USERPROFILE%\.dotnet;%PATH%
+Affinity=0x3F
+& "$env:DOTNET_ROOT\dotnet.exe" exec tests\CfdWorkbench.Desktop.Tests\bin\Release\net10.0\CfdWorkbench.Desktop.Tests.dll --p6-scale-diagnostic
+Preceded by query: (Get-ItemProperty 'HKCU:\Control Panel\Desktop\WindowMetrics').AppliedDPI; [System.Windows.Forms.Screen]::AllScreens | ForEach-Object { "$($_.DeviceName) Primary=$($_.Primary)" }
