@@ -7328,6 +7328,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "23584a62c40f0b915059a8ac2e8b7b01b9090882b4a364cb1da555dc44f6246d"
     },
     {
+      "id": "review-pr-26",
+      "path": "docs/reviews/pr-26.md",
+      "title": "PR #26 (Windows PC) - Ruling 181 store-verifier rerun (Ruling 189), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 189). Ruling 181 (4) and 175 (2) are met. The Windows store qualification PASS is admitted as evidence, bound to verifier a79ac73c and to build-input trees that are byte-identical on main.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "store",
+        "verifier"
+      ],
+      "links": [
+        {
+          "to": "review-pr-22",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8227bca46b367e9faf3b541a2296ad976a9ea616897b23b52edbba20d0a6a9ee"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8261,7 +8289,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dfbfa4a7c3ca822fcea0f37c84b0f33f114c5624508f097a3bacf894f5f0fad2"
+      "sourceSha256": "74d71f47f8971750529cd1e8cbb0e7f29c6d6235e7c3d02c6f7855d00dfe38b7"
     },
     {
       "id": "kb-hw-glossary",
@@ -11566,7 +11594,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f68917bfc2937c3f069bd7028813652cd4f720fdc4889385662f8227fcc84a63"
+      "sourceSha256": "c95d68f2db8579a8a4fdd29e957bc513df7ed3ec543011c572b90f244fb110b4"
     },
     {
       "id": "proof-application-spikes",
@@ -19221,5 +19249,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5eaad69b8ad52b0612cf69668aaa19f0423200bab70a134357607f1ffe5bdc1d"
+  "graphSha256": "350a3b56e51ff8f82907e55975fa3fe0b4a0d932b302634982a1ec830e52fd58"
 };
