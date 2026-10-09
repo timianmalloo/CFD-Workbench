@@ -1,0 +1,74 @@
+{
+  "files": [
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/.gitattributes",
+      "bytes": 51,
+      "sha256": "194c74c264a133e74850e3c4cac39a697e11ecf379423e088977d345f61ebc70"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/capture-r181.ps1",
+      "bytes": 17169,
+      "sha256": "44b82829498187ba77078b62ed12da067ed84afe5f83584af04b64f6ab725205"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/launch.marker.json",
+      "bytes": 296,
+      "sha256": "c91ea26b72f354471c27720b187d0fdf45fd54e87a20b4912070b152cbb0ef06"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/package-proof.py",
+      "bytes": 1587,
+      "sha256": "3a28fb43aff752e039ac6d84bc9124541e0a2d67bcd4118fa9ca0d23f7cb2e33"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/receipt.md",
+      "bytes": 6824,
+      "sha256": "ad4ef9a57ade852b499f998ae87b9551ac226d18bd5a0dca5cf85f4f8d733295"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/residuals.json",
+      "bytes": 162,
+      "sha256": "944b5590dfef44a1660493fdca9769ea1499347d8ddcb9ba09ea2a4b27058266"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/residuals.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/residuals.stdout.txt",
+      "bytes": 131,
+      "sha256": "d224b41ad270f0cb7c4c6a8bd0cddc973bc71812962c26a7c139e541be2ba5be"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/sample-build-servers.ps1",
+      "bytes": 2294,
+      "sha256": "63c1c7e2f4b3004044cf6cad7e7a15c27452b49ece43525e38a14c0c72baf017"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/source-snapshots/a79ac73c04cc8769d65868cde2f3c69154f27ebfcff40743bd20ca0b668afd52/verify-windows-store.py",
+      "bytes": 38411,
+      "sha256": "a79ac73c04cc8769d65868cde2f3c69154f27ebfcff40743bd20ca0b668afd52"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/source-snapshots/cc201aca4cd2e9e434bec1b9630487a2184622d2ece08617c373d037d528848d/windows-runner.ps1",
+      "bytes": 24403,
+      "sha256": "cc201aca4cd2e9e434bec1b9630487a2184622d2ece08617c373d037d528848d"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/verifier.json",
+      "bytes": 2277,
+      "sha256": "2702c78388f74b4d72c5a9a08e7fca8884b5ae912b2f9568c57b4edc57fe0a37"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/verifier.stderr.txt",
+      "bytes": 80,
+      "sha256": "2a838d3f9b165a929b9882825b755963ff74926864f40bb1209cff845c3c6da1"
+    },
+    {
+      "path": "docs/proof/r181-store-verifier-rerun/verifier.stdout.txt",
+      "bytes": 4386,
+      "sha256": "1ed01a5611eb835b9cf8d71f07c3b6ed0ef7519767440598dd65a49f752ecceb"
+    }
+  ]
+}
