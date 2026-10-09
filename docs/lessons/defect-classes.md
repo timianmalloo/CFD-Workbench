@@ -2439,6 +2439,19 @@ rebuilt (the scale-context print, the item-6 bounds) had no committed home eithe
     `windows-settings-preflight.ps1`, `check-windows-runner.py`, and `test-windows-runner.ps1`.
     The retained runner-ready receipt proves six controls red-first/green on an MSP/RG5 head.
     Status: controlled for runner preparation; scale/product proof remains unrun.
+  - *2026-10-09, Ruling 185 (sentinel fixture in a semantic reader's working directory):* the driver's qualification
+    used up its repair cap on the harness again.
+    - `test-windows-runner.ps1` wrote the literal `identity` to a fixture `global.json` as an opaque sentinel for the hash
+      guard.
+    - `Assert-WriToolchain` then ran `dotnet --version` with that fixture as its working directory
+      (`windows-runner.ps1:191`, `:303`), and the SDK resolver parsed the placeholder.
+    - The throw at `:306` folds a non-zero exit and a wrong version into one message, so the cause stayed Inferred until a
+      one-variable re-run.
+
+    *Signature:* a fixture written for one reader sits where a second reader parses it. *Control:* a fixture that mirrors
+    a real repo file is copied byte for byte from the repo root. One assertion before the toolchain call compares the two
+    and throws `WRI-FIXTURE`. Status: in the PC's Ruling 185 track. Next step, parked: `Assert-WriToolchain` carries the
+    exit code and trimmed stdout in its throw (a library track with its own hash review).
 
 **WINDOWS-CAPTURE-LIFECYCLE · A launcher mistakes root exit or a termination request for complete, bounded process cleanup.**
 Ruling 181's watchdog lost the numeric exit. Runner review also exposed inherited output handles, asynchronous
