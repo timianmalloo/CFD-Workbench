@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:38:46Z",
+  "generated": "2026-10-09T00:40:43Z",
   "audit": [
     {
       "actor": null,
@@ -31383,6 +31383,33 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Rebalance Analysis harness parts so each is under C-2 with margin",
       "done_when": "hints re-measured; three rings green; check-docs 0"
+    },
+    {
+      "id": "al-01M4F1NV4V8Q0MTJJH99BX4E58",
+      "shortname": "join-abl",
+      "datetime": "2026-10-09T00:40:43Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/abl-analysis-balance into main",
+      "summary": "ABL joined: Analysis cost hints from measured medians; part skew 93-255 ms (was ~1 s); larger part 94-99% of 5000 ms under ring load; n=3 needs a ruling recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the Analysis partition rebalance",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T00:39:49Z",
+      "duration_seconds": 54.0
     }
   ],
   "changes": [
@@ -33752,6 +33779,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EZZXR2FMV85QJMZR2SAHFD",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F1J6G33BPERSZRAGH0SJ4Q",
+      "ts": "2026-10-09T00:38:43Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F1J6FZCJABXTRJGF99N05F",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F1J6KAPHAJQ36C7C0HWBZ3",
+      "ts": "2026-10-09T00:38:44Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F1J6FZCJABXTRJGF99N05F",
       "session": "fable-owner"
     }
   ]
