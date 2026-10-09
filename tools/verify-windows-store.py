@@ -2,6 +2,10 @@
 """Run the bounded Windows-native store qualification subset; this does not admit production writes."""
 from __future__ import annotations
 
+import time
+
+PROCESS_STARTED = time.monotonic()
+
 import ctypes
 import datetime as dt
 from contextlib import redirect_stderr, redirect_stdout
@@ -16,7 +20,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import time
+import threading
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -26,6 +30,7 @@ GLOBAL_JSON = ROOT / "global.json"
 MAX_SECONDS = 60.0
 TARGET_SECONDS = 15.0
 KILL_RESERVE_SECONDS = 5.0
+CLEANUP_SECONDS = 2.0
 MAX_CPUS = 6
 TIMEOUT_EXIT = 124
 CLEANUP_FAILED_EXIT = 125
@@ -107,8 +112,20 @@ def _close_streams(process: subprocess.Popen) -> None:
             stream.close()
 
 
+def _close_streams_bounded(process: subprocess.Popen, deadline: float) -> bool:
+    """Close pipe streams off the ceiling thread; report when a reader still owns them."""
+    closer = threading.Thread(
+        target=_close_streams, args=(process,), name=f"pipe-close-{process.pid}", daemon=True,
+    )
+    closer.start()
+    closer.join(timeout=max(0.0, min(0.02, deadline - time.monotonic())))
+    return not closer.is_alive()
+
+
 def _terminate_tree(process: subprocess.Popen, deadline: float) -> tuple[bytes, bytes, bool, str]:
     """Stop the process tree and reap the child using bounded waits only."""
+    cleanup_started = time.monotonic()
+    deadline = min(deadline, cleanup_started + CLEANUP_SECONDS)
     problems: list[str] = []
     killer = None
     if time.monotonic() >= deadline:
@@ -134,7 +151,8 @@ def _terminate_tree(process: subprocess.Popen, deadline: float) -> tuple[bytes, 
                     killer.communicate(timeout=wait)
                 except subprocess.TimeoutExpired:
                     problems.append("taskkill did not stop after kill")
-                    _close_streams(killer)
+                    if not _close_streams_bounded(killer, deadline):
+                        problems.append("taskkill pipe close remains pending off the ceiling thread")
             if killer.returncode not in (0, None):
                 problems.append(f"taskkill exited {killer.returncode}")
             elif killer.returncode is None:
@@ -166,7 +184,18 @@ def _terminate_tree(process: subprocess.Popen, deadline: float) -> tuple[bytes, 
             stdout = still_running.output or stdout
             stderr = still_running.stderr or stderr
             problems.append("target process cleanup did not finish within its bounded wait")
-            _close_streams(process)
+            if not _close_streams_bounded(process, deadline):
+                problems.append("target pipe close remains pending off the ceiling thread")
+
+    if problems:
+        root_exit = process.poll()
+        root_state = "still-running-or-unreaped" if root_exit is None else str(root_exit)
+        kill_state = "not-started" if killer is None else str(killer.returncode)
+        problems.append(
+            f"residual process tree state: taskkill_exit={kill_state}; "
+            f"root_pid={process.pid}; root_exit={root_state}; "
+            "descendant termination not verified"
+        )
 
     detail = "; ".join(problems)
     return stdout, stderr, not problems, detail
@@ -281,48 +310,136 @@ def inventory_rejects_unscoped() -> bool:
     return bool(registration_problems(names))
 
 
-def timeout_cleanup_probe() -> bool:
-    class FakeProcess:
-        def __init__(self, kind: str, mode: str):
-            self.kind = kind
-            self.mode = mode
-            self.args = [kind]
-            self.pid = 1234
-            self.returncode = 5 if kind == "taskkill" and mode == "nonzero" else None
-            self.stdout = io.BytesIO()
-            self.stderr = io.BytesIO()
-            self.waits: list[float | None] = []
-            self.calls = 0
+def timeout_cleanup_probe() -> tuple[bool, float, str]:
+    """Exercise timeout cleanup with real Windows pipes and an injected taskkill failure."""
+    if os.name != "nt":
+        return True, 0.0, "not assessed off Windows"
+
+    class FailedTaskkill:
+        args = ["taskkill.exe", "/PID", "injected", "/T", "/F"]
+        pid = 0
+        returncode = 5
+        stdout = None
+        stderr = None
 
         def communicate(self, timeout: float | None = None) -> tuple[bytes, bytes]:
-            self.waits.append(timeout)
-            self.calls += 1
-            if self.kind == "target" and self.calls == 1:
-                raise subprocess.TimeoutExpired(self.args, timeout)
-            if self.kind == "taskkill" and self.mode == "timeout" and self.calls == 1:
-                raise subprocess.TimeoutExpired(self.args, timeout)
-            if self.kind == "taskkill" and self.mode == "timeout":
-                self.returncode = -9
-            if self.kind == "target":
-                self.returncode = -9
-            return b"", b""
+            return b"", b"injected taskkill failure"
 
         def kill(self) -> None:
             self.returncode = -9
 
-    for mode in ("nonzero", "timeout"):
-        target = FakeProcess("target", mode)
-        killer = FakeProcess("taskkill", mode)
-        with patch.object(subprocess, "Popen", side_effect=[target, killer]):
-            code, _, stderr, _ = run_capture(
-                ["fake"], env={}, deadline=time.monotonic() + 1.0, total_deadline=time.monotonic() + 5.0,
+    process_started = time.monotonic()
+    work_deadline = process_started + 1.0
+    total_deadline = process_started + 3.0
+    taskkill_injected = threading.Event()
+    child_pid_path: Path | None = None
+    result: list[tuple[int, bytes, bytes, float]] = []
+    target_processes: list[subprocess.Popen] = []
+    worker: threading.Thread | None = None
+    descendant_pid: int | None = None
+
+    try:
+        with tempfile.TemporaryDirectory(prefix="cfd-store-pipe-cleanup-") as temp_dir:
+            child_pid_path = Path(temp_dir) / "descendant.pid"
+            child_code = (
+                "import subprocess,sys,time; "
+                "child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(20)']); "
+                "open(sys.argv[1],'w',encoding='ascii').write(str(child.pid)); "
+                "time.sleep(30)"
             )
-        waits = target.waits + killer.waits
-        if code != CLEANUP_FAILED_EXIT or b"FAIL TREE_CLEANUP_FAILED" not in stderr:
-            return False
-        if not waits or any(value is None or value <= 0 or value > 2.0 for value in waits):
-            return False
-    return True
+            command = [sys.executable, "-c", child_code, str(child_pid_path)]
+            real_popen = subprocess.Popen
+
+            def inject_taskkill(argv: list[str], *args, **kwargs):
+                if argv and Path(str(argv[0])).name.casefold() == "taskkill.exe":
+                    taskkill_injected.set()
+                    return FailedTaskkill()
+                target = real_popen(argv, *args, **kwargs)
+                target_processes.append(target)
+                return target
+
+            def invoke() -> None:
+                result.append(run_capture(
+                    command, env=dict(os.environ), deadline=work_deadline,
+                    total_deadline=total_deadline,
+                ))
+
+            with patch.object(subprocess, "Popen", side_effect=inject_taskkill):
+                worker = threading.Thread(target=invoke, name="r171-real-pipe-probe", daemon=True)
+                worker.start()
+                pid_wait_deadline = min(work_deadline - 0.1, time.monotonic() + 0.75)
+                while descendant_pid is None and time.monotonic() < pid_wait_deadline:
+                    try:
+                        child_pid_text = child_pid_path.read_text(encoding="ascii").strip()
+                        if child_pid_text:
+                            descendant_pid = int(child_pid_text)
+                    except (OSError, ValueError):
+                        pass
+                    if descendant_pid is not None:
+                        break
+                    worker.join(timeout=min(0.01, max(0.0, pid_wait_deadline - time.monotonic())))
+                while time.monotonic() < work_deadline and worker.is_alive():
+                    worker.join(timeout=min(0.02, max(0.0, work_deadline - time.monotonic())))
+                worker.join(timeout=2.0)
+                cleanup_seconds = max(0.0, time.monotonic() - work_deadline)
+                completed_within_bound = not worker.is_alive() and cleanup_seconds <= 2.0
+
+            # The failed taskkill leaves the fixture descendant alive; reap that test-owned process explicitly.
+            if descendant_pid is not None:
+                try:
+                    os.kill(descendant_pid, 15)
+                except OSError:
+                    pass
+            if worker is not None and worker.is_alive():
+                worker.join(timeout=2.0)
+            for target in target_processes:
+                if target.poll() is None:
+                    target.kill()
+                    try:
+                        target.communicate(timeout=0.25)
+                    except subprocess.TimeoutExpired:
+                        pass
+            close_workers = [
+                item for item in threading.enumerate()
+                if item.name.startswith("pipe-close-")
+            ]
+            for close_worker in close_workers:
+                close_worker.join(timeout=max(0.0, total_deadline - time.monotonic()))
+            close_workers_finished = all(not item.is_alive() for item in close_workers)
+
+            code, _, stderr, _ = result[0] if result else (None, b"", b"", 0.0)
+            outcome = (
+                descendant_pid is not None
+                and taskkill_injected.is_set()
+                and completed_within_bound
+                and code == CLEANUP_FAILED_EXIT
+                and b"FAIL TREE_CLEANUP_FAILED" in stderr
+                and b"pipe close remains pending off the ceiling thread" in stderr
+                and b"descendant termination not verified" in stderr
+                and close_workers_finished
+            )
+            residual = next(
+                (line for line in decode(stderr).splitlines() if "residual process tree state:" in line),
+                "not recorded",
+            )
+            detail = (
+                f"clock_origin=before-target-Popen; taskkill=exit-5; expired_work_deadline=true; "
+                f"real_pipe_child={descendant_pid is not None}; "
+                f"worker_completed={bool(worker and not worker.is_alive())}; "
+                f"pipe_close_workers_finished={close_workers_finished}; "
+                f"cleanup_seconds={cleanup_seconds:.6f}; exit={code}; residual={residual}"
+            )
+            return outcome, cleanup_seconds, detail
+    except Exception as error:
+        if descendant_pid is not None:
+            try:
+                os.kill(descendant_pid, 15)
+            except OSError:
+                pass
+        for target in target_processes:
+            if target.poll() is None:
+                target.kill()
+        return False, max(0.0, time.monotonic() - work_deadline), f"real-pipe probe error: {error}"
 
 
 def selector_matches(names: set[str]) -> set[str]:
@@ -345,7 +462,7 @@ def bounded_child_timeout(total_deadline: float, now: float) -> float:
 
 
 def bounded_kill_cleanup_seconds() -> float:
-    return 2.0 + 0.25 + 0.5 + 0.5
+    return CLEANUP_SECONDS
 
 
 def exit_for_result(is_windows: bool, passed: bool) -> int:
@@ -431,6 +548,7 @@ def expected_classification() -> str:
 
 
 def self_test() -> int:
+    pipe_cleanup_ok, pipe_cleanup_seconds, pipe_cleanup_detail = timeout_cleanup_probe()
     valid = expected_output()
     missing = "\n".join(line for line in valid.splitlines() if line != "PASS WindowsNative_Rename_FreshWin32VersusNtFixtures") + "\n"
     legacy_missing = "\n".join(line for line in valid.splitlines() if not line.startswith(f"FAIL {HISTORICAL_EXPECTED_FAILURE}")) + "\n"
@@ -473,7 +591,7 @@ def self_test() -> int:
         ("duplicate inventory registration rejected", bool(registration_problems(sorted(EXPECTED_REGISTERED) + [sorted(EXPECTED_REGISTERED)[0]]))),
         ("missing inventory registration rejected", bool(registration_problems(sorted(EXPECTED_REGISTERED)[1:]))),
         ("unscoped inventory addition rejected", inventory_rejects_unscoped()),
-        ("timeout tree cleanup bounded and fail closed", timeout_cleanup_probe()),
+        ("real Windows pipe timeout cleanup bounded after taskkill failure", pipe_cleanup_ok),
         ("off-Windows execution is NOT ASSESSED", exercise_off_windows_contract()),
         ("Windows subject failure exits 1", exit_for_result(True, False) == 1),
         ("no-argument mode is default", cli_mode([]) == "run"),
@@ -481,6 +599,8 @@ def self_test() -> int:
         ("other arguments are rejected", cli_mode(["--verbose"]) is None and exercise_argument_rejection()),
     ]
     failures = [label for label, passed in checks if not passed]
+    print(f"SELFTEST PIPE_CLEANUP_SECONDS={pipe_cleanup_seconds:.6f}")
+    print(f"SELFTEST PIPE_CLEANUP_EVIDENCE={pipe_cleanup_detail}")
     for label, passed in checks:
         print(f"SELFTEST {'PASS' if passed else 'FAIL'} {label}")
     if failures:
@@ -499,6 +619,7 @@ def self_test() -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    started = PROCESS_STARTED
     mode = cli_mode(sys.argv[1:] if argv is None else argv)
     if mode == "self-test":
         return self_test()
@@ -509,7 +630,6 @@ def main(argv: list[str] | None = None) -> int:
         print("NOT ASSESSED: this verifier requires Windows", flush=True)
         return exit_for_result(False, False)
 
-    started = time.monotonic()
     total_deadline = started + MAX_SECONDS
     work_deadline = total_deadline - KILL_RESERVE_SECONDS
     start_utc = utc_now()

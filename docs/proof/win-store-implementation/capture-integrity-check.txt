@@ -23,6 +23,16 @@ PASS docs/proof/win-store-implementation/r145-head.stderr.txt bytes=0 sha256=e3b
 PASS docs/proof/win-store-implementation/r145-head.stdout.txt bytes=2894 sha256=28bef7f1fe68594276edb7c84a038b3e66891884250aefd3f16b831f0fce3f8f worktree=index
 PASS docs/proof/win-store-implementation/r145-initial.stderr.txt bytes=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 worktree=index
 PASS docs/proof/win-store-implementation/r145-initial.stdout.txt bytes=1017 sha256=fce93e6b5324cb3a129fff17bed9564eb26d2e1d793e2082856ad932ece17f38 worktree=index
+PASS docs/proof/win-store-implementation/r171-cleanup-green.stderr.txt bytes=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 worktree=index
+PASS docs/proof/win-store-implementation/r171-cleanup-green.stdout.txt bytes=1989 sha256=15e20cb005cb6a41e8ed3aaba0b1b4293469ab331979acf127bda49f8b1e26fc worktree=index
+PASS docs/proof/win-store-implementation/r171-cleanup-red.stderr.txt bytes=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 worktree=index
+PASS docs/proof/win-store-implementation/r171-cleanup-red.stdout.txt bytes=1557 sha256=1c22588e278c9bd72656d9fde75fde8d5b041ff7730dbcddb30eb737691fe821 worktree=index
+PASS docs/proof/win-store-implementation/r171-docs.stderr.txt bytes=141 sha256=c779c63594d173c05733342b56d6de8858b48ad38fd96420d7980e09abf7a584 worktree=index
+PASS docs/proof/win-store-implementation/r171-docs.stdout.txt bytes=16600 sha256=c7e9e2655b7be3b63b76a58ca00dacfcd44ebf7d8cc3a92409df2881ec7d6741 worktree=index
+PASS docs/proof/win-store-implementation/r171-pii.stderr.txt bytes=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 worktree=index
+PASS docs/proof/win-store-implementation/r171-pii.stdout.txt bytes=68 sha256=f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747 worktree=index
+PASS docs/proof/win-store-implementation/r171-static.stderr.txt bytes=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 worktree=index
+PASS docs/proof/win-store-implementation/r171-static.stdout.txt bytes=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 worktree=index
 PASS docs/proof/win-store-implementation/red-native.stderr.txt bytes=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 worktree=index
 PASS docs/proof/win-store-implementation/red-native.stdout.txt bytes=1382 sha256=71f9a9840f67ad1926a442f09105ba693edc7b6e95e772b763e8941a3963d764 worktree=index
 PASS docs/proof/win-store-implementation/red-store.stderr.txt bytes=0 sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 worktree=index
@@ -47,4 +57,4 @@ PASS docs/proof/win-store-implementation/verify-windows-store-selftest.stderr.tx
 PASS docs/proof/win-store-implementation/verify-windows-store-selftest.stdout.txt bytes=795 sha256=86dccc152fdde8cec8953dd1a7cc5806463fc6c6e9cd2976b8dbfa1f98f3801d worktree=index
 PASS docs/proof/win-store-implementation/verify-windows-store.stderr.txt bytes=36 sha256=34da0f5d5452f0dfad628b6fd5c45cfdec7afcd7ade47f39faff4e53d58afc67 worktree=index
 PASS docs/proof/win-store-implementation/verify-windows-store.stdout.txt bytes=3770 sha256=d305eaa9508cc74457c80209aa400d624311454a52bf86f4aab8d5eb0694a35b worktree=index
-CAPTURE-INTEGRITY PASS captures=49
+CAPTURE-INTEGRITY PASS captures=59

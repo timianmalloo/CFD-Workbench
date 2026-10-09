@@ -1,0 +1,31 @@
+SELFTEST PIPE_CLEANUP_SECONDS=1.058140
+SELFTEST PIPE_CLEANUP_EVIDENCE=clock_origin=before-target-Popen; taskkill=exit-5; expired_work_deadline=true; real_pipe_child=True; worker_completed=True; pipe_close_workers_finished=True; cleanup_seconds=1.058140; exit=125; residual=FAIL TREE_CLEANUP_FAILED taskkill exited 5; target process tree remained after taskkill; target process cleanup did not finish within its bounded wait; target pipe close remains pending off the ceiling thread; residual process tree state: taskkill_exit=5; root_pid=27604; root_exit=1; descendant termination not verified
+SELFTEST PASS selector includes Ruling 152 historical probe
+SELFTEST PASS valid classified Ruling 145 result accepted
+SELFTEST PASS missing required pass rejected
+SELFTEST PASS missing historical failure rejected
+SELFTEST PASS extra pass rejected
+SELFTEST PASS wrong RESULT rejected
+SELFTEST PASS missing RESULT rejected
+SELFTEST PASS duplicate RESULT rejected
+SELFTEST PASS wrong selector rejected
+SELFTEST PASS wrong selected count rejected
+SELFTEST PASS wrong failure name rejected
+SELFTEST PASS unexpected failure rejected
+SELFTEST PASS stale manifest pass rejected
+SELFTEST PASS classifier failure rejected
+SELFTEST PASS wrong subject exit rejected
+SELFTEST PASS affinity mask limited to six
+SELFTEST PASS empty affinity refused
+SELFTEST PASS child timeout leaves kill reserve
+SELFTEST PASS nonliteral inventory registration rejected
+SELFTEST PASS duplicate inventory registration rejected
+SELFTEST PASS missing inventory registration rejected
+SELFTEST PASS unscoped inventory addition rejected
+SELFTEST PASS real Windows pipe timeout cleanup bounded after taskkill failure
+SELFTEST PASS off-Windows execution is NOT ASSESSED
+SELFTEST PASS Windows subject failure exits 1
+SELFTEST PASS no-argument mode is default
+SELFTEST PASS self-test is explicit
+SELFTEST PASS other arguments are rejected
+SELFTEST PASS registered Windows test inventory exact (13 checks)

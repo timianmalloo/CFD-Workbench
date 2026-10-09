@@ -330,3 +330,36 @@ Each invocation preserves stdout and stderr separately. Verifier output replaces
 home paths with `%USERPROFILE%` and redacts machine SIDs before emission; no
 account path or SID is committed. No product source/tests, readiness wiring or
 full test ring was changed or run.
+
+### Ruling 171 — bounded Windows pipe cleanup
+
+The Ruling 171 regression probe runs on Windows with a real child process whose
+stdout and stderr are anonymous pipes. The child starts a descendant that keeps
+both inherited pipe handles open. The fixture injects `taskkill.exe` exit 5,
+waits for the absolute work deadline created before target process launch to
+expire, and observes timeout cleanup. The ceiling begins at `PROCESS_STARTED`,
+before `main` dispatches the verifier. Cleanup has its own two-second absolute
+bound inside the five-second hard-ceiling reserve.
+
+- Red-first command: `py -3 tools\verify-windows-store.py --self-test`.
+  The old synchronous `stream.close()` on the timeout thread blocked for
+  `2.016905` seconds after the expired work deadline. The real-pipe regression
+  failed; its taskkill injection was exit 5. The test then terminated its own
+  fixture descendant so the red run left no test process behind. Captures:
+  `r171-cleanup-red.stdout.txt` and `r171-cleanup-red.stderr.txt`.
+- Green command: `py -3 tools\verify-windows-store.py --self-test`.
+  Final cleanup returned in `1.058140` seconds after the expired work deadline, with
+  injected taskkill exit 5. The verifier returned exit 125 as required and
+  explicitly reported the residual state: root PID and exit, descendant
+  termination unverified, and pipe close pending off the ceiling thread. The
+  fixture then terminated its descendant and confirmed the deferred close
+  worker finished. The real-pipe regression and all existing verifier contract
+  self-tests passed. Captures: `r171-cleanup-green.stdout.txt` and
+  `r171-cleanup-green.stderr.txt`.
+- Final verifier script SHA-256: `7319b2f138b397056a1691496b340a852881d08f930df93c581ab83eb97d9112`.
+- The production cleanup uses bounded waits under one absolute cleanup deadline.
+  Stream close runs on a daemon cleanup worker so it cannot block the ceiling
+  thread. A pending close or unverified descendant is reported as
+  `TREE_CLEANUP_FAILED`; it is never counted as successful cleanup.
+- No native qualification rerun or full test ring was run. The existing 13-test
+  selector and Ruling 145 classification code were left unchanged.
