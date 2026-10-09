@@ -1658,6 +1658,7 @@ from the `.ms` files `tools/run-tests.sh` already writes; it costs no run time. 
 2026-10-09 (OBS): the skew control is built. `tools/check-test-costs.py` prints `PARTITION-SKEW <harness> parts=<ms list> skew_ms=<n> (hints stale?)` for
 Core and Analysis when the slowest part minus the fastest exceeds 15 % of the per-part limit; it is advisory and never fails the ring. Its
 self-test plants a balanced and a skewed set. Cost: five `.ms` reads, under 1 ms. The Core limit is a 30,000 ms reference (Core parts read 31.6 / 31.7 / 24.2 s: a real 7.5 s skew, not tuned here), not a ruled limit.
+2026-10-09 (CBL): Core parts are now cost-placed, not round-robin: `tests/CfdWorkbench.Core.Tests/Fixtures/core-costs.tsv` (longest first onto the lightest part; an unlisted check keeps `i % n`). Parts read 29.3 / 29.7 / 30.3 s with no PARTITION-SKEW (was 31.6 / 31.6 / 21.9 s). The table goes stale as checks are added; the PARTITION-SKEW line is the detector, and regenerate is `python3 tests/CfdWorkbench.Core.Tests/Fixtures/core-costs.py <logs of CFD_CORE_COST=1 runs>` (`docs/proof/cbl/measure.md`).
 
 **DESKTOP-HARNESS-GROWTH · A CPU-bound harness whose parts run concurrently cannot be partitioned into margin.** C-4 (Desktop <= 43 s)
 read 42.5 / 43.5 / 42.8 s at quiet load (one red in three), then 45,636 ms at load 21.8 on the PNA join, after every UI track had added

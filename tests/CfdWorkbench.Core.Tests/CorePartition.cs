@@ -17,9 +17,11 @@ internal static class CorePartition
     internal static List<(string Name, double Ms)> LoadTable(string path)
     {
         var rows = new List<(string, double)>();
-        if (!File.Exists(path)) return rows;
+        string text;
+        try { text = File.ReadAllText(path); }
+        catch (FileNotFoundException) { return rows; }
         var seen = new HashSet<string>();
-        foreach (string line in File.ReadLines(path))
+        foreach (string line in text.Split('\n'))
         {
             if (line.Length == 0 || line[0] == '#') continue;
             string[] fields = line.Split('\t');

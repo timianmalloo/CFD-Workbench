@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:53:11Z",
+  "generated": "2026-10-09T01:11:55Z",
   "audit": [
     {
       "actor": null,
@@ -31455,6 +31455,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T00:52:16Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M4F3EZCW309GKHK18F7KHF5M",
+      "shortname": "cbl-core-balance",
+      "datetime": "2026-10-09T01:11:55Z",
+      "session": "trk-cbl",
+      "prompt": "CBL",
+      "summary": "core-costs.tsv + longest-first CorePartition; parts 29.0/29.4/29.9 s, no skew; 731 checks exactly once",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Rebalance the three Core ring parts with a cost table",
+      "done_when": "Core parts within 15 percent, no PARTITION-SKEW, largest below 31.6 s"
     }
   ],
   "changes": [
