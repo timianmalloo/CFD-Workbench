@@ -2225,14 +2225,19 @@ reviewer vetoed it at the 2/2 repair cap.
 **Class → sweep → derive → prevent:**
 - *Signature:* a timeout or ceiling whose enforcement path itself performs an unbounded wait (close, join, kill, flush),
   proved only against an in-memory fake.
-- *Sweep:* the Mac's own timeout paths (`tools/run-readiness.py` STEP_TIMEOUT and `run_entry` timeout, and the Desktop
-  harness's 120 s child kill at `WorkbenchTests.cs:735-740`). They are not yet audited for a blocking close: an open
-  follow-up.
+- *Sweep:* done 2026-10-09 on the Mac (`docs/proof/cbs/audit.md`). Exposed and fixed: `tools/run-readiness.py` `finish`
+  (unbounded `process.wait()`; a failed group kill raised and orphaned the group), `tools/run-windows-store-gate.py`
+  `run_gate` (5 s cleanup with an escaped pipe holder; a failed kill raised), and the Desktop harness `RunBuffered` in
+  `WorkbenchTests.cs` (unbounded `WaitForExit()` stream drain). Safe: `run-suite.sh`, `run-tests.sh`, `ring-lock.sh`
+  (bounded lock waits, no kill). Pack-managed, not edited: `run-verify-gates.py` (bounded 5 s; Windows `taskkill` has no
+  timeout) and `conductor-join.py` (no ceiling) are findings for `/updatepack`.
 - *Derive:* the timeout path never blocks on the ceiling thread; reader threads are daemon, closed on a helper thread
   or abandoned with a bounded join; the ceiling clock starts at process start.
 - *Prevent:* Ruling 171 (1): every timeout self-test uses a real child process (not an in-memory stream). It covers an
-  already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status: control
-  pending the PC repair track; the Mac sweep above is open.
+  already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status:
+  Mac sweep CLOSED 2026-10-09 (fixes plus real-child self-tests in `run-windows-store-gate.py --self-test` and
+  `run-readiness.py --self-test`, both printing the measured cleanup time; the Desktop `RunBuffered` fix has no red-first
+  test, see `docs/proof/cbs/red-first.md`); the PC repair track is still open.
 - *2026-10-09 sibling (non-zero non-failure exit):* a tool contract's non-zero non-failure exit code
   (`verify-windows-store.py` exit 4 = NOT ASSESSED) met a runner that treats non-zero as failure (`run-verify-gates.py`,
   `run-readiness.py` `run_entry`); the PR #19 join stopped at step 8 on the Mac. Control: `tools/run-windows-store-gate.py

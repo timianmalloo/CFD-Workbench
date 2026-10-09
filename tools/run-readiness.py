@@ -42,6 +42,8 @@ BUDGET_SECONDS = 240
 # One step's limit: the gates' own child limits are 180 s (core) and 600/900 s (adapters); a hung step must not
 # hang the ring past them.
 STEP_TIMEOUT = 1200
+# The most the timeout path waits for a killed step to be reaped (CLEANUP-BLOCKS-CEILING): the ceiling is held, not asserted.
+KILL_WAIT_SECONDS = 2
 # Per-script rules, keyed by the script's file name (a readiness entry stays a plain command, which check-docs
 # TEST-RING reads). timeout overrides STEP_TIMEOUT; notAssessed lists exits that mean "could not be assessed here",
 # never a failure and left out of the ring result; evidence marks a pass recorded as evidence, not as a gate.
@@ -90,13 +92,22 @@ def finish(running: list, deadlines: list[float]) -> list[tuple[int, bool, float
                 continue
             timed_out = time.monotonic() >= deadlines[index] and process.poll() is None
             if timed_out:
-                if os.name == "nt":
-                    process.kill()
-                else:
-                    os.killpg(process.pid, signal.SIGKILL)
-                process.wait()
-            if process.poll() is not None:
-                ends[index] = (process.returncode, timed_out, time.monotonic())
+                try:
+                    if os.name == "nt":
+                        process.kill()
+                    else:
+                        os.killpg(process.pid, signal.SIGKILL)
+                except OSError:
+                    try:
+                        process.kill()  # the group kill failed or the group is gone: kill the step itself, never raise
+                    except OSError:
+                        pass
+                try:
+                    process.wait(timeout=KILL_WAIT_SECONDS)
+                except subprocess.TimeoutExpired:
+                    pass  # unkillable: report the step red now rather than hold the ring past its ceiling
+            if process.poll() is not None or timed_out:
+                ends[index] = (process.returncode if process.returncode is not None else -9, timed_out, time.monotonic())
                 if output is not None:
                     output.close()
         time.sleep(0.2)
@@ -263,6 +274,35 @@ def self_test() -> int:
         short = {"verify-windows-store.py": {"timeout": 1, "notAssessed": (4,)}}
         if run_ring(repo, join, receipt, rules=short) != 1 or time.monotonic() - began > 20:
             problems.append("an entry timeout override did not kill the hung verifier and report red")
+        # CLEANUP-BLOCKS-CEILING (Ruling 171 (1)): a real child that ignores SIGTERM and leaves a grandchild in its own
+        # session, an already-expired deadline, and a failed group kill. finish() must return bounded and not raise.
+        if os.name != "nt":
+            holder = ("import signal, subprocess, sys, time; signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+                      "subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(8)'], start_new_session=True); time.sleep(30)")
+            real_killpg = os.killpg
+
+            def failing_killpg(*_):
+                raise PermissionError("injected kill failure")
+
+            for label, limit, kill in (("expired deadline", -1, real_killpg), ("timeout", 1, real_killpg), ("failed kill", 1, failing_killpg)):
+                child = subprocess.Popen([sys.executable, "-c", holder], start_new_session=True, stdout=subprocess.DEVNULL)
+                began, os.killpg = time.monotonic(), kill
+                try:
+                    code, timed_out, _ = finish([(None, None, child, None)], [began + limit])[0]
+                    outcome = "" if timed_out else "not timed out"
+                except Exception as error:  # noqa: BLE001 - the unfixed path raises here; the self-test reports it
+                    outcome = "raised {0!r}".format(error)
+                finally:
+                    os.killpg = real_killpg
+                cleanup = time.monotonic() - began - max(limit, 0)
+                print("cleanup after {0}: {1:.2f} s (bound {2:.0f} s)".format(label, cleanup, KILL_WAIT_SECONDS))
+                if outcome or cleanup > KILL_WAIT_SECONDS + 1:
+                    problems.append("{0}: {1}, cleanup {2:.2f} s".format(label, outcome or "slow", cleanup))
+                try:
+                    real_killpg(child.pid, signal.SIGKILL)
+                except OSError:
+                    pass
+                child.wait()
     for problem in problems:
         print("self-test FAIL: " + problem)
     print("self-test OK" if not problems else "self-test FAILED")
