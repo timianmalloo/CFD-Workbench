@@ -1589,6 +1589,28 @@ preamble edit on both sides conflict. Replay of the WTH join reproduces the lead
 *2026-10-09 (DPR join, track RG3).* An entry-level "conflict" that a three-way line merge resolves: main and DPR each added a different dated line inside the DPI-A entry. The entry rules called that a conflict, `git merge-file -p` merged it cleanly, and the driver ignored the clean result and wrote a whole-file ours/theirs conflict (two 2,260-line copies); the leader resolved it by hand. Signature: a fallback that assumed "no conflict hunk" means "git cannot run". Control: the driver now defers to git when the entry rules give up. A clean merge is written and exits 0 when every line either side added or changed is kept; hunks are written with markers and exit 1; only a git failure writes the whole-file conflict. A base line one side removed may go, as git decides. Self-test fixture: both sides add a different dated line at different places in one entry. Replay of the DPR join exits 0 and reproduces the committed file byte for byte. Proof: `docs/proof/reg/` (RG3 section).
 *2026-10-09 (track RG4).* The driver still stopped at the commonest parallel shape: two tracks each append one dated line at the end of one entry (FVT, ECR, V3D under DPI-A). Git reports one hunk with an empty base side, and the leader kept both lines by hand, ours first, at two joins. `tools/merge-defect-register.py` now reads each hunk (`git merge-file --diff3`): base side empty, both sides pure insertions with nothing in common, each a dated paragraph (first line `*YYYY-MM-DD (`, no blank line, no entry header) -> ours then theirs, no markers. Any other hunk keeps its markers and the driver exits 1; the conservation check stays. Replay of the ECR and V3D joins is byte-identical to the committed files (`docs/proof/reg/replay-rg4.txt`); the old driver exited 1 on both (`replay-rg4-old.txt`). Fixtures: `python3 tools/merge-defect-register.py --self-test` (15 of 15).
 
+**REGISTER-CLASS-MISMATCH · A markdown file is bound to a JSONL register merge driver.**
+On 2026-10-09 the PHN join merged `docs/notes/rulings.md`: PHN scrubbed Ruling 174, and main had added Ruling 182.
+- `.gitattributes:7` binds the file to `merge=coord-register` (from `coord install`, 90cf9f94, 2026-10-05).
+- That pack driver unions JSONL. It could not parse markdown, so it wrote a whole-file ours/theirs conflict, by design,
+  and exited 0, also by design (S12b: "make the failure visible in the file").
+- Git therefore created the merge commit with markers inside. A plain three-way merge would have been clean (different
+  regions).
+- `conductor-join` step 3 (`verify-no-conflict-markers.py`) stopped the join before any push. The leader rebuilt the
+  file as main's copy with the scrub applied, verified it held 182 rulings, and continued.
+
+Earlier joins never hit this, because PC branches do not add rulings, so only one side ever changed the file.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a file bound to a merge driver whose input format it does not have.
+- *Sweep:* read each `merge=` line in `.gitattributes` and compare the bound file's format with its driver.
+  `xmsg.jsonl` is JSONL (correct). Every other binding is to be checked by the follow-up.
+- *Derive:* a driver binding is chosen by the file's format; markdown registers merge as `authored`, or through a
+  driver that parses markdown.
+- *Prevent:* the marker gate (step 3) caught it, which is the pack's intended net. The binding fix is track CRD: rebind
+  `rulings.md`, plus a check that every `merge=coord-register` path parses as JSONL, red first on today's binding.
+  Status: pending CRD.
+
 **CFD-CLAIM-SCOPE · A label names a stronger quantity or cause than its data supports.** PRJ displayed `CL/CD` using
 `CDi`, and attributed every e below 0.85 to a lattice effect even though physical washout can lower e at low CL.
 Sweep: the Analysis projection's ratio, e, envelope and layer rows plus proposed COPY-217/232/233. Derive: a ratio's
@@ -2063,6 +2085,18 @@ guard sees a name only in a path or SID shape, and history is unchanged.
 Ruling 174/181 instance (2026-10-09): no entry for hostnames existed, so this line extends PROOF-PII. Ruling 174 scrubbed a raw PC hostname from a PR, but the guard matched only user paths and SIDs, so the class had no control (Ruling 181 (5)). `tools/check-proof-pii.py` now also fails a Windows default machine name, `COMPUTERNAME=<name>`, a `MachineName` JSON value, a `systeminfo` `Host Name:` line and a UNC host prefix, prints hits masked, and reads an optional uncommitted `CFD_PII_HOSTNAMES` list; self-test fixtures use invented names (`docs/proof/pii/red-first.md`, trk-phn). Residual: a hostname that is not a default name and appears outside those shapes is seen only through the local list.
 
 Ruling 165 instance (2026-10-08): an unpushed local audit entry included a concrete Windows account path. The correction reset that entry before any push and re-appended it with `%USERPROFILE%` at write time. The new audit line contains no account path; prior shared history was not rewritten.
+
+*2026-10-09 (PHN join, UNION-REVIVES-SCRUB).* A scrub of a union-merged register comes undone at the merge.
+- PHN replaced the hostname in `docs/coordination/xmsg.jsonl` line 64.
+- The union driver kept main's unscrubbed copy beside the scrubbed one, so the literal was back on the merge result.
+- The leader caught it by sweeping with the literal in an environment variable, removed the duplicate before
+  `--continue`, and swept again (0 hits).
+
+*Signature:* an edit to an existing line of a file whose merge driver unions lines; both versions survive. *Derive:* a
+scrub of a union register is re-swept on the merge result, and every branch that holds the register scrubs it too (the
+PC was told, xmsg 2026-10-09T16:12:55Z). *Control:* `check-proof-pii.py` with `CFD_PII_HOSTNAMES` set, run at every join
+that touches a register. The leader keeps the literal outside the repo. Status: controlled for the leader's joins; PC
+branches pending its scrub.
 
 **READER-SHARE-DELETE · A reader opened without delete sharing blocks a POSIX replace on Windows.**
 A product reader that opens a user file with `FileShare.Read` (or through `File.ReadAllBytes*`, `File.OpenRead`, which share Read only) holds a handle
