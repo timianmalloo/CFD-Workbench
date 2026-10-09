@@ -1,0 +1,8 @@
+{
+  "ruling": 181,
+  "launch_count": 1,
+  "tested_head": "a5c4564402d9564b9a3b715cc0b178efee7565c1",
+  "verifier_sha256": "a79ac73c04cc8769d65868cde2f3c69154f27ebfcff40743bd20ca0b668afd52",
+  "launch_authorized_utc": "2026-10-09T21:20:31.8372298Z",
+  "state": "verifier-launch-consumed"
+}
