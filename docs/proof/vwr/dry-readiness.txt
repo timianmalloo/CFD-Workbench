@@ -1,0 +1,17 @@
+NOT ASSESSED: this verifier requires Windows
+TOTAL_WALL_SECONDS=0.034961
+run-readiness: N/A     0.2 s  python3 tools/verify-windows-store.py  (NOT ASSESSED, excluded from the ring result)
+run-readiness: total 0.4 s (budget 240 s) load 2.86 -> 2.86
+run-readiness: GREEN for 839c9c231 (receipt /Users/mallalieut/projects/cfd-workbench-continuation/scratch/vwr/dry/readiness.json)
+dry ring exit 0
+[
+ {
+  "command": [
+   "python3",
+   "tools/verify-windows-store.py"
+  ],
+  "exit": 4,
+  "status": "not-assessed",
+  "seconds": 0.2
+ }
+]

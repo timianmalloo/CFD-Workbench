@@ -42,6 +42,12 @@ BUDGET_SECONDS = 240
 # One step's limit: the gates' own child limits are 180 s (core) and 600/900 s (adapters); a hung step must not
 # hang the ring past them.
 STEP_TIMEOUT = 1200
+# Per-script rules, keyed by the script's file name (a readiness entry stays a plain command, which check-docs
+# TEST-RING reads). timeout overrides STEP_TIMEOUT; notAssessed lists exits that mean "could not be assessed here",
+# never a failure and left out of the ring result; evidence marks a pass recorded as evidence, not as a gate.
+# tools/verify-windows-store.py (Rulings 171 (4), 175): exit 4 off Windows; a Windows PASS enters readiness only
+# through a reviewed receipt from a rerun of the final script, so a pass here is evidence only.
+ENTRY_RULES = {"verify-windows-store.py": {"timeout": 60, "notAssessed": (4,), "evidence": True}}
 
 
 def git(root: Path, *arguments: str) -> str:
@@ -74,15 +80,15 @@ def start(command: list[str], root: Path, log: Path | None) -> tuple[subprocess.
     return process, output
 
 
-def finish(running: list, deadline: float) -> list[tuple[int, bool, float]]:
-    """Wait for every process to the deadline, recording when each ends; past the deadline kill each remaining
+def finish(running: list, deadlines: list[float]) -> list[tuple[int, bool, float]]:
+    """Wait for every process to its own deadline, recording when each ends; past its deadline kill that
     step's whole process group. Returns (exit, timed out, end time) per process, in order."""
     ends: dict[int, tuple[int, bool, float]] = {}
     while len(ends) < len(running):
         for index, (_, _, process, output) in enumerate(running):
             if index in ends:
                 continue
-            timed_out = time.monotonic() >= deadline and process.poll() is None
+            timed_out = time.monotonic() >= deadlines[index] and process.poll() is None
             if timed_out:
                 if os.name == "nt":
                     process.kill()
@@ -97,33 +103,52 @@ def finish(running: list, deadline: float) -> list[tuple[int, bool, float]]:
     return [ends[index] for index in range(len(running))]
 
 
-def run_entry(entry: list, root: Path, logs: Path, index: int, timeout: float) -> list[dict]:
+def rule_for(command: list[str], rules: dict) -> dict:
+    return next((rules[Path(part).name] for part in command if Path(part).name in rules), {})
+
+
+def status_of(code: int, timed_out: bool, rule: dict) -> str:
+    if timed_out:
+        return "fail"
+    if code == 0:
+        return "evidence" if rule.get("evidence") else "ok"
+    return "not-assessed" if code in rule.get("notAssessed", ()) else "fail"
+
+
+def run_entry(entry: list, root: Path, logs: Path, index: int, timeout: float, rules: dict = ENTRY_RULES) -> list[dict]:
     """Run one ring entry: a command in the foreground, or a group concurrently with logs."""
     group = bool(entry) and isinstance(entry[0], list)
     commands = entry if group else [entry]
     started, results, running = time.monotonic(), [], []
+    rule_list = [rule_for(command, rules) for command in commands]
+    limits = [rule.get("timeout", timeout) for rule in rule_list]
     for number, command in enumerate(commands):
         log = logs / "{0:02d}-{1}.log".format(index, number) if group else None
         running.append((command, log, *start(command, root, log)))
-    for (command, log, _, _), (code, timed_out, ended) in zip(running, finish(running, started + timeout)):
-        result = {"command": command, "exit": code, "seconds": round(ended - started, 1)}
+    ends = finish(running, [started + limit for limit in limits])
+    for (command, log, _, _), (code, timed_out, ended), rule, limit in zip(running, ends, rule_list, limits):
+        status = status_of(code, timed_out, rule)
+        result = {"command": command, "exit": code, "status": status, "seconds": round(ended - started, 1)}
         if group:
             result["concurrent"] = True
             result["log"] = str(log)
         if timed_out:
-            result["timedOut"] = timeout
+            result["timedOut"] = limit
         results.append(result)
         print("run-readiness: {0} {1:6.1f} s  {2}{3}{4}".format(
-            "ok  " if code == 0 else "FAIL", result["seconds"], "|| " if group else "", " ".join(command),
-            "  (TIMEOUT after {0:.0f} s; process group killed)".format(timeout) if timed_out else ""), flush=True)
-        if code != 0 and log is not None:
+            {"ok": "ok  ", "evidence": "EVID", "not-assessed": "N/A "}.get(status, "FAIL"), result["seconds"], "|| " if group else "", " ".join(command),
+            "  (TIMEOUT after {0:.0f} s; process group killed)".format(limit) if timed_out
+            else "  (NOT ASSESSED, excluded from the ring result)" if status == "not-assessed"
+            else "  (evidence, not a gate: a Windows PASS counts only through a reviewed receipt)" if status == "evidence"
+            else ""), flush=True)
+        if status == "fail" and log is not None:
             print("run-readiness: last lines of " + str(log))
             print("\n".join(log.read_text(encoding="utf-8", errors="replace").splitlines()[-40:]), flush=True)
     return results
 
 
 def run_ring(root: Path, join: Path, receipt: Path, budget: float = BUDGET_SECONDS,
-             timeout: float = STEP_TIMEOUT) -> int:
+             timeout: float = STEP_TIMEOUT, rules: dict = ENTRY_RULES) -> int:
     if git(root, "status", "--porcelain"):
         print("run-readiness: the tree is not clean; commit first so the receipt names what ran")
         return 1
@@ -135,9 +160,9 @@ def run_ring(root: Path, join: Path, receipt: Path, budget: float = BUDGET_SECON
     logs.mkdir(parents=True, exist_ok=True)
     head, results, load_start, started = git(root, "rev-parse", "HEAD"), [], load(), time.monotonic()
     for index, entry in enumerate(ring):
-        results += run_entry(entry, root, logs, index, timeout)
+        results += run_entry(entry, root, logs, index, timeout, rules)
     total, load_end = round(time.monotonic() - started, 1), load()
-    green = all(item["exit"] == 0 for item in results)
+    green = all(item["status"] != "fail" for item in results)
     over = green and total > budget
     receipt.write_text(json.dumps({"head": head, "green": green, "seconds": total, "budgetSeconds": budget,
                                    "overBudget": over, "load": [load_start, load_end], "results": results},
@@ -207,6 +232,28 @@ def self_test() -> int:
         began = time.monotonic()
         if run_ring(repo, join, receipt, timeout=1) != 1 or time.monotonic() - began > 20:
             problems.append("a hung step was not killed at its limit and reported red")
+        # Per-entry rules: exit 4 of the Windows store verifier is NOT ASSESSED (green, excluded), a pass is evidence,
+        # exit 1 and any other exit are red, exit 4 of any other script is red, and the entry's own timeout applies.
+        (repo / "tools").mkdir()
+        stub = repo / "tools" / "verify-windows-store.py"
+        step = ["python3", "tools/verify-windows-store.py"]
+        for exit_code, ring_exit, status in ((4, 0, "not-assessed"), (0, 0, "evidence"), (1, 1, "fail"), (2, 1, "fail")):
+            stub.write_text("raise SystemExit({0})\n".format(exit_code), encoding="utf-8", newline="\n")
+            ring([step, ok], "windows store exit {0}".format(exit_code))
+            observed = run_ring(repo, join, receipt)
+            recorded = [item["status"] for item in json.loads(receipt.read_text(encoding="utf-8"))["results"]][0]
+            if observed != ring_exit or recorded != status or check(repo, receipt) != ring_exit:
+                problems.append("verifier exit {0} gave ring {1} and status {2}, not {3} and {4}".format(
+                    exit_code, observed, recorded, ring_exit, status))
+        ring([["python3", "-c", "raise SystemExit(4)"]], "exit 4 of another script")
+        if run_ring(repo, join, receipt) != 1:
+            problems.append("exit 4 of a script with no rule was not red")
+        stub.write_text("import time\ntime.sleep(30)\n", encoding="utf-8", newline="\n")
+        ring([step], "verifier hang")
+        began = time.monotonic()
+        short = {"verify-windows-store.py": {"timeout": 1, "notAssessed": (4,)}}
+        if run_ring(repo, join, receipt, rules=short) != 1 or time.monotonic() - began > 20:
+            problems.append("an entry timeout override did not kill the hung verifier and report red")
     for problem in problems:
         print("self-test FAIL: " + problem)
     print("self-test OK" if not problems else "self-test FAILED")

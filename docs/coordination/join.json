@@ -11,15 +11,17 @@
     ["python3", "docs/ai-forward-pack/scripts/coord-core.py", "regen"]
   ],
   "gates": [
-    ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py", "--skip", "verify-application-core.py", "verify-application-adapters.py"]
+    ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py", "--skip", "verify-application-core.py", "verify-application-adapters.py", "verify-windows-store.py"],
+    ["python3", "tools/run-windows-store-gate.py"]
   ],
   "readiness": [
     ["python3", "tools/check-neuralfoil-weights.py"],
     ["python3", "tools/check-notices.py"],
+    ["python3", "tools/verify-windows-store.py"],
     [
       ["python3", "tools/verify-application-core.py"],
       ["python3", "tools/verify-application-adapters.py"],
-      ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py", "--skip", "verify-application-core.py", "verify-application-adapters.py"],
+      ["python3", "docs/ai-forward-pack/scripts/run-verify-gates.py", "--skip", "verify-application-core.py", "verify-application-adapters.py", "verify-windows-store.py"],
       ["python3", "tools/recount-architecture-spike.py"],
       ["python3", "tools/recount-application-contracts.py"]
     ],

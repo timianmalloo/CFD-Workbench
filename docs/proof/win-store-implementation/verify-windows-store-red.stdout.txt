@@ -1,0 +1,1 @@
+SELFTEST RED accepted output missing a required native rename check

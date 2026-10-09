@@ -1,0 +1,18 @@
+SELFTEST PASS valid exact result accepted
+SELFTEST PASS missing required check rejected
+SELFTEST PASS extra check rejected
+SELFTEST PASS nonzero RESULT rejected
+SELFTEST PASS missing RESULT rejected
+SELFTEST PASS duplicate RESULT rejected
+SELFTEST PASS wrong selector rejected
+SELFTEST PASS wrong selected count rejected
+SELFTEST PASS nonzero runner exit rejected
+SELFTEST PASS affinity mask limited to six
+SELFTEST PASS empty affinity refused
+SELFTEST PASS child timeout leaves kill reserve
+SELFTEST PASS off-Windows execution is NOT ASSESSED
+SELFTEST PASS Windows subject failure exits 1
+SELFTEST PASS no-argument mode is default
+SELFTEST PASS self-test is explicit
+SELFTEST PASS other arguments are rejected
+SELFTEST PASS registered Windows test inventory exact (13 checks)

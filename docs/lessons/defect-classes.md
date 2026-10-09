@@ -2158,6 +2158,11 @@ reviewer vetoed it at the 2/2 repair cap.
 - *Prevent:* Ruling 171 (1): every timeout self-test uses a real child process (not an in-memory stream). It covers an
   already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status: control
   pending the PC repair track; the Mac sweep above is open.
+- *2026-10-09 sibling (non-zero non-failure exit):* a tool contract's non-zero non-failure exit code
+  (`verify-windows-store.py` exit 4 = NOT ASSESSED) met a runner that treats non-zero as failure (`run-verify-gates.py`,
+  `run-readiness.py` `run_entry`); the PR #19 join stopped at step 8 on the Mac. Control: `tools/run-windows-store-gate.py
+  --self-test` (each exit and the timeout, stub child) and `tools/run-readiness.py --self-test` (`ENTRY_RULES` exit map and
+  per-entry timeout). Sweep: a new `tools/verify-*.py` with a non-pass/fail exit needs a join wrapper and an `ENTRY_RULES` row.
 
 **FIXTURE-RESET-WITHOUT-DRAIN · A shared-fixture reset returns before the previous check's background job lands, and the next check captures a baseline that depends on that job.**
 `Elevation_ZoomPanFit_KeyboardAndPointerSameCamera` failed once in `--views --part=1/2` as "⌘0 fits" (load 1.9 to 16).
@@ -2208,3 +2213,20 @@ A content-sized `TextBox.prop-b` came to 35 px = 23.33 DIP, under the 24 DIP tar
 - *Sweep:* items 1, 2, 6, 7, 8 fixed or held by track WDF. OPEN, pending the PC scale probe: item 3 (double-click label), items 4 and 5 (chip border pixel sampling), and item 6 (measured skew 1.0 DIP against a predicted 0.667).
 - *Derive:* a target floor is declared (`MinHeight`), never left as the sum of rounded terms; a DIP comparison uses one device pixel as its tolerance.
 - *Prevent:* `PropertiesPane_Density_EveryInputDeclaresMinHeightOf24` (fails on the old style, `docs/proof/wdf/red-first.md`); `DevicePixel.Tolerance` in `tests/CfdWorkbench.Desktop.Tests/DevicePixel.cs`. No forced-scale hook exists on the Mac, so the PC ring is the only proof of the rendered height. Not done: a grep gate on `Bounds` compared to DIP literals (investigation, class prevention row).
+
+**JOIN-CONFIG-READ-BEFORE-MERGE · A join that changes its own gate config runs the first pass with the old config.**
+On 2026-10-09 the VWR join (PR #19's verifier plus its wiring) added `verify-windows-store.py` to the `--skip` list in
+`docs/coordination/join.json`. `conductor-join.py` loads join.json once, at start, from the pre-merge tree
+(`conductor-join.py:78`, `:272`), so step 8 ran the old skip list and stopped on the verifier's by-design exit 4. A
+`--continue` reloaded the merged join.json and passed (10 gates OK, `NOT ASSESSED (verify-windows-store)`). Two earlier PR
+#19 join attempts had stopped the same way before the wiring existed.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a configuration file that a pipeline reads at start, changed by the very change the pipeline is
+  checking.
+- *Sweep:* join.json's `checks`, `recount`, `regenerate` and `gates` all load from the pre-merge tree. readiness
+  (`tools/run-readiness.py`) reads its steps at run time, after the merge commit, so it is not affected.
+- *Derive:* a join whose merge diff touches `docs/coordination/join.json` is expected to need one `--continue`, and the
+  leader treats a step-8 stop on a newly skipped gate as that case, not as a defect.
+- *Prevent:* the pack file is pack-managed (not edited here). The control is this entry plus the continuation prompt's
+  join steps. Status: pending a pack-side reload, noted for `/updatepack`.
