@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "24ef8aef21013649eb2e93542e4717019bf702832a97403feb334fbff1dc9d0e"
+      "sourceSha256": "c059cc85eb7afa9b738570ffd2d1e7c838d1644fd2c46a70b9ba6601edf34715"
     },
     {
       "id": "domain-experts",
@@ -12494,6 +12494,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "275906401b6f491fd4d3ee7e4f24e3e633aff893087a32f948b8d8a27169ee15"
     },
     {
+      "id": "proof-ccl-receipt",
+      "path": "docs/proof/ccl/receipt.md",
+      "title": "CCL receipt: cost caps under a concurrent ring",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@trk-ccl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "End load lags; a ring that overlapped another reports C-2..C-5 as COST-ADVISORY naming the holder, a quiet ring still fails.",
+      "tags": [
+        "test-ring",
+        "cost-caps",
+        "ring-lock",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7fee575971400a5c57282d2740357239b227452408469b1d9778003b299d4165"
+    },
+    {
       "id": "proof-copyfix-red-runs",
       "path": "docs/proof/copyfix-red-runs.md",
       "title": "COPYFIX red-first runs — M1.2a copy decisions, two missing states, atomic Remove from Recent",
@@ -19070,5 +19096,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "265de0447362cba90a3c5d98926d8f38486c8fbb824f4d97394f4bde482a95ab"
+  "graphSha256": "b8928eedd74c9163d8d05b58917481c0f0b9fda41c374a52ea4c2c532a125ab4"
 };
