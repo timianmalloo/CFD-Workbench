@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T20:23:19Z",
+  "generated": "2026-10-09T21:27:51Z",
   "audit": [
     {
       "actor": null,
@@ -33476,6 +33476,44 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T20:22:17Z",
       "duration_seconds": 62.0
+    },
+    {
+      "id": "al-01M4H91D0WY6APFCQK319Q72XN",
+      "shortname": "win-r181-verifier-rerun",
+      "datetime": "2026-10-09T21:27:51Z",
+      "session": "win-r181-verifier-rerun",
+      "prompt": "Continue the Windows W-0 through W-5 execution after Ruling 187; complete the queued Ruling 181 unchanged store-verifier rerun and coordinate the evidence through GitHub with the Mac leader.",
+      "summary": "Ran the unchanged Ruling 181 store verifier exactly once through the committed Windows runner. Observed process exit 0, retained handle, shutdown 0 before residual accounting, expected 13-check classification, zero matching build-server residuals, PHN PASS, and unchanged protected source; sealed the proof with immutable snapshots and a committed-blob manifest.",
+      "kind": "script",
+      "skill": null,
+      "tool": "tools/windows-runner.ps1",
+      "actor": "Codex",
+      "artifacts": [
+        "docs/proof/r181-store-verifier-rerun/receipt.md",
+        "docs/proof/r181-store-verifier-rerun/capture-manifest.json"
+      ],
+      "tags": [
+        "windows",
+        "ruling-181",
+        "coordination"
+      ],
+      "outcome": "success",
+      "goal": "Complete the next authorized Windows queue item with one unchanged verifier run and fail-closed lifecycle evidence.",
+      "done_when": "The single run has numeric exit and shutdown evidence, post-shutdown residual evidence, immutable PHN-safe proof, green safe gates, and a GitHub handoff to the Mac leader.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "git": {
+        "sha": "5c720cd10523d6d92aa9cdfc002c8e6364a2035c",
+        "short": "5c720cd10",
+        "branch": "win/r181-verifier-rerun",
+        "pushed": false
+      }
     }
   ],
   "changes": [
