@@ -2458,6 +2458,23 @@ rebuilt (the scale-context print, the item-6 bounds) had no committed home eithe
     and throws `WRI-FIXTURE`. Status: in the PC's Ruling 185 track. Next step, parked: `Assert-WriToolchain` carries the
     exit code and trimmed stdout in its throw (a library track with its own hash review).
 
+**CLOSING-MANIFEST-MUTABLE-PATH · A closing manifest pins a live source path whose bytes are expected to change.**
+On 2026-10-09 the PC's Ruling 184 blocked receipt could not pass check-docs. `docs/proof/wri-r182-runner/closing-manifest.json`
+binds four tools by their live `tools/` paths: the checker, the runner, the runner test and the preflight. Ruling 184
+legitimately changed those files, so their sizes and SHAs no longer matched. The manifest froze history by pointing at
+the present. The fix was authorized at 19:49:54Z: immutable snapshot copies of the `e9714ce5` blobs inside the proof
+folder, with only those four paths rebound and the bytes and SHAs unchanged.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a closing or capture manifest entry whose path lies outside `docs/proof/` and names a file a later track
+  may edit (`tools/`, `src/`, `tests/`).
+- *Sweep:* pending. List every closing-manifest entry outside `docs/proof/` (win-naca binds `cases/*.yaml` by design;
+  those are case files, not tools).
+- *Derive:* a manifest freezes evidence by copying it into the proof folder; it never binds a path that a later track
+  may change.
+- *Prevent:* pending. `check-capture-manifests.py` flags a closing-manifest path under `tools/`, `src/` or `tests/`,
+  red first on the R182 manifest at main. Until then this is prose and the PC's snapshot convention.
+
 **WINDOWS-CAPTURE-LIFECYCLE · A launcher mistakes root exit or a termination request for complete, bounded process cleanup.**
 Ruling 181's watchdog lost the numeric exit. Runner review also exposed inherited output handles, asynchronous
 assignment-failure termination, and residual accounting before SDK shutdown.
