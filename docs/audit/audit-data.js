@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T21:41:54Z",
+  "generated": "2026-10-09T21:50:12Z",
   "audit": [
     {
       "actor": null,
@@ -33593,6 +33593,55 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T21:41:39Z",
       "duration_seconds": 15.0
+    },
+    {
+      "id": "al-01M4HA7CBC0QA51JS80FRABQHB",
+      "shortname": "asc-admission-staleness",
+      "datetime": "2026-10-09T21:48:35Z",
+      "session": "trk-asc",
+      "prompt": "trk-asc",
+      "summary": "Added windows-store-admission.json, check-windows-admission.py, wrapper line, check-docs self-test, PLAT-A register line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make Windows store admission staleness visible without blocking Core work",
+      "done_when": "binding, check with self-test, wrapper line, check-docs wiring, register line; gates green",
+      "started_at": "2026-10-09T21:45:35Z",
+      "duration_seconds": 180.0
+    },
+    {
+      "id": "al-01M4HAAAMA7J9BYCXCYNS4EDC7",
+      "shortname": "join-asc",
+      "datetime": "2026-10-09T21:50:12Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/asc-admission-staleness into main",
+      "summary": "Joined ASC: windows-store-admission.json binding; check-windows-admission.py prints current/STALE, fails only a stale 'PASS (current)' claim; line in the store-gate wrapper recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/asc/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "an admitted Windows PASS can't silently go stale",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T21:49:12Z",
+      "duration_seconds": 60.0
     }
   ],
   "changes": [

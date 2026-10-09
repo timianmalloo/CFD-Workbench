@@ -1,0 +1,2 @@
+{"agent": "trk-asc", "at": 1791582322.3466702, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-asc", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-asc-admission-staleness"}
+{"agent": "trk-asc", "at": 1791582783.479163, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-asc", "wi": "WI-0", "worktree": "CFD-Workbench-fix-asc-admission-staleness"}

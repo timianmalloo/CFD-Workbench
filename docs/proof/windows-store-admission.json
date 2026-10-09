@@ -1,0 +1,19 @@
+{
+  "ruling": "Ruling 189",
+  "receipt": "docs/proof/r181-store-verifier-rerun/",
+  "testedHead": "a5c4564402d9564b9a3b715cc0b178efee7565c1",
+  "prose": "docs/proof/application-core.md#windows-store-qualification-admission-ruling-189",
+  "files": [
+    {"path": "tools/verify-windows-store.py", "sha256": "a79ac73c04cc8769d65868cde2f3c69154f27ebfcff40743bd20ca0b668afd52"},
+    {"path": "tools/windows-runner.ps1", "sha256": "cc201aca4cd2e9e434bec1b9630487a2184622d2ece08617c373d037d528848d"}
+  ],
+  "objects": [
+    {"path": "src/CfdWorkbench.Core", "id": "e6121133e6e05e857ed14f3091a4ab9597614365"},
+    {"path": "src/CfdWorkbench.Persistence", "id": "279c2979b9610bb667692f669428bd4c7abca6fb"},
+    {"path": "tests/CfdWorkbench.Core.Tests", "id": "99fe8d085720651d81e8f3ff800656ef8ddf93a9"},
+    {"path": "tests/expected-failures.windows.json", "id": "8b21e422c3ab570299c7549bb9e520f1d04f53db"},
+    {"path": "tools/check-expected-failures.py", "id": "9c0fdc08375ad4cd10029521d5bcecb7e74999af"},
+    {"path": "global.json", "id": "d5084afe5a012da328f188e4e033051172418c83"},
+    {"path": "CFDWorkbench.slnx", "id": "c5ef24561c6f833e551299683129124e5da64344"}
+  ]
+}

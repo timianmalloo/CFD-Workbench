@@ -769,7 +769,10 @@ On 2026-10-09 the Mac admitted the Windows store qualification **PASS** as evide
   - `tests/expected-failures.windows.json` `8b21e422`, `tools/check-expected-failures.py` `9c0fdc08`, `global.json`
     `d5084afe` and `CFDWorkbench.slnx` `c5ef2456`.
 
-  A change to any of them makes the admission stale. A staleness check is a pending follow-up (Ruling 189 (4)).
+  A change to any of them makes the admission stale. The binding is machine-readable in
+  `docs/proof/windows-store-admission.json`; `tools/check-windows-admission.py` prints `WINDOWS-STORE-EVIDENCE ... current`
+  or `... STALE since <path>` (exit 0 either way, so Core work is never blocked) and `tools/run-windows-store-gate.py`
+  prints the same line (Ruling 189 (4)).
 - **Scope.** This admits native-primitive store qualification on Windows only. It does not claim that W-2 B2 (ProjectStore
   fail-closed) has landed. The Ruling 145/154 expected failures remain, and the Windows display-scale proof is paused
   (Ruling 186). The Mac readiness entry for `verify-windows-store.py` stays NOT ASSESSED, because the Mac cannot run it.

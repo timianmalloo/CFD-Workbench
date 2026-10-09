@@ -2562,3 +2562,5 @@ under a still pointer. In the suite it read as a flake in `PlanCanvas_Escape_Dis
   hold and asserts tooltip null, selection kept, probe unchanged, and a real move restores the tooltip. Red before the
   fix, green after (`docs/proof/pef/red-first.md`). Ring: `--plan-canvas`, every code-changing join; cost about 1.5 s.
   Status: controlled.
+
+**PLAT-A · 2026-10-09 · An admitted Windows PASS outlives the inputs it was earned on.** Ruling 189 admitted the Windows store PASS (tested head a5c45644) only while the verifier, runner, three build-input trees and four blobs stay unchanged. Control: `docs/proof/windows-store-admission.json` binds them; `tools/check-windows-admission.py` prints `WINDOWS-STORE-EVIDENCE ... current` or `... STALE since <path>` (exit 0, so Core changes are never blocked), `tools/run-windows-store-gate.py` prints the same line, `--self-test` runs in check-docs (fast ring), and a docs file that claims `Windows store: PASS (current)` while stale fails. Status: controlled.
