@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T16:07:41Z",
+  "generated": "2026-10-09T16:15:34Z",
   "audit": [
     {
       "actor": null,
@@ -32624,6 +32624,24 @@ window.AUDIT_DATA = {
       "done_when": "self-test red then green, sweep of main reported, cost measured, guard exit 0 on main",
       "started_at": "2026-10-09T15:59:47Z",
       "duration_seconds": 473.0
+    },
+    {
+      "id": "al-01M4GQ5JV1J8X0092ATCWKQMWC",
+      "shortname": "phn-pii-scrub",
+      "datetime": "2026-10-09T16:15:33Z",
+      "session": "trk-phn",
+      "prompt": "trk-phn leader rulings",
+      "summary": "mac and server placeholders; hostname replaced by <host> in 10 files, 3 manifests re-pinned, two hostname-sanitization.json",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "placeholders mac and server; scrub the PC hostname from the current tree",
+      "done_when": "pii guard exit 0 with and without env, capture manifests, check-docs, verify gates exit 0"
     }
   ],
   "changes": [
