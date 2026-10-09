@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T01:54:01Z",
+  "generated": "2026-10-09T01:58:25Z",
   "audit": [
     {
       "actor": null,
@@ -31768,6 +31768,33 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T01:53:49Z",
       "duration_seconds": 12.0
+    },
+    {
+      "id": "al-01M4F643V4N774RD279Z4QBGDJ",
+      "shortname": "join-pr18-sync",
+      "datetime": "2026-10-09T01:58:25Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/r166-ring-baseline into main",
+      "summary": "PR #18 sync joined; derived index refresh only recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "close PR #18 by joining its index refresh",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T01:57:49Z",
+      "duration_seconds": 36.0
     }
   ],
   "changes": [
