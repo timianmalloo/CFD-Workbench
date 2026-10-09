@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T19:31:45Z",
+  "generated": "2026-10-09T20:16:34Z",
   "audit": [
     {
       "actor": null,
@@ -33336,6 +33336,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T19:30:41Z",
       "duration_seconds": 64.0
+    },
+    {
+      "id": "al-01M4H4YWA6KHQHZSJ6AR8A8807",
+      "shortname": "pce-escape-flake",
+      "datetime": "2026-10-09T20:16:34Z",
+      "session": "trk-pce",
+      "prompt": "trk-pce: investigate flaky PlanCanvas_Escape check",
+      "summary": "Mechanism verified with a held mesh seam: a refresh re-derives the tooltip from lastHover after Escape; natural repro 0/106; repair is product-side with a held-seam red-first check",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Verified root cause, class, sweep and repair plan for PlanCanvas_Escape_DismissTooltipThenClearSelection",
+      "done_when": "docs/proof/pce/investigation.md committed, check-docs exit 0",
+      "started_at": "2026-10-09T20:04:04Z",
+      "duration_seconds": 750.0
     }
   ],
   "changes": [
@@ -35989,6 +36009,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4H16D59YHM976B5M9YKWQM2",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4H3QS352D6E0Z7SA544WP2T",
+      "ts": "2026-10-09T19:55:12Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4H3QS05PH5MD3FBEG6CKZR8",
+      "session": "operator-timianmalloo"
     }
   ]
 };

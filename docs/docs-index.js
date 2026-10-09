@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c059cc85eb7afa9b738570ffd2d1e7c838d1644fd2c46a70b9ba6601edf34715"
+      "sourceSha256": "671270e1c5ec154a71c5f57f7f2fdbb52286b453bb7b6a5156e7ce7ddfb3f3da"
     },
     {
       "id": "domain-experts",
@@ -8233,7 +8233,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "53addbf6dbc03bd2ee08f74278676affa63f514792eabb87778938a4a510db8a"
+      "sourceSha256": "16fd19ccf6aff9991f4908a2870d8acaf1d8f94d607159a4eafabe03433fee42"
     },
     {
       "id": "kb-hw-glossary",
@@ -8347,6 +8347,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "3b23951897c1b6626e32c6748ba5c819e61d81afc9336648012ec6b01fd0581b"
+    },
+    {
+      "id": "investigation-pce-escape-flake",
+      "path": "docs/proof/pce/investigation.md",
+      "title": "Investigation PCE - PlanCanvas_Escape_DismissTooltipThenClearSelection fails when any refresh lands after the first Escape",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-pce",
+      "phase": "investigation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "PlanCanvas dismisses its hover tooltip on Escape by nulling TooltipText, but every controller refresh (UpdatePlan) re-reads the saved hover position and rebuilds the tooltip. A mesh completion (or the 250 ms behind timer) that lands in the dispatcher pump after the first Escape brings the tooltip back, so the first assertion fails. Verified with a held mesh seam (fails 1 of 1 without a fix, passes with a spike fix). The natural trigger was not reproduced in 106 runs, so the link to the RG4 field failure is Inferred. The defect is in the product; the red-first control is a held-seam check.",
+      "tags": [
+        "pce",
+        "flake",
+        "desktop-tests",
+        "plan-canvas",
+        "tooltip",
+        "surface"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "investigation-ezf-zoompanfit",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "89f38e4e4917f423e030f436c614f8072c25a1bf12aab1546a6acba02faa3587"
     },
     {
       "id": "investigation-review-window-attach",
@@ -19096,5 +19128,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b8928eedd74c9163d8d05b58917481c0f0b9fda41c374a52ea4c2c532a125ab4"
+  "graphSha256": "888f725ce49d014787dfc48b240af6096a5d01097b30a3b8f33c608f4fd16329"
 };
