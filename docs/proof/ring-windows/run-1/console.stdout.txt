@@ -1,0 +1,214 @@
+RING-LOCK waited 0 s
+C:\Projects\CFD-Workbench-win-r166-ring-baseline\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-r166-ring-baseline\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-r166-ring-baseline\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-r166-ring-baseline\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+
+Build succeeded.
+
+C:\Projects\CFD-Workbench-win-r166-ring-baseline\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-r166-ring-baseline\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-r166-ring-baseline\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-r166-ring-baseline\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:25.76
+build 28 s (Release)
+== CfdWorkbench.Core.Tests 1/3 106 s (106076 ms), 228 PASS
+RESULT failures=8
+EXPECTED-FAIL 8 (manifest)
+== CfdWorkbench.Core.Tests 2/3 67 s (66661 ms), 225 PASS
+RESULT failures=11
+EXPECTED-FAIL 11 (manifest)
+UNEXPECTED Library_UserFileHeldReader_SurvivesReplaceByRename: not in the manifest
+UNEXPECTED 1
+== CfdWorkbench.Core.Tests 3/3 76 s (76115 ms), 225 PASS
+FAIL WindowsNative_Replace_HeldReaderKeepsOldImage NativeFailure: NTSTATUS=0xc0000043; IO_STATUS=0x00000000; Win32=32: The process cannot access the file because it is being used by another process.
+FAIL Library_Save_PublishesHashNamedFile ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Library_WriteFails_NothingPublished InvalidOperationException: Expected LIB-IO; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Library_UserFileHeldReader_SurvivesReplaceByRename UnauthorizedAccessException: Access to the path is denied.
+FAIL Rollback_V2UnknownWorkspaceMember_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+FAIL LayoutSave_ClaimBusyHashSame_RetriesOnce InvalidOperationException: Expected True; actual False
+FAIL LayoutSave_StaleClaim_SessionOnlyNamesClaim InvalidOperationException: Expected claim-held; actual failed
+FAIL Recent_Clear_NoFileContainsMarkerPath InvalidOperationException: Expected saved; actual failed
+FAIL StoreContract_CancelBeforePublish_DocCancelled InvalidOperationException: Expected False; actual True
+FAIL PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged InvalidOperationException: {"format":"cfdw-display","version":1,"textSize":175}: missing DISPLAY-SCHEMA [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+PASS Sections_Facts_MemoInvalidatedByNewBytes
+PASS Assess_ProfileSmoothRowNearVertical_Certified
+PASS Assess_ProfileVerticalRowHandlesSameSide_InvalidDslLock
+PASS SectionEdits_AngleKind_HandlesOnRaysWithinTau
+PASS SectionEdits_DeleteBelowSevenPoints_Refused
+PASS SectionEdits_AnchorPast32Points_RefusedNamingCeiling
+PASS SectionEdits_PairedXMove_BothSurfacesSameAbscissa
+PASS SectionEdits_PairedAnchorToControlRefitOverLimit_Refused
+PASS SectionEdits_PairedAngle_HandlesKeepPairedX_Certifies
+PASS SectionEdits_TwoProfiles_ControlToAnchor_Observed
+PASS SectionEdits_SharedImport0012_LandsAsSharedReplaceCertified
+PASS SectionDraft_StepThenUndoThenRedo_BytesRestoredExactly
+PASS SectionDraft_SecondDraftWhileOpen_DslDraftOwned
+PASS SectionDraft_FinishBytesEqualBase_NoRow
+PASS SectionDraft_MakeUniqueThenCancel_NoCopyLeft
+PASS SectionDraft_MakeUnique_RootGetsCopyTipKeepsSource
+PASS SectionDraft_ImportStep_ReportsResidualAndProvenance
+PASS SectionTelemetry_Events_NoNamesIdsOrPositions
+PARTITION 3/3 of 707 checks
+RESULT failures=10
+FAILED: CfdWorkbench.Core.Tests 3/3 (exit 1)
+UNEXPECTED Controller_SaveMine_DraftDocumentUndoUnchanged: not in the manifest
+UNEXPECTED Controller_SaveMine_ListedAfterOpeningAnotherFoil: not in the manifest
+UNEXPECTED Controller_CatalogTelemetry_NamedSessionRing: not in the manifest
+UNEXPECTED Controller_SaveOffUiThread_HonorsCancellation: not in the manifest
+UNEXPECTED SaveDialog_EmptyOrDuplicate_ErrorFocusStays: not in the manifest
+UNEXPECTED SaveDialog_Save_LiveRegionFocusToSectionMenu: not in the manifest
+UNEXPECTED --section-editor: not in the manifest
+UNEXPECTED Recent_OpenedOutcome_AppendsPath: not in the manifest
+UNEXPECTED Telemetry_MarkerInjection_AbsentEverywhere: not in the manifest
+UNEXPECTED OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath: not in the manifest
+UNEXPECTED RailEditorPane_Removed_NoReferencesRemain: not in the manifest
+UNEXPECTED --shell-window: not in the manifest
+UNEXPECTED Controller_ResumeSectionRecovery_EntersSectionMode: not in the manifest
+UNEXPECTED Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo: not in the manifest
+UNEXPECTED Commands_SectionMenu_ReplaceSaveImportRowsRun: not in the manifest
+UNEXPECTED Controller_QuotedNameAndBraceProvenance_SaveReload: not in the manifest
+UNEXPECTED Controller_CatalogTelemetry_OmitsInapplicableFields: not in the manifest
+UNEXPECTED --section-editor: not in the manifest
+UNEXPECTED Recent_StoredRows_StartAndFileMenu: not in the manifest
+UNEXPECTED KeyBindings_MenuGesture_NotBound: not in the manifest
+UNEXPECTED Copy_RecentNotCleared_StatusAndTryAgain: not in the manifest
+UNEXPECTED Recovery_RailDraftResumed_PlanShowsDraftApplyCommits: not in the manifest
+UNEXPECTED --shell-window: not in the manifest
+UNEXPECTED Controller_SaveDuringDrag_CommitsThenSaves: not in the manifest
+UNEXPECTED --controller-shell: not in the manifest
+UNEXPECTED ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView: not in the manifest
+UNEXPECTED --views: not in the manifest
+UNEXPECTED Tampered_RunView_UnavailableNoLayersRowKept: not in the manifest
+UNEXPECTED --analysis: not in the manifest
+UNEXPECTED ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack: not in the manifest
+UNEXPECTED Elevation_SideSelectedStation_RenderedFullWeight: not in the manifest
+UNEXPECTED View3d_SelectedStation_RenderedWidthAndChip: not in the manifest
+UNEXPECTED --views: not in the manifest
+UNEXPECTED PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs: not in the manifest
+UNEXPECTED TextSize_PersistsPerUser: not in the manifest
+UNEXPECTED --properties-cells: not in the manifest
+UNEXPECTED PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused: not in the manifest
+UNEXPECTED PropertiesPane_Density_EveryTargetAtLeast24: not in the manifest
+UNEXPECTED --properties-cells: not in the manifest
+UNEXPECTED 39
+== CfdWorkbench.Desktop.Tests 312 s (311969 ms), 672 PASS
+FAIL Save_ExistingFile_DefiniteCreateOnlyConflict Exception: Expected definite create-only save conflict; actual DOC-UNSUPPORTED-PERSISTENCE
+FAIL Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveMine_DraftDocumentUndoUnchanged ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveMine_ListedAfterOpeningAnotherFoil ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_CatalogTelemetry_NamedSessionRing ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveOffUiThread_HonorsCancellation ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL SaveDialog_EmptyOrDuplicate_ErrorFocusStays ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL SaveDialog_Save_LiveRegionFocusToSectionMenu Exception: Save did not publish and announce the exact name
+FAIL --section-editor --part=1/2 exited 1
+FAIL Recent_OpenedOutcome_AppendsPath InvalidOperationException: D2 Opened did not add the file to P1 recent rows
+FAIL Telemetry_MarkerInjection_AbsentEverywhere DirectoryNotFoundException: Could not find a part of the path 'C:\Projects\CFD-Workbench-win-r166-ring-baseline\.tmp-tests\cfdw-private-ac2f9df5956e4c6a92fba8d27f667120\win\CFDW-PRIVATE-6ef2acb0e6d54d9abec078753237bc05.foil'.
+FAIL OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath InvalidOperationException: Remove from Recent did not retain only the other path
+FAIL RailEditorPane_Removed_NoReferencesRemain ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL --shell-window --part=2/2 exited 1
+FAIL Controller_ResumeSectionRecovery_EntersSectionMode ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Commands_SectionMenu_ReplaceSaveImportRowsRun InvalidOperationException: Save to My sections did not write the named section
+FAIL Controller_QuotedNameAndBraceProvenance_SaveReload ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL Controller_CatalogTelemetry_OmitsInapplicableFields ContractError: DOC-UNSUPPORTED-PERSISTENCE
+FAIL --section-editor --part=2/2 exited 1
+FAIL Recent_StoredRows_StartAndFileMenu InvalidOperationException: Recent fixture was not stored: rejected/RECENT-SCHEMA/absent root=C:\Projects\CFD-Workbench-win-r166-ring-baseline\.tmp-tests\cfdw-d3a-recent-27ab547a062942edae910602844374d6
+FAIL KeyBindings_MenuGesture_NotBound InvalidOperationException: A native menu gesture was also bound on the window
+FAIL Copy_RecentNotCleared_StatusAndTryAgain InvalidOperationException: COPY-147: expected 'The recent-files list wasn't cleared: it was saved by a newer version of CFD Workbench. The list is unchanged. · Try again', built 'The recent-files list wasn't cleared: it couldn't be saved. The list is unchanged. · Try again', unchanged=True
+FAIL Recovery_RailDraftResumed_PlanShowsDraftApplyCommits InvalidOperationException: opened project has no recovery: Open Example or a .foil / .cfdw.json file.
+FAIL --shell-window --part=1/2 exited 1
+FAIL Controller_SaveDuringDrag_CommitsThenSaves InvalidOperationException: Save did not commit drag first: code=DOC-UNSUPPORTED-PERSISTENCE, draft=False, undo=True.
+FAIL --controller-shell exited 1
+FAIL ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView Exception: 648 × 488: Four views with a view under 320 × 240: 319.3333333333333, 239.33333333333334, 319.3333333333333, 239.33333333333334, 319.3333333333333, 239.33333333333334, 319.3333333333333, 239.33333333333334
+FAIL --views --part=1/2 exited 1
+FAIL Tampered_RunView_UnavailableNoLayersRowKept Exception: the fixture saved: expected OK, got DOC-UNSUPPORTED-PERSISTENCE
+FAIL --analysis exited 1
+FAIL ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack Exception: Double-click on the 3D label did not show 3D alone
+FAIL Elevation_SideSelectedStation_RenderedFullWeight Exception: The chip has no station border
+FAIL View3d_SelectedStation_RenderedWidthAndChip Exception: Chip border is not station
+FAIL --views --part=2/2 exited 1
+FAIL PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs InvalidOperationException: input ends 218.33, fact 217.33
+FAIL TextSize_PersistsPerUser InvalidOperationException: set 1.5; after restart 1, PropFontSize at 1x
+FAIL --properties-cells --part=2/2 exited 1
+FAIL PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused InvalidOperationException: focused: box #ff006c67 ring True #ffa92e37 1.3333333333333333, 1.3333333333333333, 59.333333333333336, 20.666666666666668 around 2, 2, 58, 19.333333333333332
+FAIL PropertiesPane_Density_EveryTargetAtLeast24 InvalidOperationException: under 24 px: PointSpanInput 23.3, PointAftInput 23.3, HandleAngleInput 23.3, Input_h_root_length 23.3, Input_h_tip_length 23.3, SpanInput 23.3, RootChordInput 23.3, TipChordInput 23.3, HandleLengthInput 23.3
+FAIL --properties-cells --part=1/2 exited 1
+PASS Clamp_ScreenGone_FullyInsidePrimary
+COST Clamp_ScreenGone_FullyInsidePrimary 2.9
+PASS Clear_NearestClearCorner_Chosen
+COST Clear_NearestClearCorner_Chosen 5.2
+PASS Clear_TieBreak_FixedOrder
+COST Clear_TieBreak_FixedOrder 0.5
+PASS Clear_TwoFloats_NoOverlap
+COST Clear_TwoFloats_NoOverlap 2.4
+PASS Clear_NeverOverlapsTarget_Property
+COST Clear_NeverOverlapsTarget_Property 1.3
+PASS Clear_FloatLargerThanModelArea_DocksBack
+COST Clear_FloatLargerThanModelArea_DocksBack 2.0
+PASS FocusRing_HiddenRegionsAndFloats_Order
+COST FocusRing_HiddenRegionsAndFloats_Order 1.2
+PASS CommandTable_Parity_EveryRowInMenuPaletteKey
+COST CommandTable_Parity_EveryRowInMenuPaletteKey 4.5
+PASS CommandTable_ViewRows_ExecuteOrDisabled
+COST CommandTable_ViewRows_ExecuteOrDisabled 1495.3
+SUITE --shell-model exit 0
+SUITE-TIME --shell-model 1.9 s
+FAILED: CfdWorkbench.Desktop.Tests (exit 1)
+== CfdWorkbench.Analysis.Tests 1/2 23 s (22310 ms), 110 PASS
+RESULT failures=0
+UNEXPECTED Section_WingRun_PanelValuesAtEveryStation: not in the manifest
+UNEXPECTED 1
+== CfdWorkbench.Analysis.Tests 2/2 18 s (18149 ms), 134 PASS
+FAIL Section_WingRun_PanelValuesAtEveryStation InvalidOperationException: warm 200-panel whole-wing section tier exceeded 1 s
+PASS SectionForce_FreeStreamAxes_LiftPerpendicularDragParallel
+COST SectionForce_FreeStreamAxes_LiftPerpendicularDragParallel 8.601
+PASS SectionForce_Anchor_CpNearZeroAndOffSection_Ruling128And130
+COST SectionForce_Anchor_CpNearZeroAndOffSection_Ruling128And130 5.747
+PASS SectionForce_Imperial_ForceAndMomentPerSpan
+COST SectionForce_Imperial_ForceAndMomentPerSpan 6.574
+PASS SectionForce_RunScale_LiftFixedByLargestStripDragByRule
+COST SectionForce_RunScale_LiftFixedByLargestStripDragByRule 4.282
+PASS SectionForce_Labels_EqualTheirDesignRows_Ruling130
+COST SectionForce_Labels_EqualTheirDesignRows_Ruling130 4.419
+PASS SectionForce_LatticeBias_SingularForOnePanel_PluralOtherwise_TrackNum
+COST SectionForce_LatticeBias_SingularForOnePanel_PluralOtherwise_TrackNum 0.102
+MEASURE NUM nc=1 Example foil: couple 1.776E-015 N.m/m, q c^2 1.909E+002 N, ratio 9.306E-018
+PASS SectionForce_OneChordwisePanel_CoupleIsRoundOff_ShownAsZero_TableAndProfile_TrackNum
+COST SectionForce_OneChordwisePanel_CoupleIsRoundOff_ShownAsZero_TableAndProfile_TrackNum 1164.143
+PASS SectionForce_FourChordwisePanels_CoupleUnchanged_TrackNum
+COST SectionForce_FourChordwisePanels_CoupleUnchanged_TrackNum 1.244
+GROUP SectionForce 1196
+PARTITION 2/2 of 22 groups
+RESULT failures=1
+FAILED: CfdWorkbench.Analysis.Tests 2/2 (exit 1)
+== CfdWorkbench.Cli.Tests 8 s (7944 ms), 4 PASS
+COST Cli_InspectRuns_RevisionIsSessionLabel 461.630
+EXPECTED-FAIL 2 (manifest)
+COST-MISS C-2 Analysis.part1of2 took 22310 ms, over 5000 ms host pc-win
+COST-MISS C-2 Analysis.part2of2 took 18149 ms, over 5000 ms host pc-win
+COST-MISS C-3 run-tests net wall 319072 ms (wall - build), over 50000 ms host pc-win
+COST-MISS C-4 Desktop took 311969 ms, over 49369 ms: DR-ANA-10 applies (spread or split the Desktop job) host pc-win
+COST-MISS C-5 Project2_RoundTrip_ByteEqual took 748.391 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 RevisionLabel_TwistEdit_OrdinalsAndRail took 879.261 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 RecordRun_PanelProvisionalCode_ValidatedOldRowReads took 509.758 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Analysis_DraftOpen_EvaluatesAcceptedRevision took 696.333 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 SectionProjection_EstimatorLabel_DepthAware took 888.682 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 SectionView_Speeds_FollowUnitsSwitch took 889.384 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_StationsTable_ListsSolvedGoverningAndShownOnly took 595.616 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 NotResolved_OneChordwisePanel_TableValuesReadRuling161_LabelsDropBias took 1031.402 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 NotResolved_FourChordwisePanels_TextsUnchanged took 1165.177 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 NotResolved_TwoChordwisePanels_StillResolved_StructuralRuleNotMagnitude took 1244.676 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 F6_ObservedOrder took 1811.541 ms, over 1500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 F8_Dihedral20_ClRatioToPlanar0p8938 took 556.03 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Water_OutsideTable_Unavailable took 698.226 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Freshness_SurfaceEdit_Historical took 710.98 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Freshness_UndoToEqualKey_CurrentAgain took 564.91 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_WingRun_PanelValuesAtEveryStation took 1196.722 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_AnalysisRunEvent_CarriesPanelCandidateCount took 603.273 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_NearTie_GoverningReSelectedAt400 took 579.181 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_UniformWing_CandidateCountCappedAtFour took 559.919 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_GoverningEstimate_Cambered_Matches400Panels took 713.869 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_GoverningStation_ScreenAndCpMinFrom400Panels took 599.361 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 SectionForce_OneChordwisePanel_CoupleIsRoundOff_ShownAsZero_TableAndProfile_TrackNum took 1164.143 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+test costs: 0 failures, 26 COST-MISS (load 12.39)
+wall 346 s (345588 ms, net 319072 ms) (budget 60 s) cpu 5 s load 11.81 -> 12.39

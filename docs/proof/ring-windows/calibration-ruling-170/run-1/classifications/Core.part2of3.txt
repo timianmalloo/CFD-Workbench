@@ -1,0 +1,13 @@
+EXPECTED Library_DuplicateIgnoringCaseNfc_Refused (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Library_StaleClaim_ReportedNotDeleted (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Library_SecondInstanceSameRoot_EntryListed (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Rollback_V2UnknownTopLevel_BytesUnchanged (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED PrefsSave_LayoutAndRecentConcurrent_BothKept (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED LayoutSave_TwoQueuedSaves_UnionOfChangedWorkspaces (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recent_ClearFails_ReportedNotCleared (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recent_RemoveWriteFails_ListUnchanged (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED PrefStore_TextSize_RoundTrip (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED PrefStore_TextSize_LoadAndSaveSerialized_NoStaleHash (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED-FAIL 11 (manifest)
+UNEXPECTED 0

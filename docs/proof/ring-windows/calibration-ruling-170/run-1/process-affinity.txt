@@ -1,0 +1,5 @@
+pid=34796 name=Git Bash affinity=0x3F
+pid=6152 name=conhost affinity=0x3F
+pid=32208 name=bash affinity=0x3F
+pid=36804 name=bash.exe affinity=not-readable
+pid=37720 name=py.exe affinity=not-readable

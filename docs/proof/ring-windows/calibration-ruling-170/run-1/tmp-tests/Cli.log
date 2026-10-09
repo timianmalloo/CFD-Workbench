@@ -1,0 +1,16 @@
+CLI Example identity, assessment, bounded projection and extension refusal passed.
+PASS Cli_InspectJson_PointsRolesAndKinds
+PASS Cli_InspectJson_ChannelPointsRolesAndKinds
+PASS Cli_Inspect_ListsSectionPointTypesAndKinds
+FAIL Cli_AnalyseRunKey_EqualsServiceOnCustomOp Exception: inspect --runs returned 3: {
+  "code": "DOC-UNSUPPORTED-PERSISTENCE"
+}
+
+COST Cli_AnalyseRunKey_EqualsServiceOnCustomOp 380.380
+PASS Cli_AnalyseFailedRun_PrintsNoDiagnostics
+COST Cli_AnalyseFailedRun_PrintsNoDiagnostics 94.140
+FAIL Cli_InspectRuns_RevisionIsSessionLabel Exception: inspect --runs returned 3: {
+  "code": "DOC-UNSUPPORTED-PERSISTENCE"
+}
+
+COST Cli_InspectRuns_RevisionIsSessionLabel 479.494

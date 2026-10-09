@@ -1,0 +1,4 @@
+pid=20296 name=Git Bash affinity=0x3F
+pid=28100 name=conhost affinity=0x3F
+pid=19364 name=bash affinity=0x3F
+pid=1148 name=bash.exe affinity=not-readable

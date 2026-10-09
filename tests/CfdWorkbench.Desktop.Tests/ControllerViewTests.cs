@@ -624,7 +624,9 @@ public static class ControllerViewTests
             static void AssertFourOrOne(ModelArea area, bool four, string label)
             {
                 var visible = new Control[] { area.PlanSlot, area.ThreeDSlot, area.SideSlot, area.FrontSlot }.Where(slot => slot.IsEffectivelyVisible).ToArray();
-                if (four && (visible.Length != 4 || visible.Any(slot => slot.Bounds.Width < 320 || slot.Bounds.Height < 240)))
+                // DPI-A: the 1 px frame renders as a whole device pixel (1.333 DIP at 150 %), so the inside may fall one device pixel short.
+                double pixel = DevicePixel.Tolerance(area, 0);
+                if (four && (visible.Length != 4 || visible.Any(slot => slot.Bounds.Width < 320 - pixel - 1e-6 || slot.Bounds.Height < 240 - pixel - 1e-6)))
                     throw new Exception($"{label}: Four views with a view under 320 × 240: {string.Join(", ", visible.Select(slot => slot.Bounds.Size))}");
                 if (!four && visible.Length != 1) throw new Exception($"{label}: {visible.Length} views below the Four-view minimum");
             }

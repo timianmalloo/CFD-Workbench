@@ -1,0 +1,11 @@
+EXPECTED WindowsNative_Replace_HeldReaderKeepsOldImage (Ruling 145, historical-probe, until W-2 B2 lands)
+EXPECTED Library_Save_PublishesHashNamedFile (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Library_WriteFails_NothingPublished (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Rollback_V2UnknownWorkspaceMember_BytesUnchanged (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED LayoutSave_ClaimBusyHashSame_RetriesOnce (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED LayoutSave_StaleClaim_SessionOnlyNamesClaim (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recent_Clear_NoFileContainsMarkerPath (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED StoreContract_CancelBeforePublish_DocCancelled (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED-FAIL 9 (manifest)
+UNEXPECTED 0
