@@ -47,6 +47,15 @@ public static class DevicePixel
         return best;
     }
 
+    /// <summary>
+    /// True when <paramref name="pixel"/> holds at least half of a 1 DIP <paramref name="line"/> over <paramref name="ground"/>.
+    /// A 96-dpi capture of a line at a fractional device position splits it over two pixels, and the better one holds at
+    /// least half; a capture without the line reads the ground. ECR: the overlay is absent from a device-resolution
+    /// capture, so the line is sampled at 96 dpi through this test, not as an exact colour.
+    /// </summary>
+    public static bool HoldsHalfOf((byte R, byte G, byte B) pixel, (byte R, byte G, byte B) line, (byte R, byte G, byte B) ground) =>
+        Distance(pixel, line) <= Distance(ground, line) / 2 + 4;
+
     private static int Distance((byte R, byte G, byte B) a, (byte R, byte G, byte B) b) =>
         Math.Abs(a.R - b.R) + Math.Abs(a.G - b.G) + Math.Abs(a.B - b.B);
 

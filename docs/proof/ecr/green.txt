@@ -1,0 +1,4 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+PASS Elevation_ChipBorderSampler_HoldsHalfOfASplitLine
+COST Elevation_ChipBorderSampler_HoldsHalfOfASplitLine 0.2
