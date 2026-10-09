@@ -215,7 +215,17 @@ public sealed class PlanCanvas : Control
 
     private Point? lastHover;
 
+    // Escape sets this; a pointer move to a different position clears it. A refresh re-reads the saved hover and must not
+    // rebuild a tooltip the operator dismissed (Ruling 188).
+    private bool tooltipDismissed;
+
     public void HoverAt(Point position)
+    {
+        if (lastHover != position) tooltipDismissed = false;
+        ReadHover(position);
+    }
+
+    private void ReadHover(Point position)
     {
         lastHover = position;
         var plan = Controller?.Planform;
@@ -226,6 +236,7 @@ public sealed class PlanCanvas : Control
               $"{(point.Curve == "leading" ? plan.Leading : plan.Trailing).Points.Count}, " +
               $"{point.Role.ToString().ToLowerInvariant()} point, from root {point.SpanMeters * 1000:F2} mm, aft {point.Ordinate * 1000:F2} mm"
             : null;
+        if (tooltipDismissed) TooltipText = null;
         var map = Layer(plan);
         double eta = Math.Clamp(map.FromScreen(position).Span / plan.HalfSpanMeters, 0, 1);
         var probe = CfdWorkbench.Core.Planform.Probe(plan, eta);
@@ -621,7 +632,7 @@ public sealed class PlanCanvas : Control
         }
         if (e.Key == Key.Escape)
         {
-            if (TooltipText is not null) TooltipText = null;
+            if (TooltipText is not null) { TooltipText = null; tooltipDismissed = true; }
             else if (Controller.Gesture != GestureState.Idle) _ = Controller.EndGestureAsync(GestureEnd.Escape);
             else if (focusedPoint is { } handleRef &&
                      targets.FirstOrDefault(item => item.Curve == handleRef.Curve && item.Id == handleRef.VertexId)
@@ -719,7 +730,7 @@ public sealed class PlanCanvas : Control
             // is read again from the model as it is now, never the text saved before the drag.
             if (Controller.Gesture == GestureState.Idle && ProbeText is not null)
             {
-                if (lastHover is { } at) HoverAt(at); else ProbeText = null;
+                if (lastHover is { } at) ReadHover(at); else ProbeText = null;
             }
         }
         else ApplyGestureProbe();
