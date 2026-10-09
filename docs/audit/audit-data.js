@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T22:38:45Z",
+  "generated": "2026-10-09T22:51:53Z",
   "audit": [
     {
       "actor": null,
@@ -33565,83 +33565,152 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
+      "id": "al-01M4H9V54SK80KR76FGKJTRKQG",
+      "shortname": "join-pr26",
+      "datetime": "2026-10-09T21:41:54Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/r181-verifier-rerun into main",
+      "summary": "Joined PR #26; Windows store qualification PASS admitted as evidence bound to verifier a79ac73c and the verified build trees (Ruling 189) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/pr-26.md",
         "docs/proof/application-core.md"
       ],
-      "compiled": false,
-      "datetime": "2026-10-09T21:41:54Z",
-      "done_when": "join gates green, readiness green, PUSH-OK",
-      "duration_seconds": 15.0,
-      "fan_out": 0,
-      "goal": "PR #26 on main and the Windows store PASS admitted",
-      "id": "al-01M4H9V54SK80KR76FGKJTRKQG",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "the join of origin/win/r181-verifier-rerun into main",
-      "session": "3122f106",
-      "shortname": "join-pr26",
-      "signals": {
-        "acceptance_met": true,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": "execute-with-coordination",
-      "started_at": "2026-10-09T21:41:39Z",
-      "summary": "Joined PR #26; Windows store qualification PASS admitted as evidence bound to verifier a79ac73c and the verified build trees (Ruling 189) recount_seconds=0 (docs_only=True).",
       "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PR #26 on main and the Windows store PASS admitted",
+      "done_when": "join gates green, readiness green, PUSH-OK",
       "tier": "T1",
-      "tool": null
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T21:41:39Z",
+      "duration_seconds": 15.0
     },
     {
+      "id": "al-01M4HA7CBC0QA51JS80FRABQHB",
+      "shortname": "asc-admission-staleness",
+      "datetime": "2026-10-09T21:48:35Z",
+      "session": "trk-asc",
+      "prompt": "trk-asc",
+      "summary": "Added windows-store-admission.json, check-windows-admission.py, wrapper line, check-docs self-test, PLAT-A register line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
       "actor": null,
       "artifacts": [],
-      "compiled": false,
-      "datetime": "2026-10-09T21:48:35Z",
-      "done_when": "binding, check with self-test, wrapper line, check-docs wiring, register line; gates green",
-      "duration_seconds": 180.0,
-      "goal": "Make Windows store admission staleness visible without blocking Core work",
-      "id": "al-01M4HA7CBC0QA51JS80FRABQHB",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "trk-asc",
-      "session": "trk-asc",
-      "shortname": "asc-admission-staleness",
-      "skill": "implement",
-      "started_at": "2026-10-09T21:45:35Z",
-      "summary": "Added windows-store-admission.json, check-windows-admission.py, wrapper line, check-docs self-test, PLAT-A register line",
       "tags": [],
-      "tool": null
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make Windows store admission staleness visible without blocking Core work",
+      "done_when": "binding, check with self-test, wrapper line, check-docs wiring, register line; gates green",
+      "started_at": "2026-10-09T21:45:35Z",
+      "duration_seconds": 180.0
     },
     {
+      "id": "al-01M4HAAAMA7J9BYCXCYNS4EDC7",
+      "shortname": "join-asc",
+      "datetime": "2026-10-09T21:50:12Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/asc-admission-staleness into main",
+      "summary": "Joined ASC: windows-store-admission.json binding; check-windows-admission.py prints current/STALE, fails only a stale 'PASS (current)' claim; line in the store-gate wrapper recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/asc/red-first.md"
       ],
-      "compiled": false,
-      "datetime": "2026-10-09T21:50:12Z",
-      "done_when": "join gates green, readiness green, PUSH-OK",
-      "duration_seconds": 60.0,
-      "fan_out": 0,
-      "goal": "an admitted Windows PASS can't silently go stale",
-      "id": "al-01M4HAAAMA7J9BYCXCYNS4EDC7",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "the join of fix/asc-admission-staleness into main",
-      "session": "3122f106",
-      "shortname": "join-asc",
-      "signals": {
-        "acceptance_met": true,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": "execute-with-coordination",
-      "started_at": "2026-10-09T21:49:12Z",
-      "summary": "Joined ASC: windows-store-admission.json binding; check-windows-admission.py prints current/STALE, fails only a stale 'PASS (current)' claim; line in the store-gate wrapper recount_seconds=0 (docs_only=False).",
       "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "an admitted Windows PASS can't silently go stale",
+      "done_when": "join gates green, readiness green, PUSH-OK",
       "tier": "T1",
-      "tool": null
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T21:49:12Z",
+      "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M4HC4FBH7Z6N9XN2ZZK9S2CV",
+      "shortname": "copy447-windows-reachability",
+      "datetime": "2026-10-09T22:21:57Z",
+      "session": "pc-copy447",
+      "prompt": "Keep going on the Windows W0-W5 execution under Mac leadership; complete the next authorized COPY-447 measurement without widening scope.",
+      "summary": "Retained one partial public ProjectStore reachability attempt as a blocked proof package. Both Windows cases returned DOC-UNSUPPORTED-PERSISTENCE with unchanged observed inventories and targets. Crash-left artifacts remain NOT ASSESSED because the harness lost its outer receipt and runtime bindings. Astra approved the corrected package; no case was rerun.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/proof/copy447-reachability/receipt.md",
+        "docs/proof/copy447-reachability/capture-manifest.json"
+      ],
+      "tags": [
+        "windows",
+        "copy-447",
+        "blocked-proof"
+      ],
+      "outcome": "blocked",
+      "goal": "Deliver the COPY-447 Windows reachability evidence as an immutable, explicitly blocked package and hand it to the Mac leader through GitHub.",
+      "done_when": "The proof-only branch is validated, owner-reviewed, committed, pushed, and reported with exact limits; no SaveAsync case is rerun.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-10-09T21:52:31Z",
+      "duration_seconds": 1766.0,
+      "git": {
+        "sha": "1b91e0444fbc22585df91b199485cc45f63e07d6",
+        "short": "1b91e0444",
+        "branch": "win/copy447-measurement",
+        "pushed": false
+      }
+    },
+    {
+      "id": "al-01M4HCT7Q1KV3FP6DJ7XZQ8WYW",
+      "shortname": "join-pr27",
+      "datetime": "2026-10-09T22:33:50Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/copy447-measurement into main",
+      "summary": "Joined PR #27 as a blocked partial (Ruling 190); COPY-447 held until W-2 B2; deferred-metadata capture class recorded recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-27.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PR #27 on main under Ruling 190",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T22:32:50Z",
+      "duration_seconds": 60.0
     },
     {
       "actor": "codex",
@@ -33679,75 +33748,6 @@ window.AUDIT_DATA = {
         "ruling-151",
         "in-progress"
       ],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": "codex",
-      "artifacts": [
-        "docs/proof/copy447-reachability/receipt.md",
-        "docs/proof/copy447-reachability/capture-manifest.json"
-      ],
-      "datetime": "2026-10-09T22:21:57Z",
-      "done_when": "The proof-only branch is validated, owner-reviewed, committed, pushed, and reported with exact limits; no SaveAsync case is rerun.",
-      "duration_seconds": 1766.0,
-      "fan_out": 2,
-      "git": {
-        "branch": "win/copy447-measurement",
-        "pushed": false,
-        "sha": "1b91e0444fbc22585df91b199485cc45f63e07d6",
-        "short": "1b91e0444"
-      },
-      "goal": "Deliver the COPY-447 Windows reachability evidence as an immutable, explicitly blocked package and hand it to the Mac leader through GitHub.",
-      "id": "al-01M4HC4FBH7Z6N9XN2ZZK9S2CV",
-      "kind": "manual",
-      "outcome": "blocked",
-      "prompt": "Keep going on the Windows W0-W5 execution under Mac leadership; complete the next authorized COPY-447 measurement without widening scope.",
-      "session": "pc-copy447",
-      "shortname": "copy447-windows-reachability",
-      "signals": {
-        "acceptance_met": false,
-        "regression": false,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": null,
-      "started_at": "2026-10-09T21:52:31Z",
-      "summary": "Retained one partial public ProjectStore reachability attempt as a blocked proof package. Both Windows cases returned DOC-UNSUPPORTED-PERSISTENCE with unchanged observed inventories and targets. Crash-left artifacts remain NOT ASSESSED because the harness lost its outer receipt and runtime bindings. Astra approved the corrected package; no case was rerun.",
-      "tags": [
-        "windows",
-        "copy-447",
-        "blocked-proof"
-      ],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": null,
-      "artifacts": [
-        "docs/reviews/pr-27.md"
-      ],
-      "compiled": false,
-      "datetime": "2026-10-09T22:33:50Z",
-      "done_when": "join gates green, readiness green, PUSH-OK",
-      "duration_seconds": 60.0,
-      "fan_out": 0,
-      "goal": "PR #27 on main under Ruling 190",
-      "id": "al-01M4HCT7Q1KV3FP6DJ7XZQ8WYW",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "the join of origin/win/copy447-measurement into main",
-      "session": "3122f106",
-      "shortname": "join-pr27",
-      "signals": {
-        "acceptance_met": true,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": "execute-with-coordination",
-      "started_at": "2026-10-09T22:32:50Z",
-      "summary": "Joined PR #27 as a blocked partial (Ruling 190); COPY-447 held until W-2 B2; deferred-metadata capture class recorded recount_seconds=0 (docs_only=True).",
-      "tags": [],
       "tier": "T1",
       "tool": null
     }
@@ -36474,6 +36474,33 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4HCRAQFMD7G4J25B98XPM1R",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4HDKYS8ZXFM2F2GHMHP3JS7",
+      "ts": "2026-10-09T22:47:53Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4HDKYP67X83YD4YG07BWZ21",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4HDT8NF2548Y19QCDWS8YH4",
+      "ts": "2026-10-09T22:51:20Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4HDT8NBKX95AXAJPHA7HABJ",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4HDT8RF2EX5Q980KR3Z1XDS",
+      "ts": "2026-10-09T22:51:20Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4HDT8NBKX95AXAJPHA7HABJ",
       "session": "fable-owner"
     }
   ]
