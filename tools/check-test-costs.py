@@ -3,6 +3,7 @@
 
   python3 tools/check-test-costs.py [--dir .tmp-tests] [--jobs Core.part1of3,Core.part2of3,Core.part3of3,Desktop,Analysis.part1of2,Analysis.part2of2,Cli] [--load <1-minute load>] [--load-source proc-gitbash|...] [--host <name>]
   python3 tools/check-test-costs.py --budget <wall s> <budget s> <load>    [--load-source S --host H]    (TEST-BUDGET, Ruling 87: exit 3 or 0)
+  python3 tools/check-test-costs.py --resolve-host <hostname>    (prints the baseline key: $CFD_RING_HOST if set, validated [a-z0-9-]{1,32}, else <hostname>; Ruling 168 (3))
   python3 tools/check-test-costs.py --self-test
 
 Reads <name>.ms and wall.ms (C-1, millisecond clocks written by run-tests.sh) and the COST lines of every Analysis log (Analysis.log, or Analysis.part<k>of<n>.log).
@@ -11,6 +12,7 @@ Ring: every join (run-tests.sh calls it after its wait loop; join.json runs it a
 """
 from __future__ import annotations
 
+import os
 import re
 import sys
 import tempfile
@@ -63,6 +65,19 @@ def read_ms(directory: Path, name: str) -> int | None:
         return int((directory / f"{name}.ms").read_text(encoding="utf-8").strip())
     except (OSError, ValueError):
         return None
+
+
+RING_HOST_KEY = re.compile(r"[a-z0-9-]{1,32}")
+
+
+def resolve_host(override: str | None, hostname: str) -> str:
+    """The baseline key (docs/proof/ring-<key>/baseline.csv). Ruling 168 (3): a set CFD_RING_HOST replaces the machine
+    hostname (a Windows hostname can be personal and the repo is public); it must match [a-z0-9-]{1,32}, else ValueError."""
+    if override is None:
+        return hostname
+    if not RING_HOST_KEY.fullmatch(override):
+        raise ValueError(f"CFD_RING_HOST={override!r} is refused: use 1-32 characters from a-z, 0-9 and '-' (it names docs/proof/ring-<key>/)")
+    return override
 
 
 def host_baseline_gate(host: str, proof: Path | None = None) -> float | None:
@@ -212,6 +227,31 @@ def self_test_hosts(good: dict[str, str], passes: str) -> tuple[int, int]:
     return failures, total
 
 
+def self_test_ring_host() -> tuple[int, int]:
+    """Ruling 168 (3): CFD_RING_HOST names the baseline folder ring-<key>; a value outside [a-z0-9-]{1,32} is refused."""
+    cases = [
+        ("CFD_RING_HOST=pc-win resolves to ring-pc-win", "pc-win", "Tims-PC", "pc-win", None),
+        ("unset: the machine hostname is used as before", None, "mac-studio", "mac-studio", None),
+        ("override wins over the hostname", "pc-win", "mac-studio", "pc-win", None),
+        ("a 32-character key is accepted", "a" * 32, "h", "a" * 32, None),
+        ("a 33-character key is refused", "a" * 33, "h", None, "CFD_RING_HOST"),
+        ("an uppercase key is refused", "PC-Win", "h", None, "CFD_RING_HOST"),
+        ("a dotted (FQDN-like) key is refused", "pc.win.example", "h", None, "CFD_RING_HOST"),
+        ("a path-like key is refused", "../x", "h", None, "CFD_RING_HOST"),
+        ("an empty key is refused", "", "h", None, "CFD_RING_HOST"),
+    ]
+    failures = 0
+    for label, override, hostname, want, refusal in cases:
+        try:
+            got, error = resolve_host(override, hostname), None
+        except ValueError as exc:
+            got, error = None, str(exc)
+        ok = got == want and (refusal is None and error is None or refusal is not None and error is not None and refusal in error)
+        print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else f": expected {want or refusal}, got {got or error}"))
+        failures += not ok
+    return failures, len(cases)
+
+
 def self_test() -> int:
     """Every row of the 13.4 table plus Ruling 84: a green baseline, then each failing input planted alone must turn it red."""
     passes = "".join(f"PASS {name}\nCOST {name} 12.500\n" for name in ("Units_Lbf_KeyUnchanged", "F6_ObservedOrder"))
@@ -269,7 +309,9 @@ def self_test() -> int:
         ("TEST-BUDGET load not recorded is a MISS, never a pass", 70, 60, "not-recorded", 0, "TEST-BUDGET-MISS 70 s load not-recorded"),
     ]
     host_failures, host_total = self_test_hosts(good, passes)
-    failures += host_failures
+    key_failures, key_total = self_test_ring_host()
+    failures += host_failures + key_failures
+    host_total += key_total
     for label, wall, budget, load, code, fragment in budget_cases:
         got_code, line = budget_verdict(wall, budget, load)
         ok = got_code == code and (fragment is None and line is None or fragment is not None and line is not None and fragment in line)
@@ -297,6 +339,13 @@ def main(argv: list[str]) -> int:
     args = list(argv[1:])
     if args == ["--self-test"]:
         return self_test()
+    if len(args) == 2 and args[0] == "--resolve-host":  # run-tests.sh passes its hostname; prints the key or refuses (exit 2)
+        try:
+            print(resolve_host(os.environ.get("CFD_RING_HOST"), args[1]))
+        except ValueError as exc:
+            print(str(exc), file=sys.stderr)
+            return 2
+        return 0
     directory, jobs, load, source, host, budget = DEFAULT_DIR, DEFAULT_JOBS, "not-recorded", "", "", None
     while args:
         flag = args.pop(0)
