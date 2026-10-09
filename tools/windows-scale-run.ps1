@@ -117,13 +117,13 @@ function Invoke-WriScaleRun([string]$PythonPath,[string]$OutputDirectory) {
     $context=[pscustomobject]@{Repo=$repo;Clock=$clock;Toolchain=$toolchain;Records=[Collections.Generic.List[object]]::new();RestoreExit=$null;ReadbackExit=$null;ContractFailed=$false}
     $engine=(Get-Process -Id $PID).Path
     $driver=Join-Path $PSScriptRoot 'windows-scale-run.ps1'
-    $preflight=Join-Path $PSScriptRoot 'windows-settings-preflight.ps1'
+    $preflightPath=Join-Path $PSScriptRoot 'windows-settings-preflight.ps1'
     $dll=Join-Path $repo 'tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Desktop.Tests.dll'
     $failure=$null
     try {
         Invoke-WriScaleSequence -Preflight {
             param($expected)
-            $checked=Invoke-WriScaleRecordedChild $context 'preflight-initial' $engine @('-NoProfile','-File',$preflight,'-Action','Preflight','-ExpectedScale',$expected) '' $executionDeadline 60000
+            $checked=Invoke-WriScaleRecordedChild $context 'preflight-initial' $engine @('-NoProfile','-File',$preflightPath,'-Action','Preflight','-ExpectedScale',$expected) '' $executionDeadline 60000
             if ($checked.ExitCode -ne 0) { throw 'WRI-PREFLIGHT: initial read-only preflight rejected' }
         } -Build {
             $built=Invoke-WriScaleRecordedChild $context 'build' $toolchain.Dotnet @('build','CFDWorkbench.slnx','-c','Release','-nologo','-v','q') '' $executionDeadline 120000 BuildVerifier
@@ -133,7 +133,7 @@ function Invoke-WriScaleRun([string]$PythonPath,[string]$OutputDirectory) {
             $selected=Invoke-WriScaleRecordedChild $context "select-$scale" $engine @('-NoProfile','-File',$driver,'-Action','Select','-Scale',[string]$scale) '' $executionDeadline 60000
             if ($selected.ExitCode -ne 0) { throw 'WRI-SCALE: UIA selection failed' }
             $expected=if ($scale -eq 150) { '150% (Recommended)' } else { '200%' }
-            $checked=Invoke-WriScaleRecordedChild $context "preflight-$scale" $engine @('-NoProfile','-File',$preflight,'-Action','Preflight','-ExpectedScale',$expected) '' $executionDeadline 60000
+            $checked=Invoke-WriScaleRecordedChild $context "preflight-$scale" $engine @('-NoProfile','-File',$preflightPath,'-Action','Preflight','-ExpectedScale',$expected) '' $executionDeadline 60000
             if ($checked.ExitCode -ne 0) { throw 'WRI-PREFLIGHT: selected-scale read-only verification rejected' }
         } -Contract {
             param($scale)

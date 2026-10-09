@@ -32,4 +32,34 @@ try {
 } catch { if ($_.Exception.Message -ne 'stub-preflight-failure') { throw } }
 if ($events.Count) { throw 'RESTORE-CONTRACT FAIL preflight rejection mutated scale' }
 'GREEN preflight-rejected scale_actions=0'
+# Exercise the driver's actual preflight callback; every external child and source/toolchain probe is stubbed.
+$script:boundaryFiles=[Collections.Generic.List[string]]::new()
+function Assert-WriSourceClean {}
+function Assert-WriSourceUnchanged {}
+function Get-WriSourceFingerprint { return 'boundary-stub' }
+function Assert-WriToolchain { return [pscustomobject]@{Dotnet='boundary-stub';Python='boundary-stub'} }
+function Invoke-WriScaleRecordedChild {
+    param($Context,$Label,$Exe,[string[]]$Arguments,$Only,$DeadlineMs,$ChildCeilingMs,$Mode)
+    if ($Label -eq 'preflight-initial') { [void]$script:boundaryFiles.Add($Arguments[2]) }
+    if ($Label -eq 'build') { throw 'boundary-stop-before-build' }
+    return [pscustomobject]@{ExitCode=0;Stdout='SCALE_CONTEXT mode=scale-diagnostic RenderScaling=1.5 PrimaryScaling=1.5 boundary=stub'}
+}
+function Invoke-WriProcess {
+    param($Repo,$Exe,$Arguments,$Clock,$CeilingMs)
+    return [pscustomobject]@{ExitCode=0;Stdout=([IO.File]::ReadAllText($Arguments[2]))}
+}
+$boundaryRoot=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../docs/proof/wri-r184-driver'))+[IO.Path]::DirectorySeparatorChar
+$boundaryOutput=Join-Path $boundaryRoot ('callback-boundary-'+[guid]::NewGuid().ToString('N'))
+try {
+    $caught=$null
+    try { Invoke-WriScaleRun -PythonPath 'boundary-stub' -OutputDirectory $boundaryOutput }
+    catch { $caught=$_.Exception.Message }
+    $expectedPath=Join-Path (Split-Path -Parent ([IO.Path]::GetFullPath($DriverPath))) 'windows-settings-preflight.ps1'
+    if ($caught -notlike 'WRI-RUN:*' -or $script:boundaryFiles.Count -ne 1 -or $script:boundaryFiles[0] -cne $expectedPath) { throw 'WRI-BOUNDARY: actual preflight -File must receive the script path, not callback text' }
+    'GREEN preflight-file-boundary actual_driver_callback=true script_path=true stub_children=true'
+} finally {
+    $resolved=[IO.Path]::GetFullPath($boundaryOutput)
+    if (-not $resolved.StartsWith($boundaryRoot,[StringComparison]::OrdinalIgnoreCase)) { throw 'boundary cleanup outside owned proof root' }
+    if (Test-Path -LiteralPath $resolved) { Remove-Item -LiteralPath $resolved -Recurse -Force }
+}
 'SELFTEST PASS driver callbacks; no scale/product/verifier execution'
