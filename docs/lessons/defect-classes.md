@@ -2137,3 +2137,22 @@ in Desktop's spawn stage, and the PC filed a second decision request. Ruling 170
 2026-10-09 (OBS): a killed log could not tell slow from hung, because Spawn buffers each child's output and STAGE lines had no time.
 Every Desktop `STAGE <name>` line now carries `elapsed_ms=<since harness start>`, and Spawn prints `SPAWN-START <mode> elapsed_ms=<n>` at
 each child start, unbuffered. A killed log now shows which children had started and how long ago. Checks: `StageTimingTests`.
+
+**CLEANUP-BLOCKS-CEILING · A cleanup path that can block defeats the ceiling it serves.**
+The PC's W-2 `verify-windows-store.py` (unpushed 1d89f6c8, xmsg 20261009T010555) enforced a 60 s hard ceiling. Its timeout
+path, `_terminate_tree`, called a blocking `stream.close()` on the ceiling thread. With an already-expired deadline and
+an injected `taskkill` failure, a real Windows pipe child blocked cleanup for 1.49 s. The self-test used a fake BytesIO
+stream, which cannot reproduce reader-thread pipe locking, so the ceiling was asserted and not proved. The PC's owner
+reviewer vetoed it at the 2/2 repair cap.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a timeout or ceiling whose enforcement path itself performs an unbounded wait (close, join, kill, flush),
+  proved only against an in-memory fake.
+- *Sweep:* the Mac's own timeout paths (`tools/run-readiness.py` STEP_TIMEOUT and `run_entry` timeout, and the Desktop
+  harness's 120 s child kill at `WorkbenchTests.cs:735-740`). They are not yet audited for a blocking close: an open
+  follow-up.
+- *Derive:* the timeout path never blocks on the ceiling thread; reader threads are daemon, closed on a helper thread
+  or abandoned with a bounded join; the ceiling clock starts at process start.
+- *Prevent:* Ruling 171 (1): every timeout self-test uses a real child process (not an in-memory stream). It covers an
+  already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status: control
+  pending the PC repair track; the Mac sweep above is open.
