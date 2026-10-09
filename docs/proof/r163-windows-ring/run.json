@@ -1,0 +1,13 @@
+{
+  "head": "77e53062df26ded482df6d35c27e83f3efabbb3a",
+  "started_utc": "2026-10-08T23:41:59.4564082Z",
+  "ended_utc": "2026-10-08T23:42:59.8814866Z",
+  "elapsed_seconds": 60.422,
+  "command": "C:\\Program Files\\Git\\bin\\bash.exe --noprofile --norc tools/run-tests.sh",
+  "dotnet": "%USERPROFILE%\\.dotnet\\dotnet.exe",
+  "dotnet_version": "10.0.203",
+  "affinity_mask": "0x3F",
+  "outer_timeout_seconds": 60,
+  "timed_out": true,
+  "exit_code": 124
+}

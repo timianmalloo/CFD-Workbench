@@ -5208,10 +5208,18 @@ window.DOCS_INDEX = {
         {
           "to": "mockup-workbench-v1",
           "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-13",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-r163-windows-ring",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d6e926617fcd189485674a8e9353e9533e323baecb232397d630ad460235c4c0"
+      "sourceSha256": "4549946529b4cd0addc042d7ffb9c94f3e8b463233a7f328e111dc1f5eb78a85"
     },
     {
       "id": "domain-experts",
@@ -6801,6 +6809,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "4d3fb1aac968e663dd5d54b64c79f9900bebdf0d5a76a5f44e94f6fa40999526"
     },
     {
+      "id": "review-pr-16",
+      "path": "docs/reviews/pr-16.md",
+      "title": "PR #16 (Windows PC) - Windows ring on the CAF/RWF main, INCOMPLETE (Rulings 167, 168), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 167). One INCOMPLETE six-CPU Windows ring on main 77e53062 (CAF + RWF), killed at 60.4 s by a ceiling no tool requires. The nine catalog checks pass on Windows and the five DRIFT lines equal the Mac's (the 6.1e-18 is a stale Mac fixture, not a cross-OS difference). P5 stays unverified; two unexpected failures go to the next ring. Ruling 168 sets a 300 s outer ceiling for Windows evidence rings.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "test-ring",
+        "catalog",
+        "determinism"
+      ],
+      "links": [
+        {
+          "to": "review-pr-15",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-13",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "30f1fb9fd749c3b3063e53aae0ccc60303f5aa813f76c80cf36cd2eec3ad91db"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7769,7 +7810,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f7b2cac3c3ef9fb5f03abba4336d4fead934d2e5469f2bb5131990676e3dfa6b"
+      "sourceSha256": "c56b3623ecbd52b7d05ae80ad5756627a9093966342ec1785eba4c4e268d4eca"
     },
     {
       "id": "kb-hw-glossary",
@@ -13490,6 +13531,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "e86a4c9b8b64650cf467324af8b9e0695383b7adfb662f3c4dbaec35f7535c38"
     },
     {
+      "id": "proof-r163-windows-ring",
+      "path": "docs/proof/r163-windows-ring/receipt.md",
+      "title": "Ruling 163 P5 Windows ring (incomplete at 60 seconds)",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@win-r163-ring",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "One six-CPU Windows ring on main 77e53062 built successfully, and all nine catalog test rows passed in partial Core logs. The outer 60-second cap stopped the ring before every harness completed, so Ruling 163 P5 remains unverified.",
+      "tags": [
+        "windows",
+        "ruling-163",
+        "ruling-156",
+        "determinism",
+        "test-ring"
+      ],
+      "links": [
+        {
+          "to": "review-pr-13",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-rwf-red-first",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "afad609f4900a83866f51c3e7398bd81df8d594b4fed9c56dbde9fe2f420fab6"
+    },
+    {
       "id": "proof-rdh-readiness",
       "path": "docs/proof/rdh/readiness.md",
       "title": "RDH: readiness headroom and the join's duplicate cost check",
@@ -17579,5 +17655,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "87256c335e02dc23bd7173813cd787a6f06aa124544c365e32a4e0353cae10bc"
+  "graphSha256": "5f53d0ee3ee2bbda99e7280f671fd4de5244c167565499de78a0e7ed78405bbe"
 };

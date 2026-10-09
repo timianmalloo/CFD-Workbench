@@ -1,0 +1,13 @@
+RING-LOCK waited 0 s
+C:\Projects\CFD-Workbench-win-r163-ring\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-r163-ring\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-r163-ring\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-r163-ring\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+
+Build succeeded.
+
+C:\Projects\CFD-Workbench-win-r163-ring\src\CfdWorkbench.Desktop\CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-r163-ring\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+C:\Projects\CFD-Workbench-win-r163-ring\src\CfdWorkbench.Desktop\SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [C:\Projects\CFD-Workbench-win-r163-ring\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:20.87
+build 23 s (Release)
