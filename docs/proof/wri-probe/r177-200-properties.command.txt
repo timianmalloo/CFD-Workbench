@@ -1,0 +1,6 @@
+DOTNET_ROOT=%USERPROFILE%\.dotnet
+PATH=%USERPROFILE%\.dotnet;%PATH%
+CFD_SETTINGS_SELECTED_SCALE_CONTEXT=200%
+CFD_TEST_ONLY=PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs,PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused,PropertiesPane_Density_EveryTargetAtLeast24
+%USERPROFILE%\.dotnet\dotnet.exe exec <repo>\tests\CfdWorkbench.Desktop.Tests\bin\Release\net10.0\CfdWorkbench.Desktop.Tests.dll --properties-cells
+Affinity=0x3F

@@ -1,0 +1,10 @@
+P6_SCALE_CONTEXT check=PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused SettingsSelected=200% RenderScaling=2.0 PrimaryScaling=2.0
+PASS PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused
+COST PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused 4024.8
+P6_SCALE_CONTEXT check=PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs SettingsSelected=200% RenderScaling=2.0 PrimaryScaling=2.0
+MEASURE DC-3 input digits end 218, fact digits end 218
+PASS PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs
+COST PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs 2065.7
+P6_SCALE_CONTEXT check=PropertiesPane_Density_EveryTargetAtLeast24 SettingsSelected=200% RenderScaling=2.0 PrimaryScaling=2.0
+PASS PropertiesPane_Density_EveryTargetAtLeast24
+COST PropertiesPane_Density_EveryTargetAtLeast24 3248.0

@@ -1,0 +1,11 @@
+﻿start_utc=2026-10-09T02:57:44.7243171Z
+end_utc=2026-10-09T02:57:57.5479130Z
+wall_seconds=12.815539
+pid=17304
+exit=
+affinity=0x3F
+sdk=10.0.203
+head=4383089735b27586efed93657606fce37317fc07
+settings_selected_context=200%
+selector=ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView,ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack,Elevation_SideSelectedStation_RenderedFullWeight,View3d_SelectedStation_RenderedWidthAndChip
+mode=--views

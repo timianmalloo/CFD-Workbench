@@ -1,0 +1,11 @@
+﻿start_utc=2026-10-09T02:58:02.7172233Z
+end_utc=2026-10-09T02:58:13.0398784Z
+wall_seconds=10.319309
+pid=10700
+exit=
+affinity=0x3F
+sdk=10.0.203
+head=4383089735b27586efed93657606fce37317fc07
+settings_selected_context=200%
+selector=PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs,PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused,PropertiesPane_Density_EveryTargetAtLeast24
+mode=--properties-cells

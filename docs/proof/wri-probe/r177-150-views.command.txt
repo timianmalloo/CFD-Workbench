@@ -1,0 +1,6 @@
+DOTNET_ROOT=%USERPROFILE%\.dotnet
+PATH=%USERPROFILE%\.dotnet;%PATH%
+CFD_SETTINGS_SELECTED_SCALE_CONTEXT=150% (Recommended)
+CFD_TEST_ONLY=ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView,ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack,Elevation_SideSelectedStation_RenderedFullWeight,View3d_SelectedStation_RenderedWidthAndChip
+%USERPROFILE%\.dotnet\dotnet.exe exec <repo>\tests\CfdWorkbench.Desktop.Tests\bin\Release\net10.0\CfdWorkbench.Desktop.Tests.dll --views
+Affinity=0x3F

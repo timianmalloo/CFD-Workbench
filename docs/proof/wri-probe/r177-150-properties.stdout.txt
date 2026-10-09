@@ -1,0 +1,11 @@
+P6_SCALE_CONTEXT check=PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused SettingsSelected=150% (Recommended) RenderScaling=1.5 PrimaryScaling=1.5
+PASS PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused
+COST PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused 3696.5
+P6_SCALE_CONTEXT check=PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs SettingsSelected=150% (Recommended) RenderScaling=1.5 PrimaryScaling=1.5
+MEASURE DC-3 input digits end 218.33, fact digits end 217.33
+FAIL PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs InvalidOperationException: input ends 218.33, fact 217.33
+STACK PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs System.InvalidOperationException: input ends 218.33, fact 217.33 |    at CfdWorkbench.Desktop.Tests.PropertiesCellsTests.<>c.<Run>b__4_13(WorkbenchController controller, ShellHost host, Window window) in C:\Projects\CFD-Workbench-win-wri-p6-r177\tests\CfdWorkbench.Desktop.Tests\PropertiesCellsTests.cs:line 714 |    at CfdWorkbench.Desktop.Tests.PropertiesViewTests.<>c__DisplayClass13_0.<Pane>b__0() in C:\Projects\CFD-Workbench-win-wri-p6-r177\tests\CfdWorkbench.Desktop.Tests\PropertiesViewTests.cs:line 1299 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in C:\Projects\CFD-Workbench-win-wri-p6-r177\tests\CfdWorkbench.Desktop.Tests\WorkbenchTests.cs:line 658
+COST PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs 1814.2
+P6_SCALE_CONTEXT check=PropertiesPane_Density_EveryTargetAtLeast24 SettingsSelected=150% (Recommended) RenderScaling=1.5 PrimaryScaling=1.5
+PASS PropertiesPane_Density_EveryTargetAtLeast24
+COST PropertiesPane_Density_EveryTargetAtLeast24 2900.7

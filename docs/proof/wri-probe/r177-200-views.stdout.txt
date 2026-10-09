@@ -1,0 +1,14 @@
+P6_SCALE_CONTEXT check=ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack SettingsSelected=200% RenderScaling=2.0 PrimaryScaling=2.0
+P6_P3_AFTER_DOUBLE_CLICK Layout=ViewLayout { Arrangement = One, Single = ThreeD } PlanVisible=False ThreeDVisible=True ThreeDWidth=1132 PlanContentWidth=1134 WindowBounds=0, 0, 1400, 1000 ClientSize=1400, 1000
+P6_P3_AFTER_RETURN Layout=ViewLayout { Arrangement = Four, Single = Plan } PlanVisible=True ThreeDVisible=True ThreeDWidth=563 PlanContentWidth=1134 WindowBounds=0, 0, 1400, 1000 ClientSize=1400, 1000
+PASS ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack
+COST ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack 4856.7
+P6_SCALE_CONTEXT check=ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView SettingsSelected=200% RenderScaling=2.0 PrimaryScaling=2.0
+PASS ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView
+COST ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView 2536.3
+P6_SCALE_CONTEXT check=Elevation_SideSelectedStation_RenderedFullWeight SettingsSelected=200% RenderScaling=2.0 PrimaryScaling=2.0
+PASS Elevation_SideSelectedStation_RenderedFullWeight
+COST Elevation_SideSelectedStation_RenderedFullWeight 2019.1
+P6_SCALE_CONTEXT check=View3d_SelectedStation_RenderedWidthAndChip SettingsSelected=200% RenderScaling=2.0 PrimaryScaling=2.0
+PASS View3d_SelectedStation_RenderedWidthAndChip
+COST View3d_SelectedStation_RenderedWidthAndChip 2012.4

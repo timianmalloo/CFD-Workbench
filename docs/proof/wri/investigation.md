@@ -10,10 +10,9 @@ links:
   - { to: review-pr-18, rel: relates-to }
 review-by: "2026-11-09"
 summary: >-
-  Seven of the eight class-(a) failures share one cause: Avalonia layout rounding at a 150 % display scale (arithmetic
-  fits 1.5 exactly; the scale itself is not recorded and needs the probe). The 23.3 px inputs are a real product miss of
-  0.67 DIP (35 px where 36 are needed): the TextBox is content-sized and the 3 DIP padding rounds down at the .5 midpoint.
-  KeyBindings is a contradiction between a Mac-only test and a deliberate Windows binding.
+  The pre-WDF Windows analysis identified a 23.3 DIP target-size result at 150%; WDF subsequently added a minimum height.
+  Ruling 177, run after WDF, reports checks 1, 7, and 8 passing at 150%, check 2 unexpectedly failing, and check 6 held
+  pending the P4 explanation. Its eight checks all passed at 200%. KeyBindings remains a Mac-only test contradiction.
 ---
 
 # WRI: the eight Windows-only failures
@@ -25,16 +24,21 @@ read from `raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/...`.
 
 ## 0. What the evidence does and does not say about the display
 
-- No log, receipt or measurement file records the OS display scale, DPI or Windows text scale (searched all non-log files under
-  `docs/proof/ring-windows`; the only hits are the app's own `display.json` "textSize" fixtures and a `layout.json` screen of 2560 x 1440
-  at x=1512, which are test fixtures, not the host). **The first probe is the scale.**
+- Historical ring logs do not record the host display scale. Ruling 177 provides direct host evidence: Settings selected
+  `150% (Recommended)` and the test process reported `RenderScaling=1.5 PrimaryScaling=1.5` before each 150% check; at 200%,
+  Settings and both in-process values were 200% and 2.0. The fresh post-restoration process again reported 1.5/1.5.
 - The tests run a real window on the real platform (`Program.cs:19` `UsePlatformDetect`; `AreaFixture` makes `new Window{...}.Show()`,
   `ControllerViewTests.cs:1261`), so `RenderScaling` is the PC's OS scale. There is no headless pin to 1.0.
 - The numbers fix the scale arithmetically. Every fractional value is a multiple of 2/3 DIP (1.3333, 23.3333, 319.3333, 59.3333, 19.3333),
   i.e. whole device pixels at scale 1.5 (35 px / 1.5 = 23.33; 479 / 1.5 = 319.33). Scale 1.25 gives steps of 0.8, 1.75 gives 0.571;
-  neither fits. 3.0 also fits mathematically but is implausible. **Inferred: 150 % (RenderScaling 1.5).** The probe confirms.
+  neither fits. 3.0 also fits mathematically but is implausible. **Verified: 150% (RenderScaling and PrimaryScaling 1.5)** by
+  the Ruling 177 test-process captures in `docs/proof/wri-probe/` at tested HEAD
+  `4383089735b27586efed93657606fce37317fc07`.
+- The arithmetic and target-size conclusion below describe the pre-WDF capture. After WDF, Ruling 177's item 8
+  `PropertiesPane_Density_EveryTargetAtLeast24` passed at both 150% and 200%; the current evidence does not show a failing
+  target-size check. The unexpected item 2 failure remains unresolved, and item 6 remains held pending the P4 explanation.
 
-### The mechanism, from Avalonia source (Verified in source, applied by Inferred scale)
+### The mechanism, from Avalonia source (Verified in source, applied at verified 150% scale)
 
 - `LayoutHelper.RoundLayoutValue(v, s) = Math.Round(v * s) / s` (`LayoutHelper.cs:248-254`); `Layoutable.UseLayoutRounding` defaults to true and inherits
   (`Layoutable.cs:133-134`).
@@ -60,17 +64,17 @@ read from `raw.githubusercontent.com/AvaloniaUI/Avalonia/11.3.14/...`.
 
 ## 2. Grouping by mechanism
 
-**Group A, layout rounding at 1.5 (items 2, 6, 7, 8; item 4 and 5 probable).**
+**Historical pre-WDF Group A hypothesis, layout rounding at 1.5 (items 2, 6, 7, 8; item 4 and 5 probable).**
 
 - Item 2 (Verified arithmetic). Product math: `(648 - 4) / 2 - 2 * FrameThickness = 320` (`ModelArea.axaml.cs:266-268`, `FrameThickness = 1`, line 24). At 1.5 the 1 DIP frame
   renders as 1.333 DIP, so the inside is 322 - 2.667 = **319.333**. That is exactly the logged value; the height gives 242 - 2.667 = 239.333, also exact.
 - Item 7 (Verified arithmetic). The ring is offset by the 1 DIP hairline inset and rounds to 1.333; the box is 2 DIP band (3 px, exact) around a 19.333 DIP body (29 px).
   The observed offset is 0.667 (one device pixel), against the test's exact 1 DIP.
-- Item 8 (Verified arithmetic, root of the target miss). `TextBox.prop-b` has `MinHeight 0`, no `Height`, `LineHeight 14`, `Padding 3,3` (vertical), `BorderThickness 2`
+- Item 8 (Verified pre-WDF arithmetic, historical target-size miss). Before WDF, `TextBox.prop-b` had `MinHeight 0`, no `Height`, `LineHeight 14`, `Padding 3,3` (vertical), `BorderThickness 2`
   (`Styles.axaml:399, 205-206`). Its height is content-sized: 2 + 3 + 14 + 3 + 2 = 24 DIP nominal (comment at `Styles.axaml:206` says exactly that). At 1.5 the border
   2 DIP = 3 px (x2 = 6 px), the padding 3 DIP = 4.5 px -> `Math.Round` half-to-even -> **4 px** (x2 = 8 px), the line 14 DIP = 21 px. Total **35 px = 23.333 DIP**. 36 px is needed for 24 DIP.
-  All nine reported controls are `TextBox.prop-b`; ComboBox and ToggleButton rows carry `MinHeight`/`Height = PropRowInputHeight` (24) and are not on the list (`Styles.axaml:403, 418`).
-- Item 6 (Inferred, same family). Input: border band 2 DIP (3 px) + padding 3 DIP (4 px) = 7 px = 4.667 DIP; fact inset `0,0,5,0` = 7.5 px -> 8 px = 5.333 DIP
+  All nine controls reported in the pre-WDF capture were `TextBox.prop-b`; ComboBox and ToggleButton rows carried `MinHeight`/`Height = PropRowInputHeight` (24) and were not on the list (`Styles.axaml:403, 418`). WDF added the minimum-height floor; Ruling 177 item 8 passes at both scales.
+- Item 6 (Historical inference, held under Ruling 177 pending the P4 explanation). Input: border band 2 DIP (3 px) + padding 3 DIP (4 px) = 7 px = 4.667 DIP; fact inset `0,0,5,0` = 7.5 px -> 8 px = 5.333 DIP
   (`Styles.axaml:197`). Predicted skew 0.667; observed 1.0. The same rounding family explains the sign and rough size, not the exact 1.0 (text position rounding is
   not modelled). The check tolerance (0.5 DIP) is smaller than one device pixel at 1.5 (0.667), so it cannot hold at this scale whatever the product does.
 - Items 4 and 5 (Inferred). The chip border is a 1 DIP edge; at 1.5 it is 2 px = 1.333 DIP and the chip's left/top is a fractional DIP. The test samples at `+0.5`
@@ -99,19 +103,21 @@ explicitly. Font metrics are **not** needed for items 2, 7, 8, so not the first 
 | 4, 5 | Test (Inferred) | Sampling offset assumes an integer-DIP edge. |
 | 6 | Test | Tolerance below one device pixel. Product skew of one device pixel is not a defect. |
 | 7 | Test | Exact 1 DIP offset where layout can only place whole device pixels. |
-| 8 | **Product (real miss, small)** | See below. |
+| 8 | Historical pre-WDF product miss; current R177 check passes | See below. |
 
-**Is the 23.3 px target real?** Verified by arithmetic and source: yes, in DIPs. `Bounds.Height` is a layout result already in DIPs, produced after rounding. The control occupies 35 physical pixels
+**Historical pre-WDF 23.3 px result.** Verified by arithmetic and source for the earlier capture: `Bounds.Height` is a layout result already in DIPs, produced after rounding. That capture showed the control occupying 35 physical pixels
 where a 24 DIP target at 150 % is 36 pixels. It is not an artefact of measuring physical pixels at a fractional scale. Whether the user's mouse can hit 35 versus 36 px is the same
 fractional inconvenience; but the design floor (DR-DEN-1, SC 2.5.8 24 CSS px) is stated in DIPs and the pane misses it by 0.67 DIP. Note the test already allows 0.5 DIP (`< 23.5`), so it was written with a
-known rounding wobble in mind and still fails. The remaining uncertainty is only the scale: if the PC reports something other than 1.5, redo the arithmetic with the probe values.
+known rounding wobble in mind. WDF added a minimum-height floor, and Ruling 177 item 8 passes at both tested scales. The earlier
+capture therefore does not establish a current target-size failure. Ruling 177 measured 1.5/1.5. Its unexpected 150% failure of
+item 2 remains unclassified and is recorded without diagnosis. Item 6 remains held pending the P4 explanation.
 SC 2.5.8 has a spacing exception, so conformance may hold even at 23.33 where neighbours are far enough apart; rows are 24 DIP pitch, so the exception does not clearly apply (Inferred, not assessed here).
 
-## 4. Repair plan
+## 4. Historical pre-WDF repair plan (superseded by WDF and Ruling 177 evidence)
 
 | Group | Fix | Red-first control | Ring |
 |---|---|---|---|
-| A-product (item 8) | In `Styles.axaml`, give `TextBox.prop-b` `MinHeight = PropRowInputHeight` (scaled by `ApplyTextScale`, `PropertiesPane.axaml.cs:215-222`), so the 24 DIP target is a floor rather than a sum of three rounding terms. The `PART_BorderElement` band (2) and the 20 DIP box stay. Blast radius: row heights at scale 1 and 2 unchanged (already 24). Rollback: one style line. Alternative: make padding 3.5/2.5 sized for 1.5, rejected (fits one scale only). | `EveryTargetAtLeast24` already fails on Windows. Add a Core-free pure check: under `RenderScaling` forced to 1.5 on Mac (set `Window` scaling via a test hook if Avalonia exposes one; otherwise assert the style's `MinHeight` equals the token), failing on current code. If no hook exists, the control is the PC run. | Desktop ring (fast). Cost: one check, under 1 s. |
+| A-product (item 8) | WDF delivered `MinHeight = PropRowInputHeight` (scaled by `ApplyTextScale`, `PropertiesPane.axaml.cs:215-222`). Ruling 177 item 8 passes at 150% and 200%; this pre-WDF proposal is complete and is not an active repair recommendation. | Historical pre-WDF control proposal; no new test requested here. | Completed by WDF. |
 | A-test (items 2, 6, 7) | Compare in device pixels: tolerance `max(old, 1 / RenderScaling)` for 6 and 7; for 2 compare against `320 - 2 * (round(FrameThickness * s) / s - FrameThickness)` or assert on the physical size. A helper `DevicePixel(window)` in the harness, used by all three. | Red: the three checks fail on the PC at 1.5 today (logs). Green: after the helper. On Mac the helper returns the old tolerance, so Mac stays unchanged. | Desktop ring on the PC only (no Mac red is possible without a scale hook). |
 | A-test (items 4, 5) | Sample in a device-resolution capture and take the nearest of the two seam pixels. | Needs P5 pixels first. | Desktop ring, PC. |
 | B (item 1) | Branch the check on `OperatingSystem.IsMacOS()`: on Mac keep NotBound, elsewhere assert every exported gesture **is** bound once. | Red: current check fails on Windows (log `:604`), passes on Mac. Green after branch. | Desktop ring. |
@@ -125,7 +131,7 @@ harness gets a forced-scale case (or the grep gate above).
 
 No `simplify:` or `assume:` marker in `PropertiesPane.axaml.cs`, `ModelArea.axaml.cs`, `Styles.axaml` is past its ceiling (three markers found, all about trace and toast slots; none relate to scaling).
 
-## 5. PC probe request (a script under 15 minutes)
+## 5. Historical PC probe request (completed by P1–P6 captures)
 
 ```text
 PC BRIEF: WRI scale probe. Worktree on win/r166-ring-baseline, no code change committed except the probe output.
@@ -151,6 +157,6 @@ Return: the P1-P6 text in docs/proof/wri-probe/ on the PC branch. Time box 15 mi
 
 ## Return summary (for the leader)
 
-- Likely cause: Avalonia layout rounding at a 150 % scale (Inferred from the arithmetic, confirmed by P1/P2/P6).
-- The 24 px target miss is a **real product defect of 0.67 DIP**: Verified by arithmetic and Avalonia source against the committed logs; the scale itself is Inferred until P1/P2 run.
-- Repairs: product `MinHeight` on `TextBox.prop-b` (1 line); test tolerance in device pixels (items 2, 6, 7); OS branch for KeyBindings; items 3, 4, 5 await the probe.
+- The pre-WDF arithmetic explained a 23.3 DIP target-size result; WDF added the `MinHeight` floor, and Ruling 177 item 8 passes at 150% and 200%.
+- Ruling 177 measured 1.5/1.5 and 2.0/2.0 in-process. Checks 1, 7, and 8 pass at 150%; check 2's 150% failure is unexpected and unresolved.
+- Check 6 remains held pending the P4 explanation. Checks 3–6 fail at 150% and pass at 200%; item 3 still needs clause-level diagnosis, and items 4–5 need pixel evidence.
