@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T20:19:02Z",
+  "generated": "2026-10-09T20:24:47Z",
   "audit": [
     {
       "actor": null,
@@ -33395,6 +33395,55 @@ window.AUDIT_DATA = {
       "skill": "execute-with-coordination",
       "started_at": "2026-10-09T19:30:41Z",
       "summary": "Joined CCL: run-tests.sh samples ring-lock peers; C-2..C-5 over-cap with a peer prints COST-ADVISORY naming it; quiet host still fails recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T20:16:34Z",
+      "done_when": "docs/proof/pce/investigation.md committed, check-docs exit 0",
+      "duration_seconds": 750.0,
+      "goal": "Verified root cause, class, sweep and repair plan for PlanCanvas_Escape_DismissTooltipThenClearSelection",
+      "id": "al-01M4H4YWA6KHQHZSJ6AR8A8807",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-pce: investigate flaky PlanCanvas_Escape check",
+      "session": "trk-pce",
+      "shortname": "pce-escape-flake",
+      "skill": "implement",
+      "started_at": "2026-10-09T20:04:04Z",
+      "summary": "Mechanism verified with a held mesh seam: a refresh re-derives the tooltip from lastHover after Escape; natural repro 0/106; repair is product-side with a held-seam red-first check",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/pce/investigation.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-09T20:17:35Z",
+      "done_when": "join gates green, PUSH-OK",
+      "duration_seconds": 16.0,
+      "fan_out": 0,
+      "goal": "the flake's root cause is on main for review",
+      "id": "al-01M4H50R7RA6M0W8NW9RPTBR89",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of inv/pce-escape-flake into main",
+      "session": "3122f106",
+      "shortname": "join-pce",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T20:17:19Z",
+      "summary": "Joined PCE investigation: Escape clears TooltipText but a refresh re-derives it from lastHover; held-seam repro; product repair proposed recount_seconds=0 (docs_only=True).",
       "tags": [],
       "tier": "T1",
       "tool": null
