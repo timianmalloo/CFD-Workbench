@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T18:37:22Z",
+  "generated": "2026-10-09T18:39:00Z",
   "audit": [
     {
       "actor": null,
@@ -33160,6 +33160,35 @@ window.AUDIT_DATA = {
       "done_when": "red-first check, Mac run receipt, run-tests green, check-docs 0",
       "started_at": "2026-10-09T18:32:33Z",
       "duration_seconds": 289.0
+    },
+    {
+      "id": "al-01M4GZC7V20QYMTGHYEY0E01Y4",
+      "shortname": "join-sdg",
+      "datetime": "2026-10-09T18:39:00Z",
+      "session": "3122f106",
+      "prompt": "the join of feat/sdg-scale-diagnostic into main",
+      "summary": "Joined SDG: --scale-diagnostic prints one SCALE_CONTEXT line, runs no check, exits 0; outside the default ring recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/sdg/receipt.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "the PC runner can read the scale back without a product execution",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK, PC told",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T18:38:00Z",
+      "duration_seconds": 60.0
     }
   ],
   "changes": [
