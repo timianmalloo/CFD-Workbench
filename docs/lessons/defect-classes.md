@@ -2238,3 +2238,21 @@ On 2026-10-09 the VWR join (PR #19's verifier plus its wiring) added `verify-win
   leader treats a step-8 stop on a newly skipped gate as that case, not as a defect.
 - *Prevent:* the pack file is pack-managed (not edited here). The control is this entry plus the continuation prompt's
   join steps. Status: pending a pack-side reload, noted for `/updatepack`.
+
+**POST-JOIN-EDIT-UNGATED · A commit made after a join completes skips the join's gates, and readiness does not run them.**
+On 2026-10-09 the Mac leader met PR #20's two join conditions with a commit made **after** `conductor-join.py` had
+finished. One edit went into `docs/proof/wri-probe/receipt.md`, which the PC's `capture-manifest.json` pins byte for
+byte. `tools/run-readiness.py` was GREEN, because readiness does not run check-docs or the capture check, so main was
+pushed at 87436728 with `check-capture-manifests.py` failing (8342 bytes declared, 8718 committed). The leader caught it
+on a re-check, restored the pinned bytes, and moved the note to `mac-join-note.md`.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* any change committed between a completed join and the push, outside a `--continue`.
+- *Sweep:* the earlier post-join edits this session (the PR #12 receipt line, the PR #17 index refresh) went through a
+  `--continue`, or touched no pinned file.
+- *Derive:* a join condition is applied before the join completes: fix on top of the merge, then `--continue`, never
+  as a later commit. A file listed in any capture or closing manifest is never edited; an annotation goes in a sibling
+  file.
+- *Prevent:* the leader runs `python3 tools/check-docs.py` before every push that follows a non-join commit (session
+  rule). Status: pending a mechanical control. Proposal: readiness gains a `check-docs` step, or the pre-push hook runs
+  it.
