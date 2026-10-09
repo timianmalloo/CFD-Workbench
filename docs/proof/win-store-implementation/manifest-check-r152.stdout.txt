@@ -1,0 +1,4 @@
+EXPECTED WindowsNative_Replace_HeldReaderKeepsOldImage (Ruling 145, historical-probe, until W-2 B2 lands)
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 0
+MANIFEST_CAPTURE_EXIT=0

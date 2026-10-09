@@ -1,0 +1,30 @@
+SELFTEST PASS selector includes Ruling 152 historical probe
+SELFTEST PASS valid classified Ruling 145 result accepted
+SELFTEST PASS missing required pass rejected
+SELFTEST PASS missing historical failure rejected
+SELFTEST PASS extra pass rejected
+SELFTEST PASS wrong RESULT rejected
+SELFTEST PASS missing RESULT rejected
+SELFTEST PASS duplicate RESULT rejected
+SELFTEST PASS wrong selector rejected
+SELFTEST PASS wrong selected count rejected
+SELFTEST PASS wrong failure name rejected
+SELFTEST PASS unexpected failure rejected
+SELFTEST PASS stale manifest pass rejected
+SELFTEST PASS classifier failure rejected
+SELFTEST PASS wrong subject exit rejected
+SELFTEST PASS affinity mask limited to six
+SELFTEST PASS empty affinity refused
+SELFTEST PASS child timeout leaves kill reserve
+SELFTEST PASS nonliteral inventory registration rejected
+SELFTEST PASS duplicate inventory registration rejected
+SELFTEST PASS missing inventory registration rejected
+SELFTEST PASS unscoped inventory addition rejected
+SELFTEST PASS timeout tree cleanup bounded and fail closed
+SELFTEST PASS off-Windows execution is NOT ASSESSED
+SELFTEST PASS Windows subject failure exits 1
+SELFTEST PASS no-argument mode is default
+SELFTEST PASS self-test is explicit
+SELFTEST PASS other arguments are rejected
+SELFTEST PASS registered Windows test inventory exact (13 checks)
+FINAL_SELFTEST_EXIT=0
