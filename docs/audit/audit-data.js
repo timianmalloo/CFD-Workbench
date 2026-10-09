@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T20:23:19Z",
+  "generated": "2026-10-09T21:12:16Z",
   "audit": [
     {
       "actor": null,
@@ -33476,6 +33476,55 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T20:22:17Z",
       "duration_seconds": 62.0
+    },
+    {
+      "id": "al-01M4H7Z8A6V21CKWS01SV3VZH5",
+      "shortname": "pef-escape-dismissal",
+      "datetime": "2026-10-09T21:09:12Z",
+      "session": "trk-pef",
+      "prompt": "trk-pef",
+      "summary": "Held-seam check red then green; tooltipDismissed in PlanCanvas; TRANSIENT-STATE-REDERIVED registered; run-tests 0 failures",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Escape tooltip dismissal survives a refresh (Ruling 188)",
+      "done_when": "red check, fix, green, full ring, register entry",
+      "started_at": "2026-10-09T21:04:12Z",
+      "duration_seconds": 300.0
+    },
+    {
+      "id": "al-01M4H84WBH70KD30TV8KRV4EYE",
+      "shortname": "join-pef",
+      "datetime": "2026-10-09T21:12:16Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/pef-escape-dismissal into main",
+      "summary": "Joined PEF: PlanCanvas records the Escape dismissal until a genuine pointer move; refresh path ReadHover keeps it null; probe unchanged; red-first held-seam check recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/pef/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "the plan-view tooltip stays dismissed across refreshes",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T21:11:13Z",
+      "duration_seconds": 63.0
     }
   ],
   "changes": [
@@ -36156,6 +36205,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4H56YATETJ0PK8KWN8YV7C4",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4H7NKQ81K77XR34YMZZJRZX",
+      "ts": "2026-10-09T21:03:56Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4H7NKM9WPNDEXK36E5AVHDD",
+      "session": "operator-timianmalloo"
     }
   ]
 };
