@@ -19,6 +19,7 @@ Self-test: `tools/check-test-costs.py --self-test` (ring: every join; cost: unde
 - Real run: `check-capture-manifests: 1 manifest(s) match their committed blobs` (the PC's 16 entries).
 - Measured cost (wall, one run, this Mac): self-test 0.67 s, real run 0.31 s. Ring: fast (check-docs, every push and join).
 - The PC's `docs/proof/r163-windows-ring/verify-captures.py` is untouched.
+- Leader addition (closing manifests): the guard also reads `docs/proof/*/closing-manifest.json`. Schema read from `docs/proof/win-naca/closing-manifest.json`: same `{source_base_sha, scope, files:[{path, bytes, sha256}]}` as the capture form, but entries are not confined to the folder (it lists `cases/*.yaml`), so the folder rule applies to the capture form only; `..` and absolute paths fail in both. Five more self-test cases (one clean closing fixture with a `cases/` entry, byte count off by one, wrong SHA-256, `..` path, and a capture manifest still refusing a foreign path): `SELFTEST 14/14 cases`. Real run now `2 manifest(s) match their committed blobs` (16 + 119 entries). Re-measured cost: real run 1.1 s wall, self-test about 1.3 s.
 
 ## Item 3 - handle-target.tsv:7 re-recorded (Ruling 167)
 

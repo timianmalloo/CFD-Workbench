@@ -89,7 +89,7 @@ def run_lesson_controls():
         ("check-text-mode-hash.py", ()),
         ("check-proof-pii.py", ("--self-test",)),
         ("check-proof-pii.py", ()),
-        ("check-capture-manifests.py", ("--self-test",)),  # CAPTURE-MANIFEST (Ruling 167); fast ring, ~0.7 s + ~0.3 s
+        ("check-capture-manifests.py", ("--self-test",)),  # CAPTURE-MANIFEST (Ruling 167); fast ring, ~1.3 s + ~1.1 s
         ("check-capture-manifests.py", ()),
         ("check-reader-sharing.py", ("--self-test",)),
         ("check-reader-sharing.py", ()),

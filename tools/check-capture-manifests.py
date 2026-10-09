@@ -2,8 +2,8 @@
 """CAPTURE-MANIFEST guard (Ruling 167, the class control for Ruling 163 C3): a proof folder's capture-manifest.json must
 describe the bytes that are committed.
 
-For every docs/proof/<dir>/capture-manifest.json in HEAD, each entry of "files" ({path, bytes, sha256}) must name a path
-inside that same folder, and the committed blob (`git show HEAD:<path>`, never the working tree) must have exactly that byte
+For every docs/proof/<dir>/capture-manifest.json and closing-manifest.json in HEAD (same {files:[{path,bytes,sha256}]} schema), each entry of "files" ({path, bytes, sha256}) must (capture form) name a path
+inside that same folder (closing form: any repository path, no ".."), and the committed blob (`git show HEAD:<path>`, never the working tree) must have exactly that byte
 count and SHA-256. A missing blob, an unreadable manifest or an entry outside the folder fails.
 
   python3 tools/check-capture-manifests.py [--root DIR]
@@ -32,7 +32,7 @@ for _stream in (sys.stdout, sys.stderr):
             pass
 
 ROOT = Path(__file__).resolve().parents[1]
-MANIFEST = re.compile(r"docs/proof/[^/]+/capture-manifest\.json")
+MANIFEST = re.compile(r"docs/proof/[^/]+/(?:capture|closing)-manifest\.json")
 
 
 def git_bytes(root: Path, *args: str) -> bytes | None:
@@ -53,8 +53,10 @@ def check_manifest(root: Path, manifest_path: str) -> list[str]:
     folder = manifest_path.rsplit("/", 1)[0] + "/"
     problems = []
     for path, declared_bytes, declared_sha in records:
-        if not path.startswith(folder) or ".." in PurePosixPath(path).parts:
-            problems.append(f"{manifest_path}: {path} is outside {folder}")
+        # A capture manifest is confined to its folder; a closing manifest binds files elsewhere too (win-naca lists cases/*.yaml).
+        confined = manifest_path.endswith("/capture-manifest.json")
+        if (confined and not path.startswith(folder)) or ".." in PurePosixPath(path).parts or path.startswith("/"):
+            problems.append(f"{manifest_path}: {path} is outside {folder if confined else 'the repository'}")
             continue
         blob = git_bytes(root, "show", f"HEAD:{path}")
         if blob is None:
@@ -82,7 +84,10 @@ def self_test() -> int:
     def entry(**change: object) -> dict:
         return {"path": "docs/proof/r1/a.log", "bytes": len(payload), "sha256": good_sha, **change}
 
-    # label, entries, working-tree edit after the commit, expected problem fragment (None: clean)
+    def other(**change: object) -> dict:
+        return {"path": "cases/x.yaml", "bytes": len(payload), "sha256": good_sha, **change}
+
+    # label, entries, working-tree edit after the commit, expected problem fragment (None: clean), manifest file name
     cases = [
         ("a matching manifest is clean", [entry()], False, None),
         ("byte count off by one fails", [entry(bytes=len(payload) + 1)], False, "bytes declared"),
@@ -93,15 +98,23 @@ def self_test() -> int:
         ("an uncommitted capture fails", [entry(path="docs/proof/r1/missing.log")], False, "not committed"),
         ("the committed blob is judged, not the working tree", [entry()], True, None),
         ("a manifest without files fails by name", None, False, "unreadable manifest"),
+        ("closing manifest: a file outside its folder (cases/) is clean", [entry(), other()], False, None, "closing-manifest.json"),
+        ("closing manifest: byte count off by one fails", [entry(), other(bytes=len(payload) + 1)], False, "bytes declared", "closing-manifest.json"),
+        ("closing manifest: wrong SHA-256 fails", [entry(sha256="0" * 64)], False, "SHA-256 differs", "closing-manifest.json"),
+        ("closing manifest: a .. path fails", [entry(path="cases/../a.log")], False, "outside the repository", "closing-manifest.json"),
+        ("capture manifest: a file outside its folder still fails", [other()], False, "outside", "capture-manifest.json"),
     ]
     failures = 0
-    for label, entries, dirty, fragment in cases:
+    for label, entries, dirty, fragment, *name in cases:
+        manifest_name = name[0] if name else "capture-manifest.json"
         with tempfile.TemporaryDirectory() as scratch:
             repo = Path(scratch)
             (repo / "docs/proof/r1").mkdir(parents=True)
             (repo / "docs/proof/r1/a.log").write_bytes(payload)
+            (repo / "cases").mkdir()
+            (repo / "cases/x.yaml").write_bytes(payload)
             document = {"files": entries} if entries is not None else {"nope": []}
-            (repo / "docs/proof/r1/capture-manifest.json").write_text(json.dumps(document), encoding="utf-8")
+            (repo / "docs/proof/r1" / manifest_name).write_text(json.dumps(document), encoding="utf-8")
             for command in (["init", "-q"], ["add", "-A"], ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "x"]):
                 subprocess.run(["git", *command], cwd=repo, check=True, capture_output=True)
             if dirty:
