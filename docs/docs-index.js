@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "419f0d39739f4a4fa637c8b6389b7c9ecb7463aa07786789865b3ad9712a8a02"
+      "sourceSha256": "9a6ca8c3c041be6fa8de95b8015b32e66523e7215acf8d20a3d39917fe280ee8"
     },
     {
       "id": "domain-experts",
@@ -15429,6 +15429,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
+      "id": "proof-wdf-red-first",
+      "path": "docs/proof/wdf/red-first.md",
+      "title": "WDF: red-first record for the Windows fractional-scale fixes",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-wdf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Item 8 (TextBox MinHeight) and item 1 (menu-gesture check) are red then green on the Mac. Items 2 and 7 change a tolerance and cannot be red on the Mac (no forced render scale); the PC ring is their proof. Item 6 is held for the scale probe.",
+      "tags": [
+        "windows",
+        "dpi",
+        "layout-rounding",
+        "target-size",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-investigation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "124dff182a26328d2014b1c46bf9b8d34146be74b09bc498c84e9a4f3e40f412"
+    },
+    {
       "id": "proof-wfx-pc-reverify",
       "path": "docs/proof/wfx/pc-reverify.md",
       "title": "WFX - the Windows walk the PC re-runs",
@@ -17967,5 +17994,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "adc3516fb2601722d49f1d830158e9aea9ad156f958cb7d2c48e1194e4d4e0c3"
+  "graphSha256": "1920cb247759a800ec11a23a718622bf7c3b4190b64365d6b94a95379b557dea"
 };
