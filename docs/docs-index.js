@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d9444ca7a2a8d781fea7b2c519fbf3659bd75866e9caafa0f10c6174765edd04"
+      "sourceSha256": "8447b86c07ef969b7a00e0b9725a705653559d644b24ed65b38b9d938c21f240"
     },
     {
       "id": "domain-experts",
@@ -12729,6 +12729,56 @@ window.DOCS_INDEX = {
       "sourceSha256": "9cbbe5c0a750558d520e47c982e1b944d873a49d45152427f3e41ccfeada4a93"
     },
     {
+      "id": "proof-ecr-red-first",
+      "path": "docs/proof/ecr/red-first.md",
+      "title": "Track ECR red-first record (DPI-A item 4)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-ecr",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Pure check Elevation_ChipBorderSampler_HoldsHalfOfASplitLine: red with the old exact threshold, green with the half-line test.",
+      "tags": [
+        "dpi-a",
+        "ecr",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-ecr-spike",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ba27c69885773b87aee093010673771bd8fc3acc22e537d979133a30341923bf"
+    },
+    {
+      "id": "proof-ecr-spike",
+      "path": "docs/proof/ecr/spike.md",
+      "title": "Track ECR spike - Elevation overlay absent from device-resolution captures (DPI-A item 4)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-ecr",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Verdict: capture defect, Inferred. At scale 1.5 and 2 a RenderTargetBitmap drops what the Overlay child visual draws, with or without opacity and clip; the repair is a 96-dpi sampler that accepts a split line.",
+      "tags": [
+        "dpi-a",
+        "ecr",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-dpr-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "39095d69266414d591848792e3340c0aae9cc1f937aff3a7f77217e6c1733b6c"
+    },
+    {
       "id": "proof-ezf-red-first",
       "path": "docs/proof/ezf/red-first.md",
       "title": "EZF red-first record - Fixture.Reset drain and the folded settled-surface assertion",
@@ -15785,6 +15835,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "b51e4778efb9757d2bc6fa930ece2bab3f46b2690c9bbe68b75a42280e7c0ab4"
     },
     {
+      "id": "proof-v3d-red-first",
+      "path": "docs/proof/v3d/red-first.md",
+      "title": "Track V3D red-first record (DPI-A item 5)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-v3d",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Item 5 repaired: the View3d chip top border is sampled from a device-resolution shot with DevicePixel.NearestAtDevice.",
+      "tags": [
+        "dpi-a",
+        "v3d",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-dpr-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "115a7236c89a9c9f3e191189307da771c630bc110d8b4f8ad217354fcfc53abe"
+    },
+    {
       "id": "proof-visible-presentation",
       "path": "docs/proof/visible-presentation.md",
       "title": "Visible presentation feasibility proof packet",
@@ -18583,5 +18658,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "1df2d4232caabb2d15a900ead528b1dfd52753a5bbc6e806ff612207f8fc63bf"
+  "graphSha256": "9874b9bad370b0985ccd54cbc17a60e95792d26ea8f038a36881aab5c4847688"
 };
