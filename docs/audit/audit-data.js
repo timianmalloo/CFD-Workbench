@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T01:13:26Z",
+  "generated": "2026-10-09T01:38:03Z",
   "audit": [
     {
       "actor": null,
@@ -31500,6 +31500,71 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T01:12:30Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M4F4K4T11WDSZS6ASSHJKC10",
+      "shortname": "investigate-ezf-zoompanfit",
+      "datetime": "2026-10-09T01:31:40Z",
+      "session": "trk-ezf",
+      "prompt": "trk-ezf: investigate flaky Elevation_ZoomPanFit",
+      "summary": "Stale fit baseline: Fixture.Reset fits before the previous check's accepted mesh lands; verified by planted delay (fails 40-200 ms) and a Reset drain (passes). Repair is test-side.",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/ezf/investigation.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Verified root cause, class, sweep and repair plan for the flaky Elevation_ZoomPanFit check",
+      "done_when": "investigation.md with reproduction numbers, check-docs exit 0"
+    },
+    {
+      "id": "al-01M4F4WB2XWESB2SGR0N7XGAPB",
+      "shortname": "ezf-reset-drain",
+      "datetime": "2026-10-09T01:36:42Z",
+      "session": "trk-ezf",
+      "prompt": "trk-ezf: Ruling 172 lean repair",
+      "summary": "Reset pumps until no mesh pending; folded assertion; FIXTURE-RESET-WITHOUT-DRAIN registered; planted delay red at 60/150, green 0-800",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fixture.Reset drains the mesh; ZoomPanFit asserts settled surface",
+      "done_when": "red/green table, ring green, check-docs 0"
+    },
+    {
+      "id": "al-01M4F4YTRBR99ZMDDEQE1A6ZB1",
+      "shortname": "join-ezf",
+      "datetime": "2026-10-09T01:38:03Z",
+      "session": "3122f106",
+      "prompt": "the join of inv/ezf-zoompanfit into main",
+      "summary": "EZF joined: root cause a stale fit baseline (Reset fit before the previous check's mesh landed); Reset drains the mesh; ZoomPanFit asserts a settled surface; FIXTURE-RESET-WITHOUT-DRAIN class recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the flaky ZoomPanFit fix under Ruling 172",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T01:37:07Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
@@ -33906,6 +33971,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4F39J6YJ9G2AWKH4B6K80YW",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F4PJHS3D4R6AA5E5SDGKN2",
+      "ts": "2026-10-09T01:33:33Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F4PJEN0S04GHN6BZ4CPY63",
+      "session": "operator-timianmalloo"
     }
   ]
 };

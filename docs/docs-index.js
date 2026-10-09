@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "77fceead4e6cb55e482a88eac5e66b237623742a45fc9e67829e2c34b64aea20"
+      "sourceSha256": "419f0d39739f4a4fa637c8b6389b7c9ecb7463aa07786789865b3ad9712a8a02"
     },
     {
       "id": "domain-experts",
@@ -7850,7 +7850,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ed8ee7c089b8cb175a7568b024c46190152023015ab6da26bac726033aeb5c12"
+      "sourceSha256": "c1441f6d74c6ca9aeb8a0cef6bb47c845b002e894a107bcbe8d8a12ee5064976"
     },
     {
       "id": "kb-hw-glossary",
@@ -7936,6 +7936,34 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "bb7a76a43874f5de8954a1969d7552808a657ae73c7437f5141e1eec4952a448"
+    },
+    {
+      "id": "investigation-ezf-zoompanfit",
+      "path": "docs/proof/ezf/investigation.md",
+      "title": "Investigation EZF - the flaky Elevation_ZoomPanFit check is a stale fit baseline, not CPU starvation",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-ezf",
+      "phase": "investigation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Elevation_ZoomPanFit_KeyboardAndPointerSameCamera fails when the previous check leaves an accepted-revision mesh in flight and that mesh lands after Fixture.Reset has fitted the camera. The fit baseline came from the draft mesh, the later fit from the accepted mesh. Verified necessary and sufficient with a planted mesh delay. Repair is test-side: Reset drains the mesh first.",
+      "tags": [
+        "ezf",
+        "flake",
+        "desktop-tests",
+        "surface",
+        "camera",
+        "fixture"
+      ],
+      "links": [
+        {
+          "to": "proof-a3a-pack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b23951897c1b6626e32c6748ba5c819e61d81afc9336648012ec6b01fd0581b"
     },
     {
       "id": "investigation-review-window-attach",
@@ -12439,6 +12467,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "9cbbe5c0a750558d520e47c982e1b944d873a49d45152427f3e41ccfeada4a93"
+    },
+    {
+      "id": "proof-ezf-red-first",
+      "path": "docs/proof/ezf/red-first.md",
+      "title": "EZF red-first record - Fixture.Reset drain and the folded settled-surface assertion",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-ezf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Planted-delay record for Ruling 172. The camera compare fails on the old Reset at 60 and 150 ms; the folded assertion fails at 150 ms; with the Reset drain every delay from 0 to 800 ms passes.",
+      "tags": [
+        "ezf",
+        "red-first",
+        "desktop-tests"
+      ],
+      "links": [
+        {
+          "to": "investigation-ezf-zoompanfit",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b65e52933f8f5ddacfca1640816a445b12a016b2246af3aef3ccff783b374a47"
     },
     {
       "id": "proof-flk-investigation",
@@ -17854,5 +17907,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "72725de434310d1849613e08c99da10e11ece653031ef3fa0ab2f105e77093f3"
+  "graphSha256": "9fa147df5d70a640c523c5f12ac644113569d6512e9a834a5b5c93031a7a702f"
 };
