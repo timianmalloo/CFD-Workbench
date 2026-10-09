@@ -594,8 +594,8 @@ Status: prose rule in Ruling 183 and the route text; the mechanical form (the re
 timestamped before the review) is pending.
 *2026-10-09 (WIG join, GATE-BEFORE-ADD).* A third ordering shape: the gate ran before the freeze, but before `git add`.
 - Track WIG ran check-docs green, then committed a new `tools/check-wsl-inline.py`.
-- `check-proof-pii.py` reads tracked files only (`git ls-files`), so it never saw the new file. Its fixture
-  `/mnt/c/Users/x/…` reads as a real account name.
+- `check-proof-pii.py` reads tracked files only (`git ls-files`), so it never saw the new file. Its fixture, a WSL home path with a one-letter account,
+  reads as a real account name.
 - The leader's join (step 4) failed on it. The leader changed the fixture to `<name>` on top of the merge, and both gates
   then passed.
 
