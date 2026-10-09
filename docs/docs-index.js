@@ -13959,6 +13959,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "2e8260c229bf0471a5a7ab899f7baf53c3c8b57d426fb681ba86c50be826822d"
     },
     {
+      "id": "proof-ring-windows-calibration-attempt-1",
+      "path": "docs/proof/ring-windows/receipt.md",
+      "title": "Ruling 168 Windows baseline calibration attempt 1 (excluded)",
+      "type": "proof-pack",
+      "status": "incomplete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "One complete Windows ring on 1146ec8e ran with six-CPU affinity while L3 used six WSL ranks. It exceeded Ruling 168's 300 s ceiling and used the default host name, so it is preserved as evidence only and contributes no baseline row.",
+      "tags": [
+        "windows",
+        "ruling-168",
+        "ruling-166",
+        "ruling-156",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-r163-windows-ring",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "90e81da15f0b93fa70f8070c6d4c603c883b73099aac48119b038f0c64763cb5"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -17722,5 +17754,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "828453de6f82c03e4a89448ab80a200eabc8d27a7dd4a9157ae6481ad8d20020"
+  "graphSha256": "af4720ece7e51ddfbd09b63b373dfd359234ebbfd4ae0f95cab843dcc205c340"
 };
