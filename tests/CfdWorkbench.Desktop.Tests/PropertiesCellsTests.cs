@@ -765,6 +765,29 @@ public static class PropertiesCellsTests
             if (small.Count > 0) throw new InvalidOperationException("under 24 px: " + string.Join(", ", small.Distinct()));
         });
 
+        Pane("PropertiesPane_Density_EveryInputDeclaresMinHeightOf24", (controller, host, window) =>
+        {
+            // DPI-A: a content-sized input sums border, padding and line, each rounded to a device pixel, and lands under 24 DIP
+            // at a fractional scale (35 px = 23.33 DIP at 150 %). Declaring the 24 DIP floor keeps rounding from shaving it.
+            // No forced-scale hook exists on the Mac, so this asserts the declaration; the PC run proves the rendered height.
+            var anchor = MakeAnchor(controller);
+            var handle = controller.Planform!.Trailing.Points.First(point => point.AnchorId == anchor.Id);
+            var low = new List<string>();
+            int seen = 0;
+            foreach (var point in new[] { anchor, handle })
+            {
+                Select(controller, window, point);
+                foreach (var input in host.Properties.GetVisualDescendants().OfType<TemplatedControl>()
+                             .Where(item => item is TextBox or ComboBox && item.IsEffectivelyVisible && item.IsEffectivelyEnabled))
+                {
+                    seen++;
+                    if (input.MinHeight < 24) low.Add($"{input.Name ?? input.GetType().Name} MinHeight {input.MinHeight:0.#}");
+                }
+            }
+            if (seen == 0) throw new InvalidOperationException("no inputs found");
+            if (low.Count > 0) throw new InvalidOperationException("MinHeight under 24: " + string.Join(", ", low.Distinct()));
+        });
+
         Pane("PropertiesPane_Density_DefinitionsIsLinkDisclosure", (controller, host, window) =>
         {
             // DR-CELL-5 / PG-31: "Estimates · definitions" is a link (accent, solid underline) and a disclosure whose
