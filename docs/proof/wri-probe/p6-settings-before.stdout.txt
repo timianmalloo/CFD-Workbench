@@ -1,0 +1,11 @@
+utc=2026-10-09T02:22:32.0270418Z
+
+primary=\\.\DISPLAY1 bounds={X=0,Y=0,Width=2560,Height=1600}
+
+display1_selected=True display2_selected=False
+
+main_display_toggle=On main_display_enabled=False
+
+scale=150% (Recommended) AppliedDPI=144
+
+UIA=Settings > System > Display; ListItem Display1/Display2 SelectionItemPattern; MainMonitor CheckBox TogglePattern; Scale ComboBox ExpandCollapsePattern; scale ListItem SelectionItemPattern

@@ -1,0 +1,6 @@
+144
+\\.\DISPLAY1 Primary=True
+\\.\DISPLAY5 Primary=False
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+P6_RENDER_SCALE RenderScaling=1.5 PrimaryScaling=1.5

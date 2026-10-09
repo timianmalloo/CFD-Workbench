@@ -206,7 +206,187 @@ policy or compatible-reader overwrite until their corresponding tests pass.
 > and visible crash recovery. Do not broaden the PC lease.
 
 No repair budget, production admission or independent veto is implicitly reset by
-this commit. `WindowsProjectStore.cs`, `tools/verify-windows-store.py` and the second
-shared-test gate remain untouched/unimplemented. Darwin case bodies/PInvokes, helper,
+this commit. At the time of this native qualification checkpoint,
+`tools/verify-windows-store.py` and the second shared-test gate were
+untouched/unimplemented. The bounded successor verifier and its evidence are
+recorded below. Darwin case bodies/PInvokes, helper,
 MSBuild target, core/tests/tools/cases/audit/index/xmsg and shared UI are unchanged
 except the explicitly listed leased qualification files.
+
+## Successor verifier evidence — 2026-10-09
+
+`tools/verify-windows-store.py` is a bounded qualification runner, not production
+admission. Its no-argument contract is exit 0 only for the exact Windows subset,
+exit 1 for a Windows subject or verifier failure, and exit 4 with `NOT ASSESSED`
+off Windows. Explicit `--self-test` verifies the exact registration/selection,
+output parser failure cases, the off-Windows and Windows-failure exit distinction,
+argument rejection, six-CPU affinity selection and bounded timeout calculation.
+The external invocation below also demonstrates that a second argument is rejected
+with exit 1. ProjectStore remains fail-closed.
+
+The verifier parses every literal `Check` registration in
+`WindowsProjectStoreTests.cs` and requires exactly the 13 names in the source
+inventory. It rejects nonliteral registrations, duplicates, omissions, and any
+unexpected registration, including an unscoped name that does not start with a
+Windows prefix. The selector runs all 13 registrations. The 12 passing checks are:
+
+1. `WindowsNative_ProductCode_UnqualifiedWin32Error_IsUnmapped`
+2. `WindowsStore_Unqualified_ProductionAdmissionRemainsClosed`
+3. `WindowsNative_Environment_RealNtfsX64`
+4. `WindowsNative_Layouts_SdkX64`
+5. `WindowsNative_RelativeCreate_PrivateAclBeforeAnyBytes`
+6. `WindowsNative_Replace_ShareReadDeleteReaderKeepsOldImage`
+7. `WindowsNative_Replace_ShareReadOnlyReaderRefused`
+8. `WindowsNative_ClaimDispose_HeldObserverNamespaceRemoved`
+9. `WindowsNative_Rename_FreshWin32VersusNtFixtures`
+10. `WindowsNative_Rename_AttributionNullRootExAndRootedLegacy`
+11. `WindowsNative_CreateOnly_CollisionPreservesBothObjects`
+12. `WindowsNative_RelativeName_TraversalRefusedBeforeCreate`
+
+`WindowsNative_Replace_HeldReaderKeepsOldImage` also runs. Ruling 152 (2) keeps
+this unchanged historical probe in the qualification selector; the Windows
+expected-failure classifier recognizes only its Ruling 145 `historical-probe`
+failure. If it passes, the manifest checker reports `UNEXPECTED-PASS`; if any
+other selected check fails, it reports `UNEXPECTED`. Either result makes this
+verifier fail. The ShareRead|ShareDelete replacement and ShareRead-only refusal
+remain separate checks with separate assertions.
+
+### Correction to the first verifier commit
+
+Commit `a9b1fed3` incorrectly omitted the historical probe from the selector.
+The earlier reading treated Ruling 152's permitted ring classification as
+permission to omit the test. That was wrong: the ruling keeps the probe running
+and classifies its known failure. The 12-check logs `verify-windows-store*.txt`
+from that commit are preserved as evidence of the defect, but their exit-0 result
+is superseded and is not qualification evidence. A red self-test on this repair
+track failed specifically because the selector omitted the Ruling 152 probe;
+the new red capture is `verify-windows-store-r152-red.stdout.txt`.
+
+The committed captures also exposed a byte-normalization defect: the retained
+Windows worktree held 3,772 bytes for the initial stdout and 3,770 bytes for the
+first stdout, while their committed blobs held 3,726 and 3,724 bytes. The new
+`.gitattributes` rules disable text conversion for this proof directory's raw
+stdout/stderr captures. `capture-integrity.py` plus `capture-manifest.json`
+records every stdout/stderr capture in this proof directory with its byte count
+and SHA-256 and compares worktree
+bytes to the staged Git blob before delivery.
+
+### Final verifier run
+
+- Exact command: `py -3 tools\verify-windows-store.py`.
+- Repository HEAD at run: `a9b1fed37b3cc39eb2f53c45fe031f691e964542`.
+- Script SHA-256: `f257d9a2735f79fef1bd43cd695d326d5577cf9341c1ba4bb91e73fb0a5ad24e`.
+- The committed script's final SHA-256 is `07912eb24e15064ba426ac97e1130b523ac1147f29c3e486a11c54a899508b6b`. It differs from the measured-run hash only by added self-test assertions for duplicate and missing registration inventory; the no-argument execution path was not changed after the captured run. The measured runtime above remains the authoritative timing and is not presented as a fresh measurement of the final file hash.
+- SDK: pinned .NET `10.0.203`, resolved from the user-local SDK directory; the
+  verifier set `DOTNET_ROOT` and prepended that directory to child `PATH`.
+- OS: Windows 11 build `10.0.26300.0`, AMD64. Process affinity was restricted
+  from prior mask `0xfffff` to `0x3f`, six logical CPUs, before child launch.
+- Verifier UTC start/end: `2026-10-09T00:31:14.262892Z` /
+  `2026-10-09T00:31:29.572262Z`; total measured duration: `15.309395` seconds.
+- The Release test process used `-m:6`; its measured duration was `14.650950`
+  seconds. The verifier's target is 15 seconds; this run exceeded that target by
+  0.309395 seconds but remained below the 60-second hard ceiling. The run reports
+  `TARGET_MET=false` and exits 0 only because the test result was exactly the
+  Ruling 145 classified outcome.
+- All 12 other names above emitted PASS. The historical probe emitted one FAIL
+  with Win32 32. The harness reported `ran=13 skipped=694`,
+  `RESULT failures=1`, and process exit 1. The separate classifier returned 0
+  with exactly `EXPECTED-FAIL 1 (manifest)` and `UNEXPECTED 0`; verifier exit was
+  0. Full stdout/stderr are `verify-windows-store-r152.stdout.txt` and
+  `verify-windows-store-r152.stderr.txt`.
+- The previous 13.820326-second run was the incorrect 12-case selector and is
+  retained only as superseded evidence; it does not satisfy this qualification.
+- `verify-windows-store-r152-selftest.stdout.txt` records passing checks for
+  the 13-case selector/classifier contract, wrong or stale classifications,
+  all-literal inventory checks, timeout cleanup and exit behavior. Its separate
+  stderr is empty. The earlier parser red evidence also remains preserved.
+- `py -3 tools\verify-windows-store.py --unexpected` was rejected with exit 1;
+  the earlier captures remain `verify-windows-store-args.stdout.txt` and
+  `verify-windows-store-args.stderr.txt`.
+- `py -3 tools\check-expected-failures.py --self-test` passed all 10 synthetic
+  classifier cases and loaded the 32-entry Windows manifest. The previous
+  status-0 classification of the invalid 12-check capture remains in
+  `manifest-check.stdout.txt` but is superseded. The corrected captured run was
+  classified with `--status 1 --host windows`; it returned the single Ruling 145
+  expected failure and `UNEXPECTED 0`, exit 0. Outputs are in
+  `manifest-check-r152.stdout.txt` and `manifest-check-r152.stderr.txt`.
+- `py -3 -m py_compile tools\verify-windows-store.py docs\proof\win-store-implementation\capture-integrity.py`
+  passed (exit 0; `static-check.stdout.txt`). `py -3 tools\check-proof-pii.py`
+  passed with 0 Windows home paths or machine SIDs (`pii-check.stdout.txt`).
+  The staged `git diff --check` passed with the byte-exact stdout/stderr capture
+  paths excluded; those paths are validated separately by the byte/hash check.
+- `py -3 tools\check-docs.py` passed (exit 0; separate captures are
+  `check-docs.stdout.txt` and `check-docs.stderr.txt`). It ran with affinity
+  `0x3f` (six CPUs). Documentation freshness reported 131 review-suggested
+  findings and 0 stale findings; the configured warning threshold did not fail
+  the gate. The check completed with `Documentation checks passed.`
+- `py -3 docs\proof\win-store-implementation\capture-integrity.py --record`
+  records the byte count and SHA-256 of every stdout/stderr capture in this proof
+  directory. After staging, the no-argument `capture-integrity.py` check compares
+  every worktree file against its staged blob; the output is
+  `capture-integrity-check.txt`.
+
+Each invocation preserves stdout and stderr separately. Verifier output replaces
+home paths with `%USERPROFILE%` and redacts machine SIDs before emission; no
+account path or SID is committed. No product source/tests, readiness wiring or
+full test ring was changed or run.
+
+### Ruling 171 — bounded Windows pipe cleanup
+
+The Ruling 171 regression probe runs on Windows with a real child process whose
+stdout and stderr are anonymous pipes. The child starts a descendant that keeps
+both inherited pipe handles open. The fixture injects `taskkill.exe` exit 5,
+waits for the absolute work deadline created before target process launch to
+expire, and observes timeout cleanup. The ceiling begins at `PROCESS_STARTED`,
+before `main` dispatches the verifier. Cleanup has its own two-second absolute
+bound inside the five-second hard-ceiling reserve.
+
+- Red-first command: `py -3 tools\verify-windows-store.py --self-test`.
+  The old synchronous `stream.close()` on the timeout thread blocked for
+  `2.016905` seconds after the expired work deadline. The real-pipe regression
+  failed; its taskkill injection was exit 5. The test then terminated its own
+  fixture descendant so the red run left no test process behind. Captures:
+  `r171-cleanup-red.stdout.txt` and `r171-cleanup-red.stderr.txt`.
+- Green command: `py -3 tools\verify-windows-store.py --self-test`.
+  Final cleanup returned in `1.058140` seconds after the expired work deadline, with
+  injected taskkill exit 5. The verifier returned exit 125 as required and
+  explicitly reported the residual state: root PID and exit, descendant
+  termination unverified, and pipe close pending off the ceiling thread. The
+  fixture then terminated its descendant and confirmed the deferred close
+  worker finished. The real-pipe regression and all existing verifier contract
+  self-tests passed. Captures: `r171-cleanup-green.stdout.txt` and
+  `r171-cleanup-green.stderr.txt`.
+- Final verifier script SHA-256 for the Ruling 171 cleanup pass: `7319b2f138b397056a1691496b340a852881d08f930df93c581ab83eb97d9112`.
+- The production cleanup uses bounded waits under one absolute cleanup deadline.
+  Stream close runs on a daemon cleanup worker so it cannot block the ceiling
+  thread. A pending close or unverified descendant is reported as
+  `TREE_CLEANUP_FAILED`; it is never counted as successful cleanup.
+- No native qualification rerun or full test ring was run. The existing 13-test
+  selector and Ruling 145 classification code were left unchanged.
+
+### Ruling 171 cycle 2 — whole-invocation timing
+
+The first R171 commit returned from `--self-test`, invalid-argument, and
+NOT-ASSESSED paths before its Windows-only timing `finally` block. The repair
+moves all dispatches behind one outer timing boundary. `PROCESS_STARTED` is
+captured immediately after importing `time`, before the remaining module imports;
+the wrapper always prints exactly one `TOTAL_WALL_SECONDS=<seconds>` line and
+returns the intended 0, 1, or 4 result while under 60 seconds. It returns 1 when
+elapsed time exceeds the hard ceiling, including when the dispatched path would
+otherwise return 0 or 4. Exceptions and `SystemExit` are converted to an exit
+code and still pass through the same finalizer.
+
+- Exact command: `py -3 tools\verify-windows-store.py --self-test`.
+- Final process total: `2.312432` seconds from module-start clock; exactly one
+  `TOTAL_WALL_SECONDS=2.312432` line was emitted. The real-pipe taskkill-failure
+  cleanup took `1.055106` seconds after its expired work deadline. The full
+  self-test exited 0, including 0/1/4 early-result preservation, exception and
+  `SystemExit` paths, synthetic over-60-second rejection, actual invalid-argument
+  and off-Windows wrapper checks, and the R171 real-pipe regression. Captures:
+  `r171-cycle2-selftest.stdout.txt` and `r171-cycle2-selftest.stderr.txt`.
+- `py -3 -m py_compile tools\verify-windows-store.py` passed. The final
+  `py -3 tools\check-docs.py` run passed under six-CPU affinity; proof PII scan
+  found 0 Windows home paths or machine SIDs. Capture integrity and staged diff
+  checks are recorded separately in the proof outputs and manifest.
+- Final script SHA-256: `92151a8f72c602180c407240e6e10c28acdfff2dea8bb0acd988deda617205ee`.
+- No no-argument native qualification run or full ring was performed.

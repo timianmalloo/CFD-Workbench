@@ -1,0 +1,25 @@
+host_start_utc=2026-10-09T02:22:27.9079244Z
+host_end_utc=2026-10-09T02:22:50.9046317Z
+host_wall_seconds=22.996707
+head=93240b06df197f68b9ba3b971c3c8192895a7445
+os_version=10.0.26300.0
+sdk=10.0.203
+dll_sha256=ba4abd963e9d5eec9325442dfe59d48995f65357f4e5f52059bf0b9243ca9dbc
+host_affinity=0x3F
+scale200_verified=False
+restored_150_verified=False
+restoration_render_scaling_1_5_verified=False
+tests=
+No named P6 check was invoked.
+events=
+2026-10-09T02:22:31.0655467Z UIA Expand name=Show more settings parent=Multiple displays pattern=ExpandCollapsePattern prior=Collapsed
+2026-10-09T02:22:32.0270418Z baseline verified primary=\\.\DISPLAY1 scale=150% (Recommended) AppliedDPI=144
+2026-10-09T02:22:32.6332547Z UIA SelectItem target=200% control=SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox pattern=SelectionItemPattern
+2026-10-09T02:22:49.5255408Z restoration_attempt=1 target=150%
+2026-10-09T02:22:50.0400003Z restoration_attempt=2 target=150%
+errors=
+P6 execution: AppliedDPI did not become 192; observed 144
+Restoration attempt 1 failed: Enabled scale option is absent: 150%
+Restoration attempt 2 failed: Enabled scale option is absent: 150%
+MANDATORY RESTORATION FAILED: AppliedDPI=144 and selected 150% were not verified
+Final Settings verification failed: Final Settings state is scale=200% AppliedDPI=144

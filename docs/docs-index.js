@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e3a25956bc76821fa728f211c41a3b4d98027e244ce155906cdff177766cb810"
+      "sourceSha256": "63e14d07163c93520e029d3f2e1fb325cd3ae39ac67af50761fb1bc9b4cba672"
     },
     {
       "id": "domain-experts",
@@ -6222,7 +6222,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e6b61276da42fe8eefb806f46d224e9994df851034ee993f8b628f6cdc601c37"
+      "sourceSha256": "31e4654cccb7678b38603167f94d15f5f340c27e18ca0be277bcb937ad9fafd8"
     },
     {
       "id": "proof-windows-store-r145-qualification",
@@ -6257,6 +6257,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "25c57ecfb0fd70abd61108d0bdb5299e1e017f81e2429d822c2fc6d2f25fdf36"
+    },
+    {
+      "id": "proof-wri-probe-mac-join-note",
+      "path": "docs/proof/wri-probe/mac-join-note.md",
+      "title": "WRI probe - Mac join note (Ruling 178 conditions)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@mac-leader",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The P6 attempt in this probe predates Ruling 177 and ran on 93240b06 without the WDF fixes; it is not the Ruling 177 P6, which is still owed. Kept beside the receipt so the PC's capture-manifest-pinned receipt stays byte-identical.",
+      "tags": [
+        "windows",
+        "dpi",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-20",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7f0c058db350ac9c26f0ad54ac376f44cfe02e25310cab070095faa55abdee68"
     },
     {
       "id": "receipt-windows-store-implementation",
@@ -7007,6 +7032,35 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5b853296d6d2ee2a5765d58a34f925bea5f4310c8cda485b7c7071446c41d49a"
+    },
+    {
+      "id": "review-pr-20",
+      "path": "docs/reviews/pr-20.md",
+      "title": "PR #20 (Windows PC) - WRI scale probe P1-P5 (Ruling 178), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 178). P1-P5 are committed raw output at 150 %, on pre-WDF 842e575d, and confirm the WRI arithmetic: in-process 1.5/1.5, TextBox 23.333 DIP = 35 px, chip borders painted on a 2/3-DIP seam. The host scale is now Verified. P6 ran before Ruling 177 with an AppliedDPI gate and stays NOT ASSESSED and owed.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "dpi",
+        "accessibility",
+        "ui"
+      ],
+      "links": [
+        {
+          "to": "review-pr-18",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "979b87ef1f7b52c029c5302a3e204113c6c444c754c42abad4fda926cdafd04a"
     },
     {
       "id": "review-pr-3",
@@ -7942,7 +7996,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "02a285d43b3417be07866568b5873e76e7cac5b00c20f88e10fb342170778605"
+      "sourceSha256": "e356cad0b55f0dcf4629fadb288bde3b2a51b1e52f3755ddb78e1113c526ef88"
     },
     {
       "id": "kb-hw-glossary",
@@ -13910,6 +13964,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "afad609f4900a83866f51c3e7398bd81df8d594b4fed9c56dbde9fe2f420fab6"
     },
     {
+      "id": "proof-rcd-red-first",
+      "path": "docs/proof/rcd/red-first.md",
+      "title": "RCD readiness runs check-docs, red-first run",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-rcd",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Readiness stayed GREEN with a mismatched capture manifest on main 034f37fd; with check-docs as its first step it is RED.",
+      "tags": [
+        "readiness",
+        "check-docs",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ea6d696e6bd33dda3106ed4cc0e70e72d9dd63d095da9da41088907114988151"
+    },
+    {
       "id": "proof-rdh-readiness",
       "path": "docs/proof/rdh/readiness.md",
       "title": "RDH: readiness headroom and the join's duplicate cost check",
@@ -14522,6 +14601,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "cb3be0188a83c3d0e5ff019def49ab42f83f3654ff52f752164328a81e45e695"
+    },
+    {
+      "id": "proof-rrf-red-first",
+      "path": "docs/proof/rrf/red-first.md",
+      "title": "RRF: red-first record for the readiness rule match",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-rrf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "`rule_for` in tools/run-readiness.py matched a rule against any argument; it now matches the executed script only. The new self-test case is red on the old code and green on the new.",
+      "tags": [
+        "readiness",
+        "run-readiness",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-wdf-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3933950736c8c77e8408096a2178260cd2b6d68282dd945bc298564c6be2646a"
     },
     {
       "id": "proof-sfv-captures",
@@ -15721,6 +15825,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
+      "id": "proof-vwr-red-first",
+      "path": "docs/proof/vwr/red-first.md",
+      "title": "VWR red-first record - Windows store verifier wired into joins and readiness",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-vwr",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Rulings 171 (4) and 175 (4): exit 4 of the Windows store verifier is NOT ASSESSED, never FAIL; red on old code, green with the wrapper and readiness ENTRY_RULES.",
+      "tags": [
+        "vwr",
+        "red-first",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "198c132184542d7a2145a5400e32cdd1929c9d8c6636340649ec4f2235ba3b0b"
+    },
+    {
       "id": "proof-wdf-red-first",
       "path": "docs/proof/wdf/red-first.md",
       "title": "WDF: red-first record for the Windows fractional-scale fixes",
@@ -16296,6 +16425,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "41fa73ad9d7d1f90dff8fb4a0ec789b394f3177a269fc65f83d25609b3b10bd2"
+    },
+    {
+      "id": "proof-wri-probe-windows-scale",
+      "path": "docs/proof/wri-probe/receipt.md",
+      "title": "WRI Windows scale probe receipt",
+      "type": "proof-pack",
+      "status": "partial",
+      "owner": "@trk-wri",
+      "phase": "implementation",
+      "reviewBy": "2027-04-09",
+      "reviewSuggested": [],
+      "summary": "Captures P1-P5 at 150% and records the authorized P6 attempt. Settings selected 200% and Avalonia reported 2.0, satisfying the committed P6 scale condition. A coordinator follow-up added an AppliedDPI==192 guard, which skipped the eight named checks; P6 remains NOT ASSESSED. Scale was restored and verified at 150%.",
+      "tags": [
+        "windows",
+        "dpi",
+        "rendering",
+        "probe"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-investigation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5b063380647e44bedae09fc8d72a5c4f91078a5d5ab616bde5f7f49d1b08bd88"
     },
     {
       "id": "proof-wrt-red-first",
@@ -18286,5 +18441,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d7e3d011cae6e69cf362fcd8aa4d5f42f831ddb00d4e8fbd612e6dd4416758f8"
+  "graphSha256": "259bb31cca7e6f9faff018ae50e061a3e085561d83220c51f7f25270a9e971bc"
 };

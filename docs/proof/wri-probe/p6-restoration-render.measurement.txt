@@ -1,0 +1,12 @@
+utc_start=NOT_RECORDED_BY_LAUNCH_WRAPPER
+utc_end=NOT_RECORDED_BY_LAUNCH_WRAPPER
+wall_seconds=5.213 (outer exec measurement; three decimal places)
+pid=NOT_RECORDED
+affinity=0x3F (PowerShell host set before launch)
+exit=0
+sdk=10.0.203
+tested_head=93240b06df197f68b9ba3b971c3c8192895a7445
+dll_sha256=ba4abd963e9d5eec9325442dfe59d48995f65357f4e5f52059bf0b9243ca9dbc
+stdout_sha256=2d42ffefc5712e13460c8084954bea789ebc331acc96964e80ccca1fc9aa3741
+stderr_sha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+result=P6_RENDER_SCALE RenderScaling=1.5 PrimaryScaling=1.5

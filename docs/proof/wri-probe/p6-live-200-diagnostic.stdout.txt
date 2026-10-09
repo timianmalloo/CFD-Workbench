@@ -1,0 +1,1 @@
+P6_RENDER_SCALE RenderScaling=2.0 PrimaryScaling=2.0

@@ -1,0 +1,2 @@
+{"agent": "trk-vwr", "at": 1791513246.121355, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-vwr", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-vwr-verifier-wiring"}
+{"agent": "trk-vwr", "at": 1791514071.6615639, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-vwr", "wi": "WI-0", "worktree": "CFD-Workbench-fix-vwr-verifier-wiring"}

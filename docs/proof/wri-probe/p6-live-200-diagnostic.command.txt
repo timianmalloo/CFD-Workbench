@@ -1,0 +1,5 @@
+DOTNET_ROOT=%USERPROFILE%\.dotnet
+PATH=%USERPROFILE%\.dotnet;%PATH%
+CFD_TEST_ONLY=
+%USERPROFILE%\.dotnet\dotnet.exe exec "C:\Projects\CFD-Workbench-win-wri-p6-confirmation\tests\CfdWorkbench.Desktop.Tests\bin\Release\net10.0\CfdWorkbench.Desktop.Tests.dll" --p6-scale-diagnostic
+Affinity=0x3F

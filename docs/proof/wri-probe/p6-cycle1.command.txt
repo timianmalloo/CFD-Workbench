@@ -1,0 +1,2 @@
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File docs\proof\wri-probe\p6-run.ps1
+This is the first bounded UIA reacquisition attempt before repair-cycle 2 updated the Settings expansion pattern. No display-scale selection occurred.

@@ -2158,6 +2158,15 @@ reviewer vetoed it at the 2/2 repair cap.
 - *Prevent:* Ruling 171 (1): every timeout self-test uses a real child process (not an in-memory stream). It covers an
   already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status: control
   pending the PC repair track; the Mac sweep above is open.
+- *2026-10-09 sibling (non-zero non-failure exit):* a tool contract's non-zero non-failure exit code
+  (`verify-windows-store.py` exit 4 = NOT ASSESSED) met a runner that treats non-zero as failure (`run-verify-gates.py`,
+  `run-readiness.py` `run_entry`); the PR #19 join stopped at step 8 on the Mac. Control: `tools/run-windows-store-gate.py
+  --self-test` (each exit and the timeout, stub child) and `tools/run-readiness.py --self-test` (`ENTRY_RULES` exit map and
+  per-entry timeout). Sweep: a new `tools/verify-*.py` with a non-pass/fail exit needs a join wrapper and an `ENTRY_RULES` row.
+- *2026-10-09 sibling (rule lookup by any argument):* `rule_for` matched `ENTRY_RULES` against every argument, so the
+  `run-verify-gates.py --skip ... verify-windows-store.py` line took the verifier's rule (60 s, exit 4 excluded, evidence label).
+  Control: a rule applies to the executed script only; `tools/run-readiness.py --self-test` runs a script that exits 4 with the
+  ruled name in `--skip` and requires red (`docs/proof/rrf/red-first.md`).
 
 **FIXTURE-RESET-WITHOUT-DRAIN · A shared-fixture reset returns before the previous check's background job lands, and the next check captures a baseline that depends on that job.**
 `Elevation_ZoomPanFit_KeyboardAndPointerSameCamera` failed once in `--views --part=1/2` as "⌘0 fits" (load 1.9 to 16).
@@ -2201,6 +2210,10 @@ is not a store failure: it is a ninth Windows-platform name for the class-(a) in
 The PC ring failed eight Desktop checks at an Inferred 150 % scale (Ruling 173/174; `docs/proof/wri/investigation.md`). Avalonia rounds
 border, padding and margin per edge with `Math.Round(v * s) / s` (half to even), so 1 DIP renders as 1.333 and 3 DIP as 2.667 at 1.5.
 A content-sized `TextBox.prop-b` came to 35 px = 23.33 DIP, under the 24 DIP target floor (WCAG 2.2 SC 2.5.8): a real product miss.
+*2026-10-09 (Ruling 178).* The scale is now **Verified 150 % (P2, 93240b06; tested head 842e575d)**: in-process RenderScaling
+1.5, Screens.Primary.Scaling 1.5, UseLayoutRounding true (`docs/proof/wri-probe/instrumented.stdout.txt:1`). P4 measured the
+pre-WDF TextBox at 23.333 DIP = 35 px. Items 3, 4 and 5 are scale effects (rounded view-frame borders; a 2/3-DIP sampling
+seam), item 6 is open, and WDF's green at 1.5 waits on the Ruling 177 P6.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
@@ -2208,3 +2221,38 @@ A content-sized `TextBox.prop-b` came to 35 px = 23.33 DIP, under the 24 DIP tar
 - *Sweep:* items 1, 2, 6, 7, 8 fixed or held by track WDF. OPEN, pending the PC scale probe: item 3 (double-click label), items 4 and 5 (chip border pixel sampling), and item 6 (measured skew 1.0 DIP against a predicted 0.667).
 - *Derive:* a target floor is declared (`MinHeight`), never left as the sum of rounded terms; a DIP comparison uses one device pixel as its tolerance.
 - *Prevent:* `PropertiesPane_Density_EveryInputDeclaresMinHeightOf24` (fails on the old style, `docs/proof/wdf/red-first.md`); `DevicePixel.Tolerance` in `tests/CfdWorkbench.Desktop.Tests/DevicePixel.cs`. No forced-scale hook exists on the Mac, so the PC ring is the only proof of the rendered height. Not done: a grep gate on `Bounds` compared to DIP literals (investigation, class prevention row).
+
+**JOIN-CONFIG-READ-BEFORE-MERGE · A join that changes its own gate config runs the first pass with the old config.**
+On 2026-10-09 the VWR join (PR #19's verifier plus its wiring) added `verify-windows-store.py` to the `--skip` list in
+`docs/coordination/join.json`. `conductor-join.py` loads join.json once, at start, from the pre-merge tree
+(`conductor-join.py:78`, `:272`), so step 8 ran the old skip list and stopped on the verifier's by-design exit 4. A
+`--continue` reloaded the merged join.json and passed (10 gates OK, `NOT ASSESSED (verify-windows-store)`). Two earlier PR
+#19 join attempts had stopped the same way before the wiring existed.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a configuration file that a pipeline reads at start, changed by the very change the pipeline is
+  checking.
+- *Sweep:* join.json's `checks`, `recount`, `regenerate` and `gates` all load from the pre-merge tree. readiness
+  (`tools/run-readiness.py`) reads its steps at run time, after the merge commit, so it is not affected.
+- *Derive:* a join whose merge diff touches `docs/coordination/join.json` is expected to need one `--continue`, and the
+  leader treats a step-8 stop on a newly skipped gate as that case, not as a defect.
+- *Prevent:* the pack file is pack-managed (not edited here). The control is this entry plus the continuation prompt's
+  join steps. Status: pending a pack-side reload, noted for `/updatepack`.
+
+**POST-JOIN-EDIT-UNGATED · A commit made after a join completes skips the join's gates, and readiness does not run them.**
+On 2026-10-09 the Mac leader met PR #20's two join conditions with a commit made **after** `conductor-join.py` had
+finished. One edit went into `docs/proof/wri-probe/receipt.md`, which the PC's `capture-manifest.json` pins byte for
+byte. `tools/run-readiness.py` was GREEN, because readiness does not run check-docs or the capture check, so main was
+pushed at 87436728 with `check-capture-manifests.py` failing (8342 bytes declared, 8718 committed). The leader caught it
+on a re-check, restored the pinned bytes, and moved the note to `mac-join-note.md`.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* any change committed between a completed join and the push, outside a `--continue`.
+- *Sweep:* the earlier post-join edits this session (the PR #12 receipt line, the PR #17 index refresh) went through a
+  `--continue`, or touched no pinned file.
+- *Derive:* a join condition is applied before the join completes: fix on top of the merge, then `--continue`, never
+  as a later commit. A file listed in any capture or closing manifest is never edited; an annotation goes in a sibling
+  file.
+- *Prevent:* the leader runs `python3 tools/check-docs.py` before every push that follows a non-join commit (session
+  rule). Status: controlled. `docs/coordination/join.json` readiness now opens with `python3 tools/check-docs.py`
+  (about 10 s); a mismatched capture manifest turns `run-readiness.py` RED (`docs/proof/rcd/red-first.md`).
