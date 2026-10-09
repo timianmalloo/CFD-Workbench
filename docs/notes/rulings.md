@@ -1527,3 +1527,9 @@ Fable owner 2026-10-09 under Ruling 106. PR #25 is APPROVED WITH CONDITIONS (hea
 Operator 2026-10-09. (1) Fix in the product. PlanCanvas records that Escape dismissed the tooltip, and the dismissal holds until the pointer genuinely moves (the next real pointer HoverAt). A controller refresh (a mesh completing, the surfaceBehindTimer, a layer toggle, a resize) must not bring the tooltip back under a still pointer. A red-first check holds the surface compute, presses Escape, releases the hold and settles. It asserts that the tooltip stays dismissed and the selection is kept. (2) The probe readout keeps today's behaviour: Escape hides only the tooltip, and the probe readout stays.
 
 - request: req-01M4H7NKM9WPNDEXK36E5AVHDD · ruled by: operator-timianmalloo · at: 2026-10-09T21:03:56Z
+
+### Ruling 189 — PR #26: Windows store qualification PASS admitted as evidence, bound to verifier a79ac73c and the verified build trees
+
+Fable owner 2026-10-09 under Ruling 106. PR #26 is APPROVED WITH CONDITIONS (head 63a45d9a). Ruling 181 (4) and Ruling 175 (2) are met. Verifier a79ac73c ran once at a5c45644 through the committed runner cc201aca. It gave a numeric exit 0 with a retained handle, build-server shutdown 0 before the residual query, and 0 residuals. Its stdout shows 12 PASS, the Ruling 145 expected failure and UNEXPECTED 0, and the committed stdout bytes equal the raw hash. Core, Persistence, Core.Tests, the manifest, the classifier and the verifier are byte-identical between a5c45644 and main; the Desktop drift is outside the verified build. The Windows store qualification PASS is ADMITTED as evidence, bound to a79ac73c and those trees. The Mac readiness entry stays NOT ASSESSED, since the Mac cannot run it. Mac at the join: the pr-26 review, the Ruling 137 admission paragraph, and a staleness check naming that binding.
+
+- request: req-01M4H9TKRHHJDNMAHVBK1XZ00G · ruled by: fable-owner · at: 2026-10-09T21:41:37Z

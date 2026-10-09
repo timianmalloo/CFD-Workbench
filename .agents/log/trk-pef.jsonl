@@ -1,1 +1,2 @@
 {"agent": "trk-pef", "at": 1791579836.697296, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-pef", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-pef-escape-dismissal"}
+{"agent": "trk-pef", "at": 1791580508.210429, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-pef", "wi": "WI-0", "worktree": "CFD-Workbench-fix-pef-escape-dismissal"}

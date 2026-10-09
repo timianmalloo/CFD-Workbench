@@ -751,3 +751,26 @@ At the first checkpoint (21:34:25Z), 18m35s had elapsed; aggregate tool-call cou
 Coordinator approved a separate close-only bound of eight further calls/six minutes for proof/audit/commit
 and lease release. No product code or tests changed after the final integrated run. Documentation check
 reported106 artifacts, zero defects/index drift and77 existing nonblocking review suggestions.
+
+## Windows store qualification admission (Ruling 189)
+
+On 2026-10-09 the Mac admitted the Windows store qualification **PASS** as evidence, under Rulings 137, 171 (4), 175 (2) and
+181 (4). The admission rests on the Fable owner's review, `docs/reviews/pr-26.md`.
+
+- **Receipt.** `docs/proof/r181-store-verifier-rerun/` (PR #26, head 63a45d9a; tested head a5c45644): one launch, numeric
+  exit 0, build-server shutdown 0 before the residual query, 0 residuals.
+- **Result.** 13 checks ran: 12 PASS, plus the expected failure `WindowsNative_Replace_HeldReaderKeepsOldImage` (Win32 32,
+  Ruling 145). UNEXPECTED 0, classifier exit 0, verifier wall 19.86 s.
+- **Binding.** The admission holds only while all of these are unchanged on HEAD:
+  - the verifier `tools/verify-windows-store.py`, SHA-256 `a79ac73c04cc8769d65868cde2f3c69154f27ebfcff40743bd20ca0b668afd52`;
+  - the runner `tools/windows-runner.ps1`, `cc201aca…`;
+  - the build-input trees `src/CfdWorkbench.Core` `e6121133`, `src/CfdWorkbench.Persistence` `279c2979`,
+    `tests/CfdWorkbench.Core.Tests` `99fe8d08`;
+  - `tests/expected-failures.windows.json` `8b21e422`, `tools/check-expected-failures.py` `9c0fdc08`, `global.json`
+    `d5084afe` and `CFDWorkbench.slnx` `c5ef2456`.
+
+  A change to any of them makes the admission stale. A staleness check is a pending follow-up (Ruling 189 (4)).
+- **Scope.** This admits native-primitive store qualification on Windows only. It does not claim that W-2 B2 (ProjectStore
+  fail-closed) has landed. The Ruling 145/154 expected failures remain, and the Windows display-scale proof is paused
+  (Ruling 186). The Mac readiness entry for `verify-windows-store.py` stays NOT ASSESSED, because the Mac cannot run it.
+  This admission is the Windows evidence.
