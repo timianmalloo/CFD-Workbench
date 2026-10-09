@@ -75,7 +75,8 @@ section.screen{ margin:0 0 30px; }
 .vp .prevtooth{ stroke:var(--station); stroke-width:1; }
 .vp .dim{ opacity:.35; }
 .plate{ position:absolute; top:8px; right:8px; width:360px; padding:8px 10px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); font-size:12px; box-shadow:0 1px 3px rgba(0,0,0,.25); }
-.plate h4{ margin:0 0 4px; font-size:13px; }
+.plate h3{ margin:0 0 4px; font-size:13px; }
+.harness button[aria-disabled="true"]{ color:var(--mute); border-style:dashed; cursor:not-allowed; }
 .plate .pr{ display:flex; align-items:center; gap:4px; margin:3px 0; flex-wrap:wrap; }
 .plate .pr > span{ width:52px; color:var(--mute); }
 .plate output{ flex:1 1 90px; font-variant-numeric:tabular-nums; min-width:0; }
@@ -460,6 +461,7 @@ function render(o){
   const strip = rings.length ? (o.probe !== null ? `At pointer: η ${f(o.probe, 3)} · from root ${f(o.probe * HALF, 1)} mm · chord ${f(jet(plan.te, tAtX(plan.te, o.probe * HALF)).y - jet(plan.le, tAtX(plan.le, o.probe * HALF)).y, 1)} mm · ` : '') + (selected ? `Point ${sel.i + 1}: ` : '') + rings.map(r => radiusText(r.rail, r.t)).join(' · ') + (selected && sel.offCurve ? ` at point ${sel.i + 1}'s station on the curve` : '') : '';
   return { tips, svg: s, strip, clipped, drawn, autoVal, kFix, gain, longest, plan, rings };
 }
+const PAIRWORD = { larger: 'Smaller teeth', smaller: 'Larger teeth', sparser: 'Denser', denser: 'Sparser' };
 function plateHtml(o, r, id){
   const pl = r.plan, isStage = id === 'stage';
   const narrow = o.narrow !== undefined ? o.narrow : V.narrow && isStage, open = o.open !== undefined ? o.open : V.plateOpen && isStage;
@@ -469,21 +471,21 @@ function plateHtml(o, r, id){
   const canSmaller = o.scale === 'auto' ? LADDER.some(k => k > r.autoVal) : idx < LADDER.length - 1;
   const di = DENS.indexOf(o.dens);
   const word = n => n + (n === 1 ? ' piece' : ' pieces');
-  const summary = `Comb · ${o.scale === 'auto' ? 'Auto' : legend(o.scale).split(' (')[0]} · ${o.dens}`;
+  const summary = `Comb · ${o.scale === 'auto' ? 'Auto' : legend(o.scale).split(' (')[0]} · ${o.dens} per rail`;
   // A stepper at its limit stays focusable and says so (aria-disabled); inert cards use the disabled attribute.
   const btn = (act, label, ok, limit) => isStage
-    ? `<button type="button" data-act="${act}" ${ok ? '' : `aria-disabled="true" title="${limit}"`}>${label}</button>`
+    ? `<button type="button" data-act="${act}" ${ok ? '' : `aria-disabled="true" title="${limit}. ${PAIRWORD[act]} is available." aria-describedby="lim-${act}"`}>${label}</button>${ok ? '' : `<span class="sr" id="lim-${act}">${limit}. ${PAIRWORD[act]} is available.</span>`}`
     : `<button type="button" data-act="${act}" disabled>${label}</button>`;
   const line = (rail, p) => `<div><span>${rail.name}</span><span class="at">${[word(p.count), ...p.bounds.map((b, i) => `${rail.short}${i + 1} at η ${f(b.at.x / HALF, 2)}`)].join(' · ')}</span></div>`;
   const perM = rail => f(theta(rail) * 1000, 3);
   return `<div class="plate ${o.comb && o.mode === 'cad' ? '' : 'off'} ${narrow ? 'narrow' : ''} ${open ? 'open' : ''}" role="group" aria-label="Comb">
     <button class="sum btn" type="button" data-act="open" aria-expanded="${open}" ${isStage ? '' : 'disabled'}><span>${summary}</span><span aria-hidden="true">▾</span></button>
     <div class="full">
-      <h4>Comb</h4>
-      <div class="pr" role="group" aria-label="Comb scale"><span>Scale</span>${btn('smaller', 'Smaller teeth', canSmaller, 'Smallest teeth')}${btn('larger', 'Larger teeth', canLarger, 'Largest teeth')}<button type="button" data-act="auto" aria-pressed="${o.scale === 'auto'}" ${isStage ? '' : 'disabled'}>${o.scale === 'auto' ? '✓ ' : ''}Auto scale</button></div>
+      <h3>Comb</h3>
+      <div class="pr" role="group" aria-label="Comb scale"><span>Scale</span>${btn('smaller', 'Smaller teeth', canSmaller, 'Smallest teeth')}${btn('larger', 'Larger teeth', canLarger, 'Largest teeth')}<button type="button" data-act="auto" aria-pressed="${o.scale === 'auto'}" ${isStage ? '' : 'disabled'}>${o.scale === 'auto' ? '<span aria-hidden="true">✓ </span>' : ''}Auto scale</button></div>
       <div class="pr"><span></span><output>${o.scale === 'auto' ? 'Auto · ' : ''}${legend(r.kFix)}</output></div>
       <div class="pr"><span></span><output class="note">Shared by both rails. Teeth point away from the centre of curvature.</output></div>
-      <div class="pr" role="group" aria-label="Comb density"><span>Density</span>${btn('sparser', 'Sparser', di > 0, 'Sparsest')}${btn('denser', 'Denser', di < DENS.length - 1, 'Densest')}<output>${o.dens} per rail</output></div>
+      <div class="pr" role="group" aria-label="Comb density"><span>Density</span>${btn('sparser', 'Sparser', di > 0, 'Sparsest density')}${btn('denser', 'Denser', di < DENS.length - 1, 'Densest density')}<output>${o.dens} per rail</output></div>
       <div class="pcs">${line(pl.le, pe)}${line(pl.te, pt)}</div>
       <p class="note">Ignores reversals under 0.02 ÷ rail length: ${perM(pl.le)} per m (LE), ${perM(pl.te)} per m (TE).</p>
       ${r.clipped ? `<p class="note">${r.clipped} teeth clipped (×). Smaller teeth shows them.</p>` : (r.longest < 3 ? '<p class="note">No tooth over 3 px. Larger teeth shows more.</p>' : '')}
@@ -498,30 +500,58 @@ function fillSel(){
   sel.innerHTML = '<option value="none">Nothing</option>' + pointList().map(k => { const [a, b] = k.split(':'), rail = a === 'le' ? pl.le : pl.te; return `<option value="${k}">${rail.name} point ${+b + 1} (${kind(rail, +b)})</option>`; }).join('');
   sel.value = pointList().includes(V.sel) ? V.sel : 'none'; V.sel = sel.value;
 }
-function paintStage(){
+function stageShell(){                            // built once: the Tracing strip is one persistent element (C6)
+  const host = document.getElementById('stage');
+  if (host.dataset.ready) return;
+  host.dataset.ready = '1';
+  host.innerHTML = `<div id="vpHost"></div>
+    <div class="strip" id="trace" role="status" aria-live="polite" aria-label="Tracing"><span id="traceText"></span><small id="traceNote"></small></div>
+    <p class="hint" id="hint1"></p>
+    <p class="hint">Tab order in the product: the plan, then the plate, then Properties. <button class="btn" type="button" id="props-stand">Properties: first value (stand-in)</button></p>`;
+}
+function setStrip(text, announce){                // text only; quiet (aria-live off) for pointer moves, polite for walking and selection
+  const trace = document.getElementById('trace'), span = document.getElementById('traceText');
+  trace.setAttribute('aria-live', announce ? 'polite' : 'off');
+  trace.className = 'strip' + (V.mode === 'analysis' ? ' warn' : '');
+  if (span.textContent !== text) span.textContent = text;
+  document.getElementById('traceNote').textContent = V.comb ? '' : 'Curvature is off: the radius still reads here.';
+}
+function paintStage(announce){
+  stageShell();
+  V.painting = true;
   const o = { plan: V.plan, comb: V.comb, scale: V.scale, dens: V.dens, mode: V.mode, sel: V.sel, probe: V.pointerAway && V.sel !== 'none' ? null : V.probe, focus: true, stations: false };
   const r = render(o);
-  const host = document.getElementById('stage');
+  const host = document.getElementById('vpHost');
   const focused = document.activeElement && document.activeElement.id === 'stageSvg';
   const focusAct = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.act : null;
-  const stripText = V.mode === 'analysis' ? 'Switch to CAD to edit the foil. Curvature is shown in CAD.' : r.strip;
-  host.innerHTML = `<div class="vpwrap"><div class="vp">${r.svg}</div>${plateHtml(o, r, 'stage')}</div>
-    <div class="strip ${V.mode === 'analysis' ? 'warn' : ''}" id="trace" role="status" aria-label="Tracing"><span>${stripText || 'Move over the wing to read the radius.'}</span>${V.comb ? '' : '<small>Curvature is off: the radius still reads here.</small>'}</div>
-    <p class="hint">${V.mode === 'analysis' ? 'Analysis: no comb, no plate; the Curvature toggle is disabled (“Curvature is shown in CAD.”). Scale and density are remembered.' : 'Teeth point away from the centre of curvature (outward on a convex edge). The selected rail’s teeth are drawn at full strength, the other at half.'}</p>
-    <p class="hint">Tab order in the product: the plan, then the plate, then Properties. <button class="btn" type="button" id="props-stand">Properties: first value (stand-in)</button></p>`;
+  host.innerHTML = `<div class="vpwrap"><div class="vp">${r.svg}</div>${plateHtml(o, r, 'stage')}</div>`;
+  setStrip(V.mode === 'analysis' ? 'Switch to CAD to edit the foil. Curvature is shown in CAD.' : (r.strip || 'Move over the wing to read the radius.'), announce === true);
+  document.getElementById('hint1').textContent = V.mode === 'analysis' ? 'Analysis: no comb, no plate; the Curvature toggle is disabled (“Curvature is shown in CAD.”). Scale and density are remembered.' : 'Teeth point away from the centre of curvature (outward on a convex edge). The selected rail’s teeth are drawn in the ink tone, the other rail’s in the muted tone.';
   const svg = document.getElementById('stageSvg');
-  svg.addEventListener('pointermove', e => { const b = svg.getBoundingClientRect(); const x = (e.clientX - b.left) / b.width * 1000 - OX; V.probe = Math.min(1, Math.max(0, x / HALF)); V.pointerAway = false; document.getElementById('h-probe').value = Math.round(V.probe * 1000); paintStage(); });
-  svg.addEventListener('pointerleave', () => { if (V.sel !== 'none'){ V.pointerAway = true; paintStage(); } });
+  svg.addEventListener('pointermove', e => { const b = svg.getBoundingClientRect(); const x = (e.clientX - b.left) / b.width * 1000 - OX; V.probe = Math.min(1, Math.max(0, x / HALF)); V.pointerAway = false; document.getElementById('h-probe').value = Math.round(V.probe * 1000); paintStage(false); });
+  svg.addEventListener('pointerleave', () => { if (V.sel !== 'none'){ V.pointerAway = true; paintStage(true); } });
+  svg.addEventListener('focusout', e => {         // C10: the selected-point reading returns when focus leaves the canvas
+    if (V.painting || (e.relatedTarget && svg.contains(e.relatedTarget))) return;
+    if (V.sel !== 'none' && !V.pointerAway){ V.pointerAway = true; paintStage(true); }
+  });
   svg.addEventListener('keydown', e => {          // [ and ] walk the points, as the product does; arrow keys are not a probe
     const d = e.key === ']' ? 1 : e.key === '[' ? -1 : 0; if (!d) return;
     const list = pointList(), at = list.indexOf(V.sel), next = Math.min(list.length - 1, Math.max(0, (at < 0 ? (d > 0 ? -1 : list.length) : at) + d));
-    V.sel = list[next]; V.pointerAway = true; document.getElementById('h-sel').value = V.sel; e.preventDefault(); paintStage();
+    V.sel = list[next]; V.pointerAway = true; document.getElementById('h-sel').value = V.sel; e.preventDefault(); paintStage(true);
+  });
+  const plate = host.querySelector('.plate');
+  if (plate) plate.addEventListener('keydown', e => {   // C5: Escape closes the narrow popover and returns focus to its summary button
+    if (e.key !== 'Escape' || !V.plateOpen) return;
+    V.plateOpen = false; e.preventDefault(); paintStage(); audit();
+    const sum = document.querySelector('#stage [data-act="open"]'); if (sum) sum.focus();
   });
   host.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => act(b.dataset.act, r, b)));
   if (focused) svg.focus();
   else if (focusAct){ const again = host.querySelector(`[data-act="${focusAct}"]`); if (again && !again.disabled) again.focus(); }
-  document.getElementById('h-comb').disabled = V.mode === 'analysis';
-  document.getElementById('h-comb').title = V.mode === 'analysis' ? 'Curvature is shown in CAD.' : '';
+  V.painting = false;
+  const hc = document.getElementById('h-comb');            // the toolbar toggle stand-in stays focusable in Analysis (aria-disabled)
+  hc.setAttribute('aria-disabled', V.mode === 'analysis' ? 'true' : 'false');
+  hc.title = V.mode === 'analysis' ? 'Curvature is shown in CAD.' : '';
   return r;
 }
 const LIMIT = { larger: 'Largest teeth reached.', smaller: 'Smallest teeth reached.', sparser: 'Sparsest density reached.', denser: 'Densest density reached.' };
@@ -566,7 +596,7 @@ const hardCards = [
     frame('Smooth anchor at point 5', { plan: 'g1', sel: 'le:4', probe: null, view: cropCorner, scale: 5, label: 'Plan with a curvature jump at a smooth anchor in the leading edge', noPlate: true })],
   ['Teeth clipped at a tight tip', 'Fixed step 30 px = 0.5 per m on the sharp tip: teeth over 60 px are clipped and marked ×; the plate counts them.',
     frame('Tip region', { scale: 0.5, probe: 0.97, view: cropTip, label: 'Tip region with clipped teeth', noPlate: true }) + '<p class="hint">Plate text: “N teeth clipped (×). Smaller teeth shows them.”</p>'],
-  ['Comb crosses other overlays', 'Order, bottom to top: fill, comb, curves and polygon, station chips, limit marker, rings, glyphs. Teeth are thin and half strength; the rebuild preview (dashed, station colour) is above them.',
+  ['Comb crosses other overlays', 'Order, bottom to top: fill, comb, curves and polygon, station chips, limit marker, rings, glyphs. Teeth are 1 px, the selected rail’s in the ink tone and the other rail’s in the muted tone; the rebuild preview (dashed, station colour) is above them.',
     frame('Stations, minimum-tip marker and rebuild preview', { stations: true, limit: true, preview: true, probe: 0.35, view: [420, 100, 580, 370], noPlate: true, label: 'Plan with overlays crossing the comb' })],
   ['Analysis area', 'No comb, no plate, no ticks. The toolbar toggle is disabled with the reason. The harness “Area” control shows it live.',
     frame('Analysis', { mode: 'analysis', probe: null, view: [0, 100, 1000, 340], label: 'Plan in Analysis without the comb', noPlate: true }) + '<div class="strip warn">Curvature is shown in CAD.<small>Disabled-with-reason text on the toolbar toggle.</small></div>'],
@@ -592,7 +622,7 @@ document.getElementById('h-plan').addEventListener('change', e => { V.plan = e.t
 document.getElementById('h-mode').addEventListener('change', e => { V.mode = e.target.value; paintStage(); });
 document.getElementById('h-sel').addEventListener('change', e => { V.sel = e.target.value; V.pointerAway = e.target.value !== 'none'; paintStage(); });
 document.getElementById('h-probe').addEventListener('input', e => { V.probe = e.target.value / 1000; V.pointerAway = false; e.target.setAttribute('aria-valuetext', 'η ' + f(V.probe, 3)); paintStage(); });
-document.getElementById('h-comb').addEventListener('click', e => { V.comb = !V.comb; e.target.setAttribute('aria-pressed', V.comb); e.target.textContent = V.comb ? 'Curvature on' : 'Curvature off'; paintStage(); });
+document.getElementById('h-comb').addEventListener('click', e => { if (V.mode === 'analysis'){ live.textContent = 'Curvature is shown in CAD.'; return; } V.comb = !V.comb; e.target.setAttribute('aria-pressed', V.comb); e.target.textContent = V.comb ? 'Curvature on' : 'Curvature off'; paintStage(); });
 document.getElementById('h-narrow').addEventListener('click', e => { V.narrow = !V.narrow; e.target.setAttribute('aria-pressed', V.narrow); document.querySelector('main').style.maxWidth = V.narrow ? '560px' : ''; paintStage(); audit(); });
 document.getElementById('theme').addEventListener('click', e => {
   const dark = document.documentElement.dataset.theme !== 'dark';

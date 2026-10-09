@@ -29,7 +29,7 @@ console.log('SVG focus outline', oc, 'focus-visible', await p.evaluate(() => doc
 // stepper at its limit keeps focus
 await p.click('[data-act="larger"]');
 for (let i = 0; i < 12; i++) { await p.focus('[data-act="larger"]'); await p.keyboard.press('Enter'); }
-console.log('AFTER limit focus =', await p.evaluate(() => document.activeElement.dataset.act), 'aria-disabled =', await p.getAttribute('[data-act="larger"]', 'aria-disabled'), 'live =', await p.evaluate(() => document.querySelector('.sr').textContent));
+console.log('AFTER limit focus =', await p.evaluate(() => document.activeElement.dataset.act), 'aria-disabled =', await p.getAttribute('[data-act="larger"]', 'aria-disabled'), 'live =', await p.evaluate(() => document.querySelector('[role=status].sr').textContent));
 await p.click('[data-act="auto"]');
 // tab order: svg -> plate buttons -> stand-in
 await p.focus('#stageSvg');
@@ -46,5 +46,25 @@ await p.screenshot({ path: shots + '/narrow-open.png', fullPage: true });
 await p.click('#theme');
 console.log('AUDIT narrow open dark', await p.textContent('#audit'));
 await p.screenshot({ path: shots + '/narrow-open-dark.png' });
+await p.click('#theme');
+await p.focus('#stage [data-act="smaller"]');
+await p.keyboard.press('Escape');
+console.log('ESC: expanded =', await p.getAttribute('#stage [data-act="open"]', 'aria-expanded'), 'focus =', await p.evaluate(() => document.activeElement.dataset.act), 'summary =', (await p.textContent('#stage [data-act="open"]')).trim());
+await p.click('#h-narrow');
+await p.focus('#stageSvg');
+await p.evaluate(() => { window.__strip = document.getElementById('trace'); });
+await p.keyboard.press(']');
+console.log('STRIP same element after walk:', await p.evaluate(() => window.__strip === document.getElementById('trace')), 'live =', await p.getAttribute('#trace', 'aria-live'), '|', await p.textContent('#trace'));
+await p.mouse.move(400, 500); await p.mouse.move(500, 510);
+console.log('STRIP after pointer: same =', await p.evaluate(() => window.__strip === document.getElementById('trace')), 'live =', await p.getAttribute('#trace', 'aria-live'), '|', (await p.textContent('#trace')).slice(0, 40));
+await p.focus('#stageSvg');
+console.log('BEFORE focusout (pointer reading, selection kept):', (await p.textContent('#trace')).slice(0, 60));
+await p.keyboard.press('Tab');
+console.log('AFTER focusout:', (await p.textContent('#trace')).slice(0, 80), '| live', await p.getAttribute('#trace', 'aria-live'));
+console.log('HEADINGS', await p.evaluate(() => [...document.querySelectorAll('h1,h2,h3,h4')].slice(0, 6).map(h => h.tagName).join(',')));
+await p.selectOption('#h-mode', 'analysis');
+await p.focus('#h-comb');
+await p.keyboard.press('Enter');
+console.log('ANALYSIS toggle: focus kept =', await p.evaluate(() => document.activeElement.id), 'aria-disabled =', await p.getAttribute('#h-comb', 'aria-disabled'), 'live =', await p.evaluate(() => document.querySelector('[role=status].sr').textContent));
 console.log('ERRORS', JSON.stringify(errs));
 await b.close();

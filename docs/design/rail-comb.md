@@ -87,7 +87,7 @@ canvas). Command-palette verbs give a second route (CAD-21). **No new single-key
 The section editor refits on every paint, so the comb breathes and a worse curve can look calmer. Rail rule: **Auto fits at
 press and at release, not between.** A "gesture" is a pointer drag, a nudge run (refit at key release plus a short idle) or an
 open rebuild preview (it uses the gain at its start). If the refit changes the gain by more than 2x, the legend line flashes
-once and the live region says "Comb scale 30 px = 5 per m." After a manual step the Auto button is not pressed. The section
+once (a static emphasis under reduced motion, C7) and the live region says "Comb scale 30 px = 5 per m." After a manual step the Auto button is not pressed. The section
 editor is not changed here (OQ-2).
 
 ### 3.2 Keyboard, focus and the stepper limit (conditions M2, M3, M4)
@@ -111,6 +111,14 @@ The build uses an `aria-disabled` equivalent: the button stays in the tab order,
 and announces the limit ("Largest teeth reached.", COPY-RC-14). If a native disabled state were ever used, focus falls to the
 **paired** stepper (larger to smaller, sparser to denser), never to Auto. The mockup shows the aria-disabled form
 (`data-act="larger"` keeps focus and the live region says "Largest teeth reached."; checked in the browser).
+
+**Strip, popover and focus-out rules** (m4, m5, m6, C5, C6, C10). The Tracing strip is **one persistent element** whose text is
+updated in place (never rebuilt); its live setting is polite for point walking and selection and quiet for pointer moves and
+nudges. Escape closes the narrow popover and returns focus to its summary button. When focus leaves the canvas the strip returns
+to the selected point's reading, as on pointer leave. The "✓" of the Auto button is `aria-hidden` (`aria-pressed` carries the state); the
+plate title is a level-3 heading under the page's level 2. Mockup checks (Chrome): strip element identity unchanged across a walk
+and a pointer move, live setting polite then off; Escape leaves the popover collapsed with focus on the summary; Tab out of the
+plan after a pointer reading restores "Point 5: …".
 
 **Viewport focus ring** (M1). The plan's focus ring uses `focus-ring-viewport` (#66ddc8), **not `--accent`**, which is 2.45:1
 on `--vp` in the light theme. The pair `--focus-vp` on `--vp` is in the in-page audit (and passes at 4.5:1; the plate's own
@@ -194,12 +202,12 @@ joining the two one-sided tips) at each curvature jump; a corner also keeps its 
 |---|---|
 | **Straight segment** | A rail point is straight when **|κ| · L² / 8 < 10 µm** (the sagitta of the rail's arc at that curvature, a tolerance independent of unit). Radius reads "straight", κ 0, never "∞" alone. A straight rail is 1 piece. **Inflection** reads "inflection: R infinite here" **only when the neighbouring stations (±0.02 in t) have opposite curved sign**; a runout from curved to straight reads "straight". |
 | **Corner, curvature jump or spike** | Teeth over 60 px are clipped and marked ×; the plate counts them. Every curvature jump draws two one-sided teeth and a step in the envelope; a corner (tangent angle > 0.1°) adds the dashed break mark. A **smooth anchor whose curvature jumps is "G1 only"** and reads "curvature jumps at this anchor". |
-| **Comb crosses other overlays** | Paint order, bottom to top: foil fill, grid, comb, curve and polygon, station chips, limit marker (Ruling 93), probe rings, glyphs. Teeth are 1 px at half strength; hit-tests ignore teeth. |
+| **Comb crosses other overlays** | Paint order, bottom to top: foil fill, grid, comb, curve and polygon, station chips, limit marker (Ruling 93), probe rings, glyphs. Teeth are 1 px; the selected rail's are in the ink tone (opacity .9) and the other rail's in the muted tone (.75), which is the real difference (not "half strength"); hit-tests ignore teeth. |
 | **Analysis mode** | No comb, no plate; the toolbar toggle is disabled with "Curvature is shown in CAD." Scale and density are remembered. |
 | **Comb off** | No plate, no ticks; the radius still appears in the Tracing strip. |
 | **No foil / empty** | Nothing is drawn; the Start card is unchanged. |
 | **Crowding at 128 per rail** | Teeth thinned to a 3 px minimum pitch; the plate shows the drawn count. |
-| **Narrow width (560 px)** (M5) | The plate is a one-line summary "Comb · Auto · 32". Opened, **the steppers open in flow between the viewport and the Tracing strip** (a disclosure, Escape closes), never as an overlay, so the tip and the readout strip are never covered. The mockup has the open-state card; its audit row checks viewport, plate and strip in order (5683 ≤ 5690, 5915 ≤ 5921 px) and that the open stage plate is clear of the viewport. |
+| **Narrow width (560 px)** (M5) | The plate is a one-line summary "Comb · Auto · 32 per rail" (COPY-RC-16). Opened, **the steppers open in flow between the viewport and the Tracing strip** (a disclosure, Escape closes), never as an overlay, so the tip and the readout strip are never covered. The mockup has the open-state card; its audit row checks viewport, plate and strip in order (5683 ≤ 5690, 5915 ≤ 5921 px) and that the open stage plate is clear of the viewport. |
 | **Small gain, large radius** | A step too large for the foil draws dots; the plate says "No tooth over 3 px. Larger teeth shows more." |
 | **Plate position** | The plate at 1320 px covers 0 rail or tooth points on the example planform (audit, light and dark) and at 520 px. On other planforms the product places it by the `ScaleBarBounds` exclusion pattern; the mockup's fixed corner covers up to 3 points on its straight and wobble variants and is not the placement rule. |
 
@@ -224,6 +232,7 @@ One table: every COPY-RC row in final form, then the amendments. The operator ba
 | COPY-RC-13 | status (live region, once per change) | `Comb scale 30 px = 2 per m.` · `Comb density 64 per rail.` |
 | COPY-RC-14 | stepper at its limit (live region, no focus move) | `Largest teeth reached.` · `Smallest teeth reached.` · `Sparsest density reached.` · `Densest density reached.` |
 | COPY-RC-15 | plan canvas accessible name | `Plan view of the half-wing with the curvature comb. Press [ and ] to walk the points; the Tracing strip reads the radius at the selected point.` |
+| COPY-RC-16 | narrow summary button (new; unit added) | `Comb · Auto · 32 per rail` |
 | AM-RC-1 | spec A4.9 amendment | (a) A4.9 says the comb "scales to its longest tooth and never clips"; amend to p90 = 30 px with clipping at 60 px and a counted × mark. (b) After "its scale is a stepper": *on the planform rails the scale is Auto or a fixed step stated as "30 px = N per metre"; Auto is held during an edit gesture and refits once at its end; density is 16, 32, 64 or 128 teeth per rail at an even arc-length pitch; hovered κ is signed (+ convex, LE +κ and TE −κ) and the radius is the outline's curvature in the plan, read in the Tracing strip; the monotone count is on signed curvature, ends a piece when κ reverses by more than τ / L (τ = 0.02, L the rail's arc length, the resolved value printed), counts extrema not inflections, and is a reading, not a grade.* (c) A4.9 names dκ/dη; the build uses dκ/ds, and the threshold is stated. |
 | AM-RC-2 | A4.9 recorded deviation | The rail radius is physical (the outline in the plan). The deviation for master curves stands. |
 | AM-RC-3 | new: A4.9 sign convention | Positive curvature means convex on both rails: κ_display = +κ_raw on the leading edge, −κ_raw on the trailing edge. |
@@ -235,7 +244,7 @@ One table: every COPY-RC row in final form, then the amendments. The operator ba
 - **OQ-2:** the section editor gets the same stepper, Auto-hold and a pieces line. Today it refits every paint and shows no count.
 - **OQ-3:** Fair (`ConstrainedFit.SignChanges`) is labelled "monotone pieces" but counts slope sign changes; rename or re-base. Candidate defect class: *same name, two definitions*.
 - **OQ-4 (Inferred, not run):** the section editor's Thickness x2 branch tilts its teeth under a 2x y stretch.
-- **Minors m1 to m6 and nits n1, n2 of the accessibility review:** their wording is in the leader's record and was not in the CMR brief; this revision fixes the items the brief names (M1 to M7) and the geometry conditions, and the leader maps the remaining minors and nits (§11 residual).
+- **Accessibility minors m1 to m6 and nits n1, n2:** all fixed in the mockup and dispositioned in [`adversary.md`](../proof/cmb/adversary.md); the strip, Escape, focus-out and aria-hidden rules are §3.2 and C5, C6, C10.
 
 ## 9. Build shape, build conditions and tests
 
@@ -245,20 +254,23 @@ extrema by root-finding; monotone pieces with τ / L; Gauss–Legendre length; t
 change) → plate control (steppers with aria-disabled, narrow in-flow disclosure) → Tracing strip text → command table verbs →
 view preferences → Analysis disable → DESIGN.md copy rows and token use.
 
-### Build conditions (C1 to C10; C1 is the reviewer's, C2 to C10 are numbered here from the named conditions)
+### Build conditions (the accessibility reviewer's C1 to C10, verbatim; C11 and G1, G2 are the author's)
 
 | # | Condition | Test (each states its ring; all fast-ring Core or headless-Avalonia) |
 |---|---|---|
-| C1 | A stepper at its limit keeps focus (aria-disabled equivalent) and announces the limit | `PlanComb_StepperAtLimit_KeepsFocusAndAnnounces` |
-| C2 | Focus order plan, plate, Properties; `TabToProperties` hands to the plate when shown | `PlanCanvas_Tab_VisitsPlateBeforeProperties`, `_ShiftTab_ReturnsToCanvas`, `_PlateHidden_TabGoesToProperties` |
-| C3 | Keyboard reading by `[` `]` walking with "Point N:"; no arrow-key probe; arrows still nudge | `PlanCanvas_BracketWalk_ReadsPointStation`, `PlanCanvas_ArrowKeys_StillNudge` |
-| C4 | Plan focus ring is `focus-ring-viewport` | `PlanCanvas_FocusRing_UsesViewportToken` and the token pair at least 3:1 on `--vp` |
-| C5 | Narrow plate opens in flow and covers neither tip nor strip | `PlanComb_NarrowOpenPlate_DoesNotCoverTipOrStrip`, `PlanComb_PlateDoesNotCoverRail_AtTipFit` |
-| C6 | Pieces line names every boundary in text; ticks non-interactive | `PlanComb_PiecesLine_NamesEveryTick` |
-| C7 | Threshold printed as a plate line with the resolved per-m value per rail | `PlanComb_PlateThresholdLine_PrintsResolvedPerMetre` |
-| C8 | Gesture, limit and scale changes announce once per change (live region) | `PlanComb_LiveRegion_OncePerChange` |
-| C9 | Geometry: the fixtures F1 to F10 below | `Planform_MonotonePieces_*` |
-| C10 | Curvature core: D3; one-sided span selection (no knot ± ε); `speed2 == 0` throws; Gauss–Legendre length; sign; straight tolerance; Greville at t = ξ | `Planform_CurvatureAt_*` (below) |
+| C1 | Steppers at a limit and the Curvature toggle in Analysis stay focusable, using an `aria-disabled` equivalent where the command does nothing. The help text gives a real reason on focus and on hover. Focus never moves by itself. | red-first `PlanComb_StepperAtLimit_KeepsFocus`; `PlanComb_CurvatureToggle_InAnalysis_StaysFocusable` |
+| C2 | The Plan focus ring uses `focus-ring-viewport`; plate controls on the surface use `focus-ring`. | `PlanCanvas_FocusRing_UsesViewportToken`, `PlanComb_PlateFocusRing_UsesSurfaceToken` |
+| C3 | Implement the stated Tab order (plan, plate, Properties; Shift+Tab reverses), with a test. | `PlanCanvas_Tab_VisitsPlateBeforeProperties`, `_ShiftTab_ReturnsToCanvas`, `_PlateHidden_TabGoesToProperties` |
+| C4 | The palette verbs (COPY-RC-12) announce the new value through the live setting (COPY-RC-13). | `PlanComb_PaletteVerbs_AnnounceNewValue` |
+| C5 | The narrow popover closes on Escape, returns focus to the summary button, and does not cover the strip. | `PlanComb_NarrowPopover_EscapeClosesAndRestoresFocus`, `PlanComb_NarrowOpenPlate_DoesNotCoverTipOrStrip` |
+| C6 | The Tracing strip is one persistent element with a polite live setting. It stays quiet during a nudge (as `PlanCanvas.cs:686` does today), and does not announce every pointer move. | `PlanProbe_Strip_IsOneElement`, `PlanProbe_Strip_QuietOnPointerMoveAndNudge` |
+| C7 | The ">2x refit" legend flash becomes a static emphasis under reduced motion, and flashes at most once. | `PlanComb_RefitFlash_OnceAndStaticUnderReducedMotion` |
+| C8 | The viewport overlays keep at least 3:1 under the system high-contrast theme, or the build records that the canvas keeps its own palette. One trace on Windows and one on macOS. | recorded trace, one per OS |
+| C9 | A screen-reader trace (VoiceOver and Narrator or NVDA) of the plate, the strip and the pieces line. **Deferred by the operator's priority; recorded as unproven, not passed.** | none until run |
+| C10 | The selected-point reading comes back when focus leaves the canvas, as it does on pointer leave. | `PlanProbe_SelectedReading_ReturnsOnFocusOut` |
+| C11 | (author's, from the mockup residual) The product places the plate by exclusion (the `ScaleBarBounds` pattern), so it covers no rail or tooth. The mockup's fixed top-right plate covers up to 3 points on the straight and wobble planforms. | `PlanComb_PlateDoesNotCoverRail_AtTipFit` on the example, straight and wobble planforms |
+| G1 | (author's) Geometry: the fixtures F1 to F10 below. | `Planform_MonotonePieces_*` |
+| G2 | (author's) Curvature core: D3; one-sided span selection (no knot ± ε); `speed2 == 0` throws; Gauss–Legendre length; sign; straight tolerance; Greville at t = ξ. | `Planform_CurvatureAt_*` (below) |
 
 **Core fixtures.** Layer 1 is the pure zigzag over a candidate list (`MonotonePieces(candidates, θ)`), driven by analytic
 κ(s) with its extrema found numerically. Layer 2 is the spline layer on exact cubic pieces (a cubic Bezier is an exact cubic B-spline).
@@ -302,5 +314,5 @@ pieces rows are one line each so it still covers nothing on the example. Results
 
 Vendor tooth side is Flagged. The Computational Geometry expert's conditions are folded in but the persona has not re-reviewed this
 revision. The accessibility conditions are fixed in the design and mockup; native screen-reader and focus proof is a build
-condition (C1 to C8), not shown by this HTML. The accessibility minors and nits are not in this brief (§8). The plate's fixed corner
-is not the placement rule.
+conditions (C1 to C10), not shown by this HTML; the screen-reader trace (C9) is deferred and unproven, not passed, and C8's
+high-contrast traces are not run. The plate's fixed corner is not the placement rule (C11).

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T23:45:56Z",
+  "generated": "2026-10-09T23:50:17Z",
   "audit": [
     {
       "actor": null,
@@ -33899,6 +33899,24 @@ window.AUDIT_DATA = {
       "done_when": "note, mockup, proof revised; check-docs exit 0; craft gate and audit recorded",
       "started_at": "2026-10-09T23:34:45Z",
       "duration_seconds": 671.0
+    },
+    {
+      "id": "al-01M4HH66HKHMY4GC3V73WCWHMW",
+      "shortname": "cmr-a11y-pass",
+      "datetime": "2026-10-09T23:50:16Z",
+      "session": "trk-cmr",
+      "prompt": "trk-cmr accessibility minors, nits, C1-C10 pass",
+      "summary": "Minors and nits fixed in the mockup; verbatim C1-C10 plus C11 in note; audit re-run",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Disposition m1-m6, n1-n2, C1-C10 and the plate placement residual",
+      "done_when": "mockup and note fixed, adversary table, gates green"
     }
   ],
   "changes": [

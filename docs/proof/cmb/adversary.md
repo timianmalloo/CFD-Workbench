@@ -68,7 +68,7 @@ is not cleared by the author; the operator ranks accessibility proof below funct
 
 Inputs: the operator's three answers; the accessibility review (7 Majors M1 to M7, build conditions C1 to C10) and the
 Computational Geometry review (PASS-WITH-CONDITIONS), both as summarised in the CMR brief. The original review texts are in the
-leader's record; the minors m1 to m6 and nits n1, n2 were not in the brief and are **not dispositioned here** (the leader maps them).
+leader's record; the minors m1 to m6, nits n1, n2 and the verbatim C1 to C10 arrived in a second leader message and are dispositioned in the second table below.
 "Fixed" means the note section and the mockup changed; every check below was run in Chrome via
 `docs/proof/cmb/mockup-audit.mjs` (Playwright, system Chrome) on 2026-10-09.
 
@@ -81,7 +81,7 @@ leader's record; the minors m1 to m6 and nits n1, n2 were not in the brief and a
 | M5 narrow open plate covers tip and strip | Fixed: opens in flow between viewport and strip; open-state card added; coverage re-run | note §6; mockup card and audit | narrow open stage: open plate below viewport, clear; card order viewport ≤ plate ≤ strip (6485 ≤ 6492, 6718 ≤ 6724 px); 0 covered points at 520 px closed |
 | M6 tick text equivalent | Fixed: pieces line "2 pieces · LE1 at η 0.69" | note §5, COPY-RC-6 | observed on plate for example, wobble, corner, g1 |
 | M7 threshold as `title` | Fixed: plate line with the resolved per-m value; COPY-RC-9 and §5 aligned | note §5, COPY-RC-9 | plate line "Ignores reversals under 0.02 ÷ rail length: 0.021 per m (LE), 0.022 per m (TE)." |
-| C1 to C10 | Carried into "Build conditions" with named tests; only C1 had its wording in the brief, C2 to C10 are numbered by the author from the named conditions | note §9 | not a product test; build proof |
+| C1 to C10 | Carried verbatim into the note's "Build conditions" (plus C11 plate placement, G1 and G2 geometry, by the author) | note §9 | not a product test; build proof |
 | Geometry: threshold | Fixed: τ / L, τ = 0.02; fixtures F4 and F5 rewritten with an analytic κ(s) | note §5, §9 | `fixture-profile.py`: F4 extrema at σ 0.5098 and 0.5790, count 3 as τ → 0 and at τ; F5 drop 1.6 τ reads 3, 3, 1 at 0.5 τ, τ, 2 τ |
 | Geometry: scale and mirror invariance | Demonstrated in the page | mockup audit | example TE / wobble TE read 2 / 4 at ×0.3, ×1, ×2; mirror: same counts on 4 rails |
 | Geometry: extrema | Fixed: roots of the numerator of dκ/dt per span (D3), every simple knot a candidate | note §5 | mockup uses the same method; counts independent of density |
@@ -89,6 +89,32 @@ leader's record; the minors m1 to m6 and nits n1, n2 were not in the brief and a
 | Geometry: Greville | Fixed: copy "at point N's station on the curve"; t = ξ evaluated directly | note §4, COPY-RC-8 | mockup evaluates `jet(rail, ξ)` directly |
 | Geometry: sign | Fixed: +κ LE, −κ TE, positive convex; straight = |κ|L²/8 < 10 µm; `speed2 == 0` throws; inflection only between opposite curved neighbours | note §4, §6; mockup | straight rails read "straight · κ 0", 1 piece each |
 | Geometry: lengths | Fixed: Gauss–Legendre | note §4 | GL 932.39 mm vs polyline 932.39 mm |
+
+### Second pass: accessibility minors, nits and build conditions (exact items from the reviewer)
+
+Each check ran in Chrome with `docs/proof/cmb/mockup-audit.mjs` on 2026-10-09; page errors: none.
+
+| Item | Disposition | Evidence (observed) |
+|---|---|---|
+| m1 alt text "nearest curve position" | Fixed in revision 2 already: the card label reads "the radius at its station on the curve"; no "nearest" remains in the page; Greville wording in the strip | grep of the page: none; strip "Point 4: … at point 4's station on the curve" |
+| m2 "half strength" copy | Fixed by changing the copy to the real difference: the selected rail's teeth in the ink tone (.9), the other rail's in the muted tone (.75); CSS unchanged. Note §6 and the hint and card text agree | grep: no "half strength" left in the page or note |
+| m3 "✓ Auto scale" name | Fixed: the glyph is wrapped in `aria-hidden`; `aria-pressed` carries the state | markup |
+| m4 strip rebuilt with innerHTML | Fixed: one persistent strip element, text updated in place; live setting polite for walking and selection, off for pointer moves | element identity unchanged after a walk and after pointer moves; live polite then off |
+| m5 Escape and the summary unit | Fixed: Escape closes the popover and returns focus to the summary button; the summary reads "Comb · Auto · 32 per rail" (COPY-RC-16); the note aligned | after Escape: aria-expanded false, focus on the summary, summary text as given |
+| m6 reading on focus out | Fixed: focus leaving the canvas restores the selected-point reading | pointer reading, then Tab out: "Point 5: LE R 735 mm …" |
+| n1 header comment "1 % dead band" | Fixed in revision 2: the comment describes the tau / L rule, root-finding and one-sided values | no "dead band" in the page |
+| n2 heading levels h2 to h4 | Fixed: the plate title is an h3 | heading order H1, H2, H3, H2, H3, H3 |
+| C1 limit and Analysis toggle focusable | Fixed in the mockup: steppers and the Curvature toggle stand-in use aria-disabled; reasons are in `title` and an `aria-describedby` text; focus never moves | Larger at its limit keeps focus, live "Largest teeth reached."; Analysis toggle keeps focus, live "Curvature is shown in CAD." |
+| C2 ring tokens | Viewport ring fixed (rgb(102, 221, 200)); plate on the surface keeps the accent ring (value of `focus-ring`, #006c67 light); build test named | observed computed outline |
+| C3 Tab order | Designed; stand-in shown; test named | Tab order observed in the mockup |
+| C4 palette verbs announce | Deferred to build (the palette is not in the mockup); copy rows COPY-RC-12 and 13 exist; test named | none in the mockup |
+| C5 popover Escape and focus | Fixed as m5; open plate sits in flow and covers neither tip nor strip | open plate below viewport: clear |
+| C6 strip persistent and quiet | Fixed as m4; nudge quietness is a build condition (`PlanCanvas.cs:686` today) | as m4 |
+| C7 flash static under reduced motion | Deferred to build with the flash itself (the mockup has no flash); stated in note §3.1 | none |
+| C8 high contrast | Deferred: one trace on Windows and one on macOS at build; recorded as not run | none |
+| C9 screen-reader trace | Deferred by the operator's priority; recorded as unproven, not passed | none |
+| C10 reading returns on focus out | Fixed as m6 | as m6 |
+| Plate placement residual | Recorded as build condition C11 (placement by exclusion, test on the example, straight and wobble planforms) | example covers 0 points at 1320 and 520 px |
 
 Craft gate on the revised mockup: `ui-craft-gate.py docs/mockups/rail-comb.html --markdown`, exit 0, no findings. Console and page errors
 during the audit run: none. **Residual:** one plate-coverage failure is known and recorded: on the straight and wobble variants the fixed
