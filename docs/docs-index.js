@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7b8cf00e889e92bc6912284f662eabb5495dba8614a71dec70a158e023820ade"
+      "sourceSha256": "b92f0544ca7ea58ed05a9e22f4608625d06bfb410aed4ccca8a032e37513c3cd"
     },
     {
       "id": "domain-experts",
@@ -6259,6 +6259,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "25c57ecfb0fd70abd61108d0bdb5299e1e017f81e2429d822c2fc6d2f25fdf36"
     },
     {
+      "id": "proof-wri-probe-mac-join-note",
+      "path": "docs/proof/wri-probe/mac-join-note.md",
+      "title": "WRI probe - Mac join note (Ruling 178 conditions)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@mac-leader",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The P6 attempt in this probe predates Ruling 177 and ran on 93240b06 without the WDF fixes; it is not the Ruling 177 P6, which is still owed. Kept beside the receipt so the PC's capture-manifest-pinned receipt stays byte-identical.",
+      "tags": [
+        "windows",
+        "dpi",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-20",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7f0c058db350ac9c26f0ad54ac376f44cfe02e25310cab070095faa55abdee68"
+    },
+    {
       "id": "receipt-windows-store-implementation",
       "path": "docs/proof/win-store-implementation/receipt.md",
       "title": "Frozen B2 native qualification failure receipt",
@@ -7007,6 +7032,35 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5b853296d6d2ee2a5765d58a34f925bea5f4310c8cda485b7c7071446c41d49a"
+    },
+    {
+      "id": "review-pr-20",
+      "path": "docs/reviews/pr-20.md",
+      "title": "PR #20 (Windows PC) - WRI scale probe P1-P5 (Ruling 178), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 178). P1-P5 are committed raw output at 150 %, on pre-WDF 842e575d, and confirm the WRI arithmetic: in-process 1.5/1.5, TextBox 23.333 DIP = 35 px, chip borders painted on a 2/3-DIP seam. The host scale is now Verified. P6 ran before Ruling 177 with an AppliedDPI gate and stays NOT ASSESSED and owed.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "dpi",
+        "accessibility",
+        "ui"
+      ],
+      "links": [
+        {
+          "to": "review-pr-18",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "979b87ef1f7b52c029c5302a3e204113c6c444c754c42abad4fda926cdafd04a"
     },
     {
       "id": "review-pr-3",
@@ -7942,7 +7996,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "464244974dfac033141befc746120838746b1cced0e0daf91deb730bfdc7323c"
+      "sourceSha256": "e356cad0b55f0dcf4629fadb288bde3b2a51b1e52f3755ddb78e1113c526ef88"
     },
     {
       "id": "kb-hw-glossary",
@@ -14524,6 +14578,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "cb3be0188a83c3d0e5ff019def49ab42f83f3654ff52f752164328a81e45e695"
     },
     {
+      "id": "proof-rrf-red-first",
+      "path": "docs/proof/rrf/red-first.md",
+      "title": "RRF: red-first record for the readiness rule match",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-rrf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "`rule_for` in tools/run-readiness.py matched a rule against any argument; it now matches the executed script only. The new self-test case is red on the old code and green on the new.",
+      "tags": [
+        "readiness",
+        "run-readiness",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-wdf-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3933950736c8c77e8408096a2178260cd2b6d68282dd945bc298564c6be2646a"
+    },
+    {
       "id": "proof-sfv-captures",
       "path": "docs/proof/sfv/captures.md",
       "title": "SFV captures of the Section force vectors against the approved mockup states A to E",
@@ -18337,5 +18416,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6b3213e019f47d346e8aaad0a3838da02f8a1aaa89752364cbe7101e05091f03"
+  "graphSha256": "5adbe2292671915228a9f63faef74d690c5cd159d7440c3cc723331505ff1b4d"
 };
