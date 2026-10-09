@@ -1609,7 +1609,14 @@ Earlier joins never hit this, because PC branches do not add rulings, so only on
   driver that parses markdown.
 - *Prevent:* the marker gate (step 3) caught it, which is the pack's intended net. The binding fix is track CRD: rebind
   `rulings.md`, plus a check that every `merge=coord-register` path parses as JSONL, red first on today's binding.
-  Status: pending CRD.
+- *Source of the binding (track CRD):* `.agents/artifacts.yml` (repo-owned, below the managed-block end marker) classed
+  the file `register`; `coord install` copies each register pattern into `.gitattributes`. Both lines are removed, so
+  a re-run of `coord install` does not bring the binding back and the pack needs no change.
+- *Sweep result:* the other `coord-register` paths all parse as JSONL; the `defect-register` path is markdown.
+- *Control:* `tools/check-merge-bindings.py`, run by `tools/check-docs.py` (fast ring, about 0.1 s). Red on the old
+  binding (`docs/notes/rulings.md: bound to merge=coord-register but line 1 is not JSON`), green after. Replay of the PHN
+  merge with plain `git merge-file` exits 0 and equals the committed file by hash. Proof: `docs/proof/crd/`.
+  Status: controlled (`tools/check-merge-bindings.py`).
 
 **CFD-CLAIM-SCOPE · A label names a stronger quantity or cause than its data supports.** PRJ displayed `CL/CD` using
 `CDi`, and attributed every e below 0.85 to a lattice effect even though physical washout can lower e at low CL.

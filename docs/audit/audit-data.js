@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T16:20:28Z",
+  "generated": "2026-10-09T16:28:37Z",
   "audit": [
     {
       "actor": null,
@@ -32794,6 +32794,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T16:18:42Z",
       "duration_seconds": 106.0
+    },
+    {
+      "id": "al-01M4GQXG3D4DMSM6MSRW2WCSW9",
+      "shortname": "crd-driver-bindings",
+      "datetime": "2026-10-09T16:28:37Z",
+      "session": "trk-crd",
+      "prompt": "trk-crd",
+      "summary": "Removed rulings.md register binding from artifacts.yml and .gitattributes; added tools/check-merge-bindings.py to check-docs; PHN replay identical by hash; REGISTER-CLASS-MISMATCH controlled",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Merge-driver bindings match file formats",
+      "done_when": "rulings.md rebound, binding check red then green, PHN replay identical, class controlled",
+      "started_at": "2026-10-09T16:25:00Z",
+      "duration_seconds": 217.0
     }
   ],
   "changes": [

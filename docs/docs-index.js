@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5953020118f33d580fa1e8f688090823237fe30986c4d195e8172325f90e5577"
+      "sourceSha256": "4058a51dc74aaf4409907fa5243b29645fa9df3aa816c4012778d5a74588e71a"
     },
     {
       "id": "domain-experts",
@@ -12503,6 +12503,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "359ef932076656929ed94883a87e19a8f3c1b7017f90075ca322673b5e509049"
     },
     {
+      "id": "proof-crd-red-first",
+      "path": "docs/proof/crd/red-first.md",
+      "title": "CRD red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-crd",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for the merge-binding check: red on the rulings.md coord-register binding, green after rebinding, PHN join replay identical by hash.",
+      "tags": [
+        "merge-driver",
+        "proof",
+        "register-class-mismatch"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c2a15924512ab6721f32817965560f04b5ac2381df5320517a335faea329c081"
+    },
+    {
       "id": "proof-cross-profile-abscissa",
       "path": "docs/proof/cross-profile-abscissa/README.md",
       "title": "XPA probe — compatible fit and knot propagation across station profiles (Ruling 71 option 1)",
@@ -18783,5 +18808,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "07c09027f5bd20caf3569b897aee9c3972eecdc90fe600a192e19fca3c567aea"
+  "graphSha256": "6c1198f99dfe2ef8bc29763637703f907c7b0aaa58892c4c0e0b1d2fbc88f007"
 };

@@ -1,0 +1,2 @@
+MERGE-BINDING: docs/notes/rulings.md: bound to merge=coord-register but line 1 is not JSON
+exit 1
