@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d6da848e9e3c75bde930fc65a9615f87d99770de6ef1a3d514e6dd9da03613be"
+      "sourceSha256": "77fceead4e6cb55e482a88eac5e66b237623742a45fc9e67829e2c34b64aea20"
     },
     {
       "id": "domain-experts",
@@ -11953,6 +11953,58 @@ window.DOCS_INDEX = {
       "sourceSha256": "5d4ca477769a2466f3ae9863ae2a1c1a632002b7a8f6d0ed801c1f26ca8aeda1"
     },
     {
+      "id": "proof-cbl-measure",
+      "path": "docs/proof/cbl/measure.md",
+      "title": "CBL Core part balance: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Per-check cost of the Core harness (two runs), the top 20, and three ring runs with the Core part ms and load.",
+      "tags": [
+        "cbl",
+        "core",
+        "partition",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-cbl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9154463abb7de9d2eb8bc5a4a412e4df07f7efe7de269f83c640c71e75f8eed9"
+    },
+    {
+      "id": "proof-cbl-red-first",
+      "path": "docs/proof/cbl/red-first.md",
+      "title": "CBL red first: the cost-table partition check",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The partition check red on the old round-robin rule (19106/18149/12491 ms), then green on longest-first.",
+      "tags": [
+        "cbl",
+        "core",
+        "partition",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-cbl-measure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ab864d55b246591c750659f161015cd841fd147f8866e6ef9b15f3305dd1f6fd"
+    },
+    {
       "id": "proof-copyfix-red-runs",
       "path": "docs/proof/copyfix-red-runs.md",
       "title": "COPYFIX red-first runs — M1.2a copy decisions, two missing states, atomic Remove from Recent",
@@ -17802,5 +17854,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "64685e037cb30a6cd496028bd9d93ceb3e13b875aaf0f6355912c0886eda5869"
+  "graphSha256": "72725de434310d1849613e08c99da10e11ece653031ef3fa0ab2f105e77093f3"
 };

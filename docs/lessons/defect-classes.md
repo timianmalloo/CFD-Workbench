@@ -1658,6 +1658,7 @@ from the `.ms` files `tools/run-tests.sh` already writes; it costs no run time. 
 2026-10-09 (OBS): the skew control is built. `tools/check-test-costs.py` prints `PARTITION-SKEW <harness> parts=<ms list> skew_ms=<n> (hints stale?)` for
 Core and Analysis when the slowest part minus the fastest exceeds 15 % of the per-part limit; it is advisory and never fails the ring. Its
 self-test plants a balanced and a skewed set. Cost: five `.ms` reads, under 1 ms. The Core limit is a 30,000 ms reference (Core parts read 31.6 / 31.7 / 24.2 s: a real 7.5 s skew, not tuned here), not a ruled limit.
+2026-10-09 (CBL): Core parts are now cost-placed, not round-robin: `tests/CfdWorkbench.Core.Tests/Fixtures/core-costs.tsv` (longest first onto the lightest part; an unlisted check keeps `i % n`). Parts read 29.3 / 29.7 / 30.3 s with no PARTITION-SKEW (was 31.6 / 31.6 / 21.9 s). The table goes stale as checks are added; the PARTITION-SKEW line is the detector, and regenerate is `python3 tests/CfdWorkbench.Core.Tests/Fixtures/core-costs.py <logs of CFD_CORE_COST=1 runs>` (`docs/proof/cbl/measure.md`).
 
 **DESKTOP-HARNESS-GROWTH · A CPU-bound harness whose parts run concurrently cannot be partitioned into margin.** C-4 (Desktop <= 43 s)
 read 42.5 / 43.5 / 42.8 s at quiet load (one red in three), then 45,636 ms at load 21.8 on the PNA join, after every UI track had added
@@ -2137,3 +2138,22 @@ in Desktop's spawn stage, and the PC filed a second decision request. Ruling 170
 2026-10-09 (OBS): a killed log could not tell slow from hung, because Spawn buffers each child's output and STAGE lines had no time.
 Every Desktop `STAGE <name>` line now carries `elapsed_ms=<since harness start>`, and Spawn prints `SPAWN-START <mode> elapsed_ms=<n>` at
 each child start, unbuffered. A killed log now shows which children had started and how long ago. Checks: `StageTimingTests`.
+
+**CLEANUP-BLOCKS-CEILING · A cleanup path that can block defeats the ceiling it serves.**
+The PC's W-2 `verify-windows-store.py` (unpushed 1d89f6c8, xmsg 20261009T010555) enforced a 60 s hard ceiling. Its timeout
+path, `_terminate_tree`, called a blocking `stream.close()` on the ceiling thread. With an already-expired deadline and
+an injected `taskkill` failure, a real Windows pipe child blocked cleanup for 1.49 s. The self-test used a fake BytesIO
+stream, which cannot reproduce reader-thread pipe locking, so the ceiling was asserted and not proved. The PC's owner
+reviewer vetoed it at the 2/2 repair cap.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a timeout or ceiling whose enforcement path itself performs an unbounded wait (close, join, kill, flush),
+  proved only against an in-memory fake.
+- *Sweep:* the Mac's own timeout paths (`tools/run-readiness.py` STEP_TIMEOUT and `run_entry` timeout, and the Desktop
+  harness's 120 s child kill at `WorkbenchTests.cs:735-740`). They are not yet audited for a blocking close: an open
+  follow-up.
+- *Derive:* the timeout path never blocks on the ceiling thread; reader threads are daemon, closed on a helper thread
+  or abandoned with a bounded join; the ceiling clock starts at process start.
+- *Prevent:* Ruling 171 (1): every timeout self-test uses a real child process (not an in-memory stream). It covers an
+  already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status: control
+  pending the PC repair track; the Mac sweep above is open.

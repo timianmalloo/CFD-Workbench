@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:53:11Z",
+  "generated": "2026-10-09T01:13:26Z",
   "audit": [
     {
       "actor": null,
@@ -31455,6 +31455,51 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T00:52:16Z",
       "duration_seconds": 55.0
+    },
+    {
+      "id": "al-01M4F3EZCW309GKHK18F7KHF5M",
+      "shortname": "cbl-core-balance",
+      "datetime": "2026-10-09T01:11:55Z",
+      "session": "trk-cbl",
+      "prompt": "CBL",
+      "summary": "core-costs.tsv + longest-first CorePartition; parts 29.0/29.4/29.9 s, no skew; 731 checks exactly once",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Rebalance the three Core ring parts with a cost table",
+      "done_when": "Core parts within 15 percent, no PARTITION-SKEW, largest below 31.6 s"
+    },
+    {
+      "id": "al-01M4F3HQS0B1YM7CGVCV59HZ4Y",
+      "shortname": "join-cbl",
+      "datetime": "2026-10-09T01:13:26Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/cbl-core-balance into main",
+      "summary": "CBL joined: CorePartition assigns by core-costs.tsv longest-first, unlisted checks fall back to i%n; Core parts ~29-30 s each, no PARTITION-SKEW recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join the Core partition rebalance",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T01:12:30Z",
+      "duration_seconds": 56.0
     }
   ],
   "changes": [
@@ -33842,6 +33887,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4F1J6FZCJABXTRJGF99N05F",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F39J7AMJZQKN3HYEJCADP6",
+      "ts": "2026-10-09T01:08:58Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F39J6YJ9G2AWKH4B6K80YW",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F39JCHS87WA655HG24NC9Y",
+      "ts": "2026-10-09T01:08:58Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F39J6YJ9G2AWKH4B6K80YW",
       "session": "fable-owner"
     }
   ]
