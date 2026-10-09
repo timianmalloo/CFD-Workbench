@@ -7300,6 +7300,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "1e5acc6a0ba5c1731e4d3c024258c5f8c9435c29faacf53bc48b25b3ca580691"
     },
     {
+      "id": "review-pr-25",
+      "path": "docs/reviews/pr-25.md",
+      "title": "PR #25 (Windows PC) - blocked Ruling 184 scale run (Ruling 187), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 187). It joins as a blocked receipt, and no run budget opens (Ruling 186). Both cycles stopped at the initial preflight. The driver meets Ruling 184 as written. The PR's own result manifest binds the live .gitattributes (CLOSING-MANIFEST-MUTABLE-PATH), which is rebound at the join.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "runner",
+        "dpi"
+      ],
+      "links": [
+        {
+          "to": "review-pr-24",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "23584a62c40f0b915059a8ac2e8b7b01b9090882b4a364cb1da555dc44f6246d"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8233,7 +8261,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "16fd19ccf6aff9991f4908a2870d8acaf1d8f94d607159a4eafabe03433fee42"
+      "sourceSha256": "a20affffb68d63d17a5ee1961b333d05d44b741a4e4944031070292339fd846f"
     },
     {
       "id": "kb-hw-glossary",
@@ -19128,5 +19156,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "888f725ce49d014787dfc48b240af6096a5d01097b30a3b8f33c608f4fd16329"
+  "graphSha256": "ea026797516ec4f94b4641c6bb5032c2821c012ef1ef0dcce30f20c5e8967ae2"
 };

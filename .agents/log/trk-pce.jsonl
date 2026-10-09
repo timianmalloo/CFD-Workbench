@@ -1,1 +1,2 @@
 {"agent": "trk-pce", "at": 1791576232.0869918, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-pce", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-inv-pce-escape-flake"}
+{"agent": "trk-pce", "at": 1791577223.780462, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-pce", "wi": "WI-0", "worktree": "CFD-Workbench-inv-pce-escape-flake"}
