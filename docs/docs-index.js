@@ -14538,12 +14538,12 @@ window.DOCS_INDEX = {
       "path": "docs/proof/r181-store-verifier-rerun/receipt.md",
       "title": "Ruling 181 Windows verifier rerun",
       "type": "proof-pack",
-      "status": "blocked",
+      "status": "complete",
       "owner": "@win-r181-store-verifier-rerun",
       "phase": "implementation",
       "reviewBy": "2026-11-09",
       "reviewSuggested": [],
-      "summary": "Capture wrapper and immutable source snapshots are prepared for the single Ruling 181 rerun. The verifier has not been executed; no Windows PASS is claimed.",
+      "summary": "The single Ruling 181 rerun observed verifier exit 0 through the committed runner, numeric build-server shutdown 0 before residual sampling, zero matching SDK build servers, PHN PASS, and unchanged protected source.",
       "tags": [
         "windows",
         "verifier",
@@ -14569,7 +14569,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b300e5c9d7819993ccddac6d7e636bc57a39f5f5adbff237c982751609c0088f"
+      "sourceSha256": "b4b0666d183ee7bdeef725b223c5c2bb41952e9b91091ef2b13fb7e95011ffc5"
     },
     {
       "id": "proof-rcd-red-first",
@@ -19233,5 +19233,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "121c907b522ce2875c47e2ac9c46a95f9d76fec76c284c9b323534dc06c1251a"
+  "graphSha256": "aef5db91f4fa9fab1f8ccd87fb85f2f14d6529b42f2d669ce42580b5679866df"
 };
