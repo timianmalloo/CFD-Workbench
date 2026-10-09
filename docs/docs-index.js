@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "74c055b48df799d9f0d5b8b949089692e2d864ebb32a5660d870926afb1f8458"
+      "sourceSha256": "61e54f31cc7d5c7fcbf58ea0f5c266e3963874d9f94408ff4251ba02a1104940"
     },
     {
       "id": "domain-experts",
@@ -7356,6 +7356,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "8227bca46b367e9faf3b541a2296ad976a9ea616897b23b52edbba20d0a6a9ee"
     },
     {
+      "id": "review-pr-27",
+      "path": "docs/reviews/pr-27.md",
+      "title": "PR #27 (Windows PC) - COPY-447 reachability, blocked partial (Ruling 190), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 190). This is a blocked partial, not evidence. Windows SaveAsync refuses before any filesystem stage, so crash leftovers stay NOT ASSESSED and COPY-447 is held until W-2 B2. The capture lost its numeric exits by deferring them to a final write (a WINDOWS-CAPTURE-LIFECYCLE sibling).",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "store",
+        "copy"
+      ],
+      "links": [
+        {
+          "to": "review-pr-26",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3edcc32659bca6c8b11f3f2a3cc5410b928f6600371f13ec806b55f496d56582"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8289,7 +8317,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "74d71f47f8971750529cd1e8cbb0e7f29c6d6235e7c3d02c6f7855d00dfe38b7"
+      "sourceSha256": "084993ba5ddd94d39e36517750e607d23ee06a5a49fd58901c87098c46c932c9"
     },
     {
       "id": "kb-hw-glossary",
@@ -19312,5 +19340,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c73ef6d2b62dbe539b29c7c001dd220c40a1da0ca926e01f6d4dff51db374d03"
+  "graphSha256": "64408832117564d5a0134739e46e9a01775f45c679b8a19d5a567594f167aee4"
 };

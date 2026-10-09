@@ -2477,6 +2477,11 @@ folder, with only those four paths rebound and the bytes and SHAs unchanged.
   the class recurring in the PR that recorded it: every proof track appends to `.gitattributes`. The leader rebound it at
   the PR #25 join to `docs/proof/wri-r184-result/source-snapshots/cfd947c3/gitattributes.txt`, with the same bytes and
   SHA and a `-text` attribute.
+- *Sweep extended (2026-10-09, Ruling 190, review of PR #27):* a scan of all 42 proof manifests found 9 bindings to live
+  paths, all from before this PR. `win-naca` (closing and hash manifests) binds `cases/*.yaml`, which is by design.
+  `win-routes/manifest.json` binds 2 `cases/*.yaml` and **`docs/design/guided-solver-setup.md`, a live design
+  document**: an edit to that design would turn check-docs red. That is an open instance, to be rebound to a snapshot when
+  the prevent lands.
 - *Derive:* a manifest freezes evidence by copying it into the proof folder; it never binds a path that a later track
   may change.
 - *Prevent:* pending. `check-capture-manifests.py` flags a closing-manifest path under `tools/`, `src/` or `tests/`,
@@ -2503,6 +2508,15 @@ mutant removes this refusal and must fail control (c). This is the single R184 p
   termination failures, timeout, delayed-startup, shutdown-order, shutdown-exit-3, and PII fixtures. Ring: Windows
   runner preparation; measured runtime 28.162 s, whole retained qualification 40.976 s. Status: controlled; no verifier
   execution or system-wide residual sampler is claimed (`docs/proof/wri-r182-runner/receipt.md`).
+- *2026-10-09 (Ruling 190, PR #27, deferred-metadata sibling):* the exit was observed and then lost by **write order**.
+  `docs/proof/copy447-reachability/capture.ps1` ran every child through the committed runner, which returned numeric
+  exits, PHN results and raw hashes. The script held them in memory for one final `receipt.json` (`:124-147`). With
+  `$ErrorActionPreference='Stop'` and no catch, a later throw discarded all of them and the launcher's own error.
+  Separately, `package-pii.ps1:34-35` overwrote the original `pii.*` captures. *Derive:* a capture script writes each
+  child's metadata to disk right after that child, before any assertion. The launcher catches and records its own
+  error. Packaging writes beside originals, never over them. *Control:* a PC condition of Ruling 190 (red-first on a
+  stub exiting 3 plus an injected throw after the case). It is pending until a capture script is next used. COPY-447 has
+  no budget before W-2 B2.
 
 **RUNNER-POLICY-NAME-ONLY · A guard sees a name in source and falsely certifies the active call or allowed target.**
 The first runner guard accepted commented numeric validation, removed pre-child source validation, added unbounded
