@@ -1,1 +1,2 @@
 {"agent": "trk-rg5", "at": 1791563744.3021472, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-rg5", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rg5-entry-order"}
+{"agent": "trk-rg5", "at": 1791564222.2093282, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-rg5", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rg5-entry-order"}

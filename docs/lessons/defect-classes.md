@@ -581,6 +581,17 @@ must attach actual `verify-portable-text-io.py` and
 `verify-subprocess-utf8.py` exit/output receipts before its author declares
 ready; `check-docs.py` is not their substitute. The W0 route packet carries
 this pre-handoff rule.
+*2026-10-09 (Ruling 183, GATE-AFTER-FREEZE).* The same shapes recurred in `tools/check-windows-runner.py`: two text
+writes without `newline`, and a printing entry point without the stdio guard. This time the gate was not skipped; it
+ran **after** the PC owner's exact-hash freeze. A green review therefore bound bytes the gates then refused, and the
+repair cap fired on gate-shaped work. The W0 pre-handoff rule never reached the Ruling 182 runner route, and the Mac's
+16:32Z gate list named the gates without their order.
+
+*Control:* in any PC track that changes `tools/`, `run-verify-gates.py` and `check-docs.py` run green, with output
+retained, **before** the self-test freeze and before any exact-hash review. The review receipt cites both outputs; a
+reviewer refuses a hash review without them. The Mac states gate lists in order: gates, then freeze, then review.
+Status: prose rule in Ruling 183 and the route text; the mechanical form (the receipt check requiring both outputs,
+timestamped before the review) is pending.
 
 **TEST-ENTRY · A test intercepts process exit and runs unintended work.** A
 local legacy-console probe replaced `sys.exit` while invoking `--help` on the
