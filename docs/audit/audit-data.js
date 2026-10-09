@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T15:50:46Z",
+  "generated": "2026-10-09T16:07:41Z",
   "audit": [
     {
       "actor": null,
@@ -32604,6 +32604,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T15:50:34Z",
       "duration_seconds": 12.0
+    },
+    {
+      "id": "al-01M4GPQ4CVTGA0H68V673RSBFK",
+      "shortname": "phn-pii-hostname",
+      "datetime": "2026-10-09T16:07:40Z",
+      "session": "trk-phn",
+      "prompt": "trk-phn",
+      "summary": "Hostname rules, masked output, optional CFD_PII_HOSTNAMES list and fixtures landed; sweep of main hits 64 files (7 real-name OpenFOAM banners, 56 Mac label, 1 server word), held for leader, no allowlist added",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "hostname rules in check-proof-pii.py with red-first fixtures and a sweep of main",
+      "done_when": "self-test red then green, sweep of main reported, cost measured, guard exit 0 on main",
+      "started_at": "2026-10-09T15:59:47Z",
+      "duration_seconds": 473.0
     }
   ],
   "changes": [
