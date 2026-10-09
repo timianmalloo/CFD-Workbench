@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T22:51:53Z",
+  "generated": "2026-10-09T22:53:02Z",
   "audit": [
     {
       "actor": null,
@@ -33750,6 +33750,35 @@ window.AUDIT_DATA = {
       ],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M4HDXCXZ70RZ9H4TB6X94YXD",
+      "shortname": "join-pr28",
+      "datetime": "2026-10-09T22:53:02Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined PR #28 as an interim L3 snapshot (Ruling 192); nice reconciled by an append-only actual-launch record; audit log kept main's bytes recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-28.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PR #28 on main under Ruling 192",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T22:52:01Z",
+      "duration_seconds": 61.0
     }
   ],
   "changes": [
