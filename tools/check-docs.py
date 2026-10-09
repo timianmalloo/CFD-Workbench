@@ -96,6 +96,8 @@ def run_lesson_controls():
         ("check-expected-failures.py", ("--self-test",)),
         ("merge-defect-register.py", ("--self-test",)),  # JOIN-LOG-CONFLICT; fast ring, ~0.05 s
         ("dispatch-gate.py", ("--self-test",)),
+        ("check-wsl-inline.py", ("--self-test",)),  # WSL-INLINE-ARGV; fast ring, ~0.05 s + ~0.3 s
+        ("check-wsl-inline.py", ()),
         ("../cases/tools/validate-cases.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ()),
     ):
