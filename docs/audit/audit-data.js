@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T22:53:02Z",
+  "generated": "2026-10-09T23:21:20Z",
   "audit": [
     {
       "actor": null,
@@ -33779,6 +33779,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T22:52:01Z",
       "duration_seconds": 61.0
+    },
+    {
+      "id": "al-01M4HFH6CGMP02X77W4NJMPWRC",
+      "shortname": "cmb-rail-comb",
+      "datetime": "2026-10-09T23:21:20Z",
+      "session": "trk-cmb",
+      "prompt": "trk-cmb rail comb design track",
+      "summary": "Design note docs/design/rail-comb.md, adversary dispositions docs/proof/cmb/adversary.md (14 findings, all dispositioned), mockup docs/mockups/rail-comb.html; craft gate clean; 3 operator questions",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Design note, marine-cad adversary pass and mockup for rail comb scale, density, radius and monotone count",
+      "done_when": "note, adversary record, mockup, craft gate clean, check-docs exit 0",
+      "started_at": "2026-10-09T23:07:33Z",
+      "duration_seconds": 827.0
     }
   ],
   "changes": [
@@ -36531,6 +36551,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4HDT8NBKX95AXAJPHA7HABJ",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4HEQAK7H85G2GQYSEM4V3DW",
+      "ts": "2026-10-09T23:07:12Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4HEQAGAYX1NEX3RTPWQ1HT2",
+      "session": "operator-timianmalloo"
     }
   ]
 };
