@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0e0115bd7b850410a0e5d8796c809130536138f5628124df23ed4d2ca90c841f"
+      "sourceSha256": "d9bf82e800c004640a29ca3a78b6bba14a7fb592711410f846ffb288ae791bbf"
     },
     {
       "id": "domain-experts",
@@ -15707,6 +15707,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "fbd2221b43f9cc84427285d30106e6c0863c2b680354bd63e82266ca009f6797"
     },
     {
+      "id": "proof-wrb-red-first",
+      "path": "docs/proof/wrb/red-first.md",
+      "title": "WRB red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-wrb",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for the Windows ring follow-ups: the CFD_RING_HOST override, the capture and closing manifest guard, the handle-target fixture re-record, and the held-reader test on Windows.",
+      "tags": [
+        "windows",
+        "ring",
+        "proof",
+        "ruling-167",
+        "ruling-168"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "41fa73ad9d7d1f90dff8fb4a0ec789b394f3177a269fc65f83d25609b3b10bd2"
+    },
+    {
       "id": "proof-wrt-red-first",
       "path": "docs/proof/wrt/red-first.md",
       "title": "WRT red-first receipt: Windows known-expected-failure manifest",
@@ -17695,5 +17722,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "34cee2d14db7aad31a4f69e9246ed7c2b78c1a37c510126154dcf1928cc7a63a"
+  "graphSha256": "828453de6f82c03e4a89448ab80a200eabc8d27a7dd4a9157ae6481ad8d20020"
 };

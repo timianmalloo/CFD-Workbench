@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:13:06Z",
+  "generated": "2026-10-09T00:19:04Z",
   "audit": [
     {
       "actor": null,
@@ -31250,12 +31250,57 @@ window.AUDIT_DATA = {
       "tool": "audit-log.py"
     },
     {
-      "id": "al-01M4F03976MEF7C24TQBB6T5GF",
-      "shortname": "join-pr17",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-09T00:13:06Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 53.0,
+      "fan_out": 0,
+      "goal": "join PR #17 under Ruling 169",
+      "id": "al-01M4F03976MEF7C24TQBB6T5GF",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of origin/win/w4-r151-followups into main",
+      "session": "3122f106",
+      "shortname": "join-pr17",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T00:12:13Z",
       "summary": "PR #17 joined: Ruling 151 C3/C4 closed, Ruling 165 satisfied (0 PII, 9e2bdfc2 on no remote, hashes equal) recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T00:17:23Z",
+      "done_when": "CFD_RING_HOST, manifest guard, fixture re-record, held-reader test landed; check-docs and verify gates green",
+      "goal": "Windows ring follow-ups from Rulings 167 and 168",
+      "id": "al-01M4F0B4CSQFJCC02W9ETSJQPJ",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "trk-wrb",
+      "session": "trk-wrb",
+      "shortname": "wrb-windows-ring",
+      "skill": "implement",
+      "summary": "CFD_RING_HOST override; check-capture-manifests.py (capture and closing manifests) wired in check-docs; handle-target.tsv:7 re-recorded (DRIFT 0); held-reader test uses WindowsNative.Rename on Windows. Ring: C-2 Analysis.part1of2 5110/5220 ms vs 5000 at load 10-15 (not touched by this track), two runs.",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4F0E6RKD7WMVQQBV45AWMH9",
+      "shortname": "join-wrb",
+      "datetime": "2026-10-09T00:19:04Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/wrb-windows-ring into main",
+      "summary": "WRB joined: CFD_RING_HOST key; check-capture-manifests over capture and closing manifests; handle-target fixture to 0; WSF held-reader test replaces via WindowsNative.Rename on Windows recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -31264,7 +31309,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join PR #17 under Ruling 169",
+      "goal": "join the Windows ring follow-ups",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -31273,8 +31318,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T00:12:13Z",
-      "duration_seconds": 53.0
+      "started_at": "2026-10-09T00:18:05Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [

@@ -70,7 +70,9 @@ ring_load_source=$(load_source)
 # On macOS nothing here runs and a listed test failing is a real failure.
 ring_windows=0
 case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) ring_windows=1 ;; esac
-ring_host=$(hostname | cut -d. -f1)
+machine_host=$(hostname | cut -d. -f1)
+# Ruling 168 (3): CFD_RING_HOST (validated [a-z0-9-]{1,32}) replaces the hostname as the baseline key; a refusal stops the ring.
+ring_host=$(py "$root/tools/check-test-costs.py" --resolve-host "$machine_host") || exit 2
 load_start=$(load)
 started=$SECONDS
 started_ms=$(now_ms)
