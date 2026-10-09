@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3453dfe4113114cf144ae94c4dd04ed81a1d7345204fe55cbc4e4defe5292719"
+      "sourceSha256": "4524db59af62faade5442a1fefdc261163e9a41530fda5267963918717db0102"
     },
     {
       "id": "domain-experts",
@@ -15008,6 +15008,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "1091b7b26723dcc8bff4333d97ae910bc257d9899887ee3f0782a223a4fe55e5"
     },
     {
+      "id": "proof-rlk-red-first",
+      "path": "docs/proof/rlk/red-first.md",
+      "title": "RLK red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rlk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Readiness takes every ring slot for its whole run: red run with a fake ring (timed step started at once), green run (waits, track ring waits, BLOCKED exit 4 past the bound).",
+      "tags": [
+        "rlk",
+        "readiness",
+        "ring-lock",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bf9afdc21d13437683b7f5df2df2db12c098cef87e6cc411b67c62745f5e500b"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -15085,6 +15111,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "3933950736c8c77e8408096a2178260cd2b6d68282dd945bc298564c6be2646a"
+    },
+    {
+      "id": "proof-sdg",
+      "path": "docs/proof/sdg/receipt.md",
+      "title": "SDG scale-diagnostic mode receipt",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-sdg",
+      "phase": "implementation",
+      "reviewBy": "2026-10-28",
+      "reviewSuggested": [],
+      "summary": "The --scale-diagnostic mode prints one SCALE_CONTEXT line, runs no check and exits 0. Red first, the Mac run and why the default ring never runs it.",
+      "tags": [
+        "scale",
+        "diagnostic",
+        "ruling-184"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-probe-windows-scale",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "58d1be122b6a3cebdf01270d9220e118dbefeccaea41d6603d179b0847ab9fff"
     },
     {
       "id": "proof-sfv-captures",
@@ -18994,5 +19045,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6e3e6e11bd5f20633eb88ef2e6e795c8fe723c0819036638343f9d0b1dd0a8e2"
+  "graphSha256": "3bdda1e716d975543cd8156e1ec85373d017bc3cd8b8f79e165333d7045042a8"
 };

@@ -1,1 +1,2 @@
 {"agent": "trk-wig", "at": 1791569699.855686, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-wig", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-wig-wsl-inline-gate"}
+{"agent": "trk-wig", "at": 1791570733.395416, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-wig", "wi": "WI-0", "worktree": "CFD-Workbench-fix-wig-wsl-inline-gate"}

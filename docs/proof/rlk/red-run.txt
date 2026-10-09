@@ -1,0 +1,84 @@
+run-readiness: FAIL    0.2 s  python3 -c raise SystemExit(1)
+run-readiness: total 0.4 s (budget 240 s) load 8.91 -> 8.91
+run-readiness: RED for ed7733564 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: the receipt is red for ed7733564, not green for HEAD ed7733564
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+run-readiness: FAIL    0.2 s  || python3 -c raise SystemExit(1)
+run-readiness: last lines of /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness/00-1.log
+
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 8.91 -> 8.91
+run-readiness: RED for ab0bde9d3 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: the receipt is red for ab0bde9d3, not green for HEAD ab0bde9d3
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 8.91 -> 9.72
+run-readiness: GREEN for 0f1a0d8f9 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: green receipt for HEAD 0f1a0d8f9
+run-readiness: the receipt is green for 0f1a0d8f9, not green for HEAD c04bce09f
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget -1 s) load 9.72 -> 9.72
+run-readiness: GREEN for c04bce09f (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+READINESS-BUDGET: green, but 0.8 s is over the -1 s budget. Read the load on the line above and the step seconds before raising it (docs/plans/test-cost.md).
+run-readiness: the receipt for HEAD c04bce09f is green but over budget (0.8 s > -1 s); READINESS-BUDGET
+run-readiness: FAIL    1.0 s  python3 -c import time; time.sleep(30)  (TIMEOUT after 1 s; process group killed)
+run-readiness: total 1.3 s (budget 240 s) load 9.72 -> 9.72
+run-readiness: RED for bb3587481 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: N/A     0.2 s  python3 tools/verify-windows-store.py  (NOT ASSESSED, excluded from the ring result)
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 9.72 -> 9.72
+run-readiness: GREEN for 25cb1950a (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: green receipt for HEAD 25cb1950a
+run-readiness: EVID    0.2 s  python3 tools/verify-windows-store.py  (evidence, not a gate: a Windows PASS counts only through a reviewed receipt)
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 9.72 -> 9.72
+run-readiness: GREEN for 053e9ace9 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: green receipt for HEAD 053e9ace9
+run-readiness: FAIL    0.2 s  python3 tools/verify-windows-store.py
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 9.72 -> 9.18
+run-readiness: RED for 6e00f8944 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: the receipt is red for 6e00f8944, not green for HEAD 6e00f8944
+run-readiness: FAIL    0.2 s  python3 tools/verify-windows-store.py
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 9.18 -> 9.18
+run-readiness: RED for 823fecfd9 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: the receipt is red for 823fecfd9, not green for HEAD 823fecfd9
+run-readiness: FAIL    0.2 s  python3 -c raise SystemExit(4)
+run-readiness: total 0.4 s (budget 240 s) load 9.18 -> 9.18
+run-readiness: RED for 554043528 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: FAIL    0.2 s  python3 tools/other.py --skip verify-windows-store.py
+run-readiness: total 0.4 s (budget 240 s) load 9.18 -> 9.18
+run-readiness: RED for 4efd3ebbd (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+run-readiness: FAIL    1.0 s  python3 tools/verify-windows-store.py  (TIMEOUT after 1 s; process group killed)
+run-readiness: total 1.2 s (budget 240 s) load 9.18 -> 9.18
+run-readiness: RED for 9118089e7 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpahyuf43m/ring/.tmp/readiness.json)
+cleanup after expired deadline: 0.21 s (bound 2 s)
+cleanup after timeout: 0.25 s (bound 2 s)
+cleanup after failed kill: 0.24 s (bound 2 s)
+run-readiness: ok      3.1 s  python3 -c import sys, time; open(sys.argv[1], 'w').write(repr(time.time())); time.sleep(3) /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpy5ccea5g/repo/step-started
+run-readiness: total 3.3 s (budget 240 s) load 8.69 -> 8.69
+run-readiness: GREEN for 17d77188e (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpy5ccea5g/repo/.tmp/readiness.json)
+ring lock: readiness waited 0.0 s for a fake ring held 2.0 s
+run-readiness: ok      3.1 s  python3 -c import sys, time; open(sys.argv[1], 'w').write(repr(time.time())); time.sleep(3) /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpy5ccea5g/repo/step-started
+run-readiness: total 3.3 s (budget 240 s) load 8.69 -> 8.31
+run-readiness: GREEN for 17d77188e (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpy5ccea5g/repo/.tmp/readiness.json)
+run-readiness: ok      3.1 s  python3 -c import sys, time; open(sys.argv[1], 'w').write(repr(time.time())); time.sleep(3) /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpy5ccea5g/repo/step-started
+run-readiness: total 3.3 s (budget 240 s) load 8.31 -> 7.81
+run-readiness: GREEN for 17d77188e (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpy5ccea5g/repo/.tmp/readiness.json)
+self-test FAIL: readiness started its timed step 2.0 s before the fake ring released its slot (exit 0)
+self-test FAIL: the receipt does not record the measured ring wait: None
+self-test FAIL: a track ring started while readiness ran was not made to wait: 'RING-LOCK waited 0 s\nslot=[/var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpy5ccea5g/slots/slot-1]\n'
+self-test FAIL: readiness left the ring lock held after it finished
+self-test FAIL: a ring held past the bound gave exit 0 (want 4), step ran True, receipt True
+self-test FAILED

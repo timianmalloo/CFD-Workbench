@@ -27,6 +27,16 @@ if (failureProbe is not null) throw new InvalidOperationException(failureProbe);
 bool themeEvidence = args is ["--theme-evidence"];
 if (args.Length == 0 || themeEvidence) { Stage("SelfLaunchTests"); CfdWorkbench.Desktop.Tests.SelfLaunchTests.Run(); }
 
+// Ruling 184: report the scale and nothing else (no check, no suite). Listed in no Spawn call and no ring.
+if (args is ["--scale-diagnostic"])
+{
+    Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ScaleDiagnostic(mode =>
+    {
+        AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+        return CfdWorkbench.Desktop.Tests.DesktopChecks.ScaleContextLine(mode);
+    }, Console.Out));
+}
+
 if (args.Contains("--section-canvas", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
@@ -571,6 +581,25 @@ namespace CfdWorkbench.Desktop.Tests
             {
                 probe.Close();
                 Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            }
+        }
+
+        /// <summary>
+        /// Ruling 184 (option A): <c>--scale-diagnostic</c> only reports the scale. It prints one SCALE_CONTEXT line, runs no check and
+        /// returns 0; a failure to read the scale is one <c>FAIL SCALE_DIAGNOSTIC</c> line and 1. A tool for the Windows runner:
+        /// no Spawn list or ring runs it.
+        /// </summary>
+        public static int ScaleDiagnostic(Func<string, string> lineFor, TextWriter output)
+        {
+            try
+            {
+                output.WriteLine(lineFor("scale-diagnostic"));
+                return 0;
+            }
+            catch (Exception error)
+            {
+                output.WriteLine("FAIL SCALE_DIAGNOSTIC " + error.Message.ReplaceLineEndings(" "));
+                return 1;
             }
         }
 

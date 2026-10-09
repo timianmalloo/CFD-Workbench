@@ -613,8 +613,13 @@ re-run with no track running gave 16.30 ms (GREEN). `tools/run-suite.sh` and the
 - *Sweep:* the readiness frame and cost gates (`Readiness_*`, C-2/C-3/C-5 cost caps). Track rings take the lock. The
   load gate (24 on 16 cores) admits a load from one concurrent ring.
 - *Derive:* readiness holds the ring lock exclusively while its Desktop and Analysis parts run; a track ring waits.
-- *Prevent:* track RLK (pending). The leader does not run readiness while a track runs tests; until RLK lands, this is
-  prose.
+- *Prevent:* `tools/run-readiness.py` takes every slot of `tools/ring-lock.sh` (exclusive mode, `--acquire-all`) for the
+  whole ring, after announcing it in `exclusive-wanted` so new track rings stop taking freed slots. It prints the holders
+  (pid and command) and the measured wait, records `ringWaitSeconds` in the receipt, and past 600 s
+  (`CFD_READINESS_LOCK_WAIT_SECONDS`; two holders at 60 s ring or 120 s suite budgets, so 600 s means a hung holder) exits 4,
+  `BLOCKED (ring busy)`, with no receipt. Status: controlled (`python3 tools/run-readiness.py --self-test`, case group
+  `ring_lock_cases`, plus `tools/ring-lock.sh --self-test` cases 6-8; ring: on demand, not yet in check-docs, about 25 s). Proof: `docs/proof/rlk/`.
+  Residual: the lock is a bash script, so Windows readiness runs unlocked; the PC runs no concurrent track rings.
 
 *2026-10-09 recurrence, Windows runner preparation:* the runner's reviewed checker
 omitted LF settings on two temporary AST writes and the printing-entry console
