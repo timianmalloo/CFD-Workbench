@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e4669b0026b32dfea50f06dacff31c876ca6451a5640713995317bfe28caaeb8"
+      "sourceSha256": "f6a8fe3541c56104a615ab94fdc99f9f55f6014f4f53f9ec53380ed1f930a7df"
     },
     {
       "id": "domain-experts",
@@ -5928,6 +5928,37 @@ window.DOCS_INDEX = {
       "sourceSha256": "e6c2c81df9511f763e9d981824aa824b56d0f84cb3fc6cbeb5b0f6ff9e613f29"
     },
     {
+      "id": "plan-wri-r179",
+      "path": "docs/plans/wri-r179.md",
+      "title": "Ruling 179 bounded Windows execution graph and blocked delivery ledger",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@win-wri-r179",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Serial display-dependent execution was bounded by two runner repair cycles and twenty minutes. Preflight and build completed; the runner stopped before the first check. Restoration and source rollback succeeded; product verification remains unassessed.",
+      "tags": [
+        "windows",
+        "execution-graph",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-21",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Ruling 179 execution graph",
+          "mermaid": "flowchart LR\n  A --> B --> C --> D --> E --> F --> G\n  C -. every exit .-> F\n  D -. every exit .-> F"
+        }
+      ],
+      "sourceSha256": "cf211c4d078619f0caad56c987c5c573032801f166e5631882bb962397248fbb"
+    },
+    {
       "id": "proof-caf-red-first",
       "path": "docs/proof/caf/red-first.md",
       "title": "Track CAF - red-first record for catalog generator naca4-closed/2",
@@ -6311,6 +6342,40 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "e8da9a02a2c29bec5a700e1279ea0ccc4db311e4db06a6ef1558a58a3c069a26"
+    },
+    {
+      "id": "proof-wri-r179",
+      "path": "docs/proof/wri-r179/receipt.md",
+      "title": "Ruling 179 Windows proof: blocked before product checks, restoration verified",
+      "type": "doc",
+      "status": "blocked",
+      "owner": "@win-wri-r179",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Two preparation/runner repair cycles were exhausted before any of the 14 product checks ran. Settings was restored to exact 150% (Recommended); a fresh process measured RenderScaling 1.5 and PrimaryScaling 1.5 with OS Process.ExitCode 0. All checks and item-6 bounds remain unassessed.",
+      "tags": [
+        "windows",
+        "dpi",
+        "proof",
+        "blocked"
+      ],
+      "links": [
+        {
+          "to": "review-pr-21",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wri-probe-mac-join-note-pr21",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-wri-r179",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "286b6ea631ec4a6549d9c78757c34390a484f8e079f11e5c3c6e95f3cf3a939c"
     },
     {
       "id": "receipt-windows-store-implementation",
@@ -7147,6 +7212,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "45544510c2e6032d61e9e63a5de119f77c5e741a8f07ef9b1437ab4eb6fa6dc0"
+    },
+    {
+      "id": "review-pr-23",
+      "path": "docs/reviews/pr-23.md",
+      "title": "PR #23 (Windows PC) - blocked Ruling 179 run (Ruling 182), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 182). An honest, fail-closed receipt: the Ruling 179 run stopped at cap 2/2 in its temporary runner before any check, and the restore is Verified. No fresh budget opens on a temporary runner: the repo already held the fixes for two of its three defects. The Mac commits the measurement prints first; then the PC commits a self-tested runner.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "dpi",
+        "runner"
+      ],
+      "links": [
+        {
+          "to": "review-pr-21",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-22",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "40a717c9ea87e1ec0021ee87f1a0202a9e4742ff55cdedc4c5ce450c1a715cf7"
     },
     {
       "id": "review-pr-3",
@@ -8082,7 +8179,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1d223eb723557514e4bce3f279f9f148d212c196a1e800837afd3ce6ff491392"
+      "sourceSha256": "8507ad2a4cd6b856fd02e84b9ef24bb353bd85dda5449fa92e7e61e21b568089"
     },
     {
       "id": "kb-hw-glossary",
@@ -18686,5 +18783,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "455837beaf104c869813da86dfe2d4ec69aa0ccc532b8e700f8a8244201cc8f9"
+  "graphSha256": "fb019aa9022af56ab7781e1f5c2e173f4611245eb3931c02cb06b68a9f9481e6"
 };
