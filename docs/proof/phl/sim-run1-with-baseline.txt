@@ -1,0 +1,4 @@
+PARTITION-SKEW Core parts=106344,67610,77895 skew_ms=38734 (hints stale?)
+PARTITION-SKEW Analysis parts=21936,24278 skew_ms=2342 (hints stale?)
+test costs: 0 failures, 0 COST-MISS (load 12.18)
+run-1 exit=0

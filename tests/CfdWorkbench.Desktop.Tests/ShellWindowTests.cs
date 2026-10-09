@@ -955,16 +955,23 @@ public static class ShellWindowTests
 
         DesktopChecks.Check("KeyBindings_MenuGesture_NotBound", () =>
         {
+            // macOS: the system menu owns the gesture, so a window binding would fire twice. Elsewhere (W-1) the in-window menu's
+            // gestures are bound on the window, each once (WindowsShell_EveryTableGesture_FiresItsCommandOnce presses them).
             var window = new MainWindow();
+            try { AssertMenuGestureBinding(window, OperatingSystem.IsMacOS()); }
+            finally { window.Close(); }
+        });
+
+        DesktopChecks.Check("KeyBindings_MenuGesture_BoundOnceWhenBuiltTheWindowsWay", () =>
+        {
+            // The off-macOS branch of the check above, run here on any host: a window wired as MainWindow wires it off macOS.
+            using var controller = new WorkbenchController();
+            var host = new ShellHost(controller);
+            var window = new Window { Content = host, Width = 1280, Height = 800 };
             try
             {
-                var exported = CommandTable.Rows.Select(row => NativeMenuBuilder.ParseGesture(row.Gesture))
-                    .Where(gesture => gesture is not null).ToArray();
-                if (exported.Length == 0)
-                    throw new InvalidOperationException("Command table exported no menu gestures");
-                if (window.KeyBindings.Any(binding => binding.Gesture is { } bound &&
-                    exported.Any(menu => menu!.Key == bound.Key && menu.KeyModifiers == bound.KeyModifiers)))
-                    throw new InvalidOperationException("A native menu gesture was also bound on the window");
+                NativeMenuBuilder.ShowInWindow(window, host, NativeMenuBuilder.BuildMenu(window, onAction: _ => { }, macOS: false));
+                AssertMenuGestureBinding(window, macOS: false);
             }
             finally { window.Close(); }
         });
@@ -1024,6 +1031,20 @@ public static class ShellWindowTests
                 throw new InvalidOperationException("Unhandled stderr leaked the marker or lost its exit contract");
         });
 
+        DesktopChecks.Check("Telemetry_MarkerPaths_SeparatorShapeCreatesFolder", () =>
+        {
+            string root = ScratchPath("cfdw-markerpaths-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            try
+            {
+                string[] paths = CopyMarkerFiles(root, "M", ExamplePath(), backslashIsSeparator: true);
+                if (!Directory.Exists(Path.Combine(root, "win")) || paths.Any(path => !File.Exists(path)) ||
+                    !paths[1].EndsWith(Path.Combine("win", "M.foil"), StringComparison.Ordinal))
+                    throw new InvalidOperationException("Separator shape did not create the win folder and copy into it: " + string.Join(" | ", paths));
+            }
+            finally { Directory.Delete(root, recursive: true); }
+        });
+
         DesktopChecks.Check("Telemetry_MarkerInjection_AbsentEverywhere", () =>
         {
             string root = ScratchPath("cfdw-private-" + Guid.NewGuid().ToString("N"));
@@ -1040,10 +1061,8 @@ public static class ShellWindowTests
                 Console.SetError(capturedError);
                 window.Show();
                 Settle(window);
-                foreach (string name in new[] { marker + ".foil", "win\\" + marker + ".foil" })
+                foreach (string path in CopyMarkerFiles(root, marker, ExamplePath(), backslashIsSeparator: OperatingSystem.IsWindows()))
                 {
-                    string path = Path.Combine(root, name);
-                    File.Copy(ExamplePath(), path);
                     var open = host.OpenFileAsync(path);
                     using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
                     while (!open.IsCompleted && !timeout.IsCancellationRequested)
@@ -3370,6 +3389,21 @@ public static class ShellWindowTests
             throw new InvalidOperationException(label + " " + actual.ToString("G6") + " vs " + expected.ToString("G6"));
     }
 
+    private static void AssertMenuGestureBinding(Window window, bool macOS)
+    {
+        var exported = CommandTable.Rows.Select(row => NativeMenuBuilder.ParseGesture(row.Gesture, macOS))
+            .Where(gesture => gesture is not null).Select(gesture => gesture!).DistinctBy(gesture => (gesture.Key, gesture.KeyModifiers)).ToArray();
+        if (exported.Length == 0)
+            throw new InvalidOperationException("Command table exported no menu gestures");
+        var counts = exported.ToDictionary(gesture => gesture, gesture => window.KeyBindings.Count(binding =>
+            binding.Gesture is { } bound && bound.Key == gesture.Key && bound.KeyModifiers == gesture.KeyModifiers));
+        if (macOS && counts.Any(pair => pair.Value > 0))
+            throw new InvalidOperationException("A native menu gesture was also bound on the window");
+        var wrong = counts.Where(pair => !macOS && pair.Value != 1).Select(pair => $"{pair.Key} x{pair.Value}").ToArray();
+        if (wrong.Length > 0)
+            throw new InvalidOperationException("Menu gestures not bound exactly once on the window: " + string.Join(", ", wrong));
+    }
+
     private static double U2CurveGap(PlanformView plan, PointView point)
     {
         var samples = point.Curve == "leading" ? plan.Leading.Samples : plan.Trailing.Samples;
@@ -3403,7 +3437,21 @@ public static class ShellWindowTests
 
     /// <summary>The Desktop example fixture, linked into the test output by the .csproj Content
     /// item — read from AppContext.BaseDirectory so it does not depend on where the binary runs.</summary>
-    private static string ExamplePath() => Path.Combine(AppContext.BaseDirectory, "Assets", "example.foil");
+    // Intent of the Telemetry_MarkerInjection case: a marker that sits in a file name, and in a second shape whose path text carries a
+    // backslash, must reach neither telemetry nor stderr. On macOS a backslash is a legal file-name character, so the second shape is
+    // one name with a backslash in it. On Windows a backslash is a separator, so the second shape is the marker inside a real "win"
+    // subfolder (the folder is created). Pure of the host OS: the flag selects the shape, so both shapes run on any host.
+    private static string[] CopyMarkerFiles(string root, string marker, string source, bool backslashIsSeparator)
+    {
+        string plain = Path.Combine(root, marker + ".foil");
+        string second = backslashIsSeparator ? Path.Combine(root, "win", marker + ".foil") : Path.Combine(root, "win\\" + marker + ".foil");
+        Directory.CreateDirectory(Path.GetDirectoryName(second)!);
+        File.Copy(source, plain);
+        File.Copy(source, second);
+        return new[] { plain, second };
+    }
+
+    private static string ExamplePath() =>Path.Combine(AppContext.BaseDirectory, "Assets", "example.foil");
 
     /// <summary>The repository root from this file's build-time source path (mirrors
     /// <c>SelfLaunch.cs</c>'s <c>NoRawProcessPathRelaunch</c>) — for the one check that genuinely

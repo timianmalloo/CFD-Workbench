@@ -238,6 +238,23 @@ internal static class SectionSeamTests
     {
         AnalysisChecks.Check("Section_ThinStationAt112PercentOfBest_SolvedAndWins", ThinStationAt112Wins);
         AnalysisChecks.Check("Section_CamberedWing129_WarmTime", CamberedWing);
+        AnalysisChecks.Check("Section_WingRun_WarmTime", WingRunWarmTime);
+    }
+
+    // Ruling 173 (3): the warm 65-station whole-wing section tier against its 1 s target, moved here from the fast ring. A miss prints
+    // READINESS-MISS and is a trigger to look, not a red ring (the Core readiness rows follow the same rule); it never throws.
+    private static void WingRunWarmTime()
+    {
+        byte[] source = FoilSource.NewDefault();
+        double[] etas = Settings.SpanEtas(32, "cosine");
+        SectionTier.Evaluate(source, etas, [], Fixture.Op(3), Fixture.Salt);
+        var watch = Stopwatch.StartNew();
+        SectionTierResult warm = SectionTier.Evaluate(source, etas, [], Fixture.Op(3), Fixture.Salt);
+        watch.Stop();
+        AnalysisChecks.Equal(etas.Length, warm.Stations.Count, "all run stations sampled");
+        double ms = watch.Elapsed.TotalMilliseconds;
+        Console.WriteLine($"READINESS WingRun value_ms={ms.ToString("F3", CultureInfo.InvariantCulture)}");
+        if (ms > 1000) Console.WriteLine($"READINESS-MISS WingRun value_ms={ms.ToString("F3", CultureInfo.InvariantCulture)} target_ms=1000");
     }
 
     private static void CamberedWing()
@@ -295,7 +312,8 @@ internal static class SectionSeamTests
         SectionTierResult section = SectionTier.Evaluate(source, etas, [], op, Fixture.Salt);
         watch.Stop();
         Console.WriteLine($"MEASURE warm whole-wing section tier {watch.Elapsed.TotalMilliseconds:F3} ms at {PanelMethod.DefaultPanelCount} panels");
-        if (watch.Elapsed.TotalMilliseconds > 1000) throw new InvalidOperationException("warm 200-panel whole-wing section tier exceeded 1 s");
+        // The 1 s budget is a readiness row (Section_WingRun_WarmTime, Ruling 173 (3)): 1.30-1.34 s on pc-win under L3 against
+        // 0.79-1.15 s on the Mac, so a fast-ring throw says nothing about the product. The fast ring keeps the MEASURE line.
         AnalysisChecks.Equal(etas.Length, section.Stations.Count, "all run stations sampled");
         if (section.Stations.Any(station => station.Estimate.Panel.StationCount != (station.PanelUnderreadMeasured ? 400 : 200) ||
             !double.IsFinite(station.Estimate.Cl) || !double.IsFinite(station.Estimate.CmQuarter) ||

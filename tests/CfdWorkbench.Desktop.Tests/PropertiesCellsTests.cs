@@ -444,8 +444,10 @@ public static class PropertiesCellsTests
             var failures = new List<string>();
             var boxRect = box.Bounds;
             var ringRect = ring.Bounds;
+            // DPI-A: layout places the ring on a whole device pixel, so "1 DIP outside" holds to one device pixel.
+            double pixel = DevicePixel.Tolerance(aft, 0.01);
             if (!aft.IsFocused || Paint(box.BorderBrush) != primary || !ring.IsVisible || Paint(ring.BorderBrush) != danger ||
-                Math.Abs(boxRect.X - ringRect.X - 1) > 0.01 || Math.Abs(ringRect.Bottom - boxRect.Bottom - 1) > 0.01)
+                Math.Abs(boxRect.X - ringRect.X - 1) > pixel || Math.Abs(ringRect.Bottom - boxRect.Bottom - 1) > pixel)
                 failures.Add($"focused: box {Paint(box.BorderBrush)} ring {ring.IsVisible} {Paint(ring.BorderBrush)} {ringRect} around {boxRect}");
             Need<TextBox>(host.Properties, "PointSpanInput").Focus();
             Settle(window);
@@ -706,6 +708,8 @@ public static class PropertiesCellsTests
                 visual.TranslatePoint(new Point(left + layout.HitTestTextRange(0, text.Length).Max(rect => rect.Right), 0), host.Properties)!.Value.X;
             double input = Right(presenter, presenter.TextLayout, 0, presenter.Text ?? "");
             double facts = Right(fact, fact.TextLayout, fact.Padding.Left, fact.Text ?? "");
+            // assume: DPI-A item 6 - at 150 % the rounding skew is predicted at 0.667 DIP (one device pixel) but 1.0 was measured, so
+            // this 0.5 tolerance stays; confirm with the PC scale probe (docs/proof/wri/investigation.md P4, P6). It fails there until then.
             Console.WriteLine(FormattableString.Invariant($"MEASURE DC-3 input digits end {input:0.##}, fact digits end {facts:0.##}"));
             if (Math.Abs(input - facts) > 0.5) throw new InvalidOperationException(FormattableString.Invariant($"input ends {input:0.##}, fact {facts:0.##}"));
         });
@@ -763,6 +767,29 @@ public static class PropertiesCellsTests
                     if (target.Bounds.Height < 23.5) small.Add($"{target.Name ?? target.GetType().Name} {target.Bounds.Height:0.#}");
             }
             if (small.Count > 0) throw new InvalidOperationException("under 24 px: " + string.Join(", ", small.Distinct()));
+        });
+
+        Pane("PropertiesPane_Density_EveryInputDeclaresMinHeightOf24", (controller, host, window) =>
+        {
+            // DPI-A: a content-sized input sums border, padding and line, each rounded to a device pixel, and lands under 24 DIP
+            // at a fractional scale (35 px = 23.33 DIP at 150 %). Declaring the 24 DIP floor keeps rounding from shaving it.
+            // No forced-scale hook exists on the Mac, so this asserts the declaration; the PC run proves the rendered height.
+            var anchor = MakeAnchor(controller);
+            var handle = controller.Planform!.Trailing.Points.First(point => point.AnchorId == anchor.Id);
+            var low = new List<string>();
+            int seen = 0;
+            foreach (var point in new[] { anchor, handle })
+            {
+                Select(controller, window, point);
+                foreach (var input in host.Properties.GetVisualDescendants().OfType<TemplatedControl>()
+                             .Where(item => item is TextBox or ComboBox && item.IsEffectivelyVisible && item.IsEffectivelyEnabled))
+                {
+                    seen++;
+                    if (input.MinHeight < 24) low.Add($"{input.Name ?? input.GetType().Name} MinHeight {input.MinHeight:0.#}");
+                }
+            }
+            if (seen == 0) throw new InvalidOperationException("no inputs found");
+            if (low.Count > 0) throw new InvalidOperationException("MinHeight under 24: " + string.Join(", ", low.Distinct()));
         });
 
         Pane("PropertiesPane_Density_DefinitionsIsLinkDisclosure", (controller, host, window) =>
