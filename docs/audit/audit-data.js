@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T16:08:18Z",
+  "generated": "2026-10-09T16:25:10Z",
   "audit": [
     {
       "actor": null,
@@ -32727,6 +32727,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T16:07:15Z",
       "duration_seconds": 63.0
+    },
+    {
+      "id": "al-01M4GQQ60SG7SP7MAW0WS7H4SR",
+      "shortname": "msp-scale-prints",
+      "datetime": "2026-10-09T16:25:10Z",
+      "session": "trk-msp",
+      "prompt": "trk-msp: committed measurement prints for the Windows scale run",
+      "summary": "SCALE_CONTEXT per mode, ITEM6, P3 prints; Spawn control; readiness subset runs exactly 2 checks in 8.9 s",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Desktop harness prints SCALE_CONTEXT per window mode, ITEM6 bounds and P3 clause, with a control",
+      "done_when": "prints in real Mac run, subset measured, control red-first, run-tests and check-docs green",
+      "started_at": "2026-10-09T16:12:36Z",
+      "duration_seconds": 754.0
     }
   ],
   "changes": [
