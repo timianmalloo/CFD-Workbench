@@ -440,6 +440,8 @@ public static class ElevationTests
             var f = Example.Reset();
             var view = f.Front;
             var size = view.BandRect.Size;
+            // EZF (Ruling 172): the baseline fit must come from the settled mesh, or a later fit compares a different mesh.
+            if (f.Controller.SurfaceUpdating) throw new Exception("The baseline fit was taken while a mesh was still pending");
             var fitted = view.Camera!.Value;
             view.Focus();
             f.Key(view, Key.OemPlus, KeyModifiers.Meta);
@@ -683,6 +685,8 @@ public static class ElevationTests
         {
             if (Controller.Gesture != GestureState.Idle) Await(Controller.EndGestureAsync(GestureEnd.Escape));
             Controller.Select(new Selection.Foil());
+            // EZF: the previous check's Escape leaves an accepted mesh in flight; a fit before it lands compares two meshes.
+            Pump(() => !Controller.SurfaceUpdating, "the last mesh");
             Front.Fit();
             Side.Fit();
             AutomationProperties.SetLiveSetting(Front, AutomationLiveSetting.Off);
