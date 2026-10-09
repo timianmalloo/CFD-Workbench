@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "89c52d8221eacb33de26a94aa67f36c974de562c02d5359108e4aaad4142b4ab"
+      "sourceSha256": "4e6259055bf877704334f0ddeedd218fee2c9d401f2c5912ec7ae662ad49aa28"
     },
     {
       "id": "domain-experts",
@@ -6284,6 +6284,35 @@ window.DOCS_INDEX = {
       "sourceSha256": "7f0c058db350ac9c26f0ad54ac376f44cfe02e25310cab070095faa55abdee68"
     },
     {
+      "id": "proof-wri-probe-mac-join-note-pr21",
+      "path": "docs/proof/wri-probe/mac-join-note-pr21.md",
+      "title": "WRI probe - Mac join note (Ruling 179 conditions, PR #21)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@mac-leader",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The Ruling 177 comparison in this receipt did not run the ninth named check, and item 2's failure is a second zero-tolerance assertion, not the one WDF changed. Written as a new file because the capture manifest pins every other file in this folder, including the PR #20 note.",
+      "tags": [
+        "windows",
+        "dpi",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-21",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wri-probe-mac-join-note",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e8da9a02a2c29bec5a700e1279ea0ccc4db311e4db06a6ef1558a58a3c069a26"
+    },
+    {
       "id": "receipt-windows-store-implementation",
       "path": "docs/proof/win-store-implementation/receipt.md",
       "title": "Frozen B2 native qualification failure receipt",
@@ -7061,6 +7090,35 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "979b87ef1f7b52c029c5302a3e204113c6c444c754c42abad4fda926cdafd04a"
+    },
+    {
+      "id": "review-pr-21",
+      "path": "docs/reviews/pr-21.md",
+      "title": "PR #21 (Windows PC) - Ruling 177 P6 two-scale comparison (Ruling 179), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 179). The Ruling 177 P6 is delivered at 150 % and 200 % on a WDF head without DPR. Item 8 (the 24 DIP targets) is closed on Windows. Item 2 is a second zero-tolerance assertion; item 4 is an Elevation overlay absent from device-resolution captures on both platforms, likely the capture path (Inferred). The ninth named check and the item-6 print were not delivered.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "dpi",
+        "accessibility",
+        "ui"
+      ],
+      "links": [
+        {
+          "to": "review-pr-20",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "2615516c48d7058eac069500190b1daa466f9924e130ca43f3fb72bb50e9044c"
     },
     {
       "id": "review-pr-3",
@@ -7996,7 +8054,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e356cad0b55f0dcf4629fadb288bde3b2a51b1e52f3755ddb78e1113c526ef88"
+      "sourceSha256": "ed0dfa15aa2f38c1ea6d8e52f280b468d495ca0f423b18ed4d6398105bbd9a71"
     },
     {
       "id": "kb-hw-glossary",
@@ -8187,7 +8245,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-09",
       "reviewSuggested": [],
-      "summary": "Seven of the eight class-(a) failures share one cause: Avalonia layout rounding at a 150 % display scale (arithmetic fits 1.5 exactly; the scale itself is not recorded and needs the probe). The 23.3 px inputs are a real product miss of 0.67 DIP (35 px where 36 are needed): the TextBox is content-sized and the 3 DIP padding rounds down at the .5 midpoint. KeyBindings is a contradiction between a Mac-only test and a deliberate Windows binding.",
+      "summary": "The pre-WDF Windows analysis identified a 23.3 DIP target-size result at 150%; WDF subsequently added a minimum height. Ruling 177, run after WDF, reports checks 1, 7, and 8 passing at 150%, check 2 unexpectedly failing, and check 6 held pending the P4 explanation. Its eight checks all passed at 200%. KeyBindings remains a Mac-only test contradiction.",
       "tags": [
         "windows",
         "dpi",
@@ -8202,7 +8260,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "796741eaa71c7cdf6e0f0ed4f520f3c5ffa14515086e0eae4f44276780830965"
+      "sourceSha256": "113239ab845a3f4ffe01a3ffbb72898a5fbb5c1a725dcf88dae60a0f51497b48"
     },
     {
       "id": "kb-cfd-workbench-grounding",
@@ -14097,7 +14155,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3f396d5dd4c7c919421c3cf6b599758b8121137951dd79e1209aaf88e464395c"
+      "sourceSha256": "0a445023b7b618694a23d844d8eb1d6dd8bfb60035f577e5469711642b3c8211"
     },
     {
       "id": "proof-rgt-red-first",
@@ -16495,7 +16553,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2027-04-09",
       "reviewSuggested": [],
-      "summary": "Captures P1-P5 at 150% and records the authorized P6 attempt. Settings selected 200% and Avalonia reported 2.0, satisfying the committed P6 scale condition. A coordinator follow-up added an AppliedDPI==192 guard, which skipped the eight named checks; P6 remains NOT ASSESSED. Scale was restored and verified at 150%.",
+      "summary": "Ruling 177 P6: eight named checks ran at Settings-selected 150% and 200%. All eight passed at 200%; at 150%, three passed and five failed. Ruling 178's ninth check and supplemental item-6 bounds were not assessed because exact Settings UIA targets were not reacquired within 55 seconds; no scale change or check run followed.",
       "tags": [
         "windows",
         "dpi",
@@ -16509,7 +16567,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5b063380647e44bedae09fc8d72a5c4f91078a5d5ab616bde5f7f49d1b08bd88"
+      "sourceSha256": "e8b469bc5811d78ffc46e0452ad36a8d950f417ab62ce604983ce721d343c4d5"
     },
     {
       "id": "proof-wrt-red-first",
@@ -18500,5 +18558,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d7ac808409cced3b07c4f4c8851af02ad6b53706eff8db1fb0f4b4f821f75a93"
+  "graphSha256": "a08fb38dab3cc41ff6b44bf5dcd1d317d15b37b030a3c7b018d4f524f44f3ca2"
 };
