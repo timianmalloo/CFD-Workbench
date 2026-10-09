@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T21:41:54Z",
+  "generated": "2026-10-09T21:48:35Z",
   "audit": [
     {
       "actor": null,
@@ -33593,6 +33593,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T21:41:39Z",
       "duration_seconds": 15.0
+    },
+    {
+      "id": "al-01M4HA7CBC0QA51JS80FRABQHB",
+      "shortname": "asc-admission-staleness",
+      "datetime": "2026-10-09T21:48:35Z",
+      "session": "trk-asc",
+      "prompt": "trk-asc",
+      "summary": "Added windows-store-admission.json, check-windows-admission.py, wrapper line, check-docs self-test, PLAT-A register line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Make Windows store admission staleness visible without blocking Core work",
+      "done_when": "binding, check with self-test, wrapper line, check-docs wiring, register line; gates green",
+      "started_at": "2026-10-09T21:45:35Z",
+      "duration_seconds": 180.0
     }
   ],
   "changes": [
