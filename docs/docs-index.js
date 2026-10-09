@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "99766e877d31c2d906c722988f892e7cc0f604d7938668fab1f83cec33033ffd"
+      "sourceSha256": "e3a25956bc76821fa728f211c41a3b4d98027e244ce155906cdff177766cb810"
     },
     {
       "id": "domain-experts",
@@ -6056,6 +6056,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
+    },
+    {
+      "id": "proof-phl-red-first",
+      "path": "docs/proof/phl/red-first.md",
+      "title": "Track PHL red-first record (per-host limits, Windows manifest, WingRun)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-phl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the four Ruling 173 items. The PC runs 1-3 of PR #18 are replayed through the changed tools.",
+      "tags": [
+        "proof",
+        "test-ring",
+        "windows",
+        "ruling-173"
+      ],
+      "links": [
+        {
+          "to": "review-pr-18",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5580dcf8664ca0f0929da31475f9ea4df078636cc845221999b358be0304cbc2"
     },
     {
       "id": "proof-rwf-red-first",
@@ -6913,6 +6939,39 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "5bcdda1e5d500211739d20046234c7104ae931da93385581ae56e3761b7cbb13"
+    },
+    {
+      "id": "review-pr-19",
+      "path": "docs/reviews/pr-19.md",
+      "title": "PR #19 (Windows PC) - bounded Windows store verifier (Ruling 175), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 175). PR #19 adds the leased bounded Windows store verifier with the exit 0/1/4 contract, a real-pipe Ruling 171 self-test and 67 manifest-matched captures. The ceiling fix is structurally real. The only Windows no-argument capture is from an earlier script revision, so admission stays closed until a rerun of the final script.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-2",
+        "verifier",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "review-pr-15",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4d39233786c4fe0d75b2d0309e5c4b5e3af39f0f6c7acbd619d25fff5758b29b"
     },
     {
       "id": "review-pr-2",
@@ -7883,7 +7942,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0fd3e647d3a19e01d2ef53c8c6675ee50ee7ab3471394c914a1c63b7efcdea0a"
+      "sourceSha256": "02a285d43b3417be07866568b5873e76e7cac5b00c20f88e10fb342170778605"
     },
     {
       "id": "kb-hw-glossary",
@@ -15374,6 +15433,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "baf9074e6aab64870531f60ee269859f9b16e2a6b06cc29b8846930ef3bac2a2"
     },
     {
+      "id": "proof-tmi-red-first",
+      "path": "docs/proof/tmi/red-first.md",
+      "title": "TMI red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmi",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for making Telemetry_MarkerInjection_AbsentEverywhere portable to Windows: the backslash path case becomes a created subfolder on Windows, proven on the Mac through a pure helper.",
+      "tags": [
+        "windows",
+        "test-hygiene",
+        "proof",
+        "ruling-176"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "aacdc60502f70d90223248f1fc0f19005ce3bb20930bb257ff9a6e4ee59b2156"
+    },
+    {
       "id": "proof-u1fix-red-runs",
       "path": "docs/proof/u1fix-red-runs.md",
       "title": "U1FIX app-shell repair proof",
@@ -15634,6 +15719,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
+    },
+    {
+      "id": "proof-wdf-red-first",
+      "path": "docs/proof/wdf/red-first.md",
+      "title": "WDF: red-first record for the Windows fractional-scale fixes",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-wdf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Item 8 (TextBox MinHeight) and item 1 (menu-gesture check) are red then green on the Mac. Items 2 and 7 change a tolerance and cannot be red on the Mac (no forced render scale); the PC ring is their proof. Item 6 is held for the scale probe.",
+      "tags": [
+        "windows",
+        "dpi",
+        "layout-rounding",
+        "target-size",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-investigation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "124dff182a26328d2014b1c46bf9b8d34146be74b09bc498c84e9a4f3e40f412"
     },
     {
       "id": "proof-wfx-pc-reverify",
@@ -18200,5 +18312,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c3df7c0608da0a2eada966c33fc890a6c72fd4cdd1052c20e0a59d5b72f5ec78"
+  "graphSha256": "093bb03a16c0b16abff66e5a50df20566e2bc3bcecdb9a800a7c6d38432ef712"
 };
