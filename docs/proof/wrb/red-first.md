@@ -9,3 +9,13 @@ Self-test: `tools/check-test-costs.py --self-test` (ring: every join; cost: unde
 - CLI: `CFD_RING_HOST=pc-win check-test-costs.py --resolve-host Tims-PC` prints `pc-win`, exit 0; `CFD_RING_HOST=Tim.PC` exits 2 with the refusal; unset prints the hostname passed in (behaviour unchanged).
 - Sweep: `git grep -in "hostname|gethostname|platform.node|COMPUTERNAME" -- tools` finds one reader, `tools/run-tests.sh:73`. It now calls the one helper (`--resolve-host`); `check-test-costs.py` receives the key through `--host`.
 - Report only (not built): PROOF-PII (`tools/check-proof-pii.py`) matches Windows home paths and SIDs only. It does not flag a `docs/proof/ring-*/` folder named after a raw hostname. A guard would need an allow-list of known keys (ring-b1, ring-b2, ring-b4, ring-oct05, ring-oct08, ring-split, plus the PC's chosen key), since a hostname is not pattern-detectable. Not a Mac-only fix: the Mac hostname already leaks the same way if a Mac baseline folder is named after it.
+
+## Item 2 - capture-manifest check (Ruling 167)
+
+`tools/check-capture-manifests.py --self-test` (9 cases; ring: fast, via `tools/check-docs.py`).
+
+- Red: the byte-count comparison disabled in a scratch copy (`sed 's/if len(blob) != declared_bytes:/if False:/'`): `SELFTEST FAIL byte count off by one fails: expected bytes declared, got [] over 1 manifest(s)`, `SELFTEST 8/9 cases`, exit 1.
+- Green: `SELFTEST 9/9 cases`, exit 0.
+- Real run: `check-capture-manifests: 1 manifest(s) match their committed blobs` (the PC's 16 entries).
+- Measured cost (wall, one run, this Mac): self-test 0.67 s, real run 0.31 s. Ring: fast (check-docs, every push and join).
+- The PC's `docs/proof/r163-windows-ring/verify-captures.py` is untouched.
