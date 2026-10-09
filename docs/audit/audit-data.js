@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T18:28:44Z",
+  "generated": "2026-10-09T18:47:33Z",
   "audit": [
     {
       "actor": null,
@@ -33140,6 +33140,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T18:27:44Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M4GZVWFQ3WFGMET1J2AS7MJQ",
+      "shortname": "rlk-readiness-lock",
+      "datetime": "2026-10-09T18:47:33Z",
+      "session": "trk-rlk",
+      "prompt": "trk-rlk",
+      "summary": "ring-lock.sh exclusive mode; run-readiness takes all slots, bounded wait 600 s, exit 4 BLOCKED (ring busy); READINESS-UNLOCKED controlled",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Readiness holds the ring lock exclusively while it runs",
+      "done_when": "self-test red then green with real processes; check-docs and verify gates exit 0",
+      "started_at": "2026-10-09T18:36:15Z",
+      "duration_seconds": 678.0
     }
   ],
   "changes": [
