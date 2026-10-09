@@ -42,23 +42,23 @@ internal static class AnalysisChecks
         // B4 (ANALYSIS-HARNESS-GROWTH): the fast ring runs this harness as parts, `--part=k/n`. A group is one test class and
         // runs whole, because checks inside a class share fixtures (F-6's trio feeds F-15, F-15b). Every group lands in exactly
         // one part: groups are placed longest first onto the least-loaded part by CostHintMs (ties to the lower part), the same
-        // arithmetic in every part, so the parts together run each check once. Hints are measured group wall times (2026-10-06, Release, one process). A stale hint costs balance, never coverage.
+        // arithmetic in every part, so the parts together run each check once. Hints are the median of three GROUP wall times of the whole harness in one process (2026-10-08, Release, load ~10), except Service and DxSection, which are ring-measured; a group costs more cold than after the groups that warm it, so do not feed a part's own GROUP lines back in (docs/proof/abl/measure.md). Re-measure when a track adds checks. A stale hint costs balance, never coverage.
         var groups = new (string Name, int CostHintMs, Action Run)[]
         {
-            ("Architecture", 10, ArchitectureTests.Run), ("RunStore", 773, RunStoreTests.Run), ("Lattice", 580, LatticeFixtureTests.Run),
-            ("Strip", 302, StripFixtureTests.Run), ("Service", 1230, ServiceTests.Run), ("Freshness", 561, FreshnessTests.Run),
-            ("Projection", 1180, ProjectionTests.Run), ("Labels", 20, LabelsTests.Run), ("LoadsView", 10, LoadsViewTests.Run),
-            ("PanelCp", 40, PanelCpTests.Run), ("SectionEstimator", 60, SectionEstimatorTests.Run),
+            ("Architecture", 7, ArchitectureTests.Run), ("RunStore", 719, RunStoreTests.Run), ("Lattice", 559, LatticeFixtureTests.Run),
+            ("Strip", 274, StripFixtureTests.Run), ("Service", 1205, ServiceTests.Run), ("Freshness", 604, FreshnessTests.Run),
+            ("Projection", 29, ProjectionTests.Run), ("Labels", 38, LabelsTests.Run), ("LoadsView", 8, LoadsViewTests.Run),
+            ("PanelCp", 37, PanelCpTests.Run), ("SectionEstimator", 77, SectionEstimatorTests.Run),
             ("Cavitation", 10, CavitationTests.Run), ("NeuralFoil", 100, NeuralFoilTests.Run),
-            ("PolarSeam", 353, PolarSeamTests.Run),
-            ("SectionSeam", 1040, SectionSeamTests.Run),
-            ("ProvenanceSeam", 70, ProvenanceSeamTests.Run),
-            ("PolarNumerics", 304, PolarNumericsTests.Run),
-            ("OperatingSearch", 45, OperatingSearchTests.Run),
-            ("TipPolar", 50, TipPolarTests.Run),
-            ("DxSection", 800, DxSectionTests.Run),
-            ("SectionForce", 780, SectionForceTests.Run),
-            ("NotResolved", 950, NotResolvedTests.Run),
+            ("PolarSeam", 13, PolarSeamTests.Run),
+            ("SectionSeam", 1528, SectionSeamTests.Run),
+            ("ProvenanceSeam", 33, ProvenanceSeamTests.Run),
+            ("PolarNumerics", 19, PolarNumericsTests.Run),
+            ("OperatingSearch", 20, OperatingSearchTests.Run),
+            ("TipPolar", 1, TipPolarTests.Run),
+            ("DxSection", 1177, DxSectionTests.Run),
+            ("SectionForce", 297, SectionForceTests.Run),
+            ("NotResolved", 842, NotResolvedTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)

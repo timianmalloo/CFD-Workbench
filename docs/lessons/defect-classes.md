@@ -1647,6 +1647,14 @@ the parts disagree on the group count; `tools/check-test-costs.py` applies C-2 t
 a part over 5 s (red) and two parts of 4.9 s that sum over 5 s (green). Adding a test class means one line in the `groups`
 array with its measured cost hint; a stale hint costs balance, never coverage. When a part nears 4 s, raise n (one number in
 `jobs=`), do not re-base C-2.
+2026-10-08 (ABL): the hints drifted within two days. Part 1 ran 4900 and 4936 ms against part 2 at 4065 and 3947 ms, and three
+tracks failed C-2 on part 1; Projection was hinted 1180 ms and costs 29, SectionForce 780 and costs 297, SectionSeam 1040 and costs
+1528. Re-hinted from three whole-harness runs (`docs/proof/abl/measure.md`): skew fell to 93-255 ms, parts 4550-4971 ms in the ring.
+A group costs more cold than after the groups that warm it, so hints taken from a partition's own GROUP lines moved the layout and
+went red twice; use the whole-harness median. Proposed control, not built (the skew needs both parts' times, and each part is a
+separate process): `tools/check-test-costs.py` prints PARTITION-SKEW when |part 1 - part 2| > 15 % of the C-2 limit (750 ms),
+from the `.ms` files `tools/run-tests.sh` already writes; it costs no run time. Still open: at ring load the two parts hold about
+9.3 s, so 4.5 s per part needs n=3, which needs a ruling.
 
 **DESKTOP-HARNESS-GROWTH · A CPU-bound harness whose parts run concurrently cannot be partitioned into margin.** C-4 (Desktop <= 43 s)
 read 42.5 / 43.5 / 42.8 s at quiet load (one red in three), then 45,636 ms at load 21.8 on the PNA join, after every UI track had added
