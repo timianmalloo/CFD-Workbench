@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dd5657f0657f9af9f93a419959fb7500784ae636af71af7a48724287fd563073"
+      "sourceSha256": "372173432f4c37233183ce437c95daa4802ebb3dabfd3629bd83ad717b7e293c"
     },
     {
       "id": "domain-experts",
@@ -6257,6 +6257,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "25c57ecfb0fd70abd61108d0bdb5299e1e017f81e2429d822c2fc6d2f25fdf36"
+    },
+    {
+      "id": "proof-wri-probe-mac-join-note",
+      "path": "docs/proof/wri-probe/mac-join-note.md",
+      "title": "WRI probe - Mac join note (Ruling 178 conditions)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@mac-leader",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The P6 attempt in this probe predates Ruling 177 and ran on 93240b06 without the WDF fixes; it is not the Ruling 177 P6, which is still owed. Kept beside the receipt so the PC's capture-manifest-pinned receipt stays byte-identical.",
+      "tags": [
+        "windows",
+        "dpi",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-20",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7f0c058db350ac9c26f0ad54ac376f44cfe02e25310cab070095faa55abdee68"
     },
     {
       "id": "receipt-windows-store-implementation",
@@ -18391,5 +18416,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "02aa54ff84ce288eddb7fc3a51fea43e55f247e42136138d5710a9d46a85a7cd"
+  "graphSha256": "91e1cfe5af888e5bfd2580e1ec5489d2db5df2556c472c1ed7a915491241b741"
 };
