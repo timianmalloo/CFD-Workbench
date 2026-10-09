@@ -23,6 +23,13 @@ import tempfile
 import threading
 from unittest.mock import patch
 
+for _stream in (sys.stdout, sys.stderr):
+    if hasattr(_stream, "reconfigure"):
+        try:
+            _stream.reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            pass
+
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT = ROOT / "tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj"
 TEST_SOURCE = ROOT / "tests/CfdWorkbench.Core.Tests/WindowsProjectStoreTests.cs"
