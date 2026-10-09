@@ -1,3 +1,18 @@
+---
+id: proof-vwr-red-first
+title: VWR red-first record - Windows store verifier wired into joins and readiness
+type: proof-pack
+status: draft
+owner: "@trk-vwr"
+phase: implementation
+tags: [vwr, red-first, readiness]
+links:
+  - { to: rulings, rel: relates-to }
+review-by: 2026-11-08
+summary: >-
+  Rulings 171 (4) and 175 (4): exit 4 of the Windows store verifier is NOT ASSESSED, never FAIL; red on old code, green with the wrapper and readiness ENTRY_RULES.
+---
+
 # Track VWR red-first record
 
 Base: main bffe195f plus the PR #19 merge (8132e777). Verifier exit contract: 0 pass, 1 fail, 4 NOT ASSESSED off Windows.

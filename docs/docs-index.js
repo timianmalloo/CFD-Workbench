@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e3a25956bc76821fa728f211c41a3b4d98027e244ce155906cdff177766cb810"
+      "sourceSha256": "22505be2abb31a7f97645f748e99526d5406862a28759cf2474efdeeba38b8a7"
     },
     {
       "id": "domain-experts",
@@ -6222,7 +6222,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e6b61276da42fe8eefb806f46d224e9994df851034ee993f8b628f6cdc601c37"
+      "sourceSha256": "31e4654cccb7678b38603167f94d15f5f340c27e18ca0be277bcb937ad9fafd8"
     },
     {
       "id": "proof-windows-store-r145-qualification",
@@ -7942,7 +7942,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "02a285d43b3417be07866568b5873e76e7cac5b00c20f88e10fb342170778605"
+      "sourceSha256": "464244974dfac033141befc746120838746b1cced0e0daf91deb730bfdc7323c"
     },
     {
       "id": "kb-hw-glossary",
@@ -15721,6 +15721,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
+      "id": "proof-vwr-red-first",
+      "path": "docs/proof/vwr/red-first.md",
+      "title": "VWR red-first record - Windows store verifier wired into joins and readiness",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-vwr",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Rulings 171 (4) and 175 (4): exit 4 of the Windows store verifier is NOT ASSESSED, never FAIL; red on old code, green with the wrapper and readiness ENTRY_RULES.",
+      "tags": [
+        "vwr",
+        "red-first",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "198c132184542d7a2145a5400e32cdd1929c9d8c6636340649ec4f2235ba3b0b"
+    },
+    {
       "id": "proof-wdf-red-first",
       "path": "docs/proof/wdf/red-first.md",
       "title": "WDF: red-first record for the Windows fractional-scale fixes",
@@ -18286,5 +18311,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d7e3d011cae6e69cf362fcd8aa4d5f42f831ddb00d4e8fbd612e6dd4416758f8"
+  "graphSha256": "9359c28c9883a2137c836c56e7f968d3557d7acf3dca9c204d0f85462f5a756d"
 };
