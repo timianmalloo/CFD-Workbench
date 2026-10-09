@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:35:13Z",
+  "generated": "2026-10-09T03:53:57Z",
   "audit": [
     {
       "actor": null,
@@ -32393,6 +32393,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T03:34:17Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M4FCQNA91N6C5NJPNYK10WJD",
+      "shortname": "ecr-elevation-capture",
+      "datetime": "2026-10-09T03:53:57Z",
+      "session": "trk-ecr",
+      "prompt": "trk-ecr",
+      "summary": "Capture defect (Inferred): RenderTargetBitmap at scale 1.5/2 drops the Overlay child, not opacity or clip; chip check now accepts a split line at 96 dpi (DevicePixel.HoldsHalfOf), red-first",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Rule capture vs product for the Elevation overlay absent at device resolution; repair item 4 if capture",
+      "done_when": "spike.md, red-first, run-tests green, check-docs 0",
+      "started_at": "2026-10-09T03:43:16Z",
+      "duration_seconds": 641.0
     }
   ],
   "changes": [

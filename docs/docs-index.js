@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4e6259055bf877704334f0ddeedd218fee2c9d401f2c5912ec7ae662ad49aa28"
+      "sourceSha256": "8d0934d88c854f350b2d01b48d24b01971248e33ff5d9f37715be45e405240da"
     },
     {
       "id": "domain-experts",
@@ -12729,6 +12729,56 @@ window.DOCS_INDEX = {
       "sourceSha256": "9cbbe5c0a750558d520e47c982e1b944d873a49d45152427f3e41ccfeada4a93"
     },
     {
+      "id": "proof-ecr-red-first",
+      "path": "docs/proof/ecr/red-first.md",
+      "title": "Track ECR red-first record (DPI-A item 4)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-ecr",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Pure check Elevation_ChipBorderSampler_HoldsHalfOfASplitLine: red with the old exact threshold, green with the half-line test.",
+      "tags": [
+        "dpi-a",
+        "ecr",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-ecr-spike",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ba27c69885773b87aee093010673771bd8fc3acc22e537d979133a30341923bf"
+    },
+    {
+      "id": "proof-ecr-spike",
+      "path": "docs/proof/ecr/spike.md",
+      "title": "Track ECR spike - Elevation overlay absent from device-resolution captures (DPI-A item 4)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-ecr",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Verdict: capture defect, Inferred. At scale 1.5 and 2 a RenderTargetBitmap drops what the Overlay child visual draws, with or without opacity and clip; the repair is a 96-dpi sampler that accepts a split line.",
+      "tags": [
+        "dpi-a",
+        "ecr",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-dpr-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "39095d69266414d591848792e3340c0aae9cc1f937aff3a7f77217e6c1733b6c"
+    },
+    {
       "id": "proof-ezf-red-first",
       "path": "docs/proof/ezf/red-first.md",
       "title": "EZF red-first record - Fixture.Reset drain and the folded settled-surface assertion",
@@ -18528,5 +18578,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3095ff694d1cc0246a27e3b30acee0e3ceeb683e7bb674dd233d0f50111d4008"
+  "graphSha256": "ea305c447548192d5c70f03042ee852f50aa2d0f3e658c3d48e4bbff2528c22c"
 };
