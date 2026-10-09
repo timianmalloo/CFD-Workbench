@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T18:39:00Z",
+  "generated": "2026-10-09T18:49:17Z",
   "audit": [
     {
       "actor": null,
@@ -33112,74 +33112,123 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4GYSESBBKJ68E6ZV1RC35AN",
-      "shortname": "join-wig-cbs",
-      "datetime": "2026-10-09T18:28:44Z",
-      "session": "3122f106",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "Joined WIG (WSL inline gate) and CBS (Mac timeout paths bounded); join repaired a PII-tripping fixture (GATE-BEFORE-ADD); READINESS-UNLOCKED recorded recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/wig/red-first.md",
         "docs/proof/cbs/audit.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "WSL-INLINE-ARGV and CLEANUP-BLOCKS-CEILING (Mac) controlled",
+      "datetime": "2026-10-09T18:28:44Z",
       "done_when": "join gates and ring green, readiness green, PUSH-OK",
-      "tier": "T1",
+      "duration_seconds": 60.0,
       "fan_out": 0,
+      "goal": "WSL-INLINE-ARGV and CLEANUP-BLOCKS-CEILING (Mac) controlled",
+      "id": "al-01M4GYSESBBKJ68E6ZV1RC35AN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-wig-cbs",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-09T18:27:44Z",
-      "duration_seconds": 60.0
+      "summary": "Joined WIG (WSL inline gate) and CBS (Mac timeout paths bounded); join repaired a PII-tripping fixture (GATE-BEFORE-ADD); READINESS-UNLOCKED recorded recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4GZ98BHTDN0FFGM5JETH51F",
-      "shortname": "sdg-scale-diagnostic",
-      "datetime": "2026-10-09T18:37:22Z",
-      "session": "trk-sdg",
-      "prompt": "trk-sdg scale-diagnostic mode",
-      "summary": "Added DesktopChecks.ScaleDiagnostic and the --scale-diagnostic mode; receipt with Mac run",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Add --scale-diagnostic: one SCALE_CONTEXT line, no check, exit 0",
+      "datetime": "2026-10-09T18:37:22Z",
       "done_when": "red-first check, Mac run receipt, run-tests green, check-docs 0",
+      "duration_seconds": 289.0,
+      "goal": "Add --scale-diagnostic: one SCALE_CONTEXT line, no check, exit 0",
+      "id": "al-01M4GZ98BHTDN0FFGM5JETH51F",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-sdg scale-diagnostic mode",
+      "session": "trk-sdg",
+      "shortname": "sdg-scale-diagnostic",
+      "skill": "implement",
       "started_at": "2026-10-09T18:32:33Z",
-      "duration_seconds": 289.0
+      "summary": "Added DesktopChecks.ScaleDiagnostic and the --scale-diagnostic mode; receipt with Mac run",
+      "tags": [],
+      "tool": null
     },
     {
-      "id": "al-01M4GZC7V20QYMTGHYEY0E01Y4",
-      "shortname": "join-sdg",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/sdg/receipt.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-09T18:39:00Z",
-      "session": "3122f106",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK, PC told",
+      "duration_seconds": 60.0,
+      "fan_out": 0,
+      "goal": "the PC runner can read the scale back without a product execution",
+      "id": "al-01M4GZC7V20QYMTGHYEY0E01Y4",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of feat/sdg-scale-diagnostic into main",
+      "session": "3122f106",
+      "shortname": "join-sdg",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T18:38:00Z",
       "summary": "Joined SDG: --scale-diagnostic prints one SCALE_CONTEXT line, runs no check, exits 0; outside the default ring recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T18:47:33Z",
+      "done_when": "self-test red then green with real processes; check-docs and verify gates exit 0",
+      "duration_seconds": 678.0,
+      "goal": "Readiness holds the ring lock exclusively while it runs",
+      "id": "al-01M4GZVWFQ3WFGMET1J2AS7MJQ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-rlk",
+      "session": "trk-rlk",
+      "shortname": "rlk-readiness-lock",
+      "skill": "implement",
+      "started_at": "2026-10-09T18:36:15Z",
+      "summary": "ring-lock.sh exclusive mode; run-readiness takes all slots, bounded wait 600 s, exit 4 BLOCKED (ring busy); READINESS-UNLOCKED controlled",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4GZZ26FC8SPP2PAW3ZJJQSN",
+      "shortname": "join-rlk",
+      "datetime": "2026-10-09T18:49:17Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/rlk-readiness-lock into main",
+      "summary": "Joined RLK: ring-lock.sh --acquire-all/--release-all with an exclusive-wanted marker; readiness waits (600 s bound, BLOCKED exit 4) and records ringWaitSeconds recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/sdg/receipt.md"
+        "docs/proof/rlk/red-first.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "the PC runner can read the scale back without a product execution",
-      "done_when": "join gates and ring green, readiness green, PUSH-OK, PC told",
+      "goal": "readiness never measures frame budgets under a track ring",
+      "done_when": "join gates and ring green, readiness green under the lock, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -33187,7 +33236,7 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T18:38:00Z",
+      "started_at": "2026-10-09T18:48:17Z",
       "duration_seconds": 60.0
     }
   ],

@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "eaf2371afb90b283c7f415ea402d1f5d9c45b72fe8140292a256b8dffffbb672"
+      "sourceSha256": "4524db59af62faade5442a1fefdc261163e9a41530fda5267963918717db0102"
     },
     {
       "id": "domain-experts",
@@ -15008,6 +15008,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "1091b7b26723dcc8bff4333d97ae910bc257d9899887ee3f0782a223a4fe55e5"
     },
     {
+      "id": "proof-rlk-red-first",
+      "path": "docs/proof/rlk/red-first.md",
+      "title": "RLK red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rlk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Readiness takes every ring slot for its whole run: red run with a fake ring (timed step started at once), green run (waits, track ring waits, BLOCKED exit 4 past the bound).",
+      "tags": [
+        "rlk",
+        "readiness",
+        "ring-lock",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bf9afdc21d13437683b7f5df2df2db12c098cef87e6cc411b67c62745f5e500b"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -19019,5 +19045,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "16bb42ed5338e1c134d9ec0a8f85c6e22ddd7d294e2c0e685262c162d3e54bf6"
+  "graphSha256": "3bdda1e716d975543cd8156e1ec85373d017bc3cd8b8f79e165333d7045042a8"
 };
