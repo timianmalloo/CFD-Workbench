@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ddccac8a69ba757dc555bc2daec41979b396d7aa2b4aea45b9aa6a313a4c935e"
+      "sourceSha256": "eacd27bcabef899e72cc10ae9866024738d045f45e9fc87edd9bb14cd94e6906"
     },
     {
       "id": "domain-experts",
@@ -7246,6 +7246,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "40a717c9ea87e1ec0021ee87f1a0202a9e4742ff55cdedc4c5ce450c1a715cf7"
     },
     {
+      "id": "review-pr-24",
+      "path": "docs/reviews/pr-24.md",
+      "title": "PR #24 (Windows PC) - durable Windows runner, runner-ready receipt (Ruling 184), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 184). The committed runner library, read-only preflight, policy guard and 19-mutant self-test are Verified, and every gate is green. It is not yet the run: the Ruling 179 budget opens on a committed scale-run driver with a finally-restore, a 120 s child ceiling and the policy guard covering it.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "runner",
+        "dpi"
+      ],
+      "links": [
+        {
+          "to": "review-pr-23",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1e5acc6a0ba5c1731e4d3c024258c5f8c9435c29faacf53bc48b25b3ca580691"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8179,7 +8207,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cfe1884634c4b8496d407d21c8a74b35d7975c0e90d570951d431ae6ab17edc9"
+      "sourceSha256": "b4ab6f6985dc58cff4eaccbc8aa8f65508ad15f26ebb806ad7d6bdbbf66f9f33"
     },
     {
       "id": "kb-hw-glossary",
@@ -18889,5 +18917,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "38d488b8c87c78ff11d5402f7a157a962c578e465e5326663d10b79fca4c9dfe"
+  "graphSha256": "f4ede2161e0dfcdad09978015d9f614c69328791e5a713453ef6475c40d48a89"
 };
