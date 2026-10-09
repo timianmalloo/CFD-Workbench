@@ -334,6 +334,26 @@
       "path": "docs/proof/win-store-implementation/verify-windows-store.stdout.txt",
       "bytes": 3770,
       "sha256": "d305eaa9508cc74457c80209aa400d624311454a52bf86f4aab8d5eb0694a35b"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/final-rerun-r175/verifier.stdout.txt",
+      "bytes": 4383,
+      "sha256": "2cde44b840f5b78a325f0a17fdba8bd6d4bf534b57ef136dcc33347ec863108a"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/final-rerun-r175/verifier.stderr.txt",
+      "bytes": 80,
+      "sha256": "2a838d3f9b165a929b9882825b755963ff74926864f40bb1209cff845c3c6da1"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/final-rerun-r175/process.json",
+      "bytes": 8133,
+      "sha256": "affeba0d214f921b8543f350ebd824a7fe5dc02fe90c65f292fd2f7be5f0b0af"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/final-rerun-r175/watchdog.ps1",
+      "bytes": 4066,
+      "sha256": "21b66285cbc6202512843071707f08f52f0ea460a9501fa5a1e7d0b5c73d6361"
     }
   ]
 }

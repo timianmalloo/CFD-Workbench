@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:59:00Z",
+  "generated": "2026-10-09T03:36:53Z",
   "audit": [
     {
       "actor": null,
@@ -32219,319 +32219,22 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "actor": null,
-      "artifacts": [],
-      "compiled": false,
-      "datetime": "2026-10-09T03:17:32Z",
-      "done_when": "join gates green",
-      "duration_seconds": 56.0,
-      "fan_out": 0,
-      "goal": "join the item 3 scale repair",
       "id": "al-01M4FAN025EMC5GE99ZRW04TTH",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "the join of fix/dpr-scale-tests into main",
-      "session": "3122f106",
       "shortname": "join-dpr",
-      "signals": {
-        "acceptance_met": true,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": "execute-with-coordination",
-      "started_at": "2026-10-09T03:16:36Z",
+      "datetime": "2026-10-09T03:17:32Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/dpr-scale-tests into main",
       "summary": "DPR joined: item 3 expects PlanContent.Width - 2*Rounded(1) (1130.667 = the Windows actual); pure check red then green; item 4 premise falsified (Side chips absent at device resolution); item 5 needs View3dTests.cs recount_seconds=0 (docs_only=False).",
-      "tags": [],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": null,
-      "artifacts": [],
-      "compiled": false,
-      "datetime": "2026-10-09T03:25:17Z",
-      "done_when": "DPR shape fixture resolves exit 0; DPR replay equals committed file; gates green",
-      "goal": "register driver defers to a clean three-way merge",
-      "id": "al-01M4FB35ETZMXREQW8Q8G10C2X",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "RG3",
-      "session": "trk-rg3",
-      "shortname": "rg3-driver-fallback",
-      "skill": "implement",
-      "summary": "three_way() in merge-defect-register.py: clean git merge written exit 0, hunks exit 1, git failure whole-file; DPR replay byte-identical",
-      "tags": [],
-      "tool": null
-    },
-    {
-      "actor": null,
-      "artifacts": [],
-      "compiled": false,
-      "datetime": "2026-10-09T03:26:48Z",
-      "done_when": "join gates green",
-      "duration_seconds": 57.0,
-      "fan_out": 0,
-      "goal": "join the register driver fallback fix",
-      "id": "al-01M4FB5YF08KPKXXNZYR6DEJPM",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "the join of fix/rg3-driver-fallback into main",
-      "session": "3122f106",
-      "shortname": "join-rg3",
-      "signals": {
-        "acceptance_met": true,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": "execute-with-coordination",
-      "started_at": "2026-10-09T03:25:51Z",
-      "summary": "RG3 joined: entry-level conflicts fall through to git merge-file; a clean merge that conserves every added or changed line is accepted; DPR join replays byte-identical recount_seconds=0 (docs_only=False).",
-      "tags": [],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": "Codex",
-      "artifacts": [
-        "docs/proof/wri-probe/receipt.md",
-        "docs/proof/wri/investigation.md",
-        "docs/proof/wri-probe/capture-manifest.json"
-      ],
-      "datetime": "2026-10-09T03:03:13Z",
-      "done_when": "Both-scale named results, 150% restoration proof, reverted instrumentation, refreshed manifest/audit/index, gates, and local commit.",
-      "fan_out": 0,
-      "goal": "Complete P6 scale confirmation and preserve truthful evidence.",
-      "id": "al-01M4F9TS5JKG96PFJNAX79CY6P",
-      "kind": "manual",
-      "outcome": "partial",
-      "prompt": "Complete Ruling 177 WRI P6 scale confirmation at 150% and 200%, restore 150%, and commit proof only.",
-      "session": "win-wri-p6-r177-20261008",
-      "shortname": "r177-wri-p6-capture",
-      "signals": {
-        "acceptance_met": true,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": null,
-      "summary": "Captured all eight named Windows checks once at Settings-selected 150% and 200%. All passed at 200%; four failed and four passed at 150%, including the unexpected 150% failure of check 2 recorded without diagnosis. Restored 150% and verified fresh in-process RenderScaling=1.5 and PrimaryScaling=1.5. Reverted temporary instrumentation; recorded capture limitation Process.ExitCode=NOT_RECORDED.",
-      "tags": [],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": "Codex",
-      "artifacts": [
-        "docs/proof/wri-probe/receipt.md",
-        "docs/proof/wri/investigation.md",
-        "docs/proof/wri-probe/capture-manifest.json"
-      ],
-      "datetime": "2026-10-09T03:08:47Z",
-      "done_when": "Official audit correction appended, receipt and investigation corrected, derived views/manifest refreshed, requested docs gates pass, and local commit clean.",
-      "fan_out": 0,
-      "goal": "Correct the P6 count and stale scope conclusions while preserving prior audit history.",
-      "id": "al-01M4FA4Z4R9SBNY6962FDQFT13",
-      "kind": "manual",
-      "outcome": "partial",
-      "prompt": "Correct the Ruling 177 P6 audit count, receipt identity and historical investigation conclusions without rerunning scale actions or tests.",
-      "session": "win-wri-p6-r177-20261008",
-      "shortname": "r177-wri-p6-count-correction",
-      "skill": null,
-      "summary": "Correction to prior audit entry al-01M4F9TS5JKG96PFJNAX79CY6P: the Ruling 177 results are 3 PASS / 5 FAIL at 150%, and 8 PASS at 200%, not four PASS and four FAIL at 150%. The named runs used tested HEAD 4383089735b27586efed93657606fce37317fc07; the earlier incomplete attempt at 93240b06df197f68b9ba3b971c3c8192895a7445 did not run named checks. One repair cycle was used for NuGet asset restore/build. Ruling 177 item 8 passes after WDF; item 2 remains unexpected/unresolved, and item 6 remains held pending P4 explanation.",
-      "tags": [],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": "Codex",
-      "artifacts": [
-        "docs/proof/wri-probe/receipt.md",
-        "docs/proof/wri-probe/r178-settings-initial.stdout.txt",
-        "docs/proof/wri-probe/r178-settings-initial.measurement.txt"
-      ],
-      "datetime": "2026-10-09T03:23:42Z",
-      "done_when": "The 150/200 supplemental checks and bounds are captured, or exact UIA blocker and no-mutation state are documented; instrumentation removed; proof gates pass.",
-      "fan_out": 0,
-      "goal": "Complete the two missing Ruling 178 property evidence requirements or record a bounded blocker.",
-      "id": "al-01M4FB0956RNVZDF60CH54VKW2",
-      "kind": "manual",
-      "outcome": "blocked",
-      "prompt": "Capture Ruling 178 supplemental ninth-check and item-6 bounds evidence at 150% and 200%, with restoration.",
-      "session": "win-wri-p6-r177-20261008",
-      "shortname": "r178-wri-p6-ui-blocker",
-      "skill": null,
-      "summary": "Ruling 178 supplement stopped before any scale change or named check. The exact main-monitor checkbox and scale combo were not reacquired within the 55-second UIA wait; current Settings selection is NOT_RECORDED. No restoration was needed because no scale selection occurred. The ninth check is NOT ASSESSED at either scale and the requested PointAftInput/Value_p_eta bounds are NOT RECORDED. Temporary instrumentation and script were removed.",
-      "tags": [],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": null,
-      "artifacts": [
-        "docs/reviews/pr-21.md",
-        "docs/proof/wri-probe/mac-join-note-pr21.md"
-      ],
-      "compiled": false,
-      "datetime": "2026-10-09T03:35:13Z",
-      "done_when": "join gates green, readiness green, PUSH-OK",
-      "duration_seconds": 56.0,
-      "fan_out": 0,
-      "goal": "PR #21 on main with Ruling 179 conditions met",
-      "id": "al-01M4FBNC4QR8WGXJG22MA00S6B",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "the join of the resolved merge into main",
-      "session": "3122f106",
-      "shortname": "join-pr21",
-      "signals": {
-        "acceptance_met": true,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": "execute-with-coordination",
-      "started_at": "2026-10-09T03:34:17Z",
-      "summary": "Joined PR #21 (Ruling 177 P6 at 150/200 %, Ruling 178 UIA blocker) under Ruling 179 with the join note and DPI-A line recount_seconds=0 (docs_only=True).",
-      "tags": [],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": null,
-      "artifacts": [],
-      "compiled": false,
-      "datetime": "2026-10-09T03:47:08Z",
-      "done_when": "pure red/green, repair, sweep, DPI-A line, run-tests green, check-docs 0",
-      "duration_seconds": 233.0,
-      "goal": "Repair the zero-tolerance arrangement assertions of the four-views check at fractional scale (Ruling 179 item 2)",
-      "id": "al-01M4FCB5MAEQ244M0CQYVDQW4H",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "trk-fvt",
-      "session": "trk-fvt",
-      "shortname": "fvt-fourviews-tolerance",
-      "skill": "implement",
-      "started_at": "2026-10-09T03:43:15Z",
-      "summary": "ControllerViewTests arrangement width/height use DevicePixel.Tolerance; Rounded cannot state both axes; sweep of 23 sites, 2 more exposed left as findings; proof docs/proof/fvt/red-first.md",
-      "tags": [],
-      "tool": null
-    },
-    {
-      "actor": null,
-      "artifacts": [
-        "docs/proof/fvt/red-first.md"
-      ],
-      "compiled": false,
-      "datetime": "2026-10-09T03:48:51Z",
-      "done_when": "join gates green, readiness green, PUSH-OK",
-      "duration_seconds": 60.0,
-      "fan_out": 0,
-      "goal": "item 2 repaired on main",
-      "id": "al-01M4FCEAQ1G653E0443NH3MJ3Q",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "the join of fix/fvt-fourviews-tolerance into main",
-      "session": "3122f106",
-      "shortname": "join-fvt",
-      "signals": {
-        "acceptance_met": true,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": "execute-with-coordination",
-      "started_at": "2026-10-09T03:47:51Z",
-      "summary": "Joined FVT: item-2 width and height assertions use DevicePixel.Tolerance; sweep found 2 more exposed sites recount_seconds=0 (docs_only=False).",
-      "tags": [],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": null,
-      "artifacts": [],
-      "compiled": false,
-      "datetime": "2026-10-09T03:53:57Z",
-      "done_when": "spike.md, red-first, run-tests green, check-docs 0",
-      "duration_seconds": 641.0,
-      "goal": "Rule capture vs product for the Elevation overlay absent at device resolution; repair item 4 if capture",
-      "id": "al-01M4FCQNA91N6C5NJPNYK10WJD",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "trk-ecr",
-      "session": "trk-ecr",
-      "shortname": "ecr-elevation-capture",
-      "skill": "implement",
-      "started_at": "2026-10-09T03:43:16Z",
-      "summary": "Capture defect (Inferred): RenderTargetBitmap at scale 1.5/2 drops the Overlay child, not opacity or clip; chip check now accepts a split line at 96 dpi (DevicePixel.HoldsHalfOf), red-first",
-      "tags": [],
-      "tool": null
-    },
-    {
-      "actor": null,
-      "artifacts": [
-        "docs/proof/ecr/spike.md",
-        "docs/proof/ecr/red-first.md"
-      ],
-      "compiled": false,
-      "datetime": "2026-10-09T03:57:34Z",
-      "done_when": "join gates green, readiness green, PUSH-OK",
-      "duration_seconds": 57.0,
-      "fan_out": 0,
-      "goal": "item 4 dispositioned and repaired in the test",
-      "id": "al-01M4FCY99XZYC1ZPHX7DJ74WDK",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "the join of the resolved merge into main",
-      "session": "3122f106",
-      "shortname": "join-ecr",
-      "signals": {
-        "acceptance_met": true,
-        "verification_executed": true,
-        "verification_path": true
-      },
-      "skill": "execute-with-coordination",
-      "started_at": "2026-10-09T03:56:37Z",
-      "summary": "Joined ECR: overlay absent from device-res RenderTargetBitmap is a capture defect (Inferred; opacity/clip falsified); chip check uses HoldsHalfOf recount_seconds=0 (docs_only=False).",
-      "tags": [],
-      "tier": "T1",
-      "tool": null
-    },
-    {
-      "actor": null,
-      "artifacts": [],
-      "compiled": false,
-      "datetime": "2026-10-09T03:55:56Z",
-      "done_when": "red-first record, run-tests green, check-docs 0",
-      "duration_seconds": 215.0,
-      "goal": "Repair DPI-A item 5: View3d chip border sampled at device resolution",
-      "id": "al-01M4FCV9YAXPE25W8G1EHWPP05",
-      "kind": "skill",
-      "outcome": "success",
-      "prompt": "trk-v3d",
-      "session": "trk-v3d",
-      "shortname": "v3d-chip-sampler",
-      "skill": "implement",
-      "started_at": "2026-10-09T03:52:21Z",
-      "summary": "View3d fixture takes a device-resolution Shot; chip top border read with DevicePixel.NearestAtDevice; pure check on the Windows block",
-      "tags": [],
-      "tool": null
-    },
-    {
-      "id": "al-01M4FD0X45GV1FGVXGTXHX1AXF",
-      "shortname": "join-v3d",
-      "datetime": "2026-10-09T03:59:00Z",
-      "session": "3122f106",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "Joined V3D: View3d fixture gets a scale-aware Shot; chip top border via DevicePixel.NearestAtDevice recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
-      "artifacts": [
-        "docs/proof/v3d/red-first.md"
-      ],
+      "artifacts": [],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "item 5 repaired on main",
-      "done_when": "join gates green, readiness green, PUSH-OK",
+      "goal": "join the item 3 scale repair",
+      "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -32539,8 +32242,42 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T03:58:03Z",
-      "duration_seconds": 57.0
+      "started_at": "2026-10-09T03:16:36Z",
+      "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M4FBRDM8S6WEPY69ZA58XSKC",
+      "shortname": "r175-final-direct-verifier-receipt",
+      "datetime": "2026-10-09T03:36:53Z",
+      "session": "win-store-final-rerun-r175",
+      "prompt": "Ruling 175 final joined verifier receipt: one direct no-argument Windows run under an outer 60-second fail-closed watchdog; no verifier fixes or repeat run.",
+      "summary": "Tested 421b5860, script a79ac73c: direct run emitted 13-check qualification PASS with one historical expected failure and 19.466184 seconds; outer19.772830 seconds no timeout. Launcher exit null and observed build-server residuals make receipt fail closed; Windows PASS denied for readiness. Captures retained; no rerun or product repair.",
+      "kind": "command",
+      "skill": null,
+      "tool": "tools/verify-windows-store.py",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-store-implementation/final-rerun-r175/receipt.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "goal": "Capture one final-script no-argument Windows verifier run with complete exit and process-bound evidence",
+      "done_when": "Source/process/stdout/stderr/exit measurements retained, integrity/privacy/docs gates inspected, proof commit ready",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-09T03:33:38Z",
+      "duration_seconds": 195.0,
+      "git": {
+        "sha": "421b5860cbaed5cf047e8c29661b68ec0f84e9f3",
+        "short": "421b5860c",
+        "branch": "win/store-final-rerun-r175",
+        "pushed": null
+      }
     }
   ],
   "changes": [
@@ -35054,24 +34791,6 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4F9HXX5PWVQVPXBXW5QTEG2",
-      "session": "fable-owner"
-    },
-    {
-      "id": "mail-01M4FBGTJQBPTZES6H9DDJEJY8",
-      "ts": "2026-10-09T03:32:44Z",
-      "from": "3122f106",
-      "to": "fable-owner",
-      "kind": "decision-request",
-      "ref": "req-01M4FBGTJK2W8V8MASE5JXGTJW",
-      "session": "3122f106"
-    },
-    {
-      "id": "mail-01M4FBGTNMTFEFQHZBSYRKPK2J",
-      "ts": "2026-10-09T03:32:44Z",
-      "from": "fable-owner",
-      "to": "3122f106",
-      "kind": "ruling",
-      "ref": "req-01M4FBGTJK2W8V8MASE5JXGTJW",
       "session": "fable-owner"
     }
   ]
