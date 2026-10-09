@@ -13,3 +13,8 @@ docs/proof/win-store-implementation/*.stdout.txt -text
 docs/proof/win-store-implementation/*.stderr.txt -text
 docs/proof/wri-probe/r177-* -text whitespace=cr-at-eol
 docs/proof/wri-probe/r178-* -text whitespace=cr-at-eol
+# Runner qualification/gate stdout is byte evidence, including producer CR sequences.
+docs/proof/wri-r182-runner/*.stdout.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r182-runner/*.stderr.txt -text whitespace=-trailing-space,-blank-at-eof
+# Unified diff blank context lines require their leading space; retain the reviewed patch bytes.
+docs/proof/wri-r182-runner/r183-checker.patch -text whitespace=-trailing-space
