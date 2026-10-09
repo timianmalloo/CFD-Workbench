@@ -589,6 +589,20 @@ public static class View3dTests
             Equal(new Selection.Station(index, tip.Eta), fixture.Controller.Selection, "a click on empty space");
         });
 
+        DesktopChecks.Check("View3d_ChipBorderSampler_FindsStationColourInTheLoggedWindowsBlock", () =>
+        {
+            // DPI-A, Ruling 179 (5): the committed Windows 150 % block around the chip top border (device row 646 is StationColor).
+            var station = (R: (byte)0x66, G: (byte)0xdd, B: (byte)0xc8);
+            var windowDip = new Point(936, 430.6666666666667);
+            var device = new (byte R, byte G, byte B)[] { (23, 39, 44), (23, 39, 44), (102, 221, 200), (69, 140, 132), (36, 58, 64) };
+            var found = DevicePixel.NearestAtDevice((x, y) => device[y - 644], windowDip, 1.5, station, 2);
+            Equal(station, found, "device-resolution sampler");
+            // The old read: the 96-dpi shot at floor(430.67) = 430, a blend across the 2/3-DIP seam.
+            var seam = new (byte R, byte G, byte B)[] { (23, 39, 44), (52, 105, 100), (80, 166, 154), (36, 58, 64), (36, 58, 64) };
+            var old = seam[(int)Math.Floor(windowDip.Y) - 429];
+            if (Distance(old, station) <= 30) throw new Exception("The old 96-dpi read was expected to miss StationColor: " + old);
+        });
+
         DesktopChecks.Check("View3d_SelectedStation_RenderedWidthAndChip", () =>
         {
             var fixture = Fixture.Shared();
@@ -602,11 +616,12 @@ public static class View3dTests
             if (selected < 3) throw new Exception($"The selected station is {selected} px across, not 3");
             if (selected <= root) throw new Exception($"The selected station ({selected} px) is not wider than an authored section ({root} px)");
             Equal("Tip", fixture.View.ChipText, "chip names the station");
+            fixture.ShootAtDeviceResolution();
             var chip = fixture.View.ChipBounds ?? throw new Exception("No chip");
             if (chip.X < 0 || chip.Right > fixture.View.Bounds.Width || chip.Y < 0 || chip.Bottom > fixture.View.Bounds.Height)
                 throw new Exception("Chip outside the view: " + chip);
             Equal(fixture.Brush("PlanSoftBrush"), fixture.RgbAtView(new Point(chip.Right - 2.5, chip.Center.Y)), "chip plate");
-            if (Distance(fixture.RgbAtView(new Point(chip.Center.X, chip.Y + 0.5)), station) > 30) throw new Exception("Chip border is not station");
+            if (Distance(fixture.NearestAtDevice(new Point(chip.Center.X, chip.Y + 0.5), station, 2), station) > 30) throw new Exception("Chip border is not station");
             if (tip.Upper.Concat(tip.Lower).Select(fixture.ViewPoint).Any(point => chip.Contains(point)))
                 throw new Exception("The chip covers the station it names");
             fixture.Controller.Select(new Selection.Foil());
@@ -937,6 +952,7 @@ public static class View3dTests
     private sealed class Fixture : IDisposable
     {
         private Shot? shot;
+        private Shot? deviceShot;
         public WorkbenchController Controller { get; }
         public ShellHost Host { get; }
         public ModelArea Area { get; }
@@ -1008,6 +1024,8 @@ public static class View3dTests
             }
             shot?.Dispose();
             shot = null;
+            deviceShot?.Dispose();
+            deviceShot = null;
         }
 
         public void Shoot()
@@ -1015,6 +1033,16 @@ public static class View3dTests
             Settle();
             shot = new Shot(Window);
         }
+
+        /// <summary>DPI-A: a shot at the window's render scaling, so a 1 DIP border is whole device pixels at a fractional scale.</summary>
+        public void ShootAtDeviceResolution()
+        {
+            deviceShot?.Dispose();
+            deviceShot = new Shot(Window, Window.RenderScaling);
+        }
+
+        public (byte R, byte G, byte B) NearestAtDevice(Point local, (byte R, byte G, byte B) target, int radius) =>
+            DevicePixel.NearestAtDevice((deviceShot ?? throw new InvalidOperationException("ShootAtDeviceResolution() first")).Rgb, ToWindow(local), deviceShot.Scale, target, radius);
 
         public bool Key(Key key, KeyModifiers modifiers) => KeyOn(View, key, modifiers);
 
@@ -1147,6 +1175,7 @@ public static class View3dTests
         public void Dispose()
         {
             shot?.Dispose();
+            deviceShot?.Dispose();
             Window.Close();
             Controller.Dispose();
         }
@@ -1158,14 +1187,19 @@ public static class View3dTests
         private readonly WriteableBitmap pixels;
         private readonly ILockedFramebuffer frame;
 
-        public Shot(Window window)
+        public Shot(Window window, double scale = 1)
         {
-            using var bitmap = new RenderTargetBitmap(new PixelSize((int)Math.Round(window.Bounds.Width), (int)Math.Round(window.Bounds.Height)));
+            Scale = scale;
+            using var bitmap = new RenderTargetBitmap(new PixelSize((int)Math.Round(window.Bounds.Width * scale), (int)Math.Round(window.Bounds.Height * scale)),
+                new Vector(96 * scale, 96 * scale));
             bitmap.Render(window);
             pixels = new WriteableBitmap(bitmap.PixelSize, new Vector(96, 96), PixelFormats.Bgra8888, AlphaFormat.Unpremul);
             frame = pixels.Lock();
             bitmap.CopyPixels(frame, AlphaFormat.Unpremul);
         }
+
+        /// <summary>Device pixels per DIP: 1 for the default shot.</summary>
+        public double Scale { get; }
 
         public (byte R, byte G, byte B) Rgb(int x, int y)
         {
