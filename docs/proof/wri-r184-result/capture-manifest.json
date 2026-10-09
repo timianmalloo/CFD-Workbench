@@ -1,0 +1,109 @@
+{
+  "files": [
+    {
+      "path": "docs/proof/wri-r184-result/docs.json",
+      "bytes": 1698,
+      "sha256": "03b4bf9e1472d180700040d9f43e251b88099c5f73ce421ca883581cc03252d3"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs.stderr.txt",
+      "bytes": 37,
+      "sha256": "55cbc3c519a4ea4aa5e821ffe708d6c13eaacc0c2088c18aa9865c9a16cbc24c"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs.stdout.txt",
+      "bytes": 4303,
+      "sha256": "5f1b03e0d2fdb98e67105380876ab4b104302dd9f2043977d355c0918b92f579"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/package-blocked.py",
+      "bytes": 6614,
+      "sha256": "2c9d1d7fc1cb001a4f449de04ca6ce794b8ec704d418a8dd98df92a48b716cdf"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/packaging-prompt.txt",
+      "bytes": 943,
+      "sha256": "4ba3a9514cce3168c0b5f518ba1f3d259f7348c8c20917cdd5ffa538c31009d6"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/pii.json",
+      "bytes": 1700,
+      "sha256": "9dd28bb0ac2155599f6464c61599d3db40d358d5cadb29ef97a209b397e18b0b"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/pii.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/pii.stdout.txt",
+      "bytes": 68,
+      "sha256": "f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/publication.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/receipt.md",
+      "bytes": 14721,
+      "sha256": "e5de8175b6ecbc51e4990d5b650fb3cdb7c60bd8521a32ace4747926b1d6e17a"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/run.json",
+      "bytes": 49171,
+      "sha256": "29794889cda07730b216468ad9d46659d811efc65b46d37912aa27d7b4bf5876"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-bindings.json",
+      "bytes": 4967,
+      "sha256": "27ae829fbc68b5ccf604b66d02ba9cdebd8d07664aec87fa73a4b258436004d8"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/check-windows-runner.py",
+      "bytes": 24961,
+      "sha256": "7bdae949718480bb9984ef30e75632d0d17cf04ba0161d478e35d2220af580ed"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/test-windows-runner.ps1",
+      "bytes": 13993,
+      "sha256": "4907aa2c94276b27115230080020e764c3f2a375079847b9d4520247bc7b1f3d"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/test-windows-scale-run.ps1",
+      "bytes": 4435,
+      "sha256": "4742af74ad76a5547005948424cd0ccf3a905793a4fd1d8b60706b95d37f6163"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/windows-runner.ps1",
+      "bytes": 24403,
+      "sha256": "cc201aca4cd2e9e434bec1b9630487a2184622d2ece08617c373d037d528848d"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/windows-scale-run.ps1",
+      "bytes": 14673,
+      "sha256": "d153d413ea618e8d4cc5346236f0d7c9ec57e38f04312ae0dfaa5d8044a63ff4"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/1477951f/windows-settings-preflight.ps1",
+      "bytes": 3004,
+      "sha256": "ee80b2676ab74c1b58da6918a1ad4e0ab0223a78c99b8775fccd2eab10f2c17b"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/36ccfa49/test-windows-scale-run.ps1",
+      "bytes": 2290,
+      "sha256": "39f89e36e429adeb8472554006098f4fb6dc03942ab9cf3b3b3d9502691dcf04"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-snapshots/36ccfa49/windows-scale-run.ps1",
+      "bytes": 14661,
+      "sha256": "fae58d4c71ecb110467f90842774c20c814cdec7c15dbb081469b2c846b8e834"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/source-state.json",
+      "bytes": 282,
+      "sha256": "bdefae3b61d5dca3a5435b55af20cc80abef08f6bdefff51babbfb03663eb5aa"
+    }
+  ]
+}

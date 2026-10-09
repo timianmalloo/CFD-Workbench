@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T18:39:00Z",
+  "generated": "2026-10-09T19:42:14Z",
   "audit": [
     {
       "actor": null,
@@ -33189,6 +33189,39 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T18:38:00Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M4H300C80Q6Q7BJB81XD7NAG",
+      "shortname": "wri-r184-blocked-receipt",
+      "datetime": "2026-10-09T19:42:13Z",
+      "session": "win-wri-r184-blocked",
+      "prompt": "Execution is stopped at cap. Packaging only; no implementation edits or runs. In C:\\Projects\\CFD-Workbench-win-wri-r184-scale-run, create a truthful blocked receipt and manifests for R184 cycles1-2 under docs/proof/wri-r184-result/ (or a sibling summary path if needed). Include exact HEADs/hashes, timelines, child records/exits/ceilings, cycle1 shadowing defect and repair proof, cycle2 exact Settings-frame-absent preflight, all 14 checks NOT ASSESSED at both scales, no scale mutation/build/product/restore/readback, RestoreExit/ReadbackExit not recorded because no mutation, SourceUnchanged and fingerprint/diff evidence, both-cycle cap fired, readiness closed, R181 verifier still queued. Add audit goal/result and regenerate required docs index/manifests using repo tools; run PII/graph/docs gates appropriate to docs-only packaging. Commit locally and report SHA. Do not push/open PR yet and do not execute any product/store verifier.",
+      "summary": "R184 execution stopped at two-cycle cap: cycle1 numeric preflight exit64 from callback path shadowing; reviewed path repair and boundary red1/green0; cycle2 numeric preflight exit1 from absent Settings frame. No scale mutation/build/product/restore/readback/store verifier. All14 checks not assessed at both scales, readiness closed. Packaging seals these blocked outcomes; validation and local commit follow.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": "win-wri-r182-runner",
+      "artifacts": [
+        "docs/proof/wri-r184-result/receipt.md"
+      ],
+      "tags": [
+        "ruling-184",
+        "blocked"
+      ],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Package the two blocked R184 execution cycles with truthful exits, fingerprints, cap closure and unassessed checks.",
+      "done_when": "Blocked receipt, staged-byte manifests, audit and docs index are retained, docs-only gates pass and local commit exists.",
+      "tier": "T1",
+      "fan_out": 0,
+      "started_at": "2026-10-09T19:35:49Z",
+      "duration_seconds": 384.0,
+      "git": {
+        "sha": "1477951f6cff53f7f9f6eee111425738dcc24b96",
+        "short": "1477951f6",
+        "branch": "win/wri-r184-scale-run",
+        "pushed": true
+      }
     }
   ],
   "changes": [

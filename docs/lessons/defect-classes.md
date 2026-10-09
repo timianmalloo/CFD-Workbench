@@ -2471,3 +2471,20 @@ waits, a StreamWriter constructor, and a second dot-source. Separate adversarial
 - *Prevent:* the 19 planted policy mutants in `tools/check-windows-runner.py --self-test`; Ready also runs the policy
   gate. Ring: fast policy / preparation mutant suite. Measured Windows policy 1.457 s, mutant suite 11.667 s. Status:
   controlled; output/timeout publication is PHN-checked (`docs/proof/wri-r182-runner/receipt.md`).
+
+**CALLBACK-PATH-SHADOW · A callback parameter shadows a captured path in a case-insensitive dynamic scope.**
+The first Ruling 184 live cycle passed callback text as PowerShell's -File argument. Its earlier callback-only tests
+proved sequencing but never reached the real driver's child-argument construction.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a captured path shares its name with a callback parameter; a shape check or callback-only stub passes,
+  but the actual boundary receives the callback value instead of the file path.
+- *Sweep:* the scale driver's preflight, driver and DLL path locals against the sequence's Preflight, Build, Select,
+  Contract, Restore and Readback parameters. The preflight path was the collision; the driver/DLL names were distinct.
+- *Derive:* name the path `preflightPath` and reuse that same value at both real preflight child call sites.
+- *Prevent:* `tools/test-windows-scale-run.ps1` exercises the actual driver callback with external children stubbed,
+  captures the -File argument, and compares it with the real preflight path. Red before the rename, green afterward,
+  retained under `docs/proof/wri-r184-driver/callback-repair-{red,green}/`; the first live receipt retains numeric exit64.
+  Ring: runner preparation, 10s ceiling; observed red3.147s/green3.020s. Status: controlled for the path boundary.
+  The second live cycle reached that path and failed closed on absent Settings; product/scale proof remains unassessed
+  (`docs/proof/wri-r184-result/receipt.md`).

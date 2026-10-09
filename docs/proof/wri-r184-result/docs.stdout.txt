@@ -1,0 +1,56 @@
+join rings ok: tests every code join (docs-only joins skip, Ruling 89), slow gates and recounts at readiness
+store subset ok: umask partition holds statically
+merge bindings ok: every coord-register path parses as JSONL, every defect-register path is markdown
+Managed Claude hooks: 11 unique event/matcher/target entries
+Rollup links: default and nested destinations resolve to the real source.
+process matching ok: no pgrep/pkill -f under tools/ or cases/tools/
+test paths ok: no relative repository reads in the Core tests
+debug parity ok: no Debug-only code or per-configuration compile property in src/ or tests/ (9 project files)
+SPIRAL: 12 commits, 0 product, 100% bookkeeping since 1645646 — stop the track and report to the operator (docs/lessons/defect-classes.md COORD-SPIRAL)
+spiral check: ok (12 commits, 1 product)
+spiral check: ok (12 commits, 0 product)
+spiral check: ok (11 commits, 0 product)
+self-test OK
+spiral check: ok (244 commits, 20 product)
+check-artifact-bindings self-test OK
+artifact bindings ok: 8 derived/register patterns all bound in .gitattributes
+check-foildsl-spec-sync self-test OK
+foildsl spec sync ok: src/CfdWorkbench.Core/FoilSource.cs unchanged on this branch
+trace-brief self-test OK
+xmsg self-test: ok (routing, seen-marking, no loss)
+no-heredoc hook self-test OK
+check-copy-ids self-test OK
+copy ids ok: 446 rows, every id unique
+check-wallclock-asserts self-test OK
+wall-clock assertions ok: 2 ungated, all allowlisted as tracked debt
+SELFTEST PASS planted shapes: expected [(1, 'Math.Cos'), (6, 'Math.Pow'), (7, 'double.Atan2Pi'), (8, 'double.Cos'), (9, 'double.Atan2'), (10, 'double.Exp'), (11, 'double.AcosPi'), (12, 'using static System.Math'), (13, 'MathF.Sin'), (14, 'Math.Cos'), (15, 'Math.Cos')], got [(1, 'Math.Cos'), (6, 'Math.Pow'), (7, 'double.Atan2Pi'), (8, 'double.Cos'), (9, 'double.Atan2'), (10, 'double.Exp'), (11, 'double.AcosPi'), (12, 'using static System.Math'), (13, 'MathF.Sin'), (14, 'Math.Cos'), (15, 'Math.Cos')], allowed 1
+SELFTEST PASS a missing listed file is reported
+SELFTEST PASS an allowed marker beyond the pinned count is reported
+check-crt-transcendentals: 4 file(s) clean
+check-text-mode-hash self-test OK
+text-mode hash ok: 1 file(s) allowlisted with a reason, none unfixed
+PROOF-PII self-test ok: 19 offenders caught, 23 clean passed
+PROOF-PII ok: 0 Windows user paths or machine SIDs (1 allowlisted)
+SELFTEST PASS a matching manifest is clean
+SELFTEST PASS byte count off by one fails
+SELFTEST PASS SHA-256 of another byte fails
+SELFTEST PASS an upper-case SHA-256 of the right bytes is clean
+SELFTEST PASS a path in another proof folder fails
+SELFTEST PASS a .. path fails
+SELFTEST PASS an uncommitted capture fails
+SELFTEST PASS the committed blob is judged, not the working tree
+SELFTEST PASS a manifest without files fails by name
+SELFTEST PASS closing manifest: a file outside its folder (cases/) is clean
+SELFTEST PASS closing manifest: byte count off by one fails
+SELFTEST PASS closing manifest: wrong SHA-256 fails
+SELFTEST PASS closing manifest: a .. path fails
+SELFTEST PASS capture manifest: a file outside its folder still fails
+SELFTEST 14/14 cases
+CAPTURE-MANIFEST: docs/proof/wri-r182-runner/closing-manifest.json: tools/check-windows-runner.py bytes declared 20175, committed 24961
+CAPTURE-MANIFEST: docs/proof/wri-r182-runner/closing-manifest.json: tools/check-windows-runner.py SHA-256 differs from the committed blob
+CAPTURE-MANIFEST: docs/proof/wri-r182-runner/closing-manifest.json: tools/test-windows-runner.ps1 bytes declared 12483, committed 13993
+CAPTURE-MANIFEST: docs/proof/wri-r182-runner/closing-manifest.json: tools/test-windows-runner.ps1 SHA-256 differs from the committed blob
+CAPTURE-MANIFEST: docs/proof/wri-r182-runner/closing-manifest.json: tools/windows-runner.ps1 bytes declared 24043, committed 24403
+CAPTURE-MANIFEST: docs/proof/wri-r182-runner/closing-manifest.json: tools/windows-runner.ps1 SHA-256 differs from the committed blob
+CAPTURE-MANIFEST: docs/proof/wri-r182-runner/closing-manifest.json: tools/windows-settings-preflight.ps1 bytes declared 2881, committed 3004
+CAPTURE-MANIFEST: docs/proof/wri-r182-runner/closing-manifest.json: tools/windows-settings-preflight.ps1 SHA-256 differs from the committed blob
