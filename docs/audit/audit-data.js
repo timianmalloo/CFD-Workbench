@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T15:50:46Z",
+  "generated": "2026-10-09T16:04:38Z",
   "audit": [
     {
       "actor": null,
@@ -32604,6 +32604,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T15:50:34Z",
       "duration_seconds": 12.0
+    },
+    {
+      "id": "al-01M4GPHK46STVCR759HWKA4YWN",
+      "shortname": "rg4-append-union",
+      "datetime": "2026-10-09T16:04:38Z",
+      "session": "trk-rg4",
+      "prompt": "trk-rg4",
+      "summary": "union_appends in merge-defect-register.py; 6 fixtures; both replays identical; RG4 proof section; register line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Register merge driver unions two dated lines appended at one place",
+      "done_when": "self-test 15/15, ECR and V3D replays byte-identical, check-docs and gates exit 0",
+      "started_at": "2026-10-09T15:59:48Z",
+      "duration_seconds": 290.0
     }
   ],
   "changes": [
