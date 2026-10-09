@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T16:32:11Z",
+  "generated": "2026-10-09T16:39:09Z",
   "audit": [
     {
       "actor": null,
@@ -32892,6 +32892,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T16:31:12Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M4GRGSG003GKME2Y2KRC6A2Z",
+      "shortname": "rg5-entry-order",
+      "datetime": "2026-10-09T16:39:09Z",
+      "session": "trk-rg5",
+      "prompt": "Track RG5",
+      "summary": "merge() inserts a new entry after its own-side predecessor; 5 fixtures; MSP and CRD replays; JOIN-LOG-CONFLICT line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Register driver keeps entry order",
+      "done_when": "fixtures green, MSP and CRD replays",
+      "started_at": "2026-10-09T16:35:56Z",
+      "duration_seconds": 193.0
     }
   ],
   "changes": [
