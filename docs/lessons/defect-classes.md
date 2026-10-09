@@ -2305,3 +2305,32 @@ the execution track; Settings and a fresh process verified restoration to 150% a
   pinned SDK/Python executable identities before ProcessStartInfo launch. In this run the source anchor
   guessed CRLF over LF, system dotnet lacked 10.0.203, and PATH-resolved `py` rejected `-3` during cleanup.
   The next-run deterministic preflight controls are proposed, not implemented.
+- *Prevent (Ruling 182, replaces the proposal):* the next runner holds no parsed instant. It reuses the Stopwatch
+  deadline of `docs/proof/ring-windows/capture-calibration.ps1:11,17-20`, whose mutation self-test is
+  `verify-capture-deadline.ps1`. The runner's own self-test adds 899,750 ms → waits and 900,000 ms → expired. Status:
+  pending the PC's committed runner (see THROWAWAY-RUNNER).
+
+**THROWAWAY-RUNNER · A one-off Windows run is driven by uncommitted harness code, and the harness, not the product, fails.**
+Three Windows scale runs in a row stopped in their own harness before a product check could tell anything:
+- PR #20: an added `AppliedDPI == 192` guard skipped all eight checks at a verified 200 %.
+- PR #21 (ac58814f): UIA waited 55 s for a checkbox inside a collapsed Settings group.
+- PR #23: a Local-kind deadline and a wrong `dotnet` path.
+
+In two of the three cases the repo already held the correct shape: `capture.ps1:14-29` checks the pinned SDK, and
+`capture-calibration.ps1` holds a self-tested Stopwatch deadline (Ruling 182, finding 6). The instrumentation each run
+rebuilt (the scale-context print, the item-6 bounds) had no committed home either.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a run whose runner is written for that run, used once, and not self-tested. Its failure spends the run's
+  repair cap on the harness.
+- *Sweep:* PRs #20, #21 and #23 (above). The ring captures (`docs/proof/ring-windows/`) use committed, self-tested
+  scripts and did not fail this way.
+- *Derive:*
+  - a Windows run uses a committed runner whose self-test is green in a committed runner-ready receipt before any scale
+    change;
+  - the runner reuses committed shapes (the reuse rung) before writing new ones;
+  - measurements the receipt needs are printed by the committed harness, not by temporary instrumentation.
+- *Prevent:* Ruling 182's six red-first preflight controls (a)–(f) in `docs/reviews/pr-23.md`: no AppliedDPI read, a
+  read-only UIA preflight, a Stopwatch deadline, toolchain identity, numeric stub exits 0 and 3, and zero source edits.
+  The fresh budget opens only on a committed runner-ready receipt. Status: pending the PC runner; the Mac measurement
+  prints are track MSP.
