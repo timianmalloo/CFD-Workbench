@@ -1,0 +1,22 @@
+## UI craft detection
+
+_Deterministic control (`ui-craft-detection.md`). Target(s): docs/mockups/export.html._
+
+### Measurement (DX23)
+
+| Severity | Count |
+|---|---|
+
+| Cluster | Count |
+|---|---|
+
+| Rule | Count |
+|---|---|
+
+### Findings (DX22 shape)
+
+| Severity | Dimension | Location | Evidence | Fix | Directive | Conf. |
+|---|---|---|---|---|---|---|
+| - | - | - | _no findings_ | - | - | - |
+
+> **CD13/CD14 - a clean run is a floor, never a verdict.** The detector cannot judge archetype fit, information architecture, whether the hard states exist at all, whether the copy is true, or whether the focal point is defended. Those remain the human and adversarial layers.

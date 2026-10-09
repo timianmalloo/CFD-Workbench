@@ -1,0 +1,66 @@
+import { createRequire } from 'node:module';
+import fs from 'node:fs';
+const require = createRequire(process.argv[2] + '/');
+const { chromium } = require('playwright');
+const page_url = 'file://' + process.argv[3];
+const outDir = process.argv[4];
+fs.mkdirSync(outDir, { recursive: true });
+const browser = await chromium.launch({ channel: 'chrome' });
+const page = await browser.newPage({ viewport: { width: 1400, height: 1000 } });
+const errors = [];
+page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
+page.on('pageerror', e => errors.push('pageerror ' + e.message));
+await page.goto(page_url);
+const plan = [
+  ['menu', 'file', 'A'], ['menu', 'section', 'A'], ['menu', 'nofoil', 'A'],
+  ['dat', 'ready', 'A'], ['dat', 'ready', 'C'], ['dat', 'draft', 'A'], ['dat', 'analysis', 'B'],
+  ['stl', 'ready', 'A'], ['stl', 'ready', 'B'], ['stl', 'preparing', 'A'], ['stl', 'large', 'C'], ['stl', 'draft', 'A'],
+  ['blocked', 'unchecked', 'A'], ['native', 'stl', 'A'], ['native', 'dat', 'A'],
+  ['writing', 'large', 'C'], ['done', 'stl', 'A'], ['done', 'dat', 'A'], ['done', '3mf', 'A'],
+  ['failed', 'disk', 'A'], ['failed', 'perm', 'A'], ['failed', 'gone', 'A'], ['failed', 'open', 'A'], ['cancelled', 'panel', 'A'], ['3mf', 'ready', 'A'],
+];
+const findings = [];
+for (const theme of ['light', 'dark']) {
+  await page.selectOption('#theme', theme);
+  for (const [state, detail, foil] of plan) {
+    await page.selectOption('#state', state);
+    if (await page.isEnabled('#detail')) await page.selectOption('#detail', detail);
+    await page.selectOption('#foil', foil);
+    const tag = `${state}-${detail}-${foil}-${theme}`;
+    const audit = await page.evaluate(() => {
+      const out = { text: [], small: [], tiny: [] };
+      const txt = document.getElementById('shell').innerText;
+      if (/NaN|undefined|null|<\w+>/.test(txt)) out.text.push((txt.match(/.{0,30}(NaN|undefined|null|<\w+>).{0,30}/) || [''])[0]);
+      for (const el of document.querySelectorAll('#shell button, #shell select, #shell input')) {
+        if (el.closest('[inert]') || el.offsetParent === null) continue;
+        const r = el.getBoundingClientRect();
+        if (r.width < 24 || r.height < 20) out.small.push(`${el.tagName} ${el.dataset.act || el.dataset.fmt || el.name || ''} ${Math.round(r.width)}x${Math.round(r.height)}`);
+      }
+      for (const el of document.querySelectorAll('#shell *')) {
+        if (!el.childNodes.length || el.offsetParent === null) continue;
+        const own = [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim());
+        if (own && parseFloat(getComputedStyle(el).fontSize) < 12) out.tiny.push(el.tagName + ':' + el.textContent.trim().slice(0, 20));
+      }
+      const dlg = document.querySelector('.dlg');
+      out.focus = document.activeElement ? (document.activeElement.dataset.act || document.activeElement.id || document.activeElement.tagName) : '';
+      out.dlgFits = dlg ? (dlg.getBoundingClientRect().bottom <= document.getElementById('shell').getBoundingClientRect().bottom) : true;
+      return out;
+    });
+    if (audit.text.length || audit.small.length || audit.tiny.length || !audit.dlgFits) findings.push(tag + ' ' + JSON.stringify(audit));
+    if (theme === 'light' || ['dat-ready-A', 'stl-large-C'].includes(`${state}-${detail}-${foil}`)) {
+      const el = await page.$('#shell');
+      await el.screenshot({ path: `${outDir}/${tag}.png` });
+    }
+  }
+}
+// keyboard checks on the STL dialog
+await page.selectOption('#theme', 'light');
+await page.selectOption('#state', 'stl'); await page.selectOption('#detail', 'ready'); await page.selectOption('#foil', 'A');
+const k = {};
+k.initialFocus = await page.evaluate(() => document.activeElement.dataset.act);
+await page.keyboard.press('Shift+Tab'); k.afterShiftTab = await page.evaluate(() => document.activeElement.dataset.act || document.activeElement.dataset.fmt);
+await page.keyboard.press('Tab'); k.afterTab = await page.evaluate(() => document.activeElement.dataset.act || document.activeElement.dataset.fmt);
+await page.focus('[data-fmt="stl"]'); await page.keyboard.press('ArrowDown'); k.arrow = await page.evaluate(() => window.__exd.S.state);
+await page.keyboard.press('Escape'); k.escape = await page.evaluate(() => window.__exd.S.state);
+console.log(JSON.stringify({ errors, findings, keyboard: k }, null, 1));
+await browser.close();

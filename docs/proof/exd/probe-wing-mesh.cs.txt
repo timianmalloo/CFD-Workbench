@@ -1,0 +1,102 @@
+using System.Diagnostics;
+using System.Text;
+using CfdWorkbench.Core;
+
+string foilPath = args[0];
+string text = foilPath == "default" ? Encoding.UTF8.GetString(FoilSource.NewDefault()) : File.ReadAllText(foilPath);
+double teHalf = double.Parse(args[1]); // 0 = closed
+if (teHalf > 0)
+{
+    text = text.Replace("(0.9, 0.01), (1, 0)] ids", $"(0.9, 0.01), (1, {teHalf})] ids");
+    text = text.Replace("(0.9, -0.01), (1, 0)] ids", $"(0.9, -0.01), (1, {-teHalf})] ids");
+    text = text.Replace("\"cv-6\", \"cv-7\"] }\n    }", "\"cv-6\", \"cv-7\"] }\n      closure open\n    }");
+}
+byte[] src = Encoding.UTF8.GetBytes(text);
+var parsed = FoilSource.Parse(src);
+Console.WriteLine($"parsed={parsed.IsParsed}");
+var assess = Geometry.Assess(parsed);
+Console.WriteLine($"status={assess.Status} code={assess.Code} reason={assess.Reason} work={assess.ProofWork}");
+
+foreach (var (s, c) in new[] { (11, 26), (21, 51), (31, 76), (41, 101), (81, 201), (161, 401) })
+{
+    var sw = Stopwatch.StartNew();
+    var sv = Placement.Surface(src, "accepted", 0, CancellationToken.None, s, c);
+    long tSurf = sw.ElapsedMilliseconds;
+    var fine = Placement.Surface(src, "accepted", 0, CancellationToken.None, 2 * s - 1, 2 * c - 1);
+    var fineByEta = fine.Sections.Select((x, i) => (x.Eta, i)).ToDictionary(t => t.Eta, t => t.i);
+    double maxChord = 0, maxSpan = 0, maxDiag = 0;
+    var cs = sv.Sections; int n = cs[0].Upper.Count;
+    for (int i = 0; i < cs.Count - 1; i++)
+    {
+        if (!fineByEta.TryGetValue(cs[i].Eta, out int fi) || !fineByEta.TryGetValue(cs[i + 1].Eta, out int fj)) continue;
+        if (fj != fi + 2) continue;
+        var fm = fine.Sections[fi + 1];
+        for (int side = 0; side < 2; side++)
+        {
+            var a = side == 0 ? cs[i].Upper : cs[i].Lower;
+            var b = side == 0 ? cs[i + 1].Upper : cs[i + 1].Lower;
+            var fa = side == 0 ? fine.Sections[fi].Upper : fine.Sections[fi].Lower;
+            var fmid = side == 0 ? fm.Upper : fm.Lower;
+            for (int j = 0; j < n - 1; j++)
+            {
+                maxChord = Math.Max(maxChord, Dist(fa[2 * j + 1], Mid(a[j], a[j + 1])));
+                maxSpan = Math.Max(maxSpan, Dist(fmid[2 * j], Mid(a[j], b[j])));
+                maxDiag = Math.Max(maxDiag, Dist(fmid[2 * j + 1], Mid(Mid(a[j], b[j + 1]), Mid(a[j + 1], b[j]))));
+            }
+        }
+    }
+    var (tris, welded, edgeOk, euler, vol, degen) = Build(sv);
+    Console.WriteLine($"S={s} C={c} secs={sv.Sections.Count} surfMs={tSurf} tris={tris} verts={welded} manifold={edgeOk} euler={euler} volume_cm3={vol * 1e6:F3} degenDropped={degen} dev_chord_mm={maxChord * 1e3:F4} dev_span_mm={maxSpan * 1e3:F4} dev_diag_mm={maxDiag * 1e3:F4} bytesBin={tris * 50L + 84}");
+}
+{
+    var sv = Placement.Surface(src, "accepted", 0, CancellationToken.None, 41, 101);
+    var r = sv.Sections[0]; var t = sv.Sections[^1];
+    Console.WriteLine($"root TE gap mm={(r.Upper[^1].Z - r.Lower[^1].Z) * 1e3:F4} chord mm={(r.Upper[^1].X - r.Upper[0].X) * 1e3:F3} tip TE gap mm={(t.Upper[^1].Z - t.Lower[^1].Z) * 1e3:F4} tipchord mm={(t.Upper[^1].X - t.Upper[0].X) * 1e3:F3}");
+    Console.WriteLine($"bounds mm X[{sv.MinimumX * 1e3:F2},{sv.MaximumX * 1e3:F2}] Y[{sv.MinimumY * 1e3:F2},{sv.MaximumY * 1e3:F2}] Z[{sv.MinimumZ * 1e3:F2},{sv.MaximumZ * 1e3:F2}]  LEexact={r.Upper[0] == r.Lower[0]} rootY={r.Upper[0].Y}");
+    bool planar = t.Upper.Concat(t.Lower).All(p => p.Y == t.Upper[0].Y);
+    Console.WriteLine($"tipPlanar={planar} stationEtas={string.Join(",", sv.Sections.Where(x => x.Assignment != null).Select(x => x.Eta))}");
+}
+
+static Point3 Mid(Point3 a, Point3 b) => new((a.X + b.X) / 2, (a.Y + b.Y) / 2, (a.Z + b.Z) / 2);
+static double Dist(Point3 a, Point3 b) => Math.Sqrt((a.X - b.X) * (a.X - b.X) + (a.Y - b.Y) * (a.Y - b.Y) + (a.Z - b.Z) * (a.Z - b.Z));
+
+static (int tris, int verts, bool manifold, int euler, double vol, int degen) Build(SurfaceView sv)
+{
+    var index = new Dictionary<(double, double, double), int>();
+    var pts = new List<Point3>();
+    int V(Point3 p) { var k = (p.X, p.Y, p.Z); if (!index.TryGetValue(k, out int i)) { i = pts.Count; index[k] = i; pts.Add(p); } return i; }
+    var tris = new List<(int, int, int)>(); int degen = 0;
+    void T(int a, int b, int c) { if (a == b || b == c || a == c) { degen++; return; } tris.Add((a, b, c)); }
+    var sec = sv.Sections; int n = sec[0].Upper.Count;
+    foreach (bool port in new[] { false, true })
+    {
+        Point3 P(Point3 p) => port ? p.Port() : p;
+        for (int i = 0; i < sec.Count - 1; i++)
+        {
+            for (int j = 0; j < n - 1; j++)
+            {
+                int a = V(P(sec[i].Upper[j])), b = V(P(sec[i].Upper[j + 1])), c = V(P(sec[i + 1].Upper[j + 1])), d = V(P(sec[i + 1].Upper[j]));
+                if (!port) { T(a, b, c); T(a, c, d); } else { T(a, c, b); T(a, d, c); }
+                a = V(P(sec[i].Lower[j])); b = V(P(sec[i].Lower[j + 1])); c = V(P(sec[i + 1].Lower[j + 1])); d = V(P(sec[i + 1].Lower[j]));
+                if (!port) { T(a, c, b); T(a, d, c); } else { T(a, b, c); T(a, c, d); }
+            }
+            int u0 = V(P(sec[i].Upper[n - 1])), u1 = V(P(sec[i + 1].Upper[n - 1])), l0 = V(P(sec[i].Lower[n - 1])), l1 = V(P(sec[i + 1].Lower[n - 1]));
+            if (!port) { T(u0, l0, l1); T(u0, l1, u1); } else { T(u0, l1, l0); T(u0, u1, l1); }
+        }
+        var tip = sec[^1];
+        for (int j = 0; j < n - 1; j++)
+        {
+            int a = V(P(tip.Upper[j])), b = V(P(tip.Upper[j + 1])), c = V(P(tip.Lower[j + 1])), d = V(P(tip.Lower[j]));
+            if (port) { T(a, d, c); T(a, c, b); } else { T(a, c, d); T(a, b, c); }
+        }
+    }
+    var edges = new Dictionary<(int, int), int>();
+    foreach (var (a, b, c) in tris) foreach (var e in new[] { (a, b), (b, c), (c, a) }) edges[e] = edges.GetValueOrDefault(e) + 1;
+    bool manifold = edges.All(kv => kv.Value == 1 && edges.ContainsKey((kv.Key.Item2, kv.Key.Item1)));
+    int noMate = edges.Count(kv => !edges.ContainsKey((kv.Key.Item2, kv.Key.Item1))), dup = edges.Count(kv => kv.Value > 1);
+    Console.WriteLine($"  edges={edges.Count} noMate={noMate} dupDirected={dup}");
+    int E = edges.Count / 2; int euler = pts.Count - E + tris.Count;
+    double vol = 0;
+    foreach (var (a, b, c) in tris) { var p = pts[a]; var q = pts[b]; var r = pts[c]; vol += (p.X * (q.Y * r.Z - q.Z * r.Y) - p.Y * (q.X * r.Z - q.Z * r.X) + p.Z * (q.X * r.Y - q.Y * r.X)) / 6; }
+    return (tris.Count, pts.Count, manifold, euler, vol, degen);
+}

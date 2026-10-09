@@ -2653,6 +2653,56 @@ window.DOCS_INDEX = {
       "sourceSha256": "e58b693773f0ca4d53316cdcf86fa6c1d3176f6dcd2e041e4bb8af6efa021682"
     },
     {
+      "id": "design-export",
+      "path": "docs/design/export.md",
+      "title": "Design: Export (Area 7) - section .dat, wing STL, then 3MF",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design - Export slice A (Ruling 193)",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Detailed design of the first Export slice: the section .dat (Selig or Lednicer), the wing STL, then the 3MF, all in millimetres and unscaled where a unit exists, each with a stated fidelity and the TE-floor finding repeated. The accepted wing can be written as a closed (watertight) solid with no CAD kernel: a probe on two wings gave a manifold mesh with Euler characteristic 2 from the existing display evaluator plus a topology-only closing step. Copy rows and spec amendments are proposed for the operator; nothing is built until the operator approves the mockup.",
+      "tags": [
+        "export",
+        "dat",
+        "stl",
+        "3mf",
+        "exp-02",
+        "exp-03",
+        "te-floor",
+        "fidelity",
+        "millimetres",
+        "watertight",
+        "area-7",
+        "trk-exd"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12d-catalog",
+          "rel": "relates-to"
+        },
+        {
+          "to": "mockup-export",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bc8c58c8a9744a4b595a4c7371fbe880f316650fc141b76d98648bc50ae46e56"
+    },
+    {
       "id": "design-foildsl-authoring",
       "path": "docs/design/foildsl-authoring-direction.md",
       "title": "FoilDSL authoring direction and transaction contract",
@@ -3795,6 +3845,49 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "2956a764fccea08c3ae365c6be502a168f0e4f109130375cec006eaf65193ed0"
+    },
+    {
+      "id": "mockup-export",
+      "path": "docs/mockups/export.md",
+      "title": "Export dialog - section .dat, wing STL, 3MF, and the hard states",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "Stop-and-show page for the first Export slice (Ruling 193). One modal dialog with a format list, per-format options, a computed \"What will be written\" block with the fidelity lines, the trailing-edge floor finding, the fixed safety string and the hard states: draft open, geometry check not passed, Analysis mode, large mesh, preparing, writing, write failure, closure failure, cancelled, no foil open. Numbers are the probe receipts in docs/proof/exd/ for three sample foils. Proposed for the operator; nothing is built until the operator approves it.",
+      "tags": [
+        "mockup",
+        "export",
+        "dat",
+        "stl",
+        "3mf",
+        "te-floor",
+        "fidelity",
+        "operator-show",
+        "trk-exd"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "documents"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "mockup-w2-save-picker",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3ded3bff82f5f97aa97e0bdbbcfcd02599a8f5dc7a5f58994119bf84f02dd813"
     },
     {
       "id": "mockup-group-move-node-m",
@@ -8345,7 +8438,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a4b0e11840c2bb6c0ab2dbdbda64ec708cf3e7d904ebeb6e0768a1efd0d5bca9"
+      "sourceSha256": "d5ff39fc2dbd12f95a02d78b707fef3df81552b7cddab2b5fdb5a06bb23bbf7c"
     },
     {
       "id": "kb-hw-glossary",
@@ -19325,6 +19418,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-workbench-v7"
     },
     {
+      "id": "surface-mockups-export",
+      "path": "docs/mockups/export.html",
+      "title": "Export Dialog",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-export"
+    },
+    {
       "id": "surface-specs-foildsl",
       "path": "docs/specs/foildsl.html",
       "title": "FoilDSL 4.0 — Language specification",
@@ -19429,5 +19530,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "39b855a81d0ef56712ad8fc53f8c600535d0c4e6c27d218e7fad2a73b52be485"
+  "graphSha256": "578203b26c35780a0c8f3d5e820014333d7687717b055304bd13c39a08e109d8"
 };
