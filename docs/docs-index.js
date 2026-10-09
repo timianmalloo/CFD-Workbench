@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3453dfe4113114cf144ae94c4dd04ed81a1d7345204fe55cbc4e4defe5292719"
+      "sourceSha256": "eaf2371afb90b283c7f415ea402d1f5d9c45b72fe8140292a256b8dffffbb672"
     },
     {
       "id": "domain-experts",
@@ -15087,6 +15087,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "3933950736c8c77e8408096a2178260cd2b6d68282dd945bc298564c6be2646a"
     },
     {
+      "id": "proof-sdg",
+      "path": "docs/proof/sdg/receipt.md",
+      "title": "SDG scale-diagnostic mode receipt",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@trk-sdg",
+      "phase": "implementation",
+      "reviewBy": "2026-10-28",
+      "reviewSuggested": [],
+      "summary": "The --scale-diagnostic mode prints one SCALE_CONTEXT line, runs no check and exits 0. Red first, the Mac run and why the default ring never runs it.",
+      "tags": [
+        "scale",
+        "diagnostic",
+        "ruling-184"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-probe-windows-scale",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "58d1be122b6a3cebdf01270d9220e118dbefeccaea41d6603d179b0847ab9fff"
+    },
+    {
       "id": "proof-sfv-captures",
       "path": "docs/proof/sfv/captures.md",
       "title": "SFV captures of the Section force vectors against the approved mockup states A to E",
@@ -18994,5 +19019,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6e3e6e11bd5f20633eb88ef2e6e795c8fe723c0819036638343f9d0b1dd0a8e2"
+  "graphSha256": "16bb42ed5338e1c134d9ec0a8f85c6e22ddd7d294e2c0e685262c162d3e54bf6"
 };

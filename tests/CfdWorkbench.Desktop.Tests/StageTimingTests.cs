@@ -44,5 +44,19 @@ public static class StageTimingTests
             if (Run(["PASS x"], out string missing) == 0 || !missing.Contains("FAIL SCALE_CONTEXT --views", StringComparison.Ordinal))
                 throw new Exception("a window mode with no SCALE_CONTEXT line did not fail: " + missing);
         });
+        // Ruling 184 (option A): `--scale-diagnostic` prints one SCALE_CONTEXT line, runs no check, exits 0; a setup failure is one FAIL line.
+        // Ring: fast (in-process, pure over a fake line source). Cost: under 5 ms.
+        DesktopChecks.Check("ScaleDiagnostic_PrintsOneScaleLine_NoCheckLines_ExitsZero", () =>
+        {
+            var output = new StringWriter();
+            int exit = DesktopChecks.ScaleDiagnostic(mode => $"SCALE_CONTEXT mode={mode} RenderScaling=1.5", output);
+            string[] lines = output.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(l => l.TrimEnd()).ToArray();
+            if (exit != 0 || lines.Length != 1 || !lines[0].StartsWith("SCALE_CONTEXT mode=scale-diagnostic ", StringComparison.Ordinal))
+                throw new Exception($"exit {exit}, lines: {string.Join(" | ", lines)}");
+            var failed = new StringWriter();
+            int failExit = DesktopChecks.ScaleDiagnostic(_ => throw new InvalidOperationException("no display"), failed);
+            if (failExit == 0 || !failed.ToString().StartsWith("FAIL SCALE_DIAGNOSTIC no display", StringComparison.Ordinal))
+                throw new Exception($"setup failure exit {failExit}: {failed}");
+        });
     }
 }
