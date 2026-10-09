@@ -16377,6 +16377,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "41fa73ad9d7d1f90dff8fb4a0ec789b394f3177a269fc65f83d25609b3b10bd2"
     },
     {
+      "id": "proof-wri-probe-windows-scale",
+      "path": "docs/proof/wri-probe/receipt.md",
+      "title": "WRI Windows scale probe receipt",
+      "type": "proof-pack",
+      "status": "partial",
+      "owner": "@trk-wri",
+      "phase": "implementation",
+      "reviewBy": "2027-04-09",
+      "reviewSuggested": [],
+      "summary": "Captures P1-P5 at 150% and records the authorized P6 attempt. Settings selected 200% and Avalonia reported 2.0, satisfying the committed P6 scale condition. A coordinator follow-up added an AppliedDPI==192 guard, which skipped the eight named checks; P6 remains NOT ASSESSED. Scale was restored and verified at 150%.",
+      "tags": [
+        "windows",
+        "dpi",
+        "rendering",
+        "probe"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-investigation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5b063380647e44bedae09fc8d72a5c4f91078a5d5ab616bde5f7f49d1b08bd88"
+    },
+    {
       "id": "proof-wrt-red-first",
       "path": "docs/proof/wrt/red-first.md",
       "title": "WRT red-first receipt: Windows known-expected-failure manifest",
@@ -18365,5 +18391,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e4498615acfa5e5fd23555037441849b12fd7f88c20c9019375c230c90efd05f"
+  "graphSha256": "02aa54ff84ce288eddb7fc3a51fea43e55f247e42136138d5710a9d46a85a7cd"
 };
