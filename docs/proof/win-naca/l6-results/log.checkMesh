@@ -10,7 +10,7 @@ Arch   : "LSB;label=32;scalar=64"
 Exec   : /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/checkMesh -case /root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6
 Date   : Oct 08 2026
 Time   : 07:43:54
-Host   : extreme1
+Host   : <host>
 PID    : 575
 I/O    : uncollated
 Case   : /root/CFDWorkbench/runs/20261008T144237Z-win-spike04r3-g0-l6
