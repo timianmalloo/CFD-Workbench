@@ -1,0 +1,4 @@
+STARTUP-PROBE iteration=1 caught=WRI-ENVELOPE: requested startup delay exhausts root allowance; child not launched elapsed_ms=813
+STARTUP-PROBE iteration=2 caught=WRI-ENVELOPE: requested startup delay exhausts root allowance; child not launched elapsed_ms=619
+STARTUP-PROBE iteration=3 caught=WRI-ENVELOPE: requested startup delay exhausts root allowance; child not launched elapsed_ms=514
+STARTUP-PROBE iteration=4 caught=WRI-ENVELOPE: requested startup delay exhausts root allowance; child not launched elapsed_ms=535

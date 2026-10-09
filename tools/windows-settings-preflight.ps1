@@ -1,5 +1,6 @@
 # Ring: Windows runner preparation. Read-only UIA. Ceiling: runner's 60 s child limit.
-param([ValidateSet('Preflight')][string]$Action='Preflight', [switch]$SelfTestAbsentFrame)
+param([ValidateSet('Preflight')][string]$Action='Preflight', [switch]$SelfTestAbsentFrame,
+      [ValidateSet('150% (Recommended)','200%')][string]$ExpectedScale='150% (Recommended)')
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'windows-runner.ps1')
 Add-Type -AssemblyName UIAutomationClient
@@ -33,5 +34,5 @@ $isMain=$main.GetCurrentPattern([System.Windows.Automation.TogglePattern]::Patte
 $combo=Find-Required 'SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox'
 $selection=$combo.GetCurrentPattern([System.Windows.Automation.SelectionPattern]::Pattern).Current.GetSelection()
 $scale=[string]::Join(',',@($selection | ForEach-Object { $_.Current.Name }))
-Assert-WriSettingsState ([pscustomobject]@{Frame=$true;Selected=$selected;Expanded=$expanded;Main=$isMain;Visible=($combo.Current.IsEnabled -and -not $combo.Current.IsOffscreen);Scale=$scale})
+Assert-WriSettingsState ([pscustomobject]@{Frame=$true;Selected=$selected;Expanded=$expanded;Main=$isMain;Visible=($combo.Current.IsEnabled -and -not $combo.Current.IsOffscreen);Scale=$scale}) -ExpectedScale $ExpectedScale
 "SETTINGS_SUCCESS action=$Action selected=$scale read_only=true"

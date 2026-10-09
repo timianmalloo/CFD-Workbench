@@ -2438,6 +2438,12 @@ rebuilt (the scale-context print, the item-6 bounds) had no committed home eithe
 **WINDOWS-CAPTURE-LIFECYCLE · A launcher mistakes root exit or a termination request for complete, bounded process cleanup.**
 Ruling 181's watchdog lost the numeric exit. Runner review also exposed inherited output handles, asynchronous
 assignment-failure termination, and residual accounting before SDK shutdown.
+Ruling 184 preparation exposed a related startup boundary race: sleeping a truncated remaining allowance can wake
+before the Stopwatch reaches the deadline, launch a child, and exceed the total allowance during cleanup. The retained
+`docs/proof/wri-r184-driver/startup-probe.stdout.txt` observed WRI-DEADLINE at 1015 ms against a 1000 ms envelope.
+The active runner now rejects an injected delay at or above the derived remaining allowance before sleeping or launching.
+The existing delayed-startup runtime fixture keeps its WRI-ENVELOPE and under-1000-ms requirements; a new policy
+mutant removes this refusal and must fail control (c). This is the single R184 preparation repair cycle.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* missing retained handle/numeric exit, an unbounded drain after root exit, a termination request without

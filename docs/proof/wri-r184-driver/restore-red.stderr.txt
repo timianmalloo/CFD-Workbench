@@ -1,0 +1,5 @@
+Exception: C:\Projects\CFD-Workbench-win-wri-r184-scale-run\tools\test-windows-scale-run.ps1:16
+Line |
+  16 |  … oin '|')) { throw "RESTORE-CONTRACT FAIL events=$($events -join '>')" …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | RESTORE-CONTRACT FAIL events=preflight:150% (Recommended)>build>select:150>checks:150>select:200>checks:200

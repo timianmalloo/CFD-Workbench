@@ -1,0 +1,72 @@
+RED checker timeout rejected wrapper_exit=124 observed_child_exit=1 cleanup=root-termination-observed descendants=not-assessed PHN=PASS traceback=false
+RED fixture=1 control=a rejected=a registry access
+RED fixture=2 control=b rejected=b UIA parsed command/method outside read-only allowlist
+RED fixture=3 control=b rejected=b UIA parsed command/method outside read-only allowlist
+RED fixture=4 control=b rejected=b UIA parsed command/method outside read-only allowlist
+RED fixture=5 control=b rejected=b UIA parsed command/method outside read-only allowlist
+RED fixture=6 control=b rejected=b exact Preflight action missing
+RED fixture=7 control=c rejected=c parsed/mixed-kind deadline
+RED fixture=8 control=c rejected=c Stopwatch remaining deadline missing
+RED fixture=9 control=d rejected=d exact toolchain identity missing
+RED fixture=10 control=e rejected=e retained handle or numeric exit missing
+RED fixture=11 control=e rejected=e retained handle or numeric exit missing
+RED fixture=12 control=f rejected=f before/after source protection missing
+RED fixture=13 control=c rejected=c Stopwatch remaining deadline missing
+RED fixture=14 control=c rejected=c Stopwatch remaining deadline missing
+RED fixture=15 control=e rejected=e retained handle or numeric exit missing
+RED fixture=16 control=f rejected=f before/after source protection missing
+RED fixture=17 control=b rejected=b UIA parsed command/method outside read-only allowlist
+RED fixture=18 control=b rejected=b exact UIA constructors/dot-source missing or added
+RED fixture=19 control=b rejected=b exact UIA constructors/dot-source missing or added
+RED fixture=20 control=c rejected=c startup allowance refusal before sleep/launch missing
+RED R184 mutant=finally removal rejected=R184 active preflight/sequence/finally restore/readback missing
+RED R184 mutant=restore call commented rejected=R184 active preflight/sequence/finally restore/readback missing
+RED R184 mutant=child ceiling shortened rejected=R184 build/check/fresh-readback ceiling or lifecycle missing
+RED R184 mutant=lifecycle omitted rejected=R184 build/check/fresh-readback ceiling or lifecycle missing
+RED R184 mutant=numeric exit commented rejected=R184 guarded numeric child recording missing
+RED R184 mutant=readback comparison omitted rejected=R184 numeric restore or fresh 1.5 readback missing
+RED f missing source identity rejected=global.json
+RED f missing source identity rejected=CFDWorkbench.slnx
+GREEN policy controls=a,b,c,d,e,f,R181
+policy_self_test_ms=12161.847
+RED d wrong SDK path rejected=WRI-TOOLCHAIN
+RED d wrong Python path rejected=WRI-TOOLCHAIN
+RED b Settings closed rejected=WRI-PREFLIGHT
+RED b Settings collapsed rejected=WRI-PREFLIGHT
+RED b unexpected 200 scale rejected=WRI-PREFLIGHT
+GREEN b explicit expected 200 scale accepted; default150 rejected200
+RED e lost exit rejected=WRI-EXIT
+RED e nonnumeric exit rejected=WRI-EXIT
+GREEN c stopwatch boundary=899750:250,900000:expired
+RED f tracked build identity global.json rejected=WRI-SOURCE
+RED f build identity fingerprint global.json rejected=WRI-SOURCE
+RED f tracked build identity CFDWorkbench.slnx rejected=WRI-SOURCE
+RED f build identity fingerprint CFDWorkbench.slnx rejected=WRI-SOURCE
+RED f one-byte tracked edit rejected=WRI-SOURCE
+RED f after-child mutation rejected=WRI-SOURCE
+RED f untracked source rejected=WRI-SOURCE
+GREEN f baseline=clean final=clean same_bytes=true
+GREEN e stub=0 numeric_exit=0 retained_handle=True
+GREEN e stub=3 numeric_exit=3 retained_handle=True
+RED b actual preflight absent-frame provider rejected before any scale action
+RED assignment failure termination_injected=False rejected=cleanup=terminated-complete
+GREEN assignment-failure injected_termination=False stable_handle_wait=true observed_dead=true total_ms=564 limit_ms=5000
+RED assignment failure termination_injected=True rejected=cleanup=unresolved-request-failed fallback=terminated-complete
+GREEN assignment-failure injected_termination=True stable_handle_wait=true observed_dead=true total_ms=517 limit_ms=5000
+GREEN inherited-output root_exit=0 descendants_at_root_exit=1 cleanup=terminated-complete bounded_ms=2887 limit_ms=5000 PHN=PASS substitution_count=3 raw_hash_bound=true
+RED cleanup injected termination failure rejected=WRI-CLEANUP
+GREEN injected_failure completion_claim=withheld fallback_job_close=observed_dead bounded=true
+RED timeout cleanup rejected=WRI-DEADLINE
+GREEN timeout-cleanup total_ms=1384 limit_ms=2000 raw_publication=false
+RED delayed startup rejected=WRI-ENVELOPE
+GREEN delayed-startup total_ms=524 limit_ms=1000 child_launch=false
+GREEN R181 lifecycle_order=target-root-exit:0>shutdown-start>shutdown-exit:0>target-job-query>target-job-terminate>target-job-close numeric_shutdown=0 residual_evidence=job-accounting-only
+RED R181 shutdown failure rejected=numeric shutdown failed; target residual query withheld
+GREEN R181 shutdown_failure=3 query=withheld job_close_fallback=observed_dead completion_claim=withheld
+GREEN b read-only state fixture accepted
+Exception: $REPO\tools\windows-runner.ps1:308
+Line |
+ 308 |  … 0.0.203') { throw 'WRI-TOOLCHAIN: SDK version must be exactly 10.0.20 …
+     |                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | WRI-TOOLCHAIN: SDK version must be exactly 10.0.203
+runtime_self_test_exit=1 cleanup=root-exit-observed descendants=not-assessed runtime_self_test_ms=26747.137

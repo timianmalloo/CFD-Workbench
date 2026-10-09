@@ -3,7 +3,7 @@
 
 --self-test proves planted policy failures and, on Windows, exercises the real
 PowerShell runner with stub children (60 s ceiling, no scale or product checks).
-Scope: tools/windows-runner.ps1 and windows-settings-preflight.ps1, no recursion.
+Scope: tools/windows-runner.ps1, windows-settings-preflight.ps1 and windows-scale-run.ps1, no recursion.
 UIA has a read-method allowlist; no policy token allowlist on the runner.
 Portable policy uses lexical controls. Windows adds parsed UIA AST and native
 runtime qualification. Policy and runtime costs print separately as measured ms.
@@ -27,6 +27,7 @@ import importlib.util
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "tools/windows-runner.ps1"
 PREFLIGHT = ROOT / "tools/windows-settings-preflight.ps1"
+DRIVER = ROOT / "tools/windows-scale-run.ps1"
 UIA_READ_METHODS = {"FindAll", "FindFirst", "GetCurrentPattern", "GetSelection"}
 UIA_COMMANDS = {"param", "function", "if", "else", "foreach", "return", "throw", "break",
                 "Add-Type", "Join-Path", "Find-Required", "Assert-WriSettingsState", "ForEach-Object"}
@@ -184,11 +185,35 @@ def function_body(active: str, name: str) -> str:
     return ""
 
 
-def problems(runner: str, preflight: str) -> list[str]:
+def driver_problems(driver: str) -> list[str]:
+    active = active_code(driver)
+    sequence = function_body(active, "Invoke-WriScaleSequence")
+    shape = (r"& \$Preflight '150% \(Recommended\)'\s+try \{\s+& \$Build\s+"
+             r"foreach \(\$scale in @\(150,200\)\) \{ & \$Select \$scale; & \$Contract \$scale \}\s+"
+             r"\} finally \{\s+try \{ & \$Restore \} finally \{ & \$Readback \}\s+\}")
+    found = []
+    if not re.search(shape, sequence) or sequence.count("& $Restore") != 1 or sequence.count("& $Readback") != 1:
+        found.append("R184 active preflight/sequence/finally restore/readback missing")
+    if active.count(APPROVED_DOT_SOURCE) != 1:
+        found.append("R184 exact runner import missing or duplicated")
+    run = function_body(active, "Invoke-WriScaleRun")
+    if run.count("120000 BuildVerifier") != 3 or "@('exec',$dll,'--scale-diagnostic')" not in run:
+        found.append("R184 build/check/fresh-readback ceiling or lifecycle missing")
+    record = function_body(active, "Invoke-WriScaleRecordedChild")
+    if not re.search(r"Assert-WriNumericExit \$result.ExitCode\s+\$row.ExitCode=\$result.ExitCode", record) or "-ChildCeilingMs $ChildCeilingMs" not in record or "-Mode $Mode -Toolchain $Context.Toolchain" not in record:
+        found.append("R184 guarded numeric child recording missing")
+    if "$context.RestoreExit=$restored.ExitCode" not in run or "Assert-WriScaleContext $readback.Stdout 'scale-diagnostic' 1.5" not in run:
+        found.append("R184 numeric restore or fresh 1.5 readback missing")
+    if "[DateTime]::" in active or re.search(r"\breg(?:\.exe)?\b", active, re.I):
+        found.append("a driver registry or wall-clock control")
+    return found
+
+
+def problems(runner: str, preflight: str, driver: str) -> list[str]:
     found = []
     preflight_source = preflight
     runner, preflight = active_code(runner), active_code(preflight)
-    combined = runner + "\n" + preflight
+    combined = runner + "\n" + preflight + "\n" + active_code(driver)
     if re.search(r"AppliedDPI|Registry|HKCU:|HKLM:|Get-ItemProperty|Set-ItemProperty", combined, re.I):
         found.append("a registry access")
     methods = set(re.findall(r"\.([A-Za-z_]\w*)\s*\(", preflight))
@@ -212,10 +237,12 @@ def problems(runner: str, preflight: str) -> list[str]:
         found.append("b exact Preflight action missing")
     if re.search(r"\[(?:System\.)?DateTime(?:Offset)?\].*?::\s*Parse|UtcNow\s*-g[et]", combined, re.I):
         found.append("c parsed/mixed-kind deadline")
-    wait_sites = re.findall(r"\$\w+\.WaitForExit\([^)]*\)", runner)
+    wait_sites = re.findall(r"\$\w+\.WaitForExit\([^)]*\)", combined)
     process_body = function_body(runner, "Invoke-WriProcess")
     if wait_sites != ["$Process.WaitForExit([int]$remainingMs)"] or "[Diagnostics.Stopwatch]::StartNew()" not in runner or "Wait-WriDeadline $child $rootDeadline $Clock.ElapsedMilliseconds" not in process_body:
         found.append("c Stopwatch remaining deadline missing")
+    if not re.search(r"\$startupRemaining = Get-WriRemainingMilliseconds \$rootDeadline \$Clock.ElapsedMilliseconds\s+if \(\$InjectStartupDelayMs -ge \$startupRemaining\) \{ throw 'WRI-ENVELOPE:[^']+' \}\s+\[Threading.Thread\]::Sleep\(\$InjectStartupDelayMs\)", process_body):
+        found.append("c startup allowance refusal before sleep/launch missing")
     if "sdk/10.0.203" not in runner or "$sdkVersion -ne '10.0.203'" not in runner or "GetFullPath($DotnetPath) -ne $expectedDotnet" not in runner:
         found.append("d exact toolchain identity missing")
     if not re.search(r"\$handle\s*=\s*\$child.Handle", process_body) or not re.search(r"\$exitCode\s*=\s*\$child.ExitCode\s+Assert-WriNumericExit\s+\$exitCode", process_body):
@@ -227,6 +254,14 @@ def problems(runner: str, preflight: str) -> list[str]:
         found.append("c total envelope/cleanup missing")
     if "@('build-server','shutdown')" not in runner or "$result.ExitCode -ne 0" not in runner:
         found.append("R181 numeric build-server shutdown missing")
+    for name in ("Get-WriSourceFingerprint", "Assert-WriSourceClean"):
+        body = function_body(runner, name)
+        expected_count = 1 if name == "Get-WriSourceFingerprint" else 2
+        if body.count("'global.json'") != expected_count or body.count("'CFDWorkbench.slnx'") != expected_count:
+            found.append("f build identity source coverage missing")
+    if "$State.Scale -ne $ExpectedScale" not in runner or "-ExpectedScale $ExpectedScale" not in preflight:
+        found.append("b explicit expected-scale boundary missing")
+    found.extend(driver_problems(driver))
     return found
 
 
@@ -237,7 +272,7 @@ def self_test() -> int:
         return 1
     print(f"RED checker timeout rejected wrapper_exit=124 observed_child_exit={timeout_probe['child_exit']} cleanup=root-termination-observed descendants=not-assessed PHN=PASS traceback=false")
     policy_started = time.perf_counter()
-    runner, preflight = RUNNER.read_text(encoding="utf-8"), PREFLIGHT.read_text(encoding="utf-8")
+    runner, preflight, driver = (path.read_text(encoding="utf-8") for path in (RUNNER, PREFLIGHT, DRIVER))
     fixtures = [
         ("a", runner + "\nGet-ItemProperty HKCU:\\ControlPanel -Name AppliedDPI", preflight),
         ("b", runner, preflight + "\n$expand.Expand()"),
@@ -258,17 +293,38 @@ def self_test() -> int:
         ("b", runner, preflight + "\nSet-Content arbitrary.txt changed"),
         ("b", runner, preflight + "\n$writer=[IO.StreamWriter]::new('leak.txt')"),
         ("b", runner, preflight + "\n. (Join-Path $PSScriptRoot 'mutator.ps1')"),
+        ("c", runner.replace("if ($InjectStartupDelayMs -ge $startupRemaining)", "if ($false)", 1), preflight),
     ]
     for number, (control, mutant_runner, mutant_preflight) in enumerate(fixtures, 1):
         if mutant_runner == runner and mutant_preflight == preflight:
             print(f"FAIL red fixture {number}: unchanged mutation anchor")
             return 1
-        observed = problems(mutant_runner, mutant_preflight)
+        observed = problems(mutant_runner, mutant_preflight, driver)
         if not any(p.startswith(control + " ") for p in observed):
             print(f"FAIL red fixture {number}: {control}")
             return 1
         print(f"RED fixture={number} control={control} rejected={next(p for p in observed if p.startswith(control + ' '))}")
-    clean = problems(runner, preflight)
+    removed_finally = driver.replace("    try {\n        & $Build", "    & {\n        & $Build", 1).replace("    } finally {\n        try { & $Restore } finally { & $Readback }\n    }", "    }", 1)
+    driver_mutants = [
+        ("finally removal", removed_finally),
+        ("restore call commented", driver.replace("try { & $Restore }", "try { } # & $Restore", 1)),
+        ("child ceiling shortened", driver.replace("120000 BuildVerifier", "60000 BuildVerifier", 1)),
+        ("lifecycle omitted", driver.replace("120000 BuildVerifier", "120000 Normal", 1)),
+        ("numeric exit commented", driver.replace("Assert-WriNumericExit $result.ExitCode", "# Assert-WriNumericExit $result.ExitCode", 1)),
+        ("readback comparison omitted", driver.replace("Assert-WriScaleContext $readback.Stdout 'scale-diagnostic' 1.5", "# readback omitted", 1)),
+    ]
+    for label, mutant in driver_mutants:
+        if mutant == driver or not driver_problems(mutant):
+            print("FAIL R184 unchanged or false-green mutant " + label)
+            return 1
+        print("RED R184 mutant=" + label + " rejected=" + driver_problems(mutant)[0])
+    for path in ("global.json", "CFDWorkbench.slnx"):
+        mutant = runner.replace("'" + path + "'", "'omitted-build-identity'", 1)
+        if not any(p.startswith("f ") for p in problems(mutant, preflight, driver)):
+            print("FAIL source identity mutant " + path)
+            return 1
+        print("RED f missing source identity rejected=" + path)
+    clean = problems(runner, preflight, driver)
     if clean:
         print("FAIL unmutated policy: " + "; ".join(clean))
         return 1
@@ -279,7 +335,12 @@ def self_test() -> int:
         result = run_bounded_command(["pwsh", "-NoProfile", "-File", str(ROOT / "tools/test-windows-runner.ps1"), "-PythonPath", sys.executable], cwd=ROOT, timeout=60)
         print(result["stdout"] + result["stderr"], end="")
         print(f"runtime_self_test_exit={result['exit']} cleanup={result['cleanup']} descendants={result['descendants']} runtime_self_test_ms={round((time.perf_counter() - runtime_started) * 1000, 3)}")
-        return result["exit"]
+        if result["exit"]:
+            return result["exit"]
+        scale_test = run_bounded_command(["pwsh", "-NoProfile", "-File", str(ROOT / "tools/test-windows-scale-run.ps1")], cwd=ROOT, timeout=10)
+        print(scale_test["stdout"] + scale_test["stderr"], end="")
+        print(f"driver_stub_self_test_exit={scale_test['exit']} no_scale_product_verifier=true")
+        return scale_test["exit"]
     print("Windows runtime self-test NOT ASSESSED on this platform; policy PASS")
     return 0
 
@@ -319,7 +380,7 @@ def main() -> int:
     if args.self_test:
         return self_test()
     policy_started = time.perf_counter()
-    found = problems(RUNNER.read_text(encoding="utf-8"), PREFLIGHT.read_text(encoding="utf-8"))
+    found = problems(*(path.read_text(encoding="utf-8") for path in (RUNNER, PREFLIGHT, DRIVER)))
     for problem in found:
         print("WRI-POLICY FAIL " + problem)
     print(f"WRI-POLICY {'FAIL' if found else 'PASS'} controls=a,b,c,d,e,f,R181")
