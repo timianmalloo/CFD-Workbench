@@ -2,7 +2,7 @@
 # The verifier's internal 60 s contract is unchanged; this wrapper allows 180 s
 # for the verifier child and its shutdown/cleanup lifecycle.
 [CmdletBinding()]
-param([Parameter(Mandatory=$true)][string]$PythonPath)
+param([string]$PythonPath, [switch]$SelfTestLaunchMarker)
 
 $ErrorActionPreference = 'Stop'
 $ExpectedVerifierSha256 = 'a79ac73c04cc8769d65868cde2f3c69154f27ebfcff40743bd20ca0b668afd52'
@@ -38,6 +38,18 @@ function Get-FingerprintSha256([string]$Fingerprint) {
 
 function Write-Utf8NoBom([string]$Path, [string]$Text) {
     [IO.File]::WriteAllText($Path, $Text, [Text.UTF8Encoding]::new($false))
+}
+
+function Invoke-R181LaunchOnce([string]$MarkerPath, [string]$MarkerText, [scriptblock]$Launch) {
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($MarkerText)
+    $stream = [IO.FileStream]::new($MarkerPath,[IO.FileMode]::CreateNew,[IO.FileAccess]::Write,[IO.FileShare]::None)
+    try {
+        $stream.Write($bytes,0,$bytes.Length)
+        $stream.Flush($true)
+    } finally {
+        $stream.Dispose()
+    }
+    return & $Launch
 }
 
 function Assert-NoPriorCapture {
@@ -167,10 +179,32 @@ function Get-FailureCode($Exception) {
     return 'R181-UNCLASSIFIED'
 }
 
+if ($SelfTestLaunchMarker) {
+    $temp = Join-Path ([IO.Path]::GetTempPath()) ('cfd-r181-marker-' + [guid]::NewGuid().ToString('N') + '.json')
+    $stubLaunches = 0
+    try {
+        $first = Invoke-R181LaunchOnce $temp "first`n" { $script:stubLaunches++; return 'first-launched' }
+        $firstBytes = [IO.File]::ReadAllBytes($temp)
+        $secondRejected = $false
+        try { Invoke-R181LaunchOnce $temp "second`n" { $script:stubLaunches++; return 'second-launched' } | Out-Null }
+        catch [IO.IOException] { $secondRejected = $true }
+        $secondBytes = [IO.File]::ReadAllBytes($temp)
+        if ($first -cne 'first-launched' -or -not $secondRejected -or $stubLaunches -ne 1 -or
+            [Convert]::ToHexString($firstBytes) -cne [Convert]::ToHexString($secondBytes)) {
+            throw 'R181-MARKER: CreateNew did not preserve the one-launch contract'
+        }
+        'R181 launch-marker self-test PASS: second creation rejected, bytes unchanged, callback count=1'
+        exit 0
+    } finally {
+        if (Test-Path -LiteralPath $temp) { Remove-Item -LiteralPath $temp -Force }
+    }
+}
+
 if (-not $IsWindows -or $PSVersionTable.PSVersion.Major -lt 7) {
     throw 'R181-PLATFORM: PowerShell 7 on Windows required'
 }
 if ([IntPtr]::Size -ne 8) { throw 'R181-PLATFORM: Windows x64 required' }
+if (-not $PythonPath) { throw 'R181-TOOLCHAIN: PythonPath is required for the live capture' }
 Assert-NoPriorCapture
 Assert-Snapshots
 
@@ -192,7 +226,7 @@ if ($LASTEXITCODE -ne 0 -or $testedHead -notmatch '^[0-9a-f]{40}$') { throw 'R18
 $clock = [Diagnostics.Stopwatch]::StartNew()
 $events = [Collections.Generic.List[string]]::new()
 $launchUtc = [DateTime]::UtcNow.ToString('o')
-Write-Utf8NoBom $LaunchMarkerPath (([ordered]@{
+$launchMarkerText = (([ordered]@{
     ruling=181; launch_count=1; tested_head=$testedHead; verifier_sha256=$ExpectedVerifierSha256;
     launch_authorized_utc=$launchUtc; state='verifier-launch-consumed'
 } | ConvertTo-Json) + "`n")
@@ -205,11 +239,15 @@ $afterFingerprint = $null
 $sourceUnchanged = $false
 $failureCode = $null
 $result = 'BLOCKED'
+$launchStarted = $false
 $samplerPath = Join-Path $Proof 'sample-build-servers.ps1'
 try {
-    $verifier = Invoke-WriChild -Repo $Repo -Exe $toolchain.Python `
-        -Arguments @($VerifierRelative) -Clock $clock -CeilingMs 180000 -ChildCeilingMs 180000 `
-        -Mode BuildVerifier -Toolchain $toolchain -PythonPath $toolchain.Python -Events $events
+    $verifier = Invoke-R181LaunchOnce $LaunchMarkerPath $launchMarkerText {
+        $script:launchStarted = $true
+        Invoke-WriChild -Repo $Repo -Exe $toolchain.Python `
+            -Arguments @($VerifierRelative) -Clock $clock -CeilingMs 180000 -ChildCeilingMs 180000 `
+            -Mode BuildVerifier -Toolchain $toolchain -PythonPath $toolchain.Python -Events $events
+    }
     Write-Utf8NoBom $CapturePaths[0] $verifier.Stdout
     Write-Utf8NoBom $CapturePaths[1] $verifier.Stderr
     $verifierWallSeconds = Assert-VerifierResult $verifier $events $testedHead
@@ -229,6 +267,9 @@ try {
     Assert-WriEnvelope $clock 180000
     $result = 'PASS'
 } catch {
+    if (-not $launchStarted) {
+        throw 'R181-CAPTURE: atomic launch marker not acquired; no launch attempted'
+    }
     $failureCode = Get-FailureCode $_.Exception
     $result = 'BLOCKED'
 } finally {

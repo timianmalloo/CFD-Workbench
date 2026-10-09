@@ -65,8 +65,9 @@ Windows host:
 | PHN-safe stdout/stderr derivatives | Not recorded |
 | Post-shutdown MSBuild/VBCSCompiler sample | Not recorded |
 
-`capture-r181.ps1` writes an append-only launch marker immediately before the sole
-verifier launch and refuses any existing marker or output set. A post-launch failure
+`capture-r181.ps1` creates an append-only launch marker atomically with exclusive
+`FileMode.CreateNew`, flushes and closes it immediately before the sole verifier launch,
+and refuses any existing marker or output set. A post-launch failure
 therefore records a blocked receipt and cannot be retried. The exact verifier command is
 `<Assert-WriToolchain Python> tools/verify-windows-store.py`, with no arguments.
 Only the runner's PHN-checked derivatives are retained. The residual sampler reads
@@ -75,6 +76,14 @@ publishes role, PID, parent PID, UTC creation time, count, sample UTC, elapsed t
 completion, and unreadable count. The prior receipt and PR #22 review identify the
 MSBuild node and VBCSCompiler. No Razor server process name appears in the joined
 verifier, runner, tests, or referenced proof. Other processes are **Not assessed**.
+
+Prelaunch owner review found one check/create race in the first marker draft. Repair
+cycle **1/2** replaces the separate absence check as the authority with exclusive,
+atomic `FileMode.CreateNew`. Its bounded stub self-test observes the first callback
+once, rejects the second creation, leaves the marker bytes unchanged, and never
+reaches the second callback. A losing concurrent invocation exits before writing any
+shared capture path; the marker owner alone can publish the result. The verifier is
+not referenced by the self-test path.
 
 ## Run procedure
 
