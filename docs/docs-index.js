@@ -8065,6 +8065,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "6deaa30ff109a2d8ef08e7d742fc1be6bbf9265ac6863f3c19bb62a68afbcf1d"
     },
     {
+      "id": "proof-wri-investigation",
+      "path": "docs/proof/wri/investigation.md",
+      "title": "WRI: the eight Windows-only rendering and platform failures",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-wri",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Seven of the eight class-(a) failures share one cause: Avalonia layout rounding at a 150 % display scale (arithmetic fits 1.5 exactly; the scale itself is not recorded and needs the probe). The 23.3 px inputs are a real product miss of 0.67 DIP (35 px where 36 are needed): the TextBox is content-sized and the 3 DIP padding rounds down at the .5 midpoint. KeyBindings is a contradiction between a Mac-only test and a deliberate Windows binding.",
+      "tags": [
+        "windows",
+        "dpi",
+        "layout-rounding",
+        "target-size",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "review-pr-18",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "796741eaa71c7cdf6e0f0ed4f520f3c5ffa14515086e0eae4f44276780830965"
+    },
+    {
       "id": "kb-cfd-workbench-grounding",
       "path": "docs/knowledge/cfd-workbench-grounding.md",
       "title": "CFD-Bench and proposal grounding",
@@ -17940,5 +17967,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "fe42128f198424feb722ac570048aaca6548805c3aa6ae12bcf180111d8c52d9"
+  "graphSha256": "adc3516fb2601722d49f1d830158e9aea9ad156f958cb7d2c48e1194e4d4e0c3"
 };

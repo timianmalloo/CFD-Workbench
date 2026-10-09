@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T01:38:03Z",
+  "generated": "2026-10-09T01:50:19Z",
   "audit": [
     {
       "actor": null,
@@ -31565,6 +31565,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T01:37:07Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M4F5N9KCCCC8CKPYPKTMTTDF",
+      "shortname": "wri-windows-render",
+      "datetime": "2026-10-09T01:50:19Z",
+      "session": "trk-wri",
+      "prompt": "trk-wri",
+      "summary": "Layout rounding at 150% explains 6 of 8; 23.3px inputs real 0.67 DIP product miss; KeyBindings test is Mac-only; PC probe specified",
+      "kind": "skill",
+      "skill": "investigate",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Investigate eight Windows-only rendering failures",
+      "done_when": "investigation.md with answers 1-5"
     }
   ],
   "changes": [
@@ -33979,6 +33997,33 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4F4PJEN0S04GHN6BZ4CPY63",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4F577P40V2XMYGMMNRRHTDF",
+      "ts": "2026-10-09T01:42:39Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F577P0Q6N9NX2EJXCDY0MT",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F577S01N1TG57XPJEJ8TGH",
+      "ts": "2026-10-09T01:42:39Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F577P0Q6N9NX2EJXCDY0MT",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F578561617RN7R48ZSJ6MS",
+      "ts": "2026-10-09T01:42:39Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F5781Y9YSXYBQXDWRTTY9F",
       "session": "operator-timianmalloo"
     }
   ]
