@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a979693023ca2fa72d3164fab7d27b59d3b7f341f1b62771299bb93f4595307d"
+      "sourceSha256": "eabd6483fd6d86b8125885b039e8cd52d417e43f0739c087a1bf2b50b3d9c755"
     },
     {
       "id": "domain-experts",
@@ -6167,6 +6167,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "af6001f81fa629006e9f385fba932780807323610781806fe3e9cc28d41b0c01"
+    },
+    {
+      "id": "proof-wig-red-first",
+      "path": "docs/proof/wig/red-first.md",
+      "title": "WSL-INLINE-ARGV gate: red first, then green",
+      "type": "doc",
+      "status": "observed",
+      "owner": "@trk-wig",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "tools/check-wsl-inline.py failed its three positive shapes on an empty gate, then passed after the pattern landed; main has 0 hits.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gate",
+        "defect-class"
+      ],
+      "links": [
+        {
+          "to": "proof-win-cfmesh-probe",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "098f8e0baaef0291ec2f863cd5ed144a0734d4d5a5f19f0033383db00ec14c5b"
     },
     {
       "id": "proof-win-cfmesh-probe",
@@ -8179,7 +8205,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "83f1b5c9a2ffcb05415bd439e7e2329698c73ad81e4946401ec873f3430a2461"
+      "sourceSha256": "cfe1884634c4b8496d407d21c8a74b35d7975c0e90d570951d431ae6ab17edc9"
     },
     {
       "id": "kb-hw-glossary",
@@ -18850,5 +18876,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "907d5bc4382ac1a431619ac06696fa9e7e8e729f90c8dfee874d3ab092799576"
+  "graphSha256": "30dc77a48c7173b676a952a02145f1bdde6f1b0498f6140a854e24430ecb5f5a"
 };
