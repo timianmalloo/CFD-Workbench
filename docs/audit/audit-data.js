@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:13:06Z",
+  "generated": "2026-10-09T00:22:07Z",
   "audit": [
     {
       "actor": null,
@@ -31275,6 +31275,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T00:12:13Z",
       "duration_seconds": 53.0
+    },
+    {
+      "id": "al-01M4F0KS09Q5HEGZS6EPHS7DYN",
+      "shortname": "rg2-driver-markers",
+      "datetime": "2026-10-09T00:22:07Z",
+      "session": "trk-rg2",
+      "prompt": "RG2",
+      "summary": "Driver writes git merge-file markers into %A before exit 1; self-test content assertions plus PR17 frontmatter fixture; replay, live scratch merge, class line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Register merge driver writes conflict markers on its conflict path",
+      "done_when": "self-test asserts markers and theirs' lines; PR #17 replay shows markers"
     }
   ],
   "changes": [
