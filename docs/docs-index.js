@@ -6882,6 +6882,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "d0508b3bedf45d97263741f251c5752c1fc52b3bb26108a5b81ec95bf7084d80"
     },
     {
+      "id": "review-pr-18",
+      "path": "docs/reviews/pr-18.md",
+      "title": "PR #18 (Windows PC) - pc-win calibration rings; Ruling 156 P5 met (Rulings 173, 174), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 173). Three complete pc-win rings (336.4 / 327.7 / 325.7 s, L3 running) with the catalog, held-reader and five DRIFT=0 lines green in each. All three exit 1 on the same 40 unexpected failures, none on the determinism path, so Ruling 156 P5 is met. The baseline rows are accepted; the file waits for per-host ms limits.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "test-ring",
+        "determinism",
+        "catalog"
+      ],
+      "links": [
+        {
+          "to": "review-pr-16",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-cat-geometry",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5bcdda1e5d500211739d20046234c7104ae931da93385581ae56e3761b7cbb13"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7850,7 +7883,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c1441f6d74c6ca9aeb8a0cef6bb47c845b002e894a107bcbe8d8a12ee5064976"
+      "sourceSha256": "0fd3e647d3a19e01d2ef53c8c6675ee50ee7ab3471394c914a1c63b7efcdea0a"
     },
     {
       "id": "kb-hw-glossary",
@@ -17907,5 +17940,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9fa147df5d70a640c523c5f12ac644113569d6512e9a834a5b5c93031a7a702f"
+  "graphSha256": "fe42128f198424feb722ac570048aaca6548805c3aa6ae12bcf180111d8c52d9"
 };
