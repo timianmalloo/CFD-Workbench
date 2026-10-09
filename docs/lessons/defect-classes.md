@@ -2542,3 +2542,23 @@ proved sequencing but never reached the real driver's child-argument constructio
   Ring: runner preparation, 10s ceiling; observed red3.147s/green3.020s. Status: controlled for the path boundary.
   The second live cycle reached that path and failed closed on absent Settings; product/scale proof remains unassessed
   (`docs/proof/wri-r184-result/receipt.md`).
+
+**TRANSIENT-STATE-REDERIVED · A key clears a derived value, and the next refresh rebuilds it from a saved input.**
+Escape set `PlanCanvas.TooltipText` to null, but nothing recorded the dismissal. `UpdatePlan` runs on every controller
+`Changed` and re-read the saved `lastHover`, so a mesh completion or the 250 ms behind timer brought the tooltip back
+under a still pointer. In the suite it read as a flake in `PlanCanvas_Escape_DismissTooltipThenClearSelection`
+(`docs/proof/pce/investigation.md`); in the app it was an operator-visible bug. Ruling 188.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a view clears a derived value (tooltip, probe, ring) on a key; a refresh path recomputes it from a saved
+  position with no record of the dismissal.
+- *Sweep:* the PCE sweep of hover, tooltip, timer and two-step-key checks (investigation Q3): only the Escape check was
+  exposed. `HoverPoint_TooltipCopyAndRing`, `HoverRail`, `ProbeAndDelta`, `EscapeOnHandle`, the drag-Escape checks and the
+  `Elevation_*Probe*` checks read at once or wait for the gesture; the other `Key.Escape` sites are single-press dialog
+  or text cancels, grep only (Inferred, not opened line by line).
+- *Derive:* record the dismissal (`tooltipDismissed`), clear it on a pointer move to a different position, and let the
+  refresh path (`ReadHover`) keep the tooltip null while it is set. The probe readout is unchanged (Ruling 188 (2)).
+- *Prevent:* `PlanCanvas_Escape_TooltipStaysDismissedAcrossRefresh` holds the mesh, hovers, presses Escape, releases the
+  hold and asserts tooltip null, selection kept, probe unchanged, and a real move restores the tooltip. Red before the
+  fix, green after (`docs/proof/pef/red-first.md`). Ring: `--plan-canvas`, every code-changing join; cost about 1.5 s.
+  Status: controlled.

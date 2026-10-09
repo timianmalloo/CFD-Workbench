@@ -1521,3 +1521,9 @@ Operator 2026-10-09: pause the Windows fractional-scale proof. No fresh Ruling 1
 Fable owner 2026-10-09 under Ruling 106. PR #25 is APPROVED WITH CONDITIONS (head cfd947c3) and joins as a blocked receipt. Per Ruling 186, no Ruling 179 or 184 run budget opens, and the Settings-launch precondition stays held. Verified: both cycles stopped at the initial preflight (exit 64, then exit 1, Settings frame absent). No build, select, product, scale, restore or readback ran; all 14 checks are NOT ASSESSED; source drift is 0; src/tests are untouched; verifier a79ac73c holds. The driver meets Ruling 184 as written, and the shadow repair is red-first on the Mac. The e9714ce5 snapshots match byte for byte. Join conditions: keep both register sections, derive the index, rebind the .gitattributes manifest entry to a snapshot, and re-run the gates.
 
 - request: req-01M4H56YATETJ0PK8KWN8YV7C4 · ruled by: fable-owner · at: 2026-10-09T20:20:58Z
+
+### Ruling 188 — Escape's tooltip dismissal survives a refresh (product fix); the probe readout keeps today's behaviour
+
+Operator 2026-10-09. (1) Fix in the product. PlanCanvas records that Escape dismissed the tooltip, and the dismissal holds until the pointer genuinely moves (the next real pointer HoverAt). A controller refresh (a mesh completing, the surfaceBehindTimer, a layer toggle, a resize) must not bring the tooltip back under a still pointer. A red-first check holds the surface compute, presses Escape, releases the hold and settles. It asserts that the tooltip stays dismissed and the selection is kept. (2) The probe readout keeps today's behaviour: Escape hides only the tooltip, and the probe readout stays.
+
+- request: req-01M4H7NKM9WPNDEXK36E5AVHDD · ruled by: operator-timianmalloo · at: 2026-10-09T21:03:56Z

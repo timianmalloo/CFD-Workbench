@@ -677,6 +677,31 @@ public static class PlanCanvasTests
                 throw new Exception("Second Escape did not clear selection");
         });
 
+        DesktopChecks.Check("PlanCanvas_Escape_TooltipStaysDismissedAcrossRefresh", () =>
+        {
+            using var fixture = new PlanFixture(Held: true);
+            var point = fixture.Controller.Planform!.Trailing.Points[4];
+            fixture.Canvas.SelectPoint(new PointRef(point.Curve, point.Id), false, false);
+            var hover = fixture.Canvas.ScreenPoint(point);
+            fixture.Canvas.HoverAt(hover);
+            var probe = fixture.Canvas.ProbeText;
+            if (fixture.Canvas.TooltipText is null || probe is null)
+                throw new Exception("Hover did not show the tooltip and probe before Escape");
+            fixture.KeyDown(Key.Escape);
+            fixture.ReleaseHeld();
+            fixture.Settle();
+            if (fixture.Canvas.TooltipText is not null)
+                throw new Exception("Refresh after Escape brought the tooltip back: " + fixture.Canvas.TooltipText);
+            if (fixture.Controller.Selection is not Selection.Points)
+                throw new Exception("Escape over a tooltip cleared the selection");
+            if (fixture.Canvas.ProbeText != probe)
+                throw new Exception("Escape changed the probe readout: " + fixture.Canvas.ProbeText);
+            fixture.Canvas.HoverAt(hover + new Vector(0, 1));
+            fixture.Canvas.HoverAt(hover);
+            if (fixture.Canvas.TooltipText is null)
+                throw new Exception("A genuine pointer move did not bring the tooltip back");
+        });
+
         DesktopChecks.Check("PlanCanvas_CKeyInTipChordField_CombNotToggled", () =>
         {
             using var fixture = new PlanFixture();
@@ -1389,7 +1414,9 @@ public static class PlanCanvasTests
 
     private sealed class PlanFixture : IDisposable
     {
-        public WorkbenchController Controller { get; } = new();
+        public WorkbenchController Controller { get; }
+        private readonly List<(byte[] Bytes, string Basis, long Generation, TaskCompletionSource<SurfaceView> Gate)> held = [];
+        private readonly bool holdSurfaces;
         public ShellHost Host { get; }
         public Window Window { get; }
         public PlanCanvas Canvas => Host.ModelView.FindControl<PlanCanvas>("PlanCanvas")!;
@@ -1400,8 +1427,10 @@ public static class PlanCanvasTests
         private Pointer? dragPointer;
 
         public PlanFixture(bool newFoil = false, double width = 1280, double height = 800,
-            ThemeVariant? theme = null, bool tenPoint = false, byte[]? source = null)
+            ThemeVariant? theme = null, bool tenPoint = false, byte[]? source = null, bool Held = false)
         {
+            holdSurfaces = Held;
+            Controller = new WorkbenchController(surfaceCompute: Held ? HeldCompute : null);
             if (source is not null) Task.Run(() => Controller.OpenFoilAsync(source, "Crossing preview")).GetAwaiter().GetResult();
             else if (tenPoint) Task.Run(() => Controller.OpenFoilAsync(DesktopChecks.TenPointFoil(), "New foil 10")).GetAwaiter().GetResult();
             else if (newFoil) Task.Run(() => Controller.NewFoilAsync()).GetAwaiter().GetResult();
@@ -1415,6 +1444,24 @@ public static class PlanCanvasTests
         }
 
         private readonly Dictionary<PointView, Point> screenMemo = new();
+
+        /// <summary>The mesh seam under <c>Held</c>: no surface job completes until <see cref="ReleaseHeld"/>.</summary>
+        private Task<SurfaceView> HeldCompute(byte[] source, string basis, long generation, CancellationToken cancellation)
+        {
+            var gate = new TaskCompletionSource<SurfaceView>(TaskCreationOptions.RunContinuationsAsynchronously);
+            lock (held) held.Add((source, basis, generation, gate));
+            return gate.Task;
+        }
+
+        public void ReleaseHeld()
+        {
+            lock (held)
+            {
+                foreach (var (bytes, basis, generation, gate) in held)
+                    gate.TrySetResult(Placement.Surface(bytes, basis, generation, CancellationToken.None));
+                held.Clear();
+            }
+        }
 
         public void Settle()
         {
@@ -1623,6 +1670,7 @@ public static class PlanCanvasTests
 
         public void Dispose()
         {
+            if (holdSurfaces) ReleaseHeld();
             Window.Close();
             for (int i = 0; i < 10; i++) Avalonia.Threading.Dispatcher.UIThread.RunJobs();
             Controller.Dispose();
