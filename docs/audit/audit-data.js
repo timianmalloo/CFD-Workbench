@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-08T23:59:21Z",
+  "generated": "2026-10-09T00:02:07Z",
   "audit": [
     {
       "actor": null,
@@ -31189,6 +31189,33 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M4EZF5KAE219FDNJX6YC9T9Q",
+      "shortname": "join-pr16",
+      "datetime": "2026-10-09T00:02:07Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/r163-ring into main",
+      "summary": "PR #16 joined: Windows catalog 9/9 pass, DRIFT equals the Mac; INCOMPLETE (60 s kill); two unexpected failures listed for the next ring recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "join PR #16 under Ruling 167",
+      "done_when": "join gates green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T00:02:00Z",
+      "duration_seconds": 7.0
     }
   ],
   "changes": [
@@ -33504,6 +33531,42 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EYVSNSK2QQYCAR5W9XD09A",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EZE7FG403CAG5QEM7J3W2V",
+      "ts": "2026-10-09T00:01:36Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EZE7FCHYGJBQJ4ESYNFC7R",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EZE7JBYW8ZP69RE3EMKGMA",
+      "ts": "2026-10-09T00:01:36Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EZE7FCHYGJBQJ4ESYNFC7R",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EZE7VK0Y9ABYW8WWFFRGFQ",
+      "ts": "2026-10-09T00:01:37Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EZE7VFSG6FGTZSCZWJ5DN7",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EZE7YEV2WF7A94YJE85V27",
+      "ts": "2026-10-09T00:01:37Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EZE7VFSG6FGTZSCZWJ5DN7",
       "session": "fable-owner"
     }
   ]

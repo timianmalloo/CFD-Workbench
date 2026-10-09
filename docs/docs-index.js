@@ -5208,10 +5208,18 @@ window.DOCS_INDEX = {
         {
           "to": "mockup-workbench-v1",
           "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-13",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-r163-windows-ring",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d6e926617fcd189485674a8e9353e9533e323baecb232397d630ad460235c4c0"
+      "sourceSha256": "4549946529b4cd0addc042d7ffb9c94f3e8b463233a7f328e111dc1f5eb78a85"
     },
     {
       "id": "domain-experts",
@@ -13523,6 +13531,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "e86a4c9b8b64650cf467324af8b9e0695383b7adfb662f3c4dbaec35f7535c38"
     },
     {
+      "id": "proof-r163-windows-ring",
+      "path": "docs/proof/r163-windows-ring/receipt.md",
+      "title": "Ruling 163 P5 Windows ring (incomplete at 60 seconds)",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@win-r163-ring",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "One six-CPU Windows ring on main 77e53062 built successfully, and all nine catalog test rows passed in partial Core logs. The outer 60-second cap stopped the ring before every harness completed, so Ruling 163 P5 remains unverified.",
+      "tags": [
+        "windows",
+        "ruling-163",
+        "ruling-156",
+        "determinism",
+        "test-ring"
+      ],
+      "links": [
+        {
+          "to": "review-pr-13",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-rwf-red-first",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "afad609f4900a83866f51c3e7398bd81df8d594b4fed9c56dbde9fe2f420fab6"
+    },
+    {
       "id": "proof-rdh-readiness",
       "path": "docs/proof/rdh/readiness.md",
       "title": "RDH: readiness headroom and the join's duplicate cost check",
@@ -17612,5 +17655,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4429ac85cf6bd7850c5a477304e64b717041df868fffb4533a250cb0fc3f384f"
+  "graphSha256": "5f53d0ee3ee2bbda99e7280f671fd4de5244c167565499de78a0e7ed78405bbe"
 };
