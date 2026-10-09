@@ -1,0 +1,16 @@
+{
+  "start_utc": "2026-10-09T22:28:22.1104918Z",
+  "end_utc": "2026-10-09T22:28:22.8467457Z",
+  "command": "wsl.exe -d cfdw-openfoam2512 -u root --exec /bin/bash <script>",
+  "script_sha256": "77f7b2c911ffdf4994eb2f90a5aa4f735176b6a26fbd453cde3e19f0b1717694",
+  "exit_code": 0,
+  "keepalive": {
+    "executable": "wsl.exe",
+    "historical_distro_relationship": "Not recorded",
+    "current_liveness": "yes",
+    "pid": 19296,
+    "current_liveness_at_capture_end": "yes; same creation time and executable",
+    "creation_time_utc": "2026-10-08T17:02:23.1776050Z"
+  },
+  "capture_state": "complete readback; mutable sources non-atomic"
+}
