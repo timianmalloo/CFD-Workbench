@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T01:31:40Z",
+  "generated": "2026-10-09T01:36:42Z",
   "audit": [
     {
       "actor": null,
@@ -31520,6 +31520,24 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Verified root cause, class, sweep and repair plan for the flaky Elevation_ZoomPanFit check",
       "done_when": "investigation.md with reproduction numbers, check-docs exit 0"
+    },
+    {
+      "id": "al-01M4F4WB2XWESB2SGR0N7XGAPB",
+      "shortname": "ezf-reset-drain",
+      "datetime": "2026-10-09T01:36:42Z",
+      "session": "trk-ezf",
+      "prompt": "trk-ezf: Ruling 172 lean repair",
+      "summary": "Reset pumps until no mesh pending; folded assertion; FIXTURE-RESET-WITHOUT-DRAIN registered; planted delay red at 60/150, green 0-800",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Fixture.Reset drains the mesh; ZoomPanFit asserts settled surface",
+      "done_when": "red/green table, ring green, check-docs 0"
     }
   ],
   "changes": [

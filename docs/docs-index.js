@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "25a39f303e2148ca1ef1d3fbd1aa42d6f045603969fd5f9118b2b391295afcb8"
+      "sourceSha256": "419f0d39739f4a4fa637c8b6389b7c9ecb7463aa07786789865b3ad9712a8a02"
     },
     {
       "id": "domain-experts",
@@ -12469,6 +12469,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "9cbbe5c0a750558d520e47c982e1b944d873a49d45152427f3e41ccfeada4a93"
     },
     {
+      "id": "proof-ezf-red-first",
+      "path": "docs/proof/ezf/red-first.md",
+      "title": "EZF red-first record - Fixture.Reset drain and the folded settled-surface assertion",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-ezf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Planted-delay record for Ruling 172. The camera compare fails on the old Reset at 60 and 150 ms; the folded assertion fails at 150 ms; with the Reset drain every delay from 0 to 800 ms passes.",
+      "tags": [
+        "ezf",
+        "red-first",
+        "desktop-tests"
+      ],
+      "links": [
+        {
+          "to": "investigation-ezf-zoompanfit",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b65e52933f8f5ddacfca1640816a445b12a016b2246af3aef3ccff783b374a47"
+    },
+    {
       "id": "proof-flk-investigation",
       "path": "docs/proof/flk/investigation.md",
       "title": "SectionEditor DragMove flake investigation",
@@ -17882,5 +17907,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f1d5e0b36e5851f3aa1a9b3ef3cb013529124ddd2e8961a75ae1c5d4dda1fc5f"
+  "graphSha256": "9fa147df5d70a640c523c5f12ac644113569d6512e9a834a5b5c93031a7a702f"
 };

@@ -2157,3 +2157,24 @@ reviewer vetoed it at the 2/2 repair cap.
 - *Prevent:* Ruling 171 (1): every timeout self-test uses a real child process (not an in-memory stream). It covers an
   already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status: control
   pending the PC repair track; the Mac sweep above is open.
+
+**FIXTURE-RESET-WITHOUT-DRAIN · A shared-fixture reset returns before the previous check's background job lands, and the next check captures a baseline that depends on that job.**
+`Elevation_ZoomPanFit_KeyboardAndPointerSameCamera` failed once in `--views --part=1/2` as "⌘0 fits" (load 1.9 to 16).
+Cause (Verified, `docs/proof/ezf/investigation.md`): `Fixture.Reset` fitted the camera while the accepted mesh issued by the
+previous check's Escape was in flight; the mesh landed mid-check and the later fit used a different bounding box (Target Z
+0.0469 vs 0.0008, Distance equal). Sibling of SECTION-EDITOR-LOAD-FLAKE: the same root (a background surface job
+completing between dispatcher pumps), where load only stretches the window.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a Desktop check that fails only inside a part, at higher load, never alone, with a difference in a derived
+  value (a fit target) and no product defect; its fixture reset does not wait for `SurfaceUpdating`.
+- *Why it survives:* alone and unloaded the mesh lands inside `Reset`'s own pumps; "back to its first state" was prose;
+  "CPU starvation" was accepted without a captured failure text.
+- *Sweep:* only the ZoomPanFit check stores a fit and later re-fits; the other Elevation camera readers project through the
+  current camera. OPEN, exposure Inferred (not reproduced): `SectionEditorTests.Reset` (`:1155`) and the pixel-sampling
+  checks after a mutating predecessor (`Elevation_FrontBand_RenderedFromSurfaceView`, `Elevation_LockedDihedralRoot_*`).
+- *Derive:* a reset that promises a first state drains the work the previous check left running.
+- *Prevent (Ruling 172):* `Fixture.Reset` pumps until `!Controller.SurfaceUpdating` before the first `Fit()`; the ZoomPanFit
+  check asserts the surface is settled at its baseline. Red first with a planted mesh delay (`docs/proof/ezf/red-first.md`):
+  camera compare red at 60 and 150 ms on the old Reset, assertion red at 150 ms, green at 0, 60, 150, 200, 800 ms after the
+  drain. Not done: a lint for a fixture `Reset` that fits without a drain (investigation P3).
