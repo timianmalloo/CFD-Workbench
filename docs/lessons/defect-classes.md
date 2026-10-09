@@ -2345,6 +2345,10 @@ rounds up, height to even). The sweep of 23 `Near(…, 0, …)` sites found 2 mo
 *2026-10-09 (Ruling 180).* Item 4 is now **Verified** a test-capture defect. The operator saw the Side chip, the lane
 caption and Front starboard/port on the live app on a Retina Mac. A device-resolution `RenderTargetBitmap` drops the
 Elevation overlay; the compositor does not. No product change.
+*2026-10-09 (Ruling 186, paused).* The operator paused the Windows proof after five harness-blocked attempts. Items 2,
+3 and 5 are repaired in the tests on the Mac but NOT ASSESSED at 150 % on Windows; item 6 is open; the ninth check is
+not run. Residual risk: a fractional-scale defect on Windows that the Mac cannot show stays undetected until the proof
+resumes. The resume path is the committed runner and driver, plus a Settings-launch precondition.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
