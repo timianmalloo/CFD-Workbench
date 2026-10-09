@@ -1,17 +1,27 @@
 parsed=True
 status=Certified code=GEOMETRY-CERTIFIED reason=Continuous conservative subset certified. work=7069164
-  edges=6288 noMate=0 dupDirected=0
-S=11 C=26 secs=11 surfMs=7 tris=2096 verts=1050 manifold=True euler=2 volume_cm3=895.447 degenDropped=44 dev_chord_mm=0.1265 dev_span_mm=0.6716 dev_diag_mm=0.7028 bytesBin=104884
-  edges=24588 noMate=0 dupDirected=0
-S=21 C=51 secs=21 surfMs=5 tris=8196 verts=4100 manifold=True euler=2 volume_cm3=900.222 degenDropped=84 dev_chord_mm=0.0317 dev_span_mm=0.1732 dev_diag_mm=0.1787 bytesBin=409884
-  edges=54888 noMate=0 dupDirected=0
-S=31 C=76 secs=31 surfMs=8 tris=18296 verts=9150 manifold=True euler=2 volume_cm3=901.107 degenDropped=124 dev_chord_mm=0.0141 dev_span_mm=0.0777 dev_diag_mm=0.0798 bytesBin=914884
-  edges=97188 noMate=0 dupDirected=0
-S=41 C=101 secs=41 surfMs=9 tris=32396 verts=16200 manifold=True euler=2 volume_cm3=901.418 degenDropped=164 dev_chord_mm=0.0079 dev_span_mm=0.0439 dev_diag_mm=0.0450 bytesBin=1619884
-  edges=386388 noMate=0 dupDirected=0
-S=81 C=201 secs=81 surfMs=20 tris=128796 verts=64400 manifold=True euler=2 volume_cm3=901.717 degenDropped=324 dev_chord_mm=0.0020 dev_span_mm=0.0111 dev_diag_mm=0.0113 bytesBin=6439884
-  edges=1540788 noMate=0 dupDirected=0
-S=161 C=401 secs=161 surfMs=49 tris=513596 verts=256800 manifold=True euler=2 volume_cm3=901.791 degenDropped=644 dev_chord_mm=0.0005 dev_span_mm=0.0028 dev_diag_mm=0.0028 bytesBin=25679884
+S=11 C=26 secs=11 surfMs=8 dev_chord_mm=0.1265 dev_span_mm=0.6716 dev_diag_mm=0.7028 dev_max_mm=0.7028
+  whole tris=2096 verts=1050 manifold=True euler=2 volume_cm3=895.447 degenDropped=44 bytesBin=104884
+  half  tris=1096 verts=550 manifold=True euler=2 volume_cm3=447.724 degenDropped=24 bytesBin=54884 rootCapPlanarAtY0=True
+S=21 C=51 secs=21 surfMs=5 dev_chord_mm=0.0317 dev_span_mm=0.1732 dev_diag_mm=0.1787 dev_max_mm=0.1787
+  whole tris=8196 verts=4100 manifold=True euler=2 volume_cm3=900.222 degenDropped=84 bytesBin=409884
+  half  tris=4196 verts=2100 manifold=True euler=2 volume_cm3=450.111 degenDropped=44 bytesBin=209884 rootCapPlanarAtY0=True
+S=31 C=76 secs=31 surfMs=8 dev_chord_mm=0.0141 dev_span_mm=0.0777 dev_diag_mm=0.0798 dev_max_mm=0.0798
+  whole tris=18296 verts=9150 manifold=True euler=2 volume_cm3=901.107 degenDropped=124 bytesBin=914884
+  half  tris=9296 verts=4650 manifold=True euler=2 volume_cm3=450.554 degenDropped=64 bytesBin=464884 rootCapPlanarAtY0=True
+S=41 C=101 secs=41 surfMs=9 dev_chord_mm=0.0079 dev_span_mm=0.0439 dev_diag_mm=0.0450 dev_max_mm=0.0450
+  whole tris=32396 verts=16200 manifold=True euler=2 volume_cm3=901.418 degenDropped=164 bytesBin=1619884
+  half  tris=16396 verts=8200 manifold=True euler=2 volume_cm3=450.709 degenDropped=84 bytesBin=819884 rootCapPlanarAtY0=True
+S=81 C=201 secs=81 surfMs=19 dev_chord_mm=0.0020 dev_span_mm=0.0111 dev_diag_mm=0.0113 dev_max_mm=0.0113
+  whole tris=128796 verts=64400 manifold=True euler=2 volume_cm3=901.717 degenDropped=324 bytesBin=6439884
+  half  tris=64796 verts=32400 manifold=True euler=2 volume_cm3=450.858 degenDropped=164 bytesBin=3239884 rootCapPlanarAtY0=True
+S=161 C=401 secs=161 surfMs=15 dev_chord_mm=0.0005 dev_span_mm=0.0028 dev_diag_mm=0.0028 dev_max_mm=0.0028
+  whole tris=513596 verts=256800 manifold=True euler=2 volume_cm3=901.791 degenDropped=644 bytesBin=25679884
+  half  tris=257596 verts=128800 manifold=True euler=2 volume_cm3=450.896 degenDropped=324 bytesBin=12879884 rootCapPlanarAtY0=True
+S=321 C=801 secs=321 surfMs=23 dev_chord_mm=0.0001 dev_span_mm=0.0007 dev_diag_mm=0.0007 dev_max_mm=0.0007
+  whole tris=2051196 verts=1025600 manifold=True euler=2 volume_cm3=901.810 degenDropped=1284 bytesBin=102559884
+  half  tris=1027196 verts=513600 manifold=True euler=2 volume_cm3=450.905 degenDropped=644 bytesBin=51359884 rootCapPlanarAtY0=True
 root TE gap mm=0.0000 chord mm=127.042 tip TE gap mm=0.0000 tipchord mm=12.704
+TE least gap mm=0.0000 at eta=0.0000 y=0.00 mm; greatest gap mm=0.0000 at eta=0.0000; sections=41
 bounds mm X[-0.01,127.08] Y[0.00,500.00] Z[-7.63,7.63]  LEexact=True rootY=0
 tipPlanar=True stationEtas=0,1

@@ -1,0 +1,42 @@
+Hand-off answer: do "Own" and "At station" apply thickness differently?
+Asked of: computational-geometry-expert, read-only, track trk-exr, 2026-10-09, on the worktree at base 6a6e4940.
+Labels are the agent's (Verified = it read the code; Inferred = reasoned). Nothing here was run by this track.
+
+1. Answer (Verified). Both flavours apply thickness VERTICALLY (at the same chord x), never normal to the camber line.
+   They differ in scale: "At station" renormalises the authored thickness so its PEAK equals the station t/c; "Own" keeps the
+   authored upper and lower ordinates unchanged. The wing surface (STL) and "At station" use the same function
+   (OrdinatesAt then Place), so they agree exactly before placement (twist, chord, elevation).
+
+2. Evidence, all in src/CfdWorkbench.Core/ (Verified)
+   - Placement.cs:84-89 PlacementRule.Section: camber = (zu+zl)/2, unit = (zu-zl)/Maximum; returns camber +/- unit*tc/2 at the same
+     chord x (:87-88). The blend (:92-98) does the same per side. x is never offset along a normal.
+   - What t/c scales: only thickness, normalised to a unit peak (Prepare :531-554, DifferenceMaximum :558-563). The peak thickness
+     equals ThicknessRatio (ReadFrame :373-378, ReadStation :400). It is NOT authored thickness x t/c. Camber is untouched.
+   - Same convention in the STL and "At station": PlaceStation (:434-449, used by Surface :304-327) and SampleSection (:451-474, used
+     by Sections :334-362) both call OrdinatesAt (:417-430), then Place on zu and zl.
+   - Place (:101-107): x = leading + chord*(a*cos + z*sin); z = elevation + chord*(z*cos - a*sin). Chord scales x and z by one
+     factor. Twist is a rotation in the x-z plane about the section origin (the LE), applied before the chord scale; then elevation.
+   - "Own": ProfileEvaluator.Samples (:217-228) samples ONE curve at x = (1-cos(pi i/n))/2; AuthoringSession.Sample (:908-911) wraps
+     it with n = 101. No camber/thickness split, no t/c. The ChordSamples grid (:707-716) matches for n = 101 (Inferred).
+
+3. What the copy and the note say (adopted in docs/design/export.md section 4.1 and COPY-EX10)
+   "At station": camber +/- half the thickness, measured vertically, thickness rescaled so the maximum equals the station t/c.
+   "Own": the authored upper and lower curves as drawn, unscaled. Both are chord-normalised, with no twist, no chord scaling and no
+   elevation. A section's authored peak is not its t/c, so "Own" and "At station" differ whenever they differ.
+
+4. Risks the build must hold
+   - A .dat at a station equals the STL section only up to Place (twist, chord, elevation), and only if built from Sections/OrdinatesAt,
+     not from raw Samples.
+   - The .dat x grid must equal the STL one; any other grid or a re-solved ParameterFor gives a deviation of 1e-9 or more.
+   - "Own" differs from "At station" by float rounding (about 1e-16) even when t/c equals the authored peak (Inferred).
+   - Between stations the blend normalises each side before mixing, so "Own" has no single authored profile at a non-station eta:
+     offer "Own" only at assigned stations (Assignment non-null, :405-414) (Inferred).
+   - The .dat has no twist: a "section as flown" claim would be false; the copy says "no twist".
+
+5. Fixture for the build (red-first, on one station with twist != 0 and t/c != authored peak)
+   a. zu = camber + thickness/2 and zl = camber - thickness/2 from Sections().
+   b. Invert Place on the Surface section points (undo elevation, divide by chord, rotate by -twist); agree with (a) within 1e-12.
+   c. max(zu - zl) equals ThicknessRatio within 1e-12.
+   d. The "Own" peak equals the authored maximum and does not change when the t/c channel changes.
+   e. Own and At station agree within 1e-12 when t/c is set to the authored peak.
+   f. One blended eta between profiles with different peaks.
