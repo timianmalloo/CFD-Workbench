@@ -1,0 +1,16 @@
+FAIL: both append a different dated line at the end of X (ECR shape)
+FAIL: both append a different dated paragraph at the end of X
+FAIL: both append at the end of X with Y after it
+ok  : both edit the same existing line of X
+ok  : one side appends a non-dated line at the same place
+ok  : one side appends a dated line, the other edits the line before it
+ok  : both append different entries
+ok  : one extends X, other appends Y
+ok  : both edit X differently
+ok  : both add a different dated line inside X (DPR shape)
+ok  : one deletes X
+ok  : identical new entry on both
+ok  : preamble edited on both
+ok  : reordered entries
+ok  : both add different frontmatter links (PR #17 shape)
+exit=1

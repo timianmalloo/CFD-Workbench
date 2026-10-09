@@ -1,0 +1,17 @@
+FRAME name=Settings id= type=ControlType.Window enabled=True offscreen=False patterns=WindowPatternIdentifiers.Pattern,TransformPatternIdentifiers.Pattern
+DISPLAY name=Display 1 id=Display1 type=ControlType.ListItem enabled=True offscreen=False patterns=SelectionItemPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern
+Display1 selected=True
+MULTIPLE_GROUP name=Multiple displays id= type=ControlType.Group enabled=True offscreen=False patterns=ScrollItemPatternIdentifiers.Pattern
+SHOW_MORE name=Show more settings id=EntityItemButton type=ControlType.Button enabled=True offscreen=False patterns=ExpandCollapsePatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern
+SHOW_MORE before=Collapsed
+MAIN_MONITOR name=Make this my main display id=SystemSettings_Display_MainMonitor_CheckBox type=ControlType.CheckBox enabled=False offscreen=False patterns=TogglePatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern
+MAIN_MONITOR toggle=On
+SCALE_REACQUIRED name=Scale id=SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox type=ControlType.ComboBox enabled=True offscreen=False patterns=SelectionPatternIdentifiers.Pattern,ExpandCollapsePatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern,ItemContainerPatternIdentifiers.Pattern
+REALIZED 150% (Recommended)
+SCALE_ITEM name=150% (Recommended) id=ContentPresenter type=ControlType.ListItem enabled=True offscreen=False patterns=SelectionItemPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern,VirtualizedItemPatternIdentifiers.Pattern
+SCALE_ITEM name=150% (Recommended) selected=True
+REALIZED 200%
+SCALE_ITEM name=200% id= type=ControlType.ListItem enabled= offscreen=True patterns=SelectionItemPatternIdentifiers.Pattern,ScrollItemPatternIdentifiers.Pattern,VirtualizedItemPatternIdentifiers.Pattern
+SCALE_ITEM name=200% selected=
+SETTINGS_SELECTED=150% (Recommended)
+SETTINGS_SUCCESS action=Preflight UTC=2026-10-09T04:05:13.4748464Z

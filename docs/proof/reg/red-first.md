@@ -69,3 +69,19 @@ Brief deviation: the brief says every non-blank line of ours and theirs must be 
 theirs still held two base lines (`rule). Status: pending a mechanical control...`) that main had rewritten, and git rightly dropped them (the
 leader file lacks them too). Conservation is therefore: every line ours or theirs added or changed relative to base is in the output.
 If one is missing, the driver falls back to the whole-file conflict and exits 1.
+
+## RG4: two dated lines appended at one place are both kept (track RG4)
+
+Defect: FVT, ECR and V3D each appended one dated line at the end of the DPI-A entry. Both sides insert at one anchor, so `git merge-file`
+reports a hunk with an empty base side; the driver wrote markers and exited 1, and the leader kept both lines by hand (ours first) at two joins.
+
+Rule: for each hunk (read with `git merge-file --diff3`), base side empty, both sides pure insertions with no line in common, and each side a
+dated paragraph (first line `*YYYY-MM-DD (`, no blank line, no `**ID · ` header) -> ours then theirs. Any other hunk keeps markers; any kept hunk exits 1.
+Conservation is unchanged (`kept_every_line`).
+
+Red (`rg4-red.txt`, self-test with the new fixtures against the pre-RG4 driver), exit 1: the three append fixtures FAIL.
+Green (`rg4-green.txt`), exit 0, 15 of 15 ok. New fixtures: ECR shape (one dated line each), multi-line dated paragraphs, append with a following
+entry; and three that must keep markers and exit 1 (both edit the same line, one side appends a non-dated line, one appends while the other edits the line before it).
+
+Replay (`replay-rg4.sh`, `replay-rg4.txt`): ECR join f16ea452 (ours edc7ee59, theirs 775dc93c, base 9c75e7b6) and V3D join 6ca8caa6 (ours 29a8d76f,
+theirs 058fcb28, base 61352f50). New driver: exit 0, 0 markers, IDENTICAL to the committed file at both. Old driver (`replay-rg4-old.txt`): exit 1, 1 marker at both.

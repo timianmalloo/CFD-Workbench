@@ -1587,6 +1587,29 @@ preamble edit on both sides conflict. Replay of the WTH join reproduces the lead
 (`docs/proof/reg/replay-wth.txt`). A clone without the registration falls back to git's normal merge.
 *2026-10-08 (Ruling 169 join, track RG2).* The REG driver itself had this defect class: its conflict path exited 1 and left `%A` untouched, assuming git then writes markers. It does not; git keeps ours and marks the path conflicted, so `defect-classes.md` was UU with no markers and a routine `git add` would have dropped theirs. Signature: a tool's failure path assumed a caller behaviour without testing it. Control: the driver now writes `git merge-file -p` output (markers) into `%A` before exiting 1, and `--self-test` asserts on every conflict fixture both exit 1 and markers plus theirs' changed lines in `%A`, with a fixture for the PR #17 shape (both sides add different frontmatter links). Sweep: the pack drivers (`coord-core.py` `merge-derived`, `merge-register`) always exit 0 and write markers via `_write_conflict`, whose docstring records this hazard as S12b; no sibling found. Proof: `docs/proof/reg/` (RG2 section).
 *2026-10-09 (DPR join, track RG3).* An entry-level "conflict" that a three-way line merge resolves: main and DPR each added a different dated line inside the DPI-A entry. The entry rules called that a conflict, `git merge-file -p` merged it cleanly, and the driver ignored the clean result and wrote a whole-file ours/theirs conflict (two 2,260-line copies); the leader resolved it by hand. Signature: a fallback that assumed "no conflict hunk" means "git cannot run". Control: the driver now defers to git when the entry rules give up. A clean merge is written and exits 0 when every line either side added or changed is kept; hunks are written with markers and exit 1; only a git failure writes the whole-file conflict. A base line one side removed may go, as git decides. Self-test fixture: both sides add a different dated line at different places in one entry. Replay of the DPR join exits 0 and reproduces the committed file byte for byte. Proof: `docs/proof/reg/` (RG3 section).
+*2026-10-09 (track RG4).* The driver still stopped at the commonest parallel shape: two tracks each append one dated line at the end of one entry (FVT, ECR, V3D under DPI-A). Git reports one hunk with an empty base side, and the leader kept both lines by hand, ours first, at two joins. `tools/merge-defect-register.py` now reads each hunk (`git merge-file --diff3`): base side empty, both sides pure insertions with nothing in common, each a dated paragraph (first line `*YYYY-MM-DD (`, no blank line, no entry header) -> ours then theirs, no markers. Any other hunk keeps its markers and the driver exits 1; the conservation check stays. Replay of the ECR and V3D joins is byte-identical to the committed files (`docs/proof/reg/replay-rg4.txt`); the old driver exited 1 on both (`replay-rg4-old.txt`). Fixtures: `python3 tools/merge-defect-register.py --self-test` (15 of 15).
+
+**REGISTER-CLASS-MISMATCH · A markdown file is bound to a JSONL register merge driver.**
+On 2026-10-09 the PHN join merged `docs/notes/rulings.md`: PHN scrubbed Ruling 174, and main had added Ruling 182.
+- `.gitattributes:7` binds the file to `merge=coord-register` (from `coord install`, 90cf9f94, 2026-10-05).
+- That pack driver unions JSONL. It could not parse markdown, so it wrote a whole-file ours/theirs conflict, by design,
+  and exited 0, also by design (S12b: "make the failure visible in the file").
+- Git therefore created the merge commit with markers inside. A plain three-way merge would have been clean (different
+  regions).
+- `conductor-join` step 3 (`verify-no-conflict-markers.py`) stopped the join before any push. The leader rebuilt the
+  file as main's copy with the scrub applied, verified it held 182 rulings, and continued.
+
+Earlier joins never hit this, because PC branches do not add rulings, so only one side ever changed the file.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a file bound to a merge driver whose input format it does not have.
+- *Sweep:* read each `merge=` line in `.gitattributes` and compare the bound file's format with its driver.
+  `xmsg.jsonl` is JSONL (correct). Every other binding is to be checked by the follow-up.
+- *Derive:* a driver binding is chosen by the file's format; markdown registers merge as `authored`, or through a
+  driver that parses markdown.
+- *Prevent:* the marker gate (step 3) caught it, which is the pack's intended net. The binding fix is track CRD: rebind
+  `rulings.md`, plus a check that every `merge=coord-register` path parses as JSONL, red first on today's binding.
+  Status: pending CRD.
 
 **CFD-CLAIM-SCOPE · A label names a stronger quantity or cause than its data supports.** PRJ displayed `CL/CD` using
 `CDi`, and attributed every e below 0.85 to a lattice effect even though physical washout can lower e at low CL.
@@ -2059,7 +2082,21 @@ append-only registers); `docs/proof/win-routes/manifest.json` was refreshed for 
 (fast ring, about 1 s); a shrink-only allowlist carries a reason per entry (one: the pack's own fixture with a dummy name). Residual: the
 guard sees a name only in a path or SID shape, and history is unchanged.
 
+Ruling 174/181 instance (2026-10-09): no entry for hostnames existed, so this line extends PROOF-PII. Ruling 174 scrubbed a raw PC hostname from a PR, but the guard matched only user paths and SIDs, so the class had no control (Ruling 181 (5)). `tools/check-proof-pii.py` now also fails a Windows default machine name, `COMPUTERNAME=<name>`, a `MachineName` JSON value, a `systeminfo` `Host Name:` line and a UNC host prefix, prints hits masked, and reads an optional uncommitted `CFD_PII_HOSTNAMES` list; self-test fixtures use invented names (`docs/proof/pii/red-first.md`, trk-phn). Residual: a hostname that is not a default name and appears outside those shapes is seen only through the local list.
+
 Ruling 165 instance (2026-10-08): an unpushed local audit entry included a concrete Windows account path. The correction reset that entry before any push and re-appended it with `%USERPROFILE%` at write time. The new audit line contains no account path; prior shared history was not rewritten.
+
+*2026-10-09 (PHN join, UNION-REVIVES-SCRUB).* A scrub of a union-merged register comes undone at the merge.
+- PHN replaced the hostname in `docs/coordination/xmsg.jsonl` line 64.
+- The union driver kept main's unscrubbed copy beside the scrubbed one, so the literal was back on the merge result.
+- The leader caught it by sweeping with the literal in an environment variable, removed the duplicate before
+  `--continue`, and swept again (0 hits).
+
+*Signature:* an edit to an existing line of a file whose merge driver unions lines; both versions survive. *Derive:* a
+scrub of a union register is re-swept on the merge result, and every branch that holds the register scrubs it too (the
+PC was told, xmsg 2026-10-09T16:12:55Z). *Control:* `check-proof-pii.py` with `CFD_PII_HOSTNAMES` set, run at every join
+that touches a register. The leader keeps the literal outside the repo. Status: controlled for the leader's joins; PC
+branches pending its scrub.
 
 **READER-SHARE-DELETE · A reader opened without delete sharing blocks a POSIX replace on Windows.**
 A product reader that opens a user file with `FileShare.Read` (or through `File.ReadAllBytes*`, `File.OpenRead`, which share Read only) holds a handle
@@ -2140,6 +2177,14 @@ in Desktop's spawn stage, and the PC filed a second decision request. Ruling 170
 2026-10-09 (OBS): a killed log could not tell slow from hung, because Spawn buffers each child's output and STAGE lines had no time.
 Every Desktop `STAGE <name>` line now carries `elapsed_ms=<since harness start>`, and Spawn prints `SPAWN-START <mode> elapsed_ms=<n>` at
 each child start, unbuffered. A killed log now shows which children had started and how long ago. Checks: `StageTimingTests`.
+*2026-10-09 (WATCH-GAP).* Same family, a third signature: a watch whose baseline lives in memory. The leader's 30-minute
+Monitor expired while the leader was blocked on an operator question, and each re-arm started from an empty baseline. So
+four PC messages (04:11–04:24Z: the Ruling 179 run blocked at cap 2/2, PR #23, a PR #22 refresh, a decision request) were
+never emitted, and the PC sat idle for 11 h. Control: the watch now saves its baseline to disk
+(`cfd-workbench-continuation/pc-watch.sh`, state in `watch-state/`). A re-arm compares against the last saved state and
+replays the gap. `pc-watch.sh --self-test` is red if a change made while the watch was down is not replayed. This is
+still session tooling. The repo-level control stays `xmsg.py unread` at each join, which would have caught this at the
+next join but not while idle.
 
 **CLEANUP-BLOCKS-CEILING · A cleanup path that can block defeats the ceiling it serves.**
 The PC's W-2 `verify-windows-store.py` (unpushed 1d89f6c8, xmsg 20261009T010555) enforced a 60 s hard ceiling. Its timeout
@@ -2230,6 +2275,9 @@ rounds up, height to even). The sweep of 23 `Near(…, 0, …)` sites found 2 mo
 `AnalysisPanelTests.cs:590`), left as findings. Proof: `docs/proof/fvt/red-first.md`. The PC must see item 2 PASS at 150 %.
 *2026-10-09 (track ECR).* Item 4 is a **capture defect, Inferred** (`docs/proof/ecr/spike.md`): at scale 1.5 and 2 a `RenderTargetBitmap` drops what the Elevation `Overlay` child draws, with or without `PushOpacity` and the chip `PushClip` (a rectangle drawn first, outside both, is absent too; Verified on the Mac). No live-window screenshot was possible, so the product side is not Verified. The chip check now samples a 96-dpi capture and accepts a line split over two pixels (`DevicePixel.HoldsHalfOf`; `Elevation_ChipBorderSampler_HoldsHalfOfASplitLine`, red-first in `docs/proof/ecr/red-first.md`). The Windows 1.5 proof is the PC ring.
 *2026-10-09 (track V3D).* Item 5 repaired: the View3d fixture takes a second, device-resolution `Shot` and the chip top border is sampled with `DevicePixel.NearestAtDevice` (radius 2). Proof: `docs/proof/v3d/red-first.md`. The PC must see item 5 PASS at 150 %.
+*2026-10-09 (Ruling 180).* Item 4 is now **Verified** a test-capture defect. The operator saw the Side chip, the lane
+caption and Front starboard/port on the live app on a Retina Mac. A device-resolution `RenderTargetBitmap` drops the
+Elevation overlay; the compositor does not. No product change.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
@@ -2273,3 +2321,53 @@ on a re-check, restored the pinned bytes, and moved the note to `mac-join-note.m
 - *Prevent:* the leader runs `python3 tools/check-docs.py` before every push that follows a non-join commit (session
   rule). Status: controlled. `docs/coordination/join.json` readiness now opens with `python3 tools/check-docs.py`
   (about 10 s); a mismatched capture manifest turns `run-readiness.py` RED (`docs/proof/rcd/red-first.md`).
+
+**RUNNER-MIXED-TIME-BASIS · A deadline parsed to local DateTime is compared directly with a UTC clock.**
+2026-10-09, Ruling 179 Windows execution. The comparison at `docs/proof/wri-r179/execute.ps1:19`
+stopped before any product check. `deadline-observation.stdout.txt` verifies that parsing
+`2026-10-09T04:20:00Z` gives Local-kind `2026-10-08T21:20:00-07:00`; at 04:12:17Z, the direct
+comparison says expired while the UTC-normalized comparison says not expired. Cap 2/2 stopped
+the execution track; Settings and a fresh process verified restoration to 150% and 1.5/1.5.
+
+**Class -> sweep -> derive -> prevent:**
+- *Signature:* `UtcNow` ordered against a `DateTime.Parse` result whose Kind was not established.
+- *Sweep:* proof-local PowerShell scripts have one such comparison, execute.ps1:19. Settings and
+  process scripts record UTC timestamps without parsed-deadline comparisons.
+- *Derive:* deadlines compare absolute instants in the same basis, never local clock fields against UTC.
+- *Prevent (proposed, not implemented):* next authorized runner must use DateTimeOffset with explicit
+  AssumeUniversal/AdjustToUniversal or equivalent and a planted timezone self-test covering UTC and
+  America/Los_Angeles offsets, future and expired instants. The current runner remains unchanged after
+  the cap. This entry is a mandatory grounding warning, not a claim that a failing gate exists.
+- *Companion preparation findings:* inspect actual newline bytes before patch anchors; verify explicit
+  pinned SDK/Python executable identities before ProcessStartInfo launch. In this run the source anchor
+  guessed CRLF over LF, system dotnet lacked 10.0.203, and PATH-resolved `py` rejected `-3` during cleanup.
+  The next-run deterministic preflight controls are proposed, not implemented.
+- *Prevent (Ruling 182, replaces the proposal):* the next runner holds no parsed instant. It reuses the Stopwatch
+  deadline of `docs/proof/ring-windows/capture-calibration.ps1:11,17-20`, whose mutation self-test is
+  `verify-capture-deadline.ps1`. The runner's own self-test adds 899,750 ms → waits and 900,000 ms → expired. Status:
+  pending the PC's committed runner (see THROWAWAY-RUNNER).
+
+**THROWAWAY-RUNNER · A one-off Windows run is driven by uncommitted harness code, and the harness, not the product, fails.**
+Three Windows scale runs in a row stopped in their own harness before a product check could tell anything:
+- PR #20: an added `AppliedDPI == 192` guard skipped all eight checks at a verified 200 %.
+- PR #21 (ac58814f): UIA waited 55 s for a checkbox inside a collapsed Settings group.
+- PR #23: a Local-kind deadline and a wrong `dotnet` path.
+
+In two of the three cases the repo already held the correct shape: `capture.ps1:14-29` checks the pinned SDK, and
+`capture-calibration.ps1` holds a self-tested Stopwatch deadline (Ruling 182, finding 6). The instrumentation each run
+rebuilt (the scale-context print, the item-6 bounds) had no committed home either.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a run whose runner is written for that run, used once, and not self-tested. Its failure spends the run's
+  repair cap on the harness.
+- *Sweep:* PRs #20, #21 and #23 (above). The ring captures (`docs/proof/ring-windows/`) use committed, self-tested
+  scripts and did not fail this way.
+- *Derive:*
+  - a Windows run uses a committed runner whose self-test is green in a committed runner-ready receipt before any scale
+    change;
+  - the runner reuses committed shapes (the reuse rung) before writing new ones;
+  - measurements the receipt needs are printed by the committed harness, not by temporary instrumentation.
+- *Prevent:* Ruling 182's six red-first preflight controls (a)–(f) in `docs/reviews/pr-23.md`: no AppliedDPI read, a
+  read-only UIA preflight, a Stopwatch deadline, toolchain identity, numeric stub exits 0 and 3, and zero source edits.
+  The fresh budget opens only on a committed runner-ready receipt. Status: pending the PC runner; the Mac measurement
+  prints are track MSP.

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:59:00Z",
+  "generated": "2026-10-09T16:20:28Z",
   "audit": [
     {
       "actor": null,
@@ -32247,6 +32247,40 @@ window.AUDIT_DATA = {
     },
     {
       "actor": null,
+      "artifacts": [
+        "docs/proof/win-store-implementation/final-rerun-r175/receipt.md"
+      ],
+      "datetime": "2026-10-09T03:36:53Z",
+      "done_when": "Source/process/stdout/stderr/exit measurements retained, integrity/privacy/docs gates inspected, proof commit ready",
+      "duration_seconds": 195.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/store-final-rerun-r175",
+        "pushed": null,
+        "sha": "421b5860cbaed5cf047e8c29661b68ec0f84e9f3",
+        "short": "421b5860c"
+      },
+      "goal": "Capture one final-script no-argument Windows verifier run with complete exit and process-bound evidence",
+      "id": "al-01M4FBRDM8S6WEPY69ZA58XSKC",
+      "kind": "command",
+      "outcome": "blocked",
+      "prompt": "Ruling 175 final joined verifier receipt: one direct no-argument Windows run under an outer 60-second fail-closed watchdog; no verifier fixes or repeat run.",
+      "session": "win-store-final-rerun-r175",
+      "shortname": "r175-final-direct-verifier-receipt",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": null,
+      "started_at": "2026-10-09T03:33:38Z",
+      "summary": "Tested 421b5860, script a79ac73c: direct run emitted 13-check qualification PASS with one historical expected failure and 19.466184 seconds; outer19.772830 seconds no timeout. Launcher exit null and observed build-server residuals make receipt fail closed; Windows PASS denied for readiness. Captures retained; no rerun or product repair.",
+      "tags": [],
+      "tier": "T1",
+      "tool": "tools/verify-windows-store.py"
+    },
+    {
+      "actor": null,
       "artifacts": [],
       "compiled": false,
       "datetime": "2026-10-09T03:25:17Z",
@@ -32514,24 +32548,243 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4FD0X45GV1FGVXGTXHX1AXF",
-      "shortname": "join-v3d",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/v3d/red-first.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-09T03:59:00Z",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 57.0,
+      "fan_out": 0,
+      "goal": "item 5 repaired on main",
+      "id": "al-01M4FD0X45GV1FGVXGTXHX1AXF",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-v3d",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T03:58:03Z",
+      "summary": "Joined V3D: View3d fixture gets a scale-aware Shot; chip top border via DevicePixel.NearestAtDevice recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-22.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-09T15:50:46Z",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 12.0,
+      "fan_out": 0,
+      "goal": "PR #22 on main under Ruling 181",
+      "id": "al-01M4GNR6JTFRBSZ55EBRFTQVJ8",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of origin/win/store-final-rerun-r175 into main",
+      "session": "3122f106",
+      "shortname": "join-pr22",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T15:50:34Z",
+      "summary": "Joined PR #22: Ruling 175 rerun accepted as a blocked fail-closed receipt; watchdog null exit is a capture defect; Windows PASS stays out of readiness recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "datetime": "2026-10-09T04:12:59Z",
+      "id": "al-01M4FDTGQ0BTPGXPNR5YT5KBJX",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "Goal: execute and commit the Mac-authorized Ruling 179 Windows two-scale proof.\nDone when: the exact 14 checks have run at Settings-selected 150% then 200%, numeric OS Process.ExitCode exists for every child, item-6 PointAftInput and fact Value_p_eta bounds in DIP/device pixels are captured, temporary instrumentation is restored byte-for-byte, evidence is committed, and Settings is restored to 150% with a fresh in-process 1.5/1.5 reading.\nNot in scope: product/test repair, registry mutation, display-resolution change, readiness admission, rerunning failed product checks to obtain green.\nTier T1. Fan-out 0. Repair cap 2 cycles. Twenty-minute ceiling including restore.\nWorker: win-wri-r179. Local coordinator: Windows root session. Designated leader: Mac.\nAuthorization: Ruling 179 and local coordinator's execution contract on head 13cb9a14c8315c1b01f30e33b672c936b5b36726.\nSurface list: Windows Settings UIA -> process runner -> temporary test measurements -> built test DLL -> rendered Avalonia window -> raw capture -> proof receipt/manifest -> Docs Explorer/audit.\nFour harness modes, with exact CFD_TEST_ONLY comma-separated names; temporary exact-name gated readiness registration for items 10 and 11 only. No unselected checks run.\nExit policy: every exit path restores exact Settings 150% and runs fresh scale diagnostic. Cap firing stops execution and commits honest blocked evidence.",
+      "session": "win-wri-r179",
+      "shortname": "wri-r179-two-scale",
+      "skill": null,
+      "summary": "prompt logged for reuse",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/wri-r179/receipt.md",
+        "docs/plans/wri-r179.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-09T04:13:00Z",
+      "done_when": "14 checks at 150 and 200, numeric child exits, item6 bounds, original source restored, committed evidence, 150 restoration with fresh 1.5/1.5",
+      "duration_seconds": 559.0,
+      "fan_out": 0,
+      "goal": "Execute R179 two-scale proof on repaired head",
+      "id": "al-01M4FDTJ0RT412Z7GDFTAEEFC2",
+      "kind": "skill",
+      "outcome": "blocked",
+      "prompt": "Goal: execute and commit the Mac-authorized Ruling 179 Windows two-scale proof.\nDone when: the exact 14 checks have run at Settings-selected 150% then 200%, numeric OS Process.ExitCode exists for every child, item-6 PointAftInput and fact Value_p_eta bounds in DIP/device pixels are captured, temporary instrumentation is restored byte-for-byte, evidence is committed, and Settings is restored to 150% with a fresh in-process 1.5/1.5 reading.\nNot in scope: product/test repair, registry mutation, display-resolution change, readiness admission, rerunning failed product checks to obtain green.\nTier T1. Fan-out 0. Repair cap 2 cycles. Twenty-minute ceiling including restore.\nWorker: win-wri-r179. Local coordinator: Windows root session. Designated leader: Mac.\nAuthorization: Ruling 179 and local coordinator's execution contract on head 13cb9a14c8315c1b01f30e33b672c936b5b36726.\nSurface list: Windows Settings UIA -> process runner -> temporary test measurements -> built test DLL -> rendered Avalonia window -> raw capture -> proof receipt/manifest -> Docs Explorer/audit.\nFour harness modes, with exact CFD_TEST_ONLY comma-separated names; temporary exact-name gated readiness registration for items 10 and 11 only. No unselected checks run.\nExit policy: every exit path restores exact Settings 150% and runs fresh scale diagnostic. Cap firing stops execution and commits honest blocked evidence.",
+      "session": "win-wri-r179",
+      "shortname": "optimize-graph-wri-r179-blocked",
+      "signals": {
+        "acceptance_met": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "optimize-graph",
+      "started_at": "2026-10-09T04:03:41Z",
+      "summary": "R179 Windows blocked before any product check at runner repair cap 2/2. UIA preflight and pinned SDK build completed; source restored byte-for-byte; Settings exact 150 and fresh RenderScaling/PrimaryScaling 1.5/1.5 with numeric exit 0. All 28 requested result cells NOT ASSESSED.",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-23.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-09T16:06:47Z",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 60.0,
+      "fan_out": 0,
+      "goal": "PR #23 on main under Ruling 182",
+      "id": "al-01M4GPNGHWRH97G0R8HG786E2Z",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-pr23",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T16:05:47Z",
+      "summary": "Joined PR #23 as a blocked receipt under Ruling 182; THROWAWAY-RUNNER class added; fresh budget waits on Mac prints and a committed PC runner recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T16:04:38Z",
+      "done_when": "self-test 15/15, ECR and V3D replays byte-identical, check-docs and gates exit 0",
+      "duration_seconds": 290.0,
+      "goal": "Register merge driver unions two dated lines appended at one place",
+      "id": "al-01M4GPHK46STVCR759HWKA4YWN",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-rg4",
+      "session": "trk-rg4",
+      "shortname": "rg4-append-union",
+      "skill": "implement",
+      "started_at": "2026-10-09T15:59:48Z",
+      "summary": "union_appends in merge-defect-register.py; 6 fixtures; both replays identical; RG4 proof section; register line",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/reg/red-first.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-09T16:08:18Z",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 63.0,
+      "fan_out": 0,
+      "goal": "parallel register appends merge without hand resolution",
+      "id": "al-01M4GPRA29812ZQS4NDEHFB7T3",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/rg4-append-union into main",
+      "session": "3122f106",
+      "shortname": "join-rg4",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T16:07:15Z",
+      "summary": "Joined RG4: merge-defect-register unions pure dated-paragraph insertions at one anchor; ECR and V3D joins replay byte-identical recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T16:07:40Z",
+      "done_when": "self-test red then green, sweep of main reported, cost measured, guard exit 0 on main",
+      "duration_seconds": 473.0,
+      "goal": "hostname rules in check-proof-pii.py with red-first fixtures and a sweep of main",
+      "id": "al-01M4GPQ4CVTGA0H68V673RSBFK",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "trk-phn",
+      "session": "trk-phn",
+      "shortname": "phn-pii-hostname",
+      "skill": "implement",
+      "started_at": "2026-10-09T15:59:47Z",
+      "summary": "Hostname rules, masked output, optional CFD_PII_HOSTNAMES list and fixtures landed; sweep of main hits 64 files (7 real-name OpenFOAM banners, 56 Mac label, 1 server word), held for leader, no allowlist added",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T16:15:33Z",
+      "done_when": "pii guard exit 0 with and without env, capture manifests, check-docs, verify gates exit 0",
+      "goal": "placeholders mac and server; scrub the PC hostname from the current tree",
+      "id": "al-01M4GQ5JV1J8X0092ATCWKQMWC",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-phn leader rulings",
+      "session": "trk-phn",
+      "shortname": "phn-pii-scrub",
+      "skill": "implement",
+      "summary": "mac and server placeholders; hostname replaced by <host> in 10 files, 3 manifests re-pinned, two hostname-sanitization.json",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4GQEJQDYJ516XAB6Q0SGH85",
+      "shortname": "join-phn",
+      "datetime": "2026-10-09T16:20:28Z",
       "session": "3122f106",
       "prompt": "the join of the resolved merge into main",
-      "summary": "Joined V3D: View3d fixture gets a scale-aware Shot; chip top border via DevicePixel.NearestAtDevice recount_seconds=0 (docs_only=False).",
+      "summary": "Joined PHN: hostname guard plus scrub of 10 files; join repaired a register-driver whole-file conflict in rulings.md and a union-revived xmsg line recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/v3d/red-first.md"
+        "docs/proof/pii/red-first.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "item 5 repaired on main",
-      "done_when": "join gates green, readiness green, PUSH-OK",
+      "goal": "Ruling 174 class controlled; no hostname in the tree",
+      "done_when": "join gates green, readiness green, PUSH-OK, 0 literal hits on main",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -32539,8 +32792,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T03:58:03Z",
-      "duration_seconds": 57.0
+      "started_at": "2026-10-09T16:18:42Z",
+      "duration_seconds": 106.0
     }
   ],
   "changes": [
@@ -35072,6 +35325,51 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4FBGTJK2W8V8MASE5JXGTJW",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4GNQ8P7F72J7NEPA64X59AS",
+      "ts": "2026-10-09T15:50:16Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4GNQ8K6A2AM3FFFBM8A5NBQ",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4GNQ8Z9NZ0H8X0837K7TM7Z",
+      "ts": "2026-10-09T15:50:16Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4GNQ8Z4AGBTAMV4PNPB0SFV",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4GNQ9253WYHSNK9FSA4PRMQ",
+      "ts": "2026-10-09T15:50:16Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4GNQ8Z4AGBTAMV4PNPB0SFV",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4GPJX8Q3ZZQK244BGXAE50F",
+      "ts": "2026-10-09T16:05:21Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4GPJX8KC91MWE9GN89T058F",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4GPJXBWVN59Z30RK5C7B7Y9",
+      "ts": "2026-10-09T16:05:21Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4GPJX8KC91MWE9GN89T058F",
       "session": "fable-owner"
     }
   ]

@@ -1,0 +1,32 @@
+[
+  {
+    "sha256": "826E6EC7B3DE6E03ED24DF7A2FB5F60C8D930C293C5CDDB6C9B4D5052387D23E",
+    "bytes": 6087168,
+    "path": "tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Analysis.dll"
+  },
+  {
+    "sha256": "53B464B595F5003414C50793F8E0F410ABA19BCD867C0925B252CAC167C147A6",
+    "bytes": 61440,
+    "path": "tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Cli.dll"
+  },
+  {
+    "sha256": "2A3D5938265906C37D548A3AE75D6254516C81FC113AE111862B5A7E915F3192",
+    "bytes": 748032,
+    "path": "tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Core.dll"
+  },
+  {
+    "sha256": "B2C44D6D41AEEDFD51389AACF507C72A871B8DA626ADE1D57718127564A98F67",
+    "bytes": 1264640,
+    "path": "tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Desktop.dll"
+  },
+  {
+    "sha256": "9CA456AD199D2CD2CBEA427A568B00EA6297881F21292B82262BA4CEA03664B2",
+    "bytes": 1193984,
+    "path": "tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Desktop.Tests.dll"
+  },
+  {
+    "sha256": "66801773929788B27979E76EA67AE7430967AC4ECE9FBF73F4FAAC723115B9DF",
+    "bytes": 192000,
+    "path": "tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Persistence.dll"
+  }
+]

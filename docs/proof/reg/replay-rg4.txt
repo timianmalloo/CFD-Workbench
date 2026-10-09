@@ -1,0 +1,10 @@
+merge=f16ea452 ours=edc7ee59 theirs=775dc93c base=9c75e7b6
+driver exit=0
+IDENTICAL to committed f16ea452:docs/lessons/defect-classes.md
+markers: 0
+    2274 /Users/mallalieut/projects/cfd-workbench-continuation/scratch/rg4/replay-f16ea452/ours
+merge=6ca8caa6 ours=29a8d76f theirs=058fcb28 base=61352f50
+driver exit=0
+IDENTICAL to committed 6ca8caa6:docs/lessons/defect-classes.md
+markers: 0
+    2275 /Users/mallalieut/projects/cfd-workbench-continuation/scratch/rg4/replay-6ca8caa6/ours

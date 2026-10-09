@@ -1,0 +1,9 @@
+{
+  "utc_start": "2026-10-09T04:08:00.6545624Z",
+  "utc_end": "2026-10-09T04:08:03.1205223Z",
+  "pid": 5028,
+  "duration_seconds": 2.4659599,
+  "ProcessExitCode": 0,
+  "timed_out": false,
+  "affinity": "not requested"
+}

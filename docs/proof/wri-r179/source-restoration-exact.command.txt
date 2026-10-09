@@ -1,0 +1,5 @@
+cwd=C:\Projects\CFD-Workbench-win-wri-r179
+exe=%USERPROFILE%\AppData\Local/Programs/Python/Python313/python.exe
+arguments="docs/proof/wri-r179/restore-sources.py"
+CFD_TEST_ONLY=
+affinity_requested=False

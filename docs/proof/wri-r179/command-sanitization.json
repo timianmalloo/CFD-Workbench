@@ -1,0 +1,20 @@
+[
+  {
+    "path": "docs/proof/wri-r179/build-pinned.command.txt",
+    "raw_sha256": "a59c46ce61be846c5619ba42b4a585616d880d068373cf61047db80812a0e54e",
+    "committed_sha256": "025810f8ceddf7b1bdb6c719ca829d111752f09a4100d058012d8bba55f2338f",
+    "rule": "exact user home prefix -> %USERPROFILE%; all stdout/stderr untouched"
+  },
+  {
+    "path": "docs/proof/wri-r179/restoration-diagnostic.command.txt",
+    "raw_sha256": "ab62c94f6bffcde6269d30909b22b82952aaa1afd6daac8412d13bc51a98fa53",
+    "committed_sha256": "de195248073975e6e594feec4fde1697e0cda754366f6761e7008173f8bb403d",
+    "rule": "exact user home prefix -> %USERPROFILE%; all stdout/stderr untouched"
+  },
+  {
+    "path": "docs/proof/wri-r179/source-restoration-exact.command.txt",
+    "raw_sha256": "a467e240156e3beae992f1fdb9123a2a76b6539759ef1308da4ce7c11bf96c55",
+    "committed_sha256": "7429941e22958d8feef1265ea516927495205977c65aa48d5dd7ae6ec05d6748",
+    "rule": "exact user home prefix -> %USERPROFILE%; all stdout/stderr untouched"
+  }
+]

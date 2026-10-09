@@ -1,0 +1,38 @@
+Session start: 2026-10-09T04:03:15Z (first observed worker clock).
+Audit marker: 2026-10-09T04:03:41Z, skill optimize-graph, session win-wri-r179.
+
+Cycle 1 (preparation/runner correction; no product checks):
+Exact combined shell command after instrumentation generator creation:
+py -3 docs/proof/wri-r179/instrument.py; git diff -- tests > docs/proof/wri-r179/instrumentation.diff.txt; & docs/proof/wri-r179/process.ps1 -Label build -Exe dotnet -Arguments @('build','tests/CfdWorkbench.Desktop.Tests/CfdWorkbench.Desktop.Tests.csproj','-c','Release','--nologo') -TimeoutSeconds 180 -Affinity
+Observed first Python traceback: instrument.py line 38, assert anchor in s, mode; AssertionError: shell-window.
+Cause: generator expected CRLF while the observed source is LF. It failed before writing test files.
+Python OS Process.ExitCode: NOT RECORDED (combined shell continued; no process receipt).
+System dotnet build OS Process.ExitCode: -2147450725 (build.measurement.json); SDK 10.0.203 unavailable there.
+Corrective preparation: newline handling adjusted to LF; pinned user SDK verified with --version and used explicitly.
+Pinned build OS Process.ExitCode: 0 (build-pinned.measurement.json).
+No product repairs. No scale change. Corrected source hash and DLL hash records retained.
+
+Cycle 2 (runner cutoff defect; cap stop):
+Exact shell command: & docs/proof/wri-r179/execute.ps1
+Tool-reported shell exit: 1. Not a separately recorded OS Process.ExitCode handle.
+Exact throw: Execution cutoff leaves three minutes for restore and package
+Source: execute.ps1:19 compares DateTime.UtcNow against DateTime.Parse('2026-10-09T04:20:00Z').
+At throw Settings was still exact 150% (Recommended), after settings-150 child exit 0 at 04:08:03Z.
+No named check child was launched. No 200% selection occurred.
+Mandatory finally: settings-restored child exit 0; restoration-diagnostic child exit 0 and scale 1.5/1.5.
+Repair cap 2/2 fired. No repair or product rerun authorized or performed afterward.
+
+Post-stop cleanup (required restoration/packaging, not another execution cycle):
+First source-restoration command:
+& docs/proof/wri-r179/process.ps1 -Label source-restoration -Exe py -Arguments @('-3','docs/proof/wri-r179/restore-sources.py')
+OS Process.ExitCode: 2. PATH-resolved child Python rejects -3. This did not restore source.
+Required cleanup completed using the observed absolute Python executable:
+& docs/proof/wri-r179/process.ps1 -Label source-restoration-exact -Exe '%LOCALAPPDATA%/Programs/Python/Python313/python.exe' -Arguments @('docs/proof/wri-r179/restore-sources.py')
+OS Process.ExitCode: 0. Three source files restored to original hashes; src/tests/tools diff exit 0.
+This does not reset the exhausted execution budget.
+
+Read-only time-comparison sweep:
+rg -n 'UtcNow|DateTime|deadline|cutoff|AddSeconds|Parse' docs/proof/wri-r179 -g '*.ps1'
+settings.ps1:68 UTC success timestamp; process.ps1:13/23 UTC measurement timestamps; execute.ps1:19 sole mixed-Kind deadline comparison.
+
+Residual: all 28 scale/check cells NOT ASSESSED; item-6 measurements and P3 clauses not emitted.
