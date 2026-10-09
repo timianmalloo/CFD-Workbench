@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:57:34Z",
+  "generated": "2026-10-09T03:59:00Z",
   "audit": [
     {
       "actor": null,
@@ -32464,24 +32464,73 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4FCY99XZYC1ZPHX7DJ74WDK",
-      "shortname": "join-ecr",
-      "datetime": "2026-10-09T03:57:34Z",
-      "session": "3122f106",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "Joined ECR: overlay absent from device-res RenderTargetBitmap is a capture defect (Inferred; opacity/clip falsified); chip check uses HoldsHalfOf recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/ecr/spike.md",
         "docs/proof/ecr/red-first.md"
       ],
+      "compiled": false,
+      "datetime": "2026-10-09T03:57:34Z",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 57.0,
+      "fan_out": 0,
+      "goal": "item 4 dispositioned and repaired in the test",
+      "id": "al-01M4FCY99XZYC1ZPHX7DJ74WDK",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-ecr",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T03:56:37Z",
+      "summary": "Joined ECR: overlay absent from device-res RenderTargetBitmap is a capture defect (Inferred; opacity/clip falsified); chip check uses HoldsHalfOf recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T03:55:56Z",
+      "done_when": "red-first record, run-tests green, check-docs 0",
+      "duration_seconds": 215.0,
+      "goal": "Repair DPI-A item 5: View3d chip border sampled at device resolution",
+      "id": "al-01M4FCV9YAXPE25W8G1EHWPP05",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-v3d",
+      "session": "trk-v3d",
+      "shortname": "v3d-chip-sampler",
+      "skill": "implement",
+      "started_at": "2026-10-09T03:52:21Z",
+      "summary": "View3d fixture takes a device-resolution Shot; chip top border read with DevicePixel.NearestAtDevice; pure check on the Windows block",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4FD0X45GV1FGVXGTXHX1AXF",
+      "shortname": "join-v3d",
+      "datetime": "2026-10-09T03:59:00Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined V3D: View3d fixture gets a scale-aware Shot; chip top border via DevicePixel.NearestAtDevice recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/v3d/red-first.md"
+      ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "item 4 dispositioned and repaired in the test",
+      "goal": "item 5 repaired on main",
       "done_when": "join gates green, readiness green, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
@@ -32490,7 +32539,7 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T03:56:37Z",
+      "started_at": "2026-10-09T03:58:03Z",
       "duration_seconds": 57.0
     }
   ],
