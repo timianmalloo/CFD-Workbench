@@ -9,6 +9,9 @@
 
 Reads <name>.ms and wall.ms (C-1, millisecond clocks written by run-tests.sh) and the COST lines of every Analysis log (Analysis.log, or Analysis.part<k>of<n>.log).
 Exit 0 every rule holds . 1 a rule failed, or a reading is missing ("not recorded" never passes) . 2 usage.
+COST-ADVISORY (concurrent ring <pids>) <rule> ...: when <dir>/peers.txt lists another ring that held a ring-lock slot while this ring ran
+(tools/run-tests.sh samples it, CCL-A), an over-cap C-2..C-5 reading prints this line instead of failing, whatever the end load. No file or an
+empty one (a ring that ran alone) keeps every cap a failure on a quiet host. C-6 (a missing reading) is never excused.
 PARTITION-SKEW <harness> parts=<ms list> skew_ms=<n> (hints stale?): advisory, printed when a harness run in parts (Core, Analysis) has
 slowest minus fastest over 15 % of its per-part limit (Analysis 5,000 ms; Core 30,000 ms reference). It never changes the exit code.
 Ring: every join (run-tests.sh calls it after its wait loop; join.json runs it again). Cost: under 0.1 s (the skew check adds five file reads).
@@ -204,17 +207,26 @@ def budget_verdict(wall: int, budget: int, load: str, source: str = "", host: st
     return 0, f"TEST-BUDGET-MISS {wall} s load {load}"
 
 
+def read_peers(directory: Path) -> tuple[str, ...]:
+    """CCL-A: the PIDs of other rings that held a slot while this ring ran (tools/run-tests.sh samples them into peers.txt).
+    A missing or empty file is a ring that ran alone, so the caps stay in force on a quiet host."""
+    try:
+        return tuple(dict.fromkeys(line.strip() for line in (directory / "peers.txt").read_text(encoding="utf-8").splitlines() if line.strip()))
+    except OSError:
+        return ()
+
+
 def check(directory: Path, jobs: tuple[str, ...], load: str = "not-recorded", source: str = "", host: str = "",
           proof: Path | None = None) -> tuple[list[str], list[str]]:
     gate, uncalibrated, limits = host_gate(source, host, proof)
-    errors, misses = check_rules(directory, jobs, load, gate, limits)
+    errors, misses = check_rules(directory, jobs, load, gate, limits, read_peers(directory))
     if uncalibrated:  # Ruling 139 (b): every rule is advisory on an uncalibrated host
         return [], [f"COST-MISS {error} host {host}" for error in errors] + misses
     return errors, misses
 
 
 def check_rules(directory: Path, jobs: tuple[str, ...], load: str, gate_limit: float,
-                limits: dict[str, int] | None = None) -> tuple[list[str], list[str]]:
+                limits: dict[str, int] | None = None, peers: tuple[str, ...] = ()) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     misses: list[str] = []
     limits = limits or {}
@@ -235,7 +247,9 @@ def check_rules(directory: Path, jobs: tuple[str, ...], load: str, gate_limit: f
     def timing(rule: str, ms: int, limit: int, message: str) -> None:
         if ms <= limit:
             return
-        if gated:
+        if peers:  # CCL-A: another ring shared the CPU for part of this run; the overlap, not the end load, explains the miss
+            misses.append(f"COST-ADVISORY (concurrent ring {', '.join(peers)}) {rule} {ms:g} load {load}")
+        elif gated:
             errors.append(message)
         else:
             misses.append(f"COST-MISS {rule} {ms} load {load}")
@@ -272,7 +286,9 @@ def check_rules(directory: Path, jobs: tuple[str, ...], load: str, gate_limit: f
         for name, ms in costs.items():
             limit = exempt_limit if name in EXEMPT_CHECKS else check_limit
             if ms > limit:
-                if gated:
+                if peers:
+                    misses.append(f"COST-ADVISORY (concurrent ring {', '.join(peers)}) C-5 {name} {ms:g} load {load}")
+                elif gated:
                     errors.append(f"C-5 {name} took {ms} ms, over {limit:.0f} ms (move it to readiness with its cost, or make it cheaper)")
                 else:
                     misses.append(f"COST-MISS C-5 {name} {ms:g} load {load}")
@@ -443,6 +459,41 @@ def self_test_skew() -> tuple[int, int]:
     return failures, len(cases)
 
 
+def self_test_peers(good: dict[str, str], passes: str) -> tuple[int, int]:
+    """CCL-A: a ring that overlapped another ring (peers.txt) reports an over-cap C-2..C-5 as COST-ADVISORY naming the holder, even at
+    a quiet end load; with no peers file the same readings still fail; C-6 and the other rules are untouched."""
+    slow = {"Analysis.part1of2.ms": "5083", "wall.ms": "52000", "Desktop.ms": "49400",
+            "Analysis.part1of2.log": passes + "COST F6_ObservedOrder 1612.0\n"}
+    cases = [
+        ("peers: no peers file, the over-cap readings fail C-2, C-3, C-4 and C-5 at a quiet load", slow, None, "5.0", True, ()),
+        ("peers: an empty peers file is no overlap, the same readings fail", slow, "", "5.0", True, ()),
+        ("peers: a concurrent ring turns C-2..C-5 into COST-ADVISORY naming the holder, no failure", slow, "4242\n", "5.0", False,
+         ("COST-ADVISORY (concurrent ring 4242) C-2 5083", "COST-ADVISORY (concurrent ring 4242) C-3 51000",
+          "COST-ADVISORY (concurrent ring 4242) C-4 49400", "COST-ADVISORY (concurrent ring 4242) C-5 F6_ObservedOrder 1612")),
+        ("peers: two holders are both named", {"Analysis.part1of2.ms": "5083"}, "4242\n77\n", "5.0", False,
+         ("COST-ADVISORY (concurrent ring 4242, 77) C-2 5083",)),
+        ("peers: a concurrent ring never excuses C-6 (a missing reading still fails)", {"wall.ms": None}, "4242\n", "5.0", True, ()),
+        ("peers: within the limits a concurrent ring prints nothing", {}, "4242\n", "5.0", False, ()),
+    ]
+    failures = 0
+    with tempfile.TemporaryDirectory() as scratch:
+        for number, (label, change, peers, load, fails, fragments) in enumerate(cases):
+            case = Path(scratch) / f"peers{number}"
+            case.mkdir()
+            for name, text in {**good, **change}.items():
+                if text is not None:
+                    (case / name).write_text(text, encoding="utf-8", newline="\n")
+            if peers is not None:
+                (case / "peers.txt").write_text(peers, encoding="utf-8", newline="\n")
+            errors, misses = check(case, DEFAULT_JOBS, load)
+            ok = bool(errors) == fails and all(any(fragment in miss for miss in misses) for fragment in fragments)
+            if fails and not errors:
+                ok = False
+            print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else f": got {errors or 'no error'} and {misses or 'no miss'}"))
+            failures += not ok
+    return failures, len(cases)
+
+
 def self_test() -> int:
     """Every row of the 13.4 table plus Ruling 84: a green baseline, then each failing input planted alone must turn it red."""
     passes = "".join(f"PASS {name}\nCOST {name} 12.500\n" for name in ("Units_Lbf_KeyUnchanged", "F6_ObservedOrder"))
@@ -503,8 +554,9 @@ def self_test() -> int:
     key_failures, key_total = self_test_ring_host()
     skew_failures, skew_total = self_test_skew()
     limit_failures, limit_total = self_test_host_limits()
-    failures += host_failures + key_failures + skew_failures + limit_failures
-    host_total += key_total + skew_total + limit_total
+    peer_failures, peer_total = self_test_peers(good, passes)
+    failures += host_failures + key_failures + skew_failures + limit_failures + peer_failures
+    host_total += key_total + skew_total + limit_total + peer_total
     for label, wall, budget, load, code, fragment in budget_cases:
         got_code, line = budget_verdict(wall, budget, load)
         ok = got_code == code and (fragment is None and line is None or fragment is not None and line is not None and fragment in line)

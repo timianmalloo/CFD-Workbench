@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4524db59af62faade5442a1fefdc261163e9a41530fda5267963918717db0102"
+      "sourceSha256": "ad75b243689dbc0e884a70b0912c5291985d2cae4dda4493148b08f9aca35cdc"
     },
     {
       "id": "domain-experts",
@@ -8233,7 +8233,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b4ab6f6985dc58cff4eaccbc8aa8f65508ad15f26ebb806ad7d6bdbbf66f9f33"
+      "sourceSha256": "53addbf6dbc03bd2ee08f74278676affa63f514792eabb87778938a4a510db8a"
     },
     {
       "id": "kb-hw-glossary",
@@ -12492,6 +12492,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "275906401b6f491fd4d3ee7e4f24e3e633aff893087a32f948b8d8a27169ee15"
+    },
+    {
+      "id": "proof-ccl-receipt",
+      "path": "docs/proof/ccl/receipt.md",
+      "title": "CCL receipt: cost caps under a concurrent ring",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@trk-ccl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "End load lags; a ring that overlapped another reports C-2..C-5 as COST-ADVISORY naming the holder, a quiet ring still fails.",
+      "tags": [
+        "test-ring",
+        "cost-caps",
+        "ring-lock",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7fee575971400a5c57282d2740357239b227452408469b1d9778003b299d4165"
     },
     {
       "id": "proof-copyfix-red-runs",
@@ -19045,5 +19071,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3bdda1e716d975543cd8156e1ec85373d017bc3cd8b8f79e165333d7045042a8"
+  "graphSha256": "ec976c2215dbde60a002a1e7eb52b059236c6e6fa44a53be7943f0dc31631781"
 };
