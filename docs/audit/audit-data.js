@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T01:51:11Z",
+  "generated": "2026-10-09T01:59:45Z",
   "audit": [
     {
       "actor": null,
@@ -31610,6 +31610,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T01:51:03Z",
       "duration_seconds": 8.0
+    },
+    {
+      "id": "al-01M4F66HB71TWAD4C76ASVB0CS",
+      "shortname": "wdf-dpi-fixes",
+      "datetime": "2026-10-09T01:59:44Z",
+      "session": "trk-wdf",
+      "prompt": "track WDF: Windows fractional-scale fixes",
+      "summary": "TextBox.prop-b MinHeight 24; DevicePixel.Tolerance for items 2 and 7; NotBound branches on macOS plus a Windows-built check; item 6 held (1.0 DIP skew exceeds one device pixel); DPI-A class; run-tests 707 Desktop PASS",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Fix the Windows fractional-scale failures (items 1, 2, 7, 8; item 6 held) per Rulings 173/174",
+      "done_when": "Item 8 MinHeight red then green; tolerances in device pixels; NotBound branches on OS; DPI-A registered; run-tests green; check-docs exit 0"
     }
   ],
   "changes": [
