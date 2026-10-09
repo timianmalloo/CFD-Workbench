@@ -29,6 +29,11 @@ summary: >-
 
 P1–P5 were captured at `842e575d8408d27c6f01f53df9d0da00e434ea38`. The fresh P6 attempt used `93240b06df197f68b9ba3b971c3c8192895a7445`. Windows 11 Pro, version `10.0.26300`, build `26300`, 64-bit. The .NET executable was `%USERPROFILE%\.dotnet\dotnet.exe`, SDK `10.0.203`; test processes used affinity `0x3F` (six logical processors). Captured command, output, timing, SDK, tested HEAD, and hashes are in the adjacent files. Where the launch wrapper did not record a field, it is marked `NOT_RECORDED`.
 
+*Added by the Mac at the join (Ruling 178, conditions).* This P6 attempt predates Ruling 177 (recorded 02:31:37Z; this
+cycle ran 02:22:27–02:22:50Z), and 93240b06 does not contain the WDF fixes (main 9a250e3c and later). It is not the Ruling
+177 P6, which is still owed: a head at or after 9a250e3c, no AppliedDPI gate, and in-process RenderScaling as the scale
+predicate.
+
 Temporary test instrumentation was reverted and its SHA-256 recorded in `p6-temporary-hashes.txt`. The final diff contains proof artifacts and the derived docs index/audit output only.
 
 ## P1 — Windows display and registry

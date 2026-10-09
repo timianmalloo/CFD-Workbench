@@ -2210,6 +2210,10 @@ is not a store failure: it is a ninth Windows-platform name for the class-(a) in
 The PC ring failed eight Desktop checks at an Inferred 150 % scale (Ruling 173/174; `docs/proof/wri/investigation.md`). Avalonia rounds
 border, padding and margin per edge with `Math.Round(v * s) / s` (half to even), so 1 DIP renders as 1.333 and 3 DIP as 2.667 at 1.5.
 A content-sized `TextBox.prop-b` came to 35 px = 23.33 DIP, under the 24 DIP target floor (WCAG 2.2 SC 2.5.8): a real product miss.
+*2026-10-09 (Ruling 178).* The scale is now **Verified 150 % (P2, 93240b06; tested head 842e575d)**: in-process RenderScaling
+1.5, Screens.Primary.Scaling 1.5, UseLayoutRounding true (`docs/proof/wri-probe/instrumented.stdout.txt:1`). P4 measured the
+pre-WDF TextBox at 23.333 DIP = 35 px. Items 3, 4 and 5 are scale effects (rounded view-frame borders; a 2/3-DIP sampling
+seam), item 6 is open, and WDF's green at 1.5 waits on the Ruling 177 P6.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
