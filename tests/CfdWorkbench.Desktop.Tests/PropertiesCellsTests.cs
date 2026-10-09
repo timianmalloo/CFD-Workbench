@@ -444,8 +444,10 @@ public static class PropertiesCellsTests
             var failures = new List<string>();
             var boxRect = box.Bounds;
             var ringRect = ring.Bounds;
+            // DPI-A: layout places the ring on a whole device pixel, so "1 DIP outside" holds to one device pixel.
+            double pixel = DevicePixel.Tolerance(aft, 0.01);
             if (!aft.IsFocused || Paint(box.BorderBrush) != primary || !ring.IsVisible || Paint(ring.BorderBrush) != danger ||
-                Math.Abs(boxRect.X - ringRect.X - 1) > 0.01 || Math.Abs(ringRect.Bottom - boxRect.Bottom - 1) > 0.01)
+                Math.Abs(boxRect.X - ringRect.X - 1) > pixel || Math.Abs(ringRect.Bottom - boxRect.Bottom - 1) > pixel)
                 failures.Add($"focused: box {Paint(box.BorderBrush)} ring {ring.IsVisible} {Paint(ring.BorderBrush)} {ringRect} around {boxRect}");
             Need<TextBox>(host.Properties, "PointSpanInput").Focus();
             Settle(window);
@@ -706,6 +708,8 @@ public static class PropertiesCellsTests
                 visual.TranslatePoint(new Point(left + layout.HitTestTextRange(0, text.Length).Max(rect => rect.Right), 0), host.Properties)!.Value.X;
             double input = Right(presenter, presenter.TextLayout, 0, presenter.Text ?? "");
             double facts = Right(fact, fact.TextLayout, fact.Padding.Left, fact.Text ?? "");
+            // assume: DPI-A item 6 - at 150 % the rounding skew is predicted at 0.667 DIP (one device pixel) but 1.0 was measured, so
+            // this 0.5 tolerance stays; confirm with the PC scale probe (docs/proof/wri/investigation.md P4, P6). It fails there until then.
             Console.WriteLine(FormattableString.Invariant($"MEASURE DC-3 input digits end {input:0.##}, fact digits end {facts:0.##}"));
             if (Math.Abs(input - facts) > 0.5) throw new InvalidOperationException(FormattableString.Invariant($"input ends {input:0.##}, fact {facts:0.##}"));
         });
