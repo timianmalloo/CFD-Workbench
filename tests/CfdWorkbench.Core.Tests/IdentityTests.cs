@@ -13,11 +13,14 @@ internal static class IdentityTests
     private static readonly HashSet<string> matched = [];
     private static int selected, skipped;
     // tools/run-tests.sh splits this harness across processes with `--part=k/n` (an argument, never an inherited
-    // environment variable): a part runs the checks whose registration index i has i % n == k - 1. Every part
-    // enumerates the same registrations, so together they run each check once; run-tests.sh compares the PARTITION
-    // lines (docs/reviews/test-ci-waste.md §12). The Desktop harness's DesktopChecks carries the same rule.
+    // environment variable). CorePartition places a check listed in Fixtures/core-costs.tsv by cost (longest first onto
+    // the lightest part); an unlisted check runs where its registration index i has i % n == k - 1. Every part reads the
+    // same table and enumerates the same registrations, so together they run each check once; run-tests.sh compares the
+    // PARTITION lines (docs/reviews/test-ci-waste.md §12). The Desktop harness's DesktopChecks keeps the index rule.
     private static (int Index, int Count)? part;
     private static int registered, ran;
+    // CFD_CORE_COST=1 prints `COST <name> <ms>` after each passing check: the input to Fixtures/core-costs.tsv.
+    private static readonly bool costs = Environment.GetEnvironmentVariable("CFD_CORE_COST") == "1";
     private static int Main(string[] args)
     {
         try { part = ParsePart(args); }
@@ -115,6 +118,7 @@ internal static class IdentityTests
         SectionDraftTests.Run();
         SectionEditTests.RunMultiProfile();
         OverlayTests.Run();
+        CorePartition.Run();
         bool emptyPart = part is not null && only is null && ran == 0;
         if (part is { } p)
         {
@@ -154,10 +158,15 @@ internal static class IdentityTests
             matched.UnionWith(hits); selected++;
         }
         // After the selector, so a prefix counts as matched in every part and a subset run splits like a full one.
-        if (part is { } p && registered++ % p.Count != p.Index - 1) return;
+        if (part is { } p && !CorePartition.Owns(name, registered++, p.Index, p.Count)) return;
         ran++;
+        long started = costs ? System.Diagnostics.Stopwatch.GetTimestamp() : 0;
         // Test-runner boundary: report unexpected exceptions as failures and continue.
-        try { assertion(); Console.WriteLine("PASS " + name); }
+        try
+        {
+            assertion(); Console.WriteLine("PASS " + name);
+            if (costs) Console.WriteLine($"COST {name} {System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds:F1}");
+        }
         catch (Exception failure)
         {
             failures++;

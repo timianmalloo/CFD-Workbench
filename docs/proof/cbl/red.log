@@ -1,0 +1,4 @@
+FAIL CorePartition_CostTable_PlacesEveryCheckOnceWithinFifteenPercent InvalidOperationException: Parts 19106/18149/12491 ms differ by 15 % or more of the largest
+PASS CorePartition_UnlistedCheck_FallsBackToRegistrationIndex_OnePartOwnsIt
+RESULT failures=1
+SUBSET CFD_TEST_ONLY=CorePartition_ ran=2 skipped=729
