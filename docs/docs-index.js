@@ -7384,6 +7384,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "3edcc32659bca6c8b11f3f2a3cc5410b928f6600371f13ec806b55f496d56582"
     },
     {
+      "id": "review-pr-28",
+      "path": "docs/reviews/pr-28.md",
+      "title": "PR #28 (Windows PC) - Ruling 151 L3 progress snapshot and nice reconciliation (Ruling 192), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 192). An honest interim snapshot of the running L3 solve, with no acceptance and no numerical label. The prepared nice 10 against the observed NI 19 is reconciled by an append-only actual-launch record in the proof folder. The case YAML is unchanged and the schema gains no field.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "openfoam",
+        "cfd"
+      ],
+      "links": [
+        {
+          "to": "review-pr-27",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "61ab4938fc06d947feadc252612d53dc9be22fa5703198d20196578f043f3929"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8317,7 +8345,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "084993ba5ddd94d39e36517750e607d23ee06a5a49fd58901c87098c46c932c9"
+      "sourceSha256": "a4b0e11840c2bb6c0ab2dbdbda64ec708cf3e7d904ebeb6e0768a1efd0d5bca9"
     },
     {
       "id": "kb-hw-glossary",
@@ -19366,5 +19394,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4149b017229d9eb5e626eaef79d19fa61b1d4fd3ccf96b6c42a7745f434f516f"
+  "graphSha256": "c2c9b507fd6e035d6fc0a8bb3bb0e2f49a9bba413cbabe18b8d6e3ca4d78c486"
 };
