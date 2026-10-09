@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7194378bbcabdfc95ae2fe35467a599d5a5a983cc8815fadbb368f256f7715f3"
+      "sourceSha256": "5953020118f33d580fa1e8f688090823237fe30986c4d195e8172325f90e5577"
     },
     {
       "id": "domain-experts",
@@ -7057,7 +7057,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5bcdda1e5d500211739d20046234c7104ae931da93385581ae56e3761b7cbb13"
+      "sourceSha256": "9a6fb9b8b2eb6c63c9dd0c2e9ad41162990e866b0a2b188e513ab15ade131df1"
     },
     {
       "id": "review-pr-19",
@@ -8179,7 +8179,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "8507ad2a4cd6b856fd02e84b9ef24bb353bd85dda5449fa92e7e61e21b568089"
+      "sourceSha256": "83f1b5c9a2ffcb05415bd439e7e2329698c73ad81e4946401ec873f3430a2461"
     },
     {
       "id": "kb-hw-glossary",
@@ -14000,7 +14000,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "06dd2cb8845ddac26a318ae50259734eeab665b9c23879338a51437327409ce3"
+      "sourceSha256": "83f7bb4b641045b40ba13c1b3dc3040a3190e8714d4547325869babe78f72c9d"
     },
     {
       "id": "proof-planform-verbs-fairness",
@@ -18783,5 +18783,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f5bd1b87f77606bfdfc727f7704fdeb33f364a324c1c4aebe09d48faa8532a5b"
+  "graphSha256": "07c09027f5bd20caf3569b897aee9c3972eecdc90fe600a192e19fca3c567aea"
 };
