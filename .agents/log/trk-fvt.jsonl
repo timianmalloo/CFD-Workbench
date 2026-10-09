@@ -1,1 +1,2 @@
 {"agent": "trk-fvt", "at": 1791517378.659709, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-fvt", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-fvt-fourviews-tolerance"}
+{"agent": "trk-fvt", "at": 1791517922.996556, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-fvt", "wi": "WI-0", "worktree": "CFD-Workbench-fix-fvt-fourviews-tolerance"}

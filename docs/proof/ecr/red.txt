@@ -1,0 +1,5 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+FAIL Elevation_ChipBorderSampler_HoldsHalfOfASplitLine Exception: The 2/3 half of a split line is refused
+STACK Elevation_ChipBorderSampler_HoldsHalfOfASplitLine System.Exception: The 2/3 half of a split line is refused |    at CfdWorkbench.Desktop.Tests.ElevationTests.<>c.<SamplerChecks>b__8_0() in /Users/mallalieut/projects/CFD-Workbench-fix-ecr-elevation-capture/tests/CfdWorkbench.Desktop.Tests/ElevationTests.cs:line 87 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in /Users/mallalieut/projects/CFD-Workbench-fix-ecr-elevation-capture/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs:line 651
+COST Elevation_ChipBorderSampler_HoldsHalfOfASplitLine 5.0
