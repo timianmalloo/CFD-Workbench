@@ -5216,10 +5216,18 @@ window.DOCS_INDEX = {
         {
           "to": "proof-r163-windows-ring",
           "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-naca",
+          "rel": "relates-to"
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4549946529b4cd0addc042d7ffb9c94f3e8b463233a7f328e111dc1f5eb78a85"
+      "sourceSha256": "0e0115bd7b850410a0e5d8796c809130536138f5628124df23ed4d2ca90c841f"
     },
     {
       "id": "domain-experts",
@@ -15386,7 +15394,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ee1b2a964676b93b77e852f0376f83f46ba2b9bb48168830958b4b2aac19e5df"
+      "sourceSha256": "506103bae281b1707756bbcd3b9a68f592d5cac156c3aa2e1098f84745be6a54"
     },
     {
       "id": "proof-win-product-code",
@@ -17687,5 +17695,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "acc69ca3439ba046f5e65f74651a72594ef63949fefaa43558cb2d4ba563a33f"
+  "graphSha256": "34cee2d14db7aad31a4f69e9246ed7c2b78c1a37c510126154dcf1928cc7a63a"
 };

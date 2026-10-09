@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:02:07Z",
+  "generated": "2026-10-09T00:13:06Z",
   "audit": [
     {
       "actor": null,
@@ -31191,12 +31191,71 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4EZF5KAE219FDNJX6YC9T9Q",
-      "shortname": "join-pr16",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-09T00:02:07Z",
-      "session": "3122f106",
+      "done_when": "join gates green",
+      "duration_seconds": 7.0,
+      "fan_out": 0,
+      "goal": "join PR #16 under Ruling 167",
+      "id": "al-01M4EZF5KAE219FDNJX6YC9T9Q",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of origin/win/r163-ring into main",
+      "session": "3122f106",
+      "shortname": "join-pr16",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T00:02:00Z",
       "summary": "PR #16 joined: Windows catalog 9/9 pass, DRIFT equals the Mac; INCOMPLETE (60 s kill); two unexpected failures listed for the next ring recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "codex",
+      "artifacts": [
+        "docs/proof/win-naca/receipt.md",
+        "docs/lessons/defect-classes.md",
+        "cases/win-spike04r3-g2-l3.yaml",
+        "docs/proof/win-naca/prepare-l3.py"
+      ],
+      "datetime": "2026-10-08T23:54:24Z",
+      "done_when": "C3 classes/controls, C4 generator citations and hashes, redacted audit, raw RESULT inventory, lightweight gates, and clean commit are complete; no ring rerun.",
+      "duration_seconds": 100.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/w4-r151-followups",
+        "pushed": null,
+        "sha": "d007d309174d71318484469d139bb9f7405e783b",
+        "short": "d007d3091"
+      },
+      "goal": "Correct Ruling 151 C3/C4 evidence and record the incomplete Windows ring truthfully.",
+      "id": "al-01M4EZ11QQEDA67C0988JHGNQZ",
+      "kind": "manual",
+      "outcome": "partial",
+      "prompt": "Ruling 165: redo the scoped Ruling 151 C3/C4 docs/evidence correction after confirming local commit 9e2bdfc2 was never pushed; redact the audit entry at append time, inventory retained pre-cutoff RESULT lines, and preserve the Windows ring as INCOMPLETE without rerunning it.",
+      "session": "win-w4-r151-followups-r165-20261008",
+      "shortname": "r165-w4-c3-c4-correction",
+      "skill": null,
+      "started_at": "2026-10-08T23:52:44Z",
+      "summary": "Fresh correction from origin/main d007d309. Reapplied Ruling 151 C3/C4 docs; audit records the SDK path as %USERPROFILE%\\\\.dotnet\\\\dotnet.exe. Retained Analysis results before the 2026-10-08T23:31:35.202Z cutoff: Analysis.part1of2.log:234 RESULT failures=0 and Analysis.part2of2.log:307 RESULT failures=2. The Windows expected-failure classifier marked both logged FAILs unexpected; the ring remains INCOMPLETE after the prior 60.454 s timeout. No ring rerun. Ruling 165 correction cycle 1/2.",
+      "tags": [],
+      "tier": "T1",
+      "tool": "audit-log.py"
+    },
+    {
+      "id": "al-01M4F03976MEF7C24TQBB6T5GF",
+      "shortname": "join-pr17",
+      "datetime": "2026-10-09T00:13:06Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/w4-r151-followups into main",
+      "summary": "PR #17 joined: Ruling 151 C3/C4 closed, Ruling 165 satisfied (0 PII, 9e2bdfc2 on no remote, hashes equal) recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
@@ -31205,7 +31264,7 @@ window.AUDIT_DATA = {
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join PR #16 under Ruling 167",
+      "goal": "join PR #17 under Ruling 169",
       "done_when": "join gates green",
       "tier": "T1",
       "fan_out": 0,
@@ -31214,8 +31273,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T00:02:00Z",
-      "duration_seconds": 7.0
+      "started_at": "2026-10-09T00:12:13Z",
+      "duration_seconds": 53.0
     }
   ],
   "changes": [
@@ -33567,6 +33626,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4EZE7VFSG6FGTZSCZWJ5DN7",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4EZZXRJGNA3VQ5FYWDYQ6AK",
+      "ts": "2026-10-09T00:11:16Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4EZZXR2FMV85QJMZR2SAHFD",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4EZZY02P5E3NQJ7FMR85DWA",
+      "ts": "2026-10-09T00:11:16Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4EZZXR2FMV85QJMZR2SAHFD",
       "session": "fable-owner"
     }
   ]
