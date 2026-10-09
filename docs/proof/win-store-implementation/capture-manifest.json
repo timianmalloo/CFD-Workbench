@@ -1,0 +1,339 @@
+{
+  "files": [
+    {
+      "path": "docs/proof/win-store-implementation/capture-integrity-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/capture-manifest-record.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/check-docs.stderr.txt",
+      "bytes": 141,
+      "sha256": "c779c63594d173c05733342b56d6de8858b48ad38fd96420d7980e09abf7a584"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/check-docs.stdout.txt",
+      "bytes": 16600,
+      "sha256": "1535df281e00f79a1c9d530beffcb840132565fdbc39bd503945be997a7cbd95"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/cycle-1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/cycle-1.stdout.txt",
+      "bytes": 1289,
+      "sha256": "f74759fe3ace119bb66bcab867f0848f15937777c679250c11214eb000fc1edd"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/cycle-2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/cycle-2.stdout.txt",
+      "bytes": 1504,
+      "sha256": "b64511f91f044307840b8ebba2f5b0c20f566b68f20c1ce875fcb9fec4f1a180"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/diff-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/manifest-check-r152.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/manifest-check-r152.stdout.txt",
+      "bytes": 174,
+      "sha256": "60a1d3fa05bb82c0e67e5adfb3ace29b6fe74511e5d26b4ab55be0e419043a7c"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/manifest-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/manifest-check.stdout.txt",
+      "bytes": 1871,
+      "sha256": "e2218465859c88ff4a493f9f4aa7ab315d863310bd04df8f61e3b4767edbcf2d"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/pii-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/pii-check.stdout.txt",
+      "bytes": 68,
+      "sha256": "f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-check-docs.stderr.txt",
+      "bytes": 1868,
+      "sha256": "36f48e1e4eeb046bfdde99ba83c557c3d1c4fcb4a002e2cc5daee3c8b94b84da"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-check-docs.stdout.txt",
+      "bytes": 109,
+      "sha256": "1fe4573e839f8c4832e65669e78596b443196eb7aa86d7c36228807548208c31"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-cycle-1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-cycle-1.stdout.txt",
+      "bytes": 2892,
+      "sha256": "19034fef4423b77ef1c531abea7323017ca1c0856a557dcd2059b76ea002c056"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-cycle-2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-cycle-2.stdout.txt",
+      "bytes": 2892,
+      "sha256": "9fa86e1769d5c5ce7405680b36f57a42fa4612048b85d2c846dba889b28bc0cb"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-head.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-head.stdout.txt",
+      "bytes": 2894,
+      "sha256": "28bef7f1fe68594276edb7c84a038b3e66891884250aefd3f16b831f0fce3f8f"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-initial.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r145-initial.stdout.txt",
+      "bytes": 1017,
+      "sha256": "fce93e6b5324cb3a129fff17bed9564eb26d2e1d793e2082856ad932ece17f38"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cleanup-green.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cleanup-green.stdout.txt",
+      "bytes": 1989,
+      "sha256": "15e20cb005cb6a41e8ed3aaba0b1b4293469ab331979acf127bda49f8b1e26fc"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cleanup-red.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cleanup-red.stdout.txt",
+      "bytes": 1557,
+      "sha256": "1c22588e278c9bd72656d9fde75fde8d5b041ff7730dbcddb30eb737691fe821"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cycle2-docs.stderr.txt",
+      "bytes": 141,
+      "sha256": "c779c63594d173c05733342b56d6de8858b48ad38fd96420d7980e09abf7a584"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cycle2-docs.stdout.txt",
+      "bytes": 16600,
+      "sha256": "18d3b7ec4cb2afbc3eaf8e64ae1947a203d9f57ce87c5e4049514fc68a0248fd"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cycle2-pii.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cycle2-pii.stdout.txt",
+      "bytes": 68,
+      "sha256": "f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cycle2-selftest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cycle2-selftest.stdout.txt",
+      "bytes": 2095,
+      "sha256": "c8eb4b89ae8e247ef45286be6213e82306aab01d08af3535ec1362378bca439d"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cycle2-static.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-cycle2-static.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-docs.stderr.txt",
+      "bytes": 141,
+      "sha256": "c779c63594d173c05733342b56d6de8858b48ad38fd96420d7980e09abf7a584"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-docs.stdout.txt",
+      "bytes": 16600,
+      "sha256": "c7e9e2655b7be3b63b76a58ca00dacfcd44ebf7d8cc3a92409df2881ec7d6741"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-pii.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-pii.stdout.txt",
+      "bytes": 68,
+      "sha256": "f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-static.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/r171-static.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/red-native.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/red-native.stdout.txt",
+      "bytes": 1382,
+      "sha256": "71f9a9840f67ad1926a442f09105ba693edc7b6e95e772b763e8941a3963d764"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/red-store.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/red-store.stdout.txt",
+      "bytes": 192,
+      "sha256": "6e48e36a4cad73ae6f396dd6c9c12cee88f107b7376318b3d1fd3052c0b57717"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/sdk-resolution.stderr.txt",
+      "bytes": 574,
+      "sha256": "e458fd44a6f17a8b68e889a9d77c3b3c609ceaa65a4ff18fc9ccefca89fc0db2"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/sdk-resolution.stdout.txt",
+      "bytes": 77,
+      "sha256": "e2f2689c12d38fecbf3296d328b13d0e086f8b89073828c6266f60baabf7fa1c"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/static-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/static-check.stdout.txt",
+      "bytes": 22,
+      "sha256": "5a7d3af9d597bb884cf6d4a0eec77dd049ce7e4f57825791dc9c0f425d2d9ac5"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-args.stderr.txt",
+      "bytes": 51,
+      "sha256": "28470640796055ae55974040e7551b78b29af55312dfe99d4cda266a1baa1d80"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-args.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-initial.stderr.txt",
+      "bytes": 36,
+      "sha256": "34da0f5d5452f0dfad628b6fd5c45cfdec7afcd7ade47f39faff4e53d58afc67"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-initial.stdout.txt",
+      "bytes": 3772,
+      "sha256": "49126dd382fd6e539fa008174247b6569f6eb16fedc080fafc88925efd6420e7"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-r152-red.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-r152-red.stdout.txt",
+      "bytes": 801,
+      "sha256": "fb2b896a956039bb14e9e3c79ea9085887cd7b02d0121550e6c9af262f7eec15"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-r152-selftest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-r152-selftest.stdout.txt",
+      "bytes": 1396,
+      "sha256": "a34bbf7482fcb60d3ff3549f228cfcde0a893a76a5a7440cf7d95cf0a00917ac"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-r152.stderr.txt",
+      "bytes": 84,
+      "sha256": "3c0a369a9d010dbbef8329354cc5ccbec4c1da8def0c4785d8733256b97f0761"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-r152.stdout.txt",
+      "bytes": 4488,
+      "sha256": "0e4571fc1e5bd26b8de6cad495d770c6cd6a2b6c40e5e8f1a2ad58ae0dacc604"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-red.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-red.stdout.txt",
+      "bytes": 69,
+      "sha256": "5674814dcb365fc93141eb2497cecb5dc3238c2a31b8caeec62f2b04f17b5d71"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-selftest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store-selftest.stdout.txt",
+      "bytes": 795,
+      "sha256": "86dccc152fdde8cec8953dd1a7cc5806463fc6c6e9cd2976b8dbfa1f98f3801d"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store.stderr.txt",
+      "bytes": 36,
+      "sha256": "34da0f5d5452f0dfad628b6fd5c45cfdec7afcd7ade47f39faff4e53d58afc67"
+    },
+    {
+      "path": "docs/proof/win-store-implementation/verify-windows-store.stdout.txt",
+      "bytes": 3770,
+      "sha256": "d305eaa9508cc74457c80209aa400d624311454a52bf86f4aab8d5eb0694a35b"
+    }
+  ]
+}

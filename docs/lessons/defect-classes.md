@@ -2158,6 +2158,11 @@ reviewer vetoed it at the 2/2 repair cap.
 - *Prevent:* Ruling 171 (1): every timeout self-test uses a real child process (not an in-memory stream). It covers an
   already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status: control
   pending the PC repair track; the Mac sweep above is open.
+- *2026-10-09 sibling (non-zero non-failure exit):* a tool contract's non-zero non-failure exit code
+  (`verify-windows-store.py` exit 4 = NOT ASSESSED) met a runner that treats non-zero as failure (`run-verify-gates.py`,
+  `run-readiness.py` `run_entry`); the PR #19 join stopped at step 8 on the Mac. Control: `tools/run-windows-store-gate.py
+  --self-test` (each exit and the timeout, stub child) and `tools/run-readiness.py --self-test` (`ENTRY_RULES` exit map and
+  per-entry timeout). Sweep: a new `tools/verify-*.py` with a non-pass/fail exit needs a join wrapper and an `ENTRY_RULES` row.
 
 **FIXTURE-RESET-WITHOUT-DRAIN · A shared-fixture reset returns before the previous check's background job lands, and the next check captures a baseline that depends on that job.**
 `Elevation_ZoomPanFit_KeyboardAndPointerSameCamera` failed once in `--views --part=1/2` as "⌘0 fits" (load 1.9 to 16).

@@ -1,0 +1,48 @@
+-- all expected
+EXPECTED Probe_A (Ruling 145, historical-probe, until W-2 B2 lands)
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED-FAIL 2 (manifest)
+UNEXPECTED 0
+-- one unexpected
+EXPECTED Probe_A (Ruling 145, historical-probe, until W-2 B2 lands)
+UNEXPECTED Other_D: not in the manifest
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 1
+-- name match, wrong fragment
+UNEXPECTED Store_B: listed, but the failure text lacks the fragment 'DOC-UNSUPPORTED-PERSISTENCE' (Ruling 154)
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- listed test passing
+EXPECTED Probe_A (Ruling 145, historical-probe, until W-2 B2 lands)
+UNEXPECTED-PASS Store_B passed but Ruling 154 lists it: delete the entry from tests/expected-failures.windows.json
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 1
+-- fragment on a continuation line, harness aborts
+EXPECTED Cli_C (Ruling 154, fail-closed-store, until W-2 B2 lands; aborts its harness, later checks unassessed)
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 0
+-- abort under an entry that does not say it aborts
+UNEXPECTED Store_B: aborts its harness, and the entry does not say so
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- standalone crash
+UNEXPECTED <abort>: not in the manifest
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- exit status with no FAIL line
+UNEXPECTED harness exit 1 with no FAIL line the manifest explains
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- not Windows: a listed failure stays a failure
+UNEXPECTED Probe_A: manifest has no effect on this host
+UNEXPECTED Store_B: manifest has no effect on this host
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 2
+-- not Windows: a listed pass is fine
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 0
+EXPECTED-FAILURES self-test ok: 10 cases, manifest 32 entries
+MANIFEST_CHECK_EXIT=0
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 0
+CAPTURE_MANIFEST_CHECK_EXIT=0

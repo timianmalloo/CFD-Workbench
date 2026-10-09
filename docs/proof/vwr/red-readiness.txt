@@ -1,0 +1,4 @@
+run-readiness: FAIL    0.2 s  python3 tools/verify-windows-store.py
+run-readiness: total 0.4 s (budget 240 s) load 4.36 -> 4.41
+run-readiness: RED for e6ef9b3cc (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmptktgz0ou/.tmp/r.json)
+OLD run_ring exit with verifier exit 4: 1 (expected 0 for NOT ASSESSED)

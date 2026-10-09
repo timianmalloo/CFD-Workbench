@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:27:55Z",
+  "generated": "2026-10-09T02:39:00Z",
   "audit": [
     {
       "actor": null,
@@ -31950,6 +31950,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T02:26:56Z",
       "duration_seconds": 59.0
+    },
+    {
+      "id": "al-01M4F8EE3YE38W41Y03DT3FBVZ",
+      "shortname": "vwr-verifier-wiring",
+      "datetime": "2026-10-09T02:39:00Z",
+      "session": "trk-vwr",
+      "prompt": "trk-vwr",
+      "summary": "Merged PR19; added tools/run-windows-store-gate.py, join skip lists and step, ENTRY_RULES exit map and per-entry timeout in run-readiness; lesson line",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Wire the Windows store verifier into joins and readiness without failing the Mac",
+      "done_when": "Join step-8 and wrapper exit 0 on Mac; readiness maps exit 4 to NOT ASSESSED; self-tests green"
     }
   ],
   "changes": [
@@ -34427,6 +34445,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4F6TJPQ7PJSM2ZD9MWBYJSE",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F80WSDNVC90KECDC5HY3JS",
+      "ts": "2026-10-09T02:31:37Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F80WS8BFYG6NZNMJEGRNH8",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F80WWE9GVA8AMP11FEEX2T",
+      "ts": "2026-10-09T02:31:37Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F80WS8BFYG6NZNMJEGRNH8",
       "session": "fable-owner"
     }
   ]

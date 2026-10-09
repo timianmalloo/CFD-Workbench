@@ -1,0 +1,1 @@
+FAIL usage: verify-windows-store.py [--self-test]
