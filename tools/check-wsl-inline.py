@@ -9,12 +9,16 @@ wsl token may sit up to two lines above the bash token, which covers a wrapped P
 Known limit: `bash` and its `-c` flag must share a line.
 Pinned historical proof files go in ALLOWLIST (key: file + stripped line, one reason each); a stale entry also exits 1,
 so the list only shrinks. `--self-test` plants every shape. Fast ring, no process spawn beyond `git ls-files`.
+It reads tracked plus untracked, non-ignored files (GATE-BEFORE-ADD).
 """
 
 import re
 import subprocess
 import sys
 from pathlib import Path
+import tempfile
+
+from gate_files import worktree_files
 
 for _stream in (sys.stdout, sys.stderr):
     if hasattr(_stream, "reconfigure"):
@@ -64,10 +68,8 @@ def findings(name, text):
 
 
 def scan(root):
-    listed = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, text=True, encoding="utf-8",
-                            check=True, timeout=60).stdout.split("\0")
     results = []
-    for relative in sorted(listed):
+    for relative in worktree_files(root):
         if not relative.endswith(SUFFIXES) or relative == SELF:
             continue
         path = root / relative
@@ -115,6 +117,10 @@ def self_test():
     assert len(problems(results, {})) == 1
     assert problems(results, {("p.ps1", results[0][2]): "pinned proof of Ruling 0; historical"}) == []
     assert len(problems([], {("p.ps1", "gone"): "r"})) == 1
+    with tempfile.TemporaryDirectory() as tmp:  # GATE-BEFORE-ADD: a new file not yet `git add`ed
+        subprocess.run(["git", "init", "-q"], cwd=tmp, check=True)
+        Path(tmp, "new.ps1").write_text("wsl.exe -d x -- bash -lc 'echo hi'\n", encoding="utf-8", newline="\n")
+        assert [hit[0] for hit in scan(Path(tmp))] == ["new.ps1"], "untracked offender file not seen"
     print("check-wsl-inline self-test OK", flush=True)
 
 

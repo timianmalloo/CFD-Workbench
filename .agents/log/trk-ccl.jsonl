@@ -1,0 +1,2 @@
+{"agent": "trk-ccl", "at": 1791573607.789987, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-ccl", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-ccl-cost-concurrency"}
+{"agent": "trk-ccl", "at": 1791574482.1872158, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-ccl", "wi": "WI-0", "worktree": "CFD-Workbench-fix-ccl-cost-concurrency"}

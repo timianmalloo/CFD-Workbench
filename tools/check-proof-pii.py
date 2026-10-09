@@ -12,7 +12,7 @@ Fails any tracked text file that carries
     Write <host>, <machine> or %COMPUTERNAME% instead. Hits print the name masked (first two characters).
 The macOS home (/Users/<name> with no drive prefix) is out of scope and never fires.
 
-Ring: fast (every push), run from tools/check-docs.py. Cost: one pass over `git ls-files`
+Ring: fast (every push), run from tools/check-docs.py. Reads tracked plus untracked, non-ignored files (GATE-BEFORE-ADD). Cost: one pass over `git ls-files`
 (measured and recorded in docs/proof/pii/red-first.md). Git history is not rewritten
 (operator decision, Ruling 145 (5)); the guard covers the current tree only.
 
@@ -24,7 +24,10 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
+
+from gate_files import worktree_files
 
 # A drive-letter or /mnt/<x> prefix is what separates a Windows home from the macOS one.
 WIN_USER = re.compile(
@@ -123,12 +126,9 @@ def scan_text(text: str, literals: list[str] | None = None) -> list[str]:
 
 
 def scan_tree(root: Path) -> dict[str, list[str]]:
-    out = subprocess.run(
-        ["git", "-C", str(root), "ls-files", "-z"], capture_output=True, check=True
-    ).stdout.decode("utf-8", "surrogateescape")
     found: dict[str, list[str]] = {}
     literals = env_hostnames()
-    for rel in filter(None, out.split("\0")):
+    for rel in worktree_files(root):
         p = root / rel
         try:
             data = p.read_bytes()
@@ -215,6 +215,13 @@ def self_test() -> int:
     for label, text in clean.items():
         if scan_text(text, host_literals):
             print(f"SELF-TEST FAIL: clean text flagged: {label}: {scan_text(text, host_literals)}")
+            bad += 1
+    with tempfile.TemporaryDirectory() as tmp:  # GATE-BEFORE-ADD: a new file not yet `git add`ed
+        repo = Path(tmp)
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        (repo / "new.md").write_text(offenders["backslash"], encoding="utf-8", newline="\n")
+        if "new.md" not in scan_tree(repo):
+            print("SELF-TEST FAIL: untracked offender file not seen")
             bad += 1
     if not bad:
         print(f"PROOF-PII self-test ok: {len(offenders)} offenders caught, {len(clean)} clean passed")

@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "6ba4292346f57e5c90b5cb840b72a93f9c57723949b92af786641dc13c32b132"
+      "sourceSha256": "32cd6b9dea1059d6025a78c1c2a310ec67bcc316233134db680af1b813997494"
     },
     {
       "id": "domain-experts",
@@ -8233,7 +8233,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b4ab6f6985dc58cff4eaccbc8aa8f65508ad15f26ebb806ad7d6bdbbf66f9f33"
+      "sourceSha256": "16fd19ccf6aff9991f4908a2870d8acaf1d8f94d607159a4eafabe03433fee42"
     },
     {
       "id": "kb-hw-glossary",
@@ -12494,6 +12494,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "275906401b6f491fd4d3ee7e4f24e3e633aff893087a32f948b8d8a27169ee15"
     },
     {
+      "id": "proof-ccl-receipt",
+      "path": "docs/proof/ccl/receipt.md",
+      "title": "CCL receipt: cost caps under a concurrent ring",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@trk-ccl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "End load lags; a ring that overlapped another reports C-2..C-5 as COST-ADVISORY naming the holder, a quiet ring still fails.",
+      "tags": [
+        "test-ring",
+        "cost-caps",
+        "ring-lock",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7fee575971400a5c57282d2740357239b227452408469b1d9778003b299d4165"
+    },
+    {
       "id": "proof-copyfix-red-runs",
       "path": "docs/proof/copyfix-red-runs.md",
       "title": "COPYFIX red-first runs — M1.2a copy decisions, two missing states, atomic Remove from Recent",
@@ -13240,6 +13266,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
+    },
+    {
+      "id": "proof-gba-red-first",
+      "path": "docs/proof/gba/red-first.md",
+      "title": "GBA red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-gba",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Sweep of git-listing gates and red/green runs showing the PII, WSL and notices gates now read new unstaged files.",
+      "tags": [
+        "gba",
+        "gate-before-add",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0dffc55bc2a5a901180c79b27dad57633df66a3631ba820f49013a775efd3769"
     },
     {
       "id": "proof-grp-desktop-red-first",
@@ -15006,6 +15057,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "1091b7b26723dcc8bff4333d97ae910bc257d9899887ee3f0782a223a4fe55e5"
+    },
+    {
+      "id": "proof-rlk-red-first",
+      "path": "docs/proof/rlk/red-first.md",
+      "title": "RLK red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rlk",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Readiness takes every ring slot for its whole run: red run with a fake ring (timed step started at once), green run (waits, track ring waits, BLOCKED exit 4 past the bound).",
+      "tags": [
+        "rlk",
+        "readiness",
+        "ring-lock",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bf9afdc21d13437683b7f5df2df2db12c098cef87e6cc411b67c62745f5e500b"
     },
     {
       "id": "proof-round-oct05-heredoc-hook-proposal",
@@ -19058,5 +19135,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "0c0f21d395c17e8c11ac48d5bc6cf4745e475c5bb1cef53b4cf0eb97d683ff2f"
+  "graphSha256": "640033fe03533166cfef8a3187dec9c8e4476b37f44629c4fa7f2894b096e268"
 };

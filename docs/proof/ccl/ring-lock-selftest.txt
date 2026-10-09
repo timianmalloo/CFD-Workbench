@@ -1,0 +1,18 @@
+SELFTEST PASS free slot is taken at once
+SELFTEST PASS two live holders block a third, then RING-LOCK-TIMEOUT
+SELFTEST PASS a timed-out ring leaves both holders' slots alone
+SELFTEST PASS a dead holder's slot is reclaimed and the wait is printed
+SELFTEST PASS a dead-PID slot is reclaimed at once
+SELFTEST PASS an old slot with no pid file is reclaimed
+SELFTEST PASS release removes the owned slot
+SELFTEST PASS exclusive acquire names the holder, waits for it, then takes every slot
+SELFTEST PASS every slot is owned by the exclusive owner
+SELFTEST PASS a track ring waits while readiness holds the lock
+SELFTEST PASS release-all frees every slot and the marker
+SELFTEST PASS a free slot is not taken while an exclusive request is pending
+SELFTEST PASS a dead owner's exclusive marker is ignored
+SELFTEST PASS exclusive timeout exits 5 and names the holder
+SELFTEST PASS a timed-out exclusive request keeps nothing and leaves the holder alone
+SELFTEST PASS peers names the other live holder and not the caller
+SELFTEST PASS peers ignores a dead holder (a ring that ran alone has none)
+SELFTEST 17/17 cases
