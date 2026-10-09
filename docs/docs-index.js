@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "419f0d39739f4a4fa637c8b6389b7c9ecb7463aa07786789865b3ad9712a8a02"
+      "sourceSha256": "99766e877d31c2d906c722988f892e7cc0f604d7938668fab1f83cec33033ffd"
     },
     {
       "id": "domain-experts",
@@ -14204,6 +14204,213 @@ window.DOCS_INDEX = {
       "sourceSha256": "2e8260c229bf0471a5a7ab899f7baf53c3c8b57d426fb681ba86c50be826822d"
     },
     {
+      "id": "proof-ring-windows-calibration-attempt-1",
+      "path": "docs/proof/ring-windows/receipt.md",
+      "title": "Ruling 168 Windows baseline calibration attempt 1 (excluded)",
+      "type": "proof-pack",
+      "status": "incomplete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "One complete Windows ring on 1146ec8e ran with six-CPU affinity while L3 used six WSL ranks. It exceeded Ruling 168's 300 s ceiling and used the default host name, so it is preserved as evidence only and contributes no baseline row.",
+      "tags": [
+        "windows",
+        "ruling-168",
+        "ruling-166",
+        "ruling-156",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-r163-windows-ring",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "165ec223dab6b1bffc3e22396275211b9e09df66562c46ccf5d42fe664f139a9"
+    },
+    {
+      "id": "proof-ring-windows-calibration-run-1",
+      "path": "docs/proof/ring-windows/calibration/run-1/receipt.md",
+      "title": "Ruling 168 Windows calibration run 1 (incomplete)",
+      "type": "proof-pack",
+      "status": "incomplete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The first host-keyed Windows calibration attempt was terminated at the 300 s deadline while Desktop remained at STAGE spawn. It is incomplete evidence only. The requested held-reader PASS appeared in Core.part3of3 rather than Core.part2of3, and Core.part3of3 also recorded NativeFailure Win32 32 for WindowsNative_Replace_HeldReaderKeepsOldImage.",
+      "tags": [
+        "windows",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-calibration-attempt-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "51c0b1da8124b454fda7299822b91a3affb5c1745d625bfb991e7e31c5bc7701"
+    },
+    {
+      "id": "proof-ring-windows-r170-run-1",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/receipt.md",
+      "title": "Ruling 170 Windows calibration run 1 (complete)",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The first Ruling 170 ring completed within the 900 s total capture envelope on the current merged main head. It used CFD_RING_HOST=pc-win, six-CPU affinity and the reported six-rank L3 workload. The ring exited 1 on classified Windows test failures; the completed measurement qualifies as calibration row 1, pending the three-run series.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-calibration-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "407b1ad107b4d9a3ac61a7fcf509b5b5b5b7fe28a54c8ab70a88812cadf46f76"
+    },
+    {
+      "id": "proof-ring-windows-r170-run-2",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/receipt.md",
+      "title": "Ruling 170 Windows calibration run 2 (complete)",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The second Ruling 170 ring completed within the 900 s total capture envelope on tested HEAD b12d76da. It used CFD_RING_HOST=pc-win, six-CPU affinity and the reported six-rank L3 workload. It exited 1 after classified Windows test failures and qualifies as calibration row 2, pending the three-run series.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-r170-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-calibration-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "aa8ab9f8a4c4d854e73bc852d99fd7c6f99b66483b9bf230f1390f2122dd2243"
+    },
+    {
+      "id": "proof-ring-windows-r170-run-3",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/receipt.md",
+      "title": "Ruling 170 Windows calibration run 3 (complete)",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The third Ruling 170 ring completed within the 900 s total capture envelope on tested HEAD c8e254f7. It used CFD_RING_HOST=pc-win, six-CPU affinity and the reported six-rank L3 workload. It exited 1 after classified Windows test failures and qualifies as calibration row 3, completing the three-run measurement series.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-r170-run-2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-calibration-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "221ec2580d6ec090e5d62a05e04713b1bdfdd083c91af3f6c7fc6a32e1e33500"
+    },
+    {
+      "id": "proof-ring-windows-r170-series",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/series-receipt.md",
+      "title": "Ruling 170 Windows three-ring calibration evidence",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Three serial Windows rings completed under Ruling 170 with host key pc-win, six-CPU affinity and the reported six-rank L3 workload. Their measurements are preserved in calibration-rows.csv and individual receipt/capture directories. This is evidence for the Mac-owned baseline file and gate decision; it does not create either.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "calibration",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-r170-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-r170-run-2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-r170-run-3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-calibration-attempt-1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1091b7b26723dcc8bff4333d97ae910bc257d9899887ee3f0782a223a4fe55e5"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -17967,5 +18174,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "adc3516fb2601722d49f1d830158e9aea9ad156f958cb7d2c48e1194e4d4e0c3"
+  "graphSha256": "3e98658f69eee4db5b0d2f6bdadc8c836be6b51a9861a8ddd5584c52df6a2168"
 };
