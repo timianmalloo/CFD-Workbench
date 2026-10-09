@@ -10,7 +10,7 @@ Arch   : "LSB;label=32;scalar=64"
 Exec   : /usr/lib/openfoam/openfoam2512/platforms/linux64GccDPInt32Opt/bin/icoFoam -case /root/CFDWorkbench/runs/20261007T220227Z-win-smoke-cavity
 Date   : Oct 07 2026
 Time   : 15:02:32
-Host   : extreme1
+Host   : <host>
 PID    : 937
 I/O    : uncollated
 Case   : /root/CFDWorkbench/runs/20261007T220227Z-win-smoke-cavity

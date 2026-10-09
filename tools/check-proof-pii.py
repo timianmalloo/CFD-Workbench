@@ -67,7 +67,9 @@ for _stream in (sys.stdout, sys.stderr):
 
 SAFE_NAMES = {"public", "default", "all users", "default user"}
 # Hostname placeholders; wsl.localhost is the WSL UNC root, not a machine.
-SAFE_HOSTS = {"localhost", ".", "?", "wsl.localhost"}
+# mac is the label the spike-03/04 scrub wrote into the OpenFOAM banner; server is a generic UNC word in a test string
+# (tools/spikes/WindowsRuntime/Program.cs). Leader ruling 2026-10-09; neither is a machine name.
+SAFE_HOSTS = {"localhost", ".", "?", "wsl.localhost", "mac", "server"}
 
 # Shrink-only: path -> reason. Remove an entry when its file is scrubbed; never add one
 # without an operator-visible reason.
@@ -169,6 +171,8 @@ def host_fixtures() -> tuple[dict[str, str], dict[str, str], list[str]]:
         "machinename placeholders": f'"{mn}": "<machine>" and "{mn}": "."',
         "host name placeholder": f"{hn}: <host>",
         "foam banner placeholder": "Host   : <host>\nHost   : localhost",
+        "foam banner mac label": "Host   : Mac",
+        "unc server word": f'"{jbs}{jbs}server{jbs}share{jbs}target.bin"',
         "prose host": "Host : is described here; the Host key is pc-win",
         "lowercase win": "worktree win-abcdefghijk-fix",
         "wsl root": f"{jbs}wsl.localhost{bs}Ubuntu{bs}home",

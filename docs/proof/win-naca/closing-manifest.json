@@ -304,23 +304,23 @@
     },
     {
       "path": "docs/proof/win-naca/l6-results/log.checkMesh",
-      "bytes": 3899,
-      "sha256": "f9c42954009876ccc2c716c0988865bc34989942e5df73a4501b8c16d4a9d06f"
+      "bytes": 3897,
+      "sha256": "31a51341808be87f972255132dfa92b15ee2b6ebd97f375d64f130a77077de5c"
     },
     {
       "path": "docs/proof/win-naca/l6-results/log.decomposePar",
-      "bytes": 2773,
-      "sha256": "9c478f1738486d072ba26d5e67cbadb587eca82a9b2c71151a72d096e592571a"
+      "bytes": 2771,
+      "sha256": "b41525aef66788066f3e3f01036b841f1c0ee85a6bb45d4adeab05f9e4d7980d"
     },
     {
       "path": "docs/proof/win-naca/l6-results/log.reconstructPar",
-      "bytes": 1949,
-      "sha256": "22c58765d1144599b6f4ad3e971260c52ff1b275f277fa3c7846974607341bbe"
+      "bytes": 1947,
+      "sha256": "0675936e0ac32b1b7445130f577db3fe7036df0d670c08c2b71b59496a23e2d5"
     },
     {
       "path": "docs/proof/win-naca/l6-results/log.simpleFoam",
-      "bytes": 4971229,
-      "sha256": "c14468a3a43497ff347d927f963d70aabcd8ddbcb5429fa463efb7d92d0ab63b"
+      "bytes": 4971225,
+      "sha256": "5d4e23b332b152fdf6b6fb0cb9043669bdf25a24580f3f11a25a97cd1a4ce413"
     },
     {
       "path": "docs/proof/win-naca/l6-results/postProcessing/forceCoeffs1/0/coefficient.dat",

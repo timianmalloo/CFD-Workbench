@@ -1440,7 +1440,7 @@ Fable owner 2026-10-09 under Ruling 106, on PR #18 (APPROVE WITH CONDITIONS, rev
 
 ### Ruling 174 — Scrub the PC hostname from PR #18 before merge; investigate the Windows 23.3 px target as a defect
 
-Operator 2026-10-09 (AskUserQuestion, session 3122f106), as recommended. (1) The PC replaces the raw hostname 'extreme1' with the pc-win key in PR #18's files and re-records the capture manifest before merge; the PR is unmerged, so no history on main is rewritten. (2) The Windows 23.3 px PropertiesPane targets are treated as a real defect against the 24 px design floor (WCAG 2.2 target size): one investigate track covers the eight Windows-only rendering and platform assertions, and a fix follows if the cause is real.
+Operator 2026-10-09 (AskUserQuestion, session 3122f106), as recommended. (1) The PC replaces the raw hostname '<host>' with the pc-win key in PR #18's files and re-records the capture manifest before merge; the PR is unmerged, so no history on main is rewritten. (2) The Windows 23.3 px PropertiesPane targets are treated as a real defect against the 24 px design floor (WCAG 2.2 target size): one investigate track covers the eight Windows-only rendering and platform assertions, and a fix follows if the cause is real.
 
 - request: req-01M4F5781Y9YSXYBQXDWRTTY9F · ruled by: operator-timianmalloo · at: 2026-10-09T01:42:39Z
 
