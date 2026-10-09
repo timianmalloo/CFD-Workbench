@@ -67,7 +67,7 @@ the source guard and hashes bind the bytes before and after execution.
 | Verifier timing | runner child 20,601 ms; verifier total 19.858595 s; shared wrapper envelope 25,740 ms |
 | Verifier result | 12 required PASS names; the one Ruling 145 historical held-reader failure; `TEST_EXIT=1`; `EXPECTED-FAIL 1`; `UNEXPECTED 0`; `CLASSIFIER_EXIT=0`; qualification PASS |
 | Build-server residual sample | after shutdown; exit 0; PHN PASS; complete in 367 ms; 0 matching processes; 0 unreadable candidates |
-| PHN | PASS; one substitution binding; no raw home, SID, or hostname in committed derivatives |
+| PHN | PASS; zero substitutions. The empty substitution collection serialized as null; committed stream hashes equal the recorded raw hashes |
 | Protected source | before/after fingerprint `6cdde66c5494b6d222b52ceaf2ebb89ec6c8fbc46e42c1c56b18c89b10ac2be3`; unchanged true |
 
 `capture-r181.ps1` creates an append-only launch marker atomically with exclusive
@@ -102,5 +102,15 @@ Windows x64 with the absolute Python executable selected for the run:
 The wrapper exited **0** and emitted `R181 CAPTURE result=PASS ... launch_count=1`.
 The display scale was not changed and the Windows Settings preflight was not run.
 `verifier.stdout.txt` and `verifier.stderr.txt` are PHN-checked derivatives; their
-metadata retains the raw stream SHA-256 values. `residuals.json` is the safe,
+metadata retains the raw stream SHA-256 values. The empty substitution collection's
+null serialization is a PowerShell metadata limitation; null alone does not prove an
+empty collection. Independent hostname-aware PHN passed, and the committed stdout and
+stderr hashes exactly equal raw SHA-256 values `1ed01a5611eb835b9cf8d71f07c3b6ed0ef7519767440598dd65a49f752ecceb`
+and `2a838d3f9b165a929b9882825b755963ff74926864f40bb1209cff845c3c6da1`.
+`residuals.json` is the safe,
 structured system snapshot. The original R175 blocked receipt remains unchanged.
+
+The capture files retain their observed CRLF bytes under local `-text` attributes.
+The packaging whitespace check is therefore CR-aware:
+`git -c core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol diff --check origin/main...HEAD`.
+It exits 0 without rewriting an evidence byte.
