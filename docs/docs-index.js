@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d9444ca7a2a8d781fea7b2c519fbf3659bd75866e9caafa0f10c6174765edd04"
+      "sourceSha256": "df008b84ae53db74fb3714f3437f68094d2a2d9799df65b1c337d3844fb11c38"
     },
     {
       "id": "domain-experts",
@@ -15785,6 +15785,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "b51e4778efb9757d2bc6fa930ece2bab3f46b2690c9bbe68b75a42280e7c0ab4"
     },
     {
+      "id": "proof-v3d-red-first",
+      "path": "docs/proof/v3d/red-first.md",
+      "title": "Track V3D red-first record (DPI-A item 5)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-v3d",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Item 5 repaired: the View3d chip top border is sampled from a device-resolution shot with DevicePixel.NearestAtDevice.",
+      "tags": [
+        "dpi-a",
+        "v3d",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-dpr-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "115a7236c89a9c9f3e191189307da771c630bc110d8b4f8ad217354fcfc53abe"
+    },
+    {
       "id": "proof-visible-presentation",
       "path": "docs/proof/visible-presentation.md",
       "title": "Visible presentation feasibility proof packet",
@@ -18553,5 +18578,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "060d53d974a18696f136209f004dee82d5223a174542083a40b2230db97404bf"
+  "graphSha256": "9635a261e6c5904f526b00a2d04786abb148e12370739802a1ec7490dcb7160d"
 };

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:48:51Z",
+  "generated": "2026-10-09T03:55:57Z",
   "audit": [
     {
       "actor": null,
@@ -32442,6 +32442,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T03:47:51Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M4FCV9YAXPE25W8G1EHWPP05",
+      "shortname": "v3d-chip-sampler",
+      "datetime": "2026-10-09T03:55:56Z",
+      "session": "trk-v3d",
+      "prompt": "trk-v3d",
+      "summary": "View3d fixture takes a device-resolution Shot; chip top border read with DevicePixel.NearestAtDevice; pure check on the Windows block",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Repair DPI-A item 5: View3d chip border sampled at device resolution",
+      "done_when": "red-first record, run-tests green, check-docs 0",
+      "started_at": "2026-10-09T03:52:21Z",
+      "duration_seconds": 215.0
     }
   ],
   "changes": [
