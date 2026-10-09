@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b92f0544ca7ea58ed05a9e22f4608625d06bfb410aed4ccca8a032e37513c3cd"
+      "sourceSha256": "63e14d07163c93520e029d3f2e1fb325cd3ae39ac67af50761fb1bc9b4cba672"
     },
     {
       "id": "domain-experts",
@@ -13964,6 +13964,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "afad609f4900a83866f51c3e7398bd81df8d594b4fed9c56dbde9fe2f420fab6"
     },
     {
+      "id": "proof-rcd-red-first",
+      "path": "docs/proof/rcd/red-first.md",
+      "title": "RCD readiness runs check-docs, red-first run",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-rcd",
+      "phase": "implementation",
+      "reviewBy": "2026-10-27",
+      "reviewSuggested": [],
+      "summary": "Readiness stayed GREEN with a mismatched capture manifest on main 034f37fd; with check-docs as its first step it is RED.",
+      "tags": [
+        "readiness",
+        "check-docs",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ea6d696e6bd33dda3106ed4cc0e70e72d9dd63d095da9da41088907114988151"
+    },
+    {
       "id": "proof-rdh-readiness",
       "path": "docs/proof/rdh/readiness.md",
       "title": "RDH: readiness headroom and the join's duplicate cost check",
@@ -18416,5 +18441,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5adbe2292671915228a9f63faef74d690c5cd159d7440c3cc723331505ff1b4d"
+  "graphSha256": "601a5e2c0b5b073e68891aba756b6533964ae5a7bc0afe6697a0f0868b2b0f6b"
 };
