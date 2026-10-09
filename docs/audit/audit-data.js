@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T16:39:09Z",
+  "generated": "2026-10-09T16:40:49Z",
   "audit": [
     {
       "actor": null,
@@ -32912,6 +32912,35 @@ window.AUDIT_DATA = {
       "done_when": "fixtures green, MSP and CRD replays",
       "started_at": "2026-10-09T16:35:56Z",
       "duration_seconds": 193.0
+    },
+    {
+      "id": "al-01M4GRKVEBKT236SKGF03FW9ZR",
+      "shortname": "join-rg5",
+      "datetime": "2026-10-09T16:40:49Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/rg5-entry-order into main",
+      "summary": "Joined RG5: new register entries keep their position; MSP replay keeps REGISTER-CLASS-MISMATCH in place; CRD then merges without a hand edit recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/reg/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "register merges conserve order as well as content",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T16:39:50Z",
+      "duration_seconds": 59.0
     }
   ],
   "changes": [
