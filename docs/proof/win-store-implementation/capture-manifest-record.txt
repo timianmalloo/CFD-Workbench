@@ -1,1 +1,1 @@
-CAPTURE-MANIFEST recorded=59
+CAPTURE-MANIFEST recorded=67

@@ -356,10 +356,37 @@ bound inside the five-second hard-ceiling reserve.
   worker finished. The real-pipe regression and all existing verifier contract
   self-tests passed. Captures: `r171-cleanup-green.stdout.txt` and
   `r171-cleanup-green.stderr.txt`.
-- Final verifier script SHA-256: `7319b2f138b397056a1691496b340a852881d08f930df93c581ab83eb97d9112`.
+- Final verifier script SHA-256 for the Ruling 171 cleanup pass: `7319b2f138b397056a1691496b340a852881d08f930df93c581ab83eb97d9112`.
 - The production cleanup uses bounded waits under one absolute cleanup deadline.
   Stream close runs on a daemon cleanup worker so it cannot block the ceiling
   thread. A pending close or unverified descendant is reported as
   `TREE_CLEANUP_FAILED`; it is never counted as successful cleanup.
 - No native qualification rerun or full test ring was run. The existing 13-test
   selector and Ruling 145 classification code were left unchanged.
+
+### Ruling 171 cycle 2 — whole-invocation timing
+
+The first R171 commit returned from `--self-test`, invalid-argument, and
+NOT-ASSESSED paths before its Windows-only timing `finally` block. The repair
+moves all dispatches behind one outer timing boundary. `PROCESS_STARTED` is
+captured immediately after importing `time`, before the remaining module imports;
+the wrapper always prints exactly one `TOTAL_WALL_SECONDS=<seconds>` line and
+returns the intended 0, 1, or 4 result while under 60 seconds. It returns 1 when
+elapsed time exceeds the hard ceiling, including when the dispatched path would
+otherwise return 0 or 4. Exceptions and `SystemExit` are converted to an exit
+code and still pass through the same finalizer.
+
+- Exact command: `py -3 tools\verify-windows-store.py --self-test`.
+- Final process total: `2.312432` seconds from module-start clock; exactly one
+  `TOTAL_WALL_SECONDS=2.312432` line was emitted. The real-pipe taskkill-failure
+  cleanup took `1.055106` seconds after its expired work deadline. The full
+  self-test exited 0, including 0/1/4 early-result preservation, exception and
+  `SystemExit` paths, synthetic over-60-second rejection, actual invalid-argument
+  and off-Windows wrapper checks, and the R171 real-pipe regression. Captures:
+  `r171-cycle2-selftest.stdout.txt` and `r171-cycle2-selftest.stderr.txt`.
+- `py -3 -m py_compile tools\verify-windows-store.py` passed. The final
+  `py -3 tools\check-docs.py` run passed under six-CPU affinity; proof PII scan
+  found 0 Windows home paths or machine SIDs. Capture integrity and staged diff
+  checks are recorded separately in the proof outputs and manifest.
+- Final script SHA-256: `92151a8f72c602180c407240e6e10c28acdfff2dea8bb0acd988deda617205ee`.
+- No no-argument native qualification run or full ring was performed.

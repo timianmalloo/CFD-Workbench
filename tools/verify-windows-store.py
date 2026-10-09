@@ -483,14 +483,103 @@ def exercise_off_windows_contract() -> bool:
     captured = io.StringIO()
     with patch.object(os, "name", "posix"), redirect_stdout(captured):
         result = main([])
-    return result == 4 and "NOT ASSESSED" in captured.getvalue()
+    return (
+        result == 4
+        and "NOT ASSESSED" in captured.getvalue()
+        and len(re.findall(r"(?m)^TOTAL_WALL_SECONDS=\d+\.\d{6}$", captured.getvalue())) == 1
+    )
 
 
 def exercise_argument_rejection() -> bool:
     captured = io.StringIO()
-    with redirect_stderr(captured):
+    total = io.StringIO()
+    with redirect_stderr(captured), redirect_stdout(total):
         result = main(["--unexpected"])
-    return result == 1 and "FAIL usage:" in captured.getvalue()
+    return (
+        result == 1
+        and "FAIL usage:" in captured.getvalue()
+        and len(re.findall(r"(?m)^TOTAL_WALL_SECONDS=\d+\.\d{6}$", total.getvalue())) == 1
+    )
+
+
+def finalize_invocation(exit_code: int, elapsed: float) -> int:
+    print(f"TOTAL_WALL_SECONDS={elapsed:.6f}", flush=True)
+    if elapsed > MAX_SECONDS:
+        print("FAIL hard 60-second verifier ceiling exceeded", file=sys.stderr)
+        return 1
+    return exit_code
+
+
+def timed_entry(argv: list[str] | None, dispatch, started: float, clock) -> int:
+    try:
+        exit_code = dispatch(argv)
+    except SystemExit as error:
+        if error.code is None:
+            exit_code = 0
+        elif isinstance(error.code, int):
+            exit_code = error.code
+        else:
+            print(f"FAIL verifier exited with: {redact(str(error.code))}", file=sys.stderr)
+            exit_code = 1
+    except KeyboardInterrupt:
+        print("FAIL verifier interrupted", file=sys.stderr)
+        exit_code = 130
+    except Exception as error:
+        print(f"FAIL verifier error: {redact(str(error))}", file=sys.stderr)
+        exit_code = 1
+    return finalize_invocation(exit_code, clock() - started)
+
+
+def exercise_total_wall_contract() -> bool:
+    for intended_exit in (0, 1, 4):
+        output = io.StringIO()
+        errors = io.StringIO()
+        with redirect_stdout(output), redirect_stderr(errors):
+            observed = timed_entry(
+                ["early-path"], lambda _: intended_exit, 10.0, lambda: 10.25,
+            )
+        if observed != intended_exit or output.getvalue().count("TOTAL_WALL_SECONDS=0.250000") != 1:
+            return False
+        if errors.getvalue():
+            return False
+
+    output = io.StringIO()
+    errors = io.StringIO()
+    with redirect_stdout(output), redirect_stderr(errors):
+        over_budget = timed_entry(["early-path"], lambda _: 4, 10.0, lambda: 70.000001)
+    if over_budget != 1 or output.getvalue().count("TOTAL_WALL_SECONDS=60.000001") != 1:
+        return False
+    if "hard 60-second verifier ceiling exceeded" not in errors.getvalue():
+        return False
+
+    output = io.StringIO()
+    errors = io.StringIO()
+
+    def raises(_: list[str] | None) -> int:
+        raise RuntimeError("injected dispatch error")
+
+    with redirect_stdout(output), redirect_stderr(errors):
+        error_exit = timed_entry(["error-path"], raises, 1.0, lambda: 1.5)
+    if not (
+        error_exit == 1
+        and output.getvalue().count("TOTAL_WALL_SECONDS=0.500000") == 1
+        and "injected dispatch error" in errors.getvalue()
+    ):
+        return False
+
+    output = io.StringIO()
+    errors = io.StringIO()
+
+    def exits(_: list[str] | None) -> int:
+        raise SystemExit(4)
+
+    with redirect_stdout(output), redirect_stderr(errors):
+        exit_exception = timed_entry(["exit-path"], exits, 2.0, lambda: 2.5)
+    return (
+        exit_exception == 4
+        and output.getvalue().count("TOTAL_WALL_SECONDS=0.500000") == 1
+        and not errors.getvalue()
+    )
 
 
 def validate_output(stdout: str, exit_code: int, classification: str, classifier_exit: int) -> list[str]:
@@ -592,6 +681,7 @@ def self_test() -> int:
         ("missing inventory registration rejected", bool(registration_problems(sorted(EXPECTED_REGISTERED)[1:]))),
         ("unscoped inventory addition rejected", inventory_rejects_unscoped()),
         ("real Windows pipe timeout cleanup bounded after taskkill failure", pipe_cleanup_ok),
+        ("all exit paths report total wall and enforce the hard ceiling", exercise_total_wall_contract()),
         ("off-Windows execution is NOT ASSESSED", exercise_off_windows_contract()),
         ("Windows subject failure exits 1", exit_for_result(True, False) == 1),
         ("no-argument mode is default", cli_mode([]) == "run"),
@@ -618,7 +708,7 @@ def self_test() -> int:
     return 0
 
 
-def main(argv: list[str] | None = None) -> int:
+def _dispatch(argv: list[str] | None = None) -> int:
     started = PROCESS_STARTED
     mode = cli_mode(sys.argv[1:] if argv is None else argv)
     if mode == "self-test":
@@ -739,12 +829,12 @@ def main(argv: list[str] | None = None) -> int:
     finally:
         print(f"END_UTC={utc_now()}")
         duration = time.monotonic() - started
-        print(f"DURATION_SECONDS={duration:.6f}")
         print(f"TARGET_SECONDS={TARGET_SECONDS:.0f}")
         print(f"TARGET_MET={'true' if duration < TARGET_SECONDS else 'false'}")
-        if duration > MAX_SECONDS:
-            print("FAIL hard 60-second verifier ceiling exceeded", file=sys.stderr)
-            raise SystemExit(1)
+
+
+def main(argv: list[str] | None = None) -> int:
+    return timed_entry(argv, _dispatch, PROCESS_STARTED, time.monotonic)
 
 
 if __name__ == "__main__":
