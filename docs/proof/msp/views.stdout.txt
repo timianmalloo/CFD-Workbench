@@ -1,0 +1,4 @@
+SCALE_CONTEXT mode=views RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+P3 layout=ViewLayout { Arrangement = One, Single = ThreeD } PlanVisible=False ThreeDVisible=True ThreeDWidth=1132 PlanContentWidth=1134 RoundedFrame=1 WindowBounds=0, 0, 1400, 861 ClientSize=1400, 861 RenderScaling=2
+PASS ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack
+COST ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack 1516.3

@@ -30,6 +30,7 @@ if (args.Length == 0 || themeEvidence) { Stage("SelfLaunchTests"); CfdWorkbench.
 if (args.Contains("--section-canvas", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("section-canvas");
     CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
     Console.WriteLine("SectionCanvas tests passed.");
     Environment.Exit(0);
@@ -38,6 +39,7 @@ if (args.Contains("--section-canvas", StringComparer.Ordinal))
 if (args.Contains("--catalog-dialog", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("catalog-dialog");
     CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
@@ -59,6 +61,7 @@ if (args.Contains("--controller-shell", StringComparer.Ordinal))
 if (args.Contains("--theme-matrix", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("theme-matrix");
     CfdWorkbench.Desktop.Tests.ShellWindowTests.RunThemeMatrix();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
@@ -66,6 +69,7 @@ if (args.Contains("--theme-matrix", StringComparer.Ordinal))
 if (args.Contains("--shell-window", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("shell-window");
     CfdWorkbench.Desktop.Tests.ShellWindowTests.Run();
     CfdWorkbench.Desktop.Tests.WindowsShellTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
@@ -74,6 +78,7 @@ if (args.Contains("--shell-window", StringComparer.Ordinal))
 if (args.Contains("--plan-canvas", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("plan-canvas");
     CfdWorkbench.Desktop.Tests.PlanCanvasTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
@@ -81,6 +86,7 @@ if (args.Contains("--plan-canvas", StringComparer.Ordinal))
 if (args.Contains("--views", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("views");
     CfdWorkbench.Desktop.Tests.ViewCameraTests.Run();
     CfdWorkbench.Desktop.Tests.ControllerViewTests.Run();
     CfdWorkbench.Desktop.Tests.ElevationTests.Run();
@@ -91,6 +97,7 @@ if (args.Contains("--views", StringComparer.Ordinal))
 if (args.Contains("--properties-view", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("properties-view");
     CfdWorkbench.Desktop.Tests.PropertiesViewTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
@@ -98,6 +105,7 @@ if (args.Contains("--properties-view", StringComparer.Ordinal))
 if (args.Contains("--properties-cells", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("properties-cells");
     CfdWorkbench.Desktop.Tests.PropertiesCellsTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
@@ -105,6 +113,7 @@ if (args.Contains("--properties-cells", StringComparer.Ordinal))
 if (args.Contains("--section-editor", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("section-editor");
     CfdWorkbench.Desktop.Tests.ControllerSectionTests.Run();
     CfdWorkbench.Desktop.Tests.SectionEditorTests.Run();
     CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
@@ -114,6 +123,7 @@ if (args.Contains("--section-editor", StringComparer.Ordinal))
 if (args.Contains("--status-strip", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("status-strip");
     CfdWorkbench.Desktop.Tests.StatusStripTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
@@ -123,6 +133,7 @@ if (args.Contains("--status-strip", StringComparer.Ordinal))
 if (args.Contains("--analysis", StringComparer.Ordinal))
 {
     AppBuilder.Configure<App>().UsePlatformDetect().SetupWithoutStarting();
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("analysis");
     CfdWorkbench.Desktop.Tests.AnalysisToggleTests.Run();
     CfdWorkbench.Desktop.Tests.AnalysisFeedTests.Run();
     CfdWorkbench.Desktop.Tests.AnalysisHistoricalFeedTests.Run();
@@ -139,6 +150,9 @@ if (args.Contains("--readiness", StringComparer.Ordinal))
 {
     CfdWorkbench.Desktop.Tests.ControllerShellTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.PlanCanvasTests.RunReadiness();
+    // PlanCanvasTests.RunReadiness sets up Avalonia (a second setup throws), so the line follows it: it precedes every check but
+    // that suite's own frame-time checks. A subset (CFD_TEST_ONLY) runs none of those, so its line is before its first check.
+    CfdWorkbench.Desktop.Tests.DesktopChecks.PrintScaleContext("readiness");
     CfdWorkbench.Desktop.Tests.ControllerViewTests.RunReadiness();
     CfdWorkbench.Desktop.Tests.View3dTests.RunReadiness();
     // PlanCanvasTests.RunReadiness set up the Avalonia app above.
@@ -534,6 +548,39 @@ namespace CfdWorkbench.Desktop.Tests
 
         public enum FrameVerdict { Pass, Fail, Miss }
 
+        /// <summary>
+        /// Ruling 177 (2) / 182: the in-process scale a window check ran at, printed once per mode before its first check, on pass as
+        /// well as fail. A probe window gives the scale the checks' own windows get; the line reads the same on the Mac and the PC.
+        /// </summary>
+        public static void PrintScaleContext(string mode) => Console.WriteLine(ScaleContextLine(mode));
+
+        /// <summary>The line <see cref="PrintScaleContext"/> prints; a field a platform cannot answer reads <c>not-recorded</c>, never a guess.</summary>
+        public static string ScaleContextLine(string mode)
+        {
+            var probe = new Avalonia.Controls.Window { Width = 300, Height = 200 };
+            try
+            {
+                probe.Show();
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                var primary = probe.Screens?.Primary;
+                string area = primary is null ? "not-recorded" : FormattableString.Invariant($"{primary.WorkingArea.Width}x{primary.WorkingArea.Height}");
+                string primaryScaling = primary is null ? "not-recorded" : primary.Scaling.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+                return FormattableString.Invariant($"{ScaleContextTag} mode={mode} RenderScaling={probe.RenderScaling:R} PrimaryScaling={primaryScaling} WorkingArea={area} UseLayoutRounding={probe.UseLayoutRounding}");
+            }
+            finally
+            {
+                probe.Close();
+                Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            }
+        }
+
+        /// <summary>The line's first word, which the receipts and the Spawn control grep for.</summary>
+        public const string ScaleContextTag = "SCALE_CONTEXT";
+
+        /// <summary>Spawned modes that open Avalonia windows, so each must print the scale line (controller-shell and shell-model open none).</summary>
+        private static readonly string[] ScaleModes =
+            ["--section-editor", "--properties-view", "--shell-window", "--plan-canvas", "--views", "--analysis", "--properties-cells", "--status-strip"];
+
         /// <summary>Pure verdict: over the limit is Fail at a recorded load at or below the gate, else Miss; at or under it, Pass.</summary>
         public static FrameVerdict FrameBudgetVerdict(double valueMs, double limitMs, double? load) =>
             valueMs <= limitMs ? FrameVerdict.Pass
@@ -717,6 +764,11 @@ namespace CfdWorkbench.Desktop.Tests
                         .Select(line => line.Text.Split(" of ")[^1]));
                     partCounts.TryAdd(spec[0], []);
                     partCounts[spec[0]].Add(spec[1] + " " + counts);
+                }
+                if (ScaleModes.Contains(spec[0]) && !lines.Any(line => !line.Error && line.Text.StartsWith($"{ScaleContextTag} mode={spec[0][2..]} ", StringComparison.Ordinal)))
+                {
+                    output.WriteLine($"FAIL {ScaleContextTag} {modes[index]} printed no {ScaleContextTag} line before its first check");
+                    if (exitCode == 0) exitCode = 1;
                 }
                 if (childExit == 0) continue;
                 output.WriteLine($"FAIL {modes[index]} exited {childExit}");

@@ -1,0 +1,7 @@
+SCALE_CONTEXT mode=properties-cells RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+ITEM6 name=PointAftInput BoundsDIP=139, 0, 62, 24 PropertiesOriginDIP=161, 126 WidthDIP=62 HeightDIP=24 PaddingDIP=3,3,3,3 DigitsEndXDIP=NaN PropertiesXDevice=322 PropertiesYDevice=252 WidthDevice=124 HeightDevice=48 DigitsEndXDevice=NaN RenderScaling=2
+ITEM6 name=Value_p_eta BoundsDIP=0, 0, 33, 14 PropertiesOriginDIP=190, 108 WidthDIP=33 HeightDIP=14 PaddingDIP=0,0,5,0 DigitsEndXDIP=218 PropertiesXDevice=380 PropertiesYDevice=216 WidthDevice=66 HeightDevice=28 DigitsEndXDevice=436 RenderScaling=2
+ITEM6 name=PART_TextPresenter BoundsDIP=0, 0, 52, 14 PropertiesOriginDIP=166, 131 WidthDIP=52 HeightDIP=14 PaddingDIP=n/a DigitsEndXDIP=218 PropertiesXDevice=332 PropertiesYDevice=262 WidthDevice=104 HeightDevice=28 DigitsEndXDevice=436 RenderScaling=2
+MEASURE DC-3 input digits end 218, fact digits end 218
+PASS PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs
+COST PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs 1212.0

@@ -2335,3 +2335,4 @@ rebuilt (the scale-context print, the item-6 bounds) had no committed home eithe
   read-only UIA preflight, a Stopwatch deadline, toolchain identity, numeric stub exits 0 and 3, and zero source edits.
   The fresh budget opens only on a committed runner-ready receipt. Status: pending the PC runner; the Mac measurement
   prints are track MSP.
+  - *2026-10-09, trk-msp:* the Mac half of the prevent has landed. The Desktop harness prints `SCALE_CONTEXT` once per window mode, `ITEM6` (the three item-6 controls) and `P3` (the double-click clause) on pass as well as fail. `Spawn_WindowModeWithoutScaleContext_Fails` fails the run if a spawned window mode lacks its line (`docs/proof/msp/receipt.md`).
