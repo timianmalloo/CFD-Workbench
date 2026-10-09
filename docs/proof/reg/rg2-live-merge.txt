@@ -6,8 +6,8 @@ merge exit: 1
 UU docs/r.md
 # R
 
-<<<<<<< ours
+    <<<<<<< ours
 **A · T.** a two.
-=======
+    =======
 **A · T.** a one.
->>>>>>> theirs
+    >>>>>>> theirs
