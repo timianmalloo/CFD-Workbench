@@ -1,0 +1,135 @@
+== run-1
+EXPECTED Save_ExistingFile_DefiniteCreateOnlyConflict (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveMine_DraftDocumentUndoUnchanged (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveMine_ListedAfterOpeningAnotherFoil (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_CatalogTelemetry_NamedSessionRing (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveOffUiThread_HonorsCancellation (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED SaveDialog_EmptyOrDuplicate_ErrorFocusStays (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED SaveDialog_Save_LiveRegionFocusToSectionMenu (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --section-editor --part=1/2 exited 1 (every failure in its block is expected)
+EXPECTED Recent_OpenedOutcome_AppendsPath (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED RailEditorPane_Removed_NoReferencesRemain (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_ResumeSectionRecovery_EntersSectionMode (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Commands_SectionMenu_ReplaceSaveImportRowsRun (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_QuotedNameAndBraceProvenance_SaveReload (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_CatalogTelemetry_OmitsInapplicableFields (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --section-editor --part=2/2 exited 1 (every failure in its block is expected)
+EXPECTED Recent_StoredRows_StartAndFileMenu (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Copy_RecentNotCleared_StatusAndTryAgain (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recovery_RailDraftResumed_PlanShowsDraftApplyCommits (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveDuringDrag_CommitsThenSaves (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --controller-shell exited 1 (every failure in its block is expected)
+EXPECTED Tampered_RunView_UnavailableNoLayersRowKept (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --analysis exited 1 (every failure in its block is expected)
+EXPECTED TextSize_PersistsPerUser (Ruling 173, fail-closed-store, until W-2 B2 lands)
+UNEXPECTED Telemetry_MarkerInjection_AbsentEverywhere: not in the manifest
+UNEXPECTED --shell-window --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED KeyBindings_MenuGesture_NotBound: not in the manifest
+UNEXPECTED --shell-window --part=1/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView: not in the manifest
+UNEXPECTED --views --part=1/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack: not in the manifest
+UNEXPECTED Elevation_SideSelectedStation_RenderedFullWeight: not in the manifest
+UNEXPECTED View3d_SelectedStation_RenderedWidthAndChip: not in the manifest
+UNEXPECTED --views --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs: not in the manifest
+UNEXPECTED --properties-cells --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused: not in the manifest
+UNEXPECTED PropertiesPane_Density_EveryTargetAtLeast24: not in the manifest
+UNEXPECTED --properties-cells --part=1/2 exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 26 (manifest)
+UNEXPECTED 15
+exit=1
+== run-2
+EXPECTED Save_ExistingFile_DefiniteCreateOnlyConflict (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveMine_DraftDocumentUndoUnchanged (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveMine_ListedAfterOpeningAnotherFoil (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_CatalogTelemetry_NamedSessionRing (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveOffUiThread_HonorsCancellation (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED SaveDialog_EmptyOrDuplicate_ErrorFocusStays (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED SaveDialog_Save_LiveRegionFocusToSectionMenu (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --section-editor --part=1/2 exited 1 (every failure in its block is expected)
+EXPECTED Recent_OpenedOutcome_AppendsPath (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED RailEditorPane_Removed_NoReferencesRemain (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_ResumeSectionRecovery_EntersSectionMode (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Commands_SectionMenu_ReplaceSaveImportRowsRun (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_QuotedNameAndBraceProvenance_SaveReload (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_CatalogTelemetry_OmitsInapplicableFields (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --section-editor --part=2/2 exited 1 (every failure in its block is expected)
+EXPECTED Recent_StoredRows_StartAndFileMenu (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Copy_RecentNotCleared_StatusAndTryAgain (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recovery_RailDraftResumed_PlanShowsDraftApplyCommits (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveDuringDrag_CommitsThenSaves (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --controller-shell exited 1 (every failure in its block is expected)
+EXPECTED Tampered_RunView_UnavailableNoLayersRowKept (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --analysis exited 1 (every failure in its block is expected)
+EXPECTED TextSize_PersistsPerUser (Ruling 173, fail-closed-store, until W-2 B2 lands)
+UNEXPECTED Telemetry_MarkerInjection_AbsentEverywhere: not in the manifest
+UNEXPECTED --shell-window --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED KeyBindings_MenuGesture_NotBound: not in the manifest
+UNEXPECTED --shell-window --part=1/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView: not in the manifest
+UNEXPECTED --views --part=1/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack: not in the manifest
+UNEXPECTED Elevation_SideSelectedStation_RenderedFullWeight: not in the manifest
+UNEXPECTED View3d_SelectedStation_RenderedWidthAndChip: not in the manifest
+UNEXPECTED --views --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs: not in the manifest
+UNEXPECTED --properties-cells --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused: not in the manifest
+UNEXPECTED PropertiesPane_Density_EveryTargetAtLeast24: not in the manifest
+UNEXPECTED --properties-cells --part=1/2 exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 26 (manifest)
+UNEXPECTED 15
+exit=1
+== run-3
+EXPECTED Save_ExistingFile_DefiniteCreateOnlyConflict (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveMine_DraftDocumentUndoUnchanged (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveMine_ListedAfterOpeningAnotherFoil (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_CatalogTelemetry_NamedSessionRing (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveOffUiThread_HonorsCancellation (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED SaveDialog_EmptyOrDuplicate_ErrorFocusStays (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED SaveDialog_Save_LiveRegionFocusToSectionMenu (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --section-editor --part=1/2 exited 1 (every failure in its block is expected)
+EXPECTED Recent_OpenedOutcome_AppendsPath (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED RailEditorPane_Removed_NoReferencesRemain (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_ResumeSectionRecovery_EntersSectionMode (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Commands_SectionMenu_ReplaceSaveImportRowsRun (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_QuotedNameAndBraceProvenance_SaveReload (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_CatalogTelemetry_OmitsInapplicableFields (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --section-editor --part=2/2 exited 1 (every failure in its block is expected)
+EXPECTED Recent_StoredRows_StartAndFileMenu (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Copy_RecentNotCleared_StatusAndTryAgain (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recovery_RailDraftResumed_PlanShowsDraftApplyCommits (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED Controller_SaveDuringDrag_CommitsThenSaves (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --controller-shell exited 1 (every failure in its block is expected)
+EXPECTED Tampered_RunView_UnavailableNoLayersRowKept (Ruling 173, fail-closed-store, until W-2 B2 lands)
+EXPECTED --analysis exited 1 (every failure in its block is expected)
+EXPECTED TextSize_PersistsPerUser (Ruling 173, fail-closed-store, until W-2 B2 lands)
+UNEXPECTED Telemetry_MarkerInjection_AbsentEverywhere: not in the manifest
+UNEXPECTED --shell-window --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED KeyBindings_MenuGesture_NotBound: not in the manifest
+UNEXPECTED --shell-window --part=1/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView: not in the manifest
+UNEXPECTED --views --part=1/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack: not in the manifest
+UNEXPECTED Elevation_SideSelectedStation_RenderedFullWeight: not in the manifest
+UNEXPECTED View3d_SelectedStation_RenderedWidthAndChip: not in the manifest
+UNEXPECTED --views --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs: not in the manifest
+UNEXPECTED --properties-cells --part=2/2 exited 1: child exit without a block of only expected failures
+UNEXPECTED PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused: not in the manifest
+UNEXPECTED PropertiesPane_Density_EveryTargetAtLeast24: not in the manifest
+UNEXPECTED --properties-cells --part=1/2 exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 26 (manifest)
+UNEXPECTED 15
+exit=1

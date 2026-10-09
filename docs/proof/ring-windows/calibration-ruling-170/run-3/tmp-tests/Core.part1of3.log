@@ -1,0 +1,260 @@
+PASS Canonical_Rfc8785_0000000000000000
+PASS Canonical_Rfc8785_8000000000000001
+PASS Canonical_Rfc8785_4340000000000000
+PASS Canonical_Rfc8785_44b52d02c7e14af5
+PASS Canonical_Rfc8785_444b1ae4d6e2ef4e
+PASS Canonical_Rfc8785_3eb0c6f7a0b5ed8c
+PASS Canonical_Rfc8785_41b3de4355555554
+PASS Canonical_Rfc8785_41b3de4355555557
+PASS Decimal_UnitEquivalent_ExactlyOneRounding
+PASS Decimal_Subnormal_RoundsCorrectly
+PASS Decimal_UnsupportedScale_RefusesBeforeScaling
+PASS Decimal_MinimumIntegerScale_RefusesBeforeAllocation
+PASS Blake3_OfficialEmptyVector_Matches
+PASS Catalog_Refusal_NamesItsCheck
+PASS CatalogGenerator_Naca0012_MatchesClosedFormAt81Stations
+PASS CatalogGenerator_Spacing_CosPiBitGoldenAndAccuracy
+PASS Provenance_Unknown_NotRecordedNeverGuessed
+PASS Provenance_SurvivesEveryRewriter
+DRIFT lambda-fit max_abs=0 limit=1e-06
+PASS RecordPath_LambdaFit_FairBytesWithinIdentityTolerance
+PASS Ruling17_DegreeIdentity_DoesNotCollapseDistinctInputs
+PASS Ruling15_MissingUnit_PreventsOverflowBinding
+PASS Ruling15_KnownOverflow_PrecedesBadDegree
+PASS Ruling15_MalformedToken_PrecedesBlockingSyntax
+PASS Parse_StandaloneSection_RecognizesWholeGrammar
+PASS Parse_InvalidUnits_ReportsUnits
+PASS Parse_LegacyChord_ReportsExplicitConversion
+PASS Parse_InvalidUtf8_ReportsLexical
+PASS Parse_OversizedSource_RefusesBeforeDecoding
+PASS Source_DiagnosticsMutation_Refused
+PASS Parse_SectionSpoofedEof_RejectsTail
+PASS Parse_UnpairedEscapedSurrogate_ReportsLexical
+PASS Source_MissingIds_MaterializationPreservesMeaning
+PASS NewDefault_NoExampleDependency
+PASS Parse_Foil41WithTangents_RowsParsed
+PASS Parse_AngleKindOnChannel_DslLock
+PASS Parse_SeventeenChannelPointsUnder41_DslCurve
+PASS Identity_TangentsRows_DefinitionHashUnchanged
+PASS EnsureHeader41_Already41_Unchanged
+PASS Ruling18_ConstantTwist_-1e-300_QueriesComplete
+QUERY FEASIBILITY RECEIPT {"Algorithm":"common-denominator-dyadic-128/taylor-grid-64/v1","RationalBitLimit":32768,"MaximumIntermediateBits":20502,"RationalOperationsUpper":321472,"InverseDepth":128,"AngleGridBits":64,"Spans":[{"Curve":"leading","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"leading","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"leading","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"leading","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"trailing","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"trailing","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"trailing","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"trailing","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"dihedral","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"dihedral","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"dihedral","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"dihedral","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"twist","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"twist","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"twist","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"twist","Span":3,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":443,"RefinedDenominatorBits":442},{"Curve":"thickness","Span":0,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":442,"RefinedDenominatorBits":444},{"Curve":"thickness","Span":1,"Degree":3,"CommonDenominatorBits":60,"RefinedNumeratorBits":443,"RefinedDenominatorBits":444},{"Curve":"thickness","Span":2,"Degree":3,"CommonDenominatorBits":58,"RefinedNumeratorBits":442,"RefinedDenominatorBits":442},{"Curve":"thickness","Span":3,"Degree":3,"CommonDenominatorBits":57,"RefinedNumeratorBits":441,"RefinedDenominatorBits":441},{"Curve":"profile:0:upper","Span":0,"Degree":5,"CommonDenominatorBits":6,"RefinedNumeratorBits":646,"RefinedDenominatorBits":646},{"Curve":"profile:0:lower","Span":0,"Degree":5,"CommonDenominatorBits":6,"RefinedNumeratorBits":646,"RefinedDenominatorBits":646}],"MaximumBitPath":"placed-X/round-shift-divrem"}
+PASS Ruling18_Certificate_CarriesActualAllQueryArithmeticWitness
+PASS Ruling18_ExpensiveExactSpan_PreAdmissionRefusal
+PASS Geometry_TipPoint_UnsupportedAndNeverAdmitted
+PASS Geometry_PlacedRootPoint_EnclosesIndependentZeroTwistCoordinates
+PASS Geometry_NormalizedSection_RejectsOutOfDomain
+PASS Geometry_ThicknessImmediatelyBelowOne_Admitted
+PASS Geometry_ViolatedRootLock_HasStableLockCode
+PASS Geometry_CrossingChord_BlocksCertificate
+PASS Geometry_IndependentProfileBasis_Unsupported
+PASS Geometry_OpaqueCertificate_NoPublicConstructor
+PASS Assess_SymmetricRowNotMidpoint_Invalid
+PASS Geometry_ThicknessDomain_OpenIntervalOnQuantumGrid
+PASS Assess_ThicknessAtUpperDomainLimit_Certified
+PASS Assess_SymmetricRowOnThicknessNotMidpoint_Invalid
+PASS ProofBudget_ProofPathTypes_HaveNoTypeInitializer
+PASS GroupGesture_OneMember_EqualsSinglePointGesture
+PASS GroupGesture_IncludesRootEnd_HoldsWholeGroupAtRootMax
+PASS GroupGesture_ChannelDomain_HoldsGroupNotMember
+PASS GroupGesture_RootSeeded_WhenPointOneSelected
+PASS GroupGesture_HandleNeverSeededTwice
+PASS ApplyGroupValue_SetTo_AllEqual
+PASS ApplyGroupValue_TwistSpanMoveBy_NamesTheUnitAndThePointNumber_UseAmountIsAdmitted
+PASS PlacementRule_OperationTree_TraceGolden
+PASS Blend_IdenticalProfileBytes_MatchSingleProfileExample
+PASS Blend_IndependentAbscissa_RefusesUnenclosedMaximum
+PASS Blend_MakeUniqueThreeDiffering_DraftCertifies
+PASS Ruling16_PublicConsumer_CustomIdsAssignmentsAndOwnedInspection
+PASS Ruling16_OldAcceptedProjection_RemainsBoundAfterApply
+PASS Session_CancelledValidation_TelemetryIsNotSuccess
+PASS Session_CancelledDraftId_CannotReuseOldAuthority
+PASS Session_UncapturedSaveAcknowledgement_Refuses
+PASS Session_EnvelopeOutwardMutation_LeavesOwnedFacts
+PASS Session_LateSaveAcknowledgement_RemainsDirty
+PASS Native_UnknownField_RefusesWritableAdoption
+PASS Session_Cancel_LeavesAcceptedBytesAndHistory
+PASS Session_ApplyRetryAfterUndoAndReopen_DoesNotMoveCursor
+PASS Session_InvalidGeometry_LeavesAcceptedState
+NATIVE-ENV os=10.0.26300.0 arch=X64 filesystem=NTFS
+PASS WindowsNative_Environment_RealNtfsX64
+SHARE-READ-DELETE NTSTATUS=0x00000000 IO_STATUS=0x00000000 Win32=0 old=FileIdentity { Volume = 3611534147413010381, Low = 9570149208987322, High = 0 } new=FileIdentity { Volume = 3611534147413010381, Low = 9007199255566011, High = 0 } held_bytes=0101 fresh_bytes=020202 temp_exists=false
+PASS WindowsNative_Replace_ShareReadDeleteReaderKeepsOldImage
+PASS WindowsNative_ClaimDispose_HeldObserverNamespaceRemoved
+COLLISION-RAW NTSTATUS=0xc0000035; IO_STATUS=0x00000000; Win32=183: Cannot create a file when that file already exists.
+PASS WindowsNative_CreateOnly_CollisionPreservesBothObjects
+FAIL Library_EntryBytes_ParseAsStandaloneSection ContractError: DOC-UNSUPPORTED-PERSISTENCE
+PASS Library_CrossingSection_RefusedInvalid
+FAIL Library_ScanNameCollision_BothReported ContractError: DOC-UNSUPPORTED-PERSISTENCE
+PASS Library_UnprovedPlatform_RefusedNothingSaved
+PASS Profile_PatchPoint_RoundTripsAndChangesOnlyThatCv
+PASS Profile_UpperCrossesLower_ReportsCross
+PASS Profile_UnknownVertex_RefusesTarget
+PASS Profile_Retry_SameOperationIsIdempotent
+PASS Parse_TangentsBeforeIds_RefusedDslSyntax
+PASS Profile_RecoveryRoundtrip_ResumesSameProfileTarget
+PASS Receipt_SectionRecovery_RoundTripsExpandOnly
+PASS Reopen_LegacyInsertDeleteFairRebuildReceipts_StillCheck
+PASS Receipt_ForgedSectionRailUnknownProfile_DocReference
+PASS Solve_ExactPolynomial_ReproducesControlOrdinates
+PASS Fair_TinyTolerance_DoesNotAcceptAShapeChange
+PASS Profile_Insert_PreservesShape_UndoRedo
+PASS Profile_Delete_RefusesFloorAndFixedEnds
+PASS Profile_Insert_IndependentCopiesFirst
+PASS Rebuild_TenVertices_CertifiedOneUndoItem
+PASS DatImport_Naca0012_LednicerGivesSameProfileBlock
+PASS DatImport_Provenance_ContainsSha256OfOriginalBytes
+IMPORT-BASIS: refused No point spacing from 8 to 16 points holds a .dat file within 10 µm: the closest is 15351.50 µm (12.7929 % chord; limit 10 µm at 120 mm). Nothing changed.
+PASS DatImport_Reflexed_ExampleTip_RefusedCatResidualNothingChanged
+RPL preview 4412 shared (scan 8..15) first 135.3 ms, again 125.0 ms
+RPL 4412 own-15 residual 5.59 um; largest change 4.91 mm at x 0.396
+PASS Replace_SharedExample4412_OwnSpacing15PointsCertified
+PASS Replace_AfterMakeUnique_NoOrphanParses
+PASS Replace_UniqueRootCambered_RefusedCatSpacingNothingChanged
+PASS Replace_AcceptanceUsesLargestReplacedChord
+PASS Replace_MySectionsEntrySameSpacing_ExactCopy
+PASS Replace_InnerRedo_ReappliesSource
+PASS Replace_StalePreviewAfterTypingOrStep_Refused
+PASS SectionEdits_ReplaceStep_NeverApplied
+PASS Guard_ThirtyThirdPoint_RefusedDslCurveBeforeCopy194
+RPL slid 0012 euclidean 12.01 um; vertical 212.86 um
+RPL bulge both-ways 5.500E-004; sparse one-way 2.262E-005; dense one-way 5.495E-004
+PASS Replace_ResidualEuclidean201PlusKnots_NotVerticalGap
+PASS Replace_SourceThicknessDiffers_ReportsScaledTc
+RPL rotated 3 deg: records 0.00 um apart; reported turn 3.0000 deg; fit 5.59 um
+PASS Replace_RotatedSource3.0Deg_SameRecordAsUnrotated
+PASS Replace_VerticalRow_KeptWhenBetweenRefusedWhenNot
+PASS Reopen_Insert_AcceptedRoundtripsUndoRedo
+PASS Reopen_Rebuild_AcceptedRoundtripsUndoRedo
+PASS Reopen_BogusEditRail_StillRefusesDocReference
+PASS Thickness_KeepCurrent_LeavesChannelBytes
+PASS Thickness_UseSource_ConflictingValueLock_RefusesApply
+PASS WingEstimates_LinearTaper_MacDiffersFromMean
+PASS WingEstimates_Save_NoEstimateInFile
+PASS ApplyDimension_Span_StationEtaUnchanged
+PASS ApplyDimension_SpanNotNumber_RefusedUnchanged
+PASS Receipt_Dimension_OldReaderRefusesDocReference
+PASS ApplyDimension_FitJustBelowLimit_Accepted
+PASS ApplyDimension_RootChordShift_P0EqualsP1BitsZero
+PASS ApplyDimension_OneRailLocked_ResidualReported
+PASS ApplyDimension_TipChordClosingTip_DslTarget
+PASS ApplyDimension_Receipt_CarriesRuleId
+PASS Reopen_ChordRows_UndoRedoRoundTrip
+PASS Reopen_RetrySameDimensionOperationId_ReturnsPriorId
+PASS AcceptedSourceOf_UnheldId_IsNullNeverTheCurrentRevision
+PASS TipChord_Drag_BelowMinimum_HoldsAtMinimum_ReleaseCommitsHeldValue
+PASS TipChord_RootDrag_PastTwoPercentOfTip_HoldsAtRootMaximum
+PASS TipChord_InteriorVerticesAndHandles_NeverChangeEitherChord
+PASS TipChord_RootChordRaise_ThatPushesTipUnder_Refused
+PASS TipChord_PointTipDocument_IsNeverOpenedSoNoSessionHoldsOne
+PASS TipChord_DragToExactlyMinimum_Admitted
+PASS TipChord_Admits_NonFiniteOldTip_AdmitsRepairingEdit
+PASS TipChord_EditThatDoesNotTouchThePlanform_AdmittedOnOldFile
+PASS LayoutParse_BadWorkspace_OthersRestored
+PASS LayoutParse_RetiredSamplesPane_DroppedOthersKept
+PASS RecentParse_RelativePath_Dropped
+FAIL LayoutLoad_Absent_ReturnsPresets InvalidOperationException: Expected saved; actual failed
+FAIL Rollback_V2Oversized_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+PASS PrefStore_SymlinkedDirectory_SessionOnly
+FAIL LayoutSave_Conflict_MergesChangedWorkspaceOnly InvalidOperationException: Expected True; actual False
+FAIL Recent_Conflict_ReappliesAdd InvalidOperationException: Expected True; actual False
+FAIL Recent_Remove_KeepsEveryOtherEntry InvalidOperationException: Expected saved; actual failed
+PASS PrefStore_TextSize_Absent_Is100
+FAIL Rollback_TextSizeV2_BytesUnchanged InvalidOperationException: missing LAYOUT-VERSION [LAYOUT-SESSION-ONLY,DOC-UNSUPPORTED-PERSISTENCE]
+PASS PrefStore_TextSize_FileSystemException_FailedNotThrown
+NOT ASSESSED directory-link: the symbolic-link branch is checked on a non-Windows host only
+PASS PrefStore_DirectoryLink_WindowsBranchUsesJunction
+PASS PointModel_AnchorAtMultiplicityThree_HandlesAssigned
+PASS PlanformView_Sampling_NeverUsesProofBudget
+PASS Planform_Probe_ChordAndRailsAtEta
+PASS Comb_CornerAnchor_BreakReported
+PASS LengthExpression_NonLength_DslUnit
+PASS BeginPointGesture_FixedPoint_DslLock
+PASS UpdatePointGesture_LeadingPoint_OnlyLeadingTextChanges
+PASS UpdatePointGesture_SmoothHandleDrag_OppositeCollinear
+PASS UpdatePointGesture_TeRootEnd_HandleFollowsRootMirror
+PASS UpdatePointGesture_RandomTargets_OrderAndRowsHold
+PASS Gesture_DragManyFrames_OneAcceptedRow
+PASS PlacementRule_CertificateGoldenMaster_AssessWitnessesAndRefusalsUnchanged
+PASS PlacementRule_SelectBlend_SameStationsAsCertificate
+MEASURE fixture=example max_thickness_outside=0
+MEASURE fixture=blended-dihedral max_thickness_outside=0
+MEASURE fixture=blended-peaks max_thickness_outside=0
+MEASURE fixture=chord-2m max_thickness_outside=0
+MEASURE fixture=c0-peak max_thickness_outside=0
+MEASURE fixture=two-hump-2m max_thickness_outside=0
+MEASURE fixture=two-hump-blend-2m max_thickness_outside=0
+PASS Placement_DisplayMaximum_WithinCertifiedMaximum
+PASS Placement_SignFixture_PositiveElevationRaisesSection
+PASS Placement_Surface_AuthoredEtaOnUniformGridOnce
+MEASURE channel_evals=205 profile_evals=7798 per_point=496920
+PASS Placement_Surface_EvaluatorCallsBounded
+PASS Placement_StationFrame_ChordDerived
+PASS Placement_ProbeChord_EqualsWingEstimatesOnPl0Fixtures
+PASS MakeAnchor_ControlPoint_PassesThroughWithinIdentity
+PASS MakeAnchor_ThirteenPoints_SixteenAccepted
+PASS MakeAnchor_RootEnd_DslLock
+PASS MakeControl_Undo_RestoresExactly
+PASS SetTangent_SmoothNoHandleSelected_BothOnBisector
+PASS ChordRefit_SmoothAndSymmetricRows_HeldExactly
+PASS ApplyPointCommand_SameOperationDifferentKind_DocOperationConflict
+PASS Reopen_RetrySamePointOperationId_ReturnsPriorId
+PASS Reopen_CurveOnGestureReceipt_DocReference
+PASS Recovery_M12aGoldenRailDraft_ApplyOneRowNoCurve
+PASS Reopen_ForgedPointAddIdAlreadyPresent_DocReference
+PASS Verbs_UndoRedo_RestoresBytesAndAnchorRows
+PASS Verbs_UndoRedo_EachVerbBytesRestoredAndReapplied
+PASS Parse_Channel41FourVertices_Parses
+PASS Parse_TangentRowOnFourVertexChannel_DslLock
+PASS AddPoint_NewIdAboveMaxNeighboursKeepIds
+PASS AddPoint_PastTen_WritesHeader41InSamePatch
+PASS RemovePoint_FloorThenEnds_Order
+PASS RemovePoint_AnchorAndAnchorHandle_Refused
+PASS RemovePoint_Control_ChangeMeasuredAndOutsideSupportUnchanged
+PASS RemovePoint_BelowSix_WritesHeader41
+PASS Rebuild_SameCountNonGrevilleAbscissae_AppliesAndReports
+PASS Rebuild_Below6OrAbove10_RaisesHeader41
+PASS PreviewRebuild_AreaUsesWingEstimatesForCurrentAndCandidate
+PASS Rebuild_SchoenbergWhitneyFails_RefusedWithCopy
+PASS SelectAfterVerb_SurvivorKeptElseNearestEtaTieTowardTip
+inflection leading 1 at 23.25 mm
+inflection trailing 1 at 23.25 mm
+PASS NewFoil_FourPointRails_OneInflectionNearRoot
+PASS AddPoint_NextToSmoothAnchor_RowStillHolds
+PASS PointVerb_On41FileBackInto6To10_HeaderStays41
+PASS Reopen_OldBuildNewReceiptKind_RefusedFileUnchanged
+PASS PointModel_TwistAndThicknessRootMirror_RootEndValueOnlyCoupled
+PASS Channels_View_AnyChannelSameShapeAsRails
+PASS UpdatePointGesture_TwistBeyondDomain_ClampedAtDomain
+PASS UpdatePointGesture_ThicknessAboveOne_ClampedBelowOne
+PASS UpdatePointGesture_TwistSmoothHandleDrag_OppositeKeepsEtaOnLine
+PASS Gesture_TwistReleaseAtDomainLimit_CertifiedApplied
+PASS MakeControl_DihedralAnchor_LocalityWithinIdentity
+PASS Telemetry_ChannelEdits_CurveFamilyNoIdsOrPositions
+PASS Reopen_UnknownCurveOnReceipt_DocReference
+PASS ProfileEvaluator_SingleSite_NoOtherProfileInversionInSource
+PASS Placement_ProfileEvaluatorFold_SurfaceBitsUnchanged
+PASS Parse_ChannelHorizontalRow_StillDslLock
+PASS SectionPoints_OpenTrailingEnd_YOnly
+PASS SectionPoints_SolverOutput_PassesItsRowCheck
+PASS Sections_Facts_LeRadiusAndWedgeAtStation_MatchPlacedRuleA
+PASS SectionComb_AfterMakeAnchor_BreakMarkerAtAnchor
+PASS Assess_ProfileHorizontalRowUnlevel_InvalidDslLock
+PASS SectionEdits_HorizontalKind_HandlesLevelExactly
+PASS SectionEdits_InsertAnchorKeepShape_ShapeExactCornerAnchor
+PASS SectionEdits_FairWithAnchorRows_AnchorsKeptRowsHold
+PASS SectionEdits_TypeAndTangentSteps_ReportCountsAndMeasuredMaxChange
+PASS SectionEdits_PairedAnchorToControl_RefitLocalWithin10Um
+PASS SectionEdits_RandomSectionsPaired_KnotsEqualAndLocalityHold
+PASS SectionEdits_PairedToAnchorWithKind_PartnerRowWritten
+PASS SectionEdits_UniqueProfile_AbscissaBreakingStepRefusedNothingChanged
+PASS SectionEdits_UniqueImportOverLimit_RefusedNothingChanged
+PASS SectionDraft_StepAfterUndo_DropsRedoTail
+PASS SectionDraft_RefusedStep_DraftBytesUnchanged
+PASS SectionDraft_FinishSixSteps_OneAcceptedRow
+PASS SectionDraft_FinishThenUndo_SourceAndAssignmentsRestored
+PASS SectionDraft_UseSourceThickness_ReportsTargetsAndAffectedEta
+PASS SectionDraft_FairStep_ReportsAchievedDeviation
+PASS Profile_IndependentEdit_ApplyUndoRedoKeepsOtherProfiles
+PARTITION 1/3 of 707 checks
+RESULT failures=8

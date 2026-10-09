@@ -1,0 +1,43 @@
+EXPECTED Save_ExistingFile_DefiniteCreateOnlyConflict (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recovery_SaveReopenResume_KeepsDraftSeparateFromAccepted (Ruling 154, fail-closed-store, until W-2 B2 lands)
+UNEXPECTED Controller_SaveMine_DraftDocumentUndoUnchanged: not in the manifest
+UNEXPECTED Controller_SaveMine_ListedAfterOpeningAnotherFoil: not in the manifest
+UNEXPECTED Controller_CatalogTelemetry_NamedSessionRing: not in the manifest
+UNEXPECTED Controller_SaveOffUiThread_HonorsCancellation: not in the manifest
+UNEXPECTED SaveDialog_EmptyOrDuplicate_ErrorFocusStays: not in the manifest
+UNEXPECTED SaveDialog_Save_LiveRegionFocusToSectionMenu: not in the manifest
+UNEXPECTED --section-editor: not in the manifest
+UNEXPECTED Recent_OpenedOutcome_AppendsPath: not in the manifest
+UNEXPECTED Telemetry_MarkerInjection_AbsentEverywhere: not in the manifest
+UNEXPECTED OpenFailure_RemoveFromRecent_RemovesOnlyFailedPath: not in the manifest
+UNEXPECTED RailEditorPane_Removed_NoReferencesRemain: not in the manifest
+UNEXPECTED --shell-window: not in the manifest
+UNEXPECTED Controller_ResumeSectionRecovery_EntersSectionMode: not in the manifest
+UNEXPECTED Controller_SaveMine_SurvivesSectionCancelAndDocumentUndo: not in the manifest
+UNEXPECTED Commands_SectionMenu_ReplaceSaveImportRowsRun: not in the manifest
+UNEXPECTED Controller_QuotedNameAndBraceProvenance_SaveReload: not in the manifest
+UNEXPECTED Controller_CatalogTelemetry_OmitsInapplicableFields: not in the manifest
+UNEXPECTED --section-editor: not in the manifest
+UNEXPECTED Recent_StoredRows_StartAndFileMenu: not in the manifest
+UNEXPECTED KeyBindings_MenuGesture_NotBound: not in the manifest
+UNEXPECTED Copy_RecentNotCleared_StatusAndTryAgain: not in the manifest
+UNEXPECTED Recovery_RailDraftResumed_PlanShowsDraftApplyCommits: not in the manifest
+UNEXPECTED --shell-window: not in the manifest
+UNEXPECTED Controller_SaveDuringDrag_CommitsThenSaves: not in the manifest
+UNEXPECTED --controller-shell: not in the manifest
+UNEXPECTED ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView: not in the manifest
+UNEXPECTED --views: not in the manifest
+UNEXPECTED Tampered_RunView_UnavailableNoLayersRowKept: not in the manifest
+UNEXPECTED --analysis: not in the manifest
+UNEXPECTED ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack: not in the manifest
+UNEXPECTED Elevation_SideSelectedStation_RenderedFullWeight: not in the manifest
+UNEXPECTED View3d_SelectedStation_RenderedWidthAndChip: not in the manifest
+UNEXPECTED --views: not in the manifest
+UNEXPECTED PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs: not in the manifest
+UNEXPECTED TextSize_PersistsPerUser: not in the manifest
+UNEXPECTED --properties-cells: not in the manifest
+UNEXPECTED PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused: not in the manifest
+UNEXPECTED PropertiesPane_Density_EveryTargetAtLeast24: not in the manifest
+UNEXPECTED --properties-cells: not in the manifest
+EXPECTED-FAIL 2 (manifest)
+UNEXPECTED 39

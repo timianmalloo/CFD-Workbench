@@ -34,7 +34,6 @@ trap ring_lock_release EXIT
 # Release: the shipped configuration. Measured 2026-09-27: Core suite 40 s Debug, 27 s Release.
 # A certificate-precision display-sampling mutant (BUDGET-DISPLAY) is red in both configurations.
 configuration="${CFD_TEST_CONFIGURATION:-Release}"
-budget="${CFD_TEST_BUDGET_SECONDS:-60}"
 named=" Core Desktop Analysis "   # suites that print PASS <name>; an exit 0 with no PASS line fails
 # Core (43 s alone, one core) runs as three interleaved parts (`--part=k/n`; B2: with two, part 2 held the heavier checks and
 # ran 47 s against part 1's 33 s, and under a concurrent build it outlasted Desktop), so it is not the critical path
@@ -73,6 +72,8 @@ case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) ring_windows=1 ;; esac
 machine_host=$(hostname | cut -d. -f1)
 # Ruling 168 (3): CFD_RING_HOST (validated [a-z0-9-]{1,32}) replaces the hostname as the baseline key; a refusal stops the ring.
 ring_host=$(py "$root/tools/check-test-costs.py" --resolve-host "$machine_host") || exit 2
+# Ruling 176 (2): the wall budget is CFD_TEST_BUDGET_SECONDS, else the host baseline's limit.budget, else 60 s.
+budget=$(py "$root/tools/check-test-costs.py" --resolve-budget "$ring_load_source" "$ring_host") || exit 2
 load_start=$(load)
 started=$SECONDS
 started_ms=$(now_ms)

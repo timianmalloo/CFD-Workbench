@@ -28,6 +28,7 @@ This register is an always-loaded grounding control under AGENTS.md. Each row ma
 | Class | Class → sweep → derive → prevent | Control and status |
 |---|---|---|
 | RAW-CAPTURE-BLOB-MISMATCH · Raw evidence bytes change before delivery | A capture was normalized to LF in commit `1f2cc9f8` (13,584 to 13,499 bytes) and restored in `b5c6b52e`. Swept the Ruling 163 captures and their committed blobs. Derive identity from the committed blob, not a pre-commit working file. | `docs/proof/r163-windows-ring/verify-captures.py` compares every receipt-declared SHA-256 and byte count with `git show HEAD:<path>`; run it after commit and before delivery. The capture directory's `.gitattributes` preserves raw files with `-text`. |
+| CAPTURE-DEADLINE-DRIFT · Relative waits and late termination let a ring exceed its total ceiling. | Ruling 168 run 1's capture-entry-to-tree-stop UTC span was 305,960.528 ms (+5,960.528 ms); the separate launch-to-stop monotonic clock was 302,154 ms (+2,154 ms). Its `WaitForExit(300000)` began after setup. Swept setup, launch, wait, process-tree termination, and final envelope measurement. Derive one monotonic deadline at entry, route every wait through the remaining-time wrapper, request tree termination at expiry, and reject an entry-to-stop UTC envelope over the active ruling ceiling. | `docs/proof/ring-windows/verify-capture-deadline.ps1` runs `capture-calibration.ps1 -SelfTest`, then mutates the shared wait to `WaitForExit(900000)` and disables the envelope result; both mutations must fail. The helper checks both waits use only the remaining budget and fails an over-ceiling envelope. Exact 300 s repair output is retained in `docs/proof/ring-windows/calibration/deadline-self-test.txt`; the 900 s test output is retained in `calibration-ruling-170/deadline-self-test.txt`. Run 1's receipt preserves both clock grains and the original taskkill output. |
 | WSL-INLINE-ARGV · Nested PowerShell → `wsl.exe` → `bash -lc` inline strings lose or expand arguments. | Shell-boundary quoting can erase or expand Bash arguments, causing a source or metadata command to differ from the intended argv. PR #11's two probes did not consistently run the requested activation or retain raw output. | WSL commands run from committed script files, never inline `-lc` strings (CT27). Ruling 153 uses `docs/proof/win-cfmesh/probe-r153.sh`. Controlled. |
 | WIN-SIGNAL-NUMBER · A signal integer is treated as portable across operating systems. | Swept stop configuration, monitor behavior, and receipt labels together. Derive the symbolic signal name from the target OS before dispatch; signal 30 is Linux SIGPWR and macOS SIGUSR1, while Linux SIGUSR1 is 10. | Always-loaded rule: verify and record the target OS's symbolic signal name before sending a numeric signal. Linux signal-30 stop evidence is in `docs/proof/win-naca/receipt.md`; shared monitor change remains out of scope. |
 | WSL-CALLER-LIFETIME · A detached WSL unit inherits the lifetime of its launching `wsl.exe`. | Swept launch, caller exit, and unit state together. Derive a named keepalive independent of the caller. | Always-loaded rule: do not accept a detached WSL launch until the named keepalive is active after `wsl.exe` exits. Ruling 151 C2 readback remains open for the later done receipt. |
@@ -2178,3 +2179,32 @@ completing between dispatcher pumps), where load only stretches the window.
   check asserts the surface is settled at its baseline. Red first with a planted mesh delay (`docs/proof/ezf/red-first.md`):
   camera compare red at 60 and 150 ms on the old Reset, assertion red at 150 ms, green at 0, 60, 150, 200, 800 ms after the
   drain. Not done: a lint for a fixture `Reset` that fits without a drain (investigation P3).
+
+**HOST-REBASE-BY-RECOLLECTION · A per-host re-base names the rules it covers from memory of the first failures, not from the full failing set of a replay.**
+2026-10-09, track PHL. Ruling 173 (2) recommended three limits (analysis part, desktop, net wall) for the pc-win baseline. A
+replay of run 1 through `check-test-costs.py` with those three limits still failed 24 times on C-5 (the 500 ms per-check rule,
+worst check 1,708 ms on Windows); the "28 cost failures" the review counted were 4 + 24.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a baseline or limit set accepted on a count ("28 would fail") whose parts were never listed against the rules.
+- *Sweep:* every Mac constant in `check-test-costs.py` (C-2, C-3, C-4, C-5 and its exemptions) is now re-basable per host; C-6 and the load gate are not, by design.
+- *Derive:* a host baseline is accepted only when a replay of its own runs through the tool exits 0.
+- *Prevent:* `check-test-costs.py --self-test` carries a case built from the pc-win run-1 numbers (C-2, C-3, C-4 and C-5) that passes with the baseline limits and fails without them; `docs/proof/phl/sim-with-baseline.txt` replays all three runs.
+
+**COUNT-QUOTED-NOT-LISTED · A ruling quotes a failure count by class ("22 store names") that nobody listed against the log.**
+2026-10-09, track PHL. Ruling 173 (3) says 22 class-(b) names enter the Windows manifest. Two of the 22 were already in it;
+20 were new. `Telemetry_MarkerInjection_AbsentEverywhere` (a `win\` path fixture that fails with DirectoryNotFound on Windows)
+is not a store failure: it is a ninth Windows-platform name for the class-(a) investigation, left UNEXPECTED.
+- *Prevent:* each manifest entry carries a fragment from the real failure text, and `docs/proof/phl/replay-desktop.txt` replays all three runs (26 EXPECTED, 15 UNEXPECTED, identical in each).
+
+**DPI-A · A layout constant or DIP comparison verified only at scale 1.0 and 2.0 fails at a fractional Windows scale.**
+The PC ring failed eight Desktop checks at an Inferred 150 % scale (Ruling 173/174; `docs/proof/wri/investigation.md`). Avalonia rounds
+border, padding and margin per edge with `Math.Round(v * s) / s` (half to even), so 1 DIP renders as 1.333 and 3 DIP as 2.667 at 1.5.
+A content-sized `TextBox.prop-b` came to 35 px = 23.33 DIP, under the 24 DIP target floor (WCAG 2.2 SC 2.5.8): a real product miss.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
+- *Why it survives:* the Mac runs only at 1 and 2; the one fractional-scale ring is the PC calibration, and its failures were read as class (a) noise.
+- *Sweep:* items 1, 2, 6, 7, 8 fixed or held by track WDF. OPEN, pending the PC scale probe: item 3 (double-click label), items 4 and 5 (chip border pixel sampling), and item 6 (measured skew 1.0 DIP against a predicted 0.667).
+- *Derive:* a target floor is declared (`MinHeight`), never left as the sum of rounded terms; a DIP comparison uses one device pixel as its tolerance.
+- *Prevent:* `PropertiesPane_Density_EveryInputDeclaresMinHeightOf24` (fails on the old style, `docs/proof/wdf/red-first.md`); `DevicePixel.Tolerance` in `tests/CfdWorkbench.Desktop.Tests/DevicePixel.cs`. No forced-scale hook exists on the Mac, so the PC ring is the only proof of the rendered height. Not done: a grep gate on `Bounds` compared to DIP literals (investigation, class prevention row).

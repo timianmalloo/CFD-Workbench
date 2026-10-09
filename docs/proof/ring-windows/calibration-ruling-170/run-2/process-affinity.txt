@@ -1,0 +1,4 @@
+pid=37660 name=Git Bash affinity=0x3F
+pid=27932 name=conhost affinity=0x3F
+pid=9856 name=bash affinity=0x3F
+pid=17628 name=bash affinity=0x3F

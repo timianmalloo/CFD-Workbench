@@ -1,0 +1,2 @@
+Gate the assertion with DesktopChecks.RequireFrameBudget (Ruling 81) or print READINESS-MISS above load 24.
+WALLCLOCK-ASSERT-UNGATED: tests/CfdWorkbench.Analysis.Tests/SectionSeamTests.cs:298: if (watch.Elapsed.TotalMilliseconds > 1000) throw new InvalidOperationException("warm 200-panel whole-wing section tier exceeded 1 s");
