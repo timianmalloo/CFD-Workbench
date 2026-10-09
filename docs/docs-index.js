@@ -12661,6 +12661,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "7fee575971400a5c57282d2740357239b227452408469b1d9778003b299d4165"
     },
     {
+      "id": "proof-copy447-reachability",
+      "path": "docs/proof/copy447-reachability/receipt.md",
+      "title": "COPY-447 public ProjectStore reachability measurement",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@windows-worker",
+      "phase": "verification",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Partial public-API reachability capture for two Windows save requests. Both were refused with unchanged observed inventories; crash-left artifacts remain NOT ASSESSED.",
+      "tags": [
+        "windows",
+        "persistence",
+        "copy-447",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "mockup-w2-save-picker",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "babfa6064fabe908a8bc7a068845f086356691d4343d273ae177dc2f6c0e448e"
+    },
+    {
       "id": "proof-copyfix-red-runs",
       "path": "docs/proof/copyfix-red-runs.md",
       "title": "COPYFIX red-first runs — M1.2a copy decisions, two missing states, atomic Remove from Recent",
@@ -19340,5 +19366,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "64408832117564d5a0134739e46e9a01775f45c679b8a19d5a567594f167aee4"
+  "graphSha256": "4149b017229d9eb5e626eaef79d19fa61b1d4fd3ccf96b6c42a7745f434f516f"
 };

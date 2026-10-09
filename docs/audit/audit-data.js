@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T22:21:58Z",
+  "generated": "2026-10-09T22:33:50Z",
   "audit": [
     {
       "actor": null,
@@ -33682,6 +33682,35 @@ window.AUDIT_DATA = {
         "branch": "win/copy447-measurement",
         "pushed": false
       }
+    },
+    {
+      "id": "al-01M4HCT7Q1KV3FP6DJ7XZQ8WYW",
+      "shortname": "join-pr27",
+      "datetime": "2026-10-09T22:33:50Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/copy447-measurement into main",
+      "summary": "Joined PR #27 as a blocked partial (Ruling 190); COPY-447 held until W-2 B2; deferred-metadata capture class recorded recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-27.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PR #27 on main under Ruling 190",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T22:32:50Z",
+      "duration_seconds": 60.0
     }
   ],
   "changes": [
@@ -36388,6 +36417,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4H9TKRHHJDNMAHVBK1XZ00G",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4HCRAQMNN2ZQ5R1H9JWDC0N",
+      "ts": "2026-10-09T22:32:48Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4HCRAQFMD7G4J25B98XPM1R",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4HCRATF4DB91EZ471CWQT1K",
+      "ts": "2026-10-09T22:32:48Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4HCRAQFMD7G4J25B98XPM1R",
       "session": "fable-owner"
     }
   ]
