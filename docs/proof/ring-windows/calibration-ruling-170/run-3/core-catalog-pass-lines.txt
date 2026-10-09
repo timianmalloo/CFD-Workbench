@@ -1,0 +1,9 @@
+Core.part1of3: PASS Catalog_Refusal_NamesItsCheck
+Core.part1of3: PASS CatalogGenerator_Naca0012_MatchesClosedFormAt81Stations
+Core.part1of3: PASS CatalogGenerator_Spacing_CosPiBitGoldenAndAccuracy
+Core.part2of3: PASS Catalog_GenEntries_RegenerateToRecordedHash
+Core.part2of3: PASS Catalog_VendAndLink_NoCoordinates
+Core.part2of3: PASS CatalogGenerator_ClosedTe4412_ChordFrameLeAtMinimumX
+Core.part3of3: PASS Catalog_HashMismatch_CatUnavailable
+Core.part3of3: PASS Catalog_Fairings_NeverListed
+Core.part3of3: PASS Catalog_GenNeverThroughDatParse

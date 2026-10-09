@@ -1,0 +1,10 @@
+EXPECTED Library_EntryBytes_ParseAsStandaloneSection (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Library_ScanNameCollision_BothReported (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED LayoutLoad_Absent_ReturnsPresets (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Rollback_V2Oversized_BytesUnchanged (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED LayoutSave_Conflict_MergesChangedWorkspaceOnly (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recent_Conflict_ReappliesAdd (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Recent_Remove_KeepsEveryOtherEntry (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Rollback_TextSizeV2_BytesUnchanged (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED-FAIL 8 (manifest)
+UNEXPECTED 0

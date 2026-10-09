@@ -1,0 +1,10 @@
+command=pwsh -NoProfile -ExecutionPolicy Bypass -File docs/proof/ring-windows/capture-calibration.ps1 -Run 1 -SelfTest
+normal_exit=0
+capture deadline self-test PASS: actual wait receives remaining time; termination shares the deadline; bypass mutations and a 905960.528 ms envelope fail
+mutation=WaitForExit(remainingMs) -> WaitForExit(900000)
+wait_mutant_exit=1
+wait_mutation_rejected=Deadline wait self-test failed to pass the remaining budget.
+mutation=total-envelope result -> false
+envelope_mutant_exit=1
+envelope_mutation_rejected=Total-envelope failure check is missing or bypassed.
+verification=PASS both control mutations were rejected

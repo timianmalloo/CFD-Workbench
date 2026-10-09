@@ -1,0 +1,4 @@
+EXPECTED Cli_AnalyseRunKey_EqualsServiceOnCustomOp (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED Cli_InspectRuns_RevisionIsSessionLabel (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED-FAIL 2 (manifest)
+UNEXPECTED 0
