@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:44:35Z",
+  "generated": "2026-10-09T02:53:41Z",
   "audit": [
     {
       "actor": null,
@@ -32022,6 +32022,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T02:43:38Z",
       "duration_seconds": 57.0
+    },
+    {
+      "id": "al-01M4F999RE321ZDS8HDAJ6YQEM",
+      "shortname": "rrf-rule-match",
+      "datetime": "2026-10-09T02:53:41Z",
+      "session": "trk-rrf",
+      "prompt": "Track RRF",
+      "summary": "rule_for matches the executed script (first non-flag arg after an interpreter); self-test case red-first; lesson line added",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "readiness rule matches the executed script only",
+      "done_when": "self-test red then green, real readiness line ok, check-docs 0"
     }
   ],
   "changes": [
