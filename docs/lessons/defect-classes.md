@@ -601,6 +601,11 @@ timestamped before the review) is pending.
 
 *Derive:* a track stages its files (`git add -A`) before its final gate run, so gates that read the index see new
 files. *Control:* the briefs' common rule now says "stage, then gates, then commit"; mechanical form pending.
+*Status: controlled (2026-10-09, track GBA).* The working-tree gates `check-proof-pii.py`, `check-wsl-inline.py` and
+`check-notices.py` list files through `tools/gate_files.py` (`git ls-files` plus `--others --exclude-standard`), so a
+new unstaged file is judged. Each `--self-test` plants an untracked offender in a temp repo. `check-merge-bindings.py`,
+`check-capture-manifests.py` and `check-foildsl-spec-sync.py` judge committed blobs by design and keep HEAD. Proof:
+`docs/proof/gba/red-first.md`.
 
 **READINESS-UNLOCKED · Readiness measures frame budgets while a track's ring runs.**
 On 2026-10-09 readiness for the PR #24 join was RED: `Readiness_OrbitFrameP95Under33Ms` measured 45.26 ms against 33 ms at
@@ -2340,6 +2345,10 @@ rounds up, height to even). The sweep of 23 `Near(…, 0, …)` sites found 2 mo
 *2026-10-09 (Ruling 180).* Item 4 is now **Verified** a test-capture defect. The operator saw the Side chip, the lane
 caption and Front starboard/port on the live app on a Retina Mac. A device-resolution `RenderTargetBitmap` drops the
 Elevation overlay; the compositor does not. No product change.
+*2026-10-09 (Ruling 186, paused).* The operator paused the Windows proof after five harness-blocked attempts. Items 2,
+3 and 5 are repaired in the tests on the Mac but NOT ASSESSED at 150 % on Windows; item 6 is open; the ninth check is
+not run. Residual risk: a fractional-scale defect on Windows that the Mac cannot show stays undetected until the proof
+resumes. The resume path is the committed runner and driver, plus a Settings-launch precondition.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
@@ -2453,6 +2462,23 @@ rebuilt (the scale-context print, the item-6 bounds) had no committed home eithe
     and throws `WRI-FIXTURE`. Status: in the PC's Ruling 185 track. Next step, parked: `Assert-WriToolchain` carries the
     exit code and trimmed stdout in its throw (a library track with its own hash review).
 
+**CLOSING-MANIFEST-MUTABLE-PATH · A closing manifest pins a live source path whose bytes are expected to change.**
+On 2026-10-09 the PC's Ruling 184 blocked receipt could not pass check-docs. `docs/proof/wri-r182-runner/closing-manifest.json`
+binds four tools by their live `tools/` paths: the checker, the runner, the runner test and the preflight. Ruling 184
+legitimately changed those files, so their sizes and SHAs no longer matched. The manifest froze history by pointing at
+the present. The fix was authorized at 19:49:54Z: immutable snapshot copies of the `e9714ce5` blobs inside the proof
+folder, with only those four paths rebound and the bytes and SHAs unchanged.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a closing or capture manifest entry whose path lies outside `docs/proof/` and names a file a later track
+  may edit (`tools/`, `src/`, `tests/`).
+- *Sweep:* pending. List every closing-manifest entry outside `docs/proof/` (win-naca binds `cases/*.yaml` by design;
+  those are case files, not tools).
+- *Derive:* a manifest freezes evidence by copying it into the proof folder; it never binds a path that a later track
+  may change.
+- *Prevent:* pending. `check-capture-manifests.py` flags a closing-manifest path under `tools/`, `src/` or `tests/`,
+  red first on the R182 manifest at main. Until then this is prose and the PC's snapshot convention.
+
 **WINDOWS-CAPTURE-LIFECYCLE · A launcher mistakes root exit or a termination request for complete, bounded process cleanup.**
 Ruling 181's watchdog lost the numeric exit. Runner review also exposed inherited output handles, asynchronous
 assignment-failure termination, and residual accounting before SDK shutdown.
@@ -2483,3 +2509,10 @@ waits, a StreamWriter constructor, and a second dot-source. Separate adversarial
 - *Prevent:* the 19 planted policy mutants in `tools/check-windows-runner.py --self-test`; Ready also runs the policy
   gate. Ring: fast policy / preparation mutant suite. Measured Windows policy 1.457 s, mutant suite 11.667 s. Status:
   controlled; output/timeout publication is PHN-checked (`docs/proof/wri-r182-runner/receipt.md`).
+
+## 2026-10-09 round — cost caps under a concurrent ring (CCL)
+
+**COST-CAP-LAGGING-LOAD · A cost cap is excused by an end-of-run load average, which lags and cannot tell a ring that overlapped another from a quiet one.**
+Five tracks (RG4, PHN, SDG, CBS, RLK) each lost a repair cycle: the first `tools/run-tests.sh` exited 1 on C-2..C-5 only (Analysis 6869 and 5216 ms against 5000; net wall 50,032 ms; C-2 5032 and 5083 ms at load 20.8), and every re-run passed. C-2..C-5 failed whenever the 1-minute load at ring end was <= 24, but that load averages the last minute: a second ring that started late or ended before the end reading leaves it under 24 while the overlap still slowed a part. Measured 2026-10-09 (`docs/proof/ccl/receipt.md`): a ring alone ended at load 18.4 with net wall 43.9 s; with a second ring from second 20 it ended at 23.66 (under the gate) with net wall 49.6 s against the 50 s cap and Desktop 46.2 s.
+
+**Class → sweep → derive → prevent:** signature: a pass/fail rule on a shared-resource quantity (wall clock, CPU) that decides contention from one lagging sample taken after the work, not from what ran during it. Sweep: C-2, C-3, C-4, C-5 in `tools/check-test-costs.py` (fixed here); TEST-BUDGET (`--budget`) uses the same end-load gate and was left as is (its 60 s budget carries more slack; measured 54 s with a peer); C-6 is a missing reading, not a contention quantity, and stays ungated. Derive: ask the lock that already knows who ran, not the load average. Control: `ring_lock_peers` in `tools/ring-lock.sh` and a once-a-second sampler in `tools/run-tests.sh` write `.tmp-tests/peers.txt`; `check-test-costs.py` turns an over-cap C-2..C-5 into `COST-ADVISORY (concurrent ring <pids>)` (printed, never silent) and keeps it a failure when the file is absent or empty. Ring: every join; cost one `cat` per second. Tests: `check-test-costs.py --self-test` (6 peers cases, red 81/83 before the change, 83/83 after) and `ring-lock.sh --self-test` (2 peers cases). Residual: a load source outside the ring lock (a build, an editor) is still judged by the end load only.

@@ -30,7 +30,18 @@ cd "$root"
 # shellcheck source=tools/ring-lock.sh
 . "$root/tools/ring-lock.sh"
 ring_lock_acquire "$$"
-trap ring_lock_release EXIT
+# CCL-A: from here until the cost check, sample which other rings hold a slot (peers.txt, one PID per line). The 1-minute end load
+# lags and cannot tell a ring that overlapped another from a quiet one; check-test-costs.py turns C-2..C-5 into COST-ADVISORY
+# naming these PIDs. The file is cleared with the other readings below, so a ring that ran alone has none. Cost: one cat per second.
+peers_file="$scratch/peers.txt"
+rm -f "$peers_file"
+( while :; do
+    for peer in $(ring_lock_peers "$$"); do grep -qx "$peer" "$peers_file" 2>/dev/null || echo "$peer" >> "$peers_file"; done
+    sleep 1
+  done ) > /dev/null 2>&1 &
+peer_sampler=$!
+stop_peer_sampler() { kill "$peer_sampler" 2>/dev/null || true; }
+trap 'stop_peer_sampler; ring_lock_release' EXIT
 # Release: the shipped configuration. Measured 2026-09-27: Core suite 40 s Debug, 27 s Release.
 # A certificate-precision display-sampling mutant (BUDGET-DISPLAY) is red in both configurations.
 configuration="${CFD_TEST_CONFIGURATION:-Release}"
@@ -171,6 +182,8 @@ cost_jobs=""
 for name in "${names[@]}"; do cost_jobs="$cost_jobs${cost_jobs:+,}$name"; done
 # The end load is read first: C-3 and C-4 fail only at a quiet end load (Ruling 84).
 load_end=$(load)
+stop_peer_sampler
+if [ -s "$peers_file" ]; then echo "RING-CONCURRENT with ring PID(s) $(tr '\n' ' ' < "$peers_file")"; fi
 if ! py "$root/tools/check-test-costs.py" --dir "$scratch" --jobs "$cost_jobs" --load "$load_end" --load-source "$ring_load_source" --host "$ring_host"; then failed=1; fi
 echo "wall $wall s ($(cat "$scratch/wall.ms") ms, net $(( $(cat "$scratch/wall.ms") - $(cat "$scratch/build.ms") )) ms) (budget $budget s) cpu $cpu s load $load_start -> $load_end"
 if [ "$failed" -ne 0 ]; then exit 1; fi

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T18:49:17Z",
+  "generated": "2026-10-09T19:31:45Z",
   "audit": [
     {
       "actor": null,
@@ -33211,24 +33211,122 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4GZZ26FC8SPP2PAW3ZJJQSN",
-      "shortname": "join-rlk",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/rlk/red-first.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-09T18:49:17Z",
-      "session": "3122f106",
+      "done_when": "join gates and ring green, readiness green under the lock, PUSH-OK",
+      "duration_seconds": 60.0,
+      "fan_out": 0,
+      "goal": "readiness never measures frame budgets under a track ring",
+      "id": "al-01M4GZZ26FC8SPP2PAW3ZJJQSN",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/rlk-readiness-lock into main",
+      "session": "3122f106",
+      "shortname": "join-rlk",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T18:48:17Z",
       "summary": "Joined RLK: ring-lock.sh --acquire-all/--release-all with an exclusive-wanted marker; readiness waits (600 s bound, BLOCKED exit 4) and records ringWaitSeconds recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T19:25:37Z",
+      "done_when": "3 gates fixed with self-tests, defect class controlled, check-docs green",
+      "duration_seconds": 314.0,
+      "goal": "Working-tree gates also read new untracked files",
+      "id": "al-01M4H21KFYKDCY1GCXVSGNTA2A",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-gba",
+      "session": "trk-gba",
+      "shortname": "gba-untracked-gates",
+      "skill": "implement",
+      "started_at": "2026-10-09T19:20:23Z",
+      "summary": "tools/gate_files.py shared helper; check-proof-pii, check-wsl-inline, check-notices read untracked non-ignored files; self-tests; GATE-BEFORE-ADD controlled",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/gba/red-first.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-09T19:30:28Z",
+      "done_when": "join gates and ring green",
+      "duration_seconds": 61.0,
+      "fan_out": 0,
+      "goal": "GATE-BEFORE-ADD controlled",
+      "id": "al-01M4H2AFJE2KAGRYZ873TCMY4H",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/gba-untracked-gates into main",
+      "session": "3122f106",
+      "shortname": "join-gba",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T19:29:27Z",
+      "summary": "Joined GBA: tools/gate_files.py worktree_files(); PII, WSL-inline and notices gates see untracked files; red-first self-tests recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T19:28:39Z",
+      "done_when": "peers sampled, COST-ADVISORY named, quiet cap still fails, self-tests green, class entry",
+      "duration_seconds": 496.0,
+      "goal": "C-2..C-5 stop failing a ring that overlapped another ring",
+      "id": "al-01M4H275BY54Y7X79VA6293T2W",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-ccl",
+      "session": "trk-ccl",
+      "shortname": "ccl-cost-concurrency",
+      "skill": "implement",
+      "started_at": "2026-10-09T19:20:23Z",
+      "summary": "run-tests samples ring-lock peers; check-test-costs reports COST-ADVISORY (concurrent ring); self-tests 83/83 and 17/17; class COST-CAP-LAGGING-LOAD",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4H2CTHGZXMMZVEE7T33C9XG",
+      "shortname": "join-ccl",
+      "datetime": "2026-10-09T19:31:45Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/ccl-cost-concurrency into main",
+      "summary": "Joined CCL: run-tests.sh samples ring-lock peers; C-2..C-5 over-cap with a peer prints COST-ADVISORY naming it; quiet host still fails recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/rlk/red-first.md"
+        "docs/proof/ccl/receipt.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "readiness never measures frame budgets under a track ring",
-      "done_when": "join gates and ring green, readiness green under the lock, PUSH-OK",
+      "goal": "tracks stop spending repair cycles on contention",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -33236,8 +33334,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T18:48:17Z",
-      "duration_seconds": 60.0
+      "started_at": "2026-10-09T19:30:41Z",
+      "duration_seconds": 64.0
     }
   ],
   "changes": [
@@ -35872,6 +35970,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4GY25Z8HR83M3Y30ANP599W",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4H16D5EGFQ4YN458JM9Y2EQ",
+      "ts": "2026-10-09T19:10:46Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4H16D59YHM976B5M9YKWQM2",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4H16D8ACR6VFMPD41RZAVHE",
+      "ts": "2026-10-09T19:10:46Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4H16D59YHM976B5M9YKWQM2",
       "session": "fable-owner"
     }
   ]

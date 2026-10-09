@@ -58,6 +58,19 @@ ring_lock_holders() {
   done
 }
 
+# ring_lock_peers <own pid>: the PIDs (one per line) of the other LIVE holders of a slot right now. CCL-A: tools/run-tests.sh samples
+# this once a second into .tmp-tests/peers.txt, so tools/check-test-costs.py can tell a cost miss under a concurrent ring (advisory,
+# the holder named) from one on a quiet host (a failure). An overlap that began or ended mid-ring is still caught; the end load is not.
+ring_lock_peers() {
+  local dir k=1 max="${CFD_RING_MAX:-2}" pid
+  dir=$(ring_lock_dir)
+  while [ "$k" -le "$max" ]; do
+    pid=$(cat "$dir/slot-$k/pid" 2>/dev/null || true)
+    if [ -n "$pid" ] && [ "$pid" != "$1" ] && kill -0 "$pid" 2>/dev/null; then echo "$pid"; fi
+    k=$((k + 1))
+  done
+}
+
 # ring_lock_acquire_all <owner pid>: take every slot for <owner>; returns 0, or 5 after the bounded wait (nothing kept).
 ring_lock_acquire_all() {
   local owner="$1" max="${CFD_RING_MAX:-2}" limit="${CFD_READINESS_LOCK_WAIT_SECONDS:-600}" poll="${CFD_RING_POLL_SECONDS:-2}"
@@ -238,6 +251,17 @@ ring_lock_self_test() {
   if [ "$(cat "$CFD_RING_SLOTS_DIR/slot-1/pid" 2>/dev/null)" = "$holder1" ] && [ ! -e "$CFD_RING_SLOTS_DIR/slot-2" ] && [ ! -e "$CFD_RING_SLOTS_DIR/exclusive-wanted" ]; then
     note ok "a timed-out exclusive request keeps nothing and leaves the holder alone"; else note bad "a timed-out exclusive request keeps nothing and leaves the holder alone" "$(ls "$CFD_RING_SLOTS_DIR")"; fi
   kill "$holder1" 2>/dev/null; wait "$holder1" 2>/dev/null
+
+  # 9. CCL-A peers: only a live holder other than the caller is named; a dead holder and the caller's own slot are not
+  rm -rf "$CFD_RING_SLOTS_DIR"/slot-* "$CFD_RING_SLOTS_DIR"/exclusive-wanted
+  sleep 60 & holder1=$!
+  mkdir "$CFD_RING_SLOTS_DIR/slot-1" "$CFD_RING_SLOTS_DIR/slot-2"
+  echo "$holder1" > "$CFD_RING_SLOTS_DIR/slot-1/pid"; echo $$ > "$CFD_RING_SLOTS_DIR/slot-2/pid"
+  out=$(ring_lock_peers $$ | tr '\n' ' ')
+  if [ "$out" = "$holder1 " ]; then note ok "peers names the other live holder and not the caller"; else note bad "peers names the other live holder and not the caller" "[$out]"; fi
+  kill "$holder1" 2>/dev/null; wait "$holder1" 2>/dev/null
+  out=$(ring_lock_peers $$ | tr '\n' ' ')
+  if [ -z "$out" ]; then note ok "peers ignores a dead holder (a ring that ran alone has none)"; else note bad "peers ignores a dead holder" "[$out]"; fi
 
   rm -rf "$root"
   echo "SELFTEST $((total - fails))/$total cases"

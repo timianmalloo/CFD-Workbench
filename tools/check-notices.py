@@ -2,6 +2,7 @@
 """Gate NeuralFoil's bundled notice, pinned hashes, and the XFOIL proof allowlist.
 
 Readiness ring; expected cost < 0.2 s locally (not yet measured).
+The XFOIL path allowlist reads tracked plus untracked, non-ignored files (GATE-BEFORE-ADD).
 """
 
 import argparse
@@ -10,6 +11,9 @@ from pathlib import Path
 import re
 import subprocess
 import sys
+import tempfile
+
+from gate_files import worktree_files
 
 
 for _stream in (sys.stdout, sys.stderr):
@@ -25,7 +29,19 @@ PREFIX = "docs/proof/spike-ana-1/xfoil/"
 ALLOWED = {PREFIX + ".gitignore", PREFIX + "build.sh"}
 
 
+def self_test():
+    with tempfile.TemporaryDirectory() as tmp:  # GATE-BEFORE-ADD: a new file not yet `git add`ed
+        subprocess.run(["git", "init", "-q"], cwd=tmp, check=True)
+        (Path(tmp) / PREFIX).mkdir(parents=True)
+        (Path(tmp) / PREFIX / "xfoil.f").write_text("x\n", encoding="utf-8", newline="\n")
+        assert worktree_files(tmp, PREFIX) == [PREFIX + "xfoil.f"], "untracked XFOIL path not seen"
+    print("check-notices self-test OK", flush=True)
+    return 0
+
+
 def run():
+    if "--self-test" in sys.argv[1:]:
+        return self_test()
     parser = argparse.ArgumentParser()
     parser.add_argument("--notice", type=Path, default=ROOT / "THIRD-PARTY-NOTICES.md")
     parser.add_argument("--tracked-list", type=Path)
@@ -57,9 +73,7 @@ def run():
     if args.tracked_list:
         tracked = args.tracked_list.read_text().splitlines()
     else:
-        result = subprocess.run(["git", "ls-files", "-z", "--", PREFIX], cwd=ROOT, check=True,
-                                capture_output=True)
-        tracked = [entry.decode() for entry in result.stdout.split(b"\0") if entry]
+        tracked = worktree_files(ROOT, PREFIX)
     forbidden = [path for path in tracked if path.startswith(PREFIX) and path not in ALLOWED]
     for path in forbidden:
         missing.append("tracked XFOIL path " + path)
