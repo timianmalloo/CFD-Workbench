@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T19:25:38Z",
+  "generated": "2026-10-09T19:30:28Z",
   "audit": [
     {
       "actor": null,
@@ -33258,6 +33258,35 @@ window.AUDIT_DATA = {
       "done_when": "3 gates fixed with self-tests, defect class controlled, check-docs green",
       "started_at": "2026-10-09T19:20:23Z",
       "duration_seconds": 314.0
+    },
+    {
+      "id": "al-01M4H2AFJE2KAGRYZ873TCMY4H",
+      "shortname": "join-gba",
+      "datetime": "2026-10-09T19:30:28Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/gba-untracked-gates into main",
+      "summary": "Joined GBA: tools/gate_files.py worktree_files(); PII, WSL-inline and notices gates see untracked files; red-first self-tests recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/gba/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "GATE-BEFORE-ADD controlled",
+      "done_when": "join gates and ring green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T19:29:27Z",
+      "duration_seconds": 61.0
     }
   ],
   "changes": [
