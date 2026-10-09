@@ -2,8 +2,9 @@ gate=13
 limit.analysis_part=26391
 limit.desktop=306344
 limit.wall=313389
-limit.check=3708
-limit.check_exempt=3890
+limit.check=2600
+limit.check_exempt=2850
+limit.budget=341
 1,12.18,336392
 2,10.08,327707
 3,11.80,325651

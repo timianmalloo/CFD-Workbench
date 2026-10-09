@@ -4,6 +4,7 @@
   python3 tools/check-test-costs.py [--dir .tmp-tests] [--jobs Core.part1of3,Core.part2of3,Core.part3of3,Desktop,Analysis.part1of2,Analysis.part2of2,Cli] [--load <1-minute load>] [--load-source proc-gitbash|...] [--host <name>]
   python3 tools/check-test-costs.py --budget <wall s> <budget s> <load>    [--load-source S --host H]    (TEST-BUDGET, Ruling 87: exit 3 or 0)
   python3 tools/check-test-costs.py --resolve-host <hostname>    (prints the baseline key: $CFD_RING_HOST if set, validated [a-z0-9-]{1,32}, else <hostname>; Ruling 168 (3))
+  python3 tools/check-test-costs.py --resolve-budget <load source> <host>    (prints the TEST-BUDGET seconds: $CFD_TEST_BUDGET_SECONDS > the host's limit.budget > 60; Ruling 176)
   python3 tools/check-test-costs.py --self-test
 
 Reads <name>.ms and wall.ms (C-1, millisecond clocks written by run-tests.sh) and the COST lines of every Analysis log (Analysis.log, or Analysis.part<k>of<n>.log).
@@ -53,8 +54,8 @@ LOAD_GATE = 24.0
 # calibrate. A limit line replaces the Mac constant for that host: limit.analysis_part (C-2), limit.wall (C-3, net of the build),
 # limit.desktop (C-4), limit.check and limit.check_exempt (C-5, the per-check limit and the two A8.4 exemptions); a name without a
 # line keeps the Mac constant. C-2 covers Analysis only, so there is no limit.core_part. A malformed limit line exits 2 with REFUSED.
-# C-6 is never re-based. limit.check and limit.check_exempt are beyond Ruling 173's three recommended limits: its run-1 simulation
-# showed 24 of the 28 cost failures were C-5 (docs/proof/phl/notes.md).
+# C-6 is never re-based. limit.budget (seconds) is the host's TEST-BUDGET. limit.check, limit.check_exempt and limit.budget go
+# beyond Ruling 173's three limits (Ruling 176): its run-1 simulation showed 24 of the 28 cost failures were C-5 (docs/proof/phl/red-first.md).
 UNCALIBRATED_SOURCE = "proc-gitbash"
 BASELINE_MIN_RUNS = 3
 CHECK_LIMIT_MS = 500.0        # C-5
@@ -119,7 +120,27 @@ def resolve_host(override: str | None, hostname: str) -> str:
     return override
 
 
-HOST_LIMIT_NAMES = ("analysis_part", "desktop", "wall", "check", "check_exempt")
+# Derivation rules (Rulings 173, 176): each limit comes from the host's three quiet baseline runs, never from memory.
+#   analysis_part, desktop, wall (C-2, C-4, C-3 net of the build, ms): additive, max over the three runs + 2,000 ms.
+#     The 25-310 s quantities carry 0.7-8 % slack that way. wall is wall.ms - build.ms.
+#   check, check_exempt (C-5, ms): multiplicative, max over the three runs of the worst per-check COST (the plain checks;
+#     the two named exemptions) x 1.5, rounded up to 50 ms. 1.5 covers the worst observed run-to-run drift (+22 %) and
+#     catches a 2x regression; an additive 2,000 ms on a ~1.7 s quantity would pass it. Not a multiple of the Mac limit
+#     (the Windows/Mac per-check ratio spans 3.6-10.1x).
+#   budget (TEST-BUDGET, whole seconds): ceil((limit.wall + max build.ms + 2,000 ms) / 1000).
+# A new host re-derives every line from its own runs and replays them through this tool to 0 failures before the file is committed.
+HOST_LIMIT_NAMES = ("analysis_part", "desktop", "wall", "check", "check_exempt", "budget")
+DEFAULT_BUDGET_S = 60
+
+
+def resolve_budget(env: str | None, source: str, host: str, proof: Path | None = None) -> int:
+    """The TEST-BUDGET in seconds (Ruling 176 (2)): CFD_TEST_BUDGET_SECONDS, else the calibrated host's limit.budget, else 60.
+    An env value that is not a positive integer is refused (ValueError), never read as the default."""
+    if env is not None:
+        if not re.fullmatch(r"[1-9]\d*", env):
+            raise ValueError(f"CFD_TEST_BUDGET_SECONDS={env!r} is refused: use a positive whole number of seconds")
+        return int(env)
+    return host_gate(source, host, proof)[2].get("budget", DEFAULT_BUDGET_S)
 
 
 class BaselineError(ValueError):
@@ -142,7 +163,7 @@ def read_baseline(host: str, proof: Path | None = None) -> tuple[float, dict[str
             match = re.fullmatch(r"limit\.([a-z_]+)=(\d+)", line)
             if match is None or match[1] not in HOST_LIMIT_NAMES or int(match[2]) <= 0 or match[1] in limits:
                 raise BaselineError(f"{path}: line {number} {line!r} is not a limit line: use limit.<name>=<ms> once per name, "
-                                    f"name one of {', '.join(HOST_LIMIT_NAMES)}, ms a positive integer")
+                                    f"name one of {', '.join(HOST_LIMIT_NAMES)}, value a positive integer (ms; seconds for budget)")
             limits[match[1]] = int(match[2])
             continue
         try:
@@ -302,9 +323,9 @@ def self_test_host_limits() -> tuple[int, int]:
             "Analysis.part1of2.ms": "21936", "Analysis.part2of2.ms": "24278", "Cli.ms": "8290", "wall.ms": "336392", "build.ms": "25003",
             "Analysis.part1of2.log": "PASS A_Check\nCOST A_Check 1707.929\nPASS F6_ObservedOrder\nCOST F6_ObservedOrder 1889.286\n", "Analysis.part2of2.log": "PASS B_Check\nCOST B_Check 3.000\n"}
     rows = "1,12.18,336392\n2,10.08,327707\n3,11.80,325651\n"
-    limits = "limit.analysis_part=26391\nlimit.desktop=306344\nlimit.wall=313389\nlimit.check=3708\nlimit.check_exempt=3890\n"
+    limits = "limit.analysis_part=26391\nlimit.desktop=306344\nlimit.wall=313389\nlimit.check=2600\nlimit.check_exempt=2850\nlimit.budget=341\n"
     baselines = {"pcl": "gate=13\n" + limits + rows, "pcn": "gate=13\n" + rows, "pcd": "gate=13\nlimit.desktop=306344\n" + rows,
-                 "pcc": "gate=13\nlimit.check=3708\n" + rows,
+                 "pcc": "gate=13\nlimit.check=2600\n" + rows,
                  "bad1": "gate=13\nlimit.desktop=fast\n" + rows, "bad2": "gate=13\nlimit.core_part=30000\n" + rows,
                  "bad3": "gate=13\nlimit.wall=0\n" + rows, "bad4": "gate=13\nlimit.wall=1\nlimit.wall=2\n" + rows}
     failures = 0
@@ -342,6 +363,23 @@ def self_test_host_limits() -> tuple[int, int]:
         (case / "Desktop.ms").write_text("306345", encoding="utf-8", newline="\n")
         errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "pcl", proof)
         report(any("C-4" in e and "306344" in e for e in errors), "limits: one ms over the host limit fails, naming the host limit", f"got {errors}")
+        (case / "Analysis.part1of2.log").write_text("PASS A_Check\nCOST A_Check 2600.001\n", encoding="utf-8", newline="\n")
+        errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "pcl", proof)
+        report(any("C-5 A_Check" in e and "2600" in e for e in errors), "limits: a check one microsecond over limit.check fails", f"got {errors}")
+        for label, env, source, host, want in (
+                ("budget: the env override wins over limit.budget", "90", "proc-gitbash", "pcl", 90),
+                ("budget: limit.budget applies on a calibrated host", None, "proc-gitbash", "pcl", 341),
+                ("budget: no limit.budget line keeps 60", None, "proc-gitbash", "pcn", 60),
+                ("budget: an uncalibrated host keeps 60", None, "proc-gitbash", "nohost", 60),
+                ("budget: a sysctl (Mac) host ignores the baseline", None, "sysctl", "pcl", 60)):
+            got = resolve_budget(env, source, host, proof)
+            report(got == want, label, f"expected {want}, got {got}")
+        for bad in ("fast", "0", "-5", ""):
+            try:
+                got = f"accepted {resolve_budget(bad, 'sysctl', 'x', proof)}"
+            except ValueError as exc:
+                got = "refused" if "CFD_TEST_BUDGET_SECONDS" in str(exc) else str(exc)
+            report(got == "refused", f"budget: CFD_TEST_BUDGET_SECONDS={bad!r} is refused", f"got {got}")
         for host, fragment in (("bad1", "limit.desktop=fast"), ("bad2", "limit.core_part=30000"), ("bad3", "limit.wall=0"), ("bad4", "limit.wall=2")):
             try:
                 check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", host, proof)
@@ -499,6 +537,13 @@ def main(argv: list[str]) -> int:
             print(resolve_host(os.environ.get("CFD_RING_HOST"), args[1]))
         except ValueError as exc:
             print(str(exc), file=sys.stderr)
+            return 2
+        return 0
+    if len(args) == 3 and args[0] == "--resolve-budget":  # run-tests.sh: --resolve-budget <load source> <host>; prints seconds
+        try:
+            print(resolve_budget(os.environ.get("CFD_TEST_BUDGET_SECONDS") or None, args[1], args[2]))
+        except ValueError as exc:  # BaselineError is a ValueError
+            print(f"REFUSED: {exc}", file=sys.stderr)
             return 2
         return 0
     directory, jobs, load, source, host, budget = DEFAULT_DIR, DEFAULT_JOBS, "not-recorded", "", "", None

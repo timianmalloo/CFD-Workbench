@@ -27,6 +27,16 @@ SELFTEST PASS limits: limit.check re-bases the 500 ms rule and leaves the named 
 SELFTEST PASS limits: a sysctl (Mac) host ignores a baseline and keeps the Mac constants
 SELFTEST PASS limits: no host keeps the Mac C-4 limit 49,369
 SELFTEST PASS limits: one ms over the host limit fails, naming the host limit
+SELFTEST PASS limits: a check one microsecond over limit.check fails
+SELFTEST PASS budget: the env override wins over limit.budget
+SELFTEST PASS budget: limit.budget applies on a calibrated host
+SELFTEST PASS budget: no limit.budget line keeps 60
+SELFTEST PASS budget: an uncalibrated host keeps 60
+SELFTEST PASS budget: a sysctl (Mac) host ignores the baseline
+SELFTEST PASS budget: CFD_TEST_BUDGET_SECONDS='fast' is refused
+SELFTEST PASS budget: CFD_TEST_BUDGET_SECONDS='0' is refused
+SELFTEST PASS budget: CFD_TEST_BUDGET_SECONDS='-5' is refused
+SELFTEST PASS budget: CFD_TEST_BUDGET_SECONDS='' is refused
 SELFTEST PASS limits: malformed limit.desktop=fast is refused with its line
 SELFTEST PASS limits: malformed limit.core_part=30000 is refused with its line
 SELFTEST PASS limits: malformed limit.wall=0 is refused with its line
@@ -65,4 +75,4 @@ SELFTEST PASS C-6 Analysis.part1of2.ms deleted
 SELFTEST PASS C-6 wall.ms deleted
 SELFTEST PASS C-6 build.ms deleted
 SELFTEST PASS C-6 Analysis PASS without COST
-SELFTEST 67/67 cases
+SELFTEST 77/77 cases
