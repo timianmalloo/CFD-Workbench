@@ -64,6 +64,36 @@ disabled-at-limit buttons use `disabled` with a title (build uses `aria-disabled
 equivalent for tick positions; high-contrast and screen-reader traces. The accessibility veto is held by that lens and
 is not cleared by the author; the operator ranks accessibility proof below function and look.
 
+## Revision 2 (track CMR, after Ruling 194): dispositions
+
+Inputs: the operator's three answers; the accessibility review (7 Majors M1 to M7, build conditions C1 to C10) and the
+Computational Geometry review (PASS-WITH-CONDITIONS), both as summarised in the CMR brief. The original review texts are in the
+leader's record; the minors m1 to m6 and nits n1, n2 were not in the brief and are **not dispositioned here** (the leader maps them).
+"Fixed" means the note section and the mockup changed; every check below was run in Chrome via
+`docs/proof/cmb/mockup-audit.mjs` (Playwright, system Chrome) on 2026-10-09.
+
+| Item | Disposition | Where | Evidence (observed) |
+|---|---|---|---|
+| M1 focus ring on the viewport | Fixed: `--focus-vp` (#66ddc8) replaces `--accent`; pair added to the audit | note §3.2; mockup CSS, audit | computed outline of the focused plan = rgb(102, 221, 200); min contrast over 8 pairs 6.11 : 1 light, 7.83 : 1 dark |
+| M2 arrow-key probe | Fixed: removed; `[` `]` walking with "Point N:"; harness range input labelled harness only | note §3.2 | after four `]` presses the strip reads "Point 4: LE R 1986 mm · κ +0.50 per m convex at point 4's station on the curve" |
+| M3 Tab skips the plate | Fixed in design: order plan, plate, Properties; `TabToProperties` change; tests named. Mockup shows a stand-in Properties button | note §3.2, C2 | Tab from the plan visits smaller, larger, auto, sparser, denser, then the stand-in (observed). `PlanCanvas.cs:597`, `:614` read |
+| M4 limit moves focus to Auto | Fixed: aria-disabled keeps focus and announces; a native disabled button would fall to the paired stepper | note §3.2, C1; mockup `act()` | after pressing Larger at the limit, focus stays on Larger, aria-disabled true, live region "Largest teeth reached." |
+| M5 narrow open plate covers tip and strip | Fixed: opens in flow between viewport and strip; open-state card added; coverage re-run | note §6; mockup card and audit | narrow open stage: open plate below viewport, clear; card order viewport ≤ plate ≤ strip (6485 ≤ 6492, 6718 ≤ 6724 px); 0 covered points at 520 px closed |
+| M6 tick text equivalent | Fixed: pieces line "2 pieces · LE1 at η 0.69" | note §5, COPY-RC-6 | observed on plate for example, wobble, corner, g1 |
+| M7 threshold as `title` | Fixed: plate line with the resolved per-m value; COPY-RC-9 and §5 aligned | note §5, COPY-RC-9 | plate line "Ignores reversals under 0.02 ÷ rail length: 0.021 per m (LE), 0.022 per m (TE)." |
+| C1 to C10 | Carried into "Build conditions" with named tests; only C1 had its wording in the brief, C2 to C10 are numbered by the author from the named conditions | note §9 | not a product test; build proof |
+| Geometry: threshold | Fixed: τ / L, τ = 0.02; fixtures F4 and F5 rewritten with an analytic κ(s) | note §5, §9 | `fixture-profile.py`: F4 extrema at σ 0.5098 and 0.5790, count 3 as τ → 0 and at τ; F5 drop 1.6 τ reads 3, 3, 1 at 0.5 τ, τ, 2 τ |
+| Geometry: scale and mirror invariance | Demonstrated in the page | mockup audit | example TE / wobble TE read 2 / 4 at ×0.3, ×1, ×2; mirror: same counts on 4 rails |
+| Geometry: extrema | Fixed: roots of the numerator of dκ/dt per span (D3), every simple knot a candidate | note §5 | mockup uses the same method; counts independent of density |
+| Geometry: anchors | Fixed: triple knots (C0), explicit span selection, "G1 only", corner by measured angle against 0.1°, both-side readout, sign-change phrase, envelope per piece with a step | note §4, §5, §6; mockup | G1 anchor jump 0.000°, corner 32.4°; strip texts observed for both |
+| Geometry: Greville | Fixed: copy "at point N's station on the curve"; t = ξ evaluated directly | note §4, COPY-RC-8 | mockup evaluates `jet(rail, ξ)` directly |
+| Geometry: sign | Fixed: +κ LE, −κ TE, positive convex; straight = |κ|L²/8 < 10 µm; `speed2 == 0` throws; inflection only between opposite curved neighbours | note §4, §6; mockup | straight rails read "straight · κ 0", 1 piece each |
+| Geometry: lengths | Fixed: Gauss–Legendre | note §4 | GL 932.39 mm vs polyline 932.39 mm |
+
+Craft gate on the revised mockup: `ui-craft-gate.py docs/mockups/rail-comb.html --markdown`, exit 0, no findings. Console and page errors
+during the audit run: none. **Residual:** one plate-coverage failure is known and recorded: on the straight and wobble variants the fixed
+top-right plate covers up to 3 rail or tooth points (the example planform, the one the plate is checked on, covers 0); the product places the plate by exclusion.
+
 ## Residual risk
 
 Vendor tooth side is Flagged. Geometry expert confirmation of the reversal threshold, the one-sided curvature at anchors

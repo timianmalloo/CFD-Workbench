@@ -23,6 +23,12 @@ summary: >-
 
 # Rail comb
 
+**Revision 2 (track CMR, Ruling 194):** approved look kept; changed only where a reviewer condition needs it: viewport focus-ring token,
+`[` `]` point walking in place of the arrow probe (a labelled harness slider stands in for the pointer), aria-disabled steppers that keep
+focus, the open plate in flow at narrow width with an open-state card, tick stations in text on the pieces line, the threshold as a plate
+line (tau / L per rail), extrema by root-finding with one-sided anchor values, a G1 planform, the comb envelope per piece. Audit results:
+[`adversary.md`](../proof/cmb/adversary.md).
+
 Open [`rail-comb.html`](rail-comb.html) over `file://`. The harness (top right) switches planform, area, selected point,
 curvature, narrow width and theme; the strip under the title is the in-page audit (Auto p90 tooth = 30 px, analytic radius
 against a three-point circle, straight rail reads 1 piece, the plate covers nothing, targets at least 24 px, contrast,
