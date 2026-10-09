@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T21:50:12Z",
+  "generated": "2026-10-09T22:38:14Z",
   "audit": [
     {
       "actor": null,
@@ -33642,6 +33642,45 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T21:49:12Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M4HD28M7AVSPCQ561WYF7HCQ",
+      "shortname": "r151-l3-active-progress",
+      "datetime": "2026-10-09T22:38:13Z",
+      "session": "pc-r151-l3",
+      "prompt": "Keep going on the Windows W0-W5 execution; continue Ruling 151 C2/L3 under Mac leadership without disturbing the live solver.",
+      "summary": "Captured one read-only, partial snapshot of the active Ruling 151 L3 unit: six simpleFoam ranks at effective NI19, latest completed iteration marker 54492, and interim A4 NOT MET at monitor iteration 54003. The receipt supersedes the wrapper's unsupported completeness field, preserves missing provenance as Not recorded, corrects the Ruling 169 schema-control wording, and leaves C2/final acceptance open. No solver action or capture rerun occurred.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/proof/win-r151-l3/receipt.md",
+        "docs/proof/win-r151-l3/capture-manifest.json"
+      ],
+      "tags": [
+        "windows",
+        "openfoam",
+        "ruling-151",
+        "in-progress"
+      ],
+      "outcome": "partial",
+      "goal": "Complete the safe Ruling 151 follow-ups while preserving the running L3 job.",
+      "done_when": "C3/C4 state is reconciled, a truthful C2 progress receipt is validated and handed to the Mac leader, and final acceptance remains gated on solver completion.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "git": {
+        "sha": "460aabd0c343eac77a06c0c75125bcf8eb3d0c00",
+        "short": "460aabd0c",
+        "branch": "win/r151-l3-closeout",
+        "pushed": false
+      }
     }
   ],
   "changes": [
