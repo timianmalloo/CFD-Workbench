@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T21:30:40Z",
+  "generated": "2026-10-09T21:41:54Z",
   "audit": [
     {
       "actor": null,
@@ -33563,6 +33563,36 @@ window.AUDIT_DATA = {
       "tags": [],
       "tier": "T1",
       "tool": null
+    },
+    {
+      "id": "al-01M4H9V54SK80KR76FGKJTRKQG",
+      "shortname": "join-pr26",
+      "datetime": "2026-10-09T21:41:54Z",
+      "session": "3122f106",
+      "prompt": "the join of origin/win/r181-verifier-rerun into main",
+      "summary": "Joined PR #26; Windows store qualification PASS admitted as evidence bound to verifier a79ac73c and the verified build trees (Ruling 189) recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-26.md",
+        "docs/proof/application-core.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PR #26 on main and the Windows store PASS admitted",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T21:41:39Z",
+      "duration_seconds": 15.0
     }
   ],
   "changes": [
@@ -36252,6 +36282,24 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4H7NKM9WPNDEXK36E5AVHDD",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4H9TKRNZVNX327BJK7NWYYH",
+      "ts": "2026-10-09T21:41:37Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4H9TKRHHJDNMAHVBK1XZ00G",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4H9TKVHW287S3QGHMY8FFTZ",
+      "ts": "2026-10-09T21:41:37Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4H9TKRHHJDNMAHVBK1XZ00G",
+      "session": "fable-owner"
     }
   ]
 };

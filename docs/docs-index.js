@@ -14588,6 +14588,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "afad609f4900a83866f51c3e7398bd81df8d594b4fed9c56dbde9fe2f420fab6"
     },
     {
+      "id": "proof-r181-store-verifier-rerun",
+      "path": "docs/proof/r181-store-verifier-rerun/receipt.md",
+      "title": "Ruling 181 Windows verifier rerun",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r181-store-verifier-rerun",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The single Ruling 181 rerun observed verifier exit 0 through the committed runner, numeric build-server shutdown 0 before residual sampling, zero matching SDK build servers, PHN PASS, and unchanged protected source.",
+      "tags": [
+        "windows",
+        "verifier",
+        "ruling-181",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-22",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-store-final-rerun-r175",
+          "rel": "supersedes"
+        },
+        {
+          "to": "proof-wri-r182-runner-ready",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ad4ef9a57ade852b499f998ae87b9551ac226d18bd5a0dca5cf85f4f8d733295"
+    },
+    {
       "id": "proof-rcd-red-first",
       "path": "docs/proof/rcd/red-first.md",
       "title": "RCD readiness runs check-docs, red-first run",
@@ -19249,5 +19287,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "350a3b56e51ff8f82907e55975fa3fe0b4a0d932b302634982a1ec830e52fd58"
+  "graphSha256": "404ff72c72f25a68ea123b7510d1cc9188116a5c95b09d6f85e7fddc35569a97"
 };
