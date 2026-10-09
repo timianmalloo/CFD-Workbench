@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:58:50Z",
+  "generated": "2026-10-09T03:12:04Z",
   "audit": [
     {
       "actor": null,
@@ -32154,6 +32154,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T02:58:37Z",
       "duration_seconds": 13.0
+    },
+    {
+      "id": "al-01M4FAAY7S6K2WYWPFXMEVKEBR",
+      "shortname": "rcd-readiness-check-docs",
+      "datetime": "2026-10-09T03:12:03Z",
+      "session": "trk-rcd",
+      "prompt": "trk-rcd",
+      "summary": "Added tools/check-docs.py as first readiness step (about 11 s; ring 164.7 s of 240 s); red-first in docs/proof/rcd; POST-JOIN-EDIT-UNGATED controlled",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "readiness runs check-docs",
+      "done_when": "mismatched manifest turns readiness RED; readiness GREEN at HEAD"
     }
   ],
   "changes": [
