@@ -30,14 +30,14 @@ def record() -> int:
     if not captures:
         print("FAIL no Windows verifier captures found", file=sys.stderr)
         return 1
-    MANIFEST.write_text(json.dumps({"schema": 1, "captures": captures}, indent=2) + "\n", encoding="utf-8", newline="\n")
+    MANIFEST.write_text(json.dumps({"files": captures}, indent=2) + "\n", encoding="utf-8", newline="\n")
     print(f"CAPTURE-MANIFEST recorded={len(captures)}")
     return 0
 
 
 def check() -> int:
     try:
-        expected = json.loads(MANIFEST.read_text(encoding="utf-8"))["captures"]
+        expected = json.loads(MANIFEST.read_text(encoding="utf-8"))["files"]
     except (OSError, ValueError, KeyError) as error:
         print(f"FAIL capture manifest unreadable: {error}", file=sys.stderr)
         return 1
