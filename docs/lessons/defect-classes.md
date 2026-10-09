@@ -2163,6 +2163,10 @@ reviewer vetoed it at the 2/2 repair cap.
   `run-readiness.py` `run_entry`); the PR #19 join stopped at step 8 on the Mac. Control: `tools/run-windows-store-gate.py
   --self-test` (each exit and the timeout, stub child) and `tools/run-readiness.py --self-test` (`ENTRY_RULES` exit map and
   per-entry timeout). Sweep: a new `tools/verify-*.py` with a non-pass/fail exit needs a join wrapper and an `ENTRY_RULES` row.
+- *2026-10-09 sibling (rule lookup by any argument):* `rule_for` matched `ENTRY_RULES` against every argument, so the
+  `run-verify-gates.py --skip ... verify-windows-store.py` line took the verifier's rule (60 s, exit 4 excluded, evidence label).
+  Control: a rule applies to the executed script only; `tools/run-readiness.py --self-test` runs a script that exits 4 with the
+  ruled name in `--skip` and requires red (`docs/proof/rrf/red-first.md`).
 
 **FIXTURE-RESET-WITHOUT-DRAIN · A shared-fixture reset returns before the previous check's background job lands, and the next check captures a baseline that depends on that job.**
 `Elevation_ZoomPanFit_KeyboardAndPointerSameCamera` failed once in `--views --part=1/2` as "⌘0 fits" (load 1.9 to 16).

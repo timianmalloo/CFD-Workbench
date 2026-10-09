@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "22505be2abb31a7f97645f748e99526d5406862a28759cf2474efdeeba38b8a7"
+      "sourceSha256": "dd5657f0657f9af9f93a419959fb7500784ae636af71af7a48724287fd563073"
     },
     {
       "id": "domain-experts",
@@ -14524,6 +14524,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "cb3be0188a83c3d0e5ff019def49ab42f83f3654ff52f752164328a81e45e695"
     },
     {
+      "id": "proof-rrf-red-first",
+      "path": "docs/proof/rrf/red-first.md",
+      "title": "RRF: red-first record for the readiness rule match",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-rrf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "`rule_for` in tools/run-readiness.py matched a rule against any argument; it now matches the executed script only. The new self-test case is red on the old code and green on the new.",
+      "tags": [
+        "readiness",
+        "run-readiness",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-wdf-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3933950736c8c77e8408096a2178260cd2b6d68282dd945bc298564c6be2646a"
+    },
+    {
       "id": "proof-sfv-captures",
       "path": "docs/proof/sfv/captures.md",
       "title": "SFV captures of the Section force vectors against the approved mockup states A to E",
@@ -18311,5 +18336,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "9359c28c9883a2137c836c56e7f968d3557d7acf3dca9c204d0f85462f5a756d"
+  "graphSha256": "0c03dfde1488f9048bbf06fab1a91f3c75760224dbe5727e6176ef24a195757f"
 };

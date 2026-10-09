@@ -104,7 +104,9 @@ def finish(running: list, deadlines: list[float]) -> list[tuple[int, bool, float
 
 
 def rule_for(command: list[str], rules: dict) -> dict:
-    return next((rules[Path(part).name] for part in command if Path(part).name in rules), {})
+    interpreters = {"python3", "python", "py"}
+    executed = next((part for part in command[1:] if not part.startswith("-")), "") if Path(command[0]).stem in interpreters else command[0]
+    return rules.get(Path(executed).name, {})
 
 
 def status_of(code: int, timed_out: bool, rule: dict) -> str:
@@ -248,6 +250,13 @@ def self_test() -> int:
         ring([["python3", "-c", "raise SystemExit(4)"]], "exit 4 of another script")
         if run_ring(repo, join, receipt) != 1:
             problems.append("exit 4 of a script with no rule was not red")
+        # A rule belongs to the executed script only: a ruled name in a later argument (a --skip list) earns no rule.
+        (repo / "tools" / "other.py").write_text("raise SystemExit(4)\n", encoding="utf-8", newline="\n")
+        ring([["python3", "tools/other.py", "--skip", "verify-windows-store.py"]], "ruled name as an argument")
+        observed = run_ring(repo, join, receipt)
+        recorded = json.loads(receipt.read_text(encoding="utf-8"))["results"][0]["status"]
+        if observed != 1 or recorded != "fail":
+            problems.append("a ruled script named only as an argument got its rule: ring {0}, status {1}".format(observed, recorded))
         stub.write_text("import time\ntime.sleep(30)\n", encoding="utf-8", newline="\n")
         ring([step], "verifier hang")
         began = time.monotonic()
