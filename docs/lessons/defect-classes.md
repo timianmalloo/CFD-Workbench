@@ -2178,3 +2178,20 @@ completing between dispatcher pumps), where load only stretches the window.
   check asserts the surface is settled at its baseline. Red first with a planted mesh delay (`docs/proof/ezf/red-first.md`):
   camera compare red at 60 and 150 ms on the old Reset, assertion red at 150 ms, green at 0, 60, 150, 200, 800 ms after the
   drain. Not done: a lint for a fixture `Reset` that fits without a drain (investigation P3).
+
+**HOST-REBASE-BY-RECOLLECTION · A per-host re-base names the rules it covers from memory of the first failures, not from the full failing set of a replay.**
+2026-10-09, track PHL. Ruling 173 (2) recommended three limits (analysis part, desktop, net wall) for the pc-win baseline. A
+replay of run 1 through `check-test-costs.py` with those three limits still failed 24 times on C-5 (the 500 ms per-check rule,
+worst check 1,708 ms on Windows); the "28 cost failures" the review counted were 4 + 24.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a baseline or limit set accepted on a count ("28 would fail") whose parts were never listed against the rules.
+- *Sweep:* every Mac constant in `check-test-costs.py` (C-2, C-3, C-4, C-5 and its exemptions) is now re-basable per host; C-6 and the load gate are not, by design.
+- *Derive:* a host baseline is accepted only when a replay of its own runs through the tool exits 0.
+- *Prevent:* `check-test-costs.py --self-test` carries a case built from the pc-win run-1 numbers (C-2, C-3, C-4 and C-5) that passes with the baseline limits and fails without them; `docs/proof/phl/sim-with-baseline.txt` replays all three runs.
+
+**COUNT-QUOTED-NOT-LISTED · A ruling quotes a failure count by class ("22 store names") that nobody listed against the log.**
+2026-10-09, track PHL. Ruling 173 (3) says 22 class-(b) names enter the Windows manifest. Two of the 22 were already in it;
+20 were new. `Telemetry_MarkerInjection_AbsentEverywhere` (a `win\` path fixture that fails with DirectoryNotFound on Windows)
+is not a store failure: it is a ninth Windows-platform name for the class-(a) investigation, left UNEXPECTED.
+- *Prevent:* each manifest entry carries a fragment from the real failure text, and `docs/proof/phl/replay-desktop.txt` replays all three runs (26 EXPECTED, 15 UNEXPECTED, identical in each).

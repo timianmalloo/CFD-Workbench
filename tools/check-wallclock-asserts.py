@@ -33,7 +33,6 @@ GATE = re.compile(r"RequireFrameBudget|ReadinessLoadGate|READINESS-MISS|LoadAver
 # Tracked debt: (file relative to tests/, stripped source line). Fixing these is a later track; each needs the Ruling 81
 # gate (RequireFrameBudget) or a READINESS-MISS path, then its entry is deleted here.
 ALLOWLIST = {
-    ('CfdWorkbench.Analysis.Tests/SectionSeamTests.cs', 'if (watch.Elapsed.TotalMilliseconds > 1000) throw new InvalidOperationException("warm 200-panel whole-wing section tier exceeded 1 s");'),
     ('CfdWorkbench.Desktop.Tests/AnalysisToggleTests.cs', 'if (p95 > 250) throw new Exception($"Toggle p95 {p95:F3} ms exceeds 250 ms.");'),
     ('CfdWorkbench.Desktop.Tests/PlanCanvasTests.cs', 'if (median > 8) throw new Exception(FormattableString.Invariant($"Plan render median {median:F2} ms is over its 8 ms budget"));'),
 }
