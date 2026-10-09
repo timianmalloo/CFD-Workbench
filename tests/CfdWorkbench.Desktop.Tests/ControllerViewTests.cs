@@ -637,8 +637,10 @@ public static class ControllerViewTests
                 area.PlanContent.Width = width;
                 area.PlanContent.Height = height;
                 fixture.Settle();
-                Near(width, grid.Bounds.Width, 0, "arrangement width");
-                Near(height, grid.Bounds.Height, 0, "arrangement height");
+                // DPI-A: 647 DIP is 970.5 device px at 150 %, laid out as 971 (647.333); 487 is 730.5, laid out as 730 (486.667). The two
+                // axes round in different directions, so Rounded() cannot state one expectation; one device pixel is the bound (0 at 1 and 2).
+                Near(width, grid.Bounds.Width, DevicePixel.Tolerance(area, 0), "arrangement width");
+                Near(height, grid.Bounds.Height, DevicePixel.Tolerance(area, 0), "arrangement height");
                 AssertFourOrOne(area, four, $"{width} × {height}");
             }
             if (fixture.Controller.Layout != ViewLayout.Four) throw new Exception("The fallback changed the chosen layout");

@@ -2225,6 +2225,9 @@ it is green at 1.5 and 2.0. Item 2 is a second assertion with zero tolerance (`C
 2.0. The overlay sits inside `PushOpacity` + `PushClip` (`ElevationView.cs:1115`, `:1199`), and View3d's chip, drawn
 without them, is present. A spike decides capture versus product (track ECR). Item 5 needs a scale-aware View3d `Shot`
 (track V3D). Item 6 still waits on the fact-TextBlock print.
+*2026-10-09 (track FVT).* Item 2 repaired: both arrangement lines use `DevicePixel.Tolerance`; `Rounded` cannot state them (width
+rounds up, height to even). The sweep of 23 `Near(…, 0, …)` sites found 2 more exposed or possibly exposed (`ControllerViewTests.cs:1171-1172`,
+`AnalysisPanelTests.cs:590`), left as findings. Proof: `docs/proof/fvt/red-first.md`. The PC must see item 2 PASS at 150 %.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.

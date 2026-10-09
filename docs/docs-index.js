@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4e6259055bf877704334f0ddeedd218fee2c9d401f2c5912ec7ae662ad49aa28"
+      "sourceSha256": "d9444ca7a2a8d781fea7b2c519fbf3659bd75866e9caafa0f10c6174765edd04"
     },
     {
       "id": "domain-experts",
@@ -12886,6 +12886,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "4c06a9a18f6c48fc4ef035b4393ae650b80979b4ff13c1ff877cfadfd77f80b0"
     },
     {
+      "id": "proof-fvt-red-first",
+      "path": "docs/proof/fvt/red-first.md",
+      "title": "FVT red-first - four-views arrangement assertions at a fractional scale (Ruling 179 item 2)",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-fvt",
+      "phase": "implementation",
+      "reviewBy": "2026-11-05",
+      "reviewSuggested": [],
+      "summary": "Item 2 repaired with a device-pixel tolerance; Rounded cannot state both axes; sweep of 23 sites found 2 more exposed.",
+      "tags": [
+        "dpi-a",
+        "fvt",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-probe-windows-scale",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d97b6ea800c0f6c02018e038b850bb16b768e7d210c12255c18fbee8979fea18"
+    },
+    {
       "id": "proof-g0-red-runs",
       "path": "docs/proof/g0-red-runs.md",
       "title": "G0 glue red-first runs",
@@ -18528,5 +18553,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3095ff694d1cc0246a27e3b30acee0e3ceeb683e7bb674dd233d0f50111d4008"
+  "graphSha256": "060d53d974a18696f136209f004dee82d5223a174542083a40b2230db97404bf"
 };
