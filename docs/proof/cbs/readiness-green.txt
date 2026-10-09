@@ -1,0 +1,69 @@
+run-readiness: FAIL    0.2 s  python3 -c raise SystemExit(1)
+run-readiness: total 0.4 s (budget 240 s) load 16.64 -> 16.64
+run-readiness: RED for 512b9233d (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: the receipt is red for 512b9233d, not green for HEAD 512b9233d
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+run-readiness: FAIL    0.2 s  || python3 -c raise SystemExit(1)
+run-readiness: last lines of /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness/00-1.log
+
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 16.64 -> 15.38
+run-readiness: RED for 142b37df5 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: the receipt is red for 142b37df5, not green for HEAD 142b37df5
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 15.38 -> 15.38
+run-readiness: GREEN for 4aafec200 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: green receipt for HEAD 4aafec200
+run-readiness: the receipt is green for 4aafec200, not green for HEAD d25424efa
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+run-readiness: ok      0.2 s  || python3 -c print('ok')
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget -1 s) load 15.38 -> 15.38
+run-readiness: GREEN for d25424efa (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+READINESS-BUDGET: green, but 0.8 s is over the -1 s budget. Read the load on the line above and the step seconds before raising it (docs/plans/test-cost.md).
+run-readiness: the receipt for HEAD d25424efa is green but over budget (0.8 s > -1 s); READINESS-BUDGET
+run-readiness: FAIL    1.0 s  python3 -c import time; time.sleep(30)  (TIMEOUT after 1 s; process group killed)
+run-readiness: total 1.2 s (budget 240 s) load 15.38 -> 15.38
+run-readiness: RED for 5c20574f2 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: N/A     0.2 s  python3 tools/verify-windows-store.py  (NOT ASSESSED, excluded from the ring result)
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 15.38 -> 15.38
+run-readiness: GREEN for 8dd67e868 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: green receipt for HEAD 8dd67e868
+run-readiness: EVID    0.2 s  python3 tools/verify-windows-store.py  (evidence, not a gate: a Windows PASS counts only through a reviewed receipt)
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 15.38 -> 15.38
+run-readiness: GREEN for aaa4cb63b (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: green receipt for HEAD aaa4cb63b
+run-readiness: FAIL    0.2 s  python3 tools/verify-windows-store.py
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 15.38 -> 14.23
+run-readiness: RED for 57978adb0 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: the receipt is red for 57978adb0, not green for HEAD 57978adb0
+run-readiness: FAIL    0.2 s  python3 tools/verify-windows-store.py
+ok
+run-readiness: ok      0.2 s  python3 -c print('ok')
+run-readiness: total 0.8 s (budget 240 s) load 14.23 -> 14.23
+run-readiness: RED for df93bbbe0 (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: the receipt is red for df93bbbe0, not green for HEAD df93bbbe0
+run-readiness: FAIL    0.2 s  python3 -c raise SystemExit(4)
+run-readiness: total 0.4 s (budget 240 s) load 14.23 -> 14.23
+run-readiness: RED for fe8aed02f (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: FAIL    0.2 s  python3 tools/other.py --skip verify-windows-store.py
+run-readiness: total 0.4 s (budget 240 s) load 14.23 -> 14.23
+run-readiness: RED for b7cd4941d (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+run-readiness: FAIL    1.0 s  python3 tools/verify-windows-store.py  (TIMEOUT after 1 s; process group killed)
+run-readiness: total 1.2 s (budget 240 s) load 14.23 -> 14.23
+run-readiness: RED for 7adfac28c (receipt /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmputw8cl0z/.tmp/readiness.json)
+cleanup after expired deadline: 0.21 s (bound 2 s)
+cleanup after timeout: 0.23 s (bound 2 s)
+cleanup after failed kill: 0.23 s (bound 2 s)
+self-test OK

@@ -809,10 +809,20 @@ namespace CfdWorkbench.Desktop.Tests
             // tree is killed and the log names the mode. 120 s is about 2.4x the slowest child under load 24 (49.5 s).
             int limit = int.TryParse(Environment.GetEnvironmentVariable("CFD_TEST_CHILD_TIMEOUT_SECONDS"), out int seconds) && seconds > 0 ? seconds : 120;
             bool timedOut = !child.WaitForExit(TimeSpan.FromSeconds(limit));
-            if (timedOut) child.Kill(entireProcessTree: true);
-            child.WaitForExit(); // after a true WaitForExit(timeout), this waits until both redirected streams reach end of file
+            if (timedOut)
+            {
+                // CLEANUP-BLOCKS-CEILING: a failed kill (the child ended first, or the OS refused) must not throw past the ceiling.
+                try { child.Kill(entireProcessTree: true); }
+                catch (Exception error) when (error is InvalidOperationException or System.ComponentModel.Win32Exception or NotSupportedException) { }
+            }
+            // After a true WaitForExit(timeout), the no-argument overload waits until both redirected streams reach end of file.
+            // A grandchild that left the tree can hold a pipe open forever, so that wait runs on a daemon thread and is bounded.
+            var drain = new Thread(() => { try { child.WaitForExit(); } catch (Exception) { } }) { IsBackground = true };
+            drain.Start();
+            bool drained = drain.Join(TimeSpan.FromSeconds(10));
             if (timedOut) lines.Add((false, $"FAIL TIMEOUT {mode} after {limit} s (CFD_TEST_CHILD_TIMEOUT_SECONDS); its process tree was killed"));
-            return (lines, timedOut ? 124 : child.ExitCode, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalSeconds);
+            if (!drained) lines.Add((false, $"FAIL DRAIN {mode}: its output did not reach end of file within 10 s of the child ending (a process outside the tree holds the pipe)"));
+            return (lines, timedOut ? 124 : !drained ? 125 : child.ExitCode, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalSeconds);
         }
     }
 }

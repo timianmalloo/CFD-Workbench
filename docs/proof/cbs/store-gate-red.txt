@@ -1,0 +1,6 @@
+cleanup after expired deadline: 0.00 s (bound 2 s)
+cleanup after held pipe: 5.00 s (bound 2 s)
+cleanup after failed kill: 0.00 s (bound 2 s)
+self-test FAIL: held pipe: gave 1, cleanup 5.00 s
+self-test FAIL: failed kill: gave "raised PermissionError('injected kill failure')", cleanup 0.00 s
+self-test FAILED

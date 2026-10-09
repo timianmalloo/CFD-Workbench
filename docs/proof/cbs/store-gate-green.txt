@@ -1,0 +1,4 @@
+cleanup after expired deadline: 0.00 s (bound 2 s)
+cleanup after held pipe: 2.00 s (bound 2 s)
+cleanup after failed kill: 2.01 s (bound 2 s)
+self-test OK
