@@ -317,10 +317,10 @@ def inventory_rejects_unscoped() -> bool:
     return bool(registration_problems(names))
 
 
-def timeout_cleanup_probe() -> tuple[bool, float, str]:
+def timeout_cleanup_probe() -> tuple[bool | None, float, str]:
     """Exercise timeout cleanup with real Windows pipes and an injected taskkill failure."""
     if os.name != "nt":
-        return True, 0.0, "not assessed off Windows"
+        return None, 0.0, "not assessed off Windows"
 
     class FailedTaskkill:
         args = ["taskkill.exe", "/PID", "injected", "/T", "/F"]
@@ -449,6 +449,191 @@ def timeout_cleanup_probe() -> tuple[bool, float, str]:
         return False, max(0.0, time.monotonic() - work_deadline), f"real-pipe probe error: {error}"
 
 
+def zero_budget_cleanup_probe() -> tuple[bool | None, float, str]:
+    """Exercise an already-expired cleanup deadline and prove a synchronous-close mutant blocks."""
+    if os.name != "nt":
+        return None, 0.0, "not assessed off Windows"
+
+    def exercise(synchronous_close: bool) -> tuple[bool, float, str]:
+        with tempfile.TemporaryDirectory(prefix="cfd-store-zero-budget-") as temp_dir:
+            child_pid_path = Path(temp_dir) / "descendant.pid"
+            child_code = (
+                "import subprocess,sys,time; "
+                "child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)']); "
+                "open(sys.argv[1],'w',encoding='ascii').write(str(child.pid)); "
+                "time.sleep(30)"
+            )
+            descendant_pid: int | None = None
+            worker: threading.Thread | None = None
+            taskkill_attempts: list[str] = []
+            target_processes: list[subprocess.Popen] = []
+            result: list[tuple[int, bytes, bytes, float]] = []
+            cleanup_entry_remaining: list[float] = []
+            cleanup_entry = threading.Event()
+            released = False
+            started = time.monotonic()
+            total_deadline = started + 0.05
+            work_deadline = started + 1.0
+
+            def reap_descendant() -> None:
+                nonlocal released
+                if descendant_pid is not None:
+                    try:
+                        os.kill(descendant_pid, 15)
+                    except OSError:
+                        pass
+                released = True
+
+            def no_taskkill(argv: list[str], *args, **kwargs):
+                taskkill_attempts.append(" ".join(str(part) for part in argv))
+                raise OSError("zero-budget probe must not launch taskkill")
+
+            real_popen = subprocess.Popen
+
+            def track_popen(argv: list[str], *args, **kwargs):
+                if argv and Path(str(argv[0])).name.casefold() == "taskkill.exe":
+                    return no_taskkill(argv, *args, **kwargs)
+                process = real_popen(argv, *args, **kwargs)
+                target_processes.append(process)
+                return process
+
+            real_terminate_tree = _terminate_tree
+
+            def record_entry(process: subprocess.Popen, deadline: float):
+                remaining = deadline - time.monotonic()
+                cleanup_entry_remaining.append(remaining)
+                cleanup_entry.set()
+                return real_terminate_tree(process, deadline)
+
+            def invoke() -> None:
+                result.append(run_capture(
+                    [sys.executable, "-c", child_code, str(child_pid_path)],
+                    env=dict(os.environ), deadline=work_deadline, total_deadline=total_deadline,
+                ))
+
+            try:
+                if synchronous_close:
+                    def mutant_close(process: subprocess.Popen, _deadline: float) -> bool:
+                        _close_streams(process)
+                        return True
+
+                    patcher = patch.dict(globals(), {"_close_streams_bounded": mutant_close})
+                else:
+                    patcher = patch.dict(globals(), {})
+                with patcher, patch.object(subprocess, "Popen", side_effect=track_popen), \
+                     patch.dict(globals(), {"_terminate_tree": record_entry}):
+                    worker = threading.Thread(target=invoke, name=(
+                        "r175-zero-budget-mutant" if synchronous_close else "r175-zero-budget-fixed"
+                    ), daemon=True)
+                    worker.start()
+
+                    pid_wait_deadline = time.monotonic() + 0.5
+                    while descendant_pid is None and time.monotonic() < pid_wait_deadline:
+                        try:
+                            value = child_pid_path.read_text(encoding="ascii").strip()
+                            if value:
+                                descendant_pid = int(value)
+                        except (OSError, ValueError):
+                            pass
+                        if descendant_pid is None:
+                            time.sleep(0.01)
+
+                    cleanup_entry.wait(timeout=1.0)
+                    if descendant_pid is None:
+                        return False, time.monotonic() - started, "real-pipe descendant pid not recorded"
+
+                    if synchronous_close:
+                        worker.join(timeout=0.05)
+                        blocked_before_release = worker.is_alive()
+                    else:
+                        worker.join(timeout=0.5)
+                        returned_before_release = not worker.is_alive()
+                        blocked_before_release = False
+
+                    reap_descendant()
+                    worker.join(timeout=0.75)
+
+                for target in target_processes:
+                    if target.poll() is None:
+                        target.kill()
+                    try:
+                        target.wait(timeout=0.5)
+                    except subprocess.TimeoutExpired:
+                        pass
+                for closer in [
+                    item for item in threading.enumerate()
+                    if any(item.name.startswith(f"pipe-close-{target.pid}") for target in target_processes)
+                ]:
+                    closer.join(timeout=0.5)
+
+                elapsed = max(0.0, time.monotonic() - started)
+                code, _, stderr, _ = result[0] if result else (None, b"", b"worker did not return", 0.0)
+                cleanup_reached_expired = bool(
+                    cleanup_entry_remaining and cleanup_entry_remaining[0] < 0
+                )
+                cleanup_text = decode(stderr)
+                if synchronous_close:
+                    passed = (
+                        cleanup_reached_expired
+                        and blocked_before_release
+                        and bool(result)
+                        and not (worker and worker.is_alive())
+                    )
+                    evidence = (
+                        f"mutant=synchronous-stream-close; entry_remaining_seconds="
+                        f"{cleanup_entry_remaining[0] if cleanup_entry_remaining else 'not-recorded'}; "
+                        f"blocked_before_fixture_release={blocked_before_release}; fixture_released={released}; "
+                        f"worker_completed={bool(worker and not worker.is_alive())}; exit={code}; "
+                        f"taskkill_attempts={len(taskkill_attempts)}"
+                    )
+                else:
+                    passed = (
+                        cleanup_reached_expired
+                        and returned_before_release
+                        and code == CLEANUP_FAILED_EXIT
+                        and not taskkill_attempts
+                        and "cleanup deadline elapsed before taskkill" in cleanup_text
+                        and "descendant termination not verified" in cleanup_text
+                        and "FAIL TREE_CLEANUP_FAILED" in cleanup_text
+                        and not (worker and worker.is_alive())
+                    )
+                    evidence = (
+                        f"mutant=fixed; cleanup_entry_remaining_seconds="
+                        f"{cleanup_entry_remaining[0] if cleanup_entry_remaining else 'not-recorded'}; "
+                        f"returned_before_fixture_release={returned_before_release}; fixture_released={released}; "
+                        f"cleanup_seconds={elapsed:.6f}; exit={code}; taskkill_attempts="
+                        f"{len(taskkill_attempts)}; stderr={cleanup_text.strip()}"
+                    )
+                return passed, elapsed, evidence
+            finally:
+                reap_descendant()
+                for target in target_processes:
+                    if target.poll() is None:
+                        target.kill()
+                    try:
+                        target.wait(timeout=0.5)
+                    except subprocess.TimeoutExpired:
+                        pass
+
+    mutant_red, mutant_seconds, mutant_evidence = exercise(True)
+    fixed_ok, fixed_seconds, fixed_evidence = exercise(False)
+    return (
+        fixed_ok and mutant_red,
+        max(fixed_seconds, mutant_seconds),
+        f"mutant_red[{mutant_evidence}] fixed[{fixed_evidence}]",
+    )
+
+
+def emit_pipe_probe_result(label: str, assessed: bool, passed: bool) -> str:
+    if not assessed:
+        status = "SKIP"
+    else:
+        status = "PASS" if passed else "FAIL"
+    line = f"SELFTEST {status} {label}"
+    print(line)
+    return line
+
+
 def selector_matches(names: set[str]) -> set[str]:
     return {name for name in names if name.startswith(SELECTOR_PREFIXES)}
 
@@ -490,10 +675,27 @@ def exercise_off_windows_contract() -> bool:
     captured = io.StringIO()
     with patch.object(os, "name", "posix"), redirect_stdout(captured):
         result = main([])
+        pipe_ok, _, _ = timeout_cleanup_probe()
+        zero_ok, _, _ = zero_budget_cleanup_probe()
+        pipe_line = emit_pipe_probe_result(
+            "real Windows pipe timeout cleanup", pipe_ok is not None, bool(pipe_ok),
+        )
+        zero_line = emit_pipe_probe_result(
+            "real Windows pipe cleanup with zero budget at entry", zero_ok is not None, bool(zero_ok),
+        )
+        assessed_failure_line = emit_pipe_probe_result("injected assessed failure", True, False)
+    output = captured.getvalue()
     return (
         result == 4
-        and "NOT ASSESSED" in captured.getvalue()
-        and len(re.findall(r"(?m)^TOTAL_WALL_SECONDS=\d+\.\d{6}$", captured.getvalue())) == 1
+        and "NOT ASSESSED" in output
+        and len(re.findall(r"(?m)^TOTAL_WALL_SECONDS=\d+\.\d{6}$", output)) == 1
+        and pipe_ok is None
+        and zero_ok is None
+        and pipe_line.startswith("SELFTEST SKIP ")
+        and zero_line.startswith("SELFTEST SKIP ")
+        and "SELFTEST PASS real Windows pipe timeout cleanup" not in output
+        and "SELFTEST PASS real Windows pipe cleanup with zero budget at entry" not in output
+        and assessed_failure_line.startswith("SELFTEST FAIL ")
     )
 
 
@@ -645,6 +847,7 @@ def expected_classification() -> str:
 
 def self_test() -> int:
     pipe_cleanup_ok, pipe_cleanup_seconds, pipe_cleanup_detail = timeout_cleanup_probe()
+    zero_budget_ok, zero_budget_seconds, zero_budget_detail = zero_budget_cleanup_probe()
     valid = expected_output()
     missing = "\n".join(line for line in valid.splitlines() if line != "PASS WindowsNative_Rename_FreshWin32VersusNtFixtures") + "\n"
     legacy_missing = "\n".join(line for line in valid.splitlines() if not line.startswith(f"FAIL {HISTORICAL_EXPECTED_FAILURE}")) + "\n"
@@ -687,7 +890,6 @@ def self_test() -> int:
         ("duplicate inventory registration rejected", bool(registration_problems(sorted(EXPECTED_REGISTERED) + [sorted(EXPECTED_REGISTERED)[0]]))),
         ("missing inventory registration rejected", bool(registration_problems(sorted(EXPECTED_REGISTERED)[1:]))),
         ("unscoped inventory addition rejected", inventory_rejects_unscoped()),
-        ("real Windows pipe timeout cleanup bounded after taskkill failure", pipe_cleanup_ok),
         ("all exit paths report total wall and enforce the hard ceiling", exercise_total_wall_contract()),
         ("off-Windows execution is NOT ASSESSED", exercise_off_windows_contract()),
         ("Windows subject failure exits 1", exit_for_result(True, False) == 1),
@@ -695,11 +897,27 @@ def self_test() -> int:
         ("self-test is explicit", cli_mode(["--self-test"]) == "self-test"),
         ("other arguments are rejected", cli_mode(["--verbose"]) is None and exercise_argument_rejection()),
     ]
-    failures = [label for label, passed in checks if not passed]
     print(f"SELFTEST PIPE_CLEANUP_SECONDS={pipe_cleanup_seconds:.6f}")
     print(f"SELFTEST PIPE_CLEANUP_EVIDENCE={pipe_cleanup_detail}")
+    print(f"SELFTEST ZERO_BUDGET_CLEANUP_SECONDS={zero_budget_seconds:.6f}")
+    print(f"SELFTEST ZERO_BUDGET_CLEANUP_EVIDENCE={zero_budget_detail}")
+    pipe_assessed = pipe_cleanup_ok is not None
+    zero_budget_assessed = zero_budget_ok is not None
+    emit_pipe_probe_result(
+        "real Windows pipe timeout cleanup bounded after taskkill failure",
+        pipe_assessed, bool(pipe_cleanup_ok),
+    )
+    emit_pipe_probe_result(
+        "real pipe cleanup with zero budget at entry; synchronous-close mutant caught",
+        zero_budget_assessed, bool(zero_budget_ok),
+    )
     for label, passed in checks:
         print(f"SELFTEST {'PASS' if passed else 'FAIL'} {label}")
+    failures = [label for label, passed in checks if not passed]
+    if pipe_assessed and not pipe_cleanup_ok:
+        failures.append("real Windows pipe timeout cleanup bounded after taskkill failure")
+    if zero_budget_assessed and not zero_budget_ok:
+        failures.append("real pipe cleanup with zero budget at entry; synchronous-close mutant caught")
     if failures:
         return 1
     try:

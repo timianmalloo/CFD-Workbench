@@ -266,17 +266,19 @@ The committed captures also exposed a byte-normalization defect: the retained
 Windows worktree held 3,772 bytes for the initial stdout and 3,770 bytes for the
 first stdout, while their committed blobs held 3,726 and 3,724 bytes. The new
 `.gitattributes` rules disable text conversion for this proof directory's raw
-stdout/stderr captures. `capture-integrity.py` plus `capture-manifest.json`
-records every stdout/stderr capture in this proof directory with its byte count
-and SHA-256 and compares worktree
-bytes to the staged Git blob before delivery.
+stdout/stderr captures. At the time, the proof-local `capture-integrity.py`
+recorded each capture's byte count and SHA-256 and compared worktree bytes with
+the staged Git blob. That helper has since been retired. The retained manifest
+and captures preserve that historical check. The current repository control,
+`tools/check-capture-manifests.py`, validates committed `HEAD` blobs against
+their manifests; it does not compare working-tree or index bytes.
 
-### Final verifier run
+### Historical Ruling 152 verifier run — superseded evidence
 
 - Exact command: `py -3 tools\verify-windows-store.py`.
 - Repository HEAD at run: `a9b1fed37b3cc39eb2f53c45fe031f691e964542`.
-- Script SHA-256: `f257d9a2735f79fef1bd43cd695d326d5577cf9341c1ba4bb91e73fb0a5ad24e`.
-- The committed script's final SHA-256 is `07912eb24e15064ba426ac97e1130b523ac1147f29c3e486a11c54a899508b6b`. It differs from the measured-run hash only by added self-test assertions for duplicate and missing registration inventory; the no-argument execution path was not changed after the captured run. The measured runtime above remains the authoritative timing and is not presented as a fresh measurement of the final file hash.
+- Script SHA-256 at the measured run: `f257d9a2735f79fef1bd43cd695d326d5577cf9341c1ba4bb91e73fb0a5ad24e`.
+- A later script snapshot was hashed as `07912eb24e15064ba426ac97e1130b523ac1147f29c3e486a11c54a899508b6b`. It added self-test assertions for duplicate and missing registration inventory; the no-argument execution path was not changed after the captured run. Both hashes describe historical snapshots. The measured runtime above is not a fresh measurement of either later file.
 - SDK: pinned .NET `10.0.203`, resolved from the user-local SDK directory; the
   verifier set `DOTNET_ROOT` and prepended that directory to child `PATH`.
 - OS: Windows 11 build `10.0.26300.0`, AMD64. Process affinity was restricted
@@ -310,8 +312,10 @@ bytes to the staged Git blob before delivery.
   classified with `--status 1 --host windows`; it returned the single Ruling 145
   expected failure and `UNEXPECTED 0`, exit 0. Outputs are in
   `manifest-check-r152.stdout.txt` and `manifest-check-r152.stderr.txt`.
-- `py -3 -m py_compile tools\verify-windows-store.py docs\proof\win-store-implementation\capture-integrity.py`
-  passed (exit 0; `static-check.stdout.txt`). `py -3 tools\check-proof-pii.py`
+- `py -3 -m py_compile tools\verify-windows-store.py` and the then-existing
+  proof-local helper compiled at that checkpoint (exit 0;
+  `static-check.stdout.txt`). The helper has since been deleted.
+  `py -3 tools\check-proof-pii.py`
   passed with 0 Windows home paths or machine SIDs (`pii-check.stdout.txt`).
   The staged `git diff --check` passed with the byte-exact stdout/stderr capture
   paths excluded; those paths are validated separately by the byte/hash check.
@@ -320,11 +324,13 @@ bytes to the staged Git blob before delivery.
   `0x3f` (six CPUs). Documentation freshness reported 131 review-suggested
   findings and 0 stale findings; the configured warning threshold did not fail
   the gate. The check completed with `Documentation checks passed.`
-- `py -3 docs\proof\win-store-implementation\capture-integrity.py --record`
-  records the byte count and SHA-256 of every stdout/stderr capture in this proof
-  directory. After staging, the no-argument `capture-integrity.py` check compares
-  every worktree file against its staged blob; the output is
-  `capture-integrity-check.txt`.
+- Historical command: `py -3 docs\proof\win-store-implementation\capture-integrity.py --record`
+  recorded the byte count and SHA-256 of each stdout/stderr capture in this proof
+  directory. The helper's staged-blob comparison and its retained output,
+  `capture-integrity-check.txt`, belong to that earlier checkpoint and are not a
+  current command. The current committed-manifest check is
+  `py -3 tools\check-capture-manifests.py`; it reads manifests and file blobs
+  from `HEAD` and does not validate uncommitted working-tree or index bytes.
 
 Each invocation preserves stdout and stderr separately. Verifier output replaces
 home paths with `%USERPROFILE%` and redacts machine SIDs before emission; no
@@ -356,7 +362,7 @@ bound inside the five-second hard-ceiling reserve.
   worker finished. The real-pipe regression and all existing verifier contract
   self-tests passed. Captures: `r171-cleanup-green.stdout.txt` and
   `r171-cleanup-green.stderr.txt`.
-- Final verifier script SHA-256 for the Ruling 171 cleanup pass: `7319b2f138b397056a1691496b340a852881d08f930df93c581ab83eb97d9112`.
+- Verifier script SHA-256 recorded at the Ruling 171 cleanup-pass checkpoint: `7319b2f138b397056a1691496b340a852881d08f930df93c581ab83eb97d9112`.
 - The production cleanup uses bounded waits under one absolute cleanup deadline.
   Stream close runs on a daemon cleanup worker so it cannot block the ceiling
   thread. A pending close or unverified descendant is reported as
@@ -388,10 +394,45 @@ code and still pass through the same finalizer.
   `py -3 tools\check-docs.py` run passed under six-CPU affinity; proof PII scan
   found 0 Windows home paths or machine SIDs. Capture integrity and staged diff
   checks are recorded separately in the proof outputs and manifest.
-- Final script SHA-256: `92151a8f72c602180c407240e6e10c28acdfff2dea8bb0acd988deda617205ee`.
-- No no-argument native qualification run or full ring was performed.
+- Verifier script SHA-256 recorded at the Ruling 171 cycle-2 checkpoint: `92151a8f72c602180c407240e6e10c28acdfff2dea8bb0acd988deda617205ee`.
+- No no-argument native qualification run or full ring was performed in that
+  Ruling 171 cycle-2 checkpoint.
 
-### Ruling 175 — final joined direct run, incomplete exit capture
+### Current reader: Ruling 175 receipt and Ruling 181 review
+
+The [Ruling 175 final-rerun receipt](final-rerun-r175/receipt.md) is blocked:
+the no-argument Windows run emitted qualification PASS, but its outer launcher
+exit is Not recorded. The [Ruling 181 owner review](../../reviews/pr-22.md)
+completed the review of that evidence and confirmed the exact source binding:
+tested HEAD `421b5860cbaed5cf047e8c29661b68ec0f84e9f3`, verifier Git blob
+`528b56d84bb1bb409d01ac683355f78981765d7c`, and verifier SHA-256
+`a79ac73c04cc8769d65868cde2f3c69154f27ebfcff40743bd20ca0b668afd52`.
+The hash matched on main, at the reviewed PR head, and in the captured verifier
+output. This completed review does not fill the missing process exit, so the
+receipt remains blocked and does not admit Windows PASS to readiness.
+
+### Ruling 175 PC follow-up — cleanup-entry and platform-label self-tests
+
+The current verifier source in this follow-up branch has SHA-256
+`c2e543a498ed75c0310bef05618dd9d0b200408a1b3ffafbe92640369ed9f795`. Its
+explicit `--self-test` exercised the Windows inherited-pipe cleanup paths. The
+zero-budget variant entered `_terminate_tree` with an observed remaining budget
+of `-0.953213` seconds, returned before fixture release, mapped the cleanup
+failure to exit 125, and emitted `TREE_CLEANUP_FAILED` with descendant
+termination unverified. A synchronous-close mutant remained blocked before the
+fixture was released, so the probe detected the former ceiling violation; its
+entry had `-0.961020` seconds remaining. The fixture then released and reaped its
+test-owned processes. The existing taskkill-failure probe also passed in
+`1.060223` seconds. The simulated POSIX platform contract passed with both
+Windows-only pipe probes explicitly labelled SKIP; an assessed failing probe is
+still formatted as FAIL.
+
+Exact command: `py -3 tools\verify-windows-store.py --self-test` (exit 0;
+zero-budget fixed cleanup `1.005004` seconds; `TOTAL_WALL_SECONDS=4.350673`).
+This is a self-test result, not a no-argument
+qualification run. The old Ruling 152 captures and manifests were not changed.
+
+### Historical Ruling 175 — final joined direct run, incomplete exit capture
 
 The [final joined verifier receipt](final-rerun-r175/receipt.md) records one direct
 no-argument Windows run at `421b5860cbaed5cf047e8c29661b68ec0f84e9f3`, script SHA-256

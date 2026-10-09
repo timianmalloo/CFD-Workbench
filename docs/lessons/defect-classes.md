@@ -2270,7 +2270,16 @@ reviewer vetoed it at the 2/2 repair cap.
   already-expired deadline and a failed kill, and prints the measured cleanup time on every run. Status:
   Mac sweep CLOSED 2026-10-09 (fixes plus real-child self-tests in `run-windows-store-gate.py --self-test` and
   `run-readiness.py --self-test`, both printing the measured cleanup time; the Desktop `RunBuffered` fix has no red-first
-  test, see `docs/proof/cbs/red-first.md`); the PC repair track is still open.
+  test, see `docs/proof/cbs/red-first.md`). The PC's Ruling 175 follow-up adds a zero-budget-at-cleanup-entry variant
+  to `tools/verify-windows-store.py --self-test`: `run_capture` starts its real pipe reader, the probe observes the
+  expired total deadline at `_terminate_tree` entry, and it requires exit 125, `TREE_CLEANUP_FAILED`, and
+  `descendant termination not verified`. Its mutant replaces bounded close with synchronous stream close; the real
+  inherited-pipe fixture must keep that mutant blocked until fixture release. This was observed on Windows at
+  `win/pr19-followups`; the self-test reports the measured cleanup time and mutant result. The same self-test labels
+  these Windows-only probes `SKIP` when simulated off Windows, and its formatting check requires an assessed failure
+  to remain `FAIL`. The first probe draft called `_terminate_tree` directly before creating a pipe reader and therefore
+  did not catch the synchronous-close mutant. The control now enters through `run_capture`, waits for its real
+  `communicate` reader to time out, and verifies the mutant blocks before releasing the fixture.
 - *2026-10-09 sibling (non-zero non-failure exit):* a tool contract's non-zero non-failure exit code
   (`verify-windows-store.py` exit 4 = NOT ASSESSED) met a runner that treats non-zero as failure (`run-verify-gates.py`,
   `run-readiness.py` `run_entry`); the PR #19 join stopped at step 8 on the Mac. Control: `tools/run-windows-store-gate.py
