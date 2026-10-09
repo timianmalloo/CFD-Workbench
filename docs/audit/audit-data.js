@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T21:50:12Z",
+  "generated": "2026-10-09T22:21:58Z",
   "audit": [
     {
       "actor": null,
@@ -33642,6 +33642,46 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T21:49:12Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M4HC4FBH7Z6N9XN2ZZK9S2CV",
+      "shortname": "copy447-windows-reachability",
+      "datetime": "2026-10-09T22:21:57Z",
+      "session": "pc-copy447",
+      "prompt": "Keep going on the Windows W0-W5 execution under Mac leadership; complete the next authorized COPY-447 measurement without widening scope.",
+      "summary": "Retained one partial public ProjectStore reachability attempt as a blocked proof package. Both Windows cases returned DOC-UNSUPPORTED-PERSISTENCE with unchanged observed inventories and targets. Crash-left artifacts remain NOT ASSESSED because the harness lost its outer receipt and runtime bindings. Astra approved the corrected package; no case was rerun.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/proof/copy447-reachability/receipt.md",
+        "docs/proof/copy447-reachability/capture-manifest.json"
+      ],
+      "tags": [
+        "windows",
+        "copy-447",
+        "blocked-proof"
+      ],
+      "outcome": "blocked",
+      "goal": "Deliver the COPY-447 Windows reachability evidence as an immutable, explicitly blocked package and hand it to the Mac leader through GitHub.",
+      "done_when": "The proof-only branch is validated, owner-reviewed, committed, pushed, and reported with exact limits; no SaveAsync case is rerun.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-10-09T21:52:31Z",
+      "duration_seconds": 1766.0,
+      "git": {
+        "sha": "1b91e0444fbc22585df91b199485cc45f63e07d6",
+        "short": "1b91e0444",
+        "branch": "win/copy447-measurement",
+        "pushed": false
+      }
     }
   ],
   "changes": [
