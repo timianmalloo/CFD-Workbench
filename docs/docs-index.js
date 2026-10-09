@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a979693023ca2fa72d3164fab7d27b59d3b7f341f1b62771299bb93f4595307d"
+      "sourceSha256": "eacd27bcabef899e72cc10ae9866024738d045f45e9fc87edd9bb14cd94e6906"
     },
     {
       "id": "domain-experts",
@@ -7246,6 +7246,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "40a717c9ea87e1ec0021ee87f1a0202a9e4742ff55cdedc4c5ce450c1a715cf7"
     },
     {
+      "id": "review-pr-24",
+      "path": "docs/reviews/pr-24.md",
+      "title": "PR #24 (Windows PC) - durable Windows runner, runner-ready receipt (Ruling 184), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 184). The committed runner library, read-only preflight, policy guard and 19-mutant self-test are Verified, and every gate is green. It is not yet the run: the Ruling 179 budget opens on a committed scale-run driver with a finally-restore, a 120 s child ceiling and the policy guard covering it.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "runner",
+        "dpi"
+      ],
+      "links": [
+        {
+          "to": "review-pr-23",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1e5acc6a0ba5c1731e4d3c024258c5f8c9435c29faacf53bc48b25b3ca580691"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8179,7 +8207,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "83f1b5c9a2ffcb05415bd439e7e2329698c73ad81e4946401ec873f3430a2461"
+      "sourceSha256": "b4ab6f6985dc58cff4eaccbc8aa8f65508ad15f26ebb806ad7d6bdbbf66f9f33"
     },
     {
       "id": "kb-hw-glossary",
@@ -16862,6 +16890,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "e8b469bc5811d78ffc46e0452ad36a8d950f417ab62ce604983ce721d343c4d5"
     },
     {
+      "id": "proof-wri-r182-runner-ready",
+      "path": "docs/proof/wri-r182-runner/receipt.md",
+      "title": "Ruling 182 Windows runner-ready receipt",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-wri-r182-runner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Reusable runner preparation passes all six Ruling 182 controls and the Ruling 181 lifecycle fixtures on an MSP/RG5 head. No scale change, product contract check, or store verifier execution occurred. This receipt does not claim an execution budget.",
+      "tags": [
+        "windows",
+        "runner",
+        "ruling-182",
+        "red-first",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-23",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-22",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-msp-receipt",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "23d15e29b26dbc31d41b581a335e8e1efa07f74c6954adbc1d191cee6c074a97"
+    },
+    {
       "id": "proof-wrt-red-first",
       "path": "docs/proof/wrt/red-first.md",
       "title": "WRT red-first receipt: Windows known-expected-failure manifest",
@@ -18850,5 +18917,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "907d5bc4382ac1a431619ac06696fa9e7e8e729f90c8dfee874d3ab092799576"
+  "graphSha256": "f4ede2161e0dfcdad09978015d9f614c69328791e5a713453ef6475c40d48a89"
 };
