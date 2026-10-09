@@ -1,3 +1,19 @@
+---
+id: proof-sdg
+title: "SDG scale-diagnostic mode receipt"
+type: proof-pack
+status: in-review
+owner: "@trk-sdg"
+phase: implementation
+tags: [scale, diagnostic, ruling-184]
+links:
+  - { to: proof-wri-probe-windows-scale, rel: relates-to }
+review-by: 2026-10-28
+summary: >-
+  The --scale-diagnostic mode prints one SCALE_CONTEXT line, runs no check and exits 0.
+  Red first, the Mac run and why the default ring never runs it.
+review-suggested: []
+---
 # SDG receipt: `--scale-diagnostic` (Ruling 184, option A)
 
 ## Red first

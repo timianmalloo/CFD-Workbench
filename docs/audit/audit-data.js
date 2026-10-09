@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T18:28:44Z",
+  "generated": "2026-10-09T18:37:22Z",
   "audit": [
     {
       "actor": null,
@@ -33140,6 +33140,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T18:27:44Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M4GZ98BHTDN0FFGM5JETH51F",
+      "shortname": "sdg-scale-diagnostic",
+      "datetime": "2026-10-09T18:37:22Z",
+      "session": "trk-sdg",
+      "prompt": "trk-sdg scale-diagnostic mode",
+      "summary": "Added DesktopChecks.ScaleDiagnostic and the --scale-diagnostic mode; receipt with Mac run",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Add --scale-diagnostic: one SCALE_CONTEXT line, no check, exit 0",
+      "done_when": "red-first check, Mac run receipt, run-tests green, check-docs 0",
+      "started_at": "2026-10-09T18:32:33Z",
+      "duration_seconds": 289.0
     }
   ],
   "changes": [
