@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:03:15Z",
+  "generated": "2026-10-09T03:08:49Z",
   "audit": [
     {
       "actor": null,
@@ -32110,6 +32110,29 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       }
+    },
+    {
+      "id": "al-01M4FA4Z4R9SBNY6962FDQFT13",
+      "shortname": "r177-wri-p6-count-correction",
+      "datetime": "2026-10-09T03:08:47Z",
+      "session": "win-wri-p6-r177-20261008",
+      "prompt": "Correct the Ruling 177 P6 audit count, receipt identity and historical investigation conclusions without rerunning scale actions or tests.",
+      "summary": "Correction to prior audit entry al-01M4F9TS5JKG96PFJNAX79CY6P: the Ruling 177 results are 3 PASS / 5 FAIL at 150%, and 8 PASS at 200%, not four PASS and four FAIL at 150%. The named runs used tested HEAD 4383089735b27586efed93657606fce37317fc07; the earlier incomplete attempt at 93240b06df197f68b9ba3b971c3c8192895a7445 did not run named checks. One repair cycle was used for NuGet asset restore/build. Ruling 177 item 8 passes after WDF; item 2 remains unexpected/unresolved, and item 6 remains held pending P4 explanation.",
+      "kind": "manual",
+      "skill": null,
+      "tool": null,
+      "actor": "Codex",
+      "artifacts": [
+        "docs/proof/wri-probe/receipt.md",
+        "docs/proof/wri/investigation.md",
+        "docs/proof/wri-probe/capture-manifest.json"
+      ],
+      "tags": [],
+      "outcome": "partial",
+      "goal": "Correct the P6 count and stale scope conclusions while preserving prior audit history.",
+      "done_when": "Official audit correction appended, receipt and investigation corrected, derived views/manifest refreshed, requested docs gates pass, and local commit clean.",
+      "tier": "T1",
+      "fan_out": 0
     }
   ],
   "changes": [

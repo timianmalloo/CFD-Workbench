@@ -11,7 +11,7 @@ links:
 review-by: "2027-04-09"
 summary: >-
   Ruling 177 P6: all eight named checks ran at Settings-selected 150% and 200%. All
-  passed at 200%; at 150%, checks 1, 7, and 8 passed while checks 2-6 failed. Settings
+  passed at 200%; at 150%, checks 1, 7, and 8 passed (3 PASS) while checks 2-6 failed (5 FAIL). Settings
   was restored to 150%, and a fresh process reported Avalonia 1.5/1.5. The receipt is
   partial because the 150% results include failures and check 2 is unexpected.
 ---
@@ -21,15 +21,15 @@ summary: >-
 ## Goal state
 
 - **Goal:** complete P1–P6 from `docs/proof/wri/investigation.md` on the Windows PC.
-- **Done when:** P1–P5 have raw output; all eight named P6 checks run once at verified 200%; 150% is restored and verified; temporary instrumentation is removed; proof files are hashed and pass the applicable checks.
+- **Done when:** P1–P5 have raw output; all eight named P6 checks run once at verified 150% and 200%; 150% is restored and verified; temporary instrumentation is removed; proof files are hashed and pass the applicable checks.
 - **Not in scope:** product/test fixes, registry writes, undocumented DPI packets, process-only scale overrides, resolution changes, sign-out, or reboot.
 - **Tier:** T1 evidence capture. **Fan-out cap:** 0.
 
 ## Capture identity and method
 
-P1–P5 were captured at `842e575d8408d27c6f01f53df9d0da00e434ea38`. The fresh P6 attempt used `93240b06df197f68b9ba3b971c3c8192895a7445`. Windows 11 Pro, version `10.0.26300`, build `26300`, 64-bit. The .NET executable was `%USERPROFILE%\.dotnet\dotnet.exe`, SDK `10.0.203`; test processes used affinity `0x3F` (six logical processors). Captured command, output, timing, SDK, tested HEAD, and hashes are in the adjacent files. Where the launch wrapper did not record a field, it is marked `NOT_RECORDED`.
+P1–P5 were captured at `842e575d8408d27c6f01f53df9d0da00e434ea38`. A prior P6 attempt at `93240b06df197f68b9ba3b971c3c8192895a7445` did not run the named checks; its failed/incomplete evidence remains historical. Ruling 177's named runs used tested HEAD `4383089735b27586efed93657606fce37317fc07`, after the WDF changes. Windows 11 Pro, version `10.0.26300`, build `26300`, 64-bit. The .NET executable was `%USERPROFILE%\.dotnet\dotnet.exe`, SDK `10.0.203`; test processes used affinity `0x3F` (six logical processors). R177 commands, output, timing, SDK, tested HEAD, and hashes are in the adjacent `r177-*` files.
 
-Temporary test instrumentation was reverted and its SHA-256 recorded in `p6-temporary-hashes.txt`. The final diff contains proof artifacts and the derived docs index/audit output only.
+Temporary test instrumentation was reverted; source and built-DLL SHA-256 values are recorded in `r177-temporary-hashes.txt`. The R177 captures are tied to the tested HEAD above, not the prior incomplete attempt. The final ancillary paths are root `.gitattributes`, which preserves exact raw R177 capture bytes and their CRLF line endings, and `docs/proof/wri/investigation.md`, which updates stale scale and target-size conclusions; the remaining changes are proof, audit, and derived index artifacts.
 
 ## P1 — Windows display and registry
 
@@ -61,7 +61,7 @@ The exact chip bounds, sample coordinates, and 5×5 RGB blocks for both `Shot.Of
 
 ## P6 — Ruling 177 scale confirmation
 
-**P6 execution: complete at both requested scales; overall receipt remains partial.** The unique eight checks ran once at Settings-selected 150% and once at Settings-selected 200%. The check-6 result is included once at each scale; it was not duplicated. No `AppliedDPI` predicate was used. The earlier Ruling 165 attempt remains preserved as historical evidence and is superseded for P6 by these Ruling 177 captures.
+**P6 execution: complete at both requested scales; overall receipt remains partial.** The unique eight checks ran once at Settings-selected 150% and once at Settings-selected 200%. The check-6 result is included once at each scale; it was not duplicated. No `AppliedDPI` predicate was used. The prior incomplete P6 attempt is preserved as historical evidence and superseded for P6 by these Ruling 177 captures.
 
 Before the first named run, UI Automation observed `Display 1` selected, `Display 2` unselected, the `SystemSettings_Display_MainMonitor_CheckBox` On, and exact `150% (Recommended)` selected. The primary monitor was `\\.\DISPLAY1`. The test process itself printed `RenderScaling=1.5 PrimaryScaling=1.5` before each 150% check. After UIA selected exact `200%`, each fresh test process printed `RenderScaling=2.0 PrimaryScaling=2.0` before its checks. At completion, UIA selected exact `150% (Recommended)` again, and a separate fresh process printed `RenderScaling=1.5 PrimaryScaling=1.5`. The exact UIA controls and patterns were the display list items (`SelectionItemPattern`), `SystemSettings_Display_MainMonitor_CheckBox` (`TogglePattern`), the Scale combo `SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox` (`ExpandCollapsePattern`), and the selected scale item (`SelectionItemPattern`). No registry writes, process-scale overrides, or resolution changes occurred.
 
@@ -78,10 +78,10 @@ The three test-process invocations per scale used selector partitions: `--shell-
 | 7 | `PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused` | PASS | PASS |
 | 8 | `PropertiesPane_Density_EveryTargetAtLeast24` | PASS | PASS |
 
-Ruling 177 predicts checks 1, 2, 7, and 8 should pass at 150% as well as 200%; check 2's 150% failure is therefore unexpected. It is recorded without diagnosis. Checks 3–6 failed at 150% and passed at 200%, the Ruling 177 scale-effect pattern (Group A). Check 6 measured digit-end delta 1.00 DIP at 150% and 0 DIP at 200%; this receipt records the observation without claiming it resolves the earlier P4 0.33 DIP question. P3 diagnostics in the same check-3 process include layout, visibility, ThreeD and PlanContent widths, Window.Bounds, and ClientSize at both scales.
+Ruling 177 predicts checks 1, 2, 7, and 8 should pass at 150% as well as 200%; check 2's 150% failure is therefore unexpected. It is recorded without diagnosis. The observed 150% total is 3 PASS / 5 FAIL; the 200% total is 8 PASS. Checks 3–6 failed at 150% and passed at 200%. Check 6 measured digit-end delta 1.00 DIP at 150% and 0 DIP at 200%; its interpretation remains held under Ruling 177 pending the P4 explanation. P3 diagnostics in the same check-3 process include layout, visibility, ThreeD and PlanContent widths, Window.Bounds, and ClientSize at both scales.
 
 The process start marker for the 20-minute task cap was not captured. Per coordinator instruction, 03:08 UTC was the conservative action deadline. The last scale action was restoration, completed at 02:58:25 UTC; the fresh restoration diagnostic completed at 02:59:08 UTC. Temporary instrumentation was then reverted. The harness source hashes and built DLL hash are in `r177-temporary-hashes.txt`; raw scale, test, build, and restore evidence is in the adjacent `r177-*` files.
 
-The earlier P2/P3/P5 command selected four checks and invoked `--views --properties-cells`; its selector mismatch is retained in the prior raw capture. P4 was run separately. Those earlier measurements remain separate from the Ruling 177 scale comparison. The final diff contains proof, audit, and derived-index files only; no source or test changes.
+The earlier P2/P3/P5 command selected four checks and invoked `--views --properties-cells`; its selector mismatch is retained in the prior raw capture. P4 was run separately. Those earlier measurements remain separate from the Ruling 177 scale comparison. One repair cycle of the two-cycle cap was used for NuGet assets restore followed by a successful build; no scale or named-check rerun was used as a repair. The final diff contains no source or test changes.
 
 `capture-manifest.json` records the byte count and SHA-256 for each other file in this proof folder. It is verified against committed Git blobs by `tools/check-capture-manifests.py`.

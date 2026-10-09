@@ -1,5 +1,5 @@
 {
-  "created_utc": "2026-10-09T03:03:13Z",
+  "created_utc": "2026-10-09T03:09:04Z",
   "tested_head": "4383089735b27586efed93657606fce37317fc07",
   "algorithm": "SHA-256",
   "files": [
@@ -425,8 +425,8 @@
     },
     {
       "path": "docs/proof/wri-probe/receipt.md",
-      "bytes": 8892,
-      "sha256": "d8f3890a02976f512ee33850917844fa6083e2987e6b4b632dd6134802826e6b"
+      "bytes": 9454,
+      "sha256": "fe282ffccc518b6f79d68e0e5c1c4e29d600c40a0926b08886688c377cdb2240"
     }
   ]
 }

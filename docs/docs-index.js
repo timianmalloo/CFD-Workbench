@@ -8133,7 +8133,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-09",
       "reviewSuggested": [],
-      "summary": "The Ruling 177 Windows probe measured Avalonia RenderScaling and PrimaryScaling at 1.5 with Settings showing 150%. Checks 3–6 failed at 150% and passed at 200%; check 2 unexpectedly failed at 150%. The 23.3 px inputs are a real product miss of 0.67 DIP (35 px where 36 are needed): the TextBox is content-sized and the 3 DIP padding rounds down at the .5 midpoint. KeyBindings is a contradiction between a Mac-only test and a deliberate Windows binding.",
+      "summary": "The pre-WDF Windows analysis identified a 23.3 DIP target-size result at 150%; WDF subsequently added a minimum height. Ruling 177, run after WDF, reports checks 1, 7, and 8 passing at 150%, check 2 unexpectedly failing, and check 6 held pending the P4 explanation. Its eight checks all passed at 200%. KeyBindings remains a Mac-only test contradiction.",
       "tags": [
         "windows",
         "dpi",
@@ -8148,7 +8148,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b48c7cb48691cfbcc92c77096b5fde8b9d864f6725058e64f01510ba40462862"
+      "sourceSha256": "113239ab845a3f4ffe01a3ffbb72898a5fbb5c1a725dcf88dae60a0f51497b48"
     },
     {
       "id": "kb-cfd-workbench-grounding",
@@ -16332,7 +16332,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2027-04-09",
       "reviewSuggested": [],
-      "summary": "Ruling 177 P6: all eight named checks ran at Settings-selected 150% and 200%. All passed at 200%; at 150%, checks 1, 7, and 8 passed while checks 2-6 failed. Settings was restored to 150%, and a fresh process reported Avalonia 1.5/1.5. The receipt is partial because the 150% results include failures and check 2 is unexpected.",
+      "summary": "Ruling 177 P6: all eight named checks ran at Settings-selected 150% and 200%. All passed at 200%; at 150%, checks 1, 7, and 8 passed (3 PASS) while checks 2-6 failed (5 FAIL). Settings was restored to 150%, and a fresh process reported Avalonia 1.5/1.5. The receipt is partial because the 150% results include failures and check 2 is unexpected.",
       "tags": [
         "windows",
         "dpi",
@@ -16346,7 +16346,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d8f3890a02976f512ee33850917844fa6083e2987e6b4b632dd6134802826e6b"
+      "sourceSha256": "fe282ffccc518b6f79d68e0e5c1c4e29d600c40a0926b08886688c377cdb2240"
     },
     {
       "id": "proof-wrt-red-first",
@@ -18337,5 +18337,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c96639723f419645e81adeac14e1fe94b6b3fe9d8ab68afb75bf3e0e90459795"
+  "graphSha256": "6b3213e019f47d346e8aaad0a3838da02f8a1aaa89752364cbe7101e05091f03"
 };
