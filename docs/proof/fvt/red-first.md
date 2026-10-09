@@ -1,8 +1,16 @@
 ---
 id: proof-fvt-red-first
-type: proof
-owner: trk-fvt
+type: proof-pack
+status: active
+owner: "@trk-fvt"
+phase: implementation
+tags: [dpi-a, fvt, proof]
 title: FVT red-first - four-views arrangement assertions at a fractional scale (Ruling 179 item 2)
+links:
+  - { to: proof-wri-probe-windows-scale, rel: relates-to }
+review-by: 2026-11-05
+summary: >-
+  Item 2 repaired with a device-pixel tolerance; Rounded cannot state both axes; sweep of 23 sites found 2 more exposed.
 ---
 
 # FVT red-first (track trk-fvt, T0)

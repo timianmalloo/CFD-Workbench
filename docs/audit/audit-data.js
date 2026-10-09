@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:35:13Z",
+  "generated": "2026-10-09T03:47:08Z",
   "audit": [
     {
       "actor": null,
@@ -32393,6 +32393,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T03:34:17Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M4FCB5MAEQ244M0CQYVDQW4H",
+      "shortname": "fvt-fourviews-tolerance",
+      "datetime": "2026-10-09T03:47:08Z",
+      "session": "trk-fvt",
+      "prompt": "trk-fvt",
+      "summary": "ControllerViewTests arrangement width/height use DevicePixel.Tolerance; Rounded cannot state both axes; sweep of 23 sites, 2 more exposed left as findings; proof docs/proof/fvt/red-first.md",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Repair the zero-tolerance arrangement assertions of the four-views check at fractional scale (Ruling 179 item 2)",
+      "done_when": "pure red/green, repair, sweep, DPI-A line, run-tests green, check-docs 0",
+      "started_at": "2026-10-09T03:43:15Z",
+      "duration_seconds": 233.0
     }
   ],
   "changes": [
