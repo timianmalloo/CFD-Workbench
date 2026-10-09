@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T00:02:07Z",
+  "generated": "2026-10-09T00:17:24Z",
   "audit": [
     {
       "actor": null,
@@ -31216,6 +31216,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T00:02:00Z",
       "duration_seconds": 7.0
+    },
+    {
+      "id": "al-01M4F0B4CSQFJCC02W9ETSJQPJ",
+      "shortname": "wrb-windows-ring",
+      "datetime": "2026-10-09T00:17:23Z",
+      "session": "trk-wrb",
+      "prompt": "trk-wrb",
+      "summary": "CFD_RING_HOST override; check-capture-manifests.py (capture and closing manifests) wired in check-docs; handle-target.tsv:7 re-recorded (DRIFT 0); held-reader test uses WindowsNative.Rename on Windows. Ring: C-2 Analysis.part1of2 5110/5220 ms vs 5000 at load 10-15 (not touched by this track), two runs.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "partial",
+      "compiled": false,
+      "goal": "Windows ring follow-ups from Rulings 167 and 168",
+      "done_when": "CFD_RING_HOST, manifest guard, fixture re-record, held-reader test landed; check-docs and verify gates green"
     }
   ],
   "changes": [

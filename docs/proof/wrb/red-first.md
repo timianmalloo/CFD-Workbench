@@ -1,3 +1,18 @@
+---
+id: proof-wrb-red-first
+title: "WRB red-first receipt"
+type: proof-pack
+status: active
+owner: "@trk-wrb"
+phase: implementation
+tags: [windows, ring, proof, ruling-167, ruling-168]
+links:
+  - { to: defect-classes, rel: relates-to }
+review-by: "2026-11-08"
+summary: >-
+  Receipt for the Windows ring follow-ups: the CFD_RING_HOST override, the capture and closing manifest guard, the handle-target fixture re-record, and the held-reader test on Windows.
+---
+
 # Track WRB red-first record (Rulings 167, 168)
 
 ## Item 1 - CFD_RING_HOST override (Ruling 168 (3))

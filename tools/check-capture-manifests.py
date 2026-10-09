@@ -114,7 +114,7 @@ def self_test() -> int:
             (repo / "cases").mkdir()
             (repo / "cases/x.yaml").write_bytes(payload)
             document = {"files": entries} if entries is not None else {"nope": []}
-            (repo / "docs/proof/r1" / manifest_name).write_text(json.dumps(document), encoding="utf-8")
+            (repo / "docs/proof/r1" / manifest_name).write_text(json.dumps(document), encoding="utf-8", newline="\n")
             for command in (["init", "-q"], ["add", "-A"], ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "x"]):
                 subprocess.run(["git", *command], cwd=repo, check=True, capture_output=True)
             if dirty:
