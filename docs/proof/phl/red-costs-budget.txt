@@ -1,0 +1,43 @@
+SELFTEST PASS uncalibrated host: TEST-BUDGET over budget at quiet load is a host COST-MISS
+SELFTEST PASS host with two baseline runs is still uncalibrated
+SELFTEST PASS calibrated host: TEST-BUDGET over budget at load 5 exits 3
+SELFTEST PASS calibrated host: its recorded gate (30) applies
+SELFTEST PASS sysctl host is never uncalibrated
+SELFTEST PASS uncalibrated host: C-4 and C-5 over limit at quiet load are host COST-MISS, exit 0
+SELFTEST PASS calibrated host: the same readings fail
+SELFTEST PASS CFD_RING_HOST=pc-win resolves to ring-pc-win
+SELFTEST PASS unset: the machine hostname is used as before
+SELFTEST PASS override wins over the hostname
+SELFTEST PASS a 32-character key is accepted
+SELFTEST PASS a 33-character key is refused
+SELFTEST PASS an uppercase key is refused
+SELFTEST PASS a dotted (FQDN-like) key is refused
+SELFTEST PASS a path-like key is refused
+SELFTEST PASS an empty key is refused
+SELFTEST PASS skew: balanced parts print nothing
+SELFTEST PASS skew: Analysis 4500 vs 2500 prints the line
+SELFTEST PASS skew: Analysis exactly 15% (750 ms) prints nothing
+SELFTEST PASS skew: Analysis 751 ms prints the line
+SELFTEST PASS skew: Core 24000 vs 30000 prints the Core line
+SELFTEST PASS skew: a missing part reading prints nothing
+Traceback (most recent call last):
+  File "/Users/mallalieut/projects/CFD-Workbench-fix-phl-host-limits/tools/check-test-costs.py", line 563, in <module>
+    sys.exit(main(sys.argv))
+             ~~~~^^^^^^^^^^
+  File "/Users/mallalieut/projects/CFD-Workbench-fix-phl-host-limits/tools/check-test-costs.py", line 513, in main
+    return self_test()
+  File "/Users/mallalieut/projects/CFD-Workbench-fix-phl-host-limits/tools/check-test-costs.py", line 484, in self_test
+    limit_failures, limit_total = self_test_host_limits()
+                                  ~~~~~~~~~~~~~~~~~~~~~^^
+  File "/Users/mallalieut/projects/CFD-Workbench-fix-phl-host-limits/tools/check-test-costs.py", line 327, in self_test_host_limits
+    errors, misses = check(case, DEFAULT_JOBS, "5.0", "proc-gitbash", "pcl", proof)
+                     ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mallalieut/projects/CFD-Workbench-fix-phl-host-limits/tools/check-test-costs.py", line 188, in check
+    gate, uncalibrated, limits = host_gate(source, host, proof)
+                                 ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mallalieut/projects/CFD-Workbench-fix-phl-host-limits/tools/check-test-costs.py", line 160, in host_gate
+    baseline = read_baseline(host, proof)
+  File "/Users/mallalieut/projects/CFD-Workbench-fix-phl-host-limits/tools/check-test-costs.py", line 144, in read_baseline
+    raise BaselineError(f"{path}: line {number} {line!r} is not a limit line: use limit.<name>=<ms> once per name, "
+                        f"name one of {', '.join(HOST_LIMIT_NAMES)}, ms a positive integer")
+BaselineError: /var/folders/8b/b13cycfj2psdxdnk19xw8jch0000gn/T/tmpzvklcofr/ring-pcl/baseline.csv: line 7 'limit.budget=341' is not a limit line: use limit.<name>=<ms> once per name, name one of analysis_part, desktop, wall, check, check_exempt, ms a positive integer

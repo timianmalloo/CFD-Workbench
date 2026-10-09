@@ -1,0 +1,6 @@
+*.txt -text whitespace=cr-at-eol
+*.log -text whitespace=cr-at-eol
+*.ms -text whitespace=cr-at-eol
+*.seconds -text whitespace=cr-at-eol
+*.json -text whitespace=cr-at-eol,-blank-at-eol
+*.foil -text whitespace=cr-at-eol,-blank-at-eol

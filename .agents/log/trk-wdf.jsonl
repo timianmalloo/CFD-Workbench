@@ -1,0 +1,2 @@
+{"agent": "trk-wdf", "at": 1791510712.0313401, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-wdf", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-wdf-dpi-fixes"}
+{"agent": "trk-wdf", "at": 1791511502.045633, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-wdf", "wi": "WI-0", "worktree": "CFD-Workbench-fix-wdf-dpi-fixes"}
