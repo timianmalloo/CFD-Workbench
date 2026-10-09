@@ -88,3 +88,8 @@ One packaging repair adds a local `-text` rule and explicitly restages the origi
 bytes. No metadata value or verifier output is rewritten. A CR-aware diff check
 passes while preserving raw CRLF evidence; the committed-blob manifest is the
 oracle for byte integrity.
+
+Packaging repair 2 of 2 regenerates `docs/docs-index.js` after the final receipt
+edit. The prior derived index still named the receipt's pre-edit source hash. This
+repair changes only the receipt's repair ledger and the derived index; it does not
+rerun the verifier or alter any captured bytes.
