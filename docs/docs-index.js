@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "dbb692fa83615ef8ef9189d3072bef91255b4535646f2596f64353185dff884b"
+      "sourceSha256": "919866432d5b893b5dcc3f058bef055332cccdd414e8d4247a7d2cf764198860"
     },
     {
       "id": "domain-experts",
@@ -10856,6 +10856,59 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "b0673fdb6f2871565c8fc0f5b1be74a6148438f314dab6e8a27e7c4ac00effe4"
+    },
+    {
+      "id": "proof-abl-measure",
+      "path": "docs/proof/abl/measure.md",
+      "title": "ABL Analysis part balance: measurements",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-abl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Per-group cost of the Analysis harness (three runs, median), the hint change, and three ring runs per part with load.",
+      "tags": [
+        "abl",
+        "analysis",
+        "partition",
+        "c-2",
+        "timing"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "32c464165d41197b77662a64c03c2277e5f675c2b16b1f43b5163680a4930372"
+    },
+    {
+      "id": "proof-abl-red-first",
+      "path": "docs/proof/abl/red-first.md",
+      "title": "ABL red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-abl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "The ring failed C-2 on the stale hints and on two intermediate hint sets; the kept hint set passed three rings.",
+      "tags": [
+        "abl",
+        "analysis",
+        "partition",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-measure",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "be62c92d1e79c12675dbcfee5dff1495b50e66dee36b69e451fee95cbf04af60"
     },
     {
       "id": "proof-app-shell-test-inventory",
@@ -17722,5 +17775,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6e138c232348ef9a5b9d3290a84827961d5cb6cd4dbcbcace59659ba54ed72f9"
+  "graphSha256": "8bb3fc4f5dfeb0a8a5f156cee2f7d62079f79e38701bdf5e35e80a8a350b5d7a"
 };

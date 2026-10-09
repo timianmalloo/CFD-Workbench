@@ -1647,6 +1647,14 @@ the parts disagree on the group count; `tools/check-test-costs.py` applies C-2 t
 a part over 5 s (red) and two parts of 4.9 s that sum over 5 s (green). Adding a test class means one line in the `groups`
 array with its measured cost hint; a stale hint costs balance, never coverage. When a part nears 4 s, raise n (one number in
 `jobs=`), do not re-base C-2.
+2026-10-08 (ABL): the hints drifted within two days. Part 1 ran 4900 and 4936 ms against part 2 at 4065 and 3947 ms, and three
+tracks failed C-2 on part 1; Projection was hinted 1180 ms and costs 29, SectionForce 780 and costs 297, SectionSeam 1040 and costs
+1528. Re-hinted from three whole-harness runs (`docs/proof/abl/measure.md`): skew fell to 93-255 ms, parts 4550-4971 ms in the ring.
+A group costs more cold than after the groups that warm it, so hints taken from a partition's own GROUP lines moved the layout and
+went red twice; use the whole-harness median. Proposed control, not built (the skew needs both parts' times, and each part is a
+separate process): `tools/check-test-costs.py` prints PARTITION-SKEW when |part 1 - part 2| > 15 % of the C-2 limit (750 ms),
+from the `.ms` files `tools/run-tests.sh` already writes; it costs no run time. Still open: at ring load the two parts hold about
+9.3 s, so 4.5 s per part needs n=3, which needs a ruling.
 
 **DESKTOP-HARNESS-GROWTH · A CPU-bound harness whose parts run concurrently cannot be partitioned into margin.** C-4 (Desktop <= 43 s)
 read 42.5 / 43.5 / 42.8 s at quiet load (one red in three), then 45,636 ms at load 21.8 on the PNA join, after every UI track had added
@@ -2098,3 +2106,28 @@ A quantity that is zero by construction comes out of floating-point arithmetic a
 `NativeFailure.ProductCode` returned `DOC-IO` for every Win32 error other than the qualified sharing violation. That fallback would let a future adapter turn an unqualified native failure into a product outcome.
 
 **Class → sweep → derive → prevent:** signature: a native-error-to-product-code property with a generic fallback. Sweep: `rg ProductCode src tests` found the property, its Win32 32 assertion, and no adapter reads. Derive: map only Win32 32 to `DOC-CONFLICT`; preserve every other error as null until qualified. Control: `WindowsNative_ProductCode_UnqualifiedWin32Error_IsUnmapped` in `WindowsProjectStoreTests.cs`, with the red run retained in `docs/proof/win-product-code/red-first.md`. Status: controlled.
+
+**CEILING-STALE-REGIME · A time ceiling is derived from a regime that no longer exists, and the leader misses the report that says so.**
+Ruling 168 (1) set a 300 s Windows evidence-ring ceiling from rings of 140 s and 168.6 s. In both, the Desktop harness had
+crashed early on the fail-closed store and never spawned its suites. Tracks WRT and WTH then let Desktop run in full on
+Windows. At 00:11Z the PC reported a complete ring on 1146ec8e at 345,588 ms (xmsg 20261009T001155) and asked whether a
+concurrent-L3 run qualifies. The Mac leader did not read it: its watch covered branch heads, PR heads and PR comments,
+but not PC xmsg lines on `origin/win/*`. At 00:19Z it restated the 300 s ceiling. Calibration run 1 was killed at 302 s
+in Desktop's spawn stage, and the PC filed a second decision request. Ruling 170 raised the ceiling to 900 s.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a numeric limit whose basis (the runs it was measured from) predates a change that alters what the runs
+  execute. The change here: harness aborts fixed, so more coverage runs. A second signature: a coordinator watch that
+  omits one of the peer's channels.
+- *Sweep:* the other Windows limits, C-2 and C-3 per part, are advisory on the uncalibrated host
+  (`check-test-costs.py:45-49`). No other ceiling is stated in a ruling.
+- *Derive:*
+  - a ceiling is never below the latest measured complete wall for that host;
+  - a change that removes a harness abort or a skip re-opens every limit derived from runs that had it;
+  - the leader reads every peer channel at each poll.
+- *Prevent:*
+  - (a) Ruling 170 states the first rule. The Windows baseline (`docs/proof/ring-pc-win/baseline.csv`, Ruling 168 (2)) will
+    replace the prose ceiling with measured rows. Until then this is prose, Status: pending a mechanical control.
+  - (b) The leader's PC watch now emits `XMSG-FROM-PC <id> <kind>` for every new PC message on `origin/main` and
+    `origin/win/*`. This is session tooling, not repo tooling. The repo-level control remains `python3 tools/xmsg.py
+    unread`, run at each join (continuation prompt).
