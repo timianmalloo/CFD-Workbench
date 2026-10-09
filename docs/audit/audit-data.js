@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T22:53:02Z",
+  "generated": "2026-10-09T23:27:44Z",
   "audit": [
     {
       "actor": null,
@@ -33779,6 +33779,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T22:52:01Z",
       "duration_seconds": 61.0
+    },
+    {
+      "id": "al-01M4HFWXJEVX7WVRCHBNW6MPXH",
+      "shortname": "exd-export-design",
+      "datetime": "2026-10-09T23:27:44Z",
+      "session": "trk-exd",
+      "prompt": "trk-exd: Export (Area 7) design and mockup for .dat, STL, 3MF (Ruling 193)",
+      "summary": "Design note (13 sections, 9 spec amendments, 5 operator questions), mockup with 10 states and 27 captures, probe receipts in docs/proof/exd/. Watertight solid available without a CAD kernel (manifold, Euler 2 on two wings). Craft gate: no findings.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Settle what each export format writes, where the geometry comes from, the UX and hard states, proposed copy and spec amendments, and a mockup for operator approval",
+      "done_when": "docs/design/export.md and docs/mockups/export.html committed; craft gate run; kernel question answered with evidence; check-docs exit 0",
+      "started_at": "2026-10-09T23:07:34Z",
+      "duration_seconds": 1210.0
     }
   ],
   "changes": [
@@ -36531,6 +36551,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4HDT8NBKX95AXAJPHA7HABJ",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4HEQAK7H85G2GQYSEM4V3DW",
+      "ts": "2026-10-09T23:07:12Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4HEQAGAYX1NEX3RTPWQ1HT2",
+      "session": "operator-timianmalloo"
     }
   ]
 };
