@@ -1,0 +1,22 @@
+MSP join 1d52616a (base a547df17, ours 7ea171c8, theirs bfc3e3cb), new driver:
+  driver exit: 0
+  diff (driver out vs committed) lines:       46
+  1592:**REGISTER-CLASS-MISMATCH · A markdown file is bound to a JSONL r
+  1614:**CFD-CLAIM-SCOPE · A label names a stronger quantity or cause th
+diff vs committed (driver out < , committed >):
+1591,1612d1590
+<   Status: pending CRD.
+2374a2353,2374
+> 
+
+CRD join 9053c2da (old history, ours has the moved copy):
+  driver exit: 1
+  diff (driver out vs committed) lines:       28
+  1594:**REGISTER-CLASS-MISMATCH · A markdown file is bound to a JSONL r
+  1624:**CFD-CLAIM-SCOPE · A label names a stronger quantity or cause th
+  2386:**REGISTER-CLASS-MISMATCH · A markdown file is bound to a JSONL r
+
+CRD join, order kept (ours = MSP replay output; base 2c656096, theirs 03b12b67):
+driver exit: 0
+markers: 0
+diff lines vs committed:        0

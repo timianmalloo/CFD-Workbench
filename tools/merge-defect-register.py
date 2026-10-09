@@ -79,15 +79,25 @@ def merge(base, ours, theirs):
             out.append(o)
         else:
             return None
-    out.extend(v for k, v in eo if k not in mb)
-    for key, value in et:
-        if key in mb:
-            continue
-        if key in mo:
-            if mo[key][0] != value[0]:
-                return None
-            continue
-        out.append(value)
+    keyed = [(key, out[n]) for n, key in enumerate(base_keys)]
+    # RG5: a new entry goes after the entry that preceded it on its own side (ours first at a shared anchor).
+    for side, side_name in ((eo, "ours"), (et, "theirs")):
+        prev = None
+        for key, value in side:
+            if key in mb:
+                prev = key
+                continue
+            if side_name == "theirs" and key in mo:
+                if mo[key][0] != value[0]:
+                    return None
+            else:
+                at = 0 if prev is None else [k for k, _ in keyed].index(prev) + 1
+                if side_name == "theirs" and (prev is None or prev in mb):
+                    while at < len(keyed) and keyed[at][0] not in mb and keyed[at][0] not in mt:
+                        at += 1  # skip entries only ours added at this anchor
+                keyed.insert(at, (key, value))
+            prev = key
+    out = [v for _, v in keyed]
     blocks = ([preamble] if preamble[0] else []) + out
     result = "".join(body + "\n" * gap for body, gap in blocks[:-1]) + blocks[-1][0] + "\n"
     # Conservation: every non-blank input line is an output line, or the head of one (a strict extension of its last line).
@@ -208,6 +218,16 @@ def self_test():
         ("identical new entry on both", base, doc(a, x, y), doc(a, x, y), doc(a, x, y)),
         ("preamble edited on both", base, doc(a, x, preamble=pre + " One."), doc(a, x, preamble=pre + " Two."), None),
         ("reordered entries", base, doc(x, a), doc(a, x, y), None),
+    ]
+    # RG5: an entry added by one side keeps its place after the entry that preceded it on that side.
+    b3 = doc(a, x, z)
+    ax = x + "\n*2026-10-08 extended.*"
+    cases += [
+        ("RG5 ours adds Y between A and X, theirs extends Z", b3, doc(a, y, x, z), doc(a, x, z + "\n*2026-10-08 extended.*"), doc(a, y, x, z + "\n*2026-10-08 extended.*")),
+        ("RG5 theirs adds Y between A and X, ours extends X", b3, doc(a, ax, z), doc(a, y, x, z), doc(a, y, ax, z)),
+        ("RG5 each side adds a different entry at a different place", b3, doc(y, a, x, z), doc(a, x, entry("W", "w."), z), doc(y, a, x, entry("W", "w."), z)),
+        ("RG5 both add different entries after the same entry: ours first", b3, doc(a, y, x, z), doc(a, entry("W", "w."), x, z), doc(a, y, entry("W", "w."), x, z)),
+        ("RG5 both add the same new entry at the same place", b3, doc(a, y, x, z), doc(a, y, x, z), doc(a, y, x, z)),
     ]
     fm_pre = "---\nid: r\nlinks:\n  - { to: base-a, rel: relates-to }\n---\n# Register"
     fm_base = doc(a, x, preamble=fm_pre)
