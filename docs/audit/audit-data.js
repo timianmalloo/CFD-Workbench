@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T21:27:51Z",
+  "generated": "2026-10-09T21:30:40Z",
   "audit": [
     {
       "actor": null,
@@ -33449,71 +33449,120 @@ window.AUDIT_DATA = {
       "tool": "packaging"
     },
     {
-      "id": "al-01M4H5B81CR8ZE0C91F37QY2X6",
-      "shortname": "join-pr25",
-      "datetime": "2026-10-09T20:23:19Z",
-      "session": "3122f106",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "Joined PR #25 as a blocked receipt (Ruling 187); no budget (Ruling 186); .gitattributes manifest entry rebound to a snapshot recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/reviews/pr-25.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "PR #25 on main under Ruling 187",
+      "datetime": "2026-10-09T20:23:19Z",
       "done_when": "join gates and ring green, readiness green, PUSH-OK",
-      "tier": "T1",
+      "duration_seconds": 62.0,
       "fan_out": 0,
+      "goal": "PR #25 on main under Ruling 187",
+      "id": "al-01M4H5B81CR8ZE0C91F37QY2X6",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-pr25",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-09T20:22:17Z",
-      "duration_seconds": 62.0
+      "summary": "Joined PR #25 as a blocked receipt (Ruling 187); no budget (Ruling 186); .gitattributes manifest entry rebound to a snapshot recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4H91D0WY6APFCQK319Q72XN",
-      "shortname": "win-r181-verifier-rerun",
-      "datetime": "2026-10-09T21:27:51Z",
-      "session": "win-r181-verifier-rerun",
-      "prompt": "Continue the Windows W-0 through W-5 execution after Ruling 187; complete the queued Ruling 181 unchanged store-verifier rerun and coordinate the evidence through GitHub with the Mac leader.",
-      "summary": "Ran the unchanged Ruling 181 store verifier exactly once through the committed Windows runner. Observed process exit 0, retained handle, shutdown 0 before residual accounting, expected 13-check classification, zero matching build-server residuals, PHN PASS, and unchanged protected source; sealed the proof with immutable snapshots and a committed-blob manifest.",
-      "kind": "script",
-      "skill": null,
-      "tool": "tools/windows-runner.ps1",
       "actor": "Codex",
       "artifacts": [
         "docs/proof/r181-store-verifier-rerun/receipt.md",
         "docs/proof/r181-store-verifier-rerun/capture-manifest.json"
       ],
+      "datetime": "2026-10-09T21:27:51Z",
+      "done_when": "The single run has numeric exit and shutdown evidence, post-shutdown residual evidence, immutable PHN-safe proof, green safe gates, and a GitHub handoff to the Mac leader.",
+      "fan_out": 2,
+      "git": {
+        "branch": "win/r181-verifier-rerun",
+        "pushed": false,
+        "sha": "5c720cd10523d6d92aa9cdfc002c8e6364a2035c",
+        "short": "5c720cd10"
+      },
+      "goal": "Complete the next authorized Windows queue item with one unchanged verifier run and fail-closed lifecycle evidence.",
+      "id": "al-01M4H91D0WY6APFCQK319Q72XN",
+      "kind": "script",
+      "outcome": "success",
+      "prompt": "Continue the Windows W-0 through W-5 execution after Ruling 187; complete the queued Ruling 181 unchanged store-verifier rerun and coordinate the evidence through GitHub with the Mac leader.",
+      "session": "win-r181-verifier-rerun",
+      "shortname": "win-r181-verifier-rerun",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": null,
+      "summary": "Ran the unchanged Ruling 181 store verifier exactly once through the committed Windows runner. Observed process exit 0, retained handle, shutdown 0 before residual accounting, expected 13-check classification, zero matching build-server residuals, PHN PASS, and unchanged protected source; sealed the proof with immutable snapshots and a committed-blob manifest.",
       "tags": [
         "windows",
         "ruling-181",
         "coordination"
       ],
-      "outcome": "success",
-      "goal": "Complete the next authorized Windows queue item with one unchanged verifier run and fail-closed lifecycle evidence.",
-      "done_when": "The single run has numeric exit and shutdown evidence, post-shutdown residual evidence, immutable PHN-safe proof, green safe gates, and a GitHub handoff to the Mac leader.",
       "tier": "T1",
-      "fan_out": 2,
+      "tool": "tools/windows-runner.ps1"
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T21:09:12Z",
+      "done_when": "red check, fix, green, full ring, register entry",
+      "duration_seconds": 300.0,
+      "goal": "Escape tooltip dismissal survives a refresh (Ruling 188)",
+      "id": "al-01M4H7Z8A6V21CKWS01SV3VZH5",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-pef",
+      "session": "trk-pef",
+      "shortname": "pef-escape-dismissal",
+      "skill": "implement",
+      "started_at": "2026-10-09T21:04:12Z",
+      "summary": "Held-seam check red then green; tooltipDismissed in PlanCanvas; TRANSIENT-STATE-REDERIVED registered; run-tests 0 failures",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/pef/red-first.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-09T21:12:16Z",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
+      "duration_seconds": 63.0,
+      "fan_out": 0,
+      "goal": "the plan-view tooltip stays dismissed across refreshes",
+      "id": "al-01M4H84WBH70KD30TV8KRV4EYE",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/pef-escape-dismissal into main",
+      "session": "3122f106",
+      "shortname": "join-pef",
       "signals": {
-        "verification_path": true,
-        "verification_executed": true,
         "acceptance_met": true,
-        "regression": false
+        "verification_executed": true,
+        "verification_path": true
       },
-      "git": {
-        "sha": "5c720cd10523d6d92aa9cdfc002c8e6364a2035c",
-        "short": "5c720cd10",
-        "branch": "win/r181-verifier-rerun",
-        "pushed": false
-      }
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T21:11:13Z",
+      "summary": "Joined PEF: PlanCanvas records the Escape dismissal until a genuine pointer move; refresh path ReadHover keeps it null; probe unchanged; red-first held-seam check recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     }
   ],
   "changes": [
@@ -36194,6 +36243,15 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4H56YATETJ0PK8KWN8YV7C4",
       "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4H7NKQ81K77XR34YMZZJRZX",
+      "ts": "2026-10-09T21:03:56Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4H7NKM9WPNDEXK36E5AVHDD",
+      "session": "operator-timianmalloo"
     }
   ]
 };
