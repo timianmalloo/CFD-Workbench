@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T18:00:59Z",
+  "generated": "2026-10-09T18:18:19Z",
   "audit": [
     {
       "actor": null,
@@ -33041,6 +33041,35 @@ window.AUDIT_DATA = {
         "branch": "win/wri-r182-runner-ready",
         "pushed": true
       }
+    },
+    {
+      "id": "al-01M4GY6BW4DZPD3JFZDGKF2467",
+      "shortname": "join-pr24",
+      "datetime": "2026-10-09T18:18:19Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined PR #24: committed Windows runner library and self-test (Ruling 184); Ruling 179 budget opens on a committed scale-run driver recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-24.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "PR #24 on main under Ruling 184",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T18:17:15Z",
+      "duration_seconds": 64.0
     }
   ],
   "changes": [
@@ -35639,6 +35668,42 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4GPJX8KC91MWE9GN89T058F",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4GW7CS29VSNBADZH1AWFWRW",
+      "ts": "2026-10-09T17:43:55Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4GW7CRY34NC5F4EVSRZQDYK",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4GW7CVX98XJ05CAQ56DQRED",
+      "ts": "2026-10-09T17:43:56Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4GW7CRY34NC5F4EVSRZQDYK",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4GY25ZC36VXXMA9BANCCB4A",
+      "ts": "2026-10-09T18:16:02Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4GY25Z8HR83M3Y30ANP599W",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4GY2628BHRS1ESCRKQTFDJ9",
+      "ts": "2026-10-09T18:16:02Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4GY25Z8HR83M3Y30ANP599W",
       "session": "fable-owner"
     }
   ]
