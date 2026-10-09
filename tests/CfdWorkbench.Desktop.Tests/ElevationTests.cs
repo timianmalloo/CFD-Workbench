@@ -55,6 +55,7 @@ public static class ElevationTests
     {
         try
         {
+            SamplerChecks();
             FrontChecks();
             SideChecks();
             InteractionChecks();
@@ -72,6 +73,22 @@ public static class ElevationTests
             example?.Dispose();
             dihedral?.Dispose();
         }
+    }
+
+    // ECR, pure (fast ring, no window): a 96-dpi capture splits a 1 DIP line over two pixels at a fractional scale.
+    private static void SamplerChecks()
+    {
+        DesktopChecks.Check("Elevation_ChipBorderSampler_HoldsHalfOfASplitLine", () =>
+        {
+            (byte R, byte G, byte B) ground = (0x1a, 0x28, 0x2b), line = (0x66, 0xdd, 0xc8);
+            (byte R, byte G, byte B) Blend(double t) => ((byte)Math.Round(ground.R + (line.R - ground.R) * t),
+                (byte)Math.Round(ground.G + (line.G - ground.G) * t), (byte)Math.Round(ground.B + (line.B - ground.B) * t));
+            if (Distance(Blend(2.0 / 3), line) <= 60) throw new Exception("The fixture split is not past the old exact threshold");
+            if (!DevicePixel.HoldsHalfOf(Blend(2.0 / 3), line, ground)) throw new Exception("The 2/3 half of a split line is refused");
+            if (!DevicePixel.HoldsHalfOf(Blend(.5), line, ground)) throw new Exception("An even split is refused");
+            if (DevicePixel.HoldsHalfOf(Blend(1.0 / 3), line, ground)) throw new Exception("The 1/3 half of a split line is accepted");
+            if (DevicePixel.HoldsHalfOf(ground, line, ground)) throw new Exception("A capture without the line is accepted");
+        });
     }
 
     private static void FrontChecks()
@@ -263,7 +280,7 @@ public static class ElevationTests
             if (Contrast(rootPixel, f.Brush("ViewportBrush")) < 3 || Distance(rootPixel, f.Brush("FoilEdgeBrush")) > 80 || Distance(rootPixel, f.Brush("PlanSelectionBrush")) < Distance(rootPixel, f.Brush("FoilEdgeBrush"))) throw new Exception("The root lost its 1 px foil-edge weight: " + rootPixel);
             var chip = f.Side.Chips().FirstOrDefault(item => item.Name == "Tip");
             if (chip.Name is null) throw new Exception("No Tip chip");
-            if (Distance(f.NearestAt(f.Side, new Point(chip.Bounds.Left + 0.5, chip.Bounds.Center.Y), station, 1), station) > 60) throw new Exception("The chip has no station border");
+            if (!DevicePixel.HoldsHalfOf(f.NearestAt(f.Side, new Point(chip.Bounds.Left + 0.5, chip.Bounds.Center.Y), station, 1), station, f.Brush("ViewportBrush"))) throw new Exception("The chip has no station border");
         });
 
         DesktopChecks.Check("Elevation_SideClickSection_SelectsStation", () =>

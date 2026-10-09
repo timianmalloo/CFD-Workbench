@@ -2225,6 +2225,7 @@ it is green at 1.5 and 2.0. Item 2 is a second assertion with zero tolerance (`C
 2.0. The overlay sits inside `PushOpacity` + `PushClip` (`ElevationView.cs:1115`, `:1199`), and View3d's chip, drawn
 without them, is present. A spike decides capture versus product (track ECR). Item 5 needs a scale-aware View3d `Shot`
 (track V3D). Item 6 still waits on the fact-TextBlock print.
+*2026-10-09 (track ECR).* Item 4 is a **capture defect, Inferred** (`docs/proof/ecr/spike.md`): at scale 1.5 and 2 a `RenderTargetBitmap` drops what the Elevation `Overlay` child draws, with or without `PushOpacity` and the chip `PushClip` (a rectangle drawn first, outside both, is absent too; Verified on the Mac). No live-window screenshot was possible, so the product side is not Verified. The chip check now samples a 96-dpi capture and accepts a line split over two pixels (`DevicePixel.HoldsHalfOf`; `Elevation_ChipBorderSampler_HoldsHalfOfASplitLine`, red-first in `docs/proof/ecr/red-first.md`). The Windows 1.5 proof is the PC ring.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
