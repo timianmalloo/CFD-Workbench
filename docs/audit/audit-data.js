@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T23:50:17Z",
+  "generated": "2026-10-09T23:51:10Z",
   "audit": [
     {
       "actor": null,
@@ -33917,6 +33917,35 @@ window.AUDIT_DATA = {
       "compiled": false,
       "goal": "Disposition m1-m6, n1-n2, C1-C10 and the plate placement residual",
       "done_when": "mockup and note fixed, adversary table, gates green"
+    },
+    {
+      "id": "al-01M4HH7V21KQBS5SNVWR7ECKY7",
+      "shortname": "join-cmr",
+      "datetime": "2026-10-09T23:51:10Z",
+      "session": "3122f106",
+      "prompt": "the join of design/cmr-comb-revision into main",
+      "summary": "Joined CMR: rail comb design revised for the operator's answers, the a11y M1-M7/m1-m6/C1-C10 and the geometry conditions; final copy COPY-RC-1..16 and AM-RC-1..5 await approval recount_seconds=0 (docs_only=True).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/design/rail-comb.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "the rail comb design is ready for copy approval and build",
+      "done_when": "join gates green, PUSH-OK",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-09T23:50:54Z",
+      "duration_seconds": 16.0
     }
   ],
   "changes": [
@@ -36686,6 +36715,15 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4HG94PXGEG2YCXYJ7222133",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4HGMKZQ5MXSSWQ6VH5AWG8S",
+      "ts": "2026-10-09T23:40:40Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4HGMKWMZGA5DDSESW6PG19C",
       "session": "operator-timianmalloo"
     }
   ]
