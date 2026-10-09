@@ -6915,6 +6915,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "5bcdda1e5d500211739d20046234c7104ae931da93385581ae56e3761b7cbb13"
     },
     {
+      "id": "review-pr-19",
+      "path": "docs/reviews/pr-19.md",
+      "title": "PR #19 (Windows PC) - bounded Windows store verifier (Ruling 175), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 175). PR #19 adds the leased bounded Windows store verifier with the exit 0/1/4 contract, a real-pipe Ruling 171 self-test and 67 manifest-matched captures. The ceiling fix is structurally real. The only Windows no-argument capture is from an earlier script revision, so admission stays closed until a rerun of the final script.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-2",
+        "verifier",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "review-pr-15",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4d39233786c4fe0d75b2d0309e5c4b5e3af39f0f6c7acbd619d25fff5758b29b"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7883,7 +7916,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0fd3e647d3a19e01d2ef53c8c6675ee50ee7ab3471394c914a1c63b7efcdea0a"
+      "sourceSha256": "e5f7fba5bb4460ad351578a7dc361fdc6f6f5bb17cc6aad32fcad11396dd8452"
     },
     {
       "id": "kb-hw-glossary",
@@ -18201,5 +18234,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "7e12cde7a181ebb335217fd7fae30f7861997d4f2a10fd35cd2c8e62f2f77d58"
+  "graphSha256": "97d6ca7392b0c914573acc7f5880761d462c454fa7b2548c92d91b9d95a5967f"
 };
