@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "919866432d5b893b5dcc3f058bef055332cccdd414e8d4247a7d2cf764198860"
+      "sourceSha256": "d6da848e9e3c75bde930fc65a9615f87d99770de6ef1a3d514e6dd9da03613be"
     },
     {
       "id": "domain-experts",
@@ -7850,7 +7850,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7f6f8036a129b5390cfbcbef7a7d00557fffc439eb3bc674e82935241f6edae5"
+      "sourceSha256": "ed8ee7c089b8cb175a7568b024c46190152023015ab6da26bac726033aeb5c12"
     },
     {
       "id": "kb-hw-glossary",
@@ -13332,6 +13332,33 @@ window.DOCS_INDEX = {
       "sourceSha256": "629fc0166d52a76b4330efdc64fed47d55f0a44e299a9e6e8e43d5973632a519"
     },
     {
+      "id": "proof-obs-red-first",
+      "path": "docs/proof/obs/red-first.md",
+      "title": "OBS ring observability: red-first record",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-obs",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for STAGE elapsed_ms, SPAWN-START, and the PARTITION-SKEW advisory.",
+      "tags": [
+        "obs",
+        "stage",
+        "spawn",
+        "partition-skew",
+        "ring"
+      ],
+      "links": [
+        {
+          "to": "proof-abl-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "da5f92bf56395839723fedd00dc35d85a765251c3fd13e749843a621b0f8f435"
+    },
+    {
       "id": "proof-openfix-red-runs",
       "path": "docs/proof/openfix-red-runs.md",
       "title": "OPENFIX red runs and verification — M1.2a Open outcomes and Span input",
@@ -17775,5 +17802,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "8bb3fc4f5dfeb0a8a5f156cee2f7d62079f79e38701bdf5e35e80a8a350b5d7a"
+  "graphSha256": "64685e037cb30a6cd496028bd9d93ceb3e13b875aaf0f6355912c0886eda5869"
 };
