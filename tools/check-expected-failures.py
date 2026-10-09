@@ -10,6 +10,8 @@ line and the continuation lines under it (lines that start with no harness token
 A listed test that PASSES is UNEXPECTED-PASS (a stale entry; delete it when W-2 lands) and fails the ring.
 An abort (APP-UNHANDLED, or an "Unhandled exception" trace) is unexpected unless it sits under a FAIL whose entry
 says aborts_harness (the later checks of that harness are then unassessed; the line says so).
+A child-suite exit line (`FAIL --<mode> [--part=k/n] exited N`) is derived from the FAILs in that child's block (the lines
+since the previous child's exit): it is expected when the block has at least one FAIL and every one of them is expected.
 On a host that is not Windows the manifest has no effect: every FAIL is unexpected.
 
 Ring: every join (called by tools/run-tests.sh on Windows only; --self-test by tools/check-docs.py, fast ring).
@@ -24,6 +26,7 @@ Exit 1: otherwise. Output ends with `EXPECTED-FAIL <n> (manifest)` and `UNEXPECT
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -39,6 +42,7 @@ MANIFEST = ROOT / "tests" / "expected-failures.windows.json"
 TOKENS = ("PASS ", "FAIL ", "COST ", "STACK ", "RESULT ", "PARTITION ", "STAGE ", "SUITE")
 CLASSES = ("historical-probe", "fail-closed-store")
 ABORTS = ("APP-UNHANDLED", "Unhandled exception")
+CHILD_EXIT = re.compile(r"--[a-z0-9-]+(?: --part=\d+/\d+)? exited \d+")
 
 
 def load_manifest(path: Path) -> dict[str, dict]:
@@ -61,11 +65,19 @@ def parse(text: str) -> tuple[list[dict], set[str]]:
     events: list[dict] = []
     passed: set[str] = set()
     open_fail: dict | None = None
+    block: list[dict] = []  # the FAILs of the child suite whose output is being read (a child's block ends at its exit line)
     for line in text.splitlines():
+        if line.startswith("SUITE ") and line.rstrip().endswith(" exit 0"):
+            block = []
         if line.startswith("FAIL "):
             rest = line[5:]
             name = rest.split(" ", 1)[0]
-            open_fail = {"name": name, "text": rest, "abort": False}
+            if CHILD_EXIT.fullmatch(rest):  # "--<mode> [--part=k/n] exited N": the child's exit, derived from the FAILs in its block
+                open_fail = {"name": name, "text": rest, "abort": False, "child_block": block}
+                block = []
+            else:
+                open_fail = {"name": name, "text": rest, "abort": False}
+                block.append(open_fail)
             events.append(open_fail)
         elif line.startswith(ABORTS):
             if open_fail is not None:
@@ -83,10 +95,23 @@ def parse(text: str) -> tuple[list[dict], set[str]]:
     return events, passed
 
 
+def explained(event: dict, manifest: dict[str, dict]) -> bool:
+    """True when the FAIL is listed, carries its fragment, and any abort is declared (the same rule as classify)."""
+    entry = manifest.get(event["name"])
+    return entry is not None and entry["fragment"] in event["text"] and (not event["abort"] or bool(entry.get("aborts_harness")))
+
+
 def classify(text: str, manifest: dict[str, dict], windows: bool) -> dict[str, list[str]]:
     events, passed = parse(text)
     out: dict[str, list[str]] = {"expected": [], "unexpected": [], "unexpected_pass": []}
     for event in events:
+        if "child_block" in event:
+            # A child exit is expected only when the child had failures and every one is expected on this host.
+            if windows and event["child_block"] and all(explained(failure, manifest) for failure in event["child_block"]):
+                out["expected"].append(f"{event['text'].splitlines()[0]} (every failure in its block is expected)")
+            else:
+                out["unexpected"].append(f"{event['text'].splitlines()[0]}: child exit without a block of only expected failures")
+            continue
         entry = manifest.get(event["name"]) if windows else None
         if entry is None:
             reason = "not in the manifest" if windows else "manifest has no effect on this host"
@@ -148,6 +173,18 @@ def self_test() -> int:
         ("exit status with no FAIL line", "PASS X\n", True, 1, 0, 0, 0, 0),
         ("not Windows: a listed failure stays a failure", f"{probe}\n{store}\n", False, 1, 2, 0, 2, 0),
         ("not Windows: a listed pass is fine", "PASS Store_B\n", False, 0, 0, 0, 0, 0),
+        ("child exit whose block holds only expected failures is expected",
+         f"{store}\nPARTITION 1/2 of 9 checks\nSUITE --x --part=1/2 exit 1\nSUITE-TIME --x --part=1/2 1.0 s\nFAIL --x --part=1/2 exited 1\n", True, 0, 0, 2, 0, 0),
+        ("child exit whose block holds an unexpected failure stays unexpected",
+         f"{store}\nFAIL Other_D Boom\nSUITE --x exit 1\nSUITE-TIME --x 1.0 s\nFAIL --x exited 1\n", True, 1, 2, 1, 2, 0),
+        ("child exit with no failure in its block stays unexpected",
+         "PASS X\nSUITE --x exit 1\nSUITE-TIME --x 1.0 s\nFAIL --x exited 1\n", True, 1, 1, 0, 1, 0),
+        ("a block belongs to its own child: the next child's exit is not covered by it",
+         f"{store}\nSUITE --a exit 1\nSUITE-TIME --a 1.0 s\nFAIL --a exited 1\nSUITE --b exit 1\nSUITE-TIME --b 1.0 s\nFAIL --b exited 1\n", True, 1, 1, 2, 1, 0),
+        ("an exit-0 child clears the block",
+         f"{store}\nSUITE --a exit 0\nSUITE-TIME --a 1.0 s\nSUITE --b exit 1\nSUITE-TIME --b 1.0 s\nFAIL --b exited 1\n", True, 1, 1, 1, 1, 0),
+        ("not Windows: a child exit stays a failure",
+         f"{store}\nSUITE --x exit 1\nSUITE-TIME --x 1.0 s\nFAIL --x exited 1\n", False, 1, 2, 0, 2, 0),
     ]
     bad = 0
     for label, text, windows, want_exit, _count, want_ok, want_unexpected, want_pass in cases:

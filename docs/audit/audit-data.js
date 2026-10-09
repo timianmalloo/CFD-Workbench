@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T02:02:19Z",
+  "generated": "2026-10-09T02:18:14Z",
   "audit": [
     {
       "actor": null,
@@ -31570,6 +31570,24 @@ window.AUDIT_DATA = {
       "actor": null,
       "artifacts": [],
       "compiled": false,
+      "datetime": "2026-10-09T01:58:43Z",
+      "done_when": "self-tests green; run 1-3 replay 0 cost failures; Desktop replay 22 EXPECTED; run-tests, check-docs, verify gates green",
+      "goal": "Ruling 173: per-host ms limits, pc-win baseline, 20 store names + child-exit rule in the Windows manifest, WingRun 1 s to readiness",
+      "id": "al-01M4F64P05XYN8FARSFHJ7QBYW",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-phl: per-host cost limits, Windows manifest additions, WingRun gate",
+      "session": "trk-phl",
+      "shortname": "phl-host-limits",
+      "skill": "implement",
+      "summary": "limit.* lines in baseline.csv (incl. check/check_exempt beyond the ruling), baseline committed, 20 manifest names, child-exit rule, WingRun to readiness, allowlist entry removed",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-09T01:50:19Z",
       "done_when": "investigation.md with answers 1-5",
       "goal": "Investigate eight Windows-only rendering failures",
@@ -31815,31 +31833,51 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4F6B8NTAEW3ABQH3QZMJ1Z7",
-      "shortname": "join-wdf",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-09T02:02:19Z",
-      "session": "3122f106",
-      "prompt": "the join of fix/wdf-dpi-fixes into main",
-      "summary": "WDF joined: TextBox.prop-b MinHeight=PropRowInputHeight (24 DIP floor at 150%); declaration check red on the nine Windows inputs; device-pixel tolerance for items 2,7; KeyBindings branches on macOS; item 6 held for the probe; DPI-A class recount_seconds=0 (docs_only=False).",
+      "done_when": "join gates green",
+      "duration_seconds": 58.0,
+      "fan_out": 0,
+      "goal": "join the Windows DPI fixes under Ruling 174",
+      "id": "al-01M4F6B8NTAEW3ABQH3QZMJ1Z7",
       "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/wdf-dpi-fixes into main",
+      "session": "3122f106",
+      "shortname": "join-wdf",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
       "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T02:01:21Z",
+      "summary": "WDF joined: TextBox.prop-b MinHeight=PropRowInputHeight (24 DIP floor at 150%); declaration check red on the nine Windows inputs; device-pixel tolerance for items 2,7; KeyBindings branches on macOS; item 6 held for the probe; DPI-A class recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4F78D0P73WSMBD49PDHZYZW",
+      "shortname": "phl-ruling-176",
+      "datetime": "2026-10-09T02:18:14Z",
+      "session": "trk-phl",
+      "prompt": "trk-phl resume: Ruling 176 amendments",
+      "summary": "check 2600, check_exempt 2850, budget 341, resolve-budget, rules beside HOST_LIMIT_NAMES, citation fixed, main merged",
+      "kind": "skill",
+      "skill": "implement",
       "tool": null,
       "actor": null,
       "artifacts": [],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "join the Windows DPI fixes under Ruling 174",
-      "done_when": "join gates green",
-      "tier": "T1",
-      "fan_out": 0,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": true
-      },
-      "started_at": "2026-10-09T02:01:21Z",
-      "duration_seconds": 58.0
+      "goal": "amended pc-win limits, limit.budget with precedence, derivation rules",
+      "done_when": "self-test, run-tests, check-docs, verify gates green; replay 0 failures",
+      "started_at": "2026-10-09T02:10:59Z",
+      "duration_seconds": 435.0
     }
   ],
   "changes": [
@@ -34282,6 +34320,42 @@ window.AUDIT_DATA = {
       "kind": "ruling",
       "ref": "req-01M4F5781Y9YSXYBQXDWRTTY9F",
       "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4F6HW9457NMRGY1ZVEQTAXS",
+      "ts": "2026-10-09T02:05:56Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F6HW90GQX1F38DVX65BKQC",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F6HWC48YWHT2ZW6V9C5562",
+      "ts": "2026-10-09T02:05:56Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F6HW90GQX1F38DVX65BKQC",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F6TJPW6AZPDY58SAQ36G4F",
+      "ts": "2026-10-09T02:10:41Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F6TJPQ7PJSM2ZD9MWBYJSE",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F6TJSYH0BNT68FZTFC8SC3",
+      "ts": "2026-10-09T02:10:41Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F6TJPQ7PJSM2ZD9MWBYJSE",
+      "session": "fable-owner"
     }
   ]
 };

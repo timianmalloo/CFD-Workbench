@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "280ddf47963d2b519f26dcd65a418c9f139c0dd15a6b6663c81ad153cff9d3be"
+      "sourceSha256": "9eb00e33a5ebaca8d16bfd6701702d3e09fff122abba40523c3bf794dbe7c2bc"
     },
     {
       "id": "domain-experts",
@@ -6056,6 +6056,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "272f1bdefd27f8d4607e116d01b51aad9d687263362c23df0eeec0b11004e101"
+    },
+    {
+      "id": "proof-phl-red-first",
+      "path": "docs/proof/phl/red-first.md",
+      "title": "Track PHL red-first record (per-host limits, Windows manifest, WingRun)",
+      "type": "doc",
+      "status": "done",
+      "owner": "@trk-phl",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Red and green runs for the four Ruling 173 items. The PC runs 1-3 of PR #18 are replayed through the changed tools.",
+      "tags": [
+        "proof",
+        "test-ring",
+        "windows",
+        "ruling-173"
+      ],
+      "links": [
+        {
+          "to": "review-pr-18",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "5580dcf8664ca0f0929da31475f9ea4df078636cc845221999b358be0304cbc2"
     },
     {
       "id": "proof-rwf-red-first",
@@ -7916,7 +7942,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e5f7fba5bb4460ad351578a7dc361fdc6f6f5bb17cc6aad32fcad11396dd8452"
+      "sourceSha256": "02a285d43b3417be07866568b5873e76e7cac5b00c20f88e10fb342170778605"
     },
     {
       "id": "kb-hw-glossary",
@@ -18234,5 +18260,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "97d6ca7392b0c914573acc7f5880761d462c454fa7b2548c92d91b9d95a5967f"
+  "graphSha256": "f8fef1ae42d650bac399ec6942ee66969a28d8e8943642f73675f80550dba050"
 };
