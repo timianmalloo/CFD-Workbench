@@ -1589,6 +1589,35 @@ preamble edit on both sides conflict. Replay of the WTH join reproduces the lead
 *2026-10-09 (DPR join, track RG3).* An entry-level "conflict" that a three-way line merge resolves: main and DPR each added a different dated line inside the DPI-A entry. The entry rules called that a conflict, `git merge-file -p` merged it cleanly, and the driver ignored the clean result and wrote a whole-file ours/theirs conflict (two 2,260-line copies); the leader resolved it by hand. Signature: a fallback that assumed "no conflict hunk" means "git cannot run". Control: the driver now defers to git when the entry rules give up. A clean merge is written and exits 0 when every line either side added or changed is kept; hunks are written with markers and exit 1; only a git failure writes the whole-file conflict. A base line one side removed may go, as git decides. Self-test fixture: both sides add a different dated line at different places in one entry. Replay of the DPR join exits 0 and reproduces the committed file byte for byte. Proof: `docs/proof/reg/` (RG3 section).
 *2026-10-09 (track RG4).* The driver still stopped at the commonest parallel shape: two tracks each append one dated line at the end of one entry (FVT, ECR, V3D under DPI-A). Git reports one hunk with an empty base side, and the leader kept both lines by hand, ours first, at two joins. `tools/merge-defect-register.py` now reads each hunk (`git merge-file --diff3`): base side empty, both sides pure insertions with nothing in common, each a dated paragraph (first line `*YYYY-MM-DD (`, no blank line, no entry header) -> ours then theirs, no markers. Any other hunk keeps its markers and the driver exits 1; the conservation check stays. Replay of the ECR and V3D joins is byte-identical to the committed files (`docs/proof/reg/replay-rg4.txt`); the old driver exited 1 on both (`replay-rg4-old.txt`). Fixtures: `python3 tools/merge-defect-register.py --self-test` (15 of 15).
 
+**REGISTER-CLASS-MISMATCH · A markdown file is bound to a JSONL register merge driver.**
+On 2026-10-09 the PHN join merged `docs/notes/rulings.md`: PHN scrubbed Ruling 174, and main had added Ruling 182.
+- `.gitattributes:7` binds the file to `merge=coord-register` (from `coord install`, 90cf9f94, 2026-10-05).
+- That pack driver unions JSONL. It could not parse markdown, so it wrote a whole-file ours/theirs conflict, by design,
+  and exited 0, also by design (S12b: "make the failure visible in the file").
+- Git therefore created the merge commit with markers inside. A plain three-way merge would have been clean (different
+  regions).
+- `conductor-join` step 3 (`verify-no-conflict-markers.py`) stopped the join before any push. The leader rebuilt the
+  file as main's copy with the scrub applied, verified it held 182 rulings, and continued.
+
+Earlier joins never hit this, because PC branches do not add rulings, so only one side ever changed the file.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a file bound to a merge driver whose input format it does not have.
+- *Sweep:* read each `merge=` line in `.gitattributes` and compare the bound file's format with its driver.
+  `xmsg.jsonl` is JSONL (correct). Every other binding is to be checked by the follow-up.
+- *Derive:* a driver binding is chosen by the file's format; markdown registers merge as `authored`, or through a
+  driver that parses markdown.
+- *Prevent:* the marker gate (step 3) caught it, which is the pack's intended net. The binding fix is track CRD: rebind
+  `rulings.md`, plus a check that every `merge=coord-register` path parses as JSONL, red first on today's binding.
+- *Source of the binding (track CRD):* `.agents/artifacts.yml` (repo-owned, below the managed-block end marker) classed
+  the file `register`; `coord install` copies each register pattern into `.gitattributes`. Both lines are removed, so
+  a re-run of `coord install` does not bring the binding back and the pack needs no change.
+- *Sweep result:* the other `coord-register` paths all parse as JSONL; the `defect-register` path is markdown.
+- *Control:* `tools/check-merge-bindings.py`, run by `tools/check-docs.py` (fast ring, about 0.1 s). Red on the old
+  binding (`docs/notes/rulings.md: bound to merge=coord-register but line 1 is not JSON`), green after. Replay of the PHN
+  merge with plain `git merge-file` exits 0 and equals the committed file by hash. Proof: `docs/proof/crd/`.
+  Status: controlled (`tools/check-merge-bindings.py`).
+
 **CFD-CLAIM-SCOPE · A label names a stronger quantity or cause than its data supports.** PRJ displayed `CL/CD` using
 `CDi`, and attributed every e below 0.85 to a lattice effect even though physical washout can lower e at low CL.
 Sweep: the Analysis projection's ratio, e, envelope and layer rows plus proposed COPY-217/232/233. Derive: a ratio's
@@ -2350,25 +2379,3 @@ rebuilt (the scale-context print, the item-6 bounds) had no committed home eithe
   The fresh budget opens only on a committed runner-ready receipt. Status: pending the PC runner; the Mac measurement
   prints are track MSP.
   - *2026-10-09, trk-msp:* the Mac half of the prevent has landed. The Desktop harness prints `SCALE_CONTEXT` once per window mode, `ITEM6` (the three item-6 controls) and `P3` (the double-click clause) on pass as well as fail. `Spawn_WindowModeWithoutScaleContext_Fails` fails the run if a spawned window mode lacks its line (`docs/proof/msp/receipt.md`).
-
-**REGISTER-CLASS-MISMATCH · A markdown file is bound to a JSONL register merge driver.**
-On 2026-10-09 the PHN join merged `docs/notes/rulings.md`: PHN scrubbed Ruling 174, and main had added Ruling 182.
-- `.gitattributes:7` binds the file to `merge=coord-register` (from `coord install`, 90cf9f94, 2026-10-05).
-- That pack driver unions JSONL. It could not parse markdown, so it wrote a whole-file ours/theirs conflict, by design,
-  and exited 0, also by design (S12b: "make the failure visible in the file").
-- Git therefore created the merge commit with markers inside. A plain three-way merge would have been clean (different
-  regions).
-- `conductor-join` step 3 (`verify-no-conflict-markers.py`) stopped the join before any push. The leader rebuilt the
-  file as main's copy with the scrub applied, verified it held 182 rulings, and continued.
-
-Earlier joins never hit this, because PC branches do not add rulings, so only one side ever changed the file.
-
-**Class → sweep → derive → prevent:**
-- *Signature:* a file bound to a merge driver whose input format it does not have.
-- *Sweep:* read each `merge=` line in `.gitattributes` and compare the bound file's format with its driver.
-  `xmsg.jsonl` is JSONL (correct). Every other binding is to be checked by the follow-up.
-- *Derive:* a driver binding is chosen by the file's format; markdown registers merge as `authored`, or through a
-  driver that parses markdown.
-- *Prevent:* the marker gate (step 3) caught it, which is the pack's intended net. The binding fix is track CRD: rebind
-  `rulings.md`, plus a check that every `merge=coord-register` path parses as JSONL, red first on today's binding.
-  Status: pending CRD.

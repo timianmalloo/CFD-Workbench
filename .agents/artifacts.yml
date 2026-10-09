@@ -19,7 +19,6 @@ docs/audit/audit-log.jsonl: register
 # <<< coord classify init - end managed block. Add your own entries BELOW.
 docs/docs-index.js: derived python docs/ai-forward-pack/scripts/docs-graph.py derive
 docs/audit/change-log.jsonl: register
-docs/notes/rulings.md: register
 .agents/log/*.jsonl: register
 .agents/requests.jsonl: register
 docs/coordination/xmsg.jsonl: register
