@@ -14534,6 +14534,44 @@ window.DOCS_INDEX = {
       "sourceSha256": "afad609f4900a83866f51c3e7398bd81df8d594b4fed9c56dbde9fe2f420fab6"
     },
     {
+      "id": "proof-r181-store-verifier-rerun",
+      "path": "docs/proof/r181-store-verifier-rerun/receipt.md",
+      "title": "Ruling 181 Windows verifier rerun",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@win-r181-store-verifier-rerun",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Capture wrapper and immutable source snapshots are prepared for the single Ruling 181 rerun. The verifier has not been executed; no Windows PASS is claimed.",
+      "tags": [
+        "windows",
+        "verifier",
+        "ruling-181",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-22",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-store-final-rerun-r175",
+          "rel": "supersedes"
+        },
+        {
+          "to": "proof-wri-r182-runner-ready",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b300e5c9d7819993ccddac6d7e636bc57a39f5f5adbff237c982751609c0088f"
+    },
+    {
       "id": "proof-rcd-red-first",
       "path": "docs/proof/rcd/red-first.md",
       "title": "RCD readiness runs check-docs, red-first run",
@@ -19195,5 +19233,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "110dabd17d06bd7494d1d07882108fce2fa8d56dc44b2d7ede9626c8648ef0cb"
+  "graphSha256": "121c907b522ce2875c47e2ac9c46a95f9d76fec76c284c9b323534dc06c1251a"
 };
