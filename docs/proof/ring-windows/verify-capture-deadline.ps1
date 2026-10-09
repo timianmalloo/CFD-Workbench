@@ -1,6 +1,8 @@
 $ErrorActionPreference = 'Stop'
 $helper = Join-Path $PSScriptRoot 'capture-calibration.ps1'
-$report = Join-Path $PSScriptRoot 'calibration\deadline-self-test.txt'
+$report = Join-Path $PSScriptRoot 'calibration-ruling-170\deadline-self-test.txt'
+$reportDir = Split-Path -Parent $report
+New-Item -ItemType Directory -Path $reportDir -Force | Out-Null
 $tempDir = Join-Path ([System.IO.Path]::GetTempPath()) ("cfd-capture-deadline-{0}" -f [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $tempDir | Out-Null
 
@@ -17,7 +19,7 @@ try {
     $waitNeedle = '$Process.WaitForExit([int]$remainingMs)'
     if (($source.Split($waitNeedle).Count - 1) -ne 1) { throw 'Expected one shared deadline-aware wait call.' }
     $waitMutant = Join-Path $tempDir 'wait-mutant.ps1'
-    [System.IO.File]::WriteAllText($waitMutant, $source.Replace($waitNeedle, '$Process.WaitForExit(300000)'), [System.Text.UTF8Encoding]::new($false))
+    [System.IO.File]::WriteAllText($waitMutant, $source.Replace($waitNeedle, '$Process.WaitForExit(900000)'), [System.Text.UTF8Encoding]::new($false))
     $waitResult = Invoke-HelperSelfTest -ScriptPath $waitMutant
     if ($waitResult.ExitCode -eq 0 -or $waitResult.Output -notmatch 'Deadline wait self-test failed') {
         throw "hard-coded WaitForExit mutation was not rejected: $($waitResult.Output)"
@@ -36,7 +38,7 @@ try {
         'command=pwsh -NoProfile -ExecutionPolicy Bypass -File docs/proof/ring-windows/capture-calibration.ps1 -Run 1 -SelfTest'
         "normal_exit=$($normal.ExitCode)"
         $normal.Output
-        'mutation=WaitForExit(remainingMs) -> WaitForExit(300000)'
+        'mutation=WaitForExit(remainingMs) -> WaitForExit(900000)'
         "wait_mutant_exit=$($waitResult.ExitCode)"
         'wait_mutation_rejected=Deadline wait self-test failed to pass the remaining budget.'
         'mutation=total-envelope result -> false'

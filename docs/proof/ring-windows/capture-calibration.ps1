@@ -6,7 +6,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$outerCeilingMs = 300000
+$outerCeilingMs = 900000
 $captureClock = [System.Diagnostics.Stopwatch]::StartNew()
 $started = [DateTimeOffset]::UtcNow
 
@@ -46,12 +46,12 @@ if ($SelfTest) {
         $this.KilledTree = $EntireProcessTree
     }
 
-    $waitResult = Wait-ProcessWithinDeadline -Process $probe -CeilingMs 300000 -ElapsedMs 299750
+    $waitResult = Wait-ProcessWithinDeadline -Process $probe -CeilingMs 900000 -ElapsedMs 899750
     if (-not $waitResult -or $probe.WaitArgument -ne 250) { throw 'Deadline wait self-test failed to pass the remaining budget.' }
     $probe.WaitArgument = -1
-    if (Wait-ProcessWithinDeadline -Process $probe -CeilingMs 300000 -ElapsedMs 300000) { throw 'Deadline wait self-test accepted an expired deadline.' }
+    if (Wait-ProcessWithinDeadline -Process $probe -CeilingMs 900000 -ElapsedMs 900000) { throw 'Deadline wait self-test accepted an expired deadline.' }
     if ($probe.WaitArgument -ne -1) { throw 'Expired deadline self-test unexpectedly waited.' }
-    if (Stop-ProcessTreeWithinDeadline -Process $probe -CeilingMs 300000 -ElapsedMs 300000) { throw 'Post-kill wait self-test accepted an expired deadline.' }
+    if (Stop-ProcessTreeWithinDeadline -Process $probe -CeilingMs 900000 -ElapsedMs 900000) { throw 'Post-kill wait self-test accepted an expired deadline.' }
     if ($probe.KillCount -ne 1 -or -not $probe.KilledTree -or $probe.WaitArgument -ne -1) { throw 'Tree termination self-test failed.' }
 
     $scriptText = Get-Content -LiteralPath $PSCommandPath -Raw
@@ -65,17 +65,17 @@ if ($SelfTest) {
     }
 
     $origin = [DateTimeOffset]::Parse('2026-10-09T00:00:00Z')
-    $inside = Get-EnvelopeMilliseconds -Start $origin -End $origin.AddMilliseconds(300000)
-    $outside = Get-EnvelopeMilliseconds -Start $origin -End $origin.AddMilliseconds(305960.528)
-    if (-not (Test-EnvelopeWithinCeiling -EnvelopeMs $inside -CeilingMs 300000) -or
-        (Test-EnvelopeWithinCeiling -EnvelopeMs $outside -CeilingMs 300000) -or
-        [math]::Round(($outside - 300000), 3) -ne 5960.528) { throw 'Total UTC envelope self-test failed.' }
-    Write-Output 'capture deadline self-test PASS: actual wait receives remaining time; termination shares the deadline; bypass mutations and a 305960.528 ms envelope fail'
+    $inside = Get-EnvelopeMilliseconds -Start $origin -End $origin.AddMilliseconds(900000)
+    $outside = Get-EnvelopeMilliseconds -Start $origin -End $origin.AddMilliseconds(905960.528)
+    if (-not (Test-EnvelopeWithinCeiling -EnvelopeMs $inside -CeilingMs 900000) -or
+        (Test-EnvelopeWithinCeiling -EnvelopeMs $outside -CeilingMs 900000) -or
+        [math]::Round(($outside - 900000), 3) -ne 5960.528) { throw 'Total UTC envelope self-test failed.' }
+    Write-Output 'capture deadline self-test PASS: actual wait receives remaining time; termination shares the deadline; bypass mutations and a 905960.528 ms envelope fail'
     exit 0
 }
 
 $repo = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
-$seriesDir = Join-Path $PSScriptRoot 'calibration'
+$seriesDir = Join-Path $PSScriptRoot 'calibration-ruling-170'
 $runDir = Join-Path $seriesDir ("run-{0}" -f $Run)
 if (Test-Path -LiteralPath $runDir) { throw "Run directory already exists: $runDir" }
 New-Item -ItemType Directory -Path $runDir -Force | Out-Null
@@ -113,7 +113,7 @@ $cpuStart = @(Get-Counter '\Processor(_Total)\% Processor Time' -SampleInterval 
 $stdout = Join-Path $runDir 'console.stdout.txt'
 $stderr = Join-Path $runDir 'console.stderr.txt'
 $remainingMs = Get-RemainingMilliseconds -CeilingMs $outerCeilingMs -ElapsedMs $captureClock.ElapsedMilliseconds
-if ($remainingMs -le 0) { throw 'The absolute 300,000 ms deadline expired before ring launch.' }
+if ($remainingMs -le 0) { throw 'The absolute 900,000 ms deadline expired before ring launch.' }
 $child = Start-Process -FilePath $bash -ArgumentList 'tools/run-tests.sh' -WorkingDirectory $repo `
     -RedirectStandardOutput $stdout -RedirectStandardError $stderr -PassThru
 $child.ProcessorAffinity = [IntPtr]0x3F
@@ -160,13 +160,31 @@ $ended = [DateTimeOffset]::UtcNow
 $utcEnvelopeMs = Get-EnvelopeMilliseconds -Start $started -End $ended
 $outerEnvelopeExceeded = -not (Test-EnvelopeWithinCeiling -EnvelopeMs $utcEnvelopeMs -CeilingMs $outerCeilingMs)
 $ringWallMs = $captureClock.ElapsedMilliseconds
-$exitCode = if ($timeout) { 'timeout-300s' } else { $child.ExitCode }
+$exitCode = if ($timeout) { 'timeout-900s' } else { $child.ExitCode }
 $loadEnd = Read-RingLoad
 $cpuEnd = @(Get-Counter '\Processor(_Total)\% Processor Time' -SampleInterval 1 -MaxSamples 3).CounterSamples | ForEach-Object { [math]::Round($_.CookedValue, 1) }
 
 $scratch = Join-Path $repo '.tmp-tests'
+$heldReader = @()
+$catalogPassCount = 0
 if (Test-Path -LiteralPath $scratch) { Copy-Item -LiteralPath $scratch -Destination (Join-Path $runDir 'tmp-tests') -Recurse }
 if (Test-Path -LiteralPath (Join-Path $runDir 'tmp-tests')) {
+    $desktopLog = Join-Path $runDir 'tmp-tests\Desktop.log'
+    $desktopMs = Join-Path $runDir 'tmp-tests\Desktop.ms'
+    if (Test-Path -LiteralPath $desktopMs) {
+        Copy-Item -LiteralPath $desktopMs -Destination (Join-Path $runDir 'Desktop.ms')
+    }
+    if (Test-Path -LiteralPath $desktopLog) {
+        Select-String -LiteralPath $desktopLog -Pattern '^SUITE-TIME ' | ForEach-Object { $_.Line } |
+            Set-Content -LiteralPath (Join-Path $runDir 'suite-time-lines.txt') -Encoding utf8
+        Select-String -LiteralPath $desktopLog -Pattern '^PASS .*Catalog' | ForEach-Object { $_.Line } |
+            Set-Content -LiteralPath (Join-Path $runDir 'catalog-pass-lines.txt') -Encoding utf8
+        $catalogPassCount = @(Select-String -LiteralPath $desktopLog -Pattern '^PASS .*Catalog').Count
+    }
+    $heldReader = @(Get-ChildItem -LiteralPath (Join-Path $runDir 'tmp-tests') -Filter 'Core.part*.log' -File |
+        ForEach-Object { Select-String -LiteralPath $_.FullName -Pattern '^PASS Library_UserFileHeldReader_SurvivesReplaceByRename$' })
+    $heldReader | ForEach-Object { '{0}: {1}' -f (Split-Path $_.Path -Leaf), $_.Line } |
+        Set-Content -LiteralPath (Join-Path $runDir 'held-reader-pass.txt') -Encoding utf8
     $classifierDir = Join-Path $runDir 'classifications'
     New-Item -ItemType Directory -Path $classifierDir | Out-Null
     Get-ChildItem -LiteralPath (Join-Path $runDir 'tmp-tests') -Filter '*.log' -File | Sort-Object Name | ForEach-Object {
@@ -202,6 +220,8 @@ $head = (& git -C $repo rev-parse HEAD).Trim()
     "cpu_start_percent=$($cpuStart -join ',')"
     "cpu_end_percent=$($cpuEnd -join ',')"
     "outer_ceiling_ms=$outerCeilingMs"
+    "held_reader_pass_count=$($heldReader.Count)"
+    "catalog_pass_count=$catalogPassCount"
 ) | Set-Content -LiteralPath (Join-Path $runDir 'measurement.txt') -Encoding utf8
 Write-Output "RUN_COMPLETE run=$Run exit=$exitCode wall_ms=$ringWallMs utc_envelope_ms=$utcEnvelopeMs load=$loadStart->$loadEnd affinity=$childAffinity timeout=$timeout"
 if ($timeout) { exit 124 }
