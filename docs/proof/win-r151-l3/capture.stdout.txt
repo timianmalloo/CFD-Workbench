@@ -1,0 +1,50 @@
+capture_start_utc=2026-10-09T22:28:21Z
+readback_version=1
+unit=cfdw-l3-20261008-r1.service
+MainPID=483
+ControlGroup=/system.slice/cfdw-l3-20261008-r1.service
+Nice=10
+ActiveState=active
+SubState=running
+ActiveEnterTimestamp=Thu 2026-10-08 10:03:18 PDT
+member pid=483 ppid=1 exe=bash start_ticks=6694 ni=10 role=supervisor
+source role=supervisor name=l3-supervisor.sh sha256=6718a96a18be0e8a473d4f794dbd345f1e11c805a1b5b110c1e697b38970777d
+member pid=913 ppid=483 exe=python3.12 (deleted) start_ticks=8220 ni=10 role=monitor
+source role=monitor name=a4-monitor-linux.py sha256=e65f58997fa16b1c83fa35a5bd5ad1ba3c843e7ea65abb0c65815d244b5c0f22
+member pid=914 ppid=483 exe=bash start_ticks=8220 ni=10 role=other
+member pid=1112 ppid=914 exe=time start_ticks=8275 ni=10 role=other
+member pid=1116 ppid=1113 exe=simpleFoam start_ticks=8284 ni=19 role=rank
+member pid=1117 ppid=1113 exe=simpleFoam start_ticks=8284 ni=19 role=rank
+member pid=1118 ppid=1113 exe=simpleFoam start_ticks=8284 ni=19 role=rank
+member pid=1119 ppid=1113 exe=simpleFoam start_ticks=8284 ni=19 role=rank
+member pid=1120 ppid=1113 exe=simpleFoam start_ticks=8284 ni=19 role=rank
+member pid=1121 ppid=1113 exe=simpleFoam start_ticks=8284 ni=19 role=rank
+run_present=yes
+file=run-ledger.txt before=457 2026-10-08 10:03:35.888897258 -0700
+ledger_observation=start-note=<redacted> supervisor_pid=483 utc=2026-10-08T17:03:18Z
+ledger_observation=start=2026-10-08T17:03:19Z app=checkMesh load=0.29 0.07 0.02 1/330 683
+ledger_observation=end=2026-10-08T17:03:29Z app=checkMesh exit=0 load=0.40 0.10 0.03 1/331 698
+ledger_observation=start=2026-10-08T17:03:30Z app=decomposePar load=0.40 0.10 0.03 1/331 900
+ledger_observation=end=2026-10-08T17:03:35Z app=decomposePar exit=0 load=0.45 0.11 0.04 1/331 909
+ledger_observation=start=2026-10-08T17:03:35Z app=simpleFoam load=0.45 0.11 0.04 1/332 1111
+file=run-ledger.txt after=457 2026-10-08 10:03:35.888897258 -0700
+file=log.pipeline before=388 2026-10-08 10:03:35.811897362 -0700
+file=log.pipeline after=388 2026-10-08 10:03:35.811897362 -0700
+file=log.simpleFoam before=36132249 2026-10-09 15:28:22.154038040 -0700
+latest_complete_iteration=54492
+file=log.simpleFoam after=36132249 2026-10-09 15:28:22.154038040 -0700
+file=a4-monitor.log before=23936 2026-10-09 15:17:01.529216387 -0700
+monitor_observation=a4-monitor: 12:34:56 iterations=47003 A4=NOT MET | clauses 1_residual_drop=pass 2_stationarity=fail 3_clean_window=pass | residual_ratio_last2_over_first Ux=6.283e-09 Uy=3.864e-09 nuTilda=2.412e-08 p=1.247e-10 | window iterations 45004..470
+monitor_observation=a4-monitor: 12:58:23 iterations=48003 A4=NOT MET | clauses 1_residual_drop=pass 2_stationarity=fail 3_clean_window=pass | residual_ratio_last2_over_first Ux=6.125e-09 Uy=3.647e-09 nuTilda=2.364e-08 p=1.209e-10 | window iterations 46004..480
+monitor_observation=a4-monitor: 13:22:04 iterations=49001 A4=NOT MET | clauses 1_residual_drop=pass 2_stationarity=fail 3_clean_window=pass | residual_ratio_last2_over_first Ux=5.976e-09 Uy=3.446e-09 nuTilda=2.315e-08 p=1.181e-10 | window iterations 47002..490
+monitor_observation=a4-monitor: 13:44:25 iterations=50001 A4=NOT MET | clauses 1_residual_drop=pass 2_stationarity=fail 3_clean_window=pass | residual_ratio_last2_over_first Ux=5.836e-09 Uy=3.276e-09 nuTilda=2.267e-08 p=1.169e-10 | window iterations 48002..500
+monitor_observation=a4-monitor: 14:07:05 iterations=51002 A4=NOT MET | clauses 1_residual_drop=pass 2_stationarity=fail 3_clean_window=pass | residual_ratio_last2_over_first Ux=5.701e-09 Uy=3.143e-09 nuTilda=2.221e-08 p=1.163e-10 | window iterations 49003..510
+monitor_observation=a4-monitor: 14:30:20 iterations=52001 A4=NOT MET | clauses 1_residual_drop=pass 2_stationarity=fail 3_clean_window=pass | residual_ratio_last2_over_first Ux=5.572e-09 Uy=3.054e-09 nuTilda=2.176e-08 p=1.154e-10 | window iterations 50002..520
+monitor_observation=a4-monitor: 14:53:29 iterations=53003 A4=NOT MET | clauses 1_residual_drop=pass 2_stationarity=fail 3_clean_window=pass | residual_ratio_last2_over_first Ux=5.445e-09 Uy=3.009e-09 nuTilda=2.133e-08 p=1.143e-10 | window iterations 51004..530
+monitor_observation=a4-monitor: 15:17:01 iterations=54003 A4=NOT MET | clauses 1_residual_drop=pass 2_stationarity=fail 3_clean_window=pass | residual_ratio_last2_over_first Ux=5.321e-09 Uy=3.010e-09 nuTilda=2.092e-08 p=1.114e-10 | window iterations 52004..540
+file=a4-monitor.log after=23936 2026-10-09 15:17:01.529216387 -0700
+file=convergence.txt state=absent
+file=time.simpleFoam before=0 2026-10-08 10:03:35.888897258 -0700
+file=time.simpleFoam after=0 2026-10-08 10:03:35.888897258 -0700
+processor_directory_count=6
+capture_end_utc=2026-10-09T22:28:22Z

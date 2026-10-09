@@ -1,0 +1,41 @@
+{
+  "algorithm": "SHA-256",
+  "capture_scope": "Ruling 151 C2 single read-only progress snapshot",
+  "files": [
+    {
+      "path": "docs/proof/win-r151-l3/.gitattributes",
+      "bytes": 48,
+      "sha256": "f92a29f905f97923386ddc4a2d5d1ae9577e3344dd9e32a7d398831c1b6b8ac7"
+    },
+    {
+      "path": "docs/proof/win-r151-l3/capture.json",
+      "bytes": 654,
+      "sha256": "ba2050f5da478ae9c3db9b9805790af415069c388544f92c735150cf00e7e127"
+    },
+    {
+      "path": "docs/proof/win-r151-l3/capture.ps1",
+      "bytes": 3092,
+      "sha256": "def4ac25f51016fd492c8387dd3ae710c4562c8a82bc3fb58b4b80f3490b2e38"
+    },
+    {
+      "path": "docs/proof/win-r151-l3/capture.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-r151-l3/capture.stdout.txt",
+      "bytes": 4680,
+      "sha256": "865311f2760e11dec6abc8a5987b7b31df822169a5d314bef0011fc42b5a5f9e"
+    },
+    {
+      "path": "docs/proof/win-r151-l3/readback.sh",
+      "bytes": 4130,
+      "sha256": "77f7b2c911ffdf4994eb2f90a5aa4f735176b6a26fbd453cde3e19f0b1717694"
+    },
+    {
+      "path": "docs/proof/win-r151-l3/receipt.md",
+      "bytes": 5833,
+      "sha256": "f7f4612d5e06bdd2000444929e95c2d5487bf37686a984768f6081b585ede887"
+    }
+  ]
+}

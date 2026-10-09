@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "74c055b48df799d9f0d5b8b949089692e2d864ebb32a5660d870926afb1f8458"
+      "sourceSha256": "ed22596af4ead9fc512c8e9e332df32c2cbc7059422ab8b9a0877a4294b9da32"
     },
     {
       "id": "domain-experts",
@@ -16883,6 +16883,41 @@ window.DOCS_INDEX = {
       "sourceSha256": "0d896319f15411bea9d1a47a21050d41aaa69fc1585297a204aa5cf458030579"
     },
     {
+      "id": "proof-win-r151-l3",
+      "path": "docs/proof/win-r151-l3/receipt.md",
+      "title": "Ruling 151 C2 Windows L3 active progress readback",
+      "type": "proof-pack",
+      "status": "in-progress",
+      "owner": "@win-w4-validation",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "One partial, read-only Ruling 151 C2 snapshot observes the active Windows L3 unit and six ranks; A4 and final acceptance remain pending.",
+      "tags": [
+        "proof",
+        "windows",
+        "naca0012",
+        "openfoam",
+        "progress"
+      ],
+      "links": [
+        {
+          "to": "proof-win-naca",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f7f4612d5e06bdd2000444929e95c2d5487bf37686a984768f6081b585ede887"
+    },
+    {
       "id": "proof-win-routes",
       "path": "docs/proof/win-routes/receipt.md",
       "title": "W-3 Windows solver routes: Ruling 133 completed manual smoke evidence",
@@ -19312,5 +19347,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "c73ef6d2b62dbe539b29c7c001dd220c40a1da0ca926e01f6d4dff51db374d03"
+  "graphSha256": "b4070b0775acb00429cf092114bc41b8c9fff75779f1f17215eb6d83b6158eb4"
 };
