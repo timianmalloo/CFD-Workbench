@@ -708,6 +708,15 @@ public static class PropertiesCellsTests
                 visual.TranslatePoint(new Point(left + layout.HitTestTextRange(0, text.Length).Max(rect => rect.Right), 0), host.Properties)!.Value.X;
             double input = Right(presenter, presenter.TextLayout, 0, presenter.Text ?? "");
             double facts = Right(fact, fact.TextLayout, fact.Padding.Left, fact.Text ?? "");
+            // Ruling 182 (instrumentation over inference): the bounds item 6 compares, in DIP and device pixels, on pass as well as fail.
+            double scale = window.RenderScaling;
+            foreach (var (control, padding, digitsEnd) in new (Control Control, Thickness? Padding, double DigitsEnd)[]
+                     { (Need<TextBox>(host.Properties, "PointAftInput"), Need<TextBox>(host.Properties, "PointAftInput").Padding, double.NaN),
+                       (fact, fact.Padding, facts), (presenter, null, input) })
+            {
+                var origin = control.TranslatePoint(new Point(0, 0), host.Properties)!.Value;
+                Console.WriteLine(FormattableString.Invariant($"ITEM6 name={control.Name ?? control.GetType().Name} BoundsDIP={control.Bounds} PropertiesOriginDIP={origin} WidthDIP={control.Bounds.Width:R} HeightDIP={control.Bounds.Height:R} PaddingDIP={(padding is { } p ? p.ToString() : "n/a")} DigitsEndXDIP={digitsEnd:R} PropertiesXDevice={origin.X * scale:R} PropertiesYDevice={origin.Y * scale:R} WidthDevice={control.Bounds.Width * scale:R} HeightDevice={control.Bounds.Height * scale:R} DigitsEndXDevice={digitsEnd * scale:R} RenderScaling={scale:R}"));
+            }
             // assume: DPI-A item 6 - at 150 % the rounding skew is predicted at 0.667 DIP (one device pixel) but 1.0 was measured, so
             // this 0.5 tolerance stays; confirm with the PC scale probe (docs/proof/wri/investigation.md P4, P6). It fails there until then.
             Console.WriteLine(FormattableString.Invariant($"MEASURE DC-3 input digits end {input:0.##}, fact digits end {facts:0.##}"));

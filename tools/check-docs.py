@@ -189,6 +189,7 @@ def check_store_subset():
 def main():
     check_join_rings()
     check_store_subset()
+    run(ROOT / "tools" / "check-merge-bindings.py")
     run(ROOT / "tools" / "check-pack-hooks.py")
     run(ROOT / "tools" / "check-rollup-links.py")
     run(ROOT / "tools" / "coordination" / "check-process-match.py")

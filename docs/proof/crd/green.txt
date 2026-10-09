@@ -1,0 +1,2 @@
+merge bindings ok: every coord-register path parses as JSONL, every defect-register path is markdown
+exit 0

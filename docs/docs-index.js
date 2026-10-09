@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5953020118f33d580fa1e8f688090823237fe30986c4d195e8172325f90e5577"
+      "sourceSha256": "6972dfe55d74a2b794f58f4cfd4ee008261c58213b1547a77df64e284313eb13"
     },
     {
       "id": "domain-experts",
@@ -12503,6 +12503,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "359ef932076656929ed94883a87e19a8f3c1b7017f90075ca322673b5e509049"
     },
     {
+      "id": "proof-crd-red-first",
+      "path": "docs/proof/crd/red-first.md",
+      "title": "CRD red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-crd",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Receipt for the merge-binding check: red on the rulings.md coord-register binding, green after rebinding, PHN join replay identical by hash.",
+      "tags": [
+        "merge-driver",
+        "proof",
+        "register-class-mismatch"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c2a15924512ab6721f32817965560f04b5ac2381df5320517a335faea329c081"
+    },
+    {
       "id": "proof-cross-profile-abscissa",
       "path": "docs/proof/cross-profile-abscissa/README.md",
       "title": "XPA probe — compatible fit and knot propagation across station profiles (Ruling 71 option 1)",
@@ -13767,6 +13792,48 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "b35812ccf7b111bca4b6365733cf15a158104f06d75ac3862cdcf8445a7436dc"
+    },
+    {
+      "id": "proof-msp-receipt",
+      "path": "docs/proof/msp/receipt.md",
+      "title": "MSP committed scale prints",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@trk-msp",
+      "phase": "",
+      "reviewBy": "2026-12-01",
+      "reviewSuggested": [],
+      "summary": "Committed SCALE_CONTEXT, ITEM6 and P3 prints for the Windows scale run, the subset route measurement, and the control.",
+      "tags": [],
+      "links": [
+        {
+          "to": "proof-wri-probe-windows-scale",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "bc9540b738d032703fc8c86b2591922f90934c96561e8c153523cd7f5aa80a11"
+    },
+    {
+      "id": "proof-msp-red-first",
+      "path": "docs/proof/msp/red-first.md",
+      "title": "MSP red-first runs",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@trk-msp",
+      "phase": "",
+      "reviewBy": "2026-12-01",
+      "reviewSuggested": [],
+      "summary": "Red-first runs for the SCALE_CONTEXT control.",
+      "tags": [],
+      "links": [
+        {
+          "to": "proof-msp-receipt",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "fcf3bc50154c2154d87383faf42a1efe18b1ca6ed52409dc2ff62319a3def1d0"
     },
     {
       "id": "proof-native-ui-workbench",
@@ -18783,5 +18850,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "07c09027f5bd20caf3569b897aee9c3972eecdc90fe600a192e19fca3c567aea"
+  "graphSha256": "28068e86f52f0b636831a2603cae708636029ec4b7468ef017027595c072d73e"
 };

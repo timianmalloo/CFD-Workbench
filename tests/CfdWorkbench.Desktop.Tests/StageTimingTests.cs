@@ -29,5 +29,20 @@ public static class StageTimingTests
                     throw new Exception($"SPAWN-START {i} is not '<mode> elapsed_ms=<n>' for {modes[i]}: {starts[i]}");
             if (exit != 0 || started.Count != 3) throw new Exception($"exit {exit}, ran {started.Count} children");
         });
+        // Ruling 182: a window mode's output must carry its SCALE_CONTEXT line. Ring: fast (in-process). Cost: under 5 ms.
+        DesktopChecks.Check("Spawn_WindowModeWithoutScaleContext_Fails", () =>
+        {
+            const string line = "SCALE_CONTEXT mode=views RenderScaling=1 PrimaryScaling=1 WorkingArea=1x1 UseLayoutRounding=True";
+            int Run(string[] lines, out string text)
+            {
+                var output = new StringWriter();
+                int exit = DesktopChecks.SpawnWith(output, TextWriter.Null, _ => (lines.Select(l => (false, l)).ToList(), 0, 0.0), ["--views"]);
+                text = output.ToString();
+                return exit;
+            }
+            if (Run([line], out _) != 0) throw new Exception("a mode that printed its SCALE_CONTEXT line failed");
+            if (Run(["PASS x"], out string missing) == 0 || !missing.Contains("FAIL SCALE_CONTEXT --views", StringComparison.Ordinal))
+                throw new Exception("a window mode with no SCALE_CONTEXT line did not fail: " + missing);
+        });
     }
 }

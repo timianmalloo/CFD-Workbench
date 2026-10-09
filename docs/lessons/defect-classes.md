@@ -1609,7 +1609,14 @@ Earlier joins never hit this, because PC branches do not add rulings, so only on
   driver that parses markdown.
 - *Prevent:* the marker gate (step 3) caught it, which is the pack's intended net. The binding fix is track CRD: rebind
   `rulings.md`, plus a check that every `merge=coord-register` path parses as JSONL, red first on today's binding.
-  Status: pending CRD.
+- *Source of the binding (track CRD):* `.agents/artifacts.yml` (repo-owned, below the managed-block end marker) classed
+  the file `register`; `coord install` copies each register pattern into `.gitattributes`. Both lines are removed, so
+  a re-run of `coord install` does not bring the binding back and the pack needs no change.
+- *Sweep result:* the other `coord-register` paths all parse as JSONL; the `defect-register` path is markdown.
+- *Control:* `tools/check-merge-bindings.py`, run by `tools/check-docs.py` (fast ring, about 0.1 s). Red on the old
+  binding (`docs/notes/rulings.md: bound to merge=coord-register but line 1 is not JSON`), green after. Replay of the PHN
+  merge with plain `git merge-file` exits 0 and equals the committed file by hash. Proof: `docs/proof/crd/`.
+  Status: controlled (`tools/check-merge-bindings.py`).
 
 **CFD-CLAIM-SCOPE · A label names a stronger quantity or cause than its data supports.** PRJ displayed `CL/CD` using
 `CDi`, and attributed every e below 0.85 to a lattice effect even though physical washout can lower e at low CL.
@@ -2371,3 +2378,4 @@ rebuilt (the scale-context print, the item-6 bounds) had no committed home eithe
   read-only UIA preflight, a Stopwatch deadline, toolchain identity, numeric stub exits 0 and 3, and zero source edits.
   The fresh budget opens only on a committed runner-ready receipt. Status: pending the PC runner; the Mac measurement
   prints are track MSP.
+  - *2026-10-09, trk-msp:* the Mac half of the prevent has landed. The Desktop harness prints `SCALE_CONTEXT` once per window mode, `ITEM6` (the three item-6 controls) and `P3` (the double-click clause) on pass as well as fail. `Spawn_WindowModeWithoutScaleContext_Fails` fails the run if a spawned window mode lacks its line (`docs/proof/msp/receipt.md`).
