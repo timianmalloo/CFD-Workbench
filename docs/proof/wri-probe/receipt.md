@@ -10,10 +10,10 @@ links:
   - { to: proof-wri-investigation, rel: relates-to }
 review-by: "2027-04-09"
 summary: >-
-  Captures P1-P5 at 150% and records the authorized P6 attempt. Settings selected 200%
-  and Avalonia reported 2.0, satisfying the committed P6 scale condition. A coordinator
-  follow-up added an AppliedDPI==192 guard, which skipped the eight named checks; P6
-  remains NOT ASSESSED. Scale was restored and verified at 150%.
+  Ruling 177 P6: all eight named checks ran at Settings-selected 150% and 200%. All
+  passed at 200%; at 150%, checks 1, 7, and 8 passed while checks 2-6 failed. Settings
+  was restored to 150%, and a fresh process reported Avalonia 1.5/1.5. The receipt is
+  partial because the 150% results include failures and check 2 is unexpected.
 ---
 
 # WRI Windows scale probe
@@ -59,31 +59,29 @@ At `RenderScaling=1.5`, `PointAftInput` reported:
 
 The exact chip bounds, sample coordinates, and 5×5 RGB blocks for both `Shot.Of` and `Shot.AtDeviceResolution` are preserved verbatim in `instrumented.stdout.txt`. The run observed scale `1.5`; it did not perform interpretation or claim that the pixel checks passed. `Elevation_SideSelectedStation_RenderedFullWeight` and `View3d_SelectedStation_RenderedWidthAndChip` both failed their named pixel-color assertion in this capture.
 
-## P6 — 100% or 200% confirmation
+## P6 — Ruling 177 scale confirmation
 
-**P6 named checks: NOT ASSESSED.** P6 was authorized but unmet when the original capture cap fired. A fresh bounded attempt then used the Windows Settings UI. `Screen.AllScreens` identified `\\.\DISPLAY1` as primary. In `ms-settings:display`, UI Automation found `Display 1` selected, `Display 2` unselected, and `SystemSettings_Display_MainMonitor_CheckBox` On and disabled. The Scale combo was `SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox`. Its owning “Show more settings” control under “Multiple displays” exposed the checkbox with `ExpandCollapsePattern.Expand`; the scale choices used `SelectionItemPattern.Select`.
+**P6 execution: complete at both requested scales; overall receipt remains partial.** The unique eight checks ran once at Settings-selected 150% and once at Settings-selected 200%. The check-6 result is included once at each scale; it was not duplicated. No `AppliedDPI` predicate was used. The earlier Ruling 165 attempt remains preserved as historical evidence and is superseded for P6 by these Ruling 177 captures.
 
-The first repair cycle stopped before mutation because the checkbox was not present until that group expanded. In cycle 2, the exact primary identity was reacquired, and UI Automation selected `200%`. The captured Avalonia diagnostic reported `RenderScaling=2.0` and `PrimaryScaling=2.0`, satisfying the committed P6 scale condition. `HKCU:\Control Panel\Desktop\WindowMetrics\AppliedDPI` remained `144`. A coordinator follow-up imposed an additional `AppliedDPI==192` guard after the retained task prompt; that extra guard caused the named checks to be skipped. The follow-up was a coordinator planning defect, not a Windows or platform blocker. The eight P6 checks have no result at 200%, so their status remains NOT ASSESSED.
+Before the first named run, UI Automation observed `Display 1` selected, `Display 2` unselected, the `SystemSettings_Display_MainMonitor_CheckBox` On, and exact `150% (Recommended)` selected. The primary monitor was `\\.\DISPLAY1`. The test process itself printed `RenderScaling=1.5 PrimaryScaling=1.5` before each 150% check. After UIA selected exact `200%`, each fresh test process printed `RenderScaling=2.0 PrimaryScaling=2.0` before its checks. At completion, UIA selected exact `150% (Recommended)` again, and a separate fresh process printed `RenderScaling=1.5 PrimaryScaling=1.5`. The exact UIA controls and patterns were the display list items (`SelectionItemPattern`), `SystemSettings_Display_MainMonitor_CheckBox` (`TogglePattern`), the Scale combo `SystemSettings_Display_Scaling_ItemSizeOverride_ComboBox` (`ExpandCollapsePattern`), and the selected scale item (`SelectionItemPattern`). No registry writes, process-scale overrides, or resolution changes occurred.
 
-The runner's first restoration selector used `150%`, while the exact Settings item is named `150% (Recommended)`, so its `finally` did not restore. Restoration then used that exact item through `SelectionItemPattern.Select`. Final UI Automation observed Display 1 selected, Display 2 unselected, the main-display toggle On and disabled, and `150% (Recommended)` selected; `AppliedDPI=144` and `DISPLAY1` remained primary. A separate Avalonia diagnostic reported `RenderScaling=1.5` and `PrimaryScaling=1.5`. No registry edits or process-level scale overrides were used. Repair cap 2/2 fired; no third attempt was made.
+The three test-process invocations per scale used selector partitions: `--shell-window` for check 1, `--views` for checks 2–5, and `--properties-cells` for checks 6–8. Every invocation used SDK 10.0.203 and affinity 0x3F. Captures include command, UTC start/end, PID, duration, tested HEAD `4383089735b27586efed93657606fce37317fc07`, stdout, and stderr. The launcher did not preserve `Process.ExitCode`; the raw metadata field is blank and the process exit is **NOT_RECORDED**. The named PASS/FAIL results below are directly captured. No check was rerun to repair this evidence gap.
 
-The first failed UIA attempt is documented in `p6-cycle1.*`; the 200% transition and skipped checks are in `p6-cycle2-*` and `p6-live-200-diagnostic.*`; the restored Settings state and 1.5 diagnostic are in `p6-restoration-ui.*` and `p6-restoration-render.*`. The capture manifest records their committed bytes and hashes. The eight requested P6 checks therefore remain NOT ASSESSED:
+| # | Check | Settings 150% | Settings 200% |
+|---:|---|---|---|
+| 1 | `KeyBindings_MenuGesture_NotBound` | PASS | PASS |
+| 2 | `ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView` | FAIL: expected width 647, measured 647.3333 | PASS |
+| 3 | `ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack` | FAIL: after double-click, ThreeD width 1130.67 vs PlanContent 1133.33 | PASS: 1132 vs 1134; after return Layout=Four |
+| 4 | `Elevation_SideSelectedStation_RenderedFullWeight` | FAIL: chip has no station border | PASS |
+| 5 | `View3d_SelectedStation_RenderedWidthAndChip` | FAIL: chip border is not station | PASS |
+| 6 | `PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs` | FAIL: input digits end 218.33, fact digits end 217.33 | PASS: both end at 218 |
+| 7 | `PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused` | PASS | PASS |
+| 8 | `PropertiesPane_Density_EveryTargetAtLeast24` | PASS | PASS |
 
-| Check | P6 status |
-|---|---|
-| `KeyBindings_MenuGesture_NotBound` | NOT ASSESSED |
-| `ModelArea_FourViewsMinimumWindow_EachAtLeast320x240OrOneView` | NOT ASSESSED |
-| `ModelArea_ViewLabelDoubleClickOrReturn_OneViewAndBack` | NOT ASSESSED |
-| `Elevation_SideSelectedStation_RenderedFullWeight` | NOT ASSESSED |
-| `View3d_SelectedStation_RenderedWidthAndChip` | NOT ASSESSED |
-| `PropertiesPane_Density_DecimalsAlignAcrossFactsAndInputs` | NOT ASSESSED |
-| `PropertiesPane_B_FocusedErrorFieldDistinctFromUnfocused` | NOT ASSESSED |
-| `PropertiesPane_Density_EveryTargetAtLeast24` | NOT ASSESSED |
+Ruling 177 predicts checks 1, 2, 7, and 8 should pass at 150% as well as 200%; check 2's 150% failure is therefore unexpected. It is recorded without diagnosis. Checks 3–6 failed at 150% and passed at 200%, the Ruling 177 scale-effect pattern (Group A). Check 6 measured digit-end delta 1.00 DIP at 150% and 0 DIP at 200%; this receipt records the observation without claiming it resolves the earlier P4 0.33 DIP question. P3 diagnostics in the same check-3 process include layout, visibility, ThreeD and PlanContent widths, Window.Bounds, and ClientSize at both scales.
 
-This table describes the P6 confirmation only. The 150% P1–P5 results above remain separate.
+The process start marker for the 20-minute task cap was not captured. Per coordinator instruction, 03:08 UTC was the conservative action deadline. The last scale action was restoration, completed at 02:58:25 UTC; the fresh restoration diagnostic completed at 02:59:08 UTC. Temporary instrumentation was then reverted. The harness source hashes and built DLL hash are in `r177-temporary-hashes.txt`; raw scale, test, build, and restore evidence is in the adjacent `r177-*` files.
 
-## Run behavior and limits
-
-The earlier P2/P3/P5 command selected four checks and invoked `--views --properties-cells`. The `--views` path exited before the property suite; output records `FAIL SELECTOR PropertiesPane_Density_EveryTargetAtLeast24 matched no check`. P4 was then run separately with `--properties-cells`, selecting the density check directly. These remain diagnostic captures, not a complete test ring. For P6, the temporary diagnostic build succeeded on HEAD `93240b06`; no named P6 test process was started because the coordinator follow-up's extra `AppliedDPI==192` guard skipped them after the committed scale condition had been met. The final diff contains no source or test changes.
+The earlier P2/P3/P5 command selected four checks and invoked `--views --properties-cells`; its selector mismatch is retained in the prior raw capture. P4 was run separately. Those earlier measurements remain separate from the Ruling 177 scale comparison. The final diff contains proof, audit, and derived-index files only; no source or test changes.
 
 `capture-manifest.json` records the byte count and SHA-256 for each other file in this proof folder. It is verified against committed Git blobs by `tools/check-capture-manifests.py`.

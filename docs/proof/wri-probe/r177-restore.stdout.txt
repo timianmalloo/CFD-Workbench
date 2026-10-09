@@ -1,0 +1,7 @@
+  Determining projects to restore...
+  Restored C:\Projects\CFD-Workbench-win-wri-p6-r177\src\CfdWorkbench.Core\CfdWorkbench.Core.csproj (in 786 ms).
+  Restored C:\Projects\CFD-Workbench-win-wri-p6-r177\src\CfdWorkbench.Analysis\CfdWorkbench.Analysis.csproj (in 786 ms).
+  Restored C:\Projects\CFD-Workbench-win-wri-p6-r177\src\CfdWorkbench.Persistence\CfdWorkbench.Persistence.csproj (in 786 ms).
+  Restored C:\Projects\CFD-Workbench-win-wri-p6-r177\src\CfdWorkbench.Cli\CfdWorkbench.Cli.csproj (in 786 ms).
+  Restored C:\Projects\CFD-Workbench-win-wri-p6-r177\tests\CfdWorkbench.Desktop.Tests\CfdWorkbench.Desktop.Tests.csproj (in 845 ms).
+  Restored C:\Projects\CFD-Workbench-win-wri-p6-r177\src\CfdWorkbench.Desktop\CfdWorkbench.Desktop.csproj (in 885 ms).

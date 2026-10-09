@@ -1,0 +1,3 @@
+P6_SCALE_CONTEXT check=KeyBindings_MenuGesture_NotBound SettingsSelected=200% RenderScaling=2.0 PrimaryScaling=2.0
+PASS KeyBindings_MenuGesture_NotBound
+COST KeyBindings_MenuGesture_NotBound 1951.1

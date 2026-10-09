@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e3a25956bc76821fa728f211c41a3b4d98027e244ce155906cdff177766cb810"
+      "sourceSha256": "7b8cf00e889e92bc6912284f662eabb5495dba8614a71dec70a158e023820ade"
     },
     {
       "id": "domain-experts",
@@ -6222,7 +6222,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e6b61276da42fe8eefb806f46d224e9994df851034ee993f8b628f6cdc601c37"
+      "sourceSha256": "31e4654cccb7678b38603167f94d15f5f340c27e18ca0be277bcb937ad9fafd8"
     },
     {
       "id": "proof-windows-store-r145-qualification",
@@ -7942,7 +7942,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "02a285d43b3417be07866568b5873e76e7cac5b00c20f88e10fb342170778605"
+      "sourceSha256": "464244974dfac033141befc746120838746b1cced0e0daf91deb730bfdc7323c"
     },
     {
       "id": "kb-hw-glossary",
@@ -8133,7 +8133,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2026-11-09",
       "reviewSuggested": [],
-      "summary": "Seven of the eight class-(a) failures share one cause: Avalonia layout rounding at a 150 % display scale (arithmetic fits 1.5 exactly; the scale itself is not recorded and needs the probe). The 23.3 px inputs are a real product miss of 0.67 DIP (35 px where 36 are needed): the TextBox is content-sized and the 3 DIP padding rounds down at the .5 midpoint. KeyBindings is a contradiction between a Mac-only test and a deliberate Windows binding.",
+      "summary": "The Ruling 177 Windows probe measured Avalonia RenderScaling and PrimaryScaling at 1.5 with Settings showing 150%. Checks 3–6 failed at 150% and passed at 200%; check 2 unexpectedly failed at 150%. The 23.3 px inputs are a real product miss of 0.67 DIP (35 px where 36 are needed): the TextBox is content-sized and the 3 DIP padding rounds down at the .5 midpoint. KeyBindings is a contradiction between a Mac-only test and a deliberate Windows binding.",
       "tags": [
         "windows",
         "dpi",
@@ -8148,7 +8148,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "796741eaa71c7cdf6e0f0ed4f520f3c5ffa14515086e0eae4f44276780830965"
+      "sourceSha256": "b48c7cb48691cfbcc92c77096b5fde8b9d864f6725058e64f01510ba40462862"
     },
     {
       "id": "kb-cfd-workbench-grounding",
@@ -15721,6 +15721,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
     },
     {
+      "id": "proof-vwr-red-first",
+      "path": "docs/proof/vwr/red-first.md",
+      "title": "VWR red-first record - Windows store verifier wired into joins and readiness",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-vwr",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Rulings 171 (4) and 175 (4): exit 4 of the Windows store verifier is NOT ASSESSED, never FAIL; red on old code, green with the wrapper and readiness ENTRY_RULES.",
+      "tags": [
+        "vwr",
+        "red-first",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "198c132184542d7a2145a5400e32cdd1929c9d8c6636340649ec4f2235ba3b0b"
+    },
+    {
       "id": "proof-wdf-red-first",
       "path": "docs/proof/wdf/red-first.md",
       "title": "WDF: red-first record for the Windows fractional-scale fixes",
@@ -16307,7 +16332,7 @@ window.DOCS_INDEX = {
       "phase": "implementation",
       "reviewBy": "2027-04-09",
       "reviewSuggested": [],
-      "summary": "Captures P1-P5 at 150% and records the authorized P6 attempt. Settings selected 200% and Avalonia reported 2.0, satisfying the committed P6 scale condition. A coordinator follow-up added an AppliedDPI==192 guard, which skipped the eight named checks; P6 remains NOT ASSESSED. Scale was restored and verified at 150%.",
+      "summary": "Ruling 177 P6: all eight named checks ran at Settings-selected 150% and 200%. All passed at 200%; at 150%, checks 1, 7, and 8 passed while checks 2-6 failed. Settings was restored to 150%, and a fresh process reported Avalonia 1.5/1.5. The receipt is partial because the 150% results include failures and check 2 is unexpected.",
       "tags": [
         "windows",
         "dpi",
@@ -16321,7 +16346,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "5b063380647e44bedae09fc8d72a5c4f91078a5d5ab616bde5f7f49d1b08bd88"
+      "sourceSha256": "d8f3890a02976f512ee33850917844fa6083e2987e6b4b632dd6134802826e6b"
     },
     {
       "id": "proof-wrt-red-first",
@@ -18312,5 +18337,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "093bb03a16c0b16abff66e5a50df20566e2bc3bcecdb9a800a7c6d38432ef712"
+  "graphSha256": "c96639723f419645e81adeac14e1fe94b6b3fe9d8ab68afb75bf3e0e90459795"
 };
