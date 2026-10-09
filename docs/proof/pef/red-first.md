@@ -1,7 +1,7 @@
 ---
 id: proof-pef-red-first
 title: PEF red-first - Escape tooltip dismissal survives a refresh
-type: proof
+type: proof-pack
 status: draft
 owner: "@trk-pef"
 tags: [pef, plan-canvas, tooltip, ruling-188]
