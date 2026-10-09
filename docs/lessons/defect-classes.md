@@ -601,6 +601,11 @@ timestamped before the review) is pending.
 
 *Derive:* a track stages its files (`git add -A`) before its final gate run, so gates that read the index see new
 files. *Control:* the briefs' common rule now says "stage, then gates, then commit"; mechanical form pending.
+*Status: controlled (2026-10-09, track GBA).* The working-tree gates `check-proof-pii.py`, `check-wsl-inline.py` and
+`check-notices.py` list files through `tools/gate_files.py` (`git ls-files` plus `--others --exclude-standard`), so a
+new unstaged file is judged. Each `--self-test` plants an untracked offender in a temp repo. `check-merge-bindings.py`,
+`check-capture-manifests.py` and `check-foildsl-spec-sync.py` judge committed blobs by design and keep HEAD. Proof:
+`docs/proof/gba/red-first.md`.
 
 **READINESS-UNLOCKED · Readiness measures frame budgets while a track's ring runs.**
 On 2026-10-09 readiness for the PR #24 join was RED: `Readiness_OrbitFrameP95Under33Ms` measured 45.26 ms against 33 ms at

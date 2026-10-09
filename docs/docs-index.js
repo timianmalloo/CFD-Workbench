@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "4524db59af62faade5442a1fefdc261163e9a41530fda5267963918717db0102"
+      "sourceSha256": "24ef8aef21013649eb2e93542e4717019bf702832a97403feb334fbff1dc9d0e"
     },
     {
       "id": "domain-experts",
@@ -8233,7 +8233,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b4ab6f6985dc58cff4eaccbc8aa8f65508ad15f26ebb806ad7d6bdbbf66f9f33"
+      "sourceSha256": "53addbf6dbc03bd2ee08f74278676affa63f514792eabb87778938a4a510db8a"
     },
     {
       "id": "kb-hw-glossary",
@@ -13240,6 +13240,31 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "0d3e7c8e078e3951c47e3530df6786727343ae35ebab3161388ae1befaa81536"
+    },
+    {
+      "id": "proof-gba-red-first",
+      "path": "docs/proof/gba/red-first.md",
+      "title": "GBA red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-gba",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Sweep of git-listing gates and red/green runs showing the PII, WSL and notices gates now read new unstaged files.",
+      "tags": [
+        "gba",
+        "gate-before-add",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0dffc55bc2a5a901180c79b27dad57633df66a3631ba820f49013a775efd3769"
     },
     {
       "id": "proof-grp-desktop-red-first",
@@ -19045,5 +19070,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3bdda1e716d975543cd8156e1ec85373d017bc3cd8b8f79e165333d7045042a8"
+  "graphSha256": "265de0447362cba90a3c5d98926d8f38486c8fbb824f4d97394f4bde482a95ab"
 };

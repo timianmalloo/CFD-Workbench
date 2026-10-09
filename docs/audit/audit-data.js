@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T18:49:17Z",
+  "generated": "2026-10-09T19:25:38Z",
   "audit": [
     {
       "actor": null,
@@ -33238,6 +33238,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T18:48:17Z",
       "duration_seconds": 60.0
+    },
+    {
+      "id": "al-01M4H21KFYKDCY1GCXVSGNTA2A",
+      "shortname": "gba-untracked-gates",
+      "datetime": "2026-10-09T19:25:37Z",
+      "session": "trk-gba",
+      "prompt": "trk-gba",
+      "summary": "tools/gate_files.py shared helper; check-proof-pii, check-wsl-inline, check-notices read untracked non-ignored files; self-tests; GATE-BEFORE-ADD controlled",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Working-tree gates also read new untracked files",
+      "done_when": "3 gates fixed with self-tests, defect class controlled, check-docs green",
+      "started_at": "2026-10-09T19:20:23Z",
+      "duration_seconds": 314.0
     }
   ],
   "changes": [
@@ -35872,6 +35892,24 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4GY25Z8HR83M3Y30ANP599W",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4H16D5EGFQ4YN458JM9Y2EQ",
+      "ts": "2026-10-09T19:10:46Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4H16D59YHM976B5M9YKWQM2",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4H16D8ACR6VFMPD41RZAVHE",
+      "ts": "2026-10-09T19:10:46Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4H16D59YHM976B5M9YKWQM2",
       "session": "fable-owner"
     }
   ]
