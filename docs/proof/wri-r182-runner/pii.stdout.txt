@@ -1,0 +1,1 @@
+PROOF-PII ok: 0 Windows user paths or machine SIDs (1 allowlisted)

@@ -1,0 +1,29 @@
+diff --git a/tools/check-windows-runner.py b/tools/check-windows-runner.py
+index cec7405a..1cc0ab16 100644
+--- a/tools/check-windows-runner.py
++++ b/tools/check-windows-runner.py
+@@ -108,8 +108,8 @@ $static=@($tree.FindAll({param($n) $n -is [System.Management.Automation.Language
+     with tempfile.TemporaryDirectory(prefix="cfd-wri-ast-") as scratch:
+         parser = Path(scratch) / "parse.ps1"
+         candidate = Path(scratch) / "candidate.ps1"
+-        parser.write_text(program, encoding="utf-8")
+-        candidate.write_text(source, encoding="utf-8")
++        parser.write_text(program, encoding="utf-8", newline="\n")
++        candidate.write_text(source, encoding="utf-8", newline="\n")
+         result = run_bounded_command(["pwsh", "-NoProfile", "-File", str(parser), str(candidate)], timeout=15)
+         if result["exit"]:
+             return set(), set(), False
+@@ -328,6 +328,13 @@ def main() -> int:
+ 
+ 
+ if __name__ == "__main__":
++    # PLAT-A: match pack-doctor's legacy-console guard; never depend on cp1252.
++    for _stream in (sys.stdout, sys.stderr):
++        if hasattr(_stream, "reconfigure"):
++            try:
++                _stream.reconfigure(encoding="utf-8", errors="replace")
++            except (ValueError, OSError):
++                pass
+     try:
+         raise SystemExit(main())
+     except Exception as exc:

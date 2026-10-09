@@ -1,0 +1,2 @@
+Add newline="\n" to the write (or write bytes), or allowlist the file with a reason.
+check-text-mode-hash.py  failed.

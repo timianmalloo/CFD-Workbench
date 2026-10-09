@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a979693023ca2fa72d3164fab7d27b59d3b7f341f1b62771299bb93f4595307d"
+      "sourceSha256": "ddccac8a69ba757dc555bc2daec41979b396d7aa2b4aea45b9aa6a313a4c935e"
     },
     {
       "id": "domain-experts",
@@ -8179,7 +8179,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "83f1b5c9a2ffcb05415bd439e7e2329698c73ad81e4946401ec873f3430a2461"
+      "sourceSha256": "cfe1884634c4b8496d407d21c8a74b35d7975c0e90d570951d431ae6ab17edc9"
     },
     {
       "id": "kb-hw-glossary",
@@ -16862,6 +16862,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "e8b469bc5811d78ffc46e0452ad36a8d950f417ab62ce604983ce721d343c4d5"
     },
     {
+      "id": "proof-wri-r182-runner-ready",
+      "path": "docs/proof/wri-r182-runner/receipt.md",
+      "title": "Ruling 182 Windows runner-ready receipt",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-wri-r182-runner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Reusable runner preparation passes all six Ruling 182 controls and the Ruling 181 lifecycle fixtures on an MSP/RG5 head. No scale change, product contract check, or store verifier execution occurred. This receipt does not claim an execution budget.",
+      "tags": [
+        "windows",
+        "runner",
+        "ruling-182",
+        "red-first",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-23",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-22",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-msp-receipt",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "23d15e29b26dbc31d41b581a335e8e1efa07f74c6954adbc1d191cee6c074a97"
+    },
+    {
       "id": "proof-wrt-red-first",
       "path": "docs/proof/wrt/red-first.md",
       "title": "WRT red-first receipt: Windows known-expected-failure manifest",
@@ -18850,5 +18889,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "907d5bc4382ac1a431619ac06696fa9e7e8e729f90c8dfee874d3ab092799576"
+  "graphSha256": "38d488b8c87c78ff11d5402f7a157a962c578e465e5326663d10b79fca4c9dfe"
 };

@@ -582,6 +582,16 @@ must attach actual `verify-portable-text-io.py` and
 ready; `check-docs.py` is not their substitute. The W0 route packet carries
 this pre-handoff rule.
 
+*2026-10-09 recurrence, Windows runner preparation:* the runner's reviewed checker
+omitted LF settings on two temporary AST writes and the printing-entry console
+guard. The existing text-mode-hash and portable-text gates rejected it. Sweep:
+all text writes and the main entry in that checker; only those three omissions.
+Derive: portable temporary text and console output are required even when policy
+and native runtime fixtures pass. Prevent: the existing gates remain required,
+without an allowlist; the R183 one-file correction retained original red captures,
+then direct portable, configured verify, docs, and expanded qualification exit-0
+captures before independent owner PASS (`docs/proof/wri-r182-runner/receipt.md`).
+
 **TEST-ENTRY · A test intercepts process exit and runs unintended work.** A
 local legacy-console probe replaced `sys.exit` while invoking `--help` on the
 W0 qualifier. Argparse's intended exit was suppressed, so `main` continued
@@ -2353,7 +2363,8 @@ the execution track; Settings and a fresh process verified restoration to 150% a
 - *Prevent (Ruling 182, replaces the proposal):* the next runner holds no parsed instant. It reuses the Stopwatch
   deadline of `docs/proof/ring-windows/capture-calibration.ps1:11,17-20`, whose mutation self-test is
   `verify-capture-deadline.ps1`. The runner's own self-test adds 899,750 ms → waits and 900,000 ms → expired. Status:
-  pending the PC's committed runner (see THROWAWAY-RUNNER).
+  controlled by `tools/windows-runner.ps1` and `py -3 tools/check-windows-runner.py --self-test`;
+  the retained Windows proof is `docs/proof/wri-r182-runner/receipt.md` (see THROWAWAY-RUNNER).
 
 **THROWAWAY-RUNNER · A one-off Windows run is driven by uncommitted harness code, and the harness, not the product, fails.**
 Three Windows scale runs in a row stopped in their own harness before a product check could tell anything:
@@ -2380,3 +2391,38 @@ rebuilt (the scale-context print, the item-6 bounds) had no committed home eithe
   The fresh budget opens only on a committed runner-ready receipt. Status: pending the PC runner; the Mac measurement
   prints are track MSP.
   - *2026-10-09, trk-msp:* the Mac half of the prevent has landed. The Desktop harness prints `SCALE_CONTEXT` once per window mode, `ITEM6` (the three item-6 controls) and `P3` (the double-click clause) on pass as well as fail. `Spawn_WindowModeWithoutScaleContext_Fails` fails the run if a spawned window mode lacks its line (`docs/proof/msp/receipt.md`).
+  - *2026-10-09, Windows Ruling 182:* the PC half is executable: `tools/windows-runner.ps1`,
+    `windows-settings-preflight.ps1`, `check-windows-runner.py`, and `test-windows-runner.ps1`.
+    The retained runner-ready receipt proves six controls red-first/green on an MSP/RG5 head.
+    Status: controlled for runner preparation; scale/product proof remains unrun.
+
+**WINDOWS-CAPTURE-LIFECYCLE · A launcher mistakes root exit or a termination request for complete, bounded process cleanup.**
+Ruling 181's watchdog lost the numeric exit. Runner review also exposed inherited output handles, asynchronous
+assignment-failure termination, and residual accounting before SDK shutdown.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* missing retained handle/numeric exit, an unbounded drain after root exit, a termination request without
+  observed completion, or a target residual query before numeric build-server shutdown.
+- *Sweep:* PR #22 watchdog, historical PR #23 runner, and the new reusable runner's normal, timeout, assignment-failure,
+  and BuildVerifier paths. Historical pinned scripts remain evidence, not active launchers.
+- *Derive:* preserve process handles; suspended launch owns the job before resume; one Stopwatch includes startup,
+  cleanup, and final source checks; BuildVerifier mode records shutdown exit before target job accounting.
+- *Prevent:* `py -3 tools/check-windows-runner.py --self-test` runs 0/3 exit stubs, inherited-output, assignment and
+  termination failures, timeout, delayed-startup, shutdown-order, shutdown-exit-3, and PII fixtures. Ring: Windows
+  runner preparation; measured runtime 28.162 s, whole retained qualification 40.976 s. Status: controlled; no verifier
+  execution or system-wide residual sampler is claimed (`docs/proof/wri-r182-runner/receipt.md`).
+
+**RUNNER-POLICY-NAME-ONLY · A guard sees a name in source and falsely certifies the active call or allowed target.**
+The first runner guard accepted commented numeric validation, removed pre-child source validation, added unbounded
+waits, a StreamWriter constructor, and a second dot-source. Separate adversarial review found those false-greens.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* comments satisfy presence checks, one allowed method name admits a different constructor target, or a
+  set erases a duplicate invocation whose count is part of the contract.
+- *Sweep:* deadline call sites, numeric exit validation, before/after source guards, UIA commands/methods/constructors,
+  and dot-source count across the four new implementation files.
+- *Derive:* inspect active call sites/control flow; on Windows parse UIA AST; allow exact constructor targets and
+  exactly one approved dot-source. Portable lexical policy is named separately from Windows qualification.
+- *Prevent:* the 19 planted policy mutants in `tools/check-windows-runner.py --self-test`; Ready also runs the policy
+  gate. Ring: fast policy / preparation mutant suite. Measured Windows policy 1.457 s, mutant suite 11.667 s. Status:
+  controlled; output/timeout publication is PHN-checked (`docs/proof/wri-r182-runner/receipt.md`).

@@ -1,0 +1,199 @@
+{
+  "files": [
+    {
+      "path": "docs/proof/wri-r182-runner/capture-proof.py",
+      "bytes": 6173,
+      "sha256": "e5ee9f3e45cc326ad02c605728ee46f8e7fcde35e526523cb69e08f5d5260d3b"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/capture-r183.py",
+      "bytes": 5732,
+      "sha256": "2188ebde9947f937e6c3296ab0f87bfaea6a8178dfbf66604afe1527e7ba1f60"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/docs.json",
+      "bytes": 1389,
+      "sha256": "70dc311d920c24e501d545552bc906d846dad37c8c4ce459104910e19ccf9c63"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/docs.stderr.txt",
+      "bytes": 120,
+      "sha256": "6751095c30b3d6db55825845733c30aecccc555a3ae0c60c5ba68ea3481003d9"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/docs.stdout.txt",
+      "bytes": 2357,
+      "sha256": "1b9338a7e502b48be5885fb72faee70f116bc5202231fc68c42079526d1adf85"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/final-packaging-prompt.txt",
+      "bytes": 1049,
+      "sha256": "b510026d14e6d96e9624c376ab3b90681230900dcd747262d8b9dee08c9bcdb5"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/packaging-prompt.txt",
+      "bytes": 1458,
+      "sha256": "4d0e791d71f4959ce486ac4db01eb511c5b674efd75937cf1388d1b05d2f7c2e"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/pii.json",
+      "bytes": 1394,
+      "sha256": "c7db838a63664c3aa90c214a91e459e98f9c572de0f3466244065572ca5f7366"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/pii.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/pii.stdout.txt",
+      "bytes": 68,
+      "sha256": "f51cba341009e7f6857d8830c9d542c94b30d36431355a4ca663ce9cfae3e747"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/policy.json",
+      "bytes": 1398,
+      "sha256": "e92ad8f05cf416d0b5c0e355cb40daabd2e1f576bcf7af11591f4c106bf8503b"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/policy.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/policy.stdout.txt",
+      "bytes": 120,
+      "sha256": "0efa6b18c7df0a8ea6764aa045090e1e5dc6591f20c79681d62446a8f6753844"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/qualification.json",
+      "bytes": 1418,
+      "sha256": "5fc481d7c3b54f8a9d5ec02242f4c28cbe956d3dedbcc68dba4d23a1bb026637"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/qualification.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/qualification.stdout.txt",
+      "bytes": 4199,
+      "sha256": "df894b1b88632ecea66163cdb408dc43c57d3600fd8c78a5e772fc2658e098d2"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-checker.patch",
+      "bytes": 1354,
+      "sha256": "b43eac0387ff305f4e618517b962f932199797faf47e217ce0ecda7f8c3eac7f"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-delegation.json",
+      "bytes": 2124,
+      "sha256": "90d02440c1ecc9388dbb0d5127236ec01f5bbf1e66b073cc63fa733177065083"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-docs.json",
+      "bytes": 1414,
+      "sha256": "c0ab5235cbf2441b02e48357df88350e45e08e5323b95440702613843be94b88"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-docs.stderr.txt",
+      "bytes": 141,
+      "sha256": "c779c63594d173c05733342b56d6de8858b48ad38fd96420d7980e09abf7a584"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-docs.stdout.txt",
+      "bytes": 19868,
+      "sha256": "4e6cba81aaf0e6a859f87e18e03fdf720e4d59f6db06e00d900f324fb2fa827e"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-portable.json",
+      "bytes": 1448,
+      "sha256": "75216cc5bba52c539c9d12db3c019246b3beb7e603a63bb084ddd113b3e2ffc6"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-portable.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-portable.stdout.txt",
+      "bytes": 118,
+      "sha256": "a379d1c0d3c227522e98ec16d1c3e9816581480859a70f0750d395c14bcfc251"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-qualification.json",
+      "bytes": 1443,
+      "sha256": "7bd59cd62ea0d4187ea1744b2b3477d299a89bf138b5b82d6f7dfacfd0a16c46"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-qualification.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-qualification.stdout.txt",
+      "bytes": 4199,
+      "sha256": "092a698b3e12a3667c596b5579f71f181c0bd95441b8964b9585863867943e7d"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-verify.json",
+      "bytes": 1559,
+      "sha256": "52fe45dce5968d9308eb2f1614f329d19607068131741554c5ff47e8d3df0d35"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-verify.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/r183-verify.stdout.txt",
+      "bytes": 1819,
+      "sha256": "d06fa534485a76da195897b917ddf00f12e86627c223784b7b73fddcdec52f34"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/receipt.md",
+      "bytes": 15122,
+      "sha256": "23d15e29b26dbc31d41b581a335e8e1efa07f74c6954adbc1d191cee6c074a97"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/seal-proof.py",
+      "bytes": 1720,
+      "sha256": "9335d29786a4f5783245d61bd72fc3bd4faa6f8911a7307f402ffd0a4daf29ff"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/verify.json",
+      "bytes": 1535,
+      "sha256": "0ba7a02b04ffe583b86517fc332d1eb8586c73d3c7efd693cfa825a7a5e09474"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/verify.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r182-runner/verify.stdout.txt",
+      "bytes": 1815,
+      "sha256": "f0b1f3a613712f49312800154a14efe3786c4cb6f32cd1bcb06b05ccad0ffe44"
+    },
+    {
+      "path": "tools/check-windows-runner.py",
+      "bytes": 20175,
+      "sha256": "8f044473b919558dbedd5a6e2a3ccd520025f81c6c48f31afb83d1501a48aa49"
+    },
+    {
+      "path": "tools/test-windows-runner.ps1",
+      "bytes": 12483,
+      "sha256": "a6e2b9747a91b7284e29410aa026683262eb7b02e31e4adca3e12cab8d09d4a1"
+    },
+    {
+      "path": "tools/windows-runner.ps1",
+      "bytes": 24043,
+      "sha256": "db8a8872e503575b8c084d0f30d4c15e635defc0c7043e6a126c472d391c3961"
+    },
+    {
+      "path": "tools/windows-settings-preflight.ps1",
+      "bytes": 2881,
+      "sha256": "da54b92d6830ae51e545d86b92afa2bce1f57a2a4e12f601333bdd259e5e89a0"
+    }
+  ]
+}
