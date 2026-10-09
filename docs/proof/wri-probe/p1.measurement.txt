@@ -1,0 +1,1 @@
+started_utc=2026-10-09T02:05:04.1611301+00:00 ended_utc=2026-10-09T02:05:04.5781403+00:00 os_caption=Microsoft Windows 11 Pro os_version=10.0.26300 os_build=26300 os_architecture=64-bit sdk_root=%USERPROFILE%\.dotnet sdk_version=10.0.203 shell_affinity=0x3F

@@ -1,0 +1,2 @@
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File docs\proof\wri-probe\p6-run.ps1
+UIA transition and diagnostic were run by this wrapper; the eight named selectors were never invoked because AppliedDPI remained 144 after Settings selected 200% and Avalonia reported 2.0.

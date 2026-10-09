@@ -1,0 +1,9 @@
+utc_start=2026-10-09T02:24:40.7696643Z
+utc_end=2026-10-09T02:24:41.3237043Z
+wall_seconds=0.554040
+Settings page=System > Display
+Display1 selected=True; Display2 selected=False
+MainMonitor TogglePattern=On; enabled=False
+Scale=150% (Recommended)
+AppliedDPI=144
+Primary=\\.\DISPLAY1; bounds={X=0,Y=0,Width=2560,Height=1600}

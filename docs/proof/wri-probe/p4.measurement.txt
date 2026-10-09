@@ -1,0 +1,7 @@
+started_utc=2026-10-09T02:03:50.9530251+00:00
+ended_utc=2026-10-09T02:03:57.5300805+00:00
+pid=34200
+affinity=0x3F
+exit=1
+sdk=10.0.203
+tested_head=842e575d8408d27c6f01f53df9d0da00e434ea38
