@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d680456849c319c58c27e494b9759e505c30d57db1ebdb3e4bc58d1695ff1e36"
+      "sourceSha256": "9eb00e33a5ebaca8d16bfd6701702d3e09fff122abba40523c3bf794dbe7c2bc"
     },
     {
       "id": "domain-experts",
@@ -6941,6 +6941,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "5bcdda1e5d500211739d20046234c7104ae931da93385581ae56e3761b7cbb13"
     },
     {
+      "id": "review-pr-19",
+      "path": "docs/reviews/pr-19.md",
+      "title": "PR #19 (Windows PC) - bounded Windows store verifier (Ruling 175), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 175). PR #19 adds the leased bounded Windows store verifier with the exit 0/1/4 contract, a real-pipe Ruling 171 self-test and 67 manifest-matched captures. The ceiling fix is structurally real. The only Windows no-argument capture is from an earlier script revision, so admission stays closed until a rerun of the final script.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-2",
+        "verifier",
+        "readiness"
+      ],
+      "links": [
+        {
+          "to": "review-pr-15",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4d39233786c4fe0d75b2d0309e5c4b5e3af39f0f6c7acbd619d25fff5758b29b"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7909,7 +7942,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0fd3e647d3a19e01d2ef53c8c6675ee50ee7ab3471394c914a1c63b7efcdea0a"
+      "sourceSha256": "02a285d43b3417be07866568b5873e76e7cac5b00c20f88e10fb342170778605"
     },
     {
       "id": "kb-hw-glossary",
@@ -8089,6 +8122,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "6deaa30ff109a2d8ef08e7d742fc1be6bbf9265ac6863f3c19bb62a68afbcf1d"
+    },
+    {
+      "id": "proof-wri-investigation",
+      "path": "docs/proof/wri/investigation.md",
+      "title": "WRI: the eight Windows-only rendering and platform failures",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-wri",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Seven of the eight class-(a) failures share one cause: Avalonia layout rounding at a 150 % display scale (arithmetic fits 1.5 exactly; the scale itself is not recorded and needs the probe). The 23.3 px inputs are a real product miss of 0.67 DIP (35 px where 36 are needed): the TextBox is content-sized and the 3 DIP padding rounds down at the .5 midpoint. KeyBindings is a contradiction between a Mac-only test and a deliberate Windows binding.",
+      "tags": [
+        "windows",
+        "dpi",
+        "layout-rounding",
+        "target-size",
+        "investigation"
+      ],
+      "links": [
+        {
+          "to": "review-pr-18",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "796741eaa71c7cdf6e0f0ed4f520f3c5ffa14515086e0eae4f44276780830965"
     },
     {
       "id": "kb-cfd-workbench-grounding",
@@ -14203,6 +14263,213 @@ window.DOCS_INDEX = {
       "sourceSha256": "2e8260c229bf0471a5a7ab899f7baf53c3c8b57d426fb681ba86c50be826822d"
     },
     {
+      "id": "proof-ring-windows-calibration-attempt-1",
+      "path": "docs/proof/ring-windows/receipt.md",
+      "title": "Ruling 168 Windows baseline calibration attempt 1 (excluded)",
+      "type": "proof-pack",
+      "status": "incomplete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "One complete Windows ring on 1146ec8e ran with six-CPU affinity while L3 used six WSL ranks. It exceeded Ruling 168's 300 s ceiling and used the default host name, so it is preserved as evidence only and contributes no baseline row.",
+      "tags": [
+        "windows",
+        "ruling-168",
+        "ruling-166",
+        "ruling-156",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-r163-windows-ring",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "165ec223dab6b1bffc3e22396275211b9e09df66562c46ccf5d42fe664f139a9"
+    },
+    {
+      "id": "proof-ring-windows-calibration-run-1",
+      "path": "docs/proof/ring-windows/calibration/run-1/receipt.md",
+      "title": "Ruling 168 Windows calibration run 1 (incomplete)",
+      "type": "proof-pack",
+      "status": "incomplete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The first host-keyed Windows calibration attempt was terminated at the 300 s deadline while Desktop remained at STAGE spawn. It is incomplete evidence only. The requested held-reader PASS appeared in Core.part3of3 rather than Core.part2of3, and Core.part3of3 also recorded NativeFailure Win32 32 for WindowsNative_Replace_HeldReaderKeepsOldImage.",
+      "tags": [
+        "windows",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-calibration-attempt-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "51c0b1da8124b454fda7299822b91a3affb5c1745d625bfb991e7e31c5bc7701"
+    },
+    {
+      "id": "proof-ring-windows-r170-run-1",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/receipt.md",
+      "title": "Ruling 170 Windows calibration run 1 (complete)",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The first Ruling 170 ring completed within the 900 s total capture envelope on the current merged main head. It used CFD_RING_HOST=pc-win, six-CPU affinity and the reported six-rank L3 workload. The ring exited 1 on classified Windows test failures; the completed measurement qualifies as calibration row 1, pending the three-run series.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-calibration-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "407b1ad107b4d9a3ac61a7fcf509b5b5b5b7fe28a54c8ab70a88812cadf46f76"
+    },
+    {
+      "id": "proof-ring-windows-r170-run-2",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/receipt.md",
+      "title": "Ruling 170 Windows calibration run 2 (complete)",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The second Ruling 170 ring completed within the 900 s total capture envelope on tested HEAD b12d76da. It used CFD_RING_HOST=pc-win, six-CPU affinity and the reported six-rank L3 workload. It exited 1 after classified Windows test failures and qualifies as calibration row 2, pending the three-run series.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-r170-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-calibration-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "aa8ab9f8a4c4d854e73bc852d99fd7c6f99b66483b9bf230f1390f2122dd2243"
+    },
+    {
+      "id": "proof-ring-windows-r170-run-3",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/receipt.md",
+      "title": "Ruling 170 Windows calibration run 3 (complete)",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The third Ruling 170 ring completed within the 900 s total capture envelope on tested HEAD c8e254f7. It used CFD_RING_HOST=pc-win, six-CPU affinity and the reported six-rank L3 workload. It exited 1 after classified Windows test failures and qualifies as calibration row 3, completing the three-run measurement series.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-r170-run-2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-calibration-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "221ec2580d6ec090e5d62a05e04713b1bdfdd083c91af3f6c7fc6a32e1e33500"
+    },
+    {
+      "id": "proof-ring-windows-r170-series",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/series-receipt.md",
+      "title": "Ruling 170 Windows three-ring calibration evidence",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Three serial Windows rings completed under Ruling 170 with host key pc-win, six-CPU affinity and the reported six-rank L3 workload. Their measurements are preserved in calibration-rows.csv and individual receipt/capture directories. This is evidence for the Mac-owned baseline file and gate decision; it does not create either.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "calibration",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-r170-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-r170-run-2",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-r170-run-3",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-calibration-attempt-1",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1091b7b26723dcc8bff4333d97ae910bc257d9899887ee3f0782a223a4fe55e5"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -15426,6 +15693,33 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "01e899a5a83c12376107a8216aa4474158fe4fefbd6bf60f9a89d27b450d373e"
+    },
+    {
+      "id": "proof-wdf-red-first",
+      "path": "docs/proof/wdf/red-first.md",
+      "title": "WDF: red-first record for the Windows fractional-scale fixes",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-wdf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Item 8 (TextBox MinHeight) and item 1 (menu-gesture check) are red then green on the Mac. Items 2 and 7 change a tolerance and cannot be red on the Mac (no forced render scale); the PC ring is their proof. Item 6 is held for the scale probe.",
+      "tags": [
+        "windows",
+        "dpi",
+        "layout-rounding",
+        "target-size",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-investigation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "124dff182a26328d2014b1c46bf9b8d34146be74b09bc498c84e9a4f3e40f412"
     },
     {
       "id": "proof-wfx-pc-reverify",
@@ -17966,5 +18260,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "374017f41dc0a255383b0cc43714a10d900e4f2728927597adf63bf506c16a9a"
+  "graphSha256": "f8fef1ae42d650bac399ec6942ee66969a28d8e8943642f73675f80550dba050"
 };
