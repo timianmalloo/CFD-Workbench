@@ -616,78 +616,6 @@
       "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
     },
     {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/1/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll",
-      "bytes": 207160,
-      "sha256": "0bdbb63f408755b02eddb70b21c7339e62dcc5545083c07f4a131979449da70d",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/1/Microsoft.CodeAnalysis.NetAnalyzers.dll",
-      "bytes": 5404936,
-      "sha256": "5596f25b17dd226760205a90fed68d15aa2c9aa33b8803842267ef16f76cb18a",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.ComInterfaceGenerator.dll",
-      "bytes": 328504,
-      "sha256": "113ae49f48a35133f37662f9490380c36a442944988d1cd287b0200ced9971e9",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.JavaScript.JSImportGenerator.dll",
-      "bytes": 136968,
-      "sha256": "56b090f39863ef6162b58f4923a5215df770986b0fff708af03800a919707ee4",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.LibraryImportGenerator.dll",
-      "bytes": 262416,
-      "sha256": "0b7dbde439331223de4be82fdb61a37022a2c2d1d411071db8805f3663cc8f78",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.SourceGeneration.dll",
-      "bytes": 463112,
-      "sha256": "6f105d99531e8b74897bb12f2bb4832d433b1932458440c78b227a603df12218",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/System.Text.Json.SourceGeneration.dll",
-      "bytes": 203568,
-      "sha256": "7318505f8d3964e9b1bd3899e982f64434ccf6d53a955f8db83a567bec3ff2c7",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/System.Text.RegularExpressions.Generator.dll",
-      "bytes": 371976,
-      "sha256": "b821a8647f281d4d01c66a3213f2046560e902c9b62e299a597bb88ed51c729c",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/3/Avalonia.Analyzers.dll",
-      "bytes": 89088,
-      "sha256": "4abf77121e68354dff4cb2fa39479eb0671292f258a679ece8e25ec306eae362",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/3/Avalonia.Generators.dll",
-      "bytes": 333312,
-      "sha256": "3c20f3ecd83c94fb5fe936528f92279e3a6651be7f45f79ac6c1bfcea9e27ee3",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/4/CommunityToolkit.Mvvm.CodeFixers.dll",
-      "bytes": 61728,
-      "sha256": "3e44756f2b31c0b5ed73d62470392375a4b6b6b24364ab20e5afc217440eff3c",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/4/CommunityToolkit.Mvvm.SourceGenerators.dll",
-      "bytes": 411432,
-      "sha256": "d9d6ef45b0e26e8aa47ed728177516c6dd94ca61b946383283a27e728437db43",
-      "tested_head": "2046a73ca10fe18f9b4ece3de0811dd7a0b40c18"
-    },
-    {
       "path": "docs/proof/ring-windows/calibration-ruling-170/run-1/tmp-tests/wall.ms",
       "bytes": 7,
       "sha256": "8aa25d591907f32cacc44469685b34430fcf5347f4ec44b1724eb61aaead746d",
@@ -1411,78 +1339,6 @@
       "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/u2-rail-recovery.cfdw.json",
       "bytes": 6564,
       "sha256": "b14cd8d67208bd30e5480e4fc6ec321680c0f8b0ee222963bfec67071b4707a7",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/1/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll",
-      "bytes": 207160,
-      "sha256": "0bdbb63f408755b02eddb70b21c7339e62dcc5545083c07f4a131979449da70d",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/1/Microsoft.CodeAnalysis.NetAnalyzers.dll",
-      "bytes": 5404936,
-      "sha256": "5596f25b17dd226760205a90fed68d15aa2c9aa33b8803842267ef16f76cb18a",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.ComInterfaceGenerator.dll",
-      "bytes": 328504,
-      "sha256": "113ae49f48a35133f37662f9490380c36a442944988d1cd287b0200ced9971e9",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.JavaScript.JSImportGenerator.dll",
-      "bytes": 136968,
-      "sha256": "56b090f39863ef6162b58f4923a5215df770986b0fff708af03800a919707ee4",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.LibraryImportGenerator.dll",
-      "bytes": 262416,
-      "sha256": "0b7dbde439331223de4be82fdb61a37022a2c2d1d411071db8805f3663cc8f78",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.SourceGeneration.dll",
-      "bytes": 463112,
-      "sha256": "6f105d99531e8b74897bb12f2bb4832d433b1932458440c78b227a603df12218",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/System.Text.Json.SourceGeneration.dll",
-      "bytes": 203568,
-      "sha256": "7318505f8d3964e9b1bd3899e982f64434ccf6d53a955f8db83a567bec3ff2c7",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/System.Text.RegularExpressions.Generator.dll",
-      "bytes": 371976,
-      "sha256": "b821a8647f281d4d01c66a3213f2046560e902c9b62e299a597bb88ed51c729c",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/3/Avalonia.Analyzers.dll",
-      "bytes": 89088,
-      "sha256": "4abf77121e68354dff4cb2fa39479eb0671292f258a679ece8e25ec306eae362",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/3/Avalonia.Generators.dll",
-      "bytes": 333312,
-      "sha256": "3c20f3ecd83c94fb5fe936528f92279e3a6651be7f45f79ac6c1bfcea9e27ee3",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/4/CommunityToolkit.Mvvm.CodeFixers.dll",
-      "bytes": 61728,
-      "sha256": "3e44756f2b31c0b5ed73d62470392375a4b6b6b24364ab20e5afc217440eff3c",
-      "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/4/CommunityToolkit.Mvvm.SourceGenerators.dll",
-      "bytes": 411432,
-      "sha256": "d9d6ef45b0e26e8aa47ed728177516c6dd94ca61b946383283a27e728437db43",
       "tested_head": "b12d76da40013a1baaa1ff516cc8030d561af74c"
     },
     {
@@ -2326,78 +2182,6 @@
       "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
     },
     {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/1/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll",
-      "bytes": 207160,
-      "sha256": "0bdbb63f408755b02eddb70b21c7339e62dcc5545083c07f4a131979449da70d",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/1/Microsoft.CodeAnalysis.NetAnalyzers.dll",
-      "bytes": 5404936,
-      "sha256": "5596f25b17dd226760205a90fed68d15aa2c9aa33b8803842267ef16f76cb18a",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.ComInterfaceGenerator.dll",
-      "bytes": 328504,
-      "sha256": "113ae49f48a35133f37662f9490380c36a442944988d1cd287b0200ced9971e9",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.JavaScript.JSImportGenerator.dll",
-      "bytes": 136968,
-      "sha256": "56b090f39863ef6162b58f4923a5215df770986b0fff708af03800a919707ee4",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.LibraryImportGenerator.dll",
-      "bytes": 262416,
-      "sha256": "0b7dbde439331223de4be82fdb61a37022a2c2d1d411071db8805f3663cc8f78",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/Microsoft.Interop.SourceGeneration.dll",
-      "bytes": 463112,
-      "sha256": "6f105d99531e8b74897bb12f2bb4832d433b1932458440c78b227a603df12218",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/System.Text.Json.SourceGeneration.dll",
-      "bytes": 203568,
-      "sha256": "7318505f8d3964e9b1bd3899e982f64434ccf6d53a955f8db83a567bec3ff2c7",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/2/System.Text.RegularExpressions.Generator.dll",
-      "bytes": 371976,
-      "sha256": "b821a8647f281d4d01c66a3213f2046560e902c9b62e299a597bb88ed51c729c",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/3/Avalonia.Analyzers.dll",
-      "bytes": 89088,
-      "sha256": "4abf77121e68354dff4cb2fa39479eb0671292f258a679ece8e25ec306eae362",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/3/Avalonia.Generators.dll",
-      "bytes": 333312,
-      "sha256": "3c20f3ecd83c94fb5fe936528f92279e3a6651be7f45f79ac6c1bfcea9e27ee3",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/4/CommunityToolkit.Mvvm.CodeFixers.dll",
-      "bytes": 61728,
-      "sha256": "3e44756f2b31c0b5ed73d62470392375a4b6b6b24364ab20e5afc217440eff3c",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/76dfe44674a54b59990df3bb0d260c71/4/CommunityToolkit.Mvvm.SourceGenerators.dll",
-      "bytes": 411432,
-      "sha256": "d9d6ef45b0e26e8aa47ed728177516c6dd94ca61b946383283a27e728437db43",
-      "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
-    },
-    {
       "path": "docs/proof/ring-windows/calibration-ruling-170/run-3/tmp-tests/wall.ms",
       "bytes": 7,
       "sha256": "9c11b3cb8deabde60258eece2f9867032efb3195dfab1414f881986ea850d1b8",
@@ -2405,8 +2189,8 @@
     },
     {
       "path": "docs/proof/ring-windows/calibration-ruling-170/series-receipt.md",
-      "bytes": 4112,
-      "sha256": "7ed0c4c426af6d5597874d6ef4c6ae4b3dbf6d4557f0c83762e4d79d0eb13e59",
+      "bytes": 4162,
+      "sha256": "1091b7b26723dcc8bff4333d97ae910bc257d9899887ee3f0782a223a4fe55e5",
       "tested_head": "c8e254f789d071f9321b558ae677f445b18f4bec"
     },
     {
@@ -2860,78 +2644,6 @@
       "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
     },
     {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/1/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll",
-      "bytes": 207160,
-      "sha256": "0bdbb63f408755b02eddb70b21c7339e62dcc5545083c07f4a131979449da70d",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/1/Microsoft.CodeAnalysis.NetAnalyzers.dll",
-      "bytes": 5404936,
-      "sha256": "5596f25b17dd226760205a90fed68d15aa2c9aa33b8803842267ef16f76cb18a",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/Microsoft.Interop.ComInterfaceGenerator.dll",
-      "bytes": 328504,
-      "sha256": "113ae49f48a35133f37662f9490380c36a442944988d1cd287b0200ced9971e9",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/Microsoft.Interop.JavaScript.JSImportGenerator.dll",
-      "bytes": 136968,
-      "sha256": "56b090f39863ef6162b58f4923a5215df770986b0fff708af03800a919707ee4",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/Microsoft.Interop.LibraryImportGenerator.dll",
-      "bytes": 262416,
-      "sha256": "0b7dbde439331223de4be82fdb61a37022a2c2d1d411071db8805f3663cc8f78",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/Microsoft.Interop.SourceGeneration.dll",
-      "bytes": 463112,
-      "sha256": "6f105d99531e8b74897bb12f2bb4832d433b1932458440c78b227a603df12218",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/System.Text.Json.SourceGeneration.dll",
-      "bytes": 203568,
-      "sha256": "7318505f8d3964e9b1bd3899e982f64434ccf6d53a955f8db83a567bec3ff2c7",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/System.Text.RegularExpressions.Generator.dll",
-      "bytes": 371976,
-      "sha256": "b821a8647f281d4d01c66a3213f2046560e902c9b62e299a597bb88ed51c729c",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/3/Avalonia.Analyzers.dll",
-      "bytes": 89088,
-      "sha256": "4abf77121e68354dff4cb2fa39479eb0671292f258a679ece8e25ec306eae362",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/3/Avalonia.Generators.dll",
-      "bytes": 333312,
-      "sha256": "3c20f3ecd83c94fb5fe936528f92279e3a6651be7f45f79ac6c1bfcea9e27ee3",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/4/CommunityToolkit.Mvvm.CodeFixers.dll",
-      "bytes": 61728,
-      "sha256": "3e44756f2b31c0b5ed73d62470392375a4b6b6b24364ab20e5afc217440eff3c",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
-      "path": "docs/proof/ring-windows/calibration/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/4/CommunityToolkit.Mvvm.SourceGenerators.dll",
-      "bytes": 411432,
-      "sha256": "d9d6ef45b0e26e8aa47ed728177516c6dd94ca61b946383283a27e728437db43",
-      "tested_head": "a248b264e8f9a911cbfd22322b74f737ba203f84"
-    },
-    {
       "path": "docs/proof/ring-windows/run-1/classifications/Analysis.part1of2.txt",
       "bytes": 42,
       "sha256": "91b485e9070690713160cb73e4e6e4909c73d2c6575362289cb1a6e20dfcfd63",
@@ -2981,8 +2693,8 @@
     },
     {
       "path": "docs/proof/ring-windows/run-1/console.stdout.txt",
-      "bytes": 18767,
-      "sha256": "ddace7b32a36bedb62164f52e2dd645ecee4ae44ec52a67955b5d46599b9fa85",
+      "bytes": 18715,
+      "sha256": "a8fb1b1f77e0b363101bf3604eba64417d8d402ac4f298a0cf6465d7f90d0284",
       "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
     },
     {
@@ -3265,78 +2977,6 @@
       "path": "docs/proof/ring-windows/run-1/tmp-tests/u2-rail-recovery.cfdw.json",
       "bytes": 6564,
       "sha256": "b14cd8d67208bd30e5480e4fc6ec321680c0f8b0ee222963bfec67071b4707a7",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/1/Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll",
-      "bytes": 207160,
-      "sha256": "0bdbb63f408755b02eddb70b21c7339e62dcc5545083c07f4a131979449da70d",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/1/Microsoft.CodeAnalysis.NetAnalyzers.dll",
-      "bytes": 5404936,
-      "sha256": "5596f25b17dd226760205a90fed68d15aa2c9aa33b8803842267ef16f76cb18a",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/Microsoft.Interop.ComInterfaceGenerator.dll",
-      "bytes": 328504,
-      "sha256": "113ae49f48a35133f37662f9490380c36a442944988d1cd287b0200ced9971e9",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/Microsoft.Interop.JavaScript.JSImportGenerator.dll",
-      "bytes": 136968,
-      "sha256": "56b090f39863ef6162b58f4923a5215df770986b0fff708af03800a919707ee4",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/Microsoft.Interop.LibraryImportGenerator.dll",
-      "bytes": 262416,
-      "sha256": "0b7dbde439331223de4be82fdb61a37022a2c2d1d411071db8805f3663cc8f78",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/Microsoft.Interop.SourceGeneration.dll",
-      "bytes": 463112,
-      "sha256": "6f105d99531e8b74897bb12f2bb4832d433b1932458440c78b227a603df12218",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/System.Text.Json.SourceGeneration.dll",
-      "bytes": 203568,
-      "sha256": "7318505f8d3964e9b1bd3899e982f64434ccf6d53a955f8db83a567bec3ff2c7",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/2/System.Text.RegularExpressions.Generator.dll",
-      "bytes": 371976,
-      "sha256": "b821a8647f281d4d01c66a3213f2046560e902c9b62e299a597bb88ed51c729c",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/3/Avalonia.Analyzers.dll",
-      "bytes": 89088,
-      "sha256": "4abf77121e68354dff4cb2fa39479eb0671292f258a679ece8e25ec306eae362",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/3/Avalonia.Generators.dll",
-      "bytes": 333312,
-      "sha256": "3c20f3ecd83c94fb5fe936528f92279e3a6651be7f45f79ac6c1bfcea9e27ee3",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/4/CommunityToolkit.Mvvm.CodeFixers.dll",
-      "bytes": 61728,
-      "sha256": "3e44756f2b31c0b5ed73d62470392375a4b6b6b24364ab20e5afc217440eff3c",
-      "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
-    },
-    {
-      "path": "docs/proof/ring-windows/run-1/tmp-tests/VBCSCompiler/AnalyzerAssemblyLoader/5d9b77c1be5d49d3ba70dc70dfa05ac7/4/CommunityToolkit.Mvvm.SourceGenerators.dll",
-      "bytes": 411432,
-      "sha256": "d9d6ef45b0e26e8aa47ed728177516c6dd94ca61b946383283a27e728437db43",
       "tested_head": "1146ec8e609aa0e0b2d78aae9e4771e10c98275b"
     },
     {

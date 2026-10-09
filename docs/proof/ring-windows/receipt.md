@@ -29,7 +29,8 @@ This was a complete ring result, not a launcher or capture failure. `tools/run-t
 seven harness jobs, emitted its final cost check, and exited **1** because of unexpected Windows test failures. The harness
 failure is evidence and was not repaired. The ring itself reported **345,588 ms** (wall **345 s**, net **319,072 ms**) and
 load **11.81 -> 12.39**. Its end load met the repository's <=24 load gate, but the run exceeded Ruling 168's 300 s outer
-ceiling. It also ran before the Mac added `CFD_RING_HOST`; the tool identified the host as `extreme1`. Therefore this attempt
+ceiling. It also ran before the Mac added `CFD_RING_HOST`. Ruling 174 redacts the captured machine hostname as `pc-win`
+in the COST-MISS output; the measured values are unchanged. Therefore this attempt
 is **excluded from calibration** and no `baseline.csv` row is written.
 
 Ruling 168 allows L3 to run during calibration, so concurrency does not itself disqualify the measurement. The coordinator

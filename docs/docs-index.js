@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "1858bd552d41fe384dd62b11840df1cdced6f8207e8740fb0c4cc45bf9b4d312"
+      "sourceSha256": "99766e877d31c2d906c722988f892e7cc0f604d7938668fab1f83cec33033ffd"
     },
     {
       "id": "domain-experts",
@@ -7850,7 +7850,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c1441f6d74c6ca9aeb8a0cef6bb47c845b002e894a107bcbe8d8a12ee5064976"
+      "sourceSha256": "4837c75c93a8476f66f2e07be40c3562191e05d98bba49efb1fb71043aa2e89e"
     },
     {
       "id": "kb-hw-glossary",
@@ -7936,6 +7936,34 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "bb7a76a43874f5de8954a1969d7552808a657ae73c7437f5141e1eec4952a448"
+    },
+    {
+      "id": "investigation-ezf-zoompanfit",
+      "path": "docs/proof/ezf/investigation.md",
+      "title": "Investigation EZF - the flaky Elevation_ZoomPanFit check is a stale fit baseline, not CPU starvation",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-ezf",
+      "phase": "investigation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Elevation_ZoomPanFit_KeyboardAndPointerSameCamera fails when the previous check leaves an accepted-revision mesh in flight and that mesh lands after Fixture.Reset has fitted the camera. The fit baseline came from the draft mesh, the later fit from the accepted mesh. Verified necessary and sufficient with a planted mesh delay. Repair is test-side: Reset drains the mesh first.",
+      "tags": [
+        "ezf",
+        "flake",
+        "desktop-tests",
+        "surface",
+        "camera",
+        "fixture"
+      ],
+      "links": [
+        {
+          "to": "proof-a3a-pack",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "3b23951897c1b6626e32c6748ba5c819e61d81afc9336648012ec6b01fd0581b"
     },
     {
       "id": "investigation-review-window-attach",
@@ -12441,6 +12469,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "9cbbe5c0a750558d520e47c982e1b944d873a49d45152427f3e41ccfeada4a93"
     },
     {
+      "id": "proof-ezf-red-first",
+      "path": "docs/proof/ezf/red-first.md",
+      "title": "EZF red-first record - Fixture.Reset drain and the folded settled-surface assertion",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-ezf",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Planted-delay record for Ruling 172. The camera compare fails on the old Reset at 60 and 150 ms; the folded assertion fails at 150 ms; with the Reset drain every delay from 0 to 800 ms passes.",
+      "tags": [
+        "ezf",
+        "red-first",
+        "desktop-tests"
+      ],
+      "links": [
+        {
+          "to": "investigation-ezf-zoompanfit",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b65e52933f8f5ddacfca1640816a445b12a016b2246af3aef3ccff783b374a47"
+    },
+    {
       "id": "proof-flk-investigation",
       "path": "docs/proof/flk/investigation.md",
       "title": "SectionEditor DragMove flake investigation",
@@ -14120,7 +14173,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "90e81da15f0b93fa70f8070c6d4c603c883b73099aac48119b038f0c64763cb5"
+      "sourceSha256": "165ec223dab6b1bffc3e22396275211b9e09df66562c46ccf5d42fe664f139a9"
     },
     {
       "id": "proof-ring-windows-calibration-run-1",
@@ -14295,7 +14348,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7ed0c4c426af6d5597874d6ef4c6ae4b3dbf6d4557f0c83762e4d79d0eb13e59"
+      "sourceSha256": "1091b7b26723dcc8bff4333d97ae910bc257d9899887ee3f0782a223a4fe55e5"
     },
     {
       "id": "proof-round-oct05-heredoc-hook-proposal",
@@ -18061,5 +18114,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "23bdb2197793af4294acdb555afe2534d6f120d4335bedb34da1b11ea7104d59"
+  "graphSha256": "a09d33a16567f38e02bb5f72c085a08b3f81b101f6d10d1019059b8b20fe3410"
 };

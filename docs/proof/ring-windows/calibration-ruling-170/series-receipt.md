@@ -49,8 +49,9 @@ The required
 
 Every run recorded the same five drift names: `lambda-fit`, `tangent-angle`, `dat-rotation`, `handle-polar-section`, and
 `handle-polar-target`. Each exact line is retained in the run's `drift-lines.txt`. Per-suite expected/unexpected
-classification outputs are retained unchanged; every ring exited 1 on the same unexpected Analysis WingRun failure and
-39 unexpected Desktop failures. These test failures were recorded, not repaired. The expected-failure classifier outputs
+classification outputs are retained unchanged; every ring exited 1 on the same unexpected
+`Section_WingRun_PanelValuesAtEveryStation` failure in `Analysis.part1of2` and 39 unexpected Desktop failures. These
+test failures were recorded, not repaired. The expected-failure classifier outputs
 are the authority for their names and counts.
 
 ## Excluded evidence and baseline ownership

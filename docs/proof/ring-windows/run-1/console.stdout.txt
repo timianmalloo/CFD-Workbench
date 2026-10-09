@@ -184,31 +184,31 @@ FAILED: CfdWorkbench.Analysis.Tests 2/2 (exit 1)
 == CfdWorkbench.Cli.Tests 8 s (7944 ms), 4 PASS
 COST Cli_InspectRuns_RevisionIsSessionLabel 461.630
 EXPECTED-FAIL 2 (manifest)
-COST-MISS C-2 Analysis.part1of2 took 22310 ms, over 5000 ms host extreme1
-COST-MISS C-2 Analysis.part2of2 took 18149 ms, over 5000 ms host extreme1
-COST-MISS C-3 run-tests net wall 319072 ms (wall - build), over 50000 ms host extreme1
-COST-MISS C-4 Desktop took 311969 ms, over 49369 ms: DR-ANA-10 applies (spread or split the Desktop job) host extreme1
-COST-MISS C-5 Project2_RoundTrip_ByteEqual took 748.391 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 RevisionLabel_TwistEdit_OrdinalsAndRail took 879.261 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 RecordRun_PanelProvisionalCode_ValidatedOldRowReads took 509.758 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Analysis_DraftOpen_EvaluatesAcceptedRevision took 696.333 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 SectionProjection_EstimatorLabel_DepthAware took 888.682 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 SectionView_Speeds_FollowUnitsSwitch took 889.384 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Section_StationsTable_ListsSolvedGoverningAndShownOnly took 595.616 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 NotResolved_OneChordwisePanel_TableValuesReadRuling161_LabelsDropBias took 1031.402 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 NotResolved_FourChordwisePanels_TextsUnchanged took 1165.177 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 NotResolved_TwoChordwisePanels_StillResolved_StructuralRuleNotMagnitude took 1244.676 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 F6_ObservedOrder took 1811.541 ms, over 1500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 F8_Dihedral20_ClRatioToPlanar0p8938 took 556.03 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Water_OutsideTable_Unavailable took 698.226 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Freshness_SurfaceEdit_Historical took 710.98 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Freshness_UndoToEqualKey_CurrentAgain took 564.91 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Section_WingRun_PanelValuesAtEveryStation took 1196.722 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Section_AnalysisRunEvent_CarriesPanelCandidateCount took 603.273 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Section_NearTie_GoverningReSelectedAt400 took 579.181 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Section_UniformWing_CandidateCountCappedAtFour took 559.919 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Section_GoverningEstimate_Cambered_Matches400Panels took 713.869 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 Section_GoverningStation_ScreenAndCpMinFrom400Panels took 599.361 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
-COST-MISS C-5 SectionForce_OneChordwisePanel_CoupleIsRoundOff_ShownAsZero_TableAndProfile_TrackNum took 1164.143 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host extreme1
+COST-MISS C-2 Analysis.part1of2 took 22310 ms, over 5000 ms host pc-win
+COST-MISS C-2 Analysis.part2of2 took 18149 ms, over 5000 ms host pc-win
+COST-MISS C-3 run-tests net wall 319072 ms (wall - build), over 50000 ms host pc-win
+COST-MISS C-4 Desktop took 311969 ms, over 49369 ms: DR-ANA-10 applies (spread or split the Desktop job) host pc-win
+COST-MISS C-5 Project2_RoundTrip_ByteEqual took 748.391 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 RevisionLabel_TwistEdit_OrdinalsAndRail took 879.261 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 RecordRun_PanelProvisionalCode_ValidatedOldRowReads took 509.758 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Analysis_DraftOpen_EvaluatesAcceptedRevision took 696.333 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 SectionProjection_EstimatorLabel_DepthAware took 888.682 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 SectionView_Speeds_FollowUnitsSwitch took 889.384 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_StationsTable_ListsSolvedGoverningAndShownOnly took 595.616 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 NotResolved_OneChordwisePanel_TableValuesReadRuling161_LabelsDropBias took 1031.402 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 NotResolved_FourChordwisePanels_TextsUnchanged took 1165.177 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 NotResolved_TwoChordwisePanels_StillResolved_StructuralRuleNotMagnitude took 1244.676 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 F6_ObservedOrder took 1811.541 ms, over 1500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 F8_Dihedral20_ClRatioToPlanar0p8938 took 556.03 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Water_OutsideTable_Unavailable took 698.226 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Freshness_SurfaceEdit_Historical took 710.98 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Freshness_UndoToEqualKey_CurrentAgain took 564.91 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_WingRun_PanelValuesAtEveryStation took 1196.722 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_AnalysisRunEvent_CarriesPanelCandidateCount took 603.273 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_NearTie_GoverningReSelectedAt400 took 579.181 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_UniformWing_CandidateCountCappedAtFour took 559.919 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_GoverningEstimate_Cambered_Matches400Panels took 713.869 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 Section_GoverningStation_ScreenAndCpMinFrom400Panels took 599.361 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
+COST-MISS C-5 SectionForce_OneChordwisePanel_CoupleIsRoundOff_ShownAsZero_TableAndProfile_TrackNum took 1164.143 ms, over 500 ms (move it to readiness with its cost, or make it cheaper) host pc-win
 test costs: 0 failures, 26 COST-MISS (load 12.39)
 wall 346 s (345588 ms, net 319072 ms) (budget 60 s) cpu 5 s load 11.81 -> 12.39
