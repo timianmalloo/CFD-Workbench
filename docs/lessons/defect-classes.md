@@ -2254,5 +2254,5 @@ on a re-check, restored the pinned bytes, and moved the note to `mac-join-note.m
   as a later commit. A file listed in any capture or closing manifest is never edited; an annotation goes in a sibling
   file.
 - *Prevent:* the leader runs `python3 tools/check-docs.py` before every push that follows a non-join commit (session
-  rule). Status: pending a mechanical control. Proposal: readiness gains a `check-docs` step, or the pre-push hook runs
-  it.
+  rule). Status: controlled. `docs/coordination/join.json` readiness now opens with `python3 tools/check-docs.py`
+  (about 10 s); a mismatched capture manifest turns `run-readiness.py` RED (`docs/proof/rcd/red-first.md`).
