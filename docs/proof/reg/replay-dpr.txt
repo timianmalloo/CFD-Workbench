@@ -1,0 +1,5 @@
+merge=6d2cff44 ours=9a1b3181 theirs=bcd382bb base=034f37fd
+driver exit=0
+IDENTICAL to committed 6d2cff44:docs/lessons/defect-classes.md
+0
+    2261 /Users/mallalieut/projects/cfd-workbench-continuation/scratch/rg3/replay/ours

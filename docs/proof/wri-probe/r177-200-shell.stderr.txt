@@ -1,0 +1,3 @@
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+NATIVE-STARTUP window-opened

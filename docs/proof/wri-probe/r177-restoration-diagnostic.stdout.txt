@@ -1,0 +1,1 @@
+P6_SCALE_CONTEXT check=post-restoration-diagnostic SettingsSelected=150% (Recommended) RenderScaling=1.5 PrimaryScaling=1.5

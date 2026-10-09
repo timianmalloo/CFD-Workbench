@@ -1,6 +1,6 @@
 {
-  "created_utc": "2026-10-09T02:32:34Z",
-  "tested_head": "93240b06df197f68b9ba3b971c3c8192895a7445",
+  "created_utc": "2026-10-09T03:23:52Z",
+  "tested_head": "4383089735b27586efed93657606fce37317fc07",
   "algorithm": "SHA-256",
   "files": [
     {
@@ -27,6 +27,11 @@
       "path": "docs/proof/wri-probe/instrumented.stdout.txt",
       "bytes": 4308,
       "sha256": "abc72b4a0d1ac1e3e653e9a57f5f232394e35143f3b57095454d795cdc642b5e"
+    },
+    {
+      "path": "docs/proof/wri-probe/mac-join-note.md",
+      "bytes": 1293,
+      "sha256": "7f0c058db350ac9c26f0ad54ac376f44cfe02e25310cab070095faa55abdee68"
     },
     {
       "path": "docs/proof/wri-probe/p1-applieddpi.stderr.txt",
@@ -219,9 +224,239 @@
       "sha256": "3524b8f510e99350fab3be544c14f7f01237af93743e9bbfef6bb52bcd2c2b01"
     },
     {
+      "path": "docs/proof/wri-probe/r177-150-properties.command.txt",
+      "bytes": 456,
+      "sha256": "d8e1b9f464620a83e9d2cd53d5e8c5d963d4ece3935362adfdbeea66b7137326"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-properties.measurement.txt",
+      "bytes": 425,
+      "sha256": "166a7853f78df6fbfedbfba888888741d105840a51c396e78fc0f8889cc37809"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-properties.stderr.txt",
+      "bytes": 61,
+      "sha256": "d75e542ff1dc57f26a87a3122fc045a8136191a725d457b5bf9c9c8ef66ff14e"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-properties.stdout.txt",
+      "bytes": 1707,
+      "sha256": "861ab1829b90645c92fc8be02901cb9451e00e2672f6067743f813e7f4b7a94e"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-shell.command.txt",
+      "bytes": 328,
+      "sha256": "899940870425807fe4a4a408aff7d8a8df4bf2f504b71337460c820beff0e4f1"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-shell.measurement.txt",
+      "bytes": 298,
+      "sha256": "0100e444a459dfaadd7dd64747c5a7593a5f4bf29d42d9b2d07f1798aba609d6"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-shell.stderr.txt",
+      "bytes": 91,
+      "sha256": "29e737a6b1210897ce60b49c2067069b1c341af646564d87cc6bcdc50ad68b25"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-shell.stdout.txt",
+      "bytes": 215,
+      "sha256": "df60caa0590fb37bddc52bf30f669d7bdb4d126af225fdd6ad4f51ebb095a70c"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-views.command.txt",
+      "bytes": 496,
+      "sha256": "765228f725178b8a722b0b45d40348890bb5c8bae83fb65862c1b145709619bf"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-views.measurement.txt",
+      "bytes": 467,
+      "sha256": "3fa76ca5de48dc4dcb8c2ce491a26fc6c610171afbd8a0e62bf69acd38a5c84c"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-views.stderr.txt",
+      "bytes": 61,
+      "sha256": "d75e542ff1dc57f26a87a3122fc045a8136191a725d457b5bf9c9c8ef66ff14e"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-150-views.stdout.txt",
+      "bytes": 3965,
+      "sha256": "982e0ad87d854778b28f8e9915d1e32daf8c6cce050d10c94eef2901ece32d55"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-properties.command.txt",
+      "bytes": 442,
+      "sha256": "9d2a5f47134ed6d7cdd226c90de32aa75d8271caf0a2f64baf2e0b7fc2652760"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-properties.measurement.txt",
+      "bytes": 413,
+      "sha256": "79b6ad3700c99672b8fd16c1a1dc414e24882f9afe9ad7f1d1502a62e3a64755"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-properties.stderr.txt",
+      "bytes": 61,
+      "sha256": "d75e542ff1dc57f26a87a3122fc045a8136191a725d457b5bf9c9c8ef66ff14e"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-properties.stdout.txt",
+      "bytes": 833,
+      "sha256": "17325fc377df8e93b05b88cb638aa490d5f7c6a6b9d87514e997abf7734b05e9"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-shell.command.txt",
+      "bytes": 314,
+      "sha256": "7a40934f4ee93ddf52520e6d476b70fafefdfc6042504dec51ab5e4d9ebbe635"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-shell.measurement.txt",
+      "bytes": 284,
+      "sha256": "40e475fc7da88379037a25a6a25f116270d7f01eda6cd7ea8e6ad4f49e460d93"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-shell.stderr.txt",
+      "bytes": 91,
+      "sha256": "29e737a6b1210897ce60b49c2067069b1c341af646564d87cc6bcdc50ad68b25"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-shell.stdout.txt",
+      "bytes": 201,
+      "sha256": "42b12eadad74a2f4cfaf80b275feb0348d45bd008c0b93c5e142befbe3fbe504"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-views.command.txt",
+      "bytes": 482,
+      "sha256": "e88f87154692769727e64c398524ae2a09bafd1f8b3d0de181287646e2502106"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-views.measurement.txt",
+      "bytes": 453,
+      "sha256": "2ede4f14949432926247e431ea57cfa53f41d5bef35c1ff3a78680a47b99b9e2"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-views.stderr.txt",
+      "bytes": 61,
+      "sha256": "d75e542ff1dc57f26a87a3122fc045a8136191a725d457b5bf9c9c8ef66ff14e"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-200-views.stdout.txt",
+      "bytes": 1445,
+      "sha256": "e0cba06184c263cffb0d1b6564b313286c6eff1f80b1c52ac34170e659c8c7d6"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-build.measurement.txt",
+      "bytes": 167,
+      "sha256": "e441a2a5ccdb9ff55c0a53f470876ff260480dd156ea18ab863cf4396cd0d1fd"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-build.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-build.stdout.txt",
+      "bytes": 2364,
+      "sha256": "ec2d25179a77dbc2ed3af29393d8f0b8cab916180d0133c170e0a84b2d83e4a9"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-restoration-diagnostic.command.txt",
+      "bytes": 328,
+      "sha256": "c725b226f5afd219822862d8c56a61643b953f4d71da26af940570caa2432884"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-restoration-diagnostic.measurement.txt",
+      "bytes": 298,
+      "sha256": "c23570834ebe1a6fda9bf4f9a6239610ff2e942c9f6c58d34a39228b38df1ccc"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-restoration-diagnostic.stderr.txt",
+      "bytes": 91,
+      "sha256": "29e737a6b1210897ce60b49c2067069b1c341af646564d87cc6bcdc50ad68b25"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-restoration-diagnostic.stdout.txt",
+      "bytes": 125,
+      "sha256": "f8f85a47ee8337e5c6c7f88f98626b0c2736c1834693bdb4b36f16f811c1117a"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-restore.measurement.txt",
+      "bytes": 166,
+      "sha256": "ca8f5a646e5ab65d3619f7175f35d111d379862bc41f2f8ce71d6e937dddd2e2"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-restore.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-restore.stdout.txt",
+      "bytes": 768,
+      "sha256": "06eaf27a0e8d426ecf2f74425fefde82ab23e63c19249061461038a47535ec8d"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-settings-200.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-settings-200.stdout.txt",
+      "bytes": 233,
+      "sha256": "e2e4a221f464b559ca3120ac6a05fe8ed7d0389f2f9e67a2067f8be1082aaa78"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-settings-initial.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-settings-initial.stdout.txt",
+      "bytes": 247,
+      "sha256": "4d37d5ba08d70d177b6e3cc18f149c304fba3234006db845b23b4e5e13e12059"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-settings-restored.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-settings-restored.stdout.txt",
+      "bytes": 247,
+      "sha256": "2a817b9f34b9f9daa89031190484670c0050bb3db51270cdf27debfffc57399d"
+    },
+    {
+      "path": "docs/proof/wri-probe/r177-temporary-hashes.txt",
+      "bytes": 904,
+      "sha256": "1d7b4cea7a6f8b0fd16ebe2beb2d39e5fc735936c1569e5404ac0c5bdd908f82"
+    },
+    {
+      "path": "docs/proof/wri-probe/r178-restoration.measurement.txt",
+      "bytes": 331,
+      "sha256": "9b7a6d74e5d348f724467b76c80a36b200cb9cba6f5ebbce15a0b7e6ce46c11d"
+    },
+    {
+      "path": "docs/proof/wri-probe/r178-settings-initial.command.txt",
+      "bytes": 259,
+      "sha256": "d20d54f42c567014c9fe8a6fa253371be7b8a0b26a37f064e54a31a86ae3758f"
+    },
+    {
+      "path": "docs/proof/wri-probe/r178-settings-initial.measurement.txt",
+      "bytes": 544,
+      "sha256": "e5507060145916f802085f9f26b3b68133a8055f1322a857c153eb6ed071aa54"
+    },
+    {
+      "path": "docs/proof/wri-probe/r178-settings-initial.stderr.txt",
+      "bytes": 129,
+      "sha256": "6657f6161092e41423d10db0f912f377ba685dcf72beeb78784f0a76d66882f3"
+    },
+    {
+      "path": "docs/proof/wri-probe/r178-settings-initial.stdout.txt",
+      "bytes": 553,
+      "sha256": "4e52b311829e7a545daa9bd209e005f5b460e166627c633cf6efc75be7aae038"
+    },
+    {
       "path": "docs/proof/wri-probe/receipt.md",
-      "bytes": 8342,
-      "sha256": "5b063380647e44bedae09fc8d72a5c4f91078a5d5ab616bde5f7f49d1b08bd88"
+      "bytes": 10438,
+      "sha256": "e8b469bc5811d78ffc46e0452ad36a8d950f417ab62ce604983ce721d343c4d5"
     }
   ]
 }

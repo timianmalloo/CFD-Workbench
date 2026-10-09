@@ -1,0 +1,2 @@
+{"agent": "trk-rg3", "at": 1791516081.7004118, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-rg3", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rg3-driver-fallback"}
+{"agent": "trk-rg3", "at": 1791516576.267139, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-rg3", "wi": "WI-0", "worktree": "CFD-Workbench-fix-rg3-driver-fallback"}

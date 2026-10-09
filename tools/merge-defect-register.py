@@ -4,8 +4,9 @@
 Usage as a driver: merge-defect-register.py %O %A %B %P  (writes the result to %A, exit 0; exit 1 = conflict, %A holds a three-way merge with markers)
 Self-test:         merge-defect-register.py --self-test
 
-Resolves only whole-entry additions and strict extensions of an existing entry; every other case writes a standard
-three-way merge with conflict markers into %A and exits 1. Git does NOT write markers itself: after a non-zero driver exit
+Resolves whole-entry additions and strict extensions of an existing entry. Every other case defers to `git merge-file -p`:
+a clean merge (two dated lines added inside one entry) is written and exits 0; conflict hunks are written with markers
+and exit 1; if git cannot run, the output is a whole-file ours/theirs conflict and exit 1. Git does NOT write markers itself: after a non-zero driver exit
 it keeps whatever %A holds (ours) and marks the path conflicted, so an untouched %A looks resolved and drops theirs. An entry starts at a line beginning `**<CLASS-ID> · ` and runs to the next such line.
 """
 import re
@@ -103,25 +104,35 @@ def run_driver(base_path, ours_path, theirs_path):
 
     base, ours, theirs = read(base_path), read(ours_path), read(theirs_path)
     result = merge(base, ours, theirs)
+    code = 0
     if result is None:
-        Path(ours_path).write_text(conflict_text(base_path, ours_path, theirs_path, ours, theirs), encoding="utf-8", newline="\n")
-        return 1
+        result, code = three_way(base_path, ours_path, theirs_path, base, ours, theirs)
     Path(ours_path).write_text(result, encoding="utf-8", newline="\n")
-    return 0
+    return code
 
 
-def conflict_text(base_path, ours_path, theirs_path, ours, theirs):
-    """git merge-file -p output (real hunks); a whole-file conflict when git reports none or cannot run."""
+def kept_every_line(result, base, ours, theirs):
+    """Conservation: every non-blank line that ours or theirs added or changed (not in base) is in the output.
+    A base line one side removed may go: that is git's three-way decision, and it is how a rewrap merges."""
+    have, old = set(result.split("\n")), set(base.split("\n"))
+    return all(line in have for line in (ours + "\n" + theirs).split("\n") if line.strip() and line not in old)
+
+
+def three_way(base_path, ours_path, theirs_path, base, ours, theirs):
+    """Return (text, exit code) from git merge-file -p: a clean merge that keeps every line -> (text, 0); real hunks ->
+    (text with markers, 1); git cannot run, errors, or a clean merge that drops a line -> a whole-file conflict, 1."""
     try:
         proc = subprocess.run(
             ["git", "merge-file", "-p", "-L", "ours", "-L", "base", "-L", "theirs", ours_path, base_path, theirs_path],
             capture_output=True, check=False)
         text = proc.stdout.decode("utf-8")
-        if proc.returncode > 0 and "<<<<<<<" in text:
-            return text
+        if proc.returncode == 0 and kept_every_line(text, base, ours, theirs):
+            return text, 0
+        if 0 < proc.returncode < 128 and "<<<<<<<" in text:
+            return text, 1
     except (OSError, UnicodeDecodeError):
         pass
-    return "<<<<<<< ours\n%s\n=======\n%s\n>>>>>>> theirs\n" % (ours.rstrip("\n"), theirs.rstrip("\n"))
+    return "<<<<<<< ours\n%s\n=======\n%s\n>>>>>>> theirs\n" % (ours.rstrip("\n"), theirs.rstrip("\n")), 1
 
 
 def entry(name, text):
@@ -136,11 +147,14 @@ def self_test():
         return preamble + "\n\n" + "\n\n".join(blocks) + "\n"
 
     base = doc(a, x)
+    x1, x2 = x, "second line of x."
+    mid = doc(a, x1 + "\n" + x2)
     ext = x + "\n*2026-10-08 extended.*"
     cases = [
         ("both append different entries", base, doc(a, x, y), doc(a, x, z), doc(a, x, y, z)),
         ("one extends X, other appends Y", base, doc(a, ext), doc(a, x, y), doc(a, ext, y)),
         ("both edit X differently", base, doc(a, x + " one."), doc(a, x + " two."), None),
+        ("both add a different dated line inside X (DPR shape)", mid, doc(a, x1 + "\n*2026-10-08 one.*\n" + x2), doc(a, x1 + "\n" + x2 + "\n*2026-10-09 two.*"), "git"),
         ("one deletes X", base, doc(a), doc(a, x, y), None),
         ("identical new entry on both", base, doc(a, x, y), doc(a, x, y), doc(a, x, y)),
         ("preamble edited on both", base, doc(a, x, preamble=pre + " One."), doc(a, x, preamble=pre + " Two."), None),
@@ -153,12 +167,25 @@ def self_test():
     cases.append(("both add different frontmatter links (PR #17 shape)", fm_base, fm_ours, fm_theirs, None))
     failures = 0
     for name, b, o, t, want in cases:
-        ok = merge(b, o, t) == want
-        if want is None:
+        ok = merge(b, o, t) == (None if want == "git" else want)
+        if want == "git":
+            ok = ok and git_resolves(b, o, t)
+        elif want is None:
             ok = ok and conflict_leaves_markers(b, o, t)
         failures += not ok
         print("%s: %s" % ("ok  " if ok else "FAIL", name))
     return 1 if failures else 0
+
+
+def git_resolves(b, o, t):
+    """The driver must exit 0 and keep every non-blank line of both sides."""
+    with tempfile.TemporaryDirectory() as tmp:
+        paths = [Path(tmp) / n for n in ("base", "ours", "theirs")]
+        for path, text in zip(paths, (b, o, t)):
+            path.write_text(text, encoding="utf-8", newline="\n")
+        code = run_driver(*[str(p) for p in paths])
+        left = paths[1].read_text(encoding="utf-8")
+    return code == 0 and "<<<<<<<" not in left and kept_every_line(left, b, o, t)
 
 
 def conflict_leaves_markers(b, o, t):

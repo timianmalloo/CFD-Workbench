@@ -47,3 +47,25 @@ between the markers.
 
 Sweep: `coord-core.py` `merge-derived` and `merge-register` always exit 0 and write markers through `_write_conflict` (its docstring
 names this hazard, S12b). No other driver exits non-zero without writing `%A`. The pack file was not edited.
+
+## RG3: the driver defers to a clean three-way merge (track RG3)
+
+Defect: main and DPR each added a different dated line inside the DPI-A entry. The entry rules gave up; `git merge-file -p` merged cleanly
+(exit 0); the driver only used git output when it had conflict hunks, so it wrote a whole-file ours/theirs conflict (exit 1, two
+2,260-line copies). The leader resolved it by hand.
+
+Red (`replay-dpr-old.txt`, the pre-RG3 driver on the real DPR join, replay `replay-dpr.sh`): driver exit 1, "DIFFERS from committed", 1 marker
+line, 4,522-line output. The same shape as a self-test fixture fails against the old driver for the same reason (the old driver has no
+git-clean path); the first red run of that fixture used a same-position insert, which git itself conflicts on, so the fixture was rewritten
+to insert at two different places.
+
+Green (`rg3-green.txt`), exit 0, 9 of 9 ok: new fixture "both add a different dated line inside X (DPR shape)" asserts exit 0, no markers,
+and every line either side added is present. "both edit X differently" still asserts exit 1 with hunks.
+
+Replay (`replay-dpr.txt`): base 034f37fd, ours 9a1b3181, theirs bcd382bb. New driver exit 0, 0 markers, 2,261 lines, IDENTICAL to
+`6d2cff44:docs/lessons/defect-classes.md` (the leader hand-resolution).
+
+Brief deviation: the brief says every non-blank line of ours and theirs must be in the output. On the real join that is false and must be:
+theirs still held two base lines (`rule). Status: pending a mechanical control...`) that main had rewritten, and git rightly dropped them (the
+leader file lacks them too). Conservation is therefore: every line ours or theirs added or changed relative to base is in the output.
+If one is missing, the driver falls back to the whole-file conflict and exits 1.
