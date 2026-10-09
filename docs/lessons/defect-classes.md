@@ -592,6 +592,29 @@ retained, **before** the self-test freeze and before any exact-hash review. The 
 reviewer refuses a hash review without them. The Mac states gate lists in order: gates, then freeze, then review.
 Status: prose rule in Ruling 183 and the route text; the mechanical form (the receipt check requiring both outputs,
 timestamped before the review) is pending.
+*2026-10-09 (WIG join, GATE-BEFORE-ADD).* A third ordering shape: the gate ran before the freeze, but before `git add`.
+- Track WIG ran check-docs green, then committed a new `tools/check-wsl-inline.py`.
+- `check-proof-pii.py` reads tracked files only (`git ls-files`), so it never saw the new file. Its fixture
+  `/mnt/c/Users/x/…` reads as a real account name.
+- The leader's join (step 4) failed on it. The leader changed the fixture to `<name>` on top of the merge, and both gates
+  then passed.
+
+*Derive:* a track stages its files (`git add -A`) before its final gate run, so gates that read the index see new
+files. *Control:* the briefs' common rule now says "stage, then gates, then commit"; mechanical form pending.
+
+**READINESS-UNLOCKED · Readiness measures frame budgets while a track's ring runs.**
+On 2026-10-09 readiness for the PR #24 join was RED: `Readiness_OrbitFrameP95Under33Ms` measured 45.26 ms against 33 ms at
+load 16.99. Its load gate is 24, so the measurement counted. Track CBS was running `tools/run-tests.sh` at the time. A
+re-run with no track running gave 16.30 ms (GREEN). `tools/run-suite.sh` and the rings take `tools/ring-lock.sh`, but
+`tools/run-readiness.py` does not (no `ring-lock` reference), so the leader's readiness and a track's ring share the CPU.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a performance gate run without the lock that serializes the other heavy runs on the host.
+- *Sweep:* the readiness frame and cost gates (`Readiness_*`, C-2/C-3/C-5 cost caps). Track rings take the lock. The
+  load gate (24 on 16 cores) admits a load from one concurrent ring.
+- *Derive:* readiness holds the ring lock exclusively while its Desktop and Analysis parts run; a track ring waits.
+- *Prevent:* track RLK (pending). The leader does not run readiness while a track runs tests; until RLK lands, this is
+  prose.
 
 *2026-10-09 recurrence, Windows runner preparation:* the runner's reviewed checker
 omitted LF settings on two temporary AST writes and the printing-entry console

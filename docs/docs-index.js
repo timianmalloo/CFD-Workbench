@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "eacd27bcabef899e72cc10ae9866024738d045f45e9fc87edd9bb14cd94e6906"
+      "sourceSha256": "3453dfe4113114cf144ae94c4dd04ed81a1d7345204fe55cbc4e4defe5292719"
     },
     {
       "id": "domain-experts",
@@ -6167,6 +6167,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "af6001f81fa629006e9f385fba932780807323610781806fe3e9cc28d41b0c01"
+    },
+    {
+      "id": "proof-wig-red-first",
+      "path": "docs/proof/wig/red-first.md",
+      "title": "WSL-INLINE-ARGV gate: red first, then green",
+      "type": "doc",
+      "status": "observed",
+      "owner": "@trk-wig",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "tools/check-wsl-inline.py failed its three positive shapes on an empty gate, then passed after the pattern landed; main has 0 hits.",
+      "tags": [
+        "windows",
+        "wsl",
+        "gate",
+        "defect-class"
+      ],
+      "links": [
+        {
+          "to": "proof-win-cfmesh-probe",
+          "rel": "refines"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "098f8e0baaef0291ec2f863cd5ed144a0734d4d5a5f19f0033383db00ec14c5b"
     },
     {
       "id": "proof-win-cfmesh-probe",
@@ -12415,6 +12441,57 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "ab864d55b246591c750659f161015cd841fd147f8866e6ef9b15f3305dd1f6fd"
+    },
+    {
+      "id": "proof-cbs-audit",
+      "path": "docs/proof/cbs/audit.md",
+      "title": "CBS audit of the Mac timeout paths",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbs",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Every Mac-side timeout path audited for an unbounded wait after the deadline: three exposed and fixed, the rest safe, two pack-managed findings left for /updatepack.",
+      "tags": [
+        "cbs",
+        "timeout",
+        "cleanup-blocks-ceiling",
+        "audit"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "29527ecff6c4111cde05c7ae90d1978c84920f52a676b0111b3238f1ce493082"
+    },
+    {
+      "id": "proof-cbs-red-first",
+      "path": "docs/proof/cbs/red-first.md",
+      "title": "CBS red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-cbs",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Real-child self-tests for the readiness and Windows-store timeout paths failed on the old code and pass on the fix, with measured cleanup times; the Desktop harness fix has no red-first test.",
+      "tags": [
+        "cbs",
+        "timeout",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "proof-cbs-audit",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "275906401b6f491fd4d3ee7e4f24e3e633aff893087a32f948b8d8a27169ee15"
     },
     {
       "id": "proof-copyfix-red-runs",
@@ -18917,5 +18994,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f4ede2161e0dfcdad09978015d9f614c69328791e5a713453ef6475c40d48a89"
+  "graphSha256": "6e3e6e11bd5f20633eb88ef2e6e795c8fe723c0819036638343f9d0b1dd0a8e2"
 };

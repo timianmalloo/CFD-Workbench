@@ -105,7 +105,7 @@ def self_test():
         ("a.ps1", "# wsl.exe bash -lc 'x' is forbidden\n", 0),
         ("a.cmd", "REM wsl -e bash -c x\n", 0),
         ("a.py", '"""Never run wsl.exe bash -lc "cmd" inline."""\n', 0),
-        ("a.py", "p = '/mnt/c/Users/x/AppData'  # wsl path\nq = 'sh -c' \n", 0),
+        ("a.py", "p = '/mnt/c/Users/<name>/AppData'  # wsl path\nq = 'sh -c' \n", 0),
         ("a.sh", "echo /usr/lib/wsl/lib/nvidia-smi; bash -c 'true'\n", 0),
     ]
     for name, text, want in cases:
