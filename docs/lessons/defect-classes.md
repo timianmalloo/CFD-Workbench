@@ -2140,6 +2140,14 @@ in Desktop's spawn stage, and the PC filed a second decision request. Ruling 170
 2026-10-09 (OBS): a killed log could not tell slow from hung, because Spawn buffers each child's output and STAGE lines had no time.
 Every Desktop `STAGE <name>` line now carries `elapsed_ms=<since harness start>`, and Spawn prints `SPAWN-START <mode> elapsed_ms=<n>` at
 each child start, unbuffered. A killed log now shows which children had started and how long ago. Checks: `StageTimingTests`.
+*2026-10-09 (WATCH-GAP).* Same family, a third signature: a watch whose baseline lives in memory. The leader's 30-minute
+Monitor expired while the leader was blocked on an operator question, and each re-arm started from an empty baseline. So
+four PC messages (04:11–04:24Z: the Ruling 179 run blocked at cap 2/2, PR #23, a PR #22 refresh, a decision request) were
+never emitted, and the PC sat idle for 11 h. Control: the watch now saves its baseline to disk
+(`cfd-workbench-continuation/pc-watch.sh`, state in `watch-state/`). A re-arm compares against the last saved state and
+replays the gap. `pc-watch.sh --self-test` is red if a change made while the watch was down is not replayed. This is
+still session tooling. The repo-level control stays `xmsg.py unread` at each join, which would have caught this at the
+next join but not while idle.
 
 **CLEANUP-BLOCKS-CEILING · A cleanup path that can block defeats the ceiling it serves.**
 The PC's W-2 `verify-windows-store.py` (unpushed 1d89f6c8, xmsg 20261009T010555) enforced a 60 s hard ceiling. Its timeout
