@@ -1031,6 +1031,20 @@ public static class ShellWindowTests
                 throw new InvalidOperationException("Unhandled stderr leaked the marker or lost its exit contract");
         });
 
+        DesktopChecks.Check("Telemetry_MarkerPaths_SeparatorShapeCreatesFolder", () =>
+        {
+            string root = ScratchPath("cfdw-markerpaths-" + Guid.NewGuid().ToString("N"));
+            Directory.CreateDirectory(root);
+            try
+            {
+                string[] paths = CopyMarkerFiles(root, "M", ExamplePath(), backslashIsSeparator: true);
+                if (!Directory.Exists(Path.Combine(root, "win")) || paths.Any(path => !File.Exists(path)) ||
+                    !paths[1].EndsWith(Path.Combine("win", "M.foil"), StringComparison.Ordinal))
+                    throw new InvalidOperationException("Separator shape did not create the win folder and copy into it: " + string.Join(" | ", paths));
+            }
+            finally { Directory.Delete(root, recursive: true); }
+        });
+
         DesktopChecks.Check("Telemetry_MarkerInjection_AbsentEverywhere", () =>
         {
             string root = ScratchPath("cfdw-private-" + Guid.NewGuid().ToString("N"));
@@ -1047,10 +1061,8 @@ public static class ShellWindowTests
                 Console.SetError(capturedError);
                 window.Show();
                 Settle(window);
-                foreach (string name in new[] { marker + ".foil", "win\\" + marker + ".foil" })
+                foreach (string path in CopyMarkerFiles(root, marker, ExamplePath(), backslashIsSeparator: OperatingSystem.IsWindows()))
                 {
-                    string path = Path.Combine(root, name);
-                    File.Copy(ExamplePath(), path);
                     var open = host.OpenFileAsync(path);
                     using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(8));
                     while (!open.IsCompleted && !timeout.IsCancellationRequested)
@@ -3425,7 +3437,21 @@ public static class ShellWindowTests
 
     /// <summary>The Desktop example fixture, linked into the test output by the .csproj Content
     /// item — read from AppContext.BaseDirectory so it does not depend on where the binary runs.</summary>
-    private static string ExamplePath() => Path.Combine(AppContext.BaseDirectory, "Assets", "example.foil");
+    // Intent of the Telemetry_MarkerInjection case: a marker that sits in a file name, and in a second shape whose path text carries a
+    // backslash, must reach neither telemetry nor stderr. On macOS a backslash is a legal file-name character, so the second shape is
+    // one name with a backslash in it. On Windows a backslash is a separator, so the second shape is the marker inside a real "win"
+    // subfolder (the folder is created). Pure of the host OS: the flag selects the shape, so both shapes run on any host.
+    private static string[] CopyMarkerFiles(string root, string marker, string source, bool backslashIsSeparator)
+    {
+        string plain = Path.Combine(root, marker + ".foil");
+        string second = backslashIsSeparator ? Path.Combine(root, "win", marker + ".foil") : Path.Combine(root, "win\\" + marker + ".foil");
+        Directory.CreateDirectory(Path.GetDirectoryName(second)!);
+        File.Copy(source, plain);
+        File.Copy(source, second);
+        return new[] { plain, second };
+    }
+
+    private static string ExamplePath() =>Path.Combine(AppContext.BaseDirectory, "Assets", "example.foil");
 
     /// <summary>The repository root from this file's build-time source path (mirrors
     /// <c>SelfLaunch.cs</c>'s <c>NoRawProcessPathRelaunch</c>) — for the one check that genuinely
