@@ -3443,6 +3443,64 @@ window.DOCS_INDEX = {
       "sourceSha256": "916081f37e656c4a648c82485078b1e2701192007e02aea2ccb2e8f993159dc8"
     },
     {
+      "id": "design-rail-comb",
+      "path": "docs/design/rail-comb.md",
+      "title": "Rail comb: scale and density, a radius readout and the monotone-piece count on the planform rails",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design — operator sees the mockup before any build (memory rule); track CMB, Ruling 193 (B), Ruling 107 (DR-GM-9 C)",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Design for OI-5 on the planform rails. The Plan comb keeps its toggle (Curvature, C) and gains a small plate in the viewport with a scale stepper (Auto, or a fixed 1-2-5 gain stated as \"30 px = N per metre\") and a density stepper (16, 32, 64, 128 teeth per rail). The Tracing strip beneath the viewport gains the radius of each rail at the pointer's station (R in the project length unit, straight rails read \"straight\"). The plate also shows the monotone-piece count of curvature per rail, with a numbered tick on the rail at each curvature extremum. No new single keys, no Properties rows, no file change. One new Core function pair (curvature at a station, monotone pieces of curvature) and one spec clarification. Adversary pass (marine-cad-ux-expert) is recorded in docs/proof/cmb/adversary.md.",
+      "tags": [
+        "desktop",
+        "core",
+        "cad",
+        "planform",
+        "comb",
+        "curvature",
+        "radius",
+        "monotone",
+        "a4-9",
+        "oi-5",
+        "proposal",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        },
+        {
+          "to": "design-m12b-points",
+          "rel": "refines"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-next-cad-increment",
+          "rel": "refines"
+        },
+        {
+          "to": "mockup-rail-comb",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f3a1089f433ac9c7699d0358a0d228c384aa5f589901dad32a37c4f20dee561e"
+    },
+    {
       "id": "design-section-editor",
       "path": "docs/design/section-editor.md",
       "title": "M1.1 full section editor",
@@ -4133,6 +4191,50 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "071422f30794621b0cc4b4ae8ce037b57f183169e84cae49547f139e0649741d"
+    },
+    {
+      "id": "mockup-rail-comb",
+      "path": "docs/mockups/rail-comb.md",
+      "title": "Rail comb — scale, density, radius readout and monotone-piece count on the planform rails",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "ui-design",
+      "reviewBy": "2026-12-31",
+      "reviewSuggested": [],
+      "summary": "One self-contained page for the operator's visual yes before any build: the Plan view of a 900 mm half-wing with the curvature comb on both rails, a live stage (pointer and arrow-key probe, scale and density steppers, planform, area, selected point, narrow and theme switches), the same planform at two scales, the monotone-piece ticks on a fair and a wobbled rail, the hard states (straight, corner, clipped, overlays, Analysis, comb off, selected control point, no foil), and density. Every number is computed in the page from cubic B-spline rails; positions are scripted, not captured from the product.",
+      "tags": [
+        "mockup",
+        "planform",
+        "comb",
+        "curvature",
+        "radius",
+        "monotone",
+        "oi-5",
+        "ruling-193",
+        "ruling-107",
+        "operator-show"
+      ],
+      "links": [
+        {
+          "to": "design-rail-comb",
+          "rel": "documents"
+        },
+        {
+          "to": "design-m12c-section-editor",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-language",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "efba7fbe4da67570030c96de40301044bf4d4588a2c241e4a394525e4c8f9ffb"
     },
     {
       "id": "mockup-section-force-vectors",
@@ -6035,6 +6137,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "f58734f8401336f0cbb4aa191937e398938b3d63b9303809816005521e867356"
+    },
+    {
+      "id": "proof-cmb-adversary",
+      "path": "docs/proof/cmb/adversary.md",
+      "title": "Rail comb: marine-cad-ux-expert Adversary pass and dispositions (Ruling 107)",
+      "type": "doc",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Verbatim-summary record of the marine-cad-ux-expert Adversary pass on the draft rail-comb note: verdict PASS-WITH-CONDITIONS, 7 Majors, 5 Minors, 2 Nits, each with the author's disposition. The soft veto is answered in writing; the persona did not clear its own review and asks the Computational Geometry expert to confirm three mathematical points before the build.",
+      "tags": [
+        "adversary",
+        "marine-cad",
+        "comb",
+        "rail",
+        "ruling-107",
+        "ruling-193"
+      ],
+      "links": [
+        {
+          "to": "design-rail-comb",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-rail-comb",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c6eec354915b7f1b1e4e29bf2fb4c2ab326fe530f30f1d47008694645967695e"
     },
     {
       "id": "proof-cpy-cause-rows",
@@ -8345,7 +8479,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a4b0e11840c2bb6c0ab2dbdbda64ec708cf3e7d904ebeb6e0768a1efd0d5bca9"
+      "sourceSha256": "d5ff39fc2dbd12f95a02d78b707fef3df81552b7cddab2b5fdb5a06bb23bbf7c"
     },
     {
       "id": "kb-hw-glossary",
@@ -19381,6 +19515,14 @@ window.DOCS_INDEX = {
       "artifactId": "mockup-property-grid-cells"
     },
     {
+      "id": "surface-mockups-rail-comb",
+      "path": "docs/mockups/rail-comb.html",
+      "title": "Rail comb",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact.",
+      "artifactId": "mockup-rail-comb"
+    },
+    {
       "id": "surface-mockups-section-force-vectors",
       "path": "docs/mockups/section-force-vectors.html",
       "title": "Section force vectors",
@@ -19429,5 +19571,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "39b855a81d0ef56712ad8fc53f8c600535d0c4e6c27d218e7fad2a73b52be485"
+  "graphSha256": "dff84d221fa2a17dd5d43f8923af9421bcea91ee6a3ef2c0a30dadf1874f280a"
 };
