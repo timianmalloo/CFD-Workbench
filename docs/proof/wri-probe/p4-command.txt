@@ -1,0 +1,2 @@
+$env:CFD_TEST_ONLY=PropertiesPane_Density_EveryTargetAtLeast24
+& "$env:USERPROFILE\.dotnet\dotnet.exe" exec 'C:\Projects\CFD-Workbench-win-wri-scale-probe\tests\CfdWorkbench.Desktop.Tests\bin\Release\net10.0\CfdWorkbench.Desktop.Tests.dll' --properties-cells

@@ -1,0 +1,92 @@
+{
+  "created_utc": "2026-10-09T02:12:32Z",
+  "tested_head": "842e575d8408d27c6f01f53df9d0da00e434ea38",
+  "algorithm": "SHA-256",
+  "files": [
+    {
+      "path": "docs/proof/wri-probe/instrumented-command.txt",
+      "bytes": 414,
+      "sha256": "9805f9a125baeeab4002a1545771b159e49dd719411317d06ed2684efff5be3f"
+    },
+    {
+      "path": "docs/proof/wri-probe/instrumented.measurement.txt",
+      "bytes": 187,
+      "sha256": "e4de4a0e6014d9ddf084af9d8958f7254d26e47b93f7f78ed6d3a2043438ace3"
+    },
+    {
+      "path": "docs/proof/wri-probe/instrumented.stderr.txt",
+      "bytes": 59,
+      "sha256": "185cfc5dabcba2a3f569bc657a841baec5723fbc0f7aaf09c307f482d0e61f8b"
+    },
+    {
+      "path": "docs/proof/wri-probe/instrumented.stdout.txt",
+      "bytes": 4308,
+      "sha256": "abc72b4a0d1ac1e3e653e9a57f5f232394e35143f3b57095454d795cdc642b5e"
+    },
+    {
+      "path": "docs/proof/wri-probe/p1-applieddpi.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p1-applieddpi.stdout.txt",
+      "bytes": 4,
+      "sha256": "9efe5a55840d37eb5db13a22ccab7e8f9867c982d1f7d18313c63fa0aa1c801b"
+    },
+    {
+      "path": "docs/proof/wri-probe/p1-command.txt",
+      "bytes": 299,
+      "sha256": "49a12f4022f10ab9694a2875c9b4381823eafca4736431b2c2ef5d0e022a78b5"
+    },
+    {
+      "path": "docs/proof/wri-probe/p1-screen.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p1-screen.stdout.txt",
+      "bytes": 122,
+      "sha256": "10d8fe386d0a4af4915892a3d74b15066a41cfbb1c0c781c46492053bb2d702a"
+    },
+    {
+      "path": "docs/proof/wri-probe/p1-textscale.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p1-textscale.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-probe/p1.measurement.txt",
+      "bytes": 258,
+      "sha256": "ac4741bbba5e8a13a4aedb36c1ce07d8e6bdc175d23376ae4d67c368a1fda73a"
+    },
+    {
+      "path": "docs/proof/wri-probe/p4-command.txt",
+      "bytes": 259,
+      "sha256": "3141f668495a5235fe44de43af3d3d4fca893d563d336d122211fdfde844eb5f"
+    },
+    {
+      "path": "docs/proof/wri-probe/p4.measurement.txt",
+      "bytes": 187,
+      "sha256": "dcffd6e92af1b3ff311eec6c5d87d6e0abbe30e971e884efd1d7275f9ddc1282"
+    },
+    {
+      "path": "docs/proof/wri-probe/p4.stderr.txt",
+      "bytes": 59,
+      "sha256": "185cfc5dabcba2a3f569bc657a841baec5723fbc0f7aaf09c307f482d0e61f8b"
+    },
+    {
+      "path": "docs/proof/wri-probe/p4.stdout.txt",
+      "bytes": 1696,
+      "sha256": "b5519f5be5a2fb19a9500ca97c37891fc45f31cbb332b68522067df55612ae60"
+    },
+    {
+      "path": "docs/proof/wri-probe/receipt.md",
+      "bytes": 6201,
+      "sha256": "b919f129769bb33e643efddcde0244bf666d667ed2ee79f5788b1c64ea88c287"
+    }
+  ]
+}

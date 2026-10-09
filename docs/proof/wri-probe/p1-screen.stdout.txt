@@ -1,0 +1,2 @@
+\\.\DISPLAY1 {X=0,Y=0,Width=1707,Height=1067} primary=True
+\\.\DISPLAY5 {X=1707,Y=0,Width=2560,Height=1440} primary=False

@@ -16186,6 +16186,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "41fa73ad9d7d1f90dff8fb4a0ec789b394f3177a269fc65f83d25609b3b10bd2"
     },
     {
+      "id": "proof-wri-probe-windows-scale",
+      "path": "docs/proof/wri-probe/receipt.md",
+      "title": "WRI Windows scale probe receipt",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@trk-wri",
+      "phase": "implementation",
+      "reviewBy": "2027-04-09",
+      "reviewSuggested": [],
+      "summary": "Captures Windows display/DPI, Avalonia scaling, the AreaFixture double-click clauses, PointAftInput layout, and selected chip pixels at the observed 150% scale. No product files were changed. Confirmation at 100% or 200% was not assessed.",
+      "tags": [
+        "windows",
+        "dpi",
+        "rendering",
+        "probe"
+      ],
+      "links": [
+        {
+          "to": "proof-wri-investigation",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "b919f129769bb33e643efddcde0244bf666d667ed2ee79f5788b1c64ea88c287"
+    },
+    {
       "id": "proof-wrt-red-first",
       "path": "docs/proof/wrt/red-first.md",
       "title": "WRT red-first receipt: Windows known-expected-failure manifest",
@@ -18174,5 +18200,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "3e98658f69eee4db5b0d2f6bdadc8c836be6b51a9861a8ddd5584c52df6a2168"
+  "graphSha256": "3dccfc14bbab4f0a0986255dba411e75e56f81d3f9a70fe5367f5840b4e0de60"
 };
