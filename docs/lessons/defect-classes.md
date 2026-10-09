@@ -2179,3 +2179,15 @@ completing between dispatcher pumps), where load only stretches the window.
   check asserts the surface is settled at its baseline. Red first with a planted mesh delay (`docs/proof/ezf/red-first.md`):
   camera compare red at 60 and 150 ms on the old Reset, assertion red at 150 ms, green at 0, 60, 150, 200, 800 ms after the
   drain. Not done: a lint for a fixture `Reset` that fits without a drain (investigation P3).
+
+**DPI-A · A layout constant or DIP comparison verified only at scale 1.0 and 2.0 fails at a fractional Windows scale.**
+The PC ring failed eight Desktop checks at an Inferred 150 % scale (Ruling 173/174; `docs/proof/wri/investigation.md`). Avalonia rounds
+border, padding and margin per edge with `Math.Round(v * s) / s` (half to even), so 1 DIP renders as 1.333 and 3 DIP as 2.667 at 1.5.
+A content-sized `TextBox.prop-b` came to 35 px = 23.33 DIP, under the 24 DIP target floor (WCAG 2.2 SC 2.5.8): a real product miss.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
+- *Why it survives:* the Mac runs only at 1 and 2; the one fractional-scale ring is the PC calibration, and its failures were read as class (a) noise.
+- *Sweep:* items 1, 2, 6, 7, 8 fixed or held by track WDF. OPEN, pending the PC scale probe: item 3 (double-click label), items 4 and 5 (chip border pixel sampling), and item 6 (measured skew 1.0 DIP against a predicted 0.667).
+- *Derive:* a target floor is declared (`MinHeight`), never left as the sum of rounded terms; a DIP comparison uses one device pixel as its tolerance.
+- *Prevent:* `PropertiesPane_Density_EveryInputDeclaresMinHeightOf24` (fails on the old style, `docs/proof/wdf/red-first.md`); `DevicePixel.Tolerance` in `tests/CfdWorkbench.Desktop.Tests/DevicePixel.cs`. No forced-scale hook exists on the Mac, so the PC ring is the only proof of the rendered height. Not done: a grep gate on `Bounds` compared to DIP literals (investigation, class prevention row).
