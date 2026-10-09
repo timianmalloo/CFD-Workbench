@@ -29,3 +29,11 @@ Self-test: `tools/check-test-costs.py --self-test` (ring: every join; cost: unde
 - Only that one field changed (one-line diff).
 
 ## Item 4 - held-reader test on Windows (Ruling 167 (a))
+
+`Library_UserFileHeldReader_SurvivesReplaceByRename` (`tests/CfdWorkbench.Core.Tests/SectionLibraryTests.cs`).
+
+- Reachability: `src/CfdWorkbench.Persistence/ProjectStore.cs:7` has `InternalsVisibleTo("CfdWorkbench.Core.Tests")`, and `WindowsProjectStoreTests.cs` already calls `WindowsNative.OpenFixtureDirectory`, `CreatePrivate` and `Rename`. No `src/` change.
+- Change: on Windows (`OperatingSystem.IsWindows()`) the test creates the replacement through `WindowsNative.CreatePrivate`, writes and flushes it, then replaces with `WindowsNative.Rename(source, parent, "held.foil", replace: true)` and requires `RenameCompletion(0, 0, 0)`. On macOS it keeps `File.Move(..., overwrite: true)`. The held reader is `UserFile.OpenRead` (FILE_SHARE_READ | FILE_SHARE_DELETE) in both.
+- Mac run (behaviour unchanged): `CFD_TEST_ONLY=Library_UserFileHeldReader tools/run-suite.sh dotnet run -c Release --project tests/CfdWorkbench.Core.Tests/CfdWorkbench.Core.Tests.csproj` gives `PASS Library_UserFileHeldReader_SurvivesReplaceByRename`, `RESULT failures=0`. The build has no CA1416 warning (the helper carries `[SupportedOSPlatform("windows")]`).
+- Red: not provable on a Mac. The red evidence is the PC's `docs/proof/r163-windows-ring/` `Core.part2of3.log:91` (`UnauthorizedAccessException` from `File.Move`).
+- What the next PC ring must show: `PASS Library_UserFileHeldReader_SurvivesReplaceByRename` in Core.part2of3 (or whichever part holds it), with the Windows-only expected-failure manifest unchanged. A `RenameCompletion` mismatch or a `NativeFailure` there is a decision request, not a manifest entry (Ruling 167).

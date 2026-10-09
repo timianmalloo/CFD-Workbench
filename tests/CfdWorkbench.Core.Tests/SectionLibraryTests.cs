@@ -1,3 +1,4 @@
+using System.Runtime.Versioning;
 using System.Text;
 using CfdWorkbench.Core;
 using CfdWorkbench.Persistence;
@@ -107,13 +108,19 @@ internal static class SectionLibraryTests
         Check("Library_UserFileHeldReader_SurvivesReplaceByRename", () =>
         {
             // POSIX ignores share modes, so this passes on macOS even with FileShare.Read; on Windows the replace
-            // fails (Win32 32) unless the reader shares Delete (Ruling 145 (1)).
+            // fails (Win32 32) unless the reader shares Delete (Ruling 145 (1)). The replace is the host's rename: POSIX
+            // rename on macOS, and on Windows the product primitive (handle-relative POSIX-semantics rename), because
+            // File.Move there is MoveFileEx, which is not the product's replace (Ruling 167 (a)).
             string root = NewRoot(), path = Path.Combine(root, "held.foil"), next = Path.Combine(root, "next.tmp");
             File.WriteAllBytes(path, [1, 2, 3]);
-            File.WriteAllBytes(next, [9, 8]);
             using (var held = UserFile.OpenRead(path))
             {
-                File.Move(next, path, overwrite: true);
+                if (OperatingSystem.IsWindows()) ReplaceByProductRename(root, "next.tmp", "held.foil", [9, 8]);
+                else
+                {
+                    File.WriteAllBytes(next, [9, 8]);
+                    File.Move(next, path, overwrite: true);
+                }
                 var old = new byte[3];
                 Equal(3, held.Read(old, 0, 3));
                 Equal((byte)1, old[0]); Equal((byte)3, old[2]);
@@ -121,6 +128,16 @@ internal static class SectionLibraryTests
             using var fresh = UserFile.OpenRead(path);
             Equal(2L, fresh.Length); Equal((byte)9, (byte)fresh.ReadByte());
         });
+    }
+
+    [SupportedOSPlatform("windows")]
+    private static void ReplaceByProductRename(string root, string sourceName, string destinationName, byte[] bytes)
+    {
+        using var parent = WindowsNative.OpenFixtureDirectory(root);
+        using var source = WindowsNative.CreatePrivate(parent, sourceName);
+        RandomAccess.Write(source, bytes, 0);
+        WindowsNative.Flush(source);
+        Equal(new WindowsNative.RenameCompletion(0, 0, 0), WindowsNative.Rename(source, parent, destinationName, replace: true));
     }
 
     private static string NewRoot()
