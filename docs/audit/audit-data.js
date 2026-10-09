@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T03:17:32Z",
+  "generated": "2026-10-09T03:36:53Z",
   "audit": [
     {
       "actor": null,
@@ -32244,6 +32244,40 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T03:16:36Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M4FBRDM8S6WEPY69ZA58XSKC",
+      "shortname": "r175-final-direct-verifier-receipt",
+      "datetime": "2026-10-09T03:36:53Z",
+      "session": "win-store-final-rerun-r175",
+      "prompt": "Ruling 175 final joined verifier receipt: one direct no-argument Windows run under an outer 60-second fail-closed watchdog; no verifier fixes or repeat run.",
+      "summary": "Tested 421b5860, script a79ac73c: direct run emitted 13-check qualification PASS with one historical expected failure and 19.466184 seconds; outer19.772830 seconds no timeout. Launcher exit null and observed build-server residuals make receipt fail closed; Windows PASS denied for readiness. Captures retained; no rerun or product repair.",
+      "kind": "command",
+      "skill": null,
+      "tool": "tools/verify-windows-store.py",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-store-implementation/final-rerun-r175/receipt.md"
+      ],
+      "tags": [],
+      "outcome": "blocked",
+      "goal": "Capture one final-script no-argument Windows verifier run with complete exit and process-bound evidence",
+      "done_when": "Source/process/stdout/stderr/exit measurements retained, integrity/privacy/docs gates inspected, proof commit ready",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false
+      },
+      "started_at": "2026-10-09T03:33:38Z",
+      "duration_seconds": 195.0,
+      "git": {
+        "sha": "421b5860cbaed5cf047e8c29661b68ec0f84e9f3",
+        "short": "421b5860c",
+        "branch": "win/store-final-rerun-r175",
+        "pushed": null
+      }
     }
   ],
   "changes": [

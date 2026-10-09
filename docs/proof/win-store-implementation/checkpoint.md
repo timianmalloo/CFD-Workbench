@@ -390,3 +390,14 @@ code and still pass through the same finalizer.
   checks are recorded separately in the proof outputs and manifest.
 - Final script SHA-256: `92151a8f72c602180c407240e6e10c28acdfff2dea8bb0acd988deda617205ee`.
 - No no-argument native qualification run or full ring was performed.
+
+### Ruling 175 — final joined direct run, incomplete exit capture
+
+The [final joined verifier receipt](final-rerun-r175/receipt.md) records one direct
+no-argument Windows run at `421b5860cbaed5cf047e8c29661b68ec0f84e9f3`, script SHA-256
+`a79ac73c04cc8769d65868cde2f3c69154f27ebfcff40743bd20ca0b668afd52`.
+It emitted qualification PASS (13 checks, one approved historical failure), with
+`TOTAL_WALL_SECONDS=19.466184`, but its outer capture did not retain the process
+exit code. **Windows PASS may not enter readiness from that incomplete receipt.**
+The historical captures above remain unchanged; no verifier repair or second run
+was performed in the R175 evidence track.

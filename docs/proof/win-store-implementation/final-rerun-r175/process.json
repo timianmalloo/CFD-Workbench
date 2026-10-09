@@ -1,0 +1,127 @@
+﻿{
+    "launcherStartUtc":  "2026-10-09T03:33:40.9541571Z",
+    "processExit":  null,
+    "observedProcessTree":  [
+                                {
+                                    "commandLine":  "%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Python313\\python.exe tools/verify-windows-store.py ",
+                                    "pid":  31704,
+                                    "name":  "python.exe",
+                                    "parentPid":  33632,
+                                    "createdUtc":  "2026-10-09T03:33:41.0078690Z"
+                                },
+                                {
+                                    "commandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4",
+                                    "pid":  12992,
+                                    "name":  "conhost.exe",
+                                    "parentPid":  34580,
+                                    "createdUtc":  "2026-10-09T03:33:47.1740280Z"
+                                },
+                                {
+                                    "commandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4",
+                                    "pid":  37096,
+                                    "name":  "conhost.exe",
+                                    "parentPid":  8748,
+                                    "createdUtc":  "2026-10-09T03:33:41.7314930Z"
+                                },
+                                {
+                                    "commandLine":  "\"%USERPROFILE%\\.dotnet\\sdk\\10.0.203\\Roslyn\\bincore\\VBCSCompiler.exe\" \"-pipename:NVJzcnYx0p3p6Os0xg5nZAwySD2BNcpLxmM78k2GRnk\"",
+                                    "pid":  34580,
+                                    "name":  "VBCSCompiler.exe",
+                                    "parentPid":  34700,
+                                    "createdUtc":  "2026-10-09T03:33:47.1471220Z"
+                                },
+                                {
+                                    "commandLine":  "\"%USERPROFILE%\\.dotnet\\dotnet.exe\" \"%USERPROFILE%\\.dotnet\\sdk\\10.0.203\\MSBuild.dll\" /noautoresponse /nologo /nodemode:1 /nodeReuse:true /low:false",
+                                    "pid":  34700,
+                                    "name":  "dotnet.exe",
+                                    "parentPid":  8748,
+                                    "createdUtc":  "2026-10-09T03:33:43.9022900Z"
+                                },
+                                {
+                                    "commandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4",
+                                    "pid":  372,
+                                    "name":  "conhost.exe",
+                                    "parentPid":  34700,
+                                    "createdUtc":  "2026-10-09T03:33:43.9096390Z"
+                                },
+                                {
+                                    "commandLine":  "%USERPROFILE%\\.dotnet\\dotnet.exe run --configuration Release --project C:\\Projects\\CFD-Workbench-win-store-final-rerun-r175\\tests\\CfdWorkbench.Core.Tests\\CfdWorkbench.Core.Tests.csproj -m:6",
+                                    "pid":  8748,
+                                    "name":  "dotnet.exe",
+                                    "parentPid":  31704,
+                                    "createdUtc":  "2026-10-09T03:33:41.7223870Z"
+                                },
+                                {
+                                    "commandLine":  "\"C:\\Projects\\CFD-Workbench-win-store-final-rerun-r175\\tests\\CfdWorkbench.Core.Tests\\bin\\Release\\net10.0\\CfdWorkbench.Core.Tests.exe\"  -m:6",
+                                    "pid":  2704,
+                                    "name":  "CfdWorkbench.Core.Tests.exe",
+                                    "parentPid":  8748,
+                                    "createdUtc":  "2026-10-09T03:33:58.9891460Z"
+                                },
+                                {
+                                    "commandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4",
+                                    "pid":  26124,
+                                    "name":  "conhost.exe",
+                                    "parentPid":  33632,
+                                    "createdUtc":  "2026-10-09T03:33:40.9633500Z"
+                                },
+                                {
+                                    "commandLine":  "\"%USERPROFILE%\\AppData\\Local\\Programs\\Python\\Launcher\\py.exe\" -3 tools/verify-windows-store.py ",
+                                    "pid":  33632,
+                                    "name":  "py.exe",
+                                    "parentPid":  37072,
+                                    "createdUtc":  "2026-10-09T03:33:40.9541570Z"
+                                }
+                            ],
+    "processExited":  true,
+    "watchdogPid":  37072,
+    "launcherPid":  33632,
+    "scriptBlob":  "528b56d84bb1bb409d01ac683355f78981765d7c",
+    "dotnetExecutable":  "%USERPROFILE%\\.dotnet\\dotnet.exe",
+    "outerWallSeconds":  19.77283,
+    "endUtc":  "2026-10-09T03:34:02.9713273Z",
+    "result":  "FAIL",
+    "testedHead":  "421b5860cbaed5cf047e8c29661b68ec0f84e9f3",
+    "startUtc":  "2026-10-09T03:33:40.9266832Z",
+    "watchdogTimedOut":  false,
+    "osVersion":  "Microsoft Windows NT 10.0.26300.0",
+    "watchdogOriginalAffinity":  "0xfffff",
+    "scriptSha256":  "a79ac73c04cc8769d65868cde2f3c69154f27ebfcff40743bd20ca0b668afd52",
+    "dotnetRoot":  "%USERPROFILE%\\.dotnet",
+    "requestedAffinity":  "0x3f",
+    "taskkillExit":  null,
+    "command":  "py -3 tools/verify-windows-store.py",
+    "sdkVersion":  "10.0.203",
+    "unobservedDescendants":  "Not assessed: snapshot sampling can miss short-lived descendants",
+    "watchdogLimitSeconds":  60,
+    "observedResidualProcesses":  [
+                                      {
+                                          "commandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4",
+                                          "pid":  372,
+                                          "name":  "conhost.exe",
+                                          "parentPid":  34700,
+                                          "createdUtc":  "2026-10-09T03:33:43.9096390Z"
+                                      },
+                                      {
+                                          "commandLine":  "\\??\\C:\\WINDOWS\\system32\\conhost.exe 0x4",
+                                          "pid":  12992,
+                                          "name":  "conhost.exe",
+                                          "parentPid":  34580,
+                                          "createdUtc":  "2026-10-09T03:33:47.1740280Z"
+                                      },
+                                      {
+                                          "commandLine":  "\"%USERPROFILE%\\.dotnet\\dotnet.exe\" \"%USERPROFILE%\\.dotnet\\sdk\\10.0.203\\MSBuild.dll\" /noautoresponse /nologo /nodemode:1 /nodeReuse:true /low:false",
+                                          "pid":  34700,
+                                          "name":  "dotnet.exe",
+                                          "parentPid":  8748,
+                                          "createdUtc":  "2026-10-09T03:33:43.9022900Z"
+                                      },
+                                      {
+                                          "commandLine":  "\"%USERPROFILE%\\.dotnet\\sdk\\10.0.203\\Roslyn\\bincore\\VBCSCompiler.exe\" \"-pipename:NVJzcnYx0p3p6Os0xg5nZAwySD2BNcpLxmM78k2GRnk\"",
+                                          "pid":  34580,
+                                          "name":  "VBCSCompiler.exe",
+                                          "parentPid":  34700,
+                                          "createdUtc":  "2026-10-09T03:33:47.1471220Z"
+                                      }
+                                  ]
+}
