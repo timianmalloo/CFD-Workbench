@@ -1,6 +1,36 @@
 {
   "files": [
     {
+      "path": "docs/proof/wri-r184-result/docs-repair1.json",
+      "bytes": 1714,
+      "sha256": "50e8347dd462a04cdb03d02bcab4b636c412828c44193e021d0ca44ca3f2790c"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair1.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair1.stdout.txt",
+      "bytes": 8178,
+      "sha256": "26158bba05b2feb6f979fd3b378cc910fe656360e206db8f8541291d70ac57cb"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair2.json",
+      "bytes": 1698,
+      "sha256": "f0acae2ce90b8d36e192702aee7d87b7ba7242d1ea67b5acf18450b19b81f26e"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair2.stderr.txt",
+      "bytes": 141,
+      "sha256": "c779c63594d173c05733342b56d6de8858b48ad38fd96420d7980e09abf7a584"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/docs-repair2.stdout.txt",
+      "bytes": 19977,
+      "sha256": "2f00c3ac921f9f3dc0a55fa24af10e2236a3b72f3ec174ce2e0ea66151117cee"
+    },
+    {
       "path": "docs/proof/wri-r184-result/docs.json",
       "bytes": 1698,
       "sha256": "03b4bf9e1472d180700040d9f43e251b88099c5f73ce421ca883581cc03252d3"
@@ -14,6 +44,11 @@
       "path": "docs/proof/wri-r184-result/docs.stdout.txt",
       "bytes": 4303,
       "sha256": "5f1b03e0d2fdb98e67105380876ab4b104302dd9f2043977d355c0918b92f579"
+    },
+    {
+      "path": "docs/proof/wri-r184-result/handoff-prompt.txt",
+      "bytes": 1462,
+      "sha256": "0ce8789ccebe037a09544588b75d14e9cb47f687a8cf110c81f733cfecaedd95"
     },
     {
       "path": "docs/proof/wri-r184-result/package-blocked.py",
@@ -47,8 +82,8 @@
     },
     {
       "path": "docs/proof/wri-r184-result/receipt.md",
-      "bytes": 14721,
-      "sha256": "e5de8175b6ecbc51e4990d5b650fb3cdb7c60bd8521a32ace4747926b1d6e17a"
+      "bytes": 16422,
+      "sha256": "4bbc42ef52bbd8a63e9dc944093ba8370d411f7c64f0c2ad60493eae56f8af9e"
     },
     {
       "path": "docs/proof/wri-r184-result/run.json",

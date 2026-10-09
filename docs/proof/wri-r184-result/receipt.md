@@ -233,8 +233,34 @@ driver/test blobs at cycle-1 HEAD `36ccfa49bc8c57f48697b991ce6373a8f6806907`.
 The R184 closing manifest binds these immutable snapshots, with no live tools
 entry. Narrow `-text` attributes preserve their Git bytes.
 
-Packaging is committed before HEAD-based manifest/check-docs validation. The
-post-handoff docs gate capture uses `docs-repair1.*`; that name denotes a
-packaging gate retry, not another implementation repair or live execution cycle.
-Manifests are resealed after appended gate evidence. Readiness and the execution
-budget remain closed throughout this handoff.
+Packaging commit `17339ebf08e2d51e86cf6755b6b63fea9a18d331` precedes the
+HEAD-based gates. `check-capture-manifests.py` returned 0 with all 10 manifests
+matching their committed blobs. All 12 committed snapshots match their source Git
+blobs and worktree bytes. Hostname-aware PII returned 0; graph validation returned
+0 with zero defects and 131 existing suggestions; both whitespace and
+src/tests/tools/global/slnx diff checks returned 0.
+
+| Retained docs capture | Numeric process exit | Outer ceiling | Measured wall | Result |
+|---|---|---|---|---|
+| docs.* | 1 | 120 s | 107.570 s | Historical live-path manifest mismatch |
+| docs-repair1.* | 1 | 120 s | 120.621 s | Outer timeout; taskkill exit 0; root termination verified |
+| docs-repair2.* | 0 | 300 s | 117.462 s | Documentation checks passed; no timeout |
+
+The first post-handoff docs run timed out after successful committed-manifest
+validation and the case-validator self-test. Stderr was empty; no subsequent
+gate failure was observed. Its stdout, stderr and metadata remain unchanged.
+Before the rerun, a direct process query found zero remaining Python/uv/pwsh
+processes created during the timed-out capture interval. Astra then authorized
+exactly one docs-only evidence rerun on the same committed HEAD with a 300-second
+outer ceiling. The existing collector was adapted in memory for that ceiling
+and append-only label; no collector or implementation file was edited.
+The first wrapper failed to parse before Python or the gate launched, produced no
+capture, and was corrected before the single authorized rerun.
+
+`docs-repair2.json` records exact HEAD, numeric exit 0, full stdout/stderr hashes,
+PHN PASS, six unchanged implementation hashes, and identical before/final
+315-file source fingerprints
+`1edf8197872ec541eb81cec168ddd1ce24c2728463728f8869e31457aa26ce2e`.
+The repair suffixes denote packaging evidence captures, not additional
+implementation repairs or live execution cycles. Manifests are resealed after
+appending both captures. Readiness and the execution budget remain closed.

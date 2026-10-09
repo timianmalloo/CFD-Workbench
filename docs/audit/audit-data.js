@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T19:42:14Z",
+  "generated": "2026-10-09T20:04:31Z",
   "audit": [
     {
       "actor": null,
@@ -33221,6 +33221,35 @@ window.AUDIT_DATA = {
         "short": "1477951f6",
         "branch": "win/wri-r184-scale-run",
         "pushed": true
+      }
+    },
+    {
+      "id": "al-01M4H48TARC6Z1BFRASH3YQSKA",
+      "shortname": "wri-r184-immutable-closeout",
+      "datetime": "2026-10-09T20:04:31Z",
+      "session": "win-wri-r184-blocked",
+      "prompt": "Mac handoff authorized on PR24 exactly as Astra stated. Continue packaging only in C:\\Projects\\CFD-Workbench-win-wri-r184-scale-run: under docs/proof/wri-r182-runner/ add immutable snapshot subfolder containing exact four tool blobs from e9714ce525681ade39aac19e0d86e80ab240907a; add narrow -text attrs; change only those four closing-manifest paths, preserving entry count/bytes/SHA. Record original path, source commit+blob id, new path in R184 receipt. Historical receipts/captures/current tools/checker unchanged; retain failed docs capture. Also ensure R184 closing manifest uses immutable snapshots, not live tools paths. Commit packaging, then run check-capture-manifests.py and check-docs.py from HEAD, reseal as necessary without altering implementation. Run PII/graph/diff checks, verify committed manifests, commit/push only after green; report SHA. No live/product/store execution.\n\nAstra authorizes exactly one docs-only evidence rerun from committed HEAD17339ebf with 300s outer capture ceiling. Retain timeout artifacts unchanged; first verify timed-out process tree stopped. No edits before run. Capture numeric exit, full stdout/stderr, elapsed, exact HEAD/source fingerprints as docs-repair2.*. No further retry if red/timeout. If green, reseal manifests including repair1 timeout and repair2 outputs, commit packaging closeout, verify committed manifests/PII/graph/diff, push branch and report. No implementation/live/product/store execution.",
+      "summary": "Immutable R182/R184 source handoff completed: legacy39 entries retained with four path changes;12 exact Git blob snapshots. Initial HEAD docs capture timed out at120s and is retained; single Astra-authorized300s rerun passed exit0 in117.462s on17339ebf. Manifest/PII/graph/diff checks passed. Live execution remains blocked at two-cycle cap; no product/store/scale action.",
+      "kind": "command",
+      "skill": null,
+      "tool": "packaging",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/wri-r184-result/receipt.md",
+        "docs/proof/wri-r184-result/source-bindings.json",
+        "docs/proof/wri-r184-result/docs-repair2.json"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "goal": "Package blocked R184 evidence with immutable approved source bindings",
+      "done_when": "Receipts and manifests retain red/timeout/green provenance and pass committed-byte gates before branch push",
+      "tier": "T1",
+      "fan_out": 0,
+      "git": {
+        "sha": "17339ebf08e2d51e86cf6755b6b63fea9a18d331",
+        "short": "17339ebf0",
+        "branch": "win/wri-r184-scale-run",
+        "pushed": false
       }
     }
   ],
