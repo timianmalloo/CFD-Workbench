@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T01:38:03Z",
+  "generated": "2026-10-09T01:58:44Z",
   "audit": [
     {
       "actor": null,
@@ -31565,6 +31565,24 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T01:37:07Z",
       "duration_seconds": 56.0
+    },
+    {
+      "id": "al-01M4F64P05XYN8FARSFHJ7QBYW",
+      "shortname": "phl-host-limits",
+      "datetime": "2026-10-09T01:58:43Z",
+      "session": "trk-phl",
+      "prompt": "trk-phl: per-host cost limits, Windows manifest additions, WingRun gate",
+      "summary": "limit.* lines in baseline.csv (incl. check/check_exempt beyond the ruling), baseline committed, 20 manifest names, child-exit rule, WingRun to readiness, allowlist entry removed",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Ruling 173: per-host ms limits, pc-win baseline, 20 store names + child-exit rule in the Windows manifest, WingRun 1 s to readiness",
+      "done_when": "self-tests green; run 1-3 replay 0 cost failures; Desktop replay 22 EXPECTED; run-tests, check-docs, verify gates green"
     }
   ],
   "changes": [
@@ -33979,6 +33997,33 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4F4PJEN0S04GHN6BZ4CPY63",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4F577P40V2XMYGMMNRRHTDF",
+      "ts": "2026-10-09T01:42:39Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F577P0Q6N9NX2EJXCDY0MT",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F577S01N1TG57XPJEJ8TGH",
+      "ts": "2026-10-09T01:42:39Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F577P0Q6N9NX2EJXCDY0MT",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F578561617RN7R48ZSJ6MS",
+      "ts": "2026-10-09T01:42:39Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F5781Y9YSXYBQXDWRTTY9F",
       "session": "operator-timianmalloo"
     }
   ]
