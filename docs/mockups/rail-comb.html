@@ -5,20 +5,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rail comb</title>
 <!--
-  Review mockup for the operator's approval before any build (docs/design/rail-comb.md, track CMB).
-  Shows the Plan view with the curvature comb on both planform rails: scale and density controls, the radius readout in
-  the Tracing strip, the monotone-piece count with numbered ticks, and the hard states.
-  Every number is computed in this page: the rails are cubic B-splines (clamped, analytic first and second derivatives),
-  curvature is signed and physical (millimetres in the plan, drawn 1 px per mm so the normals are true), the comb teeth
-  are spaced by arc length, and the monotone pieces are the sign changes of d(kappa)/ds outside a dead band of 1 % of the
-  maximum. The planform is a scripted example (900 mm half-span), not read from the product. Display only; nothing is built
-  from this page. Tokens follow cad-limits-in-gesture.html and design-language.html.
+  Review mockup for the operator's approval before any build (docs/design/rail-comb.md, track CMB, revised by track CMR
+  after Ruling 194). Shows the Plan view with the curvature comb on both planform rails: scale and density controls, the
+  radius readout in the Tracing strip, the monotone-piece count with numbered ticks, and the hard states.
+  Every number is computed in this page: the rails are cubic B-splines (clamped, analytic derivatives to the third),
+  curvature is signed and physical (millimetres in the plan, drawn 1 px per mm so the normals are true; positive means
+  convex, +kappa on the leading edge and -kappa on the trailing edge), the comb teeth are spaced by arc length, rail
+  lengths are Gauss-Legendre, and the monotone pieces come from the roots of the numerator of d(kappa)/dt on every span,
+  every knot, and the one-sided values at every knot of multiplicity 2 or more, with a reversal threshold of tau / L
+  (tau = 0.02, L the rail's arc length). The planform is a scripted example (900 mm half-span), not read from the
+  product. Display only; nothing is built from this page. Tokens follow cad-limits-in-gesture.html and design-language.html.
 -->
 <style>
 :root{ --font: system-ui, -apple-system, "Segoe UI", sans-serif; }
 :root[data-theme="light"]{ --canvas:#f0f2f1; --surface:#fbfcfb; --soft:#e8edeb; --ink:#1b2929; --mute:#526362; --line:#c9d3cf; --control:#788d87; --accent:#006c67; --on-accent:#ffffff; --sel:#d8eeea; --warn:#895900; --danger:#a92e37; --ok:#24653f; }
 :root[data-theme="dark"]{ --canvas:#172326; --surface:#1e2d31; --soft:#2a3d40; --ink:#ebf3f0; --mute:#b2c4bf; --line:#49605b; --control:#79928c; --accent:#88d8c6; --on-accent:#172326; --sel:#274c47; --warn:#efc576; --danger:#ffaeb5; --ok:#92d1a5; }
-:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --vp-grid:#344b50; --foil:#85c9c4; --foil-edge:#c4e7df; --warn-vp:#efc576; --danger-vp:#ffaeb5; --pt:#edf4f2; --station:#88d8c6; }
+:root{ --vp:#17272c; --vp-soft:#243a40; --vp-ink:#edf4f2; --vp-mute:#afc6c7; --vp-grid:#344b50; --foil:#85c9c4; --foil-edge:#c4e7df; --warn-vp:#efc576; --danger-vp:#ffaeb5; --pt:#edf4f2; --station:#88d8c6; --focus-vp:#66ddc8; }
 *{ box-sizing:border-box; }
 html, body{ margin:0; background:var(--canvas); color:var(--ink); font:13px/1.45 var(--font); }
 button, input, select{ font:inherit; color:inherit; }
@@ -26,6 +28,7 @@ button, input, select{ font:inherit; color:inherit; }
 .top h1{ margin:0; font-size:22px; } .top p{ margin:0; color:var(--mute); font-size:12px; }
 .harness{ margin-left:auto; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
 .harness button, .harness select{ min-height:28px; padding:0 10px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; }
+.harness input[type="range"]{ width:120px; min-height:28px; }
 .harness label{ font-size:12px; color:var(--mute); }
 .audit{ flex-basis:100%; font-size:12px; color:var(--mute); }
 .audit b.pass{ color:var(--ok); } .audit b.fail{ color:var(--danger); }
@@ -54,6 +57,9 @@ section.screen{ margin:0 0 30px; }
 .vp .tooth{ stroke:var(--vp-mute); stroke-width:1; opacity:.75; }
 .vp .tooth.te{ stroke:var(--foil-edge); }
 .vp .tooth.hot{ stroke:var(--vp-ink); opacity:.9; }
+.vp .env{ fill:none; stroke:var(--vp-mute); stroke-width:1; opacity:.5; }
+.vp .env.te{ stroke:var(--foil-edge); }
+.vp .step{ stroke:var(--vp-ink); stroke-width:1; opacity:.8; }
 .vp .clip{ stroke:var(--vp-ink); stroke-width:1.5; }
 .vp .brk{ stroke:var(--station); stroke-width:2; stroke-dasharray:2 2; }
 .vp .tick{ stroke:var(--station); stroke-width:2; }
@@ -68,25 +74,27 @@ section.screen{ margin:0 0 30px; }
 .vp .preview{ fill:none; stroke:var(--station); stroke-width:2; stroke-dasharray:7 4; }
 .vp .prevtooth{ stroke:var(--station); stroke-width:1; }
 .vp .dim{ opacity:.35; }
-.plate{ position:absolute; top:8px; right:8px; width:290px; padding:8px 10px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); font-size:12px; box-shadow:0 1px 3px rgba(0,0,0,.25); }
-.plate h4{ margin:0 0 4px; font-size:13px; }
+.plate{ position:absolute; top:8px; right:8px; width:360px; padding:8px 10px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); font-size:12px; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+.plate h3{ margin:0 0 4px; font-size:13px; }
+.harness button[aria-disabled="true"]{ color:var(--mute); border-style:dashed; cursor:not-allowed; }
 .plate .pr{ display:flex; align-items:center; gap:4px; margin:3px 0; flex-wrap:wrap; }
-.plate .pr > span{ width:58px; color:var(--mute); }
+.plate .pr > span{ width:52px; color:var(--mute); }
 .plate output{ flex:1 1 90px; font-variant-numeric:tabular-nums; min-width:0; }
 .plate button, .btn{ min-height:24px; min-width:24px; padding:0 8px; border:1px solid var(--control); border-radius:4px; background:var(--surface); cursor:pointer; font-size:12px; }
-.plate button:disabled{ color:var(--mute); border-style:dashed; cursor:not-allowed; }
+.plate button:disabled, .plate button[aria-disabled="true"]{ color:var(--mute); border-style:dashed; cursor:not-allowed; }
 .plate button:focus-visible, .btn:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
-.vp svg:focus-visible{ outline:3px solid var(--accent); outline-offset:-4px; }
+.vp svg:focus-visible{ outline:3px solid var(--focus-vp); outline-offset:-4px; }
 .plate button[aria-pressed="true"]{ background:var(--sel); border-color:var(--accent); }
 .plate .pcs{ margin:4px 0 0; padding:4px 0 0; border-top:1px solid var(--line); font-variant-numeric:tabular-nums; }
 .plate .pcs div{ display:flex; justify-content:space-between; gap:8px; }
+.plate .pcs .at{ text-align:right; }
 .plate .note{ margin:4px 0 0; color:var(--mute); }
 .plate.off{ display:none; }
 .plate.narrow .full{ display:none; } .plate.narrow.open .full{ display:block; }
 .plate .sum{ display:none; }
 .plate.narrow .sum{ display:flex; width:100%; justify-content:space-between; }
 .plate.narrow{ width:auto; min-width:150px; }
-.plate.narrow.open{ width:270px; }
+.plate.narrow.open{ position:static; width:auto; margin:6px 0 0; box-shadow:none; }
 .strip{ margin:6px 0 0; padding:5px 8px; border:1px solid var(--line); border-left:3px solid var(--control); border-radius:4px; background:var(--soft); font-size:12px; min-height:30px; font-variant-numeric:tabular-nums; }
 .strip.warn{ border-left-color:var(--warn); } .strip.err{ border-left-color:var(--danger); } .strip.ok{ border-left-color:var(--ok); }
 .strip small{ display:block; color:var(--mute); font-size:12px; }
@@ -105,14 +113,16 @@ table.t th{ color:var(--mute); font-weight:600; }
 </head>
 <body>
 <header class="top">
-  <div><h1>Rail comb</h1><p>Proposal for OI-5 · mockup for approval before any build · planform rails, 900 mm half-span example</p></div>
+  <div><h1>Rail comb</h1><p>Proposal for OI-5, revised after Ruling 194 · mockup for approval before any build · planform rails, 900 mm half-span example</p></div>
   <div class="harness" role="group" aria-label="Review harness">
     <label for="h-plan">Planform</label>
-    <select id="h-plan"><option value="example">Example</option><option value="wobble">Wobble in the trailing edge</option><option value="corner">Corner in the leading edge</option><option value="straight">Straight rails</option></select>
+    <select id="h-plan"><option value="example">Example</option><option value="wobble">Wobble in the trailing edge</option><option value="corner">Corner in the leading edge</option><option value="g1">Smooth anchor, curvature jump</option><option value="straight">Straight rails</option></select>
     <label for="h-mode">Area</label>
     <select id="h-mode"><option value="cad">CAD</option><option value="analysis">Analysis</option></select>
     <label for="h-sel">Selected</label>
-    <select id="h-sel"><option value="none">Nothing</option><option value="le3">Leading edge point 4 (off the curve)</option></select>
+    <select id="h-sel"></select>
+    <label for="h-probe">Probe station (harness only)</label>
+    <input type="range" id="h-probe" min="0" max="1000" step="1" value="620">
     <button id="h-comb" type="button" aria-pressed="true">Curvature on</button>
     <button id="h-narrow" type="button" aria-pressed="false">Narrow (560 px)</button>
     <button id="theme" type="button" aria-pressed="false">Dark theme</button>
@@ -123,19 +133,19 @@ table.t th{ color:var(--mute); font-weight:600; }
 
 <section class="screen" aria-labelledby="s1">
   <h2 id="s1">1 · The Plan view, live</h2>
-  <p class="what"><b>Move the pointer over the wing</b> (or focus it and press the arrow keys; Shift is ten times larger). The Tracing strip beneath gives the radius of both rails at that station; rings mark where. <b>Use the plate</b> top right: Smaller or Larger teeth, Auto, Sparser, Denser. The harness above switches planform, area (CAD or Analysis), the selected point, the comb, the narrow width and the theme. Scale and density are view settings: the foil is untouched and nothing enters undo.</p>
+  <p class="what"><b>Move the pointer over the wing</b>, or <b>focus the plan and press [ and ]</b> to walk the points (the Tracing strip then reads "Point N:"). The Tracing strip beneath gives the radius of both rails at the pointer's station; rings mark where. <b>Use the plate</b> top right: Smaller or Larger teeth, Auto, Sparser, Denser. At a limit a stepper keeps focus and says so. The harness above switches planform, area (CAD or Analysis), the selected point, the comb, the narrow width and the theme; its probe slider is a harness stand-in for the pointer and is not part of the product. In the product the arrow keys nudge the focused point, so they are not a probe. Scale and density are view settings: the foil is untouched and nothing enters undo.</p>
   <div class="card" id="stage"></div>
 </section>
 
 <section class="screen" aria-labelledby="s2">
   <h2 id="s2">2 · One planform at two scales</h2>
-  <p class="what"><b>Same rails, same instant.</b> Top: Auto (the 90th-percentile tooth is 30 px). Bottom: a fixed step, 30 px = 0.5 per m. At the larger gain the sharp tip teeth run past 60 px and are clipped and marked ×; the plate counts them. The legend line states what a tooth means, so two screenshots can be compared.</p>
+  <p class="what"><b>Same rails, same instant.</b> Top: Auto (the 90th-percentile tooth is 30 px). Bottom: a fixed step, 30 px = 0.5 per m. At the larger gain the sharp tip teeth run past 60 px and are clipped and marked ×; the plate counts them. The legend line states what a tooth means, so two screenshots can be compared. A thin line joins the tooth tips of each continuous piece of the rail.</p>
   <div class="row" id="scales" style="grid-template-columns:1fr"></div>
 </section>
 
 <section class="screen" aria-labelledby="s3">
   <h2 id="s3">3 · The monotone-piece count</h2>
-  <p class="what"><b>A reading, not a grade.</b> A numbered tick sits on the rail at each boundary between pieces of the curvature plot (a peak or a dip of curvature, not an inflection). Left: the example planform. Right: one trailing-edge control point moved so the curvature wobbles. Both are legal foils. The count says where to look.</p>
+  <p class="what"><b>A reading, not a grade.</b> A numbered tick sits on the rail at each boundary between pieces of the curvature plot (a peak or a dip of curvature, not an inflection), and the plate names each one in text ("LE1 at η 0.71"). Left: the example planform. Right: one trailing-edge control point moved so the curvature wobbles. Both are legal foils. The count says where to look.</p>
   <div class="row" id="pieces"></div>
 </section>
 
@@ -147,55 +157,72 @@ table.t th{ color:var(--mute); font-weight:600; }
 
 <section class="screen" aria-labelledby="s5">
   <h2 id="s5">5 · Density</h2>
-  <p class="what">Teeth per rail, spaced evenly by arc length over the whole rail, with the tip region of the leading edge at 16 and at 128. Break teeth at corners are always drawn. Teeth closer than 3 px are thinned.</p>
+  <p class="what">Teeth per rail, spaced evenly by arc length over the whole rail, with the tip region of the leading edge at 16 and at 128. Break teeth at corners and at curvature jumps are always drawn. Teeth closer than 3 px are thinned.</p>
   <div class="row" id="dens"></div>
 </section>
 
 <section class="choices" aria-labelledby="s6">
-  <h2 id="s6">Questions for the operator</h2>
+  <h2 id="s6">Operator answers folded in (Ruling 194)</h2>
   <ol id="questions"></ol>
-  <p class="what">Full note: <code>docs/design/rail-comb.md</code>. Adversary record: <code>docs/proof/cmb/adversary.md</code>.</p>
+  <p class="what">Full note: <code>docs/design/rail-comb.md</code>. Adversary record: <code>docs/proof/cmb/adversary.md</code>. The final copy and the spec amendments return to the operator as one table at the end of the note.</p>
 </section>
 </main>
 
 <script>
 'use strict';
 // ------------------------------------------------------------------ B-spline kernel (cubic, any knot vector) ----------
-const P = 3;
-function clampedKnots(n, interior){            // n control points; interior is an array of knot values or null for uniform
+const P = 3, TAU = 0.02;                          // TAU: dimensionless reversal threshold; the threshold on kappa is TAU / L
+function clampedKnots(n, interior){
   const inner = interior || Array.from({ length: n - P - 1 }, (_, i) => (i + 1) / (n - P));
   return [0, 0, 0, 0, ...inner, 1, 1, 1, 1];
 }
-function dB(u, i, p, t, k){                     // k-th derivative of basis i of degree p at t (right-continuous, last span closed)
+// k-th derivative of basis i of degree p at t. m (optional) is an explicit knot-span index: the basis is then the
+// polynomial piece of span m, so a one-sided value at a knot is read by span selection, never by knot +- epsilon.
+function dB(u, i, p, t, k, m){
   if (p === 0){
     if (k > 0) return 0;
+    if (m !== undefined) return i === m ? 1 : 0;
     const last = u[i + 1] === 1 && t >= 1;
     return (t >= u[i] && t < u[i + 1]) || (last && u[i] < u[i + 1]) ? 1 : 0;
   }
   if (k === 0){
     let a = 0, b = 0;
     const d1 = u[i + p] - u[i], d2 = u[i + p + 1] - u[i + 1];
-    if (d1 > 0) a = (t - u[i]) / d1 * dB(u, i, p - 1, t, 0);
-    if (d2 > 0) b = (u[i + p + 1] - t) / d2 * dB(u, i + 1, p - 1, t, 0);
+    if (d1 > 0) a = (t - u[i]) / d1 * dB(u, i, p - 1, t, 0, m);
+    if (d2 > 0) b = (u[i + p + 1] - t) / d2 * dB(u, i + 1, p - 1, t, 0, m);
     return a + b;
   }
   const d1 = u[i + p] - u[i], d2 = u[i + p + 1] - u[i + 1];
-  return p * ((d1 > 0 ? dB(u, i, p - 1, t, k - 1) / d1 : 0) - (d2 > 0 ? dB(u, i + 1, p - 1, t, k - 1) / d2 : 0));
+  return p * ((d1 > 0 ? dB(u, i, p - 1, t, k - 1, m) / d1 : 0) - (d2 > 0 ? dB(u, i + 1, p - 1, t, k - 1, m) / d2 : 0));
 }
-function jet(rail, t, side){                    // position, first and second derivative; side -1/+1 picks a one-sided limit at a corner
-  const u = rail.u, n = rail.pts.length, e = 1e-9;
-  let tt = Math.min(1, Math.max(0, t + (side || 0) * e));
-  let x = 0, y = 0, x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+function jetAt(rail, t, m){                      // position, derivatives to the third, curvature; m picks a span
+  const u = rail.u, n = rail.pts.length;
+  let x = 0, y = 0, x1 = 0, y1 = 0, x2 = 0, y2 = 0, x3 = 0, y3 = 0;
   for (let i = 0; i < n; i++){
-    const b0 = dB(u, i, P, tt, 0), b1 = dB(u, i, P, tt, 1), b2 = dB(u, i, P, tt, 2), q = rail.pts[i];
-    x += b0 * q[0]; y += b0 * q[1]; x1 += b1 * q[0]; y1 += b1 * q[1]; x2 += b2 * q[0]; y2 += b2 * q[1];
+    const q = rail.pts[i], b0 = dB(u, i, P, t, 0, m), b1 = dB(u, i, P, t, 1, m), b2 = dB(u, i, P, t, 2, m), b3 = dB(u, i, P, t, 3, m);
+    x += b0 * q[0]; y += b0 * q[1]; x1 += b1 * q[0]; y1 += b1 * q[1]; x2 += b2 * q[0]; y2 += b2 * q[1]; x3 += b3 * q[0]; y3 += b3 * q[1];
   }
   const s2 = x1 * x1 + y1 * y1, s = Math.sqrt(s2);
-  const k = s2 === 0 ? 0 : (x1 * y2 - y1 * x2) / (s2 * s);      // signed, per mm
-  return { t: tt, x, y, tx: x1 / s, ty: y1 / s, k, nx: -y1 / s, ny: x1 / s, speed: s };
+  if (s2 === 0) throw new Error('Degenerate tangent (speed 0) at t=' + t);   // the product throws too; it never returns 0
+  const k = (x1 * y2 - y1 * x2) / (s2 * s);                                   // raw, per mm
+  const num = (x1 * y3 - y1 * x3) * s2 - 3 * (x1 * y2 - y1 * x2) * (x1 * x2 + y1 * y2);   // sign of d(kappa)/dt
+  return { t, x, y, tx: x1 / s, ty: y1 / s, k, kd: rail.wingSide * k, nx: -y1 / s, ny: x1 / s, speed: s, num };
+}
+function spanOf(rail, t, side){                  // the knot span that holds t from the left (side<0) or right (side>0)
+  const u = rail.u, n = rail.pts.length;
+  for (let m = P; m < n; m++){
+    if (!(u[m] < u[m + 1])) continue;
+    if (side < 0 ? (u[m] < t && t <= u[m + 1]) : (u[m] <= t && t < u[m + 1])) return m;
+  }
+  return side < 0 ? P : n - 1;
+}
+function jet(rail, t, side){
+  if (!side) return jetAt(rail, Math.min(1, Math.max(0, t)));
+  return jetAt(rail, t, spanOf(rail, t, side));
 }
 // ------------------------------------------------------------------ the example planforms (span right, aft down, mm) ---
 const HALF = 900;
+const KNOTS9 = [0, 0, 0, 0, 0.3, 0.55, 0.55, 0.55, 0.78, 1, 1, 1, 1];     // point 5 (index 4) is an anchor: a triple knot, C0
 const PLANS = {
   example: {
     le: { pts: [[0,0],[160,10],[320,20],[480,30],[650,55],[800,125],[900,185]] },
@@ -205,8 +232,12 @@ const PLANS = {
     le: { pts: [[0,0],[160,10],[320,20],[480,30],[650,55],[800,125],[900,185]] },
     te: { pts: [[0,120],[160,124],[320,138],[480,126],[650,176],[800,196],[900,208]] }
   },
-  corner: {   // nine points: the knot at 0.55 has multiplicity 3, so point 6 is an anchor and the outline has a corner there
-    le: { pts: [[0,0],[160,6],[320,12],[470,24],[560,40],[620,95],[740,112],[830,150],[900,185]], knots: [0,0,0,0,0.3,0.55,0.55,0.55,0.78,1,1,1,1] },
+  corner: {   // anchor at index 4: its neighbours are not collinear, so the tangent turns (a corner)
+    le: { pts: [[0,0],[160,6],[320,12],[470,24],[560,40],[620,95],[740,112],[830,150],[900,185]], knots: KNOTS9 },
+    te: { pts: [[0,120],[160,124],[320,130],[480,142],[650,168],[800,200],[900,208]] }
+  },
+  g1: {       // anchor at index 4 with collinear neighbours: the tangent is continuous (G1) but the curvature jumps
+    le: { pts: [[0,0],[160,6],[320,12],[470,24],[560,40],[650,56],[740,112],[830,150],[900,185]], knots: KNOTS9 },
     te: { pts: [[0,120],[160,124],[320,130],[480,142],[650,168],[800,200],[900,208]] }
   },
   straight: {
@@ -214,100 +245,159 @@ const PLANS = {
     te: { pts: [[0,120],[300,112],[600,104],[900,96]] }
   }
 };
-for (const key in PLANS) for (const r of ['le', 'te']){
-  const rail = PLANS[key][r];
-  rail.u = rail.knots || clampedKnots(rail.pts.length);
-  rail.name = r === 'le' ? 'Leading edge' : 'Trailing edge';
-  rail.short = r === 'le' ? 'LE' : 'TE';
-  rail.wingSide = r === 'le' ? 1 : -1;            // the wing lies aft of the leading edge, forward of the trailing edge
+function makeRail(pts, knots, wingSide, short){
+  return { pts, u: knots || clampedKnots(pts.length), wingSide, short, name: short === 'LE' ? 'Leading edge' : 'Trailing edge' };
+}
+for (const key in PLANS){
+  const pl = PLANS[key];
+  pl.le = makeRail(pl.le.pts, pl.le.knots, 1, 'LE');                    // the wing lies aft of the leading edge
+  pl.te = makeRail(pl.te.pts, pl.te.knots, -1, 'TE');                   // and forward of the trailing edge
 }
 function tAtX(rail, xmm){ let lo = 0, hi = 1; for (let i = 0; i < 50; i++){ const m = (lo + hi) / 2; (jet(rail, m).x < xmm ? lo = m : hi = m); } return (lo + hi) / 2; }
-function cornerKnots(rail){ const u = rail.u, out = []; for (let i = 4; i < u.length - 4; i++) if (u[i] === u[i + 1] && u[i] === u[i + 2] && out.indexOf(u[i]) < 0) out.push(u[i]); return out; }
+// ------------------------------------------------------------------ rail length (Gauss-Legendre) and thresholds --------
+const GLX = [0, 0.5384693101056831, 0.9061798459386640], GLW = [0.5688888888888889, 0.4786286704993665, 0.2369268850561891];
+function railLen(rail){                           // mm, exact to rounding for these spans; never the display polyline
+  if (rail._L) return rail._L;
+  const u = rail.u, n = rail.pts.length; let L = 0;
+  for (let m = P; m < n; m++){
+    if (!(u[m] < u[m + 1])) continue;
+    const a = u[m], b = u[m + 1], c = (a + b) / 2, h = (b - a) / 2;
+    let acc = GLW[0] * jetAt(rail, c, m).speed;
+    for (let q = 1; q < 3; q++) acc += GLW[q] * (jetAt(rail, c + h * GLX[q], m).speed + jetAt(rail, c - h * GLX[q], m).speed);
+    L += acc * h;
+  }
+  return (rail._L = L);
+}
+const straightThr = rail => 0.08 / (railLen(rail) ** 2);   // |kappa| L^2 / 8 < 10 micrometres (0.01 mm): the rail is straight there
+const theta = rail => TAU / railLen(rail);                   // reversal threshold on kappa, per mm
+const isStr = (rail, kd) => Math.abs(kd) < straightThr(rail);
+function breakKnots(rail){                        // interior knots of multiplicity 2 or more: kappa may jump there
+  const u = rail.u, out = [];
+  for (let i = 4; i < u.length - 4; i++) if (u[i] === u[i + 1] && !out.some(b => b.c === u[i])) out.push({ c: u[i], mult: u.filter(v => v === u[i]).length });
+  return out;
+}
+function knotInfo(rail, c){                       // one-sided values by explicit span selection; the corner test is the measured angle
+  const a = jet(rail, c, -1), b = jet(rail, c, 1);
+  const angle = Math.acos(Math.min(1, Math.max(-1, a.tx * b.tx + a.ty * b.ty))) * 180 / Math.PI;
+  return { a, b, angle, corner: angle > 0.1, jump: Math.abs(a.kd - b.kd) > theta(rail) };
+}
 // ------------------------------------------------------------------ curvature words, radius format --------------------
-const STRAIGHT = 1e-6;                          // |kappa| per mm: 1e-3 per metre, R beyond 1 km
-function convex(rail, j){ const dirY = Math.sign(j.k) * j.ny; return dirY * rail.wingSide > 0; }
 function fmtR(rmm){ return rmm >= 10000 ? (rmm / 1000).toFixed(2) + ' m' : (rmm < 100 ? rmm.toFixed(1) : rmm.toFixed(0)) + ' mm'; }
-function kappaText(rail, j){ const m = Math.abs(j.k) * 1000, sg = convex(rail, j) ? '+' : '\u2212'; return m < 1e-3 ? 'κ 0' : `κ ${sg}${m < 10 ? m.toFixed(2) : m.toFixed(1)} per m`; }
+function fmtK(kd){ const m = Math.abs(kd) * 1000; return m < 1e-3 ? 'κ 0' : `κ ${kd > 0 ? '+' : '−'}${m < 10 ? m.toFixed(2) : m.toFixed(1)} per m`; }
+function sideText(rail, j){ return isStr(rail, j.kd) ? 'straight, κ 0' : `R ${fmtR(1 / Math.abs(j.k))}, ${fmtK(j.kd)}`; }
 function radiusText(rail, t){
-  const corners = cornerKnots(rail).filter(c => Math.abs(c - t) < 0.004);
-  const one = j => Math.abs(j.k) * 1000 < 1e-3 ? 'straight' : 'R ' + fmtR(1 / Math.abs(j.k));
-  if (corners.length){
-    const a = jet(rail, corners[0], -1), b = jet(rail, corners[0], 1);
-    return `${rail.short} corner: ${one(a)} root side, ${one(b)} tip side`;
+  for (const b of breakKnots(rail)){
+    if (Math.abs(b.c - t) >= 0.004) continue;
+    const inf = knotInfo(rail, b.c);
+    if (!inf.corner && !inf.jump) break;
+    const sign = !isStr(rail, inf.a.kd) && !isStr(rail, inf.b.kd) && inf.a.kd * inf.b.kd < 0 ? ' · curvature changes sign at this anchor' : '';
+    return `${rail.short} ${inf.corner ? 'corner' : 'curvature jumps at this anchor'}: root side ${sideText(rail, inf.a)} · tip side ${sideText(rail, inf.b)}${sign}`;
   }
   const j = jet(rail, t);
-  if (Math.abs(j.k) < STRAIGHT){
-    const near = Math.max(Math.abs(jet(rail, Math.max(0, t - 0.02)).k), Math.abs(jet(rail, Math.min(1, t + 0.02)).k));
-    return near > 10 * STRAIGHT ? `${rail.short} inflection: R infinite here · κ 0` : `${rail.short} R straight · κ 0`;
+  if (isStr(rail, j.kd)){
+    const lo = jet(rail, Math.max(0, t - 0.02)).kd, hi = jet(rail, Math.min(1, t + 0.02)).kd;
+    return !isStr(rail, lo) && !isStr(rail, hi) && lo * hi < 0 ? `${rail.short} inflection: R infinite here · κ 0` : `${rail.short} R straight · κ 0`;
   }
-  return `${rail.short} R ${fmtR(1 / Math.abs(j.k))} · ${kappaText(rail, j)} ${convex(rail, j) ? 'convex' : 'concave'}`;
+  return `${rail.short} R ${fmtR(1 / Math.abs(j.k))} · ${fmtK(j.kd)} ${j.kd > 0 ? 'convex' : 'concave'}`;
 }
 // ------------------------------------------------------------------ samples, teeth, pieces ----------------------------
 function samples(rail){
   if (rail._s) return rail._s;
   const out = [], N = 800;
-  for (let i = 0; i <= N; i++){
-    const t = i / N, j = jet(rail, t, i === 0 ? 0 : 0);
-    out.push(j);
-  }
-  for (const c of cornerKnots(rail)){ out.push({ ...jet(rail, c, -1) }); out.push({ ...jet(rail, c, 1) }); }
-  out.sort((a, b) => a.t - b.t);
+  for (let i = 0; i <= N; i++){ const j = jet(rail, i / N); j.ord = 0; out.push(j); }
+  for (const b of breakKnots(rail)){ const l = jet(rail, b.c, -1), r = jet(rail, b.c, 1); l.ord = -1; r.ord = 1; out.push(l, r); }
+  out.sort((a, b) => a.t - b.t || a.ord - b.ord);
   let s = 0; out[0].s = 0;
   for (let i = 1; i < out.length; i++){ s += Math.hypot(out[i].x - out[i - 1].x, out[i].y - out[i - 1].y); out[i].s = s; }
   return (rail._s = out);
 }
-function teeth(rail, perRail){                   // even arc-length pitch over the whole rail, plus one-sided teeth at corners
+function teeth(rail, perRail){                   // even arc-length pitch over the whole rail, plus one-sided teeth at every jump
   const S = samples(rail), total = S[S.length - 1].s, out = [];
   for (let q = 0; q < perRail; q++){
     const target = (q + 0.5) / perRail * total; let i = 1; while (i < S.length - 1 && S[i].s < target) i++;
     const f0 = (target - S[i - 1].s) / Math.max(1e-12, S[i].s - S[i - 1].s);
-    out.push({ ...jet(rail, S[i - 1].t + f0 * (S[i].t - S[i - 1].t)), brk: false });
+    out.push({ ...jet(rail, S[i - 1].t + f0 * (S[i].t - S[i - 1].t)), side: 0 });
   }
-  for (const c of cornerKnots(rail)){ out.push({ ...jet(rail, c, -1), brk: true, corner: true }); out.push({ ...jet(rail, c, 1), brk: true, corner: true }); }
+  for (const b of breakKnots(rail)){
+    const inf = knotInfo(rail, b.c);
+    if (!inf.corner && !inf.jump) continue;
+    out.push({ ...inf.a, knot: true, corner: inf.corner, side: -1 }, { ...inf.b, knot: true, corner: inf.corner, side: 1 });
+  }
   return out;
 }
-const REVERSAL = 2e-5;                           // 0.02 per m, per mm; a piece ends only when kappa reverses by more than this
-function pieces(rail){                           // monotone pieces of signed kappa(s); a jump counts when it reverses the direction
+// Candidates: both ends of every knot span (one-sided, so every knot, simple or multiple, is a candidate) and every root of
+// the numerator of d(kappa)/dt inside a span. Between two candidates kappa is monotone, so the zigzag over them is exact.
+function candidates(rail){
+  if (rail._c) return rail._c;
+  const u = rail.u, n = rail.pts.length, out = [], M = 128;
+  for (let m = P; m < n; m++){
+    if (!(u[m] < u[m + 1])) continue;
+    const a = u[m], b = u[m + 1];
+    out.push(jetAt(rail, a, m));
+    let prev = jetAt(rail, a, m).num;
+    for (let i = 1; i <= M; i++){
+      const t1 = a + (b - a) * i / M, cur = jetAt(rail, t1, m).num;
+      if (prev * cur < 0){
+        let lo = a + (b - a) * (i - 1) / M, hi = t1;
+        for (let it = 0; it < 60; it++){ const mid = (lo + hi) / 2; (jetAt(rail, lo, m).num * jetAt(rail, mid, m).num <= 0 ? hi = mid : lo = mid); }
+        out.push(jetAt(rail, (lo + hi) / 2, m));
+      }
+      prev = cur;
+    }
+    out.push(jetAt(rail, b, m));
+  }
+  return (rail._c = out);
+}
+function pieces(rail){                           // monotone pieces of signed kappa(s); a piece ends when kappa reverses by more than TAU / L
   if (rail._p) return rail._p;
-  const S = samples(rail), bounds = [];
-  let dir = 0, ext = S[0].k, extI = 0;
-  for (let i = 1; i < S.length; i++){
-    const k = S[i].k;
+  const C = candidates(rail), th = theta(rail), bounds = [];
+  let dir = 0, ext = C[0].kd, extI = 0;
+  for (let i = 1; i < C.length; i++){
+    const k = C[i].kd;
     if (dir === 0){
-      if (k - S[0].k > REVERSAL){ dir = 1; ext = k; extI = i; } else if (S[0].k - k > REVERSAL){ dir = -1; ext = k; extI = i; }
+      if (k - C[0].kd > th){ dir = 1; ext = k; extI = i; } else if (C[0].kd - k > th){ dir = -1; ext = k; extI = i; }
       continue;
     }
-    if (dir === 1){ if (k > ext){ ext = k; extI = i; } else if (k < ext - REVERSAL){ bounds.push({ i: extI }); dir = -1; ext = k; extI = i; } }
-    else { if (k < ext){ ext = k; extI = i; } else if (k > ext + REVERSAL){ bounds.push({ i: extI }); dir = 1; ext = k; extI = i; } }
+    if (dir === 1){ if (k > ext){ ext = k; extI = i; } else if (k < ext - th){ bounds.push({ i: extI }); dir = -1; ext = k; extI = i; } }
+    else { if (k < ext){ ext = k; extI = i; } else if (k > ext + th){ bounds.push({ i: extI }); dir = 1; ext = k; extI = i; } }
   }
-  return (rail._p = { count: bounds.length + 1, bounds: bounds.map(b => ({ ...b, at: S[b.i] })) });
+  return (rail._p = { count: bounds.length + 1, bounds: bounds.map(b => ({ ...b, at: C[b.i] })) });
+}
+function cloneRail(rail, f, mirror){             // scale invariance and mirror invariance fixtures
+  const ws = mirror ? -rail.wingSide : rail.wingSide;
+  return makeRail(rail.pts.map(q => [q[0] * f, q[1] * f * (mirror ? -1 : 1)]), rail.u, ws, rail.short);
 }
 // ------------------------------------------------------------------ view state ---------------------------------------
 const LADDER = [0.5, 1, 2, 5, 10, 20, 50, 100, 200];     // "30 px = N per metre"
 const DENS = [16, 32, 64, 128];
-const V = { plan: 'example', mode: 'cad', sel: 'none', comb: true, narrow: false, scale: 'auto', dens: 32, probe: 0.62, plateOpen: false };
+const V = { plan: 'example', mode: 'cad', sel: 'none', comb: true, narrow: false, scale: 'auto', dens: 32, probe: 0.62, plateOpen: false, pointerAway: false };
 const OX = 50, OY = 170;                         // drawing origin in svg px; 1 px = 1 mm everywhere (equal scale)
 const f = (v, d = 2) => v.toFixed(d);
 function autoK(plan, perSpan){                   // p90 tooth over both rails -> the per-metre value that makes it 30 px
   const mags = [...teeth(plan.le, perSpan), ...teeth(plan.te, perSpan)].map(t => Math.abs(t.k) * 1000).sort((a, b) => a - b);
-  const p90 = mags[Math.floor(0.9 * (mags.length - 1))] || 0;
-  return p90;                                    // per metre; gain px per (1/m) = 30 / p90
+  return mags[Math.floor(0.9 * (mags.length - 1))] || 0;
 }
 function legend(kPerM){ return kPerM < 1e-9 ? 'no curvature' : `30 px = ${kPerM < 10 ? f(kPerM, kPerM < 1 ? 2 : 1).replace(/\.?0+$/, '') : f(kPerM, 0)} per m (R ${fmtR(1000 / kPerM)})`; }
+function isAnchorIdx(rail, i){ const u = rail.u, n = rail.pts.length; return i >= 3 && i <= n - 4 && u[i + 1] === u[i + 2] && u[i + 1] === u[i + 3] && u[i] !== u[i + 1] && u[i + 4] !== u[i + 1]; }
+function selInfo(plan, sel){                     // 'le:3' -> the rail, the index, the point's station (Greville) and its kind
+  if (!sel || sel === 'none') return null;
+  const [key, idx] = sel.split(':'), rail = key === 'le' ? plan.le : plan.te, i = +idx, n = rail.pts.length, u = rail.u;
+  if (!(i >= 0 && i < n)) return null;
+  return { rail, i, t: (u[i + 1] + u[i + 2] + u[i + 3]) / 3, offCurve: i > 0 && i < n - 1 && !isAnchorIdx(rail, i) };
+}
 // ------------------------------------------------------------------ render -------------------------------------------
 function railPath(rail){ return samples(rail).map((j, i) => `${i ? 'L' : 'M'}${(OX + j.x).toFixed(1)},${(OY + j.y).toFixed(1)}`).join(' '); }
 function render(o){
-  o = Object.assign({ plan: 'example', comb: true, scale: 'auto', dens: 32, probe: null, sel: 'none', view: [0, 0, 1000, 470], mode: 'cad', cp: true, stations: false, limit: false, preview: false, sel_rail: null, label: '' }, o);
-  const plan = PLANS[o.plan], rails = [plan.le, plan.te];
+  o = Object.assign({ plan: 'example', comb: true, scale: 'auto', dens: 32, probe: null, sel: 'none', view: [0, 0, 1000, 470], mode: 'cad', cp: true, stations: false, limit: false, preview: false, label: '' }, o);
+  const plan = PLANS[o.plan], rails = [plan.le, plan.te], sel = selInfo(plan, o.sel);
   const autoVal = autoK(plan, o.dens);
   const kFix = o.scale === 'auto' ? autoVal : o.scale;
   const gain = kFix < 1e-9 ? 0 : 30 / kFix;       // px per (1/m)
   const showComb = o.comb && o.mode === 'cad';
   const px = o.px || (o.focus ? (V.narrow ? 500 : 1250) : 480), fs = Math.max(12, 12 * o.view[2] / px).toFixed(1);
   let s = o.focus
-    ? `<svg viewBox="${o.view.join(' ')}" style="--fs:${fs}px" role="group" aria-roledescription="Radius probe" aria-label="Plan view of the half-wing with the curvature comb. Left and right arrow keys move the probe; Shift moves ten times as far." tabindex="0" id="stageSvg">`
+    ? `<svg viewBox="${o.view.join(' ')}" style="--fs:${fs}px" role="group" aria-roledescription="Plan view" aria-label="Plan view of the half-wing with the curvature comb. Press [ and ] to walk the points; the Tracing strip reads the radius at the selected point." tabindex="0" id="stageSvg">`
     : `<svg viewBox="${o.view.join(' ')}" style="--fs:${fs}px" role="img" aria-label="${o.label || 'Plan view of the half-wing with the curvature comb'}">`;
-  // equal-scale grid along the bottom: ticks every 100 mm
   for (let x = 0; x <= HALF; x += 100) s += `<line class="axis" x1="${OX + x}" x2="${OX + x}" y1="${OY + 250}" y2="${OY + 256}"/>${x % 300 === 0 ? `<text class="mute" x="${OX + x - 10}" y="${OY + 270}">${x}</text>` : ''}`;
   s += `<text class="mute" x="${OX}" y="${OY + 286}">Span from root, mm · 1 px per mm in both directions</text>`;
   s += `<line class="sym" x1="${OX}" x2="${OX}" y1="${OY - 10}" y2="${OY + 130}"/><text class="mute" x="${OX + 6}" y="${OY - 14}">Root (centreline)</text>`;
@@ -318,102 +408,156 @@ function render(o){
     const x = OX + eta * HALF, a = jet(plan.le, tAtX(plan.le, eta * HALF)), b = jet(plan.te, tAtX(plan.te, eta * HALF));
     s += `<line class="stn" x1="${x}" x2="${x}" y1="${OY + a.y}" y2="${OY + b.y}"/><rect class="chip" x="${x - 20}" y="${OY + b.y + 6}" width="40" height="18" rx="3"/><text x="${x - 15}" y="${OY + b.y + 19}">${(eta * 100).toFixed(0)} %</text>`;
   }
-  if (o.limit){ const y = OY + 208 - 30; s += `<line class="limit" x1="${OX + 780}" x2="${OX + 940}" y1="${OY + 208 - 6}" y2="${OY + 208 - 6}"/><text class="limit-t" x="${OX + 720}" y="${OY + 208 + 24}">Minimum tip chord 6 mm</text>`; }
-  for (const rail of rails) s += `<path class="rail ${o.sel_rail === rail ? 'sel' : ''}" d="${railPath(rail)}"/>`;
-  if (o.preview){ s += `<path class="preview" d="${railPath(plan.le).replace(/L/g, 'L')}" transform="translate(0,-9)"/>`; }
-  let clipped = 0, drawn = 0, tipTeeth = 0, longest = 0; const tips = [];
-  const hot = o.sel_rail;
+  if (o.limit){ s += `<line class="limit" x1="${OX + 780}" x2="${OX + 940}" y1="${OY + 208 - 6}" y2="${OY + 208 - 6}"/><text class="limit-t" x="${OX + 720}" y="${OY + 208 + 24}">Minimum tip chord 6 mm</text>`; }
+  for (const rail of rails) s += `<path class="rail ${sel && sel.rail === rail ? 'sel' : ''}" d="${railPath(rail)}"/>`;
+  if (o.preview){ s += `<path class="preview" d="${railPath(plan.le)}" transform="translate(0,-9)"/>`; }
+  let clipped = 0, drawn = 0, longest = 0; const tips = [];
+  const hot = sel ? sel.rail : null;
   if (showComb){
     for (const rail of rails){
-      let list = teeth(rail, o.dens).sort((a, b) => a.t - b.t);
-      const keep = [];                            // thin teeth closer than 3 px
-      for (const t of list){ const px = OX + t.x, py = OY + t.y; if (t.brk || !keep.length || Math.hypot(px - keep[keep.length - 1].px, py - keep[keep.length - 1].py) >= 3) keep.push({ ...t, px, py }); }
+      const list = teeth(rail, o.dens).sort((a, b) => a.t - b.t || a.side - b.side);
+      const keep = [];                            // thin teeth closer than 3 px; knot teeth are always kept
+      for (const t of list){ const px2 = OX + t.x, py = OY + t.y; if (t.knot || !keep.length || Math.hypot(px2 - keep[keep.length - 1].px, py - keep[keep.length - 1].py) >= 3) keep.push({ ...t, px: px2, py }); }
+      const polys = [[]], steps = []; let teethSvg = '';
       for (const t of keep){
         const mag = Math.abs(t.k) * 1000 * gain;      // px
         longest = Math.max(longest, mag);
         const dir = -Math.sign(t.k);                  // away from the centre of curvature
-        const len = Math.min(mag, 60), c = mag > 60;
+        const len = Math.min(mag, 60), c = mag > 60, dot = mag < 0.5;
         drawn++; if (c) clipped++;
-        if (mag < 0.5){ s += `<circle cx="${t.px.toFixed(1)}" cy="${t.py.toFixed(1)}" r="1" fill="var(--vp-mute)" opacity=".7"/>`; continue; }
-        const ex = t.px + t.nx * len * dir, ey = t.py + t.ny * len * dir; tips.push([ex, ey]);
-        s += `<line class="tooth ${rail === plan.te ? 'te' : ''} ${rail === hot ? 'hot' : ''}" x1="${t.px.toFixed(1)}" y1="${t.py.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}"/>`;
-        if (c) s += `<path class="clip" d="M${(ex - 3).toFixed(1)},${(ey - 3).toFixed(1)}L${(ex + 3).toFixed(1)},${(ey + 3).toFixed(1)}M${(ex - 3).toFixed(1)},${(ey + 3).toFixed(1)}L${(ex + 3).toFixed(1)},${(ey - 3).toFixed(1)}"/>`;
-        if (t.brk && t.corner) s += `<line class="brk" x1="${t.px.toFixed(1)}" x2="${t.px.toFixed(1)}" y1="${(t.py - 22).toFixed(1)}" y2="${(t.py + 22).toFixed(1)}"/>`;
+        const ex = dot ? t.px : t.px + t.nx * len * dir, ey = dot ? t.py : t.py + t.ny * len * dir;
+        if (t.knot && t.side > 0){ steps.push([polys[polys.length - 1][polys[polys.length - 1].length - 1], [ex, ey]]); polys.push([]); }
+        polys[polys.length - 1].push([ex, ey]);
+        if (dot){ teethSvg += `<circle cx="${t.px.toFixed(1)}" cy="${t.py.toFixed(1)}" r="1" fill="var(--vp-mute)" opacity=".7"/>`; continue; }
+        tips.push([ex, ey]);
+        teethSvg += `<line class="tooth ${rail === plan.te ? 'te' : ''} ${rail === hot ? 'hot' : ''}" x1="${t.px.toFixed(1)}" y1="${t.py.toFixed(1)}" x2="${ex.toFixed(1)}" y2="${ey.toFixed(1)}"/>`;
+        if (c) teethSvg += `<path class="clip" d="M${(ex - 3).toFixed(1)},${(ey - 3).toFixed(1)}L${(ex + 3).toFixed(1)},${(ey + 3).toFixed(1)}M${(ex - 3).toFixed(1)},${(ey + 3).toFixed(1)}L${(ex + 3).toFixed(1)},${(ey - 3).toFixed(1)}"/>`;
+        if (t.knot && t.corner) teethSvg += `<line class="brk" x1="${t.px.toFixed(1)}" x2="${t.px.toFixed(1)}" y1="${(t.py - 22).toFixed(1)}" y2="${(t.py + 22).toFixed(1)}"/>`;
       }
-      // numbered ticks at the boundaries between monotone pieces
+      // the envelope is drawn per continuous piece; a visible step joins the two one-sided tips at every jump
+      for (const poly of polys) if (poly.length > 1) s += `<path class="env ${rail === plan.te ? 'te' : ''}" d="${poly.map((q, i) => `${i ? 'L' : 'M'}${q[0].toFixed(1)},${q[1].toFixed(1)}`).join(' ')}"/>`;
+      for (const st of steps) s += `<line class="step" x1="${st[0][0].toFixed(1)}" y1="${st[0][1].toFixed(1)}" x2="${st[1][0].toFixed(1)}" y2="${st[1][1].toFixed(1)}"/>`;
+      s += teethSvg;
       pieces(rail).bounds.forEach((b, idx) => {
-        const px = OX + b.at.x, py = OY + b.at.y, nx = b.at.nx * rail.wingSide, ny = b.at.ny * rail.wingSide;
-        const sgn = Math.sign(ny) || 1;               // draw the tick on the wing side of the rail
-        s += `<line class="tick" x1="${px.toFixed(1)}" y1="${py.toFixed(1)}" x2="${(px - nx * 0 ).toFixed(1)}" y2="${(py + rail.wingSide * 12).toFixed(1)}"/><text class="tickn" x="${(px - 3).toFixed(1)}" y="${(py + rail.wingSide * 26).toFixed(1)}">${rail.short}${idx + 1}</text>`;
+        const px2 = OX + b.at.x, py = OY + b.at.y;
+        s += `<line class="tick" x1="${px2.toFixed(1)}" y1="${py.toFixed(1)}" x2="${px2.toFixed(1)}" y2="${(py + rail.wingSide * 12).toFixed(1)}"/><text class="tickn" x="${(px2 - 3).toFixed(1)}" y="${(py + rail.wingSide * 26).toFixed(1)}">${rail.short}${idx + 1}</text>`;
       });
     }
   }
   if (o.cp) for (const rail of rails) rail.pts.forEach((q, i) => {
-    const on = o.sel === 'le3' && rail === plan.le && i === 3;
+    const on = sel && sel.rail === rail && sel.i === i;
     s += `<circle class="cp ${on ? 'on' : ''}" cx="${OX + q[0]}" cy="${OY + q[1]}" r="${on ? 6 : 4.5}"/>`;
   });
   if (o.cp) for (const rail of rails) s += `<path class="poly" d="${rail.pts.map((q, i) => `${i ? 'L' : 'M'}${OX + q[0]},${OY + q[1]}`).join(' ')}"/>`;
-  // rings where a radius is read
   const rings = [];
   if (o.probe !== null){
-    for (const rail of rails){ const t = tAtX(rail, o.probe * HALF), j = jet(rail, t); rings.push({ rail, j, t }); }
-  } else if (o.sel === 'le3'){
-    const t = (plan.le.u[4] + plan.le.u[5] + plan.le.u[6]) / 3;   // Greville position of point 4 (index 3)
-    rings.push({ rail: plan.le, j: jet(plan.le, t), t });
+    for (const rail of rails){ const t = tAtX(rail, o.probe * HALF); rings.push({ rail, j: jet(rail, t), t }); }
+  } else if (sel){
+    rings.push({ rail: sel.rail, j: jet(sel.rail, sel.t), t: sel.t });   // evaluated at t = the Greville station directly
   }
   for (const r of rings) s += `<circle class="ring" cx="${OX + r.j.x}" cy="${OY + r.j.y}" r="7"/>`;
   s += '</svg>';
-  const kind = o.sel === 'le3' && o.probe === null ? 'selected' : 'probe';
-  const strip = rings.length ? (o.probe !== null ? `At pointer: η ${f(o.probe, 3)} · from root ${f(o.probe * HALF, 1)} mm · chord ${f(jet(plan.te, tAtX(plan.te, o.probe * HALF)).y - jet(plan.le, tAtX(plan.le, o.probe * HALF)).y, 1)} mm · ` : '') + (kind === 'selected' ? 'Point 4: ' : '') + rings.map(r => radiusText(r.rail, r.t)).join(' · ') + (kind === 'selected' ? ' where point 4 pulls hardest' : '') : '';
+  const selected = sel && o.probe === null;
+  const strip = rings.length ? (o.probe !== null ? `At pointer: η ${f(o.probe, 3)} · from root ${f(o.probe * HALF, 1)} mm · chord ${f(jet(plan.te, tAtX(plan.te, o.probe * HALF)).y - jet(plan.le, tAtX(plan.le, o.probe * HALF)).y, 1)} mm · ` : '') + (selected ? `Point ${sel.i + 1}: ` : '') + rings.map(r => radiusText(r.rail, r.t)).join(' · ') + (selected && sel.offCurve ? ` at point ${sel.i + 1}'s station on the curve` : '') : '';
   return { tips, svg: s, strip, clipped, drawn, autoVal, kFix, gain, longest, plan, rings };
 }
+const PAIRWORD = { larger: 'Smaller teeth', smaller: 'Larger teeth', sparser: 'Denser', denser: 'Sparser' };
 function plateHtml(o, r, id){
-  const pl = r.plan, ple = pieces(pl.le).count, pte = pieces(pl.te).count;
+  const pl = r.plan, isStage = id === 'stage';
+  const narrow = o.narrow !== undefined ? o.narrow : V.narrow && isStage, open = o.open !== undefined ? o.open : V.plateOpen && isStage;
+  const pe = pieces(pl.le), pt = pieces(pl.te);
   const idx = o.scale === 'auto' ? -1 : LADDER.indexOf(o.scale);
   const canLarger = o.scale === 'auto' ? LADDER.some(k => k < r.autoVal) : idx > 0;
   const canSmaller = o.scale === 'auto' ? LADDER.some(k => k > r.autoVal) : idx < LADDER.length - 1;
   const di = DENS.indexOf(o.dens);
   const word = n => n + (n === 1 ? ' piece' : ' pieces');
-  const summary = `Comb · ${o.scale === 'auto' ? 'Auto' : legend(o.scale).split(' (')[0]} · ${o.dens}`;
-  const isStage = id === 'stage';
-  const dead = isStage ? '' : 'disabled';
-  return `<div class="plate ${o.comb && o.mode === 'cad' ? '' : 'off'} ${V.narrow && isStage ? 'narrow' : ''} ${V.plateOpen && isStage ? 'open' : ''}" role="group" aria-label="Comb">
-    <button class="sum btn" type="button" data-act="open" aria-expanded="${V.plateOpen && isStage}" ${dead}><span>${summary}</span><span aria-hidden="true">▾</span></button>
+  const summary = `Comb · ${o.scale === 'auto' ? 'Auto' : legend(o.scale).split(' (')[0]} · ${o.dens} per rail`;
+  // A stepper at its limit stays focusable and says so (aria-disabled); inert cards use the disabled attribute.
+  const btn = (act, label, ok, limit) => isStage
+    ? `<button type="button" data-act="${act}" ${ok ? '' : `aria-disabled="true" title="${limit}. ${PAIRWORD[act]} is available." aria-describedby="lim-${act}"`}>${label}</button>${ok ? '' : `<span class="sr" id="lim-${act}">${limit}. ${PAIRWORD[act]} is available.</span>`}`
+    : `<button type="button" data-act="${act}" disabled>${label}</button>`;
+  const line = (rail, p) => `<div><span>${rail.name}</span><span class="at">${[word(p.count), ...p.bounds.map((b, i) => `${rail.short}${i + 1} at η ${f(b.at.x / HALF, 2)}`)].join(' · ')}</span></div>`;
+  const perM = rail => f(theta(rail) * 1000, 3);
+  return `<div class="plate ${o.comb && o.mode === 'cad' ? '' : 'off'} ${narrow ? 'narrow' : ''} ${open ? 'open' : ''}" role="group" aria-label="Comb">
+    <button class="sum btn" type="button" data-act="open" aria-expanded="${open}" ${isStage ? '' : 'disabled'}><span>${summary}</span><span aria-hidden="true">▾</span></button>
     <div class="full">
-      <h4>Comb</h4>
-      <div class="pr" role="group" aria-label="Comb scale"><span>Scale</span><button type="button" data-act="smaller" ${canSmaller && isStage ? '' : 'disabled'} ${canSmaller ? '' : 'title="Smallest teeth"'}>Smaller teeth</button><button type="button" data-act="larger" ${canLarger && isStage ? '' : 'disabled'} ${canLarger ? '' : 'title="Largest teeth"'}>Larger teeth</button><button type="button" data-act="auto" aria-pressed="${o.scale === 'auto'}" ${isStage ? '' : 'disabled'}>${o.scale === 'auto' ? '✓ ' : ''}Auto scale</button></div>
+      <h3>Comb</h3>
+      <div class="pr" role="group" aria-label="Comb scale"><span>Scale</span>${btn('smaller', 'Smaller teeth', canSmaller, 'Smallest teeth')}${btn('larger', 'Larger teeth', canLarger, 'Largest teeth')}<button type="button" data-act="auto" aria-pressed="${o.scale === 'auto'}" ${isStage ? '' : 'disabled'}>${o.scale === 'auto' ? '<span aria-hidden="true">✓ </span>' : ''}Auto scale</button></div>
       <div class="pr"><span></span><output>${o.scale === 'auto' ? 'Auto · ' : ''}${legend(r.kFix)}</output></div>
       <div class="pr"><span></span><output class="note">Shared by both rails. Teeth point away from the centre of curvature.</output></div>
-      <div class="pr" role="group" aria-label="Comb density"><span>Density</span><button type="button" data-act="sparser" ${di > 0 && isStage ? '' : 'disabled'}>Sparser</button><button type="button" data-act="denser" ${di < DENS.length - 1 && isStage ? '' : 'disabled'}>Denser</button><output>${o.dens} per rail</output></div>
-      <div class="pcs" title="Pieces of the curvature plot between its peaks and dips. Reversals under 0.02 per m are ignored."><div><span>Leading edge</span><span>${word(ple)}</span></div><div><span>Trailing edge</span><span>${word(pte)}</span></div></div>
+      <div class="pr" role="group" aria-label="Comb density"><span>Density</span>${btn('sparser', 'Sparser', di > 0, 'Sparsest density')}${btn('denser', 'Denser', di < DENS.length - 1, 'Densest density')}<output>${o.dens} per rail</output></div>
+      <div class="pcs">${line(pl.le, pe)}${line(pl.te, pt)}</div>
+      <p class="note">Ignores reversals under 0.02 ÷ rail length: ${perM(pl.le)} per m (LE), ${perM(pl.te)} per m (TE).</p>
       ${r.clipped ? `<p class="note">${r.clipped} teeth clipped (×). Smaller teeth shows them.</p>` : (r.longest < 3 ? '<p class="note">No tooth over 3 px. Larger teeth shows more.</p>' : '')}
     </div></div>`;
 }
 // ------------------------------------------------------------------ the stage ---------------------------------------
 const live = document.createElement('div'); live.className = 'sr'; live.setAttribute('role', 'status'); live.setAttribute('aria-live', 'polite'); document.body.appendChild(live);
-function paintStage(){
-  const o = { plan: V.plan, comb: V.comb, scale: V.scale, dens: V.dens, mode: V.mode, sel: V.sel, probe: V.pointer === false ? null : V.probe, focus: true, sel_rail: V.sel === 'le3' ? PLANS[V.plan].le : null, stations: false };
-  if (V.pointerAway && V.sel === 'le3') o.probe = null;
-  const r = render(o);
+function pointList(){ const pl = PLANS[V.plan]; return [...pl.le.pts.map((_, i) => 'le:' + i), ...pl.te.pts.map((_, i) => 'te:' + i)]; }
+function fillSel(){
+  const pl = PLANS[V.plan], sel = document.getElementById('h-sel');
+  const kind = (rail, i) => i === 0 || i === rail.pts.length - 1 ? 'end' : isAnchorIdx(rail, i) ? 'anchor' : 'off the curve';
+  sel.innerHTML = '<option value="none">Nothing</option>' + pointList().map(k => { const [a, b] = k.split(':'), rail = a === 'le' ? pl.le : pl.te; return `<option value="${k}">${rail.name} point ${+b + 1} (${kind(rail, +b)})</option>`; }).join('');
+  sel.value = pointList().includes(V.sel) ? V.sel : 'none'; V.sel = sel.value;
+}
+function stageShell(){                            // built once: the Tracing strip is one persistent element (C6)
   const host = document.getElementById('stage');
+  if (host.dataset.ready) return;
+  host.dataset.ready = '1';
+  host.innerHTML = `<div id="vpHost"></div>
+    <div class="strip" id="trace" role="status" aria-live="polite" aria-label="Tracing"><span id="traceText"></span><small id="traceNote"></small></div>
+    <p class="hint" id="hint1"></p>
+    <p class="hint">Tab order in the product: the plan, then the plate, then Properties. <button class="btn" type="button" id="props-stand">Properties: first value (stand-in)</button></p>`;
+}
+function setStrip(text, announce){                // text only; quiet (aria-live off) for pointer moves, polite for walking and selection
+  const trace = document.getElementById('trace'), span = document.getElementById('traceText');
+  trace.setAttribute('aria-live', announce ? 'polite' : 'off');
+  trace.className = 'strip' + (V.mode === 'analysis' ? ' warn' : '');
+  if (span.textContent !== text) span.textContent = text;
+  document.getElementById('traceNote').textContent = V.comb ? '' : 'Curvature is off: the radius still reads here.';
+}
+function paintStage(announce){
+  stageShell();
+  V.painting = true;
+  const o = { plan: V.plan, comb: V.comb, scale: V.scale, dens: V.dens, mode: V.mode, sel: V.sel, probe: V.pointerAway && V.sel !== 'none' ? null : V.probe, focus: true, stations: false };
+  const r = render(o);
+  const host = document.getElementById('vpHost');
   const focused = document.activeElement && document.activeElement.id === 'stageSvg';
   const focusAct = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.act : null;
-  const stripText = V.mode === 'analysis' ? 'Switch to CAD to edit the foil. Curvature is shown in CAD.' : (V.comb || true ? r.strip : '');
-  host.innerHTML = `<div class="vpwrap"><div class="vp">${r.svg}</div>${plateHtml(o, r, 'stage')}</div>
-    <div class="strip ${V.mode === 'analysis' ? 'warn' : ''}" id="trace" role="status" aria-label="Tracing"><span>${V.mode === 'analysis' ? stripText : stripText || 'Move over the wing to read the radius.'}</span>${V.comb ? '' : '<small>Curvature is off: the radius still reads here.</small>'}</div>
-    <p class="hint">${V.mode === 'analysis' ? 'Analysis: no comb, no plate; the Curvature toggle is disabled (“Curvature is shown in CAD.”). Scale and density are remembered.' : 'Teeth point away from the centre of curvature (outward on a convex edge). The selected rail’s teeth are drawn at full strength, the other at half.'}</p>`;
+  host.innerHTML = `<div class="vpwrap"><div class="vp">${r.svg}</div>${plateHtml(o, r, 'stage')}</div>`;
+  setStrip(V.mode === 'analysis' ? 'Switch to CAD to edit the foil. Curvature is shown in CAD.' : (r.strip || 'Move over the wing to read the radius.'), announce === true);
+  document.getElementById('hint1').textContent = V.mode === 'analysis' ? 'Analysis: no comb, no plate; the Curvature toggle is disabled (“Curvature is shown in CAD.”). Scale and density are remembered.' : 'Teeth point away from the centre of curvature (outward on a convex edge). The selected rail’s teeth are drawn in the ink tone, the other rail’s in the muted tone.';
   const svg = document.getElementById('stageSvg');
-  svg.addEventListener('pointermove', e => { const b = svg.getBoundingClientRect(); const x = (e.clientX - b.left) / b.width * 1000 - OX; V.probe = Math.min(1, Math.max(0, x / HALF)); V.pointerAway = false; paintStage(); });
-  svg.addEventListener('pointerleave', () => { if (V.sel === 'le3'){ V.pointerAway = true; paintStage(); } });
-  svg.addEventListener('keydown', e => { const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (!d) return; V.probe = Math.min(1, Math.max(0, V.probe + d * (e.shiftKey ? 0.1 : 0.01))); V.pointerAway = false; e.preventDefault(); paintStage(); document.getElementById('stageSvg').focus(); });
-  host.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => act(b.dataset.act, r)));
+  svg.addEventListener('pointermove', e => { const b = svg.getBoundingClientRect(); const x = (e.clientX - b.left) / b.width * 1000 - OX; V.probe = Math.min(1, Math.max(0, x / HALF)); V.pointerAway = false; document.getElementById('h-probe').value = Math.round(V.probe * 1000); paintStage(false); });
+  svg.addEventListener('pointerleave', () => { if (V.sel !== 'none'){ V.pointerAway = true; paintStage(true); } });
+  svg.addEventListener('focusout', e => {         // C10: the selected-point reading returns when focus leaves the canvas
+    if (V.painting || (e.relatedTarget && svg.contains(e.relatedTarget))) return;
+    if (V.sel !== 'none' && !V.pointerAway){ V.pointerAway = true; paintStage(true); }
+  });
+  svg.addEventListener('keydown', e => {          // [ and ] walk the points, as the product does; arrow keys are not a probe
+    const d = e.key === ']' ? 1 : e.key === '[' ? -1 : 0; if (!d) return;
+    const list = pointList(), at = list.indexOf(V.sel), next = Math.min(list.length - 1, Math.max(0, (at < 0 ? (d > 0 ? -1 : list.length) : at) + d));
+    V.sel = list[next]; V.pointerAway = true; document.getElementById('h-sel').value = V.sel; e.preventDefault(); paintStage(true);
+  });
+  const plate = host.querySelector('.plate');
+  if (plate) plate.addEventListener('keydown', e => {   // C5: Escape closes the narrow popover and returns focus to its summary button
+    if (e.key !== 'Escape' || !V.plateOpen) return;
+    V.plateOpen = false; e.preventDefault(); paintStage(); audit();
+    const sum = document.querySelector('#stage [data-act="open"]'); if (sum) sum.focus();
+  });
+  host.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click', () => act(b.dataset.act, r, b)));
   if (focused) svg.focus();
   else if (focusAct){ const again = host.querySelector(`[data-act="${focusAct}"]`); if (again && !again.disabled) again.focus(); }
-  document.getElementById('h-comb').disabled = V.mode === 'analysis';
-  document.getElementById('h-comb').title = V.mode === 'analysis' ? 'Curvature is shown in CAD.' : '';
+  V.painting = false;
+  const hc = document.getElementById('h-comb');            // the toolbar toggle stand-in stays focusable in Analysis (aria-disabled)
+  hc.setAttribute('aria-disabled', V.mode === 'analysis' ? 'true' : 'false');
+  hc.title = V.mode === 'analysis' ? 'Curvature is shown in CAD.' : '';
   return r;
 }
-function act(a, r){
+const LIMIT = { larger: 'Largest teeth reached.', smaller: 'Smallest teeth reached.', sparser: 'Sparsest density reached.', denser: 'Densest density reached.' };
+const PAIR = { larger: 'smaller', smaller: 'larger', sparser: 'denser', denser: 'sparser' };
+function act(a, r, btnEl){
+  if (btnEl && btnEl.getAttribute('aria-disabled') === 'true'){ live.textContent = LIMIT[a]; return; }   // focus stays where it is
   const cur = V.scale === 'auto' ? r.autoVal : V.scale;
   if (a === 'larger'){ const c = LADDER.filter(k => k < cur - 1e-9); V.scale = c.length ? c[c.length - 1] : V.scale; }
   if (a === 'smaller'){ const c = LADDER.filter(k => k > cur + 1e-9); V.scale = c.length ? c[0] : V.scale; }
@@ -422,10 +566,12 @@ function act(a, r){
   if (a === 'denser') V.dens = DENS[Math.min(DENS.length - 1, DENS.indexOf(V.dens) + 1)];
   if (a === 'open') V.plateOpen = !V.plateOpen;
   const r2 = paintStage();
+  if (a === 'open') audit();
   if (a === 'sparser' || a === 'denser') live.textContent = `Comb density ${V.dens} per rail.`;
   else if (a !== 'open') live.textContent = `Comb scale ${legend(r2.kFix)}.`;
-  const keep = { larger: 'larger', smaller: 'smaller', auto: 'auto', sparser: 'sparser', denser: 'denser', open: 'open' }[a];
-  const el = document.querySelector(`#stage [data-act="${keep}"]:not(:disabled)`) || document.querySelector('#stage [data-act="auto"]');
+  // focus stays on the control that was pressed; if it were truly disabled it would fall to the paired stepper, never to Auto
+  let el = document.querySelector(`#stage [data-act="${a}"]`);
+  if (!el || el.disabled) el = document.querySelector(`#stage [data-act="${PAIR[a]}"]`) || document.querySelector('#stage [data-act="auto"]');
   if (el) el.focus();
 }
 // ------------------------------------------------------------------ static screens ------------------------------------
@@ -440,38 +586,43 @@ document.getElementById('scales').innerHTML =
 document.getElementById('pieces').innerHTML =
   `<div class="card"><h3>Example planform</h3><p class="tag">Ticks LE1, LE2 … are the boundaries between pieces on that rail. Counts: LE ${pieces(PLANS.example.le).count}, TE ${pieces(PLANS.example.te).count}.</p>${frame('Auto scale', { plan: 'example', probe: null, view: [0, 100, 1000, 370], noPlate: true, label: 'Plan with monotone-piece ticks, example planform' })}</div>
    <div class="card"><h3>Trailing edge with a wobble</h3><p class="tag">Two trailing-edge control points moved by 8 and 16 mm. TE reads ${pieces(PLANS.wobble.te).count} pieces; the count rises and the ticks point at the wobble.</p>${frame('Auto scale', { plan: 'wobble', probe: null, view: [0, 100, 1000, 370], noPlate: true, label: 'Plan with monotone-piece ticks, wobbled trailing edge' })}</div>`;
-// hard states
 const cropTip = [560, 120, 440, 330], cropCorner = [300, 60, 480, 260];
 const hardCards = [
   ['Straight segment', 'Both rails straight: radius reads “straight”, teeth are dots, one piece each, no ticks.',
     frame('Straight rails', { plan: 'straight', probe: 0.5, view: [0, 100, 1000, 340], label: 'Plan with straight rails', noPlate: true })],
-  ['Corner and curvature spike', 'A corner in the leading edge: one-sided teeth, the dashed break mark, tick LE1 as a piece boundary, and the radius on each side.',
-    frame('Corner at 55 %', { plan: 'corner', probe: 0.55, view: cropCorner, scale: 5, label: 'Plan with a corner in the leading edge', noPlate: true })],
+  ['Corner', 'A corner in the leading edge (the tangent turns by more than 0.1 degrees): one-sided teeth, the dashed break mark, a visible step in the envelope, and R and signed κ on each side.',
+    frame('Corner at point 5', { plan: 'corner', sel: 'le:4', probe: null, view: cropCorner, scale: 5, label: 'Plan with a corner in the leading edge', noPlate: true })],
+  ['Curvature jump at a smooth anchor', 'The tangent is continuous (G1) but the curvature jumps: the same two one-sided teeth and the step, no dashed break mark, and the words “curvature jumps at this anchor”.',
+    frame('Smooth anchor at point 5', { plan: 'g1', sel: 'le:4', probe: null, view: cropCorner, scale: 5, label: 'Plan with a curvature jump at a smooth anchor in the leading edge', noPlate: true })],
   ['Teeth clipped at a tight tip', 'Fixed step 30 px = 0.5 per m on the sharp tip: teeth over 60 px are clipped and marked ×; the plate counts them.',
     frame('Tip region', { scale: 0.5, probe: 0.97, view: cropTip, label: 'Tip region with clipped teeth', noPlate: true }) + '<p class="hint">Plate text: “N teeth clipped (×). Smaller teeth shows them.”</p>'],
-  ['Comb crosses other overlays', 'Order, bottom to top: fill, comb, curves and polygon, station chips, limit marker, rings, glyphs. Teeth are thin and half strength; the rebuild preview (dashed, station colour) is above them.',
+  ['Comb crosses other overlays', 'Order, bottom to top: fill, comb, curves and polygon, station chips, limit marker, rings, glyphs. Teeth are 1 px, the selected rail’s in the ink tone and the other rail’s in the muted tone; the rebuild preview (dashed, station colour) is above them.',
     frame('Stations, minimum-tip marker and rebuild preview', { stations: true, limit: true, preview: true, probe: 0.35, view: [420, 100, 580, 370], noPlate: true, label: 'Plan with overlays crossing the comb' })],
   ['Analysis area', 'No comb, no plate, no ticks. The toolbar toggle is disabled with the reason. The harness “Area” control shows it live.',
     frame('Analysis', { mode: 'analysis', probe: null, view: [0, 100, 1000, 340], label: 'Plan in Analysis without the comb', noPlate: true }) + '<div class="strip warn">Curvature is shown in CAD.<small>Disabled-with-reason text on the toolbar toggle.</small></div>'],
   ['Comb off, radius still reads', 'Radius lives in the Tracing strip and does not need the comb. No plate, no ticks, no pieces.',
-    frame('Curvature off', { comb: false, probe: 0.72, view: [0, 100, 1000, 340], noPlate: true, label: 'Plan with the comb off and the radius reading' })],
-  ['Selected off-curve control point', 'Pointer away: the strip reads the rail where the point’s basis function peaks (its Greville position) and says so; the ring marks it on the curve, not at the point.',
-    frame('Leading edge point 4', { sel: 'le3', probe: null, sel_rail: PLANS.example.le, view: [0, 100, 1000, 340], noPlate: true, label: 'Plan with a selected control point and the radius at the nearest curve position' })],
+    frame('Curvature off', { comb: false, probe: 0.72, view: [0, 100, 1000, 340], label: 'Plan with the comb off and the radius reading', noPlate: true })],
+  ['Selected off-curve control point', 'Pointer away: the strip reads the rail at point 4’s station on the curve (its Greville station, t = ξ evaluated directly) and says so; the ring marks it on the curve, not at the point.',
+    frame('Leading edge point 4', { sel: 'le:3', probe: null, view: [0, 100, 1000, 340], label: 'Plan with a selected control point and the radius at its station on the curve', noPlate: true })],
+  ['Narrow width, plate open', 'At 560 px the plate is one line over the viewport. Opened, the steppers sit in flow between the viewport and the Tracing strip, so nothing on the rail or the tip is covered.',
+    `<div id="openCard">${frame('Plate open, narrow', { narrow: true, open: true, probe: 0.84, label: 'Plan at narrow width with the comb plate open below the viewport' })}</div>`],
   ['No foil open', 'Nothing is drawn and there is no plate. The Start card is unchanged.',
     `<div class="strip">Start with a foil, then make it yours.</div>`]
 ];
 document.getElementById('hard').innerHTML = hardCards.map(c => `<div class="card"><h3>${c[0]}</h3><p class="tag">${c[1]}</p>${c[2]}</div>`).join('');
 document.getElementById('dens').innerHTML = [16, 128].map(n => `<div class="card"><h3>${n} per rail</h3><p class="tag">${n === 16 ? 'Sparse: the outline of the curvature plot only.' : 'Fine: the shape of the plot between the knots.'}</p>${frame('Tip region of the leading edge', { dens: n, scale: 5, probe: null, view: [560, 150, 440, 230], noPlate: true, label: `Tip region at ${n} teeth per rail` })}</div>`).join('');
 document.getElementById('questions').innerHTML = [
-  ['Comb on both rails at once.', 'Today the comb draws only for the rail of the selected point, and nothing with no selection. This design draws both rails whenever Curvature is on, the selected rail at full strength. Recommended: both rails (fairing the outline means comparing the two edges).'],
-  ['Auto scale held during a drag.', 'The section editor refits on every paint; the rail comb refits at press and at release (and at the end of a nudge run), so a worse curve cannot look calmer mid-gesture. Recommended: hold, and bring the section editor to the same rule in a later slice (AM-RC-1, OQ-2).'],
-  ['The count ignores reversals under 0.02 per m.', 'A piece ends only when curvature reverses by more than 0.02 per metre, printed in the help line, so a small real wobble on a long run still counts and numerical noise does not. Recommended: yes; the number is confirmed by the build fixtures (tip round plus a 0.3 mm wobble reads 3).']
+  ['Comb on both rails: yes.', 'The comb draws on both rails whenever Curvature is on, the selected rail at full strength. This page already does.'],
+  ['Auto scale is held during an edit gesture: yes.', 'Auto refits at press and at release, not between; a legend flash and a live-region line report a change of more than 2x.'],
+  ['The reversal threshold scales with rail length: τ / L.', 'A piece ends when curvature reverses by more than 0.02 divided by the rail’s arc length. The plate prints the resolved per-metre value for each rail, as a line of text.']
 ].map(q => `<li><b>${q[0]}</b> ${q[1]}</li>`).join('');
 // ------------------------------------------------------------------ harness wiring -----------------------------------
-document.getElementById('h-plan').addEventListener('change', e => { V.plan = e.target.value; paintStage(); });
+fillSel();
+document.getElementById('h-plan').addEventListener('change', e => { V.plan = e.target.value; fillSel(); paintStage(); audit(); });
 document.getElementById('h-mode').addEventListener('change', e => { V.mode = e.target.value; paintStage(); });
-document.getElementById('h-sel').addEventListener('change', e => { V.sel = e.target.value; V.pointerAway = e.target.value === 'le3'; paintStage(); });
-document.getElementById('h-comb').addEventListener('click', e => { V.comb = !V.comb; e.target.setAttribute('aria-pressed', V.comb); e.target.textContent = V.comb ? 'Curvature on' : 'Curvature off'; paintStage(); });
+document.getElementById('h-sel').addEventListener('change', e => { V.sel = e.target.value; V.pointerAway = e.target.value !== 'none'; paintStage(); });
+document.getElementById('h-probe').addEventListener('input', e => { V.probe = e.target.value / 1000; V.pointerAway = false; e.target.setAttribute('aria-valuetext', 'η ' + f(V.probe, 3)); paintStage(); });
+document.getElementById('h-comb').addEventListener('click', e => { if (V.mode === 'analysis'){ live.textContent = 'Curvature is shown in CAD.'; return; } V.comb = !V.comb; e.target.setAttribute('aria-pressed', V.comb); e.target.textContent = V.comb ? 'Curvature on' : 'Curvature off'; paintStage(); });
 document.getElementById('h-narrow').addEventListener('click', e => { V.narrow = !V.narrow; e.target.setAttribute('aria-pressed', V.narrow); document.querySelector('main').style.maxWidth = V.narrow ? '560px' : ''; paintStage(); audit(); });
 document.getElementById('theme').addEventListener('click', e => {
   const dark = document.documentElement.dataset.theme !== 'dark';
@@ -497,24 +648,35 @@ function audit(){
   out.push(['Auto: p90 tooth', `${f(p90, 1)} px (rule: 30)`, Math.abs(p90 - 30) < 0.01]);
   const pe = pieces(PLANS.example.le).count + '/' + pieces(PLANS.example.te).count, pw = pieces(PLANS.wobble.te).count;
   out.push(['pieces LE/TE example', pe + ' · wobbled TE ' + pw, pw > pieces(PLANS.example.te).count]);
-  out.push(['straight rails', pieces(PLANS.straight.le).count + ' piece, ' + radiusText(PLANS.straight.le, 0.5), radiusText(PLANS.straight.le, 0.5).endsWith('straight') && pieces(PLANS.straight.le).count === 1]);
-  // radius check: a quarter circle as a rational stand-in is not cubic; use the curvature of the example at mid-span against a 3-point circle
+  out.push(['straight rails', pieces(PLANS.straight.le).count + ' piece, ' + radiusText(PLANS.straight.le, 0.5), radiusText(PLANS.straight.le, 0.5).endsWith('straight · κ 0') && pieces(PLANS.straight.le).count === 1]);
+  const sc = [0.3, 1, 2].map(k => pieces(cloneRail(PLANS.example.te, k)).count + '/' + pieces(cloneRail(PLANS.wobble.te, k)).count);
+  out.push(['scale invariance 0.3, 1, 2x (example TE/wobble TE)', sc.join(' · '), sc.every(v => v === sc[0])]);
+  const mi = [PLANS.example.le, PLANS.example.te, PLANS.wobble.te, PLANS.corner.le].map(rl => pieces(rl).count === pieces(cloneRail(rl, 1, true)).count);
+  out.push(['mirror invariance (4 rails)', mi.every(Boolean) ? 'same counts' : 'differ', mi.every(Boolean)]);
+  const Lgl = railLen(PLANS.example.le), Lpl = samples(PLANS.example.le).slice(-1)[0].s;
+  out.push(['Gauss–Legendre L vs polyline', `${f(Lgl, 2)} vs ${f(Lpl, 2)} mm`, Math.abs(Lgl - Lpl) / Lgl < 2e-3]);
+  const gi = knotInfo(PLANS.g1.le, 0.55), ci = knotInfo(PLANS.corner.le, 0.55);
+  out.push(['anchor kinds (g1 / corner)', `${f(gi.angle, 3)}° jump ${gi.jump} / ${f(ci.angle, 1)}° corner ${ci.corner}`, !gi.corner && gi.jump && ci.corner]);
   const t = tAtX(PLANS.example.le, 700), j = jet(PLANS.example.le, t), a = jet(PLANS.example.le, t - 0.01), b = jet(PLANS.example.le, t + 0.01);
   const ab = Math.hypot(a.x - j.x, a.y - j.y), bc = Math.hypot(b.x - j.x, b.y - j.y), ca = Math.hypot(a.x - b.x, a.y - b.y);
   const area2 = Math.abs((j.x - a.x) * (b.y - a.y) - (j.y - a.y) * (b.x - a.x)), rc = ab * bc * ca / (2 * area2), rj = 1 / Math.abs(j.k);
   out.push(['analytic R vs 3-point circle', `${f(rj, 1)} vs ${f(rc, 1)} mm`, Math.abs(rj - rc) / rj < 0.02]);
   { const svg = document.getElementById('stageSvg'), pl = document.querySelector('#stage .plate'); if (svg && pl && !pl.classList.contains('off')){
     const sb = svg.getBoundingClientRect(), pb = pl.getBoundingClientRect(), k = sb.width / 1000;
-    const hit = stageGeometry().filter(([x, y]) => { const cx = sb.left + x * k, cy = sb.top + y * k; return cx > pb.left && cx < pb.right && cy > pb.top && cy < pb.bottom; }).length;
-    out.push(['plate covers rail or teeth', hit + ' points', hit === 0]); } }
+    const inFlow = getComputedStyle(pl).position === 'static';
+    const hit = inFlow ? (pb.top >= sb.bottom - 0.5 ? 0 : 1) : stageGeometry().filter(([x, y]) => { const cx = sb.left + x * k, cy = sb.top + y * k; return cx > pb.left && cx < pb.right && cy > pb.top && cy < pb.bottom; }).length;
+    out.push([inFlow ? 'open plate below the viewport' : 'plate covers rail or teeth', inFlow ? (hit ? 'overlaps' : 'clear') : hit + ' points', hit === 0]); } }
+  { const card = document.getElementById('openCard'); if (card){
+    const sv = card.querySelector('svg').getBoundingClientRect(), pl = card.querySelector('.plate').getBoundingClientRect(), st = card.querySelector('.strip').getBoundingClientRect();
+    out.push(['open-state card: viewport, plate, strip in order', `${Math.round(sv.bottom)} ≤ ${Math.round(pl.top)}, ${Math.round(pl.bottom)} ≤ ${Math.round(st.top)}`, pl.top >= sv.bottom - 0.5 && st.top >= pl.bottom - 0.5]); } }
   const bad = [...document.querySelectorAll('.plate button, .btn, .harness button')].filter(b => { const q = b.getBoundingClientRect(); return q.width > 0 && (q.height < 24 || q.width < 24); });
   out.push(['targets under 24 px', String(bad.length), bad.length === 0]);
   const cs = getComputedStyle(document.documentElement);
-  const pairs = [['--ink', '--surface'], ['--mute', '--surface'], ['--vp-ink', '--vp'], ['--vp-mute', '--vp'], ['--station', '--vp'], ['--warn-vp', '--vp'], ['--accent', '--surface']];
+  const pairs = [['--ink', '--surface'], ['--mute', '--surface'], ['--vp-ink', '--vp'], ['--vp-mute', '--vp'], ['--station', '--vp'], ['--warn-vp', '--vp'], ['--accent', '--surface'], ['--focus-vp', '--vp']];
   const probe = document.createElement('i'); document.body.appendChild(probe);
   const col = v => { probe.style.color = cs.getPropertyValue(v).trim(); return getComputedStyle(probe).color; };
-  let min = 99; for (const [a2, b2] of pairs) min = Math.min(min, ratio(col(a2), col(b2))); probe.remove();
-  out.push(['min text contrast', f(min, 2) + ' : 1', min >= 4.5]);
+  let min = 99, minName = ''; for (const [a2, b2] of pairs){ const q = ratio(col(a2), col(b2)); if (q < min){ min = q; minName = a2 + ' on ' + b2; } } probe.remove();
+  out.push(['min contrast (8 pairs incl. focus ring on viewport)', f(min, 2) + ' : 1 (' + minName + ')', min >= 4.5]);
   const txt = document.body.innerText; out.push(['placeholder scan', /NaN|undefined|Infinity/.test(txt) ? 'found' : 'none', !/NaN|undefined|Infinity/.test(txt)]);
   document.getElementById('audit').innerHTML = out.map(c => `${c[0]}: <b class="${c[2] ? 'pass' : 'fail'}">${c[1]}</b>`).join(' · ');
 }

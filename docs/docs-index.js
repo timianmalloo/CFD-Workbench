@@ -3499,10 +3499,10 @@ window.DOCS_INDEX = {
       "type": "design",
       "status": "proposed",
       "owner": "@timianmalloo",
-      "phase": "design — operator sees the mockup before any build (memory rule); track CMB, Ruling 193 (B), Ruling 107 (DR-GM-9 C)",
+      "phase": "design, revision 2 (track CMR) — Ruling 194 answers and the reviewers' conditions folded in; final copy returns to the operator as one table (§7)",
       "reviewBy": "2027-04-01",
       "reviewSuggested": [],
-      "summary": "Design for OI-5 on the planform rails. The Plan comb keeps its toggle (Curvature, C) and gains a small plate in the viewport with a scale stepper (Auto, or a fixed 1-2-5 gain stated as \"30 px = N per metre\") and a density stepper (16, 32, 64, 128 teeth per rail). The Tracing strip beneath the viewport gains the radius of each rail at the pointer's station (R in the project length unit, straight rails read \"straight\"). The plate also shows the monotone-piece count of curvature per rail, with a numbered tick on the rail at each curvature extremum. No new single keys, no Properties rows, no file change. One new Core function pair (curvature at a station, monotone pieces of curvature) and one spec clarification. Adversary pass (marine-cad-ux-expert) is recorded in docs/proof/cmb/adversary.md.",
+      "summary": "Design for OI-5 on the planform rails, revision 2. The Plan comb keeps its toggle (Curvature, C) and gains a plate in the viewport with a scale stepper (Auto, or a fixed 1-2-5 gain stated as \"30 px = N per metre\") and a density stepper (16, 32, 64, 128 teeth per rail). The Tracing strip gains the radius and signed curvature of each rail at the pointer's station, or at the selected point's station on the curve. The plate shows the monotone-piece count per rail, names each piece boundary in text, and prints the resolved reversal threshold (0.02 divided by the rail's arc length). Ruling 194: both rails, Auto held during a gesture, threshold tau / L. The geometry rules (extrema by root-finding, one-sided curvature at anchors, sign, Greville station) and the keyboard, focus and narrow-width rules are fixed here, with ten build conditions and named fixtures. Adversary and review records are in docs/proof/cmb/adversary.md.",
       "tags": [
         "desktop",
         "core",
@@ -3548,7 +3548,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f3a1089f433ac9c7699d0358a0d228c384aa5f589901dad32a37c4f20dee561e"
+      "sourceSha256": "e003645a37f55bdf47a163ddd3de4bcf9b3d981418dc33d787665df36ae4b4b7"
     },
     {
       "id": "design-section-editor",
@@ -4327,7 +4327,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "efba7fbe4da67570030c96de40301044bf4d4588a2c241e4a394525e4c8f9ffb"
+      "sourceSha256": "375a8dec8a1a67570611fa6707ddfddda5197ac53ef613c8ed03c545ab711f17"
     },
     {
       "id": "mockup-section-force-vectors",
@@ -6261,7 +6261,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c7e2627b16279e979c13396255c0d8c08f3890c1fa6a7b76069f95cf94237678"
+      "sourceSha256": "1c5552badfbe01fa8fa79a07d819d436b6ab333d6f0afaf4b299998ca93a0f3a"
     },
     {
       "id": "proof-cpy-cause-rows",
@@ -8572,7 +8572,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "d5ff39fc2dbd12f95a02d78b707fef3df81552b7cddab2b5fdb5a06bb23bbf7c"
+      "sourceSha256": "77e9073510021efc3cb2609dd3458ee6f3fb163c5fba110f151a941a0be32313"
     },
     {
       "id": "kb-hw-glossary",
@@ -19672,5 +19672,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5327cbbb2970bb7a21f51ed710ecafafdcb11177c7e3796a37b6a1b7821dc0a9"
+  "graphSha256": "77df2f20604f922598c3d910cf372099bb9344e5e6dd1dc1af5f397af4671fb9"
 };
