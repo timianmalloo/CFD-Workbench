@@ -6801,6 +6801,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "4d3fb1aac968e663dd5d54b64c79f9900bebdf0d5a76a5f44e94f6fa40999526"
     },
     {
+      "id": "review-pr-16",
+      "path": "docs/reviews/pr-16.md",
+      "title": "PR #16 (Windows PC) - Windows ring on the CAF/RWF main, INCOMPLETE (Rulings 167, 168), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 167). One INCOMPLETE six-CPU Windows ring on main 77e53062 (CAF + RWF), killed at 60.4 s by a ceiling no tool requires. The nine catalog checks pass on Windows and the five DRIFT lines equal the Mac's (the 6.1e-18 is a stale Mac fixture, not a cross-OS difference). P5 stays unverified; two unexpected failures go to the next ring. Ruling 168 sets a 300 s outer ceiling for Windows evidence rings.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "test-ring",
+        "catalog",
+        "determinism"
+      ],
+      "links": [
+        {
+          "to": "review-pr-15",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-13",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "30f1fb9fd749c3b3063e53aae0ccc60303f5aa813f76c80cf36cd2eec3ad91db"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7769,7 +7802,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "f7b2cac3c3ef9fb5f03abba4336d4fead934d2e5469f2bb5131990676e3dfa6b"
+      "sourceSha256": "c56b3623ecbd52b7d05ae80ad5756627a9093966342ec1785eba4c4e268d4eca"
     },
     {
       "id": "kb-hw-glossary",
@@ -17579,5 +17612,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "87256c335e02dc23bd7173813cd787a6f06aa124544c365e32a4e0353cae10bc"
+  "graphSha256": "4429ac85cf6bd7850c5a477304e64b717041df868fffb4533a250cb0fc3f384f"
 };
