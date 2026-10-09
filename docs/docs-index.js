@@ -6842,6 +6842,38 @@ window.DOCS_INDEX = {
       "sourceSha256": "30f1fb9fd749c3b3063e53aae0ccc60303f5aa813f76c80cf36cd2eec3ad91db"
     },
     {
+      "id": "review-pr-17",
+      "path": "docs/reviews/pr-17.md",
+      "title": "PR #17 (Windows PC) - Ruling 151 C3/C4 follow-ups and the Ruling 165 correction (Ruling 169), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 169). PR #17 closes Ruling 151 C3/C4 and replaces the Ruling 165 audit entry: 0 PROOF-PII hits over every added line, the rejected 9e2bdfc2 is on no remote, the win L3 case and generator cite the win case, and all 119 closing-manifest and 7 prepared hashes equal the committed blobs. Two C3 controls are prose only, and one control statement misdescribes freeze-su2.py's order.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "w-4",
+        "privacy"
+      ],
+      "links": [
+        {
+          "to": "review-pr-9",
+          "rel": "relates-to"
+        },
+        {
+          "to": "review-pr-16",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "d0508b3bedf45d97263741f251c5752c1fc52b3bb26108a5b81ec95bf7084d80"
+    },
+    {
       "id": "review-pr-2",
       "path": "docs/reviews/pr-2.md",
       "title": "PR #2 (Windows PC) - W-0 setup evidence, Fable owner review",
@@ -7810,7 +7842,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c56b3623ecbd52b7d05ae80ad5756627a9093966342ec1785eba4c4e268d4eca"
+      "sourceSha256": "7f6f8036a129b5390cfbcbef7a7d00557fffc439eb3bc674e82935241f6edae5"
     },
     {
       "id": "kb-hw-glossary",
@@ -17655,5 +17687,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "5f53d0ee3ee2bbda99e7280f671fd4de5244c167565499de78a0e7ed78405bbe"
+  "graphSha256": "acc69ca3439ba046f5e65f74651a72594ef63949fefaa43558cb2d4ba563a33f"
 };
