@@ -1,0 +1,35 @@
+* text=auto eol=lf
+docs/audit/audit-data.js merge=coord-regen
+docs/audit/index.html merge=coord-regen
+docs/audit/audit-log.jsonl merge=coord-register
+docs/docs-index.js merge=coord-regen
+docs/audit/change-log.jsonl merge=coord-register
+.agents/log/*.jsonl merge=coord-register
+.agents/requests.jsonl merge=coord-register
+docs/coordination/xmsg.jsonl merge=coord-register
+docs/lessons/defect-classes.md merge=defect-register
+# Raw proof captures are byte evidence; preserve their captured line endings.
+docs/proof/win-store-implementation/*.stdout.txt -text
+docs/proof/win-store-implementation/*.stderr.txt -text
+docs/proof/wri-probe/r177-* -text whitespace=cr-at-eol
+docs/proof/wri-probe/r178-* -text whitespace=cr-at-eol
+# Runner qualification/gate stdout is byte evidence, including producer CR sequences.
+docs/proof/wri-r182-runner/*.stdout.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r182-runner/*.stderr.txt -text whitespace=-trailing-space,-blank-at-eof
+# Unified diff blank context lines require their leading space; retain the reviewed patch bytes.
+docs/proof/wri-r182-runner/r183-checker.patch -text whitespace=-trailing-space
+# R184 preparation producer bytes and saved pre-SDG delta are hash-bound evidence.
+docs/proof/wri-r184-driver/*.stdout.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r184-driver/*.stderr.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r184-driver/pre-sdg-tracked.patch -text whitespace=-trailing-space
+docs/proof/wri-r184-driver/r185/*.stdout.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r184-driver/r185/*.stderr.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r184-driver/callback-repair-*/*.stdout.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r184-driver/callback-repair-*/*.stderr.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r184-result/*.stdout.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r184-result/*.stderr.txt -text whitespace=-trailing-space,-blank-at-eof
+docs/proof/wri-r182-runner/source-snapshots/e9714ce5/*.ps1 -text
+docs/proof/wri-r182-runner/source-snapshots/e9714ce5/*.py -text
+docs/proof/wri-r184-result/source-snapshots/1477951f/*.ps1 -text
+docs/proof/wri-r184-result/source-snapshots/1477951f/*.py -text
+docs/proof/wri-r184-result/source-snapshots/36ccfa49/*.ps1 -text

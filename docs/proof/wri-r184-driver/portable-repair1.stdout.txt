@@ -1,0 +1,1 @@
+clean - every text write under pack/scripts, pack/adapters/hooks, tools is LF, every printing CLI guards its console

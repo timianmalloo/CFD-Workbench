@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T19:31:45Z",
+  "generated": "2026-10-09T20:23:19Z",
   "audit": [
     {
       "actor": null,
@@ -33309,23 +33309,163 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4H2CTHGZXMMZVEE7T33C9XG",
-      "shortname": "join-ccl",
+      "actor": null,
+      "artifacts": [
+        "docs/proof/ccl/receipt.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-09T19:31:45Z",
-      "session": "3122f106",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
+      "duration_seconds": 64.0,
+      "fan_out": 0,
+      "goal": "tracks stop spending repair cycles on contention",
+      "id": "al-01M4H2CTHGZXMMZVEE7T33C9XG",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/ccl-cost-concurrency into main",
+      "session": "3122f106",
+      "shortname": "join-ccl",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T19:30:41Z",
       "summary": "Joined CCL: run-tests.sh samples ring-lock peers; C-2..C-5 over-cap with a peer prints COST-ADVISORY naming it; quiet host still fails recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-09T20:16:34Z",
+      "done_when": "docs/proof/pce/investigation.md committed, check-docs exit 0",
+      "duration_seconds": 750.0,
+      "goal": "Verified root cause, class, sweep and repair plan for PlanCanvas_Escape_DismissTooltipThenClearSelection",
+      "id": "al-01M4H4YWA6KHQHZSJ6AR8A8807",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-pce: investigate flaky PlanCanvas_Escape check",
+      "session": "trk-pce",
+      "shortname": "pce-escape-flake",
+      "skill": "implement",
+      "started_at": "2026-10-09T20:04:04Z",
+      "summary": "Mechanism verified with a held mesh seam: a refresh re-derives the tooltip from lastHover after Escape; natural repro 0/106; repair is product-side with a held-seam red-first check",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/pce/investigation.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-09T20:17:35Z",
+      "done_when": "join gates green, PUSH-OK",
+      "duration_seconds": 16.0,
+      "fan_out": 0,
+      "goal": "the flake's root cause is on main for review",
+      "id": "al-01M4H50R7RA6M0W8NW9RPTBR89",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of inv/pce-escape-flake into main",
+      "session": "3122f106",
+      "shortname": "join-pce",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-09T20:17:19Z",
+      "summary": "Joined PCE investigation: Escape clears TooltipText but a refresh re-derives it from lastHover; held-seam repro; product repair proposed recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": "win-wri-r182-runner",
+      "artifacts": [
+        "docs/proof/wri-r184-result/receipt.md"
+      ],
+      "compiled": false,
+      "datetime": "2026-10-09T19:42:13Z",
+      "done_when": "Blocked receipt, staged-byte manifests, audit and docs index are retained, docs-only gates pass and local commit exists.",
+      "duration_seconds": 384.0,
+      "fan_out": 0,
+      "git": {
+        "branch": "win/wri-r184-scale-run",
+        "pushed": true,
+        "sha": "1477951f6cff53f7f9f6eee111425738dcc24b96",
+        "short": "1477951f6"
+      },
+      "goal": "Package the two blocked R184 execution cycles with truthful exits, fingerprints, cap closure and unassessed checks.",
+      "id": "al-01M4H300C80Q6Q7BJB81XD7NAG",
+      "kind": "skill",
+      "outcome": "blocked",
+      "prompt": "Execution is stopped at cap. Packaging only; no implementation edits or runs. In C:\\Projects\\CFD-Workbench-win-wri-r184-scale-run, create a truthful blocked receipt and manifests for R184 cycles1-2 under docs/proof/wri-r184-result/ (or a sibling summary path if needed). Include exact HEADs/hashes, timelines, child records/exits/ceilings, cycle1 shadowing defect and repair proof, cycle2 exact Settings-frame-absent preflight, all 14 checks NOT ASSESSED at both scales, no scale mutation/build/product/restore/readback, RestoreExit/ReadbackExit not recorded because no mutation, SourceUnchanged and fingerprint/diff evidence, both-cycle cap fired, readiness closed, R181 verifier still queued. Add audit goal/result and regenerate required docs index/manifests using repo tools; run PII/graph/docs gates appropriate to docs-only packaging. Commit locally and report SHA. Do not push/open PR yet and do not execute any product/store verifier.",
+      "session": "win-wri-r184-blocked",
+      "shortname": "wri-r184-blocked-receipt",
+      "skill": "implement",
+      "started_at": "2026-10-09T19:35:49Z",
+      "summary": "R184 execution stopped at two-cycle cap: cycle1 numeric preflight exit64 from callback path shadowing; reviewed path repair and boundary red1/green0; cycle2 numeric preflight exit1 from absent Settings frame. No scale mutation/build/product/restore/readback/store verifier. All14 checks not assessed at both scales, readiness closed. Packaging seals these blocked outcomes; validation and local commit follow.",
+      "tags": [
+        "ruling-184",
+        "blocked"
+      ],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [
+        "docs/proof/wri-r184-result/receipt.md",
+        "docs/proof/wri-r184-result/source-bindings.json",
+        "docs/proof/wri-r184-result/docs-repair2.json"
+      ],
+      "datetime": "2026-10-09T20:04:31Z",
+      "done_when": "Receipts and manifests retain red/timeout/green provenance and pass committed-byte gates before branch push",
+      "fan_out": 0,
+      "git": {
+        "branch": "win/wri-r184-scale-run",
+        "pushed": false,
+        "sha": "17339ebf08e2d51e86cf6755b6b63fea9a18d331",
+        "short": "17339ebf0"
+      },
+      "goal": "Package blocked R184 evidence with immutable approved source bindings",
+      "id": "al-01M4H48TARC6Z1BFRASH3YQSKA",
+      "kind": "command",
+      "outcome": "success",
+      "prompt": "Mac handoff authorized on PR24 exactly as Astra stated. Continue packaging only in C:\\Projects\\CFD-Workbench-win-wri-r184-scale-run: under docs/proof/wri-r182-runner/ add immutable snapshot subfolder containing exact four tool blobs from e9714ce525681ade39aac19e0d86e80ab240907a; add narrow -text attrs; change only those four closing-manifest paths, preserving entry count/bytes/SHA. Record original path, source commit+blob id, new path in R184 receipt. Historical receipts/captures/current tools/checker unchanged; retain failed docs capture. Also ensure R184 closing manifest uses immutable snapshots, not live tools paths. Commit packaging, then run check-capture-manifests.py and check-docs.py from HEAD, reseal as necessary without altering implementation. Run PII/graph/diff checks, verify committed manifests, commit/push only after green; report SHA. No live/product/store execution.\n\nAstra authorizes exactly one docs-only evidence rerun from committed HEAD17339ebf with 300s outer capture ceiling. Retain timeout artifacts unchanged; first verify timed-out process tree stopped. No edits before run. Capture numeric exit, full stdout/stderr, elapsed, exact HEAD/source fingerprints as docs-repair2.*. No further retry if red/timeout. If green, reseal manifests including repair1 timeout and repair2 outputs, commit packaging closeout, verify committed manifests/PII/graph/diff, push branch and report. No implementation/live/product/store execution.",
+      "session": "win-wri-r184-blocked",
+      "shortname": "wri-r184-immutable-closeout",
+      "skill": null,
+      "summary": "Immutable R182/R184 source handoff completed: legacy39 entries retained with four path changes;12 exact Git blob snapshots. Initial HEAD docs capture timed out at120s and is retained; single Astra-authorized300s rerun passed exit0 in117.462s on17339ebf. Manifest/PII/graph/diff checks passed. Live execution remains blocked at two-cycle cap; no product/store/scale action.",
+      "tags": [],
+      "tier": "T1",
+      "tool": "packaging"
+    },
+    {
+      "id": "al-01M4H5B81CR8ZE0C91F37QY2X6",
+      "shortname": "join-pr25",
+      "datetime": "2026-10-09T20:23:19Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined PR #25 as a blocked receipt (Ruling 187); no budget (Ruling 186); .gitattributes manifest entry rebound to a snapshot recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/proof/ccl/receipt.md"
+        "docs/reviews/pr-25.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "tracks stop spending repair cycles on contention",
+      "goal": "PR #25 on main under Ruling 187",
       "done_when": "join gates and ring green, readiness green, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
@@ -33334,8 +33474,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-09T19:30:41Z",
-      "duration_seconds": 64.0
+      "started_at": "2026-10-09T20:22:17Z",
+      "duration_seconds": 62.0
     }
   ],
   "changes": [
@@ -35988,6 +36128,33 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4H16D59YHM976B5M9YKWQM2",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4H3QS352D6E0Z7SA544WP2T",
+      "ts": "2026-10-09T19:55:12Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4H3QS05PH5MD3FBEG6CKZR8",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4H56YAZSM5RHXSCZRKTB79X",
+      "ts": "2026-10-09T20:20:58Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4H56YATETJ0PK8KWN8YV7C4",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4H56YE37ZKMDD5RCH5K172P",
+      "ts": "2026-10-09T20:20:58Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4H56YATETJ0PK8KWN8YV7C4",
       "session": "fable-owner"
     }
   ]

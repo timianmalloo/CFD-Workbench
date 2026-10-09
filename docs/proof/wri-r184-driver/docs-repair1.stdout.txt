@@ -1,0 +1,503 @@
+join rings ok: tests every code join (docs-only joins skip, Ruling 89), slow gates and recounts at readiness
+store subset ok: umask partition holds statically
+merge bindings ok: every coord-register path parses as JSONL, every defect-register path is markdown
+Managed Claude hooks: 11 unique event/matcher/target entries
+Rollup links: default and nested destinations resolve to the real source.
+process matching ok: no pgrep/pkill -f under tools/ or cases/tools/
+test paths ok: no relative repository reads in the Core tests
+debug parity ok: no Debug-only code or per-configuration compile property in src/ or tests/ (9 project files)
+SPIRAL: 12 commits, 0 product, 100% bookkeeping since 46c6c2e — stop the track and report to the operator (docs/lessons/defect-classes.md COORD-SPIRAL)
+spiral check: ok (12 commits, 1 product)
+spiral check: ok (12 commits, 0 product)
+spiral check: ok (11 commits, 0 product)
+self-test OK
+spiral check: ok (242 commits, 20 product)
+check-artifact-bindings self-test OK
+artifact bindings ok: 8 derived/register patterns all bound in .gitattributes
+check-foildsl-spec-sync self-test OK
+foildsl spec sync ok: src/CfdWorkbench.Core/FoilSource.cs unchanged on this branch
+trace-brief self-test OK
+xmsg self-test: ok (routing, seen-marking, no loss)
+no-heredoc hook self-test OK
+check-copy-ids self-test OK
+copy ids ok: 446 rows, every id unique
+check-wallclock-asserts self-test OK
+wall-clock assertions ok: 2 ungated, all allowlisted as tracked debt
+SELFTEST PASS planted shapes: expected [(1, 'Math.Cos'), (6, 'Math.Pow'), (7, 'double.Atan2Pi'), (8, 'double.Cos'), (9, 'double.Atan2'), (10, 'double.Exp'), (11, 'double.AcosPi'), (12, 'using static System.Math'), (13, 'MathF.Sin'), (14, 'Math.Cos'), (15, 'Math.Cos')], got [(1, 'Math.Cos'), (6, 'Math.Pow'), (7, 'double.Atan2Pi'), (8, 'double.Cos'), (9, 'double.Atan2'), (10, 'double.Exp'), (11, 'double.AcosPi'), (12, 'using static System.Math'), (13, 'MathF.Sin'), (14, 'Math.Cos'), (15, 'Math.Cos')], allowed 1
+SELFTEST PASS a missing listed file is reported
+SELFTEST PASS an allowed marker beyond the pinned count is reported
+check-crt-transcendentals: 4 file(s) clean
+check-text-mode-hash self-test OK
+text-mode hash ok: 1 file(s) allowlisted with a reason, none unfixed
+PROOF-PII self-test ok: 19 offenders caught, 23 clean passed
+PROOF-PII ok: 0 Windows user paths or machine SIDs (1 allowlisted)
+SELFTEST PASS a matching manifest is clean
+SELFTEST PASS byte count off by one fails
+SELFTEST PASS SHA-256 of another byte fails
+SELFTEST PASS an upper-case SHA-256 of the right bytes is clean
+SELFTEST PASS a path in another proof folder fails
+SELFTEST PASS a .. path fails
+SELFTEST PASS an uncommitted capture fails
+SELFTEST PASS the committed blob is judged, not the working tree
+SELFTEST PASS a manifest without files fails by name
+SELFTEST PASS closing manifest: a file outside its folder (cases/) is clean
+SELFTEST PASS closing manifest: byte count off by one fails
+SELFTEST PASS closing manifest: wrong SHA-256 fails
+SELFTEST PASS closing manifest: a .. path fails
+SELFTEST PASS capture manifest: a file outside its folder still fails
+SELFTEST 14/14 cases
+check-capture-manifests: 8 manifest(s) match their committed blobs
+READER-SHARE self-test ok: 9 offenders caught, 8 clean passed
+READER-SHARE ok: 0 readers without delete sharing
+-- all expected
+EXPECTED Probe_A (Ruling 145, historical-probe, until W-2 B2 lands)
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED-FAIL 2 (manifest)
+UNEXPECTED 0
+-- one unexpected
+EXPECTED Probe_A (Ruling 145, historical-probe, until W-2 B2 lands)
+UNEXPECTED Other_D: not in the manifest
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 1
+-- name match, wrong fragment
+UNEXPECTED Store_B: listed, but the failure text lacks the fragment 'DOC-UNSUPPORTED-PERSISTENCE' (Ruling 154)
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- listed test passing
+EXPECTED Probe_A (Ruling 145, historical-probe, until W-2 B2 lands)
+UNEXPECTED-PASS Store_B passed but Ruling 154 lists it: delete the entry from tests/expected-failures.windows.json
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 1
+-- fragment on a continuation line, harness aborts
+EXPECTED Cli_C (Ruling 154, fail-closed-store, until W-2 B2 lands; aborts its harness, later checks unassessed)
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 0
+-- abort under an entry that does not say it aborts
+UNEXPECTED Store_B: aborts its harness, and the entry does not say so
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- standalone crash
+UNEXPECTED <abort>: not in the manifest
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- exit status with no FAIL line
+UNEXPECTED harness exit 1 with no FAIL line the manifest explains
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- not Windows: a listed failure stays a failure
+UNEXPECTED Probe_A: manifest has no effect on this host
+UNEXPECTED Store_B: manifest has no effect on this host
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 2
+-- not Windows: a listed pass is fine
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 0
+-- child exit whose block holds only expected failures is expected
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED --x --part=1/2 exited 1 (every failure in its block is expected)
+EXPECTED-FAIL 2 (manifest)
+UNEXPECTED 0
+-- child exit whose block holds an unexpected failure stays unexpected
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+UNEXPECTED Other_D: not in the manifest
+UNEXPECTED --x exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 2
+-- child exit with no failure in its block stays unexpected
+UNEXPECTED --x exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- a block belongs to its own child: the next child's exit is not covered by it
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED --a exited 1 (every failure in its block is expected)
+UNEXPECTED --b exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 2 (manifest)
+UNEXPECTED 1
+-- an exit-0 child clears the block
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+UNEXPECTED --b exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 1
+-- not Windows: a child exit stays a failure
+UNEXPECTED Store_B: manifest has no effect on this host
+UNEXPECTED --x exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 2
+EXPECTED-FAILURES self-test ok: 16 cases, manifest 52 entries
+ok  : both append a different dated line at the end of X (ECR shape)
+ok  : both append a different dated paragraph at the end of X
+ok  : both append at the end of X with Y after it
+ok  : both edit the same existing line of X
+ok  : one side appends a non-dated line at the same place
+ok  : one side appends a dated line, the other edits the line before it
+ok  : both append different entries
+ok  : one extends X, other appends Y
+ok  : both edit X differently
+ok  : both add a different dated line inside X (DPR shape)
+ok  : one deletes X
+ok  : identical new entry on both
+ok  : preamble edited on both
+ok  : reordered entries
+ok  : RG5 ours adds Y between A and X, theirs extends Z
+ok  : RG5 theirs adds Y between A and X, ours extends X
+ok  : RG5 each side adds a different entry at a different place
+ok  : RG5 both add different entries after the same entry: ours first
+ok  : RG5 both add the same new entry at the same place
+ok  : both add different frontmatter links (PR #17 shape)
+dispatch-gate self-test OK
+check-wsl-inline self-test OK
+wsl inline ok: 0 pinned hit(s) allowlisted, no inline `bash -c` through WSL
+ok    self-test clean case: green
+ok    self-test valid not-produced: green
+ok    self-test prose in sha256: red
+ok    self-test not-produced without reason: red
+ok    self-test not-produced with a sha256: red
+ok    self-test produced without sha256: red
+ok    self-test name differs from stem: red
+validate-cases self-test: 7 shape(s), 0 wrong
+ok   smoke-cavity.yaml
+ok   spike03-ar12.yaml
+ok   spike03-ar5.yaml
+ok   spike03-ar8-final.yaml
+ok   spike03-ar8-r2.yaml
+ok   spike03-ar8.yaml
+ok   spike03-s4-tipcoupon-v0.yaml
+ok   spike03-s4-tipcoupon-v1.yaml
+ok   spike03-s4-tipcoupon-v2.yaml
+ok   spike03-s4-tipcoupon-v3.yaml
+ok   spike03-s6-w1.yaml
+ok   spike03-s6-w2a.yaml
+ok   spike03-s6-w2b.yaml
+ok   spike03-s6-w2c1.yaml
+ok   spike03-s6-w2c2.yaml
+ok   spike03-s6-w4.yaml
+ok   spike03r2-m1a-ar8.yaml
+ok   spike03r2-m1b-ar8.yaml
+ok   spike03r2-m1b1-ar8.yaml
+ok   spike03r2-m2a-ar8.yaml
+ok   spike03r2-m2b-ar8.yaml
+ok   spike03r2-m2c-ar8.yaml
+ok   spike03r3-m0-ar8.yaml
+ok   spike03r3-m1a-ar8.yaml
+ok   spike03r3-m1b-ar8.yaml
+ok   spike04-tmr-l5-tvd.yaml
+ok   spike04-tmr-l6-diag.yaml
+ok   spike04-tmr-l6-tvd.yaml
+ok   spike04-tmr-l6.yaml
+ok   spike04r2-c1-l6.yaml
+ok   spike04r2-c1r1-l6.yaml
+ok   spike04r2-c1r2-l6.yaml
+ok   spike04r2-c2-l5.yaml
+ok   spike04r2-c3-l4.yaml
+ok   spike04r2-c4-l5-comp.yaml
+ok   spike04r3-g0-l6.yaml
+ok   spike04r3-g1b-l6.yaml
+ok   spike04r3-g2-l3.yaml
+ok   win-smoke-cavity.yaml
+ok   win-spike04r3-g0-l6.yaml
+ok   win-spike04r3-g2-l3.yaml
+ok   win-su2-smoke.yaml
+ok   win-su2-tmr-naca0012.yaml
+43 case(s), 0 error(s)
+{
+  "root": "docs",
+  "today": "2026-10-09",
+  "artifacts": 461,
+  "problems": [],
+  "stale": [],
+  "flagged": [
+    "adr-0001-master-curve-degree",
+    "adr-foildsl-authority",
+    "adr-application-stack",
+    "adr-application-project-contract",
+    "adr-0005-point-types",
+    "adr-0006-driving-dimensions",
+    "adr-0007-edit-transactions",
+    "adr-0008-section-library",
+    "adr-0009-cad-first-shell",
+    "adr-0012-openfoam-backend-macos",
+    "architecture-application",
+    "coordination-app-shell-build",
+    "coordination-application-build",
+    "coordination-application-cancel-drill",
+    "coordination-application-core-launch",
+    "coordination-contract-b-core",
+    "coordination-contract-b0",
+    "coordination-contract-c-native",
+    "coordination-r17-companions",
+    "coordination-m12b-build",
+    "coordination-architecture-qualification",
+    "coordination-windows-runtime-route",
+    "design-app-shell",
+    "design-application-contracts",
+    "design-application-foundation",
+    "design-area3-analysis",
+    "design-authoring-decisions",
+    "design-language",
+    "design-foildsl-authoring",
+    "design-guided-solver-setup",
+    "design-m12b-points",
+    "design-m12b2-3d-elevations",
+    "design-m12c-section-editor",
+    "design-planform-point-verbs",
+    "design-section-editor",
+    "design-visible-presentation",
+    "design-windows-runtime",
+    "workbench-direction",
+    "examples-foildsl",
+    "investigation-review-window-attach",
+    "kb-cfd-workbench-grounding",
+    "kb-hw-glossary",
+    "kb-visible-presentation-references",
+    "defect-classes",
+    "mockup-area3-analysis",
+    "mockup-solver-setup",
+    "mockup-workbench-v1",
+    "mockup-workbench-v10",
+    "mockup-workbench-v2",
+    "mockup-workbench-v3",
+    "mockup-workbench-v4",
+    "mockup-workbench-v5",
+    "mockup-workbench-v6",
+    "mockup-workbench-v7",
+    "mockup-workbench-v8",
+    "mockup-workbench-v9",
+    "mockup-workbench",
+    "note-area3-analysis-reading-contract",
+    "cad-editing-views",
+    "decision-catalog-admission-classes",
+    "control-vertex-workspace",
+    "decision-design-iteration",
+    "decision-foildsl-reconciliation",
+    "decision-freshness-by-run-key",
+    "kernel-spike-occt-loft",
+    "decision-loft-rule-a",
+    "note-m1-scope-decision",
+    "decision-ncrit-pair",
+    "decision-parametric-authority",
+    "property-grid-rulings",
+    "decision-seven-areas",
+    "note-solver-security-right-size",
+    "note-sweep-replay-semantics",
+    "thick-client-shell",
+    "plan-application-build",
+    "plan-authoring-decisions",
+    "plan-fluids-round2",
+    "plan-fluids-round3",
+    "plan-foil-editing-flow-results",
+    "plan-foildsl-authoring",
+    "plan-independent-edges",
+    "plan-specification-and-ui",
+    "proof-app-shell-test-inventory",
+    "proof-application-contracts",
+    "proof-application-spikes",
+    "proof-authoring-decisions",
+    "proof-foildsl-authoring",
+    "proof-m12b-b1a-red-runs",
+    "proof-native-ui-workbench",
+    "proof-newfoil-red-runs",
+    "proof-spike-03-round2",
+    "proof-spike-03",
+    "proof-spike-04-round2",
+    "proof-spike-04",
+    "proof-visible-presentation",
+    "proof-windows-runtime",
+    "review-app-shell-native",
+    "review-application-architecture",
+    "review-application-contracts",
+    "review-application-core",
+    "review-area3-analysis-personas",
+    "review-authoring-v7-gaps",
+    "review-authoring-v7-independent",
+    "review-foil-editing-flow-results",
+    "review-foildsl-independent",
+    "review-independent-edges",
+    "review-proposal-gap-reconciliation",
+    "review-spec-v02-critique",
+    "review-specification-gate",
+    "review-ui-application-native",
+    "review-ui-property-grid",
+    "review-ui-workbench-v1",
+    "review-ui-workbench-v10",
+    "review-ui-workbench-v2",
+    "review-ui-workbench-v3",
+    "review-ui-workbench-v4",
+    "review-ui-workbench-v5",
+    "review-ui-workbench-v8",
+    "review-ui-workbench-v9",
+    "review-ui-workbench",
+    "review-visible-presentation",
+    "review-windows-runtime",
+    "privacy-review",
+    "threat-model",
+    "spec-amendment-guided-solver-setup",
+    "spec-amendments-1-7-1",
+    "spec-amendments-1-7-2",
+    "spec-amendments-1-7",
+    "spec-cfd-workbench-v1",
+    "spec-cfd-workbench",
+    "spec-foildsl"
+  ],
+  "orphans": [],
+  "index_drift": [],
+  "defects": 0,
+  "suggestions": 131,
+  "by_type": {
+    "adr": 12,
+    "architecture": 1,
+    "doc": 81,
+    "plan": 15,
+    "proof-pack": 236,
+    "design": 47,
+    "design-language": 1,
+    "investigation": 5,
+    "knowledge": 28,
+    "glossary": 2,
+    "decision-note": 23,
+    "privacy-review": 1,
+    "threat-model": 1,
+    "spec": 8
+  }
+}
+FLAGGED (V16): adr-0001-master-curve-degree
+FLAGGED (V16): adr-foildsl-authority
+FLAGGED (V16): adr-application-stack
+FLAGGED (V16): adr-application-project-contract
+FLAGGED (V16): adr-0005-point-types
+FLAGGED (V16): adr-0006-driving-dimensions
+FLAGGED (V16): adr-0007-edit-transactions
+FLAGGED (V16): adr-0008-section-library
+FLAGGED (V16): adr-0009-cad-first-shell
+FLAGGED (V16): adr-0012-openfoam-backend-macos
+FLAGGED (V16): architecture-application
+FLAGGED (V16): coordination-app-shell-build
+FLAGGED (V16): coordination-application-build
+FLAGGED (V16): coordination-application-cancel-drill
+FLAGGED (V16): coordination-application-core-launch
+FLAGGED (V16): coordination-contract-b-core
+FLAGGED (V16): coordination-contract-b0
+FLAGGED (V16): coordination-contract-c-native
+FLAGGED (V16): coordination-r17-companions
+FLAGGED (V16): coordination-m12b-build
+FLAGGED (V16): coordination-architecture-qualification
+FLAGGED (V16): coordination-windows-runtime-route
+FLAGGED (V16): design-app-shell
+FLAGGED (V16): design-application-contracts
+FLAGGED (V16): design-application-foundation
+FLAGGED (V16): design-area3-analysis
+FLAGGED (V16): design-authoring-decisions
+FLAGGED (V16): design-language
+FLAGGED (V16): design-foildsl-authoring
+FLAGGED (V16): design-guided-solver-setup
+FLAGGED (V16): design-m12b-points
+FLAGGED (V16): design-m12b2-3d-elevations
+FLAGGED (V16): design-m12c-section-editor
+FLAGGED (V16): design-planform-point-verbs
+FLAGGED (V16): design-section-editor
+FLAGGED (V16): design-visible-presentation
+FLAGGED (V16): design-windows-runtime
+FLAGGED (V16): workbench-direction
+FLAGGED (V16): examples-foildsl
+FLAGGED (V16): investigation-review-window-attach
+FLAGGED (V16): kb-cfd-workbench-grounding
+FLAGGED (V16): kb-hw-glossary
+FLAGGED (V16): kb-visible-presentation-references
+FLAGGED (V16): defect-classes
+FLAGGED (V16): mockup-area3-analysis
+FLAGGED (V16): mockup-solver-setup
+FLAGGED (V16): mockup-workbench-v1
+FLAGGED (V16): mockup-workbench-v10
+FLAGGED (V16): mockup-workbench-v2
+FLAGGED (V16): mockup-workbench-v3
+FLAGGED (V16): mockup-workbench-v4
+FLAGGED (V16): mockup-workbench-v5
+FLAGGED (V16): mockup-workbench-v6
+FLAGGED (V16): mockup-workbench-v7
+FLAGGED (V16): mockup-workbench-v8
+FLAGGED (V16): mockup-workbench-v9
+FLAGGED (V16): mockup-workbench
+FLAGGED (V16): note-area3-analysis-reading-contract
+FLAGGED (V16): cad-editing-views
+FLAGGED (V16): decision-catalog-admission-classes
+FLAGGED (V16): control-vertex-workspace
+FLAGGED (V16): decision-design-iteration
+FLAGGED (V16): decision-foildsl-reconciliation
+FLAGGED (V16): decision-freshness-by-run-key
+FLAGGED (V16): kernel-spike-occt-loft
+FLAGGED (V16): decision-loft-rule-a
+FLAGGED (V16): note-m1-scope-decision
+FLAGGED (V16): decision-ncrit-pair
+FLAGGED (V16): decision-parametric-authority
+FLAGGED (V16): property-grid-rulings
+FLAGGED (V16): decision-seven-areas
+FLAGGED (V16): note-solver-security-right-size
+FLAGGED (V16): note-sweep-replay-semantics
+FLAGGED (V16): thick-client-shell
+FLAGGED (V16): plan-application-build
+FLAGGED (V16): plan-authoring-decisions
+FLAGGED (V16): plan-fluids-round2
+FLAGGED (V16): plan-fluids-round3
+FLAGGED (V16): plan-foil-editing-flow-results
+FLAGGED (V16): plan-foildsl-authoring
+FLAGGED (V16): plan-independent-edges
+FLAGGED (V16): plan-specification-and-ui
+FLAGGED (V16): proof-app-shell-test-inventory
+FLAGGED (V16): proof-application-contracts
+FLAGGED (V16): proof-application-spikes
+FLAGGED (V16): proof-authoring-decisions
+FLAGGED (V16): proof-foildsl-authoring
+FLAGGED (V16): proof-m12b-b1a-red-runs
+FLAGGED (V16): proof-native-ui-workbench
+FLAGGED (V16): proof-newfoil-red-runs
+FLAGGED (V16): proof-spike-03-round2
+FLAGGED (V16): proof-spike-03
+FLAGGED (V16): proof-spike-04-round2
+FLAGGED (V16): proof-spike-04
+FLAGGED (V16): proof-visible-presentation
+FLAGGED (V16): proof-windows-runtime
+FLAGGED (V16): review-app-shell-native
+FLAGGED (V16): review-application-architecture
+FLAGGED (V16): review-application-contracts
+FLAGGED (V16): review-application-core
+FLAGGED (V16): review-area3-analysis-personas
+FLAGGED (V16): review-authoring-v7-gaps
+FLAGGED (V16): review-authoring-v7-independent
+FLAGGED (V16): review-foil-editing-flow-results
+FLAGGED (V16): review-foildsl-independent
+FLAGGED (V16): review-independent-edges
+FLAGGED (V16): review-proposal-gap-reconciliation
+FLAGGED (V16): review-spec-v02-critique
+FLAGGED (V16): review-specification-gate
+FLAGGED (V16): review-ui-application-native
+FLAGGED (V16): review-ui-property-grid
+FLAGGED (V16): review-ui-workbench-v1
+FLAGGED (V16): review-ui-workbench-v10
+FLAGGED (V16): review-ui-workbench-v2
+FLAGGED (V16): review-ui-workbench-v3
+FLAGGED (V16): review-ui-workbench-v4
+FLAGGED (V16): review-ui-workbench-v5
+FLAGGED (V16): review-ui-workbench-v8
+FLAGGED (V16): review-ui-workbench-v9
+FLAGGED (V16): review-ui-workbench
+FLAGGED (V16): review-visible-presentation
+FLAGGED (V16): review-windows-runtime
+FLAGGED (V16): privacy-review
+FLAGGED (V16): threat-model
+FLAGGED (V16): spec-amendment-guided-solver-setup
+FLAGGED (V16): spec-amendments-1-7-1
+FLAGGED (V16): spec-amendments-1-7-2
+FLAGGED (V16): spec-amendments-1-7
+FLAGGED (V16): spec-cfd-workbench-v1
+FLAGGED (V16): spec-cfd-workbench
+FLAGGED (V16): spec-foildsl
+freshness: 131 finding(s)
+ok       agent-body-of-knowledge.md
+ok       agent-rules-of-the-road.md
+ok       agent-persona-catalog.md
+ok       layered-optimized-architecture.md
+ok       engineering-governance.md
+ok       testing-strategy.md
+ok       csharp-style-guide.md
+clean
+audit log verified: 894 audit + 35 change entries, 0 unreadable lines
+Documentation checks passed.

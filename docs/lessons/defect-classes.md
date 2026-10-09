@@ -2472,8 +2472,11 @@ folder, with only those four paths rebound and the bytes and SHAs unchanged.
 **Class → sweep → derive → prevent:**
 - *Signature:* a closing or capture manifest entry whose path lies outside `docs/proof/` and names a file a later track
   may edit (`tools/`, `src/`, `tests/`).
-- *Sweep:* pending. List every closing-manifest entry outside `docs/proof/` (win-naca binds `cases/*.yaml` by design;
-  those are case files, not tools).
+- *Sweep (2026-10-09, Ruling 187):* done. Across all closing manifests, two kinds of entry lay outside `docs/proof/`:
+  win-naca's `cases/*.yaml`, which is by design, and the PR #25 manifest's own `.gitattributes`. That second entry is
+  the class recurring in the PR that recorded it: every proof track appends to `.gitattributes`. The leader rebound it at
+  the PR #25 join to `docs/proof/wri-r184-result/source-snapshots/cfd947c3/gitattributes.txt`, with the same bytes and
+  SHA and a `-text` attribute.
 - *Derive:* a manifest freezes evidence by copying it into the proof folder; it never binds a path that a later track
   may change.
 - *Prevent:* pending. `check-capture-manifests.py` flags a closing-manifest path under `tools/`, `src/` or `tests/`,
@@ -2482,6 +2485,12 @@ folder, with only those four paths rebound and the bytes and SHAs unchanged.
 **WINDOWS-CAPTURE-LIFECYCLE · A launcher mistakes root exit or a termination request for complete, bounded process cleanup.**
 Ruling 181's watchdog lost the numeric exit. Runner review also exposed inherited output handles, asynchronous
 assignment-failure termination, and residual accounting before SDK shutdown.
+Ruling 184 preparation exposed a related startup boundary race: sleeping a truncated remaining allowance can wake
+before the Stopwatch reaches the deadline, launch a child, and exceed the total allowance during cleanup. The retained
+`docs/proof/wri-r184-driver/startup-probe.stdout.txt` observed WRI-DEADLINE at 1015 ms against a 1000 ms envelope.
+The active runner now rejects an injected delay at or above the derived remaining allowance before sleeping or launching.
+The existing delayed-startup runtime fixture keeps its WRI-ENVELOPE and under-1000-ms requirements; a new policy
+mutant removes this refusal and must fail control (c). This is the single R184 preparation repair cycle.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* missing retained handle/numeric exit, an unbounded drain after root exit, a termination request without
@@ -2516,3 +2525,20 @@ waits, a StreamWriter constructor, and a second dot-source. Separate adversarial
 Five tracks (RG4, PHN, SDG, CBS, RLK) each lost a repair cycle: the first `tools/run-tests.sh` exited 1 on C-2..C-5 only (Analysis 6869 and 5216 ms against 5000; net wall 50,032 ms; C-2 5032 and 5083 ms at load 20.8), and every re-run passed. C-2..C-5 failed whenever the 1-minute load at ring end was <= 24, but that load averages the last minute: a second ring that started late or ended before the end reading leaves it under 24 while the overlap still slowed a part. Measured 2026-10-09 (`docs/proof/ccl/receipt.md`): a ring alone ended at load 18.4 with net wall 43.9 s; with a second ring from second 20 it ended at 23.66 (under the gate) with net wall 49.6 s against the 50 s cap and Desktop 46.2 s.
 
 **Class → sweep → derive → prevent:** signature: a pass/fail rule on a shared-resource quantity (wall clock, CPU) that decides contention from one lagging sample taken after the work, not from what ran during it. Sweep: C-2, C-3, C-4, C-5 in `tools/check-test-costs.py` (fixed here); TEST-BUDGET (`--budget`) uses the same end-load gate and was left as is (its 60 s budget carries more slack; measured 54 s with a peer); C-6 is a missing reading, not a contention quantity, and stays ungated. Derive: ask the lock that already knows who ran, not the load average. Control: `ring_lock_peers` in `tools/ring-lock.sh` and a once-a-second sampler in `tools/run-tests.sh` write `.tmp-tests/peers.txt`; `check-test-costs.py` turns an over-cap C-2..C-5 into `COST-ADVISORY (concurrent ring <pids>)` (printed, never silent) and keeps it a failure when the file is absent or empty. Ring: every join; cost one `cat` per second. Tests: `check-test-costs.py --self-test` (6 peers cases, red 81/83 before the change, 83/83 after) and `ring-lock.sh --self-test` (2 peers cases). Residual: a load source outside the ring lock (a build, an editor) is still judged by the end load only.
+
+**CALLBACK-PATH-SHADOW · A callback parameter shadows a captured path in a case-insensitive dynamic scope.**
+The first Ruling 184 live cycle passed callback text as PowerShell's -File argument. Its earlier callback-only tests
+proved sequencing but never reached the real driver's child-argument construction.
+
+**Class → sweep → derive → prevent:**
+- *Signature:* a captured path shares its name with a callback parameter; a shape check or callback-only stub passes,
+  but the actual boundary receives the callback value instead of the file path.
+- *Sweep:* the scale driver's preflight, driver and DLL path locals against the sequence's Preflight, Build, Select,
+  Contract, Restore and Readback parameters. The preflight path was the collision; the driver/DLL names were distinct.
+- *Derive:* name the path `preflightPath` and reuse that same value at both real preflight child call sites.
+- *Prevent:* `tools/test-windows-scale-run.ps1` exercises the actual driver callback with external children stubbed,
+  captures the -File argument, and compares it with the real preflight path. Red before the rename, green afterward,
+  retained under `docs/proof/wri-r184-driver/callback-repair-{red,green}/`; the first live receipt retains numeric exit64.
+  Ring: runner preparation, 10s ceiling; observed red3.147s/green3.020s. Status: controlled for the path boundary.
+  The second live cycle reached that path and failed closed on absent Settings; product/scale proof remains unassessed
+  (`docs/proof/wri-r184-result/receipt.md`).

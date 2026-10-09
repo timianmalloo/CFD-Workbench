@@ -1,0 +1,15 @@
+run-verify-gates: 13 gate(s) in C:\Projects\CFD-Workbench-win-wri-r184-scale-run
+  skip   verify-application-adapters.py
+  skip   verify-application-core.py
+  ok     verify-coord-regen-worktree.py                  1.4 s  verify-coord-regen-worktree: linked checkout updated, primary unchanged
+  skip   verify-windows-store.py
+  ok     verify-compiled-prompt.py                       0.2 s  self-test OK: nine directions behave; every refusal matches the grammar
+  ok     verify-documented-commands.py                   0.1 s  verify-documented-commands: no pack/ under C:\Projects\CFD-Workbench-win-wri-r184-scale-run\docs - nothing to 
+  ok     verify-no-conflict-markers.py                   2.0 s  verify-no-conflict-markers: OK - 3677 tracked text file(s) read, no conflict markers.
+  ok     verify-no-machine-paths.py                      0.8 s  clean - 564 tracked machine-readable files carry no machine-specific path
+  ok     verify-no-new-console-launches.py               0.3 s  verify-no-new-console-launches: OK - 230 file(s) read under src, tests, no CREATE_NEW_CONSOLE launch.
+  ok     verify-portable-text-io.py                      0.3 s  clean - every text write under pack/scripts, pack/adapters/hooks, tools is LF, every printing CLI guards its c
+  ok     verify-ruling-citations.py                      1.3 s  verify-ruling-citations: OK — 184 ruling(s) cited, 184 defined by a heading in docs/notes/rulings.md (root C:\
+  ok     verify-skill-contracts.py                       0.1 s  clean - 28 skill(s) checked in C:\Projects\CFD-Workbench-win-wri-r184-scale-run\.claude\skills
+  ok     verify-subprocess-utf8.py                       0.3 s  clean - every text-mode subprocess under pack/scripts, pack/adapters/hooks, tools states its encoding
+run-verify-gates: OK - 10 gate(s) passed.

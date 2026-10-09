@@ -1,0 +1,157 @@
+join rings ok: tests every code join (docs-only joins skip, Ruling 89), slow gates and recounts at readiness
+store subset ok: umask partition holds statically
+merge bindings ok: every coord-register path parses as JSONL, every defect-register path is markdown
+Managed Claude hooks: 11 unique event/matcher/target entries
+Rollup links: default and nested destinations resolve to the real source.
+process matching ok: no pgrep/pkill -f under tools/ or cases/tools/
+test paths ok: no relative repository reads in the Core tests
+debug parity ok: no Debug-only code or per-configuration compile property in src/ or tests/ (9 project files)
+SPIRAL: 12 commits, 0 product, 100% bookkeeping since e59d7d8 — stop the track and report to the operator (docs/lessons/defect-classes.md COORD-SPIRAL)
+spiral check: ok (12 commits, 1 product)
+spiral check: ok (12 commits, 0 product)
+spiral check: ok (11 commits, 0 product)
+self-test OK
+spiral check: ok (245 commits, 20 product)
+check-artifact-bindings self-test OK
+artifact bindings ok: 8 derived/register patterns all bound in .gitattributes
+check-foildsl-spec-sync self-test OK
+foildsl spec sync ok: src/CfdWorkbench.Core/FoilSource.cs unchanged on this branch
+trace-brief self-test OK
+xmsg self-test: ok (routing, seen-marking, no loss)
+no-heredoc hook self-test OK
+check-copy-ids self-test OK
+copy ids ok: 446 rows, every id unique
+check-wallclock-asserts self-test OK
+wall-clock assertions ok: 2 ungated, all allowlisted as tracked debt
+SELFTEST PASS planted shapes: expected [(1, 'Math.Cos'), (6, 'Math.Pow'), (7, 'double.Atan2Pi'), (8, 'double.Cos'), (9, 'double.Atan2'), (10, 'double.Exp'), (11, 'double.AcosPi'), (12, 'using static System.Math'), (13, 'MathF.Sin'), (14, 'Math.Cos'), (15, 'Math.Cos')], got [(1, 'Math.Cos'), (6, 'Math.Pow'), (7, 'double.Atan2Pi'), (8, 'double.Cos'), (9, 'double.Atan2'), (10, 'double.Exp'), (11, 'double.AcosPi'), (12, 'using static System.Math'), (13, 'MathF.Sin'), (14, 'Math.Cos'), (15, 'Math.Cos')], allowed 1
+SELFTEST PASS a missing listed file is reported
+SELFTEST PASS an allowed marker beyond the pinned count is reported
+check-crt-transcendentals: 4 file(s) clean
+check-text-mode-hash self-test OK
+text-mode hash ok: 1 file(s) allowlisted with a reason, none unfixed
+PROOF-PII self-test ok: 19 offenders caught, 23 clean passed
+PROOF-PII ok: 0 Windows user paths or machine SIDs (1 allowlisted)
+SELFTEST PASS a matching manifest is clean
+SELFTEST PASS byte count off by one fails
+SELFTEST PASS SHA-256 of another byte fails
+SELFTEST PASS an upper-case SHA-256 of the right bytes is clean
+SELFTEST PASS a path in another proof folder fails
+SELFTEST PASS a .. path fails
+SELFTEST PASS an uncommitted capture fails
+SELFTEST PASS the committed blob is judged, not the working tree
+SELFTEST PASS a manifest without files fails by name
+SELFTEST PASS closing manifest: a file outside its folder (cases/) is clean
+SELFTEST PASS closing manifest: byte count off by one fails
+SELFTEST PASS closing manifest: wrong SHA-256 fails
+SELFTEST PASS closing manifest: a .. path fails
+SELFTEST PASS capture manifest: a file outside its folder still fails
+SELFTEST 14/14 cases
+check-capture-manifests: 10 manifest(s) match their committed blobs
+READER-SHARE self-test ok: 9 offenders caught, 8 clean passed
+READER-SHARE ok: 0 readers without delete sharing
+-- all expected
+EXPECTED Probe_A (Ruling 145, historical-probe, until W-2 B2 lands)
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED-FAIL 2 (manifest)
+UNEXPECTED 0
+-- one unexpected
+EXPECTED Probe_A (Ruling 145, historical-probe, until W-2 B2 lands)
+UNEXPECTED Other_D: not in the manifest
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 1
+-- name match, wrong fragment
+UNEXPECTED Store_B: listed, but the failure text lacks the fragment 'DOC-UNSUPPORTED-PERSISTENCE' (Ruling 154)
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- listed test passing
+EXPECTED Probe_A (Ruling 145, historical-probe, until W-2 B2 lands)
+UNEXPECTED-PASS Store_B passed but Ruling 154 lists it: delete the entry from tests/expected-failures.windows.json
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 1
+-- fragment on a continuation line, harness aborts
+EXPECTED Cli_C (Ruling 154, fail-closed-store, until W-2 B2 lands; aborts its harness, later checks unassessed)
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 0
+-- abort under an entry that does not say it aborts
+UNEXPECTED Store_B: aborts its harness, and the entry does not say so
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- standalone crash
+UNEXPECTED <abort>: not in the manifest
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- exit status with no FAIL line
+UNEXPECTED harness exit 1 with no FAIL line the manifest explains
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- not Windows: a listed failure stays a failure
+UNEXPECTED Probe_A: manifest has no effect on this host
+UNEXPECTED Store_B: manifest has no effect on this host
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 2
+-- not Windows: a listed pass is fine
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 0
+-- child exit whose block holds only expected failures is expected
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED --x --part=1/2 exited 1 (every failure in its block is expected)
+EXPECTED-FAIL 2 (manifest)
+UNEXPECTED 0
+-- child exit whose block holds an unexpected failure stays unexpected
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+UNEXPECTED Other_D: not in the manifest
+UNEXPECTED --x exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 2
+-- child exit with no failure in its block stays unexpected
+UNEXPECTED --x exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 1
+-- a block belongs to its own child: the next child's exit is not covered by it
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+EXPECTED --a exited 1 (every failure in its block is expected)
+UNEXPECTED --b exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 2 (manifest)
+UNEXPECTED 1
+-- an exit-0 child clears the block
+EXPECTED Store_B (Ruling 154, fail-closed-store, until W-2 B2 lands)
+UNEXPECTED --b exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 1 (manifest)
+UNEXPECTED 1
+-- not Windows: a child exit stays a failure
+UNEXPECTED Store_B: manifest has no effect on this host
+UNEXPECTED --x exited 1: child exit without a block of only expected failures
+EXPECTED-FAIL 0 (manifest)
+UNEXPECTED 2
+EXPECTED-FAILURES self-test ok: 16 cases, manifest 52 entries
+ok  : both append a different dated line at the end of X (ECR shape)
+ok  : both append a different dated paragraph at the end of X
+ok  : both append at the end of X with Y after it
+ok  : both edit the same existing line of X
+ok  : one side appends a non-dated line at the same place
+ok  : one side appends a dated line, the other edits the line before it
+ok  : both append different entries
+ok  : one extends X, other appends Y
+ok  : both edit X differently
+ok  : both add a different dated line inside X (DPR shape)
+ok  : one deletes X
+ok  : identical new entry on both
+ok  : preamble edited on both
+ok  : reordered entries
+ok  : RG5 ours adds Y between A and X, theirs extends Z
+ok  : RG5 theirs adds Y between A and X, ours extends X
+ok  : RG5 each side adds a different entry at a different place
+ok  : RG5 both add different entries after the same entry: ours first
+ok  : RG5 both add the same new entry at the same place
+ok  : both add different frontmatter links (PR #17 shape)
+dispatch-gate self-test OK
+check-wsl-inline self-test OK
+wsl inline ok: 0 pinned hit(s) allowlisted, no inline `bash -c` through WSL
+ok    self-test clean case: green
+ok    self-test valid not-produced: green
+ok    self-test prose in sha256: red
+ok    self-test not-produced without reason: red
+ok    self-test not-produced with a sha256: red
+ok    self-test produced without sha256: red
+ok    self-test name differs from stem: red
+validate-cases self-test: 7 shape(s), 0 wrong

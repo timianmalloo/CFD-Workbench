@@ -5227,7 +5227,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "c059cc85eb7afa9b738570ffd2d1e7c838d1644fd2c46a70b9ba6601edf34715"
+      "sourceSha256": "dea985ad058a93cb56e4a3f2ba5fc4bf076c537dabcbd5fb83ac51879f291b46"
     },
     {
       "id": "domain-experts",
@@ -7300,6 +7300,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "1e5acc6a0ba5c1731e4d3c024258c5f8c9435c29faacf53bc48b25b3ca580691"
     },
     {
+      "id": "review-pr-25",
+      "path": "docs/reviews/pr-25.md",
+      "title": "PR #25 (Windows PC) - blocked Ruling 184 scale run (Ruling 187), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 187). It joins as a blocked receipt, and no run budget opens (Ruling 186). Both cycles stopped at the initial preflight. The driver meets Ruling 184 as written. The PR's own result manifest binds the live .gitattributes (CLOSING-MANIFEST-MUTABLE-PATH), which is rebound at the join.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "runner",
+        "dpi"
+      ],
+      "links": [
+        {
+          "to": "review-pr-24",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "23584a62c40f0b915059a8ac2e8b7b01b9090882b4a364cb1da555dc44f6246d"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8233,7 +8261,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "53addbf6dbc03bd2ee08f74278676affa63f514792eabb87778938a4a510db8a"
+      "sourceSha256": "a20affffb68d63d17a5ee1961b333d05d44b741a4e4944031070292339fd846f"
     },
     {
       "id": "kb-hw-glossary",
@@ -8347,6 +8375,38 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "3b23951897c1b6626e32c6748ba5c819e61d81afc9336648012ec6b01fd0581b"
+    },
+    {
+      "id": "investigation-pce-escape-flake",
+      "path": "docs/proof/pce/investigation.md",
+      "title": "Investigation PCE - PlanCanvas_Escape_DismissTooltipThenClearSelection fails when any refresh lands after the first Escape",
+      "type": "investigation",
+      "status": "draft",
+      "owner": "@trk-pce",
+      "phase": "investigation",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "PlanCanvas dismisses its hover tooltip on Escape by nulling TooltipText, but every controller refresh (UpdatePlan) re-reads the saved hover position and rebuilds the tooltip. A mesh completion (or the 250 ms behind timer) that lands in the dispatcher pump after the first Escape brings the tooltip back, so the first assertion fails. Verified with a held mesh seam (fails 1 of 1 without a fix, passes with a spike fix). The natural trigger was not reproduced in 106 runs, so the link to the RG4 field failure is Inferred. The defect is in the product; the red-first control is a held-seam check.",
+      "tags": [
+        "pce",
+        "flake",
+        "desktop-tests",
+        "plan-canvas",
+        "tooltip",
+        "surface"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        },
+        {
+          "to": "investigation-ezf-zoompanfit",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "89f38e4e4917f423e030f436c614f8072c25a1bf12aab1546a6acba02faa3587"
     },
     {
       "id": "investigation-review-window-attach",
@@ -17108,6 +17168,45 @@ window.DOCS_INDEX = {
       "sourceSha256": "23d15e29b26dbc31d41b581a335e8e1efa07f74c6954adbc1d191cee6c074a97"
     },
     {
+      "id": "proof-wri-r184-blocked-result",
+      "path": "docs/proof/wri-r184-result/receipt.md",
+      "title": "Ruling 184 Windows execution: two blocked cycles",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@win-wri-r182-runner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "Both authorized execution cycles stopped at the initial preflight. Cycle 1 passed callback text as the script path; the reviewed repair fixed that binding. Cycle 2 rejected an absent Settings frame. No scale mutation, build, product check, restore, or fresh scale readback ran. The two-cycle cap fired and readiness remains closed.",
+      "tags": [
+        "windows",
+        "runner",
+        "ruling-184",
+        "blocked",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "review-pr-24",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-wri-r182-runner-ready",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-sdg",
+          "rel": "depends-on"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4bbc42ef52bbd8a63e9dc944093ba8370d411f7c64f0c2ad60493eae56f8af9e"
+    },
+    {
       "id": "proof-wrt-red-first",
       "path": "docs/proof/wrt/red-first.md",
       "title": "WRT red-first receipt: Windows known-expected-failure manifest",
@@ -19096,5 +19195,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b8928eedd74c9163d8d05b58917481c0f0b9fda41c374a52ea4c2c532a125ab4"
+  "graphSha256": "110dabd17d06bd7494d1d07882108fce2fa8d56dc44b2d7ede9626c8648ef0cb"
 };

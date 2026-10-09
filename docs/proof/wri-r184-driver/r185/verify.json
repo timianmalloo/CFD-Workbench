@@ -1,0 +1,46 @@
+{
+  "ruling": 185,
+  "command": [
+    "py",
+    "-3",
+    "docs/ai-forward-pack/scripts/run-verify-gates.py",
+    "--skip",
+    "verify-application-core.py",
+    "verify-application-adapters.py",
+    "verify-windows-store.py"
+  ],
+  "head": "64a9bb73e50b0fdf5f074efe719cde96d759e935",
+  "started_utc": "2026-10-09T19:16:55.650047+00:00",
+  "ended_utc": "2026-10-09T19:17:03.059453+00:00",
+  "observed_process_exit": 0,
+  "timed_out": false,
+  "cleanup": "not-needed",
+  "outer_ceiling_seconds": 120,
+  "wall_ms": 7409.414,
+  "implementation_sha256": {
+    "tools/windows-runner.ps1": "cc201aca4cd2e9e434bec1b9630487a2184622d2ece08617c373d037d528848d",
+    "tools/windows-settings-preflight.ps1": "ee80b2676ab74c1b58da6918a1ad4e0ab0223a78c99b8775fccd2eab10f2c17b",
+    "tools/check-windows-runner.py": "7bdae949718480bb9984ef30e75632d0d17cf04ba0161d478e35d2220af580ed",
+    "tools/test-windows-runner.ps1": "4907aa2c94276b27115230080020e764c3f2a375079847b9d4520247bc7b1f3d",
+    "tools/windows-scale-run.ps1": "fae58d4c71ecb110467f90842774c20c814cdec7c15dbb081469b2c846b8e834",
+    "tools/test-windows-scale-run.ps1": "39f89e36e429adeb8472554006098f4fb6dc03942ab9cf3b3b3d9502691dcf04"
+  },
+  "source_baseline": {
+    "count": 315,
+    "sha256": "1edf8197872ec541eb81cec168ddd1ce24c2728463728f8869e31457aa26ce2e",
+    "diff_exit": 0
+  },
+  "source_final": {
+    "count": 315,
+    "sha256": "1edf8197872ec541eb81cec168ddd1ce24c2728463728f8869e31457aa26ce2e",
+    "diff_exit": 0
+  },
+  "stdout_sha256": "4d063e5b83ff054db5d1ff2fd43e03601bbdc6b2bc59392e3e682a3aa15a3642",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "publication": "PHN PASS; exact producer bytes; nested text sanitized by producer",
+  "scale_change": false,
+  "product_contract_execution": false,
+  "store_verifier_execution": false,
+  "capture_contract_ruling": 184,
+  "qualification_executed": false
+}
