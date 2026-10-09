@@ -20,7 +20,7 @@ var failureProbe = args.FirstOrDefault(arg => arg.StartsWith(CfdWorkbench.Deskto
 // The harness prints a crash's message and frame (the Windows ring died with the type only); the failure probe keeps the product shape.
 StartupFailure.Install(detail: failureProbe is null);
 // A stage name before it runs: the last STAGE or SUITE line in a crashed log names where it died.
-static void Stage(string name) { Console.WriteLine("STAGE " + name); Console.Out.Flush(); }
+static void Stage(string name) => CfdWorkbench.Desktop.Tests.DesktopChecks.Stage(name, Console.Out);
 if (failureProbe is not null) throw new InvalidOperationException(failureProbe);
 // `--theme-evidence` (tools/verify-application-adapters.py, Debug): the same in-process prefix as a full run, then only the
 // suite that prints the THEME-ROW matrix. The fast ring runs every mode in Release (docs/plans/test-cost.md L2).
@@ -447,6 +447,7 @@ if (!shadowMutationRefused) throw new Exception("Root-key shadow mutation escape
 Console.WriteLine("THEME-SHADOW-MUTATION refused Dark/SurfaceBrush");
 AssertThemeBrushes(emit: false);
 Console.WriteLine("THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42");
+CfdWorkbench.Desktop.Tests.StageTimingTests.Run();
 Stage("SectionCanvasTests");
 CfdWorkbench.Desktop.Tests.SectionCanvasTests.Run();
 Stage("spawn");
@@ -666,7 +667,25 @@ namespace CfdWorkbench.Desktop.Tests
         /// mode order once it finishes, so the log reads as a sequential run would. The children share no files, ports or
         /// state: every scratch path is a GUID name under the temp directory (docs/reviews/test-ci-waste.md §10 and §12).
         /// </summary>
-        public static int Spawn(params string[] modes)
+        public static int Spawn(params string[] modes) => SpawnWith(Console.Out, Console.Error, RunBuffered, modes);
+
+        /// <summary>A stage name before it runs, with the time since the harness process started (Ruling 170: a killed log reads slow or hung).</summary>
+        public static void Stage(string name, TextWriter output)
+        {
+            output.WriteLine("STAGE " + name + " elapsed_ms=" + HarnessElapsedMs());
+            output.Flush();
+        }
+
+        // The harness process start, not the first call: a stage line reads against the wall the ring's kill timer measures.
+        private static string HarnessElapsedMs()
+        {
+            using var self = System.Diagnostics.Process.GetCurrentProcess();
+            return Math.Max(0, (long)(DateTime.Now - self.StartTime).TotalMilliseconds).ToString(System.Globalization.CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>Spawn with its output and child runner injected, so the start lines are checkable without launching a child.</summary>
+        public static int SpawnWith(TextWriter output, TextWriter errors,
+            Func<string, (List<(bool Error, string Text)> Lines, int ExitCode, double Seconds)> runBuffered, string[] modes)
         {
             // A child uses about 1.4 cores. The proof budget now counts deterministic bit-work rather than wall time,
             // so thread contention cannot starve proofs into GEOMETRY-BUDGET failures. 1/2 (8 of 16) uses the available
@@ -678,16 +697,19 @@ namespace CfdWorkbench.Desktop.Tests
             {
                 string mode = modes[index];
                 slots.Wait(); // start strictly in mode order; the thread pool alone would not keep that order
-                runs[index] = Task.Run(() => { try { return RunBuffered(mode); } finally { slots.Release(); } });
+                // Unbuffered: a child's own output is held until it exits, so a killed log would otherwise show only "STAGE spawn" (Ruling 170).
+                output.WriteLine("SPAWN-START " + mode + " elapsed_ms=" + HarnessElapsedMs());
+                output.Flush();
+                runs[index] = Task.Run(() => { try { return runBuffered(mode); } finally { slots.Release(); } });
             }
             int exitCode = 0;
             var partCounts = new Dictionary<string, List<string>>();
             for (int index = 0; index < modes.Length; index++)
             {
                 var (lines, childExit, seconds) = runs[index].GetAwaiter().GetResult();
-                foreach (var (error, text) in lines) (error ? Console.Error : Console.Out).WriteLine(text);
-                Console.WriteLine($"SUITE {modes[index]} exit {childExit}");
-                Console.WriteLine(FormattableString.Invariant($"SUITE-TIME {modes[index]} {seconds:F1} s"));
+                foreach (var (error, text) in lines) (error ? errors : output).WriteLine(text);
+                output.WriteLine($"SUITE {modes[index]} exit {childExit}");
+                output.WriteLine(FormattableString.Invariant($"SUITE-TIME {modes[index]} {seconds:F1} s"));
                 string[] spec = modes[index].Split(' ');
                 if (spec.Length > 1)
                 {
@@ -697,7 +719,7 @@ namespace CfdWorkbench.Desktop.Tests
                     partCounts[spec[0]].Add(spec[1] + " " + counts);
                 }
                 if (childExit == 0) continue;
-                Console.WriteLine($"FAIL {modes[index]} exited {childExit}");
+                output.WriteLine($"FAIL {modes[index]} exited {childExit}");
                 if (exitCode == 0) exitCode = childExit;
             }
             // The parts run each check once only if the mode list holds parts 1..n of one n, and each part enumerated the
@@ -710,7 +732,7 @@ namespace CfdWorkbench.Desktop.Tests
                     .SequenceEqual(Enumerable.Range(1, count).Select(k => $"--part={k}/{count}").Order(StringComparer.Ordinal));
                 var counts = parts.Select(fields => fields[1]).ToArray();
                 if (complete && counts.All(value => value.Length > 0 && !value.Contains(',')) && counts.Distinct().Count() == 1) continue;
-                Console.WriteLine($"FAIL PARTITION {mode} parts are incomplete or enumerated different checks: [{string.Join(" | ", reports)}]");
+                output.WriteLine($"FAIL PARTITION {mode} parts are incomplete or enumerated different checks: [{string.Join(" | ", reports)}]");
                 if (exitCode == 0) exitCode = 1;
             }
             return exitCode;

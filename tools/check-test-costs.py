@@ -8,7 +8,9 @@
 
 Reads <name>.ms and wall.ms (C-1, millisecond clocks written by run-tests.sh) and the COST lines of every Analysis log (Analysis.log, or Analysis.part<k>of<n>.log).
 Exit 0 every rule holds . 1 a rule failed, or a reading is missing ("not recorded" never passes) . 2 usage.
-Ring: every join (run-tests.sh calls it after its wait loop; join.json runs it again). Cost: under 0.1 s.
+PARTITION-SKEW <harness> parts=<ms list> skew_ms=<n> (hints stale?): advisory, printed when a harness run in parts (Core, Analysis) has
+slowest minus fastest over 15 % of its per-part limit (Analysis 5,000 ms; Core 30,000 ms reference). It never changes the exit code.
+Ring: every join (run-tests.sh calls it after its wait loop; join.json runs it again). Cost: under 0.1 s (the skew check adds five file reads).
 """
 from __future__ import annotations
 
@@ -55,6 +57,16 @@ EXEMPT_LIMIT_MS = 1500.0      # C-5, the two named A8.4 exemptions
 EXEMPT_CHECKS = ("F1_FlatPlate_RichardsonClAlphaTo2Pi", "F6_ObservedOrder")
 
 
+# PARTITION-SKEW (track OBS, from ANALYSIS-HARNESS-GROWTH): advisory, never a failure. A harness run in parts is balanced
+# when the slowest part minus the fastest stays within this share of the per-part limit; the cost hints that set the parts
+# drift as checks are added, and part 1 once sat at 4.9 s against the 5 s limit before anything failed.
+SKEW_FRACTION = 0.15
+# assume: Core has no per-part limit rule; the 2026-10-09 ring read the Core parts at 31.6 / 31.7 / 24.2 s, so 30,000 ms is the reference.
+# Confirmed by: a Core part limit added to this file replaces the constant. Breaks if false: the Core skew threshold is off, advisory only.
+CORE_PART_REF_MS = 30000
+PART_JOB = re.compile(r"(?P<harness>[A-Za-z]+)\.part(?P<k>\d+)of(?P<n>\d+)")
+
+
 def is_analysis(name: str) -> bool:
     """The Analysis job, whole or one part of it (Analysis.part1of2)."""
     return name == "Analysis" or name.startswith("Analysis.part")
@@ -65,6 +77,28 @@ def read_ms(directory: Path, name: str) -> int | None:
         return int((directory / f"{name}.ms").read_text(encoding="utf-8").strip())
     except (OSError, ValueError):
         return None
+
+
+def partition_skew(directory: Path, jobs: tuple[str, ...]) -> list[str]:
+    """PARTITION-SKEW lines for each harness run in parts (Core, Analysis) whose slowest part exceeds its fastest by more
+    than SKEW_FRACTION of the per-part limit. Advisory: the caller prints them and never fails on them. A harness with a
+    part that has no reading is skipped here; C-6 already fails a missing .ms."""
+    harnesses: dict[str, list[tuple[int, str]]] = {}
+    for name in jobs:
+        match = PART_JOB.fullmatch(name)
+        if match:
+            harnesses.setdefault(match["harness"], []).append((int(match["k"]), name))
+    lines: list[str] = []
+    for harness, parts in harnesses.items():
+        readings = [read_ms(directory, name) for _, name in sorted(parts)]
+        known = [value for value in readings if value is not None]
+        if len(known) < 2 or len(known) != len(readings):
+            continue
+        limit = ANALYSIS_LIMIT_MS if harness == "Analysis" else CORE_PART_REF_MS
+        skew = max(known) - min(known)
+        if skew > SKEW_FRACTION * limit:
+            lines.append(f"PARTITION-SKEW {harness} parts={','.join(str(value) for value in known)} skew_ms={skew} (hints stale?)")
+    return lines
 
 
 RING_HOST_KEY = re.compile(r"[a-z0-9-]{1,32}")
@@ -252,6 +286,34 @@ def self_test_ring_host() -> tuple[int, int]:
     return failures, len(cases)
 
 
+def self_test_skew() -> tuple[int, int]:
+    """PARTITION-SKEW: balanced parts print nothing; a skewed harness prints the line; it is advisory, so check() never reports it."""
+    balanced = {"Core.part1of3": 29000, "Core.part2of3": 30000, "Core.part3of3": 31000, "Analysis.part1of2": 4500, "Analysis.part2of2": 4900}
+    cases = [
+        ("skew: balanced parts print nothing", {}, ()),
+        ("skew: Analysis 4500 vs 2500 prints the line", {"Analysis.part2of2": 2500},
+         ("PARTITION-SKEW Analysis parts=4500,2500 skew_ms=2000 (hints stale?)",)),
+        ("skew: Analysis exactly 15% (750 ms) prints nothing", {"Analysis.part1of2": 4150}, ()),
+        ("skew: Analysis 751 ms prints the line", {"Analysis.part1of2": 4149}, ("PARTITION-SKEW Analysis parts=4149,4900 skew_ms=751 (hints stale?)",)),
+        ("skew: Core 24000 vs 30000 prints the Core line", {"Core.part3of3": 24000},
+         ("PARTITION-SKEW Core parts=29000,30000,24000 skew_ms=6000 (hints stale?)",)),
+        ("skew: a missing part reading prints nothing", {"Core.part2of3": None}, ()),
+    ]
+    failures = 0
+    with tempfile.TemporaryDirectory() as scratch:
+        for number, (label, change, want) in enumerate(cases):
+            case = Path(scratch) / f"skew{number}"
+            case.mkdir()
+            for name, value in {**balanced, **change}.items():
+                if value is not None:
+                    (case / f"{name}.ms").write_text(str(value), encoding="utf-8", newline="\n")
+            got = tuple(partition_skew(case, DEFAULT_JOBS))
+            ok = got == want
+            print(f"SELFTEST {'PASS' if ok else 'FAIL'} {label}" + ("" if ok else f": expected {want}, got {got}"))
+            failures += not ok
+    return failures, len(cases)
+
+
 def self_test() -> int:
     """Every row of the 13.4 table plus Ruling 84: a green baseline, then each failing input planted alone must turn it red."""
     passes = "".join(f"PASS {name}\nCOST {name} 12.500\n" for name in ("Units_Lbf_KeyUnchanged", "F6_ObservedOrder"))
@@ -310,8 +372,9 @@ def self_test() -> int:
     ]
     host_failures, host_total = self_test_hosts(good, passes)
     key_failures, key_total = self_test_ring_host()
-    failures += host_failures + key_failures
-    host_total += key_total
+    skew_failures, skew_total = self_test_skew()
+    failures += host_failures + key_failures + skew_failures
+    host_total += key_total + skew_total
     for label, wall, budget, load, code, fragment in budget_cases:
         got_code, line = budget_verdict(wall, budget, load)
         ok = got_code == code and (fragment is None and line is None or fragment is not None and line is not None and fragment in line)
@@ -375,6 +438,8 @@ def main(argv: list[str]) -> int:
     errors, misses = check(directory, jobs, load, source, host)
     for miss in misses:
         print(miss)
+    for skew in partition_skew(directory, jobs):
+        print(skew)
     for error in errors:
         print("FAILED: " + error)
     print(f"test costs: {len(errors)} failures, {len(misses)} COST-MISS (load {load})")
