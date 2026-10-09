@@ -14107,6 +14107,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "ea990353ba79c907af09350bb2b86dbafdac036b0cdb4fe3ef66f539b7630ac3"
     },
     {
+      "id": "proof-ring-windows-r170-run-2",
+      "path": "docs/proof/ring-windows/calibration-ruling-170/run-2/receipt.md",
+      "title": "Ruling 170 Windows calibration run 2 (complete)",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@win-r166-ring-baseline",
+      "phase": "",
+      "reviewBy": "2026-11-09",
+      "reviewSuggested": [],
+      "summary": "The second Ruling 170 ring completed within the 900 s total capture envelope on tested HEAD b12d76da. It used CFD_RING_HOST=pc-win, six-CPU affinity and the reported six-rank L3 workload. It exited 1 after classified Windows test failures and qualifies as calibration row 2, pending the three-run series.",
+      "tags": [
+        "windows",
+        "ruling-170",
+        "ruling-168",
+        "ruling-166",
+        "test-ring",
+        "evidence"
+      ],
+      "links": [
+        {
+          "to": "proof-ring-windows-r170-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-ring-windows-calibration-run-1",
+          "rel": "relates-to"
+        },
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "0cd3742b5916ceb9d4627e353ce9806ab6050fbdd33665073413997f317a265b"
+    },
+    {
       "id": "proof-round-oct05-heredoc-hook-proposal",
       "path": "docs/proof/round-oct05-lessons/heredoc-hook-proposal.md",
       "title": "AGENT-HEREDOC hook proposal (operator decision)",
@@ -17870,5 +17906,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "79c78e610dfb679d8923ca0dcd13ace20df6046cf89fb6324f32417508986f90"
+  "graphSha256": "244b6a1658ca56580d84bd5710c3e7d4dd70dd6cb2b0fb785272358edd52248c"
 };
