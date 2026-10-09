@@ -2218,6 +2218,13 @@ seam), item 6 is open, and WDF's green at 1.5 waits on the Ruling 177 P6.
 *2026-10-09 (track DPR).* Item 3 repaired (`DevicePixel.Rounded`; `docs/proof/dpr/red-first.md`). Items 4 and 5 are not: the Elevation
 chip is absent from a device-resolution render (also on the Mac at scale 2), so its fix is not a sampler; the View3d chip sampler
 (`DevicePixel.NearestAtDevice`) waits on an owner of `View3dTests.cs`. Item 6 open; the PC P6 is the Windows proof.
+*2026-10-09 (Ruling 179, PR #21).* The Ruling 177 P6 ran on a WDF head without DPR (43830897). Item 8 is closed on Windows:
+it is green at 1.5 and 2.0. Item 2 is a second assertion with zero tolerance (`ControllerViewTests.cs:640` on main,
+647 vs 647.333), the same class; repair queued (track FVT). Item 4 is **capture path, Inferred**: everything
+`ElevationView.RenderOverlay` draws is absent from a device-resolution `RenderTargetBitmap` on both Windows 1.5 and Mac
+2.0. The overlay sits inside `PushOpacity` + `PushClip` (`ElevationView.cs:1115`, `:1199`), and View3d's chip, drawn
+without them, is present. A spike decides capture versus product (track ECR). Item 5 needs a scale-aware View3d `Shot`
+(track V3D). Item 6 still waits on the fact-TextBlock print.
 
 **Class → sweep → derive → prevent:**
 - *Signature:* a style or test that sums DIP terms to a boundary (24, 320, a 1 DIP offset) and passes at scales 1 and 2 but not 1.25, 1.5 or 1.75.
@@ -2256,7 +2263,8 @@ on a re-check, restored the pinned bytes, and moved the note to `mac-join-note.m
   `--continue`, or touched no pinned file.
 - *Derive:* a join condition is applied before the join completes: fix on top of the merge, then `--continue`, never
   as a later commit. A file listed in any capture or closing manifest is never edited; an annotation goes in a sibling
-  file.
+  file. *2026-10-09 (PR #21 join):* the PC's manifest re-pins every file in its folder, so the PR #20 sibling note is now
+  pinned too. Each Mac note is a new file and is never edited (`mac-join-note-pr21.md`). The capture check fails any edit.
 - *Prevent:* the leader runs `python3 tools/check-docs.py` before every push that follows a non-join commit (session
   rule). Status: controlled. `docs/coordination/join.json` readiness now opens with `python3 tools/check-docs.py`
   (about 10 s); a mismatched capture manifest turns `run-readiness.py` RED (`docs/proof/rcd/red-first.md`).
