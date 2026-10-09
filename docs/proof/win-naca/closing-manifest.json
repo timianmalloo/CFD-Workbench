@@ -115,7 +115,7 @@
     {
       "path": "docs/proof/win-naca/hash-manifest.json",
       "bytes": 19931,
-      "sha256": "826dec451626d6689f4397ee4d1528dc2c64cc3ff52d9e5237b501467dc0c745"
+      "sha256": "4bd5030d49d59d347470caaedc1187667c818a5a43db1241b0648151efe825a9"
     },
     {
       "path": "docs/proof/win-naca/hash-manifest.py",
