@@ -1,1 +1,2 @@
 {"agent": "trk-cmr", "at": 1791588865.382904, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-cmr", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-design-cmr-comb-revision"}
+{"agent": "trk-cmr", "at": 1791589872.951942, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-cmr", "wi": "WI-0", "worktree": "CFD-Workbench-design-cmr-comb-revision"}
