@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T01:48:50Z",
+  "generated": "2026-10-09T01:52:03Z",
   "audit": [
     {
       "actor": null,
@@ -34110,6 +34110,33 @@ window.AUDIT_DATA = {
       "to": "3122f106",
       "kind": "ruling",
       "ref": "req-01M4F4PJEN0S04GHN6BZ4CPY63",
+      "session": "operator-timianmalloo"
+    },
+    {
+      "id": "mail-01M4F577P40V2XMYGMMNRRHTDF",
+      "ts": "2026-10-09T01:42:39Z",
+      "from": "3122f106",
+      "to": "fable-owner",
+      "kind": "decision-request",
+      "ref": "req-01M4F577P0Q6N9NX2EJXCDY0MT",
+      "session": "3122f106"
+    },
+    {
+      "id": "mail-01M4F577S01N1TG57XPJEJ8TGH",
+      "ts": "2026-10-09T01:42:39Z",
+      "from": "fable-owner",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F577P0Q6N9NX2EJXCDY0MT",
+      "session": "fable-owner"
+    },
+    {
+      "id": "mail-01M4F578561617RN7R48ZSJ6MS",
+      "ts": "2026-10-09T01:42:39Z",
+      "from": "operator-timianmalloo",
+      "to": "3122f106",
+      "kind": "ruling",
+      "ref": "req-01M4F5781Y9YSXYBQXDWRTTY9F",
       "session": "operator-timianmalloo"
     }
   ]
