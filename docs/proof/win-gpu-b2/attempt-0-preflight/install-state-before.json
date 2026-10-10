@@ -1,0 +1,10 @@
+{
+  "schema": "cfdw-cuda-install-state/1",
+  "phase": "before",
+  "verified": true,
+  "installed_package_count": 528,
+  "locked_package_count": 135,
+  "changed_package_count": 0,
+  "forbidden_packages": [],
+  "changed_packages": []
+}

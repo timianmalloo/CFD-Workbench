@@ -1,0 +1,20 @@
+GAMG:  Solving for p, Initial residual = 2.04630003769e-11, Final residual = 9.84141209591e-13, No Iterations 60
+time step continuity errors : sum local = 5.55228815815e-16, global = -6.11985801401e-17, cumulative = 7.02820142532e-08
+smoothSolver:  Solving for nuTilda, Initial residual = 9.16942857296e-09, Final residual = 8.35488785101e-10, No Iterations 2
+ExecutionTime = 162663.05 s  ClockTime = 194662 s
+
+Time = 120000
+
+smoothSolver:  Solving for Ux, Initial residual = 1.42153143587e-09, Final residual = 1.29075768423e-10, No Iterations 2
+smoothSolver:  Solving for Uy, Initial residual = 7.19566509322e-10, Final residual = 4.57691555977e-11, No Iterations 2
+GAMG:  Solving for p, Initial residual = 2.04614442252e-11, Final residual = 9.84382354687e-13, No Iterations 60
+time step continuity errors : sum local = 5.56070948748e-16, global = -6.08986052618e-17, cumulative = 7.02820141923e-08
+smoothSolver:  Solving for nuTilda, Initial residual = 9.16935283608e-09, Final residual = 8.35482073642e-10, No Iterations 2
+ExecutionTime = 162664.41 s  ClockTime = 194663 s
+
+yPlus yPlus1 write:
+    writing field yPlus
+    patch airfoil y+ : min = 0.0021362699816, max = 0.16350055517, average = 0.0598334416023
+End
+
+Finalising parallel run

@@ -37,6 +37,22 @@ CUDA library, or Nsight package matches. `accepted-inputs.sha256` freezes the re
 Rollback is `wsl.exe --unregister cfdw-cuda132-b2`, but only after the target's marker and exact distro identity are
 verified. F1 stays closed; B2 can only produce its decision-request evidence.
 
+## Execution status
+
+The committed execution source at `c7569700` passed Astra review. Its non-installing preflight then passed the frozen
+input hashes, current 528-package state, exact 135-package resimulation, archive verification, license map, and capacity
+gate. `attempt-0-preflight/` retains the before-state and simulation evidence. The preflight left no owned process and
+installed no CUDA package.
+
+Execution attempt `pc-b2-r200-20261010-run1` stopped before ownership launch or package installation. Fresh observer row
+17 reported `unit_active_state=inactive`, so the five-percent guard failed closed with `L3 unit is not active`. The
+bound 17-row prefix is 5,336 bytes with SHA-256 `d09e44f0d519ba16b5a642f4c9e58e28a1a9bc5482431d18a8467f7352d01f4d`.
+The retained read-only completion evidence shows the protected run reached `Time = 120000`, wrote `End`, finalized its
+parallel run, and its unit reports `Result=success`, `ExecMainStatus=0`, `ActiveState=inactive`, `SubState=dead`.
+
+B2 is blocked on a Mac-leader ruling for the guard after successful L3 completion. The PC session does not reinterpret
+the active-run requirement. CUDA remains uninstalled, the disposable distro remains available, and F1 remains closed.
+
 The pre-import preparation attempts stopped before CUDA installation: an invalid PowerShell exit-code read, a checksum
 text-marker parser gap, and a NUL-removal overload all stopped before import; the first import was rolled back after the
 freshness guard overmatched `libcups`/`libcurl`. Each class and its normal-path control is recorded in the defect-class
