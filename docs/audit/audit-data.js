@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T21:28:36Z",
+  "generated": "2026-10-10T21:30:33Z",
   "audit": [
     {
       "actor": null,
@@ -34748,6 +34748,31 @@ window.AUDIT_DATA = {
       "done_when": "Red-first proof, run-tests, readiness, join checks, check-docs green; restored-comb screenshot",
       "started_at": "2026-10-10T21:12:41Z",
       "duration_seconds": 955.0
+    },
+    {
+      "id": "al-01M4KVK2PDSRW80RWDGY3T6AZM",
+      "shortname": "join-prf",
+      "datetime": "2026-10-10T21:30:33Z",
+      "session": "3122f106",
+      "prompt": "the join of feat/prf-view-prefs into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-10T21:29:26Z",
+      "duration_seconds": 67.0
     }
   ],
   "changes": [
