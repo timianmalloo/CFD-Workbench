@@ -24,6 +24,7 @@ fi
 gpgv --keyring "$keyring" "${cache}/cuda-ubuntu2404-InRelease"
 gpgv --keyring "$ubuntu_cloud_keyring" \
     "${cache}/ubuntu-noble-SHA256SUMS.gpg" "${cache}/ubuntu-noble-SHA256SUMS"
+python3 "${proof_root}/verify-sources.py" --self-test
 python3 "${proof_root}/verify-sources.py" \
     --inrelease "${cache}/cuda-ubuntu2404-InRelease" \
     --packages "${cache}/cuda-ubuntu2404-Packages.gz" \

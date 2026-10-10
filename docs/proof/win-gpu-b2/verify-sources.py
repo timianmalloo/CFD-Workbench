@@ -28,13 +28,37 @@ def signed_payload(path: Path) -> str:
     return "\n".join(line[2:] if line.startswith("- ") else line for line in body.splitlines())
 
 
+def parse_coreutils_sums(text: str) -> dict[str, str]:
+    sums = {}
+    for line in text.splitlines():
+        match = re.fullmatch(r"([0-9a-f]{64}) ([ *])(.+)", line)
+        if match:
+            sums[match.group(3)] = match.group(1)
+    return sums
+
+
+def self_test() -> None:
+    first = "a" * 64
+    second = "b" * 64
+    parsed = parse_coreutils_sums(f"{first}  text.tar.gz\n{second} *binary.tar.gz\ninvalid\n")
+    if parsed != {"text.tar.gz": first, "binary.tar.gz": second}:
+        raise SystemExit("CHECKSUM-MARKER-A self-test failed")
+    print("checksum marker self-test OK")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--inrelease", type=Path, required=True)
-    parser.add_argument("--packages", type=Path, required=True)
-    parser.add_argument("--ubuntu-sums", type=Path, required=True)
-    parser.add_argument("--ubuntu-rootfs", type=Path, required=True)
+    parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--inrelease", type=Path)
+    parser.add_argument("--packages", type=Path)
+    parser.add_argument("--ubuntu-sums", type=Path)
+    parser.add_argument("--ubuntu-rootfs", type=Path)
     args = parser.parse_args()
+    if args.self_test:
+        self_test()
+        return
+    if None in (args.inrelease, args.packages, args.ubuntu_sums, args.ubuntu_rootfs):
+        parser.error("all source paths are required outside --self-test")
 
     payload = signed_payload(args.inrelease)
     match = re.search(r"(?ms)^SHA256:\s*$.*?^\s*([0-9a-f]{64})\s+(\d+)\s+Packages\.gz\s*$", payload)
@@ -50,11 +74,7 @@ def main() -> None:
     print(f"SIGNED-PACKAGES-PASS sha256={actual_hash} bytes={actual_size}")
 
     rootfs_name = args.ubuntu_rootfs.name
-    sums = {}
-    for line in args.ubuntu_sums.read_text(encoding="utf-8").splitlines():
-        checksum, separator, filename = line.partition(" *")
-        if separator:
-            sums[filename] = checksum
+    sums = parse_coreutils_sums(args.ubuntu_sums.read_text(encoding="utf-8"))
     if rootfs_name not in sums:
         raise ValueError(f"signed Ubuntu sums do not name {rootfs_name}")
     rootfs_hash = sha256(args.ubuntu_rootfs)
