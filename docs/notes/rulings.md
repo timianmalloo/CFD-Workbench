@@ -1569,3 +1569,9 @@ Operator 2026-10-09: both mockups are approved visually. Rail comb: (1) draw the
 Operator 2026-10-09: keep the 0.3 mm trailing-edge floor, so analysis blunting and the settings hash are unchanged, but label it honestly as 'app default, no source' wherever it is shown, not 'practitioner value'. Export always shows a trailing-edge row for STL, 3MF and .dat: the least thickness in mm, where it is, the floor with its honest label, and 'Manufacturing: not assessed (no process chosen)'. The below-floor finding stays advisory (Ruling 194 (5)). Process-specific floors (a ManufacturingPolicy with route presets, e.g. moulded carbon 0.5-0.8, SLS >= 1.0, FFF 1.2-1.5 mm) are a later slice of their own.
 
 - request: req-01M4HGMKWMZGA5DDSESW6PG19C · ruled by: operator-timianmalloo · at: 2026-10-09T23:40:40Z
+
+### Ruling 196 — Rail comb and Export final copy and amendments approved; build order comb + .dat first; slicers installed for STL; separate half-wing file name
+
+Operator 2026-10-09. (1) Both batches are approved as written: rail comb COPY-RC-1..16 and AM-RC-1..5; Export COPY-EX01..EX46 and A1..A14. Final ids: COPY-RC-1..16 become COPY-458..473 in order, and COPY-EX01..EX46 become COPY-474..519 in order. (2) Build order: the rail comb and the Export .dat slice now, as two tracks; then STL with the B1-B4 conditions, then 3MF and the cfdw export verb. (3) PrusaSlicer and OrcaSlicer may be installed on this Mac with Homebrew, for the B1 slicer fixture only, when the STL track starts. (4) A starboard-half export is named ...-half-mm.stl, so it can never overwrite the whole-wing file.
+
+- request: req-01M4HJAVVX7FJ2VZ9GSHFWRKEK · ruled by: operator-timianmalloo · at: 2026-10-10T00:10:18Z
