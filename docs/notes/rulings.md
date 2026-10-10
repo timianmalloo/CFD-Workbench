@@ -1623,3 +1623,9 @@ Operator 2026-10-10: approved as recommended. (1) `--station` takes the app's ow
 Operator 2026-10-10: approved as recommended. (1) COPY-507 keeps 'The earlier file is still there.' only when a file existed at the target name when the write began. Otherwise the message ends at 'Nothing was changed.' For example: 'Can't write the file. The folder no longer exists. Nothing was changed.' (2) The Unit row 'mm, unscaled (in the file name)' (STL) is registered as COPY-520, and 'mm, unscaled (the unit is set in the file)' (3MF) as COPY-521, both approved as written.
 
 - request: req-01M4KR4G38MRGJY64MEF04VXY5 · ruled by: operator-timianmalloo · at: 2026-10-10T20:30:10Z
+
+### Ruling 205 — View settings survive a restart: a small per-user preferences file, designed first, holding only view settings
+
+Operator 2026-10-10: remember across restarts. Add a small per-user preferences file in the app's data folder. It holds only view settings, starting with the rail comb's scale and density, and never anything in the foil or project file. A short design comes first and is reviewed before the build: the location on macOS and Windows (reusing the app's existing data folder if there is one), the format and its version, the write policy (atomic, as the app's other writers), and what happens with a missing, corrupt or newer-version file (fall back to defaults, never block start-up, never overwrite a newer file blindly). Any new user-facing copy goes to the operator before the build.
+
+- request: req-01M4KSAQW75X8VPPR3EGZCAF58 · ruled by: operator-timianmalloo · at: 2026-10-10T20:51:03Z
