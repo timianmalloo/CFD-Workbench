@@ -3,3 +3,4 @@
 {"agent": "trk-stl", "at": 1791492363.012531, "kind": "session-start", "path": "-", "seq": 3, "session": "trk-stl", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feature-stl-status-copy"}
 {"agent": "trk-stl", "at": 1791493648.467979, "kind": "session-end", "path": "-", "seq": 4, "session": "trk-stl", "wi": "WI-0", "worktree": "CFD-Workbench-feature-stl-status-copy"}
 {"agent": "trk-stl", "at": 1791649034.410918, "kind": "session-start", "path": "-", "seq": 5, "session": "trk-stl", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feat-stl-export"}
+{"agent": "trk-stl", "at": 1791649045.139352, "kind": "session-end", "path": "-", "seq": 6, "session": "trk-stl", "wi": "WI-0", "worktree": "CFD-Workbench-feat-stl-export"}
