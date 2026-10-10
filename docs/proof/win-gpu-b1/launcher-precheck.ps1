@@ -124,9 +124,10 @@ $document = [ordered]@{
     foreground = $foreground
     setsid_wait = $setsidWait
 }
+$json = ($document | ConvertTo-Json -Depth 10) -replace "`r`n", "`n"
 [IO.File]::WriteAllText(
     $resultPath,
-    ($document | ConvertTo-Json -Depth 10) + "`n",
+    $json + "`n",
     [Text.UTF8Encoding]::new($false)
 )
 Write-Output "selected_method=$selectedMethod result=$(Split-Path -Leaf $resultPath)"

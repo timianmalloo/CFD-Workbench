@@ -40,5 +40,6 @@ GPU driver, touch an L3 path/process/unit/file, build PETSc/OpenFOAM, or reopen 
 B1 continuation is active. Both completed live attempts formed valid fresh baselines but stopped before verified probe
 ownership. Ruling 201 authorizes a measured launcher precheck and another attempt; the operator subsequently authorized
 attempts 3, 4, and 5 if needed. The attempt-2 evidence is preserved under `attempt-2-setsid-fork/`. The Astra owner
-approved the revised precheck, residual check, bounded cleanup, and launch selection before execution. B2 and F1 remain
-closed until B1 passes.
+approved the revised precheck, residual check, bounded cleanup, and launch selection before execution. The cap-free
+precheck selected foreground: stopping its Windows launcher removed the tagged Linux child, while the `setsid --wait`
+child survived until exact cleanup. B2 and F1 remain closed until B1 passes.

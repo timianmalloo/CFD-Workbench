@@ -91,3 +91,10 @@ candidate's PID/PGID/SID and teardown result, while bare `setsid` exited before 
 tagged sleep. That evidence is retained under `precheck-1-setsid-no-wait/`; it does not promote the precise fork and
 teardown cause beyond **Inferred**. The Astra owner approved a second cap-free precheck of the actual foreground and
 `setsid --wait` candidates.
+
+Cap-free precheck 2 completed both candidates and selected **foreground** by Ruling 201's rule. Foreground reported
+PID/PGID/SID `44185/44185/44185`; its tagged sleep existed before launcher stop and was absent afterward. `setsid
+--wait` reported `44197/44197/44197`; its tagged sleep survived launcher stop and the exact cleanup then removed it.
+`launcher-precheck.json` contains the argv and check results. A caller emitted a false PowerShell exception after the
+script completed because it tested an unset `$LASTEXITCODE`; that post-script orchestration did not change the recorded
+precheck result. The Astra owner approved the runtime evidence and foreground launch for attempt 3.

@@ -83,7 +83,7 @@ $completion = [ordered]@{
     final_event = $finalEvent
     prefix_binding = Get-Content -LiteralPath $bindingPath -Raw | ConvertFrom-Json
 }
-$json = $completion | ConvertTo-Json -Depth 12
+$json = ($completion | ConvertTo-Json -Depth 12) -replace "`r`n", "`n"
 [IO.File]::WriteAllText($completionPath, $json + "`n", [Text.UTF8Encoding]::new($false))
 
 if ($finalEvent.verdict -eq 'stop') { exit 5 }

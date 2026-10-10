@@ -1,0 +1,3 @@
+attempt_id=pc-b1-r201-precheck-20261010d-setsid-wait marker=cfdw-b1-launcher-precheck-pc-b1-r201-precheck-20261010d-setsid-wait
+  44197   44196   44197   44197  10   0 bash
+precheck_ready=cfdw-b1-launcher-precheck-pc-b1-r201-precheck-20261010d-setsid-wait

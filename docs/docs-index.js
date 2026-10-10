@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a6e8a0a9f58943882b1d19f5ab5af823e4e0978a0a64e6b5bae340f74c328b18"
+      "sourceSha256": "3c84f8ac2c82d3cf7bfa79421f4d673bc5702bc88be419ccdd3770be8f8f3e90"
     },
     {
       "id": "domain-experts",
@@ -17706,6 +17706,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "d467406caf7dd1aeabd8541e2f61202bae464bd4e19c78cff19d6f30af207868"
     },
     {
+      "id": "proof-win-gpu-b1-launcher-precheck",
+      "path": "docs/proof/win-gpu-b1/launcher-precheck-receipt.md",
+      "title": "B1 launcher precheck result",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Foreground was selected because launcher teardown removed its child; setsid --wait preserved its child.",
+      "tags": [
+        "proof",
+        "windows",
+        "wsl",
+        "ruling-201"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-b1-r199",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "04afdc47b9863945be6fdb7ef127b5ec5189171632788aec2c7e329495920d84"
+    },
+    {
       "id": "proof-win-gpu-b1-precheck1",
       "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/result.md",
       "title": "B1 launcher precheck 1: bare setsid",
@@ -17762,7 +17788,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "923a55e73ee1f898bc23a445aa4004580f54aed72f77b653cda2a7e35cfc477c"
+      "sourceSha256": "61159b6b00bbd9aef5f4ba49a81750ed250b5da5572fd4b8f82a08565f98e8f7"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -18535,7 +18561,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a4f84450197231b2d8b00685f93fb1096c4b1926b1b8f3d6cf48588c0ba1bc29"
+      "sourceSha256": "b8f00572ee69da79d169004c5f9da72b1c293c7d1b6c0d3d6b28456bdfc7bef1"
     },
     {
       "id": "review-app-shell-native",
@@ -20547,5 +20573,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "69c84a156172373b9ec7742a927f39ca7ceba55961936750fa3847d3ae687194"
+  "graphSha256": "a926012040462f04811b2b8f9a9a8cba94eaf7e82eaa286ac75db06d44191174"
 };

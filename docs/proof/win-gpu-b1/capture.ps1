@@ -410,7 +410,7 @@ finally {
             free_bytes = $drive.Free
         }
     }
-    $json = $capture | ConvertTo-Json -Depth 12
+    $json = ($capture | ConvertTo-Json -Depth 12) -replace "`r`n", "`n"
     [IO.File]::WriteAllText($capturePath, $json + "`n", [Text.UTF8Encoding]::new($false))
 }
 
