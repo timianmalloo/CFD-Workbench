@@ -2506,7 +2506,7 @@ folder, with only those four paths rebound and the bytes and SHAs unchanged.
 - *Derive:* a manifest freezes evidence by copying it into the proof folder; it never binds a path that a later track
   may change.
 - *Prevent:* pending. `check-capture-manifests.py` flags a closing-manifest path under `tools/`, `src/` or `tests/`,
-  red first on the R182 manifest at main. Until then this is prose and the PC's snapshot convention.
+  red first on the R182 manifest at main. Until then this is prose and the PC's snapshot convention. *2026-10-10 (Ruling 199):* a second signature is a whole-file hash of an append-only store recorded in a derived receipt (the observer `samples.jsonl` in `observer-window.json` and the G1 receipt); the claim cannot be checked once the file grows. Bind an N-row prefix hash or a snapshot instead.
 
 **WINDOWS-CAPTURE-LIFECYCLE · A launcher mistakes root exit or a termination request for complete, bounded process cleanup.**
 Ruling 181's watchdog lost the numeric exit. Runner review also exposed inherited output handles, asynchronous
@@ -2599,6 +2599,16 @@ under a still pointer. In the suite it read as a flake in `PlanCanvas_Escape_Dis
   Status: controlled.
 
 **PLAT-A · 2026-10-09 · An admitted Windows PASS outlives the inputs it was earned on.** Ruling 189 admitted the Windows store PASS (tested head a5c45644) only while the verifier, runner, three build-input trees and four blobs stay unchanged. Control: `docs/proof/windows-store-admission.json` binds them; `tools/check-windows-admission.py` prints `WINDOWS-STORE-EVIDENCE ... current` or `... STALE since <path>` (exit 0, so Core changes are never blocked), `tools/run-windows-store-gate.py` prints the same line, `--self-test` runs in check-docs (fast ring), and a docs file that claims `Windows store: PASS (current)` while stale fails. Status: controlled.
+*2026-10-10 (PR #30 review, Fable owner).* The claim check fires on its own documentation.
+- `tools/check-windows-admission.py` fails any `docs/**/*.md` that contains the current-pass marker while the binding is
+  stale.
+- The marker's only occurrences are this register's PLAT-A text and `docs/proof/asc/red-first.md`, which quote it to
+  describe the rule.
+- Once the DAT and CBD joins moved `src/CfdWorkbench.Core` (e6121133 to 838800be), the check exited 1 on main.
+- No gate saw it, because `check-docs.py` runs only the check's `--self-test`, never the check itself.
+
+*Derive:* a marker check ignores a marker quoted as code, and the real check (not only its self-test) runs in a ring.
+*Control:* a Mac track (pending).
 
 **OBS-CLOCK-DOMAIN-A · A UTC window classifies intervals whose duration clock is monotonic.** The first uncommitted
 Ruling 197 observer analysis used capture UTC for both the capture join and the 30-minute window. WSL UTC advanced about
@@ -2611,6 +2621,18 @@ Derive: wall-clock UTC locates the interval containing an external capture; adja
 sample clock domain. Control: `docs/proof/win-gpu-g1/analyze-observer.py` requires exactly one UTC-overlapping valid
 interval, then classifies its before/after windows by `/proc/uptime` offsets and emits the rule into the manifest-bound
 `observer-window.json`. Raw append-only samples are never rewritten. Status: controlled for this observer proof.
+*2026-10-10 (Ruling 199, correction by the Fable owner at the PR #30 join).* The disagreement is larger than "about 54
+seconds", and the derive step picked the suspect clock.
+- Every `sleep 600` advanced UTC by 647–655 s, while `/proc/uptime` advanced 600.04 s: 8–9 % per interval, about 325 s
+  cumulative.
+- Host and WSL UTC agree to about 1 s. The earlier wall-clock L3 rate (0.72 it/s) matches the UTC-based rates
+  (0.728–0.735), not the monotonic 0.79. So `/proc/uptime` in this WSL2 VM likely runs about 8 % slow. Which clock is true
+  is not established; the evidence favours UTC.
+- The relative verdict holds on both clocks: −2.32 % monotonic, −2.99 % UTC.
+- *Derive (corrected):* report rates on both clocks, and label monotonic it/s as not comparable with wall-clock rates.
+  The per-interval ratio (1.078–1.092) is itself a noise floor of about 1 % on relative rates.
+- *Control:* a PC condition of Ruling 199: the analyzer emits both-clock rates and the per-interval ratio before any G2
+  receipt. Status: pending.
 
 **ROW-MODAL-A · 2026-10-09 · A new command row that opens a modal dialog stops the all-gestures probe.** Adding `file.export` put a row whose command opens the real Export dialog (modal) before the rows after it. `WindowsShell_EveryTableGesture_FiresItsCommandOnce` runs every row's command in turn, so the open dialog took every later key and 15 rows read "fired 0" (first ring of track trk-dat).
 - *Sweep:* the checks that execute rows, not only read them: `CommandTable_Parity_*` and `ShellWindowTests` read the table; only the gesture probe runs each command. The other modal rows (Replace from catalog, Save to My sections) are disabled outside a section, so the probe never ran them.
