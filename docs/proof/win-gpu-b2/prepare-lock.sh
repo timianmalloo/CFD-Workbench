@@ -7,6 +7,16 @@ readonly proof_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 readonly cache="${proof_root}/.source-cache"
 readonly marker="/etc/cfdw-b2-disposable"
 readonly expected_name="cfdw-cuda132-b2"
+readonly preexisting_cuda_pattern='^(cuda-|nvidia-|nsight-|libcuda|libcublas|libcufft|libcufile|libcurand|libcusolver|libcusparse|libcuobj)'
+
+if printf '%s\n' 'libcups2t64:amd64' | grep -Eq "$preexisting_cuda_pattern"; then
+    printf 'package freshness pattern rejects unrelated libcups package\n' >&2
+    exit 70
+fi
+if ! printf '%s\n' 'libcuda1:amd64' | grep -Eq "$preexisting_cuda_pattern"; then
+    printf 'package freshness pattern misses planted CUDA package\n' >&2
+    exit 70
+fi
 
 source /etc/os-release
 if [[ "${ID:-}" != "ubuntu" || "${VERSION_ID:-}" != "24.04" ]]; then
@@ -17,7 +27,7 @@ if [[ -e "$marker" ]]; then
     printf 'disposable marker already exists; refusing replay\n' >&2
     exit 73
 fi
-if dpkg-query -W -f='${binary:Package}\n' 2>/dev/null | grep -Eq '^(cuda-|nvidia-|nsight-|libcu)'; then
+if dpkg-query -W -f='${binary:Package}\n' 2>/dev/null | grep -Eq "$preexisting_cuda_pattern"; then
     printf 'fresh distro already contains a CUDA or NVIDIA package\n' >&2
     exit 65
 fi
