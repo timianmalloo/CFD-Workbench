@@ -1,0 +1,3 @@
+self-test FAIL: backtick-quoted marker must pass while stale: 1 "WINDOWS-STORE-EVIDENCE STALE since a.txt: ffffffff -> 2c8b08da\nFAIL: docs/claim.md claims 'Windows store: PASS (current)' but the admission is stale\n"
+self-test FAIL: fenced marker must pass while stale: 1 "WINDOWS-STORE-EVIDENCE STALE since a.txt: ffffffff -> 2c8b08da\nFAIL: docs/claim.md claims 'Windows store: PASS (current)' but the admission is stale\n"
+self-test FAILED

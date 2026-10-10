@@ -9,7 +9,7 @@ HEAD:<path>` for trees and blobs) and prints one line:
 
 Both exit 0: staleness is made visible, it never blocks unrelated work (Core changes often). Exit 1 only when the binding
 is missing, unreadable or malformed. The one hard fail: a docs/*.md file that claims a current Windows PASS (the marker
-"Windows store: PASS (current)") while the binding is stale. No document carries the marker today.
+"Windows store: PASS (current)") while the binding is stale. A marker quoted as code (inline backtick span or fenced block) is a quotation, not a claim.
 
   python3 tools/check-windows-admission.py
   python3 tools/check-windows-admission.py --self-test
@@ -93,11 +93,20 @@ def status_line(data: dict, root: Path) -> tuple[str, bool]:
     return "WINDOWS-STORE-EVIDENCE STALE since {0}".format(difference), True
 
 
+FENCE = re.compile(r"^(`{3,}|~{3,}).*?^\1[ \t]*$", re.MULTILINE | re.DOTALL)
+CODE_SPAN = re.compile(r"`[^`\n]*`")
+
+
+def unquoted(text: str) -> str:
+    """Drop fenced blocks and inline backtick spans: a marker quoted as code is a quotation, not a claim."""
+    return CODE_SPAN.sub("", FENCE.sub("", text))
+
+
 def claims(root: Path) -> list[str]:
     found = []
     for document in sorted((root / "docs").rglob("*.md")):
         try:
-            if MARKER in document.read_text(encoding="utf-8", errors="replace"):
+            if MARKER in unquoted(document.read_text(encoding="utf-8", errors="replace")):
                 found.append(document.relative_to(root).as_posix())
         except OSError:
             pass
@@ -177,6 +186,24 @@ def self_test() -> int:
         code, out = run(root, binding)
         if code != 1 or "claim.md" not in out:
             problems.append("stale plus claim must fail: {0} {1!r}".format(code, out))
+        claim = root / "docs" / "claim.md"
+        claim.write_text("`" + MARKER + "`\n", encoding="utf-8", newline="\n")
+        code, out = run(root, binding)
+        if code != 0:
+            problems.append("backtick-quoted marker must pass while stale: {0} {1!r}".format(code, out))
+        claim.write_text("```\n" + MARKER + "\n```\n", encoding="utf-8", newline="\n")
+        code, out = run(root, binding)
+        if code != 0:
+            problems.append("fenced marker must pass while stale: {0} {1!r}".format(code, out))
+        claim.write_text("`x` then " + MARKER + "\n", encoding="utf-8", newline="\n")
+        code, out = run(root, binding)
+        if code != 1:
+            problems.append("bare marker after a code span must fail while stale: {0} {1!r}".format(code, out))
+        claim.unlink()
+        code, out = run(root, binding)
+        if code != 0 or "STALE since" not in out:
+            problems.append("stale with no claim must print STALE and exit 0: {0} {1!r}".format(code, out))
+        claim.write_text(MARKER + "\n", encoding="utf-8", newline="\n")
         binding.write_text(json.dumps(good), encoding="utf-8", newline="\n")
         code, out = run(root, binding)
         if code != 0:

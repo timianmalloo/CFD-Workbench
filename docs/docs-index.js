@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db61ab90099acade6dfe228a1ad6787f008c2d1583fa45f5a31963f6a8cb1e15"
+      "sourceSha256": "c008aca2171a56d016a18ae6e720a92a49b27aa0c88f370001a1727a937f7980"
     },
     {
       "id": "domain-experts",
@@ -13932,6 +13932,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "0dffc55bc2a5a901180c79b27dad57633df66a3631ba820f49013a775efd3769"
     },
     {
+      "id": "proof-gfx-red-first",
+      "path": "docs/proof/gfx/red-first.md",
+      "title": "GFX red-first - admission self-quote and PII UTF-16 blind spot",
+      "type": "proof-pack",
+      "status": "draft",
+      "owner": "@trk-gfx",
+      "phase": "",
+      "reviewBy": "2026-11-08",
+      "reviewSuggested": [],
+      "summary": "Admission check ignores a marker quoted as code; the PII guard decodes UTF-16 files; each shown failing first.",
+      "tags": [
+        "gfx",
+        "plat-a",
+        "pii-gate"
+      ],
+      "links": [
+        {
+          "to": "proof-asc-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c84b30ba24f3e8d7a8e953629f62f14633250e377f8aa0f0aea580b2b1fe6dad"
+    },
+    {
       "id": "proof-grp-desktop-red-first",
       "path": "docs/proof/grp-desktop/red-first.md",
       "title": "Track GRP half 2 (Desktop): planted mutants, observed red then green",
@@ -20159,5 +20184,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e03f19be94ab7ee8d914ffbabd7121a9395e291297ef27462056de0856a40d0d"
+  "graphSha256": "4102c2f693cee52d19bea7729de3b53dbc0939782169cb78bd04663209ba3865"
 };
