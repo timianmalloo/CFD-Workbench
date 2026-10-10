@@ -81,7 +81,7 @@ review-suggested:
 
 ## One definition. Every number with its basis. Nothing claimed that a fixture has not earned.
 
-Product specification · revision 1.7.5 · 6 October 2026 · *(1.7.5: Rulings 107 and 108, group move on a curve (CAD-04) and the wing-only drag (A5.6, ANA-03), Appendix H, section H.5 and [amendments/spec-1.7.5.md](amendments/spec-1.7.5.md); 1.7.4: Rulings 93 and 95, the minimum tip chord, Appendix H, section H.4; 1.7.3: Ruling 92 amendments to A5.4, the tip end and SPIKE-04, Appendix H, section H.3; 1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md); 1.7.1: the solver-security right-size, Appendix H, section H.1 and [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md); 1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
+Product specification · revision 1.7.6 · 9 October 2026 · *(1.7.6: Ruling 196, the Export amendments A1–A14 (EXP-02, EXP-03, the format table, F5, the TE-floor label), Appendix H, section H.6 and [amendments/spec-1.7.6.md](amendments/spec-1.7.6.md); 1.7.5: Rulings 107 and 108, group move on a curve (CAD-04) and the wing-only drag (A5.6, ANA-03), Appendix H, section H.5 and [amendments/spec-1.7.5.md](amendments/spec-1.7.5.md); 1.7.4: Rulings 93 and 95, the minimum tip chord, Appendix H, section H.4; 1.7.3: Ruling 92 amendments to A5.4, the tip end and SPIKE-04, Appendix H, section H.3; 1.7.2: guided solver setup, the smoke-test scalar and the CAD ↔ Analysis shortcut, Appendix H, section H.2 and [amendments/spec-1.7.2.md](amendments/spec-1.7.2.md); 1.7.1: the solver-security right-size, Appendix H, section H.1 and [amendments/spec-1.7.1.md](amendments/spec-1.7.1.md); 1.7: the spec-owner amendment batch, Appendix H and [amendments/spec-1.7.md](amendments/spec-1.7.md); 1.6: the CAD-first editing contract A4.15, CAD-14–21, flows F11–F12, UX-28–33, UI-36–43, Appendix G; 1.5: A4.14, CAD-09–13, F10; 1.1a: Part B/C shell wording, UI-23, Appendix D2a; 1.2: CAD editing views CAD-04–06, UX-23, UI-24–25, the pointer contract, Appendix D3; 1.3: the control-vertex record GEO-03/05/13/15, the four-viewport workspace and tool palette CAD-07–08, the geometry kernel A4.12, Appendix D4)* · **Build basis. Supersedes revision 1.0 (which
 superseded 0.2). Not an implemented or scientifically validated product; every numerical threshold below is a
 proposed acceptance target until the named fixture has been observed.** Revision 1.1 makes seven areas first-class
 and discrete — Setup, CAD, Analysis, Experiment setup, Run, Results, Export — and gives each an AI prompt entry;
@@ -620,9 +620,9 @@ workspace/history; **Export FoilDSL source** exports only accepted shape source 
 |---|---|---|
 | `.cfdw.json` native | read + write | Project envelope with immutable FoilDSL source revisions, pinned profiles/assets, provenance, history and runs (A4.13); no second writable geometry payload. Derived checks remain labelled caches. Semantic hash normalization follows the language companion. Native schema and atomic-save fixtures are implementation obligations. |
 | `.foil` | read + write | FoilDSL 4.0 *(1.7: or 4.1, A4.1)* complete foil or standalone section; lossless source save, explicit canonical export, resolved inline or content-addressed profile dependencies. Shape-only interchange omits project run history. |
-| Selig / Lednicer DAT | read + write | shortest-round-trip digits; original bytes retained on import |
+| Selig / Lednicer DAT | read + write | ~~shortest-round-trip digits~~ *(1.7.6, approved — Ruling 196, A10: shortest round-trip digits in positional notation, never exponent form)*; original bytes retained on import. *(1.7.6, approved — Ruling 196, A4: one section per file: at a station (default; camber plus and minus half the thickness measured vertically, peak thickness equal to the station t/c) or the authored profile, unscaled; chord fractions, twist not applied; the name line carries foil, station and revision and never begins with two numbers)* |
 | AVL `.avl` + `AFILE` | write (behind the VLM tier) | one SECTION per authored station **plus** sampled stations so linear interpolation error is bounded; documents that `Ainc` is a camber-line boundary condition; Sref/Bref/Cref from the same evaluation as the AR readout |
-| STL / 3MF (print) | write | millimetres; 3MF `unit` attribute; STL unit in the file name and dialog; never pre-scaled |
+| STL / 3MF (print) | write | millimetres; 3MF `unit` attribute; STL unit in the file name and dialog; never pre-scaled. *(1.7.6, approved — Ruling 196, A3: a closed solid: the evaluator's skin at a user-chosen tolerance plus tip caps, a trailing-edge strip when the section is open and a root weld by mirror, or a starboard half closed with a root cap at y = 0; no CAD kernel; refused if any edge of the written bytes is not shared by exactly two triangles.)* |
 | STL (CFD input) | write (Run) | metres; chordal deviation stated; written by the case generator, never by the user dialog |
 | STEP AP203 | write, **gated** | `B_SPLINE_SURFACE_WITH_KNOTS` (non-rational proven) inside faces and a shell, millimetres, declared uncertainty, degenerate-tip rule, skin deviation reported; two variants (untrimmed surfaces · closed shell with tip cap and TE); **released only after open-and-measure in two named CAM systems and in Fusion** with the measured quantities stored as a fixture (05, 12) |
 | Fusion | write via STEP | Fusion's own `.f3d` is cloud-native (05, Flagged: no public specification was opened); "Fusion-ready STEP" is the closed-shell STEP variant with the Fusion open-and-measure fixture as its release gate; the export dialog names the STEP variant and never promises a `.f3d` file |
@@ -630,7 +630,7 @@ workspace/history; **Export FoilDSL source** exports only accepted shape source 
 | Chart / table | write | CSV with units in headers; PNG/SVG with the legend fields of C2 |
 | IGES, DXF, glTF, `.s3dx`, `.f3d`, G-code, mould set | later / never | see non-goals |
 
-Every geometric export repeats the TE-floor DRC finding when the trailing edge is below the setting.
+Every geometric export repeats the TE-floor DRC finding when the trailing edge is below the setting. *(1.7.6, approved — Ruling 196, A5: every geometric export shows a trailing-edge row, see EXP-02; the finding is an advisory that never blocks, A12.)*
 
 #### A4.12 Geometry kernel (revision 1.3)
 
@@ -1014,7 +1014,7 @@ chord, relative to t/c = 10 %, labelled "geometry only (Structural: Not assessed
 hydrodynamic estimates. Not a structural assessment. Strength, stiffness and fatigue are not evaluated."; Export
 dialog — "This geometry has not been checked for strength, manufacturability or ride safety. No standard for
 hydrofoil-wing strength applies (RCD 2013/53/EU excludes hydrofoils and surfboards; ISO 25649 excludes rigid
-surf-sport devices). Test before use."; the Beam tier string is reserved. The regulatory register (RCD, ISO
+surf-sport devices). Test before use." *(1.7.6, approved — Ruling 196, A7: the string shows for every geometric format, including .dat)*; the Beam tier string is reserved. The regulatory register (RCD, ISO
 25649-1:2024, ISO 12215-9:2026, ISO 21853) is re-checked yearly (12, KB-19).
 
 #### A5.7 Freshness, comparison and discrepancy
@@ -1032,7 +1032,7 @@ evaluator, located violation, exclusion with reason and Design revision. Rule fa
 negative thickness, closure, coincident stations, infeasible locks with the removable-constraint list),
 `envelope.*` (sanity bounds; an out-of-envelope derived quantity is the advisory finding "Out-of-envelope
 observation — <bound, source, date>"), `class.*` (class rules), `manufacturing.te_floor` (the one v1 policy
-value; label "practitioner value, unverified"), `label.*` (forbidden strings), `catalog.*` (pending admission,
+value; ~~label "practitioner value, unverified"~~ *(1.7.6, approved — Ruling 196, A11: label "app default, no source"; the value 0.3 mm, the analysis numerics and the settings hash do not change)*), `label.*` (forbidden strings), `catalog.*` (pending admission,
 missing provenance). An exclusion is stored on the finding, which references its Design revision. Findings live in a
 Checks drawer reachable from every destination and from the status strip count.
 
@@ -1187,7 +1187,7 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | GEO-09 · I can use units and orientation consistently | **Given** display-unit changes, **then** geometry, identity and physics are unchanged. **Given** the sign fixture (A4.7), **then** every sign holds. **Given** a pressure entered for a length, **then** a dimensional error is shown. |
 | GEO-10 · I can inspect the actual loft | **Given** valid geometry, **when** I orbit, pan, zoom, fit or select a named view by pointer, trackpad or keyboard (15°/90°/5° stepped orbit; Z / Shift+Z zoom; fit-all and fit-selection), **then** station selection stays linked to its inspector; reduced motion changes nothing about reachability. |
 | GEO-11 · The root is continuous | **Given** a mirrored design, **when** any channel is edited, **then** G1 continuity across the root plane holds within the angle tolerance because the root-mirror tangent lock is on by default; **given** a user releases it, **then** the root shows a break marker and a DRC warning. |
-| GEO-12 · I can compare and read local dimensions | **Given** a prior Design revision of the same document, **when** Ghost is enabled, **then** it renders with a distinct style, its revision and the shared datum, and cannot become the edit target. **Given** station selection, **then** root and tip distance, % span, TE thickness in mm, the TE floor setting with its label and the relative-stiffness readout update; a TE below the floor is an advisory DRC finding. |
+| GEO-12 · I can compare and read local dimensions | **Given** a prior Design revision of the same document, **when** Ghost is enabled, **then** it renders with a distinct style, its revision and the shared datum, and cannot become the edit target. **Given** station selection, **then** root and tip distance, % span, TE thickness in mm, the TE floor setting with its label and the relative-stiffness readout update; a TE below the floor is an advisory DRC finding. *(1.7.6, approved — Ruling 196, A11: the floor's label is "app default, no source".)* |
 | GEO-13 · A vertex acts locally | **Given** a degree-p curve with n vertices, **when** one interior vertex moves with the others fixed, **then** the curve changes only over that vertex's p + 1 knot spans (the value at any η outside them is unchanged to 10⁻¹² relative), the change at the vertex's own η is a strict fraction of the move, and the polygon, comb, continuity measures and derived dimensions update together (the local-support property test, replacing the 1.2 weight-monotonicity test). **Given** locks, **then** a feasible draft preserves them within the tolerance triple and an infeasible one names the rows. |
 | GEO-14 · I can review and reverse a construction | **Given** a previewed Fair, Rebuild, Fit points, Insert or Delete *(1.7: Insert and Delete have no preview; they apply at once and Undo restores them exactly, A4.2)*, **when** cancelled, **then** geometry, assignments, recipe state, freshness and undo history are unchanged. **Given** Apply, **then** one undo item captures it (vertices, knots and provenance) and dependent runs become Historical. **Given** Undo, Redo, save and reopen, **then** the identity oracle passes and the evaluator version in the file equals the running one or a new revision is flagged. |
 | GEO-15 · I can fair within a tolerance | **Given** any master curve, **when** Fair runs with a tolerance and PreserveEnds, **then** the achieved maximum deviation is reported, Apply is enabled only when it is ≤ the tolerance (Return refuses above it), the end condition holds, and the monotone-piece count does not increase; ~~**given** Rebuild with a vertex count, **then** the same contract holds with the count shown~~ *(1.7: **given** Rebuild to N, **then** N is 4–10 and no tolerance gates Apply: the measured change, where it is largest and the tip-tangent turn are shown before Apply, and the curve's anchors are listed as dropped — A4.2; Ruling 64, DR-PV-3 A and DR-PV-5 A)*. |
@@ -1214,8 +1214,8 @@ failing run is in the Proof Pack; a row without a failing input asserts nothing.
 | DRC-01 · I can see every check in one place | **Given** any revision, **then** the Checks drawer lists findings by rule id, rule version and severity with a located jump; an exclusion requires a reason and is stored on the finding, which references the Design revision; the status strip shows the open count. |
 | LAB-01 · No forbidden claim ships | **Given** product copy, exports and assistant output, **then** a lint fails on "cavitation-free", "ventilation-safe", "validated" (outside an ITTC statement), "optimized", "best", "recommended" or "certified" without an A7 grant; every A7 label maps to exactly one string. |
 | EXP-01 · I can share a parametric design | **Given** a native file, **when** opened on the other platform, **then** the identity oracle passes and provenance survives. **Given** unknown optional content, **then** it is retained read-only or the file is refused before save. |
-| EXP-02 · I can export with known fidelity | **Given** accepted geometry, **when** DAT, AVL, STL/3MF, STEP or a chart is requested, **then** units, tolerance, revision, deviation and limits are shown and the TE-floor finding is repeated when applicable. **Given** STEP, **then** the export is unavailable until the two-CAM open-and-measure fixture exists, and then writes a shell in millimetres with the skin deviation reported. |
-| EXP-03 · I can export for print with units | **Given** STL or 3MF, **then** the file is in millimetres, unscaled, the unit is declared (3MF attribute; STL file name and dialog) and the TE-floor finding is repeated. |
+| EXP-02 · I can export with known fidelity | **Given** accepted geometry, **when** DAT, AVL, STL/3MF, STEP or a chart is requested, **then** units, tolerance, revision, deviation and limits are shown and the TE-floor finding is repeated when applicable. **Given** STEP, **then** the export is unavailable until the two-CAM open-and-measure fixture exists, and then writes a shell in millimetres with the skin deviation reported. *(1.7.6, approved — Ruling 196: **A2** given STL or 3MF, **then** the deviation shown is the largest value measured at cell midpoints against the evaluator's own surface and is labelled sampled, not a bound. **A5** every geometric export shows a trailing-edge row: the least trailing-edge thickness along the exported surface in mm (for a .dat, at that station from the written points), where it is, the floor with its label, and "Manufacturing: not assessed (no process chosen)"; a closed trailing edge reads 0.00 mm; a thickness below the floor adds the advisory finding. **A8** Export reads the accepted revision, never an open draft, and refuses when the geometry check has not passed. **A14** "deviation" is the word for mesh and .dat fidelity; "gap" stays for the trailing-edge gap.)* |
+| EXP-03 · I can export for print with units | **Given** STL or 3MF, **then** the file is in millimetres, unscaled, the unit is declared (3MF attribute; STL file name and dialog) and the TE-floor finding is repeated. *(1.7.6, approved — Ruling 196, A6: the 3MF metadata keys are Title, Description (revision, tolerance, measured deviation) and Application; never the user name, a path or the machine name.)* |
 | AI-01 · I can use the product without AI | **Given** no key, no network or a 401/timeout/quota error, **then** every non-AI verb continues; the wayfinder renders disabled with a Configure-key action; removing the key stops new calls without restart; the key never enters a document, log, export or crash report and lives only in the OS credential store (macOS Keychain; Windows Credential Manager, DPAPI-protected) — never a file, environment variable or the document. |
 | AI-02 · I can start from a language brief | **Given** a configured key, **when** a brief is submitted, **then** a typed proposal marks every field Stated/Inferred/Defaulted, passes API schema validation **and** the product's own deterministic range and domain validator (the authority; rejected fields show the bound, never clamped), and shows an editable preview and diff before final Accept; Accept applies one Design revision; Discard changes nothing; a changed base revision blocks acceptance until refreshed. Coordinates, meshes, forces or scores are rejected. |
 | AI-03 · I can ask about a result | **Given** a run and a visible sharing summary, **when** I ask, **then** claims cite that run or a knowledge id; a response containing a numeral absent from the shared context is withheld with the reason; unsupported questions decline and a what-if offers a real recomputation. |
@@ -1419,7 +1419,7 @@ in the global column; a chip that jumps is not a verb.
 | Experiment | New sweep · New optimize · Describe the experiment · Queue · New version | → Run |
 | Run | Check · ~~Prepare my environment~~ *(1.7.2: Set up a solver)* · Consent · Run · Cancel · Retry sample · Explain this failure · Preview case diff | → Results · → Experiment (Open repaired draft) |
 | Results | Select sample · Select layer · Play · Step · Scrub · Hold · Add layer · Compare samples · Select candidate · Accept as draft (opens CAD) · Ask about this result · Open in ParaView | → CAD · → Run |
-| Export | Choose format · Write | — |
+| Export | ~~Choose format · Write~~ *(1.7.6, approved — Ruling 196, A9: Choose format · Export…; Section ▸ Export .dat…; the `cfdw export` verb)* | — |
 | Global | New · Open · Save · Undo · Redo · Command palette · Checks · Settings | — |
 | Viewport (CAD · Analysis · Results 3D, one camera) | Top · Front · Starboard · Port · Bottom · Back · Iso · η-plot · Maximise · Orbit · Tilt · Pan · Zoom · Fit · Control frame · Curvature comb · Body Smooth/Box/Cage (views, display and camera moves, never geometry edits) | — |
 
@@ -1652,12 +1652,12 @@ N -->|Sweep this| U[Jump chip: define a Case schedule in Experiment]
 
 ```mermaid
 flowchart TD
-X[Current design: Export, no AI required] --> L[Choose format, unit and tolerance]
+X[Current design: Export, no AI required] --> L[Choose format and tolerance; the unit is fixed at millimetres for STL and 3MF]
 L --> M{Geometry and format checks pass?}
-M -->|No| N[Explain; TE floor finding; return to geometry]
+M -->|No| N[Explain; return to geometry]
 M -->|STEP without CAM fixture| P[Unavailable: open-and-measure proof pending]
 M -->|Yes| O{Write}
-O -->|Success| S[Export with revision, deviation and safety string]
+O -->|Success| S[Export with revision, deviation, safety string and the TE-floor advisory]
 O -->|Denied or disk full| T[Preserve existing file; choose path or retry]
 T --> L
 A[Assistant entry point] --> B{Key and consent?}
@@ -1680,6 +1680,8 @@ E -->|Explanation| K{Every numeral in shared context?}
 K -->|Yes| K2[Citations to run or knowledge id]
 K -->|No| K3[Withheld with the reason]
 ```
+
+*(1.7.6, approved — Ruling 196: **A1** "Choose format, unit and tolerance" becomes "Choose format and tolerance; the unit is fixed at millimetres for STL and 3MF" (EXP-03 fixes the unit). **A12** the TE-floor finding moves from the failure branch to the success path as an advisory that never blocks; the failure branch keeps only the explanation (GEO-12 calls it an advisory DRC finding; Ruling 194 (5)). **A14** F5's deviation is the same word as EXP-02's.)*
 
 ### B6a. Flow F6 — setup from language or parameters (SET-01–04, AI-02)
 
@@ -2299,7 +2301,7 @@ run that ships the mockup).
 | Export unavailable | "STEP export unavailable until the open-and-measure fixture exists" | export dialog | EXP-02 |
 | Export safety | A5.6 Export string | export dialog | EXP-02 |
 | Loads safety | A5.6 Loads string | Loads panel | ANA-11 |
-| TE below floor | "Trailing edge <t> mm below the floor <f> mm (practitioner value, unverified)" | inspector · export dialog | GEO-12, EXP-02 |
+| TE below floor | ~~"Trailing edge <t> mm below the floor <f> mm (practitioner value, unverified)"~~ *(1.7.6, approved — Ruling 196, A13)* "Trailing edge <t> mm, below the floor of <f> mm (app default, no source)" | inspector · export dialog | GEO-12, EXP-02 |
 | Soft-target conflict | "Targets conflict: <a> and <b> — seeded the nearest feasible design; targets stay as preferences" | Setup form | SET-01 |
 | Single-point objective | "Single-point optimization fills the design to one condition and degrades the others (Drela 1998; Garg 2017) — add at least a second operating point or accept the multipoint default" | Experiment form | XS-02 |
 | Backend not ready | ~~"Backend not ready — <substrate> <version>: <what is missing> · Check · Prepare my environment"~~ *(1.7.2: "Solver not ready — <what is missing> · Check again · Set up a solver"; "substrate" and "digest" leave the user-facing string and stay under Technical details)* | Run environment panel | RUN-01 |
@@ -3063,3 +3065,29 @@ before and after are in [amendments/spec-1.7.5.md](amendments/spec-1.7.5.md).
 | A5.6 Total drag clause and ANA-03 | "Total drag is Unavailable when a component is missing and lists the omitted components per tier" | one row "Drag (Wing only)" (value "<min>–<max> N", the Ncrit 2–4 band; surrogate label and low-confidence flag kept; note "Wing only: induced (VLM + strip) plus profile (polar). Not a total."; reason line "Not included: junction, mast, wave, spray") replaces the separate "Wing-only drag" row; the craft Total drag and CL/CD stay Unavailable; tip-vortex cavitation stays under Not modelled; A5.6 and ANA-03 change together | Ruling 109 (amends Ruling 108 DXM-5, whose text was: the Total drag row shows the wing drag marked "Wing only") |
 
 **Not in this revision.** The copy rows are DESIGN.md §7 COPY-250 onward (track DOC); no code string changes here.
+
+
+### H.6 — Changes from revision 1.7.5 (revision 1.7.6, 2026-10-09)
+
+**Why.** Ruling 196 (operator, 2026-10-09) approved the Export copy (COPY-EX01..EX46, now COPY-474..519) and the spec amendments A1..A14 of
+[docs/design/export.md](../design/export.md) section 14 as one batch. The first Export slice, the section .dat, builds against them. The full
+before and after are in [amendments/spec-1.7.6.md](amendments/spec-1.7.6.md).
+
+**Changed** (inserted in place, marked *(1.7.6, approved — Ruling 196, …)*):
+
+| Where | Before | After | Ruling |
+|---|---|---|---|
+| F5, node L | "Choose format, unit and tolerance" | "Choose format and tolerance; the unit is fixed at millimetres for STL and 3MF" (A1) | Ruling 196 |
+| EXP-02 | (deviation shown for any export) | adds A2 (the STL/3MF deviation is sampled, not a bound), A5 (the trailing-edge row), A8 (reads the accepted revision, refuses when the check has not passed), A14 (one word, deviation) | Ruling 196 |
+| Format table, STL / 3MF | (millimetres, unit, never pre-scaled) | adds A3 (a closed solid, the closing step, the byte-level edge check) | Ruling 196 |
+| Format table, DAT | "shortest-round-trip digits" | A10 positional notation, never exponent form; A4 one section per file, at a station by default or the authored profile; name line rule | Ruling 196 |
+| EXP-03 | (unit declared, TE-floor finding repeated) | adds A6 (the 3MF metadata keys) | Ruling 196 |
+| A5.6 Export string | (export dialog) | A7: shown for every geometric format, including .dat | Ruling 196 |
+| Area table, Export | "Choose format · Write" | A9: "Choose format · Export…", Section ▸ Export .dat…, `cfdw export` | Ruling 196 |
+| Setting registry `manufacturing.te_floor`, GEO-12 | label "practitioner value, unverified" | A11: "app default, no source"; value, numerics and settings hash unchanged | Ruling 195, Ruling 196 |
+| F5 branches | TE-floor finding on the failure branch | A12: advisory on the success path; the failure branch keeps the explanation | Ruling 194 (5), Ruling 196 |
+| Copy table, TE below floor | "Trailing edge <t> mm below the floor <f> mm (practitioner value, unverified)" | A13: "Trailing edge <t> mm, below the floor of <f> mm (app default, no source)" | Ruling 195, Ruling 196 |
+
+**Not in this revision.** The code for STL, 3MF and the `cfdw export` verb; the copy rows for them are reserved in DESIGN.md §7 (COPY-479 and the ids
+named in the comment line there). The .dat slice builds A1, A4, A5, A7, A8, A10, A11, A12, A13 and A14 for the .dat; A2, A3, A6 and A9's CLI verb
+belong to the later slices.
