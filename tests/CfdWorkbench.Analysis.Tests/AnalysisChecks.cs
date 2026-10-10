@@ -42,24 +42,23 @@ internal static class AnalysisChecks
         // B4 (ANALYSIS-HARNESS-GROWTH): the fast ring runs this harness as parts, `--part=k/n`. A group is one test class and
         // runs whole, because checks inside a class share fixtures (F-6's trio feeds F-15, F-15b). Every group lands in exactly
         // one part: groups are placed longest first onto the least-loaded part by CostHintMs (ties to the lower part), the same
-        // arithmetic in every part, so the parts together run each check once. Hints are the median of three GROUP wall times of the whole harness in one process (2026-10-08, Release, load ~10), except Service and DxSection, which are ring-measured; a group costs more cold than after the groups that warm it, so do not feed a part's own GROUP lines back in (docs/proof/abl/measure.md). Re-measure when a track adds checks. A stale hint costs balance, never coverage.
+        // arithmetic in every part, so the parts together run each check once. Hints are the median of three GROUP wall times of the whole harness in one process (2026-10-10, Release, load ~3; docs/proof/etc/c2-cost.md); a group costs more cold than after the groups that warm it, so do not feed a part's own GROUP lines back in (docs/proof/abl/measure.md). Re-measure when a track adds checks. A stale hint costs balance, never coverage.
         var groups = new (string Name, int CostHintMs, Action Run)[]
         {
-            ("Architecture", 7, ArchitectureTests.Run), ("RunStore", 719, RunStoreTests.Run), ("Lattice", 559, LatticeFixtureTests.Run),
-            ("Strip", 274, StripFixtureTests.Run), ("Service", 1205, ServiceTests.Run), ("Freshness", 604, FreshnessTests.Run),
-            ("Projection", 29, ProjectionTests.Run), ("Labels", 38, LabelsTests.Run), ("LoadsView", 8, LoadsViewTests.Run),
-            ("PanelCp", 37, PanelCpTests.Run), ("SectionEstimator", 77, SectionEstimatorTests.Run),
-            ("Cavitation", 10, CavitationTests.Run), ("NeuralFoil", 100, NeuralFoilTests.Run),
-            ("PolarSeam", 13, PolarSeamTests.Run),
-            ("SectionSeam", 1528, SectionSeamTests.Run),
-            ("ProvenanceSeam", 33, ProvenanceSeamTests.Run),
-            ("PolarNumerics", 19, PolarNumericsTests.Run),
-            ("OperatingSearch", 20, OperatingSearchTests.Run),
-            ("TipPolar", 1, TipPolarTests.Run),
-            ("DxSection", 1177, DxSectionTests.Run),
-            ("SectionForce", 297, SectionForceTests.Run),
-            ("NotResolved", 842, NotResolvedTests.Run),
-            ("TeFloor", 202, TeFloorLabelTests.Run),
+            ("Architecture", 6, ArchitectureTests.Run), ("RunStore", 756, RunStoreTests.Run), ("Lattice", 453, LatticeFixtureTests.Run),
+            ("Strip", 322, StripFixtureTests.Run), ("Service", 1084, ServiceTests.Run), ("Freshness", 630, FreshnessTests.Run),
+            ("Projection", 31, ProjectionTests.Run), ("Labels", 48, LabelsTests.Run), ("LoadsView", 9, LoadsViewTests.Run),
+            ("PanelCp", 25, PanelCpTests.Run), ("SectionEstimator", 61, SectionEstimatorTests.Run),
+            ("Cavitation", 6, CavitationTests.Run), ("NeuralFoil", 100, NeuralFoilTests.Run),
+            ("PolarSeam", 14, PolarSeamTests.Run),
+            ("SectionSeam", 1299, SectionSeamTests.Run),
+            ("ProvenanceSeam", 50, ProvenanceSeamTests.Run),
+            ("PolarNumerics", 29, PolarNumericsTests.Run),
+            ("OperatingSearch", 40, OperatingSearchTests.Run),
+            ("TipPolar", 2, TipPolarTests.Run),
+            ("DxSection", 1060, DxSectionTests.Run),
+            ("NotResolved+SectionForce", 937, () => { NotResolvedTests.Run(); SectionForceTests.Run(); }),
+            ("TeFloor", 1, TeFloorLabelTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)

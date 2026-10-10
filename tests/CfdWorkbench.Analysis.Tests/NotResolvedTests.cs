@@ -23,7 +23,7 @@ internal static class NotResolvedTests
     private static readonly Dictionary<int, (SectionForces, ResultGroup)> Runs = [];
 
     // one real lattice run per panel count (about 0.3 s each), shared by the checks of this group
-    private static (SectionForces Forces, ResultGroup Table) ExampleRun(int nChord) =>
+    internal static (SectionForces Forces, ResultGroup Table) ExampleRun(int nChord) =>
         Runs.TryGetValue(nChord, out var held) ? held : Runs[nChord] = Build(nChord);
 
     private static (SectionForces Forces, ResultGroup Table) Build(int nChord)
