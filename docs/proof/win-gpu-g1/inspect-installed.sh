@@ -10,9 +10,14 @@ printf 'script_sha256=%s\n' "$self_sha256"
 printf 'effective_nice=%s\n' "$(ps -o ni= -p $$ | tr -d ' ')"
 printf 'effective_affinity=%s\n' "$(taskset -pc $$ | sed 's/^[^:]*: //')"
 
-set +u
+set +eu
 source /usr/lib/openfoam/openfoam2512/etc/bashrc
-set -u
+activation_exit=$?
+set -eu
+if ((activation_exit != 0)); then
+    printf 'activation_exit=%s\n' "$activation_exit"
+    exit "$activation_exit"
+fi
 
 printf 'wm_project_version=%s\n' "${WM_PROJECT_VERSION:-Not recorded}"
 printf 'wm_options=%s\n' "${WM_OPTIONS:-Not recorded}"
