@@ -37,9 +37,10 @@ public static class PointsPaneTests
             // In the mode with a control point selected, every row runs or names why not; a run leaves a report.
             SelectControl(controller);
             Settle(window);
-            // Modal commands have their own dialog checks; awaiting them here would wait for an operator choice.
-            foreach (var id in ids.Where(id => id is not ("section.finish" or "section.cancel" or "section.import-dat"
-                or "section.replace-catalog" or "section.save-mine" or "section.export-dat" or "file.export")))
+            // Modal rows (CommandRow.Modal, the one flag; Commands_ModalFlag_MatchesRowsThatShowADialog keeps it true) have their own
+            // dialog checks; awaiting them here would wait for an operator choice. Finish and Cancel end the mode, so they run apart.
+            var modal = CommandTable.Rows.Where(row => row.Modal).Select(row => row.Id).ToHashSet();
+            foreach (var id in ids.Where(id => !modal.Contains(id) && id is not ("section.finish" or "section.cancel")))
             {
                 string? reason = host.ShellCommandReason(id);
                 string before = host.StatusStrip.Text;

@@ -1,0 +1,212 @@
+STAGE SelfLaunchTests elapsed_ms=36
+SelfLaunchTests: all 9 cases passed.
+STAGE native-review-options elapsed_ms=233
+Desktop Example, bounded preview, cancel, apply, undo and redo passed.
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+THEME-RESOURCE Light/CanvasBrush=#FFF0F2F1
+THEME-RESOURCE Dark/CanvasBrush=#FF172326
+THEME-RESOURCE HighContrast/CanvasBrush=#FF000000
+THEME-RESOURCE Light/SurfaceBrush=#FFFBFCFB
+THEME-RESOURCE Dark/SurfaceBrush=#FF1E2D31
+THEME-RESOURCE HighContrast/SurfaceBrush=#FF000000
+THEME-RESOURCE Light/SurfaceSoftBrush=#FFE8EDEB
+THEME-RESOURCE Dark/SurfaceSoftBrush=#FF2A3D40
+THEME-RESOURCE HighContrast/SurfaceSoftBrush=#FF000000
+THEME-RESOURCE Light/InkBrush=#FF1B2929
+THEME-RESOURCE Dark/InkBrush=#FFEBF3F0
+THEME-RESOURCE HighContrast/InkBrush=#FFFFFFFF
+THEME-RESOURCE Light/MutedBrush=#FF526362
+THEME-RESOURCE Dark/MutedBrush=#FFB2C4BF
+THEME-RESOURCE HighContrast/MutedBrush=#FFFFFFFF
+THEME-RESOURCE Light/LineBrush=#FFC9D3CF
+THEME-RESOURCE Dark/LineBrush=#FF49605B
+THEME-RESOURCE HighContrast/LineBrush=#FFFFFFFF
+THEME-RESOURCE Light/PrimaryBrush=#FF006C67
+THEME-RESOURCE Dark/PrimaryBrush=#FF88D8C6
+THEME-RESOURCE HighContrast/PrimaryBrush=#FFFFEE58
+THEME-RESOURCE Light/OnPrimaryBrush=#FFFFFFFF
+THEME-RESOURCE Dark/OnPrimaryBrush=#FF172326
+THEME-RESOURCE HighContrast/OnPrimaryBrush=#FF000000
+THEME-RESOURCE Light/DangerBrush=#FFA92E37
+THEME-RESOURCE Dark/DangerBrush=#FFFFAEB5
+THEME-RESOURCE HighContrast/DangerBrush=#FFFFEE58
+THEME-RESOURCE Light/ViewportBrush=#FF17272C
+THEME-RESOURCE Dark/ViewportBrush=#FF17272C
+THEME-RESOURCE HighContrast/ViewportBrush=#FF000000
+THEME-RESOURCE Light/ViewportGridBrush=#FF344B50
+THEME-RESOURCE Dark/ViewportGridBrush=#FF344B50
+THEME-RESOURCE HighContrast/ViewportGridBrush=#FFFFFFFF
+THEME-RESOURCE Light/ViewportInkBrush=#FFEDF4F2
+THEME-RESOURCE Dark/ViewportInkBrush=#FFEDF4F2
+THEME-RESOURCE HighContrast/ViewportInkBrush=#FFFFFFFF
+THEME-RESOURCE Light/FoilBrush=#FF85C9C4
+THEME-RESOURCE Dark/FoilBrush=#FF85C9C4
+THEME-RESOURCE HighContrast/FoilBrush=#FFFFEE58
+THEME-RESOURCE Light/StationBrush=#FF66DDC8
+THEME-RESOURCE Dark/StationBrush=#FF66DDC8
+THEME-RESOURCE HighContrast/StationBrush=#FF00FFFF
+THEME-FOCUS-RESOURCE Light/SystemControlFocusVisualPrimaryBrush=#FF006C67
+THEME-FOCUS-RESOURCE Dark/SystemControlFocusVisualPrimaryBrush=#FF88D8C6
+THEME-FOCUS-RESOURCE HighContrast/SystemControlFocusVisualPrimaryBrush=#FFFFEE58
+THEME-FOCUS-RESOURCE Light/SystemControlFocusVisualSecondaryBrush=#FF1B2929
+THEME-FOCUS-RESOURCE Dark/SystemControlFocusVisualSecondaryBrush=#FFEBF3F0
+THEME-FOCUS-RESOURCE HighContrast/SystemControlFocusVisualSecondaryBrush=#FFFFFFFF
+THEME-SHADOW-MUTATION refused Dark/SurfaceBrush
+THEME-RESOURCE-CHECK loaded-XAML Light/Dark/HighContrast 42
+STAGE SectionCanvasTests elapsed_ms=2638
+SectionCanvas: all 7 test cases passed.
+STAGE spawn elapsed_ms=2658
+SPAWN-START --section-editor --part=1/2 elapsed_ms=2659
+SPAWN-START --properties-view --part=1/2 elapsed_ms=2659
+SPAWN-START --shell-window --part=2/2 elapsed_ms=2659
+SPAWN-START --section-editor --part=2/2 elapsed_ms=2659
+SPAWN-START --properties-view --part=2/2 elapsed_ms=2659
+SPAWN-START --shell-window --part=1/2 elapsed_ms=2659
+SPAWN-START --plan-canvas --part=2/2 elapsed_ms=2659
+SPAWN-START --plan-canvas --part=1/2 elapsed_ms=2659
+SPAWN-START --controller-shell elapsed_ms=2659
+SPAWN-START --views --part=1/2 elapsed_ms=2659
+SPAWN-START --analysis elapsed_ms=3203
+SPAWN-START --views --part=2/2 elapsed_ms=3241
+SPAWN-START --properties-cells --part=2/2 elapsed_ms=3258
+SPAWN-START --properties-cells --part=1/2 elapsed_ms=3310
+SPAWN-START --status-strip --part=1/3 elapsed_ms=3374
+SPAWN-START --status-strip --part=2/3 elapsed_ms=3403
+SPAWN-START --status-strip --part=3/3 elapsed_ms=3411
+SPAWN-START --shell-model elapsed_ms=3652
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=section-editor RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x891 UseLayoutRounding=True
+FAIL Commands_ModalFlag_MatchesRowsThatShowADialog InvalidOperationException: section.export-dat opens the export dialog but is not flagged Modal
+STACK Commands_ModalFlag_MatchesRowsThatShowADialog System.InvalidOperationException: section.export-dat opens the export dialog but is not flagged Modal |    at CfdWorkbench.Desktop.Tests.ControllerSectionTests.<>c.<Run>b__13_27() in /Users/mallalieut/projects/CFD-Workbench-fix-mod-modal-flag/tests/CfdWorkbench.Desktop.Tests/ControllerSectionTests.cs:line 767 |    at CfdWorkbench.Desktop.Tests.DesktopChecks.Check(String name, Action assertion) in /Users/mallalieut/projects/CFD-Workbench-fix-mod-modal-flag/tests/CfdWorkbench.Desktop.Tests/WorkbenchTests.cs:line 728
+COST Commands_ModalFlag_MatchesRowsThatShowADialog 2743.5
+PARTITION 1/2 of 1 checks
+SUITE --section-editor --part=1/2 exit 1
+SUITE-TIME --section-editor --part=1/2 4.8 s
+FAIL --section-editor --part=1/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=properties-view RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x892 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 1/2 of 0 checks
+SUITE --properties-view --part=1/2 exit 1
+SUITE-TIME --properties-view --part=1/2 0.6 s
+FAIL --properties-view --part=1/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=shell-window RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x893 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 2/2 of 0 checks
+SUITE --shell-window --part=2/2 exit 1
+SUITE-TIME --shell-window --part=2/2 0.7 s
+FAIL --shell-window --part=2/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=section-editor RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x891 UseLayoutRounding=True
+PARTITION 2/2 of 1 checks
+SUITE --section-editor --part=2/2 exit 0
+SUITE-TIME --section-editor --part=2/2 2.4 s
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=properties-view RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x892 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 2/2 of 0 checks
+SUITE --properties-view --part=2/2 exit 1
+SUITE-TIME --properties-view --part=2/2 0.6 s
+FAIL --properties-view --part=2/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=shell-window RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x891 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 1/2 of 0 checks
+SUITE --shell-window --part=1/2 exit 1
+SUITE-TIME --shell-window --part=1/2 0.5 s
+FAIL --shell-window --part=1/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=plan-canvas RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x893 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 2/2 of 0 checks
+SUITE --plan-canvas --part=2/2 exit 1
+SUITE-TIME --plan-canvas --part=2/2 0.7 s
+FAIL --plan-canvas --part=2/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=plan-canvas RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x892 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 1/2 of 0 checks
+SUITE --plan-canvas --part=1/2 exit 1
+SUITE-TIME --plan-canvas --part=1/2 0.6 s
+FAIL --plan-canvas --part=1/2 exited 1
+FAIL SELECTOR Commands_ModalFlag matched no check
+SUITE --controller-shell exit 1
+SUITE-TIME --controller-shell 1.0 s
+FAIL --controller-shell exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=views RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x894 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 1/2 of 0 checks
+SUITE --views --part=1/2 exit 1
+SUITE-TIME --views --part=1/2 0.7 s
+FAIL --views --part=1/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=analysis RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x897 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+SUITE --analysis exit 1
+SUITE-TIME --analysis 0.7 s
+FAIL --analysis exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=views RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x897 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 2/2 of 0 checks
+SUITE --views --part=2/2 exit 1
+SUITE-TIME --views --part=2/2 0.7 s
+FAIL --views --part=2/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=properties-cells RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x897 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 2/2 of 0 checks
+SUITE --properties-cells --part=2/2 exit 1
+SUITE-TIME --properties-cells --part=2/2 0.7 s
+FAIL --properties-cells --part=2/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=properties-cells RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x897 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 1/2 of 0 checks
+SUITE --properties-cells --part=1/2 exit 1
+SUITE-TIME --properties-cells --part=1/2 0.6 s
+FAIL --properties-cells --part=1/2 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=status-strip RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x896 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 1/3 of 0 checks
+SUITE --status-strip --part=1/3 exit 1
+SUITE-TIME --status-strip --part=1/3 0.6 s
+FAIL --status-strip --part=1/3 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=status-strip RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x896 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 2/3 of 0 checks
+SUITE --status-strip --part=2/3 exit 1
+SUITE-TIME --status-strip --part=2/3 0.6 s
+FAIL --status-strip --part=2/3 exited 1
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=status-strip RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x896 UseLayoutRounding=True
+FAIL SELECTOR Commands_ModalFlag matched no check
+PARTITION 3/3 of 0 checks
+SUITE --status-strip --part=3/3 exit 1
+SUITE-TIME --status-strip --part=3/3 0.6 s
+FAIL --status-strip --part=3/3 exited 1
+FAIL SELECTOR Commands_ModalFlag matched no check
+SUITE --shell-model exit 1
+SUITE-TIME --shell-model 0.2 s
+FAIL --shell-model exited 1

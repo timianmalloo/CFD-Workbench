@@ -1,1 +1,2 @@
 {"agent": "trk-cbd", "at": 1791591019.0113962, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-cbd", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feat-cbd-rail-comb"}
+{"agent": "trk-cbd", "at": 1791643656.0726101, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-cbd", "wi": "WI-0", "worktree": "CFD-Workbench-feat-cbd-rail-comb"}

@@ -740,6 +740,38 @@ public static class ControllerSectionTests
             }
         });
 
+        // ROW-MODAL-A guard (ring: every join, 1-2 s): every dialog the shell can show has a test hook, and each hook below records
+        // that it was called. A row that calls one must be flagged Modal, and a Modal row must call one, so the flag that the
+        // run-every-row probes filter by cannot drift from the handlers. A new dialog needs its hook added here and in ShellHost.
+        DesktopChecks.Check("Commands_ModalFlag_MatchesRowsThatShowADialog", () =>
+        {
+            string root = BindRoot();
+            try
+            {
+                var opened = new List<string>();
+                using var controller = new WorkbenchController();
+                var host = new ShellHost(controller, pickOpenFile: () => { opened.Add("import picker"); return Task.FromResult<string?>(null); });
+                host.ShowExportDialog = _ => { opened.Add("export dialog"); return Task.FromResult<ExportOutcome?>(null); };
+                host.ShowCatalogDialog = () => { opened.Add("catalog dialog"); return Task.CompletedTask; };
+                host.ShowSaveDialog = () => { opened.Add("save dialog"); return Task.FromResult<string?>(null); };
+                Wait(controller.OpenExampleAsync());
+                var problems = new List<string>();
+                foreach (var row in CommandTable.Rows)
+                {
+                    if (controller.Section is null) Wait(controller.EnterSectionAsync(0, EntryOrigin.Palette));
+                    opened.Clear();
+                    Wait(host.RunCommand(row.Id));
+                    if (opened.Count > 0 && !row.Modal) problems.Add($"{row.Id} opens the {opened[0]} but is not flagged Modal");
+                    if (opened.Count == 0 && row.Modal) problems.Add($"{row.Id} is flagged Modal but opens no dialog");
+                }
+                if (problems.Count > 0) throw new InvalidOperationException(string.Join("; ", problems));
+            }
+            finally
+            {
+                ReleaseRoot(root);
+            }
+        });
+
         DesktopChecks.Check("Commands_SectionMenu_ReplaceSaveImportRowsRun", () =>
         {
             (string Id, string Title)[] rows =

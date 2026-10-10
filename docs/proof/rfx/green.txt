@@ -1,0 +1,39 @@
+/Users/mallalieut/projects/CFD-Workbench-fix-rfx-refit-flash/src/CfdWorkbench.Desktop/CatalogDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/CatalogDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-fix-rfx-refit-flash/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+/Users/mallalieut/projects/CFD-Workbench-fix-rfx-refit-flash/src/CfdWorkbench.Desktop/ExportDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/ExportDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-fix-rfx-refit-flash/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+/Users/mallalieut/projects/CFD-Workbench-fix-rfx-refit-flash/src/CfdWorkbench.Desktop/SaveSectionDialog.axaml : Avalonia warning AVLN3001: XAML resource "avares://CfdWorkbench.Desktop/SaveSectionDialog.axaml" won't be reachable via runtime loader, as no public constructor was found [/Users/mallalieut/projects/CFD-Workbench-fix-rfx-refit-flash/src/CfdWorkbench.Desktop/CfdWorkbench.Desktop.csproj]
+NATIVE-STARTUP app-initialize
+NATIVE-STARTUP lifetime=none
+SCALE_CONTEXT mode=plan-canvas RenderScaling=2 PrimaryScaling=1 WorkingArea=1512x889 UseLayoutRounding=True
+PASS PlanComb_BothRails_NothingSelected
+COST PlanComb_BothRails_NothingSelected 1239.4
+PASS PlanComb_AutoHeldDuringDrag_RefitOnRelease
+COST PlanComb_AutoHeldDuringDrag_RefitOnRelease 1516.1
+MEASURE comb_build_ms=7.5 density=128 teeth=256 pieces=3+3
+PASS PlanComb_Density_ChangesToothCountOnly_FoilBytesUnchanged
+COST PlanComb_Density_ChangesToothCountOnly_FoilBytesUnchanged 860.0
+PASS PlanComb_Analysis_NotDrawnToggleDisabled
+COST PlanComb_Analysis_NotDrawnToggleDisabled 983.3
+PASS PlanComb_CurvatureToggle_InAnalysis_StaysFocusable
+COST PlanComb_CurvatureToggle_InAnalysis_StaysFocusable 770.2
+PASS PlanComb_StepperAtLimit_KeepsFocus
+COST PlanComb_StepperAtLimit_KeepsFocus 798.2
+PASS PlanComb_TeethPerpendicularToTangent_AtThreeZooms
+COST PlanComb_TeethPerpendicularToTangent_AtThreeZooms 674.8
+PASS PlanComb_EnvelopePerPiece_StepAtJump
+COST PlanComb_EnvelopePerPiece_StepAtJump 1.5
+PASS PlanComb_PlateFocusRing_UsesSurfaceToken
+COST PlanComb_PlateFocusRing_UsesSurfaceToken 969.4
+PASS PlanComb_PaletteVerbs_AnnounceNewValue
+COST PlanComb_PaletteVerbs_AnnounceNewValue 576.0
+PASS PlanComb_RefitFlash_OnceAndStaticUnderReducedMotion
+COST PlanComb_RefitFlash_OnceAndStaticUnderReducedMotion 1208.7
+PASS PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis
+COST PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis 931.8
+PASS PlanComb_PlateDoesNotCoverRail_AtTipFit
+COST PlanComb_PlateDoesNotCoverRail_AtTipFit 1369.8
+PASS PlanComb_NarrowPopover_EscapeClosesAndRestoresFocus
+COST PlanComb_NarrowPopover_EscapeClosesAndRestoresFocus 359.8
+PASS PlanComb_NarrowOpenPlate_DoesNotCoverTipOrStrip
+COST PlanComb_NarrowOpenPlate_DoesNotCoverTipOrStrip 479.3
+PASS PlanComb_Screenshot_WhenAsked
+COST PlanComb_Screenshot_WhenAsked 0.2

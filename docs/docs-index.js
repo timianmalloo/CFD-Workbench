@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ef1dfb7912eee3446af43dde2ace86ef78b0989ae36349e796c1d83993cdf872"
+      "sourceSha256": "82af9823c16700017c2ffd53215b7a55f16327929c8aeca3d09838e21b9b62e3"
     },
     {
       "id": "domain-experts",
@@ -14561,6 +14561,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "b35812ccf7b111bca4b6365733cf15a158104f06d75ac3862cdcf8445a7436dc"
     },
     {
+      "id": "proof-mod-red-first",
+      "path": "docs/proof/mod/red-first.md",
+      "title": "MOD red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-mod",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "The sweep, the red run of the modal-flag guard, the green run, and the scratch unflag of section.export-dat.",
+      "tags": [
+        "mod",
+        "row-modal-a",
+        "command-table"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e19b4dd1318682245d8c41085e205e10ecc347e471e8c79f9a963384e0de58d7"
+    },
+    {
       "id": "proof-msp-receipt",
       "path": "docs/proof/msp/receipt.md",
       "title": "MSP committed scale prints",
@@ -15254,6 +15279,32 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "fa90e3d8c91d7c6d53023f7680807dd32d31afb3c98dfb9b46016b98044f69bf"
+    },
+    {
+      "id": "proof-rfx-red-first",
+      "path": "docs/proof/rfx/red-first.md",
+      "title": "RFX red-first receipt: a stale refit-flash timer clears a newer emphasis",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rfx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "A pending flash end timer cleared a newer static emphasis; held-seam red, fix, green and the 20-run loop.",
+      "tags": [
+        "comb",
+        "timer",
+        "flake",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "69fc393f2477fa60f3d0f862eead95647ca67717ffce2013134cbbaf0b5f3ab3"
     },
     {
       "id": "proof-rgt-red-first",
@@ -19979,5 +20030,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ca59b98c16b8ad9b6caa5e6d58311271f2faecde4b51e8b1bdba9d56f4d8a70f"
+  "graphSha256": "48db5c1b830fbf7d1ad2228366cec62a8f304c9a9e72aa2f9454c695c8213c2d"
 };
