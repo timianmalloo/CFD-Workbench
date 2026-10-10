@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T22:19:48Z",
+  "generated": "2026-10-10T23:24:32Z",
   "audit": [
     {
       "actor": null,
@@ -34815,59 +34815,119 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4KWBGF01A3KR44DZEVARJ0V",
-      "shortname": "authorize-b1-attempts-3-through-5",
-      "datetime": "2026-10-10T21:43:54Z",
-      "session": "pc-b1-r199",
-      "prompt": "yes i authorize a third (and fouth and fith) attempt if needed",
-      "summary": "operator extends B1 repair authorization through attempt 5",
-      "kind": "prompt",
-      "skill": null,
-      "tool": null,
       "actor": null,
       "artifacts": [],
+      "datetime": "2026-10-10T21:43:54Z",
+      "id": "al-01M4KWBGF01A3KR44DZEVARJ0V",
+      "kind": "prompt",
+      "outcome": "success",
+      "prompt": "yes i authorize a third (and fouth and fith) attempt if needed",
+      "session": "pc-b1-r199",
+      "shortname": "authorize-b1-attempts-3-through-5",
+      "skill": null,
+      "summary": "operator extends B1 repair authorization through attempt 5",
       "tags": [
         "gpu-b1"
       ],
-      "outcome": "success"
+      "tool": null
     },
     {
-      "id": "al-01M4KYD82HVX070K942QT6EXTS",
-      "shortname": "win-gpu-b1-attempt3",
-      "datetime": "2026-10-10T22:19:48Z",
-      "session": "pc-b1-r199",
-      "prompt": "yes i authorize a third (and fouth and fith) attempt if needed",
-      "summary": "Attempt 3 completed the accepted B1 inventory under the live L3 guard; B2 remains blocked on an installable CUDA 13.2 recipe.",
-      "kind": "manual",
-      "skill": null,
-      "tool": null,
       "actor": "codex",
       "artifacts": [
         "docs/proof/win-gpu-b1/receipt.md",
         "docs/proof/win-gpu-b1/capture.json",
         "docs/proof/win-gpu-b1/observer-completion.json"
       ],
+      "datetime": "2026-10-10T22:19:48Z",
+      "done_when": "Astra accepts an acknowledged inventory run, the observer threshold does not fire, the 16-row prefix is bound, and committed proof hashes match.",
+      "fan_out": 2,
+      "git": {
+        "branch": "win/gpu-g2-b1-r199",
+        "pushed": true,
+        "sha": "4cc1afd97e09c4dd01e3febe80eeb8d78a142a9a",
+        "short": "4cc1afd97"
+      },
+      "goal": "Repair the B1 launcher boundary, prove no residual workload, and complete the bounded Windows inventory under the live L3 guard.",
+      "id": "al-01M4KYD82HVX070K942QT6EXTS",
+      "kind": "manual",
+      "outcome": "success",
+      "prompt": "yes i authorize a third (and fouth and fith) attempt if needed",
+      "session": "pc-b1-r199",
+      "shortname": "win-gpu-b1-attempt3",
+      "signals": {
+        "acceptance_met": true,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": null,
+      "summary": "Attempt 3 completed the accepted B1 inventory under the live L3 guard; B2 remains blocked on an installable CUDA 13.2 recipe.",
       "tags": [
         "gpu-b1",
         "ruling-201"
       ],
-      "outcome": "success",
-      "goal": "Repair the B1 launcher boundary, prove no residual workload, and complete the bounded Windows inventory under the live L3 guard.",
-      "done_when": "Astra accepts an acknowledged inventory run, the observer threshold does not fire, the 16-row prefix is bound, and committed proof hashes match.",
       "tier": "T1",
-      "fan_out": 2,
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-10T21:43:48Z",
+      "done_when": "hook self-test green, tests green, check-docs 0",
+      "duration_seconds": 267.0,
+      "goal": "Refuse a pipe whose exit a commit depends on",
+      "id": "al-01M4KWBAWPCQJ3Q8W84T309WAA",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "PHK",
+      "session": "trk-phk",
+      "shortname": "phk-pipe-hook",
+      "skill": "implement",
+      "started_at": "2026-10-10T21:39:21Z",
+      "summary": "no-heredoc.py also refuses a pipeline before git commit/push in one && chain unless pipefail; 15 self-test cases; defect line updated",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-10T21:45:34Z",
+      "duration_seconds": 67.0,
+      "fan_out": 0,
+      "id": "al-01M4KWEJ9TVV5MWKPK3RJ8J9FW",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of fix/phk-pipe-hook into main",
+      "session": "3122f106",
+      "shortname": "join-phk",
       "signals": {
-        "verification_path": true,
-        "verification_executed": true,
         "acceptance_met": true,
-        "regression": false
+        "verification_executed": true,
+        "verification_path": true
       },
-      "git": {
-        "sha": "4cc1afd97e09c4dd01e3febe80eeb8d78a142a9a",
-        "short": "4cc1afd97",
-        "branch": "win/gpu-g2-b1-r199",
-        "pushed": true
-      }
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T21:44:27Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "id": "al-01M4M23SR736BMZ78AZQQWVXXB",
+      "shortname": "yes i authorize a third (and fouth and fith) attempt if needed",
+      "datetime": "2026-10-10T23:24:32Z",
+      "session": "prompt-log",
+      "prompt": "yes i authorize a third (and fouth and fith) attempt if needed",
+      "summary": "prompt logged for reuse",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success"
     }
   ],
   "changes": [

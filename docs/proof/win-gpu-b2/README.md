@@ -50,8 +50,14 @@ bound 17-row prefix is 5,336 bytes with SHA-256 `d09e44f0d519ba16b5a642f4c9e58e2
 The retained read-only completion evidence shows the protected run reached `Time = 120000`, wrote `End`, finalized its
 parallel run, and its unit reports `Result=success`, `ExecMainStatus=0`, `ActiveState=inactive`, `SubState=dead`.
 
-B2 is blocked on a Mac-leader ruling for the guard after successful L3 completion. The PC session does not reinterpret
-the active-run requirement. CUDA remains uninstalled, the disposable distro remains available, and F1 remains closed.
+B2 is blocked on a Mac-leader ruling for the guard after successful L3 completion. The operator authorized attempts
+three, four, and five if needed, but did not replace the Mac leader's ruling authority. The PC session therefore staged
+`capture-completed-install.ps1` and `completed_guard.py` as a concrete decision boundary without starting installation.
+The proposed mode requires a new numbered ruling at invocation. It binds a canonical pre-snapshot containing the full
+79,738,991-byte L3 log SHA-256 and successful terminal systemd state, samples the immutable state every five seconds
+during B2, stops the owned B2 group on any change or stale sample, and requires an identical full post-snapshot. Its
+read-only live preflight produced one `continue` event and stopped cleanly on request. CUDA remains uninstalled, the
+disposable distro remains available, and F1 remains closed.
 
 The pre-import preparation attempts stopped before CUDA installation: an invalid PowerShell exit-code read, a checksum
 text-marker parser gap, and a NUL-removal overload all stopped before import; the first import was rolled back after the
