@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T17:08:49Z",
+  "generated": "2026-10-10T19:58:54Z",
   "audit": [
     {
       "actor": null,
@@ -34483,6 +34483,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T17:07:43Z",
       "duration_seconds": 66.0
+    },
+    {
+      "id": "al-01M4KPB8M9T5A1KP8ANQKH37GG",
+      "shortname": "clx-cli-export",
+      "datetime": "2026-10-10T19:58:54Z",
+      "session": "trk-clx",
+      "prompt": "CLX: the export CLI verb",
+      "summary": "export verb with exit codes 2-8, ExportSession/ExportCopy moved to Analysis unchanged, usage and foundation docs updated",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "cfd-workbench export dat|stl over the dialog's ExportSession",
+      "done_when": "ten red-first Cli checks green, run-tests.sh green, check-docs exit 0",
+      "started_at": "2026-10-10T19:48:28Z",
+      "duration_seconds": 626.0
     }
   ],
   "changes": [
