@@ -1,0 +1,10 @@
+FAIL Cli_Export_DatEqualsFixtureAndPrintsSummary Exception: exit 2, expected 0: Usage: cfd-workbench inspect <example|path.foil|pa
+FAIL Cli_Export_StlPassesClosureCheck Exception: exit 2, expected 0: Usage: cfd-workbench inspect <example|path.foil|path.cfdw.jso
+FAIL Cli_Export_HalfNamesFileHalf Exception: exit 2, expected 0: Usage: cfd-workbench inspect <example|path.foil|path.cfdw.json> -
+FAIL Cli_Export_SymlinkTargetRefused Exception: exit 2, expected 6: Usage: cfd-workbench inspect <example|path.foil|path.cfdw.json
+FAIL Cli_Export_3mfRefusedToday Exception: exit 2, expected 3: Usage: cfd-workbench inspect <example|path.foil|path.cfdw.json> --j
+FAIL Cli_Export_InvalidOptionPrintsUsage Exception: unknown option: no usage error: Usage: cfd-workbench inspect <example|path.foi
+FAIL Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites Exception: exit 2, expected 0: Usage: cfd-workbench inspect <example|path.f
+FAIL Cli_Export_GeometryNotAcceptedRefused Exception: exit 2: Usage: cfd-workbench inspect <example|path.foil|path.cfdw.json> --js
+FAIL Cli_Export_ForcedExtensionNeverReplaces Exception: exit 2, expected 8: Usage: cfd-workbench inspect <example|path.foil|path.c
+FAIL Cli_Export_UnwritablePathExitsIo Exception: exit 2, expected 5: Usage: cfd-workbench inspect <example|path.foil|path.cfdw.jso

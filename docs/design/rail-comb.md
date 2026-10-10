@@ -70,7 +70,9 @@ adds the stepper to the rails and names the section editor as a follow-up (OQ-2)
 ## 3. What the user controls
 
 Scale and density are **view settings**: they never touch the foil, never enter undo, never change the file. They persist for
-the session and across files in the user's view preferences (the home of the Curvature toggle).
+the session, across files and across restarts in the user's view preferences (`display/display.json`, `app-shell.md` section 4.6),
+which also keep the plan Curvature toggle (Ruling 207): on at quit means on at the next launch. The section editor's curvature flag is separate and
+is not kept.
 
 | Control | Values | Default | Notes |
 |---|---|---|---|

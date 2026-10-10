@@ -1,0 +1,546 @@
+[
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "example-open-whole.stl",
+    "triangles": 18418,
+    "load_seconds": 0.05,
+    "warnings": [],
+    "size_mm_app": [
+      120.00006866455078,
+      900,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.000069,
+      900.0,
+      15.934996
+    ],
+    "volume_mm3_app": 1034179.4201977517,
+    "volume_mm3_slicer": 1034180.6875,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "example-open-whole.3mf",
+    "triangles": 18418,
+    "load_seconds": 0.05,
+    "warnings": [],
+    "size_mm_app": [
+      120.00006866455078,
+      900,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.000069,
+      900.0,
+      15.934996
+    ],
+    "volume_mm3_app": 1034179.4201977517,
+    "volume_mm3_slicer": 1034180.8125,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "example-closed-whole.stl",
+    "triangles": 18296,
+    "load_seconds": 0.04,
+    "warnings": [],
+    "size_mm_app": [
+      120,
+      900,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.0,
+      900.0,
+      15.934996
+    ],
+    "volume_mm3_app": 1032119.0752123176,
+    "volume_mm3_slicer": 1032122.1875,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "example-closed-whole.3mf",
+    "triangles": 18296,
+    "load_seconds": 0.05,
+    "warnings": [],
+    "size_mm_app": [
+      120,
+      900,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.0,
+      900.0,
+      15.934996
+    ],
+    "volume_mm3_app": 1032119.0752123176,
+    "volume_mm3_slicer": 1032122.0625,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "example-open-half.stl",
+    "triangles": 9358,
+    "load_seconds": 0.04,
+    "warnings": [],
+    "size_mm_app": [
+      120.00006866455078,
+      450,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.000069,
+      450.0,
+      15.934996
+    ],
+    "volume_mm3_app": 517089.71009887586,
+    "volume_mm3_slicer": 517090.53125,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "example-open-half.3mf",
+    "triangles": 9358,
+    "load_seconds": 0.04,
+    "warnings": [],
+    "size_mm_app": [
+      120.00006866455078,
+      450,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.000069,
+      450.0,
+      15.934996
+    ],
+    "volume_mm3_app": 517089.71009887586,
+    "volume_mm3_slicer": 517090.5625,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "example-closed-half.stl",
+    "triangles": 9296,
+    "load_seconds": 0.04,
+    "warnings": [],
+    "size_mm_app": [
+      120,
+      450,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.0,
+      450.0,
+      15.934996
+    ],
+    "volume_mm3_app": 516059.53760616004,
+    "volume_mm3_slicer": 516059.71875,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "example-closed-half.3mf",
+    "triangles": 9296,
+    "load_seconds": 0.04,
+    "warnings": [],
+    "size_mm_app": [
+      120,
+      450,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.0,
+      450.0,
+      15.934996
+    ],
+    "volume_mm3_app": 516059.53760616004,
+    "volume_mm3_slicer": 516059.6875,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "untitled-fine-whole.stl",
+    "triangles": 513596,
+    "load_seconds": 0.68,
+    "warnings": [],
+    "size_mm_app": [
+      127.09542297292501,
+      1000,
+      15.251276969909668
+    ],
+    "size_mm_slicer": [
+      127.095426,
+      1000.0,
+      15.251277
+    ],
+    "volume_mm3_app": 901791.4763118841,
+    "volume_mm3_slicer": 901782.5,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "untitled-fine-whole.3mf",
+    "triangles": 513596,
+    "load_seconds": 0.92,
+    "warnings": [],
+    "size_mm_app": [
+      127.09542297292501,
+      1000,
+      15.251276969909668
+    ],
+    "size_mm_slicer": [
+      127.095425,
+      1000.0,
+      15.251277
+    ],
+    "volume_mm3_app": 901791.4763118841,
+    "volume_mm3_slicer": 901782.5,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "broken-one-triangle-removed.stl",
+    "negative_control": true,
+    "flagged_by_slicer": true,
+    "manifold": "no",
+    "counters": {
+      "open_edges": "3"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "broken-one-triangle-removed.3mf",
+    "negative_control": true,
+    "flagged_by_slicer": true,
+    "manifold": "no",
+    "counters": {
+      "open_edges": "3"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "slicer": "PrusaSlicer",
+    "version": "2.9.4",
+    "file": "scale-control-declared-meters.3mf",
+    "scale_control": true,
+    "size_mm_slicer": [
+      120000.0,
+      900000.0,
+      15934.995117
+    ],
+    "size_mm_app": [
+      120,
+      900,
+      15.934995174407959
+    ],
+    "unit_honoured_by_slicer": true,
+    "verdict": "PASS"
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "example-open-whole.stl",
+    "triangles": 18418,
+    "load_seconds": 0.07,
+    "warnings": [],
+    "size_mm_app": [
+      120.00006866455078,
+      900,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.000069,
+      900.0,
+      15.934996
+    ],
+    "volume_mm3_app": 1034179.4201977517,
+    "volume_mm3_slicer": 1034180.8125,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "example-open-whole.3mf",
+    "triangles": 18418,
+    "load_seconds": 0.09,
+    "warnings": [],
+    "size_mm_app": [
+      120.00006866455078,
+      900,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.000069,
+      900.0,
+      15.934996
+    ],
+    "volume_mm3_app": 1034179.4201977517,
+    "volume_mm3_slicer": 1034180.8125,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "example-closed-whole.stl",
+    "triangles": 18296,
+    "load_seconds": 0.06,
+    "warnings": [],
+    "size_mm_app": [
+      120,
+      900,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.0,
+      900.0,
+      15.934996
+    ],
+    "volume_mm3_app": 1032119.0752123176,
+    "volume_mm3_slicer": 1032122.0625,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "example-closed-whole.3mf",
+    "triangles": 18296,
+    "load_seconds": 0.08,
+    "warnings": [],
+    "size_mm_app": [
+      120,
+      900,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.0,
+      900.0,
+      15.934996
+    ],
+    "volume_mm3_app": 1032119.0752123176,
+    "volume_mm3_slicer": 1032122.0625,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "example-open-half.stl",
+    "triangles": 9358,
+    "load_seconds": 0.06,
+    "warnings": [],
+    "size_mm_app": [
+      120.00006866455078,
+      450,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.000069,
+      450.0,
+      15.934996
+    ],
+    "volume_mm3_app": 517089.71009887586,
+    "volume_mm3_slicer": 517090.5625,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "example-open-half.3mf",
+    "triangles": 9358,
+    "load_seconds": 0.07,
+    "warnings": [],
+    "size_mm_app": [
+      120.00006866455078,
+      450,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.000069,
+      450.0,
+      15.934996
+    ],
+    "volume_mm3_app": 517089.71009887586,
+    "volume_mm3_slicer": 517090.5625,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "example-closed-half.stl",
+    "triangles": 9296,
+    "load_seconds": 0.06,
+    "warnings": [],
+    "size_mm_app": [
+      120,
+      450,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.0,
+      450.0,
+      15.934996
+    ],
+    "volume_mm3_app": 516059.53760616004,
+    "volume_mm3_slicer": 516059.6875,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "example-closed-half.3mf",
+    "triangles": 9296,
+    "load_seconds": 0.07,
+    "warnings": [],
+    "size_mm_app": [
+      120,
+      450,
+      15.934995174407959
+    ],
+    "size_mm_slicer": [
+      120.0,
+      450.0,
+      15.934996
+    ],
+    "volume_mm3_app": 516059.53760616004,
+    "volume_mm3_slicer": 516059.6875,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "untitled-fine-whole.stl",
+    "triangles": 513596,
+    "load_seconds": 0.76,
+    "warnings": [],
+    "size_mm_app": [
+      127.09542297292501,
+      1000,
+      15.251276969909668
+    ],
+    "size_mm_slicer": [
+      127.095426,
+      1000.0,
+      15.251277
+    ],
+    "volume_mm3_app": 901791.4763118841,
+    "volume_mm3_slicer": 901782.5,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "untitled-fine-whole.3mf",
+    "triangles": 513596,
+    "load_seconds": 1.63,
+    "warnings": [],
+    "size_mm_app": [
+      127.09542297292501,
+      1000,
+      15.251276969909668
+    ],
+    "size_mm_slicer": [
+      127.095425,
+      1000.0,
+      15.251277
+    ],
+    "volume_mm3_app": 901791.4763118841,
+    "volume_mm3_slicer": 901782.5,
+    "manifold": "yes",
+    "verdict": "PASS",
+    "reasons": []
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "broken-one-triangle-removed.stl",
+    "negative_control": true,
+    "flagged_by_slicer": true,
+    "manifold": "no",
+    "counters": {
+      "open_edges": "3"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "broken-one-triangle-removed.3mf",
+    "negative_control": true,
+    "flagged_by_slicer": true,
+    "manifold": "no",
+    "counters": {
+      "open_edges": "3"
+    },
+    "verdict": "PASS"
+  },
+  {
+    "slicer": "OrcaSlicer",
+    "version": "2.3.2",
+    "file": "scale-control-declared-meters.3mf",
+    "scale_control": true,
+    "size_mm_slicer": [
+      120000.0,
+      900000.0,
+      15934.995117
+    ],
+    "size_mm_app": [
+      120,
+      900,
+      15.934995174407959
+    ],
+    "unit_honoured_by_slicer": true,
+    "verdict": "PASS"
+  }
+]

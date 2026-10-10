@@ -1,3 +1,4 @@
+using CfdWorkbench.Analysis.Export;
 using System.Runtime.CompilerServices;
 using Avalonia;
 using Avalonia.Automation;
@@ -311,6 +312,7 @@ public sealed class ShellHost : Grid
         StatusStrip.UnitsButton.Click += (_, _) =>
             Controller.AnalysisUnits = Controller.AnalysisUnits == CfdWorkbench.Analysis.Units.Metric ? CfdWorkbench.Analysis.Units.Imperial : CfdWorkbench.Analysis.Units.Metric;
         Controller.UnitsChanged += OnUnitsChanged;
+        Controller.CombChanged += OnCombChanged;
         ModelView.StartCardView.RecentRequested += path => _ = OpenFileAsync(path, fromRecent: true,
             origin: ModelView.StartCardView.SelectedRecentControl);
         ModelView.StartCardView.LocateRequested += () => _ = OpenFileInteractiveAsync();
@@ -347,6 +349,62 @@ public sealed class ShellHost : Grid
         RefreshPanes();
         if (Preferences is not null) TextSizeLoaded = LoadTextSizeAsync(Preferences);
         if (Preferences is not null) UnitsLoaded = LoadUnitsAsync(Preferences);
+        if (Preferences is not null) CombLoaded = LoadCombViewAsync(Preferences);
+    }
+
+    /// <summary>The startup read of the persisted plan comb view (Rulings 205-207); completes once the value is applied.</summary>
+    public Task CombLoaded { get; private set; } = Task.CompletedTask;
+
+    /// <summary>The latest comb view write; completed when there is none.</summary>
+    public Task CombSaved { get; private set; } = Task.CompletedTask;
+
+    private bool combChosen;
+    private bool applyingLoadedComb;
+    private (double? Gain, int Density, bool Visible) combKept = (null, RailComb.DefaultDensity, false);
+
+    /// <summary>
+    /// A change of the plan comb's scale, density or on/off is kept per user. <c>CombChanged</c> also fires for announcements and
+    /// refits, so a save is made only when the triple differs from the one last applied or saved. A save that cannot be kept is silent
+    /// (Ruling 207): no wording is approved for it.
+    /// </summary>
+    private void OnCombChanged()
+    {
+        if (applyingLoadedComb) return;
+        var now = (Controller.CombGain, Controller.CombDensity, Controller.CombVisible);
+        if (now == combKept) return;
+        combKept = now;
+        combChosen = true;
+        if (Preferences is null) return;
+        CombSaved = SaveCombViewAsync(Preferences, now.CombGain, now.CombDensity, now.CombVisible);
+    }
+
+    /// <summary>
+    /// Applies the persisted comb view at startup: no write back and no announcement. A choice made before the read finishes wins.
+    /// The read of the shared display file is recorded once, as <c>display.load</c>, by <see cref="LoadTextSizeAsync"/>.
+    /// </summary>
+    private async Task LoadCombViewAsync(PreferenceStore preferences)
+    {
+        var load = await preferences.LoadCombViewAsync(CancellationToken.None);
+        await OnUiThread(() =>
+        {
+            if (combChosen) return;
+            applyingLoadedComb = true;
+            try
+            {
+                Controller.ApplyCombView(load.Scale, load.Density, load.Visible);
+                combKept = (Controller.CombGain, Controller.CombDensity, Controller.CombVisible);
+            }
+            finally { applyingLoadedComb = false; }
+        });
+    }
+
+    private async Task SaveCombViewAsync(PreferenceStore preferences, double? gain, int density, bool visible)
+    {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        var save = await preferences.SaveCombViewAsync(gain, density, visible, CancellationToken.None);
+        ShellEvents.Record("display.save", save.Outcome, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds,
+            Guid.NewGuid().ToString("N"), code: save.Code, trigger: "comb", publicationKnown: save.PublicationKnown,
+            durabilityConfirmed: save.DurabilityConfirmed, retried: save.Retried);
     }
 
     /// <summary>The startup read of the persisted display units (Ruling 121); completes once the value is applied.</summary>
@@ -390,7 +448,7 @@ public sealed class ShellHost : Grid
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
         var save = await preferences.SaveUnitsAsync(units, CancellationToken.None);
         ShellEvents.Record("display.save", save.Outcome, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds,
-            Guid.NewGuid().ToString("N"), code: save.Code, publicationKnown: save.PublicationKnown,
+            Guid.NewGuid().ToString("N"), code: save.Code, trigger: "units", publicationKnown: save.PublicationKnown,
             durabilityConfirmed: save.DurabilityConfirmed, retried: save.Retried);
     }
 
@@ -894,7 +952,7 @@ public sealed class ShellHost : Grid
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
         var save = await preferences.SaveTextSizeAsync((int)Math.Round(step * 100), CancellationToken.None);
         ShellEvents.Record("display.save", save.Outcome, System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds,
-            Guid.NewGuid().ToString("N"), code: save.Code, publicationKnown: save.PublicationKnown,
+            Guid.NewGuid().ToString("N"), code: save.Code, trigger: "text-size", publicationKnown: save.PublicationKnown,
             durabilityConfirmed: save.DurabilityConfirmed, retried: save.Retried);
         if (save.Outcome is "saved" or "cancelled") return;
         await OnUiThread(() =>
@@ -1441,7 +1499,7 @@ public sealed class ShellHost : Grid
             Report(new StatusReport(ExportCopy.NeedsFoil));
             return;
         }
-        var session = new ExportSession(source);
+        var session = new ExportSession(source, record: Controller.RecordExport);
         ExportOutcome? outcome;
         if (ShowExportDialog is not null) outcome = await ShowExportDialog(session);
         else if (TopLevel.GetTopLevel(this) is Window owner)
@@ -1461,7 +1519,7 @@ public sealed class ShellHost : Grid
     public async Task ShowExportStationAsync(ExportSession session)
     {
         if (Controller.Inspection is not { } inspection) return;
-        int index = session.StationIndex;
+        int index = session.JumpStationIndex;
         Controller.Select(new Selection.Station(index, inspection.Authored.Assignments[index].Eta));
         if (Controller.Section is null) await EnterSectionAsync(EntryOrigin.Palette);
     }

@@ -16,7 +16,10 @@ Ring: fast (every push), run from tools/check-docs.py. Reads tracked plus untrac
 (measured and recorded in docs/proof/pii/red-first.md). Git history is not rewritten
 (operator decision, Ruling 145 (5)); the guard covers the current tree only.
 
-Usage: check-proof-pii.py [--self-test] [--root DIR]
+A file with a UTF-16 BOM, or the BOM-less UTF-16 shape (LE or BE), is decoded and scanned (PII-GATE-SKIPS-UTF16); a
+genuinely binary file is skipped and counted (--show-skipped lists the paths).
+
+Usage: check-proof-pii.py [--self-test] [--root DIR] [--show-skipped]
 """
 from __future__ import annotations
 
@@ -125,7 +128,29 @@ def scan_text(text: str, literals: list[str] | None = None) -> list[str]:
     return hits
 
 
-def scan_tree(root: Path) -> dict[str, list[str]]:
+def decode_text(data: bytes) -> str | None:
+    """Return the text of a file, or None when it is genuinely binary.
+
+    A UTF-16 BOM, or the BOM-less UTF-16 shape (NUL in nearly every odd byte for LE, every even byte for BE, over the
+    first 8 KiB), decodes as UTF-16 (Windows tools such as wsl.exe write LE with no BOM). Any other NUL-bearing file is binary.
+    """
+    sample = data[:8192]
+    if sample[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return data.decode("utf-16", "replace")
+    if b"\0" not in sample:
+        return data.decode("utf-8", "replace")
+    pairs = len(sample) // 2
+    if pairs >= 2:
+        even_nul = sum(1 for i in range(0, 2 * pairs, 2) if sample[i] == 0)
+        odd_nul = sum(1 for i in range(1, 2 * pairs, 2) if sample[i] == 0)
+        if odd_nul >= 0.9 * pairs and even_nul <= 0.1 * pairs:
+            return data.decode("utf-16-le", "replace")
+        if even_nul >= 0.9 * pairs and odd_nul <= 0.1 * pairs:
+            return data.decode("utf-16-be", "replace")
+    return None
+
+
+def scan_tree(root: Path, skipped: list[str] | None = None) -> dict[str, list[str]]:
     found: dict[str, list[str]] = {}
     literals = env_hostnames()
     for rel in worktree_files(root):
@@ -134,9 +159,12 @@ def scan_tree(root: Path) -> dict[str, list[str]]:
             data = p.read_bytes()
         except OSError:
             continue
-        if b"\0" in data[:8192]:
+        text = decode_text(data)
+        if text is None:
+            if skipped is not None:
+                skipped.append(rel)
             continue
-        hits = scan_text(data.decode("utf-8", "replace"), literals)
+        hits = scan_text(text, literals)
         if hits:
             found[rel] = hits
     return found
@@ -223,6 +251,25 @@ def self_test() -> int:
         if "new.md" not in scan_tree(repo):
             print("SELF-TEST FAIL: untracked offender file not seen")
             bad += 1
+        # PII-GATE-SKIPS-UTF16: encodings are built at run time; the offender is the home-path fixture above.
+        text = offenders["backslash"]
+        (repo / "le_nobom.txt").write_bytes(text.encode("utf-16-le"))
+        (repo / "le_bom.txt").write_bytes(text.encode("utf-16"))
+        (repo / "be_nobom.txt").write_bytes(text.encode("utf-16-be"))
+        (repo / "clean_le.txt").write_bytes("wsl version 2".encode("utf-16-le"))
+        (repo / "random.bin").write_bytes(bytes(range(256)) * 40)
+        skipped: list[str] = []
+        hit = scan_tree(repo, skipped)
+        for name in ("le_nobom.txt", "le_bom.txt", "be_nobom.txt"):
+            if name not in hit:
+                print(f"SELF-TEST FAIL: UTF-16 offender not caught: {name}")
+                bad += 1
+        if "clean_le.txt" in hit or "clean_le.txt" in skipped:
+            print("SELF-TEST FAIL: clean UTF-16 file flagged or skipped")
+            bad += 1
+        if skipped != ["random.bin"] or "random.bin" in hit:
+            print(f"SELF-TEST FAIL: binary file must be skipped and named, got skipped={skipped}")
+            bad += 1
     if not bad:
         print(f"PROOF-PII self-test ok: {len(offenders)} offenders caught, {len(clean)} clean passed")
     return 1 if bad else 0
@@ -232,7 +279,13 @@ def main(argv: list[str]) -> int:
     if "--self-test" in argv:
         return self_test()
     root = Path(argv[argv.index("--root") + 1]) if "--root" in argv else Path(__file__).resolve().parent.parent
-    found = scan_tree(root)
+    skipped: list[str] = []
+    found = scan_tree(root, skipped)
+    if "--show-skipped" in argv:
+        for p in sorted(skipped):
+            print(f"PROOF-PII: skipped binary file: {p}")
+    else:
+        print(f"PROOF-PII: {len(skipped)} binary file(s) skipped (paths: --show-skipped)")
     stale = sorted(p for p in ALLOWLIST if p not in found)
     failing = {p: h for p, h in found.items() if p not in ALLOWLIST}
     for p in stale:

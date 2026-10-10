@@ -1,3 +1,4 @@
+using CfdWorkbench.Analysis.Export;
 using CfdWorkbench.Cli;
 using CfdWorkbench.Analysis;
 using CfdWorkbench.Core;
@@ -651,6 +652,19 @@ public sealed class WorkbenchController : IDisposable
             field = value;
             CombChanged?.Invoke();
         }
+    }
+
+    /// <summary>
+    /// Restores the persisted comb view at startup (Rulings 205-207): scale (null is Auto), density and on/off. It makes no
+    /// announcement and raises <see cref="CombChanged"/> once, so the canvas and the plate redraw. A value outside the ladders is ignored.
+    /// </summary>
+    public void ApplyCombView(double? gain, int density, bool visible)
+    {
+        if ((gain is { } scale && !RailComb.Gains.Contains(scale)) || !RailComb.Densities.Contains(density)) return;
+        CombGain = gain;
+        CombDensity = density;
+        if (CombVisible == visible) CombChanged?.Invoke();
+        else CombVisible = visible;
     }
 
     /// <summary>The fixed gain "30 px = N per metre", or null for Auto.</summary>
@@ -2623,6 +2637,9 @@ public sealed class WorkbenchController : IDisposable
     public bool SaveUncertain => uncertainImage is not null;
     public string? UncertainPath => uncertainPath;
     public string AcceptedSource => Inspection is null ? "" : Encoding.UTF8.GetString(session.Snapshot().Source);
+
+    /// <summary>Appends an export event to the open session's ring (the dialog's sink; the CLI records on its own session).</summary>
+    public void RecordExport(ExportTelemetry entry) => session.RecordExport(entry);
 
     /// <summary>
     /// What Export reads (Export design D3): the accepted revision's source, its geometry status and its stations, never an open

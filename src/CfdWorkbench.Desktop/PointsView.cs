@@ -158,8 +158,7 @@ public static class SectionPoints
     public static string StationName(AuthoredProjection projection, int assignment)
     {
         ArgumentNullException.ThrowIfNull(projection);
-        double eta = projection.Assignments[assignment].Eta;
-        return eta == 0 ? "Root" : eta == 1 ? "Tip" : $"Station {assignment + 1}";
+        return StationNames.Of(assignment, projection.Assignments[assignment].Eta);
     }
 
     /// <summary>

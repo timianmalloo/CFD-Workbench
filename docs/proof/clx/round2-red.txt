@@ -1,0 +1,45 @@
+CLI Example identity, assessment, bounded projection and extension refusal passed.
+PASS Cli_InspectJson_PointsRolesAndKinds
+PASS Cli_InspectJson_ChannelPointsRolesAndKinds
+PASS Cli_Inspect_ListsSectionPointTypesAndKinds
+PASS Cli_AnalyseRunKey_EqualsServiceOnCustomOp
+COST Cli_AnalyseRunKey_EqualsServiceOnCustomOp 191.883
+PASS Cli_AnalyseFailedRun_PrintsNoDiagnostics
+COST Cli_AnalyseFailedRun_PrintsNoDiagnostics 22.378
+PASS Cli_InspectRuns_RevisionIsSessionLabel
+COST Cli_InspectRuns_RevisionIsSessionLabel 96.049
+PASS Cli_Export_DatEqualsFixtureAndPrintsSummary
+COST Cli_Export_DatEqualsFixtureAndPrintsSummary 62.570
+PASS Cli_Export_StlPassesClosureCheck
+COST Cli_Export_StlPassesClosureCheck 125.181
+PASS Cli_Export_HalfNamesFileHalf
+COST Cli_Export_HalfNamesFileHalf 135.130
+PASS Cli_Export_SymlinkTargetRefused
+COST Cli_Export_SymlinkTargetRefused 39.257
+FAIL Cli_Export_3mfPassesPackageCheckAndHalfNamesFile Exception: exit 3, expected 0: Error EXPORT-FORMAT-UNAVAILABLE: 3mf is not available yet. Use --format dat or stl.
+
+COST Cli_Export_3mfPassesPackageCheckAndHalfNamesFile 0.637
+FAIL Cli_Export_StationTakesTheAppsNames Exception: exit 2, expected 0: Error EXPORT-USAGE: --station is not a whole number.
+Usage: cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl --out <path>
+         [--shape at|own] [--station N] [--order selig|lednicer] [--points 61|101|201]   (dat only)
+         [--scope whole|half] [--tolerance draft|print|fine]                             (stl only)
+  --station N is the 0-based index of an authored station (0 is the root); the default is 0.
+  Defaults: --shape at, --order selig, --points 101, --scope whole, --tolerance print.
+  The extension of --out is forced to .dat or .stl; an existing file of the exact --out name is replaced,
+  a forced name that already exists is never replaced.
+Exit codes: 0 written (a trailing edge below the floor is advised and still written); 2 usage, bad option or input;
+  3 format not available yet (3mf) or input unsupported; 4 geometry not accepted; 5 path not writable;
+  6 target is a symlink; 7 mesh did not close, nothing written; 8 forced-extension name exists; 130 cancelled.
+
+COST Cli_Export_StationTakesTheAppsNames 17.530
+FAIL Cli_Export_InvalidOptionPrintsUsage Exception: unknown station: no usage text: Error EXPORT-USAGE: --station 99 is out of range; the stations are 0 (Root), 1 (Tip).
+
+COST Cli_Export_InvalidOptionPrintsUsage 28.392
+PASS Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites
+COST Cli_Export_TrailingEdgeBelowFloorAdvisesAndWrites 44.983
+PASS Cli_Export_GeometryNotAcceptedRefused
+COST Cli_Export_GeometryNotAcceptedRefused 7.234
+PASS Cli_Export_ForcedExtensionNeverReplaces
+COST Cli_Export_ForcedExtensionNeverReplaces 81.942
+PASS Cli_Export_UnwritablePathExitsIo
+COST Cli_Export_UnwritablePathExitsIo 38.461

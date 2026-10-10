@@ -16,11 +16,22 @@ public sealed record TextSizeLoad(int Percent, string Outcome, IReadOnlyList<str
 
 public sealed record UnitsLoad(string Units, string Outcome, IReadOnlyList<string> Codes, bool NeverWrite, bool SessionOnly, string? DiskSha256);
 
+public sealed record CombViewLoad(double? Scale, int Density, bool Visible, string Outcome, IReadOnlyList<string> Codes, bool NeverWrite, bool SessionOnly, string? DiskSha256);
+
 /// <summary>
-/// <c>cfdw-display</c> version 1 (DN-5): the Text size of one installation user, a whole percent in <see cref="TextSizes"/>.
-/// Absent means 100. An optional <c>units</c> key ("metric" or "imperial"; absent means metric) holds the display units
-/// (Ruling 121), so a file written before it existed still loads. Any other content is unreadable: the reader returns 100 and the store never rewrites that file.
-/// <see cref="Parse"/> never throws; <see cref="Serialize"/> throws on an out-of-set value (one rule for the set).
+/// <c>cfdw-display</c> version 1 (DN-5): the view settings of one installation user. <c>textSize</c> is a whole percent in
+/// <see cref="TextSizes"/>. Optional members, each absent meaning its default: <c>units</c> ("metric" or "imperial"; Ruling 121),
+/// <c>combScale</c> (a gain in <see cref="CombScales"/>; absent is Auto), <c>combDensity</c> (in <see cref="CombDensities"/>;
+/// absent is 32) and <c>combVisible</c> (the plan Curvature comb on; absent is off) (Rulings 205-207). The ladders are owned
+/// here; the rail comb derives from them.
+/// <para>
+/// Two classes of fault, both never-write (the file is kept byte for byte, Ruling 206). A <b>structure</b> fault affects the
+/// whole file: not JSON, a BOM, over <see cref="MaxBytes"/>, the wrong format, a version other than 1, a repeated or unknown
+/// member, or no <c>textSize</c>. Every setting reads its default. A newer version is the same, and is never overwritten.
+/// A <b>value</b> fault affects only its member: a known member of the wrong type or outside its set reads its own default
+/// and every sound member keeps its value; the reader reports <c>DISPLAY-SCHEMA</c>.
+/// </para>
+/// <see cref="Parse"/> never throws. <see cref="Serialize"/> keeps one rule for the set: it throws on an out-of-set value.
 /// </summary>
 public static class DisplayPreferences
 {
@@ -28,11 +39,16 @@ public static class DisplayPreferences
     public const int CurrentVersion = 1;
     public const int MaxBytes = 4 * 1024;
     public const int DefaultTextSize = 100;
+    public const int DefaultCombDensity = 32;
     public const string Metric = "metric";
     public const string Imperial = "imperial";
     public static readonly IReadOnlyList<int> TextSizes = [100, 125, 150, 200];
+    /// <summary>The rail comb's fixed gains, "30 px = N per metre" (the 1-2-5 ladder).</summary>
+    public static readonly IReadOnlyList<double> CombScales = [0.5, 1, 2, 5, 10, 20, 50, 100, 200];
+    public static readonly IReadOnlyList<int> CombDensities = [16, 32, 64, 128];
 
-    public sealed record DisplayParse(int TextSize, IReadOnlyList<string> Codes, bool NeverWrite, string Units = Metric);
+    public sealed record DisplayParse(int TextSize, IReadOnlyList<string> Codes, bool NeverWrite, string Units = Metric,
+        double? CombScale = null, int CombDensity = DefaultCombDensity, bool CombVisible = false);
 
     public static DisplayParse Parse(ReadOnlySpan<byte> bytes)
     {
@@ -47,18 +63,39 @@ public static class DisplayPreferences
             using var doc = JsonDocument.Parse(bytes.ToArray(), new JsonDocumentOptions { MaxDepth = 2 });
             var names = new HashSet<string>(StringComparer.Ordinal);
             foreach (var property in doc.RootElement.EnumerateObject())
-                if (property.Name is not ("format" or "version" or "textSize" or "units") || !names.Add(property.Name)) return Unreadable();
-            if (!doc.RootElement.TryGetProperty("textSize", out var value) || value.ValueKind != JsonValueKind.Number
-                || !value.TryGetInt32(out int size) || !TextSizes.Contains(size))
-                return Unreadable();
+                if (property.Name is not ("format" or "version" or "textSize" or "units" or "combScale" or "combDensity" or "combVisible")
+                    || !names.Add(property.Name)) return Unreadable();
+            if (!doc.RootElement.TryGetProperty("textSize", out var value)) return Unreadable();
+            bool valueFault = false;
+            int size = DefaultTextSize;
+            if (value.ValueKind == JsonValueKind.Number && value.TryGetInt32(out int named) && TextSizes.Contains(named)) size = named;
+            else valueFault = true;
             string units = Metric;
             if (doc.RootElement.TryGetProperty("units", out var unitsValue))
             {
-                string? named = unitsValue.ValueKind == JsonValueKind.String ? unitsValue.GetString() : null;
-                if (named is not (Metric or Imperial)) return Unreadable();
-                units = named;
+                string? text = unitsValue.ValueKind == JsonValueKind.String ? unitsValue.GetString() : null;
+                if (text is Metric or Imperial) units = text;
+                else valueFault = true;
             }
-            return new DisplayParse(size, [], false, units);
+            double? scale = null;
+            if (doc.RootElement.TryGetProperty("combScale", out var scaleValue))
+            {
+                if (scaleValue.ValueKind == JsonValueKind.Number && scaleValue.TryGetDouble(out double gain) && CombScales.Contains(gain)) scale = gain;
+                else valueFault = true;
+            }
+            int density = DefaultCombDensity;
+            if (doc.RootElement.TryGetProperty("combDensity", out var densityValue))
+            {
+                if (densityValue.ValueKind == JsonValueKind.Number && densityValue.TryGetInt32(out int teeth) && CombDensities.Contains(teeth)) density = teeth;
+                else valueFault = true;
+            }
+            bool visible = false;
+            if (doc.RootElement.TryGetProperty("combVisible", out var visibleValue))
+            {
+                if (visibleValue.ValueKind is JsonValueKind.True or JsonValueKind.False) visible = visibleValue.GetBoolean();
+                else valueFault = true;
+            }
+            return new DisplayParse(size, valueFault ? ["DISPLAY-SCHEMA"] : [], valueFault, units, scale, density, visible);
         }
         catch (Exception)
         {
@@ -66,11 +103,16 @@ public static class DisplayPreferences
         }
     }
 
-    /// <summary>The document for <paramref name="textSize"/> and <paramref name="units"/> (written only when imperial); an out-of-set value is a caller defect and throws.</summary>
-    public static byte[] Serialize(int textSize, string units = Metric)
+    /// <summary>
+    /// The document for the given settings. Written only when not default: <c>units</c> when imperial, <c>combScale</c> unless Auto
+    /// (null), <c>combDensity</c> unless 32, <c>combVisible</c> only when true. An out-of-set value is a caller defect and throws.
+    /// </summary>
+    public static byte[] Serialize(int textSize, string units = Metric, double? combScale = null, int combDensity = DefaultCombDensity, bool combVisible = false)
     {
         ArgumentOutOfRangeException.ThrowIfNotEqual(units is Metric or Imperial, true, nameof(units));
         ArgumentOutOfRangeException.ThrowIfNotEqual(TextSizes.Contains(textSize), true, nameof(textSize));
+        ArgumentOutOfRangeException.ThrowIfNotEqual(combScale is null || CombScales.Contains(combScale.Value), true, nameof(combScale));
+        ArgumentOutOfRangeException.ThrowIfNotEqual(CombDensities.Contains(combDensity), true, nameof(combDensity));
         var buffer = new ArrayBufferWriter<byte>();
         using (var writer = new Utf8JsonWriter(buffer, new JsonWriterOptions { Indented = true, NewLine = "\n" }))
         {
@@ -79,6 +121,9 @@ public static class DisplayPreferences
             writer.WriteNumber("version", CurrentVersion);
             writer.WriteNumber("textSize", textSize);
             if (units == Imperial) writer.WriteString("units", units);
+            if (combScale is { } gain) writer.WriteNumber("combScale", gain);
+            if (combDensity != DefaultCombDensity) writer.WriteNumber("combDensity", combDensity);
+            if (combVisible) writer.WriteBoolean("combVisible", true);
             writer.WriteEndObject();
         }
         return buffer.WrittenSpan.ToArray();
@@ -113,7 +158,11 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     private int textSizeWanted = DisplayPreferences.DefaultTextSize;
     private string unitsWanted = DisplayPreferences.Metric;
     private bool textSizeSet, unitsSet;
-    private string loadedUnits = DisplayPreferences.Metric;
+    private double? combScaleWanted;
+    private int combDensityWanted = DisplayPreferences.DefaultCombDensity;
+    private bool combVisibleWanted;
+    private bool combSet;
+    private DisplayPreferences.DisplayParse loaded = new(DisplayPreferences.DefaultTextSize, [], false);
 
     private string LayoutDir => Path.Combine(root, "layout");
     private string RecentDir => Path.Combine(root, "recent");
@@ -491,14 +540,17 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         {
             displayNeverWrite = true;
             displayBlock = parsed.Codes[0];
-            return new TextSizeLoad(fallback, "never-write", parsed.Codes, true, true, read.DiskSha256);
+            // A value fault keeps the sound members (Ruling 206 L4); a structure fault parses to every default.
+            lock (sync) loaded = parsed;
+            return new TextSizeLoad(parsed.TextSize, "never-write", parsed.Codes, true, true, read.DiskSha256);
         }
         displayHash = read.DiskSha256;
         lock (sync)
         {
-            loadedUnits = parsed.Units;
+            loaded = parsed;
             if (!textSizeSet) textSizeWanted = parsed.TextSize;
             if (!unitsSet) unitsWanted = parsed.Units;
+            if (!combSet) (combScaleWanted, combDensityWanted, combVisibleWanted) = (parsed.CombScale, parsed.CombDensity, parsed.CombVisible);
         }
         return new TextSizeLoad(parsed.TextSize, "restored", [], false, false, read.DiskSha256);
     }
@@ -568,6 +620,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
             // A value this session never set keeps what the file holds (a save issued before the startup read finished).
             if (!textSizeSet) textSizeWanted = parsed.TextSize;
             if (!unitsSet) unitsWanted = parsed.Units;
+            if (!combSet) (combScaleWanted, combDensityWanted, combVisibleWanted) = (parsed.CombScale, parsed.CombDensity, parsed.CombVisible);
         }
         var retry = await Write(DisplayPath, DisplayImage(), read.DiskSha256, ct).ConfigureAwait(false);
         if (retry.Code == "OK")
@@ -582,7 +635,7 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
 
     private byte[] DisplayImage()
     {
-        lock (sync) return DisplayPreferences.Serialize(textSizeWanted, unitsWanted);
+        lock (sync) return DisplayPreferences.Serialize(textSizeWanted, unitsWanted, combScaleWanted, combDensityWanted, combVisibleWanted);
     }
 
     /// <summary>
@@ -592,11 +645,8 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
     /// </summary>
     public async Task<UnitsLoad> LoadUnitsAsync(CancellationToken ct)
     {
-        lock (sync) loadedUnits = DisplayPreferences.Metric;
-        var load = await LoadTextSizeAsync(ct).ConfigureAwait(false);
-        string units;
-        lock (sync) units = load.NeverWrite ? DisplayPreferences.Metric : loadedUnits;
-        return new UnitsLoad(units, load.Outcome, load.Codes, load.NeverWrite, load.SessionOnly, load.DiskSha256);
+        var load = await LoadDisplayAsync(ct).ConfigureAwait(false);
+        return new UnitsLoad(load.Parse.Units, load.Text.Outcome, load.Text.Codes, load.Text.NeverWrite, load.Text.SessionOnly, load.Text.DiskSha256);
     }
 
     /// <summary>Writes the display units beside the Text size, with the outcomes and the latest-choice-wins rule of <see cref="SaveTextSizeAsync"/>.</summary>
@@ -605,6 +655,37 @@ public sealed class PreferenceStore(string root, Func<IProjectStore> storeFactor
         if (units is not (DisplayPreferences.Metric or DisplayPreferences.Imperial)) return new PrefSave("rejected", "DISPLAY-SCHEMA", false, false, false, null);
         lock (sync) { unitsWanted = units; unitsSet = true; }
         return await SaveDisplayAsync(ct).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Reads the plan rail comb's scale (null is Auto), density and on/off from the same <c>cfdw-display</c> file, with the outcomes of
+    /// <see cref="LoadTextSizeAsync"/>. An absent member, an absent file and an unreadable file read Auto, 32 and off; a value fault
+    /// defaults its own member only. A file that is not sound is never rewritten.
+    /// </summary>
+    public async Task<CombViewLoad> LoadCombViewAsync(CancellationToken ct)
+    {
+        var load = await LoadDisplayAsync(ct).ConfigureAwait(false);
+        var parse = load.Parse;
+        return new CombViewLoad(parse.CombScale, parse.CombDensity, parse.CombVisible, load.Text.Outcome, load.Text.Codes, load.Text.NeverWrite, load.Text.SessionOnly, load.Text.DiskSha256);
+    }
+
+    /// <summary>
+    /// Writes the comb's scale (null is Auto), density and on/off beside the other display settings: members this session never set keep
+    /// what the file held, so a comb change never resets Text size or units. Outcomes and the latest-choice-wins rule as <see cref="SaveTextSizeAsync"/>.
+    /// </summary>
+    public async Task<PrefSave> SaveCombViewAsync(double? scale, int density, bool visible, CancellationToken ct)
+    {
+        if ((scale is { } gain && !DisplayPreferences.CombScales.Contains(gain)) || !DisplayPreferences.CombDensities.Contains(density))
+            return new PrefSave("rejected", "DISPLAY-SCHEMA", false, false, false, null);
+        lock (sync) { (combScaleWanted, combDensityWanted, combVisibleWanted, combSet) = (scale, density, visible, true); }
+        return await SaveDisplayAsync(ct).ConfigureAwait(false);
+    }
+
+    private async Task<(TextSizeLoad Text, DisplayPreferences.DisplayParse Parse)> LoadDisplayAsync(CancellationToken ct)
+    {
+        lock (sync) loaded = new DisplayPreferences.DisplayParse(DisplayPreferences.DefaultTextSize, [], false);
+        var text = await LoadTextSizeAsync(ct).ConfigureAwait(false);
+        lock (sync) return (text, loaded);
     }
 
     private static void EnsureDir(string path)

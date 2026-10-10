@@ -49,11 +49,16 @@ public static class Cli
     public static async Task<int> RunAsync(string[] args, TextWriter output, CancellationToken cancellation = default,
         AnalysisHost? analysis = null)
     {
+        if (args.Length >= 1 && args[0] == "export") return await ExportVerb.RunAsync(args, output, cancellation);
         if (args.Length == 4 && args[0] == "analyse" && args[2] == "--op") return await AnalyseAsync(args[1], args[3], output, analysis, cancellation);
         if (args.Length == 3 && args[0] == "inspect" && args[2] == "--runs") return await InspectRunsAsync(args[1], output, cancellation);
         if (args.Length != 3 || args[0] != "inspect" || args[2] != "--json")
         {
             await output.WriteLineAsync("Usage: cfd-workbench inspect <example|path.foil|path.cfdw.json> --json");
+            await output.WriteLineAsync("       cfd-workbench inspect <path.cfdw.json> --runs");
+            await output.WriteLineAsync("       cfd-workbench analyse <example|path.foil|path.cfdw.json> --op <json>");
+            await output.WriteLineAsync("       cfd-workbench export <example|path.foil|path.cfdw.json> --format dat|stl|3mf --out <path> [options]");
+            await output.WriteLineAsync("         (a wrong export command prints every option and exit code)");
             return 2;
         }
         string input = args[1];

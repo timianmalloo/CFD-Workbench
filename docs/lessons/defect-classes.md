@@ -1839,6 +1839,7 @@ Control (installed, Ruling 104, 2026-10-06): a PreToolUse hook on `Bash`, `tools
 fallback for `tools/hooks/`. Proposal: `docs/proof/round-oct05-lessons/heredoc-hook-proposal.md`. Open: whether
 repo-level hooks fire for sub-agent Bash calls is measured after the join, in a new session (hooks load at session
 start); until then the class stays open for sub-agents. Not covered: Grok, Copilot and agy payloads.
+*2026-10-10 (leader, the pipe shape).* The leader ran `rule_one.py r206.json | tail -1 && git add ... && git commit`. The spec file did not exist, so `rule_one.py` failed, but `tail` exited 0, and the chain committed "Ruling 206" with only session logs in it. The commit stat showed it at once (no rulings.md), and the commit was amended before any push. *Derive:* a step whose result a later `&&` depends on is never piped; redirect it to a file and test its exit. *Control:* pending: extend the Bash hook to refuse a pipeline followed by `&& git commit` in one command.
 
 **SECTION-EDITOR-LOAD-FLAKE · One failed check in the shared-fixture Section Editor suite leaves a gesture pressed and cascades.**
 `SectionEditor_DragMove_DrawsWithinOneFrame` failed at least 4 times on 2026-10-05 at load 40 to 200, and passed alone
@@ -2169,8 +2170,9 @@ branches pending its scrub.
 
 *Signature:* a PII or text gate whose binary heuristic also excludes a text encoding the platform emits. *Derive:* a
 NUL-patterned file with the UTF-16LE shape (NUL in every odd byte) is decoded as UTF-16 and scanned, not skipped. A
-genuinely binary file stays skipped, and the gate names it. *Control:* pending a Mac tools track, red first on a synthetic
-UTF-16LE offender built at run time.
+genuinely binary file stays skipped, and the gate names it. *Control:* `decode_text` in `check-proof-pii.py` (a BOM or the
+LE/BE shape decodes as UTF-16); its `--self-test` builds UTF-16LE no-BOM, BOM and BE offenders at run time plus a binary
+file that is skipped and named, red first in `docs/proof/gfx/red-first.md`. Ring: fast, no added cost. Status: controlled.
 
 **READER-SHARE-DELETE · A reader opened without delete sharing blocks a POSIX replace on Windows.**
 A product reader that opens a user file with `FileShare.Read` (or through `File.ReadAllBytes*`, `File.OpenRead`, which share Read only) holds a handle
@@ -2608,7 +2610,10 @@ under a still pointer. In the suite it read as a flake in `PlanCanvas_Escape_Dis
 - No gate saw it, because `check-docs.py` runs only the check's `--self-test`, never the check itself.
 
 *Derive:* a marker check ignores a marker quoted as code, and the real check (not only its self-test) runs in a ring.
-*Control:* a Mac track (pending).
+*Control:* `claims()` in `tools/check-windows-admission.py` drops fenced blocks and backtick spans before it looks for the
+marker. Self-test cases: "backtick-quoted marker must pass while stale", "fenced marker must pass while stale", "bare
+marker after a code span must fail while stale", "stale with no claim must print STALE and exit 0". The real check now
+runs in `check-docs.py` (fast ring, about 0.35 s). Status: controlled.
 
 **OBS-CLOCK-DOMAIN-A · A UTC window classifies intervals whose duration clock is monotonic.** The first uncommitted
 Ruling 197 observer analysis used capture UTC for both the capture join and the 30-minute window. WSL UTC advanced about
@@ -2661,3 +2666,15 @@ seconds", and the derive step picked the suspect clock.
 **ASYNC-COMMAND-TAIL-A · 2026-10-10 · A mutation placed after a long gate continues after the harness returns.** A shell call put `git add`, `commit`, and `push` after `check-docs.py`. The harness returned after about 30 seconds while the shell continued, so commit `c4e32730` captured the observer's then-current row-11 state during attempt 2 without an explicit foreground transition.
 
 **Class → sweep → derive → prevent:** signature: one shell invocation chains a variable-duration gate before repository or remote mutations. Sweep: the B1 repair call was the instance; earlier B1 commits used separate calls. Derive: a harness yield is not process termination, so any tail remains live and can race later work. Control: the repository-level rule in `AGENTS.md` requires long gates and mutations in separate shell calls. The early evidence commit is retained; later evidence appends the final rows and stopped state without rewriting history. Status: controlled for future shell orchestration.
+
+**HASH-FOLD-A · 2026-10-10 · A packed key hashed by the default hash folds to a few buckets.** The STL edge check keyed directed edges as `(a << 32) | b` in a `Dictionary<long, int>`. `long.GetHashCode` is `lower ^ upper`, which is `a ^ b` here and collides for neighbouring vertices. One check took 67 s, and the 13-check run was still going after nine minutes, where the fixed code takes about 4 s (track trk-stx; `docs/proof/stx/red-first.md`).
+- *Sweep:* `Dictionary<long` / `HashSet<long` and `<< 32` in `src/` (.cs). The only other hit, `ChannelEdits.CollectKnotEtas`, keys on the raw bits of one double, not a packed pair, so it is not this class.
+- *Derive:* a key packed from two ints is hashed by a comparer that mixes the whole key, never by the default.
+- *Prevent:* `StlExport_EdgeKey_HashSpreadsPackedNeighbours_HASH_FOLD_A` shows the default hash folds those keys and the comparer does not (fast ring, about 5 ms; no timing in the check, so a loaded machine cannot flake it). Status: controlled for the keys in `src/`; a new packed key needs its own comparer.
+
+**LEADER-ABSENCE-FROM-GREP · 2026-10-10 · An absence claim put to the operator rested on one identifier search.** The leader's Ruling 205 question said the app "has no preferences file yet". The evidence was a grep for `Preferences|AppSettings|ViewPrefs` in Desktop and `GetFolderPath` in `src/`. The store exists: `PreferenceStore` in Persistence writes `display/display.json` (text size, units) through `ProjectStore`, with load/save events. Track PRF found it while writing the design. The operator's choice (persist) stands, but the question's recommendation (session only, "until a store exists") was built on the false premise. Sibling of CONTROL-GAMED-BY-RENAME: absence decided by matching names, not by the behaviour.
+- *Sweep:* the leader's rulings 193-205 whose question or evidence asserts an absence. The others cite a design section, a proof file or a track's report, not a leader grep.
+- *Derive:* before an absence claim reaches the operator, search by behaviour (what writes to the app data folder, which types persist), the design docs and the register, and name those searches.
+- *Prevent:* the leader's ruling recorder (`cfd-workbench-continuation/rule_one.py`, outside the repo) refuses a spec whose question or evidence states an absence unless it carries `absence_checked` naming the searches (or `n/a` with a reason). Red on Ruling 205's own spec, green with the field (leader check, 2026-10-10). Status: controlled for rulings the leader records; an absence claim in chat prose is not gated.
+
+**SURF-A · 2026-10-10 · One refusal has two codes because each surface classifies it itself.** The CLI pre-checked a link target and refused it as `EXPORT-TARGET-LINK`; the dialog let the write fail and reported `EXPORT-WRITE-FAILED` (Ruling 198; track trk-hyg). Sweep: every `Refused(` and `CodeOf` site in `src/CfdWorkbench.Analysis/Export/` and `ExportVerb.cs`; the other CLI refusals (NOT-CLOSED, GEOMETRY, WOULD-REPLACE) already come from the shared session. Derive: the shared session classifies and records a refusal, and a surface only maps the code to its exit. Prevent: `Export_LinkTargetHasOneCodeOnBothSurfaces` drives the dialog session and the CLI against a file link and a dangling link and asserts the same code and the same `export.validate` event (`docs/proof/hyg/red-first.md`). Ring: every join.

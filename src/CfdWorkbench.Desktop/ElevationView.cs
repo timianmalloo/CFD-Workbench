@@ -421,7 +421,7 @@ public sealed class ElevationView : Control
         return result;
     }
 
-    public static string StationName(int index, double eta) => eta == 0 ? "Root" : eta == 1 ? "Tip" : $"Station {index + 1}";
+    public static string StationName(int index, double eta) => StationNames.Of(index, eta);
 
     /// <summary>The authored section whose outline passes within 8 px of the pointer (Side band), or null.</summary>
     public (int Index, double Eta, string Name)? SectionAt(Point position) =>

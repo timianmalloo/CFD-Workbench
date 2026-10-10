@@ -14,9 +14,10 @@ public readonly record struct CombMark(RailTooth Tooth, double Length, bool Clip
 public static class RailComb
 {
     /// <summary>"30 px = N per metre": a fixed step, the 1-2-5 ladder (design section 3).</summary>
-    public static readonly IReadOnlyList<double> Gains = [0.5, 1, 2, 5, 10, 20, 50, 100, 200];
-    public static readonly IReadOnlyList<int> Densities = [16, 32, 64, 128];
-    public const int DefaultDensity = 32;
+    /// <remarks>Owned by Persistence (<c>DisplayPreferences.CombScales</c>, Ruling 206 L6): one definition of each ladder.</remarks>
+    public static IReadOnlyList<double> Gains => CfdWorkbench.Persistence.DisplayPreferences.CombScales;
+    public static IReadOnlyList<int> Densities => CfdWorkbench.Persistence.DisplayPreferences.CombDensities;
+    public const int DefaultDensity = CfdWorkbench.Persistence.DisplayPreferences.DefaultCombDensity;
     public const double ToothPixels = 30, ClipPixels = 60, DotPixels = 0.5, MinimumPitchPixels = 3, VisibleFloorPixels = 3;
 
     private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;

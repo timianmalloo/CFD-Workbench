@@ -1,0 +1,3 @@
+{"agent": "trk-gfx", "at": 1791661937.491092, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-gfx", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-fix-gfx-gate-fixes"}
+{"agent": "trk-gfx", "at": 1791665396.148404, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-gfx", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-gfx", "at": 1791665402.51074, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-gfx", "wi": "WI-0", "worktree": "CFD-Workbench-fix-gfx-gate-fixes"}

@@ -62,7 +62,7 @@ Terms. "Deviation" is the measured distance between a written mesh or point set 
 
 Operator answers recorded (Ruling 194): (1) a `.dat` holds the section at a chosen station by default, the authored profile
 second; (2) presets Draft 0.05, Print 0.02 (default), Fine 0.005 mm, with a large-mesh warning above 500,000 triangles; (3)
-whole wing and a starboard half with a root cap; (4) a `cfdw export` CLI verb; (5) a TE below the floor is advised only, and
+whole wing and a starboard half with a root cap; (4) a `cfd-workbench export` CLI verb (Ruling 203); (5) a TE below the floor is advised only, and
 export into OneDrive folders is allowed.
 
 ## 2. What exists today (Verified)
@@ -217,7 +217,7 @@ label says "sampled" and "not a bound" for that reason, and B4 adds a dense-samp
 | File > Export... | new row `file.export`, gesture Shift+Command+E (macOS) and Ctrl+Shift+E (Windows); free in `CommandTable.cs:73-164`. Disabled with a reason when no foil is open (COPY-EX03). |
 | Command palette | every table row is a palette entry (`CommandTable.PaletteEntries`), so "Export..." is findable with no extra code. |
 | Section > Export .dat... | new row `section.export-dat`; opens the dialog on .dat at the selected station. |
-| CLI (Ruling 194 (4), approved) | `cfdw export <file> --format dat|stl|3mf [--shape at|own] [--station N] [--order selig|lednicer] [--points 61|101|201] [--scope whole|half] [--tolerance draft|print|fine|<mm>] --out <path>` beside `inspect` and `analyse` (`Cli/Program.cs:52-54`). It runs the same writers, prints the same summary lines including the trailing-edge row, and gives the build a headless test oracle. |
+| CLI (Ruling 194 (4), approved; the name `cfd-workbench`, `--station` names and presets only: Ruling 203, Ruling 194 (2)) | `cfd-workbench export <file> --format dat|stl|3mf [--shape at|own] [--station root|tip|N] [--order selig|lednicer] [--points 61|101|201] [--scope whole|half] [--tolerance draft|print|fine] --out <path>` beside `inspect` and `analyse` (`Cli/Program.cs:52-54`). It runs the same writers, prints the same summary lines including the trailing-edge row, and gives the build a headless test oracle. |
 
 ### 6.2 The dialog (see the mockup)
 
@@ -273,11 +273,22 @@ rename fails, that is the ordinary write-failure state (H6).
 | H3 | Trailing edge (always shown; below the floor adds a band) | The **Trailing edge row** is in every summary: the least thickness in mm, where, "Floor 0.30 mm (app default, no source).", and "Manufacturing: not assessed (no process chosen)". Below the floor the band reads "Trailing edge 0.26 mm, below the floor of 0.30 mm (app default, no source)" with a jump. The jump lands on the trailing-edge gap control: "Show at tip" for a located value, "Show the trailing-edge gap" when the value holds along the whole span (B8). Advisory, never blocks. A closed trailing edge reads "0.00 mm along the whole span". For .dat the value is at that station, from the written points. | `ready`: A below the floor (tip), B meets it (y = 439 mm, no band), C closed (whole span) |
 | H4 | Analysis mode active | Export reads the accepted revision exactly as in CAD mode (`WorkbenchController.cs:559-561`). The dialog adds one line: "Analysis layers and results are not exported." If the foil is drawn but the geometry check has not passed, H2 applies. There is **no state today where analysis runs on geometry export refuses**: both use the `Certified` gate. | `analysis` detail |
 | H5 | Large mesh | At more than 500,000 triangles (25 MB binary STL) the summary shows a warning band and the button reads "Export anyway..."; the coarser preset is one click. The writer never refuses on size alone. **The line stays at 500,000** (B7): Ruling 194 (2) fixed it, no slicer load time is measured yet (B1 measures it, and the line is reviewed with that evidence), and the Untitled wing at Fine (513,596 triangles, 25.68 MB) sits just over it, so a real case exercises the state. At the top rung with a tolerance not met, the band says what was reached (COPY-EX31; not rendered). The starboard half halves the count (Untitled at Fine, half: 257,596, no warning). | `large` |
-| H6 | Write failure (permission, disk full, path gone) | In-dialog error with plain cause, "Nothing was changed. The earlier file is still there.", **Choose another place...**, **Try again**. Reasons from `IOException`/`UnauthorizedAccessException` as `MainWindow.axaml.cs:181`. | `failed` |
+| H6 | Write failure (permission, disk full, path gone) | In-dialog error with plain cause, "Nothing was changed." and, only when a file was at the target name when the write began, "The earlier file is still there." (Ruling 204), **Choose another place...**, **Try again**. Reasons from `IOException`/`UnauthorizedAccessException` as `MainWindow.axaml.cs:181`. | `failed` |
 | H7 | Closure check fails (should not happen) | Fail closed: nothing is written, "The mesh did not close, so nothing was written." + a technical-details line, and an event `export.validate` outcome `EXPORT-NOT-CLOSED`. | `failed` detail |
 | H8 | Cancel at the save panel | Status strip "Export cancelled. Nothing was written." (matches `ShellHost.cs:1398`). | `cancelled` |
 | H9 | No foil open | Menu row disabled; tooltip and palette entry carry COPY-EX03. | `nofoil` |
 | H10 | Mesh preparing / writing | Preparing: skeleton of the summary (same height, with the trailing-edge row), Export... disabled. Writing a mesh over 100,000 triangles: progress with a Cancel that deletes the temp file. Below that the write is under a frame. | `preparing`, `writing` |
+
+### Telemetry (events on the session ring)
+
+Both the dialog (`ShellHost`, through `WorkbenchController.RecordExport`) and the CLI (`ExportVerb`, on the session it opens) pass the shared `ExportSession` a sink; the sink is `AuthoringSession.RecordExport`, which appends an `ExportTelemetry` row to the 256-event ring, as `CatalogTelemetry` does for `library.save`. The CLI's ring ends with the process: it has no other sink, and none is built here. No event holds a path, a file name, a foil name, a user or a host.
+
+| Event | When | Fields |
+|---|---|---|
+| `export.write` | One per write attempt, after the save panel returns a name. Not for a cancelled panel. | `Format` (`dat`, `stl`, `3mf`); `Scope` (`whole`, `half`; mesh only); `Preset` (`draft`, `print`, `fine`; mesh only); `Outcome` (`written`, `cancelled`, `EXPORT-NO-PERMISSION`, `EXPORT-FOLDER-GONE`, `EXPORT-DISK-FULL`, `EXPORT-WRITE-FAILED`); `Milliseconds` (the write only, not the panel); `Bytes` (what was to be written); `Triangles` and `DeviationMm` (mesh only) |
+| `export.validate` | One per refusal before any write: `EXPORT-GEOMETRY-NOT-ACCEPTED` (once when the session opens on geometry that is not accepted), `EXPORT-NOT-CLOSED` (H7), `EXPORT-WOULD-REPLACE`, `EXPORT-TARGET-LINK` (CLI pre-check; in the dialog a link fails the write as `EXPORT-WRITE-FAILED`) | `Format`, `Scope`, `Preset` as above; `Outcome` is the code; the measures are null |
+
+Questions it answers: how often each format and scope is written; how long a write takes; how big it is; how often, and why, an export is refused or fails.
 
 ## 8. Copy
 
@@ -317,7 +328,7 @@ Questions 1, 2, 4 and 5 are answered (Ruling 194). Question 3 is reworded and an
 1. **Which section does a .dat hold?** Answered: At station by default, Own second.
 2. **Tolerance presets and the large-mesh line.** Answered: Draft 0.05, Print 0.02 (default), Fine 0.005 mm; warning above 500,000 triangles (kept, section 7 H5).
 3. **Starboard half.** Answered: yes, with a root cap. The half is a **root split, a bonding aid and a datum**. Further cuts and connectors happen in the slicer; alignment features are out of scope.
-4. **A `cfdw export` CLI verb?** Answered: yes.
+4. **A `cfd-workbench export` CLI verb?** Answered: yes.
 5. **TE below the floor: advise only?** Answered: advise only; export into OneDrive folders is allowed.
 
 New, for approval with section 14:
@@ -421,7 +432,7 @@ Amendment rows give the place, the new text and the reason; A11 and the build it
 | Spec | A6 | EXP-03, `:1218` | Name the 3MF metadata keys allowed: Title, Description (revision, tolerance, measured deviation), Application; never user name, path or machine name. Why: privacy rule `:1353`, `:1355`. |
 | Spec | A7 | Export dialog safety string | Say the fixed string shows for every geometric format, including .dat. Why: the spec says "export dialog" only. |
 | Spec | A8 | Reading rule | State that Export reads the accepted revision and refuses when the geometry check has not passed. Why: D3; matches `AnalysisService.cs:94-95`. |
-| Spec | A9 (**revised**) | Area table `:1422` | "Export: Choose format - Write" -> "Choose format - Export..."; add the Section > Export .dat... entry and the `cfdw export` verb. Why: section 6; Ruling 194 (4). |
+| Spec | A9 (**revised**) | Area table `:1422` | "Export: Choose format - Write" -> "Choose format - Export..."; add the Section > Export .dat... entry and the `cfd-workbench export` verb (Ruling 203). Why: section 6; Ruling 194 (4). |
 | Spec | A10 (**new**, B5) | Format table, `:623` DAT row | Replace "shortest-round-trip digits" with "shortest round-trip digits in positional notation, never exponent form". Why: the first probe wrote `3.585447714271229E-05` (`probe2-default-root.txt` row 2); some readers do not parse exponents. |
 | Spec | A11 (**new**, review D2; Ruling 195) | Setting registry `:1035` (`manufacturing.te_floor`) and every place the spec shows the floor's label (GEO-12 `:1190`) | Replace the label "practitioner value, unverified" with "app default, no source". The value 0.3 mm, the analysis numerics and the settings hash do not change. Why: Ruling 195. Build item: `src/CfdWorkbench.Analysis/Settings.cs:29` gains one named label constant, and any UI string that says "practitioner value" for this floor is replaced (a grep of `src/` found none today); test B10. |
 | Spec | A12 (**new**, review D3) | F5, `:1657` | Move the TE-floor finding from the failure branch ("Explain; TE floor finding; return to geometry") to the success path as an advisory that never blocks; the failure branch keeps only the explanation. Why: GEO-12 (`:1190`) calls it an advisory DRC finding, and Ruling 194 (5) confirms advise-only. |

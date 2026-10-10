@@ -19,6 +19,12 @@ summary: >-
 
 # Windows GPU G1 exact-source and toolchain inspection
 
+**Tested SHA:** `a656184cb9ce4956e8dc279dc3c4074b95b6e3be`.
+
+**Done when:** the exact v2512 source/toolchain and installed linkage are captured, the observer comparison is bounded,
+the owner dispositions the native route, repository gates pass, and the result is handed to the Mac leader without an
+unauthorized build, install, solver run, GPU trial, or L3 mutation. **Met** for G1; F1/G2 remain closed.
+
 ## Result
 
 **Verified:** G1 completed the authorized read-only source and installed-library inspection. It did not install or build
