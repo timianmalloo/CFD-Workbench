@@ -44,6 +44,21 @@ internal static class StlExportTests
         True(mixed > keys.Count * 99 / 100, $"EdgeKey spreads them: {mixed} distinct of {keys.Count}");
     }
 
+    /// <summary>
+    /// The fixtures of tools/check-slicer-open.py (build condition B1): the Example foil with an open and a closed trailing edge, whole and
+    /// starboard half, at Print, plus the Untitled wing at Fine (a large mesh for the load time), each written by the app's writer, with
+    /// the numbers the app reports for it. The harness entry point writes them with <c>--write-stl-fixtures &lt;dir&gt;</c>; not a check.
+    /// </summary>
+    internal static IEnumerable<(string File, StlExportResult Result)> Fixtures()
+    {
+        foreach (var scope in new[] { StlScope.Whole, StlScope.Half })
+        {
+            foreach (var (name, source) in new[] { ("example-open", OpenTrailingEdge(0.001)), ("example-closed", Example()) })
+                yield return ($"{name}-{(scope == StlScope.Half ? "half" : "whole")}.stl", StlExport.Build(source, name, 1, scope, StlExport.PrintMm));
+        }
+        yield return ("untitled-fine-whole.stl", StlExport.Build(Untitled(), "untitled-fine", 1, StlScope.Whole, StlExport.FineMm));
+    }
+
     private static string RepoFile(params string[] parts) => Path.Combine([PlacementTests.RepoRoot(), .. parts]);
 
     private static string ExampleText() => File.ReadAllText(RepoFile("src", "CfdWorkbench.Desktop", "Assets", "example.foil"));

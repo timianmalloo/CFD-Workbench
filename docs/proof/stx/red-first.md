@@ -53,6 +53,29 @@ The built dialog in the mockup's STL ready state (Example foil, open 0.26 mm tra
 the whole span" where the mockup reads "at the tip". The Example foil's open trailing edge is 0.25572873962800 mm at every station
 to 1e-15, so "where the minimum is" is rounding noise; the whole-span wording (EX45a) is the true statement.
 
+## Phase 3, B1 (open and measure in two slicers)
+
+Command: `python3 tools/check-slicer-open.py` (on demand, a release check, not in the fast ring). Outputs: `slicer-open.json` (every
+measurement), `slicer-run.txt` (the printed lines). Slicers: PrusaSlicer 2.9.4 and OrcaSlicer 2.3.2, both from `/Applications`, each
+through `--info` (size, facets, manifold, volume; repair counters only when it repaired something).
+
+| File (app's writer, Example foil unless noted) | Triangles | Both slicers: manifold, repair counters, size, volume |
+|---|---|---|
+| `example-open-whole.stl` (open 0.26 mm) | 18,418 | yes, none, size equal to the app, volume +0.00012 % (Prusa), +0.00013 % (Orca) |
+| `example-closed-whole.stl` | 18,296 | yes, none, size equal, volume +0.0003 % / +0.00029 % |
+| `example-open-half.stl` | 9,358 | yes, none, size equal, volume +0.00016 % / +0.00016 % |
+| `example-closed-half.stl` | 9,296 | yes, none, size equal, volume +0.00004 % / +0.00003 % |
+| `untitled-fine-whole.stl` (Untitled wing, Fine) | 513,596 | yes, none, size equal, volume -0.001 % / -0.001 % |
+
+Tolerances, fixed in the script and not options: size within 0.0001 mm (the slicer prints six decimals of a binary32 value, a step of
+0.00003 mm at 450 mm), volume within 0.1 %. The observed differences are 100 to 10,000 times inside them, so nothing was tuned.
+
+Negative control (the red of B1): the closed whole wing with its 101st triangle removed comes back from both slicers as
+`manifold = no` with `open_edges = 3`; the check fails a run in which a slicer calls it clean.
+
+Load time (B7 input, measured, not modelled): 0.84 s (PrusaSlicer) and 0.87 s (OrcaSlicer) for the 513,596-triangle file (25.7 MB); 0.04
+to 0.10 s for the Print-size files. The large-mesh line stays at 500,000 triangles.
+
 ### A defect the first green run found, not a mutant
 
 The first green run took 67 s for one check and was killed at nine minutes. Cause: `StlExport.Check` kept its directed edges in a

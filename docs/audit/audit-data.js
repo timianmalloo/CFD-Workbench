@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T15:03:45Z",
+  "generated": "2026-10-10T17:04:58Z",
   "audit": [
     {
       "actor": null,
@@ -34262,6 +34262,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T15:02:39Z",
       "duration_seconds": 66.0
+    },
+    {
+      "id": "al-01M4KCCS676VG63F58F4GNRTYC",
+      "shortname": "stx-stl-export",
+      "datetime": "2026-10-10T17:04:58Z",
+      "session": "trk-stx",
+      "prompt": "trk-stx: wing STL export, slice 2 (Core, Desktop, slicer B1)",
+      "summary": "All three phases landed: StlExport Core (weld by float32 bits, TE strip, tip and root caps, binary writer, bytes edge check), STL in the Export dialog with scope, presets, large-mesh and closure states, tools/check-slicer-open.py with both slicers clean and a negative control; class HASH-FOLD-A",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Build the wing STL: closed mesh Core with byte-level edge check, Desktop dialog and hard states, and the two-slicer open-and-measure check",
+      "done_when": "Core B2/B3/B4 green, Desktop STL dialog green with readiness, PrusaSlicer and OrcaSlicer report manifold with matching size and volume, gates and ring green",
+      "started_at": "2026-10-10T16:18:07Z",
+      "duration_seconds": 2811.0
     }
   ],
   "changes": [
