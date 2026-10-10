@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T20:43:54Z",
+  "generated": "2026-10-10T20:45:42Z",
   "audit": [
     {
       "actor": null,
@@ -34638,6 +34638,31 @@ window.AUDIT_DATA = {
       "done_when": "red-first receipts; run-tests green; Desktop readiness green; join checks green; check-docs exit 0",
       "started_at": "2026-10-10T20:30:24Z",
       "duration_seconds": 810.0
+    },
+    {
+      "id": "al-01M4KS0Y9M6GX579GS06G31BGD",
+      "shortname": "join-etc",
+      "datetime": "2026-10-10T20:45:42Z",
+      "session": "3122f106",
+      "prompt": "the join of feat/etc-export-telemetry into main",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-10T20:44:34Z",
+      "duration_seconds": 68.0
     }
   ],
   "changes": [
