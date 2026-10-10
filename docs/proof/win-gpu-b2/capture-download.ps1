@@ -24,7 +24,7 @@ if ($process.ExitCode -ne 0) { throw "package lock/download failed with exit $($
 $capacity = Get-Content -LiteralPath (Join-Path $proofRoot 'capacity-linux.json') -Raw | ConvertFrom-Json
 $drive = Get-PSDrive -Name 'C'
 $vhd = Get-Item -LiteralPath (Join-Path $installLocation 'ext4.vhdx')
-$host = [ordered]@{
+$hostCapacity = [ordered]@{
     schema = 'cfdw-cuda-host-capacity/1'
     session_id = $SessionId
     install_location = $installLocation
@@ -34,8 +34,8 @@ $host = [ordered]@{
     required_free_bytes = $capacity.required_free_bytes
     windows_gate_passed = $drive.Free -ge $capacity.required_free_bytes
 }
-if (-not $host.windows_gate_passed) { throw 'Windows backing volume capacity is insufficient' }
-$json = $host | ConvertTo-Json -Depth 5
+if (-not $hostCapacity.windows_gate_passed) { throw 'Windows backing volume capacity is insufficient' }
+$json = $hostCapacity | ConvertTo-Json -Depth 5
 [IO.File]::WriteAllText(
     (Join-Path $proofRoot 'capacity-host.json'),
     ($json -replace "`r`n", "`n") + "`n",
