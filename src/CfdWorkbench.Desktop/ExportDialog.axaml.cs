@@ -10,17 +10,22 @@ using CfdWorkbench.Core;
 namespace CfdWorkbench.Desktop;
 
 /// <summary>
-/// The Export dialog for the section .dat (docs/design/export.md 6.2). Thin: every number and sentence comes from the
-/// <see cref="ExportSession"/>. Only one format exists in this slice, so the format list has one row; STL and 3MF join it
-/// when their slices land. Export... opens the native save panel through <c>pick</c>; a failed write stays here.
+/// The Export dialog for the section .dat and the wing STL (docs/design/export.md 6.2). Thin: every number and sentence comes from the
+/// <see cref="ExportSession"/>. The format list has the formats that exist (3MF joins when its slice lands). Export... opens the
+/// native save panel through <c>pick</c>; a failed write stays here. The wing STL is built off the UI thread: <see cref="Preparation"/>
+/// completes when the summary has been redrawn from it.
 /// </summary>
 public partial class ExportDialog : Window
 {
     private readonly ExportSession session;
     private string? lastPath;
     private bool busy;
+    private CancellationTokenSource? writing;
 
     public ExportOutcome? Outcome { get; private set; }
+
+    /// <summary>The last mesh build and the redraw that follows it; already complete when nothing is being prepared.</summary>
+    public Task Preparation { get; private set; } = Task.CompletedTask;
 
     public ExportDialog(ExportSession session, Func<string, string?, Task<string?>>? pick = null, Action? jump = null, Control? returnFocus = null)
     {
@@ -29,6 +34,22 @@ public partial class ExportDialog : Window
         InitializeComponent();
         DatFormatItem.Content = ExportCopy.FormatDat;
         AutomationProperties.SetName(DatFormatItem, ExportCopy.FormatDat);
+        StlFormatItem.IsSelected = session.Format == ExportFormat.Stl;
+        DatFormatItem.IsSelected = session.Format == ExportFormat.Dat;
+        StlFormatItem.Content = ExportCopy.FormatStl;
+        AutomationProperties.SetName(StlFormatItem, ExportCopy.FormatStl);
+        ScopeLegend.Text = ExportCopy.ScopeLabel;
+        ScopeWhole.Content = ExportCopy.ScopeWhole;
+        ScopeHalf.Content = ExportCopy.ScopeHalf;
+        ScopeHelp.Text = ExportCopy.ScopeHalfHelp;
+        ToleranceLegend.Text = ExportCopy.ToleranceLabel;
+        ToleranceDraft.Content = ExportCopy.ToleranceDraft;
+        TolerancePrint.Content = ExportCopy.TolerancePrint;
+        ToleranceFine.Content = ExportCopy.ToleranceFine;
+        UnitLegend.Text = ExportCopy.UnitLabel;
+        UnitText.Text = "mm. " + ExportCopy.UnitFixed;
+        ClosureText.Text = ExportCopy.MeshNotClosed;
+        ClosureDetails.Text = ExportCopy.MeshNotClosedDetails;
         StepWhy.Text = ExportCopy.StepUnavailable;
         AutomationProperties.SetHelpText(StepButton, ExportCopy.StepUnavailable);
         ShapeLegend.Text = ExportCopy.ShapeLabel;
@@ -60,14 +81,30 @@ public partial class ExportDialog : Window
         OrderLednicer.IsCheckedChanged += (_, _) => { if (OrderLednicer.IsChecked == true) Change(order: DatOrder.Lednicer); };
         foreach (var (button, count) in new[] { (Points61, 61), (Points101, 101), (Points201, 201) })
             button.IsCheckedChanged += (_, _) => { if (button.IsChecked == true) Change(points: count); };
+        FormatList.SelectionChanged += (_, _) =>
+        {
+            var format = StlFormatItem.IsSelected ? ExportFormat.Stl : ExportFormat.Dat;
+            if (format != session.Format) Change(format: format);
+        };
+        ScopeWhole.IsCheckedChanged += (_, _) => { if (ScopeWhole.IsChecked == true) Change(scope: StlScope.Whole); };
+        ScopeHalf.IsCheckedChanged += (_, _) => { if (ScopeHalf.IsChecked == true) Change(scope: StlScope.Half); };
+        ToleranceDraft.IsCheckedChanged += (_, _) => { if (ToleranceDraft.IsChecked == true) Change(preset: StlPreset.Draft); };
+        TolerancePrint.IsCheckedChanged += (_, _) => { if (TolerancePrint.IsChecked == true) Change(preset: StlPreset.Print); };
+        ToleranceFine.IsCheckedChanged += (_, _) => { if (ToleranceFine.IsChecked == true) Change(preset: StlPreset.Fine); };
         JumpButton.Click += (_, _) => { jump?.Invoke(); Close(); };
-        CancelButton.Click += (_, _) => Close();
+        CancelButton.Click += (_, _) =>
+        {
+            if (writing is not null) writing.Cancel();
+            else Close();
+        };
         ExportButton.Click += async (_, _) => await ExportAsync(panel);
         AnotherPlaceButton.Click += async (_, _) => await ExportAsync(panel);
         TryAgainButton.Click += async (_, _) => await ExportAsync((_, _) => Task.FromResult(lastPath));
         AddHandler(KeyDownEvent, (_, args) =>
         {
-            if (args.Key != Key.Escape || busy) return;
+            if (args.Key != Key.Escape) return;
+            if (writing is not null) { args.Handled = true; writing.Cancel(); return; }
+            if (busy) return;
             args.Handled = true;
             Close();
         }, RoutingStrategies.Tunnel);
@@ -79,12 +116,15 @@ public partial class ExportDialog : Window
     /// <summary>The native save panel, owned by <paramref name="top"/> (the dialog, so a modal sheet is never hidden behind it). Null is Cancel.</summary>
     public static async Task<string?> PickWithPanelAsync(TopLevel top, string suggestedName, string? folder)
     {
+        bool stl = suggestedName.EndsWith(".stl", StringComparison.OrdinalIgnoreCase);
         var options = new Avalonia.Platform.Storage.FilePickerSaveOptions
         {
-            Title = "Export section .dat",
+            Title = stl ? "Export wing STL" : "Export section .dat",
             SuggestedFileName = suggestedName,
-            DefaultExtension = "dat",
-            FileTypeChoices = [new Avalonia.Platform.Storage.FilePickerFileType("Airfoil coordinates (.dat)") { Patterns = ["*.dat"] }]
+            DefaultExtension = stl ? "stl" : "dat",
+            FileTypeChoices = [stl
+                ? new Avalonia.Platform.Storage.FilePickerFileType("Wing mesh (.stl)") { Patterns = ["*.stl"] }
+                : new Avalonia.Platform.Storage.FilePickerFileType("Airfoil coordinates (.dat)") { Patterns = ["*.dat"] }]
         };
         if (folder is not null && Uri.TryCreate(folder, UriKind.Absolute, out var start)) options.SuggestedStartLocation = await top.StorageProvider.TryGetFolderFromPathAsync(start);
         var file = await top.StorageProvider.SaveFilePickerAsync(options);
@@ -92,10 +132,19 @@ public partial class ExportDialog : Window
         using (file) return file.Path.LocalPath;
     }
 
-    private void Change(DatShape? shape = null, DatOrder? order = null, int? points = null, int? station = null)
+    private void Change(DatShape? shape = null, DatOrder? order = null, int? points = null, int? station = null,
+        ExportFormat? format = null, StlScope? scope = null, StlPreset? preset = null)
     {
-        session.Set(shape, order, points, station);
+        session.Set(shape, order, points, station, format, scope, preset);
         Refresh();
+        if (session.Preparing) Preparation = PrepareAsync();
+    }
+
+    // The mesh is built off the UI thread; the summary shows its skeleton meanwhile (H10). A newer option drops this build, and its own call redraws.
+    private async Task PrepareAsync()
+    {
+        await session.PrepareAsync();
+        if (!session.Preparing) Refresh();
     }
 
     /// <summary>Redraws the summary, the findings and the buttons from the session. Reads only the session.</summary>
@@ -108,16 +157,26 @@ public partial class ExportDialog : Window
         SummaryBlock.IsVisible = !blocked;
         BlockedBand.IsVisible = blocked;
         BlockedText.Text = session.BlockedReason ?? "";
+        bool stl = session.Format == ExportFormat.Stl;
+        DatOptions.IsVisible = !stl;
+        StlOptions.IsVisible = stl;
+        ScopeHelp.IsVisible = stl && session.Scope == StlScope.Half;
         ShapeHelp.Text = session.ShapeHelp;
         FillSummary();
+        LimitLine.Text = session.Preparing ? ExportCopy.Preparing : session.LimitText;
         PreviewText.Text = string.Join("\n", session.PreviewLines);
         PreviewBorder.IsVisible = session.PreviewLines.Count > 0;
         var finding = session.Finding;
         FindingBand.IsVisible = finding is not null;
         FindingText.Text = finding?.Text ?? "";
         JumpButton.Content = finding?.Jump ?? "";
+        LargeText.Text = session.LargeMeshBand ?? "";
+        LargeBand.IsVisible = LargeText.Text.Length > 0;
+        ToleranceText.Text = session.ToleranceNotReachedBand ?? "";
+        ToleranceBand.IsVisible = ToleranceText.Text.Length > 0;
+        ClosureBand.IsVisible = session.ClosureFailed;
         ExportButton.IsEnabled = session.CanExport && !busy;
-        ExportButton.Content = blocked ? ExportCopy.Title : ExportCopy.ExportMenu;
+        ExportButton.Content = session.ButtonLabel;
     }
 
     private void FillSummary()
@@ -148,7 +207,22 @@ public partial class ExportDialog : Window
         ExportButton.IsEnabled = false;
         try
         {
-            var outcome = await session.RunAsync(async (name, folder) => lastPath = await picker(name, folder));
+            // A mesh over 100,000 triangles shows its progress and a Cancel that removes the temp file (H10); the .dat and small meshes write in a frame.
+            bool progress = session.Stl is { } mesh && session.Format == ExportFormat.Stl && mesh.Triangles > ExportSession.ProgressTriangles;
+            var outcome = await session.RunAsync(async (name, folder) => lastPath = await picker(name, folder), async (target, bytes) =>
+            {
+                using var cancel = new CancellationTokenSource();
+                writing = progress ? cancel : null;
+                if (progress)
+                {
+                    WritingText.Text = ExportCopy.Writing(session.Stl!.Triangles.ToString("N0", System.Globalization.CultureInfo.InvariantCulture), ExportSession.Megabytes(session.Stl.Triangles));
+                    WritingBand.IsVisible = true;
+                    Title = TitleText.Text = ExportCopy.WritingTitle;
+                    await Task.Yield();
+                }
+                try { await ExportSession.WriteAtomicAsync(target, bytes, cancel.Token); }
+                finally { writing = null; WritingBand.IsVisible = false; Title = TitleText.Text = ExportCopy.Title; }
+            });
             if (outcome.Kind == ExportOutcomeKind.Failed)
             {
                 FailureText.Text = outcome.Message;

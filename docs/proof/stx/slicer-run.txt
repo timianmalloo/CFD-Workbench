@@ -1,0 +1,13 @@
+PASS PrusaSlicer 2.9.4 example-open-whole.stl 18418 triangles, load 0.05 s
+PASS PrusaSlicer 2.9.4 example-closed-whole.stl 18296 triangles, load 0.05 s
+PASS PrusaSlicer 2.9.4 example-open-half.stl 9358 triangles, load 0.04 s
+PASS PrusaSlicer 2.9.4 example-closed-half.stl 9296 triangles, load 0.04 s
+PASS PrusaSlicer 2.9.4 untitled-fine-whole.stl 513596 triangles, load 0.72 s
+PASS PrusaSlicer 2.9.4 negative control (one triangle removed): the slicer flags it
+PASS OrcaSlicer 2.3.2 example-open-whole.stl 18418 triangles, load 0.07 s
+PASS OrcaSlicer 2.3.2 example-closed-whole.stl 18296 triangles, load 0.07 s
+PASS OrcaSlicer 2.3.2 example-open-half.stl 9358 triangles, load 0.06 s
+PASS OrcaSlicer 2.3.2 example-closed-half.stl 9296 triangles, load 0.06 s
+PASS OrcaSlicer 2.3.2 untitled-fine-whole.stl 513596 triangles, load 0.78 s
+PASS OrcaSlicer 2.3.2 negative control (one triangle removed): the slicer flags it
+wrote /Users/mallalieut/projects/CFD-Workbench-feat-stx-stl-export/docs/proof/stx/slicer-open.json

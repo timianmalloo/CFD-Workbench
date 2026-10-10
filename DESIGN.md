@@ -813,33 +813,48 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-476 | Export needs an open foil. — approved — Ruling 196 (EX03: the reason the Export rows give with no foil open) |
 | COPY-477 | Export — approved — Ruling 196 (EX04: dialog title) |
 | COPY-478 | Section (.dat) — approved — Ruling 196 (EX05: the format row) |
+| COPY-479 | Wing (STL) — approved — Ruling 196 (EX06: the STL format row) |
 | COPY-481 | STEP export unavailable until the open-and-measure fixture exists — approved — Ruling 196 (EX08: the disabled STEP row; the spec string) |
 | COPY-482 | Section shape · At station · Own — approved — Ruling 196 (EX09, EX09a, EX09b: the .dat shape option) |
 | COPY-483 | Station · At station: the section as the wing builds it here; its peak thickness is the station t/c, <tc> %. Own: the profile as authored, unscaled. Both are in chord units, with no twist. — approved — Ruling 196 (EX10a station label; EX10 help, <tc> in percent, one decimal) |
 | COPY-484 | File order · Selig · Lednicer — approved — Ruling 196 (EX11, EX11a, EX11b) |
 | COPY-485 | Points per surface — approved — Ruling 196 (EX12; the choices 61, 101, 201 are numbers) |
+| COPY-486 | Scope · Whole wing · Starboard half · Starboard half: one half wing with a flat root face, for bonding and as a datum. Cut it further, and add connectors, in your slicer. — approved — Ruling 196 (EX13, EX13a, EX13b; EX13c, the help line under the tolerance, shown only with Starboard half) |
+| COPY-487 | Tolerance · Draft 0.05 mm · Print 0.02 mm · Fine 0.005 mm — approved — Ruling 196 (EX14, EX14a, EX14b, EX14c: the wing STL presets; Print is the default) |
+| COPY-488 | Unit · Millimetres, unscaled. Fixed for print. — approved — Ruling 196 (EX15, EX15a: the locked unit row of the wing STL) |
 | COPY-489 | What will be written — approved — Ruling 196 (EX16: the summary heading) |
 | COPY-490 | Revision r<n>, accepted. · Exporting revision r<n>. Your open draft is not included. — approved — Ruling 196 (EX17, EX17a: the summary's revision line, with an open draft) |
 | COPY-491 | Analysis layers and results are not exported. — approved — Ruling 196 (EX18: the line in Analysis mode) |
+| COPY-492 | Preparing the mesh… — approved — Ruling 196 (EX19: the summary's loading line and the Export button while the mesh is built) |
+| COPY-493 | Exported <file> · <tris> triangles · <size> MB · mm · largest measured deviation <dev> mm — approved — Ruling 196 (EX20: the status strip after a wing STL is written; carries Show in Finder) |
 | COPY-494 | Exported <file> · <pts> points · x/c, y/c · chord <chord> mm · largest deviation <dev> mm — approved — Ruling 196 (EX21: the status strip after a .dat is written; carries Show in Finder) |
 | COPY-495 | Trailing edge <t> mm, below the floor of <f> mm (app default, no source) — approved — Ruling 196 (EX22: the advisory band, only below the floor; never blocks) |
-| COPY-496 | Show at <where> — approved — Ruling 196 (EX23: the band's jump for a located value; EX23a is reserved for the STL slice) |
+| COPY-496 | Show at <where> · Show the trailing-edge gap — approved — Ruling 196 (EX23: the band's jump for a located value; EX23a, the jump for a value that holds along the whole span, is "Show the trailing-edge gap") |
 | COPY-497 | This geometry has not been checked for strength, manufacturability or ride safety. No standard for hydrofoil-wing strength applies (RCD 2013/53/EU excludes hydrofoils and surfboards; ISO 25649 excludes rigid surf-sport devices). Test before use. — approved — Ruling 196 (EX24: the fixed safety line, every geometric format) |
-| COPY-498 | Largest deviation between the curve and the lines joining the points: <dev> mm at this chord, sampled at segment midpoints. — approved — Ruling 196 (EX25a: the .dat fidelity line; EX25, the STL line, joins this row with its slice) |
+| COPY-498 | Largest deviation between the curve and the lines joining the points: <dev> mm at this chord, sampled at segment midpoints. · Largest deviation from the computed surface: <dev> mm, sampled at cell midpoints. Not a bound. — approved — Ruling 196 (EX25a: the .dat fidelity line; EX25: the wing STL fidelity line) |
+| COPY-499 | Closed: every edge joins two triangles (checked). — approved — Ruling 196 (EX26: the wing STL's closure line, in the summary's limit lines) |
+| COPY-500 | Coordinates are rounded to 0.00003 mm. — approved — Ruling 196 (EX27: the wing STL's binary32 rounding line) |
 | COPY-501 | Computed by this app. No other CAD program has opened this file. — approved — Ruling 196 (EX28: the summary's limit line) |
+| COPY-502 | This mesh has <tris> triangles (<size> MB). Some slicers and CAD programs open it slowly. Choose Print for <tris2> triangles, or write it anyway. — approved — Ruling 196 (EX29: the large-mesh band, above 500,000 triangles) |
+| COPY-503 | Export anyway… — approved — Ruling 196 (EX30: the Export button in the large-mesh state) |
+| COPY-504 | The tolerance was not reached. The finest mesh has a largest measured deviation of <dev> mm, over the <tol> mm you chose. — approved — Ruling 196 (EX31: the band when even the finest mesh misses the preset) |
 | COPY-505 | Can't export yet — approved — Ruling 196 (EX32: the dialog title when the geometry check has not passed) |
 | COPY-506 | The shape is drawn, but its geometry check has not passed, so there is no accepted geometry to export. Open the Checks drawer, fix the finding, then export. — approved — Ruling 196 (EX33) |
 | COPY-507 | Can't write the file. <cause> Nothing was changed. The earlier file is still there. — approved — Ruling 196 (EX34: the in-dialog write failure; the cause is omitted when none of COPY-508 fits) |
 | COPY-508 | The disk is full. · You don't have permission to write to that folder. · The folder no longer exists. — approved — Ruling 196 (EX35a, EX35b, EX35c: the three causes) |
 | COPY-509 | Choose another place… · Try again — approved — Ruling 196 (EX36a, EX36b: the write-failure buttons) |
+| COPY-510 | The mesh did not close, so nothing was written. — approved — Ruling 196 (EX37: the in-dialog refusal when the edge check fails on the bytes as written) |
 | COPY-511 | Export cancelled. Nothing was written. — approved — Ruling 196 (EX38: the status strip after the save panel is cancelled) |
 | COPY-512 | Show in Finder (Windows: Show in Explorer) — approved — Ruling 196 (EX39: the status strip's action after a write) |
 | COPY-513 | Cancel — approved — Ruling 196 (EX40: the dialog's Cancel button) |
+| COPY-514 | Writing <tris> triangles (<size> MB)… — approved — Ruling 196 (EX41: the line while a mesh over 100,000 triangles is written) |
+| COPY-515 | Writing… — approved — Ruling 196 (EX42: the dialog title while it is written) |
+| COPY-516 | Technical details: the edge check found edges that are not shared by exactly two triangles. — approved — Ruling 196 (EX43: under the closure refusal) |
 | COPY-517 | Trailing edge — approved — Ruling 196 (EX44: the summary row label) |
-| COPY-518 | Least thickness <t> mm at <where>. Floor <f> mm (app default, no source). — approved — Ruling 196 (EX45: the trailing-edge row, located value; EX45a, the whole-span value, is reserved for the STL slice) |
+| COPY-518 | Least thickness <t> mm at <where>. Floor <f> mm (app default, no source). · <t> mm along the whole span. Floor <f> mm (app default, no source). — approved — Ruling 196 (EX45: the trailing-edge row, located value; EX45a: the whole-span value) |
 | COPY-519 | Manufacturing: not assessed (no process chosen) — approved — Ruling 196 (EX46: the second line of the trailing-edge row) |
 
-<!-- COPY-479 to COPY-519 are Ruling 196's COPY-EX ids; ids this slice does not use are reserved for the STL, 3MF and CLI slices: COPY-479 EX06, COPY-480 EX07, COPY-486 EX13, COPY-487 EX14, COPY-488 EX15, COPY-492 EX19, COPY-493 EX20, COPY-499 EX26, COPY-500 EX27, COPY-502 EX29, COPY-503 EX30, COPY-504 EX31, COPY-510 EX37, COPY-514 EX41, COPY-515 EX42, COPY-516 EX43. A reserved id takes no row until its slice lands; an id with a suffix (EX10a, EX23a, EX25a, EX45a) shares its numeric id's row. -->
+<!-- COPY-479 to COPY-519 are Ruling 196's COPY-EX ids; the only id still reserved is COPY-480 EX07 (the 3MF format row, with the 3MF slice). A reserved id takes no row until its slice lands; an id with a suffix (EX10a, EX13a, EX14a, EX23a, EX25a, EX45a) shares its numeric id's row. -->
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's

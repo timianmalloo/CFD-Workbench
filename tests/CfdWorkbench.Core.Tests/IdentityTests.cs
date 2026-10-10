@@ -29,6 +29,23 @@ internal static class IdentityTests
             Console.WriteLine("FAIL PARTITION " + error.Message);
             return 1;
         }
+        // tools/check-slicer-open.py (on demand, never spawned by run-tests.sh) asks this harness for the wing STL fixtures.
+        int fixtures = Array.IndexOf(args, "--write-stl-fixtures");
+        if (fixtures >= 0 && fixtures + 1 < args.Length)
+        {
+            string directory = args[fixtures + 1];
+            Directory.CreateDirectory(directory);
+            var rows = new List<string>();
+            foreach (var (file, result) in StlExportTests.Fixtures())
+            {
+                File.WriteAllBytes(Path.Combine(directory, file), result.Bytes);
+                string Number(double value) => value.ToString("R", System.Globalization.CultureInfo.InvariantCulture);
+                rows.Add($"  {{ \"file\": \"{file}\", \"triangles\": {result.Triangles}, \"bytes\": {result.Bytes.Length}, " +
+                    $"\"size_mm\": [{Number(result.SizeXMm)}, {Number(result.SizeYMm)}, {Number(result.SizeZMm)}], \"volume_mm3\": {Number(result.VolumeMm3)} }}");
+            }
+            File.WriteAllText(Path.Combine(directory, "expected.json"), "[\n" + string.Join(",\n", rows) + "\n]\n");
+            return 0;
+        }
         // Readiness tier (docs/design/m12b-points.md §12.3): never spawned by run-tests.sh, which
         // calls this harness with no arguments. PRE adds the switch; B0 fills PointModelTests.RunReadiness.
         if (args.Contains("--readiness"))
@@ -96,6 +113,7 @@ internal static class IdentityTests
         FairSessionTests.Run();
         DatImportTests.Run();
         DatExportTests.Run();
+        StlExportTests.Run();
         SectionReplaceTests.Run();
         ReopenConstructionTests.Run();
         ThicknessIntentTests.Run();

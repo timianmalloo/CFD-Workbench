@@ -36,16 +36,16 @@ public static class ExportTests
         DesktopChecks.Check("Export_Extension_ForcedToDat_NeverTheProjectFile", Extension);
         DesktopChecks.Check("Export_Draft_ReadsAcceptedRevisionAndSaysSo_H1", Draft);
         DesktopChecks.Check("Export_Analysis_AddsOneLine_ReadsTheSameRevision_H4", AnalysisLine);
-        DesktopChecks.Check("Export_Dialog_OneFormat_NoStlOr3mf_StepRowExplainsItself", DialogShape);
+        DesktopChecks.Check("Export_Dialog_DatAndStl_NoThreeMf_StepRowExplainsItself", DialogShape);
         DesktopChecks.Check("Export_Dialog_Keyboard_EnterExports_EscapeCancels_FocusOnExport", DialogKeys);
         DesktopChecks.Check("Export_Dialog_Failure_StaysOpenWithTwoWaysOut", DialogFailure);
         DesktopChecks.Check("Export_Dialog_JumpSelectsStationAndOpensItsSection_H3", Jump);
         DesktopChecks.Check("Export_Dialog_Renders_ReadyState_Screenshot", Screenshot);
     }
 
-    private static void Settle() { Dispatcher.UIThread.RunJobs(); }
+    internal static void Settle() { Dispatcher.UIThread.RunJobs(); }
 
-    private static T Wait<T>(Task<T> task)
+    internal static T Wait<T>(Task<T> task)
     {
         var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
         while (!task.IsCompleted)
@@ -57,7 +57,7 @@ public static class ExportTests
         return task.GetAwaiter().GetResult();
     }
 
-    private static void Wait(Task task)
+    internal static void Wait(Task task)
     {
         var deadline = DateTime.UtcNow + TimeSpan.FromSeconds(30);
         while (!task.IsCompleted)
@@ -69,24 +69,24 @@ public static class ExportTests
         task.GetAwaiter().GetResult();
     }
 
-    private static void Equal<T>(T expected, T actual, string what = "")
+    internal static void Equal<T>(T expected, T actual, string what = "")
     {
         if (!EqualityComparer<T>.Default.Equals(expected, actual)) throw new InvalidOperationException($"{what} expected {expected}; actual {actual}".TrimStart());
     }
 
-    private static void True(bool condition, string what)
+    internal static void True(bool condition, string what)
     {
         if (!condition) throw new InvalidOperationException(what);
     }
 
-    private static WorkbenchController OpenExample()
+    internal static WorkbenchController OpenExample()
     {
         var controller = new WorkbenchController();
         Wait(controller.OpenExampleAsync());
         return controller;
     }
 
-    private static ExportSession Session(WorkbenchController controller) => new(controller.ExportSnapshot()!);
+    internal static ExportSession Session(WorkbenchController controller) => new(controller.ExportSnapshot()!);
 
     private static string Registry() => File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "DESIGN.md"));
 
@@ -130,6 +130,17 @@ public static class ExportTests
             (498, ExportCopy.Fidelity(0).Replace("0.0000", "<dev>")),
             (507, ExportCopy.WriteFailed("<cause>")),
             (518, ExportCopy.TrailingEdge(0, "<where>", 0, "app default, no source").Replace("0.00 mm at", "<t> mm at").Replace("Floor 0.00 mm", "Floor <f> mm")),
+            // The wing STL slice (trk-stx).
+            (479, ExportCopy.FormatStl), (486, ExportCopy.ScopeLabel), (486, ExportCopy.ScopeWhole), (486, ExportCopy.ScopeHalf), (486, ExportCopy.ScopeHalfHelp),
+            (487, ExportCopy.ToleranceLabel), (487, ExportCopy.ToleranceDraft), (487, ExportCopy.TolerancePrint), (487, ExportCopy.ToleranceFine),
+            (488, ExportCopy.UnitLabel), (488, ExportCopy.UnitFixed), (492, ExportCopy.Preparing),
+            (493, ExportCopy.ExportedMesh("<file>", "<tris>", "<size>", 0).Replace("deviation 0.0000 mm", "deviation <dev> mm")),
+            (496, ExportCopy.ShowTrailingEdgeGap), (499, ExportCopy.ClosedCheck), (500, ExportCopy.Rounded),
+            (498, ExportCopy.FidelityMesh(0).Replace("0.0000", "<dev>")),
+            (502, ExportCopy.LargeMesh("<tris>", "<size>", "<tris2>")), (503, ExportCopy.ExportAnyway),
+            (504, ExportCopy.ToleranceNotReached(0, 0.02).Replace("0.0000", "<dev>").Replace("0.02", "<tol>")),
+            (510, ExportCopy.MeshNotClosed), (514, ExportCopy.Writing("<tris>", "<size>")), (515, ExportCopy.WritingTitle), (516, ExportCopy.MeshNotClosedDetails),
+            (518, ExportCopy.TrailingEdgeWholeSpan(0, 0, "app default, no source").Replace("0.00 mm along", "<t> mm along").Replace("Floor 0.00 mm", "Floor <f> mm")),
         ];
         foreach (var (id, text) in used)
         {
@@ -138,9 +149,9 @@ public static class ExportTests
             True(row.Contains(text, StringComparison.Ordinal), $"COPY-{id} does not hold: {text}");
         }
         // The reserved ids carry no row and no string: a later slice takes them.
-        foreach (int reserved in new[] { 479, 480, 486, 487, 488, 492, 493, 499, 500, 502, 503, 504, 510, 514, 515, 516 })
+        foreach (int reserved in new[] { 480 })
             True(!registry.Split('\n').Any(line => line.StartsWith($"| COPY-{reserved} |", StringComparison.Ordinal)), $"COPY-{reserved} is reserved for a later slice");
-        True(registry.Contains("COPY-479", StringComparison.Ordinal) && registry.Contains("reserved", StringComparison.OrdinalIgnoreCase), "the reserved ids are listed in a comment line");
+        True(registry.Contains("COPY-480 EX07", StringComparison.Ordinal) && registry.Contains("reserved", StringComparison.OrdinalIgnoreCase), "the reserved id is listed in a comment line");
     }
 
     private static void NoFoil()
@@ -186,9 +197,9 @@ public static class ExportTests
         Equal("Tip", controller.ExportSnapshot()!.Stations[1].Name);
     }
 
-    private static ExportSource WithSource(ExportSource source, string text) => source with { Source = Encoding.UTF8.GetBytes(text) };
+    internal static ExportSource WithSource(ExportSource source, string text) => source with { Source = Encoding.UTF8.GetBytes(text) };
 
-    private static string OpenTe(ExportSource source, double half) => Encoding.UTF8.GetString(source.Source)
+    internal static string OpenTe(ExportSource source, double half) => Encoding.UTF8.GetString(source.Source)
         .Replace("(0.9, 0.01), (1, 0)] ids", $"(0.9, 0.01), (1, {half.ToString("R", System.Globalization.CultureInfo.InvariantCulture)})] ids", StringComparison.Ordinal)
         .Replace("(0.9, -0.01), (1, 0)] ids", $"(0.9, -0.01), (1, {(-half).ToString("R", System.Globalization.CultureInfo.InvariantCulture)})] ids", StringComparison.Ordinal)
         .Replace("\"cv-6\", \"cv-7\"] }\n    }", "\"cv-6\", \"cv-7\"] }\n      closure open\n    }", StringComparison.Ordinal);
@@ -250,7 +261,7 @@ public static class ExportTests
         catch (ArgumentOutOfRangeException) { }
     }
 
-    private static string NewFolder() => TestTemp.NewDirectory("export-");
+    internal static string NewFolder() => TestTemp.NewDirectory("export-");
 
     private static void ShellWrites()
     {
@@ -481,7 +492,7 @@ public static class ExportTests
         return dialog;
     }
 
-    private static IEnumerable<string> Texts(Window window) => window.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text ?? "")
+    internal static IEnumerable<string> Texts(Window window) => window.GetVisualDescendants().OfType<TextBlock>().Select(text => text.Text ?? "")
         .Concat(window.GetVisualDescendants().OfType<ContentControl>().Select(item => item.Content as string ?? ""));
 
     private static void DialogShape()
@@ -491,11 +502,14 @@ public static class ExportTests
         try
         {
             var formats = dialog.GetVisualDescendants().OfType<ListBoxItem>().ToArray();
-            Equal(1, formats.Length);
+            Equal(2, formats.Length);
             Equal("Section (.dat)", formats[0].Content as string);
+            Equal("Wing (STL)", formats[1].Content as string);
             string all = string.Join("\n", Texts(dialog));
-            foreach (string absent in new[] { "STL", "3MF", "Wing", "Tolerance", "Starboard" })
-                True(!all.Contains(absent, StringComparison.Ordinal), $"'{absent}' is shown before its slice lands");
+            True(!all.Contains("3MF", StringComparison.Ordinal), "3MF is shown before its slice lands");
+            // The STL options are in the tree but not on screen while the .dat is chosen.
+            Equal(false, dialog.FindControl<StackPanel>("StlOptions")!.IsVisible);
+            Equal(true, dialog.FindControl<StackPanel>("DatOptions")!.IsVisible);
             var step = dialog.FindControl<Button>("StepButton")!;
             Equal(false, step.IsEnabled);
             Equal(ExportCopy.StepUnavailable, dialog.FindControl<TextBlock>("StepWhy")!.Text);
