@@ -19,7 +19,9 @@ $sources = [ordered]@{
 $records = @()
 foreach ($entry in $sources.GetEnumerator()) {
     $target = Join-Path $cache $entry.Key
-    Invoke-WebRequest -UseBasicParsing -Uri $entry.Value -OutFile $target
+    if (-not (Test-Path -LiteralPath $target) -or (Get-Item -LiteralPath $target).Length -eq 0) {
+        Invoke-WebRequest -UseBasicParsing -Uri $entry.Value -OutFile $target
+    }
     $records += [ordered]@{
         name = $entry.Key
         url = $entry.Value

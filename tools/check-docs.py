@@ -100,6 +100,8 @@ def run_lesson_controls():
         ("dispatch-gate.py", ("--self-test",)),
         ("check-wsl-inline.py", ("--self-test",)),  # WSL-INLINE-ARGV; fast ring, ~0.05 s + ~0.3 s
         ("check-wsl-inline.py", ()),
+        ("check-powershell-exit-code.py", ("--self-test",)),  # POWERSHELL-LASTEXITCODE-A; fast ring, 0.15 s + 0.22 s
+        ("check-powershell-exit-code.py", ()),
         ("../cases/tools/validate-cases.py", ("--self-test",)),
         ("../cases/tools/validate-cases.py", ()),
     ):

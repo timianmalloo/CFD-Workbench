@@ -1,0 +1,50 @@
+[
+    {
+        "name":  "ubuntu-noble-SHA256SUMS",
+        "url":  "https://cloud-images.ubuntu.com/wsl/releases/noble/current/SHA256SUMS",
+        "bytes":  642,
+        "sha256":  "337176fdeda3dbbf7bd36146894c03670d5ed8cffc2bd804f39d4c4ace0d424f"
+    },
+    {
+        "name":  "ubuntu-noble-SHA256SUMS.gpg",
+        "url":  "https://cloud-images.ubuntu.com/wsl/releases/noble/current/SHA256SUMS.gpg",
+        "bytes":  833,
+        "sha256":  "c0deb277ccda24b8fcc2d36bf9d9530c0aed7138f30375dc45b6539a6aa6799b"
+    },
+    {
+        "name":  "ubuntu-noble-wsl-amd64-wsl.manifest",
+        "url":  "https://cloud-images.ubuntu.com/wsl/releases/noble/current/ubuntu-noble-wsl-amd64-wsl.manifest",
+        "bytes":  16035,
+        "sha256":  "d3930f601ea875e3480c3383e4f5200572b749bf3a4340b81a95f14bb82ec7ea"
+    },
+    {
+        "name":  "ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz",
+        "url":  "https://cloud-images.ubuntu.com/wsl/releases/noble/current/ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz",
+        "bytes":  356739129,
+        "sha256":  "8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea"
+    },
+    {
+        "name":  "cuda-keyring_1.1-1_all.deb",
+        "url":  "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb",
+        "bytes":  4328,
+        "sha256":  "d2a6b11c096396d868758b86dab1823b25e14d70333f1dfa74da5ddaf6a06dba"
+    },
+    {
+        "name":  "cuda-ubuntu2404-InRelease",
+        "url":  "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/InRelease",
+        "bytes":  1578,
+        "sha256":  "096a0acc0482258d2090992d199e3aa8fcd875d2bd116e12af4bb794ec9dcfe7"
+    },
+    {
+        "name":  "cuda-ubuntu2404-Packages.gz",
+        "url":  "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/Packages.gz",
+        "bytes":  1911967,
+        "sha256":  "acffd961cf8eff6ba4dbc022a6ee7af619ae615c3b43f88ba7b83f64d089a552"
+    },
+    {
+        "name":  "cuda-eula.html",
+        "url":  "https://docs.nvidia.com/cuda/eula/index.html",
+        "bytes":  103131,
+        "sha256":  "dae4884999a096f1e61e976336344e95a3705eca1a87caf519c3f70b6d859a06"
+    }
+]

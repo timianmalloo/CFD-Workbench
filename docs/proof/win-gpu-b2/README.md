@@ -7,8 +7,7 @@ owner: "@pc-coordinator"
 phase: implementation
 tags: [proof, windows, wsl, cuda, gpu, ruling-200]
 links:
-  - { to: proof-win-gpu-b1, rel: depends-on }
-  - { to: proof-win-l3-observer, rel: observes }
+  - { to: proof-win-l3-observer, rel: depends-on }
 review-by: "2026-11-10"
 summary: >-
   Ruling 200 proof for an exact CUDA 13.2 install and managed-memory toy in a fresh disposable Ubuntu 24.04 WSL distro.

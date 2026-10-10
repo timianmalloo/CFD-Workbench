@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3c84f8ac2c82d3cf7bfa79421f4d673bc5702bc88be419ccdd3770be8f8f3e90"
+      "sourceSha256": "3aa0c35659fb194944685fc87d5db660974487d80f453c6b08e17dc42a8d8803"
     },
     {
       "id": "domain-experts",
@@ -17791,6 +17791,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "e8af73680f8f6f87c83e1364b378e15795bfe1a3c2eb5cf9a0c061cc7f77713d"
     },
     {
+      "id": "proof-win-gpu-b2",
+      "path": "docs/proof/win-gpu-b2/README.md",
+      "title": "Windows GPU B2 disposable CUDA proof",
+      "type": "proof-pack",
+      "status": "in-progress",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Ruling 200 proof for an exact CUDA 13.2 install and managed-memory toy in a fresh disposable Ubuntu 24.04 WSL distro.",
+      "tags": [
+        "proof",
+        "windows",
+        "wsl",
+        "cuda",
+        "gpu",
+        "ruling-200"
+      ],
+      "links": [
+        {
+          "to": "proof-win-l3-observer",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ecbb8166c14d109ca3cdcda06536004863c5a72046088f80904a552be224adbe"
+    },
+    {
       "id": "proof-win-gpu-g1",
       "path": "docs/proof/win-gpu-g1/receipt.md",
       "title": "Windows GPU G1 exact-source and toolchain inspection",
@@ -20270,6 +20298,13 @@ window.DOCS_INDEX = {
       "description": "Open an interactive knowledge artifact."
     },
     {
+      "id": "surface-proof-win-gpu-b2-source-cache-cuda-eula",
+      "path": "docs/proof/win-gpu-b2/.source-cache/cuda-eula.html",
+      "title": "1. License Agreement for NVIDIA Software Development Kits — EULA",
+      "kind": "knowledge-tool",
+      "description": "Open an interactive knowledge artifact."
+    },
+    {
       "id": "surface-proof-win-naca-sources-tmr-sa-withoutpv",
       "path": "docs/proof/win-naca/sources/tmr-sa-withoutpv.html",
       "title": "2D NACA 0012 Airfoil Validation for Turbulence Model Numerical Analysis - SA Model Results without Point Vortex BC",
@@ -20587,5 +20622,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "e2466624beb756f21dc5a6c0c34ad91027a4622857e0141e5cdb10947ca4c8fc"
+  "graphSha256": "38707726b16da2cc7fe1047bcb81e6796cb856d1cdacdbc38e8821b51dbaa859"
 };

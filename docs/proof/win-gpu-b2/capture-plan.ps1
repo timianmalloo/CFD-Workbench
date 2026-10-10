@@ -17,7 +17,6 @@ $installLocation = Join-Path $installParent $distro
 $rootfs = Join-Path $cache 'ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz'
 
 & (Join-Path $proofRoot 'download-sources.ps1')
-if ($LASTEXITCODE -notin @(0, $null)) { throw "source download failed with exit $LASTEXITCODE" }
 
 $verifyOut = Join-Path $proofRoot 'source-verify.stdout.txt'
 $verifyErr = Join-Path $proofRoot 'source-verify.stderr.txt'
