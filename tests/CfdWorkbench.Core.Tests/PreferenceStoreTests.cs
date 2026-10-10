@@ -30,8 +30,9 @@ internal static class PreferenceStoreTests
         Check("StoreContract_CancelBeforePublish_DocCancelled", CancelContract);
         Check("PrefStore_TextSize_Absent_Is100", TextSizeAbsent);
         Check("PrefStore_TextSize_RoundTrip", TextSizeRoundTrip);
-        Check("PrefStore_TextSize_OutOfSetOrGarbled_100_BytesUnchanged", TextSizeUnreadable);
-        Check("Rollback_TextSizeV2_BytesUnchanged", TextSizeFuture);
+        Check("PrefStore_TextSize_ValueError_ThatMemberDefaults_BytesUnchanged", () => TextSizeUnreadable(ValueErrors));
+        Check("PrefStore_TextSize_StructureError_WholeFileDefaults_BytesUnchanged", () => TextSizeUnreadable(StructureErrors));
+        Check("Rollback_TextSizeV2_NewerVersionIsStructureClass_BytesUnchanged", TextSizeFuture);
         Check("PrefStore_TextSize_PriorRoot_LayoutAndRecentUntouched", TextSizePriorRoot);
         Check("PrefStore_TextSize_SessionOnlyOrUnreadable_NeverWrites", TextSizeSessionOnly);
         Check("PrefStore_TextSize_FileSystemException_FailedNotThrown", TextSizeFileSystemException);
@@ -525,23 +526,30 @@ internal static class PreferenceStoreTests
         Equal("DISPLAY-SCHEMA", rejected.Code);
     }
 
-    private static void TextSizeUnreadable()
+    // Value class (Ruling 206 L4): the document is sound and one member is bad; that member alone reads its default.
+    private static readonly string[] ValueErrors =
+    [
+        """{"format":"cfdw-display","version":1,"textSize":175}""",
+        """{"format":"cfdw-display","version":1,"textSize":0}""",
+        """{"format":"cfdw-display","version":1,"textSize":150.0}""",
+        """{"format":"cfdw-display","version":1,"textSize":"150"}"""
+    ];
+
+    // Structure class (L2): the document cannot be trusted as a whole; every setting reads its default.
+    private static readonly string[] StructureErrors =
+    [
+        """{"format":"cfdw-display","version":1}""",
+        """{"format":"cfdw-display","version":1,"textSize":150,"textSize":200}""",
+        """{"format":"cfdw-display","version":1,"textSize":150,"theme":"dark"}""",
+        """{"format":"cfdw-layout","version":1,"textSize":150}""",
+        """{"format":"cfdw-display","version":0,"textSize":150}""",
+        "﻿{\"format\":\"cfdw-display\",\"version\":1,\"textSize\":150}",
+        """{"format":"cfdw-display","version":1,"textSize":15""",
+        "\u0001\u0002 not json"
+    ];
+
+    private static void TextSizeUnreadable(string[] images)
     {
-        string[] images =
-        [
-            """{"format":"cfdw-display","version":1,"textSize":175}""",
-            """{"format":"cfdw-display","version":1,"textSize":0}""",
-            """{"format":"cfdw-display","version":1,"textSize":150.0}""",
-            """{"format":"cfdw-display","version":1,"textSize":"150"}""",
-            """{"format":"cfdw-display","version":1}""",
-            """{"format":"cfdw-display","version":1,"textSize":150,"textSize":200}""",
-            """{"format":"cfdw-display","version":1,"textSize":150,"theme":"dark"}""",
-            """{"format":"cfdw-layout","version":1,"textSize":150}""",
-            """{"format":"cfdw-display","version":0,"textSize":150}""",
-            "﻿{\"format\":\"cfdw-display\",\"version\":1,\"textSize\":150}",
-            """{"format":"cfdw-display","version":1,"textSize":15""",
-            "\u0001\u0002 not json"
-        ];
         foreach (var text in images)
         {
             try
