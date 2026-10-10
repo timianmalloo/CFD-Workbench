@@ -17706,6 +17706,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "d467406caf7dd1aeabd8541e2f61202bae464bd4e19c78cff19d6f30af207868"
     },
     {
+      "id": "proof-win-gpu-b1-precheck1",
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/result.md",
+      "title": "B1 launcher precheck 1: bare setsid",
+      "type": "proof-pack",
+      "status": "complete",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Foreground teardown passed; bare setsid reproduced the early-launcher-exit blocker before attempt 3.",
+      "tags": [
+        "proof",
+        "windows",
+        "wsl",
+        "ruling-201"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-b1-r199",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "7e7627ae701c4e317d37bc5aa38b623327cd35fe02f4b6adc2d6ffdfb4614bed"
+    },
+    {
       "id": "proof-win-gpu-b1-r199",
       "path": "docs/proof/win-gpu-b1/README.md",
       "title": "Windows GPU B1 inventory and live L3 guard",
@@ -18509,7 +18535,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "7fed39e3363d8ff2ed75f93ef17e65c6b020dfafe48efb7bd9bfe62588c920e6"
+      "sourceSha256": "a4f84450197231b2d8b00685f93fb1096c4b1926b1b8f3d6cf48588c0ba1bc29"
     },
     {
       "id": "review-app-shell-native",
@@ -20521,5 +20547,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "f1e632bb0a4ec3c825fca294f96ebea18a229f1b5391ad16e510de1646e3c409"
+  "graphSha256": "69c84a156172373b9ec7742a927f39ca7ceba55961936750fa3847d3ae687194"
 };

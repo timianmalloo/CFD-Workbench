@@ -85,3 +85,9 @@ Ruling 201 authorized a cap-free launcher teardown precheck and attempt 3. The o
 attempts 3, 4, and 5 if needed. The attempt-2 artifacts are preserved under `attempt-2-setsid-fork/`. This blocked
 receipt remains the historical attempt-2 record until the continuation writes its measured result; B2 and F1 remain
 closed.
+
+The exact attempt-2 cmdline check subsequently found no residual process. Cap-free precheck 1 proved the foreground
+candidate's PID/PGID/SID and teardown result, while bare `setsid` exited before emitting identity or establishing its
+tagged sleep. That evidence is retained under `precheck-1-setsid-no-wait/`; it does not promote the precise fork and
+teardown cause beyond **Inferred**. The Astra owner approved a second cap-free precheck of the actual foreground and
+`setsid --wait` candidates.

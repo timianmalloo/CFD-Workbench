@@ -98,6 +98,16 @@
       "sha256": "f75659162b31a1057c76785a9fff3e0f44e8c220355e960083ded76fe8e667c9"
     },
     {
+      "path": "docs/proof/win-gpu-b1/attempt-2-setsid-fork/residual-check.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/attempt-2-setsid-fork/residual-check.stdout.txt",
+      "bytes": 72,
+      "sha256": "973bfea9477c631251652797c9075fb356a57bd2e9d712d2ccf5031a41d01923"
+    },
+    {
       "path": "docs/proof/win-gpu-b1/attempt-2-setsid-fork/samples-prefix.snapshot.jsonl",
       "bytes": 4078,
       "sha256": "8eee025939a9fcb1d3472c64d137ca8210855cfdf63c15aef0f60d655d744d6a"
@@ -134,8 +144,8 @@
     },
     {
       "path": "docs/proof/win-gpu-b1/capture.ps1",
-      "bytes": 19864,
-      "sha256": "b1a51e582314078ec78adc3f275a3fdf745e593d8b094eaa3cb6378a92ab6272"
+      "bytes": 19848,
+      "sha256": "85d053cb0ef4c389fc9c68d7005fa25f55a6c92d394c04c594c8a6c97f91dfcc"
     },
     {
       "path": "docs/proof/win-gpu-b1/guard-events.jsonl",
@@ -149,8 +159,8 @@
     },
     {
       "path": "docs/proof/win-gpu-b1/launcher-precheck.ps1",
-      "bytes": 6303,
-      "sha256": "20062ec99e52ec4fbf1f31a245829c994ff95b6cbcf3cb1efe843a2d07c1c7ce"
+      "bytes": 6325,
+      "sha256": "14aefaef0443e411235cb4c8e2966886fe458492b758230488d0ee258fe8829e"
     },
     {
       "path": "docs/proof/win-gpu-b1/launcher-precheck.sh",
@@ -193,14 +203,69 @@
       "sha256": "657b630ec544eac7b949cdfce0c540962c57d182134e5d5f48ace9c7c46a0400"
     },
     {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-foreground-before-stop-pgrep.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-foreground-before-stop-pgrep.stdout.txt",
+      "bytes": 76,
+      "sha256": "6f5db8bb62dded334efe236d2d6485c2feaa2c1d379618f5db7c7745f2c13718"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-foreground-pgrep.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-foreground-pgrep.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-foreground.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-foreground.stdout.txt",
+      "bytes": 253,
+      "sha256": "b41e9a16c480bdb1c1547c404dbf739cbf0afa526455c5a8665b96913ab8fc30"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-setsid-before-stop-pgrep.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-setsid-before-stop-pgrep.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-setsid.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/launcher-precheck-setsid.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-b1/precheck-1-setsid-no-wait/result.md",
+      "bytes": 1108,
+      "sha256": "7e7627ae701c4e317d37bc5aa38b623327cd35fe02f4b6adc2d6ffdfb4614bed"
+    },
+    {
       "path": "docs/proof/win-gpu-b1/prefix-binding.json",
       "bytes": 374,
       "sha256": "f75659162b31a1057c76785a9fff3e0f44e8c220355e960083ded76fe8e667c9"
     },
     {
       "path": "docs/proof/win-gpu-b1/receipt.md",
-      "bytes": 4996,
-      "sha256": "7fed39e3363d8ff2ed75f93ef17e65c6b020dfafe48efb7bd9bfe62588c920e6"
+      "bytes": 5493,
+      "sha256": "a4f84450197231b2d8b00685f93fb1096c4b1926b1b8f3d6cf48588c0ba1bc29"
     },
     {
       "path": "docs/proof/win-gpu-b1/residual-owned.sh",

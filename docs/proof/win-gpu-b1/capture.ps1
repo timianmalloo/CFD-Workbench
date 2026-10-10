@@ -214,9 +214,9 @@ try {
         $precheck.authority -ne 'Ruling 201' -or
         $precheck.selected_method -notin @('foreground', 'setsid-wait') -or
         -not $precheck.foreground.identity_observed -or
-        -not $precheck.setsid_without_wait.identity_observed -or
+        -not $precheck.setsid_wait.identity_observed -or
         -not $precheck.foreground.tagged_sleep_before_windows_launcher_stop.found -or
-        -not $precheck.setsid_without_wait.tagged_sleep_before_windows_launcher_stop.found) {
+        -not $precheck.setsid_wait.tagged_sleep_before_windows_launcher_stop.found) {
         throw 'Ruling 201 launcher precheck is incomplete or invalid'
     }
     $expectedMethod = if (-not $precheck.foreground.residual_after_windows_launcher_stop.found) { 'foreground' } else { 'setsid-wait' }

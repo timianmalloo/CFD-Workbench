@@ -66,7 +66,7 @@ function Invoke-Case([string]$Label, [bool]$UseSetsid) {
     $stdoutPath = Join-Path $proofRoot "launcher-precheck-$Label.stdout.txt"
     $stderrPath = Join-Path $proofRoot "launcher-precheck-$Label.stderr.txt"
     $arguments = @($common)
-    if ($UseSetsid) { $arguments += '/usr/bin/setsid' }
+    if ($UseSetsid) { $arguments += @('/usr/bin/setsid', '--wait') }
     $arguments += @('/bin/bash', $script, '--attempt-id', $attemptId)
     $process = Start-Process -FilePath 'wsl.exe' -ArgumentList $arguments `
         -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -PassThru -WindowStyle Hidden
@@ -109,8 +109,8 @@ function Invoke-Case([string]$Label, [bool]$UseSetsid) {
 }
 
 $foreground = Invoke-Case 'foreground' $false
-$setsid = Invoke-Case 'setsid' $true
-if (-not $foreground.identity_observed -or -not $setsid.identity_observed) {
+$setsidWait = Invoke-Case 'setsid-wait' $true
+if (-not $foreground.identity_observed -or -not $setsidWait.identity_observed) {
     throw 'precheck did not capture both process identities'
 }
 $selectedMethod = if (-not $foreground.residual_after_windows_launcher_stop.found) { 'foreground' } else { 'setsid-wait' }
@@ -122,7 +122,7 @@ $document = [ordered]@{
     selected_method = $selectedMethod
     selection_rule = 'foreground when stopping wsl.exe removes its tagged Linux child; otherwise setsid --wait'
     foreground = $foreground
-    setsid_without_wait = $setsid
+    setsid_wait = $setsidWait
 }
 [IO.File]::WriteAllText(
     $resultPath,
