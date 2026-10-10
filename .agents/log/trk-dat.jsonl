@@ -1,1 +1,2 @@
 {"agent": "trk-dat", "at": 1791591019.797371, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-dat", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feat-dat-export"}
+{"agent": "trk-dat", "at": 1791642122.873027, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-dat", "wi": "WI-0", "worktree": "CFD-Workbench-feat-dat-export"}
