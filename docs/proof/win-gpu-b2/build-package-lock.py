@@ -11,9 +11,19 @@ from pathlib import Path
 
 INST = re.compile(r"^Inst\s+(\S+)(?:\s+\[([^]]+)\])?\s+\((\S+)\s+")
 FORBIDDEN_DRIVER = re.compile(
-    r"^(cuda-drivers?|nvidia-(?:driver|dkms|kernel|headless|open)|linux-(?:modules|objects)-nvidia)"
+    r"^(?:cuda-drivers(?:$|-)|nvidia-(?:driver|dkms|kernel|headless|open)(?:$|-)|"
+    r"linux-(?:modules|objects)-nvidia(?:$|-))"
 )
 FORBIDDEN_SERIES = re.compile(r"(?:^|-)13-[34](?:$|-)")
+
+
+def self_test_exclusions() -> None:
+    allowed = ("cuda-driver-dev-13-2", "libcublas-13-2")
+    forbidden = ("cuda-drivers", "cuda-drivers-590", "nvidia-driver-590", "linux-modules-nvidia-590")
+    if any(FORBIDDEN_DRIVER.search(name) for name in allowed):
+        raise RuntimeError("driver exclusion rejects a planted toolkit development package")
+    if any(not FORBIDDEN_DRIVER.search(name) for name in forbidden):
+        raise RuntimeError("driver exclusion misses a planted Linux driver package")
 
 
 def paragraphs(text: str) -> list[dict[str, str]]:
@@ -68,6 +78,7 @@ def main() -> None:
     parser.add_argument("--json", type=Path, required=True)
     parser.add_argument("--args", type=Path, required=True)
     args = parser.parse_args()
+    self_test_exclusions()
 
     lines = args.simulation.read_text(encoding="utf-8").splitlines()
     if any(line.startswith("Remv ") for line in lines):

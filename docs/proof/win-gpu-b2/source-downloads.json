@@ -42,9 +42,9 @@
         "sha256":  "acffd961cf8eff6ba4dbc022a6ee7af619ae615c3b43f88ba7b83f64d089a552"
     },
     {
-        "name":  "cuda-eula.html",
-        "url":  "https://docs.nvidia.com/cuda/eula/index.html",
-        "bytes":  103131,
-        "sha256":  "dae4884999a096f1e61e976336344e95a3705eca1a87caf519c3f70b6d859a06"
+        "name":  "cuda-13.2.2-eula.html",
+        "url":  "https://docs.nvidia.com/cuda/archive/13.2.2/eula/index.html",
+        "bytes":  102279,
+        "sha256":  "cd9b310dd9bc42fcd876bac37635c96b16c6c50eec6ffc2ad8feab0da81b012d"
     }
 ]
