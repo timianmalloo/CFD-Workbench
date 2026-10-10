@@ -10633,6 +10633,48 @@ window.DOCS_INDEX = {
       "sourceSha256": "6bf6faeb5edc5bcf6cbfb66014bf1eac12b194fa794531bd961c4ea868c683e7"
     },
     {
+      "id": "plan-win-openfoam-gpu-qualification",
+      "path": "docs/plans/windows-openfoam-gpu-qualification.md",
+      "title": "Windows OpenFOAM GPU qualification plan after Ruling 191 inventory",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@win-gpu-qualification",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Gated plan for an isolated OpenFOAM v2512 GPU capability spike and paired measurement. Fable review, an authorized L3 telemetry handoff and separate install/build authorization are mandatory predecessors.",
+      "tags": [
+        "windows",
+        "wsl",
+        "openfoam",
+        "gpu",
+        "nvidia",
+        "ruling-191"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-qualification",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "implements"
+        },
+        {
+          "to": "review-pr-28",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph",
+          "mermaid": "flowchart LR\n    G0[\"G0 read-only inventory\\ncomplete\"] --> F0{\"F0 Fable accepts plan\\nand observation boundary\"}\n    F0 --> G1[\"G1 exact source/toolchain spike\"]\n    G1 --> F1{\"F1 Fable install/build/capability-run authorization\"}\n    F1 --> G2[\"G2 isolated environment and bounded build\"]\n    G2 --> F2{\"F2 capability proof\"}\n    F2 --> G3[\"G3 one warm-up + three paired trials\"]\n    G3 --> G4[\"G4 equivalence, speed and impact verdict\"]"
+        }
+      ],
+      "sourceSha256": "bd685eba1fe202d31c9e1c75a3c4c6f1a489060c177eafe46dd774bf1cf88326"
+    },
+    {
       "id": "privacy-review",
       "path": "docs/security/privacy-review.md",
       "title": "Offline application privacy review",
@@ -17119,6 +17161,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "d467406caf7dd1aeabd8541e2f61202bae464bd4e19c78cff19d6f30af207868"
     },
     {
+      "id": "proof-win-gpu-qualification",
+      "path": "docs/proof/win-gpu-qualification/receipt.md",
+      "title": "Windows OpenFOAM GPU qualification: read-only Ruling 191 inventory",
+      "type": "proof-pack",
+      "status": "in-progress",
+      "owner": "@win-gpu-qualification",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Ruling 191 read-only inventory: Windows and WSL see the RTX 3080 Ti, but the installed OpenFOAM v2512 runtime has no demonstrated GPU execution route. Installation, build and trial authorization remain closed pending Fable review.",
+      "tags": [
+        "windows",
+        "wsl",
+        "openfoam",
+        "gpu",
+        "nvidia",
+        "ruling-191"
+      ],
+      "links": [
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "implements"
+        },
+        {
+          "to": "review-pr-28",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-win-openfoam-gpu-qualification",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "c8375c6764c3523b24526e823603de5dd063cc3050ed9c176f2e04294a6e5ac8"
+    },
+    {
       "id": "proof-win-naca",
       "path": "docs/proof/win-naca/receipt.md",
       "title": "Windows W-4a/b NACA 0012 evidence and unlaunched L3 preparation",
@@ -19674,5 +19752,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "248d0f93446b32e1fd74a0bd265d1e539020ee8ecab27e82510e03d09a66092c"
+  "graphSha256": "ebcfddde9aaded4dfa148aa4a536993b0d5d116f96536a6205a4b1d1221bcb38"
 };

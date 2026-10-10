@@ -1,0 +1,83 @@
+﻿{
+    "schema":  "cfdw-read-only-capture/1",
+    "authority":  "Ruling 191",
+    "scope":  "GPU, WSL, installed compute stack and OpenFOAM metadata only; active L3 paths, units, processes and files excluded",
+    "wrapper":  "capture.ps1",
+    "wrapper_sha256_before_execution":  "fdbb59d0658fd1074e4761742b90e57ae7f1ca9096fb1a6e47f619c0068a0bcc",
+    "records":  [
+                    {
+                        "name":  "host-gpu",
+                        "file":  "nvidia-smi.exe",
+                        "argv":  [
+                                     "--query-gpu=name,driver_version,memory.total,compute_cap",
+                                     "--format=csv,noheader"
+                                 ],
+                        "cwd":  "C:\\Projects\\CFD-Workbench-win-gpu-qualification-plan",
+                        "started_utc":  "2026-10-10T00:13:37.9769477+00:00",
+                        "ended_utc":  "2026-10-10T00:13:38.0838434+00:00",
+                        "elapsed_ms":  99,
+                        "timeout_seconds":  15,
+                        "timed_out":  false,
+                        "exit_code":  0,
+                        "stdout":  "host-gpu.stdout.txt",
+                        "stderr":  "host-gpu.stderr.txt",
+                        "capture_encoding":  "Start-Process redirected text; exact child byte encoding not independently established"
+                    },
+                    {
+                        "name":  "wsl-version",
+                        "file":  "wsl.exe",
+                        "argv":  [
+                                     "--version"
+                                 ],
+                        "cwd":  "C:\\Projects\\CFD-Workbench-win-gpu-qualification-plan",
+                        "started_utc":  "2026-10-10T00:13:38.1008103+00:00",
+                        "ended_utc":  "2026-10-10T00:13:38.1566746+00:00",
+                        "elapsed_ms":  56,
+                        "timeout_seconds":  15,
+                        "timed_out":  false,
+                        "exit_code":  0,
+                        "stdout":  "wsl-version.stdout.txt",
+                        "stderr":  "wsl-version.stderr.txt",
+                        "capture_encoding":  "Start-Process redirected text; exact child byte encoding not independently established"
+                    },
+                    {
+                        "name":  "wsl-list",
+                        "file":  "wsl.exe",
+                        "argv":  [
+                                     "--list",
+                                     "--verbose"
+                                 ],
+                        "cwd":  "C:\\Projects\\CFD-Workbench-win-gpu-qualification-plan",
+                        "started_utc":  "2026-10-10T00:13:38.1592671+00:00",
+                        "ended_utc":  "2026-10-10T00:13:38.2266729+00:00",
+                        "elapsed_ms":  65,
+                        "timeout_seconds":  15,
+                        "timed_out":  false,
+                        "exit_code":  0,
+                        "stdout":  "wsl-list.stdout.txt",
+                        "stderr":  "wsl-list.stderr.txt",
+                        "capture_encoding":  "Start-Process redirected text; exact child byte encoding not independently established"
+                    },
+                    {
+                        "name":  "wsl-inventory",
+                        "file":  "wsl.exe",
+                        "argv":  [
+                                     "--distribution",
+                                     "cfdw-openfoam2512",
+                                     "--",
+                                     "bash",
+                                     "/mnt/c/Projects/CFD-Workbench-win-gpu-qualification-plan/docs/proof/win-gpu-qualification/inspect-wsl.sh"
+                                 ],
+                        "cwd":  "C:\\Projects\\CFD-Workbench-win-gpu-qualification-plan",
+                        "started_utc":  "2026-10-10T00:13:38.2281937+00:00",
+                        "ended_utc":  "2026-10-10T00:13:42.0236301+00:00",
+                        "elapsed_ms":  3796,
+                        "timeout_seconds":  30,
+                        "timed_out":  false,
+                        "exit_code":  0,
+                        "stdout":  "wsl-inventory.stdout.txt",
+                        "stderr":  "wsl-inventory.stderr.txt",
+                        "capture_encoding":  "Start-Process redirected text; exact child byte encoding not independently established"
+                    }
+                ]
+}
