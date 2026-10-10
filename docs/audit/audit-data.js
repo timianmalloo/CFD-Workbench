@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T15:00:25Z",
+  "generated": "2026-10-10T15:02:11Z",
   "audit": [
     {
       "actor": null,
@@ -34184,6 +34184,35 @@ window.AUDIT_DATA = {
       "done_when": "held-seam red then green, 20-run loop, gates green",
       "started_at": "2026-10-10T14:48:26Z",
       "duration_seconds": 719.0
+    },
+    {
+      "id": "al-01M4K5BYZJ58RSF8FDTJT01GTC",
+      "shortname": "join-rfx",
+      "datetime": "2026-10-10T15:02:11Z",
+      "session": "3122f106",
+      "prompt": "the join of fix/rfx-refit-flash into main",
+      "summary": "Joined RFX: CombPlate cancels a pending flash timer when the emphasis ends; held-seam red-first check; 20/20 under load recount_seconds=0 (docs_only=False).",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/rfx/red-first.md"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "the refit-flash flake is fixed at its product cause",
+      "done_when": "join gates and ring green",
+      "tier": "T1",
+      "fan_out": 0,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true
+      },
+      "started_at": "2026-10-10T15:01:07Z",
+      "duration_seconds": 64.0
     }
   ],
   "changes": [
