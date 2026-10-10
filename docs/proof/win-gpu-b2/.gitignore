@@ -1,0 +1,4 @@
+.source-cache/
+download-cache/
+*.tmp
+__pycache__/
