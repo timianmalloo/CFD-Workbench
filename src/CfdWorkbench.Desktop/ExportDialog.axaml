@@ -1,6 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="CfdWorkbench.Desktop.ExportDialog" Title="Export"
-        Width="760" SizeToContent="Height" CanResize="False"
+        Width="{StaticResource ExportDialogWidth}" SizeToContent="Height" CanResize="False"
         Background="{DynamicResource SurfaceBrush}" Foreground="{DynamicResource InkBrush}">
   <Window.Styles>
     <!-- The dialog's one primary action: the accent fill the mockup draws, in the same tokens the mode bar's primary uses. -->
