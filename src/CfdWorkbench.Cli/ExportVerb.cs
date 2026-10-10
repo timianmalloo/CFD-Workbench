@@ -134,7 +134,7 @@ internal static class ExportVerb
     }
 
     // The same source the dialog reads (WorkbenchController.ExportSnapshot): the accepted revision, its stations, their names.
-    private static ExportSource Snapshot(AuthoringSession session)
+    internal static ExportSource Snapshot(AuthoringSession session)
     {
         var inspection = session.InspectAccepted();
         var view = session.Snapshot();
@@ -191,12 +191,6 @@ internal static class ExportVerb
             await output.WriteLineAsync($"Error EXPORT-WOULD-REPLACE: {path} exists and was not the name you gave, so it was not replaced. Nothing was written.");
             return ExitWouldReplace;
         }
-        if ((File.Exists(chosen) || Directory.Exists(chosen)) && (File.GetAttributes(chosen) & FileAttributes.ReparsePoint) != 0)
-        {
-            session.Refused("EXPORT-TARGET-LINK");
-            await output.WriteLineAsync("Error EXPORT-TARGET-LINK: the target is a symbolic link. Nothing was written.");
-            return ExitTargetLink;
-        }
         await output.WriteAsync(Summary(session));
         var outcome = await session.RunAsync((_, _) => Task.FromResult<string?>(chosen), cancellation: cancellation);
         switch (outcome.Kind)
@@ -205,6 +199,9 @@ internal static class ExportVerb
                 await output.WriteLineAsync(outcome.Message);
                 await output.WriteLineAsync("Path: " + Path.GetFullPath(outcome.Path!));
                 return 0;
+            case ExportOutcomeKind.Failed when outcome.Code == "EXPORT-TARGET-LINK":
+                await output.WriteLineAsync("Error EXPORT-TARGET-LINK: the target is a symbolic link. Nothing was written.");
+                return ExitTargetLink;
             case ExportOutcomeKind.Cancelled:
                 await output.WriteLineAsync("Error DOC-CANCELLED: " + outcome.Message);
                 return 130;
