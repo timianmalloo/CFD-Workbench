@@ -439,9 +439,9 @@ Reproduce: a scratch console project referencing `src/CfdWorkbench.Core`, run wi
 (`src/CfdWorkbench.Desktop/Assets/example.foil`) or `default`, the open-TE half-thickness (0.001 or 0.0014, 0 for closed)
 and, for the .dat probe, the station eta (0 or 1).
 
-## Proposed (awaiting operator): Export writer path policy
+## Approved (Ruling 198, operator 2026-10-10): Export writer path policy
 
-Marked proposed. The spec body is not edited; the operator owns the spec. Raised by the security review of the .dat slice (spec `:1301`, `:1353`, the "Export writer" row; test names "`../` path; symlink target"). The build already behaves this way (`ExportSession.WriteAtomicAsync`).
+Approved by the operator (Ruling 198) and applied to the spec body (rows :1353 and :1356). Raised by the security review of the .dat slice (spec `:1301`, `:1353`, the "Export writer" row; test names "`../` path; symlink target"). The build already behaves this way (`ExportSession.WriteAtomicAsync`).
 
 > For an export, the directory is the one chosen in the native save panel and is followed as chosen; the app builds no path component; a symlink at the target is refused; the temp file is created exclusive with a random name in that directory; publish is by rename.
 >

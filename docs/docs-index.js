@@ -2701,7 +2701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db1e00833838483e7e7c109277081b1328b2d800144aeed62c381e0b338f20e0"
+      "sourceSha256": "7ebed691e2e7fa147e71ea9dee831d3aa3ce77705e787d6f15cd728297a30a3b"
     },
     {
       "id": "design-foildsl-authoring",
@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "22f04f673549725dd279b295b75b865f30555f9ea98627a9d6f465d969ee6a76"
+      "sourceSha256": "ef1dfb7912eee3446af43dde2ace86ef78b0989ae36349e796c1d83993cdf872"
     },
     {
       "id": "domain-experts",
@@ -8602,7 +8602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "0e6028be41009b5f23d1081c048421bac427019439be0f64ad70540da2bc8ce2"
+      "sourceSha256": "3b44119065d68defb0f1b022321215c634338bdb8e3faa62a67185d10d57bd47"
     },
     {
       "id": "kb-hw-glossary",
@@ -13324,6 +13324,68 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "6fc8d736919d6e164dd704d9d7ffadc013b0872f5fceeec02b7bb27922c03e0a"
+    },
+    {
+      "id": "proof-dat",
+      "path": "docs/proof/dat/README.md",
+      "title": "Export slice 1 (section .dat) exit evidence and the presentation choice",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-dat",
+      "phase": "implementation",
+      "reviewBy": "2026-12-09",
+      "reviewSuggested": [],
+      "summary": "What the .dat slice shows in its first dialog and why (one format row, no disabled STL or 3MF), the committed .dat fixture and its round trip through the existing Import .dat path, the dialog screenshot against the mockup's .dat ready state, and the measured test cost.",
+      "tags": [
+        "export",
+        "dat",
+        "proof",
+        "fidelity",
+        "te-floor"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-dat-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "840885fc882c80dc8dac5f314df02195824105d60beae0ba8e1b35c59cc53fa8"
+    },
+    {
+      "id": "proof-dat-red-first",
+      "path": "docs/proof/dat/red-first.md",
+      "title": "Export slice 1 (section .dat) red-first runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-dat",
+      "phase": "implementation",
+      "reviewBy": "2026-12-09",
+      "reviewSuggested": [],
+      "summary": "For each behaviour of the section .dat slice, the check that failed on the code before the behaviour and the run that passed after it: positional digits (B5), the name-line rule (B6), At station and Own (B9), the TE floor label and the unchanged analysis hash (B10), and the Desktop surface. Base main affddb89, track trk-dat, 2026-10-09.",
+      "tags": [
+        "export",
+        "dat",
+        "te-floor",
+        "red-first",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-amendments-1-7-6",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "23933d3927ec249c9ce90551b39a6dce7c72781cec6162a9c978495009f52ebc"
     },
     {
       "id": "proof-doc-oct06",
@@ -19010,6 +19072,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "f86ae43d2dafa586c8a3f8bea110c9ee530e964da91f5944e1aed37eb4d6ebe3"
     },
     {
+      "id": "spec-amendments-1-7-6",
+      "path": "docs/specs/amendments/spec-1.7.6.md",
+      "title": "Spec 1.7.6 amendment batch — Export (EXP-02, EXP-03, the format table, F5, the TE-floor label), A1 to A14, as exact text",
+      "type": "spec",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Fourteen amendments to cfd-workbench-v1, traced to Rulings 193 to 196 and to section 14 of the Export design. The operator approved the batch as one in Ruling 196. Revision 1.7.6 of the spec carries it; the change record is Appendix H, section H.6.",
+      "tags": [
+        "spec",
+        "amendments",
+        "rulings",
+        "export",
+        "dat",
+        "te-floor"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-5",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ad1066ed2e1ac5227e88bde94d3d3c7d793412b565e1cc3d7b8b27fae60e0a76"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -19288,7 +19390,7 @@ window.DOCS_INDEX = {
         {
           "kind": "flowchart",
           "title": "B6. Flow F5 — export and optional assistance (EXP-01–03, AI-01–06)",
-          "mermaid": "flowchart TD\nX[Current design: Export, no AI required] --> L[Choose format, unit and tolerance]\nL --> M{Geometry and format checks pass?}\nM -->|No| N[Explain; TE floor finding; return to geometry]\nM -->|STEP without CAM fixture| P[Unavailable: open-and-measure proof pending]\nM -->|Yes| O{Write}\nO -->|Success| S[Export with revision, deviation and safety string]\nO -->|Denied or disk full| T[Preserve existing file; choose path or retry]\nT --> L\nA[Assistant entry point] --> B{Key and consent?}\nB -->|No| C[Disabled with Configure key; manual path remains]\nB -->|Yes| B2{Model evaluated?}\nB2 -->|No| C2[Unevaluated on this model; proposals disabled; explanations labelled]\nB2 -->|Yes| B3{Within caps?}\nB3 -->|No| C3[Cap exceeded: per-request or daily; raise in Settings or wait]\nB3 -->|Yes| D[Inspect redacted payload; submit]\nD --> D2{Transport}\nD2 -->|401, timeout or quota| C4[Named error; retry; manual path remains]\nD2 -->|Response| E{Response valid?}\nE -->|Schema or domain failure| F[Show rejected fields with bounds; dismiss]\nE -->|Proposal| G[Labelled fields, preview, diff]\nG -->|Accept and base unchanged| H[One Design revision]\nG -->|Base changed| I[Refresh preview]\nI --> G\nG -->|Discard| J[Document unchanged]\nE -->|Explanation| K{Every numeral in shared context?}\nK -->|Yes| K2[Citations to run or knowledge id]\nK -->|No| K3[Withheld with the reason]"
+          "mermaid": "flowchart TD\nX[Current design: Export, no AI required] --> L[Choose format and tolerance; the unit is fixed at millimetres for STL and 3MF]\nL --> M{Geometry and format checks pass?}\nM -->|No| N[Explain; return to geometry]\nM -->|STEP without CAM fixture| P[Unavailable: open-and-measure proof pending]\nM -->|Yes| O{Write}\nO -->|Success| S[Export with revision, deviation, safety string and the TE-floor advisory]\nO -->|Denied or disk full| T[Preserve existing file; choose path or retry]\nT --> L\nA[Assistant entry point] --> B{Key and consent?}\nB -->|No| C[Disabled with Configure key; manual path remains]\nB -->|Yes| B2{Model evaluated?}\nB2 -->|No| C2[Unevaluated on this model; proposals disabled; explanations labelled]\nB2 -->|Yes| B3{Within caps?}\nB3 -->|No| C3[Cap exceeded: per-request or daily; raise in Settings or wait]\nB3 -->|Yes| D[Inspect redacted payload; submit]\nD --> D2{Transport}\nD2 -->|401, timeout or quota| C4[Named error; retry; manual path remains]\nD2 -->|Response| E{Response valid?}\nE -->|Schema or domain failure| F[Show rejected fields with bounds; dismiss]\nE -->|Proposal| G[Labelled fields, preview, diff]\nG -->|Accept and base unchanged| H[One Design revision]\nG -->|Base changed| I[Refresh preview]\nI --> G\nG -->|Discard| J[Document unchanged]\nE -->|Explanation| K{Every numeral in shared context?}\nK -->|Yes| K2[Citations to run or knowledge id]\nK -->|No| K3[Withheld with the reason]"
         },
         {
           "kind": "flowchart",
@@ -19326,7 +19428,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "089d17363f4285a32add7c197d86fc21a671625ad2f8a2cb96f4b59a8bcbe157"
+      "sourceSha256": "fa2982cc7f183c2787a65d2852133485ff8e4e29a277016a0858df6c4769e90b"
     },
     {
       "id": "spec-foildsl",
@@ -19780,5 +19882,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "b88254f449b46ae8bd01c8fa1618e67ff439a3c05d5ea085dab9db1e728ad397"
+  "graphSha256": "d41aa6a3f20503671f32f1b905f32639672afc3d3e8374f4748bd9479b48e2df"
 };

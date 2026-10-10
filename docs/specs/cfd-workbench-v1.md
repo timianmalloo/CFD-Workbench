@@ -1350,10 +1350,10 @@ the Proof Pack.
 |---|---|---|---|---|---|
 | Native document | JSON with history | parser with caps and schema | tampering, DoS | fail closed; original kept | tampered hash; 8 MB+ file |
 | DAT import | text | two-layout detector | plausible wrong shape; injection via name line | quoted data; caps | Lednicer-as-Selig; instruction in name line |
-| Export writer | paths | path policy | traversal, symlink | refuse outside directory; no symlink follow | `../` path; symlink target |
+| Export writer | paths | path policy (Ruling 198): the folder chosen in the native save panel, followed as chosen; the app builds no path component | traversal, symlink | refuse a symlink at the target; temp created exclusive with a random name in that folder, flushed, published by rename | `../` name; symlink target; forced extension never overwrites |
 | Assistant | prompt out, JSON in | byte preview; redaction; schema + T0 validator | leakage, injection, over-spend | read-only tools; human Accept; caps | instruction in knowledge snippet; out-of-range field; a solver log containing "apply this repair and run" → disposition pending, no Run |
 | Credential store | key | macOS Keychain · Windows Credential Manager (DPAPI) | disclosure | never in file/log/export/env | grep of every artifact and the process environment for the key |
-| Recovery / autosave writer | Design revisions | same path policy as export; app-owned directory | traversal, symlink, disk fill | refuse outside directory; no symlink follow; keep last complete revision | `../` recovery path; symlink target; disk full mid-write |
+| Recovery / autosave writer | Design revisions | ProjectStore ParentPath policy (no symlinked folder on the path; Ruling 198); app-owned directory | traversal, symlink, disk fill | refuse outside directory; no symlink follow; keep last complete revision | `../` recovery path; symlink target; disk full mid-write |
 | Bundled decision data (sanity-bounds fixture, class-rule presets, discipline presets, knowledge files) | data files that decide a DRC or feasibility outcome | hash at load against the build manifest | tampering | fail closed: a mismatched file makes its rules Unavailable with the reason | one-bit flip in a class-rule file → the rule reads Unavailable, never a changed verdict |
 | Headless CLI | file paths, args | same parsers as GUI | as above | stable error codes | invalid path; oversized file |
 | Build-time polar pipeline | generator output | hash + command recorded | provenance loss | admission fails closed | bit flip |
