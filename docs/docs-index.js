@@ -2208,7 +2208,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "b5f2874d14d6c4f2b40c994203f7cc5a5bbaf4e08ffb4005e129b4bc9064fd14"
+      "sourceSha256": "22bf1f041a84314bd866095a373d88edd655dfab08df073a00a61ffd89362d4b"
     },
     {
       "id": "design-application-contracts",
@@ -3549,7 +3549,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e003645a37f55bdf47a163ddd3de4bcf9b3d981418dc33d787665df36ae4b4b7"
+      "sourceSha256": "836dd9e9c4b91903a50da245d91c23aba980eeea108ad8e6d9e81d199b9e94e3"
     },
     {
       "id": "design-section-editor",
@@ -3610,6 +3610,48 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "1ead8948b387530146f2d8e8a522823c8d2213d4ed2228ccd1f361ef41a94c1e"
+    },
+    {
+      "id": "design-view-preferences",
+      "path": "docs/design/view-preferences.md",
+      "title": "View preferences: the rail comb's scale and density survive a restart",
+      "type": "design",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "build, revision 2 (track PRF) - Rulings 205, 206, 207; built and proven (docs/proof/prf)",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Ruling 205 asks for a small per-user preferences file for view settings, starting with the comb's scale and density. That file already exists: display/display.json (cfdw-display, version 1), written today for Text size and display units by PreferenceStore through ProjectStore. The design adds three optional members to it (combScale, combDensity, and, by Ruling 207, combVisible: the plan Curvature toggle) and reuses its location, atomic writer, claim, never-write rule, session-only rule and display.load / display.save telemetry (trigger comb, text-size, units). No new store, file, folder or user-facing text. Two fault classes, both never-write: a structure fault defaults the whole file, a value fault defaults only its member (Ruling 206). Nothing in the foil or project file changes.",
+      "tags": [
+        "desktop",
+        "persistence",
+        "preferences",
+        "view-settings",
+        "rail-comb",
+        "display",
+        "ruling-205",
+        "trk-prf"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "design-rail-comb",
+          "rel": "refines"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "refines"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "99ce042545f0cf3d160a6e184b1b51287d4b0e66f78fd97d802edc5012792855"
     },
     {
       "id": "design-visible-presentation",
@@ -5424,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "62f59387c4cb63c279f76376169879f855f4cb1e3d04ad07085344ca4d51b8b2"
+      "sourceSha256": "f394cb67a76f71b8e3ae9c419914bb0927e29f62e0db26b19c2bcaa25995743e"
     },
     {
       "id": "domain-experts",
@@ -8685,7 +8727,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "786eabbafccbaa99657dc4c5a059647b9e85b887dd4977d08f91c4f58455fdc7"
+      "sourceSha256": "0d1a14457ad9feee7d39452bbdad1862a5f755ca21df1728fd79941c64783e6a"
     },
     {
       "id": "kb-hw-glossary",
@@ -15293,6 +15335,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "e86a4c9b8b64650cf467324af8b9e0695383b7adfb662f3c4dbaec35f7535c38"
     },
     {
+      "id": "proof-prf-red-first",
+      "path": "docs/proof/prf/red-first.md",
+      "title": "PRF red-first proof: the comb view preferences",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@timianmalloo",
+      "phase": "",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Each behaviour of the comb view preferences ran red on the old code, then green. Core checks failed to compile before the API existed; Desktop checks failed against a build with the restore and save lines removed.",
+      "tags": [
+        "proof",
+        "trk-prf",
+        "view-preferences",
+        "rail-comb"
+      ],
+      "links": [
+        {
+          "to": "design-view-preferences",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "96b9e43311cfd77909db62ba5984d828c3d5c18ac03c91c806d245af4221a8b3"
+    },
+    {
       "id": "proof-r163-windows-ring",
       "path": "docs/proof/r163-windows-ring/receipt.md",
       "title": "Ruling 163 P5 Windows ring (incomplete at 60 seconds)",
@@ -20383,5 +20451,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "6329adc71efcec2004cba5d8ea5cb5193965686bfb1f85b0b632424941f95ca8"
+  "graphSha256": "096c00f851a693741f7d6a5af16c9efa548e6e54c75b291f897ca480739499c4"
 };

@@ -165,7 +165,7 @@ file; a conflict merge (§4.4) replaces whole workspace records, never parts of 
 
 ### 3.4 Layout file schema — `cfdw-layout`, version 1
 
-Location: `<ApplicationData>/CFD-Workbench/layout/layout.json` (macOS `~/Library/Application Support/…`, Verified). Each
+Location: `<LocalApplicationData>/CFD Workbench/layout/layout.json` (macOS `~/Library/Application Support/…`, Verified; the code uses `LocalApplicationData` and the folder name "CFD Workbench", `App.axaml.cs:29-31`). Each
 preference file has **its own subdirectory** so each has its own store claim (§4.4). UTF-8, no BOM, `\n`, ≤ 64 KiB.
 
 ```json
@@ -378,35 +378,47 @@ a newer version (V3) — is reported **"Recent list not cleared"**, never silent
 **Stale-claim recovery action (architecture §10.7 asks for it).** A claim left by a crash inside the claim window makes
 every overwrite of *that file* fail. Per-file subdirectories confine it to one file. The action: the once-per-session
 message names the file and offers **Show in Finder**, which opens the folder holding the lock file
-`.cfd-writer.claim` (`…/CFD-Workbench/layout/` or `…/recent/`); the message says Finder shows hidden files with
+`.cfd-writer.claim` (`…/CFD Workbench/layout/` or `…/recent/`); the message says Finder shows hidden files with
 ⌘⇧. so the user can delete it after quitting other copies; the store still never
 deletes claims itself (architecture §6). Detection: `PrefSave.ClaimPath` set and the outcome `claim-held`.
 
 ### 4.5 Recent files
 
-`<ApplicationData>/CFD-Workbench/recent/recent.json` (`{"format":"cfdw-recent","version":1,"entries":[{"path":"/abs/a.foil"}]}`),
+`<LocalApplicationData>/CFD Workbench/recent/recent.json` (`{"format":"cfdw-recent","version":1,"entries":[{"path":"/abs/a.foil"}]}`),
 ≤ 10 entries, absolute paths ≤ 1024 bytes ending `.foil` or `.cfdw.json`. Updated after each successful open and by
 **File ▸ Open Recent ▸ Clear Menu**. Separate from the layout: it changes on every open, holds personal data the layout
 must not, and a corrupt list must not reset layouts ([decision note](../notes/recent-files-preference.md)). Directories
 are created 0700 on macOS; an existing directory with a wider mode is tightened and the result reported
 (`Directory.CreateDirectory(path, UnixFileMode)` is not used on Windows).
 
-### 4.6 Display preferences (Text size, DN-5)
+### 4.6 Display preferences (Text size DN-5, units, the plan comb view; Rulings 121, 205-207)
 
-`<ApplicationData>/CFD-Workbench/display/display.json` (`{"format":"cfdw-display","version":1,"textSize":150}`), written
-by `SaveTextSizeAsync` and read by `LoadTextSizeAsync` (`DisplayPreferences` codec, `TextSizeLoad` record). Same claim,
-durability, 0700/0600 modes, session-only and linked-directory rules as the layout and Recent documents.
+`<LocalApplicationData>/CFD Workbench/display/display.json` (`{"format":"cfdw-display","version":1,"textSize":150}`), written
+by `SaveTextSizeAsync`, `SaveUnitsAsync` and `SaveCombViewAsync` and read by `LoadTextSizeAsync`, `LoadUnitsAsync` and
+`LoadCombViewAsync` (`DisplayPreferences` codec). Same claim, durability, 0700 directory and 0600 file modes (the file mode
+is the `ProjectStore` `CreationMode 0x180`; `EnsureDir` sets only the directory to 0700), session-only and linked-directory
+rules as the layout and Recent documents.
 
-- **Members:** exactly `format`, `version`, `textSize`; `textSize` is a whole percent in {100, 125, 150, 200}
-  (`DisplayPreferences.TextSizes`, the one definition; `CommandTable.TextSizes` is derived from it).
+- **Members:** `format`, `version`, `textSize` (required), and optional `units`, `combScale`, `combDensity`, `combVisible`.
+  `textSize` is a whole percent in {100, 125, 150, 200} (`DisplayPreferences.TextSizes`, the one definition;
+  `CommandTable.TextSizes` is derived from it). `units` is "metric" or "imperial". `combScale` is the plan rail comb's fixed gain per
+  metre in `DisplayPreferences.CombScales` (0.5 to 200; absent is Auto); `combDensity` is in `DisplayPreferences.CombDensities`
+  (16, 32, 64, 128; absent is 32); `combVisible` is the plan Curvature toggle (key C; absent is off; not the section editor's
+  flag). Persistence owns the two comb ladders and `RailComb` derives from them. Defaults are never written as a choice.
 - **Grain:** one document per preference root, so one value per installation user. Current value only (Type-1 by
   decision: no past record depends on it).
-- **Default:** 100 % when the file is absent.
-- **Never-write rule:** any other content (out-of-set or non-integer value, missing, duplicate or unknown member, BOM,
-  wrong format, garbled bytes, a read error) reads as 100 % with `DISPLAY-SCHEMA`, and the file is not rewritten this
-  session. A version above 1 reads as 100 % with `LAYOUT-VERSION`, same rule. Unsupported persistence (on the read or
-  the first save) and a linked root or `display` directory are session-only. A file-system exception is
-  `failed`/`DOC-IO`.
+- **Default:** 100 %, metric, Auto, 32, comb off when the file or a member is absent.
+- **Two classes of fault, both never-write (Ruling 206 L2-L4).** A **structure** fault affects the whole file: missing
+  `textSize`, a duplicate or unknown member, BOM, over 4 KiB, wrong format, a version other than 1, garbled bytes, a read
+  error. Every setting reads its default with `DISPLAY-SCHEMA`. A version above 1 reads every default with `LAYOUT-VERSION`
+  and is never overwritten. A **value** fault affects only its member: a known member of the wrong type or outside its set
+  (`textSize` 175, `units` "furlongs", `combScale` 3, `combDensity` "64", `combVisible` 1) reads its own default and every
+  sound member keeps its value, still with `DISPLAY-SCHEMA`. In both classes the file is not rewritten this session, so the
+  bytes stay as found. `Parse` follows the two classes; `Serialize` keeps one rule for the set (it throws on an out-of-set
+  value). Unsupported persistence (on the read or the first save) and a linked root or `display` directory are
+  session-only. A file-system exception is `failed`/`DOC-IO`. No new wording: a comb setting that cannot be kept is silent (Ruling 207).
+- **Per-member merge:** a save writes the whole document; a member this session never set keeps what the file held at the
+  last read, so a comb change never resets Text size or units, and the reverse. The comb's three values are set together.
 - **Concurrency:** the load holds the store gate; queued saves write the latest value; a conflict re-reads and retries
   once (latest wins), and a claim still held makes this and every later save in the session `claim-held`.
 - **Why a separate document:** `cfdw-layout` v1 refuses an unknown top-level member (`LAYOUT-SCHEMA`), so a field there
@@ -698,8 +710,8 @@ from `PrefSave` instead of sharing a trace. A missing measurement reads "Not rec
 | `layout.load` | outcome (`restored` · `preset-first-run` · `preset-fallback` · `session-only` · `never-write`), codes[], dropped_n, clamped_n, bytes, duration_ms | did restore fail, and how |
 | `layout.save` | trigger (`switch` · `reset` · `close`), outcome (incl. `claim-held`, `timeout`), code, bytes, duration_ms, publication_known, durability_confirmed, retried | is the layout kept |
 | `recent.save` | op (`add` · `clear`), outcome, code, retried | is the rights path working |
-| `display.load` | outcome (`absent` · `restored` · `session-only` · `never-write` · `failed`), codes (comma-joined), duration_ms | did the Text size restore |
-| `display.save` | outcome (`saved` · `session-only` · `never-write` · `claim-held` · `failed` · `cancelled`), code, duration_ms, publication_known, durability_confirmed, retried | is the Text size kept |
+| `display.load` | outcome (`absent` · `restored` · `session-only` · `never-write` · `failed`), codes (comma-joined), duration_ms | did the display settings restore |
+| `display.save` | outcome (`saved` · `session-only` · `never-write` · `claim-held` · `failed` · `cancelled`), code, duration_ms, publication_known, durability_confirmed, retried | are the display settings kept; `trigger` is `text-size`, `units` or `comb` |
 | `shell.workspace.switch` | from, to, duration_ms | workspace use; switch cost |
 | `shell.pane.move` | pane, from, to (`left` · `right` · `bottom` · `float` · `closed`) | pane moves |
 | `float.relocate` | outcome (`moved` · `docked-back`), pane, corner, duration_ms | how often option (a) fires |

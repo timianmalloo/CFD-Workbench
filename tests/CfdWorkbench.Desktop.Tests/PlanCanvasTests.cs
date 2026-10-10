@@ -21,6 +21,7 @@ public static partial class PlanCanvasTests
     public static void Run()
     {
         RunComb();
+        RunCombView();
         DesktopChecks.Check("RebuildPopover_CrossingDisablesRebuildWithReason", () =>
         {
             string source = File.ReadAllText("docs/examples/foildsl/foil-basic.foil");
@@ -1430,7 +1431,7 @@ public static partial class PlanCanvasTests
         private Pointer? dragPointer;
 
         public PlanFixture(bool newFoil = false, double width = 1280, double height = 800,
-            ThemeVariant? theme = null, bool tenPoint = false, byte[]? source = null, bool Held = false)
+            ThemeVariant? theme = null, bool tenPoint = false, byte[]? source = null, bool Held = false, CfdWorkbench.Persistence.PreferenceStore? preferences = null)
         {
             holdSurfaces = Held;
             Controller = new WorkbenchController(surfaceCompute: Held ? HeldCompute : null);
@@ -1438,7 +1439,7 @@ public static partial class PlanCanvasTests
             else if (tenPoint) Task.Run(() => Controller.OpenFoilAsync(DesktopChecks.TenPointFoil(), "New foil 10")).GetAwaiter().GetResult();
             else if (newFoil) Task.Run(() => Controller.NewFoilAsync()).GetAwaiter().GetResult();
             else Task.Run(() => Controller.OpenExampleAsync()).GetAwaiter().GetResult();
-            Host = new ShellHost(Controller);
+            Host = new ShellHost(Controller, preferences);
             Window = new Window { Content = Host, Width = width, Height = height,
                 RequestedThemeVariant = theme ?? ThemeVariant.Light };
             Window.Show();

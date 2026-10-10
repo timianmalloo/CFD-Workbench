@@ -654,6 +654,19 @@ public sealed class WorkbenchController : IDisposable
         }
     }
 
+    /// <summary>
+    /// Restores the persisted comb view at startup (Rulings 205-207): scale (null is Auto), density and on/off. It makes no
+    /// announcement and raises <see cref="CombChanged"/> once, so the canvas and the plate redraw. A value outside the ladders is ignored.
+    /// </summary>
+    public void ApplyCombView(double? gain, int density, bool visible)
+    {
+        if ((gain is { } scale && !RailComb.Gains.Contains(scale)) || !RailComb.Densities.Contains(density)) return;
+        CombGain = gain;
+        CombDensity = density;
+        if (CombVisible == visible) CombChanged?.Invoke();
+        else CombVisible = visible;
+    }
+
     /// <summary>The fixed gain "30 px = N per metre", or null for Auto.</summary>
     public double? CombGain { get; private set; }
     public int CombDensity { get; private set; } = RailComb.DefaultDensity;
