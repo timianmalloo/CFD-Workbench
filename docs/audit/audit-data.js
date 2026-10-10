@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T16:20:15Z",
+  "generated": "2026-10-10T16:29:54Z",
   "audit": [
     {
       "actor": null,
@@ -34281,6 +34281,44 @@ window.AUDIT_DATA = {
         "ruling-197"
       ],
       "outcome": "success"
+    },
+    {
+      "id": "al-01M4KACJ8G09XDBXGR4Y0TARA5",
+      "shortname": "windows-gpu-g1-r197",
+      "datetime": "2026-10-10T16:29:54Z",
+      "session": "pc-gpu-g1-r197-20261010",
+      "prompt": "Continue the original Windows execution prompt under Mac leadership: execute the authorized Windows GPU work within Ruling 197, use the observer and read-only G1 boundary, coordinate through GitHub, use an Astra owner, minimize drift, and hand back reviewable evidence.",
+      "summary": "Completed Ruling 197 observer and read-only G1 inspection; Astra accepted the proof, retained the native F1/G2 veto, and PR #30 was handed to the Mac leader.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": null,
+      "artifacts": [
+        "docs/proof/win-gpu-g1/receipt.md",
+        "docs/proof/win-l3-observer/README.md",
+        "https://github.com/timianmalloo/CFD-Workbench/pull/30"
+      ],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Reconcile Mac rulings since PR #29 and execute the next authorized Windows GPU/L3 step.",
+      "done_when": "The ruling is read, latest main is merged, authorized work is committed and pushed, proof is owner-reviewed, gates are green, and the GitHub handoff is posted.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": true,
+        "regression": false
+      },
+      "started_at": "2026-10-10T15:03:03Z",
+      "duration_seconds": 5211.0,
+      "git": {
+        "sha": "d691b06c5a73846cf5115b148222b1414361cf86",
+        "short": "d691b06c5",
+        "branch": "win/gpu-g1-r197",
+        "pushed": true
+      }
     }
   ],
   "changes": [
