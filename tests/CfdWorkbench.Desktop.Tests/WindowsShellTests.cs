@@ -174,15 +174,15 @@ public static class WindowsShellTests
             using var controller = new WorkbenchController();
             Task.Run(() => controller.OpenExampleAsync()).GetAwaiter().GetResult();
             var host = new ShellHost(controller);
-            // Export's real dialog is modal and would take every later key; this check counts routing, so the dialog is replaced.
-            host.ShowExportDialog = _ => Task.FromResult<ExportOutcome?>(null);
             var window = new Window { Content = host, Width = 1280, Height = 800 };
             try
             {
                 // The shell wiring MainWindow does, with a probe on each item's command before the keys are bound.
                 var menu = NativeMenuBuilder.BuildMenu(window, onAction: _ => { }, macOS: false);
                 var fired = new List<string>();
-                var items = Flatten(menu).Where(item => item.Gesture is not null).ToList();
+                // A Modal row's real dialog would take every later key (CommandRow.Modal, the one flag): its keys are not pressed here.
+                var modalTitles = CommandTable.Rows.Where(row => row.Modal).Select(row => row.Title).ToHashSet(StringComparer.Ordinal);
+                var items = Flatten(menu).Where(item => item.Gesture is not null && !modalTitles.Contains(item.Header?.ToString() ?? "")).ToList();
                 if (items.Count == 0) throw new InvalidOperationException("The table exported no gestures");
                 foreach (var item in items)
                 {
