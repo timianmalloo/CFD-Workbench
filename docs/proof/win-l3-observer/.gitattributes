@@ -1,0 +1,2 @@
+observe.sh text eol=lf
+samples.jsonl text eol=lf
