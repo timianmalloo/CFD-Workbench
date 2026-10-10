@@ -1,0 +1,97 @@
+HTTP/1.1 302 Found
+Server: nginx
+Date: Sat, 10 Oct 2026 15:42:32 GMT
+Content-Type: text/html; charset=iso-8859-1
+Content-Length: 296
+Connection: keep-alive
+Location: https://sourceforge.net/projects/openfoam/files/v2512/OpenFOAM-v2512.tgz
+
+HTTP/1.1 301 Moved Permanently
+Date: Sat, 10 Oct 2026 15:42:33 GMT
+Content-Type: text/html; charset=UTF-8
+Content-Length: 358
+Connection: keep-alive
+Server: cloudflare
+Set-Cookie: VISITOR=e17b5f59-0f53-45e8-98c8-4d2dbf2ca1a2; Max-Age=315360000; Path=/; expires=Tue, 07-Oct-2036 15:42:33 GMT; secure; HttpOnly
+set-cookie: __cf_bm=nZR23V1QVpo_UyTOoblxllLronPg8kvoc9eNE_f9HIA-1791646953.1505795-1.0.1.1-IvAD6heXu0lD3iBMT_ldoUFGF2SBTlOr0sEKda2O.q09GIlt6oSnjYuZJAp2d6gt2IZhrjR0NR2TS3z9SFFsuk2SP2S85sqkaHVieO1_v.K7M39IWiSYOBWPzSXeQ7L0; HttpOnly; SameSite=None; Secure; Path=/; Domain=sourceforge.net; Expires=Sat, 10 Oct 2026 16:12:33 GMT
+location: https://sourceforge.net/projects/openfoam/files/v2512/OpenFOAM-v2512.tgz/
+Cache-Control: no-cache
+pragma: no-cache
+cross-origin-opener-policy: same-origin
+permissions-policy: geolocation=(), microphone=(), camera=(), payment=(), document-domain=(), display-capture=(), autoplay=(), bluetooth=(), identity-credentials-get=(), otp-credentials=(), publickey-credentials-create=(), publickey-credentials-get=(), usb=(), accelerometer=(), ambient-light-sensor=(), captured-surface-control=(), compute-pressure=(), gamepad=(), hid=(), idle-detection=(), local-fonts=(), magnetometer=(), midi=(), screen-wake-lock=(), serial=(), speaker-selection=(), window-management=(), xr-spatial-tracking=(), local-network=(), local-network-access=(), loopback-network=()
+x-frame-options: SAMEORIGIN
+content-security-policy: fenced-frame-src https:; frame-ancestors 'self'; form-action https://sourceforge.net lists.sourceforge.net aistudio.google.com; script-src 'self' *.licdn.com a.fsdn.com *.google.com http://c.sf-syn.com http://b.sf-syn.com *.cloudflareinsights.com *.google-analytics.com *.tiny.cloud *.recaptcha.net recaptcha.net *.gstatic.com *.googletagservices.com *.googlesyndication.com *.doubleclick.net *.googletagmanager.com *.consentmanager.net *.microsofttranslator.com translate.googleapis.com translate.google.cn *.gstatic.cn *.tds.bid esm.sh blob: *.adnxs.com *.bing.com *.slashdotmedia.com *.crsspxl.com http://*.pro-market.net ml314.com j.6sc.co *.hs-scripts.com js.hsadspixel.net js.hs-analytics.net js.hs-banner.com js.hscollectedforms.net js.usemessages.com fe.sitedataprocessing.com a.usbrowserspeed.com d-code.liadm.com frontend.id-visitors.com *.identitymatrix.ai 'unsafe-inline' 'unsafe-eval'; upgrade-insecure-requests; frame-src 'self' a.fsdn.com *.google.com http://c.sf-syn.com http://b.sf-syn.com *.googletagmanager.com *.doubleclick.net *.gstatic.com *.recaptcha.net recaptcha.net *.youtube.com www.youtube-nocookie.com *.consentmanager.net player.twitch.tv *.crsspxl.com http://*.pro-market.net app.hubspot.com; object-src 'none'; script-src-attr 'unsafe-hashes' 'sha256-4d6SN0yYeMqJ0cKMQtg6WeJWMAytzagOyddgGs8IrQg=' 'sha256-tBDVzvq7nAZRA5cnijB1/8uEyvj+5hEDBhcx7F72AGE=' 'report-sample'
+x-content-type-options: nosniff
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+cf-cache-status: DYNAMIC
+CF-RAY: a486bc512d0975ee-SEA
+alt-svc: h3=":443"; ma=86400
+
+HTTP/1.1 301 Moved Permanently
+Date: Sat, 10 Oct 2026 15:42:33 GMT
+Content-Type: text/html; charset=UTF-8
+Content-Length: 374
+Connection: keep-alive
+Server: cloudflare
+Set-Cookie: VISITOR=4446849e-95e3-4b60-bb88-713805b10a39; Max-Age=315360000; Path=/; expires=Tue, 07-Oct-2036 15:42:33 GMT; secure; HttpOnly
+set-cookie: __cf_bm=yyedkdVnF.dBPcU90Q2RfclNh9O0S8ioLacsw33Plyk-1791646953.286594-1.0.1.1-o4JyiLwC3yTqq8YOaE05m_yEMKNEp75LHAdlg5ypyI3_r6z6yWmD78O8sCKXAua9iH5htuxABAfCExTa2FQpV0dgOalz87fOYZM7AA7PeuQDloFYFClmvIarRO.6CuYy; HttpOnly; SameSite=None; Secure; Path=/; Domain=sourceforge.net; Expires=Sat, 10 Oct 2026 16:12:33 GMT
+location: https://sourceforge.net/projects/openfoam/files/v2512/OpenFOAM-v2512.tgz/download
+Cache-Control: no-cache
+pragma: no-cache
+cross-origin-opener-policy: same-origin
+permissions-policy: geolocation=(), microphone=(), camera=(), payment=(), document-domain=(), display-capture=(), autoplay=(), bluetooth=(), identity-credentials-get=(), otp-credentials=(), publickey-credentials-create=(), publickey-credentials-get=(), usb=(), accelerometer=(), ambient-light-sensor=(), captured-surface-control=(), compute-pressure=(), gamepad=(), hid=(), idle-detection=(), local-fonts=(), magnetometer=(), midi=(), screen-wake-lock=(), serial=(), speaker-selection=(), window-management=(), xr-spatial-tracking=(), local-network=(), local-network-access=(), loopback-network=()
+x-frame-options: SAMEORIGIN
+content-security-policy: script-src-attr 'unsafe-hashes' 'sha256-4d6SN0yYeMqJ0cKMQtg6WeJWMAytzagOyddgGs8IrQg=' 'sha256-tBDVzvq7nAZRA5cnijB1/8uEyvj+5hEDBhcx7F72AGE=' 'report-sample'; frame-ancestors 'self'; object-src 'none'; script-src 'self' *.licdn.com a.fsdn.com *.google.com http://c.sf-syn.com http://b.sf-syn.com *.cloudflareinsights.com *.google-analytics.com *.tiny.cloud *.recaptcha.net recaptcha.net *.gstatic.com *.googletagservices.com *.googlesyndication.com *.doubleclick.net *.googletagmanager.com *.consentmanager.net *.microsofttranslator.com translate.googleapis.com translate.google.cn *.gstatic.cn *.tds.bid esm.sh blob: *.adnxs.com *.bing.com *.slashdotmedia.com *.crsspxl.com http://*.pro-market.net ml314.com j.6sc.co *.hs-scripts.com js.hsadspixel.net js.hs-analytics.net js.hs-banner.com js.hscollectedforms.net js.usemessages.com fe.sitedataprocessing.com a.usbrowserspeed.com d-code.liadm.com frontend.id-visitors.com *.identitymatrix.ai 'unsafe-inline' 'unsafe-eval'; fenced-frame-src https:; upgrade-insecure-requests; frame-src 'self' a.fsdn.com *.google.com http://c.sf-syn.com http://b.sf-syn.com *.googletagmanager.com *.doubleclick.net *.gstatic.com *.recaptcha.net recaptcha.net *.youtube.com www.youtube-nocookie.com *.consentmanager.net player.twitch.tv *.crsspxl.com http://*.pro-market.net app.hubspot.com; form-action https://sourceforge.net lists.sourceforge.net aistudio.google.com
+x-content-type-options: nosniff
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+cf-cache-status: DYNAMIC
+CF-RAY: a486bc520db575ee-SEA
+alt-svc: h3=":443"; ma=86400
+
+HTTP/1.1 302 Found
+Date: Sat, 10 Oct 2026 15:42:33 GMT
+Content-Type: text/html; charset=UTF-8
+Content-Length: 615
+Connection: keep-alive
+Server: cloudflare
+Set-Cookie: VISITOR=530dc618-0e1e-442e-90b2-dead15b8fba2; Max-Age=315360000; Path=/; expires=Tue, 07-Oct-2036 15:42:33 GMT; secure; HttpOnly
+set-cookie: __cf_bm=NCvF2OFCh1DjROc4Ulwx7blnIlUis4Zfxuo38_mKqrw-1791646953.4153433-1.0.1.1-gKZw1haMkm4.4bUu1QU6uXpS63y9EZ._SQRdw_YGJaf1BWxb5xPCo1F4c1tT_ZUZAfve0KETZA7ZngoIy0MRoxUuv4y2EUUvWDIB0V3PfFx8.gKJXCzAmcvf0yw7XWGv; HttpOnly; SameSite=None; Secure; Path=/; Domain=sourceforge.net; Expires=Sat, 10 Oct 2026 16:12:33 GMT
+location: https://downloads.sourceforge.net/project/openfoam/v2512/OpenFOAM-v2512.tgz?ts=gAAAAABqylzp0mNm6z4t1a3KbaAsVS19b2roq0jSFQZLZLuVE17pez2TwDH6qi-8GHvYUlxkkNZG1WduSxs-zVSriFH9xtX2-A%3D%3D&use_mirror=phoenixnap&r=
+Cache-Control: no-cache
+pragma: no-cache
+cross-origin-opener-policy: same-origin
+permissions-policy: geolocation=(), microphone=(), camera=(), payment=(), document-domain=(), display-capture=(), autoplay=(), bluetooth=(), identity-credentials-get=(), otp-credentials=(), publickey-credentials-create=(), publickey-credentials-get=(), usb=(), accelerometer=(), ambient-light-sensor=(), captured-surface-control=(), compute-pressure=(), gamepad=(), hid=(), idle-detection=(), local-fonts=(), magnetometer=(), midi=(), screen-wake-lock=(), serial=(), speaker-selection=(), window-management=(), xr-spatial-tracking=(), local-network=(), local-network-access=(), loopback-network=()
+x-frame-options: SAMEORIGIN
+content-security-policy: script-src-attr 'unsafe-hashes' 'sha256-4d6SN0yYeMqJ0cKMQtg6WeJWMAytzagOyddgGs8IrQg=' 'sha256-tBDVzvq7nAZRA5cnijB1/8uEyvj+5hEDBhcx7F72AGE=' 'report-sample'; form-action https://sourceforge.net lists.sourceforge.net aistudio.google.com; frame-src 'self' a.fsdn.com *.google.com http://c.sf-syn.com http://b.sf-syn.com *.googletagmanager.com *.doubleclick.net *.gstatic.com *.recaptcha.net recaptcha.net *.youtube.com www.youtube-nocookie.com *.consentmanager.net player.twitch.tv *.crsspxl.com http://*.pro-market.net app.hubspot.com; script-src 'self' *.licdn.com a.fsdn.com *.google.com http://c.sf-syn.com http://b.sf-syn.com *.cloudflareinsights.com *.google-analytics.com *.tiny.cloud *.recaptcha.net recaptcha.net *.gstatic.com *.googletagservices.com *.googlesyndication.com *.doubleclick.net *.googletagmanager.com *.consentmanager.net *.microsofttranslator.com translate.googleapis.com translate.google.cn *.gstatic.cn *.tds.bid esm.sh blob: *.adnxs.com *.bing.com *.slashdotmedia.com *.crsspxl.com http://*.pro-market.net ml314.com j.6sc.co *.hs-scripts.com js.hsadspixel.net js.hs-analytics.net js.hs-banner.com js.hscollectedforms.net js.usemessages.com fe.sitedataprocessing.com a.usbrowserspeed.com d-code.liadm.com frontend.id-visitors.com *.identitymatrix.ai 'unsafe-inline' 'unsafe-eval'; object-src 'none'; fenced-frame-src https:; upgrade-insecure-requests; frame-ancestors 'self'
+x-content-type-options: nosniff
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+cf-cache-status: DYNAMIC
+CF-RAY: a486bc52de6375ee-SEA
+alt-svc: h3=":443"; ma=86400
+
+HTTP/1.1 302 Found
+Date: Sat, 10 Oct 2026 15:42:33 GMT
+Content-Type: text/html; charset=UTF-8
+Content-Length: 501
+Connection: keep-alive
+Server: cloudflare
+Content-Security-Policy: upgrade-insecure-requests
+set-cookie: sf_mirror_attempt=openfoam:phoenixnap:v2512/OpenFOAM-v2512.tgz; Max-Age=120; Path=/; expires=Sat, 10-Oct-2026 15:44:33 GMT; secure
+set-cookie: __cf_bm=c4A8WsHz69XV7ETGUtblBLuy8D7T7A17EA8jISBiRBs-1791646953.57754-1.0.1.1-eEZRWGGoF0i4m4InO6e2TuuzCcsd37O7MbaBHS4Xwniu94AMG1T4ztoq_zQlxF9yHGIToT5CNhTj7Dcp489iy1NGkFdqjjc82BYdAb9K.BxSxSAUE8igiRad2NDuW0gf; HttpOnly; SameSite=None; Secure; Path=/; Domain=sourceforge.net; Expires=Sat, 10 Oct 2026 16:12:33 GMT
+location: https://phoenixnap.dl.sourceforge.net/project/openfoam/v2512/OpenFOAM-v2512.tgz?viasf=1&fid=91a4c3bce1490452&e=1791733353&st=BI5Juc7Ltp4QCa__FUh-LA
+content-disposition: attachment; filename="OpenFOAM-v2512.tgz"
+cf-cache-status: DYNAMIC
+CF-RAY: a486bc53d97b0da3-SEA
+alt-svc: h3=":443"; ma=86400
+
+HTTP/1.1 200 OK
+Server: nginx
+Date: Sat, 10 Oct 2026 15:42:33 GMT
+Content-Type: application/octet-stream
+Content-Length: 54700141
+Connection: close
+last-modified: Mon, 22 Dec 2025 14:12:52 GMT
+etag: "694951e4-342a86d"
+X-Cache-Status: HIT
+Accept-Ranges: bytes
+

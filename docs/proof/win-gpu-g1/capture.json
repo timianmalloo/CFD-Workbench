@@ -1,0 +1,103 @@
+{
+  "schema": "cfdw-read-only-capture/1",
+  "authority": "Ruling 197 G1",
+  "scope": "Official v2512 source identity plus installed-library linkage; no build, package install, solver run or L3 access",
+  "wrapper": "capture.ps1",
+  "wrapper_sha256_before_execution": "24232b225c90d4ba9a0eeb189673cf54c9efdc2528b9d48b871f48bfd9a8ecb8",
+  "records": [
+    {
+      "name": "source-tag",
+      "file": "curl.exe",
+      "argv": [
+        "--fail",
+        "--location",
+        "--silent",
+        "--show-error",
+        "https://gitlab.com/api/v4/projects/openfoam%2Fcore%2Fopenfoam/repository/tags/OpenFOAM-v2512"
+      ],
+      "cwd": "C:\\Projects\\CFD-Workbench-win-gpu-g1-r197",
+      "started_utc": "2026-10-10T15:42:30.3607147+00:00",
+      "ended_utc": "2026-10-10T15:42:30.8060783+00:00",
+      "elapsed_ms": 438,
+      "timeout_seconds": 60,
+      "timed_out": false,
+      "exit_code": 0,
+      "stdout": "source-tag.stdout.txt",
+      "stderr": "source-tag.stderr.txt",
+      "capture_encoding": "Start-Process redirected text; exact child byte encoding not independently established"
+    },
+    {
+      "name": "source-download",
+      "file": "curl.exe",
+      "argv": [
+        "--fail",
+        "--location",
+        "--silent",
+        "--show-error",
+        "--dump-header",
+        "C:\\Projects\\CFD-Workbench-win-gpu-g1-r197\\docs\\proof\\win-gpu-g1\\source-archive.headers.txt",
+        "--output",
+        "C:\\Projects\\CFD-Workbench-win-gpu-g1-r197\\docs\\proof\\win-gpu-g1\\.source-cache\\OpenFOAM-v2512.tgz",
+        "https://dl.openfoam.com/source/v2512/OpenFOAM-v2512.tgz"
+      ],
+      "cwd": "C:\\Projects\\CFD-Workbench-win-gpu-g1-r197",
+      "started_utc": "2026-10-10T15:42:30.8281713+00:00",
+      "ended_utc": "2026-10-10T15:42:34.4903160+00:00",
+      "elapsed_ms": 3659,
+      "timeout_seconds": 300,
+      "timed_out": false,
+      "exit_code": 0,
+      "stdout": "source-download.stdout.txt",
+      "stderr": "source-download.stderr.txt",
+      "capture_encoding": "Start-Process redirected text; exact child byte encoding not independently established"
+    },
+    {
+      "name": "source-build-info",
+      "file": "tar.exe",
+      "argv": [
+        "-xOf",
+        "C:\\Projects\\CFD-Workbench-win-gpu-g1-r197\\docs\\proof\\win-gpu-g1\\.source-cache\\OpenFOAM-v2512.tgz",
+        "OpenFOAM-v2512/META-INFO/build-info"
+      ],
+      "cwd": "C:\\Projects\\CFD-Workbench-win-gpu-g1-r197",
+      "started_utc": "2026-10-10T15:42:34.4997968+00:00",
+      "ended_utc": "2026-10-10T15:42:34.9312862+00:00",
+      "elapsed_ms": 431,
+      "timeout_seconds": 30,
+      "timed_out": false,
+      "exit_code": 0,
+      "stdout": "source-build-info.stdout.txt",
+      "stderr": "source-build-info.stderr.txt",
+      "capture_encoding": "Start-Process redirected text; exact child byte encoding not independently established"
+    },
+    {
+      "name": "installed-linkage",
+      "file": "wsl.exe",
+      "argv": [
+        "--distribution",
+        "cfdw-openfoam2512",
+        "--user",
+        "root",
+        "--exec",
+        "/usr/bin/taskset",
+        "--cpu-list",
+        "0",
+        "/usr/bin/nice",
+        "-n",
+        "10",
+        "/bin/bash",
+        "/mnt/c/Projects/CFD-Workbench-win-gpu-g1-r197/docs/proof/win-gpu-g1/inspect-installed.sh"
+      ],
+      "cwd": "C:\\Projects\\CFD-Workbench-win-gpu-g1-r197",
+      "started_utc": "2026-10-10T15:42:35.0809675+00:00",
+      "ended_utc": "2026-10-10T15:42:36.0015409+00:00",
+      "elapsed_ms": 919,
+      "timeout_seconds": 60,
+      "timed_out": false,
+      "exit_code": 0,
+      "stdout": "installed-linkage.stdout.txt",
+      "stderr": "installed-linkage.stderr.txt",
+      "capture_encoding": "Start-Process redirected text; exact child byte encoding not independently established"
+    }
+  ]
+}

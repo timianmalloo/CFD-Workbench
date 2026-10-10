@@ -2591,6 +2591,18 @@ under a still pointer. In the suite it read as a flake in `PlanCanvas_Escape_Dis
 
 **PLAT-A · 2026-10-09 · An admitted Windows PASS outlives the inputs it was earned on.** Ruling 189 admitted the Windows store PASS (tested head a5c45644) only while the verifier, runner, three build-input trees and four blobs stay unchanged. Control: `docs/proof/windows-store-admission.json` binds them; `tools/check-windows-admission.py` prints `WINDOWS-STORE-EVIDENCE ... current` or `... STALE since <path>` (exit 0, so Core changes are never blocked), `tools/run-windows-store-gate.py` prints the same line, `--self-test` runs in check-docs (fast ring), and a docs file that claims `Windows store: PASS (current)` while stale fails. Status: controlled.
 
+**OBS-CLOCK-DOMAIN-A · A UTC window classifies intervals whose duration clock is monotonic.** The first uncommitted
+Ruling 197 observer analysis used capture UTC for both the capture join and the 30-minute window. WSL UTC advanced about
+54 seconds relative to `/proc/uptime`, so the last scheduled 600-second post interval appeared outside the UTC cutoff.
+
+**Class → sweep → derive → prevent:** signature: one clock joins events and also measures elapsed windows even though
+the sampled rate uses another clock. The sweep covered the Ruling 197 observer rows and analyzer; the retained row UTC,
+log mtime and capture UTC remain identity/join fields, while interval duration and window distance use monotonic seconds.
+Derive: wall-clock UTC locates the interval containing an external capture; adjacent duration windows stay in the
+sample clock domain. Control: `docs/proof/win-gpu-g1/analyze-observer.py` requires exactly one UTC-overlapping valid
+interval, then classifies its before/after windows by `/proc/uptime` offsets and emits the rule into the manifest-bound
+`observer-window.json`. Raw append-only samples are never rewritten. Status: controlled for this observer proof.
+
 **ROW-MODAL-A · 2026-10-09 · A new command row that opens a modal dialog stops the all-gestures probe.** Adding `file.export` put a row whose command opens the real Export dialog (modal) before the rows after it. `WindowsShell_EveryTableGesture_FiresItsCommandOnce` runs every row's command in turn, so the open dialog took every later key and 15 rows read "fired 0" (first ring of track trk-dat).
 - *Sweep:* the checks that execute rows, not only read them: `CommandTable_Parity_*` and `ShellWindowTests` read the table; only the gesture probe runs each command. The other modal rows (Replace from catalog, Save to My sections) are disabled outside a section, so the probe never ran them.
 - *Derive:* a row that opens a modal has a test hook that replaces the dialog (`ShowCatalogDialog`, `ShowExportDialog`); a probe that runs every row sets the hooks.

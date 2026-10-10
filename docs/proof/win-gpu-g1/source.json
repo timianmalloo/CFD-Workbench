@@ -1,0 +1,12 @@
+{
+  "schema": "cfdw-source-capture/1",
+  "authority": "Ruling 197 G1",
+  "source_url": "https://dl.openfoam.com/source/v2512/OpenFOAM-v2512.tgz",
+  "tag_api": "https://gitlab.com/api/v4/projects/openfoam%2Fcore%2Fopenfoam/repository/tags/OpenFOAM-v2512",
+  "expected_tag": "OpenFOAM-v2512",
+  "expected_commit": "87ed40d256d22ea38fcc648dfc82a22162427b18",
+  "archive_bytes": 54700141,
+  "archive_sha256": "ae9a0a133a2e996b88bd1d0f3cc229e3c49968c368feae61bd3ec63deaf337aa",
+  "archive_retention": "untracked .source-cache file retained locally through owner review",
+  "captured_utc": "2026-10-10T15:42:35.0423946+00:00"
+}

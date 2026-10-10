@@ -1,0 +1,101 @@
+{
+  "algorithm": "SHA-256",
+  "capture_scope": "Ruling 197 G1 exact-source and installed-library read-only inspection",
+  "files": [
+    {
+      "path": "docs/proof/win-gpu-g1/.gitattributes",
+      "bytes": 197,
+      "sha256": "969d6dd41005aafc83232e0431eac9bebb100f464b34d9f09267bfe0be18dbb9"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/.gitignore",
+      "bytes": 15,
+      "sha256": "94f1c929ab045de672d326828ab2e284f58ba5409a69bfa1ab3f77fe79f1a784"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/analyze-observer.py",
+      "bytes": 6509,
+      "sha256": "4a1b6fafeb9c935797d23bde352c8e1a4d5aadaee2c8d6f9b3656f6597c31815"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/capture.json",
+      "bytes": 3900,
+      "sha256": "5f21469a1a781b805a7c8aaef03031cf0ffc6e0968bd18a9e2e6499a77a15179"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/capture.ps1",
+      "bytes": 4714,
+      "sha256": "24232b225c90d4ba9a0eeb189673cf54c9efdc2528b9d48b871f48bfd9a8ecb8"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/inspect-installed.sh",
+      "bytes": 1533,
+      "sha256": "497c7ef6a3a51cdca414673802aaf92858a63667a04b376b4a2b72211d874f4b"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/installed-linkage.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/installed-linkage.stdout.txt",
+      "bytes": 3916,
+      "sha256": "87c0d4dcb4a4e7ee3596e95a8c9363d8fb2c6d201ca012bd0f46f43fa5e68276"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/make-manifest.py",
+      "bytes": 1038,
+      "sha256": "9e508278fd68e5f4a06991d169c3fa70ae0ad8df648cd4f5cca92f393ccd71de"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/observer-window.json",
+      "bytes": 4289,
+      "sha256": "c90c6fe1389e4382e7bd66b5731082635b84717c24c0e508ffbafa774fc1016a"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/receipt.md",
+      "bytes": 12287,
+      "sha256": "261fbfdc36c6d24eab9b378da809795f85fe1fb8fa51cbeded5ab0ec06f3af30"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/source-archive.headers.txt",
+      "bytes": 10812,
+      "sha256": "80899d459778876c76790a968069477d92af9eb46ca3fdc3e109e6ca2273c01e"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/source-build-info.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/source-build-info.stdout.txt",
+      "bytes": 27,
+      "sha256": "89f15ee7cb0fb8792e942b5990b93999370bd1fb4e5708c2a3f6fb81020ecd0b"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/source-download.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/source-download.stdout.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/source-tag.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/source-tag.stdout.txt",
+      "bytes": 758,
+      "sha256": "8bbba875c3a47b327d38c911831e8e4f14489d6fe18a0f426bebcd79f391e2cf"
+    },
+    {
+      "path": "docs/proof/win-gpu-g1/source.json",
+      "bytes": 634,
+      "sha256": "19fb135113594dfa2cd643ed569d282709fd113d273c80b8da7f4d8eb99fd9f5"
+    }
+  ]
+}
