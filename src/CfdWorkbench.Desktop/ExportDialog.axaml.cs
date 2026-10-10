@@ -10,9 +10,9 @@ using CfdWorkbench.Core;
 namespace CfdWorkbench.Desktop;
 
 /// <summary>
-/// The Export dialog for the section .dat and the wing STL (docs/design/export.md 6.2). Thin: every number and sentence comes from the
-/// <see cref="ExportSession"/>. The format list has the formats that exist (3MF joins when its slice lands). Export... opens the
-/// native save panel through <c>pick</c>; a failed write stays here. The wing STL is built off the UI thread: <see cref="Preparation"/>
+/// The Export dialog for the section .dat, the wing STL and the wing 3MF (docs/design/export.md 6.2). Thin: every number and sentence comes
+/// from the <see cref="ExportSession"/>. Export... opens the native save panel through <c>pick</c>; a failed write stays here. The wing
+/// mesh (STL or 3MF, one set of options) is built off the UI thread: <see cref="Preparation"/>
 /// completes when the summary has been redrawn from it.
 /// </summary>
 public partial class ExportDialog : Window
@@ -38,6 +38,9 @@ public partial class ExportDialog : Window
         DatFormatItem.IsSelected = session.Format == ExportFormat.Dat;
         StlFormatItem.Content = ExportCopy.FormatStl;
         AutomationProperties.SetName(StlFormatItem, ExportCopy.FormatStl);
+        ThreeMfFormatItem.IsSelected = session.Format == ExportFormat.ThreeMf;
+        ThreeMfFormatItem.Content = ExportCopy.FormatThreeMf;
+        AutomationProperties.SetName(ThreeMfFormatItem, ExportCopy.FormatThreeMf);
         ScopeLegend.Text = ExportCopy.ScopeLabel;
         ScopeWhole.Content = ExportCopy.ScopeWhole;
         ScopeHalf.Content = ExportCopy.ScopeHalf;
@@ -83,7 +86,7 @@ public partial class ExportDialog : Window
             button.IsCheckedChanged += (_, _) => { if (button.IsChecked == true) Change(points: count); };
         FormatList.SelectionChanged += (_, _) =>
         {
-            var format = StlFormatItem.IsSelected ? ExportFormat.Stl : ExportFormat.Dat;
+            var format = ThreeMfFormatItem.IsSelected ? ExportFormat.ThreeMf : StlFormatItem.IsSelected ? ExportFormat.Stl : ExportFormat.Dat;
             if (format != session.Format) Change(format: format);
         };
         ScopeWhole.IsCheckedChanged += (_, _) => { if (ScopeWhole.IsChecked == true) Change(scope: StlScope.Whole); };
@@ -116,15 +119,19 @@ public partial class ExportDialog : Window
     /// <summary>The native save panel, owned by <paramref name="top"/> (the dialog, so a modal sheet is never hidden behind it). Null is Cancel.</summary>
     public static async Task<string?> PickWithPanelAsync(TopLevel top, string suggestedName, string? folder)
     {
-        bool stl = suggestedName.EndsWith(".stl", StringComparison.OrdinalIgnoreCase);
+        string extension = Path.GetExtension(suggestedName).TrimStart('.').ToLowerInvariant();
+        var (title, label) = extension switch
+        {
+            "stl" => ("Export wing STL", "Wing mesh (.stl)"),
+            "3mf" => ("Export wing 3MF", "Wing mesh (.3mf)"),
+            _ => ("Export section .dat", "Airfoil coordinates (.dat)")
+        };
         var options = new Avalonia.Platform.Storage.FilePickerSaveOptions
         {
-            Title = stl ? "Export wing STL" : "Export section .dat",
+            Title = title,
             SuggestedFileName = suggestedName,
-            DefaultExtension = stl ? "stl" : "dat",
-            FileTypeChoices = [stl
-                ? new Avalonia.Platform.Storage.FilePickerFileType("Wing mesh (.stl)") { Patterns = ["*.stl"] }
-                : new Avalonia.Platform.Storage.FilePickerFileType("Airfoil coordinates (.dat)") { Patterns = ["*.dat"] }]
+            DefaultExtension = extension,
+            FileTypeChoices = [new Avalonia.Platform.Storage.FilePickerFileType(label) { Patterns = [$"*.{extension}"] }]
         };
         if (folder is not null && Uri.TryCreate(folder, UriKind.Absolute, out var start)) options.SuggestedStartLocation = await top.StorageProvider.TryGetFolderFromPathAsync(start);
         var file = await top.StorageProvider.SaveFilePickerAsync(options);
@@ -157,7 +164,7 @@ public partial class ExportDialog : Window
         SummaryBlock.IsVisible = !blocked;
         BlockedBand.IsVisible = blocked;
         BlockedText.Text = session.BlockedReason ?? "";
-        bool stl = session.Format == ExportFormat.Stl;
+        bool stl = session.IsMesh;
         DatOptions.IsVisible = !stl;
         StlOptions.IsVisible = stl;
         ScopeHelp.IsVisible = stl && session.Scope == StlScope.Half;
@@ -208,14 +215,14 @@ public partial class ExportDialog : Window
         try
         {
             // A mesh over 100,000 triangles shows its progress and a Cancel that removes the temp file (H10); the .dat and small meshes write in a frame.
-            bool progress = session.Stl is { } mesh && session.Format == ExportFormat.Stl && mesh.Triangles > ExportSession.ProgressTriangles;
+            bool progress = session.Stl is { } mesh && session.IsMesh && mesh.Triangles > ExportSession.ProgressTriangles;
             var outcome = await session.RunAsync(async (name, folder) => lastPath = await picker(name, folder), async (target, bytes) =>
             {
                 using var cancel = new CancellationTokenSource();
                 writing = progress ? cancel : null;
                 if (progress)
                 {
-                    WritingText.Text = ExportCopy.Writing(session.Stl!.Triangles.ToString("N0", System.Globalization.CultureInfo.InvariantCulture), ExportSession.Megabytes(session.Stl.Triangles));
+                    WritingText.Text = ExportCopy.Writing(session.Stl!.Triangles.ToString("N0", System.Globalization.CultureInfo.InvariantCulture), session.FileMegabytes(session.Stl));
                     WritingBand.IsVisible = true;
                     Title = TitleText.Text = ExportCopy.WritingTitle;
                     await Task.Yield();

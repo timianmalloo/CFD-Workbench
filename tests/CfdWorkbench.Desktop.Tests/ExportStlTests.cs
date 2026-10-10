@@ -329,7 +329,7 @@ public static class ExportStlTests
             foreach (string present in new[] { "Wing (STL)", "Scope", "Whole wing", "Starboard half", "Tolerance", "Draft 0.05 mm", "Print 0.02 mm", "Fine 0.005 mm",
                          "Unit", "18,418 triangles (31 × 76 grid)", "0.92 MB", "along the whole span" })
                 if (!all.Contains(present, StringComparison.Ordinal)) throw new InvalidOperationException($"'{present}' is not on the STL dialog:\n{all}");
-            True(!all.Contains("3MF", StringComparison.Ordinal), "no 3MF row");
+            True(all.Contains("Wing (3MF)", StringComparison.Ordinal), "the 3MF row is in the format list");
             Equal(true, dialog.FindControl<RadioButton>("TolerancePrint")!.IsChecked);
             Equal(true, dialog.FindControl<RadioButton>("ScopeWhole")!.IsChecked);
             Equal(true, dialog.FindControl<Button>("ExportButton")!.IsEnabled);

@@ -51,6 +51,16 @@ public static class StlExport
     internal static StlExportResult Build(byte[] source, string foilName, int revision, StlScope scope, double toleranceMm,
         IReadOnlyList<(int Stations, int ChordPoints)> ladder, CancellationToken cancellation = default)
     {
+        var stage = Stage(source, toleranceMm, ladder, cancellation);
+        byte[] bytes = Write(Close(stage.Surface, scope), Header(foilName, revision));
+        return Summarize(bytes, Check(bytes), stage, scope, toleranceMm);
+    }
+
+    /// <summary>The surface at the first ladder rung whose measured deviation is within the tolerance (or the finest), and what was measured on the way.</summary>
+    internal sealed record StlStage(SurfaceView Surface, int Stations, int ChordPoints, double DeviationMm);
+
+    internal static StlStage Stage(byte[] source, double toleranceMm, IReadOnlyList<(int Stations, int ChordPoints)> ladder, CancellationToken cancellation)
+    {
         ArgumentNullException.ThrowIfNull(source);
         Guard.Require(double.IsFinite(toleranceMm) && toleranceMm > 0 && ladder.Count > 0, "DSL-RANGE");
         SurfaceView surface = null!;
@@ -64,14 +74,17 @@ public static class StlExport
             deviationMm = Deviation(surface, fine).Largest * 1000;
             if (deviationMm <= toleranceMm) break;
         }
-        var mesh = Close(surface, scope);
-        byte[] bytes = Write(mesh, Header(foilName, revision));
-        var check = Check(bytes);
+        return new(surface, stations, chordPoints, deviationMm);
+    }
+
+    /// <summary>The result for bytes already written and checked (STL or 3MF). Refuses a mesh whose edges are not each shared by exactly two triangles.</summary>
+    internal static StlExportResult Summarize(byte[] bytes, StlCheck check, StlStage stage, StlScope scope, double toleranceMm)
+    {
         Guard.Require(check.Closed, "EXPORT-NOT-CLOSED");
-        var (leastMm, leastYMm, greatestMm) = TrailingEdge(surface);
-        double tipYMm = surface.Sections[^1].Upper[0].Y * 1000;
-        return new(bytes, scope, stations, chordPoints, check.Triangles, check.Vertices, toleranceMm, deviationMm, deviationMm <= toleranceMm,
-            leastMm, leastYMm, leastYMm == tipYMm, greatestMm - leastMm <= 1e-6,
+        var (leastMm, leastYMm, greatestMm) = TrailingEdge(stage.Surface);
+        double tipYMm = stage.Surface.Sections[^1].Upper[0].Y * 1000;
+        return new(bytes, scope, stage.Stations, stage.ChordPoints, check.Triangles, check.Vertices, toleranceMm, stage.DeviationMm,
+            stage.DeviationMm <= toleranceMm, leastMm, leastYMm, leastYMm == tipYMm, greatestMm - leastMm <= 1e-6,
             check.MaxXMm - check.MinXMm, check.MaxYMm - check.MinYMm, check.MaxZMm - check.MinZMm, check.VolumeMm3);
     }
 
@@ -235,6 +248,19 @@ public static class StlExport
         ArgumentNullException.ThrowIfNull(stl);
         int count = stl.Length >= 84 ? BitConverter.ToInt32(stl, 80) : -1;
         if (count < 0 || stl.Length != 84 + 50L * count) return new(false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+        var corners = new uint[9 * count];
+        for (int triangle = 0; triangle < count; triangle++)
+            for (int k = 0; k < 9; k++) corners[9 * triangle + k] = BitConverter.ToUInt32(stl, 84 + 50 * triangle + 12 + 4 * k);
+        return Analyze(corners);
+    }
+
+    /// <summary>
+    /// The edge check on triangle corners, nine binary32 bit patterns per triangle (x, y, z of each corner). The STL and the 3MF checks both end here,
+    /// so the two formats are judged by one rule.
+    /// </summary>
+    internal static StlCheck Analyze(uint[] corners)
+    {
+        int count = corners.Length / 9;
         var welded = new Dictionary<(uint, uint, uint), int>();
         var edges = new Dictionary<long, int>(EdgeKey.Instance);
         int zeroArea = 0;
@@ -245,10 +271,10 @@ public static class StlExport
         Span<double> p = stackalloc double[9];
         for (int triangle = 0; triangle < count; triangle++)
         {
-            int at = 84 + 50 * triangle + 12;
             for (int corner = 0; corner < 3; corner++)
             {
-                uint bx = BitConverter.ToUInt32(stl, at + 12 * corner), by = BitConverter.ToUInt32(stl, at + 12 * corner + 4), bz = BitConverter.ToUInt32(stl, at + 12 * corner + 8);
+                int at = 9 * triangle + 3 * corner;
+                uint bx = corners[at], by = corners[at + 1], bz = corners[at + 2];
                 if (!welded.TryGetValue((bx, by, bz), out id[corner])) { id[corner] = welded.Count; welded[(bx, by, bz)] = id[corner]; }
                 p[3 * corner] = BitConverter.UInt32BitsToSingle(bx); p[3 * corner + 1] = BitConverter.UInt32BitsToSingle(by); p[3 * corner + 2] = BitConverter.UInt32BitsToSingle(bz);
                 minX = Math.Min(minX, p[3 * corner]); maxX = Math.Max(maxX, p[3 * corner]);

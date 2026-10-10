@@ -5,7 +5,7 @@ namespace CfdWorkbench.Desktop;
 /// <summary>
 /// The Export copy the section .dat and the wing STL use, quoted from docs/design/export.md section 14 and registered in
 /// DESIGN.md section 7 as COPY-474 to COPY-519 (Ruling 196: COPY-EXnn becomes COPY-(473 + nn)). The strings are the oracle;
-/// a test compares them to the registry. A string a later slice owns (3MF, EX07) is not here.
+/// a test compares them to the registry. The 3MF row (EX07) joined with the 3MF slice.
 /// </summary>
 public static class ExportCopy
 {
@@ -15,6 +15,7 @@ public static class ExportCopy
     public const string Title = "Export";                                        // COPY-477 (EX04)
     public const string FormatDat = "Section (.dat)";                            // COPY-478 (EX05)
     public const string FormatStl = "Wing (STL)";                                // COPY-479 (EX06)
+    public const string FormatThreeMf = "Wing (3MF)";                            // COPY-480 (EX07)
     public const string StepUnavailable = "STEP export unavailable until the open-and-measure fixture exists";   // COPY-481 (EX08)
     public const string ShapeLabel = "Section shape";                            // COPY-482 (EX09)
     public const string ShapeAtStation = "At station";                           // COPY-482 (EX09a)

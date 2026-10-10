@@ -1,0 +1,1 @@
+PROOF-PII self-test ok: 19 offenders caught, 23 clean passed

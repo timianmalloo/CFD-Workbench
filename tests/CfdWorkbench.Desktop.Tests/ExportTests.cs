@@ -36,7 +36,7 @@ public static class ExportTests
         DesktopChecks.Check("Export_Extension_ForcedToDat_NeverTheProjectFile", Extension);
         DesktopChecks.Check("Export_Draft_ReadsAcceptedRevisionAndSaysSo_H1", Draft);
         DesktopChecks.Check("Export_Analysis_AddsOneLine_ReadsTheSameRevision_H4", AnalysisLine);
-        DesktopChecks.Check("Export_Dialog_DatAndStl_NoThreeMf_StepRowExplainsItself", DialogShape);
+        DesktopChecks.Check("Export_Dialog_DatStlAnd3mf_StepRowExplainsItself", DialogShape);
         DesktopChecks.Check("Export_Dialog_Keyboard_EnterExports_EscapeCancels_FocusOnExport", DialogKeys);
         DesktopChecks.Check("Export_Dialog_Failure_StaysOpenWithTwoWaysOut", DialogFailure);
         DesktopChecks.Check("Export_Dialog_JumpSelectsStationAndOpensItsSection_H3", Jump);
@@ -130,6 +130,8 @@ public static class ExportTests
             (498, ExportCopy.Fidelity(0).Replace("0.0000", "<dev>")),
             (507, ExportCopy.WriteFailed("<cause>")),
             (518, ExportCopy.TrailingEdge(0, "<where>", 0, "app default, no source").Replace("0.00 mm at", "<t> mm at").Replace("Floor 0.00 mm", "Floor <f> mm")),
+            // The wing 3MF slice (trk-tmf).
+            (480, ExportCopy.FormatThreeMf),
             // The wing STL slice (trk-stx).
             (479, ExportCopy.FormatStl), (486, ExportCopy.ScopeLabel), (486, ExportCopy.ScopeWhole), (486, ExportCopy.ScopeHalf), (486, ExportCopy.ScopeHalfHelp),
             (487, ExportCopy.ToleranceLabel), (487, ExportCopy.ToleranceDraft), (487, ExportCopy.TolerancePrint), (487, ExportCopy.ToleranceFine),
@@ -148,10 +150,8 @@ public static class ExportTests
                 ?? throw new InvalidOperationException($"COPY-{id} is not in DESIGN.md section 7");
             True(row.Contains(text, StringComparison.Ordinal), $"COPY-{id} does not hold: {text}");
         }
-        // The reserved ids carry no row and no string: a later slice takes them.
-        foreach (int reserved in new[] { 480 })
-            True(!registry.Split('\n').Any(line => line.StartsWith($"| COPY-{reserved} |", StringComparison.Ordinal)), $"COPY-{reserved} is reserved for a later slice");
-        True(registry.Contains("COPY-480 EX07", StringComparison.Ordinal) && registry.Contains("reserved", StringComparison.OrdinalIgnoreCase), "the reserved id is listed in a comment line");
+        // No id is reserved any more: COPY-480 (EX07, the 3MF format row) landed with the 3MF slice, so the comment line that reserved it is gone.
+        True(!registry.Contains("still reserved", StringComparison.OrdinalIgnoreCase), "the registry no longer reserves an Export id");
     }
 
     private static void NoFoil()
@@ -502,11 +502,12 @@ public static class ExportTests
         try
         {
             var formats = dialog.GetVisualDescendants().OfType<ListBoxItem>().ToArray();
-            Equal(2, formats.Length);
+            Equal(3, formats.Length);
             Equal("Section (.dat)", formats[0].Content as string);
             Equal("Wing (STL)", formats[1].Content as string);
+            Equal("Wing (3MF)", formats[2].Content as string);
             string all = string.Join("\n", Texts(dialog));
-            True(!all.Contains("3MF", StringComparison.Ordinal), "3MF is shown before its slice lands");
+            True(all.Contains("Wing (3MF)", StringComparison.Ordinal), "the 3MF row is in the format list");
             // The STL options are in the tree but not on screen while the .dat is chosen.
             Equal(false, dialog.FindControl<StackPanel>("StlOptions")!.IsVisible);
             Equal(true, dialog.FindControl<StackPanel>("DatOptions")!.IsVisible);
