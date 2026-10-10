@@ -75,6 +75,7 @@ public static class CommandTable
         new("file.open", "Open…", "File", "⌘O", false, NoOp),
         new("file.save", "Save", "File", "⌘S", false, NoOp),
         new("file.save-as", "Save As…", "File", "⇧⌘S", false, NoOp),
+        new("file.export", ExportCopy.ExportMenu, "File", "⇧⌘E", false, NoOp),
         new("file.close", "Close", "File", "⌘W", false, NoOp),
 
         // Edit
@@ -154,6 +155,7 @@ public static class CommandTable
         new("section.replace-catalog", "Replace from catalog…", SectionMenu, null, false, NoOp),
         new("section.save-mine", "Save to My sections…", SectionMenu, null, false, NoOp),
         new("section.import-dat", "Import .dat…", SectionMenu, null, false, NoOp),
+        new("section.export-dat", ExportCopy.ExportDatMenu, SectionMenu, null, false, NoOp),
         new("section.make-unique", "Make unique to this station", SectionMenu, null, false, NoOp),
         new("section.thickness-channel", "Station t/c from the Thickness curve", SectionMenu, null, false, NoOp),
         new("section.thickness-source", "Station t/c from this section", SectionMenu, null, false, NoOp),

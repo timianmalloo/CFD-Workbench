@@ -118,6 +118,7 @@ public static class NativeMenuBuilder
             "C" => Key.C,
             "V" => Key.V,
             "A" => Key.A,
+            "E" => Key.E,
             "B" => Key.B,
             "J" => Key.J,
             "K" => Key.K,

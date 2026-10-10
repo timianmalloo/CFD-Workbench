@@ -361,6 +361,42 @@ public static class Placement
         return samples;
     }
 
+    /// <summary>The authored upper and lower ordinates of the profile at one authored station, in chord units.</summary>
+    public sealed record OwnOrdinates(IReadOnlyList<double> Upper, IReadOnlyList<double> Lower);
+
+    /// <summary>
+    /// The profile an authored station names, as drawn: ordinates at the chord abscissae <paramref name="xs"/>, unscaled (no
+    /// thickness channel, no twist, no chord). The public face of <see cref="ProfileEvaluator"/> for export (Export design 3.1).
+    /// </summary>
+    public static OwnOrdinates OwnProfile(byte[] source, int assignment, IReadOnlyList<double> xs)
+    {
+        var (_, definition) = RequireFoil(source);
+        Guard.Require(assignment >= 0 && assignment < definition.Assignments.Length, "DSL-RANGE");
+        var abscissa = new double[xs.Count];
+        for (int index = 0; index < abscissa.Length; index++)
+        {
+            Guard.Require(double.IsFinite(xs[index]) && xs[index] >= 0 && xs[index] <= 1, "DSL-RANGE");
+            abscissa[index] = xs[index];
+        }
+        var prepared = Prepare(definition.Profiles[definition.Assignments[assignment].Profile], abscissa);
+        return new(prepared.Upper, prepared.Lower);
+    }
+
+    /// <summary>The eta of authored station <paramref name="assignment"/>.</summary>
+    public static double StationEta(byte[] source, int assignment)
+    {
+        var (_, definition) = RequireFoil(source);
+        Guard.Require(assignment >= 0 && assignment < definition.Assignments.Length, "DSL-RANGE");
+        return definition.Assignments[assignment].Eta;
+    }
+
+    /// <summary>The cosine chord grid the wing surface and every export use: x = (1 - cos(pi i / (count - 1))) / 2, nose first.</summary>
+    public static IReadOnlyList<double> ChordGrid(int count)
+    {
+        Guard.Require(count >= 2, "DSL-RANGE");
+        return ChordSamples(count);
+    }
+
     public static StationFrame Frame(byte[] source, double eta)
     {
         var (_, definition) = RequireFoil(source);

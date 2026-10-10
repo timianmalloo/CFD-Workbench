@@ -2161,6 +2161,17 @@ PC was told, xmsg 2026-10-09T16:12:55Z). *Control:* `check-proof-pii.py` with `C
 that touches a register. The leader keeps the literal outside the repo. Status: controlled for the leader's joins; PC
 branches pending its scrub.
 
+*2026-10-10 (Ruling 197, PII-GATE-SKIPS-UTF16).* The guard was blind to a file encoding.
+- `check-proof-pii.py:137-138` skips any file with a NUL byte in its first 8 KiB, treating it as binary.
+- Windows tools such as `wsl.exe --version` and `--list` write UTF-16LE with no BOM, which is NUL-patterned. So PR #29's
+  `wsl-version.stdout.txt` and `wsl-list.stdout.txt` were never scanned.
+- The reviewer decoded both and found 0 hits: clean, but by hand, not by the gate.
+
+*Signature:* a PII or text gate whose binary heuristic also excludes a text encoding the platform emits. *Derive:* a
+NUL-patterned file with the UTF-16LE shape (NUL in every odd byte) is decoded as UTF-16 and scanned, not skipped. A
+genuinely binary file stays skipped, and the gate names it. *Control:* pending a Mac tools track, red first on a synthetic
+UTF-16LE offender built at run time.
+
 **READER-SHARE-DELETE · A reader opened without delete sharing blocks a POSIX replace on Windows.**
 A product reader that opens a user file with `FileShare.Read` (or through `File.ReadAllBytes*`, `File.OpenRead`, which share Read only) holds a handle
 the Windows save cannot replace under: the handle-relative rename fails with NativeFailure Win32 32, NTSTATUS 0xC0000043. A `FILE_SHARE_READ |
@@ -2579,3 +2590,8 @@ under a still pointer. In the suite it read as a flake in `PlanCanvas_Escape_Dis
   Status: controlled.
 
 **PLAT-A · 2026-10-09 · An admitted Windows PASS outlives the inputs it was earned on.** Ruling 189 admitted the Windows store PASS (tested head a5c45644) only while the verifier, runner, three build-input trees and four blobs stay unchanged. Control: `docs/proof/windows-store-admission.json` binds them; `tools/check-windows-admission.py` prints `WINDOWS-STORE-EVIDENCE ... current` or `... STALE since <path>` (exit 0, so Core changes are never blocked), `tools/run-windows-store-gate.py` prints the same line, `--self-test` runs in check-docs (fast ring), and a docs file that claims `Windows store: PASS (current)` while stale fails. Status: controlled.
+
+**ROW-MODAL-A · 2026-10-09 · A new command row that opens a modal dialog stops the all-gestures probe.** Adding `file.export` put a row whose command opens the real Export dialog (modal) before the rows after it. `WindowsShell_EveryTableGesture_FiresItsCommandOnce` runs every row's command in turn, so the open dialog took every later key and 15 rows read "fired 0" (first ring of track trk-dat).
+- *Sweep:* the checks that execute rows, not only read them: `CommandTable_Parity_*` and `ShellWindowTests` read the table; only the gesture probe runs each command. The other modal rows (Replace from catalog, Save to My sections) are disabled outside a section, so the probe never ran them.
+- *Derive:* a row that opens a modal has a test hook that replaces the dialog (`ShowCatalogDialog`, `ShowExportDialog`); a probe that runs every row sets the hooks.
+- *Prevent:* the probe check sets `ShowExportDialog`. The probe is the control: the next modal row without a hook fails the same check red (it did here, before the hook). Ring: `--shell-window`, every code-changing join. Status: controlled.

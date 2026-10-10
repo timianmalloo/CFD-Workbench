@@ -1575,3 +1575,15 @@ Operator 2026-10-09: keep the 0.3 mm trailing-edge floor, so analysis blunting a
 Operator 2026-10-09. (1) Both batches are approved as written: rail comb COPY-RC-1..16 and AM-RC-1..5; Export COPY-EX01..EX46 and A1..A14. Final ids: COPY-RC-1..16 become COPY-458..473 in order, and COPY-EX01..EX46 become COPY-474..519 in order. (2) Build order: the rail comb and the Export .dat slice now, as two tracks; then STL with the B1-B4 conditions, then 3MF and the cfdw export verb. (3) PrusaSlicer and OrcaSlicer may be installed on this Mac with Homebrew, for the B1 slicer fixture only, when the STL track starts. (4) A starboard-half export is named ...-half-mm.stl, so it can never overwrite the whole-wing file.
 
 - request: req-01M4HJAVVX7FJ2VZ9GSHFWRKEK · ruled by: operator-timianmalloo · at: 2026-10-10T00:10:18Z
+
+### Ruling 197 — PR #29 GPU inventory accepted; the L3 rate observer is the PC coordinator; G1 read-only source inspection may proceed
+
+Fable owner 2026-10-10 under Ruling 106. PR #29 is APPROVED WITH CONDITIONS (head 02d2ec83). The read-only inventory is honest: the RTX 3080 Ti is visible on Windows and WSL, and the installed v2512 simpleFoam links no GPU library; runtime plugins are not excluded. (a) The missing inventory-period L3 rate is accepted as 'Not recorded, bounded': the inventory spanned 4.05 s against a measured pre-inventory rate of 0.72 it/s, under three iterations. (b) The PC coordinator is the L3 observer: a read-only script in a neutral folder, docs/proof/win-l3-observer/, appends one row per readback {utc, monotonic_s, run_id, latest_complete_iteration, ...} to an append-only samples.jsonl. The rate is derived between consecutive rows; a 5 % slowdown stops the GPU track's own processes. (c) G1 may proceed read-only: no build, install or system change, one core under nice 10, observer running. Its output is the F1 bill of materials; G1 does not authorise F1. The join is a fast-forward.
+
+- request: req-01M4HKYFJSQHHDE1SHKJ596DG0 · ruled by: fable-owner · at: 2026-10-10T00:38:29Z
+
+### Ruling 198 — Export writer path policy clarified: the chosen folder is followed as chosen; a symlink at the target is refused; recovery keeps the ProjectStore policy
+
+Operator 2026-10-10: approved. For an export, the directory is the one chosen in the native save panel, and it is followed as chosen, even when it is itself a symlinked folder (a Dropbox or OneDrive link). The app builds no path component. A symlink at the target name is refused. The temp file is created exclusively with a random name in that directory, flushed, and published by rename. The Recovery/autosave writer (spec :1356) uses the ProjectStore ParentPath policy (no symlinked folder anywhere on the path), not the export policy. The spec rows :1353 and :1356 are amended to say so.
+
+- request: req-01M4K1JR6QPHX3GFM17AAA2ZG5 · ruled by: operator-timianmalloo · at: 2026-10-10T13:55:59Z

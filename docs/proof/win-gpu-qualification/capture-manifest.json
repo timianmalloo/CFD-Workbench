@@ -1,0 +1,76 @@
+{
+  "algorithm": "SHA-256",
+  "capture_scope": "Ruling 191 read-only Windows and WSL GPU qualification inventory",
+  "files": [
+    {
+      "path": "docs/proof/win-gpu-qualification/.gitattributes",
+      "bytes": 191,
+      "sha256": "dbd88ef261324b50f97bc36eee2a54411b0d6da94cb3513c33f95066ff6d79b5"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/capture.json",
+      "bytes": 4648,
+      "sha256": "74982d2cab2169bdfe5ebfceec66799bf346a49b8222a57a634e0bb5a4d20bd7"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/capture.ps1",
+      "bytes": 3157,
+      "sha256": "fdbb59d0658fd1074e4761742b90e57ae7f1ca9096fb1a6e47f619c0068a0bcc"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/host-gpu.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/host-gpu.stdout.txt",
+      "bytes": 63,
+      "sha256": "0ee169d748333b377e73c37463809cc43d1391fb80bf55726cb392ea36a3bedd"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/inspect-wsl.sh",
+      "bytes": 2544,
+      "sha256": "8c60c45657cf08b57efc940ea4202c444f1246766b3931621a277a7d17a4ab42"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/make-manifest.py",
+      "bytes": 1019,
+      "sha256": "8449208f2f7e54d5377df1120de48f18b7395b7328e3486e80ea786130a37570"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/receipt.md",
+      "bytes": 7890,
+      "sha256": "6c5fa2d4f19add2559a3b5ba0ebb9482f5e501d612158c862d9fc97d2c85565a"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/wsl-inventory.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/wsl-inventory.stdout.txt",
+      "bytes": 9242,
+      "sha256": "29ca57de365ff59322781a576e8a7cf2cb651b6fdbfcd406811dbc5660662c15"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/wsl-list.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/wsl-list.stdout.txt",
+      "bytes": 180,
+      "sha256": "bc1c9589211269dd9849ec96c5f2e0f135a56ebaac8815a5ed82e9c028f38a79"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/wsl-version.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/proof/win-gpu-qualification/wsl-version.stdout.txt",
+      "bytes": 448,
+      "sha256": "4aa5914d4ee1653265caed9195c3f01e149bf3438bd59a4707fc85182571494b"
+    }
+  ]
+}

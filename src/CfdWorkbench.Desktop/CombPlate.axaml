@@ -26,7 +26,7 @@
       <StackPanel Spacing="4">
         <TextBlock x:Name="TitleText" Classes="heading" Text="Comb" AutomationProperties.HeadingLevel="3" />
         <StackPanel x:Name="ScaleRow" Orientation="Horizontal" Spacing="4" AutomationProperties.Name="Comb scale">
-          <TextBlock Text="Scale" Width="56" VerticalAlignment="Center" />
+          <TextBlock Text="Scale" Width="{StaticResource CombLabelWidth}" VerticalAlignment="Center" />
           <Button x:Name="SmallerButton" Classes="modebar outline" Content="Smaller teeth" AutomationProperties.Name="Smaller teeth" />
           <Button x:Name="LargerButton" Classes="modebar outline" Content="Larger teeth" AutomationProperties.Name="Larger teeth" />
           <ToggleButton x:Name="AutoButton" Classes="modebar outline" AutomationProperties.Name="Auto scale">
@@ -36,10 +36,10 @@
             </StackPanel>
           </ToggleButton>
         </StackPanel>
-        <TextBlock x:Name="LegendText" Margin="60,0,0,0" TextWrapping="Wrap" />
-        <TextBlock x:Name="CentreText" Margin="60,0,0,0" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
+        <TextBlock x:Name="LegendText" Margin="{StaticResource CombNoteInset}" TextWrapping="Wrap" />
+        <TextBlock x:Name="CentreText" Margin="{StaticResource CombNoteInset}" TextWrapping="Wrap" Foreground="{DynamicResource MutedBrush}" />
         <StackPanel x:Name="DensityRow" Orientation="Horizontal" Spacing="4" AutomationProperties.Name="Comb density">
-          <TextBlock Text="Density" Width="56" VerticalAlignment="Center" />
+          <TextBlock Text="Density" Width="{StaticResource CombLabelWidth}" VerticalAlignment="Center" />
           <Button x:Name="SparserButton" Classes="modebar outline" Content="Sparser" AutomationProperties.Name="Sparser" />
           <Button x:Name="DenserButton" Classes="modebar outline" Content="Denser" AutomationProperties.Name="Denser" />
           <TextBlock x:Name="DensityText" VerticalAlignment="Center" />
@@ -54,6 +54,6 @@
     </Border>
     <!-- The one live region of the plate (COPY-470 and COPY-471): polite, written once per change, invisible to the eye, and outside
          the card so it is still there when the narrow card is closed. -->
-    <TextBlock x:Name="LiveText" Height="1" Opacity="0" AutomationProperties.LiveSetting="Polite" />
+    <TextBlock x:Name="LiveText" Height="{StaticResource CombLiveRegionHeight}" Opacity="0" AutomationProperties.LiveSetting="Polite" />
   </StackPanel>
 </UserControl>

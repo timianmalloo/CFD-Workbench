@@ -2701,7 +2701,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "db1e00833838483e7e7c109277081b1328b2d800144aeed62c381e0b338f20e0"
+      "sourceSha256": "7ebed691e2e7fa147e71ea9dee831d3aa3ce77705e787d6f15cd728297a30a3b"
     },
     {
       "id": "design-foildsl-authoring",
@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e01f5cabc2aada25ef4a5147245d7f582320eb451d5da7c9d57e7667e2bc176e"
+      "sourceSha256": "ef1dfb7912eee3446af43dde2ace86ef78b0989ae36349e796c1d83993cdf872"
     },
     {
       "id": "domain-experts",
@@ -7696,6 +7696,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "61ab4938fc06d947feadc252612d53dc9be22fa5703198d20196578f043f3929"
     },
     {
+      "id": "review-pr-29",
+      "path": "docs/reviews/pr-29.md",
+      "title": "PR #29 (Windows PC) - GPU qualification inventory and plan (Ruling 197), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 197). An honest read-only GPU inventory: an RTX 3080 Ti is visible, and no GPU route is linked in OpenFOAM v2512. The missing L3 rate is bounded by timestamps. The PC coordinator observes L3 through an append-only samples file. G1 read-only source inspection may proceed.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "openfoam",
+        "gpu"
+      ],
+      "links": [
+        {
+          "to": "review-pr-28",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "168657debed759a605d737dea27430b1e2e664c724368760c453085f66e8247c"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8629,7 +8657,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3cb7ac2813fe840cae4dfc24fce8518ee50aebb96574d7f1816f7b26c79fd5fa"
+      "sourceSha256": "3b44119065d68defb0f1b022321215c634338bdb8e3faa62a67185d10d57bd47"
     },
     {
       "id": "kb-hw-glossary",
@@ -10686,6 +10714,48 @@ window.DOCS_INDEX = {
         }
       ],
       "sourceSha256": "6bf6faeb5edc5bcf6cbfb66014bf1eac12b194fa794531bd961c4ea868c683e7"
+    },
+    {
+      "id": "plan-win-openfoam-gpu-qualification",
+      "path": "docs/plans/windows-openfoam-gpu-qualification.md",
+      "title": "Windows OpenFOAM GPU qualification plan after Ruling 191 inventory",
+      "type": "plan",
+      "status": "proposed",
+      "owner": "@win-gpu-qualification",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Gated plan for an isolated OpenFOAM v2512 GPU capability spike and paired measurement. Fable review, an authorized L3 telemetry handoff and separate install/build authorization are mandatory predecessors.",
+      "tags": [
+        "windows",
+        "wsl",
+        "openfoam",
+        "gpu",
+        "nvidia",
+        "ruling-191"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-qualification",
+          "rel": "relates-to"
+        },
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "implements"
+        },
+        {
+          "to": "review-pr-28",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [
+        {
+          "kind": "flowchart",
+          "title": "Execution graph",
+          "mermaid": "flowchart LR\n    G0[\"G0 read-only inventory\\ncomplete\"] --> F0{\"F0 Fable accepts plan\\nand observation boundary\"}\n    F0 --> G1[\"G1 exact source/toolchain spike\"]\n    G1 --> F1{\"F1 Fable install/build/capability-run authorization\"}\n    F1 --> G2[\"G2 isolated environment and bounded build\"]\n    G2 --> F2{\"F2 capability proof\"}\n    F2 --> G3[\"G3 one warm-up + three paired trials\"]\n    G3 --> G4[\"G4 equivalence, speed and impact verdict\"]"
+        }
+      ],
+      "sourceSha256": "69ba40231afea2cdbb45e2c9c4fc369817660442d371e9582352d168656357ea"
     },
     {
       "id": "privacy-review",
@@ -13309,6 +13379,68 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "6fc8d736919d6e164dd704d9d7ffadc013b0872f5fceeec02b7bb27922c03e0a"
+    },
+    {
+      "id": "proof-dat",
+      "path": "docs/proof/dat/README.md",
+      "title": "Export slice 1 (section .dat) exit evidence and the presentation choice",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-dat",
+      "phase": "implementation",
+      "reviewBy": "2026-12-09",
+      "reviewSuggested": [],
+      "summary": "What the .dat slice shows in its first dialog and why (one format row, no disabled STL or 3MF), the committed .dat fixture and its round trip through the existing Import .dat path, the dialog screenshot against the mockup's .dat ready state, and the measured test cost.",
+      "tags": [
+        "export",
+        "dat",
+        "proof",
+        "fidelity",
+        "te-floor"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-dat-red-first",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "840885fc882c80dc8dac5f314df02195824105d60beae0ba8e1b35c59cc53fa8"
+    },
+    {
+      "id": "proof-dat-red-first",
+      "path": "docs/proof/dat/red-first.md",
+      "title": "Export slice 1 (section .dat) red-first runs",
+      "type": "proof-pack",
+      "status": "in-review",
+      "owner": "@track-dat",
+      "phase": "implementation",
+      "reviewBy": "2026-12-09",
+      "reviewSuggested": [],
+      "summary": "For each behaviour of the section .dat slice, the check that failed on the code before the behaviour and the run that passed after it: positional digits (B5), the name-line rule (B6), At station and Own (B9), the TE floor label and the unchanged analysis hash (B10), and the Desktop surface. Base main affddb89, track trk-dat, 2026-10-09.",
+      "tags": [
+        "export",
+        "dat",
+        "te-floor",
+        "red-first",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "spec-amendments-1-7-6",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "23933d3927ec249c9ce90551b39a6dce7c72781cec6162a9c978495009f52ebc"
     },
     {
       "id": "proof-doc-oct06",
@@ -17174,6 +17306,42 @@ window.DOCS_INDEX = {
       "sourceSha256": "d467406caf7dd1aeabd8541e2f61202bae464bd4e19c78cff19d6f30af207868"
     },
     {
+      "id": "proof-win-gpu-qualification",
+      "path": "docs/proof/win-gpu-qualification/receipt.md",
+      "title": "Windows OpenFOAM GPU qualification: read-only Ruling 191 inventory",
+      "type": "proof-pack",
+      "status": "in-progress",
+      "owner": "@win-gpu-qualification",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Ruling 191 read-only inventory: Windows and WSL see the RTX 3080 Ti, but the installed OpenFOAM v2512 runtime has no demonstrated GPU execution route. Installation, build and trial authorization remain closed pending Fable review.",
+      "tags": [
+        "windows",
+        "wsl",
+        "openfoam",
+        "gpu",
+        "nvidia",
+        "ruling-191"
+      ],
+      "links": [
+        {
+          "to": "coordination-windows-w0-w5-execution",
+          "rel": "implements"
+        },
+        {
+          "to": "review-pr-28",
+          "rel": "relates-to"
+        },
+        {
+          "to": "plan-win-openfoam-gpu-qualification",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "6c5fa2d4f19add2559a3b5ba0ebb9482f5e501d612158c862d9fc97d2c85565a"
+    },
+    {
       "id": "proof-win-naca",
       "path": "docs/proof/win-naca/receipt.md",
       "title": "Windows W-4a/b NACA 0012 evidence and unlaunched L3 preparation",
@@ -18959,6 +19127,46 @@ window.DOCS_INDEX = {
       "sourceSha256": "f86ae43d2dafa586c8a3f8bea110c9ee530e964da91f5944e1aed37eb4d6ebe3"
     },
     {
+      "id": "spec-amendments-1-7-6",
+      "path": "docs/specs/amendments/spec-1.7.6.md",
+      "title": "Spec 1.7.6 amendment batch — Export (EXP-02, EXP-03, the format table, F5, the TE-floor label), A1 to A14, as exact text",
+      "type": "spec",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Fourteen amendments to cfd-workbench-v1, traced to Rulings 193 to 196 and to section 14 of the Export design. The operator approved the batch as one in Ruling 196. Revision 1.7.6 of the spec carries it; the change record is Appendix H, section H.6.",
+      "tags": [
+        "spec",
+        "amendments",
+        "rulings",
+        "export",
+        "dat",
+        "te-floor"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-5",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "ad1066ed2e1ac5227e88bde94d3d3c7d793412b565e1cc3d7b8b27fae60e0a76"
+    },
+    {
       "id": "spec-amendments-1-7-6-rail-comb",
       "path": "docs/specs/amendments/spec-1.7.6-rail-comb.md",
       "title": "Spec 1.7.6 amendment batch — the rail comb on the planform rails (A4.9), as exact text",
@@ -19279,7 +19487,7 @@ window.DOCS_INDEX = {
         {
           "kind": "flowchart",
           "title": "B6. Flow F5 — export and optional assistance (EXP-01–03, AI-01–06)",
-          "mermaid": "flowchart TD\nX[Current design: Export, no AI required] --> L[Choose format, unit and tolerance]\nL --> M{Geometry and format checks pass?}\nM -->|No| N[Explain; TE floor finding; return to geometry]\nM -->|STEP without CAM fixture| P[Unavailable: open-and-measure proof pending]\nM -->|Yes| O{Write}\nO -->|Success| S[Export with revision, deviation and safety string]\nO -->|Denied or disk full| T[Preserve existing file; choose path or retry]\nT --> L\nA[Assistant entry point] --> B{Key and consent?}\nB -->|No| C[Disabled with Configure key; manual path remains]\nB -->|Yes| B2{Model evaluated?}\nB2 -->|No| C2[Unevaluated on this model; proposals disabled; explanations labelled]\nB2 -->|Yes| B3{Within caps?}\nB3 -->|No| C3[Cap exceeded: per-request or daily; raise in Settings or wait]\nB3 -->|Yes| D[Inspect redacted payload; submit]\nD --> D2{Transport}\nD2 -->|401, timeout or quota| C4[Named error; retry; manual path remains]\nD2 -->|Response| E{Response valid?}\nE -->|Schema or domain failure| F[Show rejected fields with bounds; dismiss]\nE -->|Proposal| G[Labelled fields, preview, diff]\nG -->|Accept and base unchanged| H[One Design revision]\nG -->|Base changed| I[Refresh preview]\nI --> G\nG -->|Discard| J[Document unchanged]\nE -->|Explanation| K{Every numeral in shared context?}\nK -->|Yes| K2[Citations to run or knowledge id]\nK -->|No| K3[Withheld with the reason]"
+          "mermaid": "flowchart TD\nX[Current design: Export, no AI required] --> L[Choose format and tolerance; the unit is fixed at millimetres for STL and 3MF]\nL --> M{Geometry and format checks pass?}\nM -->|No| N[Explain; return to geometry]\nM -->|STEP without CAM fixture| P[Unavailable: open-and-measure proof pending]\nM -->|Yes| O{Write}\nO -->|Success| S[Export with revision, deviation, safety string and the TE-floor advisory]\nO -->|Denied or disk full| T[Preserve existing file; choose path or retry]\nT --> L\nA[Assistant entry point] --> B{Key and consent?}\nB -->|No| C[Disabled with Configure key; manual path remains]\nB -->|Yes| B2{Model evaluated?}\nB2 -->|No| C2[Unevaluated on this model; proposals disabled; explanations labelled]\nB2 -->|Yes| B3{Within caps?}\nB3 -->|No| C3[Cap exceeded: per-request or daily; raise in Settings or wait]\nB3 -->|Yes| D[Inspect redacted payload; submit]\nD --> D2{Transport}\nD2 -->|401, timeout or quota| C4[Named error; retry; manual path remains]\nD2 -->|Response| E{Response valid?}\nE -->|Schema or domain failure| F[Show rejected fields with bounds; dismiss]\nE -->|Proposal| G[Labelled fields, preview, diff]\nG -->|Accept and base unchanged| H[One Design revision]\nG -->|Base changed| I[Refresh preview]\nI --> G\nG -->|Discard| J[Document unchanged]\nE -->|Explanation| K{Every numeral in shared context?}\nK -->|Yes| K2[Citations to run or knowledge id]\nK -->|No| K3[Withheld with the reason]"
         },
         {
           "kind": "flowchart",
@@ -19317,7 +19525,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "c6d0d9ac979fdca8003ce0043a6e9971b933753a37770c7ccf1f2d4aea1dc59a"
+      "sourceSha256": "5931766681e93182b2a1e5795de39364c068280c98e5738691583c0f8da2d47a"
     },
     {
       "id": "spec-foildsl",
@@ -19771,5 +19979,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "463fec5a22755ce717105d98eb09a413fb05a40461d73947b77259073986bacc"
+  "graphSha256": "ca59b98c16b8ad9b6caa5e6d58311271f2faecde4b51e8b1bdba9d56f4d8a70f"
 };

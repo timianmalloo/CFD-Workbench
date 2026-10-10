@@ -59,6 +59,7 @@ internal static class AnalysisChecks
             ("DxSection", 1177, DxSectionTests.Run),
             ("SectionForce", 297, SectionForceTests.Run),
             ("NotResolved", 842, NotResolvedTests.Run),
+            ("TeFloor", 202, TeFloorLabelTests.Run),
         };
         int[] owner = Assign(groups.Select(group => group.CostHintMs).ToArray(), part?.Count ?? 1);
         for (int i = 0; i < groups.Length; i++)

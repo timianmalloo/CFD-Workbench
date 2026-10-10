@@ -253,6 +253,10 @@
     <x:Double x:Key="StatusIconSize">12</x:Double>
     <x:Double x:Key="ToastIconSize">14</x:Double>
     <x:Double x:Key="ToastWidth">420</x:Double>               <!-- spacing.toast-w -->
+    <x:Double x:Key="ExportDialogWidth">760</x:Double>        <!-- the Export dialog width in the approved mockup (docs/mockups/export.html; Ruling 194) -->
+    <x:Double x:Key="CombLabelWidth">56</x:Double>            <!-- the comb plate's Scale and Density label column (docs/mockups/rail-comb.html, .plate .pr) -->
+    <Thickness x:Key="CombNoteInset">60,0,0,0</Thickness>     <!-- the comb plate's legend and note lines, under the steppers (docs/mockups/rail-comb.html) -->
+    <x:Double x:Key="CombLiveRegionHeight">1</x:Double>       <!-- the comb plate's invisible live region: present for a screen reader, 1 px for the eye (docs/mockups/rail-comb.html, .sr) -->
     <x:Double x:Key="ToastHoldMilliseconds">8000</x:Double>   <!-- motion.toast-hold -->
     <x:Double x:Key="RailWidth">3</x:Double>                  <!-- the 3 px warning / error rail -->
     <Thickness x:Key="ToastInset">12</Thickness>              <!-- spacing.toast-inset -->
