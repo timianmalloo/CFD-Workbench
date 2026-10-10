@@ -1,0 +1,2 @@
+sample appended utc=2026-10-10T19:27:31Z run_id=20261008T145043Z-win-spike04r3-g2-l3
+{"anchor_rows": 8, "anchor_sha256": "f9c174dd595ee97d3e0ada37396971f898426660fbe9c30d9d180f683addeade", "baseline_row": {"iteration": 110351.0, "monotonic_s": 142009.12, "row_number": 11, "utc_age_s": 0.48822498321533203, "utc_s": 1791660451.0}, "observed_row": 11, "reason": "first fresh baseline row", "schema": "cfdw-live-observer-guard/2", "session_id": "pc-b1-r199-20261010b", "start_row": 11, "verdict": "baseline-pending"}
