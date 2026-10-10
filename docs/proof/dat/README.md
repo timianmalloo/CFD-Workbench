@@ -83,5 +83,11 @@ checks have no row in `core-costs.tsv` (a missing row costs balance, never cover
 ## Not in this slice
 
 STL, 3MF, the `cfdw export` verb (A9's CLI half), the large-mesh state, the preparing and writing states (a .dat is written in under a frame), and the default `CFD Workbench` start folder of the save panel
-(`w2-save-picker` is not on this base; the panel starts in the project file's folder when there is one, else where the platform puts it). The design's note that no symlink-component refusal is described for exports stands:
-the write is a temp file in the chosen folder and a rename, which replaces a symlink at the target rather than following it, and follows a symlinked folder the user chose.
+(`w2-save-picker` is not on this base; the panel starts in the project file's folder when there is one, else where the platform puts it). A symlink at the target is now refused (security review, red-first.md section 5); a symlinked folder the user chose is followed as chosen.
+
+## Follow-ups accepted after the security review (no code now)
+
+- Other path exceptions are not caught (`ExportSession.RunAsync` catches IOException and UnauthorizedAccessException only), and a locked Windows target shows the "no permission" copy.
+- The slug has no length cap (the file name is not truncated; the name line is capped at 80).
+- The temp file has the default mode (0644 on macOS), the rename drops extended attributes, ACLs and hard links of a replaced file, and a killed process can leave an orphan `.cfd-*.tmp`. All accepted.
+- The refused-link and forced-extension refusals reuse the approved write-failure sentence with no cause (COPY-507); a dedicated cause sentence would need copy approval.

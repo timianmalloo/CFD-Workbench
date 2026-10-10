@@ -131,3 +131,24 @@ Analysis (H4), Dialog shape (one format, no STL or 3MF, STEP row), Dialog keyboa
 
 One failure on the ring, one repair (cap 2): `WindowsShell_EveryTableGesture_FiresItsCommandOnce` read "fired 0" for 15 rows after the new `file.export` row, because the probe
 runs each row's command and the real Export dialog is modal. The check now sets `host.ShowExportDialog`; the class is `ROW-MODAL-A` in `docs/lessons/defect-classes.md`.
+
+## 5. Security review repairs (export-writer boundary, name line, forced extension)
+
+Red on the code of 42713d10, then green after the repair (one cycle). Red run (`CFD_TEST_ONLY=DatExport_B6` and `CFD_TEST_ONLY=Export_ ... --section-editor`):
+
+```
+FAIL DatExport_B6_NameLine_NeverStartsWithTwoNumbers_Reimports InvalidOperationException: Expected True; actual False
+FAIL DatExport_B6_NameLine_ControlCharactersAndLengthRemoved InvalidOperationException: Expected False; actual True
+FAIL Export_Write_SymlinkTarget_Refused_LinkAndTargetUnchanged InvalidOperationException: expected Failed; actual Written
+FAIL Export_Extension_ForcedPathThatExists_NeverOverwritten InvalidOperationException: expected Failed; actual Written
+```
+
+The name-line checks now include `1,2 wing`, `2*0.5 wing`, `1d0 2d0 wing`, `1 , 2 wing` and `  7 wing` (the rule is: a letter first, else prefix `foil `) and a check that bidi format characters are stripped. `Export_FileName_FromHostileNames_HasNoSeparatorOrDotDot` (`../../x`, `a/b\c`, `..`, `C:\evil`) was green at once: `DatImport.Slug` already reduces names to letters, digits and hyphens, so it is a guard, not a red.
+
+Repair: `DatExport.NameLine` prefixes `foil ` unless the first non-blank character is a letter and strips `UnicodeCategory.Format`; `ExportSession.RunAsync` refuses a path the app changed (forced extension) when it exists; `WriteAtomicAsync` refuses a link at the target, creates the temp file with `FileMode.CreateNew` and `FileShare.None`, and flushes to disk before the rename. A refusal reuses the approved write-failure sentence (COPY-507, no cause) and the dialog offers Choose another place. Green: see the ring below.
+
+Green: `tools/run-tests.sh` exit 0 (Core 341+202+205, Desktop 737, Analysis 147+101, Cli 6 PASS; wall 44 s, 0 COST-MISS). One earlier ring run read `C-2 Analysis.part1of2 took 5068 ms, over 5000 ms` (68 ms over, load 9.5; no Analysis code changed in this repair); the rerun read 4670 ms and 4604 ms.
+```
+wall 44 s (44424 ms, net 42683 ms) (budget 60 s) cpu 479 s load 6.32 -> 11.76
+```
+`check-docs.py` exit 0 and `run-verify-gates.py` with the three skips exit 0 after `git add -A`.

@@ -141,6 +141,9 @@ public sealed class ExportSession
         string? chosen = await pick(FileName, StartFolder);
         if (chosen is null) return new(ExportOutcomeKind.Cancelled, ExportCopy.Cancelled);
         string path = ForceExtension(chosen);
+        // The panel confirmed the replacement of the name it was given. A name the app changed was never confirmed: never replace it.
+        if (path != chosen && (File.Exists(path) || Directory.Exists(path)))
+            return new(ExportOutcomeKind.Failed, ExportCopy.WriteFailed(""), path);
         try
         {
             await (write ?? WriteAtomicAsync)(path, result.Bytes);
@@ -169,15 +172,25 @@ public sealed class ExportSession
     private static bool IsDiskFull(IOException error) =>
         OperatingSystem.IsWindows() ? (error.HResult & 0xFFFF) is 0x70 or 0x27 : error.HResult == 28;
 
-    /// <summary>Temp file in the destination folder, then rename over the target. On any failure the temp file is deleted and the target is untouched.</summary>
+    /// <summary>
+    /// The directory is the one the save panel chose and is followed as chosen; the app builds no path component. A symlink at the target is
+    /// refused. The temp file is created exclusive, with a random name, in that directory, flushed to disk, then published by rename. On any
+    /// failure the temp file is deleted and the target is untouched.
+    /// </summary>
     public static async Task WriteAtomicAsync(string path, byte[] bytes)
     {
         string folder = Path.GetDirectoryName(Path.GetFullPath(path)) ?? throw new DirectoryNotFoundException(path);
         if (!Directory.Exists(folder)) throw new DirectoryNotFoundException(folder);
+        if ((File.Exists(path) || Directory.Exists(path)) && (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+            throw new IOException("The target is a link.");
         string temp = Path.Combine(folder, ".cfd-" + Guid.NewGuid().ToString("D") + ".tmp");
         try
         {
-            await File.WriteAllBytesAsync(temp, bytes);
+            await using (var stream = new FileStream(temp, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            {
+                await stream.WriteAsync(bytes);
+                stream.Flush(flushToDisk: true);
+            }
             File.Move(temp, path, overwrite: true);
         }
         catch

@@ -140,25 +140,18 @@ public static class DatExport
     }
 
     /// <summary>
-    /// <c>foil | station | rN</c> without control characters and at most 80 characters. It never starts with two numbers (B6), so
+    /// <c>foil | station | rN</c> without control or format (bidi) characters and at most 80 characters. It always starts with a letter (B6), so
     /// no reader can take it for a point row or the Lednicer counts.
     /// </summary>
     internal static string NameLine(string foilName, string stationName, int revision)
     {
         string line = Clean($"{foilName} | {stationName} | r{revision.ToString(CultureInfo.InvariantCulture)}");
-        return Truncate(StartsWithTwoNumbers(line) ? "foil " + line : line);
+        // A letter first: no reader (a Fortran list-directed read takes 1,2 and 2*0.5 and 1d0 as numbers) can take the line for a row.
+        string first = line.TrimStart();
+        return Truncate(first.Length > 0 && char.IsLetter(first[0]) ? line : "foil " + line);
     }
 
-    private static bool StartsWithTwoNumbers(string line)
-    {
-        string[] tokens = line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
-        return tokens.Length >= 2 && IsNumber(tokens[0]) && IsNumber(tokens[1]);
-    }
-
-    private static bool IsNumber(string token) =>
-        double.TryParse(token, NumberStyles.Float, CultureInfo.InvariantCulture, out _);
-
-    private static string Clean(string text) => new(text.Where(character => !char.IsControl(character)).ToArray());
+    private static string Clean(string text) => new(text.Where(character => !char.IsControl(character) && char.GetUnicodeCategory(character) != UnicodeCategory.Format).ToArray());
 
     private static string Truncate(string text)
     {

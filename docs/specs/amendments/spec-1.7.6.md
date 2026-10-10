@@ -53,3 +53,11 @@ summary: >-
 
 The section .dat (track `trk-dat`) builds A4, A5, A7, A8, A10, A11, A12 and A13 for the .dat. A1 and A14 are wording. A2, A3, A6 and the `cfdw export` verb of A9 belong to
 the STL, 3MF and CLI slices; their spec text is applied now so the spec matches the approved batch.
+
+## Proposed (awaiting operator): Export writer path policy
+
+Marked proposed. The spec body is not edited; the operator owns the spec. Raised by the security review of the .dat slice (spec `:1301`, `:1353`, the "Export writer" row; test names "`../` path; symlink target"). The build already behaves this way (`ExportSession.WriteAtomicAsync`).
+
+> For an export, the directory is the one chosen in the native save panel and is followed as chosen; the app builds no path component; a symlink at the target is refused; the temp file is created exclusive with a random name in that directory; publish is by rename.
+>
+> The Recovery/autosave row (`:1356`) uses the ProjectStore `ParentPath` policy, not the export policy.

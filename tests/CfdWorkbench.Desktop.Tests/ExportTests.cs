@@ -30,6 +30,9 @@ public static class ExportTests
         DesktopChecks.Check("Export_Cancel_AtThePanel_WritesNothingAndSaysSo_H8", PanelCancelled);
         DesktopChecks.Check("Export_WriteFailure_CauseCopy_EarlierFileUntouched_NoTemp_H6", WriteFailure);
         DesktopChecks.Check("Export_Write_IntoOneDriveNamedFolder_NotRefused_Ruling194", OneDrive);
+        DesktopChecks.Check("Export_Write_SymlinkTarget_Refused_LinkAndTargetUnchanged", SymlinkTarget);
+        DesktopChecks.Check("Export_FileName_FromHostileNames_HasNoSeparatorOrDotDot", SuggestedNameIsPlain);
+        DesktopChecks.Check("Export_Extension_ForcedPathThatExists_NeverOverwritten", ForcedExtensionNeverOverwrites);
         DesktopChecks.Check("Export_Extension_ForcedToDat_NeverTheProjectFile", Extension);
         DesktopChecks.Check("Export_Draft_ReadsAcceptedRevisionAndSaysSo_H1", Draft);
         DesktopChecks.Check("Export_Analysis_AddsOneLine_ReadsTheSameRevision_H4", AnalysisLine);
@@ -365,6 +368,58 @@ public static class ExportTests
             var outcome = Wait(Session(controller).RunAsync((name, _) => Task.FromResult<string?>(Path.Combine(synced, name))));
             Equal(ExportOutcomeKind.Written, outcome.Kind);
             True(File.Exists(Path.Combine(synced, "basic-foil-root-r1.dat")), "written into a OneDrive-named folder");
+        }
+        finally { Directory.Delete(folder, true); }
+    }
+
+    // Security review (export-writer boundary): a symlink at the chosen target is refused, and neither the link nor its target changes.
+    private static void SymlinkTarget()
+    {
+        string folder = NewFolder();
+        try
+        {
+            using var controller = OpenExample();
+            string real = Path.Combine(folder, "real.dat"), link = Path.Combine(folder, "link.dat");
+            File.WriteAllText(real, "the file the link points to");
+            File.CreateSymbolicLink(link, real);
+            var outcome = Wait(Session(controller).RunAsync((_, _) => Task.FromResult<string?>(link)));
+            Equal(ExportOutcomeKind.Failed, outcome.Kind);
+            Equal("Can't write the file. Nothing was changed. The earlier file is still there.", outcome.Message);
+            Equal(real, new FileInfo(link).LinkTarget);
+            Equal("the file the link points to", File.ReadAllText(real));
+            Equal(0, Directory.GetFiles(folder, ".cfd-*.tmp").Length);
+        }
+        finally { Directory.Delete(folder, true); }
+    }
+
+    // The suggested name carries nothing from the foil or station name but letters, digits and hyphens.
+    private static void SuggestedNameIsPlain()
+    {
+        using var controller = OpenExample();
+        foreach (string name in new[] { "../../x", "a/b\\c", "..", "C:\\evil" })
+        {
+            var source = controller.ExportSnapshot()! with { FoilName = name, Stations = [new("../Root", 1, 12)], DefaultStation = 0 };
+            string file = new ExportSession(source).FileName;
+            True(!file.Contains('/') && !file.Contains('\\') && !file.Contains("..") && !file.Contains(':'), "separator or .. in " + file);
+            True(file.EndsWith("-r1.dat", StringComparison.Ordinal), file);
+        }
+    }
+
+    // A forced extension must not overwrite a file the panel did not ask about.
+    private static void ForcedExtensionNeverOverwrites()
+    {
+        string folder = NewFolder();
+        try
+        {
+            using var controller = OpenExample();
+            string other = Path.Combine(folder, "typed.dat");
+            File.WriteAllText(other, "someone else's file");
+            var outcome = Wait(Session(controller).RunAsync((_, _) => Task.FromResult<string?>(Path.Combine(folder, "typed.txt"))));
+            Equal(ExportOutcomeKind.Failed, outcome.Kind);
+            Equal("someone else's file", File.ReadAllText(other));
+            // A .dat the panel itself named was already confirmed by the panel: that one is replaced.
+            var named = Wait(Session(controller).RunAsync((_, _) => Task.FromResult<string?>(other)));
+            Equal(ExportOutcomeKind.Written, named.Kind);
         }
         finally { Directory.Delete(folder, true); }
     }

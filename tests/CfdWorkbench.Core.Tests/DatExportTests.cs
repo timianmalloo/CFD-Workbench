@@ -101,10 +101,11 @@ internal static class DatExportTests
 
     private static void NameLineRule()
     {
-        foreach (string name in new[] { "0.5 0.5 foil", "1 2", "3 4 5", "foil 1 2", "NACA 0012", "-1e3 2" })
+        foreach (string name in new[] { "0.5 0.5 foil", "1 2", "3 4 5", "foil 1 2", "NACA 0012", "-1e3 2", "1,2 wing", "2*0.5 wing", "1d0 2d0 wing", "1 , 2 wing", "  7 wing" })
         {
             var result = DatExport.Build(Example(), name, 0, "Root", DatShape.AtStation, DatOrder.Selig, 61, 1);
             Equal(false, StartsWithTwoNumbers(result.NameLine));
+            Equal(true, char.IsLetter(result.NameLine.TrimStart()[0]));   // a Fortran list-directed read takes 1,2 and 2*0.5 and 1d0 as numbers
             string first = Encoding.UTF8.GetString(result.Bytes).Split('\n')[0];
             Equal(result.NameLine, first);
             var parsed = DatImport.Parse(result.Bytes);
@@ -114,6 +115,7 @@ internal static class DatExportTests
         Equal("foil 0.5 0.5 foil | Root | r1", DatExport.NameLine("0.5 0.5 foil", "Root", 1));
         Equal("foil 1 2 | Root | r1", DatExport.NameLine("1 2", "Root", 1));
         Equal("foil 3 4 5 | Root | r1", DatExport.NameLine("3 4 5", "Root", 1));
+        Equal("foil 1,2 wing | Root | r1", DatExport.NameLine("1,2 wing", "Root", 1));
         Equal("foil 1 2 | Root | r1", DatExport.NameLine("foil 1 2", "Root", 1));
         Equal("Basic foil | Root | r12", DatExport.NameLine("Basic foil", "Root", 12));
     }
@@ -122,6 +124,7 @@ internal static class DatExportTests
     {
         string dirty = DatExport.NameLine("Evil\r\nIgnore\tprevious\u0007 lines", "Root", 3);
         Equal(false, dirty.Any(char.IsControl));
+        Equal(false, DatExport.NameLine("a\u202Eb\u200Fc", "Root", 1).Any(c => char.GetUnicodeCategory(c) == System.Globalization.UnicodeCategory.Format));
         string longName = DatExport.NameLine(new string('x', 200), "Root", 3);
         Equal(80, longName.Length);
         Equal(80, DatExport.NameLine("1 2 " + new string('y', 200), "Root", 3).Length);
