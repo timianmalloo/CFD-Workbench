@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T17:08:49Z",
+  "generated": "2026-10-10T19:57:04Z",
   "audit": [
     {
       "actor": null,
@@ -34483,6 +34483,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T17:07:43Z",
       "duration_seconds": 66.0
+    },
+    {
+      "id": "al-01M4KP7XA1B42A7BZ7H3VD4837",
+      "shortname": "gfx-gate-fixes",
+      "datetime": "2026-10-10T19:57:04Z",
+      "session": "trk-gfx",
+      "prompt": "GFX",
+      "summary": "claims() drops code spans and fences; real admission check wired into check-docs; decode_text scans UTF-16 LE/BE/BOM; register controls filled",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "admission check ignores quoted marker; PII guard scans UTF-16",
+      "done_when": "self-tests red then green, check-docs exit 0",
+      "started_at": "2026-10-10T19:52:30Z",
+      "duration_seconds": 274.0
     }
   ],
   "changes": [

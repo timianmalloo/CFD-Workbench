@@ -2169,8 +2169,9 @@ branches pending its scrub.
 
 *Signature:* a PII or text gate whose binary heuristic also excludes a text encoding the platform emits. *Derive:* a
 NUL-patterned file with the UTF-16LE shape (NUL in every odd byte) is decoded as UTF-16 and scanned, not skipped. A
-genuinely binary file stays skipped, and the gate names it. *Control:* pending a Mac tools track, red first on a synthetic
-UTF-16LE offender built at run time.
+genuinely binary file stays skipped, and the gate names it. *Control:* `decode_text` in `check-proof-pii.py` (a BOM or the
+LE/BE shape decodes as UTF-16); its `--self-test` builds UTF-16LE no-BOM, BOM and BE offenders at run time plus a binary
+file that is skipped and named, red first in `docs/proof/gfx/red-first.md`. Ring: fast, no added cost. Status: controlled.
 
 **READER-SHARE-DELETE · A reader opened without delete sharing blocks a POSIX replace on Windows.**
 A product reader that opens a user file with `FileShare.Read` (or through `File.ReadAllBytes*`, `File.OpenRead`, which share Read only) holds a handle
@@ -2608,7 +2609,10 @@ under a still pointer. In the suite it read as a flake in `PlanCanvas_Escape_Dis
 - No gate saw it, because `check-docs.py` runs only the check's `--self-test`, never the check itself.
 
 *Derive:* a marker check ignores a marker quoted as code, and the real check (not only its self-test) runs in a ring.
-*Control:* a Mac track (pending).
+*Control:* `claims()` in `tools/check-windows-admission.py` drops fenced blocks and backtick spans before it looks for the
+marker. Self-test cases: "backtick-quoted marker must pass while stale", "fenced marker must pass while stale", "bare
+marker after a code span must fail while stale", "stale with no claim must print STALE and exit 0". The real check now
+runs in `check-docs.py` (fast ring, about 0.35 s). Status: controlled.
 
 **OBS-CLOCK-DOMAIN-A · A UTC window classifies intervals whose duration clock is monotonic.** The first uncommitted
 Ruling 197 observer analysis used capture UTC for both the capture join and the 30-minute window. WSL UTC advanced about
