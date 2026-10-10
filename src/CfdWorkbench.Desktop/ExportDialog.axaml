@@ -16,6 +16,7 @@
           <ListBox x:Name="FormatList" AutomationProperties.Name="Format">
             <ListBoxItem x:Name="DatFormatItem" IsSelected="True" />
             <ListBoxItem x:Name="StlFormatItem" />
+            <ListBoxItem x:Name="ThreeMfFormatItem" />
           </ListBox>
           <Button x:Name="StepButton" Content="STEP" IsEnabled="False" HorizontalAlignment="Stretch" />
           <TextBlock x:Name="StepWhy" TextWrapping="Wrap" FontSize="{StaticResource CaptionSize}" Foreground="{DynamicResource MutedBrush}" />

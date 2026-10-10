@@ -47,16 +47,22 @@ internal static class StlExportTests
     /// <summary>
     /// The fixtures of tools/check-slicer-open.py (build condition B1): the Example foil with an open and a closed trailing edge, whole and
     /// starboard half, at Print, plus the Untitled wing at Fine (a large mesh for the load time), each written by the app's writer, with
-    /// the numbers the app reports for it. The harness entry point writes them with <c>--write-stl-fixtures &lt;dir&gt;</c>; not a check.
+    /// the numbers the app reports for it. Each wing is written twice, as <c>.stl</c> and as <c>.3mf</c> (same mesh). The harness entry point
+    /// writes them with <c>--write-stl-fixtures &lt;dir&gt;</c>; not a check.
     /// </summary>
     internal static IEnumerable<(string File, StlExportResult Result)> Fixtures()
     {
         foreach (var scope in new[] { StlScope.Whole, StlScope.Half })
         {
             foreach (var (name, source) in new[] { ("example-open", OpenTrailingEdge(0.001)), ("example-closed", Example()) })
-                yield return ($"{name}-{(scope == StlScope.Half ? "half" : "whole")}.stl", StlExport.Build(source, name, 1, scope, StlExport.PrintMm));
+            {
+                string stem = $"{name}-{(scope == StlScope.Half ? "half" : "whole")}";
+                yield return ($"{stem}.stl", StlExport.Build(source, name, 1, scope, StlExport.PrintMm));
+                yield return ($"{stem}.3mf", ThreeMfExport.Build(source, name, 1, scope, StlExport.PrintMm));
+            }
         }
         yield return ("untitled-fine-whole.stl", StlExport.Build(Untitled(), "untitled-fine", 1, StlScope.Whole, StlExport.FineMm));
+        yield return ("untitled-fine-whole.3mf", ThreeMfExport.Build(Untitled(), "untitled-fine", 1, StlScope.Whole, StlExport.FineMm));
     }
 
     private static string RepoFile(params string[] parts) => Path.Combine([PlacementTests.RepoRoot(), .. parts]);

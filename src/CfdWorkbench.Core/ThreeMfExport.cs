@@ -12,7 +12,7 @@ namespace CfdWorkbench.Core;
 /// nothing is scaled. Every write is read back and refused (<c>EXPORT-NOT-CLOSED</c>) when an edge is not shared by exactly two triangles.
 /// </summary>
 /// <remarks>
-/// Verified against the 3MF Core specification 1.3 (docs/proof/tmf/3mf-core-spec-excerpts.md): section 3.4 lists <c>millimeter</c> as a unit value and
+/// Verified against the 3MF Core specification, master at version 1.4.0 (docs/proof/tmf/3mf-core-spec-excerpts.md): section 3.4 lists <c>millimeter</c> as a unit value and
 /// the default; section 4.1.4 requires counter-clockwise vertex order seen from outside, face normal outward. The STL writer's winding is already
 /// outward, so the triangles are written in the same order.
 /// </remarks>

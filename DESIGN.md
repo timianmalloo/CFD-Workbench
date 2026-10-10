@@ -814,6 +814,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-477 | Export — approved — Ruling 196 (EX04: dialog title) |
 | COPY-478 | Section (.dat) — approved — Ruling 196 (EX05: the format row) |
 | COPY-479 | Wing (STL) — approved — Ruling 196 (EX06: the STL format row) |
+| COPY-480 | Wing (3MF) — approved — Ruling 196 (EX07: the 3MF format row; the 3MF slice, trk-tmf) |
 | COPY-481 | STEP export unavailable until the open-and-measure fixture exists — approved — Ruling 196 (EX08: the disabled STEP row; the spec string) |
 | COPY-482 | Section shape · At station · Own — approved — Ruling 196 (EX09, EX09a, EX09b: the .dat shape option) |
 | COPY-483 | Station · At station: the section as the wing builds it here; its peak thickness is the station t/c, <tc> %. Own: the profile as authored, unscaled. Both are in chord units, with no twist. — approved — Ruling 196 (EX10a station label; EX10 help, <tc> in percent, one decimal) |
@@ -854,7 +855,7 @@ The following are the oracle strings for review; quote them exactly in checks.
 | COPY-518 | Least thickness <t> mm at <where>. Floor <f> mm (app default, no source). · <t> mm along the whole span. Floor <f> mm (app default, no source). — approved — Ruling 196 (EX45: the trailing-edge row, located value; EX45a: the whole-span value) |
 | COPY-519 | Manufacturing: not assessed (no process chosen) — approved — Ruling 196 (EX46: the second line of the trailing-edge row) |
 
-<!-- COPY-479 to COPY-519 are Ruling 196's COPY-EX ids; the only id still reserved is COPY-480 EX07 (the 3MF format row, with the 3MF slice). A reserved id takes no row until its slice lands; an id with a suffix (EX10a, EX13a, EX14a, EX23a, EX25a, EX45a) shares its numeric id's row. -->
+<!-- COPY-479 to COPY-519 are Ruling 196's COPY-EX ids; no Export id is reserved any more (COPY-480 EX07, the 3MF format row, landed with the 3MF slice). An id with a suffix (EX10a, EX13a, EX14a, EX23a, EX25a, EX45a) shares its numeric id's row. -->
 
 COPY-172 to COPY-184 are quoted from `docs/design/m12c-section-editor.md` §11.4 and COPY-185 to COPY-189 from
 `docs/reviews/ui-m12c-paired.md` (paired point types, Ruling 60), recorded by track UXR (2026-10-04). COPY-187's
