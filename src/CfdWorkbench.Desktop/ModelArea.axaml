@@ -9,6 +9,9 @@
          simplify: a local token until the design system names it (ceiling: one popover; promote to Styles.axaml and
          DESIGN.md when a second viewport popover needs it). -->
     <Thickness x:Key="RebuildPopoverInset">12,12,12,52</Thickness>
+    <!-- The Tracing strip sits above the floating navbar (10 px inset plus its height, as the Rebuild popover clears it).
+         simplify: a local token until the design system names it (ceiling: one strip; promote to Styles.axaml and DESIGN.md with a second). -->
+    <Thickness x:Key="PlanStripNavbarClearance">0,0,0,52</Thickness>
   </UserControl.Resources>
   <UserControl.Styles>
     <!-- Overlay text sits on a viewport-soft plate, never on the surface; the view-label plates are styled in Styles.axaml. -->
@@ -93,7 +96,7 @@
         <Grid x:Name="ViewArrangementGrid" ColumnDefinitions="2*,1*" RowDefinitions="*,0"
               ColumnSpacing="{StaticResource ViewGutter}" RowSpacing="{StaticResource ViewGutter}">
           <Border x:Name="PlanFrame" Classes="viewFrame">
-            <Grid x:Name="PlanSlot">
+            <Grid x:Name="PlanSlot" RowDefinitions="*,Auto,Auto">
             <Button x:Name="PlanLabel" Classes="viewLabel" Content="Plan"
                     AutomationProperties.Name="Plan view label. Double-click or Return shows this view alone." />
             <local:PlanCanvas x:Name="PlanCanvas" Focusable="True"
@@ -104,7 +107,8 @@
                               MuteBrush="{DynamicResource PlanMuteBrush}"
                               DangerBrush="{DynamicResource PlanDangerBrush}"
                               WarningBrush="{DynamicResource PlanWarningBrush}"
-                              SoftBrush="{DynamicResource PlanSoftBrush}" />
+                              SoftBrush="{DynamicResource PlanSoftBrush}"
+                              InkBrush="{DynamicResource ViewportInkBrush}" />
             <Border x:Name="AddPointPanel" IsVisible="False" HorizontalAlignment="Right" VerticalAlignment="Top"
                     Margin="{StaticResource Space4}" Padding="{StaticResource Space2}"
                     Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1">
@@ -126,6 +130,18 @@
                 <TextBlock x:Name="PlanRenderErrorText" VerticalAlignment="Center" />
                 <Button x:Name="PlanRenderTryAgainButton" Content="Try again" />
               </StackPanel>
+            </Border>
+            <!-- The rail comb plate (docs/design/rail-comb.md): top-right of the viewport, moved clear of the planform by the
+                 exclusion rule (C11); at narrow width a one-line summary whose steppers open in flow in the next row. -->
+            <local:CombPlate x:Name="CombPlateControl" IsVisible="False" HorizontalAlignment="Left" VerticalAlignment="Top" />
+            <Border x:Name="CombDisclosure" Grid.Row="1" IsVisible="False" Padding="{StaticResource Space1}"
+                    Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" />
+            <!-- The Tracing strip (CAD-08): one persistent text, updated in place, never rebuilt. -->
+            <Border Grid.Row="2" Margin="{StaticResource PlanStripNavbarClearance}" Background="{DynamicResource SurfaceSoftBrush}"
+                    BorderBrush="{DynamicResource LineBrush}"
+                    BorderThickness="0,1,0,0" Padding="{StaticResource Space1}" MinHeight="{StaticResource CompactTargetSize}">
+              <TextBlock x:Name="PlanTracingStrip" TextWrapping="Wrap" Foreground="{DynamicResource InkBrush}"
+                         AutomationProperties.Name="Tracing" AutomationProperties.LiveSetting="Off" />
             </Border>
           </Grid>
           </Border>

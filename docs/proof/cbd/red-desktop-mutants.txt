@@ -1,0 +1,2 @@
+FAIL PlanComb_AutoHeldDuringDrag_RefitOnRelease Exception: Auto refit while the drag was still going
+FAIL PlanComb_StepperAtLimit_KeepsFocus Exception: Larger teeth takes no focus

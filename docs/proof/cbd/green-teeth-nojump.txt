@@ -1,0 +1,5 @@
+PASS Planform_Teeth_PitchConstantWithin5Percent
+PASS Planform_Teeth_NoJump_NoExtraTeeth_AtARepeatedKnot
+PASS Planform_Teeth_PointAwayFromCentre_AndSplitPiecesAtAJump
+RESULT failures=0
+SUBSET CFD_TEST_ONLY=Planform_Teeth ran=3 skipped=753

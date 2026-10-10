@@ -657,14 +657,16 @@ internal static class ProfileFair
 
 internal static class SplineBasis
 {
-    internal readonly record struct Jet(double[] N, double[] D1, double[] D2);
+    internal readonly record struct Jet(double[] N, double[] D1, double[] D2, double[] D3);
 
     internal static double[] Values(double[] knots, int degree, double t) => Evaluate(knots, degree, t).N;
 
-    internal static Jet Evaluate(double[] knots, int degree, double t)
+    internal static Jet Evaluate(double[] knots, int degree, double t) =>
+        Evaluate(knots, degree, t, FindSpan(knots, degree, knots.Length - degree - 1, t));
+
+    internal static Jet Evaluate(double[] knots, int degree, double t, int span)
     {
         int count = knots.Length - degree - 1;
-        int span = FindSpan(knots, degree, count, t);
         var ndu = new double[degree + 1, degree + 1];
         var left = new double[degree + 1];
         var right = new double[degree + 1];
@@ -683,14 +685,15 @@ internal static class SplineBasis
             }
             ndu[level, level] = saved;
         }
-        var derivatives = new double[3, degree + 1];
+        int order = Math.Min(3, degree);
+        var derivatives = new double[4, degree + 1];
         for (int column = 0; column <= degree; column++) derivatives[0, column] = ndu[column, degree];
         var alternates = new double[2, degree + 1];
         for (int function = 0; function <= degree; function++)
         {
             int first = 0, second = 1;
             alternates[0, 0] = 1;
-            for (int derivative = 1; derivative <= 2; derivative++)
+            for (int derivative = 1; derivative <= order; derivative++)
             {
                 double value = 0;
                 int rk = function - derivative;
@@ -717,7 +720,7 @@ internal static class SplineBasis
             }
         }
         int scale = degree;
-        for (int derivative = 1; derivative <= 2; derivative++)
+        for (int derivative = 1; derivative <= order; derivative++)
         {
             for (int column = 0; column <= degree; column++) derivatives[derivative, column] *= scale;
             scale *= degree - derivative;
@@ -725,14 +728,16 @@ internal static class SplineBasis
         var n = new double[count];
         var d1 = new double[count];
         var d2 = new double[count];
+        var d3 = new double[count];
         for (int column = 0; column <= degree; column++)
         {
             int index = span - degree + column;
             n[index] = derivatives[0, column];
             d1[index] = derivatives[1, column];
             d2[index] = derivatives[2, column];
+            d3[index] = derivatives[3, column];
         }
-        return new Jet(n, d1, d2);
+        return new Jet(n, d1, d2, d3);
     }
 
     private static int FindSpan(double[] knots, int degree, int count, double t)

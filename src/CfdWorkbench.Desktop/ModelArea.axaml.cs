@@ -95,6 +95,21 @@ public partial class ModelArea : UserControl
             }, DispatcherPriority.Background);
         };
         PlanCanvas.RenderRecovered += () => PlanRenderErrorBand.IsVisible = false;
+        CombPlateControl.DisclosureHost = CombDisclosure;
+        CombPlateControl.Canvas = PlanCanvas;
+        PlanCanvas.TabToPlate = CombPlateControl.FocusFirst;
+        // The Tracing strip is one persistent TextBlock: the text is set in place, polite for point walking and selection, quiet for the pointer.
+        PlanCanvas.TracingChanged += (text, announce) =>
+        {
+            if (PlanTracingStrip.Text != text) PlanTracingStrip.Text = text;
+            Avalonia.Automation.AutomationProperties.SetLiveSetting(PlanTracingStrip,
+                announce ? Avalonia.Automation.AutomationLiveSetting.Polite : Avalonia.Automation.AutomationLiveSetting.Off);
+        };
+        CombPlateControl.Refreshed += PlaceCombPlate;
+        PlanSlot.SizeChanged += (_, _) => PlaceCombPlate();
+        // A text that wraps differently or a note that appears changes the plate's height after its content was set: place it again
+        // once layout has run. The margin is only written when the place changes, so this settles.
+        CombPlateControl.LayoutUpdated += (_, _) => PlaceCombPlate();
         PlanRenderTryAgainButton.Click += (_, _) => PlanCanvas.RetryRender();
 
         foreach (var (renderer, band, retry) in new[]
@@ -172,6 +187,10 @@ public partial class ModelArea : UserControl
     public TextBox AddPointInput => AddPointTextBox;
 
     public RebuildPopover RebuildPanel => RebuildPopoverView;
+    public CombPlate CombPlate => CombPlateControl;
+
+    /// <summary>The Tracing strip: one persistent element whose text is set in place.</summary>
+    public TextBlock TracingStrip => PlanTracingStrip;
 
     public void BeginRebuild(string curve, Control? focusReturn = null)
     {
@@ -351,6 +370,7 @@ public partial class ModelArea : UserControl
         if (controller is not null && this.IsAttachedToVisualTree()) SubscribeController(controller);
         SideElevation.Controller = controller;
         FrontElevation.Controller = controller;
+        CombPlateControl.Controller = controller;
     }
 
     private void SubscribeController(WorkbenchController source)
@@ -359,6 +379,7 @@ public partial class ModelArea : UserControl
         source.Changed += OnControllerChanged;
         source.SectionChanged += OnControllerChanged;
         source.LayersChanged += RefreshLayerNames;
+        source.CombChanged += OnCombChanged;
         controllerSubscribed = true;
     }
 
@@ -368,7 +389,20 @@ public partial class ModelArea : UserControl
         source.Changed -= OnControllerChanged;
         source.SectionChanged -= OnControllerChanged;
         source.LayersChanged -= RefreshLayerNames;
+        source.CombChanged -= OnCombChanged;
         controllerSubscribed = false;
+    }
+
+    // The comb plate's place (design section 6, C11): the corner of the viewport that covers no rail, tooth, point or chip.
+    private void OnCombChanged() => RefreshLayerNames();
+
+    private void PlaceCombPlate()
+    {
+        CombPlateControl.SetWidth(PlanCanvas.Bounds.Width);
+        if (!CombPlateControl.IsVisible || PlanCanvas.Bounds.Width <= 0) return;
+        var spot = PlanCanvas.ClearRect(CombPlateControl.PreferredSize(PlanCanvas.Bounds.Width));
+        var next = new Thickness(spot.X, spot.Y, 0, 0);
+        if (CombPlateControl.Margin != next) CombPlateControl.Margin = next;
     }
 
     private ShellHost? showHost;
@@ -501,7 +535,8 @@ public partial class ModelArea : UserControl
     {
         var layers = controller?.IsAnalysis == true ? controller.AnalysisView.Layers.Where(l => l.Visible).Select(l => l.Id).ToHashSet() : [];
         Avalonia.Automation.AutomationProperties.SetName(PlanCanvas,
-            layers.Contains("plan-gamma") ? "Plan view with Γ loading strips; strip values in the strips table" : "Plan view");
+            layers.Contains("plan-gamma") ? "Plan view with Γ loading strips; strip values in the strips table"
+            : controller is { CombVisible: true, IsAnalysis: false } ? RailComb.CanvasName : "Plan view");
         Avalonia.Automation.AutomationProperties.SetName(SideElevation,
             layers.Contains("depth-band") ? "Side view with free surface and tip depth; values in the conditions table" : "Side view");
         Avalonia.Automation.AutomationProperties.SetName(FrontElevation,

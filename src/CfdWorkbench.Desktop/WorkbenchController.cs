@@ -640,7 +640,129 @@ public sealed class WorkbenchController : IDisposable
             NotifyCamera(SingleView.Plan);
         }
     } = new();
-    public bool CombVisible { get; set; }
+    // The rail comb's view settings (docs/design/rail-comb.md section 3): never part of the foil, never an undo step, and kept
+    // here beside the Curvature toggle so they last the session and carry across files.
+    public bool CombVisible
+    {
+        get;
+        set
+        {
+            if (field == value) return;
+            field = value;
+            CombChanged?.Invoke();
+        }
+    }
+
+    /// <summary>The fixed gain "30 px = N per metre", or null for Auto.</summary>
+    public double? CombGain { get; private set; }
+    public int CombDensity { get; private set; } = RailComb.DefaultDensity;
+
+    /// <summary>The Auto gain as last fitted: at press and at release of an edit, never between (Ruling 194).</summary>
+    public double CombAuto { get; private set; }
+    public double CombPerMetre => CombGain ?? CombAuto;
+
+    /// <summary>Both rails' teeth and piece counts for the planform last given to <see cref="RefreshComb"/>; null while the comb is off or in Analysis.</summary>
+    public RailCombFrame? Comb { get; private set; }
+
+    /// <summary>A degenerate tangent made the comb unavailable (Core throws rather than read it as straight).</summary>
+    public bool CombUnavailable { get; private set; }
+
+    /// <summary>The last live-region sentence (COPY-470) and how many have been written, so a repeat still counts.</summary>
+    public string? CombAnnouncement { get; private set; }
+    public int CombAnnouncements { get; private set; }
+    public int CombRefitFlashes { get; private set; }
+    public bool CombRefitEmphasis { get; private set; }
+
+    /// <summary>The system asked for reduced motion: the refit emphasis stays static instead of flashing once.</summary>
+    public bool ReducedMotion { get; set; }
+
+    /// <summary>A rebuild preview is open: Auto keeps the gain it had when the preview opened.</summary>
+    public bool CombPreviewOpen { get; set; }
+    public event Action? CombChanged;
+
+    public void RefreshComb(PlanformView? plan)
+    {
+        if (plan is null || IsAnalysis || !CombVisible)
+        {
+            Comb = null;
+            return;
+        }
+        try
+        {
+            if (Comb is null || Comb.SourceHash != plan.SourceHash || Comb.Density != CombDensity)
+                Comb = RailComb.Build(plan, CombDensity);
+            CombUnavailable = false;
+        }
+        catch (InvalidOperationException)
+        {
+            Comb = null;
+            CombUnavailable = true;
+            return;
+        }
+        if ((Gesture != GestureState.Idle || CombPreviewOpen) && CombAuto > 0) return;
+        double next = Comb.AutoPerMetre;
+        bool refit = CombGain is null && CombAuto > 0 && (next > 2 * CombAuto || next < CombAuto / 2);
+        if (!refit && CombRefitEmphasis && next != CombAuto) CombRefitEmphasis = false;
+        CombAuto = next;
+        if (!refit) return;
+        CombRefitFlashes++;
+        CombRefitEmphasis = true;
+        Announce(RailComb.ScaleStatus(next));   // after CombAuto is set: the announcement re-enters this method through the canvas
+    }
+
+    public bool CanStepScale(bool larger) => larger
+        ? RailComb.Gains.Any(gain => gain < CombPerMetre - 1e-9)
+        : RailComb.Gains.Any(gain => gain > CombPerMetre + 1e-9);
+
+    public bool CanStepDensity(bool denser) => denser ? CombDensity < RailComb.Densities[^1] : CombDensity > RailComb.Densities[0];
+
+    /// <summary>Larger teeth means a smaller N in "30 px = N per metre". At the end of the ladder nothing changes and the limit is announced.</summary>
+    public bool StepCombScale(bool larger)
+    {
+        if (!CanStepScale(larger))
+        {
+            Announce(RailComb.LimitStatus(larger ? "larger" : "smaller"));
+            return false;
+        }
+        CombGain = larger ? RailComb.Gains.Where(gain => gain < CombPerMetre - 1e-9).Max() : RailComb.Gains.Where(gain => gain > CombPerMetre + 1e-9).Min();
+        CombRefitEmphasis = false;
+        Announce(RailComb.ScaleStatus(CombGain.Value));
+        return true;
+    }
+
+    public void SetCombAuto()
+    {
+        CombGain = null;
+        Announce(RailComb.ScaleStatus(CombAuto));
+    }
+
+    public bool StepCombDensity(bool denser)
+    {
+        if (!CanStepDensity(denser))
+        {
+            Announce(RailComb.LimitStatus(denser ? "denser" : "sparser"));
+            return false;
+        }
+        int at = RailComb.Densities.ToList().IndexOf(CombDensity);
+        CombDensity = RailComb.Densities[at + (denser ? 1 : -1)];
+        Announce(RailComb.DensityStatus(CombDensity));
+        return true;
+    }
+
+    /// <summary>The refit emphasis ran its one flash.</summary>
+    public void EndCombEmphasis()
+    {
+        if (!CombRefitEmphasis) return;
+        CombRefitEmphasis = false;
+        CombChanged?.Invoke();
+    }
+
+    private void Announce(string text)
+    {
+        CombAnnouncement = text;
+        CombAnnouncements++;
+        CombChanged?.Invoke();
+    }
     public int LastGestureFrames { get; private set; }
 
     /// <summary>The last ended gesture had a frame Core clamped (a twist or t/c past the domain, MC-19); read by Properties' echo.</summary>

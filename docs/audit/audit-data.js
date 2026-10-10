@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T14:00:18Z",
+  "generated": "2026-10-10T14:01:53Z",
   "audit": [
     {
       "actor": null,
@@ -33997,6 +33997,26 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-10T00:55:08Z",
+      "done_when": "Core fixtures F1-F10 and curvature-core tests red then green; Desktop C1-C7, C10, C11 checks green; ring green inside 60 s; docs gates exit 0",
+      "duration_seconds": 2669.0,
+      "goal": "Build the rail comb per docs/design/rail-comb.md section 9: Core curvature (Phase 1) and Desktop plate, strip, verbs, focus order (Phase 2)",
+      "id": "al-01M4HMWYMNX15DHPVK07VWVRN8",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-cbd: build the rail comb",
+      "session": "trk-cbd",
+      "shortname": "cbd-rail-comb",
+      "skill": "implement",
+      "started_at": "2026-10-10T00:10:39Z",
+      "summary": "Phase 1 (Core) and Phase 2 (Desktop) landed; C8 and C9 recorded unproven; spec 1.7.6 AM-RC-1..5 and COPY-458..473 added",
+      "tags": [],
+      "tool": null
+    },
+    {
       "actor": "codex coordinator + Astra owner + low-cost inventory worker",
       "artifacts": [
         "docs/proof/win-gpu-qualification/receipt.md",
@@ -34088,33 +34108,33 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4K1TMJG4W9JM6HP5JJECETJ",
-      "shortname": "join-dat",
-      "datetime": "2026-10-10T14:00:18Z",
-      "session": "3122f106",
-      "prompt": "the join of the resolved merge into main",
-      "summary": "Joined DAT: Export .dat slice (writer, dialog, TE row, B5/B6/B9/B10), security fixes (symlink target refused, exclusive temp, name line, forced-extension), spec 1.7.6 A1-A14 plus Ruling 198 recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/dat/red-first.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Export .dat ships on main",
+      "datetime": "2026-10-10T14:00:18Z",
       "done_when": "join gates and ring green, readiness green, PUSH-OK",
-      "tier": "T1",
+      "duration_seconds": 61.0,
       "fan_out": 0,
+      "goal": "Export .dat ships on main",
+      "id": "al-01M4K1TMJG4W9JM6HP5JJECETJ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of the resolved merge into main",
+      "session": "3122f106",
+      "shortname": "join-dat",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-10T13:59:17Z",
-      "duration_seconds": 61.0
+      "summary": "Joined DAT: Export .dat slice (writer, dialog, TE row, B5/B6/B9/B10), security fixes (symlink target refused, exclusive temp, name line, forced-extension), spec 1.7.6 A1-A14 plus Ruling 198 recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     }
   ],
   "changes": [

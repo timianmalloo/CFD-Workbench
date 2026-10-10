@@ -16,10 +16,11 @@ using CfdWorkbench.Core;
 
 namespace CfdWorkbench.Desktop.Tests;
 
-public static class PlanCanvasTests
+public static partial class PlanCanvasTests
 {
     public static void Run()
     {
+        RunComb();
         DesktopChecks.Check("RebuildPopover_CrossingDisablesRebuildWithReason", () =>
         {
             string source = File.ReadAllText("docs/examples/foildsl/foil-basic.foil");
@@ -943,8 +944,10 @@ public static class PlanCanvasTests
             using var fixture = new PlanFixture();
             var point = fixture.Controller.Planform!.Trailing.Points[4];
             fixture.ParkAndHover(point);
+            // The probe is the Tracing strip beneath the Plan now (CAD-08), not a box drawn in the viewport.
             if (fixture.Canvas.ProbeText?.Contains("chord", StringComparison.Ordinal) != true ||
-                Contrast(fixture.RgbAtCanvas(fixture.Canvas.Bounds.Width - 420, 12), fixture.BackgroundPixel()) < 1.1)
+                fixture.Host.ModelView.TracingStrip.Text?.Contains("chord", StringComparison.Ordinal) != true ||
+                !fixture.Host.ModelView.TracingStrip.IsEffectivelyVisible)
                 throw new Exception("Parked pointer did not produce a visible probe");
         });
 

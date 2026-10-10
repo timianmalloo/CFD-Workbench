@@ -1,0 +1,5 @@
+PASS Planform_Teeth_PitchConstantWithin5Percent
+FAIL Planform_Teeth_NoJump_NoExtraTeeth_AtARepeatedKnot InvalidOperationException: Expected 16; actual 18
+PASS Planform_Teeth_PointAwayFromCentre_AndSplitPiecesAtAJump
+RESULT failures=1
+SUBSET CFD_TEST_ONLY=Planform_Teeth ran=3 skipped=753

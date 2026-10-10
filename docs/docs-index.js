@@ -6234,6 +6234,61 @@ window.DOCS_INDEX = {
       "sourceSha256": "f58734f8401336f0cbb4aa191937e398938b3d63b9303809816005521e867356"
     },
     {
+      "id": "proof-cbd-mockup-comparison",
+      "path": "docs/proof/cbd/mockup-comparison.md",
+      "title": "Rail comb build (track CBD): the built Plan view against the approved mockup, and the unproven accessibility traces",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The built Plan view with the comb (the Desktop harness's capture) beside the mockup's main state, what matches and what differs, and C8 and C9 recorded as unproven traces, not passes.",
+      "tags": [
+        "proof",
+        "rail-comb",
+        "screenshot",
+        "accessibility"
+      ],
+      "links": [
+        {
+          "to": "design-rail-comb",
+          "rel": "documents"
+        },
+        {
+          "to": "mockup-rail-comb",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "9cbd5249c5b488afd992a7be698836734454009964081fee06bb2a87304d9391"
+    },
+    {
+      "id": "proof-cbd-red-first",
+      "path": "docs/proof/cbd/red-first.md",
+      "title": "Rail comb build (track CBD): red-first record",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Each new rail-comb test, run red against a stub (or the old code) and then green against the build. Raw logs sit beside this file. Ring: every test here is fast-ring (pure Core or headless Avalonia).",
+      "tags": [
+        "proof",
+        "rail-comb",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-rail-comb",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "93ba701be2d81ee775add7e54e9eb833b0173c3cee56821ab23e44d1cc990007"
+    },
+    {
       "id": "proof-cmb-adversary",
       "path": "docs/proof/cmb/adversary.md",
       "title": "Rail comb: marine-cad-ux-expert Adversary pass and dispositions (Ruling 107)",
@@ -19112,6 +19167,48 @@ window.DOCS_INDEX = {
       "sourceSha256": "ad1066ed2e1ac5227e88bde94d3d3c7d793412b565e1cc3d7b8b27fae60e0a76"
     },
     {
+      "id": "spec-amendments-1-7-6-rail-comb",
+      "path": "docs/specs/amendments/spec-1.7.6-rail-comb.md",
+      "title": "Spec 1.7.6 amendment batch — the rail comb on the planform rails (A4.9), as exact text",
+      "type": "spec",
+      "status": "accepted",
+      "owner": "@timianmalloo",
+      "phase": "specification",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Five amendments to cfd-workbench-v1 A4.9, traced to Ruling 196 (AM-RC-1 to AM-RC-5 approved as written) and the design rail-comb.md (Rulings 193 and 194). Revision 1.7.6 of the spec carries the batch; the change record is Appendix H, section H.6. The copy rows are DESIGN.md COPY-458 to COPY-473.",
+      "tags": [
+        "spec",
+        "amendments",
+        "rulings",
+        "cad",
+        "comb",
+        "curvature",
+        "planform",
+        "ruling-196"
+      ],
+      "links": [
+        {
+          "to": "spec-cfd-workbench-v1",
+          "rel": "refines"
+        },
+        {
+          "to": "spec-amendments-1-7-5",
+          "rel": "relates-to"
+        },
+        {
+          "to": "design-rail-comb",
+          "rel": "depends-on"
+        },
+        {
+          "to": "rulings",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "1afdf5caae6c73a1e908605c4b662c192f19dc4a1d08b8fbfd4247d825d5f567"
+    },
+    {
       "id": "spec-cfd-workbench",
       "path": "docs/specs/cfd-workbench.md",
       "title": "CFD-Workbench — product specification",
@@ -19428,7 +19525,7 @@ window.DOCS_INDEX = {
           "mermaid": "flowchart TD\nA[Workspace preset: Planform, Precision or Review] --> B[Pane in a dock]\nA -->|At launch a float's monitor is gone| L[Float clamped onto a connected monitor]\nL --> F\nB -->|Maximize| X[Pane fills the window; the rest inert]\nX -->|Escape or restore| B\nB -->|Close a pane| J2[Pane closed; Window menu Panes lists it to show again]\nJ2 --> B\nB -->|Move to, or drag to a drop zone| C[Pane in another dock or tab group]\nB -->|Float| F[Float over the model area]\nC --> B\nF -->|Escape or dock back| B\nF -->|Alt and arrows or Position menu| F\nF -->|A control under the float takes focus| G{A corner of the model area clears it?}\nG -->|Yes| H[Float moves to the nearest clear corner and says so]\nG -->|No| I[Float docks back where it came from and says so]\nH --> F\nI --> B\nB -->|Close the last pane of a dock| J[Dock closes; toggle shows it again]\nJ --> B\nB -->|Switch workspace| K[That workspace's remembered layout]\nK --> B\nB -->|Reset layout| A"
         }
       ],
-      "sourceSha256": "fa2982cc7f183c2787a65d2852133485ff8e4e29a277016a0858df6c4769e90b"
+      "sourceSha256": "5931766681e93182b2a1e5795de39364c068280c98e5738691583c0f8da2d47a"
     },
     {
       "id": "spec-foildsl",
@@ -19882,5 +19979,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "d41aa6a3f20503671f32f1b905f32639672afc3d3e8374f4748bd9479b48e2df"
+  "graphSha256": "ca59b98c16b8ad9b6caa5e6d58311271f2faecde4b51e8b1bdba9d56f4d8a70f"
 };

@@ -213,6 +213,8 @@ public sealed class ShellHost : Grid
         ModelView.PlanCanvas.Controller = controller;
         // DR-NAV-1: Tab from a selected Plan point lands on the Properties pane's first value.
         ModelView.PlanCanvas.TabOut = Properties.FocusFirstValue;
+        // AM-RC-4: with the comb plate shown, the plan's Tab goes to the plate (ModelArea wires TabToPlate) and its last control to Properties.
+        ModelView.CombPlate.TabOut = Properties.FocusFirstValue;
         AddHandler(InputElement.KeyDownEvent, OnShellKeyDown, Avalonia.Interactivity.RoutingStrategies.Tunnel);
 
         // Assign views to layout tools / documents
@@ -1014,7 +1016,8 @@ public sealed class ShellHost : Grid
         if (IsShellCommand(id)) return ShellCommandReason(id) is null;
         if (id is "view.zoom-in" or "view.zoom-out")
             return Controller.Inspection is not null || !ModelViewFocused();
-        if (id is "view.comb")
+        // C1: the Curvature toggle stays focusable and runnable in Analysis; it does nothing there and says why (CommandReason).
+        if (id.StartsWith("view.comb", StringComparison.Ordinal))
             return Controller.Inspection is not null;
         if (ViewCommands.Handles(id)) return ViewCommands.CanRun(id, Controller);
         if (!id.StartsWith("point.", StringComparison.Ordinal)) return true;
@@ -1029,6 +1032,25 @@ public sealed class ShellHost : Grid
                 point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd,
             _ => false
         };
+    }
+
+    /// <summary>Why a runnable command does nothing right now (C1, the aria-disabled equivalent), or null: the Curvature toggle in Analysis.</summary>
+    public string? CommandReason(string id) => id == "view.comb" && Controller.IsAnalysis ? RailComb.AnalysisReason : null;
+
+    // C4: a palette verb changes the comb's scale or density and announces the new value. The plate's live region speaks it while the
+    // plate is shown; with the comb off (or in Analysis) the status strip, the window's one polite region, carries it.
+    private void RunCombVerb(string id)
+    {
+        switch (id)
+        {
+            case "view.comb-larger": Controller.StepCombScale(larger: true); break;
+            case "view.comb-smaller": Controller.StepCombScale(larger: false); break;
+            case "view.comb-auto": Controller.SetCombAuto(); break;
+            case "view.comb-denser": Controller.StepCombDensity(denser: true); break;
+            default: Controller.StepCombDensity(denser: false); break;
+        }
+        if ((!Controller.CombVisible || Controller.IsAnalysis) && Controller.CombAnnouncement is { } text)
+            Report(new StatusReport(text));
     }
 
     /// <summary>The visible reason for a point verb's disabled Edit or context-menu row.</summary>
@@ -1096,8 +1118,16 @@ public sealed class ShellHost : Grid
                 StepTextSize(id == "view.zoom-in" ? +1 : -1);
                 return;
             case "view.comb":
+                if (CommandReason(id) is { } reason)
+                {
+                    Report(new StatusReport(reason));
+                    return;
+                }
                 Controller.CombVisible = !Controller.CombVisible;
                 Report(new StatusReport(Controller.CombVisible ? "Curvature comb on." : "Curvature comb off."));
+                return;
+            case "view.comb-larger" or "view.comb-smaller" or "view.comb-auto" or "view.comb-denser" or "view.comb-sparser":
+                RunCombVerb(id);
                 return;
             case "point.make-anchor":
                 await RunPoint(point => new PointCommand.MakeAnchor(point.Curve, point.Id));

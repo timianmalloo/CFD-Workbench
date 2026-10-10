@@ -4,6 +4,7 @@ using Avalonia.Automation.Peers;
 using Avalonia.Automation.Provider;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
@@ -32,6 +33,11 @@ public sealed class PlanCanvas : Control
     public static readonly StyledProperty<IBrush?> SoftBrushProperty =
         AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(SoftBrush));
 
+    public static readonly StyledProperty<IBrush?> InkBrushProperty =
+        AvaloniaProperty.Register<PlanCanvas, IBrush?>(nameof(InkBrush));
+
+    /// <summary>The viewport ink tone: the selected rail's teeth, the envelope steps and the station rings.</summary>
+    public IBrush? InkBrush { get => GetValue(InkBrushProperty); set => SetValue(InkBrushProperty, value); }
     public IBrush? BackgroundBrush { get => GetValue(BackgroundBrushProperty); set => SetValue(BackgroundBrushProperty, value); }
     public IBrush? FoilBrush { get => GetValue(FoilBrushProperty); set => SetValue(FoilBrushProperty, value); }
     public IBrush? SelectionBrush { get => GetValue(SelectionBrushProperty); set => SetValue(SelectionBrushProperty, value); }
@@ -76,6 +82,7 @@ public sealed class PlanCanvas : Control
         source.Changed += UpdatePlan;
         source.CameraChanged += OnCameraChanged;
         source.LayersChanged += OnLayersChanged;
+        source.CombChanged += UpdatePlan;
     }
 
     private void Unsubscribe(WorkbenchController source)
@@ -83,6 +90,7 @@ public sealed class PlanCanvas : Control
         source.Changed -= UpdatePlan;
         source.CameraChanged -= OnCameraChanged;
         source.LayersChanged -= OnLayersChanged;
+        source.CombChanged -= UpdatePlan;
     }
 
     // Reading AnalysisView refreshes the controller's LayerSet before this canvas redraws it.
@@ -168,7 +176,7 @@ public sealed class PlanCanvas : Control
             if (args.Property == BackgroundBrushProperty || args.Property == FoilBrushProperty ||
                 args.Property == SelectionBrushProperty || args.Property == FocusBrushProperty ||
                 args.Property == MuteBrushProperty || args.Property == DangerBrushProperty ||
-                args.Property == WarningBrushProperty || args.Property == SoftBrushProperty)
+                args.Property == WarningBrushProperty || args.Property == SoftBrushProperty || args.Property == InkBrushProperty)
                 InvalidateVisual();
         };
     }
@@ -177,7 +185,12 @@ public sealed class PlanCanvas : Control
     public RebuildPreview? RebuildPreview
     {
         get => rebuildPreview;
-        set { rebuildPreview = value; InvalidateVisual(); }
+        set
+        {
+            rebuildPreview = value;
+            if (Controller is not null) Controller.CombPreviewOpen = value is not null;
+            InvalidateVisual();
+        }
     }
 
     public Point ScreenPoint(PointView point)
@@ -240,9 +253,83 @@ public sealed class PlanCanvas : Control
         var map = Layer(plan);
         double eta = Math.Clamp(map.FromScreen(position).Span / plan.HalfSpanMeters, 0, 1);
         var probe = CfdWorkbench.Core.Planform.Probe(plan, eta);
-        ProbeText = $"η {probe.Eta:F3} · from root {probe.SpanMeters * 1000:F2} mm · {probe.Eta * 100:F1} % half-span · " +
-            $"LE {probe.LeadingAftMeters * 1000:F2} mm · TE {probe.TrailingAftMeters * 1000:F2} mm · chord {probe.ChordMeters * 1000:F2} mm";
+        var (radius, stations) = ReadRails(plan, eta);
+        ProbeText = $"At pointer: η {probe.Eta:F3} · from root {probe.SpanMeters * 1000:F2} mm · {probe.Eta * 100:F1} % half-span · " +
+            $"LE {probe.LeadingAftMeters * 1000:F2} mm · TE {probe.TrailingAftMeters * 1000:F2} mm · chord {probe.ChordMeters * 1000:F2} mm" + radius;
+        rings = stations;
+        PublishTracing(announce: false);
         InvalidateVisual();
+    }
+
+    /// <summary>The Tracing strip's radius readout of both rails at a station η, on the curve (design section 4), and where each ring goes.</summary>
+    private (string Text, List<(double Span, double Aft)> Rings) ReadRails(PlanformView plan, double eta)
+    {
+        var text = new System.Text.StringBuilder();
+        var stations = new List<(double Span, double Aft)>();
+        try
+        {
+            foreach (var rail in new[] { plan.Leading, plan.Trailing })
+            {
+                var station = RailComb.ReadNear(rail, Planform.ParameterAtEta(rail, eta));
+                text.Append(" · ").Append(RailComb.Reading(rail.Curve, station));
+                stations.Add((station.Root.SpanMeters, station.Root.Aft));
+            }
+        }
+        catch (InvalidOperationException)
+        {
+            // A zero tangent has no curvature: Core refuses to call it straight, so the radius is left out and no ring is drawn.
+            return ("", []);
+        }
+        return (text.ToString(), stations);
+    }
+
+    /// <summary>The Tracing strip text: the hover reading, else the reading at the focused or selected point's station on the curve.</summary>
+    public string TracingText => ProbeText ?? SelectedReading ?? "";
+
+    private string? SelectedReading;
+    private List<(double Span, double Aft)> rings = [];
+    private string? lastSubject;
+
+    /// <summary>The strip's text changed: the text, and whether it is announced (point walking and selection) or quiet (pointer moves, nudges).</summary>
+    public event Action<string, bool>? TracingChanged;
+
+    private void PublishTracing(bool announce) => TracingChanged?.Invoke(TracingText, announce);
+
+    /// <summary>The point whose station the strip reads: the focused point while the canvas has focus, else the first selected point.</summary>
+    private PointRef? Subject()
+    {
+        if (IsFocused && focusedPoint is { } focus) return focus;
+        return Controller?.Selection is Selection.Points { Items: [var selected, ..] } ? selected : null;
+    }
+
+    private void RefreshSelectedReading(PlanformView? plan, bool announce)
+    {
+        SelectedReading = null;
+        var subject = Subject();
+        if (plan is not null && subject is { } reference)
+        {
+            var rail = reference.Curve == "leading" ? plan.Leading : plan.Trailing;
+            if (rail.Points.FirstOrDefault(point => point.Id == reference.VertexId) is { } point)
+            {
+                try
+                {
+                    var station = Planform.ReadAtPoint(rail, point.Index);
+                    bool onCurve = point.Role is PointRole.Anchor or PointRole.RootEnd or PointRole.TipEnd;
+                    SelectedReading = $"Point {point.Index + 1}: {RailComb.Reading(rail.Curve, station)}" +
+                        (onCurve ? "" : $" at point {point.Index + 1}'s station on the curve");
+                    if (ProbeText is null) rings = [(station.Root.SpanMeters, station.Root.Aft)];
+                }
+                catch (InvalidOperationException)
+                {
+                    SelectedReading = null;
+                }
+            }
+        }
+        string? key = subject is { } named ? named.Curve + ":" + named.VertexId : null;
+        bool changed = key != lastSubject;
+        lastSubject = key;
+        if (ProbeText is null && SelectedReading is null) rings = [];
+        PublishTracing(announce || changed && Controller?.Gesture is null or GestureState.Idle);
     }
 
     public void SelectPoint(PointRef point, bool extend, bool toggle)
@@ -284,6 +371,7 @@ public sealed class PlanCanvas : Control
                 PanBy(desiredX - position.X, desiredY - position.Y);
         }
         Focus();
+        RefreshSelectedReading(Controller?.Planform, announce: true);
         InvalidateVisual();
     }
 
@@ -306,10 +394,36 @@ public sealed class PlanCanvas : Control
         return true;
     }
 
+    /// <summary>The Curvature toggle (C, and View ▸ Curvature comb): in Analysis it does nothing and says why (COPY-467).</summary>
     public void ToggleComb()
     {
         if (Controller is null) return;
-        Controller.CombVisible = !Controller.CombVisible;
+        if (this.FindAncestorOfType<Shell.ShellHost>() is { } host) { _ = host.RunCommand("view.comb"); return; }
+        if (!Controller.IsAnalysis) Controller.CombVisible = !Controller.CombVisible;
+        InvalidateVisual();
+    }
+
+    protected override void OnPointerExited(PointerEventArgs e)
+    {
+        base.OnPointerExited(e);
+        if (panOrigin is not null || Controller?.Gesture is GestureState.Pressed or GestureState.Dragging) return;
+        // The hover reading ends with the pointer: the strip goes back to the selected point's reading.
+        lastHover = null;
+        hoveredPoint = null;
+        TooltipText = null;
+        ProbeText = null;
+        RefreshSelectedReading(Controller?.Planform, announce: true);
+        InvalidateVisual();
+    }
+
+    protected override void OnLostFocus(RoutedEventArgs e)
+    {
+        base.OnLostFocus(e);
+        if (Controller?.Gesture is not (null or GestureState.Idle)) return;
+        // C10: when focus leaves the canvas the strip returns to the selected point's reading, as it does on pointer leave.
+        ProbeText = null;
+        lastHover = null;
+        RefreshSelectedReading(Controller?.Planform, announce: true);
         InvalidateVisual();
     }
 
@@ -594,7 +708,10 @@ public sealed class PlanCanvas : Control
     /// <summary>DR-NAV-1: where Tab from a selected point goes; the shell points it at the Properties pane's first value.</summary>
     public Func<bool>? TabOut { get; set; }
 
-    private bool TabToProperties() => Controller?.Selection is Selection.Points && TabOut?.Invoke() == true;
+    /// <summary>DR-NAV-1 as amended (AM-RC-4): with the comb plate shown, Tab from a selected point goes to the plate first, then on to Properties.</summary>
+    public Func<bool>? TabToPlate { get; set; }
+
+    private bool TabToProperties() => Controller?.Selection is Selection.Points && (TabToPlate?.Invoke() == true || TabOut?.Invoke() == true);
 
     /// <summary>DR-NAV-1: Shift+Tab from the Properties pane's first value returns here, to the selected point.</summary>
     public bool FocusSelectedPoint()
@@ -708,6 +825,7 @@ public sealed class PlanCanvas : Control
         }
         foreach (var peer in peers) peer.RefreshName();
         var plan = Controller?.Planform;
+        Controller?.RefreshComb(plan);
         if (plan is null || Bounds.Width <= 0 || Bounds.Height <= 0)
         {
             targets.Clear();
@@ -716,6 +834,7 @@ public sealed class PlanCanvas : Control
             return;
         }
         var map = Layer(plan);
+        MeasureComb(plan);
         targets.Clear();
         foreach (var curve in new[] { plan.Leading, plan.Trailing })
         foreach (var point in curve.Points)
@@ -734,6 +853,8 @@ public sealed class PlanCanvas : Control
             }
         }
         else ApplyGestureProbe();
+        // A nudge or drag moves the point under the reading: the strip follows it, quietly (design section 3.2, C6).
+        RefreshSelectedReading(plan, announce: false);
         // D-2: the marker mirrors the controller's preview of the release check, at the offending hull point.
         advisoryCrossing = Controller!.GestureCrossing is not null;
         if (Controller.GestureCrossing is { } crossing) advisoryPoint = map.ToScreen(crossing.SpanMeters, crossing.Ordinate);
@@ -814,12 +935,14 @@ public sealed class PlanCanvas : Control
             var glyphs = new PointGlyphBrushes(station, station, BackgroundBrush ?? Brushes.Transparent, MuteBrush ?? Brushes.White);
             foreach (var point in preview.Curve.Points)
                 CurvePointLayer.DrawGlyph(context, point, map.ToScreen(point), glyphs, false);
-            if (Controller.CombVisible)
-                foreach (var tooth in CfdWorkbench.Core.Planform.Comb(preview.Curve))
+            if (Controller.CombVisible && !Controller.IsAnalysis && Controller.CombPerMetre > 0)
+                try
                 {
-                    var start = map.ToScreen(tooth.SpanMeters, tooth.Ordinate);
-                    context.DrawLine(new Pen(station, 1), start,
-                        start + new Vector(tooth.NormalSpan, tooth.NormalAft) * Math.Clamp(Math.Abs(tooth.Curvature) * 100, 6, 24));
+                    DrawTeeth(context, map, Planform.Teeth(preview.Curve, Controller.CombDensity), Controller.CombPerMetre, station, 1);
+                }
+                catch (InvalidOperationException)
+                {
+                    // A preview with a zero tangent draws no comb (Core refuses to call it straight).
                 }
             var current = preview.Curve.Curve == "leading" ? plan.Leading : plan.Trailing;
             var at = current.Samples.OrderBy(item => Math.Abs(item.SpanMeters - preview.AtEta * plan.HalfSpanMeters)).First();
@@ -833,18 +956,6 @@ public sealed class PlanCanvas : Control
             var value = new FormattedText($"{preview.MaxChange * 1000:0.00} mm", CultureInfo.InvariantCulture,
                 FlowDirection.LeftToRight, new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold), 11, FoilBrush ?? Brushes.White);
             changePlate = (new Rect(second + new Vector(10, -9), new Size(value.Width + 10, value.Height + 4)), value);
-        }
-        if (Controller.CombVisible && Controller.Selection is Selection.Points points && points.Items.Count > 0)
-        {
-            var rail = points.Items[0].Curve == "leading" ? plan.Leading : plan.Trailing;
-            var combPen = new Pen(WarningBrush ?? Brushes.White, .9);
-            foreach (var tooth in CfdWorkbench.Core.Planform.Comb(rail))
-            {
-                var start = map.ToScreen(tooth.SpanMeters, tooth.Ordinate);
-                context.DrawLine(combPen, start,
-                    start + new Vector(tooth.NormalSpan, tooth.NormalAft) *
-                    Math.Clamp(Math.Abs(tooth.Curvature) * 100, 6, 24));
-            }
         }
         DrawGestureLimit(context);
         if (advisoryCrossing)
@@ -899,15 +1010,7 @@ public sealed class PlanCanvas : Control
             if (target is not null)
                 map.DrawFocusRing(context, target, FocusBrush ?? Brushes.White);
         }
-        if (ProbeText is { } probe)
-        {
-            double left = Math.Max(8, Bounds.Width - 428);
-            var pieces = probe.Split(" · ");
-            // Rows of three pieces, so nothing is cut at the box edge (a drag's Δ pair leads and adds a row).
-            var rows = pieces.Chunk(3).Select(row => string.Join(" · ", row)).ToArray();
-            context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, new Rect(left, 8, 420, 12 + 18 * rows.Length));
-            for (int row = 0; row < rows.Length; row++) DrawLabel(context, rows[row], new Point(left + 8, 12 + 18 * row));
-        }
+        // The probe readout is the Tracing strip beneath the Plan (CAD-08: a strip, never an overlay), fed by TracingChanged.
         if (TooltipText is { } tooltip && hoveredPoint is { } hoveredTarget)
         {
             var centre = ScreenPoint(hoveredTarget);
@@ -916,6 +1019,177 @@ public sealed class PlanCanvas : Control
             context.DrawRectangle(SoftBrush ?? BackgroundBrush, null, new Rect(left, top, 312, 24));
             DrawLabel(context, tooltip, new Point(left + 5, top + 3));
         }
+    }
+
+    public sealed record CombMeasure(int Drawn, int Clipped, double LongestPixels);
+
+    /// <summary>What the last measure drew: teeth shown, teeth clipped at 60 px, and the longest tooth in pixels. The plate prints it.</summary>
+    public CombMeasure CombStats { get; private set; } = new(0, 0, 0);
+    public event Action? CombStatsChanged;
+
+    private void MeasureComb(PlanformView plan)
+    {
+        var stats = new CombMeasure(0, 0, 0);
+        if (Controller is { CombVisible: true, IsAnalysis: false, Comb: { } frame } controller && frame.SourceHash == plan.SourceHash)
+        {
+            var map = Layer(plan);
+            foreach (var teeth in new[] { frame.Leading, frame.Trailing })
+            {
+                var marks = RailComb.Marks(teeth, controller.CombPerMetre, tooth =>
+                {
+                    var at = map.ToScreen(tooth.SpanMeters, tooth.Ordinate);
+                    return (at.X, at.Y);
+                });
+                double pixels = controller.CombPerMetre < 1e-9 ? 0 : RailComb.ToothPixels / controller.CombPerMetre;
+                stats = new(stats.Drawn + marks.Count, stats.Clipped + marks.Count(mark => mark.Clipped),
+                    Math.Max(stats.LongestPixels, marks.Count == 0 ? 0 : marks.Max(mark => Math.Abs(mark.Tooth.Curvature) * pixels)));
+            }
+        }
+        if (stats == CombStats) return;
+        CombStats = stats;
+        CombStatsChanged?.Invoke();
+    }
+
+    /// <summary>The comb of both rails (Ruling 194): the selected rail in the ink tone, the other in the muted tone, one shared gain.</summary>
+    private void DrawComb(DrawingContext context, CurvePointLayer map, PlanformView plan, Selection selection)
+    {
+        if (Controller is not { CombVisible: true, IsAnalysis: false, Comb: { } frame } controller || frame.SourceHash != plan.SourceHash) return;
+        string? hot = selection is Selection.Points { Items: [var first, ..] } ? first.Curve : null;
+        var rails = new[] { (plan.Leading, frame.Leading, frame.LeadingPieces, 1d), (plan.Trailing, frame.Trailing, frame.TrailingPieces, -1d) };
+        foreach (var (rail, teeth, pieces, wingSide) in rails)
+        {
+            bool selected = rail.Curve == hot;
+            IBrush brush = selected ? InkBrush ?? Brushes.White : rail.Curve == "leading" ? MuteBrush ?? Brushes.White : FoilBrush ?? Brushes.White;
+            DrawTeeth(context, map, teeth, controller.CombPerMetre, brush, selected ? .9 : .75);
+            var tick = new Pen(SelectionBrush ?? Brushes.White, 2);
+            string prefix = rail.Curve == "leading" ? "LE" : "TE";
+            for (int i = 0; i < pieces.Boundaries.Count; i++)
+            {
+                var foot = map.ToScreen(pieces.Boundaries[i].SpanMeters, pieces.Boundaries[i].Aft);
+                context.DrawLine(tick, foot, foot + new Vector(0, wingSide * 12));
+                var label = new FormattedText(prefix + (i + 1), CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
+                    new Typeface("Inter", FontStyle.Normal, FontWeight.SemiBold), 11, SelectionBrush ?? Brushes.White);
+                context.DrawText(label, foot + new Vector(-3, wingSide * 14 - (wingSide < 0 ? label.Height : 0)));
+            }
+        }
+    }
+
+    /// <summary>One rail's teeth, 1 px, each away from the centre of curvature; the envelope per continuous piece with a step at every jump.</summary>
+    private void DrawTeeth(DrawingContext context, CurvePointLayer map, IReadOnlyList<RailTooth> teeth, double perMetre, IBrush brush, double opacity)
+    {
+        var marks = RailComb.Marks(teeth, perMetre, tooth =>
+        {
+            var at = map.ToScreen(tooth.SpanMeters, tooth.Ordinate);
+            return (at.X, at.Y);
+        });
+        var ink = InkBrush ?? brush;
+        var pen = new Pen(brush, 1);
+        var pieces = new List<List<Point>> { new() };
+        var steps = new List<(Point From, Point To)>();
+        Point? last = null;
+        using (context.PushOpacity(opacity))
+            foreach (var mark in marks)
+            {
+                var foot = map.ToScreen(mark.Tooth.SpanMeters, mark.Tooth.Ordinate);
+                var tip = mark.Dot ? foot : foot + new Vector(mark.Tooth.DirSpan, mark.Tooth.DirAft) * mark.Length;
+                if (mark.Tooth.StartsPiece && last is { } before)
+                {
+                    steps.Add((before, tip));
+                    pieces.Add([]);
+                }
+                pieces[^1].Add(tip);
+                last = tip;
+                if (mark.Dot)
+                {
+                    context.DrawEllipse(brush, null, foot, 1, 1);
+                    continue;
+                }
+                context.DrawLine(pen, foot, tip);
+                if (mark.Clipped)
+                {
+                    var cross = new Pen(ink, 1.5);
+                    context.DrawLine(cross, tip + new Vector(-3, -3), tip + new Vector(3, 3));
+                    context.DrawLine(cross, tip + new Vector(-3, 3), tip + new Vector(3, -3));
+                }
+                if (mark.Tooth.Corner)
+                    context.DrawLine(new Pen(SelectionBrush ?? brush, 2, new DashStyle([2, 2], 0)), foot + new Vector(0, -22), foot + new Vector(0, 22));
+            }
+        using (context.PushOpacity(.5))
+            foreach (var piece in pieces)
+                for (int i = 1; i < piece.Count; i++)
+                    context.DrawLine(new Pen(MuteBrush ?? brush, 1), piece[i - 1], piece[i]);
+        using (context.PushOpacity(.8))
+            foreach (var (from, to) in steps)
+                context.DrawLine(new Pen(ink, 1), from, to);
+    }
+
+    /// <summary>Everything the comb plate must not cover, as screen points no further than 4 px apart: the outline of both halves, the
+    /// points, the teeth and the station chips (the ScaleBarBounds exclusion pattern, C11).</summary>
+    public IReadOnlyList<Point> PlateObstacles()
+    {
+        var found = new List<Point>();
+        if (Controller?.Planform is not { } plan || Bounds.Width <= 0 || Bounds.Height <= 0) return found;
+        var map = Layer(plan);
+        void Along(Point from, Point to)
+        {
+            int steps = Math.Max(1, (int)Math.Ceiling(Point.Distance(from, to) / 4));
+            for (int i = 0; i <= steps; i++) found.Add(from + (to - from) * (i / (double)steps));
+        }
+        foreach (var rail in new[] { plan.Leading, plan.Trailing })
+            foreach (double side in new[] { -1d, 1d })
+            {
+                var samples = rail.Samples.Select(sample => map.ToScreen(sample.SpanMeters * side, sample.Ordinate)).ToArray();
+                for (int i = 1; i < samples.Length; i++) Along(samples[i - 1], samples[i]);
+                foreach (var point in rail.Points) found.Add(map.ToScreen(point.SpanMeters * side, point.Ordinate));
+            }
+        if (Controller is { CombVisible: true, IsAnalysis: false, Comb: { } frame, CombPerMetre: var perMetre } && frame.SourceHash == plan.SourceHash)
+            foreach (var teeth in new[] { frame.Leading, frame.Trailing })
+                foreach (var mark in RailComb.Marks(teeth, perMetre, tooth =>
+                {
+                    var at = map.ToScreen(tooth.SpanMeters, tooth.Ordinate);
+                    return (at.X, at.Y);
+                }))
+                {
+                    var foot = map.ToScreen(mark.Tooth.SpanMeters, mark.Tooth.Ordinate);
+                    Along(foot, foot + new Vector(mark.Tooth.DirSpan, mark.Tooth.DirAft) * mark.Length);
+                }
+        foreach (var chip in VisibleStationChips)
+        {
+            Along(chip.Bounds.TopLeft, chip.Bounds.TopRight);
+            Along(chip.Bounds.BottomLeft, chip.Bounds.BottomRight);
+            Along(chip.Bounds.TopLeft, chip.Bounds.BottomLeft);
+            Along(chip.Bounds.TopRight, chip.Bounds.BottomRight);
+        }
+        return found;
+    }
+
+    /// <summary>Where a plate of this size goes: the first corner of the viewport that covers none of <see cref="PlateObstacles"/>,
+    /// keeping off the view label (top left) and the scale bar (bottom left).</summary>
+    public Rect ClearRect(Size size)
+    {
+        const double margin = 8, label = 80;
+        double width = Bounds.Width, height = Bounds.Height;
+        Rect[] candidates =
+        [
+            new(width - size.Width - margin, margin, size.Width, size.Height),
+            new(width - size.Width - margin, height - size.Height - margin, size.Width, size.Height),
+            new(label, margin, size.Width, size.Height),
+            new(margin, height - size.Height - margin - ScaleBarBounds.Height, size.Width, size.Height)
+        ];
+        var obstacles = PlateObstacles();
+        foreach (var rect in candidates)
+        {
+            var padded = rect.Inflate(6);
+            if (rect.X >= 0 && rect.Y >= 0 && rect.Right <= width && rect.Bottom <= height && !obstacles.Any(padded.Contains)) return rect;
+        }
+        return candidates[0];
+    }
+
+    private void DrawRings(DrawingContext context, CurvePointLayer map)
+    {
+        var ring = new Pen(InkBrush ?? Brushes.White, 1.5);
+        foreach (var (span, aft) in rings)
+            context.DrawEllipse(null, ring, map.ToScreen(span, aft), 7, 7);
     }
 
     /// <summary>
@@ -1083,11 +1357,13 @@ public sealed class PlanCanvas : Control
         }
         if (Controller?.IsAnalysis == true && Controller.LayerSet.FirstOrDefault(l => l.Id == "plan-gamma") is { } gamma)
             PlanLoadLayer.Draw(context, map, plan, gamma, Bounds.Size, foil, SoftBrush ?? Brushes.Black, WarningBrush ?? foil, this);
+        // Paint order, bottom to top (design section 6): fill, comb, curves, probe rings, then the point glyphs.
+        DrawComb(context, map, plan, selection);
         foreach (var rail in new[] { plan.Leading, plan.Trailing })
-        {
             foreach (double side in new[] { -1d, 1d })
                 map.DrawCurve(context, rail.Samples, railPen, side);
+        DrawRings(context, map);
+        foreach (var rail in new[] { plan.Leading, plan.Trailing })
             map.DrawPoints(context, rail, brushes, selection, Controller?.IsAnalysis == true);
-        }
     }
 }

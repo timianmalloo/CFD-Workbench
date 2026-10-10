@@ -106,6 +106,7 @@ internal static class IdentityTests
         LayoutFileTests.Run();
         PreferenceStoreTests.Run();
         PointModelTests.Run();
+        RailCurvatureTests.Run();
         LengthExpressionTests.Run();
         PointGestureTests.Run();
         PlacementTests.Run();
