@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T14:44:30Z",
+  "generated": "2026-10-10T14:57:50Z",
   "audit": [
     {
       "actor": null,
@@ -34164,6 +34164,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T14:43:29Z",
       "duration_seconds": 61.0
+    },
+    {
+      "id": "al-01M4K53ZR3DZRN1N763NESGCEA",
+      "shortname": "mod-modal-flag",
+      "datetime": "2026-10-10T14:57:50Z",
+      "session": "trk-mod",
+      "prompt": "trk-mod: one modal flag for command rows",
+      "summary": "CommandRow.Modal on 5 rows; PointsPane and WindowsShell probes use it; Commands_ModalFlag_MatchesRowsThatShowADialog guard; ROW-MODAL-A controlled. PlanComb_RefitFlash fails on base too.",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "One Modal flag on command rows; probes filter by it; a guard fails on drift (ROW-MODAL-A)",
+      "done_when": "Guard red then green; both probes filter by Modal; readiness green; check-docs 0",
+      "started_at": "2026-10-10T14:48:26Z",
+      "duration_seconds": 564.0
     }
   ],
   "changes": [

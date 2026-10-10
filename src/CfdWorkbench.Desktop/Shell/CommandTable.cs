@@ -4,13 +4,19 @@ using CfdWorkbench.Persistence;
 
 namespace CfdWorkbench.Desktop.Shell;
 
+/// <summary>
+/// One row of the command table. <paramref name="Modal"/> is the single statement of "this row's command shows a dialog or a
+/// native picker and waits for the operator" (ROW-MODAL-A): a probe that runs every row skips these rows or replaces their
+/// dialog, and ControllerSectionTests.Commands_ModalFlag_MatchesRowsThatShowADialog fails when the flag and the behaviour differ.
+/// </summary>
 public sealed record CommandRow(
     string Id,
     string Title,
     string Menu,
     string? Gesture,
     bool IsEditVerb,
-    ICommand Command);
+    ICommand Command,
+    bool Modal = false);
 
 public sealed record PaletteEntry(string Id, string Title, string? Gesture, string Menu);
 
@@ -75,7 +81,7 @@ public static class CommandTable
         new("file.open", "Open…", "File", "⌘O", false, NoOp),
         new("file.save", "Save", "File", "⌘S", false, NoOp),
         new("file.save-as", "Save As…", "File", "⇧⌘S", false, NoOp),
-        new("file.export", ExportCopy.ExportMenu, "File", "⇧⌘E", false, NoOp),
+        new("file.export", ExportCopy.ExportMenu, "File", "⇧⌘E", false, NoOp, Modal: true),
         new("file.close", "Close", "File", "⌘W", false, NoOp),
 
         // Edit
@@ -152,10 +158,10 @@ public static class CommandTable
         new("section.insert-anchor", "Insert anchor (keep shape)", SectionMenu, null, false, NoOp),
         new("section.delete-point", "Delete point", SectionMenu, "⌫", false, NoOp),
         new("section.smooth", "Smooth", SectionMenu, null, false, NoOp),
-        new("section.replace-catalog", "Replace from catalog…", SectionMenu, null, false, NoOp),
-        new("section.save-mine", "Save to My sections…", SectionMenu, null, false, NoOp),
-        new("section.import-dat", "Import .dat…", SectionMenu, null, false, NoOp),
-        new("section.export-dat", ExportCopy.ExportDatMenu, SectionMenu, null, false, NoOp),
+        new("section.replace-catalog", "Replace from catalog…", SectionMenu, null, false, NoOp, Modal: true),
+        new("section.save-mine", "Save to My sections…", SectionMenu, null, false, NoOp, Modal: true),
+        new("section.import-dat", "Import .dat…", SectionMenu, null, false, NoOp, Modal: true),
+        new("section.export-dat", ExportCopy.ExportDatMenu, SectionMenu, null, false, NoOp, Modal: true),
         new("section.make-unique", "Make unique to this station", SectionMenu, null, false, NoOp),
         new("section.thickness-channel", "Station t/c from the Thickness curve", SectionMenu, null, false, NoOp),
         new("section.thickness-source", "Station t/c from this section", SectionMenu, null, false, NoOp),

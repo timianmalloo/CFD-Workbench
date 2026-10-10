@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ef1dfb7912eee3446af43dde2ace86ef78b0989ae36349e796c1d83993cdf872"
+      "sourceSha256": "479d3a34fecbdfe5f1d4d74de7507c1e02b82895301185c712a118b7fb724013"
     },
     {
       "id": "domain-experts",
@@ -14561,6 +14561,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "b35812ccf7b111bca4b6365733cf15a158104f06d75ac3862cdcf8445a7436dc"
     },
     {
+      "id": "proof-mod-red-first",
+      "path": "docs/proof/mod/red-first.md",
+      "title": "MOD red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-mod",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "The sweep, the red run of the modal-flag guard, the green run, and the scratch unflag of section.export-dat.",
+      "tags": [
+        "mod",
+        "row-modal-a",
+        "command-table"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e19b4dd1318682245d8c41085e205e10ecc347e471e8c79f9a963384e0de58d7"
+    },
+    {
       "id": "proof-msp-receipt",
       "path": "docs/proof/msp/receipt.md",
       "title": "MSP committed scale prints",
@@ -19979,5 +20004,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ca59b98c16b8ad9b6caa5e6d58311271f2faecde4b51e8b1bdba9d56f4d8a70f"
+  "graphSha256": "8c7d9e61ca7ee2622147a0de50fab9b10b9b28845a04cb26461e627cd25abc35"
 };
