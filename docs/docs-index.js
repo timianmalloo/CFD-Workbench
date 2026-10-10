@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "2851b3f704be679d0ad088ab4641b9d74b27961a92de9c1c763b0d0374ec658b"
+      "sourceSha256": "db563ddab05eee19e78b0d94535590d66bae1313f90f84845e88513672242bb4"
     },
     {
       "id": "domain-experts",
@@ -17385,6 +17385,39 @@ window.DOCS_INDEX = {
       "sourceSha256": "d467406caf7dd1aeabd8541e2f61202bae464bd4e19c78cff19d6f30af207868"
     },
     {
+      "id": "proof-win-gpu-b1-r199",
+      "path": "docs/proof/win-gpu-b1/README.md",
+      "title": "Windows GPU B1 inventory and live L3 guard",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "B1 stopped at the two-live-attempt cap before verified probe ownership; B2 and F1 remain closed.",
+      "tags": [
+        "proof",
+        "windows",
+        "gpu",
+        "cuda",
+        "openfoam",
+        "ruling-199",
+        "ruling-200"
+      ],
+      "links": [
+        {
+          "to": "proof-win-l3-observer",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-30",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "f6eee2051900242247115fec77e301d3654664b7a39afa75c7bcdb471de7891a"
+    },
+    {
       "id": "proof-win-gpu-g1",
       "path": "docs/proof/win-gpu-g1/receipt.md",
       "title": "Windows GPU G1 exact-source and toolchain inspection",
@@ -18119,6 +18152,43 @@ window.DOCS_INDEX = {
       ],
       "diagrams": [],
       "sourceSha256": "96e7d2910a3b2cf031c1e3f96c735673a5789412a7cca716ce4dd339a426068f"
+    },
+    {
+      "id": "receipt-win-gpu-b1-r199",
+      "path": "docs/proof/win-gpu-b1/receipt.md",
+      "title": "Windows GPU B1 blocked receipt",
+      "type": "proof-pack",
+      "status": "blocked",
+      "owner": "@pc-coordinator",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "Two B1 attempts stopped before verified probe ownership; the live observer completed without a five-percent slowdown.",
+      "tags": [
+        "proof",
+        "windows",
+        "gpu",
+        "cuda",
+        "blocker",
+        "ruling-199",
+        "ruling-200"
+      ],
+      "links": [
+        {
+          "to": "proof-win-gpu-b1-r199",
+          "rel": "relates-to"
+        },
+        {
+          "to": "proof-win-l3-observer",
+          "rel": "depends-on"
+        },
+        {
+          "to": "review-pr-30",
+          "rel": "implements"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "08b7daa0e2ef86ebf238c2e4f67d1d7f29e44f6ad680cd8f60e537d45471d51d"
     },
     {
       "id": "review-app-shell-native",
@@ -20130,5 +20200,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "85142a0e0ae4baa856528c7d38f3d07891be4fedab35a86156cb982a0121cf6e"
+  "graphSha256": "2588cb161aea2fab936156ca9be07f2a56f7afedfd7d9289ad3be471784ea25a"
 };

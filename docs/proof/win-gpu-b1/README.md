@@ -2,7 +2,7 @@
 id: proof-win-gpu-b1-r199
 title: "Windows GPU B1 inventory and live L3 guard"
 type: proof-pack
-status: active
+status: blocked
 owner: "@pc-coordinator"
 phase: implementation
 tags: [proof, windows, gpu, cuda, openfoam, ruling-199, ruling-200]
@@ -11,7 +11,7 @@ links:
   - { to: review-pr-30, rel: implements }
 review-by: "2026-11-10"
 summary: >-
-  Bounded read-only inventory and dual-clock L3 guard used to decide whether the disposable-distro CUDA B2 may start.
+  B1 stopped at the two-live-attempt cap before verified probe ownership; B2 and F1 remain closed.
 ---
 
 # Windows GPU B1 inventory and live L3 guard
@@ -34,3 +34,10 @@ installed sizes, or package-level license gaps block B2. The final receipt binds
 
 B2 remains limited to a fresh disposable Ubuntu 24.04 WSL distro. It cannot target `cfdw-openfoam2512`, install a Linux
 GPU driver, touch an L3 path/process/unit/file, build PETSc/OpenFOAM, or reopen F1.
+
+## Result
+
+B1 is incomplete and blocked. Both live attempts formed valid fresh baselines but stopped before verified probe
+ownership. No driver, disk, OpenFOAM development-surface, apt-policy, PETSc-contract, or package-inventory result was
+accepted. `receipt.md` records the attempts, the bounded observer result, the residual process uncertainty, and the
+smallest repair. B2 and F1 remain closed.

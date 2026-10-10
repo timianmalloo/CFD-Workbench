@@ -17,6 +17,7 @@ the managed block below.
 - A capture wrapper records its self-hash before its first child starts and reuses that recorded value in its receipt. A hash computed after a child returns is labeled post-probe and cannot establish pre-execution source identity.
 - A bounded WSL proof workload starts in its own session/process group. Its stop path signals and verifies the whole owned group, runs on every wrapper error, and never treats stopping only the `wsl.exe` launcher or shell PID as Linux-workload termination.
 - A timestamp read through `ConvertFrom-Json` is treated as a typed `DateTime`/`DateTimeOffset` before any string conversion. Casting the converted value to text first can drop its `Z`/offset and silently shift freshness checks by the host timezone.
+- A gate that may outlive the tool yield runs in its own shell call. Never place a commit, push, merge, or other mutation after it in the same command, because the shell can continue after the harness returns a timeout/session boundary.
 
 <!-- AI-FORWARD-PACK:BEGIN (managed block — keep this block intact when reconciling; replace it wholesale on pack updates) -->
 ## AI-Forward Pack + Agent Knowledge Pack

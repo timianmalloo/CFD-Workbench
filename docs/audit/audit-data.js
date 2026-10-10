@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T16:59:39Z",
+  "generated": "2026-10-10T19:51:14Z",
   "audit": [
     {
       "actor": null,
@@ -34348,6 +34348,46 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T16:58:33Z",
       "duration_seconds": 66.0
+    },
+    {
+      "id": "al-01M4KNX7940G7C9JDHNP2VVY2F",
+      "shortname": "win-gpu-b1-r199",
+      "datetime": "2026-10-10T19:51:14Z",
+      "session": "pc-gpu-g2-b1-r199",
+      "prompt": "keep going",
+      "summary": "Prepared and owner-reviewed the bounded Windows GPU B1 capture. Two live attempts formed valid fresh baselines but stopped before verified probe ownership: a PowerShell UTC coercion defect, then a setsid launcher lifetime gap. The three-row observer completed with no five-percent slowdown; exact 13-row prefix bound. B1 is blocked; B2 and F1 remain closed.",
+      "kind": "skill",
+      "skill": "execute-with-coordination",
+      "tool": null,
+      "actor": "codex",
+      "artifacts": [
+        "docs/proof/win-gpu-b1/receipt.md"
+      ],
+      "tags": [
+        "windows",
+        "gpu",
+        "ruling-199"
+      ],
+      "outcome": "blocked",
+      "compiled": false,
+      "goal": "Execute Ruling 199 B1 from current main and prepare operator-approved B2 without touching the production distro or L3.",
+      "done_when": "The live dual-clock guard is proven, B1 completes within its bounds with a pinned recipe, and B2 starts only if every measured gate passes.",
+      "tier": "T1",
+      "fan_out": 2,
+      "signals": {
+        "verification_path": true,
+        "verification_executed": true,
+        "acceptance_met": false,
+        "regression": false
+      },
+      "started_at": "2026-10-10T17:04:20Z",
+      "duration_seconds": 10014.0,
+      "git": {
+        "sha": "c4e327304621780fb1e5a2d56b4ae40c7814f644",
+        "short": "c4e327304",
+        "branch": "win/gpu-g2-b1-r199",
+        "pushed": true
+      }
     }
   ],
   "changes": [
