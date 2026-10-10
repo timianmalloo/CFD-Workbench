@@ -2,13 +2,13 @@
 id: proof-win-l3-observer
 title: "Windows L3 append-only observer"
 type: proof-pack
-status: in-progress
+status: done
 owner: "@pc-coordinator"
 phase: implementation
 tags: [proof, windows, openfoam, l3, observer, ruling-197]
 links:
-  - { to: proof-win-r151-l3, rel: follows }
-  - { to: review-pr-29, rel: governed-by }
+  - { to: proof-win-r151-l3, rel: depends-on }
+  - { to: review-pr-29, rel: depends-on }
 review-by: "2026-11-10"
 summary: >-
   Ruling 197 read-only observer for the active Windows L3 run, sampled every 600 seconds into an append-only JSONL file.
@@ -31,6 +31,6 @@ wsl.exe -d cfdw-openfoam2512 -u root --exec /bin/bash /mnt/c/Projects/CFD-Workbe
 ```
 
 The first sample is immediate. Later samples occur every 600 seconds. No scheduler entry is created. Consecutive-row
-rate is `(iteration[n] - iteration[n-1]) / (monotonic_s[n] - monotonic_s[n-1])`. Before, during and after values are
-medians aligned to the GPU step's captured UTC bounds. Missing, reset, mismatched-run or nonpositive-time intervals are
-invalid rather than zero-impact observations.
+rate is `(iteration[n] - iteration[n-1]) / (monotonic_s[n] - monotonic_s[n-1])`. Capture UTC selects the interval
+containing the GPU step; adjacent before and after windows use monotonic offsets. Missing, reset, mismatched-run or
+nonpositive-time intervals are invalid rather than zero-impact observations.

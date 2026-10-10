@@ -14,6 +14,7 @@ the managed block below.
 - Repair loops are capped at 2 cycles; at the cap, stop the track and report to the operator.
 - Progress is a src/ or tests/ diff; tools/check-spiral.py fails a branch that shows the spiral signature.
 - Test rings (docs/coordination/join.json, kept by check-docs TEST-RING): every join that changes code runs `tools/run-tests.sh` (60 s budget) and the fast gates, and a docs-only join (no src/, tests/, tools/, cases/, project or build-file path in the merge diff) skips the ring and prints RING-SKIPPED (Ruling 89, `tools/join-ring.sh`); a merge to main needs `python3 tools/run-readiness.py --check` green for that HEAD. A new test or gate states its ring and its cost.
+- A capture wrapper records its self-hash before its first child starts and reuses that recorded value in its receipt. A hash computed after a child returns is labeled post-probe and cannot establish pre-execution source identity.
 
 <!-- AI-FORWARD-PACK:BEGIN (managed block — keep this block intact when reconciling; replace it wholesale on pack updates) -->
 ## AI-Forward Pack + Agent Knowledge Pack

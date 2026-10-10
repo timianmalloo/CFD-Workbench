@@ -7,7 +7,7 @@ owner: "@win-gpu-qualification"
 phase: implementation
 tags: [proof, windows, wsl, openfoam, gpu, ruling-197]
 links:
-  - { to: proof-win-gpu-qualification, rel: follows }
+  - { to: proof-win-gpu-qualification, rel: depends-on }
   - { to: proof-win-l3-observer, rel: tested-by }
   - { to: plan-win-openfoam-gpu-qualification, rel: implements }
   - { to: review-pr-29, rel: depends-on }
@@ -42,6 +42,11 @@ size and hash are retained in `source.json`.
 
 The activated package is OpenFOAM v2512, `linux64GccDPInt32Opt`; Debian packages `openfoam2512:amd64` and
 `openfoam2512-common` are both `2512.0-2`.
+
+`capture.json` calls its wrapper hash `wrapper_sha256_before_execution`, but `capture.ps1` computes that value after
+the four children return. It is a post-probe hash of the wrapper bytes, not an independent pre-execution binding. The
+recorded value matches the wrapper committed in `6160e25b` before the successful child started; the misleading field
+name is retained because `capture.json` is raw evidence.
 
 | Installed library | SHA-256 | Direct/runtime tree result |
 |---|---|---|
@@ -111,6 +116,11 @@ The during median was **2.32% below** the before median. The 5% slowdown thresho
 interval created when the bounded observer was restarted is retained but excluded from every median. One older valid
 interval falls outside the monotonic 30-minute window and is also retained as outside-window. No GPU-track process was
 running when the threshold result became available.
+
+The final row is 30 minutes 54 seconds after the capture end in UTC. Two complete 600.04-second intervals lie wholly
+after the containing interval. Because host capture time was not mapped to the observer monotonic clock, 30 minutes of
+monotonic observation after the probe is not established. The 2.32% comparison applies to the identified samples; it
+does not establish stronger coverage or zero impact.
 
 This is an observed association over 600-second intervals. The 919-ms linkage probe occupies only a small part of its
 containing interval, so the result neither attributes the difference to G1 nor proves zero impact.

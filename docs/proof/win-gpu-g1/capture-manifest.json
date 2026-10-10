@@ -54,8 +54,8 @@
     },
     {
       "path": "docs/proof/win-gpu-g1/receipt.md",
-      "bytes": 12287,
-      "sha256": "261fbfdc36c6d24eab9b378da809795f85fe1fb8fa51cbeded5ab0ec06f3af30"
+      "bytes": 13107,
+      "sha256": "445bff3a1607d785c22818192f8256a4dbcb005857a7258b7abd5136fb179cdf"
     },
     {
       "path": "docs/proof/win-gpu-g1/source-archive.headers.txt",

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T15:03:45Z",
+  "generated": "2026-10-10T16:20:15Z",
   "audit": [
     {
       "actor": null,
@@ -34262,6 +34262,25 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T15:02:39Z",
       "duration_seconds": 66.0
+    },
+    {
+      "id": "al-01M4K9TWWYDCAN1RRSZY5KKQPY",
+      "shortname": "continue-windows-ruling-197-g1",
+      "datetime": "2026-10-10T16:20:15Z",
+      "session": "pc-gpu-g1-r197-20261010",
+      "prompt": "Continue the original Windows execution prompt under Mac leadership: execute the authorized W-0 through W-5 work on this GPU laptop within Ruling 197, coordinate through GitHub, use an Astra owner, remain task-, completion-, and drift-control-oriented, and hand back reviewable evidence.",
+      "summary": "Continue authorized Windows GPU G1 work and coordinate the proof with the Mac leader.",
+      "kind": "prompt",
+      "skill": null,
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [
+        "windows",
+        "gpu",
+        "ruling-197"
+      ],
+      "outcome": "success"
     }
   ],
   "changes": [
