@@ -25,8 +25,14 @@ public static class Settings
     /// </summary>
     public const double SolveBackwardErrorTolerance = 1e-10;
 
+    /// <summary>The trailing-edge floor (0.3 mm), a value the app chose. It is in the settings hash through <see cref="RunSettings.TeFloorMm"/>.</summary>
+    public const double TrailingEdgeFloorMm = 0.3;
+
+    /// <summary>What every surface calls the floor (Ruling 195): an app default with no source behind it. Never "practitioner value".</summary>
+    public const string TrailingEdgeFloorLabel = "app default, no source";
+
     public static RunSettings Default { get; } = WithStations(new RunSettings(
-        64, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, new[] { 2, 4 }, "clean", 0.3));
+        64, 4, "cosine", "cosine", 20, "+x", 1e-8, "vlm-envelope/1", null, new[] { 2, 4 }, "clean", TrailingEdgeFloorMm));
 
     /// <summary>Fills empty section stations from the spacing law. Stations a caller already set are kept; they are in the run key.</summary>
     public static RunSettings WithStations(RunSettings settings)
