@@ -1,0 +1,131 @@
+{
+  "schema": "cfdw-ruling197-observer-window/1",
+  "analysis_utc": "2026-10-10T16:14:19.622681+00:00",
+  "samples_path": "docs/proof/win-l3-observer/samples.jsonl",
+  "samples_sha256": "f9c174dd595ee97d3e0ada37396971f898426660fbe9c30d9d180f683addeade",
+  "capture_path": "docs/proof/win-gpu-g1/capture.json",
+  "capture_sha256": "5f21469a1a781b805a7c8aaef03031cf0ffc6e0968bd18a9e2e6499a77a15179",
+  "step_record": "installed-linkage",
+  "step_started_utc": "2026-10-10T15:42:35.0809675+00:00",
+  "step_ended_utc": "2026-10-10T15:42:36.0015409+00:00",
+  "run_ids": [
+    "20261008T145043Z-win-spike04r3-g2-l3"
+  ],
+  "observer_sha256_values": [
+    "188ad0675c97ab6295c3b8c17f39feccc1f5cfb274628b11f9da671085cf0cb1"
+  ],
+  "scheduled_interval_seconds": 600,
+  "accepted_interval_seconds": [
+    540.0,
+    660.0
+  ],
+  "before_window_minutes": 30,
+  "after_window_minutes": 30,
+  "window_alignment": "Capture UTC selects the containing interval; adjacent windows use monotonic offsets because WSL UTC moved relative to /proc/uptime.",
+  "intervals": [
+    {
+      "interval": 1,
+      "left_utc": "2026-10-10T15:05:12Z",
+      "right_utc": "2026-10-10T15:15:59Z",
+      "classification": "outside-window",
+      "reason": null,
+      "left_monotonic_s": 127581.96,
+      "right_monotonic_s": 128182.0,
+      "delta_monotonic_s": 600.0399999999936,
+      "delta_iteration": 473.0,
+      "rate_iterations_per_s": 0.7882807812812563
+    },
+    {
+      "interval": 2,
+      "left_utc": "2026-10-10T15:15:59Z",
+      "right_utc": "2026-10-10T15:26:47Z",
+      "classification": "before",
+      "reason": null,
+      "left_monotonic_s": 128182.0,
+      "right_monotonic_s": 128782.04,
+      "delta_monotonic_s": 600.0399999999936,
+      "delta_iteration": 476.0,
+      "rate_iterations_per_s": 0.7932804479701437
+    },
+    {
+      "interval": 3,
+      "left_utc": "2026-10-10T15:26:47Z",
+      "right_utc": "2026-10-10T15:29:59Z",
+      "classification": "excluded",
+      "reason": "outside 600-second schedule tolerance",
+      "left_monotonic_s": 128782.04,
+      "right_monotonic_s": 128957.28,
+      "delta_monotonic_s": 175.24000000000524,
+      "delta_iteration": 129.0
+    },
+    {
+      "interval": 4,
+      "left_utc": "2026-10-10T15:29:59Z",
+      "right_utc": "2026-10-10T15:40:50Z",
+      "classification": "before",
+      "reason": null,
+      "left_monotonic_s": 128957.28,
+      "right_monotonic_s": 129557.32,
+      "delta_monotonic_s": 600.0400000000081,
+      "delta_iteration": 474.0,
+      "rate_iterations_per_s": 0.7899473368441997
+    },
+    {
+      "interval": 5,
+      "left_utc": "2026-10-10T15:40:50Z",
+      "right_utc": "2026-10-10T15:51:44Z",
+      "classification": "during",
+      "reason": null,
+      "left_monotonic_s": 129557.32,
+      "right_monotonic_s": 130157.36,
+      "delta_monotonic_s": 600.0399999999936,
+      "delta_iteration": 464.0,
+      "rate_iterations_per_s": 0.7732817812145939
+    },
+    {
+      "interval": 6,
+      "left_utc": "2026-10-10T15:51:44Z",
+      "right_utc": "2026-10-10T16:02:39Z",
+      "classification": "after",
+      "reason": null,
+      "left_monotonic_s": 130157.36,
+      "right_monotonic_s": 130757.4,
+      "delta_monotonic_s": 600.0399999999936,
+      "delta_iteration": 473.0,
+      "rate_iterations_per_s": 0.7882807812812563
+    },
+    {
+      "interval": 7,
+      "left_utc": "2026-10-10T16:02:39Z",
+      "right_utc": "2026-10-10T16:13:30Z",
+      "classification": "after",
+      "reason": null,
+      "left_monotonic_s": 130757.4,
+      "right_monotonic_s": 131357.44,
+      "delta_monotonic_s": 600.0400000000081,
+      "delta_iteration": 476.0,
+      "rate_iterations_per_s": 0.7932804479701245
+    }
+  ],
+  "rates_iterations_per_s": {
+    "before": [
+      0.7932804479701437,
+      0.7899473368441997
+    ],
+    "during": [
+      0.7732817812145939
+    ],
+    "after": [
+      0.7882807812812563,
+      0.7932804479701245
+    ]
+  },
+  "median_iterations_per_s": {
+    "before": 0.7916138924071717,
+    "during": 0.7732817812145939,
+    "after": 0.7907806146256904
+  },
+  "during_vs_before_pct": -2.3157894736830387,
+  "five_percent_slowdown_threshold": "not-fired",
+  "limitation": "Each rate covers a 600-second interval; the 0.919-second linkage probe is only a small part of its during interval."
+}
