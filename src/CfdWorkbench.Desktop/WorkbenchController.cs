@@ -2501,6 +2501,25 @@ public sealed class WorkbenchController : IDisposable
     public bool SaveUncertain => uncertainImage is not null;
     public string? UncertainPath => uncertainPath;
     public string AcceptedSource => Inspection is null ? "" : Encoding.UTF8.GetString(session.Snapshot().Source);
+
+    /// <summary>
+    /// What Export reads (Export design D3): the accepted revision's source, its geometry status and its stations, never an open
+    /// draft; null with no foil open. The default station is the selected one, else Root.
+    /// </summary>
+    public ExportSource? ExportSnapshot()
+    {
+        if (Inspection is not { } inspection) return null;
+        var view = session.Snapshot();
+        var stations = new List<ExportStation>();
+        for (int index = 0; index < inspection.Authored.Assignments.Count; index++)
+        {
+            var frame = Placement.Frame(view.Source, inspection.Authored.Assignments[index].Eta);
+            stations.Add(new(SectionPoints.StationName(inspection.Authored, index), frame.ChordMeters * 1000, frame.ThicknessRatio * 100));
+        }
+        string? folder = NativePath is null ? null : Path.GetDirectoryName(NativePath);
+        return new(view.Source, inspection.Authored.Name ?? "foil", session.RevisionOf(view.AcceptedId).Ordinal, inspection.Geometry.Status,
+            Draft is not null || Section is not null, IsAnalysis, stations, Selection is Selection.Station station ? station.Index : 0, folder);
+    }
     public string RecoverySource
     {
         get

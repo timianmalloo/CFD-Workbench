@@ -28,7 +28,7 @@ public static class Settings
     /// <summary>The trailing-edge floor (0.3 mm), a value the app chose. It is in the settings hash through <see cref="RunSettings.TeFloorMm"/>.</summary>
     public const double TrailingEdgeFloorMm = 0.3;
 
-    /// <summary>What every surface calls the floor (Ruling 195): an app default with no source behind it. Never "practitioner value".</summary>
+    /// <summary>What every surface calls the floor (Ruling 195): an app default with no source behind it. The earlier wording is retired.</summary>
     public const string TrailingEdgeFloorLabel = "app default, no source";
 
     public static RunSettings Default { get; } = WithStations(new RunSettings(
