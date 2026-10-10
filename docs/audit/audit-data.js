@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-09T23:54:35Z",
+  "generated": "2026-10-10T00:49:05Z",
   "audit": [
     {
       "actor": null,
@@ -33995,6 +33995,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-09T23:54:18Z",
       "duration_seconds": 17.0
+    },
+    {
+      "id": "al-01M4HMHW71R56JXF65ZVMC488E",
+      "shortname": "dat-export",
+      "datetime": "2026-10-10T00:49:05Z",
+      "session": "trk-dat",
+      "prompt": "trk-dat: build Export slice 1, the section .dat (docs/design/export.md, Ruling 196)",
+      "summary": "Core DatExport and Placement.OwnProfile; Settings.TrailingEdgeFloorMm/Label with unchanged settings hash; ExportSession, ExportDialog, rows file.export and section.export-dat; spec 1.7.6 (A1-A14, H.6); COPY-474..519; proof in docs/proof/dat; ring 45 s green",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Build the section .dat export: writer, dialog, rows, TE row, B10 label, spec amendments A1-A14, copy COPY-474..519",
+      "done_when": "Red-first proof, committed .dat fixture with round trip, tools/run-tests.sh green inside 60 s, check-docs exit 0, run-verify-gates exit 0, dialog screenshot, commits",
+      "started_at": "2026-10-10T00:10:40Z",
+      "duration_seconds": 2305.0
     }
   ],
   "changes": [

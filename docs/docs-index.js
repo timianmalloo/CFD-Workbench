@@ -13284,7 +13284,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "bf219ad62d293b8c22c7415e1075e7657fb633789d8f964822ef79545c339c42"
+      "sourceSha256": "fad9547153f653e12dfd7c9f3a6c0e844ab831e64f28477b78508a49c51fb4a3"
     },
     {
       "id": "proof-dat-red-first",
@@ -19776,5 +19776,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "15e1fe9ec641701687cf7969d1e6ae7fbfd946f6927fa35d5f351f48a86e4f8f"
+  "graphSha256": "a4dac74f5c3e484928a31889dd74ad931440a76df8c895ac4063ad8e3490efc8"
 };
