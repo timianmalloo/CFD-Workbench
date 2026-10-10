@@ -129,6 +129,7 @@ if (args.Contains("--section-editor", StringComparer.Ordinal))
     CfdWorkbench.Desktop.Tests.CatalogDialogTests.Run();
     CfdWorkbench.Desktop.Tests.ExportTests.Run();
     CfdWorkbench.Desktop.Tests.ExportStlTests.Run();
+    CfdWorkbench.Desktop.Tests.ExportThreeMfTests.Run();
     Environment.Exit(CfdWorkbench.Desktop.Tests.DesktopChecks.ExitCode);
 }
 

@@ -1,0 +1,27 @@
+PASS PrusaSlicer 2.9.4 example-open-whole.stl 18418 triangles, load 0.05 s
+PASS PrusaSlicer 2.9.4 example-open-whole.3mf 18418 triangles, load 0.05 s
+PASS PrusaSlicer 2.9.4 example-closed-whole.stl 18296 triangles, load 0.04 s
+PASS PrusaSlicer 2.9.4 example-closed-whole.3mf 18296 triangles, load 0.05 s
+PASS PrusaSlicer 2.9.4 example-open-half.stl 9358 triangles, load 0.04 s
+PASS PrusaSlicer 2.9.4 example-open-half.3mf 9358 triangles, load 0.04 s
+PASS PrusaSlicer 2.9.4 example-closed-half.stl 9296 triangles, load 0.04 s
+PASS PrusaSlicer 2.9.4 example-closed-half.3mf 9296 triangles, load 0.04 s
+PASS PrusaSlicer 2.9.4 untitled-fine-whole.stl 513596 triangles, load 0.68 s
+PASS PrusaSlicer 2.9.4 untitled-fine-whole.3mf 513596 triangles, load 0.92 s
+PASS PrusaSlicer 2.9.4 negative control broken-one-triangle-removed.stl (one triangle removed): the slicer flags it
+PASS PrusaSlicer 2.9.4 negative control broken-one-triangle-removed.3mf (one triangle removed): the slicer flags it
+PASS PrusaSlicer 2.9.4 scale control (declared meters): read 120000.0 mm wide, 1000x the app's millimetres
+PASS OrcaSlicer 2.3.2 example-open-whole.stl 18418 triangles, load 0.07 s
+PASS OrcaSlicer 2.3.2 example-open-whole.3mf 18418 triangles, load 0.09 s
+PASS OrcaSlicer 2.3.2 example-closed-whole.stl 18296 triangles, load 0.06 s
+PASS OrcaSlicer 2.3.2 example-closed-whole.3mf 18296 triangles, load 0.08 s
+PASS OrcaSlicer 2.3.2 example-open-half.stl 9358 triangles, load 0.06 s
+PASS OrcaSlicer 2.3.2 example-open-half.3mf 9358 triangles, load 0.07 s
+PASS OrcaSlicer 2.3.2 example-closed-half.stl 9296 triangles, load 0.06 s
+PASS OrcaSlicer 2.3.2 example-closed-half.3mf 9296 triangles, load 0.07 s
+PASS OrcaSlicer 2.3.2 untitled-fine-whole.stl 513596 triangles, load 0.76 s
+PASS OrcaSlicer 2.3.2 untitled-fine-whole.3mf 513596 triangles, load 1.63 s
+PASS OrcaSlicer 2.3.2 negative control broken-one-triangle-removed.stl (one triangle removed): the slicer flags it
+PASS OrcaSlicer 2.3.2 negative control broken-one-triangle-removed.3mf (one triangle removed): the slicer flags it
+PASS OrcaSlicer 2.3.2 scale control (declared meters): read 120000.0 mm wide, 1000x the app's millimetres
+wrote /Users/mallalieut/projects/CFD-Workbench-feat-tmf-3mf-export/docs/proof/tmf/slicer-open.json

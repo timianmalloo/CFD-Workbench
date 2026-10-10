@@ -16,8 +16,8 @@ public sealed record ExportSource(byte[] Source, string FoilName, int Revision, 
 
 public enum ExportOutcomeKind { Written, Cancelled, Failed }
 
-/// <summary>The formats the dialog offers. 3MF joins when its slice lands.</summary>
-public enum ExportFormat { Dat, Stl }
+/// <summary>The formats the dialog offers.</summary>
+public enum ExportFormat { Dat, Stl, ThreeMf }
 
 /// <summary>The three tolerance presets of the wing STL (design 4.2).</summary>
 public enum StlPreset { Draft, Print, Fine }
@@ -39,17 +39,21 @@ public sealed class ExportSession
     public const int ProgressTriangles = 100_000;
 
     private readonly Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult> buildStl;
+    private readonly Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult> build3mf;
     private DatExportResult? result;
     private StlExportResult? stl;
     private bool closureFailed;
     private long generation;
 
     /// <param name="buildStl">The wing STL builder; a check replaces it to make the closure check refuse (H7).</param>
+    /// <param name="build3mf">The wing 3MF builder; the same replacement for the 3MF.</param>
     public ExportSession(ExportSource source,
-        Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult>? buildStl = null)
+        Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult>? buildStl = null,
+        Func<byte[], string, int, StlScope, double, CancellationToken, StlExportResult>? build3mf = null)
     {
         Source = source;
         this.buildStl = buildStl ?? ((bytes, name, revision, scope, tolerance, cancel) => StlExport.Build(bytes, name, revision, scope, tolerance, cancel));
+        this.build3mf = build3mf ?? ((bytes, name, revision, scope, tolerance, cancel) => ThreeMfExport.Build(bytes, name, revision, scope, tolerance, cancel));
         StationIndex = Math.Clamp(source.DefaultStation, 0, Math.Max(0, source.Stations.Count - 1));
         Rebuild();
     }
@@ -76,8 +80,12 @@ public sealed class ExportSession
 
     public bool CanExport => BlockedReason is null && !Preparing && (Format == ExportFormat.Dat ? result is not null : stl is not null);
 
+    /// <summary>True for the two wing formats, STL and 3MF: one mesh, one scope, one set of presets, one summary.</summary>
+    public bool IsMesh => Format != ExportFormat.Dat;
+
     public DatExportResult? Result => result;
 
+    /// <summary>The built wing for the chosen format: its <c>Bytes</c> are the STL or the 3MF package. Null until <see cref="PrepareAsync"/> lands.</summary>
     public StlExportResult? Stl => stl;
 
     /// <summary>The tolerance of the chosen preset in millimetres.</summary>
@@ -113,7 +121,7 @@ public sealed class ExportSession
     {
         generation++;
         closureFailed = false;
-        if (BlockedReason is not null || Format == ExportFormat.Stl)
+        if (BlockedReason is not null || IsMesh)
         {
             result = null;
             stl = null;
@@ -126,17 +134,18 @@ public sealed class ExportSession
     }
 
     /// <summary>
-    /// Builds the wing STL for the current options off the calling thread. An option changed while it runs makes this build stale and it
-    /// is dropped (the newer call lands its own). A mesh the closure check refuses sets <see cref="ClosureFailed"/> (H7).
+    /// Builds the wing (STL or 3MF, as chosen) for the current options off the calling thread. An option changed while it runs makes this
+    /// build stale and it is dropped (the newer call lands its own). A mesh the closure check refuses sets <see cref="ClosureFailed"/> (H7).
     /// </summary>
     public async Task PrepareAsync(CancellationToken cancellation = default)
     {
-        if (!Preparing || Format != ExportFormat.Stl) return;
+        if (!Preparing || !IsMesh) return;
         long mine = generation;
         var (source, name, revision, scope, tolerance) = (Source.Source, Source.FoilName, Source.Revision, Scope, ToleranceMm);
+        var build = Format == ExportFormat.ThreeMf ? build3mf : buildStl;
         StlExportResult? built = null;
         bool refused = false;
-        try { built = await Task.Run(() => buildStl(source, name, revision, scope, tolerance, cancellation), cancellation); }
+        try { built = await Task.Run(() => build(source, name, revision, scope, tolerance, cancellation), cancellation); }
         catch (ContractError error) when (error.Code == "EXPORT-NOT-CLOSED") { refused = true; }
         if (mine != generation) return;
         stl = built;
@@ -146,17 +155,26 @@ public sealed class ExportSession
 
     public string ShapeHelp => ExportCopy.ShapeHelp(Station.TcPercent);
 
-    /// <summary><c>&lt;foil-slug&gt;-&lt;station-slug&gt;-r&lt;n&gt;.dat</c> or <c>&lt;foil-slug&gt;-r&lt;n&gt;[-half]-mm.stl</c> (design 6.4).</summary>
-    public string FileName => Format == ExportFormat.Dat
-        ? $"{DatImport.Slug(Source.FoilName)}-{DatImport.Slug(Station.Name)}-r{Source.Revision}.dat"
-        : $"{DatImport.Slug(Source.FoilName)}-r{Source.Revision}{(Scope == StlScope.Half ? "-half" : "")}-mm.stl";
+    /// <summary>
+    /// <c>&lt;foil-slug&gt;-&lt;station-slug&gt;-r&lt;n&gt;.dat</c>, <c>&lt;foil-slug&gt;-r&lt;n&gt;[-half]-mm.stl</c> or <c>&lt;foil-slug&gt;-r&lt;n&gt;[-half].3mf</c>
+    /// (design 6.4; the 3MF carries its unit in an attribute, so its name has no <c>-mm</c>).
+    /// </summary>
+    public string FileName => Format switch
+    {
+        ExportFormat.Dat => $"{DatImport.Slug(Source.FoilName)}-{DatImport.Slug(Station.Name)}-r{Source.Revision}.dat",
+        ExportFormat.ThreeMf => ThreeMfExport.FileName(Source.FoilName, Source.Revision, Scope),
+        _ => $"{DatImport.Slug(Source.FoilName)}-r{Source.Revision}{(Scope == StlScope.Half ? "-half" : "")}-mm.stl"
+    };
 
-    private string Extension => Format == ExportFormat.Dat ? ".dat" : ".stl";
+    private string Extension => Format switch { ExportFormat.Dat => ".dat", ExportFormat.ThreeMf => ".3mf", _ => ".stl" };
 
     private static string Count(int value) => value.ToString("N0", CultureInfo.InvariantCulture);
 
     /// <summary>The binary STL's size in megabytes (84 bytes of header and count, 50 per triangle), two decimals.</summary>
     public static string Megabytes(int triangles) => ExportCopy.Fixed((84 + 50.0 * triangles) / 1e6, 2);
+
+    /// <summary>The size of the file the chosen format writes, in megabytes, two decimals: the STL by its formula, the 3MF by the package's own length.</summary>
+    public string FileMegabytes(StlExportResult mesh) => Format == ExportFormat.ThreeMf ? ExportCopy.Fixed(mesh.Bytes.Length / 1e6, 2) : Megabytes(mesh.Triangles);
 
     /// <summary>The summary rows in the order the mockup draws them. The trailing-edge row has two lines.</summary>
     public IReadOnlyList<(string Label, string Value)> SummaryRows
@@ -168,7 +186,7 @@ public sealed class ExportSession
                 ("Revision", Source.DraftOpen ? ExportCopy.RevisionDraft(Source.Revision) : ExportCopy.RevisionAccepted(Source.Revision)),
             };
             if (Source.Analysis) rows.Add(("Analysis", ExportCopy.AnalysisNote));
-            if (Format == ExportFormat.Stl) return StlRows(rows);
+            if (IsMesh) return StlRows(rows);
             if (result is null) return rows;
             rows.Add(("Units", "Fractions of chord (x/c, y/c). Twist not applied."));
             rows.Add(($"Chord at {Station.Name}", ExportCopy.Fixed(result.ChordMeters * 1000, 2) + " mm"));
@@ -179,13 +197,16 @@ public sealed class ExportSession
         }
     }
 
+    // Where the unit is stated: the STL has no unit field, so it is in the file name; the 3MF sets it in the file.
+    private string UnitRow => Format == ExportFormat.ThreeMf ? "mm, unscaled (the unit is set in the file)" : "mm, unscaled (in the file name)";
+
     private List<(string, string)> StlRows(List<(string, string)> rows)
     {
         if (stl is not { } mesh)
         {
             if (!Preparing) return rows;
             // The skeleton: the same rows at the same height as the built summary, placeholders for the numbers (H10).
-            rows.Add(("Unit", "mm, unscaled (in the file name)"));
+            rows.Add(("Unit", UnitRow));
             rows.Add(("Mesh", "000,000 triangles (000 × 000 grid)"));
             rows.Add(("File size", "0.00 MB"));
             rows.Add(("Size of the part", "000.0 × 000.0 × 00.0 mm"));
@@ -193,9 +214,9 @@ public sealed class ExportSession
             rows.Add(("Fidelity", ExportCopy.FidelityMesh(0)));
             return rows;
         }
-        rows.Add(("Unit", "mm, unscaled (in the file name)"));
+        rows.Add(("Unit", UnitRow));
         rows.Add(("Mesh", $"{Count(mesh.Triangles)} triangles ({mesh.Stations} × {mesh.ChordPoints} grid){(Scope == StlScope.Half ? ", with a flat root face" : "")}"));
-        rows.Add(("File size", Megabytes(mesh.Triangles) + " MB"));
+        rows.Add(("File size", FileMegabytes(mesh) + " MB"));
         rows.Add(("Size of the part", $"{ExportCopy.Fixed(mesh.SizeXMm, 1)} × {ExportCopy.Fixed(mesh.SizeYMm, 1)} × {ExportCopy.Fixed(mesh.SizeZMm, 1)} mm"));
         rows.Add((ExportCopy.TrailingEdgeLabel, TrailingEdgeLine + "\n" + ExportCopy.ManufacturingNotAssessed));
         rows.Add(("Fidelity", ExportCopy.FidelityMesh(mesh.DeviationMm)));
@@ -206,14 +227,14 @@ public sealed class ExportSession
     public string? ToleranceNotReachedBand => stl is { ToleranceMet: false } mesh ? ExportCopy.ToleranceNotReached(mesh.DeviationMm, mesh.ToleranceMm) : null;
 
     /// <summary>The limit lines under the rows: for the wing STL the closure check, the binary32 rounding, then the app's own computation.</summary>
-    public string LimitText => Format == ExportFormat.Stl ? $"{ExportCopy.ClosedCheck} {ExportCopy.Rounded} {ExportCopy.Limit}" : ExportCopy.Limit;
+    public string LimitText => IsMesh ? $"{ExportCopy.ClosedCheck} {ExportCopy.Rounded} {ExportCopy.Limit}" : ExportCopy.Limit;
 
     /// <summary>Always shown (Ruling 195): least thickness from the written points or mesh, where, the floor and its label.</summary>
     public string TrailingEdgeLine
     {
         get
         {
-            if (Format == ExportFormat.Stl)
+            if (IsMesh)
                 return stl is not { } mesh ? "" : mesh.TrailingEdgeAlongSpan
                     ? ExportCopy.TrailingEdgeWholeSpan(mesh.TrailingEdgeMm, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel)
                     : ExportCopy.TrailingEdge(mesh.TrailingEdgeMm, WhereStl(mesh), Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel);
@@ -230,7 +251,7 @@ public sealed class ExportSession
     {
         get
         {
-            if (Format == ExportFormat.Stl)
+            if (IsMesh)
                 return stl is { } mesh && mesh.TrailingEdgeMm < Settings.TrailingEdgeFloorMm
                     ? new(ExportCopy.BelowFloor(mesh.TrailingEdgeMm, Settings.TrailingEdgeFloorMm, Settings.TrailingEdgeFloorLabel),
                         mesh.TrailingEdgeAlongSpan ? ExportCopy.ShowTrailingEdgeGap : ExportCopy.ShowAt(WhereStl(mesh).Replace("the ", "", StringComparison.Ordinal)))
@@ -269,7 +290,7 @@ public sealed class ExportSession
         {
             if (stl is not { } mesh || !IsLarge) return null;
             int print = Preset == StlPreset.Print ? mesh.Triangles : buildStl(Source.Source, Source.FoilName, Source.Revision, Scope, StlExport.PrintMm, CancellationToken.None).Triangles;
-            return ExportCopy.LargeMesh(Count(mesh.Triangles), Megabytes(mesh.Triangles), Count(print));
+            return ExportCopy.LargeMesh(Count(mesh.Triangles), FileMegabytes(mesh), Count(print));
         }
     }
 
@@ -330,7 +351,7 @@ public sealed class ExportSession
         string file = Path.GetFileName(path);
         return new(ExportOutcomeKind.Written, Format == ExportFormat.Dat
             ? ExportCopy.Exported(file, result!.PointCount, result.ChordMeters * 1000, result.DeviationMm)
-            : ExportCopy.ExportedMesh(file, Count(stl!.Triangles), Megabytes(stl.Triangles), stl.DeviationMm), path);
+            : ExportCopy.ExportedMesh(file, Count(stl!.Triangles), FileMegabytes(stl), stl.DeviationMm), path);
     }
 
     /// <summary>The path with its extension forced to .dat; <c>x.cfdw.json</c> becomes <c>x.cfdw.dat</c>, never the project file.</summary>
