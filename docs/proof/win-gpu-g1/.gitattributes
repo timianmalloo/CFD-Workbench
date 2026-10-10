@@ -1,0 +1,10 @@
+*.json text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.sh text eol=lf
+*.ps1 text eol=crlf
+capture.json binary
+capture.ps1 binary
+inspect-installed.sh binary
+*.stdout.txt binary
+*.stderr.txt binary
