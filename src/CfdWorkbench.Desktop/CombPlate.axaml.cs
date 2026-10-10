@@ -190,13 +190,24 @@ public partial class CombPlate : UserControl
             // One flash: the emphasis runs once and ends. Under reduced motion no timer runs and the emphasis stays static.
             FlashTimers++;
             flash = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(FlashMilliseconds) };
-            flash.Tick += (_, _) =>
-            {
-                flash?.Stop();
-                flash = null;
-                controller?.EndCombEmphasis();
-            };
+            flash.Tick += (_, _) => RunPendingFlashEnd();
             flash.Start();
         }
+        else if (!controller.CombRefitEmphasis && flash is not null)
+        {
+            // The emphasis ended by another route (a step, an edit): its pending end must not clear a newer one.
+            flash.Stop();
+            flash = null;
+        }
+    }
+
+    /// <summary>Runs the pending flash-end callback now, as the timer would; false when none is pending. The seam a check holds the timer with.</summary>
+    public bool RunPendingFlashEnd()
+    {
+        if (flash is null) return false;
+        flash.Stop();
+        flash = null;
+        controller?.EndCombEmphasis();
+        return true;
     }
 }

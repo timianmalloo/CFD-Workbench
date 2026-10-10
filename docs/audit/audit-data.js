@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T14:44:30Z",
+  "generated": "2026-10-10T15:00:25Z",
   "audit": [
     {
       "actor": null,
@@ -34164,6 +34164,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T14:43:29Z",
       "duration_seconds": 61.0
+    },
+    {
+      "id": "al-01M4K58QDY50R6JQJGJ3PW5CC6",
+      "shortname": "rfx-refit-flash",
+      "datetime": "2026-10-10T15:00:25Z",
+      "session": "trk-rfx",
+      "prompt": "trk-rfx",
+      "summary": "CombPlate cancels the pending flash when the emphasis ends; RunPendingFlashEnd seam; check PlanComb_StaleFlashTimer_DoesNotClearNewerEmphasis; class STALE-TIMER-A",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "A stale refit-flash timer must not clear a newer emphasis",
+      "done_when": "held-seam red then green, 20-run loop, gates green",
+      "started_at": "2026-10-10T14:48:26Z",
+      "duration_seconds": 719.0
     }
   ],
   "changes": [

@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ef1dfb7912eee3446af43dde2ace86ef78b0989ae36349e796c1d83993cdf872"
+      "sourceSha256": "f9e3b6627eda1a0a31d853ccf8e6c2aae5032f7b12f84db3dfd02bff6177f2d1"
     },
     {
       "id": "domain-experts",
@@ -15256,6 +15256,32 @@ window.DOCS_INDEX = {
       "sourceSha256": "fa90e3d8c91d7c6d53023f7680807dd32d31afb3c98dfb9b46016b98044f69bf"
     },
     {
+      "id": "proof-rfx-red-first",
+      "path": "docs/proof/rfx/red-first.md",
+      "title": "RFX red-first receipt: a stale refit-flash timer clears a newer emphasis",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-rfx",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "A pending flash end timer cleared a newer static emphasis; held-seam red, fix, green and the 20-run loop.",
+      "tags": [
+        "comb",
+        "timer",
+        "flake",
+        "proof"
+      ],
+      "links": [
+        {
+          "to": "defect-classes",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "69fc393f2477fa60f3d0f862eead95647ca67717ffce2013134cbbaf0b5f3ab3"
+    },
+    {
       "id": "proof-rgt-red-first",
       "path": "docs/proof/rgt/red-first.md",
       "title": "RGT red-first receipt",
@@ -19979,5 +20005,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "ca59b98c16b8ad9b6caa5e6d58311271f2faecde4b51e8b1bdba9d56f4d8a70f"
+  "graphSha256": "485491f2dfaa7c82802d2e121b0948181ab1160d529be88cc911db3ee081da62"
 };
