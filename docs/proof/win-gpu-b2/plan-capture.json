@@ -1,0 +1,15 @@
+{
+    "schema":  "cfdw-win-gpu-b2-plan/1",
+    "session_id":  "pc-b2-r200-20261010e",
+    "distro":  "cfdw-cuda132-b2",
+    "protected_distro":  "cfdw-openfoam2512",
+    "install_location":  "C:\\Projects\\CFD-Workbench-wsl\\cfdw-cuda132-b2",
+    "image":  {
+                  "file":  "ubuntu-noble-wsl-amd64-wsl.rootfs.tar.gz",
+                  "bytes":  356739129,
+                  "sha256":  "8251e27ffff381a4af5f41dcb94d867de3e0d9774a9241908ab34555d99315ea"
+              },
+    "source_verified":  true,
+    "cuda_installed":  false,
+    "f1_authorized":  false
+}

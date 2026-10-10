@@ -5466,7 +5466,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3aa0c35659fb194944685fc87d5db660974487d80f453c6b08e17dc42a8d8803"
+      "sourceSha256": "7625f310f76b5c63b1f00a25a6e2f8e60150e2ca78b7940fafe76a93d58f0cbc"
     },
     {
       "id": "domain-experts",
@@ -17795,7 +17795,7 @@ window.DOCS_INDEX = {
       "path": "docs/proof/win-gpu-b2/README.md",
       "title": "Windows GPU B2 disposable CUDA proof",
       "type": "proof-pack",
-      "status": "in-progress",
+      "status": "blocked",
       "owner": "@pc-coordinator",
       "phase": "implementation",
       "reviewBy": "2026-11-10",
@@ -17816,7 +17816,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "ecbb8166c14d109ca3cdcda06536004863c5a72046088f80904a552be224adbe"
+      "sourceSha256": "bad27b64fb0784a44a9104464be9de92b6ea5376e44fb0c1ebf71cce994a1a1a"
     },
     {
       "id": "proof-win-gpu-g1",
@@ -20622,5 +20622,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "38707726b16da2cc7fe1047bcb81e6796cb856d1cdacdbc38e8821b51dbaa859"
+  "graphSha256": "294fb13cb22e904a83ec9bab761447f271936db67fc6b50c88a324ca2c42378c"
 };

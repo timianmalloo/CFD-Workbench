@@ -1,0 +1,1 @@
+B2-SIMULATION-PASS distro=cfdw-cuda132-b2 root=cuda-toolkit-13-2=13.2.2-1
