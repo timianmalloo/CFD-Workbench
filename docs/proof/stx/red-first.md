@@ -31,6 +31,28 @@ Run command: `CFD_TEST_ONLY=StlExport_ tools/run-suite.sh dotnet tests/CfdWorkbe
 The mutants were applied to the working tree and reverted; they are not commits. The skeleton red run is `scratch/stx/red1.txt`
 (not committed; the 13 lines above are its content).
 
+## Phase 2, Desktop
+
+Run command: `CFD_TEST_ONLY=ExportStl tools/run-suite.sh dotnet tests/CfdWorkbench.Desktop.Tests/bin/Release/net10.0/CfdWorkbench.Desktop.Tests.dll --section-editor`.
+The checks were written against the new `ExportSession` API in the same change as the code (the dialog and session did not exist for
+STL), so there is no skeleton run; the red proof is three one-line mutants of `ExportSession.cs`, applied by
+`scratch/stx/mutate.sh` and restored (`diff` printed `identical`).
+
+| Mutant | Red lines |
+|---|---|
+| `IsLarge` uses `>=` instead of `>` (B7: the band must not show at exactly 500,000) | `FAIL ExportStl_B7_LargeMeshLine_At500000And500001_UntitledFineWholeVsHalf ... expected False; actual True` |
+| the stale-build guard `if (mine != generation) return;` removed | `FAIL ExportStl_StaleBuild_NewerOptionWins ... expected True; actual False` |
+| `Extension` is always `.dat` (the forced extension for an STL) | `FAIL ExportStl_Session_PreparingThenReady_Rows_FileName_Fidelity ... Exported basic-foil-r1-mm.dat`, `FAIL ExportStl_Write_ForcedStl_NeverProjectFile_SymlinkRefused_NoTemp ... typed.stl`, `FAIL ExportStl_Shell_FileExport_WritesBytesAndStatusLine ... the half wing file is named for its scope` |
+
+One defect the dialog check found while it was written: a dialog opened on a session that already holds the STL format reset it to
+.dat, because the format list's initial selection fired its change handler. The list now takes its selection from the session before
+the handler is wired (`ExportStl_Dialog_Options_Preparing_Ready_LargeBand_Closure`, failing line `ClosureBand` not visible, before the fix).
+
+The built dialog in the mockup's STL ready state (Example foil, open 0.26 mm trailing edge, whole wing, Print) is
+`docs/proof/stx/dialog-stl-ready.png`. It differs from the mockup in one place, on purpose: the trailing-edge row reads "0.26 mm along
+the whole span" where the mockup reads "at the tip". The Example foil's open trailing edge is 0.25572873962800 mm at every station
+to 1e-15, so "where the minimum is" is rounding noise; the whole-span wording (EX45a) is the true statement.
+
 ### A defect the first green run found, not a mutant
 
 The first green run took 67 s for one check and was killed at nine minutes. Cause: `StlExport.Check` kept its directed edges in a

@@ -1461,7 +1461,7 @@ public sealed class ShellHost : Grid
     public async Task ShowExportStationAsync(ExportSession session)
     {
         if (Controller.Inspection is not { } inspection) return;
-        int index = session.StationIndex;
+        int index = session.JumpStationIndex;
         Controller.Select(new Selection.Station(index, inspection.Authored.Assignments[index].Eta));
         if (Controller.Section is null) await EnterSectionAsync(EntryOrigin.Palette);
     }
