@@ -8685,7 +8685,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "a32f077fe646e0f7724e06b4f88f1939f518167cd6b130058b8be4978894d058"
+      "sourceSha256": "de31206a7c4a96eb6ccd094856eb261eaddfde9b1ed86068b922d3f7e579a3e1"
     },
     {
       "id": "kb-hw-glossary",
@@ -16881,6 +16881,66 @@ window.DOCS_INDEX = {
       "sourceSha256": "948c59070177fcb901abed82060357d9594d192cdef106406b661e1bc9fcdcc2"
     },
     {
+      "id": "proof-tmf-red-first",
+      "path": "docs/proof/tmf/red-first.md",
+      "title": "TMF red-first receipt",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmf",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "The red runs of the wing 3MF track: every Core and Desktop 3MF check failed on a skeleton, five one-line mutants of the writer each failed the check that names them, and the B1 slicer run carries two negative controls (a removed triangle, a unit declared as meter).",
+      "tags": [
+        "export",
+        "3mf",
+        "red-first",
+        "b1",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        },
+        {
+          "to": "proof-tmf-spec-excerpts",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "8a4d21c9c854ffb9f86bc0c33de4caf76ddb9c1943a6ab5d2d13ac3110905f0a"
+    },
+    {
+      "id": "proof-tmf-spec-excerpts",
+      "path": "docs/proof/tmf/3mf-core-spec-excerpts.md",
+      "title": "3MF Core specification excerpts for the wing 3MF assumptions",
+      "type": "proof-pack",
+      "status": "active",
+      "owner": "@trk-tmf",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Confirms the two assume: markers of docs/design/export.md 4.3 against the 3MF Core specification itself: the unit value millimeter, and counter-clockwise winding with the face normal outward. Also the metadata names and the package parts.",
+      "tags": [
+        "export",
+        "3mf",
+        "spec",
+        "unit",
+        "winding",
+        "metadata",
+        "area-7"
+      ],
+      "links": [
+        {
+          "to": "design-export",
+          "rel": "depends-on"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "64a5f06b74d403ef421d0799f9fac676d7bc07972b68ab4d6612b6eaccc34602"
+    },
+    {
       "id": "proof-tmh-red-first",
       "path": "docs/proof/tmh/red-first.md",
       "title": "TMH red-first receipt for the text-mode-write gate",
@@ -20184,5 +20244,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "4102c2f693cee52d19bea7729de3b53dbc0939782169cb78bd04663209ba3865"
+  "graphSha256": "b41d465ba07a6fdca9a2cc7b661ab843540d08dbafb6ac04833e4d3b3431c8a0"
 };

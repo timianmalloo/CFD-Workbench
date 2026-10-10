@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T20:03:19Z",
+  "generated": "2026-10-10T20:09:17Z",
   "audit": [
     {
       "actor": null,
@@ -34455,61 +34455,106 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4KCKT8598VCBBCNFY8J8YDD",
-      "shortname": "join-stx",
-      "datetime": "2026-10-10T17:08:49Z",
-      "session": "3122f106",
-      "prompt": "the join of feat/stx-stl-export into main",
-      "summary": "Joined STX: StlExport (welded, closed, binary mm STL; whole or half), dialog STL with presets and hard states, B1 slicer check (PrusaSlicer and OrcaSlicer: manifold, no repairs, size and volume match) recount_seconds=0 (docs_only=False).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/proof/stx/red-first.md",
         "docs/proof/stx/slicer-open.json"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "Export STL ships on main",
+      "datetime": "2026-10-10T17:08:49Z",
       "done_when": "join gates and ring green, readiness green, PUSH-OK",
-      "tier": "T1",
+      "duration_seconds": 66.0,
       "fan_out": 0,
+      "goal": "Export STL ships on main",
+      "id": "al-01M4KCKT8598VCBBCNFY8J8YDD",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of feat/stx-stl-export into main",
+      "session": "3122f106",
+      "shortname": "join-stx",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-10T17:07:43Z",
-      "duration_seconds": 66.0
+      "summary": "Joined STX: StlExport (welded, closed, binary mm STL; whole or half), dialog STL with presets and hard states, B1 slicer check (PrusaSlicer and OrcaSlicer: manifold, no repairs, size and volume match) recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4KP7XA1B42A7BZ7H3VD4837",
-      "shortname": "gfx-gate-fixes",
-      "datetime": "2026-10-10T19:57:04Z",
-      "session": "trk-gfx",
-      "prompt": "GFX",
-      "summary": "claims() drops code spans and fences; real admission check wired into check-docs; decode_text scans UTF-16 LE/BE/BOM; register controls filled",
-      "kind": "skill",
-      "skill": "implement",
-      "tool": null,
       "actor": null,
       "artifacts": [],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "admission check ignores quoted marker; PII guard scans UTF-16",
+      "datetime": "2026-10-10T19:57:04Z",
       "done_when": "self-tests red then green, check-docs exit 0",
+      "duration_seconds": 274.0,
+      "goal": "admission check ignores quoted marker; PII guard scans UTF-16",
+      "id": "al-01M4KP7XA1B42A7BZ7H3VD4837",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "GFX",
+      "session": "trk-gfx",
+      "shortname": "gfx-gate-fixes",
+      "skill": "implement",
       "started_at": "2026-10-10T19:52:30Z",
-      "duration_seconds": 274.0
+      "summary": "claims() drops code spans and fences; real admission check wired into check-docs; decode_text scans UTF-16 LE/BE/BOM; register controls filled",
+      "tags": [],
+      "tool": null
     },
     {
-      "id": "al-01M4KPKB8A38AKMK562RAHGDXB",
-      "shortname": "join-gfx",
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
       "datetime": "2026-10-10T20:03:19Z",
-      "session": "3122f106",
+      "duration_seconds": 77.0,
+      "fan_out": 0,
+      "id": "al-01M4KPKB8A38AKMK562RAHGDXB",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of fix/gfx-gate-fixes into main",
+      "session": "3122f106",
+      "shortname": "join-gfx",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T20:02:02Z",
+      "summary": "join recount_seconds=0 (docs_only=False).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-10T20:07:13Z",
+      "done_when": "red-first receipt, run-tests green, Desktop readiness green, join checks green, B1 results committed, dialog screenshot",
+      "duration_seconds": 1127.0,
+      "goal": "Wing 3MF export: Core writer, Desktop Wing (3MF) row, B1 slicer check in two slicers, COPY-480",
+      "id": "al-01M4KPTFHA6H4G35VY7S33Y3QZ",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "Track TMF: build Export slice 3, wing 3MF",
+      "session": "trk-tmf",
+      "shortname": "tmf-3mf-export",
+      "skill": "implement",
+      "started_at": "2026-10-10T19:48:26Z",
+      "summary": "ThreeMfExport (unit millimeter, CCW outward confirmed against 3MF Core 3.4/4.1.4), Desktop ExportFormat.ThreeMf with STL's options, check-slicer-open.py covers 3MF with removed-triangle and unit-meter controls, all pass in PrusaSlicer 2.9.4 and OrcaSlicer 2.3.2; CLI untouched (main has no export verb)",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4KPY92Q7B2Q6ZRTPJTN6FH9",
+      "shortname": "join-tmf",
+      "datetime": "2026-10-10T20:09:17Z",
+      "session": "3122f106",
+      "prompt": "the join of feat/tmf-3mf-export into main",
       "summary": "join recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
@@ -34526,8 +34571,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-10T20:02:02Z",
-      "duration_seconds": 77.0
+      "started_at": "2026-10-10T20:08:11Z",
+      "duration_seconds": 66.0
     }
   ],
   "changes": [
