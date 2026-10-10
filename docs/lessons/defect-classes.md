@@ -2161,6 +2161,17 @@ PC was told, xmsg 2026-10-09T16:12:55Z). *Control:* `check-proof-pii.py` with `C
 that touches a register. The leader keeps the literal outside the repo. Status: controlled for the leader's joins; PC
 branches pending its scrub.
 
+*2026-10-10 (Ruling 197, PII-GATE-SKIPS-UTF16).* The guard was blind to a file encoding.
+- `check-proof-pii.py:137-138` skips any file with a NUL byte in its first 8 KiB, treating it as binary.
+- Windows tools such as `wsl.exe --version` and `--list` write UTF-16LE with no BOM, which is NUL-patterned. So PR #29's
+  `wsl-version.stdout.txt` and `wsl-list.stdout.txt` were never scanned.
+- The reviewer decoded both and found 0 hits: clean, but by hand, not by the gate.
+
+*Signature:* a PII or text gate whose binary heuristic also excludes a text encoding the platform emits. *Derive:* a
+NUL-patterned file with the UTF-16LE shape (NUL in every odd byte) is decoded as UTF-16 and scanned, not skipped. A
+genuinely binary file stays skipped, and the gate names it. *Control:* pending a Mac tools track, red first on a synthetic
+UTF-16LE offender built at run time.
+
 **READER-SHARE-DELETE · A reader opened without delete sharing blocks a POSIX replace on Windows.**
 A product reader that opens a user file with `FileShare.Read` (or through `File.ReadAllBytes*`, `File.OpenRead`, which share Read only) holds a handle
 the Windows save cannot replace under: the handle-relative rename fails with NativeFailure Win32 32, NTSTATUS 0xC0000043. A `FILE_SHARE_READ |

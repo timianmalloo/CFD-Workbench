@@ -5424,7 +5424,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "e01f5cabc2aada25ef4a5147245d7f582320eb451d5da7c9d57e7667e2bc176e"
+      "sourceSha256": "22f04f673549725dd279b295b75b865f30555f9ea98627a9d6f465d969ee6a76"
     },
     {
       "id": "domain-experts",
@@ -7641,6 +7641,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "61ab4938fc06d947feadc252612d53dc9be22fa5703198d20196578f043f3929"
     },
     {
+      "id": "review-pr-29",
+      "path": "docs/reviews/pr-29.md",
+      "title": "PR #29 (Windows PC) - GPU qualification inventory and plan (Ruling 197), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 197). An honest read-only GPU inventory: an RTX 3080 Ti is visible, and no GPU route is linked in OpenFOAM v2512. The missing L3 rate is bounded by timestamps. The PC coordinator observes L3 through an append-only samples file. G1 read-only source inspection may proceed.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "openfoam",
+        "gpu"
+      ],
+      "links": [
+        {
+          "to": "review-pr-28",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "168657debed759a605d737dea27430b1e2e664c724368760c453085f66e8247c"
+    },
+    {
       "id": "review-pr-3",
       "path": "docs/reviews/pr-3.md",
       "title": "PR #3 (Windows PC) - W-1 smoke evidence, Fable owner review",
@@ -8574,7 +8602,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cedbcd5ba1984854e21b5678d70c9c1ea86fdbad7e29f25272f82d6996dc2d32"
+      "sourceSha256": "0e6028be41009b5f23d1081c048421bac427019439be0f64ad70540da2bc8ce2"
     },
     {
       "id": "kb-hw-glossary",
@@ -19674,5 +19702,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "248d0f93446b32e1fd74a0bd265d1e539020ee8ecab27e82510e03d09a66092c"
+  "graphSha256": "42122bb697865109490fbbd85b5bac4cb353ab0dff3a66965f1b7fb39479dbc5"
 };
