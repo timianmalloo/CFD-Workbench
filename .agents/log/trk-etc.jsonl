@@ -1,1 +1,3 @@
 {"agent": "trk-etc", "at": 1791664210.666386, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-etc", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feat-etc-export-telemetry"}
+{"agent": "trk-etc", "at": 1791665396.396118, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-etc", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-etc", "at": 1791665402.767095, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-etc", "wi": "WI-0", "worktree": "CFD-Workbench-feat-etc-export-telemetry"}

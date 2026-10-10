@@ -1,1 +1,3 @@
 {"agent": "trk-tmf", "at": 1791661604.669961, "kind": "session-start", "path": "-", "seq": 1, "session": "trk-tmf", "tree": "worktree", "wi": "WI-0", "worktree": "CFD-Workbench-feat-tmf-3mf-export"}
+{"agent": "trk-tmf", "at": 1791665395.652071, "kind": "session-end", "path": "-", "seq": 2, "session": "trk-tmf", "wi": "WI-0", "worktree": "CFD-Workbench"}
+{"agent": "trk-tmf", "at": 1791665402.0091531, "kind": "session-end", "path": "-", "seq": 3, "session": "trk-tmf", "wi": "WI-0", "worktree": "CFD-Workbench-feat-tmf-3mf-export"}
