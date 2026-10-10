@@ -3612,6 +3612,48 @@ window.DOCS_INDEX = {
       "sourceSha256": "1ead8948b387530146f2d8e8a522823c8d2213d4ed2228ccd1f361ef41a94c1e"
     },
     {
+      "id": "design-view-preferences",
+      "path": "docs/design/view-preferences.md",
+      "title": "View preferences: the rail comb's scale and density survive a restart",
+      "type": "design",
+      "status": "proposed",
+      "owner": "@timianmalloo",
+      "phase": "design, revision 1 (track PRF) - Ruling 205; reviewed before the build",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Ruling 205 asks for a small per-user preferences file for view settings, starting with the comb's scale and density. That file already exists: display/display.json (cfdw-display, version 1), written today for Text size and display units by PreferenceStore through ProjectStore. The design adds two optional members to it (combScale, combDensity) and reuses its location, atomic writer, claim, never-write rule, session-only rule and display.load / display.save telemetry. No new store, file, folder or user-facing text. The one rule that changes: an invalid member falls back alone, not the whole file. Nothing in the foil or project file changes.",
+      "tags": [
+        "desktop",
+        "persistence",
+        "preferences",
+        "view-settings",
+        "rail-comb",
+        "display",
+        "ruling-205",
+        "trk-prf"
+      ],
+      "links": [
+        {
+          "to": "rulings",
+          "rel": "implements"
+        },
+        {
+          "to": "design-rail-comb",
+          "rel": "refines"
+        },
+        {
+          "to": "design-app-shell",
+          "rel": "refines"
+        },
+        {
+          "to": "design-windows-native-store",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "4dd1fa871dc94a371fb9a5f00e92afda8dc05c2bcc1f13b4ae0635107dad0222"
+    },
+    {
       "id": "design-visible-presentation",
       "path": "docs/design/visible-presentation.md",
       "title": "Visible presentation endpoint feasibility contract",
@@ -8685,7 +8727,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "786eabbafccbaa99657dc4c5a059647b9e85b887dd4977d08f91c4f58455fdc7"
+      "sourceSha256": "c00ada4a8e32911fcefe05939d7f083189672216c97e99f6111455e54d25bfe2"
     },
     {
       "id": "kb-hw-glossary",
@@ -20327,5 +20369,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "82d1f317aaff3b9fc5c7c383a0b86e658e82eee5db500e8ff18ee2af588e1446"
+  "graphSha256": "ed471b53c1fcdaa7c9cfe0119294929a5a7c6a37802d0c546aa912aef8e60740"
 };

@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T20:45:42Z",
+  "generated": "2026-10-10T20:56:16Z",
   "audit": [
     {
       "actor": null,
@@ -34663,6 +34663,26 @@ window.AUDIT_DATA = {
       },
       "started_at": "2026-10-10T20:44:34Z",
       "duration_seconds": 68.0
+    },
+    {
+      "id": "al-01M4KSM9CXAXQP2442D9N58A0M",
+      "shortname": "prf-view-prefs-design",
+      "datetime": "2026-10-10T20:56:16Z",
+      "session": "trk-prf",
+      "prompt": "Track PRF phase 1: view preferences design",
+      "summary": "Design: extend existing display/display.json with combScale and combDensity; no new file or copy; per-member fallback; 6 leader and 4 operator questions",
+      "kind": "skill",
+      "skill": "implement",
+      "tool": null,
+      "actor": null,
+      "artifacts": [],
+      "tags": [],
+      "outcome": "success",
+      "compiled": false,
+      "goal": "Design doc for Ruling 205 view preferences file",
+      "done_when": "docs/design/view-preferences.md exists, check-docs exit 0",
+      "started_at": "2026-10-10T20:51:37Z",
+      "duration_seconds": 279.0
     }
   ],
   "changes": [
