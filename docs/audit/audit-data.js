@@ -1,7 +1,7 @@
 // Derived from docs/audit/*.jsonl by scripts/audit-log.py — DO NOT hand-edit (the JSONL logs are the source of truth; see audit-and-change-log.md).
 window.AUDIT_DATA = {
   "project": "CFD-Workbench",
-  "generated": "2026-10-10T00:38:50Z",
+  "generated": "2026-10-10T14:00:18Z",
   "audit": [
     {
       "actor": null,
@@ -33968,95 +33968,144 @@ window.AUDIT_DATA = {
       "tool": null
     },
     {
-      "id": "al-01M4HHE365D26TKD31N4ZHT565",
-      "shortname": "join-exr",
-      "datetime": "2026-10-09T23:54:35Z",
-      "session": "3122f106",
-      "prompt": "the join of design/exr-export-revision into main",
-      "summary": "Joined EXR: Export design revised for the operator's answers, the TE-floor relabel and the manufacturing D1-D7; committed probes re-run (7 rungs, whole and half); build conditions B1-B10; final copy EX01-EX46 and amendments A1-A14 await approval recount_seconds=0 (docs_only=True).",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": null,
       "artifacts": [
         "docs/design/export.md"
       ],
-      "tags": [],
-      "outcome": "success",
       "compiled": false,
-      "goal": "the Export design is ready for copy approval and build",
+      "datetime": "2026-10-09T23:54:35Z",
       "done_when": "join gates green, PUSH-OK",
-      "tier": "T1",
+      "duration_seconds": 17.0,
       "fan_out": 0,
+      "goal": "the Export design is ready for copy approval and build",
+      "id": "al-01M4HHE365D26TKD31N4ZHT565",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "the join of design/exr-export-revision into main",
+      "session": "3122f106",
+      "shortname": "join-exr",
       "signals": {
-        "verification_path": true,
+        "acceptance_met": true,
         "verification_executed": true,
-        "acceptance_met": true
+        "verification_path": true
       },
+      "skill": "execute-with-coordination",
       "started_at": "2026-10-09T23:54:18Z",
-      "duration_seconds": 17.0
+      "summary": "Joined EXR: Export design revised for the operator's answers, the TE-floor relabel and the manufacturing D1-D7; committed probes re-run (7 rungs, whole and half); build conditions B1-B10; final copy EX01-EX46 and amendments A1-A14 await approval recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
     },
     {
-      "id": "al-01M4HK70CGKTQF3C84E0Y6X3CZ",
-      "shortname": "r191-gpu-inventory-plan",
-      "datetime": "2026-10-10T00:25:40Z",
-      "session": "pc-gpu-r191-20261009",
-      "prompt": "Execute the Ruling 191 read-only Windows and WSL GPU inventory, produce the reviewable OpenFOAM GPU qualification plan, and coordinate the result to the Mac leader.",
-      "summary": "Verified RTX 3080 Ti visibility on Windows and WSL, but found no demonstrated GPU route in the installed OpenFOAM v2512 runtime. Retained a manifest-bound bounded inventory, an Astra-approved gated plan, and explicit missing L3-impact evidence for Fable disposition. No install, build, GPU trial or L3 access occurred; capture repair cap is 2/2.",
-      "kind": "skill",
-      "skill": "execute-with-coordination",
-      "tool": null,
       "actor": "codex coordinator + Astra owner + low-cost inventory worker",
       "artifacts": [
         "docs/proof/win-gpu-qualification/receipt.md",
         "docs/plans/windows-openfoam-gpu-qualification.md"
       ],
+      "compiled": false,
+      "datetime": "2026-10-10T00:25:40Z",
+      "done_when": "A win/* PR records observed Windows/WSL GPU, driver and compute-stack facts; assesses installed OpenFOAM and known supported GPU routes; defines an impact-safe measurement plan; passes docs gates; and receives Astra owner review before Mac/Fable review.",
+      "duration_seconds": 1083.0,
+      "fan_out": 2,
+      "git": {
+        "branch": "win/gpu-qualification-plan",
+        "pushed": null,
+        "sha": "479b3662f013b2eebcab94bdf8e91c3168fb92ad",
+        "short": "479b3662f"
+      },
+      "goal": "Produce the Ruling 191 read-only GPU qualification inventory and plan.",
+      "id": "al-01M4HK70CGKTQF3C84E0Y6X3CZ",
+      "kind": "skill",
+      "outcome": "partial",
+      "prompt": "Execute the Ruling 191 read-only Windows and WSL GPU inventory, produce the reviewable OpenFOAM GPU qualification plan, and coordinate the result to the Mac leader.",
+      "session": "pc-gpu-r191-20261009",
+      "shortname": "r191-gpu-inventory-plan",
+      "signals": {
+        "acceptance_met": false,
+        "regression": false,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T00:07:37Z",
+      "summary": "Verified RTX 3080 Ti visibility on Windows and WSL, but found no demonstrated GPU route in the installed OpenFOAM v2512 runtime. Retained a manifest-bound bounded inventory, an Astra-approved gated plan, and explicit missing L3-impact evidence for Fable disposition. No install, build, GPU trial or L3 access occurred; capture repair cap is 2/2.",
       "tags": [
         "windows",
         "openfoam",
         "gpu",
         "ruling-191"
       ],
-      "outcome": "partial",
-      "compiled": false,
-      "goal": "Produce the Ruling 191 read-only GPU qualification inventory and plan.",
-      "done_when": "A win/* PR records observed Windows/WSL GPU, driver and compute-stack facts; assesses installed OpenFOAM and known supported GPU routes; defines an impact-safe measurement plan; passes docs gates; and receives Astra owner review before Mac/Fable review.",
       "tier": "T1",
-      "fan_out": 2,
-      "signals": {
-        "verification_path": true,
-        "verification_executed": true,
-        "acceptance_met": false,
-        "regression": false
-      },
-      "started_at": "2026-10-10T00:07:37Z",
-      "duration_seconds": 1083.0,
-      "git": {
-        "sha": "479b3662f013b2eebcab94bdf8e91c3168fb92ad",
-        "short": "479b3662f",
-        "branch": "win/gpu-qualification-plan",
-        "pushed": null
-      }
+      "tool": null
     },
     {
-      "id": "al-01M4HKZ3M7WRC4BC4D0JZZS2DC",
-      "shortname": "join-pr29",
+      "actor": null,
+      "artifacts": [
+        "docs/reviews/pr-29.md"
+      ],
+      "compiled": false,
       "datetime": "2026-10-10T00:38:50Z",
-      "session": "3122f106",
+      "done_when": "join gates green, readiness green, PUSH-OK",
+      "duration_seconds": 18.0,
+      "fan_out": 0,
+      "goal": "PR #29 on main under Ruling 197",
+      "id": "al-01M4HKZ3M7WRC4BC4D0JZZS2DC",
+      "kind": "skill",
+      "outcome": "success",
       "prompt": "the join of origin/win/gpu-qualification-plan into main",
+      "session": "3122f106",
+      "shortname": "join-pr29",
+      "signals": {
+        "acceptance_met": true,
+        "verification_executed": true,
+        "verification_path": true
+      },
+      "skill": "execute-with-coordination",
+      "started_at": "2026-10-10T00:38:32Z",
       "summary": "Joined PR #29: GPU inventory accepted (Ruling 197); L3 observer is the PC coordinator; G1 read-only may proceed recount_seconds=0 (docs_only=True).",
+      "tags": [],
+      "tier": "T1",
+      "tool": null
+    },
+    {
+      "actor": null,
+      "artifacts": [],
+      "compiled": false,
+      "datetime": "2026-10-10T00:49:05Z",
+      "done_when": "Red-first proof, committed .dat fixture with round trip, tools/run-tests.sh green inside 60 s, check-docs exit 0, run-verify-gates exit 0, dialog screenshot, commits",
+      "duration_seconds": 2305.0,
+      "goal": "Build the section .dat export: writer, dialog, rows, TE row, B10 label, spec amendments A1-A14, copy COPY-474..519",
+      "id": "al-01M4HMHW71R56JXF65ZVMC488E",
+      "kind": "skill",
+      "outcome": "success",
+      "prompt": "trk-dat: build Export slice 1, the section .dat (docs/design/export.md, Ruling 196)",
+      "session": "trk-dat",
+      "shortname": "dat-export",
+      "skill": "implement",
+      "started_at": "2026-10-10T00:10:40Z",
+      "summary": "Core DatExport and Placement.OwnProfile; Settings.TrailingEdgeFloorMm/Label with unchanged settings hash; ExportSession, ExportDialog, rows file.export and section.export-dat; spec 1.7.6 (A1-A14, H.6); COPY-474..519; proof in docs/proof/dat; ring 45 s green",
+      "tags": [],
+      "tool": null
+    },
+    {
+      "id": "al-01M4K1TMJG4W9JM6HP5JJECETJ",
+      "shortname": "join-dat",
+      "datetime": "2026-10-10T14:00:18Z",
+      "session": "3122f106",
+      "prompt": "the join of the resolved merge into main",
+      "summary": "Joined DAT: Export .dat slice (writer, dialog, TE row, B5/B6/B9/B10), security fixes (symlink target refused, exclusive temp, name line, forced-extension), spec 1.7.6 A1-A14 plus Ruling 198 recount_seconds=0 (docs_only=False).",
       "kind": "skill",
       "skill": "execute-with-coordination",
       "tool": null,
       "actor": null,
       "artifacts": [
-        "docs/reviews/pr-29.md"
+        "docs/proof/dat/red-first.md"
       ],
       "tags": [],
       "outcome": "success",
       "compiled": false,
-      "goal": "PR #29 on main under Ruling 197",
-      "done_when": "join gates green, readiness green, PUSH-OK",
+      "goal": "Export .dat ships on main",
+      "done_when": "join gates and ring green, readiness green, PUSH-OK",
       "tier": "T1",
       "fan_out": 0,
       "signals": {
@@ -34064,8 +34113,8 @@ window.AUDIT_DATA = {
         "verification_executed": true,
         "acceptance_met": true
       },
-      "started_at": "2026-10-10T00:38:32Z",
-      "duration_seconds": 18.0
+      "started_at": "2026-10-10T13:59:17Z",
+      "duration_seconds": 61.0
     }
   ],
   "changes": [
