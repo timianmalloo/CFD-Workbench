@@ -7756,6 +7756,34 @@ window.DOCS_INDEX = {
       "sourceSha256": "c2019b986b6f99c70669ab09f0f6b6e6a2044669e2aba9158b06b801c8855139"
     },
     {
+      "id": "review-pr-30",
+      "path": "docs/reviews/pr-30.md",
+      "title": "PR #30 (Windows PC) - GPU G1 qualification of OpenFOAM v2512 (Rulings 199-200), Fable owner review",
+      "type": "doc",
+      "status": "done",
+      "owner": "@fable-owner",
+      "phase": "implementation",
+      "reviewBy": "2026-11-10",
+      "reviewSuggested": [],
+      "summary": "APPROVE WITH CONDITIONS (Ruling 199). G1 delivers every Ruling 197 (c) item. The native-fused nvc++ GPU route is closed on this machine. G2 is B: a read-only toolchain contract (B1), then, with operator consent (Ruling 200), the CUDA toolkit in a disposable WSL distro and a toy offload test (B2). /proc/uptime runs about 8 % slow against UTC.",
+      "tags": [
+        "review",
+        "pull-request",
+        "windows",
+        "two-machine",
+        "openfoam",
+        "gpu"
+      ],
+      "links": [
+        {
+          "to": "review-pr-29",
+          "rel": "relates-to"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "e23e8550083565d5ca2c0454152736aff31b98e8a138ca25dfbc8526a39fce7e"
+    },
+    {
       "id": "review-pr-4",
       "path": "docs/reviews/pr-4.md",
       "title": "PR #4 (Windows PC) - blocked W-3 solver-route checkpoint, Fable owner review",
@@ -8657,7 +8685,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "3b44119065d68defb0f1b022321215c634338bdb8e3faa62a67185d10d57bd47"
+      "sourceSha256": "a32f077fe646e0f7724e06b4f88f1939f518167cd6b130058b8be4978894d058"
     },
     {
       "id": "kb-hw-glossary",
@@ -20030,5 +20058,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "48db5c1b830fbf7d1ad2228366cec62a8f304c9a9e72aa2f9454c695c8213c2d"
+  "graphSha256": "f7d1524d475e3c8904827b577f7a1f53282cde3ac1fed3bbef9725befd0a95f8"
 };
