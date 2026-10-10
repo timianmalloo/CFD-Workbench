@@ -1,0 +1,26 @@
+FAIL SplineBasis_D3_MatchesBernsteinThirdDerivative_AndFiniteDifferenceOfD2 InvalidOperationException: Expected -222.22222222723076 within 1E-05; actual 0
+FAIL Planform_CurvatureAt_Circle_RadiusWithin1e-9 NotImplementedException: The method or operation is not implemented.
+FAIL Planform_CurvatureAt_Sign_LeadingPositiveTrailingNegative NotImplementedException: The method or operation is not implemented.
+FAIL Planform_CurvatureAt_StraightRun_ReportsStraight NotImplementedException: The method or operation is not implemented.
+FAIL Planform_CurvatureAt_StraightTolerance_TenMicrometreSagitta NotImplementedException: The method or operation is not implemented.
+FAIL Planform_CurvatureAt_DegenerateTangent_Throws NotImplementedException: The method or operation is not implemented.
+FAIL Planform_CurvatureAt_AnchorOneSided_BothSides NotImplementedException: The method or operation is not implemented.
+FAIL Planform_CurvatureAt_CornerClassifiedByAngle_0p1Degrees NotImplementedException: The method or operation is not implemented.
+FAIL Planform_CurvatureAt_GrevilleAtT_EqualsXi NotImplementedException: The method or operation is not implemented.
+FAIL Planform_CurvatureAt_ArcLength_GaussLegendre NotImplementedException: The method or operation is not implemented.
+FAIL Planform_Teeth_PitchConstantWithin5Percent NotImplementedException: The method or operation is not implemented.
+FAIL Planform_Teeth_PointAwayFromCentre_AndSplitPiecesAtAJump NotImplementedException: The method or operation is not implemented.
+FAIL Planform_ReversalIndices_HysteresisZigzag NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_StraightRun_One NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_MonotoneTip_One NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_InteriorPeak_Two NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_TipRoundPlusWobble_Three InvalidOperationException: Expected 5; actual 4
+FAIL Planform_MonotonePieces_ThresholdEdges NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_ScaleInvariant NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_IndependentOfDensity NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_AnchorJump_AgainstTrend_Splits NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_AnchorJump_WithTrend_DoesNotSplit NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_ReversalAtSimpleKnot_Counted NotImplementedException: The method or operation is not implemented.
+FAIL Planform_MonotonePieces_MirrorInvariant NotImplementedException: The method or operation is not implemented.
+RESULT failures=24
+SUBSET CFD_TEST_ONLY=Planform_C,Planform_T,Planform_M,Planform_R,SplineBasis_D3 ran=24 skipped=731

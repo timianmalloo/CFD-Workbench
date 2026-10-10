@@ -6234,6 +6234,31 @@ window.DOCS_INDEX = {
       "sourceSha256": "f58734f8401336f0cbb4aa191937e398938b3d63b9303809816005521e867356"
     },
     {
+      "id": "proof-cbd-red-first",
+      "path": "docs/proof/cbd/red-first.md",
+      "title": "Rail comb build (track CBD): red-first record",
+      "type": "doc",
+      "status": "in-review",
+      "owner": "@timianmalloo",
+      "phase": "implementation",
+      "reviewBy": "2027-04-01",
+      "reviewSuggested": [],
+      "summary": "Each new rail-comb test, run red against a stub (or the old code) and then green against the build. Raw logs sit beside this file. Ring: every test here is fast-ring (pure Core or headless Avalonia).",
+      "tags": [
+        "proof",
+        "rail-comb",
+        "red-first"
+      ],
+      "links": [
+        {
+          "to": "design-rail-comb",
+          "rel": "documents"
+        }
+      ],
+      "diagrams": [],
+      "sourceSha256": "945e10a75dcc4afcbac9e00cb706008968513ceba2913ec4b3fb9d4534476ef7"
+    },
+    {
       "id": "proof-cmb-adversary",
       "path": "docs/proof/cmb/adversary.md",
       "title": "Rail comb: marine-cad-ux-expert Adversary pass and dispositions (Ruling 107)",
@@ -8574,7 +8599,7 @@ window.DOCS_INDEX = {
         }
       ],
       "diagrams": [],
-      "sourceSha256": "cedbcd5ba1984854e21b5678d70c9c1ea86fdbad7e29f25272f82d6996dc2d32"
+      "sourceSha256": "3cb7ac2813fe840cae4dfc24fce8518ee50aebb96574d7f1816f7b26c79fd5fa"
     },
     {
       "id": "kb-hw-glossary",
@@ -19674,5 +19699,5 @@ window.DOCS_INDEX = {
       "artifactId": "coordination-windows-w0-w5-execution"
     }
   ],
-  "graphSha256": "248d0f93446b32e1fd74a0bd265d1e539020ee8ecab27e82510e03d09a66092c"
+  "graphSha256": "993b82ab5cb43e1d20948420eda45f2078003ec9a59a8a276772a972c56af0a7"
 };

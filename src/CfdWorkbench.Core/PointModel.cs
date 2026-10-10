@@ -24,7 +24,7 @@ public sealed record PlanformView(string SourceHash, string Basis, long Generati
 public sealed record ProbeReading(double Eta, double SpanMeters, double LeadingAftMeters, double TrailingAftMeters,
     double ChordMeters);
 
-public static class Planform
+public static partial class Planform
 {
     public static PlanformView View(byte[] source, string basis, long generation)
     {
